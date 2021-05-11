@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2d95380c_e49d5bc9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-05-11T16:43:08Z",
+      "side": 1,
+      "message": "BTW - there is also https://github.com/svg/svgo that anybody could tack into their pipeline if they want small SVGs.",
+      "revId": "7d08df7b24148eec9b335e3674c53c9d8ad9412b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7696456a_6d3e8030",
+        "filename": "src/utils/SkParsePath.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-05-11T16:43:08Z",
+      "side": 1,
+      "message": "Low priority but we could compress a bit better by tracking the previous verb and omitting the command if it\u0027s the same, e.g. a polyline:\n\n  M 10 10 L 20 20 30 30 40 40\n  M 10 10 l 10 10 10 10 10 10",
+      "revId": "7d08df7b24148eec9b335e3674c53c9d8ad9412b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
