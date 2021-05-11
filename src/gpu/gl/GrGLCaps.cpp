@@ -3725,14 +3725,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fDrawArraysBaseVertexIsBroken = true;
     }
 
-    // http://anglebug.com/4536
-    if (ctxInfo.angleBackend() == GrGLANGLEBackend::kD3D9 ||
-        ctxInfo.angleBackend() == GrGLANGLEBackend::kD3D11) {
-        fBaseVertexBaseInstanceSupport = false;
-        fNativeDrawIndirectSupport = false;
-        fMultiDrawType = MultiDrawType::kNone;
-    }
-
     // http://anglebug.com/4538
     if (fBaseVertexBaseInstanceSupport && !fDrawInstancedSupport) {
         fBaseVertexBaseInstanceSupport = false;
