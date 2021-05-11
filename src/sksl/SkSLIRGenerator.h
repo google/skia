@@ -41,7 +41,6 @@ namespace dsl {
 }
 
 class ExternalFunction;
-class ExternalValue;
 class FunctionCall;
 class StructDefinition;
 struct ParsedModule;
