@@ -114,15 +114,11 @@ SkString GrGLSLFragmentProcessor::invokeChildWithMatrix(int childIndex, const ch
         if (childProc->sampleUsage().fHasPerspective) {
             return SkStringPrintf("%s(%s, proj((%s) * %s.xy1))", fFunctionNames[childIndex].c_str(),
                                   inputColor, matrixExpr.c_str(), args.fSampleCoord);
-        }
-#ifndef SK_DISABLE_NONSQUARE_MATRIX_TRANSFORM
-        else if (args.fShaderCaps->nonsquareMatrixSupport()) {
+        } else if (args.fShaderCaps->nonsquareMatrixSupport()) {
             return SkStringPrintf("%s(%s, float3x2(%s) * %s.xy1)",
                                   fFunctionNames[childIndex].c_str(), inputColor,
                                   matrixExpr.c_str(), args.fSampleCoord);
-        }
-#endif
-        else {
+        } else {
             return SkStringPrintf("%s(%s, ((%s) * %s.xy1).xy)", fFunctionNames[childIndex].c_str(),
                                   inputColor, matrixExpr.c_str(), args.fSampleCoord);
         }
