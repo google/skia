@@ -226,14 +226,11 @@ void GrGLSLGeometryProcessor::emitTransformCode(GrGLSLVertexBuilder* vb,
 
         vb->codeAppend("{\n");
         if (tr.fOutputCoords.getType() == kFloat2_GrSLType) {
-#ifndef SK_DISABLE_NONSQUARE_MATRIX_TRANSFORM
             if (vb->getProgramBuilder()->shaderCaps()->nonsquareMatrixSupport()) {
                 vb->codeAppendf("%s = float3x2(%s) * %s", tr.fOutputCoords.getName().c_str(),
                                                           transformExpression.c_str(),
                                                           localCoords.c_str());
-            } else
-#endif
-            {
+            } else {
                 vb->codeAppendf("%s = ((%s) * %s).xy", tr.fOutputCoords.getName().c_str(),
                                                        transformExpression.c_str(),
                                                        localCoords.c_str());
@@ -362,16 +359,12 @@ static void write_vertex_position(GrGLSLVertexBuilder* vertBuilder,
                                  mangledMatrixName,
                                  inPos.getName().c_str(),
                                  mangledMatrixName);
-    }
-#ifndef SK_DISABLE_NONSQUARE_MATRIX_TRANSFORM
-    else if (shaderCaps.nonsquareMatrixSupport()) {
+    } else if (shaderCaps.nonsquareMatrixSupport()) {
         vertBuilder->codeAppendf("float2 %s = float3x2(%s) * %s.xy1;\n",
                                  outName.c_str(),
                                  mangledMatrixName,
                                  inPos.getName().c_str());
-    }
-#endif
-    else {
+    } else {
         vertBuilder->codeAppendf("float2 %s = (%s * %s.xy1).xy;\n",
                                  outName.c_str(),
                                  mangledMatrixName,
