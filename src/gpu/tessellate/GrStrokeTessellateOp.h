@@ -41,12 +41,7 @@ private:
         return allStatesEnabled || (fTotalCombinedVerbCnt <= kMaxVerbsToEnableDynamicState);
     }
 
-    bool canUseHardwareTessellation(const GrCaps& caps) {
-        SkASSERT(!fStencilProgram && !fFillProgram);  // Ensure we haven't std::moved fProcessors.
-        // Our back door for HW tessellation shaders isn't currently capable of passing varyings to
-        // the fragment shader, so if the processors have varyings we need to use indirect draws.
-        return caps.shaderCaps()->tessellationSupport() && !fProcessors.usesVaryingCoords();
-    }
+    bool canUseHardwareTessellation(int numVerbs, const GrCaps& caps);
 
     const char* name() const override { return "GrStrokeTessellateOp"; }
     void visitProxies(const VisitProxyFunc& fn) const override;
