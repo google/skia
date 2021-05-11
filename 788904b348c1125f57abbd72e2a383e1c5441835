@@ -88,6 +88,24 @@
       "parentUuid": "86b96888_f302b33e",
       "revId": "788904b348c1125f57abbd72e2a383e1c5441835",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8d8020da_5ebb90f4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-05-11T21:02:21Z",
+      "side": 1,
+      "message": "The easiest test would be to run the \"StrokeVerb\" sample with just tessellation, GL and msaa:\n\n  out/release/viewer --pr tess -b gl --msaa 8 --match StrokeVerb\n\nThen hit \u0027w\u0027 to turn on wireframe and make sure the stroke is being drawn with tessellation shaders.\n\nIf you then run it with metal and hit \u0027w\u0027, it should look the same as GL.",
+      "parentUuid": "e3afd003_548ab0ab",
+      "revId": "788904b348c1125f57abbd72e2a383e1c5441835",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
