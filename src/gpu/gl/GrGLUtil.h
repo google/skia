@@ -141,6 +141,7 @@ enum class GrGLRenderer {
     kAMDRadeonR9M4xx,     // AMD Radeon R9 M400 Series
     kAMDRadeonPro5xxx,    // AMD Radeon Pro 5000 Series
     kAMDRadeonProVegaxx,  // AMD Radeon Pro Vega
+    kAMDRa_venxx,         // AMD Ra ven
 
     kOther
 };
