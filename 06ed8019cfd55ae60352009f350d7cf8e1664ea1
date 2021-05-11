@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "15316a7b_d8184f1d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-11T17:21:25Z",
+      "side": 1,
+      "message": "not suggesting changes to the CL, just discussion points",
+      "revId": "06ed8019cfd55ae60352009f350d7cf8e1664ea1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ced8b84a_b8d20260",
+        "filename": "experimental/sktext/include/Processor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-11T17:21:25Z",
+      "side": 1,
+      "message": "Let\u0027s discuss sometime an alternative to this...\n\nFontBlock(TypefaceChain, size, range)",
+      "range": {
+        "startLine": 37,
+        "startChar": 20,
+        "endLine": 37,
+        "endChar": 28
+      },
+      "revId": "06ed8019cfd55ae60352009f350d7cf8e1664ea1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cddba0a7_97bfdb18",
+        "filename": "experimental/sktext/include/Processor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-11T17:21:25Z",
+      "side": 1,
+      "message": "Let\u0027s discuss sometime making decorations (and other things like it) an explicit \"layer\" above a lower-level service...",
+      "range": {
+        "startLine": 51,
+        "startChar": 20,
+        "endLine": 51,
+        "endChar": 21
+      },
+      "revId": "06ed8019cfd55ae60352009f350d7cf8e1664ea1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
