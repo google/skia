@@ -108,6 +108,12 @@ static std::unique_ptr<Expression> evaluate_intrinsic_1_of_type(const Context& c
         const Expression* subexpr = arg->getConstantSubexpression(index);
         SkASSERT(subexpr);
         auto value = evaluate(subexpr->as<LITERAL>().value());
+        if constexpr (std::is_floating_point<decltype(value)>::value) {
+            // If evaluation of the intrinsic yields a non-finite value, bail on optimization.
+            if (!isfinite(value)) {
+                return nullptr;
+            }
+        }
         result.push_back(LITERAL::Make(subexpr->fOffset, value, &type));
     }
 
@@ -249,6 +255,22 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
         case k_log2_IntrinsicKind:
             return evaluate_intrinsic_float1(context, arguments, [](float a) { return log2(a); });
 
+        case k_saturate_IntrinsicKind:
+            return evaluate_intrinsic_float1(context, arguments,
+                                             [](float a) { return (a < 0) ? 0 : (a > 1) ? 1 : a; });
+        case k_round_IntrinsicKind:      // GLSL `round` documents its rounding mode as unspecified
+        case k_roundEven_IntrinsicKind:  // and is allowed to behave identically to `roundEven`.
+            return evaluate_intrinsic_float1(context, arguments,
+                                             [](float a) { return round(a / 2) * 2; });
+        case k_inversesqrt_IntrinsicKind:
+            return evaluate_intrinsic_float1(context, arguments,
+                                             [](float a) { return 1 / sqrt(a); });
+        case k_radians_IntrinsicKind:
+            return evaluate_intrinsic_float1(context, arguments,
+                                             [](float a) { return a * 0.0174532925; });
+        case k_degrees_IntrinsicKind:
+            return evaluate_intrinsic_float1(context, arguments,
+                                             [](float a) { return a * 57.2957795; });
         default:
             return nullptr;
     }
