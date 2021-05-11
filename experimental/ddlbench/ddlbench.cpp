@@ -1,40 +1,77 @@
 // Copyright 2021 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 
+#include "experimental/ddlbench/Cmds.h"
+#include "experimental/ddlbench/Fake.h"
+
 #include "include/core/SkCanvas.h"
 #include "include/core/SkGraphics.h"
-#include "include/core/SkPicture.h"
-#include "include/core/SkScalar.h"
-#include "include/core/SkSurface.h"
 #include "include/gpu/GrDirectContext.h"
-#include "include/private/SkSLDefines.h"
 #include "src/core/SkOSFile.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/utils/SkOSPath.h"
-#include "tools/DDLPromiseImageHelper.h"
 #include "tools/ToolUtils.h"
 #include "tools/flags/CommandLineFlags.h"
 #include "tools/gpu/GrContextFactory.h"
-#include "tools/gpu/TestContext.h"
 
-#include <chrono>
-#include <deque>
-#include <thread>
+#include <algorithm>
 
-using hires_clock = std::chrono::high_resolution_clock;
-using duration = std::chrono::nanoseconds;
+/*
+ * Questions this is trying to answer:
+ *   How to handle saveLayers (in w/ everything or separate)
+ *   How to handle blurs & other off screen draws
+ *   How to handle clipping
+ *   How does sorting stack up against buckets
+ *   How does creating batches interact w/ the sorting
+ *   How does batching work w/ text
+ *   How does text (esp. atlasing) work at all
+ *   Batching quality vs. existing
+ *   Memory churn/overhead vs existing (esp. wrt batching)
+ *   gpu vs cpu boundedness
+ *
+ * Futher Questions:
+ *   How can we collect uniforms & not store the fps -- seems complicated
+ *   Do all the blend modes (esp. advanced work front-to-back)?
+ *   NGA perf vs. OGA perf
+ *   Can we prepare any of the saveLayers or off-screen draw render passes in parallel?
+ *
+ * Small potatoes:
+ *   Incorporate CTM into the simulator
+ */
 
-using sk_gpu_test::ContextInfo;
+/*
+ * How does this all work:
+ *
+ * Each test is specified by a set of RectCmds (which have a unique ID and carry their material
+ * and MC state info) along with the order they are expected to be drawn in with the NGA.
+ *
+ * To generate an expected image, the RectCmds are replayed into an SkCanvas in the order
+ * provided.
+ *
+ * For the actual (NGA) image, the RectCmds are replayed into a FakeCanvas - preserving the
+ * unique ID of the RectCmd. The FakeCanvas creates new RectCmd objects, sorts them using
+ * the SortKey and then performs a kludgey z-buffered rasterization. The FakeCanvas also
+ * preserves the RectCmd order it ultimately used for its rendering and this can be compared
+ * with the expected order from the test.
+ *
+ * The use of the RectCmds to create the tests is a mere convenience to avoid creating a
+ * separate representation of the desired draws.
+ *
+ ***************************
+ * Here are some of the simplifying assumptions of this simulation (and their justification):
+ *
+ * Only SkIRects are used for draws and clips - since MSAA should be taking care of AA for us in
+ * the NGA we don't really need SkRects. This also greatly simplifies the z-buffered rasterization.
+ *
+ **************************
+ * Areas for improvement:
+ *   We should add strokes since there are two distinct drawing methods in the NGA (fill v. stroke)
+ */
+
 using sk_gpu_test::GrContextFactory;
-using sk_gpu_test::TestContext;
 
-static DEFINE_int(numRecordingThreads, 1, "number of DDL recording threads");
-static DEFINE_int(numTilesX, 3, "number of tiles horizontally");
-static DEFINE_int(numTilesY, 3, "number of tiles vertically");
-static DEFINE_int(numSamples, 1, "number of MSAA samples");
-static DEFINE_string(png, "", "if set, save a .png proof to disk at this file location");
-static DEFINE_string(src, "", "input .skp file");
+static DEFINE_string2(writePath, w, "", "If set, write bitmaps here as .pngs.");
 
 static void exitf(const char* format, ...) {
     va_list args;
@@ -43,245 +80,6 @@ static void exitf(const char* format, ...) {
     va_end(args);
 
     exit(1);
-}
-
-// Each thread holds this chunk of data thread_locally
-struct ThreadInfo {
-    ThreadInfo() = default;
-
-    ThreadInfo(const SkString& name, GrDirectContext* directContext, TestContext* testContext)
-            : fName(name)
-            , fDirectContext(directContext)
-            , fTestContext(testContext) {
-    }
-
-    double elapsedWorkSeconds() const {
-        return std::chrono::duration<double>(fWorkElapsed).count();
-    }
-
-    void dump() const {
-        duration totalThreadTime = fThreadStop - fThreadStart;
-        double totalThreadTimeSeconds = std::chrono::duration<double>(totalThreadTime).count();
-
-        printf("%s: num work units %d work: %.2gs total: %.2gs utilization %.2g%%\n",
-               fName.c_str(),
-               fWorkUnit,
-               this->elapsedWorkSeconds(),
-               totalThreadTimeSeconds,
-               100.0f * this->elapsedWorkSeconds() / totalThreadTimeSeconds);
-    }
-
-    SkString                fName;
-
-    // These two can be null on recording/utility threads
-    GrDirectContext*        fDirectContext = nullptr;
-    TestContext*            fTestContext = nullptr;
-
-    int                     fWorkUnit = 0;
-    duration                fWorkElapsed {0};
-    hires_clock::time_point fThreadStart;
-    hires_clock::time_point fThreadStop;
-};
-
-#if SKSL_USE_THREAD_LOCAL
-
-static thread_local ThreadInfo* gThreadInfo;
-
-static ThreadInfo* get_thread_local_info() {
-    return gThreadInfo;
-}
-
-static void set_thread_local_info(ThreadInfo* threadInfo) {
-    gThreadInfo = threadInfo;
-}
-
-#else
-
-#include <pthread.h>
-
-static pthread_key_t get_pthread_key() {
-    static pthread_key_t sKey = []{
-        pthread_key_t key;
-        int result = pthread_key_create(&key, /*destructor=*/nullptr);
-        if (result != 0) {
-            SK_ABORT("pthread_key_create failure: %d", result);
-        }
-        return key;
-    }();
-    return sKey;
-}
-
-static ThreadInfo* get_thread_local_info() {
-    return static_cast<ThreadInfo*>(pthread_getspecific(get_pthread_key()));
-}
-
-static void set_thread_local_info(ThreadInfo* threadInfo) {
-    pthread_setspecific(get_pthread_key(), threadInfo);
-}
-
-#endif
-
-static void set_up_context_on_thread(ThreadInfo* threadInfo) {
-    if (threadInfo->fDirectContext) {
-        threadInfo->fTestContext->makeCurrent();
-    }
-
-    threadInfo->fThreadStart = hires_clock::now();
-
-    set_thread_local_info(threadInfo);
-}
-
-class GrThreadPool {
-public:
-    explicit GrThreadPool(SkSpan<ThreadInfo> threadInfo) {
-        for (size_t i = 0; i < threadInfo.size(); i++) {
-            fThreads.emplace_back(&Loop, this, &threadInfo[i]);
-        }
-    }
-
-    ~GrThreadPool() {
-        // Signal each thread that it's time to shut down.
-        for (int i = 0; i < fThreads.count(); i++) {
-            this->add(nullptr);
-        }
-        // Wait for each thread to shut down.
-        for (int i = 0; i < fThreads.count(); i++) {
-            fThreads[i].join();
-        }
-    }
-
-    void add(std::function<void(void)> work) {
-        // Add some work to our pile of work to do.
-        {
-            SkAutoMutexExclusive lock(fWorkLock);
-            fWork.emplace_back(std::move(work));
-        }
-        // Tell the Loop() threads to pick it up.
-        fWorkAvailable.signal(1);
-    }
-
-private:
-    // This method should be called only when fWorkAvailable indicates there's work to do.
-    bool do_work(ThreadInfo* threadInfo) {
-        std::function<void(void)> work;
-        {
-            SkAutoMutexExclusive lock(fWorkLock);
-            SkASSERT(!fWork.empty());        // TODO: if (fWork.empty()) { return true; } ?
-            work = std::move(fWork.front());
-            fWork.pop_front();
-        }
-
-        if (!work) {
-            threadInfo->fThreadStop = hires_clock::now();
-            return false;  // This is Loop()'s signal to shut down.
-        }
-
-        hires_clock::time_point start = hires_clock::now();
-        work();
-        threadInfo->fWorkElapsed = hires_clock::now() - start;
-        threadInfo->fWorkUnit++;
-
-        return true;
-    }
-
-    static void Loop(void* ctx, ThreadInfo* threadInfo) {
-        set_up_context_on_thread(threadInfo);
-
-        auto pool = (GrThreadPool*)ctx;
-        do {
-            pool->fWorkAvailable.wait();
-        } while (pool->do_work(threadInfo));
-    }
-
-    using WorkList = std::deque<std::function<void(void)>>;
-
-    SkTArray<std::thread> fThreads;
-    WorkList              fWork;
-    SkMutex               fWorkLock;
-    SkSemaphore           fWorkAvailable;
-};
-
-class GrTaskGroup : SkNoncopyable {
-public:
-    explicit GrTaskGroup(SkSpan<ThreadInfo> threadInfo)
-            : fPending(0)
-            , fThreadPool(std::make_unique<GrThreadPool>(threadInfo)) {
-    }
-
-    ~GrTaskGroup() { this->wait(); }
-
-    // Add a task to this SkTaskGroup.
-    void add(std::function<void(void)> fn) {
-        fPending.fetch_add(+1, std::memory_order_relaxed);
-        fThreadPool->add([this, fn{std::move(fn)}] {
-            fn();
-            fPending.fetch_add(-1, std::memory_order_release);
-        });
-    }
-
-    // Returns true if all Tasks previously add()ed to this SkTaskGroup have run.
-    // It is safe to reuse this SkTaskGroup once done().
-    bool done() const {
-        return fPending.load(std::memory_order_acquire) == 0;
-    }
-
-    // Block until done().
-    void wait() {
-        while (!this->done()) {
-            std::this_thread::yield();
-        }
-    }
-
-private:
-    std::atomic<int32_t>          fPending;
-    std::unique_ptr<GrThreadPool> fThreadPool;
-};
-
-static bool create_contexts(GrContextFactory* factory,
-                            GrContextFactory::ContextType contextType,
-                            const GrContextFactory::ContextOverrides& overrides,
-                            ThreadInfo* gpuThread,
-                            SkSpan<ThreadInfo> utilityThreads) {
-
-    ContextInfo mainInfo = factory->getContextInfo(contextType, overrides);
-    if (!mainInfo.directContext()) {
-        exitf("Could not create primary direct context.");
-    }
-
-    *gpuThread = { SkString("g0"), mainInfo.directContext(), mainInfo.testContext() };
-
-    bool allSucceeded = true, allFailed = true;
-    // Create the utility contexts in a share group with the primary one. This is allowed to fail
-    // but either they should all work or the should all fail.
-    for (size_t i = 0; i < utilityThreads.size(); ++i) {
-        SkString name = SkStringPrintf("r%zu", i);
-
-        ContextInfo tmp = factory->getSharedContextInfo(mainInfo.directContext(), i);
-
-        utilityThreads[i] = { name, tmp.directContext(), tmp.testContext() };
-        allSucceeded &= SkToBool(tmp.directContext());
-        allFailed &= !tmp.directContext();
-    }
-
-    return allSucceeded || allFailed;
-}
-
-static sk_sp<SkPicture> create_shared_skp(const char* src,
-                                          GrDirectContext* dContext,
-                                          DDLPromiseImageHelper* promiseImageHelper) {
-    SkString srcfile(src);
-
-    std::unique_ptr<SkStream> srcstream(SkStream::MakeFromFile(srcfile.c_str()));
-    if (!srcstream) {
-        exitf("failed to open file %s", srcfile.c_str());
-    }
-
-    sk_sp<SkPicture> skp = SkPicture::MakeFromStream(srcstream.get());
-    if (!skp) {
-        exitf("failed to parse file %s", srcfile.c_str());
-    }
-
-    return promiseImageHelper->recreateSKP(dContext, skp.get());
 }
 
 static void check_params(GrDirectContext* dContext,
@@ -304,137 +102,316 @@ static void check_params(GrDirectContext* dContext,
     }
 }
 
-static bool mkdir_p(const SkString& dirname) {
-    if (dirname.isEmpty() || dirname == SkString("/")) {
-        return true;
-    }
-    return mkdir_p(SkOSPath::Dirname(dirname.c_str())) && sk_mkdir(dirname.c_str());
-}
-
-static void maybe_save_file(SkSurface* surface) {
-    if (FLAGS_png.isEmpty()) {
+static void save_files(int testID, const SkBitmap& expected, const SkBitmap& actual) {
+    if (FLAGS_writePath.isEmpty()) {
         return;
     }
 
-    SkBitmap bmp;
-    bmp.allocPixels(surface->imageInfo());
-    if (!surface->getCanvas()->readPixels(bmp, 0, 0)) {
-        exitf("failed to read canvas pixels for png");
+    const char* dir = FLAGS_writePath[0];
+
+    SkString path = SkOSPath::Join(dir, "expected");
+    path.appendU32(testID);
+    path.append(".png");
+
+    if (!sk_mkdir(dir)) {
+        exitf("failed to create directory for png \"%s\"", path.c_str());
     }
-    if (!mkdir_p(SkOSPath::Dirname(FLAGS_png[0]))) {
-        exitf("failed to create directory for png \"%s\"", FLAGS_png[0]);
+    if (!ToolUtils::EncodeImageToFile(path.c_str(), expected, SkEncodedImageFormat::kPNG, 100)) {
+        exitf("failed to save png to \"%s\"", path.c_str());
     }
-    if (!ToolUtils::EncodeImageToFile(FLAGS_png[0], bmp, SkEncodedImageFormat::kPNG, 100)) {
-        exitf("failed to save png to \"%s\"", FLAGS_png[0]);
+
+    path = SkOSPath::Join(dir, "actual");
+    path.appendU32(testID);
+    path.append(".png");
+
+    if (!ToolUtils::EncodeImageToFile(path.c_str(), actual, SkEncodedImageFormat::kPNG, 100)) {
+        exitf("failed to save png to \"%s\"", path.c_str());
     }
+}
+
+// Exercise basic SortKey behavior
+static void key_test() {
+    SortKey k;
+    SkASSERT(!k.transparent());
+    SkASSERT(k.depth() == 0);
+    SkASSERT(k.material() == 0);
+//    k.dump();
+
+    SortKey k1(false, 1, 3);
+    SkASSERT(!k1.transparent());
+    SkASSERT(k1.depth() == 1);
+    SkASSERT(k1.material() == 3);
+//    k1.dump();
+
+    SortKey k2(true, 2, 1);
+    SkASSERT(k2.transparent());
+    SkASSERT(k2.depth() == 2);
+    SkASSERT(k2.material() == 1);
+//    k2.dump();
+}
+
+static void check_state(FakeMCBlob* actualState,
+                        SkIPoint expectedCTM,
+                        const std::vector<SkIRect>& expectedClips) {
+    SkASSERT(actualState->ctm() == expectedCTM);
+
+    int i = 0;
+    auto states = actualState->mcStates();
+    for (auto& s : states) {
+        for (auto r : s.rects()) {
+            SkASSERT(i < expectedClips.size());
+            SkASSERT(r == expectedClips[i]);
+            i++;
+        }
+    }
+}
+
+// Exercise the FakeMCBlob object
+static void mcstack_test() {
+    const SkIRect r { 0, 0, 10, 10 };
+    const SkIPoint s1Trans { 10, 10 };
+    const SkIPoint s2TransA { -5, -2 };
+    const SkIPoint s2TransB { -3, -1 };
+
+    const std::vector<SkIRect> expectedS0Clips;
+    const std::vector<SkIRect> expectedS1Clips {
+        r.makeOffset(s1Trans)
+    };
+    const std::vector<SkIRect> expectedS2aClips {
+        r.makeOffset(s1Trans),
+        r.makeOffset(s2TransA)
+    };
+    const std::vector<SkIRect> expectedS2bClips {
+        r.makeOffset(s1Trans),
+        r.makeOffset(s2TransA),
+        r.makeOffset(s2TransA + s2TransB)
+    };
+
+    //----------------
+    FakeStateTracker s;
+
+    auto state0 = s.snapState();
+    // The initial state should have no translation & no clip
+    check_state(state0.get(), { 0, 0 }, expectedS0Clips);
+
+    //----------------
+    s.push();
+    s.translate(s1Trans);
+    s.clipRect(r);
+
+    auto state1 = s.snapState();
+    check_state(state1.get(), s1Trans, expectedS1Clips);
+
+    //----------------
+    s.push();
+    s.translate(s2TransA);
+    s.clipRect(r);
+
+    auto state2a = s.snapState();
+    check_state(state2a.get(), s1Trans + s2TransA, expectedS2aClips);
+
+    s.translate(s2TransB);
+    s.clipRect(r);
+
+    auto state2b = s.snapState();
+    check_state(state2b.get(), s1Trans + s2TransA + s2TransB, expectedS2bClips);
+    SkASSERT(state2a != state2b);
+
+    //----------------
+    s.pop();
+    auto state3 = s.snapState();
+    check_state(state3.get(), s1Trans, expectedS1Clips);
+    SkASSERT(state1 == state3);
+
+    //----------------
+    s.pop();
+    auto state4 = s.snapState();
+    check_state(state4.get(), { 0, 0 }, expectedS0Clips);
+    SkASSERT(state0 == state4);
+}
+
+static void check_order(const std::vector<int>& actualOrder,
+                        const std::vector<int>& expectedOrder) {
+    if (expectedOrder.size() != actualOrder.size()) {
+        exitf("Op count mismatch. Expected %d - got %d\n",
+              expectedOrder.size(),
+              actualOrder.size());
+    }
+
+    if (expectedOrder != actualOrder) {
+        SkDebugf("order mismatch:\n");
+        SkDebugf("E %d: ", expectedOrder.size());
+        for (auto t : expectedOrder) {
+            SkDebugf("%d", t);
+        }
+        SkDebugf("\n");
+
+        SkDebugf("A %d: ", actualOrder.size());
+        for (auto t : actualOrder) {
+            SkDebugf("%d", t);
+        }
+        SkDebugf("\n");
+    }
+}
+
+typedef int (*PFTest)(std::vector<const Cmd*>* test, std::vector<int>* expectedOrder);
+
+static void sort_test(PFTest testcase) {
+    std::vector<const Cmd*> test;
+    std::vector<int> expectedOrder;
+    int testID = testcase(&test, &expectedOrder);
+
+
+    SkBitmap expectedBM;
+    expectedBM.allocPixels(SkImageInfo::MakeN32Premul(256, 256));
+    expectedBM.eraseColor(SK_ColorBLACK);
+    SkCanvas real(expectedBM);
+
+    SkBitmap actualBM;
+    actualBM.allocPixels(SkImageInfo::MakeN32Premul(256, 256));
+    actualBM.eraseColor(SK_ColorBLACK);
+
+    FakeCanvas fake(actualBM);
+    const FakeMCBlob* prior = nullptr;
+    for (auto c : test) {
+        c->execute(&fake);
+        c->execute(&real, prior);
+        prior = c->state();
+    }
+
+    fake.finalize();
+
+    std::vector<int> actualOrder = fake.getOrder();
+    check_order(actualOrder, expectedOrder);
+
+    save_files(testID, expectedBM, actualBM);
+}
+
+// Simple test - green rect should appear atop the red rect
+static int test1(std::vector<const Cmd*>* test, std::vector<int>* expectedOrder) {
+    // front-to-back order bc all opaque
+    expectedOrder->push_back(1);
+    expectedOrder->push_back(0);
+
+    FakeStateTracker s;
+    sk_sp<FakeMCBlob> state = s.snapState();
+
+    SkIRect r{0, 0, 100, 100};
+    test->push_back(new RectCmd(0, kSolidMat, r.makeOffset(8, 8),   SK_ColorRED,   SK_ColorUNUSED, state));
+    test->push_back(new RectCmd(1, kSolidMat, r.makeOffset(48, 48), SK_ColorGREEN, SK_ColorUNUSED, state));
+    return 1;
+}
+
+// Simple test - blue rect atop green rect atop red rect
+static int test2(std::vector<const Cmd*>* test, std::vector<int>* expectedOrder) {
+    // front-to-back order bc all opaque
+    expectedOrder->push_back(2);
+    expectedOrder->push_back(1);
+    expectedOrder->push_back(0);
+
+    FakeStateTracker s;
+    sk_sp<FakeMCBlob> state = s.snapState();
+
+    SkIRect r{0, 0, 100, 100};
+    test->push_back(new RectCmd(0, kSolidMat, r.makeOffset(8, 8),   SK_ColorRED,   SK_ColorUNUSED, state));
+    test->push_back(new RectCmd(1, kSolidMat, r.makeOffset(48, 48), SK_ColorGREEN, SK_ColorUNUSED, state));
+    test->push_back(new RectCmd(2, kSolidMat, r.makeOffset(98, 98), SK_ColorBLUE,  SK_ColorUNUSED, state));
+    return 2;
+}
+
+// Transparency test - opaque blue rect atop transparent green rect atop opaque red rect
+static int test3(std::vector<const Cmd*>* test, std::vector<int>* expectedOrder) {
+    // opaque draws are first and are front-to-back. Transparent draw is last.
+    expectedOrder->push_back(2);
+    expectedOrder->push_back(0);
+    expectedOrder->push_back(1);
+
+    FakeStateTracker s;
+    sk_sp<FakeMCBlob> state = s.snapState();
+
+    SkIRect r{0, 0, 100, 100};
+    test->push_back(new RectCmd(0, kSolidMat, r.makeOffset(8, 8),   SK_ColorRED,  SK_ColorUNUSED, state));
+    test->push_back(new RectCmd(1, kSolidMat, r.makeOffset(48, 48), 0x8000FF00,   SK_ColorUNUSED, state));
+    test->push_back(new RectCmd(2, kSolidMat, r.makeOffset(98, 98), SK_ColorBLUE, SK_ColorUNUSED, state));
+    return 3;
+}
+
+// Multi-transparency test - transparent blue rect atop transparent green rect atop
+// transparent red rect
+static int test4(std::vector<const Cmd*>* test, std::vector<int>* expectedOrder) {
+    // All in back-to-front order bc they're all transparent
+    expectedOrder->push_back(0);
+    expectedOrder->push_back(1);
+    expectedOrder->push_back(2);
+
+    FakeStateTracker s;
+    sk_sp<FakeMCBlob> state = s.snapState();
+
+    SkIRect r{0, 0, 100, 100};
+    test->push_back(new RectCmd(0, kSolidMat, r.makeOffset(8, 8),   0x80FF0000, SK_ColorUNUSED, state));
+    test->push_back(new RectCmd(1, kSolidMat, r.makeOffset(48, 48), 0x8000FF00, SK_ColorUNUSED, state));
+    test->push_back(new RectCmd(2, kSolidMat, r.makeOffset(98, 98), 0x800000FF, SK_ColorUNUSED, state));
+    return 4;
+}
+
+// Multiple opaque materials test
+// All opaque:
+//   normal1, linear1, radial1, normal2, linear2, radial2
+// Which gets sorted to:
+//   normal2, normal1, linear2, linear1, radial2, radial1
+// So, front to back w/in each material type.
+static int test5(std::vector<const Cmd*>* test, std::vector<int>* expectedOrder) {
+    // Note: This pushes sorting by material above sorting by Z. Thus we'll get less front to
+    // back benefit.
+    expectedOrder->push_back(3);
+    expectedOrder->push_back(0);
+    expectedOrder->push_back(4);
+    expectedOrder->push_back(1);
+    expectedOrder->push_back(5);
+    expectedOrder->push_back(2);
+
+    FakeStateTracker s;
+    sk_sp<FakeMCBlob> state = s.snapState();
+
+    SkIRect r{0, 0, 100, 100};
+    test->push_back(new RectCmd(0, kSolidMat,  r.makeOffset(8, 8),     SK_ColorRED,     SK_ColorUNUSED, state));
+    test->push_back(new RectCmd(1, kLinearMat, r.makeOffset(48, 48),   SK_ColorGREEN,   SK_ColorWHITE,  state));
+    test->push_back(new RectCmd(2, kRadialMat, r.makeOffset(98, 98),   SK_ColorBLUE,    SK_ColorBLACK,  state));
+    test->push_back(new RectCmd(3, kSolidMat,  r.makeOffset(148, 148), SK_ColorCYAN,    SK_ColorUNUSED, state));
+    test->push_back(new RectCmd(4, kLinearMat, r.makeOffset(148, 8),   SK_ColorMAGENTA, SK_ColorWHITE,  state));
+    test->push_back(new RectCmd(5, kRadialMat, r.makeOffset(8, 148),   SK_ColorYELLOW,  SK_ColorBLACK,  state));
+    return 5;
+}
+
+// simple clipping test - 1 clip rect
+static int test6(std::vector<const Cmd*>* test, std::vector<int>* expectedOrder) {
+    expectedOrder->push_back(1);
+    expectedOrder->push_back(0);
+
+    FakeStateTracker s;
+    s.clipRect(SkIRect::MakeXYWH(28, 28, 40, 40));
+
+    sk_sp<FakeMCBlob> state = s.snapState();
+
+    SkIRect r{0, 0, 100, 100};
+    test->push_back(new RectCmd(0, kSolidMat,  r.makeOffset(8, 8),   SK_ColorRED,   SK_ColorUNUSED, state));
+    test->push_back(new RectCmd(1, kSolidMat,  r.makeOffset(48, 48), SK_ColorGREEN, SK_ColorUNUSED, state));
+    return 6;
 }
 
 int main(int argc, char** argv) {
     CommandLineFlags::Parse(argc, argv);
 
-    if (FLAGS_src.count() != 1) {
-        exitf("Missing input file");
-    }
-
-    // TODO: get these from the command line flags
-    const GrContextFactory::ContextType kContextType = GrContextFactory::kGL_ContextType;
-    const GrContextOptions kContextOptions;
-    const GrContextFactory::ContextOverrides kOverrides = GrContextFactory::ContextOverrides::kNone;
-    SkColorType ct = kRGBA_8888_SkColorType;
-    SkAlphaType at = kPremul_SkAlphaType;
-
     SkGraphics::Init();
 
-    GrContextFactory factory(kContextOptions);
-
-    std::unique_ptr<ThreadInfo> mainContext(new ThreadInfo);
-    std::unique_ptr<ThreadInfo[]> utilityContexts(new ThreadInfo[FLAGS_numRecordingThreads]);
-
-    if (!create_contexts(&factory,
-                         kContextType,
-                         kOverrides,
-                         mainContext.get(),
-                         SkSpan<ThreadInfo>(utilityContexts.get(), FLAGS_numRecordingThreads))) {
-        return 1;
-    }
-
-    mainContext->fTestContext->makeCurrent();
-
-    SkYUVAPixmapInfo::SupportedDataTypes supportedYUVADTypes(*mainContext->fDirectContext);
-    DDLPromiseImageHelper promiseImageHelper(supportedYUVADTypes);
-
-    sk_sp<SkPicture> skp = create_shared_skp(FLAGS_src[0],
-                                             mainContext->fDirectContext,
-                                             &promiseImageHelper);
-
-    int width = std::min(SkScalarCeilToInt(skp->cullRect().width()), 2048);
-    int height = std::min(SkScalarCeilToInt(skp->cullRect().height()), 2048);
-
-    check_params(mainContext->fDirectContext, width, height, ct, at, FLAGS_numSamples);
-
-    // TODO: do this later on a utility thread!
-    promiseImageHelper.uploadAllToGPU(nullptr, mainContext->fDirectContext);
-
-    SkImageInfo info = SkImageInfo::Make(width, height, ct, at, nullptr);
-
-    sk_sp<SkSurface> dstSurface = SkSurface::MakeRenderTarget(mainContext->fDirectContext,
-                                                              SkBudgeted::kNo, info,
-                                                              FLAGS_numSamples, nullptr);
-    if (!dstSurface) {
-        exitf("Could not create a surface.");
-    }
-
-    if (FLAGS_numRecordingThreads == 0) {
-        mainContext->fThreadStart = hires_clock::now();
-
-        dstSurface->getCanvas()->drawPicture(skp);
-
-        mainContext->fThreadStop = hires_clock::now();
-
-        mainContext->fWorkElapsed = mainContext->fThreadStop - mainContext->fThreadStart;
-        mainContext->fWorkUnit++;
-    } else {
-        mainContext->fTestContext->makeNotCurrent();
-
-        GrTaskGroup gpuTaskGroup(SkSpan<ThreadInfo>(mainContext.get(), 1));
-        GrTaskGroup recordingTaskGroup(SkSpan<ThreadInfo>(utilityContexts.get(),
-                                                          FLAGS_numRecordingThreads));
-
-        for (int i = 0; i < FLAGS_numRecordingThreads; ++i) {
-            recordingTaskGroup.add([] {
-                                       ThreadInfo* threadLocal = get_thread_local_info();
-                                       printf("%s: dContext %p\n", threadLocal->fName.c_str(),
-                                                                   threadLocal->fDirectContext);
-                                       std::this_thread::sleep_for(std::chrono::seconds(1));
-                                   });
-        }
-
-        gpuTaskGroup.add([] {
-                             ThreadInfo* threadLocal = get_thread_local_info();
-                             printf("%s: dContext %p\n", threadLocal->fName.c_str(),
-                                                         threadLocal->fDirectContext);
-                         });
-
-        gpuTaskGroup.add([] {
-                             ThreadInfo* threadLocal = get_thread_local_info();
-                             threadLocal->fTestContext->makeNotCurrent();
-                         });
-
-        recordingTaskGroup.wait();
-        gpuTaskGroup.wait();
-
-        mainContext->fTestContext->makeCurrent();
-    }
-
-    maybe_save_file(dstSurface.get());
-
-    promiseImageHelper.deleteAllFromGPU(nullptr, mainContext->fDirectContext);
-
-    // Dump out the timing stats
-    mainContext->dump();
-    for (int i = 0; i < FLAGS_numRecordingThreads; ++i) {
-        utilityContexts[i].dump();
-    }
+    key_test();
+    mcstack_test();
+    sort_test(test1);
+    sort_test(test2);
+    sort_test(test3);
+    sort_test(test4);
+    sort_test(test5);
+    sort_test(test6);
 
     return 0;
 }
