@@ -101,7 +101,7 @@ struct Value {
         return fVals[i];
     }
 
-    SkSpan<skvm::Val> asSpan() { return fVals; }
+    SkSpan<skvm::Val> asSpan() { return SkMakeSpan(fVals); }
 
 private:
     SkSTArray<4, skvm::Val, true> fVals;
@@ -1218,7 +1218,7 @@ Value SkVMGenerator::writeFunctionCall(const FunctionCall& f) {
         ScopedCondition m(this, ~currentFunction().fReturned);
         SkASSERTF(f.function().definition(), "no definition for function '%s'",
                   f.function().description().c_str());
-        this->writeFunction(*f.function().definition(), argVals, result.asSpan());
+        this->writeFunction(*f.function().definition(), SkMakeSpan(argVals), result.asSpan());
     }
 
     // Propagate new values of any 'out' params back to the original arguments
@@ -1645,7 +1645,7 @@ skvm::Color ProgramToSkVM(const Program& program,
 
     SkVMGenerator generator(
             program, builder, uniforms, device, local, inputColor, std::move(sampleChild));
-    generator.writeFunction(function, {args, argSlots}, result);
+    generator.writeFunction(function, {args, argSlots}, SkMakeSpan(result));
 
     return skvm::Color{{builder, result[0]},
                        {builder, result[1]},
@@ -1687,7 +1687,7 @@ bool ProgramToSkVM(const Program& program,
     skvm::Color zeroColor = {zero, zero, zero, zero};
     SkVMGenerator generator(program, b, uniforms, /*device=*/zeroCoord, /*local=*/zeroCoord,
                             /*inputColor=*/zeroColor, /*sampleChild=*/{});
-    generator.writeFunction(function, argVals, returnVals);
+    generator.writeFunction(function, SkMakeSpan(argVals), SkMakeSpan(returnVals));
 
     // generateCode has updated the contents of 'argVals' for any 'out' or 'inout' parameters.
     // Propagate those changes back to our varying buffers:
@@ -1818,7 +1818,7 @@ bool testingOnly_ProgramToSkVMShader(const Program& program, skvm::Builder* buil
     skvm::Color inColor = builder->uniformColor(SkColors::kWhite, &uniforms);
 
     skvm::Color result = SkSL::ProgramToSkVM(
-            program, *main, builder, uniformVals, device, local, inColor, sampleChild);
+            program, *main, builder, SkMakeSpan(uniformVals), device, local, inColor, sampleChild);
 
     storeF(builder->varying<float>(), result.r);
     storeF(builder->varying<float>(), result.g);

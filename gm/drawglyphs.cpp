@@ -32,7 +32,7 @@ public:
 
         fPositions.append(fGlyphCount);
         fFont.getPos(fGlyphs.begin(), fGlyphCount, fPositions.begin());
-        auto positions = SkSpan(fPositions.begin(), fGlyphCount);
+        auto positions = SkMakeSpan(fPositions.begin(), fGlyphCount);
 
         fLength = positions.back().x() - positions.front().x();
         fRadius = fLength / SK_FloatPI;
