@@ -2292,10 +2292,10 @@ void SkCanvas::drawGlyphs(int count, const SkGlyphID* glyphs, const SkPoint* pos
 
     SkGlyphRun glyphRun {
             font,
-            SkSpan(positions, count),
-            SkSpan(glyphs, count),
-            SkSpan(utf8text, textByteCount),
-            SkSpan(clusters, count),
+            SkMakeSpan(positions, count),
+            SkMakeSpan(glyphs, count),
+            SkMakeSpan(utf8text, textByteCount),
+            SkMakeSpan(clusters, count),
             SkSpan<SkVector>()
     };
     SkGlyphRunList glyphRunList {
@@ -2312,8 +2312,8 @@ void SkCanvas::drawGlyphs(int count, const SkGlyphID glyphs[], const SkPoint pos
 
     SkGlyphRun glyphRun {
         font,
-        SkSpan(positions, count),
-        SkSpan(glyphs, count),
+        SkMakeSpan(positions, count),
+        SkMakeSpan(glyphs, count),
         SkSpan<const char>(),
         SkSpan<const uint32_t>(),
         SkSpan<SkVector>()
@@ -2330,12 +2330,13 @@ void SkCanvas::drawGlyphs(int count, const SkGlyphID glyphs[], const SkRSXform x
                           SkPoint origin, const SkFont& font, const SkPaint& paint) {
     if (count <= 0) { return; }
 
-    auto [positions, rotateScales] = fScratchGlyphRunBuilder->convertRSXForm(SkSpan(xforms, count));
+    auto [positions, rotateScales] =
+            fScratchGlyphRunBuilder->convertRSXForm(SkMakeSpan(xforms, count));
 
     SkGlyphRun glyphRun {
             font,
             positions,
-            SkSpan(glyphs, count),
+            SkMakeSpan(glyphs, count),
             SkSpan<const char>(),
             SkSpan<const uint32_t>(),
             rotateScales
