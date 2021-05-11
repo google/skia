@@ -2045,6 +2045,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
                                rawYId, result, 1, out);
         SpvId flippedYId = 0;
         if (fProgram.fConfig->fSettings.fFlipY) {
+#if 0
             // need to remap to a top-left coordinate system
             if (fRTHeightStructId == (SpvId)-1) {
                 // height variable hasn't been written yet
@@ -2116,6 +2117,9 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
             flippedYId = this->nextId(nullptr);
             this->writeInstruction(SpvOpFSub, this->getType(*fContext.fTypes.fFloat), flippedYId,
                                    heightRead, rawYId, out);
+#else
+            // ?????
+#endif
         }
 
         // The z component will always be zero so we just get an id to the 0 literal
@@ -3005,7 +3009,7 @@ static void update_sk_in_count(const Modifiers& m, int* outSkInCount) {
     }
 }
 
-SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool appendRTHeight) {
+SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     MemoryLayout memoryLayout = this->memoryLayoutForVariable(intf.variable());
     SpvId result = this->nextId(nullptr);
     std::unique_ptr<Type> rtHeightStructType;
@@ -3015,18 +3019,6 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
         return this->nextId(nullptr);
     }
     SpvStorageClass_ storageClass = get_storage_class(intf.variable(), SpvStorageClassFunction);
-    if (fProgram.fInputs.fRTHeight && appendRTHeight) {
-        SkASSERT(fRTHeightStructId == (SpvId) -1);
-        SkASSERT(fRTHeightFieldIndex == (SpvId) -1);
-        std::vector<Type::Field> fields = type->fields();
-        fRTHeightStructId = result;
-        fRTHeightFieldIndex = fields.size();
-        fRTHeightStorageClass = storageClass;
-        fields.emplace_back(Modifiers(), StringFragment(SKSL_RTHEIGHT_NAME),
-                            fContext.fTypes.fFloat.get());
-        rtHeightStructType = Type::MakeStructType(type->fOffset, type->name(), std::move(fields));
-        type = rtHeightStructType.get();
-    }
     SpvId typeId;
     const Modifiers& intfModifiers = intf.variable().modifiers();
     if (intfModifiers.fLayout.fBuiltin == SK_IN_BUILTIN) {

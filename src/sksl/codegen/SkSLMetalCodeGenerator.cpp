@@ -1119,10 +1119,10 @@ void MetalCodeGenerator::writeCastConstructor(const AnyConstructor& c,
 }
 
 void MetalCodeGenerator::writeFragCoord() {
-    if (fRTHeightName.length()) {
-        this->write("float4(_fragCoord.x, ");
-        this->write(fRTHeightName.c_str());
-        this->write(" - _fragCoord.y, 0.0, _fragCoord.w)");
+    if (fProgram.fInputs.fFlipY) {
+        this->write("float4(_fragCoord.x, 2*");
+        this->write(Compiler::RTADJUST_NAME);
+        this->write(".w - _fragCoord.y, 0.0, _fragCoord.w)");
     } else {
         this->write("float4(_fragCoord.x, _fragCoord.y, 0.0, _fragCoord.w)");
     }
@@ -1530,7 +1530,6 @@ int MetalCodeGenerator::getUniformSet(const Modifiers& m) {
 }
 
 bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) {
-    fRTHeightName = fProgram.fInputs.fRTHeight ? "_globals._anonInterface0->u_skRTHeight" : "";
     const char* separator = "";
     if (f.isMain()) {
         switch (fProgram.fConfig->fKind) {
@@ -1591,10 +1590,6 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
             }
         }
         if (fProgram.fConfig->fKind == ProgramKind::kFragment) {
-            if (fProgram.fInputs.fRTHeight && fInterfaceBlockNameMap.empty()) {
-                this->write(", constant sksl_synthetic_uniforms& _anonInterface0 [[buffer(1)]]");
-                fRTHeightName = "_anonInterface0.u_skRTHeight";
-            }
             this->write(", bool _frontFacing [[front_facing]]");
             this->write(", float4 _fragCoord [[position]]");
         } else if (fProgram.fConfig->fKind == ProgramKind::kVertex) {
@@ -1719,9 +1714,11 @@ void MetalCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     }
     fIndentation++;
     this->writeFields(structType->fields(), structType->fOffset, &intf);
+#if 0
     if (fProgram.fInputs.fRTHeight) {
         this->writeLine("float u_skRTHeight;");
     }
+#endif
     fIndentation--;
     this->write("}");
     if (intf.instanceName().size()) {
@@ -2105,11 +2102,13 @@ void MetalCodeGenerator::writeInterfaceBlocks() {
             wroteInterfaceBlock = true;
         }
     }
+#if 0
     if (!wroteInterfaceBlock && fProgram.fInputs.fRTHeight) {
         this->writeLine("struct sksl_synthetic_uniforms {");
         this->writeLine("    float u_skRTHeight;");
         this->writeLine("};");
     }
+#endif
 }
 
 void MetalCodeGenerator::writeStructDefinitions() {

@@ -82,9 +82,11 @@ bool GrVkPipelineStateBuilder::createVkShaderModule(VkShaderStageFlagBits stage,
                                  stageInfo, settings, outSPIRV, outInputs)) {
         return false;
     }
+#if 0
     if (outInputs->fRTHeight) {
         this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
     }
+#endif
     return true;
 }
 
@@ -97,9 +99,11 @@ bool GrVkPipelineStateBuilder::installVkShaderModule(VkShaderStageFlagBits stage
     if (!GrInstallVkShaderModule(fGpu, spirv, stage, shaderModule, stageInfo)) {
         return false;
     }
+#if 0
     if (inputs.fRTHeight) {
         this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
     }
+#endif
     return true;
 }
 

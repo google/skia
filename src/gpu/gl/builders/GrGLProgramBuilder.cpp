@@ -147,9 +147,11 @@ void GrGLProgramBuilder::computeCountsAndStrides(GrGLuint programID,
 }
 
 void GrGLProgramBuilder::addInputVars(const SkSL::Program::Inputs& inputs) {
+#if 0
     if (inputs.fRTHeight) {
         this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
     }
+#endif
 }
 
 static constexpr SkFourByteTag kSKSL_Tag = SkSetFourByteTag('S', 'K', 'S', 'L');

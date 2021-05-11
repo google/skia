@@ -927,9 +927,6 @@ void DSLCPPCodeGenerator::addUniform(const Variable& var) {
     }
 }
 
-void DSLCPPCodeGenerator::writeInputVars() {
-}
-
 void DSLCPPCodeGenerator::writePrivateVars() {
     for (const ProgramElement* p : fProgram.elements()) {
         if (p->is<GlobalVarDeclaration>()) {
