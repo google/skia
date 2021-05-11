@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "427c47cb_d20136db",
+        "filename": "include/sksl/DSLLayout.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-11T19:16:18Z",
+      "side": 1,
+      "message": "nit: we\u0027ve got this mapping of layout-flag to string in a couple places now. (e.g. IRGenerator.cpp:829, SkSLParser.cpp:86, and now here). For a future CL, can we centralize these three?",
+      "range": {
+        "startLine": 23,
+        "startChar": 64,
+        "endLine": 23,
+        "endChar": 81
+      },
+      "revId": "134253e91273ac046dfc1368f172912d6daa4436",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "301cd285_841b323f",
+        "filename": "include/sksl/DSLModifiers.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-11T19:16:18Z",
+      "side": 1,
+      "message": "nit: blank line?",
+      "revId": "134253e91273ac046dfc1368f172912d6daa4436",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
