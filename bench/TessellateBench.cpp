@@ -10,13 +10,13 @@
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/geometry/GrWangsFormula.h"
 #include "src/gpu/mock/GrMockOpTarget.h"
 #include "src/gpu/tessellate/GrMiddleOutPolygonTriangulator.h"
 #include "src/gpu/tessellate/GrPathTessellator.h"
 #include "src/gpu/tessellate/GrStrokeFixedCountTessellator.h"
 #include "src/gpu/tessellate/GrStrokeHardwareTessellator.h"
 #include "src/gpu/tessellate/GrStrokeIndirectTessellator.h"
-#include "src/gpu/tessellate/GrWangsFormula.h"
 #include "tools/ToolUtils.h"
 #include <vector>
 

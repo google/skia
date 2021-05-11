@@ -7,12 +7,12 @@
 
 #include "src/gpu/tessellate/GrStrokeTessellateShader.h"
 
+#include "src/gpu/geometry/GrWangsFormula.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/tessellate/GrStrokeTessellator.h"
-#include "src/gpu/tessellate/GrWangsFormula.h"
 
 // The built-in atan() is undefined when x==0. This method relieves that restriction, but also can
 // return values larger than 2*PI. This shouldn't matter for our purposes.

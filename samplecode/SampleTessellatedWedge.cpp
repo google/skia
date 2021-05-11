@@ -19,8 +19,8 @@
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
+#include "src/gpu/geometry/GrWangsFormula.h"
 #include "src/gpu/tessellate/GrPathStencilFillOp.h"
-#include "src/gpu/tessellate/GrWangsFormula.h"
 
 static float kConicWeight = .5;
 

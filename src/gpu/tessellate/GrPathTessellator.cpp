@@ -10,10 +10,10 @@
 #include "src/gpu/GrEagerVertexAllocator.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/geometry/GrPathUtils.h"
+#include "src/gpu/geometry/GrWangsFormula.h"
 #include "src/gpu/tessellate/GrMiddleOutPolygonTriangulator.h"
 #include "src/gpu/tessellate/GrMidpointContourParser.h"
 #include "src/gpu/tessellate/GrStencilPathShader.h"
-#include "src/gpu/tessellate/GrWangsFormula.h"
 
 GrPathIndirectTessellator::GrPathIndirectTessellator(const SkMatrix& viewMatrix, const SkPath& path,
                                                      DrawInnerFan drawInnerFan)

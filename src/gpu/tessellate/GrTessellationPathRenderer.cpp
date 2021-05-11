@@ -15,12 +15,12 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/geometry/GrStyledShape.h"
+#include "src/gpu/geometry/GrWangsFormula.h"
 #include "src/gpu/ops/GrFillRectOp.h"
 #include "src/gpu/tessellate/GrDrawAtlasPathOp.h"
 #include "src/gpu/tessellate/GrPathInnerTriangulateOp.h"
 #include "src/gpu/tessellate/GrPathStencilFillOp.h"
 #include "src/gpu/tessellate/GrStrokeTessellateOp.h"
-#include "src/gpu/tessellate/GrWangsFormula.h"
 
 constexpr static SkISize kAtlasInitialSize{512, 512};
 constexpr static int kMaxAtlasSize = 2048;
