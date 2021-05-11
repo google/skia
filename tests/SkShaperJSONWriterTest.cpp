@@ -9,7 +9,7 @@
 
 #include "tests/Test.h"
 
-#include "src/core/SkSpan.h"
+#include "include/core/SkSpan.h"
 #include "src/utils/SkJSONWriter.h"
 #include "src/utils/SkUTF.h"
 

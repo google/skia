@@ -4,10 +4,10 @@
 
 #include <functional>  // std::function
 #include <queue>
+#include "include/core/SkSpan.h"
 #include "modules/skparagraph/include/TextStyle.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
 #include "modules/skparagraph/src/Run.h"
-#include "src/core/SkSpan.h"
 
 namespace skia {
 namespace textlayout {

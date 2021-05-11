@@ -9,7 +9,7 @@
 #define GrRenderTaskCluster_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "src/core/SkSpan.h"
+#include "include/core/SkSpan.h"
 #include "src/core/SkTInternalLList.h"
 
 class GrRenderTask;
