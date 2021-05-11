@@ -24,11 +24,11 @@
 
 using sk_gpu_test::GrContextFactory;
 
-void fill_transfer_data(int left, int top, int width, int height, int bufferWidth,
+void fill_transfer_data(int left, int top, int width, int height, int rowBytes,
                         GrColorType dstType, char* dst) {
     size_t dstBpp = GrColorTypeBytesPerPixel(dstType);
-    auto dstLocation = [dst, dstBpp, bufferWidth](int x, int y) {
-        return dst + y * dstBpp * bufferWidth + x * dstBpp;
+    auto dstLocation = [dst, dstBpp, rowBytes](int x, int y) {
+        return dst + y * rowBytes + x * dstBpp;
     };
     // build red-green gradient
     for (int j = top; j < top + height; ++j) {
@@ -143,10 +143,12 @@ void basic_transfer_to_test(skiatest::Reporter* reporter,
     // either of which may differ from 'colorType'.
     GrCaps::SupportedWrite allowedSrc =
             caps->supportedWritePixelsColorType(colorType, tex->backendFormat(), colorType);
-    size_t srcRowBytes = GrColorTypeBytesPerPixel(allowedSrc.fColorType) * srcBufferWidth;
+    size_t srcRowBytes = GrAlignTo(GrColorTypeBytesPerPixel(allowedSrc.fColorType) * srcBufferWidth,
+                                   caps->transferBufferAlignment());
+
     std::unique_ptr<char[]> srcData(new char[kTexDims.fHeight * srcRowBytes]);
 
-    fill_transfer_data(0, 0, kTexDims.fWidth, kTexDims.fHeight, srcBufferWidth,
+    fill_transfer_data(0, 0, kTexDims.fWidth, kTexDims.fHeight, srcRowBytes,
                        allowedSrc.fColorType, srcData.get());
 
     // create and fill transfer buffer
@@ -209,20 +211,27 @@ void basic_transfer_to_test(skiatest::Reporter* reporter,
     // with a left sub-rect inset of 2 but may adjust that so we can fulfill the transfer buffer
     // offset alignment requirement.
     int left = 2;
-    const int top = 10;
+    int top = 10;
     const int width = 10;
     const int height = 2;
     size_t offset = top * srcRowBytes + left * GrColorTypeBytesPerPixel(allowedSrc.fColorType);
     while (offset % allowedSrc.fOffsetAlignmentForTransferBuffer) {
         offset += GrColorTypeBytesPerPixel(allowedSrc.fColorType);
         ++left;
-        // We're assuming that the required alignment is 1 or a small multiple of the bpp, which
-        // it is currently for all color types across all backends.
+        // In most cases we assume that the required alignment is 1 or a small multiple of the bpp,
+        // which it is for color types across all current backends except Direct3D. To correct for
+        // Direct3D's large alignment requirement we may adjust the top location as well.
+        if (left + width > tex->width()) {
+            left = 0;
+            ++top;
+            offset = top * srcRowBytes;
+        }
         SkASSERT(left + width <= tex->width());
+        SkASSERT(top + height <= tex->height());
     }
 
     // change color of subrectangle
-    fill_transfer_data(left, top, width, height, srcBufferWidth, allowedSrc.fColorType,
+    fill_transfer_data(left, top, width, height, srcRowBytes, allowedSrc.fColorType,
                        srcData.get());
     data = buffer->map();
     memcpy(data, srcData.get(), size);
@@ -231,8 +240,6 @@ void basic_transfer_to_test(skiatest::Reporter* reporter,
     result = gpu->transferPixelsTo(tex.get(), left, top, width, height, colorType,
                                    allowedSrc.fColorType, buffer, offset, srcRowBytes);
     if (!result) {
-        gpu->transferPixelsTo(tex.get(), left, top, width, height, colorType, allowedSrc.fColorType,
-                              buffer, offset, srcRowBytes);
         ERRORF(reporter, "Could not transfer pixels to texture, color type: %d",
                static_cast<int>(colorType));
         return;
@@ -279,7 +286,7 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
     size_t textureDataBpp = GrColorTypeBytesPerPixel(colorType);
     size_t textureDataRowBytes = kTexDims.fWidth * textureDataBpp;
     std::unique_ptr<char[]> textureData(new char[kTexDims.fHeight * textureDataRowBytes]);
-    fill_transfer_data(0, 0, kTexDims.fWidth, kTexDims.fHeight, kTexDims.fHeight, colorType,
+    fill_transfer_data(0, 0, kTexDims.fWidth, kTexDims.fHeight, textureDataRowBytes, colorType,
                        textureData.get());
     GrMipLevel data;
     data.fPixels = textureData.get();
@@ -308,8 +315,8 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
     GrImageInfo readInfo(allowedRead.fColorType, kUnpremul_SkAlphaType, nullptr, kTexDims);
 
     size_t bpp = GrColorTypeBytesPerPixel(allowedRead.fColorType);
-    size_t fullBufferRowBytes = kTexDims.fWidth * bpp;
-    size_t partialBufferRowBytes = kPartialWidth * bpp;
+    size_t fullBufferRowBytes = GrAlignTo(kTexDims.fWidth * bpp, caps->transferBufferAlignment());
+    size_t partialBufferRowBytes = GrAlignTo(kPartialWidth * bpp, caps->transferBufferAlignment());
     size_t offsetAlignment = allowedRead.fOffsetAlignmentForTransferBuffer;
     SkASSERT(offsetAlignment);
 
@@ -318,7 +325,8 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
     static constexpr size_t kStartingOffset = 11;
     size_t partialReadOffset = kStartingOffset +
                                (offsetAlignment - kStartingOffset%offsetAlignment)%offsetAlignment;
-    bufferSize = std::max(bufferSize, partialReadOffset + partialBufferRowBytes * kPartialHeight);
+    bufferSize = std::max(bufferSize,
+                          partialReadOffset + partialBufferRowBytes * kPartialHeight);
 
     sk_sp<GrGpuBuffer> buffer(resourceProvider->createBuffer(
             bufferSize, GrGpuBufferType::kXferGpuToCpu, kDynamic_GrAccessPattern));
