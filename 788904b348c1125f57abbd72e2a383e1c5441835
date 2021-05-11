@@ -106,6 +106,24 @@
       "parentUuid": "e3afd003_548ab0ab",
       "revId": "788904b348c1125f57abbd72e2a383e1c5441835",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9597df53_20526ebb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-05-11T21:08:04Z",
+      "side": 1,
+      "message": "I just tried this experiment and it looks like msaa isn\u0027t supported in Metal viewer.\n\nIf I turn off AA, we make it into tessellation but then a shader compile fails.",
+      "parentUuid": "8d8020da_5ebb90f4",
+      "revId": "788904b348c1125f57abbd72e2a383e1c5441835",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
