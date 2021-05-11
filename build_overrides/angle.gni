@@ -1,5 +1,7 @@
 angle_root = "//third_party/externals/angle2"
 angle_zlib_compression_utils_dir = "//third_party/zlib"
+angle_spirv_headers_dir = "//third_party/externals/spirv-headers"
+angle_spirv_tools_dir = "//third_party/externals/spirv-tools"
 
 # We don't have Chromium's build/ or testing/ directories.
 angle_has_build = false

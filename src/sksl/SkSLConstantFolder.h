@@ -44,6 +44,13 @@ public:
     static const Expression* GetConstantValueForVariable(const Expression& value);
 
     /**
+     * If the expression is a const variable with a known compile-time-constant value, returns a
+     * clone of that value. If not, returns the original expression as-is.
+     */
+    static std::unique_ptr<Expression> MakeConstantValueForVariable(
+            std::unique_ptr<Expression> expr);
+
+    /**
      * Reports an error and returns true if op is a division / mod operator and right is zero or
      * contains a zero element.
      */

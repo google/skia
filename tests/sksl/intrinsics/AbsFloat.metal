@@ -16,6 +16,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     Outputs _out;
     (void)_out;
     float4 expected = float4(1.25, 0.0, 0.75, 2.25);
-    _out.sk_FragColor = ((abs(_uniforms.testInputs.x) == expected.x && all(abs(_uniforms.testInputs.xy) == expected.xy)) && all(abs(_uniforms.testInputs.xyz) == expected.xyz)) && all(abs(_uniforms.testInputs) == expected) ? _uniforms.colorGreen : _uniforms.colorRed;
+    _out.sk_FragColor = ((((((abs(_uniforms.testInputs.x) == expected.x && all(abs(_uniforms.testInputs.xy) == expected.xy)) && all(abs(_uniforms.testInputs.xyz) == expected.xyz)) && all(abs(_uniforms.testInputs) == expected)) && 1.25 == expected.x) && all(float2(1.25, 0.0) == expected.xy)) && all(float3(1.25, 0.0, 0.75) == expected.xyz)) && all(float4(1.25, 0.0, 0.75, 2.25) == expected) ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }

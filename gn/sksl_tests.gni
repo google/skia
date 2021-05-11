@@ -459,6 +459,7 @@ sksl_folding_tests = [
   "/sksl/folding/ArrayFolding.sksl",
   "/sksl/folding/AssignmentOps.sksl",
   "/sksl/folding/BoolFolding.sksl",
+  "/sksl/folding/CastFolding.sksl",
   "/sksl/folding/FloatFolding.sksl",
   "/sksl/folding/IntFoldingES2.sksl",
   "/sksl/folding/IntFoldingES3.sksl",

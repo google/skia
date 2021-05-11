@@ -25,6 +25,13 @@ public class Paint {
         nSetShader(mNativeInstance, shader != null ? shader.getNativeInstance() : 0);
     }
 
+    public void setStroke(boolean stroke) {
+        nSetStroke(mNativeInstance, stroke);
+    }
+
+    public void setStrokeWidth(float w) {
+        nSetStrokeWidth(mNativeInstance, w);
+    }
     /**
      * Releases any resources associated with this Paint.
      */
@@ -45,5 +52,7 @@ public class Paint {
     private static native void nRelease(long nativeInstance);
 
     private static native void nSetColor(long nativeInstance, float r, float g, float b, float a);
+    private static native void nSetStroke(long nativeInstance, boolean stroke);
+    private static native void nSetStrokeWidth(long nativeInstance, float w);
     private static native void nSetShader(long nativeInstance, long nativeShader);
 }

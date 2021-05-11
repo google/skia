@@ -1212,6 +1212,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("getScaleX", &SkFont::getScaleX)
         .function("getSize", &SkFont::getSize)
         .function("getSkewX", &SkFont::getSkewX)
+        .function("isEmbolden", &SkFont::isEmbolden)
         .function("getTypeface", &SkFont::getTypeface, allow_raw_pointers())
         .function("setEdging", &SkFont::setEdging)
         .function("setEmbeddedBitmaps", &SkFont::setEmbeddedBitmaps)
@@ -1220,6 +1221,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("setScaleX", &SkFont::setScaleX)
         .function("setSize", &SkFont::setSize)
         .function("setSkewX", &SkFont::setSkewX)
+        .function("setEmbolden", &SkFont::setEmbolden)
         .function("setSubpixel", &SkFont::setSubpixel)
         .function("setTypeface", &SkFont::setTypeface, allow_raw_pointers());
 

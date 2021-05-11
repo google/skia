@@ -347,5 +347,22 @@ void GrD3DOpsRenderPass::inlineUpload(GrOpFlushState* state, GrDeferredTextureUp
     // If we ever start using copy command lists for doing uploads, then we'll need to make sure
     // we submit our main command list before doing the copy here and then start a new main command
     // list.
-    state->doUpload(upload);
+
+    fGpu->endRenderPass(fRenderTarget, fOrigin, fBounds);
+
+    // We pass in true here to signal that after the upload we need to set the upload texture's
+    // resource state back to D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE.
+    state->doUpload(upload, true);
+}
+
+void GrD3DOpsRenderPass::submit() {
+    if (!fRenderTarget) {
+        return;
+    }
+
+    // We don't use render passes in d3d, so there is nothing to submit here as all commands have
+    // already been recorded on the main command list. If in the future we start to use render
+    // passes on d3d12 devices that support them (most likely ARM devices), then we
+    // will submit them here.
+    fGpu->endRenderPass(fRenderTarget, fOrigin, fBounds);
 }

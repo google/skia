@@ -1,1 +1,14 @@
-uniform half a; void main() { sk_FragColor.x = trunc(a); }
+uniform half4 input, expected;
+uniform half4 colorGreen, colorRed;
+
+half4 main(float2 coords) {
+    const half4 constVal = half4(-1.5, -0.5, 0.5, 1.5);
+    return (trunc(input.x)       == expected.x     &&
+            trunc(input.xy)      == expected.xy    &&
+            trunc(input.xyz)     == expected.xyz   &&
+            trunc(input.xyzw)    == expected.xyzw  &&
+            trunc(constVal.x)    == expected.x     &&
+            trunc(constVal.xy)   == expected.xy    &&
+            trunc(constVal.xyz)  == expected.xyz   &&
+            trunc(constVal.xyzw) == expected.xyzw) ? colorGreen : colorRed;
+}

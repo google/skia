@@ -2,8 +2,9 @@ uniform half4 a, b;
 uniform uint2 c, d;
 uniform int3 e, f;
 void main() {
+    const int4 int4_zero = int4(0);
     bool4 expectFFTT = notEqual(half4(3, 3, 3.25, 100), half4(3));
-    bool4 expectTTFF = notEqual(int4(0), int4(-100, -50, 0, 0));
+    bool4 expectTTFF = notEqual(int4_zero, int4(-100, -50, 0, 0));
 
     sk_FragColor.x = notEqual(a, b).x ? 1 : 0;
     sk_FragColor.y = notEqual(c, d).y ? 1 : 0;

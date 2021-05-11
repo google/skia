@@ -342,9 +342,9 @@ static int get_programs_max_stages(const sk_gpu_test::ContextInfo& ctxInfo) {
         // Android devices. We have passes on ARM devices with the default number of stages.
         // TODO When we run ES 3.00 GLSL in more places, test again
 #ifdef SK_BUILD_FOR_ANDROID
-            if (kARM_GrGLVendor != gpu->ctxInfo().vendor()) {
-                maxStages = 1;
-            }
+        if (gpu->ctxInfo().vendor() != GrGLVendor::kARM) {
+            maxStages = 1;
+        }
 #endif
         // On iOS we can exceed the maximum number of varyings. http://skbug.com/6627.
 #ifdef SK_BUILD_FOR_IOS
@@ -377,7 +377,7 @@ static int get_programs_max_levels(const sk_gpu_test::ContextInfo& ctxInfo) {
         GrGLGpu* gpu = static_cast<GrGLGpu*>(ctxInfo.directContext()->priv().getGpu());
         // Tecno Spark 3 Pro with Power VR Rogue GE8300 will fail shader compiles with
         // no message if the shader is particularly long.
-        if (gpu->ctxInfo().vendor() == kImagination_GrGLVendor) {
+        if (gpu->ctxInfo().vendor() == GrGLVendor::kImagination) {
             maxTreeLevels = 3;
         }
 #endif

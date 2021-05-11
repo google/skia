@@ -98,6 +98,12 @@
     SKSL_INTRINSIC(transpose)        \
     SKSL_INTRINSIC(trunc)            \
     SKSL_INTRINSIC(uintBitsToFloat)  \
+    SKSL_INTRINSIC(unpackDouble2x32) \
+    SKSL_INTRINSIC(unpackHalf2x16)   \
+    SKSL_INTRINSIC(unpackSnorm2x16)  \
+    SKSL_INTRINSIC(unpackSnorm4x8)   \
+    SKSL_INTRINSIC(unpackUnorm2x16)  \
+    SKSL_INTRINSIC(unpackUnorm4x8)   \
     SKSL_INTRINSIC(unpremul)
 
 #endif

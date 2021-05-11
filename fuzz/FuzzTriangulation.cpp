@@ -29,4 +29,5 @@ DEF_FUZZ(Triangulation, fuzz) {
     bool isLinear;
 
     GrTriangulator::PathToTriangles(path, tol, clipBounds, &allocator, &isLinear);
+    allocator.detachVertexData(); // normally handled by the triangulating path renderer.
 }

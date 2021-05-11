@@ -235,6 +235,7 @@ private:
 
     T* uncheckedSet(T&& val) {
         const K& key = Traits::GetKey(val);
+        SkASSERT(key == key);
         uint32_t hash = Hash(key);
         int index = hash & (fCapacity-1);
         for (int n = 0; n < fCapacity; n++) {

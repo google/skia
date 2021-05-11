@@ -115,6 +115,17 @@ SkM44& SkM44::preScale(SkScalar x, SkScalar y) {
     return *this;
 }
 
+SkM44& SkM44::preScale(SkScalar x, SkScalar y, SkScalar z) {
+    sk4f c0 = sk4f::Load(fMat +  0);
+    sk4f c1 = sk4f::Load(fMat +  4);
+    sk4f c2 = sk4f::Load(fMat +  8);
+
+    (c0 * x).store(fMat + 0);
+    (c1 * y).store(fMat + 4);
+    (c2 * z).store(fMat + 8);
+    return *this;
+}
+
 SkV4 SkM44::map(float x, float y, float z, float w) const {
     sk4f c0 = sk4f::Load(fMat +  0);
     sk4f c1 = sk4f::Load(fMat +  4);

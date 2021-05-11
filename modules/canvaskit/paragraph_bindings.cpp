@@ -377,8 +377,9 @@ JSArray GetShapedLines(para::Paragraph& self) {
 //        jrun.set("typeface", info->font.getTypeface());
         jrun.set("typeface",    emscripten::val::null());
         jrun.set("size",        info->font.getSize());
-        jrun.set("fakeBold",    info->font.isEmbolden());
-        jrun.set("fakeItalic",  info->font.getSkewX() != 0);
+        if (info->font.getScaleX()) {
+            jrun.set("scaleX",  info->font.getScaleX());
+        }
 
         jrun.set("glyphs",   MakeTypedArray(N,  info->glyphs,     "Uint16Array"));
         jrun.set("offsets",  MakeTypedArray(N1, info->utf8Starts, "Uint32Array"));

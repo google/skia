@@ -2544,7 +2544,7 @@ void GrGLGpu::flushBlendAndColorWrite(
 
             // Workaround for the ARM KHR_blend_equation_advanced disable flags issue
             // https://code.google.com/p/skia/issues/detail?id=3943
-            if (kARM_GrGLVendor == this->ctxInfo().vendor() &&
+            if (this->ctxInfo().vendor() == GrGLVendor::kARM &&
                 GrBlendEquationIsAdvanced(fHWBlendState.fEquation)) {
                 SkASSERT(this->caps()->advancedBlendEquationSupport());
                 // Set to any basic blending equation.
