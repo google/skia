@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0f0292ca_220efa6d",
+        "filename": "generated/commit-queue.cfg",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-05-11T18:39:56Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "2fb3fd51_28c17278",
+      "revId": "69531f2d3ec9eba2589ab72108514f171cd4078b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f7f608b0_fe7707c4",
@@ -66,6 +84,24 @@
       "side": 1,
       "message": "Just `./main.star` with `lucicfg` in PATH will do it.  I haven\u0027t figured out how to update our commit queue read/write libraries yet though, so this will have to wait a bit.",
       "parentUuid": "f7f608b0_fe7707c4",
+      "revId": "69531f2d3ec9eba2589ab72108514f171cd4078b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7ec52a39_85b0f4f6",
+        "filename": "main.star",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-05-11T18:39:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4ff5ab0b_8a223227",
       "revId": "69531f2d3ec9eba2589ab72108514f171cd4078b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
