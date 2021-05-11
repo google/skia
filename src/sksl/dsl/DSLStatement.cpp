@@ -63,7 +63,8 @@ DSLStatement::~DSLStatement() {
         return;
     }
 #endif
-    SkASSERTF(!fStatement, "Statement destroyed without being incorporated into program");
+    SkASSERTF(!fStatement, "Statement '%s' destroyed without being incorporated into program",
+              fStatement->description().c_str());
 }
 
 DSLPossibleStatement::DSLPossibleStatement(std::unique_ptr<SkSL::Statement> statement)

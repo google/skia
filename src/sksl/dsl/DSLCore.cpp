@@ -25,8 +25,8 @@ namespace SkSL {
 
 namespace dsl {
 
-void Start(SkSL::Compiler* compiler, ProgramKind kind) {
-    DSLWriter::SetInstance(std::make_unique<DSLWriter>(compiler, kind));
+void Start(SkSL::Compiler* compiler, ProgramKind kind, int flags) {
+    DSLWriter::SetInstance(std::make_unique<DSLWriter>(compiler, kind, flags));
 }
 
 void End() {
@@ -93,6 +93,11 @@ public:
         if (stmt) {
             DSLWriter::ProgramElements().push_back(std::make_unique<SkSL::GlobalVarDeclaration>(
                     std::move(stmt)));
+        } else {
+            const Symbol* alreadyDeclared = (*DSLWriter::SymbolTable())[var.fName];
+            if (alreadyDeclared && alreadyDeclared->is<Variable>()) {
+                var.fVar = &alreadyDeclared->as<Variable>();
+            }
         }
     }
 
