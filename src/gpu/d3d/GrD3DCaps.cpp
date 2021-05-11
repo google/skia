@@ -45,12 +45,13 @@ GrD3DCaps::GrD3DCaps(const GrContextOptions& contextOptions, IDXGIAdapter1* adap
     fReadPixelsRowBytesSupport = true;
     fWritePixelsRowBytesSupport = true;
 
-    // TODO: implement these
-    fTransferFromBufferToTextureSupport = false;
+    fTransferFromBufferToTextureSupport = true;
     fTransferFromSurfaceToBufferSupport = false;
 
     fMaxRenderTargetSize = 16384;  // minimum required by feature level 11_0
     fMaxTextureSize = 16384;       // minimum required by feature level 11_0
+
+    fTransferBufferAlignment = D3D12_TEXTURE_DATA_PITCH_ALIGNMENT;
 
     // TODO: implement
     fDynamicStateArrayGeometryProcessorTextureSupport = false;
