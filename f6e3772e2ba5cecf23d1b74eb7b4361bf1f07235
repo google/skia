@@ -169,6 +169,30 @@
       },
       "revId": "f6e3772e2ba5cecf23d1b74eb7b4361bf1f07235",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d4ef1507_271a945b",
+        "filename": "include/core/SkPathEffect.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-11T14:44:21Z",
+      "side": 1,
+      "message": "If we don\u0027t have any right now -- DON\u0027T HELP THEM. This class should be sealed (as we\u0027ve done with shaders, etc.",
+      "parentUuid": "e4c7b095_8cabeb5f",
+      "range": {
+        "startLine": 178,
+        "startChar": 0,
+        "endLine": 181,
+        "endChar": 0
+      },
+      "revId": "f6e3772e2ba5cecf23d1b74eb7b4361bf1f07235",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
