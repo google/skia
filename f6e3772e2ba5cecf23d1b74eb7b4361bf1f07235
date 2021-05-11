@@ -16,6 +16,23 @@
       "message": "Updated to API proposed by Brian, and with it exposed to anyone internally using SkPathEffectPriv. PTAL, thanks!",
       "revId": "f6e3772e2ba5cecf23d1b74eb7b4361bf1f07235",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "96916a67_65362512",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-11T10:47:56Z",
+      "side": 1,
+      "message": "Did you actually \"add canComputeFastBounds\"?",
+      "revId": "f6e3772e2ba5cecf23d1b74eb7b4361bf1f07235",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
