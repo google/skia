@@ -162,6 +162,7 @@ static GrGLVendor get_vendor(const char* vendorString) {
 
 static GrGLRenderer get_renderer(const char* rendererString, const GrGLExtensions& extensions) {
     SkASSERT(rendererString);
+    SkDebugf("rendererString: %s\n", rendererString);
     static const char kTegraStr[] = "NVIDIA Tegra";
     if (0 == strncmp(rendererString, kTegraStr, SK_ARRAY_COUNT(kTegraStr) - 1)) {
         // Tegra strings are not very descriptive. We distinguish between the modern and legacy
@@ -330,6 +331,11 @@ static GrGLRenderer get_renderer(const char* rendererString, const GrGLExtension
         n = sscanf(amdString, "Pro Vega %i", &amdModel);
         if (1 == n) {
             return GrGLRenderer::kAMDRadeonProVegaxx;
+        }
+
+        n = sscanf(amdString, "Vega %i", &amdModel);
+        if (1 == n) {
+            return GrGLRenderer::kAMDRadeonVegaxx;
         }
     }
 

@@ -4118,6 +4118,11 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         ctxInfo.renderer() == GrGLRenderer::kAdreno640) {
         fAvoidReorderingRenderTasks = true;
     }
+
+    // skbug.com/11899. No CCPR on Vega.
+    if (ctxInfo.renderer() == GrGLRenderer::kAMDRadeonVegaxx) {
+        fDriverDisableMSAAClipAtlas = true;
+    }
 }
 
 void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
