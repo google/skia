@@ -119,6 +119,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "241a3fd1_51ed5598",
+        "filename": "demos.skia.org/demos/textedit/index.html",
+        "patchSetId": 2
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-11T14:42:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3cd73143_06a03a11",
+      "range": {
+        "startLine": 102,
+        "startChar": 20,
+        "endLine": 102,
+        "endChar": 29
+      },
+      "revId": "748e53ad820bbdc8c0b51a5d46b2c60db4f4bb98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "55ec7292_a082a9ed",
@@ -227,6 +251,30 @@
       "side": 1,
       "message": "I don\u0027t see the leak addressed.",
       "parentUuid": "0d4dea20_ee4fecad",
+      "range": {
+        "startLine": 40,
+        "startChar": 17,
+        "endLine": 40,
+        "endChar": 22
+      },
+      "revId": "748e53ad820bbdc8c0b51a5d46b2c60db4f4bb98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b0e044f5_42b1647a",
+        "filename": "demos.skia.org/demos/textedit/textapi_utils.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-11T14:42:25Z",
+      "side": 1,
+      "message": "doh -- that was \u0027done\u0027 when I was editing the wrong file.\n\ndone",
+      "parentUuid": "3a2b0827_fd0dd3ee",
       "range": {
         "startLine": 40,
         "startChar": 17,
