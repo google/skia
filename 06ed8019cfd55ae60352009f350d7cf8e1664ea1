@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ac813a99_8368c154",
+        "filename": "experimental/sktext/include/Processor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-05-11T17:24:30Z",
+      "side": 1,
+      "message": "As a next step. This fix is just a multiline fix.",
+      "parentUuid": "ced8b84a_b8d20260",
+      "range": {
+        "startLine": 37,
+        "startChar": 20,
+        "endLine": 37,
+        "endChar": 28
+      },
+      "revId": "06ed8019cfd55ae60352009f350d7cf8e1664ea1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cddba0a7_97bfdb18",
@@ -54,6 +78,30 @@
       "writtenOn": "2021-05-11T17:21:25Z",
       "side": 1,
       "message": "Let\u0027s discuss sometime making decorations (and other things like it) an explicit \"layer\" above a lower-level service...",
+      "range": {
+        "startLine": 51,
+        "startChar": 20,
+        "endLine": 51,
+        "endChar": 21
+      },
+      "revId": "06ed8019cfd55ae60352009f350d7cf8e1664ea1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "48b3c45b_e01fa942",
+        "filename": "experimental/sktext/include/Processor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-05-11T17:24:30Z",
+      "side": 1,
+      "message": "Sure. I am trying to check it in so I can start working on all the new things, including what you mentioned above. This fix is mostly about multiline (it didn\u0027t work before).",
+      "parentUuid": "cddba0a7_97bfdb18",
       "range": {
         "startLine": 51,
         "startChar": 20,
