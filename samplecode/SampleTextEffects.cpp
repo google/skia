@@ -86,6 +86,8 @@ public:
 private:
     SK_FLATTENABLE_HOOKS(InverseFillPE)
 
+    bool onComputeFastBounds(SkRect* bounds) const override { return false; }
+
     using INHERITED = SkPathEffect;
 };
 
