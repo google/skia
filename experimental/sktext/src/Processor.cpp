@@ -69,28 +69,28 @@ bool Processor::decorate(SkTArray<DecorBlock, true> decorBlocks) {
 }
 
 // All at once
-bool Processor::drawText(std::u16string text, SkCanvas* canvas, SkScalar x, SkScalar y) {
+bool Processor::drawText(const char* text, SkCanvas* canvas, SkScalar x, SkScalar y) {
 
-    return drawText(std::move(text), canvas, TextFormatStyle(TextAlign::kLeft, TextDirection::kLtr), SK_ColorBLACK, SK_ColorWHITE, SkString("Roboto"), 14, SkFontStyle::Normal(), x, y);
+    return drawText(text, canvas, TextFormatStyle(TextAlign::kLeft, TextDirection::kLtr), SK_ColorBLACK, SK_ColorWHITE, SkString("Roboto"), 14, SkFontStyle::Normal(), x, y);
 }
 
-bool Processor::drawText(std::u16string text, SkCanvas* canvas, SkScalar width) {
-    return drawText(std::move(text), canvas,
+bool Processor::drawText(const char* text, SkCanvas* canvas, SkScalar width) {
+    return drawText(text, canvas,
                     TextFormatStyle(TextAlign::kLeft, TextDirection::kLtr), SK_ColorBLACK, SK_ColorWHITE, SkString("Roboto"), 14, SkFontStyle::Normal(),
                     SkSize::Make(width, SK_ScalarInfinity), 0, 0);
 }
 
-bool Processor::drawText(std::u16string text, SkCanvas* canvas, TextFormatStyle textFormat, SkColor foreground, SkColor background, const SkString& fontFamily, SkScalar fontSize, SkFontStyle fontStyle, SkScalar x, SkScalar y) {
-    return drawText(std::move(text), canvas, textFormat, foreground, background, fontFamily, fontSize, fontStyle, SkSize::Make(SK_ScalarInfinity, SK_ScalarInfinity), x, y);
+bool Processor::drawText(const char* text, SkCanvas* canvas, TextFormatStyle textFormat, SkColor foreground, SkColor background, const SkString& fontFamily, SkScalar fontSize, SkFontStyle fontStyle, SkScalar x, SkScalar y) {
+    return drawText(text, canvas, textFormat, foreground, background, fontFamily, fontSize, fontStyle, SkSize::Make(SK_ScalarInfinity, SK_ScalarInfinity), x, y);
 }
 
-bool Processor::drawText(std::u16string text, SkCanvas* canvas,
+bool Processor::drawText(const char* text, SkCanvas* canvas,
                          TextFormatStyle textFormat, SkColor foreground, SkColor background, const SkString& fontFamily, SkScalar fontSize, SkFontStyle fontStyle,
                          SkSize reqSize, SkScalar x, SkScalar y) {
 
-    TextRange textRange(0, text.size());
-    Processor processor(std::move(text));
-
+    SkString str(text);
+    TextRange textRange(0, str.size());
+    Processor processor(str);
     if (!processor.computeCodeUnitProperties()) {
         return false;
     }
@@ -163,19 +163,6 @@ bool Processor::computeCodeUnitProperties() {
         return false;
     }
 
-    // Create utf8 -> utf16 conversion table
-    auto text8 = fUnicode->convertUtf16ToUtf8(fText);
-    size_t utf16Index = 0;
-    fUTF16FromUTF8.push_back_n(text8.size() + 1, utf16Index);
-    fUnicode->forEachCodepoint(text8.c_str(), text8.size(),
-        [this, &utf16Index](SkUnichar unichar, int32_t start, int32_t end) {
-            for (auto i = start; i < end; ++i) {
-                fUTF16FromUTF8[i] = utf16Index;
-            }
-            ++utf16Index;
-       });
-    fUTF16FromUTF8[text8.size()] = utf16Index;
-
     // Get white spaces
     fUnicode->forEachCodepoint(fText.c_str(), fText.size(),
        [this](SkUnichar unichar, int32_t start, int32_t end) {
@@ -187,18 +174,24 @@ bool Processor::computeCodeUnitProperties() {
        });
 
     // Get line breaks
-    fUnicode->forEachBreak(fText.c_str(), fText.size(), SkUnicode::BreakType::kLines,
-                           [&](SkBreakIterator::Position pos, SkBreakIterator::Status status){
-                                fCodeUnitProperties[pos] |= (status == (SkBreakIterator::Status)SkUnicode::LineBreakType::kHardLineBreak
-                                                               ? CodeUnitFlags::kHardLineBreakBefore
-                                                               : CodeUnitFlags::kSoftLineBreakBefore);
-                            });
+    std::vector<SkUnicode::LineBreakBefore> lineBreaks;
+    if (!fUnicode->getLineBreaks(fText.c_str(), fText.size(), &lineBreaks)) {
+        return false;
+    }
+    for (auto& lineBreak : lineBreaks) {
+        fCodeUnitProperties[lineBreak.pos] |= lineBreak.breakType == SkUnicode::LineBreakType::kHardLineBreak
+                                           ? CodeUnitFlags::kHardLineBreakBefore
+                                           : CodeUnitFlags::kSoftLineBreakBefore;
+    }
 
     // Get graphemes
-    fUnicode->forEachBreak(fText.c_str(), fText.size(), SkUnicode::BreakType::kGraphemes,
-                           [&](SkBreakIterator::Position pos, SkBreakIterator::Status){
-                                fCodeUnitProperties[pos]|= CodeUnitFlags::kGraphemeStart;
-                            });
+    std::vector<SkUnicode::Position> graphemes;
+    if (!fUnicode->getGraphemes(fText.c_str(), fText.size(), &graphemes)) {
+        return false;
+    }
+    for (auto pos : graphemes) {
+        fCodeUnitProperties[pos] |= CodeUnitFlags::kGraphemeStart;
+    }
 
     return true;
 }

@@ -27,7 +27,7 @@ protected:
 
     void onDrawContent(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
-        Processor::drawText(u"Hello word", canvas, 0, 0);
+        Processor::drawText("Hello word", canvas, 0, 0);
     }
 
 private:
@@ -42,7 +42,7 @@ protected:
     SkString name() override { return SkString("TextSample_Align_Dir"); }
 
     void drawLine(SkCanvas* canvas, SkScalar w, SkScalar h,
-                  const std::u16string& text,
+                  const std::string& text,
                   TextAlign align,
                   TextDirection direction = TextDirection::kLtr) {
         SkColor background = SK_ColorGRAY;
@@ -54,7 +54,7 @@ protected:
         canvas->clipRect(SkRect::MakeWH(w, h));
         canvas->drawColor(SK_ColorWHITE);
 
-        Processor::drawText(direction == TextDirection::kRtl ? mirror(text) : normal(text),
+        Processor::drawText(direction == TextDirection::kRtl ? mirror(text).c_str() : normal(text).c_str(),
                             canvas,
                             TextFormatStyle(align, direction),
                             SK_ColorBLACK, SK_ColorLTGRAY,
@@ -62,27 +62,27 @@ protected:
                             0, 0);
     }
 
-    std::u16string mirror(const std::u16string& text) {
+    SkString mirror(const std::string& text) {
         std::u16string result;
         result += u"\u202E";
-        for (auto i = text.size(); i > 0; --i) {
-            result += text[i - 1];
-        }
-        //for (auto ch : text) {
-        //    result += ch;
+        //for (auto i = text.size(); i > 0; --i) {
+        //  result += text[i - 1];
         //}
-        result += u"\u202C";
-        return result;
-    }
-
-    std::u16string normal(const std::u16string& text) {
-        std::u16string result;
-        //result += u"\u202D";
         for (auto ch : text) {
             result += ch;
         }
-        //result += u"\u202C";
-        return result;
+        result += u"\u202C";
+        return fUnicode->convertUtf16ToUtf8(result);
+    }
+
+    SkString normal(const std::string& text) {
+        std::u16string result;
+        result += u"\u202D";
+        for (auto ch : text) {
+            result += ch;
+        }
+        result += u"\u202C";
+        return fUnicode->convertUtf16ToUtf8(result);
     }
 
     void onDrawContent(SkCanvas* canvas) override {
@@ -91,7 +91,7 @@ protected:
         SkScalar width = this->width() / 4;
         SkScalar height = this->height() / 2;
 
-        const std::u16string line = u"One line of text";
+        const std::string line = "One line of text";
 
         drawLine(canvas, width, height, line, TextAlign::kLeft, TextDirection::kLtr);
         canvas->translate(width, 0);
@@ -110,7 +110,6 @@ protected:
         canvas->translate(width, 0);
         drawLine(canvas, width, height, line, TextAlign::kJustify, TextDirection::kRtl);
         canvas->translate(width, 0);
-
     }
 
 private:
@@ -124,7 +123,7 @@ protected:
 
     void onDrawContent(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
-        Processor::drawText(u"A very_very_very_very_very_very_very_very_very_very "
+        Processor::drawText("A very_very_very_very_very_very_very_very_very_very "
                 "very_very_very_very_very_very_very_very_very_very very very very very very very "
                 "very very very very very very very very very very very very very very very very "
                 "very very very very very very very very very very very very very long text", canvas, this->width());
@@ -155,7 +154,7 @@ protected:
 
     void onDrawContent(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
-        Processor::drawText(u"LONG MIRRORED TEXT SHOULD SHOW RIGHT TO LEFT (AS NORMAL)", canvas, 0, 0);
+        Processor::drawText("LONG MIRRORED TEXT SHOULD SHOW RIGHT TO LEFT (AS NORMAL)", canvas, 0, 0);
     }
 
 private:

@@ -26,7 +26,6 @@ class TextRun {
  private:
   friend class Wrapper;
   friend class Processor;
-  friend class Shaper;
 
   SkFont fFont;
 

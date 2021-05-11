@@ -8,14 +8,19 @@ namespace text {
 class Processor;
 
 TextRun::TextRun(const SkShaper::RunHandler::RunInfo& info)
-    : fFont(info.fFont)
-    , fBidiLevel(info.fBidiLevel)
-    , fAdvance(info.fAdvance)
-    , fUtf8Range(info.utf8Range) {
-    fGlyphs.push_back_n(info.glyphCount);
-    fBounds.push_back_n(info.glyphCount);
-    fPositions.push_back_n(info.glyphCount + 1);
-    fClusters.push_back_n(info.glyphCount + 1);
+    : fFont(info.fFont) {
+  fBidiLevel = info.fBidiLevel;
+  fAdvance = info.fAdvance;
+  fUtf8Range = info.utf8Range;
+  fGlyphs.push_back_n(info.glyphCount);
+  fBounds.push_back_n(info.glyphCount);
+  fPositions.push_back_n(info.glyphCount + 1);
+  fClusters.push_back_n(info.glyphCount + 1);
+
+  // To make edge cases easier:
+  fPositions[info.glyphCount] = fAdvance;
+  fClusters[info.glyphCount] =
+      leftToRight() ? info.utf8Range.end() : info.utf8Range.begin();
 }
 
 void TextRun::commit() {
