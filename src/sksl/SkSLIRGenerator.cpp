@@ -1322,10 +1322,6 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(int offset, StringFra
 #ifndef SKSL_STANDALONE
                 case SK_FRAGCOORD_BUILTIN:
                     fInputs.fFlipY = true;
-                    if (this->settings().fFlipY &&
-                        !this->caps().fragCoordConventionsExtensionString()) {
-                        fInputs.fRTHeight = true;
-                    }
 #endif
             }
             if (this->programKind() == ProgramKind::kFragmentProcessor &&

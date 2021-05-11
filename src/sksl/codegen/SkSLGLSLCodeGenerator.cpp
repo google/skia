@@ -755,8 +755,9 @@ void GLSLCodeGenerator::writeFragCoord() {
     } else {
         if (!fSetupFragPositionLocal) {
             fFunctionHeader += usesPrecisionModifiers() ? "highp " : "";
-            fFunctionHeader += "    vec4 sk_FragCoord = vec4(gl_FragCoord.x, " SKSL_RTHEIGHT_NAME
-                               " - gl_FragCoord.y, gl_FragCoord.z, gl_FragCoord.w);\n";
+            fFunctionHeader += "    vec4 sk_FragCoord = vec4(gl_FragCoord.x, 2 * ";
+            fFunctionHeader += Compiler::RTADJUST_NAME;
+            fFunctionHeader += ".w - gl_FragCoord.y, gl_FragCoord.z, gl_FragCoord.w);\n";
             fSetupFragPositionLocal = true;
         }
         this->write("sk_FragCoord");
@@ -1437,15 +1438,6 @@ void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
     }
 }
 
-void GLSLCodeGenerator::writeInputVars() {
-    if (fProgram.fInputs.fRTHeight) {
-        const char* precision = usesPrecisionModifiers() ? "highp " : "";
-        fGlobals.writeText("uniform ");
-        fGlobals.writeText(precision);
-        fGlobals.writeText("float " SKSL_RTHEIGHT_NAME ";\n");
-    }
-}
-
 bool GLSLCodeGenerator::generateCode() {
     this->writeHeader();
     if (fProgram.fConfig->fKind == ProgramKind::kGeometry &&
@@ -1473,7 +1465,6 @@ bool GLSLCodeGenerator::generateCode() {
     fOut = rawOut;
 
     write_stringstream(fExtensions, *rawOut);
-    this->writeInputVars();
     write_stringstream(fGlobals, *rawOut);
 
     if (!this->caps().canUseFragCoord()) {

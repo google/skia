@@ -60,7 +60,6 @@ public:
 private:
     GrGLProgramBuilder(GrGLGpu*, const GrProgramDesc&, const GrProgramInfo&);
 
-    void addInputVars(const SkSL::Program::Inputs& inputs);
     bool compileAndAttachShaders(const SkSL::String& glsl,
                                  GrGLuint programId,
                                  GrGLenum type,
