@@ -53,6 +53,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0c5ba867_42d92254",
+        "filename": "include/core/SkPathEffect.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-11T01:12:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "58e0564c_ddb8e531",
+      "revId": "58b2a51381f480ee215b9b46cad207dcaeeb34a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "703cebd0_0f82d19e",
@@ -114,6 +132,30 @@
       "side": 1,
       "message": "Oh, yeah, if we didn\u0027t have to support the query via null I\u0027d just go with what you wrote for onComputeFastBounds.",
       "parentUuid": "3bfa917d_751e6afb",
+      "range": {
+        "startLine": 186,
+        "startChar": 0,
+        "endLine": 186,
+        "endChar": 88
+      },
+      "revId": "58b2a51381f480ee215b9b46cad207dcaeeb34a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a7e36118_877eb59e",
+        "filename": "include/core/SkPathEffect.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-11T01:12:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "525b858c_6b852767",
       "range": {
         "startLine": 186,
         "startChar": 0,
