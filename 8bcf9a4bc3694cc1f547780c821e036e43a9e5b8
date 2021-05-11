@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c159326d_6988ab42",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 787,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-05-11T18:41:13Z",
+      "side": 1,
+      "message": "It\u0027s copypasta from the Vulkan backend, fixed. I suppose we could copy the data to another buffer and align it correctly, but that seems like a bad idea.",
+      "parentUuid": "1cd9d797_10f48977",
+      "range": {
+        "startLine": 787,
+        "startChar": 7,
+        "endLine": 787,
+        "endChar": 11
+      },
+      "revId": "8bcf9a4bc3694cc1f547780c821e036e43a9e5b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a0f7f67d_facc337c",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-05-11T18:01:32Z",
       "side": 1,
       "message": "So like the transfer call will wait on a fence on the command submission to know the work is done on the GPU. However, the part I am unsure of is if you need to manually invalidate the cpu cache for the buffer or if that is handled automatically for d3d.",
+      "range": {
+        "startLine": 874,
+        "startChar": 4,
+        "endLine": 875,
+        "endChar": 58
+      },
+      "revId": "8bcf9a4bc3694cc1f547780c821e036e43a9e5b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8b4695d1_c38358c9",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 875,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-05-11T18:41:13Z",
+      "side": 1,
+      "message": "That\u0027s what\u0027s unclear to me too. I think it does it for you -- I can\u0027t find anything like a memory barrier or a managed flush -- but I\u0027m not sure.",
+      "parentUuid": "a0f7f67d_facc337c",
       "range": {
         "startLine": 874,
         "startChar": 4,

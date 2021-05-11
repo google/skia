@@ -22,6 +22,30 @@
       },
       "revId": "bb006430ae8234762cfef89a08919b4690af1b49",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2dd2d8c8_f5694dab",
+        "filename": "tests/TransferPixelsTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-05-11T18:41:13Z",
+      "side": 0,
+      "message": "As far as I can tell -- I\u0027m not sure why it was there but it seems pointless.",
+      "parentUuid": "ea06f402_37ae06ec",
+      "range": {
+        "startLine": 234,
+        "startChar": 7,
+        "endLine": 235,
+        "endChar": 59
+      },
+      "revId": "bb006430ae8234762cfef89a08919b4690af1b49",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
