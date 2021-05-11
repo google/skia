@@ -1,1 +1,15 @@
-uniform half a; void main() { sk_FragColor.x = saturate(a); }
+uniform half4 testInputs;  // equals (-1.25, 0, 0.75, 2.25)
+uniform half4 colorGreen, colorRed;
+
+half4 main(float2 coords) {
+    const half4 constVal = half4(-1.25, 0, 0.75, 2.25);
+    half4 expected = half4(0, 0, 0.75, 1);
+    return (saturate(testInputs.x)    == expected.x     &&
+            saturate(testInputs.xy)   == expected.xy    &&
+            saturate(testInputs.xyz)  == expected.xyz   &&
+            saturate(testInputs.xyzw) == expected.xyzw  &&
+            saturate(constVal.x)      == expected.x     &&
+            saturate(constVal.xy)     == expected.xy    &&
+            saturate(constVal.xyz)    == expected.xyz   &&
+            saturate(constVal.xyzw)   == expected.xyzw) ? colorGreen : colorRed;
+}
