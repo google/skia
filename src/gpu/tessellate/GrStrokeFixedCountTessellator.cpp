@@ -9,8 +9,8 @@
 
 #include "src/core/SkGeometry.h"
 #include "src/gpu/geometry/GrPathUtils.h"
+#include "src/gpu/geometry/GrWangsFormula.h"
 #include "src/gpu/tessellate/GrStrokeIterator.h"
-#include "src/gpu/tessellate/GrWangsFormula.h"
 
 namespace {
 
