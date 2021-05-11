@@ -97,6 +97,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "3cd73143_06a03a11",
+        "filename": "demos.skia.org/demos/textedit/index.html",
+        "patchSetId": 2
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-05-11T12:14:08Z",
+      "side": 1,
+      "message": "nit: typically Delete deletes in the forward direction (at least on Linux/Windows).",
+      "parentUuid": "4172a401_bd7e0dee",
+      "range": {
+        "startLine": 102,
+        "startChar": 20,
+        "endLine": 102,
+        "endChar": 29
+      },
+      "revId": "748e53ad820bbdc8c0b51a5d46b2c60db4f4bb98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "55ec7292_a082a9ed",
         "filename": "demos.skia.org/demos/textedit/index.html",
         "patchSetId": 2
@@ -179,6 +203,30 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "8722c959_c83bd6e1",
+      "range": {
+        "startLine": 40,
+        "startChar": 17,
+        "endLine": 40,
+        "endChar": 22
+      },
+      "revId": "748e53ad820bbdc8c0b51a5d46b2c60db4f4bb98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3a2b0827_fd0dd3ee",
+        "filename": "demos.skia.org/demos/textedit/textapi_utils.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-05-11T12:14:08Z",
+      "side": 1,
+      "message": "I don\u0027t see the leak addressed.",
+      "parentUuid": "0d4dea20_ee4fecad",
       "range": {
         "startLine": 40,
         "startChar": 17,
@@ -330,6 +378,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e1c5d9f9_461ee9fe",
+        "filename": "demos.skia.org/demos/textedit/textapi_utils.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-05-11T12:14:08Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "451229c9_e3b64b48",
+      "range": {
+        "startLine": 90,
+        "startChar": 9,
+        "endLine": 90,
+        "endChar": 24
+      },
+      "revId": "748e53ad820bbdc8c0b51a5d46b2c60db4f4bb98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bff2d9c3_f7e4a2d0",
@@ -414,6 +486,30 @@
       "side": 1,
       "message": "Hmmm, can do that in C too, but I want to emphasize i as a number. Will change to \u003d\u003d\u003d",
       "parentUuid": "908d1f72_d58f06ea",
+      "range": {
+        "startLine": 314,
+        "startChar": 26,
+        "endLine": 314,
+        "endChar": 32
+      },
+      "revId": "748e53ad820bbdc8c0b51a5d46b2c60db4f4bb98",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "39f9f1d8_812940f9",
+        "filename": "demos.skia.org/demos/textedit/textapi_utils.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-05-11T12:14:08Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "fa52b6e9_f8eccebc",
       "range": {
         "startLine": 314,
         "startChar": 26,
