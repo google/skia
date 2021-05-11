@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "79cbb567_4e58bf99",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-05-11T03:52:48Z",
+      "side": 1,
+      "message": "Just some nitpicks",
+      "revId": "511c327de6e529189e628d5647af6a57dd8710cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "41ba40bf_258e23d6",
+        "filename": "modules/canvaskit/npm_build/textapi_utils.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 520,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-05-11T03:52:48Z",
+      "side": 1,
+      "message": "Sorry, late to the party. There seems to be some inconsistency in function names. Sometimes they are camelCase, sometimes snake_case.",
+      "revId": "511c327de6e529189e628d5647af6a57dd8710cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e406d0f8_161100fc",
+        "filename": "modules/canvaskit/npm_build/textapi_utils.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 544,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-05-11T03:52:48Z",
+      "side": 1,
+      "message": "variable_names too",
+      "revId": "511c327de6e529189e628d5647af6a57dd8710cd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
