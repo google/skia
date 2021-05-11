@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8cc4f42c_73e1e883",
+        "filename": "src/sksl/ir/SkSLFunctionCall.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-11T13:44:49Z",
+      "side": 1,
+      "message": "Micro nit: unlike the others, there\u0027s no blank line between these two",
+      "range": {
+        "startLine": 171,
+        "startChar": 0,
+        "endLine": 177,
+        "endChar": 0
+      },
+      "revId": "c91346f64666d32c1bbbe80bd3147200ed426550",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
