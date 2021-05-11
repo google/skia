@@ -898,7 +898,7 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
     // Is this only true on ANGLE's D3D backends or also on the GL backend?
     shaderCaps->fPreferFlatInterpolation = shaderCaps->fFlatInterpolationSupport &&
                                            ctxInfo.vendor() != GrGLVendor::kQualcomm &&
-                                           ctxInfo.angleBackend() != GrGLANGLEBackend::kUnknown;
+                                           ctxInfo.angleBackend() == GrGLANGLEBackend::kUnknown;
     if (GR_IS_GR_GL(standard)) {
         shaderCaps->fNoPerspectiveInterpolationSupport =
             ctxInfo.glslGeneration() >= k130_GrGLSLGeneration;
