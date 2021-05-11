@@ -217,6 +217,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fdad67b3_60a03205",
+        "filename": "modules/androidkit/src/SurfaceThread.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-11T19:24:32Z",
+      "side": 1,
+      "message": "Oh, that\u0027s probably accidental: since these are part of the base class public API, it doesn\u0027t make sense to restrict visibility in subclasses.  Feel free to promote back to public in WindowSurface, or leave the cast here.",
+      "parentUuid": "433f3b71_372d7aee",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 44
+      },
+      "revId": "3238263d04c9518b5777a5a6856ec0e7255d4b92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6bfc34a1_fc95521f",
