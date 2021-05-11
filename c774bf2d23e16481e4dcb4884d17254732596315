@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "132f81d3_71551277",
+        "filename": "experimental/sktext/include/Processor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-05-11T19:08:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ef018d39_40e79f5a",
+      "range": {
+        "startLine": 92,
+        "startChar": 14,
+        "endLine": 92,
+        "endChar": 19
+      },
+      "revId": "c774bf2d23e16481e4dcb4884d17254732596315",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3f48c6aa_0948ee51",
@@ -58,6 +82,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ba5baea4_9686c766",
+        "filename": "experimental/sktext/src/Processor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-05-11T19:08:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3f48c6aa_0948ee51",
+      "revId": "c774bf2d23e16481e4dcb4884d17254732596315",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e708bb38_f062f27d",
@@ -71,6 +113,24 @@
       "writtenOn": "2021-05-10T21:34:47Z",
       "side": 1,
       "message": "Why not just put this all in the initializer?\n\n    : fFont(info.fFont)\n    , fBidiLevel(info.fBidiLevel)\n    , fAdvance(info.fAdvance)\n    ...",
+      "revId": "c774bf2d23e16481e4dcb4884d17254732596315",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7fe1697e_dde1035f",
+        "filename": "experimental/sktext/src/TextRun.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-05-11T19:08:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e708bb38_f062f27d",
       "revId": "c774bf2d23e16481e4dcb4884d17254732596315",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
