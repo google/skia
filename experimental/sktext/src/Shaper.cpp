@@ -6,30 +6,29 @@
 namespace skia {
 namespace text {
 
-// TODO: SkShaper operates in UTF8 indexes
 // TODO: calculate intrinsic sizes
 // Shape the text in one line
 bool Shaper::process() {
 
-    SkString text8 = fProcessor->fUnicode->convertUtf16ToUtf8(fProcessor->fText);
+    auto text(fProcessor->fText);
     for (auto& block : fProcessor->fFontBlocks) {
 
         SkFont font(this->createFont(block));
 
-        SkShaper::TrivialFontRunIterator fontIter(font, text8.size());
-        SkShaper::TrivialLanguageRunIterator langIter(text8.c_str(), text8.size());
+        SkShaper::TrivialFontRunIterator fontIter(font, text.size());
+        SkShaper::TrivialLanguageRunIterator langIter(text.c_str(), text.size());
         std::unique_ptr<SkShaper::BiDiRunIterator> bidiIter(
             SkShaper::MakeSkUnicodeBidiRunIterator(
-                fProcessor->fUnicode.get(), text8.c_str(), text8.size(), fDefaultTextDirection == TextDirection::kLtr ? 0 : 1));
+                fProcessor->fUnicode.get(), text.c_str(), text.size(), fDefaultTextDirection == TextDirection::kLtr ? 0 : 1));
         std::unique_ptr<SkShaper::ScriptRunIterator> scriptIter(
-            SkShaper::MakeSkUnicodeHbScriptRunIterator(fProcessor->fUnicode.get(), text8.c_str(), text8.size()));
+            SkShaper::MakeSkUnicodeHbScriptRunIterator(fProcessor->fUnicode.get(), text.c_str(), text.size()));
         auto shaper = SkShaper::MakeShapeDontWrapOrReorder();
         if (shaper == nullptr) {
             // For instance, loadICU does not work. We have to stop the process
             return false;
         }
 
-        shaper->shape(text8.c_str(), text8.size(),
+        shaper->shape(text.c_str(), text.size(),
                 fontIter, *bidiIter, *scriptIter, langIter,
                 std::numeric_limits<SkScalar>::max(), this);
     }
@@ -39,12 +38,6 @@ bool Shaper::process() {
 
 void Shaper::commitRunBuffer(const RunInfo&) {
     fCurrentRun->commit();
-
-    // Convert all utf8 into utf16
-    for (size_t i = 0; i < fCurrentRun->fClusters.size(); ++i) {
-        auto& element = fCurrentRun->fClusters[i];
-        element = fProcessor->fUTF16FromUTF8[element];
-    }
     fProcessor->fRuns.emplace_back(std::move(*fCurrentRun));
 }
 
