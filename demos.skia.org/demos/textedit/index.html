@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<title>TextEdit demo in CanvasKit</title>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script type="text/javascript" src="https://particles.skia.org/dist/canvaskit.js"></script>
+<script type="text/javascript" src="textapi_utils.js"></script>
+
+<style>
+canvas {
+  border: 1px dashed grey;
+}
+</style>
+
+<body>
+  <h1>TextEdit in CanvasKit</h1>
+
+  <canvas id=para2 width=600 height=600 tabindex='-1'></canvas>
+</body>
+
+<script type="text/javascript" charset="utf-8">
+    let CanvasKit;
+    onload = async () => {
+      CanvasKit = await CanvasKitInit({ locateFile: (file) => 'https://particles.skia.org/dist/'+file });
+      ParagraphAPI2();
+    };
+
+    function ParagraphAPI2() {
+      const surface = CanvasKit.MakeCanvasSurface('para2');
+      if (!surface) {
+        console.error('Could not make surface');
+        return;
+      }
+
+      const mouse = MakeMouse();
+      const cursor = MakeCursor(CanvasKit);
+      const canvas = surface.getCanvas();
+
+      const text0 = "In a hole in the ground there lived a hobbit. Not a nasty, dirty, " +
+                    "wet hole full of worms and oozy smells. This was a hobbit-hole and " +
+                    "that means good food, a warm hearth, and all the comforts of home.";
+      const LOC_X = 20,
+            LOC_Y = 20;
+
+      const bgPaint = new CanvasKit.Paint();
+      bgPaint.setColor([0.965, 0.965, 0.965, 1]);
+
+      const editor = MakeEditor(text0, {typeface:null, size:24}, cursor, 400);
+
+      editor.applyStyleToRange({size:100}, 0, 1);
+      editor.applyStyleToRange({italic:true}, 38, 38+6);
+      editor.applyStyleToRange({color:[1,0,0,1]}, 5, 5+4);
+
+      editor.setXY(LOC_X, LOC_Y);
+
+      function drawFrame(canvas) {
+        const lines = editor.getLines();
+
+        canvas.clear(CanvasKit.WHITE);
+
+        if (mouse.isActive()) {
+            const pos = mouse.getPos(-LOC_X, -LOC_Y);
+            const a = lines_pos_to_index(lines, pos[0], pos[1]);
+            const b = lines_pos_to_index(lines, pos[2], pos[3]);
+            if (a === b) {
+                editor.setIndex(a);
+            } else {
+                editor.setIndices(a, b);
+            }
+        }
+
+        canvas.drawRect(editor.bounds(), bgPaint);
+        editor.draw(canvas);
+
+        surface.requestAnimationFrame(drawFrame);
+      }
+      surface.requestAnimationFrame(drawFrame);
+
+      function interact(e) {
+        const type = e.type;
+        if (type === 'pointerup') {
+            mouse.setUp(e.offsetX, e.offsetY);
+        } else if (type === 'pointermove') {
+            mouse.setMove(e.offsetX, e.offsetY);
+        } else if (type === 'pointerdown') {
+            mouse.setDown(e.offsetX, e.offsetY);
+        }
+      };
+
+      function keyhandler(e) {
+          switch (e.key) {
+              case 'ArrowLeft':  editor.moveDX(-1); return;
+              case 'ArrowRight': editor.moveDX(1); return;
+              case 'ArrowUp':
+                e.preventDefault();
+                editor.moveDY(-1);
+                return;
+              case 'ArrowDown':
+                e.preventDefault();
+                editor.moveDY(1);
+                return;
+            case 'Backspace':
+                editor.deleteSelection(-1);
+                return;
+            case 'Delete':
+                editor.deleteSelection(1);
+                return;
+              case 'Shift':
+                return;
+              case 'Tab':   // todo: figure out how to handle...
+                e.preventDefault();
+                return;
+            }
+            if (e.ctrlKey) {
+                switch (e.key) {
+                    case 'r': editor.applyStyleToSelection({color:[1,0,0,1]}); return;
+                    case 'g': editor.applyStyleToSelection({color:[0,0.6,0,1]}); return;
+                    case 'u': editor.applyStyleToSelection({color:[0,0,1,1]}); return;
+                    case 'k': editor.applyStyleToSelection({color:[0,0,0,1]}); return;
+
+                    case 'i': editor.applyStyleToSelection({italic:'toggle'}); return;
+                    case 'b': editor.applyStyleToSelection({bold:'toggle'}); return;
+
+                    case ']': editor.applyStyleToSelection({size_add:1}); return;
+                    case '[': editor.applyStyleToSelection({size_add:-1}); return;
+                }
+            }
+            if (!e.ctrlKey && !e.metaKey) {
+                e.preventDefault(); // at least needed for 'space'
+                editor.insert(e.key);
+            }
+      }
+
+      document.getElementById('para2').addEventListener('pointermove', interact);
+      document.getElementById('para2').addEventListener('pointerdown', interact);
+      document.getElementById('para2').addEventListener('pointerup', interact);
+      document.getElementById('para2').addEventListener('keydown', keyhandler);
+      return surface;
+    }
+
+</script>
