@@ -219,18 +219,31 @@ static void write_scalar(SkWStream* stream, SkScalar value) {
     stream->write(buffer, stop - buffer);
 }
 
-static void append_scalars(SkWStream* stream, char verb, const SkScalar data[],
-                           int count) {
-    stream->write(&verb, 1);
-    write_scalar(stream, data[0]);
-    for (int i = 1; i < count; i++) {
-        stream->write(" ", 1);
-        write_scalar(stream, data[i]);
-    }
-}
-
-void SkParsePath::ToSVGString(const SkPath& path, SkString* str) {
+void SkParsePath::ToSVGString(const SkPath& path, SkString* str, PathEncoding encoding) {
     SkDynamicMemoryWStream  stream;
+
+    SkPoint current_point{0,0};
+    const auto rel_selector = encoding == PathEncoding::Relative;
+
+    const auto append_command = [&](char cmd, const SkPoint pts[], size_t count) {
+        // Use lower case cmds for relative encoding.
+        cmd += 32 * rel_selector;
+        stream.write(&cmd, 1);
+
+        for (size_t i = 0; i < count; ++i) {
+            const auto pt = pts[i] - current_point;
+            if (i > 0) {
+                stream.write(" ", 1);
+            }
+            write_scalar(&stream, pt.fX);
+            stream.write(" ", 1);
+            write_scalar(&stream, pt.fY);
+        }
+
+        SkASSERT(count > 0);
+        // For relative encoding, track the current point (otherwise == origin).
+        current_point = pts[count - 1] * rel_selector;
+    };
 
     SkPath::Iter    iter(path, false);
     SkPoint         pts[4];
@@ -242,20 +255,20 @@ void SkParsePath::ToSVGString(const SkPath& path, SkString* str) {
                 SkAutoConicToQuads quadder;
                 const SkPoint* quadPts = quadder.computeQuads(pts, iter.conicWeight(), tol);
                 for (int i = 0; i < quadder.countQuads(); ++i) {
-                    append_scalars(&stream, 'Q', &quadPts[i*2 + 1].fX, 4);
+                    append_command('Q', &quadPts[i*2 + 1], 2);
                 }
             } break;
            case SkPath::kMove_Verb:
-                append_scalars(&stream, 'M', &pts[0].fX, 2);
+                append_command('M', &pts[0], 1);
                 break;
             case SkPath::kLine_Verb:
-                append_scalars(&stream, 'L', &pts[1].fX, 2);
+                append_command('L', &pts[1], 1);
                 break;
             case SkPath::kQuad_Verb:
-                append_scalars(&stream, 'Q', &pts[1].fX, 4);
+                append_command('Q', &pts[1], 2);
                 break;
             case SkPath::kCubic_Verb:
-                append_scalars(&stream, 'C', &pts[1].fX, 6);
+                append_command('C', &pts[1], 3);
                 break;
             case SkPath::kClose_Verb:
                 stream.write("Z", 1);
