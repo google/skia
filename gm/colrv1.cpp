@@ -26,28 +26,43 @@ namespace skiagm {
 
 class ColrV1GM : public GM {
 public:
-  ColrV1GM(SkScalar skewX, SkScalar rotateDeg) : fSkewX(skewX), fRotateDeg(rotateDeg) { }
+
+  // TODO(drott): Consolidate test fonts.
+  enum ColrV1TestFont {
+    kSkiaSampleFont,
+    kColorFontsRepoSampleFont
+  };
+
+  ColrV1GM(ColrV1TestFont useTestFont, SkScalar skewX, SkScalar rotateDeg) : fSkewX(skewX), fRotateDeg(rotateDeg), fTestFont(useTestFont) { }
 
 protected:
     struct EmojiFont {
         sk_sp<SkTypeface> fTypeface;
-        const uint16_t fGlyphs[10] = { 19, 33, 34, 35, 20, 21, 22, 23, 24, 25 };
-        const size_t fGlyphs_bytesize =
-          SK_ARRAY_COUNT(fGlyphs) * sizeof(uint16_t);
+        std::vector<uint16_t> fGlyphs;
+        size_t bytesize() { return fGlyphs.size() * sizeof(uint16_t); }
     } fEmojiFont;
 
     void onOnceBeforeDraw() override {
-        fEmojiFont.fTypeface =
-          MakeResourceAsTypeface("fonts/colrv1_samples.ttf");
+        if (fTestFont == kSkiaSampleFont) {
+            fEmojiFont.fTypeface = MakeResourceAsTypeface("fonts/colrv1_samples.ttf");
+            fEmojiFont.fGlyphs = {19, 33, 34, 35, 20, 21, 22, 23, 24, 25};
+        } else {
+            fEmojiFont.fTypeface = MakeResourceAsTypeface("fonts/more_samples-glyf_colr_1.ttf");
+            fEmojiFont.fGlyphs = {5, 6, 7, 8};
+        }
     }
 
     SkString onShortName() override {
-        if (fSkewX != 0 || fRotateDeg != 0) {
-            return SkStringPrintf("colrv1_skew_%g_rotate_%g",
-                                  fSkewX,
-                                  fRotateDeg);
+        SkString gm_name = SkStringPrintf("colrv1_%s_samples",
+                                          fTestFont == kSkiaSampleFont ? "skia" : "color_repo");
+        if (fSkewX) {
+            gm_name.append("_skew");
         }
-        return SkString("colrv1");
+
+        if (fRotateDeg) {
+            gm_name.append("_rotate");
+        }
+        return gm_name;
     }
 
     SkISize onISize() override { return SkISize::Make(1400, 600); }
@@ -74,8 +89,8 @@ protected:
             font.setSize(textSize);
             font.getMetrics(&metrics);
             y += -metrics.fAscent;
-            canvas->drawSimpleText(fEmojiFont.fGlyphs,
-                                   fEmojiFont.fGlyphs_bytesize,
+            canvas->drawSimpleText(fEmojiFont.fGlyphs.data(),
+                                   fEmojiFont.bytesize(),
                                    SkTextEncoding::kGlyphID,
                                    10, y, font, paint);
             y += metrics.fDescent + metrics.fLeading;
@@ -87,11 +102,13 @@ private:
     using INHERITED = GM;
     SkScalar fSkewX;
     SkScalar fRotateDeg;
+    ColrV1TestFont fTestFont;
 };
 
-DEF_GM(return new ColrV1GM(0.f, 0.f);)
-DEF_GM(return new ColrV1GM(-0.5f, 0.f);)
-DEF_GM(return new ColrV1GM(0.f, 20.f);)
-DEF_GM(return new ColrV1GM(-0.5f, 20.f);)
+DEF_GM(return new ColrV1GM(ColrV1GM::kSkiaSampleFont, 0.f, 0.f);)
+DEF_GM(return new ColrV1GM(ColrV1GM::kSkiaSampleFont, -0.5f, 0.f);)
+DEF_GM(return new ColrV1GM(ColrV1GM::kSkiaSampleFont, 0.f, 20.f);)
+DEF_GM(return new ColrV1GM(ColrV1GM::kSkiaSampleFont, -0.5f, 20.f);)
+DEF_GM(return new ColrV1GM(ColrV1GM::kColorFontsRepoSampleFont, 0.f, 0.f);)
 
 }  // namespace skiagm
