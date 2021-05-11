@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ea06f402_37ae06ec",
+        "filename": "tests/TransferPixelsTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-05-11T18:01:32Z",
+      "side": 0,
+      "message": "was this just an extra copy of the call with no effect?",
+      "range": {
+        "startLine": 234,
+        "startChar": 7,
+        "endLine": 235,
+        "endChar": 59
+      },
+      "revId": "bb006430ae8234762cfef89a08919b4690af1b49",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

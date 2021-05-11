@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1cd9d797_10f48977",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 787,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-05-11T18:01:32Z",
+      "side": 1,
+      "message": "Is this a TODO or simply a requirement? I feel like at this point there isn\u0027t much we can do (without doing a lot of work) if they give us a bad bufferOffset. I feel like something like this should have been handled/checked higher",
+      "range": {
+        "startLine": 787,
+        "startChar": 7,
+        "endLine": 787,
+        "endChar": 11
+      },
+      "revId": "8bcf9a4bc3694cc1f547780c821e036e43a9e5b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a0f7f67d_facc337c",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 875,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-05-11T18:01:32Z",
+      "side": 1,
+      "message": "So like the transfer call will wait on a fence on the command submission to know the work is done on the GPU. However, the part I am unsure of is if you need to manually invalidate the cpu cache for the buffer or if that is handled automatically for d3d.",
+      "range": {
+        "startLine": 874,
+        "startChar": 4,
+        "endLine": 875,
+        "endChar": 58
+      },
+      "revId": "8bcf9a4bc3694cc1f547780c821e036e43a9e5b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
