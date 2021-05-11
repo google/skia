@@ -4129,6 +4129,11 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         ctxInfo.renderer() == GrGLRenderer::kAdreno640) {
         fAvoidReorderingRenderTasks = true;
     }
+
+    // skbug.com/11899. No CCPR on AMD Ra ven.
+    if (ctxInfo.renderer() == GrGLRenderer::kAMDRa_venxx) {
+        fDriverDisableMSAAClipAtlas = true;
+    }
 }
 
 void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {

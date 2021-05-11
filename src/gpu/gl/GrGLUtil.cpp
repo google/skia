@@ -162,6 +162,7 @@ static GrGLVendor get_vendor(const char* vendorString) {
 
 static GrGLRenderer get_renderer(const char* rendererString, const GrGLExtensions& extensions) {
     SkASSERT(rendererString);
+    SkDebugf("rendererString: %s\n", rendererString);
     static const char kTegraStr[] = "NVIDIA Tegra";
     if (0 == strncmp(rendererString, kTegraStr, SK_ARRAY_COUNT(kTegraStr) - 1)) {
         // Tegra strings are not very descriptive. We distinguish between the modern and legacy
@@ -297,39 +298,50 @@ static GrGLRenderer get_renderer(const char* rendererString, const GrGLExtension
 
     // The AMD string can have a somewhat arbitrary preamble (see skbug.com/7195)
     static constexpr char kRadeonStr[] = "Radeon ";
-    if (const char* amdString = strstr(rendererString, kRadeonStr)) {
-        amdString += strlen(kRadeonStr);
+    if (const char* radeonString = strstr(rendererString, kRadeonStr)) {
+        radeonString += strlen(kRadeonStr);
         // Sometimes there is a (TM) and sometimes not.
         static constexpr char kTMStr[] = "(TM) ";
-        if (!strncmp(amdString, kTMStr, strlen(kTMStr))) {
-            amdString += strlen(kTMStr);
+        if (!strncmp(radeonString, kTMStr, strlen(kTMStr))) {
+            radeonString += strlen(kTMStr);
         }
 
         char amd0, amd1, amd2;
         int amdModel;
-        n = sscanf(amdString, "R9 M3%c%c", &amd0, &amd1);
+        n = sscanf(radeonString, "R9 M3%c%c", &amd0, &amd1);
         if (2 == n && isdigit(amd0) && isdigit(amd1)) {
             return GrGLRenderer::kAMDRadeonR9M3xx;
         }
 
-        n = sscanf(amdString, "R9 M4%c%c", &amd0, &amd1);
+        n = sscanf(radeonString, "R9 M4%c%c", &amd0, &amd1);
         if (2 == n && isdigit(amd0) && isdigit(amd1)) {
             return GrGLRenderer::kAMDRadeonR9M4xx;
         }
 
-        n = sscanf(amdString, "HD 7%c%c%c Series", &amd0, &amd1, &amd2);
+        n = sscanf(radeonString, "HD 7%c%c%c Series", &amd0, &amd1, &amd2);
         if (3 == n && isdigit(amd0) && isdigit(amd1) && isdigit(amd2)) {
             return GrGLRenderer::kAMDRadeonHD7xxx;
         }
 
-        n = sscanf(amdString, "Pro 5%c%c%c", &amd0, &amd1, &amd2);
+        n = sscanf(radeonString, "Pro 5%c%c%c", &amd0, &amd1, &amd2);
         if (3 == n && isdigit(amd0) && isdigit(amd1) && isdigit(amd2)) {
             return GrGLRenderer::kAMDRadeonPro5xxx;
         }
 
-        n = sscanf(amdString, "Pro Vega %i", &amdModel);
+        n = sscanf(radeonString, "Pro Vega %i", &amdModel);
         if (1 == n) {
             return GrGLRenderer::kAMDRadeonProVegaxx;
+        }
+    }
+
+    static constexpr char kAMDString[] = "AMD ";
+    if (const char* amdString = strstr(rendererString, kAMDString)) {
+        amdString += strlen(kAMDString);
+        int amdModel;
+        n = sscanf(amdString, "RAV" "EN%i", &amdModel);
+        if (1 == n) {
+            SkDebugf("Found our device, model %d\n", amdModel);
+            return GrGLRenderer::kAMDRa_venxx;
         }
     }
 
