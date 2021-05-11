@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "44e4dfaf_01f25404",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-11T16:48:49Z",
+      "side": 1,
+      "message": "Good idea.",
+      "parentUuid": "2d95380c_e49d5bc9",
+      "revId": "7d08df7b24148eec9b335e3674c53c9d8ad9412b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "7696456a_6d3e8030",
         "filename": "src/utils/SkParsePath.cpp",
         "patchSetId": 2
@@ -31,6 +49,24 @@
       "writtenOn": "2021-05-11T16:43:08Z",
       "side": 1,
       "message": "Low priority but we could compress a bit better by tracking the previous verb and omitting the command if it\u0027s the same, e.g. a polyline:\n\n  M 10 10 L 20 20 30 30 40 40\n  M 10 10 l 10 10 10 10 10 10",
+      "revId": "7d08df7b24148eec9b335e3674c53c9d8ad9412b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2949b033_d4fe7196",
+        "filename": "src/utils/SkParsePath.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-11T16:48:49Z",
+      "side": 1,
+      "message": "Yup, you can even omit the L in this case, as M with multiple points implies linetos.  I was about to tackle that next, but I realized we\u0027re not getting much out of it since we already skip space/separators where possible:\n\n  M10 10L20 20L30 30L40 40\n\nvs\n\n  M10 10 20 20 30 40 40 40",
+      "parentUuid": "7696456a_6d3e8030",
       "revId": "7d08df7b24148eec9b335e3674c53c9d8ad9412b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
