@@ -6,6 +6,10 @@ This file includes a list of high level updates for each milestone release.
 
 Milestone 92
 ------------
+  * Hides SkPathEffect::computeFastBounds() from public API; external subclasses of SkPathEffect
+    must implement onComputeFastBounds() but can return false to signal it's not computable.
+    https://review.skia.org/406140
+
   * Add SkM44::RectToRect constructor (SkM44's equivalent to SkMatrix::RectToRect)
     https://review.skia.org/402957
 
