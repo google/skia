@@ -43,12 +43,9 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fIsCoreProfile = false;
     fBindFragDataLocationSupport = false;
     fRectangleTextureSupport = false;
-    fRGBA8888PixelsOpsAreSlow = false;
-    fPartialFBOReadIsSlow = false;
     fBindUniformLocationSupport = false;
     fMipmapLevelControlSupport = false;
     fMipmapLodControlSupport = false;
-    fRGBAToBGRAReadbackConversionsAreSlow = false;
     fUseBufferDataNullHint = false;
     fDoManualMipmapping = false;
     fClearToBoundaryValuesIsBroken = false;
@@ -294,27 +291,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
             fMipmapLodControlSupport = true;
         }
     } // no WebGL support
-
-#ifdef SK_BUILD_FOR_WIN
-    // We're assuming that on Windows Chromium we're using ANGLE.
-    bool isANGLE = ctxInfo.angleBackend() != GrGLANGLEBackend::kUnknown ||
-                   ctxInfo.driver()       == GrGLDriver::kChromium;
-    // Angle has slow read/write pixel paths for 32bit RGBA (but fast for BGRA).
-    fRGBA8888PixelsOpsAreSlow = isANGLE;
-    // On DX9 ANGLE reading a partial FBO is slow. TODO: Check whether this is still true and
-    // check DX11 ANGLE.
-    fPartialFBOReadIsSlow = isANGLE;
-#endif
-
-    bool isMESA = ctxInfo.driver() == GrGLDriver::kMesa;
-    bool isMAC = false;
-#ifdef SK_BUILD_FOR_MAC
-    isMAC = true;
-#endif
-
-    // Both mesa and mac have reduced performance if reading back an RGBA framebuffer as BGRA or
-    // vis-versa.
-    fRGBAToBGRAReadbackConversionsAreSlow = isMESA || isMAC;
 
     // Chrome's command buffer will zero out a buffer if null is passed to glBufferData to
     // avoid letting an application see uninitialized memory.
@@ -599,6 +575,9 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     }
 
 #ifdef SK_BUILD_FOR_WIN
+    // We're assuming that on Windows Chromium we're using ANGLE.
+    bool isANGLE = ctxInfo.angleBackend() != GrGLANGLEBackend::kUnknown ||
+                   ctxInfo.driver()       == GrGLDriver::kChromium;
     // On ANGLE deferring flushes can lead to GPU starvation
     fPreferVRAMUseOverFlushes = !isANGLE;
 #endif
@@ -1186,14 +1165,10 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("ES2 compatibility support", fES2CompatibilitySupport);
     writer->appendBool("drawRangeElements support", fDrawRangeElementsSupport);
     writer->appendBool("Base (vertex base) instance support", fBaseVertexBaseInstanceSupport);
-    writer->appendBool("RGBA 8888 pixel ops are slow", fRGBA8888PixelsOpsAreSlow);
-    writer->appendBool("Partial FBO read is slow", fPartialFBOReadIsSlow);
     writer->appendBool("Bind uniform location support", fBindUniformLocationSupport);
     writer->appendBool("Rectangle texture support", fRectangleTextureSupport);
     writer->appendBool("Mipmap LOD control support", fMipmapLodControlSupport);
     writer->appendBool("Mipmap level control support", fMipmapLevelControlSupport);
-    writer->appendBool("BGRA to RGBA readback conversions are slow",
-                       fRGBAToBGRAReadbackConversionsAreSlow);
     writer->appendBool("Use buffer data null hint", fUseBufferDataNullHint);
     writer->appendBool("Clear texture support", fClearTextureSupport);
     writer->appendBool("Program binary support", fProgramBinarySupport);
