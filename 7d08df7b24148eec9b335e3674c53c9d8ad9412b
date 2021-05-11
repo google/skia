@@ -69,6 +69,24 @@
       "parentUuid": "7696456a_6d3e8030",
       "revId": "7d08df7b24148eec9b335e3674c53c9d8ad9412b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ccc676a4_cb21c1cf",
+        "filename": "src/utils/SkParsePath.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-05-11T16:50:50Z",
+      "side": 1,
+      "message": "Ah, nice :-).",
+      "parentUuid": "2949b033_d4fe7196",
+      "revId": "7d08df7b24148eec9b335e3674c53c9d8ad9412b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
