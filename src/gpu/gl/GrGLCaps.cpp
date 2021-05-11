@@ -3726,8 +3726,8 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     }
 
     // http://anglebug.com/4536
-    if (ctxInfo.angleBackend() != GrGLANGLEBackend::kD3D9 ||
-        ctxInfo.angleBackend() != GrGLANGLEBackend::kD3D11) {
+    if (ctxInfo.angleBackend() == GrGLANGLEBackend::kD3D9 ||
+        ctxInfo.angleBackend() == GrGLANGLEBackend::kD3D11) {
         fBaseVertexBaseInstanceSupport = false;
         fNativeDrawIndirectSupport = false;
         fMultiDrawType = MultiDrawType::kNone;
