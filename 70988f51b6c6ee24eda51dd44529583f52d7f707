@@ -70,6 +70,24 @@
       "parentUuid": "9936a5c3_ce3cc71d",
       "revId": "70988f51b6c6ee24eda51dd44529583f52d7f707",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "134a8a26_6cce2081",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-11T21:05:38Z",
+      "side": 1,
+      "message": "Yup. It\u0027s the same number of steps, but has the slight benefit that we get immediate testing in Skia (and other dependent projects), then Chrome comes along after.",
+      "parentUuid": "850af649_1be4043f",
+      "revId": "70988f51b6c6ee24eda51dd44529583f52d7f707",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
