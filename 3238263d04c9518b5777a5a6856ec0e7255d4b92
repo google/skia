@@ -1,0 +1,141 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7d4a8658_04020cd8",
+        "filename": "modules/androidkit/src/Surface.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-11T13:25:23Z",
+      "side": 1,
+      "message": "(convert to unique_ptr)\n\nstd::make_unique\u003cSurfaceThread\u003e();\n\nyou can also use a member initializer list:\n\n  ThreadedSurface(JNIEnv* env, jobject surface)\n      : fThread(std::make_unique\u003cSurfaceThread\u003e()) {\n      ...\n  }",
+      "revId": "3238263d04c9518b5777a5a6856ec0e7255d4b92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4cd5901c_ba2da6da",
+        "filename": "modules/androidkit/src/Surface.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-11T13:25:23Z",
+      "side": 1,
+      "message": "Other than WindowContext, I don\u0027t think these are referenced in the header.  Move to Surface.cpp?",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 62
+      },
+      "revId": "3238263d04c9518b5777a5a6856ec0e7255d4b92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f78521c6_2e0e66e9",
+        "filename": "modules/androidkit/src/Surface.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-11T13:25:23Z",
+      "side": 1,
+      "message": "\u003d nullptr;\n\n(to always initialize, as kInitialize may fail)",
+      "revId": "3238263d04c9518b5777a5a6856ec0e7255d4b92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6a5aa1e3_885279bd",
+        "filename": "modules/androidkit/src/Surface.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-11T13:25:23Z",
+      "side": 1,
+      "message": "std::unique_ptr\u003cSurfaceThread\u003e\n\n(otherwise we\u0027ll have to delete explicitly)",
+      "revId": "3238263d04c9518b5777a5a6856ec0e7255d4b92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4ed2d704_0cb0b435",
+        "filename": "modules/androidkit/src/SurfaceThread.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-11T13:25:23Z",
+      "side": 1,
+      "message": "We need to clean up the allocated windowsurface:\n\n  delete *message.fWindowSurface;\n\nAlso, when we do this, we must ensure the ThreadedSurface object doesn\u0027t get deleted asynchronously before we\u0027re done here (because message.fWindowSurface points to ThreadedSurface storage).\n\nThe easiest way that comes to mind would be to call pthread_join from the SurfaceThread destructor (which should be called when deleting a ThreadedSurface), to ensure the thread terminates first.",
+      "revId": "3238263d04c9518b5777a5a6856ec0e7255d4b92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4ee906b7_1f5ce566",
+        "filename": "modules/androidkit/src/SurfaceThread.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-11T13:25:23Z",
+      "side": 1,
+      "message": "I don\u0027t think we need to cast to Surface*, the methods below are available on WindowSurface, right?\n\nAlso, if initialization failed, windowSurface can be null.\n\n  if (auto* windowSurface \u003d *message.fWindowSurface) {\n      ...\n  }",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 44
+      },
+      "revId": "3238263d04c9518b5777a5a6856ec0e7255d4b92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6bfc34a1_fc95521f",
+        "filename": "modules/androidkit/src/SurfaceThread.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-11T13:25:23Z",
+      "side": 1,
+      "message": "these are not referenced in the header, let\u0027s move to SurfaceThread.cpp.",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 34
+      },
+      "revId": "3238263d04c9518b5777a5a6856ec0e7255d4b92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
