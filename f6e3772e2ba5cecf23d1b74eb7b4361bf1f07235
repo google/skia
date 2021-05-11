@@ -58,6 +58,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "eedba4ea_cd758204",
+        "filename": "gn/core.gni",
+        "patchSetId": 2
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-11T13:18:20Z",
+      "side": 1,
+      "message": "Oops, just a typo, meant to be .h",
+      "parentUuid": "403fc373_309e31af",
+      "range": {
+        "startLine": 288,
+        "startChar": 0,
+        "endLine": 288,
+        "endChar": 36
+      },
+      "revId": "f6e3772e2ba5cecf23d1b74eb7b4361bf1f07235",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "61809bd4_c4ab885b",
@@ -71,6 +95,30 @@
       "writtenOn": "2021-05-11T13:12:15Z",
       "side": 1,
       "message": "Do you still need this? Maybe rename onComputeFastBounds to computeFastBounds and on PE can call it on another via SkPathEffectPriv::ComputeFastBounds?",
+      "range": {
+        "startLine": 178,
+        "startChar": 0,
+        "endLine": 181,
+        "endChar": 0
+      },
+      "revId": "f6e3772e2ba5cecf23d1b74eb7b4361bf1f07235",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "76a3cfc9_4f87e433",
+        "filename": "include/core/SkPathEffect.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-11T13:18:20Z",
+      "side": 1,
+      "message": "I think we do want this for the time being since SkPathEffect is still subclassable externally. This allows those effects to call computeFastBounds on arbitrary path effects w/o depending on a private header.\n\n(I really wish C++ protected meant a subclass could see the protected functions of any instance of its base type for these reasons, but I\u0027m sure there are other good ones why it doesn\u0027t let you do that.)",
+      "parentUuid": "61809bd4_c4ab885b",
       "range": {
         "startLine": 178,
         "startChar": 0,
