@@ -14,12 +14,14 @@ bool test() {
 
     const bool TRUE = true;
     const bool FALSE = false;
-    bool k = all(bool4(1 == 1, !false, 123 > 12, TRUE));  // all are true
-    bool l = all(bool3(TRUE, 1 == 2, true));              // three out of four are true
-    bool m = any(bool4(true, 1 == 2, true, TRUE));        // three out of four are true
-    bool n = any(bool2(0 == 1, FALSE));                   // none are true
+    bool k = all(bool4(1 == 1, !false, 123 > 12, TRUE));       // all are true
+    bool l = all(bool3(TRUE, 1 == 2, true));                   // three out of four are true
+    bool m = any(bool4(true, 1 == 2, true, TRUE));             // three out of four are true
+    bool n = any(bool2(0 == 1, FALSE));                        // none are true
+    bool o = any(not(bool2(0 == 1, FALSE)));                   // all true
+    bool p = all(not(bool4(1 == 1, !false, 123 > 12, TRUE)));  // none are true
 
-    return a && !b && c && !d && e && !f && g && !h && i && !j && k && !l && m && !n;
+    return a && !b && c && !d && e && !f && g && !h && i && !j && k && !l && m && !n && o && !p;
 }
 
 half4 main(float2 coords) {
