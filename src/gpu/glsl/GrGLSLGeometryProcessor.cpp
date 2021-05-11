@@ -226,9 +226,18 @@ void GrGLSLGeometryProcessor::emitTransformCode(GrGLSLVertexBuilder* vb,
 
         vb->codeAppend("{\n");
         if (tr.fOutputCoords.getType() == kFloat2_GrSLType) {
-            vb->codeAppendf("%s = ((%s) * %s).xy", tr.fOutputCoords.getName().c_str(),
-                                                   transformExpression.c_str(),
-                                                   localCoords.c_str());
+#ifndef SK_DISABLE_NONSQUARE_MATRIX_TRANSFORM
+            if (vb->getProgramBuilder()->shaderCaps()->nonsquareMatrixSupport()) {
+                vb->codeAppendf("%s = float3x2(%s) * %s", tr.fOutputCoords.getName().c_str(),
+                                                          transformExpression.c_str(),
+                                                          localCoords.c_str());
+            } else
+#endif
+            {
+                vb->codeAppendf("%s = ((%s) * %s).xy", tr.fOutputCoords.getName().c_str(),
+                                                       transformExpression.c_str(),
+                                                       localCoords.c_str());
+            }
         } else {
             SkASSERT(tr.fOutputCoords.getType() == kFloat3_GrSLType);
             vb->codeAppendf("%s = (%s) * %s", tr.fOutputCoords.getName().c_str(),
@@ -353,7 +362,16 @@ static void write_vertex_position(GrGLSLVertexBuilder* vertBuilder,
                                  mangledMatrixName,
                                  inPos.getName().c_str(),
                                  mangledMatrixName);
-    } else {
+    }
+#ifndef SK_DISABLE_NONSQUARE_MATRIX_TRANSFORM
+    else if (shaderCaps.nonsquareMatrixSupport()) {
+        vertBuilder->codeAppendf("float2 %s = float3x2(%s) * %s.xy1;\n",
+                                 outName.c_str(),
+                                 mangledMatrixName,
+                                 inPos.getName().c_str());
+    }
+#endif
+    else {
         vertBuilder->codeAppendf("float2 %s = (%s * %s.xy1).xy;\n",
                                  outName.c_str(),
                                  mangledMatrixName,
