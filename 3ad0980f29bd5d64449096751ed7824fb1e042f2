@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4eb4985d_cf747cd1",
+        "filename": "src/sksl/ir/SkSLFunctionCall.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-11T14:28:19Z",
+      "side": 1,
+      "message": "Nit: blank lines between all of the cases above, no blank lines in this section",
+      "revId": "3ad0980f29bd5d64449096751ed7824fb1e042f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d1f58a91_2bb593ee",
+        "filename": "src/sksl/ir/SkSLFunctionCall.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-11T14:28:19Z",
+      "side": 1,
+      "message": "I was sufficiently surprised by this that I had to go check the spec; probably worth adding a comment that GLSL permits round to behave the same as roundEven.",
+      "range": {
+        "startLine": 261,
+        "startChar": 8,
+        "endLine": 262,
+        "endChar": 39
+      },
+      "revId": "3ad0980f29bd5d64449096751ed7824fb1e042f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
