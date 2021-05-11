@@ -42,6 +42,8 @@ protected:
 private:
     SK_FLATTENABLE_HOOKS(SkDiscretePathEffect)
 
+    bool onComputeFastBounds(SkRect* bounds) const override;
+
     SkScalar fSegLength, fPerterb;
 
     /* Caller-supplied 32 bit seed assist */

@@ -27,6 +27,12 @@ protected:
 private:
     SK_FLATTENABLE_HOOKS(SkDashImpl)
 
+    bool onComputeFastBounds(SkRect* bounds) const override {
+        // Dashing a path returns a subset of the input path so just return true and leave
+        // bounds unmodified
+        return true;
+    }
+
     SkScalar*   fIntervals;
     int32_t     fCount;
     SkScalar    fPhase;

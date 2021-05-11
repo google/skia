@@ -27,10 +27,6 @@ bool SkPathEffect::filterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
     return false;
 }
 
-void SkPathEffect::computeFastBounds(SkRect* dst, const SkRect& src) const {
-    *dst = this->onComputeFastBounds(src);
-}
-
 bool SkPathEffect::asPoints(PointData* results, const SkPath& src,
                     const SkStrokeRec& rec, const SkMatrix& mx, const SkRect* rect) const {
     return this->onAsPoints(results, src, rec, mx, rect);
@@ -112,6 +108,11 @@ protected:
 private:
     SK_FLATTENABLE_HOOKS(SkComposePathEffect)
 
+    bool onComputeFastBounds(SkRect* bounds) const override {
+        // inner (fPE1) is computed first, automatically updating bounds before computing outer.
+        return ComputeFastBounds(fPE1.get(), bounds) && ComputeFastBounds(fPE0.get(), bounds);
+    }
+
     // illegal
     SkComposePathEffect(const SkComposePathEffect&);
     SkComposePathEffect& operator=(const SkComposePathEffect&);
@@ -150,8 +151,6 @@ public:
         return sk_sp<SkPathEffect>(new SkSumPathEffect(first, second));
     }
 
-    SK_FLATTENABLE_HOOKS(SkSumPathEffect)
-
 protected:
     SkSumPathEffect(sk_sp<SkPathEffect> first, sk_sp<SkPathEffect> second)
         : INHERITED(first, second) {}
@@ -164,6 +163,13 @@ protected:
     }
 
 private:
+    SK_FLATTENABLE_HOOKS(SkSumPathEffect)
+
+    bool onComputeFastBounds(SkRect* bounds) const override {
+        // Unlike Compose(), PE0 modifies the path first for Sum
+        return ComputeFastBounds(fPE0.get(), bounds) && ComputeFastBounds(fPE1.get(), bounds);
+    }
+
     // illegal
     SkSumPathEffect(const SkSumPathEffect&);
     SkSumPathEffect& operator=(const SkSumPathEffect&);
