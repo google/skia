@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4a850b13_e44e28e5",
+        "filename": "experimental/tskit/go/gen_types/gen_types.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 10009
+      },
+      "writtenOn": "2021-05-12T20:45:23Z",
+      "side": 1,
+      "message": "Ubernit: Inline this (line 81) or move it closer to where it\u0027s used.",
+      "range": {
+        "startLine": 70,
+        "startChar": 0,
+        "endLine": 70,
+        "endChar": 39
+      },
+      "revId": "0fcd62ebd32dcff7a4d8940f1953a39381ee5833",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
