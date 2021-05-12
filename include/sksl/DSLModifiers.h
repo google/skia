@@ -32,7 +32,6 @@ enum Modifier {
 
 class DSLModifiers {
 public:
-
     DSLModifiers(int flags = 0)
         : DSLModifiers(DSLLayout(), flags) {}
 
