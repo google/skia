@@ -381,6 +381,8 @@ function MakeEditor(text, style, cursor, width) {
             this._buildLines();
         },
         insert: function(charcode) {
+            if (charcode.length > 1) return;    // avoid keys like "Escape" for now
+
             if (this._index.start != this._index.end) {
                 this.deleteSelection();
             }
