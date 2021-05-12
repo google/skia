@@ -219,6 +219,9 @@ protected:
 
     void writeSwizzle(const Swizzle& swizzle);
 
+    // Splats a scalar expression across a matrix of arbitrary size.
+    void writeNumberAsMatrix(const Expression& expr, const Type& matrixType);
+
     void writeBinaryExpression(const BinaryExpression& b, Precedence parentPrecedence);
 
     void writeTernaryExpression(const TernaryExpression& t, Precedence parentPrecedence);
