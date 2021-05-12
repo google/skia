@@ -1,7 +1,7 @@
 {
   "branches": [
     {
-      "ref": "refs/heads/master",
+      "ref": "refs/heads/main",
       "owner": "skiabot@google.com"
     },
     {
