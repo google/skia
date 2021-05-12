@@ -1,4 +1,4 @@
-/// <reference path="embind.d.ts" />
+/// <reference path="../bindings/embind.d.ts" />
 declare const Module: embind.EmbindModule;
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const CanvasKit = Module; // lets other files use this alias to declare new public APIs.
