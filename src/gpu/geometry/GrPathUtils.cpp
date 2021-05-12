@@ -26,7 +26,9 @@ static float tolerance_to_wangs_precision(float srcTol) {
 }
 
 uint32_t max_bezier_vertices(uint32_t chopCount) {
-    return std::min(1 << chopCount, GrPathUtils::kMaxPointsPerCurve);
+    static constexpr uint32_t kMaxChopsPerCurve = 10;
+    static_assert((1 << kMaxChopsPerCurve) == GrPathUtils::kMaxPointsPerCurve);
+    return 1 << std::min(chopCount, kMaxChopsPerCurve);
 }
 
 SkScalar GrPathUtils::scaleToleranceToSrc(SkScalar devTol,
