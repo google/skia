@@ -12,11 +12,12 @@
 
 #ifdef SK_NGA
 
-#include "src/core/SkDevice.h"
+#include "src/gpu/SkBaseGpuDevice.h"
 
 /**
+ *  Subclass of SkBaseGpuDevice, which directs all drawing to the GrGpu owned by the canvas.
  */
-class SkGpuDevice_nga : public SkBaseDevice  {
+class SkGpuDevice_nga : public SkBaseGpuDevice  {
 public:
     ~SkGpuDevice_nga() override;
 
@@ -94,7 +95,7 @@ private:
 
     sk_sp<GrRecordingContext> fContext;
 
-    using INHERITED = SkBaseDevice;
+    using INHERITED = SkBaseGpuDevice;
 };
 
 #endif // SK_NGA
