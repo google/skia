@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0734c19e_ebf0e00c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-05-12T17:08:08Z",
+      "side": 1,
+      "message": "Had to go through the whole implementation down to to sem_wait, but it looks like at least sem_wait is a futex (it used to literally be a futex in glibc, now it has an embedded futex structure). I think WaitForSingleObject always goes straight to the OS (at least it used to), not sure if CriticalSection does what is wanted. I don\u0027t know much about dispatch_semaphore_wait.\n\nAnyhow, this seems fine. I\u0027m pretty sure the sem_wait part will work well, but have no idea about the others (Mac and Windows).",
+      "revId": "6afc158509cdbbbb2a40c1915682ddbb64293d81",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
