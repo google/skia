@@ -164,9 +164,12 @@ static sk_sp<GrTextureProxy> make_bmp_proxy(GrProxyProvider* proxyProvider,
 }
 
 std::tuple<GrSurfaceProxyView, GrColorType>
-GrMakeCachedBitmapProxyView(GrRecordingContext* rContext,
-                            const SkBitmap& bitmap,
-                            GrMipmapped mipmapped) {
+GrMakeCachedBitmapProxyViewWithID(GrRecordingContext* rContext,
+                                  const SkBitmap& bitmap,
+                                  GrMipmapped mipmapped,
+                                  uint32_t cacheID) {
+    SkASSERT(cacheID != SK_InvalidUniqueID);
+
     if (!bitmap.peekPixels(nullptr)) {
         return {};
     }
@@ -177,7 +180,7 @@ GrMakeCachedBitmapProxyView(GrRecordingContext* rContext,
     GrUniqueKey key;
     SkIPoint origin = bitmap.pixelRefOrigin();
     SkIRect subset = SkIRect::MakePtSize(origin, bitmap.dimensions());
-    GrMakeKeyFromImageID(&key, bitmap.pixelRef()->getGenerationID(), subset);
+    GrMakeKeyFromImageID(&key, cacheID, subset);
 
     mipmapped = adjust_mipmapped(mipmapped, bitmap, caps);
     GrColorType ct = choose_bmp_texture_colortype(caps, bitmap);
