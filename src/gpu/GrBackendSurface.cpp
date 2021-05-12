@@ -929,7 +929,9 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width, int height, const GrMtlT
 GrBackendRenderTarget::GrBackendRenderTarget(int width, int height,
                                              int sampleCount,
                                              const GrMtlTextureInfo& mtlInfo)
-        : GrBackendRenderTarget(width, height, mtlInfo) {}
+        : GrBackendRenderTarget(width, height, mtlInfo) {
+    fSampleCnt = sampleCount;
+}
 #endif
 
 #ifdef SK_DIRECT3D
