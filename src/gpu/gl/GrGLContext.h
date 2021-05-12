@@ -23,8 +23,8 @@ struct GrContextOptions;
  */
 class GrGLContextInfo {
 public:
-    GrGLContextInfo(GrGLContextInfo&&) = default;
-    GrGLContextInfo& operator=(GrGLContextInfo&&) = default;
+    GrGLContextInfo(const GrGLContextInfo&) = delete;
+    GrGLContextInfo& operator=(const GrGLContextInfo&) = delete;
 
     virtual ~GrGLContextInfo() {}
 
@@ -48,17 +48,7 @@ public:
 
     const GrGLExtensions& extensions() const { return fInterface->fExtensions; }
 
-    /**
-     * Makes a version of this context info that strips the "angle-ness". It will report kUnknown
-     * for angleBackend() and report this info's angleRenderer() as renderer() and similiar for
-     * driver(), driverVersion(), and vendor().
-     */
-    GrGLContextInfo makeNonAngle() const;
-
 protected:
-    GrGLContextInfo& operator=(const GrGLContextInfo&) = default;
-    GrGLContextInfo(const GrGLContextInfo&) = default;
-
     struct ConstructorArgs {
         sk_sp<const GrGLInterface>          fInterface;
         GrGLDriverInfo                      fDriverInfo;

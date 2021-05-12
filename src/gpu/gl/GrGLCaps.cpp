@@ -70,18 +70,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
 
     fShaderCaps.reset(new GrShaderCaps(contextOptions));
 
-    // All of Skia's automated testing of ANGLE and all related tuning of performance and driver
-    // workarounds is oriented around the D3D backends of ANGLE. Chrome has started using Skia
-    // on top of ANGLE's GL backend. In this case ANGLE is still interfacing the same underlying
-    // GL driver that our performance and correctness tuning was performed on. To avoid losing
-    // that we strip the ANGLE info and for the rest of caps setup pretend we're directly on top of
-    // the GL driver. Note that this means that some driver workarounds are likely implemented at
-    // two levels of the stack (Skia and ANGLE) but we haven't determined which.
-    if (ctxInfo.angleBackend() == GrGLANGLEBackend::kOpenGL) {
-        this->init(contextOptions, ctxInfo.makeNonAngle(), glInterface);
-    } else {
-        this->init(contextOptions, ctxInfo, glInterface);
-    }
+    this->init(contextOptions, ctxInfo, glInterface);
 }
 
 void GrGLCaps::init(const GrContextOptions& contextOptions,
@@ -3582,7 +3571,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // bugs seems to involve clearing too much and not skipping the clear.
     // See crbug.com/768134. This is also needed for full clears and was seen on an nVidia K620
     // but only for D3D11 ANGLE.
-    if (ctxInfo.angleBackend() == GrGLANGLEBackend::kD3D11) {
+    if (GrGLANGLEBackend::kD3D11 == ctxInfo.angleBackend()) {
         fPerformColorClearsAsDraws = true;
     }
 
