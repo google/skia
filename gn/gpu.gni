@@ -541,6 +541,7 @@ skia_gpu_sources = [
   "$_src/gpu/mock/GrMockTypes.cpp",
 
   # Sk files
+  "$_src/gpu/SkBaseGpuDevice.h",
   "$_src/gpu/SkGpuDevice.cpp",
   "$_src/gpu/SkGpuDevice.h",
   "$_src/gpu/SkGpuDevice_drawTexture.cpp",
