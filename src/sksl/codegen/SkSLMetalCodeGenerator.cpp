@@ -1213,6 +1213,37 @@ void MetalCodeGenerator::writeSwizzle(const Swizzle& swizzle) {
     }
 }
 
+void MetalCodeGenerator::writeMatrixScalarDivisionHelper() {
+    auto [iter, wasInserted] = fHelpers.insert("Matrix / Scalar");
+    if (wasInserted) {
+        fExtraFunctions.writeText(
+R"(template <typename T, int C, int R>
+thread matrix<T, C, R> operator/(matrix<T, C, R> left, T right) {
+    T reciprocal = 1 / right;
+    for (size_t index = 0; index < C; ++index) {
+        left[index] *= reciprocal;
+    }
+    return left;
+}
+)");
+    }
+}
+
+void MetalCodeGenerator::writeScalarMatrixDivisionHelper() {
+    auto [iter, wasInserted] = fHelpers.insert("Scalar / Matrix");
+    if (wasInserted) {
+        fExtraFunctions.writeText(
+R"(template <typename T, int C, int R>
+thread matrix<T, C, R> operator/(T left, matrix<T, C, R> right) {
+    for (size_t index = 0; index < C; ++index) {
+        right[index] = left / right[index];
+    }
+    return right;
+}
+)");
+    }
+}
+
 void MetalCodeGenerator::writeMatrixTimesEqualHelper(const Type& left, const Type& right,
                                                      const Type& result) {
     String key = "TimesEqual " + this->typeName(left) + ":" + this->typeName(right);
@@ -1371,6 +1402,12 @@ void MetalCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
     }
     if (leftType.isMatrix() && rightType.isMatrix() && op.kind() == Token::Kind::TK_STAREQ) {
         this->writeMatrixTimesEqualHelper(leftType, rightType, b.type());
+    }
+    if (leftType.isMatrix() && rightType.isScalar() && op.kind() == Token::Kind::TK_SLASH) {
+        this->writeMatrixScalarDivisionHelper();
+    }
+    if (leftType.isScalar() && rightType.isMatrix() && op.kind() == Token::Kind::TK_SLASH) {
+        this->writeScalarMatrixDivisionHelper();
     }
     this->writeExpression(left, precedence);
     if (op.kind() != Token::Kind::TK_EQ && op.isAssignment() &&
