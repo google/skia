@@ -33,6 +33,21 @@ static jlong Matrix_CreatePerspective(JNIEnv* env, jobject, float near, float fa
     return reinterpret_cast<jlong>(new SkM44(SkM44::Perspective(near, far, angle)));
 }
 
+static jfloatArray Matrix_GetRowMajor(JNIEnv* env, jobject, jlong native_matrix) {
+    if (auto* m = reinterpret_cast<SkM44*>(native_matrix)) {
+        SkScalar temp[16];
+        m->getRowMajor(temp);
+
+        jfloatArray result = env->NewFloatArray(16);
+        if (result == nullptr) {
+            return 0; /* out of memory error thrown */
+        }
+        env->SetFloatArrayRegion(result, 0, 16, temp);
+        return result;
+    }
+    return 0;
+}
+
 static void Matrix_Release(JNIEnv* env, jobject, jlong native_matrix) {
     delete reinterpret_cast<SkM44*>(native_matrix);
 }
@@ -91,6 +106,7 @@ int register_androidkit_Matrix(JNIEnv* env) {
         {"nCreate"            , "(FFFFFFFFFFFFFFFF)J" , reinterpret_cast<void*>(Matrix_Create)},
         {"nCreateLookAt"      , "(FFFFFFFFF)J"        , reinterpret_cast<void*>(Matrix_CreateLookAt)},
         {"nCreatePerspective" , "(FFF)J"              , reinterpret_cast<void*>(Matrix_CreatePerspective)},
+        {"nGetRowMajor"       , "(J)[F"               , reinterpret_cast<void*>(Matrix_GetRowMajor)},
         {"nRelease"           , "(J)V"                , reinterpret_cast<void*>(Matrix_Release)},
         {"nInverse"           , "(J)J"                , reinterpret_cast<void*>(Matrix_Inverse)},
         {"nPreConcat"         , "(JJ)V"               , reinterpret_cast<void*>(Matrix_PreConcat)},
