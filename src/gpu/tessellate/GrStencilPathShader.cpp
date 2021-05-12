@@ -374,10 +374,10 @@ class GrMiddleOutCubicShader::Impl : public GrStencilPathShader::Impl {
         args.fVertBuilder->insertFunction(kEvalRationalCubicFn);
         args.fVertBuilder->codeAppend(R"(
         float2 pos;
-        if (sk_VertexID > kMaxVertexID) {
-            // This is a special index value that instructs us to emit a specific point.
-            pos = ((sk_VertexID & 3) == 0) ? inputPoints_0_1.xy :
-                  ((sk_VertexID & 2) == 0) ? inputPoints_0_1.zw : inputPoints_2_3.xy;
+        if (isinf(inputPoints_2_3.z)) {
+            // A conic with w=Inf is an exact triangle.
+            pos = (sk_VertexID == 0) ? inputPoints_0_1.xy :
+                  (sk_VertexID != kMaxVertexID) ? inputPoints_0_1.zw : inputPoints_2_3.xy;
         } else {
             // Evaluate the cubic at T = (sk_VertexID / 2^kMaxResolveLevel).
             float T = float(sk_VertexID) * kInverseMaxVertexID;
