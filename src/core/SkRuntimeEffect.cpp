@@ -391,7 +391,7 @@ SkRuntimeEffect::SkRuntimeEffect(SkString sksl,
     fHash = SkOpts::hash_fn(&options.enforceES2Restrictions,
                       sizeof(options.enforceES2Restrictions), fHash);
 
-    this->initFilterColorInfo();
+    fFilterColorProgram = SkFilterColorProgram::Make(this);
 }
 
 SkRuntimeEffect::~SkRuntimeEffect() = default;
@@ -413,46 +413,62 @@ const SkRuntimeEffect::Child* SkRuntimeEffect::findChild(const char* name) const
     return iter == fChildren.end() ? nullptr : &(*iter);
 }
 
-void SkRuntimeEffect::initFilterColorInfo() {
-    // Runtime effects are often long lived & cached. So: build and save a program that can
-    // filter a single color, without baking in anything tied to a particular instance
-    // (uniforms or children). This isn't possible (or needed) for shaders.
-    if (!this->allowColorFilter()) {
-        return;
+std::unique_ptr<SkFilterColorProgram> SkFilterColorProgram::Make(const SkRuntimeEffect* effect) {
+    // Our per-effect program technique is only possible (and necessary) for color filters
+    if (!effect->allowColorFilter()) {
+        return nullptr;
     }
 
-    // We allocate a uniform color for the input color, and for each child in the SkSL. When we run
-    // this program later, these uniform values are replaced with either the results of the child,
-    // or the input color (if the child is nullptr). These Uniform ids are loads from the *first*
-    // arg ptr.
+    // We allocate a uniform color for the input color, and one for each call to sample(). When we
+    // encounter a sample call, we record the index of the child being sampled, as well as the color
+    // being passed. In most cases, we can record enough information to perfectly re-create that
+    // call when we're later running the program. (We support calls that pass the original input
+    // color, an immediate color, or the results of a previous sample call). If the color is none
+    // of those, we are unable to use this per-effect program, and callers will need to fall back
+    // to another (slower) implementation.
     //
-    // This scheme only works if every child is sampled using the original input color. If we detect
-    // a sampleChild call where a different color is being supplied, we bail out, and the returned
-    // info will have a null program. (Callers will need to fall back to another implementation.)
+    // When we run this program later, these uniform values are replaced with either the results of
+    // the child (using the SampleCall), or the input color (if the child is nullptr).
+    // These Uniform ids are loads from the *first* arg ptr.
     skvm::Builder p;
     skvm::Uniforms childColorUniforms{p.uniform(), 0};
     skvm::Color inputColor = p.uniformColor(/*placeholder*/ SkColors::kWhite, &childColorUniforms);
+    std::vector<SkFilterColorProgram::SampleCall> sampleCalls;
     std::vector<skvm::Color> childColors;
-    for (size_t i = 0; i < fChildren.size(); ++i) {
-        childColors.push_back(
-                p.uniformColor(/*placeholder*/ SkColors::kWhite, &childColorUniforms));
-    }
-    bool allSampleCallsPassInputColor = true;
-    auto sampleChild = [&](int ix, skvm::Coord, skvm::Color color) {
-        if (color.r.id != inputColor.r.id ||
-            color.g.id != inputColor.g.id ||
-            color.b.id != inputColor.b.id ||
-            color.a.id != inputColor.a.id) {
-            allSampleCallsPassInputColor = false;
+    auto ids_equal = [](skvm::Color x, skvm::Color y) {
+        return x.r.id == y.r.id && x.g.id == y.g.id && x.b.id == y.b.id && x.a.id == y.a.id;
+    };
+    bool allSampleCallsSupported = true;
+    auto sampleChild = [&](int ix, skvm::Coord, skvm::Color c) {
+        skvm::Color result = p.uniformColor(/*placeholder*/ SkColors::kWhite, &childColorUniforms);
+        SkFilterColorProgram::SampleCall call;
+        call.fChild = ix;
+        if (ids_equal(c, inputColor)) {
+            call.fKind = SkFilterColorProgram::SampleCall::Kind::kInputColor;
+        } else if (p.allImm(c.r.id, &call.fImm.fR,
+                            c.g.id, &call.fImm.fG,
+                            c.b.id, &call.fImm.fB,
+                            c.a.id, &call.fImm.fA)) {
+            call.fKind = SkFilterColorProgram::SampleCall::Kind::kImmediate;
+        } else if (auto it = std::find_if(childColors.begin(),
+                                          childColors.end(),
+                                          [&](skvm::Color x) { return ids_equal(x, c); });
+                   it != childColors.end()) {
+            call.fKind = SkFilterColorProgram::SampleCall::Kind::kPrevious;
+            call.fPrevious = SkTo<int>(it - childColors.begin());
+        } else {
+            allSampleCallsSupported = false;
         }
-        return childColors[ix];
+        sampleCalls.push_back(call);
+        childColors.push_back(result);
+        return result;
     };
 
     // For SkSL uniforms, we reserve space and allocate skvm Uniform ids for each one. When we run
     // the program, these ids will be loads from the *second* arg ptr, the uniform data of the
     // specific color filter instance.
     skvm::Uniforms skslUniforms{p.uniform(), 0};
-    const size_t uniformCount = this->uniformSize() / 4;
+    const size_t uniformCount = effect->uniformSize() / 4;
     std::vector<skvm::Val> uniform;
     uniform.reserve(uniformCount);
     for (size_t i = 0; i < uniformCount; i++) {
@@ -461,8 +477,8 @@ void SkRuntimeEffect::initFilterColorInfo() {
 
     // Emit the skvm instructions for the SkSL
     skvm::Coord zeroCoord = {p.splat(0.0f), p.splat(0.0f)};
-    skvm::Color result = SkSL::ProgramToSkVM(*fBaseProgram,
-                                             fMain,
+    skvm::Color result = SkSL::ProgramToSkVM(*effect->fBaseProgram,
+                                             effect->fMain,
                                              &p,
                                              SkMakeSpan(uniform),
                                              /*device=*/zeroCoord,
@@ -473,19 +489,55 @@ void SkRuntimeEffect::initFilterColorInfo() {
     // Then store the result to the *third* arg ptr
     p.store({skvm::PixelFormat::FLOAT, 32, 32, 32, 32, 0, 32, 64, 96}, p.arg(16), result);
 
+    if (!allSampleCallsSupported) {
+        return nullptr;
+    }
+
     // This is conservative. If a filter gets the input color by sampling a null child, we'll
     // return an (acceptable) false negative. All internal runtime color filters should work.
-    fColorFilterProgramLeavesAlphaUnchanged = (inputColor.a.id == result.a.id);
+    bool alphaUnchanged = (inputColor.a.id == result.a.id);
 
     // We'll use this program to filter one color at a time, don't bother with jit
-    fColorFilterProgram = allSampleCallsPassInputColor
-                                  ? std::make_unique<skvm::Program>(
-                                            p.done(/*debug_name=*/nullptr, /*allow_jit=*/false))
-                                  : nullptr;
+    return std::unique_ptr<SkFilterColorProgram>(
+            new SkFilterColorProgram(p.done(/*debug_name=*/nullptr, /*allow_jit=*/false),
+                                     std::move(sampleCalls),
+                                     alphaUnchanged));
 }
 
-SkRuntimeEffect::FilterColorInfo SkRuntimeEffect::getFilterColorInfo() {
-    return {fColorFilterProgram.get(), fColorFilterProgramLeavesAlphaUnchanged};
+SkFilterColorProgram::SkFilterColorProgram(skvm::Program program,
+                                           std::vector<SampleCall> sampleCalls,
+                                           bool alphaUnchanged)
+        : fProgram(std::move(program))
+        , fSampleCalls(std::move(sampleCalls))
+        , fAlphaUnchanged(alphaUnchanged) {}
+
+SkPMColor4f SkFilterColorProgram::eval(
+        const SkPMColor4f& inColor,
+        const void* uniformData,
+        std::function<SkPMColor4f(int, SkPMColor4f)> evalChild) const {
+    // Our program defines sampling any child as returning a uniform color. Assemble a buffer
+    // containing those colors. The first entry is always the input color. Subsequent entries
+    // are for each sample call, based on the information in fSampleCalls. For any null children,
+    // the sample result is just the passed-in color.
+    SkSTArray<4, SkPMColor4f, true> childColors;
+    childColors.push_back(inColor);
+    for (const auto& s : fSampleCalls) {
+        SkPMColor4f passedColor = inColor;
+        switch (s.fKind) {
+            case SampleCall::Kind::kInputColor:                                             break;
+            case SampleCall::Kind::kImmediate:  passedColor = s.fImm;                       break;
+            case SampleCall::Kind::kPrevious:   passedColor = childColors[s.fPrevious + 1]; break;
+        }
+        childColors.push_back(evalChild(s.fChild, passedColor));
+    }
+
+    SkPMColor4f result;
+    fProgram.eval(1, childColors.begin(), uniformData, result.vec());
+    return result;
+}
+
+const SkFilterColorProgram* SkRuntimeEffect::getFilterColorProgram() {
+    return fFilterColorProgram.get();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -613,7 +665,7 @@ public:
 
     SkPMColor4f onFilterColor4f(const SkPMColor4f& color, SkColorSpace* dstCS) const override {
         // Get the generic program for filtering a single color
-        const skvm::Program* program = fEffect->getFilterColorInfo().program;
+        const SkFilterColorProgram* program = fEffect->getFilterColorProgram();
         if (!program) {
             // We were unable to build a cached (per-effect) program. Use the base-class fallback,
             // which builds a program for the specific filter instance.
@@ -624,23 +676,17 @@ public:
         sk_sp<SkData> inputs = get_xformed_uniforms(fEffect.get(), fUniforms, dstCS);
         SkASSERT(inputs);
 
-        // 'program' defines sampling any child as returning a uniform color. Assemble a buffer
-        // containing those colors. The first entry is always the input color. Subsequent entries
-        // are for children. For any null children, the sample result is just the input color.
-        // For non-null children, it's the result of that child filtering the input color.
-        SkSTArray<1, SkPMColor4f, true> inputColors;
-        inputColors.push_back(color);
-        for (const auto &child : fChildren) {
-            inputColors.push_back(child ? as_CFB(child)->onFilterColor4f(color, dstCS) : color);
-        }
+        auto evalChild = [&](int index, SkPMColor4f inColor) {
+            const SkColorFilter* child = fChildren[index].get();
+            return child ? as_CFB(child)->onFilterColor4f(inColor, dstCS) : inColor;
+        };
 
-        SkPMColor4f result;
-        program->eval(1, inputColors.begin(), inputs->data(), result.vec());
-        return result;
+        return program->eval(color, inputs->data(), evalChild);
     }
 
     bool onIsAlphaUnchanged() const override {
-        return fEffect->getFilterColorInfo().alphaUnchanged;
+        return fEffect->getFilterColorProgram() &&
+               fEffect->getFilterColorProgram()->isAlphaUnchanged();
     }
 
     void flatten(SkWriteBuffer& buffer) const override {
