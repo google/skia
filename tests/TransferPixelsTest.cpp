@@ -167,6 +167,8 @@ void basic_transfer_to_test(skiatest::Reporter* reporter,
     //////////////////////////
     // transfer full data
 
+    bool partial = false;
+
     bool result;
     result = gpu->transferPixelsTo(tex.get(), 0, 0, kTexDims.fWidth, kTexDims.fHeight, colorType,
                                    allowedSrc.fColorType, buffer, 0, srcRowBytes);
@@ -184,11 +186,11 @@ void basic_transfer_to_test(skiatest::Reporter* reporter,
     }
 
     auto error = std::function<ComparePixmapsErrorReporter>(
-            [reporter, colorType](int x, int y, const float diffs[4]) {
+            [&](int x, int y, const float diffs[4]) {
                 ERRORF(reporter,
-                       "Error at (%d %d) in transfer, color type: %s, diffs: (%f, %f, %f, %f)",
+                       "Error at (%d %d) in transfer, color type: %s, diffs: (%f, %f, %f, %f), is partial xfer: %d",
                        x, y, GrColorTypeToStr(colorType),
-                       diffs[0], diffs[1], diffs[2], diffs[3]);
+                       diffs[0], diffs[1], diffs[2], diffs[3], partial);
             });
     GrImageInfo srcInfo(allowedSrc.fColorType, kUnpremul_SkAlphaType, nullptr, tex->dimensions());
     GrImageInfo dstInfo(            colorType, kUnpremul_SkAlphaType, nullptr, tex->dimensions());
@@ -199,6 +201,7 @@ void basic_transfer_to_test(skiatest::Reporter* reporter,
 
     //////////////////////////
     // transfer partial data
+    partial = true;
 
     // We're relying on this cap to write partial texture data
     if (!caps->writePixelsRowBytesSupport()) {
