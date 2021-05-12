@@ -9,6 +9,7 @@
 
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/GrContext_Base.h"
+#include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkVM.h"
 #include "src/gpu/GrBaseContextPriv.h"
 #include "src/gpu/GrColorInfo.h"
@@ -192,7 +193,7 @@ std::unique_ptr<GrSkSLFP> GrSkSLFP::Make(sk_sp<SkRuntimeEffect> effect,
 
 GrSkSLFP::GrSkSLFP(sk_sp<SkRuntimeEffect> effect, const char* name, sk_sp<SkData> uniforms)
         : INHERITED(kGrSkSLFP_ClassID,
-                    effect->getFilterColorInfo().program
+                    effect->getFilterColorProgram()
                             ? kConstantOutputForConstantInput_OptimizationFlag
                             : kNone_OptimizationFlags)
         , fEffect(std::move(effect))
@@ -248,18 +249,14 @@ std::unique_ptr<GrFragmentProcessor> GrSkSLFP::clone() const {
 }
 
 SkPMColor4f GrSkSLFP::constantOutputForConstantInput(const SkPMColor4f& inputColor) const {
-    const skvm::Program* program = fEffect->getFilterColorInfo().program;
+    const SkFilterColorProgram* program = fEffect->getFilterColorProgram();
     SkASSERT(program);
 
-    SkSTArray<3, SkPMColor4f, true> childColors;
-    childColors.push_back(inputColor);
-    for (int i = 0; i < this->numChildProcessors(); ++i) {
-        childColors.push_back(ConstantOutputForConstantInput(this->childProcessor(i), inputColor));
-    }
+    auto evalChild = [&](int index, SkPMColor4f color) {
+        return ConstantOutputForConstantInput(this->childProcessor(index), color);
+    };
 
-    SkPMColor4f result;
-    program->eval(1, childColors.begin(), fUniforms->data(), result.vec());
-    return result;
+    return program->eval(inputColor, fUniforms->data(), evalChild);
 }
 
 /**************************************************************************************************/

@@ -13,6 +13,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
+#include "include/private/SkColorData.h"
 #include "include/private/SkOnce.h"
 #include "include/private/SkSLSampleUsage.h"
 
@@ -21,6 +22,7 @@
 class GrFragmentProcessor;
 class GrRecordingContext;
 class SkColorFilter;
+class SkFilterColorProgram;
 class SkImage;
 class SkShader;
 
@@ -218,12 +220,7 @@ private:
     bool allowShader()      const { return (fFlags & kAllowShader_Flag);      }
     bool allowColorFilter() const { return (fFlags & kAllowColorFilter_Flag); }
 
-    struct FilterColorInfo {
-        const skvm::Program* program;         // May be nullptr if it's not possible to compute
-        bool                 alphaUnchanged;
-    };
-    void initFilterColorInfo();
-    FilterColorInfo getFilterColorInfo();
+    const SkFilterColorProgram* getFilterColorProgram();
 
 #if SK_SUPPORT_GPU
     friend class GrSkSLFP;             // fBaseProgram, fSampleUsages
@@ -232,6 +229,8 @@ private:
 
     friend class SkRTShader;            // fBaseProgram, fMain
     friend class SkRuntimeColorFilter;  //
+
+    friend class SkFilterColorProgram;
 
     uint32_t fHash;
     SkString fSkSL;
@@ -242,8 +241,7 @@ private:
     std::vector<Child> fChildren;
     std::vector<SkSL::SampleUsage> fSampleUsages;
 
-    std::unique_ptr<skvm::Program> fColorFilterProgram;
-    bool fColorFilterProgramLeavesAlphaUnchanged = false;
+    std::unique_ptr<SkFilterColorProgram> fFilterColorProgram;
 
     uint32_t fFlags;  // Flags
 };
