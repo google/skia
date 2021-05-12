@@ -54,7 +54,7 @@ function MakeCursor(CanvasKit) {
             if (this._path) {
                 return;
             }
-            if (Math.floor(Date.now() * this._draws_per_sec / 1000) & 1) {
+            if (Math.floor(Date.now() * this._draws_per_sec / 1000) % 1) {
                 canvas.drawLine(this._x, this._top, this._x, this._bottom, this._line_paint);
             }
         },
@@ -206,7 +206,10 @@ function MakeStyle(length) {
                 this.size = src.size;
                 layoutChanged = true;
             }
-            if (src.color)    { this.color  = src.color; }
+            if (src.color) {
+                this.color = src.color;
+                delete this.shaderIndex;    // we implicitly delete shader if there is a color
+            }
 
             if (src.bold) {
                 this.bold = this._check_toggle(src.bold, this.bold);
@@ -220,6 +223,13 @@ function MakeStyle(length) {
                 layoutChanged = true;
             }
 
+            if ('shaderIndex' in src) {
+                if (src.shaderIndex >= 0) {
+                    this.shaderIndex = src.shaderIndex;
+                } else {
+                    delete this.shaderIndex;
+                }
+            }
             return layoutChanged;
         }
     };
@@ -398,7 +408,7 @@ function MakeEditor(text, style, cursor, width) {
             this._buildLines();
         },
 
-        draw: function(canvas) {
+        draw: function(canvas, shaders) {
             canvas.save();
             canvas.translate(this._X, this._Y);
 
@@ -450,6 +460,7 @@ function MakeEditor(text, style, cursor, width) {
                 f.setEmbolden(s.bold);
                 f.setSkewX(s.italic ? -0.2 : 0);
                 p.setColor(s.color ? s.color : [0,0,0,1]);
+                p.setShader(s.shaderIndex >= 0 ? shaders[s.shaderIndex] : null);
 
                 let gly = r.glyphs;
                 let pos = r.positions;
@@ -475,6 +486,8 @@ function MakeEditor(text, style, cursor, width) {
                     LOG('    use entire glyph run');
                 }
                 canvas.drawGlyphs(gly, pos, 0, 0, f, p);
+
+                p.setShader(null);  // in case our caller deletes their shader(s)
 
                 start = end;
             }
