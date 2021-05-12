@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script type="text/javascript" src="https://particles.skia.org/dist/canvaskit.js"></script>
 <script type="text/javascript" src="textapi_utils.js"></script>
+<script type="text/javascript" src="spiralshader.js"></script>
 
 <style>
 canvas {
@@ -35,6 +36,7 @@ canvas {
       const mouse = MakeMouse();
       const cursor = MakeCursor(CanvasKit);
       const canvas = surface.getCanvas();
+      const spiralEffect = MakeSpiralShaderEffect(CanvasKit);
 
       const text0 = "In a hole in the ground there lived a hobbit. Not a nasty, dirty, " +
                     "wet hole full of worms and oozy smells. This was a hobbit-hole and " +
@@ -45,9 +47,9 @@ canvas {
       const bgPaint = new CanvasKit.Paint();
       bgPaint.setColor([0.965, 0.965, 0.965, 1]);
 
-      const editor = MakeEditor(text0, {typeface:null, size:24}, cursor, 400);
+      const editor = MakeEditor(text0, {typeface:null, size:30}, cursor, 540);
 
-      editor.applyStyleToRange({size:100}, 0, 1);
+      editor.applyStyleToRange({size:130}, 0, 1);
       editor.applyStyleToRange({italic:true}, 38, 38+6);
       editor.applyStyleToRange({color:[1,0,0,1]}, 5, 5+4);
 
@@ -70,7 +72,19 @@ canvas {
         }
 
         canvas.drawRect(editor.bounds(), bgPaint);
-        editor.draw(canvas);
+
+        {
+            // update our animated shaders
+            const rad_scale = Math.sin(Date.now() / 5000) / 2;
+            const shader0 = spiralEffect.makeShader([
+                rad_scale,
+                editor.width()/2, editor.width()/2,
+                1,0,0,1,                            // color0
+                0,0,1,1                             // color1
+             ]);
+            editor.draw(canvas, [shader0]);
+            shader0.delete();
+        }
 
         surface.requestAnimationFrame(drawFrame);
       }
@@ -118,11 +132,15 @@ canvas {
                     case 'u': editor.applyStyleToSelection({color:[0,0,1,1]}); return;
                     case 'k': editor.applyStyleToSelection({color:[0,0,0,1]}); return;
 
+                    case 's': editor.applyStyleToSelection({shaderIndex:0}); return;
+
                     case 'i': editor.applyStyleToSelection({italic:'toggle'}); return;
                     case 'b': editor.applyStyleToSelection({bold:'toggle'}); return;
 
-                    case ']': editor.applyStyleToSelection({size_add:1}); return;
+                    case ']': editor.applyStyleToSelection({size_add:1});  return;
                     case '[': editor.applyStyleToSelection({size_add:-1}); return;
+                    case '}': editor.applyStyleToSelection({size_add:10});  return;
+                    case '{': editor.applyStyleToSelection({size_add:-10}); return;
                 }
             }
             if (!e.ctrlKey && !e.metaKey) {
