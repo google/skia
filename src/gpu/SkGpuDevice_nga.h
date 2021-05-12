@@ -15,8 +15,10 @@
 #include "src/core/SkDevice.h"
 
 /**
+ *  Subclass of SkFooDevice, which directs all drawing to the GrGpu owned by the
+ *  canvas.
  */
-class SkGpuDevice_nga : public SkBaseDevice  {
+class SkGpuDevice_nga : public SkFooDevice  {
 public:
     ~SkGpuDevice_nga() override;
 

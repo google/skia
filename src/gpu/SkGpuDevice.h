@@ -8,11 +8,13 @@
 #ifndef SkGpuDevice_DEFINED
 #define SkGpuDevice_DEFINED
 
+#include "include/gpu/GrTypes.h"
+
+#if 1 //SK_OGA
 #include "include/core/SkBitmap.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkRegion.h"
 #include "include/core/SkSurface.h"
-#include "include/gpu/GrTypes.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/SkGr.h"
 
@@ -31,9 +33,9 @@ class SkVertices;
 #endif
 
 #if !defined(SK_DISABLE_NEW_GR_CLIP_STACK)
-    #include "src/core/SkDevice.h"
     #include "src/gpu/GrClipStack.h"
-    #define BASE_DEVICE   SkBaseDevice
+    #include "src/gpu/SkFooDevice.h"
+    #define BASE_DEVICE   SkFooDevice
     #define GR_CLIP_STACK GrClipStack
 #else
     #include "src/core/SkClipStackDevice.h"
@@ -48,6 +50,14 @@ class SkVertices;
  */
 class SkGpuDevice : public BASE_DEVICE  {
 public:
+    GrSurfaceProxyView readSurfaceView() override {
+        return this->surfaceDrawContext()->readSurfaceView();
+    }
+
+    GrRenderTarget* accessRenderTarget() override {
+        return this->surfaceDrawContext()->accessRenderTarget();
+    }
+
     enum InitContents {
         kClear_InitContents,
         kUninit_InitContents
@@ -74,7 +84,8 @@ public:
     ~SkGpuDevice() override {}
 
     GrRecordingContext* recordingContext() const override { return fContext.get(); }
-    GrSurfaceDrawContext* surfaceDrawContext() override;
+    GrSurfaceDrawContext* surfaceDrawContext();
+    const GrSurfaceDrawContext* surfaceDrawContext() const;
 
     // set all pixels to 0
     void clearAll();
@@ -226,5 +237,7 @@ private:
 
 #undef BASE_DEVICE
 #undef GR_CLIP_STACK
+
+#endif // SK_OGA
 
 #endif
