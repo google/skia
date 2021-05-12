@@ -34,6 +34,24 @@
       "parentUuid": "3e32c64a_48fb07b4",
       "revId": "71d679e74691e72e1552d36539ea8547344c380a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e80e5c06_bc047007",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-12T13:23:01Z",
+      "side": 1,
+      "message": "Yup, wow. Everything from 2369 to 2392 is wrong.",
+      "parentUuid": "2a020f7a_56c86495",
+      "revId": "71d679e74691e72e1552d36539ea8547344c380a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
