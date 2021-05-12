@@ -13,6 +13,7 @@
 #include "include/private/SkTemplates.h"
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkPathPriv.h"
+#include <limits>
 
 // This class emits a polygon triangulation with a "middle-out" topology. Conceptually, middle-out
 // emits one large triangle with vertices on both endpoints and a middle point, then recurses on
@@ -40,6 +41,12 @@
 // This class is designed to not know or store all the vertices in the polygon at once. The caller
 // pushes each vertex in linear order (perhaps while parsing a path), then rather than relying on
 // recursion, we manipulate an O(log N) stack to determine the correct middle-out triangulation.
+//
+// perTriangleVertexAdvance controls how much padding to put after triangles (namely, we append
+// "perTriangleVertexAdvance - 3" vertices of padding after each triangle, including the final one).
+// Padding vertices are filled with infinity. This has the effect, when perTriangleVertexAdvance is
+// 4, of defining a conic with w=Inf for tessellation shaders, which comes out to be an exact
+// triangle.
 class GrMiddleOutPolygonTriangulator {
 public:
     GrMiddleOutPolygonTriangulator(SkPoint* vertexData, int perTriangleVertexAdvance,
@@ -166,6 +173,10 @@ private:
         fVertexData[0] = fTop[0].fPoint;
         fVertexData[1] = fTop[1].fPoint;
         fVertexData[2] = lastPt;
+        for (int i = 3; i < fPerTriangleVertexAdvance; ++i) {
+            fVertexData[i].set(std::numeric_limits<float>::infinity(),
+                               std::numeric_limits<float>::infinity());
+        }
         fVertexData += fPerTriangleVertexAdvance;
     }
 
