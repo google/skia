@@ -16,6 +16,23 @@
       "message": "Chris is there an umbrella bug for CCPR atlasing I can ref?",
       "revId": "8cc7c819bf703c9852f909a1f84156f4d3798498",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "00dd4342_6af608be",
+        "filename": "src/gpu/ccpr/GrCoverageCountingPathRenderer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-05-12T21:12:08Z",
+      "side": 1,
+      "message": "I would do the #if 0 in GrPathRendererChain.cpp. That should sort out the test.",
+      "revId": "8cc7c819bf703c9852f909a1f84156f4d3798498",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
