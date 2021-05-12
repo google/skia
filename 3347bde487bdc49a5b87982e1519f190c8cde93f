@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d883ccad_6520cbac",
+        "filename": "src/gpu/GrBackendSurface.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 934,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-05-12T21:21:08Z",
+      "side": 1,
+      "message": "nit: Should these two lines be unindented 8 spaces to the left? Or init fSampleCnt in the constructor\u0027s initializer list?",
+      "range": {
+        "startLine": 933,
+        "startChar": 8,
+        "endLine": 934,
+        "endChar": 8
+      },
+      "revId": "3347bde487bdc49a5b87982e1519f190c8cde93f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
