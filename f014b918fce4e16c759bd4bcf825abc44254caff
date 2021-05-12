@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8f0e673d_77774b1d",
+        "filename": "src/gpu/tessellate/GrMiddleOutPolygonTriangulator.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-12T14:46:54Z",
+      "side": 1,
+      "message": "can we update this to clarify that the infinities come after the 3 vertices in a triangle (e.g. append not insert)? We\u0027ll always end with padding on the last triangle.",
+      "range": {
+        "startLine": 45,
+        "startChar": 87,
+        "endLine": 46,
+        "endChar": 33
+      },
+      "revId": "f014b918fce4e16c759bd4bcf825abc44254caff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "94e3a688_3052bde4",
+        "filename": "src/gpu/tessellate/GrMiddleOutPolygonTriangulator.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-12T14:46:54Z",
+      "side": 1,
+      "message": "Is this ever not 4?",
+      "range": {
+        "startLine": 47,
+        "startChar": 51,
+        "endLine": 47,
+        "endChar": 80
+      },
+      "revId": "f014b918fce4e16c759bd4bcf825abc44254caff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
