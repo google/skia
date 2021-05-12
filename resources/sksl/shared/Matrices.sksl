@@ -1,45 +1,95 @@
 uniform half4 colorGreen, colorRed;
 
 bool test_float() {
-    float3 v1 = float3x3(1) * float3(2);
-    float3 v2 = float3(2) * float3x3(1);
+    bool ok = true;
+
+    float3 v1 = float3x3(2) * float3(3);
+    ok = ok && (v1 == float3(6));
+
+    float3 v2 = float3(3) * float3x3(3);
+    ok = ok && (v2 == float3(9));
 
     float2x2 m1 = float2x2(float4(1, 2, 3, 4));
-    float2x2 m2 = float2x2(float4(0));
-    float2x2 m3 = float2x2(m1);
-    float2x2 m4 = float2x2(1);
-    m3 *= m4;
-    float2x2 m5 = float2x2(m1[0][0]);
-    float2x2 m6 = float2x2(1, 2, 3, 4);
-    m6 += m5;
-    float2x2 m7 = float2x2(5, float3(6, 7, 8));
-    float3x3 m9 = float3x3(1);
-    float4x4 m10 = float4x4(1);
-    float4x4 m11 = float4x4(2);
-    m11 -= m10;
+    ok = ok && (m1 == float2x2(1, 2, 3, 4));
 
-    return true;
+    float2x2 m2 = float2x2(float4(5));
+    ok = ok && (m2 == float2x2(5, 5, 5, 5));
+
+    float2x2 m3 = float2x2(m1);
+    ok = ok && (m3 == float2x2(1, 2, 3, 4));
+
+    float2x2 m4 = float2x2(6);
+    ok = ok && (m4 == float2x2(6, 0, 0, 6));
+
+    m3 *= m4;
+    ok = ok && (m3 == float2x2(6, 12, 18, 24));
+
+    float2x2 m5 = float2x2(m1[1][1]);
+    ok = ok && (m5 == float2x2(4, 0, 0, 4));
+
+    m1 += m5;
+    ok = ok && (m1 == float2x2(5, 2, 3, 8));
+
+    float2x2 m7 = float2x2(5, float3(6, 7, 8));
+    ok = ok && (m7 == float2x2(5, 6, 7, 8));
+
+    float3x3 m9 = float3x3(9);
+    ok = ok && (m9 == float3x3(9, 0, 0, 0, 9, 0, 0, 0, 9));
+
+    float4x4 m10 = float4x4(11);
+    ok = ok && (m10 == float4x4(11, 0, 0, 0, 0, 11, 0, 0, 0, 0, 11, 0, 0, 0, 0, 11));
+
+    float4x4 m11 = float4x4(20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20);
+    m11 -= m10;
+    ok = ok && (m11 == float4x4(9, 20, 20, 20, 20, 9, 20, 20, 20, 20, 9, 20, 20, 20, 20, 9));
+
+    return ok;
 }
 
 bool test_half() {
-    half3 v1 = half3x3(1) * half3(2);
-    half3 v2 = half3(2) * half3x3(1);
+    bool ok = true;
+
+    half3 v1 = half3x3(2) * half3(3);
+    ok = ok && (v1 == half3(6));
+
+    half3 v2 = half3(3) * half3x3(3);
+    ok = ok && (v2 == half3(9));
 
     half2x2 m1 = half2x2(half4(1, 2, 3, 4));
-    half2x2 m2 = half2x2(half4(0));
-    half2x2 m3 = half2x2(m1);
-    half2x2 m4 = half2x2(1);
-    m3 *= m4;
-    half2x2 m5 = half2x2(m1[0][0]);
-    half2x2 m6 = half2x2(1, 2, 3, 4);
-    m6 += m5;
-    half2x2 m7 = half2x2(5, half3(6, 7, 8));
-    half3x3 m9 = half3x3(1);
-    half4x4 m10 = half4x4(1);
-    half4x4 m11 = half4x4(2);
-    m11 -= m10;
+    ok = ok && (m1 == half2x2(1, 2, 3, 4));
 
-    return true;
+    half2x2 m2 = half2x2(half4(5));
+    ok = ok && (m2 == half2x2(5, 5, 5, 5));
+
+    half2x2 m3 = half2x2(m1);
+    ok = ok && (m3 == half2x2(1, 2, 3, 4));
+
+    half2x2 m4 = half2x2(6);
+    ok = ok && (m4 == half2x2(6, 0, 0, 6));
+
+    m3 *= m4;
+    ok = ok && (m3 == half2x2(6, 12, 18, 24));
+
+    half2x2 m5 = half2x2(m1[1][1]);
+    ok = ok && (m5 == half2x2(4, 0, 0, 4));
+
+    m1 += m5;
+    ok = ok && (m1 == half2x2(5, 2, 3, 8));
+
+    half2x2 m7 = half2x2(5, half3(6, 7, 8));
+    ok = ok && (m7 == half2x2(5, 6, 7, 8));
+
+    half3x3 m9 = half3x3(9);
+    ok = ok && (m9 == half3x3(9, 0, 0, 0, 9, 0, 0, 0, 9));
+
+    half4x4 m10 = half4x4(11);
+    ok = ok && (m10 == half4x4(11, 0, 0, 0, 0, 11, 0, 0, 0, 0, 11, 0, 0, 0, 0, 11));
+
+    half4x4 m11 = half4x4(20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20);
+    m11 -= m10;
+    ok = ok && (m11 == half4x4(9, 20, 20, 20, 20, 9, 20, 20, 20, 20, 9, 20, 20, 20, 20, 9));
+
+    return ok;
 }
 
 half4 main(float2 coords) {
