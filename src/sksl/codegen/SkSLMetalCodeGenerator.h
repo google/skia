@@ -180,9 +180,9 @@ protected:
 
     void writeMatrixCompMult();
 
-    void writeMatrixTimesEqualHelper(const Type& left, const Type& right, const Type& result);
+    void writeMatrixTimesEqualHelper();
 
-    void writeMatrixEqualityHelpers(const Type& left, const Type& right);
+    void writeMatrixEqualityHelpers();
 
     void writeArrayEqualityHelpers(const Type& type);
 

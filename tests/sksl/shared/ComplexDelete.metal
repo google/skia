@@ -13,13 +13,18 @@ struct Globals {
     texture2d<float> s;
     sampler sSmplr;
 };
-thread bool operator==(const float4x4 left, const float4x4 right) {
-    return all(left[0] == right[0]) &&
-           all(left[1] == right[1]) &&
-           all(left[2] == right[2]) &&
-           all(left[3] == right[3]);
+template <typename T, int C, int R>
+thread bool operator==(const matrix<T, C, R> left, const matrix<T, C, R> right) {
+    for (size_t index = 0; index < C; ++index) {
+        if (any(left[index] != right[index])) {
+            return false;
+        }
+    }
+    return true;
 }
-thread bool operator!=(const float4x4 left, const float4x4 right) {
+
+template <typename T, int C, int R>
+thread bool operator!=(const matrix<T, C, R> left, const matrix<T, C, R> right) {
     return !(left == right);
 }
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], texture2d<float> s[[texture(0)]], sampler sSmplr[[sampler(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {

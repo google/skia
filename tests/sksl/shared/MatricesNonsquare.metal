@@ -10,15 +10,9 @@ struct Inputs {
 struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
-thread float2x2& operator*=(thread float2x2& left, thread const float2x2& right) {
-    left = left * right;
-    return left;
-}
-thread float3x3& operator*=(thread float3x3& left, thread const float3x3& right) {
-    left = left * right;
-    return left;
-}
-thread float4x4& operator*=(thread float4x4& left, thread const float4x4& right) {
+template <typename T, int C, int R>
+thread matrix<T, C, R>& operator*=(thread matrix<T, C, R>& left,
+                                   thread const matrix<T, C, R>& right) {
     left = left * right;
     return left;
 }
