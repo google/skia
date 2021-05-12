@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c94fb52b_f7205f1c",
+        "filename": "src/gpu/tessellate/GrMiddleOutPolygonTriangulator.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-05-12T16:10:58Z",
+      "side": 1,
+      "message": "Good catch",
+      "parentUuid": "8f0e673d_77774b1d",
+      "range": {
+        "startLine": 45,
+        "startChar": 87,
+        "endLine": 46,
+        "endChar": 33
+      },
+      "revId": "f014b918fce4e16c759bd4bcf825abc44254caff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "94e3a688_3052bde4",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-05-12T14:46:54Z",
       "side": 1,
       "message": "Is this ever not 4?",
+      "range": {
+        "startLine": 47,
+        "startChar": 51,
+        "endLine": 47,
+        "endChar": 80
+      },
+      "revId": "f014b918fce4e16c759bd4bcf825abc44254caff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3fc98be0_067d437f",
+        "filename": "src/gpu/tessellate/GrMiddleOutPolygonTriangulator.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-05-12T16:10:58Z",
+      "side": 1,
+      "message": "Yeah, it can be 3 if we\u0027re using a basic triangle shader.",
+      "parentUuid": "94e3a688_3052bde4",
       "range": {
         "startLine": 47,
         "startChar": 51,
