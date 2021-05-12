@@ -231,6 +231,7 @@ sksl_metal_tests = [
   "/sksl/metal/OutParams.sksl",
   "/sksl/metal/OutVarsRequireLocation.sksl",
   "/sksl/metal/SamplerGlobals.sksl",
+  "/sksl/metal/MatrixScalarSplat.sksl",
   "/sksl/metal/SwizzleHelper.sksl",
 ]
 
