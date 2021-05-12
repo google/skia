@@ -196,6 +196,7 @@ protected:
 
     bool writeIntrinsicCall(const FunctionCall& c, IntrinsicKind kind);
 
+
     bool canCoerce(const Type& t1, const Type& t2);
 
     void writeConstructorCompound(const ConstructorCompound& c, Precedence parentPrecedence);
@@ -218,6 +219,9 @@ protected:
     void writeFieldAccess(const FieldAccess& f);
 
     void writeSwizzle(const Swizzle& swizzle);
+
+    // Splats a scalar expression across a matrix of arbitrary size.
+    void writeNumberAsMatrix(const Expression& expr, const Type& matrixType);
 
     void writeBinaryExpression(const BinaryExpression& b, Precedence parentPrecedence);
 
