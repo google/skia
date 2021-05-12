@@ -16,6 +16,41 @@
       "message": "It is a bit unfortunate that the SkBaseGpuDevice has got caught up in the SK_DISABLE_NEW_GR_CLIP_STACK business but, I don\u0027t see a way around it short term.",
       "revId": "5795d3a554bdb3cf0991bca2415b19da70974123",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ee844019_23e4b0f9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-12T17:23:57Z",
+      "side": 1,
+      "message": "Volunteering to help get android off of expanding clip ops 😊",
+      "parentUuid": "8a4f3599_6d7e985e",
+      "revId": "5795d3a554bdb3cf0991bca2415b19da70974123",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2e58bf92_b10849e4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-12T17:23:57Z",
+      "side": 1,
+      "message": "It does seem like we\u0027ll have a number of shared functionality between the old and new GPU devices, but fwiw SkCanvas only ever interacts with SkBaseDevice and doesn\u0027t need to do anything with SkBaseGPUDevice.",
+      "revId": "5795d3a554bdb3cf0991bca2415b19da70974123",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
