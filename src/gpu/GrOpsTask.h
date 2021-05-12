@@ -89,10 +89,16 @@ public:
 
     // Must only be called if native color buffer clearing is enabled.
     void setColorLoadOp(GrLoadOp op, std::array<float, 4> color = {0, 0, 0, 0});
+    GrLoadOp getColorLoadOp() const { return fColorLoadOp; }
+    void setColorLoadOpFromTask(GrOpsTask* task) {
+        this->setColorLoadOp(task->fColorLoadOp, task->fLoadClearColor);
+    }
 
     // Merge as many opsTasks as possible from the head of 'tasks'. They should all be
     // renderPass compatible. Return the number of tasks merged into 'this'.
     int mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks);
+
+    bool mustPreserveStencil() const { return fMustPreserveStencil; }
 
 #ifdef SK_DEBUG
     int numClips() const override { return fNumClips; }
