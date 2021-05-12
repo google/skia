@@ -170,6 +170,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "570b3454_196aebf7",
+        "filename": "modules/androidkit/src/SurfaceThread.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-05-12T14:04:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4ed2d704_0cb0b435",
+      "revId": "3238263d04c9518b5777a5a6856ec0e7255d4b92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4ee906b7_1f5ce566",
@@ -231,6 +249,30 @@
       "side": 1,
       "message": "Oh, that\u0027s probably accidental: since these are part of the base class public API, it doesn\u0027t make sense to restrict visibility in subclasses.  Feel free to promote back to public in WindowSurface, or leave the cast here.",
       "parentUuid": "433f3b71_372d7aee",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 44
+      },
+      "revId": "3238263d04c9518b5777a5a6856ec0e7255d4b92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f79aad1e_d9be0c08",
+        "filename": "modules/androidkit/src/SurfaceThread.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-05-12T14:04:29Z",
+      "side": 1,
+      "message": "I\u0027ll leave the cast. It makes sense to me that most things affecting androidkit\u0027s surface should only be interacting with the parent class.",
+      "parentUuid": "fdad67b3_60a03205",
       "range": {
         "startLine": 48,
         "startChar": 0,
