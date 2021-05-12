@@ -25,15 +25,33 @@
 // Base Cmd struct.
 struct MSKPPlayer::Cmd {
     virtual ~Cmd() = default;
+    virtual bool isFullRedraw(SkCanvas*) const = 0;
     virtual void draw(SkCanvas* canvas, const LayerMap&, LayerStateMap*) const = 0;
+    // If this command draws another layer, return it's ID. Otherwise, -1.
+    virtual int layerID() const { return -1; }
 };
 
 // Draws a SkPicture.
 struct MSKPPlayer::PicCmd : Cmd {
     sk_sp<SkPicture> fContent;
+    SkIRect fClipRect = SkIRect::MakeEmpty(); // clip for picture (no clip if empty).
+
+    bool isFullRedraw(SkCanvas* canvas) const override {
+        if (fClipRect.isEmpty()) {
+            return false;
+        }
+        return fClipRect.contains(SkIRect::MakeSize(canvas->getBaseLayerSize()));
+    }
 
     void draw(SkCanvas* canvas, const LayerMap&, LayerStateMap*) const override {
+        if (!fClipRect.isEmpty()) {
+            canvas->save();
+            canvas->clipIRect(fClipRect);
+        }
         canvas->drawPicture(fContent.get());
+        if (!fClipRect.isEmpty()) {
+            canvas->restore();
+        }
     }
 };
 
@@ -49,7 +67,9 @@ struct MSKPPlayer::DrawLayerCmd : Cmd {
     SkCanvas::SrcRectConstraint fConstraint;
     SkTLazy<SkPaint>            fPaint;
 
+    bool isFullRedraw(SkCanvas* canvas) const override { return false; }
     void draw(SkCanvas* canvas, const LayerMap&, LayerStateMap*) const override;
+    int layerID() const override { return fLayerId; }
 };
 
 void MSKPPlayer::DrawLayerCmd::draw(SkCanvas* canvas,
@@ -71,9 +91,21 @@ void MSKPPlayer::DrawLayerCmd::draw(SkCanvas* canvas,
         cmd = 0;
     }
     SkCanvas* layerCanvas = layerState->fSurface->getCanvas();
+    // Check if there is a full redraw between cmd and fLayerCmdCnt and if so jump to it and ensure
+    // we clear the canvas if starting from a full redraw.
+    for (size_t checkCmd = fLayerCmdCnt - 1; checkCmd > cmd; --checkCmd) {
+        if (layer.fCmds[checkCmd]->isFullRedraw(layerCanvas)) {
+            cmd = checkCmd;
+            break;
+        }
+    }
     for (; cmd < fLayerCmdCnt; ++cmd) {
+        if (cmd == 0 || layer.fCmds[cmd]->isFullRedraw(layerCanvas)) {
+            layerState->fSurface->getCanvas()->clear(SK_ColorTRANSPARENT);
+        }
         layer.fCmds[cmd]->draw(layerCanvas, layerMap, layerStateMap);
     }
+    layerState->fCurrCmd = fLayerCmdCnt;
     const SkPaint* paint = fPaint.isValid() ? fPaint.get() : nullptr;
     canvas->drawImageRect(layerState->fSurface->makeImageSnapshot(),
                           fSrcRect,
@@ -87,8 +119,11 @@ void MSKPPlayer::DrawLayerCmd::draw(SkCanvas* canvas,
 
 class MSKPPlayer::CmdRecordCanvas : public SkCanvasVirtualEnforcer<SkCanvas> {
 public:
-    CmdRecordCanvas(Layer* dst, LayerMap* offscreenLayers)
+    CmdRecordCanvas(Layer* dst, LayerMap* offscreenLayers, const SkIRect* clipRect = nullptr)
             : fDst(dst), fOffscreenLayers(offscreenLayers) {
+        if (clipRect) {
+            fClipRect = *clipRect;
+        }
         fRecorder.beginRecording(SkRect::Make(dst->fDimensions));
     }
     ~CmdRecordCanvas() override { this->recordPicCmd(); }
@@ -263,15 +298,16 @@ protected:
                 // Indicates that the next drawPicture command contains the SkPicture to render
                 // to the layer identified by the ID. 'rect' indicates the dirty area to update
                 // (and indicates the layer size if this command is introducing a new layer id).
-                fNextDrawToLayerID = std::stoi(tokens[1].c_str());
-                if (fOffscreenLayers->find(fNextDrawToLayerID) == fOffscreenLayers->end()) {
-                    SkASSERT(rect.left() == 0 && rect.top() == 0);
-                    SkISize size = {SkScalarCeilToInt(rect.right()),
-                                    SkScalarCeilToInt(rect.bottom())};
-                    (*fOffscreenLayers)[fNextDrawToLayerID].fDimensions = size;
+                fNextDrawPictureToLayerID = std::stoi(tokens[1].c_str());
+                fNextDrawPictureToLayerClipRect = rect.roundOut();
+                if (fOffscreenLayers->find(fNextDrawPictureToLayerID) == fOffscreenLayers->end()) {
+                    SkASSERT(fNextDrawPictureToLayerClipRect.left() == 0 &&
+                             fNextDrawPictureToLayerClipRect.top()  == 0);
+                    (*fOffscreenLayers)[fNextDrawPictureToLayerID].fDimensions =
+                            fNextDrawPictureToLayerClipRect.size();
                 }
-                // The next draw picture will notice that fNextDrawLayerID is set and redirect
-                // the picture to the offscreen layer.
+                // The next draw picture will notice that fNextDrawPictureToLayerID is set and
+                // redirect the picture to the offscreen layer.
                 return;
             } else if (tokens[0].equals(kSurfaceID)) {
                 // Indicates that the following drawImageRect should draw an offscreen layer
@@ -293,12 +329,14 @@ protected:
     void onDrawPicture(const SkPicture* picture,
                        const SkMatrix* matrix,
                        const SkPaint* paint) override {
-        if (fNextDrawToLayerID != -1) {
+        if (fNextDrawPictureToLayerID != -1) {
             SkASSERT(!matrix);
             SkASSERT(!paint);
-            CmdRecordCanvas sc(&fOffscreenLayers->at(fNextDrawToLayerID), fOffscreenLayers);
+            Layer* layer = &fOffscreenLayers->at(fNextDrawPictureToLayerID);
+            CmdRecordCanvas sc(layer, fOffscreenLayers, &fNextDrawPictureToLayerClipRect);
             picture->playback(&sc);
-            fNextDrawToLayerID = -1;
+            fNextDrawPictureToLayerID = -1;
+            fNextDrawPictureToLayerClipRect = SkIRect::MakeEmpty();
             return;
         }
         if (paint) {
@@ -324,6 +362,7 @@ private:
     void recordPicCmd() {
         auto cmd = std::make_unique<PicCmd>();
         cmd->fContent = fRecorder.finishRecordingAsPicture();
+        cmd->fClipRect = fClipRect;
         if (cmd->fContent) {
             fDst->fCmds.push_back(std::move(cmd));
         }
@@ -332,10 +371,12 @@ private:
     }
 
     SkPictureRecorder fRecorder; // accumulates draws until we draw an offscreen into this layer.
-    Layer*            fDst                      = nullptr;
-    int               fNextDrawToLayerID        = -1;
-    int               fNextDrawImageFromLayerID = -1;
-    LayerMap*         fOffscreenLayers          = nullptr;
+    Layer*            fDst                            = nullptr;
+    SkIRect           fClipRect                       = SkIRect::MakeEmpty();
+    int               fNextDrawPictureToLayerID       = -1;
+    SkIRect           fNextDrawPictureToLayerClipRect = SkIRect::MakeEmpty();
+    int               fNextDrawImageFromLayerID       = -1;
+    LayerMap*         fOffscreenLayers                = nullptr;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -429,6 +470,43 @@ void MSKPPlayer::allocateLayers(SkCanvas* canvas) {
         if (!state.fSurface || state.fSurface->recordingContext() != canvas->recordingContext()) {
             state.fCurrCmd = -1;
             state.fSurface = MakeSurfaceForLayer(fOffscreenLayers[id], canvas);
+        }
+    }
+}
+
+std::vector<int> MSKPPlayer::layerIDs(int frame) const {
+    std::vector<int> result;
+    if (frame < 0) {
+        result.reserve(fOffscreenLayers.size());
+        for (auto& [id, _] : fOffscreenLayers) {
+            result.push_back(id);
+        }
+        return result;
+    }
+    if (frame < static_cast<int>(fRootLayers.size())) {
+        this->collectReferencedLayers(fRootLayers[frame], &result);
+    }
+    return result;
+}
+
+sk_sp<SkImage> MSKPPlayer::layerSnapshot(int layerID) const {
+    auto iter = fOffscreenLayerStates.find(layerID);
+    if (iter == fOffscreenLayerStates.end() || !iter->second.fSurface) {
+        return nullptr;
+    }
+    return iter->second.fSurface->makeImageSnapshot();
+}
+
+void MSKPPlayer::collectReferencedLayers(const Layer& layer, std::vector<int>* out) const {
+    for (const auto& cmd : layer.fCmds) {
+        if (int id = cmd->layerID(); id >= 0) {
+            // Linear, but we'd need to have a lot of layers to actually care.
+            if (std::find(out->begin(), out->end(), id) == out->end()) {
+                out->push_back(id);
+                auto iter = fOffscreenLayers.find(id);
+                SkASSERT(iter != fOffscreenLayers.end());
+                this->collectReferencedLayers(iter->second, out);
+            }
         }
     }
 }
