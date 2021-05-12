@@ -1412,9 +1412,7 @@ void MetalCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
         this->write(" = ");
         this->writeExpression(left, Precedence::kAssignment);
         this->write(" ");
-        String opName = OperatorName(op);
-        SkASSERT(opName.endsWith("="));
-        this->write(opName.substr(0, opName.size() - 1).c_str());
+        this->write(OperatorName(op.removeAssignment()));
         this->write(" ");
     } else {
         this->write(String(" ") + OperatorName(op) + " ");
