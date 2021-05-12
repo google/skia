@@ -192,9 +192,8 @@ std::unique_ptr<GrSkSLFP> GrSkSLFP::Make(sk_sp<SkRuntimeEffect> effect,
 
 GrSkSLFP::GrSkSLFP(sk_sp<SkRuntimeEffect> effect, const char* name, sk_sp<SkData> uniforms)
         : INHERITED(kGrSkSLFP_ClassID,
-                    effect->getFilterColorInfo().program
-                            ? kConstantOutputForConstantInput_OptimizationFlag
-                            : kNone_OptimizationFlags)
+                    effect->getFilterColorInfo() ? kConstantOutputForConstantInput_OptimizationFlag
+                                                 : kNone_OptimizationFlags)
         , fEffect(std::move(effect))
         , fName(name)
         , fUniforms(std::move(uniforms)) {
@@ -248,13 +247,22 @@ std::unique_ptr<GrFragmentProcessor> GrSkSLFP::clone() const {
 }
 
 SkPMColor4f GrSkSLFP::constantOutputForConstantInput(const SkPMColor4f& inputColor) const {
-    const skvm::Program* program = fEffect->getFilterColorInfo().program;
-    SkASSERT(program);
+    const SkRuntimeEffect::FilterColorInfo* info = fEffect->getFilterColorInfo();
+    SkASSERT(info);
+    const skvm::Program* program = info->program.get();
 
     SkSTArray<3, SkPMColor4f, true> childColors;
     childColors.push_back(inputColor);
-    for (int i = 0; i < this->numChildProcessors(); ++i) {
-        childColors.push_back(ConstantOutputForConstantInput(this->childProcessor(i), inputColor));
+    using SampleKind = SkRuntimeEffect::FilterColorInfo::SampleCall::Kind;
+    for (const auto& s : info->sampleCalls) {
+        SkPMColor4f passedColor = inputColor;
+        switch (s.kind) {
+            case SampleKind::kInputColor:                                            break;
+            case SampleKind::kImmediate:  passedColor = s.imm;                       break;
+            case SampleKind::kPrevious:   passedColor = childColors[s.previous + 1]; break;
+        }
+        childColors.push_back(
+                ConstantOutputForConstantInput(this->childProcessor(s.child), passedColor));
     }
 
     SkPMColor4f result;

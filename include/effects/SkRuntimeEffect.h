@@ -13,6 +13,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
+#include "include/private/SkColorData.h"
 #include "include/private/SkOnce.h"
 #include "include/private/SkSLSampleUsage.h"
 
@@ -219,11 +220,22 @@ private:
     bool allowColorFilter() const { return (fFlags & kAllowColorFilter_Flag); }
 
     struct FilterColorInfo {
-        const skvm::Program* program;         // May be nullptr if it's not possible to compute
-        bool                 alphaUnchanged;
+        struct SampleCall {
+            enum Kind { kInputColor, kImmediate, kPrevious };
+            int  child;
+            Kind kind;
+            union {
+                SkPMColor4f imm;
+                int         previous;
+            };
+        };
+
+        std::unique_ptr<skvm::Program> program;
+        std::vector<SampleCall>        sampleCalls;
+        bool                           alphaUnchanged;
     };
     void initFilterColorInfo();
-    FilterColorInfo getFilterColorInfo();
+    const FilterColorInfo* getFilterColorInfo();
 
 #if SK_SUPPORT_GPU
     friend class GrSkSLFP;             // fBaseProgram, fSampleUsages
@@ -242,8 +254,7 @@ private:
     std::vector<Child> fChildren;
     std::vector<SkSL::SampleUsage> fSampleUsages;
 
-    std::unique_ptr<skvm::Program> fColorFilterProgram;
-    bool fColorFilterProgramLeavesAlphaUnchanged = false;
+    std::unique_ptr<FilterColorInfo> fFilterColorInfo;
 
     uint32_t fFlags;  // Flags
 };
