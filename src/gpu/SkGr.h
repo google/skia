@@ -199,16 +199,28 @@ GrSurfaceProxyView GrCopyBaseMipMapToView(GrRecordingContext*,
  * if mipmapping isn't supported or for a 1x1 bitmap. If GrMipmapped is kNo it indicates mipmaps
  * aren't required but a previously created mipmapped texture may still be returned. A color type is
  * returned as color type conversion may be performed if there isn't a texture format equivalent of
- * the bitmap's color type.
+ * the bitmap's color type. cacheID is used in the cache key and is from the shared namespace of
+ * SkBitmap generation IDs and SkImage unique IDs. It must be valid.
  */
 std::tuple<GrSurfaceProxyView, GrColorType>
-GrMakeCachedBitmapProxyView(GrRecordingContext*,
-                            const SkBitmap&,
-                            GrMipmapped = GrMipmapped::kNo);
+GrMakeCachedBitmapProxyViewWithID(GrRecordingContext*,
+                                  const SkBitmap& bmp,
+                                  GrMipmapped,
+                                  uint32_t cacheID);
 
 /**
- * Like above but always uploads the bitmap and never inserts into the cache. Unlike above, the
- * texture may be approx or scratch and budgeted or not.
+ * Like GrMakeCachedBitmapProxyViewWithID but uses the bitmap's generation ID as the cache ID.
+ */
+static inline std::tuple<GrSurfaceProxyView, GrColorType>
+GrMakeCachedBitmapProxyView(GrRecordingContext* rContext,
+                            const SkBitmap& bmp,
+                            GrMipmapped mipmapped = GrMipmapped::kNo) {
+    return GrMakeCachedBitmapProxyViewWithID(rContext, bmp, mipmapped, bmp.getGenerationID());
+}
+
+/**
+ * Like GrMakeCachedBitmapProxyView but always uploads the bitmap and never inserts into the cache.
+ * Unlike GrMakeCachedBitmapProxyView, the texture may be approx or scratch and budgeted or not.
  */
 std::tuple<GrSurfaceProxyView, GrColorType>
 GrMakeUncachedBitmapProxyView(GrRecordingContext*,
