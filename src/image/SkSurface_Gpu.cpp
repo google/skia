@@ -22,17 +22,17 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrTexture.h"
-#include "src/gpu/SkGpuDevice.h"
+#include "src/gpu/SkFooDevice.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_Gpu.h"
 #include "src/image/SkSurface_Base.h"
 
 #if SK_SUPPORT_GPU
 
-SkSurface_Gpu::SkSurface_Gpu(sk_sp<SkGpuDevice> device)
+SkSurface_Gpu::SkSurface_Gpu(sk_sp<SkFooDevice> device)
     : INHERITED(device->width(), device->height(), &device->surfaceProps())
     , fDevice(std::move(device)) {
-    SkASSERT(fDevice->surfaceDrawContext()->asSurfaceProxy()->priv().isExact());
+    SkASSERT(fDevice->targetProxy()->priv().isExact());
 }
 
 SkSurface_Gpu::~SkSurface_Gpu() {
@@ -62,12 +62,10 @@ static GrRenderTarget* prepare_rt_for_external_access(SkSurface_Gpu* surface,
             break;
     }
 
-    GrSurfaceDrawContext* sdc = surface->getDevice()->surfaceDrawContext();
-    dContext->priv().flushSurface(sdc->asSurfaceProxy());
+    dContext->priv().flushSurface(surface->getDevice()->targetProxy());
 
     // Grab the render target *after* firing notifications, as it may get switched if CoW kicks in.
-    sdc = surface->getDevice()->surfaceDrawContext();
-    return sdc->accessRenderTarget();
+    return surface->getDevice()->accessRenderTarget();
 }
 
 GrBackendTexture SkSurface_Gpu::onGetBackendTexture(BackendHandleAccess access) {
@@ -94,8 +92,8 @@ GrBackendRenderTarget SkSurface_Gpu::onGetBackendRenderTarget(BackendHandleAcces
 SkCanvas* SkSurface_Gpu::onNewCanvas() { return new SkCanvas(fDevice); }
 
 sk_sp<SkSurface> SkSurface_Gpu::onNewSurface(const SkImageInfo& info) {
-    int sampleCount = fDevice->surfaceDrawContext()->numSamples();
-    GrSurfaceOrigin origin = fDevice->surfaceDrawContext()->origin();
+    int sampleCount = fDevice->targetProxy()->numSamples();
+    GrSurfaceOrigin origin = fDevice->readSurfaceView().origin();
     // TODO: Make caller specify this (change virtual signature of onNewSurface).
     static const SkBudgeted kBudgeted = SkBudgeted::kNo;
     return SkSurface::MakeRenderTarget(fDevice->recordingContext(), kBudgeted, info, sampleCount,
@@ -103,22 +101,18 @@ sk_sp<SkSurface> SkSurface_Gpu::onNewSurface(const SkImageInfo& info) {
 }
 
 sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(const SkIRect* subset) {
-    GrSurfaceDrawContext* sdc = fDevice->surfaceDrawContext();
-    if (!sdc) {
+    GrRenderTargetProxy* rtp = fDevice->targetProxy();
+    if (!rtp) {
         return nullptr;
     }
 
     auto rContext = fDevice->recordingContext();
 
-    if (!sdc->asSurfaceProxy()) {
-        return nullptr;
-    }
+    GrSurfaceProxyView srcView = fDevice->readSurfaceView();
 
-    GrSurfaceProxyView srcView = sdc->readSurfaceView();
+    SkBudgeted budgeted = rtp->isBudgeted();
 
-    SkBudgeted budgeted = sdc->asSurfaceProxy()->isBudgeted();
-
-    if (subset || !srcView.asTextureProxy() || sdc->refsWrappedObjects()) {
+    if (subset || !srcView.asTextureProxy() || rtp->refsWrappedObjects()) {
         // If the original render target is a buffer originally created by the client, then we don't
         // want to ever retarget the SkSurface at another buffer we create. If the source is a
         // texture (and the image is not subsetted) we make a dual-proxied SkImage that will
@@ -129,8 +123,8 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(const SkIRect* subset) {
                                                     srcView,
                                                     fDevice->imageInfo().colorInfo());
         }
-        auto rect = subset ? *subset : SkIRect::MakeSize(sdc->dimensions());
-        srcView = GrSurfaceProxyView::Copy(rContext, std::move(srcView), sdc->mipmapped(), rect,
+        auto rect = subset ? *subset : SkIRect::MakeSize(srcView.dimensions());
+        srcView = GrSurfaceProxyView::Copy(rContext, std::move(srcView), srcView.mipmapped(), rect,
                                            SkBackingFit::kExact, budgeted);
     }
 
@@ -157,6 +151,7 @@ void SkSurface_Gpu::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
                                                 RescaleMode rescaleMode,
                                                 ReadPixelsCallback callback,
                                                 ReadPixelsContext context) {
+#if 0
     auto* sdc = this->fDevice->surfaceDrawContext();
     // Context TODO: Elevate direct context requirement to public API.
     auto dContext = sdc->recordingContext()->asDirectContext();
@@ -165,6 +160,7 @@ void SkSurface_Gpu::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
     }
     sdc->asyncRescaleAndReadPixels(dContext, info, srcRect, rescaleGamma, rescaleMode, callback,
                                    context);
+#endif
 }
 
 void SkSurface_Gpu::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
@@ -175,6 +171,7 @@ void SkSurface_Gpu::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSp
                                                       RescaleMode rescaleMode,
                                                       ReadPixelsCallback callback,
                                                       ReadPixelsContext context) {
+#if 0
     auto* sdc = this->fDevice->surfaceDrawContext();
     // Context TODO: Elevate direct context requirement to public API.
     auto dContext = sdc->recordingContext()->asDirectContext();
@@ -190,6 +187,7 @@ void SkSurface_Gpu::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSp
                                          rescaleMode,
                                          callback,
                                          context);
+#endif
 }
 
 // Create a new render target and, if necessary, copy the contents of the old
@@ -290,18 +288,16 @@ void SkSurface_Gpu::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y,
         if (canvasContext->priv().contextID() != surfaceContext->priv().contextID()) {
             return false;
         }
-        GrSurfaceDrawContext* sdc = fDevice->surfaceDrawContext();
-        if (!sdc) {
-            return false;
-        }
-        sk_sp<GrTextureProxy> srcProxy = sdc->asTextureProxyRef();
+        GrSurfaceProxyView srcView = fDevice->readSurfaceView();
+        sk_sp<GrTextureProxy> srcProxy = srcView.asTextureProxyRef();
         if (!srcProxy) {
             return false;
         }
         // Possibly we could skip making an image here if SkGpuDevice exposed a lower level way
         // of drawing a texture proxy.
         const SkImageInfo info = fDevice->imageInfo();
-        GrSurfaceProxyView view(std::move(srcProxy), sdc->origin(), sdc->readSwizzle());
+        // Skip 'view'
+        GrSurfaceProxyView view(std::move(srcProxy), srcView.origin(), srcView.swizzle());
         sk_sp<SkImage> image;
         image = sk_make_sp<SkImage_Gpu>(sk_ref_sp(canvasContext),
                                         kNeedNewImageUniqueID,
@@ -316,7 +312,7 @@ void SkSurface_Gpu::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y,
 }
 
 bool SkSurface_Gpu::onIsCompatible(const SkSurfaceCharacterization& characterization) const {
-    GrSurfaceDrawContext* sdc = fDevice->surfaceDrawContext();
+    GrSurfaceProxyView targetView = fDevice->readSurfaceView();
 
     auto direct = fDevice->recordingContext()->asDirectContext();
     if (!direct) {
@@ -337,7 +333,7 @@ bool SkSurface_Gpu::onIsCompatible(const SkSurfaceCharacterization& characteriza
     size_t maxResourceBytes = direct->getResourceCacheLimit();
 
     if (characterization.isTextureable()) {
-        if (!sdc->asTextureProxy()) {
+        if (!targetView.asTextureProxy()) {
             // If the characterization was textureable we require the replay dest to also be
             // textureable. If the characterized surface wasn't textureable we allow the replay
             // dest to be textureable.
@@ -345,14 +341,14 @@ bool SkSurface_Gpu::onIsCompatible(const SkSurfaceCharacterization& characteriza
         }
 
         if (characterization.isMipMapped() &&
-            GrMipmapped::kNo == sdc->asTextureProxy()->mipmapped()) {
+            GrMipmapped::kNo == targetView.mipmapped()) {
             // Fail if the DDL's surface was mipmapped but the replay surface is not.
             // Allow drawing to proceed if the DDL was not mipmapped but the replay surface is.
             return false;
         }
     }
 
-    if (characterization.usesGLFBO0() != sdc->asRenderTargetProxy()->glRTFBOIDIs0()) {
+    if (characterization.usesGLFBO0() != targetView.asRenderTargetProxy()->glRTFBOIDIs0()) {
         // FBO0-ness effects how MSAA and window rectangles work. If the characterization was
         // tagged as FBO0 it would never have been allowed to use window rectangles. If MSAA
         // was also never used then a DDL recorded with this characterization should be replayable
@@ -367,14 +363,15 @@ bool SkSurface_Gpu::onIsCompatible(const SkSurfaceCharacterization& characteriza
         return false;
     }
 
-    GrProtected isProtected = sdc->asSurfaceProxy()->isProtected();
+    GrProtected isProtected = targetView.proxy()->isProtected();
 
     return characterization.contextInfo() &&
            characterization.contextInfo()->priv().matches(direct) &&
            characterization.cacheMaxResourceBytes() <= maxResourceBytes &&
-           characterization.origin() == sdc->origin() &&
-           characterization.backendFormat() == sdc->asSurfaceProxy()->backendFormat() &&
-           characterization.width() == sdc->width() && characterization.height() == sdc->height() &&
+           characterization.origin() == targetView.origin() &&
+           characterization.backendFormat() == targetView.proxy()->backendFormat() &&
+           characterization.width() == targetView.width() &&
+           characterization.height() == targetView.height() &&
            characterization.colorType() == rtcColorType &&
            characterization.sampleCount() == sdc->numSamples() &&
            SkColorSpace::Equals(characterization.colorSpace(), sdc->colorInfo().colorSpace()) &&
@@ -387,23 +384,23 @@ bool SkSurface_Gpu::onDraw(sk_sp<const SkDeferredDisplayList> ddl, SkIPoint offs
         return false;
     }
 
-    GrSurfaceDrawContext* sdc = fDevice->surfaceDrawContext();
-
     auto direct = fDevice->recordingContext()->asDirectContext();
     if (!direct) {
         return false;
     }
 
-    direct->priv().createDDLTask(std::move(ddl), sdc->asRenderTargetProxyRef(), offset);
+    GrSurfaceProxyView view = fDevice->readSurfaceView();
+
+    direct->priv().createDDLTask(std::move(ddl), view.asRenderTargetProxyRef(), offset);
     return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* context,
+sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* rContext,
                                              const SkSurfaceCharacterization& c,
                                              SkBudgeted budgeted) {
-    if (!context || !c.isValid()) {
+    if (!rContext || !c.isValid()) {
         return nullptr;
     }
 
@@ -416,6 +413,7 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* context,
         return nullptr;
     }
 
+#if 0
     GrColorType grColorType = SkColorTypeToGrColorType(c.colorType());
 
     auto sdc = GrSurfaceDrawContext::Make(
@@ -427,6 +425,9 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* context,
     }
 
     auto device = SkGpuDevice::Make(std::move(sdc), SkGpuDevice::kClear_InitContents);
+#else
+    sk_sp<SkFooDevice> device = rContext->foo2(c, budgeted);
+#endif
     if (!device) {
         return nullptr;
     }
@@ -468,23 +469,27 @@ static bool validate_backend_texture(const GrCaps* caps, const GrBackendTexture&
     return true;
 }
 
-sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* ctx, SkBudgeted budgeted,
+sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* rContext, SkBudgeted budgeted,
                                              const SkImageInfo& info, int sampleCount,
                                              GrSurfaceOrigin origin, const SkSurfaceProps* props,
                                              bool shouldCreateWithMips) {
-    if (!ctx) {
+    if (!rContext) {
         return nullptr;
     }
     sampleCount = std::max(1, sampleCount);
     GrMipmapped mipMapped = shouldCreateWithMips ? GrMipmapped::kYes : GrMipmapped::kNo;
 
-    if (!ctx->priv().caps()->mipmapSupport()) {
+    if (!rContext->priv().caps()->mipmapSupport()) {
         mipMapped = GrMipmapped::kNo;
     }
 
-    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(
-            ctx, budgeted, info, sampleCount, origin, props, mipMapped,
-            SkGpuDevice::kClear_InitContents));
+    sk_sp<SkFooDevice> device = rContext->foo3(budgeted,
+                                               info,
+                                               sampleCount,
+                                               origin,
+                                               props,
+                                               mipMapped,
+                                               SkGpuDevice::kClear_InitContents);
     if (!device) {
         return nullptr;
     }
