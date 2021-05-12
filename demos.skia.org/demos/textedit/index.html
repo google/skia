@@ -126,6 +126,8 @@ canvas {
                 return;
             }
             if (e.ctrlKey) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
                 switch (e.key) {
                     case 'r': editor.applyStyleToSelection({color:[1,0,0,1]}); return;
                     case 'g': editor.applyStyleToSelection({color:[0,0.6,0,1]}); return;
@@ -146,6 +148,7 @@ canvas {
             if (!e.ctrlKey && !e.metaKey) {
                 if (e.key.length == 1) {  // avoid keys like "Escape" for now
                     e.preventDefault();
+                    e.stopImmediatePropagation();
                     editor.insert(e.key);
                 }
             }
