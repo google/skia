@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6452ee95_902badb8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-12T13:41:49Z",
+      "side": 1,
+      "message": "neat!\n\njust some minor tweaks for thread loop exit.",
+      "revId": "2d8de989f08eddad031d7bcaad13ad9c7f863a66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b5460e8a_87f18ed9",
+        "filename": "platform_tools/android/apps/androidkitdemo/src/main/java/org/skia/androidkitdemo1/CubeActivity.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-12T13:41:49Z",
+      "side": 1,
+      "message": "// TODO: make these relative to surface size",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 43,
+        "endChar": 25
+      },
+      "revId": "2d8de989f08eddad031d7bcaad13ad9c7f863a66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "73e5626c_8c18316e",
+        "filename": "platform_tools/android/apps/androidkitdemo/src/main/java/org/skia/androidkitdemo1/CubeActivity.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-12T13:41:49Z",
+      "side": 1,
+      "message": "do we need a finish() method to set this to false \u0026 exit the thread?",
+      "range": {
+        "startLine": 80,
+        "startChar": 15,
+        "endLine": 80,
+        "endChar": 23
+      },
+      "revId": "2d8de989f08eddad031d7bcaad13ad9c7f863a66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3f4a33c5_55b303bc",
+        "filename": "platform_tools/android/apps/androidkitdemo/src/main/java/org/skia/androidkitdemo1/CubeActivity.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-12T13:41:49Z",
+      "side": 1,
+      "message": "doesn\u0027t have to be this CL, but rads should be a function of time, not of frame number (flushAndSubmit is throttled by vsync so it will run at native fps, which may vary across devices).",
+      "range": {
+        "startLine": 82,
+        "startChar": 12,
+        "endLine": 82,
+        "endChar": 25
+      },
+      "revId": "2d8de989f08eddad031d7bcaad13ad9c7f863a66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cef0f126_d0dcc8a8",
+        "filename": "platform_tools/android/apps/androidkitdemo/src/main/java/org/skia/androidkitdemo1/CubeActivity.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-12T13:41:49Z",
+      "side": 1,
+      "message": "without finish() above, looks like this will block indefinitely.",
+      "range": {
+        "startLine": 142,
+        "startChar": 16,
+        "endLine": 142,
+        "endChar": 37
+      },
+      "revId": "2d8de989f08eddad031d7bcaad13ad9c7f863a66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
