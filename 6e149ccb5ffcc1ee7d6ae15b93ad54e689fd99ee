@@ -34,6 +34,23 @@
       "parentUuid": "6426bbc8_323853ee",
       "revId": "6e149ccb5ffcc1ee7d6ae15b93ad54e689fd99ee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4782eb35_58734caf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-12T15:42:20Z",
+      "side": 1,
+      "message": "chrome roll looks like it\u0027ll be fine now.",
+      "revId": "6e149ccb5ffcc1ee7d6ae15b93ad54e689fd99ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
