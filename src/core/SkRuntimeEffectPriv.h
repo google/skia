@@ -9,6 +9,10 @@
 #define SkRuntimeEffectPriv_DEFINED
 
 #include "include/effects/SkRuntimeEffect.h"
+#include "include/private/SkColorData.h"
+#include "src/core/SkVM.h"
+
+#include <functional>
 
 // These internal APIs for creating runtime effects vary from the public API in two ways:
 //
@@ -58,5 +62,36 @@ constexpr char kHSL_to_RGB_sksl[] =
         "half3 q = saturate(abs(fract(p) * 6 - 3) - 1);"
         "return (q - 0.5) * C + hsl.z;"
     "}";
+
+class SkFilterColorProgram {
+public:
+    struct SampleCall {
+        enum class Kind { kInputColor, kImmediate, kPrevious };
+
+        int  fChild;
+        Kind fKind;
+        union {
+            SkPMColor4f fImm;
+            int         fPrevious;
+        };
+    };
+
+    static std::unique_ptr<SkFilterColorProgram> Make(const SkRuntimeEffect* effect);
+
+    SkPMColor4f eval(const SkPMColor4f& inColor,
+                     const void* uniformData,
+                     std::function<SkPMColor4f(int, SkPMColor4f)> evalChild) const;
+
+    bool isAlphaUnchanged() const { return fAlphaUnchanged; }
+
+private:
+    SkFilterColorProgram(skvm::Program program,
+                         std::vector<SampleCall> sampleCalls,
+                         bool alphaUnchanged);
+
+    skvm::Program           fProgram;
+    std::vector<SampleCall> fSampleCalls;
+    bool                    fAlphaUnchanged;
+};
 
 #endif
