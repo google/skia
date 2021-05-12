@@ -177,14 +177,11 @@ private:
     bool onTransferPixelsTo(GrTexture* texture, int left, int top, int width, int height,
                             GrColorType surfaceColorType, GrColorType bufferColorType,
                             sk_sp<GrGpuBuffer> transferBuffer, size_t offset,
-                            size_t rowBytes) override {
-        return true;
-    }
+                            size_t rowBytes) override;
     bool onTransferPixelsFrom(GrSurface* surface, int left, int top, int width, int height,
                               GrColorType surfaceColorType, GrColorType bufferColorType,
-                              sk_sp<GrGpuBuffer> transferBuffer, size_t offset) override {
-        return true;
-    }
+                              sk_sp<GrGpuBuffer> transferBuffer, size_t offset) override;
+
     bool onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                        const SkIPoint& dstPoint) override;
 
@@ -258,6 +255,11 @@ private:
 
     bool uploadToTexture(GrD3DTexture* tex, int left, int top, int width, int height,
                          GrColorType colorType, const GrMipLevel* texels, int mipLevelCount);
+
+    void readOrTransferPixels(GrD3DTextureResource* texResource,
+                              int left, int top, int width, int height,
+                              sk_sp<GrGpuBuffer> transferBuffer,
+                              const D3D12_PLACED_SUBRESOURCE_FOOTPRINT& placedFootprint);
 
     bool createTextureResourceForBackendSurface(DXGI_FORMAT dxgiFormat,
                                                 SkISize dimensions,
