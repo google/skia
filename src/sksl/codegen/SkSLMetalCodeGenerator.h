@@ -180,6 +180,10 @@ protected:
 
     void writeMatrixCompMult();
 
+    void writeMatrixScalarDivisionHelper();
+
+    void writeScalarMatrixDivisionHelper();
+
     void writeMatrixTimesEqualHelper(const Type& left, const Type& right, const Type& result);
 
     void writeMatrixEqualityHelpers(const Type& left, const Type& right);

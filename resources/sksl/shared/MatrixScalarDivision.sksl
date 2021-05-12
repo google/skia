@@ -1,0 +1,18 @@
+uniform half4 colorGreen, colorRed;
+uniform half2x2 testMatrix2x2;
+uniform half3x3 testMatrix3x3;
+
+half4 main(float2 coords) {
+    bool ok = true;
+    half3x3 matrixScalarDivide = testMatrix3x3 / 2;
+    half2x2 scalarMatrixDivide = 12 / testMatrix2x2;
+
+    ok = ok && (matrixScalarDivide == half3x3(0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5));
+
+    // This test mysteriously suffers from rounding error, despite using small, integral input
+    // values. Allow a 0.01 margin of error to compensate.
+    half4 delta = half4(scalarMatrixDivide[0], scalarMatrixDivide[1]) - half4(12, 6, 4, 3);
+    ok = ok && all(lessThan(abs(delta), half4(0.01)));
+
+    return ok ? colorGreen : colorRed;
+}

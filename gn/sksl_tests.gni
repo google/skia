@@ -381,6 +381,7 @@ sksl_shared_tests = [
   "/sksl/shared/Matrices.sksl",
   "/sksl/shared/MatricesNonsquare.sksl",
   "/sksl/shared/MatrixEquality.sksl",
+  "/sksl/shared/MatrixScalarDivision.sksl",
   "/sksl/shared/MultipleAssignments.sksl",
   "/sksl/shared/NegatedVectorLiteral.sksl",
   "/sksl/shared/NoFragCoordsPos.vert",
