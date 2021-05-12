@@ -126,8 +126,10 @@ canvas {
                 }
             }
             if (!e.ctrlKey && !e.metaKey) {
-                e.preventDefault(); // at least needed for 'space'
-                editor.insert(e.key);
+                if (e.key.length == 1) {  // avoid keys like "Escape" for now
+                    e.preventDefault();
+                    editor.insert(e.key);
+                }
             }
       }
 

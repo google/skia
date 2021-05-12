@@ -381,6 +381,7 @@ function MakeEditor(text, style, cursor, width) {
             this._buildLines();
         },
         insert: function(charcode) {
+            const len = charcode.length;
             if (this._index.start != this._index.end) {
                 this.deleteSelection();
             }
@@ -388,12 +389,12 @@ function MakeEditor(text, style, cursor, width) {
 
             // do this before edit the text (we use text.length in an assert)
             const [i, prev_len] = this.find_style_index_and_prev_length(index);
-            this._styles[i]._length += 1;
+            this._styles[i]._length += len;
 
             // now grow the text
             this._text = this._text.slice(0, index) + charcode + this._text.slice(index);
 
-            this._index.start = this._index.end = index + 1;
+            this._index.start = this._index.end = index + len;
             this._buildLines();
         },
 
