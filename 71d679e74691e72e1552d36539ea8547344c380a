@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3e32c64a_48fb07b4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-12T13:04:42Z",
+      "side": 1,
+      "message": "This looks good, but I wonder if we\u0027re actually generating bad SPIR-V in this case? All of the failing bots are either Vulkan (or other backends that go through our SPIR-V generator).",
+      "revId": "71d679e74691e72e1552d36539ea8547344c380a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
