@@ -10,100 +10,37 @@ struct Inputs {
 struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
-thread bool operator==(const float2x2 left, const float2x2 right) {
-    return all(left[0] == right[0]) &&
-           all(left[1] == right[1]);
-}
-thread bool operator!=(const float2x2 left, const float2x2 right) {
-    return !(left == right);
-}
-float2x2 float2x2_from_float4(float4 x0) {
-    return float2x2(float2(x0[0], x0[1]), float2(x0[2], x0[3]));
-}
 thread float2x2& operator*=(thread float2x2& left, thread const float2x2& right) {
     left = left * right;
     return left;
 }
-thread bool operator==(const float3x3 left, const float3x3 right) {
-    return all(left[0] == right[0]) &&
-           all(left[1] == right[1]) &&
-           all(left[2] == right[2]);
-}
-thread bool operator!=(const float3x3 left, const float3x3 right) {
-    return !(left == right);
-}
-thread bool operator==(const float4x4 left, const float4x4 right) {
-    return all(left[0] == right[0]) &&
-           all(left[1] == right[1]) &&
-           all(left[2] == right[2]) &&
-           all(left[3] == right[3]);
-}
-thread bool operator!=(const float4x4 left, const float4x4 right) {
-    return !(left == right);
-}
 
 bool test_half_b() {
-    bool ok = true;
-    float3 v1 = float3x3(2.0) * float3(3.0);
-    ok = ok && all(v1 == float3(6.0));
-    float3 v2 = float3(3.0) * float3x3(3.0);
-    ok = ok && all(v2 == float3(9.0));
     float2x2 m1 = float2x2(float2(1.0, 2.0), float2(3.0, 4.0));
-    ok = ok && m1 == float2x2(float2(1.0, 2.0), float2(3.0, 4.0));
-    float2x2 m2 = float2x2_from_float4(float4(5.0));
-    ok = ok && m2 == float2x2(float2(5.0, 5.0), float2(5.0, 5.0));
     float2x2 m3 = m1;
-    ok = ok && m3 == float2x2(float2(1.0, 2.0), float2(3.0, 4.0));
-    float2x2 m4 = float2x2(6.0);
-    ok = ok && m4 == float2x2(float2(6.0, 0.0), float2(0.0, 6.0));
+    float2x2 m4 = float2x2(1.0);
     m3 *= m4;
-    ok = ok && m3 == float2x2(float2(6.0, 12.0), float2(18.0, 24.0));
-    float2x2 m5 = float2x2(m1[1].y);
-    ok = ok && m5 == float2x2(float2(4.0, 0.0), float2(0.0, 4.0));
-    m1 += m5;
-    ok = ok && m1 == float2x2(float2(5.0, 2.0), float2(3.0, 8.0));
-    float2x2 m7 = float2x2(float2(5.0, 6.0), float2(7.0, 8.0));
-    ok = ok && m7 == float2x2(float2(5.0, 6.0), float2(7.0, 8.0));
-    float3x3 m9 = float3x3(9.0);
-    ok = ok && m9 == float3x3(float3(9.0, 0.0, 0.0), float3(0.0, 9.0, 0.0), float3(0.0, 0.0, 9.0));
-    float4x4 m10 = float4x4(11.0);
-    ok = ok && m10 == float4x4(float4(11.0, 0.0, 0.0, 0.0), float4(0.0, 11.0, 0.0, 0.0), float4(0.0, 0.0, 11.0, 0.0), float4(0.0, 0.0, 0.0, 11.0));
-    float4x4 m11 = float4x4(float4(20.0, 20.0, 20.0, 20.0), float4(20.0, 20.0, 20.0, 20.0), float4(20.0, 20.0, 20.0, 20.0), float4(20.0, 20.0, 20.0, 20.0));
+    float2x2 m5 = float2x2(m1[0].x);
+    float2x2 m6 = float2x2(float2(1.0, 2.0), float2(3.0, 4.0));
+    m6 += m5;
+    float4x4 m10 = float4x4(1.0);
+    float4x4 m11 = float4x4(2.0);
     m11 -= m10;
-    ok = ok && m11 == float4x4(float4(9.0, 20.0, 20.0, 20.0), float4(20.0, 9.0, 20.0, 20.0), float4(20.0, 20.0, 9.0, 20.0), float4(20.0, 20.0, 20.0, 9.0));
-    return ok;
+    return true;
 }
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    bool _0_ok = true;
-    float3 _1_v1 = float3x3(2.0) * float3(3.0);
-    _0_ok = _0_ok && all(_1_v1 == float3(6.0));
-    float3 _2_v2 = float3(3.0) * float3x3(3.0);
-    _0_ok = _0_ok && all(_2_v2 == float3(9.0));
-    float2x2 _3_m1 = float2x2(float2(1.0, 2.0), float2(3.0, 4.0));
-    _0_ok = _0_ok && _3_m1 == float2x2(float2(1.0, 2.0), float2(3.0, 4.0));
-    float2x2 _4_m2 = float2x2_from_float4(float4(5.0));
-    _0_ok = _0_ok && _4_m2 == float2x2(float2(5.0, 5.0), float2(5.0, 5.0));
-    float2x2 _5_m3 = _3_m1;
-    _0_ok = _0_ok && _5_m3 == float2x2(float2(1.0, 2.0), float2(3.0, 4.0));
-    float2x2 _6_m4 = float2x2(6.0);
-    _0_ok = _0_ok && _6_m4 == float2x2(float2(6.0, 0.0), float2(0.0, 6.0));
-    _5_m3 *= _6_m4;
-    _0_ok = _0_ok && _5_m3 == float2x2(float2(6.0, 12.0), float2(18.0, 24.0));
-    float2x2 _7_m5 = float2x2(_3_m1[1].y);
-    _0_ok = _0_ok && _7_m5 == float2x2(float2(4.0, 0.0), float2(0.0, 4.0));
-    _3_m1 += _7_m5;
-    _0_ok = _0_ok && _3_m1 == float2x2(float2(5.0, 2.0), float2(3.0, 8.0));
-    float2x2 _8_m7 = float2x2(float2(5.0, 6.0), float2(7.0, 8.0));
-    _0_ok = _0_ok && _8_m7 == float2x2(float2(5.0, 6.0), float2(7.0, 8.0));
-    float3x3 _9_m9 = float3x3(9.0);
-    _0_ok = _0_ok && _9_m9 == float3x3(float3(9.0, 0.0, 0.0), float3(0.0, 9.0, 0.0), float3(0.0, 0.0, 9.0));
-    float4x4 _10_m10 = float4x4(11.0);
-    _0_ok = _0_ok && _10_m10 == float4x4(float4(11.0, 0.0, 0.0, 0.0), float4(0.0, 11.0, 0.0, 0.0), float4(0.0, 0.0, 11.0, 0.0), float4(0.0, 0.0, 0.0, 11.0));
-    float4x4 _11_m11 = float4x4(float4(20.0, 20.0, 20.0, 20.0), float4(20.0, 20.0, 20.0, 20.0), float4(20.0, 20.0, 20.0, 20.0), float4(20.0, 20.0, 20.0, 20.0));
+    float2x2 _2_m1 = float2x2(float2(1.0, 2.0), float2(3.0, 4.0));
+    float2x2 _4_m3 = _2_m1;
+    float2x2 _5_m4 = float2x2(1.0);
+    _4_m3 *= _5_m4;
+    float2x2 _6_m5 = float2x2(_2_m1[0].x);
+    float2x2 _7_m6 = float2x2(float2(1.0, 2.0), float2(3.0, 4.0));
+    _7_m6 += _6_m5;
+    float4x4 _10_m10 = float4x4(1.0);
+    float4x4 _11_m11 = float4x4(2.0);
     _11_m11 -= _10_m10;
-    _0_ok = _0_ok && _11_m11 == float4x4(float4(9.0, 20.0, 20.0, 20.0), float4(20.0, 9.0, 20.0, 20.0), float4(20.0, 20.0, 9.0, 20.0), float4(20.0, 20.0, 20.0, 9.0));
-    _out.sk_FragColor = _0_ok && test_half_b() ? _uniforms.colorGreen : _uniforms.colorRed;
+    _out.sk_FragColor = true && test_half_b() ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }
