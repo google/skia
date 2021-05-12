@@ -3503,9 +3503,9 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fTransferBufferType = TransferBufferType::kNone;
     }
 
-    // The TransferPixelsToTexture test fails on ANGLE.
-    // TODO: Limit this to D3D and perhaps more specifically than that.
-    if (ctxInfo.angleBackend() != GrGLANGLEBackend::kUnknown) {
+    // The TransferPixelsToTexture test fails on ANGLE D3D.
+    if (ctxInfo.angleBackend() == GrGLANGLEBackend::kD3D9 ||
+        ctxInfo.angleBackend() == GrGLANGLEBackend::kD3D11) {
         fTransferFromBufferToTextureSupport = false;
     }
 
