@@ -188,6 +188,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5ceb905f_08ef144b",
+        "filename": "modules/androidkit/src/SurfaceThread.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-12T14:45:33Z",
+      "side": 1,
+      "message": "Did you forget to upload the patch set?",
+      "parentUuid": "570b3454_196aebf7",
+      "revId": "3238263d04c9518b5777a5a6856ec0e7255d4b92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4ee906b7_1f5ce566",
@@ -273,6 +291,30 @@
       "side": 1,
       "message": "I\u0027ll leave the cast. It makes sense to me that most things affecting androidkit\u0027s surface should only be interacting with the parent class.",
       "parentUuid": "fdad67b3_60a03205",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 44
+      },
+      "revId": "3238263d04c9518b5777a5a6856ec0e7255d4b92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5e3df5bc_aa2c0a3a",
+        "filename": "modules/androidkit/src/SurfaceThread.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-12T14:45:33Z",
+      "side": 1,
+      "message": "(it does break the Liskov substitution principle, but not in a public/meaningful context)",
+      "parentUuid": "f79aad1e_d9be0c08",
       "range": {
         "startLine": 48,
         "startChar": 0,
