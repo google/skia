@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "580016a6_5d9d90e7",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 532,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-05-12T15:52:08Z",
+      "side": 1,
+      "message": "C++ is rather frustrating in that proxy iterators have been in the std (vector\u003cbool\u003e) forever but still don\u0027t work well so even std::ranges::zip_view doesn\u0027t exist yet, even in our future. boost::zip_iterator tried and ran into the same issues. I was going to try to suggest to not make the copy and use something like SkZip and sort that, but it seems even standards groups can\u0027t figure it out.\n\nI suppose this is fine for now. I suppose the whole vector of ColorStop is usually no bigger than a vector size_t of indexes.\n\nThere are so many language failings here. The swap isn\u0027t part of the type of \u0027sort\u0027 (instead depending on ADL). I suppose one could try to abuse ADL to do a \u0027double swap\u0027 but it\u0027s rather ugly. The fact that proxy iterators are disallowed from being forward_iterators by a complex interaction of requirements (the reference_type must be a reference to the value_type for forward_iterator).",
+      "revId": "0f6471973d3a1aa7d7bb730a087709262b44a3b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
