@@ -14,39 +14,25 @@
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrTypes.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
+#include "src/gpu/SkBaseGpuDevice.h"
 #include "src/gpu/SkGr.h"
 
 class SkSpecialImage;
 class SkSurface;
 class SkVertices;
 
-// NOTE: when not defined, SkGpuDevice extends SkBaseDevice directly and manages its clip stack
-// using GrClipStack. When false, SkGpuDevice continues to extend SkClipStackDevice and uses
-// SkClipStack and GrClipStackClip to manage the clip stack.
 #if !defined(SK_DISABLE_NEW_GR_CLIP_STACK)
-    // For staging purposes, disable this for Android Framework
-    #if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
-        #define SK_DISABLE_NEW_GR_CLIP_STACK
-    #endif
-#endif
-
-#if !defined(SK_DISABLE_NEW_GR_CLIP_STACK)
-    #include "src/core/SkDevice.h"
     #include "src/gpu/GrClipStack.h"
-    #define BASE_DEVICE   SkBaseDevice
     #define GR_CLIP_STACK GrClipStack
 #else
-    #include "src/core/SkClipStackDevice.h"
     #include "src/gpu/GrClipStackClip.h"
-    #define BASE_DEVICE   SkClipStackDevice
     #define GR_CLIP_STACK GrClipStackClip
 #endif
 
 /**
- *  Subclass of SkBaseDevice, which directs all drawing to the GrGpu owned by the
- *  canvas.
+ *  Subclass of SkBaseGpuDevice, which directs all drawing to the GrGpu owned by the canvas.
  */
-class SkGpuDevice : public BASE_DEVICE  {
+class SkGpuDevice : public SkBaseGpuDevice  {
 public:
     enum InitContents {
         kClear_InitContents,
@@ -221,10 +207,9 @@ private:
                                                                         GrMipmapped);
 
     friend class SkSurface_Gpu;      // for access to surfaceProps
-    using INHERITED = BASE_DEVICE;
+    using INHERITED = SkBaseGpuDevice;
 };
 
-#undef BASE_DEVICE
 #undef GR_CLIP_STACK
 
 #endif
