@@ -31,8 +31,10 @@ namespace SkSL {
 
 namespace dsl {
 
-DSLWriter::DSLWriter(SkSL::Compiler* compiler, SkSL::ProgramKind kind)
-    : fCompiler(compiler) {
+DSLWriter::DSLWriter(SkSL::Compiler* compiler, SkSL::ProgramKind kind, int flags)
+    : fCompiler(compiler)
+    , fMangle(flags & kMangle_Flag)
+    , fMarkVarsDeclared(flags & kMarkVarsDeclared_Flag) {
     SkSL::ParsedModule module = fCompiler->moduleForProgramKind(kind);
 
     fModifiersPool = std::make_unique<ModifiersPool>();
@@ -41,6 +43,8 @@ DSLWriter::DSLWriter(SkSL::Compiler* compiler, SkSL::ProgramKind kind)
 
     fConfig = std::make_unique<ProgramConfig>();
     fConfig->fKind = kind;
+    fConfig->fSettings.fOptimize = flags & kOptimize_Flag;
+    fConfig->fSettings.fValidateSPIRV = flags & kValidate_Flag;
     fOldConfig = fCompiler->fContext->fConfig;
     fCompiler->fContext->fConfig = fConfig.get();
 

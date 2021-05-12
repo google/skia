@@ -44,7 +44,7 @@ class ErrorHandler;
  */
 class DSLWriter {
 public:
-    DSLWriter(SkSL::Compiler* compiler, SkSL::ProgramKind kind);
+    DSLWriter(SkSL::Compiler* compiler, SkSL::ProgramKind kind, int flags);
 
     ~DSLWriter();
 
@@ -242,7 +242,6 @@ private:
 
     friend class DSLCore;
     friend class DSLVar;
-    friend class ::AutoDSLContext;
 };
 
 } // namespace dsl
