@@ -182,6 +182,8 @@ protected:
 
     void writeMatrixTimesEqualHelper(const Type& left, const Type& right, const Type& result);
 
+    void writeMatrixDivisionHelpers(const Type& type);
+
     void writeMatrixEqualityHelpers(const Type& left, const Type& right);
 
     void writeArrayEqualityHelpers(const Type& type);
