@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8a4f3599_6d7e985e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-05-12T16:46:34Z",
+      "side": 1,
+      "message": "It is a bit unfortunate that the SkBaseGpuDevice has got caught up in the SK_DISABLE_NEW_GR_CLIP_STACK business but, I don\u0027t see a way around it short term.",
+      "revId": "5795d3a554bdb3cf0991bca2415b19da70974123",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
