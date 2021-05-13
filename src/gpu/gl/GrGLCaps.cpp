@@ -643,6 +643,13 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fUseClientSideIndirectBuffers = true;
         fDrawRangeElementsSupport = version >= GR_GL_VER(2,0);
     }
+    // We used to disable this as a correctness workaround (http://anglebug.com/4536). Now it is
+    // disabled because of poor performance (http://skbug.com/11998).
+    if (ctxInfo.angleBackend() == GrGLANGLEBackend::kD3D11) {
+        fBaseVertexBaseInstanceSupport = false;
+        fNativeDrawIndirectSupport = false;
+        fMultiDrawType = MultiDrawType::kNone;
+    }
 
     // We prefer GL sync objects but also support NV_fence_sync. The former can be
     // used to implements GrFence and GrSemaphore. The latter only implements GrFence.
