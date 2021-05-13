@@ -34,23 +34,25 @@ namespace dsl {
 DSLWriter::DSLWriter(SkSL::Compiler* compiler, SkSL::ProgramKind kind, int flags)
     : fCompiler(compiler)
     , fMangle(flags & kMangle_Flag)
-    , fMarkVarsDeclared(flags & kMarkVarsDeclared_Flag) {
+    , fMarkVarsDeclared(flags & kMarkVarsDeclared_Flag)
+    , fRunningInCompiler(flags & kRunningInCompiler_Flag) {
     SkSL::ParsedModule module = fCompiler->moduleForProgramKind(kind);
 
-    fModifiersPool = std::make_unique<ModifiersPool>();
     fOldModifiersPool = fCompiler->fContext->fModifiersPool;
-    fCompiler->fContext->fModifiersPool = fModifiersPool.get();
 
-    fConfig = std::make_unique<ProgramConfig>();
-    fConfig->fKind = kind;
-    fConfig->fSettings.fOptimize = flags & kOptimize_Flag;
-    fConfig->fSettings.fValidateSPIRV = flags & kValidate_Flag;
     fOldConfig = fCompiler->fContext->fConfig;
-    fCompiler->fContext->fConfig = fConfig.get();
 
-    if (compiler->context().fCaps.useNodePools()) {
+    if (!fRunningInCompiler && compiler->context().fCaps.useNodePools()) {
         fPool = Pool::Create();
         fPool->attachToThread();
+        fModifiersPool = std::make_unique<ModifiersPool>();
+        fCompiler->fContext->fModifiersPool = fModifiersPool.get();
+
+        fConfig = std::make_unique<ProgramConfig>();
+        fConfig->fKind = kind;
+        fConfig->fSettings.fOptimize = flags & kOptimize_Flag;
+        fConfig->fSettings.fValidateSPIRV = flags & kValidate_Flag;
+        fCompiler->fContext->fConfig = fConfig.get();
     }
 
     fCompiler->fIRGenerator->start(module, /*isBuiltinCode=*/false, /*externalFunctions=*/nullptr,
@@ -61,7 +63,7 @@ DSLWriter::~DSLWriter() {
     if (SymbolTable()) {
         fCompiler->fIRGenerator->finish();
         fProgramElements.clear();
-    } else {
+    } else if (!fRunningInCompiler) {
         // We should only be here with a null symbol table if ReleaseProgram was called
         SkASSERT(fProgramElements.empty());
     }
@@ -286,17 +288,7 @@ std::unique_ptr<SkSL::Program> DSLWriter::ReleaseProgram() {
     return result;
 }
 
-#if !SK_SUPPORT_GPU || defined(SKSL_STANDALONE)
-
-DSLWriter& DSLWriter::Instance() {
-    SkUNREACHABLE;
-}
-
-void DSLWriter::SetInstance(std::unique_ptr<DSLWriter> instance) {
-    SkDEBUGFAIL("unimplemented");
-}
-
-#elif SKSL_USE_THREAD_LOCAL
+#if SKSL_USE_THREAD_LOCAL
 
 thread_local DSLWriter* instance = nullptr;
 
