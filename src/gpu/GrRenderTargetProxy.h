@@ -34,6 +34,11 @@ public:
                this->canChangeStencilAttachment();
     }
 
+    // Returns true if this proxy either has a stencil attachment already, or if we can attach one
+    // during flush. Wrapped render targets without stencil will return false, since we are unable
+    // to modify their attachments.
+    bool canUseStencil(const GrCaps& caps) const;
+
     /*
      * Indicate that a draw to this proxy requires stencil, and how many stencil samples it needs.
      * The number of stencil samples on this proxy will be equal to the largest sample count passed

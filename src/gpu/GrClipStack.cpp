@@ -1352,8 +1352,8 @@ GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrSurfaceDrawCont
         // Disable analytic clips when there are user stencil settings to ensure the clip is
         // respected in the stencil buffer.
         remainingAnalyticFPs = 0;
-        // If we have user stencil settings, we shouldn't be avoiding the stencil buffer anyways.
-        SkASSERT(!context->priv().caps()->avoidStencilBuffers());
+        // If we have user stencil settings, stencil needs to be supported.
+        SkASSERT(rtc->asRenderTargetProxy()->canUseStencil(*context->priv().caps()));
     }
 
     // If window rectangles are supported, we can use them to exclude inner bounds of difference ops
@@ -1469,8 +1469,8 @@ GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrSurfaceDrawCont
     // Now rasterize any remaining elements, either to the stencil or a SW mask. All elements are
     // flattened into a single mask.
     if (!elementsForMask.empty()) {
-        bool stencilUnavailable = context->priv().caps()->avoidStencilBuffers() ||
-                                  rtc->wrapsVkSecondaryCB();
+        bool stencilUnavailable =
+                !rtc->asRenderTargetProxy()->canUseStencil(*context->priv().caps());
 
         bool hasSWMask = false;
         if ((rtc->numSamples() <= 1 && maskRequiresAA) || stencilUnavailable) {

@@ -702,7 +702,7 @@ GrDefaultPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
             args.fShape->style(), *args.fViewMatrix, nullptr);
     // If we aren't a single_pass_shape or hairline, we require stencil buffers.
     if (!(single_pass_shape(*args.fShape) || isHairline) &&
-        (args.fCaps->avoidStencilBuffers() || args.fTargetIsWrappedVkSecondaryCB)) {
+        !args.fProxy->canUseStencil(*args.fCaps)) {
         return CanDrawPath::kNo;
     }
     // If antialiasing is required, we only support MSAA.
