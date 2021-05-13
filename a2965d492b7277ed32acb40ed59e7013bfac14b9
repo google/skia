@@ -3,6 +3,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "d1fa11c7_ef8c4c7a",
+        "filename": "include/private/SkColorData.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-05-13T14:16:42Z",
+      "side": 1,
+      "message": "Update comment to use scale instead of srcWeight",
+      "range": {
+        "startLine": 161,
+        "startChar": 5,
+        "endLine": 161,
+        "endChar": 14
+      },
+      "revId": "a2965d492b7277ed32acb40ed59e7013bfac14b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "42f7bf81_794bdbd6",
         "filename": "include/private/SkColorData.h",
         "patchSetId": 1
@@ -43,6 +66,53 @@
         "startChar": 82,
         "endLine": 165,
         "endChar": 87
+      },
+      "revId": "a2965d492b7277ed32acb40ed59e7013bfac14b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f1b2d382_4e24deb2",
+        "filename": "include/private/SkColorData.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-05-13T14:16:42Z",
+      "side": 1,
+      "message": "It looks like scale is on [0 ... 256], and looking at all uses it seems that is true. So, I think that scale should be int",
+      "parentUuid": "06e99865_49032c9e",
+      "range": {
+        "startLine": 165,
+        "startChar": 82,
+        "endLine": 165,
+        "endChar": 87
+      },
+      "revId": "a2965d492b7277ed32acb40ed59e7013bfac14b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8585d2fa_9ccf1d68",
+        "filename": "include/private/SkColorData.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-05-13T14:16:42Z",
+      "side": 1,
+      "message": "These casts should be SkTo\u003cuint8_t\u003e because this is about to be packed into a uint32_t.",
+      "range": {
+        "startLine": 166,
+        "startChar": 17,
+        "endLine": 166,
+        "endChar": 27
       },
       "revId": "a2965d492b7277ed32acb40ed59e7013bfac14b9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
