@@ -453,6 +453,7 @@ skia_gpu_sources = [
   "$_src/gpu/gradients/generated/GrUnrolledBinaryGradientColorizer.h",
 
   # tessellate
+  "$_src/gpu/tessellate/GrCullTest.h",
   "$_src/gpu/tessellate/GrDrawAtlasPathOp.cpp",
   "$_src/gpu/tessellate/GrDrawAtlasPathOp.h",
   "$_src/gpu/tessellate/GrFillPathShader.cpp",
