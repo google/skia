@@ -34,6 +34,8 @@ GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Opti
     if (options.fGpuPathRenderers & GpuPathRenderers::kAAConvex) {
         fChain.push_back(sk_make_sp<GrAAConvexPathRenderer>());
     }
+    // CCPR clipping still has some issues – disabled for now.
+#if 0
     if (options.fGpuPathRenderers & GpuPathRenderers::kCoverageCounting) {
         fCoverageCountingPathRenderer = GrCoverageCountingPathRenderer::CreateIfSupported(caps);
         if (fCoverageCountingPathRenderer) {
@@ -42,6 +44,7 @@ GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Opti
             context->priv().addOnFlushCallbackObject(fCoverageCountingPathRenderer.get());
         }
     }
+#endif
     if (options.fGpuPathRenderers & GpuPathRenderers::kAAHairline) {
         fChain.push_back(sk_make_sp<GrAAHairLinePathRenderer>());
     }

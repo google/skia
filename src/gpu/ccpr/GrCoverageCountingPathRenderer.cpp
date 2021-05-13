@@ -15,6 +15,7 @@
 #include "src/gpu/ccpr/GrCCClipProcessor.h"
 
 bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps) {
+    // CCPR clipping still has some issues – disabled for now.
     const GrShaderCaps& shaderCaps = *caps.shaderCaps();
     GrBackendFormat defaultA8Format = caps.getDefaultBackendFormat(GrColorType::kAlpha_8,
                                                                    GrRenderable::kYes);
