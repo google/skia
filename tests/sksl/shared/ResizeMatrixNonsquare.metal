@@ -34,7 +34,6 @@ float2x4 float2x4_from_float4x2(float4x2 x0) {
 float4x2 float4x2_from_float2x4(float2x4 x0) {
     return float4x2(float2(x0[0].xy), float2(x0[1].xy), float2(0.0, 0.0), float2(0.0, 0.0));
 }
-
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;

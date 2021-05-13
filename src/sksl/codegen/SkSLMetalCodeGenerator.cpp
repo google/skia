@@ -233,7 +233,7 @@ String MetalCodeGenerator::getOutParamHelper(const FunctionCall& call,
         separator = ", ";
 
         const Variable* param = function.parameters()[index];
-        this->writeModifiers(param->modifiers(), /*globalContext=*/false);
+        this->writeModifiers(param->modifiers());
 
         const Type* type = outVars[index] ? &outVars[index]->type() : &arguments[index]->type();
         this->writeType(*type);
@@ -1690,7 +1690,7 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
         }
         this->write(separator);
         separator = ", ";
-        this->writeModifiers(param->modifiers(), /*globalContext=*/false);
+        this->writeModifiers(param->modifiers());
         const Type* type = &param->type();
         this->writeType(*type);
         if (param->modifiers().fFlags & Modifiers::kOut_Flag) {
@@ -1772,8 +1772,7 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
     this->write(buffer.str());
 }
 
-void MetalCodeGenerator::writeModifiers(const Modifiers& modifiers,
-                                        bool globalContext) {
+void MetalCodeGenerator::writeModifiers(const Modifiers& modifiers) {
     if (modifiers.fFlags & Modifiers::kOut_Flag) {
         this->write("thread ");
     }
@@ -1786,7 +1785,7 @@ void MetalCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     if ("sk_PerVertex" == intf.typeName()) {
         return;
     }
-    this->writeModifiers(intf.variable().modifiers(), /*globalContext=*/true);
+    this->writeModifiers(intf.variable().modifiers());
     this->write("struct ");
     this->writeLine(intf.typeName() + " {");
     const Type* structType = &intf.variable().type();
@@ -1856,7 +1855,7 @@ void MetalCodeGenerator::writeFields(const std::vector<Type::Field>& fields, int
             return;
         }
         currentOffset += fieldSize;
-        this->writeModifiers(field.fModifiers, /*globalContext=*/false);
+        this->writeModifiers(field.fModifiers);
         this->writeType(*fieldType);
         this->write(" ");
         this->writeName(field.fName);
@@ -1878,11 +1877,8 @@ void MetalCodeGenerator::writeName(const String& name) {
     this->write(name);
 }
 
-void MetalCodeGenerator::writeVarDeclaration(const VarDeclaration& varDecl, bool global) {
-    if (global && !(varDecl.var().modifiers().fFlags & Modifiers::kConst_Flag)) {
-        return;
-    }
-    this->writeModifiers(varDecl.var().modifiers(), global);
+void MetalCodeGenerator::writeVarDeclaration(const VarDeclaration& varDecl) {
+    this->writeModifiers(varDecl.var().modifiers());
     this->writeType(varDecl.var().type());
     this->write(" ");
     this->writeName(varDecl.var().name());
@@ -1906,7 +1902,7 @@ void MetalCodeGenerator::writeStatement(const Statement& s) {
             this->writeReturnStatement(s.as<ReturnStatement>());
             break;
         case Statement::Kind::kVarDeclaration:
-            this->writeVarDeclaration(s.as<VarDeclaration>(), false);
+            this->writeVarDeclaration(s.as<VarDeclaration>());
             break;
         case Statement::Kind::kIf:
             this->writeIfStatement(s.as<IfStatement>());
@@ -2208,16 +2204,17 @@ void MetalCodeGenerator::visitGlobalStruct(GlobalStructVisitor* visitor) {
         const GlobalVarDeclaration& global = element->as<GlobalVarDeclaration>();
         const VarDeclaration& decl = global.declaration()->as<VarDeclaration>();
         const Variable& var = decl.var();
-        if ((!var.modifiers().fFlags && -1 == var.modifiers().fLayout.fBuiltin) ||
-            var.type().typeKind() == Type::TypeKind::kSampler) {
-            if (var.type().typeKind() == Type::TypeKind::kSampler) {
-                // Samplers are represented as a "texture/sampler" duo in the global struct.
-                visitor->visitTexture(var.type(), var.name());
-                visitor->visitSampler(var.type(), String(var.name()) + SAMPLER_SUFFIX);
-            } else {
-                // Visit a regular variable.
-                visitor->visitVariable(var, decl.value().get());
-            }
+        if (var.type().typeKind() == Type::TypeKind::kSampler) {
+            // Samplers are represented as a "texture/sampler" duo in the global struct.
+            visitor->visitTexture(var.type(), var.name());
+            visitor->visitSampler(var.type(), String(var.name()) + SAMPLER_SUFFIX);
+            continue;
+        }
+
+        if (!(var.modifiers().fFlags & ~Modifiers::kConst_Flag) &&
+            -1 == var.modifiers().fLayout.fBuiltin) {
+            // Visit a regular variable.
+            visitor->visitVariable(var, decl.value().get());
         }
     }
 }
@@ -2250,6 +2247,7 @@ void MetalCodeGenerator::writeGlobalStruct() {
         void visitVariable(const Variable& var, const Expression* value) override {
             this->addElement();
             fCodeGen->write("    ");
+            fCodeGen->writeModifiers(var.modifiers());
             fCodeGen->writeType(var.type());
             fCodeGen->write(" ");
             fCodeGen->writeName(var.name());
@@ -2329,19 +2327,8 @@ void MetalCodeGenerator::writeProgramElement(const ProgramElement& e) {
     switch (e.kind()) {
         case ProgramElement::Kind::kExtension:
             break;
-        case ProgramElement::Kind::kGlobalVar: {
-            const GlobalVarDeclaration& global = e.as<GlobalVarDeclaration>();
-            const VarDeclaration& decl = global.declaration()->as<VarDeclaration>();
-            int builtin = decl.var().modifiers().fLayout.fBuiltin;
-            if (-1 == builtin) {
-                // normal var
-                this->writeVarDeclaration(decl, true);
-                this->finishLine();
-            } else if (SK_FRAGCOLOR_BUILTIN == builtin) {
-                // ignore
-            }
+        case ProgramElement::Kind::kGlobalVar:
             break;
-        }
         case ProgramElement::Kind::kInterfaceBlock:
             // handled in writeInterfaceBlocks, do nothing
             break;
@@ -2355,8 +2342,7 @@ void MetalCodeGenerator::writeProgramElement(const ProgramElement& e) {
             this->writeFunctionPrototype(e.as<FunctionPrototype>());
             break;
         case ProgramElement::Kind::kModifiers:
-            this->writeModifiers(e.as<ModifiersDeclaration>().modifiers(),
-                                 /*globalContext=*/true);
+            this->writeModifiers(e.as<ModifiersDeclaration>().modifiers());
             this->writeLine(";");
             break;
         case ProgramElement::Kind::kEnum:

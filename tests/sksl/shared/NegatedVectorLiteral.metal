@@ -10,7 +10,6 @@ struct Inputs {
 struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
-
 bool test_int_b() {
     int one = 1;
     const int two = 2;

@@ -23,7 +23,6 @@ void _skOutParamHelper1_func_vh4(thread float4& result) {
     func_vh4(_var0);
     result = _var0;
 }
-
 float2 tricky_h2hhh2h(float x, float y, thread float2& color, float z) {
     color = color.yx;
     return float2(x + y, z);

@@ -56,4 +56,3 @@ struct Inputs {
 struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
-
