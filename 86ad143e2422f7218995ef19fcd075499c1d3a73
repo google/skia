@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c5e9601e_35354939",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-05-13T16:30:14Z",
+      "side": 1,
+      "message": "Looks good!\n\nDoes Vulkan not use this shared discardable attachment?",
+      "revId": "86ad143e2422f7218995ef19fcd075499c1d3a73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
