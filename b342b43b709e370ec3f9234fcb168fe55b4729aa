@@ -56,6 +56,24 @@
       "message": "Here you can see the old (broken) code, and the new (correct) code.",
       "revId": "b342b43b709e370ec3f9234fcb168fe55b4729aa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b17cd943_efafed6e",
+        "filename": "tests/sksl/shared/ConstArray.metal",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-13T19:40:53Z",
+      "side": 1,
+      "message": "LGTM, but you can keep the `const` on the type and it still compiles:\nhttp://screen/57r9WhYanjtUgKn\n\nIt might be helpful to the compiler to keep it around?",
+      "parentUuid": "9c660115_3fe34f1e",
+      "revId": "b342b43b709e370ec3f9234fcb168fe55b4729aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
