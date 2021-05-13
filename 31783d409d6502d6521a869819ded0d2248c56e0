@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f21e7b3e_43f9240e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-05-13T14:36:49Z",
+      "side": 1,
+      "message": "CC +\u003d shrekshao@\n\nShrek, we are seeing regressions when using indirect draws in the d3d backend of angle. Is the multidraw extension implemented for d3d?",
+      "revId": "31783d409d6502d6521a869819ded0d2248c56e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
