@@ -39,7 +39,6 @@ thread float2x2& operator/=(thread float2x2& left, thread const float2x2& right)
     left = left / right;
     return left;
 }
-
 bool test_half_b() {
     bool ok = true;
     ok = ok && float3x3(2.0) + (float3x3(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0) * 4.0) == float3x3(float3(6.0, 4.0, 4.0), float3(4.0, 6.0, 4.0), float3(4.0, 4.0, 6.0));

@@ -221,7 +221,6 @@ void _skOutParamHelper34_out_bool_vb(Uniforms _uniforms, thread bool3& b3) {
     out_bool_vb(_uniforms, _var0);
     b3.z = _var0;
 }
-
 void out_half_vh(Uniforms _uniforms, thread float& v) {
     v = _uniforms.colorWhite.x;
 }

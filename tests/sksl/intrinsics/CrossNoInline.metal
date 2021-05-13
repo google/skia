@@ -18,7 +18,6 @@ float cross_hh2h2(float2 a, float2 b) {
 float cross_ff2f2(float2 a, float2 b) {
     return a.x * b.y - a.y * b.x;
 }
-
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;

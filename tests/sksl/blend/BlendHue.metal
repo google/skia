@@ -49,7 +49,6 @@ float3 _blend_set_color_saturation_h3h3h3(float3 hueLumColor, float3 satColor) {
         return _blend_set_color_saturation_helper_h3h3h(hueLumColor.zyx, sat).zyx;
     }
 }
-
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;

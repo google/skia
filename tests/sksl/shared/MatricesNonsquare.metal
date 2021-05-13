@@ -22,7 +22,6 @@ thread float4x4& operator*=(thread float4x4& left, thread const float4x4& right)
     left = left * right;
     return left;
 }
-
 bool test_half_b() {
     float2x3 m23 = float2x3(23.0);
     float2x4 m24 = float2x4(24.0);

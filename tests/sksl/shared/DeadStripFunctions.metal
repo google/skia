@@ -13,7 +13,6 @@ struct Outputs {
 float4 unpremul_h4h4(float4 color) {
     return float4(color.xyz / max(color.w, 9.9999997473787516e-05), color.w);
 }
-
 float4 live_fn_h4h4h4(float4 a, float4 b) {
     return a + b;
 }
