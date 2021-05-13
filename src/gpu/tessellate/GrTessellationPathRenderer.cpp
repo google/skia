@@ -132,7 +132,8 @@ GrPathRenderer::CanDrawPath GrTessellationPathRenderer::onCanDrawPath(
         args.fViewMatrix->hasPerspective() ||
         shape.style().strokeRec().getStyle() == SkStrokeRec::kStrokeAndFill_Style ||
         shape.inverseFilled() ||
-        args.fHasUserStencilSettings) {
+        args.fHasUserStencilSettings ||
+        !args.fProxy->canUseStencil(*args.fCaps)) {
         return CanDrawPath::kNo;
     }
     if (GrAAType::kCoverage == args.fAAType) {
