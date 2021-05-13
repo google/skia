@@ -576,3 +576,80 @@ DEF_SIMPLE_GM(longrect_dash, canvas, 250, 250) {
     }
 }
 #endif
+
+DEF_SIMPLE_GM(inner_join_geometry, canvas, 600, 600) {
+    // These paths trigger cases where we must add inner join geometry.
+    // skbug.com/11964
+    SkPath (*procs[])() = {
+            []() {
+                SkPath path;
+                path.moveTo(119, 71);
+                path.lineTo(129, 151);
+                path.lineTo(230, 24);
+                return path;
+            },
+            []() {
+                SkPath path;
+                path.moveTo(200, 144);
+                path.lineTo(129, 151);
+                path.lineTo(230, 24);
+                return path;
+            },
+            []() {
+                SkPath path;
+                path.moveTo(192, 176);
+                path.lineTo(224, 175);
+                path.lineTo(281, 103);
+                return path;
+            },
+            []() {
+                SkPath path;
+                path.moveTo(233, 205);
+                path.lineTo(224, 175);
+                path.lineTo(281, 103);
+                return path;
+            },
+            []() {
+                SkPath path;
+                path.moveTo(121, 216);
+                path.lineTo(234, 189);
+                path.lineTo(195, 147);
+                return path;
+            },
+            []() {
+                SkPath path;
+                path.moveTo(141, 216);
+                path.lineTo(254, 189);
+                path.lineTo(238, 250);
+                return path;
+            },
+            []() {
+                SkPath path;
+                path.moveTo(159, 202);
+                path.lineTo(269, 197);
+                path.lineTo(289, 165);
+                return path;
+            },
+            []() {
+                SkPath path;
+                path.moveTo(159, 202);
+                path.lineTo(269, 197);
+                path.lineTo(287, 227);
+                return path;
+            },
+    };
+
+    SkPaint p;
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setAntiAlias(true);
+    p.setStrokeWidth(100);
+    int idx = 0;
+    for (const auto& factory : procs) {
+        SkPath path = factory();
+        canvas->drawPath(path, p);
+        canvas->translate(200, 0);
+        if (++idx % 4 == 0) {
+            canvas->translate(-800, 200);
+        }
+    }
+}
