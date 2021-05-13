@@ -18,6 +18,12 @@ void OpacityEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
     if (fOpacity <= 0)
         return;
 
+    // opacity >= 1 has no effect
+    if (fOpacity >= 1) {
+        this->INHERITED::onRender(canvas, ctx);
+        return;
+    }
+
     const auto local_context = ScopedRenderContext(canvas, ctx).modulateOpacity(fOpacity);
 
     this->INHERITED::onRender(canvas, local_context);
