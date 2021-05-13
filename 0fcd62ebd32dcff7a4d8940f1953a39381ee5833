@@ -22,6 +22,30 @@
       },
       "revId": "0fcd62ebd32dcff7a4d8940f1953a39381ee5833",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c03b2cc6_242b56f7",
+        "filename": "experimental/tskit/go/gen_types/gen_types.go",
+        "patchSetId": 8
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-05-13T12:07:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4a850b13_e44e28e5",
+      "range": {
+        "startLine": 70,
+        "startChar": 0,
+        "endLine": 70,
+        "endChar": 39
+      },
+      "revId": "0fcd62ebd32dcff7a4d8940f1953a39381ee5833",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
