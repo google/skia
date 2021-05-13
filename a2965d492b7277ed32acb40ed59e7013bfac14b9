@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "42f7bf81_794bdbd6",
+        "filename": "include/private/SkColorData.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-05-13T13:44:55Z",
+      "side": 1,
+      "message": "Can this cast ever fail? Can scale just be int?",
+      "range": {
+        "startLine": 165,
+        "startChar": 82,
+        "endLine": 165,
+        "endChar": 87
+      },
+      "revId": "a2965d492b7277ed32acb40ed59e7013bfac14b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
