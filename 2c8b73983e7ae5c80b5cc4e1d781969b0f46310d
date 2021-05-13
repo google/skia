@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "56ad0ed7_562a6b67",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-05-13T17:01:23Z",
+      "side": 1,
+      "message": "This is a precursor to landing the actual stroker change. These paths test the cases where inner join geometry is definitely necessary. So this GM will make sure we cover the correct pixels in those cases.",
+      "revId": "2c8b73983e7ae5c80b5cc4e1d781969b0f46310d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
