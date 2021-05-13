@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fdca99ed_90473192",
+        "filename": "modules/androidkit/src/Surface.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-13T12:53:58Z",
+      "side": 1,
+      "message": "message",
+      "range": {
+        "startLine": 70,
+        "startChar": 25,
+        "endLine": 70,
+        "endChar": 42
+      },
+      "revId": "dc9e76b5357d14e3adbd84297e351da37b7904b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8a13f596_51244c1a",
+        "filename": "modules/androidkit/src/SurfaceThread.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-13T12:53:58Z",
+      "side": 1,
+      "message": "Theoretically, without memory barriers, there\u0027s a possibility for this write to become visible in the render thread after it processes kDestroy -- which would cause it to miss the event and block in ALooper_pollAll indefinitely.  In practice I doubt that can happen, but to harden we could:\n\n  a) use std::atomic\u003cbool\u003e + appropriate std::memory_order for store/load (prolly release/acquire, respectively)\n  b) pass a non-zero timeout to ALooper_pollAll to wake up periodically and re-check the flag\n  c) update the flag from the render thread (e.g. in the kDestroy handler) instead of SurfaceThread::release()\n\nI\u0027m not super worried about it, but option c) seems like a clean, straightforward change.",
+      "revId": "dc9e76b5357d14e3adbd84297e351da37b7904b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0836bb21_6a771f7a",
+        "filename": "modules/androidkit/src/SurfaceThread.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-13T12:53:58Z",
+      "side": 1,
+      "message": "For singleton, this could be a client counter.\n\nFor non-singleton, we could make it non-static and then query the SurfaceThread object on each iteration in pthread_main: if (!surfaceThread-\u003efRunning) break;",
+      "revId": "dc9e76b5357d14e3adbd84297e351da37b7904b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
