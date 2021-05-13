@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "240c0854_15435e4f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-13T21:52:52Z",
+      "side": 1,
+      "message": "I noticed this while working on the matrix-scalar changes, since I needed a gadget for splatting a scalar into a vector and found that we had two of them.",
+      "revId": "6e53e10a644fe40416b8d16e266ba18f3499ccb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
