@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4360a3ad_3d11a66d",
+        "filename": "modules/androidkit/src/Matrix.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-13T13:07:35Z",
+      "side": 1,
+      "message": "µ-nit, feel free to ignore: to minimize the number of exit points one has to follow, I would invert this conditional\n\n  if (result) {\n      env-\u003eSetFloatArrayRegion(result, 0, 16, temp);\n  }\n  return result;\n\ntaken to the extreme, we could even hoist result and have a single return statement -- but this is solidly within the realm of taste 😊\n\n  jfloatArray result \u003d nulltr;\n  if (auto* m \u003d reinterpret_cast\u003cSkM44*\u003e(native_matrix)) {\n      ...\n  }\n  return result;",
+      "range": {
+        "startLine": 42,
+        "startChar": 0,
+        "endLine": 46,
+        "endChar": 22
+      },
+      "revId": "cbf0259c51f71f27ab7898fbed9b66ba10d4fe05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "545dbaf0_38b816d3",
+        "filename": "modules/androidkit/src/Matrix.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-13T13:07:35Z",
+      "side": 1,
+      "message": "nullptr, as jfloatArray appears to be a pointer alias?",
+      "range": {
+        "startLine": 48,
+        "startChar": 11,
+        "endLine": 48,
+        "endChar": 12
+      },
+      "revId": "cbf0259c51f71f27ab7898fbed9b66ba10d4fe05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
