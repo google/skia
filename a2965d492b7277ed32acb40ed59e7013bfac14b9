@@ -22,6 +22,30 @@
       },
       "revId": "a2965d492b7277ed32acb40ed59e7013bfac14b9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "06e99865_49032c9e",
+        "filename": "include/private/SkColorData.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-13T13:46:26Z",
+      "side": 1,
+      "message": "I don\u0027t know. I got spooked by the comment above SkAlphaBlend:\n\n  //  The caller may want negative values, so keep all params signed (int)\n  //  so we don\u0027t accidentally slip into unsigned math and lose the sign\n  //  extension when we shift (in SkAlphaMul)",
+      "parentUuid": "42f7bf81_794bdbd6",
+      "range": {
+        "startLine": 165,
+        "startChar": 82,
+        "endLine": 165,
+        "endChar": 87
+      },
+      "revId": "a2965d492b7277ed32acb40ed59e7013bfac14b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
