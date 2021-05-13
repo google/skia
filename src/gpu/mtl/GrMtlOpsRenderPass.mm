@@ -420,11 +420,10 @@ void GrMtlOpsRenderPass::setVertexBuffer(id<MTLRenderCommandEncoder> encoder,
     int index = inputBufferIndex + kFirstBufferBindingIdx;
     SkASSERT(index < 4);
     auto mtlBuffer = static_cast<const GrMtlBuffer*>(buffer);
-    id<MTLBuffer> mtlVertexBuffer = mtlBuffer->mtlBuffer();
-    SkASSERT(mtlVertexBuffer);
+    id<MTLBuffer> mtlVertexBuffer = mtlBuffer ? mtlBuffer->mtlBuffer() : nil;
     // Apple recommends using setVertexBufferOffset: when changing the offset
     // for a currently bound vertex buffer, rather than setVertexBuffer:
-    size_t offset = mtlBuffer->offset() + vertexOffset;
+    size_t offset = mtlBuffer ? (mtlBuffer->offset() + vertexOffset) : 0;
     if (fBufferBindings[index].fBuffer != mtlVertexBuffer) {
         [encoder setVertexBuffer: mtlVertexBuffer
                           offset: offset
