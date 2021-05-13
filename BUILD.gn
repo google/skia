@@ -2500,6 +2500,7 @@ if (skia_enable_tools) {
         "modules/androidkit/src/RuntimeShaderBuilder.cpp",
         "modules/androidkit/src/Shader.cpp",
         "modules/androidkit/src/Surface.cpp",
+        "modules/androidkit/src/Surface.h",
         "modules/androidkit/src/SurfaceThread.cpp",
         "modules/androidkit/src/SurfaceThread.h",
       ]

@@ -17,6 +17,8 @@ import android.widget.ImageView;
 import org.skia.androidkit.*;
 
 public class MainActivity extends Activity implements SurfaceHolder.Callback {
+    public Surface surfaceSurface;
+
     static {
         System.loadLibrary("androidkit");
     }
@@ -51,19 +53,19 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         image.setImageBitmap(bmp);
 
         //Surface
-        Surface surfaceSurface;
         SurfaceView surfaceView = findViewById(R.id.surface);
         surfaceView.getHolder().addCallback(this);
     }
 
     @Override
     public void surfaceCreated(@NonNull SurfaceHolder holder) {
-        Surface surfaceSurface = Surface.createThreadedSurface(holder.getSurface());
     }
 
     @Override
     public void surfaceChanged(@NonNull SurfaceHolder holder, int format, int width, int height) {
-
+        surfaceSurface = Surface.createThreadedSurface(holder.getSurface());
+        surfaceSurface.getCanvas().drawColor(0xffffffe0);
+        surfaceSurface.flushAndSubmit();
     }
 
     @Override
