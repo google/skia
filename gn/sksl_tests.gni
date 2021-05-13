@@ -240,6 +240,7 @@ sksl_spirv_tests = [
   "/sksl/spirv/InterfaceBlockPushConstant.sksl",
   "/sksl/spirv/LayoutMultipleOf4.sksl",
   "/sksl/spirv/LayoutOutOfOrder.sksl",
+  "/sksl/spirv/MatrixScalarSplat.sksl",
   "/sksl/spirv/OpaqueTypeInArray.sksl",
   "/sksl/workarounds/RewriteMatrixVectorMultiply.sksl",
   "/sksl/errors/UndefinedFunction.sksl",

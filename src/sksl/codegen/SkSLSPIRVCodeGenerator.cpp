@@ -855,18 +855,13 @@ std::vector<SpvId> SPIRVCodeGenerator::vectorize(const ExpressionArray& args, Ou
     result.reserve(args.size());
     for (const auto& arg : args) {
         const Type& argType = arg->type();
-        SpvId raw = this->writeExpression(*arg, out);
         if (vectorSize && argType.isScalar()) {
-            SpvId vector = this->nextId(&arg->type());
-            this->writeOpCode(SpvOpCompositeConstruct, 3 + vectorSize, out);
-            this->writeWord(this->getType(argType.toCompound(fContext, vectorSize, 1)), out);
-            this->writeWord(vector, out);
-            for (int i = 0; i < vectorSize; i++) {
-                this->writeWord(raw, out);
-            }
-            result.push_back(vector);
+            ConstructorSplat splat{/*offset=*/-1,
+                                   argType.toCompound(fContext, vectorSize, /*rows=*/1),
+                                   arg->clone()};
+            result.push_back(this->writeConstructorSplat(splat, out));
         } else {
-            result.push_back(raw);
+            result.push_back(this->writeExpression(*arg, out));
         }
     }
     return result;
