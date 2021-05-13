@@ -7,6 +7,8 @@
 
 package org.skia.androidkit;
 
+import android.util.Log;
+
 /*
  * 4x4 matrix backed by SkM44
  */
@@ -71,6 +73,23 @@ public class Matrix {
         long nativeB = b.mNativeInstance;
         long nativeC = nConcat(nativeA, nativeB);
         return new Matrix(nativeC);
+    }
+
+    /*
+     * Convenience method
+     * Calls getRowMajorArray and indexes to the appropriate position
+     */
+    public float getAtRowCol(int r, int c) {
+        float[] a = this.getRowMajor();
+        return a[r*4 + c];
+    }
+
+    public float[] getRowMajor() {
+        float[] vals = nGetRowMajor(this.mNativeInstance);
+        if (vals == null) {
+            throw new RuntimeException("Cannot make native float array, out of memory");
+        }
+        return nGetRowMajor(this.mNativeInstance);
     }
 
     /*
@@ -158,13 +177,13 @@ public class Matrix {
     private static native long nCreateLookAt(float eyeX, float eyeY, float eyeZ,
                                              float coaX, float coaY, float coaZ,
                                              float upX, float upY, float upZ);
-    private static native long nCreatePerspective(float near, float far, float angle);
-    private static native void nRelease(long nativeInstance);
-
-    private static native long nInverse(long mNativeInstance);
-    private static native void nPreConcat(long mNativeInstanceA, long mNativeInstanceB);
-    private static native long nConcat(long mNativeInstanceA, long mNativeInstanceB);
-    private static native void nTranslate(long mNativeInstance, float x, float y, float z);
-    private static native void nScale(long mNativeInstance, float x, float y, float z);
-    private static native void nRotate(long mNativeInstance, float x, float y, float z, float rad);
+    private static native long    nCreatePerspective(float near, float far, float angle);
+    private static native void    nRelease(long nativeInstance);
+    private static native float[] nGetRowMajor(long mNativeInstance);
+    private static native long    nInverse(long mNativeInstance);
+    private static native void    nPreConcat(long mNativeInstanceA, long mNativeInstanceB);
+    private static native long    nConcat(long mNativeInstanceA, long mNativeInstanceB);
+    private static native void    nTranslate(long mNativeInstance, float x, float y, float z);
+    private static native void    nScale(long mNativeInstance, float x, float y, float z);
+    private static native void    nRotate(long mNativeInstance, float x, float y, float z, float rad);
 }
