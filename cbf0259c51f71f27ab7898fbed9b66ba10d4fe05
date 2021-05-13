@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dcc2270a_41f2eecf",
+        "filename": "modules/androidkit/src/Matrix.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-05-13T18:00:06Z",
+      "side": 1,
+      "message": "Excellent taste. Done.",
+      "parentUuid": "4360a3ad_3d11a66d",
+      "range": {
+        "startLine": 42,
+        "startChar": 0,
+        "endLine": 46,
+        "endChar": 22
+      },
+      "revId": "cbf0259c51f71f27ab7898fbed9b66ba10d4fe05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "545dbaf0_38b816d3",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-05-13T13:07:35Z",
       "side": 1,
       "message": "nullptr, as jfloatArray appears to be a pointer alias?",
+      "range": {
+        "startLine": 48,
+        "startChar": 11,
+        "endLine": 48,
+        "endChar": 12
+      },
+      "revId": "cbf0259c51f71f27ab7898fbed9b66ba10d4fe05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8dd9b3ef_ed824c4a",
+        "filename": "modules/androidkit/src/Matrix.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-05-13T18:00:06Z",
+      "side": 1,
+      "message": "Java interprets 0 and nullptr as Null in the Java side, I put in an exception for it in the Java getter.",
+      "parentUuid": "545dbaf0_38b816d3",
       "range": {
         "startLine": 48,
         "startChar": 11,
