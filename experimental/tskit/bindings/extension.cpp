@@ -77,17 +77,20 @@ EMSCRIPTEN_BINDINGS(Extension) {
         /**
          * Returns the associated property.
          */
-        TS_EXPORT("Extension::getProp(): string")
+        TS_EXPORT("getProp(): string")
         .function("getProp", &Extension::getProp)
-        TS_PRIVATE_EXPORT("Extension::setProp(p: string): void")
+        TS_PRIVATE_EXPORT("setProp(p: string): void")
         .function("_setProp", &Extension::setProp);
 
     value_object<CompoundObj>("CompoundObj")
+        /** @type number */
         .field("alpha", &CompoundObj::alpha)
+         /** @type string */
         .field("beta", &CompoundObj::beta)
         /**
          * This field (gamma) should be documented.
-         * @optional - default value is 1.0
+         * The default value is 1.0 if not set.
+         * @type @optional number
          */
         .field("gamma", &CompoundObj::gamma);
 }
