@@ -33,9 +33,18 @@ GrStrokeTessellateOp::GrStrokeTessellateOp(GrAAType aaType, const SkMatrix& view
         fShaderFlags |= ShaderFlags::kWideColor;
     }
     SkRect devBounds = path.getBounds();
-    float inflationRadius = stroke.getInflationRadius();
-    devBounds.outset(inflationRadius, inflationRadius);
+    if (!this->headStroke().isHairlineStyle()) {
+        // Non-hairlines inflate in local path space (pre-transform).
+        float inflationRadius = stroke.getInflationRadius();
+        devBounds.outset(inflationRadius, inflationRadius);
+    }
     viewMatrix.mapRect(&devBounds, devBounds);
+    if (this->headStroke().isHairlineStyle()) {
+        // Hairlines inflate in device space (post-transform).
+        float inflationRadius = SkStrokeRec::GetInflationRadius(stroke.getJoin(), stroke.getMiter(),
+                                                                stroke.getCap(), 1);
+        devBounds.outset(inflationRadius, inflationRadius);
+    }
     this->setBounds(devBounds, HasAABloat::kNo, IsHairline::kNo);
 }
 
