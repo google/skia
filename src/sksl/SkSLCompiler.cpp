@@ -10,6 +10,7 @@
 #include <memory>
 #include <unordered_set>
 
+#include "include/sksl/DSLCore.h"
 #include "src/core/SkScopeExit.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/sksl/SkSLAnalysis.h"
@@ -481,9 +482,12 @@ std::unique_ptr<Program> Compiler::convertProgram(
         pool = Pool::Create();
         pool->attachToThread();
     }
+    dsl::Start(this, kind, (dsl::kDefaultDSLFlags | dsl::kRunningInCompiler_Flag) &
+                           ~dsl::kMangle_Flag);
     IRGenerator::IRBundle ir = fIRGenerator->convertProgram(baseModule, /*isBuiltinCode=*/false,
                                                             textPtr->c_str(), textPtr->size(),
                                                             externalFunctions);
+    dsl::End();
     auto program = std::make_unique<Program>(std::move(textPtr),
                                              std::move(config),
                                              fContext,

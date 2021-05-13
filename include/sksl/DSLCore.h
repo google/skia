@@ -38,6 +38,9 @@ enum DSLFlag {
     kOptimize_Flag         = 1 << 1,
     kValidate_Flag         = 1 << 2,
     kMarkVarsDeclared_Flag = 1 << 3,
+    // indicates that we are inside an already-existing compiler session, so we shouldn't perform
+    // some of the normal setup tasks like installing memory pools
+    kRunningInCompiler_Flag = 1 << 4,
 };
 
 constexpr int kDefaultDSLFlags = kMangle_Flag | kOptimize_Flag | kValidate_Flag;

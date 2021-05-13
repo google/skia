@@ -228,8 +228,9 @@ private:
     std::vector<std::unique_ptr<SkSL::ProgramElement>> fProgramElements;
     std::vector<const SkSL::ProgramElement*> fSharedElements;
     ErrorHandler* fErrorHandler = nullptr;
-    bool fMangle = true;
-    bool fMarkVarsDeclared = false;
+    bool fMangle            : 1;
+    bool fMarkVarsDeclared  : 1;
+    bool fRunningInCompiler : 1;
     Mangler fMangler;
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
     struct StackFrame {
