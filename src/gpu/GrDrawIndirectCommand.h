@@ -52,7 +52,7 @@ public:
 
     bool operator==(const GrDrawIndirectWriter& that) { return fData == that.fData; }
 
-    operator bool() const { return fData != nullptr; }
+    bool isValid() const { return fData != nullptr; }
 
     GrDrawIndirectWriter makeOffset(int drawCount) const { return {fData + drawCount}; }
 
