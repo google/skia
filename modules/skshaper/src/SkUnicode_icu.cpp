@@ -6,6 +6,7 @@
 */
 #include "include/core/SkString.h"
 #include "include/private/SkMutex.h"
+#include "include/private/SkOnce.h"
 #include "include/private/SkTFitsIn.h"
 #include "include/private/SkTHash.h"
 #include "include/private/SkTemplates.h"
@@ -506,7 +507,8 @@ public:
 std::unique_ptr<SkUnicode> SkUnicode::Make() {
     #if defined(SK_USING_THIRD_PARTY_ICU)
     if (!SkLoadICU()) {
-        SkDEBUGF("SkLoadICU() failed!\n");
+        static SkOnce once;
+        once([] { SkDEBUGF("SkLoadICU() failed!\n"); });
         return nullptr;
     }
     #endif
