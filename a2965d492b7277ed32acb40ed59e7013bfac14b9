@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "37557f2d_137e31b4",
+        "filename": "include/private/SkColorData.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-13T14:35:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d1fa11c7_ef8c4c7a",
+      "range": {
+        "startLine": 161,
+        "startChar": 5,
+        "endLine": 161,
+        "endChar": 14
+      },
+      "revId": "a2965d492b7277ed32acb40ed59e7013bfac14b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "42f7bf81_794bdbd6",
@@ -95,6 +119,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7cfec37f_ee654f0e",
+        "filename": "include/private/SkColorData.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-13T14:35:04Z",
+      "side": 1,
+      "message": "Done. This required tweaking SkFourByteInterp below. In that case, it was generating the scale by calling SkAlpha255To256, which already asserts that the passed value is in [0..255], so I just did a cast of the result.",
+      "parentUuid": "f1b2d382_4e24deb2",
+      "range": {
+        "startLine": 165,
+        "startChar": 82,
+        "endLine": 165,
+        "endChar": 87
+      },
+      "revId": "a2965d492b7277ed32acb40ed59e7013bfac14b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8585d2fa_9ccf1d68",
@@ -108,6 +156,30 @@
       "writtenOn": "2021-05-13T14:16:42Z",
       "side": 1,
       "message": "These casts should be SkTo\u003cuint8_t\u003e because this is about to be packed into a uint32_t.",
+      "range": {
+        "startLine": 166,
+        "startChar": 17,
+        "endLine": 166,
+        "endChar": 27
+      },
+      "revId": "a2965d492b7277ed32acb40ed59e7013bfac14b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "16a0719f_fa6342d3",
+        "filename": "include/private/SkColorData.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-13T14:35:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8585d2fa_9ccf1d68",
       "range": {
         "startLine": 166,
         "startChar": 17,
