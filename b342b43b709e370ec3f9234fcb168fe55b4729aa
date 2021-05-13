@@ -74,6 +74,24 @@
       "parentUuid": "9c660115_3fe34f1e",
       "revId": "b342b43b709e370ec3f9234fcb168fe55b4729aa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e2aa709e_821cc7f7",
+        "filename": "tests/sksl/shared/ConstArray.metal",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-13T20:28:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b17cd943_efafed6e",
+      "revId": "b342b43b709e370ec3f9234fcb168fe55b4729aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
