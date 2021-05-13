@@ -186,6 +186,42 @@ bool GrDrawingManager::flush(
         }
     }
 
+    // Filter out unnecessary ops tasks.
+    fDAG.pop_back_n(fDAG.end() - std::remove_if(fDAG.begin(), fDAG.end(), [&](const auto& task) {
+        auto opsTask = task->asOpsTask();
+        if (!opsTask || opsTask->mustPreserveStencil()) {
+            return false;
+        }
+
+        GrSurfaceProxy* proxy = opsTask->target(0);
+        for (auto it = &task + 1; it < fDAG.end(); it++) {
+            const auto& otherTask = *it;
+            GrOpsTask* otherOpsTask = otherTask->asOpsTask();
+
+            // Check if two ops tasks target the same proxy.
+            if (otherOpsTask && otherOpsTask->target(0) == proxy) {
+                auto otherLoadOp = otherOpsTask->getColorLoadOp();
+                // If I'm empty or you have a color-clear, then I am gone.
+                if (opsTask->isEmpty() || GrLoadOp::kClear == otherLoadOp) {
+                    // If you have a color load, then I'll just propagate my load over to you.
+                    if (GrLoadOp::kLoad == otherLoadOp) {
+                        otherOpsTask->setColorLoadOpFromTask(opsTask);
+                    }
+                    task->disown(this);
+                    return true;
+                }
+                return false;
+            }
+
+            if (otherTask->isUsed(proxy)) {
+                return false;
+            }
+        }
+        // TODO: This proxy may be unused. We could check if it has any external references and
+        // potentially bail on it if not, but that may not be cost-effective.
+        return false;
+    }));
+
     bool usingReorderedDAG = false;
     GrResourceAllocator resourceAllocator(dContext);
     if (fReduceOpsTaskSplitting) {

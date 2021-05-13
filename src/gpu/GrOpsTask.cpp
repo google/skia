@@ -704,11 +704,9 @@ int GrOpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
         }
         SkASSERT(fTargetSwizzle == opsTask->fTargetSwizzle);
         SkASSERT(fTargetOrigin == opsTask->fTargetOrigin);
-        if (GrLoadOp::kClear == opsTask->fColorLoadOp) {
-            // TODO(11903): Go back to actually dropping ops tasks when we are merged with
-            // color clear.
-            return 0;
-        }
+        // We should already have filtered out cases where ops tasks are overwritten by a later
+        // color-clear.
+        SkASSERT(GrLoadOp::kClear != opsTask->fColorLoadOp);
         mergedCount += 1;
     }
     if (0 == mergedCount) {
