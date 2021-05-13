@@ -10,6 +10,7 @@
 #include "src/core/SkGeometry.h"
 #include "src/gpu/geometry/GrPathUtils.h"
 #include "src/gpu/geometry/GrWangsFormula.h"
+#include "src/gpu/tessellate/GrCullTest.h"
 #include "src/gpu/tessellate/GrStrokeIterator.h"
 
 namespace {
@@ -24,8 +25,10 @@ public:
     using ShaderFlags = GrStrokeTessellator::ShaderFlags;
 
     InstanceWriter(ShaderFlags shaderFlags, GrMeshDrawOp::Target* target, float matrixMaxScale,
+                   const SkRect& strokeCullBounds, const SkMatrix& viewMatrix,
                    GrVertexChunkArray* patchChunks, size_t instanceStride, int minInstancesPerChunk)
             : fShaderFlags(shaderFlags)
+            , fCullTest(strokeCullBounds, viewMatrix)
             , fChunkBuilder(target, patchChunks, instanceStride, minInstancesPerChunk)
             , fParametricPrecision(GrStrokeTolerances::CalcParametricPrecision(matrixMaxScale)) {
     }
@@ -59,6 +62,12 @@ public:
     }
 
     void quadraticTo(const SkPoint p[3]) {
+        if (!fCullTest.areVisible3(p)) {
+            // The stroke is out of view. Discard it.
+            fLastControlPoint = p[2];  // Turn off the join for the next stroke.
+            fHasLastControlPoint = true;
+            return;
+        }
         float numParametricSegments_pow4 = GrWangsFormula::quadratic_pow4(fParametricPrecision, p);
         if (numParametricSegments_pow4 > kMaxParametricSegments_pow4) {
             SkPoint chops[5];
@@ -76,6 +85,12 @@ public:
     }
 
     void conicTo(const SkPoint p[3], float w) {
+        if (!fCullTest.areVisible3(p)) {
+            // The stroke is out of view. Discard it.
+            fLastControlPoint = p[2];  // Turn off the join for the next stroke.
+            fHasLastControlPoint = true;
+            return;
+        }
         float numParametricSegments_pow2 = GrWangsFormula::conic_pow2(1/fParametricPrecision, p, w);
         float numParametricSegments_pow4 = numParametricSegments_pow2 * numParametricSegments_pow2;
         if (numParametricSegments_pow4 > kMaxParametricSegments_pow4) {
@@ -85,6 +100,7 @@ public:
                 this->conicTo(chops[1].fPts, chops[1].fW);
                 return;
             }
+            numParametricSegments_pow4 = kMaxParametricSegments_pow4;
         }
         SkPoint conic[4];
         GrPathShader::WriteConicPatch(p, w, conic);
@@ -95,6 +111,12 @@ public:
     }
 
     void cubicConvex180To(const SkPoint p[4]) {
+        if (!fCullTest.areVisible4(p)) {
+            // The stroke is out of view. Discard it.
+            fLastControlPoint = p[3];  // Turn off the join for the next stroke.
+            fHasLastControlPoint = true;
+            return;
+        }
         float numParametricSegments_pow4 = GrWangsFormula::cubic_pow4(fParametricPrecision, p);
         if (numParametricSegments_pow4 > kMaxParametricSegments_pow4) {
             SkPoint chops[7];
@@ -164,6 +186,7 @@ private:
     }
 
     const ShaderFlags fShaderFlags;
+    const GrCullTest fCullTest;
     GrVertexChunkBuilder fChunkBuilder;
     const float fParametricPrecision;
     float fMaxParametricSegments_pow4 = 1;
@@ -197,24 +220,20 @@ void GrStrokeFixedCountTessellator::prepare(GrMeshDrawOp::Target* target,
     int maxEdgesInJoin = 0;
     float maxRadialSegmentsPerRadian = 0;
 
-    std::array<float, 2> matrixMinMaxScales;
-    if (!fShader.viewMatrix().getMinMaxScales(matrixMinMaxScales.data())) {
-        matrixMinMaxScales.fill(1);
-    }
-
     // Over-allocate enough patches for each stroke to chop once, and for 8 extra caps. Since we
     // have to chop at inflections, points of 180 degree rotation, and anywhere a stroke requires
     // too many parametric segments, many strokes will end up getting choppped.
     int strokePreallocCount = totalCombinedVerbCnt * 2;
     int capPreallocCount = 8;
     int minInstancesPerChunk = strokePreallocCount + capPreallocCount;
-    InstanceWriter instanceWriter(fShaderFlags, target, matrixMinMaxScales[1], &fInstanceChunks,
+    InstanceWriter instanceWriter(fShader.flags(), target, fMatrixMinMaxScales[1],
+                                  fStrokeCullBounds, fShader.viewMatrix(), &fInstanceChunks,
                                   fShader.instanceStride(), minInstancesPerChunk);
 
-    if (!(fShaderFlags & ShaderFlags::kDynamicStroke)) {
+    if (!fShader.hasDynamicStroke()) {
         // Strokes are static. Calculate tolerances once.
         const SkStrokeRec& stroke = fPathStrokeList->fStroke;
-        float localStrokeWidth = GrStrokeTolerances::GetLocalStrokeWidth(matrixMinMaxScales.data(),
+        float localStrokeWidth = GrStrokeTolerances::GetLocalStrokeWidth(fMatrixMinMaxScales.data(),
                                                                          stroke.getWidth());
         float numRadialSegmentsPerRadian = GrStrokeTolerances::CalcNumRadialSegmentsPerRadian(
                 instanceWriter.parametricPrecision(), localStrokeWidth);
@@ -228,7 +247,7 @@ void GrStrokeFixedCountTessellator::prepare(GrMeshDrawOp::Target* target,
 
     for (PathStrokeList* pathStroke = fPathStrokeList; pathStroke; pathStroke = pathStroke->fNext) {
         const SkStrokeRec& stroke = pathStroke->fStroke;
-        if (fShaderFlags & ShaderFlags::kDynamicStroke) {
+        if (fShader.hasDynamicStroke()) {
             // Strokes are dynamic. Calculate tolerances every time.
             float numRadialSegmentsPerRadian =
                     toleranceBuffer.fetchRadialSegmentsPerRadian(pathStroke);
@@ -239,7 +258,7 @@ void GrStrokeFixedCountTessellator::prepare(GrMeshDrawOp::Target* target,
                                                   maxRadialSegmentsPerRadian);
             instanceWriter.updateDynamicStroke(stroke);
         }
-        if (fShaderFlags & ShaderFlags::kDynamicColor) {
+        if (fShader.hasDynamicColor()) {
             instanceWriter.updateDynamicColor(pathStroke->fColor);
         }
         GrStrokeIterator strokeIter(pathStroke->fPath, &pathStroke->fStroke, &fShader.viewMatrix());

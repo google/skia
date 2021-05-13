@@ -35,15 +35,15 @@ GrStrokeTessellateOp::GrStrokeTessellateOp(GrAAType aaType, const SkMatrix& view
     SkRect devBounds = path.getBounds();
     if (!this->headStroke().isHairlineStyle()) {
         // Non-hairlines inflate in local path space (pre-transform).
-        float inflationRadius = stroke.getInflationRadius();
-        devBounds.outset(inflationRadius, inflationRadius);
+        fInflationRadius = stroke.getInflationRadius();
+        devBounds.outset(fInflationRadius, fInflationRadius);
     }
     viewMatrix.mapRect(&devBounds, devBounds);
     if (this->headStroke().isHairlineStyle()) {
         // Hairlines inflate in device space (post-transform).
-        float inflationRadius = SkStrokeRec::GetInflationRadius(stroke.getJoin(), stroke.getMiter(),
-                                                                stroke.getCap(), 1);
-        devBounds.outset(inflationRadius, inflationRadius);
+        fInflationRadius = SkStrokeRec::GetInflationRadius(stroke.getJoin(), stroke.getMiter(),
+                                                           stroke.getCap(), 1);
+        devBounds.outset(fInflationRadius, fInflationRadius);
     }
     this->setBounds(devBounds, HasAABloat::kNo, IsHairline::kNo);
 }
@@ -130,6 +130,7 @@ GrOp::CombineResult GrStrokeTessellateOp::onCombineIfPossible(GrOp* grOp, SkAren
     fPathStrokeTail = (op->fPathStrokeTail == &op->fPathStrokeList.fNext) ? &headCopy->fNext
                                                                           : op->fPathStrokeTail;
 
+    fInflationRadius = std::max(fInflationRadius, op->fInflationRadius);
     fTotalCombinedVerbCnt += op->fTotalCombinedVerbCnt;
     return CombineResult::kMerged;
 }
@@ -184,26 +185,45 @@ void GrStrokeTessellateOp::prePrepareTessellator(GrPathShader::ProgramArgs&& arg
     SkASSERT(!fTessellator);
     SkASSERT(!fFillProgram);
     SkASSERT(!fStencilProgram);
+    // GrOp::setClippedBounds() should have been called by now.
+    SkASSERT(SkRect::MakeIWH(args.fWriteView.width(),
+                             args.fWriteView.height()).contains(this->bounds()));
 
     const GrCaps& caps = *args.fCaps;
     SkArenaAlloc* arena = args.fArena;
+
+    std::array<float, 2> matrixMinMaxScales;
+    if (!fViewMatrix.getMinMaxScales(matrixMinMaxScales.data())) {
+        matrixMinMaxScales.fill(1);
+    }
+
+    float devInflationRadius = fInflationRadius;
+    if (!this->headStroke().isHairlineStyle()) {
+        devInflationRadius *= matrixMinMaxScales[1];
+    }
+    SkRect strokeCullBounds = this->bounds().makeOutset(devInflationRadius, devInflationRadius);
 
     if (this->canUseHardwareTessellation(fTotalCombinedVerbCnt, caps)) {
         // Only use hardware tessellation if we're drawing a somewhat large number of verbs.
         // Otherwise we seem to be better off using instanced draws.
         fTessellator = arena->make<GrStrokeHardwareTessellator>(fShaderFlags, fViewMatrix,
                                                                 &fPathStrokeList,
-                                                                *caps.shaderCaps());
+                                                                matrixMinMaxScales,
+                                                                strokeCullBounds);
     } else if (fTotalCombinedVerbCnt > 50 && !(fShaderFlags & ShaderFlags::kDynamicColor)) {
         // Only use the log2 indirect tessellator if we're drawing a somewhat large number of verbs
         // and the stroke doesn't use dynamic color. (The log2 indirect tessellator can't support
         // dynamic color without a z-buffer, due to how it reorders strokes.)
         fTessellator = arena->make<GrStrokeIndirectTessellator>(fShaderFlags, fViewMatrix,
                                                                 &fPathStrokeList,
+                                                                matrixMinMaxScales,
+                                                                strokeCullBounds,
                                                                 fTotalCombinedVerbCnt, arena);
     } else {
         fTessellator = arena->make<GrStrokeFixedCountTessellator>(fShaderFlags, fViewMatrix,
-                                                                  &fPathStrokeList);
+                                                                  &fPathStrokeList,
+                                                                  matrixMinMaxScales,
+                                                                  strokeCullBounds);
     }
 
     auto* pipeline = GrFillPathShader::MakeFillPassPipeline(args, fAAType, std::move(clip),
