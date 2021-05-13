@@ -33,6 +33,29 @@
       "message": "Needs more tests, but this demonstrates shaders that can have color filters as children (and vice-versa).",
       "revId": "cae115983115c472b8c19e5c6ee8bdc43e51dbdf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "98c591ce_79d7610e",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 608,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-05-13T18:47:39Z",
+      "side": 1,
+      "message": "What\u0027s the effect of always passing 8888/premul to this?",
+      "range": {
+        "startLine": 608,
+        "startChar": 73,
+        "endLine": 608,
+        "endChar": 80
+      },
+      "revId": "cae115983115c472b8c19e5c6ee8bdc43e51dbdf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

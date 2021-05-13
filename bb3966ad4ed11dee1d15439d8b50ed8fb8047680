@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b7bc4f3a_9cadef09",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 566,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-05-13T18:47:39Z",
+      "side": 0,
+      "message": "Do we not really need this check?",
+      "range": {
+        "startLine": 564,
+        "startChar": 0,
+        "endLine": 566,
+        "endChar": 17
+      },
+      "revId": "bb3966ad4ed11dee1d15439d8b50ed8fb8047680",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
