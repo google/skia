@@ -416,6 +416,10 @@ void GrMtlOpsRenderPass::setVertexBuffer(id<MTLRenderCommandEncoder> encoder,
                                          const GrBuffer* buffer,
                                          size_t vertexOffset,
                                          size_t inputBufferIndex) {
+    if (!buffer) {
+        return;
+    }
+
     constexpr static int kFirstBufferBindingIdx = GrMtlUniformHandler::kLastUniformBinding + 1;
     int index = inputBufferIndex + kFirstBufferBindingIdx;
     SkASSERT(index < 4);
