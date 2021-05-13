@@ -14,7 +14,6 @@
 #include "src/gpu/tessellate/GrMiddleOutPolygonTriangulator.h"
 #include "src/gpu/tessellate/GrMidpointContourParser.h"
 #include "src/gpu/tessellate/GrStencilPathShader.h"
-#include <limits>
 
 GrPathIndirectTessellator::GrPathIndirectTessellator(const SkMatrix& viewMatrix, const SkPath& path,
                                                      DrawInnerFan drawInnerFan)
@@ -93,9 +92,8 @@ void GrPathIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const SkMa
             }
             SkPoint* breadcrumbData = instanceData + numTrianglesAtBeginningOfData * 4;
             memcpy(breadcrumbData, p, sizeof(SkPoint) * 3);
-            // Mark this instance as a triangle by setting it to a conic with w=Inf.
-            breadcrumbData[3].set(std::numeric_limits<float>::infinity(),
-                                  std::numeric_limits<float>::infinity());
+            // Duplicate the final point since it will also be used by the convex hull shader.
+            breadcrumbData[3] = p[2];
             ++numTrianglesAtBeginningOfData;
         }
         SkASSERT(count == breadcrumbTriangleList->count());
@@ -124,24 +122,29 @@ void GrPathIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const SkMa
     // location at each resolve level.
     SkPoint* instanceLocations[kMaxResolveLevel + 1];
     int runningInstanceCount = 0;
+    if (numTrianglesAtBeginningOfData) {
+        // The caller has already packed "triangleInstanceCount" triangles into 4-point instances
+        // at the beginning of the instance buffer. Add a special-case indirect draw here that will
+        // emit the triangles [P0, P1, P2] from these 4-point instances.
+        SkASSERT(fIndirectDrawCount < indirectLockCnt);
+        GrMiddleOutCubicShader::WriteDrawTrianglesIndirectCmd(&indirectWriter,
+                                                              numTrianglesAtBeginningOfData,
+                                                              fBaseInstance);
+        ++fIndirectDrawCount;
+        runningInstanceCount = numTrianglesAtBeginningOfData;
+    }
     SkASSERT(fResolveLevelCounts[0] == 0);
     for (int resolveLevel = 1; resolveLevel <= kMaxResolveLevel; ++resolveLevel) {
         int instanceCountAtCurrLevel = fResolveLevelCounts[resolveLevel];
-        if (resolveLevel == 1) {
-            instanceCountAtCurrLevel += numTrianglesAtBeginningOfData;
-        }
         if (!instanceCountAtCurrLevel) {
             SkDEBUGCODE(instanceLocations[resolveLevel] = nullptr;)
             continue;
         }
         instanceLocations[resolveLevel] = instanceData + runningInstanceCount * 4;
-        if (resolveLevel == 1) {
-            instanceLocations[resolveLevel] += numTrianglesAtBeginningOfData * 4;
-        }
         SkASSERT(fIndirectDrawCount < indirectLockCnt);
-        GrMiddleOutCubicShader::WriteDrawIndirectCmd(&indirectWriter, resolveLevel,
-                                                     instanceCountAtCurrLevel,
-                                                     fBaseInstance + runningInstanceCount);
+        GrMiddleOutCubicShader::WriteDrawCubicsIndirectCmd(&indirectWriter, resolveLevel,
+                                                           instanceCountAtCurrLevel,
+                                                           fBaseInstance + runningInstanceCount);
         ++fIndirectDrawCount;
         runningInstanceCount += instanceCountAtCurrLevel;
     }
