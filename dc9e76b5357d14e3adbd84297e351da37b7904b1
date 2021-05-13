@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "609c8ae7_7cd6b5f4",
+        "filename": "modules/androidkit/src/Surface.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-05-13T15:26:48Z",
+      "side": 1,
+      "message": "Whoops, done.",
+      "parentUuid": "fdca99ed_90473192",
+      "range": {
+        "startLine": 70,
+        "startChar": 25,
+        "endLine": 70,
+        "endChar": 42
+      },
+      "revId": "dc9e76b5357d14e3adbd84297e351da37b7904b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8a13f596_51244c1a",
@@ -43,6 +67,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "53d5c438_aacb8dd4",
+        "filename": "modules/androidkit/src/SurfaceThread.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-05-13T15:26:48Z",
+      "side": 1,
+      "message": "Good catch. I\u0027ll go with c).",
+      "parentUuid": "8a13f596_51244c1a",
+      "revId": "dc9e76b5357d14e3adbd84297e351da37b7904b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "0836bb21_6a771f7a",
         "filename": "modules/androidkit/src/SurfaceThread.h",
         "patchSetId": 5
@@ -54,6 +96,24 @@
       "writtenOn": "2021-05-13T12:53:58Z",
       "side": 1,
       "message": "For singleton, this could be a client counter.\n\nFor non-singleton, we could make it non-static and then query the SurfaceThread object on each iteration in pthread_main: if (!surfaceThread-\u003efRunning) break;",
+      "revId": "dc9e76b5357d14e3adbd84297e351da37b7904b1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2e1b02c3_db45783b",
+        "filename": "modules/androidkit/src/SurfaceThread.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-05-13T15:26:48Z",
+      "side": 1,
+      "message": "I\u0027ll change it to the non-singleton query until we switch over to singleton.",
+      "parentUuid": "0836bb21_6a771f7a",
       "revId": "dc9e76b5357d14e3adbd84297e351da37b7904b1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
