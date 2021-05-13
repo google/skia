@@ -556,8 +556,11 @@ void GrD3DGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect& reso
     this->resolveTexture(target, resolveRect.fLeft, resolveRect.fTop, rt, resolveRect);
 }
 
-bool GrD3DGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int height,
-                            GrColorType surfaceColorType, GrColorType dstColorType, void* buffer,
+bool GrD3DGpu::onReadPixels(GrSurface* surface,
+                            SkIRect rect,
+                            GrColorType surfaceColorType,
+                            GrColorType dstColorType,
+                            void* buffer,
                             size_t rowBytes) {
     SkASSERT(surface);
 
@@ -585,10 +588,10 @@ bool GrD3DGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
     srcLocation.SubresourceIndex = 0;
 
     D3D12_BOX srcBox = {};
-    srcBox.left = left;
-    srcBox.top = top;
-    srcBox.right = left + width;
-    srcBox.bottom = top + height;
+    srcBox.left = rect.left();
+    srcBox.top = rect.top();
+    srcBox.right = rect.right();
+    srcBox.bottom = rect.bottom();
     srcBox.front = 0;
     srcBox.back = 1;
 
@@ -605,7 +608,7 @@ bool GrD3DGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
     if (GrDxgiFormatBytesPerBlock(texResource->dxgiFormat()) != bpp) {
         return false;
     }
-    size_t tightRowBytes = bpp * width;
+    size_t tightRowBytes = bpp*rect.width();
 
     // TODO: implement some way of reusing buffers instead of making a new one every time.
     sk_sp<GrGpuBuffer> transferBuffer = this->createBuffer(transferTotalBytes,
@@ -624,17 +627,24 @@ bool GrD3DGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
 
     const void* mappedMemory = transferBuffer->map();
 
-    SkRectMemcpy(buffer, rowBytes, mappedMemory, dstLocation.PlacedFootprint.Footprint.RowPitch,
-                 tightRowBytes, height);
+    SkRectMemcpy(buffer,
+                 rowBytes,
+                 mappedMemory,
+                 dstLocation.PlacedFootprint.Footprint.RowPitch,
+                 tightRowBytes,
+                 rect.height());
 
     transferBuffer->unmap();
 
     return true;
 }
 
-bool GrD3DGpu::onWritePixels(GrSurface* surface, int left, int top, int width, int height,
-                             GrColorType surfaceColorType, GrColorType srcColorType,
-                             const GrMipLevel texels[], int mipLevelCount,
+bool GrD3DGpu::onWritePixels(GrSurface* surface,
+                             SkIRect rect,
+                             GrColorType surfaceColorType,
+                             GrColorType srcColorType,
+                             const GrMipLevel texels[],
+                             int mipLevelCount,
                              bool prepForTexSampling) {
     GrD3DTexture* d3dTex = static_cast<GrD3DTexture*>(surface->asTexture());
     if (!d3dTex) {
@@ -653,8 +663,7 @@ bool GrD3DGpu::onWritePixels(GrSurface* surface, int left, int top, int width, i
     d3dTex->setResourceState(this, D3D12_RESOURCE_STATE_COPY_DEST);
 
     SkASSERT(mipLevelCount <= d3dTex->maxMipmapLevel() + 1);
-    success = this->uploadToTexture(d3dTex, left, top, width, height, srcColorType, texels,
-                                    mipLevelCount);
+    success = this->uploadToTexture(d3dTex, rect, srcColorType, texels, mipLevelCount);
 
     if (prepForTexSampling) {
         d3dTex->setResourceState(this, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
@@ -663,18 +672,20 @@ bool GrD3DGpu::onWritePixels(GrSurface* surface, int left, int top, int width, i
     return success;
 }
 
-bool GrD3DGpu::uploadToTexture(GrD3DTexture* tex, int left, int top, int width, int height,
-                               GrColorType colorType, const GrMipLevel* texels, int mipLevelCount) {
+bool GrD3DGpu::uploadToTexture(GrD3DTexture* tex,
+                               SkIRect rect,
+                               GrColorType colorType,
+                               const GrMipLevel* texels,
+                               int mipLevelCount) {
     SkASSERT(this->caps()->isFormatTexturable(tex->backendFormat()));
     // The assumption is either that we have no mipmaps, or that our rect is the entire texture
-    SkASSERT(1 == mipLevelCount ||
-             (0 == left && 0 == top && width == tex->width() && height == tex->height()));
+    SkASSERT(1 == mipLevelCount || rect == SkIRect::MakeSize(tex->dimensions()));
 
     // We assume that if the texture has mip levels, we either upload to all the levels or just the
     // first.
     SkASSERT(1 == mipLevelCount || mipLevelCount == (tex->maxMipmapLevel() + 1));
 
-    if (width == 0 || height == 0) {
+    if (rect.isEmpty()) {
         return false;
     }
 
@@ -702,8 +713,8 @@ bool GrD3DGpu::uploadToTexture(GrD3DTexture* tex, int left, int top, int width, 
     UINT64 combinedBufferSize;
     // We reset the width and height in the description to match our subrectangle size
     // so we don't end up allocating more space than we need.
-    desc.Width = width;
-    desc.Height = height;
+    desc.Width = rect.width();
+    desc.Height = rect.height();
     fDevice->GetCopyableFootprints(&desc, 0, mipLevelCount, 0, placedFootprints.get(),
                                    nullptr, nullptr, &combinedBufferSize);
     size_t bpp = GrColorTypeBytesPerPixel(colorType);
@@ -717,8 +728,8 @@ bool GrD3DGpu::uploadToTexture(GrD3DTexture* tex, int left, int top, int width, 
 
     char* bufferData = (char*)slice.fOffsetMapPtr;
 
-    int currentWidth = width;
-    int currentHeight = height;
+    int currentWidth = rect.width();
+    int currentHeight = rect.height();
     int layerHeight = tex->height();
 
     for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
@@ -746,8 +757,12 @@ bool GrD3DGpu::uploadToTexture(GrD3DTexture* tex, int left, int top, int width, 
     }
 
     ID3D12Resource* d3dBuffer = static_cast<GrD3DBuffer*>(slice.fBuffer)->d3dResource();
-    fCurrentDirectCommandList->copyBufferToTexture(d3dBuffer, tex, mipLevelCount,
-                                                   placedFootprints.get(), left, top);
+    fCurrentDirectCommandList->copyBufferToTexture(d3dBuffer,
+                                                   tex,
+                                                   mipLevelCount,
+                                                   placedFootprints.get(),
+                                                   rect.left(),
+                                                   rect.top());
 
     if (mipLevelCount < (int)desc.MipLevels) {
         tex->markMipmapsDirty();
