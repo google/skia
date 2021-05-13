@@ -16,6 +16,23 @@
       "message": "Thoughts?",
       "revId": "cae115983115c472b8c19e5c6ee8bdc43e51dbdf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9c77b790_134bd7b6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-13T13:33:48Z",
+      "side": 1,
+      "message": "Needs more tests, but this demonstrates shaders that can have color filters as children (and vice-versa).",
+      "revId": "cae115983115c472b8c19e5c6ee8bdc43e51dbdf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
