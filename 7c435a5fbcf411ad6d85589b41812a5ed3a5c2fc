@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c9389d25_9a3982dc",
+        "filename": "src/gpu/tessellate/GrCullTest.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-05-13T14:29:46Z",
+      "side": 1,
+      "message": "Add a comment about your tricky encoding for the matrix to generate both the the plus forms and the negative forms.",
+      "range": {
+        "startLine": 17,
+        "startChar": 55,
+        "endLine": 17,
+        "endChar": 56
+      },
+      "revId": "7c435a5fbcf411ad6d85589b41812a5ed3a5c2fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ce7b7699_988be187",
+        "filename": "src/gpu/tessellate/GrCullTest.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-05-13T14:29:46Z",
+      "side": 1,
+      "message": "Maybe valN \u003d",
+      "range": {
+        "startLine": 51,
+        "startChar": 26,
+        "endLine": 51,
+        "endChar": 32
+      },
+      "revId": "7c435a5fbcf411ad6d85589b41812a5ed3a5c2fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
