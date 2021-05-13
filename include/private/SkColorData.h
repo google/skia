@@ -50,7 +50,7 @@ static inline unsigned SkB16ToB32(unsigned b) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-#define SkASSERT_IS_BYTE(x)     SkASSERT(0 == ((x) & ~0xFF))
+#define SkASSERT_IS_BYTE(x)     SkASSERT(0 == ((x) & ~0xFFu))
 
 // Reverse the bytes coorsponding to RED and BLUE in a packed pixels. Note the
 // pair of them are in the same 2 slots in both RGBA and BGRA, thus there is
@@ -158,14 +158,14 @@ static inline uint16_t SkPackRGB16(unsigned r, unsigned g, unsigned b) {
  * utility functions. Third parameter controls blending of the first two:
  *   (src, dst, 0) returns dst
  *   (src, dst, 0xFF) returns src
- *   srcWeight is [0..256], unlike SkFourByteInterp which takes [0..255]
+ *   scale is [0..256], unlike SkFourByteInterp which takes [0..255]
  */
 static inline SkPMColor SkFourByteInterp256(SkPMColor src, SkPMColor dst,
-                                         unsigned scale) {
-    unsigned a = SkAlphaBlend(SkGetPackedA32(src), SkGetPackedA32(dst), scale);
-    unsigned r = SkAlphaBlend(SkGetPackedR32(src), SkGetPackedR32(dst), scale);
-    unsigned g = SkAlphaBlend(SkGetPackedG32(src), SkGetPackedG32(dst), scale);
-    unsigned b = SkAlphaBlend(SkGetPackedB32(src), SkGetPackedB32(dst), scale);
+                                            int scale) {
+    unsigned a = SkTo<uint8_t>(SkAlphaBlend(SkGetPackedA32(src), SkGetPackedA32(dst), scale));
+    unsigned r = SkTo<uint8_t>(SkAlphaBlend(SkGetPackedR32(src), SkGetPackedR32(dst), scale));
+    unsigned g = SkTo<uint8_t>(SkAlphaBlend(SkGetPackedG32(src), SkGetPackedG32(dst), scale));
+    unsigned b = SkTo<uint8_t>(SkAlphaBlend(SkGetPackedB32(src), SkGetPackedB32(dst), scale));
 
     return SkPackARGB32(a, r, g, b);
 }
@@ -178,7 +178,7 @@ static inline SkPMColor SkFourByteInterp256(SkPMColor src, SkPMColor dst,
  */
 static inline SkPMColor SkFourByteInterp(SkPMColor src, SkPMColor dst,
                                          U8CPU srcWeight) {
-    unsigned scale = SkAlpha255To256(srcWeight);
+    int scale = (int)SkAlpha255To256(srcWeight);
     return SkFourByteInterp256(src, dst, scale);
 }
 
