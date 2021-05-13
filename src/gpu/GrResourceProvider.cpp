@@ -548,6 +548,42 @@ bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt, bool useMSA
              stencil->numSamples() == num_stencil_samples(rt, useMSAASurface, *this->caps()));
     return stencil != nullptr;
 }
+sk_sp<GrAttachment> GrResourceProvider::getDiscardableMSAAAttachment(SkISize dimensions,
+                                                                     const GrBackendFormat& format,
+                                                                     int sampleCnt,
+                                                                     GrProtected isProtected) {
+    ASSERT_SINGLE_OWNER
+
+    SkASSERT(sampleCnt > 1);
+
+    if (this->isAbandoned()) {
+        return nullptr;
+    }
+
+    if (!fCaps->validateSurfaceParams(
+                dimensions, format, GrRenderable::kYes, sampleCnt, GrMipmapped::kNo)) {
+        return nullptr;
+    }
+
+    GrUniqueKey key;
+    GrAttachment::ComputeSharedAttachmentUniqueKey(*this->caps(),
+                                                   format,
+                                                   dimensions,
+                                                   GrAttachment::UsageFlags::kColorAttachment,
+                                                   sampleCnt,
+                                                   GrMipmapped::kNo,
+                                                   isProtected,
+                                                   &key);
+    auto msaaAttachment = this->findByUniqueKey<GrAttachment>(key);
+    if (msaaAttachment) {
+        return msaaAttachment;
+    }
+    msaaAttachment = this->makeMSAAAttachment(dimensions, format, sampleCnt, isProtected);
+    if (msaaAttachment) {
+        this->assignUniqueKeyToResource(key, msaaAttachment.get());
+    }
+    return msaaAttachment;
+}
 
 sk_sp<GrAttachment> GrResourceProvider::makeMSAAAttachment(SkISize dimensions,
                                                            const GrBackendFormat& format,
