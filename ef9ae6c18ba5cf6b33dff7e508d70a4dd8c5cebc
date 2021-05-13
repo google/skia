@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0cf0f186_e0a1e371",
+        "filename": "src/gpu/tessellate/GrStencilPathShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-05-13T17:28:28Z",
+      "side": 1,
+      "message": "\"-depth - 1\" triggered a bug in the mac compiler.\n\n\"-1 - depth\" is fine.",
+      "range": {
+        "startLine": 320,
+        "startChar": 58,
+        "endLine": 320,
+        "endChar": 68
+      },
+      "revId": "ef9ae6c18ba5cf6b33dff7e508d70a4dd8c5cebc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
