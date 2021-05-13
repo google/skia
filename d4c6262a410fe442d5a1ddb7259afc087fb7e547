@@ -16,6 +16,29 @@
       "message": "Found this while trying to get Chris\u0027 tessellated stroke renderer working on Mac. It doesn\u0027t fix everything (looks like all triangles end up near the origin), but at least it doesn\u0027t crash.",
       "revId": "d4c6262a410fe442d5a1ddb7259afc087fb7e547",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8ae7dac6_e54e185d",
+        "filename": "src/gpu/mtl/GrMtlOpsRenderPass.mm",
+        "patchSetId": 1
+      },
+      "lineNbr": 427,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-05-13T20:31:18Z",
+      "side": 1,
+      "message": "won\u0027t we now do something bad if mtlVertexBuffer is nil but the previously bound thing wasn\u0027t?",
+      "range": {
+        "startLine": 427,
+        "startChar": 8,
+        "endLine": 427,
+        "endChar": 58
+      },
+      "revId": "d4c6262a410fe442d5a1ddb7259afc087fb7e547",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
