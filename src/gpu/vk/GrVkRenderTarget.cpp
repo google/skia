@@ -210,10 +210,10 @@ GrVkAttachment* GrVkRenderTarget::dynamicMSAAAttachment() {
     const GrBackendFormat& format = nonMSAAColorAttachment->backendFormat();
 
     sk_sp<GrAttachment> msaaAttachment =
-            rp->makeMSAAAttachment(nonMSAAColorAttachment->dimensions(),
-                                   format,
-                                   gpu->caps()->internalMultisampleCount(format),
-                                   GrProtected(nonMSAAColorAttachment->isProtected()));
+            rp->getDiscardableMSAAAttachment(nonMSAAColorAttachment->dimensions(),
+                                             format,
+                                             gpu->caps()->internalMultisampleCount(format),
+                                             GrProtected(nonMSAAColorAttachment->isProtected()));
     if (!msaaAttachment) {
         return nullptr;
     }
