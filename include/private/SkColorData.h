@@ -50,7 +50,7 @@ static inline unsigned SkB16ToB32(unsigned b) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-#define SkASSERT_IS_BYTE(x)     SkASSERT(0 == ((x) & ~0xFF))
+#define SkASSERT_IS_BYTE(x)     SkASSERT(0 == ((x) & ~0xFFu))
 
 // Reverse the bytes coorsponding to RED and BLUE in a packed pixels. Note the
 // pair of them are in the same 2 slots in both RGBA and BGRA, thus there is
@@ -161,11 +161,11 @@ static inline uint16_t SkPackRGB16(unsigned r, unsigned g, unsigned b) {
  *   srcWeight is [0..256], unlike SkFourByteInterp which takes [0..255]
  */
 static inline SkPMColor SkFourByteInterp256(SkPMColor src, SkPMColor dst,
-                                         unsigned scale) {
-    unsigned a = SkAlphaBlend(SkGetPackedA32(src), SkGetPackedA32(dst), scale);
-    unsigned r = SkAlphaBlend(SkGetPackedR32(src), SkGetPackedR32(dst), scale);
-    unsigned g = SkAlphaBlend(SkGetPackedG32(src), SkGetPackedG32(dst), scale);
-    unsigned b = SkAlphaBlend(SkGetPackedB32(src), SkGetPackedB32(dst), scale);
+                                            unsigned scale) {
+    unsigned a = (unsigned)SkAlphaBlend(SkGetPackedA32(src), SkGetPackedA32(dst), (int)scale);
+    unsigned r = (unsigned)SkAlphaBlend(SkGetPackedR32(src), SkGetPackedR32(dst), (int)scale);
+    unsigned g = (unsigned)SkAlphaBlend(SkGetPackedG32(src), SkGetPackedG32(dst), (int)scale);
+    unsigned b = (unsigned)SkAlphaBlend(SkGetPackedB32(src), SkGetPackedB32(dst), (int)scale);
 
     return SkPackARGB32(a, r, g, b);
 }
