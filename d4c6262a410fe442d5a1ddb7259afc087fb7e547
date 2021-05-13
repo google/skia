@@ -39,6 +39,30 @@
       },
       "revId": "d4c6262a410fe442d5a1ddb7259afc087fb7e547",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f18d12fc_16aaa664",
+        "filename": "src/gpu/mtl/GrMtlOpsRenderPass.mm",
+        "patchSetId": 1
+      },
+      "lineNbr": 427,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-13T21:02:22Z",
+      "side": 1,
+      "message": "Yup, new version actually works correctly now.",
+      "parentUuid": "8ae7dac6_e54e185d",
+      "range": {
+        "startLine": 427,
+        "startChar": 8,
+        "endLine": 427,
+        "endChar": 58
+      },
+      "revId": "d4c6262a410fe442d5a1ddb7259afc087fb7e547",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
