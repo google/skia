@@ -52,8 +52,8 @@ EMSCRIPTEN_BINDINGS(Core) {
         /**
          * Returns the associated name.
          */
-        TS_EXPORT("Something::getName(): string")
+        TS_EXPORT("getName(): string")
         .function("getName", &Something::getName)
-        TS_PRIVATE_EXPORT("Something::setName(name: string): void")
+        TS_PRIVATE_EXPORT("setName(name: string): void")
         .function("_setName", &Something::setName);
 }
