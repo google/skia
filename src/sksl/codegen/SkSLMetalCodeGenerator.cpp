@@ -1215,7 +1215,15 @@ void MetalCodeGenerator::writeSwizzle(const Swizzle& swizzle) {
 
 void MetalCodeGenerator::writeMatrixTimesEqualHelper(const Type& left, const Type& right,
                                                      const Type& result) {
-    String key = "TimesEqual " + this->typeName(left) + ":" + this->typeName(right);
+    SkASSERT(left.isMatrix());
+    SkASSERT(right.isMatrix());
+    SkASSERT(result.isMatrix());
+    SkASSERT(left.rows() == right.rows());
+    SkASSERT(left.columns() == right.columns());
+    SkASSERT(left.rows() == result.rows());
+    SkASSERT(left.columns() == result.columns());
+
+    String key = "Matrix *= " + this->typeName(left) + ":" + this->typeName(right);
 
     auto [iter, wasInserted] = fHelpers.insert(key);
     if (wasInserted) {
@@ -1234,7 +1242,7 @@ void MetalCodeGenerator::writeMatrixEqualityHelpers(const Type& left, const Type
     SkASSERT(left.rows() == right.rows());
     SkASSERT(left.columns() == right.columns());
 
-    String key = "MatrixEquality " + this->typeName(left) + ":" + this->typeName(right);
+    String key = "Matrix == " + this->typeName(left) + ":" + this->typeName(right);
 
     auto [iter, wasInserted] = fHelpers.insert(key);
     if (wasInserted) {
@@ -1256,6 +1264,36 @@ void MetalCodeGenerator::writeMatrixEqualityHelpers(const Type& left, const Type
                 "    return !(left == right);\n"
                 "}\n",
                 this->typeName(left).c_str(), this->typeName(right).c_str());
+    }
+}
+
+void MetalCodeGenerator::writeMatrixDivisionHelpers(const Type& type) {
+    SkASSERT(type.isMatrix());
+
+    String key = "Matrix / " + this->typeName(type);
+
+    auto [iter, wasInserted] = fHelpers.insert(key);
+    if (wasInserted) {
+        String typeName = this->typeName(type);
+
+        fExtraFunctions.printf(
+                "thread %s operator/(const %s left, const %s right) {\n"
+                "    return %s(",
+                typeName.c_str(), typeName.c_str(), typeName.c_str(), typeName.c_str());
+
+        const char* separator = "";
+        for (int index=0; index<type.columns(); ++index) {
+            fExtraFunctions.printf("%sleft[%d] / right[%d]", separator, index, index);
+            separator = ", ";
+        }
+
+        fExtraFunctions.printf(");\n"
+                               "}\n"
+                               "thread %s& operator/=(thread %s& left, thread const %s& right) {\n"
+                               "    left = left / right;\n"
+                               "    return left;\n"
+                               "}\n",
+                               typeName.c_str(), typeName.c_str(), typeName.c_str());
     }
 }
 
@@ -1387,13 +1425,18 @@ void MetalCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
         default:
             break;
     }
-    if (needParens) {
-        this->write("(");
-    }
     if (leftType.isMatrix() && rightType.isMatrix() && op.kind() == Token::Kind::TK_STAREQ) {
         this->writeMatrixTimesEqualHelper(leftType, rightType, b.type());
     }
-
+    if (op.removeAssignment().kind() == Token::Kind::TK_SLASH &&
+        ((leftType.isMatrix() && rightType.isMatrix()) ||
+         (leftType.isScalar() && rightType.isMatrix()) ||
+         (leftType.isMatrix() && rightType.isScalar()))) {
+        this->writeMatrixDivisionHelpers(leftType.isMatrix() ? leftType : rightType);
+    }
+    if (needParens) {
+        this->write("(");
+    }
     bool needMatrixSplatOnScalar = rightType.isMatrix() && leftType.isScalar() &&
                                    op.removeAssignment().kind() != Token::Kind::TK_STAR;
     if (needMatrixSplatOnScalar) {
