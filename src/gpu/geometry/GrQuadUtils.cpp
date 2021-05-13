@@ -572,24 +572,16 @@ bool CropToRect(const SkRect& cropRect, GrAA cropAA, DrawQuad* quad, bool comput
         return true;
     }
 
-    if (computeLocal) {
+    if (computeLocal || quad->fDevice.quadType() == GrQuad::Type::kPerspective) {
         // FIXME (michaelludwig) Calculate cropped local coordinates when not kAxisAligned
+        // FIXME (michaelludwig) crbug.com/1204347 and skbug.com/9906 - disable this when there's
+        // perspective; it does not prove numerical robust enough in the wild and should be
+        // revisited.
         return false;
     }
 
     V4f devX = quad->fDevice.x4f();
     V4f devY = quad->fDevice.y4f();
-    // Project the 3D coordinates to 2D
-    if (quad->fDevice.quadType() == GrQuad::Type::kPerspective) {
-        V4f devW = quad->fDevice.w4f();
-        if (any(devW < SkPathPriv::kW0PlaneDistance)) {
-            // The rest of this function assumes the quad is in front of w = 0
-            return false;
-        }
-        devW = 1.f / devW;
-        devX *= devW;
-        devY *= devW;
-    }
 
     V4f clipX = {cropRect.fLeft, cropRect.fLeft, cropRect.fRight, cropRect.fRight};
     V4f clipY = {cropRect.fTop, cropRect.fBottom, cropRect.fTop, cropRect.fBottom};
