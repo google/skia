@@ -88,10 +88,8 @@ public:
                         IsHairline::kNo);
 
         DrawQuad extra;
-        // Only clip when there's anti-aliasing. When non-aa, the GPU clips just fine and there's
-        // no inset/outset math that requires w > 0.
-        int count = quad->fEdgeFlags != GrQuadAAFlags::kNone ? GrQuadUtils::ClipToW0(quad, &extra)
-                                                             : 1;
+        // Always crop to W>0 to remain consistent with GrQuad::bounds()
+        int count = GrQuadUtils::ClipToW0(quad, &extra);
         if (count == 0) {
             // We can't discard the op at this point, but disable AA flags so it won't go through
             // inset/outset processing
