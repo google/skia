@@ -26,7 +26,9 @@ template <typename T>
 class SkSpan {
 public:
     constexpr SkSpan() : fPtr{nullptr}, fSize{0} {}
-    constexpr SkSpan(T* ptr, size_t size) : fPtr{ptr}, fSize{size} {}
+    constexpr SkSpan(T* ptr, size_t size) : fPtr{ptr}, fSize{size} {
+        SkASSERT(size < kMaxSize);
+    }
     template <typename U, typename = typename std::enable_if<std::is_same<const U, T>::value>::type>
     constexpr SkSpan(const SkSpan<U>& that) : fPtr(that.data()), fSize{that.size()} {}
     constexpr SkSpan(const SkSpan& o) = default;
@@ -65,6 +67,7 @@ public:
     }
 
 private:
+    static constexpr size_t kMaxSize = std::numeric_limits<size_t>::max() / sizeof(T);
     T* fPtr;
     size_t fSize;
 };
