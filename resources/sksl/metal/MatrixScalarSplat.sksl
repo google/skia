@@ -6,10 +6,12 @@ bool test_float() {
     ok = ok && ((float3x3(2) + 4) == float3x3(6, 4, 4, 4, 6, 4, 4, 4, 6));
     ok = ok && ((float3x3(2) - 4) == float3x3(-2, -4, -4, -4, -2, -4, -4, -4, -2));
     ok = ok && ((float3x3(2) * 4) == float3x3(8));
+    ok = ok && ((float3x3(2) / 4) == float3x3(0.5));
 
     ok = ok && (4 + (float3x3(2)) == float3x3(6, 4, 4, 4, 6, 4, 4, 4, 6));
     ok = ok && (4 - (float3x3(2)) == float3x3(2, 4, 4, 4, 2, 4, 4, 4, 2));
     ok = ok && (4 * (float3x3(2)) == float3x3(8));
+    ok = ok && (4 / (float2x2(2, 2, 2, 2)) == float2x2(2, 2, 2, 2));
 
     return ok;
 }
@@ -20,10 +22,12 @@ bool test_half() {
     ok = ok && ((half3x3(2) + 4) == half3x3(6, 4, 4, 4, 6, 4, 4, 4, 6));
     ok = ok && ((half3x3(2) - 4) == half3x3(-2, -4, -4, -4, -2, -4, -4, -4, -2));
     ok = ok && ((half3x3(2) * 4) == half3x3(8));
+    ok = ok && ((half3x3(2) / 4) == half3x3(0.5));
 
     ok = ok && (4 + (half3x3(2)) == half3x3(6, 4, 4, 4, 6, 4, 4, 4, 6));
     ok = ok && (4 - (half3x3(2)) == half3x3(2, 4, 4, 4, 2, 4, 4, 4, 2));
     ok = ok && (4 * (half3x3(2)) == half3x3(8));
+    ok = ok && (4 / (half2x2(2, 2, 2, 2)) == half2x2(2, 2, 2, 2));
 
     return ok;
 }
