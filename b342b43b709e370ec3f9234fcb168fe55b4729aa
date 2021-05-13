@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a626daba_bc770c76",
+        "filename": "src/sksl/codegen/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2171,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-13T19:07:11Z",
+      "side": 1,
+      "message": "This is the core of the CL...",
+      "range": {
+        "startLine": 2171,
+        "startChar": 12,
+        "endLine": 2171,
+        "endChar": 63
+      },
+      "revId": "b342b43b709e370ec3f9234fcb168fe55b4729aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d377725d_c0adc86a",
+        "filename": "src/sksl/codegen/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2286,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-13T19:07:11Z",
+      "side": 1,
+      "message": "... plus the removal of ALL global var declarations. Previously const variables were the only thing still doing work in this path.",
+      "revId": "b342b43b709e370ec3f9234fcb168fe55b4729aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9c660115_3fe34f1e",
+        "filename": "tests/sksl/shared/ConstArray.metal",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-13T19:07:11Z",
+      "side": 1,
+      "message": "Here you can see the old (broken) code, and the new (correct) code.",
+      "revId": "b342b43b709e370ec3f9234fcb168fe55b4729aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
