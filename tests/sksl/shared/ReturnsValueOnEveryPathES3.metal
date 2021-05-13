@@ -11,7 +11,6 @@ struct Inputs {
 struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
-
 bool return_on_both_sides_b(Uniforms _uniforms) {
     if (_uniforms.unknownInput == 1.0) return true; else return true;
 }

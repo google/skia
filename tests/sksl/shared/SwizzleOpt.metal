@@ -11,7 +11,6 @@ struct Inputs {
 struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
-
 float fn_hh4(float4 v) {
     for (int x = 1;x <= 2; ++x) {
         return v.x;

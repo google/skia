@@ -145,13 +145,13 @@ protected:
 
     void writeLayout(const Layout& layout);
 
-    void writeModifiers(const Modifiers& modifiers, bool globalContext);
+    void writeModifiers(const Modifiers& modifiers);
 
     void writeVarInitializer(const Variable& var, const Expression& value);
 
     void writeName(const String& name);
 
-    void writeVarDeclaration(const VarDeclaration& decl, bool global);
+    void writeVarDeclaration(const VarDeclaration& decl);
 
     void writeFragCoord();
 

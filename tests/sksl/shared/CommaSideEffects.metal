@@ -18,7 +18,6 @@ void _skOutParamHelper0_setToColorBlack_vh4(Uniforms _uniforms, thread float4& d
     setToColorBlack_vh4(_uniforms, _var0);
     d = _var0;
 }
-
 void setToColorBlack_vh4(Uniforms _uniforms, thread float4& x) {
     x = _uniforms.colorBlack;
 }
