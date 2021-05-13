@@ -1,0 +1,12 @@
+uniform half4 colorGreen, colorRed;
+
+half4 main(float2 coords) {
+    half3 v2 = half3(3) * half3x3(3);
+
+    return half4(
+        all(greaterThanEqual(v2, half3(8.99999))) && all(lessThanEqual(v2, half3(9.00001))) ? 1 : 0,
+        all(greaterThanEqual(v2, half3(8.9999 ))) && all(lessThanEqual(v2, half3(9.0001)))  ? 1 : 0,
+        all(greaterThanEqual(v2, half3(8.999  ))) && all(lessThanEqual(v2, half3(9.001)))   ? 1 : 0,
+        all(greaterThanEqual(v2, half3(8.99   ))) && all(lessThanEqual(v2, half3(9.01)))    ? 1 : 0
+    );
+}
