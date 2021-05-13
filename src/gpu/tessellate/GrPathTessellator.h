@@ -71,6 +71,7 @@ private:
     sk_sp<const GrBuffer> fIndirectDrawBuffer;
     size_t fIndirectDrawOffset = 0;
     int fIndirectDrawCount = 0;
+    sk_sp<const GrBuffer> fIndirectIndexBuffer;
 };
 
 // Base class for GrPathTessellators that draw actual hardware tessellation patches.

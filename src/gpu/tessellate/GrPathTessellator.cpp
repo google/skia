@@ -101,13 +101,19 @@ void GrPathIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const SkMa
         SkASSERT(count == breadcrumbTriangleList->count());
     }
 
+    fIndirectIndexBuffer = GrMiddleOutCubicShader::FindOrMakeMiddleOutIndexBuffer(
+            target->resourceProvider());
+    if (!fIndirectIndexBuffer) {
+        vertexAlloc.unlock(0);
+        return;
+    }
+
     // Allocate space for the GrDrawIndexedIndirectCommand structs. Allocate enough for each
     // possible resolve level (kMaxResolveLevel; resolveLevel=0 never has any instances), plus one
     // more for the optional inner fan triangles.
     int indirectLockCnt = kMaxResolveLevel + 1;
-    GrDrawIndirectWriter indirectWriter = target->makeDrawIndirectSpace(indirectLockCnt,
-                                                                        &fIndirectDrawBuffer,
-                                                                        &fIndirectDrawOffset);
+    GrDrawIndexedIndirectWriter indirectWriter = target->makeDrawIndexedIndirectSpace(
+            indirectLockCnt, &fIndirectDrawBuffer, &fIndirectDrawOffset);
     if (!indirectWriter) {
         SkASSERT(!fIndirectDrawBuffer);
         vertexAlloc.unlock(0);
@@ -214,9 +220,9 @@ void GrPathIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const SkMa
 
 void GrPathIndirectTessellator::draw(GrOpFlushState* flushState) const {
     if (fIndirectDrawCount) {
-        flushState->bindBuffers(nullptr, fInstanceBuffer, nullptr);
-        flushState->drawIndirect(fIndirectDrawBuffer.get(), fIndirectDrawOffset,
-                                 fIndirectDrawCount);
+        flushState->bindBuffers(fIndirectIndexBuffer, fInstanceBuffer, nullptr);
+        flushState->drawIndexedIndirect(fIndirectDrawBuffer.get(), fIndirectDrawOffset,
+                                        fIndirectDrawCount);
     }
 }
 
