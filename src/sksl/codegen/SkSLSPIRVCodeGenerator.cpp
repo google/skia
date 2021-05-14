@@ -1102,8 +1102,7 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
             SkASSERT(arguments.size() == 2);
             SpvId lhs = this->writeExpression(*arguments[0], out);
             SpvId rhs = this->writeExpression(*arguments[1], out);
-            result = this->writeComponentwiseMatrixBinary(callType, lhs, rhs, SpvOpFMul, SpvOpUndef,
-                                                          out);
+            result = this->writeComponentwiseMatrixBinary(callType, lhs, rhs, SpvOpFMul, out);
             break;
         }
     }
@@ -2255,31 +2254,22 @@ SpvId SPIRVCodeGenerator::writeMatrixComparison(const Type& operandType, SpvId l
 }
 
 SpvId SPIRVCodeGenerator::writeComponentwiseMatrixBinary(const Type& operandType, SpvId lhs,
-                                                         SpvId rhs, SpvOp_ floatOperator,
-                                                         SpvOp_ intOperator,
-                                                         OutputStream& out) {
-    SpvOp_ op = is_float(fContext, operandType) ? floatOperator : intOperator;
+                                                         SpvId rhs, SpvOp_ op, OutputStream& out) {
     SkASSERT(operandType.isMatrix());
     SpvId columnType = this->getType(operandType.componentType().toCompound(fContext,
                                                                             operandType.rows(),
                                                                             1));
-    SpvId columns[4];
+    std::vector<SpvId> columns;
+    columns.reserve(operandType.columns());
     for (int i = 0; i < operandType.columns(); i++) {
         SpvId columnL = this->nextId(&operandType);
         this->writeInstruction(SpvOpCompositeExtract, columnType, columnL, lhs, i, out);
         SpvId columnR = this->nextId(&operandType);
         this->writeInstruction(SpvOpCompositeExtract, columnType, columnR, rhs, i, out);
-        columns[i] = this->nextId(&operandType);
+        columns.push_back(this->nextId(&operandType));
         this->writeInstruction(op, columnType, columns[i], columnL, columnR, out);
     }
-    SpvId result = this->nextId(&operandType);
-    this->writeOpCode(SpvOpCompositeConstruct, 3 + operandType.columns(), out);
-    this->writeWord(this->getType(operandType), out);
-    this->writeWord(result, out);
-    for (int i = 0; i < operandType.columns(); i++) {
-        this->writeWord(columns[i], out);
-    }
-    return result;
+    return this->writeComposite(columns, operandType, out);
 }
 
 static std::unique_ptr<Expression> create_literal_1(const Context& context, const Type& type) {
@@ -2468,16 +2458,14 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
         case Token::Kind::TK_PLUS:
             if (leftType.isMatrix() && rightType.isMatrix()) {
                 SkASSERT(leftType == rightType);
-                return this->writeComponentwiseMatrixBinary(leftType, lhs, rhs,
-                                                            SpvOpFAdd, SpvOpIAdd, out);
+                return this->writeComponentwiseMatrixBinary(leftType, lhs, rhs, SpvOpFAdd, out);
             }
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpFAdd,
                                               SpvOpIAdd, SpvOpIAdd, SpvOpUndef, out);
         case Token::Kind::TK_MINUS:
             if (leftType.isMatrix() && rightType.isMatrix()) {
                 SkASSERT(leftType == rightType);
-                return this->writeComponentwiseMatrixBinary(leftType, lhs, rhs,
-                                                            SpvOpFSub, SpvOpISub, out);
+                return this->writeComponentwiseMatrixBinary(leftType, lhs, rhs, SpvOpFSub, out);
             }
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpFSub,
                                               SpvOpISub, SpvOpISub, SpvOpUndef, out);
