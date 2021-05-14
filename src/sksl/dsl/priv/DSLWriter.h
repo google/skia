@@ -9,6 +9,7 @@
 #define SKSL_DSLWRITER
 
 #include "include/private/SkSLModifiers.h"
+#include "include/private/SkSLParsedModule.h"
 #include "include/private/SkSLStatement.h"
 #include "include/sksl/DSLExpression.h"
 #include "include/sksl/DSLStatement.h"
@@ -44,7 +45,8 @@ class ErrorHandler;
  */
 class DSLWriter {
 public:
-    DSLWriter(SkSL::Compiler* compiler, SkSL::ProgramKind kind, int flags);
+    DSLWriter(SkSL::Compiler* compiler, SkSL::ProgramKind kind, SkSL::ProgramSettings& settings,
+              int flags, SkSL::ParsedModule module, bool isBuiltinCode);
 
     ~DSLWriter();
 
@@ -72,10 +74,29 @@ public:
         return Instance().fProgramElements;
     }
 
+    static std::vector<const ProgramElement*>& SharedElements() {
+        return Instance().fSharedElements;
+    }
+
     /**
      * Returns the SymbolTable of the current thread's IRGenerator.
      */
     static const std::shared_ptr<SkSL::SymbolTable>& SymbolTable();
+
+    /**
+     * Returns the current memory pool.
+     */
+    static std::unique_ptr<Pool>& MemoryPool() { return Instance().fPool; }
+
+    /**
+     * Returns the current modifiers pool.
+     */
+    static std::unique_ptr<ModifiersPool>& ModifiersPool() { return Instance().fModifiersPool; }
+
+    /**
+     * Returns the current ProgramConfig.
+     */
+    static std::unique_ptr<ProgramConfig>& ProgramConfig() { return Instance().fConfig; }
 
     static void Reset();
 
@@ -206,10 +227,18 @@ public:
     static void ReportError(const char* msg, PositionInfo* info = nullptr);
 
     /**
-     * Returns whether name mangling is enabled. This should always be enabled outside of tests.
+     * Returns whether name mangling is enabled.
      */
-    static bool ManglingEnabled() {
+    static bool Mangling() {
         return Instance().fMangle;
+    }
+
+    /**
+     * Returns whether DSL variables should be automatically marked declared as soon as they are
+     * created.
+     */
+    static bool MarkVarsDeclared() {
+        return Instance().fMarkVarsDeclared;
     }
 
     static std::unique_ptr<SkSL::Program> ReleaseProgram();
@@ -228,8 +257,9 @@ private:
     std::vector<std::unique_ptr<SkSL::ProgramElement>> fProgramElements;
     std::vector<const SkSL::ProgramElement*> fSharedElements;
     ErrorHandler* fErrorHandler = nullptr;
-    bool fMangle = true;
-    bool fMarkVarsDeclared = false;
+    ProgramSettings fSettings;
+    bool fMangle            : 1;
+    bool fMarkVarsDeclared  : 1;
     Mangler fMangler;
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
     struct StackFrame {
