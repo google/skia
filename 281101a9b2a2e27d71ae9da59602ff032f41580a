@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3a2610f5_9f0453b0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-05-14T17:20:37Z",
+      "side": 1,
+      "message": "That\u0027s correct. It has a hard limit of 1024 segments instead, which is enough for any stroke up to 100,000 pixels long. Anything bigger and we can just use fixed count instead.\n\nI\u0027m just keeping indirect around for now as a potential plan B for GPU-ifying paths, in which case we definitely don\u0027t want to cull anything.",
+      "parentUuid": "536482a0_5dce7d73",
+      "revId": "281101a9b2a2e27d71ae9da59602ff032f41580a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c1a7fd5b_b87898dd",
@@ -48,6 +66,30 @@
       "writtenOn": "2021-05-14T15:22:41Z",
       "side": 1,
       "message": "this is replicated 3 times, can we have a discard(SkPoint) that updates the last control point and sets the boolean?",
+      "range": {
+        "startLine": 115,
+        "startChar": 12,
+        "endLine": 118,
+        "endChar": 19
+      },
+      "revId": "281101a9b2a2e27d71ae9da59602ff032f41580a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ca4ca540_79795b6c",
+        "filename": "src/gpu/tessellate/GrStrokeFixedCountTessellator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-05-14T17:20:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c1a7fd5b_b87898dd",
       "range": {
         "startLine": 115,
         "startChar": 12,
@@ -81,6 +123,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3e70027f_d2895e23",
+        "filename": "src/gpu/tessellate/GrStrokeHardwareTessellator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-05-14T17:20:37Z",
+      "side": 1,
+      "message": "No, internalConicPatchesTo does the culling check as soon as we call it.",
+      "parentUuid": "fe7a7bde_68017e55",
+      "range": {
+        "startLine": 169,
+        "startChar": 9,
+        "endLine": 169,
+        "endChar": 28
+      },
+      "revId": "281101a9b2a2e27d71ae9da59602ff032f41580a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "28a8602f_7c91f54f",
@@ -94,6 +160,30 @@
       "writtenOn": "2021-05-14T15:22:41Z",
       "side": 1,
       "message": "Does the fixed tessellator need this same logic for !fHasLastControlPoint?\n\nThis logic in general seems similar to what\u0027s used in that tessellator, so maybe it goes in GrStrokeTessellator.h?\n\nedit - although this is in PatchWriter so it\u0027s not a stroke tessellator directly, which complicates things.",
+      "range": {
+        "startLine": 179,
+        "startChar": 12,
+        "endLine": 182,
+        "endChar": 13
+      },
+      "revId": "281101a9b2a2e27d71ae9da59602ff032f41580a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e6d707e7_64937e7d",
+        "filename": "src/gpu/tessellate/GrStrokeHardwareTessellator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-05-14T17:20:37Z",
+      "side": 1,
+      "message": "\u003e\u003e Does the fixed tessellator need this same logic for !fHasLastControlPoint?\n\nNo, not right now. The fixed count tessellator is significantly different (and simpler) since we don\u0027t have to worry about joins running out of edges. It also uses the new GrStrokeIter class, which the hardware tessellator should eventually be updated to use.\n\nAlso note, I definitely shouldn\u0027t have put the cull check here. I moved it to internalCubicConvex180PatchesTo.",
+      "parentUuid": "28a8602f_7c91f54f",
       "range": {
         "startLine": 179,
         "startChar": 12,
@@ -127,6 +217,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8345cc04_a63dcde2",
+        "filename": "src/gpu/tessellate/GrStrokeHardwareTessellator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-05-14T17:20:37Z",
+      "side": 1,
+      "message": "Not at this point. This method gets called after recursion. We need the culling check before recursion.",
+      "parentUuid": "84cce558_25232d01",
+      "range": {
+        "startLine": 220,
+        "startChar": 26,
+        "endLine": 220,
+        "endChar": 38
+      },
+      "revId": "281101a9b2a2e27d71ae9da59602ff032f41580a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "213bd8de_5053c128",
@@ -140,6 +254,30 @@
       "writtenOn": "2021-05-14T15:22:41Z",
       "side": 1,
       "message": "culling check not needed?",
+      "range": {
+        "startLine": 270,
+        "startChar": 9,
+        "endLine": 270,
+        "endChar": 18
+      },
+      "revId": "281101a9b2a2e27d71ae9da59602ff032f41580a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ddd8f5a1_35976c9c",
+        "filename": "src/gpu/tessellate/GrStrokeHardwareTessellator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-05-14T17:20:37Z",
+      "side": 1,
+      "message": "Nope. We don\u0027t recursively chop caps (except possibly the joinTo for round caps if the stroke is really wide), so I don\u0027t think it\u0027s necessary. The GPU will discard their triangles if they\u0027re offscreen.\n\nOne thing to consider though would be to not draw strokes this way if their stroke is too wide. Filed https://bugs.chromium.org/p/skia/issues/detail?id\u003d12002",
+      "parentUuid": "213bd8de_5053c128",
       "range": {
         "startLine": 270,
         "startChar": 9,
