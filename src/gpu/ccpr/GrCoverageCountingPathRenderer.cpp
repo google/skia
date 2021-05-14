@@ -14,7 +14,12 @@
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/ccpr/GrCCClipProcessor.h"
 
-bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps) {
+bool GrCoverageCountingPathRenderer::IsSupported(const GrRecordingContext* ctx) {
+    if (ctx->backend() != GrBackendApi::kMock) {
+        // The atlas isn't ready for primetime. Disable it everywhere except for testing.
+        return false;
+    }
+    const GrCaps& caps = *ctx->priv().caps();
     const GrShaderCaps& shaderCaps = *caps.shaderCaps();
     GrBackendFormat defaultA8Format = caps.getDefaultBackendFormat(GrColorType::kAlpha_8,
                                                                    GrRenderable::kYes);
@@ -35,8 +40,8 @@ bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps) {
 }
 
 std::unique_ptr<GrCoverageCountingPathRenderer> GrCoverageCountingPathRenderer::CreateIfSupported(
-        const GrCaps& caps) {
-    if (IsSupported(caps)) {
+        const GrRecordingContext* ctx) {
+    if (IsSupported(ctx)) {
         return std::make_unique<GrCoverageCountingPathRenderer>();
     }
     return nullptr;
