@@ -237,7 +237,8 @@ SKSL_TEST(SkSLGeometricIntrinsics,             "shared/GeometricIntrinsics.sksl"
 SKSL_TEST(SkSLHelloWorld,                      "shared/HelloWorld.sksl")
 SKSL_TEST(SkSLHex,                             "shared/Hex.sksl")
 SKSL_TEST(SkSLMatrices,                        "shared/Matrices.sksl")
-SKSL_TEST_ES3(SkSLMatricesNonsquare,           "shared/MatricesNonsquare.sksl")
+// TODO(skia:12003): various driver bugs with nonsquare matrices on Radeon and Linux+Intel
+//SKSL_TEST_ES3(SkSLMatricesNonsquare,           "shared/MatricesNonsquare.sksl")
 SKSL_TEST(SkSLMatrixEquality,                  "shared/MatrixEquality.sksl")
 SKSL_TEST(SkSLMultipleAssignments,             "shared/MultipleAssignments.sksl")
 SKSL_TEST(SkSLNegatedVectorLiteral,            "shared/NegatedVectorLiteral.sksl")
