@@ -20,6 +20,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "4b3016ed_426ff304",
+        "filename": "include/core/SkFont.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-05-14T14:49:54Z",
+      "side": 1,
+      "message": "I don\u0027t see this used, and probably don\u0027t want to pull this into the public header if it can be avoided.",
+      "revId": "946f211c17e2d07602da839e345841d20715e5f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "f99c9ad3_526e86f7",
         "filename": "include/core/SkFont.h",
         "patchSetId": 2
