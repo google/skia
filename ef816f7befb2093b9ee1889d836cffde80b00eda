@@ -96,6 +96,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3b608425_71a78e9e",
+        "filename": "src/sksl/codegen/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 2306,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-14T17:19:49Z",
+      "side": 1,
+      "message": "Of course you were correct, and this was flipped :) The MatricesNonsquare test now exercises this code path and it immediately proved it. This been fixed to pass the proper amounts for rows and columns.",
+      "parentUuid": "8f2a5243_18416793",
+      "range": {
+        "startLine": 2297,
+        "startChar": 0,
+        "endLine": 2306,
+        "endChar": 63
+      },
+      "revId": "ef816f7befb2093b9ee1889d836cffde80b00eda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "55b13c2b_f9a306e0",
@@ -109,6 +133,30 @@
       "writtenOn": "2021-05-14T13:28:26Z",
       "side": 1,
       "message": "nit: line length",
+      "range": {
+        "startLine": 2401,
+        "startChar": 0,
+        "endLine": 2401,
+        "endChar": 101
+      },
+      "revId": "ef816f7befb2093b9ee1889d836cffde80b00eda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dfd21b3b_5cec4c6b",
+        "filename": "src/sksl/codegen/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 2401,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-14T17:19:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "55b13c2b_f9a306e0",
       "range": {
         "startLine": 2401,
         "startChar": 0,
