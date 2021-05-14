@@ -115,9 +115,11 @@ private:
  * Passed to a deferred upload when it is executed, this method allows the deferred upload to
  * actually write its pixel data into a texture.
  */
-using GrDeferredTextureUploadWritePixelsFn =
-        std::function<bool(GrTextureProxy*, int left, int top, int width, int height,
-                           GrColorType srcColorType, const void* buffer, size_t rowBytes)>;
+using GrDeferredTextureUploadWritePixelsFn = std::function<bool(GrTextureProxy*,
+                                                                SkIRect,
+                                                                GrColorType srcColorType,
+                                                                const void*,
+                                                                size_t rowBytes)>;
 
 /**
  * A deferred texture upload is simply a std::function that takes a

@@ -340,22 +340,23 @@ static bool check_max_blit_width(int widthInPixels) {
     return true;
 }
 
-bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, int height,
-                               GrColorType dataColorType, const GrMipLevel texels[],
+bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex,
+                               SkIRect rect,
+                               GrColorType dataColorType,
+                               const GrMipLevel texels[],
                                int mipLevelCount) {
     SkASSERT(this->caps()->isFormatTexturable(tex->backendFormat()));
     // The assumption is either that we have no mipmaps, or that our rect is the entire texture
-    SkASSERT(1 == mipLevelCount ||
-             (0 == left && 0 == top && width == tex->width() && height == tex->height()));
+    SkASSERT(mipLevelCount == 1 || rect == SkIRect::MakeSize(tex->dimensions()));
 
     // We assume that if the texture has mip levels, we either upload to all the levels or just the
     // first.
-    SkASSERT(1 == mipLevelCount || mipLevelCount == (tex->maxMipmapLevel() + 1));
+    SkASSERT(mipLevelCount == 1 || mipLevelCount == (tex->maxMipmapLevel() + 1));
 
-    if (!check_max_blit_width(width)) {
+    if (!check_max_blit_width(rect.width())) {
         return false;
     }
-    if (width == 0 || height == 0) {
+    if (rect.isEmpty()) {
         return false;
     }
 
@@ -367,7 +368,7 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
     // Either upload only the first miplevel or all miplevels
     SkASSERT(1 == mipLevelCount || mipLevelCount == (int)mtlTexture.mipmapLevelCount);
 
-    if (1 == mipLevelCount && !texels[0].fPixels) {
+    if (mipLevelCount == 1 && !texels[0].fPixels) {
         return true;   // no data to upload
     }
 
@@ -381,8 +382,10 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
     size_t bpp = GrColorTypeBytesPerPixel(dataColorType);
 
     SkTArray<size_t> individualMipOffsets(mipLevelCount);
-    size_t combinedBufferSize = GrComputeTightCombinedBufferSize(
-            bpp, {width, height}, &individualMipOffsets, mipLevelCount);
+    size_t combinedBufferSize = GrComputeTightCombinedBufferSize(bpp,
+                                                                 rect.size(),
+                                                                 &individualMipOffsets,
+                                                                 mipLevelCount);
     SkASSERT(combinedBufferSize);
 
 
@@ -401,10 +404,10 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
     char* bufferData = (char*)slice.fOffsetMapPtr;
     GrMtlBuffer* mtlBuffer = static_cast<GrMtlBuffer*>(slice.fBuffer);
 
-    int currentWidth = width;
-    int currentHeight = height;
+    int currentWidth = rect.width();
+    int currentHeight = rect.height();
     int layerHeight = tex->height();
-    MTLOrigin origin = MTLOriginMake(left, top, 0);
+    MTLOrigin origin = MTLOriginMake(rect.left(), rect.top(), 0);
 
     auto cmdBuffer = this->commandBuffer();
     id<MTLBlitCommandEncoder> GR_NORETAIN blitCmdEncoder = cmdBuffer->getBlitCommandEncoder();
@@ -1258,9 +1261,12 @@ bool GrMtlGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcR
     return success;
 }
 
-bool GrMtlGpu::onWritePixels(GrSurface* surface, int left, int top, int width, int height,
-                             GrColorType surfaceColorType, GrColorType srcColorType,
-                             const GrMipLevel texels[], int mipLevelCount,
+bool GrMtlGpu::onWritePixels(GrSurface* surface,
+                             SkIRect rect,
+                             GrColorType surfaceColorType,
+                             GrColorType srcColorType,
+                             const GrMipLevel texels[],
+                             int mipLevelCount,
                              bool prepForTexSampling) {
     GrMtlTexture* mtlTexture = static_cast<GrMtlTexture*>(surface->asTexture());
     // TODO: In principle we should be able to support pure rendertargets as well, but
@@ -1276,12 +1282,14 @@ bool GrMtlGpu::onWritePixels(GrSurface* surface, int left, int top, int width, i
         SkASSERT(texels[i].fPixels);
     }
 #endif
-    return this->uploadToTexture(mtlTexture, left, top, width, height, srcColorType, texels,
-                                 mipLevelCount);
+    return this->uploadToTexture(mtlTexture, rect, srcColorType, texels, mipLevelCount);
 }
 
-bool GrMtlGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int height,
-                            GrColorType surfaceColorType, GrColorType dstColorType, void* buffer,
+bool GrMtlGpu::onReadPixels(GrSurface* surface,
+                            SkIRect rect,
+                            GrColorType surfaceColorType,
+                            GrColorType dstColorType,
+                            void* buffer,
                             size_t rowBytes) {
     SkASSERT(surface);
 
@@ -1290,8 +1298,8 @@ bool GrMtlGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
     }
 
     int bpp = GrColorTypeBytesPerPixel(dstColorType);
-    size_t transBufferRowBytes = bpp * width;
-    size_t transBufferImageBytes = transBufferRowBytes * height;
+    size_t transBufferRowBytes = bpp*rect.width();
+    size_t transBufferImageBytes = transBufferRowBytes*rect.height();
 
     // TODO: implement some way of reusing buffers instead of making a new one every time.
     NSUInteger options = 0;
@@ -1313,23 +1321,35 @@ bool GrMtlGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
     }
 
     GrMtlBuffer* grMtlBuffer = static_cast<GrMtlBuffer*>(transferBuffer.get());
-    if (!this->readOrTransferPixels(surface, left, top, width, height, dstColorType,
+    if (!this->readOrTransferPixels(surface,
+                                    rect,
+                                    dstColorType,
                                     grMtlBuffer->mtlBuffer(),
-                                    0, transBufferImageBytes, transBufferRowBytes)) {
+                                    0,
+                                    transBufferImageBytes,
+                                    transBufferRowBytes)) {
         return false;
     }
     this->submitCommandBuffer(kForce_SyncQueue);
 
     const void* mappedMemory = grMtlBuffer->mtlBuffer().contents;
 
-    SkRectMemcpy(buffer, rowBytes, mappedMemory, transBufferRowBytes, transBufferRowBytes, height);
+    SkRectMemcpy(buffer,
+                 rowBytes,
+                 mappedMemory,
+                 transBufferRowBytes,
+                 transBufferRowBytes,
+                 rect.height());
 
     return true;
 }
 
-bool GrMtlGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int width, int height,
-                                  GrColorType textureColorType, GrColorType bufferColorType,
-                                  sk_sp<GrGpuBuffer> transferBuffer, size_t offset,
+bool GrMtlGpu::onTransferPixelsTo(GrTexture* texture,
+                                  SkIRect rect,
+                                  GrColorType textureColorType,
+                                  GrColorType bufferColorType,
+                                  sk_sp<GrGpuBuffer> transferBuffer,
+                                  size_t offset,
                                   size_t rowBytes) {
     SkASSERT(texture);
     SkASSERT(transferBuffer);
@@ -1353,15 +1373,15 @@ bool GrMtlGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int wid
         return false;
     }
 
-    MTLOrigin origin = MTLOriginMake(left, top, 0);
+    MTLOrigin origin = MTLOriginMake(rect.left(), rect.top(), 0);
 
     auto cmdBuffer = this->commandBuffer();
     id<MTLBlitCommandEncoder> GR_NORETAIN blitCmdEncoder = cmdBuffer->getBlitCommandEncoder();
     [blitCmdEncoder copyFromBuffer: mtlBuffer
                       sourceOffset: offset + grMtlBuffer->offset()
                  sourceBytesPerRow: rowBytes
-               sourceBytesPerImage: rowBytes*height
-                        sourceSize: MTLSizeMake(width, height, 1)
+               sourceBytesPerImage: rowBytes*rect.height()
+                        sourceSize: MTLSizeMake(rect.width(), rect.height(), 1)
                          toTexture: mtlTexture
                   destinationSlice: 0
                   destinationLevel: 0
@@ -1370,9 +1390,12 @@ bool GrMtlGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int wid
     return true;
 }
 
-bool GrMtlGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int width, int height,
-                                    GrColorType surfaceColorType, GrColorType bufferColorType,
-                                    sk_sp<GrGpuBuffer> transferBuffer, size_t offset) {
+bool GrMtlGpu::onTransferPixelsFrom(GrSurface* surface,
+                                    SkIRect rect,
+                                    GrColorType surfaceColorType,
+                                    GrColorType bufferColorType,
+                                    sk_sp<GrGpuBuffer> transferBuffer,
+                                    size_t offset) {
     SkASSERT(surface);
     SkASSERT(transferBuffer);
 
@@ -1391,18 +1414,26 @@ bool GrMtlGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int w
 
     GrMtlBuffer* grMtlBuffer = static_cast<GrMtlBuffer*>(transferBuffer.get());
 
-    size_t transBufferRowBytes = bpp * width;
-    size_t transBufferImageBytes = transBufferRowBytes * height;
+    size_t transBufferRowBytes = bpp*rect.width();
+    size_t transBufferImageBytes = transBufferRowBytes*rect.height();
 
-    return this->readOrTransferPixels(surface, left, top, width, height, bufferColorType,
-                                      grMtlBuffer->mtlBuffer(), offset + grMtlBuffer->offset(),
-                                      transBufferImageBytes, transBufferRowBytes);
+    return this->readOrTransferPixels(surface,
+                                      rect,
+                                      bufferColorType,
+                                      grMtlBuffer->mtlBuffer(),
+                                      offset + grMtlBuffer->offset(),
+                                      transBufferImageBytes,
+                                      transBufferRowBytes);
 }
 
-bool GrMtlGpu::readOrTransferPixels(GrSurface* surface, int left, int top, int width, int height,
-                                    GrColorType dstColorType, id<MTLBuffer> transferBuffer,
-                                    size_t offset, size_t imageBytes, size_t rowBytes) {
-    if (!check_max_blit_width(width)) {
+bool GrMtlGpu::readOrTransferPixels(GrSurface* surface,
+                                    SkIRect rect,
+                                    GrColorType dstColorType,
+                                    id<MTLBuffer> transferBuffer,
+                                    size_t offset,
+                                    size_t imageBytes,
+                                    size_t rowBytes) {
+    if (!check_max_blit_width(rect.width())) {
         return false;
     }
 
@@ -1427,8 +1458,8 @@ bool GrMtlGpu::readOrTransferPixels(GrSurface* surface, int left, int top, int w
     [blitCmdEncoder copyFromTexture: mtlTexture
                         sourceSlice: 0
                         sourceLevel: 0
-                       sourceOrigin: MTLOriginMake(left, top, 0)
-                         sourceSize: MTLSizeMake(width, height, 1)
+                       sourceOrigin: MTLOriginMake(rect.left(), rect.top(), 0)
+                         sourceSize: MTLSizeMake(rect.width(), rect.height(), 1)
                            toBuffer: transferBuffer
                   destinationOffset: offset
              destinationBytesPerRow: rowBytes
