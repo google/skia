@@ -8,12 +8,12 @@
 #include <memory>
 #include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
 
-bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps) {
+bool GrCoverageCountingPathRenderer::IsSupported(const GrRecordingContext*) {
     return false;
 }
 
 std::unique_ptr<GrCoverageCountingPathRenderer> GrCoverageCountingPathRenderer::CreateIfSupported(
-        const GrCaps&) {
+        const GrRecordingContext*) {
     return nullptr;
 }
 
