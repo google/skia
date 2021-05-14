@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cc4bb639_548d967a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-14T02:24:12Z",
+      "side": 1,
+      "message": "btw -- intervalCount seems tricky down in the impl...",
+      "revId": "0f4e3039bbf489f048f1dc95d86cbe7cda663851",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
