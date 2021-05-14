@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4e869bee_33333050",
+        "filename": "tests/sksl/spirv/MatrixScalarSplat.asm.frag",
+        "patchSetId": 4
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-14T02:28:23Z",
+      "side": 1,
+      "message": "Will be fixed in the followup CL.",
+      "range": {
+        "startLine": 3,
+        "startChar": 0,
+        "endLine": 5,
+        "endChar": 0
+      },
+      "revId": "c444cebacc2125eaf63d7436136fc780d55ba548",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
