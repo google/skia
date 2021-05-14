@@ -1938,7 +1938,7 @@ void Viewer::drawImGui() {
                             }
                         }
                         if (1 == fWindow->sampleCount()) {
-                            if (GrCoverageCountingPathRenderer::IsSupported(*caps)) {
+                            if (GrCoverageCountingPathRenderer::IsSupported(ctx)) {
                                 prButton(GpuPathRenderers::kCoverageCounting);
                             }
                             prButton(GpuPathRenderers::kSmall);
@@ -2772,7 +2772,7 @@ void Viewer::updateUIState() {
                     }
                 }
                 if (1 == fWindow->sampleCount()) {
-                    if(GrCoverageCountingPathRenderer::IsSupported(*caps)) {
+                    if(GrCoverageCountingPathRenderer::IsSupported(ctx)) {
                         writer.appendString(
                             gPathRendererNames[GpuPathRenderers::kCoverageCounting].c_str());
                     }
