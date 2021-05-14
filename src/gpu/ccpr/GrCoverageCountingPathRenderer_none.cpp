@@ -13,7 +13,7 @@ bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps) {
 }
 
 std::unique_ptr<GrCoverageCountingPathRenderer> GrCoverageCountingPathRenderer::CreateIfSupported(
-        const GrCaps&) {
+        const GrRecordingContext*) {
     return nullptr;
 }
 
