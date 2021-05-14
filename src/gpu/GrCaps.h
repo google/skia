@@ -48,7 +48,7 @@ public:
     bool mipmapSupport() const { return fMipmapSupport; }
 
     bool gpuTracingSupport() const { return fGpuTracingSupport; }
-    bool oversizedAttachmentSupport() const { return fOversizedAttachmentSupport; }
+    bool oversizedStencilSupport() const { return fOversizedStencilSupport; }
     bool textureBarrierSupport() const { return fTextureBarrierSupport; }
     bool sampleLocationsSupport() const { return fSampleLocationsSupport; }
     bool multisampleDisableSupport() const { return fMultisampleDisableSupport; }
@@ -504,7 +504,7 @@ protected:
     bool fReuseScratchTextures                       : 1;
     bool fReuseScratchBuffers                        : 1;
     bool fGpuTracingSupport                          : 1;
-    bool fOversizedAttachmentSupport                 : 1;
+    bool fOversizedStencilSupport                    : 1;
     bool fTextureBarrierSupport                      : 1;
     bool fSampleLocationsSupport                     : 1;
     bool fMultisampleDisableSupport                  : 1;

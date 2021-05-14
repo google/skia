@@ -31,7 +31,7 @@ GrD3DCaps::GrD3DCaps(const GrContextOptions& contextOptions, IDXGIAdapter1* adap
     fNPOTTextureTileSupport = true;  // available in feature level 10_0 and up
     fReuseScratchTextures = true; //TODO: figure this out
     fGpuTracingSupport = false; //TODO: figure this out
-    fOversizedAttachmentSupport = false; //TODO: figure this out
+    fOversizedStencilSupport = false; //TODO: figure this out
     fDrawInstancedSupport = true;
     fNativeDrawIndirectSupport = true;
 
@@ -213,7 +213,7 @@ void GrD3DCaps::initGrCaps(const D3D12_FEATURE_DATA_D3D12_OPTIONS& optionsDesc,
 
     fMapBufferFlags = kCanMap_MapFlag | kSubset_MapFlag | kAsyncRead_MapFlag;
 
-    fOversizedAttachmentSupport = true;
+    fOversizedStencilSupport = true;
 
     fTwoSidedStencilRefsAndMasksMustMatch = true;
 
