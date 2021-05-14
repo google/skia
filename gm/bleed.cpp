@@ -315,7 +315,7 @@ private:
 
     static constexpr int kSmallSize = 6;
     // This must be at least as large as the GM width and height so that a surface can be made.
-    static constexpr int kMaxTextureSize = 1000;
+    static constexpr int kMaxTextureSize = 1024;
 
     SkString fShortName;
     sk_sp<SkImage> fBigImage;
