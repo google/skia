@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c3546cc5_b7441c14",
+        "filename": "src/gpu/GrResourceProvider.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 564,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-05-14T16:07:00Z",
+      "side": 1,
+      "message": "Should we reuse MakeApprox here? Seems like it\u0027d be good to have one rounding rule.",
+      "revId": "29cd2b45fab5ac351e68c31adee07f75f07b2518",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
