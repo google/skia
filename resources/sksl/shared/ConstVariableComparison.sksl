@@ -3,9 +3,7 @@ uniform half4 colorGreen, colorRed;
 half4 main(float2 coords) {
   const float4 a = float4(0);
   const float4 b = float4(1);
-  // This is a constant-expression in GLSL, but not in SkSL (yet).
-  // We can't declare this const, and we can't eliminate it. skbug.com/10835
-  /*const*/ float4 c = abs(b);
+  const float4 c = abs(b * 1);
   if (a == b || b != c) {
       return colorRed;
   } else {
