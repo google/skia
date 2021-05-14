@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9ce0e837_dd5c11ee",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-05-14T05:12:02Z",
+      "side": 1,
+      "message": "Gold diffs are from the parent CL (https://skia-review.googlesource.com/c/skia/+/408556). This one doesn\u0027t generate any.",
+      "revId": "7e476e8c33d0791caeda14ed752fc6b0cd5d384b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
