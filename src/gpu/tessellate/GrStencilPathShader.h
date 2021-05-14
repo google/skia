@@ -133,10 +133,17 @@ private:
     GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 };
 
-// Uses indirect (instanced) draws to triangulate standalone closed cubics with a "middle-out"
-// topology. The caller must compute each cubic's resolveLevel on the CPU (i.e., the log2 number of
-// line segments it will be divided into; see GrWangsFormula::cubic_log2/quadratic_log2), and then
-// sort the instance buffer by resolveLevel for efficient batching of indirect draws.
+// Uses instanced draws to triangulate standalone closed curves with a "middle-out" topology.
+// Middle-out draws a triangle with vertices at T=[0, 1/2, 1] and then recurses breadth first:
+//
+//   depth=0: T=[0, 1/2, 1]
+//   depth=1: T=[0, 1/4, 2/4], T=[2/4, 3/4, 1]
+//   depth=2: T=[0, 1/8, 2/8], T=[2/8, 3/8, 4/8], T=[4/8, 5/8, 6/8], T=[6/8, 7/8, 1]
+//   ...
+//
+// The caller may compute each cubic's resolveLevel on the CPU (i.e., the log2 number of line
+// segments it will be divided into; see GrWangsFormula::cubic_log2/quadratic_log2/conic_log2), and
+// then sort the instance buffer by resolveLevel for efficient batching of indirect draws.
 class GrMiddleOutCubicShader : public GrStencilPathShader {
 public:
     // How many vertices do we need to draw in order to triangulate a cubic with 2^resolveLevel
@@ -152,30 +159,15 @@ public:
 
     // Configures an indirect draw to render cubic instances with 2^resolveLevel evenly-spaced (in
     // the parametric sense) line segments.
-    static void WriteDrawCubicsIndirectCmd(GrDrawIndexedIndirectWriter* indirectWriter,
-                                           int resolveLevel, uint32_t instanceCount,
-                                           uint32_t baseInstance) {
+    static void WriteDrawIndirectCmd(GrDrawIndirectWriter* indirectWriter, int resolveLevel,
+                                     uint32_t instanceCount, uint32_t baseInstance) {
         SkASSERT(resolveLevel > 0 && resolveLevel <= GrTessellationPathRenderer::kMaxResolveLevel);
-        // Starting at baseIndex=3, the index buffer triangulates a cubic with 2^kMaxResolveLevel
-        // line segments. Each index value corresponds to a parametric T value on the curve. Since
-        // the triangles are arranged in "middle-out" order, we can conveniently control the
-        // resolveLevel by changing only the indexCount.
-        uint32_t indexCount = NumVerticesAtResolveLevel(resolveLevel);
-        indirectWriter->writeIndexed(indexCount, 3, instanceCount, baseInstance, 0);
+        // The vertex shader determines the T value at which to draw each vertex. Since the
+        // triangles are arranged in "middle-out" order, we can conveniently control the
+        // resolveLevel by changing only the vertexCount.
+        uint32_t vertexCount = NumVerticesAtResolveLevel(resolveLevel);
+        indirectWriter->write(instanceCount, baseInstance, vertexCount, 0);
     }
-
-    // For performance reasons we can often express triangles as an indirect cubic draw and sneak
-    // them in alongside the other indirect draws. This method configures an indirect draw to emit
-    // the triangle [P0, P1, P2] from a 4-point instance.
-    static void WriteDrawTrianglesIndirectCmd(GrDrawIndexedIndirectWriter* indirectWriter,
-                                              uint32_t instanceCount, uint32_t baseInstance) {
-        // Indices 0,1,2 have special index values that emit points P0, P1, and P2 respectively.
-        indirectWriter->writeIndexed(3, 0, instanceCount, baseInstance, 0);
-    }
-
-    // Returns the index buffer that should be bound when drawing with this shader.
-    // (Our vertex shader uses raw index values directly, so there is no vertex buffer.)
-    static sk_sp<const GrGpuBuffer> FindOrMakeMiddleOutIndexBuffer(GrResourceProvider*);
 
     GrMiddleOutCubicShader(const SkMatrix& viewMatrix)
             : GrStencilPathShader(kTessellate_GrMiddleOutCubicShader_ClassID, viewMatrix,
