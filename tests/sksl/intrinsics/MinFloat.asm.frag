@@ -98,12 +98,9 @@ OpDecorate %145 RelaxedPrecision
 %_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
 %int = OpTypeInt 32 1
 %int_0 = OpConstant %int 0
-%51 = OpConstantComposite %v2float %float_0_5 %float_0_5
 %v2bool = OpTypeVector %bool 2
 %v3float = OpTypeVector %float 3
-%65 = OpConstantComposite %v3float %float_0_5 %float_0_5 %float_0_5
 %v3bool = OpTypeVector %bool 3
-%77 = OpConstantComposite %v4float %float_0_5 %float_0_5 %float_0_5 %float_0_5
 %v4bool = OpTypeVector %bool 4
 %int_1 = OpConstant %int 1
 %int_2 = OpConstant %int 2
@@ -136,6 +133,7 @@ OpBranchConditional %44 %45 %46
 %48 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
 %49 = OpLoad %v4float %48
 %50 = OpVectorShuffle %v2float %49 %49 0 1
+%51 = OpCompositeConstruct %v2float %float_0_5 %float_0_5
 %47 = OpExtInst %v2float %1 FMin %50 %51
 %52 = OpLoad %v4float %expectedA
 %53 = OpVectorShuffle %v2float %52 %52 0 1
@@ -150,6 +148,7 @@ OpBranchConditional %57 %58 %59
 %61 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
 %62 = OpLoad %v4float %61
 %63 = OpVectorShuffle %v3float %62 %62 0 1 2
+%65 = OpCompositeConstruct %v3float %float_0_5 %float_0_5 %float_0_5
 %60 = OpExtInst %v3float %1 FMin %63 %65
 %66 = OpLoad %v4float %expectedA
 %67 = OpVectorShuffle %v3float %66 %66 0 1 2
@@ -163,6 +162,7 @@ OpBranchConditional %71 %72 %73
 %72 = OpLabel
 %75 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
 %76 = OpLoad %v4float %75
+%77 = OpCompositeConstruct %v4float %float_0_5 %float_0_5 %float_0_5 %float_0_5
 %74 = OpExtInst %v4float %1 FMin %76 %77
 %78 = OpLoad %v4float %expectedA
 %79 = OpFOrdEqual %v4bool %74 %78

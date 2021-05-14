@@ -1033,7 +1033,6 @@ OpDecorate %1226 RelaxedPrecision
 %_ptr_Function_int = OpTypePointer Function %int
 %657 = OpTypeFunction %v4float %_ptr_Function_int %_ptr_Function_v4float %_ptr_Function_v4float
 %695 = OpConstantComposite %v4float %float_0 %float_0 %float_0 %float_0
-%765 = OpConstantComposite %v4float %float_1 %float_1 %float_1 %float_1
 %void = OpTypeVoid
 %1215 = OpTypeFunction %void
 %int_13 = OpConstant %int 13
@@ -1927,6 +1926,7 @@ OpReturnValue %760
 %762 = OpLoad %v4float %660
 %763 = OpLoad %v4float %661
 %764 = OpFAdd %v4float %762 %763
+%765 = OpCompositeConstruct %v4float %float_1 %float_1 %float_1 %float_1
 %761 = OpExtInst %v4float %1 FMin %764 %765
 OpReturnValue %761
 %678 = OpLabel

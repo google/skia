@@ -52,7 +52,6 @@ OpDecorate %24 RelaxedPrecision
 %float_0 = OpConstant %float 0
 %v4bool = OpTypeVector %bool 4
 %v3float = OpTypeVector %float 3
-%75 = OpConstantComposite %v3float %float_0 %float_0 %float_0
 %main = OpFunction %void None %19
 %20 = OpLabel
 %tmpColor = OpVariable %_ptr_Function_v4float Function
@@ -99,6 +98,7 @@ OpBranchConditional %58 %60 %61
 %72 = OpCompositeConstruct %v4float %69 %70 %71 %float_1
 %73 = OpMatrixTimesVector %v4float %65 %72
 %74 = OpVectorShuffle %v3float %73 %73 0 1 2
+%75 = OpCompositeConstruct %v3float %float_0 %float_0 %float_0
 %76 = OpLoad %v4float %tmpColor
 %77 = OpCompositeExtract %float %76 3
 %78 = OpCompositeConstruct %v3float %77 %77 %77
