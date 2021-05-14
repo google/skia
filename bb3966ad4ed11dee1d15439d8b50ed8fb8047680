@@ -22,6 +22,30 @@
       },
       "revId": "bb3966ad4ed11dee1d15439d8b50ed8fb8047680",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "166aee1b_e7ef41c2",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 566,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-14T14:26:54Z",
+      "side": 0,
+      "message": "Ah, we probably do. Put that back (in both places) - and also checked for nullptr returns when turning shaders into FPs. (Then I moved all of this code to a helper function, as it was getting long).",
+      "parentUuid": "b7bc4f3a_9cadef09",
+      "range": {
+        "startLine": 564,
+        "startChar": 0,
+        "endLine": 566,
+        "endChar": 17
+      },
+      "revId": "bb3966ad4ed11dee1d15439d8b50ed8fb8047680",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
