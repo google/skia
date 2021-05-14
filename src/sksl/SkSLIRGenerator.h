@@ -114,7 +114,7 @@ public:
     };
 
     /**
-     * If externalFuncs is supplied, those values are registered in the symbol table of the
+     * If externalFunctions is supplied, those values are registered in the symbol table of the
      * Program, but ownership is *not* transferred. It is up to the caller to keep them alive.
      */
     IRBundle convertProgram(
