@@ -10,7 +10,7 @@ struct Globals {
     texture2d<float> tex;
     sampler texSmplr;
 };
-fragment Outputs fragmentMain(Inputs _in [[stage_in]], texture2d<float> tex[[texture(0)]], sampler texSmplr[[sampler(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
+fragment Outputs fragmentMain(Inputs _in [[stage_in]], texture2d<float> tex[[texture(0)]], sampler texSmplr[[sampler(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]], float4 sk_LastFragColor [[color(0)]]) {
     Globals _globals{tex, texSmplr};
     (void)_globals;
     Outputs _out;

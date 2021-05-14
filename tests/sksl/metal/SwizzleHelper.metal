@@ -27,7 +27,7 @@ float4 fn_h4hh2h2h3(thread Outputs& _out, thread Globals& _globals, float a, thr
     d = _out.sk_FragColor.www / d;
     return float4(a, b.x, c.y, d.x);
 }
-fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
+fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]], float4 sk_LastFragColor [[color(0)]]) {
     Globals _globals{float2(1.0)};
     (void)_globals;
     Outputs _out;

@@ -12,7 +12,7 @@ struct testBlock {
 struct Globals {
     constant testBlock* test;
 };
-fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant testBlock& test [[buffer(456)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
+fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant testBlock& test [[buffer(456)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]], float4 sk_LastFragColor [[color(0)]]) {
     Globals _globals{&test};
     (void)_globals;
     Outputs _out;

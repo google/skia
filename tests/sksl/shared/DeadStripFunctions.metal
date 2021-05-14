@@ -16,7 +16,7 @@ float4 unpremul_h4h4(float4 color) {
 float4 live_fn_h4h4h4(float4 a, float4 b) {
     return a + b;
 }
-fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
+fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]], float4 sk_LastFragColor [[color(0)]]) {
     Outputs _out;
     (void)_out;
     float4 a;

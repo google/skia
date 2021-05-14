@@ -6,7 +6,7 @@ struct Inputs {
 struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
-fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
+fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]], float4 sk_LastFragColor [[color(0)]]) {
     Outputs _out;
     (void)_out;
     if (sqrt(2.0) > 5.0) {

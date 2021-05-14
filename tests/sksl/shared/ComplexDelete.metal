@@ -22,7 +22,7 @@ thread bool operator==(const float4x4 left, const float4x4 right) {
 thread bool operator!=(const float4x4 left, const float4x4 right) {
     return !(left == right);
 }
-fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], texture2d<float> s[[texture(0)]], sampler sSmplr[[sampler(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
+fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], texture2d<float> s[[texture(0)]], sampler sSmplr[[sampler(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]], float4 sk_LastFragColor [[color(0)]]) {
     Globals _globals{s, sSmplr};
     (void)_globals;
     Outputs _out;

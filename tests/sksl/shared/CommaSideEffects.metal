@@ -21,7 +21,7 @@ void _skOutParamHelper0_setToColorBlack_vh4(Uniforms _uniforms, thread float4& d
 void setToColorBlack_vh4(Uniforms _uniforms, thread float4& x) {
     x = _uniforms.colorBlack;
 }
-fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
+fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]], float4 sk_LastFragColor [[color(0)]]) {
     Outputs _out;
     (void)_out;
     float4 a;

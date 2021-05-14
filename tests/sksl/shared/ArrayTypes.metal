@@ -19,7 +19,7 @@ void initialize_vS(thread array<S, 2>& z) {
     z[0].v = float2(0.0, 1.0);
     z[1].v = float2(2.0, 1.0);
 }
-fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
+fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]], float4 sk_LastFragColor [[color(0)]]) {
     Outputs _out;
     (void)_out;
     array<float2, 2> x;

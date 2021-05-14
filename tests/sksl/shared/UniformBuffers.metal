@@ -17,7 +17,7 @@ struct testBlock {
 struct Globals {
     constant testBlock* _anonInterface0;
 };
-fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant testBlock& _anonInterface0 [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
+fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant testBlock& _anonInterface0 [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]], float4 sk_LastFragColor [[color(0)]]) {
     Globals _globals{&_anonInterface0};
     (void)_globals;
     Outputs _out;

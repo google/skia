@@ -13,7 +13,7 @@ float this_function_is_prototyped_at_the_start_and_never_defined_f();
 float4 this_function_is_defined_before_use_h4h4(float4 x);
 float4 this_function_is_defined_after_use_h4h4(float4 x);
 bool this_function_is_prototyped_in_the_middle_and_never_defined_bf44(float4x4 a);
-fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
+fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]], float4 sk_LastFragColor [[color(0)]]) {
     Outputs _out;
     (void)_out;
     _out.sk_FragColor = _uniforms.colorGreen;

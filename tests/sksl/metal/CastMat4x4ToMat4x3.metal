@@ -9,7 +9,7 @@ struct Outputs {
 float4x3 float4x3_from_float4x4(float4x4 x0) {
     return float4x3(float3(x0[0].xyz), float3(x0[1].xyz), float3(x0[2].xyz), float3(x0[3].xyz));
 }
-fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
+fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]], float4 sk_LastFragColor [[color(0)]]) {
     Outputs _out;
     (void)_out;
     float4x3 a = float4x3(1.0);

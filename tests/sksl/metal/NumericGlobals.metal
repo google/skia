@@ -12,7 +12,7 @@ struct Globals {
     float attr3;
     float4 attr4;
 };
-fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
+fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]], float4 sk_LastFragColor [[color(0)]]) {
     Globals _globals{{}, 123, {}, float4(4.0, 5.0, 6.0, 7.0)};
     (void)_globals;
     Outputs _out;

@@ -36,7 +36,7 @@ thread bool operator==(thread const S& left, thread const S& right) {
 thread bool operator!=(thread const S& left, thread const S& right) {
     return !(left == right);
 }
-fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
+fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]], float4 sk_LastFragColor [[color(0)]]) {
     Outputs _out;
     (void)_out;
     array<float, 4> f1 = array<float, 4>{1.0, 2.0, 3.0, 4.0};

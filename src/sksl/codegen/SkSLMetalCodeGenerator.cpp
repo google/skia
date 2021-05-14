@@ -1673,6 +1673,7 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
             }
             this->write(", bool _frontFacing [[front_facing]]");
             this->write(", float4 _fragCoord [[position]]");
+            this->write(", float4 sk_LastFragColor [[color(0)]]");
         } else if (fProgram.fConfig->fKind == ProgramKind::kVertex) {
             this->write(", uint sk_VertexID [[vertex_id]], uint sk_InstanceID [[instance_id]]");
         }

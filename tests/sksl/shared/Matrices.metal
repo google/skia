@@ -63,7 +63,7 @@ bool test_half_b() {
     ok = ok && m11 == float4x4(float4(9.0, 20.0, 20.0, 20.0), float4(20.0, 9.0, 20.0, 20.0), float4(20.0, 20.0, 9.0, 20.0), float4(20.0, 20.0, 20.0, 9.0));
     return ok;
 }
-fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
+fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]], float4 sk_LastFragColor [[color(0)]]) {
     Outputs _out;
     (void)_out;
     bool _0_ok = true;

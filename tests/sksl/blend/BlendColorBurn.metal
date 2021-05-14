@@ -20,7 +20,7 @@ float _color_burn_component_hh2h2(float2 s, float2 d) {
         return (delta * s.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
     }
 }
-fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
+fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]], float4 sk_LastFragColor [[color(0)]]) {
     Outputs _out;
     (void)_out;
     _out.sk_FragColor = float4(_color_burn_component_hh2h2(_uniforms.src.xw, _uniforms.dst.xw), _color_burn_component_hh2h2(_uniforms.src.yw, _uniforms.dst.yw), _color_burn_component_hh2h2(_uniforms.src.zw, _uniforms.dst.zw), _uniforms.src.w + (1.0 - _uniforms.src.w) * _uniforms.dst.w);

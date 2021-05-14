@@ -51,7 +51,7 @@ bool test_half_b() {
     ok = ok && (float2x2(1.0, 1.0, 1.0, 1.0) * 4.0) / float2x2(float2(2.0, 2.0), float2(2.0, 2.0)) == float2x2(float2(2.0, 2.0), float2(2.0, 2.0));
     return ok;
 }
-fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
+fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]], float4 sk_LastFragColor [[color(0)]]) {
     Outputs _out;
     (void)_out;
     bool _0_ok = true;
