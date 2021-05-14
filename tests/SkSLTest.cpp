@@ -122,10 +122,11 @@ static void test_gpu(skiatest::Reporter* r, GrDirectContext* ctx, const char* te
 }
 
 static void test_es3(skiatest::Reporter* r, GrDirectContext* ctx, const char* testFile) {
-    // We don't have an ES2 caps bit, so we check for integer support and derivatives support.
-    // Our ES2 bots should return false for these.
+    // We don't have an ES2 caps bit, so we check the caps bits for features that ES2 explicitly
+    // doesn't support. Our ES2 bots should return false for these.
     if (!ctx->priv().caps()->shaderCaps()->shaderDerivativeSupport() ||
-        !ctx->priv().caps()->shaderCaps()->integerSupport()) {
+        !ctx->priv().caps()->shaderCaps()->integerSupport() ||
+        !ctx->priv().caps()->shaderCaps()->nonsquareMatrixSupport()) {
         return;
     }
     // ES3-only tests never run on the CPU, because SkVM lacks support for many non-ES2 features.
@@ -236,6 +237,7 @@ SKSL_TEST(SkSLGeometricIntrinsics,             "shared/GeometricIntrinsics.sksl"
 SKSL_TEST(SkSLHelloWorld,                      "shared/HelloWorld.sksl")
 SKSL_TEST(SkSLHex,                             "shared/Hex.sksl")
 SKSL_TEST(SkSLMatrices,                        "shared/Matrices.sksl")
+SKSL_TEST_ES3(SkSLMatricesNonsquare,           "shared/MatricesNonsquare.sksl")
 SKSL_TEST(SkSLMatrixEquality,                  "shared/MatrixEquality.sksl")
 SKSL_TEST(SkSLMultipleAssignments,             "shared/MultipleAssignments.sksl")
 SKSL_TEST(SkSLNegatedVectorLiteral,            "shared/NegatedVectorLiteral.sksl")
