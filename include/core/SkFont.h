@@ -12,6 +12,8 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypeface.h"
 
+#include <vector>
+
 class SkMatrix;
 class SkPaint;
 class SkPath;
@@ -431,6 +433,20 @@ public:
         @param origin   x-position of the first glyph. Defaults to 0.
      */
     void getXPos(const SkGlyphID glyphs[], int count, SkScalar xpos[], SkScalar origin = 0) const;
+
+    /** Returns intervals [start, end] describing lines parallel to the advance that intersect
+     *  with the glyphs.
+     *
+     *  @param glyphs   the glyphs to intersect
+     *  @param count    the number of glyphs and positions
+     *  @param pos      the position of each glyph
+     *  @param top      the top of the line intersecting
+     *  @param bottom   the bottom of the line intersecting
+        @return         array of pairs of x values [start, end]. May be empty.
+     */
+    std::vector<SkScalar> getIntercepts(const SkGlyphID glyphs[], int count, const SkPoint pos[],
+                                        SkScalar top, SkScalar bottom,
+                                        const SkPaint* = nullptr) const;
 
     /** Modifies path to be the outline of the glyph.
         If the glyph has an outline, modifies path to be the glyph's outline and returns true.
