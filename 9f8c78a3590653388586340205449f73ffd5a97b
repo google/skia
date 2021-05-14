@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dbc90dd3_7741dcc0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-14T20:44:46Z",
+      "side": 1,
+      "message": "Thanks, I like the new discard functions and comments a lot. Thanks for the rest of the explanations as well 😊",
+      "revId": "9f8c78a3590653388586340205449f73ffd5a97b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

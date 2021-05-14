@@ -194,6 +194,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fbb917c1_944ebf80",
+        "filename": "src/gpu/tessellate/GrStrokeHardwareTessellator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-14T20:44:46Z",
+      "side": 1,
+      "message": "Ah, it being in internalCubicConvex180PatchesTo makes more sense now.",
+      "parentUuid": "e6d707e7_64937e7d",
+      "range": {
+        "startLine": 179,
+        "startChar": 12,
+        "endLine": 182,
+        "endChar": 13
+      },
+      "revId": "281101a9b2a2e27d71ae9da59602ff032f41580a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "84cce558_25232d01",
@@ -278,6 +302,30 @@
       "side": 1,
       "message": "Nope. We don\u0027t recursively chop caps (except possibly the joinTo for round caps if the stroke is really wide), so I don\u0027t think it\u0027s necessary. The GPU will discard their triangles if they\u0027re offscreen.\n\nOne thing to consider though would be to not draw strokes this way if their stroke is too wide. Filed https://bugs.chromium.org/p/skia/issues/detail?id\u003d12002",
       "parentUuid": "213bd8de_5053c128",
+      "range": {
+        "startLine": 270,
+        "startChar": 9,
+        "endLine": 270,
+        "endChar": 18
+      },
+      "revId": "281101a9b2a2e27d71ae9da59602ff032f41580a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d8cf7601_ce6caf6e",
+        "filename": "src/gpu/tessellate/GrStrokeHardwareTessellator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-14T20:44:46Z",
+      "side": 1,
+      "message": "I\u0027m not super familiar with the rest of this code; if we skipped a curve because it was off screen, and it was the last in the contour, do we still try and write a cap for it?\n\nOr is that l609/610 do for us?",
+      "parentUuid": "ddd8f5a1_35976c9c",
       "range": {
         "startLine": 270,
         "startChar": 9,
