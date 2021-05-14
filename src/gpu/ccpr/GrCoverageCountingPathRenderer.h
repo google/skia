@@ -24,9 +24,10 @@
  */
 class GrCoverageCountingPathRenderer : public GrOnFlushCallbackObject {
 public:
-    static bool IsSupported(const GrCaps&);
+    static bool IsSupported(const GrRecordingContext*);
 
-    static std::unique_ptr<GrCoverageCountingPathRenderer> CreateIfSupported(const GrCaps&);
+    static std::unique_ptr<GrCoverageCountingPathRenderer> CreateIfSupported(
+            const GrRecordingContext*);
 
     using PendingPathsMap = std::map<uint32_t, sk_sp<GrCCPerOpsTaskPaths>>;
 
