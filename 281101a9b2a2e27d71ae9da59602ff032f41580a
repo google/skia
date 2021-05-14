@@ -334,6 +334,30 @@
       },
       "revId": "281101a9b2a2e27d71ae9da59602ff032f41580a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "227dc816_c496fa75",
+        "filename": "src/gpu/tessellate/GrStrokeHardwareTessellator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-05-14T20:55:21Z",
+      "side": 1,
+      "message": "We would try to draw it, but it also doesn\u0027t matter. The goal of this CL is to prevent us from recursing and chopping billions of offscreen patches when we\u0027re just trying to draw a single curve at a large zoom level. One extra cap offscreen isn\u0027t worth the complexity of trying to cull it.\n\nThat \"turning off the last cap\" comment is really just for round caps. The first and last control points tell us which direction to point the half circle. If the control points are equal to the endpoints then I assumed it would turn it off. But now that I think about it, that\u0027s a special case for a bowtie. I\u0027ll remove that comment.",
+      "parentUuid": "d8cf7601_ce6caf6e",
+      "range": {
+        "startLine": 270,
+        "startChar": 9,
+        "endLine": 270,
+        "endChar": 18
+      },
+      "revId": "281101a9b2a2e27d71ae9da59602ff032f41580a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
