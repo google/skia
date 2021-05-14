@@ -41,4 +41,29 @@ TypedArray MakeTypedArray(int count, const T src[], const char arrayType[]) {
     return jarray;
 }
 
+/**
+ *  Reads a JS array, and returns a copy of it in the std::vector.
+ *
+ *  It is up to the caller to ensure the T and arrayType-string match
+ *      e.g. T == uint16_t, arrayType == "Uint16Array"
+ *
+ *  Note, this checks the JS type, and if it does not match, it will still attempt
+ *  to return a copy, just by performing a 1-element-at-a-time copy
+ *  via emscripten::vecFromJSArray().
+ */
+template <typename T>
+std::vector<T> CopyTypedArray(JSArray src, const char arrayType[]) {
+    if (src.instanceof(emscripten::val::global(arrayType))) {
+        const size_t len = src["length"].as<size_t>();
+        std::vector<T> dst;
+        dst.resize(len);
+        auto dst_view = emscripten::val(typed_memory_view(len, dst.data()));
+        dst_view.call<void>("set", src);
+        return dst;
+    } else {
+        // copies one at a time
+        return emscripten::vecFromJSArray<T>(src);
+    }
+}
+
 #endif
