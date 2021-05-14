@@ -1209,6 +1209,27 @@ EMSCRIPTEN_BINDINGS(Skia) {
             }
             return j;
         }))
+        .function("getGlyphIntercepts", optional_override([](SkFont& self,
+                                                             JSArray jglyphs,
+                                                             JSArray jpos,
+                                                             float top, float bottom) -> JSArray {
+            int glyphCount = jglyphs["length"].as<int>();
+            int posCount = jpos["length"].as<int>();
+            if (glyphCount > (posCount >> 1)) {
+                return emscripten::val("not enough position x,y values for glyphs");
+            }
+            // TODO: if input is typed array, we can try typed_memory_view()
+            // e.g. (Wasm Users chat)
+            //      std::vector<uint16_t> glyphs;
+            //      dest.resize(jsglphys["length"].as<unsigned>();
+            //      val memory_view = val(typed_memory_view(len, dest.data()));
+            //      memory_view.call<void>("set", jsglyphs);
+            auto glyphs = emscripten::vecFromJSArray<uint16_t>(jglyphs);
+            auto pos    = emscripten::vecFromJSArray<float>(jpos);
+            auto sects  = self.getIntercepts(glyphs.data(), glyphCount, (const SkPoint*)pos.data(),
+                                             top, bottom, nullptr);
+            return MakeTypedArray(sects.size(), (const float*)sects.data(), "Float32Array");
+        }), allow_raw_pointers())
         .function("getScaleX", &SkFont::getScaleX)
         .function("getSize", &SkFont::getSize)
         .function("getSkewX", &SkFont::getSkewX)
