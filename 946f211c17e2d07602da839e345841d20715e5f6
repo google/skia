@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "390180c4_535791b2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-05-14T14:11:55Z",
+      "side": 1,
+      "message": "We could refactor the intercepts code from SkParagraph so we don\u0027t have to do it twice...\nI am going to do it in SkText.",
+      "revId": "946f211c17e2d07602da839e345841d20715e5f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
