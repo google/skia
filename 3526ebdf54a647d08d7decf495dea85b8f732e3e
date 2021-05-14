@@ -16,6 +16,23 @@
       "message": "Really like calling this out as an explicit (helper) call.",
       "revId": "3526ebdf54a647d08d7decf495dea85b8f732e3e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a97f87a2_cce99486",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-14T19:12:40Z",
+      "side": 1,
+      "message": "might even make it public (... did I really say that?)",
+      "revId": "3526ebdf54a647d08d7decf495dea85b8f732e3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
