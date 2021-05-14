@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "de214363_c54c59c5",
+        "filename": "src/sksl/codegen/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 2306,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-14T13:28:26Z",
+      "side": 1,
+      "message": "This looks flipped. A SPIR-V matrix is a composite of vectors that make up the columns. So the vectorType should have columns \u003d matrixType.rows(), and the later reference to matrixType.rows() should be matrixType.columns(), right?",
+      "range": {
+        "startLine": 2297,
+        "startChar": 0,
+        "endLine": 2306,
+        "endChar": 63
+      },
+      "revId": "ef816f7befb2093b9ee1889d836cffde80b00eda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "55b13c2b_f9a306e0",
+        "filename": "src/sksl/codegen/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 2401,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-14T13:28:26Z",
+      "side": 1,
+      "message": "nit: line length",
+      "range": {
+        "startLine": 2401,
+        "startChar": 0,
+        "endLine": 2401,
+        "endChar": 101
+      },
+      "revId": "ef816f7befb2093b9ee1889d836cffde80b00eda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
