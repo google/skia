@@ -75,15 +75,9 @@ OpDecorate %169 RelaxedPrecision
 %60 = OpConstantComposite %v4int %int_100 %int_200 %int_50 %int_300
 %false = OpConstantFalse %bool
 %v2int = OpTypeVector %int 2
-%74 = OpConstantComposite %v2int %int_n100 %int_n100
-%75 = OpConstantComposite %v2int %int_100 %int_100
 %v2bool = OpTypeVector %bool 2
 %v3int = OpTypeVector %int 3
-%88 = OpConstantComposite %v3int %int_n100 %int_n100 %int_n100
-%89 = OpConstantComposite %v3int %int_100 %int_100 %int_100
 %v3bool = OpTypeVector %bool 3
-%100 = OpConstantComposite %v4int %int_n100 %int_n100 %int_n100 %int_n100
-%101 = OpConstantComposite %v4int %int_100 %int_100 %int_100 %int_100
 %v4bool = OpTypeVector %bool 4
 %_ptr_Function_v4float = OpTypePointer Function %v4float
 %int_1 = OpConstant %int 1
@@ -133,6 +127,8 @@ OpBranchConditional %67 %68 %69
 %68 = OpLabel
 %71 = OpLoad %v4int %intValues
 %72 = OpVectorShuffle %v2int %71 %71 0 1
+%74 = OpCompositeConstruct %v2int %int_n100 %int_n100
+%75 = OpCompositeConstruct %v2int %int_100 %int_100
 %70 = OpExtInst %v2int %1 SClamp %72 %74 %75
 %76 = OpLoad %v4int %expectedA
 %77 = OpVectorShuffle %v2int %76 %76 0 1
@@ -146,6 +142,8 @@ OpBranchConditional %81 %82 %83
 %82 = OpLabel
 %85 = OpLoad %v4int %intValues
 %86 = OpVectorShuffle %v3int %85 %85 0 1 2
+%88 = OpCompositeConstruct %v3int %int_n100 %int_n100 %int_n100
+%89 = OpCompositeConstruct %v3int %int_100 %int_100 %int_100
 %84 = OpExtInst %v3int %1 SClamp %86 %88 %89
 %90 = OpLoad %v4int %expectedA
 %91 = OpVectorShuffle %v3int %90 %90 0 1 2
@@ -158,6 +156,8 @@ OpSelectionMerge %97 None
 OpBranchConditional %95 %96 %97
 %96 = OpLabel
 %99 = OpLoad %v4int %intValues
+%100 = OpCompositeConstruct %v4int %int_n100 %int_n100 %int_n100 %int_n100
+%101 = OpCompositeConstruct %v4int %int_100 %int_100 %int_100 %int_100
 %98 = OpExtInst %v4int %1 SClamp %99 %100 %101
 %102 = OpLoad %v4int %expectedA
 %103 = OpIEqual %v4bool %98 %102

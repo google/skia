@@ -41,7 +41,6 @@ OpDecorate %27 RelaxedPrecision
 %int_0 = OpConstant %int 0
 %int_1 = OpConstant %int 1
 %float_1 = OpConstant %float 1
-%27 = OpConstantComposite %v4float %float_1 %float_1 %float_1 %float_1
 %main = OpFunction %void None %14
 %15 = OpLabel
 %17 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
@@ -49,6 +48,7 @@ OpDecorate %27 RelaxedPrecision
 %22 = OpAccessChain %_ptr_Uniform_v4float %10 %int_1
 %24 = OpLoad %v4float %22
 %25 = OpFAdd %v4float %21 %24
+%27 = OpCompositeConstruct %v4float %float_1 %float_1 %float_1 %float_1
 %16 = OpExtInst %v4float %1 FMin %25 %27
 OpStore %sk_FragColor %16
 OpReturn
