@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3a7bf18e_1ca1631f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-05-14T20:49:57Z",
+      "side": 1,
+      "message": "One change to simplify a couple utils",
+      "revId": "666f5ed0dc13092594deaeeff868f4de5d0afd37",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
