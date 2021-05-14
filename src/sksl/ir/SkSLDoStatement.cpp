@@ -5,9 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "src/sksl/SkSLContext.h"
-#include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
+
+#include "include/sksl/SkSLProgramSettings.h"
+#include "src/sksl/SkSLContext.h"
 
 namespace SkSL {
 
