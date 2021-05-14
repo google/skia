@@ -1,0 +1,136 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a50efd74_7590bace",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-14T15:22:41Z",
+      "side": 1,
+      "message": "Does setting the last control point to the last point in the array turn off the next cap/join because it assumes the next curve\u0027s first control point will share that vertex? And since it\u0027s the same point, no extra geometry is needed?\n\nHow does that work for a cap?  Would it be cleaner to just have a boolean like fSkipNextJoinCap that\u0027s respected by the join/cap writers?",
+      "revId": "281101a9b2a2e27d71ae9da59602ff032f41580a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c1a7fd5b_b87898dd",
+        "filename": "src/gpu/tessellate/GrStrokeFixedCountTessellator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-14T15:22:41Z",
+      "side": 1,
+      "message": "this is replicated 3 times, can we have a discard(SkPoint) that updates the last control point and sets the boolean?",
+      "range": {
+        "startLine": 115,
+        "startChar": 12,
+        "endLine": 118,
+        "endChar": 19
+      },
+      "revId": "281101a9b2a2e27d71ae9da59602ff032f41580a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fe7a7bde_68017e55",
+        "filename": "src/gpu/tessellate/GrStrokeHardwareTessellator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-14T15:22:41Z",
+      "side": 1,
+      "message": "culling check not needed?",
+      "range": {
+        "startLine": 169,
+        "startChar": 9,
+        "endLine": 169,
+        "endChar": 28
+      },
+      "revId": "281101a9b2a2e27d71ae9da59602ff032f41580a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "28a8602f_7c91f54f",
+        "filename": "src/gpu/tessellate/GrStrokeHardwareTessellator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-14T15:22:41Z",
+      "side": 1,
+      "message": "Does the fixed tessellator need this same logic for !fHasLastControlPoint?\n\nThis logic in general seems similar to what\u0027s used in that tessellator, so maybe it goes in GrStrokeTessellator.h?\n\nedit - although this is in PatchWriter so it\u0027s not a stroke tessellator directly, which complicates things.",
+      "range": {
+        "startLine": 179,
+        "startChar": 12,
+        "endLine": 182,
+        "endChar": 13
+      },
+      "revId": "281101a9b2a2e27d71ae9da59602ff032f41580a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "84cce558_25232d01",
+        "filename": "src/gpu/tessellate/GrStrokeHardwareTessellator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-14T15:22:41Z",
+      "side": 1,
+      "message": "culling check not needed?",
+      "range": {
+        "startLine": 220,
+        "startChar": 26,
+        "endLine": 220,
+        "endChar": 38
+      },
+      "revId": "281101a9b2a2e27d71ae9da59602ff032f41580a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "213bd8de_5053c128",
+        "filename": "src/gpu/tessellate/GrStrokeHardwareTessellator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-14T15:22:41Z",
+      "side": 1,
+      "message": "culling check not needed?",
+      "range": {
+        "startLine": 270,
+        "startChar": 9,
+        "endLine": 270,
+        "endChar": 18
+      },
+      "revId": "281101a9b2a2e27d71ae9da59602ff032f41580a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
