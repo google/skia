@@ -167,6 +167,7 @@ public:
         SkASSERT(fAttribs.count() <= kMaxAttribCount);
     }
 
+    ShaderFlags flags() const { return fShaderFlags; }
     bool hasConics() const { return fShaderFlags & ShaderFlags::kHasConics; }
     bool hasDynamicStroke() const { return fShaderFlags & ShaderFlags::kDynamicStroke; }
     bool hasDynamicColor() const { return fShaderFlags & ShaderFlags::kDynamicColor; }

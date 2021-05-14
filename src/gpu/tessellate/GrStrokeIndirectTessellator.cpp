@@ -66,11 +66,8 @@ class ResolveLevelCounter {
 public:
     constexpr static int8_t kMaxResolveLevel = GrStrokeIndirectTessellator::kMaxResolveLevel;
 
-    ResolveLevelCounter(const SkMatrix& viewMatrix, int* resolveLevelCounts)
-            : fResolveLevelCounts(resolveLevelCounts) {
-        if (!viewMatrix.getMinMaxScales(fMatrixMinMaxScales.data())) {
-            fMatrixMinMaxScales.fill(1);
-        }
+    ResolveLevelCounter(int* resolveLevelCounts, std::array<float, 2> matrixMinMaxScales)
+            : fResolveLevelCounts(resolveLevelCounts), fMatrixMinMaxScales(matrixMinMaxScales) {
     }
 
     void updateTolerances(float strokeWidth, bool isRoundJoin) {
@@ -440,10 +437,12 @@ private:
 GrStrokeIndirectTessellator::GrStrokeIndirectTessellator(ShaderFlags shaderFlags,
                                                          const SkMatrix& viewMatrix,
                                                          PathStrokeList* pathStrokeList,
+                                                         std::array<float, 2> matrixMinMaxScales,
+                                                         const SkRect& strokeCullBounds,
                                                          int totalCombinedVerbCnt,
                                                          SkArenaAlloc* alloc)
         : GrStrokeTessellator(GrStrokeTessellateShader::Mode::kLog2Indirect, shaderFlags,
-                              viewMatrix, pathStrokeList) {
+                              viewMatrix, pathStrokeList, matrixMinMaxScales, strokeCullBounds) {
     // The maximum potential number of values we will need in fResolveLevels is:
     //
     //   * 3 segments per verb (from two chops)
@@ -459,7 +458,7 @@ GrStrokeIndirectTessellator::GrStrokeIndirectTessellator(ShaderFlags shaderFlags
     fChopTs = alloc->makeArrayDefault<float>(chopTAllocCount);
     float* nextChopTs = fChopTs;
 
-    ResolveLevelCounter counter(viewMatrix, fResolveLevelCounts);
+    ResolveLevelCounter counter(fResolveLevelCounts, fMatrixMinMaxScales);
 
     float lastStrokeWidth = -1;
     SkPoint lastControlPoint = {0,0};
@@ -606,7 +605,7 @@ GrStrokeIndirectTessellator::GrStrokeIndirectTessellator(ShaderFlags shaderFlags
 }
 
 void GrStrokeIndirectTessellator::addToChain(GrStrokeIndirectTessellator* tessellator) {
-    SkASSERT(tessellator->fShaderFlags == fShaderFlags);
+    SkASSERT(tessellator->fShader.flags() == fShader.flags());
 
     fChainedInstanceCount += tessellator->fChainedInstanceCount;
     tessellator->fChainedInstanceCount = 0;
@@ -793,7 +792,7 @@ void GrStrokeIndirectTessellator::writeBuffers(GrDrawIndirectWriter* indirectWri
                                                const SkMatrix& viewMatrix,
                                                size_t instanceStride, int baseInstance,
                                                int numExtraEdgesInJoin) {
-    BinningInstanceWriter binningWriter(indirectWriter, instanceWriter, fShaderFlags,
+    BinningInstanceWriter binningWriter(indirectWriter, instanceWriter, fShader.flags(),
                                         instanceStride, baseInstance, numExtraEdgesInJoin,
                                         fResolveLevelCounts);
 
@@ -813,10 +812,10 @@ void GrStrokeIndirectTessellator::writeBuffers(GrDrawIndirectWriter* indirectWri
         const SkStrokeRec& stroke = pathStroke->fStroke;
         SkASSERT(stroke.getJoin() != SkPaint::kMiter_Join || numExtraEdgesInJoin == 4);
         bool isRoundJoin = (stroke.getJoin() == SkPaint::kRound_Join);
-        if (fShaderFlags & ShaderFlags::kDynamicStroke) {
+        if (fShader.hasDynamicStroke()) {
             binningWriter.updateDynamicStroke(stroke);
         }
-        if (fShaderFlags & ShaderFlags::kDynamicColor) {
+        if (fShader.hasDynamicColor()) {
             binningWriter.updateDynamicColor(pathStroke->fColor);
         }
         GrStrokeIterator iter(pathStroke->fPath, &stroke, &viewMatrix);

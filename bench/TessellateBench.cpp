@@ -206,20 +206,21 @@ DEF_PATH_TESS_BENCH(middle_out_triangulation,
 using PathStrokeList = GrStrokeTessellator::PathStrokeList;
 using MakeTessellatorFn = std::unique_ptr<GrStrokeTessellator>(*)(ShaderFlags, const SkMatrix&,
                                                                   PathStrokeList*,
-                                                                  const GrShaderCaps&);
+                                                                  std::array<float, 2>, const
+                                                                  SkRect&);
 
-static std::unique_ptr<GrStrokeTessellator> make_hw_tessellator(ShaderFlags shaderFlags,
-                                                                const SkMatrix& viewMatrix,
-                                                                PathStrokeList* pathStrokeList,
-                                                                const GrShaderCaps& shaderCaps) {
+static std::unique_ptr<GrStrokeTessellator> make_hw_tessellator(
+        ShaderFlags shaderFlags, const SkMatrix& viewMatrix, PathStrokeList* pathStrokeList,
+        std::array<float, 2> matrixMinMaxScales, const SkRect& strokeCullBounds) {
     return std::make_unique<GrStrokeHardwareTessellator>(shaderFlags, viewMatrix, pathStrokeList,
-                                                         shaderCaps);
+                                                         matrixMinMaxScales, strokeCullBounds);
 }
 
 static std::unique_ptr<GrStrokeTessellator> make_fixed_count_tessellator(
         ShaderFlags shaderFlags, const SkMatrix& viewMatrix, PathStrokeList* pathStrokeList,
-        const GrShaderCaps& shaderCaps) {
-    return std::make_unique<GrStrokeFixedCountTessellator>(shaderFlags, viewMatrix, pathStrokeList);
+        std::array<float, 2> matrixMinMaxScales, const SkRect& strokeCullBounds) {
+    return std::make_unique<GrStrokeFixedCountTessellator>(shaderFlags, viewMatrix, pathStrokeList,
+                                                           matrixMinMaxScales, strokeCullBounds);
 }
 
 using MakePathStrokesFn = std::vector<PathStrokeList>(*)();
@@ -320,7 +321,8 @@ private:
         }
 
         fTessellator = fMakeTessellatorFn(fShaderFlags, SkMatrix::Scale(fMatrixScale, fMatrixScale),
-                                          fPathStrokes.data(), *fTarget->caps().shaderCaps());
+                                          fPathStrokes.data(), {fMatrixScale, fMatrixScale},
+                                          {-1e9f, -1e9f, 1e9f, 1e9f});
     }
 
     void onDraw(int loops, SkCanvas*) final {
@@ -398,8 +400,8 @@ private:
             for (const SkPath& path : fPaths) {
                 GrStrokeTessellator::PathStrokeList pathStroke(path, fStrokeRec, SK_PMColor4fWHITE);
                 GrStrokeIndirectTessellator tessellator(ShaderFlags::kNone, SkMatrix::I(),
-                                                        &pathStroke, path.countVerbs(),
-                                                        fTarget->allocator());
+                                                        &pathStroke, {1, 1}, {0, 0, 0, 0},
+                                                        path.countVerbs(), fTarget->allocator());
                 tessellator.prepare(fTarget.get(), path.countVerbs());
             }
             fTarget->resetAllocator();

@@ -23,7 +23,9 @@ public:
     constexpr static int8_t kMaxResolveLevel = 15;
 
     GrStrokeIndirectTessellator(ShaderFlags, const SkMatrix& viewMatrix, PathStrokeList*,
-                                int totalCombinedVerbCnt, SkArenaAlloc*);
+                                std::array<float, 2> matrixMinMaxScales,
+                                const SkRect& strokeCullBounds, int totalCombinedVerbCnt,
+                                SkArenaAlloc*);
 
     // Adds the given tessellator to our chain. The chained tessellators all append to a shared
     // indirect draw list during prepare().
