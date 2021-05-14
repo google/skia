@@ -31,8 +31,9 @@ constexpr int kNoDeclareTestFlags = kDefaultDSLFlags & ~kMangle_Flag;
 class AutoDSLContext {
 public:
     AutoDSLContext(GrGpu* gpu, int flags = kDefaultTestFlags,
-                   SkSL::ProgramKind kind = SkSL::ProgramKind::kFragment) {
-        Start(gpu->shaderCompiler(), kind, flags);
+                   SkSL::ProgramKind kind = SkSL::ProgramKind::kFragment,
+                   SkSL::ProgramSettings settings = SkSL::ProgramSettings()) {
+        Start(gpu->shaderCompiler(), kind, settings, flags);
     }
 
     ~AutoDSLContext() {
@@ -137,7 +138,7 @@ static void expect_equal(skiatest::Reporter* r, int lineNumber, T&& dsl, const c
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFlags, r, ctxInfo) {
     {
-        AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), kOptimize_Flag);
+        AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), kNo_Flag);
         EXPECT_EQUAL(All(GreaterThan(Float4(1), Float4(0))), "true");
 
         Var x(kInt_Type, "x");
@@ -145,7 +146,10 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFlags, r, ctxInfo) {
     }
 
     {
-        AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), kNo_Flag);
+        SkSL::ProgramSettings settings;
+        settings.fOptimize = false;
+        AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), kNo_Flag,
+                               SkSL::ProgramKind::kFragmentProcessor, settings);
         EXPECT_EQUAL(All(GreaterThan(Float4(1), Float4(0))),
                      "all(greaterThan(float4(1.0), float4(0.0)))");
     }

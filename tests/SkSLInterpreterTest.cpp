@@ -905,8 +905,9 @@ DEF_TEST(SkSLInterpreterExternalFunction, r) {
     const char* src = "float main() { return external(25); }";
     std::vector<std::unique_ptr<SkSL::ExternalFunction>> externalFunctions;
     externalFunctions.push_back(std::make_unique<ExternalSqrt>("external", compiler));
+    settings.fExternalFunctions = &externalFunctions;
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
-            SkSL::ProgramKind::kGeneric, SkSL::String(src), settings, &externalFunctions);
+            SkSL::ProgramKind::kGeneric, SkSL::String(src), settings);
     REPORTER_ASSERT(r, program);
 
     const SkSL::FunctionDefinition* main = SkSL::Program_GetFunction(*program, "main");
@@ -963,8 +964,9 @@ DEF_TEST(SkSLInterpreterExternalTable, r) {
     skvm::Uniforms u(b.uniform(), 0);
 
     externalFunctions.push_back(std::make_unique<ExternalTable>("table", compiler, &u));
+    settings.fExternalFunctions = &externalFunctions;
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
-            SkSL::ProgramKind::kGeneric, SkSL::String(src), settings, &externalFunctions);
+            SkSL::ProgramKind::kGeneric, SkSL::String(src), settings);
     REPORTER_ASSERT(r, program);
 
     const SkSL::FunctionDefinition* main = SkSL::Program_GetFunction(*program, "main");
