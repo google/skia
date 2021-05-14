@@ -12,6 +12,7 @@
 #include "include/private/SkTArray.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathPriv.h"
+#include "src/gpu/GrVertexWriter.h"
 #include "src/gpu/GrVx.h"
 
 class SkMatrix;
@@ -147,16 +148,17 @@ inline void convertLineToCubic(SkPoint startPt, SkPoint endPt, SkPoint out[4]) {
 }
 
 // Converts the given quadratic bezier to a cubic.
-inline void convertQuadToCubic(const SkPoint p[3], SkPoint out[4]) {
+inline void writeQuadAsCubic(const SkPoint p[3], GrVertexWriter* writer) {
     using grvx::float2, skvx::bit_pun;
     float2 p0 = bit_pun<float2>(p[0]);
     float2 p1 = bit_pun<float2>(p[1]);
     float2 p2 = bit_pun<float2>(p[2]);
     float2 c = p1 * (2/3.f);
-    out[0] = bit_pun<SkPoint>(p0);
-    out[1] = bit_pun<SkPoint>(grvx::fast_madd<2>(p0, 1/3.f, c));
-    out[2] = bit_pun<SkPoint>(grvx::fast_madd<2>(p2, 1/3.f, c));
-    out[3] = bit_pun<SkPoint>(p2);
+    writer->write(p0, grvx::fast_madd<2>(p0, 1/3.f, c), grvx::fast_madd<2>(p2, 1/3.f, c), p2);
+}
+inline void convertQuadToCubic(const SkPoint p[3], SkPoint out[4]) {
+    GrVertexWriter writer(out);
+    writeQuadAsCubic(p, &writer);
 }
 
 // Finds 0, 1, or 2 T values at which to chop the given curve in order to guarantee the resulting
