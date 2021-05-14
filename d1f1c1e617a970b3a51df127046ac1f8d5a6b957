@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7688f814_33ee7210",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-05-14T04:32:00Z",
+      "side": 1,
+      "message": "Fix is https://skia-review.googlesource.com/c/skia/+/408616/1..5\n\nApparently Mac GLSL is atrociously bad at integers.\n\nI\u0027ll go ahead and land tonight so it can roll into chrome without much else going on.",
+      "revId": "d1f1c1e617a970b3a51df127046ac1f8d5a6b957",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
