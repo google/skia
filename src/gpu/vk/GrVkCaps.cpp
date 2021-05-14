@@ -44,7 +44,6 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     fNPOTTextureTileSupport = true;  // always available in Vulkan
     fReuseScratchTextures = true; //TODO: figure this out
     fGpuTracingSupport = false; //TODO: figure this out
-    fOversizedStencilSupport = false; //TODO: figure this out
     fDrawInstancedSupport = true;
 
     fSemaphoreSupport = true;   // always available in Vulkan
@@ -644,7 +643,7 @@ void GrVkCaps::initGrCaps(const GrVkInterface* vkInterface,
 
     fMapBufferFlags = kCanMap_MapFlag | kSubset_MapFlag | kAsyncRead_MapFlag;
 
-    fOversizedStencilSupport = true;
+    fOversizedAttachmentSupport = true;
 
     if (extensions.hasExtension(VK_EXT_BLEND_OPERATION_ADVANCED_EXTENSION_NAME, 2) &&
         this->supportsPhysicalDeviceProperties2()) {
