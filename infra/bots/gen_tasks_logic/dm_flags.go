@@ -845,10 +845,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip("_", "tests", "_", "SkSLStructsInFunctions_GPU")  // skia:11929
 	}
 
-	if b.isLinux() && b.gpu("IntelIris640") {
-		skip("_", "tests", "_", "SkSLMatricesNonsquare_GPU")   // skia:12003
-	}
-
 	match := []string{}
 	if b.extraConfig("Valgrind") { // skia:3021
 		match = append(match, "~Threaded")

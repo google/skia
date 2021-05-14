@@ -1,0 +1,15 @@
+uniform half4 colorGreen, colorRed;
+
+bool test_float() {
+    bool ok = true;
+    float4x3 m43 = float4x3(7);
+    ok = ok && (m43 == float4x3(7, 0, 0,
+                                0, 7, 0,
+                                0, 0, 7,
+                                0, 0, 0));
+    return ok;
+}
+
+half4 main(float2 coords) {
+    return test_float() ? colorGreen : colorRed;
+}
