@@ -3,6 +3,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "ef50cc53_9f5bb635",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 923,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-05-14T15:03:10Z",
+      "side": 1,
+      "message": "So this one was used with either a worst case (glyphs*2 intervals) or called twice, once with intervals nullptr to get the count and again to get the values. So the new one says essentially use the default allocator. std::vector is somewhat overkill, why not std::unique_ptr\u003cSkScaler[]\u003e ?",
+      "revId": "81e2f9355b79f92413402aa2decb4f25e6374689",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "032eeb9e_29f29c25",
         "filename": "src/core/SkTextBlob.cpp",
         "patchSetId": 3
