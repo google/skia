@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "032eeb9e_29f29c25",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 946,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-05-14T14:55:47Z",
+      "side": 1,
+      "message": "Ugh... it\u0027s going to be so confusing to have bits of SkFont defined in this file.",
+      "revId": "81e2f9355b79f92413402aa2decb4f25e6374689",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
