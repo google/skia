@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "e4666a45_764aa578",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 923,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-05-14T15:30:22Z",
+      "side": 1,
+      "message": "Though of course that doesn\u0027t have the length. Much like std::span, lightweight immutable inexpensive types seem to be overlooked in std. I suppose vector is fine for now, it\u0027s just so awkward since we just want to return an owned ordered list of pairs.",
+      "parentUuid": "ef50cc53_9f5bb635",
+      "revId": "81e2f9355b79f92413402aa2decb4f25e6374689",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "032eeb9e_29f29c25",
         "filename": "src/core/SkTextBlob.cpp",
         "patchSetId": 3
