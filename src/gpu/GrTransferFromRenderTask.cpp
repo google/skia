@@ -24,7 +24,10 @@ bool GrTransferFromRenderTask::onExecute(GrOpFlushState* flushState) {
     if (!fSrcProxy->isInstantiated()) {
         return false;
     }
-    return flushState->gpu()->transferPixelsFrom(
-            fSrcProxy->peekSurface(), fSrcRect.fLeft, fSrcRect.fTop, fSrcRect.width(),
-            fSrcRect.height(), fSurfaceColorType, fDstColorType, fDstBuffer, fDstOffset);
+    return flushState->gpu()->transferPixelsFrom(fSrcProxy->peekSurface(),
+                                                 fSrcRect,
+                                                 fSurfaceColorType,
+                                                 fDstColorType,
+                                                 fDstBuffer,
+                                                 fDstOffset);
 }
