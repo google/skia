@@ -5,12 +5,13 @@
  * found in the LICENSE file.
  */
 
+#include "src/sksl/ir/SkSLIfStatement.h"
+
+#include "include/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
-#include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLBoolLiteral.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
-#include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLNop.h"
 #include "src/sksl/ir/SkSLType.h"
 

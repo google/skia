@@ -10,10 +10,10 @@
 #include <forward_list>
 
 #include "include/private/SkTHash.h"
+#include "include/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
-#include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLNop.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"

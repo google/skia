@@ -14,6 +14,7 @@
 
 #include "include/private/SkSLLayout.h"
 #include "include/private/SkTArray.h"
+#include "include/sksl/DSLCore.h"
 #include "src/core/SkScopeExit.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLCompiler.h"
@@ -690,43 +691,20 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
     invokeDecl->setDefinition(invokeDef.get());
     fProgramElements->push_back(std::move(invokeDef));
     std::vector<std::unique_ptr<VarDeclaration>> variables;
-    const Variable* loopIdx = &(*fSymbolTable)["sk_InvocationID"]->as<Variable>();
-    auto test = BinaryExpression::Make(
-            fContext,
-            VariableReference::Make(/*offset=*/-1, loopIdx),
-            Token::Kind::TK_LT,
-            IntLiteral::Make(fContext, /*offset=*/-1, fInvocations));
-    auto next = PostfixExpression::Make(
-            fContext,
-            VariableReference::Make(/*offset=*/-1, loopIdx, VariableRefKind::kReadWrite),
-            Token::Kind::TK_PLUSPLUS);
-    ASTNode endPrimitiveID(&fFile->fNodes, -1, ASTNode::Kind::kIdentifier, "EndPrimitive");
-    std::unique_ptr<Expression> endPrimitive = this->convertExpression(endPrimitiveID);
+
+    using namespace SkSL::dsl;
+    DSLVar loopIdx = DSLVar("sk_InvocationID");
+    std::unique_ptr<Expression> endPrimitive = this->convertIdentifier(/*offset=*/-1,
+                                                                       "EndPrimitive");
     SkASSERT(endPrimitive);
 
-    StatementArray loopBody;
-    loopBody.reserve_back(2);
-    loopBody.push_back(ExpressionStatement::Make(fContext, this->call(/*offset=*/-1,
-                                                                      *invokeDecl,
-                                                                      ExpressionArray{})));
-    loopBody.push_back(ExpressionStatement::Make(fContext, this->call(/*offset=*/-1,
-                                                                      std::move(endPrimitive),
-                                                                      ExpressionArray{})));
-    auto assignment = BinaryExpression::Make(
-            fContext,
-            VariableReference::Make(/*offset=*/-1, loopIdx, VariableRefKind::kWrite),
-            Token::Kind::TK_EQ,
-            IntLiteral::Make(fContext, /*offset=*/-1, /*value=*/0));
-    auto initializer = ExpressionStatement::Make(fContext, std::move(assignment));
-    auto loop = ForStatement::Make(fContext, /*offset=*/-1,
-                                   std::move(initializer),
-                                   std::move(test),
-                                   std::move(next),
-                                   Block::Make(/*offset=*/-1, std::move(loopBody)),
-                                   fSymbolTable);
-    StatementArray children;
-    children.push_back(std::move(loop));
-    return Block::Make(/*offset=*/-1, std::move(children));
+    std::unique_ptr<Statement> block = DSLBlock(
+        For(loopIdx = 0, loopIdx < fInvocations, loopIdx++, DSLBlock(
+            DSLFunction(invokeDecl)(),
+            DSLExpression(std::move(endPrimitive))({})
+        ))
+    ).release();
+    return std::unique_ptr<Block>(&block.release()->as<Block>());
 }
 
 std::unique_ptr<Statement> IRGenerator::getNormalizeSkPositionCode() {
@@ -1882,7 +1860,6 @@ void IRGenerator::findAndDeclareBuiltinVariables() {
 
 void IRGenerator::start(const ParsedModule& base,
                         bool isBuiltinCode,
-                        const std::vector<std::unique_ptr<ExternalFunction>>* externalFunctions,
                         std::vector<std::unique_ptr<ProgramElement>>* elements,
                         std::vector<const ProgramElement*>* sharedElements) {
     fProgramElements = elements;
@@ -1919,9 +1896,9 @@ void IRGenerator::start(const ParsedModule& base,
         fProgramElements->push_back(std::make_unique<GlobalVarDeclaration>(std::move(decl)));
     }
 
-    if (externalFunctions) {
+    if (this->settings().fExternalFunctions) {
         // Add any external values to the new symbol table, so they're only visible to this Program
-        for (const auto& ef : *externalFunctions) {
+        for (const auto& ef : *this->settings().fExternalFunctions) {
             fSymbolTable->addWithoutOwnership(ef.get());
         }
     }
@@ -1971,12 +1948,8 @@ IRGenerator::IRBundle IRGenerator::convertProgram(
         bool isBuiltinCode,
         const char* text,
         size_t length,
-        const std::vector<std::unique_ptr<ExternalFunction>>* externalFunctions) {
-    std::vector<std::unique_ptr<ProgramElement>> elements;
-    std::vector<const ProgramElement*> sharedElements;
-
-    this->start(base, isBuiltinCode, externalFunctions, &elements, &sharedElements);
-
+        std::vector<std::unique_ptr<ProgramElement>>* elements,
+        std::vector<const ProgramElement*>* sharedElements) {
     Parser parser(text, length, *fSymbolTable, this->errorReporter());
     fFile = parser.compilationUnit();
     if (this->errorReporter().errorCount() == 0) {

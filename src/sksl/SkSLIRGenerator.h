@@ -122,7 +122,8 @@ public:
             bool isBuiltinCode,
             const char* text,
             size_t length,
-            const std::vector<std::unique_ptr<ExternalFunction>>* externalFunctions);
+            std::vector<std::unique_ptr<ProgramElement>>* elements,
+            std::vector<const ProgramElement*>* sharedElements);
 
     const Program::Settings& settings() const { return fContext.fConfig->fSettings; }
     ProgramKind programKind() const { return fContext.fConfig->fKind; }
@@ -153,7 +154,6 @@ public:
 private:
     void start(const ParsedModule& base,
                bool isBuiltinCode,
-               const std::vector<std::unique_ptr<ExternalFunction>>* externalFunctions,
                std::vector<std::unique_ptr<ProgramElement>>* elements,
                std::vector<const ProgramElement*>* sharedElements);
 
