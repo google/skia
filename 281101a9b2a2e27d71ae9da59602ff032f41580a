@@ -18,6 +18,23 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "536482a0_5dce7d73",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-14T15:23:02Z",
+      "side": 1,
+      "message": "Also, am I correct in understanding that the indirect tessellator does not do any culling?",
+      "revId": "281101a9b2a2e27d71ae9da59602ff032f41580a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c1a7fd5b_b87898dd",
