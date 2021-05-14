@@ -18,6 +18,23 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3100402b_d4d98369",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-14T14:50:34Z",
+      "side": 1,
+      "message": "I\u0027m ok to not return vector\u003c\u003e, but do the pass-in-the-worst-case-storage technique -- thoughts?",
+      "revId": "946f211c17e2d07602da839e345841d20715e5f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4b3016ed_426ff304",
