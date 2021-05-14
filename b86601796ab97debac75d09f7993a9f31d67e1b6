@@ -25,6 +25,32 @@
       },
       "revId": "b86601796ab97debac75d09f7993a9f31d67e1b6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000010811429",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/408899?revision\u003d3",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "17335648_c2a061a5",
+        "filename": "modules/canvaskit/npm_build/types/index.d.ts",
+        "patchSetId": 3
+      },
+      "lineNbr": 1670,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-05-14T21:37:47Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 1670,
+        "startChar": 6,
+        "endLine": 1670,
+        "endChar": 7
+      },
+      "revId": "b86601796ab97debac75d09f7993a9f31d67e1b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
