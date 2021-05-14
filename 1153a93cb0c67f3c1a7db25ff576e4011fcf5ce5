@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "eababc83_3dd10c55",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-14T13:35:11Z",
+      "side": 1,
+      "message": "The SkSL code was already present. After fixing two other bugs, I was able to turn this on, and the tessellated stroke renderer now works correctly on my Mac with Metal.",
+      "revId": "1153a93cb0c67f3c1a7db25ff576e4011fcf5ce5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
