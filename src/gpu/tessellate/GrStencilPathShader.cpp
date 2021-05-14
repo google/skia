@@ -367,24 +367,25 @@ class GrMiddleOutCubicShader::Impl : public GrStencilPathShader::Impl {
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
         const auto& shader = args.fGeomProc.cast<GrMiddleOutCubicShader>();
         args.fVaryingHandler->emitAttributes(shader);
-        args.fVertBuilder->defineConstantf("int", "kMaxVertexID", "%i", 1 << kMaxResolveLevel);
-        args.fVertBuilder->defineConstantf("float", "kInverseMaxVertexID",
-                                           "(1.0 / float(kMaxVertexID))");
+        args.fVertBuilder->defineConstantf("float", "kInverseMaxVertexID", "(1.0 / float(%d))",
+                                           1 << kMaxResolveLevel);
         args.fVertBuilder->insertFunction(kUnpackRationalCubicFn);
         args.fVertBuilder->insertFunction(kEvalRationalCubicFn);
-        args.fVertBuilder->codeAppend(R"(
+        args.fVertBuilder->codeAppendf(R"(
         float2 pos;
-        if (sk_VertexID > kMaxVertexID) {
-            // This is a special index value that instructs us to emit a specific point.
-            pos = ((sk_VertexID & 3) == 0) ? inputPoints_0_1.xy :
-                  ((sk_VertexID & 2) == 0) ? inputPoints_0_1.zw : inputPoints_2_3.xy;
+        if (isinf(inputPoints_2_3.z)) {
+            // A conic with w=Inf is an exact triangle.
+            int idx = sk_VertexID >> %d/*kMaxResolveLevel - 1*/;
+            pos = (idx <  1) ? inputPoints_0_1.xy
+                : (idx == 1) ? inputPoints_0_1.zw
+                             : inputPoints_2_3.xy;
         } else {
             // Evaluate the cubic at T = (sk_VertexID / 2^kMaxResolveLevel).
             float T = float(sk_VertexID) * kInverseMaxVertexID;
             float4x3 P = unpack_rational_cubic(inputPoints_0_1.xy, inputPoints_0_1.zw,
                                                inputPoints_2_3.xy, inputPoints_2_3.zw);
             pos = eval_rational_cubic(P, T);
-        })");
+        })", kMaxResolveLevel - 1);
 
         GrShaderVar vertexPos("pos", kFloat2_GrSLType);
         if (!shader.viewMatrix().isIdentity()) {
