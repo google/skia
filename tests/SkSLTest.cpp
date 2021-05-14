@@ -222,6 +222,7 @@ SKSL_TEST(SkSLCommaMixedTypes,                 "shared/CommaMixedTypes.sksl")
 // The CPU test confirms that we can get it right, even if not all drivers do.
 SKSL_TEST_CPU(SkSLCommaSideEffects,            "shared/CommaSideEffects.sksl")
 SKSL_TEST(SkSLConstantIf,                      "shared/ConstantIf.sksl")
+SKSL_TEST_ES3(SkSLConstArray,                  "shared/ConstArray.sksl")
 SKSL_TEST(SkSLConstVariableComparison,         "shared/ConstVariableComparison.sksl")
 SKSL_TEST(SkSLDeadIfStatement,                 "shared/DeadIfStatement.sksl")
 SKSL_TEST(SkSLDeadStripFunctions,              "shared/DeadStripFunctions.sksl")
