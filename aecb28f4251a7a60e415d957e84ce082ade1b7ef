@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a220788c_4e68665b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-05-14T12:53:14Z",
+      "side": 1,
+      "message": "Not important, just scratches an itch that\u0027s been bugging me for a while.",
+      "revId": "aecb28f4251a7a60e415d957e84ce082ade1b7ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
