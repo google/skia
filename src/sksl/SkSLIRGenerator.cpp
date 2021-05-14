@@ -1920,10 +1920,40 @@ void IRGenerator::start(const ParsedModule& base,
     }
 
     if (externalFunctions) {
-        // Add any external values to the new symbol table, so they're only visible to this Program
-        for (const auto& ef : *externalFunctions) {
+        // Add any external values to the new symbol table, so they're only visible to this Program.
+        for (const std::unique_ptr<ExternalFunction>& ef : *externalFunctions) {
             fSymbolTable->addWithoutOwnership(ef.get());
         }
+    }
+
+    if (!fContext.fConfig->fSettings.fEnforceES2Restrictions &&
+        (this->programKind() == ProgramKind::kRuntimeColorFilter ||
+         this->programKind() == ProgramKind::kRuntimeShader)) {
+        // We're compiling a runtime effect, but we're not enforcing ES2 restrictions. Add the
+        // nonsquare matrix types to the symbol table to allow them to be tested.
+        fSymbolTable->addAlias("mat2x2", fContext.fTypes.fFloat2x2.get());
+        fSymbolTable->addAlias("mat2x3", fContext.fTypes.fFloat2x3.get());
+        fSymbolTable->addAlias("mat2x4", fContext.fTypes.fFloat2x4.get());
+        fSymbolTable->addAlias("mat3x2", fContext.fTypes.fFloat3x2.get());
+        fSymbolTable->addAlias("mat3x3", fContext.fTypes.fFloat3x3.get());
+        fSymbolTable->addAlias("mat3x4", fContext.fTypes.fFloat3x4.get());
+        fSymbolTable->addAlias("mat4x2", fContext.fTypes.fFloat4x2.get());
+        fSymbolTable->addAlias("mat4x3", fContext.fTypes.fFloat4x3.get());
+        fSymbolTable->addAlias("mat4x4", fContext.fTypes.fFloat4x4.get());
+
+        fSymbolTable->addAlias("float2x3", fContext.fTypes.fFloat2x3.get());
+        fSymbolTable->addAlias("float2x4", fContext.fTypes.fFloat2x4.get());
+        fSymbolTable->addAlias("float3x2", fContext.fTypes.fFloat3x2.get());
+        fSymbolTable->addAlias("float3x4", fContext.fTypes.fFloat3x4.get());
+        fSymbolTable->addAlias("float4x2", fContext.fTypes.fFloat4x2.get());
+        fSymbolTable->addAlias("float4x3", fContext.fTypes.fFloat4x3.get());
+
+        fSymbolTable->addAlias("half2x3", fContext.fTypes.fHalf2x3.get());
+        fSymbolTable->addAlias("half2x4", fContext.fTypes.fHalf2x4.get());
+        fSymbolTable->addAlias("half3x2", fContext.fTypes.fHalf3x2.get());
+        fSymbolTable->addAlias("half3x4", fContext.fTypes.fHalf3x4.get());
+        fSymbolTable->addAlias("half4x2", fContext.fTypes.fHalf4x2.get());
+        fSymbolTable->addAlias("half4x3", fContext.fTypes.fHalf4x3.get());
     }
 }
 
