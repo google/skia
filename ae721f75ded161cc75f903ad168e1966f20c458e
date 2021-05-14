@@ -22,6 +22,30 @@
       },
       "revId": "ae721f75ded161cc75f903ad168e1966f20c458e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4c0f63b9_72ac77ec",
+        "filename": "tests/sksl/shared/MatricesNonsquare.asm.frag",
+        "patchSetId": 8
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-14T19:30:59Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "06cae3a2_da13ae60",
+      "range": {
+        "startLine": 3,
+        "startChar": 0,
+        "endLine": 4,
+        "endChar": 38
+      },
+      "revId": "ae721f75ded161cc75f903ad168e1966f20c458e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
