@@ -205,6 +205,7 @@ function MakeStyle(length) {
         color: null,
         bold: null,
         italic: null,
+        underline: null,
 
         _check_toggle: function(src, dst) {
             if (src == 'toggle') {
@@ -233,6 +234,9 @@ function MakeStyle(length) {
             }
             if (src.italic) {
                 this.italic = this._check_toggle(src.italic, this.italic);
+            }
+            if (src.underline) {
+                this.underline = this._check_toggle(src.underline, this.underline);
             }
 
             if (src.size_add) {
@@ -496,11 +500,31 @@ function MakeEditor(text, style, cursor, width) {
                     }
                     LOG('    glyph subrange', glyph_start, glyph_end);
                     gly = gly.slice(glyph_start, glyph_end);
-                    pos = pos.slice(glyph_start*2, glyph_end*2);
+                    // +2 at the end so we can see the trailing position (esp. for underlines)
+                    pos = pos.slice(glyph_start*2, glyph_end*2 + 2);
                 } else {
                     LOG('    use entire glyph run');
                 }
                 canvas.drawGlyphs(gly, pos, 0, 0, f, p);
+
+                if (s.underline) {
+                    const gap = 2;
+                    const Y = pos[1];   // first Y
+                    const lastX = pos[gly.length*2];
+                    const sects = f.getGlyphIntercepts(gly, pos, Y+2, Y+4);
+
+                    let x = pos[0];
+                    for (let i = 0; i < sects.length; i += 2) {
+                        const end = sects[i] - gap;
+                        if (x < end) {
+                            canvas.drawRect([x, Y+2, end, Y+4], p);
+                        }
+                        x = sects[i+1] + gap;
+                    }
+                    if (x < lastX) {
+                        canvas.drawRect([x, Y+2, lastX, Y+4], p);
+                    }
+                }
 
                 start = end;
             }
