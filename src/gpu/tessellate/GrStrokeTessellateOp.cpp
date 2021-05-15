@@ -15,7 +15,7 @@
 #include "src/gpu/tessellate/GrStrokeHardwareTessellator.h"
 #include "src/gpu/tessellate/GrStrokeIndirectTessellator.h"
 
-using DynamicStroke = GrStrokeTessellateShader::DynamicStroke;
+using DynamicStroke = GrStrokeShader::DynamicStroke;
 
 GrStrokeTessellateOp::GrStrokeTessellateOp(GrAAType aaType, const SkMatrix& viewMatrix,
                                            const SkPath& path, const SkStrokeRec& stroke,

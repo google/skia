@@ -5,17 +5,16 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrStrokeTessellateShader_DEFINED
-#define GrStrokeTessellateShader_DEFINED
+#ifndef GrStrokeShader_DEFINED
+#define GrStrokeShader_DEFINED
 
 #include "src/gpu/tessellate/GrPathShader.h"
 
 #include "include/core/SkStrokeRec.h"
 #include "src/gpu/GrVx.h"
+#include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
+#include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
-#include <array>
-
-class GrGLSLUniformHandler;
 
 // Tessellates a batch of stroke patches directly to the canvas. Tessellated stroking works by
 // creating stroke-width, orthogonal edges at set locations along the curve and then connecting them
@@ -24,7 +23,7 @@ class GrGLSLUniformHandler;
 // divide the curve's _rotation_ into even steps. The tessellation shader evaluates both sets of
 // edges and sorts them into a single quad strip. With this combined set of edges we can stroke any
 // curve, regardless of curvature.
-class GrStrokeTessellateShader : public GrPathShader {
+class GrStrokeShader : public GrPathShader {
 public:
     // Are we using hardware tessellation or indirect draws?
     enum class Mode {
@@ -100,9 +99,9 @@ public:
     };
 
     // 'viewMatrix' is applied to the geometry post tessellation. It cannot have perspective.
-    GrStrokeTessellateShader(Mode mode, ShaderFlags shaderFlags, const SkMatrix& viewMatrix,
-                             const SkStrokeRec& stroke, SkPMColor4f color)
-            : GrPathShader(kTessellate_GrStrokeTessellateShader_ClassID, viewMatrix,
+    GrStrokeShader(Mode mode, ShaderFlags shaderFlags, const SkMatrix& viewMatrix,
+                   const SkStrokeRec& stroke, SkPMColor4f color)
+            : GrPathShader(kTessellate_GrStrokeShader_ClassID, viewMatrix,
                            (mode == Mode::kHardwareTessellation) ?
                                    GrPrimitiveType::kPatches : GrPrimitiveType::kTriangleStrip,
                            (mode == Mode::kHardwareTessellation) ? 1 : 0)
@@ -167,10 +166,14 @@ public:
         SkASSERT(fAttribs.count() <= kMaxAttribCount);
     }
 
+    Mode mode() const { return fMode; }
     ShaderFlags flags() const { return fShaderFlags; }
     bool hasConics() const { return fShaderFlags & ShaderFlags::kHasConics; }
     bool hasDynamicStroke() const { return fShaderFlags & ShaderFlags::kDynamicStroke; }
     bool hasDynamicColor() const { return fShaderFlags & ShaderFlags::kDynamicColor; }
+    const SkStrokeRec& stroke() const { return fStroke;}
+    const SkPMColor4f& color() const { return fColor;}
+    float fixedCountNumTotalEdges() const { return fFixedCountNumTotalEdges;}
 
     // Used by GrFixedCountTessellator to configure the uniform value that tells the shader how many
     // total edges are in the triangle strip.
@@ -180,7 +183,7 @@ public:
     }
 
 private:
-    const char* name() const override { return "GrStrokeTessellateShader"; }
+    const char* name() const override { return "GrStrokeShader"; }
     void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override;
     GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const final;
 
@@ -195,11 +198,85 @@ private:
     // This is a uniform value used when fMode is kFixedCount that tells the shader how many total
     // edges are in the triangle strip.
     float fFixedCountNumTotalEdges = 0;
-
-    class TessellationImpl;
-    class InstancedImpl;
 };
 
-GR_MAKE_BITFIELD_CLASS_OPS(GrStrokeTessellateShader::ShaderFlags);
+GR_MAKE_BITFIELD_CLASS_OPS(GrStrokeShader::ShaderFlags);
+
+// This common base class emits shader code for our parametric/radial stroke tessellation algorithm
+// described above. The subclass emits its own specific setup code before calling into
+// emitTessellationCode and emitFragment code.
+class GrStrokeShaderImpl : public GrGLSLGeometryProcessor {
+protected:
+    // float atan2(float2 v) { ...
+    //
+    // The built-in atan() is undefined when x==0. This method relieves that restriction, but also
+    // can return values larger than 2*PI. This shouldn't matter for our purposes.
+    static const char* kAtan2Fn;
+
+    // float cosine_between_vectors(float2 a, float2 b) { ...
+    //
+    // Returns dot(a, b) / (length(a) * length(b)).
+    static const char* kCosineBetweenVectorsFn;
+
+    // float miter_extent(float cosTheta, float miterLimit) { ...
+    //
+    // Extends the middle radius to either the miter point, or the bevel edge if we surpassed the
+    // miter limit and need to revert to a bevel join.
+    static const char* kMiterExtentFn;
+
+    // float num_radial_segments_per_radian(float parametricPrecision, float strokeRadius) { ...
+    //
+    // Returns the number of radial segments required for each radian of rotation, in order for the
+    // curve to appear "smooth" as defined by the parametricPrecision.
+    static const char* kNumRadialSegmentsPerRadianFn;
+
+    // float<N> unchecked_mix(float<N> a, float<N> b, float<N> T) { ...
+    //
+    // Unlike mix(), this does not return b when t==1. But it otherwise seems to get better
+    // precision than "a*(1 - t) + b*t" for things like chopping cubics on exact cusp points.
+    // We override this result anyway when t==1 so it shouldn't be a problem.
+    static const char* kUncheckedMixFn;
+
+    // Emits code that calculates the vertex position and any other inputs to the fragment shader.
+    // The subclass is responsible to define the following symbols before calling this method:
+    //
+    //     // Functions.
+    //     float2 unchecked_mix(float2, float2, float);
+    //     float unchecked_mix(float, float, float);
+    //
+    //     // Values provided by either uniforms or attribs.
+    //     float4x2 P;
+    //     float W;
+    //     float STROKE_RADIUS;
+    //     float 2x2 AFFINE_MATRIX;
+    //     float2 TRANSLATE;
+    //
+    //     // Values calculated by the specific subclass.
+    //     float combinedEdgeID;
+    //     bool isFinalEdge;
+    //     float numParametricSegments;
+    //     float radsPerSegment;
+    //     float2 tan0;
+    //     float2 tan1;
+    //     float angle0;
+    //     float strokeOutset;
+    //
+    void emitTessellationCode(const GrStrokeShader& shader, SkString* code, GrGPArgs* gpArgs,
+                              const GrShaderCaps& shaderCaps) const;
+
+    // Emits all necessary fragment code. If using dynamic color, the impl is responsible to set up
+    // a half4 varying for color and provide its name in 'fDynamicColorName'.
+    void emitFragmentCode(const GrStrokeShader&, const EmitArgs&);
+
+    void setData(const GrGLSLProgramDataManager& pdman, const GrShaderCaps&,
+                 const GrGeometryProcessor&) final;
+
+    GrGLSLUniformHandler::UniformHandle fTessControlArgsUniform;
+    GrGLSLUniformHandler::UniformHandle fTranslateUniform;
+    GrGLSLUniformHandler::UniformHandle fAffineMatrixUniform;
+    GrGLSLUniformHandler::UniformHandle fEdgeCountUniform;
+    GrGLSLUniformHandler::UniformHandle fColorUniform;
+    SkString fDynamicColorName;
+};
 
 #endif

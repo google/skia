@@ -19,7 +19,7 @@ public:
                                   PathStrokeList* pathStrokeList,
                                   std::array<float, 2> matrixMinMaxScales,
                                   const SkRect& strokeCullBounds)
-            : GrStrokeTessellator(GrStrokeTessellateShader::Mode::kFixedCount, shaderFlags,
+            : GrStrokeTessellator(GrStrokeShader::Mode::kFixedCount, shaderFlags,
                                   viewMatrix, pathStrokeList, matrixMinMaxScales,
                                   strokeCullBounds) {
     }
