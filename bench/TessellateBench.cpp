@@ -20,7 +20,7 @@
 #include "tools/ToolUtils.h"
 #include <vector>
 
-using ShaderFlags = GrStrokeTessellateShader::ShaderFlags;
+using ShaderFlags = GrStrokeShader::ShaderFlags;
 
 // This is the number of cubics in desk_chalkboard.skp. (There are no quadratics in the chalkboard.)
 constexpr static int kNumCubicsInChalkboard = 47182;
