@@ -52,6 +52,14 @@ void GrPathIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const SkMa
     SkASSERT(fIndirectDrawCount == 0);
     SkASSERT(target->caps().drawInstancedSupport());
 
+    float fakeIds[1025];
+    for (int i = 0; i <= 1024; ++i) {
+        fakeIds[i] = i;
+    }
+    fFakeVertexIDs = target->resourceProvider()->createBuffer(
+            sizeof(fakeIds), GrGpuBufferType::kVertex, GrAccessPattern::kStatic_GrAccessPattern,
+            fakeIds);
+
     int instanceLockCount = fOuterCurveInstanceCount;
     if (fDrawInnerFan) {
         // No initial moveTo, plus an implicit close at the end; n-2 triangles fill an n-gon.
@@ -209,7 +217,7 @@ void GrPathIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const SkMa
 
 void GrPathIndirectTessellator::draw(GrOpFlushState* flushState) const {
     if (fIndirectDrawCount) {
-        flushState->bindBuffers(nullptr, fInstanceBuffer, nullptr);
+        flushState->bindBuffers(nullptr, fInstanceBuffer, fFakeVertexIDs);
         flushState->drawIndirect(fIndirectDrawBuffer.get(), fIndirectDrawOffset,
                                  fIndirectDrawCount);
     }

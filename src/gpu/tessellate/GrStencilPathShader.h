@@ -176,6 +176,10 @@ public:
                 {"inputPoints_0_1", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
                 {"inputPoints_2_3", kFloat4_GrVertexAttribType, kFloat4_GrSLType}};
         this->setInstanceAttributes(kInputPtsAttribs, 2);
+
+        constexpr static Attribute kVertexAttribs[] = {
+                {"fakeVertexID", kFloat_GrVertexAttribType, kFloat_GrSLType}};
+        this->setVertexAttributes(kVertexAttribs, 1);
     }
 
     const char* name() const override { return "tessellate_GrMiddleOutCubicShader"; }

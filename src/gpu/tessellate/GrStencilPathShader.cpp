@@ -323,11 +323,11 @@ class GrMiddleOutCubicShader::Impl : public GrStencilPathShader::Impl {
             // Determines the T value at which to place the given vertex in a "middle-out" topology.
             args.fVertBuilder->insertFunction(R"(
             float find_middle_out_T() {
-                float totalTriangleIdx = float(sk_VertexID/3) + 1;
+                float totalTriangleIdx = floor(fakeVertexID/3) + 1;
                 float depth = floor(log2(totalTriangleIdx));
                 float firstTriangleAtDepth = exp2(depth);
                 float triangleIdxWithinDepth = totalTriangleIdx - firstTriangleAtDepth;
-                float vertexIdxWithinDepth = triangleIdxWithinDepth * 2 + float(sk_VertexID % 3);
+                float vertexIdxWithinDepth = triangleIdxWithinDepth * 2 + mod(fakeVertexID, 3);
                 return vertexIdxWithinDepth * exp2(-1 - depth);
             })");
         }
@@ -335,9 +335,9 @@ class GrMiddleOutCubicShader::Impl : public GrStencilPathShader::Impl {
         float2 pos;
         if (isinf(inputPoints_2_3.z)) {
             // A conic with w=Inf is an exact triangle.
-            pos = (sk_VertexID < 1)  ? inputPoints_0_1.xy
-                : (sk_VertexID == 1) ? inputPoints_0_1.zw
-                                     : inputPoints_2_3.xy;
+            pos = (fakeVertexID < 1)  ? inputPoints_0_1.xy
+                : (fakeVertexID == 1) ? inputPoints_0_1.zw
+                                      : inputPoints_2_3.xy;
         } else {
             float4x3 P = unpack_rational_cubic(inputPoints_0_1.xy, inputPoints_0_1.zw,
                                                inputPoints_2_3.xy, inputPoints_2_3.zw);

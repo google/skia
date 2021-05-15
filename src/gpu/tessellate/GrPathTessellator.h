@@ -64,6 +64,8 @@ private:
     int fResolveLevelCounts[kMaxResolveLevel + 1] = {0};
     int fOuterCurveInstanceCount = 0;
 
+    sk_sp<const GrBuffer> fFakeVertexIDs;
+
     sk_sp<const GrBuffer> fInstanceBuffer;
     int fBaseInstance = 0;
     int fTotalInstanceCount = 0;
