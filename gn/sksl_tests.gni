@@ -231,7 +231,6 @@ sksl_metal_tests = [
   "/sksl/metal/OutParams.sksl",
   "/sksl/metal/OutVarsRequireLocation.sksl",
   "/sksl/metal/SamplerGlobals.sksl",
-  "/sksl/metal/MatrixScalarSplat.sksl",
   "/sksl/metal/SwizzleHelper.sksl",
 ]
 
@@ -240,7 +239,6 @@ sksl_spirv_tests = [
   "/sksl/spirv/InterfaceBlockPushConstant.sksl",
   "/sksl/spirv/LayoutMultipleOf4.sksl",
   "/sksl/spirv/LayoutOutOfOrder.sksl",
-  "/sksl/spirv/MatrixScalarSplat.sksl",
   "/sksl/spirv/OpaqueTypeInArray.sksl",
   "/sksl/workarounds/RewriteMatrixVectorMultiply.sksl",
   "/sksl/errors/UndefinedFunction.sksl",
@@ -383,6 +381,7 @@ sksl_shared_tests = [
   "/sksl/shared/Matrices.sksl",
   "/sksl/shared/MatricesNonsquare.sksl",
   "/sksl/shared/MatrixEquality.sksl",
+  "/sksl/shared/MatrixScalarSplat.sksl",
   "/sksl/shared/MultipleAssignments.sksl",
   "/sksl/shared/NegatedVectorLiteral.sksl",
   "/sksl/shared/NoFragCoordsPos.vert",
