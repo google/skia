@@ -136,7 +136,7 @@ public:
         kTessellate_GrFillTriangleShader_ClassID,
         kTessellate_GrMiddleOutCubicShader_ClassID,
         kTessellate_GrStencilTriangleShader_ClassID,
-        kTessellate_GrStrokeTessellateShader_ClassID,
+        kTessellate_GrStrokeShader_ClassID,
         kTessellate_GrWedgeTessellateShader_ClassID,
         kTessellationTestTriShader_ClassID,
         kTessellationTestRectShader_ClassID,
