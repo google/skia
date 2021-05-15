@@ -18,12 +18,12 @@ bool test_float() {
     ok = ok && (m34 == float3x4(5, 0, 0, 0,
                                 0, 5, 0, 0,
                                 0, 0, 5, 0));
-    float4x2 m42 = float4x2(6);
     // Some Intel and Radeon GLSL drivers don't assemble the mat4x2 properly. (skia:12003)
-//    ok = ok && (m42 == float4x2(6, 0,
-//                                0, 6,
-//                                0, 0,
-//                                0, 0));
+    float4x2 m42 = float4x2(float2x2(6));
+    ok = ok && (m42 == float4x2(6, 0,
+                                0, 6,
+                                0, 0,
+                                0, 0));
     float4x3 m43 = float4x3(7);
     ok = ok && (m43 == float4x3(7, 0, 0,
                                 0, 7, 0,
@@ -65,12 +65,12 @@ bool test_half() {
     ok = ok && (m34 == half3x4(5, 0, 0, 0,
                                0, 5, 0, 0,
                                0, 0, 5, 0));
-    half4x2 m42 = half4x2(6);
     // Some Intel and Radeon GLSL drivers don't assemble the mat4x2 properly. (skia:12003)
-//    ok = ok && (m42 == half4x2(6, 0,
-//                               0, 6,
-//                               0, 0,
-//                               0, 0));
+    half4x2 m42 = half4x2(half2x2(6));
+    ok = ok && (m42 == half4x2(6, 0,
+                               0, 6,
+                               0, 0,
+                               0, 0));
     half4x3 m43 = half4x3(7);
     ok = ok && (m43 == half4x3(7, 0, 0,
                                0, 7, 0,
