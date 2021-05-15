@@ -249,6 +249,8 @@ private:
 
     SpvId writeConstantVector(const AnyConstructor& c);
 
+    SpvId writeScalarToMatrixSplat(const Type& matrixType, SpvId scalarId, OutputStream& out);
+
     SpvId writeFloatConstructor(const AnyConstructor& c, OutputStream& out);
 
     SpvId castScalarToFloat(SpvId inputId, const Type& inputType, const Type& outputType,
