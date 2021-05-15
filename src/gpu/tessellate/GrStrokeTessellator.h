@@ -9,12 +9,12 @@
 #define GrStrokeTessellator_DEFINED
 
 #include "src/gpu/GrVx.h"
-#include "src/gpu/tessellate/GrStrokeTessellateShader.h"
+#include "src/gpu/tessellate/GrStrokeShader.h"
 
 // Prepares GPU data for, and then draws a stroke's tessellated geometry.
 class GrStrokeTessellator {
 public:
-    using ShaderFlags = GrStrokeTessellateShader::ShaderFlags;
+    using ShaderFlags = GrStrokeShader::ShaderFlags;
 
     struct PathStrokeList {
         PathStrokeList(const SkPath& path, const SkStrokeRec& stroke, const SkPMColor4f& color)
@@ -25,7 +25,7 @@ public:
         PathStrokeList* fNext = nullptr;
     };
 
-    GrStrokeTessellator(GrStrokeTessellateShader::Mode shaderMode, ShaderFlags shaderFlags,
+    GrStrokeTessellator(GrStrokeShader::Mode shaderMode, ShaderFlags shaderFlags,
                         const SkMatrix& viewMatrix, PathStrokeList* pathStrokeList,
                         std::array<float, 2> matrixMinMaxScales, const SkRect& strokeCullBounds)
             : fShader(shaderMode, shaderFlags, viewMatrix, pathStrokeList->fStroke,
@@ -47,7 +47,7 @@ public:
     virtual ~GrStrokeTessellator() {}
 
 protected:
-    GrStrokeTessellateShader fShader;
+    GrStrokeShader fShader;
     PathStrokeList* fPathStrokeList;
     const std::array<float, 2> fMatrixMinMaxScales;
     const SkRect fStrokeCullBounds;  // See SkStrokeRec::inflationRadius.

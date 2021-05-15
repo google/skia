@@ -16,13 +16,13 @@
 class GrRecordingContext;
 
 // Renders strokes by linearizing them into sorted "parametric" and "radial" edges. See
-// GrStrokeTessellateShader.
+// GrStrokeShader.
 class GrStrokeTessellateOp : public GrDrawOp {
 public:
     GrStrokeTessellateOp(GrAAType, const SkMatrix&, const SkPath&, const SkStrokeRec&, GrPaint&&);
 
 private:
-    using ShaderFlags = GrStrokeTessellateShader::ShaderFlags;
+    using ShaderFlags = GrStrokeShader::ShaderFlags;
     using PathStrokeList = GrStrokeTessellator::PathStrokeList;
     DEFINE_OP_CLASS_ID
 
