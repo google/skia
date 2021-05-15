@@ -1660,6 +1660,26 @@ export interface Font extends EmbindObject<Font> {
                    output?: Float32Array): Float32Array;
 
     /**
+     * Computes any intersections of a thick "line" and a run of positionsed glyphs.
+     * The thick line is represented as a top and bottom coordinate (positive for
+     * below the baseline, negative for above). If there are no intersections
+     * (e.g. if this is intended as an underline, and there are no "collisions")
+     * then the returned array will be empty. If there are intersections, the array
+     * will contain pairs of X coordinates [start, end] for each segment that
+     * intersected with a glyph.
+     * 
+     * @param glyphs        the glyphs to intersect with
+     * @param positions     x,y coordinates (2 per glyph) for each glyph
+     * @param top           top of the thick "line" to use for intersection testing
+     * @param bottom        bottom of the thick "line" to use for intersection testing
+     * @param paint         optional (can be null) in case the paint affects the
+     *                      "thickness" of the glyphs (e.g. patheffect, stroking, maskfilter)
+     * @return              array of [start, end] x-coordinate pairs. Maybe be empty.
+     */
+    getGlyphIntercepts(glyphs: InputGlyphIDArray, positions: Float32Array,
+                       top: number, bottom: number): Float32Array;
+
+    /**
      * Returns text scale on x-axis. Default value is 1.
      */
     getScaleX(): number;
