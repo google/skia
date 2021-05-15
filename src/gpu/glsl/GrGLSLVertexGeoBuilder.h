@@ -23,6 +23,7 @@ public:
         this->functions().append(functionDefinition);
     }
     using GrGLSLShaderBuilder::functions;
+    using GrGLSLShaderBuilder::code;
 
 protected:
     GrGLSLVertexGeoBuilder(GrGLSLProgramBuilder* program) : INHERITED(program) {}
