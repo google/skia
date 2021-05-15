@@ -251,7 +251,7 @@ class GrStrokeTessellateShader::TessellationImpl : public GrGLSLGeometryProcesso
         if (joinRadialSegments > .1 /*Does the join rotate more than 1/10 of a segment?*/) {
             // Only clamp if the join angle is large enough to guarantee there won't be cracks on
             // the interior side of the junction.
-            joinOutsetClamp = (joinRotation > 0) ? float2(-1, 0) : float2(0, 1);
+            joinOutsetClamp = (joinRotation < 0) ? float2(-1, 0) : float2(0, 1);
         }
 
         // Pack join args for the tessellation control stage.
@@ -896,6 +896,7 @@ SkString GrStrokeTessellateShader::TessellationImpl::getTessEvaluationShaderGLSL
         float numTotalCombinedSegments = numSegmentsInJoin + tcsTessArgs[0].x + tcsTessArgs[1].x +
                                          tcsTessArgs[2].x;
         float totalEdgeID = round(gl_TessCoord.x * numTotalCombinedSegments);
+        float strokeOutset = gl_TessCoord.y * 2.0 - 1.0;
 
         // Furthermore, the vertex shader may have chopped the curve into 3 different sections.
         // Determine which section we belong to, and where we fall relative to its first edge.
@@ -903,15 +904,13 @@ SkString GrStrokeTessellateShader::TessellationImpl::getTessEvaluationShaderGLSL
         mat4x2 P;
         vec2 tan0;
         vec3 tessellationArgs;
-        float strokeRadius = STROKE_RADIUS;
-        vec2 strokeOutsetClamp = vec2(-1, 1);
         if (localEdgeID < numSegmentsInJoin || numSegmentsInJoin == numTotalCombinedSegments) {
             // Our edge belongs to the join preceding the curve.
             P = mat4x2(tcsPts01[0].xyxy, tcsPts01[0].xyxy);
             tan0 = tcsJoinArgs0.zw;
             tessellationArgs = vec3(1, tcsJoinArgs1.xy);
-            strokeRadius *= (localEdgeID == 1.0) ? tcsJoinArgs0.y : 1.0;
-            strokeOutsetClamp = tcsJoinArgs1.zw;
+            strokeOutset = clamp(strokeOutset, tcsJoinArgs1.z, tcsJoinArgs1.w);
+            strokeOutset *= (localEdgeID == 1.0) ? tcsJoinArgs0.y : 1.0;
         } else if ((localEdgeID -= numSegmentsInJoin) < tcsTessArgs[0].x) {
             // Our edge belongs to the first curve section.
             P = mat4x2(tcsPts01[0], tcsPt2Tan0[0].xy, tcsPts01[1].xy);
@@ -962,12 +961,8 @@ SkString GrStrokeTessellateShader::TessellationImpl::getTessEvaluationShaderGLSL
             position = P[3];
         }
 
-        // Determine how far to outset our vertex orthogonally from the curve.
-        float outset = gl_TessCoord.y * 2.0 - 1.0;
-        outset = clamp(outset, strokeOutsetClamp.x, strokeOutsetClamp.y);
-        outset *= strokeRadius;
-
-        vec2 vertexPos = position + normalize(vec2(-tangent.y, tangent.x)) * outset;)");
+        vec2 ortho = normalize(vec2(tangent.y, -tangent.x));
+        vec2 vertexPos = position + ortho * (strokeOutset * STROKE_RADIUS);)");
 
     if (!shader.viewMatrix().isIdentity()) {
         if (!shader.fStroke.isHairlineStyle()) {
