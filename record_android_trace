@@ -1,0 +1,262 @@
+#!/usr/bin/env python3
+
+import atexit
+import argparse
+import datetime
+import http.server
+import os
+import shutil
+import socketserver
+import subprocess
+import sys
+import time
+import webbrowser
+
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# This is not required. It's only used as a fallback if no adb is found on the
+# PATH. It's fine if it doesn't exist so this script can be copied elsewhere.
+HERMETIC_ADB_PATH = ROOT_DIR + '/buildtools/android_sdk/platform-tools/adb'
+
+devnull = open(os.devnull, 'rb')
+adb_path = None
+procs = []
+
+
+class ANSI:
+  END = '\033[0m'
+  BOLD = '\033[1m'
+  RED = '\033[91m'
+  BLACK = '\033[30m'
+  BLUE = '\033[94m'
+  BG_YELLOW = '\033[43m'
+  BG_BLUE = '\033[44m'
+
+
+# HTTP Server used to open the trace in the browser.
+class HttpHandler(http.server.SimpleHTTPRequestHandler):
+
+  def end_headers(self):
+    self.send_header('Access-Control-Allow-Origin', '*')
+    return super().end_headers()
+
+  def do_GET(self):
+    self.server.last_request = self.path
+    return super().do_GET()
+
+  def do_POST(self):
+    self.send_error(404, "File not found")
+
+
+def main():
+  atexit.register(kill_all_subprocs_on_exit)
+  default_out_dir_str = '~/traces/'
+  default_out_dir = os.path.expanduser(default_out_dir_str)
+
+  examples = '\n'.join([
+      ANSI.BOLD + 'Examples' + ANSI.END, '  -t 10s -b 32mb sched gfx wm',
+      '  -t 5s sched/sched_switch raw_syscalls/sys_enter raw_syscalls/sys_exit',
+      '  -c /path/to/full-textual-trace.config', '',
+      ANSI.BOLD + 'Long traces' + ANSI.END,
+      'If you want to record a hours long trace and stream it into a file ',
+      'you need to pass a full trace config and set write_into_file = true.',
+      'See https://perfetto.dev/docs/concepts/config#long-traces .'
+  ])
+  parser = argparse.ArgumentParser(
+      epilog=examples, formatter_class=argparse.RawTextHelpFormatter)
+
+  help = 'Output file or directory (default: %s)' % default_out_dir_str
+  parser.add_argument('-o', '--out', default=default_out_dir, help=help)
+
+  help = 'Don\'t open in the browser'
+  parser.add_argument('-n', '--no-open', action='store_true', help=help)
+
+  grp = parser.add_argument_group(
+      'Short options: (only when not using -c/--config)')
+
+  help = 'Trace duration N[s,m,h] (default: trace until stopped)'
+  grp.add_argument('-t', '--time', default='0s', help=help)
+
+  help = 'Ring buffer size N[mb,gb] (default: 32mb)'
+  grp.add_argument('-b', '--buffer', default='32mb', help=help)
+
+  help = 'Android (atrace) app names (can be specified multiple times)'
+  grp.add_argument(
+      '-a',
+      '--app',
+      metavar='Atrace apps',
+      action='append',
+      default=[],
+      help=help)
+
+  help = 'sched, gfx, am, wm (see --list)'
+  grp.add_argument('events', metavar='Atrace events', nargs='*', help=help)
+
+  help = 'sched/sched_switch kmem/kmem (see --list-ftrace)'
+  grp.add_argument('_', metavar='Ftrace events', nargs='*', help=help)
+
+  help = 'Lists all the categories available'
+  grp.add_argument('--list', action='store_true', help=help)
+
+  help = 'Lists all the ftrace events available'
+  grp.add_argument('--list-ftrace', action='store_true', help=help)
+
+  section = ('Full trace config (only when not using short options)')
+  grp = parser.add_argument_group(section)
+
+  help = 'Can be generated with https://ui.perfetto.dev/#!/record'
+  grp.add_argument('-c', '--config', default=None, help=help)
+  args = parser.parse_args()
+
+  tstamp = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M')
+  fname = '%s.pftrace' % tstamp
+  device_file = '/data/misc/perfetto-traces/' + fname
+
+  find_adb()
+
+  if args.list:
+    adb('shell', 'atrace', '--list_categories').wait()
+    sys.exit(0)
+
+  if args.list_ftrace:
+    adb('shell', 'cat /d/tracing/available_events | tr : /').wait()
+    sys.exit(0)
+
+  if args.config is not None and not os.path.exists(args.config):
+    prt('Config file not found: %s' % args.config, ANSI.RED)
+    sys.exit(1)
+
+  if len(args.events) == 0 and args.config is None:
+    prt('Must either pass short options (e.g. -t 10s sched) or a --config file',
+        ANSI.RED)
+    parser.print_help()
+    sys.exit(1)
+
+  if args.config is None and args.events and os.path.exists(args.events[0]):
+    prt(('The passed event name "%s" is a local file. ' % args.events[0] +
+         'Did you mean to pass -c / --config ?'), ANSI.RED)
+    sys.exit(1)
+
+  cmd = ['perfetto', '--background', '--txt', '-o', device_file]
+  if args.config is not None:
+    cmd += ['-c', '-']
+  else:
+    cmd += ['-t', args.time, '-b', args.buffer]
+    for app in args.app:
+      cmd += ['--app', app]
+    cmd += args.events
+
+  # Perfetto will error out with a proper message if both a config file and
+  # short options are specified. No need to replicate that logic.
+
+  # Work out the output file or directory.
+  if args.out.endswith('/') or os.path.isdir(args.out):
+    host_dir = args.out
+    host_file = os.path.join(args.out, fname)
+  else:
+    host_file = args.out
+    host_dir = os.path.dirname(host_file)
+    if host_dir == '':
+      host_dir = '.'
+      host_file = './' + host_file
+  if not os.path.exists(host_dir):
+    shutil.os.makedirs(host_dir)
+
+  with open(args.config or os.devnull, 'rb') as f:
+    print('Running ' + ' '.join(cmd))
+    proc = adb('shell', *cmd, stdin=f, stdout=subprocess.PIPE)
+    bg_pid = proc.communicate()[0].decode().strip()
+    exit_code = proc.wait()
+
+  if exit_code != 0:
+    prt('Perfetto invocation failed', ANSI.RED)
+    sys.exit(1)
+
+  prt('Trace started. Press CTRL+C to stop', ANSI.BLACK + ANSI.BG_BLUE)
+  logcat = adb('logcat', '-v', 'brief', '-s', 'perfetto', '-b', 'main', '-T',
+               '1')
+
+  ctrl_c_count = 0
+  while ctrl_c_count < 2:
+    try:
+      poll = adb('shell', 'test -d /proc/' + bg_pid)
+      if poll.wait() != 0:
+        break
+      time.sleep(0.5)
+    except KeyboardInterrupt:
+      sig = 'TERM' if ctrl_c_count == 0 else 'KILL'
+      ctrl_c_count += 1
+      prt('Stopping the trace (SIG%s)' % sig, ANSI.BLACK + ANSI.BG_YELLOW)
+      res = adb('shell', 'kill -%s %s' % (sig, bg_pid)).wait()
+
+  logcat.kill()
+  logcat.wait()
+
+  prt('\n')
+  prt('Pulling into %s' % host_file, ANSI.BOLD)
+  adb('pull', device_file, host_file).wait()
+
+  if not args.no_open:
+    prt('\n')
+    prt('Opening the trace (%s) in the browser' % host_file)
+    open_trace_in_browser(host_file)
+
+
+def prt(msg, colors=ANSI.END):
+  print(colors + msg + ANSI.END)
+
+
+def find_adb():
+  """ Locate the "right" adb path
+
+  If adb is in the PATH use that (likely what the user wants) otherwise use the
+  hermetic one in our SDK copy.
+  """
+  global adb_path
+  for path in ['adb', HERMETIC_ADB_PATH]:
+    try:
+      subprocess.call([path, '--version'], stdout=devnull, stderr=devnull)
+      adb_path = path
+      break
+    except OSError:
+      continue
+  if adb_path is None:
+    sdk_url = 'https://developer.android.com/studio/releases/platform-tools'
+    prt('Could not find a suitable adb binary in the PATH. ', ANSI.RED)
+    prt('You can download adb from %s' % sdk_url, ANSI.RED)
+    sys.exit(1)
+
+
+def open_trace_in_browser(path):
+  # We reuse the HTTP+RPC port because it's the only one allowed by the CSP.
+  PORT = 9001
+  os.chdir(os.path.dirname(path))
+  fname = os.path.basename(path)
+  socketserver.TCPServer.allow_reuse_address = True
+  with socketserver.TCPServer(('127.0.0.1', PORT), HttpHandler) as httpd:
+    webbrowser.open_new_tab(
+            'https://ui.perfetto.dev/#!/?url=http://127.0.0.1:%d/%s' %
+        (PORT, fname))
+    while httpd.__dict__.get('last_request') != '/' + fname:
+      httpd.handle_request()
+
+
+def adb(*args, stdin=devnull, stdout=None):
+  cmd = [adb_path, *args]
+  setpgrp = None
+  if os.name != 'nt':
+    # On Linux/Mac, start a new process group so all child processes are killed
+    # on exit. Unsupported on Windows.
+    setpgrp = lambda: os.setpgrp()
+  proc = subprocess.Popen(cmd, stdin=stdin, stdout=stdout, preexec_fn=setpgrp)
+  procs.append(proc)
+  return proc
+
+
+def kill_all_subprocs_on_exit():
+  for p in [p for p in procs if p.poll() is None]:
+    p.kill()
+
+
+if __name__ == '__main__':
+  sys.exit(main())
