@@ -90,7 +90,9 @@ protected:
             v->codeAppendf("vsPt = %s;", vertexPos.c_str());
         }
 
-        // No fragment shader.
+        // The fragment shader is normally disabled, but output fully opaque white.
+        args.fFragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputColor);
+        args.fFragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputCoverage);
     }
 
     void setData(const GrGLSLProgramDataManager& pdman,
@@ -352,7 +354,10 @@ class GrMiddleOutCubicShader::Impl : public GrStencilPathShader::Impl {
             pos = (%s * float3(pos, 1)).xy;)", viewMatrix);
         }
         gpArgs->fPositionVar.set(kFloat2_GrSLType, "pos");
-        // No fragment shader.
+
+        // The fragment shader is normally disabled, but output fully opaque white.
+        args.fFragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputColor);
+        args.fFragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputCoverage);
     }
 };
 
