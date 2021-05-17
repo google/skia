@@ -26,10 +26,13 @@ luci.bucket(
             "project-skia-external-buildbucket-writers",
         ]),
         acl.entry(acl.BUILDBUCKET_TRIGGERER, groups = [
-            "project-skia-internal-tryjob-access",
+            "project-skia-tryjob-access",
             "service-account-cq",
         ]),
-        # TODO(borenet): What about `identity: "project:skiabuildbot"` and `identity: "project:skia-skcms"` ?
+        acl.entry(acl.BUILDBUCKET_TRIGGERER, projects = [
+            "skiabuildbot",
+            "skia-skcms",
+        ]),
     ],
 )
 
@@ -42,10 +45,12 @@ luci.bucket(
             "project-skia-committers",
         ]),
         acl.entry(acl.BUILDBUCKET_TRIGGERER, groups = [
-            "project-skia-internal-tryjob-access",
+            "project-skia-tryjob-access",
             "service-account-cq",
         ]),
-        # TODO(borenet): What about `identity: "project:skiabot-test"`?
+        acl.entry(acl.BUILDBUCKET_TRIGGERER, projects = [
+            "skiabot-test",
+        ]),
     ],
 )
 
