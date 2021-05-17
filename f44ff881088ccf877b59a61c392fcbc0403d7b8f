@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "32e62ed5_8d538566",
+        "filename": "modules/canvaskit/WasmCommon.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-17T21:06:54Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "1b686231_f27260b9",
+      "range": {
+        "startLine": 58,
+        "startChar": 17,
+        "endLine": 58,
+        "endChar": 35
+      },
+      "revId": "f44ff881088ccf877b59a61c392fcbc0403d7b8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "aac6bd8b_3356a8a0",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-05-17T19:33:07Z",
       "side": 1,
       "message": "This will produce code for every type T. Best to make this totally type agnostic. See above comment.",
+      "range": {
+        "startLine": 72,
+        "startChar": 0,
+        "endLine": 72,
+        "endChar": 21
+      },
+      "revId": "f44ff881088ccf877b59a61c392fcbc0403d7b8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "28fa04e5_d1b74907",
+        "filename": "modules/canvaskit/WasmCommon.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-17T21:06:54Z",
+      "side": 1,
+      "message": "typed_memory_view(size, buffer) also wants to know the type (of buffer) to match up with the intrisic sizeof of its private data. Between that, and .as\u003cT\u003e, I think we have to make it all T-aware (at least for now).",
+      "parentUuid": "aac6bd8b_3356a8a0",
       "range": {
         "startLine": 72,
         "startChar": 0,
