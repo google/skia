@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "4342d58d_05baec97",
+        "filename": "modules/canvaskit/WasmCommon.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-17T18:33:36Z",
+      "side": 1,
+      "message": "Yea, had that, and then a variant with std::unique_ptr (to better specify \u0027how\u0027 the array was allocated). Then I realized my current caller is building std::vector and then handing it off to me... Is there a way to transfer the vector\u0027s buffer w/o copying it again?",
+      "parentUuid": "31af4906_f970a965",
+      "range": {
+        "startLine": 52,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 66
+      },
+      "revId": "9a373c7b16117785c2249078b7f0838993ba7584",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8d87eb81_ebef4b7e",
         "filename": "modules/canvaskit/WasmCommon.h",
         "patchSetId": 3
@@ -37,6 +61,30 @@
       "writtenOn": "2021-05-17T17:51:29Z",
       "side": 1,
       "message": "Do this check before checking if it\u0027s a TypedArray or not. That should support both a MallocObj and a Malloc\u0027d typed array.",
+      "range": {
+        "startLine": 78,
+        "startChar": 8,
+        "endLine": 80,
+        "endChar": 9
+      },
+      "revId": "9a373c7b16117785c2249078b7f0838993ba7584",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "30d71c4a_eb39ebaf",
+        "filename": "modules/canvaskit/WasmCommon.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-17T18:33:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8d87eb81_ebef4b7e",
       "range": {
         "startLine": 78,
         "startChar": 8,
