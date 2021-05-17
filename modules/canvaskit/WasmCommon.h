@@ -11,6 +11,7 @@
 #include <emscripten.h>
 #include <emscripten/bind.h>
 #include "include/core/SkColor.h"
+#include "include/core/SkSpan.h"
 
 using namespace emscripten;
 
@@ -42,6 +43,23 @@ TypedArray MakeTypedArray(int count, const T src[], const char arrayType[]) {
 }
 
 /**
+ *  Special span that *might* own its buffer, so its destructor is important.
+ *
+ *  Can be used when trying to get a read-only view into another object:
+ *  - if its memory is accessible, just returns a bare span
+ *  - if not, it is first copied (into our storage), and then returned.
+ */
+template <typename T> class SkOwningSpan : public SkSpan<const T> {
+    std::vector<T> fStorage;
+
+public:
+    SkOwningSpan(const T* data, size_t size) : SkSpan<const T>(data, size) {}
+
+    SkOwningSpan(std::vector<T> src)
+        : SkSpan<const T>(src.data(), src.size()), fStorage(std::move(src)) {}
+};
+
+/**
  *  Reads a JS array, and returns a copy of it in the std::vector.
  *
  *  It is up to the caller to ensure the T and arrayType-string match
@@ -52,17 +70,22 @@ TypedArray MakeTypedArray(int count, const T src[], const char arrayType[]) {
  *  via emscripten::vecFromJSArray().
  */
 template <typename T>
-std::vector<T> CopyTypedArray(JSArray src, const char arrayType[]) {
-    if (src.instanceof(emscripten::val::global(arrayType))) {
-        const size_t len = src["length"].as<size_t>();
+SkOwningSpan<T> ReadTypedArray(JSArray src, const char arrayType[]) {
+    const size_t len = src["length"].as<size_t>();
+
+    // If the buffer was allocated via CanvasKit' Malloc, we can peek directly at it!
+    if (src["_ck"].isTrue()) {
+        return SkOwningSpan(reinterpret_cast<T*>(src["byteOffset"].as<size_t>()), len);
+    } else if (src.instanceof(emscripten::val::global(arrayType))) {
         std::vector<T> dst;
         dst.resize(len);
+        // the notion is that this should be faster than the per-element copy (else case)
         auto dst_view = emscripten::val(typed_memory_view(len, dst.data()));
         dst_view.call<void>("set", src);
-        return dst;
+        return SkOwningSpan(std::move(dst));
     } else {
         // copies one at a time
-        return emscripten::vecFromJSArray<T>(src);
+        return SkOwningSpan(emscripten::vecFromJSArray<T>(src));
     }
 }
 

@@ -511,7 +511,13 @@ function MakeEditor(text, style, cursor, width) {
                     const gap = 2;
                     const Y = pos[1];   // first Y
                     const lastX = pos[gly.length*2];
-                    const sects = f.getGlyphIntercepts(gly, pos, Y+2, Y+4);
+/*
+                    const gm = CanvasKit.Malloc(Uint16Array, gly.length).toTypedArray();
+                    for (let i = 0; i < gly.length; ++i) {
+                        gm[i] = gly[i];
+                    }
+*/
+                    const sects = f.getGlyphIntercepts(gm, pos, Y+2, Y+4);
 
                     let x = pos[0];
                     for (let i = 0; i < sects.length; i += 2) {
