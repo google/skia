@@ -16,6 +16,75 @@
       "message": "Also relocated the render method from Canvas to SkottieAnimation (per conversation with reed@).",
       "revId": "8ff4dd7e1e489268cfd45062c7ac4e6cad187433",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b7ff08ea_798817c6",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/SkottieAnimation.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-17T21:13:49Z",
+      "side": 1,
+      "message": "do we need/like this? If so, should it be called get SuggestedFPS()? Not clear that (at least this class) ever \u0027respects\u0027 this value.... does it?",
+      "range": {
+        "startLine": 25,
+        "startChar": 18,
+        "endLine": 25,
+        "endChar": 24
+      },
+      "revId": "8ff4dd7e1e489268cfd45062c7ac4e6cad187433",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "14a9f7eb_a8ba16bc",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/SkottieAnimation.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-17T21:13:49Z",
+      "side": 1,
+      "message": "also have a getFrameCount() to parallel this one? (assuming we actually want to expose the notion of \u0027frames\u0027)",
+      "range": {
+        "startLine": 32,
+        "startChar": 18,
+        "endLine": 32,
+        "endChar": 29
+      },
+      "revId": "8ff4dd7e1e489268cfd45062c7ac4e6cad187433",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8ff722c3_49571907",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/SkottieAnimation.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-17T21:13:49Z",
+      "side": 1,
+      "message": "I presume this is optional (i.e. a finalizer will release it eventually if needbe)?",
+      "range": {
+        "startLine": 82,
+        "startChar": 16,
+        "endLine": 82,
+        "endChar": 23
+      },
+      "revId": "8ff4dd7e1e489268cfd45062c7ac4e6cad187433",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
