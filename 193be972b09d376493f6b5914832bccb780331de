@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ef995463_e98406ab",
+        "filename": "include/private/DSL_priv.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-17T19:35:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a7a9b580_f5be422b",
+      "range": {
+        "startLine": 8,
+        "startChar": 8,
+        "endLine": 8,
+        "endChar": 16
+      },
+      "revId": "193be972b09d376493f6b5914832bccb780331de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d92c2bcc_e9efbfe4",
@@ -54,6 +78,30 @@
       "writtenOn": "2021-05-17T15:41:41Z",
       "side": 1,
       "message": "optional/for consideration: I never really thought about the fact that we call it BuiltinCode in some places and Modules elsewhere until now. But we\u0027re calling this from a function called `loadModule` in the compiler, so calling it \"BuiltinCode\" here feels inconsistent. What do you think about calling this function \"StartModule\" instead?",
+      "range": {
+        "startLine": 20,
+        "startChar": 37,
+        "endLine": 20,
+        "endChar": 71
+      },
+      "revId": "193be972b09d376493f6b5914832bccb780331de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ad8a2fca_23cb5a94",
+        "filename": "include/private/DSL_priv.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-17T19:35:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d92c2bcc_e9efbfe4",
       "range": {
         "startLine": 20,
         "startChar": 37,
@@ -111,6 +159,54 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9b7e7eaf_8ed3bb0f",
+        "filename": "include/private/DSL_priv.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-17T19:35:30Z",
+      "side": 1,
+      "message": "My initial thinking had been that ProgramSettings ought to be public anyway, if it\u0027s becoming the only way to specify external functions... but I guess ParticleSystem is the only client of this feature, so it doesn\u0027t actually matter for now.",
+      "parentUuid": "48442223_730703ad",
+      "range": {
+        "startLine": 23,
+        "startChar": 22,
+        "endLine": 23,
+        "endChar": 43
+      },
+      "revId": "193be972b09d376493f6b5914832bccb780331de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0a60f49d_c47e1687",
+        "filename": "include/private/DSL_priv.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-17T19:35:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "48442223_730703ad",
+      "range": {
+        "startLine": 23,
+        "startChar": 22,
+        "endLine": 23,
+        "endChar": 43
+      },
+      "revId": "193be972b09d376493f6b5914832bccb780331de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e3c5ec3e_6fc39431",
@@ -128,6 +224,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a09d8bdf_1a162f5f",
+        "filename": "include/sksl/DSLCore.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-17T19:35:30Z",
+      "side": 1,
+      "message": "Not anymore.",
+      "parentUuid": "e3c5ec3e_6fc39431",
+      "revId": "193be972b09d376493f6b5914832bccb780331de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c45dc0c0_23b89311",
@@ -141,6 +255,30 @@
       "writtenOn": "2021-05-17T15:41:41Z",
       "side": 1,
       "message": "for consideration/a future CL: we should move these into ProgramSettings as well. It\u0027s totally fine to have ProgramSettings flags that only apply to DSL, IMO.",
+      "range": {
+        "startLine": 39,
+        "startChar": 0,
+        "endLine": 41,
+        "endChar": 0
+      },
+      "revId": "193be972b09d376493f6b5914832bccb780331de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9a9ff51e_6fc395a0",
+        "filename": "include/sksl/DSLCore.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-17T19:35:30Z",
+      "side": 1,
+      "message": "I actually had it that way at first, but I wasn\u0027t sure how the idea of cramming DSL-testing-only stuff in there would go over. Evidently I needn\u0027t have worried.",
+      "parentUuid": "c45dc0c0_23b89311",
       "range": {
         "startLine": 39,
         "startChar": 0,
@@ -174,6 +312,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5744a92c_9069f75a",
+        "filename": "include/sksl/DSLCore.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-17T19:35:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "168680e2_c059f1d8",
+      "range": {
+        "startLine": 51,
+        "startChar": 61,
+        "endLine": 51,
+        "endChar": 82
+      },
+      "revId": "193be972b09d376493f6b5914832bccb780331de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c7e09ad8_410463b7",
@@ -187,6 +349,30 @@
       "writtenOn": "2021-05-17T15:41:41Z",
       "side": 1,
       "message": "not holding up this CL, but: In a separate CL, I\u0027d really like to convert this to a SkSpan\u003cExternalFunction*\u003e. This shouldn\u0027t be difficult to change (only one user), and the current type is way overspecified (not to mention, misleading about ownership!)",
+      "range": {
+        "startLine": 75,
+        "startChar": 10,
+        "endLine": 75,
+        "endChar": 57
+      },
+      "revId": "193be972b09d376493f6b5914832bccb780331de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ac936a50_dce039fd",
+        "filename": "include/sksl/SkSLProgramSettings.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-17T19:35:30Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "c7e09ad8_410463b7",
       "range": {
         "startLine": 75,
         "startChar": 10,
@@ -220,6 +406,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "63c418df_197a6594",
+        "filename": "modules/particles/src/SkParticleEffect.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-17T19:35:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "98e8a149_dc251c83",
+      "range": {
+        "startLine": 144,
+        "startChar": 0,
+        "endLine": 145,
+        "endChar": 46
+      },
+      "revId": "193be972b09d376493f6b5914832bccb780331de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "51ce3618_057e0d1a",
@@ -233,6 +443,30 @@
       "writtenOn": "2021-05-17T15:58:14Z",
       "side": 1,
       "message": "Curiosity: what is this here for? Feels like it\u0027s doing something important, but I would\u0027ve thought End() would clean up.",
+      "range": {
+        "startLine": 354,
+        "startChar": 0,
+        "endLine": 354,
+        "endChar": 46
+      },
+      "revId": "193be972b09d376493f6b5914832bccb780331de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1fede313_49cf9877",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-17T19:35:30Z",
+      "side": 1,
+      "message": "End() asserts if there are any ProgramElements left behind. I had this here because there originally were due to a bug, but I fixed the issue and failed to remove this now-unnecessary cleanup step.",
+      "parentUuid": "51ce3618_057e0d1a",
       "range": {
         "startLine": 354,
         "startChar": 0,
@@ -266,6 +500,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "45d33e89_6f1544c9",
+        "filename": "src/sksl/SkSLCompiler.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-17T19:35:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f05b6605_350f9016",
+      "range": {
+        "startLine": 107,
+        "startChar": 0,
+        "endLine": 111,
+        "endChar": 7
+      },
+      "revId": "193be972b09d376493f6b5914832bccb780331de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "14604224_0a54a130",
@@ -289,6 +547,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "de847558_6ba846d4",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 708,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-17T19:35:30Z",
+      "side": 1,
+      "message": "I did this because otherwise there aren\u0027t any tests (and really can\u0027t be, because you can\u0027t test \"you can use the DSL from within the compiler\" without using it from inside the compiler). But obviously we can see that it works from this and I\u0027m fine with landing it as a followup.",
+      "parentUuid": "14604224_0a54a130",
+      "range": {
+        "startLine": 695,
+        "startChar": 2,
+        "endLine": 708,
+        "endChar": 0
+      },
+      "revId": "193be972b09d376493f6b5914832bccb780331de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e3fe572c_e04b8ba1",
@@ -302,6 +584,30 @@
       "writtenOn": "2021-05-17T15:58:14Z",
       "side": 1,
       "message": "Are these referenced anywhere below? I\u0027m not seeing where.",
+      "range": {
+        "startLine": 1981,
+        "startChar": 8,
+        "endLine": 1982,
+        "endChar": 58
+      },
+      "revId": "193be972b09d376493f6b5914832bccb780331de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7cff15da_fa22c421",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1982,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-17T19:35:30Z",
+      "side": 1,
+      "message": "Good catch, not anymore.",
+      "parentUuid": "e3fe572c_e04b8ba1",
       "range": {
         "startLine": 1981,
         "startChar": 8,
