@@ -50,6 +50,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "3e22c97a_2c8c57d9",
+        "filename": "modules/canvaskit/npm_build/types/canvaskit-wasm-tests.ts",
+        "patchSetId": 7
+      },
+      "lineNbr": 348,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-05-17T18:25:35Z",
+      "side": 1,
+      "message": "I see how this could be confusing - the code in this file is not run, only checked against our Typescript types.\n\nTests should go in //modules/canvaskit/tests/, in one of the spec.js files",
+      "revId": "bc7c754ce3957640efdfd39aea8ff700a8cc6f26",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4ada0a0c_0a9e05db",
         "filename": "modules/canvaskit/npm_build/types/index.d.ts",
         "patchSetId": 7
