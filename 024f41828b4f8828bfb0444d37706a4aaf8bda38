@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e16eb097_bb90387e",
+        "filename": "src/sksl/codegen/SkSLSPIRVCodeGenerator.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-17T14:09:14Z",
+      "side": 0,
+      "message": "I realized this was unused while I was fixing up externalFunctions.",
+      "range": {
+        "startLine": 472,
+        "startChar": 4,
+        "endLine": 472,
+        "endChar": 42
+      },
+      "revId": "024f41828b4f8828bfb0444d37706a4aaf8bda38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
