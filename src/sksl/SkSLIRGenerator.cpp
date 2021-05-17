@@ -1929,8 +1929,8 @@ void IRGenerator::start(const ParsedModule& base,
     if (!fContext.fConfig->fSettings.fEnforceES2Restrictions &&
         (this->programKind() == ProgramKind::kRuntimeColorFilter ||
          this->programKind() == ProgramKind::kRuntimeShader)) {
-        // We're compiling a runtime effect, but we're not enforcing ES2 restrictions. Add the
-        // nonsquare matrix types to the symbol table to allow them to be tested.
+        // We're compiling a runtime effect, but we're not enforcing ES2 restrictions. Add various
+        // non-ES2  types to our symbol table to allow them to be tested.
         fSymbolTable->addAlias("mat2x2", fContext.fTypes.fFloat2x2.get());
         fSymbolTable->addAlias("mat2x3", fContext.fTypes.fFloat2x3.get());
         fSymbolTable->addAlias("mat2x4", fContext.fTypes.fFloat2x4.get());
@@ -1954,6 +1954,11 @@ void IRGenerator::start(const ParsedModule& base,
         fSymbolTable->addAlias("half3x4", fContext.fTypes.fHalf3x4.get());
         fSymbolTable->addAlias("half4x2", fContext.fTypes.fHalf4x2.get());
         fSymbolTable->addAlias("half4x3", fContext.fTypes.fHalf4x3.get());
+
+        fSymbolTable->addAlias("uint", fContext.fTypes.fUInt.get());
+        fSymbolTable->addAlias("uint2", fContext.fTypes.fUInt2.get());
+        fSymbolTable->addAlias("uint3", fContext.fTypes.fUInt3.get());
+        fSymbolTable->addAlias("uint4", fContext.fTypes.fUInt4.get());
     }
 }
 
