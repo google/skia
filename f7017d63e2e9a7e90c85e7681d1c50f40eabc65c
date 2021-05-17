@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dc561035_88ec7699",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-05-17T19:01:03Z",
+      "side": 1,
+      "message": "Probably because we don\u0027t run `make typecheck` on the CQ or CI.",
+      "parentUuid": "9493a86d_dd21cf39",
+      "revId": "f7017d63e2e9a7e90c85e7681d1c50f40eabc65c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9d1d5173_4db8cf0a",
@@ -31,6 +49,30 @@
       "writtenOn": "2021-05-17T18:37:31Z",
       "side": 1,
       "message": "should we font.delete() this at the end?",
+      "range": {
+        "startLine": 337,
+        "startChar": 14,
+        "endLine": 337,
+        "endChar": 18
+      },
+      "revId": "f7017d63e2e9a7e90c85e7681d1c50f40eabc65c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5dbd38a6_c9f81066",
+        "filename": "modules/canvaskit/tests/font.spec.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 337,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-05-17T19:01:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9d1d5173_4db8cf0a",
       "range": {
         "startLine": 337,
         "startChar": 14,
@@ -66,6 +108,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "62bf313c_7548e0c6",
+        "filename": "modules/canvaskit/tests/font.spec.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-05-17T19:01:03Z",
+      "side": 1,
+      "message": "The default font is something we compile in (Noto Mono), so I\u0027m less worried about that changing out from under us. We haven\u0027t had any flakiness that I\u0027ve noticed so far about that - if we do, I\u0027m happy to reconsider. For now, I feel better knowing we have actual values.",
+      "parentUuid": "6bdf5f51_1af2538e",
+      "range": {
+        "startLine": 346,
+        "startChar": 25,
+        "endLine": 346,
+        "endChar": 36
+      },
+      "revId": "f7017d63e2e9a7e90c85e7681d1c50f40eabc65c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "a9e720ea_9b42c5a1",
         "filename": "modules/canvaskit/tests/font.spec.js",
         "patchSetId": 1
@@ -77,6 +143,30 @@
       "writtenOn": "2021-05-17T18:37:31Z",
       "side": 1,
       "message": "cool, did not know this pattern. thanks.",
+      "range": {
+        "startLine": 351,
+        "startChar": 8,
+        "endLine": 351,
+        "endChar": 36
+      },
+      "revId": "f7017d63e2e9a7e90c85e7681d1c50f40eabc65c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ea79432d_1b533a7b",
+        "filename": "modules/canvaskit/tests/font.spec.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-05-17T19:01:03Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "a9e720ea_9b42c5a1",
       "range": {
         "startLine": 351,
         "startChar": 8,
