@@ -74,6 +74,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "5ed3cfdb_ae4e59c0",
+        "filename": "modules/canvaskit/WasmCommon.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-05-17T19:33:07Z",
+      "side": 1,
+      "message": "// Don\u0027t use templates to reduce code size\nstd::tuple\u003cvoid*, size_t, bool\u003e\npre_span(const val\u0026 src, const char arrayType[], size_t sizeT) {\n   size_t size \u003d src[\"length\"].as\u003cunsigned int\u003e();\n   if (size \u003d\u003d 0) { return {nullptr, 0, false} }\n   if (src[\"_ck\"].isTrue()) {\n      return {reinterpret_cast\u003cvoid*\u003e(src[\"byteOffset\"].as\u003csize_t\u003e(), size, false};\n   } else {\n      if (src.instanceof(emscripten::val::global(arrayType))) {\n          void* buffer \u003d malloc(sizeT * size);\n          emscripten::val memoryView{emscripten::typed_memory_view(size, buffer)};\n          memoryView.call\u003cvoid\u003e(\"set\", v);\n          return {buffer, size, true};\n      } else {\n          // I assume this is a rare case, and only here to keep things safe.\n          std:vector\u003cT\u003e v \u003d emscripten::vecFromJSArray\u003cT\u003e(src);\n          if (v.empty()) { return {nullptr, 0, false}; }\n          size_t size_bytes \u003d sizeT * v.size();\n          void* buffer \u003d malloc(size_bytes);\n          memcpy(buffer, v.data(), size_bytes);\n          return {buffer, v.size(), true};\n      } \n   }\n}\n\ntemplate\u003ctypename T\u003e\nclass JSSpan {\npublic:\n    JSSpan Make(JSArray src, const char arrayType[]) {\n       auto [ptr, size, owned] \u003d pre_span(src, arrayType, sizeof(T));\n       return {SkSpan\u003cconst T\u003e{ptr, size}, owned};\n    }\n    ~JSSpan() { if (fOwned) {free(fSpan.data())}; }\n   operator SkSpan\u003cconst T\u003e() const {return fSpan;}\n\nprivate:\n    JSSpan(SkSpan\u003cconst T\u003e(SkSpan\u003cconst T\u003e span, bool owned) \n        : fSpan{span}, fOwned{owned} {}\n    const SkSpan\u003cconst T\u003e fSpan;\n    const bool fOwned;\n};",
+      "parentUuid": "4342d58d_05baec97",
+      "range": {
+        "startLine": 52,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 66
+      },
+      "revId": "9a373c7b16117785c2249078b7f0838993ba7584",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8d87eb81_ebef4b7e",
         "filename": "modules/canvaskit/WasmCommon.h",
         "patchSetId": 3

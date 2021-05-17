@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1b686231_f27260b9",
+        "filename": "modules/canvaskit/WasmCommon.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-05-17T19:33:07Z",
+      "side": 1,
+      "message": "You are doing a vector copy here. I think you want std::vector\u003cT\u003e\u0026\u0026 src.",
+      "range": {
+        "startLine": 58,
+        "startChar": 17,
+        "endLine": 58,
+        "endChar": 35
+      },
+      "revId": "f44ff881088ccf877b59a61c392fcbc0403d7b8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aac6bd8b_3356a8a0",
+        "filename": "modules/canvaskit/WasmCommon.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-05-17T19:33:07Z",
+      "side": 1,
+      "message": "This will produce code for every type T. Best to make this totally type agnostic. See above comment.",
+      "range": {
+        "startLine": 72,
+        "startChar": 0,
+        "endLine": 72,
+        "endChar": 21
+      },
+      "revId": "f44ff881088ccf877b59a61c392fcbc0403d7b8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
