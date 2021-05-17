@@ -1213,8 +1213,8 @@ EMSCRIPTEN_BINDINGS(Skia) {
                                                              JSArray jglyphs,
                                                              JSArray jpos,
                                                              float top, float bottom) -> JSArray {
-            auto glyphs = CopyTypedArray<uint16_t>(jglyphs, "Uint16Array");
-            auto pos    = CopyTypedArray<float>(jpos, "Float32Array");
+            auto glyphs = ReadTypedArray<uint16_t>(jglyphs, "Uint16Array");
+            auto pos    = ReadTypedArray<float>(jpos, "Float32Array");
             if (glyphs.size() > (pos.size() >> 1)) {
                 return emscripten::val("Not enough x,y position pairs for glyphs");
             }
