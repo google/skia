@@ -50,6 +50,24 @@
       "message": "Isn\u0027t the typical precision value 4 (1/4 pixel)?",
       "revId": "d558b11d2e5b8116d39207e26440515fc62bd427",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f9a79a1e_0ceec451",
+        "filename": "src/gpu/geometry/GrWangsFormula.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-05-17T20:36:26Z",
+      "side": 1,
+      "message": "Never mind, I see \u0027parametricPrecision\u0027 is an argument to this function.",
+      "parentUuid": "fdf3e0f0_e89a02f0",
+      "revId": "d558b11d2e5b8116d39207e26440515fc62bd427",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
