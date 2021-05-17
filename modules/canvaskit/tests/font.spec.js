@@ -333,4 +333,22 @@ describe('Font Behavior', () => {
         fontMgr.delete();
     });
 
+    fit('can get the intercepts of glyphs', () => {
+        const font = new CanvasKit.Font();
+        font.setTypeface(null);
+        font.setSize(100);
+        const ids = font.getGlyphIDs('I');
+        expect(ids.length).toEqual(1);
+
+        // aim for the middle of the I at 100 point, expecting a hit
+        let sects = font.getGlyphIntercepts(ids, [0, 0], -60, -40);
+        expect(sects.length).toEqual(2, "expected one pair of intercepts");
+        expect(sects[0]).toBeCloseTo(25.39063, 5);
+        expect(sects[1]).toBeCloseTo(34.52148, 5);
+
+        // aim below the baseline where we expect no intercepts
+        sects = font.getGlyphIntercepts(ids, [0, 0], 20, 30);
+        expect(sects.length).toEqual(0, "expected no intercepts");
+    })
+
 });
