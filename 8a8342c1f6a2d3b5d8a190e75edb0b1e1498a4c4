@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "43e70331_daef8df4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-05-17T18:22:21Z",
+      "side": 1,
+      "message": "The SwiftShader bug is understood and worked around now. This ought to be good to land.",
+      "revId": "8a8342c1f6a2d3b5d8a190e75edb0b1e1498a4c4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
