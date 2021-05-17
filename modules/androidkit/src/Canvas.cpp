@@ -25,6 +25,14 @@ void Canvas_Restore(JNIEnv* env, jobject, jlong native_instance) {
     }
 }
 
+jlong Canvas_LocalToDevice(JNIEnv* env, jobject, jlong native_instance) {
+    if (auto* canvas = reinterpret_cast<SkCanvas*>(native_instance)) {
+        SkM44* m = new SkM44(canvas->getLocalToDevice());
+        return reinterpret_cast<jlong>(m);
+    }
+    return 0;
+}
+
 void Canvas_Concat(JNIEnv* env, jobject, jlong native_instance, jlong native_matrix) {
     auto* canvas = reinterpret_cast<SkCanvas*>(native_instance);
     auto* matrix = reinterpret_cast<SkM44*   >(native_matrix);
@@ -65,12 +73,13 @@ void Canvas_DrawRect(JNIEnv* env, jobject, jlong native_instance,
 
 int register_androidkit_Canvas(JNIEnv* env) {
     static const JNINativeMethod methods[] = {
-        {"nSave"     , "(J)V"     , reinterpret_cast<void*>(Canvas_Save)     },
-        {"nRestore"  , "(J)V"     , reinterpret_cast<void*>(Canvas_Restore)  },
-        {"nConcat"   , "(JJ)V"    , reinterpret_cast<void*>(Canvas_Concat)   },
-        {"nConcat16f", "(J[F)V"   , reinterpret_cast<void*>(Canvas_Concat16f)},
-        {"nDrawColor", "(JFFFF)V" , reinterpret_cast<void*>(Canvas_DrawColor)},
-        {"nDrawRect" , "(JFFFFJ)V", reinterpret_cast<void*>(Canvas_DrawRect) },
+        {"nSave"              , "(J)V"     , reinterpret_cast<void*>(Canvas_Save)           },
+        {"nRestore"           , "(J)V"     , reinterpret_cast<void*>(Canvas_Restore)        },
+        {"nGetLocalToDevice"  , "(J)J"     , reinterpret_cast<void*>(Canvas_LocalToDevice)  },
+        {"nConcat"            , "(JJ)V"    , reinterpret_cast<void*>(Canvas_Concat)         },
+        {"nConcat16f"         , "(J[F)V"   , reinterpret_cast<void*>(Canvas_Concat16f)      },
+        {"nDrawColor"         , "(JFFFF)V" , reinterpret_cast<void*>(Canvas_DrawColor)      },
+        {"nDrawRect"          , "(JFFFFJ)V", reinterpret_cast<void*>(Canvas_DrawRect)       },
     };
 
     const auto clazz = env->FindClass("org/skia/androidkit/Canvas");

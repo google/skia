@@ -38,7 +38,7 @@ public class Matrix {
                                   m3, m7, m11, m15);
     }
 
-    private Matrix(long nativeInstance) {
+    Matrix(long nativeInstance) {
         mNativeInstance = nativeInstance;
     }
 
