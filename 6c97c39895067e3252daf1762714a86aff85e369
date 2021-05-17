@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dbffcdb6_7a5235c2",
+        "filename": "modules/androidkit/src/SkottieAnimation.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-17T21:05:05Z",
+      "side": 1,
+      "message": "Good point, done.",
+      "parentUuid": "30d7c86b_5ee39e84",
+      "range": {
+        "startLine": 30,
+        "startChar": 7,
+        "endLine": 30,
+        "endChar": 13
+      },
+      "revId": "6c97c39895067e3252daf1762714a86aff85e369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "78a6c66c_c26403c8",
@@ -75,6 +99,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8dabedc8_49cb2b78",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/SkottieAnimation.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-17T21:05:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "df87d209_ef7d6e80",
+      "revId": "6c97c39895067e3252daf1762714a86aff85e369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "25f0dce7_1bb052be",
@@ -88,6 +130,24 @@
       "writtenOn": "2021-05-17T19:46:28Z",
       "side": 1,
       "message": "Should we consider moving this to the AndroidKit API. Maybe a different constructor that when passed in a resource ID (int?), we parse it to a byte array for the client?",
+      "revId": "6c97c39895067e3252daf1762714a86aff85e369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "044fff9c_61493b41",
+        "filename": "platform_tools/android/apps/androidkitdemo/src/main/java/org/skia/androidkitdemo1/SkottieAnimationActivity.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-17T21:05:05Z",
+      "side": 1,
+      "message": "Hmmm... I like the idea but was going to push back on resource IDs (because they require a resource manager to resolve) and propose using a general InputStream instead.\n\nOn second thought, a resource manager is exactly what we\u0027re going to need to support external resources (images etc).\n\nI think this will fit nicely with a builder pattern similar to the native side:\n\n  SkottieAnimation.Builder()\n      .setResources(getResources())\n      .setLogger(...)\n      .makeFromResource(ID); // or makeFromStream(), or makeFromString()\n\nLet\u0027s leave as is for now and I\u0027ll circle back with a builder?",
+      "parentUuid": "25f0dce7_1bb052be",
       "revId": "6c97c39895067e3252daf1762714a86aff85e369",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }

@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9af501e4_0e60a614",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-17T21:05:05Z",
+      "side": 1,
+      "message": "Also relocated the render method from Canvas to SkottieAnimation (per conversation with reed@).",
+      "revId": "8ff4dd7e1e489268cfd45062c7ac4e6cad187433",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
