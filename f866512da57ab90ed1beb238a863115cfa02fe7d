@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "accf37c7_02a5e7f4",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Canvas.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-05-17T17:33:22Z",
+      "side": 1,
+      "message": "Agreed, before expanding on this class further I\u0027ll look into pros and cons of having matrix be managed in java. Leaning towards 16 floats though",
+      "parentUuid": "151acb81_78c2c6a7",
+      "range": {
+        "startLine": 28,
+        "startChar": 13,
+        "endLine": 28,
+        "endChar": 26
+      },
+      "revId": "f866512da57ab90ed1beb238a863115cfa02fe7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bbf1f20a_7369560a",
