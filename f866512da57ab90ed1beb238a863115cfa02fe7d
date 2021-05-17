@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bbf1f20a_7369560a",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Matrix.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-05-17T16:37:22Z",
+      "side": 1,
+      "message": "Made package private so that Canvas could access it. An alternative is instead of getLocalToDevice native function returning a long pointer, we could return an array of floats to pass into Matrix\u0027s public constructor. Let me know your thoughts.",
+      "revId": "f866512da57ab90ed1beb238a863115cfa02fe7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
