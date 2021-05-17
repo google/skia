@@ -374,7 +374,7 @@
       "tasks": [
         "Build-Debian9-Clang-arm-Release-Flutter_Android_Docker"
       ],
-      "trigger": "master"
+      "trigger": "main"
     },
     "Build-Mac-Clang-arm64-Debug": {
       "tasks": [
@@ -445,7 +445,7 @@
       "tasks": [
         "Build-Mac-Clang-x86_64-Debug-CommandBuffer"
       ],
-      "trigger": "master"
+      "trigger": "main"
     },
     "Build-Mac-Clang-x86_64-Debug-Metal": {
       "tasks": [
@@ -466,7 +466,7 @@
       "tasks": [
         "Build-Mac-Clang-x86_64-Release-CommandBuffer"
       ],
-      "trigger": "master"
+      "trigger": "main"
     },
     "Build-Mac-Clang-x86_64-Release-Metal": {
       "tasks": [
@@ -727,7 +727,7 @@
       "tasks": [
         "Upload-BuildStats-Debian9-Clang-arm-Release-Flutter_Android_Docker"
       ],
-      "trigger": "master"
+      "trigger": "main"
     },
     "Canary-Android": {
       "tasks": [
@@ -1267,7 +1267,7 @@
       "tasks": [
         "Upload-Perf-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-CommandBuffer"
       ],
-      "trigger": "master"
+      "trigger": "main"
     },
     "Perf-Mac10.13-Clang-MacBookPro11.5-CPU-AVX2-x86_64-Release-All": {
       "tasks": [
@@ -1283,7 +1283,7 @@
       "tasks": [
         "Upload-Perf-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-CommandBuffer"
       ],
-      "trigger": "master"
+      "trigger": "main"
     },
     "Perf-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All": {
       "tasks": [
@@ -1294,7 +1294,7 @@
       "tasks": [
         "Upload-Perf-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All-CommandBuffer"
       ],
-      "trigger": "master"
+      "trigger": "main"
     },
     "Perf-Mac10.15.1-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All": {
       "tasks": [
@@ -1305,7 +1305,7 @@
       "tasks": [
         "Upload-Perf-Mac10.15.1-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All-CommandBuffer"
       ],
-      "trigger": "master"
+      "trigger": "main"
     },
     "Perf-Mac10.15.1-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All-Metal": {
       "tasks": [
@@ -2302,7 +2302,7 @@
       "tasks": [
         "Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All-CommandBuffer"
       ],
-      "trigger": "master"
+      "trigger": "main"
     },
     "Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All": {
       "tasks": [
@@ -2338,7 +2338,7 @@
       "tasks": [
         "Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-CommandBuffer"
       ],
-      "trigger": "master"
+      "trigger": "main"
     },
     "Test-Mac10.13-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-OpenCL": {
       "tasks": [
@@ -2364,7 +2364,7 @@
       "tasks": [
         "Test-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All-CommandBuffer"
       ],
-      "trigger": "master"
+      "trigger": "main"
     },
     "Test-Mac10.13-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Release-All": {
       "tasks": [
@@ -2395,7 +2395,7 @@
       "tasks": [
         "Test-Mac10.15.1-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All-CommandBuffer"
       ],
-      "trigger": "master"
+      "trigger": "main"
     },
     "Test-Mac10.15.1-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All-DDL1_Metal": {
       "tasks": [
