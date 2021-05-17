@@ -24,6 +24,11 @@ public class Canvas {
         nRestore(mNativeInstance);
     }
 
+    public Matrix getLocalToDevice() {
+        long native_matrix = nGetLocalToDevice(mNativeInstance);
+        return new Matrix(native_matrix);
+    }
+
     public void concat(Matrix m) {
         nConcat(mNativeInstance, m.getNativeInstance());
     }
@@ -65,6 +70,7 @@ public class Canvas {
 
     private static native void nSave(long nativeInstance);
     private static native void nRestore(long nativeInstance);
+    private static native long nGetLocalToDevice(long mNativeInstance);
     private static native void nConcat(long nativeInstance, long nativeMatrix);
     private static native void nConcat16f(long nativeInstance, float[] floatMatrix);
 
