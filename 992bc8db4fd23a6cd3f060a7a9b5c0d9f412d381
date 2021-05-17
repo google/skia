@@ -22,6 +22,30 @@
       },
       "revId": "992bc8db4fd23a6cd3f060a7a9b5c0d9f412d381",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2b71f474_774b5f65",
+        "filename": "src/sksl/codegen/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 2306,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-17T13:29:25Z",
+      "side": 1,
+      "message": "If we put the \u003d here, ClangTidy will show an error. The standard library doesn\u0027t actually have consistent naming for its arguments. {count, value} comes from cppreference.com. \n\nGCC has __n and __value:\nhttps://github.com/gcc-mirror/gcc/blob/master/libstdc%2B%2B-v3/include/bits/stl_vector.h#L522\n\nlibc++ has n and value:\nhttps://github.com/llvm-mirror/libcxx/blob/master/include/vector#L165",
+      "parentUuid": "088dedec_3b3320fc",
+      "range": {
+        "startLine": 2306,
+        "startChar": 36,
+        "endLine": 2306,
+        "endChar": 46
+      },
+      "revId": "992bc8db4fd23a6cd3f060a7a9b5c0d9f412d381",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
