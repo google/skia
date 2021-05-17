@@ -205,7 +205,11 @@ void SPIRVCodeGenerator::writeOpCode(SpvOp_ opCode, int length, OutputStream& ou
         case SpvOpSwitch:      // fall through
         case SpvOpBranch:      // fall through
         case SpvOpBranchConditional:
-            SkASSERT(fCurrentBlock);
+            if (fCurrentBlock == 0) {
+                // We just encountered dead code--instructions that don't have an associated block.
+                // Synthesize a label if this happens; this is necessary to satisfy the validator.
+                this->writeLabel(this->nextId(nullptr), out);
+            }
             fCurrentBlock = 0;
             break;
         case SpvOpConstant:          // fall through
