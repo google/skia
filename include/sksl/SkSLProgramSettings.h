@@ -11,7 +11,11 @@
 #include "include/private/SkSLDefines.h"
 #include "include/private/SkSLProgramKind.h"
 
+#include <vector>
+
 namespace SkSL {
+
+class ExternalFunction;
 
 /**
  * Holds the compiler settings for a program.
@@ -67,6 +71,8 @@ struct ProgramSettings {
     // If true, configurations which demand strict ES2 conformance (runtime effects, generic
     // programs, and SkVM rendering) will fail during compilation if ES2 restrictions are violated.
     bool fEnforceES2Restrictions = true;
+    // External functions available for use in runtime effects.
+    const std::vector<std::unique_ptr<ExternalFunction>>* fExternalFunctions = nullptr;
 };
 
 /**
