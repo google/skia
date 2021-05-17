@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "64be7689_6d33f56f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-17T19:19:30Z",
+      "side": 1,
+      "message": "propose landing with std::vector for now, as it matches the current caller.\n\nptal",
+      "revId": "f1e4ef6d8b83a7c2116eeb087ff250c314cad919",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
