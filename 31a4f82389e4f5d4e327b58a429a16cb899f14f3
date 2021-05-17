@@ -16,6 +16,24 @@
       "message": "I did not know \"go mod download\" was required as well. I wish I could edit the description of https://skia-review.googlesource.com/c/skia/+/409277",
       "revId": "31a4f82389e4f5d4e327b58a429a16cb899f14f3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f14fc632_b77395b8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-05-17T17:19:35Z",
+      "side": 1,
+      "message": "I\u0027ve given up trying to understand which Go commands cause go.mod and go.sum to update.  It seems to change with every new Go version.",
+      "parentUuid": "c676935f_f7439220",
+      "revId": "31a4f82389e4f5d4e327b58a429a16cb899f14f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
