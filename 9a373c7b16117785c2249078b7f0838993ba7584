@@ -22,6 +22,29 @@
       },
       "revId": "9a373c7b16117785c2249078b7f0838993ba7584",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8d87eb81_ebef4b7e",
+        "filename": "modules/canvaskit/WasmCommon.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-05-17T17:51:29Z",
+      "side": 1,
+      "message": "Do this check before checking if it\u0027s a TypedArray or not. That should support both a MallocObj and a Malloc\u0027d typed array.",
+      "range": {
+        "startLine": 78,
+        "startChar": 8,
+        "endLine": 80,
+        "endChar": 9
+      },
+      "revId": "9a373c7b16117785c2249078b7f0838993ba7584",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
