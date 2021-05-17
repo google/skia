@@ -123,8 +123,6 @@ GrFPResult GrConvexPolyEffect::Make(std::unique_ptr<GrFragmentProcessor> inputFP
     while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
         switch (verb) {
             case SkPath::kMove_Verb:
-                SkASSERT(n == 0);
-                break;
             case SkPath::kClose_Verb:
                 break;
             case SkPath::kLine_Verb: {
@@ -147,6 +145,7 @@ GrFPResult GrConvexPolyEffect::Make(std::unique_ptr<GrFragmentProcessor> inputFP
                 break;
             }
             default:
+                // Non-linear segment so not a polygon.
                 return GrFPFailure(std::move(inputFP));
         }
     }
