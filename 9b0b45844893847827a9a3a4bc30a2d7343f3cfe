@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6e37269e_67e75539",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-17T17:12:05Z",
+      "side": 1,
+      "message": "If this utility works out, will move it out of this header. Just doing it here (at the moment) as this is the intended first client...",
+      "revId": "9b0b45844893847827a9a3a4bc30a2d7343f3cfe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
