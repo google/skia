@@ -886,15 +886,22 @@ void GrOpsTask::onMakeSkippable() {
 
 bool GrOpsTask::onIsUsed(GrSurfaceProxy* proxyToCheck) const {
     bool used = false;
-
-    auto visit = [ proxyToCheck, &used ] (GrSurfaceProxy* p, GrMipmapped) {
-        if (p == proxyToCheck) {
+    for (GrSurfaceProxy* proxy : fSampledProxies) {
+        if (proxy == proxyToCheck) {
             used = true;
+            break;
+        }
+    }
+#ifdef SK_DEBUG
+    bool usedSlow = false;
+    auto visit = [ proxyToCheck, &usedSlow ] (GrSurfaceProxy* p, GrMipmapped) {
+        if (p == proxyToCheck) {
+            usedSlow = true;
         }
     };
-    for (const OpChain& recordedOp : fOpChains) {
-        recordedOp.visitProxies(visit);
-    }
+    this->visitProxies_debugOnly(visit);
+    SkASSERT(used == usedSlow);
+#endif
 
     return used;
 }
@@ -939,6 +946,7 @@ void GrOpsTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {
                            GrResourceAllocator::ActualUse::kYes
                            SkDEBUGCODE(, this->target(0) == p));
     };
+    // TODO: visitProxies is expensive. Can we do this with fSampledProxies instead?
     for (const OpChain& recordedOp : fOpChains) {
         recordedOp.visitProxies(gather);
 
