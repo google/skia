@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d233fd31_79675ed5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-17T21:08:14Z",
+      "side": 1,
+      "message": "Couldn\u0027t manage to may the impl be type-unaware. Maybe we can later.\n\nI think Herb\u0027s suggested pattern (JSArraySpan) is *much* cleaner.\n\nptal",
+      "revId": "b6ace0ce9738674ae4807eae3c9545d106e9ab93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
