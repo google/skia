@@ -201,7 +201,7 @@ void GpuGM::onDraw(GrRecordingContext*, GrSurfaceDrawContext*, SkCanvas*) {
 DrawResult GpuGM::onDraw(SkCanvas* canvas, SkString* errorMsg) {
 
     auto ctx = canvas->recordingContext();
-    GrSurfaceDrawContext* sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
+    GrSurfaceDrawContext* sdc = nullptr; //SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
     if (!ctx || !sdc) {
         *errorMsg = kErrorMsg_DrawSkippedGpuOnly;
         return DrawResult::kSkip;

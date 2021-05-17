@@ -8,11 +8,13 @@
 #ifndef SkGpuDevice_DEFINED
 #define SkGpuDevice_DEFINED
 
+#include "include/gpu/GrTypes.h"
+
+#if 1 //SK_OGA
 #include "include/core/SkBitmap.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkRegion.h"
 #include "include/core/SkSurface.h"
-#include "include/gpu/GrTypes.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/SkBaseGpuDevice.h"
 #include "src/gpu/SkGr.h"
@@ -34,6 +36,25 @@ class SkVertices;
  */
 class SkGpuDevice : public SkBaseGpuDevice  {
 public:
+    GrSurfaceProxyView readSurfaceView() override {
+        return this->surfaceDrawContext()->readSurfaceView();
+    }
+
+    GrRenderTarget* accessRenderTarget1() override {
+        return this->surfaceDrawContext()->accessRenderTarget();
+    }
+
+    GrImageInfo grImageInfo() const override {
+        return this->surfaceDrawContext()->imageInfo();
+    }
+
+    bool wait(int numSemaphores,
+              const GrBackendSemaphore* waitSemaphores,
+              bool deleteSemaphoresAfterWait) override;
+    void discard() override {
+        this->surfaceDrawContext()->discard();
+    }
+
     enum InitContents {
         kClear_InitContents,
         kUninit_InitContents
@@ -60,7 +81,8 @@ public:
     ~SkGpuDevice() override {}
 
     GrRecordingContext* recordingContext() const override { return fContext.get(); }
-    GrSurfaceDrawContext* surfaceDrawContext() override;
+    GrSurfaceDrawContext* surfaceDrawContext();
+    const GrSurfaceDrawContext* surfaceDrawContext() const;
 
     // set all pixels to 0
     void clearAll();
@@ -108,9 +130,6 @@ public:
     sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override;
     sk_sp<SkSpecialImage> snapSpecial(const SkIRect& subset, bool forceCopy = false) override;
-
-    bool wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores,
-              bool deleteSemaphoresAfterWait);
 
     bool onAccessPixels(SkPixmap*) override;
 
@@ -211,5 +230,7 @@ private:
 };
 
 #undef GR_CLIP_STACK
+
+#endif // SK_OGA
 
 #endif

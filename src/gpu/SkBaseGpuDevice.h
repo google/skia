@@ -8,6 +8,8 @@
 #ifndef SkBaseGpuDevice_DEFINED
 #define SkBaseGpuDevice_DEFINED
 
+#include "src/gpu/GrSurfaceProxyView.h"
+
 // NOTE: when not defined, SkGpuDevice extends SkBaseDevice directly and manages its clip stack
 // using GrClipStack. When false, SkGpuDevice continues to extend SkClipStackDevice and uses
 // SkClipStack and GrClipStackClip to manage the clip stack.
@@ -26,6 +28,8 @@
     #define BASE_DEVICE   SkClipStackDevice
 #endif
 
+class GrImageInfo;
+
 class SkBaseGpuDevice : public BASE_DEVICE {
 public:
     SkBaseGpuDevice(const SkImageInfo& ii, const SkSurfaceProps& props)
@@ -33,6 +37,16 @@ public:
     }
 
     // TODO: SkGpuDevice/SkGpuDevice_nga shared stuff goes here
+    virtual GrSurfaceProxyView readSurfaceView() = 0;
+    GrRenderTargetProxy* targetProxy() override {
+        return this->readSurfaceView().asRenderTargetProxy();
+    }
+    virtual GrRenderTarget* accessRenderTarget1() = 0;
+    virtual GrImageInfo grImageInfo() const = 0;
+    virtual bool wait(int numSemaphores,
+                      const GrBackendSemaphore* waitSemaphores,
+                      bool deleteSemaphoresAfterWait) = 0;
+    virtual void discard() = 0;
 
 protected:
 
