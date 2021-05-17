@@ -52,6 +52,24 @@
       "parentUuid": "632ff935_fd6a6249",
       "revId": "dc20a5d278cbd524fb2013f661878e21252d01f8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "171a3914_32af478b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-05-17T20:16:13Z",
+      "side": 1,
+      "message": "Offline, we\u0027ve resolved to land as is and, possibly, follow up with a renaming CL.",
+      "parentUuid": "9434314a_d2bbce3a",
+      "revId": "dc20a5d278cbd524fb2013f661878e21252d01f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
