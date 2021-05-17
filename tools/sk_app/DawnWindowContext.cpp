@@ -13,7 +13,7 @@
 
 #include "dawn/dawn_proc.h"
 
-static wgpu::TextureUsage kUsage = wgpu::TextureUsage::OutputAttachment |
+static wgpu::TextureUsage kUsage = wgpu::TextureUsage::RenderAttachment |
                                    wgpu::TextureUsage::CopySrc;
 
 static void PrintDeviceError(WGPUErrorType, const char* message, void*) {
