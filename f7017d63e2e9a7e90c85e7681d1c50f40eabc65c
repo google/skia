@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9493a86d_dd21cf39",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-17T18:38:26Z",
+      "side": 1,
+      "message": "wow, how did I get away with \u0027Boolean\u0027 in the ts file?",
+      "revId": "f7017d63e2e9a7e90c85e7681d1c50f40eabc65c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9d1d5173_4db8cf0a",
