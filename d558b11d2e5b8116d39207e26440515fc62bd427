@@ -16,6 +16,40 @@
       "message": "Hey Tyler! This CL looks huge but it\u0027s really mostly just a bunch of copy/paste. It should be a pure refactor, so the only diffs should come from the parent CL.\n\nI think you can see where I\u0027m going with this. One more refactor of the fill shaders and then we will have one place where all the shader code calculates Wang\u0027s formula (GrWangsFormula::as_sksl) at which point we can update it to use your better conic formula.",
       "revId": "d558b11d2e5b8116d39207e26440515fc62bd427",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e070caf8_819d404e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-05-17T20:23:48Z",
+      "side": 1,
+      "message": "Only one question on the new SkSL implementation of Wang\u0027s formula, otherwise I\u0027m hoping the Ctrl-C Ctrl-V didn\u0027t change any of the other actual implementation :-). The reorg makes sense to me.",
+      "revId": "d558b11d2e5b8116d39207e26440515fc62bd427",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fdf3e0f0_e89a02f0",
+        "filename": "src/gpu/geometry/GrWangsFormula.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-05-17T20:23:48Z",
+      "side": 1,
+      "message": "Isn\u0027t the typical precision value 4 (1/4 pixel)?",
+      "revId": "d558b11d2e5b8116d39207e26440515fc62bd427",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
