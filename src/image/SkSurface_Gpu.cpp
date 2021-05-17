@@ -236,19 +236,17 @@ bool SkSurface_Gpu::onCharacterize(SkSurfaceCharacterization* characterization) 
         return false;
     }
 
-    GrSurfaceProxyView readSurfaceView = fDevice->readSurfaceView();
-    GrImageInfo grII = fDevice->grImageInfo();
+    SkImageInfo ii = fDevice->imageInfo();
+    if (ii.colorType() == kUnknown_SkColorType) {
+        return false;
+    }
 
+    GrSurfaceProxyView readSurfaceView = fDevice->readSurfaceView();
     size_t maxResourceBytes = direct->getResourceCacheLimit();
 
     bool mipmapped = readSurfaceView.asTextureProxy()
                             ? GrMipmapped::kYes == readSurfaceView.asTextureProxy()->mipmapped()
                             : false;
-
-    SkColorType ct = GrColorTypeToSkColorType(grII.colorInfo().colorType());
-    if (ct == kUnknown_SkColorType) {
-        return false;
-    }
 
     bool usesGLFBO0 = readSurfaceView.asRenderTargetProxy()->glRTFBOIDIs0();
     // We should never get in the situation where we have a texture render target that is also
@@ -257,9 +255,6 @@ bool SkSurface_Gpu::onCharacterize(SkSurfaceCharacterization* characterization) 
 
     bool vkRTSupportsInputAttachment =
                             readSurfaceView.asRenderTargetProxy()->supportsVkInputAttachment();
-
-    SkImageInfo ii = SkImageInfo::Make(grII.width(), grII.height(), ct, kPremul_SkAlphaType,
-                                       grII.colorInfo().refColorSpace());
 
     GrBackendFormat format = readSurfaceView.proxy()->backendFormat();
     int numSamples = readSurfaceView.asRenderTargetProxy()->numSamples();
@@ -328,9 +323,12 @@ bool SkSurface_Gpu::onIsCompatible(const SkSurfaceCharacterization& characteriza
         return false;
     }
 
-    GrSurfaceProxyView targetView = fDevice->readSurfaceView();
-    GrImageInfo grII = fDevice->grImageInfo();
+    SkImageInfo ii = fDevice->imageInfo();
+    if (ii.colorType() == kUnknown_SkColorType) {
+        return false;
+    }
 
+    GrSurfaceProxyView targetView = fDevice->readSurfaceView();
     // As long as the current state if the context allows for greater or equal resources,
     // we allow the DDL to be replayed.
     // DDL TODO: should we just remove the resource check and ignore the cache limits on playback?
@@ -362,11 +360,6 @@ bool SkSurface_Gpu::onIsCompatible(const SkSurfaceCharacterization& characteriza
         }
     }
 
-    SkColorType rtcColorType = GrColorTypeToSkColorType(grII.colorInfo().colorType());
-    if (rtcColorType == kUnknown_SkColorType) {
-        return false;
-    }
-
     GrBackendFormat format = targetView.asRenderTargetProxy()->backendFormat();
     int numSamples = targetView.asRenderTargetProxy()->numSamples();
     GrProtected isProtected = targetView.proxy()->isProtected();
@@ -376,10 +369,11 @@ bool SkSurface_Gpu::onIsCompatible(const SkSurfaceCharacterization& characteriza
            characterization.cacheMaxResourceBytes() <= maxResourceBytes &&
            characterization.origin() == targetView.origin() &&
            characterization.backendFormat() == format &&
-           characterization.width() == grII.width() && characterization.height() == grII.height() &&
-           characterization.colorType() == rtcColorType &&
+           characterization.width() == ii.width() &&
+           characterization.height() == ii.height() &&
+           characterization.colorType() == ii.colorType() &&
            characterization.sampleCount() == numSamples &&
-           SkColorSpace::Equals(characterization.colorSpace(), grII.colorInfo().colorSpace()) &&
+           SkColorSpace::Equals(characterization.colorSpace(), ii.colorInfo().colorSpace()) &&
            characterization.isProtected() == isProtected &&
            characterization.surfaceProps() == fDevice->surfaceProps();
 }
