@@ -68,6 +68,24 @@
       "parentUuid": "fdf3e0f0_e89a02f0",
       "revId": "d558b11d2e5b8116d39207e26440515fc62bd427",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8820733b_e10c347d",
+        "filename": "src/gpu/geometry/GrWangsFormula.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-05-17T22:04:33Z",
+      "side": 1,
+      "message": "Yep, 4 is normal but sometimes we run this equation on a set of points *before* the view matrix, in which case we want parametricPrecision to be \"4 * matrixMaxScale\"",
+      "parentUuid": "f9a79a1e_0ceec451",
+      "revId": "d558b11d2e5b8116d39207e26440515fc62bd427",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
