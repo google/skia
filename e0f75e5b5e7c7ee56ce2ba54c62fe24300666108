@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1e075896_7956b658",
+        "filename": "include/private/DSL_priv.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-17T19:55:23Z",
+      "side": 1,
+      "message": "Sorry, just trying to keep include/ as lean as possible. It looks like both DSL_priv.h and SkSLParsedModule.h can go back to living in src/ ? They\u0027re never included from anything else in include.\n\nAlso, (independently of that) this header should be including SkSLProgramKind.h and SkSLParsedModule.h, now.",
+      "range": {
+        "startLine": 21,
+        "startChar": 17,
+        "endLine": 22,
+        "endChar": 81
+      },
+      "revId": "e0f75e5b5e7c7ee56ce2ba54c62fe24300666108",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8853be7c_1803b232",
+        "filename": "src/sksl/ir/SkSLTernaryExpression.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-17T19:55:23Z",
+      "side": 1,
+      "message": "Leftover. (There\u0027s now two copies of this line in this file).",
+      "revId": "e0f75e5b5e7c7ee56ce2ba54c62fe24300666108",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
