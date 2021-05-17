@@ -8,6 +8,7 @@
 #ifndef SKSL_DSL_CORE
 #define SKSL_DSL_CORE
 
+#include "include/private/SkSLParsedModule.h"
 #include "include/private/SkSLProgramKind.h"
 #include "include/private/SkTArray.h"
 #include "include/sksl/DSLBlock.h"
@@ -23,6 +24,7 @@
 namespace SkSL {
 
 class Compiler;
+struct ProgramSettings;
 
 namespace dsl {
 
@@ -35,18 +37,18 @@ using namespace SkSL::SwizzleComponent;
 enum DSLFlag {
     kNo_Flag               = 0,
     kMangle_Flag           = 1 << 0,
-    kOptimize_Flag         = 1 << 1,
-    kValidate_Flag         = 1 << 2,
-    kMarkVarsDeclared_Flag = 1 << 3,
+    kMarkVarsDeclared_Flag = 1 << 1,
 };
 
-constexpr int kDefaultDSLFlags = kMangle_Flag | kOptimize_Flag | kValidate_Flag;
+constexpr int kDefaultDSLFlags = kMangle_Flag;
 
 /**
  * Starts DSL output on the current thread using the specified compiler. This must be called
  * prior to any other DSL functions.
  */
-void Start(SkSL::Compiler* compiler, SkSL::ProgramKind kind = SkSL::ProgramKind::kFragment,
+void Start(SkSL::Compiler* compiler, SkSL::ProgramKind kind = SkSL::ProgramKind::kFragment);
+
+void Start(SkSL::Compiler* compiler, SkSL::ProgramKind kind, SkSL::ProgramSettings settings,
            int flags = kDefaultDSLFlags);
 
 /**
