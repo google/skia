@@ -130,6 +130,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "404a7c03_d2dd9d0f",
+        "filename": "modules/canvaskit/tests/font.spec.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-17T19:06:50Z",
+      "side": 1,
+      "message": "Ok. I prefer a more obvious test (to the reader), but this is much better than nothing.",
+      "parentUuid": "62bf313c_7548e0c6",
+      "range": {
+        "startLine": 346,
+        "startChar": 25,
+        "endLine": 346,
+        "endChar": 36
+      },
+      "revId": "f7017d63e2e9a7e90c85e7681d1c50f40eabc65c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a9e720ea_9b42c5a1",
