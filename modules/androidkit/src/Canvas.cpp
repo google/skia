@@ -8,6 +8,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
+#include "modules/skottie/include/Skottie.h"
 
 #include <jni.h>
 
@@ -61,16 +62,25 @@ void Canvas_DrawRect(JNIEnv* env, jobject, jlong native_instance,
     }
 }
 
+void Canvas_DrawAnimation(JNIEnv* env, jobject, jlong native_instance, jlong native_animation) {
+    auto* canvas = reinterpret_cast<SkCanvas*>(native_instance);
+    const auto* animation = reinterpret_cast<const skottie::Animation*>(native_animation);
+    if (canvas && animation) {
+        animation->render(canvas);
+    }
+}
+
 }  // namespace
 
 int register_androidkit_Canvas(JNIEnv* env) {
     static const JNINativeMethod methods[] = {
-        {"nSave"     , "(J)V"     , reinterpret_cast<void*>(Canvas_Save)     },
-        {"nRestore"  , "(J)V"     , reinterpret_cast<void*>(Canvas_Restore)  },
-        {"nConcat"   , "(JJ)V"    , reinterpret_cast<void*>(Canvas_Concat)   },
-        {"nConcat16f", "(J[F)V"   , reinterpret_cast<void*>(Canvas_Concat16f)},
-        {"nDrawColor", "(JFFFF)V" , reinterpret_cast<void*>(Canvas_DrawColor)},
-        {"nDrawRect" , "(JFFFFJ)V", reinterpret_cast<void*>(Canvas_DrawRect) },
+        {"nSave"         , "(J)V"     , reinterpret_cast<void*>(Canvas_Save)          },
+        {"nRestore"      , "(J)V"     , reinterpret_cast<void*>(Canvas_Restore)       },
+        {"nConcat"       , "(JJ)V"    , reinterpret_cast<void*>(Canvas_Concat)        },
+        {"nConcat16f"    , "(J[F)V"   , reinterpret_cast<void*>(Canvas_Concat16f)     },
+        {"nDrawColor"    , "(JFFFF)V" , reinterpret_cast<void*>(Canvas_DrawColor)     },
+        {"nDrawRect"     , "(JFFFFJ)V", reinterpret_cast<void*>(Canvas_DrawRect)      },
+        {"nDrawAnimation", "(JJ)V"    , reinterpret_cast<void*>(Canvas_DrawAnimation) },
     };
 
     const auto clazz = env->FindClass("org/skia/androidkit/Canvas");
