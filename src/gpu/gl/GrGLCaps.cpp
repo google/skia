@@ -4105,6 +4105,11 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         ctxInfo.renderer() == GrGLRenderer::kAdreno640) {
         fAvoidReorderingRenderTasks = true;
     }
+
+    // http://skbug.com/11965
+    if (ctxInfo.renderer() == GrGLRenderer::kGoogleSwiftShader) {
+        fShaderCaps->fVertexIDSupport = false;
+    }
 }
 
 void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
