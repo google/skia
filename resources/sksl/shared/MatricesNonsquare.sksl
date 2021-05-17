@@ -41,6 +41,9 @@ bool test_float() {
     ok = ok && (m32 == float3x2(2, -2,
                                 -2, 2,
                                 -2, -2));
+    m24 /= 4;
+    ok = ok && (m24 == float2x4(0.75, 0, 0, 0,
+                                0, 0.75, 0, 0));
     return ok;
 }
 
@@ -85,6 +88,9 @@ bool test_half() {
     ok = ok && (m32 == half3x2(2, -2,
                                -2, 2,
                                -2, -2));
+    m24 /= 4;
+    ok = ok && (m24 == half2x4(0.75, 0, 0, 0,
+                               0, 0.75, 0, 0));
     return ok;
 }
 
