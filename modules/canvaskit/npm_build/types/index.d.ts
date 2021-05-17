@@ -652,7 +652,7 @@ export interface LineMetrics {
 
 export interface Range {
     first: number;
-    last:  number;
+    last: number;
 }
 
 /**
@@ -668,8 +668,8 @@ export interface Range {
 export interface GlyphRun {
     typeface: Typeface;     // currently set to null (temporary)
     size: number;
-    fakeBold: Boolean;
-    fakeItalic: Boolean;
+    fakeBold: boolean;
+    fakeItalic: boolean;
 
     glyphs: Uint16Array;
     positions: Float32Array;    // alternating x0, y0, x1, y1, ...
@@ -696,8 +696,8 @@ export interface FontBlock {
 
     typeface: Typeface;
     size: number;
-    fakeBold: Boolean;
-    fakeItalic: Boolean;
+    fakeBold: boolean;
+    fakeItalic: boolean;
 }
 
 /**
@@ -1667,16 +1667,14 @@ export interface Font extends EmbindObject<Font> {
      * then the returned array will be empty. If there are intersections, the array
      * will contain pairs of X coordinates [start, end] for each segment that
      * intersected with a glyph.
-     * 
+     *
      * @param glyphs        the glyphs to intersect with
      * @param positions     x,y coordinates (2 per glyph) for each glyph
      * @param top           top of the thick "line" to use for intersection testing
      * @param bottom        bottom of the thick "line" to use for intersection testing
-     * @param paint         optional (can be null) in case the paint affects the
-     *                      "thickness" of the glyphs (e.g. patheffect, stroking, maskfilter)
      * @return              array of [start, end] x-coordinate pairs. Maybe be empty.
      */
-    getGlyphIntercepts(glyphs: InputGlyphIDArray, positions: Float32Array,
+    getGlyphIntercepts(glyphs: InputGlyphIDArray, positions: Float32Array | number[],
                        top: number, bottom: number): Float32Array;
 
     /**
@@ -1699,7 +1697,7 @@ export interface Font extends EmbindObject<Font> {
      */
     isEmbolden(): boolean;
 
-     /**
+    /**
      * Returns the Typeface set for this font.
      */
     getTypeface(): Typeface | null;

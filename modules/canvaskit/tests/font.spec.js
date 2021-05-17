@@ -333,4 +333,53 @@ describe('Font Behavior', () => {
         fontMgr.delete();
     });
 
+    it('can get the intercepts of glyphs', () => {
+        const font = new CanvasKit.Font(null, 100);
+        const ids = font.getGlyphIDs('I');
+        expect(ids.length).toEqual(1);
+
+        // aim for the middle of the I at 100 point, expecting a hit
+        let sects = font.getGlyphIntercepts(ids, [0, 0], -60, -40);
+        expect(sects.length).toEqual(2, "expected one pair of intercepts");
+        expect(sects[0]).toBeCloseTo(25.39063, 5);
+        expect(sects[1]).toBeCloseTo(34.52148, 5);
+
+        // aim below the baseline where we expect no intercepts
+        sects = font.getGlyphIntercepts(ids, [0, 0], 20, 30);
+        expect(sects.length).toEqual(0, "expected no intercepts");
+        font.delete();
+    });
+
+    it('can use mallocd and normal arrays', () => {
+        const font = new CanvasKit.Font(null, 100);
+        const ids = font.getGlyphIDs('I');
+        expect(ids.length).toEqual(1);
+
+        // aim for the middle of the I at 100 point, expecting a hit
+        let sects = font.getGlyphIntercepts(Array.of(ids[0]), Float32Array.of(0, 0), -60, -40);
+        expect(sects[0]).toBeCloseTo(25.39063, 5);
+        expect(sects[1]).toBeCloseTo(34.52148, 5);
+
+        const mIDs = CanvasKit.MallocGlyphIDs(1);
+        const mPoints = CanvasKit.Malloc(Float32Array, 2);
+
+        const idArr = mIDs.toTypedArray();
+        idArr[0] = ids[0];
+
+        const pointsArr = mPoints.toTypedArray();
+        pointsArr.set([0, 0]);
+
+        sects = font.getGlyphIntercepts(idArr, pointsArr, -60, -40);
+        expect(sects[0]).toBeCloseTo(25.39063, 5);
+        expect(sects[1]).toBeCloseTo(34.52148, 5);
+
+        // TODO(reed)
+        // sects = font.getGlyphIntercepts(mIDs, mPoints, -60, -40);
+        // expect(sects[0]).toBeCloseTo(25.39063, 5);
+        // expect(sects[1]).toBeCloseTo(34.52148, 5);
+        CanvasKit.Free(mIDs);
+        CanvasKit.Free(mPoints);
+        font.delete();
+    });
+
 });

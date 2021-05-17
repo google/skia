@@ -330,6 +330,8 @@ function fontTests(CK: CanvasKit, face?: Typeface, paint?: Paint) {
     const widths = font.getGlyphWidths(glyphMalloc, paint);
     font.getGlyphWidths(someGlyphs, null, widths);
 
+    const sects = font.getGlyphIntercepts(ids, [10, 20], -60, -40);
+
     font.getScaleX();
     font.getSize();
     font.getSkewX();
@@ -344,22 +346,6 @@ function fontTests(CK: CanvasKit, face?: Typeface, paint?: Paint) {
     font.setSubpixel(true);
     font.setTypeface(null);
     font.setTypeface(face);
-
-    // try unittest for intercepts
-    {
-        font.setTypeface(null);
-        font.setSize(100);
-        const ids = font.getGlyphIDs('I');
-        console.assert(ids.length == 1, "");
-
-        // aim for the middle of the I at 100 point, expecting a hit
-        let sects = font.getGlyphIntercepts(ids, [0, 0], -60, -40);
-        console.assert(sects.length === 2, "expected one pair of intercepts");
-
-        // aim below the baseline where we expect no intercepts
-        sects = font.getGlyphIntercepts(ids, [0, 0], 20, 30);
-        console.assert(ids.length === 0, "expected no intercepts");
-    }
 }
 
 function fontMgrTests(CK: CanvasKit) {
