@@ -16,11 +16,11 @@
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkWriteBuffer.h"
+#include "src/gpu/SkGr.h"
 
 #if SK_SUPPORT_GPU
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrTextureProxy.h"
-#include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrMatrixConvolutionEffect.h"
 #endif
 
