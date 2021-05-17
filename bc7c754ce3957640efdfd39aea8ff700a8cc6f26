@@ -22,6 +22,30 @@
       },
       "revId": "bc7c754ce3957640efdfd39aea8ff700a8cc6f26",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8a2286df_6781f6eb",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1213,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-17T13:57:23Z",
+      "side": 1,
+      "message": "I know, but I thought to try this pattern. It has the nice quality of never leaking because there\u0027s nothing to remember to do (or worry about JS having thrown an exception and missing the chance to call Free). It also has a minor nicety of having all the code in one place instead of two.\n\nHappy to talk about it more, and make changes if you see problems.",
+      "parentUuid": "c8b7ac3d_10188bf6",
+      "range": {
+        "startLine": 1213,
+        "startChar": 61,
+        "endLine": 1213,
+        "endChar": 77
+      },
+      "revId": "bc7c754ce3957640efdfd39aea8ff700a8cc6f26",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
