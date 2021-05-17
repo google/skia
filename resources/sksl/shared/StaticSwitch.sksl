@@ -1,6 +1,8 @@
-void main() {
+uniform half4 colorGreen, colorRed;
+
+half4 main(float2 xy) {
     @switch (1) {
-        case 1: sk_FragColor = half4(1); break;
-        default: sk_FragColor = half4(0);
+        case 1: return colorGreen;
+        default: return colorRed;
     }
 }
