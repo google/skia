@@ -92,6 +92,54 @@
       },
       "revId": "bc7c754ce3957640efdfd39aea8ff700a8cc6f26",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6b1bb778_8390364a",
+        "filename": "modules/canvaskit/npm_build/types/index.d.ts",
+        "patchSetId": 7
+      },
+      "lineNbr": 1679,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-17T16:40:06Z",
+      "side": 1,
+      "message": "The copy method does accept a malloced typed-array (just tested). True, it doesn\u0027t yet optimize for it, but I\u0027m am working toward that now. I think the interface can stay.",
+      "parentUuid": "1e5145b1_b6b5fb4a",
+      "range": {
+        "startLine": 1679,
+        "startChar": 31,
+        "endLine": 1679,
+        "endChar": 48
+      },
+      "revId": "bc7c754ce3957640efdfd39aea8ff700a8cc6f26",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e44ec606_258a5fc8",
+        "filename": "modules/canvaskit/npm_build/types/index.d.ts",
+        "patchSetId": 7
+      },
+      "lineNbr": 1679,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-17T16:40:06Z",
+      "side": 1,
+      "message": "Good catch. I\u0027ll amend.",
+      "parentUuid": "4ada0a0c_0a9e05db",
+      "range": {
+        "startLine": 1679,
+        "startChar": 61,
+        "endLine": 1679,
+        "endChar": 73
+      },
+      "revId": "bc7c754ce3957640efdfd39aea8ff700a8cc6f26",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
