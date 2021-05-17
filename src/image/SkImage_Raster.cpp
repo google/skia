@@ -212,7 +212,6 @@ bool SkImage_Raster::onPinAsTexture(GrRecordingContext* rContext) const {
     } else {
         SkASSERT(fPinnedCount == 0);
         SkASSERT(fPinnedUniqueID == 0);
-        // It's important that we use the bitmap's gen ID here and not the image's unique ID.
         std::tie(fPinnedView, fPinnedColorType) = GrMakeCachedBitmapProxyView(rContext,
                                                                               fBitmap,
                                                                               GrMipmapped::kNo);
@@ -429,7 +428,7 @@ std::tuple<GrSurfaceProxyView, GrColorType> SkImage_Raster::onAsView(
         return {fPinnedView, fPinnedColorType};
     }
     if (policy == GrImageTexGenPolicy::kDraw) {
-        return GrMakeCachedBitmapProxyViewWithID(rContext, fBitmap, mipmapped, this->uniqueID());
+        return GrMakeCachedBitmapProxyView(rContext, fBitmap, mipmapped);
     }
     auto budgeted = (policy == GrImageTexGenPolicy::kNew_Uncached_Unbudgeted)
             ? SkBudgeted::kNo
