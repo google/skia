@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c676935f_f7439220",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2021-05-17T17:18:04Z",
+      "side": 1,
+      "message": "I did not know \"go mod download\" was required as well. I wish I could edit the description of https://skia-review.googlesource.com/c/skia/+/409277",
+      "revId": "31a4f82389e4f5d4e327b58a429a16cb899f14f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
