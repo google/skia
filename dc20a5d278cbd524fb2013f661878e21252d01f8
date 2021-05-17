@@ -34,6 +34,24 @@
       "parentUuid": "e707c1bd_68bc1300",
       "revId": "dc20a5d278cbd524fb2013f661878e21252d01f8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9434314a_d2bbce3a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-05-17T20:13:46Z",
+      "side": 1,
+      "message": "Unfortunately, Greg is out so I can\u0027t get info on why he went with readSurfaceView rather than just surfaceView.",
+      "parentUuid": "632ff935_fd6a6249",
+      "revId": "dc20a5d278cbd524fb2013f661878e21252d01f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
