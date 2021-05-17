@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "31af4906_f970a965",
+        "filename": "modules/canvaskit/WasmCommon.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-05-17T17:49:06Z",
+      "side": 1,
+      "message": "Why not ...\ntemplate\u003ctypename T\u003e\nclass JSArray {\npublic:\n    JSArray(SkSpan\u003cconst T\u003e(SkSpan\u003cconst T\u003e span) : fSpan{span}, fOwned{false} {}\n    JSArray(const T data[], size_t size) : fSpan{make_span(size)}, fOwned{true} {\n        // copy data\n    }\n\n    ~JSArray() { free(fSpan.data()); }\n\n   operator SkSpan\u003cconst T\u003e() const {return fSpan;}\n\nprivate:\n    const SkSpan\u003cconst T\u003e fSpan;\n    const bool fOwned;\n};",
+      "range": {
+        "startLine": 52,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 66
+      },
+      "revId": "9a373c7b16117785c2249078b7f0838993ba7584",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
