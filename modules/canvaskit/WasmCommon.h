@@ -11,6 +11,7 @@
 #include <emscripten.h>
 #include <emscripten/bind.h>
 #include "include/core/SkColor.h"
+#include "include/core/SkSpan.h"
 
 using namespace emscripten;
 
@@ -41,29 +42,46 @@ TypedArray MakeTypedArray(int count, const T src[], const char arrayType[]) {
     return jarray;
 }
 
-/**
- *  Reads a JS array, and returns a copy of it in the std::vector.
- *
- *  It is up to the caller to ensure the T and arrayType-string match
- *      e.g. T == uint16_t, arrayType == "Uint16Array"
- *
- *  Note, this checks the JS type, and if it does not match, it will still attempt
- *  to return a copy, just by performing a 1-element-at-a-time copy
- *  via emscripten::vecFromJSArray().
- */
-template <typename T>
-std::vector<T> CopyTypedArray(JSArray src, const char arrayType[]) {
-    if (src.instanceof(emscripten::val::global(arrayType))) {
+template <typename T> class JSArraySpan {
+public:
+    JSArraySpan(JSArray src, const char arrayType[]) {
         const size_t len = src["length"].as<size_t>();
-        std::vector<T> dst;
-        dst.resize(len);
-        auto dst_view = emscripten::val(typed_memory_view(len, dst.data()));
-        dst_view.call<void>("set", src);
-        return dst;
-    } else {
-        // copies one at a time
-        return emscripten::vecFromJSArray<T>(src);
+        T* data;
+
+        // If the buffer was allocated via CanvasKit' Malloc, we can peek directly at it!
+        if (src["_ck"].isTrue()) {
+            fOwned = false;
+            data = reinterpret_cast<T*>(src["byteOffset"].as<size_t>());
+        } else {
+            fOwned = true;
+            data = new T[len];
+
+            // now actually copy into 'data'
+            if (src.instanceof(emscripten::val::global(arrayType))) {
+                auto dst_view = emscripten::val(typed_memory_view(len, data));
+                dst_view.call<void>("set", src);
+            } else {
+                for (size_t i = 0; i < len; ++i) {
+                    data[i] = src[i].as<T>();
+                }
+            }
+        }
+        new (&fSpan) SkSpan(data, len);
     }
-}
+
+    ~JSArraySpan() {
+        if (fOwned) {
+            delete[] fSpan.data();
+        }
+    }
+
+    const T* data() const { return fSpan.data(); }
+    size_t size() const { return fSpan.size(); }
+    operator SkSpan<const T>() const { return fSpan; }
+
+private:
+    SkSpan<T>   fSpan;
+    bool        fOwned;
+};
 
 #endif
