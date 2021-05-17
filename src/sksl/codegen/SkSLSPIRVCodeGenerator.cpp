@@ -2296,6 +2296,21 @@ SpvId SPIRVCodeGenerator::writeReciprocal(const Type& type, SpvId value, OutputS
     return reciprocal;
 }
 
+SpvId SPIRVCodeGenerator::writeScalarToMatrixSplat(const Type& matrixType,
+                                                   SpvId scalarId,
+                                                   OutputStream& out) {
+    // Splat the scalar into a vector.
+    const Type& vectorType = matrixType.componentType().toCompound(fContext,
+                                                                   /*columns=*/matrixType.rows(),
+                                                                   /*rows=*/1);
+    std::vector<SpvId> vecArguments(/*count*/ matrixType.rows(), /*value*/ scalarId);
+    SpvId vectorId = this->writeComposite(vecArguments, vectorType, out);
+
+    // Splat the vector into a matrix.
+    std::vector<SpvId> matArguments(/*count*/ matrixType.columns(), /*value*/ vectorId);
+    return this->writeComposite(matArguments, matrixType, out);
+}
+
 SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs, Operator op,
                                                 const Type& rightType, SpvId rhs,
                                                 const Type& resultType, OutputStream& out) {
@@ -2357,29 +2372,57 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
             lhs = vec;
             operandType = &rightType;
         } else if (leftType.isMatrix()) {
-            SpvOp_ spvop;
-            if (rightType.isMatrix()) {
-                spvop = SpvOpMatrixTimesMatrix;
-            } else if (rightType.isVector()) {
-                spvop = SpvOpMatrixTimesVector;
+            if (op.kind() == Token::Kind::TK_STAR) {
+                // Matrix-times-vector and matrix-times-scalar have dedicated ops in SPIR-V.
+                SpvOp_ spvop;
+                if (rightType.isMatrix()) {
+                    spvop = SpvOpMatrixTimesMatrix;
+                } else if (rightType.isVector()) {
+                    spvop = SpvOpMatrixTimesVector;
+                } else {
+                    SkASSERT(rightType.isScalar());
+                    spvop = SpvOpMatrixTimesScalar;
+                }
+                SpvId result = this->nextId(&resultType);
+                this->writeInstruction(spvop, this->getType(resultType), result, lhs, rhs, out);
+                return result;
             } else {
+                // Matrix-op-vector is not supported in GLSL/SkSL for non-multiplication ops; we
+                // expect to have a scalar here.
                 SkASSERT(rightType.isScalar());
-                spvop = SpvOpMatrixTimesScalar;
+
+                // Splat rhs across an entire matrix so we can reuse the matrix-op-matrix path.
+                SpvId rhsMatrix = this->writeScalarToMatrixSplat(leftType, rhs, out);
+
+                // Perform this operation as matrix-op-matrix.
+                return this->writeBinaryExpression(leftType, lhs, op, leftType, rhsMatrix,
+                                                   resultType, out);
             }
-            SpvId result = this->nextId(&resultType);
-            this->writeInstruction(spvop, this->getType(resultType), result, lhs, rhs, out);
-            return result;
         } else if (rightType.isMatrix()) {
-            SpvId result = this->nextId(&resultType);
-            if (leftType.isVector()) {
-                this->writeInstruction(SpvOpVectorTimesMatrix, this->getType(resultType), result,
-                                       lhs, rhs, out);
+            if (op.kind() == Token::Kind::TK_STAR) {
+                // Matrix-times-vector and matrix-times-scalar have dedicated ops in SPIR-V.
+                SpvId result = this->nextId(&resultType);
+                if (leftType.isVector()) {
+                    this->writeInstruction(SpvOpVectorTimesMatrix, this->getType(resultType),
+                                           result, lhs, rhs, out);
+                } else {
+                    SkASSERT(leftType.isScalar());
+                    this->writeInstruction(SpvOpMatrixTimesScalar, this->getType(resultType),
+                                           result, rhs, lhs, out);
+                }
+                return result;
             } else {
+                // Vector-op-matrix is not supported in GLSL/SkSL for non-multiplication ops; we
+                // expect to have a scalar here.
                 SkASSERT(leftType.isScalar());
-                this->writeInstruction(SpvOpMatrixTimesScalar, this->getType(resultType), result,
-                                       rhs, lhs, out);
+
+                // Splat lhs across an entire matrix so we can reuse the matrix-op-matrix path.
+                SpvId lhsMatrix = this->writeScalarToMatrixSplat(rightType, lhs, out);
+
+                // Perform this operation as matrix-op-matrix.
+                return this->writeBinaryExpression(rightType, lhsMatrix, op, rightType, rhs,
+                                                   resultType, out);
             }
-            return result;
         } else {
             fErrors.error(leftType.fOffset, "unsupported mixed-type expression");
             return -1;
