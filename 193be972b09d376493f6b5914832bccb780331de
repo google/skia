@@ -218,6 +218,98 @@
       },
       "revId": "193be972b09d376493f6b5914832bccb780331de",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "51ce3618_057e0d1a",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-17T15:58:14Z",
+      "side": 1,
+      "message": "Curiosity: what is this here for? Feels like it\u0027s doing something important, but I would\u0027ve thought End() would clean up.",
+      "range": {
+        "startLine": 354,
+        "startChar": 0,
+        "endLine": 354,
+        "endChar": 46
+      },
+      "revId": "193be972b09d376493f6b5914832bccb780331de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f05b6605_350f9016",
+        "filename": "src/sksl/SkSLCompiler.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-17T15:58:14Z",
+      "side": 1,
+      "message": "Let\u0027s just move this info into ProgramSettings. It doesn\u0027t make sense here anymore.",
+      "range": {
+        "startLine": 107,
+        "startChar": 0,
+        "endLine": 111,
+        "endChar": 7
+      },
+      "revId": "193be972b09d376493f6b5914832bccb780331de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "14604224_0a54a130",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 708,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-17T15:58:14Z",
+      "side": 1,
+      "message": "Let\u0027s land this as a followup? This CL has enough in it as it is.",
+      "range": {
+        "startLine": 695,
+        "startChar": 2,
+        "endLine": 708,
+        "endChar": 0
+      },
+      "revId": "193be972b09d376493f6b5914832bccb780331de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e3fe572c_e04b8ba1",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1982,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-17T15:58:14Z",
+      "side": 1,
+      "message": "Are these referenced anywhere below? I\u0027m not seeing where.",
+      "range": {
+        "startLine": 1981,
+        "startChar": 8,
+        "endLine": 1982,
+        "endChar": 58
+      },
+      "revId": "193be972b09d376493f6b5914832bccb780331de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

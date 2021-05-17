@@ -1,6 +1,29 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "43e5a2b6_683b7d1c",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-17T15:58:14Z",
+      "side": 0,
+      "message": "Keep this comment. IMO it\u0027s actually fairly important to document that regardless of the ProgramSettings for your input program, the Modules always use standard settings. It\u0027s an easy thing to get mixed up about.",
+      "range": {
+        "startLine": 328,
+        "startChar": 0,
+        "endLine": 328,
+        "endChar": 60
+      },
+      "revId": "024f41828b4f8828bfb0444d37706a4aaf8bda38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "e16eb097_bb90387e",
