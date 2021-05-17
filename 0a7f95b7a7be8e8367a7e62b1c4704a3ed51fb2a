@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2d3996c8_26c39a47",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-05-17T18:36:55Z",
+      "side": 1,
+      "message": "PTAL, the first land accidentally removed all caching (put the insertion behind an if that was just intended for the listener). Seems to have also resolved the bizarre text issue on D3D.",
+      "revId": "0a7f95b7a7be8e8367a7e62b1c4704a3ed51fb2a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
