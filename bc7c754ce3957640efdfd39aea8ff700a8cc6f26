@@ -46,6 +46,52 @@
       },
       "revId": "bc7c754ce3957640efdfd39aea8ff700a8cc6f26",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4ada0a0c_0a9e05db",
+        "filename": "modules/canvaskit/npm_build/types/index.d.ts",
+        "patchSetId": 7
+      },
+      "lineNbr": 1679,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-05-17T14:07:06Z",
+      "side": 1,
+      "message": "This type isn\u0027t the full story, since it could accept a normal array of points too. \n\nFlattenedPointArray | number[] is the type that best describes the current implementation.",
+      "range": {
+        "startLine": 1679,
+        "startChar": 61,
+        "endLine": 1679,
+        "endChar": 73
+      },
+      "revId": "bc7c754ce3957640efdfd39aea8ff700a8cc6f26",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1e5145b1_b6b5fb4a",
+        "filename": "modules/canvaskit/npm_build/types/index.d.ts",
+        "patchSetId": 7
+      },
+      "lineNbr": 1679,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-05-17T14:07:06Z",
+      "side": 1,
+      "message": "This type isn\u0027t quite correct because the CopyTypedArray function doesn\u0027t accept a MallocObj.\n\nGlyphIDArray | number[] is the type that best describes the current implementation.",
+      "range": {
+        "startLine": 1679,
+        "startChar": 31,
+        "endLine": 1679,
+        "endChar": 48
+      },
+      "revId": "bc7c754ce3957640efdfd39aea8ff700a8cc6f26",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
