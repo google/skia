@@ -177,7 +177,7 @@ std::tuple<GrSurfaceProxyView, GrColorType> SkImage_GpuYUVA::onAsView(
     }
     sfc->fillWithFP(std::move(fp));
 
-    return {sfc->readSurfaceView(), sfc->imageInfo().colorType()};
+    return {sfc->readSurfaceView(), sfc->colorInfo().colorType()};
 }
 
 std::unique_ptr<GrFragmentProcessor> SkImage_GpuYUVA::onAsFragmentProcessor(

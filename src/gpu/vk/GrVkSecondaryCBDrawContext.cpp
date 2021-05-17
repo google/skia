@@ -87,21 +87,16 @@ bool GrVkSecondaryCBDrawContext::characterize(SkSurfaceCharacterization* charact
         return false;
     }
 
-    GrSurfaceProxyView readSurfaceView = fDevice->readSurfaceView();
-    GrImageInfo grII = fDevice->grImageInfo();
+    SkImageInfo ii = fDevice->imageInfo();
+    if (ii.colorType() == kUnknown_SkColorType) {
+        return false;
+    }
 
+    GrSurfaceProxyView readSurfaceView = fDevice->readSurfaceView();
     size_t maxResourceBytes = direct->getResourceCacheLimit();
 
     // We current don't support textured GrVkSecondaryCBDrawContexts.
     SkASSERT(!readSurfaceView.asTextureProxy());
-
-    SkColorType ct = GrColorTypeToSkColorType(grII.colorInfo().colorType());
-    if (ct == kUnknown_SkColorType) {
-        return false;
-    }
-
-    SkImageInfo ii = SkImageInfo::Make(grII.width(), grII.height(), ct, kPremul_SkAlphaType,
-                                       grII.colorInfo().refColorSpace());
 
     GrBackendFormat format = readSurfaceView.asRenderTargetProxy()->backendFormat();
     int numSamples = readSurfaceView.asRenderTargetProxy()->numSamples();
@@ -140,11 +135,6 @@ bool GrVkSecondaryCBDrawContext::isCompatible(
         return false;
     }
 
-    // As long as the current state in the context allows for greater or equal resources,
-    // we allow the DDL to be replayed.
-    // DDL TODO: should we just remove the resource check and ignore the cache limits on playback?
-    size_t maxResourceBytes = dContext->getResourceCacheLimit();
-
     if (characterization.isTextureable()) {
         // We don't support textureable DDL when rendering to a GrVkSecondaryCBDrawContext.
         return false;
@@ -154,13 +144,16 @@ bool GrVkSecondaryCBDrawContext::isCompatible(
         return false;
     }
 
-    GrSurfaceProxyView readSurfaceView = fDevice->readSurfaceView();
-    GrImageInfo grII = fDevice->grImageInfo();
-
-    SkColorType rtColorType = GrColorTypeToSkColorType(grII.colorInfo().colorType());
-    if (rtColorType == kUnknown_SkColorType) {
+    SkImageInfo ii = fDevice->imageInfo();
+    if (ii.colorType() == kUnknown_SkColorType) {
         return false;
     }
+
+    GrSurfaceProxyView readSurfaceView = fDevice->readSurfaceView();
+    // As long as the current state in the context allows for greater or equal resources,
+    // we allow the DDL to be replayed.
+    // DDL TODO: should we just remove the resource check and ignore the cache limits on playback?
+    size_t maxResourceBytes = dContext->getResourceCacheLimit();
 
     GrBackendFormat format = readSurfaceView.asRenderTargetProxy()->backendFormat();
     int numSamples = readSurfaceView.asRenderTargetProxy()->numSamples();
@@ -171,11 +164,11 @@ bool GrVkSecondaryCBDrawContext::isCompatible(
            characterization.cacheMaxResourceBytes() <= maxResourceBytes &&
            characterization.origin() == readSurfaceView.origin() &&
            characterization.backendFormat() == format &&
-           characterization.width() == grII.width() &&
-           characterization.height() == grII.height() &&
-           characterization.colorType() == rtColorType &&
+           characterization.width() == ii.width() &&
+           characterization.height() == ii.height() &&
+           characterization.colorType() == ii.colorType() &&
            characterization.sampleCount() == numSamples &&
-           SkColorSpace::Equals(characterization.colorSpace(), grII.colorInfo().colorSpace()) &&
+           SkColorSpace::Equals(characterization.colorSpace(), ii.colorInfo().colorSpace()) &&
            characterization.isProtected() == isProtected &&
            characterization.surfaceProps() == fDevice->surfaceProps();
 }
