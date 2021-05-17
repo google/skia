@@ -16,6 +16,69 @@
       "message": "This is ready for re-review.",
       "revId": "193be972b09d376493f6b5914832bccb780331de",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a7a9b580_f5be422b",
+        "filename": "include/private/DSL_priv.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-17T15:11:14Z",
+      "side": 1,
+      "message": "nit: The other DSL headers have include guards of the form \"SKSL_DSL_XXX\". Probably ought to stick to that, to avoid polluting preprocessor namespace.",
+      "range": {
+        "startLine": 8,
+        "startChar": 8,
+        "endLine": 8,
+        "endChar": 16
+      },
+      "revId": "193be972b09d376493f6b5914832bccb780331de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b4690eda_ac4d1dc1",
+        "filename": "include/private/DSL_priv.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-17T15:11:14Z",
+      "side": 1,
+      "message": "Related to my other comment ... if this is const ProgramSettings\u0026, can we just forward declare ProgramSettings? And then not need to move ProgramSettings to a public include at all? (That would remove all the churn in the includes of the IR types).",
+      "range": {
+        "startLine": 23,
+        "startChar": 22,
+        "endLine": 23,
+        "endChar": 43
+      },
+      "revId": "193be972b09d376493f6b5914832bccb780331de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e3c5ec3e_6fc39431",
+        "filename": "include/sksl/DSLCore.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-17T15:11:14Z",
+      "side": 1,
+      "message": "Does this need to be included here? I don\u0027t see any direct reference being added.",
+      "revId": "193be972b09d376493f6b5914832bccb780331de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
