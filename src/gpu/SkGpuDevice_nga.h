@@ -12,7 +12,6 @@
 
 #ifdef SK_NGA
 
-#include "src/gpu/GrImageInfo.h"
 #include "src/gpu/SkBaseGpuDevice.h"
 
 /**
@@ -23,7 +22,6 @@ public:
     ~SkGpuDevice_nga() override;
 
     GrSurfaceProxyView readSurfaceView() override { return {}; }
-    GrImageInfo grImageInfo() const override { return {}; }
 
     GrRecordingContext* recordingContext() const override { return fContext.get(); }
     GrSurfaceDrawContext* surfaceDrawContext() override { return nullptr; }

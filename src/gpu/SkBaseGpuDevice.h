@@ -28,8 +28,6 @@
     #define BASE_DEVICE   SkClipStackDevice
 #endif
 
-class GrImageInfo;
-
 class SkBaseGpuDevice : public BASE_DEVICE {
 public:
     SkBaseGpuDevice(const SkImageInfo& ii, const SkSurfaceProps& props)
@@ -41,7 +39,6 @@ public:
     GrRenderTargetProxy* targetProxy() {
         return this->readSurfaceView().asRenderTargetProxy();
     }
-    virtual GrImageInfo grImageInfo() const = 0;
 
 protected:
 

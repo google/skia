@@ -38,10 +38,6 @@ public:
         return this->surfaceDrawContext()->readSurfaceView();
     }
 
-    GrImageInfo grImageInfo() const override {
-        return this->surfaceDrawContext()->imageInfo();
-    }
-
     enum InitContents {
         kClear_InitContents,
         kUninit_InitContents
