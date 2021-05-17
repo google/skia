@@ -9,32 +9,13 @@
 #include <jni.h>
 
 #include "include/effects/SkRuntimeEffect.h"
+#include "modules/androidkit/src/Utils.h"
 
 namespace {
 
-// RAII helper for jstring -> cstring conversions
-class CString {
-public:
-    CString(JNIEnv* env, const jstring& jstr)
-        : fEnv(env)
-        , fJString(jstr)
-        , fCString(env->GetStringUTFChars(jstr, nullptr))
-    {}
-
-    ~CString() {
-        fEnv->ReleaseStringUTFChars(fJString, fCString);
-    }
-
-    operator const char*() const { return fCString; }
-
-private:
-    JNIEnv*        fEnv;
-    const jstring& fJString;
-    const char*    fCString;
-};
-
 static jlong Create(JNIEnv* env, jobject, jstring jsksl) {
-    auto [eff,err] = SkRuntimeEffect::MakeForShader(SkString(CString(env, jsksl)));
+    auto [eff,err] = SkRuntimeEffect::MakeForShader(
+                         SkString(androidkit::utils::CString(env, jsksl)));
 
     if (!eff) {
         // TODO: throw exception?
@@ -54,7 +35,7 @@ static void Release(JNIEnv* env, jobject, jlong native_instance) {
 
 static void SetUniform(JNIEnv* env, jobject, jlong native_instance, jstring jname, float val) {
     if (auto* builder = reinterpret_cast<SkRuntimeShaderBuilder*>(native_instance)) {
-        builder->uniform(CString(env, jname)) = val;
+        builder->uniform(androidkit::utils::CString(env, jname)) = val;
     }
 }
 

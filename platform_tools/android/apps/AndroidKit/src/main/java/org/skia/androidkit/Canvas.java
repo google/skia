@@ -11,6 +11,7 @@ import org.skia.androidkit.Color;
 import org.skia.androidkit.Matrix;
 import org.skia.androidkit.Paint;
 import org.skia.androidkit.Surface;
+import org.skia.androidkit.SkottieAnimation;
 
 public class Canvas {
     private long mNativeInstance;
@@ -67,6 +68,9 @@ public class Canvas {
         mNativeInstance = native_instance;
         mSurface = surface;
     }
+
+    // package private
+    long getNativeInstance() { return mNativeInstance; }
 
     private static native void nSave(long nativeInstance);
     private static native void nRestore(long nativeInstance);
