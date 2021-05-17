@@ -22,6 +22,30 @@
       },
       "revId": "c444cebacc2125eaf63d7436136fc780d55ba548",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fe1c8a76_3951c1f3",
+        "filename": "tests/sksl/spirv/MatrixScalarSplat.asm.frag",
+        "patchSetId": 4
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-17T13:30:55Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "4e869bee_33333050",
+      "range": {
+        "startLine": 3,
+        "startChar": 0,
+        "endLine": 5,
+        "endChar": 0
+      },
+      "revId": "c444cebacc2125eaf63d7436136fc780d55ba548",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
