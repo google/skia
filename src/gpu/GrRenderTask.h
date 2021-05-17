@@ -94,7 +94,7 @@ public:
         idArray->push_back(fUniqueID);
     }
     uint32_t uniqueID() const { return fUniqueID; }
-    virtual int numTargets() const { return fTargets.count(); }
+    int numTargets() const { return fTargets.count(); }
     GrSurfaceProxy* target(int i) const { return fTargets[i].get(); }
 
     /*
