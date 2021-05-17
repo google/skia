@@ -24,10 +24,12 @@ import static java.lang.Math.tan;
 class Face {
     private float rotX;
     private float rotY;
+    public Color color;
 
-    Face(float rotX, float rotY) {
+    Face(float rotX, float rotY, Color color) {
         this.rotX = rotX;
         this.rotY = rotY;
+        this.color = color;
     }
 
     Matrix asMatrix(float scale) {
@@ -53,12 +55,12 @@ class CubeRenderThread extends Thread {
     private Paint mPaint;
 
     private final float rot = (float) Math.PI;
-    private Face[] faces = {new Face(0, 0),
-                            new Face(0, rot),
-                            new Face(rot/2, 0),
-                            new Face(-rot/2, 0),
-                            new Face(0, rot/2),
-                            new Face(0, -rot/2),};
+    private Face[] faces = {new Face(0, 0, new Color(1, 0, 0, 1)),
+                            new Face(0, rot, new Color(0, 1, 0, 1)),
+                            new Face(rot/2, 0, new Color(0, 0, 1, 1)),
+                            new Face(-rot/2, 0, new Color(1, 1, 0, 1)),
+                            new Face(0, rot/2, new Color(0, 1, 1, 1)),
+                            new Face(0, -rot/2, new Color(0, 0, 0, 1))};
 
     private static final String TAG = "*** AK CubeRenderThread";
 
@@ -66,7 +68,7 @@ class CubeRenderThread extends Thread {
         mASurface = surface;
         mPaint = new Paint();
         mPaint.setColor(new Color(0, 1, 1, 1));
-        mPaint.setStroke(true);
+        mPaint.setStroke(false);
         mPaint.setStrokeWidth(10);
 
     }
@@ -113,12 +115,23 @@ class CubeRenderThread extends Thread {
             Matrix localToWorld = m.preConcat(Matrix.makeInverse(trans));
             canvas.concat(localToWorld);
 
-            canvas.drawRect(0, 0, mCubeSideLength, mCubeSideLength, mPaint);
+            if (front(canvas.getLocalToDevice())) {
+                mPaint.setColor(f.color);
+                canvas.drawRect(0, 0, mCubeSideLength, mCubeSideLength, mPaint);
+            }
             canvas.restore();
         }
         canvas.restore();
+    }
 
-
+    private boolean front(Matrix m) {
+        Matrix m2;
+        try {
+            m2 = Matrix.makeInverse(m);
+        } catch (RuntimeException e) {
+            m2 = new Matrix();
+        }
+        return m2.getAtRowCol(2, 2) > 0;
     }
 }
 public class CubeActivity extends Activity implements SurfaceHolder.Callback {
