@@ -146,6 +146,10 @@ GrPathRenderer::CanDrawPath GrTessellationPathRenderer::onCanDrawPath(
         shape.hasUnstyledKey()) {  // Is the path cacheable?
         return CanDrawPath::kNo;
     }
+    // Don't draw convex paths until we have a stencil-less rendering mode.
+    if (shape.style().isSimpleFill() && args.fShape->knownToBeConvex()) {
+        return CanDrawPath::kNo;
+    }
     return CanDrawPath::kYes;
 }
 
