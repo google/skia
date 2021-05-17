@@ -16,6 +16,24 @@
       "message": "This found a live bug!?\n\n start unit test  SkSLStaticSwitchInline_GPU\n ../../../../../../skia/src/sksl/codegen/SkSLSPIRVCodeGenerator.cpp:208: fatal error: \"assert(fCurrentBlock)\"\n",
       "revId": "5457a58f8fde43c1f28296eca83736119b466d69",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9baefc64_78aedb87",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-17T17:08:26Z",
+      "side": 1,
+      "message": "Oh, it\u0027s because we have a dead return statement. I\u0027ll investigate!",
+      "parentUuid": "0c24ab7c_f6b63110",
+      "revId": "5457a58f8fde43c1f28296eca83736119b466d69",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
