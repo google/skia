@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "252b950d_4a7502b0",
+        "filename": "src/gpu/SkBaseGpuDevice.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-05-17T20:27:57Z",
+      "side": 1,
+      "message": "drive-by: Wondering why we need this.. SkDevice already has a getter for SkImageInfo.",
+      "revId": "c2132ea18df9b27391c3c58e29b436963aed7954",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
