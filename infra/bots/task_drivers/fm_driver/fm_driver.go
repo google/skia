@@ -251,7 +251,7 @@ func main() {
 
 			// Only rerun sources from a batch (or we'd rerun failures over and over and over).
 			if len(sources) > 1 {
-				for name, _ := range reruns {
+				for name := range reruns {
 					failures += worker(ctx, []string{name}, flags)
 				}
 				return
