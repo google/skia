@@ -45,7 +45,7 @@ namespace {
 
 class Fence {
 public:
-    Fence(const wgpu::Device& device, const wgpu::Fence& fence)
+    Fence(const wgpu::Device& device)
       : fDevice(device), fCalled(false) {
         device.GetQueue().OnSubmittedWorkDone(0, callback, this);
     }
@@ -794,9 +794,7 @@ void GrDawnGpu::submit(GrOpsRenderPass* renderPass) {
 }
 
 GrFence SK_WARN_UNUSED_RESULT GrDawnGpu::insertFence() {
-    wgpu::FenceDescriptor desc;
-    wgpu::Fence fence = fQueue.CreateFence(&desc);
-    return reinterpret_cast<GrFence>(new Fence(fDevice, fence));
+    return reinterpret_cast<GrFence>(new Fence(fDevice));
 }
 
 bool GrDawnGpu::waitFence(GrFence fence) {
