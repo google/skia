@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "src/sksl/ir/SkSLTernaryExpression.h"
+
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLOperators.h"

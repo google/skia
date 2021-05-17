@@ -5,9 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "src/sksl/SkSLOperators.h"
+
 #include "include/core/SkTypes.h"
 #include "src/sksl/SkSLContext.h"
-#include "src/sksl/SkSLOperators.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLType.h"
 
