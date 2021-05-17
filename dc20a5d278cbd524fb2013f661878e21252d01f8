@@ -16,6 +16,24 @@
       "message": "One thing to consider is that I copied the SkBaseGpuDevice::readSurfaceView name from GrSurfaceContext::readSurfaceView. We could also change it to something like \u0027targetView\u0027.",
       "revId": "dc20a5d278cbd524fb2013f661878e21252d01f8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "632ff935_fd6a6249",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-17T20:11:47Z",
+      "side": 1,
+      "message": "Hmm, targetView combined with targetProxy makes those two functions feel very similar. Admittedly most of their distinction is in the return type, but maybe it\u0027s good to have that in the names too? What do you think of renderTarget() and surfaceView()?  I don\u0027t think we need to include Proxy in the name necessarily.\n\nreadSurfaceView() is probably overly specific since the returned surface proxy view won\u0027t just be used for reading, right?",
+      "parentUuid": "e707c1bd_68bc1300",
+      "revId": "dc20a5d278cbd524fb2013f661878e21252d01f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
