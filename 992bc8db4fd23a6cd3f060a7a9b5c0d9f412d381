@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "088dedec_3b3320fc",
+        "filename": "src/sksl/codegen/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 2306,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-17T12:37:44Z",
+      "side": 1,
+      "message": "Micro nit: Shouldn\u0027t this be /*count\u003d*/(no space)? Same for the next three arg comments.",
+      "range": {
+        "startLine": 2306,
+        "startChar": 36,
+        "endLine": 2306,
+        "endChar": 46
+      },
+      "revId": "992bc8db4fd23a6cd3f060a7a9b5c0d9f412d381",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
