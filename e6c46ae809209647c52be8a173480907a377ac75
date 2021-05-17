@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dac6dc8d_05421f26",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-05-17T20:14:04Z",
+      "side": 1,
+      "message": "I don\u0027t love this name but haven\u0027t come up with anything more helpful that\u0027s not too much of a mouthful. Mainly just wanted to get ColorType out of the name if it\u0027s going to be used more broadly.",
+      "revId": "e6c46ae809209647c52be8a173480907a377ac75",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
