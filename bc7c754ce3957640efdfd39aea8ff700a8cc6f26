@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c8b7ac3d_10188bf6",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1213,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-05-17T13:32:18Z",
+      "side": 1,
+      "message": "This is not anything like how we currently accept arrays into our APIs. We normally add a public version to our JS interface which handles the copy from normal arrays, typed arrays and malloc\u0027d objects.",
+      "range": {
+        "startLine": 1213,
+        "startChar": 61,
+        "endLine": 1213,
+        "endChar": 77
+      },
+      "revId": "bc7c754ce3957640efdfd39aea8ff700a8cc6f26",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
