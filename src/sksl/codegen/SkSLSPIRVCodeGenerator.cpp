@@ -2528,6 +2528,10 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpFMul,
                                               SpvOpIMul, SpvOpIMul, SpvOpUndef, out);
         case Token::Kind::TK_SLASH:
+            if (leftType.isMatrix() && rightType.isMatrix()) {
+                SkASSERT(leftType == rightType);
+                return this->writeComponentwiseMatrixBinary(leftType, lhs, rhs, SpvOpFDiv, out);
+            }
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpFDiv,
                                               SpvOpSDiv, SpvOpUDiv, SpvOpUndef, out);
         case Token::Kind::TK_PERCENT:
