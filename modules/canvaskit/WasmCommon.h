@@ -11,6 +11,7 @@
 #include <emscripten.h>
 #include <emscripten/bind.h>
 #include "include/core/SkColor.h"
+#include "include/core/SkSpan.h"
 
 using namespace emscripten;
 
@@ -65,5 +66,22 @@ std::vector<T> CopyTypedArray(JSArray src, const char arrayType[]) {
         return emscripten::vecFromJSArray<T>(src);
     }
 }
+
+/**
+ *  Special span that *might* own its buffer, so its destructor is important.
+ *
+ *  Can be used when trying to get a read-only view into another object:
+ *  - if its memory is accessible, just returns a bare span
+ *  - if not, it is first copied (into our storage), and then returned.
+ */
+template <typename T> class SkOwningSpan : public SkSpan<T> {
+    std::vector<T> fStorage;
+
+public:
+    SkOwningSpan(const SkSpan<T> span) : SkSpan<T>(span) {}
+
+    SkOwningSpan(std::vector<T> src)
+        : SkSpan<T>(src.data(), src.size()), fStorage(std::move(src)) {}
+};
 
 #endif
