@@ -215,6 +215,7 @@ SKSL_TEST_CPU(SkSLIntrinsicMixFloat,           "intrinsics/MixFloat.sksl")
 SKSL_TEST(SkSLIntrinsicSignFloat,              "intrinsics/SignFloat.sksl")
 
 SKSL_TEST_ES3(SkSLArrayComparison,             "shared/ArrayComparison.sksl")
+SKSL_TEST_ES3(SkSLArrayConstructors,           "shared/ArrayConstructors.sksl")
 SKSL_TEST(SkSLArrayTypes,                      "shared/ArrayTypes.sksl")
 SKSL_TEST(SkSLAssignment,                      "shared/Assignment.sksl")
 SKSL_TEST(SkSLCastsRoundTowardZero,            "shared/CastsRoundTowardZero.sksl")
@@ -243,6 +244,7 @@ SKSL_TEST(SkSLMultipleAssignments,             "shared/MultipleAssignments.sksl"
 SKSL_TEST(SkSLNegatedVectorLiteral,            "shared/NegatedVectorLiteral.sksl")
 SKSL_TEST(SkSLNumberCasts,                     "shared/NumberCasts.sksl")
 SKSL_TEST(SkSLOperatorsES2,                    "shared/OperatorsES2.sksl")
+SKSL_TEST_ES3(SkSLOperatorsES3,                "shared/OperatorsES3.sksl")
 
 // skbug.com/11919: Fails on Adreno + Vulkan
 SKSL_TEST_CPU(SkSLOutParams,                   "shared/OutParams.sksl")
@@ -269,6 +271,7 @@ SKSL_TEST(SkSLUnusedVariables,                 "shared/UnusedVariables.sksl")
 SKSL_TEST(SkSLVectorConstructors,              "shared/VectorConstructors.sksl")
 // skbug.com/11919: Fails on Nexus5/7, and Intel GPUs
 SKSL_TEST_CPU(SkSLVectorScalarMath,            "shared/VectorScalarMath.sksl")
+SKSL_TEST_ES3(SkSLWhileLoopControlFlow,        "shared/WhileLoopControlFlow.sksl")
 
 /*
 // Incompatible with Runtime Effects because calling a function before its definition is disallowed.
@@ -293,16 +296,12 @@ SKSL_TEST(SkSLIntrinsicMinInt,                 "intrinsics/MinInt.sksl")
 SKSL_TEST(SkSLIntrinsicMixBool,                "intrinsics/MixBool.sksl")
 SKSL_TEST(SkSLIntrinsicSignInt,                "intrinsics/SignInt.sksl")
 
-SKSL_TEST(SkSLArrayConstructors,               "shared/ArrayConstructors.sksl")
 SKSL_TEST(SkSLDeadLoopVariable,                "shared/DeadLoopVariable.sksl")
 SKSL_TEST(SkSLDoWhileControlFlow,              "shared/DoWhileControlFlow.sksl")
 SKSL_TEST(SkSLEmptyBlocksES3,                  "shared/EmptyBlocksES3.sksl")
 SKSL_TEST(SkSLHexUnsigned,                     "shared/HexUnsigned.sksl")
-SKSL_TEST(SkSLMatricesNonsquare,               "shared/MatricesNonsquare.sksl")
-SKSL_TEST(SkSLOperatorsES3,                    "shared/OperatorsES3.sksl")
 SKSL_TEST(SkSLResizeMatrixNonsquare,           "shared/ResizeMatrixNonsquare.sksl")
 SKSL_TEST(SkSLReturnsValueOnEveryPathES3,      "shared/ReturnsValueOnEveryPathES3.sksl")
 SKSL_TEST(SkSLScalarConversionConstructorsES3, "shared/ScalarConversionConstructorsES3.sksl")
 SKSL_TEST(SkSLSwizzleByIndex,                  "shared/SwizzleByIndex.sksl")
-SKSL_TEST(SkSLWhileLoopControlFlow,            "shared/WhileLoopControlFlow.sksl")
 */
