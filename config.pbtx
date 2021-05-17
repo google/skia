@@ -1,0 +1,52 @@
+buffers: {
+    size_kb: 63488
+    fill_policy: DISCARD
+}
+buffers: {
+    size_kb: 2048
+    fill_policy: DISCARD
+}
+data_sources: {
+    config {
+        name: "android.gpu.memory"
+    }
+}
+data_sources: {
+    config {
+        name: "android.power"
+        android_power_config {
+            battery_poll_ms: 250
+            battery_counters: BATTERY_COUNTER_CAPACITY_PERCENT
+            battery_counters: BATTERY_COUNTER_CHARGE
+            battery_counters: BATTERY_COUNTER_CURRENT
+            collect_power_rails: true
+            collect_energy_estimation_breakdown: true
+        }
+    }
+}
+data_sources: {
+    config {
+        name: "linux.process_stats"
+        target_buffer: 1
+        process_stats_config {
+            scan_all_processes_on_start: true
+            proc_stats_poll_ms: 1000
+        }
+    }
+}
+data_sources: {
+    config {
+        name: "linux.ftrace"
+        ftrace_config {
+            ftrace_events: "power/gpu_frequency"
+            ftrace_events: "gpu_mem/gpu_mem_total"
+            ftrace_events: "mm_event/mm_event_record"
+            ftrace_events: "kmem/rss_stat"
+            ftrace_events: "ion/ion_stat"
+            ftrace_events: "dmabuf_heap/dma_heap_stat"
+            ftrace_events: "kmem/ion_heap_grow"
+            ftrace_events: "kmem/ion_heap_shrink"
+        }
+    }
+}
+duration_ms: 10000
