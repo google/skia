@@ -728,7 +728,7 @@ if (skia_compile_processors) {
     skia_gpu_processor_outputs += [
       "$target_out_dir/" +
           rebase_path("$dir/generated/$name.h", target_out_dir),
-      # the script also modifies the corresponding .cpp file, but if we tell GN that it gets
+      # the script also modifies the corresponding .dsl.cpp file, but if we tell GN that it gets
       # confused due to the same file being named by two different paths
     ]
   }

@@ -32,12 +32,12 @@ for p in processors:
         os.mkdir(targetDir)
     target = os.path.join(targetDir, tail)
     targets.append(target + ".h")
-    targets.append(target + ".cpp")
+    targets.append(target + ".dsl.cpp")
 
     worklist.write(p + "\n")
     worklist.write(target + ".h\n\n")
     worklist.write(p + "\n")
-    worklist.write(target + ".cpp\n\n")
+    worklist.write(target + ".dsl.cpp\n\n")
 
 # Invoke skslc, passing in the worklist.
 worklist.close()
