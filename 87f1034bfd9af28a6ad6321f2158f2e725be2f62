@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2e86463e_a0ef4375",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-05-17T23:26:29Z",
+      "side": 1,
+      "message": "This is in response to your question on the other CL (https://skia-review.googlesource.com/c/skia/+/409399)",
+      "revId": "87f1034bfd9af28a6ad6321f2158f2e725be2f62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
