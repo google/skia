@@ -43,6 +43,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "d92c2bcc_e9efbfe4",
+        "filename": "include/private/DSL_priv.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-17T15:41:41Z",
+      "side": 1,
+      "message": "optional/for consideration: I never really thought about the fact that we call it BuiltinCode in some places and Modules elsewhere until now. But we\u0027re calling this from a function called `loadModule` in the compiler, so calling it \"BuiltinCode\" here feels inconsistent. What do you think about calling this function \"StartModule\" instead?",
+      "range": {
+        "startLine": 20,
+        "startChar": 37,
+        "endLine": 20,
+        "endChar": 71
+      },
+      "revId": "193be972b09d376493f6b5914832bccb780331de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b4690eda_ac4d1dc1",
         "filename": "include/private/DSL_priv.h",
         "patchSetId": 9
@@ -66,6 +89,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "48442223_730703ad",
+        "filename": "include/private/DSL_priv.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-17T15:41:41Z",
+      "side": 1,
+      "message": "+1",
+      "parentUuid": "b4690eda_ac4d1dc1",
+      "range": {
+        "startLine": 23,
+        "startChar": 22,
+        "endLine": 23,
+        "endChar": 43
+      },
+      "revId": "193be972b09d376493f6b5914832bccb780331de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e3c5ec3e_6fc39431",
         "filename": "include/sksl/DSLCore.h",
         "patchSetId": 9
@@ -77,6 +124,98 @@
       "writtenOn": "2021-05-17T15:11:14Z",
       "side": 1,
       "message": "Does this need to be included here? I don\u0027t see any direct reference being added.",
+      "revId": "193be972b09d376493f6b5914832bccb780331de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c45dc0c0_23b89311",
+        "filename": "include/sksl/DSLCore.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-17T15:41:41Z",
+      "side": 1,
+      "message": "for consideration/a future CL: we should move these into ProgramSettings as well. It\u0027s totally fine to have ProgramSettings flags that only apply to DSL, IMO.",
+      "range": {
+        "startLine": 39,
+        "startChar": 0,
+        "endLine": 41,
+        "endChar": 0
+      },
+      "revId": "193be972b09d376493f6b5914832bccb780331de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "168680e2_c059f1d8",
+        "filename": "include/sksl/DSLCore.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-17T15:41:41Z",
+      "side": 1,
+      "message": "Piggybacking on Brian\u0027s earlier comments, we should definitely be passing ProgramSettings by const\u0026. It\u0027s a struct of POD types; there\u0027s no movability. We\u0027re going to copy it one way or another.",
+      "range": {
+        "startLine": 51,
+        "startChar": 61,
+        "endLine": 51,
+        "endChar": 82
+      },
+      "revId": "193be972b09d376493f6b5914832bccb780331de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c7e09ad8_410463b7",
+        "filename": "include/sksl/SkSLProgramSettings.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-17T15:41:41Z",
+      "side": 1,
+      "message": "not holding up this CL, but: In a separate CL, I\u0027d really like to convert this to a SkSpan\u003cExternalFunction*\u003e. This shouldn\u0027t be difficult to change (only one user), and the current type is way overspecified (not to mention, misleading about ownership!)",
+      "range": {
+        "startLine": 75,
+        "startChar": 10,
+        "endLine": 75,
+        "endChar": 57
+      },
+      "revId": "193be972b09d376493f6b5914832bccb780331de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "98e8a149_dc251c83",
+        "filename": "modules/particles/src/SkParticleEffect.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-17T15:41:41Z",
+      "side": 1,
+      "message": "I see you moved this up so that `settings` could reference it (good!) but it\u0027s now far away from its actual usage (bummer!)\n\nInstead, could we move the creation and setup of `settings` down, to be immediately above `compiler.convertProgram`? AFAICS that puts everything near to its usage.",
+      "range": {
+        "startLine": 144,
+        "startChar": 0,
+        "endLine": 145,
+        "endChar": 46
+      },
       "revId": "193be972b09d376493f6b5914832bccb780331de",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
