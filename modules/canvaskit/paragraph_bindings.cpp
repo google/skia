@@ -488,13 +488,6 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
                     para::TextStyle style;
                     style.setTypeface(r["typeface"].as< sk_sp<SkTypeface> >());
                     style.setFontSize(r["size"].as<float>());
-                    style.setFontStyle({
-                        r["fakeBold"].as<bool>() ? SkFontStyle::kBold_Weight
-                                                 : SkFontStyle::kNormal_Weight,
-                        SkFontStyle::kNormal_Width,
-                        r["fakeItalic"].as<bool>() ? SkFontStyle::kItalic_Slant
-                                                   : SkFontStyle::kUpright_Slant,
-                    });
 
                     const size_t subTextCount = r["length"].as<size_t>();
                     if (subTextCount > textCount) {
