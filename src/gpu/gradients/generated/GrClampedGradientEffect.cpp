@@ -73,20 +73,10 @@ private:
                    const GrFragmentProcessor& _proc) override {
         const GrClampedGradientEffect& _outer = _proc.cast<GrClampedGradientEffect>();
         {
-            const SkPMColor4f& leftBorderColorValue = _outer.leftBorderColor;
-            if (leftBorderColorPrev != leftBorderColorValue) {
-                leftBorderColorPrev = leftBorderColorValue;
-                pdman.set4fv(leftBorderColorVar, 1, leftBorderColorValue.vec());
-            }
-            const SkPMColor4f& rightBorderColorValue = _outer.rightBorderColor;
-            if (rightBorderColorPrev != rightBorderColorValue) {
-                rightBorderColorPrev = rightBorderColorValue;
-                pdman.set4fv(rightBorderColorVar, 1, rightBorderColorValue.vec());
-            }
+            pdman.set4fv(leftBorderColorVar, 1, (_outer.leftBorderColor).vec());
+            pdman.set4fv(rightBorderColorVar, 1, (_outer.rightBorderColor).vec());
         }
     }
-    SkPMColor4f leftBorderColorPrev = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
-    SkPMColor4f rightBorderColorPrev = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
     UniformHandle leftBorderColorVar;
     UniformHandle rightBorderColorVar;
 };

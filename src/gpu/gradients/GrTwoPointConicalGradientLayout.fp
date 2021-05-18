@@ -23,7 +23,7 @@ layout(key) in bool isNativelyFocal;
 // degenerate, focalParams = (r0, r0^2), so strips will use .y and kRadial will use .x when focal,
 // focalParams = (1/r1, focalX = r0/(r0-r1)) The correct parameters are calculated once in Make for
 // each FP
-layout(tracked) in uniform half2 focalParams;
+in uniform half2 focalParams;
 
 half4 main(float2 p) {
     float t = -1;

@@ -73,21 +73,11 @@ private:
                    const GrFragmentProcessor& _proc) override {
         const GrColorMatrixFragmentProcessor& _outer = _proc.cast<GrColorMatrixFragmentProcessor>();
         {
-            const SkM44& mValue = _outer.m;
-            if (mPrev != (mValue)) {
-                mPrev = mValue;
-                static_assert(1 == 1);
-                pdman.setSkM44(mVar, mValue);
-            }
-            const SkV4& vValue = _outer.v;
-            if (vPrev != (vValue)) {
-                vPrev = vValue;
-                pdman.set4fv(vVar, 1, vValue.ptr());
-            }
+            static_assert(1 == 1);
+            pdman.setSkM44(mVar, (_outer.m));
+            pdman.set4fv(vVar, 1, (_outer.v).ptr());
         }
     }
-    SkM44 mPrev = SkM44(SkM44::kNaN_Constructor);
-    SkV4 vPrev = SkV4{SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
     UniformHandle mVar;
     UniformHandle vVar;
 };

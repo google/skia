@@ -51,20 +51,10 @@ private:
                    const GrFragmentProcessor& _proc) override {
         const GrSweepGradientLayout& _outer = _proc.cast<GrSweepGradientLayout>();
         {
-            float biasValue = _outer.bias;
-            if (biasPrev != biasValue) {
-                biasPrev = biasValue;
-                pdman.set1f(biasVar, biasValue);
-            }
-            float scaleValue = _outer.scale;
-            if (scalePrev != scaleValue) {
-                scalePrev = scaleValue;
-                pdman.set1f(scaleVar, scaleValue);
-            }
+            pdman.set1f(biasVar, (_outer.bias));
+            pdman.set1f(scaleVar, (_outer.scale));
         }
     }
-    float biasPrev = SK_FloatNaN;
-    float scalePrev = SK_FloatNaN;
     UniformHandle biasVar;
     UniformHandle scaleVar;
 };
