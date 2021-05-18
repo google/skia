@@ -113,6 +113,9 @@ public class Matrix {
         nTranslate(this.mNativeInstance, x, y, z);
         return this;
     }
+    public Matrix translate(float x, float y) {
+        return translate(x, y, 0);
+    }
 
     /*
      * Scales this Matrix by x, y, z
@@ -122,6 +125,9 @@ public class Matrix {
     public Matrix scale(float x, float y, float z) {
         nScale(this.mNativeInstance, x, y, z);
         return this;
+    }
+    public Matrix scale(float x, float y) {
+        return scale(x, y, 1);
     }
 
     /*
