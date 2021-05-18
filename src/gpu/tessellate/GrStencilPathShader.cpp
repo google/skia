@@ -90,7 +90,9 @@ protected:
             v->codeAppendf("vsPt = %s;", vertexPos.c_str());
         }
 
-        // No fragment shader.
+        // The fragment shader is normally disabled, but output fully opaque white.
+        args.fFragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputColor);
+        args.fFragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputCoverage);
     }
 
     void setData(const GrGLSLProgramDataManager& pdman,
@@ -109,8 +111,8 @@ GrGLSLGeometryProcessor* GrStencilPathShader::createGLSLInstance(const GrShaderC
     return new Impl;
 }
 
-GrGLSLGeometryProcessor* GrCubicTessellateShader::createGLSLInstance(const GrShaderCaps&) const {
-    class CubicImpl : public GrStencilPathShader::Impl {
+GrGLSLGeometryProcessor* GrCurveTessellateShader::createGLSLInstance(const GrShaderCaps&) const {
+    class Impl : public GrStencilPathShader::Impl {
         SkString getTessControlShaderGLSL(const GrGeometryProcessor&,
                                           const char* versionAndExtensionDecls,
                                           const GrGLSLUniformHandler&,
@@ -205,11 +207,11 @@ GrGLSLGeometryProcessor* GrCubicTessellateShader::createGLSLInstance(const GrSha
         }
     };
 
-    return new CubicImpl;
+    return new Impl;
 }
 
 GrGLSLGeometryProcessor* GrWedgeTessellateShader::createGLSLInstance(const GrShaderCaps&) const {
-    class WedgeImpl : public GrStencilPathShader::Impl {
+    class Impl : public GrStencilPathShader::Impl {
         SkString getTessControlShaderGLSL(const GrGeometryProcessor&,
                                           const char* versionAndExtensionDecls,
                                           const GrGLSLUniformHandler&,
@@ -299,12 +301,12 @@ GrGLSLGeometryProcessor* GrWedgeTessellateShader::createGLSLInstance(const GrSha
         }
     };
 
-    return new WedgeImpl;
+    return new Impl;
 }
 
-class GrMiddleOutCubicShader::Impl : public GrStencilPathShader::Impl {
+class GrCurveMiddleOutShader::Impl : public GrStencilPathShader::Impl {
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
-        const auto& shader = args.fGeomProc.cast<GrMiddleOutCubicShader>();
+        const auto& shader = args.fGeomProc.cast<GrCurveMiddleOutShader>();
         args.fVaryingHandler->emitAttributes(shader);
         args.fVertBuilder->insertFunction(kUnpackRationalCubicFn);
         args.fVertBuilder->insertFunction(kEvalRationalCubicFn);
@@ -352,10 +354,13 @@ class GrMiddleOutCubicShader::Impl : public GrStencilPathShader::Impl {
             pos = (%s * float3(pos, 1)).xy;)", viewMatrix);
         }
         gpArgs->fPositionVar.set(kFloat2_GrSLType, "pos");
-        // No fragment shader.
+
+        // The fragment shader is normally disabled, but output fully opaque white.
+        args.fFragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputColor);
+        args.fFragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputCoverage);
     }
 };
 
-GrGLSLGeometryProcessor* GrMiddleOutCubicShader::createGLSLInstance(const GrShaderCaps&) const {
+GrGLSLGeometryProcessor* GrCurveMiddleOutShader::createGLSLInstance(const GrShaderCaps&) const {
     return new Impl;
 }
