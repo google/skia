@@ -358,7 +358,7 @@ JSArray GetShapedLines(para::Paragraph& self) {
             accum.reset(lineNumber);
             jruns = emscripten::val::array();
 
-            jline = emscripten::val::array();
+            jline = emscripten::val::object();
             jline.set("runs", jruns);
             // will assign textRange and metrics on end-of-line signal
 
