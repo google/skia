@@ -75,8 +75,8 @@ public:
 
     bool vertexIDSupport() const { return fVertexIDSupport; }
 
-    // frexp, ldexp, etc.
-    bool fpManipulationSupport() const { return fFPManipulationSupport; }
+    // frexp, ldexp, findMSB, findLSB.
+    bool bitManipulationSupport() const { return fBitManipulationSupport; }
 
     bool floatIs32Bits() const { return fFloatIs32Bits; }
 
@@ -278,7 +278,7 @@ private:
     bool fSampleMaskSupport                 : 1;
     bool fExternalTextureSupport            : 1;
     bool fVertexIDSupport                   : 1;
-    bool fFPManipulationSupport             : 1;
+    bool fBitManipulationSupport            : 1;
     bool fFloatIs32Bits                     : 1;
     bool fHalfIs32Bits                      : 1;
     bool fHasLowFragmentPrecision           : 1;
