@@ -23,9 +23,8 @@ struct Layout {
         kOverrideCoverage_Flag           = 1 <<  1,
         kPushConstant_Flag               = 1 <<  2,
         kBlendSupportAllEquations_Flag   = 1 <<  3,
-        kTracked_Flag                    = 1 <<  4,
-        kSRGBUnpremul_Flag               = 1 <<  5,
-        kKey_Flag                        = 1 <<  6,
+        kSRGBUnpremul_Flag               = 1 <<  4,
+        kKey_Flag                        = 1 <<  5,
 
         // These flags indicate if the qualifier appeared, regardless of the accompanying value.
         kLocation_Flag                   = 1 <<  7,
@@ -188,9 +187,6 @@ struct Layout {
         }
         if (fFlags & kPushConstant_Flag) {
             result += separator() + "push_constant";
-        }
-        if (fFlags & kTracked_Flag) {
-            result += separator() + "tracked";
         }
         if (fFlags & kSRGBUnpremul_Flag) {
             result += separator() + "srgb_unpremul";

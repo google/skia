@@ -108,7 +108,6 @@ void Parser::InitLayoutMap() {
     TOKEN(INVOCATIONS,                  "invocations");
     TOKEN(WHEN,                         "when");
     TOKEN(KEY,                          "key");
-    TOKEN(TRACKED,                      "tracked");
     TOKEN(SRGB_UNPREMUL,                "srgb_unpremul");
     TOKEN(CTYPE,                        "ctype");
     TOKEN(SKPMCOLOR4F,                  "SkPMColor4f");
@@ -924,9 +923,6 @@ Layout Parser::layout() {
                         break;
                     case LayoutToken::BLEND_SUPPORT_ALL_EQUATIONS:
                         setFlag(Layout::kBlendSupportAllEquations_Flag);
-                        break;
-                    case LayoutToken::TRACKED:
-                        setFlag(Layout::kTracked_Flag);
                         break;
                     case LayoutToken::SRGB_UNPREMUL:
                         setFlag(Layout::kSRGBUnpremul_Flag);

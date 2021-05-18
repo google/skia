@@ -273,10 +273,6 @@ void IRGenerator::checkVarDeclaration(int offset, const Modifiers& modifiers, co
             this->errorReporter().error(offset,
                                         "'when' is only permitted within fragment processors");
         }
-        if (modifiers.fLayout.fFlags & Layout::kTracked_Flag) {
-            this->errorReporter().error(offset,
-                                        "'tracked' is only permitted within fragment processors");
-        }
         if (modifiers.fLayout.fCType != Layout::CType::kDefault) {
             this->errorReporter().error(offset,
                                         "'ctype' is only permitted within fragment processors");
@@ -830,7 +826,6 @@ void IRGenerator::CheckModifiers(const Context& context,
     checkLayout(Layout::kOverrideCoverage_Flag,         "override_coverage");
     checkLayout(Layout::kPushConstant_Flag,             "push_constant");
     checkLayout(Layout::kBlendSupportAllEquations_Flag, "blend_support_all_equations");
-    checkLayout(Layout::kTracked_Flag,                  "tracked");
     checkLayout(Layout::kSRGBUnpremul_Flag,             "srgb_unpremul");
     checkLayout(Layout::kKey_Flag,                      "key");
     checkLayout(Layout::kLocation_Flag,                 "location");

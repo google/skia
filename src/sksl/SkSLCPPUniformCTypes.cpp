@@ -66,14 +66,6 @@ static bool determine_inline_from_template(const String& uniformTemplate) {
 // UniformCTypeMapper implementation //
 ///////////////////////////////////////
 
-String UniformCTypeMapper::dirtyExpression(const String& newVar, const String& oldVar) const {
-    return eval_template(fDirtyExpressionTemplate, {"${newVar}", "${oldVar}"}, {newVar, oldVar});
-}
-
-String UniformCTypeMapper::saveState(const String& newVar, const String& oldVar) const {
-    return eval_template(fSaveStateTemplate, {"${newVar}", "${oldVar}"}, {newVar, oldVar});
-}
-
 String UniformCTypeMapper::setUniform(const String& pdman, const String& uniform,
                                       const String& var) const {
     String count;
@@ -94,20 +86,16 @@ String UniformCTypeMapper::setUniform(const String& pdman, const String& uniform
                          {pdman, uniform, finalVar, count});
 }
 
-UniformCTypeMapper::UniformCTypeMapper(
-        Layout::CType ctype, const std::vector<String>& skslTypes,
-        const String& setUniformSingleFormat, const String& setUniformArrayFormat,
-        const String& defaultValue, const String& dirtyExpressionFormat,
-        const String& saveStateFormat)
-    : fCType(ctype)
-    , fSKSLTypes(skslTypes)
-    , fUniformSingleTemplate(setUniformSingleFormat)
-    , fUniformArrayTemplate(setUniformArrayFormat)
-    , fInlineValue(determine_inline_from_template(setUniformSingleFormat) &&
-                   determine_inline_from_template(setUniformArrayFormat))
-    , fDefaultValue(defaultValue)
-    , fDirtyExpressionTemplate(dirtyExpressionFormat)
-    , fSaveStateTemplate(saveStateFormat) {}
+UniformCTypeMapper::UniformCTypeMapper(Layout::CType ctype,
+                                       const std::vector<String>& skslTypes,
+                                       const String& setUniformSingleFormat,
+                                       const String& setUniformArrayFormat)
+        : fCType(ctype)
+        , fSKSLTypes(skslTypes)
+        , fUniformSingleTemplate(setUniformSingleFormat)
+        , fUniformArrayTemplate(setUniformArrayFormat)
+        , fInlineValue(determine_inline_from_template(setUniformSingleFormat) &&
+                       determine_inline_from_template(setUniformArrayFormat)) {}
 
 const UniformCTypeMapper* UniformCTypeMapper::arrayMapper(int count) const {
     static SkMutex& mutex = *(new SkMutex);
@@ -126,31 +114,17 @@ const UniformCTypeMapper* UniformCTypeMapper::arrayMapper(int count) const {
     return &result->second;
 }
 
-
-static UniformCTypeMapper register_array(Layout::CType ctype, const std::vector<String>& skslTypes,
-                                   const char* singleSet, const char* arraySet,
-                                   const char* defaultValue, const char* dirtyExpression) {
-    return UniformCTypeMapper(ctype, skslTypes, singleSet, arraySet, defaultValue, dirtyExpression,
-                              "${oldVar} = ${newVar}");
+static UniformCTypeMapper register_array(Layout::CType ctype,
+                                         const std::vector<String>& skslTypes,
+                                         const char* singleSet,
+                                         const char* arraySet) {
+    return UniformCTypeMapper(ctype, skslTypes, singleSet, arraySet);
 }
 
-static UniformCTypeMapper register_array(Layout::CType ctype, const std::vector<String>& skslTypes,
-                                         const char* singleSet, const char* arraySet,
-                                         const char* defaultValue) {
-    return register_array(ctype, skslTypes, singleSet, arraySet, defaultValue,
-                              "${oldVar} != ${newVar}");
-}
-
-static UniformCTypeMapper register_type(Layout::CType ctype, const std::vector<String>& skslTypes,
-                                   const char* uniformFormat, const char* defaultValue,
-                                   const char* dirtyExpression) {
-    return register_array(ctype, skslTypes, uniformFormat, uniformFormat, defaultValue,
-                          dirtyExpression);
-}
-
-static UniformCTypeMapper register_type(Layout::CType ctype, const std::vector<String>& skslTypes,
-                                   const char* uniformFormat, const char* defaultValue) {
-    return register_array(ctype, skslTypes, uniformFormat, uniformFormat, defaultValue);
+static UniformCTypeMapper register_type(Layout::CType ctype,
+                                        const std::vector<String>& skslTypes,
+                                        const char* uniformFormat) {
+    return register_array(ctype, skslTypes, uniformFormat, uniformFormat);
 }
 
 //////////////////////////////
@@ -158,55 +132,40 @@ static UniformCTypeMapper register_type(Layout::CType ctype, const std::vector<S
 //////////////////////////////
 
 static const std::vector<UniformCTypeMapper>& get_mappers() {
-    static const auto& kRegisteredMappers = *new std::vector<UniformCTypeMapper>{
+    static const std::vector<UniformCTypeMapper> kRegisteredMappers = {
     register_type(Layout::CType::kSkRect, { "half4", "float4", "double4" },
-        "${pdman}.set4fv(${uniform}, ${count}, reinterpret_cast<const float*>(&${var}))", // to gpu
-        "SkRect::MakeEmpty()",                                                     // default value
-        "${oldVar}.isEmpty() || ${oldVar} != ${newVar}"),                          // dirty check
+        "${pdman}.set4fv(${uniform}, ${count}, reinterpret_cast<const float*>(&${var}))"), // to gpu
 
     register_type(Layout::CType::kSkIRect, { "int4", "short4", "byte4" },
-        "${pdman}.set4iv(${uniform}, ${count}, reinterpret_cast<const int*>(&${var}))", // to gpu
-        "SkIRect::MakeEmpty()",                                                    // default value
-        "${oldVar}.isEmpty() || ${oldVar} != ${newVar}"),                          // dirty check
+        "${pdman}.set4iv(${uniform}, ${count}, reinterpret_cast<const int*>(&${var}))"), // to gpu
 
     register_type(Layout::CType::kSkPMColor4f, { "half4", "float4", "double4" },
-        "${pdman}.set4fv(${uniform}, ${count}, ${var}.vec())",                     // to gpu
-        "{SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN}"),                   // default value
+        "${pdman}.set4fv(${uniform}, ${count}, ${var}.vec())"),                     // to gpu
 
     register_type(Layout::CType::kSkV4, { "half4", "float4", "double4" },
-        "${pdman}.set4fv(${uniform}, ${count}, ${var}.ptr())",                     // to gpu
-        "SkV4{SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN}",                // default value
-        "${oldVar} != (${newVar})"),                                               // dirty check
+        "${pdman}.set4fv(${uniform}, ${count}, ${var}.ptr())"),                     // to gpu
 
     register_array(Layout::CType::kSkPoint, { "half2", "float2", "double2" } ,
         "${pdman}.set2f(${uniform}, ${var}.fX, ${var}.fY)",                        // single
-        "${pdman}.set2fv(${uniform}, ${count}, &${var}.fX)",                       // array
-        "SkPoint::Make(SK_FloatNaN, SK_FloatNaN)"),                                // default value
+        "${pdman}.set2fv(${uniform}, ${count}, &${var}.fX)"),                      // array
 
     register_array(Layout::CType::kSkIPoint, { "int2", "short2", "byte2" },
         "${pdman}.set2i(${uniform}, ${var}.fX, ${var}.fY)",                        // single
-        "${pdman}.set2iv(${uniform}, ${count}, ${var}.fX, ${var}.fY)",             // array
-        "SkIPoint::Make(SK_NaN32, SK_NaN32)"),                                     // default value
+        "${pdman}.set2iv(${uniform}, ${count}, ${var}.fX, ${var}.fY)"),            // array
 
     register_type(Layout::CType::kSkMatrix, { "half3x3", "float3x3", "double3x3" },
-        "static_assert(${count} == 1); ${pdman}.setSkMatrix(${uniform}, ${var})",  // to gpu
-        "SkMatrix::Scale(SK_FloatNaN, SK_FloatNaN)",                               // default value
-        "!${oldVar}.cheapEqualTo(${newVar})"),                                     // dirty check
+        "static_assert(${count} == 1); ${pdman}.setSkMatrix(${uniform}, ${var})"), // to gpu
 
     register_type(Layout::CType::kSkM44, { "half4x4", "float4x4", "double4x4" },
-        "static_assert(${count} == 1); ${pdman}.setSkM44(${uniform}, ${var})",     // to gpu
-        "SkM44(SkM44::kNaN_Constructor)",                                          // default value
-        "${oldVar} != (${newVar})"),                                               // dirty check
+        "static_assert(${count} == 1); ${pdman}.setSkM44(${uniform}, ${var})"),    // to gpu
 
     register_array(Layout::CType::kFloat, { "half", "float", "double" },
         "${pdman}.set1f(${uniform}, ${var})",                                      // single
-        "${pdman}.set1fv(${uniform}, ${count}, &${var})",                          // array
-        "SK_FloatNaN"),                                                            // default value
+        "${pdman}.set1fv(${uniform}, ${count}, &${var})"),                         // array
 
     register_array(Layout::CType::kInt32, { "int", "short", "byte" },
         "${pdman}.set1i(${uniform}, ${var})",                                      // single
-        "${pdman}.set1iv(${uniform}, ${count}, &${var})",                          // array
-        "SK_NaN32"),                                                               // default value
+        "${pdman}.set1iv(${uniform}, ${count}, &${var})"),                         // array
     };
 
     return kRegisteredMappers;
