@@ -401,16 +401,20 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			skip("mtltestprecompile gm _ atlastext")
 			skip("mtltestprecompile gm _ circular_arcs_hairline")
 			skip("mtltestprecompile gm _ dftext")
+			skip("mtltestprecompile gm _ fontmgr_bounds")
 			skip("mtltestprecompile gm _ fontmgr_bounds_1_-0.25")
 			skip("mtltestprecompile gm _ glyph_pos_h_b")
 			skip("mtltestprecompile gm _ glyph_pos_h_f")
 			skip("mtltestprecompile gm _ glyph_pos_n_f")
+			skip("mtltestprecompile gm _ strokedlines")
 			skip("mtltestprecompile gm _ strokes3")
 			skip("mtltestprecompile gm _ texel_subset_linear_mipmap_nearest_down")
 			skip("mtltestprecompile gm _ texel_subset_linear_mipmap_linear_down")
+			skip("mtltestprecompile gm _ textblobmixedsizes_df")
 			skip("mtltestprecompile svg _ A_large_blank_world_map_with_oceans_marked_in_blue.svg")
 			skip("mtltestprecompile svg _ Chalkboard.svg")
 			skip("mtltestprecompile svg _ Ghostscript_Tiger.svg")
+			skip("mtltestprecompile svg _ Seal_of_Illinois.svg")
 		}
 		// Test reduced shader mode on iPhone 11 as representative iOS device
 		if b.model("iPhone11") && b.extraConfig("Metal") {
