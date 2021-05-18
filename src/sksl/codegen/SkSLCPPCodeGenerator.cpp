@@ -969,14 +969,10 @@ void CPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
             const UniformCTypeMapper* mapper = UniformCTypeMapper::Get(fContext, *u);
             SkASSERT(mapper);
 
-            String nameString(u->name());
-            const char* name = nameString.c_str();
-
-            // Switches for setData behavior in the generated code
             bool conditionalUniform = u->modifiers().fLayout.fWhen != "";
-            bool needsValueDeclaration = !mapper->canInlineUniformValue();
 
-            String uniformName = HCodeGenerator::FieldName(name) + "Var";
+            String uniformName = u->name() + "Var";
+            String valueVar = "_outer." + u->name();
 
             String indent = "        "; // 8 by default, 12 when nested for conditional uniforms
             if (conditionalUniform) {
@@ -984,20 +980,6 @@ void CPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
                 // before trying to send any data to the GPU
                 this->writef("        if (%s.isValid()) {\n", uniformName.c_str());
                 indent += "    ";
-            }
-
-            String valueVar = "";
-            if (needsValueDeclaration) {
-                valueVar.appendf("%sValue", name);
-                // Use AccessType since that will match the return type of _outer's public API.
-                String valueType = HCodeGenerator::AccessType(fContext, u->type(),
-                                                              u->modifiers().fLayout);
-                this->writef("%s%s %s = _outer.%s;\n",
-                             indent.c_str(), valueType.c_str(), valueVar.c_str(), name);
-            } else {
-                // The mapper only needs to use the value once so send it a safe expression instead
-                // of the variable name
-                valueVar.appendf("(_outer.%s)", name);
             }
 
             this->writef("%s%s;\n",
