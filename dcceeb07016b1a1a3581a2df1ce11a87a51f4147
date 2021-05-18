@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "67fe51fb_8982a812",
+        "filename": "modules/canvaskit/tests/font.spec.js",
+        "patchSetId": 13
+      },
+      "lineNbr": 367,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-18T14:37:27Z",
+      "side": 1,
+      "message": "Ooops, good catch. I\u0027ll add that variant (malloc\u0027d type-array).\n\nAgreed, I\u0027m leaking. Not sure how important not leaking is for a unittest. I can certainly find a way to catch it, but if it adds a lot more complexity (for the reader), then perhaps we just document the leak but let it, for clarity sake). I\u0027ll investigate.",
+      "parentUuid": "426a5634_299d468b",
+      "range": {
+        "startLine": 367,
+        "startChar": 28,
+        "endLine": 367,
+        "endChar": 39
+      },
+      "revId": "dcceeb07016b1a1a3581a2df1ce11a87a51f4147",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "009ae41a_5f6f2a21",
         "filename": "modules/canvaskit/tests/font.spec.js",
         "patchSetId": 13
@@ -37,6 +61,30 @@
       "writtenOn": "2021-05-18T13:49:10Z",
       "side": 1,
       "message": "This leaks the malloc object. Same for line 385.\n\nI am not sure if the makers and loop add clarity to the test. \n\"Tests written without control structures are clearer since the reader doesn\u0027t have to do any mental computations to understand them, and more likely to be correct since it\u0027s harder to have bugs in code without these constructs.\"\ngo/unit-testing-practices#control-structures",
+      "range": {
+        "startLine": 376,
+        "startChar": 36,
+        "endLine": 376,
+        "endChar": 42
+      },
+      "revId": "dcceeb07016b1a1a3581a2df1ce11a87a51f4147",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6efb66b8_aeb56f51",
+        "filename": "modules/canvaskit/tests/font.spec.js",
+        "patchSetId": 13
+      },
+      "lineNbr": 376,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-18T14:37:27Z",
+      "side": 1,
+      "message": "Hmmm, we have gone this route heavily in our skia unittests/gms. I find it much clearer to a reader, that\n- we are treating different sources / factories orthogonally\n- they can add/modify a factory in a single place, and know it will be applied everywhere\n\nThat is a fine quote, but it doesn\u0027t scale. As you rightly mentioned above, I missed a case (typed-array-from-malloc). With that there will be 16 cases. Do we really want to copy/paste/modify/comment a test 16 times?",
+      "parentUuid": "009ae41a_5f6f2a21",
       "range": {
         "startLine": 376,
         "startChar": 36,
