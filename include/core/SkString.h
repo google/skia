@@ -113,6 +113,10 @@ char* SkStrAppendScalar(char buffer[], SkScalar);
     counting to make string assignments and copies very fast
     with no extra RAM cost. Assumes UTF8 encoding.
 */
+#if SK_DEBUG_CONTAINERS
+#include "include/core/SkStringDebug.h"
+#else
+
 class SK_API SkString {
 public:
                 SkString();
@@ -262,6 +266,8 @@ private:
 
     static const Rec gEmptyRec;
 };
+
+#endif
 
 /// Creates a new string and writes into it using a printf()-style format.
 SkString SkStringPrintf(const char* format, ...) SK_PRINTF_LIKE(1, 2);

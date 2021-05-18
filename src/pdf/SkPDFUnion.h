@@ -109,6 +109,6 @@ private:
     SkPDFUnion& operator=(const SkPDFUnion&) = delete;
     SkPDFUnion(const SkPDFUnion&) = delete;
 };
-static_assert(sizeof(SkString) == sizeof(void*), "SkString_size");
+// static_assert(sizeof(SkString) == sizeof(void*), "SkString_size");
 
 #endif  // SkPDFUnion_DEFINED

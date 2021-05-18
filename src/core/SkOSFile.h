@@ -93,7 +93,7 @@ public:
         */
         SK_SPI bool next(SkString* name, bool getDir = false);
 
-        static const size_t kStorageSize = 40;
+        static const size_t kStorageSize = 64;
     private:
         alignas(void*) alignas(double) char fSelf[kStorageSize];
     };
