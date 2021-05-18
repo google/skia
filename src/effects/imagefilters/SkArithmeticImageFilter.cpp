@@ -23,7 +23,7 @@
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/SkGr.h"
-#include "src/gpu/effects/generated/GrArithmeticProcessor.h"
+#include "src/gpu/effects/GrSkSLFP.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
@@ -307,6 +307,37 @@ SkIRect SkArithmeticImageFilter::onFilterBounds(const SkIRect& src,
 
 #if SK_SUPPORT_GPU
 
+std::unique_ptr<GrFragmentProcessor> make_arithmetic_fp(
+        std::unique_ptr<GrFragmentProcessor> srcFP,
+        std::unique_ptr<GrFragmentProcessor> dstFP,
+        const SkV4& k,
+        bool enforcePMColor) {
+    static constexpr char kCode[] = R"(
+        uniform shader srcFP;
+        uniform shader dstFP;
+        uniform half4 k;
+        uniform int enforcePMColor;
+        half4 main(float2 xy) {
+            half4 src = sample(srcFP, xy);
+            half4 dst = sample(dstFP, xy);
+            half4 color = saturate(k.x * src * dst +
+                                   k.y * src +
+                                   k.z * dst +
+                                   k.w);
+            if (bool(enforcePMColor)) {
+                color.rgb = min(color.rgb, color.a);
+            }
+            return color;
+        }
+    )";
+    auto builder = GrRuntimeFPBuilder::Make<kCode, SkRuntimeEffect::MakeForShader>();
+    builder.child("srcFP") = std::move(srcFP);
+    builder.child("dstFP") = std::move(dstFP);
+    builder.uniform("k") = k;
+    builder.uniform("enforcePMColor") = enforcePMColor ? 1 : 0;
+    return builder.makeFP();
+}
+
 sk_sp<SkSpecialImage> SkArithmeticImageFilter::filterImageGPU(
         const Context& ctx,
         sk_sp<SkSpecialImage> background,
@@ -374,7 +405,7 @@ sk_sp<SkSpecialImage> SkArithmeticImageFilter::filterImageGPU(
                                              foreground->alphaType(),
                                              ctx.colorSpace(),
                                              kPremul_SkAlphaType);
-        fp = GrArithmeticProcessor::Make(std::move(fgFP), std::move(fp), fK, fEnforcePMColor);
+        fp = make_arithmetic_fp(std::move(fgFP), std::move(fp), fK, fEnforcePMColor);
     }
 
     GrImageInfo info(ctx.grColorType(), kPremul_SkAlphaType, ctx.refColorSpace(), bounds.size());
