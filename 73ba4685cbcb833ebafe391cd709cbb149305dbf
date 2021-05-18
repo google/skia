@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a8ce61ef_c238b561",
+        "filename": "include/private/SkSLLayout.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-18T17:40:52Z",
+      "side": 1,
+      "message": "Just curious: why edit these to remove the gap, but leave the gap between 5 and 7?",
+      "range": {
+        "startLine": 26,
+        "startChar": 7,
+        "endLine": 28,
+        "endChar": 0
+      },
+      "revId": "73ba4685cbcb833ebafe391cd709cbb149305dbf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
