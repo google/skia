@@ -34,14 +34,13 @@ void test_invalid_effect(skiatest::Reporter* r, const char* src, const char* exp
 #define EMPTY_MAIN "half4 main(float2 p) { return half4(0); }"
 
 DEF_TEST(SkRuntimeEffectInvalid_FPOnly, r) {
-    // Features that are only allowed in .fp files (key, in uniform, ctype, when, tracked).
+    // Features that are only allowed in .fp files (key, in uniform, ctype, when).
     // Ensure that these fail, and the error messages contain the relevant keyword.
     test_invalid_effect(r, "layout(key) in bool Input;"             EMPTY_MAIN, "key");
     test_invalid_effect(r, "in uniform float Input;"                EMPTY_MAIN, "in uniform");
     test_invalid_effect(r, "layout(ctype=SkRect) float4 Input;"     EMPTY_MAIN, "ctype");
     test_invalid_effect(r, "in bool Flag; "
                            "layout(when=Flag) uniform float Input;" EMPTY_MAIN, "when");
-    test_invalid_effect(r, "layout(tracked) uniform float Input;"   EMPTY_MAIN, "tracked");
 }
 
 DEF_TEST(SkRuntimeEffectInvalid_LimitedUniformTypes, r) {

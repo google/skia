@@ -63,7 +63,6 @@ sksl_fp_tests = [
   "/sksl/fp/GrSectionMake.fp",
   "/sksl/fp/GrSectionSetData.fp",
   "/sksl/fp/GrSectionTest.fp",
-  "/sksl/fp/GrTrackedInUniform.fp",
   "/sksl/fp/GrUniform.fp",
   "/sksl/fp/GrUniformArrays.fp",
   "/sksl/fp/GrUseExplicitReturn.fp",

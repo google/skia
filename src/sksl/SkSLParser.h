@@ -51,7 +51,6 @@ public:
         INVOCATIONS,
         WHEN,
         KEY,
-        TRACKED,
         SRGB_UNPREMUL,
         CTYPE,
         SKPMCOLOR4F,

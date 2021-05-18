@@ -946,23 +946,6 @@ void DSLCPPCodeGenerator::writePrivateVars() {
                                                        var.modifiers().fLayout).c_str(),
                              (int)var.name().size(), var.name().data(),
                              default_value(var).c_str());
-            } else if (var.modifiers().fLayout.fFlags & Layout::kTracked_Flag) {
-                // An auto-tracked uniform in variable, so add a field to hold onto the prior
-                // state. Note that tracked variables must be uniform in's and that is validated
-                // before writePrivateVars() is called.
-                const UniformCTypeMapper* mapper = UniformCTypeMapper::Get(fContext, var);
-                SkASSERT(mapper);
-
-                String name = HCodeGenerator::FieldName(String(var.name()).c_str());
-                // The member statement is different if the mapper reports a default value
-                if (mapper->defaultValue().size() > 0) {
-                    this->writef("%s %sPrev = %s;\n",
-                                    Layout::CTypeToStr(mapper->ctype()), name.c_str(),
-                                    mapper->defaultValue().c_str());
-                } else {
-                    this->writef("%s %sPrev;\n",
-                                    Layout::CTypeToStr(mapper->ctype()), name.c_str());
-                }
             }
         }
     }
@@ -1081,8 +1064,7 @@ void DSLCPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
 
             // Switches for setData behavior in the generated code
             bool conditionalUniform = u->modifiers().fLayout.fWhen != "";
-            bool isTracked = u->modifiers().fLayout.fFlags & Layout::kTracked_Flag;
-            bool needsValueDeclaration = isTracked || !mapper->canInlineUniformValue();
+            bool needsValueDeclaration = !mapper->canInlineUniformValue();
 
             String uniformName = HCodeGenerator::FieldName(name) + "Var";
 
@@ -1103,24 +1085,13 @@ void DSLCPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
                 this->writef("%s%s %s = _outer.%s;\n",
                              indent.c_str(), valueType.c_str(), valueVar.c_str(), name);
             } else {
-                // Not tracked and the mapper only needs to use the value once
-                // so send it a safe expression instead of the variable name
+                // The mapper only needs to use the value once so send it a safe expression instead
+                // of the variable name
                 valueVar.appendf("(_outer.%s)", name);
             }
 
-            if (isTracked) {
-                String prevVar = HCodeGenerator::FieldName(name) + "Prev";
-                this->writef("%sif (%s) {\n"
-                             "%s    %s;\n"
-                             "%s    %s;\n"
-                             "%s}\n", indent.c_str(),
-                        mapper->dirtyExpression(valueVar, prevVar).c_str(), indent.c_str(),
-                        mapper->saveState(valueVar, prevVar).c_str(), indent.c_str(),
-                        mapper->setUniform(pdman, uniformName, valueVar).c_str(), indent.c_str());
-            } else {
-                this->writef("%s%s;\n", indent.c_str(),
-                        mapper->setUniform(pdman, uniformName, valueVar).c_str());
-            }
+            this->writef("%s%s;\n",
+                         indent.c_str(), mapper->setUniform(pdman, uniformName, valueVar).c_str());
 
             if (conditionalUniform) {
                 // Close the earlier precheck block
@@ -1382,12 +1353,6 @@ bool DSLCPPCodeGenerator::generateCode() {
                 if (mapper == nullptr) {
                     fErrors.error(decl.fOffset, String(decl.var().name())
                             + "'s type is not supported for use as a 'uniform in'");
-                    return false;
-                }
-            } else {
-                // If it's not a uniform_in, it's an error to be tracked
-                if (decl.var().modifiers().fLayout.fFlags & Layout::kTracked_Flag) {
-                    fErrors.error(decl.fOffset, "Non-'in uniforms' cannot be tracked");
                     return false;
                 }
             }

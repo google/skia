@@ -40,15 +40,10 @@ private:
         const GrConditionalInUniform& _outer = _proc.cast<GrConditionalInUniform>();
         {
         if (colorVar.isValid()) {
-            const SkPMColor4f& colorValue = _outer.color;
-            if (colorPrev != colorValue) {
-                colorPrev = colorValue;
-                pdman.set4fv(colorVar, 1, colorValue.vec());
-            }
+            pdman.set4fv(colorVar, 1, (_outer.color).vec());
         }
         }
     }
-SkPMColor4f colorPrev = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
     UniformHandle colorVar;
 };
 std::unique_ptr<GrGLSLFragmentProcessor> GrConditionalInUniform::onMakeProgramImpl() const {
