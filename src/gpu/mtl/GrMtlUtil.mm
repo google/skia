@@ -297,6 +297,62 @@ uint32_t GrMtlFormatChannels(GrMTLPixelFormat mtlFormat) {
     }
 }
 
+GrColorFormatDesc GrMtlFormatDesc(GrMTLPixelFormat mtlFormat)  {
+    switch (mtlFormat) {
+        case MTLPixelFormatRGBA8Unorm:
+            return GrColorFormatDesc::MakeRGBA(8, GrColorTypeEncoding::kUnorm);
+        case MTLPixelFormatR8Unorm:
+            return GrColorFormatDesc::MakeR(8, GrColorTypeEncoding::kUnorm);
+        case MTLPixelFormatA8Unorm:
+            return GrColorFormatDesc::MakeAlpha(8, GrColorTypeEncoding::kUnorm);
+        case MTLPixelFormatBGRA8Unorm:
+            return GrColorFormatDesc::MakeRGBA(8, GrColorTypeEncoding::kUnorm);
+#if defined(SK_BUILD_FOR_IOS) && !TARGET_OS_SIMULATOR
+        case MTLPixelFormatB5G6R5Unorm:
+            return GrColorFormatDesc::MakeRGB(5, 6, 5, GrColorTypeEncoding::kUnorm);
+#endif
+        case MTLPixelFormatRGBA16Float:
+            return GrColorFormatDesc::MakeRGBA(16, GrColorTypeEncoding::kFloat);
+        case MTLPixelFormatR16Float:
+            return GrColorFormatDesc::MakeR(16, GrColorTypeEncoding::kFloat);
+        case MTLPixelFormatRG8Unorm:
+            return GrColorFormatDesc::MakeRG(8, GrColorTypeEncoding::kUnorm);
+        case MTLPixelFormatRGB10A2Unorm:
+            return GrColorFormatDesc::MakeRGBA(10, 2, GrColorTypeEncoding::kUnorm);
+#ifdef SK_BUILD_FOR_MAC
+        case MTLPixelFormatBGR10A2Unorm:
+            return GrColorFormatDesc::MakeRGBA(10, 2, GrColorTypeEncoding::kUnorm);
+#endif
+#if defined(SK_BUILD_FOR_IOS) && !TARGET_OS_SIMULATOR
+        case MTLPixelFormatABGR4Unorm:
+            return GrColorFormatDesc::MakeRGBA(4, GrColorTypeEncoding::kUnorm);
+#endif
+        case MTLPixelFormatRGBA8Unorm_sRGB:
+            return GrColorFormatDesc::MakeRGBA(8, GrColorTypeEncoding::kSRGBUnorm);
+        case MTLPixelFormatR16Unorm:
+            return GrColorFormatDesc::MakeR(16, GrColorTypeEncoding::kUnorm);
+        case MTLPixelFormatRG16Unorm:
+            return GrColorFormatDesc::MakeRG(16, GrColorTypeEncoding::kUnorm);
+        case MTLPixelFormatRGBA16Unorm:
+            return GrColorFormatDesc::MakeRGBA(16, GrColorTypeEncoding::kUnorm);
+        case MTLPixelFormatRG16Float:
+            return GrColorFormatDesc::MakeRG(16, GrColorTypeEncoding::kFloat);
+
+        // Compressed texture formats are not expected to have a description.
+#ifdef SK_BUILD_FOR_IOS
+        case MTLPixelFormatETC2_RGB8: return GrColorFormatDesc::MakeInvalid();
+#else
+        case MTLPixelFormatBC1_RGBA:  return GrColorFormatDesc::MakeInvalid();
+#endif
+
+        // This type only describes color channels.
+        case MTLPixelFormatStencil8: return GrColorFormatDesc::MakeInvalid();
+
+        default:
+            return GrColorFormatDesc::MakeInvalid();
+    }
+}
+
 SkImage::CompressionType GrMtlBackendFormatToCompressionType(const GrBackendFormat& format) {
     MTLPixelFormat mtlFormat = GrBackendFormatAsMTLPixelFormat(format);
     return GrMtlFormatToCompressionType(mtlFormat);

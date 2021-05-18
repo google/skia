@@ -10,6 +10,7 @@
 
 #include "include/core/SkImage.h"
 #include "include/gpu/mtl/GrMtlTypes.h"
+#include "include/private/GrTypesPriv.h"
 
 class GrBackendFormat;
 
@@ -22,6 +23,8 @@ size_t GrMtlBackendFormatBytesPerBlock(const GrBackendFormat& format);
 int GrMtlBackendFormatStencilBits(const GrBackendFormat& format);
 
 uint32_t GrMtlFormatChannels(GrMTLPixelFormat);
+
+GrColorFormatDesc GrMtlFormatDesc(GrMTLPixelFormat);
 
 SkImage::CompressionType GrMtlBackendFormatToCompressionType(const GrBackendFormat& format);
 
