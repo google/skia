@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "426a5634_299d468b",
+        "filename": "modules/canvaskit/tests/font.spec.js",
+        "patchSetId": 13
+      },
+      "lineNbr": 367,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-05-18T13:49:10Z",
+      "side": 1,
+      "message": "If we want to be thorough, there are actually 4 different ways to test. The typed array that is returned by our MallocObj. This is why the original test passed the pointsArr and idArr.",
+      "range": {
+        "startLine": 367,
+        "startChar": 28,
+        "endLine": 367,
+        "endChar": 39
+      },
+      "revId": "dcceeb07016b1a1a3581a2df1ce11a87a51f4147",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "009ae41a_5f6f2a21",
+        "filename": "modules/canvaskit/tests/font.spec.js",
+        "patchSetId": 13
+      },
+      "lineNbr": 376,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-05-18T13:49:10Z",
+      "side": 1,
+      "message": "This leaks the malloc object. Same for line 385.\n\nI am not sure if the makers and loop add clarity to the test. \n\"Tests written without control structures are clearer since the reader doesn\u0027t have to do any mental computations to understand them, and more likely to be correct since it\u0027s harder to have bugs in code without these constructs.\"\ngo/unit-testing-practices#control-structures",
+      "range": {
+        "startLine": 376,
+        "startChar": 36,
+        "endLine": 376,
+        "endChar": 42
+      },
+      "revId": "dcceeb07016b1a1a3581a2df1ce11a87a51f4147",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
