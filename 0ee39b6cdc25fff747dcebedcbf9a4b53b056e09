@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "78edc67c_fec9763f",
+        "filename": "modules/canvaskit/WasmCommon.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-05-18T19:24:26Z",
+      "side": 1,
+      "message": "Maybe:\n{static_assert(\"unknown base type\")};",
+      "range": {
+        "startLine": 34,
+        "startChar": 41,
+        "endLine": 34,
+        "endChar": 43
+      },
+      "revId": "0ee39b6cdc25fff747dcebedcbf9a4b53b056e09",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
