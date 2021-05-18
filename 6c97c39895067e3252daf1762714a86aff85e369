@@ -186,6 +186,24 @@
       "parentUuid": "981b76b8_7f9a174e",
       "revId": "6c97c39895067e3252daf1762714a86aff85e369",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5497732b_094e1795",
+        "filename": "platform_tools/android/apps/androidkitdemo/src/main/java/org/skia/androidkitdemo1/SkottieAnimationActivity.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-05-18T14:05:27Z",
+      "side": 1,
+      "message": "I see, makes sense",
+      "parentUuid": "75a2521c_16bb35d4",
+      "revId": "6c97c39895067e3252daf1762714a86aff85e369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
