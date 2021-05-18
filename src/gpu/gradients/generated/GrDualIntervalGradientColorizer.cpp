@@ -73,38 +73,13 @@ private:
         const GrDualIntervalGradientColorizer& _outer =
                 _proc.cast<GrDualIntervalGradientColorizer>();
         {
-            const SkPMColor4f& scale01Value = _outer.scale01;
-            if (scale01Prev != scale01Value) {
-                scale01Prev = scale01Value;
-                pdman.set4fv(scale01Var, 1, scale01Value.vec());
-            }
-            const SkPMColor4f& bias01Value = _outer.bias01;
-            if (bias01Prev != bias01Value) {
-                bias01Prev = bias01Value;
-                pdman.set4fv(bias01Var, 1, bias01Value.vec());
-            }
-            const SkPMColor4f& scale23Value = _outer.scale23;
-            if (scale23Prev != scale23Value) {
-                scale23Prev = scale23Value;
-                pdman.set4fv(scale23Var, 1, scale23Value.vec());
-            }
-            const SkPMColor4f& bias23Value = _outer.bias23;
-            if (bias23Prev != bias23Value) {
-                bias23Prev = bias23Value;
-                pdman.set4fv(bias23Var, 1, bias23Value.vec());
-            }
-            float thresholdValue = _outer.threshold;
-            if (thresholdPrev != thresholdValue) {
-                thresholdPrev = thresholdValue;
-                pdman.set1f(thresholdVar, thresholdValue);
-            }
+            pdman.set4fv(scale01Var, 1, (_outer.scale01).vec());
+            pdman.set4fv(bias01Var, 1, (_outer.bias01).vec());
+            pdman.set4fv(scale23Var, 1, (_outer.scale23).vec());
+            pdman.set4fv(bias23Var, 1, (_outer.bias23).vec());
+            pdman.set1f(thresholdVar, (_outer.threshold));
         }
     }
-    SkPMColor4f scale01Prev = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
-    SkPMColor4f bias01Prev = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
-    SkPMColor4f scale23Prev = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
-    SkPMColor4f bias23Prev = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
-    float thresholdPrev = SK_FloatNaN;
     UniformHandle scale01Var;
     UniformHandle bias01Var;
     UniformHandle scale23Var;

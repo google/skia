@@ -47,20 +47,10 @@ private:
         const GrSingleIntervalGradientColorizer& _outer =
                 _proc.cast<GrSingleIntervalGradientColorizer>();
         {
-            const SkPMColor4f& startValue = _outer.start;
-            if (startPrev != startValue) {
-                startPrev = startValue;
-                pdman.set4fv(startVar, 1, startValue.vec());
-            }
-            const SkPMColor4f& endValue = _outer.end;
-            if (endPrev != endValue) {
-                endPrev = endValue;
-                pdman.set4fv(endVar, 1, endValue.vec());
-            }
+            pdman.set4fv(startVar, 1, (_outer.start).vec());
+            pdman.set4fv(endVar, 1, (_outer.end).vec());
         }
     }
-    SkPMColor4f startPrev = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
-    SkPMColor4f endPrev = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
     UniformHandle startVar;
     UniformHandle endVar;
 };
