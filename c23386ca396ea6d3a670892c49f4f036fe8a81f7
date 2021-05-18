@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8a01748d_5fe63d35",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-05-18T22:55:09Z",
+      "side": 1,
+      "message": "Looks like we removed support for https://www.khronos.org/registry/OpenGL/extensions/NV/NV_sample_mask_override_coverage.txt from GLCaps 4 years ago:\n\nhttps://skia-review.googlesource.com/107356",
+      "revId": "c23386ca396ea6d3a670892c49f4f036fe8a81f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
