@@ -147,7 +147,6 @@ enum class GrGLRenderer {
 
 enum class GrGLDriver {
     kMesa,
-    kChromium,
     kNVIDIA,
     kIntel,
     kSwiftShader,
@@ -233,6 +232,9 @@ struct GrGLDriverInfo {
     GrGLRenderer      fANGLERenderer      = GrGLRenderer::kOther;
     GrGLDriver        fANGLEDriver        = GrGLDriver::kUnknown;
     GrGLDriverVersion fANGLEDriverVersion = GR_GL_DRIVER_UNKNOWN_VER;
+
+    // Are we running over the Chrome interprocess command buffer?
+    bool fIsOverCommandBuffer = false;
 };
 
 GrGLDriverInfo GrGLGetDriverInfo(const GrGLInterface*);
