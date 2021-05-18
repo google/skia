@@ -22,6 +22,30 @@
       },
       "revId": "9c22763524bd60e7132e57138c283df3e94f17d2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "67cdf2f7_3907c669",
+        "filename": "src/sksl/SkSLCPPUniformCTypes.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-18T18:56:24Z",
+      "side": 1,
+      "message": "Also, CType is just an enum; do we want to make an unordered_map instead?",
+      "parentUuid": "feb46d60_9f44c9ab",
+      "range": {
+        "startLine": 66,
+        "startChar": 4,
+        "endLine": 66,
+        "endChar": 79
+      },
+      "revId": "9c22763524bd60e7132e57138c283df3e94f17d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
