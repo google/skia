@@ -48,6 +48,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "70f8ea83_375ee930",
+        "filename": "modules/canvaskit/tests/font.spec.js",
+        "patchSetId": 13
+      },
+      "lineNbr": 367,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-18T15:03:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "67fe51fb_8982a812",
+      "range": {
+        "startLine": 367,
+        "startChar": 28,
+        "endLine": 367,
+        "endChar": 39
+      },
+      "revId": "dcceeb07016b1a1a3581a2df1ce11a87a51f4147",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "009ae41a_5f6f2a21",
