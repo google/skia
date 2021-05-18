@@ -140,7 +140,7 @@ func setupGoldctl(ctx context.Context, local bool, gitCommit, gerritCLID, tryjob
 
 	args = []string{
 		goldctlPath, "imgtest", "init", "--work-dir", workPath, "--instance", "skia", "--corpus", "gm",
-		"--commit", gitCommit,
+		"--commit", gitCommit, "--url", "https://gold.skia.org", "--bucket", "skia-infra-gm",
 	}
 	if gerritCLID != "" {
 		ps := strconv.Itoa(psOrder)
