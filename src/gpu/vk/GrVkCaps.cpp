@@ -598,6 +598,11 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
     if (kImagination_VkVendor == properties.vendorID) {
         fShaderCaps->fAtan2ImplementedAsAtanYOverX = true;
     }
+
+    // http://skbug.com/11965
+    if (strstr(properties.deviceName, "SwiftShader")) {
+        fShaderCaps->fVertexIDSupport = false;
+    }
 }
 
 void GrVkCaps::initGrCaps(const GrVkInterface* vkInterface,
