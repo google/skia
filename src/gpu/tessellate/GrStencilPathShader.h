@@ -105,13 +105,13 @@ public:
 
 // Uses GPU tessellation shaders to linearize, triangulate, and render standalone closed cubics.
 // TODO: Eventually we want to use rational cubic wedges in order to support perspective and conics.
-class GrCubicTessellateShader : public GrStencilPathShader {
+class GrCurveTessellateShader : public GrStencilPathShader {
 public:
-    GrCubicTessellateShader(const SkMatrix& viewMatrix) : GrStencilPathShader(
-            kTessellate_GrCubicTessellateShader_ClassID, viewMatrix, GrPrimitiveType::kPatches, 4) {
+    GrCurveTessellateShader(const SkMatrix& viewMatrix) : GrStencilPathShader(
+            kTessellate_GrCurveTessellateShader_ClassID, viewMatrix, GrPrimitiveType::kPatches, 4) {
         this->setVertexAttributes(&kSinglePointAttrib, 1);
     }
-    const char* name() const override { return "tessellate_GrCubicTessellateShader"; }
+    const char* name() const override { return "tessellate_GrCurveTessellateShader"; }
 
 private:
     GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const override;
@@ -144,7 +144,7 @@ private:
 // The caller may compute each cubic's resolveLevel on the CPU (i.e., the log2 number of line
 // segments it will be divided into; see GrWangsFormula::cubic_log2/quadratic_log2/conic_log2), and
 // then sort the instance buffer by resolveLevel for efficient batching of indirect draws.
-class GrMiddleOutCubicShader : public GrStencilPathShader {
+class GrCurveMiddleOutShader : public GrStencilPathShader {
 public:
     // How many vertices do we need to draw in order to triangulate a cubic with 2^resolveLevel
     // line segments?
@@ -169,8 +169,8 @@ public:
         indirectWriter->write(instanceCount, baseInstance, vertexCount, 0);
     }
 
-    GrMiddleOutCubicShader(const SkMatrix& viewMatrix)
-            : GrStencilPathShader(kTessellate_GrMiddleOutCubicShader_ClassID, viewMatrix,
+    GrCurveMiddleOutShader(const SkMatrix& viewMatrix)
+            : GrStencilPathShader(kTessellate_GrCurveMiddleOutShader_ClassID, viewMatrix,
                                   GrPrimitiveType::kTriangles) {
         constexpr static Attribute kInputPtsAttribs[] = {
                 {"inputPoints_0_1", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
@@ -178,7 +178,7 @@ public:
         this->setInstanceAttributes(kInputPtsAttribs, 2);
     }
 
-    const char* name() const override { return "tessellate_GrMiddleOutCubicShader"; }
+    const char* name() const override { return "tessellate_GrCurveMiddleOutShader"; }
 
 private:
     GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const override;

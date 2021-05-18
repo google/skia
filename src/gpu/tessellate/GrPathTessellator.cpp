@@ -128,7 +128,7 @@ void GrPathIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const SkMa
         }
         instanceLocations[resolveLevel] = instanceWriter.makeOffset(0);
         SkASSERT(fIndirectDrawCount < indirectLockCnt);
-        GrMiddleOutCubicShader::WriteDrawIndirectCmd(&indirectWriter, resolveLevel,
+        GrCurveMiddleOutShader::WriteDrawIndirectCmd(&indirectWriter, resolveLevel,
                                                      instanceCountAtCurrLevel + numExtraInstances,
                                                      currentBaseInstance);
         ++fIndirectDrawCount;

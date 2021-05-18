@@ -66,7 +66,7 @@ void GrPathStencilFillOp::prePreparePrograms(const GrPathShader::ProgramArgs& ar
             fStencilFanProgram = GrStencilPathShader::MakeStencilProgram<GrStencilTriangleShader>(
                     args, fViewMatrix, stencilPassPipeline, fPath.getFillType());
         }
-        fStencilPathProgram = GrStencilPathShader::MakeStencilProgram<GrMiddleOutCubicShader>(
+        fStencilPathProgram = GrStencilPathShader::MakeStencilProgram<GrCurveMiddleOutShader>(
                 args, fViewMatrix, stencilPassPipeline, fPath.getFillType());
     } else {
         // The caller should have sent Flags::kDisableHWTessellation if it was not supported.
@@ -85,7 +85,7 @@ void GrPathStencilFillOp::prePreparePrograms(const GrPathShader::ProgramArgs& ar
             fTessellator = args.fArena->make<GrPathOuterCurveTessellator>();
             fStencilFanProgram = GrStencilPathShader::MakeStencilProgram<GrStencilTriangleShader>(
                     args, fViewMatrix, stencilPassPipeline, fPath.getFillType());
-            fStencilPathProgram = GrStencilPathShader::MakeStencilProgram<GrCubicTessellateShader>(
+            fStencilPathProgram = GrStencilPathShader::MakeStencilProgram<GrCurveTessellateShader>(
                     args, fViewMatrix, stencilPassPipeline, fPath.getFillType());
         } else {
             // Fastest CPU approach: emit one cubic wedge per verb, fanning out from the center.
