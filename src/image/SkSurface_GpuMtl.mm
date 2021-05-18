@@ -19,6 +19,7 @@
 #if SK_SUPPORT_GPU
 
 #include "src/gpu/GrSurface.h"
+#include "src/gpu/SkGpuDevice.h"
 #include "src/gpu/mtl/GrMtlTextureRenderTarget.h"
 
 #ifdef SK_METAL
@@ -35,7 +36,6 @@ sk_sp<SkSurface> SkSurface::MakeFromCAMetalLayer(GrRecordingContext* rContext,
                                                  const SkSurfaceProps* surfaceProps,
                                                  GrMTLHandle* drawable) {
     GrProxyProvider* proxyProvider = rContext->priv().proxyProvider();
-    const GrCaps* caps = rContext->priv().caps();
 
     CAMetalLayer* metalLayer = (__bridge CAMetalLayer*)layer;
     GrBackendFormat backendFormat = GrBackendFormat::MakeMtl(metalLayer.pixelFormat);
@@ -84,18 +84,19 @@ sk_sp<SkSurface> SkSurface::MakeFromCAMetalLayer(GrRecordingContext* rContext,
             false,
             GrSurfaceProxy::UseAllocator::kYes);
 
-    GrSwizzle readSwizzle = caps->getReadSwizzle(backendFormat, grColorType);
-    GrSwizzle writeSwizzle = caps->getWriteSwizzle(backendFormat, grColorType);
+    auto sdc = GrSurfaceDrawContext::Make(rContext,
+                                          grColorType,
+                                          std::move(colorSpace),
+                                          std::move(proxy),
+                                          origin,
+                                          SkSurfacePropsCopyOrDefault(surfaceProps));
 
-    GrSurfaceProxyView readView(proxy, origin, readSwizzle);
-    GrSurfaceProxyView writeView(std::move(proxy), origin, writeSwizzle);
+    auto device = SkGpuDevice::Make(std::move(sdc), SkGpuDevice::kUninit_InitContents);
+    if (!device) {
+        return nullptr;
+    }
 
-    auto rtc = std::make_unique<GrSurfaceDrawContext>(rContext, std::move(readView),
-                                                      std::move(writeView), grColorType, colorSpace,
-                                                      SkSurfacePropsCopyOrDefault(surfaceProps));
-
-    sk_sp<SkSurface> surface = SkSurface_Gpu::MakeWrappedRenderTarget(rContext, std::move(rtc));
-    return surface;
+    return sk_make_sp<SkSurface_Gpu>(std::move(device));
 }
 
 sk_sp<SkSurface> SkSurface::MakeFromMTKView(GrRecordingContext* rContext,
@@ -106,7 +107,6 @@ sk_sp<SkSurface> SkSurface::MakeFromMTKView(GrRecordingContext* rContext,
                                             sk_sp<SkColorSpace> colorSpace,
                                             const SkSurfaceProps* surfaceProps) {
     GrProxyProvider* proxyProvider = rContext->priv().proxyProvider();
-    const GrCaps* caps = rContext->priv().caps();
 
     MTKView* mtkView = (__bridge MTKView*)view;
     GrBackendFormat backendFormat = GrBackendFormat::MakeMtl(mtkView.colorPixelFormat);
@@ -154,18 +154,19 @@ sk_sp<SkSurface> SkSurface::MakeFromMTKView(GrRecordingContext* rContext,
             false,
             GrSurfaceProxy::UseAllocator::kYes);
 
-    GrSwizzle readSwizzle = caps->getReadSwizzle(backendFormat, grColorType);
-    GrSwizzle writeSwizzle = caps->getWriteSwizzle(backendFormat, grColorType);
+    auto sdc = GrSurfaceDrawContext::Make(rContext,
+                                          grColorType,
+                                          std::move(colorSpace),
+                                          std::move(proxy),
+                                          origin,
+                                          SkSurfacePropsCopyOrDefault(surfaceProps));
 
-    GrSurfaceProxyView readView(proxy, origin, readSwizzle);
-    GrSurfaceProxyView writeView(std::move(proxy), origin, writeSwizzle);
+    auto device = SkGpuDevice::Make(std::move(sdc), SkGpuDevice::kUninit_InitContents);
+    if (!device) {
+        return nullptr;
+    }
 
-    auto rtc = std::make_unique<GrSurfaceDrawContext>(rContext, std::move(readView),
-                                                      std::move(writeView), grColorType, colorSpace,
-                                                      SkSurfacePropsCopyOrDefault(surfaceProps));
-
-    sk_sp<SkSurface> surface = SkSurface_Gpu::MakeWrappedRenderTarget(rContext, std::move(rtc));
-    return surface;
+    return sk_make_sp<SkSurface_Gpu>(std::move(device));
 }
 
 #endif
