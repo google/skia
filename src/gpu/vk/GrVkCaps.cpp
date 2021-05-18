@@ -733,7 +733,7 @@ void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties,
 
     shaderCaps->fIntegerSupport = true;
     shaderCaps->fVertexIDSupport = true;
-    shaderCaps->fFPManipulationSupport = true;
+    shaderCaps->fBitManipulationSupport = true;
 
     // Assume the minimum precisions mandated by the SPIR-V spec.
     shaderCaps->fFloatIs32Bits = true;
