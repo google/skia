@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "07018853_08680cdf",
+        "filename": "samplecode/SamplePathTessellators.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-05-18T18:14:10Z",
+      "side": 1,
+      "message": "Leftover from debugging or do you want to keep this around?",
+      "revId": "5298fe3f973aef9bd59465db0ba76f4d9ebdc96d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
