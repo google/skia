@@ -1,6 +1,5 @@
 layout (
     origin_upper_left,
-    override_coverage,
     push_constant,
     blend_support_all_equations,
     srgb_unpremul,
@@ -18,7 +17,6 @@ layout (
     ctype = int,
 
     origin_upper_left,
-    override_coverage,
     push_constant,
     blend_support_all_equations,
     srgb_unpremul,

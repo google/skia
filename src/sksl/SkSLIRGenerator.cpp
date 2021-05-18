@@ -823,7 +823,6 @@ void IRGenerator::CheckModifiers(const Context& context,
     };
 
     checkLayout(Layout::kOriginUpperLeft_Flag,          "origin_upper_left");
-    checkLayout(Layout::kOverrideCoverage_Flag,         "override_coverage");
     checkLayout(Layout::kPushConstant_Flag,             "push_constant");
     checkLayout(Layout::kBlendSupportAllEquations_Flag, "blend_support_all_equations");
     checkLayout(Layout::kSRGBUnpremul_Flag,             "srgb_unpremul");

@@ -1810,9 +1810,6 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLLayout, r, ctxInfo) {
     Var v2(DSLLayout().originUpperLeft(), kFloat2_Type, "v2");
     EXPECT_EQUAL(Declare(v2), "layout (origin_upper_left) float2 v2;");
 
-    Var v3(DSLLayout().overrideCoverage(), kHalf_Type, "v3");
-    EXPECT_EQUAL(Declare(v3), "layout (override_coverage) half v3;");
-
     Var v4(DSLLayout().pushConstant(), kBool_Type, "v4");
     EXPECT_EQUAL(Declare(v4), "layout (push_constant) bool v4;");
 
@@ -1863,12 +1860,6 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLLayout, r, ctxInfo) {
         ExpectError error(r, "error: layout qualifier 'origin_upper_left' appears more than "
                              "once\n");
         DSLLayout().originUpperLeft().originUpperLeft();
-    }
-
-    {
-        ExpectError error(r, "error: layout qualifier 'override_coverage' appears more than "
-                             "once\n");
-        DSLLayout().overrideCoverage().overrideCoverage();
     }
 
     {

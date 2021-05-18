@@ -23,10 +23,6 @@ public:
         return this->flag(SkSL::Layout::kOriginUpperLeft_Flag, "origin_upper_left", pos);
     }
 
-    DSLLayout& overrideCoverage(PositionInfo pos = PositionInfo()) {
-        return this->flag(SkSL::Layout::kOverrideCoverage_Flag, "override_coverage", pos);
-    }
-
     DSLLayout& pushConstant(PositionInfo pos = PositionInfo()) {
         return this->flag(SkSL::Layout::kPushConstant_Flag, "push_constant", pos);
     }
