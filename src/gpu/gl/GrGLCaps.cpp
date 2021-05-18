@@ -4097,6 +4097,11 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     if (fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO) {
         fReuseScratchTextures = false;
     }
+
+    // http://skbug.com/11965
+    if (ctxInfo.renderer() == kGoogleSwiftShader_GrGLRenderer) {
+        fShaderCaps->fVertexIDSupport = false;
+    }
 }
 
 void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
