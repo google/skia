@@ -7,8 +7,8 @@
 
 in fragmentProcessor inputFP;
 layout(key) in GrClipEdgeType edgeType;
-layout(ctype=SkRect) in float4 rect;
-layout(ctype=SkRect) float4 prevRect = float4(-1);
+in float4 rect;
+float4 prevRect = float4(-1);
 uniform float4 rectUniform;
 
 @optimizationFlags {

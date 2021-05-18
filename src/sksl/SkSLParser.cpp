@@ -111,13 +111,6 @@ void Parser::InitLayoutMap() {
     TOKEN(CTYPE,                        "ctype");
     TOKEN(SKPMCOLOR4F,                  "SkPMColor4f");
     TOKEN(SKV4,                         "SkV4");
-    TOKEN(SKRECT,                       "SkRect");
-    TOKEN(SKIRECT,                      "SkIRect");
-    TOKEN(SKPMCOLOR,                    "SkPMColor");
-    TOKEN(SKM44,                        "SkM44");
-    TOKEN(BOOL,                         "bool");
-    TOKEN(INT,                          "int");
-    TOKEN(FLOAT,                        "float");
     #undef TOKEN
 }
 
@@ -848,20 +841,6 @@ Layout::CType Parser::layoutCType() {
                     return Layout::CType::kSkPMColor4f;
                 case LayoutToken::SKV4:
                     return Layout::CType::kSkV4;
-                case LayoutToken::SKRECT:
-                    return Layout::CType::kSkRect;
-                case LayoutToken::SKIRECT:
-                    return Layout::CType::kSkIRect;
-                case LayoutToken::SKPMCOLOR:
-                    return Layout::CType::kSkPMColor;
-                case LayoutToken::BOOL:
-                    return Layout::CType::kBool;
-                case LayoutToken::INT:
-                    return Layout::CType::kInt32;
-                case LayoutToken::FLOAT:
-                    return Layout::CType::kFloat;
-                case LayoutToken::SKM44:
-                    return Layout::CType::kSkM44;
                 default:
                     break;
             }

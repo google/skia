@@ -6,9 +6,9 @@
  */
 
 in fragmentProcessor src;
-layout(ctype=SkIRect) in int4 bounds;
+in int4 bounds;
 uniform float4 boundsUniform;
-layout(ctype=SkRect) in float4 srcRect;
+in float4 srcRect;
 in uniform float xInvZoom;
 in uniform float yInvZoom;
 in uniform float xInvInset;

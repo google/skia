@@ -52,16 +52,13 @@ Layout::CType HCodeGenerator::ParameterCType(const Context& context, const Type&
     }
     if (type == *context.fTypes.fFloat || type == *context.fTypes.fHalf) {
         return Layout::CType::kFloat;
-    } else if (type == *context.fTypes.fInt ||
-               type == *context.fTypes.fShort) {
+    } else if (type == *context.fTypes.fInt || type == *context.fTypes.fShort) {
         return Layout::CType::kInt32;
     } else if (type == *context.fTypes.fFloat2 || type == *context.fTypes.fHalf2) {
         return Layout::CType::kSkPoint;
-    } else if (type == *context.fTypes.fInt2 ||
-               type == *context.fTypes.fShort2) {
+    } else if (type == *context.fTypes.fInt2 || type == *context.fTypes.fShort2) {
         return Layout::CType::kSkIPoint;
-    } else if (type == *context.fTypes.fInt4 ||
-               type == *context.fTypes.fShort4) {
+    } else if (type == *context.fTypes.fInt4 || type == *context.fTypes.fShort4) {
         return Layout::CType::kSkIRect;
     } else if (type == *context.fTypes.fFloat4 || type == *context.fTypes.fHalf4) {
         return Layout::CType::kSkRect;
@@ -69,8 +66,6 @@ Layout::CType HCodeGenerator::ParameterCType(const Context& context, const Type&
         return Layout::CType::kSkMatrix;
     } else if (type == *context.fTypes.fFloat4x4 || type == *context.fTypes.fHalf4x4) {
         return Layout::CType::kSkM44;
-    } else if (type.typeKind() == Type::TypeKind::kSampler) {
-        return Layout::CType::kGrSurfaceProxyView;
     } else if (type.isFragmentProcessor()) {
         return Layout::CType::kGrFragmentProcessor;
     }
