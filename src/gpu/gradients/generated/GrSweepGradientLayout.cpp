@@ -51,8 +51,8 @@ private:
                    const GrFragmentProcessor& _proc) override {
         const GrSweepGradientLayout& _outer = _proc.cast<GrSweepGradientLayout>();
         {
-            pdman.set1f(biasVar, (_outer.bias));
-            pdman.set1f(scaleVar, (_outer.scale));
+            pdman.set1f(biasVar, _outer.bias);
+            pdman.set1f(scaleVar, _outer.scale);
         }
     }
     UniformHandle biasVar;

@@ -73,9 +73,8 @@ private:
                    const GrFragmentProcessor& _proc) override {
         const GrColorMatrixFragmentProcessor& _outer = _proc.cast<GrColorMatrixFragmentProcessor>();
         {
-            static_assert(1 == 1);
-            pdman.setSkM44(mVar, (_outer.m));
-            pdman.set4fv(vVar, 1, (_outer.v).ptr());
+            pdman.setSkM44(mVar, _outer.m);
+            pdman.set4fv(vVar, 1, _outer.v.ptr());
         }
     }
     UniformHandle mVar;

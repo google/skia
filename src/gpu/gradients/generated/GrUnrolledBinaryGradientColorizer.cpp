@@ -224,54 +224,54 @@ private:
         const GrUnrolledBinaryGradientColorizer& _outer =
                 _proc.cast<GrUnrolledBinaryGradientColorizer>();
         {
-            pdman.set4fv(scale0_1Var, 1, (_outer.scale0_1).vec());
+            pdman.set4fv(scale0_1Var, 1, _outer.scale0_1.vec());
             if (scale2_3Var.isValid()) {
-                pdman.set4fv(scale2_3Var, 1, (_outer.scale2_3).vec());
+                pdman.set4fv(scale2_3Var, 1, _outer.scale2_3.vec());
             }
             if (scale4_5Var.isValid()) {
-                pdman.set4fv(scale4_5Var, 1, (_outer.scale4_5).vec());
+                pdman.set4fv(scale4_5Var, 1, _outer.scale4_5.vec());
             }
             if (scale6_7Var.isValid()) {
-                pdman.set4fv(scale6_7Var, 1, (_outer.scale6_7).vec());
+                pdman.set4fv(scale6_7Var, 1, _outer.scale6_7.vec());
             }
             if (scale8_9Var.isValid()) {
-                pdman.set4fv(scale8_9Var, 1, (_outer.scale8_9).vec());
+                pdman.set4fv(scale8_9Var, 1, _outer.scale8_9.vec());
             }
             if (scale10_11Var.isValid()) {
-                pdman.set4fv(scale10_11Var, 1, (_outer.scale10_11).vec());
+                pdman.set4fv(scale10_11Var, 1, _outer.scale10_11.vec());
             }
             if (scale12_13Var.isValid()) {
-                pdman.set4fv(scale12_13Var, 1, (_outer.scale12_13).vec());
+                pdman.set4fv(scale12_13Var, 1, _outer.scale12_13.vec());
             }
             if (scale14_15Var.isValid()) {
-                pdman.set4fv(scale14_15Var, 1, (_outer.scale14_15).vec());
+                pdman.set4fv(scale14_15Var, 1, _outer.scale14_15.vec());
             }
-            pdman.set4fv(bias0_1Var, 1, (_outer.bias0_1).vec());
+            pdman.set4fv(bias0_1Var, 1, _outer.bias0_1.vec());
             if (bias2_3Var.isValid()) {
-                pdman.set4fv(bias2_3Var, 1, (_outer.bias2_3).vec());
+                pdman.set4fv(bias2_3Var, 1, _outer.bias2_3.vec());
             }
             if (bias4_5Var.isValid()) {
-                pdman.set4fv(bias4_5Var, 1, (_outer.bias4_5).vec());
+                pdman.set4fv(bias4_5Var, 1, _outer.bias4_5.vec());
             }
             if (bias6_7Var.isValid()) {
-                pdman.set4fv(bias6_7Var, 1, (_outer.bias6_7).vec());
+                pdman.set4fv(bias6_7Var, 1, _outer.bias6_7.vec());
             }
             if (bias8_9Var.isValid()) {
-                pdman.set4fv(bias8_9Var, 1, (_outer.bias8_9).vec());
+                pdman.set4fv(bias8_9Var, 1, _outer.bias8_9.vec());
             }
             if (bias10_11Var.isValid()) {
-                pdman.set4fv(bias10_11Var, 1, (_outer.bias10_11).vec());
+                pdman.set4fv(bias10_11Var, 1, _outer.bias10_11.vec());
             }
             if (bias12_13Var.isValid()) {
-                pdman.set4fv(bias12_13Var, 1, (_outer.bias12_13).vec());
+                pdman.set4fv(bias12_13Var, 1, _outer.bias12_13.vec());
             }
             if (bias14_15Var.isValid()) {
-                pdman.set4fv(bias14_15Var, 1, (_outer.bias14_15).vec());
+                pdman.set4fv(bias14_15Var, 1, _outer.bias14_15.vec());
             }
             pdman.set4fv(
-                    thresholds1_7Var, 1, reinterpret_cast<const float*>(&(_outer.thresholds1_7)));
+                    thresholds1_7Var, 1, reinterpret_cast<const float*>(&_outer.thresholds1_7));
             pdman.set4fv(
-                    thresholds9_13Var, 1, reinterpret_cast<const float*>(&(_outer.thresholds9_13)));
+                    thresholds9_13Var, 1, reinterpret_cast<const float*>(&_outer.thresholds9_13));
         }
     }
     UniformHandle scale0_1Var;
