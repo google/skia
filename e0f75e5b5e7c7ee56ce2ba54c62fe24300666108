@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "84ea2156_72d00023",
+        "filename": "include/private/DSL_priv.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-18T14:15:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1e075896_7956b658",
+      "range": {
+        "startLine": 21,
+        "startChar": 17,
+        "endLine": 22,
+        "endChar": 81
+      },
+      "revId": "e0f75e5b5e7c7ee56ce2ba54c62fe24300666108",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1594c5ba_161f2373",
@@ -54,6 +78,30 @@
       "writtenOn": "2021-05-17T20:56:12Z",
       "side": 1,
       "message": "Is this necessary? I don\u0027t see anything added which would require it.",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 33
+      },
+      "revId": "e0f75e5b5e7c7ee56ce2ba54c62fe24300666108",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "77791ee0_7fb261ae",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-18T14:15:16Z",
+      "side": 1,
+      "message": "Good catch, don\u0027t need this anymore.",
+      "parentUuid": "1594c5ba_161f2373",
       "range": {
         "startLine": 17,
         "startChar": 0,
@@ -87,6 +135,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3bbda842_2894fb94",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 730,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-18T14:15:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a733d928_9051fb20",
+      "range": {
+        "startLine": 730,
+        "startChar": 58,
+        "endLine": 730,
+        "endChar": 60
+      },
+      "revId": "e0f75e5b5e7c7ee56ce2ba54c62fe24300666108",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8853be7c_1803b232",
@@ -100,6 +172,24 @@
       "writtenOn": "2021-05-17T19:55:23Z",
       "side": 1,
       "message": "Leftover. (There\u0027s now two copies of this line in this file).",
+      "revId": "e0f75e5b5e7c7ee56ce2ba54c62fe24300666108",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3c5f8d7a_fa4dcc9f",
+        "filename": "src/sksl/ir/SkSLTernaryExpression.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-18T14:15:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8853be7c_1803b232",
       "revId": "e0f75e5b5e7c7ee56ce2ba54c62fe24300666108",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
