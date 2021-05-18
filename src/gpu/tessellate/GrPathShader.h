@@ -15,7 +15,6 @@
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrVertexWriter.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
-#include <limits>
 
  // This is a common base class for shaders in the GPU tessellator.
 class GrPathShader : public GrGeometryProcessor {
@@ -58,7 +57,7 @@ public:
         // Write out the 3 conic points to patch[0..2], the weight to patch[3].x, and then set
         // patch[3].y as NaN to flag this patch as a conic.
         writer->writeArray(pts, 3);
-        writer->write(w, std::numeric_limits<float>::infinity());
+        writer->write(w, GrVertexWriter::kIEEE_32_infinity);
     }
     static void WriteConicPatch(const SkPoint pts[3], float w, SkPoint patch[4]) {
         GrVertexWriter writer(patch);
