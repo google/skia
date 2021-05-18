@@ -16,6 +16,24 @@
       "message": "nit: unused?",
       "revId": "247e55e8cb24fedc09ee879dd7ef10d0b2da00bc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d46a83bb_ace5d16d",
+        "filename": "modules/androidkit/src/Canvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-18T13:54:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5cc3f0c5_471a592b",
+      "revId": "247e55e8cb24fedc09ee879dd7ef10d0b2da00bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

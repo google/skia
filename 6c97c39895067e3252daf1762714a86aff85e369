@@ -168,6 +168,24 @@
       "parentUuid": "044fff9c_61493b41",
       "revId": "6c97c39895067e3252daf1762714a86aff85e369",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "75a2521c_16bb35d4",
+        "filename": "platform_tools/android/apps/androidkitdemo/src/main/java/org/skia/androidkitdemo1/SkottieAnimationActivity.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-18T13:54:48Z",
+      "side": 1,
+      "message": "getResources() requires an android.content.Context, and at that point we might as well pass the Resources object, which seems like a perfect fit for a builder.",
+      "parentUuid": "981b76b8_7f9a174e",
+      "revId": "6c97c39895067e3252daf1762714a86aff85e369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
