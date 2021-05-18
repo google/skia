@@ -469,7 +469,6 @@ private:
     StringStream fGlobalInitializersBuffer;
     StringStream fConstantBuffer;
     StringStream fExtraGlobalsBuffer;
-    StringStream fExternalFunctionsBuffer;
     StringStream fVariableBuffer;
     StringStream fNameBuffer;
     StringStream fDecorationBuffer;
