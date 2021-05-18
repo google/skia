@@ -315,3 +315,61 @@ private:
 };
 
 DEF_GM(return new ImageFilterComposedTransform();)
+
+// Tests SkImageFilters::Image under tricky matrices (mirrors and perspective)
+DEF_SIMPLE_GM(imagefilter_transformed_image, canvas, 256, 256) {
+    sk_sp<SkImage> image = GetResourceAsImage("images/color_wheel.png");
+    sk_sp<SkImageFilter> imageFilter = SkImageFilters::Image(image);
+
+    const SkRect imageRect = SkRect::MakeIWH(image->width(), image->height());
+
+    SkM44 m1 = SkM44::Translate(0.9f * image->width(), 0.1f * image->height()) *
+               SkM44::Scale(-.8f, .8f);
+
+    SkM44 m2 = SkM44::RectToRect({-1.f, -1.f, 1.f, 1.f}, imageRect) *
+               SkM44::Perspective(0.01f, 100.f, SK_ScalarPI / 3.f) *
+               SkM44::Translate(0.f, 0.f, -2.f) *
+               SkM44::Rotate({0.f, 1.f, 0.f}, SK_ScalarPI / 6.f) *
+               SkM44::RectToRect(imageRect, {-1.f, -1.f, 1.f, 1.f});
+
+    SkSamplingOptions sampling(SkFilterMode::kLinear);
+    for (auto m : {m1, m2}) {
+        canvas->save();
+        for (bool manualTransform : {false, true}) {
+            canvas->save();
+            canvas->clipRect(imageRect);
+
+            sk_sp<SkImageFilter> finalFilter;
+            if (manualTransform) {
+                finalFilter = SkImageFilters::MatrixTransform(m.asM33(), sampling, imageFilter);
+            } else {
+                canvas->concat(m);
+                finalFilter = imageFilter;
+            }
+
+            SkPaint paint;
+            paint.setImageFilter(std::move(finalFilter));
+            canvas->drawPaint(paint);
+
+            // A border around the original image
+            if (manualTransform) {
+                canvas->concat(m);
+            }
+            SkPaint outline;
+            outline.setStroke(true);
+            outline.setAntiAlias(true);
+            canvas->drawRect(imageRect.makeInset(2.f, 2.f), outline);
+
+            // Will show significant ghosting if the image filter is applied incorrectly
+            SkPaint alpha;
+            alpha.setAlphaf(0.5f);
+            canvas->drawImage(image, 0.f, 0.f, sampling, &alpha);
+
+            canvas->restore();
+            canvas->translate(image->width(), 0.f);
+        }
+        canvas->restore();
+
+        canvas->translate(0.f, image->height());
+    }
+}
