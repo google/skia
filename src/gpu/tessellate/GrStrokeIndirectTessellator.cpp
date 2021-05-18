@@ -765,7 +765,7 @@ void GrStrokeIndirectTessellator::prepare(GrMeshDrawOp::Target* target,
     GrDrawIndirectWriter indirectWriter = target->makeDrawIndirectSpace(fChainedDrawIndirectCount,
                                                                         &fDrawIndirectBuffer,
                                                                         &fDrawIndirectOffset);
-    if (!indirectWriter.isValid()) {
+    if (!indirectWriter) {
         SkASSERT(!fDrawIndirectBuffer);
         return;
     }
