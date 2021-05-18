@@ -31,4 +31,18 @@ static constexpr uint32_t GrDawnFormatChannels(wgpu::TextureFormat format) {
     }
 }
 
+static constexpr GrColorFormatDesc GrDawnFormatDesc(wgpu::TextureFormat format) {
+    switch (format) {
+        case wgpu::TextureFormat::RGBA8Unorm:
+            return GrColorFormatDesc::MakeRGBA(8, GrColorTypeEncoding::kUnorm);
+        case wgpu::TextureFormat::BGRA8Unorm:
+            return GrColorFormatDesc::MakeRGBA(8, GrColorTypeEncoding::kUnorm);
+        case wgpu::TextureFormat::R8Unorm:
+            return GrColorFormatDesc::MakeR(8, GrColorTypeEncoding::kUnorm);
+
+        default:
+            return GrColorFormatDesc::MakeInvalid();
+    }
+}
+
 #endif // GrDawnUtil_DEFINED

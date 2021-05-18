@@ -23,6 +23,7 @@
 class GrBackendSurfaceMutableStateImpl;
 class GrVkImageLayout;
 class GrGLTextureParameters;
+class GrColorFormatDesc;
 
 #ifdef SK_DAWN
 #include "dawn/webgpu_cpp.h"
@@ -118,6 +119,8 @@ public:
      * Luminance channels are reported as kGray_SkColorChannelFlag.
      */
     uint32_t channelMask() const;
+
+    GrColorFormatDesc desc() const;
 
     /**
      * If the backend API is GL this gets the format as a GrGLFormat. Otherwise, returns
