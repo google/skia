@@ -350,7 +350,7 @@ describe('Font Behavior', () => {
         font.delete();
     });
 
-    it('can use mallocd and normal arrays', () => {
+    fit('can use mallocd and normal arrays', () => {
         const font = new CanvasKit.Font(null, 100);
         const ids = font.getGlyphIDs('I');
         expect(ids.length).toEqual(1);
