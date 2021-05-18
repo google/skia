@@ -112,26 +112,30 @@ void GrD3DBuffer::setResourceState(const GrD3DGpu* gpu,
     fResourceState = newResourceState;
 }
 
-void GrD3DBuffer::onRelease() {
-    if (!this->wasDestroyed()) {
-        VALIDATE();
-        // Note: we intentionally don't release the d3d resource here since it may still be in use
-        // by the gpu and a call to GrContext::release could get us in here.
-        fMapPtr = nullptr;
-        VALIDATE();
+void GrD3DBuffer::releaseResource() {
+    if (this->wasDestroyed()) {
+        return;
     }
-    INHERITED::onRelease();
+
+    if (fMapPtr) {
+        this->internalUnmap(this->size());
+        fMapPtr = nullptr;
+    }
+
+    SkASSERT(fD3DResource);
+    SkASSERT(fAlloc);
+    fD3DResource.reset();
+    fAlloc.reset();
+}
+
+void GrD3DBuffer::onRelease() {
+    this->releaseResource();
+    this->INHERITED::onRelease();
 }
 
 void GrD3DBuffer::onAbandon() {
-    if (!this->wasDestroyed()) {
-        VALIDATE();
-        // Note: we intentionally don't release the d3d resource here since it may still be in use
-        // by the gpu and a call to GrContext::abandon could get us in here.
-        fMapPtr = nullptr;
-        VALIDATE();
-    }
-    INHERITED::onAbandon();
+    this->releaseResource();
+    this->INHERITED::onAbandon();
 }
 
 void GrD3DBuffer::onMap() {

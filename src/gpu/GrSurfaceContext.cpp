@@ -838,6 +838,7 @@ void GrSurfaceContext::asyncReadPixels(GrDirectContext* dContext,
         ReadPixelsContext fClientContext;
         SkISize fSize;
         SkColorType fColorType;
+        size_t fBufferAlignment;
         GrClientMappedBufferManager* fMappedBufferManager;
         PixelTransferResult fTransferResult;
     };
@@ -848,13 +849,16 @@ void GrSurfaceContext::asyncReadPixels(GrDirectContext* dContext,
                                             callbackContext,
                                             rect.size(),
                                             colorType,
+                                            this->caps()->transferBufferAlignment(),
                                             mappedBufferManager,
                                             std::move(transferResult)};
     auto finishCallback = [](GrGpuFinishedContext c) {
         const auto* context = reinterpret_cast<const FinishContext*>(c);
         auto manager = context->fMappedBufferManager;
         auto result = std::make_unique<AsyncReadResult>(manager->owningDirectContext());
-        size_t rowBytes = context->fSize.width() * SkColorTypeBytesPerPixel(context->fColorType);
+        size_t rowBytes =
+                GrAlignTo(context->fSize.width() * SkColorTypeBytesPerPixel(context->fColorType),
+                          context->fBufferAlignment);
         if (!result->addTransferResult(context->fTransferResult, context->fSize, rowBytes,
                                        manager)) {
             result.reset();
@@ -1338,6 +1342,7 @@ GrSurfaceContext::PixelTransferResult GrSurfaceContext::transferPixels(GrColorTy
     }
 
     size_t rowBytes = GrColorTypeBytesPerPixel(supportedRead.fColorType) * rect.width();
+    rowBytes = GrAlignTo(rowBytes, this->caps()->transferBufferAlignment());
     size_t size = rowBytes * rect.height();
     // By using kStream_GrAccessPattern here, we are not able to cache and reuse the buffer for
     // multiple reads. Switching to kDynamic_GrAccessPattern would allow for this, however doing

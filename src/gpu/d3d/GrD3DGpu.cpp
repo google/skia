@@ -565,7 +565,6 @@ bool GrD3DGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
         return false;
     }
 
-    // Set up src location and box
     GrD3DTextureResource* texResource = nullptr;
     GrD3DRenderTarget* rt = static_cast<GrD3DRenderTarget*>(surface->asRenderTarget());
     if (rt) {
@@ -578,6 +577,43 @@ bool GrD3DGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
         return false;
     }
 
+    D3D12_RESOURCE_DESC desc = texResource->d3dResource()->GetDesc();
+    D3D12_PLACED_SUBRESOURCE_FOOTPRINT placedFootprint;
+    UINT64 transferTotalBytes;
+    fDevice->GetCopyableFootprints(&desc, 0, 1, 0, &placedFootprint,
+                                   nullptr, nullptr, &transferTotalBytes);
+    SkASSERT(transferTotalBytes);
+    // TODO: implement some way of reusing buffers instead of making a new one every time.
+    sk_sp<GrGpuBuffer> transferBuffer = this->createBuffer(transferTotalBytes,
+                                                           GrGpuBufferType::kXferGpuToCpu,
+                                                           kDynamic_GrAccessPattern);
+
+    this->readOrTransferPixels(texResource, left, top, width, height, transferBuffer,
+                               placedFootprint);
+    this->submitDirectCommandList(SyncQueue::kForce);
+
+    // Copy back to CPU buffer
+    size_t bpp = GrColorTypeBytesPerPixel(dstColorType);
+    if (GrDxgiFormatBytesPerBlock(texResource->dxgiFormat()) != bpp) {
+        return false;
+    }
+    size_t tightRowBytes = bpp * width;
+
+    const void* mappedMemory = transferBuffer->map();
+
+    SkRectMemcpy(buffer, rowBytes, mappedMemory, placedFootprint.Footprint.RowPitch,
+                 tightRowBytes, height);
+
+    transferBuffer->unmap();
+
+    return true;
+}
+
+void GrD3DGpu::readOrTransferPixels(GrD3DTextureResource* texResource,
+                                    int left, int top, int width, int height,
+                                    sk_sp<GrGpuBuffer> transferBuffer,
+                                    const D3D12_PLACED_SUBRESOURCE_FOOTPRINT& placedFootprint) {
+    // Set up src location and box
     D3D12_TEXTURE_COPY_LOCATION srcLocation = {};
     srcLocation.pResource = texResource->d3dResource();
     SkASSERT(srcLocation.pResource);
@@ -592,25 +628,10 @@ bool GrD3DGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
     srcBox.front = 0;
     srcBox.back = 1;
 
-    // Set up dst location and create transfer buffer
+    // Set up dst location
     D3D12_TEXTURE_COPY_LOCATION dstLocation = {};
     dstLocation.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
-    UINT64 transferTotalBytes;
-    const UINT64 baseOffset = 0;
-    D3D12_RESOURCE_DESC desc = srcLocation.pResource->GetDesc();
-    fDevice->GetCopyableFootprints(&desc, 0, 1, baseOffset, &dstLocation.PlacedFootprint,
-                                   nullptr, nullptr, &transferTotalBytes);
-    SkASSERT(transferTotalBytes);
-    size_t bpp = GrColorTypeBytesPerPixel(dstColorType);
-    if (GrDxgiFormatBytesPerBlock(texResource->dxgiFormat()) != bpp) {
-        return false;
-    }
-    size_t tightRowBytes = bpp * width;
-
-    // TODO: implement some way of reusing buffers instead of making a new one every time.
-    sk_sp<GrGpuBuffer> transferBuffer = this->createBuffer(transferTotalBytes,
-                                                           GrGpuBufferType::kXferGpuToCpu,
-                                                           kDynamic_GrAccessPattern);
+    dstLocation.PlacedFootprint = placedFootprint;
     GrD3DBuffer* d3dBuf = static_cast<GrD3DBuffer*>(transferBuffer.get());
     dstLocation.pResource = d3dBuf->d3dResource();
 
@@ -620,16 +641,6 @@ bool GrD3DGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
     fCurrentDirectCommandList->copyTextureRegionToBuffer(transferBuffer, &dstLocation, 0, 0,
                                                          texResource->resource(), &srcLocation,
                                                          &srcBox);
-    this->submitDirectCommandList(SyncQueue::kForce);
-
-    const void* mappedMemory = transferBuffer->map();
-
-    SkRectMemcpy(buffer, rowBytes, mappedMemory, dstLocation.PlacedFootprint.Footprint.RowPitch,
-                 tightRowBytes, height);
-
-    transferBuffer->unmap();
-
-    return true;
 }
 
 bool GrD3DGpu::onWritePixels(GrSurface* surface, int left, int top, int width, int height,
@@ -752,6 +763,122 @@ bool GrD3DGpu::uploadToTexture(GrD3DTexture* tex, int left, int top, int width, 
     if (mipLevelCount < (int)desc.MipLevels) {
         tex->markMipmapsDirty();
     }
+
+    return true;
+}
+
+bool GrD3DGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int width, int height,
+                                  GrColorType surfaceColorType, GrColorType bufferColorType,
+                                  sk_sp<GrGpuBuffer> transferBuffer, size_t bufferOffset,
+                                  size_t rowBytes) {
+    if (!this->currentCommandList()) {
+        return false;
+    }
+
+    if (!transferBuffer) {
+        return false;
+    }
+
+    size_t bpp = GrColorTypeBytesPerPixel(bufferColorType);
+    if (GrBackendFormatBytesPerPixel(texture->backendFormat()) != bpp) {
+        return false;
+    }
+
+    // D3D requires offsets for texture transfers to be aligned to this value
+    if (SkToBool(bufferOffset & (D3D12_TEXTURE_DATA_PLACEMENT_ALIGNMENT-1))) {
+        return false;
+    }
+
+    GrD3DTexture* d3dTex = static_cast<GrD3DTexture*>(texture);
+    if (!d3dTex) {
+        return false;
+    }
+
+    SkDEBUGCODE(DXGI_FORMAT format = d3dTex->dxgiFormat());
+
+    // Can't transfer compressed data
+    SkASSERT(!GrDxgiFormatIsCompressed(format));
+
+    SkASSERT(GrDxgiFormatBytesPerBlock(format) == GrColorTypeBytesPerPixel(bufferColorType));
+
+    SkDEBUGCODE(
+        SkIRect subRect = SkIRect::MakeXYWH(left, top, width, height);
+        SkIRect bounds = SkIRect::MakeWH(texture->width(), texture->height());
+        SkASSERT(bounds.contains(subRect));
+        )
+
+    // Set up copy region
+    D3D12_PLACED_SUBRESOURCE_FOOTPRINT placedFootprint = {};
+    ID3D12Resource* d3dResource = d3dTex->d3dResource();
+    SkASSERT(d3dResource);
+    D3D12_RESOURCE_DESC desc = d3dResource->GetDesc();
+    desc.Width = width;
+    desc.Height = height;
+    UINT64 totalBytes;
+    fDevice->GetCopyableFootprints(&desc, 0, 1, 0, &placedFootprint,
+                                   nullptr, nullptr, &totalBytes);
+    placedFootprint.Offset = bufferOffset;
+
+    // Change state of our target so it can be copied to
+    d3dTex->setResourceState(this, D3D12_RESOURCE_STATE_COPY_DEST);
+
+    // Copy the buffer to the image.
+    ID3D12Resource* d3dBuffer = static_cast<GrD3DBuffer*>(transferBuffer.get())->d3dResource();
+    fCurrentDirectCommandList->copyBufferToTexture(d3dBuffer, d3dTex, 1,
+                                                   &placedFootprint, left, top);
+    this->currentCommandList()->addGrBuffer(std::move(transferBuffer));
+
+    d3dTex->markMipmapsDirty();
+    return true;
+}
+
+bool GrD3DGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int width, int height,
+                                    GrColorType surfaceColorType, GrColorType bufferColorType,
+                                    sk_sp<GrGpuBuffer> transferBuffer, size_t offset) {
+    if (!this->currentCommandList()) {
+        return false;
+    }
+    SkASSERT(surface);
+    SkASSERT(transferBuffer);
+    // TODO
+    //if (fProtectedContext == GrProtected::kYes) {
+    //    return false;
+    //}
+
+    // D3D requires offsets for texture transfers to be aligned to this value
+    if (SkToBool(offset & (D3D12_TEXTURE_DATA_PLACEMENT_ALIGNMENT-1))) {
+        return false;
+    }
+
+    GrD3DTextureResource* texResource = nullptr;
+    GrD3DRenderTarget* rt = static_cast<GrD3DRenderTarget*>(surface->asRenderTarget());
+    if (rt) {
+        texResource = rt;
+    } else {
+        texResource = static_cast<GrD3DTexture*>(surface->asTexture());
+    }
+
+    if (!texResource) {
+        return false;
+    }
+
+    SkDEBUGCODE(DXGI_FORMAT format = texResource->dxgiFormat());
+    SkASSERT(GrDxgiFormatBytesPerBlock(format) == GrColorTypeBytesPerPixel(bufferColorType));
+
+    D3D12_RESOURCE_DESC desc = texResource->d3dResource()->GetDesc();
+    desc.Width = width;
+    desc.Height = height;
+    D3D12_PLACED_SUBRESOURCE_FOOTPRINT placedFootprint;
+    UINT64 transferTotalBytes;
+    fDevice->GetCopyableFootprints(&desc, 0, 1, offset, &placedFootprint,
+                                   nullptr, nullptr, &transferTotalBytes);
+    SkASSERT(transferTotalBytes);
+
+    this->readOrTransferPixels(texResource, left, top, width, height,
+                               transferBuffer, placedFootprint);
+
+    // TODO: It's not clear how to ensure the transfer is done before we read from the buffer,
+    // other than maybe doing a resource state transition.
 
     return true;
 }
