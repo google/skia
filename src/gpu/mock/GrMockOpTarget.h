@@ -108,7 +108,7 @@ public:
     UNIMPL(bool usesMSAASurface() const)
     UNIMPL(GrStrikeCache* strikeCache() const)
     UNIMPL(GrAtlasManager* atlasManager() const)
-    UNIMPL(SkTArray<GrSurfaceProxy*, true>* sampledProxyArray())
+    UNIMPL(SkTHashSet<GrSurfaceProxy*>* sampledProxies())
     UNIMPL(GrDeferredUploadTarget* deferredUploadTarget())
 #undef UNIMPL
 

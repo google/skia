@@ -9,6 +9,7 @@
 #define GrOpFlushState_DEFINED
 
 #include <utility>
+#include "include/private/SkTHash.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkArenaAllocList.h"
 #include "src/gpu/GrAppliedClip.h"
@@ -110,11 +111,11 @@ public:
         return *fOpArgs;
     }
 
-    void setSampledProxyArray(SkTArray<GrSurfaceProxy*, true>* sampledProxies) {
+    void setSampledProxies(SkTHashSet<GrSurfaceProxy*>* sampledProxies) {
         fSampledProxies = sampledProxies;
     }
 
-    SkTArray<GrSurfaceProxy*, true>* sampledProxyArray() override {
+    SkTHashSet<GrSurfaceProxy*>* sampledProxies() override {
         return fSampledProxies;
     }
 
@@ -309,9 +310,9 @@ private:
     // an op is not currently preparing of executing.
     OpArgs* fOpArgs = nullptr;
 
-    // This field is only transiently set during flush. Each GrOpsTask will set it to point to an
-    // array of proxies it uses before call onPrepare and onExecute.
-    SkTArray<GrSurfaceProxy*, true>* fSampledProxies;
+    // This field is only transiently set during flush. Each GrOpsTask will set it to point to a
+    // set of proxies it uses before call onPrepare and onExecute.
+    SkTHashSet<GrSurfaceProxy*>* fSampledProxies;
 
     GrGpu* fGpu;
     GrResourceProvider* fResourceProvider;

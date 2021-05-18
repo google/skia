@@ -16,6 +16,7 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTDArray.h"
+#include "include/private/SkTHash.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkClipStack.h"
 #include "src/core/SkStringUtils.h"
@@ -66,7 +67,7 @@ public:
         // be a texture. Eventually, when proxies are a unified type with flags, this can just
         // assert that capability.
         SkASSERT(proxy->asTextureProxy());
-        fSampledProxies.push_back(proxy);
+        fSampledProxies.add(proxy);
     }
 
     void addOp(GrDrawingManager*, GrOp::Owner, GrTextureResolveManager, const GrCaps&);
@@ -270,9 +271,7 @@ private:
     sk_sp<GrArenas> fArenas;
     SkDEBUGCODE(int fNumClips;)
 
-    // TODO: We could look into this being a set if we find we're adding a lot of duplicates that is
-    // causing slow downs.
-    SkTArray<GrSurfaceProxy*, true> fSampledProxies;
+    SkTHashSet<GrSurfaceProxy*> fSampledProxies;
 
     SkRect fTotalBounds = SkRect::MakeEmpty();
     SkIRect fClippedContentBounds = SkIRect::MakeEmpty();

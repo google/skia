@@ -206,7 +206,7 @@ private:
             // This op does not know its atlas proxies when it is added to a GrOpsTasks, so the
             // proxies don't get added during the visitProxies call. Thus we add them here.
             flushInfo.fPrimProcProxies[i] = views[i].proxy();
-            target->sampledProxyArray()->push_back(views[i].proxy());
+            target->sampledProxies()->add(views[i].proxy());
         }
 
         // Setup GrGeometryProcessor
@@ -589,7 +589,7 @@ private:
                 flushInfo->fPrimProcProxies[i] = views[i].proxy();
                 // This op does not know its atlas proxies when it is added to a GrOpsTasks, so the
                 // proxies don't get added during the visitProxies call. Thus we add them here.
-                target->sampledProxyArray()->push_back(views[i].proxy());
+                target->sampledProxies()->add(views[i].proxy());
             }
             // During preparation the number of atlas pages has increased.
             // Update the proxies used in the GP to match.

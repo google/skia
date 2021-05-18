@@ -637,7 +637,7 @@ GrOpsRenderPass* GrGpu::getOpsRenderPass(
         const SkIRect& bounds,
         const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
         const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
-        const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
+        const SkTHashSet<GrSurfaceProxy*>& sampledProxies,
         GrXferBarrierFlags renderPassXferBarriers) {
 #if SK_HISTOGRAMS_ENABLED
     fCurrentSubmitRenderPassCount++;

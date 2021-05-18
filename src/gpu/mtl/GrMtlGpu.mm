@@ -208,7 +208,7 @@ GrOpsRenderPass* GrMtlGpu::onGetOpsRenderPass(
             GrSurfaceOrigin origin, const SkIRect& bounds,
             const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
             const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
-            const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
+            const SkTHashSet<GrSurfaceProxy*>& sampledProxies,
             GrXferBarrierFlags renderPassXferBarriers) {
     return new GrMtlOpsRenderPass(this, renderTarget, origin, colorInfo, stencilInfo);
 }

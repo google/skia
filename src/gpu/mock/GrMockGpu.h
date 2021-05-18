@@ -136,7 +136,7 @@ private:
                                         const SkIRect&,
                                         const GrOpsRenderPass::LoadAndStoreInfo&,
                                         const GrOpsRenderPass::StencilLoadAndStoreInfo&,
-                                        const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
+                                        const SkTHashSet<GrSurfaceProxy*>& sampledProxies,
                                         GrXferBarrierFlags renderPassXferBarriers) override;
 
     bool onSubmitToGpu(bool syncCpu) override {

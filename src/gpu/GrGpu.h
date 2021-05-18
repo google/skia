@@ -349,7 +349,7 @@ public:
                                       const SkIRect& bounds,
                                       const GrOpsRenderPass::LoadAndStoreInfo&,
                                       const GrOpsRenderPass::StencilLoadAndStoreInfo&,
-                                      const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
+                                      const SkTHashSet<GrSurfaceProxy*>& sampledProxies,
                                       GrXferBarrierFlags renderPassXferBarriers);
 
     // Called by GrDrawingManager when flushing.
@@ -755,7 +755,7 @@ private:
             const SkIRect& bounds,
             const GrOpsRenderPass::LoadAndStoreInfo&,
             const GrOpsRenderPass::StencilLoadAndStoreInfo&,
-            const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
+            const SkTHashSet<GrSurfaceProxy*>& sampledProxies,
             GrXferBarrierFlags renderPassXferBarriers) = 0;
 
     virtual void prepareSurfacesForBackendAccessAndStateUpdates(

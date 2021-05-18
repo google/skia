@@ -482,7 +482,7 @@ void GrOpsTask::onPrepare(GrOpFlushState* flushState) {
     }
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
-    flushState->setSampledProxyArray(&fSampledProxies);
+    flushState->setSampledProxies(&fSampledProxies);
     GrSurfaceProxyView dstView(sk_ref_sp(this->target(0)), fTargetOrigin, fTargetSwizzle);
     // Loop over the ops that haven't yet been prepared.
     for (const auto& chain : fOpChains) {
@@ -510,7 +510,7 @@ void GrOpsTask::onPrepare(GrOpFlushState* flushState) {
             flushState->setOpArgs(nullptr);
         }
     }
-    flushState->setSampledProxyArray(nullptr);
+    flushState->setSampledProxies(nullptr);
 }
 
 static GrOpsRenderPass* create_render_pass(GrGpu* gpu,
@@ -523,7 +523,7 @@ static GrOpsRenderPass* create_render_pass(GrGpu* gpu,
                                            const std::array<float, 4>& loadClearColor,
                                            GrLoadOp stencilLoadOp,
                                            GrStoreOp stencilStoreOp,
-                                           const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
+                                           const SkTHashSet<GrSurfaceProxy*>& sampledProxies,
                                            GrXferBarrierFlags renderPassXferBarriers) {
     const GrOpsRenderPass::LoadAndStoreInfo kColorLoadStoreInfo {
         colorLoadOp,
@@ -745,7 +745,6 @@ int GrOpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
 
     fLastClipStackGenID = SK_InvalidUniqueID;
     fDeferredProxies.reserve_back(addlDeferredProxyCount);
-    fSampledProxies.reserve_back(addlProxyCount);
     fOpChains.reserve_back(addlOpChainCount);
     for (const auto& toMerge : mergingNodes) {
         for (GrRenderTask* renderTask : toMerge->dependents()) {
@@ -756,8 +755,9 @@ int GrOpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
         }
         fDeferredProxies.move_back_n(toMerge->fDeferredProxies.count(),
                                      toMerge->fDeferredProxies.data());
-        fSampledProxies.move_back_n(toMerge->fSampledProxies.count(),
-                                    toMerge->fSampledProxies.data());
+        for (auto proxy : toMerge->fSampledProxies) {
+            fSampledProxies.add(proxy);
+        }
         fOpChains.move_back_n(toMerge->fOpChains.count(),
                               toMerge->fOpChains.data());
         toMerge->fDeferredProxies.reset();

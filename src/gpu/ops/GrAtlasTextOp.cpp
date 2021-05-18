@@ -228,7 +228,7 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
         primProcProxies[i] = views[i].proxy();
         // This op does not know its atlas proxies when it is added to a GrOpsTasks, so the proxies
         // don't get added during the visitProxies call. Thus we add them here.
-        target->sampledProxyArray()->push_back(views[i].proxy());
+        target->sampledProxies()->add(views[i].proxy());
     }
 
     FlushInfo flushInfo;
@@ -358,7 +358,7 @@ void GrAtlasTextOp::createDrawForGeneratedGlyphs(
             flushInfo->fPrimProcProxies[i] = views[i].proxy();
             // This op does not know its atlas proxies when it is added to a GrOpsTasks, so the
             // proxies don't get added during the visitProxies call. Thus we add them here.
-            target->sampledProxyArray()->push_back(views[i].proxy());
+            target->sampledProxies()->add(views[i].proxy());
             // These will get unreffed when the previously recorded draws destruct.
             for (int d = 0; d < flushInfo->fNumDraws; ++d) {
                 flushInfo->fPrimProcProxies[i]->ref();
