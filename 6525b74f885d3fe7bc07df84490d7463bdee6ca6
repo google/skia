@@ -39,6 +39,30 @@
       },
       "revId": "6525b74f885d3fe7bc07df84490d7463bdee6ca6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "34405f7e_3e7f9d4d",
+        "filename": "gm/imagefilterstransformed.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-18T19:51:33Z",
+      "side": 1,
+      "message": "Done; now the left column is correct and the right will be wrong until fixes are landed later.",
+      "parentUuid": "93eebe66_f7ba066a",
+      "range": {
+        "startLine": 342,
+        "startChar": 18,
+        "endLine": 342,
+        "endChar": 33
+      },
+      "revId": "6525b74f885d3fe7bc07df84490d7463bdee6ca6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
