@@ -6,7 +6,7 @@
  */
 
 in fragmentProcessor inputFP;
-layout(ctype=SkM44) in uniform half4x4 m;
+in uniform half4x4 m;
 layout(ctype=SkV4) in uniform half4 v;
 layout(key) in bool unpremulInput;
 layout(key) in bool clampRGBOutput;
