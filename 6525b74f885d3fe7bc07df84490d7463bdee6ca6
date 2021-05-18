@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fa6fa366_42a2edb4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-18T19:08:02Z",
+      "side": 1,
+      "message": "If you look at the gold results, you\u0027ll see the current buggy behavior. The left column is wrong; the top-left image is not mirrored, and the bottom-left image has no perspective.",
+      "revId": "6525b74f885d3fe7bc07df84490d7463bdee6ca6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
