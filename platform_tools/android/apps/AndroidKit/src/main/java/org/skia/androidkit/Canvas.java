@@ -68,6 +68,9 @@ public class Canvas {
         mSurface = surface;
     }
 
+    // package private
+    long getNativeInstance() { return mNativeInstance; }
+
     private static native void nSave(long nativeInstance);
     private static native void nRestore(long nativeInstance);
     private static native long nGetLocalToDevice(long mNativeInstance);

@@ -28,6 +28,7 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved) {
     REGISTER_NATIVES(Paint)
     REGISTER_NATIVES(RuntimeShaderBuilder)
     REGISTER_NATIVES(Shader)
+    REGISTER_NATIVES(SkottieAnimation)
     REGISTER_NATIVES(Surface)
 
     return JNI_VERSION_1_6;
