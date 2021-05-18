@@ -165,12 +165,6 @@ String CPPCodeGenerator::formatRuntimeValue(const Type& type,
     }
     if (type == *fContext.fTypes.fFloat4 || type == *fContext.fTypes.fHalf4) {
         switch (layout.fCType) {
-            case Layout::CType::kSkPMColor:
-                formatArgs->push_back("SkGetPackedR32(" + cppCode + ") / 255.0");
-                formatArgs->push_back("SkGetPackedG32(" + cppCode + ") / 255.0");
-                formatArgs->push_back("SkGetPackedB32(" + cppCode + ") / 255.0");
-                formatArgs->push_back("SkGetPackedA32(" + cppCode + ") / 255.0");
-                break;
             case Layout::CType::kSkPMColor4f:
                 formatArgs->push_back(cppCode + ".fR");
                 formatArgs->push_back(cppCode + ".fG");

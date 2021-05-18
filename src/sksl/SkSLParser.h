@@ -54,13 +54,6 @@ public:
         CTYPE,
         SKPMCOLOR4F,
         SKV4,
-        SKRECT,
-        SKIRECT,
-        SKPMCOLOR,
-        SKM44,
-        BOOL,
-        INT,
-        FLOAT,
     };
 
     Parser(const char* text, size_t length, SymbolTable& symbols, ErrorReporter& errors);

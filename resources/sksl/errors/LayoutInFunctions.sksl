@@ -14,7 +14,7 @@ layout (
     max_vertices = 1,
     invocations = 1,
     when = one,
-    ctype = int)
+    ctype = SkPMColor4f)
 void on_return() {}
 
 void on_param(
@@ -34,4 +34,4 @@ layout (
     max_vertices = 1,
     invocations = 1,
     when = one,
-    ctype = int) float x) {}
+    ctype = SkPMColor4f) float x) {}

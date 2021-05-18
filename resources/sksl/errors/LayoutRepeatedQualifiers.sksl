@@ -14,7 +14,7 @@ layout (
     max_vertices = 1,
     invocations = 1,
     when = one,
-    ctype = int,
+    ctype = SkPMColor4f,
 
     origin_upper_left,
     push_constant,
@@ -31,5 +31,5 @@ layout (
     max_vertices = 2,
     invocations = 2,
     when = two,
-    ctype = float
+    ctype = SkV4
 ) float x;

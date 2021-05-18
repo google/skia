@@ -7,10 +7,10 @@
 
 in fragmentProcessor inputFP;
 in float sigma;
-layout(ctype=SkRect) in float4 rect;
+in float4 rect;
 in uniform half cornerRadius;
 in fragmentProcessor ninePatchFP;
-layout(ctype=SkRect) uniform float4 proxyRect;
+uniform float4 proxyRect;
 uniform half blurRadius;
 
 @header {

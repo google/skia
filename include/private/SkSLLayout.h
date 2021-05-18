@@ -52,24 +52,18 @@ struct Layout {
     };
 
     enum class CType {
-        kDefault,
-        kBool,
-        kFloat,
-        kFloat2,
-        kFloat3,
-        kFloat4,
-        kInt32,
-        kSkRect,
-        kSkIRect,
+        kDefault,      // Default for:
+        kFloat,        // float, half
+        kInt32,        // int, short
+        kSkRect,       // float4, half4
+        kSkIRect,      // int4, short4
         kSkPMColor4f,
-        kSkPMColor,
         kSkV4,
-        kSkPoint,
-        kSkIPoint,
-        kSkMatrix,
-        kSkM44,
-        kGrSurfaceProxyView,
-        kGrFragmentProcessor,
+        kSkPoint,      // float2, half2
+        kSkIPoint,     // int2, short2
+        kSkMatrix,     // float3x3, half3x3
+        kSkM44,        // float4x4, half4x4
+        kGrFragmentProcessor,  // fragmentProcessor
     };
 
     static const char* CTypeToStr(CType ctype) {
@@ -86,8 +80,6 @@ struct Layout {
                 return "SkIRect";
             case CType::kSkPMColor4f:
                 return "SkPMColor4f";
-            case CType::kSkPMColor:
-                return "SkPMColor";
             case CType::kSkV4:
                 return "SkV4";
             case CType::kSkPoint:
@@ -98,8 +90,6 @@ struct Layout {
                 return "SkMatrix";
             case CType::kSkM44:
                 return "SkM44";
-            case CType::kGrSurfaceProxyView:
-                return "GrSurfaceProxyView";
             case CType::kGrFragmentProcessor:
                 return "std::unique_ptr<GrFragmentProcessor>";
             default:
