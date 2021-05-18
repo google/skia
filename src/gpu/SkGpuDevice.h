@@ -8,11 +8,13 @@
 #ifndef SkGpuDevice_DEFINED
 #define SkGpuDevice_DEFINED
 
+#include "include/gpu/GrTypes.h"
+
+#if 1 //SK_OGA
 #include "include/core/SkBitmap.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkRegion.h"
 #include "include/core/SkSurface.h"
-#include "include/gpu/GrTypes.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/SkBaseGpuDevice.h"
 #include "src/gpu/SkGr.h"
@@ -38,16 +40,22 @@ public:
         return this->surfaceDrawContext()->readSurfaceView();
     }
 
-    enum InitContents {
-        kClear_InitContents,
-        kUninit_InitContents
-    };
+    GrRenderTarget* accessRenderTarget1() override {
+        return this->surfaceDrawContext()->accessRenderTarget();
+    }
+
+    bool wait(int numSemaphores,
+              const GrBackendSemaphore* waitSemaphores,
+              bool deleteSemaphoresAfterWait) override;
+    void discard() override {
+        this->surfaceDrawContext()->discard();
+    }
 
     /**
      * Creates an SkGpuDevice from a GrSurfaceDrawContext whose backing width/height is
      * different than its actual width/height (e.g., approx-match scratch texture).
      */
-    static sk_sp<SkGpuDevice> Make(std::unique_ptr<GrSurfaceDrawContext>, InitContents);
+    static sk_sp<SkGpuDevice> Make1(std::unique_ptr<GrSurfaceDrawContext>, InitContents);
 
     /**
      * New device that will create an offscreen renderTarget based on the ImageInfo and
@@ -57,20 +65,22 @@ public:
      * This entry point creates a kExact backing store. It is used when creating SkGpuDevices
      * for SkSurfaces.
      */
-    static sk_sp<SkGpuDevice> Make(GrRecordingContext*, SkBudgeted, const SkImageInfo&,
+    static sk_sp<SkGpuDevice> Make2(GrRecordingContext*, SkBudgeted, const SkImageInfo&,
                                    int sampleCount, GrSurfaceOrigin, const SkSurfaceProps*,
-                                   GrMipmapped mipMapped, InitContents);
+                                   GrMipmapped, GrProtected, InitContents);
+
+    static sk_sp<SkGpuDevice> Make3(GrRecordingContext*, InitContents);
 
     ~SkGpuDevice() override {}
 
     GrRecordingContext* recordingContext() const override { return fContext.get(); }
-    GrSurfaceDrawContext* surfaceDrawContext() override;
+    GrSurfaceDrawContext* surfaceDrawContext(); // override;
     const GrSurfaceDrawContext* surfaceDrawContext() const;
 
     // set all pixels to 0
     void clearAll();
 
-    void replaceSurfaceDrawContext(SkSurface::ContentChangeMode mode);
+    void replaceSurfaceDrawContext(SkSurface::ContentChangeMode mode) override;
     void replaceSurfaceDrawContext(std::unique_ptr<GrSurfaceDrawContext>,
                                    SkSurface::ContentChangeMode mode);
 
@@ -113,9 +123,6 @@ public:
     sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override;
     sk_sp<SkSpecialImage> snapSpecial(const SkIRect& subset, bool forceCopy = false) override;
-
-    bool wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores,
-              bool deleteSemaphoresAfterWait);
 
     bool onAccessPixels(SkPixmap*) override;
 
@@ -209,12 +216,15 @@ private:
                                                                         int sampleCount,
                                                                         GrSurfaceOrigin,
                                                                         const SkSurfaceProps*,
-                                                                        GrMipmapped);
+                                                                        GrMipmapped,
+                                                                        GrProtected);
 
     friend class SkSurface_Gpu;      // for access to surfaceProps
     using INHERITED = SkBaseGpuDevice;
 };
 
 #undef GR_CLIP_STACK
+
+#endif // SK_OGA
 
 #endif

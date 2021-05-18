@@ -127,7 +127,7 @@ public:
     SkSpecialSurface_Gpu(std::unique_ptr<GrSurfaceDrawContext> surfaceDrawContext, SkIRect subset)
             : INHERITED(subset, surfaceDrawContext->surfaceProps())
             , fReadView(surfaceDrawContext->readSurfaceView()) {
-        auto device = SkGpuDevice::Make(std::move(surfaceDrawContext),
+        auto device = SkGpuDevice::Make1(std::move(surfaceDrawContext),
                                         SkGpuDevice::kUninit_InitContents);
         if (!device) {
             return;
