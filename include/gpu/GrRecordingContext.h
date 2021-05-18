@@ -38,9 +38,22 @@ class SkJSONWriter;
 class SkString;
 #endif
 
+class SkBaseGpuDevice;
+class SkSurfaceCharacterization;
+class SkSurfaceProps;
+
 class GrRecordingContext : public GrImageContext {
 public:
     ~GrRecordingContext() override;
+
+    sk_sp<SkBaseGpuDevice> foo1();
+    sk_sp<SkBaseGpuDevice> foo2(const SkSurfaceCharacterization&, SkBudgeted);
+    sk_sp<SkBaseGpuDevice> foo3(SkBudgeted budgeted,
+                                const SkImageInfo& info,
+                                int sampleCount,
+                                GrSurfaceOrigin origin,
+                                const SkSurfaceProps* props,
+                                GrMipmapped mipMapped);
 
     SK_API GrBackendFormat defaultBackendFormat(SkColorType ct, GrRenderable renderable) const {
         return INHERITED::defaultBackendFormat(ct, renderable);

@@ -41,7 +41,12 @@ public:
     GrRenderTargetProxy* targetProxy() {
         return this->readSurfaceView().asRenderTargetProxy();
     }
+    virtual GrRenderTarget* accessRenderTarget1() = 0;
     virtual GrImageInfo grImageInfo() const = 0;
+    virtual bool wait(int numSemaphores,
+                      const GrBackendSemaphore* waitSemaphores,
+                      bool deleteSemaphoresAfterWait) = 0;
+    virtual void discard() = 0;
 
 protected:
 

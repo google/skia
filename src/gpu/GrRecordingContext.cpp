@@ -25,6 +25,50 @@
 #include "src/gpu/text/GrTextBlob.h"
 #include "src/gpu/text/GrTextBlobCache.h"
 
+
+#include "include/core/SkSurfaceCharacterization.h"
+
+#if 1 //SK_OGA
+#include "src/gpu/SkGpuDevice.h"
+#endif
+
+#ifdef SK_NGA
+#include "src/gpu/SkGpuDevice_nga.h"
+#endif
+
+sk_sp<SkBaseGpuDevice> GrRecordingContext::foo1() {
+//    return SkGpuDevice::Make(this, std::move(rtc), SkGpuDevice::kUninit_InitContents));
+    return nullptr;
+}
+
+sk_sp<SkBaseGpuDevice> GrRecordingContext::foo2(const SkSurfaceCharacterization& c,
+                                                SkBudgeted budgeted) {
+    GrColorType grColorType = SkColorTypeToGrColorType(c.colorType());
+
+    sk_sp<GrSurfaceDrawContext> sdc;/* = GrSurfaceDrawContext::Make(
+            this, grColorType, c.refColorSpace(), SkBackingFit::kExact,
+            c.dimensions(), c.sampleCount(), GrMipmapped(c.isMipMapped()), c.isProtected(),
+            c.origin(), budgeted, &c.surfaceProps()); */
+    if (!sdc) {
+        return nullptr;
+    }
+
+    sk_sp<SkGpuDevice> device; //(SkGpuDevice::Make(this, std::move(sdc),
+                                 //               SkGpuDevice::kClear_InitContents));
+    return device;
+}
+
+sk_sp<SkBaseGpuDevice> GrRecordingContext::foo3(SkBudgeted budgeted,
+                                                const SkImageInfo& info,
+                                                int sampleCount,
+                                                GrSurfaceOrigin origin,
+                                                const SkSurfaceProps* props,
+                                                GrMipmapped mipMapped) {
+    return SkGpuDevice::Make(this, budgeted, info, sampleCount, origin, props, mipMapped,
+                             SkGpuDevice::kClear_InitContents);
+}
+
+
 GrRecordingContext::ProgramData::ProgramData(std::unique_ptr<const GrProgramDesc> desc,
                                              const GrProgramInfo* info)
         : fDesc(std::move(desc))

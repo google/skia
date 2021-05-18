@@ -26,7 +26,7 @@ public:
     GrImageInfo grImageInfo() const override { return {}; }
 
     GrRecordingContext* recordingContext() const override { return fContext.get(); }
-    GrSurfaceDrawContext* surfaceDrawContext() override { return nullptr; }
+//    GrSurfaceDrawContext* surfaceDrawContext() override { return nullptr; }
 
 protected:
     void onSave() override;
