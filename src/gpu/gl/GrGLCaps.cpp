@@ -294,14 +294,9 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         }
     } // no WebGL support
 
-    // Chrome's command buffer will zero out a buffer if null is passed to glBufferData to
-    // avoid letting an application see uninitialized memory.
-    if (GR_IS_GR_GL(standard) || GR_IS_GR_GL_ES(standard)) {
-        fUseBufferDataNullHint = (ctxInfo.driver() != GrGLDriver::kChromium);
-    } else if (GR_IS_GR_WEBGL(standard)) {
-        // WebGL spec explicitly disallows null values.
-        fUseBufferDataNullHint = false;
-    }
+    // Chrome's command buffer will zero out a buffer if null is passed to glBufferData to avoid
+    // letting an application see uninitialized memory. WebGL spec explicitly disallows null values.
+    fUseBufferDataNullHint = !GR_IS_GR_WEBGL(standard) && !ctxInfo.isOverCommandBuffer();
 
     if (GR_IS_GR_GL(standard)) {
         fClearTextureSupport = (version >= GR_GL_VER(4,4) ||
@@ -324,7 +319,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fSRGBWriteControl = ctxInfo.hasExtension("GL_EXT_sRGB_write_control");
     }  // No WebGL support
 
-    fSkipErrorChecks = ctxInfo.driver() == GrGLDriver::kChromium;
+    fSkipErrorChecks = ctxInfo.isOverCommandBuffer();
     if (GR_IS_GR_WEBGL(standard)) {
         // Error checks are quite costly in webgl, especially in Chrome.
         fSkipErrorChecks = true;
@@ -420,7 +415,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     // The Chrome command buffer blocks the use of client side buffers (but may emulate VBOs with
     // them). Client side buffers are not allowed in core profiles.
     if (GR_IS_GR_GL(standard) || GR_IS_GR_GL_ES(standard)) {
-        if (ctxInfo.driver() != GrGLDriver::kChromium && !fIsCoreProfile &&
+        if (!ctxInfo.isOverCommandBuffer() && !fIsCoreProfile &&
             (ctxInfo.vendor() == GrGLVendor::kARM         ||
              ctxInfo.vendor() == GrGLVendor::kImagination ||
              ctxInfo.vendor() == GrGLVendor::kQualcomm)) {
@@ -521,7 +516,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         // We think mapping on Chromium will be cheaper once we know ahead of time how much space
         // we will use for all GrMeshDrawOps. Right now we might wind up mapping a large buffer and
         // using a small subset.
-        fBufferMapThreshold = ctxInfo.driver() == GrGLDriver::kChromium ? 0 : SK_MaxS32;
+        fBufferMapThreshold = ctxInfo.isOverCommandBuffer() ? 0 : SK_MaxS32;
 #else
         fBufferMapThreshold = SK_MaxS32;
 #endif
@@ -579,12 +574,12 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 #ifdef SK_BUILD_FOR_WIN
     // We're assuming that on Windows Chromium we're using ANGLE.
     bool isANGLE = ctxInfo.angleBackend() != GrGLANGLEBackend::kUnknown ||
-                   ctxInfo.driver()       == GrGLDriver::kChromium;
+                   ctxInfo.isOverCommandBuffer();
     // On ANGLE deferring flushes can lead to GPU starvation
     fPreferVRAMUseOverFlushes = !isANGLE;
 #endif
 
-    if (ctxInfo.driver() == GrGLDriver::kChromium) {
+    if (ctxInfo.isOverCommandBuffer()) {
         fMustClearUploadedBufferData = true;
     }
 
@@ -3553,8 +3548,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
 #ifndef SK_BUILD_FOR_IOS
     if (ctxInfo.renderer() == GrGLRenderer::kPowerVR54x   ||
         ctxInfo.renderer() == GrGLRenderer::kPowerVRRogue ||
-        (ctxInfo.renderer() == GrGLRenderer::kAdreno3xx &&
-         ctxInfo.driver()   != GrGLDriver::kChromium)) {
+        (ctxInfo.renderer() == GrGLRenderer::kAdreno3xx && !ctxInfo.isOverCommandBuffer())) {
         fPerformColorClearsAsDraws = true;
     }
 #endif
@@ -3805,8 +3799,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // we've explicitly guarded the division with a check against zero. This manifests in much
     // more complex ways in some of our shaders, so we use this caps bit to add an epsilon value
     // to the denominator of divisions, even when we've added checks that the denominator isn't 0.
-    if (ctxInfo.angleBackend() != GrGLANGLEBackend::kUnknown ||
-        ctxInfo.driver()       == GrGLDriver::kChromium) {
+    if (ctxInfo.angleBackend() != GrGLANGLEBackend::kUnknown || ctxInfo.isOverCommandBuffer()) {
         shaderCaps->fMustGuardDivisionEvenAfterExplicitZeroCheck = true;
     }
 #endif
@@ -3866,13 +3859,13 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     }
 
     // Disabling advanced blend on various platforms with major known issues. We also block Chrome
-    // for now until its own denylists can be updated.
+    // command buffer for now until its own denylists can be updated.
     if (ctxInfo.renderer() == GrGLRenderer::kAdreno430       ||
         ctxInfo.renderer() == GrGLRenderer::kAdreno4xx_other ||
         ctxInfo.renderer() == GrGLRenderer::kAdreno530       ||
         ctxInfo.renderer() == GrGLRenderer::kAdreno5xx_other ||
         ctxInfo.driver()   == GrGLDriver::kIntel             ||
-        ctxInfo.driver()   == GrGLDriver::kChromium          ||
+        ctxInfo.isOverCommandBuffer()                        ||
         ctxInfo.vendor()   == GrGLVendor::kARM /* http://skbug.com/11906 */) {
         fBlendEquationSupport = kBasic_BlendEquationSupport;
         shaderCaps->fAdvBlendEqInteraction = GrShaderCaps::kNotSupported_AdvBlendEqInteraction;
@@ -4003,7 +3996,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // Command buffer fails glTexSubImage2D with type == GL_HALF_FLOAT_OES if a GL_RGBA16F texture
     // is created with glTexStorage2D. See crbug.com/1008003.
     formatWorkarounds->fDisableRGBA16FTexStorageForCrBug1008003 =
-            ctxInfo.driver() == GrGLDriver::kChromium && ctxInfo.version() < GR_GL_VER(3, 0);
+            ctxInfo.isOverCommandBuffer() && ctxInfo.version() < GR_GL_VER(3, 0);
 
 #if defined(SK_BUILD_FOR_WIN)
     // On Intel Windows ES contexts it seems that using texture storage with BGRA causes
