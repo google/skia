@@ -32,6 +32,11 @@ class GrImageInfo;
 
 class SkBaseGpuDevice : public BASE_DEVICE {
 public:
+    enum InitContents {
+        kClear_InitContents,
+        kUninit_InitContents
+    };
+
     SkBaseGpuDevice(const SkImageInfo& ii, const SkSurfaceProps& props)
         : INHERITED(ii, props) {
     }
@@ -41,7 +46,13 @@ public:
     GrRenderTargetProxy* targetProxy() {
         return this->readSurfaceView().asRenderTargetProxy();
     }
+    virtual GrRenderTarget* accessRenderTarget1() = 0;
     virtual GrImageInfo grImageInfo() const = 0;
+    virtual bool wait(int numSemaphores,
+                      const GrBackendSemaphore* waitSemaphores,
+                      bool deleteSemaphoresAfterWait) = 0;
+    virtual void discard() = 0;
+    virtual void replaceSurfaceDrawContext(SkSurface::ContentChangeMode mode) = 0;
 
 protected:
 

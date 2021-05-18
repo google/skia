@@ -14,15 +14,15 @@
 #if SK_SUPPORT_GPU
 
 class GrBackendFormat;
-class SkGpuDevice;
+class SkBaseGpuDevice;
 
 class SkSurface_Gpu : public SkSurface_Base {
 public:
-    SkSurface_Gpu(sk_sp<SkGpuDevice>);
+    SkSurface_Gpu(sk_sp<SkBaseGpuDevice>);
     ~SkSurface_Gpu() override;
 
     // This is an internal-only factory
-    static sk_sp<SkSurface> MakeWrappedRenderTarget(GrRecordingContext*,
+    static sk_sp<SkSurface> MakeWrappedRenderTarget1(GrRecordingContext*,
                                                     std::unique_ptr<GrSurfaceDrawContext>);
 
     GrRecordingContext* onGetRecordingContext() override;
@@ -61,10 +61,10 @@ public:
                 const SkPaint* paint) override;
     bool onDraw(sk_sp<const SkDeferredDisplayList>, SkIPoint offset) override;
 
-    SkGpuDevice* getDevice() { return fDevice.get(); }
+    SkBaseGpuDevice* getDevice() { return fDevice.get(); }
 
 private:
-    sk_sp<SkGpuDevice> fDevice;
+    sk_sp<SkBaseGpuDevice> fDevice;
 
     using INHERITED = SkSurface_Base;
 };
