@@ -21,6 +21,7 @@
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBoolLiteral.h"
 #include "src/sksl/ir/SkSLConstructor.h"
+#include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
 #include "src/sksl/ir/SkSLConstructorScalarCast.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
 #include "src/sksl/ir/SkSLExtension.h"
@@ -134,6 +135,9 @@ protected:
     void writeInverseSqrtHack(const Expression& x);
 
     virtual void writeFunctionCall(const FunctionCall& c);
+
+    void writeConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& c,
+                                        Precedence parentPrecedence);
 
     virtual void writeAnyConstructor(const AnyConstructor& c, Precedence parentPrecedence);
 
