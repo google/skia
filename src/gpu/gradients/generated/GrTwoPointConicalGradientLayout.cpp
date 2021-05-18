@@ -149,10 +149,7 @@ private:
                    const GrFragmentProcessor& _proc) override {
         const GrTwoPointConicalGradientLayout& _outer =
                 _proc.cast<GrTwoPointConicalGradientLayout>();
-        {
-            const SkPoint& focalParamsValue = _outer.focalParams;
-            pdman.set2f(focalParamsVar, focalParamsValue.fX, focalParamsValue.fY);
-        }
+        { pdman.set2f(focalParamsVar, _outer.focalParams.fX, _outer.focalParams.fY); }
     }
     UniformHandle focalParamsVar;
 };

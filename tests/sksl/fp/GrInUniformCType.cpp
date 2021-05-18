@@ -31,7 +31,7 @@ private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
         const GrInUniformCType& _outer = _proc.cast<GrInUniformCType>();
         {
-        pdman.set4fv(colorVar, 1, (_outer.color).vec());
+        pdman.set4fv(colorVar, 1, _outer.color.vec());
         }
     }
     UniformHandle colorVar;

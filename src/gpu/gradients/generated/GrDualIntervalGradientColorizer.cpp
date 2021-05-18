@@ -73,11 +73,11 @@ private:
         const GrDualIntervalGradientColorizer& _outer =
                 _proc.cast<GrDualIntervalGradientColorizer>();
         {
-            pdman.set4fv(scale01Var, 1, (_outer.scale01).vec());
-            pdman.set4fv(bias01Var, 1, (_outer.bias01).vec());
-            pdman.set4fv(scale23Var, 1, (_outer.scale23).vec());
-            pdman.set4fv(bias23Var, 1, (_outer.bias23).vec());
-            pdman.set1f(thresholdVar, (_outer.threshold));
+            pdman.set4fv(scale01Var, 1, _outer.scale01.vec());
+            pdman.set4fv(bias01Var, 1, _outer.bias01.vec());
+            pdman.set4fv(scale23Var, 1, _outer.scale23.vec());
+            pdman.set4fv(bias23Var, 1, _outer.bias23.vec());
+            pdman.set1f(thresholdVar, _outer.threshold);
         }
     }
     UniformHandle scale01Var;
