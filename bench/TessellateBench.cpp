@@ -197,9 +197,9 @@ DEF_PATH_TESS_BENCH(middle_out_triangulation,
                     SkMatrix::I()) {
     sk_sp<const GrBuffer> buffer;
     int baseVertex;
-    auto vertexData = static_cast<SkPoint*>(fTarget->makeVertexSpace(
+    GrVertexWriter vertexWriter = static_cast<SkPoint*>(fTarget->makeVertexSpace(
             sizeof(SkPoint), kNumCubicsInChalkboard, &buffer, &baseVertex));
-    GrMiddleOutPolygonTriangulator::WritePathInnerFan(vertexData, 3, fPath);
+    GrMiddleOutPolygonTriangulator::WritePathInnerFan(&vertexWriter, 3, fPath);
 }
 
 using PathStrokeList = GrStrokeTessellator::PathStrokeList;
