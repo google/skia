@@ -145,9 +145,9 @@ void GrTessellatingStencilFillOp::onPrepare(GrOpFlushState* flushState) {
         // middle-out topology.
         GrEagerDynamicVertexAllocator vertexAlloc(flushState, &fFanBuffer, &fFanBaseVertex);
         int maxFanTriangles = fPath.countVerbs() - 2;  // n - 2 triangles make an n-gon.
-        auto* triangleVertexData = vertexAlloc.lock<SkPoint>(maxFanTriangles * 3);
+        GrVertexWriter triangleVertexWriter = vertexAlloc.lock<SkPoint>(maxFanTriangles * 3);
         fFanVertexCount = GrMiddleOutPolygonTriangulator::WritePathInnerFan(
-                triangleVertexData, 3/*perTriangleVertexAdvance*/, fPath) * 3;
+                &triangleVertexWriter, 3/*perTriangleVertexAdvance*/, fPath) * 3;
         SkASSERT(fFanVertexCount <= maxFanTriangles * 3);
         vertexAlloc.unlock(fFanVertexCount);
     }
