@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "feb46d60_9f44c9ab",
+        "filename": "src/sksl/SkSLCPPUniformCTypes.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-18T18:55:30Z",
+      "side": 1,
+      "message": "Let\u0027s get rid of the atexit destruction:\n\n    static const auto* kRegisteredMappers \u003d new std::map\u003cLayout::CType, UniformCTypeMapper\u003e{",
+      "range": {
+        "startLine": 66,
+        "startChar": 4,
+        "endLine": 66,
+        "endChar": 79
+      },
+      "revId": "9c22763524bd60e7132e57138c283df3e94f17d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

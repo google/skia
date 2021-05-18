@@ -1,6 +1,29 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "daf7dd87_67b61521",
+        "filename": "src/sksl/codegen/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 972,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-18T18:55:30Z",
+      "side": 0,
+      "message": "Do these changes need to be mirrored into DSLCPPCodeGenerator?",
+      "range": {
+        "startLine": 972,
+        "startChar": 12,
+        "endLine": 972,
+        "endChar": 41
+      },
+      "revId": "3adc091af89f63b194661895b5a18814d7819e3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "815a16b8_56f85525",
