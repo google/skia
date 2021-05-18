@@ -242,10 +242,8 @@ void GLSLCodeGenerator::writeExpression(const Expression& expr, Precedence paren
 }
 
 static bool is_abs(Expression& expr) {
-    if (expr.kind() != Expression::Kind::kFunctionCall) {
-        return false;
-    }
-    return expr.as<FunctionCall>().function().name() == "abs";
+    return expr.is<FunctionCall>() &&
+           expr.as<FunctionCall>().function().intrinsicKind() == k_abs_IntrinsicKind;
 }
 
 // turns min(abs(x), y) into ((tmpVar1 = abs(x)) < (tmpVar2 = y) ? tmpVar1 : tmpVar2) to avoid a
