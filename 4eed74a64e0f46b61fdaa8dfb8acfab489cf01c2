@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "45f5a681_5e861b9e",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-05-18T18:29:39Z",
+      "side": 1,
+      "message": "This one was killing perf in c2d",
+      "range": {
+        "startLine": 322,
+        "startChar": 4,
+        "endLine": 322,
+        "endChar": 20
+      },
+      "revId": "4eed74a64e0f46b61fdaa8dfb8acfab489cf01c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
