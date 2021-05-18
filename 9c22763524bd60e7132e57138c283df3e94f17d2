@@ -94,6 +94,30 @@
       },
       "revId": "9c22763524bd60e7132e57138c283df3e94f17d2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b319b824_388a197e",
+        "filename": "src/sksl/SkSLCPPUniformCTypes.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-18T19:59:37Z",
+      "side": 1,
+      "message": "Yeah, makes total sense.",
+      "parentUuid": "5e16b1c5_efa84a0f",
+      "range": {
+        "startLine": 66,
+        "startChar": 4,
+        "endLine": 66,
+        "endChar": 79
+      },
+      "revId": "9c22763524bd60e7132e57138c283df3e94f17d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
