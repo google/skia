@@ -45,12 +45,13 @@ GrD3DCaps::GrD3DCaps(const GrContextOptions& contextOptions, IDXGIAdapter1* adap
     fReadPixelsRowBytesSupport = true;
     fWritePixelsRowBytesSupport = true;
 
-    // TODO: implement these
-    fTransferFromBufferToTextureSupport = false;
-    fTransferFromSurfaceToBufferSupport = false;
+    fTransferFromBufferToTextureSupport = true;
+    fTransferFromSurfaceToBufferSupport = true;
 
     fMaxRenderTargetSize = 16384;  // minimum required by feature level 11_0
     fMaxTextureSize = 16384;       // minimum required by feature level 11_0
+
+    fTransferBufferAlignment = D3D12_TEXTURE_DATA_PITCH_ALIGNMENT;
 
     // TODO: implement
     fDynamicStateArrayGeometryProcessorTextureSupport = false;
@@ -889,7 +890,6 @@ GrCaps::SupportedWrite GrD3DCaps::supportedWritePixelsColorType(
         return { GrColorType::kUnknown, 0 };
     }
 
-    // TODO: this seems to be pretty constrictive, confirm
     // Any buffer data needs to be aligned to 512 bytes and that of a single texel.
     size_t offsetAlignment = GrAlignTo(GrDxgiFormatBytesPerBlock(dxgiFormat),
                                        D3D12_TEXTURE_DATA_PLACEMENT_ALIGNMENT);
@@ -1019,8 +1019,8 @@ GrCaps::SupportedRead GrD3DCaps::onSupportedReadPixelsColorType(
                                                         : GrColorType::kRGBA_8888, 0 };
     }
 
-    // Any subresource buffer data we copy to needs to be aligned to 256 bytes.
-    size_t offsetAlignment = D3D12_TEXTURE_DATA_PITCH_ALIGNMENT;
+    // Any subresource buffer data offset we copy to needs to be aligned to 512 bytes.
+    size_t offsetAlignment = D3D12_TEXTURE_DATA_PLACEMENT_ALIGNMENT;
 
     const auto& info = this->getFormatInfo(dxgiFormat);
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {

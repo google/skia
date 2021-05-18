@@ -838,6 +838,7 @@ void GrSurfaceContext::asyncReadPixels(GrDirectContext* dContext,
         ReadPixelsContext fClientContext;
         SkISize fSize;
         SkColorType fColorType;
+        size_t fBufferAlignment;
         GrClientMappedBufferManager* fMappedBufferManager;
         PixelTransferResult fTransferResult;
     };
@@ -848,13 +849,16 @@ void GrSurfaceContext::asyncReadPixels(GrDirectContext* dContext,
                                             callbackContext,
                                             rect.size(),
                                             colorType,
+                                            this->caps()->transferBufferAlignment(),
                                             mappedBufferManager,
                                             std::move(transferResult)};
     auto finishCallback = [](GrGpuFinishedContext c) {
         const auto* context = reinterpret_cast<const FinishContext*>(c);
         auto manager = context->fMappedBufferManager;
         auto result = std::make_unique<AsyncReadResult>(manager->owningDirectContext());
-        size_t rowBytes = context->fSize.width() * SkColorTypeBytesPerPixel(context->fColorType);
+        size_t rowBytes =
+                GrAlignTo(context->fSize.width() * SkColorTypeBytesPerPixel(context->fColorType),
+                          context->fBufferAlignment);
         if (!result->addTransferResult(context->fTransferResult, context->fSize, rowBytes,
                                        manager)) {
             result.reset();
@@ -1057,6 +1061,7 @@ void GrSurfaceContext::asyncRescaleAndReadPixelsYUV420(GrDirectContext* dContext
         ReadPixelsContext fClientContext;
         GrClientMappedBufferManager* fMappedBufferManager;
         SkISize fSize;
+        size_t fBufferAlignment;
         PixelTransferResult fYTransfer;
         PixelTransferResult fUTransfer;
         PixelTransferResult fVTransfer;
@@ -1068,6 +1073,7 @@ void GrSurfaceContext::asyncRescaleAndReadPixelsYUV420(GrDirectContext* dContext
                                             callbackContext,
                                             dContext->priv().clientMappedBufferManager(),
                                             dstSize,
+                                            this->caps()->transferBufferAlignment(),
                                             std::move(yTransfer),
                                             std::move(uTransfer),
                                             std::move(vTransfer)};
@@ -1076,12 +1082,14 @@ void GrSurfaceContext::asyncRescaleAndReadPixelsYUV420(GrDirectContext* dContext
         auto manager = context->fMappedBufferManager;
         auto result = std::make_unique<AsyncReadResult>(manager->owningDirectContext());
         size_t rowBytes = SkToSizeT(context->fSize.width());
+        rowBytes = GrAlignTo(rowBytes, context->fBufferAlignment);
         if (!result->addTransferResult(context->fYTransfer, context->fSize, rowBytes, manager)) {
             (*context->fClientCallback)(context->fClientContext, nullptr);
             delete context;
             return;
         }
-        rowBytes /= 2;
+        rowBytes = SkToSizeT(context->fSize.width()) / 2;
+        rowBytes = GrAlignTo(rowBytes, context->fBufferAlignment);
         SkISize uvSize = {context->fSize.width() / 2, context->fSize.height() / 2};
         if (!result->addTransferResult(context->fUTransfer, uvSize, rowBytes, manager)) {
             (*context->fClientCallback)(context->fClientContext, nullptr);
@@ -1338,6 +1346,7 @@ GrSurfaceContext::PixelTransferResult GrSurfaceContext::transferPixels(GrColorTy
     }
 
     size_t rowBytes = GrColorTypeBytesPerPixel(supportedRead.fColorType) * rect.width();
+    rowBytes = GrAlignTo(rowBytes, this->caps()->transferBufferAlignment());
     size_t size = rowBytes * rect.height();
     // By using kStream_GrAccessPattern here, we are not able to cache and reuse the buffer for
     // multiple reads. Switching to kDynamic_GrAccessPattern would allow for this, however doing

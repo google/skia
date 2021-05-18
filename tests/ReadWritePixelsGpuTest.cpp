@@ -707,9 +707,10 @@ DEF_GPUTEST(AsyncReadPixelsContextShutdown, reporter, options) {
                               ShutdownSequence::kAbandon_FreeResult_DestroyContext,
                               ShutdownSequence::kReleaseAndAbandon_DestroyContext_FreeResult,
                               ShutdownSequence::kAbandon_DestroyContext_FreeResult}) {
-            // Vulkan context abandoning without resource release has issues outside of the scope of
-            // this test.
-            if (type == sk_gpu_test::GrContextFactory::kVulkan_ContextType &&
+            // Vulkan and D3D context abandoning without resource release has issues outside of the
+            // scope of this test.
+            if ((type == sk_gpu_test::GrContextFactory::kVulkan_ContextType ||
+                 type == sk_gpu_test::GrContextFactory::kDirect3D_ContextType) &&
                 (sequence == ShutdownSequence::kFreeResult_ReleaseAndAbandon_DestroyContext ||
                  sequence == ShutdownSequence::kFreeResult_Abandon_DestroyContext ||
                  sequence == ShutdownSequence::kReleaseAndAbandon_FreeResult_DestroyContext ||

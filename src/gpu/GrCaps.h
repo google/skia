@@ -210,6 +210,8 @@ public:
 
     uint32_t maxPushConstantsSize() const { return fMaxPushConstantsSize; }
 
+    size_t transferBufferAlignment() const { return fTransferBufferAlignment; }
+
     virtual bool isFormatSRGB(const GrBackendFormat&) const = 0;
 
     bool isFormatCompressed(const GrBackendFormat& format) const;
@@ -569,6 +571,7 @@ protected:
     int fMaxWindowRectangles;
     int fInternalMultisampleCount;
     uint32_t fMaxPushConstantsSize = 0;
+    size_t fTransferBufferAlignment = 1;
 
     GrDriverBugWorkarounds fDriverBugWorkarounds;
 
