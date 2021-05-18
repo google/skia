@@ -16,6 +16,23 @@
       "message": "+Heather for FYI",
       "revId": "b18601ba42529c2f45f4f9d12fdf764649c1fddc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8f6f7590_d1c6f340",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2021-05-18T17:50:17Z",
+      "side": 1,
+      "message": "Maybe a PSA on Skia chat letting people know bin/try has been deleted and to use sk try instead would be useful.",
+      "revId": "b18601ba42529c2f45f4f9d12fdf764649c1fddc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
