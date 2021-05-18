@@ -526,10 +526,10 @@ luci.cq_group(
 )
 
 luci.cq_group(
-    name = "master",
+    name = "main",
     watch = cq.refset(
         repo = "https://skia.googlesource.com/skia",
-        refs = [ "refs/heads/master" ],
+        refs = [ "refs/heads/main" ],
     ),
     retry_config = cq.retry_config(
         single_quota = 1,
@@ -798,4 +798,3 @@ luci.cq_group(
         ),
     ],
 )
-
