@@ -46,6 +46,30 @@
       },
       "revId": "9c22763524bd60e7132e57138c283df3e94f17d2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ac55b9e4_459a095f",
+        "filename": "src/sksl/SkSLCPPUniformCTypes.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-18T19:05:13Z",
+      "side": 1,
+      "message": "Aha. That\u0027s why it was written  like that before! ... and yeah - I\u0027ll use unordered map. (Heck, it could be an array indexed by the enum).",
+      "parentUuid": "feb46d60_9f44c9ab",
+      "range": {
+        "startLine": 66,
+        "startChar": 4,
+        "endLine": 66,
+        "endChar": 79
+      },
+      "revId": "9c22763524bd60e7132e57138c283df3e94f17d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
