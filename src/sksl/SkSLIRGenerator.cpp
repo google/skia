@@ -703,62 +703,39 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
 }
 
 std::unique_ptr<Statement> IRGenerator::getNormalizeSkPositionCode() {
+    using namespace SkSL::dsl;
+    using SkSL::dsl::Swizzle;  // disambiguate from SkSL::Swizzle
+
     const Variable* skPerVertex = nullptr;
     if (const ProgramElement* perVertexDecl = fIntrinsics->find(Compiler::PERVERTEX_NAME)) {
         SkASSERT(perVertexDecl->is<InterfaceBlock>());
         skPerVertex = &perVertexDecl->as<InterfaceBlock>().variable();
     }
 
-    // sk_Position = float4(sk_Position.xy * rtAdjust.xz + sk_Position.ww * rtAdjust.yw,
-    //                      0,
-    //                      sk_Position.w);
     SkASSERT(skPerVertex && fRTAdjust);
     auto Ref = [](const Variable* var) -> std::unique_ptr<Expression> {
-        return VariableReference::Make(/*offset=*/-1, var, VariableReference::RefKind::kRead);
-    };
-    auto WRef = [](const Variable* var) -> std::unique_ptr<Expression> {
-        return VariableReference::Make(/*offset=*/-1, var, VariableReference::RefKind::kWrite);
+        return VariableReference::Make(/*offset=*/-1, var);
     };
     auto Field = [&](const Variable* var, int idx) -> std::unique_ptr<Expression> {
         return FieldAccess::Make(fContext, Ref(var), idx,
                                  FieldAccess::OwnerKind::kAnonymousInterfaceBlock);
     };
-    auto Pos = [&]() -> std::unique_ptr<Expression> {
-        return FieldAccess::Make(fContext, WRef(skPerVertex), 0,
-                                 FieldAccess::OwnerKind::kAnonymousInterfaceBlock);
+    auto Pos = [&]() -> DSLExpression {
+        return DSLExpression(FieldAccess::Make(fContext, Ref(skPerVertex), /*fieldIndex=*/0,
+                                               FieldAccess::OwnerKind::kAnonymousInterfaceBlock));
     };
-    auto Adjust = [&]() -> std::unique_ptr<Expression> {
-        return fRTAdjustInterfaceBlock ? Field(fRTAdjustInterfaceBlock, fRTAdjustFieldIndex)
-                                       : Ref(fRTAdjust);
-    };
-    auto Swizzle = [&](std::unique_ptr<Expression> expr,
-                       const ComponentArray& comp) -> std::unique_ptr<Expression> {
-        return std::make_unique<SkSL::Swizzle>(fContext, std::move(expr), comp);
-    };
-    auto Op = [&](std::unique_ptr<Expression> left, Token::Kind op,
-                  std::unique_ptr<Expression> right) -> std::unique_ptr<Expression> {
-        return BinaryExpression::Make(fContext, std::move(left), op, std::move(right));
+    auto Adjust = [&]() -> DSLExpression {
+        return DSLExpression(fRTAdjustInterfaceBlock
+                                     ? Field(fRTAdjustInterfaceBlock, fRTAdjustFieldIndex)
+                                     : Ref(fRTAdjust));
     };
 
-    static const ComponentArray kXYIndices{0, 1};
-    static const ComponentArray kXZIndices{0, 2};
-    static const ComponentArray kYWIndices{1, 3};
-    static const ComponentArray kWWIndices{3, 3};
-    static const ComponentArray kWIndex{3};
-
-    ExpressionArray children;
-    children.reserve_back(3);
-    children.push_back(Op(
-            Op(Swizzle(Pos(), kXYIndices), Token::Kind::TK_STAR, Swizzle(Adjust(), kXZIndices)),
-            Token::Kind::TK_PLUS,
-            Op(Swizzle(Pos(), kWWIndices), Token::Kind::TK_STAR, Swizzle(Adjust(), kYWIndices))));
-    children.push_back(FloatLiteral::Make(fContext, /*offset=*/-1, /*value=*/0.0));
-    children.push_back(Swizzle(Pos(), kWIndex));
-    std::unique_ptr<Expression> result =
-            Op(Pos(), Token::Kind::TK_EQ,
-               Constructor::Convert(fContext, /*offset=*/-1, *fContext.fTypes.fFloat4,
-                                    std::move(children)));
-    return ExpressionStatement::Make(fContext, std::move(result));
+    return DSLStatement(
+        Pos() = Float4(Swizzle(Pos(), X, Y) * Swizzle(Adjust(), X, Z) +
+                       Swizzle(Pos(), W, W) * Swizzle(Adjust(), Y, W),
+                       0,
+                       Pos().w())
+    ).release();
 }
 
 void IRGenerator::CheckModifiers(const Context& context,
