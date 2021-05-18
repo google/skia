@@ -16,6 +16,23 @@
       "message": "Still lgtm. Any idea of the perf difference between this and what we currently do?",
       "revId": "485d253b2f1b556a14b6ec560f08770ce4bcf6ac",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e37a7b94_389348b0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-05-18T12:04:21Z",
+      "side": 1,
+      "message": "Oh, you should uncomment the parts of the test from https://skia-review.googlesource.com/c/skia/+/409403 that test passing in a Malloc obj directly and make sure it passes.",
+      "revId": "485d253b2f1b556a14b6ec560f08770ce4bcf6ac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
