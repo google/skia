@@ -93,6 +93,30 @@
       },
       "revId": "dcceeb07016b1a1a3581a2df1ce11a87a51f4147",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0c78b1e4_a42c1f7b",
+        "filename": "modules/canvaskit/tests/font.spec.js",
+        "patchSetId": 13
+      },
+      "lineNbr": 376,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-05-18T14:59:06Z",
+      "side": 1,
+      "message": "That\u0027s a good point - if we want to be methodical and handle the cross, then loops is a fine approach.",
+      "parentUuid": "6efb66b8_aeb56f51",
+      "range": {
+        "startLine": 376,
+        "startChar": 36,
+        "endLine": 376,
+        "endChar": 42
+      },
+      "revId": "dcceeb07016b1a1a3581a2df1ce11a87a51f4147",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
