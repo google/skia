@@ -372,6 +372,8 @@
 
                     case ']': editor.applyStyleToSelection({size_add:1}); return;
                     case '[': editor.applyStyleToSelection({size_add:-1}); return;
+
+                    case 'h': editor.applyStyleToSelection({width:100, top:-20, bottom:10}); return;
                 }
             }
             if (!e.ctrlKey && !e.metaKey) {

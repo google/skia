@@ -480,33 +480,45 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
 
                 auto pb = para::ParagraphBuilder::make(pstyle, fc);
 
-                // tease apart the FontBlock runs
+                // tease apart the Block runs
                 size_t runCount = jruns["length"].as<size_t>();
                 for (size_t i = 0; i < runCount; ++i) {
                     emscripten::val r = jruns[i];
 
-                    para::TextStyle style;
-                    style.setTypeface(r["typeface"].as< sk_sp<SkTypeface> >());
-                    style.setFontSize(r["size"].as<float>());
-                    style.setFontStyle({
-                        r["fakeBold"].as<bool>() ? SkFontStyle::kBold_Weight
-                                                 : SkFontStyle::kNormal_Weight,
-                        SkFontStyle::kNormal_Width,
-                        r["fakeItalic"].as<bool>() ? SkFontStyle::kItalic_Slant
-                                                   : SkFontStyle::kUpright_Slant,
-                    });
-
-                    const size_t subTextCount = r["length"].as<size_t>();
-                    if (subTextCount > textCount) {
+                    const size_t len = r["length"].as<size_t>();
+                    if (len > textCount) {
                         return emscripten::val("block runs exceed text length!");
                     }
 
-                    pb->pushStyle(style);
-                    pb->addText(text, subTextCount);
-                    pb->pop();
+                    emscripten::val tf = r["typeface"];
+                    if (!tf.isUndefined()) {
+                        para::TextStyle style;
+                        style.setTypeface(tf.as< sk_sp<SkTypeface> >());
+                        style.setFontSize(r["size"].as<float>());
+                        pb->pushStyle(style);
+                        pb->addText(text, len);
+                        pb->pop();
+                    } else {
+                        // are we a placeholder block?
+                        emscripten::val wid = r["width"];
+                        emscripten::val top = r["top"];
+                        emscripten::val bot = r["bottom"];
+                        if (!wid.isUndefined() && !top.isUndefined() && !bot.isUndefined()) {
+                            printf("placeholder %g %g %g\n", wid.as<float>(), top.as<float>(), bot.as<float>());
 
-                    text += subTextCount;
-                    textCount -= subTextCount;
+                            pb->addPlaceholder({wid.as<float>(),
+                                                bot.as<float>() - top.as<float>(),
+                                                para::PlaceholderAlignment::kBaseline,
+                                                para::TextBaseline::kAlphabetic,
+                                                -top.as<float>()});
+
+                        } else {
+                            return emscripten::val("unknown attributes in Block");
+                        }
+                    }
+
+                    text += len;
+                    textCount -= len;
                 }
                 if (textCount != 0) {
                     return emscripten::val("Didn't have enough block runs to cover text");

@@ -677,6 +677,11 @@ export interface GlyphRun {
     flags: number;              // see GlyphRunFlags
 }
 
+export interface PlaceholderRun {
+    bounds: Rect;
+    textRange: Range;       // offsets into the text
+}
+
 /**
  * Information for a paragraph of text. See Paragraph.getShapedLines()
  */
@@ -698,6 +703,17 @@ export interface FontBlock {
     size: number;
     fakeBold: boolean;
     fakeItalic: boolean;
+}
+
+/**
+ * Input to ShapeText(..., FontBlock[], ...);
+ */
+ export interface PlaceholderBlock {
+    length: number;     // number of text codepoints this block is applied to
+
+    width: number;      // width of the placeholder
+    top: number;        // top of the placeholder, relative to a baseline at Y == 0
+    bottom: number;     // bottom of the placeholder, relative to a baseline at Y == 0
 }
 
 /**
