@@ -37,7 +37,6 @@ public:
         BUILTIN,
         INPUT_ATTACHMENT_INDEX,
         ORIGIN_UPPER_LEFT,
-        OVERRIDE_COVERAGE,
         BLEND_SUPPORT_ALL_EQUATIONS,
         PUSH_CONSTANT,
         POINTS,

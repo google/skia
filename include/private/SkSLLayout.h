@@ -20,25 +20,24 @@ namespace SkSL {
 struct Layout {
     enum Flag {
         kOriginUpperLeft_Flag            = 1 <<  0,
-        kOverrideCoverage_Flag           = 1 <<  1,
-        kPushConstant_Flag               = 1 <<  2,
-        kBlendSupportAllEquations_Flag   = 1 <<  3,
-        kSRGBUnpremul_Flag               = 1 <<  4,
-        kKey_Flag                        = 1 <<  5,
+        kPushConstant_Flag               = 1 <<  1,
+        kBlendSupportAllEquations_Flag   = 1 <<  2,
+        kSRGBUnpremul_Flag               = 1 <<  3,
+        kKey_Flag                        = 1 <<  4,
 
         // These flags indicate if the qualifier appeared, regardless of the accompanying value.
-        kLocation_Flag                   = 1 <<  7,
-        kOffset_Flag                     = 1 <<  8,
-        kBinding_Flag                    = 1 <<  9,
-        kIndex_Flag                      = 1 << 10,
-        kSet_Flag                        = 1 << 11,
-        kBuiltin_Flag                    = 1 << 12,
-        kInputAttachmentIndex_Flag       = 1 << 13,
-        kPrimitive_Flag                  = 1 << 14,
-        kMaxVertices_Flag                = 1 << 15,
-        kInvocations_Flag                = 1 << 16,
-        kWhen_Flag                       = 1 << 17,
-        kCType_Flag                      = 1 << 18,
+        kLocation_Flag                   = 1 <<  5,
+        kOffset_Flag                     = 1 <<  6,
+        kBinding_Flag                    = 1 <<  7,
+        kIndex_Flag                      = 1 <<  8,
+        kSet_Flag                        = 1 <<  9,
+        kBuiltin_Flag                    = 1 << 10,
+        kInputAttachmentIndex_Flag       = 1 << 11,
+        kPrimitive_Flag                  = 1 << 12,
+        kMaxVertices_Flag                = 1 << 13,
+        kInvocations_Flag                = 1 << 14,
+        kWhen_Flag                       = 1 << 15,
+        kCType_Flag                      = 1 << 16,
     };
 
     enum Primitive {
@@ -178,9 +177,6 @@ struct Layout {
         }
         if (fFlags & kOriginUpperLeft_Flag) {
             result += separator() + "origin_upper_left";
-        }
-        if (fFlags & kOverrideCoverage_Flag) {
-            result += separator() + "override_coverage";
         }
         if (fFlags & kBlendSupportAllEquations_Flag) {
             result += separator() + "blend_support_all_equations";

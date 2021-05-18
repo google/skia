@@ -1,6 +1,5 @@
 layout (
     origin_upper_left,
-    override_coverage,
     push_constant,
     blend_support_all_equations,
     srgb_unpremul,
@@ -21,7 +20,6 @@ void on_return() {}
 void on_param(
 layout (
     origin_upper_left,
-    override_coverage,
     push_constant,
     blend_support_all_equations,
     srgb_unpremul,
