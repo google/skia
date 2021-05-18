@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0622c6e3_99eb2dc3",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/SkottieAnimation.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-18T01:03:35Z",
+      "side": 1,
+      "message": "Yeah this is purely informative, and its only purpose is to facilitate conversions from time to frame indices (for seekFrame).\n\nAgreed that it\u0027s confusing, getFrameCount seems like a better solution for frame/time conversions.\n\nRemoved.",
+      "parentUuid": "b7ff08ea_798817c6",
+      "range": {
+        "startLine": 25,
+        "startChar": 18,
+        "endLine": 25,
+        "endChar": 24
+      },
+      "revId": "8ff4dd7e1e489268cfd45062c7ac4e6cad187433",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "14a9f7eb_a8ba16bc",
@@ -66,6 +90,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "638bfd95_86f734f6",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/SkottieAnimation.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-18T01:03:35Z",
+      "side": 1,
+      "message": "seekFrame is the only way to request exact/integral frames, which comes up in certain use cases.\n\nI like the idea of exposing a frame count -- added.",
+      "parentUuid": "14a9f7eb_a8ba16bc",
+      "range": {
+        "startLine": 32,
+        "startChar": 18,
+        "endLine": 32,
+        "endChar": 29
+      },
+      "revId": "8ff4dd7e1e489268cfd45062c7ac4e6cad187433",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8ff722c3_49571907",
         "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/SkottieAnimation.java",
         "patchSetId": 3
@@ -77,6 +125,30 @@
       "writtenOn": "2021-05-17T21:13:49Z",
       "side": 1,
       "message": "I presume this is optional (i.e. a finalizer will release it eventually if needbe)?",
+      "range": {
+        "startLine": 82,
+        "startChar": 16,
+        "endLine": 82,
+        "endChar": 23
+      },
+      "revId": "8ff4dd7e1e489268cfd45062c7ac4e6cad187433",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "43fe5926_43b08dc8",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/SkottieAnimation.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-18T01:03:35Z",
+      "side": 1,
+      "message": "Indeed: it\u0027s optional and idempotent, for clients who don\u0027t want to wait on GC for resource deallocation.",
+      "parentUuid": "8ff722c3_49571907",
       "range": {
         "startLine": 82,
         "startChar": 16,
