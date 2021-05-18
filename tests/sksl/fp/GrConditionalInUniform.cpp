@@ -40,7 +40,7 @@ private:
         const GrConditionalInUniform& _outer = _proc.cast<GrConditionalInUniform>();
         {
         if (colorVar.isValid()) {
-            pdman.set4fv(colorVar, 1, (_outer.color).vec());
+            pdman.set4fv(colorVar, 1, _outer.color.vec());
         }
         }
     }

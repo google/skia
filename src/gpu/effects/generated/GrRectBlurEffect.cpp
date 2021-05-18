@@ -129,8 +129,7 @@ private:
         const GrRectBlurEffect& _outer = _proc.cast<GrRectBlurEffect>();
         {
             if (invVMVar.isValid()) {
-                static_assert(1 == 1);
-                pdman.setSkMatrix(invVMVar, (_outer.invVM));
+                pdman.setSkMatrix(invVMVar, _outer.invVM);
             }
         }
         auto rect = _outer.rect;

@@ -68,8 +68,8 @@ private:
         const GrAlphaThresholdFragmentProcessor& _outer =
                 _proc.cast<GrAlphaThresholdFragmentProcessor>();
         {
-            pdman.set1f(innerThresholdVar, (_outer.innerThreshold));
-            pdman.set1f(outerThresholdVar, (_outer.outerThreshold));
+            pdman.set1f(innerThresholdVar, _outer.innerThreshold);
+            pdman.set1f(outerThresholdVar, _outer.outerThreshold);
         }
     }
     UniformHandle innerThresholdVar;

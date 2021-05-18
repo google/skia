@@ -86,10 +86,10 @@ private:
                    const GrFragmentProcessor& _proc) override {
         const GrMagnifierEffect& _outer = _proc.cast<GrMagnifierEffect>();
         {
-            pdman.set1f(xInvZoomVar, (_outer.xInvZoom));
-            pdman.set1f(yInvZoomVar, (_outer.yInvZoom));
-            pdman.set1f(xInvInsetVar, (_outer.xInvInset));
-            pdman.set1f(yInvInsetVar, (_outer.yInvInset));
+            pdman.set1f(xInvZoomVar, _outer.xInvZoom);
+            pdman.set1f(yInvZoomVar, _outer.yInvZoom);
+            pdman.set1f(xInvInsetVar, _outer.xInvInset);
+            pdman.set1f(yInvInsetVar, _outer.yInvInset);
         }
         auto bounds = _outer.bounds;
         (void)bounds;

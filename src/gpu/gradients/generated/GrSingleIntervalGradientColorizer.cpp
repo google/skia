@@ -47,8 +47,8 @@ private:
         const GrSingleIntervalGradientColorizer& _outer =
                 _proc.cast<GrSingleIntervalGradientColorizer>();
         {
-            pdman.set4fv(startVar, 1, (_outer.start).vec());
-            pdman.set4fv(endVar, 1, (_outer.end).vec());
+            pdman.set4fv(startVar, 1, _outer.start.vec());
+            pdman.set4fv(endVar, 1, _outer.end.vec());
         }
     }
     UniformHandle startVar;

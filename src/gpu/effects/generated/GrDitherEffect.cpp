@@ -53,7 +53,7 @@ private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
                    const GrFragmentProcessor& _proc) override {
         const GrDitherEffect& _outer = _proc.cast<GrDitherEffect>();
-        { pdman.set1f(rangeVar, (_outer.range)); }
+        { pdman.set1f(rangeVar, _outer.range); }
     }
     UniformHandle rangeVar;
 };

@@ -55,7 +55,7 @@ private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
                    const GrFragmentProcessor& _proc) override {
         const GrArithmeticProcessor& _outer = _proc.cast<GrArithmeticProcessor>();
-        { pdman.set4fv(kVar, 1, (_outer.k).ptr()); }
+        { pdman.set4fv(kVar, 1, _outer.k.ptr()); }
     }
     UniformHandle kVar;
 };

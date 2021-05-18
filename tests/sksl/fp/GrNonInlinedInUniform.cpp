@@ -31,8 +31,7 @@ private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
         const GrNonInlinedInUniform& _outer = _proc.cast<GrNonInlinedInUniform>();
         {
-        const SkPoint& pointValue = _outer.point;
-        pdman.set2f(pointVar, pointValue.fX, pointValue.fY);
+        pdman.set2f(pointVar, _outer.point.fX, _outer.point.fY);
         }
     }
     UniformHandle pointVar;

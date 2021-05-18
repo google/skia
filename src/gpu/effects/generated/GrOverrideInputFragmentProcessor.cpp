@@ -58,7 +58,7 @@ private:
                 _proc.cast<GrOverrideInputFragmentProcessor>();
         {
             if (uniformColorVar.isValid()) {
-                pdman.set4fv(uniformColorVar, 1, (_outer.uniformColor).vec());
+                pdman.set4fv(uniformColorVar, 1, _outer.uniformColor.vec());
             }
         }
     }
