@@ -150,6 +150,24 @@
       "parentUuid": "25f0dce7_1bb052be",
       "revId": "6c97c39895067e3252daf1762714a86aff85e369",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "981b76b8_7f9a174e",
+        "filename": "platform_tools/android/apps/androidkitdemo/src/main/java/org/skia/androidkitdemo1/SkottieAnimationActivity.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-05-18T13:37:02Z",
+      "side": 1,
+      "message": "I like the idea of a builder, but when it comes to resource IDs I meant that we just move\n InputStream is \u003d getResources().openRawResource(id);\n byte[] data \u003d new byte[is.available()];\n is.read(data);\n\nto AndroidKit\u0027s Java code. So it becomes:\n mAnimation \u003d new SkotieAnimation(R.raw.im_thirsty);\n\nWe can leave that until later though.",
+      "parentUuid": "044fff9c_61493b41",
+      "revId": "6c97c39895067e3252daf1762714a86aff85e369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

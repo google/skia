@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5cc3f0c5_471a592b",
+        "filename": "modules/androidkit/src/Canvas.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-05-18T13:37:02Z",
+      "side": 1,
+      "message": "nit: unused?",
+      "revId": "247e55e8cb24fedc09ee879dd7ef10d0b2da00bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
