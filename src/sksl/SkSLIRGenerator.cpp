@@ -1882,7 +1882,6 @@ void IRGenerator::findAndDeclareBuiltinVariables() {
 
 void IRGenerator::start(const ParsedModule& base,
                         bool isBuiltinCode,
-                        const std::vector<std::unique_ptr<ExternalFunction>>* externalFunctions,
                         std::vector<std::unique_ptr<ProgramElement>>* elements,
                         std::vector<const ProgramElement*>* sharedElements) {
     fProgramElements = elements;
@@ -1919,9 +1918,9 @@ void IRGenerator::start(const ParsedModule& base,
         fProgramElements->push_back(std::make_unique<GlobalVarDeclaration>(std::move(decl)));
     }
 
-    if (externalFunctions) {
+    if (this->settings().fExternalFunctions) {
         // Add any external values to the new symbol table, so they're only visible to this Program.
-        for (const std::unique_ptr<ExternalFunction>& ef : *externalFunctions) {
+        for (const std::unique_ptr<ExternalFunction>& ef : *this->settings().fExternalFunctions) {
             fSymbolTable->addWithoutOwnership(ef.get());
         }
     }
@@ -2005,13 +2004,7 @@ IRGenerator::IRBundle IRGenerator::convertProgram(
         const ParsedModule& base,
         bool isBuiltinCode,
         const char* text,
-        size_t length,
-        const std::vector<std::unique_ptr<ExternalFunction>>* externalFunctions) {
-    std::vector<std::unique_ptr<ProgramElement>> elements;
-    std::vector<const ProgramElement*> sharedElements;
-
-    this->start(base, isBuiltinCode, externalFunctions, &elements, &sharedElements);
-
+        size_t length) {
     Parser parser(text, length, *fSymbolTable, this->errorReporter());
     fFile = parser.compilationUnit();
     if (this->errorReporter().errorCount() == 0) {

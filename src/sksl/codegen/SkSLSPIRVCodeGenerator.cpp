@@ -3666,7 +3666,6 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     write_stringstream(fNameBuffer, out);
     write_stringstream(fDecorationBuffer, out);
     write_stringstream(fConstantBuffer, out);
-    write_stringstream(fExternalFunctionsBuffer, out);
     write_stringstream(body, out);
 }
 

@@ -14,6 +14,7 @@
 
 namespace SkSL {
 
+class IRGenerator;
 class Variable;
 enum class VariableStorage : int8_t;
 
@@ -151,6 +152,7 @@ private:
     friend class DSLExpression;
     friend class DSLFunction;
     friend class DSLWriter;
+    friend class ::SkSL::IRGenerator;
 };
 
 } // namespace dsl

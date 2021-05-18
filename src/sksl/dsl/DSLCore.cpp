@@ -25,8 +25,20 @@ namespace SkSL {
 
 namespace dsl {
 
-void Start(SkSL::Compiler* compiler, ProgramKind kind, int flags) {
-    DSLWriter::SetInstance(std::make_unique<DSLWriter>(compiler, kind, flags));
+void Start(SkSL::Compiler* compiler, ProgramKind kind) {
+    Start(compiler, kind, ProgramSettings());
+}
+
+void Start(SkSL::Compiler* compiler, ProgramKind kind, const ProgramSettings& settings) {
+    DSLWriter::SetInstance(std::make_unique<DSLWriter>(compiler, kind, settings,
+                                                       compiler->moduleForProgramKind(kind),
+                                                       /*isModule=*/false));
+}
+
+void StartModule(SkSL::Compiler* compiler, ProgramKind kind, const ProgramSettings& settings,
+                 SkSL::ParsedModule module) {
+    DSLWriter::SetInstance(std::make_unique<DSLWriter>(compiler, kind, settings, module,
+                                                       /*isModule=*/true));
 }
 
 void End() {

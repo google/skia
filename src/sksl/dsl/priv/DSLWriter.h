@@ -14,6 +14,7 @@
 #include "include/sksl/DSLStatement.h"
 #include "src/sksl/SkSLMangler.h"
 #include "src/sksl/SkSLOperators.h"
+#include "src/sksl/SkSLParsedModule.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
@@ -44,7 +45,8 @@ class ErrorHandler;
  */
 class DSLWriter {
 public:
-    DSLWriter(SkSL::Compiler* compiler, SkSL::ProgramKind kind, int flags);
+    DSLWriter(SkSL::Compiler* compiler, SkSL::ProgramKind kind,
+              const SkSL::ProgramSettings& settings, SkSL::ParsedModule module, bool isModule);
 
     ~DSLWriter();
 
@@ -72,10 +74,29 @@ public:
         return Instance().fProgramElements;
     }
 
+    static std::vector<const ProgramElement*>& SharedElements() {
+        return Instance().fSharedElements;
+    }
+
     /**
      * Returns the SymbolTable of the current thread's IRGenerator.
      */
     static const std::shared_ptr<SkSL::SymbolTable>& SymbolTable();
+
+    /**
+     * Returns the current memory pool.
+     */
+    static std::unique_ptr<Pool>& MemoryPool() { return Instance().fPool; }
+
+    /**
+     * Returns the current modifiers pool.
+     */
+    static std::unique_ptr<ModifiersPool>& GetModifiersPool() { return Instance().fModifiersPool; }
+
+    /**
+     * Returns the current ProgramConfig.
+     */
+    static std::unique_ptr<ProgramConfig>& GetProgramConfig() { return Instance().fConfig; }
 
     static void Reset();
 
@@ -206,10 +227,33 @@ public:
     static void ReportError(const char* msg, PositionInfo* info = nullptr);
 
     /**
-     * Returns whether name mangling is enabled. This should always be enabled outside of tests.
+     * Returns whether name mangling is enabled. Mangling is important for the DSL because its
+     * variables normally all go into the same symbol table; for instance if you were to translate
+     * this legal (albeit silly) GLSL code:
+     *     int x;
+     *     {
+     *         int x;
+     *     }
+     *
+     * into DSL, you'd end up with:
+     *     DSLVar x1(kInt_Type, "x");
+     *     DSLVar x2(kInt_Type, "x");
+     *     Declare(x1);
+     *     Block(Declare(x2));
+     *
+     * with x1 and x2 ending up in the same symbol table. This is fine as long as their effective
+     * names are different, so mangling prevents this situation from causing problems.
      */
     static bool ManglingEnabled() {
-        return Instance().fMangle;
+        return Instance().fSettings.fDSLMangling;
+    }
+
+    /**
+     * Returns whether DSLVars should automatically be marked declared upon creation. This is used
+     * to simplify testing.
+     */
+    static bool MarkVarsDeclared() {
+        return Instance().fSettings.fDSLMarkVarsDeclared;
     }
 
     static std::unique_ptr<SkSL::Program> ReleaseProgram();
@@ -228,8 +272,7 @@ private:
     std::vector<std::unique_ptr<SkSL::ProgramElement>> fProgramElements;
     std::vector<const SkSL::ProgramElement*> fSharedElements;
     ErrorHandler* fErrorHandler = nullptr;
-    bool fMangle = true;
-    bool fMarkVarsDeclared = false;
+    ProgramSettings fSettings;
     Mangler fMangler;
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
     struct StackFrame {
