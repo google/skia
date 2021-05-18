@@ -73,11 +73,13 @@ void GrPathIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const SkMa
         return;
     }
 
-    // Write out any triangles at the beginning of the cubic data.
+    // Write out any triangles at the beginning of the cubic data. Since this shader draws curves,
+    // output the triangles as conics with w=infinity (which is equivalent to a triangle).
     int numTrianglesAtBeginningOfData = 0;
     if (fDrawInnerFan) {
         numTrianglesAtBeginningOfData = GrMiddleOutPolygonTriangulator::WritePathInnerFan(
-                &instanceWriter, 4/*stride*/, path);
+                &instanceWriter,
+                GrMiddleOutPolygonTriangulator::OutputType::kConicsWithInfiniteWeight, path);
     }
     if (breadcrumbTriangleList) {
         SkDEBUGCODE(int count = 0;)
@@ -91,8 +93,8 @@ void GrPathIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const SkMa
                 continue;
             }
             instanceWriter.writeArray(p, 3);
-            // Duplicate the final point since it will also be used by the convex hull shader.
-            instanceWriter.write(p[2]);
+            // Mark this instance as a triangle by setting it to a conic with w=Inf.
+            instanceWriter.fill(GrVertexWriter::kIEEE_32_infinity, 2);
             ++numTrianglesAtBeginningOfData;
         }
         SkASSERT(count == breadcrumbTriangleList->count());
