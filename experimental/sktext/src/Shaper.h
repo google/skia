@@ -11,11 +11,12 @@ namespace text {
 class Processor;
 class Shaper : public SkShaper::RunHandler{
 public:
-    Shaper(Processor* processor, TextFontStyle textFontStyle)
+    Shaper(Processor* processor, TextDirection textDirection, SkSpan<FontBlock> fontBlocks)
             : fProcessor(processor)
-            , fFontManager(textFontStyle.fFontManager)
-            , fDefaultTextDirection(textFontStyle.fTextDirection)
+            , fFontBlocks(fontBlocks)
+            , fDefaultTextDirection(textDirection)
             , fCurrentRun(nullptr) { }
+
     bool process();
 
 private:
@@ -37,6 +38,7 @@ private:
     Processor* fProcessor;
     sk_sp<SkFontMgr> fFontManager;
     TextDirection fDefaultTextDirection;
+    SkSpan<FontBlock> fFontBlocks;
     std::unique_ptr<TextRun> fCurrentRun;
 };
 

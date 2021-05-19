@@ -12,7 +12,7 @@ namespace text {
 bool Shaper::process() {
 
     SkString text8 = fProcessor->fUnicode->convertUtf16ToUtf8(fProcessor->fText);
-    for (auto& block : fProcessor->fFontBlocks) {
+    for (auto& block : this->fFontBlocks) {
 
         SkFont font(this->createFont(block));
 
@@ -33,6 +33,8 @@ bool Shaper::process() {
                 fontIter, *bidiIter, *scriptIter, langIter,
                 std::numeric_limits<SkScalar>::max(), this);
     }
+
+    fProcessor->markGlyphs();
 
     return true;
 }
@@ -61,7 +63,7 @@ SkFont Shaper::createFont(const FontBlock& block) {
 }
 
 sk_sp<SkTypeface> Shaper::matchTypeface(const SkString& fontFamily, SkFontStyle fontStyle) {
-    sk_sp<SkFontStyleSet> set(fFontManager->matchFamily(fontFamily.c_str()));
+    sk_sp<SkFontStyleSet> set(SkFontMgr::RefDefault()->matchFamily(fontFamily.c_str()));
     if (!set || set->count() == 0) {
         return nullptr;
     }
