@@ -47,8 +47,8 @@ public:
         canvas->androidFramework_replaceClip(rect);
     }
 
-    static GrSurfaceDrawContext* TopDeviceSurfaceDrawContext(SkCanvas* canvas) {
-        return canvas->topDeviceSurfaceDrawContext();
+    static GrRenderTargetProxy* TopDeviceProxy(SkCanvas* canvas) {
+        return canvas->topDeviceProxy();
     }
 
     // The experimental_DrawEdgeAAImageSet API accepts separate dstClips and preViewMatrices arrays,

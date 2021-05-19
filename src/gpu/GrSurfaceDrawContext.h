@@ -118,23 +118,10 @@ public:
     typedef void (*ReleaseProc)(ReleaseContext);
 
     // Creates a GrSurfaceDrawContext that wraps the passed in GrBackendTexture.
-    static std::unique_ptr<GrSurfaceDrawContext> MakeFromBackendTexture(
+    static std::unique_ptr<GrSurfaceDrawContext> MakeFromBackendTexture1(
             GrRecordingContext*, GrColorType, sk_sp<SkColorSpace>, const GrBackendTexture&,
             int sampleCnt, GrSurfaceOrigin, const SkSurfaceProps&,
             sk_sp<GrRefCntedCallback> releaseHelper);
-
-    static std::unique_ptr<GrSurfaceDrawContext> MakeFromBackendRenderTarget(
-            GrRecordingContext*,
-            GrColorType,
-            sk_sp<SkColorSpace>,
-            const GrBackendRenderTarget&,
-            GrSurfaceOrigin,
-            const SkSurfaceProps&,
-            sk_sp<GrRefCntedCallback> releaseHelper);
-
-    static std::unique_ptr<GrSurfaceDrawContext> MakeFromVulkanSecondaryCB(
-            GrRecordingContext*, const SkImageInfo&, const GrVkDrawableInfo&,
-            const SkSurfaceProps&);
 
     GrSurfaceDrawContext(GrRecordingContext*,
                          GrSurfaceProxyView readView,
