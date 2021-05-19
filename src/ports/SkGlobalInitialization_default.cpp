@@ -17,8 +17,6 @@
     #include "include/core/SkBBHFactory.h"
     #include "include/core/SkColorFilter.h"
     #include "include/core/SkPathEffect.h"
-    #include "include/effects/Sk1DPathEffect.h"
-    #include "include/effects/Sk2DPathEffect.h"
     #include "include/effects/SkCornerPathEffect.h"
     #include "include/effects/SkDiscretePathEffect.h"
     #include "include/effects/SkGradientShader.h"
@@ -90,10 +88,6 @@
         SK_REGISTER_FLATTENABLE(SkDashImpl);
         SK_REGISTER_FLATTENABLE(SkDiscretePathEffect);
         SK_REGISTER_FLATTENABLE(SkLine2DPathEffect);
-        SK_REGISTER_FLATTENABLE(SkMatrixPE);
-        SK_REGISTER_FLATTENABLE(SkOpPE);
-        SK_REGISTER_FLATTENABLE(SkPath1DPathEffect);
-        SK_REGISTER_FLATTENABLE(SkPath2DPathEffect);
         SK_REGISTER_FLATTENABLE(SkStrokePE);
         SK_REGISTER_FLATTENABLE(SkStrokeAndFillPE);
         SK_REGISTER_FLATTENABLE(SkTrimPE);
