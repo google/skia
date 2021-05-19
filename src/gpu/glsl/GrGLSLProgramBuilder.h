@@ -71,10 +71,6 @@ public:
         return this->uniformHandler()->inputSamplerSwizzle(handle);
     }
 
-    // Used to add a uniform for the RenderTarget height (used for u_skRTHeight and frag position)
-    // without mangling the name of the uniform inside of a stage.
-    void addRTHeightUniform(const char* name);
-
     // Generates a name for a variable. The generated string will be name prefixed by the prefix
     // char (unless the prefix is '\0'). It also will mangle the name to be stage-specific unless
     // explicitly asked not to. `nameVariable` can also be used to generate names for functions or

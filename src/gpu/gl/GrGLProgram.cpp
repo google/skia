@@ -154,12 +154,6 @@ void GrGLProgram::bindTextures(const GrGeometryProcessor& geomProc,
 void GrGLProgram::setRenderTargetState(const GrRenderTarget* rt,
                                        GrSurfaceOrigin origin,
                                        const GrGeometryProcessor& geomProc) {
-    // Load the RT height uniform if it is needed
-    if (fBuiltinUniformHandles.fRTHeightUni.isValid() &&
-        fRenderTargetState.fRenderTargetSize.fHeight != rt->height()) {
-        fProgramDataManager.set1f(fBuiltinUniformHandles.fRTHeightUni, SkIntToScalar(rt->height()));
-    }
-
     // set RT adjustment
     SkISize dimensions = rt->dimensions();
     if (fRenderTargetState.fRenderTargetOrigin != origin ||
