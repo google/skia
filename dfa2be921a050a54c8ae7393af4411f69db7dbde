@@ -16,6 +16,52 @@
       "message": "The M44 march continues",
       "revId": "dfa2be921a050a54c8ae7393af4411f69db7dbde",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "54ff7323_41618cde",
+        "filename": "src/core/SkDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-19T17:07:38Z",
+      "side": 1,
+      "message": "I presume this is just documentation? The default constructor makes identity.",
+      "range": {
+        "startLine": 73,
+        "startChar": 23,
+        "endLine": 73,
+        "endChar": 33
+      },
+      "revId": "dfa2be921a050a54c8ae7393af4411f69db7dbde",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "901b3b2d_a5507525",
+        "filename": "src/core/SkDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-19T17:07:38Z",
+      "side": 1,
+      "message": "legacy 33, or on purpose?",
+      "range": {
+        "startLine": 91,
+        "startChar": 0,
+        "endLine": 91,
+        "endChar": 8
+      },
+      "revId": "dfa2be921a050a54c8ae7393af4411f69db7dbde",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
