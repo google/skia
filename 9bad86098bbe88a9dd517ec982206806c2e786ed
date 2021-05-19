@@ -1,0 +1,30 @@
+{
+  "comments": [
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000010947198",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/149235?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "0b33af17_df8ebd25",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 505,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-05-19T19:44:01Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027valid\u0027, \u0027validity check\u0027 or \u0027initial check\u0027; see https://source.android.com/setup/contribute/respectful-code for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 505,
+        "startChar": 17,
+        "endLine": 505,
+        "endChar": 21
+      },
+      "revId": "9bad86098bbe88a9dd517ec982206806c2e786ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
