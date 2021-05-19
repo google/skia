@@ -22,6 +22,30 @@
       },
       "revId": "fe9e4bf2a73eb4a07485d2b60e711ea0a6e65cb9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "622905b8_6cbc821d",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 823,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-19T20:31:14Z",
+      "side": 1,
+      "message": "Ah, dang, I had that comment earlier and it got edited away as I made other changes. Will re-add.",
+      "parentUuid": "048bf9d6_945c8217",
+      "range": {
+        "startLine": 818,
+        "startChar": 0,
+        "endLine": 823,
+        "endChar": 26
+      },
+      "revId": "fe9e4bf2a73eb4a07485d2b60e711ea0a6e65cb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
