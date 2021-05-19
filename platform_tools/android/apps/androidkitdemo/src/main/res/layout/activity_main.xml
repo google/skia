@@ -16,8 +16,8 @@
         app:layout_constraintTop_toTopOf="parent" />
     <ImageView
         android:id="@+id/image"
-        android:layout_width="200px"
-        android:layout_height="200px"
+        android:layout_width="400px"
+        android:layout_height="400px"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent">
     </ImageView>

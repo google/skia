@@ -79,6 +79,16 @@ void Canvas_DrawRect(JNIEnv* env, jobject, jlong native_instance,
     }
 }
 
+void Canvas_DrawImage(JNIEnv* env, jobject, jlong native_instance, jlong native_image,
+                      jfloat x, jfloat y) {
+    auto* canvas = reinterpret_cast<SkCanvas*>(native_instance);
+    auto*  image = reinterpret_cast<SkImage *>(native_image);
+
+    if (canvas && image) {
+        canvas->drawImage(image, x, y);
+    }
+}
+
 }  // namespace
 
 int register_androidkit_Canvas(JNIEnv* env) {
@@ -92,6 +102,7 @@ int register_androidkit_Canvas(JNIEnv* env) {
         {"nConcat16f"       , "(J[F)V"   , reinterpret_cast<void*>(Canvas_Concat16f)     },
         {"nDrawColor"       , "(JFFFF)V" , reinterpret_cast<void*>(Canvas_DrawColor)     },
         {"nDrawRect"        , "(JFFFFJ)V", reinterpret_cast<void*>(Canvas_DrawRect)      },
+        {"nDrawImage"       , "(JJFF)V"  , reinterpret_cast<void*>(Canvas_DrawImage)     },
     };
 
     const auto clazz = env->FindClass("org/skia/androidkit/Canvas");

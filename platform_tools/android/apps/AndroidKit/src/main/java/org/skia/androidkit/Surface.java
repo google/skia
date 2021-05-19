@@ -12,6 +12,7 @@ import android.os.Build;
 import android.support.annotation.RequiresApi;
 
 import org.skia.androidkit.Canvas;
+import org.skia.androidkit.Image;
 
 public class Surface {
     private long mNativeInstance;
@@ -49,6 +50,15 @@ public class Surface {
         // TODO: given that canvases are now ephemeral, it would make sense to be more explicit
         // e.g. lockCanvas/unlockCanvasAndPost?
         return new Canvas(this, nGetNativeCanvas(mNativeInstance));
+    }
+
+
+    /**
+     * Returns an Image capturing the Surface contents.
+     * Subsequent drawing to Surface contents are not captured.
+     */
+    public Image makeImageSnapshot() {
+        return new Image(nMakeImageSnapshot(mNativeInstance));
     }
 
     /***
@@ -104,4 +114,5 @@ public class Surface {
     private static native void nFlushAndSubmit(long nativeInstance);
     private static native int  nGetWidth(long nativeInstance);
     private static native int  nGetHeight(long nativeInstance);
+    private static native long nMakeImageSnapshot(long nativeInstance);
 }
