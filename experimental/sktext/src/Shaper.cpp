@@ -1,6 +1,5 @@
 // Copyright 2021 Google LLC.
-
-#include "experimental/sktext/include/Processor.h"
+#include "experimental/sktext/include/Layout.h"
 #include "experimental/sktext/src/Shaper.h"
 
 namespace skia {
@@ -12,7 +11,7 @@ namespace text {
 bool Shaper::process() {
 
     SkString text8 = fProcessor->fUnicode->convertUtf16ToUtf8(fProcessor->fText);
-    for (auto& block : fProcessor->fFontBlocks) {
+    for (auto& block : this->fProcessor->fFontBlocks) {
 
         SkFont font(this->createFont(block));
 
@@ -20,7 +19,7 @@ bool Shaper::process() {
         SkShaper::TrivialLanguageRunIterator langIter(text8.c_str(), text8.size());
         std::unique_ptr<SkShaper::BiDiRunIterator> bidiIter(
             SkShaper::MakeSkUnicodeBidiRunIterator(
-                fProcessor->fUnicode.get(), text8.c_str(), text8.size(), fDefaultTextDirection == TextDirection::kLtr ? 0 : 1));
+                fProcessor->fUnicode.get(), text8.c_str(), text8.size(), fProcessor->fDefaultTextDirection == TextDirection::kLtr ? 0 : 1));
         std::unique_ptr<SkShaper::ScriptRunIterator> scriptIter(
             SkShaper::MakeSkUnicodeHbScriptRunIterator(fProcessor->fUnicode.get(), text8.c_str(), text8.size()));
         auto shaper = SkShaper::MakeShapeDontWrapOrReorder();
@@ -33,6 +32,8 @@ bool Shaper::process() {
                 fontIter, *bidiIter, *scriptIter, langIter,
                 std::numeric_limits<SkScalar>::max(), this);
     }
+
+    fProcessor->markGlyphs();
 
     return true;
 }
@@ -50,28 +51,12 @@ void Shaper::commitRunBuffer(const RunInfo&) {
 
 SkFont Shaper::createFont(const FontBlock& block) {
 
-    sk_sp<SkTypeface> typeface = matchTypeface(block.fFontFamily, block.fFontStyle);
-
-    SkFont font(std::move(typeface), block.fFontSize);
+    SkFont font(block.fTypeface, block.fFontSize);
     font.setEdging(SkFont::Edging::kAntiAlias);
     font.setHinting(SkFontHinting::kSlight);
     font.setSubpixel(true);
 
     return font;
-}
-
-sk_sp<SkTypeface> Shaper::matchTypeface(const SkString& fontFamily, SkFontStyle fontStyle) {
-    sk_sp<SkFontStyleSet> set(fFontManager->matchFamily(fontFamily.c_str()));
-    if (!set || set->count() == 0) {
-        return nullptr;
-    }
-
-    sk_sp<SkTypeface> match(set->matchStyle(fontStyle));
-    if (match) {
-        return match;
-    }
-
-    return nullptr;
 }
 
 } // namespace text
