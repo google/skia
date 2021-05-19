@@ -10,11 +10,13 @@ sktext_public = [
 ]
 
 sktext_sources = [
-  "$_src/Decorator.cpp",
   "$_src/Formatter.cpp",
+  "$_src/Layout.cpp",
   "$_src/Line.cpp",
+  "$_src/Paint.cpp",
   "$_src/Processor.cpp",
   "$_src/Shaper.cpp",
   "$_src/TextRun.cpp",
+  "$_src/Visitor.cpp",
   "$_src/Wrapper.cpp",
 ]
