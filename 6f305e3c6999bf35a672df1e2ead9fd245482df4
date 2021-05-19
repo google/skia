@@ -16,6 +16,41 @@
       "message": "Okay, should be ready to review now. PS1 had added a check that prevented passthrough optimization when the sampling params wanted bicubic (since that isn\u0027t actually a no-op on pixel-aligned sampling). This however changed a lot of GMs and a number of layout tests. The default sampling options for the Image image filter is to use bicubic, which is probably where this is coming from. I think we should revisit that in the future, but for now this preserves the historic expectation.\n\nNow the gold differences are fixing the new GM and minor sampling pixel diffs since the rendered geometry is slightly different. This unfortunately also causes some benign layout test diffs in chrome that will need to be rebased before this can land, but this change is fine now.",
       "revId": "6f305e3c6999bf35a672df1e2ead9fd245482df4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c7ac61e2_85cf619c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-05-19T14:53:51Z",
+      "side": 1,
+      "message": "Sadly, looks like some layout tests slightly change.",
+      "revId": "6f305e3c6999bf35a672df1e2ead9fd245482df4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3b280a5b_59724d4f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-05-19T14:53:51Z",
+      "side": 1,
+      "message": "+1 to separating that out from this.",
+      "parentUuid": "95e8f984_240cd3c7",
+      "revId": "6f305e3c6999bf35a672df1e2ead9fd245482df4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
