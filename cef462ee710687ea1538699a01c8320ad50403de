@@ -1,0 +1,56 @@
+{
+  "comments": [
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000010947992",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/4449?revision\u003d2",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "c1701ee9_e5f60276",
+        "filename": "src/utils/Sk590Canvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-05-19T19:48:56Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 110,
+        "startChar": 0,
+        "endLine": 110,
+        "endChar": 4
+      },
+      "revId": "cef462ee710687ea1538699a01c8320ad50403de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000010947992",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/4449?revision\u003d2",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "4216fc91_4a70b0b2",
+        "filename": "tools/dump_record.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-05-19T19:48:56Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 81,
+        "startChar": 0,
+        "endLine": 81,
+        "endChar": 8
+      },
+      "revId": "cef462ee710687ea1538699a01c8320ad50403de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
