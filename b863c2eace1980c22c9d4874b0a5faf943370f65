@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "52c713b0_4b202265",
+        "filename": "src/gpu/gl/GrGLUtil.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-05-19T15:55:11Z",
+      "side": 1,
+      "message": "For Dawn, Metal, Vk \u0026 D3D you use a default clause instead of SkUNREACHABLE",
+      "revId": "b863c2eace1980c22c9d4874b0a5faf943370f65",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "603f6e37_a5c7dc80",
+        "filename": "src/gpu/mtl/GrMtlUtil.mm",
+        "patchSetId": 4
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-05-19T15:55:11Z",
+      "side": 1,
+      "message": "Can this not be \"static constexpr\" like all the others?",
+      "revId": "b863c2eace1980c22c9d4874b0a5faf943370f65",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
