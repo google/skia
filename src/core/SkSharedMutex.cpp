@@ -207,6 +207,7 @@
         }
 
         if (exclusiveWaitingCount > 0) {
+            SkASSERT()
             fSharedQueue[sharedQueueSelect].wait();
         }
 
