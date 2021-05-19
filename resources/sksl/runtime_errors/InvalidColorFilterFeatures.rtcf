@@ -2,6 +2,8 @@
 
 // Expect 1 error
 
+float4 sk_RTAdjust;
+
 half4 main(half4 color) {
     return sk_FragCoord.xy01;
 }

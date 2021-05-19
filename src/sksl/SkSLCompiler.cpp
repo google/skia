@@ -17,7 +17,6 @@
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/SkSLOperators.h"
-#include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLRehydrator.h"
 #include "src/sksl/codegen/SkSLCPPCodeGenerator.h"
 #include "src/sksl/codegen/SkSLDSLCPPCodeGenerator.h"

@@ -250,13 +250,6 @@ bool GrVkPipelineState::setAndBindInputAttachment(GrVkGpu* gpu,
 void GrVkPipelineState::setRenderTargetState(SkISize colorAttachmentDimensions,
                                              GrSurfaceOrigin origin) {
 
-    // Load the RT height uniform if it is needed to y-flip gl_FragCoord.
-    if (fBuiltinUniformHandles.fRTHeightUni.isValid() &&
-        fRenderTargetState.fRenderTargetSize.fHeight != colorAttachmentDimensions.height()) {
-        fDataManager.set1f(fBuiltinUniformHandles.fRTHeightUni,
-                           SkIntToScalar(colorAttachmentDimensions.height()));
-    }
-
     // set RT adjustment
     SkASSERT(fBuiltinUniformHandles.fRTAdjustmentUni.isValid());
     if (fRenderTargetState.fRenderTargetOrigin != origin ||

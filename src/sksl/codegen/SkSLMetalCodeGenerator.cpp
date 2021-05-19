@@ -1118,16 +1118,6 @@ void MetalCodeGenerator::writeCastConstructor(const AnyConstructor& c,
     return this->writeAnyConstructor(c, leftBracket, rightBracket, parentPrecedence);
 }
 
-void MetalCodeGenerator::writeFragCoord() {
-    if (fRTHeightName.length()) {
-        this->write("float4(_fragCoord.x, ");
-        this->write(fRTHeightName.c_str());
-        this->write(" - _fragCoord.y, 0.0, _fragCoord.w)");
-    } else {
-        this->write("float4(_fragCoord.x, _fragCoord.y, 0.0, _fragCoord.w)");
-    }
-}
-
 void MetalCodeGenerator::writeVariableReference(const VariableReference& ref) {
     // When assembling out-param helper functions, we copy variables into local clones with matching
     // names. We never want to prepend "_in." or "_globals." when writing these variables since
@@ -1141,8 +1131,8 @@ void MetalCodeGenerator::writeVariableReference(const VariableReference& ref) {
         case SK_FRAGCOLOR_BUILTIN:
             this->write("_out.sk_FragColor");
             break;
-        case SK_FRAGCOORD_BUILTIN:
-            this->writeFragCoord();
+        case SK_DEVICE_FRAGCOORD_BUILTIN:
+            this->write("_fragCoord");
             break;
         case SK_VERTEXID_BUILTIN:
             this->write("sk_VertexID");
@@ -1606,7 +1596,6 @@ int MetalCodeGenerator::getUniformSet(const Modifiers& m) {
 }
 
 bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) {
-    fRTHeightName = fProgram.fInputs.fRTHeight ? "_globals._anonInterface0->u_skRTHeight" : "";
     const char* separator = "";
     if (f.isMain()) {
         switch (fProgram.fConfig->fKind) {
@@ -1667,10 +1656,6 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
             }
         }
         if (fProgram.fConfig->fKind == ProgramKind::kFragment) {
-            if (fProgram.fInputs.fRTHeight && fInterfaceBlockNameMap.empty()) {
-                this->write(", constant sksl_synthetic_uniforms& _anonInterface0 [[buffer(1)]]");
-                fRTHeightName = "_anonInterface0.u_skRTHeight";
-            }
             this->write(", bool _frontFacing [[front_facing]]");
             this->write(", float4 _fragCoord [[position]]");
         } else if (fProgram.fConfig->fKind == ProgramKind::kVertex) {
@@ -1794,9 +1779,6 @@ void MetalCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     }
     fIndentation++;
     this->writeFields(structType->fields(), structType->fOffset, &intf);
-    if (fProgram.fInputs.fRTHeight) {
-        this->writeLine("float u_skRTHeight;");
-    }
     fIndentation--;
     this->write("}");
     if (intf.instanceName().size()) {
@@ -2176,11 +2158,6 @@ void MetalCodeGenerator::writeInterfaceBlocks() {
             this->writeInterfaceBlock(e->as<InterfaceBlock>());
             wroteInterfaceBlock = true;
         }
-    }
-    if (!wroteInterfaceBlock && fProgram.fInputs.fRTHeight) {
-        this->writeLine("struct sksl_synthetic_uniforms {");
-        this->writeLine("    float u_skRTHeight;");
-        this->writeLine("};");
     }
 }
 

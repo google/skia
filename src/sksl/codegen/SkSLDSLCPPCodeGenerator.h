@@ -99,8 +99,6 @@ private:
     String formatRuntimeValue(const Type& type, const Layout& layout, const String& cppCode,
                               std::vector<String>* formatArgs);
 
-    void writeInputVars() override;
-
     void writePrivateVars();
 
     void writePrivateVarValues();

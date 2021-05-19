@@ -1,4 +1,4 @@
 ### Compilation failed:
 
-error: 6: unknown identifier 'sk_FragCoord'
+error: 8: unknown identifier 'sk_FragCoord'
 1 error

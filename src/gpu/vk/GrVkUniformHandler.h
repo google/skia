@@ -72,11 +72,6 @@ public:
         return this->getUniformVariable(u).c_str();
     }
 
-    /**
-     * Returns the offset that the RTHeight synthetic uniform should use if it needs to be created.
-     */
-    uint32_t getRTHeightOffset() const;
-
     int numUniforms() const override {
         return fUniforms.count();
     }

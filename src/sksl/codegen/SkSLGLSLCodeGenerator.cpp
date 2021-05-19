@@ -756,30 +756,17 @@ void GLSLCodeGenerator::writeFragCoord() {
         this->write("sk_FragCoord_Resolved");
         return;
     }
-
-    // We only declare "gl_FragCoord" when we're in the case where we want to use layout qualifiers
-    // to reverse y. Otherwise it isn't necessary and whether the "in" qualifier appears in the
-    // declaration varies in earlier GLSL specs. So it is simpler to omit it.
-    if (!fProgram.fConfig->fSettings.fFlipY) {
-        this->write("gl_FragCoord");
-    } else if (const char* extension = this->caps().fragCoordConventionsExtensionString()) {
-        if (!fSetupFragPositionGlobal) {
-            if (this->caps().generation() < k150_GrGLSLGeneration) {
-                this->writeExtension(extension);
-            }
-            fGlobals.writeText("layout(origin_upper_left) in vec4 gl_FragCoord;\n");
-            fSetupFragPositionGlobal = true;
+    // if there's a fragCoordConventionsExtensionString, then IRGenerator expects us to give it
+    // already-flipped coords
+    const char* extension = this->caps().fragCoordConventionsExtensionString();
+    if (extension && fProgram.fConfig->fSettings.fFlipY && !fSetupFragPositionGlobal) {
+        if (this->caps().generation() < k150_GrGLSLGeneration) {
+            this->writeExtension(extension);
         }
-        this->write("gl_FragCoord");
-    } else {
-        if (!fSetupFragPositionLocal) {
-            fFunctionHeader += usesPrecisionModifiers() ? "highp " : "";
-            fFunctionHeader += "    vec4 sk_FragCoord = vec4(gl_FragCoord.x, " SKSL_RTHEIGHT_NAME
-                               " - gl_FragCoord.y, gl_FragCoord.z, gl_FragCoord.w);\n";
-            fSetupFragPositionLocal = true;
-        }
-        this->write("sk_FragCoord");
+        fGlobals.writeText("layout(origin_upper_left) in vec4 gl_FragCoord;\n");
+        fSetupFragPositionGlobal = true;
     }
+    this->write("gl_FragCoord");
 }
 
 void GLSLCodeGenerator::writeVariableReference(const VariableReference& ref) {
@@ -791,7 +778,7 @@ void GLSLCodeGenerator::writeVariableReference(const VariableReference& ref) {
                 this->write("gl_FragColor");
             }
             break;
-        case SK_FRAGCOORD_BUILTIN:
+        case SK_DEVICE_FRAGCOORD_BUILTIN:
             this->writeFragCoord();
             break;
         case SK_CLOCKWISE_BUILTIN:
@@ -1456,15 +1443,6 @@ void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
     }
 }
 
-void GLSLCodeGenerator::writeInputVars() {
-    if (fProgram.fInputs.fRTHeight) {
-        const char* precision = usesPrecisionModifiers() ? "highp " : "";
-        fGlobals.writeText("uniform ");
-        fGlobals.writeText(precision);
-        fGlobals.writeText("float " SKSL_RTHEIGHT_NAME ";\n");
-    }
-}
-
 bool GLSLCodeGenerator::generateCode() {
     this->writeHeader();
     if (fProgram.fConfig->fKind == ProgramKind::kGeometry &&
@@ -1492,7 +1470,6 @@ bool GLSLCodeGenerator::generateCode() {
     fOut = rawOut;
 
     write_stringstream(fExtensions, *rawOut);
-    this->writeInputVars();
     write_stringstream(fGlobals, *rawOut);
 
     if (!this->caps().canUseFragCoord()) {

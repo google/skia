@@ -24,18 +24,21 @@
 #include "src/gpu/GrShaderVar.h"
 #endif
 
-#define SK_FRAGCOLOR_BUILTIN           10001
-#define SK_IN_BUILTIN                  10002
-#define SK_OUT_BUILTIN                 10007
-#define SK_LASTFRAGCOLOR_BUILTIN       10008
-#define SK_MAIN_COORDS_BUILTIN         10009
-#define SK_INPUT_COLOR_BUILTIN         10010
-#define SK_FRAGCOORD_BUILTIN              15
-#define SK_CLOCKWISE_BUILTIN              17
-#define SK_VERTEXID_BUILTIN               42
-#define SK_INSTANCEID_BUILTIN             43
-#define SK_INVOCATIONID_BUILTIN            8
-#define SK_POSITION_BUILTIN                0
+enum Builtins {
+    SK_FRAGCOLOR_BUILTIN         = 10001,
+    SK_IN_BUILTIN                = 10002,
+    SK_OUT_BUILTIN               = 10007,
+    SK_LASTFRAGCOLOR_BUILTIN     = 10008,
+    SK_MAIN_COORDS_BUILTIN       = 10009,
+    SK_INPUT_COLOR_BUILTIN       = 10010,
+    SK_FRAGCOORD_BUILTIN         = 10011,
+    SK_DEVICE_FRAGCOORD_BUILTIN  =    15,
+    SK_CLOCKWISE_BUILTIN         =    17,
+    SK_VERTEXID_BUILTIN          =    42,
+    SK_INSTANCEID_BUILTIN        =    43,
+    SK_INVOCATIONID_BUILTIN      =     8,
+    SK_POSITION_BUILTIN          =     0,
+};
 
 class SkBitSet;
 class SkSLCompileBench;

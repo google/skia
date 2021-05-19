@@ -3,7 +3,8 @@
 
 // defines built-in interfaces supported by SkiaSL fragment shaders
 
-layout(builtin=15) in float4 sk_FragCoord;
+layout(builtin=10011) in float4 sk_FragCoord;
+layout(builtin=15) float4 __device_FragCoord;
 
 // 9999 is a sentinel value that causes us to ignore these declarations, beyond adding them to the
 // symbol table.

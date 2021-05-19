@@ -2032,120 +2032,7 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
 
 SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, OutputStream& out) {
     SpvId result = this->getLValue(ref, out)->load(out);
-
-    // Handle the "flipY" setting when reading sk_FragCoord.
     const Variable* variable = ref.variable();
-    if (variable->modifiers().fLayout.fBuiltin == SK_FRAGCOORD_BUILTIN &&
-        fProgram.fConfig->fSettings.fFlipY) {
-        // The x component never changes, so just grab it
-        SpvId xId = this->nextId(Precision::kDefault);
-        this->writeInstruction(SpvOpCompositeExtract, this->getType(*fContext.fTypes.fFloat), xId,
-                               result, 0, out);
-
-        // Calculate the y component which may need to be flipped
-        SpvId rawYId = this->nextId(nullptr);
-        this->writeInstruction(SpvOpCompositeExtract, this->getType(*fContext.fTypes.fFloat),
-                               rawYId, result, 1, out);
-        SpvId flippedYId = 0;
-        if (fProgram.fConfig->fSettings.fFlipY) {
-            // need to remap to a top-left coordinate system
-            if (fRTHeightStructId == (SpvId)-1) {
-                // height variable hasn't been written yet
-                SkASSERT(fRTHeightFieldIndex == (SpvId)-1);
-                std::vector<Type::Field> fields;
-                if (fProgram.fConfig->fSettings.fRTHeightOffset < 0) {
-                    fErrors.error(ref.fOffset, "RTHeightOffset is negative");
-                }
-                fields.emplace_back(
-                        Modifiers(Layout(/*flags=*/0, /*location=*/-1,
-                                         fProgram.fConfig->fSettings.fRTHeightOffset,
-                                         /*binding=*/-1, /*index=*/-1, /*set=*/-1, /*builtin=*/-1,
-                                         /*inputAttachmentIndex=*/-1,
-                                         Layout::kUnspecified_Primitive, /*maxVertices=*/1,
-                                         /*invocations=*/-1, /*when=*/"", Layout::CType::kDefault),
-                                  /*flags=*/0),
-                        SKSL_RTHEIGHT_NAME, fContext.fTypes.fFloat.get());
-                StringFragment name("sksl_synthetic_uniforms");
-                std::unique_ptr<Type> intfStruct = Type::MakeStructType(/*offset=*/-1, name,
-                                                                        fields);
-                int binding = fProgram.fConfig->fSettings.fRTHeightBinding;
-                if (binding == -1) {
-                    fErrors.error(ref.fOffset, "layout(binding=...) is required in SPIR-V");
-                }
-                int set = fProgram.fConfig->fSettings.fRTHeightSet;
-                if (set == -1) {
-                    fErrors.error(ref.fOffset, "layout(set=...) is required in SPIR-V");
-                }
-                bool usePushConstants = fProgram.fConfig->fSettings.fUsePushConstants;
-                int flags = usePushConstants ? Layout::Flag::kPushConstant_Flag : 0;
-                Modifiers modifiers(
-                        Layout(flags, /*location=*/-1, /*offset=*/-1, binding, /*index=*/-1,
-                               set, /*builtin=*/-1, /*inputAttachmentIndex=*/-1,
-                               Layout::kUnspecified_Primitive,
-                               /*maxVertices=*/-1, /*invocations=*/-1, /*when=*/"",
-                               Layout::CType::kDefault),
-                        Modifiers::kUniform_Flag);
-                const Variable* intfVar = fSynthetics.takeOwnershipOfSymbol(
-                        std::make_unique<Variable>(/*offset=*/-1,
-                                                   fProgram.fModifiers->add(modifiers),
-                                                   name,
-                                                   intfStruct.get(),
-                                                   /*builtin=*/false,
-                                                   Variable::Storage::kGlobal));
-                InterfaceBlock intf(/*offset=*/-1, intfVar, name,
-                                    /*instanceName=*/"", /*arraySize=*/0,
-                                    std::make_shared<SymbolTable>(&fErrors, /*builtin=*/false));
-
-                fRTHeightStructId = this->writeInterfaceBlock(intf, false);
-                fRTHeightFieldIndex = 0;
-                fRTHeightStorageClass = usePushConstants ? SpvStorageClassPushConstant
-                                                         : SpvStorageClassUniform;
-            }
-            SkASSERT(fRTHeightFieldIndex != (SpvId)-1);
-
-            IntLiteral fieldIndex(/*offset=*/-1, fRTHeightFieldIndex, fContext.fTypes.fInt.get());
-            SpvId fieldIndexId = this->writeIntLiteral(fieldIndex);
-            SpvId heightPtr = this->nextId(nullptr);
-            this->writeOpCode(SpvOpAccessChain, 5, out);
-            this->writeWord(this->getPointerType(*fContext.fTypes.fFloat, fRTHeightStorageClass),
-                            out);
-            this->writeWord(heightPtr, out);
-            this->writeWord(fRTHeightStructId, out);
-            this->writeWord(fieldIndexId, out);
-            SpvId heightRead = this->nextId(nullptr);
-            this->writeInstruction(SpvOpLoad, this->getType(*fContext.fTypes.fFloat), heightRead,
-                                   heightPtr, out);
-
-            flippedYId = this->nextId(nullptr);
-            this->writeInstruction(SpvOpFSub, this->getType(*fContext.fTypes.fFloat), flippedYId,
-                                   heightRead, rawYId, out);
-        }
-
-        // The z component will always be zero so we just get an id to the 0 literal
-        FloatLiteral zero(/*offset=*/-1, /*value=*/0.0, fContext.fTypes.fFloat.get());
-        SpvId zeroId = writeFloatLiteral(zero);
-
-        // Calculate the w component
-        SpvId rawWId = this->nextId(nullptr);
-        this->writeInstruction(SpvOpCompositeExtract, this->getType(*fContext.fTypes.fFloat),
-                               rawWId, result, 3, out);
-
-        // Fill in the new fragcoord with the components from above
-        SpvId adjusted = this->nextId(nullptr);
-        this->writeOpCode(SpvOpCompositeConstruct, 7, out);
-        this->writeWord(this->getType(*fContext.fTypes.fFloat4), out);
-        this->writeWord(adjusted, out);
-        this->writeWord(xId, out);
-        if (fProgram.fConfig->fSettings.fFlipY) {
-            this->writeWord(flippedYId, out);
-        } else {
-            this->writeWord(rawYId, out);
-        }
-        this->writeWord(zeroId, out);
-        this->writeWord(rawWId, out);
-
-        return adjusted;
-    }
 
     // Handle the "flipY" setting when reading sk_Clockwise.
     if (variable->modifiers().fLayout.fBuiltin == SK_CLOCKWISE_BUILTIN &&
@@ -3044,28 +2931,15 @@ static void update_sk_in_count(const Modifiers& m, int* outSkInCount) {
     }
 }
 
-SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool appendRTHeight) {
+SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     MemoryLayout memoryLayout = this->memoryLayoutForVariable(intf.variable());
     SpvId result = this->nextId(nullptr);
-    std::unique_ptr<Type> rtHeightStructType;
     const Type* type = &intf.variable().type();
     if (!MemoryLayout::LayoutIsSupported(*type)) {
         fErrors.error(type->fOffset, "type '" + type->name() + "' is not permitted here");
         return this->nextId(nullptr);
     }
     SpvStorageClass_ storageClass = get_storage_class(intf.variable(), SpvStorageClassFunction);
-    if (fProgram.fInputs.fRTHeight && appendRTHeight) {
-        SkASSERT(fRTHeightStructId == (SpvId) -1);
-        SkASSERT(fRTHeightFieldIndex == (SpvId) -1);
-        std::vector<Type::Field> fields = type->fields();
-        fRTHeightStructId = result;
-        fRTHeightFieldIndex = fields.size();
-        fRTHeightStorageClass = storageClass;
-        fields.emplace_back(Modifiers(), StringFragment(SKSL_RTHEIGHT_NAME),
-                            fContext.fTypes.fFloat.get());
-        rtHeightStructType = Type::MakeStructType(type->fOffset, type->name(), std::move(fields));
-        type = rtHeightStructType.get();
-    }
     SpvId typeId;
     const Modifiers& intfModifiers = intf.variable().modifiers();
     if (intfModifiers.fLayout.fBuiltin == SK_IN_BUILTIN) {

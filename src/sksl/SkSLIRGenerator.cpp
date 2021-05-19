@@ -1246,6 +1246,61 @@ std::unique_ptr<Expression> IRGenerator::convertExpression(const ASTNode& expr) 
     }
 }
 
+std::unique_ptr<Expression> IRGenerator::createVariableReference(int offset, const Variable& var) {
+    const Modifiers& modifiers = var.modifiers();
+    // handle sk_FragCoord and Y flipping
+    if (modifiers.fLayout.fBuiltin == SK_FRAGCOORD_BUILTIN &&
+        this->programKind() != ProgramKind::kFragmentProcessor &&
+        var.type() == *fContext.fTypes.fFloat4) {
+        // The type == float4 check above is due to some weirdness during testing. We sometimes mark
+        // the coords parameter of main() as being the sk_FragCoord builtin, despite the fact that
+        // it's a float2 instead of a float4. Since expanding it into a float4 value when referenced
+        // would cause problems, and we don't actually need to do anything special with it during
+        // those tests, it's easiest just to skip the whole transformation.
+        if (!this->settings().fFlipY ||
+            this->caps().fragCoordConventionsExtensionString()) {
+            // We're either not flipping the y coordinate, or the backend can flip the
+            // fragcoord without help
+            return this->convertIdentifier(offset, "__device_FragCoord");
+        }
+        // Mark that this program depends upon flipY and will need to be recompiled if it changes
+        fInputs.fFlipY = true;
+        // Use sk_RTAdjust to compute the flipped coordinate
+        dsl::DSLExpression sk_RTAdjust(this->convertIdentifier(offset, "sk_RTAdjust"));
+        dsl::DSLVar device_FragCoord("__device_FragCoord");
+        return dsl::Float4(device_FragCoord.x(),
+                           2 * sk_RTAdjust.w() - device_FragCoord.y(),
+                           device_FragCoord.z(),
+                           device_FragCoord.w()).release();
+    }
+    if (this->programKind() == ProgramKind::kFragmentProcessor &&
+        (modifiers.fFlags & Modifiers::kIn_Flag) &&
+        !(modifiers.fFlags & Modifiers::kUniform_Flag) &&
+        !(modifiers.fLayout.fFlags & Layout::kKey_Flag) &&
+        modifiers.fLayout.fBuiltin == -1 &&
+        !var.type().isFragmentProcessor() &&
+        var.type().typeKind() != Type::TypeKind::kSampler) {
+        bool valid = false;
+        for (const auto& decl : fFile->root()) {
+            if (decl.fKind == ASTNode::Kind::kSection) {
+                const ASTNode::SectionData& section = decl.getSectionData();
+                if (section.fName == "setData") {
+                    valid = true;
+                    break;
+                }
+            }
+        }
+        if (!valid) {
+            this->errorReporter().error(
+                    offset,
+                    "'in' variable must be either 'uniform' or 'layout(key)', or there must be a "
+                    "custom @setData function");
+        }
+    }
+    // default to kRead_RefKind; this will be corrected later if the variable is written to
+    return VariableReference::Make(offset, &var, VariableReference::RefKind::kRead);
+}
+
 std::unique_ptr<Expression> IRGenerator::convertIdentifier(int offset, StringFragment name) {
     const Symbol* result = (*fSymbolTable)[name];
     if (!result) {
@@ -1263,46 +1318,8 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(int offset, StringFra
             const UnresolvedFunction* f = &result->as<UnresolvedFunction>();
             return std::make_unique<FunctionReference>(fContext, offset, f->functions());
         }
-        case Symbol::Kind::kVariable: {
-            const Variable* var = &result->as<Variable>();
-            const Modifiers& modifiers = var->modifiers();
-            switch (modifiers.fLayout.fBuiltin) {
-#ifndef SKSL_STANDALONE
-                case SK_FRAGCOORD_BUILTIN:
-                    fInputs.fFlipY = true;
-                    if (this->settings().fFlipY &&
-                        !this->caps().fragCoordConventionsExtensionString()) {
-                        fInputs.fRTHeight = true;
-                    }
-#endif
-            }
-            if (this->programKind() == ProgramKind::kFragmentProcessor &&
-                (modifiers.fFlags & Modifiers::kIn_Flag) &&
-                !(modifiers.fFlags & Modifiers::kUniform_Flag) &&
-                !(modifiers.fLayout.fFlags & Layout::kKey_Flag) &&
-                modifiers.fLayout.fBuiltin == -1 &&
-                !var->type().isFragmentProcessor() &&
-                var->type().typeKind() != Type::TypeKind::kSampler) {
-                bool valid = false;
-                for (const auto& decl : fFile->root()) {
-                    if (decl.fKind == ASTNode::Kind::kSection) {
-                        const ASTNode::SectionData& section = decl.getSectionData();
-                        if (section.fName == "setData") {
-                            valid = true;
-                            break;
-                        }
-                    }
-                }
-                if (!valid) {
-                    this->errorReporter().error(
-                            offset,
-                            "'in' variable must be either 'uniform' or 'layout(key)', or there "
-                            "must be a custom @setData function");
-                }
-            }
-            // default to kRead_RefKind; this will be corrected later if the variable is written to
-            return VariableReference::Make(offset, var, VariableReference::RefKind::kRead);
-        }
+        case Symbol::Kind::kVariable:
+            return this->createVariableReference(offset, result->as<Variable>());
         case Symbol::Kind::kField: {
             const Field* field = &result->as<Field>();
             auto base = VariableReference::Make(offset, &field->owner(),
