@@ -12,6 +12,7 @@
 #include "include/core/SkStrokeRec.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/SkTemplates.h"
+#include "src/core/SkPathEffectPriv.h"
 
 /**
  * Represents the various ways that a GrStyledShape can be styled. It has fill/stroking information
@@ -170,16 +171,16 @@ public:
 
     /** Given bounds of a path compute the bounds of path with the style applied. */
     void adjustBounds(SkRect* dst, const SkRect& src) const {
-        if (this->pathEffect()) {
-            this->pathEffect()->computeFastBounds(dst, src);
-            // This may not be the correct SkStrokeRec to use. skbug.com/5299
-            // It happens to work for dashing.
-            SkScalar radius = fStrokeRec.getInflationRadius();
-            dst->outset(radius, radius);
-        } else {
-            SkScalar radius = fStrokeRec.getInflationRadius();
-            *dst = src.makeOutset(radius, radius);
+        *dst = src;
+        if (this->pathEffect() && !SkPathEffectPriv::ComputeFastBounds(this->pathEffect(), dst)) {
+            // Restore dst == src since ComputeFastBounds leaves it undefined when returning false
+            *dst = src;
         }
+
+        // This may not be the correct SkStrokeRec to use if there's a path effect: skbug.com/5299
+        // It happens to work for dashing.
+        SkScalar radius = fStrokeRec.getInflationRadius();
+        dst->outset(radius, radius);
     }
 
 private:

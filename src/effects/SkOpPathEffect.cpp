@@ -6,7 +6,9 @@
  */
 
 #include "include/core/SkStrokeRec.h"
+#include "src/core/SkPathEffectPriv.h"
 #include "src/core/SkReadBuffer.h"
+#include "src/core/SkRectPriv.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/effects/SkOpPE.h"
 
@@ -36,6 +38,44 @@ bool SkOpPE::onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
         two = src;
     }
     return Op(one, two, fOp, dst);
+}
+
+bool SkOpPE::computeFastBounds(SkRect* bounds) const {
+    if (!bounds) {
+        return (!SkToBool(fOne) || SkPathEffectPriv::ComputeFastBounds(fOne.get(), nullptr)) &&
+               (!SkToBool(fTwo) || SkPathEffectPriv::ComputeFastBounds(fTwo.get(), nullptr));
+    }
+
+    // bounds will hold the result of the fOne while b2 holds the result of fTwo's fast bounds
+    SkRect b2 = *bounds;
+    if (fOne && !SkPathEffectPriv::ComputeFastBounds(fOne.get(), bounds)) {
+        return false;
+    }
+    if (fTwo && !SkPathEffectPriv::ComputeFastBounds(fTwo.get(), &b2)) {
+        return false;
+    }
+
+    switch (fOp) {
+        case SkPathOp::kIntersect_SkPathOp:
+            if (!bounds->intersect(b2)) {
+                bounds->setEmpty();
+            }
+            break;
+        case SkPathOp::kDifference_SkPathOp:
+            // (one - two) conservatively leaves one's bounds unmodified
+            break;
+        case SkPathOp::kReverseDifference_SkPathOp:
+            // (two - one) conservatively leaves two's bounds unmodified
+            *bounds = b2;
+            break;
+        case SkPathOp::kXOR_SkPathOp:
+            // fall through to union since XOR computes a subset of regular OR
+        case SkPathOp::kUnion_SkPathOp:
+            bounds->join(b2);
+            break;
+    }
+
+    return true;
 }
 
 void SkOpPE::flatten(SkWriteBuffer& buffer) const {
@@ -104,6 +144,16 @@ bool SkStrokePE::onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, cons
     rec.setStrokeStyle(fWidth);
     rec.setStrokeParams(fCap, fJoin, fMiter);
     return rec.applyToPath(dst, src);
+}
+
+bool SkStrokePE::computeFastBounds(SkRect* bounds) const {
+    if (bounds) {
+        SkStrokeRec rec(SkStrokeRec::kFill_InitStyle);
+        rec.setStrokeStyle(fWidth);
+        rec.setStrokeParams(fCap, fJoin, fMiter);
+        bounds->outset(rec.getInflationRadius(), rec.getInflationRadius());
+    }
+    return true;
 }
 
 void SkStrokePE::flatten(SkWriteBuffer& buffer) const {

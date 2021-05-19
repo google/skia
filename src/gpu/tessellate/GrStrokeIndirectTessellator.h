@@ -14,7 +14,7 @@ struct GrVertexWriter;
 struct SkPoint;
 namespace skiatest { class Reporter; }
 
-// This class bins strokes into indirect draws for consumption by GrStrokeTessellateShader.
+// This class bins strokes into indirect draws for consumption by GrStrokeShader.
 class GrStrokeIndirectTessellator : public GrStrokeTessellator {
 public:
     // Don't allow more than 2^15 stroke edges in a triangle strip. GrTessellationPathRenderer
@@ -23,7 +23,9 @@ public:
     constexpr static int8_t kMaxResolveLevel = 15;
 
     GrStrokeIndirectTessellator(ShaderFlags, const SkMatrix& viewMatrix, PathStrokeList*,
-                                int totalCombinedVerbCnt, SkArenaAlloc*);
+                                std::array<float, 2> matrixMinMaxScales,
+                                const SkRect& strokeCullBounds, int totalCombinedVerbCnt,
+                                SkArenaAlloc*);
 
     // Adds the given tessellator to our chain. The chained tessellators all append to a shared
     // indirect draw list during prepare().

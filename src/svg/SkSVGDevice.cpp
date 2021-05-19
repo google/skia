@@ -26,7 +26,6 @@
 #include "include/private/SkTo.h"
 #include "include/svg/SkSVGCanvas.h"
 #include "include/utils/SkBase64.h"
-#include "include/utils/SkParsePath.h"
 #include "src/codec/SkJpegCodec.h"
 #include "src/core/SkAnnotationKeys.h"
 #include "src/core/SkClipOpPriv.h"
@@ -299,7 +298,7 @@ public:
     }
 
     void addRectAttributes(const SkRect&);
-    void addPathAttributes(const SkPath&);
+    void addPathAttributes(const SkPath&, SkParsePath::PathEncoding);
     void addTextAttributes(const SkFont&);
 
 private:
@@ -624,9 +623,10 @@ void SkSVGDevice::AutoElement::addRectAttributes(const SkRect& rect) {
     this->addAttribute("height", rect.height());
 }
 
-void SkSVGDevice::AutoElement::addPathAttributes(const SkPath& path) {
+void SkSVGDevice::AutoElement::addPathAttributes(const SkPath& path,
+                                                 SkParsePath::PathEncoding encoding) {
     SkString pathData;
-    SkParsePath::ToSVGString(path, &pathData);
+    SkParsePath::ToSVGString(path, &pathData, encoding);
     this->addAttribute("d", pathData);
 }
 
@@ -710,6 +710,12 @@ SkSVGDevice::~SkSVGDevice() {
     }
 }
 
+SkParsePath::PathEncoding SkSVGDevice::pathEncoding() const {
+    return (fFlags & SkSVGCanvas::kRelativePathEncoding_Flag)
+        ? SkParsePath::PathEncoding::Relative
+        : SkParsePath::PathEncoding::Absolute;
+}
+
 void SkSVGDevice::syncClipStack(const SkClipStack& cs) {
     SkClipStack::B2TIter iter(cs);
 
@@ -759,7 +765,7 @@ void SkSVGDevice::syncClipStack(const SkClipStack& cs) {
         case SkClipStack::Element::DeviceSpaceType::kPath: {
             const auto& p = e->getDeviceSpacePath();
             AutoElement path("path", fWriter);
-            path.addPathAttributes(p);
+            path.addPathAttributes(p, this->pathEncoding());
             if (p.getFillType() == SkPathFillType::kEvenOdd) {
                 path.addAttribute("clip-rule", "evenodd");
             }
@@ -872,7 +878,7 @@ void SkSVGDevice::drawOval(const SkRect& oval, const SkPaint& paint) {
 
 void SkSVGDevice::drawRRect(const SkRRect& rr, const SkPaint& paint) {
     AutoElement elem("path", this, fResourceBucket.get(), MxCp(this), paint);
-    elem.addPathAttributes(SkPath::RRect(rr));
+    elem.addPathAttributes(SkPath::RRect(rr), this->pathEncoding());
 }
 
 void SkSVGDevice::drawPath(const SkPath& path, const SkPaint& paint, bool pathIsMutable) {
@@ -905,7 +911,7 @@ void SkSVGDevice::drawPath(const SkPath& path, const SkPaint& paint, bool pathIs
 
     // Create path element.
     AutoElement elem("path", this, fResourceBucket.get(), MxCp(this), *path_paint);
-    elem.addPathAttributes(*pathPtr);
+    elem.addPathAttributes(*pathPtr, this->pathEncoding());
 
     // TODO: inverse fill types?
     if (pathPtr->getFillType() == SkPathFillType::kEvenOdd) {

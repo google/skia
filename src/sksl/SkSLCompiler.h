@@ -16,6 +16,7 @@
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLInliner.h"
+#include "src/sksl/SkSLParsedModule.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 
@@ -55,11 +56,6 @@ struct LoadedModule {
     ProgramKind                                  fKind;
     std::shared_ptr<SymbolTable>                 fSymbols;
     std::vector<std::unique_ptr<ProgramElement>> fElements;
-};
-
-struct ParsedModule {
-    std::shared_ptr<SymbolTable>    fSymbols;
-    std::shared_ptr<IRIntrinsicMap> fIntrinsics;
 };
 
 /**
@@ -109,14 +105,14 @@ public:
     static void EnableInliner(OverrideFlag flag) { sInliner = flag; }
 
     /**
-     * If externalFunctions is supplied, those values are registered in the symbol table of the
-     * Program, but ownership is *not* transferred. It is up to the caller to keep them alive.
+     * If fExternalFunctions is supplied in the settings, those values are registered in the symbol
+     * table of the Program, but ownership is *not* transferred. It is up to the caller to keep them
+     * alive.
      */
     std::unique_ptr<Program> convertProgram(
             ProgramKind kind,
             String text,
-            const Program::Settings& settings,
-            const std::vector<std::unique_ptr<ExternalFunction>>* externalFunctions = nullptr);
+            Program::Settings settings);
 
     bool toSPIRV(Program& program, OutputStream& out);
 

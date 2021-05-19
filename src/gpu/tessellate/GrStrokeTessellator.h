@@ -9,12 +9,12 @@
 #define GrStrokeTessellator_DEFINED
 
 #include "src/gpu/GrVx.h"
-#include "src/gpu/tessellate/GrStrokeTessellateShader.h"
+#include "src/gpu/tessellate/GrStrokeShader.h"
 
 // Prepares GPU data for, and then draws a stroke's tessellated geometry.
 class GrStrokeTessellator {
 public:
-    using ShaderFlags = GrStrokeTessellateShader::ShaderFlags;
+    using ShaderFlags = GrStrokeShader::ShaderFlags;
 
     struct PathStrokeList {
         PathStrokeList(const SkPath& path, const SkStrokeRec& stroke, const SkPMColor4f& color)
@@ -25,12 +25,14 @@ public:
         PathStrokeList* fNext = nullptr;
     };
 
-    GrStrokeTessellator(GrStrokeTessellateShader::Mode shaderMode, ShaderFlags shaderFlags,
-                        const SkMatrix& viewMatrix, PathStrokeList* pathStrokeList)
-            : fShaderFlags(shaderFlags)
+    GrStrokeTessellator(GrStrokeShader::Mode shaderMode, ShaderFlags shaderFlags,
+                        const SkMatrix& viewMatrix, PathStrokeList* pathStrokeList,
+                        std::array<float, 2> matrixMinMaxScales, const SkRect& strokeCullBounds)
+            : fShader(shaderMode, shaderFlags, viewMatrix, pathStrokeList->fStroke,
+                      pathStrokeList->fColor)
             , fPathStrokeList(pathStrokeList)
-            , fShader(shaderMode, shaderFlags, viewMatrix, fPathStrokeList->fStroke,
-                      fPathStrokeList->fColor) {
+            , fMatrixMinMaxScales(matrixMinMaxScales)
+            , fStrokeCullBounds(strokeCullBounds) {
     }
 
     const GrPathShader* shader() const { return &fShader; }
@@ -45,9 +47,10 @@ public:
     virtual ~GrStrokeTessellator() {}
 
 protected:
-    const ShaderFlags fShaderFlags;
+    GrStrokeShader fShader;
     PathStrokeList* fPathStrokeList;
-    GrStrokeTessellateShader fShader;
+    const std::array<float, 2> fMatrixMinMaxScales;
+    const SkRect fStrokeCullBounds;  // See SkStrokeRec::inflationRadius.
 };
 
 // These tolerances decide the number of parametric and radial segments the tessellator will

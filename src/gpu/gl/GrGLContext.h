@@ -40,8 +40,11 @@ public:
         (e.g. Intel GPU being driven by Mesa) */
     GrGLDriver driver() const { return fDriverInfo.fDriver; }
     GrGLDriverVersion driverVersion() const { return fDriverInfo.fDriverVersion; }
+    bool isOverCommandBuffer() const { return fDriverInfo.fIsOverCommandBuffer; }
+
     const GrGLCaps* caps() const { return fGLCaps.get(); }
     GrGLCaps* caps() { return fGLCaps.get(); }
+
     bool hasExtension(const char* ext) const {
         return fInterface->hasExtension(ext);
     }

@@ -1,4 +1,4 @@
-/// <reference path="embind.d.ts" />
+/// <reference path="../bindings/embind.d.ts" />
 /// <reference path="public_api.d.ts" />
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 namespace memory {

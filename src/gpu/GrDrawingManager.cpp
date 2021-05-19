@@ -161,7 +161,7 @@ bool GrDrawingManager::flush(
         }
 
         for (GrOnFlushCallbackObject* onFlushCBObject : fOnFlushCBObjects) {
-            onFlushCBObject->preFlush(&onFlushProvider, fFlushingRenderTaskIDs);
+            onFlushCBObject->preFlush(&onFlushProvider, SkMakeSpan(fFlushingRenderTaskIDs));
         }
         for (const auto& onFlushRenderTask : fOnFlushRenderTasks) {
             onFlushRenderTask->makeClosed(*fContext->priv().caps());
@@ -229,7 +229,8 @@ bool GrDrawingManager::flush(
         flushed = false;
     }
     for (GrOnFlushCallbackObject* onFlushCBObject : fOnFlushCBObjects) {
-        onFlushCBObject->postFlush(fTokenTracker.nextTokenToFlush(), fFlushingRenderTaskIDs);
+        onFlushCBObject->postFlush(fTokenTracker.nextTokenToFlush(),
+                                   SkMakeSpan(fFlushingRenderTaskIDs));
         flushed = true;
     }
     if (flushed) {
@@ -391,7 +392,7 @@ static void reorder_array_by_llist(const SkTInternalLList<T>& llist, SkTArray<sk
 bool GrDrawingManager::reorderTasks(GrResourceAllocator* resourceAllocator) {
     SkASSERT(fReduceOpsTaskSplitting);
     SkTInternalLList<GrRenderTask> llist;
-    bool clustered = GrClusterRenderTasks(fDAG, &llist);
+    bool clustered = GrClusterRenderTasks(SkMakeSpan(fDAG), &llist);
     if (!clustered) {
         return false;
     }

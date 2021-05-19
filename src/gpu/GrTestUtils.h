@@ -83,6 +83,8 @@ protected:
 private:
     TestDashPathEffect(const SkScalar* intervals, int count, SkScalar phase);
 
+    bool computeFastBounds(SkRect* bounds) const override { return true; }
+
     int                     fCount;
     SkAutoTArray<SkScalar>  fIntervals;
     SkScalar                fPhase;

@@ -13,9 +13,9 @@
 #include "src/gpu/GrVertexWriter.h"
 #include "src/gpu/GrVx.h"
 #include "src/gpu/geometry/GrPathUtils.h"
+#include "src/gpu/geometry/GrWangsFormula.h"
 #include "src/gpu/tessellate/GrStrokeIterator.h"
-#include "src/gpu/tessellate/GrStrokeTessellateShader.h"
-#include "src/gpu/tessellate/GrWangsFormula.h"
+#include "src/gpu/tessellate/GrStrokeShader.h"
 
 namespace {
 
@@ -66,11 +66,8 @@ class ResolveLevelCounter {
 public:
     constexpr static int8_t kMaxResolveLevel = GrStrokeIndirectTessellator::kMaxResolveLevel;
 
-    ResolveLevelCounter(const SkMatrix& viewMatrix, int* resolveLevelCounts)
-            : fResolveLevelCounts(resolveLevelCounts) {
-        if (!viewMatrix.getMinMaxScales(fMatrixMinMaxScales.data())) {
-            fMatrixMinMaxScales.fill(1);
-        }
+    ResolveLevelCounter(int* resolveLevelCounts, std::array<float, 2> matrixMinMaxScales)
+            : fResolveLevelCounts(resolveLevelCounts), fMatrixMinMaxScales(matrixMinMaxScales) {
     }
 
     void updateTolerances(float strokeWidth, bool isRoundJoin) {
@@ -440,10 +437,12 @@ private:
 GrStrokeIndirectTessellator::GrStrokeIndirectTessellator(ShaderFlags shaderFlags,
                                                          const SkMatrix& viewMatrix,
                                                          PathStrokeList* pathStrokeList,
+                                                         std::array<float, 2> matrixMinMaxScales,
+                                                         const SkRect& strokeCullBounds,
                                                          int totalCombinedVerbCnt,
                                                          SkArenaAlloc* alloc)
-        : GrStrokeTessellator(GrStrokeTessellateShader::Mode::kLog2Indirect, shaderFlags,
-                              viewMatrix, pathStrokeList) {
+        : GrStrokeTessellator(GrStrokeShader::Mode::kLog2Indirect, shaderFlags, viewMatrix,
+                              pathStrokeList, matrixMinMaxScales, strokeCullBounds) {
     // The maximum potential number of values we will need in fResolveLevels is:
     //
     //   * 3 segments per verb (from two chops)
@@ -459,7 +458,7 @@ GrStrokeIndirectTessellator::GrStrokeIndirectTessellator(ShaderFlags shaderFlags
     fChopTs = alloc->makeArrayDefault<float>(chopTAllocCount);
     float* nextChopTs = fChopTs;
 
-    ResolveLevelCounter counter(viewMatrix, fResolveLevelCounts);
+    ResolveLevelCounter counter(fResolveLevelCounts, fMatrixMinMaxScales);
 
     float lastStrokeWidth = -1;
     SkPoint lastControlPoint = {0,0};
@@ -472,7 +471,7 @@ GrStrokeIndirectTessellator::GrStrokeIndirectTessellator(ShaderFlags shaderFlags
             lastStrokeWidth = stroke.getWidth();
         }
         fMaxNumExtraEdgesInJoin = std::max(fMaxNumExtraEdgesInJoin,
-                GrStrokeTessellateShader::NumFixedEdgesInJoin(stroke.getJoin()));
+                                           GrStrokeShader::NumFixedEdgesInJoin(stroke.getJoin()));
         // Iterate through each verb in the stroke, counting its resolveLevel(s).
         GrStrokeIterator iter(pathStroke->fPath, &stroke, &viewMatrix);
         while (iter.next()) {
@@ -606,7 +605,7 @@ GrStrokeIndirectTessellator::GrStrokeIndirectTessellator(ShaderFlags shaderFlags
 }
 
 void GrStrokeIndirectTessellator::addToChain(GrStrokeIndirectTessellator* tessellator) {
-    SkASSERT(tessellator->fShaderFlags == fShaderFlags);
+    SkASSERT(tessellator->fShader.flags() == fShader.flags());
 
     fChainedInstanceCount += tessellator->fChainedInstanceCount;
     tessellator->fChainedInstanceCount = 0;
@@ -638,8 +637,8 @@ constexpr static int num_edges_in_resolve_level(int resolveLevel) {
 // per bin. Provides methods to write strokes to their respective bins.
 class BinningInstanceWriter {
 public:
-    using ShaderFlags = GrStrokeTessellateShader::ShaderFlags;
-    using DynamicStroke = GrStrokeTessellateShader::DynamicStroke;
+    using ShaderFlags = GrStrokeShader::ShaderFlags;
+    using DynamicStroke = GrStrokeShader::DynamicStroke;
     constexpr static int kNumBins = GrStrokeIndirectTessellator::kMaxResolveLevel + 1;
 
     BinningInstanceWriter(GrDrawIndirectWriter* indirectWriter, GrVertexWriter* instanceWriter,
@@ -758,7 +757,7 @@ void GrStrokeIndirectTessellator::prepare(GrMeshDrawOp::Target* target,
     GrDrawIndirectWriter indirectWriter = target->makeDrawIndirectSpace(fChainedDrawIndirectCount,
                                                                         &fDrawIndirectBuffer,
                                                                         &fDrawIndirectOffset);
-    if (!indirectWriter.isValid()) {
+    if (!indirectWriter) {
         SkASSERT(!fDrawIndirectBuffer);
         return;
     }
@@ -793,7 +792,7 @@ void GrStrokeIndirectTessellator::writeBuffers(GrDrawIndirectWriter* indirectWri
                                                const SkMatrix& viewMatrix,
                                                size_t instanceStride, int baseInstance,
                                                int numExtraEdgesInJoin) {
-    BinningInstanceWriter binningWriter(indirectWriter, instanceWriter, fShaderFlags,
+    BinningInstanceWriter binningWriter(indirectWriter, instanceWriter, fShader.flags(),
                                         instanceStride, baseInstance, numExtraEdgesInJoin,
                                         fResolveLevelCounts);
 
@@ -813,10 +812,10 @@ void GrStrokeIndirectTessellator::writeBuffers(GrDrawIndirectWriter* indirectWri
         const SkStrokeRec& stroke = pathStroke->fStroke;
         SkASSERT(stroke.getJoin() != SkPaint::kMiter_Join || numExtraEdgesInJoin == 4);
         bool isRoundJoin = (stroke.getJoin() == SkPaint::kRound_Join);
-        if (fShaderFlags & ShaderFlags::kDynamicStroke) {
+        if (fShader.hasDynamicStroke()) {
             binningWriter.updateDynamicStroke(stroke);
         }
-        if (fShaderFlags & ShaderFlags::kDynamicColor) {
+        if (fShader.hasDynamicColor()) {
             binningWriter.updateDynamicColor(pathStroke->fColor);
         }
         GrStrokeIterator iter(pathStroke->fPath, &stroke, &viewMatrix);

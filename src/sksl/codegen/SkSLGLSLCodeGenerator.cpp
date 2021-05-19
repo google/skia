@@ -190,9 +190,12 @@ void GLSLCodeGenerator::writeExpression(const Expression& expr, Precedence paren
         case Expression::Kind::kBoolLiteral:
             this->writeBoolLiteral(expr.as<BoolLiteral>());
             break;
+        case Expression::Kind::kConstructorDiagonalMatrix:
+            this->writeConstructorDiagonalMatrix(expr.as<ConstructorDiagonalMatrix>(),
+                                                 parentPrecedence);
+            break;
         case Expression::Kind::kConstructorArray:
         case Expression::Kind::kConstructorCompound:
-        case Expression::Kind::kConstructorDiagonalMatrix:
         case Expression::Kind::kConstructorMatrixResize:
         case Expression::Kind::kConstructorSplat:
         case Expression::Kind::kConstructorStruct:
@@ -242,10 +245,8 @@ void GLSLCodeGenerator::writeExpression(const Expression& expr, Precedence paren
 }
 
 static bool is_abs(Expression& expr) {
-    if (expr.kind() != Expression::Kind::kFunctionCall) {
-        return false;
-    }
-    return expr.as<FunctionCall>().function().name() == "abs";
+    return expr.is<FunctionCall>() &&
+           expr.as<FunctionCall>().function().intrinsicKind() == k_abs_IntrinsicKind;
 }
 
 // turns min(abs(x), y) into ((tmpVar1 = abs(x)) < (tmpVar2 = y) ? tmpVar1 : tmpVar2) to avoid a
@@ -688,6 +689,24 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         this->write(", -0.5");
     }
     this->write(")");
+}
+
+void GLSLCodeGenerator::writeConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& c,
+                                                       Precedence parentPrecedence) {
+    if (c.type().columns() == 4 && c.type().rows() == 2) {
+        // Due to a longstanding bug in glslang and Mesa, several GPU drivers generate diagonal 4x2
+        // matrices incorrectly. (skia:12003, https://github.com/KhronosGroup/glslang/pull/2646)
+        // We can work around this issue by multiplying a scalar by the identity matrix.
+        // In practice, this doesn't come up naturally in real code and we don't know every affected
+        // driver, so we just apply this workaround everywhere.
+        this->write("(");
+        this->writeType(c.type());
+        this->write("(1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0) * ");
+        this->writeExpression(*c.argument(), Precedence::kMultiplicative);
+        this->write(")");
+        return;
+    }
+    this->writeAnyConstructor(c, parentPrecedence);
 }
 
 void GLSLCodeGenerator::writeCastConstructor(const AnyConstructor& c, Precedence parentPrecedence) {

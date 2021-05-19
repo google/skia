@@ -35,6 +35,12 @@ protected:
 private:
     SK_FLATTENABLE_HOOKS(SkCornerPathEffect)
 
+    bool computeFastBounds(SkRect*) const override {
+        // Rounding sharp corners within a path produces a new path that is still contained within
+        // the original's bounds, so leave 'bounds' unmodified.
+        return true;
+    }
+
     SkScalar    fRadius;
 
     using INHERITED = SkPathEffect;

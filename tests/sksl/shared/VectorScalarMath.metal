@@ -11,7 +11,6 @@ struct Inputs {
 struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
-
 bool test_int_b(Uniforms _uniforms) {
     bool ok = true;
     int4 inputRed = int4(_uniforms.colorRed);

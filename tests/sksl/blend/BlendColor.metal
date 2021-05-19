@@ -24,7 +24,6 @@ float3 _blend_set_color_luminance_h3h3hh3(float3 hueSatColor, float alpha, float
         return result;
     }
 }
-
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;

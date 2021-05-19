@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-layout(tracked) in uniform half bias;
-layout(tracked) in uniform half scale;
+in uniform half bias;
+in uniform half scale;
 
 half4 main(float2 coord) {
     // On some devices they incorrectly implement atan2(y,x) as atan(y/x). In actuality it is

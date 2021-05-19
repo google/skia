@@ -55,7 +55,7 @@ bool Processor::format(TextFormatStyle formatStyle) {
 bool Processor::decorate(SkTArray<DecorBlock, true> decorBlocks) {
 
     this->iterateByVisualOrder(decorBlocks,
-       [&](SkSize offset, SkScalar baseline, const TextRun* run, Range textRange, Range glyphRange, const DecorBlock& block) {
+       [&](SkSize offset, SkScalar baseline, const TextRun* run, TextRange textRange, GlyphRange glyphRange, const DecorBlock& block) {
         SkTextBlobBuilder builder;
         const auto& blobBuffer = builder.allocRunPos(run->fFont, SkToInt(glyphRange.width()));
         sk_careful_memcpy(blobBuffer.glyphs, run->fGlyphs.data() + glyphRange.fStart, glyphRange.width() * sizeof(SkGlyphID));
@@ -74,10 +74,22 @@ bool Processor::drawText(const char* text, SkCanvas* canvas, SkScalar x, SkScala
     return drawText(text, canvas, TextFormatStyle(TextAlign::kLeft, TextDirection::kLtr), SK_ColorBLACK, SK_ColorWHITE, SkString("Roboto"), 14, SkFontStyle::Normal(), x, y);
 }
 
+bool Processor::drawText(const char* text, SkCanvas* canvas, SkScalar width) {
+    return drawText(text, canvas,
+                    TextFormatStyle(TextAlign::kLeft, TextDirection::kLtr), SK_ColorBLACK, SK_ColorWHITE, SkString("Roboto"), 14, SkFontStyle::Normal(),
+                    SkSize::Make(width, SK_ScalarInfinity), 0, 0);
+}
+
 bool Processor::drawText(const char* text, SkCanvas* canvas, TextFormatStyle textFormat, SkColor foreground, SkColor background, const SkString& fontFamily, SkScalar fontSize, SkFontStyle fontStyle, SkScalar x, SkScalar y) {
+    return drawText(text, canvas, textFormat, foreground, background, fontFamily, fontSize, fontStyle, SkSize::Make(SK_ScalarInfinity, SK_ScalarInfinity), x, y);
+}
+
+bool Processor::drawText(const char* text, SkCanvas* canvas,
+                         TextFormatStyle textFormat, SkColor foreground, SkColor background, const SkString& fontFamily, SkScalar fontSize, SkFontStyle fontStyle,
+                         SkSize reqSize, SkScalar x, SkScalar y) {
 
     SkString str(text);
-    Range textRange(0, str.size());
+    TextRange textRange(0, str.size());
     Processor processor(str);
     if (!processor.computeCodeUnitProperties()) {
         return false;
@@ -85,7 +97,7 @@ bool Processor::drawText(const char* text, SkCanvas* canvas, TextFormatStyle tex
     if (!processor.shape({ textFormat.fDefaultTextDirection, SkFontMgr::RefDefault()}, {{{ fontFamily, fontSize, fontStyle, textRange }}})) {
         return false;
     }
-    if (!processor.wrap(SK_ScalarInfinity, SK_ScalarInfinity)) {
+    if (!processor.wrap(reqSize.fWidth, reqSize.fHeight)) {
         return false;
     }
     if (!processor.format(textFormat)) {
@@ -117,7 +129,7 @@ void Processor::sortDecorBlocks(SkTArray<DecorBlock, true>& decorBlocks) {
     SkPaint* foreground = new SkPaint();
     foreground->setColor(SK_ColorBLACK);
     std::stack<DecorBlock> defaultBlocks;
-    defaultBlocks.emplace(foreground, nullptr, Range(0, fText.size()));
+    defaultBlocks.emplace(foreground, nullptr, TextRange(0, fText.size()));
     size_t start = 0;
     for (auto& block : decorBlocks) {
         this->adjustLeft(&block.fRange.fStart);
@@ -193,18 +205,6 @@ void Processor::markGlyphs() {
 }
 
 template<typename Visitor>
-void Processor::iterateByLogicalOrder(CodeUnitFlags units, Visitor visitor) {
-    Range range(0, 0);
-    for (size_t index = 0; index < fCodeUnitProperties.size(); ++index) {
-        if (this->hasProperty(index, units)) {
-            range.fEnd = index;
-            visitor(range, this->fCodeUnitProperties[index]);
-            range.fStart = index;
-        }
-    }
-}
-
-template<typename Visitor>
 void Processor::iterateByVisualOrder(CodeUnitFlags units, Visitor visitor) {
     SkSize offset = SkSize::MakeEmpty();
     for (auto& line : fLines) {
@@ -212,8 +212,8 @@ void Processor::iterateByVisualOrder(CodeUnitFlags units, Visitor visitor) {
         for (auto& runIndex : line.fRunsInVisualOrder) {
             auto& run = fRuns[runIndex];
 
-            auto startGlyph = runIndex == line.fTextStart.fRunIndex == runIndex ? line.fTextStart.fGlyphIndex : 0;
-            auto endGlyph = runIndex == line.fTextEnd.fRunIndex ? line.fTextEnd.fGlyphIndex : run.fGlyphs.size();
+            auto startGlyph = runIndex == line.fTextStart.runIndex() ? line.fTextStart.glyphIndex() : 0;
+            auto endGlyph = runIndex == line.fTextEnd.runIndex() ? line.fTextEnd.glyphIndex() : run.fGlyphs.size();
 
             Range textRange(run.fUtf8Range.begin(), run.fUtf8Range.end());
             Range glyphRange(startGlyph, endGlyph);
@@ -257,11 +257,11 @@ void Processor::iterateByVisualOrder(SkTArray<DecorBlock, true>& decorBlocks, Vi
             // "Cd": green
             // "ef": blue
             // green[d] blue[ef] green [C] red [BA]
-            auto startGlyph = runIndex == line.fTextStart.fRunIndex == runIndex ? line.fTextStart.fGlyphIndex : 0;
-            auto endGlyph = runIndex == line.fTextEnd.fRunIndex ? line.fTextEnd.fGlyphIndex : run.fGlyphs.size();
+            auto startGlyph = runIndex == line.fTextStart.runIndex() ? line.fTextStart.glyphIndex() : 0;
+            auto endGlyph = runIndex == line.fTextEnd.runIndex() ? line.fTextEnd.glyphIndex() : run.fGlyphs.size();
 
-            Range textRange(run.fUtf8Range.begin(), run.fUtf8Range.end());
-            Range glyphRange(startGlyph, endGlyph);
+            TextRange textRange(run.fClusters[startGlyph], run.fClusters[endGlyph]);
+            GlyphRange glyphRange(startGlyph, endGlyph);
 
             SkASSERT(currentBlock->fRange.fStart <= textRange.fStart);
             for (auto glyphIndex = startGlyph; glyphIndex <= endGlyph; ++glyphIndex) {
@@ -278,7 +278,8 @@ void Processor::iterateByVisualOrder(SkTArray<DecorBlock, true>& decorBlocks, Vi
                     textRange.fStart = textIndex;
                 }
                 glyphRange.fEnd = glyphIndex;
-                visitor(offset, line.fTextMetrics.baseline(), &run, textRange, glyphRange, *currentBlock);
+                SkSize shift = SkSize::Make(offset.fWidth - run.fPositions[startGlyph].fX, offset.fHeight);
+                visitor(shift, line.fTextMetrics.baseline(), &run, textRange, glyphRange, *currentBlock);
                 if (run.leftToRight()) {
                     textRange.fStart = textIndex;
                 } else {
@@ -287,6 +288,16 @@ void Processor::iterateByVisualOrder(SkTArray<DecorBlock, true>& decorBlocks, Vi
                 glyphRange.fStart = glyphIndex;
                 offset.fWidth += run.calculateWidth(glyphRange);
             }
+
+            // The last line
+            if (run.leftToRight()) {
+                textRange.fEnd = run.fClusters[endGlyph];
+            } else {
+                textRange.fStart = run.fClusters[endGlyph];
+            }
+            glyphRange.fEnd = endGlyph;
+            SkSize shift = SkSize::Make(offset.fWidth - run.fPositions[startGlyph].fX, offset.fHeight);
+            visitor(shift, line.fTextMetrics.baseline(), &run, textRange, glyphRange, *currentBlock);
         }
         offset.fHeight += line.fTextMetrics.height();
     }

@@ -333,4 +333,96 @@ describe('Font Behavior', () => {
         fontMgr.delete();
     });
 
+    it('can get the intercepts of glyphs', () => {
+        const font = new CanvasKit.Font(null, 100);
+        const ids = font.getGlyphIDs('I');
+        expect(ids.length).toEqual(1);
+
+        // aim for the middle of the I at 100 point, expecting a hit
+        let sects = font.getGlyphIntercepts(ids, [0, 0], -60, -40);
+        expect(sects.length).toEqual(2, "expected one pair of intercepts");
+        expect(sects[0]).toBeCloseTo(25.39063, 5);
+        expect(sects[1]).toBeCloseTo(34.52148, 5);
+
+        // aim below the baseline where we expect no intercepts
+        sects = font.getGlyphIntercepts(ids, [0, 0], 20, 30);
+        expect(sects.length).toEqual(0, "expected no intercepts");
+        font.delete();
+    });
+
+    it('can use mallocd and normal arrays', () => {
+        const font = new CanvasKit.Font(null, 100);
+        const ids = font.getGlyphIDs('I');
+        expect(ids.length).toEqual(1);
+        const glyphID = ids[0];
+
+        // aim for the middle of the I at 100 point, expecting a hit
+        const sects = font.getGlyphIntercepts(Array.of(glyphID), Float32Array.of(0, 0), -60, -40);
+        expect(sects.length).toEqual(2);
+        expect(sects[0]).toBeLessThan(sects[1]);
+        // these values were recorded from the first time it was run
+        expect(sects[0]).toBeCloseTo(25.39063, 5);
+        expect(sects[1]).toBeCloseTo(34.52148, 5);
+
+        const free_list = [];   // will free CanvasKit.Malloc objects at the end
+
+        // Want to exercise 4 different ways we can receive an array:
+        //  1. normal array
+        //  2. typed-array
+        //  3. CanvasKit.Malloc typeed-array
+        //  4. CavnasKit.Malloc (raw)
+
+        const id_makers = [
+            (id) => [ id ],
+            (id) => new Uint16Array([ id ]),
+            (id) => {
+                const a = CanvasKit.Malloc(Uint16Array, 1);
+                free_list.push(a);
+                const ta = a.toTypedArray();
+                ta[0] = id;
+                return ta;  // return typed-array
+            },
+            (id) => {
+                const a = CanvasKit.Malloc(Uint16Array, 1);
+                free_list.push(a);
+                a.toTypedArray()[0] = id;
+                return a;   // return raw obj
+            },
+        ];
+        const pos_makers = [
+            (x, y) => [ x, y ],
+            (x, y) => new Float32Array([ x, y ]),
+            (x, y) => {
+                const a = CanvasKit.Malloc(Float32Array, 2);
+                free_list.push(a);
+                const ta = a.toTypedArray();
+                ta[0] = x;
+                ta[1] = y;
+                return ta;  // return typed-array
+            },
+            (x, y) => {
+                const a = CanvasKit.Malloc(Float32Array, 2);
+                free_list.push(a);
+                const ta = a.toTypedArray();
+                ta[0] = x;
+                ta[1] = y;
+                return a;   // return raw obj
+            },
+        ];
+
+        for (const idm of id_makers) {
+            for (const posm of pos_makers) {
+                const s = font.getGlyphIntercepts(idm(glyphID), posm(0, 0), -60, -40);
+                expect(s.length).toEqual(sects.length);
+                for (let i = 0; i < s.length; ++i) {
+                    expect(s[i]).toEqual(sects[i]);
+                }
+            }
+
+        }
+
+        free_list.forEach(obj => CanvasKit.Free(obj));
+        font.delete();
+    });
+
 });

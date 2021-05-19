@@ -13,6 +13,7 @@
 #include "include/private/SkTemplates.h"
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkPathPriv.h"
+#include "src/gpu/GrVertexWriter.h"
 
 // This class emits a polygon triangulation with a "middle-out" topology. Conceptually, middle-out
 // emits one large triangle with vertices on both endpoints and a middle point, then recurses on
@@ -42,10 +43,15 @@
 // recursion, we manipulate an O(log N) stack to determine the correct middle-out triangulation.
 class GrMiddleOutPolygonTriangulator {
 public:
-    GrMiddleOutPolygonTriangulator(SkPoint* vertexData, int perTriangleVertexAdvance,
+    enum class OutputType : bool {
+        kTriangles,  // Output 3-vertex triangles.
+        kConicsWithInfiniteWeight  // Output 4-vertex conics with w=Inf.
+    };
+
+    GrMiddleOutPolygonTriangulator(GrVertexWriter* vertexWriter, OutputType outputType,
                                    int maxPushVertexCalls)
-            : fVertexData(vertexData)
-            , fPerTriangleVertexAdvance(perTriangleVertexAdvance) {
+            : fVertexWriter(vertexWriter)
+            , fOutputType(outputType) {
         // Determine the deepest our stack can ever go.
         int maxStackDepth = SkNextLog2(maxPushVertexCalls) + 1;
         if (maxStackDepth > kStackPreallocCount) {
@@ -117,10 +123,9 @@ public:
         SkASSERT(fTop->fVertexIdxDelta == 0);  // Ensure we are in the initial stack state.
     }
 
-    static int WritePathInnerFan(SkPoint* vertexData, int perTriangleVertexAdvance,
+    static int WritePathInnerFan(GrVertexWriter* vertexWriter, OutputType outputType,
                                  const SkPath& path) {
-        GrMiddleOutPolygonTriangulator middleOut(vertexData, perTriangleVertexAdvance,
-                                                 path.countVerbs());
+        GrMiddleOutPolygonTriangulator middleOut(vertexWriter, outputType, path.countVerbs());
         for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
             switch (verb) {
                 case SkPathVerb::kMove:
@@ -163,19 +168,20 @@ private:
     void popTopTriangle(const SkPoint& lastPt) {
         SkASSERT(fTop > fVertexStack);  // We should never pop the starting point.
         --fTop;
-        fVertexData[0] = fTop[0].fPoint;
-        fVertexData[1] = fTop[1].fPoint;
-        fVertexData[2] = lastPt;
-        fVertexData += fPerTriangleVertexAdvance;
+        fVertexWriter->write(fTop[0].fPoint, fTop[1].fPoint, lastPt);
+        if (fOutputType == OutputType::kConicsWithInfiniteWeight) {
+            // Output a 4-point conic with w=Inf.
+            fVertexWriter->fill(GrVertexWriter::kIEEE_32_infinity, 2);
+        }
     }
 
     constexpr static int kStackPreallocCount = 32;
     SkAutoSTMalloc<kStackPreallocCount, StackVertex> fVertexStack;
     SkDEBUGCODE(int fStackAllocCount;)
     StackVertex* fTop;
-    SkPoint* fVertexData;
-    int fPerTriangleVertexAdvance;
+    GrVertexWriter* fVertexWriter;
     int fTotalClosedTriangleCount = 0;
+    OutputType fOutputType;
 };
 
 #endif

@@ -347,11 +347,11 @@ GlyphVector GlyphVector::Make(
         variants[i] = gv.glyph()->getPackedID();
     }
 
-    return GlyphVector{spec, SkSpan(variants, glyphs.size())};
+    return GlyphVector{spec, SkMakeSpan(variants, glyphs.size())};
 }
 
 SkSpan<const GrGlyph*> GlyphVector::glyphs() const {
-    return SkSpan(reinterpret_cast<const GrGlyph**>(fGlyphs.data()), fGlyphs.size());
+    return SkMakeSpan(reinterpret_cast<const GrGlyph**>(fGlyphs.data()), fGlyphs.size());
 }
 
 void GlyphVector::packedGlyphIDToGrGlyph(GrStrikeCache* cache) {

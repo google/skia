@@ -1,9 +1,7 @@
 layout (
     origin_upper_left,
-    override_coverage,
     push_constant,
     blend_support_all_equations,
-    tracked,
     srgb_unpremul,
     key,
     location = 1,
@@ -22,10 +20,8 @@ void on_return() {}
 void on_param(
 layout (
     origin_upper_left,
-    override_coverage,
     push_constant,
     blend_support_all_equations,
-    tracked,
     srgb_unpremul,
     key,
     location = 1,

@@ -11,7 +11,11 @@
 #include "include/private/SkSLDefines.h"
 #include "include/private/SkSLProgramKind.h"
 
+#include <vector>
+
 namespace SkSL {
+
+class ExternalFunction;
 
 /**
  * Holds the compiler settings for a program.
@@ -67,6 +71,14 @@ struct ProgramSettings {
     // If true, configurations which demand strict ES2 conformance (runtime effects, generic
     // programs, and SkVM rendering) will fail during compilation if ES2 restrictions are violated.
     bool fEnforceES2Restrictions = true;
+    // If true, the DSL should automatically mangle symbol names.
+    bool fDSLMangling = true;
+    // If true, the DSL should automatically mark variables declared upon creation.
+    bool fDSLMarkVarsDeclared = false;
+    // External functions available for use in runtime effects. These values are registered in the
+    // symbol table of the Program, but ownership is *not* transferred. It is up to the caller to
+    // keep them alive.
+    const std::vector<std::unique_ptr<ExternalFunction>>* fExternalFunctions = nullptr;
 };
 
 /**

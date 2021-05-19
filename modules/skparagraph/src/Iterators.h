@@ -2,11 +2,11 @@
 #ifndef FontIterator_DEFINED
 #define FontIterator_DEFINED
 
+#include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "modules/skparagraph/include/TextStyle.h"
 #include "modules/skshaper/include/SkShaper.h"
-#include "src/core/SkSpan.h"
 
 namespace skia {
 namespace textlayout {

@@ -79,16 +79,16 @@ private:
         const GrDSLFPTest_Ternary& _outer = _proc.cast<GrDSLFPTest_Ternary>();
         {
         if (colorGreenVar.isValid()) {
-            pdman.set4fv(colorGreenVar, 1, (_outer.colorGreen).vec());
+            pdman.set4fv(colorGreenVar, 1, _outer.colorGreen.vec());
         }
         if (colorRedVar.isValid()) {
-            pdman.set4fv(colorRedVar, 1, (_outer.colorRed).vec());
+            pdman.set4fv(colorRedVar, 1, _outer.colorRed.vec());
         }
         if (colorOrangeVar.isValid()) {
-            pdman.set4fv(colorOrangeVar, 1, (_outer.colorOrange).vec());
+            pdman.set4fv(colorOrangeVar, 1, _outer.colorOrange.vec());
         }
         if (colorPurpleVar.isValid()) {
-            pdman.set4fv(colorPurpleVar, 1, (_outer.colorPurple).vec());
+            pdman.set4fv(colorPurpleVar, 1, _outer.colorPurple.vec());
         }
         }
     }

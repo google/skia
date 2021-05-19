@@ -1,5 +1,5 @@
 /// <reference path="load.ts" />
-/// <reference path="core.d.ts" />
+/// <reference path="../bindings/core.d.ts" />
 /// <reference path="public_api.d.ts" />
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 namespace Core {

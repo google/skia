@@ -17,7 +17,9 @@ class SkString;
 class SK_API SkParsePath {
 public:
     static bool FromSVGString(const char str[], SkPath*);
-    static void ToSVGString(const SkPath&, SkString*);
+
+    enum class PathEncoding { Absolute, Relative };
+    static void ToSVGString(const SkPath&, SkString*, PathEncoding = PathEncoding::Absolute);
 };
 
 #endif

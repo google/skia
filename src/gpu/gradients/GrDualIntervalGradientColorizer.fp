@@ -8,14 +8,14 @@
 // Models two intervals (so 4 colors), that are connected at a specific threshold point.
 
 // Bias and scale for 0 to threshold
-layout(ctype=SkPMColor4f, tracked) in uniform float4 scale01;
-layout(ctype=SkPMColor4f, tracked) in uniform float4 bias01;
+layout(ctype=SkPMColor4f) in uniform float4 scale01;
+layout(ctype=SkPMColor4f) in uniform float4 bias01;
 
 // Bias and scale for threshold to 1
-layout(ctype=SkPMColor4f, tracked) in uniform float4 scale23;
-layout(ctype=SkPMColor4f, tracked) in uniform float4 bias23;
+layout(ctype=SkPMColor4f) in uniform float4 scale23;
+layout(ctype=SkPMColor4f) in uniform float4 bias23;
 
-layout(tracked) in uniform half threshold;
+in uniform half threshold;
 
 half4 main(float2 coord) {
     half t = half(coord.x);

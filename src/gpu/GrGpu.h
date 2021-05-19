@@ -9,10 +9,10 @@
 #define GrGpu_DEFINED
 
 #include "include/core/SkPath.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/SkTArray.h"
-#include "src/core/SkSpan.h"
 #include "src/core/SkTInternalLList.h"
 #include "src/gpu/GrAttachment.h"
 #include "src/gpu/GrCaps.h"

@@ -74,7 +74,7 @@ DSLVar::DSLVar(DSLModifiers modifiers, DSLType type, const char* name, DSLExpres
     , fName(fType.skslType().isOpaque() ? name : DSLWriter::Name(name))
     , fInitialValue(std::move(initialValue))
     , fStorage(Variable::Storage::kLocal)
-    , fDeclared(DSLWriter::Instance().fMarkVarsDeclared) {
+    , fDeclared(DSLWriter::MarkVarsDeclared()) {
 #if SK_SUPPORT_GPU && !defined(SKSL_STANDALONE)
     if (fModifiers.fModifiers.fFlags & Modifiers::kUniform_Flag) {
         fStorage = Variable::Storage::kGlobal;

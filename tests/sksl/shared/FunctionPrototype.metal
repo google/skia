@@ -9,7 +9,6 @@ struct Inputs {
 struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
-
 float this_function_is_prototyped_at_the_start_and_never_defined_f();
 float4 this_function_is_defined_before_use_h4h4(float4 x);
 float4 this_function_is_defined_after_use_h4h4(float4 x);

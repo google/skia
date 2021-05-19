@@ -10,6 +10,7 @@
 #include <memory>
 #include <unordered_set>
 
+#include "include/sksl/DSLCore.h"
 #include "src/core/SkScopeExit.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/sksl/SkSLAnalysis.h"
@@ -25,6 +26,8 @@
 #include "src/sksl/codegen/SkSLMetalCodeGenerator.h"
 #include "src/sksl/codegen/SkSLSPIRVCodeGenerator.h"
 #include "src/sksl/codegen/SkSLSPIRVtoHLSL.h"
+#include "src/sksl/dsl/priv/DSLWriter.h"
+#include "src/sksl/dsl/priv/DSL_priv.h"
 #include "src/sksl/ir/SkSLEnum.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
@@ -326,10 +329,8 @@ LoadedModule Compiler::loadModule(ProgramKind kind,
     AutoModifiersPool autoPool(fContext, &fCoreModifiers);
 
     // Built-in modules always use default program settings.
-    ProgramConfig config;
-    config.fKind = kind;
-    config.fSettings.fReplaceSettings = !dehydrate;
-    AutoProgramConfig autoConfig(fContext, &config);
+    Program::Settings settings;
+    settings.fReplaceSettings = !dehydrate;
 
 #if defined(SKSL_STANDALONE)
     SkASSERT(data.fPath);
@@ -340,19 +341,26 @@ LoadedModule Compiler::loadModule(ProgramKind kind,
         abort();
     }
     const String* source = fRootSymbolTable->takeOwnershipOfString(std::move(text));
-    AutoSource as(this, source);
 
     ParsedModule baseModule = {base, /*fIntrinsics=*/nullptr};
+    std::vector<std::unique_ptr<ProgramElement>> elements;
+    std::vector<const ProgramElement*> sharedElements;
+    dsl::StartModule(this, kind, settings, baseModule);
+    AutoSource as(this, source);
     IRGenerator::IRBundle ir = fIRGenerator->convertProgram(baseModule, /*isBuiltinCode=*/true,
-                                                            source->c_str(), source->length(),
-                                                            /*externalFunctions=*/nullptr);
+                                                            source->c_str(), source->length());
     SkASSERT(ir.fSharedElements.empty());
     LoadedModule module = { kind, std::move(ir.fSymbolTable), std::move(ir.fElements) };
+    dsl::End();
     if (this->fErrorCount) {
         printf("Unexpected errors: %s\n", this->fErrorText.c_str());
         SkDEBUGFAILF("%s %s\n", data.fPath, this->fErrorText.c_str());
     }
 #else
+    ProgramConfig config;
+    config.fKind = kind;
+    config.fSettings = settings;
+    AutoProgramConfig autoConfig(fContext, &config);
     SkASSERT(data.fData && (data.fSize != 0));
     Rehydrator rehydrator(fContext.get(), base, data.fData, data.fSize);
     LoadedModule module = { kind, rehydrator.symbolTable(), rehydrator.elements() };
@@ -419,33 +427,24 @@ ParsedModule Compiler::parseModule(ProgramKind kind, ModuleData data, const Pars
 std::unique_ptr<Program> Compiler::convertProgram(
         ProgramKind kind,
         String text,
-        const Program::Settings& settings,
-        const std::vector<std::unique_ptr<ExternalFunction>>* externalFunctions) {
+        Program::Settings settings) {
     TRACE_EVENT0("skia.shaders", "SkSL::Compiler::convertProgram");
 
-    SkASSERT(!externalFunctions || (kind == ProgramKind::kGeneric));
+    SkASSERT(!settings.fExternalFunctions || (kind == ProgramKind::kGeneric));
 
     // Loading and optimizing our base module might reset the inliner, so do that first,
     // *then* configure the inliner with the settings for this program.
     const ParsedModule& baseModule = this->moduleForProgramKind(kind);
-
-    // Put a fresh modifier pool into the context.
-    auto modifiersPool = std::make_unique<ModifiersPool>();
-    AutoModifiersPool autoPool(fContext, modifiersPool.get());
-
-    // Update our context to point to the program configuration for the duration of compilation.
-    auto config = std::make_unique<ProgramConfig>(ProgramConfig{kind, settings});
-    AutoProgramConfig autoConfig(fContext, config.get());
 
     // Honor our optimization-override flags.
     switch (sOptimizer) {
         case OverrideFlag::kDefault:
             break;
         case OverrideFlag::kOff:
-            config->fSettings.fOptimize = false;
+            settings.fOptimize = false;
             break;
         case OverrideFlag::kOn:
-            config->fSettings.fOptimize = true;
+            settings.fOptimize = true;
             break;
     }
 
@@ -453,19 +452,19 @@ std::unique_ptr<Program> Compiler::convertProgram(
         case OverrideFlag::kDefault:
             break;
         case OverrideFlag::kOff:
-            config->fSettings.fInlineThreshold = 0;
+            settings.fInlineThreshold = 0;
             break;
         case OverrideFlag::kOn:
-            if (config->fSettings.fInlineThreshold == 0) {
-                config->fSettings.fInlineThreshold = kDefaultInlineThreshold;
+            if (settings.fInlineThreshold == 0) {
+                settings.fInlineThreshold = kDefaultInlineThreshold;
             }
             break;
     }
 
     // Disable optimization settings that depend on a parent setting which has been disabled.
-    config->fSettings.fInlineThreshold *= (int)config->fSettings.fOptimize;
-    config->fSettings.fRemoveDeadFunctions &= config->fSettings.fOptimize;
-    config->fSettings.fRemoveDeadVariables &= config->fSettings.fOptimize;
+    settings.fInlineThreshold *= (int)settings.fOptimize;
+    settings.fRemoveDeadFunctions &= settings.fOptimize;
+    settings.fRemoveDeadVariables &= settings.fOptimize;
 
     fErrorText = "";
     fErrorCount = 0;
@@ -474,24 +473,20 @@ std::unique_ptr<Program> Compiler::convertProgram(
     auto textPtr = std::make_unique<String>(std::move(text));
     AutoSource as(this, textPtr.get());
 
-    // Enable node pooling while converting and optimizing the program for a performance boost.
-    // The Program will take ownership of the pool.
-    std::unique_ptr<Pool> pool;
-    if (fContext->fCaps.useNodePools()) {
-        pool = Pool::Create();
-        pool->attachToThread();
-    }
+    dsl::Start(this, kind, settings);
     IRGenerator::IRBundle ir = fIRGenerator->convertProgram(baseModule, /*isBuiltinCode=*/false,
-                                                            textPtr->c_str(), textPtr->size(),
-                                                            externalFunctions);
+                                                            textPtr->c_str(), textPtr->size());
+    // Ideally, we would just use DSLWriter::ReleaseProgram and not have to do any manual mucking
+    // about with the memory pool, but we've got some impedance mismatches to solve first
+    Pool* memoryPool = dsl::DSLWriter::MemoryPool().get();
     auto program = std::make_unique<Program>(std::move(textPtr),
-                                             std::move(config),
+                                             std::move(dsl::DSLWriter::GetProgramConfig()),
                                              fContext,
                                              std::move(ir.fElements),
                                              std::move(ir.fSharedElements),
-                                             std::move(modifiersPool),
+                                             std::move(dsl::DSLWriter::GetModifiersPool()),
                                              std::move(ir.fSymbolTable),
-                                             std::move(pool),
+                                             std::move(dsl::DSLWriter::MemoryPool()),
                                              ir.fInputs);
     bool success = false;
     if (fErrorCount) {
@@ -502,9 +497,9 @@ std::unique_ptr<Program> Compiler::convertProgram(
         // We have a successful program!
         success = true;
     }
-
-    if (program->fPool) {
-        program->fPool->detachFromThread();
+    dsl::End();
+    if (memoryPool) {
+        memoryPool->detachFromThread();
     }
     return success ? std::move(program) : nullptr;
 }

@@ -367,6 +367,7 @@ skia_gpu_sources = [
   "$_src/gpu/geometry/GrShape.h",
   "$_src/gpu/geometry/GrStyledShape.cpp",
   "$_src/gpu/geometry/GrStyledShape.h",
+  "$_src/gpu/geometry/GrWangsFormula.h",
   "$_src/gpu/ops/GrAAConvexPathRenderer.cpp",
   "$_src/gpu/ops/GrAAConvexPathRenderer.h",
   "$_src/gpu/ops/GrAAConvexTessellator.cpp",
@@ -452,6 +453,7 @@ skia_gpu_sources = [
   "$_src/gpu/gradients/generated/GrUnrolledBinaryGradientColorizer.h",
 
   # tessellate
+  "$_src/gpu/tessellate/GrCullTest.h",
   "$_src/gpu/tessellate/GrDrawAtlasPathOp.cpp",
   "$_src/gpu/tessellate/GrDrawAtlasPathOp.h",
   "$_src/gpu/tessellate/GrFillPathShader.cpp",
@@ -473,16 +475,19 @@ skia_gpu_sources = [
   "$_src/gpu/tessellate/GrStrokeHardwareTessellator.h",
   "$_src/gpu/tessellate/GrStrokeIndirectTessellator.cpp",
   "$_src/gpu/tessellate/GrStrokeIndirectTessellator.h",
+  "$_src/gpu/tessellate/GrStrokeInstancedShaderImpl.cpp",
+  "$_src/gpu/tessellate/GrStrokeInstancedShaderImpl.h",
   "$_src/gpu/tessellate/GrStrokeIterator.h",
+  "$_src/gpu/tessellate/GrStrokeShader.cpp",
+  "$_src/gpu/tessellate/GrStrokeShader.h",
   "$_src/gpu/tessellate/GrStrokeTessellateOp.cpp",
   "$_src/gpu/tessellate/GrStrokeTessellateOp.h",
-  "$_src/gpu/tessellate/GrStrokeTessellateShader.cpp",
-  "$_src/gpu/tessellate/GrStrokeTessellateShader.h",
+  "$_src/gpu/tessellate/GrStrokeTessellationShaderImpl.cpp",
+  "$_src/gpu/tessellate/GrStrokeTessellationShaderImpl.h",
   "$_src/gpu/tessellate/GrStrokeTessellator.h",
   "$_src/gpu/tessellate/GrTessellationPathRenderer.cpp",
   "$_src/gpu/tessellate/GrTessellationPathRenderer.h",
   "$_src/gpu/tessellate/GrVectorXform.h",
-  "$_src/gpu/tessellate/GrWangsFormula.h",
 
   # text
   "$_src/gpu/text/GrAtlasManager.cpp",
@@ -541,6 +546,7 @@ skia_gpu_sources = [
   "$_src/gpu/mock/GrMockTypes.cpp",
 
   # Sk files
+  "$_src/gpu/SkBaseGpuDevice.h",
   "$_src/gpu/SkGpuDevice.cpp",
   "$_src/gpu/SkGpuDevice.h",
   "$_src/gpu/SkGpuDevice_drawTexture.cpp",

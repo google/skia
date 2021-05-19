@@ -19,58 +19,73 @@ static constexpr float kStrokeWidth = 100;
 static constexpr int kTestWidth = 120 * 4;
 static constexpr int kTestHeight = 120 * 3 + 140;
 
-static void draw_strokes(SkCanvas* canvas, SkColor strokeColor, const SkPath& path,
+static void draw_strokes(SkCanvas* canvas, SkRandom* rand, const SkPath& path,
                          const SkPath& cubic) {
     SkPaint strokePaint;
     strokePaint.setAntiAlias(true);
     strokePaint.setStrokeWidth(kStrokeWidth);
-    strokePaint.setColor(strokeColor);
     strokePaint.setStyle(SkPaint::kStroke_Style);
 
     SkAutoCanvasRestore arc(canvas, true);
     strokePaint.setStrokeJoin(SkPaint::kBevel_Join);
+    strokePaint.setColor(rand->nextU() | 0xff808080);
     canvas->drawPath(path, strokePaint);
 
     canvas->translate(120, 0);
     strokePaint.setStrokeJoin(SkPaint::kRound_Join);
+    strokePaint.setColor(rand->nextU() | 0xff808080);
     canvas->drawPath(path, strokePaint);
 
     canvas->translate(120, 0);
     strokePaint.setStrokeJoin(SkPaint::kMiter_Join);
+    strokePaint.setColor(rand->nextU() | 0xff808080);
     canvas->drawPath(path, strokePaint);
 
     canvas->translate(120, 0);
+    strokePaint.setColor(rand->nextU() | 0xff808080);
     canvas->drawPath(cubic, strokePaint);
 }
 
-static void draw_test(SkCanvas* canvas, SkColor strokeColor) {
+static void draw_test(SkCanvas* canvas) {
+    SkRandom rand;
+
+    if (canvas->recordingContext() &&
+        canvas->recordingContext()->priv().caps()->shaderCaps()->tessellationSupport() &&
+        canvas->recordingContext()->priv().caps()->shaderCaps()->maxTessellationSegments() < 64) {
+        // There are fewer tessellation segments than the spec minimum. It must have been overriden
+        // for testing. Indicate this in the background color.
+        canvas->clear(SkColorSetARGB(255, 64, 0, 0));
+    } else {
+        canvas->clear(SK_ColorBLACK);
+    }
+
     SkAutoCanvasRestore arc(canvas, true);
     canvas->translate(60, 60);
-    canvas->clear(SK_ColorBLACK);
 
-    draw_strokes(canvas, strokeColor,
+    draw_strokes(canvas, &rand,
             SkPath().lineTo(10,0).lineTo(10,10),
             SkPath().cubicTo(10,0, 10,0, 10,10));
     canvas->translate(0, 120);
 
-    draw_strokes(canvas, strokeColor,
+    draw_strokes(canvas, &rand,
             SkPath().lineTo(0,-10).lineTo(0,10),
             SkPath().cubicTo(0,-10, 0,-10, 0,10));
     canvas->translate(0, 120);
 
-    draw_strokes(canvas, strokeColor,
+    draw_strokes(canvas, &rand,
             SkPath().lineTo(0,-10).lineTo(10,-10).lineTo(10,10).lineTo(0,10),
             SkPath().cubicTo(0,-10, 10,10, 0,10));
     canvas->translate(0, 140);
 
-    draw_strokes(canvas, strokeColor,
+    draw_strokes(canvas, &rand,
             SkPath().lineTo(0,-10).lineTo(10,-10).lineTo(10,0).lineTo(0,0),
             SkPath().cubicTo(0,-10, 10,0, 0,0));
     canvas->translate(0, 120);
 }
 
 DEF_SIMPLE_GM(widebuttcaps, canvas, kTestWidth, kTestHeight) {
-    draw_test(canvas, SK_ColorGREEN);
+    canvas->clear(SK_ColorBLACK);
+    draw_test(canvas);
 }
 
 class WideButtCaps_tess_segs_5 : public skiagm::GpuGM {
@@ -119,7 +134,7 @@ class WideButtCaps_tess_segs_5 : public skiagm::GpuGM {
         }
         // Suppress a tessellator warning message that caps.maxTessellationSegments is too small.
         GrRecordingContextPriv::AutoSuppressWarningMessages aswm(context);
-        draw_test(canvas, SK_ColorRED);
+        draw_test(canvas);
         return DrawResult::kOk;
     }
 };

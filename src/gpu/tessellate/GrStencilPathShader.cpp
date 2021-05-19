@@ -90,7 +90,9 @@ protected:
             v->codeAppendf("vsPt = %s;", vertexPos.c_str());
         }
 
-        // No fragment shader.
+        // The fragment shader is normally disabled, but output fully opaque white.
+        args.fFragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputColor);
+        args.fFragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputCoverage);
     }
 
     void setData(const GrGLSLProgramDataManager& pdman,
@@ -109,8 +111,8 @@ GrGLSLGeometryProcessor* GrStencilPathShader::createGLSLInstance(const GrShaderC
     return new Impl;
 }
 
-GrGLSLGeometryProcessor* GrCubicTessellateShader::createGLSLInstance(const GrShaderCaps&) const {
-    class CubicImpl : public GrStencilPathShader::Impl {
+GrGLSLGeometryProcessor* GrCurveTessellateShader::createGLSLInstance(const GrShaderCaps&) const {
+    class Impl : public GrStencilPathShader::Impl {
         SkString getTessControlShaderGLSL(const GrGeometryProcessor&,
                                           const char* versionAndExtensionDecls,
                                           const GrGLSLUniformHandler&,
@@ -205,11 +207,11 @@ GrGLSLGeometryProcessor* GrCubicTessellateShader::createGLSLInstance(const GrSha
         }
     };
 
-    return new CubicImpl;
+    return new Impl;
 }
 
 GrGLSLGeometryProcessor* GrWedgeTessellateShader::createGLSLInstance(const GrShaderCaps&) const {
-    class WedgeImpl : public GrStencilPathShader::Impl {
+    class Impl : public GrStencilPathShader::Impl {
         SkString getTessControlShaderGLSL(const GrGeometryProcessor&,
                                           const char* versionAndExtensionDecls,
                                           const GrGLSLUniformHandler&,
@@ -299,107 +301,66 @@ GrGLSLGeometryProcessor* GrWedgeTessellateShader::createGLSLInstance(const GrSha
         }
     };
 
-    return new WedgeImpl;
+    return new Impl;
 }
 
-constexpr static int kMaxResolveLevel = GrTessellationPathRenderer::kMaxResolveLevel;
-
-GR_DECLARE_STATIC_UNIQUE_KEY(gMiddleOutIndexBufferKey);
-
-sk_sp<const GrGpuBuffer> GrMiddleOutCubicShader::FindOrMakeMiddleOutIndexBuffer(
-        GrResourceProvider* resourceProvider) {
-    GR_DEFINE_STATIC_UNIQUE_KEY(gMiddleOutIndexBufferKey);
-    if (auto buffer = resourceProvider->findByUniqueKey<GrGpuBuffer>(gMiddleOutIndexBufferKey)) {
-        return std::move(buffer);
-    }
-
-    // One explicit triangle at index 0, and one middle-out cubic with kMaxResolveLevel line
-    // segments beginning at index 3.
-    constexpr static int kIndexCount = 3 + NumVerticesAtResolveLevel(kMaxResolveLevel);
-    auto buffer = resourceProvider->createBuffer(
-            kIndexCount * sizeof(uint16_t), GrGpuBufferType::kIndex, kStatic_GrAccessPattern);
-    if (!buffer) {
-        return nullptr;
-    }
-
-    // We shouldn't bin and/or cache static buffers.
-    SkASSERT(buffer->size() == kIndexCount * sizeof(uint16_t));
-    SkASSERT(!buffer->resourcePriv().getScratchKey().isValid());
-    auto indexData = static_cast<uint16_t*>(buffer->map());
-    SkAutoTMalloc<uint16_t> stagingBuffer;
-    if (!indexData) {
-        SkASSERT(!buffer->isMapped());
-        indexData = stagingBuffer.reset(kIndexCount);
-    }
-
-    // Indices 0,1,2 contain special values that emit points P0, P1, and P2 respectively. (When the
-    // vertex shader is fed an index value larger than (1 << kMaxResolveLevel), it emits
-    // P[index % 4].)
-    int i = 0;
-    indexData[i++] = (1 << kMaxResolveLevel) + 4;  // % 4 == 0
-    indexData[i++] = (1 << kMaxResolveLevel) + 5;  // % 4 == 1
-    indexData[i++] = (1 << kMaxResolveLevel) + 6;  // % 4 == 2
-
-    // Starting at index 3, we triangulate a cubic with 2^kMaxResolveLevel line segments. Each
-    // index value corresponds to parametric value T=(index / 2^kMaxResolveLevel). Since the
-    // triangles are arranged in "middle-out" order, we will be able to conveniently control the
-    // resolveLevel by changing only the indexCount.
-    for (uint16_t advance = 1 << (kMaxResolveLevel - 1); advance; advance >>= 1) {
-        uint16_t T = 0;
-        do {
-            indexData[i++] = T;
-            indexData[i++] = (T += advance);
-            indexData[i++] = (T += advance);
-        } while (T != (1 << kMaxResolveLevel));
-    }
-    SkASSERT(i == kIndexCount);
-
-    if (buffer->isMapped()) {
-        buffer->unmap();
-    } else {
-        buffer->updateData(stagingBuffer, kIndexCount * sizeof(uint16_t));
-    }
-    buffer->resourcePriv().setUniqueKey(gMiddleOutIndexBufferKey);
-    return std::move(buffer);
-}
-
-class GrMiddleOutCubicShader::Impl : public GrStencilPathShader::Impl {
+class GrCurveMiddleOutShader::Impl : public GrStencilPathShader::Impl {
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
-        const auto& shader = args.fGeomProc.cast<GrMiddleOutCubicShader>();
+        const auto& shader = args.fGeomProc.cast<GrCurveMiddleOutShader>();
         args.fVaryingHandler->emitAttributes(shader);
-        args.fVertBuilder->defineConstantf("int", "kMaxVertexID", "%i", 1 << kMaxResolveLevel);
-        args.fVertBuilder->defineConstantf("float", "kInverseMaxVertexID",
-                                           "(1.0 / float(kMaxVertexID))");
         args.fVertBuilder->insertFunction(kUnpackRationalCubicFn);
         args.fVertBuilder->insertFunction(kEvalRationalCubicFn);
+        if (args.fShaderCaps->bitManipulationSupport()) {
+            // Determines the T value at which to place the given vertex in a "middle-out" topology.
+            args.fVertBuilder->insertFunction(R"(
+            float find_middle_out_T() {
+                int totalTriangleIdx = sk_VertexID/3 + 1;
+                int depth = findMSB(totalTriangleIdx);
+                int firstTriangleAtDepth = (1 << depth);
+                int triangleIdxWithinDepth = totalTriangleIdx - firstTriangleAtDepth;
+                int vertexIdxWithinDepth = triangleIdxWithinDepth * 2 + sk_VertexID % 3;
+                return ldexp(float(vertexIdxWithinDepth), -1 - depth);
+            })");
+        } else {
+            // Determines the T value at which to place the given vertex in a "middle-out" topology.
+            args.fVertBuilder->insertFunction(R"(
+            float find_middle_out_T() {
+                float totalTriangleIdx = float(sk_VertexID/3) + 1;
+                float depth = floor(log2(totalTriangleIdx));
+                float firstTriangleAtDepth = exp2(depth);
+                float triangleIdxWithinDepth = totalTriangleIdx - firstTriangleAtDepth;
+                float vertexIdxWithinDepth = triangleIdxWithinDepth * 2 + float(sk_VertexID % 3);
+                return vertexIdxWithinDepth * exp2(-1 - depth);
+            })");
+        }
         args.fVertBuilder->codeAppend(R"(
         float2 pos;
-        if (sk_VertexID > kMaxVertexID) {
-            // This is a special index value that instructs us to emit a specific point.
-            pos = ((sk_VertexID & 3) == 0) ? inputPoints_0_1.xy :
-                  ((sk_VertexID & 2) == 0) ? inputPoints_0_1.zw : inputPoints_2_3.xy;
+        if (isinf(inputPoints_2_3.z)) {
+            // A conic with w=Inf is an exact triangle.
+            pos = (sk_VertexID < 1)  ? inputPoints_0_1.xy
+                : (sk_VertexID == 1) ? inputPoints_0_1.zw
+                                     : inputPoints_2_3.xy;
         } else {
-            // Evaluate the cubic at T = (sk_VertexID / 2^kMaxResolveLevel).
-            float T = float(sk_VertexID) * kInverseMaxVertexID;
             float4x3 P = unpack_rational_cubic(inputPoints_0_1.xy, inputPoints_0_1.zw,
                                                inputPoints_2_3.xy, inputPoints_2_3.zw);
+            float T = find_middle_out_T();
             pos = eval_rational_cubic(P, T);
         })");
-
-        GrShaderVar vertexPos("pos", kFloat2_GrSLType);
         if (!shader.viewMatrix().isIdentity()) {
             const char* viewMatrix;
             fViewMatrixUniform = args.fUniformHandler->addUniform(
                     nullptr, kVertex_GrShaderFlag, kFloat3x3_GrSLType, "view_matrix", &viewMatrix);
             args.fVertBuilder->codeAppendf(R"(
-            float2 transformedPoint = (%s * float3(pos, 1)).xy;)", viewMatrix);
-            vertexPos.set(kFloat2_GrSLType, "transformedPoint");
+            pos = (%s * float3(pos, 1)).xy;)", viewMatrix);
         }
-        gpArgs->fPositionVar = vertexPos;
-        // No fragment shader.
+        gpArgs->fPositionVar.set(kFloat2_GrSLType, "pos");
+
+        // The fragment shader is normally disabled, but output fully opaque white.
+        args.fFragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputColor);
+        args.fFragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputCoverage);
     }
 };
 
-GrGLSLGeometryProcessor* GrMiddleOutCubicShader::createGLSLInstance(const GrShaderCaps&) const {
+GrGLSLGeometryProcessor* GrCurveMiddleOutShader::createGLSLInstance(const GrShaderCaps&) const {
     return new Impl;
 }

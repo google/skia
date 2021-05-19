@@ -42,6 +42,9 @@ public:
         this->init(returnType, name, std::move(parameters));
     }
 
+    DSLFunction(const SkSL::FunctionDeclaration* decl)
+        : fDecl(decl) {}
+
     virtual ~DSLFunction() = default;
 
     template<class... Stmt>

@@ -13,12 +13,12 @@
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkFontStyle.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkPathPriv.h"
-#include "src/core/SkSpan.h"
 #include "src/utils/SkOSPath.h"
 #include "src/utils/SkUTF.h"
 
@@ -403,12 +403,12 @@ int main(int , char * const []) {
     };
 
     static constexpr FontFamilyDesc kFamiliesData[] = {
-        {"monospace",  "Liberation Mono",  "LiberationMono",  SkSpan(kMonoFonts)},
-        {"sans-serif", "Liberation Sans",  "LiberationSans",  SkSpan(kSansFonts)},
-        {"serif",      "Liberation Serif", "LiberationSerif", SkSpan(kSerifFonts)},
+        {"monospace",  "Liberation Mono",  "LiberationMono",  SkMakeSpan(kMonoFonts)},
+        {"sans-serif", "Liberation Sans",  "LiberationSans",  SkMakeSpan(kSansFonts)},
+        {"serif",      "Liberation Serif", "LiberationSerif", SkMakeSpan(kSerifFonts)},
     };
 
-    static constexpr SkSpan kFamilies(kFamiliesData);
+    static constexpr SkSpan<const FontFamilyDesc> kFamilies(SkMakeSpan(kFamiliesData));
 
 #ifdef SK_BUILD_FOR_UNIX
     generate_fonts("/usr/share/fonts/truetype/liberation/", kFamilies);

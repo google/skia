@@ -11,8 +11,8 @@
 #include "include/core/SkDeferredDisplayList.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkSurfaceCharacterization.h"
-#include "src/core/SkSpan.h"
 
 class DDLPromiseImageHelper;
 class PromiseImageCallbackContext;

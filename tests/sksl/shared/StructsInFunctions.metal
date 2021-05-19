@@ -44,7 +44,6 @@ thread bool operator==(thread const Nested& left, thread const Nested& right) {
 thread bool operator!=(thread const Nested& left, thread const Nested& right) {
     return !(left == right);
 }
-
 S returns_a_struct_S() {
     S s;
     s.x = 1.0;

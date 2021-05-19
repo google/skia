@@ -10,17 +10,17 @@
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/geometry/GrWangsFormula.h"
 #include "src/gpu/mock/GrMockOpTarget.h"
 #include "src/gpu/tessellate/GrMiddleOutPolygonTriangulator.h"
 #include "src/gpu/tessellate/GrPathTessellator.h"
 #include "src/gpu/tessellate/GrStrokeFixedCountTessellator.h"
 #include "src/gpu/tessellate/GrStrokeHardwareTessellator.h"
 #include "src/gpu/tessellate/GrStrokeIndirectTessellator.h"
-#include "src/gpu/tessellate/GrWangsFormula.h"
 #include "tools/ToolUtils.h"
 #include <vector>
 
-using ShaderFlags = GrStrokeTessellateShader::ShaderFlags;
+using ShaderFlags = GrStrokeShader::ShaderFlags;
 
 // This is the number of cubics in desk_chalkboard.skp. (There are no quadratics in the chalkboard.)
 constexpr static int kNumCubicsInChalkboard = 47182;
@@ -198,28 +198,30 @@ DEF_PATH_TESS_BENCH(middle_out_triangulation,
                     SkMatrix::I()) {
     sk_sp<const GrBuffer> buffer;
     int baseVertex;
-    auto vertexData = static_cast<SkPoint*>(fTarget->makeVertexSpace(
+    GrVertexWriter vertexWriter = static_cast<SkPoint*>(fTarget->makeVertexSpace(
             sizeof(SkPoint), kNumCubicsInChalkboard, &buffer, &baseVertex));
-    GrMiddleOutPolygonTriangulator::WritePathInnerFan(vertexData, 3, fPath);
+    GrMiddleOutPolygonTriangulator::WritePathInnerFan(
+            &vertexWriter, GrMiddleOutPolygonTriangulator::OutputType::kTriangles, fPath);
 }
 
 using PathStrokeList = GrStrokeTessellator::PathStrokeList;
 using MakeTessellatorFn = std::unique_ptr<GrStrokeTessellator>(*)(ShaderFlags, const SkMatrix&,
                                                                   PathStrokeList*,
-                                                                  const GrShaderCaps&);
+                                                                  std::array<float, 2>, const
+                                                                  SkRect&);
 
-static std::unique_ptr<GrStrokeTessellator> make_hw_tessellator(ShaderFlags shaderFlags,
-                                                                const SkMatrix& viewMatrix,
-                                                                PathStrokeList* pathStrokeList,
-                                                                const GrShaderCaps& shaderCaps) {
+static std::unique_ptr<GrStrokeTessellator> make_hw_tessellator(
+        ShaderFlags shaderFlags, const SkMatrix& viewMatrix, PathStrokeList* pathStrokeList,
+        std::array<float, 2> matrixMinMaxScales, const SkRect& strokeCullBounds) {
     return std::make_unique<GrStrokeHardwareTessellator>(shaderFlags, viewMatrix, pathStrokeList,
-                                                         shaderCaps);
+                                                         matrixMinMaxScales, strokeCullBounds);
 }
 
 static std::unique_ptr<GrStrokeTessellator> make_fixed_count_tessellator(
         ShaderFlags shaderFlags, const SkMatrix& viewMatrix, PathStrokeList* pathStrokeList,
-        const GrShaderCaps& shaderCaps) {
-    return std::make_unique<GrStrokeFixedCountTessellator>(shaderFlags, viewMatrix, pathStrokeList);
+        std::array<float, 2> matrixMinMaxScales, const SkRect& strokeCullBounds) {
+    return std::make_unique<GrStrokeFixedCountTessellator>(shaderFlags, viewMatrix, pathStrokeList,
+                                                           matrixMinMaxScales, strokeCullBounds);
 }
 
 using MakePathStrokesFn = std::vector<PathStrokeList>(*)();
@@ -320,7 +322,8 @@ private:
         }
 
         fTessellator = fMakeTessellatorFn(fShaderFlags, SkMatrix::Scale(fMatrixScale, fMatrixScale),
-                                          fPathStrokes.data(), *fTarget->caps().shaderCaps());
+                                          fPathStrokes.data(), {fMatrixScale, fMatrixScale},
+                                          {-1e9f, -1e9f, 1e9f, 1e9f});
     }
 
     void onDraw(int loops, SkCanvas*) final {
@@ -398,8 +401,8 @@ private:
             for (const SkPath& path : fPaths) {
                 GrStrokeTessellator::PathStrokeList pathStroke(path, fStrokeRec, SK_PMColor4fWHITE);
                 GrStrokeIndirectTessellator tessellator(ShaderFlags::kNone, SkMatrix::I(),
-                                                        &pathStroke, path.countVerbs(),
-                                                        fTarget->allocator());
+                                                        &pathStroke, {1, 1}, {0, 0, 0, 0},
+                                                        path.countVerbs(), fTarget->allocator());
                 tessellator.prepare(fTarget.get(), path.countVerbs());
             }
             fTarget->resetAllocator();

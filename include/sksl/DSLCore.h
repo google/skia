@@ -23,6 +23,7 @@
 namespace SkSL {
 
 class Compiler;
+struct ProgramSettings;
 
 namespace dsl {
 
@@ -37,6 +38,8 @@ using namespace SkSL::SwizzleComponent;
  * prior to any other DSL functions.
  */
 void Start(SkSL::Compiler* compiler, SkSL::ProgramKind kind = SkSL::ProgramKind::kFragment);
+
+void Start(SkSL::Compiler* compiler, SkSL::ProgramKind kind, const SkSL::ProgramSettings& settings);
 
 /**
  * Signals the end of DSL output. This must be called sometime between a call to Start() and the

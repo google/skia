@@ -15,6 +15,7 @@
 #include <vector>
 
 class SkCanvas;
+class SkImage;
 class SkStreamSeekable;
 class SkSurface;
 
@@ -60,6 +61,22 @@ public:
      */
     void allocateLayers(SkCanvas*);
 
+    /**
+     * A set of IDs of offscreen layers in no particular order. If frame value >= 0 is specified
+     * then the layer set is filtered to layers used by that frame (or empty if >= numFrames). If
+     * < 0 then gathers all the layers across all frames.
+     */
+    std::vector<int> layerIDs(int frame = -1) const;
+
+    /**
+     * Gets the contents of an offscreen layer. It's contents will depend on current playback state
+     * (playFrame(), updateFrameLayers(), resetLayers()). If the layer currently has no backing
+     * store because it hasn't been drawn or resetLayers() was called then this will return nullptr.
+     * Layer contents are not affected by rewindLayers() as that simply lazily redraws the frame
+     * contents the next time it is required by playFrame*() or updateFrameLayers().
+     */
+    sk_sp<SkImage> layerSnapshot(int layerID) const;
+
 private:
     MSKPPlayer() = default;
     // noncopyable, nonmoveable.
@@ -92,6 +109,8 @@ private:
     };
 
     static sk_sp<SkSurface> MakeSurfaceForLayer(const Layer&, SkCanvas* rootCanvas);
+
+    void collectReferencedLayers(const Layer& layer, std::vector<int>*) const;
 
     // MSKP layer ID -> Layer
     using LayerMap = std::unordered_map<int, Layer>;

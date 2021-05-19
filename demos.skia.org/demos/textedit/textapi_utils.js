@@ -206,7 +206,10 @@ function MakeStyle(length) {
                 this.size = src.size;
                 layoutChanged = true;
             }
-            if (src.color)    { this.color  = src.color; }
+            if (src.color) {
+                this.color = src.color;
+                delete this.shaderIndex;    // we implicitly delete shader if there is a color
+            }
 
             if (src.bold) {
                 this.bold = this._check_toggle(src.bold, this.bold);
@@ -220,6 +223,13 @@ function MakeStyle(length) {
                 layoutChanged = true;
             }
 
+            if ('shaderIndex' in src) {
+                if (src.shaderIndex >= 0) {
+                    this.shaderIndex = src.shaderIndex;
+                } else {
+                    delete this.shaderIndex;
+                }
+            }
             return layoutChanged;
         }
     };
@@ -381,6 +391,7 @@ function MakeEditor(text, style, cursor, width) {
             this._buildLines();
         },
         insert: function(charcode) {
+            const len = charcode.length;
             if (this._index.start != this._index.end) {
                 this.deleteSelection();
             }
@@ -388,16 +399,16 @@ function MakeEditor(text, style, cursor, width) {
 
             // do this before edit the text (we use text.length in an assert)
             const [i, prev_len] = this.find_style_index_and_prev_length(index);
-            this._styles[i]._length += 1;
+            this._styles[i]._length += len;
 
             // now grow the text
             this._text = this._text.slice(0, index) + charcode + this._text.slice(index);
 
-            this._index.start = this._index.end = index + 1;
+            this._index.start = this._index.end = index + len;
             this._buildLines();
         },
 
-        draw: function(canvas) {
+        draw: function(canvas, shaders) {
             canvas.save();
             canvas.translate(this._X, this._Y);
 
@@ -449,6 +460,7 @@ function MakeEditor(text, style, cursor, width) {
                 f.setEmbolden(s.bold);
                 f.setSkewX(s.italic ? -0.2 : 0);
                 p.setColor(s.color ? s.color : [0,0,0,1]);
+                p.setShader(s.shaderIndex >= 0 ? shaders[s.shaderIndex] : null);
 
                 let gly = r.glyphs;
                 let pos = r.positions;
@@ -474,6 +486,8 @@ function MakeEditor(text, style, cursor, width) {
                     LOG('    use entire glyph run');
                 }
                 canvas.drawGlyphs(gly, pos, 0, 0, f, p);
+
+                p.setShader(null);  // in case our caller deletes their shader(s)
 
                 start = end;
             }

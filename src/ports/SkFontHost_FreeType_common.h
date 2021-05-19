@@ -11,9 +11,9 @@
 
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkMutex.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkScalerContext.h"
+#include "src/core/SkSharedMutex.h"
 #include "src/utils/SkCharToGlyphCache.h"
 
 #include "include/core/SkFontMgr.h"
@@ -128,7 +128,7 @@ protected:
     virtual std::unique_ptr<SkFontData> onMakeFontData() const = 0;
 
 private:
-    mutable SkMutex fC2GCacheMutex;
+    mutable SkSharedMutex fC2GCacheMutex;
     mutable SkCharToGlyphCache fC2GCache;
 
     using INHERITED = SkTypeface;

@@ -122,10 +122,11 @@ static void test_gpu(skiatest::Reporter* r, GrDirectContext* ctx, const char* te
 }
 
 static void test_es3(skiatest::Reporter* r, GrDirectContext* ctx, const char* testFile) {
-    // We don't have an ES2 caps bit, so we check for integer support and derivatives support.
-    // Our ES2 bots should return false for these.
+    // We don't have an ES2 caps bit, so we check the caps bits for features that ES2 explicitly
+    // doesn't support. Our ES2 bots should return false for these.
     if (!ctx->priv().caps()->shaderCaps()->shaderDerivativeSupport() ||
-        !ctx->priv().caps()->shaderCaps()->integerSupport()) {
+        !ctx->priv().caps()->shaderCaps()->integerSupport() ||
+        !ctx->priv().caps()->shaderCaps()->nonsquareMatrixSupport()) {
         return;
     }
     // ES3-only tests never run on the CPU, because SkVM lacks support for many non-ES2 features.
@@ -191,6 +192,7 @@ SKSL_TEST(SkSLInlineWithUnnecessaryBlocks,        "inliner/InlineWithUnnecessary
 SKSL_TEST(SkSLNoInline,                           "inliner/NoInline.sksl")
 SKSL_TEST(SkSLShortCircuitEvaluationsCannotInlineRightHandSide,
      "inliner/ShortCircuitEvaluationsCannotInlineRightHandSide.sksl")
+SKSL_TEST_ES3(SkSLStaticSwitchInline,             "inliner/StaticSwitch.sksl")
 SKSL_TEST(SkSLStructsCanBeInlinedSafely,          "inliner/StructsCanBeInlinedSafely.sksl")
 SKSL_TEST(SkSLSwizzleCanBeInlinedDirectly,        "inliner/SwizzleCanBeInlinedDirectly.sksl")
 SKSL_TEST(SkSLTernaryResultsCannotBeInlined,      "inliner/TernaryResultsCannotBeInlined.sksl")
@@ -214,6 +216,7 @@ SKSL_TEST_CPU(SkSLIntrinsicMixFloat,           "intrinsics/MixFloat.sksl")
 SKSL_TEST(SkSLIntrinsicSignFloat,              "intrinsics/SignFloat.sksl")
 
 SKSL_TEST_ES3(SkSLArrayComparison,             "shared/ArrayComparison.sksl")
+SKSL_TEST_ES3(SkSLArrayConstructors,           "shared/ArrayConstructors.sksl")
 SKSL_TEST(SkSLArrayTypes,                      "shared/ArrayTypes.sksl")
 SKSL_TEST(SkSLAssignment,                      "shared/Assignment.sksl")
 SKSL_TEST(SkSLCastsRoundTowardZero,            "shared/CastsRoundTowardZero.sksl")
@@ -222,8 +225,10 @@ SKSL_TEST(SkSLCommaMixedTypes,                 "shared/CommaMixedTypes.sksl")
 // The CPU test confirms that we can get it right, even if not all drivers do.
 SKSL_TEST_CPU(SkSLCommaSideEffects,            "shared/CommaSideEffects.sksl")
 SKSL_TEST(SkSLConstantIf,                      "shared/ConstantIf.sksl")
+SKSL_TEST_ES3(SkSLConstArray,                  "shared/ConstArray.sksl")
 SKSL_TEST(SkSLConstVariableComparison,         "shared/ConstVariableComparison.sksl")
 SKSL_TEST(SkSLDeadIfStatement,                 "shared/DeadIfStatement.sksl")
+SKSL_TEST(SkSLDeadReturn,                      "shared/DeadReturn.sksl")
 SKSL_TEST(SkSLDeadStripFunctions,              "shared/DeadStripFunctions.sksl")
 SKSL_TEST(SkSLDependentInitializers,           "shared/DependentInitializers.sksl")
 SKSL_TEST(SkSLEmptyBlocksES2,                  "shared/EmptyBlocksES2.sksl")
@@ -235,11 +240,14 @@ SKSL_TEST(SkSLGeometricIntrinsics,             "shared/GeometricIntrinsics.sksl"
 SKSL_TEST(SkSLHelloWorld,                      "shared/HelloWorld.sksl")
 SKSL_TEST(SkSLHex,                             "shared/Hex.sksl")
 SKSL_TEST(SkSLMatrices,                        "shared/Matrices.sksl")
+SKSL_TEST_ES3(SkSLMatricesNonsquare,           "shared/MatricesNonsquare.sksl")
 SKSL_TEST(SkSLMatrixEquality,                  "shared/MatrixEquality.sksl")
+SKSL_TEST(SkSLMatrixScalarSplat,               "shared/MatrixScalarSplat.sksl")
 SKSL_TEST(SkSLMultipleAssignments,             "shared/MultipleAssignments.sksl")
 SKSL_TEST(SkSLNegatedVectorLiteral,            "shared/NegatedVectorLiteral.sksl")
 SKSL_TEST(SkSLNumberCasts,                     "shared/NumberCasts.sksl")
 SKSL_TEST(SkSLOperatorsES2,                    "shared/OperatorsES2.sksl")
+SKSL_TEST_ES3(SkSLOperatorsES3,                "shared/OperatorsES3.sksl")
 
 // skbug.com/11919: Fails on Adreno + Vulkan
 SKSL_TEST_CPU(SkSLOutParams,                   "shared/OutParams.sksl")
@@ -249,8 +257,10 @@ SKSL_TEST_CPU(SkSLOutParamsTricky,             "shared/OutParamsTricky.sksl")
 SKSL_TEST(SkSLResizeMatrix,                    "shared/ResizeMatrix.sksl")
 SKSL_TEST(SkSLReturnsValueOnEveryPathES2,      "shared/ReturnsValueOnEveryPathES2.sksl")
 SKSL_TEST(SkSLScalarConversionConstructorsES2, "shared/ScalarConversionConstructorsES2.sksl")
+SKSL_TEST_ES3(SkSLScalarConversionConstructorsES3, "shared/ScalarConversionConstructorsES3.sksl")
 SKSL_TEST(SkSLStackingVectorCasts,             "shared/StackingVectorCasts.sksl")
 SKSL_TEST(SkSLStaticIf,                        "shared/StaticIf.sksl")
+SKSL_TEST_ES3(SkSLStaticSwitch,                "shared/StaticSwitch.sksl")
 SKSL_TEST(SkSLStructsInFunctions,              "shared/StructsInFunctions.sksl")
 SKSL_TEST(SkSLSwizzleBoolConstants,            "shared/SwizzleBoolConstants.sksl")
 SKSL_TEST(SkSLSwizzleByConstantIndex,          "shared/SwizzleByConstantIndex.sksl")
@@ -266,6 +276,7 @@ SKSL_TEST(SkSLUnusedVariables,                 "shared/UnusedVariables.sksl")
 SKSL_TEST(SkSLVectorConstructors,              "shared/VectorConstructors.sksl")
 // skbug.com/11919: Fails on Nexus5/7, and Intel GPUs
 SKSL_TEST_CPU(SkSLVectorScalarMath,            "shared/VectorScalarMath.sksl")
+SKSL_TEST_ES3(SkSLWhileLoopControlFlow,        "shared/WhileLoopControlFlow.sksl")
 
 /*
 // Incompatible with Runtime Effects because calling a function before its definition is disallowed.
@@ -281,7 +292,6 @@ SKSL_TEST(SkSLMatrixFoldingES3,                "folding/MatrixFoldingES3.sksl")
 SKSL_TEST(SkSLDoWhileBodyMustBeInlinedIntoAScope, "inliner/DoWhileBodyMustBeInlinedIntoAScope.sksl")
 SKSL_TEST(SkSLDoWhileTestCannotBeInlined,         "inliner/DoWhileTestCannotBeInlined.sksl")
 SKSL_TEST(SkSLEnumsCanBeInlinedSafely,         "inliner/EnumsCanBeInlinedSafely.sksl")
-SKSL_TEST(SkSLStaticSwitch,                       "inliner/StaticSwitch.sksl")
 
 SKSL_TEST(SkSLIntrinsicAbsInt,                 "intrinsics/AbsInt.sksl")
 SKSL_TEST(SkSLIntrinsicClampInt,               "intrinsics/ClampInt.sksl")
@@ -290,16 +300,11 @@ SKSL_TEST(SkSLIntrinsicMinInt,                 "intrinsics/MinInt.sksl")
 SKSL_TEST(SkSLIntrinsicMixBool,                "intrinsics/MixBool.sksl")
 SKSL_TEST(SkSLIntrinsicSignInt,                "intrinsics/SignInt.sksl")
 
-SKSL_TEST(SkSLArrayConstructors,               "shared/ArrayConstructors.sksl")
 SKSL_TEST(SkSLDeadLoopVariable,                "shared/DeadLoopVariable.sksl")
 SKSL_TEST(SkSLDoWhileControlFlow,              "shared/DoWhileControlFlow.sksl")
 SKSL_TEST(SkSLEmptyBlocksES3,                  "shared/EmptyBlocksES3.sksl")
 SKSL_TEST(SkSLHexUnsigned,                     "shared/HexUnsigned.sksl")
-SKSL_TEST(SkSLMatricesNonsquare,               "shared/MatricesNonsquare.sksl")
-SKSL_TEST(SkSLOperatorsES3,                    "shared/OperatorsES3.sksl")
 SKSL_TEST(SkSLResizeMatrixNonsquare,           "shared/ResizeMatrixNonsquare.sksl")
 SKSL_TEST(SkSLReturnsValueOnEveryPathES3,      "shared/ReturnsValueOnEveryPathES3.sksl")
-SKSL_TEST(SkSLScalarConversionConstructorsES3, "shared/ScalarConversionConstructorsES3.sksl")
 SKSL_TEST(SkSLSwizzleByIndex,                  "shared/SwizzleByIndex.sksl")
-SKSL_TEST(SkSLWhileLoopControlFlow,            "shared/WhileLoopControlFlow.sksl")
 */

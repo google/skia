@@ -10,6 +10,7 @@
 
 #include "include/private/SkTArray.h"
 #include "include/private/SkTemplates.h"
+#include "include/utils/SkParsePath.h"
 #include "src/core/SkClipStackDevice.h"
 
 class SkXMLWriter;
@@ -45,6 +46,8 @@ private:
     void drawBitmapCommon(const MxCp&, const SkBitmap& bm, const SkPaint& paint);
 
     void syncClipStack(const SkClipStack&);
+
+    SkParsePath::PathEncoding pathEncoding() const;
 
     class AutoElement;
     class ResourceBucket;

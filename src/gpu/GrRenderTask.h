@@ -78,8 +78,8 @@ public:
      */
     void addDependenciesFromOtherTask(GrRenderTask* otherTask);
 
-    SkSpan<GrRenderTask*> dependencies() { return SkSpan<GrRenderTask*>(fDependencies); }
-    SkSpan<GrRenderTask*> dependents() { return SkSpan<GrRenderTask*>(fDependents); }
+    SkSpan<GrRenderTask*> dependencies() { return SkMakeSpan(fDependencies); }
+    SkSpan<GrRenderTask*> dependents() { return SkMakeSpan(fDependents); }
 
     void replaceDependency(const GrRenderTask* toReplace, GrRenderTask* replaceWith);
     void replaceDependent(const GrRenderTask* toReplace, GrRenderTask* replaceWith);
@@ -94,7 +94,7 @@ public:
         idArray->push_back(fUniqueID);
     }
     uint32_t uniqueID() const { return fUniqueID; }
-    virtual int numTargets() const { return fTargets.count(); }
+    int numTargets() const { return fTargets.count(); }
     GrSurfaceProxy* target(int i) const { return fTargets[i].get(); }
 
     /*

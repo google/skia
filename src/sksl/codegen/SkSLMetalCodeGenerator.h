@@ -145,13 +145,13 @@ protected:
 
     void writeLayout(const Layout& layout);
 
-    void writeModifiers(const Modifiers& modifiers, bool globalContext);
+    void writeModifiers(const Modifiers& modifiers);
 
     void writeVarInitializer(const Variable& var, const Expression& value);
 
     void writeName(const String& name);
 
-    void writeVarDeclaration(const VarDeclaration& decl, bool global);
+    void writeVarDeclaration(const VarDeclaration& decl);
 
     void writeFragCoord();
 
@@ -181,6 +181,8 @@ protected:
     void writeMatrixCompMult();
 
     void writeMatrixTimesEqualHelper(const Type& left, const Type& right, const Type& result);
+
+    void writeMatrixDivisionHelpers(const Type& type);
 
     void writeMatrixEqualityHelpers(const Type& left, const Type& right);
 
@@ -218,6 +220,9 @@ protected:
     void writeFieldAccess(const FieldAccess& f);
 
     void writeSwizzle(const Swizzle& swizzle);
+
+    // Splats a scalar expression across a matrix of arbitrary size.
+    void writeNumberAsMatrix(const Expression& expr, const Type& matrixType);
 
     void writeBinaryExpression(const BinaryExpression& b, Precedence parentPrecedence);
 

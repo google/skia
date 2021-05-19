@@ -1174,8 +1174,11 @@ void test_path_effect_makes_rrect(skiatest::Reporter* reporter, const Geo& geo) 
             return true;
         }
 
-        SkRect onComputeFastBounds(const SkRect& src) const override {
-            return RRect().getBounds();
+        bool computeFastBounds(SkRect* bounds) const override {
+            if (bounds) {
+                *bounds = RRect().getBounds();
+            }
+            return true;
         }
 
     private:
@@ -1258,11 +1261,12 @@ void test_unknown_path_effect(skiatest::Reporter* reporter, const Geo& geo) {
             }
             return true;
         }
-        SkRect onComputeFastBounds(const SkRect& src) const override {
-            SkRect dst = src;
-            SkRectPriv::GrowToInclude(&dst, {0, 0});
-            SkRectPriv::GrowToInclude(&dst, {100, 100});
-            return dst;
+        bool computeFastBounds(SkRect* bounds) const override {
+            if (bounds) {
+                SkRectPriv::GrowToInclude(bounds, {0, 0});
+                SkRectPriv::GrowToInclude(bounds, {100, 100});
+            }
+            return true;
         }
     private:
         AddLineTosPathEffect() {}
@@ -1303,6 +1307,8 @@ void test_make_hairline_path_effect(skiatest::Reporter* reporter, const Geo& geo
             return true;
         }
     private:
+        bool computeFastBounds(SkRect* bounds) const override { return true; }
+
         MakeHairlinePathEffect() {}
     };
 
@@ -1386,8 +1392,11 @@ void test_path_effect_makes_empty_shape(skiatest::Reporter* reporter, const Geo&
             }
             return true;
         }
-        SkRect onComputeFastBounds(const SkRect& src) const override {
-            return { 0, 0, 0, 0 };
+        bool computeFastBounds(SkRect* bounds) const override {
+            if (bounds) {
+                *bounds = { 0, 0, 0, 0 };
+            }
+            return true;
         }
     private:
         bool fInvert;
@@ -1469,6 +1478,8 @@ void test_path_effect_fails(skiatest::Reporter* reporter, const Geo& geo) {
             return false;
         }
     private:
+        bool computeFastBounds(SkRect* bounds) const override { return false; }
+
         FailurePathEffect() {}
     };
 

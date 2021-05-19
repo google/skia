@@ -18,6 +18,19 @@
 
 using namespace SkSL::dsl;
 
+SkSL::ProgramSettings default_settings() {
+    SkSL::ProgramSettings result;
+    result.fDSLMarkVarsDeclared = true;
+    result.fDSLMangling = false;
+    return result;
+}
+
+SkSL::ProgramSettings no_mark_vars_declared() {
+    SkSL::ProgramSettings result = default_settings();
+    result.fDSLMarkVarsDeclared = false;
+    return result;
+}
+
 /**
  * In addition to issuing an automatic Start() and End(), disables mangling and optionally
  * auto-declares variables during its lifetime. Variable auto-declaration simplifies testing so we
@@ -27,11 +40,9 @@ using namespace SkSL::dsl;
  */
 class AutoDSLContext {
 public:
-    AutoDSLContext(GrGpu* gpu, bool markVarsDeclared = true,
+    AutoDSLContext(GrGpu* gpu, SkSL::ProgramSettings settings = default_settings(),
                    SkSL::ProgramKind kind = SkSL::ProgramKind::kFragment) {
-        Start(gpu->shaderCompiler(), kind);
-        DSLWriter::Instance().fMangle = false;
-        DSLWriter::Instance().fMarkVarsDeclared = markVarsDeclared;
+        Start(gpu->shaderCompiler(), kind, settings);
     }
 
     ~AutoDSLContext() {
@@ -133,6 +144,31 @@ static void expect_equal(skiatest::Reporter* r, int lineNumber, T&& dsl, const c
 }
 
 #define EXPECT_EQUAL(a, b)  expect_equal(r, __LINE__, (a), (b))
+
+DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFlags, r, ctxInfo) {
+    {
+        AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), no_mark_vars_declared());
+        EXPECT_EQUAL(All(GreaterThan(Float4(1), Float4(0))), "true");
+
+        Var x(kInt_Type, "x");
+        EXPECT_EQUAL(Declare(x), "int x;");
+    }
+
+    {
+        SkSL::ProgramSettings settings;
+        settings.fOptimize = false;
+        AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), settings,
+                               SkSL::ProgramKind::kFragmentProcessor);
+        EXPECT_EQUAL(All(GreaterThan(Float4(1), Float4(0))),
+                     "all(greaterThan(float4(1.0), float4(0.0)))");
+    }
+
+    {
+        AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), SkSL::ProgramSettings());
+        Var x(kInt_Type, "x");
+        EXPECT_EQUAL(Declare(x), "int _0_x;");
+    }
+}
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFloat, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
@@ -1205,7 +1241,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLCall, r, ctxInfo) {
 }
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBlock, r, ctxInfo) {
-    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), /*markVarsDeclared=*/false);
+    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), no_mark_vars_declared());
     EXPECT_EQUAL(Block(), "{ }");
     Var a(kInt_Type, "a", 1), b(kInt_Type, "b", 2);
     EXPECT_EQUAL(Block(Declare(a), Declare(b), a = b), "{ int a = 1; int b = 2; (a = b); }");
@@ -1219,7 +1255,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBlock, r, ctxInfo) {
 }
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBreak, r, ctxInfo) {
-    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), /*markVarsDeclared=*/false);
+    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), no_mark_vars_declared());
     Var i(kInt_Type, "i", 0);
     DSLFunction(kVoid_Type, "success").define(
         For(Declare(i), i < 10, ++i, Block(
@@ -1239,7 +1275,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBreak, r, ctxInfo) {
 }
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLContinue, r, ctxInfo) {
-    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), /*markVarsDeclared=*/false);
+    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), no_mark_vars_declared());
     Var i(kInt_Type, "i", 0);
     DSLFunction(kVoid_Type, "success").define(
         For(Declare(i), i < 10, ++i, Block(
@@ -1259,7 +1295,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLContinue, r, ctxInfo) {
 }
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDeclare, r, ctxInfo) {
-    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), /*markVarsDeclared=*/false);
+    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), no_mark_vars_declared());
     Var a(kHalf4_Type, "a"), b(kHalf4_Type, "b", Half4(1));
     Statement x = Declare(a);
     EXPECT_EQUAL(x, "half4 a;");
@@ -1287,7 +1323,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDeclare, r, ctxInfo) {
 }
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDeclareGlobal, r, ctxInfo) {
-    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), /*markVarsDeclared=*/false);
+    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), no_mark_vars_declared());
     Var x(kInt_Type, "x", 0);
     DeclareGlobal(x);
     Var y(kUniform_Modifier, kFloat2_Type, "y");
@@ -1319,7 +1355,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDo, r, ctxInfo) {
 }
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFor, r, ctxInfo) {
-    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), /*markVarsDeclared=*/false);
+    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), no_mark_vars_declared());
     EXPECT_EQUAL(For(Statement(), Expression(), Expression(), Block()),
                 "for (;;) {}");
 
@@ -1349,7 +1385,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFor, r, ctxInfo) {
 }
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFunction, r, ctxInfo) {
-    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), /*markVarsDeclared=*/false);
+    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), no_mark_vars_declared());
     Var coords(kFloat2_Type, "coords");
     DSLFunction(kVoid_Type, "main", coords).define(
         sk_FragColor() = Half4(coords, 0, 1)
@@ -1609,7 +1645,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSwizzle, r, ctxInfo) {
 
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLVarSwap, r, ctxInfo) {
-    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), /*markVarsDeclared=*/false);
+    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), no_mark_vars_declared());
 
     // We should be able to convert `a` into a proper var by swapping it, even from within a scope.
     Var a;
@@ -1721,7 +1757,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBuiltins, r, ctxInfo) {
 }
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLModifiers, r, ctxInfo) {
-    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), /*markVarsDeclared=*/false);
+    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), no_mark_vars_declared());
 
     Var v1(kConst_Modifier, kInt_Type, "v1", 0);
     Statement d1 = Declare(v1);
@@ -1763,8 +1799,88 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLModifiers, r, ctxInfo) {
     // Uniforms do not need to be explicitly declared
 }
 
+DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLLayout, r, ctxInfo) {
+    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), no_mark_vars_declared());
+    Var v1(DSLModifiers(DSLLayout().location(1).set(2).binding(3).offset(4).index(5).builtin(6)
+                                   .inputAttachmentIndex(7),
+                        kConst_Modifier), kInt_Type, "v1", 0);
+    EXPECT_EQUAL(Declare(v1), "layout (location = 1, offset = 4, binding = 3, index = 5, set = 2, "
+                              "builtin = 6, input_attachment_index = 7) const int v1 = 0;");
+
+    Var v2(DSLLayout().originUpperLeft(), kFloat2_Type, "v2");
+    EXPECT_EQUAL(Declare(v2), "layout (origin_upper_left) float2 v2;");
+
+    Var v4(DSLLayout().pushConstant(), kBool_Type, "v4");
+    EXPECT_EQUAL(Declare(v4), "layout (push_constant) bool v4;");
+
+    Var v5(DSLLayout().blendSupportAllEquations(), kHalf4_Type, "v5");
+    EXPECT_EQUAL(Declare(v5), "layout (blend_support_all_equations) half4 v5;");
+
+    Var v6(DSLModifiers(DSLLayout().srgbUnpremul(), kUniform_Modifier), kBool_Type, "v6");
+    DeclareGlobal(v6);
+    EXPECT_EQUAL(*DSLWriter::ProgramElements()[0], "layout (srgb_unpremul) uniform bool v6;");
+
+    {
+        ExpectError error(r, "error: layout qualifier 'location' appears more than once\n");
+        DSLLayout().location(1).location(2);
+    }
+
+    {
+        ExpectError error(r, "error: layout qualifier 'set' appears more than once\n");
+        DSLLayout().set(1).set(2);
+    }
+
+    {
+        ExpectError error(r, "error: layout qualifier 'binding' appears more than once\n");
+        DSLLayout().binding(1).binding(2);
+    }
+
+    {
+        ExpectError error(r, "error: layout qualifier 'offset' appears more than once\n");
+        DSLLayout().offset(1).offset(2);
+    }
+
+    {
+        ExpectError error(r, "error: layout qualifier 'index' appears more than once\n");
+        DSLLayout().index(1).index(2);
+    }
+
+    {
+        ExpectError error(r, "error: layout qualifier 'builtin' appears more than once\n");
+        DSLLayout().builtin(1).builtin(2);
+    }
+
+    {
+        ExpectError error(r, "error: layout qualifier 'input_attachment_index' appears more than "
+                             "once\n");
+        DSLLayout().inputAttachmentIndex(1).inputAttachmentIndex(2);
+    }
+
+    {
+        ExpectError error(r, "error: layout qualifier 'origin_upper_left' appears more than "
+                             "once\n");
+        DSLLayout().originUpperLeft().originUpperLeft();
+    }
+
+    {
+        ExpectError error(r, "error: layout qualifier 'push_constant' appears more than once\n");
+        DSLLayout().pushConstant().pushConstant();
+    }
+
+    {
+        ExpectError error(r, "error: layout qualifier 'blend_support_all_equations' appears more "
+                             "than once\n");
+        DSLLayout().blendSupportAllEquations().blendSupportAllEquations();
+    }
+
+    {
+        ExpectError error(r, "error: layout qualifier 'srgb_unpremul' appears more than once\n");
+        DSLLayout().srgbUnpremul().srgbUnpremul();
+    }
+}
+
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSampleFragmentProcessor, r, ctxInfo) {
-    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), /*markVarsDeclared=*/true,
+    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), default_settings(),
                            SkSL::ProgramKind::kFragmentProcessor);
     DSLVar child(kUniform_Modifier, kFragmentProcessor_Type, "child");
     EXPECT_EQUAL(Sample(child), "sample(child)");
@@ -1779,7 +1895,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSampleFragmentProcessor, r, ctxInfo) {
 }
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSampleShader, r, ctxInfo) {
-    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), /*markVarsDeclared=*/true,
+    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), default_settings(),
                            SkSL::ProgramKind::kRuntimeShader);
     DSLVar shader(kUniform_Modifier, kShader_Type, "shader");
     EXPECT_EQUAL(Sample(shader, Float2(0, 0)), "sample(shader, float2(0.0, 0.0))");
@@ -1791,7 +1907,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSampleShader, r, ctxInfo) {
 }
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLStruct, r, ctxInfo) {
-    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), /*markVarsDeclared=*/false);
+    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), no_mark_vars_declared());
 
     DSLType simpleStruct = Struct("SimpleStruct",
         Field(kFloat_Type, "x"),

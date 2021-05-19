@@ -102,7 +102,7 @@ void GrPathInnerTriangulateOp::prePreparePrograms(const GrPathShader::ProgramArg
         using DrawInnerFan = GrPathIndirectTessellator::DrawInnerFan;
         fTessellator = args.fArena->make<GrPathIndirectTessellator>(fViewMatrix, fPath,
                                                                     DrawInnerFan::kNo);
-        fStencilCurvesProgram = GrStencilPathShader::MakeStencilProgram<GrMiddleOutCubicShader>(
+        fStencilCurvesProgram = GrStencilPathShader::MakeStencilProgram<GrCurveMiddleOutShader>(
                 args, fViewMatrix, pipelineForStencils, fPath.getFillType());
     }
 

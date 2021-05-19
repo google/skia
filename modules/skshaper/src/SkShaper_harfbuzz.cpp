@@ -15,6 +15,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
@@ -28,7 +29,6 @@
 #include "modules/skshaper/include/SkShaper.h"
 #include "modules/skshaper/src/SkUnicode.h"
 #include "src/core/SkLRUCache.h"
-#include "src/core/SkSpan.h"
 #include "src/core/SkTDPQueue.h"
 #include "src/utils/SkUTF.h"
 
@@ -1363,7 +1363,7 @@ ShapedRun ShaperHarfBuzz::shape(char const * const utf8,
     }
 
     SkSTArray<32, hb_feature_t> hbFeatures;
-    for (const auto& feature : SkSpan(features, featuresSize)) {
+    for (const auto& feature : SkMakeSpan(features, featuresSize)) {
         if (feature.end < SkTo<size_t>(utf8Start - utf8) ||
                           SkTo<size_t>(utf8End   - utf8)  <= feature.start)
         {

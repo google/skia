@@ -8,7 +8,7 @@
 #ifndef SKSL_CONSTRUCTOR
 #define SKSL_CONSTRUCTOR
 
-#include "src/core/SkSpan.h"
+#include "include/core/SkSpan.h"
 #include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/ir/SkSLExpression.h"
 

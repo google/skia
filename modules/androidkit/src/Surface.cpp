@@ -4,20 +4,13 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "modules/androidkit/src/Surface.h"
 
 #include <android/bitmap.h>
 #include <android/log.h>
-#include <android/native_window_jni.h>
-#include <android/native_window.h>
-#include <jni.h>
 
-#include "include/core/SkPictureRecorder.h"
-#include "include/core/SkRefCnt.h"
-#include "include/core/SkSurface.h"
-#include "include/core/SkTypes.h"
 #include "tools/sk_app/Application.h"
 #include "tools/sk_app/DisplayParams.h"
-#include "tools/sk_app/WindowContext.h"
 #include "tools/sk_app/android/WindowContextFactory_android.h"
 
 namespace sk_app {
@@ -28,57 +21,69 @@ Application* Application::Create(int argc, char** argv, void* platformData) {
 }
 }
 
-#include "modules/androidkit/src/SurfaceThread.h"
+WindowSurface::WindowSurface(ANativeWindow* win, std::unique_ptr<sk_app::WindowContext> wctx)
+    : fWindow(win)
+    , fWindowContext(std::move(wctx))
+{
+    SkASSERT(fWindow);
+    SkASSERT(fWindowContext);
+
+    fSurface = fWindowContext->getBackbufferSurface();
+}
+
+void WindowSurface::release(JNIEnv* env) {
+    fWindowContext.reset();
+    ANativeWindow_release(fWindow);
+}
+
+SkCanvas* WindowSurface::getCanvas() {
+    if (fSurface) {
+        return fSurface->getCanvas();
+    }
+    return nullptr;
+}
+
+void WindowSurface::flushAndSubmit() {
+    fSurface->flushAndSubmit();
+    fWindowContext->swapBuffers();
+    fSurface = fWindowContext->getBackbufferSurface();
+}
+
+// SkSurface created from being passed an android.view.Surface
+// For now, assume we are always rendering with OpenGL
+// TODO: add option of choose backing
+ThreadedSurface::ThreadedSurface(JNIEnv* env, jobject surface)
+      : fThread(std::make_unique<SurfaceThread>()) {
+    ANativeWindow* window = ANativeWindow_fromSurface(env, surface);
+    fWidth = ANativeWindow_getWidth(window);
+    fHeight = ANativeWindow_getHeight(window);
+
+    Message message(kInitialize);
+    message.fNativeWindow = window;
+    message.fWindowSurface = &fWindowSurface;
+    fThread->postMessage(message);
+}
+
+void ThreadedSurface::release(JNIEnv* env) {
+    Message message(kDestroy);
+    message.fWindowSurface = &fWindowSurface;
+    fThread->postMessage(message);
+    fThread->release();
+}
+
+SkCanvas* ThreadedSurface::getCanvas() {
+    return fRecorder.beginRecording(fWidth,
+                                    fHeight);
+}
+
+void ThreadedSurface::flushAndSubmit() {
+    Message message(kRenderPicture);
+    message.fWindowSurface = &fWindowSurface;
+    message.fPicture = fRecorder.finishRecordingAsPicture().release();
+    fThread->postMessage(message);
+}
 
 namespace {
-
-class Surface : public SkRefCnt {
-public:
-    virtual void release(JNIEnv*) = 0;
-    virtual void flushAndSubmit() = 0;
-    virtual SkCanvas* getCanvas() = 0;
-
-    int width()  const { return fSurface ? fSurface->width()  : 0; }
-    int height() const { return fSurface ? fSurface->height() : 0; }
-
-protected:
-    sk_sp<SkSurface> fSurface;
-};
-
-class WindowSurface final : public Surface {
-public:
-    WindowSurface(ANativeWindow* win, std::unique_ptr<sk_app::WindowContext> wctx)
-        : fWindow(win)
-        , fWindowContext(std::move(wctx))
-    {
-        SkASSERT(fWindow);
-        SkASSERT(fWindowContext);
-
-        fSurface = fWindowContext->getBackbufferSurface();
-    }
-
-private:
-    void release(JNIEnv* env) override {
-        fWindowContext.reset();
-        ANativeWindow_release(fWindow);
-    }
-
-    SkCanvas* getCanvas() override {
-        if (fSurface) {
-            return fSurface->getCanvas();
-        }
-        return nullptr;
-    }
-
-    void flushAndSubmit() override {
-        fSurface->flushAndSubmit();
-        fWindowContext->swapBuffers();
-        fSurface = fWindowContext->getBackbufferSurface();
-    }
-
-    ANativeWindow*                         fWindow;
-    std::unique_ptr<sk_app::WindowContext> fWindowContext;
-};
 
 class BitmapSurface final : public Surface {
 public:
@@ -150,43 +155,6 @@ private:
     }
 
     jobject fBitmap;
-};
-
-// SkSurface created from being passed an android.view.Surface
-// For now, assume we are always rendering with OpenGL
-// TODO: add option of choose backing
-class ThreadedSurface final : public Surface {
-public:
-    ThreadedSurface(JNIEnv* env, jobject surface) {
-        fWindow = ANativeWindow_fromSurface(env, surface);
-        Message message(kInitialize);
-        message.fNativeWindow = fWindow;
-    }
-
-private:
-    void release(JNIEnv* env) override {
-        fThread.postMessage(Message(kDestroy));
-        if (fWindow) {
-            ANativeWindow_release(fWindow);
-        }
-       fSurface.reset();
-    }
-
-    SkCanvas* getCanvas() override {
-        return fRecorder.beginRecording(ANativeWindow_getWidth(fWindow),
-                                        ANativeWindow_getHeight(fWindow));
-    }
-
-    void flushAndSubmit() override{
-        Message message(kRenderPicture);
-        message.fNativeWindow = fWindow;
-        message.fPicture = fRecorder.finishRecordingAsPicture().release();
-        fThread.postMessage(message);
-    }
-
-    ANativeWindow* fWindow;
-    SkPictureRecorder fRecorder;
-    SurfaceThread fThread;
 };
 
 // *** JNI methods ***

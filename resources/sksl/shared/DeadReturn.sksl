@@ -1,0 +1,10 @@
+uniform half4 colorGreen, colorRed;
+
+bool test() {
+    return true;
+    return false;
+}
+
+half4 main(float2 xy) {
+    return test() ? colorGreen : colorRed;
+}

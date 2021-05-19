@@ -94,7 +94,6 @@ void Parser::InitLayoutMap() {
     TOKEN(BUILTIN,                      "builtin");
     TOKEN(INPUT_ATTACHMENT_INDEX,       "input_attachment_index");
     TOKEN(ORIGIN_UPPER_LEFT,            "origin_upper_left");
-    TOKEN(OVERRIDE_COVERAGE,            "override_coverage");
     TOKEN(BLEND_SUPPORT_ALL_EQUATIONS,  "blend_support_all_equations");
     TOKEN(PUSH_CONSTANT,                "push_constant");
     TOKEN(POINTS,                       "points");
@@ -108,7 +107,6 @@ void Parser::InitLayoutMap() {
     TOKEN(INVOCATIONS,                  "invocations");
     TOKEN(WHEN,                         "when");
     TOKEN(KEY,                          "key");
-    TOKEN(TRACKED,                      "tracked");
     TOKEN(SRGB_UNPREMUL,                "srgb_unpremul");
     TOKEN(CTYPE,                        "ctype");
     TOKEN(SKPMCOLOR4F,                  "SkPMColor4f");
@@ -916,17 +914,11 @@ Layout Parser::layout() {
                     case LayoutToken::ORIGIN_UPPER_LEFT:
                         setFlag(Layout::kOriginUpperLeft_Flag);
                         break;
-                    case LayoutToken::OVERRIDE_COVERAGE:
-                        setFlag(Layout::kOverrideCoverage_Flag);
-                        break;
                     case LayoutToken::PUSH_CONSTANT:
                         setFlag(Layout::kPushConstant_Flag);
                         break;
                     case LayoutToken::BLEND_SUPPORT_ALL_EQUATIONS:
                         setFlag(Layout::kBlendSupportAllEquations_Flag);
-                        break;
-                    case LayoutToken::TRACKED:
-                        setFlag(Layout::kTracked_Flag);
                         break;
                     case LayoutToken::SRGB_UNPREMUL:
                         setFlag(Layout::kSRGBUnpremul_Flag);

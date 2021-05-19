@@ -10,8 +10,8 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkRSXform.h"
+#include "include/core/SkSpan.h"
 #include "include/private/SkTDArray.h"
-#include "src/core/SkSpan.h"
 #include "src/core/SkZip.h"
 #include "tools/ToolUtils.h"
 
@@ -32,7 +32,7 @@ public:
 
         fPositions.append(fGlyphCount);
         fFont.getPos(fGlyphs.begin(), fGlyphCount, fPositions.begin());
-        auto positions = SkSpan(fPositions.begin(), fGlyphCount);
+        auto positions = SkMakeSpan(fPositions.begin(), fGlyphCount);
 
         fLength = positions.back().x() - positions.front().x();
         fRadius = fLength / SK_FloatPI;

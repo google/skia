@@ -330,6 +330,8 @@ function fontTests(CK: CanvasKit, face?: Typeface, paint?: Paint) {
     const widths = font.getGlyphWidths(glyphMalloc, paint);
     font.getGlyphWidths(someGlyphs, null, widths);
 
+    const sects = font.getGlyphIntercepts(ids, [10, 20], -60, -40);
+
     font.getScaleX();
     font.getSize();
     font.getSkewX();

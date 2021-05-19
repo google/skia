@@ -464,7 +464,7 @@ void SkRuntimeEffect::initFilterColorInfo() {
     skvm::Color result = SkSL::ProgramToSkVM(*fBaseProgram,
                                              fMain,
                                              &p,
-                                             uniform,
+                                             SkMakeSpan(uniform),
                                              /*device=*/zeroCoord,
                                              /*local=*/zeroCoord,
                                              inputColor,
@@ -607,7 +607,7 @@ public:
             uniform.push_back(p->uniform32(uniforms->push(bits)).id);
         }
 
-        return SkSL::ProgramToSkVM(*fEffect->fBaseProgram, fEffect->fMain, p, uniform,
+        return SkSL::ProgramToSkVM(*fEffect->fBaseProgram, fEffect->fMain, p, SkMakeSpan(uniform),
                                    /*device=*/zeroCoord, /*local=*/zeroCoord, c, sampleChild);
     }
 
@@ -782,7 +782,7 @@ public:
             uniform.push_back(p->uniform32(uniforms->push(bits)).id);
         }
 
-        return SkSL::ProgramToSkVM(*fEffect->fBaseProgram, fEffect->fMain, p, uniform,
+        return SkSL::ProgramToSkVM(*fEffect->fBaseProgram, fEffect->fMain, p, SkMakeSpan(uniform),
                                    device, local, paint, sampleChild);
     }
 

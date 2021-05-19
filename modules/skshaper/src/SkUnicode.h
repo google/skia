@@ -7,8 +7,8 @@
 #ifndef SkUnicode_DEFINED
 #define SkUnicode_DEFINED
 
+#include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
-#include "src/core/SkSpan.h"
 #include "src/utils/SkUTF.h"
 #include <vector>
 

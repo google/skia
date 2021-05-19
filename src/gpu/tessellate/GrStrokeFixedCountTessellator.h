@@ -16,9 +16,12 @@
 class GrStrokeFixedCountTessellator : public GrStrokeTessellator {
 public:
     GrStrokeFixedCountTessellator(ShaderFlags shaderFlags, const SkMatrix& viewMatrix,
-                                  PathStrokeList* pathStrokeList)
-            : GrStrokeTessellator(GrStrokeTessellateShader::Mode::kFixedCount, shaderFlags,
-                                  viewMatrix, pathStrokeList) {
+                                  PathStrokeList* pathStrokeList,
+                                  std::array<float, 2> matrixMinMaxScales,
+                                  const SkRect& strokeCullBounds)
+            : GrStrokeTessellator(GrStrokeShader::Mode::kFixedCount, shaderFlags,
+                                  viewMatrix, pathStrokeList, matrixMinMaxScales,
+                                  strokeCullBounds) {
     }
 
     void prepare(GrMeshDrawOp::Target*, int totalCombinedVerbCnt) override;

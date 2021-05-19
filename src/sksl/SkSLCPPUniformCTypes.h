@@ -17,13 +17,8 @@
 
 namespace SkSL {
 
-// This uses templates to define dirtyExpression(), saveState() and setUniform(). Each template can
-// reference token names formatted ${name} that are replaced with the actual values passed into the
-// functions.
-//
-// dirtyExpression() and saveState() support the following tokens:
-//  - ${newVar} replaced with value of newValueVarName (1st argument)
-//  - ${oldVar} replaced with value of oldValueVarName (2nd argument)
+// This uses templates to define setUniform(). The template can reference token names formatted
+// ${name} that are replaced with the actual values passed into the function.
 //
 // setUniform() supports these tokens:
 //  - ${pdman} replaced with value of pdmanName (1st argument)
@@ -34,10 +29,7 @@ namespace SkSL {
 // semicolons or newlines, which will be handled by the code generation itself.
 class UniformCTypeMapper {
 public:
-    UniformCTypeMapper(Layout::CType ctype, const std::vector<String>& skslTypes,
-            const String& setUniformSingleFormat, const String& setUniformArrayFormat,
-            const String& defaultValue = "", const String& dirtyExpressionFormat = "",
-            const String& saveStateFormat = "");
+    UniformCTypeMapper(const char* setUniformTemplate) : fSetUniformTemplate(setUniformTemplate) {}
 
     // Returns nullptr if the type and layout are not supported; the returned pointer's ownership
     // is not transfered to the caller.
@@ -51,37 +43,6 @@ public:
         return Get(context, variable.type(), variable.modifiers().fLayout);
     }
 
-    // The C++ type name that this mapper applies to
-    Layout::CType ctype() const {
-        return fCType;
-    }
-
-    // The sksl type names that the mapper's ctype can be mapped to
-    const std::vector<String>& supportedTypeNames() const {
-        return fSKSLTypes;
-    }
-
-    // What the C++ class fields are initialized to in the GLSLFragmentProcessor The empty string
-    // implies the no-arg constructor is suitable.
-    //
-    // The returned snippet will be a valid as the lhs of an assignment.
-    const String& defaultValue() const {
-        return fDefaultValue;
-    }
-
-    // Return a boolean expression that returns true if the variables specified by newValueVarName
-    // and oldValueVarName have different values.
-    //
-    // The returned snippet will be a valid expression to be inserted into the condition of an 'if'
-    // statement.
-    String dirtyExpression(const String& newValueVarName, const String& oldValueVarName) const;
-
-    // Return a statement that stores the value of newValueVarName into the variable specified by
-    // oldValueVarName.
-    //
-    // The returned snippet will be a valid expression.
-    String saveState(const String& newValueVarName, const String& oldValueVarName) const;
-
     // Return a statement that invokes the appropriate setX method on the GrGLSLProgramDataManager
     // specified by pdmanName, where the uniform is provided by the expression stored in
     // uniformHandleName, and valueVarName is the variable name pointing to the ctype instance
@@ -91,26 +52,8 @@ public:
     String setUniform(const String& pdmanName, const String& uniformHandleName,
                       const String& valueVarName) const;
 
-    // True if the setUniform() template only uses the value variable once in its expression. The
-    // variable does not necessarily get inlined if this returns true, since a local variable may be
-    // needed if state tracking is employed for a particular uniform.
-    bool canInlineUniformValue() const {
-        return fInlineValue;
-    }
-
 private:
-    const UniformCTypeMapper* arrayMapper(int arrayCount) const;
-
-    Layout::CType fCType;
-    int fArrayCount = -1;
-    std::vector<String> fSKSLTypes;
-    String fUniformSingleTemplate;
-    String fUniformArrayTemplate;
-    bool fInlineValue; // Cached value calculated from fUniformTemplate
-
-    String fDefaultValue;
-    String fDirtyExpressionTemplate;
-    String fSaveStateTemplate;
+    String fSetUniformTemplate;
 };
 
 }  // namespace SkSL

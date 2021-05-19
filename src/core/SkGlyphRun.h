@@ -15,9 +15,9 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRSXform.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkTemplates.h"
-#include "src/core/SkSpan.h"
 #include "src/core/SkZip.h"
 
 class SkBaseDevice;

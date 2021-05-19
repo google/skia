@@ -12,6 +12,7 @@
 #include "include/private/SkTArray.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathPriv.h"
+#include "src/gpu/GrVertexWriter.h"
 #include "src/gpu/GrVx.h"
 
 class SkMatrix;
@@ -21,14 +22,28 @@ class SkMatrix;
  */
 namespace GrPathUtils {
 
+// When tessellating curved paths into linear segments, this defines the maximum distance in screen
+// space which a segment may deviate from the mathematically correct value. Above this value, the
+// segment will be subdivided.
+// This value was chosen to approximate the supersampling accuracy of the raster path (16 samples,
+// or one quarter pixel).
+static const SkScalar kDefaultTolerance = SkDoubleToScalar(0.25);
+
+// We guarantee that no quad or cubic will ever produce more than this many points
+static const int kMaxPointsPerCurve = 1 << 10;
+
 // Very small tolerances will be increased to a minimum threshold value, to avoid division problems
 // in subsequent math.
 SkScalar scaleToleranceToSrc(SkScalar devTol,
                              const SkMatrix& viewM,
                              const SkRect& pathBounds);
 
+// Returns the maximum number of vertices required when using a recursive chopping algorithm to
+// linearize the quadratic Bezier (e.g. generateQuadraticPoints below) to the given error tolerance.
+// This is a power of two and will not exceed kMaxPointsPerCurve.
 uint32_t quadraticPointCount(const SkPoint points[], SkScalar tol);
 
+// Returns the number of points actually written to 'points', will be <= to 'pointsLeft'
 uint32_t generateQuadraticPoints(const SkPoint& p0,
                                  const SkPoint& p1,
                                  const SkPoint& p2,
@@ -36,8 +51,12 @@ uint32_t generateQuadraticPoints(const SkPoint& p0,
                                  SkPoint** points,
                                  uint32_t pointsLeft);
 
+// Returns the maximum number of vertices required when using a recursive chopping algorithm to
+// linearize the cubic Bezier (e.g. generateQuadraticPoints below) to the given error tolerance.
+// This is a power of two and will not exceed kMaxPointsPerCurve.
 uint32_t cubicPointCount(const SkPoint points[], SkScalar tol);
 
+// Returns the number of points actually written to 'points', will be <= to 'pointsLeft'
 uint32_t generateCubicPoints(const SkPoint& p0,
                              const SkPoint& p1,
                              const SkPoint& p2,
@@ -114,16 +133,6 @@ void convertCubicToQuadsConstrainToTangents(const SkPoint p[4],
                                             SkPathFirstDirection dir,
                                             SkTArray<SkPoint, true>* quads);
 
-// When tessellating curved paths into linear segments, this defines the maximum distance in screen
-// space which a segment may deviate from the mathematically correct value. Above this value, the
-// segment will be subdivided.
-// This value was chosen to approximate the supersampling accuracy of the raster path (16 samples,
-// or one quarter pixel).
-static const SkScalar kDefaultTolerance = SkDoubleToScalar(0.25);
-
-// We guarantee that no quad or cubic will ever produce more than this many points
-static const int kMaxPointsPerCurve = 1 << 10;
-
 // Converts the given line to a cubic bezier.
 // NOTE: This method interpolates at 1/3 and 2/3, but if suitable in context, the cubic
 // {p0, p0, p1, p1} may also work.
@@ -139,16 +148,17 @@ inline void convertLineToCubic(SkPoint startPt, SkPoint endPt, SkPoint out[4]) {
 }
 
 // Converts the given quadratic bezier to a cubic.
-inline void convertQuadToCubic(const SkPoint p[3], SkPoint out[4]) {
+inline void writeQuadAsCubic(const SkPoint p[3], GrVertexWriter* writer) {
     using grvx::float2, skvx::bit_pun;
     float2 p0 = bit_pun<float2>(p[0]);
     float2 p1 = bit_pun<float2>(p[1]);
     float2 p2 = bit_pun<float2>(p[2]);
     float2 c = p1 * (2/3.f);
-    out[0] = bit_pun<SkPoint>(p0);
-    out[1] = bit_pun<SkPoint>(grvx::fast_madd<2>(p0, 1/3.f, c));
-    out[2] = bit_pun<SkPoint>(grvx::fast_madd<2>(p2, 1/3.f, c));
-    out[3] = bit_pun<SkPoint>(p2);
+    writer->write(p0, grvx::fast_madd<2>(p0, 1/3.f, c), grvx::fast_madd<2>(p2, 1/3.f, c), p2);
+}
+inline void convertQuadToCubic(const SkPoint p[3], SkPoint out[4]) {
+    GrVertexWriter writer(out);
+    writeQuadAsCubic(p, &writer);
 }
 
 // Finds 0, 1, or 2 T values at which to chop the given curve in order to guarantee the resulting

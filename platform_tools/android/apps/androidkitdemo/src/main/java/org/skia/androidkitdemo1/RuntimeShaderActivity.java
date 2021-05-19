@@ -9,19 +9,14 @@ package org.skia.androidkitdemo1;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import org.skia.androidkit.*;
+import org.skia.androidkit.util.*;
 
-// TODO: refactor to share w/ other activities
-class RuntimeShaderRenderThread extends Thread {
-    private android.view.Surface mAndroidSurface;
-    private Surface              mSurface;
-    private RuntimeShaderBuilder mBuilder;
-    private boolean              mRunning;
+class RuntimeShaderRenderer extends SurfaceRenderer {
+    private RuntimeShaderBuilder mBuilder = new RuntimeShaderBuilder(SkSLShader);
 
-    private static final String TAG = "*** AK RenderThread";
     private static final String SkSLShader =
         "uniform half u_time;                                  " +
         "uniform half u_w;                                     " +
@@ -48,72 +43,43 @@ class RuntimeShaderRenderThread extends Thread {
 
         "half4 main(vec2 fragcoord) {                     " +
         "   vec3 c;" +
-	    "   float l;" +
+        "   float l;" +
         "   float z=u_time;" +
-	    "   for(int i=0;i<3;i++) {" +
-		"       vec2 p=fragcoord.xy/vec2(u_w,u_h);" +
-		"       vec2 uv=p;" +
-		"       p-=.5;" +
-		"       p.x*=u_w/u_h;" +
-		"       z+=.07;" +
-		"       l=length(p);" +
-		"       uv+=p/l*(sin(z)+1.)*abs(sin(l*9.-z*2.));" +
-		"       c[i]=.01/length(abs(mod(uv,1.)-.5));" +
-	    "   }" +
-	    "   return half4(c/l,u_time);" +
+        "   for(int i=0;i<3;i++) {" +
+        "       vec2 p=fragcoord.xy/vec2(u_w,u_h);" +
+        "       vec2 uv=p;" +
+        "       p-=.5;" +
+        "       p.x*=u_w/u_h;" +
+        "       z+=.07;" +
+        "       l=length(p);" +
+        "       uv+=p/l*(sin(z)+1.)*abs(sin(l*9.-z*2.));" +
+        "       c[i]=.01/length(abs(mod(uv,1.)-.5));" +
+        "   }" +
+        "   return half4(c/l,u_time);" +
         "}";
 
-    public RuntimeShaderRenderThread(android.view.Surface surface) {
-        mAndroidSurface = surface;
-        mBuilder = new RuntimeShaderBuilder(SkSLShader);
-    }
-
-    public void finish() {
-        mRunning = false;
-    }
+    @Override
+    protected void onSurfaceInitialized(Surface surface) {}
 
     @Override
-    public void run() {
-        mRunning = true;
-
-        Log.d(TAG, "start");
-
-        long time_base = java.lang.System.currentTimeMillis();
-
-        Surface surface = Surface.CreateGL(mAndroidSurface);
-
-        while (mRunning) {
-            renderFrame(surface.getCanvas(),
-                        (double)(java.lang.System.currentTimeMillis() - time_base) / 1000,
-                        surface.getWidth(), surface.getHeight());
-            surface.flushAndSubmit();
-        }
-
-        surface.release();
-        Log.d(TAG, "finish");
-    }
-
-    private void renderFrame(Canvas canvas, double t, int canvas_width, int canvas_height) {
-        final float kWidth  = 1000,
-                    kHeight = 1000,
-                    kSpeed  = 40;
+    protected void onRenderFrame(Canvas canvas, long ms) {
+        final int w = canvas.getWidth();
+        final int h = canvas.getHeight();
 
         Paint p = new Paint();
-        p.setShader(mBuilder.setUniform("u_time", (float)t)
-                            .setUniform("u_w", canvas_width)
-                            .setUniform("u_h", canvas_height)
+        p.setShader(mBuilder.setUniform("u_time", ms/1000.0f)
+                            .setUniform("u_w", w)
+                            .setUniform("u_h", h)
                             .makeShader());
 
-        canvas.drawRect(0, 0, canvas_width, canvas_height, p);
+        canvas.drawRect(0, 0, w, h, p);
     }
 }
 
-public class RuntimeShaderActivity extends Activity implements SurfaceHolder.Callback {
+public class RuntimeShaderActivity extends Activity {
     static {
         System.loadLibrary("androidkit");
     }
-
-    private RuntimeShaderRenderThread mRenderThread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,33 +87,6 @@ public class RuntimeShaderActivity extends Activity implements SurfaceHolder.Cal
         setContentView(R.layout.activity_animation);
 
         SurfaceView sv = findViewById(R.id.surfaceView);
-        sv.getHolder().addCallback(this);
-    }
-
-    @Override
-    public void surfaceCreated(SurfaceHolder holder) {
-    }
-
-    @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-        if (mRenderThread != null) {
-            mRenderThread.finish();
-            try {
-                mRenderThread.join();
-            } catch (InterruptedException e) {}
-        }
-
-        mRenderThread = new RuntimeShaderRenderThread(holder.getSurface());;
-        mRenderThread.start();
-    }
-
-    @Override
-    public void surfaceDestroyed(SurfaceHolder holder) {
-        if (mRenderThread != null) {
-            mRenderThread.finish();
-            try {
-                mRenderThread.join();
-            } catch (InterruptedException e) {}
-        }
+        sv.getHolder().addCallback(new RuntimeShaderRenderer());
     }
 }

@@ -15,7 +15,7 @@
 #include "src/gpu/tessellate/GrStrokeHardwareTessellator.h"
 #include "src/gpu/tessellate/GrStrokeIndirectTessellator.h"
 
-using DynamicStroke = GrStrokeTessellateShader::DynamicStroke;
+using DynamicStroke = GrStrokeShader::DynamicStroke;
 
 GrStrokeTessellateOp::GrStrokeTessellateOp(GrAAType aaType, const SkMatrix& viewMatrix,
                                            const SkPath& path, const SkStrokeRec& stroke,
@@ -33,9 +33,18 @@ GrStrokeTessellateOp::GrStrokeTessellateOp(GrAAType aaType, const SkMatrix& view
         fShaderFlags |= ShaderFlags::kWideColor;
     }
     SkRect devBounds = path.getBounds();
-    float inflationRadius = stroke.getInflationRadius();
-    devBounds.outset(inflationRadius, inflationRadius);
+    if (!this->headStroke().isHairlineStyle()) {
+        // Non-hairlines inflate in local path space (pre-transform).
+        fInflationRadius = stroke.getInflationRadius();
+        devBounds.outset(fInflationRadius, fInflationRadius);
+    }
     viewMatrix.mapRect(&devBounds, devBounds);
+    if (this->headStroke().isHairlineStyle()) {
+        // Hairlines inflate in device space (post-transform).
+        fInflationRadius = SkStrokeRec::GetInflationRadius(stroke.getJoin(), stroke.getMiter(),
+                                                           stroke.getCap(), 1);
+        devBounds.outset(fInflationRadius, fInflationRadius);
+    }
     this->setBounds(devBounds, HasAABloat::kNo, IsHairline::kNo);
 }
 
@@ -121,6 +130,7 @@ GrOp::CombineResult GrStrokeTessellateOp::onCombineIfPossible(GrOp* grOp, SkAren
     fPathStrokeTail = (op->fPathStrokeTail == &op->fPathStrokeList.fNext) ? &headCopy->fNext
                                                                           : op->fPathStrokeTail;
 
+    fInflationRadius = std::max(fInflationRadius, op->fInflationRadius);
     fTotalCombinedVerbCnt += op->fTotalCombinedVerbCnt;
     return CombineResult::kMerged;
 }
@@ -147,31 +157,73 @@ constexpr static GrUserStencilSettings kTestAndResetStencil(
         GrUserStencilOp::kReplace,
         0xffff>());
 
+bool GrStrokeTessellateOp::canUseHardwareTessellation(int numVerbs, const GrCaps& caps) {
+    SkASSERT(!fStencilProgram && !fFillProgram);  // Ensure we haven't std::moved fProcessors.
+    if (!caps.shaderCaps()->tessellationSupport()) {
+        return false;
+    }
+    if (fProcessors.usesVaryingCoords()) {
+        // Our back door for HW tessellation shaders isn't currently capable of passing varyings to
+        // the fragment shader, so if the processors have varyings, we need to use instanced draws
+        // instead.
+        return false;
+    }
+#if GR_TEST_UTILS
+    if (caps.shaderCaps()->maxTessellationSegments() < 64) {
+        // If maxTessellationSegments is lower than the spec minimum, it means we've overriden it
+        // for testing. Always use hardware tessellation if this is the case.
+        return true;
+    }
+#endif
+    // Only use hardware tessellation if we're drawing a somewhat large number of verbs. Otherwise
+    // we seem to be better off using instanced draws.
+    return numVerbs >= 50;
+}
+
 void GrStrokeTessellateOp::prePrepareTessellator(GrPathShader::ProgramArgs&& args,
                                                  GrAppliedClip&& clip) {
     SkASSERT(!fTessellator);
     SkASSERT(!fFillProgram);
     SkASSERT(!fStencilProgram);
+    // GrOp::setClippedBounds() should have been called by now.
+    SkASSERT(SkRect::MakeIWH(args.fWriteView.width(),
+                             args.fWriteView.height()).contains(this->bounds()));
 
     const GrCaps& caps = *args.fCaps;
     SkArenaAlloc* arena = args.fArena;
 
-    if (fTotalCombinedVerbCnt > 50 && this->canUseHardwareTessellation(caps)) {
+    std::array<float, 2> matrixMinMaxScales;
+    if (!fViewMatrix.getMinMaxScales(matrixMinMaxScales.data())) {
+        matrixMinMaxScales.fill(1);
+    }
+
+    float devInflationRadius = fInflationRadius;
+    if (!this->headStroke().isHairlineStyle()) {
+        devInflationRadius *= matrixMinMaxScales[1];
+    }
+    SkRect strokeCullBounds = this->bounds().makeOutset(devInflationRadius, devInflationRadius);
+
+    if (this->canUseHardwareTessellation(fTotalCombinedVerbCnt, caps)) {
         // Only use hardware tessellation if we're drawing a somewhat large number of verbs.
         // Otherwise we seem to be better off using instanced draws.
         fTessellator = arena->make<GrStrokeHardwareTessellator>(fShaderFlags, fViewMatrix,
                                                                 &fPathStrokeList,
-                                                                *caps.shaderCaps());
+                                                                matrixMinMaxScales,
+                                                                strokeCullBounds);
     } else if (fTotalCombinedVerbCnt > 50 && !(fShaderFlags & ShaderFlags::kDynamicColor)) {
         // Only use the log2 indirect tessellator if we're drawing a somewhat large number of verbs
         // and the stroke doesn't use dynamic color. (The log2 indirect tessellator can't support
         // dynamic color without a z-buffer, due to how it reorders strokes.)
         fTessellator = arena->make<GrStrokeIndirectTessellator>(fShaderFlags, fViewMatrix,
                                                                 &fPathStrokeList,
+                                                                matrixMinMaxScales,
+                                                                strokeCullBounds,
                                                                 fTotalCombinedVerbCnt, arena);
     } else {
         fTessellator = arena->make<GrStrokeFixedCountTessellator>(fShaderFlags, fViewMatrix,
-                                                                  &fPathStrokeList);
+                                                                  &fPathStrokeList,
+                                                                  matrixMinMaxScales,
+                                                                  strokeCullBounds);
     }
 
     auto* pipeline = GrFillPathShader::MakeFillPassPipeline(args, fAAType, std::move(clip),

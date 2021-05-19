@@ -15,6 +15,7 @@
 #include <tuple>
 
 #include "include/core/SkSerialProcs.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkTypeface.h"
 #include "include/private/SkChecksum.h"
 #include "include/private/SkTHash.h"
@@ -23,7 +24,6 @@
 #include "src/core/SkEnumerate.h"
 #include "src/core/SkGlyphRun.h"
 #include "src/core/SkScalerCache.h"
-#include "src/core/SkSpan.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkStrikeForGPU.h"
 #include "src/core/SkTLazy.h"

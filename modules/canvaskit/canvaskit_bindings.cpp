@@ -1205,10 +1205,23 @@ EMSCRIPTEN_BINDINGS(Skia) {
                 const float rect[] = {
                     fm.fXMin, fm.fTop, fm.fXMax, fm.fBottom
                 };
-                j.set("bounds", MakeTypedArray(4, rect, "Float32Array"));
+                j.set("bounds", MakeTypedArray(4, rect));
             }
             return j;
         }))
+        .function("getGlyphIntercepts", optional_override([](SkFont& self,
+                                                             JSArray jglyphs,
+                                                             JSArray jpos,
+                                                             float top, float bottom) -> JSArray {
+            JSSpan<uint16_t> glyphs(jglyphs);
+            JSSpan<float>    pos   (jpos);
+            if (glyphs.size() > (pos.size() >> 1)) {
+                return emscripten::val("Not enough x,y position pairs for glyphs");
+            }
+            auto sects  = self.getIntercepts(glyphs.data(), SkToInt(glyphs.size()),
+                                             (const SkPoint*)pos.data(), top, bottom);
+            return MakeTypedArray(sects.size(), (const float*)sects.data());
+        }), allow_raw_pointers())
         .function("getScaleX", &SkFont::getScaleX)
         .function("getSize", &SkFont::getSize)
         .function("getSkewX", &SkFont::getSkewX)

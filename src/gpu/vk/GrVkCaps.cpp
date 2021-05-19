@@ -589,6 +589,11 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
     if (kImagination_VkVendor == properties.vendorID) {
         fShaderCaps->fAtan2ImplementedAsAtanYOverX = true;
     }
+
+    // http://skbug.com/11965
+    if (strstr(properties.deviceName, "SwiftShader")) {
+        fShaderCaps->fVertexIDSupport = false;
+    }
 }
 
 void GrVkCaps::initGrCaps(const GrVkInterface* vkInterface,
@@ -716,7 +721,7 @@ void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties,
     shaderCaps->fIntegerSupport = true;
     shaderCaps->fNonsquareMatrixSupport = true;
     shaderCaps->fVertexIDSupport = true;
-    shaderCaps->fFPManipulationSupport = true;
+    shaderCaps->fBitManipulationSupport = true;
 
     // Assume the minimum precisions mandated by the SPIR-V spec.
     shaderCaps->fFloatIs32Bits = true;

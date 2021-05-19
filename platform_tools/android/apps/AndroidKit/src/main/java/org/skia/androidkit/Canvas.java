@@ -16,12 +16,25 @@ public class Canvas {
     private long mNativeInstance;
     private Surface mSurface;
 
+    public int getWidth() {
+        return nGetWidth(mNativeInstance);
+    }
+
+    public int getHeight() {
+        return nGetHeight(mNativeInstance);
+    }
+
     public void save() {
         nSave(mNativeInstance);
     }
 
     public void restore() {
         nRestore(mNativeInstance);
+    }
+
+    public Matrix getLocalToDevice() {
+        long native_matrix = nGetLocalToDevice(mNativeInstance);
+        return new Matrix(native_matrix);
     }
 
     public void concat(Matrix m) {
@@ -63,8 +76,14 @@ public class Canvas {
         mSurface = surface;
     }
 
+    // package private
+    long getNativeInstance() { return mNativeInstance; }
+
+    private static native int  nGetWidth(long nativeInstance);
+    private static native int  nGetHeight(long nativeInstance);
     private static native void nSave(long nativeInstance);
     private static native void nRestore(long nativeInstance);
+    private static native long nGetLocalToDevice(long mNativeInstance);
     private static native void nConcat(long nativeInstance, long nativeMatrix);
     private static native void nConcat16f(long nativeInstance, float[] floatMatrix);
 

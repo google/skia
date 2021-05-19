@@ -17,9 +17,12 @@
 class GrStrokeHardwareTessellator : public GrStrokeTessellator {
 public:
     GrStrokeHardwareTessellator(ShaderFlags shaderFlags, const SkMatrix& viewMatrix,
-                                PathStrokeList* pathStrokeList, const GrShaderCaps&)
-            : GrStrokeTessellator(GrStrokeTessellateShader::Mode::kHardwareTessellation,
-                                  shaderFlags, viewMatrix, pathStrokeList) {
+                                PathStrokeList* pathStrokeList,
+                                std::array<float, 2> matrixMinMaxScales,
+                                const SkRect& strokeCullBounds)
+            : GrStrokeTessellator(GrStrokeShader::Mode::kHardwareTessellation,
+                                  shaderFlags, viewMatrix, pathStrokeList, matrixMinMaxScales,
+                                  strokeCullBounds) {
     }
 
     void prepare(GrMeshDrawOp::Target*, int totalCombinedVerbCnt) override;

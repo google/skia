@@ -278,6 +278,17 @@ public:
                                            GrProtected isProtected);
 
     /**
+     * Gets a GrAttachment that can be used for MSAA rendering. This attachment may be shared by
+     * other users. Thus any renderpass that uses the attachment should not assume any specific
+     * data at the start and should not try to save written data at the end. Ideally the render pass
+     * should discard the data at the end.
+     */
+    sk_sp<GrAttachment> getDiscardableMSAAAttachment(SkISize dimensions,
+                                                     const GrBackendFormat& format,
+                                                     int sampleCnt,
+                                                     GrProtected isProtected);
+
+    /**
      * Assigns a unique key to a resource. If the key is associated with another resource that
      * association is removed and replaced by this resource.
      */

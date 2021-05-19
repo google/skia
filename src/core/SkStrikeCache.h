@@ -200,7 +200,7 @@ private:
 
     void forEachStrike(std::function<void(const Strike&)> visitor) const SK_EXCLUDES(fLock);
 
-    mutable SkSpinlock fLock;
+    mutable SkMutex fLock;
     Strike* fHead SK_GUARDED_BY(fLock) {nullptr};
     Strike* fTail SK_GUARDED_BY(fLock) {nullptr};
     struct StrikeTraits {

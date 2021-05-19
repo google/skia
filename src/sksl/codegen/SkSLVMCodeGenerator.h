@@ -8,8 +8,8 @@
 #ifndef SKSL_VMGENERATOR
 #define SKSL_VMGENERATOR
 
+#include "include/core/SkSpan.h"
 #include "include/private/SkSLString.h"
-#include "src/core/SkSpan.h"
 #include "src/core/SkVM.h"
 #include "src/sksl/ir/SkSLType.h"
 

@@ -346,12 +346,6 @@ public:
 
     void onDumpJSON(SkJSONWriter*) const override;
 
-    bool rgba8888PixelsOpsAreSlow() const { return fRGBA8888PixelsOpsAreSlow; }
-    bool partialFBOReadIsSlow() const { return fPartialFBOReadIsSlow; }
-    bool rgbaToBgraReadbackConversionsAreSlow() const {
-        return fRGBAToBGRAReadbackConversionsAreSlow;
-    }
-
     bool useBufferDataNullHint() const { return fUseBufferDataNullHint; }
 
     // Certain Intel GPUs on Mac fail to clear if the glClearColor is made up of only 1s and 0s.
@@ -548,14 +542,11 @@ private:
     bool fBaseVertexBaseInstanceSupport : 1;
     bool fIsCoreProfile : 1;
     bool fBindFragDataLocationSupport : 1;
-    bool fRGBA8888PixelsOpsAreSlow : 1;
-    bool fPartialFBOReadIsSlow : 1;
     bool fBindUniformLocationSupport : 1;
     bool fRectangleTextureSupport : 1;
     bool fMipmapLevelControlSupport : 1;
     bool fMipmapLodControlSupport : 1;
-    bool fRGBAToBGRAReadbackConversionsAreSlow : 1;
-    bool fUseBufferDataNullHint                : 1;
+    bool fUseBufferDataNullHint : 1;
     bool fClearTextureSupport : 1;
     bool fProgramBinarySupport : 1;
     bool fProgramParameterSupport : 1;

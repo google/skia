@@ -249,6 +249,8 @@ private:
 
     SpvId writeConstantVector(const AnyConstructor& c);
 
+    SpvId writeScalarToMatrixSplat(const Type& matrixType, SpvId scalarId, OutputStream& out);
+
     SpvId writeFloatConstructor(const AnyConstructor& c, OutputStream& out);
 
     SpvId castScalarToFloat(SpvId inputId, const Type& inputType, const Type& outputType,
@@ -338,8 +340,7 @@ private:
     SpvId mergeComparisons(SpvId comparison, SpvId allComparisons, Operator op, OutputStream& out);
 
     SpvId writeComponentwiseMatrixBinary(const Type& operandType, SpvId lhs, SpvId rhs,
-                                         SpvOp_ floatOperator, SpvOp_ intOperator,
-                                         OutputStream& out);
+                                         SpvOp_ op, OutputStream& out);
 
     SpvId writeBinaryOperation(const Type& resultType, const Type& operandType, SpvId lhs,
                                SpvId rhs, SpvOp_ ifFloat, SpvOp_ ifInt, SpvOp_ ifUInt,
@@ -470,7 +471,6 @@ private:
     StringStream fGlobalInitializersBuffer;
     StringStream fConstantBuffer;
     StringStream fExtraGlobalsBuffer;
-    StringStream fExternalFunctionsBuffer;
     StringStream fVariableBuffer;
     StringStream fNameBuffer;
     StringStream fDecorationBuffer;

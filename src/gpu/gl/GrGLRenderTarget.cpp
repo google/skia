@@ -206,9 +206,10 @@ bool GrGLRenderTarget::ensureDynamicMSAAAttachment() {
         }
     }
 
-    fDynamicMSAAAttachment.reset(static_cast<GrGLAttachment*>(resourceProvider->makeMSAAAttachment(
-            this->dimensions(), this->backendFormat(), internalSampleCount,
-            GrProtected(this->isProtected())).release()));
+    fDynamicMSAAAttachment.reset(
+            static_cast<GrGLAttachment*>(resourceProvider->getDiscardableMSAAAttachment(
+                    this->dimensions(), this->backendFormat(), internalSampleCount,
+                    GrProtected(this->isProtected())).release()));
     if (!fDynamicMSAAAttachment) {
         return false;
     }

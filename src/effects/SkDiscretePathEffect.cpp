@@ -136,6 +136,14 @@ bool SkDiscretePathEffect::onFilterPath(SkPath* dst, const SkPath& src,
     return true;
 }
 
+bool SkDiscretePathEffect::computeFastBounds(SkRect* bounds) const {
+    if (bounds) {
+        SkScalar maxOutset = SkScalarAbs(fPerterb);
+        bounds->outset(maxOutset, maxOutset);
+    }
+    return true;
+}
+
 sk_sp<SkFlattenable> SkDiscretePathEffect::CreateProc(SkReadBuffer& buffer) {
     SkScalar segLength = buffer.readScalar();
     SkScalar perterb = buffer.readScalar();

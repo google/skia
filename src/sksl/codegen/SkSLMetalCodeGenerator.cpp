@@ -233,7 +233,7 @@ String MetalCodeGenerator::getOutParamHelper(const FunctionCall& call,
         separator = ", ";
 
         const Variable* param = function.parameters()[index];
-        this->writeModifiers(param->modifiers(), /*globalContext=*/false);
+        this->writeModifiers(param->modifiers());
 
         const Type* type = outVars[index] ? &outVars[index]->type() : &arguments[index]->type();
         this->writeType(*type);
@@ -1215,7 +1215,15 @@ void MetalCodeGenerator::writeSwizzle(const Swizzle& swizzle) {
 
 void MetalCodeGenerator::writeMatrixTimesEqualHelper(const Type& left, const Type& right,
                                                      const Type& result) {
-    String key = "TimesEqual " + this->typeName(left) + ":" + this->typeName(right);
+    SkASSERT(left.isMatrix());
+    SkASSERT(right.isMatrix());
+    SkASSERT(result.isMatrix());
+    SkASSERT(left.rows() == right.rows());
+    SkASSERT(left.columns() == right.columns());
+    SkASSERT(left.rows() == result.rows());
+    SkASSERT(left.columns() == result.columns());
+
+    String key = "Matrix *= " + this->typeName(left) + ":" + this->typeName(right);
 
     auto [iter, wasInserted] = fHelpers.insert(key);
     if (wasInserted) {
@@ -1234,7 +1242,7 @@ void MetalCodeGenerator::writeMatrixEqualityHelpers(const Type& left, const Type
     SkASSERT(left.rows() == right.rows());
     SkASSERT(left.columns() == right.columns());
 
-    String key = "MatrixEquality " + this->typeName(left) + ":" + this->typeName(right);
+    String key = "Matrix == " + this->typeName(left) + ":" + this->typeName(right);
 
     auto [iter, wasInserted] = fHelpers.insert(key);
     if (wasInserted) {
@@ -1256,6 +1264,36 @@ void MetalCodeGenerator::writeMatrixEqualityHelpers(const Type& left, const Type
                 "    return !(left == right);\n"
                 "}\n",
                 this->typeName(left).c_str(), this->typeName(right).c_str());
+    }
+}
+
+void MetalCodeGenerator::writeMatrixDivisionHelpers(const Type& type) {
+    SkASSERT(type.isMatrix());
+
+    String key = "Matrix / " + this->typeName(type);
+
+    auto [iter, wasInserted] = fHelpers.insert(key);
+    if (wasInserted) {
+        String typeName = this->typeName(type);
+
+        fExtraFunctions.printf(
+                "thread %s operator/(const %s left, const %s right) {\n"
+                "    return %s(",
+                typeName.c_str(), typeName.c_str(), typeName.c_str(), typeName.c_str());
+
+        const char* separator = "";
+        for (int index=0; index<type.columns(); ++index) {
+            fExtraFunctions.printf("%sleft[%d] / right[%d]", separator, index, index);
+            separator = ", ";
+        }
+
+        fExtraFunctions.printf(");\n"
+                               "}\n"
+                               "thread %s& operator/=(thread %s& left, thread const %s& right) {\n"
+                               "    left = left / right;\n"
+                               "    return left;\n"
+                               "}\n",
+                               typeName.c_str(), typeName.c_str(), typeName.c_str());
     }
 }
 
@@ -1339,6 +1377,27 @@ void MetalCodeGenerator::writeEqualityHelpers(const Type& leftType, const Type& 
     }
 }
 
+void MetalCodeGenerator::writeNumberAsMatrix(const Expression& expr, const Type& matrixType) {
+    SkASSERT(expr.type().isNumber());
+    SkASSERT(matrixType.isMatrix());
+
+    // Componentwise multiply the scalar against a matrix of the desired size which contains all 1s.
+    this->write("(");
+    this->writeType(matrixType);
+    this->write("(");
+
+    const char* separator = "";
+    for (int index = matrixType.slotCount(); index--;) {
+        this->write(separator);
+        this->write("1.0");
+        separator = ", ";
+    }
+
+    this->write(") * ");
+    this->writeExpression(expr, Precedence::kMultiplicative);
+    this->write(")");
+}
+
 void MetalCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
                                                Precedence parentPrecedence) {
     const Expression& left = *b.left();
@@ -1366,13 +1425,25 @@ void MetalCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
         default:
             break;
     }
-    if (needParens) {
-        this->write("(");
-    }
     if (leftType.isMatrix() && rightType.isMatrix() && op.kind() == Token::Kind::TK_STAREQ) {
         this->writeMatrixTimesEqualHelper(leftType, rightType, b.type());
     }
-    this->writeExpression(left, precedence);
+    if (op.removeAssignment().kind() == Token::Kind::TK_SLASH &&
+        ((leftType.isMatrix() && rightType.isMatrix()) ||
+         (leftType.isScalar() && rightType.isMatrix()) ||
+         (leftType.isMatrix() && rightType.isScalar()))) {
+        this->writeMatrixDivisionHelpers(leftType.isMatrix() ? leftType : rightType);
+    }
+    if (needParens) {
+        this->write("(");
+    }
+    bool needMatrixSplatOnScalar = rightType.isMatrix() && leftType.isScalar() &&
+                                   op.removeAssignment().kind() != Token::Kind::TK_STAR;
+    if (needMatrixSplatOnScalar) {
+        this->writeNumberAsMatrix(left, rightType);
+    } else {
+        this->writeExpression(left, precedence);
+    }
     if (op.kind() != Token::Kind::TK_EQ && op.isAssignment() &&
         left.kind() == Expression::Kind::kSwizzle && !left.hasSideEffects()) {
         // This doesn't compile in Metal:
@@ -1384,14 +1455,19 @@ void MetalCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
         this->write(" = ");
         this->writeExpression(left, Precedence::kAssignment);
         this->write(" ");
-        String opName = OperatorName(op);
-        SkASSERT(opName.endsWith("="));
-        this->write(opName.substr(0, opName.size() - 1).c_str());
+        this->write(OperatorName(op.removeAssignment()));
         this->write(" ");
     } else {
         this->write(String(" ") + OperatorName(op) + " ");
     }
-    this->writeExpression(right, precedence);
+
+    needMatrixSplatOnScalar = leftType.isMatrix() && rightType.isScalar() &&
+                              op.removeAssignment().kind() != Token::Kind::TK_STAR;
+    if (needMatrixSplatOnScalar) {
+        this->writeNumberAsMatrix(right, leftType);
+    } else {
+        this->writeExpression(right, precedence);
+    }
     if (needParens) {
         this->write(")");
     }
@@ -1614,7 +1690,7 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
         }
         this->write(separator);
         separator = ", ";
-        this->writeModifiers(param->modifiers(), /*globalContext=*/false);
+        this->writeModifiers(param->modifiers());
         const Type* type = &param->type();
         this->writeType(*type);
         if (param->modifiers().fFlags & Modifiers::kOut_Flag) {
@@ -1696,8 +1772,7 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
     this->write(buffer.str());
 }
 
-void MetalCodeGenerator::writeModifiers(const Modifiers& modifiers,
-                                        bool globalContext) {
+void MetalCodeGenerator::writeModifiers(const Modifiers& modifiers) {
     if (modifiers.fFlags & Modifiers::kOut_Flag) {
         this->write("thread ");
     }
@@ -1710,7 +1785,7 @@ void MetalCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     if ("sk_PerVertex" == intf.typeName()) {
         return;
     }
-    this->writeModifiers(intf.variable().modifiers(), /*globalContext=*/true);
+    this->writeModifiers(intf.variable().modifiers());
     this->write("struct ");
     this->writeLine(intf.typeName() + " {");
     const Type* structType = &intf.variable().type();
@@ -1780,7 +1855,7 @@ void MetalCodeGenerator::writeFields(const std::vector<Type::Field>& fields, int
             return;
         }
         currentOffset += fieldSize;
-        this->writeModifiers(field.fModifiers, /*globalContext=*/false);
+        this->writeModifiers(field.fModifiers);
         this->writeType(*fieldType);
         this->write(" ");
         this->writeName(field.fName);
@@ -1802,11 +1877,8 @@ void MetalCodeGenerator::writeName(const String& name) {
     this->write(name);
 }
 
-void MetalCodeGenerator::writeVarDeclaration(const VarDeclaration& varDecl, bool global) {
-    if (global && !(varDecl.var().modifiers().fFlags & Modifiers::kConst_Flag)) {
-        return;
-    }
-    this->writeModifiers(varDecl.var().modifiers(), global);
+void MetalCodeGenerator::writeVarDeclaration(const VarDeclaration& varDecl) {
+    this->writeModifiers(varDecl.var().modifiers());
     this->writeType(varDecl.var().type());
     this->write(" ");
     this->writeName(varDecl.var().name());
@@ -1830,7 +1902,7 @@ void MetalCodeGenerator::writeStatement(const Statement& s) {
             this->writeReturnStatement(s.as<ReturnStatement>());
             break;
         case Statement::Kind::kVarDeclaration:
-            this->writeVarDeclaration(s.as<VarDeclaration>(), false);
+            this->writeVarDeclaration(s.as<VarDeclaration>());
             break;
         case Statement::Kind::kIf:
             this->writeIfStatement(s.as<IfStatement>());
@@ -2132,16 +2204,17 @@ void MetalCodeGenerator::visitGlobalStruct(GlobalStructVisitor* visitor) {
         const GlobalVarDeclaration& global = element->as<GlobalVarDeclaration>();
         const VarDeclaration& decl = global.declaration()->as<VarDeclaration>();
         const Variable& var = decl.var();
-        if ((!var.modifiers().fFlags && -1 == var.modifiers().fLayout.fBuiltin) ||
-            var.type().typeKind() == Type::TypeKind::kSampler) {
-            if (var.type().typeKind() == Type::TypeKind::kSampler) {
-                // Samplers are represented as a "texture/sampler" duo in the global struct.
-                visitor->visitTexture(var.type(), var.name());
-                visitor->visitSampler(var.type(), String(var.name()) + SAMPLER_SUFFIX);
-            } else {
-                // Visit a regular variable.
-                visitor->visitVariable(var, decl.value().get());
-            }
+        if (var.type().typeKind() == Type::TypeKind::kSampler) {
+            // Samplers are represented as a "texture/sampler" duo in the global struct.
+            visitor->visitTexture(var.type(), var.name());
+            visitor->visitSampler(var.type(), String(var.name()) + SAMPLER_SUFFIX);
+            continue;
+        }
+
+        if (!(var.modifiers().fFlags & ~Modifiers::kConst_Flag) &&
+            -1 == var.modifiers().fLayout.fBuiltin) {
+            // Visit a regular variable.
+            visitor->visitVariable(var, decl.value().get());
         }
     }
 }
@@ -2174,6 +2247,7 @@ void MetalCodeGenerator::writeGlobalStruct() {
         void visitVariable(const Variable& var, const Expression* value) override {
             this->addElement();
             fCodeGen->write("    ");
+            fCodeGen->writeModifiers(var.modifiers());
             fCodeGen->writeType(var.type());
             fCodeGen->write(" ");
             fCodeGen->writeName(var.name());
@@ -2253,19 +2327,8 @@ void MetalCodeGenerator::writeProgramElement(const ProgramElement& e) {
     switch (e.kind()) {
         case ProgramElement::Kind::kExtension:
             break;
-        case ProgramElement::Kind::kGlobalVar: {
-            const GlobalVarDeclaration& global = e.as<GlobalVarDeclaration>();
-            const VarDeclaration& decl = global.declaration()->as<VarDeclaration>();
-            int builtin = decl.var().modifiers().fLayout.fBuiltin;
-            if (-1 == builtin) {
-                // normal var
-                this->writeVarDeclaration(decl, true);
-                this->finishLine();
-            } else if (SK_FRAGCOLOR_BUILTIN == builtin) {
-                // ignore
-            }
+        case ProgramElement::Kind::kGlobalVar:
             break;
-        }
         case ProgramElement::Kind::kInterfaceBlock:
             // handled in writeInterfaceBlocks, do nothing
             break;
@@ -2279,8 +2342,7 @@ void MetalCodeGenerator::writeProgramElement(const ProgramElement& e) {
             this->writeFunctionPrototype(e.as<FunctionPrototype>());
             break;
         case ProgramElement::Kind::kModifiers:
-            this->writeModifiers(e.as<ModifiersDeclaration>().modifiers(),
-                                 /*globalContext=*/true);
+            this->writeModifiers(e.as<ModifiersDeclaration>().modifiers());
             this->writeLine(";");
             break;
         case ProgramElement::Kind::kEnum:

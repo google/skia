@@ -205,7 +205,11 @@ void SPIRVCodeGenerator::writeOpCode(SpvOp_ opCode, int length, OutputStream& ou
         case SpvOpSwitch:      // fall through
         case SpvOpBranch:      // fall through
         case SpvOpBranchConditional:
-            SkASSERT(fCurrentBlock);
+            if (fCurrentBlock == 0) {
+                // We just encountered dead code--instructions that don't have an associated block.
+                // Synthesize a label if this happens; this is necessary to satisfy the validator.
+                this->writeLabel(this->nextId(nullptr), out);
+            }
             fCurrentBlock = 0;
             break;
         case SpvOpConstant:          // fall through
@@ -1107,8 +1111,7 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
             SkASSERT(arguments.size() == 2);
             SpvId lhs = this->writeExpression(*arguments[0], out);
             SpvId rhs = this->writeExpression(*arguments[1], out);
-            result = this->writeComponentwiseMatrixBinary(callType, lhs, rhs, SpvOpFMul, SpvOpUndef,
-                                                          out);
+            result = this->writeComponentwiseMatrixBinary(callType, lhs, rhs, SpvOpFMul, out);
             break;
         }
     }
@@ -2260,31 +2263,22 @@ SpvId SPIRVCodeGenerator::writeMatrixComparison(const Type& operandType, SpvId l
 }
 
 SpvId SPIRVCodeGenerator::writeComponentwiseMatrixBinary(const Type& operandType, SpvId lhs,
-                                                         SpvId rhs, SpvOp_ floatOperator,
-                                                         SpvOp_ intOperator,
-                                                         OutputStream& out) {
-    SpvOp_ op = is_float(fContext, operandType) ? floatOperator : intOperator;
+                                                         SpvId rhs, SpvOp_ op, OutputStream& out) {
     SkASSERT(operandType.isMatrix());
     SpvId columnType = this->getType(operandType.componentType().toCompound(fContext,
                                                                             operandType.rows(),
                                                                             1));
-    SpvId columns[4];
+    std::vector<SpvId> columns;
+    columns.reserve(operandType.columns());
     for (int i = 0; i < operandType.columns(); i++) {
         SpvId columnL = this->nextId(&operandType);
         this->writeInstruction(SpvOpCompositeExtract, columnType, columnL, lhs, i, out);
         SpvId columnR = this->nextId(&operandType);
         this->writeInstruction(SpvOpCompositeExtract, columnType, columnR, rhs, i, out);
-        columns[i] = this->nextId(&operandType);
+        columns.push_back(this->nextId(&operandType));
         this->writeInstruction(op, columnType, columns[i], columnL, columnR, out);
     }
-    SpvId result = this->nextId(&operandType);
-    this->writeOpCode(SpvOpCompositeConstruct, 3 + operandType.columns(), out);
-    this->writeWord(this->getType(operandType), out);
-    this->writeWord(result, out);
-    for (int i = 0; i < operandType.columns(); i++) {
-        this->writeWord(columns[i], out);
-    }
-    return result;
+    return this->writeComposite(columns, operandType, out);
 }
 
 static std::unique_ptr<Expression> create_literal_1(const Context& context, const Type& type) {
@@ -2304,6 +2298,21 @@ SpvId SPIRVCodeGenerator::writeReciprocal(const Type& type, SpvId value, OutputS
     SpvId reciprocal = this->nextId(&type);
     this->writeInstruction(SpvOpFDiv, this->getType(type), reciprocal, one, value, out);
     return reciprocal;
+}
+
+SpvId SPIRVCodeGenerator::writeScalarToMatrixSplat(const Type& matrixType,
+                                                   SpvId scalarId,
+                                                   OutputStream& out) {
+    // Splat the scalar into a vector.
+    const Type& vectorType = matrixType.componentType().toCompound(fContext,
+                                                                   /*columns=*/matrixType.rows(),
+                                                                   /*rows=*/1);
+    std::vector<SpvId> vecArguments(/*count*/ matrixType.rows(), /*value*/ scalarId);
+    SpvId vectorId = this->writeComposite(vecArguments, vectorType, out);
+
+    // Splat the vector into a matrix.
+    std::vector<SpvId> matArguments(/*count*/ matrixType.columns(), /*value*/ vectorId);
+    return this->writeComposite(matArguments, matrixType, out);
 }
 
 SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs, Operator op,
@@ -2367,29 +2376,57 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
             lhs = vec;
             operandType = &rightType;
         } else if (leftType.isMatrix()) {
-            SpvOp_ spvop;
-            if (rightType.isMatrix()) {
-                spvop = SpvOpMatrixTimesMatrix;
-            } else if (rightType.isVector()) {
-                spvop = SpvOpMatrixTimesVector;
+            if (op.kind() == Token::Kind::TK_STAR) {
+                // Matrix-times-vector and matrix-times-scalar have dedicated ops in SPIR-V.
+                SpvOp_ spvop;
+                if (rightType.isMatrix()) {
+                    spvop = SpvOpMatrixTimesMatrix;
+                } else if (rightType.isVector()) {
+                    spvop = SpvOpMatrixTimesVector;
+                } else {
+                    SkASSERT(rightType.isScalar());
+                    spvop = SpvOpMatrixTimesScalar;
+                }
+                SpvId result = this->nextId(&resultType);
+                this->writeInstruction(spvop, this->getType(resultType), result, lhs, rhs, out);
+                return result;
             } else {
+                // Matrix-op-vector is not supported in GLSL/SkSL for non-multiplication ops; we
+                // expect to have a scalar here.
                 SkASSERT(rightType.isScalar());
-                spvop = SpvOpMatrixTimesScalar;
+
+                // Splat rhs across an entire matrix so we can reuse the matrix-op-matrix path.
+                SpvId rhsMatrix = this->writeScalarToMatrixSplat(leftType, rhs, out);
+
+                // Perform this operation as matrix-op-matrix.
+                return this->writeBinaryExpression(leftType, lhs, op, leftType, rhsMatrix,
+                                                   resultType, out);
             }
-            SpvId result = this->nextId(&resultType);
-            this->writeInstruction(spvop, this->getType(resultType), result, lhs, rhs, out);
-            return result;
         } else if (rightType.isMatrix()) {
-            SpvId result = this->nextId(&resultType);
-            if (leftType.isVector()) {
-                this->writeInstruction(SpvOpVectorTimesMatrix, this->getType(resultType), result,
-                                       lhs, rhs, out);
+            if (op.kind() == Token::Kind::TK_STAR) {
+                // Matrix-times-vector and matrix-times-scalar have dedicated ops in SPIR-V.
+                SpvId result = this->nextId(&resultType);
+                if (leftType.isVector()) {
+                    this->writeInstruction(SpvOpVectorTimesMatrix, this->getType(resultType),
+                                           result, lhs, rhs, out);
+                } else {
+                    SkASSERT(leftType.isScalar());
+                    this->writeInstruction(SpvOpMatrixTimesScalar, this->getType(resultType),
+                                           result, rhs, lhs, out);
+                }
+                return result;
             } else {
+                // Vector-op-matrix is not supported in GLSL/SkSL for non-multiplication ops; we
+                // expect to have a scalar here.
                 SkASSERT(leftType.isScalar());
-                this->writeInstruction(SpvOpMatrixTimesScalar, this->getType(resultType), result,
-                                       rhs, lhs, out);
+
+                // Splat lhs across an entire matrix so we can reuse the matrix-op-matrix path.
+                SpvId lhsMatrix = this->writeScalarToMatrixSplat(rightType, lhs, out);
+
+                // Perform this operation as matrix-op-matrix.
+                return this->writeBinaryExpression(rightType, lhsMatrix, op, rightType, rhs,
+                                                   resultType, out);
             }
-            return result;
         } else {
             fErrors.error(leftType.fOffset, "unsupported mixed-type expression");
             return -1;
@@ -2473,16 +2510,14 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
         case Token::Kind::TK_PLUS:
             if (leftType.isMatrix() && rightType.isMatrix()) {
                 SkASSERT(leftType == rightType);
-                return this->writeComponentwiseMatrixBinary(leftType, lhs, rhs,
-                                                            SpvOpFAdd, SpvOpIAdd, out);
+                return this->writeComponentwiseMatrixBinary(leftType, lhs, rhs, SpvOpFAdd, out);
             }
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpFAdd,
                                               SpvOpIAdd, SpvOpIAdd, SpvOpUndef, out);
         case Token::Kind::TK_MINUS:
             if (leftType.isMatrix() && rightType.isMatrix()) {
                 SkASSERT(leftType == rightType);
-                return this->writeComponentwiseMatrixBinary(leftType, lhs, rhs,
-                                                            SpvOpFSub, SpvOpISub, out);
+                return this->writeComponentwiseMatrixBinary(leftType, lhs, rhs, SpvOpFSub, out);
             }
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpFSub,
                                               SpvOpISub, SpvOpISub, SpvOpUndef, out);
@@ -2497,6 +2532,10 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpFMul,
                                               SpvOpIMul, SpvOpIMul, SpvOpUndef, out);
         case Token::Kind::TK_SLASH:
+            if (leftType.isMatrix() && rightType.isMatrix()) {
+                SkASSERT(leftType == rightType);
+                return this->writeComponentwiseMatrixBinary(leftType, lhs, rhs, SpvOpFDiv, out);
+            }
             return this->writeBinaryOperation(resultType, *operandType, lhs, rhs, SpvOpFDiv,
                                               SpvOpSDiv, SpvOpUDiv, SpvOpUndef, out);
         case Token::Kind::TK_PERCENT:
@@ -3627,7 +3666,6 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     write_stringstream(fNameBuffer, out);
     write_stringstream(fDecorationBuffer, out);
     write_stringstream(fConstantBuffer, out);
-    write_stringstream(fExternalFunctionsBuffer, out);
     write_stringstream(body, out);
 }
 

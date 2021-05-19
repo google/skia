@@ -11,7 +11,7 @@ bool Wrapper::process() {
     return this->breakTextIntoLines(this->fWidth);
 }
 
-Range Wrapper::glyphRange(const TextRun* run, const Range& textRange) {
+GlyphRange Wrapper::glyphRange(const TextRun* run, const TextRange& textRange) {
     Range glyphRange = EMPTY_RANGE;
     for (size_t i = 0; i < run->fClusters.size(); ++i) {
         auto cluster = run->fClusters[i];
@@ -26,7 +26,7 @@ Range Wrapper::glyphRange(const TextRun* run, const Range& textRange) {
     return glyphRange;
 }
 
-Range Wrapper::textRange(const TextRun* run, const Range& glyphRange) {
+TextRange Wrapper::textRange(const TextRun* run, const GlyphRange& glyphRange) {
     Range textRange = EMPTY_RANGE;
     for (size_t i = 0; i < run->fClusters.size(); ++i) {
         auto cluster = run->fClusters[i];
@@ -54,7 +54,7 @@ bool Wrapper::breakTextIntoLines(SkScalar width) {
         TextMetrics runMetrics(run.fFont);
         Stretch cluster;
         if (!run.leftToRight()) {
-            cluster.fTextRange = { run.fUtf8Range.end(), run.fUtf8Range.end()};
+            cluster.setTextRange({ run.fUtf8Range.end(), run.fUtf8Range.end()});
         }
 
         for (size_t glyphIndex = 0; glyphIndex < run.fPositions.size(); ++glyphIndex) {
@@ -63,65 +63,76 @@ bool Wrapper::breakTextIntoLines(SkScalar width) {
             if (cluster.isEmpty()) {
                 cluster = Stretch(GlyphPos(runIndex, glyphIndex), textIndex, runMetrics);
                 continue;
-            /*
-            } else if (cluster.fTextRange.fStart == textIndex) {
-                break;
-            } else if (cluster.fTextRange.fEnd == textIndex) {
-                break;
-            */
           }
 
           // The entire cluster belongs to a single run
-          SkASSERT(cluster.fGlyphStart.fRunIndex == runIndex);
+          SkASSERT(cluster.glyphStart().runIndex() == runIndex);
 
-          auto clusterWidth = run.fPositions[glyphIndex].fX - run.fPositions[cluster.fGlyphStart.fGlyphIndex].fX;
+          auto clusterWidth = run.fPositions[glyphIndex].fX - run.fPositions[cluster.glyphStartIndex()].fX;
           cluster.finish(glyphIndex, textIndex, clusterWidth);
 
-          auto isHardLineBreak = fProcessor->isHardLineBreak(cluster.fTextRange.fStart);
-          auto isSoftLineBreak = fProcessor->isSoftLineBreak(cluster.fTextRange.fStart);
-          auto isWhitespaces = fProcessor->isWhitespaces(cluster.fTextRange);
+          auto isHardLineBreak = fProcessor->isHardLineBreak(cluster.textStart());
+          auto isSoftLineBreak = fProcessor->isSoftLineBreak(cluster.textStart());
+          auto isWhitespaces = fProcessor->isWhitespaces(cluster.textRange());
           auto isEndOfText = run.leftToRight() ? textIndex == run.fUtf8Range.end() : textIndex == run.fUtf8Range.begin();
 
-          if (isHardLineBreak || isEndOfText || isSoftLineBreak || isWhitespaces) {
+          if (isSoftLineBreak || isWhitespaces || isHardLineBreak) {
+              // This is the end of the word
               if (!clusters.isEmpty()) {
                   line.moveTo(spaces);
                   line.moveTo(clusters);
-              }
-              if (isWhitespaces) {
-                  spaces.moveTo(cluster);
-              }
-              if (isHardLineBreak) {
-                  this->addLine(line, spaces);
-                  break;
-              }
-              if (isEndOfText) {
-                  line.moveTo(cluster);
-                  if (!line.isEmpty()) {
-                      this->addLine(line, spaces);
-                  }
-                  break;
+                  spaces = clusters;
               }
           }
 
-          if (!SkScalarIsFinite(width)) {
+          // line + spaces + clusters + cluster
+          if (isWhitespaces) {
+              // Whitespaces do not extend the line width
+              spaces.moveTo(cluster);
+              clusters = cluster;
+              continue;
+          } else if (isHardLineBreak) {
+              // Hard line break ends the line but does not extend the width
+              // Same goes for the end of the text
+              this->addLine(line, spaces);
+              break;
+          } else if (!SkScalarIsFinite(width)) {
               clusters.moveTo(cluster);
-          } else if ((line.fWidth + spaces.fWidth + clusters.fWidth + cluster.fWidth) <= width) {
+              continue;
+          }
+
+          // Now let's find out if we can add the cluster to the line
+          if ((line.width() + spaces.width() + clusters.width() + cluster.width()) <= width) {
               clusters.moveTo(cluster);
           } else {
-              // Wrapping the text by whitespaces
               if (line.isEmpty()) {
-                  if (clusters.isEmpty()) {
+                  if (spaces.isEmpty() && clusters.isEmpty()) {
+                      // There is only this cluster and it's too long;
+                      // we are drawing it anyway
                       line.moveTo(cluster);
                   } else {
+                      // We break the only one word on the line by this cluster
                       line.moveTo(clusters);
                   }
+              } else {
+                  // We move clusters + cluster on the next line
+                  // TODO: Parametrise possible ways of breaking too long word
+                  //  (start it from a new line or squeeze the part of it on this line)
               }
               this->addLine(line, spaces);
               clusters.moveTo(cluster);
           }
+
           cluster = Stretch(GlyphPos(runIndex, glyphIndex), textIndex, runMetrics);
         }
     }
+
+    if (!clusters.isEmpty()) {
+        line.moveTo(spaces);
+        line.moveTo(clusters);
+        spaces = clusters;
+    }
+    this->addLine(line, spaces);
 
     return true;
 }

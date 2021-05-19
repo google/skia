@@ -10,7 +10,6 @@ struct Inputs {
 struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
-
 bool takes_float2_bf2(float2 x) {
     return true;
 }

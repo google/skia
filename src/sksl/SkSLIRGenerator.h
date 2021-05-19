@@ -114,15 +114,14 @@ public:
     };
 
     /**
-     * If externalFuncs is supplied, those values are registered in the symbol table of the
+     * If externalFunctions is supplied, those values are registered in the symbol table of the
      * Program, but ownership is *not* transferred. It is up to the caller to keep them alive.
      */
     IRBundle convertProgram(
             const ParsedModule& base,
             bool isBuiltinCode,
             const char* text,
-            size_t length,
-            const std::vector<std::unique_ptr<ExternalFunction>>* externalFunctions);
+            size_t length);
 
     const Program::Settings& settings() const { return fContext.fConfig->fSettings; }
     ProgramKind programKind() const { return fContext.fConfig->fKind; }
@@ -153,7 +152,6 @@ public:
 private:
     void start(const ParsedModule& base,
                bool isBuiltinCode,
-               const std::vector<std::unique_ptr<ExternalFunction>>* externalFunctions,
                std::vector<std::unique_ptr<ProgramElement>>* elements,
                std::vector<const ProgramElement*>* sharedElements);
 

@@ -149,15 +149,8 @@ private:
                    const GrFragmentProcessor& _proc) override {
         const GrTwoPointConicalGradientLayout& _outer =
                 _proc.cast<GrTwoPointConicalGradientLayout>();
-        {
-            const SkPoint& focalParamsValue = _outer.focalParams;
-            if (focalParamsPrev != focalParamsValue) {
-                focalParamsPrev = focalParamsValue;
-                pdman.set2f(focalParamsVar, focalParamsValue.fX, focalParamsValue.fY);
-            }
-        }
+        { pdman.set2f(focalParamsVar, _outer.focalParams.fX, _outer.focalParams.fY); }
     }
-    SkPoint focalParamsPrev = SkPoint::Make(SK_FloatNaN, SK_FloatNaN);
     UniformHandle focalParamsVar;
 };
 std::unique_ptr<GrGLSLFragmentProcessor> GrTwoPointConicalGradientLayout::onMakeProgramImpl()

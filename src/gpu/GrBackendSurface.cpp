@@ -7,6 +7,7 @@
 
 #include "include/gpu/GrBackendSurface.h"
 
+#include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrBackendSurfaceMutableStateImpl.h"
 #include "src/gpu/gl/GrGLUtil.h"
 
@@ -240,6 +241,39 @@ uint32_t GrBackendFormat::channelMask() const {
 
         default:
             return 0;
+    }
+}
+
+GrColorFormatDesc GrBackendFormat::desc() const {
+    if (!this->isValid()) {
+        return GrColorFormatDesc::MakeInvalid();
+    }
+    switch (fBackend) {
+#ifdef SK_GL
+        case GrBackendApi::kOpenGL:
+            return GrGLFormatDesc(GrGLFormatFromGLEnum(fGLFormat));
+#endif
+#ifdef SK_VULKAN
+        case GrBackendApi::kVulkan:
+            return GrVkFormatDesc(fVk.fFormat);
+#endif
+#ifdef SK_METAL
+       case GrBackendApi::kMetal:
+            return GrMtlFormatDesc(fMtlFormat);
+#endif
+#ifdef SK_DAWN
+        case GrBackendApi::kDawn:
+            return GrDawnFormatDesc(fDawnFormat);
+#endif
+#ifdef SK_DIRECT3D
+        case GrBackendApi::kDirect3D:
+            return GrDxgiFormatDesc(fDxgiFormat);
+#endif
+        case GrBackendApi::kMock:
+            return GrGetColorTypeDesc(fMock.fColorType);
+
+        default:
+            return GrColorFormatDesc::MakeInvalid();
     }
 }
 
@@ -929,7 +963,9 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width, int height, const GrMtlT
 GrBackendRenderTarget::GrBackendRenderTarget(int width, int height,
                                              int sampleCount,
                                              const GrMtlTextureInfo& mtlInfo)
-        : GrBackendRenderTarget(width, height, mtlInfo) {}
+        : GrBackendRenderTarget(width, height, mtlInfo) {
+    fSampleCnt = sampleCount;
+}
 #endif
 
 #ifdef SK_DIRECT3D

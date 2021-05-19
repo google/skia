@@ -147,7 +147,27 @@ TextAnimator::ResolvedProps TextAnimator::modulateProps(const ResolvedProps& pro
         const auto sc = static_cast<SkColor>(fTextProps.stroke_color);
         modulated_props.stroke_color = lerp_color(props.stroke_color, sc, clamped_amount);
     }
-    modulated_props.opacity *= 1 + (fTextProps.opacity * 0.01f - 1) * clamped_amount; // 100-based
+
+    const auto modulate_opacity = [](float o0, float o1, float t) {
+        return o0 + o0*(o1 - 1)*t;
+    };
+
+    const auto adjust_opacity = [&](SkColor c, float o, float t) {
+        // 255-based
+        const auto alpha = modulate_opacity(SkColorGetA(c), o, t);
+
+        return SkColorSetA(c, SkScalarRoundToInt(alpha));
+    };
+
+    modulated_props.fill_color = adjust_opacity(modulated_props.fill_color,
+                                                fTextProps.fill_opacity * 0.01f,
+                                                clamped_amount);
+    modulated_props.stroke_color = adjust_opacity(modulated_props.stroke_color,
+                                                  fTextProps.stroke_opacity * 0.01f,
+                                                  clamped_amount);
+    modulated_props.opacity = modulate_opacity(modulated_props.opacity,
+                                               fTextProps.opacity * 0.01f,
+                                               clamped_amount);
 
     return modulated_props;
 }
@@ -160,7 +180,9 @@ TextAnimator::TextAnimator(std::vector<sk_sp<RangeSelector>>&& selectors,
     , fRequiresAnchorPoint(false) {
 
     acontainer->bind(*abuilder, jprops["p" ], fTextProps.position);
-    acontainer->bind(*abuilder, jprops["o" ], fTextProps.opacity );
+    acontainer->bind(*abuilder, jprops["o" ], fTextProps.opacity);
+    acontainer->bind(*abuilder, jprops["fo"], fTextProps.fill_opacity);
+    acontainer->bind(*abuilder, jprops["so"], fTextProps.stroke_opacity);
     acontainer->bind(*abuilder, jprops["t" ], fTextProps.tracking);
     acontainer->bind(*abuilder, jprops["ls"], fTextProps.line_spacing);
 

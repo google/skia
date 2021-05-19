@@ -34,7 +34,6 @@ thread bool operator==(const float4x4 left, const float4x4 right) {
 thread bool operator!=(const float4x4 left, const float4x4 right) {
     return !(left == right);
 }
-
 float2 returns_float2_f2() {
     return float2(2.0);
 }
