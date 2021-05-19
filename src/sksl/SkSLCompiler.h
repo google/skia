@@ -204,6 +204,9 @@ private:
     bool removeDeadGlobalVariables(Program& program, ProgramUsage* usage);
     bool removeDeadLocalVariables(Program& program, ProgramUsage* usage);
 
+    /** Eliminates unreachable statements from a Program. */
+    void removeUnreachableCode(Program& program, ProgramUsage* usage);
+
     Position position(int offset);
 
     std::shared_ptr<Context> fContext;
