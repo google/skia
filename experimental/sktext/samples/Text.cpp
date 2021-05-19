@@ -56,7 +56,7 @@ protected:
 
         Processor::drawText(direction == TextDirection::kRtl ? mirror(text) : normal(text),
                             canvas,
-                            TextFormatStyle(align, direction),
+                            direction, align,
                             SK_ColorBLACK, SK_ColorLTGRAY,
                             SkString("Roboto"), 12.0f, SkFontStyle::Normal(),
                             0, 0);
