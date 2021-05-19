@@ -32,8 +32,6 @@
 
 // EFFECTS
 #include "include/core/SkTextBlob.h"
-#include "include/effects/Sk1DPathEffect.h"
-#include "include/effects/Sk2DPathEffect.h"
 #include "include/effects/SkColorMatrixFilter.h"
 #include "include/effects/SkCornerPathEffect.h"
 #include "include/effects/SkDashPathEffect.h"
@@ -363,29 +361,12 @@ static sk_sp<SkPathEffect> make_fuzz_patheffect(Fuzz* fuzz, int depth) {
             sk_sp<SkPathEffect> second = make_fuzz_patheffect(fuzz, depth - 1);
             return SkPathEffect::MakeCompose(std::move(first), std::move(second));
         }
-        case 3: {
-            SkPath path;
-            FuzzNicePath(fuzz, &path, 20);
-            SkScalar advance, phase;
-            fuzz->next(&advance, &phase);
-            SkPath1DPathEffect::Style style;
-            fuzz->nextEnum(&style, SkPath1DPathEffect::kLastEnum_Style);
-            return SkPath1DPathEffect::Make(path, advance, phase, style);
-        }
-        case 4: {
-            SkScalar width;
-            SkMatrix matrix;
-            fuzz->next(&width);
-            FuzzNiceMatrix(fuzz, &matrix);
-            return SkLine2DPathEffect::Make(width, matrix);
-        }
-        case 5: {
-            SkPath path;
-            FuzzNicePath(fuzz, &path, 20);
-            SkMatrix matrix;
-            FuzzNiceMatrix(fuzz, &matrix);
-            return SkPath2DPathEffect::Make(matrix, path);
-        }
+        case 3:
+            return nullptr;
+        case 4:
+            return nullptr;
+        case 5:
+            return nullptr;
         case 6: {
             SkScalar radius;
             fuzz->next(&radius);

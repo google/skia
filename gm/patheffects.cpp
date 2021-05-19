@@ -17,8 +17,6 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/Sk1DPathEffect.h"
-#include "include/effects/Sk2DPathEffect.h"
 #include "include/effects/SkCornerPathEffect.h"
 #include "include/effects/SkDashPathEffect.h"
 #include "include/effects/SkDiscretePathEffect.h"
@@ -62,32 +60,8 @@ static void dash_pe(SkPaint* paint) {
     compose_pe(paint);
 }
 
-constexpr int gXY[] = {
-4, 0, 0, -4, 8, -4, 12, 0, 8, 4, 0, 4
-};
-
-static SkPath scale(const SkPath& path, SkScalar scale) {
-    SkMatrix m;
-    m.setScale(scale, scale);
-    return path.makeTransform(m);
-}
-
-static void one_d_pe(SkPaint* paint) {
-    SkPathBuilder b;
-    b.moveTo(SkIntToScalar(gXY[0]), SkIntToScalar(gXY[1]));
-    for (unsigned i = 2; i < SK_ARRAY_COUNT(gXY); i += 2) {
-        b.lineTo(SkIntToScalar(gXY[i]), SkIntToScalar(gXY[i+1]));
-    }
-    b.close().offset(SkIntToScalar(-6), 0);
-    SkPath path = scale(b.detach(), 1.5f);
-
-    paint->setPathEffect(SkPath1DPathEffect::Make(path, SkIntToScalar(21), 0,
-                                                  SkPath1DPathEffect::kRotate_Style));
-    compose_pe(paint);
-}
-
 typedef void (*PE_Proc)(SkPaint*);
-constexpr PE_Proc gPE[] = { hair_pe, hair2_pe, stroke_pe, dash_pe, one_d_pe };
+constexpr PE_Proc gPE[] = { hair_pe, hair2_pe, stroke_pe, dash_pe };
 
 static void fill_pe(SkPaint* paint) {
     paint->setStyle(SkPaint::kFill_Style);
@@ -98,18 +72,7 @@ static void discrete_pe(SkPaint* paint) {
     paint->setPathEffect(SkDiscretePathEffect::Make(10, 4));
 }
 
-static sk_sp<SkPathEffect> MakeTileEffect() {
-    SkMatrix m;
-    m.setScale(SkIntToScalar(12), SkIntToScalar(12));
-
-    return SkPath2DPathEffect::Make(m, SkPath::Circle(0,0,5));
-}
-
-static void tile_pe(SkPaint* paint) {
-    paint->setPathEffect(MakeTileEffect());
-}
-
-constexpr PE_Proc gPE2[] = { fill_pe, discrete_pe, tile_pe };
+constexpr PE_Proc gPE2[] = { fill_pe, discrete_pe };
 
 class PathEffectGM : public GM {
 public:
