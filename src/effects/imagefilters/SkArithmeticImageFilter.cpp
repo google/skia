@@ -307,11 +307,49 @@ SkIRect SkArithmeticImageFilter::onFilterBounds(const SkIRect& src,
 
 #if SK_SUPPORT_GPU
 
+#include "include/sksl/DSLRuntimeEffects.h"
+
 std::unique_ptr<GrFragmentProcessor> make_arithmetic_fp(
         std::unique_ptr<GrFragmentProcessor> srcFP,
         std::unique_ptr<GrFragmentProcessor> dstFP,
         const SkV4& k,
         bool enforcePMColor) {
+#if 1
+    static sk_sp<SkRuntimeEffect> gEffect = [](){
+        using namespace SkSL::dsl;
+        StartRuntimeShader(nullptr);  // TODO: Get the shared compiler somehow
+        Var u_src(kUniform_Modifier, kShader_Type),
+            u_dst(kUniform_Modifier, kShader_Type),
+            u_k(kUniform_Modifier, kHalf4_Type),
+            u_enforcePMColor(kUniform_Modifier, kInt_Type);
+        DeclareGlobal(u_src);
+        DeclareGlobal(u_dst);
+        DeclareGlobal(u_k);
+        DeclareGlobal(u_enforcePMColor);
+        Var xy(kFloat2_Type), src(kHalf4_Type), dst(kHalf4_Type), color(kHalf4_Type);
+        Function(kHalf4_Type, "main", xy).define(
+            Declare(src), Declare(dst), Declare(color),
+            src = Sample(u_src, xy),
+            dst = Sample(u_dst, xy),
+            color = Saturate(u_k.x() * src * dst +
+                             u_k.y() * src +
+                             u_k.z() * dst +
+                             u_k.w()),
+            If(Bool(u_enforcePMColor),
+                Swizzle(color, R, G, B) = Min(Swizzle(color, R, G, B), color.a())
+            ),
+            Return(color)
+        );
+        return EndRuntimeShader();
+    }();
+    struct {
+        SkV4 k;
+        int enforcePMColor;
+    } uniforms = {k, enforcePMColor ? 1 : 0};
+    std::unique_ptr<GrFragmentProcessor> children[] = {std::move(srcFP), std::move(dstFP)};
+    return gEffect->makeFP(
+            SkData::MakeWithCopy(&uniforms, sizeof(uniforms)), children, SK_ARRAY_COUNT(children));
+#else
     static constexpr char kCode[] = R"(
         uniform shader srcFP;
         uniform shader dstFP;
@@ -336,6 +374,7 @@ std::unique_ptr<GrFragmentProcessor> make_arithmetic_fp(
     builder.uniform("k") = k;
     builder.uniform("enforcePMColor") = enforcePMColor ? 1 : 0;
     return builder.makeFP();
+#endif
 }
 
 sk_sp<SkSpecialImage> SkArithmeticImageFilter::filterImageGPU(
