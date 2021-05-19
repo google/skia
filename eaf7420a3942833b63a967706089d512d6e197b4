@@ -1,0 +1,30 @@
+{
+  "comments": [
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000010947433",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/130904?revision\u003d2",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "82643e9e_254bac09",
+        "filename": "experimental/miniops/SkMutex.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-05-19T19:45:15Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 4
+      },
+      "revId": "eaf7420a3942833b63a967706089d512d6e197b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
