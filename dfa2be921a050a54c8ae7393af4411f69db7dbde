@@ -43,6 +43,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c5d69192_be0d4f82",
+        "filename": "src/core/SkDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-19T17:23:31Z",
+      "side": 1,
+      "message": "Documentation was my intent; I find it helpful to call out the initialization like this when I\u0027m depending on parts of it and modifying other row/columns later.\n\nI can make it just SkM44 pixelAligned; if you prefer?",
+      "parentUuid": "54ff7323_41618cde",
+      "range": {
+        "startLine": 73,
+        "startChar": 23,
+        "endLine": 73,
+        "endChar": 33
+      },
+      "revId": "dfa2be921a050a54c8ae7393af4411f69db7dbde",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "901b3b2d_a5507525",
         "filename": "src/core/SkDevice.cpp",
         "patchSetId": 2
@@ -54,6 +78,30 @@
       "writtenOn": "2021-05-19T17:07:38Z",
       "side": 1,
       "message": "legacy 33, or on purpose?",
+      "range": {
+        "startLine": 91,
+        "startChar": 0,
+        "endLine": 91,
+        "endChar": 8
+      },
+      "revId": "dfa2be921a050a54c8ae7393af4411f69db7dbde",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "800a9226_52125e55",
+        "filename": "src/core/SkDevice.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-19T17:23:31Z",
+      "side": 1,
+      "message": "Correct. The primary user of getRelativeTransform() is handling image filtering and that entire pipeline is all on Skmatrix. Once the skif::Mapping object can operate on SkM44, this can just return the matrix product directly w/o going to SkMatrix.",
+      "parentUuid": "901b3b2d_a5507525",
       "range": {
         "startLine": 91,
         "startChar": 0,
