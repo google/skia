@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "124e3cc1_080a0ef9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-19T16:47:08Z",
+      "side": 1,
+      "message": "Still to come:\n\n - sampling options\n - image shaders",
+      "revId": "aaa9e94ad3f2f49322ef2e92d07134a30f9b62d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
