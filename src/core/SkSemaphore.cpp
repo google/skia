@@ -37,6 +37,47 @@
         }
         void wait() { WaitForSingleObject(fSemaphore, INFINITE/*timeout in ms*/); }
     };
+#elif false && defined(SK_BUILD_FOR_GOOGLE3)
+    // Use a Google's Mutex as a semaphore allowing better contention profiling, and dead-lock
+    // detection.
+    #include "third_party/absl/synchronization/mutex.h"
+    struct SkSemaphore::OSSemaphore {
+        void signal(int n) {
+            absl::MutexLock l{&fMutex};
+            fLevel += n;
+            fCV.SignalAll();
+        }
+        void wait() {
+            absl::MutexLock l{&fMutex};
+            while (fLevel <= 0) {
+              fCV.Wait(&fMutex);
+            }
+            fLevel -= 1;
+        }
+
+        absl::Mutex fMutex;
+        absl::CondVar fCV;
+        int fLevel = 0;
+    };
+#elif true && defined(SK_BUILD_FOR_GOOGLE3)
+    #include <condition_variable>
+    #include <mutex>
+    struct SkSemaphore::OSSemaphore {
+        void signal(int n) {
+            std::unique_lock<std::mutex> l{fMutex};
+            fLevel += n;
+            fCV.notify_all();
+        }
+        void wait() {
+            std::unique_lock<std::mutex> l{fMutex};
+            fCV.wait(l, [this]{return fLevel > 0;});
+            fLevel -= 1;
+        }
+
+        std::mutex fMutex;
+        std::condition_variable fCV;
+        int fLevel = 0;
+    };
 #else
     // It's important we test for Mach before this.  This code will compile but not work there.
     #include <errno.h>
