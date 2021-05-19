@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "47ceacb9_93e7530d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-19T15:00:57Z",
+      "side": 1,
+      "message": "It just occurred to me that GC/finalize() will likely fire on a different thread.",
+      "revId": "7dbe624fa51bfd84685a88133e05a9825bd1f44f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
