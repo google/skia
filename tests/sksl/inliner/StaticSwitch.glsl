@@ -6,7 +6,6 @@ float get_f() {
     {
         return 2.0;
     }
-    return 5.0;
 }
 vec4 main() {
     float result = get_f();

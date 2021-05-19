@@ -348,6 +348,7 @@ sksl_shared_tests = [
   "/sksl/shared/DeadIfStatement.sksl",
   "/sksl/shared/DeadLoopVariable.sksl",
   "/sksl/shared/DeadReturn.sksl",
+  "/sksl/shared/DeadReturnES3.sksl",
   "/sksl/shared/DeadStripFunctions.sksl",
   "/sksl/shared/DependentInitializers.sksl",
   "/sksl/shared/DerivativesUnused.sksl",
