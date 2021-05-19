@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "48b6a1aa_8a07376a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-05-19T20:16:14Z",
+      "side": 1,
+      "message": "Two math questions",
+      "revId": "4a1b94bcc87e60b1da17721609795f1552aec09b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "18632d0c_3a9cd1e9",
+        "filename": "src/gpu/tessellate/GrStencilPathShader.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-05-19T20:16:14Z",
+      "side": 1,
+      "message": "If the comment is correct, that you want to convert to rational cubic, don\u0027t you have to do a full degree elevation (2 -\u003e 3) in addition to multiplying by weight? If not I think the comment is confusing, maybe just rephrase to \u0027// This patch is actually a conic. Convert to projected space\u0027 or something like that.",
+      "revId": "4a1b94bcc87e60b1da17721609795f1552aec09b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6e15a1a8_27b0a019",
+        "filename": "src/gpu/tessellate/GrStencilPathShader.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-05-19T20:16:14Z",
+      "side": 1,
+      "message": "I\u0027m not totally following this computation, but from looking at SkConic::chopAt() aren\u0027t you missing a \u0027w\u0027 in the numerator here?",
+      "revId": "4a1b94bcc87e60b1da17721609795f1552aec09b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
