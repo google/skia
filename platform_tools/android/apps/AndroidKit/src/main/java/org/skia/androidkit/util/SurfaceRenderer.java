@@ -52,6 +52,9 @@ public abstract class SurfaceRenderer implements SurfaceHolder.Callback, Runnabl
             surface.flushAndSubmit();
         }
 
+        // Ensure that the backing surface is released on the same thread.
+        surface.release();
+
         Log.d("SurfaceRenderer", "Render thread finished.");
     }
 
