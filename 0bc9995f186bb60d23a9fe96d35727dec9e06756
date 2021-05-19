@@ -1,0 +1,30 @@
+{
+  "comments": [
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000010947833",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/14227?revision\u003d3",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "bcfc6e01_13198d52",
+        "filename": "src/codec/SkJpegUtility.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-05-19T19:47:33Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027complex\u0027, \u0027unexpected\u0027, or \u0027placeholder\u0027; see https://developers.google.com/style/inclusive-documentation#ableist-language for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 123,
+        "startChar": 14,
+        "endLine": 123,
+        "endChar": 18
+      },
+      "revId": "0bc9995f186bb60d23a9fe96d35727dec9e06756",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
