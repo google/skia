@@ -14,7 +14,9 @@ sktext_sources = [
   "$_src/Formatter.cpp",
   "$_src/Line.cpp",
   "$_src/Processor.cpp",
+  "$_src/Painter.cpp",
   "$_src/Shaper.cpp",
   "$_src/TextRun.cpp",
+  "$_src/Visitor.cpp",
   "$_src/Wrapper.cpp",
 ]

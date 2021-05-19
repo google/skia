@@ -6,9 +6,17 @@
 namespace skia {
 namespace text {
 
-    class Decorator {
+class Decorator {
+
+    public:
+        Decorator(Processor* processor, SkSpan<DecorBlock> decorBlocks)
+            : fProcessor(processor), fDecorBlocks(decorBlocks) { }
         bool process();
-    };
+
+    private:
+        Processor* fProcessor;
+        SkSpan<DecorBlock> fDecorBlocks;
+};
 } // namespace text
 } // namespace skia
 #endif
