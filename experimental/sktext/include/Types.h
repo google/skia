@@ -2,6 +2,9 @@
 #ifndef Types_DEFINED
 #define Types_DEFINED
 
+#include "include/core/SkFontMgr.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkTypeface.h"
 #include <algorithm>
 #include <cstddef>
 #include "include/private/SkBitmaskEnum.h"
@@ -124,6 +127,59 @@ public:
 typedef Range<TextIndex> TextRange;
 typedef Range<GlyphIndex> GlyphRange;
 const Range EMPTY_RANGE = Range(EMPTY_INDEX, EMPTY_INDEX);
+
+class Block {
+public:
+    enum BlockType {
+        kFont,
+        kDecor,
+        kTrackable, // Breaks runs for a customer
+    };
+    Block(BlockType type, size_t length)
+        : fType(type)
+        , fLength(length) { }
+    BlockType fType;
+    size_t fLength;
+};
+
+class FontBlock : public Block {
+public:
+    FontBlock(const SkString& family, SkScalar size, SkFontStyle style, size_t length)
+        : Block(Block::kFont, length)
+        //, fFontFamily(family)
+        , fFontSize(size)
+        , fFontStyle(style)
+        , fTypeface(nullptr) {
+        sk_sp<SkFontStyleSet> set(SkFontMgr::RefDefault()->matchFamily(family.c_str()));
+        if (set && set->count() > 0) {
+            sk_sp<SkTypeface> match(set->matchStyle(style));
+            if (match) {
+                fTypeface = match;
+            }
+        }
+    }
+    //SkString fFontFamily;
+    SkScalar fFontSize;
+    SkFontStyle fFontStyle;
+    sk_sp<SkTypeface> fTypeface;
+
+    // TODO: Features
+};
+
+class DecorBlock : public Block {
+public:
+    DecorBlock(const SkPaint* foreground, const SkPaint* background, size_t length)
+        : Block(Block::kFont, length)
+        , fForegroundColor(foreground)
+        , fBackgroundColor(background) { }
+
+    DecorBlock(size_t length)
+        : DecorBlock(nullptr, nullptr, length) { }
+
+    const SkPaint* fForegroundColor;
+    const SkPaint* fBackgroundColor;
+    // Everything else
+};
 
 }  // namespace text
 }  // namespace skia

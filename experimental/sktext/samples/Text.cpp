@@ -1,6 +1,6 @@
 // Copyright 2021 Google LLC.
 
-#include "experimental/sktext/include/Processor.h"
+#include "experimental/sktext/include/Paint.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkFontMgr.h"
@@ -27,7 +27,7 @@ protected:
 
     void onDrawContent(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
-        Processor::drawText(u"Hello word", canvas, 0, 0);
+        Paint::drawText(u"Hello word", canvas, 0, 0);
     }
 
 private:
@@ -54,9 +54,9 @@ protected:
         canvas->clipRect(SkRect::MakeWH(w, h));
         canvas->drawColor(SK_ColorWHITE);
 
-        Processor::drawText(direction == TextDirection::kRtl ? mirror(text) : normal(text),
+        Paint::drawText(direction == TextDirection::kRtl ? mirror(text) : normal(text),
                             canvas,
-                            TextFormatStyle(align, direction),
+                            direction, align,
                             SK_ColorBLACK, SK_ColorLTGRAY,
                             SkString("Roboto"), 12.0f, SkFontStyle::Normal(),
                             0, 0);
@@ -124,7 +124,7 @@ protected:
 
     void onDrawContent(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
-        Processor::drawText(u"A very_very_very_very_very_very_very_very_very_very "
+        Paint::drawText(u"A very_very_very_very_very_very_very_very_very_very "
                 "very_very_very_very_very_very_very_very_very_very very very very very very very "
                 "very very very very very very very very very very very very very very very very "
                 "very very very very very very very very very very very very very long text", canvas, this->width());
@@ -155,7 +155,8 @@ protected:
 
     void onDrawContent(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
-        Processor::drawText(u"LONG MIRRORED TEXT SHOULD SHOW RIGHT TO LEFT (AS NORMAL)", canvas, 0, 0);
+        std::u16string str = u"LONG MIRRORED TEXT SHOULD SHOW RIGHT TO LEFT (AS NORMAL)";
+        Paint::drawText(str, canvas, 0, 0);
     }
 
 private:
