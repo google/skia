@@ -115,7 +115,6 @@ class SamplePathTessellators : public Sample {
 public:
     SamplePathTessellators() {
 #if 0
-        // For viewing middle-out triangulations of the inner fan.
         fPath.moveTo(1, 0);
         int numSides = 32 * 3;
         for (int i = 1; i < numSides; ++i) {
