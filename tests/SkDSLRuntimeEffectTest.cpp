@@ -28,12 +28,10 @@ class DSLTestEffect {
 public:
     DSLTestEffect(skiatest::Reporter* r, sk_sp<SkSurface> surface)
         : fReporter(r)
-        , fCaps(SkSL::ShaderCapsFactory::Standalone())
-        , fCompiler(std::make_unique<SkSL::Compiler>(fCaps.get()))
         , fSurface(std::move(surface)) {}
 
     void start() {
-        StartRuntimeShader(fCompiler.get());
+        StartRuntimeShader();
     }
 
     void end() {
@@ -96,8 +94,6 @@ public:
 
 private:
     skiatest::Reporter*             fReporter;
-    SkSL::ShaderCapsPointer         fCaps;
-    std::unique_ptr<SkSL::Compiler> fCompiler;
     sk_sp<SkSurface>                fSurface;
     SkTLazy<SkRuntimeShaderBuilder> fBuilder;
 };

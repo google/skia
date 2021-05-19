@@ -10,6 +10,8 @@
 
 #include "include/effects/SkRuntimeEffect.h"
 
+namespace SkSL { class Compiler; }
+
 // These internal APIs for creating runtime effects vary from the public API in two ways:
 //
 //     1) they're used in contexts where it's not useful to receive an error message;
@@ -58,5 +60,8 @@ constexpr char kHSL_to_RGB_sksl[] =
         "half3 q = saturate(abs(fract(p) * 6 - 3) - 1);"
         "return (q - 0.5) * C + hsl.z;"
     "}";
+
+SkSL::Compiler* SkLockEffectSharedCompiler();
+void            SkUnlockEffectSharedCompiler();
 
 #endif
