@@ -44,39 +44,17 @@
 
 #include <algorithm>
 
-namespace SkSL {
-class SharedCompiler {
-public:
-    SharedCompiler() : fLock(compiler_mutex()) {
-        if (!gImpl) {
-            gImpl = new Impl();
-        }
-    }
+static SkMutex& shared_compiler_mutex() {
+    static SkMutex& mutex = *(new SkMutex);
+    return mutex;
+}
 
-    SkSL::Compiler* operator->() const { return gImpl->fCompiler; }
-
-private:
-    SkAutoMutexExclusive fLock;
-
-    static SkMutex& compiler_mutex() {
-        static SkMutex& mutex = *(new SkMutex);
-        return mutex;
-    }
+SkSL::Compiler* SkLockEffectSharedCompiler() SK_NO_THREAD_SAFETY_ANALYSIS {
+    shared_compiler_mutex().acquire();
 
     struct Impl {
         Impl() {
-            // These caps are configured to apply *no* workarounds. This avoids changes that are
-            // unnecessary (GLSL intrinsic rewrites), or possibly incorrect (adding do-while loops).
-            // We may apply other "neutral" transformations to the user's SkSL, including inlining.
-            // Anything determined by the device caps is deferred to the GPU backend. The processor
-            // set produces the final program (including our re-emitted SkSL), and the backend's
-            // compiler resolves any necessary workarounds.
-            fCaps = ShaderCapsFactory::Standalone();
-            fCaps->fBuiltinFMASupport = true;
-            fCaps->fBuiltinDeterminantSupport = true;
-            // Don't inline if it would require a do loop, some devices don't support them.
-            fCaps->fCanUseDoLoops = false;
-
+            fCaps = SkSL::ShaderCapsFactory::Standalone();
             fCompiler = new SkSL::Compiler(fCaps.get());
         }
 
@@ -84,12 +62,26 @@ private:
         SkSL::Compiler*         fCompiler;
     };
 
-    static Impl* gImpl;
+    static Impl* gImpl = new Impl();
+    return gImpl->fCompiler;
+}
+
+void SkUnlockEffectSharedCompiler() SK_NO_THREAD_SAFETY_ANALYSIS {
+    shared_compiler_mutex().release();
+}
+
+namespace {
+class SharedCompiler {
+public:
+    SharedCompiler() : fCompiler(SkLockEffectSharedCompiler()) {}
+    ~SharedCompiler() { SkUnlockEffectSharedCompiler(); }
+
+    SkSL::Compiler* operator->() const { return fCompiler; }
+
+private:
+    SkSL::Compiler*      fCompiler;
 };
-
-SharedCompiler::Impl* SharedCompiler::gImpl = nullptr;
-
-}  // namespace SkSL
+}  // namespace
 
 static bool init_uniform_type(const SkSL::Context& ctx,
                               const SkSL::Type* type,
@@ -137,7 +129,7 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl, const Options& opti
         // We keep this SharedCompiler in a separate scope to make sure it's destroyed before
         // calling the Make overload at the end, which creates its own (non-reentrant)
         // SharedCompiler instance
-        SkSL::SharedCompiler compiler;
+        SharedCompiler compiler;
         SkSL::Program::Settings settings;
         settings.fInlineThreshold = 0;
         settings.fForceNoInline = options.forceNoInline;
@@ -164,7 +156,7 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl,
                                               std::unique_ptr<SkSL::Program> program,
                                               const Options& options,
                                               SkSL::ProgramKind kind) {
-    SkSL::SharedCompiler compiler;
+    SharedCompiler compiler;
     SkSL::Program::Settings settings;
     settings.fInlineThreshold = 0;
     settings.fForceNoInline = options.forceNoInline;

@@ -20,7 +20,7 @@ namespace dsl {
 
 #ifndef SKSL_STANDALONE
 
-void StartRuntimeShader(SkSL::Compiler* compiler);
+void StartRuntimeShader();
 
 sk_sp<SkRuntimeEffect> EndRuntimeShader();
 

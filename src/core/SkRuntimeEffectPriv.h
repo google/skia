@@ -14,6 +14,8 @@
 
 #include <functional>
 
+namespace SkSL { class Compiler; }
+
 // These internal APIs for creating runtime effects vary from the public API in two ways:
 //
 //     1) they're used in contexts where it's not useful to receive an error message;
@@ -116,5 +118,8 @@ private:
     std::vector<SampleCall> fSampleCalls;
     bool                    fAlphaUnchanged;
 };
+
+SkSL::Compiler* SkLockEffectSharedCompiler();
+void            SkUnlockEffectSharedCompiler();
 
 #endif
