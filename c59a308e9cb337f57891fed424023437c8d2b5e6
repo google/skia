@@ -1,0 +1,30 @@
+{
+  "comments": [
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000010944866",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/275682?revision\u003d3",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "dff050eb_0210f902",
+        "filename": "infra/bots/task_drivers/infra-tests/infra-tests.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-05-19T19:27:23Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027valid\u0027, \u0027validity check\u0027 or \u0027initial check\u0027; see https://source.android.com/setup/contribute/respectful-code for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 74,
+        "startChar": 4,
+        "endLine": 74,
+        "endChar": 10
+      },
+      "revId": "c59a308e9cb337f57891fed424023437c8d2b5e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
