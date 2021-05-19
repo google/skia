@@ -247,24 +247,6 @@ std::unique_ptr<GrSurfaceDrawContext> GrSurfaceDrawContext::MakeFromBackendTextu
                                       origin, surfaceProps);
 }
 
-std::unique_ptr<GrSurfaceDrawContext> GrSurfaceDrawContext::MakeFromBackendRenderTarget(
-        GrRecordingContext* context,
-        GrColorType colorType,
-        sk_sp<SkColorSpace> colorSpace,
-        const GrBackendRenderTarget& rt,
-        GrSurfaceOrigin origin,
-        const SkSurfaceProps& surfaceProps,
-        sk_sp<GrRefCntedCallback> releaseHelper) {
-    sk_sp<GrSurfaceProxy> proxy(
-            context->priv().proxyProvider()->wrapBackendRenderTarget(rt, std::move(releaseHelper)));
-    if (!proxy) {
-        return nullptr;
-    }
-
-    return GrSurfaceDrawContext::Make(context, colorType, std::move(colorSpace), std::move(proxy),
-                                      origin, surfaceProps);
-}
-
 std::unique_ptr<GrSurfaceDrawContext> GrSurfaceDrawContext::MakeFromVulkanSecondaryCB(
         GrRecordingContext* context,
         const SkImageInfo& imageInfo,
