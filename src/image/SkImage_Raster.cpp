@@ -418,12 +418,13 @@ std::tuple<GrSurfaceProxyView, GrColorType> SkImage_Raster::onAsView(
         GrMipmapped mipmapped,
         GrImageTexGenPolicy policy) const {
     if (fPinnedView) {
+        // We ignore the mipmap request here. If the pinned view isn't mipmapped then we will
+        // fallback to bilinear. The pin API is used by Android Framework which does not expose
+        // mipmapping.Moreover, we're moving towards requiring that images be made with mip levels
+        // if mipmapping is desired (skbug.com/10411)
+        mipmapped = GrMipmapped::kNo;
         if (policy != GrImageTexGenPolicy::kDraw) {
             return {CopyView(rContext, fPinnedView, mipmapped, policy), fPinnedColorType};
-        }
-        if (mipmapped == GrMipmapped::kYes) {
-            auto view = FindOrMakeCachedMipmappedView(rContext, fPinnedView, fPinnedUniqueID);
-            return {std::move(view), fPinnedColorType};
         }
         return {fPinnedView, fPinnedColorType};
     }
