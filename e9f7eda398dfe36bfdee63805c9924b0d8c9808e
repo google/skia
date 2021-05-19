@@ -1,0 +1,108 @@
+{
+  "comments": [
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000010946665",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/225717?revision\u003d11",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "9b88c4d8_3ee486b1",
+        "filename": "gn/utils.gni",
+        "patchSetId": 11
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-05-19T19:38:37Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027deny list\u0027 or \u0027allow list\u0027; see https://developers.google.com/style/word-list#blacklist for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 81,
+        "startChar": 20,
+        "endLine": 81,
+        "endChar": 29
+      },
+      "revId": "e9f7eda398dfe36bfdee63805c9924b0d8c9808e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000010946665",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/225717?revision\u003d11",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "c9ee6f80_dc8d007e",
+        "filename": "include/core/SkPostConfig.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-05-19T19:38:37Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027deny list\u0027 or \u0027allow list\u0027; see https://developers.google.com/style/word-list#blacklist for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 305,
+        "startChar": 7,
+        "endLine": 305,
+        "endChar": 16
+      },
+      "revId": "e9f7eda398dfe36bfdee63805c9924b0d8c9808e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000010946665",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/225717?revision\u003d11",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "35e1237c_f22663fb",
+        "filename": "include/core/SkPostConfig.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-05-19T19:38:37Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027deny list\u0027 or \u0027allow list\u0027; see https://developers.google.com/style/word-list#blacklist for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 306,
+        "startChar": 13,
+        "endLine": 306,
+        "endChar": 22
+      },
+      "revId": "e9f7eda398dfe36bfdee63805c9924b0d8c9808e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000010946665",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/225717?revision\u003d11",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "d7c00694_a7446616",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-05-19T19:38:37Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027deny list\u0027 or \u0027allow list\u0027; see https://developers.google.com/style/word-list#blacklist for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 213,
+        "startChar": 4,
+        "endLine": 213,
+        "endChar": 13
+      },
+      "revId": "e9f7eda398dfe36bfdee63805c9924b0d8c9808e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
