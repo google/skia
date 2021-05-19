@@ -9,6 +9,7 @@
 
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/sksl/DSLCore.h"
+#include "src/core/SkRuntimeEffectPriv.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
@@ -19,8 +20,8 @@ namespace dsl {
 
 #ifndef SKSL_STANDALONE
 
-void StartRuntimeShader(SkSL::Compiler* compiler) {
-    Start(compiler, SkSL::ProgramKind::kRuntimeShader);
+void StartRuntimeShader() {
+    Start(SkLockEffectSharedCompiler(), SkSL::ProgramKind::kRuntimeShader);
     SkSL::ProgramSettings& settings = DSLWriter::IRGenerator().fContext.fConfig->fSettings;
     SkASSERT(settings.fInlineThreshold == SkSL::kDefaultInlineThreshold);
     settings.fInlineThreshold = 0;
@@ -30,6 +31,10 @@ void StartRuntimeShader(SkSL::Compiler* compiler) {
 
 sk_sp<SkRuntimeEffect> EndRuntimeShader() {
     std::unique_ptr<SkSL::Program> program = DSLWriter::ReleaseProgram();
+
+    // Need to unlock the shared compiler before calling MakeForShader
+    SkUnlockEffectSharedCompiler();
+
     auto result = SkRuntimeEffect::MakeForShader(std::move(program));
     // TODO(skbug.com/11862): propagate errors properly
     SkASSERTF(result.effect, "%s\n", result.errorText.c_str());
