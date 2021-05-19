@@ -7,29 +7,16 @@
 
 #include "src/gpu/tessellate/GrStencilPathShader.h"
 
+#include "src/gpu/geometry/GrWangsFormula.h"
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
-// Wang's formula for cubics (1985) gives us the number of evenly spaced (in the
-// parametric sense) line segments that are guaranteed to be within a distance of
-// "MAX_LINEARIZATION_ERROR" from the actual curve.
-constexpr static char kWangsFormulaCubicFn[] = R"(
-#define MAX_LINEARIZATION_ERROR 0.25  // 1/4 pixel
-float length_pow2(vec2 v) {
-    return dot(v, v);
-}
-float wangs_formula_cubic(vec2 p0, vec2 p1, vec2 p2, vec2 p3) {
-    float k = (3.0 * 2.0) / (8.0 * MAX_LINEARIZATION_ERROR);
-    float m = max(length_pow2(-2.0*p1 + p2 + p0),
-                  length_pow2(-2.0*p2 + p3 + p1));
-    return max(1.0, ceil(sqrt(k * sqrt(m))));
-})";
-
 constexpr static char kSkSLTypeDefs[] = R"(
 #define float4x3 mat4x3
-#define float3 vec3
 #define float2 vec2
+#define float3 vec3
+#define float4 vec4
 )";
 
 // Converts a 4-point input patch into the rational cubic it intended to represent.
@@ -86,8 +73,8 @@ protected:
         if (!shader.willUseTessellationShaders()) {  // This is the case for the triangle shader.
             gpArgs->fPositionVar = vertexPos;
         } else {
-            v->declareGlobal(GrShaderVar("vsPt", kFloat2_GrSLType, GrShaderVar::TypeModifier::Out));
-            v->codeAppendf("vsPt = %s;", vertexPos.c_str());
+            v->declareGlobal(GrShaderVar("P", kFloat2_GrSLType, GrShaderVar::TypeModifier::Out));
+            v->codeAppendf("P = %s;", vertexPos.c_str());
         }
 
         // The fragment shader is normally disabled, but output fully opaque white.
@@ -118,53 +105,68 @@ GrGLSLGeometryProcessor* GrCurveTessellateShader::createGLSLInstance(const GrSha
                                           const GrGLSLUniformHandler&,
                                           const GrShaderCaps&) const override {
             SkString code(versionAndExtensionDecls);
-            code.append(kWangsFormulaCubicFn);
+            code.appendf(R"(
+            #define PRECISION %f)", GrTessellationPathRenderer::kLinearizationPrecision);
             code.append(kSkSLTypeDefs);
+            code.append(GrWangsFormula::as_sksl(true/*hasConics*/));
             code.append(kUnpackRationalCubicFn);
             code.append(R"(
             layout(vertices = 1) out;
 
-            in vec2 vsPt[];
-            out vec4 X[];
-            out vec4 Y[];
-            out float w[];
+            in vec2 P[];
+            patch out mat4x2 rationalCubicXY;
+            patch out float rationalCubicW;
 
             void main() {
-                mat4x3 P = unpack_rational_cubic(vsPt[0], vsPt[1], vsPt[2], vsPt[3]);
+                vec2 p0=P[0], p1w=P[1], p2=P[2], p3=P[3];
+                float w = -1;
+                if (isinf(p3.y)) {
+                    // This patch is actually a conic. Project to homogeneous space.
+                    w = p3.x;
+                    p1w *= w;
+                }
 
-                // Chop the curve at T=1/2. Here we take advantage of the fact that a uniform scalar
-                // has no effect on homogeneous coordinates in order to eval quickly at .5:
-                //
-                //    mix(p0, p1, .5) / mix(w0, w1, .5)
-                //    == ((p0 + p1) * .5) / ((w0 + w1) * .5)
-                //    == (p0 + p1) / (w0 + w1)
-                //
-                vec3 ab = P[0] + P[1];
-                vec3 bc = P[1] + P[2];
-                vec3 cd = P[2] + P[3];
-                vec3 abc = ab + bc;
-                vec3 bcd = bc + cd;
-                vec3 abcd = abc + bcd;
+                // Chop the curve at T=1/2.
+                vec2 ab = (p0 + p1w) * .5;
+                vec2 bc = (p1w + p2) * .5;
+                vec2 cd = (p2 + p3) * .5;
+                vec2 abc = (ab + bc) * .5;
+                vec2 bcd = (bc + cd) * .5;
+                vec2 abcd = (abc + bcd) * .5;
 
-                // Calculate how many triangles we need to linearize each half of the curve. We
-                // simply call Wang's formula for integral cubics with the down-projected points.
-                // This appears to be an upper bound on what the actual number of subdivisions would
-                // have been.
-                float w0 = wangs_formula_cubic(P[0].xy, ab.xy/ab.z, abc.xy/abc.z, abcd.xy/abcd.z);
-                float w1 = wangs_formula_cubic(abcd.xy/abcd.z, bcd.xy/bcd.z, cd.xy/cd.z, P[3].xy);
+                float n0, n1;
+                if (w < 0) {
+                    // The patch is a cubic. Calculate how many segments are needed to linearize
+                    // each half of the curve.
+                    n0 = wangs_formula(PRECISION, p0, ab, abc, abcd, -1);  // w<0 means cubic.
+                    n1 = wangs_formula(PRECISION, abcd, bcd, cd, p3, -1);
+                    rationalCubicXY = mat4x2(p0, p1w, p2, p3);  // p1w == p1 because w == 1.
+                    rationalCubicW = 1;
+                } else {
+                    // The patch is a conic. Unproject p0..5. w1 == w2 == w3 when chopping at .5.
+                    // (See SkConic::chopAt().)
+                    float r = 2.0 / (1.0 + w);
+                    ab *= r, bc *= r, abc *= r;
+                    // Put in "standard form" where w0 == w2 == w4 == 1.
+                    float w_ = inversesqrt(r);  // Both halves have the same w' when chopping at .5.
+                    // Calculate how many segments are needed to linearize each half of the curve.
+                    n0 = wangs_formula(PRECISION, p0, ab, abc, float2(0), w_);
+                    n1 = wangs_formula(PRECISION, abc, bc, p2, float2(0), w_);
+                    // Covert the conic to a rational cubic in projected form.
+                    rationalCubicXY = mat4x2(p0,
+                                             mix(float4(p0,p2), p1w.xyxy, 2.0/3.0),
+                                             p2);
+                    rationalCubicW = fma(w, 2.0/3.0, 1.0/3.0);
+                }
 
-                gl_TessLevelOuter[0] = w1;
+                gl_TessLevelOuter[0] = n1;
                 gl_TessLevelOuter[1] = 1.0;
-                gl_TessLevelOuter[2] = w0;
+                gl_TessLevelOuter[2] = n0;
 
-                // Changing the inner level to 1 when w0 == w1 == 1 collapses the entire patch to a
+                // Changing the inner level to 1 when n0 == n1 == 1 collapses the entire patch to a
                 // single triangle. Otherwise, we need an inner level of 2 so our curve triangles
                 // have an interior point to originate from.
-                gl_TessLevelInner[0] = min(max(w0, w1), 2.0);
-
-                X[gl_InvocationID /*== 0*/] = vec4(P[0].x, P[1].x, P[2].x, P[3].x);
-                Y[gl_InvocationID /*== 0*/] = vec4(P[0].y, P[1].y, P[2].y, P[3].y);
-                w[gl_InvocationID /*== 0*/] = P[1].z;
+                gl_TessLevelInner[0] = min(max(n0, n1), 2.0);
             })");
 
             return code;
@@ -182,9 +184,8 @@ GrGLSLGeometryProcessor* GrCurveTessellateShader::createGLSLInstance(const GrSha
 
             uniform vec4 sk_RTAdjust;
 
-            in vec4 X[];
-            in vec4 Y[];
-            in float w[];
+            patch in mat4x2 rationalCubicXY;
+            patch in float rationalCubicW;
 
             void main() {
                 // Locate our parametric point of interest. T ramps from [0..1/2] on the left edge
@@ -193,7 +194,10 @@ GrGLSLGeometryProcessor* GrCurveTessellateShader::createGLSLInstance(const GrSha
                 // the interior vertex, the below fma() works in all 3 scenarios.
                 float T = fma(.5, gl_TessCoord.y, gl_TessCoord.z);
 
-                mat4x3 P = transpose(mat3x4(X[0], Y[0], 1,w[0],w[0],1));
+                mat4x3 P = mat4x3(rationalCubicXY[0], 1,
+                                  rationalCubicXY[1], rationalCubicW,
+                                  rationalCubicXY[2], rationalCubicW,
+                                  rationalCubicXY[3], 1);
                 vec2 vertexpos = eval_rational_cubic(P, T);
                 if (all(notEqual(gl_TessCoord.xz, vec2(0)))) {
                     // We are the interior point of the patch; center it inside [C(0), C(.5), C(1)].
@@ -217,43 +221,47 @@ GrGLSLGeometryProcessor* GrWedgeTessellateShader::createGLSLInstance(const GrSha
                                           const GrGLSLUniformHandler&,
                                           const GrShaderCaps&) const override {
             SkString code(versionAndExtensionDecls);
-            code.append(kWangsFormulaCubicFn);
+            code.appendf(R"(
+            #define PRECISION %f)", GrTessellationPathRenderer::kLinearizationPrecision);
             code.append(kSkSLTypeDefs);
+            code.append(GrWangsFormula::as_sksl(true/*hasConics*/));
             code.append(kUnpackRationalCubicFn);
             code.append(R"(
             layout(vertices = 1) out;
 
-            in vec2 vsPt[];
-            out vec4 X[];
-            out vec4 Y[];
-            out float w[];
-            out vec2 fanpoint[];
+            in vec2 P[];
+            patch out mat4x2 rationalCubicXY;
+            patch out float rationalCubicW;
+            patch out vec2 fanpoint;
 
             void main() {
-                mat4x3 P = unpack_rational_cubic(vsPt[0], vsPt[1], vsPt[2], vsPt[3]);
+                // Figure out how many segments to divide the curve into.
+                float w = isinf(P[3].y) ? P[3].x : -1;  // w<0 means cubic.
+                float n = wangs_formula(PRECISION, P[0], P[1], P[2], P[3], w);
 
-                // Figure out how many segments to divide the curve into. To do this we simply call
-                // Wang's formula for integral cubics with the down-projected points. This appears
-                // to be an upper bound on what the actual number of subdivisions would have been.
-                float num_segments = wangs_formula_cubic(P[0].xy, P[1].xy/P[1].z, P[2].xy/P[2].z,
-                                                         P[3].xy);
-
-                // Tessellate the first side of the patch into num_segments triangles.
-                gl_TessLevelOuter[0] = num_segments;
+                // Tessellate the first side of the patch into n triangles.
+                gl_TessLevelOuter[0] = n;
 
                 // Leave the other two sides of the patch as single segments.
                 gl_TessLevelOuter[1] = 1.0;
                 gl_TessLevelOuter[2] = 1.0;
 
-                // Changing the inner level to 1 when num_segments == 1 collapses the entire
+                // Changing the inner level to 1 when n == 1 collapses the entire
                 // patch to a single triangle. Otherwise, we need an inner level of 2 so our curve
                 // triangles have an interior point to originate from.
-                gl_TessLevelInner[0] = min(num_segments, 2.0);
+                gl_TessLevelInner[0] = min(n, 2.0);
 
-                X[gl_InvocationID /*== 0*/] = vec4(P[0].x, P[1].x, P[2].x, P[3].x);
-                Y[gl_InvocationID /*== 0*/] = vec4(P[0].y, P[1].y, P[2].y, P[3].y);
-                w[gl_InvocationID /*== 0*/] = P[1].z;
-                fanpoint[gl_InvocationID /*== 0*/] = vsPt[4];
+                if (w < 0) {
+                    rationalCubicXY = mat4x2(P[0], P[1], P[2], P[3]);
+                    rationalCubicW = 1;
+                } else {
+                    // Convert the conic to a rational cubic in projected form.
+                    rationalCubicXY = mat4x2(P[0],
+                                             mix(vec4(P[0], P[2]), (P[1] * w).xyxy, 2.0/3.0),
+                                             P[2]);
+                    rationalCubicW = fma(w, 2.0/3.0, 1.0/3.0);
+                }
+                fanpoint = P[4];
             })");
 
             return code;
@@ -271,10 +279,9 @@ GrGLSLGeometryProcessor* GrWedgeTessellateShader::createGLSLInstance(const GrSha
 
             uniform vec4 sk_RTAdjust;
 
-            in vec4 X[];
-            in vec4 Y[];
-            in float w[];
-            in vec2 fanpoint[];
+            patch in mat4x2 rationalCubicXY;
+            patch in float rationalCubicW;
+            patch in vec2 fanpoint[];
 
             void main() {
                 // Locate our parametric point of interest. It is equal to the barycentric
@@ -283,7 +290,10 @@ GrGLSLGeometryProcessor* GrWedgeTessellateShader::createGLSLInstance(const GrSha
                 // NOTE: We are on the tessellated edge when the barycentric x-coordinate == 0.
                 float T = (gl_TessCoord.x == 0.0) ? gl_TessCoord.y : 0.5;
 
-                mat4x3 P = transpose(mat3x4(X[0], Y[0], 1,w[0],w[0],1));
+                mat4x3 P = mat4x3(rationalCubicXY[0], 1,
+                                  rationalCubicXY[1], rationalCubicW,
+                                  rationalCubicXY[2], rationalCubicW,
+                                  rationalCubicXY[3], 1);
                 vec2 vertexpos = eval_rational_cubic(P, T);
 
                 if (gl_TessCoord.x == 1.0) {
