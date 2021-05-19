@@ -1,0 +1,30 @@
+{
+  "comments": [
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000010944907",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/302584?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "4d9d306e_8d4897a5",
+        "filename": "src/gpu/GrBlockAllocator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-05-19T19:27:34Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027valid\u0027, \u0027validity check\u0027 or \u0027initial check\u0027; see https://source.android.com/setup/contribute/respectful-code for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 112,
+        "startChar": 47,
+        "endLine": 112,
+        "endChar": 53
+      },
+      "revId": "09084b05b8b323994b32972461ef613a18b571b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
