@@ -2170,8 +2170,15 @@ if (skia_enable_tools) {
         "modules/svg",
       ]
     }
-    test_app("ddlbench") {
-      sources = [ "experimental/ddlbench/ddlbench.cpp" ]
+    test_app("ngatoy") {
+      sources = [
+        "experimental/ngatoy/Cmds.cpp",
+        "experimental/ngatoy/Cmds.h",
+        "experimental/ngatoy/Fake.cpp",
+        "experimental/ngatoy/Fake.h",
+        "experimental/ngatoy/SortKey.h",
+        "experimental/ngatoy/ngatoy.cpp",
+      ]
       deps = [
         ":flags",
         ":skia",
@@ -3178,14 +3185,14 @@ if (skia_enable_tools) {
       ]
     }
 
-    libfuzzer_app("api_skparagraph") {
-      sources = [
-        "fuzz/FuzzSkParagraph.cpp",
-        "fuzz/oss_fuzz/FuzzSkParagraph.cpp",
-        "tools/Resources.cpp",
-      ]
-      deps = [ "modules/skparagraph" ]
-    }
+    #    libfuzzer_app("api_skparagraph") {
+    #      sources = [
+    #        "fuzz/FuzzSkParagraph.cpp",
+    #        "fuzz/oss_fuzz/FuzzSkParagraph.cpp",
+    #        "tools/Resources.cpp",
+    #      ]
+    #      deps = [ "modules/skparagraph" ]
+    #    }
 
     libfuzzer_app("api_svg_canvas") {
       include_dirs = [
