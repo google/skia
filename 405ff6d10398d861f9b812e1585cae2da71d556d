@@ -1,0 +1,186 @@
+{
+  "comments": [
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000010946593",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/219956?revision\u003d4",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "cf79d957_247d0567",
+        "filename": "infra/bots/recipe_modules/build/examples/full.expected/Build-Debian9-Clang-x86_64-Debug-SwiftShader_MSAN_Vulkan.json",
+        "patchSetId": 4
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-05-19T19:38:07Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027deny list\u0027 or \u0027allow list\u0027; see https://developers.google.com/style/word-list#blacklist for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 113,
+        "startChar": 127,
+        "endLine": 113,
+        "endChar": 136
+      },
+      "revId": "405ff6d10398d861f9b812e1585cae2da71d556d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000010946593",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/219956?revision\u003d4",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "cf13d059_d6e76a92",
+        "filename": "infra/bots/recipe_modules/build/examples/full.expected/Build-Debian9-Clang-x86_64-Debug-SwiftShader_MSAN_Vulkan.json",
+        "patchSetId": 4
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-05-19T19:38:07Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027deny list\u0027 or \u0027allow list\u0027; see https://developers.google.com/style/word-list#blacklist for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 128,
+        "startChar": 53,
+        "endLine": 128,
+        "endChar": 62
+      },
+      "revId": "405ff6d10398d861f9b812e1585cae2da71d556d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000010946593",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/219956?revision\u003d4",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "3d366154_994bb724",
+        "filename": "infra/bots/recipe_modules/build/examples/full.expected/Build-Debian9-Clang-x86_64-Debug-SwiftShader_MSAN_Vulkan.json",
+        "patchSetId": 4
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-05-19T19:38:07Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027deny list\u0027 or \u0027allow list\u0027; see https://developers.google.com/style/word-list#blacklist for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 136,
+        "startChar": 68,
+        "endLine": 136,
+        "endChar": 77
+      },
+      "revId": "405ff6d10398d861f9b812e1585cae2da71d556d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000010946593",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/219956?revision\u003d4",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "756be139_7e23507f",
+        "filename": "infra/bots/recipe_modules/build/examples/full.expected/Build-Debian9-Clang-x86_64-Debug-SwiftShader_MSAN_Vulkan.json",
+        "patchSetId": 4
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-05-19T19:38:07Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027deny list\u0027 or \u0027allow list\u0027; see https://developers.google.com/style/word-list#blacklist for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 151,
+        "startChar": 127,
+        "endLine": 151,
+        "endChar": 136
+      },
+      "revId": "405ff6d10398d861f9b812e1585cae2da71d556d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000010946593",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/219956?revision\u003d4",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "7a74cfe2_5d591825",
+        "filename": "infra/bots/recipe_modules/build/examples/full.expected/Build-Debian9-Clang-x86_64-Debug-SwiftShader_MSAN_Vulkan.json",
+        "patchSetId": 4
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-05-19T19:38:07Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027deny list\u0027 or \u0027allow list\u0027; see https://developers.google.com/style/word-list#blacklist for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 166,
+        "startChar": 53,
+        "endLine": 166,
+        "endChar": 62
+      },
+      "revId": "405ff6d10398d861f9b812e1585cae2da71d556d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000010946593",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/219956?revision\u003d4",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "9dc6edb7_68b33bb6",
+        "filename": "infra/bots/recipe_modules/build/examples/full.expected/Build-Debian9-Clang-x86_64-Debug-SwiftShader_MSAN_Vulkan.json",
+        "patchSetId": 4
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-05-19T19:38:07Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027deny list\u0027 or \u0027allow list\u0027; see https://developers.google.com/style/word-list#blacklist for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 174,
+        "startChar": 68,
+        "endLine": 174,
+        "endChar": 77
+      },
+      "revId": "405ff6d10398d861f9b812e1585cae2da71d556d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000010946593",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/219956?revision\u003d4",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "27ca5ad6_d4a073b0",
+        "filename": "infra/bots/recipes/test.expected/Test-Debian9-Clang-GCE-GPU-SwiftShader-x86_64-Debug-All-SwiftShader_MSAN_Vulkan.json",
+        "patchSetId": 4
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-05-19T19:38:07Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027deny list\u0027 or \u0027allow list\u0027; see https://developers.google.com/style/word-list#blacklist for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 189,
+        "startChar": 9,
+        "endLine": 189,
+        "endChar": 18
+      },
+      "revId": "405ff6d10398d861f9b812e1585cae2da71d556d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
