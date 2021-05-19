@@ -1,0 +1,264 @@
+{
+  "comments": [
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000010946362",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/231112?revision\u003d5",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "5e80cdc0_5ea13d1c",
+        "filename": "infra/bots/recipe_modules/build/default.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-05-19T19:37:09Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027primary/secondary\u0027 or \u0027manager/worker\u0027; see https://source.android.com/setup/contribute/respectful-code for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 274,
+        "startChar": 53,
+        "endLine": 274,
+        "endChar": 58
+      },
+      "revId": "267706db6273c7fa15d40a15e2ca5c84dccadc5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000010946362",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/231112?revision\u003d5",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "94da5e0a_0de30d33",
+        "filename": "infra/bots/recipe_modules/build/examples/full.expected/Build-Mac-Clang-x86_64-Debug-Goma.json",
+        "patchSetId": 5
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-05-19T19:37:09Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027deny list\u0027 or \u0027allow list\u0027; see https://developers.google.com/style/word-list#blacklist for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 173,
+        "startChar": 127,
+        "endLine": 173,
+        "endChar": 136
+      },
+      "revId": "267706db6273c7fa15d40a15e2ca5c84dccadc5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000010946362",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/231112?revision\u003d5",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "ba03c25d_d8dc5cc8",
+        "filename": "infra/bots/recipe_modules/build/examples/full.expected/Build-Mac-Clang-x86_64-Debug-Goma.json",
+        "patchSetId": 5
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-05-19T19:37:09Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027deny list\u0027 or \u0027allow list\u0027; see https://developers.google.com/style/word-list#blacklist for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 188,
+        "startChar": 53,
+        "endLine": 188,
+        "endChar": 62
+      },
+      "revId": "267706db6273c7fa15d40a15e2ca5c84dccadc5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000010946362",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/231112?revision\u003d5",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "4da4b644_9ffb9d8a",
+        "filename": "infra/bots/recipe_modules/build/examples/full.expected/Build-Mac-Clang-x86_64-Debug-Goma.json",
+        "patchSetId": 5
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-05-19T19:37:09Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027deny list\u0027 or \u0027allow list\u0027; see https://developers.google.com/style/word-list#blacklist for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 196,
+        "startChar": 68,
+        "endLine": 196,
+        "endChar": 77
+      },
+      "revId": "267706db6273c7fa15d40a15e2ca5c84dccadc5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000010946362",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/231112?revision\u003d5",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "86099e2d_0605be7e",
+        "filename": "infra/bots/recipe_modules/build/examples/full.expected/Build-Win-Clang-x86_64-Debug-ANGLE_Goma.json",
+        "patchSetId": 5
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-05-19T19:37:09Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027deny list\u0027 or \u0027allow list\u0027; see https://developers.google.com/style/word-list#blacklist for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 152,
+        "startChar": 127,
+        "endLine": 152,
+        "endChar": 136
+      },
+      "revId": "267706db6273c7fa15d40a15e2ca5c84dccadc5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000010946362",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/231112?revision\u003d5",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "2d35e912_5ce88211",
+        "filename": "infra/bots/recipe_modules/build/examples/full.expected/Build-Win-Clang-x86_64-Debug-ANGLE_Goma.json",
+        "patchSetId": 5
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-05-19T19:37:09Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027deny list\u0027 or \u0027allow list\u0027; see https://developers.google.com/style/word-list#blacklist for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 167,
+        "startChar": 53,
+        "endLine": 167,
+        "endChar": 62
+      },
+      "revId": "267706db6273c7fa15d40a15e2ca5c84dccadc5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000010946362",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/231112?revision\u003d5",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "59c71788_bf22c800",
+        "filename": "infra/bots/recipe_modules/build/examples/full.expected/Build-Win-Clang-x86_64-Debug-ANGLE_Goma.json",
+        "patchSetId": 5
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-05-19T19:37:09Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027deny list\u0027 or \u0027allow list\u0027; see https://developers.google.com/style/word-list#blacklist for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 175,
+        "startChar": 68,
+        "endLine": 175,
+        "endChar": 77
+      },
+      "revId": "267706db6273c7fa15d40a15e2ca5c84dccadc5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000010946362",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/231112?revision\u003d5",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "f6891d9f_b111672b",
+        "filename": "infra/bots/recipe_modules/build/examples/full.expected/Build-Win-Clang-x86_64-Debug-GomaNoFallback.json",
+        "patchSetId": 5
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-05-19T19:37:09Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027deny list\u0027 or \u0027allow list\u0027; see https://developers.google.com/style/word-list#blacklist for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 167,
+        "startChar": 127,
+        "endLine": 167,
+        "endChar": 136
+      },
+      "revId": "267706db6273c7fa15d40a15e2ca5c84dccadc5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000010946362",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/231112?revision\u003d5",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "54050d3a_374cc13b",
+        "filename": "infra/bots/recipe_modules/build/examples/full.expected/Build-Win-Clang-x86_64-Debug-GomaNoFallback.json",
+        "patchSetId": 5
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-05-19T19:37:09Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027deny list\u0027 or \u0027allow list\u0027; see https://developers.google.com/style/word-list#blacklist for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 182,
+        "startChar": 53,
+        "endLine": 182,
+        "endChar": 62
+      },
+      "revId": "267706db6273c7fa15d40a15e2ca5c84dccadc5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000010946362",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/231112?revision\u003d5",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "597e7da2_d4778910",
+        "filename": "infra/bots/recipe_modules/build/examples/full.expected/Build-Win-Clang-x86_64-Debug-GomaNoFallback.json",
+        "patchSetId": 5
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-05-19T19:37:09Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027deny list\u0027 or \u0027allow list\u0027; see https://developers.google.com/style/word-list#blacklist for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 190,
+        "startChar": 68,
+        "endLine": 190,
+        "endChar": 77
+      },
+      "revId": "267706db6273c7fa15d40a15e2ca5c84dccadc5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
