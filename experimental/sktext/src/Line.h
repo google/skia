@@ -45,9 +45,12 @@ public:
       return this->fDescent - this->fAscent + this->fLeading;
   }
 
-SkScalar baseline() const {
-      return - this->fAscent + this->fLeading / 2;
-  }
+    SkScalar baseline() const {
+          return - this->fAscent + this->fLeading / 2;
+    }
+
+    SkScalar above() const { return - this->fAscent + this->fLeading / 2; }
+    SkScalar below() const { return this->fDescent + this->fLeading / 2; }
 
 private:
     SkScalar fAscent;
@@ -170,6 +173,7 @@ public:
 
 private:
     friend class Processor;
+    friend class Visitor;
 
     GlyphPos fTextStart;
     GlyphPos fTextEnd;

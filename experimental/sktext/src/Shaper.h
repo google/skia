@@ -11,16 +11,14 @@ namespace text {
 class Processor;
 class Shaper : public SkShaper::RunHandler{
 public:
-    Shaper(Processor* processor, TextFontStyle textFontStyle)
+    Shaper(Processor* processor)
             : fProcessor(processor)
-            , fFontManager(textFontStyle.fFontManager)
-            , fDefaultTextDirection(textFontStyle.fTextDirection)
             , fCurrentRun(nullptr) { }
+
     bool process();
 
 private:
     SkFont createFont(const FontBlock& block);
-    sk_sp<SkTypeface> matchTypeface(const SkString& fontFamily, SkFontStyle fontStyle);
 
     void beginLine() override {}
     void runInfo(const RunInfo&) override {}
@@ -35,8 +33,6 @@ private:
     void commitRunBuffer(const RunInfo&) override;
 
     Processor* fProcessor;
-    sk_sp<SkFontMgr> fFontManager;
-    TextDirection fDefaultTextDirection;
     std::unique_ptr<TextRun> fCurrentRun;
 };
 

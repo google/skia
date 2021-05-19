@@ -2,7 +2,7 @@
 #ifndef Wrapper_DEFINED
 #define Wrapper_DEFINED
 
-#include "experimental/sktext/include/Processor.h"
+#include "experimental/sktext/include/Layout.h"
 #include "experimental/sktext/src/Line.h"
 #include "experimental/sktext/src/TextRun.h"
 
@@ -12,7 +12,7 @@ namespace text {
 class Wrapper {
 
 public:
-    Wrapper(Processor* processor, SkScalar width, SkScalar height) : fProcessor(processor), fWidth(width), fHeight(height) { }
+    Wrapper(Processor* processor, SkSize reqSize) : fProcessor(processor), fWidth(reqSize.fWidth), fHeight(reqSize.fHeight) { }
     bool process();
 
     void addLine(Stretch& stretch, Stretch& spaces) {
