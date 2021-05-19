@@ -7,6 +7,10 @@
 
 namespace skia {
 namespace text {
+
+class Run {
+
+};
 class TextRun {
  public:
   TextRun(const SkShaper::RunHandler::RunInfo& info);
@@ -27,6 +31,7 @@ class TextRun {
   friend class Wrapper;
   friend class Processor;
   friend class Shaper;
+  friend class Visitor;
 
   SkFont fFont;
 

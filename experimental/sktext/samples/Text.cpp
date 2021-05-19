@@ -56,7 +56,7 @@ protected:
 
         Processor::drawText(direction == TextDirection::kRtl ? mirror(text) : normal(text),
                             canvas,
-                            TextFormatStyle(align, direction),
+                            direction, align,
                             SK_ColorBLACK, SK_ColorLTGRAY,
                             SkString("Roboto"), 12.0f, SkFontStyle::Normal(),
                             0, 0);
@@ -155,7 +155,8 @@ protected:
 
     void onDrawContent(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
-        Processor::drawText(u"LONG MIRRORED TEXT SHOULD SHOW RIGHT TO LEFT (AS NORMAL)", canvas, 0, 0);
+        std::u16string str = u"LONG MIRRORED TEXT SHOULD SHOW RIGHT TO LEFT (AS NORMAL)";
+        Processor::drawText(str, canvas, 0, 0);
     }
 
 private:

@@ -23,66 +23,52 @@ public:
     enum BlockType {
         kFont,
         kDecor,
-        kFormat,
+        kTrackable, // Breaks runs for a customer
     };
-    Block(BlockType type, TextRange range)
+    Block(BlockType type, size_t length)
         : fType(type)
-        , fRange(range) { }
+        , fLength(length) { }
     BlockType fType;
-    TextRange fRange;
+    size_t fLength;
 };
 
 class FontBlock : public Block {
 public:
-    FontBlock(const SkString& family, SkScalar size, SkFontStyle style, TextRange range)
-        : Block(Block::kFont, range)
-        , fFontFamily(family)
+    FontBlock(const SkString& family, SkScalar size, SkFontStyle style, size_t length)
+        : Block(Block::kFont, length)
+        //, fFontFamily(family)
         , fFontSize(size)
-        , fFontStyle(style) { }
-    SkString fFontFamily;
+        , fFontStyle(style)
+        , fTypeface(nullptr) {
+        sk_sp<SkFontStyleSet> set(SkFontMgr::RefDefault()->matchFamily(family.c_str()));
+        if (set && set->count() > 0) {
+            sk_sp<SkTypeface> match(set->matchStyle(style));
+            if (match) {
+                fTypeface = match;
+            }
+        }
+    }
+    //SkString fFontFamily;
     SkScalar fFontSize;
     SkFontStyle fFontStyle;
+    sk_sp<SkTypeface> fTypeface;
 
     // TODO: Features
 };
 
 class DecorBlock : public Block {
 public:
-    DecorBlock(const SkPaint* foreground, const SkPaint* background, TextRange range)
-        : Block(Block::kDecor, range)
+    DecorBlock(const SkPaint* foreground, const SkPaint* background, size_t length)
+        : Block(Block::kFont, length)
         , fForegroundColor(foreground)
         , fBackgroundColor(background) { }
 
-    DecorBlock(TextRange range)
-        : DecorBlock(nullptr, nullptr, range) { }
+    DecorBlock(size_t length)
+        : DecorBlock(nullptr, nullptr, length) { }
 
     const SkPaint* fForegroundColor;
     const SkPaint* fBackgroundColor;
     // Everything else
-};
-
-class TextFormatStyle {
-public:
-    TextFormatStyle(TextAlign textAlign, TextDirection defaultTextDirection)
-        : fTextAlign(textAlign), fDefaultTextDirection(defaultTextDirection) { }
-    TextAlign fTextAlign;
-    TextDirection fDefaultTextDirection;
-};
-
-class TextFontStyle {
-public:
-    TextFontStyle(TextDirection textDirection, sk_sp<SkFontMgr> fontManager)
-        : fTextDirection(textDirection), fFontManager(fontManager) { }
-    TextDirection fTextDirection;
-    sk_sp<SkFontMgr> fFontManager;
-};
-
-class TextOutput {
- public:
-    TextOutput(sk_sp<SkTextBlob> textBlob, const SkPaint& paint, SkSize offset) : fTextBlob(std::move(textBlob)), fPaint(paint), fOffset(offset) { }
-    sk_sp<SkTextBlob> fTextBlob;
-    SkPaint fPaint;
-    SkSize fOffset;
 };
 
 class Processor {
@@ -95,20 +81,7 @@ public:
 
     ~Processor() = default;
 
-    // All the Unicode information
     SkUnicode* getUnicode() { return fUnicode == nullptr ? nullptr : fUnicode.get(); }
-
-    // Once the text is measured you can get approximate sizing for it
-    bool shape(TextFontStyle fontStyle, SkTArray<FontBlock, true> fontBlocks);
-
-    // Once the text is fit into the required box you can get the real sizes for it
-    bool wrap(SkScalar width, SkScalar height);
-
-    // Once the text is formatted you can get it's glyphs info line by line
-    bool format(TextFormatStyle textFormatStyle);
-
-    // Once the text is decorated you can iterate it by segments (intersect of run, decor block and line)
-    bool decorate(SkTArray<DecorBlock, true> decorBlocks);
 
     bool hasProperty(size_t index, CodeUnitFlags flag) {
         return (fCodeUnitProperties[index] & flag) == flag;
@@ -159,12 +132,15 @@ public:
     // Simplification (using default font manager, default font family and default everything possible)
     static bool drawText(std::u16string text, SkCanvas* canvas, SkScalar x, SkScalar y);
     static bool drawText(std::u16string text, SkCanvas* canvas, SkScalar width);
-    static bool drawText(std::u16string text, SkCanvas* canvas, TextFormatStyle textFormat, SkColor foreground, SkColor background, const SkString& fontFamily, SkScalar fontSize, SkFontStyle fontStyle, SkScalar x, SkScalar y);
     static bool drawText(std::u16string text, SkCanvas* canvas,
-                         TextFormatStyle textFormat, SkColor foreground, SkColor background, const SkString& fontFamily, SkScalar fontSize, SkFontStyle fontStyle,
+                         TextDirection textDirection, TextAlign textAlign,
+                         SkColor foreground, SkColor background, const SkString& fontFamily,
+                         SkScalar fontSize, SkFontStyle fontStyle, SkScalar x, SkScalar y);
+    static bool drawText(std::u16string text, SkCanvas* canvas,
+                         TextDirection textDirection, TextAlign textAlign,
+                         SkColor foreground, SkColor background,
+                         const SkString& fontFamily, SkScalar fontSize, SkFontStyle fontStyle,
                          SkSize reqSize, SkScalar x, SkScalar y);
-
-    void sortDecorBlocks(SkTArray<DecorBlock, true>& decorBlocks);
 
     bool computeCodeUnitProperties();
 
@@ -174,20 +150,17 @@ public:
     template<typename Visitor>
     void iterateByVisualOrder(CodeUnitFlags units, Visitor visitor);
     template<typename Visitor>
-    void iterateByVisualOrder(SkTArray<DecorBlock, true>& decorBlocks, Visitor visitor);
+    void iterateByVisualOrder(SkSpan<DecorBlock> decorBlocks, Visitor visitor);
 
 private:
     friend class TextIterator;
     friend class Shaper;
     friend class Wrapper;
+    friend class Visitor;
 
     std::u16string fText;
-    SkTArray<FontBlock, true> fFontBlocks;
-    //TextFormatStyle fTextFormatStyle;
-    //TextFontStyle fTextFontStyle;
     SkTArray<TextRun, false> fRuns;
     SkTArray<Line, false> fLines;
-    SkTArray<TextOutput, false> fTextOutputs;
 
     std::unique_ptr<SkUnicode> fUnicode;
     SkTArray<CodeUnitFlags, true> fCodeUnitProperties;
