@@ -38,6 +38,8 @@ protected:
     SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix& ctm,
                                MapDirection, const SkIRect* inputRect) const override;
 
+    bool onCanHandleComplexCTM() const override { return true; }
+
 private:
     friend void ::SkRegisterImageImageFilterFlattenable();
     SK_FLATTENABLE_HOOKS(SkImageImageFilter)
@@ -101,57 +103,56 @@ void SkImageImageFilter::flatten(SkWriteBuffer& buffer) const {
 
 sk_sp<SkSpecialImage> SkImageImageFilter::onFilterImage(const Context& ctx,
                                                         SkIPoint* offset) const {
-    SkRect dstRect;
-    ctx.ctm().mapRect(&dstRect, fDstRect);
+    const SkRect dstBounds = ctx.ctm().mapRect(fDstRect);
+    const SkIRect dstIBounds = dstBounds.roundOut();
 
-    SkRect bounds = SkRect::MakeIWH(fImage->width(), fImage->height());
-    if (fSrcRect == bounds) {
-        int iLeft = dstRect.fLeft;
-        int iTop = dstRect.fTop;
-        // TODO: this seems to be a very noise-prone way to determine this (esp. the floating-point
-        // widths & heights).
-        if (dstRect.width() == bounds.width() && dstRect.height() == bounds.height() &&
-            iLeft == dstRect.fLeft && iTop == dstRect.fTop) {
-            // The dest is just an un-scaled integer translation of the entire image; return it
-            offset->fX = iLeft;
-            offset->fY = iTop;
+    // Quick check to see if we can return the image directly, which can be done if the transform
+    // ends up being an integer translate and sampling would have no effect on the output.
+    // TODO: This currently means cubic sampling can be skipped, even though it would change results
+    // for integer translation draws.
+    // TODO: This is prone to false negatives due to the floating point math; we could probably
+    // get away with dimensions and translates being epsilon close to integers.
+    const bool passthroughTransform = ctx.ctm().isScaleTranslate() &&
+                                      ctx.ctm().getScaleX() > 0.f &&
+                                      ctx.ctm().getScaleY() > 0.f;
+    const bool passthroughSrcOffsets = SkScalarIsInt(fSrcRect.fLeft) &&
+                                       SkScalarIsInt(fSrcRect.fTop);
+    const bool passthroughDstOffsets = SkScalarIsInt(dstBounds.fLeft) &&
+                                       SkScalarIsInt(dstBounds.fTop);
+    const bool passthroughDims =
+            SkScalarIsInt(fSrcRect.width()) && fSrcRect.width() == dstBounds.width() &&
+            SkScalarIsInt(fSrcRect.height()) && fSrcRect.height() == dstBounds.height();
 
-            return SkSpecialImage::MakeFromImage(ctx.getContext(),
-                                                 SkIRect::MakeWH(fImage->width(), fImage->height()),
-                                                 fImage, ctx.surfaceProps());
+    if (passthroughTransform && passthroughSrcOffsets && passthroughDstOffsets && passthroughDims) {
+        // Can pass through fImage directly, applying the dst's location to 'offset'. If fSrcRect
+        // extends outside of the image, we adjust dst to match since those areas would have been
+        // transparent black anyways.
+        SkIRect srcIBounds = fSrcRect.roundOut();
+        SkIPoint srcOffset = srcIBounds.topLeft();
+        if (!srcIBounds.intersect(SkIRect::MakeWH(fImage->width(), fImage->height()))) {
+            return nullptr;
         }
+
+        *offset = dstIBounds.topLeft() + srcIBounds.topLeft() - srcOffset;
+        return SkSpecialImage::MakeFromImage(ctx.getContext(), srcIBounds, fImage,
+                                             ctx.surfaceProps());
     }
 
-    const SkIRect dstIRect = dstRect.roundOut();
-
-    sk_sp<SkSpecialSurface> surf(ctx.makeSurface(dstIRect.size()));
+    sk_sp<SkSpecialSurface> surf(ctx.makeSurface(dstIBounds.size()));
     if (!surf) {
         return nullptr;
     }
 
     SkCanvas* canvas = surf->getCanvas();
-    SkASSERT(canvas);
-
-    // TODO: it seems like this clear shouldn't be necessary (see skbug.com/5075)
-    canvas->clear(0x0);
-
-    SkPaint paint;
-
     // Subtract off the integer component of the translation (will be applied in offset, below).
-    dstRect.offset(-SkIntToScalar(dstIRect.fLeft), -SkIntToScalar(dstIRect.fTop));
-    paint.setBlendMode(SkBlendMode::kSrc);
-
-    // FIXME: this probably shouldn't be necessary, but drawImageRect asserts
-    SkSamplingOptions sampling = fSampling;
-    // None filtering when it's translate-only (even for cubicresampling? <reed>)
-    if (fSrcRect.width() == dstRect.width() && fSrcRect.height() == dstRect.height()) {
-        sampling = SkSamplingOptions();
-    }
-    canvas->drawImageRect(fImage.get(), fSrcRect, dstRect, sampling, &paint,
+    canvas->translate(-dstIBounds.fLeft, -dstIBounds.fTop);
+    canvas->concat(ctx.ctm());
+    // TODO(skbug.com/5075): Canvases from GPU special surfaces come with unitialized content
+    canvas->clear(SK_ColorTRANSPARENT);
+    canvas->drawImageRect(fImage.get(), fSrcRect, fDstRect, fSampling, nullptr,
                           SkCanvas::kStrict_SrcRectConstraint);
 
-    offset->fX = dstIRect.fLeft;
-    offset->fY = dstIRect.fTop;
+    *offset = dstIBounds.topLeft();
     return surf->makeImageSnapshot();
 }
 
