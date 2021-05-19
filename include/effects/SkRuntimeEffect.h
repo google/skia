@@ -13,6 +13,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
+#include "include/private/SkMutex.h"
 #include "include/private/SkOnce.h"
 #include "include/private/SkSLSampleUsage.h"
 
@@ -25,6 +26,7 @@ class SkImage;
 class SkShader;
 
 namespace SkSL {
+class Compiler;
 class FunctionDefinition;
 struct Program;
 enum class ProgramKind : int8_t;
@@ -42,6 +44,20 @@ class Program;
  */
 class SK_API SkRuntimeEffect : public SkRefCnt {
 public:
+    class SK_API SharedCompiler {
+    public:
+        SharedCompiler();
+        ~SharedCompiler();
+
+        SkSL::Compiler* operator->() const { return this->get(); }
+        SkSL::Compiler* get() const;
+
+    private:
+        SkAutoMutexExclusive fLock;
+        struct Impl;
+        static Impl* gImpl;
+    };
+
     struct Uniform {
         enum class Type {
             kFloat,

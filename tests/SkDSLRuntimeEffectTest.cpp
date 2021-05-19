@@ -16,7 +16,6 @@
 #include "include/sksl/DSLRuntimeEffects.h"
 #include "src/core/SkTLazy.h"
 #include "src/gpu/GrColor.h"
-#include "src/sksl/SkSLCompiler.h"
 #include "tests/Test.h"
 
 #include <algorithm>
@@ -28,8 +27,6 @@ class DSLTestEffect {
 public:
     DSLTestEffect(skiatest::Reporter* r, sk_sp<SkSurface> surface)
         : fReporter(r)
-        , fCaps(SkSL::ShaderCapsFactory::Standalone())
-        , fCompiler(std::make_unique<SkSL::Compiler>(fCaps.get()))
         , fSurface(std::move(surface)) {}
 
     void start() {
@@ -96,8 +93,7 @@ public:
 
 private:
     skiatest::Reporter*             fReporter;
-    SkSL::ShaderCapsPointer         fCaps;
-    std::unique_ptr<SkSL::Compiler> fCompiler;
+    SkRuntimeEffect::SharedCompiler fCompiler;
     sk_sp<SkSurface>                fSurface;
     SkTLazy<SkRuntimeShaderBuilder> fBuilder;
 };
