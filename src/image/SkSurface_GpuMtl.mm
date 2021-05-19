@@ -84,14 +84,13 @@ sk_sp<SkSurface> SkSurface::MakeFromCAMetalLayer(GrRecordingContext* rContext,
             false,
             GrSurfaceProxy::UseAllocator::kYes);
 
-    auto sdc = GrSurfaceDrawContext::Make(rContext,
-                                          grColorType,
-                                          std::move(colorSpace),
-                                          std::move(proxy),
-                                          origin,
-                                          SkSurfacePropsCopyOrDefault(surfaceProps));
-
-    auto device = SkGpuDevice::Make(std::move(sdc), SkGpuDevice::kUninit_InitContents);
+    auto device = SkGpuDevice::Make(rContext,
+                                    grColorType,
+                                    std::move(colorSpace),
+                                    std::move(proxy),
+                                    origin,
+                                    SkSurfacePropsCopyOrDefault(surfaceProps),
+                                    SkBaseGpuDevice::kUninit_InitContents);
     if (!device) {
         return nullptr;
     }
@@ -154,14 +153,13 @@ sk_sp<SkSurface> SkSurface::MakeFromMTKView(GrRecordingContext* rContext,
             false,
             GrSurfaceProxy::UseAllocator::kYes);
 
-    auto sdc = GrSurfaceDrawContext::Make(rContext,
-                                          grColorType,
-                                          std::move(colorSpace),
-                                          std::move(proxy),
-                                          origin,
-                                          SkSurfacePropsCopyOrDefault(surfaceProps));
-
-    auto device = SkGpuDevice::Make(std::move(sdc), SkGpuDevice::kUninit_InitContents);
+    auto device = SkGpuDevice::Make(rContext,
+                                    grColorType,
+                                    std::move(colorSpace),
+                                    std::move(proxy),
+                                    origin,
+                                    SkSurfacePropsCopyOrDefault(surfaceProps),
+                                    SkBaseGpuDevice::kUninit_InitContents);
     if (!device) {
         return nullptr;
     }
