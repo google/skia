@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4c9362fc_7abc0b3c",
+        "filename": "src/gpu/gl/GrGLUtil.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-05-19T16:06:11Z",
+      "side": 1,
+      "message": "Right. In the GL code we use our own enum and have an exhaustive list of cases here. On the other backends we use the API\u0027s enum and only have cases for the formats we actually allow.",
+      "parentUuid": "52c713b0_4b202265",
+      "revId": "b863c2eace1980c22c9d4874b0a5faf943370f65",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "603f6e37_a5c7dc80",
@@ -31,6 +49,24 @@
       "writtenOn": "2021-05-19T15:55:11Z",
       "side": 1,
       "message": "Can this not be \"static constexpr\" like all the others?",
+      "revId": "b863c2eace1980c22c9d4874b0a5faf943370f65",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ce2536bc_33b647b6",
+        "filename": "src/gpu/mtl/GrMtlUtil.mm",
+        "patchSetId": 4
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-05-19T16:06:11Z",
+      "side": 1,
+      "message": "I don\u0027t think so. It would have to be inline in the header, but the header is restricted to C++, not Objective-C++, so it can be included in C++ source files.",
+      "parentUuid": "603f6e37_a5c7dc80",
       "revId": "b863c2eace1980c22c9d4874b0a5faf943370f65",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
