@@ -1,0 +1,160 @@
+{
+  "comments": [
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000010945069",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/288259?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "4cd535a7_760901f1",
+        "filename": "infra/bots/recipes/perf.expected/Perf-Android-Clang-Nexus7-CPU-Tegra3-arm-Debug-All-Android.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 1091,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-05-19T19:28:31Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027complex\u0027, \u0027unexpected\u0027, or \u0027placeholder\u0027; see https://developers.google.com/style/inclusive-documentation#ableist-language for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 1091,
+        "startChar": 45,
+        "endLine": 1091,
+        "endChar": 50
+      },
+      "revId": "b9b867bdcbc4ffd3606039878405b01786a4056e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000010945069",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/288259?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "7268d31b_9b631967",
+        "filename": "infra/bots/recipes/perf.expected/Perf-Android-Clang-Nexus7-CPU-Tegra3-arm-Debug-All-Android.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 1103,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-05-19T19:28:31Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027complex\u0027, \u0027unexpected\u0027, or \u0027placeholder\u0027; see https://developers.google.com/style/inclusive-documentation#ableist-language for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 1103,
+        "startChar": 65,
+        "endLine": 1103,
+        "endChar": 70
+      },
+      "revId": "b9b867bdcbc4ffd3606039878405b01786a4056e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000010945069",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/288259?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "0706a34d_929694ed",
+        "filename": "infra/bots/recipes/test.expected/Test-Android-Clang-Pixel-GPU-Adreno530-arm-Debug-All-Android_ASAN.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 1047,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-05-19T19:28:31Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027complex\u0027, \u0027unexpected\u0027, or \u0027placeholder\u0027; see https://developers.google.com/style/inclusive-documentation#ableist-language for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 1047,
+        "startChar": 38,
+        "endLine": 1047,
+        "endChar": 43
+      },
+      "revId": "b9b867bdcbc4ffd3606039878405b01786a4056e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000010945069",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/288259?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "e5d925f3_0607dbfc",
+        "filename": "infra/bots/recipes/test.expected/Test-Android-Clang-Pixel-GPU-Adreno530-arm-Debug-All-Android_ASAN.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 1059,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-05-19T19:28:31Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027complex\u0027, \u0027unexpected\u0027, or \u0027placeholder\u0027; see https://developers.google.com/style/inclusive-documentation#ableist-language for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 1059,
+        "startChar": 51,
+        "endLine": 1059,
+        "endChar": 56
+      },
+      "revId": "b9b867bdcbc4ffd3606039878405b01786a4056e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000010945069",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/288259?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "30064a15_59861af4",
+        "filename": "infra/bots/recipes/test.expected/Test-Android-Clang-Pixel2XL-GPU-Adreno540-arm64-Debug-All-Android.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 1183,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-05-19T19:28:31Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027complex\u0027, \u0027unexpected\u0027, or \u0027placeholder\u0027; see https://developers.google.com/style/inclusive-documentation#ableist-language for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 1183,
+        "startChar": 38,
+        "endLine": 1183,
+        "endChar": 43
+      },
+      "revId": "b9b867bdcbc4ffd3606039878405b01786a4056e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000010945069",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/288259?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "e40c1ed7_6b45e6b1",
+        "filename": "infra/bots/recipes/test.expected/Test-Android-Clang-Pixel2XL-GPU-Adreno540-arm64-Debug-All-Android.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 1195,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-05-19T19:28:31Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027complex\u0027, \u0027unexpected\u0027, or \u0027placeholder\u0027; see https://developers.google.com/style/inclusive-documentation#ableist-language for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 1195,
+        "startChar": 51,
+        "endLine": 1195,
+        "endChar": 56
+      },
+      "revId": "b9b867bdcbc4ffd3606039878405b01786a4056e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
