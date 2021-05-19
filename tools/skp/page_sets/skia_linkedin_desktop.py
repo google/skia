@@ -24,14 +24,7 @@ class SkiaDesktopPage(page_module.Page):
     self.archive_data_file = 'data/skia_linkedin_desktop.json'
 
   def RunNavigateSteps(self, action_runner):
-    if self.wpr_mode != wpr_modes.WPR_REPLAY:
-      credentials_path=os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                    'data/credentials.json')
-      linkedin_login.LoginDesktopAccount(action_runner, 'linkedin',
-                                         credentials_path)
-      action_runner.Wait(15)
-    action_runner.Navigate(self.url)
-    action_runner.Wait(15)
+    action_runner.Navigate(self.url, timeout_in_seconds=60)
 
 
 class SkiaLinkedinDesktopPageSet(story.StorySet):
