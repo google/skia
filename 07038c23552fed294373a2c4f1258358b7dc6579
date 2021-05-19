@@ -1,0 +1,56 @@
+{
+  "comments": [
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000010945535",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/272720?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "ea35678d_1ba19f0d",
+        "filename": "tests/GrQuadBufferTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-05-19T19:32:07Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027valid\u0027, \u0027validity check\u0027 or \u0027initial check\u0027; see https://source.android.com/setup/contribute/respectful-code for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 74,
+        "startChar": 53,
+        "endLine": 74,
+        "endChar": 59
+      },
+      "revId": "07038c23552fed294373a2c4f1258358b7dc6579",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000010945535",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/272720?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "d0d1b779_5c55d94b",
+        "filename": "tests/GrQuadBufferTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-05-19T19:32:07Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027valid\u0027, \u0027validity check\u0027 or \u0027initial check\u0027; see https://source.android.com/setup/contribute/respectful-code for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 152,
+        "startChar": 10,
+        "endLine": 152,
+        "endChar": 16
+      },
+      "revId": "07038c23552fed294373a2c4f1258358b7dc6579",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
