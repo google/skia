@@ -15,7 +15,6 @@
 #include "include/core/SkRegion.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
-#include "include/effects/Sk1DPathEffect.h"
 #include "include/effects/SkCornerPathEffect.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/utils/SkRandom.h"
