@@ -60,9 +60,12 @@ public:
      *  Allocate a new GPU-backed SkSpecialSurface. If the requested surface cannot
      *  be created, nullptr will be returned.
      */
-    static sk_sp<SkSpecialSurface> MakeRenderTarget(GrRecordingContext*, int width, int height,
-                                                    GrColorType, sk_sp<SkColorSpace> colorSpace,
-                                                    const SkSurfaceProps&);
+    static sk_sp<SkSpecialSurface> MakeRenderTarget1(GrRecordingContext*,
+                                                     const SkImageInfo&,
+                                                     const SkSurfaceProps&);
+//                                                    int width, int height,
+//                                                    GrColorType, sk_sp<SkColorSpace> colorSpace,
+//                                                    const SkSurfaceProps&);
 #endif
 
     /**

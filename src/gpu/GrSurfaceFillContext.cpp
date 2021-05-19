@@ -214,7 +214,7 @@ std::unique_ptr<GrSurfaceFillContext> GrSurfaceFillContext::MakeFromBackendTextu
     SkASSERT(sampleCount > 0);
 
     if (info.alphaType() == kPremul_SkAlphaType || info.alphaType() == kOpaque_SkAlphaType) {
-        return GrSurfaceDrawContext::MakeFromBackendTexture(context,
+        return GrSurfaceDrawContext::MakeFromBackendTexture1(context,
                                                             info.colorType(),
                                                             info.refColorSpace(),
                                                             tex,

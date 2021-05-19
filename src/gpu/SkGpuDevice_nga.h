@@ -19,12 +19,18 @@
  */
 class SkGpuDevice_nga : public SkBaseGpuDevice  {
 public:
+    static sk_sp<SkBaseGpuDevice> Make(GrRecordingContext*, SkBudgeted, const SkImageInfo&,
+                                       int sampleCount, GrSurfaceOrigin, const SkSurfaceProps*,
+                                       GrMipmapped mipMapped, InitContents) {
+        return nullptr;
+    }
+
     ~SkGpuDevice_nga() override;
 
     GrSurfaceProxyView readSurfaceView() override { return {}; }
 
     GrRecordingContext* recordingContext() const override { return fContext.get(); }
-    GrSurfaceDrawContext* surfaceDrawContext() override { return nullptr; }
+//    GrSurfaceDrawContext* surfaceDrawContext() override { return nullptr; }
 
 protected:
     void onSave() override;
