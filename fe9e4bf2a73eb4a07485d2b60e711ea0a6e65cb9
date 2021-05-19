@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "048bf9d6_945c8217",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 823,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-19T20:30:09Z",
+      "side": 1,
+      "message": "Maybe include a comment that this (not entering the switch) is protecting us against seeing a \u0027break\u0027 and thinking it\u0027s a loop exit?",
+      "range": {
+        "startLine": 818,
+        "startChar": 0,
+        "endLine": 823,
+        "endChar": 26
+      },
+      "revId": "fe9e4bf2a73eb4a07485d2b60e711ea0a6e65cb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
