@@ -181,23 +181,24 @@ SK_ALWAYS_INLINE static int conic_log2(float tolerance, const SkPoint pts[], flo
 }
 
 // Emits an SKSL function that calculates Wang's formula for the given set of 4 points. The points
-// represent a cubic, or, if 'hasConics' is true and W >= 0, a conic defined by the first 3 points.
+// represent a cubic, or, if 'hasConics' is true and w >= 0, a conic defined by the first 3 points.
 inline static SkString as_sksl(bool hasConics) {
     SkString code;
     code.appendf(R"(
     float length_pow2(float2 v) {
         return dot(v, v);
     }
-    float wangs_formula(float parametricPrecision, float4x2 P, float W) {
+    float wangs_formula(float parametricPrecision, float2 p0, float2 p1, float2 p2, float2 p3,
+                        float w) {
         const float CUBIC_TERM_POW2 = %f;
-        float l0 = length_pow2(fma(float2(-2), P[1], P[2]) + P[0]);
-        float l1 = length_pow2(fma(float2(-2), P[2], P[3]) + P[1]);
+        float l0 = length_pow2(fma(float2(-2), p1, p2) + p0);
+        float l1 = length_pow2(fma(float2(-2), p2, p3) + p1);
         float m = CUBIC_TERM_POW2 * max(l0, l1);)", length_term_pow2<3>(1));
     if (hasConics) {
         // FIXME: Use the better formula from GrWangsFormula::conic().
         code.appendf(R"(
         const float QUAD_TERM_POW2 = %f;
-        m = (W >= 0.0) ? QUAD_TERM_POW2 * l0 : m;)", length_term_pow2<2>(1));
+        m = (w >= 0.0) ? QUAD_TERM_POW2 * l0 : m;)", length_term_pow2<2>(1));
     }
     code.append(R"(
         return max(ceil(sqrt(parametricPrecision * sqrt(m))), 1.0);
