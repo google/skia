@@ -1,7 +1,8 @@
 // defines built-in interfaces supported by SkiaSL fragment shaders
 
 // See "enum SpvBuiltIn_" in ./spirv.h
-layout(builtin=15) in float4 sk_FragCoord;
+layout(builtin=10011) float4 sk_FragCoord;
+layout(builtin=15) in float4 __device_FragCoord;
 layout(builtin=17) in bool sk_Clockwise;  // Similar to gl_FrontFacing, but defined in device space.
 
 // 9999 is a sentinel value that causes us to ignore these declarations, beyond adding them to the

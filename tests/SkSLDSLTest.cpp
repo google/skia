@@ -1401,7 +1401,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFunction, r, ctxInfo) {
         sqr.define(
             Return(x * x)
         );
-        EXPECT_EQUAL(sqr(sk_FragCoord().x()), "sqr(sk_FragCoord.x)");
+        EXPECT_EQUAL(sqr(sk_FragCoord().x()), "sqr(__device_FragCoord.x)");
         REPORTER_ASSERT(r, DSLWriter::ProgramElements().size() == 1);
         EXPECT_EQUAL(*DSLWriter::ProgramElements()[0], "float sqr(float x) { return (x * x); }");
     }

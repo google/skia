@@ -1,3 +1,5 @@
 /*#pragma settings CannotUseFragCoord*/
 
+float4 sk_RTAdjust;
+
 void main() { sk_FragColor.xy = half2(sk_FragCoord.xy); }

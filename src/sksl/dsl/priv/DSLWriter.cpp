@@ -62,7 +62,6 @@ DSLWriter::~DSLWriter() {
         fCompiler->fIRGenerator->finish();
         fProgramElements.clear();
     } else {
-        // We should only be here with a null symbol table if ReleaseProgram was called
         SkASSERT(fProgramElements.empty());
     }
     fCompiler->fContext->fConfig = fOldConfig;
@@ -237,7 +236,7 @@ const SkSL::Variable& DSLWriter::Var(DSLVar& var) {
                                                                           var.fStorage);
         var.fVar = skslvar.get();
         // We can't call VarDeclaration::Convert directly here, because the IRGenerator has special
-        // treatment for sk_FragColor and sk_RTHeight that we want to preserve in DSL.
+        // treatment for sk_FragColor that we want to preserve in DSL.
         var.fDeclaration = DSLWriter::IRGenerator().convertVarDeclaration(
                                                                        std::move(skslvar),
                                                                        var.fInitialValue.release());

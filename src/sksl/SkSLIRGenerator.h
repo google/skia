@@ -147,6 +147,8 @@ public:
 
     std::unique_ptr<Expression> convertIdentifier(int offset, StringFragment identifier);
 
+    std::unique_ptr<Expression> createVariableReference(int offset, const Variable& var);
+
     const Context& fContext;
 
 private:

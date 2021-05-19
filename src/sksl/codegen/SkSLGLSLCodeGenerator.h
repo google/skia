@@ -106,8 +106,6 @@ protected:
 
     void writeModifiers(const Modifiers& modifiers, bool globalContext);
 
-    virtual void writeInputVars();
-
     virtual void writeVarInitializer(const Variable& var, const Expression& value);
 
     const char* getTypePrecision(const Type& type);

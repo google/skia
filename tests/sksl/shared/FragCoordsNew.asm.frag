@@ -1,6 +1,37 @@
-### Compilation failed:
-
-error: 3: RTHeightOffset is negative
-error: 3: layout(binding=...) is required in SPIR-V
-error: 3: layout(set=...) is required in SPIR-V
-3 errors
+OpCapability Shader
+%1 = OpExtInstImport "GLSL.std.450"
+OpMemoryModel Logical GLSL450
+OpEntryPoint Fragment %main "main" %sk_FragColor %__device_FragCoord %sk_Clockwise
+OpExecutionMode %main OriginUpperLeft
+OpName %sk_FragColor "sk_FragColor"
+OpName %__device_FragCoord "__device_FragCoord"
+OpName %sk_Clockwise "sk_Clockwise"
+OpName %main "main"
+OpDecorate %sk_FragColor RelaxedPrecision
+OpDecorate %sk_FragColor Location 0
+OpDecorate %sk_FragColor Index 0
+OpDecorate %__device_FragCoord BuiltIn FragCoord
+OpDecorate %sk_Clockwise BuiltIn FrontFacing
+OpDecorate %18 RelaxedPrecision
+OpDecorate %19 RelaxedPrecision
+%float = OpTypeFloat 32
+%v4float = OpTypeVector %float 4
+%_ptr_Output_v4float = OpTypePointer Output %v4float
+%sk_FragColor = OpVariable %_ptr_Output_v4float Output
+%_ptr_Input_v4float = OpTypePointer Input %v4float
+%__device_FragCoord = OpVariable %_ptr_Input_v4float Input
+%bool = OpTypeBool
+%_ptr_Input_bool = OpTypePointer Input %bool
+%sk_Clockwise = OpVariable %_ptr_Input_bool Input
+%void = OpTypeVoid
+%13 = OpTypeFunction %void
+%v2float = OpTypeVector %float 2
+%main = OpFunction %void None %13
+%14 = OpLabel
+%15 = OpLoad %v4float %__device_FragCoord
+%16 = OpVectorShuffle %v2float %15 %15 0 1
+%18 = OpLoad %v4float %sk_FragColor
+%19 = OpVectorShuffle %v4float %18 %16 4 5 2 3
+OpStore %sk_FragColor %19
+OpReturn
+OpFunctionEnd

@@ -342,14 +342,6 @@ void GrGLSLProgramBuilder::appendUniformDecls(GrShaderFlags visibility, SkString
     this->uniformHandler()->appendUniformDecls(visibility, out);
 }
 
-void GrGLSLProgramBuilder::addRTHeightUniform(const char* name) {
-    SkASSERT(!fUniformHandles.fRTHeightUni.isValid());
-    GrGLSLUniformHandler* uniformHandler = this->uniformHandler();
-    fUniformHandles.fRTHeightUni =
-            uniformHandler->internalAddUniformArray(nullptr, kFragment_GrShaderFlag, kHalf_GrSLType,
-                                                    name, false, 0, nullptr);
-}
-
 void GrGLSLProgramBuilder::finalizeShaders() {
     this->varyingHandler()->finalize();
     fVS.finalize(kVertex_GrShaderFlag);

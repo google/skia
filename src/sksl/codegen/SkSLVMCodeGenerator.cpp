@@ -386,7 +386,7 @@ SkVMGenerator::SkVMGenerator(const Program& program,
                 // builtin variables are system-defined, with special semantics. The only builtin
                 // variable exposed to runtime effects is sk_FragCoord.
                 switch (builtin) {
-                    case SK_FRAGCOORD_BUILTIN:
+                    case SK_DEVICE_FRAGCOORD_BUILTIN:
                         SkASSERT(nslots == 4);
                         fSlots[slot + 0] = device.x.id;
                         fSlots[slot + 1] = device.y.id;
