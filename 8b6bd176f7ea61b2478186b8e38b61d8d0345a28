@@ -1,0 +1,82 @@
+{
+  "comments": [
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000010945900",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/128220?revision\u003d2",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "4fe3ad28_815f477c",
+        "filename": "infra/bots/recipes/test.expected/Test-Android-Clang-Nexus5x-CPU-Snapdragon808-arm-Release-All-Android_ASAN.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 892,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-05-19T19:35:22Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027deny list\u0027 or \u0027allow list\u0027; see https://developers.google.com/style/word-list#blacklist for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 892,
+        "startChar": 760,
+        "endLine": 892,
+        "endChar": 769
+      },
+      "revId": "8b6bd176f7ea61b2478186b8e38b61d8d0345a28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000010945900",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/128220?revision\u003d2",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "bf33462c_2ba86507",
+        "filename": "infra/bots/recipes/test.expected/Test-Android-Clang-Nexus7-CPU-Tegra3-arm-Release-All-Android.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 701,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-05-19T19:35:22Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027deny list\u0027 or \u0027allow list\u0027; see https://developers.google.com/style/word-list#blacklist for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 701,
+        "startChar": 878,
+        "endLine": 701,
+        "endChar": 887
+      },
+      "revId": "8b6bd176f7ea61b2478186b8e38b61d8d0345a28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000010945900",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/128220?revision\u003d2",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "10e3ab63_6a4794db",
+        "filename": "infra/bots/recipes/test.expected/Test-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Release-All-Android.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 743,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-05-19T19:35:22Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027deny list\u0027 or \u0027allow list\u0027; see https://developers.google.com/style/word-list#blacklist for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 743,
+        "startChar": 899,
+        "endLine": 743,
+        "endChar": 908
+      },
+      "revId": "8b6bd176f7ea61b2478186b8e38b61d8d0345a28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
