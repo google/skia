@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ab5556a4_db9fb113",
+        "filename": "src/effects/imagefilters/SkArithmeticImageFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-19T14:01:15Z",
+      "side": 1,
+      "message": "arithmetic",
+      "range": {
+        "startLine": 310,
+        "startChar": 42,
+        "endLine": 310,
+        "endChar": 53
+      },
+      "revId": "d2eb0631dc5371404548fe4557162bc4aef1c0f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
