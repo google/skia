@@ -16,6 +16,23 @@
       "message": "This fixes the issues shown in the new GM added by https://skia-review.googlesource.com/c/skia/+/410000",
       "revId": "f7f3fea2bd0f46911dfdc784124b546fa218257d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f6a3e725_0710a755",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-19T00:15:59Z",
+      "side": 1,
+      "message": "Nvm, I should have looked at the gold differences a little more closely first.",
+      "revId": "f7f3fea2bd0f46911dfdc784124b546fa218257d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
