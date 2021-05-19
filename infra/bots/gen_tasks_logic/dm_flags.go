@@ -949,15 +949,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		match = append(match, "~flight_animated_image")
 	}
 
-	if b.extraConfig("Direct3D") {
-		// skia:9935
-		match = append(match, "~^DDLSkSurfaceFlush$")
-		match = append(match, "~^GrBackendTextureImageMipMappedTest$")
-		match = append(match, "~^GrTextureMipMapInvalidationTest$")
-		match = append(match, "~^SkImage_makeTextureImage$")
-		match = append(match, "~^TextureIdleStateTest$")
-	}
-
 	if b.extraConfig("ANGLE") {
 		// skia:7835
 		match = append(match, "~BlurMaskBiggerThanDest")
