@@ -19,6 +19,7 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrContextThreadSafeProxyPriv.h"
 #include "src/gpu/GrDirectContextPriv.h"
+#include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrTexture.h"
@@ -412,17 +413,9 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* rContext,
         return nullptr;
     }
 
-    GrColorType grColorType = SkColorTypeToGrColorType(c.colorType());
-
-    auto sdc = GrSurfaceDrawContext::Make(
-            rContext, grColorType, c.refColorSpace(), SkBackingFit::kExact,
-            c.dimensions(), c.surfaceProps(), c.sampleCount(), GrMipmapped(c.isMipMapped()),
-            c.isProtected(), c.origin(), budgeted);
-    if (!sdc) {
-        return nullptr;
-    }
-
-    auto device = SkGpuDevice::Make(std::move(sdc), SkGpuDevice::kClear_InitContents);
+    auto device = SkGpuDevice::Make(rContext, budgeted, c.imageInfo(), c.sampleCount(),
+                                    c.origin(), &c.surfaceProps(), GrMipmapped(c.isMipMapped()),
+                                    c.isProtected(), SkBaseGpuDevice::kClear_InitContents);
     if (!device) {
         return nullptr;
     }
@@ -478,18 +471,19 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* rContext, SkBud
         mipMapped = GrMipmapped::kNo;
     }
 
-    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(
-            rContext, budgeted, info, sampleCount, origin, props, mipMapped,
-            SkGpuDevice::kClear_InitContents));
+    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(rContext, budgeted, info, sampleCount, origin,
+                                                props, mipMapped, GrProtected::kNo,
+                                                SkBaseGpuDevice::kClear_InitContents));
     if (!device) {
         return nullptr;
     }
     return sk_make_sp<SkSurface_Gpu>(std::move(device));
 }
 
-sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrRecordingContext* context,
+sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrRecordingContext* rContext,
                                                    const GrBackendTexture& tex,
-                                                   GrSurfaceOrigin origin, int sampleCnt,
+                                                   GrSurfaceOrigin origin,
+                                                   int sampleCnt,
                                                    SkColorType colorType,
                                                    sk_sp<SkColorSpace> colorSpace,
                                                    const SkSurfaceProps* props,
@@ -497,32 +491,35 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrRecordingContext* context,
                                                    SkSurface::ReleaseContext releaseContext) {
     auto releaseHelper = GrRefCntedCallback::Make(textureReleaseProc, releaseContext);
 
-    if (!context) {
+    if (!rContext) {
         return nullptr;
     }
     sampleCnt = std::max(1, sampleCnt);
 
-    GrColorType grColorType = SkColorTypeAndFormatToGrColorType(context->priv().caps(), colorType,
+    GrColorType grColorType = SkColorTypeAndFormatToGrColorType(rContext->priv().caps(), colorType,
                                                                 tex.getBackendFormat());
     if (grColorType == GrColorType::kUnknown) {
         return nullptr;
     }
 
-    if (!validate_backend_texture(context->priv().caps(), tex, sampleCnt, grColorType, true)) {
+    if (!validate_backend_texture(rContext->priv().caps(), tex, sampleCnt, grColorType, true)) {
         return nullptr;
     }
 
-    auto sdc = GrSurfaceDrawContext::MakeFromBackendTexture(
-            context, grColorType, std::move(colorSpace), tex, sampleCnt, origin,
-            SkSurfacePropsCopyOrDefault(props), std::move(releaseHelper));
-    if (!sdc) {
+    sk_sp<GrTextureProxy> proxy(rContext->priv().proxyProvider()->wrapRenderableBackendTexture(
+            tex, sampleCnt, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo,
+            std::move(releaseHelper)));
+    if (!proxy) {
         return nullptr;
     }
 
-    auto device = SkGpuDevice::Make(std::move(sdc), SkGpuDevice::kUninit_InitContents);
+    auto device = SkGpuDevice::Make(rContext, grColorType, std::move(colorSpace),
+                                    std::move(proxy), origin, SkSurfacePropsCopyOrDefault(props),
+                                    SkBaseGpuDevice::kUninit_InitContents);
     if (!device) {
         return nullptr;
     }
+
     return sk_make_sp<SkSurface_Gpu>(std::move(device));
 }
 
@@ -622,18 +619,15 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrRecordingContext* cont
         return nullptr;
     }
 
-    auto sdc = GrSurfaceDrawContext::MakeFromBackendRenderTarget(context,
-                                                                 grColorType,
-                                                                 std::move(colorSpace),
-                                                                 rt,
-                                                                 origin,
-                                                                 SkSurfacePropsCopyOrDefault(props),
-                                                                 std::move(releaseHelper));
-    if (!sdc) {
+    sk_sp<GrSurfaceProxy> proxy(
+            context->priv().proxyProvider()->wrapBackendRenderTarget(rt, std::move(releaseHelper)));
+    if (!proxy) {
         return nullptr;
     }
 
-    auto device = SkGpuDevice::Make(std::move(sdc), SkGpuDevice::kUninit_InitContents);
+    auto device = SkGpuDevice::Make(context, grColorType, std::move(colorSpace), std::move(proxy),
+                                    origin, SkSurfacePropsCopyOrDefault(props),
+                                    SkBaseGpuDevice::kUninit_InitContents);
     if (!device) {
         return nullptr;
     }
