@@ -9,12 +9,14 @@ namespace text {
 class Formatter {
 
 public:
-    Formatter(Processor* processor, TextFormatStyle formatStyle) : fProcessor(processor), fFormatStyle(formatStyle) { }
+    Formatter(Processor* processor, TextDirection textDirection, TextAlign textAlign)
+            : fProcessor(processor), fTextDirection(textDirection), fTextAlign(textAlign) { }
     bool process();
 
 private:
     Processor* fProcessor;
-    TextFormatStyle fFormatStyle;
+    TextDirection fTextDirection;
+    TextAlign fTextAlign;
 };
 } // namespace text
 } // namespace skia

@@ -1,5 +1,4 @@
 // Copyright 2021 Google LLC.
-
 #include "experimental/sktext/include/Processor.h"
 #include "experimental/sktext/src/Shaper.h"
 
@@ -12,7 +11,7 @@ namespace text {
 bool Shaper::process() {
 
     SkString text8 = fProcessor->fUnicode->convertUtf16ToUtf8(fProcessor->fText);
-    for (auto& block : fProcessor->fFontBlocks) {
+    for (auto& block : this->fFontBlocks) {
 
         SkFont font(this->createFont(block));
 
@@ -33,6 +32,8 @@ bool Shaper::process() {
                 fontIter, *bidiIter, *scriptIter, langIter,
                 std::numeric_limits<SkScalar>::max(), this);
     }
+
+    fProcessor->markGlyphs();
 
     return true;
 }
