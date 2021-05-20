@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "526d527d_edac4f88",
+        "filename": "src/gpu/SkGpuDevice.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-20T16:31:44Z",
+      "side": 1,
+      "message": "I\u0027m not sure why, and I don\u0027t know how broadly it would impact things, but SkBackingFit doesn\u0027t feel right to be the last argument to me. It feels like it should belong closer to SkImageInfo or SkBudgeted, in my gut opinion.",
+      "range": {
+        "startLine": 66,
+        "startChar": 35,
+        "endLine": 66,
+        "endChar": 47
+      },
+      "revId": "eeb98e98b761d209dc9ddb138a047ecef34bc321",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "366b8ca8_d19dc849",
+        "filename": "src/gpu/SkGpuDevice.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-20T16:31:44Z",
+      "side": 1,
+      "message": "who still uses this? The remaining two public Make() functions don\u0027t call into it (although would they be simpler if they just made the SDC and passed it to this factory?",
+      "range": {
+        "startLine": 182,
+        "startChar": 0,
+        "endLine": 182,
+        "endChar": 88
+      },
+      "revId": "eeb98e98b761d209dc9ddb138a047ecef34bc321",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
