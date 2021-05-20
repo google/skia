@@ -88,6 +88,13 @@ CanvasKit._extraInitializations.push(function() {
     return rv;
   };
 
+  CanvasKit.Font.prototype.benchmark2 = function(numbers) {
+    var nPtr = copy1dArray(numbers, 'HEAPU16');
+     // We want C++ to take ownership of the numbers unless a user malloced it.
+    var takeOwnership = !numbers['_ck'];
+    return this._benchmark2(nPtr, numbers.length, takeOwnership);
+  };
+
   // arguments should all be arrayBuffers or be an array of arrayBuffers.
   CanvasKit.FontMgr.FromData = function() {
     if (!arguments.length) {
