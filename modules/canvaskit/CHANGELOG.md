@@ -6,8 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.27.0] - 2021-05-20
+
 ### Added
  - `Font.getGlyphIntercepts()`
+ 
+### Fixed
+ - Bug with images using certain exif metadata. (skbug.com/11968)
 
 ### Removed
  - `Canvas.flush`, which had been previously deprecated. `Surface.flush` is the preferred method.

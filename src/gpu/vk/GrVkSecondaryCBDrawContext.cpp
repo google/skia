@@ -44,8 +44,8 @@ sk_sp<GrVkSecondaryCBDrawContext> GrVkSecondaryCBDrawContext::Make(GrRecordingCo
 
     auto device = SkGpuDevice::Make(rContext,
                                     SkColorTypeToGrColorType(imageInfo.colorType()),
-                                    imageInfo.refColorSpace(),
                                     std::move(proxy),
+                                    imageInfo.refColorSpace(),
                                     kTopLeft_GrSurfaceOrigin,
                                     SkSurfacePropsCopyOrDefault(props),
                                     SkGpuDevice::kUninit_InitContents);
