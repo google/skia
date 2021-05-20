@@ -60,15 +60,9 @@ public:
      * This entry point creates a kExact backing store. It is used when creating SkGpuDevices
      * for SkSurfaces.
      */
-    static sk_sp<SkGpuDevice> Make(GrRecordingContext*,
-                                   SkBudgeted,
-                                   const SkImageInfo&,
-                                   int sampleCount,
-                                   GrSurfaceOrigin,
-                                   const SkSurfaceProps*,
-                                   GrMipmapped,
-                                   GrProtected,
-                                   InitContents);
+    static sk_sp<SkGpuDevice> Make(GrRecordingContext*, SkBudgeted, const SkImageInfo&,
+                                   int sampleCount, GrSurfaceOrigin, const SkSurfaceProps*,
+                                   GrMipmapped, GrProtected, InitContents, SkBackingFit);
 
     ~SkGpuDevice() override {}
 
@@ -219,7 +213,8 @@ private:
                                                                         GrSurfaceOrigin,
                                                                         const SkSurfaceProps*,
                                                                         GrMipmapped,
-                                                                        GrProtected);
+                                                                        GrProtected,
+                                                                        SkBackingFit);
 
     friend class SkSurface_Gpu;      // for access to surfaceProps
     using INHERITED = SkBaseGpuDevice;

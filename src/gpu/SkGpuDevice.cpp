@@ -117,7 +117,7 @@ sk_sp<SkGpuDevice> SkGpuDevice::Make(GrRecordingContext* rContext, SkBudgeted bu
                                      const SkImageInfo& info, int sampleCount,
                                      GrSurfaceOrigin origin, const SkSurfaceProps* props,
                                      GrMipmapped mipMapped, GrProtected isProtected,
-                                     InitContents init) {
+                                     InitContents init, SkBackingFit fit) {
     unsigned flags;
     if (!rContext->colorTypeSupportedAsSurface(info.colorType()) ||
         !CheckAlphaTypeAndGetFlags(&info, init, &flags)) {
@@ -125,7 +125,7 @@ sk_sp<SkGpuDevice> SkGpuDevice::Make(GrRecordingContext* rContext, SkBudgeted bu
     }
 
     auto sdc = MakeSurfaceDrawContext(rContext, budgeted, info, sampleCount, origin,
-                                      props, mipMapped, isProtected);
+                                      props, mipMapped, isProtected, fit);
     if (!sdc) {
         return nullptr;
     }
@@ -172,7 +172,8 @@ std::unique_ptr<GrSurfaceDrawContext> SkGpuDevice::MakeSurfaceDrawContext(
         GrSurfaceOrigin origin,
         const SkSurfaceProps* surfaceProps,
         GrMipmapped mipmapped,
-        GrProtected isProtected) {
+        GrProtected isProtected,
+        SkBackingFit fit) {
     if (!rContext) {
         return nullptr;
     }
@@ -181,7 +182,7 @@ std::unique_ptr<GrSurfaceDrawContext> SkGpuDevice::MakeSurfaceDrawContext(
     // they need to be exact.
     return GrSurfaceDrawContext::Make(
             rContext, SkColorTypeToGrColorType(origInfo.colorType()), origInfo.refColorSpace(),
-            SkBackingFit::kExact, origInfo.dimensions(), SkSurfacePropsCopyOrDefault(surfaceProps),
+            fit, origInfo.dimensions(), SkSurfacePropsCopyOrDefault(surfaceProps),
             sampleCount, mipmapped, isProtected, origin, budgeted);
 }
 
@@ -267,7 +268,8 @@ void SkGpuDevice::replaceSurfaceDrawContext(SkSurface::ContentChangeMode mode) {
                                          fSurfaceDrawContext->origin(),
                                          &this->surfaceProps(),
                                          fSurfaceDrawContext->mipmapped(),
-                                         GrProtected::kNo);
+                                         GrProtected::kNo,
+                                         SkBackingFit::kExact);
     if (!newSDC) {
         return;
     }
