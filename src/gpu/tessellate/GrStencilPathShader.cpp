@@ -65,7 +65,7 @@ protected:
             v->codeAppendf("float2 vertexpos = (%s * float3(inputPoint, 1)).xy;", viewMatrix);
             if (shader.willUseTessellationShaders()) {
                 // If y is infinity then x is a conic weight. Don't transform.
-                v->codeAppendf("vertexpos = (isinf(vertexpos.y)) ? inputPoint : vertexpos;");
+                v->codeAppendf("vertexpos = (isinf(inputPoint.y)) ? inputPoint : vertexpos;");
             }
             vertexPos.set(kFloat2_GrSLType, "vertexpos");
         }
@@ -118,30 +118,36 @@ GrGLSLGeometryProcessor* GrCurveTessellateShader::createGLSLInstance(const GrSha
             patch out float rationalCubicW;
 
             void main() {
-                vec2 p0=P[0], p1w=P[1], p2=P[2], p3=P[3];
-                float w = -1;
-                if (isinf(p3.y)) {
+                float w = -1;  // w<0 means a cubic.
+                vec2 p1w = P[1];
+                if (isinf(P[3].y)) {
                     // This patch is actually a conic. Project to homogeneous space.
-                    w = p3.x;
+                    w = P[3].x;
                     p1w *= w;
                 }
 
                 // Chop the curve at T=1/2.
-                vec2 ab = (p0 + p1w) * .5;
-                vec2 bc = (p1w + p2) * .5;
-                vec2 cd = (p2 + p3) * .5;
+                vec2 ab = (P[0] + p1w) * .5;
+                vec2 bc = (p1w + P[2]) * .5;
+                vec2 cd = (P[2] + P[3]) * .5;
                 vec2 abc = (ab + bc) * .5;
                 vec2 bcd = (bc + cd) * .5;
                 vec2 abcd = (abc + bcd) * .5;
 
                 float n0, n1;
-                if (w < 0) {
-                    // The patch is a cubic. Calculate how many segments are needed to linearize
-                    // each half of the curve.
-                    n0 = wangs_formula(PRECISION, p0, ab, abc, abcd, -1);  // w<0 means cubic.
-                    n1 = wangs_formula(PRECISION, abcd, bcd, cd, p3, -1);
-                    rationalCubicXY = mat4x2(p0, p1w, p2, p3);  // p1w == p1 because w == 1.
-                    rationalCubicW = 1;
+                if (w < 0 || isinf(w)) {
+                    if (w < 0) {
+                        // The patch is a cubic. Calculate how many segments are required to
+                        // linearize each half of the curve.
+                        n0 = wangs_formula(PRECISION, P[0], ab, abc, abcd, -1);  // w<0 means cubic.
+                        n1 = wangs_formula(PRECISION, abcd, bcd, cd, P[3], -1);
+                        rationalCubicW = 1;
+                    } else {
+                        // The patch is a triangle (a conic with infinite weight).
+                        n0 = n1 = 1;
+                        rationalCubicW = -1;  // In the next stage, rationalCubicW<0 means triangle.
+                    }
+                    rationalCubicXY = mat4x2(P[0], P[1], P[2], P[3]);
                 } else {
                     // The patch is a conic. Unproject p0..5. w1 == w2 == w3 when chopping at .5.
                     // (See SkConic::chopAt().)
@@ -150,12 +156,12 @@ GrGLSLGeometryProcessor* GrCurveTessellateShader::createGLSLInstance(const GrSha
                     // Put in "standard form" where w0 == w2 == w4 == 1.
                     float w_ = inversesqrt(r);  // Both halves have the same w' when chopping at .5.
                     // Calculate how many segments are needed to linearize each half of the curve.
-                    n0 = wangs_formula(PRECISION, p0, ab, abc, float2(0), w_);
-                    n1 = wangs_formula(PRECISION, abc, bc, p2, float2(0), w_);
+                    n0 = wangs_formula(PRECISION, P[0], ab, abc, float2(0), w_);
+                    n1 = wangs_formula(PRECISION, abc, bc, P[2], float2(0), w_);
                     // Covert the conic to a rational cubic in projected form.
-                    rationalCubicXY = mat4x2(p0,
-                                             mix(float4(p0,p2), p1w.xyxy, 2.0/3.0),
-                                             p2);
+                    rationalCubicXY = mat4x2(P[0],
+                                             mix(float4(P[0],P[2]), p1w.xyxy, 2.0/3.0),
+                                             P[2]);
                     rationalCubicW = fma(w, 2.0/3.0, 1.0/3.0);
                 }
 
@@ -188,20 +194,29 @@ GrGLSLGeometryProcessor* GrCurveTessellateShader::createGLSLInstance(const GrSha
             patch in float rationalCubicW;
 
             void main() {
-                // Locate our parametric point of interest. T ramps from [0..1/2] on the left edge
-                // of the triangle, and [1/2..1] on the right. If we are the patch's interior
-                // vertex, then we want T=1/2. Since the barycentric coords are (1/3, 1/3, 1/3) at
-                // the interior vertex, the below fma() works in all 3 scenarios.
-                float T = fma(.5, gl_TessCoord.y, gl_TessCoord.z);
+                vec2 vertexpos;
+                if (rationalCubicW < 0) {  // rationalCubicW < 0 means a triangle now.
+                    vertexpos = (gl_TessCoord.x != 0) ? rationalCubicXY[0]
+                              : (gl_TessCoord.y != 0) ? rationalCubicXY[1]
+                                                      : rationalCubicXY[2];
+                } else {
+                    // Locate our parametric point of interest. T ramps from [0..1/2] on the left
+                    // edge of the triangle, and [1/2..1] on the right. If we are the patch's
+                    // interior vertex, then we want T=1/2. Since the barycentric coords are
+                    // (1/3, 1/3, 1/3) at the interior vertex, the below fma() works in all 3
+                    // scenarios.
+                    float T = fma(.5, gl_TessCoord.y, gl_TessCoord.z);
 
-                mat4x3 P = mat4x3(rationalCubicXY[0], 1,
-                                  rationalCubicXY[1], rationalCubicW,
-                                  rationalCubicXY[2], rationalCubicW,
-                                  rationalCubicXY[3], 1);
-                vec2 vertexpos = eval_rational_cubic(P, T);
-                if (all(notEqual(gl_TessCoord.xz, vec2(0)))) {
-                    // We are the interior point of the patch; center it inside [C(0), C(.5), C(1)].
-                    vertexpos = (P[0].xy + vertexpos + P[3].xy) / 3.0;
+                    mat4x3 P = mat4x3(rationalCubicXY[0], 1,
+                                      rationalCubicXY[1], rationalCubicW,
+                                      rationalCubicXY[2], rationalCubicW,
+                                      rationalCubicXY[3], 1);
+                    vertexpos = eval_rational_cubic(P, T);
+                    if (all(notEqual(gl_TessCoord.xz, vec2(0)))) {
+                        // We are the interior point of the patch; center it inside
+                        // [C(0), C(.5), C(1)].
+                        vertexpos = (P[0].xy + vertexpos + P[3].xy) / 3.0;
+                    }
                 }
 
                 gl_Position = vec4(vertexpos * sk_RTAdjust.xz + sk_RTAdjust.yw, 0.0, 1.0);

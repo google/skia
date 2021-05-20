@@ -45,6 +45,45 @@ GrPathIndirectTessellator::GrPathIndirectTessellator(const SkMatrix& viewMatrix,
     }
 }
 
+// Returns an upper bound on the number of segments (lineTo, quadTo, conicTo, cubicTo) in a path,
+// also accounting for any implicit lineTos from closing contours.
+static int max_segments_in_path(const SkPath& path) {
+    // There might be an implicit kClose at the end, but the path always begins with kMove. So the
+    // max number of segments in the path is equal to the number of verbs.
+    SkASSERT(path.countVerbs() == 0 || SkPathPriv::VerbData(path)[0] == SkPath::kMove_Verb);
+    return path.countVerbs();
+}
+
+// Returns an upper bound on the number of triangles it would require to fan a path's inner polygon,
+// in the case where no additional vertices are introduced.
+static int max_triangles_in_inner_fan(const SkPath& path) {
+    int maxEdgesInFan = max_segments_in_path(path);
+    return maxEdgesInFan - 2;  // An n-sided polygon is fanned by n-2 triangles.
+}
+
+static int write_breadcrumb_triangles(
+        GrVertexWriter* writer,
+        const GrInnerFanTriangulator::BreadcrumbTriangleList* breadcrumbTriangleList) {
+    int numWritten = 0;
+    SkDEBUGCODE(int count = 0;)
+    for (const auto* tri = breadcrumbTriangleList->head(); tri; tri = tri->fNext) {
+        SkDEBUGCODE(++count;)
+        const SkPoint* p = tri->fPts;
+        if ((p[0].fX == p[1].fX && p[1].fX == p[2].fX) ||
+            (p[0].fY == p[1].fY && p[1].fY == p[2].fY)) {
+            // Completely degenerate triangles have undefined winding. And T-junctions shouldn't
+            // happen on axis-aligned edges.
+            continue;
+        }
+        writer->writeArray(p, 3);
+        // Mark this instance as a triangle by setting it to a conic with w=Inf.
+        writer->fill(GrVertexWriter::kIEEE_32_infinity, 2);
+        ++numWritten;
+    }
+    SkASSERT(count == breadcrumbTriangleList->count());
+    return numWritten;
+}
+
 void GrPathIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const SkMatrix& viewMatrix,
                                         const SkPath& path,
                                         const BreadcrumbTriangleList* breadcrumbTriangleList) {
@@ -54,9 +93,7 @@ void GrPathIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const SkMa
 
     int instanceLockCount = fOuterCurveInstanceCount;
     if (fDrawInnerFan) {
-        // No initial moveTo, plus an implicit close at the end; n-2 triangles fill an n-gon.
-        int maxInnerTriangles = path.countVerbs() - 1;
-        instanceLockCount += maxInnerTriangles;
+        instanceLockCount += max_triangles_in_inner_fan(path);
     }
     if (breadcrumbTriangleList) {
         instanceLockCount += breadcrumbTriangleList->count();
@@ -82,22 +119,8 @@ void GrPathIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const SkMa
                 GrMiddleOutPolygonTriangulator::OutputType::kConicsWithInfiniteWeight, path);
     }
     if (breadcrumbTriangleList) {
-        SkDEBUGCODE(int count = 0;)
-        for (const auto* tri = breadcrumbTriangleList->head(); tri; tri = tri->fNext) {
-            SkDEBUGCODE(++count;)
-            const SkPoint* p = tri->fPts;
-            if ((p[0].fX == p[1].fX && p[1].fX == p[2].fX) ||
-                (p[0].fY == p[1].fY && p[1].fY == p[2].fY)) {
-                // Completely degenerate triangles have undefined winding. And T-junctions shouldn't
-                // happen on axis-aligned edges.
-                continue;
-            }
-            instanceWriter.writeArray(p, 3);
-            // Mark this instance as a triangle by setting it to a conic with w=Inf.
-            instanceWriter.fill(GrVertexWriter::kIEEE_32_infinity, 2);
-            ++numTrianglesAtBeginningOfData;
-        }
-        SkASSERT(count == breadcrumbTriangleList->count());
+        numTrianglesAtBeginningOfData += write_breadcrumb_triangles(&instanceWriter,
+                                                                    breadcrumbTriangleList);
     }
 
     // Allocate space for the GrDrawIndexedIndirectCommand structs. Allocate enough for each
@@ -226,36 +249,60 @@ void GrPathOuterCurveTessellator::prepare(GrMeshDrawOp::Target* target, const Sk
                                           const SkPath& path,
                                           const BreadcrumbTriangleList* breadcrumbTriangleList) {
     SkASSERT(target->caps().shaderCaps()->tessellationSupport());
-    SkASSERT(!breadcrumbTriangleList);
     SkASSERT(!fPatchBuffer);
     SkASSERT(fPatchVertexCount == 0);
 
     int vertexLockCount = path.countVerbs() * 4;
+    if (fDrawInnerFan) {
+        vertexLockCount += max_triangles_in_inner_fan(path) * 4;
+    }
+    if (breadcrumbTriangleList) {
+        vertexLockCount += breadcrumbTriangleList->count() * 4;
+    }
     GrEagerDynamicVertexAllocator vertexAlloc(target, &fPatchBuffer, &fBasePatchVertex);
-    auto* vertexData = vertexAlloc.lock<SkPoint>(vertexLockCount);
-    if (!vertexData) {
+    GrVertexWriter vertexWriter = vertexAlloc.lock<SkPoint>(vertexLockCount);
+    if (!vertexWriter) {
         return;
     }
 
+    GrMiddleOutPolygonTriangulator middleOut(
+            &vertexWriter, GrMiddleOutPolygonTriangulator::OutputType::kConicsWithInfiniteWeight,
+            path.countVerbs());
     for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
         switch (verb) {
-            default:
+            case SkPathVerb::kMove:
+                if (fDrawInnerFan) {
+                    middleOut.closeAndMove(pts[0]);
+                }
                 continue;
+            case SkPathVerb::kClose:
+                continue;
+            case SkPathVerb::kLine:
+                break;
             case SkPathVerb::kQuad:
-                SkASSERT(fPatchVertexCount + 4 <= vertexLockCount);
-                GrPathUtils::convertQuadToCubic(pts, vertexData + fPatchVertexCount);
+                GrPathUtils::writeQuadAsCubic(pts, &vertexWriter);
+                fPatchVertexCount += 4;
                 break;
             case SkPathVerb::kCubic:
-                SkASSERT(fPatchVertexCount + 4 <= vertexLockCount);
-                memcpy(vertexData + fPatchVertexCount, pts, sizeof(SkPoint) * 4);
+                vertexWriter.writeArray(pts, 4);
+                fPatchVertexCount += 4;
                 break;
             case SkPathVerb::kConic:
-                SkASSERT(fPatchVertexCount + 4 <= vertexLockCount);
-                GrPathShader::WriteConicPatch(pts, *w, vertexData + fPatchVertexCount);
+                GrPathShader::WriteConicPatch(pts, *w, &vertexWriter);
+                fPatchVertexCount += 4;
                 break;
         }
-        fPatchVertexCount += 4;
+        if (fDrawInnerFan) {
+            middleOut.pushVertex(pts[SkPathPriv::PtsInIter((unsigned)verb) - 1]);
+        }
     }
+    if (fDrawInnerFan) {
+        fPatchVertexCount += middleOut.close() * 4;
+    }
+    if (breadcrumbTriangleList) {
+        fPatchVertexCount += write_breadcrumb_triangles(&vertexWriter, breadcrumbTriangleList) * 4;
+    }
+    SkASSERT(fPatchVertexCount <= vertexLockCount);
 
     vertexAlloc.unlock(fPatchVertexCount);
 }
@@ -268,9 +315,8 @@ void GrPathWedgeTessellator::prepare(GrMeshDrawOp::Target* target, const SkMatri
     SkASSERT(!fPatchBuffer);
     SkASSERT(fPatchVertexCount == 0);
 
-    // No initial moveTo, one wedge per verb, plus an implicit close at the end.
-    // Each wedge has 5 vertices.
-    int maxVertices = (path.countVerbs() + 1) * 5;
+    // We emit one wedge per path segment. Each wedge has 5 vertices.
+    int maxVertices = max_segments_in_path(path) * 5;
 
     GrEagerDynamicVertexAllocator vertexAlloc(target, &fPatchBuffer, &fBasePatchVertex);
     auto* vertexData = vertexAlloc.lock<SkPoint>(maxVertices);
