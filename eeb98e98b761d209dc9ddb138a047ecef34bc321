@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "674afb2e_32ce28bb",
+        "filename": "src/gpu/SkGpuDevice.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-05-20T17:12:14Z",
+      "side": 1,
+      "message": "I\u0027ve moved the fit parameter to be right after the image info",
+      "parentUuid": "526d527d_edac4f88",
+      "range": {
+        "startLine": 66,
+        "startChar": 35,
+        "endLine": 66,
+        "endChar": 47
+      },
+      "revId": "eeb98e98b761d209dc9ddb138a047ecef34bc321",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "366b8ca8_d19dc849",
         "filename": "src/gpu/SkGpuDevice.h",
         "patchSetId": 6
