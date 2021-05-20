@@ -38,10 +38,17 @@ public:
         return this->surfaceDrawContext()->readSurfaceView();
     }
 
-    enum InitContents {
-        kClear_InitContents,
-        kUninit_InitContents
-    };
+    /**
+     * This factory uses the origin, surface properties, color space and initialization
+     * method along with the provided proxy to create the gpu device.
+     */
+    static sk_sp<SkGpuDevice> Make(GrRecordingContext*,
+                                   GrColorType,
+                                   sk_sp<SkColorSpace>,
+                                   sk_sp<GrSurfaceProxy>,
+                                   GrSurfaceOrigin,
+                                   const SkSurfaceProps&,
+                                   InitContents);
 
     /**
      * Creates an SkGpuDevice from a GrSurfaceDrawContext whose backing width/height is
@@ -50,16 +57,20 @@ public:
     static sk_sp<SkGpuDevice> Make(std::unique_ptr<GrSurfaceDrawContext>, InitContents);
 
     /**
-     * New device that will create an offscreen renderTarget based on the ImageInfo and
-     * sampleCount. The mipMapped flag tells the gpu to create the underlying render target with
-     * mips. The Budgeted param controls whether the device's backing store counts against the
-     * resource cache budget. On failure, returns nullptr.
-     * This entry point creates a kExact backing store. It is used when creating SkGpuDevices
-     * for SkSurfaces.
+     * This factory uses the budgeted, imageInfo, sampleCount, mipmapped, and isProtected
+     * parameters to create and exact-fit proxy to back the gpu device. The origin, surface
+     * properties, color space (from the image info) and initialization method are then used
+     * (with the created proxy) to create the device.
      */
-    static sk_sp<SkGpuDevice> Make(GrRecordingContext*, SkBudgeted, const SkImageInfo&,
-                                   int sampleCount, GrSurfaceOrigin, const SkSurfaceProps*,
-                                   GrMipmapped mipMapped, InitContents);
+    static sk_sp<SkGpuDevice> Make(GrRecordingContext*,
+                                   SkBudgeted,
+                                   const SkImageInfo&,
+                                   int sampleCount,
+                                   GrSurfaceOrigin,
+                                   const SkSurfaceProps*,
+                                   GrMipmapped,
+                                   GrProtected,
+                                   InitContents);
 
     ~SkGpuDevice() override {}
 
@@ -209,7 +220,8 @@ private:
                                                                         int sampleCount,
                                                                         GrSurfaceOrigin,
                                                                         const SkSurfaceProps*,
-                                                                        GrMipmapped);
+                                                                        GrMipmapped,
+                                                                        GrProtected);
 
     friend class SkSurface_Gpu;      // for access to surfaceProps
     using INHERITED = SkBaseGpuDevice;

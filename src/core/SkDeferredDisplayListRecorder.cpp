@@ -86,7 +86,6 @@ SkDeferredDisplayListRecorder::~SkDeferredDisplayListRecorder() {
     }
 }
 
-
 bool SkDeferredDisplayListRecorder::init() {
     SkASSERT(fContext);
     SkASSERT(!fTargetProxy);
@@ -185,14 +184,13 @@ bool SkDeferredDisplayListRecorder::init() {
     }
     fTargetProxy->priv().setIsDDLTarget();
 
-    auto sdc = GrSurfaceDrawContext::Make(fContext.get(),
-                                          grColorType,
-                                          fCharacterization.refColorSpace(),
-                                          fTargetProxy,
-                                          fCharacterization.origin(),
-                                          fCharacterization.surfaceProps());
-
-    auto device = SkGpuDevice::Make(std::move(sdc), SkGpuDevice::kUninit_InitContents);
+    auto device = SkGpuDevice::Make(fContext.get(),
+                                    grColorType,
+                                    fCharacterization.refColorSpace(),
+                                    fTargetProxy,
+                                    fCharacterization.origin(),
+                                    fCharacterization.surfaceProps(),
+                                    SkBaseGpuDevice::kUninit_InitContents);
     if (!device) {
         return false;
     }
