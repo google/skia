@@ -35,7 +35,7 @@ GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Opti
         fChain.push_back(sk_make_sp<GrAAConvexPathRenderer>());
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kCoverageCounting) {
-        fCoverageCountingPathRenderer = GrCoverageCountingPathRenderer::CreateIfSupported(caps);
+        fCoverageCountingPathRenderer = GrCoverageCountingPathRenderer::CreateIfSupported(context);
         if (fCoverageCountingPathRenderer) {
             // Don't add to the chain. This is only for clips.
             // TODO: Remove from here.

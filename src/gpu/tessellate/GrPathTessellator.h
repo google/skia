@@ -20,6 +20,13 @@ class GrPathTessellator {
 public:
     using BreadcrumbTriangleList = GrInnerFanTriangulator::BreadcrumbTriangleList;
 
+    // For subclasses that use this enum, if DrawInnerFan is kNo, the class only emits the path's
+    // outer curves. In that case the caller is responsible to handle the path's inner fan.
+    enum class DrawInnerFan : bool {
+        kNo = false,
+        kYes
+    };
+
     // Called before draw(). Prepares GPU buffers containing the geometry to tessellate. If the
     // given BreadcrumbTriangleList is non-null, then this class will also include the breadcrumb
     // triangles in its draw.
@@ -38,16 +45,12 @@ public:
     virtual ~GrPathTessellator() {}
 };
 
-// Draws tessellations of the path's outer curves using indirect draw commands. Quadratics are
-// converted to cubics. An outer curve is an independent, 4-point closed contour that represents
-// either a cubic or a conic.
-//
-// For performance reasons we can often express triangles as one of these indirect draws and sneak
-// them in alongside the other curves. If DrawInnerFan is kYes, then this class also draws the
-// path's inner fan along with the outer curves.
+// Draws tessellations of the path's outer curves and, optionally, inner fan triangles using
+// indirect draw commands. Quadratics are converted to cubics and triangles are converted to conics
+// with w=Inf. An outer curve is an independent, 4-point closed contour that represents either a
+// cubic or a conic.
 class GrPathIndirectTessellator final : public GrPathTessellator {
 public:
-    enum class DrawInnerFan : bool { kNo = false, kYes };
     GrPathIndirectTessellator(const SkMatrix&, const SkPath&, DrawInnerFan);
 
     void prepare(GrMeshDrawOp::Target*, const SkMatrix&, const SkPath&,
@@ -86,20 +89,24 @@ protected:
     int fPatchVertexCount = 0;
 };
 
-// Draws an array of "outer curve" patches for GrCubicTessellateShader. Each patch is an independent
-// 4-point curve, representing either a cubic or conic. Qudaratics are converted to cubics. The
-// caller is responsible to stencil the path's inner fan along with these outer cubics.
+// Draws an array of "outer curve" patches and, optionally, inner fan triangles for
+// GrCubicTessellateShader. Each patch is an independent 4-point curve, representing either a cubic
+// or a conic. Quadratics are converted to cubics and triangles are converted to conics with w=Inf.
 class GrPathOuterCurveTessellator final : public GrPathHardwareTessellator {
 public:
-    GrPathOuterCurveTessellator() = default;
+    GrPathOuterCurveTessellator(DrawInnerFan drawInnerFan)
+            : fDrawInnerFan(drawInnerFan == DrawInnerFan::kYes) {}
 
     void prepare(GrMeshDrawOp::Target*, const SkMatrix&, const SkPath&,
                  const BreadcrumbTriangleList*) override;
+
+private:
+    const bool fDrawInnerFan;
 };
 
 // Draws an array of "wedge" patches for GrWedgeTessellateShader. A wedge is an independent, 5-point
 // closed contour consisting of 4 control points plus an anchor point fanning from the center of the
-// curve's resident contour. A wedge can be either a cubic or a conic. Qudaratics and lines are
+// curve's resident contour. A wedge can be either a cubic or a conic. Quadratics and lines are
 // converted to cubics. Once stencilled, these wedges alone define the complete path.
 class GrPathWedgeTessellator final : public GrPathHardwareTessellator {
 public:

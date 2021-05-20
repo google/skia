@@ -164,6 +164,9 @@ SKSL_TEST(SkSLSwizzleFolding,                  "folding/SwizzleFolding.sksl")
 SKSL_TEST(SkSLVectorScalarFolding,             "folding/VectorScalarFolding.sksl")
 SKSL_TEST(SkSLVectorVectorFolding,             "folding/VectorVectorFolding.sksl")
 
+SKSL_TEST_ES3(SkSLDoWhileBodyMustBeInlinedIntoAScope,
+         "inliner/DoWhileBodyMustBeInlinedIntoAScope.sksl")
+SKSL_TEST_ES3(SkSLDoWhileTestCannotBeInlined,     "inliner/DoWhileTestCannotBeInlined.sksl")
 SKSL_TEST(SkSLForBodyMustBeInlinedIntoAScope,     "inliner/ForBodyMustBeInlinedIntoAScope.sksl")
 SKSL_TEST_ES3(SkSLForInitializerExpressionsCanBeInlined,
          "inliner/ForInitializerExpressionsCanBeInlined.sksl")
@@ -231,6 +234,7 @@ SKSL_TEST(SkSLDeadIfStatement,                 "shared/DeadIfStatement.sksl")
 SKSL_TEST(SkSLDeadReturn,                      "shared/DeadReturn.sksl")
 SKSL_TEST(SkSLDeadStripFunctions,              "shared/DeadStripFunctions.sksl")
 SKSL_TEST(SkSLDependentInitializers,           "shared/DependentInitializers.sksl")
+SKSL_TEST_ES3(SkSLDoWhileControlFlow,          "shared/DoWhileControlFlow.sksl")
 SKSL_TEST(SkSLEmptyBlocksES2,                  "shared/EmptyBlocksES2.sksl")
 SKSL_TEST(SkSLForLoopControlFlow,              "shared/ForLoopControlFlow.sksl")
 SKSL_TEST(SkSLFunctionArgTypeMatch,            "shared/FunctionArgTypeMatch.sksl")
@@ -289,8 +293,6 @@ TODO(skia:11209): enable these tests when Runtime Effects have support for ES3
 
 SKSL_TEST(SkSLMatrixFoldingES3,                "folding/MatrixFoldingES3.sksl")
 
-SKSL_TEST(SkSLDoWhileBodyMustBeInlinedIntoAScope, "inliner/DoWhileBodyMustBeInlinedIntoAScope.sksl")
-SKSL_TEST(SkSLDoWhileTestCannotBeInlined,         "inliner/DoWhileTestCannotBeInlined.sksl")
 SKSL_TEST(SkSLEnumsCanBeInlinedSafely,         "inliner/EnumsCanBeInlinedSafely.sksl")
 
 SKSL_TEST(SkSLIntrinsicAbsInt,                 "intrinsics/AbsInt.sksl")
@@ -301,7 +303,6 @@ SKSL_TEST(SkSLIntrinsicMixBool,                "intrinsics/MixBool.sksl")
 SKSL_TEST(SkSLIntrinsicSignInt,                "intrinsics/SignInt.sksl")
 
 SKSL_TEST(SkSLDeadLoopVariable,                "shared/DeadLoopVariable.sksl")
-SKSL_TEST(SkSLDoWhileControlFlow,              "shared/DoWhileControlFlow.sksl")
 SKSL_TEST(SkSLEmptyBlocksES3,                  "shared/EmptyBlocksES3.sksl")
 SKSL_TEST(SkSLHexUnsigned,                     "shared/HexUnsigned.sksl")
 SKSL_TEST(SkSLResizeMatrixNonsquare,           "shared/ResizeMatrixNonsquare.sksl")

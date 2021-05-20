@@ -435,7 +435,8 @@ SkString GrStrokeTessellationShaderImpl::getTessControlShaderGLSL(
         // Calculate the number of parametric segments. The final tessellated strip will be a
         // composition of these parametric segments as well as radial segments.
         float w = isinf(P[3].y) ? P[3].x : -1.0; // w<0 means the curve is an integral cubic.
-        float numParametricSegments = wangs_formula(PARAMETRIC_PRECISION, P, w);
+        float numParametricSegments = wangs_formula(PARAMETRIC_PRECISION,
+                                                    P[0], P[1], P[2], P[3], w);
         if (P[0] == P[1] && P[2] == P[3]) {
             // This is how the patch builder articulates lineTos but Wang's formula returns
             // >>1 segment in this scenario. Assign 1 parametric segment.
@@ -636,12 +637,12 @@ SkString GrStrokeTessellationShaderImpl::getTessEvaluationShaderGLSL(
         float radsPerSegment = tessellationArgs.z;
         float2 tan1 = tcsEndPtEndTan.zw;
         bool isFinalEdge = (gl_TessCoord.x == 1);
-        float W = -1.0;  // W<0 means the curve is an integral cubic.)");
+        float w = -1.0;  // w<0 means the curve is an integral cubic.)");
 
     if (shader.hasConics()) {
         code.append(R"(
         if (isinf(P[3].y)) {
-            W = P[3].x;  // The curve is actually a conic.
+            w = P[3].x;  // The curve is actually a conic.
             P[3] = P[2];  // Setting p3 equal to p2 works for the remaining rotational logic.
         })");
     }

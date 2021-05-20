@@ -63,6 +63,11 @@ bool test_half_b() {
     ok = ok && m11 == float4x4(float4(9.0, 20.0, 20.0, 20.0), float4(20.0, 9.0, 20.0, 20.0), float4(20.0, 20.0, 9.0, 20.0), float4(20.0, 20.0, 20.0, 9.0));
     return ok;
 }
+bool test_comma_b() {
+    float2x2 x;
+    float2x2 y;
+    return ((x = float2x2(float2(1.0, 2.0), float2(3.0, 4.0)) , y = 0.5 * float2x2(float2(2.0, 4.0), float2(6.0, 8.0))) , x == y);
+}
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
@@ -88,6 +93,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     float4x4 _8_m11 = float4x4(float4(20.0, 20.0, 20.0, 20.0), float4(20.0, 20.0, 20.0, 20.0), float4(20.0, 20.0, 20.0, 20.0), float4(20.0, 20.0, 20.0, 20.0));
     _8_m11 -= _7_m10;
     _0_ok = _0_ok && _8_m11 == float4x4(float4(9.0, 20.0, 20.0, 20.0), float4(20.0, 9.0, 20.0, 20.0), float4(20.0, 20.0, 9.0, 20.0), float4(20.0, 20.0, 20.0, 9.0));
-    _out.sk_FragColor = _0_ok && test_half_b() ? _uniforms.colorGreen : _uniforms.colorRed;
+    _out.sk_FragColor = (_0_ok && test_half_b()) && test_comma_b() ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }
