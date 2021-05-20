@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "25a89dd3_598b5ffb",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Image.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-20T20:28:23Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "ca3ddc16_266f356b",
+      "range": {
+        "startLine": 25,
+        "startChar": 15,
+        "endLine": 25,
+        "endChar": 23
+      },
+      "revId": "700110b688ed38f372ddd1f424c5c991fe6af37e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fe1f402f_e578d835",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-05-20T16:30:22Z",
       "side": 1,
       "message": "Eventually...?\n\nSurface(ImageInfo)\nSurface(GrInfo)\n\nTaking an android bitmap is convenient, but slightly fraught -- what are the rules (threading and otherwise) for how that is managed/mutated?",
+      "range": {
+        "startLine": 25,
+        "startChar": 11,
+        "endLine": 25,
+        "endChar": 18
+      },
+      "revId": "700110b688ed38f372ddd1f424c5c991fe6af37e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "734b4eda_1b93df92",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Surface.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-20T20:28:23Z",
+      "side": 1,
+      "message": "That\u0027s the old/original constructor, the new GL/VK factories are below.  We should probably remove it and add some utilities to convert Image -\u003e ABitmap if needed.",
+      "parentUuid": "fe1f402f_e578d835",
       "range": {
         "startLine": 25,
         "startChar": 11,
