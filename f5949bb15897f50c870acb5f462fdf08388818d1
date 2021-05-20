@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c802c3ab_79c77371",
+        "filename": "experimental/sktext/include/Processor.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-20T19:00:08Z",
+      "side": 1,
+      "message": "temporary I presume?\n\nWill this become... (typeface, size, length)?",
+      "range": {
+        "startLine": 37,
+        "startChar": 14,
+        "endLine": 37,
+        "endChar": 70
+      },
+      "revId": "f5949bb15897f50c870acb5f462fdf08388818d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
