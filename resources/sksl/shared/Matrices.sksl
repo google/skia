@@ -82,6 +82,13 @@ bool test_half() {
     return ok;
 }
 
+bool test_comma() {
+    float2x2 x, y;
+    return (x = float2x2(1, 2, 3, 4),
+            y = 0.5 * float2x2(2, 4, 6, 8),
+            x == y);
+}
+
 half4 main(float2 coords) {
-    return test_float() && test_half() ? colorGreen : colorRed;
+    return test_float() && test_half() && test_comma() ? colorGreen : colorRed;
 }
