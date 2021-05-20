@@ -282,6 +282,10 @@ public:
         return fRewriteMatrixVectorMultiply;
     }
 
+    bool fRewriteMatrix2x2Comparisons = false;
+    bool rewriteMatrix2x2Comparisons() const {
+        return fRewriteMatrix2x2Comparisons;
+    }
 };
 
 using ShaderCapsClass = StandaloneShaderCaps;
@@ -432,6 +436,13 @@ public:
         ShaderCapsPointer result = MakeShaderCaps();
         result->fVersionDeclString = "#version 400";
         result->fRewriteDoWhileLoops = true;
+        return result;
+    }
+
+    static ShaderCapsPointer RewriteMatrix2x2Comparisons() {
+        ShaderCapsPointer result = MakeShaderCaps();
+        result->fRewriteMatrix2x2Comparisons = true;
+        result->fUsesPrecisionModifiers = true;
         return result;
     }
 
