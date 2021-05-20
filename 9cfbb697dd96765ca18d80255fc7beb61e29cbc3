@@ -16,6 +16,24 @@
       "message": "GLSL also allows constructors to pour 2x2 matrices into vectors. Given that, I\u0027m slightly curious if rewriting this as:\n\n  vec4(m1) \u003d\u003d vec4(m2)\n\nwould work?\n\nI think this is fine, too, but it would eliminate the need for comma operator, temporaries, etc...",
       "revId": "9cfbb697dd96765ca18d80255fc7beb61e29cbc3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7ccf8fcf_ee8f1c85",
+        "filename": "src/sksl/codegen/SkSLGLSLCodeGenerator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 882,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-20T23:18:14Z",
+      "side": 1,
+      "message": "I\u0027ve got to go back to the drawing board at any rate, because this doesn\u0027t actually work. When I was experimenting with solutions, I was testing with the simpler expression:\n\n    (testMatrix2x2[0] \u003d\u003d half2(1,2) \u0026\u0026 testMatrix2x2[1] \u003d\u003d half2(3,4))\n\nAnd that worked great. For some reason, though, once I get a matrix involved in the RHS, now we\u0027re failing again. \n\nIf this were only an issue for constant matrices, I could actually rewrite it like this and get away with it, but I think this trial demonstrated that the bug is more subtle than this (because `testMatrix1` and `testMatrix2` aren\u0027t constants).\n\nI might experiment some more tomorrow. Might need to iterate on a real device at some point if I end up stumped; turnaround time for bot testing is miserable.",
+      "parentUuid": "041e6606_eb44ecbb",
+      "revId": "9cfbb697dd96765ca18d80255fc7beb61e29cbc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
