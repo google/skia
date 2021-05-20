@@ -48,6 +48,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1d5dbd43_f5180ce5",
+        "filename": "src/gpu/SkGpuDevice.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-20T18:27:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "674afb2e_32ce28bb",
+      "range": {
+        "startLine": 66,
+        "startChar": 35,
+        "endLine": 66,
+        "endChar": 47
+      },
+      "revId": "eeb98e98b761d209dc9ddb138a047ecef34bc321",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "366b8ca8_d19dc849",
@@ -85,6 +109,30 @@
       "side": 1,
       "message": "Let\u0027s call the two factories left the wrapping one (which wraps a proxy) and the raw one (which takes all the parameters). The wrapping one currently calls the hidden, SDC-based one and the raw one should (I\u0027ll do that in a follow up CL). The only other place the hidden, SDC-based one is called is in SkGpuDevice::onCreateDevice where it has to wrap an SDC created with color type fallback.",
       "parentUuid": "366b8ca8_d19dc849",
+      "range": {
+        "startLine": 182,
+        "startChar": 0,
+        "endLine": 182,
+        "endChar": 88
+      },
+      "revId": "eeb98e98b761d209dc9ddb138a047ecef34bc321",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3b98a0b6_52388c57",
+        "filename": "src/gpu/SkGpuDevice.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-20T18:27:44Z",
+      "side": 1,
+      "message": "sounds good.",
+      "parentUuid": "45e4b308_8c7442b9",
       "range": {
         "startLine": 182,
         "startChar": 0,
