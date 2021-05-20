@@ -374,7 +374,7 @@ static BlendFormula get_lcd_blend_formula(SkBlendMode xfermode) {
 class PorterDuffXferProcessor : public GrXferProcessor {
 public:
     PorterDuffXferProcessor(BlendFormula blendFormula, GrProcessorAnalysisCoverage coverage)
-            : INHERITED(kPorterDuffXferProcessor_ClassID, false, coverage)
+            : INHERITED(kPorterDuffXferProcessor_ClassID, /*willReadDstColor=*/false, coverage)
             , fBlendFormula(blendFormula) {
     }
 
@@ -483,7 +483,7 @@ GrGLSLXferProcessor* PorterDuffXferProcessor::createGLSLInstance() const {
 class ShaderPDXferProcessor : public GrXferProcessor {
 public:
     ShaderPDXferProcessor(SkBlendMode xfermode, GrProcessorAnalysisCoverage coverage)
-            : INHERITED(kShaderPDXferProcessor_ClassID, true, coverage)
+            : INHERITED(kShaderPDXferProcessor_ClassID, /*willReadDstColor=*/true, coverage)
             , fXfermode(xfermode) {
     }
 
@@ -630,7 +630,8 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 PDLCDXferProcessor::PDLCDXferProcessor(const SkPMColor4f& blendConstant, float alpha)
-    : INHERITED(kPDLCDXferProcessor_ClassID, false, GrProcessorAnalysisCoverage::kLCD)
+    : INHERITED(kPDLCDXferProcessor_ClassID, /*willReadDstColor=*/false,
+                GrProcessorAnalysisCoverage::kLCD)
     , fBlendConstant(blendConstant)
     , fAlpha(alpha) {
 }

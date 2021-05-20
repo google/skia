@@ -78,7 +78,7 @@ public:
         , fHWBlendEquation(hwBlendEquation) {}
 
     CustomXP(SkBlendMode mode, GrProcessorAnalysisCoverage coverage)
-            : INHERITED(kCustomXP_ClassID, true, coverage)
+            : INHERITED(kCustomXP_ClassID, /*willReadDstColor=*/true, coverage)
             , fMode(mode)
             , fHWBlendEquation(kIllegal_GrBlendEquation) {
     }
