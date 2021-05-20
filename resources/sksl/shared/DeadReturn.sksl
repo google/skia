@@ -1,10 +1,47 @@
 uniform half4 colorGreen, colorRed;
+int scratchVar = 0;
 
-bool test() {
+bool test_flat() {
     return true;
+    ++scratchVar; // should be eliminated
+    return false; // should be eliminated
+}
+
+bool test_if() {
+    if (colorGreen.g > 0) {
+        return true;
+    } else {
+        ++scratchVar;
+    }
+    ++scratchVar;
     return false;
 }
 
+bool test_else() {
+    if (colorGreen.g == 0) {
+        return false;
+    } else {
+        return true;
+    }
+    ++scratchVar; // should be eliminated
+    return false; // should be eliminated
+}
+
+bool test_loop_if() {
+    for (int x=0; x<=1; ++x) {
+        if (colorGreen.g == 0) {
+            return false;
+        } else {
+            return true;
+        }
+        ++scratchVar; // should be eliminated
+    }
+    ++scratchVar;
+    return true;
+}
+
 half4 main(float2 xy) {
-    return test() ? colorGreen : colorRed;
+    return test_flat() && test_if() && test_else() && test_loop_if()
+            ? colorGreen
+            : colorRed;
 }

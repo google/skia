@@ -1,0 +1,102 @@
+uniform half4 colorGreen, colorRed;
+
+bool test_return() {
+    do {
+        return true;
+        continue;     // should be eliminated
+        break;        // should be eliminated
+    } while (false);
+
+    return false; // should be eliminated
+}
+
+bool test_break() {
+    do {
+        break;
+        continue;     // should be eliminated
+        return false; // should be eliminated
+    } while (false);
+
+    return true;
+}
+
+bool test_continue() {
+    do {
+        continue;
+        break;        // should be eliminated
+        return false; // should be eliminated
+    } while (false);
+
+    return true;
+}
+
+bool test_if_return() {
+    do {
+        if (colorGreen.g > 0) {
+            return true;
+        } else {
+            break;
+        }
+        continue;
+    } while (false);
+
+    return false;
+}
+
+bool test_if_break() {
+    do {
+        if (colorGreen.g > 0) {
+            break;
+        } else {
+            continue;
+        }
+        return false; // should be eliminated
+    } while (false);
+
+    return true;
+}
+
+bool test_else() {
+    do {
+        if (colorGreen.g == 0) {
+            return false;
+        } else {
+            return true;
+        }
+        break;        // should be eliminated
+        continue;     // should be eliminated
+        return false; // should be eliminated
+    } while (false);
+
+    return false; // should be eliminated
+}
+
+bool test_loop_return() {
+    // This test is technically ES2-compliant.
+    // In practice, some older GPUs don't like zero-iteration loops.
+    for (int x=0; x<0; ++x) {
+        return false;
+        return true;  // should be eliminated
+        continue;     // should be eliminated
+    }
+    return true;
+}
+
+bool test_loop_break() {
+    // This test is technically ES2-compliant.
+    // In practice, the Tegra3 driver doesn't support a `break` inside of a for loop.
+    for (int x=0; x<=1; ++x) {
+        break;
+        return false; // should be eliminated
+        continue;     // should be eliminated
+    }
+    return true;
+}
+
+
+half4 main(float2 xy) {
+    return (test_return() && test_break() && test_continue() &&
+            test_if_return() && test_if_break() && test_else()) &&
+            test_loop_return() && test_loop_break() ? colorGreen
+                                                    : colorRed;
+}
