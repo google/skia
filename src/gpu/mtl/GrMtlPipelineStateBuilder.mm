@@ -91,9 +91,6 @@ id<MTLLibrary> GrMtlPipelineStateBuilder::compileMtlShaderLibrary(
         const SkSL::String& shader, SkSL::Program::Inputs inputs,
         GrContextOptions::ShaderErrorHandler* errorHandler) {
     id<MTLLibrary> shaderLibrary = GrCompileMtlShaderLibrary(fGpu, shader, errorHandler);
-    if (shaderLibrary != nil && inputs.fRTHeight) {
-        this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
-    }
     return shaderLibrary;
 }
 
@@ -482,9 +479,6 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(
 
     if (precompiledLibs) {
         SkASSERT(precompiledLibs->fPipelineState);
-        if (precompiledLibs->fRTHeight) {
-            this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
-        }
         uint32_t bufferSize = buffer_size(fUniformHandler.fCurrentUBOOffset,
                                           fUniformHandler.fCurrentUBOMaxAlignment);
         return new GrMtlPipelineState(fGpu,
@@ -840,7 +834,6 @@ bool GrMtlPipelineStateBuilder::PrecompileShaders(GrMtlGpu* gpu, const SkData& c
         return false;
     }
 
-    precompiledLibs->fRTHeight = inputs[kFragment_GrShaderType].fRTHeight;
     return true;
 }
 
