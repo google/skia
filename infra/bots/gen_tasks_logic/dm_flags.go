@@ -848,6 +848,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip("_", "tests", "_", "SkSLMatrixScalarSplat_GPU")  // skia:11308
 		skip("_", "tests", "_", "DSLFPTest_SwitchStatement")  // skia:11891
 		skip("_", "tests", "_", "SkSLStructsInFunctions_GPU") // skia:11929
+		skip("_", "tests", "_", "SkSLStaticSwitchInline_GPU") // skia:12012
 	}
 
 	match := []string{}
