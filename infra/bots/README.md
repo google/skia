@@ -19,7 +19,7 @@ the DAG.
 The tasks.json file in this directory is the list of tasks and jobs for
 the repo. Note that tasks.json is NEVER edited by hand but generated via
 gen_task.go and the input files enumerated below. The
-[Task Scheduler](https://skia.googlesource.com/buildbot/+/master/task_scheduler/README.md)
+[Task Scheduler](https://skia.googlesource.com/buildbot/+/main/task_scheduler/README.md)
 reads the tasks.json file at each commit to determine which jobs to run. For
 convenience, gen_tasks.go is provided to generate tasks.json and also to test it
 for correct syntax and detecting cycles and orphaned tasks. Always edit
@@ -69,7 +69,7 @@ Isolate Files
 
 These files determine which parts of the repository are transferred to the bot
 when a Swarming task is triggered. The
-[Isolate tool](https://github.com/luci/luci-py/tree/master/appengine/isolate/doc)
+[Isolate tool](https://github.com/luci/luci-py/tree/main/appengine/isolate/doc)
 hashes each file and will upload any new/changed files. Bots maintain a cache so
 that they can efficiently download only the files they don't have.
 
