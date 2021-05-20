@@ -8,37 +8,9 @@
 #ifndef Sk1DPathEffect_DEFINED
 #define Sk1DPathEffect_DEFINED
 
-#include "include/core/SkFlattenable.h"
-#include "include/core/SkPath.h"
 #include "include/core/SkPathEffect.h"
 
-class SkPathMeasure;
-
-// This class is not exported to java.
-class SK_API Sk1DPathEffect : public SkPathEffect {
-public:
-protected:
-    bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*) const override;
-
-    /** Called at the start of each contour, returns the initial offset
-        into that contour.
-    */
-    virtual SkScalar begin(SkScalar contourLength) const = 0;
-    /** Called with the current distance along the path, with the current matrix
-        for the point/tangent at the specified distance.
-        Return the distance to travel for the next call. If return <= 0, then that
-        contour is done.
-    */
-    virtual SkScalar next(SkPath* dst, SkScalar dist, SkPathMeasure&) const = 0;
-
-private:
-    // For simplicity, assume fast bounds cannot be computed
-    bool computeFastBounds(SkRect*) const override { return false; }
-
-    using INHERITED = SkPathEffect;
-};
-
-class SK_API SkPath1DPathEffect : public Sk1DPathEffect {
+class SK_API SkPath1DPathEffect {
 public:
     enum Style {
         kTranslate_Style,   // translate the shape to each position
@@ -57,24 +29,7 @@ public:
     */
     static sk_sp<SkPathEffect> Make(const SkPath& path, SkScalar advance, SkScalar phase, Style);
 
-protected:
-    SkPath1DPathEffect(const SkPath& path, SkScalar advance, SkScalar phase, Style);
-    void flatten(SkWriteBuffer&) const override;
-    bool onFilterPath(SkPath*, const SkPath&, SkStrokeRec*, const SkRect*) const override;
-
-    // overrides from Sk1DPathEffect
-    SkScalar begin(SkScalar contourLength) const override;
-    SkScalar next(SkPath*, SkScalar, SkPathMeasure&) const override;
-
-private:
-    SK_FLATTENABLE_HOOKS(SkPath1DPathEffect)
-
-    SkPath      fPath;          // copied from constructor
-    SkScalar    fAdvance;       // copied from constructor
-    SkScalar    fInitialOffset; // computed from phase
-    Style       fStyle;         // copied from constructor
-
-    using INHERITED = Sk1DPathEffect;
+    static void RegisterFlattenables();
 };
 
 #endif
