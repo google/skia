@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
  - `Font.getGlyphIntercepts()`
 
+### Removed
+ - `Canvas.flush`, which had been previously deprecated. `Surface.flush` is the preferred method.
+ - `AnimatedImage.getCurrentFrame`, which had been previously deprecated.
+   `AnimatedImage.makeImageAtCurrentFrame` is the replacement, which behaves exactly the same.
+
 ## [0.26.0] - 2021-04-23
 
 ### Added

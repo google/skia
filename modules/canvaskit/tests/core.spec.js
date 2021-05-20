@@ -785,7 +785,7 @@ describe('Core canvas behavior', () => {
         const combined = CanvasKit.ImageFilter.MakeCompose(redIF, blurIF);
         paint.setImageFilter(combined);
 
-        const frame = img.getCurrentFrame();
+        const frame = img.makeImageAtCurrentFrame();
         canvas.drawImage(frame, 100, 50, paint);
 
         paint.delete();
