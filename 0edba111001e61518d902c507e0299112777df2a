@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1e5c6cae_bb1d68dd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-20T15:35:24Z",
+      "side": 1,
+      "message": "When passing to native code, this is encoded as an int bitfield + 2 floats.  Feels least awkward, but I\u0027m open to other ideas.",
+      "revId": "0edba111001e61518d902c507e0299112777df2a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
