@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "309fb1d8_0b3dd8a6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-05-20T20:38:41Z",
+      "side": 1,
+      "message": "Baby step towards removing dynamic mipmapping of images.",
+      "revId": "2e1da1cc0f6cfacf59ad232fc2750d4eec24f136",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
