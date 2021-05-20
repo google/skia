@@ -13,6 +13,13 @@
 #include "include/sksl/DSLErrorHandling.h"
 #include "include/sksl/DSLWrapper.h"
 
+
+
+#include "include/private/SkSLString.h"
+
+
+
+
 #include <cstdint>
 #include <memory>
 

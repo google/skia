@@ -31,6 +31,12 @@ DSLCase::DSLCase(DSLCase&& other)
 
 DSLCase::~DSLCase() {}
 
+DSLCase& DSLCase::operator=(DSLCase&& other) {
+    fValue = std::move(other.fValue);
+    fStatements = std::move(other.fStatements);
+    return *this;
+}
+
 void DSLCase::append(DSLStatement stmt) {
     fStatements.push_back(stmt.release());
 }

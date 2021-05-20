@@ -232,7 +232,7 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
             Return(Sample(child, p2))
         );
         effect.end();
-        effect.child("child") = nullptr;
+        effect.child(child.name()) = nullptr;
         effect.test(0xFF00FFFF,
                     [](SkCanvas*, SkPaint* paint) { paint->setColor4f({1.0f, 1.0f, 0.0f, 1.0f}); });
     }

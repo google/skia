@@ -55,7 +55,7 @@ private:
         kEarlyReturns,
     };
 
-    const Program::Settings& settings() const { return fContext->fConfig->fSettings; }
+    const Program::Settings& settings() const { SkASSERT(fContext->fConfig); return fContext->fConfig->fSettings; }
 
     void buildCandidateList(const std::vector<std::unique_ptr<ProgramElement>>& elements,
                             std::shared_ptr<SymbolTable> symbols, ProgramUsage* usage,

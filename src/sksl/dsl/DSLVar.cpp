@@ -75,9 +75,9 @@ DSLVar::DSLVar(DSLModifiers modifiers, DSLType type, const char* name, DSLExpres
     , fInitialValue(std::move(initialValue))
     , fStorage(Variable::Storage::kLocal)
     , fDeclared(DSLWriter::MarkVarsDeclared()) {
-#if SK_SUPPORT_GPU && !defined(SKSL_STANDALONE)
     if (fModifiers.fModifiers.fFlags & Modifiers::kUniform_Flag) {
         fStorage = Variable::Storage::kGlobal;
+#if SK_SUPPORT_GPU && !defined(SKSL_STANDALONE)
         if (DSLWriter::InFragmentProcessor()) {
             const SkSL::Type& skslType = type.skslType();
             GrSLType grslType;
@@ -104,8 +104,8 @@ DSLVar::DSLVar(DSLModifiers modifiers, DSLType type, const char* name, DSLExpres
                                                                  &name).toIndex();
             fName = name;
         }
-    }
 #endif // SK_SUPPORT_GPU && !defined(SKSL_STANDALONE)
+    }
 }
 
 DSLVar::~DSLVar() {

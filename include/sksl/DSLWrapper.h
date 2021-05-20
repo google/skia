@@ -43,6 +43,14 @@ public:
         return &fValue;
     }
 
+    const T& operator*() const {
+        return fValue;
+    }
+
+    const T* operator->() const {
+        return &fValue;
+    }
+
     DSLWrapper& operator=(const DSLWrapper&) = delete;
 
     DSLWrapper& operator=(DSLWrapper&& other) {

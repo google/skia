@@ -7,6 +7,7 @@
 
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
+#include "src/sksl/ir/SkSLSetting.h"
 
 namespace SkSL {
 
@@ -21,6 +22,9 @@ std::unique_ptr<Expression> FieldAccess::Convert(const Context& context,
                 return FieldAccess::Make(context, std::move(base), (int) i);
             }
         }
+    }
+    if (baseType == *context.fTypes.fSkCaps) {
+        return Setting::Convert(context, base->fOffset, field);
     }
 
     context.fErrors.error(base->fOffset, "type '" + baseType.displayName() +
