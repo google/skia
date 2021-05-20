@@ -99,9 +99,8 @@ void GrPathInnerTriangulateOp::prePreparePrograms(const GrPathShader::ProgramArg
         // and the middle-out topology used by indirect draws is easier on the rasterizer than what
         // we can do with hw tessellation. So far we haven't found any platforms where trying to use
         // hw tessellation here is worth it.
-        using DrawInnerFan = GrPathIndirectTessellator::DrawInnerFan;
-        fTessellator = args.fArena->make<GrPathIndirectTessellator>(fViewMatrix, fPath,
-                                                                    DrawInnerFan::kNo);
+        fTessellator = args.fArena->make<GrPathIndirectTessellator>(
+                fViewMatrix, fPath, GrPathTessellator::DrawInnerFan::kNo);
         fStencilCurvesProgram = GrStencilPathShader::MakeStencilProgram<GrCurveMiddleOutShader>(
                 args, fViewMatrix, pipelineForStencils, fPath.getFillType());
     }

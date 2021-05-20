@@ -71,7 +71,7 @@ private:
         switch (fMode) {
             case Mode::kCurveMiddleOut:
                 fTessellator = alloc->make<GrPathIndirectTessellator>(
-                        fMatrix, fPath, GrPathIndirectTessellator::DrawInnerFan::kYes);
+                        fMatrix, fPath, GrPathTessellator::DrawInnerFan::kYes);
                 shader = alloc->make<GrCurveMiddleOutShader>(fMatrix);
                 break;
             case Mode::kWedgeTessellate:
@@ -79,7 +79,8 @@ private:
                 shader = alloc->make<GrWedgeTessellateShader>(fMatrix);
                 break;
             case Mode::kCurveTessellate:
-                fTessellator = alloc->make<GrPathOuterCurveTessellator>();
+                fTessellator = alloc->make<GrPathOuterCurveTessellator>(
+                        GrPathTessellator::DrawInnerFan::kYes);
                 shader = alloc->make<GrCurveTessellateShader>(fMatrix);
                 break;
         }
