@@ -816,8 +816,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
     class_<SkAnimatedImage>("AnimatedImage")
         .smart_ptr<sk_sp<SkAnimatedImage>>("sk_sp<AnimatedImage>")
         .function("decodeNextFrame", &SkAnimatedImage::decodeNextFrame)
-        // Deprecated; prefer makeImageAtCurrentFrame
-        .function("getCurrentFrame", &SkAnimatedImage::getCurrentFrame)
         .function("getFrameCount", &SkAnimatedImage::getFrameCount)
         .function("getRepetitionCount", &SkAnimatedImage::getRepetitionCount)
         .function("height",  optional_override([](SkAnimatedImage& self)->int32_t {
@@ -1064,7 +1062,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
             }
             return false;
         }))
-        .function("flush", &SkCanvas::flush) // Deprecated - will be removed
         // 4x4 matrix functions
         // Just like with getTotalMatrix, we allocate the buffer for the 16 floats to go in from
         // interface.js, so it can also free them when its done.
