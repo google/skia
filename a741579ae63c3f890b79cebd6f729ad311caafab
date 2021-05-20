@@ -16,6 +16,23 @@
       "message": "\u003e For some reason this CL causes the default branch migration to fail.\n\nCan you link to the details?",
       "revId": "a741579ae63c3f890b79cebd6f729ad311caafab",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3cc5882a_b3513e15",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2021-05-20T00:42:33Z",
+      "side": 1,
+      "message": "Ah, for some forgotten reason, this CL was duplicated and landed as https://skia-review.googlesource.com/c/skia/+/342836 in December 2020.\n\nThis one can be abandoned, I guess.",
+      "revId": "a741579ae63c3f890b79cebd6f729ad311caafab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
