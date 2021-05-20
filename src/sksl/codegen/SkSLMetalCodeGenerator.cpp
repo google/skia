@@ -1378,7 +1378,7 @@ void MetalCodeGenerator::writeEqualityHelpers(const Type& leftType, const Type& 
 }
 
 void MetalCodeGenerator::writeNumberAsMatrix(const Expression& expr, const Type& matrixType) {
-    SkASSERT(expr.type().isNumber());
+    SkASSERTF(expr.type().isNumber(), "%s", expr.description().c_str());
     SkASSERT(matrixType.isMatrix());
 
     // Componentwise multiply the scalar against a matrix of the desired size which contains all 1s.
