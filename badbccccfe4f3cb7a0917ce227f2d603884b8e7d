@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1cb02b22_eb80bb9f",
+        "filename": "src/effects/imagefilters/SkArithmeticImageFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-20T19:43:50Z",
+      "side": 1,
+      "message": "Nope. Gone.",
+      "parentUuid": "e37156a5_e65786fd",
+      "range": {
+        "startLine": 27,
+        "startChar": 0,
+        "endLine": 30,
+        "endChar": 46
+      },
+      "revId": "badbccccfe4f3cb7a0917ce227f2d603884b8e7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "86720498_976362b1",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-05-19T14:44:11Z",
       "side": 1,
       "message": "I wonder if this would perform better as something like:\n\n  uniform half x;\n  ...\n  color.rgb \u003d min(color.rgb, max(color.a, x));\n  ...\n  builder.uniform(\"x\") \u003d enforcePMColor ? 0 : \u003csome large number\u003e;",
+      "range": {
+        "startLine": 327,
+        "startChar": 0,
+        "endLine": 329,
+        "endChar": 13
+      },
+      "revId": "badbccccfe4f3cb7a0917ce227f2d603884b8e7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c4286271_6f1f0d58",
+        "filename": "src/effects/imagefilters/SkArithmeticImageFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 329,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-20T19:43:50Z",
+      "side": 1,
+      "message": "Rewrote it this way. Given that we saturate() on the line before, \u003csome large number\u003e can be 1.",
+      "parentUuid": "86720498_976362b1",
       "range": {
         "startLine": 327,
         "startChar": 0,
