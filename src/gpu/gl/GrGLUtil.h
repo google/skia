@@ -159,6 +159,7 @@ enum class GrGLRenderer {
     kAdreno620,  // Pixel5
     kAdreno630,  // Pixel3
     kAdreno640,  // Pixel4
+    kAdreno6xx_other,
 
     kGoogleSwiftShader,
 

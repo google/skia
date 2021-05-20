@@ -3805,8 +3805,10 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
 #endif
 
     if (ctxInfo.renderer() == GrGLRenderer::kAdreno615 ||
+        ctxInfo.renderer() == GrGLRenderer::kAdreno620 ||
         ctxInfo.renderer() == GrGLRenderer::kAdreno630 ||
-        ctxInfo.renderer() == GrGLRenderer::kAdreno640) {
+        ctxInfo.renderer() == GrGLRenderer::kAdreno640 ||
+        ctxInfo.renderer() == GrGLRenderer::kAdreno6xx_other) {
         shaderCaps->fInBlendModesFailRandomlyForAllZeroVec = true;
     }
 
