@@ -442,6 +442,7 @@ public:
     static ShaderCapsPointer RewriteMatrix2x2Comparisons() {
         ShaderCapsPointer result = MakeShaderCaps();
         result->fRewriteMatrix2x2Comparisons = true;
+        result->fUsesPrecisionModifiers = true;
         return result;
     }
 
