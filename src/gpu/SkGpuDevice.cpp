@@ -74,15 +74,15 @@ bool SkGpuDevice::CheckAlphaTypeAndGetFlags(
 
 sk_sp<SkGpuDevice> SkGpuDevice::Make(GrRecordingContext* rContext,
                                      GrColorType colorType,
-                                     sk_sp<SkColorSpace> colorSpace,
                                      sk_sp<GrSurfaceProxy> proxy,
+                                     sk_sp<SkColorSpace> colorSpace,
                                      GrSurfaceOrigin origin,
                                      const SkSurfaceProps& surfaceProps,
                                      InitContents init) {
     auto sdc = GrSurfaceDrawContext::Make(rContext,
                                           colorType,
-                                          std::move(colorSpace),
                                           std::move(proxy),
+                                          std::move(colorSpace),
                                           origin,
                                           surfaceProps);
     if (!sdc) {
@@ -113,10 +113,15 @@ sk_sp<SkGpuDevice> SkGpuDevice::Make(std::unique_ptr<GrSurfaceDrawContext> surfa
     return sk_sp<SkGpuDevice>(new SkGpuDevice(std::move(surfaceDrawContext), flags));
 }
 
-sk_sp<SkGpuDevice> SkGpuDevice::Make(GrRecordingContext* rContext, SkBudgeted budgeted,
-                                     const SkImageInfo& info, SkBackingFit fit, int sampleCount,
-                                     GrSurfaceOrigin origin, const SkSurfaceProps* props,
-                                     GrMipmapped mipMapped, GrProtected isProtected,
+sk_sp<SkGpuDevice> SkGpuDevice::Make(GrRecordingContext* rContext,
+                                     SkBudgeted budgeted,
+                                     const SkImageInfo& info,
+                                     SkBackingFit fit,
+                                     int sampleCount,
+                                     GrMipmapped mipMapped,
+                                     GrProtected isProtected,
+                                     GrSurfaceOrigin origin,
+                                     const SkSurfaceProps* props,
                                      InitContents init) {
     unsigned flags;
     if (!rContext->colorTypeSupportedAsSurface(info.colorType()) ||
@@ -124,8 +129,8 @@ sk_sp<SkGpuDevice> SkGpuDevice::Make(GrRecordingContext* rContext, SkBudgeted bu
         return nullptr;
     }
 
-    auto sdc = MakeSurfaceDrawContext(rContext, budgeted, info, fit, sampleCount, origin,
-                                      props, mipMapped, isProtected);
+    auto sdc = MakeSurfaceDrawContext(rContext, budgeted, info, fit, sampleCount, mipMapped,
+                                      isProtected, origin, props);
     if (!sdc) {
         return nullptr;
     }
@@ -170,10 +175,10 @@ std::unique_ptr<GrSurfaceDrawContext> SkGpuDevice::MakeSurfaceDrawContext(
         const SkImageInfo& origInfo,
         SkBackingFit fit,
         int sampleCount,
-        GrSurfaceOrigin origin,
-        const SkSurfaceProps* surfaceProps,
         GrMipmapped mipmapped,
-        GrProtected isProtected) {
+        GrProtected isProtected,
+        GrSurfaceOrigin origin,
+        const SkSurfaceProps* surfaceProps) {
     if (!rContext) {
         return nullptr;
     }
@@ -266,10 +271,10 @@ void SkGpuDevice::replaceSurfaceDrawContext(SkSurface::ContentChangeMode mode) {
                                          this->imageInfo(),
                                          SkBackingFit::kExact,
                                          fSurfaceDrawContext->numSamples(),
-                                         fSurfaceDrawContext->origin(),
-                                         &this->surfaceProps(),
                                          fSurfaceDrawContext->mipmapped(),
-                                         GrProtected::kNo);
+                                         GrProtected::kNo,
+                                         fSurfaceDrawContext->origin(),
+                                         &this->surfaceProps());
     if (!newSDC) {
         return;
     }
