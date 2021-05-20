@@ -34,7 +34,7 @@ have a `gen_tasks.go` which will generate `tasks.json`. You will need to
 	$ go run infra/bots/gen_tasks.go
 
 It is necessary to run `gen_tasks.go` every time it is changed or every time an
-[asset](https://skia.googlesource.com/skia/+/master/infra/bots/assets/README.md)
+[asset](https://skia.googlesource.com/skia/+/main/infra/bots/assets/README.md)
 has changed. There is also a test mode which simply verifies that the `tasks.json`
 file is up to date:
 
@@ -127,13 +127,13 @@ Housekeeper-Nightly-UpdateMetaConfig task.)
 
 [new bot request]:
     https://bugs.chromium.org/p/skia/issues/entry?template=New+Bot+Request
-[jobs json]: https://skia.googlesource.com/skia/+/master/infra/bots/jobs.json
+[jobs json]: https://skia.googlesource.com/skia/+/main/infra/bots/jobs.json
 [build recipe module]:
     https://skia.googlesource.com/skia/+/refs/heads/master/infra/bots/recipe_modules/build/
 [test py]:
-    https://skia.googlesource.com/skia/+/master/infra/bots/recipes/test.py
+    https://skia.googlesource.com/skia/+/main/infra/bots/recipes/test.py
 [perf py]:
-    https://skia.googlesource.com/skia/+/master/infra/bots/recipes/perf.py
+    https://skia.googlesource.com/skia/+/main/infra/bots/recipes/perf.py
 
 
 Detail on Skia Tasks
@@ -179,15 +179,15 @@ and configure the new jobs, please ask for help from borenet, benjaminwagner, or
 mtklein.
 
 [gen_tasks]:
-	https://skia.googlesource.com/skia/+/master/infra/bots/gen_tasks.go
+	https://skia.googlesource.com/skia/+/main/infra/bots/gen_tasks.go
 [cfg json]:
-	https://skia.googlesource.com/skia/+/master/infra/bots/cfg.json
+	https://skia.googlesource.com/skia/+/main/infra/bots/cfg.json
 [builder_name_schema]:
-	https://skia.googlesource.com/skia/+/master/infra/bots/recipe_modules/builder_name_schema/builder_name_schema.json
+	https://skia.googlesource.com/skia/+/main/infra/bots/recipe_modules/builder_name_schema/builder_name_schema.json
 [recipes README]:
-    https://skia.googlesource.com/skia/+/master/infra/bots/recipes/README.md
+    https://skia.googlesource.com/skia/+/main/infra/bots/recipes/README.md
 [recipe_modules README]:
-    https://skia.googlesource.com/skia/+/master/infra/bots/recipe_modules/README.md
+    https://skia.googlesource.com/skia/+/main/infra/bots/recipe_modules/README.md
 [isolate user guide]:
     https://chromium.googlesource.com/infra/luci/luci-py/+/master/appengine/isolate/doc/client/Isolate-User-Guide.md
 
