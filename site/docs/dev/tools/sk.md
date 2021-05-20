@@ -17,7 +17,7 @@ The set of supported commands will probably grow or change over time.
 Used for managing versioned non-code assets used by Skia developers and in CI.
 These are stored in [CIPD](https://chrome-infra-packages.appspot.com/p/skia/bots)
 and their versions are pinned under
-[//infra/bots/assets](https://skia.googlesource.com/skia/+/master/infra/bots/assets)
+[//infra/bots/assets](https://skia.googlesource.com/skia/+/main/infra/bots/assets)
 in Skia.
 
 * add - Add an entry for a new asset. This does not create an initial version.
@@ -63,5 +63,5 @@ sub-command has an associated package.
 New versions of `sk` are automatically built and uploaded to
 [CIPD](https://chrome-infra-packages.appspot.com/p/skia/tools/sk) as part of
 Skia Infra's CI/CD pipeline.  The version used by Skia is pinned in
-[DEPS](https://skia.googlesource.com/skia/+/master/DEPS) and updated by an
+[DEPS](https://skia.googlesource.com/skia/+/main/DEPS) and updated by an
 [autoroller](https://autoroll.skia.org/r/sk-tool-skia).
