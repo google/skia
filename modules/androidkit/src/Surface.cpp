@@ -225,14 +225,23 @@ static void Surface_FlushAndSubmit(JNIEnv* env, jobject, jlong native_surface) {
     }
 }
 
-static int Surface_GetWidth(JNIEnv* env, jobject, jlong native_surface) {
+static jint Surface_GetWidth(JNIEnv* env, jobject, jlong native_surface) {
     const auto* surface = reinterpret_cast<Surface*>(native_surface);
     return surface ? surface->width() : 0;
 }
 
-static int Surface_GetHeight(JNIEnv* env, jobject, jlong native_surface) {
+static jint Surface_GetHeight(JNIEnv* env, jobject, jlong native_surface) {
     const auto* surface = reinterpret_cast<Surface*>(native_surface);
     return surface ? surface->height() : 0;
+}
+
+static jlong Surface_MakeSnapshot(JNIEnv* env, jobject, jlong native_surface) {
+    if (const auto* surface = reinterpret_cast<Surface*>(native_surface)) {
+        auto snapshot = surface->makeImageSnapshot();
+        return reinterpret_cast<jlong>(snapshot.release());
+    }
+
+    return 0;
 }
 
 // *** End of JNI methods ***
@@ -241,19 +250,20 @@ static int Surface_GetHeight(JNIEnv* env, jobject, jlong native_surface) {
 
 int register_androidkit_Surface(JNIEnv* env) {
     static const JNINativeMethod methods[] = {
-        {"nCreateBitmap"   , "(Landroid/graphics/Bitmap;)J",
-            reinterpret_cast<void*>(Surface_CreateBitmap)                            },
+        {"nCreateBitmap"     , "(Landroid/graphics/Bitmap;)J",
+            reinterpret_cast<void*>(Surface_CreateBitmap)                              },
         {"nCreateThreadedSurface"  , "(Landroid/view/Surface;)J",
-            reinterpret_cast<void*>(Surface_CreateThreadedSurface)                   },
-        {"nCreateVKSurface", "(Landroid/view/Surface;)J",
-            reinterpret_cast<void*>(Surface_CreateVK)                                },
-        {"nCreateGLSurface", "(Landroid/view/Surface;)J",
-            reinterpret_cast<void*>(Surface_CreateGL)                                },
-        {"nRelease"        , "(J)V", reinterpret_cast<void*>(Surface_Release)        },
-        {"nGetNativeCanvas", "(J)J", reinterpret_cast<void*>(Surface_GetNativeCanvas)},
-        {"nFlushAndSubmit" , "(J)V", reinterpret_cast<void*>(Surface_FlushAndSubmit) },
-        {"nGetWidth"       , "(J)I", reinterpret_cast<void*>(Surface_GetWidth)       },
-        {"nGetHeight"      , "(J)I", reinterpret_cast<void*>(Surface_GetHeight)      },
+            reinterpret_cast<void*>(Surface_CreateThreadedSurface)                     },
+        {"nCreateVKSurface"  , "(Landroid/view/Surface;)J",
+            reinterpret_cast<void*>(Surface_CreateVK)                                  },
+        {"nCreateGLSurface"  , "(Landroid/view/Surface;)J",
+            reinterpret_cast<void*>(Surface_CreateGL)                                  },
+        {"nRelease"          , "(J)V", reinterpret_cast<void*>(Surface_Release)        },
+        {"nGetNativeCanvas"  , "(J)J", reinterpret_cast<void*>(Surface_GetNativeCanvas)},
+        {"nFlushAndSubmit"   , "(J)V", reinterpret_cast<void*>(Surface_FlushAndSubmit) },
+        {"nGetWidth"         , "(J)I", reinterpret_cast<void*>(Surface_GetWidth)       },
+        {"nGetHeight"        , "(J)I", reinterpret_cast<void*>(Surface_GetHeight)      },
+        {"nMakeImageSnapshot", "(J)J", reinterpret_cast<void*>(Surface_MakeSnapshot)   },
     };
 
     const auto clazz = env->FindClass("org/skia/androidkit/Surface");

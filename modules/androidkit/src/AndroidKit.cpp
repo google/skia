@@ -24,6 +24,7 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved) {
     }
 
     REGISTER_NATIVES(Canvas)
+    REGISTER_NATIVES(Image)
     REGISTER_NATIVES(Matrix)
     REGISTER_NATIVES(Paint)
     REGISTER_NATIVES(RuntimeShaderBuilder)

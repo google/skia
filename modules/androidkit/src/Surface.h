@@ -17,6 +17,7 @@
 
 #include "tools/sk_app/WindowContext.h"
 
+#include "include/core/SkImage.h"
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"
@@ -33,6 +34,10 @@ public:
 
     int width()  const { return fSurface ? fSurface->width()  : 0; }
     int height() const { return fSurface ? fSurface->height() : 0; }
+
+    sk_sp<SkImage> makeImageSnapshot() const {
+        return fSurface ? fSurface->makeImageSnapshot() : nullptr;
+    }
 
 protected:
     sk_sp<SkSurface> fSurface;
