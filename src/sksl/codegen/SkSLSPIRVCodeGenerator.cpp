@@ -9,8 +9,10 @@
 
 #include "src/sksl/GLSL.std.450.h"
 
+#include "include/sksl/DSLCore.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLOperators.h"
+#include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLExtension.h"
@@ -22,6 +24,8 @@
 #endif
 
 #define kLast_Capability SpvCapabilityMultiViewport
+
+constexpr int DEVICE_FRAGCOORDS_BUILTIN = -1000;
 
 namespace SkSL {
 
@@ -2031,6 +2035,13 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
 }
 
 SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, OutputStream& out) {
+    if (ref.variable()->modifiers().fLayout.fBuiltin == DEVICE_FRAGCOORDS_BUILTIN) {
+        // down below, we rewrite raw references to sk_FragCoord with expressions that reference
+        // DEVICE_FRAGCOORDS_BUILTIN. This is a fake variable that means we need to directly access
+        // the fragcoord; do so now.
+        dsl::DSLVar fragCoord("sk_FragCoord");
+        return this->getLValue(*dsl::DSLExpression(fragCoord).release(), out)->load(out);
+    }
     SpvId result = this->getLValue(ref, out)->load(out);
 
     // Handle the "flipY" setting when reading sk_FragCoord.
@@ -2048,6 +2059,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
                                rawYId, result, 1, out);
         SpvId flippedYId = 0;
         if (fProgram.fConfig->fSettings.fFlipY) {
+#if 0
             // need to remap to a top-left coordinate system
             if (fRTHeightStructId == (SpvId)-1) {
                 // height variable hasn't been written yet
@@ -2119,6 +2131,35 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
             flippedYId = this->nextId(nullptr);
             this->writeInstruction(SpvOpFSub, this->getType(*fContext.fTypes.fFloat), flippedYId,
                                    heightRead, rawYId, out);
+#else
+            // Use sk_RTAdjust to compute the flipped coordinate
+            using namespace dsl;
+            const char* DEVICE_COORDS_NAME = "__device_FragCoords";
+            const char* RTADJUST_NAME = "sk_RTAdjust";
+            SymbolTable& symbols = *dsl::DSLWriter::SymbolTable();
+            if (symbols[RTADJUST_NAME]) {
+                // Use rtAdjust to flip the Y coordinate. The new expression will be written in
+                // terms of __device_FragCoords, which is a fake variable that means "access the
+                // underlying fragcoords directly without flipping it".
+                DSLExpression rtAdjust(DSLWriter::IRGenerator().convertIdentifier(/*offset=*/-1,
+                                                                                  RTADJUST_NAME));
+                if (!symbols[DEVICE_COORDS_NAME]) {
+                    Modifiers modifiers;
+                    modifiers.fLayout.fBuiltin = DEVICE_FRAGCOORDS_BUILTIN;
+                    symbols.add(std::make_unique<Variable>(/*offset=*/-1,
+                                                           fContext.fModifiersPool->add(modifiers),
+                                                           DEVICE_COORDS_NAME,
+                                                           fContext.fTypes.fFloat4.get(),
+                                                           true,
+                                                           Variable::Storage::kGlobal));
+                }
+                DSLVar deviceCoord(DEVICE_COORDS_NAME);
+                return this->writeExpression(*dsl::Float4(deviceCoord.x(),
+                                                          2 * rtAdjust.w() - deviceCoord.y(),
+                                                          deviceCoord.z(),
+                                                          deviceCoord.w()).release(), out);
+            }
+#endif
         }
 
         // The z component will always be zero so we just get an id to the 0 literal
@@ -3044,28 +3085,15 @@ static void update_sk_in_count(const Modifiers& m, int* outSkInCount) {
     }
 }
 
-SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool appendRTHeight) {
+SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     MemoryLayout memoryLayout = this->memoryLayoutForVariable(intf.variable());
     SpvId result = this->nextId(nullptr);
-    std::unique_ptr<Type> rtHeightStructType;
     const Type* type = &intf.variable().type();
     if (!MemoryLayout::LayoutIsSupported(*type)) {
         fErrors.error(type->fOffset, "type '" + type->name() + "' is not permitted here");
         return this->nextId(nullptr);
     }
     SpvStorageClass_ storageClass = get_storage_class(intf.variable(), SpvStorageClassFunction);
-    if (fProgram.fInputs.fRTHeight && appendRTHeight) {
-        SkASSERT(fRTHeightStructId == (SpvId) -1);
-        SkASSERT(fRTHeightFieldIndex == (SpvId) -1);
-        std::vector<Type::Field> fields = type->fields();
-        fRTHeightStructId = result;
-        fRTHeightFieldIndex = fields.size();
-        fRTHeightStorageClass = storageClass;
-        fields.emplace_back(Modifiers(), StringFragment(SKSL_RTHEIGHT_NAME),
-                            fContext.fTypes.fFloat.get());
-        rtHeightStructType = Type::MakeStructType(type->fOffset, type->name(), std::move(fields));
-        type = rtHeightStructType.get();
-    }
     SpvId typeId;
     const Modifiers& intfModifiers = intf.variable().modifiers();
     if (intfModifiers.fLayout.fBuiltin == SK_IN_BUILTIN) {

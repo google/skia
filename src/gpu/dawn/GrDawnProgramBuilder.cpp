@@ -438,12 +438,7 @@ wgpu::ShaderModule GrDawnProgramBuilder::createShaderModule(const GrGLSLShaderBu
     printf("converting program:\n%s\n", sksl.c_str());
 #endif
 
-    SkSL::String spirvSource = fGpu->SkSLToSPIRV(source.c_str(), kind, flipY,
-                                                 fUniformHandler.getRTHeightOffset(), inputs);
-    if (inputs->fRTHeight) {
-        this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
-    }
-
+    SkSL::String spirvSource = fGpu->SkSLToSPIRV(source.c_str(), kind, flipY, inputs);
     return fGpu->createShaderModule(spirvSource);
 };
 
@@ -456,12 +451,6 @@ SkSL::Compiler* GrDawnProgramBuilder::shaderCompiler() const {
 }
 
 void GrDawnProgram::setRenderTargetState(const GrRenderTarget* rt, GrSurfaceOrigin origin) {
-    // Load the RT height uniform if it is needed to y-flip gl_FragCoord.
-    if (fBuiltinUniformHandles.fRTHeightUni.isValid() &&
-        fRenderTargetState.fRenderTargetSize.fHeight != rt->height()) {
-        fDataManager.set1f(fBuiltinUniformHandles.fRTHeightUni, SkIntToScalar(rt->height()));
-    }
-
     // set RT adjustment
     SkISize dimensions = rt->dimensions();
     SkASSERT(fBuiltinUniformHandles.fRTAdjustmentUni.isValid());
