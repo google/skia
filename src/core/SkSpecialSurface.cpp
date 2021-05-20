@@ -128,7 +128,7 @@ public:
             : INHERITED(subset, surfaceDrawContext->surfaceProps())
             , fReadView(surfaceDrawContext->readSurfaceView()) {
         auto device = SkGpuDevice::Make(std::move(surfaceDrawContext),
-                                        SkGpuDevice::kUninit_InitContents);
+                                        SkBaseGpuDevice::kUninit_InitContents);
         if (!device) {
             return;
         }
