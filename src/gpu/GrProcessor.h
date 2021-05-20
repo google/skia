@@ -57,7 +57,6 @@ public:
         kGrAlphaThresholdFragmentProcessor_ClassID,
         kGrBicubicEffect_ClassID,
         kGrBitmapTextGeoProc_ClassID,
-        kGrBlurredEdgeFragmentProcessor_ClassID,
         kGrCCClipProcessor_ClassID,
         kGrCCPathProcessor_ClassID,
         kGrCircleBlurFragmentProcessor_ClassID,
