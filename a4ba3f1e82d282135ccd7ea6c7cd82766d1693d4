@@ -37,6 +37,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "a822add4_d843d26c",
+        "filename": "modules/androidkit/src/Image.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-20T16:25:05Z",
+      "side": 1,
+      "message": "These are all static (internal linkage) due to anonymous/unnamed namespace.",
+      "parentUuid": "28218e0c_76784749",
+      "revId": "a4ba3f1e82d282135ccd7ea6c7cd82766d1693d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "805b675c_09dda46e",
         "filename": "modules/androidkit/src/Image.cpp",
         "patchSetId": 3
@@ -48,6 +66,30 @@
       "writtenOn": "2021-05-20T15:59:21Z",
       "side": 1,
       "message": "jint",
+      "range": {
+        "startLine": 28,
+        "startChar": 0,
+        "endLine": 28,
+        "endChar": 3
+      },
+      "revId": "a4ba3f1e82d282135ccd7ea6c7cd82766d1693d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "334def01_ffa06eee",
+        "filename": "modules/androidkit/src/Image.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-20T16:25:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "805b675c_09dda46e",
       "range": {
         "startLine": 28,
         "startChar": 0,
@@ -71,6 +113,30 @@
       "writtenOn": "2021-05-20T15:59:21Z",
       "side": 1,
       "message": "jint",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 33,
+        "endChar": 3
+      },
+      "revId": "a4ba3f1e82d282135ccd7ea6c7cd82766d1693d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7574b22e_2765dd55",
+        "filename": "modules/androidkit/src/Image.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-20T16:25:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1af90dd6_62005aab",
       "range": {
         "startLine": 33,
         "startChar": 0,
