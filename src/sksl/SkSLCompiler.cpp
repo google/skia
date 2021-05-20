@@ -758,6 +758,10 @@ bool Compiler::toSPIRV(Program& program, OutputStream& out) {
     AutoSource as(this, program.fSource.get());
 #ifdef SK_ENABLE_SPIRV_VALIDATION
     StringStream buffer;
+    ProgramSettings settings;
+    settings.fDSLUseMemoryPool = false;
+    dsl::Start(this, program.fConfig->fKind, settings);
+    dsl::DSLWriter::IRGenerator().fSymbolTable = program.fSymbols;
     SPIRVCodeGenerator cg(fContext.get(), &program, this, &buffer);
     bool result = cg.generateCode();
     if (result && program.fConfig->fSettings.fValidateSPIRV) {
@@ -794,6 +798,7 @@ bool Compiler::toSPIRV(Program& program, OutputStream& out) {
     SPIRVCodeGenerator cg(fContext.get(), &program, this, &out);
     bool result = cg.generateCode();
 #endif
+    dsl::End();
     return result;
 }
 

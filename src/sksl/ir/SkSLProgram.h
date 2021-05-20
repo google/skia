@@ -27,9 +27,6 @@
 #include "src/gpu/vk/GrVkCaps.h"
 #endif
 
-// name of the render target height uniform
-#define SKSL_RTHEIGHT_NAME "u_skRTHeight"
-
 namespace SkSL {
 
 class Context;
@@ -67,20 +64,17 @@ struct Program {
     using Settings = ProgramSettings;
 
     struct Inputs {
-        // if true, this program requires the render target height uniform to be defined
-        bool fRTHeight;
 
         // if true, this program must be recompiled if the flipY setting changes. If false, the
         // program will compile to the same code regardless of the flipY setting.
         bool fFlipY;
 
         void reset() {
-            fRTHeight = false;
             fFlipY = false;
         }
 
         bool isEmpty() {
-            return !fRTHeight && !fFlipY;
+            return !fFlipY;
         }
     };
 

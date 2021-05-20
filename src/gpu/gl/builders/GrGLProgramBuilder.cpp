@@ -146,12 +146,6 @@ void GrGLProgramBuilder::computeCountsAndStrides(GrGLuint programID,
     SkASSERT(fInstanceStride == geomProc.instanceStride());
 }
 
-void GrGLProgramBuilder::addInputVars(const SkSL::Program::Inputs& inputs) {
-    if (inputs.fRTHeight) {
-        this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
-    }
-}
-
 static constexpr SkFourByteTag kSKSL_Tag = SkSetFourByteTag('S', 'K', 'S', 'L');
 static constexpr SkFourByteTag kGLSL_Tag = SkSetFourByteTag('G', 'L', 'S', 'L');
 static constexpr SkFourByteTag kGLPB_Tag = SkSetFourByteTag('G', 'L', 'P', 'B');
@@ -254,7 +248,6 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
     if (precompiledProgram) {
         // This is very similar to when we get program binaries. We even set that flag, as it's
         // used to prevent other compile work later, and to force re-querying uniform locations.
-        this->addInputVars(precompiledProgram->fInputs);
         this->computeCountsAndStrides(programID, geomProc, false);
         usedProgramBinaries = true;
     } else if (cached) {
@@ -286,7 +279,6 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
                         cached = this->checkLinkStatus(programID, errorHandler, nullptr, nullptr);
                     }
                     if (cached) {
-                        this->addInputVars(inputs);
                         this->computeCountsAndStrides(programID, geomProc, false);
                     }
                 } else {
@@ -344,7 +336,6 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
             inputs = fs->fInputs;
         }
 
-        this->addInputVars(inputs);
         if (!this->compileAndAttachShaders(glsl[kFragment_GrShaderType], programID,
                                            GR_GL_FRAGMENT_SHADER, &shadersToDelete, errorHandler)) {
             cleanup_program(fGpu, programID, shadersToDelete);
