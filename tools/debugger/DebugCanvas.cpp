@@ -212,7 +212,7 @@ void DebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
 
         // get the render target of the top device (from the original canvas) so we can ignore ops
         // drawn offscreen
-        GrSurfaceDrawContext* sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(originalCanvas);
+        GrSurfaceDrawContext* sdc = nullptr; //SkCanvasPriv::TopDeviceSurfaceDrawContext(originalCanvas);
         GrSurfaceProxy::UniqueID proxyID = sdc->asSurfaceProxy()->uniqueID();
 
         // get the bounding boxes to draw
