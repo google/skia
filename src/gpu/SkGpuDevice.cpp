@@ -114,7 +114,7 @@ sk_sp<SkGpuDevice> SkGpuDevice::Make(std::unique_ptr<GrSurfaceDrawContext> surfa
 }
 
 sk_sp<SkGpuDevice> SkGpuDevice::Make(GrRecordingContext* rContext, SkBudgeted budgeted,
-                                     const SkImageInfo& info, int sampleCount,
+                                     const SkImageInfo& info, SkBackingFit fit, int sampleCount,
                                      GrSurfaceOrigin origin, const SkSurfaceProps* props,
                                      GrMipmapped mipMapped, GrProtected isProtected,
                                      InitContents init) {
@@ -124,7 +124,7 @@ sk_sp<SkGpuDevice> SkGpuDevice::Make(GrRecordingContext* rContext, SkBudgeted bu
         return nullptr;
     }
 
-    auto sdc = MakeSurfaceDrawContext(rContext, budgeted, info, sampleCount, origin,
+    auto sdc = MakeSurfaceDrawContext(rContext, budgeted, info, fit, sampleCount, origin,
                                       props, mipMapped, isProtected);
     if (!sdc) {
         return nullptr;
@@ -168,6 +168,7 @@ std::unique_ptr<GrSurfaceDrawContext> SkGpuDevice::MakeSurfaceDrawContext(
         GrRecordingContext* rContext,
         SkBudgeted budgeted,
         const SkImageInfo& origInfo,
+        SkBackingFit fit,
         int sampleCount,
         GrSurfaceOrigin origin,
         const SkSurfaceProps* surfaceProps,
@@ -181,7 +182,7 @@ std::unique_ptr<GrSurfaceDrawContext> SkGpuDevice::MakeSurfaceDrawContext(
     // they need to be exact.
     return GrSurfaceDrawContext::Make(
             rContext, SkColorTypeToGrColorType(origInfo.colorType()), origInfo.refColorSpace(),
-            SkBackingFit::kExact, origInfo.dimensions(), SkSurfacePropsCopyOrDefault(surfaceProps),
+            fit, origInfo.dimensions(), SkSurfacePropsCopyOrDefault(surfaceProps),
             sampleCount, mipmapped, isProtected, origin, budgeted);
 }
 
@@ -263,6 +264,7 @@ void SkGpuDevice::replaceSurfaceDrawContext(SkSurface::ContentChangeMode mode) {
     auto newSDC = MakeSurfaceDrawContext(this->recordingContext(),
                                          budgeted,
                                          this->imageInfo(),
+                                         SkBackingFit::kExact,
                                          fSurfaceDrawContext->numSamples(),
                                          fSurfaceDrawContext->origin(),
                                          &this->surfaceProps(),
