@@ -210,17 +210,20 @@ static GrGLRenderer get_renderer(const char* rendererString, const GrGLExtension
                 return adrenoNumber == 530 ? GrGLRenderer::kAdreno530
                                            : GrGLRenderer::kAdreno5xx_other;
             }
-            if (adrenoNumber == 615) {
-                return GrGLRenderer::kAdreno615;
-            }
-            if (adrenoNumber == 620) {
-                return GrGLRenderer::kAdreno620;
-            }
-            if (adrenoNumber == 630) {
-                return GrGLRenderer::kAdreno630;
-            }
-            if (adrenoNumber == 640) {
-                return GrGLRenderer::kAdreno640;
+            if (adrenoNumber < 700) {
+                if (adrenoNumber == 615) {
+                    return GrGLRenderer::kAdreno615;
+                }
+                if (adrenoNumber == 620) {
+                    return GrGLRenderer::kAdreno620;
+                }
+                if (adrenoNumber == 630) {
+                    return GrGLRenderer::kAdreno630;
+                }
+                if (adrenoNumber == 640) {
+                    return GrGLRenderer::kAdreno640;
+                }
+                return GrGLRenderer::kAdreno6xx_other;
             }
         }
     }
