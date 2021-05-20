@@ -14,6 +14,7 @@
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLConstructor.h"
+#include "src/sksl/ir/SkSLDoStatement.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
 #include "src/sksl/ir/SkSLForStatement.h"
@@ -88,6 +89,7 @@ private:
     void writeStatement(const Statement& s);
     void writeBlock(const Block& b);
     void writeIfStatement(const IfStatement& stmt);
+    void writeDoStatement(const DoStatement& d);
     void writeForStatement(const ForStatement& f);
     void writeReturnStatement(const ReturnStatement& r);
 
@@ -591,6 +593,9 @@ void PipelineStageCodeGenerator::writeStatement(const Statement& s) {
             this->writeExpression(*s.as<ExpressionStatement>().expression(), Precedence::kTopLevel);
             this->write(";");
             break;
+        case Statement::Kind::kDo:
+            this->writeDoStatement(s.as<DoStatement>());
+            break;
         case Statement::Kind::kFor:
             this->writeForStatement(s.as<ForStatement>());
             break;
@@ -604,7 +609,6 @@ void PipelineStageCodeGenerator::writeStatement(const Statement& s) {
             this->writeVarDeclaration(s.as<VarDeclaration>());
             break;
         case Statement::Kind::kDiscard:
-        case Statement::Kind::kDo:
         case Statement::Kind::kSwitch:
             SkDEBUGFAIL("Unsupported control flow");
             break;
@@ -636,7 +640,25 @@ void PipelineStageCodeGenerator::writeBlock(const Block& b) {
     }
 }
 
+void PipelineStageCodeGenerator::writeDoStatement(const DoStatement& d) {
+    this->write("do ");
+    this->writeStatement(*d.statement());
+    this->write(" while (");
+    this->writeExpression(*d.test(), Precedence::kTopLevel);
+    this->write(");");
+    return;
+}
+
 void PipelineStageCodeGenerator::writeForStatement(const ForStatement& f) {
+    // Emit loops of the form 'for(;test;)' as 'while(test)', which is probably how they started
+    if (!f.initializer() && f.test() && !f.next()) {
+        this->write("while (");
+        this->writeExpression(*f.test(), Precedence::kTopLevel);
+        this->write(") ");
+        this->writeStatement(*f.statement());
+        return;
+    }
+
     this->write("for (");
     if (f.initializer() && !f.initializer()->isEmpty()) {
         this->writeStatement(*f.initializer());
