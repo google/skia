@@ -35,7 +35,7 @@ sk_sp<GrVkSecondaryCBDrawContext> GrVkSecondaryCBDrawContext::Make(GrRecordingCo
                                                                SkSurfacePropsCopyOrDefault(props));
     SkASSERT(rtc->asSurfaceProxy()->isInstantiated());
 
-    auto device = SkGpuDevice::Make(std::move(rtc), SkGpuDevice::kUninit_InitContents);
+    auto device = SkGpuDevice::Make(std::move(rtc), SkBaseGpuDevice::kUninit_InitContents);
     if (!device) {
         return nullptr;
     }
