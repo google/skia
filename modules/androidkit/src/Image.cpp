@@ -8,6 +8,7 @@
 #include <jni.h>
 
 #include "include/core/SkImage.h"
+#include "include/core/SkSamplingOptions.h"
 
 namespace {
 
