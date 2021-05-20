@@ -100,6 +100,7 @@ public:
     }
 
     int count() const { return fStack.size(); }
+    int id() const { return fID; }
     SkIPoint ctm() const { return fCTM; }
     const std::vector<MCState>& mcStates() const { return fStack; }
     const MCState& operator[](int index) const { return fStack[index]; }
