@@ -20,6 +20,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "39462dd5_bb77f54c",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Image.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-20T19:52:40Z",
+      "side": 1,
+      "message": "can we make it legal to pass null?",
+      "range": {
+        "startLine": 51,
+        "startChar": 46,
+        "endLine": 51,
+        "endChar": 58
+      },
+      "revId": "9d1fe5494e50f28e8260efe7cb1f26b97c57a081",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "09b588c6_c6105a75",
         "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Shader.java",
         "patchSetId": 2
