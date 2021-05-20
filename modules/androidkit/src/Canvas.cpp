@@ -13,6 +13,19 @@
 
 namespace {
 
+SkSamplingOptions sampling_opts(jint desc, jfloat coeffB, jfloat coeffC) {
+    if (desc & 0x01) {
+        return SkSamplingOptions(SkCubicResampler{coeffB, coeffC});
+    }
+
+    const auto fm = static_cast<SkFilterMode>((desc >> 1) & 0x01);
+    SkASSERT(fm <= SkFilterMode::kLast);
+    const auto mm = static_cast<SkMipmapMode>((desc >> 2) & 0x03);
+    SkASSERT(mm <= SkMipmapMode::kLast);
+
+    return SkSamplingOptions(fm, mm);
+}
+
 jint Canvas_GetWidth(JNIEnv* env, jobject, jlong native_instance) {
     const auto* canvas = reinterpret_cast<const SkCanvas*>(native_instance);
     return canvas ? canvas->imageInfo().width() : 0;
@@ -80,12 +93,13 @@ void Canvas_DrawRect(JNIEnv* env, jobject, jlong native_instance,
 }
 
 void Canvas_DrawImage(JNIEnv* env, jobject, jlong native_instance, jlong native_image,
-                      jfloat x, jfloat y) {
+                      jfloat x, jfloat y,
+                      jint sampling_desc, jfloat sampling_b, jfloat sampling_c) {
     auto* canvas = reinterpret_cast<SkCanvas*>(native_instance);
     auto*  image = reinterpret_cast<SkImage *>(native_image);
 
     if (canvas && image) {
-        canvas->drawImage(image, x, y);
+        canvas->drawImage(image, x, y, sampling_opts(sampling_desc, sampling_b, sampling_c));
     }
 }
 
@@ -93,16 +107,16 @@ void Canvas_DrawImage(JNIEnv* env, jobject, jlong native_instance, jlong native_
 
 int register_androidkit_Canvas(JNIEnv* env) {
     static const JNINativeMethod methods[] = {
-        {"nGetWidth"        , "(J)I"     , reinterpret_cast<void*>(Canvas_GetWidth)      },
-        {"nGetHeight"       , "(J)I"     , reinterpret_cast<void*>(Canvas_GetHeight)     },
-        {"nSave"            , "(J)V"     , reinterpret_cast<void*>(Canvas_Save)          },
-        {"nRestore"         , "(J)V"     , reinterpret_cast<void*>(Canvas_Restore)       },
-        {"nGetLocalToDevice", "(J)J"     , reinterpret_cast<void*>(Canvas_LocalToDevice) },
-        {"nConcat"          , "(JJ)V"    , reinterpret_cast<void*>(Canvas_Concat)        },
-        {"nConcat16f"       , "(J[F)V"   , reinterpret_cast<void*>(Canvas_Concat16f)     },
-        {"nDrawColor"       , "(JFFFF)V" , reinterpret_cast<void*>(Canvas_DrawColor)     },
-        {"nDrawRect"        , "(JFFFFJ)V", reinterpret_cast<void*>(Canvas_DrawRect)      },
-        {"nDrawImage"       , "(JJFF)V"  , reinterpret_cast<void*>(Canvas_DrawImage)     },
+        {"nGetWidth"        , "(J)I"      , reinterpret_cast<void*>(Canvas_GetWidth)      },
+        {"nGetHeight"       , "(J)I"      , reinterpret_cast<void*>(Canvas_GetHeight)     },
+        {"nSave"            , "(J)V"      , reinterpret_cast<void*>(Canvas_Save)          },
+        {"nRestore"         , "(J)V"      , reinterpret_cast<void*>(Canvas_Restore)       },
+        {"nGetLocalToDevice", "(J)J"      , reinterpret_cast<void*>(Canvas_LocalToDevice) },
+        {"nConcat"          , "(JJ)V"     , reinterpret_cast<void*>(Canvas_Concat)        },
+        {"nConcat16f"       , "(J[F)V"    , reinterpret_cast<void*>(Canvas_Concat16f)     },
+        {"nDrawColor"       , "(JFFFF)V"  , reinterpret_cast<void*>(Canvas_DrawColor)     },
+        {"nDrawRect"        , "(JFFFFJ)V" , reinterpret_cast<void*>(Canvas_DrawRect)      },
+        {"nDrawImage"       , "(JJFFIFF)V", reinterpret_cast<void*>(Canvas_DrawImage)     },
     };
 
     const auto clazz = env->FindClass("org/skia/androidkit/Canvas");

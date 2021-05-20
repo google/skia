@@ -60,7 +60,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
             is.read(data);
 
             Image image = Image.fromEncoded(data);
-            canvas.drawImage(image, 200, 0);
+            // TODO: Canvas.scale
+            canvas.concat(new Matrix().scale(10, 10));
+            canvas.drawImage(image, 20, 0, SamplingOptions.CATMULLROM());
         } catch (Exception e) {
             Log.e("AndroidKit Demo", "Could not load Image resource: " + R.raw.brickwork_texture);
         }
