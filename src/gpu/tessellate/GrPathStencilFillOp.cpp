@@ -43,7 +43,6 @@ GrProcessorSet::Analysis GrPathStencilFillOp::finalize(const GrCaps& caps,
 
 void GrPathStencilFillOp::prePreparePrograms(const GrPathShader::ProgramArgs& args,
                                              GrAppliedClip&& appliedClip) {
-    using DrawInnerFan = GrPathIndirectTessellator::DrawInnerFan;
     SkASSERT(!fStencilFanProgram);
     SkASSERT(!fStencilPathProgram);
     SkASSERT(!fFillBBoxProgram);
@@ -61,7 +60,8 @@ void GrPathStencilFillOp::prePreparePrograms(const GrPathShader::ProgramArgs& ar
             args, fAAType, fOpFlags, appliedClip.hardClip());
     if (drawTrianglesAsIndirectCurveDraw || (fOpFlags & OpFlags::kDisableHWTessellation)) {
         fTessellator = args.fArena->make<GrPathIndirectTessellator>(
-                fViewMatrix, fPath, DrawInnerFan(drawTrianglesAsIndirectCurveDraw));
+                fViewMatrix, fPath,
+                GrPathTessellator::DrawInnerFan(drawTrianglesAsIndirectCurveDraw));
         if (!drawTrianglesAsIndirectCurveDraw) {
             fStencilFanProgram = GrStencilPathShader::MakeStencilProgram<GrStencilTriangleShader>(
                     args, fViewMatrix, stencilPassPipeline, fPath.getFillType());
@@ -82,7 +82,8 @@ void GrPathStencilFillOp::prePreparePrograms(const GrPathShader::ProgramArgs& ar
         const SkRect& bounds = fPath.getBounds();
         float rasterEdgeWork = (bounds.height() + bounds.width()) * scales[1] * fPath.countVerbs();
         if (rasterEdgeWork > 300 * 300) {
-            fTessellator = args.fArena->make<GrPathOuterCurveTessellator>();
+            fTessellator = args.fArena->make<GrPathOuterCurveTessellator>(
+                    GrPathTessellator::DrawInnerFan::kNo);
             fStencilFanProgram = GrStencilPathShader::MakeStencilProgram<GrStencilTriangleShader>(
                     args, fViewMatrix, stencilPassPipeline, fPath.getFillType());
             fStencilPathProgram = GrStencilPathShader::MakeStencilProgram<GrCurveTessellateShader>(

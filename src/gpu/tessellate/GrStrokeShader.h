@@ -246,7 +246,7 @@ protected:
     //
     //     // Values provided by either uniforms or attribs.
     //     float4x2 P;
-    //     float W;
+    //     float w;
     //     float STROKE_RADIUS;
     //     float 2x2 AFFINE_MATRIX;
     //     float2 TRANSLATE;

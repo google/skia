@@ -123,19 +123,6 @@ public:
             int sampleCnt, GrSurfaceOrigin, const SkSurfaceProps&,
             sk_sp<GrRefCntedCallback> releaseHelper);
 
-    static std::unique_ptr<GrSurfaceDrawContext> MakeFromBackendRenderTarget(
-            GrRecordingContext*,
-            GrColorType,
-            sk_sp<SkColorSpace>,
-            const GrBackendRenderTarget&,
-            GrSurfaceOrigin,
-            const SkSurfaceProps&,
-            sk_sp<GrRefCntedCallback> releaseHelper);
-
-    static std::unique_ptr<GrSurfaceDrawContext> MakeFromVulkanSecondaryCB(
-            GrRecordingContext*, const SkImageInfo&, const GrVkDrawableInfo&,
-            const SkSurfaceProps&);
-
     GrSurfaceDrawContext(GrRecordingContext*,
                          GrSurfaceProxyView readView,
                          GrSurfaceProxyView writeView,

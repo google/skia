@@ -30,6 +30,11 @@
 
 class SkBaseGpuDevice : public BASE_DEVICE {
 public:
+    enum InitContents {
+        kClear_InitContents,
+        kUninit_InitContents
+    };
+
     SkBaseGpuDevice(const SkImageInfo& ii, const SkSurfaceProps& props)
         : INHERITED(ii, props) {
     }

@@ -1437,7 +1437,8 @@ void MetalCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
     if (needParens) {
         this->write("(");
     }
-    bool needMatrixSplatOnScalar = rightType.isMatrix() && leftType.isScalar() &&
+    bool needMatrixSplatOnScalar = rightType.isMatrix() && leftType.isNumber() &&
+                                   op.isValidForMatrixOrVector() &&
                                    op.removeAssignment().kind() != Token::Kind::TK_STAR;
     if (needMatrixSplatOnScalar) {
         this->writeNumberAsMatrix(left, rightType);
@@ -1461,7 +1462,8 @@ void MetalCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
         this->write(String(" ") + OperatorName(op) + " ");
     }
 
-    needMatrixSplatOnScalar = leftType.isMatrix() && rightType.isScalar() &&
+    needMatrixSplatOnScalar = leftType.isMatrix() && rightType.isNumber() &&
+                              op.isValidForMatrixOrVector() &&
                               op.removeAssignment().kind() != Token::Kind::TK_STAR;
     if (needMatrixSplatOnScalar) {
         this->writeNumberAsMatrix(right, leftType);
