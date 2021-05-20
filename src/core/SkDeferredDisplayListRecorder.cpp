@@ -186,8 +186,8 @@ bool SkDeferredDisplayListRecorder::init() {
 
     auto device = SkGpuDevice::Make(fContext.get(),
                                     grColorType,
-                                    fCharacterization.refColorSpace(),
                                     fTargetProxy,
+                                    fCharacterization.refColorSpace(),
                                     fCharacterization.origin(),
                                     fCharacterization.surfaceProps(),
                                     SkBaseGpuDevice::kUninit_InitContents);

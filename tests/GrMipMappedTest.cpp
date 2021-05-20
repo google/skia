@@ -385,8 +385,8 @@ static std::unique_ptr<GrSurfaceDrawContext> draw_mipmap_into_new_render_target(
 
     auto rtc = GrSurfaceDrawContext::Make(rContext,
                                           colorType,
-                                          nullptr,
                                           std::move(renderTarget),
+                                          nullptr,
                                           kTopLeft_GrSurfaceOrigin,
                                           SkSurfaceProps(),
                                           false);
@@ -446,7 +446,7 @@ DEF_GPUTEST(GrManyDependentsMipMappedTest, reporter, /* options */) {
         mipmapProxy->markMipmapsClean();
 
         auto mipmapRTC = GrSurfaceDrawContext::Make(
-            dContext.get(), colorType, nullptr, mipmapProxy, kTopLeft_GrSurfaceOrigin,
+            dContext.get(), colorType, mipmapProxy, nullptr, kTopLeft_GrSurfaceOrigin,
             SkSurfaceProps(), false);
 
         mipmapRTC->clear(SkPMColor4f{.1f, .2f, .3f, .4f});

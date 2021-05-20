@@ -44,8 +44,8 @@ public:
      */
     static sk_sp<SkGpuDevice> Make(GrRecordingContext*,
                                    GrColorType,
-                                   sk_sp<SkColorSpace>,
                                    sk_sp<GrSurfaceProxy>,
+                                   sk_sp<SkColorSpace>,
                                    GrSurfaceOrigin,
                                    const SkSurfaceProps&,
                                    InitContents);
@@ -61,10 +61,10 @@ public:
                                    const SkImageInfo&,
                                    SkBackingFit,
                                    int sampleCount,
-                                   GrSurfaceOrigin,
-                                   const SkSurfaceProps*,
                                    GrMipmapped,
                                    GrProtected,
+                                   GrSurfaceOrigin,
+                                   const SkSurfaceProps&,
                                    InitContents);
 
     ~SkGpuDevice() override {}
@@ -216,10 +216,10 @@ private:
                                                                         const SkImageInfo&,
                                                                         SkBackingFit,
                                                                         int sampleCount,
-                                                                        GrSurfaceOrigin,
-                                                                        const SkSurfaceProps*,
                                                                         GrMipmapped,
-                                                                        GrProtected);
+                                                                        GrProtected,
+                                                                        GrSurfaceOrigin,
+                                                                        const SkSurfaceProps&);
 
     friend class SkSurface_Gpu;      // for access to surfaceProps
     using INHERITED = SkBaseGpuDevice;

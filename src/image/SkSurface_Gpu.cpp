@@ -414,8 +414,8 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* rContext,
     }
 
     auto device = SkGpuDevice::Make(rContext, budgeted, c.imageInfo(), SkBackingFit::kExact,
-                                    c.sampleCount(), c.origin(), &c.surfaceProps(),
-                                    GrMipmapped(c.isMipMapped()), c.isProtected(),
+                                    c.sampleCount(), GrMipmapped(c.isMipMapped()), c.isProtected(),
+                                    c.origin(), c.surfaceProps(),
                                     SkBaseGpuDevice::kClear_InitContents);
     if (!device) {
         return nullptr;
@@ -473,8 +473,8 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* rContext, SkBud
     }
 
     sk_sp<SkGpuDevice> device(SkGpuDevice::Make(rContext, budgeted, info, SkBackingFit::kExact,
-                                                sampleCount, origin, props, mipMapped,
-                                                GrProtected::kNo,
+                                                sampleCount, mipMapped, GrProtected::kNo, origin,
+                                                SkSurfacePropsCopyOrDefault(props),
                                                 SkBaseGpuDevice::kClear_InitContents));
     if (!device) {
         return nullptr;
@@ -515,8 +515,8 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrRecordingContext* rContext,
         return nullptr;
     }
 
-    auto device = SkGpuDevice::Make(rContext, grColorType, std::move(colorSpace),
-                                    std::move(proxy), origin, SkSurfacePropsCopyOrDefault(props),
+    auto device = SkGpuDevice::Make(rContext, grColorType, std::move(proxy), std::move(colorSpace),
+                                    origin, SkSurfacePropsCopyOrDefault(props),
                                     SkBaseGpuDevice::kUninit_InitContents);
     if (!device) {
         return nullptr;
@@ -627,7 +627,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrRecordingContext* cont
         return nullptr;
     }
 
-    auto device = SkGpuDevice::Make(context, grColorType, std::move(colorSpace), std::move(proxy),
+    auto device = SkGpuDevice::Make(context, grColorType, std::move(proxy), std::move(colorSpace),
                                     origin, SkSurfacePropsCopyOrDefault(props),
                                     SkBaseGpuDevice::kUninit_InitContents);
     if (!device) {
