@@ -331,14 +331,15 @@ static sk_sp<SkImageFilter> make_blue(sk_sp<SkImageFilter> input, const SkIRect*
 
 static sk_sp<SkSpecialSurface> create_empty_special_surface(GrRecordingContext* rContext,
                                                             int widthHeight) {
+
+    const SkImageInfo ii = SkImageInfo::Make({ widthHeight, widthHeight },
+                                             kRGBA_8888_SkColorType,
+                                             kPremul_SkAlphaType);
+
     if (rContext) {
-        return SkSpecialSurface::MakeRenderTarget(rContext, widthHeight, widthHeight,
-                                                  GrColorType::kRGBA_8888, nullptr,
-                                                  SkSurfaceProps());
+        return SkSpecialSurface::MakeRenderTarget(rContext, ii, SkSurfaceProps());
     } else {
-        const SkImageInfo info = SkImageInfo::MakeN32(widthHeight, widthHeight,
-                                                      kOpaque_SkAlphaType);
-        return SkSpecialSurface::MakeRaster(info, SkSurfaceProps());
+        return SkSpecialSurface::MakeRaster(ii, SkSurfaceProps());
     }
 }
 

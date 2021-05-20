@@ -124,14 +124,9 @@ sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRaster(const SkImageInfo& info,
 
 class SkSpecialSurface_Gpu : public SkSpecialSurface_Base {
 public:
-    SkSpecialSurface_Gpu(std::unique_ptr<GrSurfaceDrawContext> surfaceDrawContext, SkIRect subset)
-            : INHERITED(subset, surfaceDrawContext->surfaceProps())
-            , fReadView(surfaceDrawContext->readSurfaceView()) {
-        auto device = SkGpuDevice::Make(std::move(surfaceDrawContext),
-                                        SkBaseGpuDevice::kUninit_InitContents);
-        if (!device) {
-            return;
-        }
+    SkSpecialSurface_Gpu(sk_sp<SkGpuDevice> device, SkIRect subset)
+            : INHERITED(subset, device->surfaceProps())
+            , fReadView(device->readSurfaceView()) {
 
         fCanvas = std::make_unique<SkCanvas>(std::move(device));
         fCanvas->clipRect(SkRect::Make(subset));
@@ -161,25 +156,23 @@ private:
     using INHERITED = SkSpecialSurface_Base;
 };
 
-sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRenderTarget(GrRecordingContext* context,
-                                                           int width, int height,
-                                                           GrColorType colorType,
-                                                           sk_sp<SkColorSpace> colorSpace,
+sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRenderTarget(GrRecordingContext* rContext,
+                                                           const SkImageInfo& ii,
                                                            const SkSurfaceProps& props) {
-    if (!context) {
-        return nullptr;
-    }
-    auto surfaceDrawContext = GrSurfaceDrawContext::Make(
-            context, colorType, std::move(colorSpace), SkBackingFit::kApprox, {width, height},
-            props, 1, GrMipmapped::kNo, GrProtected::kNo, kBottomLeft_GrSurfaceOrigin,
-            SkBudgeted::kYes);
-    if (!surfaceDrawContext) {
+    if (!rContext) {
         return nullptr;
     }
 
-    const SkIRect subset = SkIRect::MakeWH(width, height);
+    auto device = SkGpuDevice::Make(rContext, SkBudgeted::kYes, ii, SkBackingFit::kApprox, 1,
+                                    kBottomLeft_GrSurfaceOrigin, &props, GrMipmapped::kNo,
+                                    GrProtected::kNo, SkGpuDevice::kUninit_InitContents);
+    if (!device) {
+        return nullptr;
+    }
 
-    return sk_make_sp<SkSpecialSurface_Gpu>(std::move(surfaceDrawContext), subset);
+    const SkIRect subset = SkIRect::MakeSize(ii.dimensions());
+
+    return sk_make_sp<SkSpecialSurface_Gpu>(std::move(device), subset);
 }
 
 #endif

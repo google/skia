@@ -247,23 +247,6 @@ std::unique_ptr<GrSurfaceDrawContext> GrSurfaceDrawContext::MakeFromBackendTextu
                                       origin, surfaceProps);
 }
 
-std::unique_ptr<GrSurfaceDrawContext> GrSurfaceDrawContext::MakeFromVulkanSecondaryCB(
-        GrRecordingContext* context,
-        const SkImageInfo& imageInfo,
-        const GrVkDrawableInfo& vkInfo,
-        const SkSurfaceProps& props) {
-    sk_sp<GrSurfaceProxy> proxy(
-            context->priv().proxyProvider()->wrapVulkanSecondaryCBAsRenderTarget(imageInfo,
-                                                                                 vkInfo));
-    if (!proxy) {
-        return nullptr;
-    }
-
-    return GrSurfaceDrawContext::Make(context, SkColorTypeToGrColorType(imageInfo.colorType()),
-                                      imageInfo.refColorSpace(), std::move(proxy),
-                                      kTopLeft_GrSurfaceOrigin, props);
-}
-
 // In MDB mode the reffing of the 'getLastOpsTask' call's result allows in-progress
 // GrOpsTask to be picked up and added to by renderTargetContexts lower in the call
 // stack. When this occurs with a closed GrOpsTask, a new one will be allocated

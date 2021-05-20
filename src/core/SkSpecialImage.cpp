@@ -393,9 +393,9 @@ public:
             return nullptr;
         }
 
-        return SkSpecialSurface::MakeRenderTarget(fContext, size.width(), size.height(),
-                                                  SkColorTypeToGrColorType(colorType),
-                                                  sk_ref_sp(colorSpace), props);
+        SkImageInfo ii = SkImageInfo::Make(size, colorType, at, sk_ref_sp(colorSpace));
+
+        return SkSpecialSurface::MakeRenderTarget(fContext, ii, props);
     }
 
     sk_sp<SkSpecialImage> onMakeSubset(const SkIRect& subset) const override {
