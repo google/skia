@@ -2170,8 +2170,15 @@ if (skia_enable_tools) {
         "modules/svg",
       ]
     }
-    test_app("ddlbench") {
-      sources = [ "experimental/ddlbench/ddlbench.cpp" ]
+    test_app("ngatoy") {
+      sources = [
+        "experimental/ngatoy/Cmds.cpp",
+        "experimental/ngatoy/Cmds.h",
+        "experimental/ngatoy/Fake.cpp",
+        "experimental/ngatoy/Fake.h",
+        "experimental/ngatoy/SortKey.h",
+        "experimental/ngatoy/ngatoy.cpp",
+      ]
       deps = [
         ":flags",
         ":skia",
