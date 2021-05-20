@@ -1,0 +1,13 @@
+uniform half4 colorGreen, colorRed;
+uniform half2x2 testMatrix2x2;
+uniform half3x3 testMatrix3x3;
+
+bool test_equality() {
+    bool ok = true;
+    ok = ok && testMatrix2x2[0] == half2(1,2);
+    return ok;
+}
+
+half4 main(float2 coords) {
+    return test_equality() ? colorGreen : colorRed;
+}
