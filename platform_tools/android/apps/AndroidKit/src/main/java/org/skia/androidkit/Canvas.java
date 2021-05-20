@@ -8,6 +8,7 @@
 package org.skia.androidkit;
 
 import org.skia.androidkit.Color;
+import org.skia.androidkit.Image;
 import org.skia.androidkit.Matrix;
 import org.skia.androidkit.Paint;
 import org.skia.androidkit.Surface;
@@ -70,6 +71,11 @@ public class Canvas {
         );
     }
 
+    // TODO: sampling options
+    public void drawImage(Image image, float x, float y) {
+        nDrawImage(mNativeInstance, image.getNativeInstance(), x, y);
+    }
+
     // package private
     Canvas(Surface surface, long native_instance) {
         mNativeInstance = native_instance;
@@ -92,4 +98,5 @@ public class Canvas {
     private static native void nDrawRect(long nativeInstance,
                                          float left, float right, float top, float bottom,
                                          long nativePaint);
+    private static native void nDrawImage(long nativeInstance, long nativeImage, float x, float y);
 }
