@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ca3ddc16_266f356b",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Image.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-20T16:30:22Z",
+      "side": 1,
+      "message": "future nit: might just make these local ints, to avoid jni transaction",
+      "range": {
+        "startLine": 25,
+        "startChar": 15,
+        "endLine": 25,
+        "endChar": 23
+      },
+      "revId": "700110b688ed38f372ddd1f424c5c991fe6af37e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fe1f402f_e578d835",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Surface.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-20T16:30:22Z",
+      "side": 1,
+      "message": "Eventually...?\n\nSurface(ImageInfo)\nSurface(GrInfo)\n\nTaking an android bitmap is convenient, but slightly fraught -- what are the rules (threading and otherwise) for how that is managed/mutated?",
+      "range": {
+        "startLine": 25,
+        "startChar": 11,
+        "endLine": 25,
+        "endChar": 18
+      },
+      "revId": "700110b688ed38f372ddd1f424c5c991fe6af37e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
