@@ -86,6 +86,24 @@
       "parentUuid": "6e15a1a8_27b0a019",
       "revId": "4a1b94bcc87e60b1da17721609795f1552aec09b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b012a8f7_dab14520",
+        "filename": "src/gpu/tessellate/GrStencilPathShader.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-05-20T15:30:13Z",
+      "side": 1,
+      "message": "Got it, thanks.",
+      "parentUuid": "a28c6617_9cd5f01f",
+      "revId": "4a1b94bcc87e60b1da17721609795f1552aec09b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
