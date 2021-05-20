@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "db8cdf4e_feb3f219",
+        "filename": "infra/bots/README.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2021-05-20T20:03:40Z",
+      "side": 1,
+      "message": "Drive-by fix. I need to run the same in buildbot repo.",
+      "revId": "808aa0bfbd067342a1669144fa6ae9d3fff62ca0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4988118a_2f31b204",
+        "filename": "infra/bots/README.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2021-05-20T20:03:40Z",
+      "side": 1,
+      "message": "Drive-by fix. I saw they have a main branch.",
+      "revId": "808aa0bfbd067342a1669144fa6ae9d3fff62ca0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
