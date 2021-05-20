@@ -16,6 +16,29 @@
       "message": "Still to come:\n\n - sampling options\n - image shaders",
       "revId": "aaa9e94ad3f2f49322ef2e92d07134a30f9b62d9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "048bed8d_732941a4",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Image.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-20T14:02:26Z",
+      "side": 1,
+      "message": "What if the encded data is faulty?\n\nPerhaps this sort of \u0027factory\u0027 should be a factory, and not a constructor...?",
+      "range": {
+        "startLine": 13,
+        "startChar": 24,
+        "endLine": 13,
+        "endChar": 35
+      },
+      "revId": "aaa9e94ad3f2f49322ef2e92d07134a30f9b62d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
