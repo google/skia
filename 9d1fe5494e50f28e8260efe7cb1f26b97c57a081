@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7b4abbda_d391ca5f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-20T17:51:44Z",
+      "side": 1,
+      "message": "modification\n\nskia *does* put those in a shared enum (SkTileMode), but moved it out of Shader",
+      "revId": "9d1fe5494e50f28e8260efe7cb1f26b97c57a081",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "09b588c6_c6105a75",
