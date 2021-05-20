@@ -36,7 +36,7 @@ Creating a Change
 
     You may want to set a tracking branch at this time with:
 
-        git checkout -b TOPIC -t origin/master
+        git checkout -b TOPIC -t origin/main
 
 2.  Make a commit.
 
@@ -54,11 +54,11 @@ Creating a Change
 
 4.  Push to Gerrit
 
-        git push origin @:refs/for/master
+        git push origin @:refs/for/main
 
     `@` is shorthand for `HEAD`, introduced in git v1.8.5.
 
-    If you want to target a branch other than `master`, that can be specified
+    If you want to target a branch other than `main`, that can be specified
     here, too.  For example:
 
         git push origin @:refs/for/chrome/m57
@@ -86,12 +86,12 @@ Updating a Change
 
 3.  Push to Gerrit.
 
-        git push origin @:refs/for/master
+        git push origin @:refs/for/main
 
     If you want to set a comment message for this patch set, do this instead:
 
         M=$(experimental/tools/gerrit_percent_encode 'This is the patch set comment message!')
-        git push origin @:refs/for/master%m=$M
+        git push origin @:refs/for/main%m=$M
 
     The title of this patch set will be "This is the patch set comment message!".
 
@@ -100,7 +100,7 @@ Triggering Commit-Queue Dry Run when you upload a patch
 -------------------------------------------------------
 
     M=$(experimental/tools/gerrit_percent_encode 'This is the patch set comment message!')
-    git push origin @:refs/for/master%l=Commit-Queue+1,m=$M
+    git push origin @:refs/for/main%l=Commit-Queue+1,m=$M
 
 
 Using `git cl try`
@@ -118,7 +118,7 @@ Scripting
 
 You may want to make git aliases for common tasks:
 
-    git config alias.gerrit-push 'push origin @:refs/for/master'
+    git config alias.gerrit-push 'push origin @:refs/for/main'
 
 The following alias amends the head without editing the commit message:
 
@@ -141,7 +141,7 @@ This shell script pushes to gerrit and adds a message to a patchset:
 
     gerrit_push_with_message() {
         local REMOTE='origin'
-        local REMOTE_BRANCH='master'
+        local REMOTE_BRANCH='main'
         local MESSAGE="$(echo $*|sed 's/[^A-Za-z0-9]/_/g')"
         git push "$REMOTE" "@:refs/for/${REMOTE_BRANCH}%m=${MESSAGE}"
     }
@@ -150,7 +150,7 @@ These shell scripts can be turned into Git aliases with a little hack:
 
     git config alias.squash-branch '!M="$(git log --format=%B ^@{u} @)";git reset --soft $(git merge-base @ @{u});git commit -m "$M" -e'
 
-    git config alias.gerrit-push-message '!f(){ git push origin @:refs/for/master%m=$(echo $*|sed "s/[^A-Za-z0-9]/_/g");};f'
+    git config alias.gerrit-push-message '!f(){ git push origin @:refs/for/main%m=$(echo $*|sed "s/[^A-Za-z0-9]/_/g");};f'
 
 If your branch's upstream branch (set with `git branch --set-upstream-to=...`)
 is set, you can use that to automatically push to that branch:

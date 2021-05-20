@@ -55,7 +55,7 @@ ensure they are listed in the AUTHORS file:
 
 - If it is your first time submitting code or you have not previously done so,
   add your (or your organization's) name and contact info to the
-  [AUTHORS file](https://skia.googlesource.com/skia/+/master/AUTHORS) as a part
+  [AUTHORS file](https://skia.googlesource.com/skia/+/main/AUTHORS) as a part
   of your CL.
 
 REVIEWERS: Before you LGTM a change, verify that the contributor is listed in

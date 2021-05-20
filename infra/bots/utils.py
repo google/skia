@@ -100,11 +100,11 @@ class git_branch(object):
       self._orig_branch = subprocess.check_output([
           GIT, 'rev-parse', 'HEAD']).rstrip()
 
-    # Check out a new branch, based at updated origin/master.
+    # Check out a new branch, based at updated origin/main.
     subprocess.check_call([GIT, 'fetch', 'origin'])
     self._branch = '_tmp_%s' % uuid.uuid4()
     subprocess.check_call([GIT, 'checkout', '-b', self._branch,
-                           '-t', 'origin/master'])
+                           '-t', 'origin/main'])
     return self
 
   def __exit__(self, exc_type, _value, _traceback):

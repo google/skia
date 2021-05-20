@@ -17,7 +17,7 @@ First create a branch for your changes:
 <!--?prettify lang=sh?-->
 
     git config branch.autosetuprebase always
-    git checkout -b my_feature origin/master
+    git checkout -b my_feature origin/main
 
 After making your changes, create a commit
 
@@ -169,7 +169,7 @@ button on the codereview page and it will be committed on your behalf.
 Once your commit has gone in, you should delete the branch containing your
 change:
 
-    git checkout -q origin/master
+    git checkout -q origin/main
     git branch -D my_feature
 
 ## Final Testing

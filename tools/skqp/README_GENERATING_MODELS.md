@@ -1,19 +1,19 @@
 How SkQP Generates Render Test Models
 =====================================
 
-We will, at regular intervals, generate new models from the [master branch of
+We will, at regular intervals, generate new models from the [main branch of
 Skia][1].  Here is how that process works:
 
 0.  Choose a commit to make the branch from
 
-        COMMIT=origin/master
+        COMMIT=origin/main
 
     Or use the script to find the best one:
 
         cd SKIA_SOURCE_DIRECTORY
         git fetch origin
         COMMIT=$(python tools/skqp/find_commit_with_best_gold_results.py \
-                 origin/master ^origin/skqp/dev)
+                 origin/main ^origin/skqp/dev)
 
 1.  Get the positively triaged results from Gold and generate models:
 
@@ -80,5 +80,5 @@ with a lot of binary data.
 Finally, a list of the current gpu unit tests is created and stored in
 `skqp/unittests.txt`.
 
-[1]: https://skia.googlesource.com/skia/+log/master "Skia Master Branch"
-[2]: https://gold.skia.org/search                   "Skia Gold Search"
+[1]: https://skia.googlesource.com/skia/+log/main "Skia Main Branch"
+[2]: https://gold.skia.org/search                 "Skia Gold Search"

@@ -44,7 +44,7 @@ class GitBranch(object):
   """Class to manage git branches.
 
   This class allows one to create a new branch in a repository to make changes,
-  then it commits the changes, switches to master branch, and deletes the
+  then it commits the changes, switches to main branch, and deletes the
   created temporary branch upon exit.
   """
   def __init__(self, branch_name, commit_msg, upload=True, commit_queue=False,
@@ -59,11 +59,11 @@ class GitBranch(object):
 
   def __enter__(self):
     subprocess.check_call(['git', 'reset', '--hard', 'HEAD'])
-    subprocess.check_call(['git', 'checkout', 'master'])
+    subprocess.check_call(['git', 'checkout', 'main'])
     if self._branch_name in subprocess.check_output(['git', 'branch']).split():
       subprocess.check_call(['git', 'branch', '-D', self._branch_name])
     subprocess.check_call(['git', 'checkout', '-b', self._branch_name,
-                           '-t', 'origin/master'])
+                           '-t', 'origin/main'])
     return self
 
   def commit_and_upload(self, use_commit_queue=False):
@@ -92,7 +92,7 @@ class GitBranch(object):
         if exc_type is None:
           self.commit_and_upload(use_commit_queue=self._commit_queue)
       finally:
-        subprocess.check_call(['git', 'checkout', 'master'])
+        subprocess.check_call(['git', 'checkout', 'main'])
         if self._delete_when_finished:
           subprocess.check_call(['git', 'branch', '-D', self._branch_name])
 
@@ -155,6 +155,6 @@ class NewGitCheckout(utils.tmp_dir):
       subprocess.check_call([
           'git', 'remote', 'set-url', 'origin', self._repository])
       subprocess.check_call(['git', 'remote', 'update'])
-      subprocess.check_call(['git', 'checkout', 'master'])
-      subprocess.check_call(['git', 'reset', '--hard', 'origin/master'])
+      subprocess.check_call(['git', 'checkout', 'main'])
+      subprocess.check_call(['git', 'reset', '--hard', 'origin/main'])
     return self

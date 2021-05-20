@@ -184,10 +184,10 @@ python2 infra/bots/assets/chromebook_x86_64_gles/download.py -t /opt/chromebook_
 
 If you don't have authorization to use those assets, then see the README.md
 files for
-[armhf_sysroot](https://skia.googlesource.com/skia/+/master/infra/bots/assets/armhf_sysroot/README.md),
-[chromebook_arm_gles](https://skia.googlesource.com/skia/+/master/infra/bots/assets/chromebook_arm_gles/README.md),
+[armhf_sysroot](https://skia.googlesource.com/skia/+/main/infra/bots/assets/armhf_sysroot/README.md),
+[chromebook_arm_gles](https://skia.googlesource.com/skia/+/main/infra/bots/assets/chromebook_arm_gles/README.md),
 and
-[chromebook_x86_64_gles](https://skia.googlesource.com/skia/+/master/infra/bots/assets/chromebook_x86_64_gles/README.md)
+[chromebook_x86_64_gles](https://skia.googlesource.com/skia/+/main/infra/bots/assets/chromebook_x86_64_gles/README.md)
 for instructions on creating those assets.
 
 Once those files are in place, generate the GN args that resemble the following:

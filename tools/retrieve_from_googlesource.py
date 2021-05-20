@@ -25,7 +25,7 @@ def get(repo_url, filepath):
   Return:
       string; the contents of the given file.
   """
-  base64_url = '/'.join((repo_url, '+', 'master', filepath)) + '?format=TEXT'
+  base64_url = '/'.join((repo_url, '+', 'main', filepath)) + '?format=TEXT'
   with closing(urllib2.urlopen(base64_url)) as f:
     return base64.b64decode(f.read())
 

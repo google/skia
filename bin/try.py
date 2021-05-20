@@ -60,7 +60,7 @@ def get_jobs(repo):
     with utils.chdir(dirname):
       subprocess.check_call([utils.GIT, 'remote', 'update'])
       jobs = json.loads(subprocess.check_output([
-          utils.GIT, 'show', 'master:%s' % JOBS_JSON]))
+          utils.GIT, 'show', 'main:%s' % JOBS_JSON]))
       return (BUCKET_SKIA_INTERNAL, jobs)
 
 

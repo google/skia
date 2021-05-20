@@ -72,7 +72,7 @@ There are two ways Skia takes advantage of specific hardware.
     There are sets of bottleneck routines inside the blits of Skia that can be
     replace on a platform in order to take advantage of specific CPU features.
     One such example is the NEON SIMD instructions on ARM v7 devices. See
-    [src/opts/](https://skia.googlesource.com/skia/+/master/src/opts/)
+    [src/opts/](https://skia.googlesource.com/skia/+/main/src/opts/)
 
 ---
 

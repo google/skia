@@ -126,8 +126,8 @@ def main():
     path = os.path.join(d, 'apklist.html')
     with open(path, 'w') as o:
         o.write(HEADER)
-        table(o, origin,    'skqp/dev',     [(origin, 'master'), '3e34285f2a0'])
-        table(o, origin,    'skqp/release', [(origin, 'master'), '09ab171c5c0'])
+        table(o, origin,    'skqp/dev',     [(origin, 'main'), '3e34285f2a0'])
+        table(o, origin,    'skqp/release', [(origin, 'main'), '09ab171c5c0'])
         table(o, aosp_skqp, 'pie-cts-dev',  ['f084c17322'])
         o.write(FOOTER)
     print(path)

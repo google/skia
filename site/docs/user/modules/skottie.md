@@ -61,7 +61,7 @@ Test your Lottie files in our player at https://skottie.skia.org
 ## The code
 
 Skia's animation code entry point can be found here on
-[Googlesource](https://skia.googlesource.com/skia/+/master/modules/skottie/include/Skottie.h)
+[Googlesource](https://skia.googlesource.com/skia/+/main/modules/skottie/include/Skottie.h)
 and
 [GitHub](https://github.com/google/skia/blob/master/modules/skottie/include/Skottie.h).
 The code is part of Skia's library but can also be made available as a separate

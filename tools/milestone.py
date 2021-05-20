@@ -12,7 +12,7 @@ milestone_file = 'include/core/SkMilestone.h'
 usage = '''
 usage:
   git fetch
-  git checkout -b change_milestone origin/master
+  git checkout -b change_milestone origin/main
   python %s MILESTONE_NUMBER
   git add %s
   git commit -m "Update Skia milestone."
