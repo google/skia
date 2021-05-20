@@ -29,7 +29,7 @@ If you need to make a breaking API change, the basic approach is:
 - Deprecate the old code path so that it must be enabled with a flag such as
   'SK_SUPPORT_LEGACY_XXX'.
 - Add that same flag to
-  [flutter_defines.gni](https://skia.googlesource.com/skia/+/master/gn/flutter_defines.gni)
+  [flutter_defines.gni](https://skia.googlesource.com/skia/+/main/gn/flutter_defines.gni)
   in Skia.
   - Both Flutter and Fuchsia build Skia with a GN argument that enables all the
     defines listed in that file.

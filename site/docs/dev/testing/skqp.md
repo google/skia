@@ -52,5 +52,5 @@ Open the file `/tmp/output/skqp_report_2019-02-28T102058/report.html` .
 * * *
 
 For more information about building your own APK, refer to
-https://skia.googlesource.com/skia/+/master/tools/skqp/README.md
+https://skia.googlesource.com/skia/+/main/tools/skqp/README.md
 

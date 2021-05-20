@@ -20,7 +20,7 @@ Simply run
 \033[36m
     python {0} TEST_GIT_BRANCH
 \033[0m
-to see if TEST_GIT_BRANCH has performance regressions against master in 8888.
+to see if TEST_GIT_BRANCH has performance regressions against main in 8888.
 
 To compare a specific config with svg and skp resources included, add --config
 and --extraarg option. For exampe,
@@ -44,7 +44,7 @@ def parse_args():
 
   parser = ArgumentParser(
     description='Noiselessly (hence calm) becnhmark a git branch against ' +
-                'another baseline branch (e.g., master) using multiple ' +
+                'another baseline branch (e.g., main) using multiple ' +
                 ' nanobench runs.'
   )
 
@@ -87,7 +87,7 @@ def parse_args():
     ['--ninjadir',  str, 'out/Release', 'default: %(default)s'],
     ['--writedir',  str, '/var/tmp', 'default: %(default)s'],
     ['--extraarg',  str, '', extraarg_help],
-    ['--baseline',  str, 'master', baseline_help],
+    ['--baseline',  str, 'main', baseline_help],
     ['--basearg',   str, '', basearg_help],
     ['--reps',      int, 2, reps_help],
     ['--threads',   int, default_threads, threads_help],

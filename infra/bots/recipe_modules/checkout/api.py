@@ -98,7 +98,7 @@ if 'cipd_bin_packages' not in git:
     main.name = main_name
     main.managed = False
     main.url = main_repo
-    main.revision = self.m.properties.get('revision') or 'origin/master'
+    main.revision = self.m.properties.get('revision') or 'origin/main'
     m = gclient_cfg.got_revision_mapping
     m[main_name] = 'got_revision'
     patch_root = main_name

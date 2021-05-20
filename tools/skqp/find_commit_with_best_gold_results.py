@@ -121,7 +121,7 @@ def main(args):
 
 
 usage = '''Example usage:
-    python %s origin/master ^origin/skqp/dev < /dev/null > LOG 2>&1 & disown
+    python %s origin/main ^origin/skqp/dev < /dev/null > LOG 2>&1 & disown
 '''
 
 if __name__ == '__main__':

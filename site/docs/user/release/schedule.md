@@ -32,5 +32,5 @@ Note that 82 was abandoned by Chromium and 83 schedule moved in due to COVID-19 
 Skia is maintaining 82 for our customers. Future dates are subject to change.
 
 The current milestone is included in the headers in
-[SkMilestone.h](https://skia.googlesource.com/skia/+/master/include/core/SkMilestone.h).
+[SkMilestone.h](https://skia.googlesource.com/skia/+/main/include/core/SkMilestone.h).
 
