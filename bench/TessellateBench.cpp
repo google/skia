@@ -116,7 +116,7 @@ DEF_PATH_TESS_BENCH(GrPathIndirectTessellator, make_cubic_path(), SkMatrix::I())
 }
 
 DEF_PATH_TESS_BENCH(GrPathOuterCurveTessellator, make_cubic_path(), SkMatrix::I()) {
-    GrPathOuterCurveTessellator tess;
+    GrPathOuterCurveTessellator tess(GrPathTessellator::DrawInnerFan::kNo);
     tess.prepare(fTarget.get(), fMatrix, fPath, nullptr);
 }
 
