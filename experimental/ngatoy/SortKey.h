@@ -13,8 +13,11 @@ constexpr int kRadialMat = 3;
 
 class SortKey {
 public:
-    // field:  |  transparent  |  depth   |  material  |
-    // bits:   |      1        |   4      |     4      |
+    // field:  |  transparent  | clipID  | depth   |  material  |
+    // bits:   |      1        |   8     |  4      |     4      |
+    // Note: the depth and material fields are swapped when the key is opaque and the depth's
+    // order is reversed. This forces all opaque draws with the be sorted by material first
+    // and then front to back. Transparent draws will continue to be sorted back to front.
     static const uint32_t kMaterialShift = 0;
     static const uint32_t kNumMaterialBits = 4;
     static const uint32_t kMaterialMask = (0x1 << kNumMaterialBits) - 1;
@@ -32,40 +35,50 @@ public:
     static const uint32_t kDepthMask = (0x1 << kNumDepthBits) - 1;
     static const uint32_t kMaxDepth = kDepthMask;
 
-    static const uint32_t kTransparentShift = kNumMaterialBits + kNumDepthBits;
+    static const uint32_t kClipShift = kNumMaterialBits + kNumDepthBits;
+    static const uint32_t kNumClipBits = 8;
+    static const uint32_t kClipMask = (0x01 << kNumClipBits) - 1;
+    static const uint32_t kMaxClipID = kClipMask;
+
+    static const uint32_t kTransparentShift = kNumMaterialBits + kNumDepthBits + kNumClipBits;
     static const uint32_t kNumTransparentBits = 1;
     static const uint32_t kTransparentMask = (0x1 << kNumTransparentBits) - 1;
 
-    // TODO: foo
+    // TODO: make it clearer that we're initializing the default depth to be 0 here (since the
+    // default key is opaque, its sense is flipped)
     SortKey() : fKey((kMaxDepth - 1) << kMaterialShift) {}
-    explicit SortKey(bool transparent, uint32_t depth, uint32_t material) {
-        SkASSERT(depth != 0 /* && material != 0*/);
+    explicit SortKey(bool transparent, uint32_t clipID, uint32_t depth, uint32_t material) {
+        SkASSERT(clipID != 0 && depth != 0 /* && material != 0*/);
+        SkASSERT(!(clipID & ~kClipMask));
         SkASSERT(!(depth & ~kDepthMask));
         SkASSERT(!(material & ~kMaterialMask));
 
-        uint32_t munged;
-        if (transparent) {
-            munged = depth;
-        } else {
-            // We want the opaque draws to be sorted front to back
-            munged = kMaxDepth - depth - 1;
-        }
-
-        SkASSERT(!(munged & ~kDepthMask));
-
-        // TODO: foo
+        // TODO: better encapsulate the reversal of the depth & material when the key is opaque
         if (transparent) {
             fKey = (0x1 << kTransparentShift) |
-                   (munged & kDepthMask) << kDepthShift |
+                   (clipID & kClipMask) << kClipShift |
+                   (depth & kDepthMask) << kDepthShift |
                    (material & kMaterialMask) << kMaterialShift;
         } else {
-            fKey = (munged & kDepthMask) << kMaterialShift |
+            SkASSERT(kNumDepthBits == kNumMaterialBits);
+
+            uint32_t munged;
+            // We want the opaque draws to be sorted front to back
+            munged = kMaxDepth - depth - 1;
+            SkASSERT(!(munged & ~kDepthMask));
+
+            fKey = (clipID & kClipMask) << kClipShift |
+                   (munged & kDepthMask) << kMaterialShift |
                    (material & kMaterialMask) << kDepthShift;
         }
     }
 
     bool transparent() const {
         return (fKey >> kTransparentShift) & kTransparentMask;
+    }
+
+    uint32_t clipID() const {
+        return (fKey >> kClipShift) & kClipMask;
     }
 
     uint32_t depth() const {
@@ -79,7 +92,7 @@ public:
     }
 
     uint32_t material() const {
-        // TODO: foo
+        // TODO: better encapsulate the reversal of the depth & material when the key is opaque
         if (this->transparent()) {
             return (fKey >> kMaterialShift) & kMaterialMask;
         } else {
