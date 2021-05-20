@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b8019858_3944fe5d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-20T15:23:01Z",
+      "side": 1,
+      "message": "yea, maybe exceptions are fine, in which case constructors are ok. dunno.\n\nBTW -- skia++ has voted to never have a zero-sized image: all widths/heights are \u003e 0",
+      "revId": "a4ba3f1e82d282135ccd7ea6c7cd82766d1693d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
