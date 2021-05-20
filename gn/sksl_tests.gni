@@ -564,6 +564,7 @@ sksl_settings_tests = [
   "/sksl/workarounds/NegatedAtan.sksl",
   "/sksl/workarounds/PowWithConstantExponent.sksl",
   "/sksl/workarounds/RewriteDoWhileLoops.sksl",
+  "/sksl/workarounds/RewriteMatrix2x2Comparisons.sksl",
   "/sksl/workarounds/RewriteMatrixVectorMultiply.sksl",
   "/sksl/workarounds/TernaryShortCircuit.sksl",
 ]
