@@ -683,3 +683,25 @@ tests.push({
     },
     perfKey: 'canvas_blur_mask_filter',
 });
+
+onlytests.push({
+    description: 'Pass native JSArray over the wire method 1',
+    setup: function(CanvasKit, ctx) {
+        ctx.font = new CanvasKit.Font();
+        ctx.data = [];
+        for (let i = 0; i < 100; i++) {
+            data.push(i);
+        }
+    },
+    test: function(CanvasKit, ctx) {
+        for (let i = 0; i< 10000; i++) {
+            if (ctx.font.benchmark1(ctx) < -1) {
+                return;
+            }
+        }
+    },
+    teardown: function(CanvasKit, ctx) {
+        ctx.font.delete();
+    },
+    perfKey: 'copy_native_array_m1_100',
+});
