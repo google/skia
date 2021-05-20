@@ -95,11 +95,11 @@ void GrStrokeInstancedShaderImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     args.fVertBuilder->codeAppend(R"(
     float4x2 P = float4x2(pts01Attr, pts23Attr);
     float2 lastControlPoint = argsAttr.xy;
-    float W = -1;  // W<0 means the curve is an integral cubic.)");
+    float w = -1;  // w<0 means the curve is an integral cubic.)");
     if (shader.hasConics()) {
         args.fVertBuilder->codeAppend(R"(
         if (isinf(P[3].y)) {
-            W = P[3].x;  // The curve is actually a conic.
+            w = P[3].x;  // The curve is actually a conic.
             P[3] = P[2];  // Setting p3 equal to p2 works for the remaining rotational logic.
         })");
     }
@@ -113,7 +113,8 @@ void GrStrokeInstancedShaderImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     args.fVertBuilder->codeAppend(R"(
     // Find how many parametric segments this stroke requires.
-    float numParametricSegments = min(wangs_formula(PARAMETRIC_PRECISION, P, W),
+    float numParametricSegments = min(wangs_formula(PARAMETRIC_PRECISION,
+                                                    P[0], P[1], P[2], P[3], w),
                                       float(1 << MAX_PARAMETRIC_SEGMENTS_LOG2));
     if (P[0] == P[1] && P[2] == P[3]) {
         // This is how we describe lines, but Wang's formula does not return 1 in this case.

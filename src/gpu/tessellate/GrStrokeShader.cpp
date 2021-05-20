@@ -74,7 +74,7 @@ void GrStrokeShaderImpl::emitTessellationCode(const GrStrokeShader& shader, SkSt
     //
     //     // Values provided by either uniforms or attribs.
     //     float4x2 P;
-    //     float W;
+    //     float w;
     //     float STROKE_RADIUS;
     //     float 2x2 AFFINE_MATRIX;
     //     float2 TRANSLATE;
@@ -105,17 +105,17 @@ void GrStrokeShaderImpl::emitTessellationCode(const GrStrokeShader& shader, SkSt
         float2 D = P[3] - P[0];)");
     if (hasConics) {
         code->append(R"(
-        if (W >= 0.0) {
+        if (w >= 0.0) {
             // P0..P2 represent a conic and P3==P2. The derivative of a conic has a cumbersome
             // order-4 denominator. However, this isn't necessary if we are only interested in a
             // vector in the same *direction* as a given tangent line. Since the denominator scales
             // dx and dy uniformly, we can throw it out completely after evaluating the derivative
             // with the standard quotient rule. This leaves us with a simpler quadratic function
             // that we use to find a tangent.
-            C *= W;
+            C *= w;
             B = .5*D - C;
-            A = (W - 1.0) * D;
-            P[1] *= W;
+            A = (w - 1.0) * D;
+            P[1] *= w;
         } else {)");
     } else {
         code->append(R"(
@@ -223,13 +223,13 @@ void GrStrokeShaderImpl::emitTessellationCode(const GrStrokeShader& shader, SkSt
     if (hasConics) {
         code->append(R"(
         // Evaluate the conic weights at T.
-        float u = unchecked_mix(1.0, W, T);
-        float v = unchecked_mix(W, 1.0, T);
+        float u = unchecked_mix(1.0, w, T);
+        float v = unchecked_mix(w, 1.0, T);
         float uv = unchecked_mix(u, v, T);)");
     }
 
     code->appendf(R"(
-        strokeCoord =%s abcd;)", (hasConics) ? " (W >= 0.0) ? abc/uv :" : "");
+        strokeCoord =%s abcd;)", (hasConics) ? " (w >= 0.0) ? abc/uv :" : "");
 
     code->append(R"(
         // If we went with T=parametricT, then update the tangent. Otherwise leave it at the radial
@@ -237,7 +237,7 @@ void GrStrokeShaderImpl::emitTessellationCode(const GrStrokeShader& shader, SkSt
         // tangent.)
         if (T != radialT) {)");
     code->appendf(R"(
-            tangent =%s bcd - abc;)", (hasConics) ? " (W >= 0.0) ? bc*u - ab*v :" : "");
+            tangent =%s bcd - abc;)", (hasConics) ? " (w >= 0.0) ? bc*u - ab*v :" : "");
     code->append(R"(
         }
     } else {
