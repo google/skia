@@ -47,12 +47,6 @@ public:
                                    InitContents);
 
     /**
-     * Creates an SkGpuDevice from a GrSurfaceDrawContext whose backing width/height is
-     * different than its actual width/height (e.g., approx-match scratch texture).
-     */
-    static sk_sp<SkGpuDevice> Make(std::unique_ptr<GrSurfaceDrawContext>, InitContents);
-
-    /**
      * New device that will create an offscreen renderTarget based on the ImageInfo and
      * sampleCount. The mipMapped flag tells the gpu to create the underlying render target with
      * mips. The Budgeted param controls whether the device's backing store counts against the
@@ -68,7 +62,8 @@ public:
                                    const SkSurfaceProps*,
                                    GrMipmapped,
                                    GrProtected,
-                                   InitContents);
+                                   InitContents,
+                                   SkBackingFit);
 
     ~SkGpuDevice() override {}
 
@@ -184,6 +179,8 @@ private:
     static bool CheckAlphaTypeAndGetFlags(const SkImageInfo* info, InitContents init,
                                           unsigned* flags);
 
+    static sk_sp<SkGpuDevice> Make(std::unique_ptr<GrSurfaceDrawContext>, InitContents);
+
     SkGpuDevice(std::unique_ptr<GrSurfaceDrawContext>, unsigned flags);
 
     SkBaseDevice* onCreateDevice(const CreateInfo&, const SkPaint*) override;
@@ -219,7 +216,8 @@ private:
                                                                         GrSurfaceOrigin,
                                                                         const SkSurfaceProps*,
                                                                         GrMipmapped,
-                                                                        GrProtected);
+                                                                        GrProtected,
+                                                                        SkBackingFit);
 
     friend class SkSurface_Gpu;      // for access to surfaceProps
     using INHERITED = SkBaseGpuDevice;
