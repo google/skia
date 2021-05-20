@@ -1222,6 +1222,16 @@ EMSCRIPTEN_BINDINGS(Skia) {
                                              (const SkPoint*)pos.data(), top, bottom);
             return MakeTypedArray(sects.size(), (const float*)sects.data());
         }), allow_raw_pointers())
+        .function("benchmark1", optional_override([](SkFont& self,
+                                                             JSArray jglyphs) -> int {
+            JSSpan<uint16_t> glyphs(jglyphs);
+            return glyphs.data()[glyphs.size() / 2];
+        }))
+        .function("_benchmark2", optional_override([](SkFont& self, WASMPointer gPtr,
+                                                          size_t len, bool takeOwnership) -> int {
+            JSSpan<uint16_t> glyphs(gPtr, len, takeOwnership);
+            return glyphs.data()[glyphs.size() / 2];
+        }))
         .function("getScaleX", &SkFont::getScaleX)
         .function("getSize", &SkFont::getSize)
         .function("getSkewX", &SkFont::getSkewX)
