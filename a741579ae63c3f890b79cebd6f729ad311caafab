@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "74a75e9a_496fa1d5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2021-05-20T00:08:54Z",
+      "side": 1,
+      "message": "\u003e For some reason this CL causes the default branch migration to fail.\n\nCan you link to the details?",
+      "revId": "a741579ae63c3f890b79cebd6f729ad311caafab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
