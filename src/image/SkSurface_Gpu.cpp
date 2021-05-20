@@ -413,9 +413,10 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* rContext,
         return nullptr;
     }
 
-    auto device = SkGpuDevice::Make(rContext, budgeted, c.imageInfo(), c.sampleCount(),
-                                    c.origin(), &c.surfaceProps(), GrMipmapped(c.isMipMapped()),
-                                    c.isProtected(), SkBaseGpuDevice::kClear_InitContents);
+    auto device = SkGpuDevice::Make(rContext, budgeted, c.imageInfo(), SkBackingFit::kExact,
+                                    c.sampleCount(), c.origin(), &c.surfaceProps(),
+                                    GrMipmapped(c.isMipMapped()), c.isProtected(),
+                                    SkBaseGpuDevice::kClear_InitContents);
     if (!device) {
         return nullptr;
     }
@@ -471,8 +472,9 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* rContext, SkBud
         mipMapped = GrMipmapped::kNo;
     }
 
-    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(rContext, budgeted, info, sampleCount, origin,
-                                                props, mipMapped, GrProtected::kNo,
+    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(rContext, budgeted, info, SkBackingFit::kExact,
+                                                sampleCount, origin, props, mipMapped,
+                                                GrProtected::kNo,
                                                 SkBaseGpuDevice::kClear_InitContents));
     if (!device) {
         return nullptr;
