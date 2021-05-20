@@ -683,3 +683,189 @@ tests.push({
     },
     perfKey: 'canvas_blur_mask_filter',
 });
+
+tests.push({
+    description: 'Pass 100 elements in a native JSArray over the wire method 1',
+    setup: function(CanvasKit, ctx) {
+        ctx.font = new CanvasKit.Font();
+        ctx.data = [];
+        for (let i = 0; i < 100; i++) {
+            ctx.data.push(i);
+        }
+    },
+    test: function(CanvasKit, ctx) {
+        for (let i = 0; i< 10000; i++) {
+            if (ctx.font.benchmark1(ctx.data) < -1) {
+                return;
+            }
+        }
+    },
+    teardown: function(CanvasKit, ctx) {
+        ctx.font.delete();
+    },
+    perfKey: 'copy_native_array_m1_100',
+});
+
+tests.push({
+    description: 'Pass 100 elements in a native JSArray over the wire method 2',
+    setup: function(CanvasKit, ctx) {
+        ctx.font = new CanvasKit.Font();
+        ctx.data = [];
+        for (let i = 0; i < 100; i++) {
+            ctx.data.push(i);
+        }
+    },
+    test: function(CanvasKit, ctx) {
+        for (let i = 0; i< 10000; i++) {
+            if (ctx.font.benchmark2(ctx.data) < -1) {
+                return;
+            }
+        }
+    },
+    teardown: function(CanvasKit, ctx) {
+        ctx.font.delete();
+    },
+    perfKey: 'copy_native_array_m2_100',
+});
+
+tests.push({
+    description: 'Pass 100 elements in a TypedArray over the wire method 1',
+    setup: function(CanvasKit, ctx) {
+        ctx.font = new CanvasKit.Font();
+        ctx.data = new Uint16Array(100);
+        for (let i = 0; i < 100; i++) {
+            ctx.data[i] = i;
+        }
+    },
+    test: function(CanvasKit, ctx) {
+        for (let i = 0; i< 10000; i++) {
+            if (ctx.font.benchmark1(ctx.data) < -1) {
+                throw 'error'; // Do something so compiler can't optimize away.
+            }
+        }
+    },
+    teardown: function(CanvasKit, ctx) {
+        ctx.font.delete();
+    },
+    perfKey: 'copy_typed_array_m1_100',
+});
+
+tests.push({
+    description: 'Pass 100 elements in a TypedArray over the wire method 2',
+    setup: function(CanvasKit, ctx) {
+        ctx.font = new CanvasKit.Font();
+        ctx.data = new Uint16Array(100);
+        for (let i = 0; i < 100; i++) {
+            ctx.data[i] = i;
+        }
+    },
+    test: function(CanvasKit, ctx) {
+        for (let i = 0; i< 10000; i++) {
+            if (ctx.font.benchmark2(ctx.data) < -1) {
+                throw 'error'; // Do something so compiler can't optimize away.
+            }
+        }
+    },
+    teardown: function(CanvasKit, ctx) {
+        ctx.font.delete();
+    },
+    perfKey: 'copy_typed_array_m2_100',
+});
+
+tests.push({
+    description: 'Pass 100 elements in a MallocObj over the wire method 1',
+    setup: function(CanvasKit, ctx) {
+        ctx.font = new CanvasKit.Font();
+        ctx.data = CanvasKit.Malloc(Uint16Array, 100);
+        const arr = ctx.data.toTypedArray();
+        for (let i = 0; i < 100; i++) {
+            arr[i] = i;
+        }
+    },
+    test: function(CanvasKit, ctx) {
+        for (let i = 0; i< 10000; i++) {
+            if (ctx.font.benchmark1(ctx.data) < -1) {
+                throw 'error'; // Do something so compiler can't optimize away.
+            }
+        }
+    },
+    teardown: function(CanvasKit, ctx) {
+        ctx.font.delete();
+        CanvasKit.Free(ctx.data);
+    },
+    perfKey: 'copy_mallocobj_m1_100',
+});
+
+tests.push({
+    description: 'Pass 100 elements in a MallocObj over the wire method 2',
+    setup: function(CanvasKit, ctx) {
+        ctx.font = new CanvasKit.Font();
+        ctx.data = CanvasKit.Malloc(Uint16Array, 100);
+        const arr = ctx.data.toTypedArray();
+        for (let i = 0; i < 100; i++) {
+            arr[i] = i;
+        }
+    },
+    test: function(CanvasKit, ctx) {
+        for (let i = 0; i< 10000; i++) {
+            if (ctx.font.benchmark2(ctx.data) < -1) {
+                throw 'error'; // Do something so compiler can't optimize away.
+            }
+        }
+    },
+    teardown: function(CanvasKit, ctx) {
+        ctx.font.delete();
+        CanvasKit.Free(ctx.data);
+    },
+    perfKey: 'copy_mallocobj_m2_100',
+});
+
+tests.push({
+    description: 'Pass 100 elements in a Mallocd typedarray over the wire method 1',
+    setup: function(CanvasKit, ctx) {
+        ctx.font = new CanvasKit.Font();
+        ctx.data = CanvasKit.Malloc(Uint16Array, 100);
+        const arr = ctx.data.toTypedArray();
+        for (let i = 0; i < 100; i++) {
+            arr[i] = i;
+        }
+    },
+    test: function(CanvasKit, ctx) {
+        const arr = ctx.data.toTypedArray();
+        for (let i = 0; i< 10000; i++) {
+            if (ctx.font.benchmark1(arr) < -1) {
+                throw 'error'; // Do something so compiler can't optimize away.
+            }
+        }
+    },
+    teardown: function(CanvasKit, ctx) {
+        ctx.font.delete();
+        CanvasKit.Free(ctx.data);
+    },
+    perfKey: 'copy_mallocarray_m1_100',
+});
+
+tests.push({
+    description: 'Pass 100 elements in a Mallocd typedarray over the wire method 2',
+    setup: function(CanvasKit, ctx) {
+        ctx.font = new CanvasKit.Font();
+        ctx.data = CanvasKit.Malloc(Uint16Array, 100);
+        const arr = ctx.data.toTypedArray();
+        for (let i = 0; i < 100; i++) {
+            arr[i] = i;
+        }
+    },
+    test: function(CanvasKit, ctx) {
+        const arr = ctx.data.toTypedArray();
+        for (let i = 0; i< 10000; i++) {
+            if (ctx.font.benchmark2(arr) < -1) {
+                throw 'error'; // Do something so compiler can't optimize away.
+            }
+        }
+    },
+    teardown: function(CanvasKit, ctx) {
+        ctx.font.delete();
+        CanvasKit.Free(ctx.data);
+    },
+    perfKey: 'copy_mallocarray_m2_100',
+});

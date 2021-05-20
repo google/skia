@@ -26,6 +26,8 @@ using Uint16Array = emscripten::val;
 using Uint32Array = emscripten::val;
 using Float32Array = emscripten::val;
 
+using WASMPointer = uintptr_t;
+
 #define SPECIALIZE_JSARRAYTYPE(type, name)                  \
     template <> struct JSArrayType<type> {                  \
         static constexpr const char* const gName = name;    \
@@ -82,6 +84,11 @@ public:
             }
         }
         fSpan = SkSpan(data, len);
+    }
+
+    JSSpan(WASMPointer ptr, size_t len, bool takeOwnership) {
+        fOwned = takeOwnership;
+        fSpan = SkSpan(reinterpret_cast<T*>(ptr), len);
     }
 
     ~JSSpan() {
