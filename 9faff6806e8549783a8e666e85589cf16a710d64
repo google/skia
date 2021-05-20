@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "de879cd2_ea443bb4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-05-20T21:55:56Z",
+      "side": 1,
+      "message": "I don\u0027t know anything about †his particular workaround \u003d/",
+      "revId": "9faff6806e8549783a8e666e85589cf16a710d64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
