@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "041e6606_eb44ecbb",
+        "filename": "src/sksl/codegen/SkSLGLSLCodeGenerator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 882,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-20T22:27:18Z",
+      "side": 1,
+      "message": "GLSL also allows constructors to pour 2x2 matrices into vectors. Given that, I\u0027m slightly curious if rewriting this as:\n\n  vec4(m1) \u003d\u003d vec4(m2)\n\nwould work?\n\nI think this is fine, too, but it would eliminate the need for comma operator, temporaries, etc...",
+      "revId": "9cfbb697dd96765ca18d80255fc7beb61e29cbc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
