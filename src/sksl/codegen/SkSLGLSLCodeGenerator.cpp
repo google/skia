@@ -853,6 +853,36 @@ void GLSLCodeGenerator::writeSwizzle(const Swizzle& swizzle) {
     }
 }
 
+void GLSLCodeGenerator::writeMatrix2x2ComparisonWorkaround(const BinaryExpression& b) {
+    const Expression& left = *b.left();
+    const Expression& right = *b.right();
+    Operator op = b.getOperator();
+
+    SkASSERT(op.kind() == Token::Kind::TK_EQEQ || op.kind() == Token::Kind::TK_NEQ);
+    SkASSERT(left.type().isMatrix());
+    SkASSERT(left.type().columns() == 2 && left.type().rows() == 2);
+    SkASSERT(right.type().isMatrix());
+    SkASSERT(right.type().columns() == 2 && right.type().rows() == 2);
+
+    String tempMatrix1 = "_tempMatrix" + to_string(fVarCount++);
+    String tempMatrix2 = "_tempMatrix" + to_string(fVarCount++);
+
+    this->fFunctionHeader += String("    ") + this->getTypePrecision(left.type()) +
+                             this->getTypeName(left.type()) + " " + tempMatrix1 + ";\n    " +
+                             this->getTypePrecision(right.type()) +
+                             this->getTypeName(right.type()) + " " + tempMatrix2 + ";\n";
+    this->write("((" + tempMatrix1 + " = ");
+    this->writeExpression(left, Precedence::kAssignment);
+    this->write("), (" + tempMatrix2 + " = ");
+    this->writeExpression(right, Precedence::kAssignment);
+    this->write("), ");
+    if (op.kind() == Token::Kind::TK_NEQ) {
+        this->write("!");
+    }
+    this->write("(" + tempMatrix1 + "[0] == " + tempMatrix2 + "[0] && " +
+                      tempMatrix1 + "[1] == " + tempMatrix2 + "[1]))");
+}
+
 void GLSLCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
                                               Precedence parentPrecedence) {
     const Expression& left = *b.left();
@@ -861,6 +891,14 @@ void GLSLCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
     if (this->caps().unfoldShortCircuitAsTernary() &&
             (op.kind() == Token::Kind::TK_LOGICALAND || op.kind() == Token::Kind::TK_LOGICALOR)) {
         this->writeShortCircuitWorkaroundExpression(b, parentPrecedence);
+        return;
+    }
+
+    if (this->caps().rewriteMatrix2x2Comparisons() &&
+            (op.kind() == Token::Kind::TK_EQEQ || op.kind() == Token::Kind::TK_NEQ) &&
+            left.type().isMatrix() && left.type().columns() == 2 && left.type().rows() == 2 &&
+            right.type().isMatrix() && right.type().columns() == 2 && right.type().rows() == 2) {
+        this->writeMatrix2x2ComparisonWorkaround(b);
         return;
     }
 
