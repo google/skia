@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d84fbe04_c959b874",
+        "filename": "src/effects/Sk1DPathEffect.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-05-20T19:52:18Z",
+      "side": 1,
+      "message": "No strong opinion but seems like you could do away with this class and just make SkPath1DPathEffectImpl inherit from SkPathEffect.",
+      "revId": "17f4e4e11641c814683a01c2f99a71a7c926b54e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
