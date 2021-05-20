@@ -7,6 +7,11 @@
 
 package org.skia.androidkit;
 
+import java.io.InputStream;
+import org.skia.androidkit.Matrix;
+import org.skia.androidkit.SamplingOptions;
+import org.skia.androidkit.Shader;
+
 public class Image {
     private long mNativeInstance;
 
@@ -22,12 +27,36 @@ public class Image {
             : null;
     }
 
+    /**
+     * Construct an Image from an encoded data stream.
+     *
+     * Returns null for unsupported formats or invalid stream.
+     */
+    public static Image fromStream(InputStream encodedStream) throws java.io.IOException {
+        byte[] encodedData = new byte[encodedStream.available()];
+        encodedStream.read(encodedData);
+
+        return fromEncoded(encodedData);
+    }
+
     public int getWidth() {
         return nGetWidth(mNativeInstance);
     }
 
     public int getHeight() {
         return nGetHeight(mNativeInstance);
+    }
+
+    public Shader makeShader(Shader.TileMode tmx, Shader.TileMode tmy, SamplingOptions sampling) {
+        return makeShader(tmx, tmy, sampling, new Matrix());
+    }
+
+    public Shader makeShader(Shader.TileMode tmx, Shader.TileMode tmy,
+                             SamplingOptions sampling, Matrix localMatrix) {
+        return new Shader(nMakeShader(mNativeInstance, tmx.ordinal(), tmy.ordinal(),
+                                      sampling.getNativeDesc(),
+                                      sampling.getCubicCoeffB(), sampling.getCubicCoeffC(),
+                                      localMatrix.getNativeInstance()));
     }
 
     /**
@@ -56,4 +85,8 @@ public class Image {
 
     private static native int nGetWidth(long nativeInstance);
     private static native int nGetHeight(long nativeInstance);
+
+    private static native long nMakeShader(long nativeInstance, int tmx, int tmy, int samplingDesc,
+                                           float samplingCoeffB, float samplingCoeffC,
+                                           long nativeMatrix);
 }

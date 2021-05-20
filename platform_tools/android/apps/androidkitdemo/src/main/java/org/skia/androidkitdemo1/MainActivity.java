@@ -15,7 +15,6 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.ImageView;
-import java.io.InputStream;
 import org.skia.androidkit.*;
 
 public class MainActivity extends Activity implements SurfaceHolder.Callback {
@@ -55,11 +54,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         canvas.drawImage(snapshot, 0, 200);
 
         try {
-            InputStream is = getResources().openRawResource(R.raw.brickwork_texture);
-            byte[] data = new byte[is.available()];
-            is.read(data);
-
-            Image image = Image.fromEncoded(data);
+            Image image = Image.fromStream(getResources().openRawResource(R.raw.brickwork_texture));
             // TODO: Canvas.scale
             canvas.concat(new Matrix().scale(10, 10));
             canvas.drawImage(image, 20, 0, SamplingOptions.CATMULLROM());
