@@ -39,6 +39,30 @@
       },
       "revId": "aaa9e94ad3f2f49322ef2e92d07134a30f9b62d9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "989f0fc8_dcbe289c",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Image.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-20T14:10:46Z",
+      "side": 1,
+      "message": "Currently, we construct a \"null\" image (zero size, no backing SkImage, draws nothing).\n\nA factory returning null on error is an option.  Another one is to throw an exception -- not sure which one is more idiomatic for Java APIs?\n\nFactory seems more straightforward, I\u0027ll try that.",
+      "parentUuid": "048bed8d_732941a4",
+      "range": {
+        "startLine": 13,
+        "startChar": 24,
+        "endLine": 13,
+        "endChar": 35
+      },
+      "revId": "aaa9e94ad3f2f49322ef2e92d07134a30f9b62d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
