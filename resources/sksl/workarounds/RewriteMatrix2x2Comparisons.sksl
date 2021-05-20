@@ -1,0 +1,19 @@
+/*#pragma settings RewriteMatrix2x2Comparisons*/
+
+// This is a clone of MatrixEquality.sksl.
+uniform half4 colorGreen, colorRed;
+uniform half2x2 testHalf2x2;
+uniform float2x2 testFloat2x2;
+
+bool test_equality() {
+    bool ok = true;
+    ok = ok && testHalf2x2 == half2x2(1,2,3,4);
+    ok = ok && testFloat2x2 == half2x2(5,6,7,8);
+    ok = ok && testHalf2x2 != half2x2(123);
+    ok = ok && testFloat2x2 != half2x2(456);
+    return ok;
+}
+
+half4 main(float2 coords) {
+    return test_equality() ? colorGreen : colorRed;
+}
