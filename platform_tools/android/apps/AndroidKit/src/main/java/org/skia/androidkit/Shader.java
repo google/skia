@@ -10,6 +10,13 @@ package org.skia.androidkit;
 public class Shader {
     private long mNativeInstance;
 
+    public enum TileMode {
+        CLAMP,
+        REPEAT,
+        MIRROR,
+        DECAL,
+    }
+
     protected Shader(long native_instance) {
         mNativeInstance = native_instance;
     }
