@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5dbe49b6_6478d5af",
+        "filename": "src/gpu/SkGpuDevice.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-20T16:25:43Z",
+      "side": 1,
+      "message": "Can we document this and briefly describe what it does differently than the Make() that doesn\u0027t take a surface proxy?",
+      "range": {
+        "startLine": 41,
+        "startChar": 4,
+        "endLine": 47,
+        "endChar": 49
+      },
+      "revId": "d674457f1177bd9f16446e3cd9a28081fbabe1cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
