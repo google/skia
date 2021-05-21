@@ -87,24 +87,17 @@ SkString GrGLSLFragmentProcessor::invokeChildWithMatrix(int childIndex, const ch
 
     SkASSERT(childProc->sampleUsage().isUniformMatrix());
 
-    // Empty matrix expression replaces with the sample matrix expression stored on the FP, but
-    // that is only valid for uniform sampled FPs
-    SkString matrixExpr(childProc->sampleUsage().fExpression);
-
-    // Attempt to resolve the uniform name from the raw name stored in the sample usage.
+    // Every uniform matrix has the same (initial) name. Resolve that into the mangled name:
     GrShaderVar uniform = args.fUniformHandler->getUniformMapping(
-            args.fFp, SkString(childProc->sampleUsage().fExpression));
-    if (uniform.getType() != kVoid_GrSLType) {
-        // Found the uniform, so replace the expression with the actual uniform name
-        SkASSERT(uniform.getType() == kFloat3x3_GrSLType);
-        matrixExpr = uniform.getName().c_str();
-    }  // else assume it's a constant expression
+            args.fFp, SkString(SkSL::SampleUsage::MatrixUniformName()));
+    SkASSERT(uniform.getType() == kFloat3x3_GrSLType);
+    const SkString& matrixName(uniform.getName());
 
-    // Produce a string containing the call to the helper function. We have a const-or-uniform
-    // expression containing our transform (matrixExpr). If the parent coords were produced by
-    // uniform transforms, then the entire expression (matrixExpr * coords) is lifted to a vertex
-    // shader and is stored in a varying. In that case, childProc will not be sampled explicitly,
-    // so its function signature will not take in coords.
+    // Produce a string containing the call to the helper function. We have a uniform variable
+    // containing our transform (matrixName). If the parent coords were produced by uniform
+    // transforms, then the entire expression (matrixName * coords) is lifted to a vertex shader
+    // and is stored in a varying. In that case, childProc will not be sampled explicitly, so its
+    // function signature will not take in coords.
     //
     // In all other cases, we need to insert sksl to compute matrix * parent coords and then invoke
     // the function.
@@ -113,14 +106,14 @@ SkString GrGLSLFragmentProcessor::invokeChildWithMatrix(int childIndex, const ch
         // Any parent perspective will have already been applied when evaluated in the FS.
         if (childProc->sampleUsage().fHasPerspective) {
             return SkStringPrintf("%s(%s, proj((%s) * %s.xy1))", fFunctionNames[childIndex].c_str(),
-                                  inputColor, matrixExpr.c_str(), args.fSampleCoord);
+                                  inputColor, matrixName.c_str(), args.fSampleCoord);
         } else if (args.fShaderCaps->nonsquareMatrixSupport()) {
             return SkStringPrintf("%s(%s, float3x2(%s) * %s.xy1)",
                                   fFunctionNames[childIndex].c_str(), inputColor,
-                                  matrixExpr.c_str(), args.fSampleCoord);
+                                  matrixName.c_str(), args.fSampleCoord);
         } else {
             return SkStringPrintf("%s(%s, ((%s) * %s.xy1).xy)", fFunctionNames[childIndex].c_str(),
-                                  inputColor, matrixExpr.c_str(), args.fSampleCoord);
+                                  inputColor, matrixName.c_str(), args.fSampleCoord);
         }
     } else {
         // Since this is uniform and not explicitly sampled, it's transform has been promoted to

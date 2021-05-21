@@ -7,24 +7,7 @@
 
 #include "include/private/SkSLSampleUsage.h"
 
-#include "src/sksl/ir/SkSLBinaryExpression.h"
-#include "src/sksl/ir/SkSLConstructor.h"
-#include "src/sksl/ir/SkSLDoStatement.h"
-#include "src/sksl/ir/SkSLExpression.h"
-#include "src/sksl/ir/SkSLExpressionStatement.h"
-#include "src/sksl/ir/SkSLFieldAccess.h"
-#include "src/sksl/ir/SkSLForStatement.h"
-#include "src/sksl/ir/SkSLFunctionCall.h"
-#include "src/sksl/ir/SkSLIfStatement.h"
-#include "src/sksl/ir/SkSLIndexExpression.h"
-#include "src/sksl/ir/SkSLPostfixExpression.h"
-#include "src/sksl/ir/SkSLPrefixExpression.h"
-#include "src/sksl/ir/SkSLProgram.h"
-#include "src/sksl/ir/SkSLReturnStatement.h"
-#include "src/sksl/ir/SkSLSwitchStatement.h"
-#include "src/sksl/ir/SkSLSwizzle.h"
-#include "src/sksl/ir/SkSLTernaryExpression.h"
-#include "src/sksl/ir/SkSLVariable.h"
+#include <algorithm>
 
 namespace SkSL {
 

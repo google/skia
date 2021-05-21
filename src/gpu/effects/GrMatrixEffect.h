@@ -30,7 +30,7 @@ private:
             , fMatrix(matrix) {
         SkASSERT(child);
         this->registerChild(std::move(child),
-                            SkSL::SampleUsage::UniformMatrix("matrix", matrix.hasPerspective()));
+                            SkSL::SampleUsage::UniformMatrix(matrix.hasPerspective()));
     }
 
     std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;

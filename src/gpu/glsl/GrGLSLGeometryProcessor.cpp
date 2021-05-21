@@ -187,25 +187,16 @@ void GrGLSLGeometryProcessor::emitTransformCode(GrGLSLVertexBuilder* vb,
                 }
                 break;
             } else if (base->sampleUsage().isUniformMatrix()) {
-                // The FP knows the matrix expression it's sampled with, but its parent defined
-                // the uniform (when the expression is not a constant).
+                // The matrix expression is always the same, but the parent defined the uniform
                 GrShaderVar uniform = uniformHandler->liftUniformToVertexShader(
-                        *base->parent(), SkString(base->sampleUsage().fExpression));
+                        *base->parent(), SkString(SkSL::SampleUsage::MatrixUniformName()));
+                SkASSERT(uniform.getType() == kFloat3x3_GrSLType);
 
                 // Accumulate the base matrix expression as a preConcat
-                SkString matrix;
-                if (uniform.getType() != kVoid_GrSLType) {
-                    SkASSERT(uniform.getType() == kFloat3x3_GrSLType);
-                    matrix = uniform.getName();
-                } else {
-                    // No uniform found, so presumably this is a constant
-                    matrix = SkString(base->sampleUsage().fExpression);
-                }
-
                 if (!transformExpression.isEmpty()) {
                     transformExpression.append(" * ");
                 }
-                transformExpression.appendf("(%s)", matrix.c_str());
+                transformExpression.appendf("(%s)", uniform.getName().c_str());
             } else {
                 // This intermediate FP is just a pass through and doesn't need to be built
                 // in to the expression, but must visit its parents in case they add transforms
