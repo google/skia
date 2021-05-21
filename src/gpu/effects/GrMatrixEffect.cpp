@@ -19,8 +19,10 @@ public:
     GrGLSLMatrixEffect() {}
 
     void emitCode(EmitArgs& args) override {
-        fMatrixVar = args.fUniformHandler->addUniform(&args.fFp, kFragment_GrShaderFlag,
-                                                      kFloat3x3_GrSLType, "matrix");
+        fMatrixVar = args.fUniformHandler->addUniform(&args.fFp,
+                                                      kFragment_GrShaderFlag,
+                                                      kFloat3x3_GrSLType,
+                                                      SkSL::SampleUsage::MatrixUniformName());
         args.fFragBuilder->codeAppendf("return %s;\n",
                                        this->invokeChildWithMatrix(0, args).c_str());
     }
