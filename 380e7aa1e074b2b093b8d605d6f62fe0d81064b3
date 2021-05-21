@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "69c8a7a2_56a0ad15",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-21T17:51:56Z",
+      "side": 1,
+      "message": "\u003e Patch Set 1:\n\u003e \n\u003e The right side of \u0026\u0026 can\u0027t be inlined due to short-circuit optimization. (we aren\u0027t clever enough to detect that the function has no side effects)\n\nAck.",
+      "revId": "380e7aa1e074b2b093b8d605d6f62fe0d81064b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "66a245a5_ff215f5a",
