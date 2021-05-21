@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "23cbfc2e_ff1e04a8",
+        "filename": "platform_tools/android/apps/androidkitdemo/src/main/java/org/skia/androidkitdemo1/MainActivity.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-21T21:23:41Z",
+      "side": 1,
+      "message": "IIRC SurfaceRenderer already handles this boilerplate (and implements SurfaceHolder.Callback) -- could we just use DemoRuntimeShaderRenderer directly (as a callback) instead?",
+      "range": {
+        "startLine": 95,
+        "startChar": 0,
+        "endLine": 108,
+        "endChar": 5
+      },
+      "revId": "6364882a4329dff8212e202e18933f27238a5212",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
