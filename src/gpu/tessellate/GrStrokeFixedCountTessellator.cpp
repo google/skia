@@ -55,24 +55,16 @@ public:
         fDynamicColor.set(color, wideColor);
     }
 
-    void lineTo(SkPoint start, SkPoint end) {
+    SK_ALWAYS_INLINE void lineTo(SkPoint start, SkPoint end) {
         SkPoint cubic[] = {start, start, end, end};
         SkPoint endControlPoint = start;
         this->writeStroke(cubic, endControlPoint);
     }
 
-    void quadraticTo(const SkPoint p[3]) {
-        if (!fCullTest.areVisible3(p)) {
-            // The stroke is out of view. Discard it.
-            this->discardStroke(p, 3);
-            return;
-        }
+    SK_ALWAYS_INLINE void quadraticTo(const SkPoint p[3]) {
         float numParametricSegments_pow4 = GrWangsFormula::quadratic_pow4(fParametricPrecision, p);
         if (numParametricSegments_pow4 > kMaxParametricSegments_pow4) {
-            SkPoint chops[5];
-            SkChopQuadAtHalf(p, chops);
-            this->quadraticTo(chops);
-            this->quadraticTo(chops + 2);
+            this->chopQuadraticTo(p);
             return;
         }
         SkPoint cubic[4];
@@ -83,22 +75,12 @@ public:
                                                fMaxParametricSegments_pow4);
     }
 
-    void conicTo(const SkPoint p[3], float w) {
-        if (!fCullTest.areVisible3(p)) {
-            // The stroke is out of view. Discard it.
-            this->discardStroke(p, 3);
-            return;
-        }
-        float numParametricSegments_pow2 = GrWangsFormula::conic_pow2(1/fParametricPrecision, p, w);
-        float numParametricSegments_pow4 = numParametricSegments_pow2 * numParametricSegments_pow2;
+    SK_ALWAYS_INLINE void conicTo(const SkPoint p[3], float w) {
+        float n = GrWangsFormula::conic_pow2(1/fParametricPrecision, p, w);
+        float numParametricSegments_pow4 = n*n;
         if (numParametricSegments_pow4 > kMaxParametricSegments_pow4) {
-            SkConic chops[2];
-            if (SkConic(p, w).chopAt(.5f, chops)) {
-                this->conicTo(chops[0].fPts, chops[0].fW);
-                this->conicTo(chops[1].fPts, chops[1].fW);
-                return;
-            }
-            numParametricSegments_pow4 = kMaxParametricSegments_pow4;
+            this->chopConicTo({p, w});
+            return;
         }
         SkPoint conic[4];
         GrPathShader::WriteConicPatch(p, w, conic);
@@ -108,18 +90,10 @@ public:
                                                fMaxParametricSegments_pow4);
     }
 
-    void cubicConvex180To(const SkPoint p[4]) {
-        if (!fCullTest.areVisible4(p)) {
-            // The stroke is out of view. Discard it.
-            this->discardStroke(p, 4);
-            return;
-        }
+    SK_ALWAYS_INLINE void cubicConvex180To(const SkPoint p[4]) {
         float numParametricSegments_pow4 = GrWangsFormula::cubic_pow4(fParametricPrecision, p);
         if (numParametricSegments_pow4 > kMaxParametricSegments_pow4) {
-            SkPoint chops[7];
-            SkChopCubicAtHalf(p, chops);
-            this->cubicConvex180To(chops);
-            this->cubicConvex180To(chops + 3);
+            this->chopCubicConvex180To(p);
             return;
         }
         SkPoint endControlPoint = (p[3] != p[2]) ? p[2] : (p[2] != p[1]) ? p[1] : p[0];
@@ -158,7 +132,47 @@ public:
     }
 
 private:
-    void writeStroke(const SkPoint p[4], SkPoint endControlPoint) {
+    void chopQuadraticTo(const SkPoint p[3]) {
+        SkPoint chops[5];
+        SkChopQuadAtHalf(p, chops);
+        for (int i = 0; i < 2; ++i) {
+            const SkPoint* q = chops + i*2;
+            if (fCullTest.areVisible3(q)) {
+                this->quadraticTo(q);
+            } else {
+                this->discardStroke(q, 3);
+            }
+        }
+    }
+
+    void chopConicTo(const SkConic& conic) {
+        SkConic chops[2];
+        if (!conic.chopAt(.5f, chops)) {
+            return;
+        }
+        for (int i = 0; i < 2; ++i) {
+            if (fCullTest.areVisible3(chops[i].fPts)) {
+                this->conicTo(chops[i].fPts, chops[i].fW);
+            } else {
+                this->discardStroke(chops[i].fPts, 3);
+            }
+        }
+    }
+
+    void chopCubicConvex180To(const SkPoint p[4]) {
+        SkPoint chops[7];
+        SkChopCubicAtHalf(p, chops);
+        for (int i = 0; i < 2; ++i) {
+            const SkPoint* c = chops + i*3;
+            if (fCullTest.areVisible4(c)) {
+                this->cubicConvex180To(c);
+            } else {
+                this->discardStroke(c, 4);
+            }
+        }
+    }
+
+    SK_ALWAYS_INLINE void writeStroke(const SkPoint p[4], SkPoint endControlPoint) {
         if (!fHasLastControlPoint) {
             // We don't know the previous control point yet to use for the join. Defer writing out
             // this stroke until the end.
@@ -173,7 +187,7 @@ private:
         fLastControlPoint = endControlPoint;
     }
 
-    void writeDynamicAttribs(GrVertexWriter* writer) {
+    SK_ALWAYS_INLINE void writeDynamicAttribs(GrVertexWriter* writer) {
         if (fShaderFlags & ShaderFlags::kDynamicStroke) {
             writer->write(fDynamicStroke);
         }
