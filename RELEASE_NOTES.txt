@@ -4,6 +4,12 @@ This file includes a list of high level updates for each milestone release.
 
 * * *
 
+Milestone 93
+------------
+  *
+
+* * *
+
 Milestone 92
 ------------
   * Hides SkPathEffect::computeFastBounds() from public API; external subclasses of SkPathEffect

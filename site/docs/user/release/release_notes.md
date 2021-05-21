@@ -10,6 +10,33 @@ This page includes a list of high level updates for each milestone release.
 
 * * *
 
+Milestone 92
+------------
+  * Hides SkPathEffect::computeFastBounds() from public API; external subclasses of SkPathEffect
+    must implement onComputeFastBounds() but can return false to signal it's not computable.
+    https://review.skia.org/406140
+
+  * Add SkM44::RectToRect constructor (SkM44's equivalent to SkMatrix::RectToRect)
+    https://review.skia.org/402957
+
+  * Metal support has been removed for versions of iOS older than 10.0 and MacOS older than 10.14.
+    https://review.skia.org/401816
+
+  * Removed custom attributes from SkVertices and the corresponding `varying` feature from
+    SkRuntimeEffect.
+    https://review.skia.org/398222
+
+  * Dropped support for mixed samples. Mixed samples is no longer relevant for Ganesh. DMSAA and the
+    new Ganesh architecture both rely on full MSAA, and any platform where mixed samples is
+    supported will ultimately not use the old architecture.
+
+  * SkRuntimeEffect::Make has been removed. It is replaced by MakeForShader and MakeForColorFilter.
+    These functions do stricter error checking on the SkSL, to ensure it is valid for a particular
+    stage of the Skia pipeline.
+    https://review.skia.org/402156
+
+* * *
+
 Milestone 91
 ------------
   * The SkSL DSL API has been moved into public headers, although it is still under active
