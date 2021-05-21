@@ -8,23 +8,11 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
+#include "modules/androidkit/src/Utils.h"
 
 #include <jni.h>
 
 namespace {
-
-SkSamplingOptions sampling_opts(jint desc, jfloat coeffB, jfloat coeffC) {
-    if (desc & 0x01) {
-        return SkSamplingOptions(SkCubicResampler{coeffB, coeffC});
-    }
-
-    const auto fm = static_cast<SkFilterMode>((desc >> 1) & 0x01);
-    SkASSERT(fm <= SkFilterMode::kLast);
-    const auto mm = static_cast<SkMipmapMode>((desc >> 2) & 0x03);
-    SkASSERT(mm <= SkMipmapMode::kLast);
-
-    return SkSamplingOptions(fm, mm);
-}
 
 jint Canvas_GetWidth(JNIEnv* env, jobject, jlong native_instance) {
     const auto* canvas = reinterpret_cast<const SkCanvas*>(native_instance);
@@ -99,7 +87,8 @@ void Canvas_DrawImage(JNIEnv* env, jobject, jlong native_instance, jlong native_
     auto*  image = reinterpret_cast<SkImage *>(native_image);
 
     if (canvas && image) {
-        canvas->drawImage(image, x, y, sampling_opts(sampling_desc, sampling_b, sampling_c));
+        canvas->drawImage(image, x, y,
+            androidkit::utils::SamplingOptions(sampling_desc, sampling_b, sampling_c));
     }
 }
 
