@@ -8,9 +8,10 @@
 #ifndef SkOpPE_DEFINED
 #define SkOpPE_DEFINED
 
-#include "include/effects/SkOpPathEffect.h"
+#include "include/pathops/SkPathOps.h"
+#include "src/core/SkPathEffectBase.h"
 
-class SkOpPE : public SkPathEffect {
+class SkOpPE : public SkPathEffectBase {
 public:
     SkOpPE(sk_sp<SkPathEffect> one, sk_sp<SkPathEffect> two, SkPathOp op);
 
@@ -28,10 +29,10 @@ private:
     sk_sp<SkPathEffect> fTwo;
     SkPathOp            fOp;
 
-    using INHERITED = SkPathEffect;
+    using INHERITED = SkPathEffectBase;
 };
 
-class SkMatrixPE : public SkPathEffect {
+class SkMatrixPE : public SkPathEffectBase {
 public:
     SkMatrixPE(const SkMatrix&);
 
@@ -51,10 +52,10 @@ private:
 
     SkMatrix    fMatrix;
 
-    using INHERITED = SkPathEffect;
+    using INHERITED = SkPathEffectBase;
 };
 
-class SkStrokePE : public SkPathEffect {
+class SkStrokePE : public SkPathEffectBase {
 public:
     SkStrokePE(SkScalar width, SkPaint::Join, SkPaint::Cap, SkScalar miter);
 
@@ -72,10 +73,10 @@ private:
     SkPaint::Join   fJoin;
     SkPaint::Cap    fCap;
 
-    using INHERITED = SkPathEffect;
+    using INHERITED = SkPathEffectBase;
 };
 
-class SkStrokeAndFillPE : public SkPathEffect {
+class SkStrokeAndFillPE : public SkPathEffectBase {
 public:
     SkStrokeAndFillPE() {}
 
@@ -91,7 +92,7 @@ private:
         return false;
     }
 
-    using INHERITED = SkPathEffect;
+    using INHERITED = SkPathEffectBase;
 };
 
 #endif

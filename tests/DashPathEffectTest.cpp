@@ -19,6 +19,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkDashPathEffect.h"
+#include "src/core/SkPathEffectBase.h"
 #include "tests/Test.h"
 
 // crbug.com/348821 was rooted in SkDashPathEffect refusing to flatten and unflatten itself when
@@ -75,13 +76,13 @@ DEF_TEST(DashPathEffectTest_asPoints, r) {
     for (int i = 0; i < kNumMats; ++i) {
         for (int j = 0; j < (int)SK_ARRAY_COUNT(testCases); ++j) {
             for (int k = 0; k < 2; ++k) {  // exercise alternating endpoints
-                SkPathEffect::PointData results;
+                SkPathEffectBase::PointData results;
                 SkPath src;
 
                 src.moveTo(testCases[j].fPts[k]);
                 src.lineTo(testCases[j].fPts[(k+1)%2]);
 
-                bool actualResult = dash->asPoints(&results, src, rec, mats[i], &cull);
+                bool actualResult = as_PEB(dash)->asPoints(&results, src, rec, mats[i], &cull);
                 if (i < 2) {
                     REPORTER_ASSERT(r, actualResult == testCases[j].fExpectedResult);
                 } else {

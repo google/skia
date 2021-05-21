@@ -12,12 +12,12 @@
 
 #if GR_TEST_UTILS
 
-#include "include/core/SkPathEffect.h"
 #include "include/core/SkStrokeRec.h"
 #include "include/private/SkMacros.h"
 #include "include/private/SkTemplates.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkMatrixProvider.h"
+#include "src/core/SkPathEffectBase.h"
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrFPArgs.h"
 #include "src/gpu/GrSamplerState.h"
@@ -67,7 +67,7 @@ private:
 
 // We have a simplified dash path effect here to avoid relying on SkDashPathEffect which
 // is in the optional build target effects.
-class TestDashPathEffect : public SkPathEffect {
+class TestDashPathEffect : public SkPathEffectBase {
 public:
     static sk_sp<SkPathEffect> Make(const SkScalar* intervals, int count, SkScalar phase) {
         return sk_sp<SkPathEffect>(new TestDashPathEffect(intervals, count, phase));

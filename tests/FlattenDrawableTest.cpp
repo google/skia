@@ -11,6 +11,7 @@
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkStream.h"
+#include "src/core/SkPathEffectBase.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 #include "tests/Test.h"
@@ -291,7 +292,7 @@ DEF_TEST(Flattenable_EmptyDeserialze, reporter) {
     auto data = SkData::MakeEmpty();
 
     #define test(name)  REPORTER_ASSERT(reporter, !name::Deserialize(data->data(), data->size()))
-    test(SkPathEffect);
+    test(SkPathEffectBase);
     test(SkMaskFilter);
     test(SkShaderBase); // todo: make this just be shader!
     test(SkColorFilterBase);

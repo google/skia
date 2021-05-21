@@ -6,7 +6,7 @@
  */
 
 #include "include/core/SkStrokeRec.h"
-#include "src/core/SkPathEffectPriv.h"
+#include "include/effects/SkOpPathEffect.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkWriteBuffer.h"
@@ -42,16 +42,16 @@ bool SkOpPE::onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
 
 bool SkOpPE::computeFastBounds(SkRect* bounds) const {
     if (!bounds) {
-        return (!SkToBool(fOne) || SkPathEffectPriv::ComputeFastBounds(fOne.get(), nullptr)) &&
-               (!SkToBool(fTwo) || SkPathEffectPriv::ComputeFastBounds(fTwo.get(), nullptr));
+        return (!SkToBool(fOne) || as_PEB(fOne)->computeFastBounds(nullptr)) &&
+               (!SkToBool(fTwo) || as_PEB(fTwo)->computeFastBounds(nullptr));
     }
 
     // bounds will hold the result of the fOne while b2 holds the result of fTwo's fast bounds
     SkRect b2 = *bounds;
-    if (fOne && !SkPathEffectPriv::ComputeFastBounds(fOne.get(), bounds)) {
+    if (fOne && !as_PEB(fOne)->computeFastBounds(bounds)) {
         return false;
     }
-    if (fTwo && !SkPathEffectPriv::ComputeFastBounds(fTwo.get(), &b2)) {
+    if (fTwo && !as_PEB(fTwo)->computeFastBounds(&b2)) {
         return false;
     }
 
