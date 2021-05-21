@@ -282,9 +282,9 @@ public:
         return fRewriteMatrixVectorMultiply;
     }
 
-    bool fRewriteMatrix2x2Comparisons = false;
-    bool rewriteMatrix2x2Comparisons() const {
-        return fRewriteMatrix2x2Comparisons;
+    bool fRewriteMatrixComparisons = false;
+    bool rewriteMatrixComparisons() const {
+        return fRewriteMatrixComparisons;
     }
 };
 
@@ -439,9 +439,9 @@ public:
         return result;
     }
 
-    static ShaderCapsPointer RewriteMatrix2x2Comparisons() {
+    static ShaderCapsPointer RewriteMatrixComparisons() {
         ShaderCapsPointer result = MakeShaderCaps();
-        result->fRewriteMatrix2x2Comparisons = true;
+        result->fRewriteMatrixComparisons = true;
         result->fUsesPrecisionModifiers = true;
         return result;
     }

@@ -1,9 +1,11 @@
-/*#pragma settings RewriteMatrix2x2Comparisons*/
+/*#pragma settings RewriteMatrixComparisons*/
 
-// This is a clone of MatrixEquality.sksl.
+// This is patterned on MatrixEquality.sksl.
 uniform half4 colorGreen, colorRed;
 uniform half2x2 testHalf2x2;
 uniform float2x2 testFloat2x2;
+uniform half3x3 testHalf3x3;
+uniform float4x2 testFloat4x2;
 
 bool test_equality() {
     bool ok = true;
@@ -11,6 +13,8 @@ bool test_equality() {
     ok = ok && testFloat2x2 == half2x2(5,6,7,8);
     ok = ok && testHalf2x2 != half2x2(123);
     ok = ok && testFloat2x2 != half2x2(456);
+    ok = ok && testHalf3x3 == half3x3(1,2,3,4,5,6,7,8,9);
+    ok = ok && testFloat4x2 != float4x2(1,2,3,4,5,6,7,8);
     return ok;
 }
 
