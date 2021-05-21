@@ -635,8 +635,6 @@ void CPPCodeGenerator::addUniform(const Variable& var) {
     }
 }
 
-void CPPCodeGenerator::writeInputVars() {
-}
 
 void CPPCodeGenerator::writePrivateVars() {
     for (const ProgramElement* p : fProgram.elements()) {

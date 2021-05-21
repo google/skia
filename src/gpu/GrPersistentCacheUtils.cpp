@@ -20,7 +20,7 @@ int GetCurrentVersion() {
     // Program::Inputs struct in any way, you must increment kCurrentVersion to invalidate the
     // outdated persistent cache files. The KnownSkSLProgramInputs struct must also be updated to
     // match the new contents of Program::Inputs.
-    struct KnownSkSLProgramInputs { bool height, flipY; };
+    struct KnownSkSLProgramInputs { bool flipY; };
     static_assert(sizeof(SkSL::Program::Inputs) == sizeof(KnownSkSLProgramInputs));
 
     return kCurrentVersion;
