@@ -72,10 +72,9 @@ private:
         }
         fCurrChunkVertexCount = 0;
         GrVertexChunk* chunk = &fChunks->push_back();
-        fCurrChunkVertexWriter = {fTarget->makeVertexSpaceAtLeast(fStride,
-                                                                  fMinVerticesPerChunk * minCount,
-                                                                  fMinVerticesPerChunk * minCount,
-                                                                  &chunk->fBuffer,
+        int minAllocCount = std::max(minCount, fMinVerticesPerChunk);
+        fCurrChunkVertexWriter = {fTarget->makeVertexSpaceAtLeast(fStride, minAllocCount,
+                                                                  minAllocCount, &chunk->fBuffer,
                                                                   &chunk->fBaseVertex,
                                                                   &fCurrChunkVertexCapacity)};
         if (!fCurrChunkVertexWriter || !chunk->fBuffer || fCurrChunkVertexCapacity < minCount) {
@@ -92,7 +91,7 @@ private:
     GrMeshDrawOp::Target* const fTarget;
     GrVertexChunkArray* const fChunks;
     const size_t fStride;
-    size_t fMinVerticesPerChunk;
+    int fMinVerticesPerChunk;
 
     GrVertexWriter fCurrChunkVertexWriter;
     int fCurrChunkVertexCount = 0;
