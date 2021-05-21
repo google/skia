@@ -122,6 +122,7 @@ sksl_error_tests = [
   "/sksl/errors/FloatRemainder.sksl",
   "/sksl/errors/ForInitStmt.sksl",
   "/sksl/errors/ForTypeMismatch.sksl",
+  "/sksl/errors/FunctionParameterOfVoid.sksl",
   "/sksl/errors/GenericArgumentMismatch.sksl",
   "/sksl/errors/IfTypeMismatch.sksl",
   "/sksl/errors/InVarWithInitializerExpression.sksl",

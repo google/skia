@@ -152,6 +152,8 @@ private:
 
     ASTNode::ID declaration();
 
+    ASTNode::ID functionDeclarationEnd(Modifiers modifiers, ASTNode::ID type, const Token& name);
+
     struct VarDeclarationsPrefix {
         Modifiers modifiers;
         ASTNode::ID type;

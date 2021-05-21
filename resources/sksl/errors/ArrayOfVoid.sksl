@@ -3,8 +3,6 @@
 void a[2];
 void[2] b;
 
-void funcD(void d[2]) {}
-void funcE(void[2] e) {}
 void[2] funcF() {}
 void funcG() { void g[2]; }
 void funcH() { void[2] h; }

@@ -431,8 +431,8 @@ ASTNode::ID Parser::enumDeclaration() {
     return result;
 }
 
-/* enumDeclaration | modifiers (structVarDeclaration | type IDENTIFIER ((LPAREN parameter
-   (COMMA parameter)* RPAREN (block | SEMICOLON)) | SEMICOLON) | interfaceBlock) */
+/* enumDeclaration | modifiers (interfaceBlock | structVarDeclaration | SEMICOLON |
+   type IDENTIFIER (varDeclarationEnd | LPAREN functionDeclarationEnd))) */
 ASTNode::ID Parser::declaration() {
     Token lookahead = this->peek();
     switch (lookahead.fKind) {
@@ -466,38 +466,51 @@ ASTNode::ID Parser::declaration() {
         return ASTNode::ID::Invalid();
     }
     if (this->checkNext(Token::Kind::TK_LPAREN)) {
-        ASTNode::ID result = this->createNode(name.fOffset, ASTNode::Kind::kFunction);
-        ASTNode::FunctionData fd(modifiers, this->text(name), 0);
-        getNode(result).addChild(type);
-        if (this->peek().fKind != Token::Kind::TK_RPAREN) {
-            for (;;) {
-                ASTNode::ID parameter = this->parameter();
-                if (!parameter) {
-                    return ASTNode::ID::Invalid();
-                }
-                ++fd.fParameterCount;
-                getNode(result).addChild(parameter);
-                if (!this->checkNext(Token::Kind::TK_COMMA)) {
-                    break;
-                }
-            }
-        }
-        getNode(result).setFunctionData(fd);
-        if (!this->expect(Token::Kind::TK_RPAREN, "')'")) {
-            return ASTNode::ID::Invalid();
-        }
-        ASTNode::ID body;
-        if (!this->checkNext(Token::Kind::TK_SEMICOLON)) {
-            body = this->block();
-            if (!body) {
-                return ASTNode::ID::Invalid();
-            }
-            getNode(result).addChild(body);
-        }
-        return result;
+        return this->functionDeclarationEnd(modifiers, type, name);
     } else {
         return this->varDeclarationEnd(modifiers, type, this->text(name));
     }
+}
+
+/* (RPAREN | VOID RPAREN | parameter (COMMA parameter)* RPAREN) (block | SEMICOLON) */
+ASTNode::ID Parser::functionDeclarationEnd(Modifiers modifiers,
+                                           ASTNode::ID type,
+                                           const Token& name) {
+    ASTNode::ID result = this->createNode(name.fOffset, ASTNode::Kind::kFunction);
+    ASTNode::FunctionData fd(modifiers, this->text(name), 0);
+    getNode(result).addChild(type);
+    Token lookahead = this->peek();
+    if (lookahead.fKind == Token::Kind::TK_RPAREN) {
+        // `()` means no parameters at all.
+    } else if (lookahead.fKind == Token::Kind::TK_IDENTIFIER && this->text(lookahead) == "void") {
+        // `(void)` also means no parameters at all.
+        this->nextToken();
+    } else {
+        for (;;) {
+            ASTNode::ID parameter = this->parameter();
+            if (!parameter) {
+                return ASTNode::ID::Invalid();
+            }
+            ++fd.fParameterCount;
+            getNode(result).addChild(parameter);
+            if (!this->checkNext(Token::Kind::TK_COMMA)) {
+                break;
+            }
+        }
+    }
+    getNode(result).setFunctionData(fd);
+    if (!this->expect(Token::Kind::TK_RPAREN, "')'")) {
+        return ASTNode::ID::Invalid();
+    }
+    ASTNode::ID body;
+    if (!this->checkNext(Token::Kind::TK_SEMICOLON)) {
+        body = this->block();
+        if (!body) {
+            return ASTNode::ID::Invalid();
+        }
+        getNode(result).addChild(body);
+    }
+    return result;
 }
 
 /* (varDeclarations | expressionStatement) */
