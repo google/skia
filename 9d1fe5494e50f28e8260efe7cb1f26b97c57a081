@@ -89,6 +89,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ed955922_f0f2ea0e",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Image.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-21T12:27:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "645535be_f9fed4e1",
+      "range": {
+        "startLine": 51,
+        "startChar": 46,
+        "endLine": 51,
+        "endChar": 58
+      },
+      "revId": "9d1fe5494e50f28e8260efe7cb1f26b97c57a081",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "09b588c6_c6105a75",
@@ -102,6 +126,30 @@
       "writtenOn": "2021-05-20T17:49:46Z",
       "side": 1,
       "message": "Suggest we move this out of shader.\n\nWe\u0027ve discovered that \u0027tiling\u0027 is really subclass specific (i.e. gradients, images)",
+      "range": {
+        "startLine": 13,
+        "startChar": 16,
+        "endLine": 13,
+        "endChar": 24
+      },
+      "revId": "9d1fe5494e50f28e8260efe7cb1f26b97c57a081",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "903725ef_5c454397",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Shader.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-21T12:27:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "09b588c6_c6105a75",
       "range": {
         "startLine": 13,
         "startChar": 16,
