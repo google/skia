@@ -72,11 +72,18 @@ private:
         }
         fCurrChunkVertexCount = 0;
         GrVertexChunk* chunk = &fChunks->push_back();
+<<<<<<< HEAD   (3f9032 Reland "Delete the index buffer from middle-out tessellation)
         fCurrChunkVertexWriter = {fTarget->makeVertexSpaceAtLeast(fStride,
                                                                   fMinVerticesPerChunk * minCount,
                                                                   fMinVerticesPerChunk * minCount,
                                                                   &chunk->fBuffer,
                                                                   &chunk->fBaseVertex,
+=======
+        int minAllocCount = std::max(minCount, fMinVerticesPerChunk);
+        fCurrChunkVertexWriter = {fTarget->makeVertexSpaceAtLeast(fStride, minAllocCount,
+                                                                  minAllocCount, &chunk->fBuffer,
+                                                                  &chunk->fBase,
+>>>>>>> CHANGE (1c933f Fix an egregious overallocation error in GrVertexChunkArray)
                                                                   &fCurrChunkVertexCapacity)};
         if (!fCurrChunkVertexWriter || !chunk->fBuffer || fCurrChunkVertexCapacity < minCount) {
             SkDebugf("WARNING: Failed to allocate vertex buffer for GrVertexChunk.\n");
@@ -92,7 +99,7 @@ private:
     GrMeshDrawOp::Target* const fTarget;
     GrVertexChunkArray* const fChunks;
     const size_t fStride;
-    size_t fMinVerticesPerChunk;
+    int fMinVerticesPerChunk;
 
     GrVertexWriter fCurrChunkVertexWriter;
     int fCurrChunkVertexCount = 0;
