@@ -14,6 +14,7 @@
 #include "include/effects/SkTrimPathEffect.h"
 #include "include/pathops/SkPathOps.h"
 #include "modules/sksg/src/SkSGTransformPriv.h"
+#include "src/core/SkPathEffectBase.h"
 #include "src/core/SkPathPriv.h"
 
 #include <cmath>

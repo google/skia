@@ -9,10 +9,11 @@
 #include "include/core/SkRegion.h"
 #include "include/core/SkStrokeRec.h"
 #include "include/effects/Sk2DPathEffect.h"
+#include "src/core/SkPathEffectBase.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 
-class Sk2DPathEffect : public SkPathEffect {
+class Sk2DPathEffect : public SkPathEffectBase {
 public:
     Sk2DPathEffect(const SkMatrix& mat) : fMatrix(mat) {
         // Calling invert will set the type mask on both matrices, making them thread safe.

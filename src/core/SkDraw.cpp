@@ -28,6 +28,7 @@
 #include "src/core/SkDrawProcs.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkMatrixUtils.h"
+#include "src/core/SkPathEffectBase.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkRectPriv.h"
@@ -437,13 +438,13 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
                     // most likely a dashed line - see if it is one of the ones
                     // we can accelerate
                     SkStrokeRec rec(paint);
-                    SkPathEffect::PointData pointData;
+                    SkPathEffectBase::PointData pointData;
 
                     SkPath path = SkPath::Line(pts[0], pts[1]);
 
                     SkRect cullRect = SkRect::Make(fRC->getBounds());
 
-                    if (paint.getPathEffect()->asPoints(&pointData, path, rec, ctm, &cullRect)) {
+                    if (as_PEB(paint.getPathEffect())->asPoints(&pointData, path, rec, ctm, &cullRect)) {
                         // 'asPoints' managed to find some fast path
 
                         SkPaint newP(paint);
@@ -470,7 +471,7 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
                             // The rest of the dashed line can just be drawn as points
                             SkASSERT(pointData.fSize.fX == SkScalarHalf(newP.getStrokeWidth()));
 
-                            if (SkPathEffect::PointData::kCircles_PointFlag & pointData.fFlags) {
+                            if (SkPathEffectBase::PointData::kCircles_PointFlag & pointData.fFlags) {
                                 newP.setStrokeCap(SkPaint::kRound_Cap);
                             } else {
                                 newP.setStrokeCap(SkPaint::kButt_Cap);
@@ -491,7 +492,7 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
                             break;
                         } else {
                             // The rest of the dashed line must be drawn as rects
-                            SkASSERT(!(SkPathEffect::PointData::kCircles_PointFlag &
+                            SkASSERT(!(SkPathEffectBase::PointData::kCircles_PointFlag &
                                       pointData.fFlags));
 
                             SkRect r;

@@ -10,6 +10,7 @@
 #include "include/core/SkStrokeRec.h"
 #include "include/effects/SkDiscretePathEffect.h"
 #include "include/private/SkFixed.h"
+#include "src/core/SkPathEffectBase.h"
 #include "src/core/SkPointPriv.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
@@ -62,7 +63,7 @@ static void Perterb(SkPoint* p, const SkVector& tangent, SkScalar scale) {
     *p += normal;
 }
 
-class SK_API SkDiscretePathEffectImpl : public SkPathEffect {
+class SK_API SkDiscretePathEffectImpl : public SkPathEffectBase {
 public:
     SkDiscretePathEffectImpl(SkScalar segLength, SkScalar deviation, uint32_t seedAssist)
         : fSegLength(segLength), fPerterb(deviation), fSeedAssist(seedAssist)
@@ -157,7 +158,7 @@ private:
     /* Caller-supplied 32 bit seed assist */
     const uint32_t fSeedAssist;
 
-    using INHERITED = SkPathEffect;
+    using INHERITED = SkPathEffectBase;
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////

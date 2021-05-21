@@ -26,7 +26,7 @@
 #include "src/core/SkOpts.h"
 #include "src/core/SkPaintDefaults.h"
 #include "src/core/SkPaintPriv.h"
-#include "src/core/SkPathEffectPriv.h"
+#include "src/core/SkPathEffectBase.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSafeRange.h"
 #include "src/core/SkStringUtils.h"
@@ -373,7 +373,7 @@ bool SkPaint::canComputeFastBounds() const {
     }
     // Pass nullptr for the bounds to determine if they can be computed
     if (this->getPathEffect() &&
-        !SkPathEffectPriv::ComputeFastBounds(this->getPathEffect(), nullptr)) {
+        !as_PEB(this->getPathEffect())->computeFastBounds(nullptr)) {
         return false;
     }
     return true;
@@ -389,7 +389,7 @@ const SkRect& SkPaint::doComputeFastBounds(const SkRect& origSrc,
     SkRect tmpSrc;
     if (this->getPathEffect()) {
         tmpSrc = origSrc;
-        SkAssertResult(SkPathEffectPriv::ComputeFastBounds(this->getPathEffect(), &tmpSrc));
+        SkAssertResult(as_PEB(this->getPathEffect())->computeFastBounds(&tmpSrc));
         src = &tmpSrc;
     }
 
