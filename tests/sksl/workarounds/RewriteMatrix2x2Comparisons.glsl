@@ -8,9 +8,9 @@ uniform mediump mat2 testHalf2x2;
 uniform highp mat2 testFloat2x2;
 mediump vec4 main() {
     bool _0_ok = true;
-    _0_ok = _0_ok && testHalf2x2 == mat2(1.0, 2.0, 3.0, 4.0);
-    _0_ok = _0_ok && testFloat2x2 == mat2(5.0, 6.0, 7.0, 8.0);
-    _0_ok = _0_ok && testHalf2x2 != mat2(123.0);
-    _0_ok = _0_ok && testFloat2x2 != mat2(456.0);
+    _0_ok = _0_ok && (vec4(testHalf2x2).wzyx == vec4(mat2(1.0, 2.0, 3.0, 4.0)).wzyx);
+    _0_ok = _0_ok && (vec4(testFloat2x2).wzyx == vec4(mat2(5.0, 6.0, 7.0, 8.0)).wzyx);
+    _0_ok = _0_ok && (vec4(testHalf2x2).wzyx != vec4(mat2(123.0)).wzyx);
+    _0_ok = _0_ok && (vec4(testFloat2x2).wzyx != vec4(mat2(456.0)).wzyx);
     return _0_ok ? colorGreen : colorRed;
 }
