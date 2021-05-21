@@ -32,18 +32,20 @@ struct SampleUsage {
     // Make a SampleUsage that corresponds to no sampling of the child at all
     SampleUsage() = default;
 
-    // Child is sampled with a matrix whose value is uniform (some expression only involving
-    // literals and uniform variables).
-    static SampleUsage UniformMatrix(std::string expression, bool hasPerspective = true) {
-        return SampleUsage(Kind::kUniformMatrix, std::move(expression), hasPerspective);
+    // Child is sampled with a matrix whose value is uniform. The name is fixed.
+    static SampleUsage UniformMatrix(bool hasPerspective) {
+        return SampleUsage(Kind::kUniformMatrix, hasPerspective);
     }
 
+    // Arbitrary name used by all uniform sampling matrices
+    static const char* MatrixUniformName() { return "matrix"; }
+
     static SampleUsage Explicit() {
-        return SampleUsage(Kind::kExplicit, "", false);
+        return SampleUsage(Kind::kExplicit, false);
     }
 
     static SampleUsage PassThrough() {
-        return SampleUsage(Kind::kPassThrough, "", false);
+        return SampleUsage(Kind::kPassThrough, false);
     }
 
     SampleUsage merge(const SampleUsage& other);
@@ -54,16 +56,11 @@ struct SampleUsage {
     bool isUniformMatrix() const { return fKind == Kind::kUniformMatrix; }
 
     Kind fKind = Kind::kNone;
-    // The uniform expression representing the matrix, or empty for non-matrix sampling
-    std::string fExpression;
-    bool fHasPerspective = false;
+    bool fHasPerspective = false;  // Only valid if fKind is kUniformMatrix
 
-    SampleUsage(Kind kind, std::string expression, bool hasPerspective)
-            : fKind(kind), fExpression(expression), fHasPerspective(hasPerspective) {
-        if (kind == Kind::kUniformMatrix) {
-            SkASSERT(!fExpression.empty());
-        } else {
-            SkASSERT(fExpression.empty() && !fHasPerspective);
+    SampleUsage(Kind kind, bool hasPerspective) : fKind(kind), fHasPerspective(hasPerspective) {
+        if (kind != Kind::kUniformMatrix) {
+            SkASSERT(!fHasPerspective);
         }
     }
 
