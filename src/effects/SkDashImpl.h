@@ -8,9 +8,9 @@
 #ifndef SkDashImpl_DEFINED
 #define SkDashImpl_DEFINED
 
-#include "include/core/SkPathEffect.h"
+#include "src/core/SkPathEffectBase.h"
 
-class SkDashImpl : public SkPathEffect {
+class SkDashImpl : public SkPathEffectBase {
 public:
     SkDashImpl(const SkScalar intervals[], int count, SkScalar phase);
 
@@ -42,7 +42,7 @@ private:
     int32_t     fInitialDashIndex;
     SkScalar    fIntervalLength;
 
-    using INHERITED = SkPathEffect;
+    using INHERITED = SkPathEffectBase;
 };
 
 #endif

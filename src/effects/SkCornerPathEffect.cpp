@@ -9,6 +9,7 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkPoint.h"
 #include "include/effects/SkCornerPathEffect.h"
+#include "src/core/SkPathEffectBase.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 
@@ -26,7 +27,7 @@ static bool ComputeStep(const SkPoint& a, const SkPoint& b, SkScalar radius,
     }
 }
 
-class SkCornerPathEffectImpl : public SkPathEffect {
+class SkCornerPathEffectImpl : public SkPathEffectBase {
 public:
     explicit SkCornerPathEffectImpl(SkScalar radius) : fRadius(radius) {
         SkASSERT(radius > 0);
@@ -162,7 +163,7 @@ public:
 private:
     const SkScalar fRadius;
 
-    using INHERITED = SkPathEffect;
+    using INHERITED = SkPathEffectBase;
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////

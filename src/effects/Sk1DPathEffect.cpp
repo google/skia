@@ -9,6 +9,7 @@
 #include "include/core/SkPathMeasure.h"
 #include "include/core/SkStrokeRec.h"
 #include "include/effects/Sk1DPathEffect.h"
+#include "src/core/SkPathEffectBase.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 
@@ -16,7 +17,7 @@
 // Put in a governor to limit crash values from looping too long (and allocating too much ram).
 #define MAX_REASONABLE_ITERATIONS   100000
 
-class Sk1DPathEffect : public SkPathEffect {
+class Sk1DPathEffect : public SkPathEffectBase {
 public:
 protected:
     bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*) const override {
