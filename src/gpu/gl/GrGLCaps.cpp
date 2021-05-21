@@ -3812,7 +3812,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         shaderCaps->fInBlendModesFailRandomlyForAllZeroVec = true;
     }
 
-    // The Adreno 5xx and 6xx produce incorrect results when comparing a pair of 2x2 matrices.
+    // The Adreno 5xx and 6xx produce incorrect results when comparing a pair of matrices.
     if (ctxInfo.renderer() == GrGLRenderer::kAdreno530 ||
         ctxInfo.renderer() == GrGLRenderer::kAdreno5xx_other ||
         ctxInfo.renderer() == GrGLRenderer::kAdreno615 ||
@@ -3820,7 +3820,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         ctxInfo.renderer() == GrGLRenderer::kAdreno630 ||
         ctxInfo.renderer() == GrGLRenderer::kAdreno640 ||
         ctxInfo.renderer() == GrGLRenderer::kAdreno6xx_other) {
-        shaderCaps->fRewriteMatrix2x2Comparisons = true;
+        shaderCaps->fRewriteMatrixComparisons = true;
     }
 
     // We've seen Adreno 3xx devices produce incorrect (flipped) values for gl_FragCoord, in some
