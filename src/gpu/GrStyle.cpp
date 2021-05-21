@@ -148,7 +148,7 @@ bool GrStyle::applyPathEffect(SkPath* dst, SkStrokeRec* strokeRec, const SkPath&
                                         SkDashPath::StrokeRecApplication::kDisallow)) {
             return false;
         }
-    } else if (!fPathEffect->filterPath(dst, src, strokeRec, nullptr)) {
+    } else if (!as_PEB(fPathEffect)->filterPath(dst, src, strokeRec, nullptr)) {
         return false;
     }
     dst->setIsVolatile(true);

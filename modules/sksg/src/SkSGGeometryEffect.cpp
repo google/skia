@@ -14,6 +14,7 @@
 #include "include/effects/SkTrimPathEffect.h"
 #include "include/pathops/SkPathOps.h"
 #include "modules/sksg/src/SkSGTransformPriv.h"
+#include "src/core/SkPathEffectBase.h"
 #include "src/core/SkPathPriv.h"
 
 #include <cmath>
@@ -63,7 +64,7 @@ SkPath TrimEffect::onRevalidateEffect(const sk_sp<GeometryNode>& child) {
 
     if (const auto trim = SkTrimPathEffect::Make(fStart, fStop, fMode)) {
         SkStrokeRec rec(SkStrokeRec::kHairline_InitStyle);
-        SkAssertResult(trim->filterPath(&path, path, &rec, nullptr));
+        SkAssertResult(as_PEB(trim)->filterPath(&path, path, &rec, nullptr));
     }
 
     return path;
@@ -120,7 +121,7 @@ SkPath DashEffect::onRevalidateEffect(const sk_sp<GeometryNode>& child) {
 
     if (const auto dash_patheffect = make_dash(fIntervals, fPhase)) {
         SkStrokeRec rec(SkStrokeRec::kHairline_InitStyle);
-        dash_patheffect->filterPath(&path, path, &rec, nullptr);
+        as_PEB(dash_patheffect)->filterPath(&path, path, &rec, nullptr);
     }
 
     return path;
@@ -131,7 +132,7 @@ SkPath RoundEffect::onRevalidateEffect(const sk_sp<GeometryNode>& child) {
 
     if (const auto round = SkCornerPathEffect::Make(fRadius)) {
         SkStrokeRec rec(SkStrokeRec::kHairline_InitStyle);
-        SkAssertResult(round->filterPath(&path, path, &rec, nullptr));
+        SkAssertResult(as_PEB(round)->filterPath(&path, path, &rec, nullptr));
     }
 
     return path;

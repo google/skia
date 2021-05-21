@@ -8,19 +8,16 @@
 #ifndef SkTrimImpl_DEFINED
 #define SkTrimImpl_DEFINED
 
-#include "include/core/SkPathEffect.h"
-
 #include "include/effects/SkTrimPathEffect.h"
+#include "src/core/SkPathEffectBase.h"
 
-class SkTrimPE : public SkPathEffect {
+class SkTrimPE : public SkPathEffectBase {
 public:
     SkTrimPE(SkScalar startT, SkScalar stopT, SkTrimPathEffect::Mode);
 
 protected:
     void flatten(SkWriteBuffer&) const override;
     bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*) const override;
-
-
 
 private:
     SK_FLATTENABLE_HOOKS(SkTrimPE)
@@ -35,7 +32,7 @@ private:
                                  fStopT;
     const SkTrimPathEffect::Mode fMode;
 
-    using INHERITED = SkPathEffect;
+    using INHERITED = SkPathEffectBase;
 };
 
 #endif

@@ -11,6 +11,7 @@
 #include "include/effects/SkDashPathEffect.h"
 #include "include/pathops/SkPathOps.h"
 #include "src/core/SkClipOpPriv.h"
+#include "src/core/SkPathEffectBase.h"
 #include "src/core/SkRectPriv.h"
 #include "src/gpu/geometry/GrStyledShape.h"
 #include "tests/Test.h"
@@ -1155,7 +1156,7 @@ void test_path_effect_makes_rrect(skiatest::Reporter* reporter, const Geo& geo) 
      * This path effect takes any input path and turns it into a rrect. It passes through stroke
      * info.
      */
-    class RRectPathEffect : SkPathEffect {
+    class RRectPathEffect : SkPathEffectBase {
     public:
         static const SkRRect& RRect() {
             static const SkRRect kRRect = SkRRect::MakeRectXY(SkRect::MakeWH(12, 12), 3, 5);
@@ -1245,7 +1246,7 @@ void test_unknown_path_effect(skiatest::Reporter* reporter, const Geo& geo) {
     /**
      * This path effect just adds two lineTos to the input path.
      */
-    class AddLineTosPathEffect : SkPathEffect {
+    class AddLineTosPathEffect : SkPathEffectBase {
     public:
         static sk_sp<SkPathEffect> Make() { return sk_sp<SkPathEffect>(new AddLineTosPathEffect); }
         Factory getFactory() const override { return nullptr; }
@@ -1291,7 +1292,7 @@ void test_make_hairline_path_effect(skiatest::Reporter* reporter, const Geo& geo
     /**
      * This path effect just changes the stroke rec to hairline.
      */
-    class MakeHairlinePathEffect : SkPathEffect {
+    class MakeHairlinePathEffect : SkPathEffectBase {
     public:
         static sk_sp<SkPathEffect> Make() {
             return sk_sp<SkPathEffect>(new MakeHairlinePathEffect);
@@ -1376,7 +1377,7 @@ void test_path_effect_makes_empty_shape(skiatest::Reporter* reporter, const Geo&
     /**
      * This path effect returns an empty path (possibly inverted)
      */
-    class EmptyPathEffect : SkPathEffect {
+    class EmptyPathEffect : SkPathEffectBase {
     public:
         static sk_sp<SkPathEffect> Make(bool invert) {
             return sk_sp<SkPathEffect>(new EmptyPathEffect(invert));
@@ -1467,7 +1468,7 @@ void test_path_effect_fails(skiatest::Reporter* reporter, const Geo& geo) {
     /**
      * This path effect always fails to apply.
      */
-    class FailurePathEffect : SkPathEffect {
+    class FailurePathEffect : SkPathEffectBase {
     public:
         static sk_sp<SkPathEffect> Make() { return sk_sp<SkPathEffect>(new FailurePathEffect); }
         Factory getFactory() const override { return nullptr; }
