@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4f289e0e_03796a96",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 446,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-21T20:02:57Z",
+      "side": 1,
+      "message": "ie: sample(child) or sample(child, inputColor)",
+      "range": {
+        "startLine": 446,
+        "startChar": 0,
+        "endLine": 446,
+        "endChar": 39
+      },
+      "revId": "0f7e3be197e44ec0819a43a7cf369b1cf594517a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "35d6e306_230275f5",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 448,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-21T20:02:57Z",
+      "side": 1,
+      "message": "eg: sample(child, half4(1))",
+      "revId": "0f7e3be197e44ec0819a43a7cf369b1cf594517a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "55b0b117_e5d29424",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 453,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-21T20:02:57Z",
+      "side": 1,
+      "message": "eg: sample(child1, sample(child2))",
+      "revId": "0f7e3be197e44ec0819a43a7cf369b1cf594517a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
