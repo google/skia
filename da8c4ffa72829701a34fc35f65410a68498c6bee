@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cc9f41dd_181ff74c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-21T00:45:21Z",
+      "side": 1,
+      "message": "A nice idea to give us more options to play with!",
+      "revId": "da8c4ffa72829701a34fc35f65410a68498c6bee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5df292ca_cc915947",
+        "filename": "modules/canvaskit/WasmCommon.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-21T00:45:21Z",
+      "side": 1,
+      "message": "delete[] is not defined to be compatible with malloc (CanvasKit.Malloc), so if we want this trick, we will need to change this to alloc with malloc and free with free() (rather than using new/delete).\n\nA different approach (maybe trickier than we need, but not crazy) is to just take a \"deleter\" function-ptr instead. Then we can just call whatever in our destructor, and we won\u0027t care.",
+      "range": {
+        "startLine": 96,
+        "startChar": 11,
+        "endLine": 96,
+        "endChar": 21
+      },
+      "revId": "da8c4ffa72829701a34fc35f65410a68498c6bee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
