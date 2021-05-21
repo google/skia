@@ -58,7 +58,7 @@ static int max_segments_in_path(const SkPath& path) {
 // in the case where no additional vertices are introduced.
 static int max_triangles_in_inner_fan(const SkPath& path) {
     int maxEdgesInFan = max_segments_in_path(path);
-    return maxEdgesInFan - 2;  // An n-sided polygon is fanned by n-2 triangles.
+    return std::max(maxEdgesInFan - 2, 0);  // An n-sided polygon is fanned by n-2 triangles.
 }
 
 static int write_breadcrumb_triangles(
