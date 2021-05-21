@@ -7,6 +7,9 @@
 
 #include <jni.h>
 
+#include "include/core/SkSamplingOptions.h"
+#include "include/core/SkTileMode.h"
+
 namespace androidkit {
 namespace utils {
 
@@ -36,6 +39,9 @@ private:
     CString& operator=(CString&&) = delete;
     CString& operator=(const CString&) = delete;
 };
+
+SkSamplingOptions SamplingOptions(jint, jfloat, jfloat);
+SkTileMode TileMode(jint);
 
 } // namespace utils
 } // namespace androidkit
