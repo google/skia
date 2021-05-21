@@ -54,15 +54,28 @@ public:
     SK_ALWAYS_INLINE GrVertexWriter appendVertices(int count) {
         SkASSERT(count > 0);
         if (fCurrChunkVertexCount + count > fCurrChunkVertexCapacity && !this->allocChunk(count)) {
+            SkDEBUGCODE(fLastAppendAmount = 0;)
             return {nullptr};
         }
         SkASSERT(fCurrChunkVertexCount + count <= fCurrChunkVertexCapacity);
         fCurrChunkVertexCount += count;
+        SkDEBUGCODE(fLastAppendAmount = count;)
         return std::exchange(fCurrChunkVertexWriter,
                              fCurrChunkVertexWriter.makeOffset(fStride * count));
     }
 
     SK_ALWAYS_INLINE GrVertexWriter appendVertex() { return this->appendVertices(1); }
+
+    // Pops the most recent 'count' contiguous vertices. Since there is no guarantee of contiguity
+    // between appends, 'count' may be no larger than the most recent call to appendVertices().
+    void popVertices(int count) {
+        SkASSERT(count <= fLastAppendAmount);
+        SkASSERT(fLastAppendAmount <= fCurrChunkVertexCount);
+        SkASSERT(count >= 0);
+        fCurrChunkVertexCount -= count;
+        fCurrChunkVertexWriter = fCurrChunkVertexWriter.makeOffset(fStride * -count);
+        SkDEBUGCODE(fLastAppendAmount -= count;)
+    }
 
 private:
     bool allocChunk(int minCount) {
@@ -96,6 +109,8 @@ private:
     GrVertexWriter fCurrChunkVertexWriter;
     int fCurrChunkVertexCount = 0;
     int fCurrChunkVertexCapacity = 0;
+
+    SkDEBUGCODE(int fLastAppendAmount = 0;)
 };
 
 #endif

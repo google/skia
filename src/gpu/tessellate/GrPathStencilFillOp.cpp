@@ -152,7 +152,7 @@ void GrPathStencilFillOp::onPrepare(GrOpFlushState* flushState) {
         vertexAlloc.unlock(fFanVertexCount);
     }
 
-    fTessellator->prepare(flushState, fViewMatrix, fPath);
+    fTessellator->prepare(flushState, this->bounds(), fViewMatrix, fPath);
 }
 
 void GrPathStencilFillOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {

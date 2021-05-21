@@ -248,7 +248,7 @@ void GrPathInnerTriangulateOp::onPrepare(GrOpFlushState* flushState) {
 
     if (fTessellator) {
         // Must be called after polysToTriangles() in order for fFanBreadcrumbs to be complete.
-        fTessellator->prepare(flushState, fViewMatrix, fPath, &fFanBreadcrumbs);
+        fTessellator->prepare(flushState, this->bounds(), fViewMatrix, fPath, &fFanBreadcrumbs);
     }
 }
 
