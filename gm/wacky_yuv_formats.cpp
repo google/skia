@@ -1153,29 +1153,6 @@ DEF_GM(return new YUVMakeColorSpaceGM();)
 #include "src/core/SkAutoPixmapStorage.h"
 #include "tools/Resources.h"
 
-static void draw_into_alpha(const SkImage* img, sk_sp<SkColorFilter> cf, const SkPixmap& dst) {
-    auto canvas = SkCanvas::MakeRasterDirect(dst.info(), dst.writable_addr(), dst.rowBytes());
-    canvas->scale(1.0f * dst.width() / img->width(), 1.0f * dst.height() / img->height());
-    SkPaint paint;
-    paint.setColorFilter(cf);
-    paint.setBlendMode(SkBlendMode::kSrc);
-    canvas->drawImage(img, 0, 0, SkSamplingOptions(SkFilterMode::kLinear), &paint);
-}
-
-static void split_into_yuv(const SkImage* img, SkYUVColorSpace cs, const SkPixmap dst[3]) {
-    float m[20];
-    SkColorMatrix_RGB2YUV(cs, m);
-
-    memcpy(m + 15, m + 0, 5 * sizeof(float));   // copy Y into A
-    draw_into_alpha(img, SkColorFilters::Matrix(m), dst[0]);
-
-    memcpy(m + 15, m + 5, 5 * sizeof(float));   // copy U into A
-    draw_into_alpha(img, SkColorFilters::Matrix(m), dst[1]);
-
-    memcpy(m + 15, m + 10, 5 * sizeof(float));   // copy V into A
-    draw_into_alpha(img, SkColorFilters::Matrix(m), dst[2]);
-}
-
 static void draw_diff(SkCanvas* canvas, SkScalar x, SkScalar y,
                       const SkImage* a, const SkImage* b) {
     auto sh = SkShaders::Blend(SkBlendMode::kDifference,
@@ -1200,9 +1177,7 @@ static void draw_diff(SkCanvas* canvas, SkScalar x, SkScalar y,
 // resulting (recombined) images (gpu only for now).
 //
 class YUVSplitterGM : public skiagm::GM {
-    sk_sp<SkImage>      fOrig;
-    SkAutoPixmapStorage fStorage[3];
-    SkPixmap            fPM[3];
+    sk_sp<SkImage> fOrig;
 
 public:
     YUVSplitterGM() {}
@@ -1219,27 +1194,26 @@ protected:
 
     void onOnceBeforeDraw() override {
         fOrig = GetResourceAsImage("images/mandrill_256.png");
-
-        SkImageInfo info = SkImageInfo::MakeA8(fOrig->dimensions());
-        fStorage[0].alloc(info);
-        fStorage[1].alloc(info);
-        fStorage[2].alloc(info);
-        for (int i = 0; i < 3; ++i) {
-            fPM[i] = fStorage[i];
-        }
     }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->translate(fOrig->width(), 0);
         canvas->save();
-        for (auto cs : {kRec709_SkYUVColorSpace, kRec601_SkYUVColorSpace, kJPEG_SkYUVColorSpace,
+        SkYUVAInfo info;
+        std::array<sk_sp<SkImage>, SkYUVAInfo::kMaxPlanes> planes;
+        for (auto cs : {kRec709_SkYUVColorSpace,
+                        kRec601_SkYUVColorSpace,
+                        kJPEG_SkYUVColorSpace,
                         kBT2020_SkYUVColorSpace}) {
-            split_into_yuv(fOrig.get(), cs, fPM);
-            SkYUVAInfo yuvaInfo(fOrig->dimensions(),
-                                SkYUVAInfo::PlaneConfig::kY_U_V,
-                                SkYUVAInfo::Subsampling::k444,
-                                cs);
-            auto yuvaPixmaps = SkYUVAPixmaps::FromExternalPixmaps(yuvaInfo, fPM);
+            std::tie(planes, info) = sk_gpu_test::MakeYUVAPlanesAsA8(fOrig.get(),
+                                                                     cs,
+                                                                     SkYUVAInfo::Subsampling::k444,
+                                                                     /*recording context*/ nullptr);
+            SkPixmap pixmaps[4];
+            for (int i = 0; i < info.numPlanes(); ++i) {
+                planes[i]->peekPixels(&pixmaps[i]);
+            }
+            auto yuvaPixmaps = SkYUVAPixmaps::FromExternalPixmaps(info, pixmaps);
             auto img = SkImage::MakeFromYUVAPixmaps(canvas->recordingContext(),
                                                     yuvaPixmaps,
                                                     GrMipMapped::kNo,
@@ -1253,11 +1227,11 @@ protected:
         }
         canvas->restore();
         canvas->translate(-fOrig->width(), 0);
-
-        canvas->drawImage(SkImage::MakeRasterCopy(fPM[0]), 0, 0);
-        canvas->drawImage(SkImage::MakeRasterCopy(fPM[1]), 0, fPM[0].height());
-        canvas->drawImage(SkImage::MakeRasterCopy(fPM[2]),
-                          0, fPM[0].height() + fPM[1].height());
+        int y = 0;
+        for (int i = 0; i < info.numPlanes(); ++i) {
+            canvas->drawImage(planes[i], 0, y);
+            y += planes[i]->height();
+        }
     }
 
 private:
