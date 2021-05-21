@@ -852,7 +852,27 @@ void GLSLCodeGenerator::writeSwizzle(const Swizzle& swizzle) {
         this->write(&("x\0y\0z\0w\0"[c * 2]));
     }
 }
+/*
+void GLSLCodeGenerator::writeMatrix2x2ComparisonWorkaround(const BinaryExpression& b) {
+    const Expression& left = *b.left();
+    const Expression& right = *b.right();
+    Operator op = b.getOperator();
 
+    SkASSERT(op.kind() == Token::Kind::TK_EQEQ || op.kind() == Token::Kind::TK_NEQ);
+    SkASSERT(left.type().isMatrix());
+    SkASSERT(left.type().columns() == 2 && left.type().rows() == 2);
+    SkASSERT(right.type().isMatrix());
+    SkASSERT(right.type().columns() == 2 && right.type().rows() == 2);
+
+    this->write("(vec4(");
+    this->writeExpression(left, Precedence::kTopLevel);
+    this->write(").wzyx ");
+    this->write(op.operatorName());
+    this->write(" vec4(");
+    this->writeExpression(right, Precedence::kTopLevel);
+    this->write(").wzyx)");
+}
+*/
 void GLSLCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
                                               Precedence parentPrecedence) {
     const Expression& left = *b.left();
@@ -863,7 +883,15 @@ void GLSLCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
         this->writeShortCircuitWorkaroundExpression(b, parentPrecedence);
         return;
     }
-
+/*
+    if (this->caps().rewriteMatrix2x2Comparisons() &&
+            (op.kind() == Token::Kind::TK_EQEQ || op.kind() == Token::Kind::TK_NEQ) &&
+            left.type().isMatrix() && left.type().columns() == 2 && left.type().rows() == 2 &&
+            right.type().isMatrix() && right.type().columns() == 2 && right.type().rows() == 2) {
+        this->writeMatrix2x2ComparisonWorkaround(b);
+        return;
+    }
+*/
     Precedence precedence = op.getBinaryPrecedence();
     if (precedence >= parentPrecedence) {
         this->write("(");

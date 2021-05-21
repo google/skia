@@ -382,6 +382,8 @@ sksl_shared_tests = [
   "/sksl/shared/Matrices.sksl",
   "/sksl/shared/MatricesNonsquare.sksl",
   "/sksl/shared/MatrixEquality.sksl",
+  "/sksl/shared/MatrixEquality2.sksl",
+  "/sksl/shared/MatrixEquality3.sksl",
   "/sksl/shared/MatrixScalarSplat.sksl",
   "/sksl/shared/MultipleAssignments.sksl",
   "/sksl/shared/NegatedVectorLiteral.sksl",
