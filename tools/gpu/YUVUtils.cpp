@@ -7,8 +7,11 @@
 
 #include "tools/gpu/YUVUtils.h"
 
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorFilter.h"
 #include "include/core/SkColorPriv.h"
 #include "include/core/SkData.h"
+#include "include/core/SkSurface.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/GrYUVABackendTextures.h"
 #include "src/codec/SkCodecImageGenerator.h"
@@ -133,6 +136,55 @@ private:
 }  // anonymous namespace
 
 namespace sk_gpu_test {
+
+std::tuple<std::array<sk_sp<SkImage>, SkYUVAInfo::kMaxPlanes>, SkYUVAInfo>
+MakeYUVAPlanesAsA8(SkImage* src,
+                   SkYUVColorSpace cs,
+                   SkYUVAInfo::Subsampling ss,
+                   GrRecordingContext* rContext) {
+    float rgbToYUV[20];
+    SkColorMatrix_RGB2YUV(cs, rgbToYUV);
+
+    SkYUVAInfo::PlaneConfig config = src->isOpaque() ? SkYUVAInfo::PlaneConfig::kY_U_V
+                                                     : SkYUVAInfo::PlaneConfig::kY_U_V_A;
+    SkISize dims[SkYUVAInfo::kMaxPlanes];
+    int n = SkYUVAInfo::PlaneDimensions(src->dimensions(),
+                                        config,
+                                        ss,
+                                        kTopLeft_SkEncodedOrigin,
+                                        dims);
+    std::array<sk_sp<SkImage>, 4> planes;
+    for (int i = 0; i < n; ++i) {
+        SkImageInfo info = SkImageInfo::MakeA8(dims[i]);
+        sk_sp<SkSurface> surf;
+        if (rContext) {
+            surf = SkSurface::MakeRenderTarget(rContext, SkBudgeted::kYes, info, 1, nullptr);
+        } else {
+            surf = SkSurface::MakeRaster(info);
+        }
+        if (!surf) {
+            return {};
+        }
+
+        SkPaint paint;
+        paint.setBlendMode(SkBlendMode::kSrc);
+
+        // Make a matrix with the ith row of rgbToYUV copied to the A row since we're drawing to A8.
+        float m[20] = {};
+        std::copy_n(rgbToYUV + 5*i, 5, m + 15);
+        paint.setColorFilter(SkColorFilters::Matrix(m));
+        surf->getCanvas()->drawImageRect(src,
+                                         SkRect::Make(dims[i]),
+                                         SkSamplingOptions(SkFilterMode::kLinear),
+                                         &paint);
+        planes[i] = surf->makeImageSnapshot();
+        if (!planes[i]) {
+            return {};
+        }
+    }
+    SkYUVAInfo info(src->dimensions(), config, ss, cs);
+    return {planes, info};
+}
 
 std::unique_ptr<LazyYUVImage> LazyYUVImage::Make(sk_sp<SkData> data,
                                                  GrMipmapped mipmapped,
