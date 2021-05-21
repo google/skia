@@ -8,6 +8,7 @@
 package org.skia.androidkitdemo1;
 
 import android.app.Activity;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.SurfaceHolder;
@@ -15,9 +16,13 @@ import android.view.SurfaceView;
 
 import org.skia.androidkit.Canvas;
 import org.skia.androidkit.Color;
+import org.skia.androidkit.Image;
 import org.skia.androidkit.Matrix;
 import org.skia.androidkit.Paint;
+import org.skia.androidkit.SamplingOptions;
+import org.skia.androidkit.Shader;
 import org.skia.androidkit.Surface;
+import org.skia.androidkit.TileMode;
 import org.skia.androidkit.util.SurfaceRenderer;
 
 import static java.lang.Math.tan;
@@ -25,12 +30,12 @@ import static java.lang.Math.tan;
 class Face {
     private float rotX;
     private float rotY;
-    public Color color;
+    public Paint paint;
 
-    Face(float rotX, float rotY, Color color) {
+    Face(float rotX, float rotY, Paint paint) {
         this.rotX = rotX;
         this.rotY = rotY;
-        this.color = color;
+        this.paint = paint;
     }
 
     Matrix asMatrix(float scale) {
@@ -51,20 +56,28 @@ class CubeRenderer extends SurfaceRenderer {
     private Matrix perspective = Matrix.makePerspective(0.05f, 4, fAngle);
     private Matrix viewport;
 
-    private Paint mPaint = new Paint();
-
     private final float rot = (float) Math.PI;
-    private Face[] faces = {new Face(0, 0, new Color(1, 0, 0, 1)),
-                            new Face(0, rot, new Color(0, 1, 0, 1)),
-                            new Face(rot/2, 0, new Color(0, 0, 1, 1)),
-                            new Face(-rot/2, 0, new Color(1, 1, 0, 1)),
-                            new Face(0, rot/2, new Color(0, 1, 1, 1)),
-                            new Face(0, -rot/2, new Color(0, 0, 0, 1))};
+    private Face[] faces;
 
-    public CubeRenderer() {
-        mPaint.setColor(new Color(0, 1, 1, 1));
-        mPaint.setStroke(false);
-        mPaint.setStrokeWidth(10);
+    public CubeRenderer(Resources res) {
+        Paint brickPaint = new Paint();
+
+        try {
+            Image image = Image.fromStream(res.openRawResource(R.raw.brickwork_texture));
+            Shader shader =
+                image.makeShader(TileMode.REPEAT, TileMode.REPEAT,
+                                 new SamplingOptions(SamplingOptions.FilterMode.LINEAR));
+            brickPaint.setShader(shader);
+        } catch (Exception e) {}
+
+        faces = new Face[] {
+            new Face(0, -rot/2, brickPaint),
+            new Face(0, 0     , new Paint().setColor(new Color(1, 0, 0, 1))),
+            new Face(0, rot   , new Paint().setColor(new Color(0, 1, 0, 1))),
+            new Face(rot/2, 0 , new Paint().setColor(new Color(0, 0, 1, 1))),
+            new Face(-rot/2, 0, new Paint().setColor(new Color(1, 1, 0, 1))),
+            new Face(0, rot/2 , new Paint().setColor(new Color(0, 1, 1, 1))),
+        };
     }
 
     @Override
@@ -100,8 +113,7 @@ class CubeRenderer extends SurfaceRenderer {
             canvas.concat(localToWorld);
 
             if (front(canvas.getLocalToDevice())) {
-                mPaint.setColor(f.color);
-                canvas.drawRect(0, 0, mCubeSideLength, mCubeSideLength, mPaint);
+                canvas.drawRect(0, 0, mCubeSideLength, mCubeSideLength, f.paint);
             }
             canvas.restore();
         }
@@ -130,6 +142,6 @@ public class CubeActivity extends Activity {
         setContentView(R.layout.activity_cube);
 
         SurfaceView sv = findViewById(R.id.surfaceView);
-        sv.getHolder().addCallback(new CubeRenderer());
+        sv.getHolder().addCallback(new CubeRenderer(getResources()));
     }
 }
