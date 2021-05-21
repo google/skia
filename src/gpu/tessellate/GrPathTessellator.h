@@ -9,6 +9,7 @@
 #define GrPathTessellator_DEFINED
 
 #include "src/gpu/GrInnerFanTriangulator.h"
+#include "src/gpu/GrVertexChunkArray.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 
@@ -30,8 +31,8 @@ public:
     // Called before draw(). Prepares GPU buffers containing the geometry to tessellate. If the
     // given BreadcrumbTriangleList is non-null, then this class will also include the breadcrumb
     // triangles in its draw.
-    virtual void prepare(GrMeshDrawOp::Target*, const SkMatrix&, const SkPath&,
-                         const BreadcrumbTriangleList* = nullptr) = 0;
+    virtual void prepare(GrMeshDrawOp::Target*, const SkRect& cullBounds, const SkMatrix&,
+                         const SkPath&, const BreadcrumbTriangleList* = nullptr) = 0;
 
     // Issues draw calls for the tessellated geometry. The caller is responsible for binding its
     // desired pipeline ahead of time.
@@ -53,14 +54,12 @@ class GrPathIndirectTessellator final : public GrPathTessellator {
 public:
     GrPathIndirectTessellator(const SkMatrix&, const SkPath&, DrawInnerFan);
 
-    void prepare(GrMeshDrawOp::Target*, const SkMatrix&, const SkPath&,
+    void prepare(GrMeshDrawOp::Target*, const SkRect& cullBounds, const SkMatrix&, const SkPath&,
                  const BreadcrumbTriangleList*) override;
     void draw(GrOpFlushState*) const override;
     void drawHullInstances(GrOpFlushState*) const override;
 
 private:
-    constexpr static float kLinearizationPrecision =
-            GrTessellationPathRenderer::kLinearizationPrecision;
     constexpr static int kMaxResolveLevel = GrTessellationPathRenderer::kMaxResolveLevel;
 
     const bool fDrawInnerFan;
@@ -79,14 +78,14 @@ private:
 // Base class for GrPathTessellators that draw actual hardware tessellation patches.
 class GrPathHardwareTessellator : public GrPathTessellator {
 public:
-    GrPathHardwareTessellator() = default;
+    GrPathHardwareTessellator(int numVerticesPerPatch)
+            : fNumVerticesPerPatch(numVerticesPerPatch) {}
 
     void draw(GrOpFlushState*) const final;
 
 protected:
-    sk_sp<const GrBuffer> fPatchBuffer;
-    int fBasePatchVertex = 0;
-    int fPatchVertexCount = 0;
+    GrVertexChunkArray fVertexChunkArray;
+    int fNumVerticesPerPatch;
 };
 
 // Draws an array of "outer curve" patches and, optionally, inner fan triangles for
@@ -95,9 +94,9 @@ protected:
 class GrPathOuterCurveTessellator final : public GrPathHardwareTessellator {
 public:
     GrPathOuterCurveTessellator(DrawInnerFan drawInnerFan)
-            : fDrawInnerFan(drawInnerFan == DrawInnerFan::kYes) {}
+            : GrPathHardwareTessellator(4), fDrawInnerFan(drawInnerFan == DrawInnerFan::kYes) {}
 
-    void prepare(GrMeshDrawOp::Target*, const SkMatrix&, const SkPath&,
+    void prepare(GrMeshDrawOp::Target*, const SkRect& cullBounds, const SkMatrix&, const SkPath&,
                  const BreadcrumbTriangleList*) override;
 
 private:
@@ -110,9 +109,9 @@ private:
 // converted to cubics. Once stencilled, these wedges alone define the complete path.
 class GrPathWedgeTessellator final : public GrPathHardwareTessellator {
 public:
-    GrPathWedgeTessellator() = default;
+    GrPathWedgeTessellator() : GrPathHardwareTessellator(5) {}
 
-    void prepare(GrMeshDrawOp::Target*, const SkMatrix&, const SkPath&,
+    void prepare(GrMeshDrawOp::Target*, const SkRect& cullBounds, const SkMatrix&, const SkPath&,
                  const BreadcrumbTriangleList*) override;
 };
 

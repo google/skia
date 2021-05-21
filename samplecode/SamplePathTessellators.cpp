@@ -84,7 +84,7 @@ private:
                 shader = alloc->make<GrCurveTessellateShader>(fMatrix);
                 break;
         }
-        fTessellator->prepare(flushState, fMatrix, fPath);
+        fTessellator->prepare(flushState, this->bounds(), fMatrix, fPath);
         auto pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(flushState, std::move(fProcessors),
                                                                  fPipelineFlags);
         fProgram = GrPathShader::MakeProgram({alloc, flushState->writeView(),

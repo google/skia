@@ -136,15 +136,12 @@ void convertCubicToQuadsConstrainToTangents(const SkPoint p[4],
 // Converts the given line to a cubic bezier.
 // NOTE: This method interpolates at 1/3 and 2/3, but if suitable in context, the cubic
 // {p0, p0, p1, p1} may also work.
-inline void convertLineToCubic(SkPoint startPt, SkPoint endPt, SkPoint out[4]) {
+inline void writeLineAsCubic(SkPoint startPt, SkPoint endPt, GrVertexWriter* writer) {
     using grvx::float2, skvx::bit_pun;
     float2 p0 = bit_pun<float2>(startPt);
     float2 p1 = bit_pun<float2>(endPt);
     float2 v = (p1 - p0) * (1/3.f);
-    out[0] = bit_pun<SkPoint>(p0);
-    out[1] = bit_pun<SkPoint>(p0 + v);
-    out[2] = bit_pun<SkPoint>(p1 - v);
-    out[3] = bit_pun<SkPoint>(p1);
+    writer->write(p0, p0 + v, p1 - v, p1);
 }
 
 // Converts the given quadratic bezier to a cubic.
