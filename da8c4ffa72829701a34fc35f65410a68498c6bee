@@ -39,6 +39,30 @@
       },
       "revId": "da8c4ffa72829701a34fc35f65410a68498c6bee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "579b7e9c_bacc061b",
+        "filename": "modules/canvaskit/WasmCommon.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-05-21T14:10:29Z",
+      "side": 1,
+      "message": "I did not know delete[] was incompatible with the JS exposed malloc, that\u0027s good to know.",
+      "parentUuid": "5df292ca_cc915947",
+      "range": {
+        "startLine": 96,
+        "startChar": 11,
+        "endLine": 96,
+        "endChar": 21
+      },
+      "revId": "da8c4ffa72829701a34fc35f65410a68498c6bee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
