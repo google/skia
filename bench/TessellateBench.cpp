@@ -8,6 +8,7 @@
 #include "bench/Benchmark.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/core/SkPathPriv.h"
+#include "src/core/SkRectPriv.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/geometry/GrWangsFormula.h"
@@ -42,11 +43,11 @@ static sk_sp<GrDirectContext> make_mock_context() {
     return GrDirectContext::MakeMock(&mockOptions, ctxOptions);
 }
 
-static SkPath make_cubic_path() {
+static SkPath make_cubic_path(int maxPow2) {
     SkRandom rand;
     SkPath path;
     for (int i = 0; i < kNumCubicsInChalkboard/2; ++i) {
-        float x = std::ldexp(rand.nextF(), (i % 18)) / 1e3f;
+        float x = std::ldexp(rand.nextF(), (i % maxPow2)) / 1e3f;
         path.cubicTo(111.625f*x, 308.188f*x, 764.62f*x, -435.688f*x, 742.63f*x, 85.187f*x);
         path.cubicTo(764.62f*x, -435.688f*x, 111.625f*x, 308.188f*x, 0, 0);
     }
@@ -110,19 +111,19 @@ protected:
     DEF_BENCH( return new PathTessellateBenchmark_##NAME(); ); \
     void PathTessellateBenchmark_##NAME::runBench()
 
-DEF_PATH_TESS_BENCH(GrPathIndirectTessellator, make_cubic_path(), SkMatrix::I()) {
+DEF_PATH_TESS_BENCH(GrPathIndirectTessellator, make_cubic_path(18), SkMatrix::I()) {
     GrPathIndirectTessellator tess(fMatrix, fPath, GrPathIndirectTessellator::DrawInnerFan::kNo);
-    tess.prepare(fTarget.get(), fMatrix, fPath, nullptr);
+    tess.prepare(fTarget.get(), SkRectPriv::MakeLargest(), fMatrix, fPath, nullptr);
 }
 
-DEF_PATH_TESS_BENCH(GrPathOuterCurveTessellator, make_cubic_path(), SkMatrix::I()) {
+DEF_PATH_TESS_BENCH(GrPathOuterCurveTessellator, make_cubic_path(8), SkMatrix::I()) {
     GrPathOuterCurveTessellator tess(GrPathTessellator::DrawInnerFan::kNo);
-    tess.prepare(fTarget.get(), fMatrix, fPath, nullptr);
+    tess.prepare(fTarget.get(), SkRectPriv::MakeLargest(), fMatrix, fPath, nullptr);
 }
 
-DEF_PATH_TESS_BENCH(GrPathWedgeTessellator, make_cubic_path(), SkMatrix::I()) {
+DEF_PATH_TESS_BENCH(GrPathWedgeTessellator, make_cubic_path(8), SkMatrix::I()) {
     GrPathWedgeTessellator tess;
-    tess.prepare(fTarget.get(), fMatrix, fPath, nullptr);
+    tess.prepare(fTarget.get(), SkRectPriv::MakeLargest(), fMatrix, fPath, nullptr);
 }
 
 static void benchmark_wangs_formula_cubic_log2(const SkMatrix& matrix, const SkPath& path) {
@@ -139,16 +140,16 @@ static void benchmark_wangs_formula_cubic_log2(const SkMatrix& matrix, const SkP
     }
 }
 
-DEF_PATH_TESS_BENCH(wangs_formula_cubic_log2, make_cubic_path(), SkMatrix::I()) {
+DEF_PATH_TESS_BENCH(wangs_formula_cubic_log2, make_cubic_path(18), SkMatrix::I()) {
     benchmark_wangs_formula_cubic_log2(fMatrix, fPath);
 }
 
-DEF_PATH_TESS_BENCH(wangs_formula_cubic_log2_scale, make_cubic_path(),
+DEF_PATH_TESS_BENCH(wangs_formula_cubic_log2_scale, make_cubic_path(18),
                     SkMatrix::Scale(1.1f, 0.9f)) {
     benchmark_wangs_formula_cubic_log2(fMatrix, fPath);
 }
 
-DEF_PATH_TESS_BENCH(wangs_formula_cubic_log2_affine, make_cubic_path(),
+DEF_PATH_TESS_BENCH(wangs_formula_cubic_log2_affine, make_cubic_path(18),
                     SkMatrix::MakeAll(.9f,0.9f,0,  1.1f,1.1f,0, 0,0,1)) {
     benchmark_wangs_formula_cubic_log2(fMatrix, fPath);
 }
@@ -323,7 +324,7 @@ private:
 
         fTessellator = fMakeTessellatorFn(fShaderFlags, SkMatrix::Scale(fMatrixScale, fMatrixScale),
                                           fPathStrokes.data(), {fMatrixScale, fMatrixScale},
-                                          {-1e9f, -1e9f, 1e9f, 1e9f});
+                                          SkRectPriv::MakeLargest());
     }
 
     void onDraw(int loops, SkCanvas*) final {

@@ -42,7 +42,7 @@ struct GrVertexWriter {
     bool operator==(const GrVertexWriter& that) const { return fPtr == that.fPtr; }
     operator bool() const { return fPtr != nullptr; }
 
-    GrVertexWriter makeOffset(size_t offsetInBytes) const {
+    GrVertexWriter makeOffset(ptrdiff_t offsetInBytes) const {
         return {SkTAddOffset<void>(fPtr, offsetInBytes)};
     }
 
