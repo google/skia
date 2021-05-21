@@ -1,5 +1,7 @@
 uniform half4 colorGreen, colorRed;
 
+bool takes_nothing (          )         { return true; }
+bool takes_void    (void      )         { return true; }
 bool takes_float   (float    x)         { return true; }
 bool takes_float2  (float2   x)         { return true; }
 bool takes_float3  (float3   x)         { return true; }
@@ -24,7 +26,9 @@ bool takes_int3    (int3     x)         { return true; }
 bool takes_int4    (int4     x)         { return true; }
 
 half4 main(float2 coords) {
-    return takes_float   (float    (1))    &&
+    return takes_nothing ()                &&
+           takes_void    ()                &&
+           takes_float   (float    (1))    &&
            takes_float2  (float2   (2))    &&
            takes_float3  (float3   (3))    &&
            takes_float4  (float4   (4))    &&
