@@ -97,7 +97,7 @@
         SK_REGISTER_FLATTENABLE(SkStrokePE);
         SK_REGISTER_FLATTENABLE(SkStrokeAndFillPE);
         SK_REGISTER_FLATTENABLE(SkTrimPE);
-        SkPathEffect::RegisterFlattenables();
+        SkPathEffectBase::RegisterFlattenables();
 
         // Misc.
 #ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
