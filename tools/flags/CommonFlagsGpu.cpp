@@ -103,9 +103,5 @@ void SetCtxOptionsFromCommonFlags(GrContextOptions* ctxOptions) {
     ctxOptions->fDisableDriverCorrectnessWorkarounds = FLAGS_disableDriverCorrectnessWorkarounds;
     ctxOptions->fResourceCacheLimitOverride          = FLAGS_gpuResourceCacheLimit;
 
-    if (FLAGS_dontReduceOpsTaskSplitting) {
-        ctxOptions->fReduceOpsTaskSplitting = GrContextOptions::Enable::kNo;
-    } else {
-        ctxOptions->fReduceOpsTaskSplitting = GrContextOptions::Enable::kYes;
-    }
+    ctxOptions->fReduceOpsTaskSplitting = GrContextOptions::Enable::kNo;
 }
