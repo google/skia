@@ -579,8 +579,20 @@ DEF_TEST(SkRuntimeColorFilterFlags, r) {
     }
 }
 
-DEF_TEST(SkRuntimeShaderSampleUsage, r) {
-    auto test = [&](const char* src, bool expectExplicit) {
+DEF_TEST(SkRuntimeShaderSampleCoords, r) {
+    // This test verifies that we detect calls to sample where the coords are the same as those
+    // passed to main. In those cases, it's safe to turn the "explicit" sampling into "passthrough"
+    // sampling. This optimization is implemented very conservatively.
+    //
+    // It also checks that we correctly set the "referencesSampleCoords" bit on the runtime effect
+    // FP, depending on how the coords parameter to main is used.
+    //
+    // TODO(skia:11869): Today, any reference to sample coords marks them as being referenced. If
+    // the *only* use is in sample calls that are converted to passthrough by our optimization,
+    // they should not be considered referenced. (This will prevent us from adding an unnecessary
+    // varying to the shaders).
+
+    auto test = [&](const char* src, bool expectExplicit, bool expectReferencesSampleCoords) {
         auto [effect, err] =
                 SkRuntimeEffect::MakeForShader(SkStringPrintf("uniform shader child; %s", src));
         REPORTER_ASSERT(r, effect);
@@ -590,39 +602,37 @@ DEF_TEST(SkRuntimeShaderSampleUsage, r) {
         REPORTER_ASSERT(r, fp);
 
         REPORTER_ASSERT(r, fp->childProcessor(0)->isSampledWithExplicitCoords() == expectExplicit);
+        REPORTER_ASSERT(r, fp->referencesSampleCoords() == expectReferencesSampleCoords);
     };
-
-    // This test verifies that we detect calls to sample where the coords are the same as those
-    // passed to main. In those cases, it's safe to turn the "explicit" sampling into "passthrough"
-    // sampling. This optimization is implemented very conservatively.
 
     // Cases where our optimization is valid, and works:
 
     // Direct use of passed-in coords
-    test("half4 main(float2 xy) { return sample(child, xy); }", false);
+    // TODO(skia:11869): This is the case where referencesSampleCoords *should* be false
+    test("half4 main(float2 xy) { return sample(child, xy); }", false, true);
     // Sample with passed-in coords, read (but don't write) sample coords elsewhere
-    test("half4 main(float2 xy) { return sample(child, xy) + sin(xy.x); }", false);
+    test("half4 main(float2 xy) { return sample(child, xy) + sin(xy.x); }", false, true);
 
     // Cases where our optimization is not valid, and does not happen:
 
     // Sampling with values completely unrelated to passed-in coords
-    test("half4 main(float2 xy) { return sample(child, float2(0, 0)); }", true);
+    test("half4 main(float2 xy) { return sample(child, float2(0, 0)); }", true, false);
     // Use of expression involving passed in coords
-    test("half4 main(float2 xy) { return sample(child, xy * 0.5); }", true);
+    test("half4 main(float2 xy) { return sample(child, xy * 0.5); }", true, true);
     // Use of coords after modification
-    test("half4 main(float2 xy) { xy *= 2; return sample(child, xy); }", true);
+    test("half4 main(float2 xy) { xy *= 2; return sample(child, xy); }", true, true);
     // Use of coords after modification via out-param call
     test("void adjust(inout float2 xy) { xy *= 2; }"
-         "half4 main(float2 xy) { adjust(xy); return sample(child, xy); }", true);
+         "half4 main(float2 xy) { adjust(xy); return sample(child, xy); }", true, true);
 
     // There should (must) not be any false-positive cases. There are false-negatives.
     // In all of these cases, our optimization would be valid, but does not happen:
 
     // Direct use of passed-in coords, modified after use
-    test("half4 main(float2 xy) { half4 c = sample(child, xy); xy *= 2; return c; }", true);
+    test("half4 main(float2 xy) { half4 c = sample(child, xy); xy *= 2; return c; }", true, true);
     // Passed-in coords copied to a temp variable
-    test("half4 main(float2 xy) { float2 p = xy; return sample(child, p); }", true);
+    test("half4 main(float2 xy) { float2 p = xy; return sample(child, p); }", true, true);
     // Use of coords passed to helper function
     test("half4 helper(float2 xy) { return sample(child, xy); }"
-         "half4 main(float2 xy) { return helper(xy); }", true);
+         "half4 main(float2 xy) { return helper(xy); }", true, true);
 }
