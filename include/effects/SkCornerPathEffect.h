@@ -8,7 +8,6 @@
 #ifndef SkCornerPathEffect_DEFINED
 #define SkCornerPathEffect_DEFINED
 
-#include "include/core/SkFlattenable.h"
 #include "include/core/SkPathEffect.h"
 
 /** \class SkCornerPathEffect
@@ -16,34 +15,14 @@
     SkCornerPathEffect is a subclass of SkPathEffect that can turn sharp corners
     into various treatments (e.g. rounded corners)
 */
-class SK_API SkCornerPathEffect : public SkPathEffect {
+class SK_API SkCornerPathEffect {
 public:
     /** radius must be > 0 to have an effect. It specifies the distance from each corner
         that should be "rounded".
     */
-    static sk_sp<SkPathEffect> Make(SkScalar radius) {
-        return radius > 0 ? sk_sp<SkPathEffect>(new SkCornerPathEffect(radius)) : nullptr;
-    }
+    static sk_sp<SkPathEffect> Make(SkScalar radius);
 
-protected:
-    ~SkCornerPathEffect() override;
-
-    explicit SkCornerPathEffect(SkScalar radius);
-    void flatten(SkWriteBuffer&) const override;
-    bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*) const override;
-
-private:
-    SK_FLATTENABLE_HOOKS(SkCornerPathEffect)
-
-    bool computeFastBounds(SkRect*) const override {
-        // Rounding sharp corners within a path produces a new path that is still contained within
-        // the original's bounds, so leave 'bounds' unmodified.
-        return true;
-    }
-
-    SkScalar    fRadius;
-
-    using INHERITED = SkPathEffect;
+    static void RegisterFlattenables();
 };
 
 #endif

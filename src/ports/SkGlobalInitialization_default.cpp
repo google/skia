@@ -86,7 +86,7 @@
         SkShaderMaskFilter::RegisterFlattenables();
 
         // Path effects.
-        SK_REGISTER_FLATTENABLE(SkCornerPathEffect);
+        SkCornerPathEffect::RegisterFlattenables();
         SK_REGISTER_FLATTENABLE(SkDashImpl);
         SK_REGISTER_FLATTENABLE(SkDiscretePathEffect);
         SkLine2DPathEffect::RegisterFlattenables();
