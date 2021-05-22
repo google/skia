@@ -853,6 +853,31 @@ void GLSLCodeGenerator::writeSwizzle(const Swizzle& swizzle) {
     }
 }
 
+void GLSLCodeGenerator::writeMatrixComparisonWorkaround(const BinaryExpression& b) {
+    const Expression& left = *b.left();
+    const Expression& right = *b.right();
+    Operator op = b.getOperator();
+
+    SkASSERT(op.kind() == Token::Kind::TK_EQEQ || op.kind() == Token::Kind::TK_NEQ);
+    SkASSERT(left.type().isMatrix());
+    SkASSERT(right.type().isMatrix());
+
+    String tempMatrix1 = "_tempMatrix" + to_string(fVarCount++);
+    String tempMatrix2 = "_tempMatrix" + to_string(fVarCount++);
+
+    this->fFunctionHeader += String("    ") + this->getTypePrecision(left.type()) +
+                             this->getTypeName(left.type()) + " " + tempMatrix1 + ";\n    " +
+                             this->getTypePrecision(right.type()) +
+                             this->getTypeName(right.type()) + " " + tempMatrix2 + ";\n";
+    this->write("((" + tempMatrix1 + " = ");
+    this->writeExpression(left, Precedence::kAssignment);
+    this->write("), (" + tempMatrix2 + " = ");
+    this->writeExpression(right, Precedence::kAssignment);
+    this->write("), (" + tempMatrix1 + " ");
+    this->write(op.operatorName());
+    this->write(" " + tempMatrix2 + "))");
+}
+
 void GLSLCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
                                               Precedence parentPrecedence) {
     const Expression& left = *b.left();
@@ -861,6 +886,13 @@ void GLSLCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
     if (this->caps().unfoldShortCircuitAsTernary() &&
             (op.kind() == Token::Kind::TK_LOGICALAND || op.kind() == Token::Kind::TK_LOGICALOR)) {
         this->writeShortCircuitWorkaroundExpression(b, parentPrecedence);
+        return;
+    }
+
+    if (this->caps().rewriteMatrixComparisons() &&
+            left.type().isMatrix() && right.type().isMatrix() &&
+            (op.kind() == Token::Kind::TK_EQEQ || op.kind() == Token::Kind::TK_NEQ)) {
+        this->writeMatrixComparisonWorkaround(b);
         return;
     }
 

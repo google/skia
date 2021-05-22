@@ -134,6 +134,8 @@ protected:
 
     void writeInverseSqrtHack(const Expression& x);
 
+    void writeMatrixComparisonWorkaround(const BinaryExpression& x);
+
     virtual void writeFunctionCall(const FunctionCall& c);
 
     void writeConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& c,
