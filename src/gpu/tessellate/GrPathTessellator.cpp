@@ -18,11 +18,30 @@
 
 constexpr static float kPrecision = GrTessellationPathRenderer::kLinearizationPrecision;
 
-GrPathIndirectTessellator::GrPathIndirectTessellator(const SkMatrix& viewMatrix, const SkPath& path,
-                                                     DrawInnerFan drawInnerFan)
-        : fDrawInnerFan(drawInnerFan != DrawInnerFan::kNo) {
+GrPathTessellator* GrPathTessellator::Make(SkArenaAlloc* arena, const SkMatrix& viewMatrix,
+                                           const SkPath& path, DrawInnerFan drawInnerFan,
+                                           const GrShaderCaps& shaderCaps) {
+    if (path.countVerbs() < 25 || !shaderCaps.tessellationSupport()) {
+        return GrPathIndirectTessellator::Make(arena, viewMatrix, path, drawInnerFan);
+    } else if (drawInnerFan == DrawInnerFan::kNo) {
+        return GrPathOuterCurveTessellator::Make(arena, viewMatrix, drawInnerFan);
+    } else {
+        return GrPathWedgeTessellator::Make(arena, viewMatrix);
+    }
+}
+
+GrPathTessellator* GrPathIndirectTessellator::Make(SkArenaAlloc* arena, const SkMatrix& viewMatrix,
+                                                   const SkPath& path, DrawInnerFan drawInnerFan) {
+    auto shader = arena->make<GrCurveMiddleOutShader>(viewMatrix);
+    return arena->make<GrPathIndirectTessellator>(shader, path, drawInnerFan);
+}
+
+GrPathIndirectTessellator::GrPathIndirectTessellator(GrStencilPathShader* shader,
+                                                     const SkPath& path, DrawInnerFan drawInnerFan)
+        : GrPathTessellator(shader)
+        , fDrawInnerFan(drawInnerFan != DrawInnerFan::kNo) {
     // Count the number of instances at each resolveLevel.
-    GrVectorXform xform(viewMatrix);
+    GrVectorXform xform(fShader->viewMatrix());
     for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
         int level;
         switch (verb) {
@@ -88,7 +107,7 @@ static int write_breadcrumb_triangles(
 }
 
 void GrPathIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const SkRect& /*cullBounds*/,
-                                        const SkMatrix& viewMatrix, const SkPath& path,
+                                        const SkPath& path,
                                         const BreadcrumbTriangleList* breadcrumbTriangleList) {
     SkASSERT(fTotalInstanceCount == 0);
     SkASSERT(fIndirectDrawCount == 0);
@@ -185,7 +204,7 @@ void GrPathIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const SkRe
 
     // Write out the cubic instances.
     if (fOuterCurveInstanceCount) {
-        GrVectorXform xform(viewMatrix);
+        GrVectorXform xform(fShader->viewMatrix());
         for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
             int level;
             switch (verb) {
@@ -247,8 +266,15 @@ void GrPathIndirectTessellator::drawHullInstances(GrOpFlushState* flushState) co
     }
 }
 
+GrPathTessellator* GrPathOuterCurveTessellator::Make(SkArenaAlloc* arena,
+                                                     const SkMatrix& viewMatrix,
+                                                     DrawInnerFan drawInnerFan) {
+    auto shader = arena->make<GrCurveTessellateShader>(viewMatrix);
+    return arena->make<GrPathOuterCurveTessellator>(shader, drawInnerFan);
+}
+
 void GrPathOuterCurveTessellator::prepare(GrMeshDrawOp::Target* target, const SkRect& cullBounds,
-                                          const SkMatrix& viewMatrix, const SkPath& path,
+                                          const SkPath& path,
                                           const BreadcrumbTriangleList* breadcrumbTriangleList) {
     SkASSERT(target->caps().shaderCaps()->tessellationSupport());
     SkASSERT(fVertexChunkArray.empty());
@@ -391,7 +417,7 @@ void GrPathOuterCurveTessellator::prepare(GrMeshDrawOp::Target* target, const Sk
         float fMaxSegments_pow4;
     };
 
-    CurveWriter curveWriter(cullBounds, viewMatrix, *target->caps().shaderCaps());
+    CurveWriter curveWriter(cullBounds, fShader->viewMatrix(), *target->caps().shaderCaps());
     for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
         switch (verb) {
             case SkPathVerb::kQuad:
@@ -409,8 +435,13 @@ void GrPathOuterCurveTessellator::prepare(GrMeshDrawOp::Target* target, const Sk
     }
 }
 
+GrPathTessellator* GrPathWedgeTessellator::Make(SkArenaAlloc* arena, const SkMatrix& viewMatrix) {
+    auto shader = arena->make<GrWedgeTessellateShader>(viewMatrix);
+    return arena->make<GrPathWedgeTessellator>(shader);
+}
+
 void GrPathWedgeTessellator::prepare(GrMeshDrawOp::Target* target, const SkRect& cullBounds,
-                                     const SkMatrix& viewMatrix, const SkPath& path,
+                                     const SkPath& path,
                                      const BreadcrumbTriangleList* breadcrumbTriangleList) {
     SkASSERT(target->caps().shaderCaps()->tessellationSupport());
     SkASSERT(!breadcrumbTriangleList);
@@ -531,7 +562,7 @@ void GrPathWedgeTessellator::prepare(GrMeshDrawOp::Target* target, const SkRect&
         float fMaxSegments_pow4;
     };
 
-    WedgeWriter wedgeWriter(cullBounds, viewMatrix, *target->caps().shaderCaps());
+    WedgeWriter wedgeWriter(cullBounds, fShader->viewMatrix(), *target->caps().shaderCaps());
     GrMidpointContourParser parser(path);
     while (parser.parseNextContour()) {
         SkPoint midpoint = parser.currentMidpoint();
@@ -575,5 +606,13 @@ void GrPathHardwareTessellator::draw(GrOpFlushState* flushState) const {
         if (flushState->caps().requiresManualFBBarrierAfterTessellatedStencilDraw()) {
             flushState->gpu()->insertManualFramebufferBarrier();  // http://skbug.com/9739
         }
+    }
+}
+
+void GrPathOuterCurveTessellator::drawHullInstances(GrOpFlushState* flushState) const {
+    SkASSERT(fNumVerticesPerPatch == 4);
+    for (const GrVertexChunk& chunk : fVertexChunkArray) {
+        flushState->bindBuffers(nullptr, chunk.fBuffer, nullptr);
+        flushState->drawInstanced(chunk.fCount, chunk.fBase, 4, 0);
     }
 }
