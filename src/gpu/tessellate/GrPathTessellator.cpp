@@ -18,15 +18,33 @@
 
 constexpr static float kPrecision = GrTessellationPathRenderer::kLinearizationPrecision;
 
+static bool can_use_hardware_tessellation(const SkPath& path, const GrShaderCaps& shaderCaps) {
+    if (!shaderCaps.tessellationSupport()) {
+        return false;
+    }
+#if GR_TEST_UTILS
+    if (shaderCaps.maxTessellationSegments() < 64) {
+        // If maxTessellationSegments is lower than the spec minimum, it means we've overriden it
+        // for testing. Always use hardware tessellation if this is the case.
+        return true;
+    }
+#endif
+    // Only use hardware tessellation if we're drawing a somewhat large number of verbs. Otherwise
+    // we seem to be better off using instanced draws.
+    return path.countVerbs() >= 25;
+}
+
 GrPathTessellator* GrPathTessellator::Make(SkArenaAlloc* arena, const SkMatrix& viewMatrix,
                                            const SkPath& path, DrawInnerFan drawInnerFan,
                                            const GrShaderCaps& shaderCaps) {
-    if (path.countVerbs() < 25 || !shaderCaps.tessellationSupport()) {
-        return GrPathIndirectTessellator::Make(arena, viewMatrix, path, drawInnerFan);
-    } else if (drawInnerFan == DrawInnerFan::kNo) {
-        return GrPathOuterCurveTessellator::Make(arena, viewMatrix, drawInnerFan);
+    if (can_use_hardware_tessellation(path, shaderCaps)) {
+        if (drawInnerFan == DrawInnerFan::kNo) {
+            return GrPathOuterCurveTessellator::Make(arena, viewMatrix, drawInnerFan);
+        } else {
+            return GrPathWedgeTessellator::Make(arena, viewMatrix);
+        }
     } else {
-        return GrPathWedgeTessellator::Make(arena, viewMatrix);
+        return GrPathIndirectTessellator::Make(arena, viewMatrix, path, drawInnerFan);
     }
 }
 
