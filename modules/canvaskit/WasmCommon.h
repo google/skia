@@ -56,6 +56,9 @@ template <typename T> TypedArray MakeTypedArray(int count, const T src[]) {
 
 /**
  *  Gives read access to a JSArray
+ *
+ *  We explicitly use malloc/free (not new/delete) so this can be used with allocations from the JS
+ *  side (ala CanvasKit.Malloc).
  */
 template <typename T> class JSSpan {
 public:
@@ -69,7 +72,7 @@ public:
             data = reinterpret_cast<T*>(src["byteOffset"].as<size_t>());
         } else {
             fOwned = true;
-            data = new T[len];
+            data = static_cast<T*>(sk_malloc_throw(len, sizeof(T)));
 
             // now actually copy into 'data'
             if (src.instanceof(emscripten::val::global(JSArrayType<T>::gName))) {
@@ -86,7 +89,7 @@ public:
 
     ~JSSpan() {
         if (fOwned) {
-            delete[] fSpan.data();
+            sk_free(fSpan.data());
         }
     }
 
