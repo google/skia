@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a7d147ff_e45e2b7e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-05-24T14:24:08Z",
+      "side": 1,
+      "message": "This CL didn\u0027t change core.gn (src/core/SkPathEffectBase.h from src/core/SkPathEffectPriv.h) and it broke the following builds (at least, debian10).\nGoing to fix it...",
+      "revId": "ec9d0e865d77538089fcb56fa5cfb144caffa802",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
