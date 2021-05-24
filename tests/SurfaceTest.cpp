@@ -204,10 +204,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_maxSurfaceSamplesForColorType, repo
             ERRORF(reporter, "Could not make surface of color type %d.", colorType);
             continue;
         }
-        int sampleCnt = ((SkSurface_Gpu*)(surf.get()))
-                                ->getDevice()
-                                ->surfaceDrawContext()
-                                ->numSamples();
+        int sampleCnt =
+            ((SkSurface_Gpu*)(surf.get()))->getDevice()->targetProxy()->numSamples();
         REPORTER_ASSERT(reporter, sampleCnt == maxSampleCnt, "Exected: %d, actual: %d",
                         maxSampleCnt, sampleCnt);
     }
@@ -569,7 +567,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfacepeekTexture_Gpu, reporter, ctxInfo) {
 static SkBudgeted is_budgeted(const sk_sp<SkSurface>& surf) {
     SkSurface_Gpu* gsurf = (SkSurface_Gpu*)surf.get();
 
-    GrRenderTargetProxy* proxy = gsurf->getDevice()->surfaceDrawContext()->asRenderTargetProxy();
+    GrRenderTargetProxy* proxy = gsurf->getDevice()->targetProxy();
     return proxy->isBudgeted();
 }
 
@@ -730,8 +728,7 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture(GrDirectContext* dCon
 
 static bool supports_readpixels(const GrCaps* caps, SkSurface* surface) {
     auto surfaceGpu = static_cast<SkSurface_Gpu*>(surface);
-    GrSurfaceDrawContext* context = surfaceGpu->getDevice()->surfaceDrawContext();
-    GrRenderTarget* rt = context->accessRenderTarget();
+    GrRenderTarget* rt = surfaceGpu->getDevice()->targetProxy()->peekRenderTarget();
     if (!rt) {
         return false;
     }
