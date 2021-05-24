@@ -586,11 +586,6 @@ DEF_TEST(SkRuntimeShaderSampleCoords, r) {
     //
     // It also checks that we correctly set the "referencesSampleCoords" bit on the runtime effect
     // FP, depending on how the coords parameter to main is used.
-    //
-    // TODO(skia:11869): Today, any reference to sample coords marks them as being referenced. If
-    // the *only* use is in sample calls that are converted to passthrough by our optimization,
-    // they should not be considered referenced. (This will prevent us from adding an unnecessary
-    // varying to the shaders).
 
     auto test = [&](const char* src, bool expectExplicit, bool expectReferencesSampleCoords) {
         auto [effect, err] =
@@ -607,9 +602,9 @@ DEF_TEST(SkRuntimeShaderSampleCoords, r) {
 
     // Cases where our optimization is valid, and works:
 
-    // Direct use of passed-in coords
-    // TODO(skia:11869): This is the case where referencesSampleCoords *should* be false
-    test("half4 main(float2 xy) { return sample(child, xy); }", false, true);
+    // Direct use of passed-in coords. Here, the only use of sample coords is for a sample call
+    // converted to passthrough, so referenceSampleCoords is *false*, despite appearing in main.
+    test("half4 main(float2 xy) { return sample(child, xy); }", false, false);
     // Sample with passed-in coords, read (but don't write) sample coords elsewhere
     test("half4 main(float2 xy) { return sample(child, xy) + sin(xy.x); }", false, true);
 
