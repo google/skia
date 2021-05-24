@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9cc1c853_486bbf24",
+        "filename": "resources/sksl/intrinsics/Sqrt.sksl",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-24T17:38:19Z",
+      "side": 1,
+      "message": "Good for this CL, but I\u0027m wondering how to deal with this in general. If we want the same results as GLSL - it seems like we should find a way to eval these undefined results? (They don\u0027t carve out an exception, and `const float x \u003d sqrt(-1.0);` compiles in WebGL just fine. Unfortunately, the GLSL grammar doesn\u0027t appear to offer NaN literals.",
+      "range": {
+        "startLine": 6,
+        "startChar": 59,
+        "endLine": 6,
+        "endChar": 83
+      },
+      "revId": "6ee0673168d7977acc01fa3ec7fc238c74e2b399",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
