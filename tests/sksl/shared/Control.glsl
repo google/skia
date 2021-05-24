@@ -1,7 +1,8 @@
 
 out vec4 sk_FragColor;
+uniform float unknownInput;
 void main() {
-    if (sqrt(2.0) > 5.0) {
+    if (unknownInput > 5.0) {
         sk_FragColor = vec4(0.75);
     } else {
         discard;

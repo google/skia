@@ -3,11 +3,15 @@
 // Ensure that 'const' is preserved on variable and function declarations in the .stage output
 const half r = 0;
 
+noinline half opt_barrier(const half x) {
+    return x;
+}
+
 half2 compute_ba(const half2 rg) {
     return rg;
 }
 
 half4 main(float2 xy) {
     const half g = r + 1;
-    return half4(sqrt(r), g, compute_ba(half2(r, sqrt(g))));
+    return half4(opt_barrier(r), g, compute_ba(half2(r, opt_barrier(g))));
 }
