@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "49d171df_e09d522c",
+        "filename": "gm/strokes.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 584,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-24T19:06:36Z",
+      "side": 1,
+      "message": "All looks fine.\n\nJust wondering if it can be restructured to use SkPathBuilder or some other more modern technique (builder, Make(...)). Not important if that is a pain.\n\nOrthogonally, would it be just as clear to just have a table of coordinates (i.e. 3 points)? Seems like a lot of repeated \u0027moveTo\u0027 and \u0027lineTo\u0027",
+      "range": {
+        "startLine": 584,
+        "startChar": 15,
+        "endLine": 584,
+        "endChar": 21
+      },
+      "revId": "62c1ffb51ced8abf8517a7fd93c9d06fd10686e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
