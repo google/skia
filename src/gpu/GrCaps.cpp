@@ -252,6 +252,8 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendS32("Max Preferred Render Target Size", fMaxPreferredRenderTargetSize);
     writer->appendS32("Max Window Rectangles", fMaxWindowRectangles);
     writer->appendS32("Sample Count for Internal MSAA", fInternalMultisampleCount);
+    writer->appendS32("Min Path Verbs for HW Tessellation", fMinPathVerbsForHwTessellation);
+    writer->appendS32("Min Stroke Verbs for HW Tessellation", fMinStrokeVerbsForHwTessellation);
 
     static const char* kBlendEquationSupportNames[] = {
         "Basic",
