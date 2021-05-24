@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0627008b_8b21cc1a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-05-24T14:35:25Z",
+      "side": 1,
+      "message": "Seem like this should also remove the line\n\n    friend class SkPathEffectPriv;\n\nfrom SkPathEffectBase.",
+      "revId": "60fddf66dd0fe497240193e829af8d6da3ab7877",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
