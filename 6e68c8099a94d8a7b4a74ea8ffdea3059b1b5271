@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ee3f421c_4481e071",
+        "filename": "gm/strokes.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 597,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-24T22:39:06Z",
+      "side": 1,
+      "message": "setStroke(true);",
+      "range": {
+        "startLine": 597,
+        "startChar": 32,
+        "endLine": 597,
+        "endChar": 45
+      },
+      "revId": "6e68c8099a94d8a7b4a74ea8ffdea3059b1b5271",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d3ad196c_beec8c15",
+        "filename": "gm/strokes.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 602,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-24T22:39:06Z",
+      "side": 1,
+      "message": "setStroke(true);    // hoping to deprecate Style",
+      "range": {
+        "startLine": 602,
+        "startChar": 18,
+        "endLine": 602,
+        "endChar": 26
+      },
+      "revId": "6e68c8099a94d8a7b4a74ea8ffdea3059b1b5271",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "55b1dbcf_baf33085",
+        "filename": "gm/strokes.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 612,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-24T22:39:06Z",
+      "side": 1,
+      "message": "lovely!\n\nor\n\nauto path \u003d SkPath::Polygon(pathPoints[i*3], 3, false);",
+      "range": {
+        "startLine": 612,
+        "startChar": 13,
+        "endLine": 612,
+        "endChar": 19
+      },
+      "revId": "6e68c8099a94d8a7b4a74ea8ffdea3059b1b5271",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
