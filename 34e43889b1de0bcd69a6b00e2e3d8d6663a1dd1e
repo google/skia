@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1b9ad85e_49c616bf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-24T19:16:41Z",
+      "side": 1,
+      "message": "... wonder if you can overlay them with some colored hairline, showing the actually fill-path-result... (so we can see the how the sausage is being made)",
+      "revId": "34e43889b1de0bcd69a6b00e2e3d8d6663a1dd1e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
