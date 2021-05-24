@@ -93,6 +93,30 @@
       },
       "revId": "ebbc4415a45801307eecb925890ea7081423866b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "54787971_dd16f43d",
+        "filename": "src/gpu/effects/GrYUVtoRGBEffect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-05-24T14:43:31Z",
+      "side": 1,
+      "message": "Right, it shouldn\u0027t be necessary for clamp. In decal it seems more correct to do it than not. I\u0027ll guard by !kClamp. Hopefully that avoids the blink_tests rigamarole as well.",
+      "parentUuid": "f9563afe_0a7ceeb6",
+      "range": {
+        "startLine": 93,
+        "startChar": 12,
+        "endLine": 104,
+        "endChar": 13
+      },
+      "revId": "ebbc4415a45801307eecb925890ea7081423866b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
