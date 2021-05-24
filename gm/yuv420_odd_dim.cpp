@@ -117,7 +117,7 @@ DEF_SIMPLE_GM_CAN_FAIL(yuv420_odd_dim_repeat, canvas, errMsg,
                                          /* color space */ nullptr);
     if (!image) {
         *errMsg = "Could not make YUVA image";
-        return skiagm::DrawResult::kFail;
+        return rContext->abandoned() ? skiagm::DrawResult::kSkip : skiagm::DrawResult::kFail;
     }
     int i = 0;
     for (SkMipmapMode mm : {SkMipmapMode::kNone, SkMipmapMode::kLinear}) {
