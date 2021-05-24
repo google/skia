@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f6ffea73_801d09df",
+        "filename": "src/gpu/effects/GrYUVtoRGBEffect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-05-24T13:25:34Z",
+      "side": 0,
+      "message": "This comment should have been removed previously. There used to exist a hack specifically for odd images with subsampling by 2.",
+      "range": {
+        "startLine": 68,
+        "startChar": 0,
+        "endLine": 71,
+        "endChar": 85
+      },
+      "revId": "95eff45f6b52b8c0c39b79b1d53acc760b4be1a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
