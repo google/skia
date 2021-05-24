@@ -147,6 +147,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c61ebc4b_78d639fe",
+        "filename": "include/private/SkTOptional.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-24T17:09:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "79a09b09_dbbe66dd",
+      "range": {
+        "startLine": 35,
+        "startChar": 8,
+        "endLine": 35,
+        "endChar": 33
+      },
+      "revId": "3d61391df53492f260cee8587d1bc6d286cbfeb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "07917645_cd892467",
@@ -184,6 +208,30 @@
       "side": 1,
       "message": "That was actually the intent, but you calling this out made me realize I was failing to destroy the old object in the event of an assignment.\n\nI suppose I\u0027ll copy the std::optional behavior on a move even though it seems stupid...",
       "parentUuid": "07917645_cd892467",
+      "range": {
+        "startLine": 45,
+        "startChar": 7,
+        "endLine": 47,
+        "endChar": 36
+      },
+      "revId": "3d61391df53492f260cee8587d1bc6d286cbfeb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "decbfd90_058dfebf",
+        "filename": "include/private/SkTOptional.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-24T17:09:18Z",
+      "side": 1,
+      "message": "Copying std::optional behavior for the pieces we do implement is super important. Otherwise, we won\u0027t be able to safely transition to std::optional one day.",
+      "parentUuid": "41d34c00_bd389213",
       "range": {
         "startLine": 45,
         "startChar": 7,
