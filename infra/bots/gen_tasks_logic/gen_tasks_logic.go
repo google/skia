@@ -724,8 +724,8 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 			log.Fatalf("Entry %q not found in OS mapping.", os)
 		}
 		if os == "Win10" && b.parts["model"] == "Golo" {
-			// ChOps-owned machines have Windows 10 v1709.
-			d["os"] = "Windows-10-16299"
+			// ChOps-owned machines have Windows 10 v20h2.
+			d["os"] = "Windows-10-19042"
 		}
 		if os == "Mac10.14" && b.parts["model"] == "VMware7.1" {
 			// ChOps VMs are at a newer version of MacOS.
