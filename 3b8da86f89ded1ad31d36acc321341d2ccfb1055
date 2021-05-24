@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "84d106a6_ee2cf9fb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-05-24T13:43:58Z",
+      "side": 1,
+      "message": "Note that we could now easily write a wrapper which downloads the latest version if necessary and then runs \u0027sk\u0027 as desired.  That seems like a good idea, except that we\u0027ve already got bin/sk being written during \"gclient sync\" and that would cause a conflict.",
+      "revId": "3b8da86f89ded1ad31d36acc321341d2ccfb1055",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
