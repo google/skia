@@ -56,6 +56,29 @@
       "message": "eg: sample(child1, sample(child2))",
       "revId": "0f7e3be197e44ec0819a43a7cf369b1cf594517a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ebf15af7_79a0f6d7",
+        "filename": "src/core/SkRuntimeEffectPriv.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-05-24T13:22:03Z",
+      "side": 1,
+      "message": "Once I read through the code and comments it became really clear what kPrevious means, but I read the header first and had no idea.\n\nI think it might be worth expanding this out into a line per value with the examples you put in the code review comments as C++ comments (\"eg: sample(child1, sample(child2))\")",
+      "range": {
+        "startLine": 88,
+        "startChar": 0,
+        "endLine": 88,
+        "endChar": 63
+      },
+      "revId": "0f7e3be197e44ec0819a43a7cf369b1cf594517a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
