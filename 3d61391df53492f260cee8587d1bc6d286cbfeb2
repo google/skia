@@ -101,6 +101,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "79a09b09_dbbe66dd",
+        "filename": "include/private/SkTOptional.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-24T16:36:53Z",
+      "side": 1,
+      "message": "Err, that belongs on operator\u003d, not here",
+      "parentUuid": "7b08fa4b_07f0b35b",
+      "range": {
+        "startLine": 35,
+        "startChar": 8,
+        "endLine": 35,
+        "endChar": 33
+      },
+      "revId": "3d61391df53492f260cee8587d1bc6d286cbfeb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "07917645_cd892467",
         "filename": "include/private/SkTOptional.h",
         "patchSetId": 6
