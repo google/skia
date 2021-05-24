@@ -240,6 +240,30 @@
       },
       "revId": "3d61391df53492f260cee8587d1bc6d286cbfeb2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "924d2429_ab0dc161",
+        "filename": "include/private/SkTOptional.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-24T17:19:36Z",
+      "side": 1,
+      "message": "Agreed, of course. I was just expressing reluctance due to it not seeming like the right behavior.",
+      "parentUuid": "decbfd90_058dfebf",
+      "range": {
+        "startLine": 45,
+        "startChar": 7,
+        "endLine": 47,
+        "endChar": 36
+      },
+      "revId": "3d61391df53492f260cee8587d1bc6d286cbfeb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
