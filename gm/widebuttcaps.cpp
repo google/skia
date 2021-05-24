@@ -108,6 +108,7 @@ class WideButtCaps_tess_segs_5 : public skiagm::GpuGM {
 
     void modifyGrContextOptions(GrContextOptions* options) override {
         options->fMaxTessellationSegmentsOverride = kMaxTessellationSegmentsOverride;
+        options->fAlwaysPreferHardwareTessellation = true;
         // Only allow the tessellation path renderer.
         options->fGpuPathRenderers = (GpuPathRenderers)((int)options->fGpuPathRenderers &
                                                         (int)GpuPathRenderers::kTessellation);

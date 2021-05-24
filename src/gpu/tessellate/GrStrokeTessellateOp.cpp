@@ -168,13 +168,6 @@ bool GrStrokeTessellateOp::canUseHardwareTessellation(int numVerbs, const GrCaps
         // instead.
         return false;
     }
-#if GR_TEST_UTILS
-    if (caps.shaderCaps()->maxTessellationSegments() < 64) {
-        // If maxTessellationSegments is lower than the spec minimum, it means we've overriden it
-        // for testing. Always use hardware tessellation if this is the case.
-        return true;
-    }
-#endif
     // Only use hardware tessellation if we're drawing a somewhat large number of verbs. Otherwise
     // we seem to be better off using instanced draws.
     return numVerbs >= caps.minStrokeVerbsForHwTessellation();

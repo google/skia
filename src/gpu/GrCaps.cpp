@@ -150,6 +150,10 @@ void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
 
     fInternalMultisampleCount = options.fInternalMultisampleCount;
 
+    if (options.fAlwaysPreferHardwareTessellation) {
+        fMinPathVerbsForHwTessellation = fMinStrokeVerbsForHwTessellation = 0;
+    }
+
     fAvoidStencilBuffers = options.fAvoidStencilBuffers;
 
     fDriverBugWorkarounds.applyOverrides(options.fDriverBugWorkarounds);
