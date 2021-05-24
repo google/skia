@@ -609,7 +609,7 @@ DEF_TEST(SkRuntimeShaderSampleCoords, r) {
 
     // Direct use of passed-in coords
     // TODO(skia:11869): This is the case where referencesSampleCoords *should* be false
-    test("half4 main(float2 xy) { return sample(child, xy); }", false, true);
+    test("half4 main(float2 xy) { return sample(child, xy); }", false, false);
     // Sample with passed-in coords, read (but don't write) sample coords elsewhere
     test("half4 main(float2 xy) { return sample(child, xy) + sin(xy.x); }", false, true);
 

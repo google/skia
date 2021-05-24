@@ -206,6 +206,7 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl,
     std::vector<Uniform> uniforms;
     std::vector<Child> children;
     std::vector<SkSL::SampleUsage> sampleUsages;
+    int elidedSampleCoords = 0;
     const SkSL::Context& ctx(compiler->context());
 
     // Go through program elements, pulling out information that we need
@@ -226,7 +227,7 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl,
                 c.index = children.size();
                 children.push_back(c);
                 sampleUsages.push_back(SkSL::Analysis::GetSampleUsage(
-                        *program, var, sampleCoordsUsage.fWrite != 0));
+                        *program, var, sampleCoordsUsage.fWrite != 0, &elidedSampleCoords));
             }
             // 'uniform' variables
             else if (var.modifiers().fFlags & SkSL::Modifiers::kUniform_Flag) {
@@ -257,6 +258,10 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl,
                 uniforms.push_back(uni);
             }
         }
+    }
+
+    if (elidedSampleCoords == sampleCoordsUsage.fRead && sampleCoordsUsage.fWrite == 0) {
+        flags &= ~kUsesSampleCoords_Flag;
     }
 
 #undef RETURN_FAILURE
