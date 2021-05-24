@@ -105,18 +105,17 @@ class GrFillBoundingBoxShader : public GrFillPathShader {
 public:
     GrFillBoundingBoxShader(const SkMatrix& viewMatrix, SkPMColor4f color, const SkRect& pathBounds)
             : GrFillPathShader(kTessellate_GrFillBoundingBoxShader_ClassID, viewMatrix, color,
-                               GrPrimitiveType::kTriangleStrip)
-            , fPathBounds(pathBounds) {
-    }
+                               GrPrimitiveType::kTriangleStrip) {
 
-    const SkRect& pathBounds() const { return fPathBounds; }
+        constexpr static Attribute kPathBoundsAttrib = {"pathBounds", kFloat4_GrVertexAttribType,
+                                                        kFloat4_GrSLType};
+        this->setInstanceAttributes(&kPathBoundsAttrib, 1);
+    }
 
 private:
     const char* name() const override { return "GrFillBoundingBoxShader"; }
     void emitVertexCode(Impl*, GrGLSLVertexBuilder*, const char* viewMatrix,
                         GrGLSLUniformHandler*) const override;
-
-    const SkRect fPathBounds;
 };
 
 #endif
