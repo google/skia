@@ -22,6 +22,30 @@
       },
       "revId": "6364882a4329dff8212e202e18933f27238a5212",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1a05da71_14f5da2f",
+        "filename": "platform_tools/android/apps/androidkitdemo/src/main/java/org/skia/androidkitdemo1/MainActivity.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-05-24T14:42:27Z",
+      "side": 1,
+      "message": "In the callback for DemoRunTimeShaderRenderer, we\u0027re drawing the runtime effect to the third surface view, but we want to draw something different in the ThreadedSurface, which is why it has its own implementation of Callback.",
+      "parentUuid": "23cbfc2e_ff1e04a8",
+      "range": {
+        "startLine": 95,
+        "startChar": 0,
+        "endLine": 108,
+        "endChar": 5
+      },
+      "revId": "6364882a4329dff8212e202e18933f27238a5212",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
