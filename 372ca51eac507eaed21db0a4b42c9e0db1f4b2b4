@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d2da2c88_4365d04d",
+        "filename": "include/private/SkTOptional.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-05-24T18:30:32Z",
+      "side": 1,
+      "message": "explicit!",
+      "revId": "372ca51eac507eaed21db0a4b42c9e0db1f4b2b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
