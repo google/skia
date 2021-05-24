@@ -49,7 +49,6 @@ DSLCPPCodeGenerator::DSLCPPCodeGenerator(const Context* context, const Program* 
     , fFullName(String::printf("Gr%s", fName.c_str()))
     , fSectionAndParameterHelper(program, *errors) {
     fLineEnding = "\n";
-    fTextureFunctionOverride = "sample";
 }
 
 void DSLCPPCodeGenerator::writef(const char* s, va_list va) {

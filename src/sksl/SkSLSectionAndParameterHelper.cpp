@@ -54,10 +54,8 @@ SectionAndParameterHelper::SectionAndParameterHelper(const Program* program, Err
                     errors.error(s.fOffset,
                                  ("unsupported section '@" + name + "'").c_str());
                 }
-                if (!SectionPermitsDuplicates(name.c_str()) &&
-                        fSections.find(name) != fSections.end()) {
-                    errors.error(s.fOffset,
-                                 ("duplicate section '@" + name + "'").c_str());
+                if (fSections.find(name) != fSections.end()) {
+                    errors.error(s.fOffset, ("duplicate section '@" + name + "'").c_str());
                 }
                 fSections[name].push_back(&s);
                 break;

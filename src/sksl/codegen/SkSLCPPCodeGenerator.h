@@ -47,8 +47,6 @@ private:
 
     void writeVariableReference(const VariableReference& ref) override;
 
-    String getSamplerHandle(const Variable& var);
-
     void writeIfStatement(const IfStatement& s) override;
 
     void writeReturnStatement(const ReturnStatement& s) override;
@@ -93,8 +91,6 @@ private:
     void writeSetData(std::vector<const Variable*>& uniforms);
 
     void writeGetKey();
-
-    void writeOnTextureSampler();
 
     void writeClone();
 

@@ -46,10 +46,6 @@ layout(key) in bool isFast;
     ProcessorOptimizationFlags(inputFP.get()) & kCompatibleWithCoverageAsAlpha_OptimizationFlag
 }
 
-@samplerParams(integral) {
-    samplerParams
-}
-
 @class {
 static std::unique_ptr<GrFragmentProcessor> MakeIntegralFP(GrRecordingContext* rContext,
                                                            float sixSigma) {
