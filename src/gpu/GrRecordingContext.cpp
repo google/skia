@@ -25,6 +25,53 @@
 #include "src/gpu/text/GrTextBlob.h"
 #include "src/gpu/text/GrTextBlobCache.h"
 
+
+#include "include/core/SkSurfaceCharacterization.h"
+
+#if 1 //SK_OGA
+#include "src/gpu/GrSurfaceDrawContext.h"
+#include "src/gpu/SkGpuDevice.h"
+#endif
+
+#ifdef SK_NGA
+#include "src/gpu/SkGpuDevice_nga.h"
+#endif
+
+#if 0
+sk_sp<SkBaseGpuDevice> GrRecordingContext::foo1() {
+//    return SkGpuDevice::Make(this, std::move(rtc), SkGpuDevice::kUninit_InitContents));
+    return nullptr;
+}
+#endif
+
+sk_sp<SkBaseGpuDevice> GrRecordingContext::foo2(const SkSurfaceCharacterization& c,
+                                                SkBudgeted budgeted) {
+    if (true) {
+        return SkGpuDevice::Make(this, budgeted, c.imageInfo(), SkBackingFit::kExact,
+                                 c.sampleCount(), GrMipmapped(c.isMipMapped()), c.isProtected(),
+                                 c.origin(), c.surfaceProps(),
+                                 SkBaseGpuDevice::kClear_InitContents);
+    } else {
+        return nullptr;
+    }
+}
+
+sk_sp<SkBaseGpuDevice> GrRecordingContext::foo3(SkBudgeted budgeted,
+                                                const SkImageInfo& info,
+                                                int sampleCount,
+                                                GrSurfaceOrigin origin,
+                                                const SkSurfaceProps* props,
+                                                GrMipmapped mipMapped,
+                                                SkBaseGpuDevice::InitContents init) {
+    if (true) {
+        return SkGpuDevice::Make(this, budgeted, info, SkBackingFit::kExact, sampleCount,
+                                 mipMapped, GrProtected::kNo, origin, *props, init);
+    } else {
+        return SkGpuDevice_nga::Make(this, budgeted, info, SkBackingFit::kExact, sampleCount,
+                                     mipMapped, GrProtected::kNo, origin, *props, init);
+    }
+}
+
 GrRecordingContext::ProgramData::ProgramData(std::unique_ptr<const GrProgramDesc> desc,
                                              const GrProgramInfo* info)
         : fDesc(std::move(desc))

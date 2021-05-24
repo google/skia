@@ -12,6 +12,9 @@
 #include "include/private/GrImageContext.h"
 #include "include/private/SkTArray.h"
 
+// problem here
+#include "src/gpu/SkBaseGpuDevice.h"
+
 #if GR_GPU_STATS && GR_TEST_UTILS
 #include <map>
 #include <string>
@@ -38,9 +41,25 @@ class SkJSONWriter;
 class SkString;
 #endif
 
+class SkBaseGpuDevice;
+class SkSurfaceCharacterization;
+class SkSurfaceProps;
+
 class GrRecordingContext : public GrImageContext {
 public:
     ~GrRecordingContext() override;
+
+#if 0
+    sk_sp<SkBaseGpuDevice> foo1();
+#endif
+    sk_sp<SkBaseGpuDevice> foo2(const SkSurfaceCharacterization&, SkBudgeted);
+    sk_sp<SkBaseGpuDevice> foo3(SkBudgeted budgeted,
+                                const SkImageInfo& info,
+                                int sampleCount,
+                                GrSurfaceOrigin origin,
+                                const SkSurfaceProps* props,
+                                GrMipmapped mipMapped,
+                                SkBaseGpuDevice::InitContents);
 
     SK_API GrBackendFormat defaultBackendFormat(SkColorType ct, GrRenderable renderable) const {
         return INHERITED::defaultBackendFormat(ct, renderable);
