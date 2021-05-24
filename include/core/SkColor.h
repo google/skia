@@ -24,12 +24,14 @@
 typedef uint8_t SkAlpha;
 
 /** 32-bit ARGB color value, unpremultiplied. Color components are always in
-    a known order. This is different from SkPMColor, which has its bytes in a configuration
-    dependent order, to match the format of kBGRA_8888_SkColorType bitmaps. SkColor
-    is the type used to specify colors in SkPaint and in gradients.
+    a known order: the least significant 8 bits hold the blue channel.
 
-    Color that is premultiplied has the same component values as color
-    that is unpremultiplied if alpha is 255, fully opaque, although may have the
+    This is different from SkPMColor, which has its bytes in a configuration
+    dependent order, to match the format of kBGRA_8888_SkColorType bitmaps.
+    SkColor is the type used to specify colors in SkPaint and in gradients.
+
+    Color that is premultiplied has the same component values as color that is
+    unpremultiplied if alpha is 255, fully opaque, although may have the
     component values in a different order.
 */
 typedef uint32_t SkColor;
