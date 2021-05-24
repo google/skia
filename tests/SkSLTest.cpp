@@ -232,6 +232,8 @@ SKSL_TEST_ES3(SkSLConstArray,                  "shared/ConstArray.sksl")
 SKSL_TEST(SkSLConstVariableComparison,         "shared/ConstVariableComparison.sksl")
 SKSL_TEST(SkSLDeadIfStatement,                 "shared/DeadIfStatement.sksl")
 SKSL_TEST(SkSLDeadReturn,                      "shared/DeadReturn.sksl")
+// TODO(skia:12012): some Radeons crash when compiling this code; disable them
+//SKSL_TEST_ES3(SkSLDeadReturnES3,               "shared/DeadReturnES3.sksl")
 SKSL_TEST(SkSLDeadStripFunctions,              "shared/DeadStripFunctions.sksl")
 SKSL_TEST(SkSLDependentInitializers,           "shared/DependentInitializers.sksl")
 SKSL_TEST_ES3(SkSLDoWhileControlFlow,          "shared/DoWhileControlFlow.sksl")
