@@ -34,6 +34,24 @@
       "parentUuid": "8b4b7012_511b077c",
       "revId": "3ce2b872cdbc53e826e8d08e1a1480a1c38911d6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b2db78d5_5dadbc71",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7953
+      },
+      "writtenOn": "2021-05-24T16:11:42Z",
+      "side": 1,
+      "message": "Checked ANGLE code [1], looks like it assume L16F is support for GL version \u003e\u003d 3.0 or has extension GL_ARB_texture_float or GL_OES_texture_half_float for ES.\n[1] https://source.chromium.org/chromium/chromium/src/+/main:third_party/angle/src/libANGLE/renderer/gl/formatutilsgl.cpp;l\u003d300?q\u003dGL_OES_texture_half_float\u0026ss\u003dchromium%2Fchromium%2Fsrc:third_party%2Fangle%2Fsrc%2FlibANGLE%2Frenderer%2Fgl%2F",
+      "parentUuid": "ea638795_753a4947",
+      "revId": "3ce2b872cdbc53e826e8d08e1a1480a1c38911d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
