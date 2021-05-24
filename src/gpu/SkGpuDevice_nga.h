@@ -23,6 +23,12 @@ public:
 
     GrSurfaceProxyView readSurfaceView() override { return {}; }
 
+    bool wait(int numSemaphores,
+              const GrBackendSemaphore* waitSemaphores,
+              bool deleteSemaphoresAfterWait) {
+        return false;
+    }
+
     GrRecordingContext* recordingContext() const override { return fContext.get(); }
     GrSurfaceDrawContext* surfaceDrawContext() override { return nullptr; }
 

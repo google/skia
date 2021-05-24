@@ -38,6 +38,10 @@ public:
         return this->surfaceDrawContext()->readSurfaceView();
     }
 
+    bool wait(int numSemaphores,
+              const GrBackendSemaphore* waitSemaphores,
+              bool deleteSemaphoresAfterWait) override;
+
     /**
      * This factory uses the color space, origin, surface properties, and initialization
      * method along with the provided proxy to create the gpu device.
@@ -119,9 +123,6 @@ public:
     sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override;
     sk_sp<SkSpecialImage> snapSpecial(const SkIRect& subset, bool forceCopy = false) override;
-
-    bool wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores,
-              bool deleteSemaphoresAfterWait);
 
     bool onAccessPixels(SkPixmap*) override;
 
