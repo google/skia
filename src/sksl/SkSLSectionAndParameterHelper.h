@@ -32,7 +32,6 @@ inline constexpr char kHeaderEndSection[] =          "headerEnd";
 inline constexpr char kInitializersSection[] =       "initializers";
 inline constexpr char kMakeSection[] =               "make";
 inline constexpr char kOptimizationFlagsSection[] =  "optimizationFlags";
-inline constexpr char kSamplerParamsSection[] =      "samplerParams";
 inline constexpr char kSetDataSection[] =            "setData";
 inline constexpr char kTestCodeSection[] =           "test";
 
@@ -41,7 +40,6 @@ public:
     SectionAndParameterHelper(const Program* program, ErrorReporter& errors);
 
     const Section* getSection(const char* name) {
-        SkASSERT(!SectionPermitsDuplicates(name));
         auto found = fSections.find(name);
         if (found == fSections.end()) {
             return nullptr;
@@ -83,25 +81,18 @@ public:
                !strcmp(name, kInitializersSection) ||
                !strcmp(name, kMakeSection) ||
                !strcmp(name, kOptimizationFlagsSection) ||
-               !strcmp(name, kSamplerParamsSection) ||
                !strcmp(name, kSetDataSection) ||
                !strcmp(name, kTestCodeSection);
     }
 
     static bool SectionAcceptsArgument(const char* name) {
-        return !strcmp(name, kSamplerParamsSection) ||
-               !strcmp(name, kSetDataSection) ||
+        return !strcmp(name, kSetDataSection) ||
                !strcmp(name, kTestCodeSection);
     }
 
     static bool SectionRequiresArgument(const char* name) {
-        return !strcmp(name, kSamplerParamsSection) ||
-               !strcmp(name, kSetDataSection) ||
+        return !strcmp(name, kSetDataSection) ||
                !strcmp(name, kTestCodeSection);
-    }
-
-    static bool SectionPermitsDuplicates(const char* name) {
-        return !strcmp(name, kSamplerParamsSection);
     }
 
 private:

@@ -20,8 +20,7 @@
 namespace SkSL {
 
 static bool needs_uniform_var(const Variable& var) {
-    return (var.modifiers().fFlags & Modifiers::kUniform_Flag) &&
-            var.type().typeKind() != Type::TypeKind::kSampler;
+    return (var.modifiers().fFlags & Modifiers::kUniform_Flag);
 }
 
 CPPCodeGenerator::CPPCodeGenerator(const Context* context, const Program* program,
@@ -31,7 +30,6 @@ CPPCodeGenerator::CPPCodeGenerator(const Context* context, const Program* progra
     , fFullName(String::printf("Gr%s", fName.c_str()))
     , fSectionAndParameterHelper(program, *errors) {
     fLineEnding = "\n";
-    fTextureFunctionOverride = "sample";
 }
 
 void CPPCodeGenerator::writef(const char* s, va_list va) {
@@ -120,8 +118,7 @@ static bool is_private(const Variable& var) {
 static bool is_uniform_in(const Variable& var) {
     const Modifiers& modifiers = var.modifiers();
     return (modifiers.fFlags & Modifiers::kUniform_Flag) &&
-           (modifiers.fFlags & Modifiers::kIn_Flag) &&
-           var.type().typeKind() != Type::TypeKind::kSampler;
+           (modifiers.fFlags & Modifiers::kIn_Flag);
 }
 
 String CPPCodeGenerator::formatRuntimeValue(const Type& type,
@@ -236,19 +233,6 @@ void CPPCodeGenerator::writeVarInitializer(const Variable& var, const Expression
     }
 }
 
-String CPPCodeGenerator::getSamplerHandle(const Variable& var) {
-    int samplerCount = 0;
-    for (const auto param : fSectionAndParameterHelper.getParameters()) {
-        if (&var == param) {
-            return "args.fTexSamplers[" + to_string(samplerCount) + "]";
-        }
-        if (param->type().typeKind() == Type::TypeKind::kSampler) {
-            ++samplerCount;
-        }
-    }
-    SK_ABORT("should have found sampler in parameters\n");
-}
-
 void CPPCodeGenerator::writeIntLiteral(const IntLiteral& i) {
     this->write(to_string(i.value()));
 }
@@ -282,12 +266,6 @@ void CPPCodeGenerator::writeVariableReference(const VariableReference& ref) {
             break;
         default:
             const Variable& var = *ref.variable();
-            if (var.type().typeKind() == Type::TypeKind::kSampler) {
-                this->write("%s");
-                fFormatArgs.push_back("fragBuilder->getProgramBuilder()->samplerVariable(" +
-                                      this->getSamplerHandle(*ref.variable()) + ")");
-                return;
-            }
             if (var.modifiers().fFlags & Modifiers::kUniform_Flag) {
                 this->write("%s");
                 String name = var.name();
@@ -355,8 +333,7 @@ String CPPCodeGenerator::getSampleVarName(const char* prefix, int sampleCounter)
 void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     const FunctionDeclaration& function = c.function();
     const ExpressionArray& arguments = c.arguments();
-    if (function.isBuiltin() && function.name() == "sample" &&
-        arguments[0]->type().typeKind() != Type::TypeKind::kSampler) {
+    if (function.isBuiltin() && function.name() == "sample") {
         int sampleCounter = fSampleCounter++;
 
         // Validity checks that are detected by function definition in sksl_fp.inc
@@ -426,15 +403,6 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
             this->writeExpression(*arg, Precedence::kSequence);
         }
         this->write(")");
-    }
-    if (function.isBuiltin() && function.name() == "sample") {
-        this->write(".%s");
-        SkASSERT(arguments.size() >= 1);
-        SkASSERT(arguments[0]->is<VariableReference>());
-        String sampler =
-                this->getSamplerHandle(*arguments[0]->as<VariableReference>().variable());
-        fFormatArgs.push_back("fragBuilder->getProgramBuilder()->samplerSwizzle(" + sampler +
-                              ").asString().c_str()");
     }
 }
 
@@ -672,7 +640,6 @@ void CPPCodeGenerator::writePrivateVarValues() {
 static bool is_accessible(const Variable& var) {
     const Type& type = var.type();
     return !type.isFragmentProcessor() &&
-           Type::TypeKind::kSampler != type.typeKind() &&
            Type::TypeKind::kOther != type.typeKind();
 }
 
@@ -989,7 +956,6 @@ void CPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
         this->writef("        }\n");
     }
     if (section) {
-        int samplerIndex = 0;
         for (const ProgramElement* p : fProgram.elements()) {
             if (p->is<GlobalVarDeclaration>()) {
                 const GlobalVarDeclaration& global = p->as<GlobalVarDeclaration>();
@@ -997,15 +963,7 @@ void CPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
                 const Variable& variable = decl.var();
                 String nameString(variable.name());
                 const char* name = nameString.c_str();
-                if (variable.type().typeKind() == Type::TypeKind::kSampler) {
-                    this->writef("        const GrSurfaceProxyView& %sView = "
-                                 "_outer.textureSampler(%d).view();\n",
-                                 name, samplerIndex);
-                    this->writef("        GrTexture& %s = *%sView.proxy()->peekTexture();\n",
-                                 name, name);
-                    this->writef("        (void) %s;\n", name);
-                    ++samplerIndex;
-                } else if (needs_uniform_var(variable)) {
+                if (needs_uniform_var(variable)) {
                     this->writef("        UniformHandle& %s = %sVar;\n"
                                     "        (void) %s;\n",
                                     name, HCodeGenerator::FieldName(name).c_str(), name);
@@ -1030,29 +988,6 @@ void CPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
     this->write("    }\n");
 }
 
-void CPPCodeGenerator::writeOnTextureSampler() {
-    bool foundSampler = false;
-    for (const auto& param : fSectionAndParameterHelper.getParameters()) {
-        if (param->type().typeKind() == Type::TypeKind::kSampler) {
-            if (!foundSampler) {
-                this->writef(
-                        "const GrFragmentProcessor::TextureSampler& %s::onTextureSampler(int "
-                        "index) const {\n",
-                        fFullName.c_str());
-                this->writef("    return IthTextureSampler(index, %s",
-                             HCodeGenerator::FieldName(String(param->name()).c_str()).c_str());
-                foundSampler = true;
-            } else {
-                this->writef(", %s",
-                             HCodeGenerator::FieldName(String(param->name()).c_str()).c_str());
-            }
-        }
-    }
-    if (foundSampler) {
-        this->write(");\n}\n");
-    }
-}
-
 void CPPCodeGenerator::writeClone() {
     if (!this->writeSection(kCloneSection)) {
         if (fSectionAndParameterHelper.getSection(kFieldsSection)) {
@@ -1072,15 +1007,6 @@ void CPPCodeGenerator::writeClone() {
         }
         this->writef(" {\n");
         this->writef("        this->cloneAndRegisterAllChildProcessors(src);\n");
-        int samplerCount = 0;
-        for (const auto& param : fSectionAndParameterHelper.getParameters()) {
-            if (param->type().typeKind() == Type::TypeKind::kSampler) {
-                ++samplerCount;
-            }
-        }
-        if (samplerCount) {
-            this->writef("     this->setTextureSamplerCnt(%d);", samplerCount);
-        }
         if (fAccessSampleCoordsDirectly) {
             this->writef("    this->setUsesSampleCoordsDirectly();\n");
         }
@@ -1269,8 +1195,7 @@ bool CPPCodeGenerator::generateCode() {
         if (p->is<GlobalVarDeclaration>()) {
             const GlobalVarDeclaration& global = p->as<GlobalVarDeclaration>();
             const VarDeclaration& decl = global.declaration()->as<VarDeclaration>();
-            if ((decl.var().modifiers().fFlags & Modifiers::kUniform_Flag) &&
-                        decl.var().type().typeKind() != Type::TypeKind::kSampler) {
+            if (decl.var().modifiers().fFlags & Modifiers::kUniform_Flag) {
                 uniforms.push_back(&decl.var());
             }
 
@@ -1344,7 +1269,6 @@ bool CPPCodeGenerator::generateCode() {
                 "}\n");
     this->writeClone();
     this->writeDumpInfo();
-    this->writeOnTextureSampler();
     this->writeTest();
     this->writeSection(kCppEndSection);
 
