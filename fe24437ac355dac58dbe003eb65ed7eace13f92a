@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c0f243e1_f63332a2",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-05-24T16:27:48Z",
+      "side": 1,
+      "message": "this is the diff from the previous reland. We now always add the listener if the cacheID matches the bitmap\u0027s gen ID. Before if the \"WithID\" version was called we didn\u0027t add the listener.",
+      "range": {
+        "startLine": 189,
+        "startChar": 8,
+        "endLine": 193,
+        "endChar": 9
+      },
+      "revId": "fe24437ac355dac58dbe003eb65ed7eace13f92a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
