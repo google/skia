@@ -124,6 +124,24 @@
       "parentUuid": "6f94e227_6e339963",
       "revId": "3ce2b872cdbc53e826e8d08e1a1480a1c38911d6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f7222f49_994909ca",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-05-24T16:55:00Z",
+      "side": 1,
+      "message": "Yeah, I think somewhere in the Chrome code we must be losing track of the actual format (or not inferring correctly when importing into GL from some video source).\n\nBy changing the code here it means Skia will allow the import, but now Skia thinks it has a GL_LUMINANCE16F texture. It probably works if we just use it as a plane of a YUV image. The r,g, and b values of a sample from a luminance format texture will all produce be same value and Skia just happens to choose r when the texture is luminance, which luckily works when the texture is actually GL_R16F. But it\u0027s kind of brittle and other things could break if Skia\u0027s understanding of the texture format isn\u0027t correct.",
+      "parentUuid": "59a32cde_c739bfad",
+      "revId": "3ce2b872cdbc53e826e8d08e1a1480a1c38911d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
