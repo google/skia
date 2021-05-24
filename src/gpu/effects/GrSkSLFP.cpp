@@ -137,9 +137,8 @@ public:
 
         // Callback to define a function (and return its mangled name)
         SkString coordsVarName = args.fFragBuilder->newTmpVarName("coords");
-        const char* coords = nullptr;
+        const char* coords = coordsVarName.c_str();
         if (fp.referencesSampleCoords()) {
-            coords = coordsVarName.c_str();
             args.fFragBuilder->codeAppendf("float2 %s = %s;\n", coords, args.fSampleCoord);
         }
 
