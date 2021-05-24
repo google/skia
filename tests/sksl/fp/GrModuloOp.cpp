@@ -19,14 +19,16 @@ public:
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         const GrModuloOp& _outer = args.fFp.cast<GrModuloOp>();
         (void) _outer;
+        valueVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag, kInt_GrSLType, "value");
         fragBuilder->codeAppendf(
-R"SkSL(return half4(half(1 %% int(sqrt(2.0))));
+R"SkSL(return half4(half(1 %% %s));
 )SkSL"
-);
+, args.fUniformHandler->getUniformCStr(valueVar));
     }
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& _proc) override {
     }
+    UniformHandle valueVar;
 };
 std::unique_ptr<GrGLSLFragmentProcessor> GrModuloOp::onMakeProgramImpl() const {
     return std::make_unique<GrGLSLModuloOp>();

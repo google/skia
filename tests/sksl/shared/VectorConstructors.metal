@@ -4,6 +4,7 @@ using namespace metal;
 struct Uniforms {
     float4 colorGreen;
     float4 colorRed;
+    float unknownInput;
 };
 struct Inputs {
 };
@@ -24,7 +25,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     int2 v6 = int2(1, 2);
     float2 v7 = float2(1.0, 2.0);
     float2 v8 = float2(v5);
-    float4 v9 = float4(float(v6.x), sqrt(2.0), 3.0, 4.0);
+    float4 v9 = float4(float(v6.x), _uniforms.unknownInput, 3.0, 4.0);
     int2 v10 = int2(3, int(v1.x));
     bool4 v11 = bool4(true, false, true, false);
     float2 v12 = float2(1.0, 0.0);
