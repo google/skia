@@ -43,6 +43,10 @@
 
 SK_C_PLUS_PLUS_BEGIN_GUARD
 
+/**
+    32-bit ARGB color value, unpremultiplied. Color components are always in
+    a known order: the least significant 8 bits hold the blue component.
+*/
 typedef uint32_t sk_color_t;
 
 /* This macro assumes all arguments are >=0 and <=255. */
