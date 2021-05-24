@@ -255,6 +255,9 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
         case k_log2_IntrinsicKind:
             return evaluate_intrinsic_float1(context, arguments, [](float a) { return log2(a); });
 
+        case k_sqrt_IntrinsicKind:
+            return evaluate_intrinsic_float1(context, arguments, [](float a) { return sqrt(a); });
+
         case k_saturate_IntrinsicKind:
             return evaluate_intrinsic_float1(context, arguments,
                                              [](float a) { return (a < 0) ? 0 : (a > 1) ? 1 : a; });
