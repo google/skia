@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1fc86738_a0e3488a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-24T15:51:06Z",
+      "side": 1,
+      "message": "Moved into skstd per John\u0027s suggestion.",
+      "revId": "3d61391df53492f260cee8587d1bc6d286cbfeb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
