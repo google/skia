@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5125498b_3ed894a0",
+        "filename": "modules/canvaskit/WasmCommon.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-24T15:03:38Z",
+      "side": 1,
+      "message": "like it! -- we should try using this in our miriad of bindings where (today) we say int (but with a comment).\n\nFrankly, we might even try some common variants for even better documentation... (until emscripten fixes their \u0027bug\u0027)\n\nWASMPointerF32\nWASMPointerU16\n...",
+      "range": {
+        "startLine": 29,
+        "startChar": 6,
+        "endLine": 29,
+        "endChar": 17
+      },
+      "revId": "b74851df5fd9a4197610e2d97b58455812cd82b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

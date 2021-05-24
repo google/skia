@@ -63,6 +63,30 @@
       },
       "revId": "da8c4ffa72829701a34fc35f65410a68498c6bee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "83cb7dd5_b8dd3e19",
+        "filename": "modules/canvaskit/WasmCommon.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-24T15:03:38Z",
+      "side": 1,
+      "message": "Objection removed (we now call free).",
+      "parentUuid": "579b7e9c_bacc061b",
+      "range": {
+        "startLine": 96,
+        "startChar": 11,
+        "endLine": 96,
+        "endChar": 21
+      },
+      "revId": "da8c4ffa72829701a34fc35f65410a68498c6bee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
