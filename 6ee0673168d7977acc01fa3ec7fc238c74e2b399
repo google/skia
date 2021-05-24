@@ -22,6 +22,30 @@
       },
       "revId": "6ee0673168d7977acc01fa3ec7fc238c74e2b399",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "529cee7e_a30359fb",
+        "filename": "resources/sksl/intrinsics/Sqrt.sksl",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-24T18:00:00Z",
+      "side": 1,
+      "message": "GLSL states \"Results are undefined if x \u003c 0\" for sqrt (and similar restrictions for other intrinsics where non-finite values may occur), so we would be entirely within the spec to synthesize whatever value we want--we could optimize NaNs to zero and it would still be conforming.\n\nIn 1.3 Error Handling, we do have \"Where the specification uses the terms\n\u0027should/should not\u0027 or \u0027undefined behavior\u0027 there is no such requirement but compilers are encouraged to report possible violations but compilers are encouraged to report possible violations.\" which implies that undefined behavior earns a warning at least, but that doesn\u0027t give us the right to upgrade that warning into a full error. \n\nI can\u0027t think of any legitimate use case where a GLSL shader would use `sqrt(-1)` in a meaningful way and an SkSL user would be better off for allowing it through and generating an undefined result (within spec), vs causing an error (out of spec). But I can have it optimize to zero if we want to maximize our GLSL conformance.",
+      "parentUuid": "9cc1c853_486bbf24",
+      "range": {
+        "startLine": 6,
+        "startChar": 59,
+        "endLine": 6,
+        "endChar": 83
+      },
+      "revId": "6ee0673168d7977acc01fa3ec7fc238c74e2b399",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
