@@ -113,18 +113,21 @@ static void save_files(int testID, const SkBitmap& expected, const SkBitmap& act
 static void key_test() {
     SortKey k;
     SkASSERT(!k.transparent());
+    SkASSERT(k.clipID() == 0);
     SkASSERT(k.depth() == 0);
     SkASSERT(k.material() == 0);
 //    k.dump();
 
-    SortKey k1(false, 1, 3);
+    SortKey k1(false, 4, 1, 3);
     SkASSERT(!k1.transparent());
+    SkASSERT(k1.clipID() == 4);
     SkASSERT(k1.depth() == 1);
     SkASSERT(k1.material() == 3);
 //    k1.dump();
 
-    SortKey k2(true, 2, 1);
+    SortKey k2(true, 7, 2, 1);
     SkASSERT(k2.transparent());
+    SkASSERT(k2.clipID() == 7);
     SkASSERT(k2.depth() == 2);
     SkASSERT(k2.material() == 1);
 //    k2.dump();
@@ -374,10 +377,46 @@ static int test6(std::vector<const Cmd*>* test, std::vector<int>* expectedOrder)
     sk_sp<FakeMCBlob> state = s.snapState();
 
     SkIRect r{0, 0, 100, 100};
-    test->push_back(new RectCmd(0, kSolidMat,  r.makeOffset(8, 8),   SK_ColorRED,   SK_ColorUNUSED, state));
-    test->push_back(new RectCmd(1, kSolidMat,  r.makeOffset(48, 48), SK_ColorGREEN, SK_ColorUNUSED, state));
+    test->push_back(new RectCmd(0, kSolidMat, r.makeOffset(8, 8),   SK_ColorRED,   SK_ColorUNUSED, state));
+    test->push_back(new RectCmd(1, kSolidMat, r.makeOffset(48, 48), SK_ColorGREEN, SK_ColorUNUSED, state));
     return 6;
 }
+
+// more complicated clipping w/ opaque draws -> should reorder
+static int test7(std::vector<const Cmd*>* test, std::vector<int>* expectedOrder) {
+    // The expected is front to back modulated by the two clip states
+    expectedOrder->push_back(5);
+    expectedOrder->push_back(4);
+    expectedOrder->push_back(1);
+    expectedOrder->push_back(0);
+
+    expectedOrder->push_back(3);
+    expectedOrder->push_back(2);
+
+    FakeStateTracker s;
+    s.clipRect(SkIRect::MakeXYWH(85, 0, 86, 256));  // select the middle third in x
+
+    sk_sp<FakeMCBlob> state = s.snapState();
+
+    SkIRect r{0, 0, 100, 100};
+    test->push_back(new RectCmd(0, kSolidMat, r.makeOffset(8, 8),     SK_ColorRED,     SK_ColorUNUSED, state));
+    test->push_back(new RectCmd(1, kSolidMat, r.makeOffset(48, 48),   SK_ColorGREEN,   SK_ColorUNUSED, state));
+
+    s.push();
+    s.clipRect(SkIRect::MakeXYWH(0, 85, 256, 86));  // intersect w/ the middle third in y
+    state = s.snapState();
+
+    test->push_back(new RectCmd(2, kSolidMat, r.makeOffset(98, 98),   SK_ColorBLUE,    SK_ColorUNUSED, state));
+    test->push_back(new RectCmd(3, kSolidMat, r.makeOffset(148, 148), SK_ColorCYAN,    SK_ColorUNUSED, state));
+
+    s.pop();
+    state = s.snapState();
+
+    test->push_back(new RectCmd(4, kSolidMat, r.makeOffset(148, 8),   SK_ColorMAGENTA, SK_ColorUNUSED, state));
+    test->push_back(new RectCmd(5, kSolidMat, r.makeOffset(8, 148),   SK_ColorYELLOW,  SK_ColorUNUSED, state));
+    return 7;
+}
+
 
 int main(int argc, char** argv) {
     CommandLineFlags::Parse(argc, argv);
@@ -392,6 +431,7 @@ int main(int argc, char** argv) {
     sort_test(test4);
     sort_test(test5);
     sort_test(test6);
+    sort_test(test7);
 
     return 0;
 }

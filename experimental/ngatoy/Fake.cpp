@@ -46,9 +46,9 @@ void FakeDevice::drawRect(int id, uint32_t z, SkIRect r, FakePaint p) {
         SkASSERT(p.c1() != SK_ColorUNUSED);
     }
 
-    SortKey k(p.isTransparent(), z, matID);
-
     sk_sp<FakeMCBlob> state = fTracker.snapState();
+
+    SortKey k(p.isTransparent(), state->id(), z, matID);
 
     auto tmp = new RectCmd(id, matID, r, p.c0(), p.c1(), std::move(state));
 
