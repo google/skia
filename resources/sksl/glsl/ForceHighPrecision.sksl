@@ -1,6 +1,9 @@
 /*#pragma settings UsesPrecisionModifiers ForceHighPrecision*/
 
-void main() { half x = half(sqrt(1));
-     half4 y = half4(x);
-     sk_FragColor = y;
+uniform float unknownInput;
+
+void main() {
+    half x = half(unknownInput);
+    half4 y = half4(x);
+    sk_FragColor = y;
 }

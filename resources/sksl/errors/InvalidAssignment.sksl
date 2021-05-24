@@ -14,7 +14,7 @@ void assign_to_repeated_swizzle()             { half4 x; x.yy = half2(0); }
 void assign_to_foldable_ternary_const_left()  { const float l = 1; float r; (true ? l : r) = 0; }
 void assign_to_foldable_ternary_const_right() { float l; const float r = 1; (false ? l : r) = 0; }
 void assign_to_foldable_ternary_const_both()  { const float l = 1; const float r = 1; (true ? l : r) = 0; }
-void assign_to_unfoldable_ternary()           { float l, r; (sqrt(1) > 0 ? l : r) = 0; }
+void assign_to_unfoldable_ternary()           { float l, r; (u > 0 ? l : r) = 0; }
 void assign_to_unary_minus()                  { float x; -x = 0; }
 void assign_to_unary_plus()                   { float x; +x = 0; }  // TODO(skbug.com/10766)
 

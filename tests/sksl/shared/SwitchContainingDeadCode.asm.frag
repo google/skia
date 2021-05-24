@@ -5,13 +5,21 @@ OpEntryPoint Fragment %main "main" %sk_FragColor %sk_Clockwise
 OpExecutionMode %main OriginUpperLeft
 OpName %sk_FragColor "sk_FragColor"
 OpName %sk_Clockwise "sk_Clockwise"
+OpName %_UniformBuffer "_UniformBuffer"
+OpMemberName %_UniformBuffer 0 "unknownInput"
 OpName %main "main"
-OpName %x "x"
+OpName %value "value"
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
-OpDecorate %26 RelaxedPrecision
+OpMemberDecorate %_UniformBuffer 0 Offset 0
+OpDecorate %_UniformBuffer Block
+OpDecorate %10 Binding 0
+OpDecorate %10 DescriptorSet 0
+OpDecorate %value RelaxedPrecision
+OpDecorate %30 RelaxedPrecision
+OpDecorate %31 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -19,32 +27,37 @@ OpDecorate %26 RelaxedPrecision
 %bool = OpTypeBool
 %_ptr_Input_bool = OpTypePointer Input %bool
 %sk_Clockwise = OpVariable %_ptr_Input_bool Input
-%void = OpTypeVoid
-%11 = OpTypeFunction %void
-%_ptr_Function_float = OpTypePointer Function %float
-%float_2 = OpConstant %float 2
 %int = OpTypeInt 32 1
+%_UniformBuffer = OpTypeStruct %int
+%_ptr_Uniform__UniformBuffer = OpTypePointer Uniform %_UniformBuffer
+%10 = OpVariable %_ptr_Uniform__UniformBuffer Uniform
+%void = OpTypeVoid
+%15 = OpTypeFunction %void
+%_ptr_Function_float = OpTypePointer Function %float
+%_ptr_Uniform_int = OpTypePointer Uniform %int
+%int_0 = OpConstant %int 0
 %float_0 = OpConstant %float 0
 %float_1 = OpConstant %float 1
-%main = OpFunction %void None %11
-%12 = OpLabel
-%x = OpVariable %_ptr_Function_float Function
-%15 = OpExtInst %float %1 Sqrt %float_2
-%17 = OpConvertFToS %int %15
-OpSelectionMerge %19 None
-OpSwitch %17 %22 0 %20 1 %21
-%20 = OpLabel
-OpStore %x %float_0
-OpBranch %21
-%21 = OpLabel
-OpStore %x %float_1
-OpBranch %22
-%22 = OpLabel
-OpStore %x %float_2
-OpBranch %19
-%19 = OpLabel
-%25 = OpLoad %float %x
-%26 = OpCompositeConstruct %v4float %25 %25 %25 %25
-OpStore %sk_FragColor %26
+%float_2 = OpConstant %float 2
+%main = OpFunction %void None %15
+%16 = OpLabel
+%value = OpVariable %_ptr_Function_float Function
+%19 = OpAccessChain %_ptr_Uniform_int %10 %int_0
+%22 = OpLoad %int %19
+OpSelectionMerge %23 None
+OpSwitch %22 %26 0 %24 1 %25
+%24 = OpLabel
+OpStore %value %float_0
+OpBranch %25
+%25 = OpLabel
+OpStore %value %float_1
+OpBranch %26
+%26 = OpLabel
+OpStore %value %float_2
+OpBranch %23
+%23 = OpLabel
+%30 = OpLoad %float %value
+%31 = OpCompositeConstruct %v4float %30 %30 %30 %30
+OpStore %sk_FragColor %31
 OpReturn
 OpFunctionEnd

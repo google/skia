@@ -3,6 +3,7 @@
 using namespace metal;
 struct Uniforms {
     float4 colorGreen;
+    float unknownInput;
 };
 struct Inputs {
 };

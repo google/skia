@@ -1,10 +1,11 @@
 uniform half4 colorGreen;
+uniform float unknownInput;
 
 half4 main(float2 coords) {
     half4 result;
-    result.x = (sqrt(1),     colorGreen.x);
-    result.y = (float2(2),   colorGreen.y);
-    result.z = (half3(3),    colorGreen.z);
-    result.w = (float2x2(4), colorGreen.w);
+    result.x = (unknownInput, colorGreen.x);
+    result.y = (float2(2),    colorGreen.y);
+    result.z = (half3(3),     colorGreen.z);
+    result.w = (float2x2(4),  colorGreen.w);
     return result;
 }

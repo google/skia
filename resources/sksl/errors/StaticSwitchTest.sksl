@@ -1,5 +1,7 @@
+uniform float unknownInput;
+
 half4 main() {
-    @switch (int(sqrt(1))) {
+    @switch (int(unknownInput)) {
         case 1:
             return half4(1);
         default:
