@@ -46,6 +46,30 @@
       },
       "revId": "6ee0673168d7977acc01fa3ec7fc238c74e2b399",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "580fb93a_69a90d16",
+        "filename": "resources/sksl/intrinsics/Sqrt.sksl",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-24T18:04:24Z",
+      "side": 1,
+      "message": "Good points. Probably leave it as-is for now - I think many of these decisions will be shaped by conversations with Android folks.",
+      "parentUuid": "529cee7e_a30359fb",
+      "range": {
+        "startLine": 6,
+        "startChar": 59,
+        "endLine": 6,
+        "endChar": 83
+      },
+      "revId": "6ee0673168d7977acc01fa3ec7fc238c74e2b399",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
