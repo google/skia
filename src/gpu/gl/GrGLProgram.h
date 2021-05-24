@@ -82,33 +82,14 @@ public:
      * them.
      */
     struct RenderTargetState {
-        SkISize         fRenderTargetSize;
+        SkISize fRenderTargetSize;
         GrSurfaceOrigin fRenderTargetOrigin;
 
         RenderTargetState() { this->invalidate(); }
         void invalidate() {
             fRenderTargetSize.fWidth = -1;
             fRenderTargetSize.fHeight = -1;
-            fRenderTargetOrigin = (GrSurfaceOrigin) -1;
-        }
-
-        /**
-         * Gets a float4 that adjusts the position from Skia device coords to GL's normalized device
-         * coords. Assuming the transformed position, pos, is a homogeneous float3, the vec, v, is
-         * applied as such:
-         * pos.x = dot(v.xy, pos.xz)
-         * pos.y = dot(v.zw, pos.yz)
-         */
-        void getRTAdjustmentVec(float* destVec) {
-            destVec[0] = 2.f / fRenderTargetSize.fWidth;
-            destVec[1] = -1.f;
-            if (kBottomLeft_GrSurfaceOrigin == fRenderTargetOrigin) {
-                destVec[2] = -2.f / fRenderTargetSize.fHeight;
-                destVec[3] = 1.f;
-            } else {
-                destVec[2] = 2.f / fRenderTargetSize.fHeight;
-                destVec[3] = -1.f;
-            }
+            fRenderTargetOrigin = (GrSurfaceOrigin)-1;
         }
     };
 

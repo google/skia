@@ -151,6 +151,8 @@ void GrGLProgram::bindTextures(const GrGeometryProcessor& geomProc,
     SkASSERT(nextTexSamplerIdx == fNumTextureSamplers);
 }
 
+#include "src/sksl/SkSLCompiler.h"
+
 void GrGLProgram::setRenderTargetState(const GrRenderTarget* rt,
                                        GrSurfaceOrigin origin,
                                        const GrGeometryProcessor& geomProc) {
@@ -167,8 +169,10 @@ void GrGLProgram::setRenderTargetState(const GrRenderTarget* rt,
         fRenderTargetState.fRenderTargetSize = dimensions;
         fRenderTargetState.fRenderTargetOrigin = origin;
 
-        float rtAdjustmentVec[4];
-        fRenderTargetState.getRTAdjustmentVec(rtAdjustmentVec);
-        fProgramDataManager.set4fv(fBuiltinUniformHandles.fRTAdjustmentUni, 1, rtAdjustmentVec);
+        bool flip = (origin == kBottomLeft_GrSurfaceOrigin);
+        std::array<float,4> v = SkSL::Compiler::GetRTAdjustVector(dimensions.width(),
+                                                                  dimensions.height(),
+                                                                  flip);
+        fProgramDataManager.set4fv(fBuiltinUniformHandles.fRTAdjustmentUni, 1, v.data());
     }
 }
