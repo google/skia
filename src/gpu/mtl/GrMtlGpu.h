@@ -179,21 +179,35 @@ private:
     sk_sp<GrGpuBuffer> onCreateBuffer(size_t, GrGpuBufferType, GrAccessPattern,
                                       const void*) override;
 
-    bool onReadPixels(GrSurface* surface, int left, int top, int width, int height,
-                      GrColorType surfaceColorType, GrColorType bufferColorType, void* buffer,
+    bool onReadPixels(GrSurface* surface,
+                      SkIRect,
+                      GrColorType surfaceColorType,
+                      GrColorType bufferColorType,
+                      void*,
                       size_t rowBytes) override;
 
-    bool onWritePixels(GrSurface*, int left, int top, int width, int height,
-                       GrColorType surfaceColorType, GrColorType bufferColorType,
-                       const GrMipLevel[], int mipLevelCount,
+    bool onWritePixels(GrSurface*,
+                       SkIRect,
+                       GrColorType surfaceColorType,
+                       GrColorType bufferColorType,
+                       const GrMipLevel[],
+                       int mipLevelCount,
                        bool prepForTexSampling) override;
 
-    bool onTransferPixelsTo(GrTexture*, int left, int top, int width, int height,
-                            GrColorType textureColorType, GrColorType bufferColorType,
-                            sk_sp<GrGpuBuffer>, size_t offset, size_t rowBytes) override;
-    bool onTransferPixelsFrom(GrSurface*, int left, int top, int width, int height,
-                              GrColorType surfaceColorType, GrColorType bufferColorType,
-                              sk_sp<GrGpuBuffer>, size_t offset) override;
+    bool onTransferPixelsTo(GrTexture*,
+                            SkIRect,
+                            GrColorType textureColorType,
+                            GrColorType bufferColorType,
+                            sk_sp<GrGpuBuffer>,
+                            size_t offset,
+                            size_t rowBytes) override;
+
+    bool onTransferPixelsFrom(GrSurface*,
+                              SkIRect,
+                              GrColorType surfaceColorType,
+                              GrColorType bufferColorType,
+                              sk_sp<GrGpuBuffer>,
+                              size_t offset) override;
 
     bool onRegenerateMipMapLevels(GrTexture*) override;
 
@@ -225,13 +239,22 @@ private:
     void checkForFinishedCommandBuffers();
 
     // Function that uploads data onto textures with private storage mode (GPU access only).
-    bool uploadToTexture(GrMtlTexture* tex, int left, int top, int width, int height,
-                         GrColorType dataColorType, const GrMipLevel texels[], int mipLevels);
+    bool uploadToTexture(GrMtlTexture* tex,
+                         SkIRect rect,
+                         GrColorType dataColorType,
+                         const GrMipLevel texels[],
+                         int mipLevels);
+
     // Function that fills texture levels with transparent black based on levelMask.
     bool clearTexture(GrMtlTexture*, size_t bbp, uint32_t levelMask);
-    bool readOrTransferPixels(GrSurface* surface, int left, int top, int width, int height,
-                              GrColorType dstColorType, id<MTLBuffer> transferBuffer, size_t offset,
-                              size_t imageBytes, size_t rowBytes);
+
+    bool readOrTransferPixels(GrSurface* surface,
+                              SkIRect rect,
+                              GrColorType dstColorType,
+                              id<MTLBuffer> transferBuffer,
+                              size_t offset,
+                              size_t imageBytes,
+                              size_t rowBytes);
 
     sk_sp<GrAttachment> makeStencilAttachment(const GrBackendFormat& /*colorFormat*/,
                                               SkISize dimensions, int numStencilSamples) override;

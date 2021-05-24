@@ -61,10 +61,7 @@ bool GrWritePixelsTask::onExecute(GrOpFlushState* flushState) {
     }
     GrSurface* dstSurface = dstProxy->peekSurface();
     return flushState->gpu()->writePixels(dstSurface,
-                                          fRect.fLeft,
-                                          fRect.fTop,
-                                          fRect.width(),
-                                          fRect.height(),
+                                          fRect,
                                           fDstColorType,
                                           fSrcColorType,
                                           fLevels.get(),
