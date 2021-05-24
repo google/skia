@@ -2,6 +2,7 @@
 out vec4 sk_FragColor;
 uniform vec4 colorGreen;
 uniform vec4 colorRed;
+uniform float unknownInput;
 vec4 main() {
     float x = 1.0;
     float y = 2.0;

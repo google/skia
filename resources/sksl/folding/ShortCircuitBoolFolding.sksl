@@ -31,7 +31,7 @@ bool test() {
     if (expr != false) { ++ok; } else { ++bad; } // -> (expr)
 
     // Test that side-effects in the left-side expression prevent right-side expr elimination.
-    float a = sqrt(1), b = sqrt(2);
+    float a = unknownInput + 2, b = unknownInput * 2;
 
     true || bool(a = b);                         // -> true
     if (a == b) { ++bad; } else { ++ok; }

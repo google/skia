@@ -1,11 +1,13 @@
+uniform float unknownInput;
+
 void main() {
     bool b = true;
-    short s = short(sqrt(1));
-    int i = int(sqrt(1));
-    ushort us = ushort(sqrt(1));
-    uint ui = uint(sqrt(1));
-    half h = half(sqrt(1));
-    float f = sqrt(1);
+    short s = short(unknownInput);
+    int i = int(unknownInput);
+    ushort us = ushort(unknownInput);
+    uint ui = uint(unknownInput);
+    half h = half(unknownInput);
+    float f = unknownInput;
     short s2s = s;
     short i2s = short(i);
     short us2s = short(us);

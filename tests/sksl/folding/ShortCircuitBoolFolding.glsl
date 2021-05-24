@@ -99,8 +99,8 @@ vec4 main() {
     } else {
         ++_2_bad;
     }
-    float _3_a = sqrt(1.0);
-    float _4_b = sqrt(2.0);
+    float _3_a = unknownInput + 2.0;
+    float _4_b = unknownInput * 2.0;
     if (_3_a == _4_b) {
         ++_2_bad;
     } else {

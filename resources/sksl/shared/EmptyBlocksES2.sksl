@@ -1,13 +1,15 @@
+uniform half unknownInput;
+
 half4 main(float2 coords) {
     half4 color = half4(0);
 
     for (int counter=0; counter<10; ++counter) ;
     for (int counter=0; counter<10; ++counter) {}
-    for (int counter=0; counter<10; ++counter) { false, 1 == 2; sqrt(7); }
+    for (int counter=0; counter<10; ++counter) { false, 1 == 2; unknownInput; }
 
-    if (sqrt(1) == 1) color.g = 1; else 1;
-    if (sqrt(1) == 2) 0; else color.a = 1;
-    if (sqrt(1) == 3) 0; else 1;
+    if (unknownInput == 1) color.g = 1; else 1;
+    if (unknownInput == 2) 0; else color.a = 1;
+    if (unknownInput == 3) 0; else 1;
 
     return color;
 }
