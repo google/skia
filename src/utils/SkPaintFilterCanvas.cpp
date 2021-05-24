@@ -280,6 +280,6 @@ bool SkPaintFilterCanvas::onGetProps(SkSurfaceProps* props) const {
     return proxy()->getProps(props);
 }
 
-GrSurfaceDrawContext* SkPaintFilterCanvas::topDeviceSurfaceDrawContext() {
-    return SkCanvasPriv::TopDeviceSurfaceDrawContext(this->proxy());
+GrRenderTargetProxy* SkPaintFilterCanvas::topDeviceProxy() {
+    return nullptr; //SkCanvasPriv::TopDeviceSurfaceDrawContext(this->proxy());
 }

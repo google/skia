@@ -201,6 +201,12 @@ struct SK_API GrContextOptions {
     Enable fReduceOpsTaskSplitting = Enable::kDefault;
 
     /**
+     * Experimental: Should the Ganesh' Next Generation Architecture be used instead of the
+     * old architecture?
+     */
+    Enable fUseNGA = Enable::kDefault;
+
+    /**
      * Some ES3 contexts report the ES2 external image extension, but not the ES3 version.
      * If support for external images is critical, enabling this option will cause Ganesh to limit
      * shaders to the ES2 shading language in that situation.

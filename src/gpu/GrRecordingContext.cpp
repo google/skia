@@ -25,6 +25,52 @@
 #include "src/gpu/text/GrTextBlob.h"
 #include "src/gpu/text/GrTextBlobCache.h"
 
+
+#include "include/core/SkSurfaceCharacterization.h"
+
+#if 1 //SK_OGA
+#include "src/gpu/GrSurfaceDrawContext.h"
+#include "src/gpu/SkGpuDevice.h"
+#endif
+
+#ifdef SK_NGA
+#include "src/gpu/SkGpuDevice_nga.h"
+#endif
+
+
+sk_sp<SkBaseGpuDevice> GrRecordingContext::foo2(GrColorType colorType,
+                                                sk_sp<GrSurfaceProxy> proxy,
+                                                sk_sp<SkColorSpace> colorSpace,
+                                                GrSurfaceOrigin origin,
+                                                const SkSurfaceProps& props,
+                                                SkBaseGpuDevice::InitContents init) {
+    if (this->options().fUseNGA == GrContextOptions::Enable::kYes) {
+        return SkGpuDevice_nga::Make(this, colorType, std::move(proxy), std::move(colorSpace),
+                                     origin, props, init);
+    } else {
+        return SkGpuDevice::Make(this, colorType, std::move(proxy), std::move(colorSpace),
+                                 origin, props, init);
+    }
+}
+
+sk_sp<SkBaseGpuDevice> GrRecordingContext::foo3(SkBudgeted budgeted,
+                                                const SkImageInfo& ii,
+                                                SkBackingFit fit,
+                                                int sampleCount,
+                                                GrMipmapped mipmapped,
+                                                GrProtected isProtected,
+                                                GrSurfaceOrigin origin,
+                                                const SkSurfaceProps& props,
+                                                SkBaseGpuDevice::InitContents init) {
+    if (this->options().fUseNGA == GrContextOptions::Enable::kYes) {
+        return SkGpuDevice_nga::Make(this, budgeted, ii, SkBackingFit::kExact, sampleCount,
+                                     mipmapped, GrProtected::kNo, origin, props, init);
+    } else {
+        return SkGpuDevice::Make(this, budgeted, ii, SkBackingFit::kExact, sampleCount,
+                                 mipmapped, GrProtected::kNo, origin, props, init);
+    }
+}
+
 GrRecordingContext::ProgramData::ProgramData(std::unique_ptr<const GrProgramDesc> desc,
                                              const GrProgramInfo* info)
         : fDesc(std::move(desc))

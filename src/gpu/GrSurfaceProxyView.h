@@ -45,6 +45,13 @@ public:
     int height() const { return this->proxy()->height(); }
     SkISize dimensions() const { return this->proxy()->dimensions(); }
 
+    GrMipmapped mipmapped() const {
+        if (const GrTextureProxy* proxy = this->asTextureProxy()) {
+            return proxy->mipmapped();
+        }
+        return GrMipmapped::kNo;
+    }
+
     GrSurfaceProxy* proxy() const { return fProxy.get(); }
     sk_sp<GrSurfaceProxy> refProxy() const { return fProxy; }
 
