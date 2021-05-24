@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "eda26f02_59452bbb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-24T22:39:37Z",
+      "side": 1,
+      "message": "tiny nit: some of clipped off on the top. Maybe translate the canvas down 20 or so?",
+      "revId": "6e68c8099a94d8a7b4a74ea8ffdea3059b1b5271",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ee3f421c_4481e071",
