@@ -52,6 +52,24 @@
       "parentUuid": "ea638795_753a4947",
       "revId": "3ce2b872cdbc53e826e8d08e1a1480a1c38911d6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0ee7123f_f70bf980",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-05-24T16:14:10Z",
+      "side": 1,
+      "message": "You could query the texture for it\u0027s format by binding it and then doing this (assuming here it\u0027s GL_TEXTURE_2D and not GL_TEXTURE_RECTANGLE) \n\n int format;\n glGetTexLevelParameter(GL_TEXTURE_2D, GL_TEXTURE_INTERNAL_FORMAT, \n GL_TEXTURE_INTERNAL_FORMAT, \u0026format);",
+      "parentUuid": "b2db78d5_5dadbc71",
+      "revId": "3ce2b872cdbc53e826e8d08e1a1480a1c38911d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
