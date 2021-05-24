@@ -1,6 +1,7 @@
 /*#pragma settings NoInline*/
 
 uniform half4 colorGreen, colorRed;
+uniform float unknownInput;
 
 bool check(float2 v1, float2 v2, float2 v3, float3 v4, int2 v5, int2 v6, float2 v7, float2 v8,
            float4 v9, int2 v10, bool4 v11, float2 v12, float2 v13, float2 v14, bool2 v15,
@@ -21,7 +22,7 @@ half4 main(float2 coords) {
     int2   v6 = int2(float2(1, 2));
     float2 v7 = float2(int2(1, 2));
     float2 v8 = float2(v5);
-    float4 v9 = float4(v6.x, sqrt(2), int2(3, 4));
+    float4 v9 = float4(v6.x, unknownInput, int2(3, 4));
     int2   v10 = int2(3.14, v1.x);
     bool4  v11 = bool4(bool2(true, false), true, false);
     float2 v12 = float2(1.0, false);

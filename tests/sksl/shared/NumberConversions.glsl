@@ -1,13 +1,14 @@
 
 out vec4 sk_FragColor;
+uniform float unknownInput;
 void main() {
     bool b = true;
-    int s = int(sqrt(1.0));
-    int i = int(sqrt(1.0));
-    uint us = uint(sqrt(1.0));
-    uint ui = uint(sqrt(1.0));
-    float h = sqrt(1.0);
-    float f = sqrt(1.0);
+    int s = int(unknownInput);
+    int i = int(unknownInput);
+    uint us = uint(unknownInput);
+    uint ui = uint(unknownInput);
+    float h = unknownInput;
+    float f = unknownInput;
     int s2s = s;
     int i2s = i;
     int us2s = int(us);

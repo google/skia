@@ -2,6 +2,7 @@
 out vec4 sk_FragColor;
 uniform vec4 colorGreen;
 uniform vec4 colorRed;
+uniform float unknownInput;
 vec4 main() {
     float x = 1.0;
     float y = 2.0;
@@ -9,8 +10,8 @@ vec4 main() {
     x = (x - x) + ((y * x) * x) * (y - x);
     y = (x / y) / x;
     z = ((z / 2) * 3 + 4) - 2;
-    bool b = x > 4.0 == x < 2.0 || 2.0 >= sqrt(2.0) && y <= x;
-    bool c = sqrt(2.0) > 2.0;
+    bool b = x > 4.0 == x < 2.0 || 2.0 >= unknownInput && y <= x;
+    bool c = unknownInput > 2.0;
     bool d = b ^^ c;
     bool e = b && c;
     bool f = b || c;

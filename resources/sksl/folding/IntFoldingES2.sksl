@@ -37,6 +37,7 @@ bool test() {
     ok = ok && (x == 11);
     x = 6 <= 5 ? 12 : -12;
     ok = ok && (x == -12);
+
     x = unknown + 0;
     ok = ok && (x == unknown);
     x = 0 + unknown;
@@ -55,7 +56,7 @@ bool test() {
     ok = ok && (x == unknown);
     x = 0 / unknown;
     ok = ok && (x == 0);
-    x += 1;                    // TODO(skia:11192): constant propagation for `+=` style operators
+    x += 1;
     ok = ok && (x == 1);
     x += 0;
     ok = ok && (x == 1);
