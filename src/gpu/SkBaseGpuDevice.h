@@ -39,11 +39,14 @@ public:
         : INHERITED(ii, props) {
     }
 
-    // TODO: SkGpuDevice/SkGpuDevice_nga shared stuff goes here
     virtual GrSurfaceProxyView readSurfaceView() = 0;
     GrRenderTargetProxy* targetProxy() {
         return this->readSurfaceView().asRenderTargetProxy();
     }
+
+    virtual bool wait(int numSemaphores,
+                      const GrBackendSemaphore* waitSemaphores,
+                      bool deleteSemaphoresAfterWait) = 0;
 
 protected:
 
