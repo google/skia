@@ -22,6 +22,30 @@
       },
       "revId": "62c1ffb51ced8abf8517a7fd93c9d06fd10686e8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2841884c_3e470f04",
+        "filename": "gm/strokes.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 584,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-05-24T20:46:17Z",
+      "side": 1,
+      "message": "Done. Also drawing the fill paths in red now.",
+      "parentUuid": "49d171df_e09d522c",
+      "range": {
+        "startLine": 584,
+        "startChar": 15,
+        "endLine": 584,
+        "endChar": 21
+      },
+      "revId": "62c1ffb51ced8abf8517a7fd93c9d06fd10686e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
