@@ -22,6 +22,30 @@
       },
       "revId": "ebbc4415a45801307eecb925890ea7081423866b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6b573bde_a704c80a",
+        "filename": "src/gpu/effects/GrYUVtoRGBEffect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-05-24T13:33:36Z",
+      "side": 1,
+      "message": "Hm, they\u0027re the same at this point, but I think \"subset\" is more correct and robust to future changes. Really we\u0027re checking \"did the caller give us a subset to use\" not \"are we going to make a subset call below\". If earlier code was modified to set \"useSubset\" to true under some circumstance I think we\u0027d still want to check \"subset\" here to know what are starting rect is.",
+      "parentUuid": "b141c030_0fc6da52",
+      "range": {
+        "startLine": 77,
+        "startChar": 16,
+        "endLine": 77,
+        "endChar": 22
+      },
+      "revId": "ebbc4415a45801307eecb925890ea7081423866b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
