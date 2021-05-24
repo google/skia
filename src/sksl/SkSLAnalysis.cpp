@@ -83,11 +83,14 @@ public:
         return fUsage;
     }
 
+    int elidedSampleCoordCount() const { return fElidedSampleCoordCount; }
+
 protected:
     const Context& fContext;
     const Variable& fFP;
     const bool fWritesToSampleCoords;
     SampleUsage fUsage;
+    int fElidedSampleCoordCount = 0;
 
     bool visitExpression(const Expression& e) override {
         // Looking for sample(fp, ...)
@@ -107,6 +110,7 @@ protected:
                                             ->modifiers()
                                             .fLayout.fBuiltin == SK_MAIN_COORDS_BUILTIN) {
                             fUsage.merge(SampleUsage::PassThrough());
+                            ++fElidedSampleCoordCount;
                         } else {
                             fUsage.merge(SampleUsage::Explicit());
                         }
@@ -565,9 +569,14 @@ public:
 
 SampleUsage Analysis::GetSampleUsage(const Program& program,
                                      const Variable& fp,
-                                     bool writesToSampleCoords) {
+                                     bool writesToSampleCoords,
+                                     int* elidedSampleCoordCount) {
     MergeSampleUsageVisitor visitor(*program.fContext, fp, writesToSampleCoords);
-    return visitor.visit(program);
+    SampleUsage result = visitor.visit(program);
+    if (elidedSampleCoordCount) {
+        *elidedSampleCoordCount += visitor.elidedSampleCoordCount();
+    }
+    return result;
 }
 
 bool Analysis::ReferencesBuiltin(const Program& program, int builtin) {

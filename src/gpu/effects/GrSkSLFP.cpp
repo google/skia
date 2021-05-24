@@ -135,11 +135,11 @@ public:
         args.fFragBuilder->declareGlobal(inputColorCopy);
         args.fFragBuilder->codeAppendf("%s = %s;\n", inputColorCopy.c_str(), args.fInputColor);
 
-        // Callback to define a function (and return its mangled name)
+        // Copy the incoming coords to a local variable. Code in main might modify the coords
+        // parameter. fSampleCoord could be a varying, so writes to it would be illegal.
         SkString coordsVarName = args.fFragBuilder->newTmpVarName("coords");
-        const char* coords = nullptr;
+        const char* coords = coordsVarName.c_str();
         if (fp.referencesSampleCoords()) {
-            coords = coordsVarName.c_str();
             args.fFragBuilder->codeAppendf("float2 %s = %s;\n", coords, args.fSampleCoord);
         }
 
