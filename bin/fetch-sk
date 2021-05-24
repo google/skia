@@ -1,0 +1,99 @@
+#!/usr/bin/env python
+
+# Copyright 2021 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import hashlib
+import json
+import os
+import platform
+import re
+import shutil
+import stat
+import sys
+import tempfile
+import zipfile
+
+if sys.version_info[0] < 3:
+  from urllib2 import urlopen
+else:
+  from urllib.request import urlopen
+
+
+def sha256sum(path):
+  try:
+    with open(sk_path, 'rb') as f:
+      return hashlib.sha256(f.read()).hexdigest()
+  except OSError:
+    return ''
+
+
+os.chdir(os.path.join(os.path.dirname(__file__), os.pardir))
+
+OS  = {'darwin': 'mac', 'linux': 'linux', 'linux2': 'linux', 'win32': 'windows'}[sys.platform]
+cpu = {'amd64': 'amd64', 'arm64': 'arm64', 'x86_64': 'amd64'}[platform.machine().lower()]
+platform = '%s-%s' % (OS, cpu)
+sk = 'sk'
+if 'windows' in platform:
+  sk = 'sk.exe'
+
+# Find the version of 'sk' requested by DEPS.
+with open('DEPS', 'rb') as f:
+  deps = f.read().decode()
+found = re.findall(r"'sk_tool_revision':\s*'(\S+)'", deps)
+if len(found) != 1:
+  print('Unable to find sk_tool_revision in DEPS', file=sys.stderr)
+  exit(1)
+desired_version = found[0]
+
+# Determine which version (if any) we currently have.
+sk_path = os.path.join('bin', 'sk')
+current_sha256 = sha256sum(sk_path)
+sk_version_path = os.path.join('bin', 'sk.version')
+
+# When we download 'sk', we write the version information to a file so we can
+# keep track of which version we have. Read the file to determine whether the
+# current version matches what we want.
+current_version = {
+  'version': '',
+  'sha256': '',
+}
+try:
+  with open(sk_version_path, 'r', encoding='utf8') as f:
+    current_version = json.load(f)
+except OSError:
+  pass
+
+if desired_version != current_version['version']:
+  print('Version "%s" requested by DEPS differs from current version "%s"' % (
+      desired_version, current_version['version']))
+elif current_sha256 != current_version['sha256']:
+  print('sha256 sum "%s" does not match last-downloaded version "%s"' % (
+      current_sha256, current_version['sha256']))
+else:
+  print('Already up to date.')
+  exit(0)
+
+print('Fetching %s at %s for platform %s' % (sk, desired_version, platform))
+
+# Download sk.
+skzip = os.path.join(tempfile.mkdtemp(), 'sk.zip')
+with open(skzip, 'wb') as f:
+  url = 'https://chrome-infra-packages.appspot.com/dl/skia/tools/sk/%s/+/%s' % (
+      platform, desired_version)
+  f.write(urlopen(url).read())
+
+with zipfile.ZipFile(skzip, 'r') as f:
+  f.extract(sk, 'bin')
+
+os.chmod(sk_path, stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR |
+                  stat.S_IRGRP                | stat.S_IXGRP |
+                  stat.S_IROTH                | stat.S_IXOTH )
+
+# Write the downloaded version info to a file.
+current_version['version'] = desired_version
+current_version['sha256'] = sha256sum(sk_path)
+with open(sk_version_path, 'w', encoding='utf8') as f:
+  json.dump(current_version, f, sort_keys=True, indent=2)
