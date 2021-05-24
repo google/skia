@@ -426,7 +426,7 @@ bool GrGpu::writePixels(GrSurface* surface,
                         bool prepForTexSampling) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     ATRACE_ANDROID_FRAMEWORK_ALWAYS("Texture upload(%u) %ix%i",
-                                    surface->uniqueID().asUInt(), width, height);
+                                    surface->uniqueID().asUInt(), rect.width(), rect.height());
     SkASSERT(surface);
     SkASSERT(!surface->framebufferOnly());
 
