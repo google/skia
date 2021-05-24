@@ -2256,7 +2256,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         bool lum16FSupported = false;
         bool lum16FSizedFormatSupported = false;
         if (GR_IS_GR_GL(standard)) {
-            if (!fIsCoreProfile && ctxInfo.hasExtension("GL_ARB_texture_float")) {
+            if (ctxInfo.hasExtension("GL_ARB_texture_float")) {
                 lum16FSupported = true;
                 lum16FSizedFormatSupported = true;
             }
