@@ -33,6 +33,75 @@
       "message": "Please add some unit tests to demonstrate that the class works.",
       "revId": "3d61391df53492f260cee8587d1bc6d286cbfeb2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b331f4e4_0411491c",
+        "filename": "include/private/SkTOptional.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-24T16:29:45Z",
+      "side": 1,
+      "message": "Should this be `Args\u0026\u0026...` ?",
+      "range": {
+        "startLine": 28,
+        "startChar": 12,
+        "endLine": 28,
+        "endChar": 20
+      },
+      "revId": "3d61391df53492f260cee8587d1bc6d286cbfeb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7b08fa4b_07f0b35b",
+        "filename": "include/private/SkTOptional.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-24T16:29:45Z",
+      "side": 1,
+      "message": "if (this !\u003d \u0026other)",
+      "range": {
+        "startLine": 35,
+        "startChar": 8,
+        "endLine": 35,
+        "endChar": 33
+      },
+      "revId": "3d61391df53492f260cee8587d1bc6d286cbfeb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "07917645_cd892467",
+        "filename": "include/private/SkTOptional.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-24T16:29:45Z",
+      "side": 1,
+      "message": "Two concerns.\n- We\u0027re checking fHasValue after we copied it from the other side. I\u0027m pretty sure this is not the intent.\n- std::optional (surprisingly) does NOT change the \"has-value\" status of moved-from optionals. The optional continues to hold the husk of the moved-from object.",
+      "range": {
+        "startLine": 45,
+        "startChar": 7,
+        "endLine": 47,
+        "endChar": 36
+      },
+      "revId": "3d61391df53492f260cee8587d1bc6d286cbfeb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
