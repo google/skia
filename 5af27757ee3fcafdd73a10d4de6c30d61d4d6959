@@ -16,6 +16,24 @@
       "message": "I meant\n\n    optional(const optional\u0026) \u003d delete\n\nAllowing optional to me initialized with an lvalue of an existing value is fine.",
       "revId": "5af27757ee3fcafdd73a10d4de6c30d61d4d6959",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2e1a0228_106e48bb",
+        "filename": "include/private/SkTOptional.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-24T19:10:49Z",
+      "side": 1,
+      "message": "Argh, brain fart.",
+      "parentUuid": "625e2056_810dbe47",
+      "revId": "5af27757ee3fcafdd73a10d4de6c30d61d4d6959",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
