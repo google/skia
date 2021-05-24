@@ -88,6 +88,24 @@
       "parentUuid": "0ee7123f_f70bf980",
       "revId": "3ce2b872cdbc53e826e8d08e1a1480a1c38911d6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6f94e227_6e339963",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-05-24T16:22:13Z",
+      "side": 1,
+      "message": "FWIW, on my mac if I try to create a texture with GL_LUMINANCE16F using glTexStorage2D I get GL_INVALID_ENUM.",
+      "parentUuid": "eab401bb_78e22f61",
+      "revId": "3ce2b872cdbc53e826e8d08e1a1480a1c38911d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
