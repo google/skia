@@ -74,63 +74,64 @@ bool SkGpuDevice::CheckAlphaTypeAndGetFlags(
 
 sk_sp<SkGpuDevice> SkGpuDevice::Make(GrRecordingContext* rContext,
                                      GrColorType colorType,
-                                     sk_sp<SkColorSpace> colorSpace,
                                      sk_sp<GrSurfaceProxy> proxy,
+                                     sk_sp<SkColorSpace> colorSpace,
                                      GrSurfaceOrigin origin,
                                      const SkSurfaceProps& surfaceProps,
                                      InitContents init) {
     auto sdc = GrSurfaceDrawContext::Make(rContext,
                                           colorType,
-                                          std::move(colorSpace),
                                           std::move(proxy),
+                                          std::move(colorSpace),
                                           origin,
                                           surfaceProps);
+
+    return SkGpuDevice::Make(std::move(sdc), nullptr, init);
+}
+
+sk_sp<SkGpuDevice> SkGpuDevice::Make(std::unique_ptr<GrSurfaceDrawContext> sdc,
+                                     const SkImageInfo* ii,
+                                     InitContents init) {
     if (!sdc) {
         return nullptr;
     }
 
-    return SkGpuDevice::Make(std::move(sdc), init);
-}
-
-sk_sp<SkGpuDevice> SkGpuDevice::Make(std::unique_ptr<GrSurfaceDrawContext> surfaceDrawContext,
-                                     InitContents init) {
-    if (!surfaceDrawContext) {
-        return nullptr;
-    }
-
-    GrRecordingContext* rContext = surfaceDrawContext->recordingContext();
+    GrRecordingContext* rContext = sdc->recordingContext();
     if (rContext->abandoned()) {
         return nullptr;
     }
 
-    SkColorType ct = GrColorTypeToSkColorType(surfaceDrawContext->colorInfo().colorType());
+    SkColorType ct = GrColorTypeToSkColorType(sdc->colorInfo().colorType());
 
     unsigned flags;
     if (!rContext->colorTypeSupportedAsSurface(ct) ||
-        !CheckAlphaTypeAndGetFlags(nullptr, init, &flags)) {
+        !CheckAlphaTypeAndGetFlags(ii, init, &flags)) {
         return nullptr;
     }
-    return sk_sp<SkGpuDevice>(new SkGpuDevice(std::move(surfaceDrawContext), flags));
+    return sk_sp<SkGpuDevice>(new SkGpuDevice(std::move(sdc), flags));
 }
 
-sk_sp<SkGpuDevice> SkGpuDevice::Make(GrRecordingContext* rContext, SkBudgeted budgeted,
-                                     const SkImageInfo& info, SkBackingFit fit, int sampleCount,
-                                     GrSurfaceOrigin origin, const SkSurfaceProps* props,
-                                     GrMipmapped mipMapped, GrProtected isProtected,
+sk_sp<SkGpuDevice> SkGpuDevice::Make(GrRecordingContext* rContext,
+                                     SkBudgeted budgeted,
+                                     const SkImageInfo& ii,
+                                     SkBackingFit fit,
+                                     int sampleCount,
+                                     GrMipmapped mipMapped,
+                                     GrProtected isProtected,
+                                     GrSurfaceOrigin origin,
+                                     const SkSurfaceProps& props,
                                      InitContents init) {
-    unsigned flags;
-    if (!rContext->colorTypeSupportedAsSurface(info.colorType()) ||
-        !CheckAlphaTypeAndGetFlags(&info, init, &flags)) {
-        return nullptr;
-    }
+    auto sdc = MakeSurfaceDrawContext(rContext,
+                                      budgeted,
+                                      ii,
+                                      fit,
+                                      sampleCount,
+                                      mipMapped,
+                                      isProtected,
+                                      origin,
+                                      props);
 
-    auto sdc = MakeSurfaceDrawContext(rContext, budgeted, info, fit, sampleCount, origin,
-                                      props, mipMapped, isProtected);
-    if (!sdc) {
-        return nullptr;
-    }
-
-    return sk_sp<SkGpuDevice>(new SkGpuDevice(std::move(sdc), flags));
+    return SkGpuDevice::Make(std::move(sdc), &ii, init);
 }
 
 static SkImageInfo make_info(GrSurfaceDrawContext* context, bool opaque) {
@@ -170,10 +171,10 @@ std::unique_ptr<GrSurfaceDrawContext> SkGpuDevice::MakeSurfaceDrawContext(
         const SkImageInfo& origInfo,
         SkBackingFit fit,
         int sampleCount,
-        GrSurfaceOrigin origin,
-        const SkSurfaceProps* surfaceProps,
         GrMipmapped mipmapped,
-        GrProtected isProtected) {
+        GrProtected isProtected,
+        GrSurfaceOrigin origin,
+        const SkSurfaceProps& surfaceProps) {
     if (!rContext) {
         return nullptr;
     }
@@ -182,7 +183,7 @@ std::unique_ptr<GrSurfaceDrawContext> SkGpuDevice::MakeSurfaceDrawContext(
     // they need to be exact.
     return GrSurfaceDrawContext::Make(
             rContext, SkColorTypeToGrColorType(origInfo.colorType()), origInfo.refColorSpace(),
-            fit, origInfo.dimensions(), SkSurfacePropsCopyOrDefault(surfaceProps),
+            fit, origInfo.dimensions(), surfaceProps,
             sampleCount, mipmapped, isProtected, origin, budgeted);
 }
 
@@ -266,10 +267,10 @@ void SkGpuDevice::replaceSurfaceDrawContext(SkSurface::ContentChangeMode mode) {
                                          this->imageInfo(),
                                          SkBackingFit::kExact,
                                          fSurfaceDrawContext->numSamples(),
-                                         fSurfaceDrawContext->origin(),
-                                         &this->surfaceProps(),
                                          fSurfaceDrawContext->mipmapped(),
-                                         GrProtected::kNo);
+                                         GrProtected::kNo,
+                                         fSurfaceDrawContext->origin(),
+                                         this->surfaceProps());
     if (!newSDC) {
         return;
     }
@@ -1031,7 +1032,7 @@ SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint
     // Skia's convention is to only clear a device if it is non-opaque.
     InitContents init = cinfo.fInfo.isOpaque() ? kUninit_InitContents : kClear_InitContents;
 
-    return SkGpuDevice::Make(std::move(sdc), init).release();
+    return SkGpuDevice::Make(std::move(sdc), &cinfo.fInfo, init).release();
 }
 
 sk_sp<SkSurface> SkGpuDevice::makeSurface(const SkImageInfo& info, const SkSurfaceProps& props) {

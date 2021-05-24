@@ -92,28 +92,28 @@ private:
     GrDrawingManager* fDrawingManager;
 };
 
-std::unique_ptr<GrSurfaceDrawContext> GrSurfaceDrawContext::Make(GrRecordingContext* context,
+std::unique_ptr<GrSurfaceDrawContext> GrSurfaceDrawContext::Make(GrRecordingContext* rContext,
                                                                  GrColorType colorType,
-                                                                 sk_sp<SkColorSpace> colorSpace,
                                                                  sk_sp<GrSurfaceProxy> proxy,
+                                                                 sk_sp<SkColorSpace> colorSpace,
                                                                  GrSurfaceOrigin origin,
                                                                  const SkSurfaceProps& surfaceProps,
                                                                  bool flushTimeOpsTask) {
-    if (!proxy) {
+    if (!rContext || !proxy) {
         return nullptr;
     }
 
     const GrBackendFormat& format = proxy->backendFormat();
     GrSwizzle readSwizzle, writeSwizzle;
     if (colorType != GrColorType::kUnknown) {
-        readSwizzle = context->priv().caps()->getReadSwizzle(format, colorType);
-        writeSwizzle = context->priv().caps()->getWriteSwizzle(format, colorType);
+        readSwizzle = rContext->priv().caps()->getReadSwizzle(format, colorType);
+        writeSwizzle = rContext->priv().caps()->getWriteSwizzle(format, colorType);
     }
 
     GrSurfaceProxyView readView (           proxy, origin,  readSwizzle);
     GrSurfaceProxyView writeView(std::move(proxy), origin, writeSwizzle);
 
-    return std::make_unique<GrSurfaceDrawContext>(context,
+    return std::make_unique<GrSurfaceDrawContext>(rContext,
                                                   std::move(readView),
                                                   std::move(writeView),
                                                   colorType,
@@ -171,7 +171,7 @@ std::unique_ptr<GrSurfaceDrawContext> GrSurfaceDrawContext::Make(
 }
 
 std::unique_ptr<GrSurfaceDrawContext> GrSurfaceDrawContext::Make(
-        GrRecordingContext* context,
+        GrRecordingContext* rContext,
         GrColorType colorType,
         sk_sp<SkColorSpace> colorSpace,
         SkBackingFit fit,
@@ -182,26 +182,26 @@ std::unique_ptr<GrSurfaceDrawContext> GrSurfaceDrawContext::Make(
         GrProtected isProtected,
         GrSurfaceOrigin origin,
         SkBudgeted budgeted) {
-    auto format = context->priv().caps()->getDefaultBackendFormat(colorType, GrRenderable::kYes);
+    auto format = rContext->priv().caps()->getDefaultBackendFormat(colorType, GrRenderable::kYes);
     if (!format.isValid()) {
         return nullptr;
     }
-    sk_sp<GrTextureProxy> proxy = context->priv().proxyProvider()->createProxy(format,
-                                                                               dimensions,
-                                                                               GrRenderable::kYes,
-                                                                               sampleCnt,
-                                                                               mipMapped,
-                                                                               fit,
-                                                                               budgeted,
-                                                                               isProtected);
+    sk_sp<GrTextureProxy> proxy = rContext->priv().proxyProvider()->createProxy(format,
+                                                                                dimensions,
+                                                                                GrRenderable::kYes,
+                                                                                sampleCnt,
+                                                                                mipMapped,
+                                                                                fit,
+                                                                                budgeted,
+                                                                                isProtected);
     if (!proxy) {
         return nullptr;
     }
 
-    return GrSurfaceDrawContext::Make(context,
+    return GrSurfaceDrawContext::Make(rContext,
                                       colorType,
-                                      std::move(colorSpace),
                                       std::move(proxy),
+                                      std::move(colorSpace),
                                       origin,
                                       surfaceProps);
 }
@@ -243,7 +243,7 @@ std::unique_ptr<GrSurfaceDrawContext> GrSurfaceDrawContext::MakeFromBackendTextu
         return nullptr;
     }
 
-    return GrSurfaceDrawContext::Make(context, colorType, std::move(colorSpace), std::move(proxy),
+    return GrSurfaceDrawContext::Make(context, colorType, std::move(proxy), std::move(colorSpace),
                                       origin, surfaceProps);
 }
 
