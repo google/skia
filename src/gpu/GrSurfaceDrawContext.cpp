@@ -226,7 +226,7 @@ std::unique_ptr<GrSurfaceDrawContext> GrSurfaceDrawContext::MakeWithFallback(
                                       sampleCnt, mipMapped, isProtected, origin, budgeted);
 }
 
-std::unique_ptr<GrSurfaceDrawContext> GrSurfaceDrawContext::MakeFromBackendTexture(
+std::unique_ptr<GrSurfaceDrawContext> GrSurfaceDrawContext::MakeFromBackendTexture1(
         GrRecordingContext* context,
         GrColorType colorType,
         sk_sp<SkColorSpace> colorSpace,
