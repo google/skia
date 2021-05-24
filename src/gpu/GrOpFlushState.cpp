@@ -100,24 +100,27 @@ void GrOpFlushState::reset() {
 void GrOpFlushState::doUpload(GrDeferredTextureUploadFn& upload,
                               bool shouldPrepareSurfaceForSampling) {
     GrDeferredTextureUploadWritePixelsFn wp = [this, shouldPrepareSurfaceForSampling](
-            GrTextureProxy* dstProxy, int left, int top, int width, int height,
-            GrColorType colorType, const void* buffer, size_t rowBytes) {
+                                                      GrTextureProxy* dstProxy,
+                                                      SkIRect rect,
+                                                      GrColorType colorType,
+                                                      const void* buffer,
+                                                      size_t rowBytes) {
         GrSurface* dstSurface = dstProxy->peekSurface();
         if (!fGpu->caps()->surfaceSupportsWritePixels(dstSurface)) {
             return false;
         }
         GrCaps::SupportedWrite supportedWrite = fGpu->caps()->supportedWritePixelsColorType(
                 colorType, dstSurface->backendFormat(), colorType);
-        size_t tightRB = width * GrColorTypeBytesPerPixel(supportedWrite.fColorType);
+        size_t tightRB = rect.width()*GrColorTypeBytesPerPixel(supportedWrite.fColorType);
         SkASSERT(rowBytes >= tightRB);
         std::unique_ptr<char[]> tmpPixels;
         if (supportedWrite.fColorType != colorType ||
             (!fGpu->caps()->writePixelsRowBytesSupport() && rowBytes != tightRB)) {
-            tmpPixels.reset(new char[height * tightRB]);
+            tmpPixels.reset(new char[rect.height()*tightRB]);
             // Use kUnknown to ensure no alpha type conversions or clamping occur.
             static constexpr auto kAT = kUnknown_SkAlphaType;
-            GrImageInfo srcInfo(colorType,                 kAT, nullptr, width, height);
-            GrImageInfo tmpInfo(supportedWrite.fColorType, kAT, nullptr, width, height);
+            GrImageInfo srcInfo(colorType,                 kAT, nullptr, rect.size());
+            GrImageInfo tmpInfo(supportedWrite.fColorType, kAT, nullptr, rect.size());
             if (!GrConvertPixels( GrPixmap(tmpInfo, tmpPixels.get(), tightRB ),
                                  GrCPixmap(srcInfo,          buffer, rowBytes))) {
                 return false;
@@ -125,8 +128,12 @@ void GrOpFlushState::doUpload(GrDeferredTextureUploadFn& upload,
             rowBytes = tightRB;
             buffer = tmpPixels.get();
         }
-        return this->fGpu->writePixels(dstSurface, left, top, width, height, colorType,
-                                       supportedWrite.fColorType, buffer, rowBytes,
+        return this->fGpu->writePixels(dstSurface,
+                                       rect,
+                                       colorType,
+                                       supportedWrite.fColorType,
+                                       buffer,
+                                       rowBytes,
                                        shouldPrepareSurfaceForSampling);
     };
     upload(wp);
