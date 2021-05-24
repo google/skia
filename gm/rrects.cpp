@@ -1,3 +1,4 @@
+#if 0
 /*
  * Copyright 2012 Google Inc.
  *
@@ -271,3 +272,4 @@ DEF_GM( return new RRectGM(RRectGM::kBW_Clip_Type); )
 DEF_GM( return new RRectGM(RRectGM::kEffect_Type); )
 
 }  // namespace skiagm
+#endif

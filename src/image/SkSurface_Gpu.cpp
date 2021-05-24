@@ -23,14 +23,17 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrTexture.h"
-#include "src/gpu/SkGpuDevice.h"
+#include "src/gpu/SkBaseGpuDevice.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_Gpu.h"
 #include "src/image/SkSurface_Base.h"
 
+#include "src/gpu/GrSurfaceDrawContext.h"
+#include "src/gpu/SkGpuDevice.h"
+
 #if SK_SUPPORT_GPU
 
-SkSurface_Gpu::SkSurface_Gpu(sk_sp<SkGpuDevice> device)
+SkSurface_Gpu::SkSurface_Gpu(sk_sp<SkBaseGpuDevice> device)
     : INHERITED(device->width(), device->height(), &device->surfaceProps())
     , fDevice(std::move(device)) {
     SkASSERT(fDevice->targetProxy()->priv().isExact());
@@ -66,8 +69,8 @@ static GrRenderTarget* prepare_rt_for_external_access(SkSurface_Gpu* surface,
     dContext->priv().flushSurface(surface->getDevice()->targetProxy());
 
     // Grab the render target *after* firing notifications, as it may get switched if CoW kicks in.
-    GrSurfaceDrawContext* sdc = surface->getDevice()->surfaceDrawContext();
-    return sdc->accessRenderTarget();
+    GrSurfaceDrawContext* sdc = nullptr; //surface->getDevice()->surfaceDrawContext();
+    return nullptr; //sdc->accessRenderTarget();
 }
 
 GrBackendTexture SkSurface_Gpu::onGetBackendTexture(BackendHandleAccess access) {
@@ -104,22 +107,18 @@ sk_sp<SkSurface> SkSurface_Gpu::onNewSurface(const SkImageInfo& info) {
 }
 
 sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(const SkIRect* subset) {
-    GrSurfaceDrawContext* sdc = fDevice->surfaceDrawContext();
-    if (!sdc) {
+    GrRenderTargetProxy* rtp = fDevice->targetProxy();
+    if (!rtp) {
         return nullptr;
     }
 
     auto rContext = fDevice->recordingContext();
 
-    if (!sdc->asSurfaceProxy()) {
-        return nullptr;
-    }
+    GrSurfaceProxyView srcView = fDevice->readSurfaceView();
 
-    GrSurfaceProxyView srcView = sdc->readSurfaceView();
+    SkBudgeted budgeted = rtp->isBudgeted();
 
-    SkBudgeted budgeted = sdc->asSurfaceProxy()->isBudgeted();
-
-    if (subset || !srcView.asTextureProxy() || sdc->refsWrappedObjects()) {
+    if (subset || !srcView.asTextureProxy() || rtp->refsWrappedObjects()) {
         // If the original render target is a buffer originally created by the client, then we don't
         // want to ever retarget the SkSurface at another buffer we create. If the source is a
         // texture (and the image is not subsetted) we make a dual-proxied SkImage that will
@@ -130,8 +129,8 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(const SkIRect* subset) {
                                                     srcView,
                                                     fDevice->imageInfo().colorInfo());
         }
-        auto rect = subset ? *subset : SkIRect::MakeSize(sdc->dimensions());
-        srcView = GrSurfaceProxyView::Copy(rContext, std::move(srcView), sdc->mipmapped(), rect,
+        auto rect = subset ? *subset : SkIRect::MakeSize(srcView.dimensions());
+        srcView = GrSurfaceProxyView::Copy(rContext, std::move(srcView), srcView.mipmapped(), rect,
                                            SkBackingFit::kExact, budgeted);
     }
 
@@ -158,6 +157,7 @@ void SkSurface_Gpu::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
                                                 RescaleMode rescaleMode,
                                                 ReadPixelsCallback callback,
                                                 ReadPixelsContext context) {
+#if 0
     auto* sdc = this->fDevice->surfaceDrawContext();
     // Context TODO: Elevate direct context requirement to public API.
     auto dContext = sdc->recordingContext()->asDirectContext();
@@ -166,6 +166,7 @@ void SkSurface_Gpu::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
     }
     sdc->asyncRescaleAndReadPixels(dContext, info, srcRect, rescaleGamma, rescaleMode, callback,
                                    context);
+#endif
 }
 
 void SkSurface_Gpu::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
@@ -176,6 +177,7 @@ void SkSurface_Gpu::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSp
                                                       RescaleMode rescaleMode,
                                                       ReadPixelsCallback callback,
                                                       ReadPixelsContext context) {
+#if 0
     auto* sdc = this->fDevice->surfaceDrawContext();
     // Context TODO: Elevate direct context requirement to public API.
     auto dContext = sdc->recordingContext()->asDirectContext();
@@ -191,27 +193,30 @@ void SkSurface_Gpu::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSp
                                          rescaleMode,
                                          callback,
                                          context);
+#endif
 }
 
 // Create a new render target and, if necessary, copy the contents of the old
 // render target into it. Note that this flushes the SkGpuDevice but
 // doesn't force an OpenGL flush.
 void SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
-    GrSurfaceDrawContext* sdc = fDevice->surfaceDrawContext();
+    GrSurfaceProxyView readSurfaceView = fDevice->readSurfaceView();
+
+//    GrSurfaceDrawContext* sdc = fDevice->surfaceDrawContext();
 
     // are we sharing our backing proxy with the image? Note this call should never create a new
     // image because onCopyOnWrite is only called when there is a cached image.
     sk_sp<SkImage> image = this->refCachedImage();
     SkASSERT(image);
 
-    if (static_cast<SkImage_Gpu*>(image.get())->surfaceMustCopyOnWrite(sdc->asSurfaceProxy())) {
+    if (static_cast<SkImage_Gpu*>(image.get())->surfaceMustCopyOnWrite(readSurfaceView.proxy())) {
         fDevice->replaceSurfaceDrawContext(mode);
     } else if (kDiscard_ContentChangeMode == mode) {
         this->SkSurface_Gpu::onDiscard();
     }
 }
 
-void SkSurface_Gpu::onDiscard() { fDevice->surfaceDrawContext()->discard(); }
+void SkSurface_Gpu::onDiscard() { fDevice->discard(); }
 
 GrSemaphoresSubmitted SkSurface_Gpu::onFlush(BackendSurfaceAccess access, const GrFlushInfo& info,
                                              const GrBackendSurfaceMutableState* newState) {
@@ -221,9 +226,9 @@ GrSemaphoresSubmitted SkSurface_Gpu::onFlush(BackendSurfaceAccess access, const 
         return GrSemaphoresSubmitted::kNo;
     }
 
-    GrSurfaceDrawContext* sdc = fDevice->surfaceDrawContext();
+    GrRenderTargetProxy* rtp = fDevice->targetProxy();
 
-    return dContext->priv().flushSurface(sdc->asSurfaceProxy(), access, info, newState);
+    return dContext->priv().flushSurface(rtp, access, info, newState);
 }
 
 bool SkSurface_Gpu::onWait(int numSemaphores, const GrBackendSemaphore* waitSemaphores,
@@ -472,10 +477,10 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* rContext, SkBud
         mipMapped = GrMipmapped::kNo;
     }
 
-    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(rContext, budgeted, info, SkBackingFit::kExact,
+    auto device = rContext->priv().createDevice(budgeted, info, SkBackingFit::kExact,
                                                 sampleCount, mipMapped, GrProtected::kNo, origin,
                                                 SkSurfacePropsCopyOrDefault(props),
-                                                SkBaseGpuDevice::kClear_InitContents));
+                                                SkBaseGpuDevice::kClear_InitContents);
     if (!device) {
         return nullptr;
     }
@@ -530,6 +535,7 @@ bool SkSurface_Gpu::onReplaceBackendTexture(const GrBackendTexture& backendTextu
                                             ContentChangeMode mode,
                                             TextureReleaseProc releaseProc,
                                             ReleaseContext releaseContext) {
+#if 0
     auto releaseHelper = GrRefCntedCallback::Make(releaseProc, releaseContext);
 
     auto context = this->fDevice->recordingContext();
@@ -575,6 +581,7 @@ bool SkSurface_Gpu::onReplaceBackendTexture(const GrBackendTexture& backendTextu
         return false;
     }
     fDevice->replaceSurfaceDrawContext(std::move(sdc), mode);
+#endif
     return true;
 }
 

@@ -15,6 +15,7 @@ declare_args() {
   skia_enable_android_utils = is_skia_dev_build
   skia_enable_ccpr = true
   skia_enable_nga = false
+  skia_enable_oga = true
   skia_enable_discrete_gpu = true
   skia_enable_flutter_defines = false
   skia_enable_fontmgr_empty = false
