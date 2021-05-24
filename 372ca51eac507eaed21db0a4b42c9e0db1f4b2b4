@@ -36,6 +36,42 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "40033515_57a9670d",
+        "filename": "include/private/SkTOptional.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-24T18:51:22Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "8fe203ea_7fdc993b",
+      "revId": "372ca51eac507eaed21db0a4b42c9e0db1f4b2b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "89253df8_795d43ec",
+        "filename": "include/private/SkTOptional.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-24T18:51:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8fe203ea_7fdc993b",
+      "revId": "372ca51eac507eaed21db0a4b42c9e0db1f4b2b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4e9ea485_54fa5d21",
@@ -49,6 +85,24 @@
       "writtenOn": "2021-05-24T18:37:02Z",
       "side": 1,
       "message": "If no lvalue assignment operator, should explicitly mark it as deleted to get a better error message. It would still fail to compile (wouldn\u0027t have the template issue) but it would be nice to explicitly list out all the common members.",
+      "revId": "372ca51eac507eaed21db0a4b42c9e0db1f4b2b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ca3b3c96_df6248ad",
+        "filename": "include/private/SkTOptional.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-24T18:51:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4e9ea485_54fa5d21",
       "revId": "372ca51eac507eaed21db0a4b42c9e0db1f4b2b4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
