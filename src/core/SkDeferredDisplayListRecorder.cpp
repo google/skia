@@ -184,13 +184,12 @@ bool SkDeferredDisplayListRecorder::init() {
     }
     fTargetProxy->priv().setIsDDLTarget();
 
-    auto device = SkGpuDevice::Make(fContext.get(),
-                                    grColorType,
-                                    fTargetProxy,
-                                    fCharacterization.refColorSpace(),
-                                    fCharacterization.origin(),
-                                    fCharacterization.surfaceProps(),
-                                    SkBaseGpuDevice::kUninit_InitContents);
+    auto device = fContext->priv().createDevice(grColorType,
+                                                fTargetProxy,
+                                                fCharacterization.refColorSpace(),
+                                                fCharacterization.origin(),
+                                                fCharacterization.surfaceProps(),
+                                                SkBaseGpuDevice::kUninit_InitContents);
     if (!device) {
         return false;
     }

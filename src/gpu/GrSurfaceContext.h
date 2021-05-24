@@ -79,7 +79,7 @@ public:
     GrRecordingContext* recordingContext() { return fContext; }
 
     const GrColorInfo& colorInfo() const { return fColorInfo; }
-    GrImageInfo imageInfo() const { return {fColorInfo, fReadView.proxy()->dimensions()}; }
+    GrImageInfo imageInfo1() const { return {fColorInfo, fReadView.proxy()->dimensions()}; }
 
     GrSurfaceOrigin origin() const { return fReadView.origin(); }
     GrSwizzle readSwizzle() const { return fReadView.swizzle(); }
