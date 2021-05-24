@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8b4b7012_511b077c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-05-24T15:23:59Z",
+      "side": 1,
+      "message": "It is already enabled on desktop GL, just not core profile contexts. Are you sure this is legal on core profile and that the textures aren\u0027t really GL_R16F? My understanding is that all ALPHA, LUMINANCE, and LUMINANCE_ALPHA texture formats are removed on core profile. The only Mac I have access to doesn\u0027t advertise the extension so I can\u0027t test whether using this format on core profile works.",
+      "revId": "3ce2b872cdbc53e826e8d08e1a1480a1c38911d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
