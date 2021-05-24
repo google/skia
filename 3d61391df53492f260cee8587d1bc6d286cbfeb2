@@ -76,6 +76,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b88a0dbb_ddaebfe1",
+        "filename": "include/private/SkTOptional.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-24T17:05:27Z",
+      "side": 1,
+      "message": "Yes, done.",
+      "parentUuid": "b331f4e4_0411491c",
+      "range": {
+        "startLine": 28,
+        "startChar": 12,
+        "endLine": 28,
+        "endChar": 20
+      },
+      "revId": "3d61391df53492f260cee8587d1bc6d286cbfeb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7b08fa4b_07f0b35b",
@@ -136,6 +160,30 @@
       "writtenOn": "2021-05-24T16:29:45Z",
       "side": 1,
       "message": "Two concerns.\n- We\u0027re checking fHasValue after we copied it from the other side. I\u0027m pretty sure this is not the intent.\n- std::optional (surprisingly) does NOT change the \"has-value\" status of moved-from optionals. The optional continues to hold the husk of the moved-from object.",
+      "range": {
+        "startLine": 45,
+        "startChar": 7,
+        "endLine": 47,
+        "endChar": 36
+      },
+      "revId": "3d61391df53492f260cee8587d1bc6d286cbfeb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "41d34c00_bd389213",
+        "filename": "include/private/SkTOptional.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-24T17:05:27Z",
+      "side": 1,
+      "message": "That was actually the intent, but you calling this out made me realize I was failing to destroy the old object in the event of an assignment.\n\nI suppose I\u0027ll copy the std::optional behavior on a move even though it seems stupid...",
+      "parentUuid": "07917645_cd892467",
       "range": {
         "startLine": 45,
         "startChar": 7,
