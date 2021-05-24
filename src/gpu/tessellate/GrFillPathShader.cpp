@@ -45,16 +45,10 @@ public:
 
         const SkPMColor4f& color = shader.fColor;
         pdman.set4f(fColorUniform, color.fR, color.fG, color.fB, color.fA);
-
-        if (fPathBoundsUniform.isValid()) {
-            const SkRect& b = geomProc.cast<GrFillBoundingBoxShader>().pathBounds();
-            pdman.set4f(fPathBoundsUniform, b.left(), b.top(), b.right(), b.bottom());
-        }
     }
 
     GrGLSLUniformHandler::UniformHandle fViewMatrixUniform;
     GrGLSLUniformHandler::UniformHandle fColorUniform;
-    GrGLSLUniformHandler::UniformHandle fPathBoundsUniform;
 };
 
 GrGLSLGeometryProcessor* GrFillPathShader::createGLSLInstance(const GrShaderCaps&) const {
@@ -132,19 +126,13 @@ void GrFillCubicHullShader::emitVertexCode(Impl*, GrGLSLVertexBuilder* v, const 
 void GrFillBoundingBoxShader::emitVertexCode(Impl* impl, GrGLSLVertexBuilder* v,
                                              const char* viewMatrix,
                                              GrGLSLUniformHandler* uniformHandler) const {
-    const char* pathBounds;
-    impl->fPathBoundsUniform = uniformHandler->addUniform(
-            nullptr, kVertex_GrShaderFlag, kFloat4_GrSLType, "path_bounds", &pathBounds);
-
     v->codeAppendf(R"(
-    // Use sk_VertexID and uniforms (instead of vertex data) to find vertex positions.
-    float2 T = float2(sk_VertexID & 1, sk_VertexID >> 1);
-    localcoord = mix(%s.xy, %s.zw, T);
-    vertexpos = (%s * float3(localcoord, 1)).xy;
+    // Bloat the bounding box by 1/4px to avoid potential T-junctions at the edges.
+    float2x2 M_ = inverse(float2x2(%s));
+    float2 bloat = float2(abs(M_[0]) + abs(M_[1])) * .25;
 
-    // Outset to avoid possible T-junctions with extreme edges of the path.
-    float2x2 M2 = float2x2(%s);
-    float2 devoutset = .25 * sign(M2 * (T - .5));
-    localcoord += inverse(M2) * devoutset;
-    vertexpos += devoutset;)", pathBounds, pathBounds, viewMatrix, viewMatrix);
+    // Find the vertex position.
+    float2 T = float2(sk_VertexID & 1, sk_VertexID >> 1);
+    localcoord = mix(pathBounds.xy - bloat, pathBounds.zw + bloat, T);
+    vertexpos = (%s * float3(localcoord, 1)).xy;)", viewMatrix, viewMatrix);
 }

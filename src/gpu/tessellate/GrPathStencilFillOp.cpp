@@ -153,6 +153,12 @@ void GrPathStencilFillOp::onPrepare(GrOpFlushState* flushState) {
     }
 
     fTessellator->prepare(flushState, this->bounds(), fViewMatrix, fPath);
+
+    if (fFillBBoxProgram) {
+        GrVertexWriter vertexWriter = flushState->makeVertexSpace(sizeof(SkRect), 1, &fBBoxBuffer,
+                                                                  &fBBoxBaseInstance);
+        vertexWriter.write(fPath.getBounds());
+    }
 }
 
 void GrPathStencilFillOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
@@ -179,7 +185,7 @@ void GrPathStencilFillOp::onExecute(GrOpFlushState* flushState, const SkRect& ch
         flushState->bindPipelineAndScissorClip(*fFillBBoxProgram, this->bounds());
         flushState->bindTextures(fFillBBoxProgram->geomProc(), nullptr,
                                  fFillBBoxProgram->pipeline());
-        flushState->bindBuffers(nullptr, nullptr, nullptr);
-        flushState->draw(4, 0);
+        flushState->bindBuffers(nullptr, fBBoxBuffer, nullptr);
+        flushState->drawInstanced(1, fBBoxBaseInstance, 4, 0);
     }
 }

@@ -68,6 +68,9 @@ private:
     int fFanBaseVertex = 0;
     int fFanVertexCount = 0;
 
+    sk_sp<const GrBuffer> fBBoxBuffer;
+    int fBBoxBaseInstance = 0;
+
     friend class GrOp;  // For ctor.
 };
 
