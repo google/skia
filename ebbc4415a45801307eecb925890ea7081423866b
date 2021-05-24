@@ -46,6 +46,53 @@
       },
       "revId": "ebbc4415a45801307eecb925890ea7081423866b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a3c2855a_41987024",
+        "filename": "src/gpu/effects/GrYUVtoRGBEffect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-24T14:20:13Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "6b573bde_a704c80a",
+      "range": {
+        "startLine": 77,
+        "startChar": 16,
+        "endLine": 77,
+        "endChar": 22
+      },
+      "revId": "ebbc4415a45801307eecb925890ea7081423866b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f9563afe_0a7ceeb6",
+        "filename": "src/gpu/effects/GrYUVtoRGBEffect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-24T14:20:13Z",
+      "side": 1,
+      "message": "This seems to be having an effect on clamp tiling as well. Visually they don\u0027t seem bad to me, so we could keep it as is, or guard this with wrap modes being repeat or mirror for x and y?",
+      "range": {
+        "startLine": 93,
+        "startChar": 12,
+        "endLine": 104,
+        "endChar": 13
+      },
+      "revId": "ebbc4415a45801307eecb925890ea7081423866b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
