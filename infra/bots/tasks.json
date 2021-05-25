@@ -9010,7 +9010,8 @@
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.15.7",
-        "pool:Skia"
+        "pool:Skia",
+        "reserved_for_xcode_version:newest"
       ],
       "env_prefixes": {
         "PATH": [
@@ -9161,7 +9162,8 @@
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.15.7",
-        "pool:Skia"
+        "pool:Skia",
+        "reserved_for_xcode_version:newest"
       ],
       "env_prefixes": {
         "PATH": [
@@ -9248,7 +9250,8 @@
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.15.7",
-        "pool:Skia"
+        "pool:Skia",
+        "reserved_for_xcode_version:newest"
       ],
       "env_prefixes": {
         "PATH": [
@@ -9335,7 +9338,8 @@
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.15.7",
-        "pool:Skia"
+        "pool:Skia",
+        "reserved_for_xcode_version:newest"
       ],
       "env_prefixes": {
         "PATH": [
@@ -9417,7 +9421,8 @@
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.15.7",
-        "pool:Skia"
+        "pool:Skia",
+        "reserved_for_xcode_version:newest"
       ],
       "env_prefixes": {
         "PATH": [
@@ -9499,7 +9504,8 @@
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.15.7",
-        "pool:Skia"
+        "pool:Skia",
+        "reserved_for_xcode_version:newest"
       ],
       "env_prefixes": {
         "PATH": [
@@ -9586,7 +9592,8 @@
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.15.7",
-        "pool:Skia"
+        "pool:Skia",
+        "reserved_for_xcode_version:newest"
       ],
       "env_prefixes": {
         "PATH": [
@@ -9673,7 +9680,8 @@
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.15.7",
-        "pool:Skia"
+        "pool:Skia",
+        "reserved_for_xcode_version:newest"
       ],
       "env_prefixes": {
         "PATH": [
@@ -9760,7 +9768,8 @@
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.15.7",
-        "pool:Skia"
+        "pool:Skia",
+        "reserved_for_xcode_version:newest"
       ],
       "env_prefixes": {
         "PATH": [
@@ -9842,7 +9851,8 @@
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.15.7",
-        "pool:Skia"
+        "pool:Skia",
+        "reserved_for_xcode_version:newest"
       ],
       "env_prefixes": {
         "PATH": [
@@ -9924,7 +9934,8 @@
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.15.7",
-        "pool:Skia"
+        "pool:Skia",
+        "reserved_for_xcode_version:newest"
       ],
       "env_prefixes": {
         "PATH": [
@@ -10006,7 +10017,8 @@
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.15.7",
-        "pool:Skia"
+        "pool:Skia",
+        "reserved_for_xcode_version:newest"
       ],
       "env_prefixes": {
         "PATH": [
@@ -10115,7 +10127,8 @@
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.15.7",
-        "pool:Skia"
+        "pool:Skia",
+        "reserved_for_xcode_version:newest"
       ],
       "env_prefixes": {
         "PATH": [
@@ -10196,7 +10209,8 @@
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.15.7",
-        "pool:Skia"
+        "pool:Skia",
+        "reserved_for_xcode_version:newest"
       ],
       "env_prefixes": {
         "PATH": [
@@ -10278,7 +10292,8 @@
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.15.7",
-        "pool:Skia"
+        "pool:Skia",
+        "reserved_for_xcode_version:newest"
       ],
       "env_prefixes": {
         "PATH": [
@@ -10360,7 +10375,8 @@
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.15.7",
-        "pool:Skia"
+        "pool:Skia",
+        "reserved_for_xcode_version:newest"
       ],
       "env_prefixes": {
         "PATH": [
@@ -10469,7 +10485,8 @@
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.15.7",
-        "pool:Skia"
+        "pool:Skia",
+        "reserved_for_xcode_version:newest"
       ],
       "env_prefixes": {
         "PATH": [
@@ -10550,7 +10567,8 @@
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.15.7",
-        "pool:Skia"
+        "pool:Skia",
+        "reserved_for_xcode_version:newest"
       ],
       "env_prefixes": {
         "PATH": [
@@ -10632,7 +10650,8 @@
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.15.7",
-        "pool:Skia"
+        "pool:Skia",
+        "reserved_for_xcode_version:newest"
       ],
       "env_prefixes": {
         "PATH": [
@@ -10714,7 +10733,8 @@
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.15.7",
-        "pool:Skia"
+        "pool:Skia",
+        "reserved_for_xcode_version:newest"
       ],
       "env_prefixes": {
         "PATH": [
@@ -10801,7 +10821,8 @@
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.15.7",
-        "pool:Skia"
+        "pool:Skia",
+        "reserved_for_xcode_version:11.4.1"
       ],
       "env_prefixes": {
         "PATH": [
@@ -10888,7 +10909,8 @@
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.15.7",
-        "pool:Skia"
+        "pool:Skia",
+        "reserved_for_xcode_version:11.4.1"
       ],
       "env_prefixes": {
         "PATH": [
@@ -10975,7 +10997,8 @@
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.15.7",
-        "pool:Skia"
+        "pool:Skia",
+        "reserved_for_xcode_version:11.4.1"
       ],
       "env_prefixes": {
         "PATH": [
@@ -11062,7 +11085,8 @@
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
         "os:Mac-10.15.7",
-        "pool:Skia"
+        "pool:Skia",
+        "reserved_for_xcode_version:11.4.1"
       ],
       "env_prefixes": {
         "PATH": [
