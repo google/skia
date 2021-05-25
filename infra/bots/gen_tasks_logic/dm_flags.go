@@ -448,7 +448,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		// Test GPU tessellation path renderer.
 		if b.extraConfig("GpuTess") {
 			configs = []string{glPrefix + "msaa4"}
-			args = append(args, "--hwtess", "--pr", "tess")
+			// Use hardware tessellation as much as possible for testing. Use 16 segments max to
+			// verify the chopping logic.
+			args = append(args,
+				"--pr", "tess", "--hwtess", "--alwaysHwTess", "--maxTessellationSegments", "16")
 		}
 
 		// Test dynamic MSAA.
