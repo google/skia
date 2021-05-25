@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cda6aef5_431270c6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-05-25T18:05:30Z",
+      "side": 1,
+      "message": "I\u0027m going to wait until all the new golds are triaged from previous CLs before launching tryjobs",
+      "revId": "4706c4932e20783b2dde81ec08e85c245e3eede3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
