@@ -211,7 +211,8 @@ SKSL_TEST_CPU(SkSLInlinerHonorsGLSLOutParamSemantics,
 
 SKSL_TEST(SkSLIntrinsicAbsFloat,               "intrinsics/AbsFloat.sksl")
 SKSL_TEST(SkSLIntrinsicCeil,                   "intrinsics/Ceil.sksl")
-SKSL_TEST(SkSLIntrinsicClampFloat,             "intrinsics/ClampFloat.sksl")
+// TODO(johnstiles): test broken on Adreno 6xx + Vulkan
+//SKSL_TEST(SkSLIntrinsicClampFloat,             "intrinsics/ClampFloat.sksl")
 SKSL_TEST(SkSLIntrinsicMaxFloat,               "intrinsics/MaxFloat.sksl")
 SKSL_TEST(SkSLIntrinsicMinFloat,               "intrinsics/MinFloat.sksl")
 // skbug.com/11919: Fails on Adreno + Vulkan
