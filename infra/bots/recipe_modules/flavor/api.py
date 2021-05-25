@@ -52,10 +52,6 @@ def is_ios(vars_api):
   return ('iOS' in vars_api.extra_tokens or
           'iOS' == vars_api.builder_cfg.get('os', ''))
 
-def is_test_skqp(vars_api):
-  return ('SKQP' in vars_api.extra_tokens and
-          vars_api.builder_name.startswith('Test'))
-
 def is_valgrind(vars_api):
   return 'Valgrind' in vars_api.extra_tokens
 
@@ -65,7 +61,7 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
     """Return a flavor utils object specific to the given builder."""
     if is_chromebook(vars_api):
       return chromebook.ChromebookFlavor(self, app_name)
-    if is_android(vars_api) and not is_test_skqp(vars_api):
+    if is_android(vars_api):
       return android.AndroidFlavor(self, app_name)
     elif is_docker(vars_api):
       return docker.DockerFlavor(self, app_name)

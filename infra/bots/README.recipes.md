@@ -47,7 +47,6 @@
   * [test_canvaskit](#recipes-test_canvaskit)
   * [test_lottie_web](#recipes-test_lottie_web)
   * [test_pathkit](#recipes-test_pathkit)
-  * [test_skqp_emulator](#recipes-test_skqp_emulator)
   * [upload_buildstats_results](#recipes-upload_buildstats_results)
   * [upload_dm_results](#recipes-upload_dm_results)
   * [upload_nano_results](#recipes-upload_nano_results)
@@ -60,13 +59,13 @@
 
 Build Skia for various platforms.
 
-#### **class [BuildApi](/infra/bots/recipe_modules/build/api.py#22)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+#### **class [BuildApi](/infra/bots/recipe_modules/build/api.py#21)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
-&mdash; **def [\_\_call\_\_](/infra/bots/recipe_modules/build/api.py#55)(self, checkout_root, out_dir):**
+&mdash; **def [\_\_call\_\_](/infra/bots/recipe_modules/build/api.py#51)(self, checkout_root, out_dir):**
 
 Compile the code.
 
-&mdash; **def [copy\_build\_products](/infra/bots/recipe_modules/build/api.py#59)(self, out_dir, dst):**
+&mdash; **def [copy\_build\_products](/infra/bots/recipe_modules/build/api.py#55)(self, out_dir, dst):**
 
 Copy selected build products to dst.
 ### *recipe_modules* / [builder\_name\_schema](/infra/bots/recipe_modules/builder_name_schema)
@@ -135,35 +134,35 @@ Run the steps to perform a pure-git checkout without DEPS.
 
 [DEPS](/infra/bots/recipe_modules/flavor/__init__.py#5): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [docker](#recipe_modules-docker), [env](#recipe_modules-env), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
 
-#### **class [SkiaFlavorApi](/infra/bots/recipe_modules/flavor/api.py#63)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+#### **class [SkiaFlavorApi](/infra/bots/recipe_modules/flavor/api.py#59)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
-&mdash; **def [cleanup\_steps](/infra/bots/recipe_modules/flavor/api.py#135)(self):**
+&mdash; **def [cleanup\_steps](/infra/bots/recipe_modules/flavor/api.py#131)(self):**
 
-&mdash; **def [copy\_directory\_contents\_to\_device](/infra/bots/recipe_modules/flavor/api.py#91)(self, host_dir, device_dir):**
+&mdash; **def [copy\_directory\_contents\_to\_device](/infra/bots/recipe_modules/flavor/api.py#87)(self, host_dir, device_dir):**
 
-&mdash; **def [copy\_directory\_contents\_to\_host](/infra/bots/recipe_modules/flavor/api.py#94)(self, device_dir, host_dir):**
+&mdash; **def [copy\_directory\_contents\_to\_host](/infra/bots/recipe_modules/flavor/api.py#90)(self, device_dir, host_dir):**
 
-&mdash; **def [copy\_file\_to\_device](/infra/bots/recipe_modules/flavor/api.py#97)(self, host_path, device_path):**
+&mdash; **def [copy\_file\_to\_device](/infra/bots/recipe_modules/flavor/api.py#93)(self, host_path, device_path):**
 
-&mdash; **def [create\_clean\_device\_dir](/infra/bots/recipe_modules/flavor/api.py#103)(self, path):**
+&mdash; **def [create\_clean\_device\_dir](/infra/bots/recipe_modules/flavor/api.py#99)(self, path):**
 
-&mdash; **def [create\_clean\_host\_dir](/infra/bots/recipe_modules/flavor/api.py#100)(self, path):**
+&mdash; **def [create\_clean\_host\_dir](/infra/bots/recipe_modules/flavor/api.py#96)(self, path):**
 
-&mdash; **def [device\_path\_join](/infra/bots/recipe_modules/flavor/api.py#88)(self, \*args):**
+&mdash; **def [device\_path\_join](/infra/bots/recipe_modules/flavor/api.py#84)(self, \*args):**
 
-&mdash; **def [get\_flavor](/infra/bots/recipe_modules/flavor/api.py#64)(self, vars_api, app_name):**
+&mdash; **def [get\_flavor](/infra/bots/recipe_modules/flavor/api.py#60)(self, vars_api, app_name):**
 
 Return a flavor utils object specific to the given builder.
 
-&mdash; **def [install](/infra/bots/recipe_modules/flavor/api.py#112)(self, skps=False, images=False, lotties=False, svgs=False, resources=False, mskps=False, texttraces=False):**
+&mdash; **def [install](/infra/bots/recipe_modules/flavor/api.py#108)(self, skps=False, images=False, lotties=False, svgs=False, resources=False, mskps=False, texttraces=False):**
 
-&mdash; **def [read\_file\_on\_device](/infra/bots/recipe_modules/flavor/api.py#106)(self, path, \*\*kwargs):**
+&mdash; **def [read\_file\_on\_device](/infra/bots/recipe_modules/flavor/api.py#102)(self, path, \*\*kwargs):**
 
-&mdash; **def [remove\_file\_on\_device](/infra/bots/recipe_modules/flavor/api.py#109)(self, path):**
+&mdash; **def [remove\_file\_on\_device](/infra/bots/recipe_modules/flavor/api.py#105)(self, path):**
 
-&mdash; **def [setup](/infra/bots/recipe_modules/flavor/api.py#79)(self, app_name):**
+&mdash; **def [setup](/infra/bots/recipe_modules/flavor/api.py#75)(self, app_name):**
 
-&mdash; **def [step](/infra/bots/recipe_modules/flavor/api.py#85)(self, name, cmd, \*\*kwargs):**
+&mdash; **def [step](/infra/bots/recipe_modules/flavor/api.py#81)(self, name, cmd, \*\*kwargs):**
 ### *recipe_modules* / [git](/infra/bots/recipe_modules/git)
 
 [DEPS](/infra/bots/recipe_modules/git/__init__.py#6): [recipe\_engine/path][recipe_engine/recipe_modules/path], [env](#recipe_modules-env)
@@ -497,11 +496,6 @@ Run the DM test.
 [DEPS](/infra/bots/recipes/test_pathkit.py#7): [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/step][recipe_engine/recipe_modules/step], [checkout](#recipe_modules-checkout), [docker](#recipe_modules-docker), [env](#recipe_modules-env), [flavor](#recipe_modules-flavor), [gold\_upload](#recipe_modules-gold_upload), [infra](#recipe_modules-infra), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
 
 &mdash; **def [RunSteps](/infra/bots/recipes/test_pathkit.py#28)(api):**
-### *recipes* / [test\_skqp\_emulator](/infra/bots/recipes/test_skqp_emulator.py)
-
-[DEPS](/infra/bots/recipes/test_skqp_emulator.py#7): [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/step][recipe_engine/recipe_modules/step], [checkout](#recipe_modules-checkout), [infra](#recipe_modules-infra), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
-
-&mdash; **def [RunSteps](/infra/bots/recipes/test_skqp_emulator.py#25)(api):**
 ### *recipes* / [upload\_buildstats\_results](/infra/bots/recipes/upload_buildstats_results.py)
 
 [DEPS](/infra/bots/recipes/upload_buildstats_results.py#9): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time], [vars](#recipe_modules-vars)
