@@ -4,12 +4,22 @@ uniform half4 colorGreen, colorRed;
 half4 main(float2 coords) {
     half4 expectedA = half4(0.5, 0.5, 0.75, 2.25);
     half4 expectedB = half4(0, 1, 0.75, 2.25);
+    const half4 constVal = half4(-1.25, 0, 0.75, 2.25);
+    const half4 constGreen = half4(0, 1, 0, 1);
     return (max(testInputs.x,    0.5)             == expectedA.x     &&
             max(testInputs.xy,   0.5)             == expectedA.xy    &&
             max(testInputs.xyz,  0.5)             == expectedA.xyz   &&
             max(testInputs.xyzw, 0.5)             == expectedA.xyzw  &&
+            max(constVal.x,      0.5)             == expectedA.x     &&
+            max(constVal.xy,     0.5)             == expectedA.xy    &&
+            max(constVal.xyz,    0.5)             == expectedA.xyz   &&
+            max(constVal.xyzw,   0.5)             == expectedA.xyzw  &&
             max(testInputs.x,    colorGreen.x)    == expectedB.x     &&
             max(testInputs.xy,   colorGreen.xy)   == expectedB.xy    &&
             max(testInputs.xyz,  colorGreen.xyz)  == expectedB.xyz   &&
-            max(testInputs.xyzw, colorGreen.xyzw) == expectedB.xyzw) ? colorGreen : colorRed;
+            max(testInputs.xyzw, colorGreen.xyzw) == expectedB.xyzw  &&
+            max(constVal.x,      constGreen.x)    == expectedB.x     &&
+            max(constVal.xy,     constGreen.xy)   == expectedB.xy    &&
+            max(constVal.xyz,    constGreen.xyz)  == expectedB.xyz   &&
+            max(constVal.xyzw,   constGreen.xyzw) == expectedB.xyzw) ? colorGreen : colorRed;
 }

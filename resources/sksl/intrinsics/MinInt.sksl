@@ -4,15 +4,25 @@ uniform half4 colorGreen, colorRed;
 half4 main(float2 coords) {
     int4 intValues = int4(testInputs * 100);
     int4 intGreen  = int4(colorGreen * 100);
+    const int4 constVal = int4(-125, 0, 75, 225);
+    const int4 constGreen = int4(0, 100, 0, 100);
 
     int4 expectedA = int4(-125, 0, 50, 50);
     int4 expectedB = int4(-125, 0, 0, 100);
-    return (min(intValues.x,    50)            == expectedA.x     &&
-            min(intValues.xy,   50)            == expectedA.xy    &&
-            min(intValues.xyz,  50)            == expectedA.xyz   &&
-            min(intValues.xyzw, 50)            == expectedA.xyzw  &&
-            min(intValues.x,    intGreen.x)    == expectedB.x     &&
-            min(intValues.xy,   intGreen.xy)   == expectedB.xy    &&
-            min(intValues.xyz,  intGreen.xyz)  == expectedB.xyz   &&
-            min(intValues.xyzw, intGreen.xyzw) == expectedB.xyzw) ? colorGreen : colorRed;
+    return (min(intValues.x,    50)              == expectedA.x     &&
+            min(intValues.xy,   50)              == expectedA.xy    &&
+            min(intValues.xyz,  50)              == expectedA.xyz   &&
+            min(intValues.xyzw, 50)              == expectedA.xyzw  &&
+            min(constVal.x,     50)              == expectedA.x     &&
+            min(constVal.xy,    50)              == expectedA.xy    &&
+            min(constVal.xyz,   50)              == expectedA.xyz   &&
+            min(constVal.xyzw,  50)              == expectedA.xyzw  &&
+            min(intValues.x,    intGreen.x)      == expectedB.x     &&
+            min(intValues.xy,   intGreen.xy)     == expectedB.xy    &&
+            min(intValues.xyz,  intGreen.xyz)    == expectedB.xyz   &&
+            min(intValues.xyzw, intGreen.xyzw)   == expectedB.xyzw  &&
+            min(constVal.x,     constGreen.x)    == expectedB.x     &&
+            min(constVal.xy,    constGreen.xy)   == expectedB.xy    &&
+            min(constVal.xyz,   constGreen.xyz)  == expectedB.xyz   &&
+            min(constVal.xyzw,  constGreen.xyzw) == expectedB.xyzw) ? colorGreen : colorRed;
 }
