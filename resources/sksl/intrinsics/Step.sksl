@@ -1,1 +1,26 @@
-uniform half a, b; void main() { sk_FragColor.x = step(a, b); }
+uniform half4 testInputs;
+uniform half4 colorGreen, colorRed;
+
+half4 main(float2 coords) {
+    const half4 constVal   = half4(-1.25, 0, 0.75, 2.25);
+    const half4 constGreen = half4(0, 1, 0, 1);
+    half4 expectedA = half4(0, 0, 1, 1);
+    half4 expectedB = half4(1, 1, 0, 0);
+
+    return (step(0.5, testInputs.x)                == expectedA.x     &&
+            step(0.5, testInputs.xy)               == expectedA.xy    &&
+            step(0.5, testInputs.xyz)              == expectedA.xyz   &&
+            step(0.5, testInputs.xyzw)             == expectedA.xyzw  &&
+            step(0.5, constVal.x)                  == expectedA.x     &&
+            step(0.5, constVal.xy)                 == expectedA.xy    &&
+            step(0.5, constVal.xyz)                == expectedA.xyz   &&
+            step(0.5, constVal.xyzw)               == expectedA.xyzw  &&
+            step(testInputs.x,    constGreen.x)    == expectedB.x     &&
+            step(testInputs.xy,   constGreen.xy)   == expectedB.xy    &&
+            step(testInputs.xyz,  constGreen.xyz)  == expectedB.xyz   &&
+            step(testInputs.xyzw, constGreen.xyzw) == expectedB.xyzw  &&
+            step(constVal.x,      constGreen.x)    == expectedB.x     &&
+            step(constVal.xy,     constGreen.xy)   == expectedB.xy    &&
+            step(constVal.xyz,    constGreen.xyz)  == expectedB.xyz   &&
+            step(constVal.xyzw,   constGreen.xyzw) == expectedB.xyzw) ? colorGreen : colorRed;
+}
