@@ -576,3 +576,45 @@ DEF_SIMPLE_GM(longrect_dash, canvas, 250, 250) {
     }
 }
 #endif
+
+DEF_SIMPLE_GM(inner_join_geometry, canvas, 1000, 700) {
+    // These paths trigger cases where we must add inner join geometry.
+    // skbug.com/11964
+    const SkPoint pathPoints[] = {
+        /*moveTo*/  /*lineTo*/  /*lineTo*/
+        {119,  71}, {129, 151}, {230,  24},
+        {200, 144}, {129, 151}, {230,  24},
+        {192, 176}, {224, 175}, {281, 103},
+        {233, 205}, {224, 175}, {281, 103},
+        {121, 216}, {234, 189}, {195, 147},
+        {141, 216}, {254, 189}, {238, 250},
+        {159, 202}, {269, 197}, {289, 165},
+        {159, 202}, {269, 197}, {287, 227},
+    };
+
+    SkPaint pathPaint;
+    pathPaint.setStroke(true);
+    pathPaint.setAntiAlias(true);
+    pathPaint.setStrokeWidth(100);
+
+    SkPaint skeletonPaint;
+    skeletonPaint.setStroke(true);
+    skeletonPaint.setAntiAlias(true);
+    skeletonPaint.setStrokeWidth(0);
+    skeletonPaint.setColor(SK_ColorRED);
+
+    canvas->translate(0, 50);
+    for (size_t i = 0; i < SK_ARRAY_COUNT(pathPoints) / 3; i++) {
+        auto path = SkPath::Polygon(pathPoints + i * 3, 3, false);
+        canvas->drawPath(path, pathPaint);
+
+        SkPath fillPath;
+        pathPaint.getFillPath(path, &fillPath);
+        canvas->drawPath(fillPath, skeletonPaint);
+
+        canvas->translate(200, 0);
+        if ((i + 1) % 4 == 0) {
+            canvas->translate(-800, 200);
+        }
+    }
+}
