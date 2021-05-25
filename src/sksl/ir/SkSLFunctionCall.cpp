@@ -147,7 +147,7 @@ static std::unique_ptr<Expression> evaluate_n_way_intrinsic_of_type(
 
         const Expression* arg2Subexpr = nullptr;
         if (arg2) {
-            arg2Subexpr = arg2->getConstantSubexpression(arg1Index);
+            arg2Subexpr = arg2->getConstantSubexpression(arg2Index);
             arg2Index += arg2->type().isVector() ? 1 : 0;
             SkASSERT(arg2Subexpr);
         }
@@ -240,6 +240,26 @@ static std::unique_ptr<Expression> evaluate_pairwise_intrinsic(const Context& co
         return evaluate_n_way_intrinsic_of_type<SKSL_INT>(
                 context, arguments[0].get(), arguments[1].get(), /*arg2=*/nullptr,
                 [&eval](SKSL_INT a, SKSL_INT b, SKSL_INT) { return eval(a, b); });
+    }
+
+    SkDEBUGFAILF("unsupported type %s", type.description().c_str());
+    return nullptr;
+}
+
+template <typename FN>
+static std::unique_ptr<Expression> evaluate_3_way_intrinsic(const Context& context,
+                                                            const ExpressionArray& arguments,
+                                                            const FN& eval) {
+    SkASSERT(arguments.size() == 3);
+    const Type& type = arguments.front()->type().componentType();
+
+    if (type.isFloat()) {
+        return evaluate_n_way_intrinsic_of_type<float>(
+                context, arguments[0].get(), arguments[1].get(), arguments[2].get(), eval);
+    }
+    if (type.isInteger()) {
+        return evaluate_n_way_intrinsic_of_type<SKSL_INT>(
+                context, arguments[0].get(), arguments[1].get(), arguments[2].get(), eval);
     }
 
     SkDEBUGFAILF("unsupported type %s", type.description().c_str());
@@ -356,6 +376,9 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
         case k_max_IntrinsicKind:
             return evaluate_pairwise_intrinsic(context, arguments,
                                                [](auto a, auto b) { return (a > b) ? a : b; });
+        case k_clamp_IntrinsicKind:
+            return evaluate_3_way_intrinsic(context, arguments,
+                    [](auto x, auto l, auto h) { return (x < l) ? l : (x > h) ? h : x; });
         default:
             return nullptr;
     }
