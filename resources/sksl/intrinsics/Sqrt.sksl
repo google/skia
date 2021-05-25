@@ -1,1 +1,19 @@
-uniform half a; void main() { sk_FragColor.x = sqrt(a); }
+uniform half4 input, expected;
+uniform half4 colorGreen, colorRed;
+
+half4 main(float2 coords) {
+    const half4 constVal = half4(1, 4, 16, 64);
+    const half4 negativeVal = half4(-1, -4, -16, -64);  // should not optimize away
+    return (sqrt(input.x)          == expected.x     &&
+            sqrt(input.xy)         == expected.xy    &&
+            sqrt(input.xyz)        == expected.xyz   &&
+            sqrt(input.xyzw)       == expected.xyzw  &&
+            sqrt(constVal.x)       == expected.x     &&
+            sqrt(constVal.xy)      == expected.xy    &&
+            sqrt(constVal.xyz)     == expected.xyz   &&
+            sqrt(constVal.xyzw)    == expected.xyzw  &&
+            sqrt(negativeVal.x)    == expected.x     &&
+            sqrt(negativeVal.xy)   == expected.xy    &&
+            sqrt(negativeVal.xyz)  == expected.xyz   &&
+            sqrt(negativeVal.xyzw) == expected.xyzw) ? colorGreen : colorRed;
+}
