@@ -111,17 +111,12 @@ void GrStrokeTessellationShaderImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs
     if (shader.stroke().isHairlineStyle()) {
         // Hairline case. Transform the points before tessellation. We can still hold off on the
         // translate until the end; we just need to perform the scale and skew right now.
-        if (shader.hasConics()) {
-            v->codeAppend(R"(
-            P[0] = AFFINE_MATRIX * P[0];
-            P[1] = AFFINE_MATRIX * P[1];
-            P[2] = AFFINE_MATRIX * P[2];
-            P[3] = isinf(P[3].y) ? P[3] : AFFINE_MATRIX * P[3];)");
-        } else {
-            v->codeAppend(R"(
-            P = AFFINE_MATRIX * P;)");
-        }
         v->codeAppend(R"(
+        P = AFFINE_MATRIX * P;
+        if (isinf(pts23Attr.w)) {
+            // If y3 is infinity then x3 is a conic weight. Don't transform.
+            P[3] = pts23Attr.zw;
+        }
         prevControlPoint = AFFINE_MATRIX * prevControlPoint;)");
     }
 
@@ -353,7 +348,7 @@ SkString GrStrokeTessellationShaderImpl::getTessControlShaderGLSL(
         code.appendf("#define NUM_RADIAL_SEGMENTS_PER_RADIAN vsStrokeArgs[0].x\n");
     }
 
-    code.append(GrWangsFormula::as_sksl(shader.hasConics()));
+    code.append(GrWangsFormula::as_sksl());
     code.append(kAtan2Fn);
     code.append(kCosineBetweenVectorsFn);
     code.append(kMiterExtentFn);
@@ -633,15 +628,11 @@ SkString GrStrokeTessellationShaderImpl::getTessEvaluationShaderGLSL(
         float radsPerSegment = tessellationArgs.z;
         float2 tan1 = tcsEndPtEndTan.zw;
         bool isFinalEdge = (gl_TessCoord.x == 1);
-        float w = -1.0;  // w<0 means the curve is an integral cubic.)");
-
-    if (shader.hasConics()) {
-        code.append(R"(
+        float w = -1.0;  // w<0 means the curve is an integral cubic.
         if (isinf(P[3].y)) {
             w = P[3].x;  // The curve is actually a conic.
             P[3] = P[2];  // Setting p3 equal to p2 works for the remaining rotational logic.
         })");
-    }
 
     GrGPArgs gpArgs;
     this->emitTessellationCode(shader, &code, &gpArgs, shaderCaps);

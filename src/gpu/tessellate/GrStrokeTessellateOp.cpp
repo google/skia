@@ -26,9 +26,6 @@ GrStrokeTessellateOp::GrStrokeTessellateOp(GrAAType aaType, const SkMatrix& view
         , fPathStrokeList(path, stroke, paint.getColor4f())
         , fTotalCombinedVerbCnt(path.countVerbs())
         , fProcessors(std::move(paint)) {
-    if (SkPathPriv::ConicWeightCnt(path) != 0) {
-        fShaderFlags |= ShaderFlags::kHasConics;
-    }
     if (!this->headColor().fitsInBytes()) {
         fShaderFlags |= ShaderFlags::kWideColor;
     }

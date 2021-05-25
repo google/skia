@@ -89,10 +89,8 @@ void GrStrokeShaderImpl::emitTessellationCode(const GrStrokeShader& shader, SkSt
     //     float angle0;
     //     float strokeOutset;
     //
-    bool hasConics = shader.hasConics();
-
     code->append(R"(
-    float2 strokeCoord, tangent;
+    float2 tangent, strokeCoord;
     if (combinedEdgeID != 0 && !isFinalEdge) {
         // Compute the location and tangent direction of the stroke edge with the integral id
         // "combinedEdgeID", where combinedEdgeID is the sorted-order index of parametric and radial
@@ -102,9 +100,7 @@ void GrStrokeShaderImpl::emitTessellationCode(const GrStrokeShader& shader, SkSt
         //     Tangent_Direction(T) = dx,dy = |A  2B  C| * |T  |
         //                                    |.   .  .|   |1  |
         float2 A, B, C = P[1] - P[0];
-        float2 D = P[3] - P[0];)");
-    if (hasConics) {
-        code->append(R"(
+        float2 D = P[3] - P[0];
         if (w >= 0.0) {
             // P0..P2 represent a conic and P3==P2. The derivative of a conic has a cumbersome
             // order-4 denominator. However, this isn't necessary if we are only interested in a
@@ -116,12 +112,7 @@ void GrStrokeShaderImpl::emitTessellationCode(const GrStrokeShader& shader, SkSt
             B = .5*D - C;
             A = (w - 1.0) * D;
             P[1] *= w;
-        } else {)");
-    } else {
-        code->append(R"(
-        {)");
-    }
-    code->append(R"(
+        } else {
             float2 E = P[2] - P[1];
             B = E - C;
             A = fma(float2(-3), E, D);
@@ -218,33 +209,26 @@ void GrStrokeShaderImpl::emitTessellationCode(const GrStrokeShader& shader, SkSt
         float2 cd = unchecked_mix(P[2], P[3], T);
         float2 abc = unchecked_mix(ab, bc, T);
         float2 bcd = unchecked_mix(bc, cd, T);
-        float2 abcd = unchecked_mix(abc, bcd, T);)");
+        float2 abcd = unchecked_mix(abc, bcd, T);
 
-    if (hasConics) {
-        code->append(R"(
-        // Evaluate the conic weights at T.
+        // Evaluate the conic weight at T.
         float u = unchecked_mix(1.0, w, T);
-        float v = unchecked_mix(w, 1.0, T);
-        float uv = unchecked_mix(u, v, T);)");
-    }
+        float v = w + 1 - u;  // == mix(w, 1, T)
+        float uv = unchecked_mix(u, v, T);
 
-    code->appendf(R"(
-        strokeCoord =%s abcd;)", (hasConics) ? " (w >= 0.0) ? abc/uv :" : "");
-
-    code->append(R"(
         // If we went with T=parametricT, then update the tangent. Otherwise leave it at the radial
         // tangent found previously. (In the event that parametricT == radialT, we keep the radial
         // tangent.)
-        if (T != radialT) {)");
-    code->appendf(R"(
-            tangent =%s bcd - abc;)", (hasConics) ? " (w >= 0.0) ? bc*u - ab*v :" : "");
-    code->append(R"(
+        if (T != radialT) {
+            tangent = (w >= 0.0) ? bc*u - ab*v : bcd - abc;
         }
+
+        strokeCoord = (w >= 0.0) ? abc/uv : abcd;
     } else {
         // Edges at the beginning and end of the strip use exact endpoints and tangents. This
         // ensures crack-free seaming between instances.
-        strokeCoord = (combinedEdgeID == 0) ? P[0] : P[3];
         tangent = (combinedEdgeID == 0) ? tan0 : tan1;
+        strokeCoord = (combinedEdgeID == 0) ? P[0] : P[3];
     })");
 
     code->append(R"(
