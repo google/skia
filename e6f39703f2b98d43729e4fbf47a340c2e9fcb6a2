@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9a1f9a72_a5ef4066",
+        "filename": "src/gpu/tessellate/GrFillPathShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-25T14:10:53Z",
+      "side": 1,
+      "message": "I like this clean up, a lot easier to follow now.",
+      "range": {
+        "startLine": 130,
+        "startChar": 4,
+        "endLine": 137,
+        "endChar": 76
+      },
+      "revId": "e6f39703f2b98d43729e4fbf47a340c2e9fcb6a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
