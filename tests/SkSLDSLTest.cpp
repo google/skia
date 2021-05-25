@@ -1225,8 +1225,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLCall, r, ctxInfo) {
     {
         DSLExpression sqrt = DSLWriter::IRGenerator().convertIdentifier(/*offset=*/-1, "sqrt");
         SkTArray<DSLWrapper<DSLExpression>> args;
-        args.emplace_back(1);
-        EXPECT_EQUAL(sqrt(std::move(args)), "sqrt(1.0)");
+        args.emplace_back(16);
+        EXPECT_EQUAL(sqrt(std::move(args)), "4.0");  // sqrt(16) gets optimized to 4
     }
 
     {
@@ -1335,8 +1335,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDeclareGlobal, r, ctxInfo) {
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDiscard, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
-    Statement x = If(Sqrt(1) > 0, Discard());
-    EXPECT_EQUAL(x, "if ((sqrt(1.0) > 0.0)) discard;");
+    Var x(kFloat_Type, "x", 1);
+    EXPECT_EQUAL(If(Sqrt(x) > 0, Discard()), "if ((sqrt(x) > 0.0)) discard;");
 }
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDo, r, ctxInfo) {
