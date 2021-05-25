@@ -16,8 +16,8 @@
 #include "src/core/SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
-#include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/GrRecordingContext.h"
+#include "src/core/SkRuntimeEffectPriv.h"
 #include "src/gpu/GrColorSpaceXform.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
@@ -308,7 +308,7 @@ std::unique_ptr<GrFragmentProcessor> make_arithmetic_fp(
         std::unique_ptr<GrFragmentProcessor> dstFP,
         const SkV4& k,
         bool enforcePMColor) {
-    static auto effect = SkRuntimeEffect::MakeForShader(SkString(R"(
+    static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
         uniform shader srcFP;
         uniform shader dstFP;
         uniform half4 k;
@@ -323,7 +323,7 @@ std::unique_ptr<GrFragmentProcessor> make_arithmetic_fp(
             color.rgb = min(color.rgb, max(color.a, pmClamp));
             return color;
         }
-    )")).effect;
+    )");
     return GrSkSLFP::Make(effect, "arithmetic_fp",
                           "srcFP", std::move(srcFP),
                           "dstFP", std::move(dstFP),
