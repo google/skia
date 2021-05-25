@@ -331,6 +331,11 @@ struct SK_API GrContextOptions {
      * A value of -1 means use the default limit value.
      */
     int fResourceCacheLimitOverride = -1;
+
+    /**
+     * If true, then always try to use hardware tessellation, regardless of how small a path may be.
+     */
+    bool fAlwaysPreferHardwareTessellation = false;
 #endif
 
     GrDriverBugWorkarounds fDriverBugWorkarounds;

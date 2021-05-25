@@ -43,58 +43,39 @@ GrProcessorSet::Analysis GrPathStencilFillOp::finalize(const GrCaps& caps,
 
 void GrPathStencilFillOp::prePreparePrograms(const GrPathShader::ProgramArgs& args,
                                              GrAppliedClip&& appliedClip) {
+    SkASSERT(!fTessellator);
     SkASSERT(!fStencilFanProgram);
     SkASSERT(!fStencilPathProgram);
     SkASSERT(!fFillBBoxProgram);
 
-    int numVerbs = fPath.countVerbs();
-    if (numVerbs <= 0) {
+    if (fPath.countVerbs() <= 0) {
         return;
     }
 
-    // When there are only a few verbs, it seems to always be fastest to make a single indirect draw
-    // that contains both the inner triangles and the outer curves, instead of using hardware
-    // tessellation. Also take this path if tessellation is not supported.
-    bool drawTrianglesAsIndirectCurveDraw = (numVerbs < 50);
     const GrPipeline* stencilPassPipeline = GrStencilPathShader::MakeStencilPassPipeline(
             args, fAAType, fOpFlags, appliedClip.hardClip());
-    if (drawTrianglesAsIndirectCurveDraw || (fOpFlags & OpFlags::kDisableHWTessellation)) {
-        fTessellator = args.fArena->make<GrPathIndirectTessellator>(
-                fViewMatrix, fPath,
-                GrPathTessellator::DrawInnerFan(drawTrianglesAsIndirectCurveDraw));
-        if (!drawTrianglesAsIndirectCurveDraw) {
-            fStencilFanProgram = GrStencilPathShader::MakeStencilProgram<GrStencilTriangleShader>(
-                    args, fViewMatrix, stencilPassPipeline, fPath.getFillType());
-        }
-        fStencilPathProgram = GrStencilPathShader::MakeStencilProgram<GrCurveMiddleOutShader>(
-                args, fViewMatrix, stencilPassPipeline, fPath.getFillType());
+
+    if ((fOpFlags & OpFlags::kPreferWedges) && args.fCaps->shaderCaps()->tessellationSupport()) {
+        // The path is an atlas with relatively small contours, or something else that does best
+        // with wedges.
+        fTessellator = GrPathWedgeTessellator::Make(args.fArena, fViewMatrix);
     } else {
-        // The caller should have sent Flags::kDisableHWTessellation if it was not supported.
-        SkASSERT(args.fCaps->shaderCaps()->tessellationSupport());
-        // Next see if we can split up the inner triangles and outer curves into two draw calls.
-        // This allows for a more efficient inner fan topology that can reduce the rasterizer load
-        // by a large margin on complex paths, but also causes greater CPU overhead due to the extra
-        // shader switches and draw calls.
-        // NOTE: Raster-edge work is 1-dimensional, so we sum height and width instead of
-        // multiplying.
-        SkScalar scales[2];
-        SkAssertResult(fViewMatrix.getMinMaxScales(scales));  // Will fail if perspective.
-        const SkRect& bounds = fPath.getBounds();
-        float rasterEdgeWork = (bounds.height() + bounds.width()) * scales[1] * fPath.countVerbs();
-        if (rasterEdgeWork > 300 * 300) {
-            fTessellator = args.fArena->make<GrPathOuterCurveTessellator>(
-                    GrPathTessellator::DrawInnerFan::kNo);
+        auto drawFanWithTessellator = GrPathTessellator::DrawInnerFan::kYes;
+        if (fPath.countVerbs() > 50 && this->bounds().height() * this->bounds().width() > 256*256) {
+            // Large complex paths do better with a dedicated triangle shader for the inner fan.
+            // This takes less PCI bus bandwidth (6 floats per triangle instead of 8) and allows us
+            // to make sure it has an efficient middle-out topology.
             fStencilFanProgram = GrStencilPathShader::MakeStencilProgram<GrStencilTriangleShader>(
                     args, fViewMatrix, stencilPassPipeline, fPath.getFillType());
-            fStencilPathProgram = GrStencilPathShader::MakeStencilProgram<GrCurveTessellateShader>(
-                    args, fViewMatrix, stencilPassPipeline, fPath.getFillType());
-        } else {
-            // Fastest CPU approach: emit one cubic wedge per verb, fanning out from the center.
-            fTessellator = args.fArena->make<GrPathWedgeTessellator>();
-            fStencilPathProgram = GrStencilPathShader::MakeStencilProgram<GrWedgeTessellateShader>(
-                    args, fViewMatrix, stencilPassPipeline, fPath.getFillType());
+            drawFanWithTessellator = GrPathTessellator::DrawInnerFan::kNo;
         }
+        fTessellator = GrPathTessellator::Make(args.fArena, fViewMatrix, fPath,
+                                               drawFanWithTessellator, *args.fCaps);
     }
+
+    fStencilPathProgram = GrPathShader::MakeProgram(
+            args, fTessellator->shader(), stencilPassPipeline,
+            GrStencilPathShader::StencilPassSettings(fPath.getFillType()));
 
     if (!(fOpFlags & OpFlags::kStencilOnly)) {
         // Create a program that draws a bounding box over the path and fills its stencil coverage
@@ -152,7 +133,7 @@ void GrPathStencilFillOp::onPrepare(GrOpFlushState* flushState) {
         vertexAlloc.unlock(fFanVertexCount);
     }
 
-    fTessellator->prepare(flushState, this->bounds(), fViewMatrix, fPath);
+    fTessellator->prepare(flushState, this->bounds(), fPath);
 
     if (fFillBBoxProgram) {
         GrVertexWriter vertexWriter = flushState->makeVertexSpace(sizeof(SkRect), 1, &fBBoxBuffer,

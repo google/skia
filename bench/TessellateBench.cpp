@@ -112,18 +112,23 @@ protected:
     void PathTessellateBenchmark_##NAME::runBench()
 
 DEF_PATH_TESS_BENCH(GrPathIndirectTessellator, make_cubic_path(18), SkMatrix::I()) {
-    GrPathIndirectTessellator tess(fMatrix, fPath, GrPathIndirectTessellator::DrawInnerFan::kNo);
-    tess.prepare(fTarget.get(), SkRectPriv::MakeLargest(), fMatrix, fPath, nullptr);
+    SkArenaAlloc arena(1024);
+    auto tess = GrPathIndirectTessellator::Make(&arena, fMatrix, fPath,
+                                                GrPathIndirectTessellator::DrawInnerFan::kNo);
+    tess->prepare(fTarget.get(), SkRectPriv::MakeLargest(), fPath, nullptr);
 }
 
 DEF_PATH_TESS_BENCH(GrPathOuterCurveTessellator, make_cubic_path(8), SkMatrix::I()) {
-    GrPathOuterCurveTessellator tess(GrPathTessellator::DrawInnerFan::kNo);
-    tess.prepare(fTarget.get(), SkRectPriv::MakeLargest(), fMatrix, fPath, nullptr);
+    SkArenaAlloc arena(1024);
+    auto tess = GrPathOuterCurveTessellator::Make(&arena, fMatrix,
+                                                  GrPathTessellator::DrawInnerFan::kNo);
+    tess->prepare(fTarget.get(), SkRectPriv::MakeLargest(), fPath, nullptr);
 }
 
 DEF_PATH_TESS_BENCH(GrPathWedgeTessellator, make_cubic_path(8), SkMatrix::I()) {
-    GrPathWedgeTessellator tess;
-    tess.prepare(fTarget.get(), SkRectPriv::MakeLargest(), fMatrix, fPath, nullptr);
+    SkArenaAlloc arena(1024);
+    auto tess = GrPathWedgeTessellator::Make(&arena, fMatrix);
+    tess->prepare(fTarget.get(), SkRectPriv::MakeLargest(), fPath, nullptr);
 }
 
 static void benchmark_wangs_formula_cubic_log2(const SkMatrix& matrix, const SkPath& path) {
