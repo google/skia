@@ -34,10 +34,9 @@ public:
 
     enum class ShaderFlags {
         kNone          = 0,
-        kHasConics     = 1 << 0,
-        kWideColor     = 1 << 1,
-        kDynamicStroke = 1 << 2,  // Each patch or instance has its own stroke width and join type.
-        kDynamicColor  = 1 << 3,  // Each patch or instance has its own color.
+        kWideColor     = 1 << 0,
+        kDynamicStroke = 1 << 1,  // Each patch or instance has its own stroke width and join type.
+        kDynamicColor  = 1 << 2,  // Each patch or instance has its own color.
     };
 
     GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(ShaderFlags);
@@ -168,7 +167,6 @@ public:
 
     Mode mode() const { return fMode; }
     ShaderFlags flags() const { return fShaderFlags; }
-    bool hasConics() const { return fShaderFlags & ShaderFlags::kHasConics; }
     bool hasDynamicStroke() const { return fShaderFlags & ShaderFlags::kDynamicStroke; }
     bool hasDynamicColor() const { return fShaderFlags & ShaderFlags::kDynamicColor; }
     const SkStrokeRec& stroke() const { return fStroke;}
