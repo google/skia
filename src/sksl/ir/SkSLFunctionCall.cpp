@@ -107,13 +107,18 @@ static std::unique_ptr<Expression> evaluate_n_way_intrinsic_of_type(
     //     eval(arg0.w, arg1.z, arg2.z),
     //     eval(arg0.z, arg1.w, arg2.w)
     //
-    // If an argument is null, zero is passed to the evaluation function. If arg1 or arg2 contains a
-    // scalar, it is interpreted as a vector containing the same value for every component.
-
+    // If an argument is null, zero is passed to the evaluation function. If the arguments are a mix
+    // of scalars and vectors, scalars are interpreted as a vector containing the same value for
+    // every component.
     arg0 = ConstantFolder::GetConstantValueForVariable(*arg0);
     SkASSERT(arg0);
-    const Type& vecType = arg0->type();
+
+    const Type& vecType =          arg0->type().isVector()  ? arg0->type() :
+                          (arg1 && arg1->type().isVector()) ? arg1->type() :
+                          (arg2 && arg2->type().isVector()) ? arg2->type() :
+                                                              arg0->type();
     const Type& type = vecType.componentType();
+    SkASSERT(arg0->type().componentType() == type);
 
     if (arg1) {
         arg1 = ConstantFolder::GetConstantValueForVariable(*arg1);
@@ -379,6 +384,9 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
         case k_clamp_IntrinsicKind:
             return evaluate_3_way_intrinsic(context, arguments,
                     [](auto x, auto l, auto h) { return (x < l) ? l : (x > h) ? h : x; });
+        case k_step_IntrinsicKind:
+            return evaluate_pairwise_intrinsic(context, arguments,
+                                               [](auto e, auto x) { return (x < e) ? 0 : 1; });
         default:
             return nullptr;
     }
