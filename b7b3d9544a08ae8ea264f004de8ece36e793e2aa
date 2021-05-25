@@ -22,6 +22,30 @@
       },
       "revId": "b7b3d9544a08ae8ea264f004de8ece36e793e2aa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "89adab68_2cb4673a",
+        "filename": "src/utils/SkShadowUtils.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-05-25T17:27:46Z",
+      "side": 1,
+      "message": "In practice does constant-output-for-constant-input matter for this effect?",
+      "parentUuid": "1661cd53_50492e48",
+      "range": {
+        "startLine": 98,
+        "startChar": 44,
+        "endLine": 98,
+        "endChar": 51
+      },
+      "revId": "b7b3d9544a08ae8ea264f004de8ece36e793e2aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
