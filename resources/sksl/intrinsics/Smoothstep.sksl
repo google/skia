@@ -1,1 +1,33 @@
-uniform half a, b, c; void main() { sk_FragColor.x = smoothstep(a, b, c); }
+uniform half4 testInputs;
+uniform half4 colorGreen, colorRed;
+
+half4 main(float2 coords) {
+    const half4 constVal   = half4(-1.25, 0, 0.75, 2.25);
+    const half4 constRed   = half4(1, 0, 0, 1);
+    const half4 constGreen = half4(0, 1, 0, 1);
+
+    half4 expectedA = half4(0.0, 0.0, 0.84375, 1.0);
+    half4 expectedB = half4(1.0, 0.0, 1.0, 1.0);
+
+    return (smoothstep(0,             1,               constVal.x)    == expectedA.x     &&
+            smoothstep(0,             1,               constVal.xy)   == expectedA.xy    &&
+            smoothstep(0,             1,               constVal.xyz)  == expectedA.xyz   &&
+            smoothstep(0,             1,               constVal.xyzw) == expectedA.xyzw  &&
+            smoothstep(0,             1,               constVal.x)    == expectedA.x     &&
+            smoothstep(0,             1,               constVal.xy)   == expectedA.xy    &&
+            smoothstep(0,             1,               constVal.xyz)  == expectedA.xyz   &&
+            smoothstep(0,             1,               constVal.xyzw) == expectedA.xyzw  &&
+            smoothstep(colorRed.g,    colorGreen.g,    constVal.x)    == expectedA.x     &&
+            smoothstep(colorRed.g,    colorGreen.g,    constVal.xy)   == expectedA.xy    &&
+            smoothstep(colorRed.g,    colorGreen.g,    constVal.xyz)  == expectedA.xyz   &&
+            smoothstep(colorRed.g,    colorGreen.g,    constVal.xyzw) == expectedA.xyzw  &&
+            smoothstep(constRed.x,    constGreen.x,    constVal.x)    == expectedB.x     &&
+            smoothstep(constRed.xy,   constGreen.xy,   constVal.xy)   == expectedB.xy    &&
+            smoothstep(constRed.xyz,  constGreen.xyz,  constVal.xyz)  == expectedB.xyz   &&
+            smoothstep(constRed.xyzw, constGreen.xyzw, constVal.xyzw) == expectedB.xyzw  &&
+            smoothstep(colorRed.x,    colorGreen.x,    constVal.x)    == expectedB.x     &&
+            smoothstep(colorRed.xy,   colorGreen.xy,   constVal.xy)   == expectedB.xy    &&
+            smoothstep(colorRed.xyz,  colorGreen.xyz,  constVal.xyz)  == expectedB.xyz   &&
+            smoothstep(colorRed.xyzw, colorGreen.xyzw, constVal.xyzw) == expectedB.xyzw)
+                ? colorGreen : colorRed;
+}
