@@ -22,6 +22,30 @@
       },
       "revId": "9affd8c84fe847cebb33af0c132ff2b240c21a8f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a346fdd6_7744c483",
+        "filename": "src/sksl/ir/SkSLFunctionCall.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-25T21:44:29Z",
+      "side": 1,
+      "message": "And actually, there\u0027s nothing wrong with `vecType` being a scalar. `any` and `all` require it, but we don\u0027t need to enforce that here; the compile wouldn\u0027t have gotten this far. (`$bvec` doesn\u0027t include `bool`)",
+      "parentUuid": "a59574e0_28f77097",
+      "range": {
+        "startLine": 39,
+        "startChar": 21,
+        "endLine": 39,
+        "endChar": 29
+      },
+      "revId": "9affd8c84fe847cebb33af0c132ff2b240c21a8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
