@@ -16,6 +16,46 @@
       "message": "This was one last inefficiency with runtime effects. It was bugging me as I started converting more FPs over...",
       "revId": "254accb5d5ab036116fc666c7cd1afce4a15cb63",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7b0c8bc5_49ab4bed",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-25T14:19:51Z",
+      "side": 1,
+      "message": "This seems to work out pretty nicely! Just some comment word-smithing if you don\u0027t mind 😊",
+      "revId": "254accb5d5ab036116fc666c7cd1afce4a15cb63",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fb22c73c_8339ecf4",
+        "filename": "src/sksl/SkSLAnalysis.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-05-25T14:19:51Z",
+      "side": 1,
+      "message": "This terminology was a little tricky for me to follow. I suppose rewrite refers to changing the usage from explicit to passthrough, I\u0027d use \u0027above modification\u0027 instead to tie it back to previous language. Similarly, it was a little nebulous what exactly was being elided since the usage isn\u0027t being completely removed, merely converted. Maybe call it \u0027convertedUsageCount\u0027? Or expound on what\u0027s being elided?",
+      "range": {
+        "startLine": 40,
+        "startChar": 7,
+        "endLine": 41,
+        "endChar": 68
+      },
+      "revId": "254accb5d5ab036116fc666c7cd1afce4a15cb63",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
