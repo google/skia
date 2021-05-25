@@ -27,24 +27,28 @@ static bool has_compile_time_constant_arguments(const ExpressionArray& arguments
     return true;
 }
 
-static std::unique_ptr<Expression> coalesce_bool_vector(
-        const ExpressionArray& arguments,
-        bool startingState,
-        const std::function<bool(bool, bool)>& coalesce) {
+template <typename T>
+static std::unique_ptr<Expression> coalesce_vector(const ExpressionArray& arguments,
+                                                   T startingState,
+                                                   const std::function<T(T, T)>& coalesce,
+                                                   const std::function<T(T)>& finalize) {
     SkASSERT(arguments.size() == 1);
     const Expression* arg = ConstantFolder::GetConstantValueForVariable(*arguments.front());
-    const Type& type = arg->type();
-    SkASSERT(type.isVector());
-    SkASSERT(type.componentType().isBoolean());
+    SkASSERT(arg);
+    const Type& vecType = arg->type();
 
-    bool value = startingState;
-    for (int index = 0; index < type.columns(); ++index) {
+    T value = startingState;
+    for (int index = 0; index < vecType.columns(); ++index) {
         const Expression* subexpression = arg->getConstantSubexpression(index);
         SkASSERT(subexpression);
-        value = coalesce(value, subexpression->as<BoolLiteral>().value());
+        value = coalesce(value, subexpression->as<Literal<T>>().value());
     }
 
-    return BoolLiteral::Make(arg->fOffset, value, &type.componentType());
+    if (finalize) {
+        value = finalize(value);
+    }
+
+    return Literal<T>::Make(arg->fOffset, value, &vecType.componentType());
 }
 
 template <typename LITERAL, typename FN>
@@ -104,8 +108,8 @@ static std::unique_ptr<Expression> evaluate_n_way_intrinsic_of_type(
     // vector containing the results from:
     //     eval(arg0.x, arg1.x, arg2.x),
     //     eval(arg0.y, arg1.y, arg2.y),
-    //     eval(arg0.w, arg1.z, arg2.z),
-    //     eval(arg0.z, arg1.w, arg2.w)
+    //     eval(arg0.z, arg1.z, arg2.z),
+    //     eval(arg0.w, arg1.w, arg2.w)
     //
     // If an argument is null, zero is passed to the evaluation function. If the arguments are a mix
     // of scalars and vectors, scalars are interpreted as a vector containing the same value for
@@ -276,11 +280,13 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
                                                            const ExpressionArray& arguments) {
     switch (intrinsic) {
         case k_all_IntrinsicKind:
-            return coalesce_bool_vector(arguments, /*startingState=*/true,
-                                        [](bool a, bool b) { return a && b; });
+            return coalesce_vector<bool>(arguments, /*startingState=*/true,
+                                         [](bool a, bool b) { return a && b; },
+                                         /*finalize=*/nullptr);
         case k_any_IntrinsicKind:
-            return coalesce_bool_vector(arguments, /*startingState=*/false,
-                                        [](bool a, bool b) { return a || b; });
+            return coalesce_vector<bool>(arguments, /*startingState=*/false,
+                                         [](bool a, bool b) { return a || b; },
+                                         /*finalize=*/nullptr);
         case k_not_IntrinsicKind:
             return evaluate_intrinsic_bool1(context, arguments, [](bool a) { return !a; });
 
@@ -396,6 +402,10 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
                 t = (t < 0) ? 0 : (t > 1) ? 1 : t;
                 return t * t * (3.0 - 2.0 * t);
             });
+        case k_length_IntrinsicKind:
+            return coalesce_vector<float>(arguments, /*startingState=*/0,
+                                         [](float a, float b) { return a + (b * b); },
+                                         [](float a) { return sqrt(a); });
         default:
             return nullptr;
     }
