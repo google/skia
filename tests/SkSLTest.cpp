@@ -217,6 +217,7 @@ SKSL_TEST(SkSLIntrinsicMinFloat,               "intrinsics/MinFloat.sksl")
 // skbug.com/11919: Fails on Adreno + Vulkan
 SKSL_TEST_CPU(SkSLIntrinsicMixFloat,           "intrinsics/MixFloat.sksl")
 SKSL_TEST(SkSLIntrinsicSignFloat,              "intrinsics/SignFloat.sksl")
+SKSL_TEST(SkSLIntrinsicStep,                   "intrinsics/Step.sksl")
 
 SKSL_TEST_ES3(SkSLArrayComparison,             "shared/ArrayComparison.sksl")
 SKSL_TEST_ES3(SkSLArrayConstructors,           "shared/ArrayConstructors.sksl")
