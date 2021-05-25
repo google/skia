@@ -17,14 +17,18 @@ public:
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
         auto& shader = args.fGeomProc.cast<GrFillPathShader>();
 
-        const char* viewMatrix;
-        fViewMatrixUniform = args.fUniformHandler->addUniform(
-                nullptr, kVertex_GrShaderFlag, kFloat3x3_GrSLType, "view_matrix", &viewMatrix);
-
         args.fVaryingHandler->emitAttributes(shader);
 
+        const char* affineMatrix, *translate;
+        fAffineMatrixUniform = args.fUniformHandler->addUniform(
+                nullptr, kVertex_GrShaderFlag, kFloat4_GrSLType, "affineMatrix", &affineMatrix);
+        fTranslateUniform = args.fUniformHandler->addUniform(
+                nullptr, kVertex_GrShaderFlag, kFloat2_GrSLType, "translate", &translate);
+
+        args.fVertBuilder->codeAppendf("float2x2 AFFINE_MATRIX = float2x2(%s);", affineMatrix);
+        args.fVertBuilder->codeAppendf("float2 TRANSLATE = %s;", translate);
         args.fVertBuilder->codeAppend("float2 localcoord, vertexpos;");
-        shader.emitVertexCode(this, args.fVertBuilder, viewMatrix, args.fUniformHandler);
+        shader.emitVertexCode(this, args.fVertBuilder, args.fUniformHandler);
 
         gpArgs->fPositionVar.set(kFloat2_GrSLType, "vertexpos");
         gpArgs->fLocalCoordVar.set(kFloat2_GrSLType, "localcoord");
@@ -41,13 +45,16 @@ public:
                  const GrShaderCaps&,
                  const GrGeometryProcessor& geomProc) override {
         const GrFillPathShader& shader = geomProc.cast<GrFillPathShader>();
-        pdman.setSkMatrix(fViewMatrixUniform, shader.viewMatrix());
+        const SkMatrix& m = shader.viewMatrix();
+        pdman.set4f(fAffineMatrixUniform, m.getScaleX(), m.getSkewY(), m.getSkewX(), m.getScaleY());
+        pdman.set2f(fTranslateUniform, m.getTranslateX(), m.getTranslateY());
 
         const SkPMColor4f& color = shader.fColor;
         pdman.set4f(fColorUniform, color.fR, color.fG, color.fB, color.fA);
     }
 
-    GrGLSLUniformHandler::UniformHandle fViewMatrixUniform;
+    GrGLSLUniformHandler::UniformHandle fAffineMatrixUniform;
+    GrGLSLUniformHandler::UniformHandle fTranslateUniform;
     GrGLSLUniformHandler::UniformHandle fColorUniform;
 };
 
@@ -55,14 +62,14 @@ GrGLSLGeometryProcessor* GrFillPathShader::createGLSLInstance(const GrShaderCaps
     return new Impl;
 }
 
-void GrFillTriangleShader::emitVertexCode(Impl*, GrGLSLVertexBuilder* v, const char* viewMatrix,
+void GrFillTriangleShader::emitVertexCode(Impl*, GrGLSLVertexBuilder* v,
                                           GrGLSLUniformHandler* uniformHandler) const {
-    v->codeAppendf(R"(
+    v->codeAppend(R"(
     localcoord = input_point;
-    vertexpos = (%s * float3(localcoord, 1)).xy;)", viewMatrix);
+    vertexpos = AFFINE_MATRIX * localcoord + TRANSLATE;)");
 }
 
-void GrFillCubicHullShader::emitVertexCode(Impl*, GrGLSLVertexBuilder* v, const char* viewMatrix,
+void GrFillCubicHullShader::emitVertexCode(Impl*, GrGLSLVertexBuilder* v,
                                            GrGLSLUniformHandler* uniformHandler) const {
     v->codeAppend(R"(
     float4x2 P = float4x2(input_points_0_1, input_points_2_3);
@@ -118,21 +125,19 @@ void GrFillCubicHullShader::emitVertexCode(Impl*, GrGLSLVertexBuilder* v, const 
         vertexidx = (vertexidx + 1) & 3;
     }
 
-    localcoord = P[vertexidx];)");
-
-    v->codeAppendf("vertexpos = (%s * float3(localcoord, 1)).xy;", viewMatrix);
+    localcoord = P[vertexidx];
+    vertexpos = AFFINE_MATRIX * localcoord + TRANSLATE;)");
 }
 
 void GrFillBoundingBoxShader::emitVertexCode(Impl* impl, GrGLSLVertexBuilder* v,
-                                             const char* viewMatrix,
                                              GrGLSLUniformHandler* uniformHandler) const {
     v->codeAppendf(R"(
     // Bloat the bounding box by 1/4px to avoid potential T-junctions at the edges.
-    float2x2 M_ = inverse(float2x2(%s));
+    float2x2 M_ = inverse(AFFINE_MATRIX);
     float2 bloat = float2(abs(M_[0]) + abs(M_[1])) * .25;
 
     // Find the vertex position.
     float2 T = float2(sk_VertexID & 1, sk_VertexID >> 1);
     localcoord = mix(pathBounds.xy - bloat, pathBounds.zw + bloat, T);
-    vertexpos = (%s * float3(localcoord, 1)).xy;)", viewMatrix, viewMatrix);
+    vertexpos = AFFINE_MATRIX * localcoord + TRANSLATE;)");
 }

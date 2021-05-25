@@ -56,8 +56,7 @@ public:
 protected:
     class Impl;
 
-    virtual void emitVertexCode(Impl*, GrGLSLVertexBuilder*, const char* viewMatrix,
-                                GrGLSLUniformHandler*) const = 0;
+    virtual void emitVertexCode(Impl*, GrGLSLVertexBuilder*, GrGLSLUniformHandler*) const = 0;
 
 private:
     const SkPMColor4f fColor;
@@ -76,8 +75,7 @@ public:
 
 private:
     const char* name() const override { return "GrFillTriangleShader"; }
-    void emitVertexCode(Impl*, GrGLSLVertexBuilder*, const char* viewMatrix,
-                        GrGLSLUniformHandler*) const override;
+    void emitVertexCode(Impl*, GrGLSLVertexBuilder*, GrGLSLUniformHandler*) const override;
 };
 
 // Fills an array of convex hulls surrounding 4-point cubic instances.
@@ -94,8 +92,7 @@ public:
 
 private:
     const char* name() const override { return "GrFillCubicHullShader"; }
-    void emitVertexCode(Impl*, GrGLSLVertexBuilder*, const char* viewMatrix,
-                        GrGLSLUniformHandler*) const override;
+    void emitVertexCode(Impl*, GrGLSLVertexBuilder*, GrGLSLUniformHandler*) const override;
 };
 
 // Fills a path's bounding box, with subpixel outset to avoid possible T-junctions with extreme
@@ -114,8 +111,7 @@ public:
 
 private:
     const char* name() const override { return "GrFillBoundingBoxShader"; }
-    void emitVertexCode(Impl*, GrGLSLVertexBuilder*, const char* viewMatrix,
-                        GrGLSLUniformHandler*) const override;
+    void emitVertexCode(Impl*, GrGLSLVertexBuilder*, GrGLSLUniformHandler*) const override;
 };
 
 #endif

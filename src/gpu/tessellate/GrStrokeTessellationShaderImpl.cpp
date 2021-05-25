@@ -87,22 +87,20 @@ void GrStrokeTessellationShaderImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs
         float JOIN_TYPE = dynamicStrokeAttr.y;)", parametricPrecisionName);
     }
 
-    if (!shader.viewMatrix().isIdentity()) {
-        fTranslateUniform = uniHandler->addUniform(nullptr, kTessEvaluation_GrShaderFlag,
-                                                   kFloat2_GrSLType, "translate", nullptr);
-        const char* affineMatrixName;
-        // Hairlines apply the affine matrix in their vertex shader, prior to tessellation.
-        // Otherwise the entire view matrix gets applied at the end of the tess eval shader.
-        auto affineMatrixVisibility = kTessEvaluation_GrShaderFlag;
-        if (shader.stroke().isHairlineStyle()) {
-            affineMatrixVisibility |= kVertex_GrShaderFlag;
-        }
-        fAffineMatrixUniform = uniHandler->addUniform(nullptr, affineMatrixVisibility,
-                                                      kFloat4_GrSLType, "affineMatrix",
-                                                      &affineMatrixName);
-        if (affineMatrixVisibility & kVertex_GrShaderFlag) {
-            v->codeAppendf("float2x2 AFFINE_MATRIX = float2x2(%s);\n", affineMatrixName);
-        }
+    fTranslateUniform = uniHandler->addUniform(nullptr, kTessEvaluation_GrShaderFlag,
+                                               kFloat2_GrSLType, "translate", nullptr);
+    // View matrix uniforms.
+    const char* affineMatrixName;
+    // Hairlines apply the affine matrix in their vertex shader, prior to tessellation.
+    // Otherwise the entire view matrix gets applied at the end of the tess eval shader.
+    auto affineMatrixVisibility = kTessEvaluation_GrShaderFlag;
+    if (shader.stroke().isHairlineStyle()) {
+        affineMatrixVisibility |= kVertex_GrShaderFlag;
+    }
+    fAffineMatrixUniform = uniHandler->addUniform(nullptr, affineMatrixVisibility, kFloat4_GrSLType,
+                                                  "affineMatrix", &affineMatrixName);
+    if (affineMatrixVisibility & kVertex_GrShaderFlag) {
+        v->codeAppendf("float2x2 AFFINE_MATRIX = float2x2(%s);\n", affineMatrixName);
     }
 
     v->codeAppend(R"(
@@ -110,7 +108,7 @@ void GrStrokeTessellationShaderImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs
     float2 prevControlPoint = prevCtrlPtAttr;
     float4x2 P = float4x2(pts01Attr, pts23Attr);)");
 
-    if (shader.stroke().isHairlineStyle() && !shader.viewMatrix().isIdentity()) {
+    if (shader.stroke().isHairlineStyle()) {
         // Hairline case. Transform the points before tessellation. We can still hold off on the
         // translate until the end; we just need to perform the scale and skew right now.
         if (shader.hasConics()) {
@@ -558,14 +556,12 @@ SkString GrStrokeTessellationShaderImpl::getTessEvaluationShaderGLSL(
         code.appendf("#define STROKE_RADIUS tcsStrokeRadius\n");
     }
 
-    if (!shader.viewMatrix().isIdentity()) {
-        const char* translateName = uniformHandler.getUniformCStr(fTranslateUniform);
-        code.appendf("uniform vec2 %s;\n", translateName);
-        code.appendf("#define TRANSLATE %s\n", translateName);
-        const char* affineMatrixName = uniformHandler.getUniformCStr(fAffineMatrixUniform);
-        code.appendf("uniform vec4 %s;\n", affineMatrixName);
-        code.appendf("#define AFFINE_MATRIX mat2(%s)\n", affineMatrixName);
-    }
+    const char* translateName = uniformHandler.getUniformCStr(fTranslateUniform);
+    code.appendf("uniform vec2 %s;\n", translateName);
+    code.appendf("#define TRANSLATE %s\n", translateName);
+    const char* affineMatrixName = uniformHandler.getUniformCStr(fAffineMatrixUniform);
+    code.appendf("uniform vec4 %s;\n", affineMatrixName);
+    code.appendf("#define AFFINE_MATRIX mat2(%s)\n", affineMatrixName);
 
     code.append(R"(
     in vec4 tcsPts01[];

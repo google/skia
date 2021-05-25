@@ -251,11 +251,7 @@ void GrStrokeShaderImpl::emitTessellationCode(const GrStrokeShader& shader, SkSt
     float2 ortho = normalize(float2(tangent.y, -tangent.x));
     strokeCoord += ortho * (STROKE_RADIUS * strokeOutset);)");
 
-    if (shader.viewMatrix().isIdentity()) {
-        // No transform matrix.
-        gpArgs->fPositionVar.set(kFloat2_GrSLType, "strokeCoord");
-        gpArgs->fLocalCoordVar.set(kFloat2_GrSLType, "strokeCoord");
-    } else if (!shader.stroke().isHairlineStyle()) {
+    if (!shader.stroke().isHairlineStyle()) {
         // Normal case. Do the transform after tessellation.
         code->append(R"(
         float2 devCoord = AFFINE_MATRIX * strokeCoord + TRANSLATE;)");
@@ -322,11 +318,9 @@ void GrStrokeShaderImpl::setData(const GrGLSLProgramDataManager& pdman, const Gr
 
     // Set up the view matrix, if any.
     const SkMatrix& m = shader.viewMatrix();
-    if (!m.isIdentity()) {
-        pdman.set2f(fTranslateUniform, m.getTranslateX(), m.getTranslateY());
-        pdman.set4f(fAffineMatrixUniform, m.getScaleX(), m.getSkewY(), m.getSkewX(),
-                    m.getScaleY());
-    }
+    pdman.set2f(fTranslateUniform, m.getTranslateX(), m.getTranslateY());
+    pdman.set4f(fAffineMatrixUniform, m.getScaleX(), m.getSkewY(), m.getSkewX(),
+                m.getScaleY());
 
     if (!shader.hasDynamicColor()) {
         pdman.set4fv(fColorUniform, 1, shader.color().vec());
@@ -344,7 +338,6 @@ void GrStrokeShader::getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuil
     key = (key << 2) | (uint32_t)fMode;
     key = (key << 2) | ((keyNeedsJoin) ? fStroke.getJoin() : 0);
     key = (key << 1) | (uint32_t)fStroke.isHairlineStyle();
-    key = (key << 1) | (uint32_t)this->viewMatrix().isIdentity();
     b->add32(key);
 }
 

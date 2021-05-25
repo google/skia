@@ -85,9 +85,7 @@ public:
 protected:
     constexpr static Attribute kSinglePointAttrib{"inputPoint", kFloat2_GrVertexAttribType,
                                                   kFloat2_GrSLType};
-    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {
-        b->add32(this->viewMatrix().isIdentity());
-    }
+    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {}
     GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
     class Impl;
