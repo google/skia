@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ddbea874_0474c514",
+        "filename": "include/private/SkTOptional.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-25T12:36:11Z",
+      "side": 1,
+      "message": "OK to postpone to followup CL: Please add `void reset()` so we can unset an optional.\n\nhttps://en.cppreference.com/w/cpp/utility/optional/reset\n\nBonus, the dtor and operator\u003d can just call reset() instead of manually destroying the payload.",
+      "range": {
+        "startLine": 61,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 3
+      },
+      "revId": "fe949f44393b936aea410f93bc0815e45c716874",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "79499388_d25df207",
+        "filename": "include/private/SkTOptional.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-25T12:36:11Z",
+      "side": 1,
+      "message": "OK to postpone to followup CL: Please add `T\u0026 value()` accessors as a synonym to operator*.\n\nhttps://en.cppreference.com/w/cpp/utility/optional/value",
+      "range": {
+        "startLine": 62,
+        "startChar": 3,
+        "endLine": 62,
+        "endChar": 4
+      },
+      "revId": "fe949f44393b936aea410f93bc0815e45c716874",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "924a1b52_5a9a486f",
+        "filename": "include/private/SkTOptional.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-25T12:36:11Z",
+      "side": 1,
+      "message": "OK to postpone to followup CL: Please add `bool has_value() const` so we don\u0027t need to rely on the spooky bool operator.\n\nhttps://en.cppreference.com/w/cpp/utility/optional/operator_bool",
+      "range": {
+        "startLine": 81,
+        "startChar": 0,
+        "endLine": 84,
+        "endChar": 5
+      },
+      "revId": "fe949f44393b936aea410f93bc0815e45c716874",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "14551891_059aee25",
+        "filename": "tests/SkTOptionalTest.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-25T12:36:11Z",
+      "side": 1,
+      "message": "Rather than use scopes, these would probably be better separated into multiple DEF_TEST functions.",
+      "range": {
+        "startLine": 13,
+        "startChar": 26,
+        "endLine": 17,
+        "endChar": 5
+      },
+      "revId": "fe949f44393b936aea410f93bc0815e45c716874",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5278a1c3_2f28a8ac",
+        "filename": "tests/SkTOptionalTest.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-25T12:36:11Z",
+      "side": 1,
+      "message": "We should test that self-assignment is harmless as well (`o \u003d o;`)",
+      "range": {
+        "startLine": 39,
+        "startChar": 3,
+        "endLine": 39,
+        "endChar": 5
+      },
+      "revId": "fe949f44393b936aea410f93bc0815e45c716874",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
