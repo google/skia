@@ -731,12 +731,13 @@ std::unique_ptr<Statement> IRGenerator::getNormalizeSkPositionCode() {
     };
 
     return DSLStatement(
-        Pos() = Float4(Swizzle(Pos(), X, Y) * Swizzle(Adjust(), X, Z) +
-                       Swizzle(Pos(), W, W) * Swizzle(Adjust(), Y, W),
-                       0,
-                       Pos().w())
+            Pos() = Float4(Swizzle(Adjust(), X, Z) *
+                           (Swizzle(Pos(), X, Y) - Swizzle(Pos(), W, W) * Swizzle(Adjust(), Y, W)),
+                           0,
+                           Pos().w())
     ).release();
 }
+
 
 void IRGenerator::CheckModifiers(const Context& context,
                                  int offset,
