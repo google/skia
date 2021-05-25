@@ -387,6 +387,12 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
         case k_step_IntrinsicKind:
             return evaluate_pairwise_intrinsic(context, arguments,
                                                [](auto e, auto x) { return (x < e) ? 0 : 1; });
+        case k_smoothstep_IntrinsicKind:
+            return evaluate_3_way_intrinsic(context, arguments, [](auto edge0, auto edge1, auto x) {
+                auto t = (x - edge0) / (edge1 - edge0);
+                t = (t < 0) ? 0 : (t > 1) ? 1 : t;
+                return t * t * (3.0 - 2.0 * t);
+            });
         default:
             return nullptr;
     }
