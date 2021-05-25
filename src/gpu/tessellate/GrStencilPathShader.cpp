@@ -57,24 +57,23 @@ protected:
         args.fVaryingHandler->emitAttributes(shader);
         auto v = args.fVertBuilder;
 
-        GrShaderVar vertexPos = (*shader.vertexAttributes().begin()).asShaderVar();
-        if (!shader.viewMatrix().isIdentity()) {
-            const char* viewMatrix;
-            fViewMatrixUniform = args.fUniformHandler->addUniform(
-                    nullptr, kVertex_GrShaderFlag, kFloat3x3_GrSLType, "view_matrix", &viewMatrix);
-            v->codeAppendf("float2 vertexpos = (%s * float3(inputPoint, 1)).xy;", viewMatrix);
-            if (shader.willUseTessellationShaders()) {
-                // If y is infinity then x is a conic weight. Don't transform.
-                v->codeAppendf("vertexpos = (isinf(inputPoint.y)) ? inputPoint : vertexpos;");
-            }
-            vertexPos.set(kFloat2_GrSLType, "vertexpos");
+        const char* affineMatrix, *translate;
+        fAffineMatrixUniform = args.fUniformHandler->addUniform(
+                nullptr, kVertex_GrShaderFlag, kFloat4_GrSLType, "affineMatrix", &affineMatrix);
+        fTranslateUniform = args.fUniformHandler->addUniform(
+                nullptr, kVertex_GrShaderFlag, kFloat2_GrSLType, "translate", &translate);
+        v->codeAppendf("float2 vertexpos = float2x2(%s) * inputPoint + %s;",
+                       affineMatrix, translate);
+        if (shader.willUseTessellationShaders()) {
+            // If y is infinity then x is a conic weight. Don't transform.
+            v->codeAppendf("vertexpos = (isinf(inputPoint.y)) ? inputPoint : vertexpos;");
         }
 
         if (!shader.willUseTessellationShaders()) {  // This is the case for the triangle shader.
-            gpArgs->fPositionVar = vertexPos;
+            gpArgs->fPositionVar.set(kFloat2_GrSLType, "vertexpos");
         } else {
             v->declareGlobal(GrShaderVar("P", kFloat2_GrSLType, GrShaderVar::TypeModifier::Out));
-            v->codeAppendf("P = %s;", vertexPos.c_str());
+            v->codeAppendf("P = %s;", "vertexpos");
         }
 
         // The fragment shader is normally disabled, but output fully opaque white.
@@ -85,13 +84,13 @@ protected:
     void setData(const GrGLSLProgramDataManager& pdman,
                  const GrShaderCaps&,
                  const GrGeometryProcessor& geomProc) override {
-        const auto& shader = geomProc.cast<GrStencilPathShader>();
-        if (!shader.viewMatrix().isIdentity()) {
-            pdman.setSkMatrix(fViewMatrixUniform, shader.viewMatrix());
-        }
+        const SkMatrix& m = geomProc.cast<GrStencilPathShader>().viewMatrix();
+        pdman.set4f(fAffineMatrixUniform, m.getScaleX(), m.getSkewY(), m.getSkewX(), m.getScaleY());
+        pdman.set2f(fTranslateUniform, m.getTranslateX(), m.getTranslateY());
     }
 
-    GrGLSLUniformHandler::UniformHandle fViewMatrixUniform;
+    GrGLSLUniformHandler::UniformHandle fAffineMatrixUniform;
+    GrGLSLUniformHandler::UniformHandle fTranslateUniform;
 };
 
 GrGLSLGeometryProcessor* GrStencilPathShader::createGLSLInstance(const GrShaderCaps&) const {
@@ -375,13 +374,13 @@ class GrCurveMiddleOutShader::Impl : public GrStencilPathShader::Impl {
             float T = find_middle_out_T();
             pos = eval_rational_cubic(P, T);
         })");
-        if (!shader.viewMatrix().isIdentity()) {
-            const char* viewMatrix;
-            fViewMatrixUniform = args.fUniformHandler->addUniform(
-                    nullptr, kVertex_GrShaderFlag, kFloat3x3_GrSLType, "view_matrix", &viewMatrix);
-            args.fVertBuilder->codeAppendf(R"(
-            pos = (%s * float3(pos, 1)).xy;)", viewMatrix);
-        }
+        const char* affineMatrix, *translate;
+        fAffineMatrixUniform = args.fUniformHandler->addUniform(
+                nullptr, kVertex_GrShaderFlag, kFloat4_GrSLType, "affineMatrix", &affineMatrix);
+        fTranslateUniform = args.fUniformHandler->addUniform(
+                nullptr, kVertex_GrShaderFlag, kFloat2_GrSLType, "translate", &translate);
+        args.fVertBuilder->codeAppendf(R"(
+        pos = float2x2(%s) * pos + %s;)", affineMatrix, translate);
         gpArgs->fPositionVar.set(kFloat2_GrSLType, "pos");
 
         // The fragment shader is normally disabled, but output fully opaque white.

@@ -79,17 +79,15 @@ void GrStrokeInstancedShaderImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     }
 
     // View matrix uniforms.
-    if (!shader.viewMatrix().isIdentity()) {
-        const char* translateName, *affineMatrixName;
-        fAffineMatrixUniform = args.fUniformHandler->addUniform(
-                nullptr, kVertex_GrShaderFlag, kFloat4_GrSLType, "affineMatrix",
-                &affineMatrixName);
-        fTranslateUniform = args.fUniformHandler->addUniform(
-                nullptr, kVertex_GrShaderFlag, kFloat2_GrSLType, "translate", &translateName);
-        args.fVertBuilder->codeAppendf("float2x2 AFFINE_MATRIX = float2x2(%s);\n",
-                                       affineMatrixName);
-        args.fVertBuilder->codeAppendf("float2 TRANSLATE = %s;\n", translateName);
-    }
+    const char* translateName, *affineMatrixName;
+    fAffineMatrixUniform = args.fUniformHandler->addUniform(nullptr, kVertex_GrShaderFlag,
+                                                            kFloat4_GrSLType, "affineMatrix",
+                                                            &affineMatrixName);
+    fTranslateUniform = args.fUniformHandler->addUniform(nullptr, kVertex_GrShaderFlag,
+                                                         kFloat2_GrSLType, "translate",
+                                                         &translateName);
+    args.fVertBuilder->codeAppendf("float2x2 AFFINE_MATRIX = float2x2(%s);\n", affineMatrixName);
+    args.fVertBuilder->codeAppendf("float2 TRANSLATE = %s;\n", translateName);
 
     // Tessellation code.
     args.fVertBuilder->codeAppend(R"(
@@ -103,7 +101,7 @@ void GrStrokeInstancedShaderImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
             P[3] = P[2];  // Setting p3 equal to p2 works for the remaining rotational logic.
         })");
     }
-    if (shader.stroke().isHairlineStyle() && !shader.viewMatrix().isIdentity()) {
+    if (shader.stroke().isHairlineStyle()) {
         // Hairline case. Transform the points before tessellation. We can still hold off on the
         // translate until the end; we just need to perform the scale and skew right now.
         args.fVertBuilder->codeAppend(R"(
