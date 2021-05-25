@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1661cd53_50492e48",
+        "filename": "src/utils/SkShadowUtils.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-25T17:19:48Z",
+      "side": 1,
+      "message": "Runtime color filter has to do this same juggle - it\u0027s awkward here, but I haven\u0027t come up with a better solution. Our ability to implement things like constant-output-for-constant-input is dependent on being able to analyze the SkSL in terms of the single input color and resulting output color. For FPs that get that from another FP, we have to use compose as an adapter between the two different models.",
+      "range": {
+        "startLine": 98,
+        "startChar": 44,
+        "endLine": 98,
+        "endChar": 51
+      },
+      "revId": "b7b3d9544a08ae8ea264f004de8ece36e793e2aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
