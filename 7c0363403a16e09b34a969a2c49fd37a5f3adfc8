@@ -16,6 +16,23 @@
       "message": "After our conversation yesterday, I\u0027m guessing this is shelved or needs an update, right?",
       "revId": "7c0363403a16e09b34a969a2c49fd37a5f3adfc8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3183b53a_5d0383f9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-05-25T14:08:00Z",
+      "side": 1,
+      "message": "That\u0027s correct. Need to get https://skia-review.googlesource.com/c/skia/+/411496 in and then I\u0027ll update.",
+      "revId": "7c0363403a16e09b34a969a2c49fd37a5f3adfc8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
