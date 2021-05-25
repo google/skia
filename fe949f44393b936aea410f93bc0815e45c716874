@@ -47,6 +47,54 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "55d83be7_884f7e4d",
+        "filename": "include/private/SkTOptional.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-25T13:11:15Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "79499388_d25df207",
+      "range": {
+        "startLine": 62,
+        "startChar": 3,
+        "endLine": 62,
+        "endChar": 4
+      },
+      "revId": "fe949f44393b936aea410f93bc0815e45c716874",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "04339728_83b49188",
+        "filename": "include/private/SkTOptional.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-25T13:11:15Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "ddbea874_0474c514",
+      "range": {
+        "startLine": 61,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 3
+      },
+      "revId": "fe949f44393b936aea410f93bc0815e45c716874",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "924a1b52_5a9a486f",
@@ -60,6 +108,30 @@
       "writtenOn": "2021-05-25T12:36:11Z",
       "side": 1,
       "message": "OK to postpone to followup CL: Please add `bool has_value() const` so we don\u0027t need to rely on the spooky bool operator.\n\nhttps://en.cppreference.com/w/cpp/utility/optional/operator_bool",
+      "range": {
+        "startLine": 81,
+        "startChar": 0,
+        "endLine": 84,
+        "endChar": 5
+      },
+      "revId": "fe949f44393b936aea410f93bc0815e45c716874",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "15d19f30_38c664b9",
+        "filename": "include/private/SkTOptional.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-25T13:11:15Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "924a1b52_5a9a486f",
       "range": {
         "startLine": 81,
         "startChar": 0,
@@ -93,6 +165,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c87b504e_72c67509",
+        "filename": "tests/SkTOptionalTest.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-25T13:11:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "14551891_059aee25",
+      "range": {
+        "startLine": 13,
+        "startChar": 26,
+        "endLine": 17,
+        "endChar": 5
+      },
+      "revId": "fe949f44393b936aea410f93bc0815e45c716874",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5278a1c3_2f28a8ac",
@@ -106,6 +202,30 @@
       "writtenOn": "2021-05-25T12:36:11Z",
       "side": 1,
       "message": "We should test that self-assignment is harmless as well (`o \u003d o;`)",
+      "range": {
+        "startLine": 39,
+        "startChar": 3,
+        "endLine": 39,
+        "endChar": 5
+      },
+      "revId": "fe949f44393b936aea410f93bc0815e45c716874",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9c0091ed_6c6a49f4",
+        "filename": "tests/SkTOptionalTest.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-05-25T13:11:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5278a1c3_2f28a8ac",
       "range": {
         "startLine": 39,
         "startChar": 3,
