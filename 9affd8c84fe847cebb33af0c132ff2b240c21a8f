@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a59574e0_28f77097",
+        "filename": "src/sksl/ir/SkSLFunctionCall.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-25T20:55:58Z",
+      "side": 1,
+      "message": "length() is actually legal on scalars...",
+      "range": {
+        "startLine": 39,
+        "startChar": 21,
+        "endLine": 39,
+        "endChar": 29
+      },
+      "revId": "9affd8c84fe847cebb33af0c132ff2b240c21a8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
