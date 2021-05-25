@@ -38,7 +38,6 @@ TEST_BUILDERS = [
   'Build-Debian9-Clang-x86_64-Release-Chromebook_GLES_Docker',
   'Build-Debian10-Clang-arm-Release-Flutter_Android',
   'Build-Debian10-Clang-arm64-Release-Android_Wuffs',
-  'Build-Debian10-Clang-x86-devrel-Android_SKQP',
   'Build-Debian10-Clang-x86_64-Debug-Chromebook_GLES',
   'Build-Debian10-Clang-x86_64-Debug-Coverage',
   'Build-Debian10-Clang-x86_64-Debug-MSAN',
@@ -78,7 +77,6 @@ TEST_BUILDERS = [
   'Build-Win-Clang-x86_64-Release-Shared',
   "Build-Win-Clang-x86_64-Release-Dawn",
   'Build-Win-Clang-x86_64-Release-Vulkan',
-  'Test-Debian10-Clang-GCE-CPU-AVX2-universal-devrel-All-Android_SKQP',
   'Housekeeper-PerCommit-CheckGeneratedFiles',
 ]
 

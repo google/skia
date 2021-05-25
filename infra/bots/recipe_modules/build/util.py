@@ -29,7 +29,6 @@ DEFAULT_BUILD_PRODUCTS = [
   'skottie_tool',
   'lib/*.so',
   'run_testlab',
-  'skqp-universal-debug.apk',
 ]
 
 # TODO(westont): Use this in docker.py, instead of a copy of it.
