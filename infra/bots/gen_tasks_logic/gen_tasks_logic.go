@@ -1234,6 +1234,12 @@ func (b *jobBuilder) compile() string {
 				if b.extraConfig("iOS") {
 					b.asset("provisioning_profile_ios")
 				}
+				// See skbug.com/11129 for more
+				if b.compiler("Xcode11.4.1") {
+					b.dimension("reserved_for_xcode_version:11.4.1")
+				} else {
+					b.dimension("reserved_for_xcode_version:newest")
+				}
 			}
 		})
 	}
