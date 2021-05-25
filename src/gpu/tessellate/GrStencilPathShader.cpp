@@ -109,7 +109,7 @@ GrGLSLGeometryProcessor* GrCurveTessellateShader::createGLSLInstance(const GrSha
             code.appendf(R"(
             #define PRECISION %f)", GrTessellationPathRenderer::kLinearizationPrecision);
             code.append(kSkSLTypeDefs);
-            code.append(GrWangsFormula::as_sksl(true/*hasConics*/));
+            code.append(GrWangsFormula::as_sksl());
             code.append(kUnpackRationalCubicFn);
             code.append(R"(
             layout(vertices = 1) out;
@@ -242,7 +242,7 @@ GrGLSLGeometryProcessor* GrWedgeTessellateShader::createGLSLInstance(const GrSha
             code.appendf(R"(
             #define PRECISION %f)", GrTessellationPathRenderer::kLinearizationPrecision);
             code.append(kSkSLTypeDefs);
-            code.append(GrWangsFormula::as_sksl(true/*hasConics*/));
+            code.append(GrWangsFormula::as_sksl());
             code.append(kUnpackRationalCubicFn);
             code.append(R"(
             layout(vertices = 1) out;
