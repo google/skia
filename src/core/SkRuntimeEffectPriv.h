@@ -30,6 +30,15 @@ inline sk_sp<SkRuntimeEffect> SkMakeCachedRuntimeEffect(SkRuntimeEffect::Result 
     return SkMakeCachedRuntimeEffect(make, SkString{sksl});
 }
 
+// Internal API that assumes (and asserts) that the shader code is valid, but does no internal
+// caching. Used when the caller will cache the result in a static variable.
+inline sk_sp<SkRuntimeEffect> SkMakeRuntimeEffect(SkRuntimeEffect::Result (*make)(SkString sksl),
+                                                  const char* sksl) {
+    auto result = make(SkString{sksl});
+    SkASSERTF(result.effect, "%s", result.errorText.c_str());
+    return result.effect;
+}
+
 // This is mostly from skvm's rgb->hsl code, with some GPU-related finesse pulled from
 // GrHighContrastFilterEffect.fp, see next comment.
 constexpr char kRGB_to_HSL_sksl[] =

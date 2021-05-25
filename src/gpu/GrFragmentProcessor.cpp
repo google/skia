@@ -5,6 +5,7 @@
 * found in the LICENSE file.
 */
 
+#include "src/core/SkRuntimeEffectPriv.h"
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/GrProcessorAnalysis.h"
@@ -209,10 +210,10 @@ void GrFragmentProcessor::cloneAndRegisterAllChildProcessors(const GrFragmentPro
 
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MakeColor(SkPMColor4f color) {
     // Use ColorFilter signature/factory to get the constant output for constant input optimization
-    static auto effect = SkRuntimeEffect::MakeForColorFilter(SkString(R"(
+    static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter, R"(
         uniform half4 color;
         half4 main(half4 inColor) { return color; }
-    )")).effect;
+    )");
     return GrSkSLFP::Make(effect, "color_fp", "color", color);
 }
 
