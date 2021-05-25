@@ -1,6 +1,14 @@
-uniform half a;
-uniform half4 b;
-void main() {
-    sk_FragColor.x = length(a);
-    sk_FragColor.x = length(b);
+uniform half4 input;
+uniform half4 colorGreen, colorRed;
+
+half4 main(float2 coords) {
+    const half4 constVal = half4(0, 3, 4, 12);
+    half3 expected = half3(3, 5, 13);
+
+    return (length(input.xy)      == expected.x &&
+            length(input.xyz)     == expected.y &&
+            length(input.xyzw)    == expected.z &&
+            length(constVal.xy)   == expected.x &&
+            length(constVal.xyz)  == expected.y &&
+            length(constVal.xyzw) == expected.z) ? colorGreen : colorRed;
 }
