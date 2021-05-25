@@ -103,8 +103,10 @@ GrGLSLGeometryProcessor* GrCurveTessellateShader::createGLSLInstance(const GrSha
         SkString getTessControlShaderGLSL(const GrGeometryProcessor&,
                                           const char* versionAndExtensionDecls,
                                           const GrGLSLUniformHandler&,
-                                          const GrShaderCaps&) const override {
+                                          const GrShaderCaps& shaderCaps) const override {
             SkString code(versionAndExtensionDecls);
+            code.appendf(R"(
+            #define MAX_TESSELLATION_SEGMENTS %i)", shaderCaps.maxTessellationSegments());
             code.appendf(R"(
             #define PRECISION %f)", GrTessellationPathRenderer::kLinearizationPrecision);
             code.append(kSkSLTypeDefs);
@@ -165,9 +167,9 @@ GrGLSLGeometryProcessor* GrCurveTessellateShader::createGLSLInstance(const GrSha
                     rationalCubicW = fma(w, 2.0/3.0, 1.0/3.0);
                 }
 
-                gl_TessLevelOuter[0] = n1;
+                gl_TessLevelOuter[0] = min(n1, MAX_TESSELLATION_SEGMENTS);
                 gl_TessLevelOuter[1] = 1.0;
-                gl_TessLevelOuter[2] = n0;
+                gl_TessLevelOuter[2] = min(n0, MAX_TESSELLATION_SEGMENTS);
 
                 // Changing the inner level to 1 when n0 == n1 == 1 collapses the entire patch to a
                 // single triangle. Otherwise, we need an inner level of 2 so our curve triangles
@@ -234,8 +236,10 @@ GrGLSLGeometryProcessor* GrWedgeTessellateShader::createGLSLInstance(const GrSha
         SkString getTessControlShaderGLSL(const GrGeometryProcessor&,
                                           const char* versionAndExtensionDecls,
                                           const GrGLSLUniformHandler&,
-                                          const GrShaderCaps&) const override {
+                                          const GrShaderCaps& shaderCaps) const override {
             SkString code(versionAndExtensionDecls);
+            code.appendf(R"(
+            #define MAX_TESSELLATION_SEGMENTS %i)", shaderCaps.maxTessellationSegments());
             code.appendf(R"(
             #define PRECISION %f)", GrTessellationPathRenderer::kLinearizationPrecision);
             code.append(kSkSLTypeDefs);
@@ -255,7 +259,7 @@ GrGLSLGeometryProcessor* GrWedgeTessellateShader::createGLSLInstance(const GrSha
                 float n = wangs_formula(PRECISION, P[0], P[1], P[2], P[3], w);
 
                 // Tessellate the first side of the patch into n triangles.
-                gl_TessLevelOuter[0] = n;
+                gl_TessLevelOuter[0] = min(n, MAX_TESSELLATION_SEGMENTS);
 
                 // Leave the other two sides of the patch as single segments.
                 gl_TessLevelOuter[1] = 1.0;
