@@ -14,6 +14,7 @@
 #include <vector>
 
 class Cmd;
+class ClipCmd;
 class FakeCanvas;
 class SkBitmap;
 class SkCanvas;
@@ -147,7 +148,7 @@ public:
         fStack.push_back(FakeMCBlob::MCState());
     }
 
-    void clipRect(SkIRect clipRect) {
+    void clipRect(SkIRect clipRect, ClipCmd* clipCmd) {
         fStack.back().addRect(clipRect);
     }
 
@@ -248,7 +249,7 @@ public:
 
     void save();
     void drawRect(int id, uint32_t z, SkIRect, FakePaint);
-    void clipRect(SkIRect r);
+    void clipRect(int id, SkIRect r);
     void translate(SkIPoint trans) {
         fTracker.translate(trans);
     }
@@ -263,31 +264,14 @@ public:
 protected:
 
 private:
-    class KeyAndCmd {
-    public:
-        SortKey fKey;
-        Cmd*    fCmd;
-    };
+    void sort();
 
-    void sort() {
-        // In general we want:
-        //  opaque draws to occur front to back (i.e., in reverse painter's order) while minimizing
-        //        state changes due to materials
-        //  transparent draws to occur back to front (i.e., in painter's order)
-        //
-        // In both scenarios we would like to batch as much as possible.
-        std::sort(fSortedCmds.begin(), fSortedCmds.end(),
-                  [](const KeyAndCmd& a, const KeyAndCmd& b) {
-                      return a.fKey < b.fKey;
-                  });
-    }
+    bool              fFinalized = false;
+    std::vector<Cmd*> fSortedCmds;
 
-    bool                   fFinalized = false;
-    std::vector<KeyAndCmd> fSortedCmds;
-
-    FakeStateTracker       fTracker;
-    SkBitmap               fBM;
-    uint32_t               fZBuffer[256][256];
+    FakeStateTracker  fTracker;
+    SkBitmap          fBM;
+    uint32_t          fZBuffer[256][256];
 };
 
 class FakeCanvas {
@@ -309,7 +293,7 @@ public:
 
     void drawRect(int id, SkIRect, FakePaint);
 
-    void clipRect(SkIRect);
+    void clipRect(int id, SkIRect);
 
     void translate(SkIPoint trans) {
         SkASSERT(!fFinalized);
