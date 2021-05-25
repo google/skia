@@ -160,6 +160,16 @@ public class Matrix {
         return this;
     }
 
+    /*
+     * Rotates this Matrix along the (x,y,z) axis by rad radians
+     * Store result in caller Matrix
+     * returns reference to this Matrix for operation chaining
+     */
+    public Matrix rotate(float x, float y, float z, float rad) {
+        nRotate(this.mNativeInstance, x, y, z, rad);
+        return this;
+    }
+
     /**
      * Releases any resources associated with this Matrix.
      */
