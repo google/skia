@@ -1,7 +1,25 @@
-uniform half a, b;
-uniform half4 c, d;
-void main() {
-    sk_FragColor.x = mod(a, b);
-    sk_FragColor = mod(c, b);
-    sk_FragColor = mod(c, d);
+uniform half4 testInputs;
+uniform half4 colorGreen, colorRed, colorWhite;
+
+half4 main(float2 coords) {
+    half4 expectedA = half4(0.75, 0.0, 0.75, 0.25);
+    half4 expectedB = half4(0.25, 0.0, 0.75, 1.0);
+    const half4 constVal   = half4(-1.25, 0, 0.75, 2.25);
+    const half4 constRamp  = half4(0.5, 0.75, 1, 1.25);
+    return (mod(testInputs.x,    1)               == expectedA.x     &&
+            mod(testInputs.xy,   1)               == expectedA.xy    &&
+            mod(testInputs.xyz,  1)               == expectedA.xyz   &&
+            mod(testInputs.xyzw, 1)               == expectedA.xyzw  &&
+            mod(constVal.x,      1)               == expectedA.x     &&
+            mod(constVal.xy,     1)               == expectedA.xy    &&
+            mod(constVal.xyz,    1)               == expectedA.xyz   &&
+            mod(constVal.xyzw,   1)               == expectedA.xyzw  &&
+            mod(testInputs.x,    colorWhite.x)    == expectedA.x     &&
+            mod(testInputs.xy,   colorWhite.xy)   == expectedA.xy    &&
+            mod(testInputs.xyz,  colorWhite.xyz)  == expectedA.xyz   &&
+            mod(testInputs.xyzw, colorWhite.xyzw) == expectedA.xyzw  &&
+            mod(constVal.x,      constRamp.x)     == expectedB.x     &&
+            mod(constVal.xy,     constRamp.xy)    == expectedB.xy    &&
+            mod(constVal.xyz,    constRamp.xyz)   == expectedB.xyz   &&
+            mod(constVal.xyzw,   constRamp.xyzw)  == expectedB.xyzw) ? colorGreen : colorRed;
 }
