@@ -56,6 +56,30 @@
       },
       "revId": "254accb5d5ab036116fc666c7cd1afce4a15cb63",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "399c2f35_b6042110",
+        "filename": "src/sksl/SkSLAnalysis.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-25T14:33:39Z",
+      "side": 1,
+      "message": "Yeah, carefully explaining the optimization ended up being the hardest part of this CL. I actually removed all references to \"elide\" and used a much more explicit \"converted explicit to passthrough\" terminology throughout.",
+      "parentUuid": "fb22c73c_8339ecf4",
+      "range": {
+        "startLine": 40,
+        "startChar": 7,
+        "endLine": 41,
+        "endChar": 68
+      },
+      "revId": "254accb5d5ab036116fc666c7cd1afce4a15cb63",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
