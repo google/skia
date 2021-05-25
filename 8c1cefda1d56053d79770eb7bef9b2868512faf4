@@ -16,6 +16,24 @@
       "message": "FYI: This is going to need another iteration (when you add more intrinsics). step and smoothstep work the other way -- the first arg(s) can be scalar, and the last can be genType.",
       "revId": "8c1cefda1d56053d79770eb7bef9b2868512faf4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6e7f2c62_c439a5b5",
+        "filename": "src/sksl/ir/SkSLFunctionCall.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-25T14:32:36Z",
+      "side": 1,
+      "message": "Yup. Should be an easy tweak. I might be missing other generalizations too. I\u0027ve iterated on a bunch of different patterns (not sent for review) to try and land on something reusable but simple. It\u0027s an interesting balancing act trying to make it flexible, but not wildly overcomplicated.",
+      "parentUuid": "af81d260_a86cbe6b",
+      "revId": "8c1cefda1d56053d79770eb7bef9b2868512faf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
