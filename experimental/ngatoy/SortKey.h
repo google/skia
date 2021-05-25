@@ -7,9 +7,10 @@
 #include "include/core/SkTypes.h"
 
 // These are the material IDs that are stored in the sort key for each class of material
-constexpr int kSolidMat  = 1;
-constexpr int kLinearMat = 2;
-constexpr int kRadialMat = 3;
+constexpr int kInvalidMat = 0;
+constexpr int kSolidMat   = 1;
+constexpr int kLinearMat  = 2;
+constexpr int kRadialMat  = 3;
 
 class SortKey {
 public:
