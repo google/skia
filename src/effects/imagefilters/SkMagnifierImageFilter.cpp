@@ -18,12 +18,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 #if SK_SUPPORT_GPU
 #include "src/gpu/GrColorSpaceXform.h"
+#include "src/gpu/effects/GrSkSLFP.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/effects/generated/GrMagnifierEffect.h"
-#include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
-#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
-#include "src/gpu/glsl/GrGLSLProgramDataManager.h"
-#include "src/gpu/glsl/GrGLSLUniformHandler.h"
 #endif
 
 namespace {
@@ -94,6 +91,89 @@ void SkMagnifierImageFilter::flatten(SkWriteBuffer& buffer) const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#if SK_SUPPORT_GPU
+static std::unique_ptr<GrFragmentProcessor> make_magnifier_fp(
+        std::unique_ptr<GrFragmentProcessor> input,
+        SkIRect bounds,
+        SkRect srcRect,
+        float xInvZoom,
+        float yInvZoom,
+        float xInvInset,
+        float yInvInset) {
+    SkV4 boundsUniform = {static_cast<float>(bounds.x()),
+                          static_cast<float>(bounds.y()),
+                          1.f / bounds.width(),
+                          1.f / bounds.height()};
+    SkV2 offset = {srcRect.x(), srcRect.y()};
+
+    static constexpr char kCode[] = R"(
+        uniform shader src;
+        uniform float4 boundsUniform;
+        uniform float  xInvZoom;
+        uniform float  yInvZoom;
+        uniform float  xInvInset;
+        uniform float  yInvInset;
+        uniform half2  offset;
+
+        half4 main(float2 coord) {
+            float2 zoom_coord = offset + coord * float2(xInvZoom, yInvZoom);
+            float2 delta = (coord - boundsUniform.xy) * boundsUniform.zw;
+            delta = min(delta, float2(1.0) - delta);
+            delta *= float2(xInvInset, yInvInset);
+
+            float weight = 0.0;
+            if (delta.s < 2.0 && delta.t < 2.0) {
+                delta = float2(2.0) - delta;
+                float dist = length(delta);
+                dist = max(2.0 - dist, 0.0);
+                weight = min(dist * dist, 1.0);
+            } else {
+                float2 delta_squared = delta * delta;
+                weight = min(min(delta_squared.x, delta_squared.y), 1.0);
+            }
+
+            return sample(src, mix(coord, zoom_coord, weight));
+        }
+    )";
+
+    // Option #1: Today's code, using builder. All of the child/uniform calls do linear search,
+    // then memcpy into the SkData.
+    auto builder = GrRuntimeFPBuilder::Make<kCode, SkRuntimeEffect::MakeForShader>();
+    builder.child("src") = std::move(input);
+    builder.uniform("boundsUniform") = boundsUniform;
+    builder.uniform("xInvZoom") = xInvZoom;
+    builder.uniform("yInvZoom") = yInvZoom;
+    builder.uniform("xInvInset") = xInvInset;
+    builder.uniform("yInvInset") = yInvInset;
+    builder.uniform("offset") = offset;
+    return builder.makeFP();
+
+    // Option #2: Use builder. Add version of uniform() that also takes integer index. Trust it in
+    // release build, assert that it's correct in debug build.
+    auto builder = GrRuntimeFPBuilder::Make<kCode, SkRuntimeEffect::MakeForShader>();
+    builder.child(0, "src") = std::move(input);
+    builder.uniform(0, "boundsUniform") = boundsUniform;
+    builder.uniform(1, "xInvZoom") = xInvZoom;
+    builder.uniform(2, "yInvZoom") = yInvZoom;
+    builder.uniform(3, "xInvInset") = xInvInset;
+    builder.uniform(4, "yInvInset") = yInvInset;
+    builder.uniform(5, "offset") = offset;
+    return builder.makeFP();
+
+    // Option #3: Local struct. Efficient, but requires matching layout correctly.
+    static const SkRuntimeEffect::Result gResult = SkRuntimeEffect::MakeForShader(SkString(kCode));
+    struct {
+        SkV4 boundsUniform;
+        float xInvZoom;
+        float yInvZoom;
+        float xInvInset;
+        float yInvInset;
+        SkV2 offset;
+    } uniforms = {boundsUniform, xInvZoom, yInvZoom, xInvInset, yInvInset, offset};
+    return gResult.effect->makeFP(SkData::MakeWithCopy(&uniforms, sizeof(uniforms)), &input, 1);
+}
+#endif
+
 sk_sp<SkSpecialImage> SkMagnifierImageFilter::onFilterImage(const Context& ctx,
                                                             SkIPoint* offset) const {
     SkIPoint inputOffset = SkIPoint::Make(0, 0);
@@ -136,13 +216,14 @@ sk_sp<SkSpecialImage> SkMagnifierImageFilter::onFilterImage(const Context& ctx,
                                              (1.f - invYZoom) * input->subset().y());
         auto inputFP = GrTextureEffect::Make(std::move(inputView), kPremul_SkAlphaType);
 
-        auto fp = GrMagnifierEffect::Make(std::move(inputFP),
-                                          bounds,
-                                          srcRect,
-                                          invXZoom,
-                                          invYZoom,
-                                          bounds.width() * invInset,
-                                          bounds.height() * invInset);
+        auto fp = make_magnifier_fp(std::move(inputFP),
+                                    bounds,
+                                    srcRect,
+                                    invXZoom,
+                                    invYZoom,
+                                    bounds.width() * invInset,
+                                    bounds.height() * invInset);
+
         fp = GrColorSpaceXformEffect::Make(std::move(fp),
                                            input->getColorSpace(), input->alphaType(),
                                            ctx.colorSpace(), kPremul_SkAlphaType);
