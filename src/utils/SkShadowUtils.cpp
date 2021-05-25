@@ -20,6 +20,7 @@
 #include "src/core/SkBlurMask.h"
 #include "src/core/SkColorFilterBase.h"
 #include "src/core/SkColorFilterPriv.h"
+#include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkDrawShadowInfo.h"
 #include "src/core/SkEffectPriv.h"
@@ -87,13 +88,13 @@ sk_sp<SkFlattenable> SkGaussianColorFilter::CreateProc(SkReadBuffer&) {
 GrFPResult SkGaussianColorFilter::asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
                                                       GrRecordingContext*,
                                                       const GrColorInfo&) const {
-    static auto effect = SkRuntimeEffect::MakeForColorFilter(SkString(R"(
+    static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter, R"(
         half4 main(half4 inColor) {
             half factor = 1 - inColor.a;
             factor = exp(-factor * factor * 4) - 0.018;
             return half4(factor);
         }
-    )")).effect;
+    )");
     auto fp = GrSkSLFP::Make(effect, "gaussian_fp");
     return GrFPSuccess(GrFragmentProcessor::Compose(std::move(fp), std::move(inputFP)));
 }
