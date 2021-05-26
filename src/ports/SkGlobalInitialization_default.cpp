@@ -130,6 +130,7 @@
         SkRegisterMorphologyImageFilterFlattenables();
         SkRegisterOffsetImageFilterFlattenable();
         SkRegisterPictureImageFilterFlattenable();
+        SkRegisterRuntimeImageFilterFlattenable();
         SkRegisterShaderImageFilterFlattenable();
         SkRegisterTileImageFilterFlattenable();
         SK_REGISTER_FLATTENABLE(SkLocalMatrixImageFilter);
