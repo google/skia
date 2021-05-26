@@ -30,7 +30,7 @@ Mapping Mapping::DecomposeCTM(const SkMatrix& ctm, const SkImageFilter* filter,
                               const skif::ParameterSpace<SkPoint>& representativePoint) {
     SkMatrix remainder, layer;
     SkSize scale;
-    if (ctm.isScaleTranslate() || as_IFB(filter)->canHandleComplexCTM()) {
+    if (!filter || ctm.isScaleTranslate() || as_IFB(filter)->canHandleComplexCTM()) {
         // It doesn't matter what type of matrix ctm is, we can have layer space be equivalent to
         // device space.
         remainder = SkMatrix::I();
@@ -59,15 +59,27 @@ Mapping Mapping::DecomposeCTM(const SkMatrix& ctm, const SkImageFilter* filter,
     return Mapping(remainder, layer);
 }
 
-// Instantiate map specializations for the 6 geometric types used during filtering
-template<>
-SkIRect Mapping::map<SkIRect>(const SkIRect& geom, const SkMatrix& matrix) {
-    return matrix.mapRect(SkRect::Make(geom)).roundOut();
+bool Mapping::adjustLayerSpace(const SkMatrix& layer) {
+    SkMatrix invLayer;
+    if (!layer.invert(&invLayer)) {
+        return false;
+    }
+    fParamToLayerMatrix.postConcat(layer);
+    fLayerToDevMatrix.preConcat(invLayer);
+    return true;
 }
 
+// Instantiate map specializations for the 6 geometric types used during filtering
 template<>
 SkRect Mapping::map<SkRect>(const SkRect& geom, const SkMatrix& matrix) {
     return matrix.mapRect(geom);
+}
+
+template<>
+SkIRect Mapping::map<SkIRect>(const SkIRect& geom, const SkMatrix& matrix) {
+    SkRect mapped = matrix.mapRect(SkRect::Make(geom));
+    mapped.inset(1e-3f, 1e-3f);
+    return mapped.roundOut();
 }
 
 template<>
