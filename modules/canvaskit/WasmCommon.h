@@ -12,6 +12,7 @@
 #include <emscripten/bind.h>
 #include "include/core/SkColor.h"
 #include "include/core/SkSpan.h"
+#include "include/private/SkMalloc.h"
 
 using namespace emscripten;
 
@@ -25,6 +26,18 @@ using Uint8Array = emscripten::val;
 using Uint16Array = emscripten::val;
 using Uint32Array = emscripten::val;
 using Float32Array = emscripten::val;
+
+// If we are using C++ and EMSCRIPTEN_BINDINGS, we can't have primitive pointers in our function
+// type signatures. (this gives an error message like "Cannot call foo due to unbound
+// types Pi, Pf").  But, we can just pretend they are numbers and cast them to be pointers and
+// the compiler is happy.
+// These types refer to the TypedArray that the JS interface wrote into or will read out of.
+// This doesn't stop us from using these as different types; e.g. a float* can be treated as an
+// SkPoint* in some APIs.
+using WASMPointerF32 = uintptr_t;
+using WASMPointerU8  = uintptr_t;
+using WASMPointerU16 = uintptr_t;
+using WASMPointerU32 = uintptr_t;
 
 #define SPECIALIZE_JSARRAYTYPE(type, name)                  \
     template <> struct JSArrayType<type> {                  \
