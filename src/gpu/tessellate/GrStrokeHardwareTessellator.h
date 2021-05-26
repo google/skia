@@ -16,13 +16,13 @@
 // MSAA if antialiasing is desired.
 class GrStrokeHardwareTessellator : public GrStrokeTessellator {
 public:
-    GrStrokeHardwareTessellator(ShaderFlags shaderFlags, const SkMatrix& viewMatrix,
-                                PathStrokeList* pathStrokeList,
-                                std::array<float, 2> matrixMinMaxScales,
-                                const SkRect& strokeCullBounds)
-            : GrStrokeTessellator(GrStrokeShader::Mode::kHardwareTessellation,
-                                  shaderFlags, viewMatrix, pathStrokeList, matrixMinMaxScales,
-                                  strokeCullBounds) {
+    GrStrokeHardwareTessellator(ShaderFlags shaderFlags, const GrShaderCaps& shaderCaps,
+                                const SkMatrix& viewMatrix, PathStrokeList* pathStrokeList,
+                                std::array<float,2> matrixMinMaxScales, const SkRect&
+                                strokeCullBounds)
+            : GrStrokeTessellator(GrStrokeShader::Mode::kHardwareTessellation, shaderFlags,
+                                  SkNextLog2(shaderCaps.maxTessellationSegments()), viewMatrix,
+                                  pathStrokeList, matrixMinMaxScales, strokeCullBounds) {
     }
 
     void prepare(GrMeshDrawOp::Target*, int totalCombinedVerbCnt) override;

@@ -89,7 +89,7 @@ void GrStrokeShaderImpl::emitTessellationCode(const GrStrokeShader& shader, SkSt
     //     float angle0;
     //     float strokeOutset;
     //
-    code->append(R"(
+    code->appendf(R"(
     float2 tangent, strokeCoord;
     if (combinedEdgeID != 0 && !isFinalEdge) {
         // Compute the location and tangent direction of the stroke edge with the integral id
@@ -138,7 +138,7 @@ void GrStrokeShaderImpl::emitTessellationCode(const GrStrokeShader& shader, SkSt
         float2 tan0norm = normalize(tan0);
         float negAbsRadsPerSegment = -abs(radsPerSegment);
         float maxRotation0 = (1.0 + combinedEdgeID) * abs(radsPerSegment);
-        for (int exp = MAX_PARAMETRIC_SEGMENTS_LOG2 - 1; exp >= 0; --exp) {
+        for (int exp = %i - 1; exp >= 0; --exp) {
             // Test the parametric edge at lastParametricEdgeID + 2^exp.
             float testParametricID = lastParametricEdgeID + float(1 << exp);
             if (testParametricID <= maxParametricEdgeID) {
@@ -229,7 +229,7 @@ void GrStrokeShaderImpl::emitTessellationCode(const GrStrokeShader& shader, SkSt
         // ensures crack-free seaming between instances.
         tangent = (combinedEdgeID == 0) ? tan0 : tan1;
         strokeCoord = (combinedEdgeID == 0) ? P[0] : P[3];
-    })");
+    })", shader.maxParametricSegments_log2() /* Parametric/radial sort loop count. */);
 
     code->append(R"(
     float2 ortho = normalize(float2(tangent.y, -tangent.x));
@@ -322,6 +322,7 @@ void GrStrokeShader::getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuil
     key = (key << 2) | (uint32_t)fMode;
     key = (key << 2) | ((keyNeedsJoin) ? fStroke.getJoin() : 0);
     key = (key << 1) | (uint32_t)fStroke.isHairlineStyle();
+    key = (key << 8) | fMaxParametricSegments_log2;
     b->add32(key);
 }
 

@@ -26,10 +26,11 @@ public:
     };
 
     GrStrokeTessellator(GrStrokeShader::Mode shaderMode, ShaderFlags shaderFlags,
-                        const SkMatrix& viewMatrix, PathStrokeList* pathStrokeList,
-                        std::array<float, 2> matrixMinMaxScales, const SkRect& strokeCullBounds)
-            : fShader(shaderMode, shaderFlags, viewMatrix, pathStrokeList->fStroke,
-                      pathStrokeList->fColor)
+                        int8_t maxParametricSegments_log2, const SkMatrix& viewMatrix,
+                        PathStrokeList* pathStrokeList, std::array<float,2> matrixMinMaxScales,
+                        const SkRect& strokeCullBounds)
+            : fShader(shaderMode, shaderFlags, maxParametricSegments_log2, viewMatrix,
+                      pathStrokeList->fStroke, pathStrokeList->fColor)
             , fPathStrokeList(pathStrokeList)
             , fMatrixMinMaxScales(matrixMinMaxScales)
             , fStrokeCullBounds(strokeCullBounds) {
@@ -49,7 +50,7 @@ public:
 protected:
     GrStrokeShader fShader;
     PathStrokeList* fPathStrokeList;
-    const std::array<float, 2> fMatrixMinMaxScales;
+    const std::array<float,2> fMatrixMinMaxScales;
     const SkRect fStrokeCullBounds;  // See SkStrokeRec::inflationRadius.
 };
 

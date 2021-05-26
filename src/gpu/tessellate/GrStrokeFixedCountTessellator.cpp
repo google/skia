@@ -16,6 +16,7 @@
 namespace {
 
 constexpr static float kMaxParametricSegments_pow4 = 48*48*48*48;  // 48^4
+constexpr static int8_t kMaxParametricSegments_log2 = 6;  // ceil(log2(48))
 
 // Writes out strokes to the given instance chunk array, chopping if necessary so that all instances
 // require 48 parametric segments or less. (We don't consider radial segments here. The tessellator
@@ -232,6 +233,16 @@ static int worst_case_edges_in_join(SkPaint::Join joinType, float numRadialSegme
 }
 
 }  // namespace
+
+GrStrokeFixedCountTessellator::GrStrokeFixedCountTessellator(ShaderFlags shaderFlags,
+                                                             const SkMatrix& viewMatrix,
+                                                             PathStrokeList* pathStrokeList,
+                                                             std::array<float,2> matrixMinMaxScales,
+                                                             const SkRect& strokeCullBounds)
+        : GrStrokeTessellator(GrStrokeShader::Mode::kFixedCount, shaderFlags,
+                              kMaxParametricSegments_log2, viewMatrix, pathStrokeList,
+                              matrixMinMaxScales, strokeCullBounds) {
+}
 
 void GrStrokeFixedCountTessellator::prepare(GrMeshDrawOp::Target* target,
                                             int totalCombinedVerbCnt) {

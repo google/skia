@@ -18,9 +18,6 @@ void GrStrokeInstancedShaderImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     SkPaint::Join joinType = shader.stroke().getJoin();
     args.fVaryingHandler->emitAttributes(shader);
 
-    // Constants.
-    args.fVertBuilder->defineConstant("MAX_PARAMETRIC_SEGMENTS_LOG2",
-                                      GrTessellationPathRenderer::kMaxResolveLevel);
     args.fVertBuilder->defineConstant("float", "PI", "3.141592653589793238");
 
     // Helper functions.
@@ -108,9 +105,7 @@ void GrStrokeInstancedShaderImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     args.fVertBuilder->codeAppend(R"(
     // Find how many parametric segments this stroke requires.
-    float numParametricSegments = min(wangs_formula(PARAMETRIC_PRECISION,
-                                                    P[0], P[1], P[2], P[3], w),
-                                      float(1 << MAX_PARAMETRIC_SEGMENTS_LOG2));
+    float numParametricSegments = wangs_formula(PARAMETRIC_PRECISION, P[0], P[1], P[2], P[3], w);
     if (P[0] == P[1] && P[2] == P[3]) {
         // This is how we describe lines, but Wang's formula does not return 1 in this case.
         numParametricSegments = 1;

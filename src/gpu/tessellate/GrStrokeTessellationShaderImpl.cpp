@@ -540,8 +540,6 @@ SkString GrStrokeTessellationShaderImpl::getTessEvaluationShaderGLSL(
     code.appendf("#define float3x2 mat3x2\n");
     code.appendf("#define float4x2 mat4x2\n");
     code.appendf("#define PI 3.141592653589793238\n");
-    code.appendf("#define MAX_PARAMETRIC_SEGMENTS_LOG2 %i\n",
-                 SkNextLog2(shaderCaps.maxTessellationSegments()));
 
     if (!shader.hasDynamicStroke()) {
         const char* tessArgsName = uniformHandler.getUniformCStr(fTessControlArgsUniform);
