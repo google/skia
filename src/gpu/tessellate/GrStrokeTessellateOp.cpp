@@ -196,8 +196,8 @@ void GrStrokeTessellateOp::prePrepareTessellator(GrPathShader::ProgramArgs&& arg
     if (this->canUseHardwareTessellation(fTotalCombinedVerbCnt, caps)) {
         // Only use hardware tessellation if we're drawing a somewhat large number of verbs.
         // Otherwise we seem to be better off using instanced draws.
-        fTessellator = arena->make<GrStrokeHardwareTessellator>(fShaderFlags, fViewMatrix,
-                                                                &fPathStrokeList,
+        fTessellator = arena->make<GrStrokeHardwareTessellator>(fShaderFlags, *caps.shaderCaps(),
+                                                                fViewMatrix, &fPathStrokeList,
                                                                 matrixMinMaxScales,
                                                                 strokeCullBounds);
     } else if (fTotalCombinedVerbCnt > 50 && !(fShaderFlags & ShaderFlags::kDynamicColor)) {
