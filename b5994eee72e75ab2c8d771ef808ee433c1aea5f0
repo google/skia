@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1356b732_6e1fab65",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-26T15:35:21Z",
+      "side": 1,
+      "message": "Ah, I like this pattern. I had been looking at how I solved some of these issues in the vm generator, and it\u0027s similar.",
+      "revId": "b5994eee72e75ab2c8d771ef808ee433c1aea5f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
