@@ -22,6 +22,30 @@
       },
       "revId": "c3c5880616c3b64a9764510e089578f568959e7b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fc405f95_79b48813",
+        "filename": "src/sksl/sksl_gpu.sksl",
+        "patchSetId": 1
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-26T18:51:39Z",
+      "side": 1,
+      "message": "I\u0027m not sure. I\u0027m willing to say yes, but the reason it was like this before:\n\nUnlike other mixed-vector-and-scalar intrinsics (eg, smoothstep), the GLSL reference pages for refract had eta being float, even for double-precision vectors (https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/refract.xhtml).\n\nI think it was like that in the various spec docs, too. Looking at the most recent GLSL 4.6, it looks like it was just a spec bug that\u0027s been fixed. 4th bullet in section 1.1.2 of https://www.khronos.org/registry/OpenGL/specs/gl/GLSLangSpec.4.60.pdf.",
+      "parentUuid": "8643b0d9_e843931c",
+      "range": {
+        "startLine": 144,
+        "startChar": 44,
+        "endLine": 144,
+        "endChar": 48
+      },
+      "revId": "c3c5880616c3b64a9764510e089578f568959e7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
