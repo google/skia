@@ -404,6 +404,7 @@ sksl_shared_tests = [
   "/sksl/shared/OutParams.sksl",
   "/sksl/shared/OutParamsNoInline.sksl",
   "/sksl/shared/OutParamsTricky.sksl",
+  "/sksl/shared/Overflow.sksl",
   "/sksl/shared/RectangleTexture.sksl",
   "/sksl/shared/ResizeMatrix.sksl",
   "/sksl/shared/ResizeMatrixNonsquare.sksl",
