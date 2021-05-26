@@ -34,7 +34,7 @@ bool Paint::drawText(std::u16string text, SkCanvas* canvas,
                          sk_sp<SkTypeface> typeface, SkScalar fontSize, SkFontStyle fontStyle, SkSize reqSize, SkScalar x, SkScalar y) {
 
     size_t textSize = text.size();
-    std::vector<FontBlock> fontBlocks = {{ std::move(typeface), fontSize, fontStyle, textSize }};
+    std::vector<FontBlock> fontBlocks = {{ sk_make_sp<TrivialFontChain>(std::move(typeface)), fontSize, textSize }};
     auto processor = Layout::layout(std::move(text), std::move(fontBlocks), textDirection, textAlign, reqSize);
     if (processor == nullptr) {
         return false;

@@ -16,7 +16,8 @@ std::unique_ptr<Processor> Layout::layout(std::u16string text, std::vector<FontB
     }
 
     Shaper shaper(processor.get());
-    if (!shaper.process()) {
+    //if (!shaper.process()) {
+    if (!shaper.processBySkParagraph()) {
         return nullptr;
     }
 

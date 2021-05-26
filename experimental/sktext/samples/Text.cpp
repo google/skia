@@ -59,7 +59,7 @@ protected:
                         canvas,
                         direction, align,
                         SK_ColorBLACK, SK_ColorLTGRAY,
-                        roboto, 12.0f, SkFontStyle::Normal(),
+                        std::move(roboto), 12.0f, SkFontStyle::Normal(),
                         0, 0);
     }
 

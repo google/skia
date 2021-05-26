@@ -16,6 +16,7 @@ public:
             , fCurrentRun(nullptr) { }
 
     bool process();
+    bool processBySkParagraph();
 
 private:
     SkFont createFont(const FontBlock& block);

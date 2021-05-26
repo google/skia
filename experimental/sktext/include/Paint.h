@@ -14,11 +14,11 @@ class Paint : public Visitor {
 public:
     Paint(Processor* processor) : Visitor(processor), fDefaultTypeface(nullptr) { }
     void paint(SkCanvas* canvas, SkPoint xy, SkSpan<DecorBlock> decorBlocks);
-    static sk_sp<SkTypeface> getDefaultTypeface() {
+    static SkTypeface* getDefaultTypeface() {
         static SkOnce once;
-        static sk_sp<SkTypeface> singleton;
+        static SkTypeface* singleton;
         once([]{
-            singleton = sk_sp<SkTypeface>(SkFontMgr::RefDefault()->matchFamilyStyle("Roboto", SkFontStyle::Normal()));
+            singleton = SkFontMgr::RefDefault()->matchFamilyStyle("Roboto", SkFontStyle::Normal());
         });
         return singleton;
     }

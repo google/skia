@@ -1,62 +1,13 @@
 // Copyright 2021 Google LLC.
-#ifndef TextLine_DEFINED
-#define TextLine_DEFINED
+#ifndef Line_DEFINED
+#define Line_DEFINED
 
 #include "experimental/sktext/include/Types.h"
-#include "include/core/SkFont.h"
-#include "include/core/SkFontMetrics.h"
 
 namespace skia {
 namespace text {
 
 class Processor;
-
-class TextMetrics {
-
-public:
-  TextMetrics() {
-      clean();
-  }
-
-  TextMetrics(const SkFont& font) {
-
-      SkFontMetrics metrics;
-      font.getMetrics(&metrics);
-      fAscent = metrics.fAscent;
-      fDescent = metrics.fDescent;
-      fLeading = metrics.fLeading;
-  }
-
-  TextMetrics(const TextMetrics&) = default;
-
-  void merge(TextMetrics tail) {
-      this->fAscent = std::min(this->fAscent, tail.fAscent);
-      this->fDescent = std::max(this->fDescent, tail.fDescent);
-      this->fLeading = std::max(this->fLeading, tail.fLeading);
-  }
-
-  void clean() {
-      this->fAscent = 0;
-      this->fDescent = 0;
-      this->fLeading = 0;
-  }
-
-  SkScalar height() const {
-      return this->fDescent - this->fAscent + this->fLeading;
-  }
-
-    SkScalar baseline() const {
-          return - this->fAscent + this->fLeading / 2;
-    }
-
-    SkScalar above() const { return - this->fAscent + this->fLeading / 2; }
-    SkScalar below() const { return this->fDescent + this->fLeading / 2; }
-
-private:
-    SkScalar fAscent;
-    SkScalar fDescent;
-    SkScalar fLeading;
-};
 
 class GlyphPos {
 public:
