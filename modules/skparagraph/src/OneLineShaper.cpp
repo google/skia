@@ -487,6 +487,7 @@ void OneLineShaper::matchResolvedFonts(const TextStyle& textStyle,
     if (fParagraph->fFontCollection->fontFallbackEnabled()) {
         // Give fallback a clue
         // Some unresolved subblocks might be resolved with different fallback fonts
+        std::vector<RunBlock> hopelessBlocks;
         while (!fUnresolvedBlocks.empty()) {
             auto unresolvedRange = fUnresolvedBlocks.front().fText;
             auto unresolvedText = fParagraph->text(unresolvedRange);
@@ -527,6 +528,8 @@ void OneLineShaper::matchResolvedFonts(const TextStyle& textStyle,
 
                 if (ch == unresolvedText.end()) {
                     // Not a single codepoint could be resolved but we finished the block
+                    hopelessBlocks.push_back(fUnresolvedBlocks.front());
+                    fUnresolvedBlocks.pop_front();
                     break;
                 }
 
@@ -540,7 +543,10 @@ void OneLineShaper::matchResolvedFonts(const TextStyle& textStyle,
                     }
                 }
             }
+        }
 
+        for (auto& block : hopelessBlocks) {
+            fUnresolvedBlocks.emplace_front(block);
         }
     }
 }
