@@ -1,6 +1,22 @@
-uniform half a, b, c;
-uniform half4 d, e, f;
-void main() {
-    sk_FragColor.x = faceforward(a, b, c);
-    sk_FragColor = faceforward(d, e, f);
+uniform half4 N, I, NRef;
+uniform half4 colorGreen, colorRed;
+
+half4 main(float2 xy) {
+
+    const half4 constN    = half4(1, 2, 3, 4);
+    const half4 constI    = half4(1, 1, -100, 1);
+    const half4 constNRef = half4(1);
+
+    half4 expectedPos =  half4(1, 2, 3, 4);
+    half4 expectedNeg = -half4(1, 2, 3, 4);
+
+    return (faceforward(N.x,         I.x,         NRef.x        ) == expectedNeg.x    &&
+            faceforward(N.xy,        I.xy,        NRef.xy       ) == expectedNeg.xy   &&
+            faceforward(N.xyz,       I.xyz,       NRef.xyz      ) == expectedPos.xyz  &&
+            faceforward(N.xyzw,      I.xyzw,      NRef.xyzw     ) == expectedPos.xyzw &&
+            faceforward(constN.x,    constI.x,    constNRef.x   ) == expectedNeg.x    &&
+            faceforward(constN.xy,   constI.xy,   constNRef.xy  ) == expectedNeg.xy   &&
+            faceforward(constN.xyz,  constI.xyz,  constNRef.xyz ) == expectedPos.xyz  &&
+            faceforward(constN.xyzw, constI.xyzw, constNRef.xyzw) == expectedPos.xyzw) ? colorGreen
+                                                                                       : colorRed;
 }

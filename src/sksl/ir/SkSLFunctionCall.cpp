@@ -342,6 +342,7 @@ static std::unique_ptr<Expression> evaluate_3_way_intrinsic(const Context& conte
 static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& context,
                                                            IntrinsicKind intrinsic,
                                                            const ExpressionArray& arguments) {
+    using namespace SkSL::dsl;
     switch (intrinsic) {
         case k_all_IntrinsicKind:
             return coalesce_vector<bool>(arguments, /*startingState=*/true,
@@ -481,15 +482,14 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
                     [](float a, float b, float c) { return a + (b * c); },
                     /*finalize=*/nullptr);
         case k_normalize_IntrinsicKind: {
-            // Call `length(arg)` to calculate the vector length.
-            if (auto length = optimize_intrinsic_call(context, k_length_IntrinsicKind, arguments)) {
-                // Divide the vector by its length.
-                using namespace SkSL::dsl;
-                auto unitVector = DSLExpression{arguments.front()->clone()} /
-                                  DSLExpression{std::move(length)};
-                return unitVector.release();
-            }
-            return nullptr;
+            auto Vec = [&] { return DSLExpression{arguments[0]->clone()}; };
+            return (Vec() / Length(Vec())).release();
+        }
+        case k_faceforward_IntrinsicKind: {
+            auto N    = [&] { return DSLExpression{arguments[0]->clone()}; };
+            auto I    = [&] { return DSLExpression{arguments[1]->clone()}; };
+            auto NRef = [&] { return DSLExpression{arguments[2]->clone()}; };
+            return (N() * Select(Dot(NRef(), I()) < 0, 1, -1)).release();
         }
         default:
             return nullptr;
