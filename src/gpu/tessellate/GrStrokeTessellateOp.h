@@ -67,8 +67,8 @@ private:
     PathStrokeList** fPathStrokeTail = &fPathStrokeList.fNext;
     float fInflationRadius = 0;
     int fTotalCombinedVerbCnt = 0;
-    GrProcessorSet fProcessors;
     bool fNeedsStencil = false;
+    GrProcessorSet fProcessors;
 
     GrStrokeTessellator* fTessellator = nullptr;
     const GrProgramInfo* fStencilProgram = nullptr;  // Only used if the stroke has transparency.
