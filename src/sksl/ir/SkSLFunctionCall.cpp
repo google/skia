@@ -82,7 +82,7 @@ static std::unique_ptr<Expression> coalesce_n_way_vector(const Expression* arg0,
 
         if constexpr (std::is_floating_point<T>::value) {
             // If coalescing the intrinsic yields a non-finite value, do not optimize.
-            if (!isfinite(value)) {
+            if (!std::isfinite(value)) {
                 return nullptr;
             }
         }
@@ -247,7 +247,7 @@ static std::unique_ptr<Expression> evaluate_n_way_intrinsic_of_type(
 
         if constexpr (std::is_floating_point<T>::value) {
             // If evaluation of the intrinsic yields a non-finite value, do not optimize.
-            if (!isfinite(value)) {
+            if (!std::isfinite(value)) {
                 return nullptr;
             }
         }
@@ -513,6 +513,87 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
             return ((kValue < 0) ?
                        (0 * I()) :
                        (Eta() * I() - (Eta() * Dot(N(), I()) + std::sqrt(kValue)) * N())).release();
+        }
+        case k_inverse_IntrinsicKind: {
+            auto M = [&](int c, int r) -> float {
+                int index = (arguments[0]->type().rows() * c) + r;
+                return arguments[0]->getConstantSubexpression(index)->as<FloatLiteral>().value();
+            };
+            // Our matrix inverse is adapted from the logic in GLSLCodeGenerator::writeInverseHack.
+            switch (arguments[0]->type().slotCount()) {
+                case 4: {
+                    float a00 = M(0, 0), a01 = M(0, 1);
+                    float a10 = M(1, 0), a11 = M(1, 1);
+                    float ind = 1 / (a00 * a11 - a01 * a10);  // inverse determinant
+                    if (!std::isfinite(ind)) {
+                        return nullptr;
+                    }
+                    return DSLType::Construct(&arguments[0]->type(),
+                                               a11 * ind, -a01 * ind,
+                                              -a10 * ind,  a00 * ind).release();
+                }
+                case 9: {
+                    float a00 = M(0, 0), a01 = M(0, 1), a02 = M(0, 2);
+                    float a10 = M(1, 0), a11 = M(1, 1), a12 = M(1, 2);
+                    float a20 = M(2, 0), a21 = M(2, 1), a22 = M(2, 2);
+                    float b01 =  a22 * a11 - a12 * a21;
+                    float b11 = -a22 * a10 + a12 * a20;
+                    float b21 =  a21 * a10 - a11 * a20;
+                    float ind = 1 / (a00 * b01 + a01 * b11 + a02 * b21);  // inverse determinant
+                    if (!std::isfinite(ind)) {
+                        return nullptr;
+                    }
+                    return DSLType::Construct(&arguments[0]->type(),
+                        b01 * ind, (-a22 * a01 + a02 * a21) * ind, ( a12 * a01 - a02 * a11) * ind,
+                        b11 * ind, ( a22 * a00 - a02 * a20) * ind, (-a12 * a00 + a02 * a10) * ind,
+                        b21 * ind, (-a21 * a00 + a01 * a20) * ind, ( a11 * a00 - a01 * a10) * ind)
+                    .release();
+                }
+                case 16: {
+                    float a00 = M(0, 0), a01 = M(0, 1), a02 = M(0, 2), a03 = M(0, 3);
+                    float a10 = M(1, 0), a11 = M(1, 1), a12 = M(1, 2), a13 = M(1, 3);
+                    float a20 = M(2, 0), a21 = M(2, 1), a22 = M(2, 2), a23 = M(2, 3);
+                    float a30 = M(3, 0), a31 = M(3, 1), a32 = M(3, 2), a33 = M(3, 3);
+                    float b00 = a00 * a11 - a01 * a10;
+                    float b01 = a00 * a12 - a02 * a10;
+                    float b02 = a00 * a13 - a03 * a10;
+                    float b03 = a01 * a12 - a02 * a11;
+                    float b04 = a01 * a13 - a03 * a11;
+                    float b05 = a02 * a13 - a03 * a12;
+                    float b06 = a20 * a31 - a21 * a30;
+                    float b07 = a20 * a32 - a22 * a30;
+                    float b08 = a20 * a33 - a23 * a30;
+                    float b09 = a21 * a32 - a22 * a31;
+                    float b10 = a21 * a33 - a23 * a31;
+                    float b11 = a22 * a33 - a23 * a32;
+                    float ind = 1 / (b00 * b11 - b01 * b10 + b02 * b09 +
+                                     b03 * b08 - b04 * b07 + b05 * b06);  // inverse determinant
+                    if (!std::isfinite(ind)) {
+                        return nullptr;
+                    }
+                    return DSLType::Construct(&arguments[0]->type(),
+                                              (a11 * b11 - a12 * b10 + a13 * b09) * ind,
+                                              (a02 * b10 - a01 * b11 - a03 * b09) * ind,
+                                              (a31 * b05 - a32 * b04 + a33 * b03) * ind,
+                                              (a22 * b04 - a21 * b05 - a23 * b03) * ind,
+                                              (a12 * b08 - a10 * b11 - a13 * b07) * ind,
+                                              (a00 * b11 - a02 * b08 + a03 * b07) * ind,
+                                              (a32 * b02 - a30 * b05 - a33 * b01) * ind,
+                                              (a20 * b05 - a22 * b02 + a23 * b01) * ind,
+                                              (a10 * b10 - a11 * b08 + a13 * b06) * ind,
+                                              (a01 * b08 - a00 * b10 - a03 * b06) * ind,
+                                              (a30 * b04 - a31 * b02 + a33 * b00) * ind,
+                                              (a21 * b02 - a20 * b04 - a23 * b00) * ind,
+                                              (a11 * b07 - a10 * b09 - a12 * b06) * ind,
+                                              (a00 * b09 - a01 * b07 + a02 * b06) * ind,
+                                              (a31 * b01 - a30 * b03 - a32 * b00) * ind,
+                                              (a20 * b03 - a21 * b01 + a22 * b00) * ind).release();
+                    break;
+                }
+            }
+            SkDEBUGFAILF("unsupported type %s", arguments[0]->type().description().c_str());
+            return nullptr;
+            break;
         }
         default:
             return nullptr;
