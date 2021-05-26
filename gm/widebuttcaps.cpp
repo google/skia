@@ -51,9 +51,9 @@ static void draw_test(SkCanvas* canvas) {
 
     if (canvas->recordingContext() &&
         canvas->recordingContext()->priv().caps()->shaderCaps()->tessellationSupport() &&
-        canvas->recordingContext()->priv().caps()->shaderCaps()->maxTessellationSegments() < 64) {
-        // There are fewer tessellation segments than the spec minimum. It must have been overriden
-        // for testing. Indicate this in the background color.
+        canvas->recordingContext()->priv().caps()->shaderCaps()->maxTessellationSegments() == 5) {
+        // The caller successfully overrode the max tessellation segments to 5. Indicate this in the
+        // background color.
         canvas->clear(SkColorSetARGB(255, 64, 0, 0));
     } else {
         canvas->clear(SK_ColorBLACK);
