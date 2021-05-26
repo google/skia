@@ -262,9 +262,17 @@ void EGLGLTestContext::setupFenceSync(sk_sp<const GrGLInterface> interface) {
     glInt->fExtensions.add("GL_APPLE_sync");
 
     glInt->fFunctions.fFenceSync =
-            [grEGLCreateSyncKHR, display = fDisplay](GrGLenum condition, GrGLbitfield flags) {
+            [grEGLCreateSyncKHR, display = fDisplay, surface = fSurface](GrGLenum condition,
+                                                                         GrGLbitfield flags) {
         SkASSERT(condition == GR_GL_SYNC_GPU_COMMANDS_COMPLETE);
         SkASSERT(flags == 0);
+
+        // It seems that, at least on the 2012 N7, later render passes will be reordered before a
+        // fence. This really messes up benchmark timings where a large fraction of the work for
+        // sample N can occur before the fence for sample N-1 signals. This causes sample N-1 to be
+        // artificially slow and N artificially fast. Inserting a swap buffers (to the unused
+        // display surface) blocks that reordering.
+        eglSwapBuffers(display, surface);
 
         EGLSyncKHR sync = grEGLCreateSyncKHR(display, EGL_SYNC_FENCE_KHR, nullptr);
 
@@ -276,19 +284,11 @@ void EGLGLTestContext::setupFenceSync(sk_sp<const GrGLInterface> interface) {
         grEGLDestroySyncKHR(display, eglSync);
     };
 
-    glInt->fFunctions.fClientWaitSync =
-            [grEGLClientWaitSyncKHR, display = fDisplay, surface = fSurface] (
+    glInt->fFunctions.fClientWaitSync = [grEGLClientWaitSyncKHR, display = fDisplay] (
                     GrGLsync sync,
                     GrGLbitfield flags,
                     GrGLuint64 timeout) -> GrGLenum {
         EGLSyncKHR eglSync = reinterpret_cast<EGLSyncKHR>(sync);
-
-        // It seems that, at least on the 2012 N7, later render passes will be reordered before a
-        // fence. This really messes up benchmark timings where a large fraction of the work for
-        // sample N can occur before the fence for sample N-1 signals. This causes sample N-1 to be
-        // artificially slow and N artificially fast. Inserting a swap buffers (to the unused
-        // display surface) blocks that reordering.
-        eglSwapBuffers(display, surface);
 
         EGLint egl_flags = 0;
         if (flags & GR_GL_SYNC_FLUSH_COMMANDS_BIT) {
