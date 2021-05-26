@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8643b0d9_e843931c",
+        "filename": "src/sksl/sksl_gpu.sksl",
+        "patchSetId": 1
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-26T18:31:23Z",
+      "side": 1,
+      "message": "I\u0027m guessing this was an oversight in our headers?",
+      "range": {
+        "startLine": 144,
+        "startChar": 44,
+        "endLine": 144,
+        "endChar": 48
+      },
+      "revId": "c3c5880616c3b64a9764510e089578f568959e7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
