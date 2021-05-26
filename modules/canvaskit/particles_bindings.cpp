@@ -95,8 +95,8 @@ EMSCRIPTEN_BINDINGS(Particles) {
     class_<SkParticleEffect>("ParticleEffect")
         .smart_ptr<sk_sp<SkParticleEffect>>("sk_sp<SkParticleEffect>")
         .function("draw", &SkParticleEffect::draw, allow_raw_pointers())
-        .function("_uniformPtr", optional_override([](SkParticleEffect& self)->uintptr_t {
-            return reinterpret_cast<uintptr_t>(self.uniformData());
+        .function("_uniformPtr", optional_override([](SkParticleEffect& self)->WASMPointerF32 {
+            return reinterpret_cast<WASMPointerF32>(self.uniformData());
         }))
         .function("getUniformCount", optional_override([](SkParticleEffect& self)->int {
             auto info = self.uniformInfo();
@@ -143,11 +143,10 @@ EMSCRIPTEN_BINDINGS(Particles) {
 
     function("_MakeParticles", optional_override([](std::string json,
                                                    size_t assetCount,
-                                                   uintptr_t /* char**    */ nptr,
-                                                   uintptr_t /* uint8_t** */ dptr,
-                                                   uintptr_t /* size_t*   */ sptr)
+                                                   WASMPointerU32 nptr,
+                                                   WASMPointerU32 dptr,
+                                                   WASMPointerU32 sptr)
                                                 ->sk_sp<SkParticleEffect> {
-        // See the comment in canvaskit_bindings.cpp about the use of uintptr_t
         static bool didInit = false;
         if (!didInit) {
             SkParticleEffect::RegisterParticleTypes();
