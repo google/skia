@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "03947e00_b1814087",
+        "filename": "modules/androidkit/src/RuntimeShaderBuilder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-05-26T19:22:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "911b27e5_a876c3a0",
+      "range": {
+        "startLine": 45,
+        "startChar": 8,
+        "endLine": 45,
+        "endChar": 14
+      },
+      "revId": "762de29bb173ecba69fe7c022d90db487dce5ee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "017bab10_f4ac98a5",
@@ -64,6 +88,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d9971619_d3d01856",
+        "filename": "modules/androidkit/src/RuntimeShaderBuilder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-05-26T19:22:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "017bab10_f4ac98a5",
+      "range": {
+        "startLine": 46,
+        "startChar": 67,
+        "endLine": 46,
+        "endChar": 68
+      },
+      "revId": "762de29bb173ecba69fe7c022d90db487dce5ee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0c0f6deb_5ee82ff3",
@@ -77,6 +125,30 @@
       "writtenOn": "2021-05-26T18:25:55Z",
       "side": 1,
       "message": "nit: indentation",
+      "range": {
+        "startLine": 25,
+        "startChar": 0,
+        "endLine": 31,
+        "endChar": 9
+      },
+      "revId": "762de29bb173ecba69fe7c022d90db487dce5ee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "956b06f3_376f6854",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/RuntimeShaderBuilder.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-05-26T19:22:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0c0f6deb_5ee82ff3",
       "range": {
         "startLine": 25,
         "startChar": 0,
