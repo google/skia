@@ -499,6 +499,21 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
             auto N    = [&] { return DSLExpression{arguments[1]->clone()}; };
             return (I() - 2.0 * Dot(N(), I()) * N()).release();
         }
+        case k_refract_IntrinsicKind: {
+            auto I    = [&] { return DSLExpression{arguments[0]->clone()}; };
+            auto N    = [&] { return DSLExpression{arguments[1]->clone()}; };
+            auto Eta  = [&] { return DSLExpression{arguments[2]->clone()}; };
+
+            std::unique_ptr<Expression> k =
+                    (1 - Pow(Eta(), 2) * (1 - Pow(Dot(N(), I()), 2))).release();
+            if (!k->is<FloatLiteral>()) {
+                return nullptr;
+            }
+            float kValue = k->as<FloatLiteral>().value();
+            return ((kValue < 0) ?
+                        (0 * I()) :
+                        (Eta() * I() - (Eta() * Dot(N(), I()) + sqrt(kValue)) * N())).release();
+        }
         default:
             return nullptr;
     }

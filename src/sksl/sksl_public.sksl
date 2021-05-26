@@ -100,7 +100,7 @@ $genHType faceforward($genHType N, $genHType I, $genHType Nref);
 $genType  reflect($genType  I, $genType  N);
 $genHType reflect($genHType I, $genHType N);
 $genType  refract($genType  I, $genType  N, float eta);
-$genHType refract($genHType I, $genHType N, float eta);
+$genHType refract($genHType I, $genHType N, half eta);
 
 // 8.5 : Matrix Functions
 $squareMat  matrixCompMult($squareMat  x, $squareMat  y);
