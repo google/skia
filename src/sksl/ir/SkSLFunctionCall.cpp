@@ -418,6 +418,9 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
         case k_mod_IntrinsicKind:
             return evaluate_pairwise_intrinsic(context, arguments,
                                                [](auto x, auto y) { return x - y * floor(x / y); });
+        case k_pow_IntrinsicKind:
+            return evaluate_pairwise_intrinsic(context, arguments,
+                                               [](auto x, auto y) { return pow(x, y); });
         case k_exp_IntrinsicKind:
             return evaluate_intrinsic<float>(context, arguments, [](float a) { return exp(a); });
 

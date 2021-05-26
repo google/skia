@@ -1,1 +1,16 @@
-uniform half a, b; void main() { sk_FragColor.x = pow(a, b); }
+uniform half4 testInputs;
+uniform half4 colorGreen, colorRed;
+
+half4 main(float2 coords) {
+    half4 expected = half4(-1.5625, 0, 0.75, 3.375);
+    const half4 constVal  = half4(-1.25, 0, 0.75, 2.25);
+    const half4 exponents = half4(2, 3, 1, 1.5);
+    return (pow(testInputs.x,    exponents.x)    == expected.x     &&
+            pow(testInputs.xy,   exponents.xy)   == expected.xy    &&
+            pow(testInputs.xyz,  exponents.xyz)  == expected.xyz   &&
+            pow(testInputs.xyzw, exponents.xyzw) == expected.xyzw  &&
+            pow(constVal.x,      exponents.x)    == expected.x     &&
+            pow(constVal.xy,     exponents.xy)   == expected.xy    &&
+            pow(constVal.xyz,    exponents.xyz)  == expected.xyz   &&
+            pow(constVal.xyzw,   exponents.xyzw) == expected.xyzw) ? colorGreen : colorRed;
+}
