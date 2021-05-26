@@ -491,6 +491,11 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
             auto NRef = [&] { return DSLExpression{arguments[2]->clone()}; };
             return (N() * Select(Dot(NRef(), I()) < 0, 1, -1)).release();
         }
+        case k_reflect_IntrinsicKind: {
+            auto I    = [&] { return DSLExpression{arguments[0]->clone()}; };
+            auto N    = [&] { return DSLExpression{arguments[1]->clone()}; };
+            return (I() - 2.0 * Dot(N(), I()) * N()).release();
+        }
         default:
             return nullptr;
     }
