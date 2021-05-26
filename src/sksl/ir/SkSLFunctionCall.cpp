@@ -473,6 +473,11 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
                     arguments, /*startingState=*/0,
                     [](float a, float b, float c) { b -= c; return a + (b * b); },
                     [](float a) { return sqrt(a); });
+        case k_dot_IntrinsicKind:
+            return coalesce_pairwise_vectors<float>(
+                    arguments, /*startingState=*/0,
+                    [](float a, float b, float c) { return a + (b * c); },
+                    /*finalize=*/nullptr);
         default:
             return nullptr;
     }
