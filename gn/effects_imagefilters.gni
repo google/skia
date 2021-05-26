@@ -26,6 +26,7 @@ skia_effects_imagefilter_sources = [
   "$_src/effects/imagefilters/SkMorphologyImageFilter.cpp",
   "$_src/effects/imagefilters/SkOffsetImageFilter.cpp",
   "$_src/effects/imagefilters/SkPictureImageFilter.cpp",
+  "$_src/effects/imagefilters/SkRuntimeImageFilter.cpp",
   "$_src/effects/imagefilters/SkShaderImageFilter.cpp",
   "$_src/effects/imagefilters/SkTileImageFilter.cpp",
 ]
