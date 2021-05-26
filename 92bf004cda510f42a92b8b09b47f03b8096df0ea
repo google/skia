@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7de80c68_c268eb5e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-05-26T17:38:05Z",
+      "side": 1,
+      "message": "Huh, looks like with https://chromium.googlesource.com/external/github.com/libexpat/libexpat.git/+/8d1bd6ff2c09b01de9252ce4afce1ded9f4d0d7e the HAVE_EXPAT_CONFIG_H macro was removed, meaning that we not actually have to have one instead of just using the defaults. It was added a long time ago specifically so that embedders wouldn\u0027t need to have it.",
+      "revId": "92bf004cda510f42a92b8b09b47f03b8096df0ea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
