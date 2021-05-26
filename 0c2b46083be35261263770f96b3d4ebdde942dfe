@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dea54741_c17532d8",
+        "filename": "tools/gpu/gl/egl/CreatePlatformGLTestContext_egl.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-05-26T14:32:33Z",
+      "side": 1,
+      "message": "typo",
+      "range": {
+        "startLine": 286,
+        "startChar": 71,
+        "endLine": 286,
+        "endChar": 73
+      },
+      "revId": "0c2b46083be35261263770f96b3d4ebdde942dfe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
