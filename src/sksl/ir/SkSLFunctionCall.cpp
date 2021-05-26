@@ -28,27 +28,105 @@ static bool has_compile_time_constant_arguments(const ExpressionArray& arguments
 }
 
 template <typename T>
-static std::unique_ptr<Expression> coalesce_vector(const ExpressionArray& arguments,
-                                                   T startingState,
-                                                   const std::function<T(T, T)>& coalesce,
-                                                   const std::function<T(T)>& finalize) {
-    SkASSERT(arguments.size() == 1);
-    const Expression* arg = ConstantFolder::GetConstantValueForVariable(*arguments.front());
-    SkASSERT(arg);
-    const Type& vecType = arg->type();
+static std::unique_ptr<Expression> coalesce_n_way_vector(const Expression* arg0,
+                                                         const Expression* arg1,
+                                                         T startingState,
+                                                         const std::function<T(T, T, T)>& coalesce,
+                                                         const std::function<T(T)>& finalize) {
+    // Takes up to two vector or scalar arguments and coalesces them in sequence:
+    //     scalar = startingState;
+    //     scalar = coalesce(scalar, arg0.x, arg1.x);
+    //     scalar = coalesce(scalar, arg0.y, arg1.y);
+    //     scalar = coalesce(scalar, arg0.z, arg1.z);
+    //     scalar = coalesce(scalar, arg0.w, arg1.w);
+    //     scalar = finalize(scalar);
+    //
+    // If an argument is null, zero is passed to the coalesce function. If the arguments are a mix
+    // of scalars and vectors, the scalars is interpreted as a vector containing the same value for
+    // every component.
+
+    arg0 = ConstantFolder::GetConstantValueForVariable(*arg0);
+    SkASSERT(arg0);
+
+    const Type& vecType =          arg0->type().isVector()  ? arg0->type() :
+                          (arg1 && arg1->type().isVector()) ? arg1->type() :
+                                                              arg0->type();
+    SkASSERT(arg0->type().componentType() == vecType.componentType());
+
+    if (arg1) {
+        arg1 = ConstantFolder::GetConstantValueForVariable(*arg1);
+        SkASSERT(arg1);
+        SkASSERT(arg1->type().componentType() == vecType.componentType());
+    }
 
     T value = startingState;
+    int arg0Index = 0;
+    int arg1Index = 0;
     for (int index = 0; index < vecType.columns(); ++index) {
-        const Expression* subexpression = arg->getConstantSubexpression(index);
-        SkASSERT(subexpression);
-        value = coalesce(value, subexpression->as<Literal<T>>().value());
+        const Expression* arg0Subexpr = arg0->getConstantSubexpression(arg0Index);
+        arg0Index += arg0->type().isVector() ? 1 : 0;
+        SkASSERT(arg0Subexpr);
+
+        const Expression* arg1Subexpr = nullptr;
+        if (arg1) {
+            arg1Subexpr = arg1->getConstantSubexpression(arg1Index);
+            arg1Index += arg1->type().isVector() ? 1 : 0;
+            SkASSERT(arg1Subexpr);
+        }
+
+        value = coalesce(value,
+                         arg0Subexpr->as<Literal<T>>().value(),
+                         arg1Subexpr ? arg1Subexpr->as<Literal<T>>().value() : T{});
+
+        if constexpr (std::is_floating_point<T>::value) {
+            // If coalescing the intrinsic yields a non-finite value, do not optimize.
+            if (!isfinite(value)) {
+                return nullptr;
+            }
+        }
     }
 
     if (finalize) {
         value = finalize(value);
     }
 
-    return Literal<T>::Make(arg->fOffset, value, &vecType.componentType());
+    return Literal<T>::Make(arg0->fOffset, value, &vecType.componentType());
+}
+
+template <typename T>
+static std::unique_ptr<Expression> coalesce_vector(const ExpressionArray& arguments,
+                                                   T startingState,
+                                                   const std::function<T(T, T)>& coalesce,
+                                                   const std::function<T(T)>& finalize) {
+    SkASSERT(arguments.size() == 1);
+    if constexpr (std::is_same<T, bool>::value) {
+        SkASSERT(arguments.front()->type().componentType().isBoolean());
+    }
+    if constexpr (std::is_same<T, float>::value) {
+        SkASSERT(arguments.front()->type().componentType().isFloat());
+    }
+
+    return coalesce_n_way_vector<T>(arguments.front().get(), /*arg1=*/nullptr, startingState,
+                                    [&coalesce](T a, T b, T) { return coalesce(a, b); },
+                                    finalize);
+}
+
+template <typename T>
+static std::unique_ptr<Expression> coalesce_pairwise_vectors(
+        const ExpressionArray& arguments,
+        T startingState,
+        const std::function<T(T, T, T)>& coalesce,
+        const std::function<T(T)>& finalize) {
+    SkASSERT(arguments.size() == 2);
+    const Type& type = arguments.front()->type().componentType();
+
+    if (type.isFloat()) {
+        return coalesce_n_way_vector<float>(arguments[0].get(), arguments[1].get(), startingState,
+                                            coalesce, finalize);
+    }
+
+    SkDEBUGFAILF("unsupported type %s", type.description().c_str());
+    return nullptr;
 }
 
 template <typename LITERAL, typename FN>
@@ -390,6 +468,11 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
             return coalesce_vector<float>(arguments, /*startingState=*/0,
                                          [](float a, float b) { return a + (b * b); },
                                          [](float a) { return sqrt(a); });
+        case k_distance_IntrinsicKind:
+            return coalesce_pairwise_vectors<float>(
+                    arguments, /*startingState=*/0,
+                    [](float a, float b, float c) { b -= c; return a + (b * b); },
+                    [](float a) { return sqrt(a); });
         default:
             return nullptr;
     }
