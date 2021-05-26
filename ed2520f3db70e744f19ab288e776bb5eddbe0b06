@@ -22,6 +22,30 @@
       },
       "revId": "ed2520f3db70e744f19ab288e776bb5eddbe0b06",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a874711a_684ce535",
+        "filename": "modules/canvaskit/tests/util.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-05-26T18:54:46Z",
+      "side": 1,
+      "message": "We have no modules here, just a bunch of JS stitched together. As such, I figured I would hide those in the scope of the function to avoid polluting the larger scope.",
+      "parentUuid": "656ff7d0_5fc2f161",
+      "range": {
+        "startLine": 60,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 0
+      },
+      "revId": "ed2520f3db70e744f19ab288e776bb5eddbe0b06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
