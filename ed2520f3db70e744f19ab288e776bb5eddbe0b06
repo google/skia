@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "656ff7d0_5fc2f161",
+        "filename": "modules/canvaskit/tests/util.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 10009
+      },
+      "writtenOn": "2021-05-26T18:53:37Z",
+      "side": 1,
+      "message": "Ubernit: Should these be module-level constants?",
+      "range": {
+        "startLine": 60,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 0
+      },
+      "revId": "ed2520f3db70e744f19ab288e776bb5eddbe0b06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
