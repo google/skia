@@ -277,12 +277,20 @@ void EGLGLTestContext::setupFenceSync(sk_sp<const GrGLInterface> interface) {
     };
 
     glInt->fFunctions.fClientWaitSync =
-            [grEGLClientWaitSyncKHR, display = fDisplay] (GrGLsync sync, GrGLbitfield flags,
-                                                          GrGLuint64 timeout) -> GrGLenum {
+            [grEGLClientWaitSyncKHR, display = fDisplay, surface = fSurface] (
+                    GrGLsync sync,
+                    GrGLbitfield flags,
+                    GrGLuint64 timeout) -> GrGLenum {
         EGLSyncKHR eglSync = reinterpret_cast<EGLSyncKHR>(sync);
 
-        EGLint egl_flags = 0;
+        // It seems that, at least on the 2012 N7, later render passes will be reordered before a
+        // fence. This really messes up benchmark timings where a large fraction of the work for
+        // sample N can occur before the fence for sample N-1 signals. This causes sample N-1 to be
+        // artificially slow and N artificially fast. Inserting a swap buffers (to the unused
+        // display surface) blocks that reordering.
+        eglSwapBuffers(display, surface);
 
+        EGLint egl_flags = 0;
         if (flags & GR_GL_SYNC_FLUSH_COMMANDS_BIT) {
             egl_flags |= EGL_SYNC_FLUSH_COMMANDS_BIT_KHR;
         }
