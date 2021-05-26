@@ -7,9 +7,12 @@
 #include "include/core/SkTypes.h"
 
 // These are the material IDs that are stored in the sort key for each class of material
-constexpr int kSolidMat  = 1;
-constexpr int kLinearMat = 2;
-constexpr int kRadialMat = 3;
+constexpr int kInvalidMat = 0;
+constexpr int kSolidMat   = 1;
+constexpr int kLinearMat  = 2;
+constexpr int kRadialMat  = 3;
+
+constexpr int kInvalidZ = 0;
 
 class SortKey {
 public:
@@ -47,16 +50,16 @@ public:
     // TODO: make it clearer that we're initializing the default depth to be 0 here (since the
     // default key is opaque, its sense is flipped)
     SortKey() : fKey((kMaxDepth - 1) << kMaterialShift) {}
-    explicit SortKey(bool transparent, uint32_t clipID, uint32_t depth, uint32_t material) {
-        SkASSERT(clipID != 0 && depth != 0 /* && material != 0*/);
-        SkASSERT(!(clipID & ~kClipMask));
+    explicit SortKey(bool transparent, uint32_t /*clipID*/, uint32_t depth, uint32_t material) {
+//        SkASSERT(clipID != 0 && depth != 0 /* && material != 0*/);
+//        SkASSERT(!(clipID & ~kClipMask));
         SkASSERT(!(depth & ~kDepthMask));
         SkASSERT(!(material & ~kMaterialMask));
 
         // TODO: better encapsulate the reversal of the depth & material when the key is opaque
         if (transparent) {
             fKey = (0x1 << kTransparentShift) |
-                   (clipID & kClipMask) << kClipShift |
+//                   (clipID & kClipMask) << kClipShift |
                    (depth & kDepthMask) << kDepthShift |
                    (material & kMaterialMask) << kMaterialShift;
         } else {
@@ -67,7 +70,7 @@ public:
             munged = kMaxDepth - depth - 1;
             SkASSERT(!(munged & ~kDepthMask));
 
-            fKey = (clipID & kClipMask) << kClipShift |
+            fKey = //(clipID & kClipMask) << kClipShift |
                    (munged & kDepthMask) << kMaterialShift |
                    (material & kMaterialMask) << kDepthShift;
         }
