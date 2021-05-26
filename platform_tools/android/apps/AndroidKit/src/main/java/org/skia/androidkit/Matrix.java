@@ -63,6 +63,11 @@ public class Matrix {
         return new Matrix(nativeMatrix);
     }
 
+    public static Matrix makeTranspose(Matrix m) {
+        long nativeTranspose = nTranspose(m.getNativeInstance());
+        return new Matrix(nativeTranspose);
+    }
+
     /*
      * A: this Matrix
      * B: Matrix passed in
@@ -197,6 +202,7 @@ public class Matrix {
     private static native void    nRelease(long nativeInstance);
     private static native float[] nGetRowMajor(long mNativeInstance);
     private static native long    nInverse(long mNativeInstance);
+    private static native long    nTranspose(long mNativeInstance);
     private static native void    nPreConcat(long mNativeInstanceA, long mNativeInstanceB);
     private static native long    nConcat(long mNativeInstanceA, long mNativeInstanceB);
     private static native void    nTranslate(long mNativeInstance, float x, float y, float z);
