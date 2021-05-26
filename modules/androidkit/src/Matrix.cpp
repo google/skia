@@ -58,20 +58,25 @@ static void Matrix_PreConcat(JNIEnv* env, jobject, jlong native_matrixA, jlong n
     }
 }
 
-static long Matrix_Inverse(JNIEnv* env, jobject, jlong native_matrix) {
+static jlong Matrix_Inverse(JNIEnv* env, jobject, jlong native_matrix) {
     if (auto* m = reinterpret_cast<SkM44*>(native_matrix)) {
         SkM44 inverse(SkM44::kUninitialized_Constructor);
         if (m->invert(&inverse)) {
             return reinterpret_cast<jlong>(new SkM44(inverse));
-        } else {
-            // matrix was not invertible, return 0 to Java and handle exception there
-            return 0;
         }
     }
     return 0;
 }
 
-static long Matrix_Concat(JNIEnv* env, jobject, jlong native_matrixA, jlong native_matrixB) {
+static jlong Matrix_Transpose(JNIEnv* env, jobject, jlong native_matrix) {
+    if (auto* matrix = reinterpret_cast<SkM44*>(native_matrix)) {
+        SkM44 trans(matrix->transpose());
+        return reinterpret_cast<jlong>(new SkM44(trans));
+    }
+    return 0;
+}
+
+static jlong Matrix_Concat(JNIEnv* env, jobject, jlong native_matrixA, jlong native_matrixB) {
     if (auto* mA = reinterpret_cast<SkM44*>(native_matrixA),
             * mB = reinterpret_cast<SkM44*>(native_matrixB); mA && mB) {
         return reinterpret_cast<jlong>(new SkM44(*mA, *mB));
@@ -108,11 +113,12 @@ int register_androidkit_Matrix(JNIEnv* env) {
         {"nGetRowMajor"       , "(J)[F"               , reinterpret_cast<void*>(Matrix_GetRowMajor)},
         {"nRelease"           , "(J)V"                , reinterpret_cast<void*>(Matrix_Release)},
         {"nInverse"           , "(J)J"                , reinterpret_cast<void*>(Matrix_Inverse)},
+        {"nTranspose"         , "(J)J"                , reinterpret_cast<void*>(Matrix_Transpose)},
         {"nPreConcat"         , "(JJ)V"               , reinterpret_cast<void*>(Matrix_PreConcat)},
         {"nConcat"            , "(JJ)J"               , reinterpret_cast<void*>(Matrix_Concat)},
         {"nTranslate"         , "(JFFF)V"             , reinterpret_cast<void*>(Matrix_Translate)},
         {"nScale"             , "(JFFF)V"             , reinterpret_cast<void*>(Matrix_Scale)},
-        {"nRotate"            , "(JFFFF)V"             , reinterpret_cast<void*>(Matrix_Rotate)},
+        {"nRotate"            , "(JFFFF)V"            , reinterpret_cast<void*>(Matrix_Rotate)},
     };
 
     const auto clazz = env->FindClass("org/skia/androidkit/Matrix");
