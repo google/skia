@@ -37,6 +37,13 @@ OpDecorate %30 RelaxedPrecision
 OpDecorate %34 RelaxedPrecision
 OpDecorate %37 RelaxedPrecision
 OpDecorate %39 RelaxedPrecision
+OpDecorate %43 RelaxedPrecision
+OpDecorate %44 RelaxedPrecision
+OpDecorate %45 RelaxedPrecision
+OpDecorate %48 RelaxedPrecision
+OpDecorate %49 RelaxedPrecision
+OpDecorate %50 RelaxedPrecision
+OpDecorate %51 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -58,6 +65,14 @@ OpDecorate %39 RelaxedPrecision
 %_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
 %int_3 = OpConstant %int 3
 %int_4 = OpConstant %int 4
+%v2float = OpTypeVector %float 2
+%float_0_5 = OpConstant %float 0.5
+%float_n0_866025388 = OpConstant %float -0.866025388
+%43 = OpConstantComposite %v2float %float_0_5 %float_n0_866025388
+%v3float = OpTypeVector %float 3
+%float_0 = OpConstant %float 0
+%48 = OpConstantComposite %v3float %float_0_5 %float_0 %float_n0_866025388
+%51 = OpConstantComposite %v4float %float_0_5 %float_0 %float_0 %float_n0_866025388
 %main = OpFunction %void None %14
 %15 = OpLabel
 %17 = OpAccessChain %_ptr_Uniform_float %10 %int_0
@@ -77,5 +92,12 @@ OpStore %28 %16
 %39 = OpLoad %float %38
 %30 = OpExtInst %v4float %1 Refract %34 %37 %39
 OpStore %sk_FragColor %30
+%44 = OpLoad %v4float %sk_FragColor
+%45 = OpVectorShuffle %v4float %44 %43 4 5 2 3
+OpStore %sk_FragColor %45
+%49 = OpLoad %v4float %sk_FragColor
+%50 = OpVectorShuffle %v4float %49 %48 4 5 6 3
+OpStore %sk_FragColor %50
+OpStore %sk_FragColor %51
 OpReturn
 OpFunctionEnd
