@@ -15,6 +15,8 @@
 #include "src/sksl/ir/SkSLFunctionCall.h"
 #include "src/sksl/ir/SkSLIntLiteral.h"
 
+#include "include/sksl/DSLCore.h"
+
 namespace SkSL {
 
 static bool has_compile_time_constant_arguments(const ExpressionArray& arguments) {
@@ -478,6 +480,17 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
                     arguments, /*startingState=*/0,
                     [](float a, float b, float c) { return a + (b * c); },
                     /*finalize=*/nullptr);
+        case k_normalize_IntrinsicKind: {
+            // Call `length(arg)` to calculate the vector length.
+            if (auto length = optimize_intrinsic_call(context, k_length_IntrinsicKind, arguments)) {
+                // Divide the vector by its length.
+                using namespace SkSL::dsl;
+                auto unitVector = DSLExpression{arguments.front()->clone()} /
+                                  DSLExpression{std::move(length)};
+                return unitVector.release();
+            }
+            return nullptr;
+        }
         default:
             return nullptr;
     }
