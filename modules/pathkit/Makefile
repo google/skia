@@ -101,10 +101,10 @@ npm-debug:
 	./compile.sh debug
 	cp ../../out/pathkit/pathkit.js     ./npm-wasm/bin/debug/pathkit.js
 	cp ../../out/pathkit/pathkit.wasm   ./npm-wasm/bin/debug/pathkit.wasm
-	cp ../../out/pathkit/pathkit.wasm.map ./npm-wasm/bin/debug/pathkit.wasm.map
+
 	./compile.sh asm.js debug
 	cp ../../out/pathkit/pathkit.js     ./npm-asmjs/bin/debug/pathkit.js
-	cp ../../out/pathkit/pathkit.js.map ./npm-asmjs/bin/debug/pathkit.js.map
+
 
 example:
 	npm install pathkit-asmjs pathkit-wasm

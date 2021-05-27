@@ -8,6 +8,12 @@ shows the version we build and test with. We try to keep this up-to-date.
 [1]: https://emscripten.org/docs/getting_started/downloads.html
 [2]: https://github.com/google/skia/blob/master/infra/wasm-common/docker/emsdk-base/Dockerfile
 
+Be sure to both install **and** activate the correct version. For example:
+```
+    ./emsdk install 2.0.20
+    ./emsdk activate 2.0.20
+```
+
 This document also assumes you have followed the instructions to download Skia and its deps
 <https://skia.org/user/download>.
 
