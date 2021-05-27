@@ -145,6 +145,22 @@ public:
         return fContext->fMappedBufferManager.get();
     }
 
+    sk_sp<SkBaseGpuDevice> createDevice(GrColorType,
+                                        sk_sp<GrSurfaceProxy>,
+                                        sk_sp<SkColorSpace>,
+                                        GrSurfaceOrigin,
+                                        const SkSurfaceProps&,
+                                        SkBaseGpuDevice::InitContents);
+    sk_sp<SkBaseGpuDevice> createDevice(SkBudgeted,
+                                        const SkImageInfo&,
+                                        SkBackingFit,
+                                        int sampleCount,
+                                        GrMipmapped,
+                                        GrProtected,
+                                        GrSurfaceOrigin,
+                                        const SkSurfaceProps&,
+                                        SkBaseGpuDevice::InitContents);
+
 #if GR_TEST_UTILS
     /** Reset GPU stats */
     void resetGpuStats() const;

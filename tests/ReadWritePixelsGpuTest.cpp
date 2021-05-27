@@ -1067,7 +1067,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixels, reporter, ctxInfo)
             });
     auto reader = std::function<GpuReadDstFn<Surface>>([direct](const Surface& s) {
         SkAutoPixmapStorage result;
-        auto grInfo = s->imageInfo();
+        auto grInfo = s->imageInfo1();
         SkColorType ct = GrColorTypeToSkColorType(grInfo.colorType());
         SkASSERT(ct != kUnknown_SkColorType);
         auto skInfo = SkImageInfo::Make(grInfo.dimensions(), ct, grInfo.alphaType(),
@@ -1195,7 +1195,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixelsMipped, reporter, ct
                                                   SkIRect::MakeSize(levels[i].dimensions()),
                                                   std::move(te));
                         GrImageInfo readInfo =
-                                dst->imageInfo().makeDimensions(levels[i].dimensions());
+                                dst->imageInfo1().makeDimensions(levels[i].dimensions());
                         GrPixmap read = GrPixmap::Allocate(readInfo);
                         if (!dst->readPixels(direct, read, {0, 0})) {
                             continue;
