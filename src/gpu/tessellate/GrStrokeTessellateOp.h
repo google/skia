@@ -19,7 +19,8 @@ class GrRecordingContext;
 // GrStrokeShader.
 class GrStrokeTessellateOp : public GrDrawOp {
 public:
-    GrStrokeTessellateOp(GrAAType, const SkMatrix&, const SkPath&, const SkStrokeRec&, GrPaint&&);
+    GrStrokeTessellateOp(GrAAType, const SkMatrix&, const SkPath&, const SkStrokeRec&, bool hasClip,
+                         GrPaint&&);
 
 private:
     using ShaderFlags = GrStrokeShader::ShaderFlags;
@@ -67,8 +68,8 @@ private:
     PathStrokeList** fPathStrokeTail = &fPathStrokeList.fNext;
     float fInflationRadius = 0;
     int fTotalCombinedVerbCnt = 0;
-    GrProcessorSet fProcessors;
     bool fNeedsStencil = false;
+    GrProcessorSet fProcessors;
 
     GrStrokeTessellator* fTessellator = nullptr;
     const GrProgramInfo* fStencilProgram = nullptr;  // Only used if the stroke has transparency.
