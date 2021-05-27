@@ -1654,8 +1654,8 @@ DEF_TEST(GrClipStack_DiffRects, r) {
 
     GrAppliedClip out(kDeviceBounds.size());
     SkRect drawBounds = SkRect::Make(kDeviceBounds);
-    GrClip::Effect effect = cs.apply(context.get(), rtc.get(), GrAAType::kCoverage, false,
-                                     &out, &drawBounds);
+    GrClip::Effect effect = cs.apply(context.get(), rtc.get(), GrAAType::kCoverage, &out,
+                                     &drawBounds);
 
     REPORTER_ASSERT(r, effect == GrClip::Effect::kClipped);
     REPORTER_ASSERT(r, out.windowRectsState().numWindows() == 8);
@@ -1798,8 +1798,8 @@ DEF_TEST(GrClipStack_Shader, r) {
 
     GrAppliedClip out(kDeviceBounds.size());
     SkRect drawBounds = {10.f, 11.f, 16.f, 32.f};
-    GrClip::Effect effect = cs.apply(context.get(), rtc.get(), GrAAType::kCoverage, false,
-                                     &out, &drawBounds);
+    GrClip::Effect effect = cs.apply(context.get(), rtc.get(), GrAAType::kCoverage, &out,
+                                     &drawBounds);
 
     REPORTER_ASSERT(r, effect == GrClip::Effect::kClipped,
                     "apply() should return kClipped for a clip shader");
@@ -1808,8 +1808,7 @@ DEF_TEST(GrClipStack_Shader, r) {
 
     GrAppliedClip out2(kDeviceBounds.size());
     drawBounds = {-15.f, -10.f, -1.f, 10.f}; // offscreen
-    effect = cs.apply(context.get(), rtc.get(), GrAAType::kCoverage, false,
-                      &out2, &drawBounds);
+    effect = cs.apply(context.get(), rtc.get(), GrAAType::kCoverage, &out2, &drawBounds);
     REPORTER_ASSERT(r, effect == GrClip::Effect::kClippedOut,
                     "apply() should still discard offscreen draws with a clip shader");
 
@@ -1846,8 +1845,8 @@ DEF_TEST(GrClipStack_SimpleApply, r) {
         SkRect drawBounds = {-15.f, -15.f, -1.f, -1.f};
 
         GrAppliedClip out(kDeviceBounds.size());
-        GrClip::Effect effect = cs.apply(context.get(), rtc.get(), GrAAType::kCoverage, false,
-                                        &out, &drawBounds);
+        GrClip::Effect effect = cs.apply(context.get(), rtc.get(), GrAAType::kCoverage, &out,
+                                         &drawBounds);
         REPORTER_ASSERT(r, effect == GrClip::Effect::kClippedOut, "Offscreen draw is clipped out");
     }
 
@@ -1859,8 +1858,8 @@ DEF_TEST(GrClipStack_SimpleApply, r) {
                     GrAA::kYes, SkClipOp::kIntersect);
 
         GrAppliedClip out(kDeviceBounds.size());
-        GrClip::Effect effect = cs.apply(context.get(), rtc.get(), GrAAType::kCoverage, false,
-                                         &out, &drawBounds);
+        GrClip::Effect effect = cs.apply(context.get(), rtc.get(), GrAAType::kCoverage, &out,
+                                         &drawBounds);
         REPORTER_ASSERT(r, effect == GrClip::Effect::kUnclipped, "Draw inside clip is unclipped");
         cs.restore();
     }
@@ -1874,8 +1873,8 @@ DEF_TEST(GrClipStack_SimpleApply, r) {
         cs.clipRect(SkMatrix::I(), clipRect, GrAA::kNo, SkClipOp::kIntersect);
 
         GrAppliedClip out(kDeviceBounds.size());
-        GrClip::Effect effect = cs.apply(context.get(), rtc.get(), GrAAType::kCoverage, false,
-                                         &out, &drawRect);
+        GrClip::Effect effect = cs.apply(context.get(), rtc.get(), GrAAType::kCoverage, &out,
+                                         &drawRect);
         REPORTER_ASSERT(r, SkRect::Make(kDeviceBounds).contains(drawRect),
                         "Draw rect should be clipped to device rect");
         REPORTER_ASSERT(r, effect == GrClip::Effect::kUnclipped,
@@ -1893,8 +1892,8 @@ DEF_TEST(GrClipStack_SimpleApply, r) {
         cs.clipRect(SkMatrix::I(), clipRect, GrAA::kNo, SkClipOp::kIntersect);
 
         GrAppliedClip out(kDeviceBounds.size());
-        GrClip::Effect effect = cs.apply(context.get(), rtc.get(), GrAAType::kCoverage, false,
-                                         &out, &drawRect);
+        GrClip::Effect effect = cs.apply(context.get(), rtc.get(), GrAAType::kCoverage, &out,
+                                         &drawRect);
         REPORTER_ASSERT(r, effect == GrClip::Effect::kClipped, "Draw should be clipped by rect");
         REPORTER_ASSERT(r, !out.hasCoverageFragmentProcessor(), "Clip should not use coverage FPs");
         REPORTER_ASSERT(r, !out.hardClip().hasStencilClip(), "Clip should not need stencil");
@@ -1909,8 +1908,8 @@ DEF_TEST(GrClipStack_SimpleApply, r) {
     // Analytic coverage FPs
     auto testHasCoverageFP = [&](SkRect drawBounds) {
         GrAppliedClip out(kDeviceBounds.size());
-        GrClip::Effect effect = cs.apply(context.get(), rtc.get(), GrAAType::kCoverage, false,
-                                         &out, &drawBounds);
+        GrClip::Effect effect = cs.apply(context.get(), rtc.get(), GrAAType::kCoverage, &out,
+                                         &drawBounds);
         REPORTER_ASSERT(r, effect == GrClip::Effect::kClipped, "Draw should be clipped");
         REPORTER_ASSERT(r, out.scissorState().enabled(), "Coverage FPs should still set scissor");
         REPORTER_ASSERT(r, out.hasCoverageFragmentProcessor(), "Clip should use coverage FP");

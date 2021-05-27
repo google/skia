@@ -1262,8 +1262,7 @@ GrClip::PreClipResult GrClipStack::preApply(const SkRect& bounds, GrAA aa) const
 }
 
 GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrSurfaceDrawContext* rtc,
-                                  GrAAType aa, bool hasUserStencilSettings,
-                                  GrAppliedClip* out, SkRect* bounds) const {
+                                  GrAAType aa, GrAppliedClip* out, SkRect* bounds) const {
     // TODO: Once we no longer store SW masks, we don't need to sneak the provider in like this
     if (!fProxyProvider) {
         fProxyProvider = context->priv().proxyProvider();
@@ -1348,13 +1347,6 @@ GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrSurfaceDrawCont
     bool scissorIsNeeded = SkToBool(cs.shader());
 
     int remainingAnalyticFPs = kMaxAnalyticFPs;
-    if (hasUserStencilSettings) {
-        // Disable analytic clips when there are user stencil settings to ensure the clip is
-        // respected in the stencil buffer.
-        remainingAnalyticFPs = 0;
-        // If we have user stencil settings, stencil needs to be supported.
-        SkASSERT(rtc->asRenderTargetProxy()->canUseStencil(*context->priv().caps()));
-    }
 
     // If window rectangles are supported, we can use them to exclude inner bounds of difference ops
     int maxWindowRectangles = rtc->maxWindowRectangles();
