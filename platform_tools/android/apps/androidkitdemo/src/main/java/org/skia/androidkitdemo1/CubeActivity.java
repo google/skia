@@ -21,6 +21,7 @@ import org.skia.androidkit.Color;
 import org.skia.androidkit.Image;
 import org.skia.androidkit.Matrix;
 import org.skia.androidkit.Paint;
+import org.skia.androidkit.RuntimeShaderBuilder;
 import org.skia.androidkit.SamplingOptions;
 import org.skia.androidkit.Shader;
 import org.skia.androidkit.Surface;
@@ -135,7 +136,33 @@ class VSphereAnimator {
 
 class CubeRenderer extends SurfaceRenderer implements GestureDetector.OnGestureListener {
     private VSphereAnimator mVSphere;
+    private static final String lightingShader =
+    "uniform shader color_map;                                              " +
+    "uniform shader normal_map;                                             " +
 
+    "uniform float4x4 localToWorld;                                         " +
+    "uniform float4x4 localToWorldAdjInv;                                   " +
+    "uniform float3   lightPos;                                             " +
+
+    "float3 convert_normal_sample(half4 c) {                                " +
+    "    float3 n = 2 * c.rgb - 1;                                          " +
+    "    n.y = -n.y;                                                        " +
+    "    return n;                                                          " +
+    "}                                                                      " +
+
+    "half4 main(float2 p) {                                                 " +
+    "    float3 norm = convert_normal_sample(sample(normal_map, p));        " +
+    "    float3 plane_norm = normalize(localToWorldAdjInv * norm.xyz0).xyz; " +
+
+    "    float3 plane_pos = (localToWorld * p.xy01).xyz;                    " +
+    "    float3 light_dir = normalize(lightPos - plane_pos);                " +
+
+    "    float ambient = 0.2;                                               " +
+    "    float dp = dot(plane_norm, light_dir);                             " +
+    "    float scale = min(ambient + max(dp, 0), 1);                        " +
+
+    "    return sample(color_map, p) * scale.xxx1;                          " +
+    "}";
     // TODO: make these relative to surface size
     private float mCubeSideLength = 500;
     private int DX = 200;
@@ -215,6 +242,17 @@ class CubeRenderer extends SurfaceRenderer implements GestureDetector.OnGestureL
             canvas.concat(localToWorld);
 
             if (front(canvas.getLocalToDevice())) {
+                RuntimeShaderBuilder builder = new RuntimeShaderBuilder(lightingShader);
+                builder.setUniform("lightPos", 10000, 10000, -10000);
+                builder.setUniform("localToWorld", localToWorld);
+                float[] a = localToWorld.getRowMajor();
+                Matrix inverse = Matrix.makeInverse(new Matrix(a[0],  a[1],  a[2],  0,
+                                                               a[4],  a[5],  a[6],  0,
+                                                               a[8],  a[9],  a[10], 0,
+                                                               0,     0,     0,     1));
+                Matrix normals = Matrix.makeTranspose(inverse);
+                builder.setUniform("localToWorldAdjInv", normals);
+                f.paint.setShader(builder.makeShader());
                 canvas.drawRect(0, 0, mCubeSideLength, mCubeSideLength, f.paint);
             }
             canvas.restore();

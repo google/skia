@@ -419,8 +419,10 @@ public:
         }
 
         SkRuntimeShaderBuilder builder(fEffect);
-        builder.uniform("lightPos") = fLight.computeWorldPos(fSphere);
+        SkV3 lightPos = fLight.computeWorldPos(fSphere);
+        builder.uniform("lightPos") = lightPos;
         builder.uniform("localToWorld") = localToWorld;
+        SkDebugf("light pos: %d, %d, %d", lightPos.x, lightPos.y, lightPos.z);
         builder.uniform("localToWorldAdjInv") = normals(localToWorld);
 
         builder.child("color_map")  = fImgShader;
