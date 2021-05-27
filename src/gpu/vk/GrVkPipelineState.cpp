@@ -264,9 +264,13 @@ void GrVkPipelineState::setRenderTargetState(SkISize colorAttachmentDimensions,
         fRenderTargetState.fRenderTargetSize = colorAttachmentDimensions;
         fRenderTargetState.fRenderTargetOrigin = origin;
 
-        float rtAdjustmentVec[4];
-        fRenderTargetState.getRTAdjustmentVec(rtAdjustmentVec);
-        fDataManager.set4fv(fBuiltinUniformHandles.fRTAdjustmentUni, 1, rtAdjustmentVec);
+        // The client will mark a swap buffer as kTopLeft when making a SkSurface because
+        // Vulkan's framebuffer space has (0, 0) at the top left. This agrees with Skia's device
+        // coords and with Vulkan's NDC that has (-1, -1) in the top left. So a flip is needed when
+        // surface origin is kBottomLeft rather than kTopLeft.
+        bool flip = (origin == kBottomLeft_GrSurfaceOrigin);
+        std::array<float, 4> v = SkSL::Compiler::GetRTAdjustVector(colorAttachmentDimensions, flip);
+        fDataManager.set4fv(fBuiltinUniformHandles.fRTAdjustmentUni, 1, v.data());
     }
 }
 
