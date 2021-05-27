@@ -45,8 +45,12 @@ private:
 
     const char* name() const override { return "GrStrokeTessellateOp"; }
     void visitProxies(const VisitProxyFunc& fn) const override;
-    FixedFunctionFlags fixedFunctionFlags() const override;
+    bool usesMSAA() const override { return fAAType == GrAAType::kMSAA; }
     GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*, GrClampType) override;
+    bool usesStencil() const override {
+        SkASSERT(fProcessors.isFinalized());  // This must be called after finalize().
+        return fNeedsStencil;
+    }
     CombineResult onCombineIfPossible(GrOp*, SkArenaAlloc*, const GrCaps&) override;
 
     // Creates the tessellator and the stencil/fill program(s) we will use with it.
@@ -68,7 +72,7 @@ private:
     float fInflationRadius = 0;
     int fTotalCombinedVerbCnt = 0;
     GrProcessorSet fProcessors;
-    bool fNeedsStencil = false;
+    bool fNeedsStencil;
 
     GrStrokeTessellator* fTessellator = nullptr;
     const GrProgramInfo* fStencilProgram = nullptr;  // Only used if the stroke has transparency.

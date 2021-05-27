@@ -55,16 +55,6 @@ void GrStrokeTessellateOp::visitProxies(const VisitProxyFunc& fn) const {
     }
 }
 
-GrDrawOp::FixedFunctionFlags GrStrokeTessellateOp::fixedFunctionFlags() const {
-    // We might not actually end up needing stencil, but won't know for sure until finalize().
-    // Request it just in case we do end up needing it.
-    auto flags = FixedFunctionFlags::kUsesStencil;
-    if (GrAAType::kNone != fAAType) {
-        flags |= FixedFunctionFlags::kUsesHWAA;
-    }
-    return flags;
-}
-
 GrProcessorSet::Analysis GrStrokeTessellateOp::finalize(const GrCaps& caps,
                                                         const GrAppliedClip* clip,
                                                         GrClampType clampType) {
