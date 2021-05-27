@@ -15,6 +15,6 @@ vertex Outputs vertexMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms 
     Outputs _out;
     (void)_out;
     _out.sk_Position = _in.pos;
-    _out.sk_Position = float4(_out.sk_Position.xy * _uniforms.sk_RTAdjust.xz + _out.sk_Position.ww * _uniforms.sk_RTAdjust.yw, 0.0, _out.sk_Position.w);
+    _out.sk_Position = float4(_uniforms.sk_RTAdjust.xz * (_out.sk_Position.xy - _out.sk_Position.ww * _uniforms.sk_RTAdjust.yw), 0.0, _out.sk_Position.w);
     return (_out.sk_Position.y = -_out.sk_Position.y, _out);
 }
