@@ -39,14 +39,18 @@ bool GrPaint::isConstantBlendedColor(SkPMColor4f* constantColor) const {
     static const GrXPFactory* kSrc = GrPorterDuffXPFactory::Get(SkBlendMode::kSrc);
     static const GrXPFactory* kClear = GrPorterDuffXPFactory::Get(SkBlendMode::kClear);
     if (kClear == fXPFactory) {
-        *constantColor = SK_PMColor4fTRANSPARENT;
+        if (constantColor) {
+            *constantColor = SK_PMColor4fTRANSPARENT;
+        }
         return true;
     }
     if (this->hasColorFragmentProcessor()) {
         return false;
     }
     if (kSrc == fXPFactory || (!fXPFactory && fColor.isOpaque())) {
-        *constantColor = fColor;
+        if (constantColor) {
+            *constantColor = fColor;
+        }
         return true;
     }
     return false;

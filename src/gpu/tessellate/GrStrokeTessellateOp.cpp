@@ -19,12 +19,13 @@ using DynamicStroke = GrStrokeShader::DynamicStroke;
 
 GrStrokeTessellateOp::GrStrokeTessellateOp(GrAAType aaType, const SkMatrix& viewMatrix,
                                            const SkPath& path, const SkStrokeRec& stroke,
-                                           GrPaint&& paint)
+                                           bool hasClip, GrPaint&& paint)
         : GrDrawOp(ClassID())
         , fAAType(aaType)
         , fViewMatrix(viewMatrix)
         , fPathStrokeList(path, stroke, paint.getColor4f())
         , fTotalCombinedVerbCnt(path.countVerbs())
+        , fNeedsStencil(hasClip || !paint.isConstantBlendedColor())
         , fProcessors(std::move(paint)) {
     if (!this->headColor().fitsInBytes()) {
         fShaderFlags |= ShaderFlags::kWideColor;
@@ -56,9 +57,12 @@ void GrStrokeTessellateOp::visitProxies(const VisitProxyFunc& fn) const {
 }
 
 GrDrawOp::FixedFunctionFlags GrStrokeTessellateOp::fixedFunctionFlags() const {
-    // We might not actually end up needing stencil, but won't know for sure until finalize().
-    // Request it just in case we do end up needing it.
-    auto flags = FixedFunctionFlags::kUsesStencil;
+    auto flags = FixedFunctionFlags::kNone;
+    if (fNeedsStencil) {
+        // We still might not actually end up needing stencil, but won't know for sure until
+        // finalize(). Request it just in case we do end up needing it.
+        flags |= FixedFunctionFlags::kUsesStencil;
+    }
     if (GrAAType::kNone != fAAType) {
         flags |= FixedFunctionFlags::kUsesHWAA;
     }
@@ -73,7 +77,7 @@ GrProcessorSet::Analysis GrStrokeTessellateOp::finalize(const GrCaps& caps,
     const GrProcessorSet::Analysis& analysis = fProcessors.finalize(
             this->headColor(), GrProcessorAnalysisCoverage::kNone, clip,
             &GrUserStencilSettings::kUnused, caps, clampType, &this->headColor());
-    fNeedsStencil = !analysis.unaffectedByDstValue();
+    fNeedsStencil &= !analysis.unaffectedByDstValue();
     return analysis;
 }
 
