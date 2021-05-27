@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "59468f40_c1a95af6",
+        "filename": "src/sksl/ir/SkSLConstructorCompound.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-27T21:56:20Z",
+      "side": 1,
+      "message": "Even if optimization is off, we expect `float2(one, two)` to become a compile-time constant, so I moved this outside of the optimization block.",
+      "range": {
+        "startLine": 77,
+        "startChar": 0,
+        "endLine": 82,
+        "endChar": 0
+      },
+      "revId": "a9dcbc290de1072bbfe9851ec966f2523bf80f7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
