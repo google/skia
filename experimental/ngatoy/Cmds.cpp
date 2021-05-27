@@ -28,48 +28,66 @@ static SkColor blend(float t, SkColor c0, SkColor c1) {
     return result.toSkColor();
 }
 
-SkColor Cmd::evalColor(int x, int y, const SkColor colors[2]) const {
-    switch (fMaterialID) {
-        case kSolidMat: return colors[0];
-        case kLinearMat: {
-            float t = SK_ScalarRoot2Over2 * x + SK_ScalarRoot2Over2 * y;
-            t /= SK_ScalarSqrt2 * 256.0f;
-            return blend(t, colors[0], colors[1]);
-        }
-        case kRadialMat: {
-            x -= 128;
-            y -= 128;
-            float dist = sqrt(x*x + y*y) / 128.0f;
-            if (dist > 1.0f) {
-                return colors[0];
-            } else {
-                return blend(dist, colors[0], colors[1]);
-            }
-        }
-    }
-    SkUNREACHABLE;
+//------------------------------------------------------------------------------------------------
+void PushCmd::execute(FakeCanvas* f) const {
+    f->save();
+}
+
+void PushCmd::execute(SkCanvas* c) const {
+    c->save();
 }
 
 //------------------------------------------------------------------------------------------------
-RectCmd::RectCmd(int id, int materialID, SkIRect r, SkColor c0, SkColor c1, sk_sp<FakeMCBlob> state)
-        : Cmd(id, materialID, std::move(state))
-        , fRect(r) {
-    fColors[0] = c0;
-    fColors[1] = c1;
+void PopCmd::execute(FakeCanvas* f) const {
+    f->restore();
 }
 
-static void apply_diff(FakeCanvas* c, const FakeMCBlob& desired, const FakeMCBlob* prior) {
-    int prefix = desired.determineSharedPrefix(prior);
+void PopCmd::execute(SkCanvas* c) const {
+    c->restore();
+}
 
-    if (prior) {
-        for (int j = prefix; j < prior->count(); ++j) {
-            c->restore();
+//------------------------------------------------------------------------------------------------
+RectCmd::RectCmd(int id, uint32_t paintersOrder, int matID, SkIRect r, bool isTransparent, SkColor c0, SkColor c1, sk_sp<FakeMCBlob> state)
+        : Cmd(id)
+        , fRect(r)
+        , fPaintersOrder(paintersOrder)
+        , fMaterialID(matID)
+        , fMCState1(std::move(state)) {
+    fColors[0] = c0;
+    fColors[1] = c1;
+
+    SkASSERT(matID != kInvalidMat);
+}
+
+static bool is_transparent(int matID, SkColor c0, SkColor c1) {
+    SkASSERT(c0 != SK_ColorUNUSED);
+
+    if (matID == kSolidMat) {
+        SkASSERT(c1 == SK_ColorUNUSED);
+        return 0xFF != SkColorGetA(c0);
+    } else {
+        SkASSERT(c1 != SK_ColorUNUSED);
+        return 0xFF != SkColorGetA(c0) && 0xFF != SkColorGetA(c1);
+    }
+}
+
+uint32_t RectCmd::computeZ() const {
+    uint32_t maxZ = kInvalidZ;
+    for (auto s : fMCState1->mcStates()) {
+        for (auto c : s.cmds()) {
+            uint32_t tmp = c->getZWhenPopped();
+
+            maxZ = std::max(maxZ, tmp);
         }
     }
 
-    for (int j = prefix; j < desired.count(); ++j) {
-        desired[j].apply(c);
-    }
+    return maxZ != kInvalidZ ? maxZ+1 : fPaintersOrder;
+}
+
+SortKey RectCmd::getKey() {
+    return SortKey(is_transparent(fMaterialID, fColors[0], fColors[1]),
+                   this->computeZ(),
+                   fMaterialID);
 }
 
 void RectCmd::execute(FakeCanvas* c) const {
@@ -81,26 +99,10 @@ void RectCmd::execute(FakeCanvas* c) const {
         case kRadialMat: p.setRadial(fColors[0], fColors[1]); break;
     }
 
-    apply_diff(c, *fMCState, c->snapState().get());
-
     c->drawRect(fID, fRect, p);
 }
 
-static void apply_diff(SkCanvas* c, const FakeMCBlob& desired, const FakeMCBlob* prior) {
-    int prefix = desired.determineSharedPrefix(prior);
-
-    if (prior) {
-        for (int j = prefix; j < prior->count(); ++j) {
-            c->restore();
-        }
-    }
-
-    for (int j = prefix; j < desired.count(); ++j) {
-        desired[j].apply(c);
-    }
-}
-
-void RectCmd::execute(SkCanvas* c, const FakeMCBlob* priorState) const {
+void RectCmd::execute(SkCanvas* c) const {
 
     SkPaint p;
     if (fMaterialID == kSolidMat) {
@@ -126,8 +128,6 @@ void RectCmd::execute(SkCanvas* c, const FakeMCBlob* priorState) const {
         p.setShader(std::move(shader));
     }
 
-    apply_diff(c, *fMCState, priorState);
-
     c->drawRect(SkRect::Make(fRect), p);
 }
 
@@ -135,15 +135,18 @@ static bool is_opaque(SkColor c) {
     return 0xFF == SkColorGetA(c);
 }
 
-void RectCmd::rasterize(uint32_t zBuffer[256][256], SkBitmap* dstBM, unsigned int z) const {
+void RectCmd::rasterize(uint32_t zBuffer[256][256], SkBitmap* dstBM) const {
+
+    uint32_t z = this->computeZ();
+    SkIRect scissor = fMCState1->scissor();
 
     for (int y = fRect.fTop; y < fRect.fBottom; ++y) {
         for (int x = fRect.fLeft; x < fRect.fRight; ++x) {
-            if (fMCState->clipped(x, y)) {
-                continue;
-            }
-
             if (z > zBuffer[x][y]) {
+                if (!scissor.contains(x, y)) {
+                    continue;
+                }
+
                 zBuffer[x][y] = z;
 
                 SkColor c = this->evalColor(x, y, fColors);
@@ -166,3 +169,64 @@ void RectCmd::rasterize(uint32_t zBuffer[256][256], SkBitmap* dstBM, unsigned in
     }
 }
 
+SkColor RectCmd::evalColor(int x, int y, const SkColor colors[2]) const {
+    switch (fMaterialID) {
+        case kSolidMat: return colors[0];
+        case kLinearMat: {
+            float t = SK_ScalarRoot2Over2 * x + SK_ScalarRoot2Over2 * y;
+            t /= SK_ScalarSqrt2 * 256.0f;
+            return blend(t, colors[0], colors[1]);
+        }
+        case kRadialMat: {
+            x -= 128;
+            y -= 128;
+            float dist = sqrt(x*x + y*y) / 128.0f;
+            if (dist > 1.0f) {
+                return colors[0];
+            } else {
+                return blend(dist, colors[0], colors[1]);
+            }
+        }
+    }
+    SkUNREACHABLE;
+}
+
+//------------------------------------------------------------------------------------------------
+ClipCmd::ClipCmd(int id, uint32_t paintersOrder, SkIRect r)
+    : Cmd(id)
+    , fPaintersOrder(paintersOrder)
+    , fRect(r) {
+}
+
+SortKey ClipCmd::getKey() {
+    SkASSERT(fZWhenPopped != kInvalidZ);
+
+    return SortKey(false, fPaintersOrder, kInvalidMat);
+}
+
+void ClipCmd::pop(uint32_t zWhenPopped) {
+    SkASSERT(fZWhenPopped == kInvalidZ && zWhenPopped != kInvalidZ);
+    fZWhenPopped = zWhenPopped;
+}
+
+void ClipCmd::execute(FakeCanvas* c) const {
+    // This call is creating the 'real' ClipCmd for the "actual" case
+    SkASSERT(fPaintersOrder == kInvalidZ && fZWhenPopped == kInvalidZ);
+    c->clipRect(fID, fRect);
+}
+
+void ClipCmd::execute(SkCanvas* c) const {
+    c->clipRect(SkRect::Make(fRect));
+}
+
+void ClipCmd::rasterize(uint32_t zBuffer[256][256], SkBitmap* /* dstBM */) const {
+    SkASSERT(fZWhenPopped != kInvalidZ);
+
+    for (int y = fRect.fTop; y < fRect.fBottom; ++y) {
+        for (int x = fRect.fLeft; x < fRect.fRight; ++x) {
+            if (fZWhenPopped > zBuffer[x][y]) {
+                zBuffer[x][y] = fZWhenPopped;
+            }
+        }
+    }
+}
