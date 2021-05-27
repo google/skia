@@ -12,7 +12,7 @@
 void FakeMCBlob::MCState::apply(SkCanvas* canvas) const {
     canvas->save();
 
-    for (auto c : fRects) {
+    for (auto c : fRects1) {
         canvas->clipIRect(c);
     }
 
@@ -22,45 +22,82 @@ void FakeMCBlob::MCState::apply(SkCanvas* canvas) const {
 void FakeMCBlob::MCState::apply(FakeCanvas* canvas) const {
     canvas->save();
 
-    for (auto c : fRects) {
-        canvas->clipRect(c);
+    for (auto c : fRects1) {
+//        canvas->clipRect(c);
     }
 
     canvas->translate(fTrans);
 }
 
+void FakeMCBlob::MCState::popit(uint32_t zWhenPopped) {
+    for (auto c : fCmds) {
+        c->pop(zWhenPopped);
+    }
+}
+
+//-------------------------------------------------------------------------------------------------
+// Linearly blend between c0 & c1:
+//      (t == 0) -> c0
+//      (t == 1) -> c1
+static SkColor blend(float t, SkColor c0, SkColor c1) {
+    SkASSERT(t >= 0.0f && t <= 1.0f);
+
+    SkColor4f top = SkColor4f::FromColor(c0);
+    SkColor4f bot = SkColor4f::FromColor(c1);
+
+    SkColor4f result = {
+        t * bot.fR + (1.0f - t) * top.fR,
+        t * bot.fG + (1.0f - t) * top.fG,
+        t * bot.fB + (1.0f - t) * top.fB,
+        t * bot.fA + (1.0f - t) * top.fA
+    };
+    return result.toSkColor();
+}
+
+SkColor FakePaint::evalColor(int x, int y) const {
+    switch (fType) {
+        case Type::kNormal: return fColor0;
+        case Type::kLinear: {
+            float t = SK_ScalarRoot2Over2 * x + SK_ScalarRoot2Over2 * y;
+            t /= SK_ScalarSqrt2 * 256.0f;
+            return blend(t, fColor0, fColor1);
+        }
+        case Type::kRadial: {
+            x -= 128;
+            y -= 128;
+            float dist = sqrt(x*x + y*y) / 128.0f;
+            if (dist > 1.0f) {
+                return fColor0;
+            } else {
+                return blend(dist, fColor0, fColor1);
+            }
+        }
+    }
+    SkUNREACHABLE;
+}
 
 //-------------------------------------------------------------------------------------------------
 void FakeDevice::save() {
     fTracker.push();
 }
 
-void FakeDevice::drawRect(int id, uint32_t z, SkIRect r, FakePaint p) {
-
-    int matID = p.toID();
-
-    SkASSERT(p.c0() != SK_ColorUNUSED);
-    if (matID == kSolidMat) {
-        SkASSERT(p.c1() == SK_ColorUNUSED);
-    } else {
-        SkASSERT(p.c1() != SK_ColorUNUSED);
-    }
-
+void FakeDevice::drawRect(int id, uint32_t paintersOrder, SkIRect r, FakePaint p) {
     sk_sp<FakeMCBlob> state = fTracker.snapState();
 
-    SortKey k(p.isTransparent(), state->id(), z, matID);
+    auto tmp = new RectCmd(id, paintersOrder, r, p, std::move(state));
 
-    auto tmp = new RectCmd(id, matID, r, p.c0(), p.c1(), std::move(state));
-
-    fSortedCmds.push_back({k, tmp});
+    fSortedCmds.push_back(tmp);
 }
 
-void FakeDevice::clipRect(SkIRect r) {
-    fTracker.clipRect(r);
+void FakeDevice::clipRect(int id, uint32_t paintersOrder, SkIRect r) {
+    auto tmp = new ClipCmd(id, paintersOrder, r);
+
+    fSortedCmds.push_back(tmp);
+    fTracker.clipRect(r, tmp);
 }
 
-void FakeDevice::restore() {
-    fTracker.pop();
+void FakeDevice::restore(uint32_t z) {
+    fTracker.pop(z);
 }
 
 void FakeDevice::finalize() {
@@ -69,18 +106,29 @@ void FakeDevice::finalize() {
 
     this->sort();
     for (auto f : fSortedCmds) {
-        f.fCmd->rasterize(fZBuffer, &fBM, f.fKey.depth());
+        f->rasterize(fZBuffer, &fBM);
     }
 }
 
 void FakeDevice::getOrder(std::vector<int>* ops) const {
     SkASSERT(fFinalized);
 
-//    ops->reserve(fSortedCmds.size());
-
     for (auto f : fSortedCmds) {
-        ops->push_back(f.fCmd->id());
+        ops->push_back(f->id());
     }
+}
+
+void FakeDevice::sort() {
+    // In general we want:
+    //  opaque draws to occur front to back (i.e., in reverse painter's order) while minimizing
+    //        state changes due to materials
+    //  transparent draws to occur back to front (i.e., in painter's order)
+    //
+    // In both scenarios we would like to batch as much as possible.
+    std::sort(fSortedCmds.begin(), fSortedCmds.end(),
+                [](Cmd* a, Cmd* b) {
+                    return a->getKey() < b->getKey();
+                });
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -90,10 +138,10 @@ void FakeCanvas::drawRect(int id, SkIRect r, FakePaint p) {
     fDeviceStack.back()->drawRect(id, this->nextZ(), r, p);
 }
 
-void FakeCanvas::clipRect(SkIRect r) {
+void FakeCanvas::clipRect(int id, SkIRect r) {
     SkASSERT(!fFinalized);
 
-    fDeviceStack.back()->clipRect(r);
+    fDeviceStack.back()->clipRect(id, this->nextZ(), r);
 }
 
 void FakeCanvas::finalize() {
