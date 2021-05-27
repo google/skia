@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5890daeb_e3e696f5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-05-27T20:06:10Z",
+      "side": 1,
+      "message": "Rob already agreed that we should remove this. Do end users still refer to this? Seems like it\u0027s just a special case of \"I have an existing GL context/surface I want to render to\"?",
+      "revId": "a4af6c1eb5ed5334ef3beab7b4f2480374028538",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
