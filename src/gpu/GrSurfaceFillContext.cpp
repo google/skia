@@ -292,7 +292,7 @@ void GrSurfaceFillContext::addDrawOp(GrOp::Owner owner) {
     auto clip = GrAppliedClip::Disabled();
     const GrCaps& caps = *this->caps();
     GrProcessorSet::Analysis analysis = op->finalize(caps, &clip, clampType);
-    SkASSERT(!(op->fixedFunctionFlags() & GrDrawOp::FixedFunctionFlags::kUsesStencil));
+    SkASSERT(!op->usesStencil());
     SkASSERT(!analysis.requiresDstTexture());
     SkRect bounds = owner->bounds();
     // We shouldn't have coverage AA or hairline draws in fill contexts.
@@ -306,7 +306,7 @@ void GrSurfaceFillContext::addDrawOp(GrOp::Owner owner) {
     GrXferProcessor::DstProxyView dstProxyView;
     this->getOpsTask()->addDrawOp(fContext->priv().drawingManager(),
                                   std::move(owner),
-                                  op->fixedFunctionFlags(),
+                                  op->usesMSAA(),
                                   analysis,
                                   std::move(clip),
                                   dstProxyView,
