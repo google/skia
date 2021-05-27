@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<title>Texture demos</title>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script type="text/javascript" src="/demos/textures/src/canvaskit.js"></script>
+
+<style>
+  canvas {
+    border: 1px dashed grey;
+  }
+  #source {
+      width: 100px;
+      height: 100px;
+  }
+</style>
+
+<body>
+  <h1>Hello world</h1>
+
+  <canvas id=draw width=500 height=500></canvas>
+
+  <img id="source" src="/demos/textures/testimg.png">
+</body>
+
+<script type="text/javascript" charset="utf-8">
+  const imagePromise =
+    fetch('/demos/textures/testimg.png')
+      .then((response) => response.arrayBuffer());
+  const ckLoaded = CanvasKitInit({ locateFile: (file) => '/demos/textures/src/' + file });
+  const canvasEle = document.getElementById('draw');
+  const srcEle = document.getElementById('source');
+
+  Promise.all([
+    ckLoaded,
+    imagePromise,
+    srcEle.decode(),
+]).then(([
+    CanvasKit,
+    imageBytes,
+    shouldBeNull,
+]) => {
+    const surface = CanvasKit.MakeCanvasSurface('draw');
+    if (!surface) {
+      throw 'Could not make surface';
+    }
+    const paint = new CanvasKit.Paint();
+
+    // const img = CanvasKit.MakeImageFromEncoded(imageBytes);
+
+    const IMG_SIZE = 774;
+
+    let gl = canvasEle.getContext('webgl2');
+    if (!gl) {
+      throw 'should fallback to webgl 1 gracefully';
+    }
+
+    let i = 10;
+    // This example creates a new texture, loads it into an image, and then deletes the image
+    // (which should delete the texture automatically). This is to test the robustness of the
+    // cleanup mechanism.
+    function drawFrame(canvas) {
+      const imgTexture = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, imgTexture);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, IMG_SIZE, IMG_SIZE, 0, gl.RGBA, gl.UNSIGNED_BYTE, srcEle);
+      gl.bindTexture(gl.TEXTURE_2D, null);
+      const img = surface.MakeImageFromTexture(imgTexture, {
+        width: IMG_SIZE,
+        height: IMG_SIZE,
+        colorType: CanvasKit.ColorType.RGBA_8888,
+        alphaType: CanvasKit.AlphaType.Unpremul,
+      });
+      canvas.clear(CanvasKit.Color(200, 200, 200));
+      canvas.drawImage(img, i, i, paint);
+      i = (i + 5) % 50;
+      img.delete();
+      surface.requestAnimationFrame(drawFrame);
+    }
+    surface.requestAnimationFrame(drawFrame);
+  });
+
+</script>
