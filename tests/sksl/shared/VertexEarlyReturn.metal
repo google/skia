@@ -14,7 +14,7 @@ vertex Outputs vertexMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms 
     Outputs _out;
     (void)_out;
     _out.sk_Position = float4(1.0);
-    if (_uniforms.zoom == 1.0) return (_out.sk_Position.y = -_out.sk_Position.y, _out);
+    if (_uniforms.zoom == 1.0) return _out;
     _out.sk_Position *= _uniforms.zoom;
-    return (_out.sk_Position.y = -_out.sk_Position.y, _out);
+    return _out;
 }
