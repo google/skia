@@ -139,9 +139,6 @@ luci.cq_group(
             builder = "skia:skia.primary/Test-Debian10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All",
         ),
         luci.cq_tryjob_verifier(
-            builder = "skia:skia.primary/Test-Mac10.15-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All-Metal",
-        ),
-        luci.cq_tryjob_verifier(
             builder = "skia:skia.primary/Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ASAN",
         ),
         luci.cq_tryjob_verifier(
