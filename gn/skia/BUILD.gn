@@ -447,10 +447,12 @@ config("warnings") {
       "-Wno-missing-variable-declarations",
       "-Wno-pedantic",
       "-Wno-reserved-id-macro",
+      "-Wno-reserved-identifier",
       "-Wno-shadow",
       "-Wno-shift-sign-overflow",
       "-Wno-signed-enum-bitfield",
       "-Wno-switch-enum",
+      "-Wno-thread-safety-negative",
       "-Wno-undef",
       "-Wno-unreachable-code",
       "-Wno-unreachable-code-break",
@@ -459,7 +461,6 @@ config("warnings") {
       "-Wno-unused-member-function",
       "-Wno-unused-template",
       "-Wno-zero-as-null-pointer-constant",
-      "-Wno-thread-safety-negative",
       "-Wno-non-c-typedef-for-linkage",  # Dawn, not Skia per se.
     ]
     cflags_cc += [
