@@ -601,3 +601,68 @@ DEF_TEST(LegacyMakeTypeface, reporter) {
     REPORTER_ASSERT(reporter, typeface3->isItalic());
     REPORTER_ASSERT(reporter, typeface3->isBold());
 }
+
+#include "include/core/SkFallbacker.h"
+
+DEF_TEST(Fallbacker, reporter) {
+    auto tf0 = SkTypeface::MakeFromStream(GetResourceAsStream("fonts/colr.ttf"));
+    auto tf1 = SkTypeface::MakeFromStream(GetResourceAsStream("fonts/Roboto-Regular.ttf"));
+
+    if (!tf0 || !tf1) {
+        SkDebugf("need colr.ttf and Roboto-Regular.ttf to run fallbacker test\n");
+        return;
+    }
+
+    // need these to "succeed"
+    SkASSERT(tf0->unicharToGlyph( 9) != 0);
+    SkASSERT(tf0->unicharToGlyph(10) != 0);
+    SkASSERT(tf0->unicharToGlyph(13) != 0);
+
+    const SkUnichar bad_uni = 1 << 19;  // not expected in any of our test fonts
+    const SkUnichar text[] = {
+        9, 10, 13,
+        'a', 'b', 'c',
+        bad_uni, bad_uni,
+        'a', 'b', 'c', 'd', 13,
+    };
+
+    const SkFallbacker::Rec expected[] = {
+        { tf0,     3 * sizeof(SkUnichar) },
+        { tf1,     3 * sizeof(SkUnichar) },
+        { nullptr, 2 * sizeof(SkUnichar) },
+        { tf1,     5 * sizeof(SkUnichar) },
+    };
+
+    SkTypeface* orderedArray[] = {
+        tf0.get(), tf1.get(),
+    };
+
+    auto fb = SkFallbacker::MakeSimpleOrdered(SkMakeSpan(orderedArray, 2));
+
+    auto result = fb->resolve(text, sizeof(text), SkTextEncoding::kUTF32);
+
+    REPORTER_ASSERT(reporter, result.size() == SK_ARRAY_COUNT(expected));
+    for (size_t i = 0; i < result.size(); ++i) {
+        REPORTER_ASSERT(reporter, result[i].typeface  == expected[i].typeface);
+        REPORTER_ASSERT(reporter, result[i].textBytes == expected[i].textBytes);
+    }
+
+    // Now try reversing the order of the faces
+    orderedArray[0] = tf1.get();
+    orderedArray[1] = tf0.get();
+
+    const SkFallbacker::Rec expected2[] = {
+        { tf1,     6 * sizeof(SkUnichar) },
+        { nullptr, 2 * sizeof(SkUnichar) },
+        { tf1,     5 * sizeof(SkUnichar) },
+    };
+
+    result = fb->resolve(text, sizeof(text), SkTextEncoding::kUTF32);
+
+    REPORTER_ASSERT(reporter, result.size() == SK_ARRAY_COUNT(expected));
+    for (size_t i = 0; i < result.size(); ++i) {
+        REPORTER_ASSERT(reporter, result[i].typeface  == expected[i].typeface);
+        REPORTER_ASSERT(reporter, result[i].textBytes == expected[i].textBytes);
+    }
+}
+
