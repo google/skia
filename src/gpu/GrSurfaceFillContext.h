@@ -193,7 +193,6 @@ public:
 
     int numSamples() const { return this->asRenderTargetProxy()->numSamples(); }
     bool wrapsVkSecondaryCB() const { return this->asRenderTargetProxy()->wrapsVkSecondaryCB(); }
-    GrMipmapped mipmapped() const;
 
     SkArenaAlloc* arenaAlloc() { return this->arenas()->arenaAlloc(); }
     GrSubRunAllocator* subRunAlloc() { return this->arenas()->subRunAlloc(); }
