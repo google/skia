@@ -2035,7 +2035,7 @@ void MetalCodeGenerator::writeReturnStatementFromMain() {
             this->write("return _out;");
             break;
         case ProgramKind::kVertex:
-            this->write("return (_out.sk_Position.y = -_out.sk_Position.y, _out);");
+            this->write("return _out;");
             break;
         default:
             SkDEBUGFAIL("unsupported kind of program");

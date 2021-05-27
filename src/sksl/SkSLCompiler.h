@@ -68,9 +68,28 @@ struct LoadedModule {
  */
 class SK_API Compiler : public ErrorReporter {
 public:
-    static constexpr const char FRAGCOLOR_NAME[]  = "sk_FragColor";
+    static constexpr const char FRAGCOLOR_NAME[] = "sk_FragColor";
     static constexpr const char RTADJUST_NAME[]  = "sk_RTAdjust";
     static constexpr const char PERVERTEX_NAME[] = "sk_PerVertex";
+
+    /**
+     * Gets a float4 that adjusts the position from Skia device coords to normalized device coords,
+     * used to populate sk_RTAdjust.  Assuming the transformed position, pos, is a homogeneous
+     * float4, the vec, v, is applied as such:
+     * float4((pos.xy * v.xz) + sk_Position.ww * v.yw, 0, pos.w);
+     */
+    static std::array<float, 4> GetRTAdjustVector(SkISize rtDims, bool flipY) {
+        std::array<float, 4> result;
+        result[0] = 2.f/rtDims.width();
+        result[2] = 2.f/rtDims.height();
+        result[1] = -1.f;
+        result[3] = -1.f;
+        if (flipY) {
+            result[2] = -result[2];
+            result[3] = -result[3];
+        }
+        return result;
+    }
 
     struct OptimizationContext {
         // nodes we have already reported errors for and should not error on again
