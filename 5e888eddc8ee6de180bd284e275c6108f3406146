@@ -16,6 +16,29 @@
       "message": "Seeking initial review of the approach. What do we think about the API? Did I overlook anything on the C++ side? Is my idea for handling the WebGL texture cleanup ok?",
       "revId": "5e888eddc8ee6de180bd284e275c6108f3406146",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5dd80fc4_fc14593e",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 712,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-27T21:10:13Z",
+      "side": 1,
+      "message": "delete ctx;",
+      "range": {
+        "startLine": 712,
+        "startChar": 0,
+        "endLine": 712,
+        "endChar": 1
+      },
+      "revId": "5e888eddc8ee6de180bd284e275c6108f3406146",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
