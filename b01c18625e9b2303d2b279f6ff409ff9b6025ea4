@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "27f9e0bd_46efa15a",
+        "filename": "platform_tools/android/apps/androidkitdemo/src/main/java/org/skia/androidkitdemo1/CubeActivity.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-05-27T21:30:33Z",
+      "side": 0,
+      "message": "Ever noticed our perspective looks kinda odd?  This mutates viewport repeatedly, eventually resetting to identity :)",
+      "range": {
+        "startLine": 202,
+        "startChar": 22,
+        "endLine": 204,
+        "endChar": 69
+      },
+      "revId": "b01c18625e9b2303d2b279f6ff409ff9b6025ea4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
