@@ -390,8 +390,7 @@ void GrOpsTask::addOp(GrDrawingManager* drawingMgr, GrOp::Owner op,
     this->recordOp(std::move(op), GrProcessorSet::EmptySetAnalysis(), nullptr, nullptr, caps);
 }
 
-void GrOpsTask::addDrawOp(GrDrawingManager* drawingMgr, GrOp::Owner op,
-                          GrDrawOp::FixedFunctionFlags fixedFunctionFlags,
+void GrOpsTask::addDrawOp(GrDrawingManager* drawingMgr, GrOp::Owner op, bool usesMSAA,
                           const GrProcessorSet::Analysis& processorAnalysis, GrAppliedClip&& clip,
                           const DstProxyView& dstProxyView,
                           GrTextureResolveManager textureResolveManager, const GrCaps& caps) {
@@ -424,12 +423,11 @@ void GrOpsTask::addDrawOp(GrDrawingManager* drawingMgr, GrOp::Owner op,
 #ifdef SK_DEBUG
     // Ensure we can support dynamic msaa if the caller is trying to trigger it.
     GrRenderTargetProxy* rtProxy = this->target(0)->asRenderTargetProxy();
-    if (rtProxy->numSamples() == 1 &&
-        (fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesHWAA)) {
+    if (rtProxy->numSamples() == 1 && usesMSAA) {
         SkASSERT(caps.supportsDynamicMSAA(rtProxy));
     }
 #endif
-    fUsesMSAASurface |= (fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesHWAA);
+    fUsesMSAASurface |= usesMSAA;
 
     this->recordOp(std::move(op), processorAnalysis, clip.doesClip() ? &clip : nullptr,
                    &dstProxyView, caps);
