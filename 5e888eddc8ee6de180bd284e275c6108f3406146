@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1d758f03_bc4b99bd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-05-27T20:43:53Z",
+      "side": 1,
+      "message": "Seeking initial review of the approach. What do we think about the API? Did I overlook anything on the C++ side? Is my idea for handling the WebGL texture cleanup ok?",
+      "revId": "5e888eddc8ee6de180bd284e275c6108f3406146",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
