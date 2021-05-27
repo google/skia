@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d69e1a56_b3be9f75",
+        "filename": "src/sksl/ir/SkSLType.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 622,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-27T15:05:17Z",
+      "side": 1,
+      "message": "We can no longer initialize these directly via `\u003d false` here. Member-initialization of bitfields is a C++20 feature :(",
+      "range": {
+        "startLine": 622,
+        "startChar": 9,
+        "endLine": 622,
+        "endChar": 22
+      },
+      "revId": "c0baa0717ac398c8c2fee502e100f3ddbc5f58fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
