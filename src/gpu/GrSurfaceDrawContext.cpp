@@ -1879,19 +1879,12 @@ void GrSurfaceDrawContext::addDrawOp(const GrClip* clip,
     SkRect bounds;
     op_bounds(&bounds, op.get());
     GrAppliedClip appliedClip(this->dimensions(), this->asSurfaceProxy()->backingStoreDimensions());
-    GrDrawOp::FixedFunctionFlags fixedFunctionFlags = drawOp->fixedFunctionFlags();
-    bool usesHWAA = fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesHWAA;
-    bool usesUserStencilBits = fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesStencil;
-
-    if (usesUserStencilBits) {  // Stencil clipping will call setNeedsStencil on its own, if needed.
-        this->setNeedsStencil();
-    }
-
+    bool usesMSAA = drawOp->usesMSAA();
     bool skipDraw = false;
     if (clip) {
         // Have a complex clip, so defer to its early clip culling
         GrAAType aaType;
-        if (usesHWAA) {
+        if (usesMSAA) {
             aaType = GrAAType::kMSAA;
         } else {
             aaType = op->hasAABloat() ? GrAAType::kCoverage : GrAAType::kNone;
@@ -1920,13 +1913,19 @@ void GrSurfaceDrawContext::addDrawOp(const GrClip* clip,
         }
     }
 
+    // Note if the op needs stencil. Stencil clipping already called setNeedsStencil for itself, if
+    // needed.
+    if (drawOp->usesStencil()) {
+        this->setNeedsStencil();
+    }
+
     auto opsTask = this->getOpsTask();
     if (willAddFn) {
         willAddFn(op.get(), opsTask->uniqueID());
     }
 
 #if GR_GPU_STATS && GR_TEST_UTILS
-    if (fCanUseDynamicMSAA && usesHWAA) {
+    if (fCanUseDynamicMSAA && usesMSAA) {
         if (!opsTask->usesMSAASurface()) {
             fContext->priv().dmsaaStats().fNumMultisampleRenderPasses++;
         }
@@ -1934,12 +1933,12 @@ void GrSurfaceDrawContext::addDrawOp(const GrClip* clip,
     }
 #endif
 
-    opsTask->addDrawOp(this->drawingManager(), std::move(op), fixedFunctionFlags, analysis,
+    opsTask->addDrawOp(this->drawingManager(), std::move(op), usesMSAA, analysis,
                        std::move(appliedClip), dstProxyView,
                        GrTextureResolveManager(this->drawingManager()), *this->caps());
 
 #ifdef SK_DEBUG
-    if (fCanUseDynamicMSAA && usesHWAA) {
+    if (fCanUseDynamicMSAA && usesMSAA) {
         SkASSERT(opsTask->usesMSAASurface());
     }
 #endif
