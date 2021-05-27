@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "789085bb_667ca5b4",
+        "filename": "src/sksl/SkSLCompiler.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-05-27T20:58:45Z",
+      "side": 1,
+      "message": "I figured this was the right place for this since it is the compiler that defines the meaning of these values.",
+      "revId": "d15a17459cde6d70d707f8b5944a5dd75c7a7c9c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
