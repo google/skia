@@ -12,6 +12,7 @@ bench_sources = [
   "$_bench/AndroidCodecBench.cpp",
   "$_bench/BenchLogger.cpp",
   "$_bench/Benchmark.cpp",
+  "$_bench/Benchmark.h",
   "$_bench/BezierBench.cpp",
   "$_bench/BigPathBench.cpp",
   "$_bench/BitmapRegionDecoderBench.cpp",
