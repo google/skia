@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7a1edad8_302bba9a",
+        "filename": "src/utils/SkArcLengthParameterization.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-05-27T14:43:19Z",
+      "side": 1,
+      "message": "This should use the inverse parameter transform, Eqn 10 in the paper.",
+      "revId": "900041ce42ab47e9589f09ae97981e5cd5760488",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
