@@ -1,3 +1,10 @@
+/*
+ * Copyright 2021 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #define BYTEORDER 1234
 #define HAVE_INTTYPES_H 1
 #define HAVE_MEMORY_H 1
