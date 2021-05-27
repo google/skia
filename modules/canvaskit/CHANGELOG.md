@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+ - We now build/ship with emscripten 2.0.20.
+
 ## [0.27.0] - 2021-05-20
 
 ### Added
