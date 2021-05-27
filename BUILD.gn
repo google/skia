@@ -2897,13 +2897,6 @@ if (skia_enable_tools) {
     }
   }
 
-  if (skia_use_opencl) {
-    test_app("hello-opencl") {
-      sources = [ "tools/hello-opencl.cpp" ]
-      deps = [ "//third_party/opencl" ]
-    }
-  }
-
   skia_executable("cpu_modules") {
     sources = [ "tools/cpu_modules.cpp" ]
     deps = [

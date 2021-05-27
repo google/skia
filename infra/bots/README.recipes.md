@@ -24,7 +24,6 @@
   * [checkout:examples/full](#recipes-checkout_examples_full)
   * [compile](#recipes-compile)
   * [compute_buildstats](#recipes-compute_buildstats)
-  * [compute_test](#recipes-compute_test)
   * [docker:examples/full](#recipes-docker_examples_full)
   * [doxygen:examples/full](#recipes-doxygen_examples_full)
   * [env:examples/full](#recipes-env_examples_full)
@@ -326,11 +325,6 @@ Prepare the variables.
 &mdash; **def [keys\_and\_props](/infra/bots/recipes/compute_buildstats.py#113)(api):**
 
 &mdash; **def [make\_treemap](/infra/bots/recipes/compute_buildstats.py#263)(api, checkout_root, out_dir, files):**
-### *recipes* / [compute\_test](/infra/bots/recipes/compute_test.py)
-
-[DEPS](/infra/bots/recipes/compute_test.py#7): [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [flavor](#recipe_modules-flavor), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
-
-&mdash; **def [RunSteps](/infra/bots/recipes/compute_test.py#16)(api):**
 ### *recipes* / [docker:examples/full](/infra/bots/recipe_modules/docker/examples/full.py)
 
 [DEPS](/infra/bots/recipe_modules/docker/examples/full.py#6): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [docker](#recipe_modules-docker), [vars](#recipe_modules-vars)

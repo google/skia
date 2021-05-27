@@ -1184,18 +1184,12 @@ func (b *jobBuilder) compile() string {
 				if b.extraConfig("SwiftShader") {
 					b.asset("cmake_linux")
 				}
-				if b.extraConfig("OpenCL") {
-					b.asset("opencl_headers", "opencl_ocl_icd_linux")
-				}
 				b.asset("ccache_linux")
 				b.usesCCache()
 			} else if b.matchOs("Win") {
 				b.asset("win_toolchain")
 				if b.compiler("Clang") {
 					b.asset("clang_win")
-				}
-				if b.extraConfig("OpenCL") {
-					b.asset("opencl_headers")
 				}
 			} else if b.matchOs("Mac") {
 				b.cipd(CIPD_PKGS_XCODE...)
@@ -1419,9 +1413,6 @@ func (b *taskBuilder) commonTestPerfAssets() {
 		if b.matchGpu("Intel") {
 			b.asset("mesa_intel_driver_linux")
 		}
-		if b.extraConfig("OpenCL") {
-			b.asset("opencl_ocl_icd_linux", "opencl_intel_neo_linux")
-		}
 	}
 	if b.matchOs("Win") && b.extraConfig("ProcDump") {
 		b.asset("procdump_win")
@@ -1446,12 +1437,7 @@ func (b *jobBuilder) dm() {
 	b.addTask(b.Name, func(b *taskBuilder) {
 		cas := CAS_TEST
 		recipe := "test"
-		if b.extraConfig("OpenCL") {
-			// TODO(dogben): Longer term we may not want this to be called a
-			// "Test" task, but until we start running hs_bench or kx, it will
-			// be easier to fit into the current job name schema.
-			recipe = "compute_test"
-		} else if b.extraConfig("PathKit") {
+		if b.extraConfig("PathKit") {
 			cas = CAS_PATHKIT
 			recipe = "test_pathkit"
 			if b.doUpload() {

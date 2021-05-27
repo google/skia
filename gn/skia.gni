@@ -63,7 +63,6 @@ declare_args() {
   skia_use_lua = is_skia_dev_build && !is_ios
   skia_use_metal = false
   skia_use_ndk_images = is_android && defined(ndk_api) && ndk_api >= 30
-  skia_use_opencl = false
   skia_use_piex = !is_win
   skia_use_sfml = false
   skia_use_webgl = false

@@ -287,20 +287,6 @@ def compile_fn(api, checkout_root, out_dir):
   if 'Metal' in extra_tokens:
     args['skia_use_metal'] = 'true'
     args['skia_use_gl'] = 'false'
-  if 'OpenCL' in extra_tokens:
-    args['skia_use_opencl'] = 'true'
-    if api.vars.is_linux:
-      extra_cflags.append(
-          '-isystem%s' % api.vars.workdir.join('opencl_headers'))
-      extra_ldflags.append(
-          '-L%s' % api.vars.workdir.join('opencl_ocl_icd_linux'))
-    elif 'Win' in os:
-      extra_cflags.append(
-          '-imsvc%s' % api.vars.workdir.join('opencl_headers'))
-      extra_ldflags.append(
-          '/LIBPATH:%s' %
-          skia_dir.join('third_party', 'externals', 'opencl-lib', '3-0', 'lib',
-                        'x86_64'))
   if 'iOS' in extra_tokens:
     # Bots use Chromium signing cert.
     args['skia_ios_identity'] = '".*GS9WA.*"'
