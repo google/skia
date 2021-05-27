@@ -62,6 +62,13 @@ SkRect SkDrawable::getBounds() {
     return this->onGetBounds();
 }
 
+size_t SkDrawable::approximateBytesUsed() {
+    return this->onApproximateBytesUsed();
+}
+size_t SkDrawable::onApproximateBytesUsed() {
+    return 0;
+}
+
 void SkDrawable::notifyDrawingChanged() {
     fGenerationID = 0;
 }

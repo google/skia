@@ -7,6 +7,7 @@
 
 #include "src/core/SkScalerCache.h"
 
+#include "include/core/SkDrawable.h"
 #include "include/core/SkGraphics.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkTypeface.h"
@@ -77,6 +78,28 @@ std::tuple<const SkPath*, size_t> SkScalerCache::mergePath(
         pathDelta = glyph->path()->approximateBytesUsed();
     }
     return {glyph->path(), pathDelta};
+}
+
+std::tuple<SkDrawable*, size_t> SkScalerCache::prepareDrawable(SkGlyph* glyph) {
+    size_t delta = 0;
+    if (glyph->setDrawable(&fAlloc, fScalerContext.get())) {
+        delta = glyph->drawable()->approximateBytesUsed();
+    }
+    return {glyph->drawable(), delta};
+}
+
+std::tuple<SkDrawable*, size_t> SkScalerCache::mergeDrawable(SkGlyph* glyph,
+                                                             sk_sp<SkDrawable> drawable) {
+    SkAutoMutexExclusive lock{fMu};
+    size_t drawableDelta = 0;
+    if (glyph->setDrawableHasBeenCalled()) {
+        SkDEBUGFAIL("Re-adding drawable to existing glyph. This should not happen.");
+    }
+    if (glyph->setDrawable(&fAlloc, std::move(drawable))) {
+        drawableDelta = glyph->drawable()->approximateBytesUsed();
+        SkASSERT(drawableDelta > 0);
+    }
+    return {glyph->drawable(), drawableDelta};
 }
 
 int SkScalerCache::countCachedGlyphs() const {
@@ -247,6 +270,27 @@ size_t SkScalerCache::prepareForPathDrawing(
         });
 
     return delta + pathDelta;
+}
+
+size_t SkScalerCache::prepareForDrawableDrawing(
+        SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected) {
+    SkAutoMutexExclusive lock{fMu};
+    size_t drawableDelta = 0;
+    size_t delta = this->commonFilterLoop(accepted,
+        [&](size_t i, SkGlyphDigest digest, SkPoint pos) SK_REQUIRES(fMu) {
+            SkGlyph* glyph = fGlyphForIndex[digest.index()];
+            auto [drawable, drawableSize] = this->prepareDrawable(glyph);
+            drawableDelta += drawableSize;
+            if (drawable != nullptr) {
+                // Save off the drawable to draw later.
+                accepted->accept(drawable, i);
+            } else {
+                // Glyph does not have a drawable.
+                rejected->reject(i, glyph->maxDimension());
+            }
+        });
+
+    return delta + drawableDelta;
 }
 
 void SkScalerCache::findIntercepts(const SkScalar bounds[2], SkScalar scale, SkScalar xPos,

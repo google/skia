@@ -295,6 +295,7 @@ public:
     SkGlyph     makeGlyph(SkPackedGlyphID, SkArenaAlloc*);
     void        getImage(const SkGlyph&);
     void        getPath(SkGlyph&, SkArenaAlloc*);
+    sk_sp<SkDrawable> getDrawable(SkGlyph&);
     void        getFontMetrics(SkFontMetrics*);
 
     /** Return the size in bytes of the associated gamma lookup table
@@ -395,6 +396,16 @@ protected:
      *  @return false if this glyph does not have any path.
      */
     virtual bool SK_WARN_UNUSED_RESULT generatePath(const SkGlyph&, SkPath*) = 0;
+
+    /** Returns the drawable for the glyph (if any).
+     *
+     *  The generated drawable will be lifetime scoped to the lifetime of this scaler context.
+     *  This means the drawable may refer to the scaler context and associated font data.
+     *
+     *  The drawable does not need to be flattenable (e.g. implement getFactory and getTypeName).
+     *  Any necessary serialization will be done with newPictureSnapshot.
+     */
+    virtual sk_sp<SkDrawable> generateDrawable(const SkGlyph&); // TODO: = 0
 
     /** Retrieves font metrics. */
     virtual void generateFontMetrics(SkFontMetrics*) = 0;

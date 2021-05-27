@@ -7,10 +7,17 @@
 
 #include "src/core/SkGlyph.h"
 
+#include "include/core/SkDrawable.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkScalerContext.h"
 #include "src/pathops/SkPathOpsCubic.h"
 #include "src/pathops/SkPathOpsQuad.h"
+
+SkGlyph::SkGlyph(const SkGlyph&) = default;
+SkGlyph& SkGlyph::operator=(const SkGlyph&) = default;
+SkGlyph::SkGlyph(SkGlyph&&) = default;
+SkGlyph& SkGlyph::operator=(SkGlyph&&) = default;
+SkGlyph::~SkGlyph() = default;
 
 SkMask SkGlyph::mask() const {
     SkMask mask;
@@ -187,6 +194,43 @@ bool SkGlyph::pathIsHairline() const {
     // setPath must have been called previously.
     SkASSERT(this->setPathHasBeenCalled());
     return fPathData->fHairline;
+}
+
+void SkGlyph::installDrawable(SkArenaAlloc* alloc, sk_sp<SkDrawable> drawable) {
+    SkASSERT(fDrawableData == nullptr);
+    SkASSERT(!this->setDrawableHasBeenCalled());
+    fDrawableData = alloc->make<SkGlyph::DrawableData>();
+    if (drawable != nullptr) {
+        fDrawableData->fDrawable = std::move(drawable);
+        fDrawableData->fDrawable->getGenerationID();
+        fDrawableData->fHasDrawable = true;
+    }
+}
+
+bool SkGlyph::setDrawable(SkArenaAlloc* alloc, SkScalerContext* scalerContext) {
+    if (!this->setDrawableHasBeenCalled()) {
+        sk_sp<SkDrawable> drawable = scalerContext->getDrawable(*this);
+        this->installDrawable(alloc, std::move(drawable));
+        return this->drawable() != nullptr;
+    }
+    return false;
+}
+
+bool SkGlyph::setDrawable(SkArenaAlloc* alloc, sk_sp<SkDrawable> drawable) {
+    if (!this->setDrawableHasBeenCalled()) {
+        this->installDrawable(alloc, std::move(drawable));
+        return this->drawable() != nullptr;
+    }
+    return false;
+}
+
+SkDrawable* SkGlyph::drawable() const {
+    // setDrawable must have been called previously.
+    SkASSERT(this->setDrawableHasBeenCalled());
+    if (fDrawableData->fHasDrawable) {
+        return fDrawableData->fDrawable.get();
+    }
+    return nullptr;
 }
 
 static std::tuple<SkScalar, SkScalar> calculate_path_gap(

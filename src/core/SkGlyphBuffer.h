@@ -16,6 +16,8 @@
 
 class SkStrikeForGPU;
 struct SkGlyphPositionRoundingSpec;
+class SkPath;
+class SkDrawable;
 
 // SkSourceGlyphBuffer is the source of glyphs between the different stages of glyph drawing.
 // It starts with the glyphs and positions from the SkGlyphRun as the first source. When glyphs
@@ -110,6 +112,11 @@ public:
         SkDEBUGCODE(fTag = kPath);
         return *this;
     }
+    SkGlyphVariant& operator= (SkDrawable* drawable) {
+        fV.drawable = drawable;
+        SkDEBUGCODE(fTag = kDrawable);
+        return *this;
+    }
 
     SkGlyph* glyph() const {
         SkASSERT(fTag == kGlyph);
@@ -119,19 +126,25 @@ public:
         SkASSERT(fTag == kPath);
         return fV.path;
     }
+    SkDrawable* drawable() const {
+        SkASSERT(fTag == kDrawable);
+        return fV.drawable;
+    }
     SkPackedGlyphID packedID() const {
         SkASSERT(fTag == kPackedID);
         return fV.packedID;
     }
 
-    operator SkPackedGlyphID() const { return this->packedID(); }
-    operator SkGlyph*()        const { return this->glyph();    }
-    operator const SkPath*()   const { return this->path();     }
+    operator SkPackedGlyphID()  const { return this->packedID(); }
+    operator SkGlyph*()         const { return this->glyph();    }
+    operator const SkPath*()    const { return this->path();     }
+    operator const SkDrawable*()const { return this->drawable(); }
 
 private:
     union {
         SkGlyph* glyph;
         const SkPath* path;
+        SkDrawable* drawable;
         SkPackedGlyphID packedID;
     } fV;
 
@@ -140,7 +153,8 @@ private:
         kEmpty,
         kPackedID,
         kGlyph,
-        kPath
+        kPath,
+        kDrawable,
     } fTag{kEmpty};
 #endif
 };
@@ -205,6 +219,15 @@ public:
         SkASSERT(fAcceptedSize <= from);
         fPositions[fAcceptedSize] = fPositions[from];
         fMultiBuffer[fAcceptedSize] = path;
+        fAcceptedSize++;
+    }
+
+    // Store drawable in the next slot, using the position information located at index from.
+    void accept(SkDrawable* drawable, size_t from) {
+        SkASSERT(fPhase == kProcess);
+        SkASSERT(fAcceptedSize <= from);
+        fPositions[fAcceptedSize] = fPositions[from];
+        fMultiBuffer[fAcceptedSize] = drawable;
         fAcceptedSize++;
     }
 

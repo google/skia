@@ -13,6 +13,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkData.h"
+#include "include/core/SkDrawable.h"
 #include "include/core/SkEncodedImageFormat.h"
 #include "include/core/SkFontStyle.h"
 #include "include/core/SkImage.h"
@@ -253,6 +254,34 @@ protected:
         SK_ABORT("Path requested, but it should have been indicated that there isn't one.");
         path->reset();
         return false;
+    }
+
+    struct SVGGlyphDrawable : public SkDrawable {
+        SkTestSVGScalerContext* fSelf;
+        SkGlyph fGlyph;
+        SVGGlyphDrawable(SkTestSVGScalerContext* self, const SkGlyph& glyph)
+            : fSelf(self), fGlyph(glyph) {}
+        SkRect onGetBounds() override { return fGlyph.rect();  }
+        size_t onApproximateBytesUsed() override { return sizeof(SVGGlyphDrawable); }
+
+        void onDraw(SkCanvas* canvas) override {
+            SkGlyphID glyphID = fGlyph.getGlyphID();
+            glyphID = glyphID < fSelf->getTestSVGTypeface()->fGlyphCount ? glyphID : 0;
+
+            TestSVGTypeface::Glyph& glyphData = fSelf->getTestSVGTypeface()->fGlyphs[glyphID];
+
+            SkScalar dx = SkFixedToScalar(fGlyph.getSubXFixed());
+            SkScalar dy = SkFixedToScalar(fGlyph.getSubYFixed());
+
+            canvas->translate(dx, dy);
+            canvas->concat(fSelf->fMatrix);
+            canvas->translate(glyphData.fOrigin.fX, -glyphData.fOrigin.fY);
+
+            glyphData.render(canvas);
+        }
+    };
+    sk_sp<SkDrawable> generateDrawable(const SkGlyph& glyph) override {
+        return sk_sp<SVGGlyphDrawable>(new SVGGlyphDrawable(this, glyph));
     }
 
     void generateFontMetrics(SkFontMetrics* metrics) override {

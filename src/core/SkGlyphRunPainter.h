@@ -146,6 +146,10 @@ public:
                                     const SkFont& runFont,
                                     SkScalar strikeToSourceScale) = 0;
 
+    virtual void processSourceDrawables(const SkZip<SkGlyphVariant, SkPoint>& accepted,
+                                        const SkFont& runFont,
+                                        SkScalar strikeToSourceScale) = 0;
+
     virtual void processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& accepted,
                                    sk_sp<SkStrike>&& strike,
                                    SkScalar strikeToSourceScale,

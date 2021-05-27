@@ -146,6 +146,23 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
                     canvas->drawPath(deviceOutline, pathPaint);
                 }
             }
+
+            fAccepted.startSource(fRejected.source());
+            strike->prepareForDrawableDrawing(&fAccepted, &fRejected);
+            fRejected.flipRejectsToSource();
+
+            for (auto [variant, pos] : fAccepted.accepted()) {
+                SkDrawable* drawable = variant.drawable();
+                SkMatrix m;
+                SkPoint translate = drawOrigin + pos;
+                m.setScaleTranslate(strikeToSourceScale, strikeToSourceScale,
+                                    translate.x(), translate.y());
+                SkAutoCanvasRestore acr(canvas, false);
+                SkRect drawableBounds = drawable->getBounds();
+                m.mapRect(&drawableBounds);
+                canvas->saveLayer(&drawableBounds, &paint);
+                drawable->draw(canvas, &m);
+            }
         }
         if (!fRejected.source().empty() && !deviceMatrix.hasPerspective()) {
             SkStrikeSpec strikeSpec = SkStrikeSpec::MakeMask(
@@ -349,6 +366,34 @@ void SkGlyphRunListPainter::processGlyphRun(SkGlyphRunPainterInterface* process,
     // maxDimensionInSourceSpace is used to calculate the factor from strike space to source
     // space.
     SkScalar maxDimensionInSourceSpace = 0.0;
+    if (!fRejected.source().empty()) {
+        // Drawable case - handle big things with that have a drawable.
+        auto [strikeSpec, strikeToSourceScale] =
+                SkStrikeSpec::MakePath(runFont, runPaint, fDeviceProps, fScalerContextFlags);
+
+        #if defined(SK_TRACE_GLYPH_RUN_PROCESS)
+            msg.appendf("  Drawable case:\n%s", strikeSpec.dump().c_str());
+        #endif
+
+        if (!SkScalarNearlyZero(strikeToSourceScale)) {
+            SkScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(fStrikeCache);
+
+            fAccepted.startSource(fRejected.source());
+            #if defined(SK_TRACE_GLYPH_RUN_PROCESS)
+                msg.appendf("    glyphs:(x,y):\n      %s\n", fAccepted.dumpInput().c_str());
+            #endif
+            strike->prepareForDrawableDrawing(&fAccepted, &fRejected);
+            fRejected.flipRejectsToSource();
+            auto [minHint, maxHint] = fRejected.maxDimensionHint();
+            maxDimensionInSourceSpace = SkScalarCeilToScalar(maxHint * strikeToSourceScale);
+
+            if (process && !fAccepted.empty()) {
+                // processSourceDrawables must be called even if there are no glyphs to make sure
+                // runs are set correctly.
+                process->processSourceDrawables(fAccepted.accepted(), runFont, strikeToSourceScale);
+            }
+        }
+    }
     if (!fRejected.source().empty()) {
         // Path case - handle big things without color and that have a path.
         auto [strikeSpec, strikeToSourceScale] =
