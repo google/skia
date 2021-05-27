@@ -1,12 +1,7 @@
+### Compilation failed:
 
-out vec4 sk_FragColor;
-int intMin = -2147483648;
-int intMinMinusOne = -2147483649;
-int intMax = 2147483647;
-int intMaxPlusOne = 2147483648;
-void main() {
-    sk_FragColor.x = float(intMin);
-    sk_FragColor.x = float(intMax);
-    sk_FragColor.x = float(intMinMinusOne);
-    sk_FragColor.x = float(intMaxPlusOne);
-}
+error: 2: integer is out of range for type 'int': -2147483649
+error: 4: integer is out of range for type 'int': 2147483648
+error: 9: integer is out of range for type 'int': -2147483649
+error: 11: integer is out of range for type 'int': 2147483648
+4 errors
