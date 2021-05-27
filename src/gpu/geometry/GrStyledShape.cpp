@@ -693,7 +693,6 @@ void GrStyledShape::simplifyStroke() {
 
     // At this point, we're a line or point with no path effects. Any fill portion of the style
     // is empty, so a fill-only style can be empty, and a stroke+fill becomes a stroke.
-    bool strokeAndFilled = false;
     if (fStyle.isSimpleFill()) {
         fShape.reset();
         fSimplified = true;
@@ -704,7 +703,6 @@ void GrStyledShape::simplifyStroke() {
         rec.setStrokeStyle(fStyle.strokeRec().getWidth(), false);
         fStyle = GrStyle(rec, nullptr);
         styleSimplified = true;
-        strokeAndFilled = true;
     }
 
     // A point or line that was formed by a degenerate closed shape needs its style updated to
@@ -716,13 +714,6 @@ void GrStyledShape::simplifyStroke() {
             // turn. With round joins, this would make a semi-circle at each end, which is visually
             // identical to a round cap on the reduced line geometry.
             cap = SkPaint::kRound_Cap;
-        } else if (fShape.isPoint() && fStyle.strokeRec().getJoin() == SkPaint::kMiter_Join &&
-                   !strokeAndFilled) {
-            // Use a square cap for miter join + stroked points, which matches raster's behavior and
-            // expectations from Chrome masking tests, although it could be argued to just always
-            // use a butt cap. This behavior, though, ensures that the default stroked paint draws
-            // something with empty geometry.
-            cap = SkPaint::kSquare_Cap;
         } else {
             // If this were a closed line, the 180 degree turn either is a miter join that exceeds
             // the miter limit and becomes a bevel, or a bevel join. In either case, the bevel shape
