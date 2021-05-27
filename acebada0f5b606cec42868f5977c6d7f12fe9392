@@ -22,6 +22,30 @@
       },
       "revId": "acebada0f5b606cec42868f5977c6d7f12fe9392",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1bf86d13_65eb54a7",
+        "filename": "OWNERS",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-05-27T15:24:41Z",
+      "side": 1,
+      "message": "I don\u0027t this should have anything to do with the actual git permissions on the repo, but I guess it\u0027s possible.",
+      "parentUuid": "35dfce3f_ee3f891d",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 7
+      },
+      "revId": "acebada0f5b606cec42868f5977c6d7f12fe9392",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
