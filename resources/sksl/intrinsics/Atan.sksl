@@ -1,8 +1,23 @@
-uniform half a, b;
-uniform half4 c, d;
-void main() {
-    sk_FragColor.x = atan(a);
-    sk_FragColor.x = atan(a, b);
-    sk_FragColor = atan(c);
-    sk_FragColor = atan(c, d);
+uniform half4 input, expected;
+uniform half4 colorGreen, colorRed;
+
+half4 main(float2 coords) {
+    const half4 constVal1 = half4(0);
+    const half4 constVal2 = half4(1);
+    return (atan(input.x)                        == expected.x     &&
+            atan(input.xy)                       == expected.xy    &&
+            atan(input.xyz)                      == expected.xyz   &&
+            atan(input.xyzw)                     == expected.xyzw  &&
+            atan(constVal1.x)                    == expected.x     &&
+            atan(constVal1.xy)                   == expected.xy    &&
+            atan(constVal1.xyz)                  == expected.xyz   &&
+            atan(constVal1.xyzw)                 == expected.xyzw  &&
+            atan(input.x,        constVal2.x)    == expected.x     &&
+            atan(input.xy,       constVal2.xy)   == expected.xy    &&
+            atan(input.xyz,      constVal2.xyz)  == expected.xyz   &&
+            atan(input.xyzw,     constVal2.xyzw) == expected.xyzw  &&
+            atan(constVal1.x,    constVal2.x)    == expected.x     &&
+            atan(constVal1.xy,   constVal2.xy)   == expected.xy    &&
+            atan(constVal1.xyz,  constVal2.xyz)  == expected.xyz   &&
+            atan(constVal1.xyzw, constVal2.xyzw) == expected.xyzw) ? colorGreen : colorRed;
 }
