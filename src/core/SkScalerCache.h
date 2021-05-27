@@ -67,6 +67,10 @@ public:
     std::tuple<const SkPath*, size_t> mergePath(
             SkGlyph* glyph, const SkPath* path) SK_EXCLUDES(fMu);
 
+    // If the drawable has never been set, then add a drawble to glyph.
+    std::tuple<const SkDrawable*, size_t> mergeDrawable(
+            SkGlyph* glyph, sk_sp<SkDrawable> drawable) SK_EXCLUDES(fMu);
+
     /** Return the number of glyphs currently cached. */
     int countCachedGlyphs() const SK_EXCLUDES(fMu);
 
@@ -107,6 +111,9 @@ public:
     size_t prepareForPathDrawing(
             SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) SK_EXCLUDES(fMu);
 
+    size_t prepareForPictureDrawing(
+            SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) SK_EXCLUDES(fMu);
+
     void dump() const SK_EXCLUDES(fMu);
 
     SkScalerContext* getScalerContext() const { return fScalerContext.get(); }
@@ -128,6 +135,9 @@ private:
 
     // If the path has never been set, then use the scaler context to add the glyph.
     std::tuple<const SkPath*, size_t> preparePath(SkGlyph*) SK_REQUIRES(fMu);
+
+    // If the picture has never been set, then use the scaler context to add the glyph.
+    std::tuple<const SkDrawable*, size_t> preparePicture(SkGlyph*) SK_REQUIRES(fMu);
 
     enum PathDetail {
         kMetricsOnly,

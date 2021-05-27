@@ -124,6 +124,19 @@ void SkDraw::paintPaths(SkDrawableGlyphBuffer* drawables,
     }
 }
 
+void SkDraw::paintDrawables(SkDrawableGlyphBuffer* drawables,
+                            SkScalar scale,
+                            SkPoint origin,
+                            const SkPaint& paint) const {
+    for (auto [variant, pos] : drawables->drawable()) {
+        const SkDrawable* drawable = variant.drawable();
+        SkMatrix m;
+        SkPoint translate = origin + pos;
+        m.setScaleTranslate(scale, scale, translate.x(), translate.y());
+        this->drawDrawable(*drawable, paint, &m);
+    }
+}
+
 void SkDraw::drawGlyphRunList(const SkGlyphRunList& glyphRunList,
                               const SkPaint& paint,
                               SkGlyphRunListPainter* glyphPainter) const {

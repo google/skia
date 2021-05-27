@@ -7,6 +7,7 @@
 
 #include "src/core/SkScalerCache.h"
 
+#include "include/core/SkDrawable.h"
 #include "include/core/SkGraphics.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkTypeface.h"
@@ -68,6 +69,14 @@ std::tuple<const SkPath*, size_t> SkScalerCache::preparePath(SkGlyph* glyph) {
     return {glyph->path(), delta};
 }
 
+std::tuple<const SkDrawable*, size_t> SkScalerCache::preparePicture(SkGlyph* glyph) {
+    size_t delta = 0;
+    if (glyph->setDrawable(&fAlloc, fScalerContext.get())) {
+        //delta = glyph->drawable()->approximateBytesUsed();
+    }
+    return {glyph->drawable(), delta};
+}
+
 std::tuple<const SkPath*, size_t> SkScalerCache::mergePath(SkGlyph* glyph, const SkPath* path) {
     SkAutoMutexExclusive lock{fMu};
     size_t pathDelta = 0;
@@ -75,6 +84,16 @@ std::tuple<const SkPath*, size_t> SkScalerCache::mergePath(SkGlyph* glyph, const
         pathDelta = glyph->path()->approximateBytesUsed();
     }
     return {glyph->path(), pathDelta};
+}
+
+std::tuple<const SkDrawable*, size_t> SkScalerCache::mergeDrawable(SkGlyph* glyph,
+                                                               sk_sp<SkDrawable> drawable) {
+    SkAutoMutexExclusive lock{fMu};
+    size_t drawableDelta = 0;
+    if (glyph->setDrawable(&fAlloc, std::move(drawable))) {
+        drawableDelta = 0; // TODO: glyph->drawable()->approximateBytesUsed();
+    }
+    return {glyph->drawable(), drawableDelta};
 }
 
 const SkDescriptor& SkScalerCache::getDescriptor() const {
@@ -246,6 +265,32 @@ size_t SkScalerCache::prepareForPathDrawing(
         });
 
     return delta + pathDelta;
+}
+
+size_t SkScalerCache::prepareForPictureDrawing(
+        SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) {
+    SkAutoMutexExclusive lock{fMu};
+    size_t pictureDelta = 0;
+    size_t delta = this->commonFilterLoop(drawables,
+        [&](size_t i, SkGlyphDigest digest, SkPoint pos) SK_REQUIRES(fMu) {
+            SkGlyph* glyph = fGlyphForIndex[digest.index()];
+            if (!digest.isColor()) {
+                auto [picture, pictureSize] = this->preparePicture(glyph);
+                pictureDelta += pictureSize;
+                if (picture != nullptr) {
+                    // Save off the path to draw later.
+                    drawables->push_back(picture, i);
+                } else {
+                    // Glyph does not have a picture. It is probably bitmap only.
+                    rejects->reject(i, glyph->maxDimension());
+                }
+            } else {
+                // Glyph is color.
+                rejects->reject(i, glyph->maxDimension());
+            }
+        });
+
+    return delta + pictureDelta;
 }
 
 void SkScalerCache::findIntercepts(const SkScalar bounds[2], SkScalar scale, SkScalar xPos,

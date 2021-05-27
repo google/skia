@@ -40,6 +40,9 @@ public:
     virtual void prepareForPathDrawing(
             SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) = 0;
 
+    virtual void prepareForPictureDrawing(
+            SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) = 0;
+
     virtual const SkGlyphPositionRoundingSpec& roundingSpec() const = 0;
 
     // Used with SkScopedStrikeForGPU to take action at the end of a scope.
