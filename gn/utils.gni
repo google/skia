@@ -30,6 +30,7 @@ skia_utils_public = [
 
 skia_utils_sources = [
   "$_src/utils/SkAnimCodecPlayer.cpp",
+  "$_src/utils/SkArcLengthParameterization.cpp",
   "$_src/utils/SkBase64.cpp",
   "$_src/utils/SkBitSet.h",
   "$_src/utils/SkCallableTraits.h",

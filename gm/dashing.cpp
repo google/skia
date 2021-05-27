@@ -21,6 +21,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkDashPathEffect.h"
+#include "include/effects/SkFastDashing.h"
 #include "tools/ToolUtils.h"
 
 #include <math.h>
@@ -144,44 +145,26 @@ class Dashing2GM : public skiagm::GM {
     SkISize onISize() override { return {640, 480}; }
 
     void onDraw(SkCanvas* canvas) override {
-        constexpr int gIntervals[] = {
-            3,  // 3 dashes: each count [0] followed by intervals [1..count]
-            2,  10, 10,
-            4,  20, 5, 5, 5,
-            2,  2, 2
-        };
-
-        SkPath (*gProc[])(const SkRect&) = {
-            make_path_line, make_path_rect, make_path_oval, make_path_star,
-        };
-
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setStroke(true);
         paint.setStrokeWidth(SkIntToScalar(6));
 
-        SkRect bounds = SkRect::MakeWH(SkIntToScalar(120), SkIntToScalar(120));
-        bounds.offset(SkIntToScalar(20), SkIntToScalar(20));
-        SkScalar dx = bounds.width() * 4 / 3;
-        SkScalar dy = bounds.height() * 4 / 3;
+        // Draw cubic on top with "fast" dashing,
+        // and the same path with regular dashing below it.
 
-        const int* intervals = &gIntervals[1];
-        for (int y = 0; y < gIntervals[0]; ++y) {
-            SkScalar vals[SK_ARRAY_COUNT(gIntervals)];  // more than enough
-            int count = *intervals++;
-            for (int i = 0; i < count; ++i) {
-                vals[i] = SkIntToScalar(*intervals++);
-            }
-            SkScalar phase = vals[0] / 2;
-            paint.setPathEffect(SkDashPathEffect::Make(vals, count, phase));
+        const int nintervals = 2;
+        const float intervals[nintervals] = {10, 5};
+        paint.setPathEffect(SkFastDashing::Make(intervals, nintervals));
 
-            for (size_t x = 0; x < SK_ARRAY_COUNT(gProc); ++x) {
-                SkPath path;
-                SkRect r = bounds;
-                r.offset(x * dx, y * dy);
-                canvas->drawPath(gProc[x](r), paint);
-            }
-        }
+        SkPath path;
+        path.moveTo(100, 200);
+        path.cubicTo(50, 0, 200, 0, 500, 300);
+        canvas->drawPath(path, paint);
+
+        canvas->translate(0, 100);
+        paint.setPathEffect(SkDashPathEffect::Make(intervals, nintervals, 0));
+        canvas->drawPath(path, paint);
     }
 };
 
