@@ -18,15 +18,15 @@ namespace SkSL {
 std::unique_ptr<Type> BuiltinTypes::MakeScalarType(const char* name,
                                                    const char* abbrev,
                                                    Type::NumberKind numberKind,
-                                                   int priority,
-                                                   bool highPrecision) {
-    return std::unique_ptr<Type>(new Type(name, abbrev, numberKind, priority, highPrecision));
+                                                   int8_t priority,
+                                                   int8_t bitWidth) {
+    return std::unique_ptr<Type>(new Type(name, abbrev, numberKind, priority, bitWidth));
 }
 
 /** Create a type for literal scalars. */
 std::unique_ptr<Type> BuiltinTypes::MakeLiteralType(const char* name,
                                                     const Type& scalarType,
-                                                    int priority) {
+                                                    int8_t priority) {
     return std::unique_ptr<Type>(new Type(name, scalarType, priority));
 }
 
@@ -53,7 +53,7 @@ std::unique_ptr<Type> BuiltinTypes::MakeMatrixType(const char* name,
                                                    const char* abbrev,
                                                    const Type& componentType,
                                                    int columns,
-                                                   int rows) {
+                                                   int8_t rows) {
     return std::unique_ptr<Type>(new Type(name, abbrev, componentType, columns, rows));
 }
 
@@ -87,33 +87,37 @@ std::unique_ptr<Type> BuiltinTypes::MakeSpecialType(const char* name,
  */
 BuiltinTypes::BuiltinTypes()
         : fFloat(MakeScalarType(
-                  "float", "f", Type::NumberKind::kFloat, /*priority=*/10, /*highPrecision=*/true))
+                  "float", "f", Type::NumberKind::kFloat, /*priority=*/10, /*bitWidth=*/32))
         , fFloat2(MakeVectorType("float2", "f2", *fFloat, /*columns=*/2))
         , fFloat3(MakeVectorType("float3", "f3", *fFloat, /*columns=*/3))
         , fFloat4(MakeVectorType("float4", "f4", *fFloat, /*columns=*/4))
-        , fHalf(MakeScalarType("half", "h", Type::NumberKind::kFloat, /*priority=*/9))
+        , fHalf(MakeScalarType(
+                  "half", "h", Type::NumberKind::kFloat, /*priority=*/9, /*bitWidth=*/16))
         , fHalf2(MakeVectorType("half2", "h2", *fHalf, /*columns=*/2))
         , fHalf3(MakeVectorType("half3", "h3", *fHalf, /*columns=*/3))
         , fHalf4(MakeVectorType("half4", "h4", *fHalf, /*columns=*/4))
         , fInt(MakeScalarType(
-                  "int", "i", Type::NumberKind::kSigned, /*priority=*/7, /*highPrecision=*/true))
+                  "int", "i", Type::NumberKind::kSigned, /*priority=*/7, /*bitWidth=*/32))
         , fInt2(MakeVectorType("int2", "i2", *fInt, /*columns=*/2))
         , fInt3(MakeVectorType("int3", "i3", *fInt, /*columns=*/3))
         , fInt4(MakeVectorType("int4", "i4", *fInt, /*columns=*/4))
         , fUInt(MakeScalarType(
-                  "uint", "I", Type::NumberKind::kUnsigned, /*priority=*/6, /*highPrecision=*/true))
+                  "uint", "I", Type::NumberKind::kUnsigned, /*priority=*/6, /*bitWidth=*/32))
         , fUInt2(MakeVectorType("uint2", "I2", *fUInt, /*columns=*/2))
         , fUInt3(MakeVectorType("uint3", "I3", *fUInt, /*columns=*/3))
         , fUInt4(MakeVectorType("uint4", "I4", *fUInt, /*columns=*/4))
-        , fShort(MakeScalarType("short", "s", Type::NumberKind::kSigned, /*priority=*/4))
+        , fShort(MakeScalarType(
+                  "short", "s", Type::NumberKind::kSigned, /*priority=*/4, /*bitWidth=*/16))
         , fShort2(MakeVectorType("short2", "s2", *fShort, /*columns=*/2))
         , fShort3(MakeVectorType("short3", "s3", *fShort, /*columns=*/3))
         , fShort4(MakeVectorType("short4", "s4", *fShort, /*columns=*/4))
-        , fUShort(MakeScalarType("ushort", "S", Type::NumberKind::kUnsigned, /*priority=*/3))
+        , fUShort(MakeScalarType(
+                  "ushort", "S", Type::NumberKind::kUnsigned, /*priority=*/3, /*bitWidth=*/16))
         , fUShort2(MakeVectorType("ushort2", "S2", *fUShort, /*columns=*/2))
         , fUShort3(MakeVectorType("ushort3", "S3", *fUShort, /*columns=*/3))
         , fUShort4(MakeVectorType("ushort4", "S4", *fUShort, /*columns=*/4))
-        , fBool(MakeScalarType("bool", "b", Type::NumberKind::kBoolean, /*priority=*/0))
+        , fBool(MakeScalarType(
+                  "bool", "b", Type::NumberKind::kBoolean, /*priority=*/0, /*bitWidth=*/1))
         , fBool2(MakeVectorType("bool2", "b2", *fBool, /*columns=*/2))
         , fBool3(MakeVectorType("bool3", "b3", *fBool, /*columns=*/3))
         , fBool4(MakeVectorType("bool4", "b4", *fBool, /*columns=*/4))
