@@ -16,6 +16,24 @@
       "message": "Looks good. We\u0027ve got like four implementations of matrix inverse now, which is unfortunate. (But they\u0027re all slightly different...)\n1) SkM44 and SkMatrix have their float versions, but only operate on 3x3 or 4x4\n2) VM code generator has 2x2, 3x3, and 4x4, written in terms of skvm::F32\n3) GLSL generator has the same 2,3,4 code, written as GLSL in strings\n4) This code, which is technically operating on floats, but has to pull them out first.\n\nProbably nothing to do (fusing this and #2 would require templates that would probably be more trouble than it\u0027s worth, and fusing this with #1 would still leave 2x2 by itself). Just an observation.",
       "revId": "6e8ef759f7ae11b56c5a6bdedf57b2724577f1f9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5f411a45_ae9c8be5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-05-27T14:03:06Z",
+      "side": 1,
+      "message": "Both SkM44 and SkMatrix\u0027s invert code goes to extra effort to use double precision for its math. I\u0027m guessing at the very least I need to do this as well. (The GLSL hack maybe should have specified highp as well?)\n\nI like the SkM44 code a lot; it is defensive and clearly has had some thought put into it. I\u0027d be open to redoing the 3x3 and 2x2 inverses in that fashion and moving all the code to a shared location so I could use it. (The SkMatrix code has special cases for non-perspective so it might not be as amenable to sharing?)",
+      "parentUuid": "0f82568e_92b9dfc2",
+      "revId": "6e8ef759f7ae11b56c5a6bdedf57b2724577f1f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
