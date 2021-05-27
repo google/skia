@@ -41,9 +41,8 @@ struct Target {
     virtual void setup() { }
 
     /** Called *after* the clock timer is started, before the benchmark
-        is drawn. Most back ends just return the canvas passed in,
-        but some may replace it. */
-    virtual SkCanvas* beginTiming(SkCanvas* canvas) { return canvas; }
+        is drawn. */
+    virtual void beginTiming() { }
 
     /** Called *after* a benchmark is drawn, but before the clock timer
         is stopped.  */

@@ -225,11 +225,18 @@ struct GPUTarget : public Target {
     ContextInfo contextInfo;
     std::unique_ptr<GrContextFactory> factory;
 
+    // The surface _not_ currently being drawn into.
+    // GPU targets do double-buffering, swapping targets between each draw. This more accurately
+    // simulates the target-swapping involved in real world scenarios and prevents drivers from
+    // reordering operations around our syncs.
+    sk_sp<SkSurface> frontSurface;
+
     ~GPUTarget() override {
         // For Vulkan we need to release all our refs to the GrContext before destroy the vulkan
-        // context which happens at the end of this destructor. Thus we need to release the surface
-        // here which holds a ref to the GrContext.
+        // context which happens at the end of this destructor. Thus we need to release the surfaces
+        // here which hold a ref to the GrDirectContext.
         surface.reset();
+        frontSurface.reset();
     }
 
     void setup() override {
@@ -241,6 +248,7 @@ struct GPUTarget : public Target {
         if (this->contextInfo.testContext()) {
             this->contextInfo.testContext()->flushAndWaitOnSync(contextInfo.directContext());
         }
+        surface.swap(frontSurface);
     }
     void fence() override { this->contextInfo.testContext()->finish(); }
 
@@ -257,6 +265,9 @@ struct GPUTarget : public Target {
         this->factory = std::make_unique<GrContextFactory>(options);
         SkSurfaceProps props(this->config.surfaceFlags, kRGB_H_SkPixelGeometry);
         this->surface = SkSurface::MakeRenderTarget(
+                this->factory->get(this->config.ctxType, this->config.ctxOverrides),
+                SkBudgeted::kNo, info, this->config.samples, &props);
+        this->frontSurface = SkSurface::MakeRenderTarget(
                 this->factory->get(this->config.ctxType, this->config.ctxOverrides),
                 SkBudgeted::kNo, info, this->config.samples, &props);
         this->contextInfo =
@@ -308,8 +319,11 @@ static double time(int loops, Benchmark* bench, Target* target) {
     }
     bench->preDraw(canvas);
     double start = now_ms();
-    canvas = target->beginTiming(canvas);
-    bench->draw(loops, canvas);
+    target->beginTiming();
+    // TODO: Fix this API if things pan out.
+    for (int i = 0; i < loops; i++) {
+        bench->draw(1, canvas);
+    }
     target->endTiming();
     double elapsed = now_ms() - start;
     bench->postDraw(canvas);
