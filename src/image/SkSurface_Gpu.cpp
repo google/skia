@@ -108,22 +108,18 @@ sk_sp<SkSurface> SkSurface_Gpu::onNewSurface(const SkImageInfo& info) {
 }
 
 sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(const SkIRect* subset) {
-    GrSurfaceDrawContext* sdc = fDevice->surfaceDrawContext();
-    if (!sdc) {
+    GrRenderTargetProxy* rtp = fDevice->targetProxy();
+    if (!rtp) {
         return nullptr;
     }
 
     auto rContext = fDevice->recordingContext();
 
-    if (!sdc->asSurfaceProxy()) {
-        return nullptr;
-    }
+    GrSurfaceProxyView srcView = fDevice->readSurfaceView();
 
-    GrSurfaceProxyView srcView = sdc->readSurfaceView();
+    SkBudgeted budgeted = rtp->isBudgeted();
 
-    SkBudgeted budgeted = sdc->asSurfaceProxy()->isBudgeted();
-
-    if (subset || !srcView.asTextureProxy() || sdc->refsWrappedObjects()) {
+    if (subset || !srcView.asTextureProxy() || rtp->refsWrappedObjects()) {
         // If the original render target is a buffer originally created by the client, then we don't
         // want to ever retarget the SkSurface at another buffer we create. If the source is a
         // texture (and the image is not subsetted) we make a dual-proxied SkImage that will
@@ -134,8 +130,9 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(const SkIRect* subset) {
                                                     srcView,
                                                     fDevice->imageInfo().colorInfo());
         }
-        auto rect = subset ? *subset : SkIRect::MakeSize(sdc->dimensions());
-        srcView = GrSurfaceProxyView::Copy(rContext, std::move(srcView), sdc->mipmapped(), rect,
+        auto rect = subset ? *subset : SkIRect::MakeSize(srcView.dimensions());
+        GrMipmapped mipmapped = srcView.mipmapped();
+        srcView = GrSurfaceProxyView::Copy(rContext, std::move(srcView), mipmapped, rect,
                                            SkBackingFit::kExact, budgeted);
     }
 
@@ -201,14 +198,14 @@ void SkSurface_Gpu::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSp
 // render target into it. Note that this flushes the SkGpuDevice but
 // doesn't force an OpenGL flush.
 void SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
-    GrSurfaceDrawContext* sdc = fDevice->surfaceDrawContext();
+    GrSurfaceProxyView readSurfaceView = fDevice->readSurfaceView();
 
     // are we sharing our backing proxy with the image? Note this call should never create a new
     // image because onCopyOnWrite is only called when there is a cached image.
     sk_sp<SkImage> image = this->refCachedImage();
     SkASSERT(image);
 
-    if (static_cast<SkImage_Gpu*>(image.get())->surfaceMustCopyOnWrite(sdc->asSurfaceProxy())) {
+    if (static_cast<SkImage_Gpu*>(image.get())->surfaceMustCopyOnWrite(readSurfaceView.proxy())) {
         fDevice->replaceSurfaceDrawContext(mode);
     } else if (kDiscard_ContentChangeMode == mode) {
         this->SkSurface_Gpu::onDiscard();
@@ -225,9 +222,9 @@ GrSemaphoresSubmitted SkSurface_Gpu::onFlush(BackendSurfaceAccess access, const 
         return GrSemaphoresSubmitted::kNo;
     }
 
-    GrSurfaceDrawContext* sdc = fDevice->surfaceDrawContext();
+    GrRenderTargetProxy* rtp = fDevice->targetProxy();
 
-    return dContext->priv().flushSurface(sdc->asSurfaceProxy(), access, info, newState);
+    return dContext->priv().flushSurface(rtp, access, info, newState);
 }
 
 bool SkSurface_Gpu::onWait(int numSemaphores, const GrBackendSemaphore* waitSemaphores,
