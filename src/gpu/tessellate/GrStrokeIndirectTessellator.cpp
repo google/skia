@@ -786,6 +786,16 @@ void GrStrokeIndirectTessellator::prepare(GrMeshDrawOp::Target* target,
 
     SkASSERT(indirectWriter == endIndirectWriter);
     SkASSERT(instanceWriter == endInstanceWriter);
+
+
+
+    SkAutoTMalloc<int32_t> fakeData(1025*2);
+    for (int i = 0; i < 1025*2; ++i) {
+        fakeData[i] = i;
+    }
+    fFakeVertexBuffer = target->resourceProvider()->createBuffer(1025*2*4,
+                                                                 GrGpuBufferType::kVertex,
+                                                                 kStatic_GrAccessPattern, fakeData);
 }
 
 void GrStrokeIndirectTessellator::writeBuffers(GrDrawIndirectWriter* indirectWriter,
@@ -955,7 +965,7 @@ void GrStrokeIndirectTessellator::draw(GrOpFlushState* flushState) const {
     SkASSERT(fChainedDrawIndirectCount > 0);
     SkASSERT(fChainedInstanceCount > 0);
 
-    flushState->bindBuffers(nullptr, fInstanceBuffer, nullptr);
+    flushState->bindBuffers(nullptr, fInstanceBuffer, fFakeVertexBuffer);
     flushState->drawIndirect(fDrawIndirectBuffer.get(), fDrawIndirectOffset,
                              fChainedDrawIndirectCount);
 }

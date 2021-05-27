@@ -1148,7 +1148,7 @@ class GrStrokeTessellateShader::InstancedImpl : public GrGLSLGeometryProcessor {
         // NOTE: Since the curve is not allowed to inflect, we can just check F'(.5) x F''(.5).
         // NOTE: F'(.5) x F''(.5) has the same sign as (P2 - P0) x (P3 - P1)
         float turn = cross(P[2] - P[0], P[3] - P[1]);
-        float combinedEdgeID = float(sk_VertexID >> 1) - numEdgesInJoin;
+        float combinedEdgeID = float(fakeVertexID >> 1) - numEdgesInJoin;
         if (combinedEdgeID < 0) {
             tan1 = tan0;
             // Don't let tan0 become zero. The code as-is isn't built to handle that case. tan0=0
@@ -1170,7 +1170,7 @@ class GrStrokeTessellateShader::InstancedImpl : public GrGLSLGeometryProcessor {
         }
 
         float numRadialSegments;
-        float outset = ((sk_VertexID & 1) == 0) ? +1 : -1;
+        float outset = ((fakeVertexID & 1) == 0) ? +1 : -1;
         if (combinedEdgeID < 0) {
             // We belong to the preceding join. The first and final edges get duplicated, so we only
             // have "numEdgesInJoin - 2" segments.
@@ -1212,7 +1212,7 @@ class GrStrokeTessellateShader::InstancedImpl : public GrGLSLGeometryProcessor {
         if (joinType == SkPaint::kMiter_Join || shader.hasDynamicStroke()) {
             args.fVertBuilder->codeAppendf(R"(
             // Vertices #4 and #5 belong to the edge of the join that extends to the miter point.
-            if ((sk_VertexID | 1) == (4 | 5) && %s) {
+            if ((fakeVertexID | 1) == (4 | 5) && %s) {
                 outset *= miter_extent(cosTheta, JOIN_TYPE/*miterLimit*/);
             })", shader.hasDynamicStroke() ? "JOIN_TYPE > 0/*Is the join a miter type?*/" : "true");
         }

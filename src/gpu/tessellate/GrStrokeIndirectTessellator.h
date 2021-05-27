@@ -74,6 +74,8 @@ private:
     sk_sp<const GrBuffer> fInstanceBuffer;
     size_t fDrawIndirectOffset;
 
+sk_sp<const GrBuffer> fFakeVertexBuffer;
+
     friend class GrOp;  // For ctor.
 
 #if GR_TEST_UTILS

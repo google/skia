@@ -27,6 +27,7 @@ public:
 private:
     GrVertexChunkArray fInstanceChunks;
     int fFixedVertexCount = 0;
+sk_sp<const GrBuffer> fFakeVertexBuffer;
 };
 
 #endif

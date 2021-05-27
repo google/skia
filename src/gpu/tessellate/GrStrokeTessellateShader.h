@@ -163,6 +163,9 @@ public:
             this->setVertexAttributes(fAttribs.data(), fAttribs.count());
         } else {
             this->setInstanceAttributes(fAttribs.data(), fAttribs.count());
+            constexpr static Attribute kFakeVertexAttrib = {"fakeVertexID", kInt_GrVertexAttribType,
+                                                            kInt_GrSLType};
+            this->setVertexAttributes(&kFakeVertexAttrib, 1);
         }
         SkASSERT(fAttribs.count() <= kMaxAttribCount);
     }

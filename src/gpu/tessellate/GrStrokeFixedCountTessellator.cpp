@@ -358,6 +358,14 @@ void GrStrokeFixedCountTessellator::prepare(GrMeshDrawOp::Target* target,
 
     fShader.setFixedCountNumTotalEdges(fixedEdgeCount);
     fFixedVertexCount = fixedEdgeCount * 2;
+
+    SkAutoTMalloc<int32_t> fakeData(fFixedVertexCount);
+    for (int i = 0; i < fFixedVertexCount; ++i) {
+        fakeData[i] = i;
+    }
+    fFakeVertexBuffer = target->resourceProvider()->createBuffer(fFixedVertexCount*4,
+                                                                 GrGpuBufferType::kVertex,
+                                                                 kStatic_GrAccessPattern, fakeData);
 }
 
 void GrStrokeFixedCountTessellator::draw(GrOpFlushState* flushState) const {
@@ -365,7 +373,7 @@ void GrStrokeFixedCountTessellator::draw(GrOpFlushState* flushState) const {
         return;
     }
     for (const auto& instanceChunk : fInstanceChunks) {
-        flushState->bindBuffers(nullptr, instanceChunk.fBuffer, nullptr);
+        flushState->bindBuffers(nullptr, instanceChunk.fBuffer, fFakeVertexBuffer);
         flushState->drawInstanced(instanceChunk.fCount, instanceChunk.fBase, fFixedVertexCount, 0);
     }
 }
