@@ -243,6 +243,11 @@ static std::unique_ptr<GrFragmentProcessor> make_gradient(const SkGradientShader
         return nullptr;
     }
     if (args.fInputColorIsOpaque) {
+        // If the input alpha is known to be 1, we don't need to take the kSrcIn path. This is
+        // just an optimization. However, we can't just return 'gradient' here. We need to actually
+        // inhibit the coverage-as-alpha optimization, or we'll fail to incorporate AA correctly.
+        // The OverrideInput FP happens to do that, so wrap our fp in one of those. The gradient FP
+        // doesn't actually use the input color at all, so the overridden input is irrelevant.
         return GrFragmentProcessor::OverrideInput(std::move(gradient), SK_PMColor4fWHITE, false);
     }
     return GrFragmentProcessor::MulChildByInputAlpha(std::move(gradient));
