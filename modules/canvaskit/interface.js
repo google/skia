@@ -891,6 +891,27 @@ CanvasKit.onRuntimeInitialized = function() {
     }.bind(this));
   };
 
+  CanvasKit.Surface.prototype.MakeImageFromTexture = function(tex, info) {
+    if (!CanvasKit.gpu) {
+      Debug('Can only use textures on GPU build');
+      return null;
+    }
+    if (!info["colorSpace"]) {
+      info["colorSpace"] = CanvasKit.ColorSpace.SRGB;
+    }
+    // GL is an emscripten object that holds onto WebGL state. One item in that state is
+    // an array of textures, of which the index is the handle/id.
+    var texHandle = GL.textures.length;
+    if (!texHandle) {
+      // If our texture handle is 0, Skia interprets that as an invalid texture id.
+      // As a special case, we push a null texture there so the first texture has id 1.
+      GL.textures.push(null);
+      texHandle = 1;
+    }
+    GL.textures.push(tex);
+    return this._makeImageFromTexture(GL.currentContext.handle, texHandle, info);
+  };
+
   CanvasKit.PathEffect.MakeDash = function(intervals, phase) {
     if (!phase) {
       phase = 0;
