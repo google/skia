@@ -119,7 +119,7 @@ public:
      *  Iff RectType == kStroke_RectType, then strokeSize is set to the device
      *  width and height of the stroke.
      */
-    static RectType ComputeRectType(const SkPaint&, const SkMatrix&,
+    static RectType ComputeRectType(const SkRect&, const SkPaint&, const SkMatrix&,
                                     SkPoint* strokeSize);
 
     static SkScalar ComputeResScaleForStroking(const SkMatrix& );
