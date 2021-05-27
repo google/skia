@@ -39,6 +39,8 @@ using WASMPointerU8  = uintptr_t;
 using WASMPointerU16 = uintptr_t;
 using WASMPointerU32 = uintptr_t;
 
+const int WEBGL_TEXTURE_2D = 3553;
+
 #define SPECIALIZE_JSARRAYTYPE(type, name)                  \
     template <> struct JSArrayType<type> {                  \
         static constexpr const char* const gName = name;    \
