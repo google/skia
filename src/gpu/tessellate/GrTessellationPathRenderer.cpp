@@ -84,7 +84,7 @@ GrPathRenderer::CanDrawPath GrTessellationPathRenderer::onCanDrawPath(
 static GrOp::Owner make_op(GrRecordingContext* rContext, const GrSurfaceContext* surfaceContext,
                            GrTessellationPathRenderer::OpFlags opFlags, GrAAType aaType,
                            const SkRect& shapeDevBounds, const SkMatrix& viewMatrix,
-                           const GrStyledShape& shape, GrPaint&& paint) {
+                           const GrStyledShape& shape, bool hasClip, GrPaint&& paint) {
     constexpr static auto kLinearizationPrecision =
             GrTessellationPathRenderer::kLinearizationPrecision;
     constexpr static auto kMaxResolveLevel = GrTessellationPathRenderer::kMaxResolveLevel;
@@ -141,7 +141,7 @@ static GrOp::Owner make_op(GrRecordingContext* rContext, const GrSurfaceContext*
         const SkStrokeRec& stroke = shape.style().strokeRec();
         SkASSERT(stroke.getStyle() != SkStrokeRec::kStrokeAndFill_Style);
         return GrOp::Make<GrStrokeTessellateOp>(rContext, aaType, viewMatrix, path, stroke,
-                                                std::move(paint));
+                                                hasClip, std::move(paint));
     } else {
         SkRect devBounds;
         viewMatrix.mapRect(&devBounds, path.getBounds());
@@ -194,7 +194,8 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
     }
 
     if (auto op = make_op(args.fContext, surfaceDrawContext, OpFlags::kNone, args.fAAType,
-                          devBounds, *args.fViewMatrix, *args.fShape, std::move(args.fPaint))) {
+                          devBounds, *args.fViewMatrix, *args.fShape, SkToBool(args.fClip),
+                          std::move(args.fPaint))) {
         surfaceDrawContext->addDrawOp(args.fClip, std::move(op));
     }
     return true;
@@ -266,7 +267,8 @@ void GrTessellationPathRenderer::onStencilPath(const StencilPathArgs& args) {
     SkRect devBounds;
     args.fViewMatrix->mapRect(&devBounds, args.fShape->bounds());
     if (auto op = make_op(args.fContext, surfaceDrawContext, OpFlags::kStencilOnly, aaType,
-                          devBounds, *args.fViewMatrix, *args.fShape, GrPaint())) {
+                          devBounds, *args.fViewMatrix, *args.fShape, SkToBool(args.fClip),
+                          GrPaint())) {
         surfaceDrawContext->addDrawOp(args.fClip, std::move(op));
     }
 }
