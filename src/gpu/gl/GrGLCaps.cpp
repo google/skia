@@ -4450,6 +4450,7 @@ bool GrGLCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
             return true;
         }
     }
+    printf("lambda\n");
     return false;
 }
 

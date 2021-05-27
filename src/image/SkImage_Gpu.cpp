@@ -457,6 +457,7 @@ sk_sp<SkImage> SkImage::MakeFromTexture(GrRecordingContext* rContext,
     auto releaseHelper = GrRefCntedCallback::Make(releaseP, releaseC);
 
     if (!rContext) {
+        printf("alpha\n");
         return nullptr;
     }
 
@@ -464,10 +465,12 @@ sk_sp<SkImage> SkImage::MakeFromTexture(GrRecordingContext* rContext,
 
     GrColorType grColorType = SkColorTypeAndFormatToGrColorType(caps, ct, tex.getBackendFormat());
     if (GrColorType::kUnknown == grColorType) {
+        printf("beta\n");
         return nullptr;
     }
 
     if (!SkImage_GpuBase::ValidateBackendTexture(caps, tex, grColorType, ct, at, cs)) {
+         printf("gamma\n");
         return nullptr;
     }
 

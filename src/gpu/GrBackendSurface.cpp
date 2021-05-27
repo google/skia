@@ -557,6 +557,8 @@ GrBackendTexture::GrBackendTexture(int width,
         : GrBackendTexture(width, height, mipmapped, glInfo, sk_make_sp<GrGLTextureParameters>()) {
     // Make no assumptions about client's texture's parameters.
     this->glTextureParametersModified();
+    printf("Made texture %d x %d, target %u, id %d, format %u\n",
+           width, height, glInfo.fTarget, glInfo.fID, glInfo.fFormat);
 }
 #endif
 

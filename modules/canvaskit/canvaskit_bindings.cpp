@@ -64,6 +64,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/gl/GrGLInterface.h"
 #include "include/gpu/gl/GrGLTypes.h"
+#include "src/gpu/gl/GrGLDefines.h"
 
 #include <GLES3/gl3.h>
 #include <emscripten/html5.h>
@@ -1767,6 +1768,18 @@ EMSCRIPTEN_BINDINGS(Skia) {
             return {ii.width(), ii.height(), ii.colorType(), ii.alphaType(), ii.refColorSpace()};
         }))
         .function("height", &SkSurface::height)
+        .function("_makeImageFromTexture", optional_override([](SkSurface& self,
+                                                uint32_t handle, SimpleImageInfo ii)->sk_sp<SkImage> {
+            GrGLTextureInfo gti = {WEBGL_TEXTURE_2D, handle, GR_GL_RGBA8};
+            GrBackendTexture gbt(ii.width, ii.height, GrMipmapped::kNo, gti);
+            return SkImage::MakeFromTexture(
+                             self.getCanvas()->recordingContext(),
+                             gbt,
+                             GrSurfaceOrigin::kBottomLeft_GrSurfaceOrigin,
+                             ii.colorType,
+                             ii.alphaType,
+                             ii.colorSpace);
+         }))
         .function("_makeImageSnapshot",  optional_override([](SkSurface& self, WASMPointerU32 iPtr)->sk_sp<SkImage> {
             SkIRect* bounds = reinterpret_cast<SkIRect*>(iPtr);
             if (!bounds) {

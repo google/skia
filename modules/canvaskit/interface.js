@@ -891,6 +891,21 @@ CanvasKit.onRuntimeInitialized = function() {
     }.bind(this));
   };
 
+  CanvasKit.Surface.prototype.MakeImageFromTexture = function(tex, info) {
+    if (!CanvasKit.gpu) {
+      Debug('Can only use textures on GPU build');
+      return null;
+    }
+    if (!info["colorSpace"]) {
+      info["colorSpace"] = CanvasKit.ColorSpace.SRGB;
+    }
+    // GL is an emscripten object that holds onto WebGL state. One item in that state is
+    // an array of textures, of which the index is the handle/id.
+    var handle = GL.textures.length;
+    GL.textures.push(tex);
+    return this._makeImageFromTexture(handle, info);
+  };
+
   CanvasKit.PathEffect.MakeDash = function(intervals, phase) {
     if (!phase) {
       phase = 0;
