@@ -180,8 +180,7 @@ public:
             return SkIRect::MakeSize(fAtlas->dimensions());
         }
         Effect apply(GrRecordingContext* context, GrSurfaceDrawContext*, GrAAType,
-                         bool hasUserStencilSettings, GrAppliedClip* out,
-                         SkRect* bounds) const override {
+                     GrAppliedClip* out, SkRect* bounds) const override {
             GrProxyProvider* proxyProvider = context->priv().proxyProvider();
             out->addCoverageFP(std::make_unique<ClipFP>(context, proxyProvider, fTest, fAtlas));
             return Effect::kClipped;

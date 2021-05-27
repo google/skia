@@ -28,24 +28,16 @@ public:
             , fMatrixProvider(matrixProvider) {}
 
     SkIRect getConservativeBounds() const final;
-    Effect apply(GrRecordingContext*, GrSurfaceDrawContext*, GrAAType aaType,
-                     bool hasUserStencilSettings, GrAppliedClip* out, SkRect* bounds) const final;
+    Effect apply(GrRecordingContext*, GrSurfaceDrawContext*, GrAAType aaType, GrAppliedClip* out,
+                 SkRect* bounds) const final;
     PreClipResult preApply(const SkRect& drawBounds, GrAA aa) const final;
 
     sk_sp<GrTextureProxy> testingOnly_createClipMask(GrRecordingContext*) const;
     static const char kMaskTestTag[];
 
 private:
-    static bool PathNeedsSWRenderer(GrRecordingContext* context,
-                                    const SkIRect& scissorRect,
-                                    bool hasUserStencilSettings,
-                                    const GrSurfaceDrawContext*,
-                                    const SkMatrix& viewMatrix,
-                                    const SkClipStack::Element* element,
-                                    bool needsStencil);
-
     bool applyClipMask(GrRecordingContext*, GrSurfaceDrawContext*, const GrReducedClip&,
-                       bool hasUserStencilSettings, GrAppliedClip*) const;
+                       GrAppliedClip*) const;
 
     // Creates an alpha mask of the clip. The mask is a rasterization of elements through the
     // rect specified by clipSpaceIBounds.
@@ -56,7 +48,6 @@ private:
                                               GrSurfaceDrawContext*) const;
 
     static bool UseSWOnlyPath(GrRecordingContext*,
-                              bool hasUserStencilSettings,
                               const GrSurfaceDrawContext*,
                               const GrReducedClip&);
 
