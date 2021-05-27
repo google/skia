@@ -547,9 +547,9 @@ static inline SkPoint compute_stroke_size(const SkPaint& paint, const SkMatrix& 
     return SkPoint::Make(SkScalarAbs(size.fX), SkScalarAbs(size.fY));
 }
 
-static bool easy_rect_join(const SkPaint& paint, const SkMatrix& matrix,
+static bool easy_rect_join(const SkRect& rect, const SkPaint& paint, const SkMatrix& matrix,
                            SkPoint* strokeSize) {
-    if (SkPaint::kMiter_Join != paint.getStrokeJoin() ||
+    if (rect.isEmpty() || SkPaint::kMiter_Join != paint.getStrokeJoin() ||
         paint.getStrokeMiter() < SK_ScalarSqrt2) {
         return false;
     }
@@ -558,7 +558,8 @@ static bool easy_rect_join(const SkPaint& paint, const SkMatrix& matrix,
     return true;
 }
 
-SkDraw::RectType SkDraw::ComputeRectType(const SkPaint& paint,
+SkDraw::RectType SkDraw::ComputeRectType(const SkRect& rect,
+                                         const SkPaint& paint,
                                          const SkMatrix& matrix,
                                          SkPoint* strokeSize) {
     RectType rtype;
@@ -577,7 +578,7 @@ SkDraw::RectType SkDraw::ComputeRectType(const SkPaint& paint,
         rtype = kFill_RectType;
     } else if (zeroWidth) {
         rtype = kHair_RectType;
-    } else if (easy_rect_join(paint, matrix, strokeSize)) {
+    } else if (easy_rect_join(rect, paint, matrix, strokeSize)) {
         rtype = kStroke_RectType;
     } else {
         rtype = kPath_RectType;
@@ -623,7 +624,7 @@ void SkDraw::drawRect(const SkRect& prePaintRect, const SkPaint& paint,
 
     SkMatrix ctm = fMatrixProvider->localToDevice();
     SkPoint strokeSize;
-    RectType rtype = ComputeRectType(paint, ctm, &strokeSize);
+    RectType rtype = ComputeRectType(prePaintRect, paint, ctm, &strokeSize);
 
     if (kPath_RectType == rtype) {
         draw_rect_as_path(*this, prePaintRect, paint, matrixProvider);
