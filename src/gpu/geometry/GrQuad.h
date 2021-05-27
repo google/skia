@@ -41,6 +41,7 @@ public:
 
     // This enforces W == 1 for non-perspective quads, but does not initialize X or Y.
     GrQuad() = default;
+    GrQuad(const GrQuad&) = default;
 
     explicit GrQuad(const SkRect& rect)
             : fX{rect.fLeft, rect.fLeft, rect.fRight, rect.fRight}
