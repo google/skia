@@ -2817,18 +2817,6 @@ if (skia_enable_tools) {
     }
   }
 
-  if (skia_use_gl && (is_linux || is_mac || is_ios)) {
-    test_app("SkiaSDLExample") {
-      sources = [ "example/SkiaSDLExample.cpp" ]
-      libs = []
-      deps = [
-        ":gpu_tool_utils",
-        ":skia",
-        "//third_party/libsdl",
-      ]
-    }
-  }
-
   if (skia_qt_path != "" && (is_win || is_linux || is_mac)) {
     action_foreach("generate_mocs") {
       script = "gn/call.py"
