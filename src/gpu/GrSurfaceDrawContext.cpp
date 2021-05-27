@@ -309,13 +309,6 @@ inline GrAAType GrSurfaceDrawContext::chooseAAType(GrAA aa) {
     return (this->numSamples() > 1) ? GrAAType::kMSAA : GrAAType::kCoverage;
 }
 
-GrMipmapped GrSurfaceDrawContext::mipmapped() const {
-    if (const GrTextureProxy* proxy = this->asTextureProxy()) {
-        return proxy->mipmapped();
-    }
-    return GrMipmapped::kNo;
-}
-
 void GrSurfaceDrawContext::drawGlyphRunListNoCache(const GrClip* clip,
                                                    const SkMatrixProvider& viewMatrix,
                                                    const SkGlyphRunList& glyphRunList,

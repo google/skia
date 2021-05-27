@@ -625,7 +625,6 @@ public:
     const SkSurfaceProps& surfaceProps() const { return fSurfaceProps; }
     bool canUseDynamicMSAA() const { return fCanUseDynamicMSAA; }
     bool wrapsVkSecondaryCB() const { return this->asRenderTargetProxy()->wrapsVkSecondaryCB(); }
-    GrMipmapped mipmapped() const;
 
     bool alwaysAntialias() const {
         return fSurfaceProps.flags() & kDMSAA_SkSurfacePropsPrivateFlag;
