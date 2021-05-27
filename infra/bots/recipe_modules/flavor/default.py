@@ -153,22 +153,6 @@ class DefaultFlavor(object):
           env['VK_LAYER_PATH'] = str(workdir.join(
               'linux_vulkan_sdk', 'etc', 'vulkan', 'explicit_layer.d'))
 
-      if 'OpenCL' in extra_tokens:
-        ld_library_path.append(workdir.join('opencl_ocl_icd_linux'))
-        # TODO(dogben): Limit to the appropriate GPUs when we start running on
-        # GPUs other than IntelIris640.
-        # Skylake and later use the NEO driver.
-        neo_path = workdir.join('opencl_intel_neo_linux')
-        ld_library_path.append(neo_path)
-        # Generate vendors dir contaning the ICD file pointing to the NEO OpenCL
-        # library.
-        vendors_dir = self.m.vars.tmp_dir.join('OpenCL', 'vendors')
-        self.m.file.ensure_directory('mkdirs OpenCL/vendors', vendors_dir)
-        self.m.file.write_raw('write NEO OpenCL ICD',
-                              vendors_dir.join('neo.icd'),
-                              '%s\n' % neo_path.join('libigdrcl.so'))
-        env['OPENCL_VENDOR_PATH'] = vendors_dir
-
     if 'SwiftShader' in extra_tokens:
       ld_library_path.append(self.host_dirs.bin_dir.join('swiftshader_out'))
 
