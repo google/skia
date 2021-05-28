@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrStrokeShader_DEFINED
-#define GrStrokeShader_DEFINED
+#ifndef GrStrokeTessellationShader_DEFINED
+#define GrStrokeTessellationShader_DEFINED
 
-#include "src/gpu/tessellate/GrTessellationShader.h"
+#include "src/gpu/tessellate/shaders/GrTessellationShader.h"
 
 #include "include/core/SkStrokeRec.h"
 #include "src/gpu/GrVx.h"
@@ -23,7 +23,7 @@
 // divide the curve's _rotation_ into even steps. The tessellation shader evaluates both sets of
 // edges and sorts them into a single quad strip. With this combined set of edges we can stroke any
 // curve, regardless of curvature.
-class GrStrokeShader : public GrTessellationShader {
+class GrStrokeTessellationShader : public GrTessellationShader {
 public:
     // Are we using hardware tessellation or indirect draws?
     enum class Mode : int8_t {
@@ -98,9 +98,10 @@ public:
     };
 
     // 'viewMatrix' is applied to the geometry post tessellation. It cannot have perspective.
-    GrStrokeShader(Mode mode, ShaderFlags shaderFlags, const SkMatrix& viewMatrix,
-                   const SkStrokeRec& stroke, SkPMColor4f color, int8_t maxParametricSegments_log2)
-            : GrTessellationShader(kTessellate_GrStrokeShader_ClassID,
+    GrStrokeTessellationShader(Mode mode, ShaderFlags shaderFlags, const SkMatrix& viewMatrix,
+                               const SkStrokeRec& stroke, SkPMColor4f color,
+                               int8_t maxParametricSegments_log2)
+            : GrTessellationShader(kTessellate_GrStrokeTessellationShader_ClassID,
                                    (mode == Mode::kHardwareTessellation)
                                            ? GrPrimitiveType::kPatches
                                            : GrPrimitiveType::kTriangleStrip,
@@ -182,7 +183,16 @@ public:
     }
 
 private:
-    const char* name() const override { return "GrStrokeShader"; }
+    const char* name() const override {
+        switch (fMode) {
+            case Mode::kHardwareTessellation:
+                return "GrStrokeTessellationShader_HardwareImpl";
+            case Mode::kLog2Indirect:
+            case Mode::kFixedCount:
+                return "GrStrokeTessellationShader_InstancedImpl";
+        }
+        SkUNREACHABLE;
+    }
     void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override;
     GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const final;
 
@@ -197,14 +207,18 @@ private:
     // This is a uniform value used when fMode is kFixedCount that tells the shader how many total
     // edges are in the triangle strip.
     float fFixedCountNumTotalEdges = 0;
+
+    class Impl;
+    class HardwareImpl;
+    class InstancedImpl;
 };
 
-GR_MAKE_BITFIELD_CLASS_OPS(GrStrokeShader::ShaderFlags);
+GR_MAKE_BITFIELD_CLASS_OPS(GrStrokeTessellationShader::ShaderFlags);
 
 // This common base class emits shader code for our parametric/radial stroke tessellation algorithm
 // described above. The subclass emits its own specific setup code before calling into
 // emitTessellationCode and emitFragment code.
-class GrStrokeShaderImpl : public GrGLSLGeometryProcessor {
+class GrStrokeTessellationShader::Impl : public GrGLSLGeometryProcessor {
 protected:
     // float atan2(float2 v) { ...
     //
@@ -260,12 +274,12 @@ protected:
     //     float angle0;
     //     float strokeOutset;
     //
-    void emitTessellationCode(const GrStrokeShader& shader, SkString* code, GrGPArgs* gpArgs,
-                              const GrShaderCaps& shaderCaps) const;
+    void emitTessellationCode(const GrStrokeTessellationShader& shader, SkString* code,
+                              GrGPArgs* gpArgs, const GrShaderCaps& shaderCaps) const;
 
     // Emits all necessary fragment code. If using dynamic color, the impl is responsible to set up
     // a half4 varying for color and provide its name in 'fDynamicColorName'.
-    void emitFragmentCode(const GrStrokeShader&, const EmitArgs&);
+    void emitFragmentCode(const GrStrokeTessellationShader&, const EmitArgs&);
 
     void setData(const GrGLSLProgramDataManager& pdman, const GrShaderCaps&,
                  const GrGeometryProcessor&) final;
@@ -276,6 +290,22 @@ protected:
     GrGLSLUniformHandler::UniformHandle fEdgeCountUniform;
     GrGLSLUniformHandler::UniformHandle fColorUniform;
     SkString fDynamicColorName;
+};
+
+class GrStrokeTessellationShader::InstancedImpl : public GrStrokeTessellationShader::Impl {
+    void onEmitCode(EmitArgs&, GrGPArgs*) override;
+};
+
+class GrStrokeTessellationShader::HardwareImpl : public GrStrokeTessellationShader::Impl {
+    void onEmitCode(EmitArgs&, GrGPArgs*) override;
+    SkString getTessControlShaderGLSL(const GrGeometryProcessor&,
+                                      const char* versionAndExtensionDecls,
+                                      const GrGLSLUniformHandler&,
+                                      const GrShaderCaps&) const override;
+    SkString getTessEvaluationShaderGLSL(const GrGeometryProcessor&,
+                                         const char* versionAndExtensionDecls,
+                                         const GrGLSLUniformHandler&,
+                                         const GrShaderCaps&) const override;
 };
 
 #endif
