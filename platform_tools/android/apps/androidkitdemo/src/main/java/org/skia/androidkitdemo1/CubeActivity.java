@@ -29,6 +29,7 @@ import org.skia.androidkit.util.SurfaceRenderer;
 
 import org.skia.androidkitdemo1.samples.ImageShaderSample;
 import org.skia.androidkitdemo1.samples.Sample;
+import org.skia.androidkitdemo1.samples.SkottieSample;
 
 import static java.lang.Math.tan;
 
@@ -161,7 +162,7 @@ class CubeRenderer extends SurfaceRenderer implements GestureDetector.OnGestureL
         final float rot = (float) Math.PI;
         faces = new Face[] {
             new Face(0, -rot/2, new ImageShaderSample(res, R.raw.brickwork_texture)),
-            new Face(0, 0     , new SolidColorSample(1, 0, 0, 1)),
+            new Face(0, 0     , new SkottieSample(res, R.raw.im_thirsty)),
             new Face(0, rot   , new SolidColorSample(0, 1, 0, 1)),
             new Face(rot/2, 0 , new SolidColorSample(0, 0, 1, 1)),
             new Face(-rot/2, 0, new SolidColorSample(1, 1, 0, 1)),
