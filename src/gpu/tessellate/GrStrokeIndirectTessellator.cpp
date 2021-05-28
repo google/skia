@@ -890,7 +890,7 @@ void GrStrokeIndirectTessellator::writeBuffers(GrDrawIndirectWriter* indirectWri
                         binningWriter.writeCircle(cuspResolveLevel, cusp);
                         resolveLevel = (isRoundJoin) ? *nextResolveLevel++ : 0;
                     } else {
-                        GrPathShader::WriteConicPatch(pts, iter.w(), scratch);
+                        GrTessellationShader::WriteConicPatch(pts, iter.w(), scratch);
                     }
                     pts_ = scratch;
                     break;
