@@ -11,12 +11,101 @@
 #include "src/gpu/GrInnerFanTriangulator.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/tessellate/GrFillPathShader.h"
+#include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
+#include "src/gpu/tessellate/GrPathTessellationShader.h"
 #include "src/gpu/tessellate/GrPathTessellator.h"
-#include "src/gpu/tessellate/GrStencilPathShader.h"
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 
 using OpFlags = GrTessellationPathRenderer::OpFlags;
+
+namespace {
+
+// Fills an array of convex hulls surrounding 4-point cubic or conic instances. This shader is used
+// for the "fill" pass after the curves have been fully stencilled.
+class HullShader : public GrPathTessellationShader {
+public:
+    HullShader(const SkMatrix& viewMatrix, SkPMColor4f color)
+            : GrPathTessellationShader(kTessellate_HullShader_ClassID,
+                                       GrPrimitiveType::kTriangleStrip, 0, viewMatrix, color) {
+        constexpr static Attribute kPtsAttribs[] = {
+                {"input_points_0_1", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
+                {"input_points_2_3", kFloat4_GrVertexAttribType, kFloat4_GrSLType}};
+        this->setInstanceAttributes(kPtsAttribs, SK_ARRAY_COUNT(kPtsAttribs));
+    }
+
+private:
+    const char* name() const final { return "HullShader"; }
+    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const final {}
+    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const final;
+};
+
+GrGLSLGeometryProcessor* HullShader::createGLSLInstance(const GrShaderCaps&) const {
+    class Impl : public GrPathTessellationShader::Impl {
+        void emitVertexCode(GrGLSLVertexBuilder* v, GrGPArgs* gpArgs) override {
+            v->codeAppend(R"(
+            float4x2 P = float4x2(input_points_0_1, input_points_2_3);
+            if (isinf(P[3].y)) {  // Is the curve a conic?
+                float w = P[3].x;
+                if (isinf(w)) {
+                    // A conic with w=Inf is an exact triangle.
+                    P = float4x2(P[0], P[1], P[2], P[2]);
+                } else {
+                    // Convert the points to a trapeziodal hull that circumcscribes the conic.
+                    float2 p1w = P[1] * w;
+                    float T = .51;  // Bias outward a bit to ensure we cover the outermost samples.
+                    float2 c1 = mix(P[0], p1w, T);
+                    float2 c2 = mix(P[2], p1w, T);
+                    float iw = 1 / mix(1, w, T);
+                    P = float4x2(P[0], c1 * iw, c2 * iw, P[2]);
+                }
+            }
+
+            // Translate the points to v0..3 where v0=0.
+            float2 v1 = P[1] - P[0], v2 = P[2] - P[0], v3 = P[3] - P[0];
+
+            // Reorder the points so v2 bisects v1 and v3.
+            if (sign(determinant(float2x2(v2,v1))) == sign(determinant(float2x2(v2,v3)))) {
+                float2 tmp = P[2];
+                if (sign(determinant(float2x2(v1,v2))) != sign(determinant(float2x2(v1,v3)))) {
+                    P[2] = P[1];  // swap(P2, P1)
+                    P[1] = tmp;
+                } else {
+                    P[2] = P[3];  // swap(P2, P3)
+                    P[3] = tmp;
+                }
+            }
+
+            // sk_VertexID comes in fan order. Convert to strip order.
+            int vertexidx = sk_VertexID;
+            vertexidx ^= vertexidx >> 1;
+
+            // Find the "turn direction" of each corner and net turn direction.
+            float vertexdir = 0;
+            float netdir = 0;
+            for (int i = 0; i < 4; ++i) {
+                float2 prev = P[i] - P[(i + 3) & 3], next = P[(i + 1) & 3] - P[i];
+                float dir = sign(determinant(float2x2(prev, next)));
+                if (i == vertexidx) {
+                    vertexdir = dir;
+                }
+                netdir += dir;
+            }
+
+            // Remove the non-convex vertex, if any.
+            if (vertexdir != sign(netdir)) {
+                vertexidx = (vertexidx + 1) & 3;
+            }
+
+            float2 localcoord = P[vertexidx];
+            float2 vertexpos = AFFINE_MATRIX * localcoord + TRANSLATE;)");
+            gpArgs->fLocalCoordVar.set(kFloat2_GrSLType, "localcoord");
+            gpArgs->fPositionVar.set(kFloat2_GrSLType, "vertexpos");
+        }
+    };
+    return new Impl;
+}
+
+}  // namespace
 
 void GrPathInnerTriangulateOp::visitProxies(const VisitProxyFunc& fn) const {
     if (fPipelineForFills) {
@@ -41,22 +130,23 @@ GrProcessorSet::Analysis GrPathInnerTriangulateOp::finalize(const GrCaps& caps,
                                 clampType, &fColor);
 }
 
-void GrPathInnerTriangulateOp::pushFanStencilProgram(const GrPathShader::ProgramArgs& args,
+void GrPathInnerTriangulateOp::pushFanStencilProgram(const GrTessellationShader::ProgramArgs& args,
                                                      const GrPipeline* pipelineForStencils,
                                                      const GrUserStencilSettings* stencil) {
     SkASSERT(pipelineForStencils);
-    fFanPrograms.push_back(GrStencilPathShader::MakeStencilProgram<GrStencilTriangleShader>(
-            args, fViewMatrix, pipelineForStencils, stencil));
-}
+    auto shader = args.fArena->make<GrTriangleShader>(fViewMatrix, SK_PMColor4fTRANSPARENT);
+    fFanPrograms.push_back(GrTessellationShader::MakeProgram(args, shader, pipelineForStencils,
+                                                             stencil)); }
 
-void GrPathInnerTriangulateOp::pushFanFillProgram(const GrPathShader::ProgramArgs& args,
+void GrPathInnerTriangulateOp::pushFanFillProgram(const GrTessellationShader::ProgramArgs& args,
                                                   const GrUserStencilSettings* stencil) {
     SkASSERT(fPipelineForFills);
-    auto* shader = args.fArena->make<GrFillTriangleShader>(fViewMatrix, fColor);
-    fFanPrograms.push_back(GrPathShader::MakeProgram(args, shader, fPipelineForFills, stencil));
+    auto* shader = args.fArena->make<GrTriangleShader>(fViewMatrix, fColor);
+    fFanPrograms.push_back(GrTessellationShader::MakeProgram(args, shader, fPipelineForFills,
+                                                             stencil));
 }
 
-void GrPathInnerTriangulateOp::prePreparePrograms(const GrPathShader::ProgramArgs& args,
+void GrPathInnerTriangulateOp::prePreparePrograms(const GrTessellationShader::ProgramArgs& args,
                                                   GrAppliedClip&& appliedClip) {
     SkASSERT(!fFanTriangulator);
     SkASSERT(!fFanPolys);
@@ -82,15 +172,15 @@ void GrPathInnerTriangulateOp::prePreparePrograms(const GrPathShader::ProgramArg
     // Create a pipeline for stencil passes if needed.
     const GrPipeline* pipelineForStencils = nullptr;
     if (forceRedbookStencilPass || !isLinear) {  // Curves always get stencilled.
-        pipelineForStencils = GrStencilPathShader::MakeStencilPassPipeline(args, fAAType, fOpFlags,
-                                                                           appliedClip.hardClip());
+        pipelineForStencils = GrPathTessellationShader::MakeStencilOnlyPipeline(
+                args, fAAType, fOpFlags, appliedClip.hardClip());
     }
 
     // Create a pipeline for fill passes if needed.
     if (doFill) {
-        fPipelineForFills = GrFillPathShader::MakeFillPassPipeline(args, fAAType,
-                                                                   std::move(appliedClip),
-                                                                   std::move(fProcessors));
+        fPipelineForFills = GrTessellationShader::MakePipeline(args, fAAType,
+                                                               std::move(appliedClip),
+                                                               std::move(fProcessors));
     }
 
     // Pass 1: Tessellate the outer curves into the stencil buffer.
@@ -99,11 +189,14 @@ void GrPathInnerTriangulateOp::prePreparePrograms(const GrPathShader::ProgramArg
         // and the middle-out topology used by indirect draws is easier on the rasterizer than what
         // we can do with hw tessellation. So far we haven't found any platforms where trying to use
         // hw tessellation here is worth it.
-        fTessellator = GrPathTessellator::Make(args.fArena, fViewMatrix, fPath,
+        fTessellator = GrPathTessellator::Make(args.fArena, fPath, fViewMatrix,
+                                               SK_PMColor4fTRANSPARENT,
                                                GrPathTessellator::DrawInnerFan::kNo, *args.fCaps);
-        fStencilCurvesProgram = GrPathShader::MakeProgram(
-                args, fTessellator->shader(), pipelineForStencils,
-                GrStencilPathShader::StencilPassSettings(fPath.getFillType()));
+        const GrUserStencilSettings* stencilPathSettings =
+                GrPathTessellationShader::StencilPathSettings(fPath.getFillType());
+        fStencilCurvesProgram = GrTessellationShader::MakeProgram(args, fTessellator->shader(),
+                                                                  pipelineForStencils,
+                                                                  stencilPathSettings);
     }
 
     // Pass 2: Fill the path's inner fan with a stencil test against the curves.
@@ -111,11 +204,12 @@ void GrPathInnerTriangulateOp::prePreparePrograms(const GrPathShader::ProgramArg
         if (forceRedbookStencilPass) {
             // Use a standard Redbook "stencil then fill" algorithm instead of bypassing the stencil
             // buffer to fill the fan directly.
-            this->pushFanStencilProgram(
-                    args, pipelineForStencils,
-                    GrStencilPathShader::StencilPassSettings(fPath.getFillType()));
+            const GrUserStencilSettings* stencilPathSettings =
+                    GrPathTessellationShader::StencilPathSettings(fPath.getFillType());
+            this->pushFanStencilProgram(args, pipelineForStencils, stencilPathSettings);
             if (doFill) {
-                this->pushFanFillProgram(args, GrFillPathShader::TestAndResetStencilSettings());
+                this->pushFanFillProgram(args,
+                                         GrPathTessellationShader::TestAndResetStencilSettings());
             }
         } else if (isLinear) {
             // There are no outer curves! Ignore stencil and fill the path directly.
@@ -204,10 +298,10 @@ void GrPathInnerTriangulateOp::prePreparePrograms(const GrPathShader::ProgramArg
         // by curves. We issue a final cover pass over the curves by drawing their convex hulls.
         // This will fill in any remaining samples and reset the stencil values back to zero.
         SkASSERT(fTessellator);
-        auto* hullShader = args.fArena->make<GrFillCubicHullShader>(fViewMatrix, fColor);
-        fFillHullsProgram = GrPathShader::MakeProgram(
+        auto* hullShader = args.fArena->make<HullShader>(fViewMatrix, fColor);
+        fFillHullsProgram = GrTessellationShader::MakeProgram(
                 args, hullShader, fPipelineForFills,
-                GrFillPathShader::TestAndResetStencilSettings());
+                GrPathTessellationShader::TestAndResetStencilSettings());
     }
 }
 
