@@ -63,6 +63,7 @@ public:
 
     void setDefinition(const FunctionDefinition* definition) const {
         fDefinition = definition;
+        fIntrinsicKind = kNotIntrinsic;
     }
 
     const std::vector<const Variable*>& parameters() const {
@@ -122,7 +123,7 @@ private:
     const Type* fReturnType;
     bool fBuiltin;
     bool fIsMain;
-    IntrinsicKind fIntrinsicKind = kNotIntrinsic;
+    mutable IntrinsicKind fIntrinsicKind = kNotIntrinsic;
 
     friend class SkSL::dsl::DSLFunction;
 
