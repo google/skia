@@ -1,0 +1,56 @@
+{
+  "comments": [
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000011283334",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/413736?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "c5adab93_27c0a1b7",
+        "filename": "platform_tools/android/apps/androidkitdemo/src/main/java/org/skia/androidkitdemo1/samples/SkottieSample.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-05-28T16:48:30Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 25,
+        "startChar": 0,
+        "endLine": 25,
+        "endChar": 1
+      },
+      "revId": "3dcb6a102fd09dca35e2c92c58b5040e325bc080",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000011283334",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/413736?revision\u003d1",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "53f4ffca_7f330672",
+        "filename": "platform_tools/android/apps/androidkitdemo/src/main/java/org/skia/androidkitdemo1/samples/SkottieSample.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-05-28T16:48:30Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 39,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 8
+      },
+      "revId": "3dcb6a102fd09dca35e2c92c58b5040e325bc080",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
