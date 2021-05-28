@@ -27,17 +27,33 @@ import org.skia.androidkit.Surface;
 import org.skia.androidkit.TileMode;
 import org.skia.androidkit.util.SurfaceRenderer;
 
+import org.skia.androidkitdemo1.samples.ImageShaderSample;
+import org.skia.androidkitdemo1.samples.Sample;
+
 import static java.lang.Math.tan;
+
+// TODO: remove after all sides are migrated to something more interesting.
+class SolidColorSample implements Sample {
+    private Paint mPaint = new Paint();
+
+    public SolidColorSample(float r, float g, float b, float a) {
+        mPaint.setColor(r, g, b, a);
+    }
+
+    public void render(Canvas canvas, long t, float left, float top, float right, float bottom) {
+        canvas.drawRect(left, top, right, bottom, mPaint);
+    }
+}
 
 class Face {
     private float rotX;
     private float rotY;
-    public Paint paint;
+    public Sample sample;
 
-    Face(float rotX, float rotY, Paint paint) {
+    Face(float rotX, float rotY, Sample sample) {
         this.rotX = rotX;
         this.rotY = rotY;
-        this.paint = paint;
+        this.sample = sample;
     }
 
     Matrix asMatrix(float scale) {
@@ -142,24 +158,14 @@ class CubeRenderer extends SurfaceRenderer implements GestureDetector.OnGestureL
     private Face[] faces;
 
     public CubeRenderer(Resources res) {
-        Paint brickPaint = new Paint();
-
-        try {
-            Image image = Image.fromStream(res.openRawResource(R.raw.brickwork_texture));
-            Shader shader =
-                image.makeShader(TileMode.REPEAT, TileMode.REPEAT,
-                                 new SamplingOptions(SamplingOptions.FilterMode.LINEAR));
-            brickPaint.setShader(shader);
-        } catch (Exception e) {}
-
         final float rot = (float) Math.PI;
         faces = new Face[] {
-            new Face(0, -rot/2, brickPaint),
-            new Face(0, 0     , new Paint().setColor(new Color(1, 0, 0, 1))),
-            new Face(0, rot   , new Paint().setColor(new Color(0, 1, 0, 1))),
-            new Face(rot/2, 0 , new Paint().setColor(new Color(0, 0, 1, 1))),
-            new Face(-rot/2, 0, new Paint().setColor(new Color(1, 1, 0, 1))),
-            new Face(0, rot/2 , new Paint().setColor(new Color(0, 1, 1, 1))),
+            new Face(0, -rot/2, new ImageShaderSample(res, R.raw.brickwork_texture)),
+            new Face(0, 0     , new SolidColorSample(1, 0, 0, 1)),
+            new Face(0, rot   , new SolidColorSample(0, 1, 0, 1)),
+            new Face(rot/2, 0 , new SolidColorSample(0, 0, 1, 1)),
+            new Face(-rot/2, 0, new SolidColorSample(1, 1, 0, 1)),
+            new Face(0, rot/2 , new SolidColorSample(0, 1, 1, 1)),
         };
     }
 
@@ -212,8 +218,11 @@ class CubeRenderer extends SurfaceRenderer implements GestureDetector.OnGestureL
             canvas.concat(f.asMatrix(mCubeSideLength/2));
 
             if (front(canvas.getLocalToDevice())) {
-                canvas.drawRect(-mCubeSideLength/2, -mCubeSideLength/2,
-                                 mCubeSideLength/2,  mCubeSideLength/2, f.paint);
+                f.sample.render(canvas, ms,
+                                -mCubeSideLength/2,
+                                -mCubeSideLength/2,
+                                 mCubeSideLength/2,
+                                 mCubeSideLength/2);
             }
             canvas.restore();
         }
