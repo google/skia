@@ -8,6 +8,7 @@
 package org.skia.androidkitdemo1;
 
 import android.app.Activity;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -15,39 +16,27 @@ import android.view.SurfaceView;
 import java.io.InputStream;
 import org.skia.androidkit.*;
 import org.skia.androidkit.util.*;
+import org.skia.androidkitdemo1.samples.SkottieSample;
 
 class SkottieAnimationRenderer extends SurfaceRenderer {
-    private SkottieAnimation mAnimation;
-    private Matrix           mAnimationMatrix;
+    private SkottieSample mSample;
+    private float         mSurfaceWidth,
+                          mSurfaceHeight;
 
-    SkottieAnimationRenderer(SkottieAnimation animation) {
-        mAnimation = animation;
+    SkottieAnimationRenderer(Resources res, int resID) {
+        mSample = new SkottieSample(res, resID);
     }
 
     @Override
     protected void onSurfaceInitialized(Surface surface) {
-        // Scale to fit/center.
-        float sx = surface.getWidth()  / mAnimation.getWidth();
-        float sy = surface.getHeight() / mAnimation.getHeight();
-        float s = Math.min(sx, sy);
-        mAnimationMatrix = new Matrix()
-            .translate((surface.getWidth()  - s * mAnimation.getWidth())  / 2,
-                       (surface.getHeight() - s * mAnimation.getHeight()) / 2)
-            .scale(s, s);
+        mSurfaceWidth  = surface.getWidth();
+        mSurfaceHeight = surface.getHeight();
     }
 
     @Override
     protected void onRenderFrame(Canvas canvas, long ms) {
-        double t = (double)ms / 1000 % mAnimation.getDuration();
-        mAnimation.seekTime(t);
-
-        canvas.save();
-        canvas.concat(mAnimationMatrix);
-
         canvas.drawColor(1, 1, 1, 1);
-        mAnimation.render(canvas);
-
-        canvas.restore();
+        mSample.render(canvas, ms, 0, 0, mSurfaceWidth, mSurfaceHeight);
     }
 }
 
@@ -62,16 +51,6 @@ public class SkottieAnimationActivity extends Activity {
         setContentView(R.layout.activity_animation);
 
         SurfaceView sv = findViewById(R.id.surfaceView);
-
-        try {
-            InputStream is = getResources().openRawResource(R.raw.im_thirsty);
-            byte[] data = new byte[is.available()];
-            is.read(data);
-
-            SkottieAnimation animation = new SkottieAnimation(new String(data));
-            sv.getHolder().addCallback(new SkottieAnimationRenderer(animation));
-        } catch (Exception e) {
-            Log.e("AndroidKit", "Could not load animation resource: " + R.raw.im_thirsty);
-        }
+        sv.getHolder().addCallback(new SkottieAnimationRenderer(getResources(), R.raw.im_thirsty));
     }
 }
