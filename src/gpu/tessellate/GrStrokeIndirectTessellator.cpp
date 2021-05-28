@@ -15,7 +15,7 @@
 #include "src/gpu/geometry/GrPathUtils.h"
 #include "src/gpu/geometry/GrWangsFormula.h"
 #include "src/gpu/tessellate/GrStrokeIterator.h"
-#include "src/gpu/tessellate/GrStrokeShader.h"
+#include "src/gpu/tessellate/shaders/GrStrokeTessellationShader.h"
 
 namespace {
 
@@ -445,7 +445,7 @@ GrStrokeIndirectTessellator::GrStrokeIndirectTessellator(ShaderFlags shaderFlags
                                                          const SkRect& strokeCullBounds,
                                                          int totalCombinedVerbCnt,
                                                          SkArenaAlloc* alloc)
-        : GrStrokeTessellator(GrStrokeShader::Mode::kLog2Indirect, shaderFlags,
+        : GrStrokeTessellator(GrStrokeTessellationShader::Mode::kLog2Indirect, shaderFlags,
                               kMaxParametricSegments_log2, viewMatrix, pathStrokeList,
                               matrixMinMaxScales, strokeCullBounds) {
     // The maximum potential number of values we will need in fResolveLevels is:
@@ -475,8 +475,9 @@ GrStrokeIndirectTessellator::GrStrokeIndirectTessellator(ShaderFlags shaderFlags
             counter.updateTolerances(stroke.getWidth(), (stroke.getJoin() == SkPaint::kRound_Join));
             lastStrokeWidth = stroke.getWidth();
         }
-        fMaxNumExtraEdgesInJoin = std::max(fMaxNumExtraEdgesInJoin,
-                                           GrStrokeShader::NumFixedEdgesInJoin(stroke.getJoin()));
+        fMaxNumExtraEdgesInJoin = std::max(
+                fMaxNumExtraEdgesInJoin,
+                GrStrokeTessellationShader::NumFixedEdgesInJoin(stroke.getJoin()));
         // Iterate through each verb in the stroke, counting its resolveLevel(s).
         GrStrokeIterator iter(pathStroke->fPath, &stroke, &viewMatrix);
         while (iter.next()) {
@@ -642,8 +643,8 @@ constexpr static int num_edges_in_resolve_level(int resolveLevel) {
 // per bin. Provides methods to write strokes to their respective bins.
 class BinningInstanceWriter {
 public:
-    using ShaderFlags = GrStrokeShader::ShaderFlags;
-    using DynamicStroke = GrStrokeShader::DynamicStroke;
+    using ShaderFlags = GrStrokeTessellationShader::ShaderFlags;
+    using DynamicStroke = GrStrokeTessellationShader::DynamicStroke;
     constexpr static int kNumBins = GrStrokeIndirectTessellator::kMaxResolveLevel + 1;
 
     BinningInstanceWriter(GrDrawIndirectWriter* indirectWriter, GrVertexWriter* instanceWriter,
