@@ -22,6 +22,11 @@ public class Paint {
         return this;
     }
 
+    public Paint setColor(float r, float g, float b, float a) {
+        nSetColor(mNativeInstance, r, g, b, a);
+        return this;
+    }
+
     public Paint setShader(Shader shader) {
         nSetShader(mNativeInstance, shader != null ? shader.getNativeInstance() : 0);
         return this;
