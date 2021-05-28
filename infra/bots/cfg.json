@@ -11,8 +11,6 @@
     "AbandonGpuContext",
     "Coverage",
     "MSAN",
-    "OpenCL",
-    "SKQP",
     "TSAN",
     "Valgrind",
     "WasmGMTests"

@@ -28,7 +28,8 @@ private:
     DEFINE_OP_CLASS_ID
 
     GrPathInnerTriangulateOp(const SkMatrix& viewMatrix, const SkPath& path, GrPaint&& paint,
-                       GrAAType aaType, GrTessellationPathRenderer::OpFlags opFlags)
+                       GrAAType aaType, GrTessellationPathRenderer::OpFlags opFlags,
+                       const SkRect& devBounds)
             : GrDrawOp(ClassID())
             , fOpFlags(opFlags)
             , fViewMatrix(viewMatrix)
@@ -36,8 +37,6 @@ private:
             , fAAType(aaType)
             , fColor(paint.getColor4f())
             , fProcessors(std::move(paint)) {
-        SkRect devBounds;
-        fViewMatrix.mapRect(&devBounds, path.getBounds());
         this->setBounds(devBounds, HasAABloat::kNo, IsHairline::kNo);
     }
 

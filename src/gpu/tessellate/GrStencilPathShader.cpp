@@ -57,24 +57,23 @@ protected:
         args.fVaryingHandler->emitAttributes(shader);
         auto v = args.fVertBuilder;
 
-        GrShaderVar vertexPos = (*shader.vertexAttributes().begin()).asShaderVar();
-        if (!shader.viewMatrix().isIdentity()) {
-            const char* viewMatrix;
-            fViewMatrixUniform = args.fUniformHandler->addUniform(
-                    nullptr, kVertex_GrShaderFlag, kFloat3x3_GrSLType, "view_matrix", &viewMatrix);
-            v->codeAppendf("float2 vertexpos = (%s * float3(inputPoint, 1)).xy;", viewMatrix);
-            if (shader.willUseTessellationShaders()) {
-                // If y is infinity then x is a conic weight. Don't transform.
-                v->codeAppendf("vertexpos = (isinf(inputPoint.y)) ? inputPoint : vertexpos;");
-            }
-            vertexPos.set(kFloat2_GrSLType, "vertexpos");
+        const char* affineMatrix, *translate;
+        fAffineMatrixUniform = args.fUniformHandler->addUniform(
+                nullptr, kVertex_GrShaderFlag, kFloat4_GrSLType, "affineMatrix", &affineMatrix);
+        fTranslateUniform = args.fUniformHandler->addUniform(
+                nullptr, kVertex_GrShaderFlag, kFloat2_GrSLType, "translate", &translate);
+        v->codeAppendf("float2 vertexpos = float2x2(%s) * inputPoint + %s;",
+                       affineMatrix, translate);
+        if (shader.willUseTessellationShaders()) {
+            // If y is infinity then x is a conic weight. Don't transform.
+            v->codeAppendf("vertexpos = (isinf(inputPoint.y)) ? inputPoint : vertexpos;");
         }
 
         if (!shader.willUseTessellationShaders()) {  // This is the case for the triangle shader.
-            gpArgs->fPositionVar = vertexPos;
+            gpArgs->fPositionVar.set(kFloat2_GrSLType, "vertexpos");
         } else {
             v->declareGlobal(GrShaderVar("P", kFloat2_GrSLType, GrShaderVar::TypeModifier::Out));
-            v->codeAppendf("P = %s;", vertexPos.c_str());
+            v->codeAppendf("P = %s;", "vertexpos");
         }
 
         // The fragment shader is normally disabled, but output fully opaque white.
@@ -85,13 +84,13 @@ protected:
     void setData(const GrGLSLProgramDataManager& pdman,
                  const GrShaderCaps&,
                  const GrGeometryProcessor& geomProc) override {
-        const auto& shader = geomProc.cast<GrStencilPathShader>();
-        if (!shader.viewMatrix().isIdentity()) {
-            pdman.setSkMatrix(fViewMatrixUniform, shader.viewMatrix());
-        }
+        const SkMatrix& m = geomProc.cast<GrStencilPathShader>().viewMatrix();
+        pdman.set4f(fAffineMatrixUniform, m.getScaleX(), m.getSkewY(), m.getSkewX(), m.getScaleY());
+        pdman.set2f(fTranslateUniform, m.getTranslateX(), m.getTranslateY());
     }
 
-    GrGLSLUniformHandler::UniformHandle fViewMatrixUniform;
+    GrGLSLUniformHandler::UniformHandle fAffineMatrixUniform;
+    GrGLSLUniformHandler::UniformHandle fTranslateUniform;
 };
 
 GrGLSLGeometryProcessor* GrStencilPathShader::createGLSLInstance(const GrShaderCaps&) const {
@@ -103,12 +102,14 @@ GrGLSLGeometryProcessor* GrCurveTessellateShader::createGLSLInstance(const GrSha
         SkString getTessControlShaderGLSL(const GrGeometryProcessor&,
                                           const char* versionAndExtensionDecls,
                                           const GrGLSLUniformHandler&,
-                                          const GrShaderCaps&) const override {
+                                          const GrShaderCaps& shaderCaps) const override {
             SkString code(versionAndExtensionDecls);
+            code.appendf(R"(
+            #define MAX_TESSELLATION_SEGMENTS %i)", shaderCaps.maxTessellationSegments());
             code.appendf(R"(
             #define PRECISION %f)", GrTessellationPathRenderer::kLinearizationPrecision);
             code.append(kSkSLTypeDefs);
-            code.append(GrWangsFormula::as_sksl(true/*hasConics*/));
+            code.append(GrWangsFormula::as_sksl());
             code.append(kUnpackRationalCubicFn);
             code.append(R"(
             layout(vertices = 1) out;
@@ -165,9 +166,9 @@ GrGLSLGeometryProcessor* GrCurveTessellateShader::createGLSLInstance(const GrSha
                     rationalCubicW = fma(w, 2.0/3.0, 1.0/3.0);
                 }
 
-                gl_TessLevelOuter[0] = n1;
+                gl_TessLevelOuter[0] = min(n1, MAX_TESSELLATION_SEGMENTS);
                 gl_TessLevelOuter[1] = 1.0;
-                gl_TessLevelOuter[2] = n0;
+                gl_TessLevelOuter[2] = min(n0, MAX_TESSELLATION_SEGMENTS);
 
                 // Changing the inner level to 1 when n0 == n1 == 1 collapses the entire patch to a
                 // single triangle. Otherwise, we need an inner level of 2 so our curve triangles
@@ -234,12 +235,14 @@ GrGLSLGeometryProcessor* GrWedgeTessellateShader::createGLSLInstance(const GrSha
         SkString getTessControlShaderGLSL(const GrGeometryProcessor&,
                                           const char* versionAndExtensionDecls,
                                           const GrGLSLUniformHandler&,
-                                          const GrShaderCaps&) const override {
+                                          const GrShaderCaps& shaderCaps) const override {
             SkString code(versionAndExtensionDecls);
+            code.appendf(R"(
+            #define MAX_TESSELLATION_SEGMENTS %i)", shaderCaps.maxTessellationSegments());
             code.appendf(R"(
             #define PRECISION %f)", GrTessellationPathRenderer::kLinearizationPrecision);
             code.append(kSkSLTypeDefs);
-            code.append(GrWangsFormula::as_sksl(true/*hasConics*/));
+            code.append(GrWangsFormula::as_sksl());
             code.append(kUnpackRationalCubicFn);
             code.append(R"(
             layout(vertices = 1) out;
@@ -255,7 +258,7 @@ GrGLSLGeometryProcessor* GrWedgeTessellateShader::createGLSLInstance(const GrSha
                 float n = wangs_formula(PRECISION, P[0], P[1], P[2], P[3], w);
 
                 // Tessellate the first side of the patch into n triangles.
-                gl_TessLevelOuter[0] = n;
+                gl_TessLevelOuter[0] = min(n, MAX_TESSELLATION_SEGMENTS);
 
                 // Leave the other two sides of the patch as single segments.
                 gl_TessLevelOuter[1] = 1.0;
@@ -371,13 +374,13 @@ class GrCurveMiddleOutShader::Impl : public GrStencilPathShader::Impl {
             float T = find_middle_out_T();
             pos = eval_rational_cubic(P, T);
         })");
-        if (!shader.viewMatrix().isIdentity()) {
-            const char* viewMatrix;
-            fViewMatrixUniform = args.fUniformHandler->addUniform(
-                    nullptr, kVertex_GrShaderFlag, kFloat3x3_GrSLType, "view_matrix", &viewMatrix);
-            args.fVertBuilder->codeAppendf(R"(
-            pos = (%s * float3(pos, 1)).xy;)", viewMatrix);
-        }
+        const char* affineMatrix, *translate;
+        fAffineMatrixUniform = args.fUniformHandler->addUniform(
+                nullptr, kVertex_GrShaderFlag, kFloat4_GrSLType, "affineMatrix", &affineMatrix);
+        fTranslateUniform = args.fUniformHandler->addUniform(
+                nullptr, kVertex_GrShaderFlag, kFloat2_GrSLType, "translate", &translate);
+        args.fVertBuilder->codeAppendf(R"(
+        pos = float2x2(%s) * pos + %s;)", affineMatrix, translate);
         gpArgs->fPositionVar.set(kFloat2_GrSLType, "pos");
 
         // The fragment shader is normally disabled, but output fully opaque white.

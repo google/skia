@@ -1,6 +1,17 @@
-uniform half a, b;
-uniform half4 c, d;
-void main() {
-    sk_FragColor.x = distance(a, b);
-    sk_FragColor.x = distance(c, d);
+uniform half4 pos1, pos2;
+uniform half4 colorGreen, colorRed;
+
+half4 main(float2 coords) {
+    const half4 constPos1 = half4(8, -3, 4, 14);
+    const half4 constPos2 = half4(5, -3, 0, 2);
+    half4 expected = half4(3, 3, 5, 13);
+
+    return (distance(pos1.x,         pos2.x)         == expected.x &&
+            distance(pos1.xy,        pos2.xy)        == expected.y &&
+            distance(pos1.xyz,       pos2.xyz)       == expected.z &&
+            distance(pos1.xyzw,      pos2.xyzw)      == expected.w &&
+            distance(constPos1.x,    constPos2.x)    == expected.x &&
+            distance(constPos1.xy,   constPos2.xy)   == expected.y &&
+            distance(constPos1.xyz,  constPos2.xyz)  == expected.z &&
+            distance(constPos1.xyzw, constPos2.xyzw) == expected.w) ? colorGreen : colorRed;
 }

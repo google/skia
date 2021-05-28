@@ -59,8 +59,8 @@ class GrSurfaceDrawContext : public GrSurfaceFillContext {
 public:
     static std::unique_ptr<GrSurfaceDrawContext> Make(GrRecordingContext*,
                                                       GrColorType,
-                                                      sk_sp<SkColorSpace>,
                                                       sk_sp<GrSurfaceProxy>,
+                                                      sk_sp<SkColorSpace>,
                                                       GrSurfaceOrigin,
                                                       const SkSurfaceProps&,
                                                       bool flushTimeOpsTask = false);

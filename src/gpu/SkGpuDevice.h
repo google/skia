@@ -38,14 +38,18 @@ public:
         return this->surfaceDrawContext()->readSurfaceView();
     }
 
+    bool wait(int numSemaphores,
+              const GrBackendSemaphore* waitSemaphores,
+              bool deleteSemaphoresAfterWait) override;
+
     /**
      * This factory uses the color space, origin, surface properties, and initialization
      * method along with the provided proxy to create the gpu device.
      */
     static sk_sp<SkGpuDevice> Make(GrRecordingContext*,
                                    GrColorType,
-                                   sk_sp<SkColorSpace>,
                                    sk_sp<GrSurfaceProxy>,
+                                   sk_sp<SkColorSpace>,
                                    GrSurfaceOrigin,
                                    const SkSurfaceProps&,
                                    InitContents);
@@ -61,10 +65,10 @@ public:
                                    const SkImageInfo&,
                                    SkBackingFit,
                                    int sampleCount,
-                                   GrSurfaceOrigin,
-                                   const SkSurfaceProps*,
                                    GrMipmapped,
                                    GrProtected,
+                                   GrSurfaceOrigin,
+                                   const SkSurfaceProps&,
                                    InitContents);
 
     ~SkGpuDevice() override {}
@@ -119,9 +123,6 @@ public:
     sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override;
     sk_sp<SkSpecialImage> snapSpecial(const SkIRect& subset, bool forceCopy = false) override;
-
-    bool wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores,
-              bool deleteSemaphoresAfterWait);
 
     bool onAccessPixels(SkPixmap*) override;
 
@@ -181,7 +182,9 @@ private:
     static bool CheckAlphaTypeAndGetFlags(const SkImageInfo* info, InitContents init,
                                           unsigned* flags);
 
-    static sk_sp<SkGpuDevice> Make(std::unique_ptr<GrSurfaceDrawContext>, InitContents);
+    static sk_sp<SkGpuDevice> Make(std::unique_ptr<GrSurfaceDrawContext>,
+                                   const SkImageInfo*,
+                                   InitContents);
 
     SkGpuDevice(std::unique_ptr<GrSurfaceDrawContext>, unsigned flags);
 
@@ -216,10 +219,10 @@ private:
                                                                         const SkImageInfo&,
                                                                         SkBackingFit,
                                                                         int sampleCount,
-                                                                        GrSurfaceOrigin,
-                                                                        const SkSurfaceProps*,
                                                                         GrMipmapped,
-                                                                        GrProtected);
+                                                                        GrProtected,
+                                                                        GrSurfaceOrigin,
+                                                                        const SkSurfaceProps&);
 
     friend class SkSurface_Gpu;      // for access to surfaceProps
     using INHERITED = SkBaseGpuDevice;

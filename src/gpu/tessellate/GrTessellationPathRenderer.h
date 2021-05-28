@@ -36,9 +36,9 @@ public:
     // We send these flags to the internal tessellation Ops to control how a path gets rendered.
     enum class OpFlags {
         kNone = 0,
-        // Used when tessellation is not supported, or when a path will require more resolution than
-        // the max number of segments supported by the hardware.
-        kDisableHWTessellation = (1 << 0),
+        // Used when the path is an atlas with relatively small contours, or something else that
+        // does best with wedges.
+        kPreferWedges = (1 << 0),
         kStencilOnly = (1 << 1),
         kWireframe = (1 << 2)
     };
@@ -57,7 +57,6 @@ public:
     void preFlush(GrOnFlushResourceProvider*, SkSpan<const uint32_t> taskIDs) override;
 
 private:
-    void initAtlasFlags(GrRecordingContext*);
     SkPath* getAtlasUberPath(SkPathFillType fillType, bool antialias) {
         int idx = (int)antialias << 1;
         idx |= (int)fillType & 1;
@@ -70,8 +69,7 @@ private:
     void renderAtlas(GrOnFlushResourceProvider*);
 
     GrDynamicAtlas fAtlas;
-    OpFlags fStencilAtlasFlags;
-    int fMaxAtlasPathWidth;
+    int fMaxAtlasPathWidth = 0;
     SkPath fAtlasUberPaths[4];  // 2 fillTypes * 2 antialias modes.
 };
 

@@ -1,6 +1,8 @@
 /*#pragma settings MustForceNegatedAtanParamToFloat*/
 
+uniform float unknownInput;
+
 void main() {
-    float2 x = float2(sqrt(2));
+    float2 x = unknownInput.xx;
     sk_FragColor.r = half(atan(x.x, -x.y));
 }

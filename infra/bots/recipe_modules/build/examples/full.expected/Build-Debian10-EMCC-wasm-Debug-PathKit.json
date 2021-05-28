@@ -23,7 +23,7 @@
       "[START_DIR]/cache/work:/SRC",
       "--volume",
       "[START_DIR]/cache/docker/pathkit:/OUT",
-      "gcr.io/skia-public/emsdk-base:2.0.10_v1",
+      "gcr.io/skia-public/emsdk-base:2.0.20_v1",
       "/SRC/skia/infra/pathkit/build_pathkit.sh",
       "debug"
     ],

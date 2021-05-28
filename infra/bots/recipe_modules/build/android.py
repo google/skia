@@ -68,33 +68,9 @@ def compile_fn(api, checkout_root, out_dir):
             script=skia_dir.join('bin', 'fetch-gn'),
             infra_step=True)
 
-    # If this is the SkQP build, set up the environment and run the script
-    # to build the universal APK. This should only run the skqp branches.
-    if 'SKQP' in extra_tokens:
-      output_binary = out_dir.join('run_testlab')
-      build_target = skia_dir.join('infra', 'cts', 'run_testlab.go')
-      build_cmd = ['go', 'build', '-o', output_binary, build_target]
-      with api.context(env=api.infra.go_env):
-        api.run(api.step, 'build firebase runner', cmd=build_cmd)
-
-      # Build the APK.
-      ndk_asset = 'android_ndk_linux'
-      sdk_asset = 'android_sdk_linux'
-      android_ndk = api.vars.workdir.join(ndk_asset)
-      android_home = api.vars.workdir.join(sdk_asset, 'android-sdk')
-      env = {
-        'ANDROID_NDK': android_ndk,
-        'ANDROID_HOME': android_home,
-        'APK_OUTPUT_DIR': out_dir,
-      }
-
-      mk_universal = skia_dir.join('tools', 'skqp', 'make_universal_apk')
-      with api.context(env=env):
-        api.run(api.step, 'make_universal', cmd=[mk_universal])
-    else:
-      api.run(api.step, 'gn gen',
-              cmd=[gn, 'gen', out_dir, '--args=' + gn_args])
-      api.run(api.step, 'ninja', cmd=['ninja', '-C', out_dir])
+    api.run(api.step, 'gn gen',
+            cmd=[gn, 'gen', out_dir, '--args=' + gn_args])
+    api.run(api.step, 'ninja', cmd=['ninja', '-C', out_dir])
 
 
 ANDROID_BUILD_PRODUCTS_LIST = [

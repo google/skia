@@ -13,9 +13,21 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "src/core/SkAutoMalloc.h"
 
+#include <tuple>
+
 class SkData;
 
 namespace sk_gpu_test {
+
+// Splits an input image into A8 YUV[A] planes using the passed subsampling and YUV color space. If
+// the src image is opaque there will be three planes (Y, U, and V) and if not there will be a
+// fourth A plane. The planes are returned along with a SkYUVAInfo describing the resulting planar
+// image. Images are made as textures if GrRecordingContext is not null, otherwise as cpu images.
+std::tuple<std::array<sk_sp<SkImage>, SkYUVAInfo::kMaxPlanes>, SkYUVAInfo>
+MakeYUVAPlanesAsA8(SkImage*,
+                   SkYUVColorSpace,
+                   SkYUVAInfo::Subsampling,
+                   GrRecordingContext*);
 
 // Utility that decodes a JPEG but preserves the YUVA8 planes in the image, and uses
 // MakeFromYUVAPixmaps to create a GPU multiplane YUVA image for a context. It extracts the planar

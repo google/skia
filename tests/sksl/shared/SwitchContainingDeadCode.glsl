@@ -1,14 +1,15 @@
 
 out vec4 sk_FragColor;
+uniform int unknownInput;
 void main() {
-    float x;
-    switch (int(sqrt(2.0))) {
+    float value;
+    switch (unknownInput) {
         case 0:
-            x = 0.0;
+            value = 0.0;
         case 1:
-            x = 1.0;
+            value = 1.0;
         default:
-            x = 2.0;
+            value = 2.0;
     }
-    sk_FragColor = vec4(x);
+    sk_FragColor = vec4(value);
 }

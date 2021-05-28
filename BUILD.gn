@@ -2170,8 +2170,15 @@ if (skia_enable_tools) {
         "modules/svg",
       ]
     }
-    test_app("ddlbench") {
-      sources = [ "experimental/ddlbench/ddlbench.cpp" ]
+    test_app("ngatoy") {
+      sources = [
+        "experimental/ngatoy/Cmds.cpp",
+        "experimental/ngatoy/Cmds.h",
+        "experimental/ngatoy/Fake.cpp",
+        "experimental/ngatoy/Fake.h",
+        "experimental/ngatoy/SortKey.h",
+        "experimental/ngatoy/ngatoy.cpp",
+      ]
       deps = [
         ":flags",
         ":skia",
@@ -2810,18 +2817,6 @@ if (skia_enable_tools) {
     }
   }
 
-  if (skia_use_gl && (is_linux || is_mac || is_ios)) {
-    test_app("SkiaSDLExample") {
-      sources = [ "example/SkiaSDLExample.cpp" ]
-      libs = []
-      deps = [
-        ":gpu_tool_utils",
-        ":skia",
-        "//third_party/libsdl",
-      ]
-    }
-  }
-
   if (skia_qt_path != "" && (is_win || is_linux || is_mac)) {
     action_foreach("generate_mocs") {
       script = "gn/call.py"
@@ -2887,13 +2882,6 @@ if (skia_enable_tools) {
     copy("gdbserver") {
       sources = [ "$ndk/$ndk_gdbserver" ]
       outputs = [ "$root_out_dir/gdbserver" ]
-    }
-  }
-
-  if (skia_use_opencl) {
-    test_app("hello-opencl") {
-      sources = [ "tools/hello-opencl.cpp" ]
-      deps = [ "//third_party/opencl" ]
     }
   }
 

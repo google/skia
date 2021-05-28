@@ -110,8 +110,6 @@ public:
     static void RegisterFlattenables();
 
 private:
-    friend class SkPathEffectPriv;
-
     using INHERITED = SkPathEffect;
 };
 

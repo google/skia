@@ -144,7 +144,7 @@ void GrGLSLFragmentShaderBuilder::enableSecondaryOutput() {
 }
 
 const char* GrGLSLFragmentShaderBuilder::getPrimaryColorOutputName() const {
-    return this->hasCustomColorOutput() ? DeclaredColorOutputName() : "sk_FragColor";
+    return DeclaredColorOutputName();
 }
 
 bool GrGLSLFragmentShaderBuilder::primaryColorOutputIsInOut() const {

@@ -1,6 +1,22 @@
-uniform half a, b;
-uniform half4 c, d;
-void main() {
-    sk_FragColor.x = reflect(a, b);
-    sk_FragColor = reflect(c, d);
+uniform half4 I, N;
+uniform half4 colorGreen, colorRed;
+
+half4 main(float2 xy) {
+    const half4 constI    = half4(1, -2, 3, -4);
+    const half4 constN    = half4(-5, 6, -7, 8);
+
+    half  expectedX    = half (-49);
+    half2 expectedXY   = half2(-169, 202);
+    half3 expectedXYZ  = half3(-379, 454, -529);
+    half4 expectedXYZW = half4(-699, 838, -977, 1116);
+
+    return (reflect(I.x,         N.x        ) == expectedX    &&
+            reflect(I.xy,        N.xy       ) == expectedXY   &&
+            reflect(I.xyz,       N.xyz      ) == expectedXYZ  &&
+            reflect(I.xyzw,      N.xyzw     ) == expectedXYZW &&
+            reflect(constI.x,    constN.x   ) == expectedX    &&
+            reflect(constI.xy,   constN.xy  ) == expectedXY   &&
+            reflect(constI.xyz,  constN.xyz ) == expectedXYZ  &&
+            reflect(constI.xyzw, constN.xyzw) == expectedXYZW) ? colorGreen
+                                                               : colorRed;
 }

@@ -26,18 +26,17 @@
 class GrStrokeShader : public GrPathShader {
 public:
     // Are we using hardware tessellation or indirect draws?
-    enum class Mode {
+    enum class Mode : int8_t {
         kHardwareTessellation,
         kLog2Indirect,
         kFixedCount
     };
 
-    enum class ShaderFlags {
+    enum class ShaderFlags : uint8_t {
         kNone          = 0,
-        kHasConics     = 1 << 0,
-        kWideColor     = 1 << 1,
-        kDynamicStroke = 1 << 2,  // Each patch or instance has its own stroke width and join type.
-        kDynamicColor  = 1 << 3,  // Each patch or instance has its own color.
+        kWideColor     = 1 << 0,
+        kDynamicStroke = 1 << 1,  // Each patch or instance has its own stroke width and join type.
+        kDynamicColor  = 1 << 2,  // Each patch or instance has its own color.
     };
 
     GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(ShaderFlags);
@@ -99,14 +98,15 @@ public:
     };
 
     // 'viewMatrix' is applied to the geometry post tessellation. It cannot have perspective.
-    GrStrokeShader(Mode mode, ShaderFlags shaderFlags, const SkMatrix& viewMatrix,
-                   const SkStrokeRec& stroke, SkPMColor4f color)
+    GrStrokeShader(Mode mode, ShaderFlags shaderFlags, int8_t maxParametricSegments_log2,
+                   const SkMatrix& viewMatrix, const SkStrokeRec& stroke, SkPMColor4f color)
             : GrPathShader(kTessellate_GrStrokeShader_ClassID, viewMatrix,
                            (mode == Mode::kHardwareTessellation) ?
                                    GrPrimitiveType::kPatches : GrPrimitiveType::kTriangleStrip,
                            (mode == Mode::kHardwareTessellation) ? 1 : 0)
             , fMode(mode)
             , fShaderFlags(shaderFlags)
+            , fMaxParametricSegments_log2(maxParametricSegments_log2)
             , fStroke(stroke)
             , fColor(color) {
         if (fMode == Mode::kHardwareTessellation) {
@@ -168,7 +168,7 @@ public:
 
     Mode mode() const { return fMode; }
     ShaderFlags flags() const { return fShaderFlags; }
-    bool hasConics() const { return fShaderFlags & ShaderFlags::kHasConics; }
+    int8_t maxParametricSegments_log2() const { return fMaxParametricSegments_log2; }
     bool hasDynamicStroke() const { return fShaderFlags & ShaderFlags::kDynamicStroke; }
     bool hasDynamicColor() const { return fShaderFlags & ShaderFlags::kDynamicColor; }
     const SkStrokeRec& stroke() const { return fStroke;}
@@ -189,6 +189,7 @@ private:
 
     const Mode fMode;
     const ShaderFlags fShaderFlags;
+    const int8_t fMaxParametricSegments_log2;
     const SkStrokeRec fStroke;
     const SkPMColor4f fColor;
 

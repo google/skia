@@ -92,28 +92,28 @@ private:
     GrDrawingManager* fDrawingManager;
 };
 
-std::unique_ptr<GrSurfaceDrawContext> GrSurfaceDrawContext::Make(GrRecordingContext* context,
+std::unique_ptr<GrSurfaceDrawContext> GrSurfaceDrawContext::Make(GrRecordingContext* rContext,
                                                                  GrColorType colorType,
-                                                                 sk_sp<SkColorSpace> colorSpace,
                                                                  sk_sp<GrSurfaceProxy> proxy,
+                                                                 sk_sp<SkColorSpace> colorSpace,
                                                                  GrSurfaceOrigin origin,
                                                                  const SkSurfaceProps& surfaceProps,
                                                                  bool flushTimeOpsTask) {
-    if (!proxy) {
+    if (!rContext || !proxy) {
         return nullptr;
     }
 
     const GrBackendFormat& format = proxy->backendFormat();
     GrSwizzle readSwizzle, writeSwizzle;
     if (colorType != GrColorType::kUnknown) {
-        readSwizzle = context->priv().caps()->getReadSwizzle(format, colorType);
-        writeSwizzle = context->priv().caps()->getWriteSwizzle(format, colorType);
+        readSwizzle = rContext->priv().caps()->getReadSwizzle(format, colorType);
+        writeSwizzle = rContext->priv().caps()->getWriteSwizzle(format, colorType);
     }
 
     GrSurfaceProxyView readView (           proxy, origin,  readSwizzle);
     GrSurfaceProxyView writeView(std::move(proxy), origin, writeSwizzle);
 
-    return std::make_unique<GrSurfaceDrawContext>(context,
+    return std::make_unique<GrSurfaceDrawContext>(rContext,
                                                   std::move(readView),
                                                   std::move(writeView),
                                                   colorType,
@@ -171,7 +171,7 @@ std::unique_ptr<GrSurfaceDrawContext> GrSurfaceDrawContext::Make(
 }
 
 std::unique_ptr<GrSurfaceDrawContext> GrSurfaceDrawContext::Make(
-        GrRecordingContext* context,
+        GrRecordingContext* rContext,
         GrColorType colorType,
         sk_sp<SkColorSpace> colorSpace,
         SkBackingFit fit,
@@ -182,26 +182,26 @@ std::unique_ptr<GrSurfaceDrawContext> GrSurfaceDrawContext::Make(
         GrProtected isProtected,
         GrSurfaceOrigin origin,
         SkBudgeted budgeted) {
-    auto format = context->priv().caps()->getDefaultBackendFormat(colorType, GrRenderable::kYes);
+    auto format = rContext->priv().caps()->getDefaultBackendFormat(colorType, GrRenderable::kYes);
     if (!format.isValid()) {
         return nullptr;
     }
-    sk_sp<GrTextureProxy> proxy = context->priv().proxyProvider()->createProxy(format,
-                                                                               dimensions,
-                                                                               GrRenderable::kYes,
-                                                                               sampleCnt,
-                                                                               mipMapped,
-                                                                               fit,
-                                                                               budgeted,
-                                                                               isProtected);
+    sk_sp<GrTextureProxy> proxy = rContext->priv().proxyProvider()->createProxy(format,
+                                                                                dimensions,
+                                                                                GrRenderable::kYes,
+                                                                                sampleCnt,
+                                                                                mipMapped,
+                                                                                fit,
+                                                                                budgeted,
+                                                                                isProtected);
     if (!proxy) {
         return nullptr;
     }
 
-    return GrSurfaceDrawContext::Make(context,
+    return GrSurfaceDrawContext::Make(rContext,
                                       colorType,
-                                      std::move(colorSpace),
                                       std::move(proxy),
+                                      std::move(colorSpace),
                                       origin,
                                       surfaceProps);
 }
@@ -243,7 +243,7 @@ std::unique_ptr<GrSurfaceDrawContext> GrSurfaceDrawContext::MakeFromBackendTextu
         return nullptr;
     }
 
-    return GrSurfaceDrawContext::Make(context, colorType, std::move(colorSpace), std::move(proxy),
+    return GrSurfaceDrawContext::Make(context, colorType, std::move(proxy), std::move(colorSpace),
                                       origin, surfaceProps);
 }
 
@@ -1879,24 +1879,17 @@ void GrSurfaceDrawContext::addDrawOp(const GrClip* clip,
     SkRect bounds;
     op_bounds(&bounds, op.get());
     GrAppliedClip appliedClip(this->dimensions(), this->asSurfaceProxy()->backingStoreDimensions());
-    GrDrawOp::FixedFunctionFlags fixedFunctionFlags = drawOp->fixedFunctionFlags();
-    bool usesHWAA = fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesHWAA;
-    bool usesUserStencilBits = fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesStencil;
-
-    if (usesUserStencilBits) {  // Stencil clipping will call setNeedsStencil on its own, if needed.
-        this->setNeedsStencil();
-    }
-
+    bool usesMSAA = drawOp->usesMSAA();
     bool skipDraw = false;
     if (clip) {
         // Have a complex clip, so defer to its early clip culling
         GrAAType aaType;
-        if (usesHWAA) {
+        if (usesMSAA) {
             aaType = GrAAType::kMSAA;
         } else {
             aaType = op->hasAABloat() ? GrAAType::kCoverage : GrAAType::kNone;
         }
-        skipDraw = clip->apply(fContext, this, aaType, usesUserStencilBits,
+        skipDraw = clip->apply(fContext, this, aaType,
                                &appliedClip, &bounds) == GrClip::Effect::kClippedOut;
     } else {
         // No clipping, so just clip the bounds against the logical render target dimensions
@@ -1920,13 +1913,19 @@ void GrSurfaceDrawContext::addDrawOp(const GrClip* clip,
         }
     }
 
+    // Note if the op needs stencil. Stencil clipping already called setNeedsStencil for itself, if
+    // needed.
+    if (drawOp->usesStencil()) {
+        this->setNeedsStencil();
+    }
+
     auto opsTask = this->getOpsTask();
     if (willAddFn) {
         willAddFn(op.get(), opsTask->uniqueID());
     }
 
 #if GR_GPU_STATS && GR_TEST_UTILS
-    if (fCanUseDynamicMSAA && usesHWAA) {
+    if (fCanUseDynamicMSAA && usesMSAA) {
         if (!opsTask->usesMSAASurface()) {
             fContext->priv().dmsaaStats().fNumMultisampleRenderPasses++;
         }
@@ -1934,12 +1933,12 @@ void GrSurfaceDrawContext::addDrawOp(const GrClip* clip,
     }
 #endif
 
-    opsTask->addDrawOp(this->drawingManager(), std::move(op), fixedFunctionFlags, analysis,
+    opsTask->addDrawOp(this->drawingManager(), std::move(op), usesMSAA, analysis,
                        std::move(appliedClip), dstProxyView,
                        GrTextureResolveManager(this->drawingManager()), *this->caps());
 
 #ifdef SK_DEBUG
-    if (fCanUseDynamicMSAA && usesHWAA) {
+    if (fCanUseDynamicMSAA && usesMSAA) {
         SkASSERT(opsTask->usesMSAASurface());
     }
 #endif

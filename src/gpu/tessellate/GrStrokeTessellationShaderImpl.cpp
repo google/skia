@@ -87,22 +87,20 @@ void GrStrokeTessellationShaderImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs
         float JOIN_TYPE = dynamicStrokeAttr.y;)", parametricPrecisionName);
     }
 
-    if (!shader.viewMatrix().isIdentity()) {
-        fTranslateUniform = uniHandler->addUniform(nullptr, kTessEvaluation_GrShaderFlag,
-                                                   kFloat2_GrSLType, "translate", nullptr);
-        const char* affineMatrixName;
-        // Hairlines apply the affine matrix in their vertex shader, prior to tessellation.
-        // Otherwise the entire view matrix gets applied at the end of the tess eval shader.
-        auto affineMatrixVisibility = kTessEvaluation_GrShaderFlag;
-        if (shader.stroke().isHairlineStyle()) {
-            affineMatrixVisibility |= kVertex_GrShaderFlag;
-        }
-        fAffineMatrixUniform = uniHandler->addUniform(nullptr, affineMatrixVisibility,
-                                                      kFloat4_GrSLType, "affineMatrix",
-                                                      &affineMatrixName);
-        if (affineMatrixVisibility & kVertex_GrShaderFlag) {
-            v->codeAppendf("float2x2 AFFINE_MATRIX = float2x2(%s);\n", affineMatrixName);
-        }
+    fTranslateUniform = uniHandler->addUniform(nullptr, kTessEvaluation_GrShaderFlag,
+                                               kFloat2_GrSLType, "translate", nullptr);
+    // View matrix uniforms.
+    const char* affineMatrixName;
+    // Hairlines apply the affine matrix in their vertex shader, prior to tessellation.
+    // Otherwise the entire view matrix gets applied at the end of the tess eval shader.
+    auto affineMatrixVisibility = kTessEvaluation_GrShaderFlag;
+    if (shader.stroke().isHairlineStyle()) {
+        affineMatrixVisibility |= kVertex_GrShaderFlag;
+    }
+    fAffineMatrixUniform = uniHandler->addUniform(nullptr, affineMatrixVisibility, kFloat4_GrSLType,
+                                                  "affineMatrix", &affineMatrixName);
+    if (affineMatrixVisibility & kVertex_GrShaderFlag) {
+        v->codeAppendf("float2x2 AFFINE_MATRIX = float2x2(%s);\n", affineMatrixName);
     }
 
     v->codeAppend(R"(
@@ -110,20 +108,15 @@ void GrStrokeTessellationShaderImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs
     float2 prevControlPoint = prevCtrlPtAttr;
     float4x2 P = float4x2(pts01Attr, pts23Attr);)");
 
-    if (shader.stroke().isHairlineStyle() && !shader.viewMatrix().isIdentity()) {
+    if (shader.stroke().isHairlineStyle()) {
         // Hairline case. Transform the points before tessellation. We can still hold off on the
         // translate until the end; we just need to perform the scale and skew right now.
-        if (shader.hasConics()) {
-            v->codeAppend(R"(
-            P[0] = AFFINE_MATRIX * P[0];
-            P[1] = AFFINE_MATRIX * P[1];
-            P[2] = AFFINE_MATRIX * P[2];
-            P[3] = isinf(P[3].y) ? P[3] : AFFINE_MATRIX * P[3];)");
-        } else {
-            v->codeAppend(R"(
-            P = AFFINE_MATRIX * P;)");
-        }
         v->codeAppend(R"(
+        P = AFFINE_MATRIX * P;
+        if (isinf(pts23Attr.w)) {
+            // If y3 is infinity then x3 is a conic weight. Don't transform.
+            P[3] = pts23Attr.zw;
+        }
         prevControlPoint = AFFINE_MATRIX * prevControlPoint;)");
     }
 
@@ -355,7 +348,7 @@ SkString GrStrokeTessellationShaderImpl::getTessControlShaderGLSL(
         code.appendf("#define NUM_RADIAL_SEGMENTS_PER_RADIAN vsStrokeArgs[0].x\n");
     }
 
-    code.append(GrWangsFormula::as_sksl(shader.hasConics()));
+    code.append(GrWangsFormula::as_sksl());
     code.append(kAtan2Fn);
     code.append(kCosineBetweenVectorsFn);
     code.append(kMiterExtentFn);
@@ -547,8 +540,6 @@ SkString GrStrokeTessellationShaderImpl::getTessEvaluationShaderGLSL(
     code.appendf("#define float3x2 mat3x2\n");
     code.appendf("#define float4x2 mat4x2\n");
     code.appendf("#define PI 3.141592653589793238\n");
-    code.appendf("#define MAX_PARAMETRIC_SEGMENTS_LOG2 %i\n",
-                 SkNextLog2(shaderCaps.maxTessellationSegments()));
 
     if (!shader.hasDynamicStroke()) {
         const char* tessArgsName = uniformHandler.getUniformCStr(fTessControlArgsUniform);
@@ -558,14 +549,12 @@ SkString GrStrokeTessellationShaderImpl::getTessEvaluationShaderGLSL(
         code.appendf("#define STROKE_RADIUS tcsStrokeRadius\n");
     }
 
-    if (!shader.viewMatrix().isIdentity()) {
-        const char* translateName = uniformHandler.getUniformCStr(fTranslateUniform);
-        code.appendf("uniform vec2 %s;\n", translateName);
-        code.appendf("#define TRANSLATE %s\n", translateName);
-        const char* affineMatrixName = uniformHandler.getUniformCStr(fAffineMatrixUniform);
-        code.appendf("uniform vec4 %s;\n", affineMatrixName);
-        code.appendf("#define AFFINE_MATRIX mat2(%s)\n", affineMatrixName);
-    }
+    const char* translateName = uniformHandler.getUniformCStr(fTranslateUniform);
+    code.appendf("uniform vec2 %s;\n", translateName);
+    code.appendf("#define TRANSLATE %s\n", translateName);
+    const char* affineMatrixName = uniformHandler.getUniformCStr(fAffineMatrixUniform);
+    code.appendf("uniform vec4 %s;\n", affineMatrixName);
+    code.appendf("#define AFFINE_MATRIX mat2(%s)\n", affineMatrixName);
 
     code.append(R"(
     in vec4 tcsPts01[];
@@ -637,15 +626,11 @@ SkString GrStrokeTessellationShaderImpl::getTessEvaluationShaderGLSL(
         float radsPerSegment = tessellationArgs.z;
         float2 tan1 = tcsEndPtEndTan.zw;
         bool isFinalEdge = (gl_TessCoord.x == 1);
-        float w = -1.0;  // w<0 means the curve is an integral cubic.)");
-
-    if (shader.hasConics()) {
-        code.append(R"(
+        float w = -1.0;  // w<0 means the curve is an integral cubic.
         if (isinf(P[3].y)) {
             w = P[3].x;  // The curve is actually a conic.
             P[3] = P[2];  // Setting p3 equal to p2 works for the remaining rotational logic.
         })");
-    }
 
     GrGPArgs gpArgs;
     this->emitTessellationCode(shader, &code, &gpArgs, shaderCaps);

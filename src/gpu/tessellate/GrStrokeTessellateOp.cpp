@@ -26,9 +26,6 @@ GrStrokeTessellateOp::GrStrokeTessellateOp(GrAAType aaType, const SkMatrix& view
         , fPathStrokeList(path, stroke, paint.getColor4f())
         , fTotalCombinedVerbCnt(path.countVerbs())
         , fProcessors(std::move(paint)) {
-    if (SkPathPriv::ConicWeightCnt(path) != 0) {
-        fShaderFlags |= ShaderFlags::kHasConics;
-    }
     if (!this->headColor().fitsInBytes()) {
         fShaderFlags |= ShaderFlags::kWideColor;
     }
@@ -168,16 +165,9 @@ bool GrStrokeTessellateOp::canUseHardwareTessellation(int numVerbs, const GrCaps
         // instead.
         return false;
     }
-#if GR_TEST_UTILS
-    if (caps.shaderCaps()->maxTessellationSegments() < 64) {
-        // If maxTessellationSegments is lower than the spec minimum, it means we've overriden it
-        // for testing. Always use hardware tessellation if this is the case.
-        return true;
-    }
-#endif
     // Only use hardware tessellation if we're drawing a somewhat large number of verbs. Otherwise
     // we seem to be better off using instanced draws.
-    return numVerbs >= 50;
+    return numVerbs >= caps.minStrokeVerbsForHwTessellation();
 }
 
 void GrStrokeTessellateOp::prePrepareTessellator(GrPathShader::ProgramArgs&& args,
@@ -206,8 +196,8 @@ void GrStrokeTessellateOp::prePrepareTessellator(GrPathShader::ProgramArgs&& arg
     if (this->canUseHardwareTessellation(fTotalCombinedVerbCnt, caps)) {
         // Only use hardware tessellation if we're drawing a somewhat large number of verbs.
         // Otherwise we seem to be better off using instanced draws.
-        fTessellator = arena->make<GrStrokeHardwareTessellator>(fShaderFlags, fViewMatrix,
-                                                                &fPathStrokeList,
+        fTessellator = arena->make<GrStrokeHardwareTessellator>(fShaderFlags, *caps.shaderCaps(),
+                                                                fViewMatrix, &fPathStrokeList,
                                                                 matrixMinMaxScales,
                                                                 strokeCullBounds);
     } else if (fTotalCombinedVerbCnt > 50 && !(fShaderFlags & ShaderFlags::kDynamicColor)) {

@@ -63,6 +63,11 @@ public class Matrix {
         return new Matrix(nativeMatrix);
     }
 
+    public static Matrix makeTranspose(Matrix m) {
+        long nativeTranspose = nTranspose(m.getNativeInstance());
+        return new Matrix(nativeTranspose);
+    }
+
     /*
      * A: this Matrix
      * B: Matrix passed in
@@ -160,6 +165,16 @@ public class Matrix {
         return this;
     }
 
+    /*
+     * Rotates this Matrix along the (x,y,z) axis by rad radians
+     * Store result in caller Matrix
+     * returns reference to this Matrix for operation chaining
+     */
+    public Matrix rotate(float x, float y, float z, float rad) {
+        nRotate(this.mNativeInstance, x, y, z, rad);
+        return this;
+    }
+
     /**
      * Releases any resources associated with this Matrix.
      */
@@ -187,6 +202,7 @@ public class Matrix {
     private static native void    nRelease(long nativeInstance);
     private static native float[] nGetRowMajor(long mNativeInstance);
     private static native long    nInverse(long mNativeInstance);
+    private static native long    nTranspose(long mNativeInstance);
     private static native void    nPreConcat(long mNativeInstanceA, long mNativeInstanceB);
     private static native long    nConcat(long mNativeInstanceA, long mNativeInstanceB);
     private static native void    nTranslate(long mNativeInstance, float x, float y, float z);

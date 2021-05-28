@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-DOCKER_IMAGE = 'gcr.io/skia-public/emsdk-base:2.0.10_v1'
+DOCKER_IMAGE = 'gcr.io/skia-public/emsdk-base:2.0.20_v1'
 INNER_BUILD_SCRIPT = '/SRC/skia/infra/pathkit/build_pathkit.sh'
 
 def compile_fn(api, checkout_root, _ignore):

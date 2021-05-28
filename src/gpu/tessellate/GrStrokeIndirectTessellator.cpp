@@ -66,7 +66,7 @@ class ResolveLevelCounter {
 public:
     constexpr static int8_t kMaxResolveLevel = GrStrokeIndirectTessellator::kMaxResolveLevel;
 
-    ResolveLevelCounter(int* resolveLevelCounts, std::array<float, 2> matrixMinMaxScales)
+    ResolveLevelCounter(int* resolveLevelCounts, std::array<float,2> matrixMinMaxScales)
             : fResolveLevelCounts(resolveLevelCounts), fMatrixMinMaxScales(matrixMinMaxScales) {
     }
 
@@ -426,7 +426,7 @@ private:
 
 #endif
     int* const fResolveLevelCounts;
-    std::array<float, 2> fMatrixMinMaxScales;
+    std::array<float,2> fMatrixMinMaxScales;
     GrStrokeTolerances fTolerances;
     int fResolveLevelForCircles;
     bool fIsRoundJoin;
@@ -434,15 +434,20 @@ private:
 
 }  // namespace
 
+// GrTessellationPathRenderer crops paths that require more than 2^kMaxResolveLevel parametric
+// segments.
+constexpr static int8_t kMaxParametricSegments_log2 = GrTessellationPathRenderer::kMaxResolveLevel;
+
 GrStrokeIndirectTessellator::GrStrokeIndirectTessellator(ShaderFlags shaderFlags,
                                                          const SkMatrix& viewMatrix,
                                                          PathStrokeList* pathStrokeList,
-                                                         std::array<float, 2> matrixMinMaxScales,
+                                                         std::array<float,2> matrixMinMaxScales,
                                                          const SkRect& strokeCullBounds,
                                                          int totalCombinedVerbCnt,
                                                          SkArenaAlloc* alloc)
-        : GrStrokeTessellator(GrStrokeShader::Mode::kLog2Indirect, shaderFlags, viewMatrix,
-                              pathStrokeList, matrixMinMaxScales, strokeCullBounds) {
+        : GrStrokeTessellator(GrStrokeShader::Mode::kLog2Indirect, shaderFlags,
+                              kMaxParametricSegments_log2, viewMatrix, pathStrokeList,
+                              matrixMinMaxScales, strokeCullBounds) {
     // The maximum potential number of values we will need in fResolveLevels is:
     //
     //   * 3 segments per verb (from two chops)

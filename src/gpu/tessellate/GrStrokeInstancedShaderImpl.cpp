@@ -18,9 +18,6 @@ void GrStrokeInstancedShaderImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     SkPaint::Join joinType = shader.stroke().getJoin();
     args.fVaryingHandler->emitAttributes(shader);
 
-    // Constants.
-    args.fVertBuilder->defineConstant("MAX_PARAMETRIC_SEGMENTS_LOG2",
-                                      GrTessellationPathRenderer::kMaxResolveLevel);
     args.fVertBuilder->defineConstant("float", "PI", "3.141592653589793238");
 
     // Helper functions.
@@ -31,7 +28,7 @@ void GrStrokeInstancedShaderImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     args.fVertBuilder->insertFunction(kCosineBetweenVectorsFn);
     args.fVertBuilder->insertFunction(kMiterExtentFn);
     args.fVertBuilder->insertFunction(kUncheckedMixFn);
-    args.fVertBuilder->insertFunction(GrWangsFormula::as_sksl(shader.hasConics()).c_str());
+    args.fVertBuilder->insertFunction(GrWangsFormula::as_sksl().c_str());
 
     // Tessellation control uniforms and/or dynamic attributes.
     if (!shader.hasDynamicStroke()) {
@@ -79,31 +76,26 @@ void GrStrokeInstancedShaderImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     }
 
     // View matrix uniforms.
-    if (!shader.viewMatrix().isIdentity()) {
-        const char* translateName, *affineMatrixName;
-        fAffineMatrixUniform = args.fUniformHandler->addUniform(
-                nullptr, kVertex_GrShaderFlag, kFloat4_GrSLType, "affineMatrix",
-                &affineMatrixName);
-        fTranslateUniform = args.fUniformHandler->addUniform(
-                nullptr, kVertex_GrShaderFlag, kFloat2_GrSLType, "translate", &translateName);
-        args.fVertBuilder->codeAppendf("float2x2 AFFINE_MATRIX = float2x2(%s);\n",
-                                       affineMatrixName);
-        args.fVertBuilder->codeAppendf("float2 TRANSLATE = %s;\n", translateName);
-    }
+    const char* translateName, *affineMatrixName;
+    fAffineMatrixUniform = args.fUniformHandler->addUniform(nullptr, kVertex_GrShaderFlag,
+                                                            kFloat4_GrSLType, "affineMatrix",
+                                                            &affineMatrixName);
+    fTranslateUniform = args.fUniformHandler->addUniform(nullptr, kVertex_GrShaderFlag,
+                                                         kFloat2_GrSLType, "translate",
+                                                         &translateName);
+    args.fVertBuilder->codeAppendf("float2x2 AFFINE_MATRIX = float2x2(%s);\n", affineMatrixName);
+    args.fVertBuilder->codeAppendf("float2 TRANSLATE = %s;\n", translateName);
 
     // Tessellation code.
     args.fVertBuilder->codeAppend(R"(
     float4x2 P = float4x2(pts01Attr, pts23Attr);
     float2 lastControlPoint = argsAttr.xy;
-    float w = -1;  // w<0 means the curve is an integral cubic.)");
-    if (shader.hasConics()) {
-        args.fVertBuilder->codeAppend(R"(
-        if (isinf(P[3].y)) {
-            w = P[3].x;  // The curve is actually a conic.
-            P[3] = P[2];  // Setting p3 equal to p2 works for the remaining rotational logic.
-        })");
-    }
-    if (shader.stroke().isHairlineStyle() && !shader.viewMatrix().isIdentity()) {
+    float w = -1;  // w<0 means the curve is an integral cubic.
+    if (isinf(P[3].y)) {
+        w = P[3].x;  // The curve is actually a conic.
+        P[3] = P[2];  // Setting p3 equal to p2 works for the remaining rotational logic.
+    })");
+    if (shader.stroke().isHairlineStyle()) {
         // Hairline case. Transform the points before tessellation. We can still hold off on the
         // translate until the end; we just need to perform the scale and skew right now.
         args.fVertBuilder->codeAppend(R"(
@@ -113,9 +105,7 @@ void GrStrokeInstancedShaderImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     args.fVertBuilder->codeAppend(R"(
     // Find how many parametric segments this stroke requires.
-    float numParametricSegments = min(wangs_formula(PARAMETRIC_PRECISION,
-                                                    P[0], P[1], P[2], P[3], w),
-                                      float(1 << MAX_PARAMETRIC_SEGMENTS_LOG2));
+    float numParametricSegments = wangs_formula(PARAMETRIC_PRECISION, P[0], P[1], P[2], P[3], w);
     if (P[0] == P[1] && P[2] == P[3]) {
         // This is how we describe lines, but Wang's formula does not return 1 in this case.
         numParametricSegments = 1;

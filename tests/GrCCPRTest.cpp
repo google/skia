@@ -38,8 +38,7 @@ public:
 private:
     SkIRect getConservativeBounds() const final { return fPath.getBounds().roundOut(); }
     Effect apply(GrRecordingContext* context, GrSurfaceDrawContext* rtc, GrAAType,
-                 bool hasUserStencilSettings, GrAppliedClip* out,
-                 SkRect* bounds) const override {
+                 GrAppliedClip* out, SkRect* bounds) const override {
         auto [success, fp] = fCCPR->makeClipProcessor(/*inputFP=*/nullptr,
                                                       rtc->getOpsTask()->uniqueID(), fPath,
                                                       SkIRect::MakeWH(rtc->width(), rtc->height()),

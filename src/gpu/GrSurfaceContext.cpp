@@ -343,9 +343,12 @@ bool GrSurfaceContext::readPixels(GrDirectContext* dContext, GrPixmap dst, SkIPo
 
     dContext->priv().flushSurface(srcProxy.get());
     dContext->submit();
-    if (!dContext->priv().getGpu()->readPixels(srcSurface, pt.fX, pt.fY, dst.width(), dst.height(),
+    if (!dContext->priv().getGpu()->readPixels(srcSurface,
+                                               SkIRect::MakePtSize(pt, dst.dimensions()),
                                                this->colorInfo().colorType(),
-                                               supportedRead.fColorType, readDst, readRB)) {
+                                               supportedRead.fColorType,
+                                               readDst,
+                                               readRB)) {
         return false;
     }
 

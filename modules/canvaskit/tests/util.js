@@ -7,8 +7,12 @@ const _commonGM = (it, pause, name, callback, assetsToFetchOrPromisesToWaitOn) =
     for (const assetOrPromise of assetsToFetchOrPromisesToWaitOn) {
         // https://stackoverflow.com/a/9436948
         if (typeof assetOrPromise === 'string' || assetOrPromise instanceof String) {
-            const newPromise = fetch(assetOrPromise)
-                .then((response) => response.arrayBuffer());
+            const newPromise = fetchWithRetries(assetOrPromise)
+                .then((response) => response.arrayBuffer())
+                .catch((err) => {
+                    console.error(err);
+                    throw err;
+                });
             fetchPromises.push(newPromise);
         } else if (typeof assetOrPromise.then === 'function') {
             fetchPromises.push(assetOrPromise);
@@ -40,6 +44,7 @@ const _commonGM = (it, pause, name, callback, assetsToFetchOrPromisesToWaitOn) =
             surface.flush();
             if (pause) {
                 reportSurface(surface, name, null);
+                console.error('pausing due to pause_gm being invoked');
             } else {
                 reportSurface(surface, name, done);
             }
@@ -50,6 +55,35 @@ const _commonGM = (it, pause, name, callback, assetsToFetchOrPromisesToWaitOn) =
         });
     })
 };
+
+const fetchWithRetries = (url) => {
+    const MAX_ATTEMPTS = 3;
+    const DELAY_AFTER_FAILURE = 1000;
+
+    return new Promise((resolve, reject) => {
+        let attempts = 0;
+        const attemptFetch = () => {
+            attempts++;
+            fetch(url).then((resp) => resolve(resp))
+                .catch((err) => {
+                    if (attempts < MAX_ATTEMPTS) {
+                        console.warn(`got error in fetching ${url}, retrying`, err);
+                        retryAfterDelay();
+                    } else {
+                        console.error(`got error in fetching ${url} even after ${attempts} attempts`, err);
+                        reject(err);
+                    }
+                });
+        };
+        const retryAfterDelay = () => {
+            setTimeout(() => {
+                attemptFetch();
+            }, DELAY_AFTER_FAILURE);
+        }
+        attemptFetch();
+    });
+
+}
 
 /**
  * Takes a name, a callback, and any number of assets or promises. It executes the
@@ -200,12 +234,15 @@ function reportSurface(surface, testname, done) {
     const imageData = new ImageData(pixels, CANVAS_WIDTH, CANVAS_HEIGHT);
 
     const reportingCanvas = document.getElementById('report');
+    if (!reportingCanvas) {
+        throw 'Reporting canvas not found';
+    }
     reportingCanvas.getContext('2d').putImageData(imageData, 0, 0);
     if (!done) {
         return;
     }
     reportCanvas(reportingCanvas, testname).then(() => {
-        // TODO(kjlubick): should we call surface.delete() here?
+        surface.delete();
         done();
     }).catch(reportError(done));
 }

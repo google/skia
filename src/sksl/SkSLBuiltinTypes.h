@@ -133,15 +133,16 @@ public:
 
 private:
     static std::unique_ptr<Type> MakeScalarType(const char* name, const char* abbrev,
-                                                Type::NumberKind numberKind, int priority,
-                                                bool highPrecision = false);
+                                                Type::NumberKind numberKind, int8_t priority,
+                                                int8_t bitWidth);
     static std::unique_ptr<Type> MakeLiteralType(const char* name, const Type& scalarType,
-                                                 int priority);
+                                                 int8_t priority);
     static std::unique_ptr<Type> MakeVectorType(const char* name, const char* abbrev,
                                                 const Type& componentType, int columns);
     static std::unique_ptr<Type> MakeGenericType(const char* name, std::vector<const Type*> types);
     static std::unique_ptr<Type> MakeMatrixType(const char* name, const char* abbrev,
-                                                const Type& componentType, int columns, int rows);
+                                                const Type& componentType, int columns,
+                                                int8_t rows);
     static std::unique_ptr<Type> MakeTextureType(const char* name, SpvDim_ dimensions,
                                                  bool isDepth, bool isArrayedTexture,
                                                  bool isMultisampled, bool isSampled);

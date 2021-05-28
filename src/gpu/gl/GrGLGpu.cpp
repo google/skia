@@ -815,9 +815,12 @@ static bool check_write_and_transfer_input(GrGLTexture* glTex) {
     return true;
 }
 
-bool GrGLGpu::onWritePixels(GrSurface* surface, int left, int top, int width, int height,
-                            GrColorType surfaceColorType, GrColorType srcColorType,
-                            const GrMipLevel texels[], int mipLevelCount,
+bool GrGLGpu::onWritePixels(GrSurface* surface,
+                            SkIRect rect,
+                            GrColorType surfaceColorType,
+                            GrColorType srcColorType,
+                            const GrMipLevel texels[],
+                            int mipLevelCount,
                             bool prepForTexSampling) {
     auto glTex = static_cast<GrGLTexture*>(surface->asTexture());
 
@@ -845,15 +848,22 @@ bool GrGLGpu::onWritePixels(GrSurface* surface, int left, int top, int width, in
     }
 
     SkASSERT(!GrGLFormatIsCompressed(glTex->format()));
-    SkIRect dstRect = SkIRect::MakeXYWH(left, top, width, height);
-    return this->uploadColorTypeTexData(glTex->format(), surfaceColorType, glTex->dimensions(),
-                                        glTex->target(), dstRect, srcColorType, texels,
+    return this->uploadColorTypeTexData(glTex->format(),
+                                        surfaceColorType,
+                                        glTex->dimensions(),
+                                        glTex->target(),
+                                        rect,
+                                        srcColorType,
+                                        texels,
                                         mipLevelCount);
 }
 
-bool GrGLGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int width, int height,
-                                 GrColorType textureColorType, GrColorType bufferColorType,
-                                 sk_sp<GrGpuBuffer> transferBuffer, size_t offset,
+bool GrGLGpu::onTransferPixelsTo(GrTexture* texture,
+                                 SkIRect rect,
+                                 GrColorType textureColorType,
+                                 GrColorType bufferColorType,
+                                 sk_sp<GrGpuBuffer> transferBuffer,
+                                 size_t offset,
                                  size_t rowBytes) {
     GrGLTexture* glTex = static_cast<GrGLTexture*>(texture);
 
@@ -865,9 +875,6 @@ bool GrGLGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int widt
     }
 
     static_assert(sizeof(int) == sizeof(int32_t), "");
-    if (width <= 0 || height <= 0) {
-        return false;
-    }
 
     this->bindTextureToScratchUnit(glTex->target(), glTex->textureID());
 
@@ -876,18 +883,11 @@ bool GrGLGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int widt
     const GrGLBuffer* glBuffer = static_cast<const GrGLBuffer*>(transferBuffer.get());
     this->bindBuffer(GrGpuBufferType::kXferCpuToGpu, glBuffer);
 
-    SkDEBUGCODE(
-        SkIRect subRect = SkIRect::MakeXYWH(left, top, width, height);
-        SkIRect bounds = SkIRect::MakeWH(texture->width(), texture->height());
-        SkASSERT(bounds.contains(subRect));
-    )
+    SkASSERT(SkIRect::MakeSize(texture->dimensions()).contains(rect));
 
     size_t bpp = GrColorTypeBytesPerPixel(bufferColorType);
-    const size_t trimRowBytes = width * bpp;
+    const size_t trimRowBytes = rect.width() * bpp;
     const void* pixels = (void*)offset;
-    if (width < 0 || height < 0) {
-        return false;
-    }
 
     bool restoreGLRowLength = false;
     if (trimRowBytes != rowBytes) {
@@ -910,10 +910,12 @@ bool GrGLGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int widt
     GL_CALL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, 1));
     GL_CALL(TexSubImage2D(glTex->target(),
                           0,
-                          left, top,
-                          width,
-                          height,
-                          externalFormat, externalType,
+                          rect.left(),
+                          rect.top(),
+                          rect.width(),
+                          rect.height(),
+                          externalFormat,
+                          externalType,
                           pixels));
 
     if (restoreGLRowLength) {
@@ -923,14 +925,21 @@ bool GrGLGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int widt
     return true;
 }
 
-bool GrGLGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int width, int height,
-                                   GrColorType surfaceColorType, GrColorType dstColorType,
-                                   sk_sp<GrGpuBuffer> transferBuffer, size_t offset) {
+bool GrGLGpu::onTransferPixelsFrom(GrSurface* surface,
+                                   SkIRect rect,
+                                   GrColorType surfaceColorType,
+                                   GrColorType dstColorType,
+                                   sk_sp<GrGpuBuffer> transferBuffer,
+                                   size_t offset) {
     auto* glBuffer = static_cast<GrGLBuffer*>(transferBuffer.get());
     this->bindBuffer(GrGpuBufferType::kXferGpuToCpu, glBuffer);
     auto offsetAsPtr = reinterpret_cast<void*>(offset);
-    return this->readOrTransferPixelsFrom(surface, left, top, width, height, surfaceColorType,
-                                          dstColorType, offsetAsPtr, width);
+    return this->readOrTransferPixelsFrom(surface,
+                                          rect,
+                                          surfaceColorType,
+                                          dstColorType,
+                                          offsetAsPtr,
+                                          rect.width());
 }
 
 void GrGLGpu::unbindXferBuffer(GrGpuBufferType type) {
@@ -2098,9 +2107,12 @@ void GrGLGpu::clearStencilClip(const GrScissorState& scissor, bool insideStencil
     fHWStencilSettings.invalidate();
 }
 
-bool GrGLGpu::readOrTransferPixelsFrom(GrSurface* surface, int left, int top, int width, int height,
-                                       GrColorType surfaceColorType, GrColorType dstColorType,
-                                       void* offsetOrPtr, int rowWidthInPixels) {
+bool GrGLGpu::readOrTransferPixelsFrom(GrSurface* surface,
+                                       SkIRect rect,
+                                       GrColorType surfaceColorType,
+                                       GrColorType dstColorType,
+                                       void* offsetOrPtr,
+                                       int rowWidthInPixels) {
     SkASSERT(surface);
 
     auto format = surface->backendFormat().asGLFormat();
@@ -2132,20 +2144,22 @@ bool GrGLGpu::readOrTransferPixelsFrom(GrSurface* surface, int left, int top, in
         fHWBoundRenderTargetUniqueID.makeInvalid();
     }
 
-    // the read rect is viewport-relative
-    GrNativeRect readRect = {left, top, width, height};
-
     // determine if GL can read using the passed rowBytes or if we need a scratch buffer.
-    if (rowWidthInPixels != width) {
+    if (rowWidthInPixels != rect.width()) {
         SkASSERT(this->glCaps().readPixelsRowBytesSupport());
         GL_CALL(PixelStorei(GR_GL_PACK_ROW_LENGTH, rowWidthInPixels));
     }
     GL_CALL(PixelStorei(GR_GL_PACK_ALIGNMENT, 1));
 
-    GL_CALL(ReadPixels(readRect.fX, readRect.fY, readRect.fWidth, readRect.fHeight,
-                       externalFormat, externalType, offsetOrPtr));
+    GL_CALL(ReadPixels(rect.left(),
+                       rect.top(),
+                       rect.width(),
+                       rect.height(),
+                       externalFormat,
+                       externalType,
+                       offsetOrPtr));
 
-    if (rowWidthInPixels != width) {
+    if (rowWidthInPixels != rect.width()) {
         SkASSERT(this->glCaps().readPixelsRowBytesSupport());
         GL_CALL(PixelStorei(GR_GL_PACK_ROW_LENGTH, 0));
     }
@@ -2156,8 +2170,11 @@ bool GrGLGpu::readOrTransferPixelsFrom(GrSurface* surface, int left, int top, in
     return true;
 }
 
-bool GrGLGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int height,
-                           GrColorType surfaceColorType, GrColorType dstColorType, void* buffer,
+bool GrGLGpu::onReadPixels(GrSurface* surface,
+                           SkIRect rect,
+                           GrColorType surfaceColorType,
+                           GrColorType dstColorType,
+                           void* buffer,
                            size_t rowBytes) {
     SkASSERT(surface);
 
@@ -2166,15 +2183,19 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
     // GL_PACK_ROW_LENGTH is in terms of pixels not bytes.
     int rowPixelWidth;
 
-    if (rowBytes == SkToSizeT(width * bytesPerPixel)) {
-        rowPixelWidth = width;
+    if (rowBytes == SkToSizeT(rect.width()*bytesPerPixel)) {
+        rowPixelWidth = rect.width();
     } else {
         SkASSERT(!(rowBytes % bytesPerPixel));
         rowPixelWidth = rowBytes / bytesPerPixel;
     }
     this->unbindXferBuffer(GrGpuBufferType::kXferGpuToCpu);
-    return this->readOrTransferPixelsFrom(surface, left, top, width, height, surfaceColorType,
-                                          dstColorType, buffer, rowPixelWidth);
+    return this->readOrTransferPixelsFrom(surface,
+                                          rect,
+                                          surfaceColorType,
+                                          dstColorType,
+                                          buffer,
+                                          rowPixelWidth);
 }
 
 GrOpsRenderPass* GrGLGpu::onGetOpsRenderPass(

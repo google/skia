@@ -178,33 +178,41 @@ sk_sp<GrGpuBuffer> GrDawnGpu::onCreateBuffer(size_t size, GrGpuBufferType type,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-bool GrDawnGpu::onWritePixels(GrSurface* surface, int left, int top, int width, int height,
-                              GrColorType surfaceColorType, GrColorType srcColorType,
-                              const GrMipLevel texels[], int mipLevelCount,
+bool GrDawnGpu::onWritePixels(GrSurface* surface,
+                              SkIRect rect,
+                              GrColorType surfaceColorType,
+                              GrColorType srcColorType,
+                              const GrMipLevel texels[],
+                              int mipLevelCount,
                               bool prepForTexSampling) {
     GrDawnTexture* texture = static_cast<GrDawnTexture*>(surface->asTexture());
     if (!texture) {
         return false;
     }
-    this->uploadTextureData(srcColorType, texels, mipLevelCount,
-                            SkIRect::MakeXYWH(left, top, width, height), texture->texture());
+    this->uploadTextureData(srcColorType, texels, mipLevelCount, rect, texture->texture());
     if (mipLevelCount < texture->maxMipmapLevel() + 1) {
         texture->markMipmapsDirty();
     }
     return true;
 }
 
-bool GrDawnGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int width, int height,
-                                   GrColorType textureColorType, GrColorType bufferColorType,
-                                   sk_sp<GrGpuBuffer> transferBuffer, size_t bufferOffset,
+bool GrDawnGpu::onTransferPixelsTo(GrTexture* texture,
+                                   SkIRect rect,
+                                   GrColorType textureColorType,
+                                   GrColorType bufferColorType,
+                                   sk_sp<GrGpuBuffer> transferBuffer,
+                                   size_t bufferOffset,
                                    size_t rowBytes) {
     SkASSERT(!"unimplemented");
     return false;
 }
 
-bool GrDawnGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int width, int height,
-                                     GrColorType surfaceColorType, GrColorType bufferColorType,
-                                     sk_sp<GrGpuBuffer> transferBuffer, size_t offset) {
+bool GrDawnGpu::onTransferPixelsFrom(GrSurface* surface,
+                                     SkIRect rect,
+                                     GrColorType surfaceColorType,
+                                     GrColorType bufferColorType,
+                                     sk_sp<GrGpuBuffer> transferBuffer,
+                                     size_t offset) {
     SkASSERT(!"unimplemented");
     return false;
 }
@@ -603,8 +611,11 @@ static void callback(WGPUBufferMapAsyncStatus status, void* userdata) {
     *static_cast<bool*>(userdata) = true;
 }
 
-bool GrDawnGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int height,
-                             GrColorType surfaceColorType, GrColorType dstColorType, void* buffer,
+bool GrDawnGpu::onReadPixels(GrSurface* surface,
+                             SkIRect rect,
+                             GrColorType surfaceColorType,
+                             GrColorType dstColorType,
+                             void* buffer,
                              size_t rowBytes) {
     wgpu::Texture tex = get_dawn_texture_from_surface(surface);
 
@@ -612,9 +623,9 @@ bool GrDawnGpu::onReadPixels(GrSurface* surface, int left, int top, int width, i
         return false;
     }
     size_t origRowBytes = rowBytes;
-    int origSizeInBytes = origRowBytes * height;
+    int origSizeInBytes = origRowBytes*rect.height();
     rowBytes = GrDawnRoundRowBytes(rowBytes);
-    int sizeInBytes = rowBytes * height;
+    int sizeInBytes = rowBytes*rect.height();
 
     wgpu::BufferDescriptor desc;
     desc.usage = wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::MapRead;
@@ -624,15 +635,15 @@ bool GrDawnGpu::onReadPixels(GrSurface* surface, int left, int top, int width, i
 
     wgpu::ImageCopyTexture srcTexture;
     srcTexture.texture = tex;
-    srcTexture.origin = {(uint32_t) left, (uint32_t) top, 0};
+    srcTexture.origin = {(uint32_t) rect.left(), (uint32_t) rect.top(), 0};
 
     wgpu::ImageCopyBuffer dstBuffer = {};
     dstBuffer.buffer = buf;
     dstBuffer.layout.offset = 0;
     dstBuffer.layout.bytesPerRow = rowBytes;
-    dstBuffer.layout.rowsPerImage = height;
+    dstBuffer.layout.rowsPerImage = rect.height();
 
-    wgpu::Extent3D copySize = {(uint32_t) width, (uint32_t) height, 1};
+    wgpu::Extent3D copySize = {(uint32_t) rect.width(), (uint32_t) rect.height(), 1};
     this->getCopyEncoder().CopyTextureToBuffer(&srcTexture, &dstBuffer, &copySize);
     this->submitToGpu(true);
 
@@ -648,7 +659,7 @@ bool GrDawnGpu::onReadPixels(GrSurface* surface, int left, int top, int width, i
     } else {
         const char* src = static_cast<const char*>(readPixelsPtr);
         char* dst = static_cast<char*>(buffer);
-        for (int row = 0; row < height; row++) {
+        for (int row = 0; row < rect.height(); row++) {
             memcpy(dst, src, origRowBytes);
             dst += origRowBytes;
             src += rowBytes;

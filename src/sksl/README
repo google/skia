@@ -112,8 +112,6 @@ Within an '.fp' fragment processor file:
                         the name of the GrGLSLProgramDataManager)
     @test(<testData>)  (the body of the TestCreate function, where <testData> is
                         the name of the GrProcessorTestData* parameter)
-    @samplerParams(<sampler>)
-                       (the sampler params to attach to the named sampler2D)
 * global 'in' variables represent data passed to the fragment processor at
   construction time. These variables become constructor parameters and are
   stored in fragment processor fields. By default float2/half2 maps to SkPoints,

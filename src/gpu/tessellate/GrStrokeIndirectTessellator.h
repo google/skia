@@ -23,7 +23,7 @@ public:
     constexpr static int8_t kMaxResolveLevel = 15;
 
     GrStrokeIndirectTessellator(ShaderFlags, const SkMatrix& viewMatrix, PathStrokeList*,
-                                std::array<float, 2> matrixMinMaxScales,
+                                std::array<float,2> matrixMinMaxScales,
                                 const SkRect& strokeCullBounds, int totalCombinedVerbCnt,
                                 SkArenaAlloc*);
 

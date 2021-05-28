@@ -14,6 +14,7 @@
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 
 class SkPath;
+class GrStencilPathShader;
 
 // Prepares GPU data for, and then draws a path's tessellated geometry. Depending on the subclass,
 // the caller may or may not be required to draw the path's inner fan separately.
@@ -28,11 +29,17 @@ public:
         kYes
     };
 
+    // Creates the tessellator best suited to draw the given path.
+    static GrPathTessellator* Make(SkArenaAlloc*, const SkMatrix&, const SkPath&, DrawInnerFan,
+                                   const GrCaps&);
+
+    const GrStencilPathShader* shader() const { return fShader; }
+
     // Called before draw(). Prepares GPU buffers containing the geometry to tessellate. If the
     // given BreadcrumbTriangleList is non-null, then this class will also include the breadcrumb
     // triangles in its draw.
-    virtual void prepare(GrMeshDrawOp::Target*, const SkRect& cullBounds, const SkMatrix&,
-                         const SkPath&, const BreadcrumbTriangleList* = nullptr) = 0;
+    virtual void prepare(GrMeshDrawOp::Target*, const SkRect& cullBounds, const SkPath&,
+                         const BreadcrumbTriangleList* = nullptr) = 0;
 
     // Issues draw calls for the tessellated geometry. The caller is responsible for binding its
     // desired pipeline ahead of time.
@@ -44,6 +51,11 @@ public:
     virtual void drawHullInstances(GrOpFlushState*) const { SK_ABORT("Not supported."); }
 
     virtual ~GrPathTessellator() {}
+
+protected:
+    GrPathTessellator(GrStencilPathShader* shader) : fShader(shader) {}
+
+    GrStencilPathShader* fShader;
 };
 
 // Draws tessellations of the path's outer curves and, optionally, inner fan triangles using
@@ -52,15 +64,17 @@ public:
 // cubic or a conic.
 class GrPathIndirectTessellator final : public GrPathTessellator {
 public:
-    GrPathIndirectTessellator(const SkMatrix&, const SkPath&, DrawInnerFan);
+    static GrPathTessellator* Make(SkArenaAlloc*, const SkMatrix&, const SkPath&, DrawInnerFan);
 
-    void prepare(GrMeshDrawOp::Target*, const SkRect& cullBounds, const SkMatrix&, const SkPath&,
+    void prepare(GrMeshDrawOp::Target*, const SkRect& cullBounds, const SkPath&,
                  const BreadcrumbTriangleList*) override;
     void draw(GrOpFlushState*) const override;
     void drawHullInstances(GrOpFlushState*) const override;
 
 private:
     constexpr static int kMaxResolveLevel = GrTessellationPathRenderer::kMaxResolveLevel;
+
+    GrPathIndirectTessellator(GrStencilPathShader*, const SkPath&, DrawInnerFan);
 
     const bool fDrawInnerFan;
     int fResolveLevelCounts[kMaxResolveLevel + 1] = {0};
@@ -73,17 +87,19 @@ private:
     sk_sp<const GrBuffer> fIndirectDrawBuffer;
     size_t fIndirectDrawOffset = 0;
     int fIndirectDrawCount = 0;
+
+    friend class SkArenaAlloc;  // For constructor.
 };
 
 // Base class for GrPathTessellators that draw actual hardware tessellation patches.
 class GrPathHardwareTessellator : public GrPathTessellator {
 public:
-    GrPathHardwareTessellator(int numVerticesPerPatch)
-            : fNumVerticesPerPatch(numVerticesPerPatch) {}
-
     void draw(GrOpFlushState*) const final;
 
 protected:
+    GrPathHardwareTessellator(GrStencilPathShader* shader, int numVerticesPerPatch)
+            : GrPathTessellator(shader), fNumVerticesPerPatch(numVerticesPerPatch) {}
+
     GrVertexChunkArray fVertexChunkArray;
     int fNumVerticesPerPatch;
 };
@@ -93,14 +109,20 @@ protected:
 // or a conic. Quadratics are converted to cubics and triangles are converted to conics with w=Inf.
 class GrPathOuterCurveTessellator final : public GrPathHardwareTessellator {
 public:
-    GrPathOuterCurveTessellator(DrawInnerFan drawInnerFan)
-            : GrPathHardwareTessellator(4), fDrawInnerFan(drawInnerFan == DrawInnerFan::kYes) {}
+    static GrPathTessellator* Make(SkArenaAlloc*, const SkMatrix&, DrawInnerFan drawInnerFan);
 
-    void prepare(GrMeshDrawOp::Target*, const SkRect& cullBounds, const SkMatrix&, const SkPath&,
+    void prepare(GrMeshDrawOp::Target*, const SkRect& cullBounds, const SkPath&,
                  const BreadcrumbTriangleList*) override;
+    void drawHullInstances(GrOpFlushState*) const override;
 
 private:
+    GrPathOuterCurveTessellator(GrStencilPathShader* shader, DrawInnerFan drawInnerFan)
+            : GrPathHardwareTessellator(shader, 4)
+            , fDrawInnerFan(drawInnerFan == DrawInnerFan::kYes) {}
+
     const bool fDrawInnerFan;
+
+    friend class SkArenaAlloc;  // For constructor.
 };
 
 // Draws an array of "wedge" patches for GrWedgeTessellateShader. A wedge is an independent, 5-point
@@ -109,10 +131,15 @@ private:
 // converted to cubics. Once stencilled, these wedges alone define the complete path.
 class GrPathWedgeTessellator final : public GrPathHardwareTessellator {
 public:
-    GrPathWedgeTessellator() : GrPathHardwareTessellator(5) {}
+    static GrPathTessellator* Make(SkArenaAlloc*, const SkMatrix&);
 
-    void prepare(GrMeshDrawOp::Target*, const SkRect& cullBounds, const SkMatrix&, const SkPath&,
+    void prepare(GrMeshDrawOp::Target*, const SkRect& cullBounds, const SkPath&,
                  const BreadcrumbTriangleList*) override;
+
+private:
+    GrPathWedgeTessellator(GrStencilPathShader* shader) : GrPathHardwareTessellator(shader, 5) {}
+
+    friend class SkArenaAlloc;  // For constructor.
 };
 
 #endif

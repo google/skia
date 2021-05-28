@@ -1,17 +1,19 @@
+uniform half4 colorWhite;
+
 half4 main(float2 coords) {
     half4 color = half4(0);
 
     for (int counter=0; counter<10; ++counter) ;
     for (int counter=0; counter<10; ++counter) {}
-    for (int counter=0; counter<10; ++counter) { false, 1 == 2; sqrt(7); }
+    for (int counter=0; counter<10; ++counter) { false, 1 == 2; colorWhite; }
 
-    if (sqrt(1) == 1) color.g = 1; else 1;
-    if (sqrt(1) == 2) 0; else color.a = 1;
-    if (sqrt(1) == 3) 0; else 1;
+    if (colorWhite.x == 1) color.g = 1; else 1;
+    if (colorWhite.x == 2) 0; else color.a = 1;
+    if (colorWhite.x == 3) 0; else 1;
 
-    while (sqrt(1) == 2) 1 + 2 + 3;
+    while (colorWhite.x == 2) 1 + 2 + 3;
 
-    do 1 * 2 * 3; while (sqrt(1) == 2);
+    do 1 * 2 * 3; while (colorWhite.x == 2);
 
     return color;
 }

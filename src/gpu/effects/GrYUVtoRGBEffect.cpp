@@ -37,6 +37,8 @@ std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(const GrYUVATextureP
                                                             const SkMatrix& localMatrix,
                                                             const SkRect* subset,
                                                             const SkRect* domain) {
+    SkASSERT(!subset || SkRect::Make(yuvaProxies.yuvaInfo().dimensions()).contains(*subset));
+
     int numPlanes = yuvaProxies.yuvaInfo().numPlanes();
     if (!yuvaProxies.isValid()) {
         return nullptr;
@@ -52,6 +54,7 @@ std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(const GrYUVATextureP
     bool snap[2] = {false, false};
     std::unique_ptr<GrFragmentProcessor> planeFPs[SkYUVAInfo::kMaxPlanes];
     for (int i = 0; i < numPlanes; ++i) {
+        bool useSubset = SkToBool(subset);
         GrSurfaceProxyView view = yuvaProxies.makeView(i);
         SkMatrix planeMatrix = yuvaProxies.yuvaInfo().originMatrix();
         // The returned matrix is a view matrix but we need a local matrix.
@@ -65,10 +68,6 @@ std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(const GrYUVATextureP
         float scaleX = 1.f;
         float scaleY = 1.f;
         if (ssx > 1 || ssy > 1) {
-            // JPEG chroma subsampling of odd dimensions produces U and V planes with the ceiling of
-            // the image size divided by the subsampling factor (2). Our API for creating YUVA
-            // doesn't capture the intended subsampling (and we should fix that). This fixes up 2x
-            // subsampling for images with odd widths/heights (e.g. JPEG 420 or 422).
             scaleX = 1.f/ssx;
             scaleY = 1.f/ssy;
             // We would want to add a translation to this matrix to handle other sitings.
@@ -80,12 +79,33 @@ std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(const GrYUVATextureP
                                subset->fTop   *scaleY,
                                subset->fRight *scaleX,
                                subset->fBottom*scaleY};
+            } else {
+                planeSubset = SkRect::Make(view.dimensions());
             }
             if (domain) {
                 planeDomain = {domain->fLeft  *scaleX,
                                domain->fTop   *scaleY,
                                domain->fRight *scaleX,
                                domain->fBottom*scaleY};
+            }
+            // If the image is not a multiple of the subsampling then the subsampled plane needs to
+            // be tiled at less than its full width/height. This only matters when the mode is not
+            // clamp.
+            if (samplerState.wrapModeX() != GrSamplerState::WrapMode::kClamp) {
+                int dx = (ssx*view.width() - yuvaProxies.yuvaInfo().width());
+                float maxRight = view.width() - dx*scaleX;
+                if (planeSubset.fRight > maxRight) {
+                    planeSubset.fRight = maxRight;
+                    useSubset = true;
+                }
+            }
+            if (samplerState.wrapModeY() != GrSamplerState::WrapMode::kClamp) {
+                int dy = (ssy*view.height() - yuvaProxies.yuvaInfo().height());
+                float maxBottom = view.height() - dy*scaleY;
+                if (planeSubset.fBottom > maxBottom) {
+                    planeSubset.fBottom = maxBottom;
+                    useSubset = true;
+                }
             }
             // This promotion of nearest to linear filtering for UV planes exists to mimic
             // libjpeg[-turbo]'s do_fancy_upsampling option. We will filter the subsampled plane,
@@ -114,7 +134,7 @@ std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(const GrYUVATextureP
                 planeDomain = *domain;
             }
         }
-        if (subset) {
+        if (useSubset) {
             if (makeLinearWithSnap) {
                 // The plane is subsampled and we have an overall subset on the image. We're
                 // emulating do_fancy_upsampling using linear filtering but snapping look ups to the

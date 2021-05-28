@@ -2,21 +2,28 @@ uniform half4 testInputs;
 uniform half4 colorGreen, colorRed;
 
 half4 main(float2 coords) {
-    half4 expectedA = half4(-1,     0,  0.75, 1);
+    half4 expectedA       = half4(-1,     0,  0.75, 1);
 
-    //                     (-1.25,  0,  0.75, 2.25)
-
-    half4 clampLow  = half4(-1,    -2, -2,    1);
-    half4 expectedB = half4(-1,     0,  0.5,  2.25);
-    half4 clampHigh = half4( 1,     2,  0.5,  3);
+    const half4 clampLow  = half4(-1,    -2, -2,    1);
+    const half4 constVal  = half4(-1.25,  0,  0.75, 2.25);
+    half4 expectedB       = half4(-1,     0,  0.5,  2.25);
+    const half4 clampHigh = half4( 1,     2,  0.5,  3);
 
     return (clamp(testInputs.x,    -1, 1)                         == expectedA.x     &&
             clamp(testInputs.xy,   -1, 1)                         == expectedA.xy    &&
             clamp(testInputs.xyz,  -1, 1)                         == expectedA.xyz   &&
             clamp(testInputs.xyzw, -1, 1)                         == expectedA.xyzw  &&
+            clamp(constVal.x,      -1, 1)                         == expectedA.x     &&
+            clamp(constVal.xy,     -1, 1)                         == expectedA.xy    &&
+            clamp(constVal.xyz,    -1, 1)                         == expectedA.xyz   &&
+            clamp(constVal.xyzw,   -1, 1)                         == expectedA.xyzw  &&
             clamp(testInputs.x,    clampLow.x,    clampHigh.x   ) == expectedB.x     &&
             clamp(testInputs.xy,   clampLow.xy,   clampHigh.xy  ) == expectedB.xy    &&
             clamp(testInputs.xyz,  clampLow.xyz,  clampHigh.xyz ) == expectedB.xyz   &&
-            clamp(testInputs.xyzw, clampLow.xyzw, clampHigh.xyzw) == expectedB.xyzw) ? colorGreen
+            clamp(testInputs.xyzw, clampLow.xyzw, clampHigh.xyzw) == expectedB.xyzw  &&
+            clamp(constVal.x,      clampLow.x,    clampHigh.x   ) == expectedB.x     &&
+            clamp(constVal.xy,     clampLow.xy,   clampHigh.xy  ) == expectedB.xy    &&
+            clamp(constVal.xyz,    clampLow.xyz,  clampHigh.xyz ) == expectedB.xyz   &&
+            clamp(constVal.xyzw,   clampLow.xyzw, clampHigh.xyzw) == expectedB.xyzw) ? colorGreen
                                                                                      : colorRed;
 }

@@ -2,10 +2,10 @@
 #include <simd/simd.h>
 using namespace metal;
 struct Uniforms {
-    float a;
-    float b;
-    float4 c;
-    float4 d;
+    float4 I;
+    float4 N;
+    float4 colorGreen;
+    float4 colorRed;
 };
 struct Inputs {
 };
@@ -17,7 +17,10 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     (void)_out;
     float _skTemp0;
     float _skTemp1;
-    _out.sk_FragColor.x = (_skTemp0 = _uniforms.a, _skTemp1 = _uniforms.b, _skTemp0 - 2 * _skTemp1 * _skTemp0 * _skTemp1);
-    _out.sk_FragColor = reflect(_uniforms.c, _uniforms.d);
+    float expectedX = -49.0;
+    float2 expectedXY = float2(-169.0, 202.0);
+    float3 expectedXYZ = float3(-379.0, 454.0, -529.0);
+    float4 expectedXYZW = float4(-699.0, 838.0, -977.0, 1116.0);
+    _out.sk_FragColor = (((((((_skTemp0 = _uniforms.I.x, _skTemp1 = _uniforms.N.x, _skTemp0 - 2 * _skTemp1 * _skTemp0 * _skTemp1) == expectedX && all(reflect(_uniforms.I.xy, _uniforms.N.xy) == expectedXY)) && all(reflect(_uniforms.I.xyz, _uniforms.N.xyz) == expectedXYZ)) && all(reflect(_uniforms.I, _uniforms.N) == expectedXYZW)) && -49.0 == expectedX) && all(float2(-169.0, 202.0) == expectedXY)) && all(float3(-379.0, 454.0, -529.0) == expectedXYZ)) && all(float4(-699.0, 838.0, -977.0, 1116.0) == expectedXYZW) ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }

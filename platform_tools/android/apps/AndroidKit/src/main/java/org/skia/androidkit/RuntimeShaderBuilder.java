@@ -18,7 +18,15 @@ public class RuntimeShaderBuilder {
     }
 
     public RuntimeShaderBuilder setUniform(String name, float val) {
-        nSetUniform(mNativeInstance, name, val);
+        nSetUniformFloat(mNativeInstance, name, val);
+        return this;
+    }
+    public RuntimeShaderBuilder setUniform(String name, float valX, float valY, float valZ) {
+        nSetUniformFloat3(mNativeInstance, name, valX, valY, valZ);
+        return this;
+    }
+    public RuntimeShaderBuilder setUniform(String name, Matrix mat) {
+        nSetUniformMatrix(mNativeInstance, name, mat.getNativeInstance());
         return this;
     }
 
@@ -42,6 +50,8 @@ public class RuntimeShaderBuilder {
     private static native long nCreate(String sksl);
     private static native void nRelease(long nativeInstance);
 
-    private static native void nSetUniform(long nativeInstance, String name, float val);
+    private static native void nSetUniformFloat(long nativeInstance, String name, float val);
+    private static native void nSetUniformFloat3(long nativeInstance, String name, float valX, float valY, float valZ);
+    private static native void nSetUniformMatrix(long nativeInstance, String name, long nativeMatrix);
     private static native long nMakeShader(long nativeInstance);
 }

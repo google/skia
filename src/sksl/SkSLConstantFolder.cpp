@@ -318,6 +318,34 @@ static std::unique_ptr<Expression> simplify_no_op_arithmetic(const Context& cont
     return nullptr;
 }
 
+template <typename T>
+static std::unique_ptr<Expression> fold_float_expression(int offset,
+                                                         T result,
+                                                         const Type* resultType) {
+    // If constant-folding this expression would generate a NaN/infinite result, leave it as-is.
+    if constexpr (!std::is_same<T, bool>::value) {
+        if (!std::isfinite(result)) {
+            return nullptr;
+        }
+    }
+
+    return Literal<T>::Make(offset, result, resultType);
+}
+
+template <typename T>
+static std::unique_ptr<Expression> fold_int_expression(int offset,
+                                                       T result,
+                                                       const Type* resultType) {
+    // If constant-folding this expression would overflow the result type, leave it as-is.
+    if constexpr (!std::is_same<T, bool>::value) {
+        if (result < resultType->minimumValue() || result > resultType->maximumValue()) {
+            return nullptr;
+        }
+    }
+
+    return Literal<T>::Make(offset, result, resultType);
+}
+
 std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
                                                      int offset,
                                                      const Expression& leftExpr,
@@ -418,48 +446,50 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
     // precision to calculate the results and hope the result makes sense.
     // TODO(skia:10932): detect and handle integer overflow properly.
     using SKSL_UINT = uint64_t;
-    #define RESULT(t, op)   t ## Literal::Make(offset, leftVal op rightVal, &resultType)
-    #define URESULT(t, op)  t ## Literal::Make(offset, (SKSL_UINT)(leftVal) op \
-                                                       (SKSL_UINT)(rightVal), &resultType)
     if (left->is<IntLiteral>() && right->is<IntLiteral>()) {
         SKSL_INT leftVal  = left->as<IntLiteral>().value();
         SKSL_INT rightVal = right->as<IntLiteral>().value();
+
+        #define RESULT(Op)   fold_int_expression(offset, \
+                                        (SKSL_INT)(leftVal) Op (SKSL_INT)(rightVal), &resultType)
+        #define URESULT(Op)  fold_int_expression(offset, \
+                             (SKSL_INT)((SKSL_UINT)(leftVal) Op (SKSL_UINT)(rightVal)), &resultType)
         switch (op.kind()) {
-            case Token::Kind::TK_PLUS:       return URESULT(Int, +);
-            case Token::Kind::TK_MINUS:      return URESULT(Int, -);
-            case Token::Kind::TK_STAR:       return URESULT(Int, *);
+            case Token::Kind::TK_PLUS:       return URESULT(+);
+            case Token::Kind::TK_MINUS:      return URESULT(-);
+            case Token::Kind::TK_STAR:       return URESULT(*);
             case Token::Kind::TK_SLASH:
                 if (leftVal == std::numeric_limits<SKSL_INT>::min() && rightVal == -1) {
                     context.fErrors.error(offset, "arithmetic overflow");
                     return nullptr;
                 }
-                return RESULT(Int, /);
+                return RESULT(/);
             case Token::Kind::TK_PERCENT:
                 if (leftVal == std::numeric_limits<SKSL_INT>::min() && rightVal == -1) {
                     context.fErrors.error(offset, "arithmetic overflow");
                     return nullptr;
                 }
-                return RESULT(Int, %);
-            case Token::Kind::TK_BITWISEAND: return RESULT(Int,  &);
-            case Token::Kind::TK_BITWISEOR:  return RESULT(Int,  |);
-            case Token::Kind::TK_BITWISEXOR: return RESULT(Int,  ^);
-            case Token::Kind::TK_EQEQ:       return RESULT(Bool, ==);
-            case Token::Kind::TK_NEQ:        return RESULT(Bool, !=);
-            case Token::Kind::TK_GT:         return RESULT(Bool, >);
-            case Token::Kind::TK_GTEQ:       return RESULT(Bool, >=);
-            case Token::Kind::TK_LT:         return RESULT(Bool, <);
-            case Token::Kind::TK_LTEQ:       return RESULT(Bool, <=);
+                return RESULT(%);
+            case Token::Kind::TK_BITWISEAND: return RESULT(&);
+            case Token::Kind::TK_BITWISEOR:  return RESULT(|);
+            case Token::Kind::TK_BITWISEXOR: return RESULT(^);
+            case Token::Kind::TK_EQEQ:       return RESULT(==);
+            case Token::Kind::TK_NEQ:        return RESULT(!=);
+            case Token::Kind::TK_GT:         return RESULT(>);
+            case Token::Kind::TK_GTEQ:       return RESULT(>=);
+            case Token::Kind::TK_LT:         return RESULT(<);
+            case Token::Kind::TK_LTEQ:       return RESULT(<=);
             case Token::Kind::TK_SHL:
                 if (rightVal >= 0 && rightVal <= 31) {
                     // Left-shifting a negative (or really, any signed) value is undefined behavior
                     // in C++, but not GLSL. Do the shift on unsigned values, to avoid UBSAN.
-                    return URESULT(Int,  <<);
+                    return URESULT(<<);
                 }
                 context.fErrors.error(offset, "shift value out of range");
                 return nullptr;
             case Token::Kind::TK_SHR:
                 if (rightVal >= 0 && rightVal <= 31) {
-                    return RESULT(Int,  >>);
+                    return RESULT(>>);
                 }
                 context.fErrors.error(offset, "shift value out of range");
                 return nullptr;
@@ -467,25 +497,30 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
             default:
                 return nullptr;
         }
+        #undef RESULT
+        #undef URESULT
     }
 
     // Perform constant folding on pairs of floating-point literals.
     if (left->is<FloatLiteral>() && right->is<FloatLiteral>()) {
         SKSL_FLOAT leftVal  = left->as<FloatLiteral>().value();
         SKSL_FLOAT rightVal = right->as<FloatLiteral>().value();
+
+        #define RESULT(Op) fold_float_expression(offset, leftVal Op rightVal, &resultType)
         switch (op.kind()) {
-            case Token::Kind::TK_PLUS:  return RESULT(Float, +);
-            case Token::Kind::TK_MINUS: return RESULT(Float, -);
-            case Token::Kind::TK_STAR:  return RESULT(Float, *);
-            case Token::Kind::TK_SLASH: return RESULT(Float, /);
-            case Token::Kind::TK_EQEQ: return RESULT(Bool, ==);
-            case Token::Kind::TK_NEQ:  return RESULT(Bool, !=);
-            case Token::Kind::TK_GT:   return RESULT(Bool, >);
-            case Token::Kind::TK_GTEQ: return RESULT(Bool, >=);
-            case Token::Kind::TK_LT:   return RESULT(Bool, <);
-            case Token::Kind::TK_LTEQ: return RESULT(Bool, <=);
-            default:                   return nullptr;
+            case Token::Kind::TK_PLUS:  return RESULT(+);
+            case Token::Kind::TK_MINUS: return RESULT(-);
+            case Token::Kind::TK_STAR:  return RESULT(*);
+            case Token::Kind::TK_SLASH: return RESULT(/);
+            case Token::Kind::TK_EQEQ:  return RESULT(==);
+            case Token::Kind::TK_NEQ:   return RESULT(!=);
+            case Token::Kind::TK_GT:    return RESULT(>);
+            case Token::Kind::TK_GTEQ:  return RESULT(>=);
+            case Token::Kind::TK_LT:    return RESULT(<);
+            case Token::Kind::TK_LTEQ:  return RESULT(<=);
+            default:                    return nullptr;
         }
+        #undef RESULT
     }
 
     // Perform constant folding on pairs of vectors.
@@ -554,8 +589,6 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
     }
 
     // We aren't able to constant-fold.
-    #undef RESULT
-    #undef URESULT
     return nullptr;
 }
 

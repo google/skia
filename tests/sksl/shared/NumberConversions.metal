@@ -1,21 +1,24 @@
 #include <metal_stdlib>
 #include <simd/simd.h>
 using namespace metal;
+struct Uniforms {
+    float unknownInput;
+};
 struct Inputs {
 };
 struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
-fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
+fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
     bool b = true;
-    short s = short(sqrt(1.0));
-    int i = int(sqrt(1.0));
-    ushort us = ushort(sqrt(1.0));
-    uint ui = uint(sqrt(1.0));
-    float h = sqrt(1.0);
-    float f = sqrt(1.0);
+    short s = short(_uniforms.unknownInput);
+    int i = int(_uniforms.unknownInput);
+    ushort us = ushort(_uniforms.unknownInput);
+    uint ui = uint(_uniforms.unknownInput);
+    float h = _uniforms.unknownInput;
+    float f = _uniforms.unknownInput;
     short s2s = s;
     short i2s = short(i);
     short us2s = short(us);

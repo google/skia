@@ -16,16 +16,12 @@ from . import default
 from . import docker
 from . import flutter
 from . import pathkit
-from . import skqp
 
 
 class BuildApi(recipe_api.RecipeApi):
   def __init__(self, buildername, *args, **kwargs):
     b = buildername
-    if 'SKQP' in b and not 'Test' in b:
-      self.compile_fn = skqp.compile_fn
-      self.copy_fn = skqp.copy_build_products
-    elif 'Android' in b and not 'Flutter' in b:
+    if 'Android' in b and not 'Flutter' in b:
       self.compile_fn = android.compile_fn
       self.copy_fn = android.copy_build_products
     elif 'Chromebook' in b:

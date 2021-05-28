@@ -32,16 +32,16 @@ std::unique_ptr<GrSurfaceDrawContext> GrOnFlushResourceProvider::makeRenderTarge
         return nullptr;
     }
 
-    auto surfaceDrawContext = GrSurfaceDrawContext::Make(context, colorType, std::move(colorSpace),
-                                                         std::move(proxy), origin, props, true);
+    auto sdc = GrSurfaceDrawContext::Make(context, colorType, std::move(proxy),
+                                          std::move(colorSpace), origin, props, true);
 
-    if (!surfaceDrawContext) {
+    if (!sdc) {
         return nullptr;
     }
 
-    surfaceDrawContext->discard();
+    sdc->discard();
 
-    return surfaceDrawContext;
+    return sdc;
 }
 
 void GrOnFlushResourceProvider::addTextureResolveTask(sk_sp<GrTextureProxy> textureProxy,

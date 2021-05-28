@@ -342,8 +342,11 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
     if (fImage->isAlphaOnly()) {
         return GrBlendFragmentProcessor::Make(std::move(fp), nullptr, SkBlendMode::kDstIn);
     } else if (args.fInputColorIsOpaque) {
-        // This special case isn't needed for correctness. It just avoids a multiplication by
-        // a vertex attribute alpha that is known to be 1 if we take the kSrcIn path.
+        // If the input alpha is known to be 1, we don't need to take the kSrcIn path. This is
+        // just an optimization. However, we can't just return 'fp' here. We need to actually
+        // inhibit the coverage-as-alpha optimization, or we'll fail to incorporate AA correctly.
+        // The OverrideInput FP happens to do that, so wrap our fp in one of those. The texture FP
+        // doesn't actually use the input color at all, so the overridden input is irrelevant.
         return GrFragmentProcessor::OverrideInput(std::move(fp), SK_PMColor4fWHITE, false);
     }
     return GrBlendFragmentProcessor::Make(std::move(fp), nullptr, SkBlendMode::kSrcIn);

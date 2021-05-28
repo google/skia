@@ -32,7 +32,7 @@
 #include "src/utils/SkShadowTessellator.h"
 #include <new>
 #if SK_SUPPORT_GPU
-#include "src/gpu/effects/generated/GrBlurredEdgeFragmentProcessor.h"
+#include "src/gpu/effects/GrSkSLFP.h"
 #include "src/gpu/geometry/GrStyledShape.h"
 #endif
 
@@ -87,7 +87,15 @@ sk_sp<SkFlattenable> SkGaussianColorFilter::CreateProc(SkReadBuffer&) {
 GrFPResult SkGaussianColorFilter::asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
                                                       GrRecordingContext*,
                                                       const GrColorInfo&) const {
-    return GrFPSuccess(GrBlurredEdgeFragmentProcessor::Make(std::move(inputFP)));
+    static constexpr char kCode[] = R"(
+        half4 main(half4 inColor) {
+            half factor = 1 - inColor.a;
+            factor = exp(-factor * factor * 4) - 0.018;
+            return half4(factor);
+        }
+    )";
+    auto builder = GrRuntimeFPBuilder::Make<kCode, SkRuntimeEffect::MakeForColorFilter>();
+    return GrFPSuccess(GrFragmentProcessor::Compose(builder.makeFP(), std::move(inputFP)));
 }
 #endif
 

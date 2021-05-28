@@ -112,18 +112,23 @@ protected:
     void PathTessellateBenchmark_##NAME::runBench()
 
 DEF_PATH_TESS_BENCH(GrPathIndirectTessellator, make_cubic_path(18), SkMatrix::I()) {
-    GrPathIndirectTessellator tess(fMatrix, fPath, GrPathIndirectTessellator::DrawInnerFan::kNo);
-    tess.prepare(fTarget.get(), SkRectPriv::MakeLargest(), fMatrix, fPath, nullptr);
+    SkArenaAlloc arena(1024);
+    auto tess = GrPathIndirectTessellator::Make(&arena, fMatrix, fPath,
+                                                GrPathIndirectTessellator::DrawInnerFan::kNo);
+    tess->prepare(fTarget.get(), SkRectPriv::MakeLargest(), fPath, nullptr);
 }
 
 DEF_PATH_TESS_BENCH(GrPathOuterCurveTessellator, make_cubic_path(8), SkMatrix::I()) {
-    GrPathOuterCurveTessellator tess(GrPathTessellator::DrawInnerFan::kNo);
-    tess.prepare(fTarget.get(), SkRectPriv::MakeLargest(), fMatrix, fPath, nullptr);
+    SkArenaAlloc arena(1024);
+    auto tess = GrPathOuterCurveTessellator::Make(&arena, fMatrix,
+                                                  GrPathTessellator::DrawInnerFan::kNo);
+    tess->prepare(fTarget.get(), SkRectPriv::MakeLargest(), fPath, nullptr);
 }
 
 DEF_PATH_TESS_BENCH(GrPathWedgeTessellator, make_cubic_path(8), SkMatrix::I()) {
-    GrPathWedgeTessellator tess;
-    tess.prepare(fTarget.get(), SkRectPriv::MakeLargest(), fMatrix, fPath, nullptr);
+    SkArenaAlloc arena(1024);
+    auto tess = GrPathWedgeTessellator::Make(&arena, fMatrix);
+    tess->prepare(fTarget.get(), SkRectPriv::MakeLargest(), fPath, nullptr);
 }
 
 static void benchmark_wangs_formula_cubic_log2(const SkMatrix& matrix, const SkPath& path) {
@@ -206,21 +211,24 @@ DEF_PATH_TESS_BENCH(middle_out_triangulation,
 }
 
 using PathStrokeList = GrStrokeTessellator::PathStrokeList;
-using MakeTessellatorFn = std::unique_ptr<GrStrokeTessellator>(*)(ShaderFlags, const SkMatrix&,
-                                                                  PathStrokeList*,
+using MakeTessellatorFn = std::unique_ptr<GrStrokeTessellator>(*)(ShaderFlags, const GrShaderCaps&,
+                                                                  const SkMatrix&, PathStrokeList*,
                                                                   std::array<float, 2>, const
                                                                   SkRect&);
 
 static std::unique_ptr<GrStrokeTessellator> make_hw_tessellator(
-        ShaderFlags shaderFlags, const SkMatrix& viewMatrix, PathStrokeList* pathStrokeList,
-        std::array<float, 2> matrixMinMaxScales, const SkRect& strokeCullBounds) {
-    return std::make_unique<GrStrokeHardwareTessellator>(shaderFlags, viewMatrix, pathStrokeList,
-                                                         matrixMinMaxScales, strokeCullBounds);
+        ShaderFlags shaderFlags, const GrShaderCaps& shaderCaps, const SkMatrix& viewMatrix,
+        PathStrokeList* pathStrokeList, std::array<float, 2> matrixMinMaxScales,
+        const SkRect& strokeCullBounds) {
+    return std::make_unique<GrStrokeHardwareTessellator>(shaderFlags, shaderCaps, viewMatrix,
+                                                         pathStrokeList, matrixMinMaxScales,
+                                                         strokeCullBounds);
 }
 
 static std::unique_ptr<GrStrokeTessellator> make_fixed_count_tessellator(
-        ShaderFlags shaderFlags, const SkMatrix& viewMatrix, PathStrokeList* pathStrokeList,
-        std::array<float, 2> matrixMinMaxScales, const SkRect& strokeCullBounds) {
+        ShaderFlags shaderFlags, const GrShaderCaps&, const SkMatrix& viewMatrix,
+        PathStrokeList* pathStrokeList, std::array<float, 2> matrixMinMaxScales,
+        const SkRect& strokeCullBounds) {
     return std::make_unique<GrStrokeFixedCountTessellator>(shaderFlags, viewMatrix, pathStrokeList,
                                                            matrixMinMaxScales, strokeCullBounds);
 }
@@ -322,7 +330,8 @@ private:
             fTotalVerbCount += fPathStrokes[i].fPath.countVerbs();
         }
 
-        fTessellator = fMakeTessellatorFn(fShaderFlags, SkMatrix::Scale(fMatrixScale, fMatrixScale),
+        fTessellator = fMakeTessellatorFn(fShaderFlags, *fTarget->caps().shaderCaps(),
+                                          SkMatrix::Scale(fMatrixScale, fMatrixScale),
                                           fPathStrokes.data(), {fMatrixScale, fMatrixScale},
                                           SkRectPriv::MakeLargest());
     }

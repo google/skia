@@ -14,6 +14,7 @@
 #if SK_SUPPORT_GPU
 
 class GrBackendFormat;
+class SkBaseGpuDevice;
 class SkGpuDevice;
 
 class SkSurface_Gpu : public SkSurface_Base {
@@ -57,7 +58,7 @@ public:
                 const SkPaint* paint) override;
     bool onDraw(sk_sp<const SkDeferredDisplayList>, SkIPoint offset) override;
 
-    SkGpuDevice* getDevice() { return fDevice.get(); }
+    SkBaseGpuDevice* getDevice();
 
 private:
     sk_sp<SkGpuDevice> fDevice;
