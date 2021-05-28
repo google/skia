@@ -10,7 +10,7 @@
 
 #include "src/gpu/ops/GrDrawOp.h"
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
-#include "src/gpu/tessellate/GrTessellationShader.h"
+#include "src/gpu/tessellate/shaders/GrTessellationShader.h"
 
 class GrPathTessellator;
 
