@@ -20,9 +20,10 @@ public:
                                 const SkMatrix& viewMatrix, PathStrokeList* pathStrokeList,
                                 std::array<float,2> matrixMinMaxScales, const SkRect&
                                 strokeCullBounds)
-            : GrStrokeTessellator(GrStrokeShader::Mode::kHardwareTessellation, shaderFlags,
-                                  SkNextLog2(shaderCaps.maxTessellationSegments()), viewMatrix,
-                                  pathStrokeList, matrixMinMaxScales, strokeCullBounds) {
+            : GrStrokeTessellator(GrStrokeTessellationShader::Mode::kHardwareTessellation,
+                                  shaderFlags, SkNextLog2(shaderCaps.maxTessellationSegments()),
+                                  viewMatrix, pathStrokeList, matrixMinMaxScales,
+                                  strokeCullBounds) {
     }
 
     void prepare(GrMeshDrawOp::Target*, int totalCombinedVerbCnt) override;
