@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/tessellate/GrStrokeInstancedShaderImpl.h"
+#include "src/gpu/tessellate/shaders/GrStrokeTessellationShader.h"
 
 #include "src/gpu/geometry/GrWangsFormula.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -13,8 +13,8 @@
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/tessellate/GrStrokeTessellator.h"
 
-void GrStrokeInstancedShaderImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
-    const auto& shader = args.fGeomProc.cast<GrStrokeShader>();
+void GrStrokeTessellationShader::InstancedImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
+    const auto& shader = args.fGeomProc.cast<GrStrokeTessellationShader>();
     SkPaint::Join joinType = shader.stroke().getJoin();
     args.fVaryingHandler->emitAttributes(shader);
 
@@ -63,11 +63,11 @@ void GrStrokeInstancedShaderImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
         fDynamicColorName = dynamicColor.fsIn();
     }
 
-    if (shader.mode() == GrStrokeShader::Mode::kLog2Indirect) {
+    if (shader.mode() == GrStrokeTessellationShader::Mode::kLog2Indirect) {
         args.fVertBuilder->codeAppend(R"(
         float NUM_TOTAL_EDGES = abs(argsAttr.z);)");
     } else {
-        SkASSERT(shader.mode() == GrStrokeShader::Mode::kFixedCount);
+        SkASSERT(shader.mode() == GrStrokeTessellationShader::Mode::kFixedCount);
         const char* edgeCountName;
         fEdgeCountUniform = args.fUniformHandler->addUniform(
                 nullptr, kVertex_GrShaderFlag, kFloat_GrSLType, "edgeCount", &edgeCountName);
@@ -135,7 +135,7 @@ void GrStrokeInstancedShaderImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
         // The stroke section needs at least two edges. Don't assign more to the join than
         // "NUM_TOTAL_EDGES - 2".
         numEdgesInJoin = min(numEdgesInJoin, NUM_TOTAL_EDGES - 2);)");
-        if (shader.mode() == GrStrokeShader::Mode::kLog2Indirect) {
+        if (shader.mode() == GrStrokeTessellationShader::Mode::kLog2Indirect) {
             args.fVertBuilder->codeAppend(R"(
             // Negative argsAttr.z means the join is an internal chop or circle, and both of
             // those have empty joins. All we need is a bevel join.
@@ -154,7 +154,7 @@ void GrStrokeInstancedShaderImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
         }
     } else {
         args.fVertBuilder->codeAppendf(R"(
-        float numEdgesInJoin = %i;)", GrStrokeShader::NumFixedEdgesInJoin(joinType));
+        float numEdgesInJoin = %i;)", GrStrokeTessellationShader::NumFixedEdgesInJoin(joinType));
     }
 
     args.fVertBuilder->codeAppend(R"(
