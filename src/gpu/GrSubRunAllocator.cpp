@@ -61,7 +61,19 @@ void GrBagOfBytes::setupBytesAndCapacity(char* bytes, int size) {
 void GrBagOfBytes::needMoreBytes(int requestedSize, int alignment) {
     int nextBlockSize = fFibProgression.nextBlockSize();
     const int size = PlatformMinimumSizeWithOverhead(
-            std::max(requestedSize, nextBlockSize), alignof(max_align_t));
+            std::max(requestedSize, nextBlockSize), alignof(max_align_t))
+#ifdef __EMSCRIPTEN__
+        // Alignment of `fEndByte` and `fCapacity` assumes that allocated `bytes` is aligned to
+        // the kMaxAlignment (16). This is not true for Emscripten. As of v2.0.20, Emscripten's
+        // default allocator is aligned to 8:
+        // https://github.com/emscripten-core/emscripten/issues/10072
+        //
+        // This causes `fCapacity` to be less than `requestedSize` when `bytes` is not 16 aligned.
+        // To work-around this issue, adding 8 bytes padding to the `bytes` to compensate the
+        // capacity "loss".
+        + 8
+#endif
+        ;
     char* const bytes = new char[size];
     // fEndByte is changed by setupBytesAndCapacity. Remember it to link back to.
     char* const previousBlock = fEndByte;
