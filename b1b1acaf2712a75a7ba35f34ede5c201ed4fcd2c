@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fc1f9e32_0c2bccd5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-29T21:44:13Z",
+      "side": 1,
+      "message": "is there a way (or plugin) to see this \u0027formatted\u0027 inside Gerrit?",
+      "revId": "b1b1acaf2712a75a7ba35f34ede5c201ed4fcd2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
