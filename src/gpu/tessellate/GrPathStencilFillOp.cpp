@@ -34,7 +34,7 @@ public:
     }
 
 private:
-    const char* name() const final { return "BoundingBoxShader"; }
+    const char* name() const final { return "tessellate_BoundingBoxShader"; }
     void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const final {}
     GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const final;
 };
@@ -110,7 +110,8 @@ void GrPathStencilFillOp::prePreparePrograms(const GrTessellationShader::Program
             // Large complex paths do better with a dedicated triangle shader for the inner fan.
             // This takes less PCI bus bandwidth (6 floats per triangle instead of 8) and allows us
             // to make sure it has an efficient middle-out topology.
-            auto shader = args.fArena->make<GrTriangleShader>(fViewMatrix, SK_PMColor4fTRANSPARENT);
+            auto shader = GrPathTessellationShader::MakeSimpleTriangleShader(
+                    args.fArena, fViewMatrix, SK_PMColor4fTRANSPARENT);
             fStencilFanProgram = GrTessellationShader::MakeProgram(args, shader, stencilPipeline,
                                                                    stencilPathSettings);
             drawFanWithTessellator = GrPathTessellator::DrawInnerFan::kNo;
