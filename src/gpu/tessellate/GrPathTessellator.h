@@ -8,10 +8,11 @@
 #ifndef GrPathTessellator_DEFINED
 #define GrPathTessellator_DEFINED
 
+#include "src/core/SkPathPriv.h"
 #include "src/gpu/GrInnerFanTriangulator.h"
-#include "src/gpu/GrVertexChunkArray.h"
+#include "src/gpu/GrVertexWriter.h"
+#include "src/gpu/GrVx.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
-#include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 
 class SkPath;
 class GrPathTessellationShader;
@@ -55,94 +56,51 @@ public:
 protected:
     GrPathTessellator(GrPathTessellationShader* shader) : fShader(shader) {}
 
+    // Returns an upper bound on the number of segments (lineTo, quadTo, conicTo, cubicTo) in a
+    // path, also accounting for any implicit lineTos from closing contours.
+    static int MaxSegmentsInPath(const SkPath& path) {
+        // There might be an implicit kClose at the end, but the path always begins with kMove. So
+        // the max number of segments in the path is equal to the number of verbs.
+        SkASSERT(path.countVerbs() == 0 || SkPathPriv::VerbData(path)[0] == SkPath::kMove_Verb);
+        return path.countVerbs();
+    }
+
+    // Returns an upper bound on the number of triangles it would require to fan a path's inner
+    // polygon, in the case where no additional vertices are introduced.
+    static int MaxTrianglesInInnerFan(const SkPath& path) {
+        int maxEdgesInFan = MaxSegmentsInPath(path);
+        return std::max(maxEdgesInFan - 2, 0);  // An n-sided polygon is fanned by n-2 triangles.
+    }
+
+    // Writes out the non-degenerate triangles from 'breadcrumbTriangleList' as 4-point conic
+    // patches with w=Infinity.
+    static int WriteBreadcrumbTriangles(GrVertexWriter* writer,
+                                        const BreadcrumbTriangleList* breadcrumbTriangleList) {
+        int numWritten = 0;
+        SkDEBUGCODE(int count = 0;)
+        for (const auto* tri = breadcrumbTriangleList->head(); tri; tri = tri->fNext) {
+            SkDEBUGCODE(++count;)
+            auto p0 = grvx::float2::Load(tri->fPts);
+            auto p1 = grvx::float2::Load(tri->fPts + 1);
+            auto p2 = grvx::float2::Load(tri->fPts + 2);
+            if (skvx::any((p0 == p1) & (p1 == p2))) {
+                // Cull completely horizontal or vertical triangles. GrTriangulator can't always get
+                // these breadcrumb edges right when they run parallel to the sweep direction
+                // because their winding is undefined by its current definition.
+                // FIXME(skia:12060): This seemed safe, but if there is a view matrix it will
+                // introduce T-junctions.
+                continue;
+            }
+            writer->writeArray(tri->fPts, 3);
+            // Mark this instance as a triangle by setting it to a conic with w=Inf.
+            writer->fill(GrVertexWriter::kIEEE_32_infinity, 2);
+            ++numWritten;
+        }
+        SkASSERT(count == breadcrumbTriangleList->count());
+        return numWritten;
+    }
+
     GrPathTessellationShader* fShader;
-};
-
-// Draws tessellations of the path's outer curves and, optionally, inner fan triangles using
-// indirect draw commands. Quadratics are converted to cubics and triangles are converted to conics
-// with w=Inf. An outer curve is an independent, 4-point closed contour that represents either a
-// cubic or a conic.
-class GrPathIndirectTessellator final : public GrPathTessellator {
-public:
-    static GrPathTessellator* Make(SkArenaAlloc*, const SkPath&, const SkMatrix&,
-                                   const SkPMColor4f&, DrawInnerFan);
-
-    void prepare(GrMeshDrawOp::Target*, const SkRect& cullBounds, const SkPath&,
-                 const BreadcrumbTriangleList*) override;
-    void draw(GrOpFlushState*) const override;
-    void drawHullInstances(GrOpFlushState*) const override;
-
-private:
-    constexpr static int kMaxResolveLevel = GrTessellationPathRenderer::kMaxResolveLevel;
-
-    GrPathIndirectTessellator(GrPathTessellationShader*, const SkPath&, DrawInnerFan);
-
-    const bool fDrawInnerFan;
-    int fResolveLevelCounts[kMaxResolveLevel + 1] = {0};
-    int fOuterCurveInstanceCount = 0;
-
-    sk_sp<const GrBuffer> fInstanceBuffer;
-    int fBaseInstance = 0;
-    int fTotalInstanceCount = 0;
-
-    sk_sp<const GrBuffer> fIndirectDrawBuffer;
-    size_t fIndirectDrawOffset = 0;
-    int fIndirectDrawCount = 0;
-
-    friend class SkArenaAlloc;  // For constructor.
-};
-
-// Base class for GrPathTessellators that draw actual hardware tessellation patches.
-class GrPathHardwareTessellator : public GrPathTessellator {
-public:
-    void draw(GrOpFlushState*) const final;
-
-protected:
-    GrPathHardwareTessellator(GrPathTessellationShader* shader, int numVerticesPerPatch)
-            : GrPathTessellator(shader), fNumVerticesPerPatch(numVerticesPerPatch) {}
-
-    GrVertexChunkArray fVertexChunkArray;
-    int fNumVerticesPerPatch;
-};
-
-// Draws an array of "outer curve" patches and, optionally, inner fan triangles for
-// GrCubicTessellateShader. Each patch is an independent 4-point curve, representing either a cubic
-// or a conic. Quadratics are converted to cubics and triangles are converted to conics with w=Inf.
-class GrPathOuterCurveTessellator final : public GrPathHardwareTessellator {
-public:
-    static GrPathTessellator* Make(SkArenaAlloc*, const SkMatrix&, const SkPMColor4f&,
-                                   DrawInnerFan);
-
-    void prepare(GrMeshDrawOp::Target*, const SkRect& cullBounds, const SkPath&,
-                 const BreadcrumbTriangleList*) override;
-    void drawHullInstances(GrOpFlushState*) const override;
-
-private:
-    GrPathOuterCurveTessellator(GrPathTessellationShader* shader, DrawInnerFan drawInnerFan)
-            : GrPathHardwareTessellator(shader, 4)
-            , fDrawInnerFan(drawInnerFan == DrawInnerFan::kYes) {}
-
-    const bool fDrawInnerFan;
-
-    friend class SkArenaAlloc;  // For constructor.
-};
-
-// Draws an array of "wedge" patches for GrWedgeTessellateShader. A wedge is an independent, 5-point
-// closed contour consisting of 4 control points plus an anchor point fanning from the center of the
-// curve's resident contour. A wedge can be either a cubic or a conic. Quadratics and lines are
-// converted to cubics. Once stencilled, these wedges alone define the complete path.
-class GrPathWedgeTessellator final : public GrPathHardwareTessellator {
-public:
-    static GrPathTessellator* Make(SkArenaAlloc*, const SkMatrix&, const SkPMColor4f&);
-
-    void prepare(GrMeshDrawOp::Target*, const SkRect& cullBounds, const SkPath&,
-                 const BreadcrumbTriangleList*) override;
-
-private:
-    GrPathWedgeTessellator(GrPathTessellationShader* shader)
-            : GrPathHardwareTessellator(shader, 5) {}
-
-    friend class SkArenaAlloc;  // For constructor.
 };
 
 #endif
