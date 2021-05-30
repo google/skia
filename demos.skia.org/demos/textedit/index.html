@@ -6,6 +6,7 @@
 <script type="text/javascript" src="https://particles.skia.org/dist/canvaskit.js"></script>
 <script type="text/javascript" src="textapi_utils.js"></script>
 <script type="text/javascript" src="spiralshader.js"></script>
+<script type="text/javascript" src="offscreen.js"></script>
 
 <style>
 canvas {
@@ -16,7 +17,7 @@ canvas {
 <body>
   <h1>TextEdit in CanvasKit</h1>
 
-  <canvas id=para2 width=600 height=600 tabindex='-1'></canvas>
+  <canvas id=para2 width=1200 height=600 tabindex='-1'></canvas>
 </body>
 
 <script type="text/javascript" charset="utf-8">
@@ -32,6 +33,8 @@ canvas {
         console.error('Could not make surface');
         return;
       }
+
+      let offscreen = MakeOffscreen(CanvasKit, 600, 0);
 
       const mouse = MakeMouse();
       const cursor = MakeCursor(CanvasKit);
@@ -82,9 +85,13 @@ canvas {
                 1,0,0,1,                            // color0
                 0,0,1,1                             // color1
              ]);
+
             editor.draw(canvas, [shader0]);
+            editor.draw(offscreen.getCanvas(), [shader0]);
+
             shader0.delete();
         }
+        offscreen.draw(canvas);
 
         surface.requestAnimationFrame(drawFrame);
       }
