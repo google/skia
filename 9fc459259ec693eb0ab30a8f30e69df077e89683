@@ -16,6 +16,24 @@
       "message": "Hi Mike, could you share a bit more context here? Is the intention to kick-off work on a new web API? I am trying to understand if this Gerrit review request means an invitation to together design such an API? When would this effort migrate from a Skia-repo explainer to discussion in a suitable W3C WG?",
       "revId": "9fc459259ec693eb0ab30a8f30e69df077e89683",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5d5fd5bf_cf9b0109",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-05-31T14:17:10Z",
+      "side": 1,
+      "message": "Eventually yes. However, at this stage, I just want to confer with a small number of experts. This is a recast of the google-doc I recently shared.",
+      "parentUuid": "9d8dfac2_b0a4b7e7",
+      "revId": "9fc459259ec693eb0ab30a8f30e69df077e89683",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
