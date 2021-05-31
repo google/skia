@@ -217,6 +217,9 @@ function MakeStyle(length) {
             if (src.italic) {
                 this.italic = this._check_toggle(src.italic, this.italic);
             }
+            if (src.wavy) {
+                this.wavy = this._check_toggle(src.wavy, this.wavy);
+            }
 
             if (src.size_add) {
                 this.size += src.size_add;
@@ -485,7 +488,20 @@ function MakeEditor(text, style, cursor, width) {
                 } else {
                     LOG('    use entire glyph run');
                 }
-                canvas.drawGlyphs(gly, pos, 0, 0, f, p);
+
+                let working_pos = pos;
+                if (s.wavy) {
+                    const xscale = 0.05;
+                    const yscale = r.size * 0.125;
+                    let wavy = [];
+                    for (let i = 0; i < pos.length; i += 2) {
+                        const x = pos[i + 0];
+                        wavy.push(x);
+                        wavy.push(pos[i + 1] + Math.sin(x * xscale) * yscale);
+                    }
+                    working_pos = new Float32Array(wavy);
+                }
+                canvas.drawGlyphs(gly, working_pos, 0, 0, f, p);
 
                 p.setShader(null);  // in case our caller deletes their shader(s)
 
