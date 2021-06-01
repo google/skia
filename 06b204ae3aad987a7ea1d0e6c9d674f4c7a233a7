@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e61ef504_ac689b19",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-06-01T18:41:36Z",
+      "side": 1,
+      "message": "Looks like this is generating some hairline fuzziness on some GMs with certain configs.",
+      "revId": "06b204ae3aad987a7ea1d0e6c9d674f4c7a233a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
