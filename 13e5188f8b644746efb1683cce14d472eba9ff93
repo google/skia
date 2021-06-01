@@ -155,6 +155,24 @@
       "message": "all good (that path \u003d\u003d rect behavior).\n\nI don\u0027t care overly much what SVG wants -- as long as Skia\u0027s behavior is well defined and a client *can* get the behavior they want, we don\u0027t necessarily have to behave just like SVG.",
       "revId": "13e5188f8b644746efb1683cce14d472eba9ff93",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9c07fe48_808f0457",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-01T20:47:45Z",
+      "side": 1,
+      "message": "Agreed, sg.\n\nLooks like the canaries are all green now so I will go ahead and land.",
+      "parentUuid": "35f72e6c_3378c1e7",
+      "revId": "13e5188f8b644746efb1683cce14d472eba9ff93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
