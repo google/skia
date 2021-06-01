@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f12f6378_cb2aa8b5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2021-06-01T17:44:49Z",
+      "side": 1,
+      "message": "Nigel, since you hadn\u0027t uploaded the fix (AFAICT), I went ahead and uploaded this one. If you\u0027d rather get the credit I\u0027m fine with using one uploaded by you. I\u0027d still like to add a test image, though. I still need to learn the new tool for uploading testing assets.",
+      "revId": "0e18fb5fe87a96cc332d63a66e5c2dba095a3fbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
