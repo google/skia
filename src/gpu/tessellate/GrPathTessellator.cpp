@@ -45,7 +45,7 @@ GrPathTessellator* GrPathIndirectTessellator::Make(SkArenaAlloc* arena, const Sk
                                                    const SkMatrix& viewMatrix,
                                                    const SkPMColor4f& color,
                                                    DrawInnerFan drawInnerFan) {
-    auto shader = arena->make<GrCurveMiddleOutShader>(viewMatrix, color);
+    auto shader = GrPathTessellationShader::MakeMiddleOutInstancedShader(arena, viewMatrix, color);
     return arena->make<GrPathIndirectTessellator>(shader, path, drawInnerFan);
 }
 
@@ -119,6 +119,17 @@ static int write_breadcrumb_triangles(
     return numWritten;
 }
 
+// How many vertices do we need to draw in order to triangulate a curve with 2^resolveLevel line
+// segments?
+constexpr static int num_vertices_at_resolve_level(int resolveLevel) {
+    // resolveLevel=0 -> 0 line segments -> 0 triangles -> 0 vertices
+    // resolveLevel=1 -> 2 line segments -> 1 triangle -> 3 vertices
+    // resolveLevel=2 -> 4 line segments -> 3 triangles -> 9 vertices
+    // resolveLevel=3 -> 8 line segments -> 7 triangles -> 21 vertices
+    // ...
+    return ((1 << resolveLevel) - 1) * 3;
+}
+
 void GrPathIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const SkRect& /*cullBounds*/,
                                         const SkPath& path,
                                         const BreadcrumbTriangleList* breadcrumbTriangleList) {
@@ -186,9 +197,11 @@ void GrPathIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const SkRe
         }
         instanceLocations[resolveLevel] = instanceWriter.makeOffset(0);
         SkASSERT(fIndirectDrawCount < indirectLockCnt);
-        GrCurveMiddleOutShader::WriteDrawIndirectCmd(&indirectWriter, resolveLevel,
-                                                     instanceCountAtCurrLevel + numExtraInstances,
-                                                     currentBaseInstance);
+        // The vertex shader determines the T value at which to draw each vertex. Since the
+        // triangles are arranged in "middle-out" order, we can conveniently control the
+        // resolveLevel by changing only the vertexCount.
+        indirectWriter.write(instanceCountAtCurrLevel + numExtraInstances, currentBaseInstance,
+                             num_vertices_at_resolve_level(resolveLevel), 0);
         ++fIndirectDrawCount;
         currentBaseInstance += instanceCountAtCurrLevel + numExtraInstances;
         instanceWriter = instanceWriter.makeOffset(instanceCountAtCurrLevel * 4 * sizeof(SkPoint));
@@ -283,7 +296,7 @@ GrPathTessellator* GrPathOuterCurveTessellator::Make(SkArenaAlloc* arena,
                                                      const SkMatrix& viewMatrix,
                                                      const SkPMColor4f& color,
                                                      DrawInnerFan drawInnerFan) {
-    auto shader = arena->make<GrCurveTessellateShader>(viewMatrix, color);
+    auto shader = GrPathTessellationShader::MakeHardwareCurveShader(arena, viewMatrix, color);
     return arena->make<GrPathOuterCurveTessellator>(shader, drawInnerFan);
 }
 
@@ -451,7 +464,7 @@ void GrPathOuterCurveTessellator::prepare(GrMeshDrawOp::Target* target, const Sk
 
 GrPathTessellator* GrPathWedgeTessellator::Make(SkArenaAlloc* arena, const SkMatrix& viewMatrix,
                                                 const SkPMColor4f& color) {
-    auto shader = arena->make<GrWedgeTessellateShader>(viewMatrix, color);
+    auto shader = GrPathTessellationShader::MakeHardwareWedgeShader(arena, viewMatrix, color);
     return arena->make<GrPathWedgeTessellator>(shader);
 }
 
