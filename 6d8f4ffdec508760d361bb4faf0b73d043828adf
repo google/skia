@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "b7c2c9a6_6525846c",
+        "filename": "src/gpu/tessellate/GrPathTessellationShader.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-01T17:41:56Z",
+      "side": 1,
+      "message": "This file is a re-combination of GrStencilPathShader and GrFillPathShader, both of which came from 2019. Do you think we should still change the date to 2021?",
+      "parentUuid": "874d5c09_d661fada",
+      "range": {
+        "startLine": 2,
+        "startChar": 13,
+        "endLine": 2,
+        "endChar": 17
+      },
+      "revId": "6d8f4ffdec508760d361bb4faf0b73d043828adf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "20520f3d_c9fc07f2",
         "filename": "src/gpu/tessellate/GrPathTessellationShader.h",
         "patchSetId": 5
@@ -37,6 +61,30 @@
       "writtenOn": "2021-06-01T12:20:14Z",
       "side": 1,
       "message": "??",
+      "range": {
+        "startLine": 15,
+        "startChar": 65,
+        "endLine": 15,
+        "endChar": 70
+      },
+      "revId": "6d8f4ffdec508760d361bb4faf0b73d043828adf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e4fc5b61_f400fa5a",
+        "filename": "src/gpu/tessellate/GrPathTessellationShader.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-01T17:41:56Z",
+      "side": 1,
+      "message": "Filling as opposed to stroking",
+      "parentUuid": "20520f3d_c9fc07f2",
       "range": {
         "startLine": 15,
         "startChar": 65,
@@ -70,6 +118,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "50030c96_2234bbaf",
+        "filename": "src/gpu/tessellate/GrPathTessellationShader.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-01T17:41:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0e8cf78e_1f56a7bd",
+      "range": {
+        "startLine": 115,
+        "startChar": 58,
+        "endLine": 115,
+        "endChar": 73
+      },
+      "revId": "6d8f4ffdec508760d361bb4faf0b73d043828adf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c0e811ff_245e392c",
@@ -83,6 +155,30 @@
       "writtenOn": "2021-06-01T12:20:14Z",
       "side": 1,
       "message": "This should probably stay with the parameter name",
+      "range": {
+        "startLine": 21,
+        "startChar": 73,
+        "endLine": 21,
+        "endChar": 76
+      },
+      "revId": "6d8f4ffdec508760d361bb4faf0b73d043828adf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "61d87d9e_2f6c392b",
+        "filename": "src/gpu/tessellate/GrTessellationShader.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-01T17:41:56Z",
+      "side": 1,
+      "message": "Oops!",
+      "parentUuid": "c0e811ff_245e392c",
       "range": {
         "startLine": 21,
         "startChar": 73,
