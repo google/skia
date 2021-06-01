@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a13bf35d_782642cd",
+        "filename": "resources/sksl/errors/OverflowIntLiteral.sksl",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-01T14:23:37Z",
+      "side": 1,
+      "message": "If we don\u0027t already have a test for this elsewhere, we should make sure that we handle literals that don\u0027t fit into a 64 bit int properly (especially the case where truncating the literal down to 64 bits leaves us with a number that would fit into the target type).",
+      "revId": "60aac8f1c9f5f000096ce9732cf23d8a0d41cb4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
