@@ -8,11 +8,14 @@
 #include "src/gpu/tessellate/GrPathStencilFillOp.h"
 
 #include "src/gpu/GrEagerVertexAllocator.h"
+#include "src/gpu/GrGpu.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/tessellate/GrMiddleOutPolygonTriangulator.h"
-#include "src/gpu/tessellate/GrPathTessellator.h"
+#include "src/gpu/tessellate/GrPathCurveTessellator.h"
+#include "src/gpu/tessellate/GrPathIndirectTessellator.h"
+#include "src/gpu/tessellate/GrPathWedgeTessellator.h"
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 #include "src/gpu/tessellate/shaders/GrPathTessellationShader.h"
 
@@ -116,11 +119,20 @@ void GrPathStencilFillOp::prePreparePrograms(const GrTessellationShader::Program
                                                                    stencilPathSettings);
             drawFanWithTessellator = GrPathTessellator::DrawInnerFan::kNo;
         }
-        fTessellator = GrPathTessellator::Make(args.fArena, fPath, fViewMatrix,
-                                               SK_PMColor4fTRANSPARENT, drawFanWithTessellator,
-                                               *args.fCaps);
+        if (!args.fCaps->shaderCaps()->tessellationSupport() ||
+            fPath.countVerbs() < args.fCaps->minPathVerbsForHwTessellation()) {
+            fTessellator = GrPathIndirectTessellator::Make(args.fArena, fPath, fViewMatrix,
+                                                           SK_PMColor4fTRANSPARENT,
+                                                           drawFanWithTessellator);
+        } else if (drawFanWithTessellator == GrPathTessellator::DrawInnerFan::kNo) {
+            fTessellator = GrPathCurveTessellator::Make(args.fArena, fViewMatrix,
+                                                        SK_PMColor4fTRANSPARENT,
+                                                        GrPathTessellator::DrawInnerFan::kNo);
+        } else {
+            fTessellator = GrPathWedgeTessellator::Make(args.fArena, fViewMatrix,
+                                                        SK_PMColor4fTRANSPARENT);
+        }
     }
-
     fStencilPathProgram = GrTessellationShader::MakeProgram(args, fTessellator->shader(),
                                                             stencilPipeline, stencilPathSettings);
 
@@ -207,6 +219,9 @@ void GrPathStencilFillOp::onExecute(GrOpFlushState* flushState, const SkRect& ch
     SkASSERT(fStencilPathProgram);
     flushState->bindPipelineAndScissorClip(*fStencilPathProgram, this->bounds());
     fTessellator->draw(flushState);
+    if (flushState->caps().requiresManualFBBarrierAfterTessellatedStencilDraw()) {
+        flushState->gpu()->insertManualFramebufferBarrier();  // http://skbug.com/9739
+    }
 
     // Fill in the bounding box (if not in stencil-only mode).
     if (fFillBBoxProgram) {
