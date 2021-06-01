@@ -16,6 +16,23 @@
       "message": "What do you think? It\u0027s faster, but requires some JS interface code to be written along with the C++ binding code (unlike the other version).\n\nImportantly, it delivers on making a buffer tracked by a stack-allocated object, just like the original implementation did.",
       "revId": "72afd6af0fcefffbfcc794c59a816871aa0e794b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ff35f8d9_f65c8c4a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-01T19:45:43Z",
+      "side": 1,
+      "message": "I totally like the option (as you outlined in an earlier CL) of having the option to pass in a WASMPtr and length and ownership. you did this with a 2nd constructor.\n\nI don\u0027t think it necessary to remove the JSArray version (even though it is slower). I also think the negative size trick is unnecessary: I think a bool or enum is an extra param, but very clear and no slower.\n\ni.e. I think I like your earlier approach of just adding a 2nd constructor.\n",
+      "revId": "72afd6af0fcefffbfcc794c59a816871aa0e794b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
