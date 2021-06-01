@@ -21,36 +21,54 @@ namespace skstd {
 template<typename T>
 class optional {
 public:
-    optional(const optional&) = delete;
+    optional(const T& value)
+        : fHasValue(true) {
+        new(&fPayload.fValue) T(value);
+    }
 
     optional(T&& value)
         : fHasValue(true) {
         new(&fPayload.fValue) T(std::move(value));
     }
 
-    template<typename... Args>
-    optional(Args&&... args)
-        : optional(T(std::forward<Args...>(args...))) {}
-
     optional() {}
+
+    optional(const optional& other) {
+        *this = other;
+    }
+
+    // We need a non-const copy constructor because otherwise optional(nonConstSrc) isn't an exact
+    // match for the copy constructor, and we'd end up invoking the Args&&... template by mistake.
+    optional(optional& other) {
+        *this = other;
+    }
 
     optional(optional&& other) {
         *this = std::move(other);
     }
 
+    template<typename... Args>
+    optional(Args&&... args)
+        : optional(T(std::forward<Args...>(args...))) {}
+
     ~optional() {
-        if (fHasValue) {
-            fPayload.fValue.~T();
-        }
+        this->reset();
     }
 
-    optional& operator=(const optional&) = delete;
+    optional& operator=(const optional& other) {
+        if (this != &other) {
+            this->reset();
+            fHasValue = other.fHasValue;
+            if (fHasValue) {
+                new(&fPayload.fValue) T(other.fPayload.fValue);
+            }
+        }
+        return *this;
+    }
 
     optional& operator=(optional&& other) {
         if (this != &other) {
-            if (fHasValue) {
-                fPayload.fValue.~T();
-            }
+            this->reset();
             fHasValue = other.fHasValue;
             if (fHasValue) {
                 new(&fPayload.fValue) T(std::move(other.fPayload.fValue));
@@ -59,28 +77,47 @@ public:
         return *this;
     }
 
+    const T& value() const {
+        return fPayload.fValue;
+    }
+
+    T& value() {
+        return fPayload.fValue;
+    }
+
     T& operator*() {
         SkASSERT(fHasValue);
-        return fPayload.fValue;
+        return this->value();
     }
 
     T* operator->() {
         SkASSERT(fHasValue);
-        return &fPayload.fValue;
+        return &this->value();
     }
 
     const T& operator*() const {
         SkASSERT(fHasValue);
-        return fPayload.fValue;
+        return this->value();
     }
 
     const T* operator->() const {
         SkASSERT(fHasValue);
-        return &fPayload.fValue;
+        return &this->value();
+    }
+
+    bool has_value() const {
+        return fHasValue;
     }
 
     explicit operator bool() const {
-        return fHasValue;
+        return this->has_value();
+    }
+
+    void reset() {
+        if (fHasValue) {
+            fPayload.fValue.~T();
+            fHasValue = false;
+        }
     }
 
 private:
