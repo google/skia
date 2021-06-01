@@ -74,13 +74,17 @@ struct Program {
         // program will compile to the same code regardless of the flipY setting.
         bool fFlipY;
 
+        // If true, this program includes a call to `dFdy`.
+        bool fUsesYDerivative;
+
         void reset() {
             fRTHeight = false;
             fFlipY = false;
+            fUsesYDerivative = false;
         }
 
         bool isEmpty() {
-            return !fRTHeight && !fFlipY;
+            return !fRTHeight && !fFlipY && !fUsesYDerivative;
         }
     };
 

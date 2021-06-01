@@ -13,14 +13,14 @@
 
 namespace GrPersistentCacheUtils {
 
-static constexpr int kCurrentVersion = 5;
+static constexpr int kCurrentVersion = 6;
 
 int GetCurrentVersion() {
     // The persistent cache stores a copy of the SkSL::Program::Inputs struct. If you alter the
     // Program::Inputs struct in any way, you must increment kCurrentVersion to invalidate the
     // outdated persistent cache files. The KnownSkSLProgramInputs struct must also be updated to
     // match the new contents of Program::Inputs.
-    struct KnownSkSLProgramInputs { bool height, flipY; };
+    struct KnownSkSLProgramInputs { bool height, flipY, usesYDeriv; };
     static_assert(sizeof(SkSL::Program::Inputs) == sizeof(KnownSkSLProgramInputs));
 
     return kCurrentVersion;

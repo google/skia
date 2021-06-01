@@ -1410,6 +1410,9 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
                                               const FunctionDeclaration& function,
                                               ExpressionArray arguments) {
     if (function.isBuiltin()) {
+        if (function.intrinsicKind() == k_dFdy_IntrinsicKind) {
+            fInputs.fUsesYDerivative = true;
+        }
         if (function.definition()) {
             fReferencedIntrinsics.insert(&function);
         }
@@ -1877,7 +1880,7 @@ void IRGenerator::start(const ParsedModule& base,
         (this->programKind() == ProgramKind::kRuntimeColorFilter ||
          this->programKind() == ProgramKind::kRuntimeShader)) {
         // We're compiling a runtime effect, but we're not enforcing ES2 restrictions. Add various
-        // non-ES2  types to our symbol table to allow them to be tested.
+        // non-ES2 types to our symbol table to allow them to be tested.
         fSymbolTable->addAlias("mat2x2", fContext.fTypes.fFloat2x2.get());
         fSymbolTable->addAlias("mat2x3", fContext.fTypes.fFloat2x3.get());
         fSymbolTable->addAlias("mat2x4", fContext.fTypes.fFloat2x4.get());
