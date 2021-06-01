@@ -460,7 +460,7 @@ void GrMtlCaps::initShaderCaps() {
         shaderCaps->fDualSourceBlendingSupport = false;
     }
 
-    // TODO: Re-enable this once skbug:8720 is fixed. Will also need to remove asserts in
+    // TODO(skia:8270): Re-enable this once bug 8270 is fixed. Will also need to remove asserts in
     // GrMtlPipelineStateBuilder which assert we aren't using this feature.
 #if 0
     if (this->isIOS()) {
