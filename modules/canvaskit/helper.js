@@ -155,39 +155,6 @@ CanvasKit.OneUIntArrayHelper.prototype.delete = function() {
 };
 
 /**
- * Helper for building an array of Rects (which are just structs
- * of 4 floats).
- *
- * It can be more performant to use this helper, as
- * the C++-side array is only allocated once (on the first call)
- * to build. Subsequent set() operations operate directly on
- * the C++-side array, avoiding having to re-allocate (and free)
- * the array every time.
- *
- * Input points are taken as left, top, right, bottom
- */
-CanvasKit.RectBuilder = CanvasKit.FourFloatArrayHelper;
-/**
- * Helper for building an array of RSXForms (which are just structs
- * of 4 floats).
- *
- * It can be more performant to use this helper, as
- * the C++-side array is only allocated once (on the first call)
- * to build. Subsequent set() operations operate directly on
- * the C++-side array, avoiding having to re-allocate (and free)
- * the array every time.
- *
- *  An RSXForm is a compressed form of a rotation+scale matrix.
- *
- *  [ scos    -ssin    tx ]
- *  [ ssin     scos    ty ]
- *  [    0        0     1 ]
- *
- * Input points are taken as scos, ssin, tx, ty
- */
-CanvasKit.RSXFormBuilder = CanvasKit.FourFloatArrayHelper;
-
-/**
  * Helper for building an array of Color
  *
  * It can be more performant to use this helper, as

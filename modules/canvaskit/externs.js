@@ -184,9 +184,7 @@ var CanvasKit = {
   },
 
   ParagraphStyle: function() {},
-  RSXFormBuilder: function() {},
   ColorBuilder: function() {},
-  RectBuilder: function() {},
 
   AnimatedImage: {
     // public API (from C++ bindings)
@@ -1042,11 +1040,6 @@ CanvasKit.Surface.prototype.requestAnimationFrame = function() {};
 CanvasKit.Surface.prototype.drawOnce = function() {};
 
 CanvasKit.FontMgr.prototype.MakeTypefaceFromData = function() {};
-
-CanvasKit.RSXFormBuilder.prototype.build = function() {};
-CanvasKit.RSXFormBuilder.prototype.delete = function() {};
-CanvasKit.RSXFormBuilder.prototype.push = function() {};
-CanvasKit.RSXFormBuilder.prototype.set = function() {};
 
 CanvasKit.ColorBuilder.prototype.build = function() {};
 CanvasKit.ColorBuilder.prototype.delete = function() {};

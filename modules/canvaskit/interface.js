@@ -476,13 +476,9 @@ CanvasKit.onRuntimeInitialized = function() {
   };
 
   // atlas is an Image, e.g. from CanvasKit.MakeImageFromEncoded
-  // srcRects, dstXforms, and colors should be CanvasKit.RectBuilder, CanvasKit.RSXFormBuilder,
-  // and CanvasKit.ColorBuilder (fastest)
-  // Or they can be an array of floats of length 4*number of destinations.
-  // colors are optional and used to tint the drawn images using the optional blend mode
-  // Colors may be an ColorBuilder, a Uint32Array of int colors,
-  // a Flat Float32Array of float colors or a 2d Array of Float32Array(4) (deprecated)
-  // TODO(kjlubick) remove Builders - no longer needed now that Malloc is a thing.
+  // srcRects, dstXformsshould be arrays of floats of length 4*number of destinations.
+  // The colors param is optional and is used to tint the drawn images using the optional blend
+  // mode. Colors can be a Uint32Array of int colors or a flat Float32Array of float colors.
   CanvasKit.Canvas.prototype.drawAtlas = function(atlas, srcRects, dstXforms, paint,
                                        /* optional */ blendMode, /* optional */ colors,
                                        /* optional */ sampling) {
@@ -503,31 +499,12 @@ CanvasKit.onRuntimeInitialized = function() {
       blendMode = CanvasKit.BlendMode.SrcOver;
     }
 
-    var srcRectPtr;
-    if (srcRects.build) {
-      srcRectPtr = srcRects.build();
-    } else {
-      srcRectPtr = copy1dArray(srcRects, 'HEAPF32');
-    }
+    var srcRectPtr = copy1dArray(srcRects, 'HEAPF32');
 
-    var count = 1;
-    var dstXformPtr;
-    if (dstXforms.build) {
-      dstXformPtr = dstXforms.build();
-      count = dstXforms.length;
-    } else {
-      dstXformPtr = copy1dArray(dstXforms, 'HEAPF32');
-      count = dstXforms.length / 4;
-    }
+    var dstXformPtr = copy1dArray(dstXforms, 'HEAPF32');
+    var count = dstXforms.length / 4;
 
-    var colorPtr = nullptr;
-    if (colors) {
-      if (colors.build) {
-        colorPtr = colors.build();
-      } else {
-        colorPtr = copy1dArray(assureIntColors(colors), 'HEAPU32');
-      }
-    }
+    var colorPtr = copy1dArray(assureIntColors(colors), 'HEAPU32');
 
     // We require one of these:
     // 1. sampling is null (we default to linear/none)

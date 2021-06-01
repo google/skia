@@ -256,19 +256,23 @@ describe('Core canvas behavior', () => {
         const paint = new CanvasKit.Paint();
         paint.setColor(CanvasKit.Color(0, 0, 0, 0.8));
 
-        const srcs = new CanvasKit.RectBuilder();
-        // left top right bottom
-        srcs.push(  0,   0, 256, 256);
-        srcs.push(256,   0, 512, 256);
-        srcs.push(  0, 256, 256, 512);
-        srcs.push(256, 256, 512, 512);
+        // Allocate space for 4 rectangles.
+        const srcs = CanvasKit.Malloc(Float32Array, 16);
+        srcs.toTypedArray().set([
+            0,   0, 256, 256, // LTRB
+          256,   0, 512, 256,
+            0, 256, 256, 512,
+          256, 256, 512, 512
+        ]);
 
-        const dsts = new CanvasKit.RSXFormBuilder();
-        // scos, ssin, tx, ty
-        dsts.push(0.5, 0,  20,  20);
-        dsts.push(0.5, 0, 300,  20);
-        dsts.push(0.5, 0,  20, 300);
-        dsts.push(0.5, 0, 300, 300);
+        // Allocate space for 4 RSXForms.
+        const dsts = CanvasKit.Malloc(Float32Array, 16);
+        dsts.toTypedArray().set([
+            0.5, 0,  20,  20, // scos, ssin, tx, ty
+            0.5, 0, 300,  20,
+            0.5, 0,  20, 300,
+            0.5, 0, 300, 300
+        ]);
 
         const colors = new CanvasKit.ColorBuilder();
         // note that the ColorBuilder expects int colors to be pushed.
@@ -282,6 +286,8 @@ describe('Core canvas behavior', () => {
         canvas.drawAtlas(atlas, srcs, dsts, paint, CanvasKit.BlendMode.Modulate, colors);
 
         atlas.delete();
+        CanvasKit.free(srcs);
+        CanvasKit.free(dsts);
         paint.delete();
     }, '/assets/mandrill_512.png');
 
