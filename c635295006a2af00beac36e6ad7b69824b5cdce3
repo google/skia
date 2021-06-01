@@ -16,6 +16,23 @@
       "message": "Hi Brian, Herb,\n\nWe found an issue in our WASM based app where rendering text using SkParagraph would crash in certain conditions.  We fixed it and would like to send the patch to Skia. This only happens in Emscripten platform, which I couldn\u0027t find a good way to unit-test it.  Please let me know if there is a way to do that and I\u0027m happy to write a unit test for it.\n\nThanks,\n-Jiulong",
       "revId": "c635295006a2af00beac36e6ad7b69824b5cdce3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d9f14fcd_cf55fb03",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-06-01T14:21:48Z",
+      "side": 1,
+      "message": "Hello Jiulong,\n\nThanks for your CL, and bringing this problem to our attention. I have prepared an alternative CL, and would like you to try it out and report if this works:\n\nhttps://skia-review.googlesource.com/c/skia/+/414396\n\nThanks,\nHerb",
+      "revId": "c635295006a2af00beac36e6ad7b69824b5cdce3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
