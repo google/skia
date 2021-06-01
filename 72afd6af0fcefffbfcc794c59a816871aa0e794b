@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3ad02ff1_d2ddc19b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-01T18:39:05Z",
+      "side": 1,
+      "message": "What do you think? It\u0027s faster, but requires some JS interface code to be written along with the C++ binding code (unlike the other version).\n\nImportantly, it delivers on making a buffer tracked by a stack-allocated object, just like the original implementation did.",
+      "revId": "72afd6af0fcefffbfcc794c59a816871aa0e794b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
