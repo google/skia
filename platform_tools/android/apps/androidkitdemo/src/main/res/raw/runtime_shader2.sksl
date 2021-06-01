@@ -1,0 +1,20 @@
+uniform half u_time;
+uniform half u_w;
+uniform half u_h;
+
+half4 main(vec2 fragcoord) {
+   vec3 c;
+   float l;
+   float z=u_time;
+   for(int i=0;i<3;i++) {
+       vec2 p=fragcoord.xy/vec2(u_w,u_h);
+       vec2 uv=p;
+       p-=.5;
+       p.x*=u_w/u_h;
+       z+=.07;
+       l=length(p);
+       uv+=p/l*(sin(z)+1.)*abs(sin(l*9.-z*2.));
+       c[i]=.01/length(abs(mod(uv,1.)-.5));
+   }
+   return half4(c/l,u_time);
+}
