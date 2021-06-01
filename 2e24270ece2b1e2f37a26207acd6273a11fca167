@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "055c565a_ed46716f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-01T12:19:23Z",
+      "side": 1,
+      "message": "Culprit CL for emscripten: https://github.com/emscripten-core/emscripten/commit/0967ae3471021eb806a70d805af35f8c1548f260\n\nReached out to identify the appropriate fix.",
+      "revId": "2e24270ece2b1e2f37a26207acd6273a11fca167",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
