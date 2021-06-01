@@ -11,7 +11,6 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/tessellate/GrStrokeFixedCountTessellator.h"
 #include "src/gpu/tessellate/GrStrokeHardwareTessellator.h"
-#include "src/gpu/tessellate/GrStrokeIndirectTessellator.h"
 #include "src/gpu/tessellate/shaders/GrTessellationShader.h"
 
 using DynamicStroke = GrStrokeTessellationShader::DynamicStroke;
@@ -193,17 +192,6 @@ void GrStrokeTessellateOp::prePrepareTessellator(GrTessellationShader::ProgramAr
                                                                 fViewMatrix, &fPathStrokeList,
                                                                 matrixMinMaxScales,
                                                                 strokeCullBounds);
-#if 0
-    } else if (fTotalCombinedVerbCnt > 50 && !(fShaderFlags & ShaderFlags::kDynamicColor)) {
-        // Only use the log2 indirect tessellator if we're drawing a somewhat large number of verbs
-        // and the stroke doesn't use dynamic color. (The log2 indirect tessellator can't support
-        // dynamic color without a z-buffer, due to how it reorders strokes.)
-        fTessellator = arena->make<GrStrokeIndirectTessellator>(fShaderFlags, fViewMatrix,
-                                                                &fPathStrokeList,
-                                                                matrixMinMaxScales,
-                                                                strokeCullBounds,
-                                                                fTotalCombinedVerbCnt, arena);
-#endif
     } else {
         fTessellator = arena->make<GrStrokeFixedCountTessellator>(fShaderFlags, fViewMatrix,
                                                                   &fPathStrokeList,
