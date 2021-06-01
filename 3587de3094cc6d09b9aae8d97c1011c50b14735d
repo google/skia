@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "61d80a24_3603494d",
+        "filename": "include/private/SkTOptional.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-01T17:05:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ab2509e6_8d603de2",
+      "range": {
+        "startLine": 60,
+        "startChar": 0,
+        "endLine": 64,
+        "endChar": 13
+      },
+      "revId": "3587de3094cc6d09b9aae8d97c1011c50b14735d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e43810fe_31f34f51",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-06-01T14:41:23Z",
       "side": 1,
       "message": "see above",
+      "range": {
+        "startLine": 72,
+        "startChar": 0,
+        "endLine": 73,
+        "endChar": 28
+      },
+      "revId": "3587de3094cc6d09b9aae8d97c1011c50b14735d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2fe90035_d464d323",
+        "filename": "include/private/SkTOptional.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-01T17:05:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e43810fe_31f34f51",
       "range": {
         "startLine": 72,
         "startChar": 0,
@@ -70,6 +118,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "91780118_a5d8c1b2",
+        "filename": "include/private/SkTOptional.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-01T17:05:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d69e5835_23ccac1d",
+      "range": {
+        "startLine": 81,
+        "startChar": 7,
+        "endLine": 81,
+        "endChar": 8
+      },
+      "revId": "3587de3094cc6d09b9aae8d97c1011c50b14735d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "53f9b002_5658aa5f",
@@ -87,6 +159,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5a56c457_97724684",
+        "filename": "tests/SkTOptionalTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-01T17:05:51Z",
+      "side": 1,
+      "message": "Seemed worth adding a test payload class to really nail things down.",
+      "parentUuid": "53f9b002_5658aa5f",
+      "revId": "3587de3094cc6d09b9aae8d97c1011c50b14735d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9570e01d_6f7972a5",
@@ -100,6 +190,24 @@
       "writtenOn": "2021-06-01T14:41:23Z",
       "side": 1,
       "message": "Ideally I\u0027d like the move test to check the same four cases as the copy test.",
+      "revId": "3587de3094cc6d09b9aae8d97c1011c50b14735d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ec942f4b_2c50b40b",
+        "filename": "tests/SkTOptionalTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-01T17:05:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9570e01d_6f7972a5",
       "revId": "3587de3094cc6d09b9aae8d97c1011c50b14735d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
