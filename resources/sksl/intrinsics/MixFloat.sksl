@@ -1,6 +1,9 @@
 uniform half4 colorGreen, colorRed, colorBlack, colorWhite, testInputs;
 
 half4 main(float2 coords) {
+    const half4 constBlack = half4(0, 0, 0, 1);
+    const half4 constWhite = half4(1);
+    const half4 constVal = half4(-1.25, 0, 0.75, 2.25);
     half4 expectedBW = half4(0.5, 0.5, 0.5, 1);
     half4 expectedWT = half4(1,   0.5, 1,   2.25);
 
@@ -12,9 +15,17 @@ half4 main(float2 coords) {
             mix(colorBlack.xy,   colorWhite.xy,   0.5)                 == expectedBW.xy           &&
             mix(colorBlack.xyz,  colorWhite.xyz,  0.5)                 == expectedBW.xyz          &&
             mix(colorBlack.xyzw, colorWhite.xyzw, 0.5)                 == expectedBW.xyzw         &&
+            mix(constBlack.x,    constWhite.x,    0.5)                 == expectedBW.x            &&
+            mix(constBlack.xy,   constWhite.xy,   0.5)                 == expectedBW.xy           &&
+            mix(constBlack.xyz,  constWhite.xyz,  0.5)                 == expectedBW.xyz          &&
+            mix(constBlack.xyzw, constWhite.xyzw, 0.5)                 == expectedBW.xyzw         &&
             mix(colorWhite.x,    testInputs.x,    0)                   == expectedWT.x            &&
             mix(colorWhite.xy,   testInputs.xy,   half2(0, 0.5))       == expectedWT.xy           &&
             mix(colorWhite.xyz,  testInputs.xyz,  half3(0, 0.5, 0))    == expectedWT.xyz          &&
-            mix(colorWhite.xyzw, testInputs.xyzw, half4(0, 0.5, 0, 1)) == expectedWT.xyzw)
+            mix(colorWhite.xyzw, testInputs.xyzw, half4(0, 0.5, 0, 1)) == expectedWT.xyzw         &&
+            mix(constWhite.x,    constVal.x,      0)                   == expectedWT.x            &&
+            mix(constWhite.xy,   constVal.xy,     half2(0, 0.5))       == expectedWT.xy           &&
+            mix(constWhite.xyz,  constVal.xyz,    half3(0, 0.5, 0))    == expectedWT.xyz          &&
+            mix(constWhite.xyzw, constVal.xyzw,   half4(0, 0.5, 0, 1)) == expectedWT.xyzw)
                 ? colorGreen : colorRed;
 }
