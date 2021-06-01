@@ -34,6 +34,23 @@
       "parentUuid": "147ae3a8_cd29dc50",
       "revId": "13e5188f8b644746efb1683cce14d472eba9ff93",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "11b21f3e_f85db651",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-01T17:54:17Z",
+      "side": 1,
+      "message": "Retrying the canary now that https://chromium-review.googlesource.com/c/chromium/src/+/2924215 has landed.\n\nHopefully that CL gets picked up in the retest.",
+      "revId": "13e5188f8b644746efb1683cce14d472eba9ff93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
