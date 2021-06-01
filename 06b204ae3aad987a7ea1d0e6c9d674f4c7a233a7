@@ -16,6 +16,24 @@
       "message": "Looks like this is generating some hairline fuzziness on some GMs with certain configs.",
       "revId": "06b204ae3aad987a7ea1d0e6c9d674f4c7a233a7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c856e792_a3ff75c2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-01T19:35:25Z",
+      "side": 1,
+      "message": "Which hairlines are you looking at, and what do you mean by fuzziness?\n\nIt\u0027s expected that the AA will look different if we chop and give the GPU different geometry, but I think the before and after images both look equally acceptable.\n\nshadertext3 has been acting very weird and flaky lately. I don\u0027t think that diff has anything to do with this CL.",
+      "parentUuid": "e61ef504_ac689b19",
+      "revId": "06b204ae3aad987a7ea1d0e6c9d674f4c7a233a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
