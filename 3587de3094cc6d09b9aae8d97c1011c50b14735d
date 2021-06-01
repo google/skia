@@ -1,0 +1,107 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ab2509e6_8d603de2",
+        "filename": "include/private/SkTOptional.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-01T14:41:23Z",
+      "side": 1,
+      "message": "I didn\u0027t notice this the first time, but if both sides have a value, we actually aren\u0027t supposed to destroy the object and re-construct; we need to do `fPayload.fValue \u003d other.fPayload.fValue`. Assigning a value into an object is sometimes more efficient than destroying it entirely and reconstructing it from scratch (or could technically even do something totally different). e.g. assigning a vector into another vector could allow it to reuse its storage instead of freeing it and reallocating it.\n\nThere are really four possible combinations and each one behaves a little differently:\n\n  empty-value \u003d empty-value;   // both empty, nothing called\n  has-value \u003d empty-value;     // both empty, ~value called\n  empty-value \u003d has-value;     // both have value, value::copy-ctor called\n  has-value \u003d has-other-value; // both have other-value, value::operator\u003d called",
+      "range": {
+        "startLine": 60,
+        "startChar": 0,
+        "endLine": 64,
+        "endChar": 13
+      },
+      "revId": "3587de3094cc6d09b9aae8d97c1011c50b14735d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e43810fe_31f34f51",
+        "filename": "include/private/SkTOptional.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-01T14:41:23Z",
+      "side": 1,
+      "message": "see above",
+      "range": {
+        "startLine": 72,
+        "startChar": 0,
+        "endLine": 73,
+        "endChar": 28
+      },
+      "revId": "3587de3094cc6d09b9aae8d97c1011c50b14735d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d69e5835_23ccac1d",
+        "filename": "include/private/SkTOptional.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-01T14:41:23Z",
+      "side": 1,
+      "message": "Let\u0027s add\n\n        SkASSERT(fHasValue);\n\non the value() impls. (value() on an empty optional should throw.)",
+      "range": {
+        "startLine": 81,
+        "startChar": 7,
+        "endLine": 81,
+        "endChar": 8
+      },
+      "revId": "3587de3094cc6d09b9aae8d97c1011c50b14735d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "53f9b002_5658aa5f",
+        "filename": "tests/SkTOptionalTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-01T14:41:23Z",
+      "side": 1,
+      "message": "A thorough copying test should check all four cases that I listed above on operator\u003d. It might be possible to check this using an existing type where you can differentiate between copy-construction and assignment-into. (Vector seems like it would fit the bill, but the docs seem to imply that reusing exising capacity on assignment is *possible* but not necessarily *guaranteed*: http://screen/9fyib4r39YGY3fF",
+      "revId": "3587de3094cc6d09b9aae8d97c1011c50b14735d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9570e01d_6f7972a5",
+        "filename": "tests/SkTOptionalTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-01T14:41:23Z",
+      "side": 1,
+      "message": "Ideally I\u0027d like the move test to check the same four cases as the copy test.",
+      "revId": "3587de3094cc6d09b9aae8d97c1011c50b14735d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
