@@ -14,7 +14,7 @@
 #include "src/gpu/tessellate/GrCullTest.h"
 #include "src/gpu/tessellate/GrMiddleOutPolygonTriangulator.h"
 #include "src/gpu/tessellate/GrMidpointContourParser.h"
-#include "src/gpu/tessellate/GrStencilPathShader.h"
+#include "src/gpu/tessellate/GrPathTessellationShader.h"
 
 constexpr static float kPrecision = GrTessellationPathRenderer::kLinearizationPrecision;
 
@@ -27,27 +27,29 @@ static bool can_use_hardware_tessellation(const SkPath& path, const GrCaps& caps
     return path.countVerbs() >= caps.minPathVerbsForHwTessellation();
 }
 
-GrPathTessellator* GrPathTessellator::Make(SkArenaAlloc* arena, const SkMatrix& viewMatrix,
-                                           const SkPath& path, DrawInnerFan drawInnerFan,
-                                           const GrCaps& caps) {
+GrPathTessellator* GrPathTessellator::Make(SkArenaAlloc* arena, const SkPath& path,
+                                           const SkMatrix& viewMatrix, const SkPMColor4f& color,
+                                           DrawInnerFan drawInnerFan, const GrCaps& caps) {
     if (can_use_hardware_tessellation(path, caps)) {
         if (drawInnerFan == DrawInnerFan::kNo) {
-            return GrPathOuterCurveTessellator::Make(arena, viewMatrix, drawInnerFan);
+            return GrPathOuterCurveTessellator::Make(arena, viewMatrix, color, drawInnerFan);
         } else {
-            return GrPathWedgeTessellator::Make(arena, viewMatrix);
+            return GrPathWedgeTessellator::Make(arena, viewMatrix, color);
         }
     } else {
-        return GrPathIndirectTessellator::Make(arena, viewMatrix, path, drawInnerFan);
+        return GrPathIndirectTessellator::Make(arena, path, viewMatrix, color, drawInnerFan);
     }
 }
 
-GrPathTessellator* GrPathIndirectTessellator::Make(SkArenaAlloc* arena, const SkMatrix& viewMatrix,
-                                                   const SkPath& path, DrawInnerFan drawInnerFan) {
-    auto shader = arena->make<GrCurveMiddleOutShader>(viewMatrix);
+GrPathTessellator* GrPathIndirectTessellator::Make(SkArenaAlloc* arena, const SkPath& path,
+                                                   const SkMatrix& viewMatrix,
+                                                   const SkPMColor4f& color,
+                                                   DrawInnerFan drawInnerFan) {
+    auto shader = arena->make<GrCurveMiddleOutShader>(viewMatrix, color);
     return arena->make<GrPathIndirectTessellator>(shader, path, drawInnerFan);
 }
 
-GrPathIndirectTessellator::GrPathIndirectTessellator(GrStencilPathShader* shader,
+GrPathIndirectTessellator::GrPathIndirectTessellator(GrPathTessellationShader* shader,
                                                      const SkPath& path, DrawInnerFan drawInnerFan)
         : GrPathTessellator(shader)
         , fDrawInnerFan(drawInnerFan != DrawInnerFan::kNo) {
@@ -243,7 +245,7 @@ void GrPathIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const SkRe
                     instanceLocations[level].writeArray(pts, 4);
                     break;
                 case SkPathVerb::kConic:
-                    GrPathShader::WriteConicPatch(pts, *w, &instanceLocations[level]);
+                    GrTessellationShader::WriteConicPatch(pts, *w, &instanceLocations[level]);
                     break;
                 default:
                     SkUNREACHABLE;
@@ -279,8 +281,9 @@ void GrPathIndirectTessellator::drawHullInstances(GrOpFlushState* flushState) co
 
 GrPathTessellator* GrPathOuterCurveTessellator::Make(SkArenaAlloc* arena,
                                                      const SkMatrix& viewMatrix,
+                                                     const SkPMColor4f& color,
                                                      DrawInnerFan drawInnerFan) {
-    auto shader = arena->make<GrCurveTessellateShader>(viewMatrix);
+    auto shader = arena->make<GrCurveTessellateShader>(viewMatrix, color);
     return arena->make<GrPathOuterCurveTessellator>(shader, drawInnerFan);
 }
 
@@ -359,7 +362,7 @@ void GrPathOuterCurveTessellator::prepare(GrMeshDrawOp::Target* target, const Sk
                 return;
             }
             if (GrVertexWriter vertexWriter = chunker->appendVertex()) {
-                GrPathShader::WriteConicPatch(p, w, &vertexWriter);
+                GrTessellationShader::WriteConicPatch(p, w, &vertexWriter);
             }
         }
 
@@ -446,8 +449,9 @@ void GrPathOuterCurveTessellator::prepare(GrMeshDrawOp::Target* target, const Sk
     }
 }
 
-GrPathTessellator* GrPathWedgeTessellator::Make(SkArenaAlloc* arena, const SkMatrix& viewMatrix) {
-    auto shader = arena->make<GrWedgeTessellateShader>(viewMatrix);
+GrPathTessellator* GrPathWedgeTessellator::Make(SkArenaAlloc* arena, const SkMatrix& viewMatrix,
+                                                const SkPMColor4f& color) {
+    auto shader = arena->make<GrWedgeTessellateShader>(viewMatrix, color);
     return arena->make<GrPathWedgeTessellator>(shader);
 }
 
@@ -506,7 +510,7 @@ void GrPathWedgeTessellator::prepare(GrMeshDrawOp::Target* target, const SkRect&
                 return;
             }
             if (GrVertexWriter vertexWriter = chunker->appendVertex()) {
-                GrPathShader::WriteConicPatch(p, w, &vertexWriter);
+                GrTessellationShader::WriteConicPatch(p, w, &vertexWriter);
                 vertexWriter.write(midpoint);
             }
         }

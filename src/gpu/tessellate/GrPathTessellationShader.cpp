@@ -5,12 +5,46 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/tessellate/GrStencilPathShader.h"
+#include "src/gpu/tessellate/GrPathTessellationShader.h"
 
 #include "src/gpu/geometry/GrWangsFormula.h"
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
+#include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
+
+void GrPathTessellationShader::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
+    args.fVaryingHandler->emitAttributes(args.fGeomProc);
+
+    // Vertex shader.
+    const char* affineMatrix, *translate;
+    fAffineMatrixUniform = args.fUniformHandler->addUniform(nullptr, kVertex_GrShaderFlag,
+                                                            kFloat4_GrSLType, "affineMatrix",
+                                                            &affineMatrix);
+    fTranslateUniform = args.fUniformHandler->addUniform(nullptr, kVertex_GrShaderFlag,
+                                                         kFloat2_GrSLType, "translate", &translate);
+    args.fVertBuilder->codeAppendf("float2x2 AFFINE_MATRIX = float2x2(%s);", affineMatrix);
+    args.fVertBuilder->codeAppendf("float2 TRANSLATE = %s;", translate);
+    this->emitVertexCode(args.fVertBuilder, gpArgs);
+
+    // Fragment shader.
+    const char* color;
+    fColorUniform = args.fUniformHandler->addUniform(nullptr, kFragment_GrShaderFlag,
+                                                     kHalf4_GrSLType, "color", &color);
+    args.fFragBuilder->codeAppendf("half4 %s = %s;", args.fOutputColor, color);
+    args.fFragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputCoverage);
+}
+
+void GrPathTessellationShader::Impl::setData(const GrGLSLProgramDataManager& pdman, const
+                                             GrShaderCaps&, const GrGeometryProcessor& geomProc) {
+    const auto& shader = geomProc.cast<GrTessellationShader>();
+    const SkMatrix& m = shader.viewMatrix();
+    pdman.set4f(fAffineMatrixUniform, m.getScaleX(), m.getSkewY(), m.getSkewX(), m.getScaleY());
+    pdman.set2f(fTranslateUniform, m.getTranslateX(), m.getTranslateY());
+
+    const SkPMColor4f& color = shader.color();
+    pdman.set4f(fColorUniform, color.fR, color.fG, color.fB, color.fA);
+}
 
 constexpr static char kSkSLTypeDefs[] = R"(
 #define float4x3 mat4x3
@@ -50,55 +84,27 @@ float2 eval_rational_cubic(float4x3 P, float T) {
     return abcd.xy / abcd.z;
 })";
 
-class GrStencilPathShader::Impl : public GrGLSLGeometryProcessor {
-protected:
-    void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
-        const auto& shader = args.fGeomProc.cast<GrStencilPathShader>();
-        args.fVaryingHandler->emitAttributes(shader);
-        auto v = args.fVertBuilder;
-
-        const char* affineMatrix, *translate;
-        fAffineMatrixUniform = args.fUniformHandler->addUniform(
-                nullptr, kVertex_GrShaderFlag, kFloat4_GrSLType, "affineMatrix", &affineMatrix);
-        fTranslateUniform = args.fUniformHandler->addUniform(
-                nullptr, kVertex_GrShaderFlag, kFloat2_GrSLType, "translate", &translate);
-        v->codeAppendf("float2 vertexpos = float2x2(%s) * inputPoint + %s;",
-                       affineMatrix, translate);
-        if (shader.willUseTessellationShaders()) {
-            // If y is infinity then x is a conic weight. Don't transform.
-            v->codeAppendf("vertexpos = (isinf(inputPoint.y)) ? inputPoint : vertexpos;");
-        }
-
-        if (!shader.willUseTessellationShaders()) {  // This is the case for the triangle shader.
+GrGLSLGeometryProcessor* GrTriangleShader::createGLSLInstance(const GrShaderCaps&) const {
+    class Impl : public GrPathTessellationShader::Impl {
+        void emitVertexCode(GrGLSLVertexBuilder* v, GrGPArgs* gpArgs) override {
+            v->codeAppend(R"(
+            float2 localcoord = inputPoint;
+            float2 vertexpos = AFFINE_MATRIX * localcoord + TRANSLATE;)");
+            gpArgs->fLocalCoordVar.set(kFloat2_GrSLType, "localcoord");
             gpArgs->fPositionVar.set(kFloat2_GrSLType, "vertexpos");
-        } else {
-            v->declareGlobal(GrShaderVar("P", kFloat2_GrSLType, GrShaderVar::TypeModifier::Out));
-            v->codeAppendf("P = %s;", "vertexpos");
         }
-
-        // The fragment shader is normally disabled, but output fully opaque white.
-        args.fFragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputColor);
-        args.fFragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputCoverage);
-    }
-
-    void setData(const GrGLSLProgramDataManager& pdman,
-                 const GrShaderCaps&,
-                 const GrGeometryProcessor& geomProc) override {
-        const SkMatrix& m = geomProc.cast<GrStencilPathShader>().viewMatrix();
-        pdman.set4f(fAffineMatrixUniform, m.getScaleX(), m.getSkewY(), m.getSkewX(), m.getScaleY());
-        pdman.set2f(fTranslateUniform, m.getTranslateX(), m.getTranslateY());
-    }
-
-    GrGLSLUniformHandler::UniformHandle fAffineMatrixUniform;
-    GrGLSLUniformHandler::UniformHandle fTranslateUniform;
-};
-
-GrGLSLGeometryProcessor* GrStencilPathShader::createGLSLInstance(const GrShaderCaps&) const {
+    };
     return new Impl;
 }
 
 GrGLSLGeometryProcessor* GrCurveTessellateShader::createGLSLInstance(const GrShaderCaps&) const {
-    class Impl : public GrStencilPathShader::Impl {
+    class Impl : public GrPathTessellationShader::Impl {
+        void emitVertexCode(GrGLSLVertexBuilder* v, GrGPArgs*) override {
+            v->declareGlobal(GrShaderVar("P", kFloat2_GrSLType, GrShaderVar::TypeModifier::Out));
+            v->codeAppend(R"(
+            // If y is infinity then x is a conic weight. Don't transform.
+            P = (isinf(inputPoint.y)) ? inputPoint : AFFINE_MATRIX * inputPoint + TRANSLATE;)");
+        }
         SkString getTessControlShaderGLSL(const GrGeometryProcessor&,
                                           const char* versionAndExtensionDecls,
                                           const GrGLSLUniformHandler&,
@@ -178,7 +184,6 @@ GrGLSLGeometryProcessor* GrCurveTessellateShader::createGLSLInstance(const GrSha
 
             return code;
         }
-
         SkString getTessEvaluationShaderGLSL(const GrGeometryProcessor&,
                                              const char* versionAndExtensionDecls,
                                              const GrGLSLUniformHandler&,
@@ -226,12 +231,17 @@ GrGLSLGeometryProcessor* GrCurveTessellateShader::createGLSLInstance(const GrSha
             return code;
         }
     };
-
     return new Impl;
 }
 
 GrGLSLGeometryProcessor* GrWedgeTessellateShader::createGLSLInstance(const GrShaderCaps&) const {
-    class Impl : public GrStencilPathShader::Impl {
+    class Impl : public GrPathTessellationShader::Impl {
+        void emitVertexCode(GrGLSLVertexBuilder* v, GrGPArgs*) override {
+            v->declareGlobal(GrShaderVar("P", kFloat2_GrSLType, GrShaderVar::TypeModifier::Out));
+            v->codeAppend(R"(
+            // If y is infinity then x is a conic weight. Don't transform.
+            P = (isinf(inputPoint.y)) ? inputPoint : AFFINE_MATRIX * inputPoint + TRANSLATE;)");
+        }
         SkString getTessControlShaderGLSL(const GrGeometryProcessor&,
                                           const char* versionAndExtensionDecls,
                                           const GrGLSLUniformHandler&,
@@ -284,7 +294,6 @@ GrGLSLGeometryProcessor* GrWedgeTessellateShader::createGLSLInstance(const GrSha
 
             return code;
         }
-
         SkString getTessEvaluationShaderGLSL(const GrGeometryProcessor&,
                                              const char* versionAndExtensionDecls,
                                              const GrGLSLUniformHandler&,
@@ -328,19 +337,16 @@ GrGLSLGeometryProcessor* GrWedgeTessellateShader::createGLSLInstance(const GrSha
             return code;
         }
     };
-
     return new Impl;
 }
 
-class GrCurveMiddleOutShader::Impl : public GrStencilPathShader::Impl {
-    void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
-        const auto& shader = args.fGeomProc.cast<GrCurveMiddleOutShader>();
-        args.fVaryingHandler->emitAttributes(shader);
-        args.fVertBuilder->insertFunction(kUnpackRationalCubicFn);
-        args.fVertBuilder->insertFunction(kEvalRationalCubicFn);
-        if (args.fShaderCaps->bitManipulationSupport()) {
+class GrCurveMiddleOutShader::Impl : public GrPathTessellationShader::Impl {
+    void emitVertexCode(GrGLSLVertexBuilder* v, GrGPArgs* gpArgs) override {
+        v->insertFunction(kUnpackRationalCubicFn);
+        v->insertFunction(kEvalRationalCubicFn);
+        if (v->getProgramBuilder()->shaderCaps()->bitManipulationSupport()) {
             // Determines the T value at which to place the given vertex in a "middle-out" topology.
-            args.fVertBuilder->insertFunction(R"(
+            v->insertFunction(R"(
             float find_middle_out_T() {
                 int totalTriangleIdx = sk_VertexID/3 + 1;
                 int depth = findMSB(totalTriangleIdx);
@@ -351,7 +357,7 @@ class GrCurveMiddleOutShader::Impl : public GrStencilPathShader::Impl {
             })");
         } else {
             // Determines the T value at which to place the given vertex in a "middle-out" topology.
-            args.fVertBuilder->insertFunction(R"(
+            v->insertFunction(R"(
             float find_middle_out_T() {
                 float totalTriangleIdx = float(sk_VertexID/3) + 1;
                 float depth = floor(log2(totalTriangleIdx));
@@ -361,31 +367,22 @@ class GrCurveMiddleOutShader::Impl : public GrStencilPathShader::Impl {
                 return vertexIdxWithinDepth * exp2(-1 - depth);
             })");
         }
-        args.fVertBuilder->codeAppend(R"(
-        float2 pos;
+        v->codeAppend(R"(
+        float2 localcoord;
         if (isinf(inputPoints_2_3.z)) {
             // A conic with w=Inf is an exact triangle.
-            pos = (sk_VertexID < 1)  ? inputPoints_0_1.xy
-                : (sk_VertexID == 1) ? inputPoints_0_1.zw
-                                     : inputPoints_2_3.xy;
+            localcoord = (sk_VertexID < 1)  ? inputPoints_0_1.xy
+                       : (sk_VertexID == 1) ? inputPoints_0_1.zw
+                                            : inputPoints_2_3.xy;
         } else {
             float4x3 P = unpack_rational_cubic(inputPoints_0_1.xy, inputPoints_0_1.zw,
                                                inputPoints_2_3.xy, inputPoints_2_3.zw);
             float T = find_middle_out_T();
-            pos = eval_rational_cubic(P, T);
-        })");
-        const char* affineMatrix, *translate;
-        fAffineMatrixUniform = args.fUniformHandler->addUniform(
-                nullptr, kVertex_GrShaderFlag, kFloat4_GrSLType, "affineMatrix", &affineMatrix);
-        fTranslateUniform = args.fUniformHandler->addUniform(
-                nullptr, kVertex_GrShaderFlag, kFloat2_GrSLType, "translate", &translate);
-        args.fVertBuilder->codeAppendf(R"(
-        pos = float2x2(%s) * pos + %s;)", affineMatrix, translate);
-        gpArgs->fPositionVar.set(kFloat2_GrSLType, "pos");
-
-        // The fragment shader is normally disabled, but output fully opaque white.
-        args.fFragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputColor);
-        args.fFragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputCoverage);
+            localcoord = eval_rational_cubic(P, T);
+        }
+        float2 vertexpos = AFFINE_MATRIX * localcoord + TRANSLATE;)");
+        gpArgs->fLocalCoordVar.set(kFloat2_GrSLType, "localcoord");
+        gpArgs->fPositionVar.set(kFloat2_GrSLType, "vertexpos");
     }
 };
 
