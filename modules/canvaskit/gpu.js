@@ -54,6 +54,16 @@
         GL.deleteContext(handle);
       };
 
+      CanvasKit._setTextureCleanup({
+        "deleteTexture": function(webglHandle, texHandle) {
+          var tex = GL.textures[texHandle];
+          if (tex) {
+            GL.getContext(webglHandle).GLctx.deleteTexture(tex);
+          }
+          GL.textures[texHandle] = null;
+        },
+      });
+
       // idOrElement can be of types:
       //  - String - in which case it is interpreted as an id of a
       //          canvas element.
