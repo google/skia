@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "890a311a_076eba9d",
+        "filename": "src/gpu/SkGpuDevice_nga.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-06-01T21:05:23Z",
+      "side": 1,
+      "message": "Right",
+      "parentUuid": "d637411a_ef415256",
+      "range": {
+        "startLine": 28,
+        "startChar": 46,
+        "endLine": 28,
+        "endChar": 55
+      },
+      "revId": "fdadc9a3023f387c9611e1ef3f025f91b90e93bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "36c1a7f4_3b99bf8e",
         "filename": "src/gpu/SkGpuDevice_nga.h",
         "patchSetId": 7
@@ -37,6 +61,30 @@
       "writtenOn": "2021-06-01T19:43:20Z",
       "side": 1,
       "message": "Do we want to bring in the single ContentChangeMode function for NGA too? Or keep it as minimal as possible for now?",
+      "range": {
+        "startLine": 32,
+        "startChar": 3,
+        "endLine": 39,
+        "endChar": 5
+      },
+      "revId": "fdadc9a3023f387c9611e1ef3f025f91b90e93bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "815fa8d5_163cf068",
+        "filename": "src/gpu/SkGpuDevice_nga.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-06-01T21:05:23Z",
+      "side": 1,
+      "message": "The single parameter call should be on SkBaseGpuDevice so both derived classes should get it.",
+      "parentUuid": "36c1a7f4_3b99bf8e",
       "range": {
         "startLine": 32,
         "startChar": 3,
