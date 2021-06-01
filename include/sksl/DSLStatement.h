@@ -52,6 +52,17 @@ public:
         return std::move(fStatement);
     }
 
+
+
+
+
+    // TEMP
+    SkSL::String description();
+
+
+
+
+
 private:
     DSLStatement(std::unique_ptr<SkSL::Statement> stmt);
 

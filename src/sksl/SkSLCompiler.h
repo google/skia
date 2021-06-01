@@ -244,6 +244,7 @@ private:
     friend class AutoSource;
     friend class ::SkSLCompileBench;
     friend class dsl::DSLWriter;
+    friend class DSLParser;
 };
 
 }  // namespace SkSL

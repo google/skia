@@ -10,6 +10,13 @@
 
 #include <memory>
 
+
+
+
+
+// TEMP
+#include "include/private/SkSLString.h"
+
 namespace SkSL {
 
 namespace dsl {
@@ -48,6 +55,12 @@ public:
     DSLWrapper& operator=(DSLWrapper&& other) {
         fValue.swap(other.fValue);
         return *this;
+    }
+
+
+// TEMP
+    SkSL::String description() {
+        return fValue.description();
     }
 
 private:

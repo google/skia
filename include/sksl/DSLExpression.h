@@ -13,6 +13,9 @@
 #include "include/sksl/DSLErrorHandling.h"
 #include "include/sksl/DSLWrapper.h"
 
+// TEMP
+#include "include/private/SkSLString.h"
+
 #include <cstdint>
 #include <memory>
 
@@ -117,6 +120,9 @@ public:
      * Invalidates this object and returns the SkSL expression it represents.
      */
     std::unique_ptr<SkSL::Expression> release();
+
+    // TEMP
+    SkSL::String description();
 
 private:
     void swap(DSLExpression& other);
