@@ -72,12 +72,12 @@ std::unique_ptr<Expression> ConstructorCompound::Make(const Context& context,
             }
             args = std::move(flattened);
         }
+    }
 
-        // Replace constant variables with their corresponding values, so `float2(one, two)` can
-        // compile down to `float2(1.0, 2.0)` (the latter is a compile-time constant).
-        for (std::unique_ptr<Expression>& arg : args) {
-            arg = ConstantFolder::MakeConstantValueForVariable(std::move(arg));
-        }
+    // Replace constant variables with their corresponding values, so `float2(one, two)` can
+    // compile down to `float2(1.0, 2.0)` (the latter is a compile-time constant).
+    for (std::unique_ptr<Expression>& arg : args) {
+        arg = ConstantFolder::MakeConstantValueForVariable(std::move(arg));
     }
 
     return std::make_unique<ConstructorCompound>(offset, type, std::move(args));
