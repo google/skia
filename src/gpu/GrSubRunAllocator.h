@@ -85,14 +85,23 @@ public:
     void* alignedBytes(int unsafeSize, int unsafeAlignment);
 
 private:
-    // 16 seems to be a good number for alignment. If a use case for larger alignments is found,
-    // we can turn this into a template parameter.
-    static constexpr int kMaxAlignment = std::max(16, (int)alignof(max_align_t));
+    // The maximum alignment supported by GrBagOfBytes. 16 seems to be a good number for alignment.
+    // If a use case for larger alignments is found, we can turn this into a template parameter.
+    static constexpr int kMaxAlignment = std::max(16, (int)alignof(std::max_align_t));
     // The largest size that can be allocated. In larger sizes, the block is rounded up to 4K
     // chunks. Leave a 4K of slop.
     static constexpr int k4K = (1 << 12);
     // This should never overflow with the calculations done on the code.
     static constexpr int kMaxByteSize = std::numeric_limits<int>::max() - k4K;
+    // The assumed alignment of new char[] given the platform.
+    // There is a bug in Emscripten's allocator that make alignment different than max_align_t.
+    // kAllocationAlignment accounts for this difference. For more information see:
+    // https://github.com/emscripten-core/emscripten/issues/10072
+    #if !defined(SK_FORCE_8_BYTE_ALIGNMENT)
+        static constexpr int kAllocationAlignment = alignof(std::max_align_t);
+    #else
+        static constexpr int kAllocationAlignment = 8;
+    #endif
 
     // The Block starts at the location pointed to by fEndByte.
     // Beware. Order is important here. The destructor for fPrevious must be called first because
