@@ -138,6 +138,23 @@
       "parentUuid": "0ad92911_4fbd9877",
       "revId": "13e5188f8b644746efb1683cce14d472eba9ff93",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "35f72e6c_3378c1e7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-01T19:47:23Z",
+      "side": 1,
+      "message": "all good (that path \u003d\u003d rect behavior).\n\nI don\u0027t care overly much what SVG wants -- as long as Skia\u0027s behavior is well defined and a client *can* get the behavior they want, we don\u0027t necessarily have to behave just like SVG.",
+      "revId": "13e5188f8b644746efb1683cce14d472eba9ff93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
