@@ -34,6 +34,24 @@
       "parentUuid": "e61ef504_ac689b19",
       "revId": "06b204ae3aad987a7ea1d0e6c9d674f4c7a233a7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bc1512cc_3c2228d4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-06-01T20:19:15Z",
+      "side": 1,
+      "message": "I agree they\u0027re not that different, just making sure it\u0027s still acceptable.",
+      "parentUuid": "c856e792_a3ff75c2",
+      "revId": "06b204ae3aad987a7ea1d0e6c9d674f4c7a233a7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
