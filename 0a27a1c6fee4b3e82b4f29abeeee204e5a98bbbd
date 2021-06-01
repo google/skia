@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c0ea35e1_e844ba35",
+        "filename": "src/gpu/tessellate/shaders/GrPathTessellationShader.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-06-01T12:41:19Z",
+      "side": 1,
+      "message": "It seems like we should keep the \u0027viewMatrix\u0027 parameter explicit here and below",
+      "range": {
+        "startLine": 19,
+        "startChar": 92,
+        "endLine": 19,
+        "endChar": 93
+      },
+      "revId": "0a27a1c6fee4b3e82b4f29abeeee204e5a98bbbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
