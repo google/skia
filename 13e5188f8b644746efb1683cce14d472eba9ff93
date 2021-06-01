@@ -103,6 +103,23 @@
       "parentUuid": "7d2fffc8_0858e987",
       "revId": "13e5188f8b644746efb1683cce14d472eba9ff93",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0ad92911_4fbd9877",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-01T18:27:41Z",
+      "side": 1,
+      "message": "Oh!\n\nSo moveTo(corner0).lineTo(corner1).lineTo(corner2).lineTo(corner3).close()\nand\nRect\n\nwill always stroke the same? (regardless of joint types)\n\nIf so, sg!",
+      "revId": "13e5188f8b644746efb1683cce14d472eba9ff93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
