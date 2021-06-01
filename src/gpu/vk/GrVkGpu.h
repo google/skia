@@ -232,7 +232,8 @@ private:
                                 sk_sp<GrBackendSurfaceMutableStateImpl> currentState,
                                 SkISize dimensions,
                                 const GrVkSharedImageInfo& newInfo,
-                                GrBackendSurfaceMutableState* previousState);
+                                GrBackendSurfaceMutableState* previousState,
+                                sk_sp<GrRefCntedCallback> finishedCallback);
 
     sk_sp<GrTexture> onCreateTexture(SkISize,
                                      const GrBackendFormat&,

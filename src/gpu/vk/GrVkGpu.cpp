@@ -1789,7 +1789,8 @@ bool GrVkGpu::setBackendSurfaceState(GrVkImageInfo info,
                                      sk_sp<GrBackendSurfaceMutableStateImpl> currentState,
                                      SkISize dimensions,
                                      const GrVkSharedImageInfo& newInfo,
-                                     GrBackendSurfaceMutableState* previousState) {
+                                     GrBackendSurfaceMutableState* previousState,
+                                     sk_sp<GrRefCntedCallback> finishedCallback) {
     sk_sp<GrVkAttachment> texture = GrVkAttachment::MakeWrapped(
             this, dimensions, info, std::move(currentState),
            GrVkAttachment::UsageFlags::kColorAttachment, kBorrow_GrWrapOwnership,
@@ -1803,6 +1804,9 @@ bool GrVkGpu::setBackendSurfaceState(GrVkImageInfo info,
                                       texture->currentQueueFamilyIndex());
     }
     set_layout_and_queue_from_mutable_state(this, texture.get(), newInfo);
+    if (finishedCallback) {
+        this->addFinishedCallback(std::move(finishedCallback));
+    }
     return true;
 }
 
@@ -1816,7 +1820,8 @@ bool GrVkGpu::setBackendTextureState(const GrBackendTexture& backendTeture,
     SkASSERT(currentState);
     SkASSERT(newState.isValid() && newState.fBackend == GrBackend::kVulkan);
     return this->setBackendSurfaceState(info, std::move(currentState), backendTeture.dimensions(),
-                                        newState.fVkState, previousState);
+                                        newState.fVkState, previousState,
+                                        std::move(finishedCallback));
 }
 
 bool GrVkGpu::setBackendRenderTargetState(const GrBackendRenderTarget& backendRenderTarget,
@@ -1830,7 +1835,7 @@ bool GrVkGpu::setBackendRenderTargetState(const GrBackendRenderTarget& backendRe
     SkASSERT(newState.fBackend == GrBackend::kVulkan);
     return this->setBackendSurfaceState(info, std::move(currentState),
                                         backendRenderTarget.dimensions(), newState.fVkState,
-                                        previousState);
+                                        previousState, std::move(finishedCallback));
 }
 
 void GrVkGpu::xferBarrier(GrRenderTarget* rt, GrXferBarrierType barrierType) {
