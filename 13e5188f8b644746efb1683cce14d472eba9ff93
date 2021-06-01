@@ -85,6 +85,24 @@
       "message": "... til we can chat",
       "revId": "13e5188f8b644746efb1683cce14d472eba9ff93",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e90e2ab1_1246d4dd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-01T18:19:46Z",
+      "side": 1,
+      "message": "Agreed. (This CL makes empty rects behave the same as empty paths. The problem was that before they did not.)",
+      "parentUuid": "7d2fffc8_0858e987",
+      "revId": "13e5188f8b644746efb1683cce14d472eba9ff93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
