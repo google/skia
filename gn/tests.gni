@@ -290,7 +290,6 @@ tests_sources = [
   "$_tests/StreamBufferTest.cpp",
   "$_tests/StreamTest.cpp",
   "$_tests/StringTest.cpp",
-  "$_tests/StrokeIndirectTest.cpp",
   "$_tests/StrokeTest.cpp",
   "$_tests/StrokerTest.cpp",
   "$_tests/SubsetPath.cpp",
