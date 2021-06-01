@@ -188,15 +188,19 @@ inline static SkString as_sksl() {
     float length_pow2(float2 v) {
         return dot(v, v);
     }
-    float wangs_formula(float parametricPrecision, float2 p0, float2 p1, float2 p2, float2 p3,
-                        float w) {
+    float wangs_formula_cubic(float parametricPrecision, float2 p0, float2 p1, float2 p2,
+                              float2 p3) {
         const float CUBIC_TERM_POW2 = %f;
         float l0 = length_pow2(fma(float2(-2), p1, p2) + p0);
         float l1 = length_pow2(fma(float2(-2), p2, p3) + p1);
         float m = CUBIC_TERM_POW2 * max(l0, l1);
+        return max(ceil(sqrt(parametricPrecision * sqrt(m))), 1.0);
+    }
+    float wangs_formula_conic(float parametricPrecision, float2 p0, float2 p1, float2 p2, float w) {
         // FIXME: Use the better formula from GrWangsFormula::conic().
         const float QUAD_TERM_POW2 = %f;
-        m = (w >= 0.0) ? QUAD_TERM_POW2 * l0 : m;
+        float l = length_pow2(fma(float2(-2), p1, p2) + p0);
+        float m = QUAD_TERM_POW2 * l;
         return max(ceil(sqrt(parametricPrecision * sqrt(m))), 1.0);
     })", length_term_pow2<3>(1), length_term_pow2<2>(1));
     return code;
