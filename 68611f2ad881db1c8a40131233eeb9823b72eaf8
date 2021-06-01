@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "83f89be7_6530c29e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-06-01T17:44:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "367d13a0_9acd6bef",
+      "range": {
+        "startLine": 9,
+        "startChar": 27,
+        "endLine": 9,
+        "endChar": 31
+      },
+      "revId": "68611f2ad881db1c8a40131233eeb9823b72eaf8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bb9cc71d_590245d5",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-06-01T17:41:51Z",
       "side": 1,
       "message": "Seems a bit strange since this isn\u0027t a thing (and would be a value and not a type)? Maybe \"alignof(max_align_t)\" instead?",
+      "range": {
+        "startLine": 10,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 15
+      },
+      "revId": "68611f2ad881db1c8a40131233eeb9823b72eaf8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fcde3219_ab6aea1a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-06-01T17:44:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bb9cc71d_590245d5",
       "range": {
         "startLine": 10,
         "startChar": 0,
