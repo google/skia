@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/tessellate/GrPathTessellationShader.h"
+#include "src/gpu/tessellate/shaders/GrPathTessellationShader.h"
 
 #include "src/gpu/geometry/GrWangsFormula.h"
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"

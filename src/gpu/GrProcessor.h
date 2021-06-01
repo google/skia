@@ -131,7 +131,7 @@ public:
         kTessellate_BoundingBoxShader_ClassID,
         kTessellate_GrCurveMiddleOutShader_ClassID,
         kTessellate_GrCurveTessellateShader_ClassID,
-        kTessellate_GrStrokeShader_ClassID,
+        kTessellate_GrStrokeTessellationShader_ClassID,
         kTessellate_GrTriangleShader_ClassID,
         kTessellate_GrWedgeTessellateShader_ClassID,
         kTessellate_HullShader_ClassID,

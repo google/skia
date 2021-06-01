@@ -10,7 +10,7 @@
 
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
-#include "src/gpu/tessellate/GrTessellationShader.h"
+#include "src/gpu/tessellate/shaders/GrTessellationShader.h"
 
 // This is the base class for shaders in the GPU tessellator that fill paths.
 class GrPathTessellationShader : public GrTessellationShader {

@@ -5,19 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/tessellate/GrStrokeShader.h"
+#include "src/gpu/tessellate/shaders/GrStrokeTessellationShader.h"
 
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
-#include "src/gpu/tessellate/GrStrokeInstancedShaderImpl.h"
-#include "src/gpu/tessellate/GrStrokeTessellationShaderImpl.h"
 #include "src/gpu/tessellate/GrStrokeTessellator.h"
 
 // The built-in atan() is undefined when x==0. This method relieves that restriction, but also can
 // return values larger than 2*PI. This shouldn't matter for our purposes.
-const char* GrStrokeShaderImpl::kAtan2Fn = R"(
+const char* GrStrokeTessellationShader::Impl::kAtan2Fn = R"(
 float atan2(float2 v) {
     float bias = 0.0;
     if (abs(v.y) > abs(v.x)) {
@@ -27,7 +25,7 @@ float atan2(float2 v) {
     return atan(v.y, v.x) + bias;
 })";
 
-const char* GrStrokeShaderImpl::kCosineBetweenVectorsFn = R"(
+const char* GrStrokeTessellationShader::Impl::kCosineBetweenVectorsFn = R"(
 float cosine_between_vectors(float2 a, float2 b) {
     float ab_cosTheta = dot(a,b);
     float ab_pow2 = dot(a,a) * dot(b,b);
@@ -36,7 +34,7 @@ float cosine_between_vectors(float2 a, float2 b) {
 
 // Extends the middle radius to either the miter point, or the bevel edge if we surpassed the miter
 // limit and need to revert to a bevel join.
-const char* GrStrokeShaderImpl::kMiterExtentFn = R"(
+const char* GrStrokeTessellationShader::Impl::kMiterExtentFn = R"(
 float miter_extent(float cosTheta, float miterLimit) {
     float x = fma(cosTheta, .5, .5);
     return (x * miterLimit * miterLimit >= 1.0) ? inversesqrt(x) : sqrt(x);
@@ -44,7 +42,7 @@ float miter_extent(float cosTheta, float miterLimit) {
 
 // Returns the number of radial segments required for each radian of rotation, in order for the
 // curve to appear "smooth" as defined by the parametricPrecision.
-const char* GrStrokeShaderImpl::kNumRadialSegmentsPerRadianFn = R"(
+const char* GrStrokeTessellationShader::Impl::kNumRadialSegmentsPerRadianFn = R"(
 float num_radial_segments_per_radian(float parametricPrecision, float strokeRadius) {
     return .5 / acos(max(1.0 - 1.0/(parametricPrecision * strokeRadius), -1.0));
 })";
@@ -52,7 +50,7 @@ float num_radial_segments_per_radian(float parametricPrecision, float strokeRadi
 // Unlike mix(), this does not return b when t==1. But it otherwise seems to get better
 // precision than "a*(1 - t) + b*t" for things like chopping cubics on exact cusp points.
 // We override this result anyway when t==1 so it shouldn't be a problem.
-const char* GrStrokeShaderImpl::kUncheckedMixFn = R"(
+const char* GrStrokeTessellationShader::Impl::kUncheckedMixFn = R"(
 float unchecked_mix(float a, float b, float T) {
     return fma(b - a, T, a);
 }
@@ -63,9 +61,9 @@ float4 unchecked_mix(float4 a, float4 b, float4 T) {
     return fma(b - a, T, a);
 })";
 
-void GrStrokeShaderImpl::emitTessellationCode(const GrStrokeShader& shader, SkString* code,
-                                              GrGPArgs* gpArgs,
-                                              const GrShaderCaps& shaderCaps) const {
+void GrStrokeTessellationShader::Impl::emitTessellationCode(
+        const GrStrokeTessellationShader& shader, SkString* code, GrGPArgs* gpArgs,
+        const GrShaderCaps& shaderCaps) const {
     // The subclass is responsible to define the following symbols before calling this method:
     //
     //     // Functions.
@@ -251,7 +249,8 @@ void GrStrokeShaderImpl::emitTessellationCode(const GrStrokeShader& shader, SkSt
     }
 }
 
-void GrStrokeShaderImpl::emitFragmentCode(const GrStrokeShader& shader, const EmitArgs& args) {
+void GrStrokeTessellationShader::Impl::emitFragmentCode(const GrStrokeTessellationShader& shader,
+                                                        const EmitArgs& args) {
     if (!shader.hasDynamicColor()) {
         // The fragment shader just outputs a uniform color.
         const char* colorUniformName;
@@ -266,9 +265,10 @@ void GrStrokeShaderImpl::emitFragmentCode(const GrStrokeShader& shader, const Em
     args.fFragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputCoverage);
 }
 
-void GrStrokeShaderImpl::setData(const GrGLSLProgramDataManager& pdman, const GrShaderCaps&,
-                                 const GrGeometryProcessor& geomProc) {
-    const auto& shader = geomProc.cast<GrStrokeShader>();
+void GrStrokeTessellationShader::Impl::setData(const GrGLSLProgramDataManager& pdman,
+                                               const GrShaderCaps&,
+                                               const GrGeometryProcessor& geomProc) {
+    const auto& shader = geomProc.cast<GrStrokeTessellationShader>();
     const auto& stroke = shader.stroke();
 
     if (!shader.hasDynamicStroke()) {
@@ -286,7 +286,7 @@ void GrStrokeShaderImpl::setData(const GrGLSLProgramDataManager& pdman, const Gr
         pdman.set4f(fTessControlArgsUniform,
                     tolerances.fParametricPrecision,  // PARAMETRIC_PRECISION
                     tolerances.fNumRadialSegmentsPerRadian,  // NUM_RADIAL_SEGMENTS_PER_RADIAN
-                    GrStrokeShader::GetJoinType(stroke),  // JOIN_TYPE
+                    GrStrokeTessellationShader::GetJoinType(stroke),  // JOIN_TYPE
                     strokeRadius);  // STROKE_RADIUS
     } else {
         SkASSERT(!stroke.isHairlineStyle());
@@ -295,7 +295,7 @@ void GrStrokeShaderImpl::setData(const GrGLSLProgramDataManager& pdman, const Gr
                     GrStrokeTolerances::CalcParametricPrecision(maxScale));
     }
 
-    if (shader.mode() == GrStrokeShader::Mode::kFixedCount) {
+    if (shader.mode() == GrStrokeTessellationShader::Mode::kFixedCount) {
         SkASSERT(shader.fixedCountNumTotalEdges() != 0);
         pdman.set1f(fEdgeCountUniform, (float)shader.fixedCountNumTotalEdges());
     }
@@ -311,7 +311,8 @@ void GrStrokeShaderImpl::setData(const GrGLSLProgramDataManager& pdman, const Gr
     }
 }
 
-void GrStrokeShader::getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const {
+void GrStrokeTessellationShader::getGLSLProcessorKey(const GrShaderCaps&,
+                                                     GrProcessorKeyBuilder* b) const {
     bool keyNeedsJoin = (fMode != Mode::kHardwareTessellation) &&
                         !(fShaderFlags & ShaderFlags::kDynamicStroke);
     SkASSERT((int)fMode >> 2 == 0);
@@ -326,13 +327,13 @@ void GrStrokeShader::getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuil
     b->add32(key);
 }
 
-GrGLSLGeometryProcessor* GrStrokeShader::createGLSLInstance(const GrShaderCaps&) const {
+GrGLSLGeometryProcessor* GrStrokeTessellationShader::createGLSLInstance(const GrShaderCaps&) const {
     switch (fMode) {
         case Mode::kHardwareTessellation:
-            return new GrStrokeTessellationShaderImpl;
+            return new HardwareImpl;
         case Mode::kLog2Indirect:
         case Mode::kFixedCount:
-            return new GrStrokeInstancedShaderImpl;
+            return new InstancedImpl;
     }
     SkUNREACHABLE;
 }

@@ -14,7 +14,7 @@
 #include "src/gpu/tessellate/GrCullTest.h"
 #include "src/gpu/tessellate/GrMiddleOutPolygonTriangulator.h"
 #include "src/gpu/tessellate/GrMidpointContourParser.h"
-#include "src/gpu/tessellate/GrPathTessellationShader.h"
+#include "src/gpu/tessellate/shaders/GrPathTessellationShader.h"
 
 constexpr static float kPrecision = GrTessellationPathRenderer::kLinearizationPrecision;
 

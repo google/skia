@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/tessellate/GrStrokeTessellationShaderImpl.h"
+#include "src/gpu/tessellate/shaders/GrStrokeTessellationShader.h"
 
 #include "src/gpu/geometry/GrWangsFormula.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
-void GrStrokeTessellationShaderImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
-    const auto& shader = args.fGeomProc.cast<GrStrokeShader>();
+void GrStrokeTessellationShader::HardwareImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
+    const auto& shader = args.fGeomProc.cast<GrStrokeTessellationShader>();
     auto* uniHandler = args.fUniformHandler;
     auto* v = args.fVertBuilder;
 
@@ -315,13 +315,13 @@ void GrStrokeTessellationShaderImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs
     this->emitFragmentCode(shader, args);
 }
 
-SkString GrStrokeTessellationShaderImpl::getTessControlShaderGLSL(
+SkString GrStrokeTessellationShader::HardwareImpl::getTessControlShaderGLSL(
         const GrGeometryProcessor& geomProc,
         const char* versionAndExtensionDecls,
         const GrGLSLUniformHandler& uniformHandler,
         const GrShaderCaps& shaderCaps) const {
-    const auto& shader = geomProc.cast<GrStrokeShader>();
-    SkASSERT(shader.mode() == GrStrokeShader::Mode::kHardwareTessellation);
+    const auto& shader = geomProc.cast<GrStrokeTessellationShader>();
+    SkASSERT(shader.mode() == GrStrokeTessellationShader::Mode::kHardwareTessellation);
 
     SkString code(versionAndExtensionDecls);
     // Run 3 invocations: 1 for each section that the vertex shader chopped the curve into.
@@ -521,13 +521,13 @@ SkString GrStrokeTessellationShaderImpl::getTessControlShaderGLSL(
     return code;
 }
 
-SkString GrStrokeTessellationShaderImpl::getTessEvaluationShaderGLSL(
+SkString GrStrokeTessellationShader::HardwareImpl::getTessEvaluationShaderGLSL(
         const GrGeometryProcessor& geomProc,
         const char* versionAndExtensionDecls,
         const GrGLSLUniformHandler& uniformHandler,
         const GrShaderCaps& shaderCaps) const {
-    const auto& shader = geomProc.cast<GrStrokeShader>();
-    SkASSERT(shader.mode() == GrStrokeShader::Mode::kHardwareTessellation);
+    const auto& shader = geomProc.cast<GrStrokeTessellationShader>();
+    SkASSERT(shader.mode() == GrStrokeTessellationShader::Mode::kHardwareTessellation);
 
     SkString code(versionAndExtensionDecls);
     code.append("layout(quads, equal_spacing, ccw) in;\n");

@@ -13,7 +13,6 @@
 #include "src/gpu/geometry/GrWangsFormula.h"
 #include "src/gpu/mock/GrMockOpTarget.h"
 #include "src/gpu/tessellate/GrStrokeIndirectTessellator.h"
-#include "src/gpu/tessellate/GrStrokeShader.h"
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 
 static sk_sp<GrDirectContext> make_mock_context() {
@@ -42,9 +41,10 @@ static void test_stroke(skiatest::Reporter* r, GrDirectContext* ctx, GrMockOpTar
             float scale = ldexpf(rand.nextF() + 1, i);
             auto matrix = SkMatrix::Scale(scale, scale);
             GrStrokeTessellator::PathStrokeList pathStrokeList(path, stroke, SK_PMColor4fWHITE);
-            GrStrokeIndirectTessellator tessellator(GrStrokeShader::ShaderFlags::kNone, matrix,
-                                                    &pathStrokeList, {scale, scale}, {0,0,0,0},
-                                                    path.countVerbs(), target->allocator());
+            GrStrokeIndirectTessellator tessellator(GrStrokeTessellationShader::ShaderFlags::kNone,
+                                                    matrix, &pathStrokeList, {scale, scale},
+                                                    {0,0,0,0}, path.countVerbs(),
+                                                    target->allocator());
             tessellator.verifyResolveLevels(r, target, matrix, path, stroke);
             tessellator.prepare(target, path.countVerbs());
             tessellator.verifyBuffers(r, target, matrix, stroke);

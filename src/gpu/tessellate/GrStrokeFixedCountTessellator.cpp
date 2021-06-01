@@ -217,13 +217,13 @@ private:
     bool fHasLastControlPoint = false;
 
     // Values for the current dynamic state (if any) that will get written out with each instance.
-    GrStrokeShader::DynamicStroke fDynamicStroke;
+    GrStrokeTessellationShader::DynamicStroke fDynamicStroke;
     GrVertexColor fDynamicColor;
 };
 
 // Returns the worst-case number of edges we will need in order to draw a join of the given type.
 static int worst_case_edges_in_join(SkPaint::Join joinType, float numRadialSegmentsPerRadian) {
-    int numEdges = GrStrokeShader::NumFixedEdgesInJoin(joinType);
+    int numEdges = GrStrokeTessellationShader::NumFixedEdgesInJoin(joinType);
     if (joinType == SkPaint::kRound_Join) {
         // For round joins we need to count the radial edges on our own. Account for a worst-case
         // join of 180 degrees (SK_ScalarPI radians).
@@ -239,7 +239,7 @@ GrStrokeFixedCountTessellator::GrStrokeFixedCountTessellator(ShaderFlags shaderF
                                                              PathStrokeList* pathStrokeList,
                                                              std::array<float,2> matrixMinMaxScales,
                                                              const SkRect& strokeCullBounds)
-        : GrStrokeTessellator(GrStrokeShader::Mode::kFixedCount, shaderFlags,
+        : GrStrokeTessellator(GrStrokeTessellationShader::Mode::kFixedCount, shaderFlags,
                               kMaxParametricSegments_log2, viewMatrix, pathStrokeList,
                               matrixMinMaxScales, strokeCullBounds) {
 }
