@@ -51,6 +51,115 @@
       "parentUuid": "b17a768e_8e84ad80",
       "revId": "2633dc0e1da33f971db3040b99d78f132c7cf1fe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "967b3444_df3bdce3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-06-01T16:47:20Z",
+      "side": 1,
+      "message": "As far as plumbing, this looks about right. Figuring out the digest classes might need some discussion, but that can be done separately.",
+      "revId": "2633dc0e1da33f971db3040b99d78f132c7cf1fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7258cd89_02e94c1c",
+        "filename": "src/core/SkScalerCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-06-01T16:47:20Z",
+      "side": 1,
+      "message": "Add TODO for calculating size.",
+      "range": {
+        "startLine": 75,
+        "startChar": 8,
+        "endLine": 75,
+        "endChar": 60
+      },
+      "revId": "2633dc0e1da33f971db3040b99d78f132c7cf1fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f409aef3_bb87c266",
+        "filename": "src/core/SkScalerCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-06-01T16:47:20Z",
+      "side": 1,
+      "message": "isColor() seems like a confused notion now. Let\u0027s think these through so they make more sense. Are you taking this to mean that if this is not an ARGB bitmap?",
+      "range": {
+        "startLine": 277,
+        "startChar": 17,
+        "endLine": 277,
+        "endChar": 33
+      },
+      "revId": "2633dc0e1da33f971db3040b99d78f132c7cf1fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e1390f54_747f088d",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 297,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-06-01T16:47:20Z",
+      "side": 1,
+      "message": "Line length",
+      "range": {
+        "startLine": 297,
+        "startChar": 100,
+        "endLine": 297,
+        "endChar": 104
+      },
+      "revId": "2633dc0e1da33f971db3040b99d78f132c7cf1fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b789c633_47c41623",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-06-01T16:47:20Z",
+      "side": 1,
+      "message": "Line length",
+      "range": {
+        "startLine": 341,
+        "startChar": 100,
+        "endLine": 341,
+        "endChar": 112
+      },
+      "revId": "2633dc0e1da33f971db3040b99d78f132c7cf1fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
