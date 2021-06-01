@@ -14801,7 +14801,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -14856,7 +14860,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -14919,7 +14927,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -14982,7 +14994,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -15040,7 +15056,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -15089,7 +15109,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -15138,7 +15162,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -15187,7 +15215,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -15237,7 +15269,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -15287,7 +15323,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -16598,7 +16638,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         }
       ],
       "command": [
@@ -20189,7 +20233,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -20273,7 +20321,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -20352,7 +20404,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -20431,7 +20487,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -20510,7 +20570,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -20589,7 +20653,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -20673,7 +20741,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -20752,7 +20824,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -20831,7 +20907,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -20914,7 +20994,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -21002,7 +21086,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -21095,7 +21183,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -21178,7 +21270,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -21266,7 +21362,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -21354,7 +21454,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -21437,7 +21541,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -21520,7 +21628,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -22085,7 +22197,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -22163,7 +22279,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -22241,7 +22361,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -22319,7 +22443,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -22397,7 +22525,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -22475,7 +22607,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -22553,7 +22689,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -22632,7 +22772,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -22711,7 +22855,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -22789,7 +22937,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -22867,7 +23019,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -22918,6 +23074,233 @@
         "perf"
       ]
     },
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
+=======
+    "Perf-Mac10.15.7-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-Metal": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "casSpec": "perf",
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
+        },
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:46"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:321"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:14"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "perf",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac10.15.7-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-Metal\",\"do_upload\":\"true\",\"nanobench_flags\":\"[\\\"nanobench\\\",\\\"--pre_log\\\",\\\"--gpuStatsDump\\\",\\\"true\\\",\\\"--scales\\\",\\\"1.0\\\",\\\"1.1\\\",\\\"--nocpu\\\",\\\"--config\\\",\\\"mtl\\\",\\\"mtlmsaa8\\\",\\\"--match\\\",\\\"~inc0.gif\\\",\\\"~inc1.gif\\\",\\\"~incInterlaced.gif\\\",\\\"~inc0.jpg\\\",\\\"~incGray.jpg\\\",\\\"~inc0.wbmp\\\",\\\"~inc1.wbmp\\\",\\\"~inc0.webp\\\",\\\"~inc1.webp\\\",\\\"~inc0.ico\\\",\\\"~inc1.ico\\\",\\\"~inc0.png\\\",\\\"~inc1.png\\\",\\\"~inc2.png\\\",\\\"~inc12.png\\\",\\\"~inc13.png\\\",\\\"~inc14.png\\\",\\\"~inc0.webp\\\",\\\"~inc1.webp\\\",\\\"--key\\\",\\\"arch\\\",\\\"x86_64\\\",\\\"compiler\\\",\\\"Clang\\\",\\\"cpu_or_gpu\\\",\\\"GPU\\\",\\\"cpu_or_gpu_value\\\",\\\"RadeonHD8870M\\\",\\\"extra_config\\\",\\\"Metal\\\",\\\"model\\\",\\\"MacBookPro11.5\\\",\\\"os\\\",\\\"Mac10.15.7\\\"]\",\"nanobench_properties\":\"{\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\"}\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"perf\",\"task_id\":\"<(TASK_ID)\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-x86_64-Release-Metal",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:1002:6821-4.0.20-3.2.8",
+        "os:Mac-10.15.7",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "max_attempts": 2,
+      "outputs": [
+        "perf"
+      ]
+    },
+    "Perf-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-AllPathsVolatile_Skpbench": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "casSpec": "skpbench",
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
+        },
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
+        },
+        {
+          "name": "skia/bots/mskp",
+          "path": "mskp",
+          "version": "version:5"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:321"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "skpbench",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-AllPathsVolatile_Skpbench\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\",\"task_id\":\"<(TASK_ID)\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-arm64-Release",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:arm64-64-Apple_M1",
+        "os:Mac-11.1",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "max_attempts": 2,
+      "outputs": [
+        "perf"
+      ]
+    },
+    "Perf-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Metal_AllPathsVolatile_Skpbench": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "casSpec": "skpbench",
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
+        },
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
+        },
+        {
+          "name": "skia/bots/mskp",
+          "path": "mskp",
+          "version": "version:5"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:321"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "skpbench",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Metal_AllPathsVolatile_Skpbench\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\",\"task_id\":\"<(TASK_ID)\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-arm64-Release-Metal",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:arm64-64-Apple_M1",
+        "os:Mac-11.1",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "max_attempts": 2,
+      "outputs": [
+        "perf"
+      ]
+    },
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
     "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ASAN": {
       "caches": [
         {
@@ -22950,7 +23333,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -23028,7 +23415,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -23111,7 +23502,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -23162,6 +23557,87 @@
         "perf"
       ]
     },
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
+=======
+    "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DMSAAStats": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "casSpec": "perf",
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
+        },
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:46"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:321"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:14"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "perf",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DMSAAStats\",\"do_upload\":\"true\",\"nanobench_flags\":\"[\\\"nanobench\\\",\\\"--pre_log\\\",\\\"--gpuStatsDump\\\",\\\"true\\\",\\\"--scales\\\",\\\"1.0\\\",\\\"1.1\\\",\\\"--nocpu\\\",\\\"--config\\\",\\\"gl\\\",\\\"glsrgb\\\",\\\"glnarrow\\\",\\\"glmsaa8\\\",\\\"--sourceType\\\",\\\"skp\\\",\\\"--clip\\\",\\\"0,0,1600,16384\\\",\\\"--GPUbenchTileW\\\",\\\"1600\\\",\\\"--GPUbenchTileH\\\",\\\"512\\\",\\\"--samples\\\",\\\"1\\\",\\\"--loops\\\",\\\"1\\\",\\\"--config\\\",\\\"gldmsaa\\\",\\\"--dmsaaStatsDump\\\",\\\"--match\\\",\\\"~svg\\\",\\\"~chalkboard\\\",\\\"~motionmark\\\",\\\"~ccpr\\\",\\\"~inc0.gif\\\",\\\"~inc1.gif\\\",\\\"~incInterlaced.gif\\\",\\\"~inc0.jpg\\\",\\\"~incGray.jpg\\\",\\\"~inc0.wbmp\\\",\\\"~inc1.wbmp\\\",\\\"~inc0.webp\\\",\\\"~inc1.webp\\\",\\\"~inc0.ico\\\",\\\"~inc1.ico\\\",\\\"~inc0.png\\\",\\\"~inc1.png\\\",\\\"~inc2.png\\\",\\\"~inc12.png\\\",\\\"~inc13.png\\\",\\\"~inc14.png\\\",\\\"~inc0.webp\\\",\\\"~inc1.webp\\\",\\\"--key\\\",\\\"arch\\\",\\\"x86_64\\\",\\\"compiler\\\",\\\"Clang\\\",\\\"cpu_or_gpu\\\",\\\"GPU\\\",\\\"cpu_or_gpu_value\\\",\\\"QuadroP400\\\",\\\"extra_config\\\",\\\"DMSAAStats\\\",\\\"model\\\",\\\"Golo\\\",\\\"os\\\",\\\"Ubuntu18\\\"]\",\"nanobench_properties\":\"{\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\"}\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"perf\",\"task_id\":\"<(TASK_ID)\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Build-Debian10-Clang-x86_64-Release",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:10de:1cb3-430.14",
+        "os:Ubuntu-18.04",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "max_attempts": 2,
+      "outputs": [
+        "perf"
+      ]
+    },
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
     "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_SK_CPU_LIMIT_SSE41": {
       "caches": [
         {
@@ -23189,7 +23665,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -23278,7 +23758,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -23794,7 +24278,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -23882,7 +24370,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -23964,7 +24456,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -24047,7 +24543,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -24130,7 +24630,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -24213,7 +24717,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -24296,7 +24804,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -24457,7 +24969,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -24696,7 +25212,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -24779,7 +25299,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -24862,7 +25386,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -24945,7 +25473,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -25028,7 +25560,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -25111,7 +25647,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -25194,7 +25734,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -25277,7 +25821,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -25360,7 +25908,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -25443,7 +25995,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -25526,7 +26082,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -25609,7 +26169,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -25692,7 +26256,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -25775,7 +26343,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -25858,7 +26430,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -25941,7 +26517,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -26024,7 +26604,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -26107,7 +26691,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -26190,7 +26778,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -26273,7 +26865,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -26356,7 +26952,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -26439,7 +27039,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -26523,7 +27127,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -26607,7 +27215,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -32500,7 +33112,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -32579,7 +33195,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -32658,7 +33278,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -32737,7 +33361,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -32816,7 +33444,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -32895,7 +33527,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -32974,7 +33610,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -33053,7 +33693,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -33132,7 +33776,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -33211,7 +33859,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -33290,7 +33942,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -33369,7 +34025,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -33448,7 +34108,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -33527,7 +34191,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -33606,7 +34274,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -33685,7 +34357,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -33764,7 +34440,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -33842,7 +34522,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -33920,7 +34604,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -33998,7 +34686,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -34076,7 +34768,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -34160,7 +34856,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -34239,7 +34939,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -34323,7 +35027,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -34411,7 +35119,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -34494,7 +35206,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -34582,7 +35298,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -34745,7 +35465,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -34838,7 +35562,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -35014,7 +35742,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -35102,7 +35834,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -35190,7 +35926,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -35283,7 +36023,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -35371,7 +36115,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -35464,7 +36212,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -35640,7 +36392,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -35728,7 +36484,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -35821,7 +36581,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -35909,7 +36673,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -36002,7 +36770,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -36090,7 +36862,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -36178,7 +36954,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -36261,7 +37041,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -36344,7 +37128,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -36427,7 +37215,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -36510,7 +37302,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -36848,7 +37644,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -36928,7 +37728,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -37008,7 +37812,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -37088,7 +37896,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -37168,7 +37980,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -37246,7 +38062,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -37324,7 +38144,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -37402,7 +38226,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -37480,7 +38308,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -37558,7 +38390,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -37636,7 +38472,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -37714,7 +38554,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -37792,7 +38636,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -37948,7 +38796,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -38026,7 +38878,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -38104,7 +38960,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -38183,7 +39043,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -38262,7 +39126,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -38341,7 +39209,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -38419,7 +39291,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -38497,7 +39373,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -38575,7 +39455,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -38653,7 +39537,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -38731,7 +39619,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -38809,7 +39701,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -38887,7 +39783,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -38965,7 +39865,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -39043,7 +39947,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -39121,7 +40029,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -39199,7 +40111,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -39277,7 +40193,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -39355,7 +40275,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -39433,7 +40357,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -39511,7 +40439,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -39589,7 +40521,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -39608,7 +40544,179 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "test",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
         "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.15.1-Clang-VMware7.1-CPU-AVX-x86_64-Debug-All-NativeFonts\",\"dm_flags\":\"[\\\"dm\\\",\\\"--nameByHash\\\",\\\"--key\\\",\\\"arch\\\",\\\"x86_64\\\",\\\"compiler\\\",\\\"Clang\\\",\\\"configuration\\\",\\\"Debug\\\",\\\"cpu_or_gpu\\\",\\\"CPU\\\",\\\"cpu_or_gpu_value\\\",\\\"AVX\\\",\\\"extra_config\\\",\\\"NativeFonts\\\",\\\"model\\\",\\\"VMware7.1\\\",\\\"os\\\",\\\"Mac10.15.1\\\",\\\"style\\\",\\\"default\\\",\\\"--randomProcessorTest\\\",\\\"--nogpu\\\",\\\"--config\\\",\\\"8888\\\",\\\"--src\\\",\\\"tests\\\",\\\"gm\\\",\\\"--skip\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgba32abf.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24prof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24lprof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"8bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"4bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"32bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"24bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"frame_larger_than_image.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc0.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc1.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc2.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc3.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc4.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc5.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc6.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc7.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc8.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc9.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc10.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc11.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc12.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc13.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc14.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"incInterlaced.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"incInterlaced.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc1.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc0.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"butterfly.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"testimgari.jpg\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle8-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle4-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"error\\\",\\\"--verbose\\\"]\",\"dm_properties\":\"{\\\"buildbucket_build_id\\\":\\\"<(BUILDBUCKET_BUILD_ID)\\\",\\\"builder\\\":\\\"Test-Mac10.15.1-Clang-VMware7.1-CPU-AVX-x86_64-Debug-All-NativeFonts\\\",\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\",\\\"task_id\\\":\\\"<(TASK_ID)\\\"}\",\"do_upload\":\"true\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"images\":\"true\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+=======
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.15.7-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-Metal\",\"dm_flags\":\"[\\\"dm\\\",\\\"--nameByHash\\\",\\\"--key\\\",\\\"arch\\\",\\\"x86_64\\\",\\\"compiler\\\",\\\"Clang\\\",\\\"configuration\\\",\\\"Debug\\\",\\\"cpu_or_gpu\\\",\\\"GPU\\\",\\\"cpu_or_gpu_value\\\",\\\"RadeonHD8870M\\\",\\\"extra_config\\\",\\\"Metal\\\",\\\"model\\\",\\\"MacBookPro11.5\\\",\\\"os\\\",\\\"Mac10.15.7\\\",\\\"style\\\",\\\"default\\\",\\\"--randomProcessorTest\\\",\\\"--nocpu\\\",\\\"--config\\\",\\\"mtl\\\",\\\"mtlmsaa4\\\",\\\"--src\\\",\\\"tests\\\",\\\"gm\\\",\\\"image\\\",\\\"colorImage\\\",\\\"svg\\\",\\\"--skip\\\",\\\"_\\\",\\\"svg\\\",\\\"_\\\",\\\"svgparse_\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgba32abf.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24prof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24lprof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"8bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"4bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"32bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"24bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"frame_larger_than_image.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc0.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc1.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc2.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc3.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc4.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc5.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc6.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc7.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc8.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc9.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc10.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc11.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc12.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc13.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc14.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"incInterlaced.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"incInterlaced.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc1.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc0.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"butterfly.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"testimgari.jpg\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle8-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle4-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"error\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced1.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced2.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced3.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".arw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".cr2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".dng\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".nef\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".nrw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".orf\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".raf\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".rw2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".pef\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".srw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".ARW\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".CR2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".DNG\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".NEF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".NRW\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".ORF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".RAF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".RW2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".PEF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".SRW\\\",\\\"--match\\\",\\\"~WritePixelsNonTextureMSAA_Gpu\\\",\\\"~SurfacePartialDraw_Gpu\\\",\\\"--nonativeFonts\\\",\\\"--verbose\\\"]\",\"dm_properties\":\"{\\\"buildbucket_build_id\\\":\\\"<(BUILDBUCKET_BUILD_ID)\\\",\\\"builder\\\":\\\"Test-Mac10.15.7-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-Metal\\\",\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\",\\\"task_id\\\":\\\"<(TASK_ID)\\\"}\",\"do_upload\":\"true\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"gs_bucket\":\"skia-infra-gm\",\"images\":\"true\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-x86_64-Debug-Metal",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:1002:6821-4.0.20-3.2.8",
+        "os:Mac-10.15.7",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "max_attempts": 2,
+      "outputs": [
+        "test"
+      ],
+      "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Test-Mac10.15.7-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-Metal": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "casSpec": "test",
+      "cipd_packages": [
+        {
+          "name": "infra/gsutil",
+          "path": "cipd_bin_packages",
+          "version": "version:4.46"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
+        },
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:46"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:321"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:14"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "test",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.15.7-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-Metal\",\"dm_flags\":\"[\\\"dm\\\",\\\"--nameByHash\\\",\\\"--key\\\",\\\"arch\\\",\\\"x86_64\\\",\\\"compiler\\\",\\\"Clang\\\",\\\"configuration\\\",\\\"Release\\\",\\\"cpu_or_gpu\\\",\\\"GPU\\\",\\\"cpu_or_gpu_value\\\",\\\"RadeonHD8870M\\\",\\\"extra_config\\\",\\\"Metal\\\",\\\"model\\\",\\\"MacBookPro11.5\\\",\\\"os\\\",\\\"Mac10.15.7\\\",\\\"style\\\",\\\"default\\\",\\\"--randomProcessorTest\\\",\\\"--nocpu\\\",\\\"--config\\\",\\\"mtl\\\",\\\"mtlmsaa4\\\",\\\"--src\\\",\\\"tests\\\",\\\"gm\\\",\\\"image\\\",\\\"colorImage\\\",\\\"svg\\\",\\\"--skip\\\",\\\"_\\\",\\\"svg\\\",\\\"_\\\",\\\"svgparse_\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgba32abf.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24prof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24lprof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"8bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"4bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"32bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"24bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"frame_larger_than_image.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc0.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc1.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc2.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc3.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc4.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc5.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc6.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc7.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc8.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc9.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc10.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc11.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc12.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc13.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc14.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"incInterlaced.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"incInterlaced.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc1.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc0.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"butterfly.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"testimgari.jpg\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle8-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle4-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"error\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced1.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced2.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced3.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".arw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".cr2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".dng\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".nef\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".nrw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".orf\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".raf\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".rw2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".pef\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".srw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".ARW\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".CR2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".DNG\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".NEF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".NRW\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".ORF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".RAF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".RW2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".PEF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".SRW\\\",\\\"--match\\\",\\\"~WritePixelsNonTextureMSAA_Gpu\\\",\\\"~SurfacePartialDraw_Gpu\\\",\\\"--nonativeFonts\\\",\\\"--verbose\\\"]\",\"dm_properties\":\"{\\\"buildbucket_build_id\\\":\\\"<(BUILDBUCKET_BUILD_ID)\\\",\\\"builder\\\":\\\"Test-Mac10.15.7-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-Metal\\\",\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\",\\\"task_id\\\":\\\"<(TASK_ID)\\\"}\",\"do_upload\":\"true\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"gs_bucket\":\"skia-infra-gm\",\"images\":\"true\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-x86_64-Release-Metal",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:1002:6821-4.0.20-3.2.8",
+        "os:Mac-10.15.7",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "max_attempts": 2,
+      "outputs": [
+        "test"
+      ],
+      "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Test-Mac10.15.7-Clang-VMware7.1-CPU-AVX-x86_64-Debug-All-NativeFonts": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "casSpec": "test",
+      "cipd_packages": [
+        {
+          "name": "infra/gsutil",
+          "path": "cipd_bin_packages",
+          "version": "version:4.46"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
+        },
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:46"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:321"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:14"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "test",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac10.15.7-Clang-VMware7.1-CPU-AVX-x86_64-Debug-All-NativeFonts\",\"dm_flags\":\"[\\\"dm\\\",\\\"--nameByHash\\\",\\\"--key\\\",\\\"arch\\\",\\\"x86_64\\\",\\\"compiler\\\",\\\"Clang\\\",\\\"configuration\\\",\\\"Debug\\\",\\\"cpu_or_gpu\\\",\\\"CPU\\\",\\\"cpu_or_gpu_value\\\",\\\"AVX\\\",\\\"extra_config\\\",\\\"NativeFonts\\\",\\\"model\\\",\\\"VMware7.1\\\",\\\"os\\\",\\\"Mac10.15.7\\\",\\\"style\\\",\\\"default\\\",\\\"--randomProcessorTest\\\",\\\"--nogpu\\\",\\\"--config\\\",\\\"8888\\\",\\\"--src\\\",\\\"tests\\\",\\\"gm\\\",\\\"--skip\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgba32abf.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24prof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24lprof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"8bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"4bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"32bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"24bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"frame_larger_than_image.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc0.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc1.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc2.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc3.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc4.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc5.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc6.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc7.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc8.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc9.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc10.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc11.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc12.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc13.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc14.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"incInterlaced.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"incInterlaced.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc1.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc0.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"butterfly.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"testimgari.jpg\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle8-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle4-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"error\\\",\\\"--verbose\\\"]\",\"dm_properties\":\"{\\\"buildbucket_build_id\\\":\\\"<(BUILDBUCKET_BUILD_ID)\\\",\\\"builder\\\":\\\"Test-Mac10.15.7-Clang-VMware7.1-CPU-AVX-x86_64-Debug-All-NativeFonts\\\",\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\",\\\"task_id\\\":\\\"<(TASK_ID)\\\"}\",\"do_upload\":\"true\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"gs_bucket\":\"skia-infra-gm\",\"images\":\"true\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         "skia"
       ],
       "dependencies": [
@@ -39638,7 +40746,348 @@
       "max_attempts": 2,
       "outputs": [
         "test"
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
       ]
+=======
+      ],
+      "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Test-Mac11-Clang-MacMini9.1-CPU-AppleM1-arm64-Debug-All": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "casSpec": "test",
+      "cipd_packages": [
+        {
+          "name": "infra/gsutil",
+          "path": "cipd_bin_packages",
+          "version": "version:4.46"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
+        },
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:46"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:321"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:14"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "test",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac11-Clang-MacMini9.1-CPU-AppleM1-arm64-Debug-All\",\"dm_flags\":\"[\\\"dm\\\",\\\"--nameByHash\\\",\\\"--key\\\",\\\"arch\\\",\\\"arm64\\\",\\\"compiler\\\",\\\"Clang\\\",\\\"configuration\\\",\\\"Debug\\\",\\\"cpu_or_gpu\\\",\\\"CPU\\\",\\\"cpu_or_gpu_value\\\",\\\"AppleM1\\\",\\\"model\\\",\\\"MacMini9.1\\\",\\\"os\\\",\\\"Mac11\\\",\\\"style\\\",\\\"default\\\",\\\"--randomProcessorTest\\\",\\\"--nogpu\\\",\\\"--config\\\",\\\"8888\\\",\\\"--src\\\",\\\"tests\\\",\\\"gm\\\",\\\"image\\\",\\\"colorImage\\\",\\\"--skip\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgba32abf.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24prof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24lprof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"8bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"4bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"32bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"24bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"frame_larger_than_image.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc0.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc1.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc2.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc3.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc4.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc5.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc6.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc7.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc8.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc9.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc10.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc11.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc12.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc13.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc14.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"incInterlaced.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"incInterlaced.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc1.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc0.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"butterfly.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"testimgari.jpg\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle8-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle4-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"error\\\",\\\"--nonativeFonts\\\",\\\"--verbose\\\"]\",\"dm_properties\":\"{\\\"buildbucket_build_id\\\":\\\"<(BUILDBUCKET_BUILD_ID)\\\",\\\"builder\\\":\\\"Test-Mac11-Clang-MacMini9.1-CPU-AppleM1-arm64-Debug-All\\\",\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\",\\\"task_id\\\":\\\"<(TASK_ID)\\\"}\",\"do_upload\":\"true\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"gs_bucket\":\"skia-infra-gm\",\"images\":\"true\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-arm64-Debug",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:arm64-64-Apple_M1",
+        "os:Mac-11.1",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "max_attempts": 2,
+      "outputs": [
+        "test"
+      ],
+      "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Test-Mac11-Clang-MacMini9.1-CPU-AppleM1-arm64-Debug-All-NativeFonts": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "casSpec": "test",
+      "cipd_packages": [
+        {
+          "name": "infra/gsutil",
+          "path": "cipd_bin_packages",
+          "version": "version:4.46"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
+        },
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:46"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:321"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:14"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "test",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac11-Clang-MacMini9.1-CPU-AppleM1-arm64-Debug-All-NativeFonts\",\"dm_flags\":\"[\\\"dm\\\",\\\"--nameByHash\\\",\\\"--key\\\",\\\"arch\\\",\\\"arm64\\\",\\\"compiler\\\",\\\"Clang\\\",\\\"configuration\\\",\\\"Debug\\\",\\\"cpu_or_gpu\\\",\\\"CPU\\\",\\\"cpu_or_gpu_value\\\",\\\"AppleM1\\\",\\\"extra_config\\\",\\\"NativeFonts\\\",\\\"model\\\",\\\"MacMini9.1\\\",\\\"os\\\",\\\"Mac11\\\",\\\"style\\\",\\\"default\\\",\\\"--randomProcessorTest\\\",\\\"--nogpu\\\",\\\"--config\\\",\\\"8888\\\",\\\"--src\\\",\\\"tests\\\",\\\"gm\\\",\\\"--skip\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgba32abf.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24prof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24lprof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"8bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"4bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"32bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"24bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"frame_larger_than_image.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc0.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc1.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc2.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc3.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc4.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc5.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc6.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc7.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc8.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc9.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc10.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc11.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc12.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc13.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc14.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"incInterlaced.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"incInterlaced.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc1.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc0.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"butterfly.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"testimgari.jpg\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle8-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle4-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"error\\\",\\\"--verbose\\\"]\",\"dm_properties\":\"{\\\"buildbucket_build_id\\\":\\\"<(BUILDBUCKET_BUILD_ID)\\\",\\\"builder\\\":\\\"Test-Mac11-Clang-MacMini9.1-CPU-AppleM1-arm64-Debug-All-NativeFonts\\\",\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\",\\\"task_id\\\":\\\"<(TASK_ID)\\\"}\",\"do_upload\":\"true\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"gs_bucket\":\"skia-infra-gm\",\"images\":\"true\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-arm64-Debug",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:arm64-64-Apple_M1",
+        "os:Mac-11.1",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "max_attempts": 2,
+      "outputs": [
+        "test"
+      ],
+      "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Test-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "casSpec": "test",
+      "cipd_packages": [
+        {
+          "name": "infra/gsutil",
+          "path": "cipd_bin_packages",
+          "version": "version:4.46"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
+        },
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:46"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:321"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:14"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "test",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All\",\"dm_flags\":\"[\\\"dm\\\",\\\"--nameByHash\\\",\\\"--key\\\",\\\"arch\\\",\\\"arm64\\\",\\\"compiler\\\",\\\"Clang\\\",\\\"configuration\\\",\\\"Debug\\\",\\\"cpu_or_gpu\\\",\\\"GPU\\\",\\\"cpu_or_gpu_value\\\",\\\"AppleM1\\\",\\\"model\\\",\\\"MacMini9.1\\\",\\\"os\\\",\\\"Mac11\\\",\\\"style\\\",\\\"default\\\",\\\"--randomProcessorTest\\\",\\\"--nocpu\\\",\\\"--config\\\",\\\"gl\\\",\\\"gldft\\\",\\\"glsrgb\\\",\\\"glmsaa4\\\",\\\"--src\\\",\\\"tests\\\",\\\"gm\\\",\\\"image\\\",\\\"colorImage\\\",\\\"svg\\\",\\\"--skip\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"TransferPixelsFromTextureTest\\\",\\\"_\\\",\\\"svg\\\",\\\"_\\\",\\\"svgparse_\\\",\\\"glsrgb\\\",\\\"image\\\",\\\"_\\\",\\\"_\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgba32abf.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24prof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24lprof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"8bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"4bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"32bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"24bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"frame_larger_than_image.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc0.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc1.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc2.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc3.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc4.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc5.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc6.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc7.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc8.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc9.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc10.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc11.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc12.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc13.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc14.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"incInterlaced.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"incInterlaced.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc1.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc0.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"butterfly.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"testimgari.jpg\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle8-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle4-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"error\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced1.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced2.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced3.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".arw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".cr2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".dng\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".nef\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".nrw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".orf\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".raf\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".rw2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".pef\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".srw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".ARW\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".CR2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".DNG\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".NEF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".NRW\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".ORF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".RAF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".RW2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".PEF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".SRW\\\",\\\"--nonativeFonts\\\",\\\"--verbose\\\"]\",\"dm_properties\":\"{\\\"buildbucket_build_id\\\":\\\"<(BUILDBUCKET_BUILD_ID)\\\",\\\"builder\\\":\\\"Test-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All\\\",\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\",\\\"task_id\\\":\\\"<(TASK_ID)\\\"}\",\"do_upload\":\"true\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"gs_bucket\":\"skia-infra-gm\",\"images\":\"true\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-arm64-Debug",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:arm64-64-Apple_M1",
+        "os:Mac-11.1",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "max_attempts": 2,
+      "outputs": [
+        "test"
+      ],
+      "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Test-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-Metal": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "casSpec": "test",
+      "cipd_packages": [
+        {
+          "name": "infra/gsutil",
+          "path": "cipd_bin_packages",
+          "version": "version:4.46"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
+        },
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:46"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:321"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:14"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "test",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-Metal\",\"dm_flags\":\"[\\\"dm\\\",\\\"--nameByHash\\\",\\\"--key\\\",\\\"arch\\\",\\\"arm64\\\",\\\"compiler\\\",\\\"Clang\\\",\\\"configuration\\\",\\\"Debug\\\",\\\"cpu_or_gpu\\\",\\\"GPU\\\",\\\"cpu_or_gpu_value\\\",\\\"AppleM1\\\",\\\"extra_config\\\",\\\"Metal\\\",\\\"model\\\",\\\"MacMini9.1\\\",\\\"os\\\",\\\"Mac11\\\",\\\"style\\\",\\\"default\\\",\\\"--randomProcessorTest\\\",\\\"--nocpu\\\",\\\"--config\\\",\\\"mtl\\\",\\\"mtlmsaa4\\\",\\\"--src\\\",\\\"tests\\\",\\\"gm\\\",\\\"image\\\",\\\"colorImage\\\",\\\"svg\\\",\\\"--skip\\\",\\\"_\\\",\\\"svg\\\",\\\"_\\\",\\\"svgparse_\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgba32abf.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24prof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24lprof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"8bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"4bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"32bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"24bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"frame_larger_than_image.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc0.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc1.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc2.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc3.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc4.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc5.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc6.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc7.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc8.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc9.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc10.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc11.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc12.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc13.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc14.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"incInterlaced.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"incInterlaced.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc1.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc0.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"butterfly.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"testimgari.jpg\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle8-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle4-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"error\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced1.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced2.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced3.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".arw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".cr2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".dng\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".nef\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".nrw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".orf\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".raf\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".rw2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".pef\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".srw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".ARW\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".CR2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".DNG\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".NEF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".NRW\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".ORF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".RAF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".RW2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".PEF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".SRW\\\",\\\"--nonativeFonts\\\",\\\"--verbose\\\"]\",\"dm_properties\":\"{\\\"buildbucket_build_id\\\":\\\"<(BUILDBUCKET_BUILD_ID)\\\",\\\"builder\\\":\\\"Test-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-Metal\\\",\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\",\\\"task_id\\\":\\\"<(TASK_ID)\\\"}\",\"do_upload\":\"true\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"gs_bucket\":\"skia-infra-gm\",\"images\":\"true\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-arm64-Debug-Metal",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:arm64-64-Apple_M1",
+        "os:Mac-11.1",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "max_attempts": 2,
+      "outputs": [
+        "test"
+      ],
+      "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
     },
     "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ASAN": {
       "caches": [
@@ -39672,7 +41121,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -39750,7 +41203,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -39833,7 +41290,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -39916,7 +41377,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -39999,7 +41464,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -40082,7 +41551,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -40165,7 +41638,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -40243,7 +41720,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -40326,7 +41807,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -40404,7 +41889,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -40487,7 +41976,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -40575,7 +42068,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -40658,7 +42155,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -40746,7 +42247,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -40824,7 +42329,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -40912,7 +42421,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -40990,7 +42503,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -41074,7 +42591,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -41158,7 +42679,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -41247,7 +42772,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -41418,7 +42947,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -41501,7 +43034,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -41584,7 +43121,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -41667,7 +43208,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -41750,7 +43295,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -41833,7 +43382,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -41916,7 +43469,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -41999,7 +43556,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -42082,7 +43643,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -42101,7 +43666,94 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "test",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
         "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-BonusConfigs\",\"dm_flags\":\"[\\\"dm\\\",\\\"--nameByHash\\\",\\\"--key\\\",\\\"arch\\\",\\\"x86_64\\\",\\\"compiler\\\",\\\"Clang\\\",\\\"configuration\\\",\\\"Debug\\\",\\\"cpu_or_gpu\\\",\\\"GPU\\\",\\\"cpu_or_gpu_value\\\",\\\"QuadroP400\\\",\\\"extra_config\\\",\\\"BonusConfigs\\\",\\\"model\\\",\\\"Golo\\\",\\\"os\\\",\\\"Win10\\\",\\\"style\\\",\\\"default\\\",\\\"--randomProcessorTest\\\",\\\"--nocpu\\\",\\\"--config\\\",\\\"glbetex\\\",\\\"glbert\\\",\\\"glenarrow\\\",\\\"--src\\\",\\\"tests\\\",\\\"gm\\\",\\\"image\\\",\\\"colorImage\\\",\\\"svg\\\",\\\"--skip\\\",\\\"_\\\",\\\"svg\\\",\\\"_\\\",\\\"svgparse_\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2-16.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgba32abf.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24prof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24lprof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"8bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"4bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"32bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"24bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"testimgari.jpg\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle8-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle4-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"error\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced1.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced2.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced3.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".arw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".cr2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".dng\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".nef\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".nrw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".orf\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".raf\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".rw2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".pef\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".srw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".ARW\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".CR2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".DNG\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".NEF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".NRW\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".ORF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".RAF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".RW2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".PEF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".SRW\\\",\\\"--nonativeFonts\\\",\\\"--verbose\\\"]\",\"dm_properties\":\"{\\\"buildbucket_build_id\\\":\\\"<(BUILDBUCKET_BUILD_ID)\\\",\\\"builder\\\":\\\"Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-BonusConfigs\\\",\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\",\\\"task_id\\\":\\\"<(TASK_ID)\\\"}\",\"do_upload\":\"true\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"images\":\"true\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+=======
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-BonusConfigs\",\"dm_flags\":\"[\\\"dm\\\",\\\"--nameByHash\\\",\\\"--key\\\",\\\"arch\\\",\\\"x86_64\\\",\\\"compiler\\\",\\\"Clang\\\",\\\"configuration\\\",\\\"Debug\\\",\\\"cpu_or_gpu\\\",\\\"GPU\\\",\\\"cpu_or_gpu_value\\\",\\\"QuadroP400\\\",\\\"extra_config\\\",\\\"BonusConfigs\\\",\\\"model\\\",\\\"Golo\\\",\\\"os\\\",\\\"Win10\\\",\\\"style\\\",\\\"default\\\",\\\"--randomProcessorTest\\\",\\\"--nocpu\\\",\\\"--config\\\",\\\"glbetex\\\",\\\"glbert\\\",\\\"glenarrow\\\",\\\"glreducedshaders\\\",\\\"--src\\\",\\\"tests\\\",\\\"gm\\\",\\\"image\\\",\\\"colorImage\\\",\\\"svg\\\",\\\"--skip\\\",\\\"_\\\",\\\"svg\\\",\\\"_\\\",\\\"svgparse_\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2-16.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgba32abf.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24prof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24lprof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"8bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"4bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"32bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"24bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"testimgari.jpg\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle8-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle4-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"error\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced1.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced2.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced3.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".arw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".cr2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".dng\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".nef\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".nrw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".orf\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".raf\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".rw2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".pef\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".srw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".ARW\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".CR2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".DNG\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".NEF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".NRW\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".ORF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".RAF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".RW2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".PEF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".SRW\\\",\\\"--nonativeFonts\\\",\\\"--verbose\\\"]\",\"dm_properties\":\"{\\\"buildbucket_build_id\\\":\\\"<(BUILDBUCKET_BUILD_ID)\\\",\\\"builder\\\":\\\"Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-BonusConfigs\\\",\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\",\\\"task_id\\\":\\\"<(TASK_ID)\\\"}\",\"do_upload\":\"true\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"images\":\"true\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Build-Win-Clang-x86_64-Debug",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:10de:1cb3-25.21.14.1678",
+        "os:Windows-10-16299",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "max_attempts": 2,
+      "outputs": [
+        "test"
+      ]
+    },
+    "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DMSAA": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "casSpec": "test",
+      "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@2.7.18.chromium.35"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
+        },
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:46"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:321"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:14"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "test",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DMSAA\",\"dm_flags\":\"[\\\"dm\\\",\\\"--nameByHash\\\",\\\"--key\\\",\\\"arch\\\",\\\"x86_64\\\",\\\"compiler\\\",\\\"Clang\\\",\\\"configuration\\\",\\\"Debug\\\",\\\"cpu_or_gpu\\\",\\\"GPU\\\",\\\"cpu_or_gpu_value\\\",\\\"QuadroP400\\\",\\\"extra_config\\\",\\\"DMSAA\\\",\\\"model\\\",\\\"Golo\\\",\\\"os\\\",\\\"Win10\\\",\\\"style\\\",\\\"default\\\",\\\"--randomProcessorTest\\\",\\\"--nocpu\\\",\\\"--hwtess\\\",\\\"--config\\\",\\\"gldmsaa\\\",\\\"--src\\\",\\\"tests\\\",\\\"gm\\\",\\\"image\\\",\\\"colorImage\\\",\\\"svg\\\",\\\"--skip\\\",\\\"_\\\",\\\"svg\\\",\\\"_\\\",\\\"svgparse_\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"pal8os2v2-16.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgba32abf.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24prof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24lprof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"8bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"4bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"32bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"24bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"testimgari.jpg\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle8-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle4-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"error\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced1.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced2.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced3.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".arw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".cr2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".dng\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".nef\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".nrw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".orf\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".raf\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".rw2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".pef\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".srw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".ARW\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".CR2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".DNG\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".NEF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".NRW\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".ORF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".RAF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".RW2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".PEF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".SRW\\\",\\\"--nonativeFonts\\\",\\\"--verbose\\\"]\",\"dm_properties\":\"{\\\"buildbucket_build_id\\\":\\\"<(BUILDBUCKET_BUILD_ID)\\\",\\\"builder\\\":\\\"Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DMSAA\\\",\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\",\\\"task_id\\\":\\\"<(TASK_ID)\\\"}\",\"do_upload\":\"true\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"images\":\"true\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         "skia"
       ],
       "dependencies": [
@@ -42165,7 +43817,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -42248,7 +43904,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -42414,7 +44074,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -42497,7 +44161,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -42585,7 +44253,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -42668,7 +44340,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -42751,7 +44427,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -42834,7 +44514,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -42917,7 +44601,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -43000,7 +44688,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -43088,7 +44780,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -43171,7 +44867,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -43254,7 +44954,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -43337,7 +45041,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -43420,7 +45128,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -43503,7 +45215,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -43586,7 +45302,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -43669,7 +45389,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -43835,7 +45559,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -43918,7 +45646,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -44001,7 +45733,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -44084,7 +45820,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -44167,7 +45907,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -44250,7 +45994,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -44333,7 +46081,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -44499,7 +46251,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -44582,7 +46338,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -44665,7 +46425,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -44748,7 +46512,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -44831,7 +46599,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -44914,7 +46686,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -44997,7 +46773,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -45080,7 +46860,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -45163,7 +46947,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -45246,7 +47034,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -45329,7 +47121,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -45412,7 +47208,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -45495,7 +47295,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -45578,7 +47382,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -45661,7 +47469,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -45744,7 +47556,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -45827,7 +47643,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -45910,7 +47730,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -45993,7 +47817,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -46076,7 +47904,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -46159,7 +47991,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -46242,7 +48078,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -46325,7 +48165,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -46408,7 +48252,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -46491,7 +48339,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -46574,7 +48426,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -46657,7 +48513,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -46740,7 +48600,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -46823,7 +48687,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -46906,7 +48774,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -46989,7 +48861,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -47072,7 +48948,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -47155,7 +49035,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -47238,7 +49122,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -47477,7 +49365,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -47561,7 +49453,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -47645,7 +49541,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -47729,7 +49629,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -47813,7 +49717,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -47897,7 +49805,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -47981,7 +49893,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -48065,7 +49981,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -48149,7 +50069,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -48233,7 +50157,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -48317,7 +50245,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -48401,7 +50333,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -48484,7 +50420,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -48567,7 +50507,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -48650,7 +50594,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -48733,7 +50681,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -48816,7 +50768,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -48899,7 +50855,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -48982,7 +50942,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -49065,7 +51029,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
@@ -49148,7 +51116,11 @@
         {
           "name": "skia/bots/skimage",
           "path": "skimage",
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
           "version": "version:42"
+=======
+          "version": "version:46"
+>>>>>>> CHANGE (816833 SkWuffsCodec: ignore too much pixel data)
         },
         {
           "name": "skia/bots/skp",
