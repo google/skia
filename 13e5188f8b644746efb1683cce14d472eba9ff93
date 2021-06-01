@@ -68,6 +68,23 @@
       "message": "Hmmmm, maybe we can chat about this. SVG aside, not sure I think rects should behave differently from paths of the same topology",
       "revId": "13e5188f8b644746efb1683cce14d472eba9ff93",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "52fe61cd_7d4e26d1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-01T18:15:18Z",
+      "side": 1,
+      "message": "... til we can chat",
+      "revId": "13e5188f8b644746efb1683cce14d472eba9ff93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
