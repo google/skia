@@ -29,8 +29,24 @@ public:
         return false;
     }
 
-    GrRecordingContext* recordingContext() const override { return fContext.get(); }
-    GrSurfaceDrawContext* surfaceDrawContext() override { return nullptr; }
+    void asyncRescaleAndReadPixels(const SkImageInfo&,
+                                   const SkIRect& srcRect,
+                                   RescaleGamma,
+                                   RescaleMode,
+                                   ReadPixelsCallback,
+                                   ReadPixelsContext) override;
+
+    void asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace,
+                                         sk_sp<SkColorSpace> dstColorSpace,
+                                         const SkIRect& srcRect,
+                                         SkISize dstSize,
+                                         RescaleGamma,
+                                         RescaleMode,
+                                         ReadPixelsCallback,
+                                         ReadPixelsContext) override;
+
+//    GrRecordingContext* recordingContext() const override { return fContext.get(); }
+//    GrSurfaceDrawContext* surfaceDrawContext() override { return nullptr; }
 
 protected:
     void onSave() override;
@@ -95,13 +111,11 @@ protected:
     /* isNoPixelsDevice */
 
 private:
-    SkGpuDevice_nga(GrRecordingContext*, const SkImageInfo&, const SkSurfaceProps&);
+    SkGpuDevice_nga(sk_sp<GrRecordingContext>, const SkImageInfo&, const SkSurfaceProps&);
 
     /* replaceBitmapBackendForRasterSurface */
     bool forceConservativeRasterClip() const override;
     SkImageFilterCache* getImageFilterCache() override;
-
-    sk_sp<GrRecordingContext> fContext;
 
     using INHERITED = SkBaseGpuDevice;
 };
