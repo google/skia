@@ -33,7 +33,7 @@ const _commonGM = (it, pause, name, callback, assetsToFetchOrPromisesToWaitOn) =
             try {
                 // If callback returns a promise, the chained .then
                 // will wait for it.
-                return callback(surface.getCanvas(), values);
+                return callback(surface.getCanvas(), values, surface);
             } catch (e) {
                 console.log(`gm ${name} failed with error`, e);
                 expect(e).toBeFalsy();
