@@ -22,6 +22,30 @@
       },
       "revId": "325eb84472aa8114da27ca008921214fde64b08c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5a7f6dd7_ae041e5e",
+        "filename": "platform_tools/android/apps/androidkitdemo/src/main/java/org/skia/androidkitdemo1/CubeActivity.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-06-01T14:36:01Z",
+      "side": 1,
+      "message": "Doh, done.",
+      "parentUuid": "87532259_9e2f659e",
+      "range": {
+        "startLine": 31,
+        "startChar": 40,
+        "endLine": 31,
+        "endChar": 53
+      },
+      "revId": "325eb84472aa8114da27ca008921214fde64b08c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
