@@ -33,6 +33,24 @@
       "message": "Are the underlying pictures safe to draw directly to the target, and is that important? What if they contain inner translucency?",
       "revId": "2633dc0e1da33f971db3040b99d78f132c7cf1fe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "205c7d5b_9ac57e59",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-06-01T15:06:19Z",
+      "side": 1,
+      "message": "There\u0027s basically an implied save layer isn\u0027t there? (Which is effectively what happens currently for color or layer fonts, with COLR when it is rendered into the the \"layer\" in the cache and for bitmaps when it is rendered into the \"layer\" which is the bitmap.) Seems this is how SkCanvas::drawPicture works if a non-null SkPaint is passed to it.\n\nNote that this CL was mostly about doing the plumbing to see what else might want to be done first. At this point it seems the primary impediment may be that at this point we don\u0027t have a nice canvas to draw into (instead directly calling the raster or gpu interfaces). At patch set 1 this is missing PDF/XPS support for a similar reason.",
+      "parentUuid": "b17a768e_8e84ad80",
+      "revId": "2633dc0e1da33f971db3040b99d78f132c7cf1fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
