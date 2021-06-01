@@ -73,7 +73,6 @@ public:
 
     ~SkGpuDevice() override {}
 
-    GrRecordingContext* recordingContext() const override { return fContext.get(); }
     GrSurfaceDrawContext* surfaceDrawContext() override;
     const GrSurfaceDrawContext* surfaceDrawContext() const;
 
@@ -168,8 +167,6 @@ protected:
 #endif
 
 private:
-    // We want these unreffed in SurfaceDrawContext, GrContext order.
-    sk_sp<GrRecordingContext> fContext;
     std::unique_ptr<GrSurfaceDrawContext> fSurfaceDrawContext;
 
     GR_CLIP_STACK fClip;

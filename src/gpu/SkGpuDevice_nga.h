@@ -29,7 +29,6 @@ public:
         return false;
     }
 
-    GrRecordingContext* recordingContext() const override { return fContext.get(); }
     GrSurfaceDrawContext* surfaceDrawContext() override { return nullptr; }
 
 protected:
@@ -95,13 +94,11 @@ protected:
     /* isNoPixelsDevice */
 
 private:
-    SkGpuDevice_nga(GrRecordingContext*, const SkImageInfo&, const SkSurfaceProps&);
+    SkGpuDevice_nga(sk_sp<GrRecordingContext>, const SkImageInfo&, const SkSurfaceProps&);
 
     /* replaceBitmapBackendForRasterSurface */
     bool forceConservativeRasterClip() const override;
     SkImageFilterCache* getImageFilterCache() override;
-
-    sk_sp<GrRecordingContext> fContext;
 
     using INHERITED = SkBaseGpuDevice;
 };
