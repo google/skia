@@ -38,6 +38,13 @@ using WASMPointerF32 = uintptr_t;
 using WASMPointerU8  = uintptr_t;
 using WASMPointerU16 = uintptr_t;
 using WASMPointerU32 = uintptr_t;
+using WASMPointer = uintptr_t;
+
+// The absolute value of WASMSize indicates the length of the corresponding data buffer.
+// If the value is positive, the C++ side should take ownership of the buffer and delete
+// it after use. If the value is negative, the buffer has been malloc'd by the user and
+// should not be freed. See also lengthAndOwnership().
+using WASMSize = int32_t;
 
 #define SPECIALIZE_JSARRAYTYPE(type, name)                  \
     template <> struct JSArrayType<type> {                  \
@@ -75,29 +82,13 @@ template <typename T> TypedArray MakeTypedArray(int count, const T src[]) {
  */
 template <typename T> class JSSpan {
 public:
-    JSSpan(JSArray src) {
-        const size_t len = src["length"].as<size_t>();
-        T* data;
-
-        // If the buffer was allocated via CanvasKit' Malloc, we can peek directly at it!
-        if (src["_ck"].isTrue()) {
+    JSSpan(WASMPointer ptr, WASMSize len) {
+        if (len <= 0) {
             fOwned = false;
-            data = reinterpret_cast<T*>(src["byteOffset"].as<size_t>());
         } else {
             fOwned = true;
-            data = static_cast<T*>(sk_malloc_throw(len, sizeof(T)));
-
-            // now actually copy into 'data'
-            if (src.instanceof(emscripten::val::global(JSArrayType<T>::gName))) {
-                auto dst_view = emscripten::val(typed_memory_view(len, data));
-                dst_view.call<void>("set", src);
-            } else {
-                for (size_t i = 0; i < len; ++i) {
-                    data[i] = src[i].as<T>();
-                }
-            }
         }
-        fSpan = SkSpan(data, len);
+        fSpan = SkSpan(reinterpret_cast<T*>(ptr), abs(len));
     }
 
     ~JSSpan() {
