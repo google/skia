@@ -3,23 +3,43 @@ uniform half4 colorGreen, colorRed, colorBlack, colorWhite, testInputs;
 half4 main(float2 coords) {
     int4 intGreen  = int4(colorGreen * 100);
     int4 intRed    = int4(colorRed   * 100);
+    const int4 constIGreen  = int4(0, 100, 0, 100);
+    const int4 constIRed    = int4(100, 0, 0, 100);
+    const half4 constGreen  = half4(0, 1, 0, 1);
+    const half4 constRed    = half4(1, 0, 0, 1);
 
-    return (mix(intGreen.x,      intRed.x,      false)           == intGreen.x      &&
-            mix(intGreen.xy,     intRed.xy,     bool2(false))    == intGreen.xy     &&
-            mix(intGreen.xyz,    intRed.xyz,    bool3(false))    == intGreen.xyz    &&
-            mix(intGreen.xyzw,   intRed.xyzw,   bool4(false))    == intGreen.xyzw   &&
-            mix(intGreen.x,      intRed.x,      true)            == intRed.x        &&
-            mix(intGreen.xy,     intRed.xy,     bool2(true))     == intRed.xy       &&
-            mix(intGreen.xyz,    intRed.xyz,    bool3(true))     == intRed.xyz      &&
-            mix(intGreen.xyzw,   intRed.xyzw,   bool4(true))     == intRed.xyzw     &&
-            mix(colorGreen.x,    colorRed.x,    false)           == colorGreen.x    &&
-            mix(colorGreen.xy,   colorRed.xy,   bool2(false))    == colorGreen.xy   &&
-            mix(colorGreen.xyz,  colorRed.xyz,  bool3(false))    == colorGreen.xyz  &&
-            mix(colorGreen.xyzw, colorRed.xyzw, bool4(false))    == colorGreen.xyzw &&
-            mix(colorGreen.x,    colorRed.x,    true)            == colorRed.x      &&
-            mix(colorGreen.xy,   colorRed.xy,   bool2(true))     == colorRed.xy     &&
-            mix(colorGreen.xyz,  colorRed.xyz,  bool3(true))     == colorRed.xyz    &&
-            mix(colorGreen.xyzw, colorRed.xyzw, bool4(true))     == colorRed.xyzw) ? colorGreen
-                                                                                   : colorRed;
+    return (mix(intGreen.x,       intRed.x,       false)        == intGreen.x      &&
+            mix(intGreen.xy,      intRed.xy,      bool2(false)) == intGreen.xy     &&
+            mix(intGreen.xyz,     intRed.xyz,     bool3(false)) == intGreen.xyz    &&
+            mix(intGreen.xyzw,    intRed.xyzw,    bool4(false)) == intGreen.xyzw   &&
+            mix(intGreen.x,       intRed.x,       true)         == intRed.x        &&
+            mix(intGreen.xy,      intRed.xy,      bool2(true))  == intRed.xy       &&
+            mix(intGreen.xyz,     intRed.xyz,     bool3(true))  == intRed.xyz      &&
+            mix(intGreen.xyzw,    intRed.xyzw,    bool4(true))  == intRed.xyzw     &&
+            mix(constIGreen.x,    constIRed.x,    false)        == intGreen.x      &&
+            mix(constIGreen.xy,   constIRed.xy,   bool2(false)) == intGreen.xy     &&
+            mix(constIGreen.xyz,  constIRed.xyz,  bool3(false)) == intGreen.xyz    &&
+            mix(constIGreen.xyzw, constIRed.xyzw, bool4(false)) == intGreen.xyzw   &&
+            mix(constIGreen.x,    constIRed.x,    true)         == intRed.x        &&
+            mix(constIGreen.xy,   constIRed.xy,   bool2(true))  == intRed.xy       &&
+            mix(constIGreen.xyz,  constIRed.xyz,  bool3(true))  == intRed.xyz      &&
+            mix(constIGreen.xyzw, constIRed.xyzw, bool4(true))  == intRed.xyzw     &&
+            mix(colorGreen.x,     colorRed.x,     false)        == colorGreen.x    &&
+            mix(colorGreen.xy,    colorRed.xy,    bool2(false)) == colorGreen.xy   &&
+            mix(colorGreen.xyz,   colorRed.xyz,   bool3(false)) == colorGreen.xyz  &&
+            mix(colorGreen.xyzw,  colorRed.xyzw,  bool4(false)) == colorGreen.xyzw &&
+            mix(colorGreen.x,     colorRed.x,     true)         == colorRed.x      &&
+            mix(colorGreen.xy,    colorRed.xy,    bool2(true))  == colorRed.xy     &&
+            mix(colorGreen.xyz,   colorRed.xyz,   bool3(true))  == colorRed.xyz    &&
+            mix(colorGreen.xyzw,  colorRed.xyzw,  bool4(true))  == colorRed.xyzw   &&
+            mix(constGreen.x,     constRed.x,     false)        == colorGreen.x    &&
+            mix(constGreen.xy,    constRed.xy,    bool2(false)) == colorGreen.xy   &&
+            mix(constGreen.xyz,   constRed.xyz,   bool3(false)) == colorGreen.xyz  &&
+            mix(constGreen.xyzw,  constRed.xyzw,  bool4(false)) == colorGreen.xyzw &&
+            mix(constGreen.x,     constRed.x,     true)         == colorRed.x      &&
+            mix(constGreen.xy,    constRed.xy,    bool2(true))  == colorRed.xy     &&
+            mix(constGreen.xyz,   constRed.xyz,   bool3(true))  == colorRed.xyz    &&
+            mix(constGreen.xyzw,  constRed.xyzw,  bool4(true))  == colorRed.xyzw) ? colorGreen
+                                                                                  : colorRed;
 }
 
