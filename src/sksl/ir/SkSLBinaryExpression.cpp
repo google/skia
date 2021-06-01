@@ -164,6 +164,11 @@ std::unique_ptr<Expression> BinaryExpression::Make(const Context& context,
     SkASSERT(!op.isAssignment() || Analysis::IsAssignable(*left));
     SkASSERT(!op.isAssignment() || !left->type().componentType().isOpaque());
 
+    // For simple assignments, detect and report out-of-range literal values.
+    if (op.kind() == Token::Kind::TK_EQ) {
+        left->type().checkForOutOfRangeLiteral(context, *right);
+    }
+
     // Perform constant-folding on the expression.
     const int offset = left->fOffset;
     if (std::unique_ptr<Expression> result = ConstantFolder::Simplify(context, offset, *left,

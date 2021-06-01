@@ -466,6 +466,9 @@ public:
     std::unique_ptr<Expression> coerceExpression(std::unique_ptr<Expression> expr,
                                                  const Context& context) const;
 
+    /** Detects any IntLiterals in the expression which can't fit in this type. */
+    bool checkForOutOfRangeLiteral(const Context& context, const Expression& expr) const;
+
 private:
     friend class BuiltinTypes;
 
