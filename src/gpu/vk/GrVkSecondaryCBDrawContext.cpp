@@ -42,13 +42,12 @@ sk_sp<GrVkSecondaryCBDrawContext> GrVkSecondaryCBDrawContext::Make(GrRecordingCo
 
     SkASSERT(proxy->isInstantiated());
 
-    auto device = SkGpuDevice::Make(rContext,
-                                    SkColorTypeToGrColorType(imageInfo.colorType()),
-                                    std::move(proxy),
-                                    imageInfo.refColorSpace(),
-                                    kTopLeft_GrSurfaceOrigin,
-                                    SkSurfacePropsCopyOrDefault(props),
-                                    SkBaseGpuDevice::kUninit_InitContents);
+    auto device = rContext->priv().createDevice(SkColorTypeToGrColorType(imageInfo.colorType()),
+                                                std::move(proxy),
+                                                imageInfo.refColorSpace(),
+                                                kTopLeft_GrSurfaceOrigin,
+                                                SkSurfacePropsCopyOrDefault(props),
+                                                SkGpuDevice::kUninit_InitContents);
     if (!device) {
         return nullptr;
     }

@@ -12,6 +12,9 @@
 #include "include/private/GrImageContext.h"
 #include "include/private/SkTArray.h"
 
+// problem here
+#include "src/gpu/SkBaseGpuDevice.h"
+
 #if GR_GPU_STATS && GR_TEST_UTILS
 #include <map>
 #include <string>
@@ -37,6 +40,10 @@ class SkJSONWriter;
 #if GR_TEST_UTILS
 class SkString;
 #endif
+
+class SkBaseGpuDevice;
+class SkSurfaceCharacterization;
+class SkSurfaceProps;
 
 class GrRecordingContext : public GrImageContext {
 public:

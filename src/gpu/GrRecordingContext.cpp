@@ -25,6 +25,14 @@
 #include "src/gpu/text/GrTextBlob.h"
 #include "src/gpu/text/GrTextBlobCache.h"
 
+
+#include "include/core/SkSurfaceCharacterization.h"
+
+#if 1 //SK_OGA
+#include "src/gpu/GrSurfaceDrawContext.h"
+#include "src/gpu/SkGpuDevice.h"
+#endif
+
 GrRecordingContext::ProgramData::ProgramData(std::unique_ptr<const GrProgramDesc> desc,
                                              const GrProgramInfo* info)
         : fDesc(std::move(desc))
