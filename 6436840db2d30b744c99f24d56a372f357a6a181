@@ -50,6 +50,24 @@
       "message": "lgtm, although I\u0027m curious why Perf can\u0027t do this divide on their end? What\u0027s the benefit of doing it from nanobench?",
       "revId": "6436840db2d30b744c99f24d56a372f357a6a181",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "62bf190b_b1630f82",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2021-06-01T21:57:41Z",
+      "side": 1,
+      "message": "It\u0027s a one line change here and we maintain a 1:1 correspondence between the data in the JSON files and the data available in Perf.\n\nCould skpbench also report min_ratio? It might help to see if there\u0027s drift in that value over time.",
+      "parentUuid": "fd26321b_2cafaeab",
+      "revId": "6436840db2d30b744c99f24d56a372f357a6a181",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
