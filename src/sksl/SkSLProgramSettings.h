@@ -75,6 +75,9 @@ struct ProgramSettings {
     bool fDSLMangling = true;
     // If true, the DSL should automatically mark variables declared upon creation.
     bool fDSLMarkVarsDeclared = false;
+    // If true, the program is processed using the DSLParser pipeline rather than the standard
+    // parser and IRGenerator.
+    bool fUseDSLParser = false;
     // External functions available for use in runtime effects. These values are registered in the
     // symbol table of the Program, but ownership is *not* transferred. It is up to the caller to
     // keep them alive.

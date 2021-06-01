@@ -177,7 +177,7 @@ DSLType Array(const DSLType& base, int count) {
     return DSLWriter::SymbolTable()->addArrayDimension(&base.skslType(), count);
 }
 
-DSLType Struct(const char* name, SkTArray<DSLField> fields) {
+DSLType Struct(StringFragment name, SkTArray<DSLField> fields) {
     std::vector<SkSL::Type::Field> skslFields;
     skslFields.reserve(fields.count());
     for (const DSLField& field : fields) {

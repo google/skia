@@ -105,6 +105,11 @@ public:
         if (stmt) {
             DSLWriter::ProgramElements().push_back(std::make_unique<SkSL::GlobalVarDeclaration>(
                     std::move(stmt)));
+        } else {
+            const Symbol* alreadyDeclared = (*DSLWriter::SymbolTable())[var.fName];
+            if (alreadyDeclared && alreadyDeclared->is<Variable>()) {
+                var.fVar = &alreadyDeclared->as<Variable>();
+            }
         }
     }
 
