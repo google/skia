@@ -1416,6 +1416,7 @@ int main(int argc, char** argv) {
 
             // Metrics
             log.appendMetric("min_ms", stats.min);
+            log.appendMetric("min_ratio", sk_ieee_double_divide(stats.median, stats.min));
             log.beginArray("samples");
             for (double sample : samples) {
                 log.appendDoubleDigits(sample, 16);
