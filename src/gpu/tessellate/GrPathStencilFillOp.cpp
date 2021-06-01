@@ -10,13 +10,55 @@
 #include "src/gpu/GrEagerVertexAllocator.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/tessellate/GrFillPathShader.h"
+#include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/tessellate/GrMiddleOutPolygonTriangulator.h"
+#include "src/gpu/tessellate/GrPathTessellationShader.h"
 #include "src/gpu/tessellate/GrPathTessellator.h"
-#include "src/gpu/tessellate/GrStencilPathShader.h"
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 
 using OpFlags = GrTessellationPathRenderer::OpFlags;
+
+namespace {
+
+// Fills a path's bounding box, with subpixel outset to avoid possible T-junctions with extreme
+// edges of the path.
+// NOTE: The emitted geometry may not be axis-aligned, depending on the view matrix.
+class BoundingBoxShader : public GrPathTessellationShader {
+public:
+    BoundingBoxShader(const SkMatrix& viewMatrix, SkPMColor4f color)
+            : GrPathTessellationShader(kTessellate_BoundingBoxShader_ClassID,
+                                       GrPrimitiveType::kTriangleStrip, 0, viewMatrix, color) {
+        constexpr static Attribute kPathBoundsAttrib = {"pathBounds", kFloat4_GrVertexAttribType,
+                                                        kFloat4_GrSLType};
+        this->setInstanceAttributes(&kPathBoundsAttrib, 1);
+    }
+
+private:
+    const char* name() const final { return "BoundingBoxShader"; }
+    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const final {}
+    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const final;
+};
+
+GrGLSLGeometryProcessor* BoundingBoxShader::createGLSLInstance(const GrShaderCaps&) const {
+    class Impl : public GrPathTessellationShader::Impl {
+        void emitVertexCode(GrGLSLVertexBuilder* v, GrGPArgs* gpArgs) override {
+            v->codeAppend(R"(
+            // Bloat the bounding box by 1/4px to avoid potential T-junctions at the edges.
+            float2x2 M_ = inverse(AFFINE_MATRIX);
+            float2 bloat = float2(abs(M_[0]) + abs(M_[1])) * .25;
+
+            // Find the vertex position.
+            float2 T = float2(sk_VertexID & 1, sk_VertexID >> 1);
+            float2 localcoord = mix(pathBounds.xy - bloat, pathBounds.zw + bloat, T);
+            float2 vertexpos = AFFINE_MATRIX * localcoord + TRANSLATE;)");
+            gpArgs->fLocalCoordVar.set(kFloat2_GrSLType, "localcoord");
+            gpArgs->fPositionVar.set(kFloat2_GrSLType, "vertexpos");
+        }
+    };
+    return new Impl;
+}
+
+}  // namespace
 
 void GrPathStencilFillOp::visitProxies(const VisitProxyFunc& fn) const {
     if (fFillBBoxProgram) {
@@ -41,7 +83,7 @@ GrProcessorSet::Analysis GrPathStencilFillOp::finalize(const GrCaps& caps,
                                 clampType, &fColor);
 }
 
-void GrPathStencilFillOp::prePreparePrograms(const GrPathShader::ProgramArgs& args,
+void GrPathStencilFillOp::prePreparePrograms(const GrTessellationShader::ProgramArgs& args,
                                              GrAppliedClip&& appliedClip) {
     SkASSERT(!fTessellator);
     SkASSERT(!fStencilFanProgram);
@@ -52,41 +94,45 @@ void GrPathStencilFillOp::prePreparePrograms(const GrPathShader::ProgramArgs& ar
         return;
     }
 
-    const GrPipeline* stencilPassPipeline = GrStencilPathShader::MakeStencilPassPipeline(
+    const GrPipeline* stencilPipeline = GrPathTessellationShader::MakeStencilOnlyPipeline(
             args, fAAType, fOpFlags, appliedClip.hardClip());
+    const GrUserStencilSettings* stencilPathSettings =
+            GrPathTessellationShader::StencilPathSettings(fPath.getFillType());
 
     if ((fOpFlags & OpFlags::kPreferWedges) && args.fCaps->shaderCaps()->tessellationSupport()) {
         // The path is an atlas with relatively small contours, or something else that does best
         // with wedges.
-        fTessellator = GrPathWedgeTessellator::Make(args.fArena, fViewMatrix);
+        fTessellator = GrPathWedgeTessellator::Make(args.fArena, fViewMatrix,
+                                                    SK_PMColor4fTRANSPARENT);
     } else {
         auto drawFanWithTessellator = GrPathTessellator::DrawInnerFan::kYes;
         if (fPath.countVerbs() > 50 && this->bounds().height() * this->bounds().width() > 256*256) {
             // Large complex paths do better with a dedicated triangle shader for the inner fan.
             // This takes less PCI bus bandwidth (6 floats per triangle instead of 8) and allows us
             // to make sure it has an efficient middle-out topology.
-            fStencilFanProgram = GrStencilPathShader::MakeStencilProgram<GrStencilTriangleShader>(
-                    args, fViewMatrix, stencilPassPipeline, fPath.getFillType());
+            auto shader = args.fArena->make<GrTriangleShader>(fViewMatrix, SK_PMColor4fTRANSPARENT);
+            fStencilFanProgram = GrTessellationShader::MakeProgram(args, shader, stencilPipeline,
+                                                                   stencilPathSettings);
             drawFanWithTessellator = GrPathTessellator::DrawInnerFan::kNo;
         }
-        fTessellator = GrPathTessellator::Make(args.fArena, fViewMatrix, fPath,
-                                               drawFanWithTessellator, *args.fCaps);
+        fTessellator = GrPathTessellator::Make(args.fArena, fPath, fViewMatrix,
+                                               SK_PMColor4fTRANSPARENT, drawFanWithTessellator,
+                                               *args.fCaps);
     }
 
-    fStencilPathProgram = GrPathShader::MakeProgram(
-            args, fTessellator->shader(), stencilPassPipeline,
-            GrStencilPathShader::StencilPassSettings(fPath.getFillType()));
+    fStencilPathProgram = GrTessellationShader::MakeProgram(args, fTessellator->shader(),
+                                                            stencilPipeline, stencilPathSettings);
 
     if (!(fOpFlags & OpFlags::kStencilOnly)) {
         // Create a program that draws a bounding box over the path and fills its stencil coverage
         // into the color buffer.
-        auto* bboxShader = args.fArena->make<GrFillBoundingBoxShader>(fViewMatrix, fColor,
-                                                                      fPath.getBounds());
-        auto* bboxPipeline = GrFillPathShader::MakeFillPassPipeline(args, fAAType,
-                                                                    std::move(appliedClip),
-                                                                    std::move(fProcessors));
-        auto* bboxStencil = GrFillPathShader::TestAndResetStencilSettings();
-        fFillBBoxProgram = GrPathShader::MakeProgram(args, bboxShader, bboxPipeline, bboxStencil);
+        auto* bboxShader = args.fArena->make<BoundingBoxShader>(fViewMatrix, fColor);
+        auto* bboxPipeline = GrTessellationShader::MakePipeline(args, fAAType,
+                                                                std::move(appliedClip),
+                                                                std::move(fProcessors));
+        auto* bboxStencil = GrPathTessellationShader::TestAndResetStencilSettings();
+        fFillBBoxProgram = GrTessellationShader::MakeProgram(args, bboxShader, bboxPipeline,
+                                                             bboxStencil);
     }
 }
 

@@ -84,7 +84,7 @@ public:
             return;
         }
         SkPoint conic[4];
-        GrPathShader::WriteConicPatch(p, w, conic);
+        GrTessellationShader::WriteConicPatch(p, w, conic);
         SkPoint endControlPoint = conic[1];
         this->writeStroke(conic, endControlPoint);
         fMaxParametricSegments_pow4 = std::max(numParametricSegments_pow4,
