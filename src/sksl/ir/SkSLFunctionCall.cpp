@@ -344,41 +344,13 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
                                                            const ExpressionArray& arguments) {
     using namespace SkSL::dsl;
     switch (intrinsic) {
-        case k_all_IntrinsicKind:
-            return coalesce_vector<bool>(arguments, /*startingState=*/true,
-                                         [](bool a, bool b) { return a && b; },
-                                         /*finalize=*/nullptr);
-        case k_any_IntrinsicKind:
-            return coalesce_vector<bool>(arguments, /*startingState=*/false,
-                                         [](bool a, bool b) { return a || b; },
-                                         /*finalize=*/nullptr);
-        case k_not_IntrinsicKind:
-            return evaluate_intrinsic<bool>(context, arguments, [](bool a) { return !a; });
-
-        case k_greaterThan_IntrinsicKind:
-            return optimize_comparison(context, arguments, [](auto a, auto b) { return a > b; });
-
-        case k_greaterThanEqual_IntrinsicKind:
-            return optimize_comparison(context, arguments, [](auto a, auto b) { return a >= b; });
-
-        case k_lessThan_IntrinsicKind:
-            return optimize_comparison(context, arguments, [](auto a, auto b) { return a < b; });
-
-        case k_lessThanEqual_IntrinsicKind:
-            return optimize_comparison(context, arguments, [](auto a, auto b) { return a <= b; });
-
-        case k_equal_IntrinsicKind:
-            return optimize_comparison(context, arguments, [](auto a, auto b) { return a == b; });
-
-        case k_notEqual_IntrinsicKind:
-            return optimize_comparison(context, arguments, [](auto a, auto b) { return a != b; });
-
-        case k_abs_IntrinsicKind:
-            return evaluate_intrinsic_numeric(context, arguments,
-                                              [](auto a) { return std::abs(a); });
-        case k_sign_IntrinsicKind:
-            return evaluate_intrinsic_numeric(context, arguments,
-                                              [](auto a) { return (a > 0) - (a < 0); });
+        // 8.1 : Angle and Trigonometry Functions
+        case k_radians_IntrinsicKind:
+            return evaluate_intrinsic<float>(context, arguments,
+                                             [](float a) { return a * 0.0174532925; });
+        case k_degrees_IntrinsicKind:
+            return evaluate_intrinsic<float>(context, arguments,
+                                             [](float a) { return a * 57.2957795; });
         case k_sin_IntrinsicKind:
             return evaluate_intrinsic<float>(context, arguments,
                                              [](float a) { return std::sin(a); });
@@ -403,30 +375,8 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
                 return evaluate_pairwise_intrinsic(
                         context, arguments, [](auto a, auto b) { return std::atan2(a, b); });
             }
-        case k_sinh_IntrinsicKind:
-            return evaluate_intrinsic<float>(context, arguments,
-                                             [](float a) { return std::sinh(a); });
-        case k_cosh_IntrinsicKind:
-            return evaluate_intrinsic<float>(context, arguments,
-                                             [](float a) { return std::cosh(a); });
-        case k_tanh_IntrinsicKind:
-            return evaluate_intrinsic<float>(context, arguments,
-                                             [](float a) { return std::tanh(a); });
-        case k_ceil_IntrinsicKind:
-            return evaluate_intrinsic<float>(context, arguments,
-                                             [](float a) { return std::ceil(a); });
-        case k_floor_IntrinsicKind:
-            return evaluate_intrinsic<float>(context, arguments,
-                                             [](float a) { return std::floor(a); });
-        case k_fract_IntrinsicKind:
-            return evaluate_intrinsic<float>(context, arguments,
-                                             [](float a) { return a - std::floor(a); });
-        case k_trunc_IntrinsicKind:
-            return evaluate_intrinsic<float>(context, arguments,
-                                             [](float a) { return std::trunc(a); });
-        case k_mod_IntrinsicKind:
-            return evaluate_pairwise_intrinsic(
-                    context, arguments, [](auto x, auto y) { return x - y * std::floor(x / y); });
+
+        // 8.2 : Exponential Functions
         case k_pow_IntrinsicKind:
             return evaluate_pairwise_intrinsic(context, arguments,
                                                [](auto x, auto y) { return std::pow(x, y); });
@@ -445,22 +395,30 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
         case k_sqrt_IntrinsicKind:
             return evaluate_intrinsic<float>(context, arguments,
                                              [](float a) { return std::sqrt(a); });
-        case k_saturate_IntrinsicKind:
-            return evaluate_intrinsic<float>(context, arguments,
-                                             [](float a) { return (a < 0) ? 0 : (a > 1) ? 1 : a; });
-        case k_round_IntrinsicKind:      // GLSL `round` documents its rounding mode as unspecified
-        case k_roundEven_IntrinsicKind:  // and is allowed to behave identically to `roundEven`.
-            return evaluate_intrinsic<float>(context, arguments,
-                                             [](float a) { return std::round(a / 2) * 2; });
         case k_inversesqrt_IntrinsicKind:
             return evaluate_intrinsic<float>(context, arguments,
                                              [](float a) { return 1 / std::sqrt(a); });
-        case k_radians_IntrinsicKind:
+
+        // 8.3 : Common Functions
+        case k_abs_IntrinsicKind:
+            return evaluate_intrinsic_numeric(context, arguments,
+                                              [](auto a) { return std::abs(a); });
+        case k_sign_IntrinsicKind:
+            return evaluate_intrinsic_numeric(context, arguments,
+                                              [](auto a) { return (a > 0) - (a < 0); });
+        case k_floor_IntrinsicKind:
             return evaluate_intrinsic<float>(context, arguments,
-                                             [](float a) { return a * 0.0174532925; });
-        case k_degrees_IntrinsicKind:
+                                             [](float a) { return std::floor(a); });
+        case k_ceil_IntrinsicKind:
             return evaluate_intrinsic<float>(context, arguments,
-                                             [](float a) { return a * 57.2957795; });
+                                             [](float a) { return std::ceil(a); });
+        case k_fract_IntrinsicKind:
+            return evaluate_intrinsic<float>(context, arguments,
+                                             [](float a) { return a - std::floor(a); });
+        case k_mod_IntrinsicKind:
+            return evaluate_pairwise_intrinsic(
+                    context, arguments, [](auto x, auto y) { return x - y * std::floor(x / y); });
+
         case k_min_IntrinsicKind:
             return evaluate_pairwise_intrinsic(context, arguments,
                                                [](auto a, auto b) { return (a < b) ? a : b; });
@@ -470,6 +428,19 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
         case k_clamp_IntrinsicKind:
             return evaluate_3_way_intrinsic(context, arguments,
                     [](auto x, auto l, auto h) { return (x < l) ? l : (x > h) ? h : x; });
+        case k_saturate_IntrinsicKind:
+            return evaluate_intrinsic<float>(context, arguments,
+                                             [](float a) { return (a < 0) ? 0 : (a > 1) ? 1 : a; });
+        /* TODO(skia:12034)
+            $genType mix($genType x, $genType y, $genType a);
+            $genType mix($genType x, $genType y, float a);
+            $genHType mix($genHType x, $genHType y, $genHType a);
+            $genHType mix($genHType x, $genHType y, half a);
+            $genType mix($genType x, $genType y, $genBType a);
+            $genHType mix($genHType x, $genHType y, $genBType a);
+            $genIType mix($genIType x, $genIType y, $genBType a);
+            $genBType mix($genBType x, $genBType y, $genBType a);
+        */
         case k_step_IntrinsicKind:
             return evaluate_pairwise_intrinsic(context, arguments,
                                                [](auto e, auto x) { return (x < e) ? 0 : 1; });
@@ -479,6 +450,8 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
                 t = (t < 0) ? 0 : (t > 1) ? 1 : t;
                 return t * t * (3.0 - 2.0 * t);
             });
+
+        // 8.4 : Geometric Functions
         case k_length_IntrinsicKind:
             return coalesce_vector<float>(arguments, /*startingState=*/0,
                                          [](float a, float b) { return a + (b * b); },
@@ -493,6 +466,18 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
                     arguments, /*startingState=*/0,
                     [](float a, float b, float c) { return a + (b * c); },
                     /*finalize=*/nullptr);
+        case k_cross_IntrinsicKind: {
+            auto Value = [&](int a, int n) -> float {
+                return arguments[a]->getConstantSubexpression(n)->as<FloatLiteral>().value();
+            };
+            auto X = [&](int n) -> float { return Value(0, n); };
+            auto Y = [&](int n) -> float { return Value(1, n); };
+            SkASSERT(arguments[0]->type().columns() == 3);  // the vec2 form is not a real intrinsic
+            return DSLType::Construct(&arguments[0]->type(),
+                                      X(1) * Y(2) - Y(1) * X(2),
+                                      X(2) * Y(0) - Y(2) * X(0),
+                                      X(0) * Y(1) - Y(0) * X(1)).release();
+        }
         case k_normalize_IntrinsicKind: {
             auto Vec = [&] { return DSLExpression{arguments[0]->clone()}; };
             return (Vec() / Length(Vec())).release();
@@ -523,18 +508,14 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
                        (0 * I()) :
                        (Eta() * I() - (Eta() * Dot(N(), I()) + std::sqrt(kValue)) * N())).release();
         }
-        case k_cross_IntrinsicKind: {
-            auto Value = [&](int a, int n) -> float {
-                return arguments[a]->getConstantSubexpression(n)->as<FloatLiteral>().value();
-            };
-            auto X = [&](int n) -> float { return Value(0, n); };
-            auto Y = [&](int n) -> float { return Value(1, n); };
-            SkASSERT(arguments[0]->type().columns() == 3);  // the vec2 form is not a real intrinsic
-            return DSLType::Construct(&arguments[0]->type(),
-                                      X(1) * Y(2) - Y(1) * X(2),
-                                      X(2) * Y(0) - Y(2) * X(0),
-                                      X(0) * Y(1) - Y(0) * X(1)).release();
-        }
+
+        // 8.5 : Matrix Functions
+        /* TODO(skia:12034)
+            $squareMat  matrixCompMult($squareMat  x, $squareMat  y);
+            $squareHMat matrixCompMult($squareHMat x, $squareHMat y);
+        */
+
+        // Not supported until GLSL 1.40. Poly-filled by SkSL:
         case k_inverse_IntrinsicKind: {
             auto M = [&](int c, int r) -> float {
                 int index = (arguments[0]->type().rows() * c) + r;
@@ -616,6 +597,54 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
             return nullptr;
             break;
         }
+
+        // 8.6 : Vector Relational Functions
+        case k_lessThan_IntrinsicKind:
+            return optimize_comparison(context, arguments, [](auto a, auto b) { return a < b; });
+
+        case k_lessThanEqual_IntrinsicKind:
+            return optimize_comparison(context, arguments, [](auto a, auto b) { return a <= b; });
+
+        case k_greaterThan_IntrinsicKind:
+            return optimize_comparison(context, arguments, [](auto a, auto b) { return a > b; });
+
+        case k_greaterThanEqual_IntrinsicKind:
+            return optimize_comparison(context, arguments, [](auto a, auto b) { return a >= b; });
+
+        case k_equal_IntrinsicKind:
+            return optimize_comparison(context, arguments, [](auto a, auto b) { return a == b; });
+
+        case k_notEqual_IntrinsicKind:
+            return optimize_comparison(context, arguments, [](auto a, auto b) { return a != b; });
+
+        case k_any_IntrinsicKind:
+            return coalesce_vector<bool>(arguments, /*startingState=*/false,
+                                         [](bool a, bool b) { return a || b; },
+                                         /*finalize=*/nullptr);
+        case k_all_IntrinsicKind:
+            return coalesce_vector<bool>(arguments, /*startingState=*/true,
+                                         [](bool a, bool b) { return a && b; },
+                                         /*finalize=*/nullptr);
+        case k_not_IntrinsicKind:
+            return evaluate_intrinsic<bool>(context, arguments, [](bool a) { return !a; });
+
+        // Additional intrinsics not required by GLSL ES2:
+        case k_sinh_IntrinsicKind:
+            return evaluate_intrinsic<float>(context, arguments,
+                                             [](float a) { return std::sinh(a); });
+        case k_cosh_IntrinsicKind:
+            return evaluate_intrinsic<float>(context, arguments,
+                                             [](float a) { return std::cosh(a); });
+        case k_tanh_IntrinsicKind:
+            return evaluate_intrinsic<float>(context, arguments,
+                                             [](float a) { return std::tanh(a); });
+        case k_trunc_IntrinsicKind:
+            return evaluate_intrinsic<float>(context, arguments,
+                                             [](float a) { return std::trunc(a); });
+        case k_round_IntrinsicKind:      // GLSL `round` documents its rounding mode as unspecified
+        case k_roundEven_IntrinsicKind:  // and is allowed to behave identically to `roundEven`.
+            return evaluate_intrinsic<float>(context, arguments,
+                                             [](float a) { return std::round(a / 2) * 2; });
         default:
             return nullptr;
     }
