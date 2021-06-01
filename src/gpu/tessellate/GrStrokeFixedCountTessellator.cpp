@@ -15,11 +15,11 @@
 
 namespace {
 
-constexpr static float kMaxParametricSegments_pow4 = 48*48*48*48;  // 48^4
-constexpr static int8_t kMaxParametricSegments_log2 = 6;  // ceil(log2(48))
+constexpr static float kMaxParametricSegments_pow4 = 32*32*32*32;  // 32^4
+constexpr static int8_t kMaxParametricSegments_log2 = 5;  // log2(32)
 
 // Writes out strokes to the given instance chunk array, chopping if necessary so that all instances
-// require 48 parametric segments or less. (We don't consider radial segments here. The tessellator
+// require 32 parametric segments or less. (We don't consider radial segments here. The tessellator
 // will just add enough additional segments to handle a worst-case 180 degree stroke.)
 class InstanceWriter {
 public:
