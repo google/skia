@@ -105,7 +105,12 @@ void GrStrokeTessellationShader::InstancedImpl::onEmitCode(EmitArgs& args, GrGPA
 
     args.fVertBuilder->codeAppend(R"(
     // Find how many parametric segments this stroke requires.
-    float numParametricSegments = wangs_formula(PARAMETRIC_PRECISION, P[0], P[1], P[2], P[3], w);
+    float numParametricSegments;
+    if (w < 0) {
+        numParametricSegments = wangs_formula_cubic(PARAMETRIC_PRECISION, P[0], P[1], P[2], P[3]);
+    } else {
+        numParametricSegments = wangs_formula_conic(PARAMETRIC_PRECISION, P[0], P[1], P[2], w);
+    }
     if (P[0] == P[1] && P[2] == P[3]) {
         // This is how we describe lines, but Wang's formula does not return 1 in this case.
         numParametricSegments = 1;
