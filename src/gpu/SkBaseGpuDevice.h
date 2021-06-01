@@ -35,8 +35,11 @@ public:
         kUninit_InitContents
     };
 
-    SkBaseGpuDevice(const SkImageInfo& ii, const SkSurfaceProps& props)
-        : INHERITED(ii, props) {
+    SkBaseGpuDevice(sk_sp<GrRecordingContext> rContext,
+                    const SkImageInfo& ii,
+                    const SkSurfaceProps& props)
+        : INHERITED(ii, props)
+        , fContext(std::move(rContext)) {
     }
 
     virtual GrSurfaceProxyView readSurfaceView() = 0;
@@ -44,11 +47,14 @@ public:
         return this->readSurfaceView().asRenderTargetProxy();
     }
 
+    GrRecordingContext* recordingContext() const override { return fContext.get(); }
+
     virtual bool wait(int numSemaphores,
                       const GrBackendSemaphore* waitSemaphores,
                       bool deleteSemaphoresAfterWait) = 0;
 
 protected:
+    sk_sp<GrRecordingContext> fContext;
 
 private:
     using INHERITED = BASE_DEVICE;
