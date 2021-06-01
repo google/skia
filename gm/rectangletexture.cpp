@@ -147,7 +147,7 @@ private:
         fSmallImg = nullptr;
     }
 
-    DrawResult onDraw(GrRecordingContext*, GrSurfaceDrawContext*, SkCanvas* canvas,
+    DrawResult onDraw1(GrRecordingContext*, GrSurfaceDrawContext*, SkCanvas* canvas,
                       SkString*) override {
         SkASSERT(fGradImgs[0] && fGradImgs[1] && fSmallImg);
 

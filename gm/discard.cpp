@@ -43,7 +43,7 @@ protected:
         return SkISize::Make(100, 100);
     }
 
-    DrawResult onDraw(GrRecordingContext* context, GrSurfaceDrawContext*, SkCanvas* canvas,
+    DrawResult onDraw1(GrRecordingContext* context, GrSurfaceDrawContext*, SkCanvas* canvas,
                       SkString* errorMsg) override {
         auto direct = context->asDirectContext();
         if (!direct) {

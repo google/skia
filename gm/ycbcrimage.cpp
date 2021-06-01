@@ -91,7 +91,7 @@ protected:
         fYCbCrImage = nullptr;
     }
 
-    DrawResult onDraw(GrRecordingContext*, GrSurfaceDrawContext*,
+    DrawResult onDraw1(GrRecordingContext*, GrSurfaceDrawContext*,
                       SkCanvas* canvas, SkString*) override {
         SkASSERT(fYCbCrImage);
 

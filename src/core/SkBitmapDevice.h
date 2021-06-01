@@ -68,6 +68,8 @@ public:
         return fCoverage ? &fCoverage->pixmap() : nullptr;
     }
 
+    GrRenderTargetProxy* targetProxy() override { return nullptr; }
+
 protected:
     void* getRasterHandle() const override { return fRasterHandle; }
 

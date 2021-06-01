@@ -16,14 +16,41 @@
 
 #define ASSERT_SINGLE_OWNER GR_ASSERT_SINGLE_OWNER(fContext->priv().singleOwner())
 
-SkGpuDevice_nga::SkGpuDevice_nga(GrRecordingContext* rContext,
+SkGpuDevice_nga::SkGpuDevice_nga(sk_sp<GrRecordingContext> rContext,
                                  const SkImageInfo& ii,
                                  const SkSurfaceProps& props)
-    : INHERITED(ii, props)
-    , fContext(SkRef(rContext)) {
+    : INHERITED(std::move(rContext), ii, props) {
 }
 
 SkGpuDevice_nga::~SkGpuDevice_nga() {}
+
+void SkGpuDevice_nga::asyncRescaleAndReadPixels(const SkImageInfo& info,
+                                                const SkIRect& srcRect,
+                                                RescaleGamma rescaleGamma,
+                                                RescaleMode rescaleMode,
+                                                ReadPixelsCallback callback,
+                                                ReadPixelsContext context) {
+    // Context TODO: Elevate direct context requirement to public API.
+    auto dContext = this->recordingContext()->asDirectContext();
+    if (!dContext) {
+        return;
+    }
+}
+
+void SkGpuDevice_nga::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
+                                                      sk_sp<SkColorSpace> dstColorSpace,
+                                                      const SkIRect& srcRect,
+                                                      SkISize dstSize,
+                                                      RescaleGamma rescaleGamma,
+                                                      RescaleMode,
+                                                      ReadPixelsCallback callback,
+                                                      ReadPixelsContext context) {
+    // Context TODO: Elevate direct context requirement to public API.
+    auto dContext = this->recordingContext()->asDirectContext();
+    if (!dContext) {
+        return;
+    }
+}
 
 void SkGpuDevice_nga::onSave() {
 }

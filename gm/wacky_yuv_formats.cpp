@@ -1086,7 +1086,7 @@ protected:
         fImages[0][0] = fImages[0][1] = fImages[1][0] = fImages[1][1] = nullptr;
     }
 
-    DrawResult onDraw(GrRecordingContext* rContext, GrSurfaceDrawContext*,
+    DrawResult onDraw1(GrRecordingContext* rContext, GrSurfaceDrawContext*,
                       SkCanvas* canvas, SkString* msg) override {
         SkASSERT(fImages[0][0] && fImages[0][1] && fImages[1][0] && fImages[1][1]);
 
@@ -1101,8 +1101,8 @@ protected:
             for (int opaque : { 0, 1 }) {
                 int y = kPad;
 
-                auto raster = fOriginalBMs[opaque].asImage()
-                    ->makeColorSpace(fTargetColorSpace, nullptr);
+                auto raster = fOriginalBMs[opaque].asImage()->makeColorSpace(fTargetColorSpace,
+                                                                             nullptr);
                 canvas->drawImage(raster, x, y);
                 y += kTileWidthHeight + kPad;
 

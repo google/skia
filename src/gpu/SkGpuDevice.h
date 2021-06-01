@@ -35,12 +35,40 @@ class SkVertices;
 class SkGpuDevice : public SkBaseGpuDevice  {
 public:
     GrSurfaceProxyView readSurfaceView() override {
-        return this->surfaceDrawContext()->readSurfaceView();
+        return fSurfaceDrawContext->readSurfaceView();
     }
 
     bool wait(int numSemaphores,
               const GrBackendSemaphore* waitSemaphores,
               bool deleteSemaphoresAfterWait) override;
+
+    void discard() override {
+        fSurfaceDrawContext->discard();
+    }
+
+    bool replaceBackingProxy(SkSurface::ContentChangeMode,
+                             sk_sp<GrRenderTargetProxy>,
+                             GrColorType,
+                             sk_sp<SkColorSpace>,
+                             GrSurfaceOrigin,
+                             const SkSurfaceProps&) override;
+    using SkBaseGpuDevice::replaceBackingProxy;
+
+    void asyncRescaleAndReadPixels(const SkImageInfo& info,
+                                   const SkIRect& srcRect,
+                                   RescaleGamma rescaleGamma,
+                                   RescaleMode rescaleMode,
+                                   ReadPixelsCallback callback,
+                                   ReadPixelsContext context) override;
+
+    void asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
+                                         sk_sp<SkColorSpace> dstColorSpace,
+                                         const SkIRect& srcRect,
+                                         SkISize dstSize,
+                                         RescaleGamma rescaleGamma,
+                                         RescaleMode,
+                                         ReadPixelsCallback callback,
+                                         ReadPixelsContext context) override;
 
     /**
      * This factory uses the color space, origin, surface properties, and initialization
@@ -73,16 +101,11 @@ public:
 
     ~SkGpuDevice() override {}
 
-    GrRecordingContext* recordingContext() const override { return fContext.get(); }
-    GrSurfaceDrawContext* surfaceDrawContext() override;
-    const GrSurfaceDrawContext* surfaceDrawContext() const;
+//    GrSurfaceDrawContext* surfaceDrawContext() override;
+//    const GrSurfaceDrawContext* surfaceDrawContext() const;
 
     // set all pixels to 0
     void clearAll();
-
-    void replaceSurfaceDrawContext(SkSurface::ContentChangeMode mode);
-    void replaceSurfaceDrawContext(std::unique_ptr<GrSurfaceDrawContext>,
-                                   SkSurface::ContentChangeMode mode);
 
     void drawPaint(const SkPaint& paint) override;
     void drawPoints(SkCanvas::PointMode mode, size_t count, const SkPoint[],
@@ -168,8 +191,6 @@ protected:
 #endif
 
 private:
-    // We want these unreffed in SurfaceDrawContext, GrContext order.
-    sk_sp<GrRecordingContext> fContext;
     std::unique_ptr<GrSurfaceDrawContext> fSurfaceDrawContext;
 
     GR_CLIP_STACK fClip;
