@@ -14,8 +14,8 @@
 #include "src/core/SkCanvasPriv.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
-#include "src/gpu/tessellate/GrPathTessellationShader.h"
 #include "src/gpu/tessellate/GrPathTessellator.h"
+#include "src/gpu/tessellate/shaders/GrPathTessellationShader.h"
 
 namespace {
 

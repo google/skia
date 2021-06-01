@@ -656,7 +656,7 @@ private:
     SkPoint fLastControlPoint;
 
     // Values for the current dynamic state (if any) that will get written out with each patch.
-    GrStrokeShader::DynamicStroke fDynamicStroke;
+    GrStrokeTessellationShader::DynamicStroke fDynamicStroke;
     GrVertexColor fDynamicColor;
 };
 
