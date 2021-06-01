@@ -16,6 +16,46 @@
       "message": "Jiulong,\n\nCould you please try this patch, and see if it fixes your alignment problem?\n\nThanks,\nHerb",
       "revId": "6e58968c7aab0af2f687964ffa003d8c59bb7c1d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "89fbe04e_7d60355f",
+        "filename": "src/gpu/GrSubRunAllocator.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-06-01T15:33:09Z",
+      "side": 1,
+      "message": "We seem to already have SK_FORCE_8_BYTE_ALIGNMENT for this (see GrBlockAllocator.h and GrMemoryPool.h)?",
+      "revId": "6e58968c7aab0af2f687964ffa003d8c59bb7c1d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "52d2a7e9_b4c50580",
+        "filename": "src/gpu/GrSubRunAllocator.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-06-01T15:33:09Z",
+      "side": 1,
+      "message": "For consistency with the other two places we do this, std::max_align_t.",
+      "range": {
+        "startLine": 101,
+        "startChar": 60,
+        "endLine": 101,
+        "endChar": 71
+      },
+      "revId": "6e58968c7aab0af2f687964ffa003d8c59bb7c1d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
