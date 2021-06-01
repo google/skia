@@ -140,6 +140,20 @@ function copy1dArray(arr, dest, ptr) {
   return ptr;
 }
 
+// This returns the length of the array. If the array is part of WASM-allocated memory,
+// the length will be negative, to indicate to the WASM side that it shouldn't take ownership
+// of the memory buffer. This allows us to only need to use two variables per buffer
+// (pointer and length/ownership) instead of three.
+function lengthAndOwnership(arr) {
+  if (!arr) {
+    return 0;
+  }
+  if (arr['_ck']) {
+    return -arr.length;
+  }
+  return arr.length;
+}
+
 // Copies an array of colors to wasm, returning an object with the pointer
 // and info necessary to use the copied colors.
 // Accepts either a flat Float32Array, flat Uint32Array or Array of Float32Arrays.

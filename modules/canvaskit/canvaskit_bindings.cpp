@@ -1185,12 +1185,12 @@ EMSCRIPTEN_BINDINGS(Skia) {
             }
             return j;
         }))
-        .function("getGlyphIntercepts", optional_override([](SkFont& self,
-                                                             JSArray jglyphs,
-                                                             JSArray jpos,
+        .function("_getGlyphIntercepts", optional_override([](SkFont& self,
+                                                             WASMPointerU16 gPtr, WASMSize numGlyphs,
+                                                             WASMPointerF32 pPtr, WASMSize numPos,
                                                              float top, float bottom) -> JSArray {
-            JSSpan<uint16_t> glyphs(jglyphs);
-            JSSpan<float>    pos   (jpos);
+            JSSpan<uint16_t> glyphs(gPtr, numGlyphs);
+            JSSpan<float>    pos   (pPtr, numPos);
             if (glyphs.size() > (pos.size() >> 1)) {
                 return emscripten::val("Not enough x,y position pairs for glyphs");
             }
