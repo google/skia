@@ -9,8 +9,8 @@
 #define GrPathStencilFillOp_DEFINED
 
 #include "src/gpu/ops/GrDrawOp.h"
-#include "src/gpu/tessellate/GrPathShader.h"
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
+#include "src/gpu/tessellate/GrTessellationShader.h"
 
 class GrPathTessellator;
 
@@ -41,7 +41,7 @@ private:
 
     // Chooses the rendering method we will use and creates the corresponding tessellator and
     // stencil/fill programs.
-    void prePreparePrograms(const GrPathShader::ProgramArgs&, GrAppliedClip&& clip);
+    void prePreparePrograms(const GrTessellationShader::ProgramArgs&, GrAppliedClip&& clip);
 
     void onPrePrepare(GrRecordingContext*, const GrSurfaceProxyView&, GrAppliedClip*,
                       const GrXferProcessor::DstProxyView&, GrXferBarrierFlags,

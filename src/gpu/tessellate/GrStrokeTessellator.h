@@ -29,14 +29,14 @@ public:
                         int8_t maxParametricSegments_log2, const SkMatrix& viewMatrix,
                         PathStrokeList* pathStrokeList, std::array<float,2> matrixMinMaxScales,
                         const SkRect& strokeCullBounds)
-            : fShader(shaderMode, shaderFlags, maxParametricSegments_log2, viewMatrix,
-                      pathStrokeList->fStroke, pathStrokeList->fColor)
+            : fShader(shaderMode, shaderFlags, viewMatrix, pathStrokeList->fStroke,
+                      pathStrokeList->fColor, maxParametricSegments_log2)
             , fPathStrokeList(pathStrokeList)
             , fMatrixMinMaxScales(matrixMinMaxScales)
             , fStrokeCullBounds(strokeCullBounds) {
     }
 
-    const GrPathShader* shader() const { return &fShader; }
+    const GrTessellationShader* shader() const { return &fShader; }
 
     // Called before draw(). Prepares GPU buffers containing the geometry to tessellate.
     virtual void prepare(GrMeshDrawOp::Target*, int totalCombinedVerbCnt) = 0;

@@ -14,8 +14,8 @@
 #include "src/core/SkCanvasPriv.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
+#include "src/gpu/tessellate/GrPathTessellationShader.h"
 #include "src/gpu/tessellate/GrPathTessellator.h"
-#include "src/gpu/tessellate/GrStencilPathShader.h"
 
 namespace {
 
@@ -66,28 +66,30 @@ private:
                       const GrXferProcessor::DstProxyView&, GrXferBarrierFlags,
                       GrLoadOp colorLoadOp) override {}
     void onPrepare(GrOpFlushState* flushState) override {
+        constexpr static SkPMColor4f kCyan = {0,1,1,1};
         auto alloc = flushState->allocator();
         switch (fMode) {
             case Mode::kCurveMiddleOut:
                 fTessellator = GrPathIndirectTessellator::Make(
-                        alloc, fMatrix, fPath, GrPathTessellator::DrawInnerFan::kYes);
+                        alloc, fPath, fMatrix, kCyan, GrPathTessellator::DrawInnerFan::kYes);
                 break;
             case Mode::kWedgeTessellate:
-                fTessellator = GrPathWedgeTessellator::Make(alloc, fMatrix);
+                fTessellator = GrPathWedgeTessellator::Make(alloc, fMatrix, kCyan);
                 break;
             case Mode::kCurveTessellate:
                 fTessellator = GrPathOuterCurveTessellator::Make(
-                        alloc, fMatrix, GrPathTessellator::DrawInnerFan::kYes);
+                        alloc, fMatrix, kCyan, GrPathTessellator::DrawInnerFan::kYes);
                 break;
         }
         fTessellator->prepare(flushState, this->bounds(), fPath);
         auto pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(flushState, std::move(fProcessors),
                                                                  fPipelineFlags);
-        fProgram = GrPathShader::MakeProgram({alloc, flushState->writeView(),
-                                             &flushState->dstProxyView(),
-                                             flushState->renderPassBarriers(), GrLoadOp::kClear,
-                                             &flushState->caps()}, fTessellator->shader(), pipeline,
-                                             &GrUserStencilSettings::kUnused);
+        fProgram = GrTessellationShader::MakeProgram({alloc, flushState->writeView(),
+                                                     &flushState->dstProxyView(),
+                                                     flushState->renderPassBarriers(),
+                                                     GrLoadOp::kClear, &flushState->caps()},
+                                                     fTessellator->shader(), pipeline,
+                                                     &GrUserStencilSettings::kUnused);
     }
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
         flushState->bindPipeline(*fProgram, chainBounds);

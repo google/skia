@@ -9,11 +9,10 @@
 
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/tessellate/GrFillPathShader.h"
-#include "src/gpu/tessellate/GrStencilPathShader.h"
 #include "src/gpu/tessellate/GrStrokeFixedCountTessellator.h"
 #include "src/gpu/tessellate/GrStrokeHardwareTessellator.h"
 #include "src/gpu/tessellate/GrStrokeIndirectTessellator.h"
+#include "src/gpu/tessellate/GrTessellationShader.h"
 
 using DynamicStroke = GrStrokeShader::DynamicStroke;
 
@@ -164,7 +163,7 @@ bool GrStrokeTessellateOp::canUseHardwareTessellation(int numVerbs, const GrCaps
     return numVerbs >= caps.minStrokeVerbsForHwTessellation();
 }
 
-void GrStrokeTessellateOp::prePrepareTessellator(GrPathShader::ProgramArgs&& args,
+void GrStrokeTessellateOp::prePrepareTessellator(GrTessellationShader::ProgramArgs&& args,
                                                  GrAppliedClip&& clip) {
     SkASSERT(!fTessellator);
     SkASSERT(!fFillProgram);
@@ -212,17 +211,18 @@ void GrStrokeTessellateOp::prePrepareTessellator(GrPathShader::ProgramArgs&& arg
                                                                   strokeCullBounds);
     }
 
-    auto* pipeline = GrFillPathShader::MakeFillPassPipeline(args, fAAType, std::move(clip),
-                                                            std::move(fProcessors));
+    auto* pipeline = GrTessellationShader::MakePipeline(args, fAAType, std::move(clip),
+                                                        std::move(fProcessors));
     auto fillStencil = &GrUserStencilSettings::kUnused;
     if (fNeedsStencil) {
-        fStencilProgram = GrPathShader::MakeProgram(args, fTessellator->shader(), pipeline,
-                                                    &kMarkStencil);
+        fStencilProgram = GrTessellationShader::MakeProgram(args, fTessellator->shader(), pipeline,
+                                                            &kMarkStencil);
         fillStencil = &kTestAndResetStencil;
         args.fXferBarrierFlags = GrXferBarrierFlags::kNone;
     }
 
-    fFillProgram = GrPathShader::MakeProgram(args, fTessellator->shader(), pipeline, fillStencil);
+    fFillProgram = GrTessellationShader::MakeProgram(args, fTessellator->shader(), pipeline,
+                                                     fillStencil);
 }
 
 void GrStrokeTessellateOp::onPrePrepare(GrRecordingContext* context,

@@ -10,8 +10,8 @@
 
 #include "include/core/SkStrokeRec.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
-#include "src/gpu/tessellate/GrPathShader.h"
 #include "src/gpu/tessellate/GrStrokeTessellator.h"
+#include "src/gpu/tessellate/GrTessellationShader.h"
 
 class GrRecordingContext;
 
@@ -55,7 +55,7 @@ private:
     CombineResult onCombineIfPossible(GrOp*, SkArenaAlloc*, const GrCaps&) override;
 
     // Creates the tessellator and the stencil/fill program(s) we will use with it.
-    void prePrepareTessellator(GrPathShader::ProgramArgs&&, GrAppliedClip&&);
+    void prePrepareTessellator(GrTessellationShader::ProgramArgs&&, GrAppliedClip&&);
 
     void onPrePrepare(GrRecordingContext*, const GrSurfaceProxyView&, GrAppliedClip*,
                       const GrXferProcessor::DstProxyView&, GrXferBarrierFlags,

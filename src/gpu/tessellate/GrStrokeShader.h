@@ -8,7 +8,7 @@
 #ifndef GrStrokeShader_DEFINED
 #define GrStrokeShader_DEFINED
 
-#include "src/gpu/tessellate/GrPathShader.h"
+#include "src/gpu/tessellate/GrTessellationShader.h"
 
 #include "include/core/SkStrokeRec.h"
 #include "src/gpu/GrVx.h"
@@ -23,7 +23,7 @@
 // divide the curve's _rotation_ into even steps. The tessellation shader evaluates both sets of
 // edges and sorts them into a single quad strip. With this combined set of edges we can stroke any
 // curve, regardless of curvature.
-class GrStrokeShader : public GrPathShader {
+class GrStrokeShader : public GrTessellationShader {
 public:
     // Are we using hardware tessellation or indirect draws?
     enum class Mode : int8_t {
@@ -98,17 +98,17 @@ public:
     };
 
     // 'viewMatrix' is applied to the geometry post tessellation. It cannot have perspective.
-    GrStrokeShader(Mode mode, ShaderFlags shaderFlags, int8_t maxParametricSegments_log2,
-                   const SkMatrix& viewMatrix, const SkStrokeRec& stroke, SkPMColor4f color)
-            : GrPathShader(kTessellate_GrStrokeShader_ClassID, viewMatrix,
-                           (mode == Mode::kHardwareTessellation) ?
-                                   GrPrimitiveType::kPatches : GrPrimitiveType::kTriangleStrip,
-                           (mode == Mode::kHardwareTessellation) ? 1 : 0)
+    GrStrokeShader(Mode mode, ShaderFlags shaderFlags, const SkMatrix& viewMatrix,
+                   const SkStrokeRec& stroke, SkPMColor4f color, int8_t maxParametricSegments_log2)
+            : GrTessellationShader(kTessellate_GrStrokeShader_ClassID,
+                                   (mode == Mode::kHardwareTessellation)
+                                           ? GrPrimitiveType::kPatches
+                                           : GrPrimitiveType::kTriangleStrip,
+                                   (mode == Mode::kHardwareTessellation) ? 1 : 0, viewMatrix, color)
             , fMode(mode)
             , fShaderFlags(shaderFlags)
-            , fMaxParametricSegments_log2(maxParametricSegments_log2)
             , fStroke(stroke)
-            , fColor(color) {
+            , fMaxParametricSegments_log2(maxParametricSegments_log2) {
         if (fMode == Mode::kHardwareTessellation) {
             // A join calculates its starting angle using prevCtrlPtAttr.
             fAttribs.emplace_back("prevCtrlPtAttr", kFloat2_GrVertexAttribType, kFloat2_GrSLType);
@@ -168,11 +168,10 @@ public:
 
     Mode mode() const { return fMode; }
     ShaderFlags flags() const { return fShaderFlags; }
-    int8_t maxParametricSegments_log2() const { return fMaxParametricSegments_log2; }
     bool hasDynamicStroke() const { return fShaderFlags & ShaderFlags::kDynamicStroke; }
     bool hasDynamicColor() const { return fShaderFlags & ShaderFlags::kDynamicColor; }
     const SkStrokeRec& stroke() const { return fStroke;}
-    const SkPMColor4f& color() const { return fColor;}
+    int8_t maxParametricSegments_log2() const { return fMaxParametricSegments_log2; }
     float fixedCountNumTotalEdges() const { return fFixedCountNumTotalEdges;}
 
     // Used by GrFixedCountTessellator to configure the uniform value that tells the shader how many
@@ -189,9 +188,8 @@ private:
 
     const Mode fMode;
     const ShaderFlags fShaderFlags;
-    const int8_t fMaxParametricSegments_log2;
     const SkStrokeRec fStroke;
-    const SkPMColor4f fColor;
+    const int8_t fMaxParametricSegments_log2;
 
     constexpr static int kMaxAttribCount = 5;
     SkSTArray<kMaxAttribCount, Attribute> fAttribs;

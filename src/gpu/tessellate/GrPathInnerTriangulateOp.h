@@ -10,7 +10,8 @@
 
 #include "src/gpu/GrInnerFanTriangulator.h"
 #include "src/gpu/ops/GrDrawOp.h"
-#include "src/gpu/tessellate/GrPathShader.h"
+#include "src/gpu/tessellate/GrTessellationShader.h"
+
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 
 class GrPathTessellator;
@@ -46,10 +47,10 @@ private:
     GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*, GrClampType) override;
 
     // These calls set up the stencil & fill programs we will use prior to preparing and executing.
-    void pushFanStencilProgram(const GrPathShader::ProgramArgs&,
+    void pushFanStencilProgram(const GrTessellationShader::ProgramArgs&,
                                const GrPipeline* pipelineForStencils, const GrUserStencilSettings*);
-    void pushFanFillProgram(const GrPathShader::ProgramArgs&, const GrUserStencilSettings*);
-    void prePreparePrograms(const GrPathShader::ProgramArgs&, GrAppliedClip&&);
+    void pushFanFillProgram(const GrTessellationShader::ProgramArgs&, const GrUserStencilSettings*);
+    void prePreparePrograms(const GrTessellationShader::ProgramArgs&, GrAppliedClip&&);
 
     void onPrePrepare(GrRecordingContext*, const GrSurfaceProxyView&, GrAppliedClip*,
                       const GrXferProcessor::DstProxyView&, GrXferBarrierFlags,
