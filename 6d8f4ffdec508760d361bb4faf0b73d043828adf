@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "874d5c09_d661fada",
+        "filename": "src/gpu/tessellate/GrPathTessellationShader.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-06-01T12:20:14Z",
+      "side": 1,
+      "message": "2021",
+      "range": {
+        "startLine": 2,
+        "startChar": 13,
+        "endLine": 2,
+        "endChar": 17
+      },
+      "revId": "6d8f4ffdec508760d361bb4faf0b73d043828adf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "20520f3d_c9fc07f2",
+        "filename": "src/gpu/tessellate/GrPathTessellationShader.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-06-01T12:20:14Z",
+      "side": 1,
+      "message": "??",
+      "range": {
+        "startLine": 15,
+        "startChar": 65,
+        "endLine": 15,
+        "endChar": 70
+      },
+      "revId": "6d8f4ffdec508760d361bb4faf0b73d043828adf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0e8cf78e_1f56a7bd",
+        "filename": "src/gpu/tessellate/GrPathTessellationShader.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-06-01T12:20:14Z",
+      "side": 1,
+      "message": "Triangle ?",
+      "range": {
+        "startLine": 115,
+        "startChar": 58,
+        "endLine": 115,
+        "endChar": 73
+      },
+      "revId": "6d8f4ffdec508760d361bb4faf0b73d043828adf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c0e811ff_245e392c",
+        "filename": "src/gpu/tessellate/GrTessellationShader.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-06-01T12:20:14Z",
+      "side": 1,
+      "message": "This should probably stay with the parameter name",
+      "range": {
+        "startLine": 21,
+        "startChar": 73,
+        "endLine": 21,
+        "endChar": 76
+      },
+      "revId": "6d8f4ffdec508760d361bb4faf0b73d043828adf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
