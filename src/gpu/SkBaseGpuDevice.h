@@ -35,20 +35,56 @@ public:
         kUninit_InitContents
     };
 
-    SkBaseGpuDevice(const SkImageInfo& ii, const SkSurfaceProps& props)
-        : INHERITED(ii, props) {
+    SkBaseGpuDevice(sk_sp<GrRecordingContext> rContext,
+                    const SkImageInfo& ii,
+                    const SkSurfaceProps& props)
+        : INHERITED(ii, props)
+        , fContext(std::move(rContext)) {
     }
 
     virtual GrSurfaceProxyView readSurfaceView() = 0;
-    GrRenderTargetProxy* targetProxy() {
+    GrRenderTargetProxy* targetProxy() override {
         return this->readSurfaceView().asRenderTargetProxy();
     }
+
+    GrRecordingContext* recordingContext() const override { return fContext.get(); }
 
     virtual bool wait(int numSemaphores,
                       const GrBackendSemaphore* waitSemaphores,
                       bool deleteSemaphoresAfterWait) = 0;
+    virtual void discard() = 0;
+
+    virtual bool replaceBackingProxy(SkSurface::ContentChangeMode,
+                                     sk_sp<GrRenderTargetProxy>,
+                                     GrColorType,
+                                     sk_sp<SkColorSpace>,
+                                     GrSurfaceOrigin,
+                                     const SkSurfaceProps&) = 0;
+    bool replaceBackingProxy2(SkSurface::ContentChangeMode);
+
+    using RescaleGamma       = SkImage::RescaleGamma;
+    using RescaleMode        = SkImage::RescaleMode;
+    using ReadPixelsCallback = SkImage::ReadPixelsCallback;
+    using ReadPixelsContext  = SkImage::ReadPixelsContext;
+
+    virtual void asyncRescaleAndReadPixels(const SkImageInfo& info,
+                                           const SkIRect& srcRect,
+                                           RescaleGamma rescaleGamma,
+                                           RescaleMode rescaleMode,
+                                           ReadPixelsCallback callback,
+                                           ReadPixelsContext context) = 0;
+
+    virtual void asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
+                                                 sk_sp<SkColorSpace> dstColorSpace,
+                                                 const SkIRect& srcRect,
+                                                 SkISize dstSize,
+                                                 RescaleGamma rescaleGamma,
+                                                 RescaleMode,
+                                                 ReadPixelsCallback callback,
+                                                 ReadPixelsContext context) = 0;
 
 protected:
+    sk_sp<GrRecordingContext> fContext;
 
 private:
     using INHERITED = BASE_DEVICE;

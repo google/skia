@@ -70,8 +70,7 @@ static GrRenderTarget* prepare_rt_for_external_access(SkSurface_Gpu* surface,
     dContext->priv().flushSurface(surface->getDevice()->targetProxy());
 
     // Grab the render target *after* firing notifications, as it may get switched if CoW kicks in.
-    GrSurfaceDrawContext* sdc = surface->getDevice()->surfaceDrawContext();
-    return sdc->accessRenderTarget();
+    return surface->getDevice()->targetProxy()->peekRenderTarget();
 }
 
 GrBackendTexture SkSurface_Gpu::onGetBackendTexture(BackendHandleAccess access) {
@@ -159,14 +158,12 @@ void SkSurface_Gpu::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
                                                 RescaleMode rescaleMode,
                                                 ReadPixelsCallback callback,
                                                 ReadPixelsContext context) {
-    auto* sdc = this->fDevice->surfaceDrawContext();
-    // Context TODO: Elevate direct context requirement to public API.
-    auto dContext = sdc->recordingContext()->asDirectContext();
-    if (!dContext) {
-        return;
-    }
-    sdc->asyncRescaleAndReadPixels(dContext, info, srcRect, rescaleGamma, rescaleMode, callback,
-                                   context);
+    fDevice->asyncRescaleAndReadPixels(info,
+                                       srcRect,
+                                       rescaleGamma,
+                                       rescaleMode,
+                                       callback,
+                                       context);
 }
 
 void SkSurface_Gpu::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
@@ -177,21 +174,14 @@ void SkSurface_Gpu::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSp
                                                       RescaleMode rescaleMode,
                                                       ReadPixelsCallback callback,
                                                       ReadPixelsContext context) {
-    auto* sdc = this->fDevice->surfaceDrawContext();
-    // Context TODO: Elevate direct context requirement to public API.
-    auto dContext = sdc->recordingContext()->asDirectContext();
-    if (!dContext) {
-        return;
-    }
-    sdc->asyncRescaleAndReadPixelsYUV420(dContext,
-                                         yuvColorSpace,
-                                         std::move(dstColorSpace),
-                                         srcRect,
-                                         dstSize,
-                                         rescaleGamma,
-                                         rescaleMode,
-                                         callback,
-                                         context);
+    fDevice->asyncRescaleAndReadPixelsYUV420(yuvColorSpace,
+                                             std::move(dstColorSpace),
+                                             srcRect,
+                                             dstSize,
+                                             rescaleGamma,
+                                             rescaleMode,
+                                             callback,
+                                             context);
 }
 
 // Create a new render target and, if necessary, copy the contents of the old
@@ -206,13 +196,13 @@ void SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
     SkASSERT(image);
 
     if (static_cast<SkImage_Gpu*>(image.get())->surfaceMustCopyOnWrite(readSurfaceView.proxy())) {
-        fDevice->replaceSurfaceDrawContext(mode);
+        fDevice->replaceBackingProxy2(mode);
     } else if (kDiscard_ContentChangeMode == mode) {
         this->SkSurface_Gpu::onDiscard();
     }
 }
 
-void SkSurface_Gpu::onDiscard() { fDevice->surfaceDrawContext()->discard(); }
+void SkSurface_Gpu::onDiscard() { fDevice->discard(); }
 
 GrSemaphoresSubmitted SkSurface_Gpu::onFlush(BackendSurfaceAccess access, const GrFlushInfo& info,
                                              const GrBackendSurfaceMutableState* newState) {
@@ -533,8 +523,8 @@ bool SkSurface_Gpu::onReplaceBackendTexture(const GrBackendTexture& backendTextu
                                             ReleaseContext releaseContext) {
     auto releaseHelper = GrRefCntedCallback::Make(releaseProc, releaseContext);
 
-    auto context = this->fDevice->recordingContext();
-    if (context->abandoned()) {
+    auto rContext = this->fDevice->recordingContext();
+    if (rContext->abandoned()) {
         return false;
     }
     if (!backendTexture.isValid()) {
@@ -543,8 +533,8 @@ bool SkSurface_Gpu::onReplaceBackendTexture(const GrBackendTexture& backendTextu
     if (backendTexture.width() != this->width() || backendTexture.height() != this->height()) {
         return false;
     }
-    auto* oldSDC = fDevice->surfaceDrawContext();
-    auto oldProxy = sk_ref_sp(oldSDC->asTextureProxy());
+    auto* oldRTP = fDevice->targetProxy();
+    auto oldProxy = sk_ref_sp(oldRTP->asTextureProxy());
     if (!oldProxy) {
         return false;
     }
@@ -564,19 +554,22 @@ bool SkSurface_Gpu::onReplaceBackendTexture(const GrBackendTexture& backendTextu
     SkASSERT(oldTexture->asRenderTarget());
     int sampleCnt = oldTexture->asRenderTarget()->numSamples();
     GrColorType grColorType = SkColorTypeToGrColorType(this->getCanvas()->imageInfo().colorType());
-    auto colorSpace = sk_ref_sp(oldSDC->colorInfo().colorSpace());
-    if (!validate_backend_texture(context->priv().caps(), backendTexture,
+    if (!validate_backend_texture(rContext->priv().caps(), backendTexture,
                                   sampleCnt, grColorType, true)) {
         return false;
     }
-    auto sdc = GrSurfaceDrawContext::MakeFromBackendTexture(
-            context, oldSDC->colorInfo().colorType(), std::move(colorSpace), backendTexture,
-            sampleCnt, origin, this->props(), std::move(releaseHelper));
-    if (!sdc) {
+    sk_sp<SkColorSpace> colorSpace = fDevice->imageInfo().refColorSpace();
+
+    SkASSERT(sampleCnt > 0);
+    sk_sp<GrTextureProxy> proxy(rContext->priv().proxyProvider()->wrapRenderableBackendTexture(
+            backendTexture, sampleCnt, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo,
+            std::move(releaseHelper)));
+    if (!proxy) {
         return false;
     }
-    fDevice->replaceSurfaceDrawContext(std::move(sdc), mode);
-    return true;
+
+    return fDevice->replaceBackingProxy(mode, sk_ref_sp(proxy->asRenderTargetProxy()), grColorType,
+                                        std::move(colorSpace), origin, this->props());
 }
 
 bool validate_backend_render_target(const GrCaps* caps, const GrBackendRenderTarget& rt,
