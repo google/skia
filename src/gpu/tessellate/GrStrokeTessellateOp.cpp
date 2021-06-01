@@ -194,6 +194,7 @@ void GrStrokeTessellateOp::prePrepareTessellator(GrPathShader::ProgramArgs&& arg
                                                                 fViewMatrix, &fPathStrokeList,
                                                                 matrixMinMaxScales,
                                                                 strokeCullBounds);
+#if 0
     } else if (fTotalCombinedVerbCnt > 50 && !(fShaderFlags & ShaderFlags::kDynamicColor)) {
         // Only use the log2 indirect tessellator if we're drawing a somewhat large number of verbs
         // and the stroke doesn't use dynamic color. (The log2 indirect tessellator can't support
@@ -203,6 +204,7 @@ void GrStrokeTessellateOp::prePrepareTessellator(GrPathShader::ProgramArgs&& arg
                                                                 matrixMinMaxScales,
                                                                 strokeCullBounds,
                                                                 fTotalCombinedVerbCnt, arena);
+#endif
     } else {
         fTessellator = arena->make<GrStrokeFixedCountTessellator>(fShaderFlags, fViewMatrix,
                                                                   &fPathStrokeList,
