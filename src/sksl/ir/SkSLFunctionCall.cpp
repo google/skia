@@ -185,23 +185,23 @@ static std::unique_ptr<Expression> evaluate_n_way_intrinsic_of_type(
                                                             const Expression* arg2,
                                                             const std::function<T(T, T, T)>& eval) {
     // Takes up to three arguments and evaluates them in tandem, equivalent to constructing a new
-    // vector containing the results from:
+    // compound value containing the results from:
     //     eval(arg0.x, arg1.x, arg2.x),
     //     eval(arg0.y, arg1.y, arg2.y),
     //     eval(arg0.z, arg1.z, arg2.z),
     //     eval(arg0.w, arg1.w, arg2.w)
     //
     // If an argument is null, zero is passed to the evaluation function. If the arguments are a mix
-    // of scalars and vectors, scalars are interpreted as a vector containing the same value for
+    // of scalars and compounds, scalars are interpreted as a compound containing the same value for
     // every component.
     arg0 = ConstantFolder::GetConstantValueForVariable(*arg0);
     SkASSERT(arg0);
 
-    const Type& vecType =          arg0->type().isVector()  ? arg0->type() :
-                          (arg1 && arg1->type().isVector()) ? arg1->type() :
-                          (arg2 && arg2->type().isVector()) ? arg2->type() :
-                                                              arg0->type();
-    const Type& type = vecType.componentType();
+    const Type& compoundType =          !arg0->type().isScalar()  ? arg0->type() :
+                               (arg1 && !arg1->type().isScalar()) ? arg1->type() :
+                               (arg2 && !arg2->type().isScalar()) ? arg2->type() :
+                                                                    arg0->type();
+    const Type& type = compoundType.componentType();
     SkASSERT(arg0->type().componentType() == type);
 
     if (arg1) {
@@ -217,27 +217,28 @@ static std::unique_ptr<Expression> evaluate_n_way_intrinsic_of_type(
     }
 
     ExpressionArray array;
-    array.reserve_back(vecType.columns());
+    array.reserve_back(compoundType.columns());
 
     int arg0Index = 0;
     int arg1Index = 0;
     int arg2Index = 0;
-    for (int index = 0; index < vecType.columns(); ++index) {
+    int slots = compoundType.slotCount();
+    for (int index = 0; index < slots; ++index) {
         const Expression* arg0Subexpr = arg0->getConstantSubexpression(arg0Index);
-        arg0Index += arg0->type().isVector() ? 1 : 0;
+        arg0Index += arg0->type().isScalar() ? 0 : 1;
         SkASSERT(arg0Subexpr);
 
         const Expression* arg1Subexpr = nullptr;
         if (arg1) {
             arg1Subexpr = arg1->getConstantSubexpression(arg1Index);
-            arg1Index += arg1->type().isVector() ? 1 : 0;
+            arg1Index += arg1->type().isScalar() ? 0 : 1;
             SkASSERT(arg1Subexpr);
         }
 
         const Expression* arg2Subexpr = nullptr;
         if (arg2) {
             arg2Subexpr = arg2->getConstantSubexpression(arg2Index);
-            arg2Index += arg2->type().isVector() ? 1 : 0;
+            arg2Index += arg2->type().isScalar() ? 0 : 1;
             SkASSERT(arg2Subexpr);
         }
 
@@ -255,7 +256,7 @@ static std::unique_ptr<Expression> evaluate_n_way_intrinsic_of_type(
         array.push_back(Literal<T>::Make(arg0Subexpr->fOffset, value, &type));
     }
 
-    return ConstructorCompound::Make(context, arg0->fOffset, vecType, std::move(array));
+    return ConstructorCompound::Make(context, arg0->fOffset, compoundType, std::move(array));
 }
 
 template <typename T>
@@ -510,10 +511,9 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
         }
 
         // 8.5 : Matrix Functions
-        /* TODO(skia:12034)
-            $squareMat  matrixCompMult($squareMat  x, $squareMat  y);
-            $squareHMat matrixCompMult($squareHMat x, $squareHMat y);
-        */
+        case k_matrixCompMult_IntrinsicKind:
+            return evaluate_pairwise_intrinsic(context, arguments,
+                                               [](auto x, auto y) { return x * y; });
 
         // Not supported until GLSL 1.40. Poly-filled by SkSL:
         case k_inverse_IntrinsicKind: {
