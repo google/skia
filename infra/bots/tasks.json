@@ -8739,6 +8739,11 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
+          "name": "infra/3pp/tools/cpython3/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@3.9.5.chromium.17"
+        },
+        {
           "name": "infra/tools/luci-auth/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
@@ -8813,6 +8818,11 @@
       ],
       "casSpec": "compile",
       "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython3/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@3.9.5.chromium.17"
+        },
         {
           "name": "infra/tools/luci-auth/${platform}",
           "path": "cipd_bin_packages",
@@ -8890,6 +8900,11 @@
       ],
       "casSpec": "compile",
       "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython3/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@3.9.5.chromium.17"
+        },
         {
           "name": "infra/tools/luci-auth/${platform}",
           "path": "cipd_bin_packages",
@@ -8973,6 +8988,11 @@
       ],
       "casSpec": "compile",
       "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython3/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@3.9.5.chromium.17"
+        },
         {
           "name": "infra/tools/luci-auth/${platform}",
           "path": "cipd_bin_packages",
@@ -9062,6 +9082,11 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
+          "name": "infra/3pp/tools/cpython3/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@3.9.5.chromium.17"
+        },
+        {
           "name": "infra/tools/luci-auth/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
@@ -9150,6 +9175,11 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
+          "name": "infra/3pp/tools/cpython3/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@3.9.5.chromium.17"
+        },
+        {
           "name": "infra/tools/luci-auth/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
@@ -9233,6 +9263,11 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
+          "name": "infra/3pp/tools/cpython3/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@3.9.5.chromium.17"
+        },
+        {
           "name": "infra/tools/luci-auth/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
@@ -9315,6 +9350,11 @@
       ],
       "casSpec": "compile",
       "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython3/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@3.9.5.chromium.17"
+        },
         {
           "name": "infra/tools/luci-auth/${platform}",
           "path": "cipd_bin_packages",
@@ -9404,6 +9444,11 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
+          "name": "infra/3pp/tools/cpython3/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@3.9.5.chromium.17"
+        },
+        {
           "name": "infra/tools/luci-auth/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
@@ -9491,6 +9536,11 @@
       ],
       "casSpec": "compile",
       "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython3/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@3.9.5.chromium.17"
+        },
         {
           "name": "infra/tools/luci-auth/${platform}",
           "path": "cipd_bin_packages",
@@ -9580,6 +9630,11 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
+          "name": "infra/3pp/tools/cpython3/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@3.9.5.chromium.17"
+        },
+        {
           "name": "infra/tools/luci-auth/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
@@ -9663,6 +9718,11 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
+          "name": "infra/3pp/tools/cpython3/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@3.9.5.chromium.17"
+        },
+        {
           "name": "infra/tools/luci-auth/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
@@ -9745,6 +9805,11 @@
       ],
       "casSpec": "compile",
       "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython3/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@3.9.5.chromium.17"
+        },
         {
           "name": "infra/tools/luci-auth/${platform}",
           "path": "cipd_bin_packages",
@@ -9840,6 +9905,11 @@
       ],
       "casSpec": "run-recipe",
       "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython3/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@3.9.5.chromium.17"
+        },
         {
           "name": "infra/3pp/tools/git/mac-amd64",
           "path": "cipd_bin_packages",
@@ -9938,6 +10008,11 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
+          "name": "infra/3pp/tools/cpython3/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@3.9.5.chromium.17"
+        },
+        {
           "name": "infra/tools/luci-auth/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
@@ -10020,6 +10095,11 @@
       ],
       "casSpec": "compile",
       "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython3/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@3.9.5.chromium.17"
+        },
         {
           "name": "infra/tools/luci-auth/${platform}",
           "path": "cipd_bin_packages",
@@ -10115,6 +10195,11 @@
       ],
       "casSpec": "run-recipe",
       "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython3/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@3.9.5.chromium.17"
+        },
         {
           "name": "infra/3pp/tools/git/mac-amd64",
           "path": "cipd_bin_packages",
@@ -10213,6 +10298,11 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
+          "name": "infra/3pp/tools/cpython3/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@3.9.5.chromium.17"
+        },
+        {
           "name": "infra/tools/luci-auth/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
@@ -10295,6 +10385,11 @@
       ],
       "casSpec": "compile",
       "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython3/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@3.9.5.chromium.17"
+        },
         {
           "name": "infra/tools/luci-auth/${platform}",
           "path": "cipd_bin_packages",
@@ -10379,6 +10474,11 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
+          "name": "infra/3pp/tools/cpython3/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@3.9.5.chromium.17"
+        },
+        {
           "name": "infra/tools/luci-auth/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
@@ -10461,6 +10561,11 @@
       ],
       "casSpec": "compile",
       "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython3/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@3.9.5.chromium.17"
+        },
         {
           "name": "infra/tools/luci-auth/${platform}",
           "path": "cipd_bin_packages",
@@ -10550,6 +10655,11 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
+          "name": "infra/3pp/tools/cpython3/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@3.9.5.chromium.17"
+        },
+        {
           "name": "infra/tools/luci-auth/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
@@ -10637,6 +10747,11 @@
       ],
       "casSpec": "compile",
       "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython3/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@3.9.5.chromium.17"
+        },
         {
           "name": "infra/tools/luci-auth/${platform}",
           "path": "cipd_bin_packages",
@@ -10726,6 +10841,11 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
+          "name": "infra/3pp/tools/cpython3/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@3.9.5.chromium.17"
+        },
+        {
           "name": "infra/tools/luci-auth/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
@@ -10806,9 +10926,9 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-386",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -10882,9 +11002,9 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-386",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -10958,9 +11078,9 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-386",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -11034,9 +11154,9 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-386",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -11110,9 +11230,9 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-386",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -11185,9 +11305,9 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-386",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -11261,9 +11381,9 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-386",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -11337,9 +11457,9 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-386",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -11413,9 +11533,9 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -11489,9 +11609,9 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -11565,9 +11685,9 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -11641,9 +11761,9 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -11717,9 +11837,9 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -11793,9 +11913,9 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -11869,9 +11989,9 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -11945,9 +12065,9 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -12021,9 +12141,9 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -12097,9 +12217,9 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -12173,9 +12293,9 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -12249,9 +12369,9 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -12325,9 +12445,9 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -12401,9 +12521,9 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-386",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -12472,9 +12592,9 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-386",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -12543,9 +12663,9 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-386",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -12614,9 +12734,9 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-386",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -12685,9 +12805,9 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-386",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -12756,9 +12876,9 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-386",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -12827,9 +12947,9 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -12898,9 +13018,9 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -12969,9 +13089,9 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -13040,9 +13160,9 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -13111,9 +13231,9 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -13182,9 +13302,9 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -13253,9 +13373,9 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -13324,9 +13444,9 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -15594,9 +15714,9 @@
       "casSpec": "recipes",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/3pp/tools/git/linux-amd64",
@@ -16053,9 +16173,9 @@
       "casSpec": "whole-repo",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-386",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/3pp/tools/git/windows-amd64",
@@ -23488,9 +23608,9 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -23571,9 +23691,9 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -23654,9 +23774,9 @@
       "casSpec": "skpbench",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -23732,9 +23852,9 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -23815,9 +23935,9 @@
       "casSpec": "skpbench",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -23893,9 +24013,9 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -23976,9 +24096,9 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -24059,9 +24179,9 @@
       "casSpec": "skpbench",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -24137,9 +24257,9 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -24220,9 +24340,9 @@
       "casSpec": "skpbench",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -24298,9 +24418,9 @@
       "casSpec": "skpbench",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -24376,9 +24496,9 @@
       "casSpec": "skpbench",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -24454,9 +24574,9 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -24537,9 +24657,9 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -24620,9 +24740,9 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -24703,9 +24823,9 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -24786,9 +24906,9 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -24869,9 +24989,9 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -24952,9 +25072,9 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -25035,9 +25155,9 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -25118,9 +25238,9 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -25201,9 +25321,9 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -25284,9 +25404,9 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -25367,9 +25487,9 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -25450,9 +25570,9 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -25533,9 +25653,9 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -25616,9 +25736,9 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -25699,9 +25819,9 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -25782,9 +25902,9 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -25865,9 +25985,9 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -25948,9 +26068,9 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -26031,9 +26151,9 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -26114,9 +26234,9 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -26197,9 +26317,9 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -26281,9 +26401,9 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -26365,9 +26485,9 @@
       "casSpec": "perf",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -42169,9 +42289,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -42252,9 +42372,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -42335,9 +42455,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -42418,9 +42538,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -42501,9 +42621,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -42584,9 +42704,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -42667,9 +42787,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -42750,9 +42870,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -42833,9 +42953,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -42916,9 +43036,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -42999,9 +43119,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -43082,9 +43202,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -43165,9 +43285,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -43248,9 +43368,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -43331,9 +43451,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -43419,9 +43539,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -43502,9 +43622,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -43585,9 +43705,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -43668,9 +43788,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -43751,9 +43871,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -43834,9 +43954,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -43922,9 +44042,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -44005,9 +44125,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -44088,9 +44208,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -44171,9 +44291,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -44254,9 +44374,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -44337,9 +44457,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -44420,9 +44540,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -44503,9 +44623,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -44586,9 +44706,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -44669,9 +44789,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -44752,9 +44872,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -44835,9 +44955,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -44918,9 +45038,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -45001,9 +45121,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -45084,9 +45204,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -45167,9 +45287,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -45250,9 +45370,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -45333,9 +45453,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -45416,9 +45536,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -45499,9 +45619,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -45582,9 +45702,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -45665,9 +45785,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -45748,9 +45868,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -45831,9 +45951,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -45914,9 +46034,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -45997,9 +46117,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -46080,9 +46200,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -46163,9 +46283,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -46246,9 +46366,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -46329,9 +46449,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -46412,9 +46532,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -46495,9 +46615,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -46578,9 +46698,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -46661,9 +46781,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -46744,9 +46864,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -46827,9 +46947,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -46910,9 +47030,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -46993,9 +47113,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -47076,9 +47196,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -47159,9 +47279,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -47242,9 +47362,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -47325,9 +47445,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -47408,9 +47528,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -47491,9 +47611,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -47574,9 +47694,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -47657,9 +47777,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -47740,9 +47860,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -47823,9 +47943,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -47906,9 +48026,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-386",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -47990,9 +48110,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-386",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -48074,9 +48194,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -48158,9 +48278,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -48242,9 +48362,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -48326,9 +48446,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-386",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -48410,9 +48530,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-386",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -48494,9 +48614,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -48578,9 +48698,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -48662,9 +48782,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -48746,9 +48866,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -48830,9 +48950,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-386",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -48913,9 +49033,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-386",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -48996,9 +49116,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -49079,9 +49199,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -49162,9 +49282,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -49245,9 +49365,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -49328,9 +49448,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-386",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -49411,9 +49531,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-386",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -49494,9 +49614,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -49577,9 +49697,9 @@
       "casSpec": "test",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/tools/luci-auth/${platform}",
@@ -57451,9 +57571,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -57523,9 +57643,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -57595,9 +57715,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -57667,9 +57787,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -57739,9 +57859,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -57811,9 +57931,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -57883,9 +58003,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -57955,9 +58075,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -58027,9 +58147,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -58099,9 +58219,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -58171,9 +58291,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -58243,9 +58363,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -58315,9 +58435,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -58387,9 +58507,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -58459,9 +58579,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -58531,9 +58651,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -58603,9 +58723,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -58675,9 +58795,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -58747,9 +58867,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -58819,9 +58939,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -58891,9 +59011,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -58963,9 +59083,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -59035,9 +59155,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -59107,9 +59227,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -59179,9 +59299,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -59251,9 +59371,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -59323,9 +59443,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -59395,9 +59515,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -59467,9 +59587,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -59539,9 +59659,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -59611,9 +59731,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -59683,9 +59803,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -59755,9 +59875,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -59827,9 +59947,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -60569,9 +60689,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -60641,9 +60761,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -60713,9 +60833,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -60785,9 +60905,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -60857,9 +60977,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -60929,9 +61049,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -61001,9 +61121,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -61073,9 +61193,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -61145,9 +61265,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -61217,9 +61337,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -61289,9 +61409,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -61361,9 +61481,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -61433,9 +61553,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -61505,9 +61625,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -61577,9 +61697,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -61649,9 +61769,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -61721,9 +61841,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -61793,9 +61913,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -61865,9 +61985,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -61937,9 +62057,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -62009,9 +62129,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -62081,9 +62201,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -62153,9 +62273,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -62225,9 +62345,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -62297,9 +62417,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -62369,9 +62489,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -62441,9 +62561,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -62513,9 +62633,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -62585,9 +62705,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -62657,9 +62777,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -62729,9 +62849,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -62801,9 +62921,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -62873,9 +62993,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -62945,9 +63065,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -63017,9 +63137,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -63089,9 +63209,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -63161,9 +63281,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -63233,9 +63353,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -63305,9 +63425,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -63377,9 +63497,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -63449,9 +63569,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -63521,9 +63641,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -63593,9 +63713,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -63665,9 +63785,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -63737,9 +63857,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -63809,9 +63929,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -63881,9 +64001,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -63953,9 +64073,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -64025,9 +64145,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -64097,9 +64217,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -64169,9 +64289,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -64241,9 +64361,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -64313,9 +64433,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -64385,9 +64505,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -64457,9 +64577,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -64529,9 +64649,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -64601,9 +64721,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -64673,9 +64793,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -64745,9 +64865,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -64817,9 +64937,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -64889,9 +65009,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -64961,9 +65081,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -65033,9 +65153,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -65105,9 +65225,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -65177,9 +65297,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -65249,9 +65369,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -65321,9 +65441,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -65393,9 +65513,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -65465,9 +65585,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -65537,9 +65657,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -65609,9 +65729,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -65681,9 +65801,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -65753,9 +65873,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -65825,9 +65945,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -65897,9 +66017,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -65969,9 +66089,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -66041,9 +66161,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -66113,9 +66233,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -66185,9 +66305,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -66257,9 +66377,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -66329,9 +66449,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -66401,9 +66521,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -66473,9 +66593,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -66545,9 +66665,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -66617,9 +66737,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -66689,9 +66809,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -66761,9 +66881,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
@@ -66833,9 +66953,9 @@
       "casSpec": "run-recipe",
       "cipd_packages": [
         {
-          "name": "infra/3pp/tools/cpython/linux-amd64",
+          "name": "infra/3pp/tools/cpython3/windows-amd64",
           "path": "cipd_bin_packages",
-          "version": "version:2@2.7.18.chromium.35"
+          "version": "version:2@3.9.5.chromium.17"
         },
         {
           "name": "infra/gsutil",
