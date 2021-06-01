@@ -198,7 +198,7 @@ protected:
         return DrawResult::kOk;
     }
 
-    void onDraw(GrRecordingContext* rContext, GrSurfaceDrawContext* sdc,
+    void onDraw2(GrRecordingContext* rContext, GrSurfaceDrawContext* sdc,
                 SkCanvas* canvas) override {
         SkSamplingOptions sampling(SkFilterMode::kNearest, SkMipmapMode::kNone);
         SkPaint p;

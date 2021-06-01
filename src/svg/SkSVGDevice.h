@@ -20,6 +20,8 @@ public:
     static sk_sp<SkBaseDevice> Make(const SkISize& size, std::unique_ptr<SkXMLWriter>,
                                     uint32_t flags);
 
+    GrRenderTargetProxy *targetProxy() override { return nullptr; }
+
 protected:
     void drawPaint(const SkPaint& paint) override;
     void drawAnnotation(const SkRect& rect, const char key[], SkData* value) override;
