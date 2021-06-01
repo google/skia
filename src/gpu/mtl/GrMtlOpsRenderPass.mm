@@ -286,6 +286,17 @@ void GrMtlOpsRenderPass::onBindBuffers(sk_sp<const GrBuffer> indexBuffer,
     }
 }
 
+void GrMtlOpsRenderPass::onBindTessellationFactorBuffer(
+        sk_sp<const GrBuffer> tessellationFactorBuffer) {
+    if (tessellationFactorBuffer) {
+        auto mtlBuffer = static_cast<const GrMtlBuffer*>(tessellationFactorBuffer.get());
+        id<MTLBuffer> mtlFactorBuffer = mtlBuffer->mtlBuffer();
+        SkASSERT(mtlFactorBuffer);
+        [fActiveRenderCmdEncoder setTessellationFactorBuffer:mtlFactorBuffer offset:0 instanceStride:0];
+        fGpu->commandBuffer()->addGrBuffer(std::move(tessellationFactorBuffer));
+    }
+}
+
 void GrMtlOpsRenderPass::onDraw(int vertexCount, int baseVertex) {
     SkASSERT(fActivePipelineState);
     SkASSERT(nil != fActiveRenderCmdEncoder);

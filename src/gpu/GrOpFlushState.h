@@ -228,9 +228,11 @@ public:
     }
     void bindBuffers(sk_sp<const GrBuffer> indexBuffer, sk_sp<const GrBuffer> instanceBuffer,
                      sk_sp<const GrBuffer> vertexBuffer,
+                     sk_sp<const GrBuffer> tesselationFactorBuffer = nullptr,
                      GrPrimitiveRestart primitiveRestart = GrPrimitiveRestart::kNo) {
         fOpsRenderPass->bindBuffers(std::move(indexBuffer), std::move(instanceBuffer),
-                                    std::move(vertexBuffer), primitiveRestart);
+                                    std::move(vertexBuffer), std::move(tesselationFactorBuffer),
+                                    primitiveRestart);
     }
     void draw(int vertexCount, int baseVertex) {
         fOpsRenderPass->draw(vertexCount, baseVertex);

@@ -14,8 +14,8 @@
 #include "src/sksl/ir/SkSLProgram.h"
 
 // Print the source code for all shaders generated.
-static const bool gPrintSKSL = false;
-static const bool gPrintGLSL = false;
+static const bool gPrintSKSL = true;
+static const bool gPrintGLSL = true;
 
 std::unique_ptr<SkSL::Program> GrSkSLtoGLSL(const GrGLGpu* gpu,
                                             SkSL::ProgramKind programKind,

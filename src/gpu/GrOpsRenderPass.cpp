@@ -175,6 +175,7 @@ void GrOpsRenderPass::bindTextures(const GrGeometryProcessor& geomProc,
 void GrOpsRenderPass::bindBuffers(sk_sp<const GrBuffer> indexBuffer,
                                   sk_sp<const GrBuffer> instanceBuffer,
                                   sk_sp<const GrBuffer> vertexBuffer,
+                                  sk_sp<const GrBuffer> tessellationFactorBuffer,
                                   GrPrimitiveRestart primRestart) {
     if (DrawPipelineStatus::kOk != fDrawPipelineStatus) {
         SkASSERT(DrawPipelineStatus::kNotConfigured != fDrawPipelineStatus);
@@ -203,6 +204,7 @@ void GrOpsRenderPass::bindBuffers(sk_sp<const GrBuffer> indexBuffer,
 
     this->onBindBuffers(std::move(indexBuffer), std::move(instanceBuffer), std::move(vertexBuffer),
                         primRestart);
+    this->onBindTessellationFactorBuffer(std::move(tessellationFactorBuffer));
 }
 
 bool GrOpsRenderPass::prepareToDraw() {

@@ -482,6 +482,22 @@ void GrMtlCaps::initShaderCaps() {
     shaderCaps->fMaxFragmentSamplers = 16;
 
     shaderCaps->fCanUseFastMath = true;
+
+//    bool hasTessellationSupport = false;
+//    if ((fPlatform == Platform::kIOS && fFamilyGroup >=3 && fVersion >= 2) ||
+//        (fPlatform == Platform::kMac && fFamilyGroup >=1 && fVersion >= 2)) {
+//        if (@available(macOS 10.12, iOS 10.0, tvOS 10.0, *)) {
+//            hasTessellationSupport = true;
+//        }
+//    }
+//    if (hasTessellationSupport) {
+#if defined(SK_BUILD_FOR_MAC)
+        shaderCaps->fMaxTessellationSegments = 64;
+#elif defined(SK_BUILD_FOR_IOS)
+        shaderCaps->fMaxTessellationSegments = 16;
+#endif
+//    }
+
 }
 
 void GrMtlCaps::applyDriverCorrectnessWorkarounds(const GrContextOptions&,

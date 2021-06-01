@@ -69,8 +69,9 @@ private:
             const char* viewMatrix;
             fViewMatrixUniform = args.fUniformHandler->addUniform(
                     nullptr, kVertex_GrShaderFlag, kFloat3x3_GrSLType, "view_matrix", &viewMatrix);
-            args.fVertBuilder->declareGlobal(
-                    GrShaderVar("P_", kFloat3_GrSLType, GrShaderVar::TypeModifier::Out));
+            GrShaderVar P("P_", kFloat3_GrSLType, GrShaderVar::TypeModifier::Out);
+//            P.addLayoutQualifier("location = 0");
+            args.fVertBuilder->declareGlobal(P);
             args.fVertBuilder->codeAppendf(R"(
             P_.xy = (%s * float3(position.xy, 1)).xy;
             P_.z = position.z;)", viewMatrix);
@@ -93,6 +94,8 @@ private:
                 gl_TessLevelOuter[gl_InvocationID] = P_[gl_InvocationID].z;
                 gl_TessLevelInner[0] = 2.0;
             })");
+
+            SkDebugf("%s\n", code.c_str());
 
             return code;
         }
@@ -133,6 +136,35 @@ private:
                 }
                 i = abs(mod(i, 2.0) - 1.0);
                 barycentric_coord = vec3(i, 0, 1.0 - i);
+            })");
+
+            SkDebugf("%s\n", code.c_str());
+
+            return code;
+        }
+        std::string getTessEvaluationShaderMSL(const GrGeometryProcessor&,
+                                               const GrGLSLUniformHandler&,
+                                               const GrShaderCaps&) const override {
+            std::string code;
+            code.append(R"({
+//            [[patch(triangle, 3)]]
+//            vertex float3 tessellation_vertex_triangle(float3 patchIn [[stage_in]],
+//                                                       float3 patch_coord [[ position_in_patch ]])
+//            {
+//                // Barycentric coordinates
+//                float u = patch_coord.x;
+//                float v = patch_coord.y;
+//                float w = patch_coord.z;
+//
+//                // Convert to cartesian coordinates
+//                float x = u * patchIn.control_points[0].position.x + v * patchIn.control_points[1].position.x + w * patchIn.control_points[2].position.x;
+//                float y = u * patchIn.control_points[0].position.y + v * patchIn.control_points[1].position.y + w * patchIn.control_points[2].position.y;
+//
+//                // Output
+//                FunctionOutIn vertexOut;
+//                vertexOut.position = float4(x, y, 0.0, 1.0);
+//                vertexOut.color = half4(u, v, w, 1.0);
+//                return vertexOut;
             })");
 
             return code;

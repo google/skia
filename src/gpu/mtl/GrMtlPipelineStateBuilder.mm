@@ -650,6 +650,28 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(
                                                     msl[kFragment_GrShaderType],
                                                     inputs[kFragment_GrShaderType],
                                                     errorHandler);
+
+    /*
+       Tessellation Shaders
+    */
+    if (fProgramInfo.geomProc().willUseTessellationShaders()) {
+        std::string tessEvaluationShader = fGeometryProcessor->getTessEvaluationShaderMSL(
+                this->geometryProcessor(), fUniformHandler, *this->shaderCaps());
+        SkSL::String slString(std::move(tessEvaluationShader));
+        shaderLibraries[kVertex_GrShaderType] = GrCompileMtlShaderLibrary(fGpu,
+                                                                          slString,
+                                                                          errorHandler);
+
+        //*** verify these values
+        pipelineDescriptor.tessellationFactorScaleEnabled = NO;
+        pipelineDescriptor.tessellationFactorFormat = MTLTessellationFactorFormatHalf;
+        pipelineDescriptor.tessellationControlPointIndexType = MTLTessellationControlPointIndexTypeNone;
+        pipelineDescriptor.tessellationFactorStepFunction = MTLTessellationFactorStepFunctionConstant;
+        pipelineDescriptor.tessellationOutputWindingOrder = MTLWindingClockwise;
+        pipelineDescriptor.tessellationPartitionMode = MTLTessellationPartitionModeFractionalEven;
+        pipelineDescriptor.maxTessellationFactor = this->shaderCaps()->maxTessellationSegments();
+    }
+
     if (!shaderLibraries[kVertex_GrShaderType] || !shaderLibraries[kFragment_GrShaderType]) {
         return nullptr;
     }

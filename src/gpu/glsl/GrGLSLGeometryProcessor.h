@@ -144,6 +144,11 @@ public:
                                                  const GrShaderCaps&) const {
         SK_ABORT("Not implemented.");
     }
+    virtual std::string getTessEvaluationShaderMSL(const GrGeometryProcessor&,
+                                                   const GrGLSLUniformHandler&,
+                                                   const GrShaderCaps&) const {
+        SK_ABORT("Not implemented.");
+    }
 
 protected:
     void setupUniformColor(GrGLSLFPFragmentBuilder* fragBuilder,

@@ -73,7 +73,9 @@ public:
                       const GrPipeline&);
 
     void bindBuffers(sk_sp<const GrBuffer> indexBuffer, sk_sp<const GrBuffer> instanceBuffer,
-                     sk_sp<const GrBuffer> vertexBuffer, GrPrimitiveRestart = GrPrimitiveRestart::kNo);
+                     sk_sp<const GrBuffer> vertexBuffer,
+                     sk_sp<const GrBuffer> tesselationFactorBuffer = nullptr,
+                     GrPrimitiveRestart = GrPrimitiveRestart::kNo);
 
     // The next several draw*() methods issue draws using the current pipeline state. Before
     // drawing, the caller must configure the pipeline and dynamic state:
@@ -183,6 +185,7 @@ private:
                                 const GrPipeline&) = 0;
     virtual void onBindBuffers(sk_sp<const GrBuffer> indexBuffer, sk_sp<const GrBuffer> instanceBuffer,
                                sk_sp<const GrBuffer> vertexBuffer, GrPrimitiveRestart) = 0;
+    virtual void onBindTessellationFactorBuffer(sk_sp<const GrBuffer> tessellationFactorBuffer) {}
     virtual void onDraw(int vertexCount, int baseVertex) = 0;
     virtual void onDrawIndexed(int indexCount, int baseIndex, uint16_t minIndexValue,
                                uint16_t maxIndexValue, int baseVertex) = 0;

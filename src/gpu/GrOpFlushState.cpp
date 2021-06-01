@@ -229,7 +229,8 @@ void GrOpFlushState::drawMesh(const GrSimpleMesh& mesh) {
         this->bindBuffers(nullptr, nullptr, mesh.fVertexBuffer);
         this->draw(mesh.fVertexCount, mesh.fBaseVertex);
     } else {
-        this->bindBuffers(mesh.fIndexBuffer, nullptr, mesh.fVertexBuffer, mesh.fPrimitiveRestart);
+        this->bindBuffers(mesh.fIndexBuffer, nullptr, mesh.fVertexBuffer, nullptr,
+                          mesh.fPrimitiveRestart);
         if (0 == mesh.fPatternRepeatCount) {
             this->drawIndexed(mesh.fIndexCount, mesh.fBaseIndex, mesh.fMinIndexValue,
                               mesh.fMaxIndexValue, mesh.fBaseVertex);
