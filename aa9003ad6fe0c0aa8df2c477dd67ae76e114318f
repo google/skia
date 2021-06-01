@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f3d4dc90_a04fdd90",
+        "filename": "tests/SkTOptionalTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-01T17:11:45Z",
+      "side": 1,
+      "message": "This is awesome :)",
+      "range": {
+        "startLine": 32,
+        "startChar": 2,
+        "endLine": 39,
+        "endChar": 6
+      },
+      "revId": "aa9003ad6fe0c0aa8df2c477dd67ae76e114318f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5caa3e3f_1575b048",
+        "filename": "tests/SkTOptionalTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-01T17:11:45Z",
+      "side": 1,
+      "message": "This is fine (and kind of cool!), but FYI, you can just add a comment to squelch ClangTidy errors, like this:\n \n    use_my_var_after_move(x);  // NOLINT(bugprone-use-after-move)",
+      "range": {
+        "startLine": 71,
+        "startChar": 0,
+        "endLine": 72,
+        "endChar": 57
+      },
+      "revId": "aa9003ad6fe0c0aa8df2c477dd67ae76e114318f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
