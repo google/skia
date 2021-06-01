@@ -51,6 +51,23 @@
       "message": "Retrying the canary now that https://chromium-review.googlesource.com/c/chromium/src/+/2924215 has landed.\n\nHopefully that CL gets picked up in the retest.",
       "revId": "13e5188f8b644746efb1683cce14d472eba9ff93",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7d2fffc8_0858e987",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-01T18:14:43Z",
+      "side": 1,
+      "message": "Hmmmm, maybe we can chat about this. SVG aside, not sure I think rects should behave differently from paths of the same topology",
+      "revId": "13e5188f8b644746efb1683cce14d472eba9ff93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
