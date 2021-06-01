@@ -8739,6 +8739,11 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
+          "name": "infra/3pp/tools/cpython/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@2.7.18.chromium.35"
+        },
+        {
           "name": "infra/tools/luci-auth/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
@@ -8813,6 +8818,11 @@
       ],
       "casSpec": "compile",
       "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@2.7.18.chromium.35"
+        },
         {
           "name": "infra/tools/luci-auth/${platform}",
           "path": "cipd_bin_packages",
@@ -8890,6 +8900,11 @@
       ],
       "casSpec": "compile",
       "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@2.7.18.chromium.35"
+        },
         {
           "name": "infra/tools/luci-auth/${platform}",
           "path": "cipd_bin_packages",
@@ -8973,6 +8988,11 @@
       ],
       "casSpec": "compile",
       "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@2.7.18.chromium.35"
+        },
         {
           "name": "infra/tools/luci-auth/${platform}",
           "path": "cipd_bin_packages",
@@ -9062,6 +9082,11 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
+          "name": "infra/3pp/tools/cpython/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@2.7.18.chromium.35"
+        },
+        {
           "name": "infra/tools/luci-auth/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
@@ -9150,6 +9175,11 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
+          "name": "infra/3pp/tools/cpython/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@2.7.18.chromium.35"
+        },
+        {
           "name": "infra/tools/luci-auth/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
@@ -9233,6 +9263,11 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
+          "name": "infra/3pp/tools/cpython/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@2.7.18.chromium.35"
+        },
+        {
           "name": "infra/tools/luci-auth/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
@@ -9315,6 +9350,11 @@
       ],
       "casSpec": "compile",
       "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@2.7.18.chromium.35"
+        },
         {
           "name": "infra/tools/luci-auth/${platform}",
           "path": "cipd_bin_packages",
@@ -9404,6 +9444,11 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
+          "name": "infra/3pp/tools/cpython/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@2.7.18.chromium.35"
+        },
+        {
           "name": "infra/tools/luci-auth/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
@@ -9491,6 +9536,11 @@
       ],
       "casSpec": "compile",
       "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@2.7.18.chromium.35"
+        },
         {
           "name": "infra/tools/luci-auth/${platform}",
           "path": "cipd_bin_packages",
@@ -9580,6 +9630,11 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
+          "name": "infra/3pp/tools/cpython/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@2.7.18.chromium.35"
+        },
+        {
           "name": "infra/tools/luci-auth/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
@@ -9663,6 +9718,11 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
+          "name": "infra/3pp/tools/cpython/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@2.7.18.chromium.35"
+        },
+        {
           "name": "infra/tools/luci-auth/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
@@ -9745,6 +9805,11 @@
       ],
       "casSpec": "compile",
       "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@2.7.18.chromium.35"
+        },
         {
           "name": "infra/tools/luci-auth/${platform}",
           "path": "cipd_bin_packages",
@@ -9840,6 +9905,11 @@
       ],
       "casSpec": "run-recipe",
       "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@2.7.18.chromium.35"
+        },
         {
           "name": "infra/3pp/tools/git/mac-amd64",
           "path": "cipd_bin_packages",
@@ -9938,6 +10008,11 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
+          "name": "infra/3pp/tools/cpython/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@2.7.18.chromium.35"
+        },
+        {
           "name": "infra/tools/luci-auth/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
@@ -10020,6 +10095,11 @@
       ],
       "casSpec": "compile",
       "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@2.7.18.chromium.35"
+        },
         {
           "name": "infra/tools/luci-auth/${platform}",
           "path": "cipd_bin_packages",
@@ -10115,6 +10195,11 @@
       ],
       "casSpec": "run-recipe",
       "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@2.7.18.chromium.35"
+        },
         {
           "name": "infra/3pp/tools/git/mac-amd64",
           "path": "cipd_bin_packages",
@@ -10213,6 +10298,11 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
+          "name": "infra/3pp/tools/cpython/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@2.7.18.chromium.35"
+        },
+        {
           "name": "infra/tools/luci-auth/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
@@ -10295,6 +10385,11 @@
       ],
       "casSpec": "compile",
       "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@2.7.18.chromium.35"
+        },
         {
           "name": "infra/tools/luci-auth/${platform}",
           "path": "cipd_bin_packages",
@@ -10379,6 +10474,11 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
+          "name": "infra/3pp/tools/cpython/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@2.7.18.chromium.35"
+        },
+        {
           "name": "infra/tools/luci-auth/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
@@ -10461,6 +10561,11 @@
       ],
       "casSpec": "compile",
       "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@2.7.18.chromium.35"
+        },
         {
           "name": "infra/tools/luci-auth/${platform}",
           "path": "cipd_bin_packages",
@@ -10550,6 +10655,11 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
+          "name": "infra/3pp/tools/cpython/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@2.7.18.chromium.35"
+        },
+        {
           "name": "infra/tools/luci-auth/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
@@ -10638,6 +10748,11 @@
       "casSpec": "compile",
       "cipd_packages": [
         {
+          "name": "infra/3pp/tools/cpython/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@2.7.18.chromium.35"
+        },
+        {
           "name": "infra/tools/luci-auth/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
@@ -10725,6 +10840,11 @@
       ],
       "casSpec": "compile",
       "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython/mac-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@2.7.18.chromium.35"
+        },
         {
           "name": "infra/tools/luci-auth/${platform}",
           "path": "cipd_bin_packages",
