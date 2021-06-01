@@ -891,6 +891,57 @@ CanvasKit.onRuntimeInitialized = function() {
     }.bind(this));
   };
 
+  CanvasKit.Surface.prototype.makeImageFromTexture = function(tex, info) {
+    if (!CanvasKit.gpu) {
+      Debug('Can only use textures on GPU build');
+      return null;
+    }
+    if (!info['colorSpace']) {
+      info['colorSpace'] = CanvasKit.ColorSpace.SRGB;
+    }
+    // GL is an emscripten object that holds onto WebGL state. One item in that state is
+    // an array of textures, of which the index is the handle/id.
+    var texHandle = GL.textures.length;
+    if (!texHandle) {
+      // If our texture handle is 0, Skia interprets that as an invalid texture id.
+      // As a special case, we push a null texture there so the first texture has id 1.
+      GL.textures.push(null);
+      texHandle = 1;
+    }
+    GL.textures.push(tex);
+    return this._makeImageFromTexture(GL.currentContext.handle, texHandle, info);
+  };
+
+  CanvasKit.Surface.prototype.makeImageFromTextureSource = function(src, w, h) {
+    if (!CanvasKit.gpu) {
+      Debug('Can only use textures on GPU build');
+      return null;
+    }
+    // If the user specified a height or width in the image info, we use that. Otherwise,
+    // we try to find the natural media type (for <img> and <video>) and then fall back to
+    // the height and width (to cover <canvas>, ImageBitmap or ImageData).
+    var height = h || src.naturalHeight || src.videoHeight || src.height;
+    var width = w || src.naturalWidth || src.videoWidth || src.width;
+
+    var glCtx = GL.currentContext.GLctx;
+    var newTex = glCtx.createTexture();
+    glCtx.bindTexture(glCtx.TEXTURE_2D, newTex);
+    if (GL.currentContext.version === 2) {
+      glCtx.texImage2D(glCtx.TEXTURE_2D, 0, glCtx.RGBA, width, height, 0, glCtx.RGBA, glCtx.UNSIGNED_BYTE, src);
+    } else {
+      glCtx.texImage2D(glCtx.TEXTURE_2D, 0, glCtx.RGBA, glCtx.RGBA, glCtx.UNSIGNED_BYTE, src);
+    }
+    glCtx.bindTexture(glCtx.TEXTURE_2D, null);
+    var info = {
+      'height': height,
+      'width': width,
+      'colorType': CanvasKit.ColorType.RGBA_8888,
+      'alphaType': CanvasKit.AlphaType.Unpremul,
+      'colorSpace': CanvasKit.ColorSpace.SRGB,
+    };
+    return this.makeImageFromTexture(newTex, info);
+  };
+
   CanvasKit.PathEffect.MakeDash = function(intervals, phase) {
     if (!phase) {
       phase = 0;
