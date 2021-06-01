@@ -149,9 +149,9 @@ static bool force_aa_clip(const GrSurfaceDrawContext* sdc) {
 #endif
 
 SkGpuDevice::SkGpuDevice(std::unique_ptr<GrSurfaceDrawContext> surfaceDrawContext, unsigned flags)
-        : INHERITED(make_info(surfaceDrawContext.get(), SkToBool(flags & kIsOpaque_Flag)),
+        : INHERITED(sk_ref_sp(surfaceDrawContext->recordingContext()),
+                    make_info(surfaceDrawContext.get(), SkToBool(flags & kIsOpaque_Flag)),
                     surfaceDrawContext->surfaceProps())
-        , fContext(sk_ref_sp(surfaceDrawContext->recordingContext()))
         , fSurfaceDrawContext(std::move(surfaceDrawContext))
 #if !defined(SK_DISABLE_NEW_GR_CLIP_STACK)
         , fClip(SkIRect::MakeSize(fSurfaceDrawContext->dimensions()),
