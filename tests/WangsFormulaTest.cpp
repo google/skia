@@ -10,7 +10,7 @@
 #include "src/gpu/geometry/GrWangsFormula.h"
 #include "tests/Test.h"
 
-constexpr static int kPrecision = 4;  // 1/4 pixel max error.
+constexpr static float kPrecision = 4;  // 1/4 pixel max error.
 
 const SkPoint kSerp[4] = {
         {285.625f, 499.687f}, {411.625f, 808.188f}, {1064.62f, 135.688f}, {1042.63f, 585.187f}};
@@ -401,7 +401,7 @@ DEF_TEST(WangsFormula_rational_quad_reduces, r) {
     SkRandom rand;
     for (int i = 0; i < 100; ++i) {
         for_random_beziers(3, &rand, [&r](const SkPoint pts[]) {
-            const float rational_nsegs = wangs_formula_conic_reference_impl(kPrecision, pts, 1.f);
+            const float rational_nsegs = GrWangsFormula::conic(kPrecision, pts, 1.f);
             const float integral_nsegs = wangs_formula_quadratic_reference_impl(kPrecision, pts);
             REPORTER_ASSERT(
                     r, SkScalarNearlyEqual(rational_nsegs, integral_nsegs, kTessellationTolerance));
@@ -446,8 +446,7 @@ DEF_TEST(WangsFormula_conic_within_tol, r) {
         for_random_beziers(
                 3, &rand,
                 [&](const SkPoint pts[]) {
-                    const int nsegs = static_cast<int>(
-                            std::ceil(wangs_formula_conic_reference_impl(kPrecision, pts, w)));
+                    const int nsegs = SkScalarCeilToInt(GrWangsFormula::conic(kPrecision, pts, w));
 
                     const float tdelta = 1.f / nsegs;
                     for (int j = 0; j < nsegs; ++j) {
@@ -474,14 +473,12 @@ DEF_TEST(WangsFormula_conic_within_tol, r) {
 
 // Ensure the vectorized conic version equals the reference implementation
 DEF_TEST(WangsFormula_conic_matches_reference, r) {
-    constexpr static float kTolerance = 1.f / kPrecision;
-
     SkRandom rand;
     for (int i = -10; i <= 10; ++i) {
         const float w = std::ldexp(1 + rand.nextF(), i);
         for_random_beziers(3, &rand, [&r, w](const SkPoint pts[]) {
             const float ref_nsegs = wangs_formula_conic_reference_impl(kPrecision, pts, w);
-            const float nsegs = GrWangsFormula::conic(kTolerance, pts, w);
+            const float nsegs = GrWangsFormula::conic(kPrecision, pts, w);
 
             // Because the Gr version may implement the math differently for performance,
             // allow different slack in the comparison based on the rough scale of the answer.
@@ -493,13 +490,11 @@ DEF_TEST(WangsFormula_conic_matches_reference, r) {
 
 // Ensure using transformations gives the same result as pre-transforming all points.
 DEF_TEST(WangsFormula_conic_vectorXforms, r) {
-    constexpr static float kTolerance = 1.f / kPrecision;
-
     auto check_conic_with_transform = [&](const SkPoint* pts, float w, const SkMatrix& m) {
         SkPoint ptsXformed[3];
         m.mapPoints(ptsXformed, pts, 3);
-        float expected = GrWangsFormula::conic(kTolerance, ptsXformed, w);
-        float actual = GrWangsFormula::conic(kTolerance, pts, w, GrVectorXform(m));
+        float expected = GrWangsFormula::conic(kPrecision, ptsXformed, w);
+        float actual = GrWangsFormula::conic(kPrecision, pts, w, GrVectorXform(m));
         REPORTER_ASSERT(r, SkScalarNearlyEqual(actual, expected));
     };
 

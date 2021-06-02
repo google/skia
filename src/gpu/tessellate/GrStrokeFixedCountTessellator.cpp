@@ -77,7 +77,7 @@ public:
     }
 
     SK_ALWAYS_INLINE void conicTo(const SkPoint p[3], float w) {
-        float n = GrWangsFormula::conic_pow2(1/fParametricPrecision, p, w);
+        float n = GrWangsFormula::conic_pow2(fParametricPrecision, p, w);
         float numParametricSegments_pow4 = n*n;
         if (numParametricSegments_pow4 > kMaxParametricSegments_pow4) {
             this->chopConicTo({p, w});

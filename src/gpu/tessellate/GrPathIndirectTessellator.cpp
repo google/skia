@@ -32,11 +32,11 @@ GrPathIndirectTessellator::GrPathIndirectTessellator(GrPathTessellationShader* s
     for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
         int level;
         switch (verb) {
-            case SkPathVerb::kConic:
-                level = GrWangsFormula::conic_log2(1/kPrecision, pts, *w, xform);
-                break;
             case SkPathVerb::kQuad:
                 level = GrWangsFormula::quadratic_log2(kPrecision, pts, xform);
+                break;
+            case SkPathVerb::kConic:
+                level = GrWangsFormula::conic_log2(kPrecision, pts, *w, xform);
                 break;
             case SkPathVerb::kCubic:
                 level = GrWangsFormula::cubic_log2(kPrecision, pts, xform);
@@ -171,11 +171,11 @@ void GrPathIndirectTessellator::prepare(GrMeshDrawOp::Target* target, const SkRe
             switch (verb) {
                 default:
                     continue;
-                case SkPathVerb::kConic:
-                    level = GrWangsFormula::conic_log2(1/kPrecision, pts, *w, xform);
-                    break;
                 case SkPathVerb::kQuad:
                     level = GrWangsFormula::quadratic_log2(kPrecision, pts, xform);
+                    break;
+                case SkPathVerb::kConic:
+                    level = GrWangsFormula::conic_log2(kPrecision, pts, *w, xform);
                     break;
                 case SkPathVerb::kCubic:
                     level = GrWangsFormula::cubic_log2(kPrecision, pts, xform);

@@ -44,7 +44,7 @@ public:
     }
 
     SK_ALWAYS_INLINE void writeConic(GrVertexChunkBuilder* chunker, const SkPoint p[3], float w) {
-        if (GrWangsFormula::conic_pow2(1/kPrecision, p, w, fVectorXform) > fMaxSegments_pow2) {
+        if (GrWangsFormula::conic_pow2(kPrecision, p, w, fVectorXform) > fMaxSegments_pow2) {
             this->chopAndWriteConic(chunker, {p, w});
             return;
         }
