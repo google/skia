@@ -533,14 +533,15 @@ wgpu::BindGroup GrDawnProgram::setTextures(GrDawnGpu* gpu,
         }
     }
 
-    pipeline.visitTextureEffects([&](const GrTextureEffect& te) {
-        set_texture(gpu, te.samplerState(), te.texture(), &bindings, &binding);
-    });
-
     SkIPoint offset;
     if (GrTexture* dstTexture = pipeline.peekDstTexture(&offset)) {
         set_texture(gpu, GrSamplerState::Filter::kNearest, dstTexture, &bindings, &binding);
     }
+
+    pipeline.visitTextureEffects([&](const GrTextureEffect& te) {
+        set_texture(gpu, te.samplerState(), te.texture(), &bindings, &binding);
+    });
+
     wgpu::BindGroupDescriptor descriptor;
     descriptor.layout = fBindGroupLayouts[1];
     descriptor.entryCount = bindings.size();
