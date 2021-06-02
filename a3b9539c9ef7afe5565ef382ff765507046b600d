@@ -33,6 +33,24 @@
       "message": "nit: I think all __init__.py files also need a copyright header",
       "revId": "a3b9539c9ef7afe5565ef382ff765507046b600d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "76d6a9bb_21dca634",
+        "filename": "infra/bots/assets/win_toolchain/__init__.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2021-06-02T23:08:13Z",
+      "side": 1,
+      "message": "..or maybe not since they are empty, but they could be populated in the future. Another licenses related question I\u0027m not sure about, so leaving it up to you.",
+      "parentUuid": "291dc3ce_c83425a2",
+      "revId": "a3b9539c9ef7afe5565ef382ff765507046b600d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
