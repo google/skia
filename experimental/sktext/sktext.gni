@@ -5,16 +5,13 @@ _src = get_path_info("src", "abspath")
 _include = get_path_info("include", "abspath")
 
 sktext_public = [
-  "$_include/Processor.h",
+  "$_include/Text.h",
   "$_include/Types.h",
 ]
 
 sktext_sources = [
-  "$_src/Decorator.cpp",
-  "$_src/Formatter.cpp",
   "$_src/Line.cpp",
-  "$_src/Processor.cpp",
-  "$_src/Shaper.cpp",
+  "$_src/Paint.cpp",
+  "$_src/Text.cpp",
   "$_src/TextRun.cpp",
-  "$_src/Wrapper.cpp",
 ]
