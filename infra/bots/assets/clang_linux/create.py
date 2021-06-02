@@ -14,7 +14,9 @@ import os
 import subprocess
 import tempfile
 
+
 BRANCH = "release/10.x"
+
 
 def create_asset(target_dir):
   # CMake will sometimes barf if we pass it a relative path.
