@@ -144,9 +144,9 @@ DrawResult SimpleGM::onDraw(SkCanvas* canvas, SkString* errorMsg) {
 
 SkISize SimpleGpuGM::onISize() { return fSize; }
 SkString SimpleGpuGM::onShortName() { return fName; }
-DrawResult SimpleGpuGM::onDraw(GrRecordingContext* ctx, GrSurfaceDrawContext* rtc,
+DrawResult SimpleGpuGM::onDraw(GrRecordingContext* rContext, GrSurfaceDrawContext* sdc,
                                SkCanvas* canvas, SkString* errorMsg) {
-    return fDrawProc(ctx, rtc, canvas, errorMsg);
+    return fDrawProc(rContext, sdc, canvas, errorMsg);
 }
 
 const char* GM::getName() {
@@ -189,9 +189,9 @@ void GM::drawSizeBounds(SkCanvas* canvas, SkColor color) {
 // need to explicitly declare this, or we get some weird infinite loop llist
 template GMRegistry* GMRegistry::gHead;
 
-DrawResult GpuGM::onDraw(GrRecordingContext* ctx, GrSurfaceDrawContext* rtc, SkCanvas* canvas,
+DrawResult GpuGM::onDraw(GrRecordingContext* rContext, GrSurfaceDrawContext* sdc, SkCanvas* canvas,
                          SkString* errorMsg) {
-    this->onDraw(ctx, rtc, canvas);
+    this->onDraw(rContext, sdc, canvas);
     return DrawResult::kOk;
 }
 void GpuGM::onDraw(GrRecordingContext*, GrSurfaceDrawContext*, SkCanvas*) {
