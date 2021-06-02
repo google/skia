@@ -45,7 +45,7 @@ public:
 private:
     SkSL::Modifiers fModifiers;
 
-    friend DSLType Struct(const char* name, SkTArray<DSLField> fields);
+    friend DSLType Struct(StringFragment name, SkTArray<DSLField> fields);
     friend class DSLFunction;
     friend class DSLVar;
     friend class DSLWriter;
