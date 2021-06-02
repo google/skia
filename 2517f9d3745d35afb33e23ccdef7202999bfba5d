@@ -16,6 +16,24 @@
       "message": "I follow the algebra here, but now that we\u0027re substituting eps \u003d 1/precision I might rename from rp_minus_eps to rp_minus_1, since there\u0027s no epsilon anymore.\n\nIt might also be worth adding a comment saying \u0027epsilon \u003d 1/precision\u0027 to make it clear how the algebra corresponds to what\u0027s in the paper.",
       "revId": "2517f9d3745d35afb33e23ccdef7202999bfba5d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "543c97b9_4e0ab4d9",
+        "filename": "src/gpu/geometry/GrWangsFormula.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-02T18:00:58Z",
+      "side": 1,
+      "message": "Done. Does the comment sound right?",
+      "parentUuid": "00684dff_68c9ede8",
+      "revId": "2517f9d3745d35afb33e23ccdef7202999bfba5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
