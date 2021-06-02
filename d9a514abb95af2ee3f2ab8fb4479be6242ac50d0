@@ -36,6 +36,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0845a317_768187b9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 20
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-02T14:14:10Z",
+      "side": 1,
+      "message": "Yes, the main change in those results is that the dilate filter is being applied in the local coordinate space of the perspective transform now, instead of afterwards (which is counter to the transform model). You can see in the old images that every dilated color rectangle is axis-aligned with device space whereas now they respect the perspective scaling and axes.",
+      "parentUuid": "80b36a2e_8cdf5485",
+      "revId": "d9a514abb95af2ee3f2ab8fb4479be6242ac50d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "878f1938_dfa9e61a",
