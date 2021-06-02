@@ -34,19 +34,6 @@ import org.skia.androidkitdemo1.samples.SkottieSample;
 
 import static java.lang.Math.tan;
 
-// TODO: remove after all sides are migrated to something more interesting.
-class SolidColorSample implements Sample {
-    private Paint mPaint = new Paint();
-
-    public SolidColorSample(float r, float g, float b, float a) {
-        mPaint.setColor(r, g, b, a);
-    }
-
-    public void render(Canvas canvas, long t, float left, float top, float right, float bottom) {
-        canvas.drawRect(left, top, right, bottom, mPaint);
-    }
-}
-
 class Face {
     private float rotX;
     private float rotY;
@@ -179,17 +166,15 @@ class CubeRenderer extends SurfaceRenderer implements GestureDetector.OnGestureL
     private Matrix          mViewMatrix;
     private float           mCubeSideLength;
     private long            mPrevMS;
-
-    private Face[] faces;
+    private Face[]          mFaces;
 
     public CubeRenderer(Resources res) {
         final float rot = (float) Math.PI;
-        faces = new Face[] {
+        mFaces = new Face[] {
             new Face(0, -rot/2, new ImageShaderSample(res, R.raw.brickwork_texture)),
             new Face(0, 0     , new SkottieSample(res, R.raw.im_thirsty)),
             new Face(0, rot   , new RuntimeSample(res, R.raw.runtime_shader1)),
             new Face(rot/2, 0 , new SkottieSample(res, R.raw.permission)),
-            new Face(-rot/2, 0, new SolidColorSample(1, 1, 0, 1)),
             new Face(0, rot/2 , new RuntimeSample(res, R.raw.runtime_shader2)),
         };
     }
@@ -237,12 +222,18 @@ class CubeRenderer extends SurfaceRenderer implements GestureDetector.OnGestureL
         canvas.concat(mViewMatrix);
         canvas.concat(mVSphere.getMatrix());
 
-        for (Face f : faces) {
-            //TODO: auto restore
+        drawFaces(canvas, ms, false);
+        drawFaces(canvas, ms, true);
+
+        canvas.restore();
+    }
+
+    private void drawFaces(Canvas canvas, long ms, boolean renderFront) {
+        for (Face f : mFaces) {
             canvas.save();
             canvas.concat(f.asMatrix(mCubeSideLength/2));
 
-            if (front(canvas.getLocalToDevice())) {
+            if (front(canvas.getLocalToDevice()) == renderFront) {
                 f.sample.render(canvas, ms,
                                 -mCubeSideLength/2,
                                 -mCubeSideLength/2,
@@ -251,7 +242,6 @@ class CubeRenderer extends SurfaceRenderer implements GestureDetector.OnGestureL
             }
             canvas.restore();
         }
-        canvas.restore();
     }
 
     @Override
