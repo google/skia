@@ -22,6 +22,30 @@
       },
       "revId": "0e5b582cd189d1fe629dff57849ae5d5c0219b6a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "448d9414_ac239cf4",
+        "filename": "src/gpu/GrXferProcessor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-02T17:37:21Z",
+      "side": 1,
+      "message": "For sure, I intend to move it; I\u0027m not certain where it should live yet (not sure if it makes more sense to live in GrProcessor or to have its own header) and this CL had enough change in it already.",
+      "parentUuid": "fdfcaf30_3b1cd396",
+      "range": {
+        "startLine": 48,
+        "startChar": 6,
+        "endLine": 48,
+        "endChar": 20
+      },
+      "revId": "0e5b582cd189d1fe629dff57849ae5d5c0219b6a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
