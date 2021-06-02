@@ -1,6 +1,6 @@
 // Copyright 2021 Google LLC.
 
-#include "experimental/sktext/include/Paint.h"
+#include "experimental/sktext/src/Paint.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkFontMgr.h"
@@ -54,12 +54,11 @@ protected:
         canvas->clipRect(SkRect::MakeWH(w, h));
         canvas->drawColor(SK_ColorWHITE);
 
-        sk_sp<SkTypeface> roboto(Paint::getDefaultTypeface());
         Paint::drawText(direction == TextDirection::kRtl ? mirror(text) : normal(text),
                         canvas,
                         direction, align,
                         SK_ColorBLACK, SK_ColorLTGRAY,
-                        roboto, 12.0f, SkFontStyle::Normal(),
+                        SkString("Roboto"), 12.0f, SkFontStyle::Normal(),
                         0, 0);
     }
 
@@ -156,8 +155,7 @@ protected:
 
     void onDrawContent(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
-        std::u16string str = u"LONG MIRRORED TEXT SHOULD SHOW RIGHT TO LEFT (AS NORMAL)";
-        Paint::drawText(str, canvas, 0, 0);
+        Paint::drawText(u"LONG MIRRORED TEXT SHOULD SHOW RIGHT TO LEFT (AS NORMAL)", canvas, 0, 0);
     }
 
 private:

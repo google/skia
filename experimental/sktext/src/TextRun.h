@@ -14,11 +14,6 @@ class Run {
 class TextRun {
  public:
   TextRun(const SkShaper::RunHandler::RunInfo& info);
-  TextRun& operator=(const TextRun&) = delete;
-  TextRun(TextRun&&) = default;
-  TextRun& operator=(TextRun&&) = delete;
-  ~TextRun() = default;
-
   SkShaper::RunHandler::Buffer newRunBuffer();
   void commit();
 
@@ -26,19 +21,20 @@ class TextRun {
 
   bool leftToRight() const { return fBidiLevel % 2 == 0; }
   uint8_t bidiLevel() const { return fBidiLevel; }
+  GlyphIndex findGlyph(TextIndex textIndex) const;
 
  private:
-  friend class Wrapper;
-  friend class Processor;
-  friend class Shaper;
-  friend class Visitor;
-
+  friend class UnicodeText;
+  friend class ShapedText;
+  friend class FormattedText;
   SkFont fFont;
 
   SkVector fAdvance;
   SkShaper::RunHandler::Range fUtf8Range;
+  TextRange fUtf16Range;
   SkSTArray<128, SkGlyphID, true> fGlyphs;
   SkSTArray<128, SkPoint, true> fPositions;
+  SkSTArray<128, SkPoint, true> fOffsets;
   SkSTArray<128, uint32_t, true> fClusters;
   SkSTArray<128, SkRect, true> fBounds;
 
