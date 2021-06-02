@@ -482,6 +482,7 @@
   "Test-Mac11-Clang-MacMini9.1-CPU-AppleM1-arm64-Debug-All-NativeFonts",
   "Test-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All",
   "Test-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-Metal",
+  "Test-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-DMSAA",
   "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ASAN",
   "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1",
   "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1_Vulkan",

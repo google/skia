@@ -71,12 +71,7 @@ GrGLSLGeometryProcessor* HardwareWedgeShader::createGLSLInstance(const GrShaderC
 
             void main() {
                 float numSegments;
-                if (!isinf(P[3].y)) {
-                    // This is a cubic.
-                    numSegments = wangs_formula_cubic(PRECISION, P[0], P[1], P[2], P[3]);
-                    rationalCubicXY = mat4x2(P[0], P[1], P[2], P[3]);
-                    rationalCubicW = 1;
-                } else {
+                if (isinf(P[3].y)) {
                     // This is a conic.
                     float w = P[3].x;
                     numSegments = wangs_formula_conic(PRECISION, P[0], P[1], P[2], w);
@@ -85,6 +80,11 @@ GrGLSLGeometryProcessor* HardwareWedgeShader::createGLSLInstance(const GrShaderC
                                              mix(vec4(P[0], P[2]), (P[1] * w).xyxy, 2.0/3.0),
                                              P[2]);
                     rationalCubicW = fma(w, 2.0/3.0, 1.0/3.0);
+                } else {
+                    // This is a cubic.
+                    numSegments = wangs_formula_cubic(PRECISION, P[0], P[1], P[2], P[3]);
+                    rationalCubicXY = mat4x2(P[0], P[1], P[2], P[3]);
+                    rationalCubicW = 1;
                 }
                 fanpoint = P[4];
 
@@ -117,7 +117,7 @@ GrGLSLGeometryProcessor* HardwareWedgeShader::createGLSLInstance(const GrShaderC
 
             patch in mat4x2 rationalCubicXY;
             patch in float rationalCubicW;
-            patch in vec2 fanpoint[];
+            patch in vec2 fanpoint;
 
             void main() {
                 // Locate our parametric point of interest. It is equal to the barycentric
@@ -134,7 +134,7 @@ GrGLSLGeometryProcessor* HardwareWedgeShader::createGLSLInstance(const GrShaderC
 
                 if (gl_TessCoord.x == 1.0) {
                     // We are the anchor point that fans from the center of the curve's contour.
-                    vertexpos = fanpoint[0];
+                    vertexpos = fanpoint;
                 } else if (gl_TessCoord.x != 0.0) {
                     // We are the interior point of the patch; center it inside [C(0), C(.5), C(1)].
                     vertexpos = (P[0].xy + vertexpos + P[3].xy) / 3.0;
