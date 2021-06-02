@@ -61,13 +61,15 @@ public:
         }
     }
 
-    void    drawBitmap(const SkBitmap&, const SkMatrix&, const SkRect* dstOrNull,
-                       const SkSamplingOptions&, const SkPaint&) const override {}
+    void drawBitmap(const SkBitmap&, const SkMatrix&, const SkRect* dstOrNull,
+                    const SkSamplingOptions&, const SkPaint&) const override {}
 
     void onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) override {
         SkASSERT(!glyphRunList.hasRSXForm());
         fPainter.drawForBitmapDevice(glyphRunList, paint, fOverdrawCanvas->getTotalMatrix(), this);
     }
+
+    GrRenderTargetProxy* targetProxy() override { return nullptr; }
 
 private:
     SkCanvas* const fOverdrawCanvas;

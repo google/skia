@@ -33,6 +33,7 @@
 #include "src/gpu/GrBlurUtils.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrGpu.h"
+#include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
@@ -216,16 +217,6 @@ bool SkGpuDevice::onWritePixels(const SkPixmap& pm, int x, int y) {
 bool SkGpuDevice::onAccessPixels(SkPixmap* pmap) {
     ASSERT_SINGLE_OWNER
     return false;
-}
-
-GrSurfaceDrawContext* SkGpuDevice::surfaceDrawContext() {
-    ASSERT_SINGLE_OWNER
-    return fSurfaceDrawContext.get();
-}
-
-const GrSurfaceDrawContext* SkGpuDevice::surfaceDrawContext() const {
-    ASSERT_SINGLE_OWNER
-    return fSurfaceDrawContext.get();
 }
 
 void SkGpuDevice::clearAll() {
@@ -992,6 +983,47 @@ bool SkGpuDevice::replaceBackingProxy(SkSurface::ContentChangeMode mode,
 
     fSurfaceDrawContext = std::move(sdc);
     return true;
+}
+
+void SkGpuDevice::asyncRescaleAndReadPixels(const SkImageInfo& info,
+                                            const SkIRect& srcRect,
+                                            RescaleGamma rescaleGamma,
+                                            RescaleMode rescaleMode,
+                                            ReadPixelsCallback callback,
+                                            ReadPixelsContext context) {
+    auto* sdc = fSurfaceDrawContext.get();
+    // Context TODO: Elevate direct context requirement to public API.
+    auto dContext = sdc->recordingContext()->asDirectContext();
+    if (!dContext) {
+        return;
+    }
+    sdc->asyncRescaleAndReadPixels(dContext, info, srcRect, rescaleGamma, rescaleMode, callback,
+                                   context);
+}
+
+void SkGpuDevice::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
+                                                  sk_sp<SkColorSpace> dstColorSpace,
+                                                  const SkIRect& srcRect,
+                                                  SkISize dstSize,
+                                                  RescaleGamma rescaleGamma,
+                                                  RescaleMode rescaleMode,
+                                                  ReadPixelsCallback callback,
+                                                  ReadPixelsContext context) {
+    auto* sdc = fSurfaceDrawContext.get();
+    // Context TODO: Elevate direct context requirement to public API.
+    auto dContext = sdc->recordingContext()->asDirectContext();
+    if (!dContext) {
+        return;
+    }
+    sdc->asyncRescaleAndReadPixelsYUV420(dContext,
+                                         yuvColorSpace,
+                                         std::move(dstColorSpace),
+                                         srcRect,
+                                         dstSize,
+                                         rescaleGamma,
+                                         rescaleMode,
+                                         callback,
+                                         context);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

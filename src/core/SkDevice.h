@@ -198,7 +198,7 @@ public:
     virtual bool android_utils_clipWithStencil() { return false; }
 
     virtual GrRecordingContext* recordingContext() const { return nullptr; }
-    virtual GrSurfaceDrawContext* surfaceDrawContext() { return nullptr; }
+    virtual GrRenderTargetProxy* targetProxy() = 0;
 
     // Ensure that non-RSXForm runs are passed to onDrawGlyphRunList.
     void drawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint);
@@ -489,6 +489,8 @@ public:
         this->setOrigin(SkM44(), bounds.left(), bounds.top());
         this->resetClipStack();
     }
+
+    GrRenderTargetProxy* targetProxy() override { return nullptr; }
 
 protected:
     // SkNoPixelsDevice tracks the clip conservatively in order to respond to some queries as

@@ -273,13 +273,13 @@ bool SkPaintFilterCanvas::onAccessTopLayerPixels(SkPixmap* pixmap) {
 }
 
 SkImageInfo SkPaintFilterCanvas::onImageInfo() const {
-    return proxy()->imageInfo();
+    return this->proxy()->imageInfo();
 }
 
 bool SkPaintFilterCanvas::onGetProps(SkSurfaceProps* props) const {
-    return proxy()->getProps(props);
+    return this->proxy()->getProps(props);
 }
 
-GrSurfaceDrawContext* SkPaintFilterCanvas::topDeviceSurfaceDrawContext() {
-    return SkCanvasPriv::TopDeviceSurfaceDrawContext(this->proxy());
+GrRenderTargetProxy* SkPaintFilterCanvas::topDeviceProxy() {
+    return SkCanvasPriv::TopDeviceProxy(this->proxy());
 }
