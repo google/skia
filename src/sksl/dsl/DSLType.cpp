@@ -15,6 +15,21 @@ namespace SkSL {
 
 namespace dsl {
 
+DSLType::DSLType(StringFragment name) {
+    const SkSL::Symbol* symbol = (*DSLWriter::SymbolTable())[name];
+    if (symbol) {
+        if (symbol->is<SkSL::Type>()) {
+            fSkSLType = &symbol->as<SkSL::Type>();
+        } else {
+            DSLWriter::ReportError(String::printf("symbol '%*s' is not a type", (int) name.length(),
+                                                  name.data()).c_str());
+        }
+    } else {
+        DSLWriter::ReportError(String::printf("no symbol named '%*s'", (int) name.length(),
+                                              name.data()).c_str());
+    }
+}
+
 bool DSLType::isBoolean() const {
     return this->skslType().isBoolean();
 }
@@ -177,7 +192,7 @@ DSLType Array(const DSLType& base, int count) {
     return DSLWriter::SymbolTable()->addArrayDimension(&base.skslType(), count);
 }
 
-DSLType Struct(const char* name, SkTArray<DSLField> fields) {
+DSLType Struct(StringFragment name, SkTArray<DSLField> fields) {
     std::vector<SkSL::Type::Field> skslFields;
     skslFields.reserve(fields.count());
     for (const DSLField& field : fields) {
