@@ -372,7 +372,13 @@ private:
             GrTessellationShader::WriteConicPatch(p, w, asPatch);
         }
 
-        float numParametricSegments_pow4 = GrWangsFormula::quadratic_pow4(fParametricPrecision, p);
+        float numParametricSegments_pow4;
+        if (w == 1) {
+            numParametricSegments_pow4 = GrWangsFormula::quadratic_pow4(fParametricPrecision, p);
+        } else {
+            float n = GrWangsFormula::conic_pow2(fParametricPrecision, p, w);
+            numParametricSegments_pow4 = n*n;
+        }
         if (this->stroke180FitsInPatch(numParametricSegments_pow4) || maxDepth == 0) {
             this->internalPatchTo(prevJoinType,
                                   this->stroke180FitsInPatch_withJoin(numParametricSegments_pow4),
@@ -823,8 +829,8 @@ void GrStrokeHardwareTessellator::prepare(GrMeshDrawOp::Target* target, int tota
                     // For now, the tessellation shader still uses Wang's quadratic formula when it
                     // draws conics.
                     // TODO: Update here when the shader starts using the real conic formula.
-                    float numParametricSegments_pow4 =
-                            GrWangsFormula::quadratic_pow4(patchWriter.parametricPrecision(), p);
+                    float n = GrWangsFormula::conic_pow2(patchWriter.parametricPrecision(), p, *w);
+                    float numParametricSegments_pow4 = n*n;
                     if (!patchWriter.stroke180FitsInPatch(numParametricSegments_pow4)) {
                         // The curve requires more tessellation segments than the hardware can
                         // support. This is rare. Recursively chop until each sub-curve fits.
