@@ -163,10 +163,13 @@ static sk_sp<GrTextureProxy> make_bmp_proxy(GrProxyProvider* proxyProvider,
     return proxy;
 }
 
-std::tuple<GrSurfaceProxyView, GrColorType>
-GrMakeCachedBitmapProxyView(GrRecordingContext* rContext,
-                            const SkBitmap& bitmap,
-                            GrMipmapped mipmapped) {
+static std::tuple<GrSurfaceProxyView, GrColorType>
+make_cached_bitmap_view(GrRecordingContext* rContext,
+                        const SkBitmap& bitmap,
+                        GrMipmapped mipmapped,
+                        uint32_t cacheID) {
+    SkASSERT(cacheID != SK_InvalidUniqueID);
+
     if (!bitmap.peekPixels(nullptr)) {
         return {};
     }
@@ -177,14 +180,17 @@ GrMakeCachedBitmapProxyView(GrRecordingContext* rContext,
     GrUniqueKey key;
     SkIPoint origin = bitmap.pixelRefOrigin();
     SkIRect subset = SkIRect::MakePtSize(origin, bitmap.dimensions());
-    GrMakeKeyFromImageID(&key, bitmap.pixelRef()->getGenerationID(), subset);
+    GrMakeKeyFromImageID(&key, cacheID, subset);
 
     mipmapped = adjust_mipmapped(mipmapped, bitmap, caps);
     GrColorType ct = choose_bmp_texture_colortype(caps, bitmap);
 
     auto installKey = [&](GrTextureProxy* proxy) {
-        auto listener = GrMakeUniqueKeyInvalidationListener(&key, proxyProvider->contextID());
-        bitmap.pixelRef()->addGenIDChangeListener(std::move(listener));
+        if (cacheID == bitmap.getGenerationID()) {
+            auto listener = GrMakeUniqueKeyInvalidationListener(&key,
+                                                                proxyProvider->contextID());
+            bitmap.pixelRef()->addGenIDChangeListener(std::move(listener));
+        }
         proxyProvider->assignUniqueKeyToProxy(key, proxy);
     };
 
@@ -227,6 +233,22 @@ GrMakeCachedBitmapProxyView(GrRecordingContext* rContext,
     proxyProvider->removeUniqueKeyFromProxy(proxy.get());
     installKey(mippedProxy->asTextureProxy());
     return {{std::move(mippedProxy), kTopLeft_GrSurfaceOrigin, swizzle}, ct};
+}
+
+std::tuple<GrSurfaceProxyView, GrColorType>
+GrMakeCachedBitmapProxyViewWithID(GrRecordingContext* rContext,
+                                  const SkBitmap& bitmap,
+                                  GrMipmapped mipmapped,
+                                  uint32_t cacheID) {
+    return make_cached_bitmap_view(rContext, bitmap, mipmapped, cacheID);
+}
+
+std::tuple<GrSurfaceProxyView, GrColorType>
+GrMakeCachedBitmapProxyView(GrRecordingContext* rContext,
+                            const SkBitmap& bitmap,
+                            GrMipmapped mipmapped) {
+    uint32_t cacheID = bitmap.getGenerationID();
+    return make_cached_bitmap_view(rContext, bitmap, mipmapped, cacheID);
 }
 
 std::tuple<GrSurfaceProxyView, GrColorType>
