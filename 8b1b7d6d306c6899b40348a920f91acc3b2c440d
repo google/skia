@@ -56,6 +56,30 @@
       },
       "revId": "8b1b7d6d306c6899b40348a920f91acc3b2c440d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "30d32355_4ff7b9a7",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 414,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-02T17:41:52Z",
+      "side": 1,
+      "message": "Yeah, it\u0027s not possible, and I\u0027d consider passing null to be invalid. Changed this to assert.",
+      "parentUuid": "6c676769_7f21b7db",
+      "range": {
+        "startLine": 414,
+        "startChar": 17,
+        "endLine": 414,
+        "endChar": 21
+      },
+      "revId": "8b1b7d6d306c6899b40348a920f91acc3b2c440d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
