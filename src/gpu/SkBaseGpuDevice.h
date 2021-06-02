@@ -52,6 +52,7 @@ public:
     virtual bool wait(int numSemaphores,
                       const GrBackendSemaphore* waitSemaphores,
                       bool deleteSemaphoresAfterWait) = 0;
+    virtual void discard() = 0;
 
     virtual bool replaceBackingProxy(SkSurface::ContentChangeMode,
                                      sk_sp<GrRenderTargetProxy>,
@@ -60,6 +61,27 @@ public:
                                      GrSurfaceOrigin,
                                      const SkSurfaceProps&) = 0;
     bool replaceBackingProxy(SkSurface::ContentChangeMode);
+
+    using RescaleGamma       = SkImage::RescaleGamma;
+    using RescaleMode        = SkImage::RescaleMode;
+    using ReadPixelsCallback = SkImage::ReadPixelsCallback;
+    using ReadPixelsContext  = SkImage::ReadPixelsContext;
+
+    virtual void asyncRescaleAndReadPixels(const SkImageInfo& info,
+                                           const SkIRect& srcRect,
+                                           RescaleGamma rescaleGamma,
+                                           RescaleMode rescaleMode,
+                                           ReadPixelsCallback callback,
+                                           ReadPixelsContext context) = 0;
+
+    virtual void asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
+                                                 sk_sp<SkColorSpace> dstColorSpace,
+                                                 const SkIRect& srcRect,
+                                                 SkISize dstSize,
+                                                 RescaleGamma rescaleGamma,
+                                                 RescaleMode,
+                                                 ReadPixelsCallback callback,
+                                                 ReadPixelsContext context) = 0;
 
 protected:
     sk_sp<GrRecordingContext> fContext;
