@@ -2,9 +2,8 @@
 #ifndef Types_DEFINED
 #define Types_DEFINED
 
-#include "include/core/SkFontMgr.h"
-#include "include/core/SkPaint.h"
-#include "include/core/SkTypeface.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkSize.h"
 #include <algorithm>
 #include <cstddef>
 #include "include/private/SkBitmaskEnum.h"
@@ -31,16 +30,21 @@ enum class LineBreakType {
   kHardLineBreakBefore,
 };
 
-enum CodeUnitFlags : uint32_t {
+enum class CodeUnitFlags : uint8_t {
     kNoCodeUnitFlag = 0x000,
     kPartOfWhiteSpace = 0x001,
     kGraphemeStart = 0x002,
     kSoftLineBreakBefore = 0x004,
     kHardLineBreakBefore = 0x008,
-    // This information we get from SkShaper
-    kGlyphStart = 0x010,
-    kGlyphClusterStart = 0x020,
-    kNonExistingFlag = 0x040,
+};
+
+enum class GlyphUnitFlags : uint8_t {
+    kNoGlyphUnitFlag = 0x000,
+    kPartOfWhiteSpace = 0x001,
+    kGraphemeStart = 0x002,
+    kSoftLineBreakBefore = 0x004,
+    kHardLineBreakBefore = 0x008,
+    kGlyphClusterStart = 0x0016,
 };
 
 typedef size_t TextIndex;
@@ -55,6 +59,14 @@ public:
 
     bool leftToRight() const {
         return fEnd >= fStart;
+    }
+
+    bool contains(T index) const {
+        if (leftToRight()) {
+            return index >= fStart && index < fEnd;
+        } else {
+            return index < fStart && index >= fEnd;
+        }
     }
 
     void normalize() {
@@ -128,48 +140,38 @@ typedef Range<TextIndex> TextRange;
 typedef Range<GlyphIndex> GlyphRange;
 const Range EMPTY_RANGE = Range(EMPTY_INDEX, EMPTY_INDEX);
 
-class Block {
+// Blocks
+enum BlockType {
+    kFont,
+    kPlaceholder,
+};
+
+struct Placeholder {
+    SkSize  dimensions;
+    float   yOffsetFromBaseline;
+};
+
+class FontChain : public SkRefCnt {
 public:
-    enum BlockType {
-        kFont,
-        kDecor,
-        kTrackable, // Breaks runs for a customer
+    // Returns the number of faces in the chain. Always >= 1
+    virtual size_t count() const = 0;
+    virtual sk_sp<SkTypeface> operator[](size_t index) const = 0;
+    virtual float size() const = 0;
+
+};
+
+struct Block {
+    Block(uint32_t count, sk_sp<FontChain> fontChain)
+        : type(BlockType::kFont)
+        , charCount(count)
+        , chain(fontChain) { }
+    ~Block(){ }
+    BlockType  type;
+    uint32_t   charCount;
+    union {
+        sk_sp<FontChain>  chain;
+        Placeholder placeholder;
     };
-    Block(BlockType type, size_t length)
-        : fType(type)
-        , fLength(length) { }
-    BlockType fType;
-    size_t fLength;
-};
-
-class FontBlock : public Block {
-public:
-    FontBlock(sk_sp<SkTypeface> typeface, SkScalar size, SkFontStyle style, size_t length)
-        : Block(Block::kFont, length)
-        , fFontSize(size)
-        , fFontStyle(style)
-        , fTypeface(typeface) { }
-
-    SkScalar fFontSize;
-    SkFontStyle fFontStyle;
-    sk_sp<SkTypeface> fTypeface;
-
-    // TODO: Features
-};
-
-class DecorBlock : public Block {
-public:
-    DecorBlock(const SkPaint* foreground, const SkPaint* background, size_t length)
-        : Block(Block::kFont, length)
-        , fForegroundColor(foreground)
-        , fBackgroundColor(background) { }
-
-    DecorBlock(size_t length)
-        : DecorBlock(nullptr, nullptr, length) { }
-
-    const SkPaint* fForegroundColor;
-    const SkPaint* fBackgroundColor;
-    // Everything else
 };
 
 }  // namespace text
@@ -177,6 +179,7 @@ public:
 
 namespace sknonstd {
 template <> struct is_bitmask_enum<skia::text::CodeUnitFlags> : std::true_type {};
+template <> struct is_bitmask_enum<skia::text::GlyphUnitFlags> : std::true_type {};
 }
 
 #endif

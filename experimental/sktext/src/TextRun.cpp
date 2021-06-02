@@ -15,6 +15,7 @@ TextRun::TextRun(const SkShaper::RunHandler::RunInfo& info)
     fGlyphs.push_back_n(info.glyphCount);
     fBounds.push_back_n(info.glyphCount);
     fPositions.push_back_n(info.glyphCount + 1);
+    fOffsets.push_back_n(info.glyphCount);
     fClusters.push_back_n(info.glyphCount + 1);
 }
 
@@ -26,7 +27,7 @@ void TextRun::commit() {
 }
 
 SkShaper::RunHandler::Buffer TextRun::newRunBuffer() {
-    return {fGlyphs.data(), fPositions.data(), nullptr, fClusters.data(), {0.0f, 0.0f} };
+    return {fGlyphs.data(), fPositions.data(), fOffsets.data(), fClusters.data(), {0.0f, 0.0f} };
 }
 
 SkScalar TextRun::calculateWidth(GlyphRange glyphRange) const {
@@ -34,5 +35,20 @@ SkScalar TextRun::calculateWidth(GlyphRange glyphRange) const {
     return fPositions[glyphRange.fEnd].fX - fPositions[glyphRange.fStart].fX;
 }
 
+GlyphIndex TextRun::findGlyph(TextIndex textIndex) const {
+    GlyphIndex glyphIndex = EMPTY_INDEX;
+    for (size_t i = 0; i < fClusters.size(); ++i) {
+        auto cluster = fClusters[i];
+        if (this->leftToRight()) {
+            if (cluster > textIndex) {
+                break;
+            }
+        } else if (cluster < textIndex) {
+            break;
+        }
+        glyphIndex = i;
+    }
+    return glyphIndex;
+}
 } // namespace text
 } // namespace skia
