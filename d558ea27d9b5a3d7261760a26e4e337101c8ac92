@@ -22,6 +22,30 @@
       },
       "revId": "d558ea27d9b5a3d7261760a26e4e337101c8ac92",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "47e11d3b_816b2b4c",
+        "filename": "src/sksl/dsl/DSLSymbols.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-02T19:08:43Z",
+      "side": 1,
+      "message": "Crap, misread my own code when I was breaking these calls out into a separate method. That should definitely not be named or described that way at all. Good catch.",
+      "parentUuid": "d9d5474f_dccdd69c",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 1
+      },
+      "revId": "d558ea27d9b5a3d7261760a26e4e337101c8ac92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
