@@ -33,6 +33,24 @@
       "message": "I totally like the option (as you outlined in an earlier CL) of having the option to pass in a WASMPtr and length and ownership. you did this with a 2nd constructor.\n\nI don\u0027t think it necessary to remove the JSArray version (even though it is slower). I also think the negative size trick is unnecessary: I think a bool or enum is an extra param, but very clear and no slower.\n\ni.e. I think I like your earlier approach of just adding a 2nd constructor.\n",
       "revId": "72afd6af0fcefffbfcc794c59a816871aa0e794b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e95419a4_8b98aae4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-02T12:41:00Z",
+      "side": 1,
+      "message": "That\u0027s fine. I figured I would try something new, and I agree with you. It was a little clunkier than it seemed in my head. I\u0027ve gone back to that approach.\n\nI kept the JSArray version in, but with a comment describing how it can be slower.",
+      "parentUuid": "ff35f8d9_f65c8c4a",
+      "revId": "72afd6af0fcefffbfcc794c59a816871aa0e794b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
