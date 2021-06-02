@@ -53,6 +53,14 @@ public:
                       const GrBackendSemaphore* waitSemaphores,
                       bool deleteSemaphoresAfterWait) = 0;
 
+    virtual bool replaceBackingProxy(SkSurface::ContentChangeMode,
+                                     sk_sp<GrRenderTargetProxy>,
+                                     GrColorType,
+                                     sk_sp<SkColorSpace>,
+                                     GrSurfaceOrigin,
+                                     const SkSurfaceProps&) = 0;
+    bool replaceBackingProxy(SkSurface::ContentChangeMode);
+
 protected:
     sk_sp<GrRecordingContext> fContext;
 

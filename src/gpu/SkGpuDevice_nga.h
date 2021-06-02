@@ -25,7 +25,16 @@ public:
 
     bool wait(int numSemaphores,
               const GrBackendSemaphore* waitSemaphores,
-              bool deleteSemaphoresAfterWait) {
+              bool deleteSemaphoresAfterWait) override {
+        return false;
+    }
+
+    bool replaceBackingProxy(SkSurface::ContentChangeMode,
+                             sk_sp<GrRenderTargetProxy>,
+                             GrColorType,
+                             sk_sp<SkColorSpace>,
+                             GrSurfaceOrigin,
+                             const SkSurfaceProps&) override {
         return false;
     }
 

@@ -42,6 +42,14 @@ public:
               const GrBackendSemaphore* waitSemaphores,
               bool deleteSemaphoresAfterWait) override;
 
+    bool replaceBackingProxy(SkSurface::ContentChangeMode,
+                             sk_sp<GrRenderTargetProxy>,
+                             GrColorType,
+                             sk_sp<SkColorSpace>,
+                             GrSurfaceOrigin,
+                             const SkSurfaceProps&) override;
+    using SkBaseGpuDevice::replaceBackingProxy;
+
     /**
      * This factory uses the color space, origin, surface properties, and initialization
      * method along with the provided proxy to create the gpu device.
@@ -78,10 +86,6 @@ public:
 
     // set all pixels to 0
     void clearAll();
-
-    void replaceSurfaceDrawContext(SkSurface::ContentChangeMode mode);
-    void replaceSurfaceDrawContext(std::unique_ptr<GrSurfaceDrawContext>,
-                                   SkSurface::ContentChangeMode mode);
 
     void drawPaint(const SkPaint& paint) override;
     void drawPoints(SkCanvas::PointMode mode, size_t count, const SkPoint[],

@@ -206,7 +206,7 @@ void SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
     SkASSERT(image);
 
     if (static_cast<SkImage_Gpu*>(image.get())->surfaceMustCopyOnWrite(readSurfaceView.proxy())) {
-        fDevice->replaceSurfaceDrawContext(mode);
+        fDevice->replaceBackingProxy(mode);
     } else if (kDiscard_ContentChangeMode == mode) {
         this->SkSurface_Gpu::onDiscard();
     }
@@ -533,8 +533,8 @@ bool SkSurface_Gpu::onReplaceBackendTexture(const GrBackendTexture& backendTextu
                                             ReleaseContext releaseContext) {
     auto releaseHelper = GrRefCntedCallback::Make(releaseProc, releaseContext);
 
-    auto context = this->fDevice->recordingContext();
-    if (context->abandoned()) {
+    auto rContext = fDevice->recordingContext();
+    if (rContext->abandoned()) {
         return false;
     }
     if (!backendTexture.isValid()) {
@@ -543,8 +543,8 @@ bool SkSurface_Gpu::onReplaceBackendTexture(const GrBackendTexture& backendTextu
     if (backendTexture.width() != this->width() || backendTexture.height() != this->height()) {
         return false;
     }
-    auto* oldSDC = fDevice->surfaceDrawContext();
-    auto oldProxy = sk_ref_sp(oldSDC->asTextureProxy());
+    auto* oldRTP = fDevice->targetProxy();
+    auto oldProxy = sk_ref_sp(oldRTP->asTextureProxy());
     if (!oldProxy) {
         return false;
     }
@@ -564,19 +564,23 @@ bool SkSurface_Gpu::onReplaceBackendTexture(const GrBackendTexture& backendTextu
     SkASSERT(oldTexture->asRenderTarget());
     int sampleCnt = oldTexture->asRenderTarget()->numSamples();
     GrColorType grColorType = SkColorTypeToGrColorType(this->getCanvas()->imageInfo().colorType());
-    auto colorSpace = sk_ref_sp(oldSDC->colorInfo().colorSpace());
-    if (!validate_backend_texture(context->priv().caps(), backendTexture,
+    if (!validate_backend_texture(rContext->priv().caps(), backendTexture,
                                   sampleCnt, grColorType, true)) {
         return false;
     }
-    auto sdc = GrSurfaceDrawContext::MakeFromBackendTexture(
-            context, oldSDC->colorInfo().colorType(), std::move(colorSpace), backendTexture,
-            sampleCnt, origin, this->props(), std::move(releaseHelper));
-    if (!sdc) {
+
+    sk_sp<SkColorSpace> colorSpace = fDevice->imageInfo().refColorSpace();
+
+    SkASSERT(sampleCnt > 0);
+    sk_sp<GrTextureProxy> proxy(rContext->priv().proxyProvider()->wrapRenderableBackendTexture(
+            backendTexture, sampleCnt, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo,
+            std::move(releaseHelper)));
+    if (!proxy) {
         return false;
     }
-    fDevice->replaceSurfaceDrawContext(std::move(sdc), mode);
-    return true;
+
+    return fDevice->replaceBackingProxy(mode, sk_ref_sp(proxy->asRenderTargetProxy()), grColorType,
+                                        std::move(colorSpace), origin, this->props());
 }
 
 bool validate_backend_render_target(const GrCaps* caps, const GrBackendRenderTarget& rt,
