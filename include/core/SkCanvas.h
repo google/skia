@@ -63,6 +63,12 @@ class SkSurface_Base;
 class SkTextBlob;
 class SkVertices;
 
+#if SK_SUPPORT_GPU
+class GrRenderTargetProxy;
+#else
+using GrRenderTargetProxy = SkRefCnt;
+#endif
+
 /** \class SkCanvas
     SkCanvas provides an interface for drawing, and how the drawing is clipped and transformed.
     SkCanvas contains a stack of SkMatrix and clip values.
@@ -2298,6 +2304,7 @@ private:
     // operations should route to this device.
     SkBaseDevice* topDevice() const;
     virtual GrSurfaceDrawContext* topDeviceSurfaceDrawContext();
+    virtual GrRenderTargetProxy* topDeviceProxy();
 
     class MCRec;
 
