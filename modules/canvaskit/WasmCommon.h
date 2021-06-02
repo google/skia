@@ -38,6 +38,7 @@ using WASMPointerF32 = uintptr_t;
 using WASMPointerU8  = uintptr_t;
 using WASMPointerU16 = uintptr_t;
 using WASMPointerU32 = uintptr_t;
+using WASMPointer = uintptr_t;
 
 #define SPECIALIZE_JSARRAYTYPE(type, name)                  \
     template <> struct JSArrayType<type> {                  \
@@ -75,6 +76,8 @@ template <typename T> TypedArray MakeTypedArray(int count, const T src[]) {
  */
 template <typename T> class JSSpan {
 public:
+    // Note: Use of this constructor is 5-20x slower than manually copying the data on the JS side
+    // and sending over a pointer, length, and boolean for the other constructor.
     JSSpan(JSArray src) {
         const size_t len = src["length"].as<size_t>();
         T* data;
@@ -98,6 +101,10 @@ public:
             }
         }
         fSpan = SkSpan(data, len);
+    }
+
+    JSSpan(WASMPointer ptr, size_t len, bool takeOwnership): fOwned(takeOwnership) {
+        fSpan = SkSpan(reinterpret_cast<T*>(ptr), len);
     }
 
     ~JSSpan() {
