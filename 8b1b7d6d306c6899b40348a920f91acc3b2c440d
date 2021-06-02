@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "39973b82_b522cf11",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-02T16:58:52Z",
+      "side": 1,
+      "message": "See: https://skia.googlesource.com/skia/+/refs/heads/main/src/core/SkString.cpp#305\n\nI\u0027m hesitant to turn this into a hash table, for a couple reasons:\n1) The current code always iterates in declaration order, which is nice.\n2) Typical shaders have very few uniforms, so the overhead seems unnecessary.",
+      "revId": "8b1b7d6d306c6899b40348a920f91acc3b2c440d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
