@@ -185,24 +185,39 @@ SK_ALWAYS_INLINE static int conic_log2(float tolerance, const SkPoint pts[], flo
 inline static SkString as_sksl() {
     SkString code;
     code.appendf(R"(
-    float length_pow2(float2 v) {
-        return dot(v, v);
-    }
-    float wangs_formula_cubic(float parametricPrecision, float2 p0, float2 p1, float2 p2,
-                              float2 p3) {
-        const float CUBIC_TERM_POW2 = %f;
-        float l0 = length_pow2(fma(float2(-2), p1, p2) + p0);
-        float l1 = length_pow2(fma(float2(-2), p2, p3) + p1);
-        float m = CUBIC_TERM_POW2 * max(l0, l1);
-        return max(ceil(sqrt(parametricPrecision * sqrt(m))), 1.0);
-    }
-    float wangs_formula_conic(float parametricPrecision, float2 p0, float2 p1, float2 p2, float w) {
-        // FIXME: Use the better formula from GrWangsFormula::conic().
-        const float QUAD_TERM_POW2 = %f;
-        float l = length_pow2(fma(float2(-2), p1, p2) + p0);
-        float m = QUAD_TERM_POW2 * l;
-        return max(ceil(sqrt(parametricPrecision * sqrt(m))), 1.0);
-    })", length_term_pow2<3>(1), length_term_pow2<2>(1));
+    float wangs_formula_cubic(float _precision_, float2 p0, float2 p1, float2 p2, float2 p3) {
+        float2 d0 = fma(float2(-2), p1, p2) + p0;
+        float2 d1 = fma(float2(-2), p2, p3) + p1;
+        float m = max(dot(d0,d0), dot(d1,d1));
+        return max(ceil(sqrt(%f * _precision_ * sqrt(m))), 1.0);
+    })", length_term<3>(1));
+
+    code.appendf(R"(
+    float wangs_formula_conic(float _precision_, float2 p0, float2 p1, float2 p2, float w) {
+        // Compute center of bounding box in projected space.
+        float2 C = 0.5 * (min(min(p0, p1), p2) + max(max(p0, p1), p2));
+
+        // Translate by -C. This improves translation-invariance of the formula,
+        // see Sec. 3.3 of cited paper.
+        p0 -= C;
+        p1 -= C;
+        p2 -= C;
+
+        // Compute max length.
+        float m = sqrt(max(max(dot(p0,p0), dot(p1,p1)), dot(p2,p2)));
+
+        // Compute forward differences.
+        float2 dp = fma(float2(-2 * w), p1, p0) + p2;
+        float dw = abs(fma(-2, w, 2));
+
+        // Compute numerator and denominator for parametric step size of linearization. Here, the
+        // epsilon referenced from the cited paper is 1/precision.
+        float rp_minus_1 = max(0, fma(m, _precision_, -1));
+        float numer = length(dp) * _precision_ + rp_minus_1 * dw;
+        float denom = 4 * min(w, 1);
+        return max(ceil(sqrt(numer/denom)), 1.0);
+    })");
+
     return code;
 }
 
