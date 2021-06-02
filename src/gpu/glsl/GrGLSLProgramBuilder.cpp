@@ -61,9 +61,19 @@ bool GrGLSLProgramBuilder::emitAndInstallProcs() {
     if (!this->emitAndInstallPrimProc(&inputColor, &inputCoverage)) {
         return false;
     }
+
+    // The dstTexture appears distorted when installed here.
+    if (!this->emitAndInstallDstTexture()) {
+        return false;
+    }
     if (!this->emitAndInstallFragProcs(&inputColor, &inputCoverage)) {
         return false;
     }
+
+    // Everything works fine if the dstTexture is installed here.
+//  if (!this->emitAndInstallDstTexture()) {
+//      return false;
+//  }
     if (!this->emitAndInstallXferProc(inputColor, inputCoverage)) {
         return false;
     }
@@ -207,6 +217,31 @@ SkString GrGLSLProgramBuilder::emitFragProc(const GrFragmentProcessor& fp,
     return output;
 }
 
+bool GrGLSLProgramBuilder::emitAndInstallDstTexture() {
+    fDstTextureOrigin = kTopLeft_GrSurfaceOrigin;
+
+    const GrSurfaceProxyView& dstView = this->pipeline().dstProxyView();
+    if (this->pipeline().usesDstTexture()) {
+        GrTextureProxy* dstTextureProxy = dstView.asTextureProxy();
+        SkASSERT(dstTextureProxy);
+        const GrSwizzle& swizzle = dstView.swizzle();
+        fDstTextureSamplerHandle = this->emitSampler(dstTextureProxy->backendFormat(),
+                                                    GrSamplerState(), swizzle, "DstTextureSampler");
+        if (!fDstTextureSamplerHandle.isValid()) {
+            return false;
+        }
+        fDstTextureOrigin = dstView.origin();
+        SkASSERT(dstTextureProxy->textureType() != GrTextureType::kExternal);
+    } else if (this->pipeline().usesInputAttachment()) {
+        const GrSwizzle& swizzle = dstView.swizzle();
+        fDstTextureSamplerHandle = this->emitInputSampler(swizzle, "DstTextureInput");
+        if (!fDstTextureSamplerHandle.isValid()) {
+            return false;
+        }
+    }
+    return true;
+}
+
 bool GrGLSLProgramBuilder::emitAndInstallXferProc(const SkString& colorIn,
                                                   const SkString& coverageIn) {
     // Program builders have a bit of state we need to clear with each effect
@@ -229,29 +264,6 @@ bool GrGLSLProgramBuilder::emitAndInstallXferProc(const SkString& colorIn,
     openBrace.printf("{ // Xfer Processor: %s\n", xp.name());
     fFS.codeAppend(openBrace.c_str());
 
-    SamplerHandle dstTextureSamplerHandle;
-    GrSurfaceOrigin dstTextureOrigin = kTopLeft_GrSurfaceOrigin;
-
-    const GrSurfaceProxyView& dstView = this->pipeline().dstProxyView();
-    if (this->pipeline().usesDstTexture()) {
-        GrTextureProxy* dstTextureProxy = dstView.asTextureProxy();
-        SkASSERT(dstTextureProxy);
-        const GrSwizzle& swizzle = dstView.swizzle();
-        dstTextureSamplerHandle = this->emitSampler(dstTextureProxy->backendFormat(),
-                                                    GrSamplerState(), swizzle, "DstTextureSampler");
-        if (!dstTextureSamplerHandle.isValid()) {
-            return false;
-        }
-        dstTextureOrigin = dstView.origin();
-        SkASSERT(dstTextureProxy->textureType() != GrTextureType::kExternal);
-    } else if (this->pipeline().usesInputAttachment()) {
-        const GrSwizzle& swizzle = dstView.swizzle();
-        dstTextureSamplerHandle = this->emitInputSampler(swizzle, "DstTextureInput");
-        if (!dstTextureSamplerHandle.isValid()) {
-            return false;
-        }
-    }
-
     SkString finalInColor = colorIn.size() ? colorIn : SkString("float4(1)");
 
     GrGLSLXferProcessor::EmitArgs args(&fFS,
@@ -263,8 +275,8 @@ bool GrGLSLProgramBuilder::emitAndInstallXferProc(const SkString& colorIn,
                                        fFS.getPrimaryColorOutputName(),
                                        fFS.getSecondaryColorOutputName(),
                                        this->pipeline().dstSampleType(),
-                                       dstTextureSamplerHandle,
-                                       dstTextureOrigin,
+                                       fDstTextureSamplerHandle,
+                                       fDstTextureOrigin,
                                        this->pipeline().writeSwizzle());
     fXferProcessor->emitCode(args);
 
