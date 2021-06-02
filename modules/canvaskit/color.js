@@ -154,7 +154,9 @@ function toUint32Color(c) {
 // Accepts various colors representations and converts them to an array of int colors.
 // Does not handle builders.
 function assureIntColors(arr) {
-  if (arr instanceof Float32Array) {
+  if (wasMalloced(arr)) {
+    return arr; // Assume if the memory was malloced that the user has done it correctly.
+  } else if (arr instanceof Float32Array) {
     var count = Math.floor(arr.length / 4);
     var result = new Uint32Array(count);
     for (var i = 0; i < count; i ++) {

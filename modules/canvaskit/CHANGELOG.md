@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `Path.toCmds()` returns a flattened Float32Array instead of a 2D Array.
  - `Canvaskit.Path.MakeFromCmds` no longer accepts a 2D Array. Inputs must be flattened,
    but can be an array, a TypedArray, or a MallocObj.
+ - `CanvasKit.*Builder` have all been removed. Clients should use Malloc instead.
 
 ## [0.27.0] - 2021-05-20
 

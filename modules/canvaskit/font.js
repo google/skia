@@ -164,7 +164,7 @@ CanvasKit._extraInitializations.push(function() {
     var ids = font.getGlyphIDs(str);
     var widths = font.getGlyphWidths(ids);
 
-    var rsx = new CanvasKit.RSXFormBuilder();
+    var rsx = [];
     var meas = new CanvasKit.ContourMeasureIter(path, false, 1);
     var cont = meas.next();
     var dist = initialOffset;
@@ -200,13 +200,12 @@ CanvasKit._extraInitializations.push(function() {
       dist += width/2;
     }
     var retVal = this.MakeFromRSXform(str, rsx, font);
-    rsx.delete();
     cont && cont.delete();
     meas.delete();
     return retVal;
   };
 
-  CanvasKit.TextBlob.MakeFromRSXform = function(str, rsxBuilderOrArray, font) {
+  CanvasKit.TextBlob.MakeFromRSXform = function(str, rsxForms, font) {
     // lengthBytesUTF8 and stringToUTF8Array are defined in the emscripten
     // JS.  See https://kripken.github.io/emscripten-site/docs/api_reference/preamble.js.html#stringToUTF8
     // Add 1 for null terminator
@@ -215,12 +214,7 @@ CanvasKit._extraInitializations.push(function() {
     // Add 1 for the null terminator.
     stringToUTF8(str, strPtr, strLen);
 
-    var rPtr = nullptr;
-    if (rsxBuilderOrArray.build) {
-      rPtr = rsxBuilderOrArray.build();
-    } else {
-      rPtr = copy1dArray(rsxBuilderOrArray, 'HEAPF32');
-    }
+    var rPtr = copy1dArray(rsxForms, 'HEAPF32');
 
     var blob = CanvasKit.TextBlob._MakeFromRSXform(strPtr, strLen - 1, rPtr, font);
     CanvasKit._free(strPtr);
@@ -233,17 +227,12 @@ CanvasKit._extraInitializations.push(function() {
 
   // Glyphs should be a Uint32Array of glyph ids, e.g. provided by Font.getGlyphIDs.
   // If using a Malloc'd array, be sure to use CanvasKit.MallocGlyphIDs() to get the right type.
-  CanvasKit.TextBlob.MakeFromRSXformGlyphs = function(glyphs, rsxBuilderOrArray, font) {
+  CanvasKit.TextBlob.MakeFromRSXformGlyphs = function(glyphs, rsxForms, font) {
     // Currently on the C++ side, glyph ids are 16bit, but there is an effort to change that.
     var glyphPtr = copy1dArray(glyphs, 'HEAPU16');
     var bytesPerGlyph = 2;
 
-    var rPtr = nullptr;
-    if (rsxBuilderOrArray.build) {
-      rPtr = rsxBuilderOrArray.build();
-    } else {
-      rPtr = copy1dArray(rsxBuilderOrArray, 'HEAPF32');
-    }
+    var rPtr = copy1dArray(rsxForms, 'HEAPF32');
 
     var blob = CanvasKit.TextBlob._MakeFromRSXformGlyphs(glyphPtr, glyphs.length * bytesPerGlyph, rPtr, font);
     freeArraysThatAreNotMallocedByUsers(glyphPtr, glyphs);

@@ -369,7 +369,6 @@ EMCC_DEBUG=1 ${EMCXX} \
     --pre-js $BASE_DIR/preamble.js \
     --pre-js $BASE_DIR/color.js \
     --pre-js $BASE_DIR/memory.js \
-    --pre-js $BASE_DIR/helper.js \
     --pre-js $BASE_DIR/util.js \
     --pre-js $BASE_DIR/interface.js \
     $MATRIX_HELPER_JS \
