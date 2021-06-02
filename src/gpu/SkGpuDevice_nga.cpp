@@ -24,6 +24,34 @@ SkGpuDevice_nga::SkGpuDevice_nga(sk_sp<GrRecordingContext> rContext,
 
 SkGpuDevice_nga::~SkGpuDevice_nga() {}
 
+void SkGpuDevice_nga::asyncRescaleAndReadPixels(const SkImageInfo& info,
+                                                const SkIRect& srcRect,
+                                                RescaleGamma rescaleGamma,
+                                                RescaleMode rescaleMode,
+                                                ReadPixelsCallback callback,
+                                                ReadPixelsContext context) {
+    // Context TODO: Elevate direct context requirement to public API.
+    auto dContext = this->recordingContext()->asDirectContext();
+    if (!dContext) {
+        return;
+    }
+}
+
+void SkGpuDevice_nga::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
+                                                      sk_sp<SkColorSpace> dstColorSpace,
+                                                      const SkIRect& srcRect,
+                                                      SkISize dstSize,
+                                                      RescaleGamma rescaleGamma,
+                                                      RescaleMode,
+                                                      ReadPixelsCallback callback,
+                                                      ReadPixelsContext context) {
+    // Context TODO: Elevate direct context requirement to public API.
+    auto dContext = this->recordingContext()->asDirectContext();
+    if (!dContext) {
+        return;
+    }
+}
+
 void SkGpuDevice_nga::onSave() {
 }
 

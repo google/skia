@@ -35,12 +35,16 @@ class SkVertices;
 class SkGpuDevice : public SkBaseGpuDevice  {
 public:
     GrSurfaceProxyView readSurfaceView() override {
-        return this->surfaceDrawContext()->readSurfaceView();
+        return fSurfaceDrawContext->readSurfaceView();
     }
 
     bool wait(int numSemaphores,
               const GrBackendSemaphore* waitSemaphores,
               bool deleteSemaphoresAfterWait) override;
+
+    void discard() override {
+        fSurfaceDrawContext->discard();
+    }
 
     bool replaceBackingProxy(SkSurface::ContentChangeMode,
                              sk_sp<GrRenderTargetProxy>,
@@ -49,6 +53,22 @@ public:
                              GrSurfaceOrigin,
                              const SkSurfaceProps&) override;
     using SkBaseGpuDevice::replaceBackingProxy;
+
+    void asyncRescaleAndReadPixels(const SkImageInfo& info,
+                                   const SkIRect& srcRect,
+                                   RescaleGamma rescaleGamma,
+                                   RescaleMode rescaleMode,
+                                   ReadPixelsCallback callback,
+                                   ReadPixelsContext context) override;
+
+    void asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
+                                         sk_sp<SkColorSpace> dstColorSpace,
+                                         const SkIRect& srcRect,
+                                         SkISize dstSize,
+                                         RescaleGamma rescaleGamma,
+                                         RescaleMode,
+                                         ReadPixelsCallback callback,
+                                         ReadPixelsContext context) override;
 
     /**
      * This factory uses the color space, origin, surface properties, and initialization
