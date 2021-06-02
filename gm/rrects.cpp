@@ -79,8 +79,8 @@ protected:
     SkISize onISize() override { return SkISize::Make(kImageWidth, kImageHeight); }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
-        GrSurfaceDrawContext* surfaceDrawContext =
-                SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
+        GrSurfaceDrawContext* surfaceDrawContext = nullptr;
+//                SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
 
         auto context = canvas->recordingContext();
         if (kEffect_Type == fType && (!surfaceDrawContext || !context)) {
