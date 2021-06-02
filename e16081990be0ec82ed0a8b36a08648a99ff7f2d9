@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2d8a30ba_0fa32a35",
+        "filename": "modules/canvaskit/WasmCommon.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-02T13:17:13Z",
+      "side": 1,
+      "message": "seems right, but its a shame we have to lose type information in the parameter (only to re-cast it in the next line). Maybe that is still tied-up with the \u0027bug\u0027 where we can\u0027t have a signature with a bare pointer..?",
+      "range": {
+        "startLine": 106,
+        "startChar": 11,
+        "endLine": 106,
+        "endChar": 22
+      },
+      "revId": "e16081990be0ec82ed0a8b36a08648a99ff7f2d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9b72a7db_a16cb77b",
+        "filename": "modules/canvaskit/font.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-02T13:17:13Z",
+      "side": 1,
+      "message": "if we\u0027re going to do this more, perhaps we can create a predicate that has the same sense as our parameter (so we don\u0027t always have to ! it).",
+      "range": {
+        "startLine": 73,
+        "startChar": 58,
+        "endLine": 73,
+        "endChar": 69
+      },
+      "revId": "e16081990be0ec82ed0a8b36a08648a99ff7f2d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
