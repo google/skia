@@ -211,7 +211,9 @@ Compiler::Compiler(const ShaderCapsClass* caps)
     fPrivateModule = {fPrivateSymbolTable, /*fIntrinsics=*/nullptr};
 }
 
-Compiler::~Compiler() {}
+Compiler::~Compiler() {
+    SkASSERT(!Pool::IsAttached());
+}
 
 const ParsedModule& Compiler::loadGPUModule() {
     if (!fGPUModule.fSymbols) {
@@ -298,6 +300,7 @@ const ParsedModule& Compiler::loadRuntimeShaderModule() {
 }
 
 const ParsedModule& Compiler::moduleForProgramKind(ProgramKind kind) {
+    SkASSERT(!Pool::IsAttached());
     switch (kind) {
         case ProgramKind::kVertex:             return this->loadVertexModule();             break;
         case ProgramKind::kFragment:           return this->loadFragmentModule();           break;
@@ -370,6 +373,7 @@ LoadedModule Compiler::loadModule(ProgramKind kind,
 }
 
 ParsedModule Compiler::parseModule(ProgramKind kind, ModuleData data, const ParsedModule& base) {
+    SkASSERT(!Pool::IsAttached());
     LoadedModule module = this->loadModule(kind, data, base.fSymbols, /*dehydrate=*/false);
     this->optimize(module);
 

@@ -16,6 +16,7 @@
 
 namespace SkSL {
 
+class SymbolTable;
 class Statement;
 
 namespace dsl {
