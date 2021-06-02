@@ -184,7 +184,7 @@ public:
                                      wh, failLookup, failFillingIn, id, &fStats);
         SkASSERT(view);
 
-        auto sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
+        GrSurfaceDrawContext* sdc = nullptr; //SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
 
         sdc->drawTexture(nullptr,
                          view,
@@ -605,7 +605,7 @@ void TestHelper::addVertAccess(SkCanvas* canvas,
                                bool failLookup, bool failFillingIn,
                                GrThreadSafeVertexTestOp** createdOp) {
     auto rContext = canvas->recordingContext();
-    auto sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
+    GrSurfaceDrawContext* sdc = nullptr; //SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
 
     GrOp::Owner op = GrThreadSafeVertexTestOp::Make(rContext, &fStats,
                                                     wh, id,

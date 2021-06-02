@@ -112,7 +112,7 @@ protected:
 
     void onGpuTeardown() override { fProxies = {}; }
 
-    DrawResult onDraw(GrRecordingContext* context,
+    DrawResult onDraw1(GrRecordingContext* context,
                       GrSurfaceDrawContext* surfaceDrawContext,
                       SkCanvas* canvas,
                       SkString* errorMsg) override {

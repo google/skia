@@ -271,7 +271,7 @@ private:
         fReferenceImages[0] = fReferenceImages[1] = nullptr;
     }
 
-    void onDraw(GrRecordingContext*, GrSurfaceDrawContext*, SkCanvas* canvas) override {
+    void onDraw2(GrRecordingContext*, GrSurfaceDrawContext*, SkCanvas* canvas) override {
         SkASSERT(fReferenceImages[0] && fReferenceImages[1]);
 
         canvas->save();

@@ -75,6 +75,8 @@ public:
     bool endSheet();
     bool endPortfolio();
 
+    GrRenderTargetProxy *targetProxy() override { return nullptr; }
+
 protected:
     void drawPaint(const SkPaint& paint) override;
     void drawPoints(SkCanvas::PointMode mode, size_t count,

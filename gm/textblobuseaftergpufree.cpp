@@ -37,7 +37,7 @@ protected:
         return SkISize::Make(kWidth, kHeight);
     }
 
-    void onDraw(GrRecordingContext* context, GrSurfaceDrawContext*, SkCanvas* canvas) override {
+    void onDraw2(GrRecordingContext* context, GrSurfaceDrawContext*, SkCanvas* canvas) override {
         const char text[] = "Hamburgefons";
 
         SkFont font(ToolUtils::create_portable_typeface(), 20);

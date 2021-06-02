@@ -49,7 +49,7 @@ private:
         ctxOptions->fAllowPathMaskCaching = true;
     }
 
-    DrawResult onDraw(GrRecordingContext* rContext, GrSurfaceDrawContext* rtc, SkCanvas* canvas,
+    DrawResult onDraw1(GrRecordingContext* rContext, GrSurfaceDrawContext* rtc, SkCanvas* canvas,
                       SkString* errorMsg) override {
         if (rtc->numSamples() > 1) {
             errorMsg->set("ccpr is currently only used for coverage AA");

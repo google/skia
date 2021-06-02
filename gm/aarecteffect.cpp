@@ -46,7 +46,7 @@ protected:
 
     void onOnceBeforeDraw() override {}
 
-    void onDraw(GrRecordingContext* context,
+    void onDraw2(GrRecordingContext* context,
                 GrSurfaceDrawContext* surfaceDrawContext,
                 SkCanvas* canvas) override {
         SkScalar y = 12.f;

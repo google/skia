@@ -197,7 +197,7 @@ static GrStencilClip make_stencil_only_clip(GrSurfaceDrawContext* rtc) {
 DrawResult WindowRectanglesMaskGM::onCoverClipStack(const SkClipStack& stack, SkCanvas* canvas,
                                                     SkString* errorMsg) {
     auto ctx = canvas->recordingContext();
-    GrSurfaceDrawContext* sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
+    GrSurfaceDrawContext* sdc = nullptr; // SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
 
     if (!ctx || !sdc) {
         *errorMsg = kErrorMsg_DrawSkippedGpuOnly;
