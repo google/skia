@@ -146,9 +146,12 @@ void GrMtlPipelineState::setRenderTargetState(const GrRenderTarget* rt, GrSurfac
         fRenderTargetState.fRenderTargetSize = dimensions;
         fRenderTargetState.fRenderTargetOrigin = origin;
 
-        float rtAdjustmentVec[4];
-        fRenderTargetState.getRTAdjustmentVec(rtAdjustmentVec);
-        fDataManager.set4fv(fBuiltinUniformHandles.fRTAdjustmentUni, 1, rtAdjustmentVec);
+        // The client will mark a swap buffer as kTopLeft when making a SkSurface because
+        // Metal's framebuffer space has (0, 0) at the top left. This agrees with Skia's device
+        // coords. However, in NDC (-1, -1) is the bottom left. So we flip when origin is kTopLeft.
+        bool flip = (origin == kTopLeft_GrSurfaceOrigin);
+        std::array<float, 4> v = SkSL::Compiler::GetRTAdjustVector(dimensions, flip);
+        fDataManager.set4fv(fBuiltinUniformHandles.fRTAdjustmentUni, 1, v.data());
     }
 }
 

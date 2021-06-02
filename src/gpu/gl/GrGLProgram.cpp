@@ -17,6 +17,7 @@
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
 #include "src/gpu/glsl/GrGLSLXferProcessor.h"
+#include "src/sksl/SkSLCompiler.h"
 
 #define GL_CALL(X) GR_GL_CALL(fGpu->glInterface(), X)
 #define GL_CALL_RET(R, X) GR_GL_CALL_RET(fGpu->glInterface(), R, X)
@@ -167,8 +168,12 @@ void GrGLProgram::setRenderTargetState(const GrRenderTarget* rt,
         fRenderTargetState.fRenderTargetSize = dimensions;
         fRenderTargetState.fRenderTargetOrigin = origin;
 
-        float rtAdjustmentVec[4];
-        fRenderTargetState.getRTAdjustmentVec(rtAdjustmentVec);
-        fProgramDataManager.set4fv(fBuiltinUniformHandles.fRTAdjustmentUni, 1, rtAdjustmentVec);
+        // The client will mark a swap buffer as kBottomLeft when making a SkSurface because
+        // GL's framebuffer space has (0, 0) at the bottom left. In NDC (-1, -1) is also the
+        // bottom left. However, Skia's device coords has (0, 0) at the top left, so a flip is
+        // required when the origin is kBottomLeft.
+        bool flip = (origin == kBottomLeft_GrSurfaceOrigin);
+        std::array<float, 4> v = SkSL::Compiler::GetRTAdjustVector(dimensions, flip);
+        fProgramDataManager.set4fv(fBuiltinUniformHandles.fRTAdjustmentUni, 1, v.data());
     }
 }

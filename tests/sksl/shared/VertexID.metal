@@ -12,5 +12,5 @@ vertex Outputs vertexMain(Inputs _in [[stage_in]], uint sk_VertexID [[vertex_id]
     Outputs _out;
     (void)_out;
     _out.id = sk_VertexID;
-    return (_out.sk_Position.y = -_out.sk_Position.y, _out);
+    return _out;
 }

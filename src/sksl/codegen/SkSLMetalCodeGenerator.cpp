@@ -2031,11 +2031,9 @@ void MetalCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
 void MetalCodeGenerator::writeReturnStatementFromMain() {
     // main functions in Metal return a magic _out parameter that doesn't exist in SkSL.
     switch (fProgram.fConfig->fKind) {
+        case ProgramKind::kVertex:
         case ProgramKind::kFragment:
             this->write("return _out;");
-            break;
-        case ProgramKind::kVertex:
-            this->write("return (_out.sk_Position.y = -_out.sk_Position.y, _out);");
             break;
         default:
             SkDEBUGFAIL("unsupported kind of program");
