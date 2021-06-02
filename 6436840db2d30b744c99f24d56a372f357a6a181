@@ -68,6 +68,24 @@
       "parentUuid": "fd26321b_2cafaeab",
       "revId": "6436840db2d30b744c99f24d56a372f357a6a181",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b7c4ec53_4729f078",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-02T20:08:00Z",
+      "side": 1,
+      "message": "Yeah, all the information we need is in skpbench too. I don\u0027t remember exactly where it generates the json, but it shouldn\u0027t be too bad.",
+      "parentUuid": "62bf190b_b1630f82",
+      "revId": "6436840db2d30b744c99f24d56a372f357a6a181",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
