@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "111ce89d_5fb213ec",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-02T17:43:12Z",
+      "side": 1,
+      "message": "Does this API make StringFragment public API? (It was private before, right?)\n\nI am totally fine with this change in terms of landing the new DSLParser if StringFragment stays private, but I am hesitant to open up StringFragment as a public API in its present state. The API is a fine private API, but it\u0027s also VERY close to being `skstd::string_view`. However there are a few differences that I don\u0027t want us to need to maintain and own forever; ideally, when we get C++17 library support, I\u0027d like to be able to replace StringFragment with string_view entirely.",
+      "revId": "af3f686e9bc5077909f59fe77f66d4c7753839f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
