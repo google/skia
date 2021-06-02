@@ -80,6 +80,30 @@
       },
       "revId": "8b1b7d6d306c6899b40348a920f91acc3b2c440d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "177c8148_4e73d65c",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 414,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-02T17:46:55Z",
+      "side": 1,
+      "message": "Now I\u0027m wondering whether this is a good implementation\n\n  bool SkString::equals(const char text[]) const {\n    return this-\u003eequals(text, text ? strlen(text) : 0);\n  }\n\nVersus just a strcmp? Many strings compare different within the first few characters. Why pay a strlen cost up front? This isn\u0027t something I\u0027d have expected.",
+      "parentUuid": "30d32355_4ff7b9a7",
+      "range": {
+        "startLine": 414,
+        "startChar": 17,
+        "endLine": 414,
+        "endChar": 21
+      },
+      "revId": "8b1b7d6d306c6899b40348a920f91acc3b2c440d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
