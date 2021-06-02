@@ -704,6 +704,8 @@ sk_sp<SkImage> SkImage::MakeFromAHardwareBufferWithData(GrDirectContext* dContex
         return nullptr;
     }
 
+    bool isRenderable = SkToBool(bufferDesc.usage & AHARDWAREBUFFER_USAGE_GPU_COLOR_OUTPUT);
+
     GrBackendFormat backendFormat = GrAHardwareBufferUtils::GetBackendFormat(dContext,
                                                                              hardwareBuffer,
                                                                              bufferDesc.format,
@@ -721,7 +723,8 @@ sk_sp<SkImage> SkImage::MakeFromAHardwareBufferWithData(GrDirectContext* dContex
             GrAHardwareBufferUtils::MakeBackendTexture(dContext, hardwareBuffer,
                                                        bufferDesc.width, bufferDesc.height,
                                                        &deleteImageProc, &updateImageProc,
-                                                       &deleteImageCtx, false, backendFormat, true);
+                                                       &deleteImageCtx, false, backendFormat,
+                                                       isRenderable);
     if (!backendTexture.isValid()) {
         return nullptr;
     }
