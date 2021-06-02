@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c5aa7498_d01ede96",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-02T15:03:03Z",
+      "side": 1,
+      "message": "So you\u0027re looking for me to scan over the output in the description to see if anything in that list is something I think we should be testing for Vulkan? If so the only thing that looks of interest to test would maybe be swiftshader vulkan. Though TBH I\u0027m not exactly sure what the state of that is how to integrate it onto the bots. But I believe it is at a point where the Vulkan implementation should be stable at least for our us of the API.\n\nSo one thing that came up with a conversation I was having last week is some possible missing perf testing based on Android version. For example we have both Pixel4 and Pixel4XL devices. Both essentially have the same hardware. However, one of those is on Q and the other is on R. We Test bots on both but only Perf on one (I forget which). We probably want perf running on both because locally we are seeing big performance differences/issues based on the driver versions.",
+      "revId": "61f85e7a131f3214156fed75754b168c6cb67152",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
