@@ -67,6 +67,14 @@ CanvasKit._extraInitializations.push(function() {
     return rv;
   };
 
+  CanvasKit.Font.prototype.getGlyphIntercepts = function(glyphs, positions, top, bottom) {
+    var gPtr = copy1dArray(glyphs, 'HEAPU16');
+    var pPtr = copy1dArray(positions, 'HEAPF32');
+    return this._getGlyphIntercepts(gPtr, glyphs.length, !wasMalloced(glyphs),
+                                    pPtr, positions.length, !wasMalloced(positions),
+                                    top, bottom);
+  };
+
   // Glyphs should be a Uint16Array of glyph ids, e.g. provided by Font.getGlyphIDs.
   // If using a Malloc'd array, be sure to use CanvasKit.MallocGlyphIDs() to get the right type.
   // The return value will be a Float32Array that has one width per input glyph.
