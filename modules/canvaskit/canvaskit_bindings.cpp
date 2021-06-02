@@ -64,6 +64,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/gl/GrGLInterface.h"
 #include "include/gpu/gl/GrGLTypes.h"
+#include "src/gpu/gl/GrGLDefines.h"
 
 #include <GLES3/gl3.h>
 #include <emscripten/html5.h>
@@ -695,6 +696,22 @@ Uint8Array toBytes(sk_sp<SkData> data) {
     ).call<Uint8Array>("slice"); // slice with no args makes a copy of the memory view.
 }
 
+// We need to call into the JS side of things to free webGL contexts. This object will be called
+// with _setTextureCleanup after CanvasKit loads. The object will have one attribute,
+// a function called deleteTexture that takes two ints.
+JSObject textureCleanup = emscripten::val::null();
+
+struct TextureReleaseContext {
+    uint32_t webglHandle;
+    uint32_t texHandle;
+};
+
+void deleteJSTexture(SkImage::ReleaseContext rc) {
+    auto ctx = reinterpret_cast<TextureReleaseContext*>(rc);
+    textureCleanup.call<void>("deleteTexture", ctx->webglHandle, ctx->texHandle);
+    delete ctx;
+}
+
 EMSCRIPTEN_BINDINGS(Skia) {
 #ifdef SK_GL
     function("currentContext", &emscripten_webgl_get_current_context);
@@ -790,6 +807,12 @@ EMSCRIPTEN_BINDINGS(Skia) {
             self.getResourceCacheLimits(&maxResources, &currMax);
             self.setResourceCacheLimits(maxResources, maxResourceBytes);
         }));
+
+    // This allows us to give the C++ code a JS callback to delete textures that
+    // have been passed in via makeImageFromTexture and makeImageFromTextureSource.
+    function("_setTextureCleanup", optional_override([](JSObject callbackObj)->void {
+         textureCleanup = callbackObj;
+     }));
 #endif
 
     class_<SkAnimatedImage>("AnimatedImage")
@@ -1767,6 +1790,27 @@ EMSCRIPTEN_BINDINGS(Skia) {
             return {ii.width(), ii.height(), ii.colorType(), ii.alphaType(), ii.refColorSpace()};
         }))
         .function("height", &SkSurface::height)
+#ifdef SK_GL
+        .function("_makeImageFromTexture", optional_override([](SkSurface& self,
+                                                uint32_t webglHandle, uint32_t texHandle,
+                                                SimpleImageInfo ii)->sk_sp<SkImage> {
+            auto releaseCtx = new TextureReleaseContext{webglHandle, texHandle};
+            GrGLTextureInfo gti = {GR_GL_TEXTURE_2D, texHandle,
+                                   GR_GL_RGBA8}; // TODO(kjlubick) look at ii for this
+            GrBackendTexture gbt(ii.width, ii.height, GrMipmapped::kNo, gti);
+            auto dContext = GrAsDirectContext(self.getCanvas()->recordingContext());
+
+            return SkImage::MakeFromTexture(
+                             dContext,
+                             gbt,
+                             GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,
+                             ii.colorType,
+                             ii.alphaType,
+                             ii.colorSpace,
+                             deleteJSTexture,
+                             releaseCtx);
+         }))
+ #endif
         .function("_makeImageSnapshot",  optional_override([](SkSurface& self, WASMPointerU32 iPtr)->sk_sp<SkImage> {
             SkIRect* bounds = reinterpret_cast<SkIRect*>(iPtr);
             if (!bounds) {

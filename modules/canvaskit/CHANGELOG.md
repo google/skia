@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+ - `Surface.makeImageFromTexture` and `Surface.makeImageFromTextureSource` as easy ways to provide
+   CanvasKit with a WebGL texture and interact with WebGL texture sources (e.g. &lt;video&gt;)
+
 ### Changed
  - We now build/ship with emscripten 2.0.20.
 
