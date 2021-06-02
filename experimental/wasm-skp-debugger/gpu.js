@@ -14,7 +14,7 @@
         preserveDrawingBuffer: 1,
         preferLowPowerToHighPerformance: 0,
         failIfMajorPerformanceCaveat: 0,
-        majorVersion: 1,
+        majorVersion: 2,
         minorVersion: 0,
         enableExtensionsByDefault: 1,
         explicitSwapControl: 0,
