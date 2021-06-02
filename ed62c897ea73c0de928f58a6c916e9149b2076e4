@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "245ec2cd_e76b424a",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 707,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2021-06-02T17:33:06Z",
+      "side": 1,
+      "message": "nit: move it closer to where it\u0027s used?",
+      "range": {
+        "startLine": 707,
+        "startChar": 9,
+        "endLine": 707,
+        "endChar": 21
+      },
+      "revId": "ed62c897ea73c0de928f58a6c916e9149b2076e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0e2fce13_200f374e",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 707,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2021-06-02T17:33:06Z",
+      "side": 1,
+      "message": "Note: according to [1], we should \"[u]se the equivalent flag AHARDWAREBUFFER_USAGE_GPU_FRAMEBUFFER\"\n\n[1] https://developer.android.com/ndk/reference/group/a-hardware-buffer#group___a_hardware_buffer_1gga47c480435db00c8e88023eea28ccce90a623cb35990f065312604adca03232a17",
+      "range": {
+        "startLine": 707,
+        "startChar": 52,
+        "endLine": 707,
+        "endChar": 90
+      },
+      "revId": "ed62c897ea73c0de928f58a6c916e9149b2076e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f4ab2980_0ba02749",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 707,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2021-06-02T17:33:06Z",
+      "side": 1,
+      "message": "nit: could be const?",
+      "range": {
+        "startLine": 707,
+        "startChar": 4,
+        "endLine": 707,
+        "endChar": 8
+      },
+      "revId": "ed62c897ea73c0de928f58a6c916e9149b2076e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
