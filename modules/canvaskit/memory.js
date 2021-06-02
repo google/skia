@@ -66,9 +66,15 @@ CanvasKit.Free = function(mallocObj) {
 // This helper will free the given pointer unless the provided array is one
 // that was returned by CanvasKit.Malloc.
 function freeArraysThatAreNotMallocedByUsers(ptr, arr) {
-  if (arr && !arr['_ck']) {
+  if (!wasMalloced(arr)) {
     CanvasKit._free(ptr);
   }
+}
+
+// wasMalloced returns true if the object was created by a call to Malloc. This is determined
+// by looking at a property that was added to our Malloc obj and typed arrays.
+function wasMalloced(obj) {
+  return obj && obj['_ck'];
 }
 
 // We define some "scratch" variables which will house both the pointer to
@@ -117,7 +123,7 @@ function copy1dArray(arr, dest, ptr) {
     return nullptr;
   }
   // This was created with CanvasKit.Malloc, so it's already been copied.
-  if (arr['_ck']) {
+  if (wasMalloced(arr)) {
     return arr.byteOffset;
   }
   var bytesPerElement = CanvasKit[dest].BYTES_PER_ELEMENT;

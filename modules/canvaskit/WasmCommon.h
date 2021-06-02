@@ -38,6 +38,7 @@ using WASMPointerF32 = uintptr_t;
 using WASMPointerU8  = uintptr_t;
 using WASMPointerU16 = uintptr_t;
 using WASMPointerU32 = uintptr_t;
+using WASMPointer = uintptr_t;
 
 #define SPECIALIZE_JSARRAYTYPE(type, name)                  \
     template <> struct JSArrayType<type> {                  \
@@ -98,6 +99,10 @@ public:
             }
         }
         fSpan = SkSpan(data, len);
+    }
+
+    JSSpan(WASMPointer ptr, size_t len, bool takeOwnership): fOwned(takeOwnership) {
+        fSpan = SkSpan(reinterpret_cast<T*>(ptr), len);
     }
 
     ~JSSpan() {
