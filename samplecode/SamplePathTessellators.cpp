@@ -14,7 +14,9 @@
 #include "src/core/SkCanvasPriv.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
-#include "src/gpu/tessellate/GrPathTessellator.h"
+#include "src/gpu/tessellate/GrPathCurveTessellator.h"
+#include "src/gpu/tessellate/GrPathIndirectTessellator.h"
+#include "src/gpu/tessellate/GrPathWedgeTessellator.h"
 #include "src/gpu/tessellate/shaders/GrPathTessellationShader.h"
 
 namespace {
@@ -76,8 +78,8 @@ private:
                 fTessellator = GrPathWedgeTessellator::Make(alloc, fMatrix, kCyan);
                 break;
             case Mode::kCurveTessellate:
-                fTessellator = GrPathOuterCurveTessellator::Make(
-                        alloc, fMatrix, kCyan, GrPathTessellator::DrawInnerFan::kYes);
+                fTessellator = GrPathCurveTessellator::Make(alloc, fMatrix, kCyan,
+                                                            GrPathTessellator::DrawInnerFan::kYes);
                 break;
         }
         fTessellator->prepare(flushState, this->bounds(), fPath);

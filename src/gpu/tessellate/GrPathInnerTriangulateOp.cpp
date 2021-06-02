@@ -8,11 +8,13 @@
 #include "src/gpu/tessellate/GrPathInnerTriangulateOp.h"
 
 #include "src/gpu/GrEagerVertexAllocator.h"
+#include "src/gpu/GrGpu.h"
 #include "src/gpu/GrInnerFanTriangulator.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
-#include "src/gpu/tessellate/GrPathTessellator.h"
+#include "src/gpu/tessellate/GrPathCurveTessellator.h"
+#include "src/gpu/tessellate/GrPathIndirectTessellator.h"
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 #include "src/gpu/tessellate/shaders/GrPathTessellationShader.h"
 
@@ -187,13 +189,16 @@ void GrPathInnerTriangulateOp::prePreparePrograms(const GrTessellationShader::Pr
 
     // Pass 1: Tessellate the outer curves into the stencil buffer.
     if (!isLinear) {
-        // Always use indirect draws for now. Our goal in this op is to maximize GPU performance,
-        // and the middle-out topology used by indirect draws is easier on the rasterizer than what
-        // we can do with hw tessellation. So far we haven't found any platforms where trying to use
-        // hw tessellation here is worth it.
-        fTessellator = GrPathTessellator::Make(args.fArena, fPath, fViewMatrix,
-                                               SK_PMColor4fTRANSPARENT,
-                                               GrPathTessellator::DrawInnerFan::kNo, *args.fCaps);
+        if (args.fCaps->shaderCaps()->tessellationSupport() &&
+            fPath.countVerbs() >= args.fCaps->minPathVerbsForHwTessellation()) {
+            fTessellator = GrPathCurveTessellator::Make(args.fArena, fViewMatrix,
+                                                        SK_PMColor4fTRANSPARENT,
+                                                        GrPathTessellator::DrawInnerFan::kNo);
+        } else {
+            fTessellator = GrPathIndirectTessellator::Make(args.fArena, fPath, fViewMatrix,
+                                                           SK_PMColor4fTRANSPARENT,
+                                                           GrPathTessellator::DrawInnerFan::kNo);
+        }
         const GrUserStencilSettings* stencilPathSettings =
                 GrPathTessellationShader::StencilPathSettings(fPath.getFillType());
         fStencilCurvesProgram = GrTessellationShader::MakeProgram(args, fTessellator->shader(),
@@ -354,6 +359,9 @@ void GrPathInnerTriangulateOp::onExecute(GrOpFlushState* flushState, const SkRec
         SkASSERT(fTessellator);
         flushState->bindPipelineAndScissorClip(*fStencilCurvesProgram, this->bounds());
         fTessellator->draw(flushState);
+        if (flushState->caps().requiresManualFBBarrierAfterTessellatedStencilDraw()) {
+            flushState->gpu()->insertManualFramebufferBarrier();  // http://skbug.com/9739
+        }
     }
 
     for (const GrProgramInfo* fanProgram : fFanPrograms) {

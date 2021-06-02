@@ -14,7 +14,9 @@
 #include "src/gpu/geometry/GrWangsFormula.h"
 #include "src/gpu/mock/GrMockOpTarget.h"
 #include "src/gpu/tessellate/GrMiddleOutPolygonTriangulator.h"
-#include "src/gpu/tessellate/GrPathTessellator.h"
+#include "src/gpu/tessellate/GrPathCurveTessellator.h"
+#include "src/gpu/tessellate/GrPathIndirectTessellator.h"
+#include "src/gpu/tessellate/GrPathWedgeTessellator.h"
 #include "src/gpu/tessellate/GrStrokeFixedCountTessellator.h"
 #include "src/gpu/tessellate/GrStrokeHardwareTessellator.h"
 #include "tools/ToolUtils.h"
@@ -119,8 +121,8 @@ DEF_PATH_TESS_BENCH(GrPathIndirectTessellator, make_cubic_path(18), SkMatrix::I(
 
 DEF_PATH_TESS_BENCH(GrPathOuterCurveTessellator, make_cubic_path(8), SkMatrix::I()) {
     SkArenaAlloc arena(1024);
-    auto tess = GrPathOuterCurveTessellator::Make(&arena, fMatrix, SK_PMColor4fTRANSPARENT,
-                                                  GrPathTessellator::DrawInnerFan::kNo);
+    auto tess = GrPathCurveTessellator::Make(&arena, fMatrix, SK_PMColor4fTRANSPARENT,
+                                             GrPathTessellator::DrawInnerFan::kNo);
     tess->prepare(fTarget.get(), SkRectPriv::MakeLargest(), fPath, nullptr);
 }
 
