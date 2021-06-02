@@ -101,7 +101,8 @@ class Vec3 {
 
 class VSphereAnimator {
     private Matrix mRotMatrix = new Matrix();
-    private Vec3   mRotAxis   = new Vec3(0, 1, 0);
+    private Vec3   mRotAxis   = new Vec3(0, 1, 0),
+                   mCurrentDrag;
     private float  mRotSpeed  = (float)Math.PI,
                    mCenterX,
                    mCenterY,
@@ -116,8 +117,8 @@ class VSphereAnimator {
     public void animate(float dt) {
         final float kDecay = 0.99f;
 
-        mRotMatrix = new Matrix().rotate(mRotAxis.x, mRotAxis.y, mRotAxis.z, mRotSpeed * dt)
-                                 .preConcat(mRotMatrix);
+        rotate(mRotAxis, mRotSpeed * dt);
+
         mRotSpeed *= kDecay;
     }
 
@@ -134,9 +135,26 @@ class VSphereAnimator {
         mRotSpeed = (float)(flingSpeed*Math.PI);
     }
 
+    public void startDrag(MotionEvent e) {
+        mCurrentDrag = normalVec(e.getX(), e.getY());
+        mRotSpeed = 0;
+    }
+
+    public void drag(MotionEvent e) {
+        Vec3 u = mCurrentDrag,                  // previous drag position
+             v = normalVec(e.getX(), e.getY()); // new drag position
+
+        float angle = (float)Math.acos(Math.max(-1, Math.min(1, u.dot(v)/u.length()/v.length())));
+        Vec3   axis = u.cross(v).normalize();
+
+        rotate(axis, angle);
+
+        mCurrentDrag = v;
+    }
+
     private Vec3 normalVec(float x, float y) {
-        x = (x - mCenterX)/mRadius;
-        y = (y - mCenterY)/mRadius;
+        x =  (x - mCenterX)/mRadius;
+        y = -(y - mCenterY)/mRadius;
         float len2 = x*x + y*y;
 
         if (len2 > 1) {
@@ -148,6 +166,11 @@ class VSphereAnimator {
         }
 
         return new Vec3(x, y, (float)Math.sqrt(1 - len2));
+    }
+
+    private void rotate(Vec3 axis, float angle) {
+        mRotMatrix = new Matrix().rotate(axis.x, axis.y, axis.z, angle)
+                                 .preConcat(mRotMatrix);
     }
 };
 
@@ -233,17 +256,23 @@ class CubeRenderer extends SurfaceRenderer implements GestureDetector.OnGestureL
 
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float dx, float dy) {
-        mVSphere.fling(dx, -dy);
+        mVSphere.fling(dx, dy);
+        return true;
+    }
+
+    @Override
+    public boolean onDown(MotionEvent e) {
+        mVSphere.startDrag(e);
+        return true;
+    }
+
+    @Override
+    public boolean onScroll(MotionEvent e1, MotionEvent e2, float dx, float dy) {
+        mVSphere.drag(e2);
         return true;
     }
 
     // GestureDetector stubs
-    @Override
-    public boolean onDown(MotionEvent e) { return true; }
-
-    @Override
-    public boolean onScroll(MotionEvent e1, MotionEvent e2, float dx, float dy) { return false; }
-
     @Override
     public boolean onSingleTapUp(MotionEvent e) { return false; }
 
