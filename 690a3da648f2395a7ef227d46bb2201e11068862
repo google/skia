@@ -1,0 +1,30 @@
+{
+  "comments": [
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000011396213",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/415156?revision\u003d3",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "1487fd67_89e0ff37",
+        "filename": "experimental/sktext/src/Text.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-06-02T21:43:59Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 256,
+        "startChar": 0,
+        "endLine": 256,
+        "endChar": 4
+      },
+      "revId": "690a3da648f2395a7ef227d46bb2201e11068862",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
