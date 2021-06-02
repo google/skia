@@ -12,6 +12,7 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/mock/GrMockCaps.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLDSLParser.h"
 #include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/SkSLParser.h"
 
@@ -61,10 +62,11 @@ public:
         , fCaps(GrContextOptions(), GrMockOptions())
         , fCompiler(fCaps.shaderCaps())
         , fOutput(output) {
-            fSettings.fOptimize = optimize;
+            fSettings.fDSLMangling = false;
             // The test programs we compile don't follow Vulkan rules and thus produce invalid
             // SPIR-V. This is harmless, so long as we don't try to validate them.
             fSettings.fValidateSPIRV = false;
+            fSettings.fOptimize = optimize;
         }
 
 protected:
@@ -78,10 +80,18 @@ protected:
 
     void onDraw(int loops, SkCanvas* canvas) override {
         for (int i = 0; i < loops; i++) {
+#if 0
             std::unique_ptr<SkSL::Program> program = fCompiler.convertProgram(
                                                                       SkSL::ProgramKind::kFragment,
                                                                       fSrc,
                                                                       fSettings);
+#else
+            std::unique_ptr<SkSL::Program> program = SkSL::DSLParser(&fCompiler,
+                                                                     fSettings,
+                                                                     SkSL::ProgramKind::kFragment,
+                                                                     fSrc.data(),
+                                                                     fSrc.length()).program();
+#endif
             if (fCompiler.errorCount()) {
                 SK_ABORT("shader compilation failed: %s\n", fCompiler.errorText().c_str());
             }
@@ -146,7 +156,6 @@ private:
     SkSL::String fSrc;
     GrShaderCaps fCaps;
     SkSL::Compiler fCompiler;
-    SkSL::Program::Settings fSettings;
 
     using INHERITED = Benchmark;
 };

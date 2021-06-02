@@ -8,6 +8,7 @@
 #ifndef SKSL_DSL_TYPE
 #define SKSL_DSL_TYPE
 
+#include "include/private/SkSLString.h"
 #include "include/sksl/DSLExpression.h"
 #include "include/sksl/DSLModifiers.h"
 
@@ -76,11 +77,16 @@ enum TypeConstant : uint8_t {
 
 class DSLType {
 public:
+    DSLType()
+        : DSLType(kVoid_Type) {}
+
     DSLType(TypeConstant tc)
         : fTypeConstant(tc) {}
 
     DSLType(const SkSL::Type* type)
         : fSkSLType(type) {}
+
+    DSLType(StringFragment name);
 
     /**
      * Returns true if this type is a bool.
@@ -171,7 +177,7 @@ private:
     TypeConstant fTypeConstant;
 
     friend DSLType Array(const DSLType& base, int count);
-    friend DSLType Struct(const char* name, SkTArray<DSLField> fields);
+    friend DSLType Struct(StringFragment name, SkTArray<DSLField> fields);
     friend class DSLFunction;
     friend class DSLVar;
     friend class DSLWriter;
@@ -219,26 +225,26 @@ DSLType Array(const DSLType& base, int count);
 
 class DSLField {
 public:
-    DSLField(const DSLType type, const char* name)
+    DSLField(const DSLType type, StringFragment name)
         : DSLField(DSLModifiers(), type, name) {}
 
 private:
-    DSLField(DSLModifiers modifiers, const DSLType type, const char* name)
+    DSLField(DSLModifiers modifiers, const DSLType type, StringFragment name)
         : fModifiers(modifiers)
         , fType(type)
         , fName(name) {}
 
     DSLModifiers fModifiers;
     const DSLType fType;
-    const char* fName;
+    StringFragment fName;
 
-    friend DSLType Struct(const char* name, SkTArray<DSLField> fields);
+    friend DSLType Struct(StringFragment name, SkTArray<DSLField> fields);
 };
 
-DSLType Struct(const char* name, SkTArray<DSLField> fields);
+DSLType Struct(StringFragment name, SkTArray<DSLField> fields);
 
 template<typename... Field>
-DSLType Struct(const char* name, Field... fields) {
+DSLType Struct(StringFragment name, Field... fields) {
     SkTArray<DSLField> fieldTypes;
     fieldTypes.reserve_back(sizeof...(fields));
     // in C++17, we could just do:
