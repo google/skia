@@ -26,7 +26,7 @@ static void release_ycbcrhelper(void* releaseContext) {
 namespace skiagm {
 
 // This GM exercises the native YCbCr image format on Vulkan
-class YCbCrImageGM : public GM {
+class YCbCrImageGM : public GpuGM {
 public:
     YCbCrImageGM() {
         this->setBGColor(0xFFCCCCCC);
@@ -69,17 +69,17 @@ protected:
         return DrawResult::kOk;
     }
 
-    DrawResult onGpuSetup(GrDirectContext* dContext, SkString* errorMsg) override {
-        if (!dContext || dContext->abandoned()) {
+    DrawResult onGpuSetup(GrDirectContext* context, SkString* errorMsg) override {
+        if (!context || context->abandoned()) {
             return DrawResult::kSkip;
         }
 
-        if (dContext->backend() != GrBackendApi::kVulkan) {
+        if (context->backend() != GrBackendApi::kVulkan) {
             *errorMsg = "This GM requires a Vulkan context.";
             return DrawResult::kSkip;
         }
 
-        DrawResult result = this->createYCbCrImage(dContext, errorMsg);
+        DrawResult result = this->createYCbCrImage(context, errorMsg);
         if (result != DrawResult::kOk) {
             return result;
         }
@@ -91,7 +91,8 @@ protected:
         fYCbCrImage = nullptr;
     }
 
-    DrawResult onDraw(SkCanvas* canvas, SkString*) override {
+    DrawResult onDraw(GrRecordingContext*, GrSurfaceDrawContext*,
+                      SkCanvas* canvas, SkString*) override {
         SkASSERT(fYCbCrImage);
 
         canvas->drawImage(fYCbCrImage, kPad, kPad, SkSamplingOptions(SkFilterMode::kLinear));
