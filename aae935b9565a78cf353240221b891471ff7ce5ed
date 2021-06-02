@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "09a4a3a5_3894ab2b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-06-02T16:34:50Z",
+      "side": 1,
+      "message": "PS1 is the pure reland. The problem with previous version was that we were no longer attaching the listener to the bitmap when calling from SkImage_Raster::onAsView() since the ...WithID version of the bmp-\u003etexture code didn\u0027t set it. This caused some perf changes in canvas2d on telemetry. Now we always attach the listener if the id used to make the cached texture matches the bitmap\u0027s genid.",
+      "revId": "aae935b9565a78cf353240221b891471ff7ce5ed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
