@@ -112,6 +112,14 @@ void GrD3DPipelineState::setAndBindTextures(GrD3DGpu* gpu,
         gpu->currentCommandList()->addSampledTextureRef(texture);
     }
 
+    if (GrTexture* dstTexture = pipeline.peekDstTexture()) {
+        auto texture = static_cast<GrD3DTexture*>(dstTexture);
+        shaderResourceViews[currTextureBinding] = texture->shaderResourceView();
+        samplers[currTextureBinding++] = gpu->resourceProvider().findOrCreateCompatibleSampler(
+                                               GrSamplerState::Filter::kNearest);
+        gpu->currentCommandList()->addSampledTextureRef(texture);
+    }
+
     pipeline.visitTextureEffects([&](const GrTextureEffect& te) {
         GrSamplerState samplerState = te.samplerState();
         auto* texture = static_cast<GrD3DTexture*>(te.texture());
@@ -120,14 +128,6 @@ void GrD3DPipelineState::setAndBindTextures(GrD3DGpu* gpu,
                 gpu->resourceProvider().findOrCreateCompatibleSampler(samplerState);
         gpu->currentCommandList()->addSampledTextureRef(texture);
     });
-
-    if (GrTexture* dstTexture = pipeline.peekDstTexture()) {
-        auto texture = static_cast<GrD3DTexture*>(dstTexture);
-        shaderResourceViews[currTextureBinding] = texture->shaderResourceView();
-        samplers[currTextureBinding++] = gpu->resourceProvider().findOrCreateCompatibleSampler(
-                                               GrSamplerState::Filter::kNearest);
-        gpu->currentCommandList()->addSampledTextureRef(texture);
-    }
 
     SkASSERT(fNumSamplers == currTextureBinding);
 
