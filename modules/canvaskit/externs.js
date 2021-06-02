@@ -363,6 +363,7 @@ var CanvasKit = {
 
     // private API (from C++ bindings)
     _getGlyphIDs: function() {},
+    _getGlyphIntercepts: function() {},
     _getGlyphWidthBounds: function() {},
   },
 
