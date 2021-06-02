@@ -49,9 +49,12 @@ public:
 
     GrRecordingContext* recordingContext() const override { return fContext.get(); }
 
+    virtual GrRenderTarget* accessRenderTarget1() = 0;
     virtual bool wait(int numSemaphores,
                       const GrBackendSemaphore* waitSemaphores,
                       bool deleteSemaphoresAfterWait) = 0;
+    virtual void discard() = 0;
+    virtual void replaceSurfaceDrawContext(SkSurface::ContentChangeMode mode) = 0;
 
     virtual bool replaceBackingProxy(SkSurface::ContentChangeMode,
                                      sk_sp<GrRenderTargetProxy>,
