@@ -9,8 +9,10 @@
 
 #include "src/sksl/GLSL.std.450.h"
 
+#include "include/sksl/DSLCore.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLOperators.h"
+#include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLExtension.h"
@@ -22,6 +24,9 @@
 #endif
 
 #define kLast_Capability SpvCapabilityMultiViewport
+
+constexpr int DEVICE_FRAGCOORDS_BUILTIN = -1000;
+constexpr int DEVICE_FRONT_FACING_BUILTIN  = -1001;
 
 namespace SkSL {
 
@@ -1044,6 +1049,7 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
             this->writeWord(this->getType(callType), out);
             this->writeWord(result, out);
             this->writeWord(fn, out);
+#if 0
             if (fProgram.fConfig->fSettings.fFlipY) {
                 // Flipping Y also negates the Y derivatives.
                 SpvId flipped = this->nextId(&callType);
@@ -1051,6 +1057,7 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
                                        out);
                 result = flipped;
             }
+#endif
             break;
         }
         case kClamp_SpecialIntrinsic: {
@@ -2031,59 +2038,72 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
 }
 
 SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, OutputStream& out) {
-    SpvId result = this->getLValue(ref, out)->load(out);
+    if (ref.variable()->modifiers().fLayout.fBuiltin == DEVICE_FRAGCOORDS_BUILTIN) {
+        // Down below, we rewrite raw references to sk_FragCoord with expressions that reference
+        // DEVICE_FRAGCOORDS_BUILTIN. This is a fake variable that means we need to directly access
+        // the fragcoord; do so now.
+        dsl::DSLVar fragCoord("sk_FragCoord");
+        return this->getLValue(*dsl::DSLExpression(fragCoord).release(), out)->load(out);
+    }
+    if (ref.variable()->modifiers().fLayout.fBuiltin == DEVICE_FRONT_FACING_BUILTIN) {
+        // Down below, we rewrite raw references to sk_Clockwise with expressions that reference
+        // DEVICE_FRONT_FACING_BUILTIN. This is a fake variable that means we need to directly
+        // access front facing; do so now.
+        dsl::DSLVar frontFacing("FrontFacing");
+        return this->getLValue(*dsl::DSLExpression(frontFacing).release(), out)->load(out);
+    }
 
-    // Handle the "flipY" setting when reading sk_FragCoord.
-    const Variable* variable = ref.variable();
-    if (variable->modifiers().fLayout.fBuiltin == SK_FRAGCOORD_BUILTIN &&
-        fProgram.fConfig->fSettings.fFlipY) {
-        // The x component never changes, so just grab it
-        SpvId xId = this->nextId(Precision::kDefault);
-        this->writeInstruction(SpvOpCompositeExtract, this->getType(*fContext.fTypes.fFloat), xId,
-                               result, 0, out);
-
-        // Calculate the y component which may need to be flipped
-        SpvId rawYId = this->nextId(nullptr);
-        this->writeInstruction(SpvOpCompositeExtract, this->getType(*fContext.fTypes.fFloat),
-                               rawYId, result, 1, out);
-        SpvId flippedYId = 0;
-        if (fProgram.fConfig->fSettings.fFlipY) {
-            // need to remap to a top-left coordinate system
-            if (fRTHeightStructId == (SpvId)-1) {
-                // height variable hasn't been written yet
-                SkASSERT(fRTHeightFieldIndex == (SpvId)-1);
+    auto addRTFlipUniform = [&] {
+            if (fRTFlipStructId == (SpvId)-1) {
+                // flip variable hasn't been written yet
+                SkASSERT(fRTFlipFieldIndex == (SpvId)-1);
                 std::vector<Type::Field> fields;
-                if (fProgram.fConfig->fSettings.fRTHeightOffset < 0) {
-                    fErrors.error(ref.fOffset, "RTHeightOffset is negative");
+                if (fProgram.fConfig->fSettings.fRTFlipOffset < 0) {
+                    fErrors.error(ref.fOffset, "RTFlipOffset is negative");
                 }
                 fields.emplace_back(
-                        Modifiers(Layout(/*flags=*/0, /*location=*/-1,
-                                         fProgram.fConfig->fSettings.fRTHeightOffset,
-                                         /*binding=*/-1, /*index=*/-1, /*set=*/-1, /*builtin=*/-1,
+                        Modifiers(Layout(/*flags=*/0,
+                                         /*location=*/-1,
+                                         fProgram.fConfig->fSettings.fRTFlipOffset,
+                                         /*binding=*/-1,
+                                         /*index=*/-1,
+                                         /*set=*/-1,
+                                         /*builtin=*/-1,
                                          /*inputAttachmentIndex=*/-1,
-                                         Layout::kUnspecified_Primitive, /*maxVertices=*/1,
-                                         /*invocations=*/-1, /*when=*/"", Layout::CType::kDefault),
-                                  /*flags=*/0),
-                        SKSL_RTHEIGHT_NAME, fContext.fTypes.fFloat.get());
+                                         Layout::kUnspecified_Primitive,
+                                         /*maxVertices=*/1,
+                                         /*invocations=*/-1,
+                                         /*when=*/"", Layout::CType::kDefault),
+                                         /*flags=*/0),
+                        SKSL_RTFLIP_NAME,
+                        fContext.fTypes.fFloat2.get());
                 StringFragment name("sksl_synthetic_uniforms");
-                std::unique_ptr<Type> intfStruct = Type::MakeStructType(/*offset=*/-1, name,
+                std::unique_ptr<Type> intfStruct = Type::MakeStructType(/*offset=*/-1,
+                                                                        name,
                                                                         fields);
-                int binding = fProgram.fConfig->fSettings.fRTHeightBinding;
+                int binding = fProgram.fConfig->fSettings.fRTFlipBinding;
                 if (binding == -1) {
                     fErrors.error(ref.fOffset, "layout(binding=...) is required in SPIR-V");
                 }
-                int set = fProgram.fConfig->fSettings.fRTHeightSet;
+                int set = fProgram.fConfig->fSettings.fRTFlipSet;
                 if (set == -1) {
                     fErrors.error(ref.fOffset, "layout(set=...) is required in SPIR-V");
                 }
                 bool usePushConstants = fProgram.fConfig->fSettings.fUsePushConstants;
                 int flags = usePushConstants ? Layout::Flag::kPushConstant_Flag : 0;
-                Modifiers modifiers(
-                        Layout(flags, /*location=*/-1, /*offset=*/-1, binding, /*index=*/-1,
-                               set, /*builtin=*/-1, /*inputAttachmentIndex=*/-1,
-                               Layout::kUnspecified_Primitive,
-                               /*maxVertices=*/-1, /*invocations=*/-1, /*when=*/"",
-                               Layout::CType::kDefault),
+                Modifiers modifiers(Layout(flags,
+                                           /*location=*/-1,
+                                           /*offset=*/-1,
+                                           binding,
+                                           /*index=*/-1,
+                                           set,
+                                           /*builtin=*/-1,
+                                           /*inputAttachmentIndex=*/-1,
+                                           Layout::kUnspecified_Primitive,
+                                           /*maxVertices=*/-1,
+                                           /*invocations=*/-1,
+                                           /*when=*/"",
+                                    Layout::CType::kDefault),
                         Modifiers::kUniform_Flag);
                 const Variable* intfVar = fSynthetics.takeOwnershipOfSymbol(
                         std::make_unique<Variable>(/*offset=*/-1,
@@ -2092,73 +2112,92 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
                                                    intfStruct.get(),
                                                    /*builtin=*/false,
                                                    Variable::Storage::kGlobal));
-                InterfaceBlock intf(/*offset=*/-1, intfVar, name,
-                                    /*instanceName=*/"", /*arraySize=*/0,
+                InterfaceBlock intf(/*offset=*/-1,
+                                    intfVar,
+                                    name,
+                                    /*instanceName=*/"",
+                                    /*arraySize=*/0,
                                     std::make_shared<SymbolTable>(&fErrors, /*builtin=*/false));
 
-                fRTHeightStructId = this->writeInterfaceBlock(intf, false);
-                fRTHeightFieldIndex = 0;
-                fRTHeightStorageClass = usePushConstants ? SpvStorageClassPushConstant
-                                                         : SpvStorageClassUniform;
+                fRTFlipStructId = this->writeInterfaceBlock(intf, false);
+                fRTFlipFieldIndex = 0;
+                fRTFlipStorageClass = usePushConstants ? SpvStorageClassPushConstant
+                                                       : SpvStorageClassUniform;
             }
-            SkASSERT(fRTHeightFieldIndex != (SpvId)-1);
-
-            IntLiteral fieldIndex(/*offset=*/-1, fRTHeightFieldIndex, fContext.fTypes.fInt.get());
-            SpvId fieldIndexId = this->writeIntLiteral(fieldIndex);
-            SpvId heightPtr = this->nextId(nullptr);
-            this->writeOpCode(SpvOpAccessChain, 5, out);
-            this->writeWord(this->getPointerType(*fContext.fTypes.fFloat, fRTHeightStorageClass),
-                            out);
-            this->writeWord(heightPtr, out);
-            this->writeWord(fRTHeightStructId, out);
-            this->writeWord(fieldIndexId, out);
-            SpvId heightRead = this->nextId(nullptr);
-            this->writeInstruction(SpvOpLoad, this->getType(*fContext.fTypes.fFloat), heightRead,
-                                   heightPtr, out);
-
-            flippedYId = this->nextId(nullptr);
-            this->writeInstruction(SpvOpFSub, this->getType(*fContext.fTypes.fFloat), flippedYId,
-                                   heightRead, rawYId, out);
+    };
+    // Handle inserting use of uniform to flip y when referencing sk_FragCoord.
+    const Variable* variable = ref.variable();
+    if (variable->modifiers().fLayout.fBuiltin == SK_FRAGCOORD_BUILTIN) {
+        addRTFlipUniform();
+        // Use sk_RTAdjust to compute the flipped coordinate
+        using namespace dsl;
+        const char* DEVICE_COORDS_NAME = "__device_FragCoords";
+        SymbolTable& symbols = *dsl::DSLWriter::SymbolTable();
+        // Use a uniform to flip the Y coordinate. The new expression will be written in
+        // terms of __device_FragCoords, which is a fake variable that means "access the
+        // underlying fragcoords directly without flipping it".
+        DSLExpression rtFlip(DSLWriter::IRGenerator().convertIdentifier(/*offset=*/-1,
+                                                                        SKSL_RTFLIP_NAME));
+        if (!symbols[DEVICE_COORDS_NAME]) {
+            Modifiers modifiers;
+            modifiers.fLayout.fBuiltin = DEVICE_FRAGCOORDS_BUILTIN;
+            if (fProgram.fPool) {
+                fProgram.fPool->attachToThread();
+            }
+            symbols.add(std::make_unique<Variable>(/*offset=*/-1,
+                                                   fContext.fModifiersPool->add(modifiers),
+                                                   DEVICE_COORDS_NAME,
+                                                   fContext.fTypes.fFloat4.get(),
+                                                   true,
+                                                   Variable::Storage::kGlobal));
+            if (fProgram.fPool) {
+                fProgram.fPool->detachFromThread();
+            }
         }
-
-        // The z component will always be zero so we just get an id to the 0 literal
-        FloatLiteral zero(/*offset=*/-1, /*value=*/0.0, fContext.fTypes.fFloat.get());
-        SpvId zeroId = writeFloatLiteral(zero);
-
-        // Calculate the w component
-        SpvId rawWId = this->nextId(nullptr);
-        this->writeInstruction(SpvOpCompositeExtract, this->getType(*fContext.fTypes.fFloat),
-                               rawWId, result, 3, out);
-
-        // Fill in the new fragcoord with the components from above
-        SpvId adjusted = this->nextId(nullptr);
-        this->writeOpCode(SpvOpCompositeConstruct, 7, out);
-        this->writeWord(this->getType(*fContext.fTypes.fFloat4), out);
-        this->writeWord(adjusted, out);
-        this->writeWord(xId, out);
-        if (fProgram.fConfig->fSettings.fFlipY) {
-            this->writeWord(flippedYId, out);
-        } else {
-            this->writeWord(rawYId, out);
-        }
-        this->writeWord(zeroId, out);
-        this->writeWord(rawWId, out);
-
-        return adjusted;
+        DSLVar deviceCoord(DEVICE_COORDS_NAME);
+        std::unique_ptr<Expression> rtFlipSkSLExpr = rtFlip.release();
+        DSLExpression x = DSLExpression(rtFlipSkSLExpr->clone()).x();
+        DSLExpression y = DSLExpression(std::move(rtFlipSkSLExpr)).y();
+        return this->writeExpression(*dsl::Float4(deviceCoord.x(),
+                                                  std::move(x) + std::move(y) * deviceCoord.y(),
+                                                  deviceCoord.z(),
+                                                  deviceCoord.w()).release(), out);
     }
 
-    // Handle the "flipY" setting when reading sk_Clockwise.
-    if (variable->modifiers().fLayout.fBuiltin == SK_CLOCKWISE_BUILTIN &&
-        !fProgram.fConfig->fSettings.fFlipY) {
-        // FrontFacing in Vulkan is defined in terms of a top-down render target. In skia, we use
-        // the default convention of "counter-clockwise face is front".
-        SpvId inverse = this->nextId(nullptr);
-        this->writeInstruction(SpvOpLogicalNot, this->getType(*fContext.fTypes.fBool), inverse,
-                               result, out);
-        return inverse;
+    // Handle flipping sk_Clockwise.
+    if (variable->modifiers().fLayout.fBuiltin == SK_CLOCKWISE_BUILTIN) {
+        addRTFlipUniform();
+        using namespace dsl;
+        const char* DEVICE_FRONT_FACING_NAME = "__device_FrontFacing";
+        SymbolTable& symbols = *dsl::DSLWriter::SymbolTable();
+        // Use a uniform to flip the Y coordinate. The new expression will be written in
+        // terms of __device_FrontFacing, which is a fake variable that means "access the
+        // underlying front facing directly".
+        DSLExpression rtFlip(DSLWriter::IRGenerator().convertIdentifier(/*offset=*/-1,
+                                                                        SKSL_RTFLIP_NAME));
+        if (!symbols[DEVICE_FRONT_FACING_NAME]) {
+            Modifiers modifiers;
+            modifiers.fLayout.fBuiltin = DEVICE_FRONT_FACING_BUILTIN;
+            if (fProgram.fPool) {
+                fProgram.fPool->attachToThread();
+            }
+            symbols.add(std::make_unique<Variable>(/*offset=*/-1,
+                                                   fContext.fModifiersPool->add(modifiers),
+                                                   DEVICE_FRONT_FACING_NAME,
+                                                   fContext.fTypes.fBool.get(),
+                                                   true,
+                                                   Variable::Storage::kGlobal));
+            if (fProgram.fPool) {
+                fProgram.fPool->detachFromThread();
+            }
+        }
+        DSLVar deviceFrontFacing(DEVICE_FRONT_FACING_NAME);
+        // FrontFacing in Vulkan is defined in terms of a top-down render target. In skia,
+        // we use the default convention of "counter-clockwise face is front".
+        this->writeExpression(*dsl::Bool(Select(rtFlip.y() > 0, deviceFrontFacing, !deviceFrontFacing)).release(), out);
     }
 
-    return result;
+    return this->getLValue(ref, out)->load(out);
 }
 
 SpvId SPIRVCodeGenerator::writeIndexExpression(const IndexExpression& expr, OutputStream& out) {
@@ -3044,27 +3083,27 @@ static void update_sk_in_count(const Modifiers& m, int* outSkInCount) {
     }
 }
 
-SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool appendRTHeight) {
+SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool appendRTFlip) {
     MemoryLayout memoryLayout = this->memoryLayoutForVariable(intf.variable());
     SpvId result = this->nextId(nullptr);
-    std::unique_ptr<Type> rtHeightStructType;
+    std::unique_ptr<Type> rtFlipStructType;
     const Type* type = &intf.variable().type();
     if (!MemoryLayout::LayoutIsSupported(*type)) {
         fErrors.error(type->fOffset, "type '" + type->name() + "' is not permitted here");
         return this->nextId(nullptr);
     }
     SpvStorageClass_ storageClass = get_storage_class(intf.variable(), SpvStorageClassFunction);
-    if (fProgram.fInputs.fRTHeight && appendRTHeight) {
-        SkASSERT(fRTHeightStructId == (SpvId) -1);
-        SkASSERT(fRTHeightFieldIndex == (SpvId) -1);
+    if (fProgram.fInputs.fUseFlipRTUniform && appendRTFlip) {
+        SkASSERT(fRTFlipStructId == (SpvId) -1);
+        SkASSERT(fRTFlipFieldIndex == (SpvId) -1);
         std::vector<Type::Field> fields = type->fields();
-        fRTHeightStructId = result;
-        fRTHeightFieldIndex = fields.size();
-        fRTHeightStorageClass = storageClass;
-        fields.emplace_back(Modifiers(), StringFragment(SKSL_RTHEIGHT_NAME),
-                            fContext.fTypes.fFloat.get());
-        rtHeightStructType = Type::MakeStructType(type->fOffset, type->name(), std::move(fields));
-        type = rtHeightStructType.get();
+        fRTFlipStructId = result;
+        fRTFlipFieldIndex = fields.size();
+        fRTFlipStorageClass = storageClass;
+        fields.emplace_back(Modifiers(), StringFragment(SKSL_RTFLIP_NAME),
+                            fContext.fTypes.fFloat2.get());
+        rtFlipStructType = Type::MakeStructType(type->fOffset, type->name(), std::move(fields));
+        type = rtFlipStructType.get();
     }
     SpvId typeId;
     const Modifiers& intfModifiers = intf.variable().modifiers();

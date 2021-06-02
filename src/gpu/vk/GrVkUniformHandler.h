@@ -73,9 +73,9 @@ public:
     }
 
     /**
-     * Returns the offset that the RTHeight synthetic uniform should use if it needs to be created.
+     * Returns the offset that the RTFlip synthetic uniform should use if it needs to be created.
      */
-    uint32_t getRTHeightOffset() const;
+    uint32_t getRTFlipOffset() const;
 
     int numUniforms() const override {
         return fUniforms.count();
