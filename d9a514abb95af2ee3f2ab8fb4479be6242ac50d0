@@ -16,6 +16,52 @@
       "message": "PTAL, this has evolved a reasonable amount since it was last landed in November, particularly with how SkCanvas\u0027 device and layer management has been simplified.\n\nHistorically, this had failed android unit tests because device bounds for SkNoPixelDevices weren\u0027t be tracked equivalently but that has been addressed, and chrome tests failed because their text rendering in oop-r was very coupled to specific transformation choices SkCanvas made and this caused skia to diverge from oop-r and result in glyph cache misses.\n\nAll of that has been addressed by making sure oop-r converts SkPictures that might contain text into images before putting them into an image filter, so the scale factor they use for glyphs is pre-determined.\n\nThe g3 canary appears to fail for other reasons; the android canary roll failed for infra reasons but has confirmed to pass on previous patchsets; the flutter canary passed but then had a DEPS merge conflict that marked it as red even though the tests ran; the chrome canary is now only failing on tests that need rebaselines, which I will land before submitting this CL.",
       "revId": "d9a514abb95af2ee3f2ab8fb4479be6242ac50d0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "878f1938_dfa9e61a",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 749,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-06-02T13:25:04Z",
+      "side": 1,
+      "message": "Maybe add a compute_decomposition_point helper ?",
+      "range": {
+        "startLine": 737,
+        "startChar": 0,
+        "endLine": 749,
+        "endChar": 5
+      },
+      "revId": "d9a514abb95af2ee3f2ab8fb4479be6242ac50d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a5f2ec7d_cead7418",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 1062,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-06-02T13:25:04Z",
+      "side": 1,
+      "message": "Should this be \"Use the\" ?",
+      "range": {
+        "startLine": 1062,
+        "startChar": 11,
+        "endLine": 1062,
+        "endChar": 15
+      },
+      "revId": "d9a514abb95af2ee3f2ab8fb4479be6242ac50d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
