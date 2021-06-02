@@ -2476,8 +2476,10 @@ export interface Path extends EmbindObject<Path> {
 
     /**
      * Serializes the contents of this path as a series of commands.
+     * The first item will be a verb, followed by any number of arguments needed. Then it will
+     * be followed by another verb, more arguments and so on.
      */
-    toCmds(): PathCommand[];
+    toCmds(): Float32Array;
 
     /**
      * Returns this path as an SVG string.
@@ -3251,7 +3253,7 @@ export interface PathConstructorAndFactory extends DefaultConstructor<Path> {
      * returned instead.
      * @param cmds
      */
-    MakeFromCmds(cmds: PathCommand[]): Path | null;
+    MakeFromCmds(cmds: InputCommands): Path | null;
 
     /**
      * Creates a new path by combining the given paths according to op. If this fails, null will
@@ -3670,13 +3672,14 @@ export type FlattenedRectangleArray = Float32Array;
 
 export type GlyphIDArray = Uint16Array;
 /**
- * PathCommand contains a verb and then any arguments needed to fulfill that path verb.
+ * A command is a verb and then any arguments needed to fulfill that path verb.
+ * InputCommands is a flattened structure of one or more of these.
  * Examples:
- *   [CanvasKit.MOVE_VERB, 0, 10]
- *   [CanvasKit.LINE_VERB, 30, 40]
- * TODO(kjlubick) Make this not be a 2-d array and support typed arrays.
+ *   [CanvasKit.MOVE_VERB, 0, 10,
+ *    CanvasKit.QUAD_VERB, 20, 50, 45, 60,
+ *    CanvasKit.LINE_VERB, 30, 40]
  */
-export type PathCommand = number[];
+export type InputCommands = MallocObj | Float32Array | number[];
 /**
  * VerbList holds verb constants like CanvasKit.MOVE_VERB, CanvasKit.CUBIC_VERB.
  */

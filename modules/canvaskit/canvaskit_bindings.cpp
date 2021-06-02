@@ -366,38 +366,36 @@ static const int CONIC = 3;
 static const int CUBIC = 4;
 static const int CLOSE = 5;
 
-JSArray ToCmds(const SkPath& path) {
-    JSArray cmds = emscripten::val::array();
+Float32Array ToCmds(const SkPath& path) {
+    std::vector<SkScalar> cmds;
     for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
-        JSArray cmd = emscripten::val::array();
         switch (verb) {
         case SkPathVerb::kMove:
-            cmd.call<void>("push", MOVE, pts[0].x(), pts[0].y());
+            cmds.insert(cmds.end(), {MOVE, pts[0].x(), pts[0].y()});
             break;
         case SkPathVerb::kLine:
-            cmd.call<void>("push", LINE, pts[1].x(), pts[1].y());
+            cmds.insert(cmds.end(), {LINE, pts[1].x(), pts[1].y()});
             break;
         case SkPathVerb::kQuad:
-            cmd.call<void>("push", QUAD, pts[1].x(), pts[1].y(), pts[2].x(), pts[2].y());
+            cmds.insert(cmds.end(), {QUAD, pts[1].x(), pts[1].y(), pts[2].x(), pts[2].y()});
             break;
         case SkPathVerb::kConic:
-            cmd.call<void>("push", CONIC,
+            cmds.insert(cmds.end(), {CONIC,
                            pts[1].x(), pts[1].y(),
-                           pts[2].x(), pts[2].y(), *w);
+                           pts[2].x(), pts[2].y(), *w});
             break;
         case SkPathVerb::kCubic:
-            cmd.call<void>("push", CUBIC,
+            cmds.insert(cmds.end(), {CUBIC,
                            pts[1].x(), pts[1].y(),
                            pts[2].x(), pts[2].y(),
-                           pts[3].x(), pts[3].y());
+                           pts[3].x(), pts[3].y()});
             break;
         case SkPathVerb::kClose:
-            cmd.call<void>("push", CLOSE);
+            cmds.push_back(CLOSE);
             break;
         }
-        cmds.call<void>("push", cmd);
     }
-    return cmds;
+    return MakeTypedArray(cmds.size(), (const float*)cmds.data());
 }
 
 SkPathOrNull MakePathFromCmds(WASMPointerF32 cptr, int numCmds) {
@@ -1211,7 +1209,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("_getGlyphIntercepts", optional_override([](SkFont& self,
                                                              WASMPointerU16 gPtr, size_t numGlyphs, bool ownGlyphs,
                                                              WASMPointerF32 pPtr, size_t numPos, bool ownPos,
-                                                             float top, float bottom) -> JSArray {
+                                                             float top, float bottom) -> Float32Array {
             JSSpan<uint16_t> glyphs(gPtr, numGlyphs, ownGlyphs);
             JSSpan<float>    pos   (pPtr, numPos, ownPos);
             if (glyphs.size() > (pos.size() >> 1)) {

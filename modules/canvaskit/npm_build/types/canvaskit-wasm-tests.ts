@@ -417,9 +417,9 @@ function paintTests(CK: CanvasKit, colorFilter?: ColorFilter, imageFilter?: Imag
 function pathTests(CK: CanvasKit) {
     const path = new CK.Path();  // $ExpectType Path
     const p2 = CK.Path.MakeFromCmds([ // $ExpectType Path | null
-        [CK.MOVE_VERB, 0, 10],
-        [CK.LINE_VERB, 30, 40],
-        [CK.QUAD_VERB, 20, 50, 45, 60],
+        CK.MOVE_VERB, 0, 10,
+        CK.LINE_VERB, 30, 40,
+        CK.QUAD_VERB, 20, 50, 45, 60,
     ]);
     const verbs = CK.Malloc(Uint8Array, 10);
     const points = CK.Malloc(Float32Array, 10);
@@ -490,7 +490,7 @@ function pathTests(CK: CanvasKit) {
         cap: CK.StrokeCap.Butt,
         join: CK.StrokeJoin.Miter,
     });
-    const cmds = path.toCmds(); // $ExpectType PathCommand[]
+    const cmds = path.toCmds(); // $ExpectType Float32Array
     const str = path.toSVGString(); // $ExpectType string
     path.transform(CK.Matrix.identity());
     path.transform(1, 0, 0, 0, 1, 0, 0, 0, 1);

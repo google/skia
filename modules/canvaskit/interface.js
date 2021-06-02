@@ -50,9 +50,9 @@ CanvasKit.onRuntimeInitialized = function() {
   };
 
   CanvasKit.Path.MakeFromCmds = function(cmds) {
-    var ptrLen = loadCmdsTypedArray(cmds);
-    var path = CanvasKit.Path._MakeFromCmds(ptrLen[0], ptrLen[1]);
-    CanvasKit._free(ptrLen[0]);
+    var cmdPtr = copy1dArray(cmds, 'HEAPF32');
+    var path = CanvasKit.Path._MakeFromCmds(cmdPtr, cmds.length);
+    freeArraysThatAreNotMallocedByUsers(cmdPtr, cmds);
     return path;
   };
 
