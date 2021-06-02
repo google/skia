@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "999db2df_96b171c5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-06-02T19:51:04Z",
+      "side": 1,
+      "message": "This fixes several issues resulting from the switch to Python 3, and fully removes support for the old scripts in favor of sk.  Because the create.py script is now called by sk, several fixes were required:\n- Additional flags needed to be passed via environment variables.\n- create_and_upload.py needs to call into sk\n- create.py can\u0027t be interactive, I\u0027m guessing sk isn\u0027t plumbing stdin.",
+      "revId": "a3b9539c9ef7afe5565ef382ff765507046b600d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
