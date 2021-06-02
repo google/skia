@@ -303,7 +303,7 @@ void GrSurfaceFillContext::addDrawOp(GrOp::Owner owner) {
     op->setClippedBounds(op->bounds());
     SkDEBUGCODE(op->fAddDrawOpCalled = true;)
 
-    GrXferProcessor::DstProxyView dstProxyView;
+    GrDstProxyView dstProxyView;
     this->getOpsTask()->addDrawOp(fContext->priv().drawingManager(),
                                   std::move(owner),
                                   op->usesMSAA(),

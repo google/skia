@@ -907,14 +907,14 @@ private:
                              SkArenaAlloc*,
                              const GrSurfaceProxyView& writeView,
                              GrAppliedClip&&,
-                             const GrXferProcessor::DstProxyView&,
+                             const GrDstProxyView&,
                              GrXferBarrierFlags renderPassXferBarriers,
                              GrLoadOp colorLoadOp) override;
 
     void onPrePrepareDraws(GrRecordingContext*,
                            const GrSurfaceProxyView& writeView,
                            GrAppliedClip*,
-                           const GrXferProcessor::DstProxyView&,
+                           const GrDstProxyView&,
                            GrXferBarrierFlags renderPassXferBarriers,
                            GrLoadOp colorLoadOp) override;
 
@@ -1108,7 +1108,7 @@ void AAHairlineOp::onCreateProgramInfo(const GrCaps* caps,
                                        SkArenaAlloc* arena,
                                        const GrSurfaceProxyView& writeView,
                                        GrAppliedClip&& appliedClip,
-                                       const GrXferProcessor::DstProxyView& dstProxyView,
+                                       const GrDstProxyView& dstProxyView,
                                        GrXferBarrierFlags renderPassXferBarriers,
                                        GrLoadOp colorLoadOp) {
     // Setup the viewmatrix and localmatrix for the GrGeometryProcessor.
@@ -1150,7 +1150,7 @@ void AAHairlineOp::onCreateProgramInfo(const GrCaps* caps,
 void AAHairlineOp::onPrePrepareDraws(GrRecordingContext* context,
                                      const GrSurfaceProxyView& writeView,
                                      GrAppliedClip* clip,
-                                     const GrXferProcessor::DstProxyView& dstProxyView,
+                                     const GrDstProxyView& dstProxyView,
                                      GrXferBarrierFlags renderPassXferBarriers,
                                      GrLoadOp colorLoadOp) {
     SkArenaAlloc* arena = context->priv().recordTimeAllocator();

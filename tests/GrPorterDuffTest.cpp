@@ -1080,7 +1080,7 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, options) {
         ERRORF(reporter, "Could not make texture.");
         return;
     }
-    GrXferProcessor::DstProxyView fakeDstProxyView;
+    GrDstProxyView fakeDstProxyView;
     {
         sk_sp<GrTextureProxy> proxy = proxyProvider->wrapBackendTexture(
                 mbet->texture(), kBorrow_GrWrapOwnership, GrWrapCacheable::kNo, kRead_GrIOType,

@@ -59,8 +59,7 @@ public:
     struct OpArgs {
         // TODO: why does OpArgs have the op we're going to pass it to as a member? Remove it.
         explicit OpArgs(GrOp* op, const GrSurfaceProxyView& surfaceView, bool usesMSAASurface,
-                        GrAppliedClip* appliedClip,
-                        const GrXferProcessor::DstProxyView& dstProxyView,
+                        GrAppliedClip* appliedClip, const GrDstProxyView& dstProxyView,
                         GrXferBarrierFlags renderPassXferBarriers, GrLoadOp colorLoadOp)
                 : fOp(op)
                 , fSurfaceView(surfaceView)
@@ -80,7 +79,7 @@ public:
         bool usesMSAASurface() const { return fUsesMSAASurface; }
         GrAppliedClip* appliedClip() { return fAppliedClip; }
         const GrAppliedClip* appliedClip() const { return fAppliedClip; }
-        const GrXferProcessor::DstProxyView& dstProxyView() const { return fDstProxyView; }
+        const GrDstProxyView& dstProxyView() const { return fDstProxyView; }
         GrXferBarrierFlags renderPassBarriers() const { return fRenderPassXferBarriers; }
         GrLoadOp colorLoadOp() const { return fColorLoadOp; }
 
@@ -97,7 +96,7 @@ public:
         GrRenderTargetProxy*          fRenderTargetProxy;
         bool                          fUsesMSAASurface;
         GrAppliedClip*                fAppliedClip;
-        GrXferProcessor::DstProxyView fDstProxyView;   // TODO: do we still need the dst proxy here?
+        GrDstProxyView                fDstProxyView;   // TODO: do we still need the dst proxy here?
         GrXferBarrierFlags            fRenderPassXferBarriers;
         GrLoadOp                      fColorLoadOp;
     };
@@ -163,7 +162,7 @@ public:
                 fOpArgs->appliedClip()->hardClip() : GrAppliedHardClip::Disabled();
     }
     GrAppliedClip detachAppliedClip() final;
-    const GrXferProcessor::DstProxyView& dstProxyView() const final {
+    const GrDstProxyView& dstProxyView() const final {
         return this->drawOpArgs().dstProxyView();
     }
 

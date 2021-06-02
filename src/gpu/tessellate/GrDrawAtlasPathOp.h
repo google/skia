@@ -44,7 +44,7 @@ private:
     void onPrePrepare(GrRecordingContext*,
                       const GrSurfaceProxyView& writeView,
                       GrAppliedClip*,
-                      const GrXferProcessor::DstProxyView&,
+                      const GrDstProxyView&,
                       GrXferBarrierFlags renderPassXferBarriers,
                       GrLoadOp colorLoadOp) override;
 

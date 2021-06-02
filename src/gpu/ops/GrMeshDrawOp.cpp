@@ -31,7 +31,7 @@ void GrMeshDrawOp::createProgramInfo(Target* target) {
 void GrMeshDrawOp::onPrePrepareDraws(GrRecordingContext* context,
                                      const GrSurfaceProxyView& writeView,
                                      GrAppliedClip* clip,
-                                     const GrXferProcessor::DstProxyView& dstProxyView,
+                                     const GrDstProxyView& dstProxyView,
                                      GrXferBarrierFlags renderPassXferBarriers,
                                      GrLoadOp colorLoadOp) {
     SkArenaAlloc* arena = context->priv().recordTimeAllocator();

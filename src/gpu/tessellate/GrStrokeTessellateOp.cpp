@@ -215,7 +215,7 @@ void GrStrokeTessellateOp::prePrepareTessellator(GrTessellationShader::ProgramAr
 
 void GrStrokeTessellateOp::onPrePrepare(GrRecordingContext* context,
                                         const GrSurfaceProxyView& writeView, GrAppliedClip* clip,
-                                        const GrXferProcessor::DstProxyView& dstProxyView,
+                                        const GrDstProxyView& dstProxyView,
                                         GrXferBarrierFlags renderPassXferBarriers, GrLoadOp
                                         colorLoadOp) {
     this->prePrepareTessellator({context->priv().recordTimeAllocator(), writeView, &dstProxyView,

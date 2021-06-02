@@ -42,7 +42,7 @@ protected:
                            SkArenaAlloc* arena,
                            const GrSurfaceProxyView& writeView,
                            GrAppliedClip&& appliedClip,
-                           const GrXferProcessor::DstProxyView& dstProxyView,
+                           const GrDstProxyView& dstProxyView,
                            GrXferBarrierFlags renderPassXferBarriers,
                            GrLoadOp colorLoadOp) {
         this->onCreateProgramInfo(caps, arena, writeView, std::move(appliedClip), dstProxyView,
@@ -107,7 +107,7 @@ protected:
     virtual void onPrePrepareDraws(GrRecordingContext*,
                                    const GrSurfaceProxyView& writeView,
                                    GrAppliedClip*,
-                                   const GrXferProcessor::DstProxyView&,
+                                   const GrDstProxyView&,
                                    GrXferBarrierFlags renderPassXferBarriers,
                                    GrLoadOp colorLoadOp);
 
@@ -119,14 +119,14 @@ private:
                                      SkArenaAlloc*,
                                      const GrSurfaceProxyView& writeView,
                                      GrAppliedClip&&,
-                                     const GrXferProcessor::DstProxyView&,
+                                     const GrDstProxyView&,
                                      GrXferBarrierFlags renderPassXferBarriers,
                                      GrLoadOp colorLoadOp) = 0;
 
     void onPrePrepare(GrRecordingContext* context,
                       const GrSurfaceProxyView& writeView,
                       GrAppliedClip* clip,
-                      const GrXferProcessor::DstProxyView& dstProxyView,
+                      const GrDstProxyView& dstProxyView,
                       GrXferBarrierFlags renderPassXferBarriers,
                       GrLoadOp colorLoadOp) final {
         this->onPrePrepareDraws(context, writeView, clip, dstProxyView, renderPassXferBarriers,
@@ -229,7 +229,7 @@ public:
     virtual const GrAppliedClip* appliedClip() const = 0;
     virtual GrAppliedClip detachAppliedClip() = 0;
 
-    virtual const GrXferProcessor::DstProxyView& dstProxyView() const = 0;
+    virtual const GrDstProxyView& dstProxyView() const = 0;
     virtual bool usesMSAASurface() const = 0;
 
     virtual GrXferBarrierFlags renderPassBarriers() const = 0;

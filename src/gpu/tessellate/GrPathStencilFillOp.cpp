@@ -139,7 +139,7 @@ void GrPathStencilFillOp::prePreparePrograms(const GrTessellationShader::Program
 
 void GrPathStencilFillOp::onPrePrepare(GrRecordingContext* context,
                                        const GrSurfaceProxyView& writeView, GrAppliedClip* clip,
-                                       const GrXferProcessor::DstProxyView& dstProxyView,
+                                       const GrDstProxyView& dstProxyView,
                                        GrXferBarrierFlags renderPassXferBarriers,
                                        GrLoadOp colorLoadOp) {
     this->prePreparePrograms({context->priv().recordTimeAllocator(), writeView, &dstProxyView,

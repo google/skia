@@ -1899,7 +1899,7 @@ void GrSurfaceDrawContext::addDrawOp(const GrClip* clip,
     // Must be called before setDstProxyView so that it sees the final bounds of the op.
     op->setClippedBounds(bounds);
 
-    GrXferProcessor::DstProxyView dstProxyView;
+    GrDstProxyView dstProxyView;
     if (analysis.requiresDstTexture()) {
         if (!this->setupDstProxyView(*op, &dstProxyView)) {
             return;
@@ -1937,8 +1937,7 @@ void GrSurfaceDrawContext::addDrawOp(const GrClip* clip,
 #endif
 }
 
-bool GrSurfaceDrawContext::setupDstProxyView(const GrOp& op,
-                                             GrXferProcessor::DstProxyView* dstProxyView) {
+bool GrSurfaceDrawContext::setupDstProxyView(const GrOp& op, GrDstProxyView* dstProxyView) {
     // If we are wrapping a vulkan secondary command buffer, we can't make a dst copy because we
     // don't actually have a VkImage to make a copy of. Additionally we don't have the power to
     // start and stop the render pass in order to make the copy.

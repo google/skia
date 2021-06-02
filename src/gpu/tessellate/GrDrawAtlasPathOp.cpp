@@ -144,7 +144,7 @@ GrOp::CombineResult GrDrawAtlasPathOp::onCombineIfPossible(
 void GrDrawAtlasPathOp::onPrePrepare(GrRecordingContext*,
                                      const GrSurfaceProxyView& writeView,
                                      GrAppliedClip*,
-                                     const GrXferProcessor::DstProxyView&,
+                                     const GrDstProxyView&,
                                      GrXferBarrierFlags renderPassXferBarriers,
                                      GrLoadOp colorLoadOp) {}
 

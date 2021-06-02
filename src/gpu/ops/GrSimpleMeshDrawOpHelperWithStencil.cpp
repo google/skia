@@ -47,7 +47,7 @@ GrProgramInfo* GrSimpleMeshDrawOpHelperWithStencil::createProgramInfoWithStencil
                                             SkArenaAlloc* arena,
                                             const GrSurfaceProxyView& writeViewSwizzle,
                                             GrAppliedClip&& appliedClip,
-                                            const GrXferProcessor::DstProxyView& dstProxyView,
+                                            const GrDstProxyView& dstProxyView,
                                             GrGeometryProcessor* gp,
                                             GrPrimitiveType primType,
                                             GrXferBarrierFlags renderPassXferBarriers,

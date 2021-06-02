@@ -33,9 +33,6 @@ class GrGpuBuffer;
 class GrRenderTargetProxy;
 
 class GrOpsTask : public GrRenderTask {
-private:
-    using DstProxyView = GrXferProcessor::DstProxyView;
-
 public:
     // Manage the arenas life time by maintaining are reference to it.
     GrOpsTask(GrDrawingManager*, GrSurfaceProxyView, GrAuditTrail*, sk_sp<GrArenas>);
@@ -72,7 +69,7 @@ public:
     void addOp(GrDrawingManager*, GrOp::Owner, GrTextureResolveManager, const GrCaps&);
 
     void addDrawOp(GrDrawingManager*, GrOp::Owner, bool usesMSAA, const GrProcessorSet::Analysis&,
-                   GrAppliedClip&&, const DstProxyView&, GrTextureResolveManager, const GrCaps&);
+                   GrAppliedClip&&, const GrDstProxyView&, GrTextureResolveManager, const GrCaps&);
 
     void discard();
 
@@ -146,7 +143,7 @@ private:
 
     class OpChain {
     public:
-        OpChain(GrOp::Owner, GrProcessorSet::Analysis, GrAppliedClip*, const DstProxyView*);
+        OpChain(GrOp::Owner, GrProcessorSet::Analysis, GrAppliedClip*, const GrDstProxyView*);
         ~OpChain() {
             // The ops are stored in a GrMemoryPool and must be explicitly deleted via the pool.
             SkASSERT(fList.empty());
@@ -162,7 +159,7 @@ private:
         GrOp* head() const { return fList.head(); }
 
         GrAppliedClip* appliedClip() const { return fAppliedClip; }
-        const DstProxyView& dstProxyView() const { return fDstProxyView; }
+        const GrDstProxyView& dstProxyView() const { return fDstProxyView; }
         const SkRect& bounds() const { return fBounds; }
 
         // Deletes all the ops in the chain.
@@ -176,7 +173,7 @@ private:
         // Attempts to add 'op' to this chain either by merging or adding to the tail. Returns
         // 'op' to the caller upon failure, otherwise null. Fails when the op and chain aren't of
         // the same op type, have different clips or dst proxies.
-        GrOp::Owner appendOp(GrOp::Owner op, GrProcessorSet::Analysis, const DstProxyView*,
+        GrOp::Owner appendOp(GrOp::Owner op, GrProcessorSet::Analysis, const GrDstProxyView*,
                              const GrAppliedClip*, const GrCaps&, SkArenaAlloc* opsTaskArena,
                              GrAuditTrail*);
 
@@ -210,14 +207,14 @@ private:
 
         void validate() const;
 
-        bool tryConcat(List*, GrProcessorSet::Analysis, const DstProxyView&, const GrAppliedClip*,
+        bool tryConcat(List*, GrProcessorSet::Analysis, const GrDstProxyView&, const GrAppliedClip*,
                        const SkRect& bounds, const GrCaps&, SkArenaAlloc* opsTaskArena,
                        GrAuditTrail*);
         static List DoConcat(List, List, const GrCaps&, SkArenaAlloc* opsTaskArena, GrAuditTrail*);
 
         List fList;
         GrProcessorSet::Analysis fProcessorAnalysis;
-        DstProxyView fDstProxyView;
+        GrDstProxyView fDstProxyView;
         GrAppliedClip* fAppliedClip;
         SkRect fBounds;
     };
@@ -229,7 +226,7 @@ private:
     void gatherProxyIntervals(GrResourceAllocator*) const override;
 
     void recordOp(GrOp::Owner, GrProcessorSet::Analysis, GrAppliedClip*,
-                  const DstProxyView*, const GrCaps&);
+                  const GrDstProxyView*, const GrCaps&);
 
     void forwardCombine(const GrCaps&);
 

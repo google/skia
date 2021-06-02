@@ -68,7 +68,7 @@ public:
     struct InitArgs {
         InputFlags fInputFlags = InputFlags::kNone;
         const GrCaps* fCaps = nullptr;
-        GrXferProcessor::DstProxyView fDstProxyView;
+        GrDstProxyView fDstProxyView;
         GrSwizzle fWriteSwizzle;
     };
 

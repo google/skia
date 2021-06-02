@@ -34,10 +34,6 @@ static const int kMaxOpChainDistance = 10;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-using DstProxyView = GrXferProcessor::DstProxyView;
-
-////////////////////////////////////////////////////////////////////////////////
-
 static inline bool can_reorder(const SkRect& a, const SkRect& b) { return !GrRectsOverlap(a, b); }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -120,9 +116,8 @@ inline void GrOpsTask::OpChain::List::validate() const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrOpsTask::OpChain::OpChain(GrOp::Owner op,
-                            GrProcessorSet::Analysis processorAnalysis,
-                            GrAppliedClip* appliedClip, const DstProxyView* dstProxyView)
+GrOpsTask::OpChain::OpChain(GrOp::Owner op, GrProcessorSet::Analysis processorAnalysis,
+                            GrAppliedClip* appliedClip, const GrDstProxyView* dstProxyView)
         : fList{std::move(op)}
         , fProcessorAnalysis(processorAnalysis)
         , fAppliedClip(appliedClip) {
@@ -236,7 +231,7 @@ GrOpsTask::OpChain::List GrOpsTask::OpChain::DoConcat(List chainA, List chainB, 
 // Attempts to concatenate the given chain onto our own and merge ops across the chains. Returns
 // whether the operation succeeded. On success, the provided list will be returned empty.
 bool GrOpsTask::OpChain::tryConcat(
-        List* list, GrProcessorSet::Analysis processorAnalysis, const DstProxyView& dstProxyView,
+        List* list, GrProcessorSet::Analysis processorAnalysis, const GrDstProxyView& dstProxyView,
         const GrAppliedClip* appliedClip, const SkRect& bounds, const GrCaps& caps,
         SkArenaAlloc* opsTaskArena, GrAuditTrail* auditTrail) {
     SkASSERT(!fList.empty());
@@ -320,9 +315,9 @@ bool GrOpsTask::OpChain::prependChain(OpChain* that, const GrCaps& caps, SkArena
 
 GrOp::Owner GrOpsTask::OpChain::appendOp(
         GrOp::Owner op, GrProcessorSet::Analysis processorAnalysis,
-        const DstProxyView* dstProxyView, const GrAppliedClip* appliedClip, const GrCaps& caps,
+        const GrDstProxyView* dstProxyView, const GrAppliedClip* appliedClip, const GrCaps& caps,
         SkArenaAlloc* opsTaskArena, GrAuditTrail* auditTrail) {
-    const GrXferProcessor::DstProxyView noDstProxyView;
+    const GrDstProxyView noDstProxyView;
     if (!dstProxyView) {
         dstProxyView = &noDstProxyView;
     }
@@ -392,7 +387,7 @@ void GrOpsTask::addOp(GrDrawingManager* drawingMgr, GrOp::Owner op,
 
 void GrOpsTask::addDrawOp(GrDrawingManager* drawingMgr, GrOp::Owner op, bool usesMSAA,
                           const GrProcessorSet::Analysis& processorAnalysis, GrAppliedClip&& clip,
-                          const DstProxyView& dstProxyView,
+                          const GrDstProxyView& dstProxyView,
                           GrTextureResolveManager textureResolveManager, const GrCaps& caps) {
     auto addDependency = [&](GrSurfaceProxy* p, GrMipmapped mipmapped) {
         this->addSampledTexture(p);
@@ -956,7 +951,7 @@ void GrOpsTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {
 
 void GrOpsTask::recordOp(
         GrOp::Owner op, GrProcessorSet::Analysis processorAnalysis, GrAppliedClip* clip,
-        const DstProxyView* dstProxyView, const GrCaps& caps) {
+        const GrDstProxyView* dstProxyView, const GrCaps& caps) {
     SkDEBUGCODE(op->validate();)
     SkASSERT(processorAnalysis.requiresDstTexture() == (dstProxyView && dstProxyView->proxy()));
     GrSurfaceProxy* proxy = this->target(0);
