@@ -115,7 +115,7 @@ public:
                                 SkArenaAlloc*,
                                 GrSwizzle writeViewSwizzle,
                                 GrAppliedClip&&,
-                                const GrXferProcessor::DstProxyView&,
+                                const GrDstProxyView&,
                                 GrProcessorSet&&,
                                 GrPipeline::InputFlags pipelineFlags);
     static const GrPipeline* CreatePipeline(
@@ -129,7 +129,7 @@ public:
                                      SkArenaAlloc*,
                                      GrSwizzle writeViewSwizzle,
                                      GrAppliedClip&&,
-                                     const GrXferProcessor::DstProxyView&);
+                                     const GrDstProxyView&);
 
     static GrProgramInfo* CreateProgramInfo(SkArenaAlloc*,
                                             const GrPipeline*,
@@ -148,7 +148,7 @@ public:
                                             SkArenaAlloc*,
                                             const GrSurfaceProxyView& writeView,
                                             GrAppliedClip&&,
-                                            const GrXferProcessor::DstProxyView&,
+                                            const GrDstProxyView&,
                                             GrGeometryProcessor*,
                                             GrProcessorSet&&,
                                             GrPrimitiveType,
@@ -163,7 +163,7 @@ public:
                                      SkArenaAlloc*,
                                      const GrSurfaceProxyView& writeView,
                                      GrAppliedClip&&,
-                                     const GrXferProcessor::DstProxyView&,
+                                     const GrDstProxyView&,
                                      GrGeometryProcessor*,
                                      GrPrimitiveType,
                                      GrXferBarrierFlags renderPassXferBarriers,

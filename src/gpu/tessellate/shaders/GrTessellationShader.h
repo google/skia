@@ -51,7 +51,7 @@ public:
     struct ProgramArgs {
         SkArenaAlloc* fArena;
         const GrSurfaceProxyView& fWriteView;
-        const GrXferProcessor::DstProxyView* fDstProxyView;
+        const GrDstProxyView* fDstProxyView;
         GrXferBarrierFlags fXferBarrierFlags;
         GrLoadOp fColorLoadOp;
         const GrCaps* fCaps;

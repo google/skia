@@ -172,7 +172,7 @@ public:
      * ahead of time and when it has not been called).
      */
     void prePrepare(GrRecordingContext* context, const GrSurfaceProxyView& dstView,
-                    GrAppliedClip* clip, const GrXferProcessor::DstProxyView& dstProxyView,
+                    GrAppliedClip* clip, const GrDstProxyView& dstProxyView,
                     GrXferBarrierFlags renderPassXferBarriers, GrLoadOp colorLoadOp) {
         TRACE_EVENT0("skia.gpu", name());
         this->onPrePrepare(context, dstView, clip, dstProxyView, renderPassXferBarriers,
@@ -311,7 +311,7 @@ private:
     virtual void onPrePrepare(GrRecordingContext*,
                               const GrSurfaceProxyView& writeView,
                               GrAppliedClip*,
-                              const GrXferProcessor::DstProxyView&,
+                              const GrDstProxyView&,
                               GrXferBarrierFlags renderPassXferBarriers,
                               GrLoadOp colorLoadOp) = 0;
     virtual void onPrepare(GrOpFlushState*) = 0;

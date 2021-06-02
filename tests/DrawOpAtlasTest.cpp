@@ -227,7 +227,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
                                   surfaceView,
                                   false /*usesMSAASurface*/,
                                   nullptr,
-                                  GrXferProcessor::DstProxyView(),
+                                  GrDstProxyView(),
                                   GrXferBarrierFlags::kNone,
                                   GrLoadOp::kLoad);
 

@@ -1275,7 +1275,7 @@ private:
                              SkArenaAlloc* arena,
                              const GrSurfaceProxyView& writeView,
                              GrAppliedClip&& appliedClip,
-                             const GrXferProcessor::DstProxyView& dstProxyView,
+                             const GrDstProxyView& dstProxyView,
                              GrXferBarrierFlags renderPassXferBarriers,
                              GrLoadOp colorLoadOp) override {
         SkMatrix localMatrix;
@@ -1637,7 +1637,7 @@ private:
                              SkArenaAlloc* arena,
                              const GrSurfaceProxyView& writeView,
                              GrAppliedClip&& appliedClip,
-                             const GrXferProcessor::DstProxyView& dstProxyView,
+                             const GrDstProxyView& dstProxyView,
                              GrXferBarrierFlags renderPassXferBarriers,
                              GrLoadOp colorLoadOp) override {
         SkMatrix localMatrix;
@@ -1970,7 +1970,7 @@ private:
                              SkArenaAlloc* arena,
                              const GrSurfaceProxyView& writeView,
                              GrAppliedClip&& appliedClip,
-                             const GrXferProcessor::DstProxyView& dstProxyView,
+                             const GrDstProxyView& dstProxyView,
                              GrXferBarrierFlags renderPassXferBarriers,
                              GrLoadOp colorLoadOp) override {
         SkMatrix localMatrix;
@@ -2246,7 +2246,7 @@ private:
                              SkArenaAlloc* arena,
                              const GrSurfaceProxyView& writeView,
                              GrAppliedClip&& appliedClip,
-                             const GrXferProcessor::DstProxyView& dstProxyView,
+                             const GrDstProxyView& dstProxyView,
                              GrXferBarrierFlags renderPassXferBarriers,
                              GrLoadOp colorLoadOp) override {
         GrGeometryProcessor* gp = DIEllipseGeometryProcessor::Make(arena, fWideColor, fUseScale,
@@ -2644,7 +2644,7 @@ private:
                              SkArenaAlloc* arena,
                              const GrSurfaceProxyView& writeView,
                              GrAppliedClip&& appliedClip,
-                             const GrXferProcessor::DstProxyView& dstProxyView,
+                             const GrDstProxyView& dstProxyView,
                              GrXferBarrierFlags renderPassXferBarriers,
                              GrLoadOp colorLoadOp) override {
         // Invert the view matrix as a local matrix (if any other processors require coords).
@@ -2967,7 +2967,7 @@ private:
                              SkArenaAlloc* arena,
                              const GrSurfaceProxyView& writeView,
                              GrAppliedClip&& appliedClip,
-                             const GrXferProcessor::DstProxyView& dstProxyView,
+                             const GrDstProxyView& dstProxyView,
                              GrXferBarrierFlags renderPassXferBarriers,
                              GrLoadOp colorLoadOp) override {
         SkMatrix localMatrix;

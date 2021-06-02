@@ -63,7 +63,7 @@ private:
                                     nullptr, caps, clampType, &color);
     }
     void onPrePrepare(GrRecordingContext*, const GrSurfaceProxyView&, GrAppliedClip*,
-                      const GrXferProcessor::DstProxyView&, GrXferBarrierFlags,
+                      const GrDstProxyView&, GrXferBarrierFlags,
                       GrLoadOp colorLoadOp) override {}
     void onPrepare(GrOpFlushState* flushState) override {
         constexpr static SkPMColor4f kCyan = {0,1,1,1};

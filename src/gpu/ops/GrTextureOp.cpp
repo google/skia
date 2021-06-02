@@ -650,7 +650,7 @@ private:
                              SkArenaAlloc* arena,
                              const GrSurfaceProxyView& writeView,
                              GrAppliedClip&& appliedClip,
-                             const GrXferProcessor::DstProxyView& dstProxyView,
+                             const GrDstProxyView& dstProxyView,
                              GrXferBarrierFlags renderPassXferBarriers,
                              GrLoadOp colorLoadOp) override {
         SkASSERT(fDesc);
@@ -683,7 +683,7 @@ private:
     void onPrePrepareDraws(GrRecordingContext* context,
                            const GrSurfaceProxyView& writeView,
                            GrAppliedClip* clip,
-                           const GrXferProcessor::DstProxyView& dstProxyView,
+                           const GrDstProxyView& dstProxyView,
                            GrXferBarrierFlags renderPassXferBarriers,
                            GrLoadOp colorLoadOp) override {
         TRACE_EVENT0("skia.gpu", TRACE_FUNC);
