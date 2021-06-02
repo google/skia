@@ -70,33 +70,35 @@ GrGLSLGeometryProcessor* HardwareWedgeShader::createGLSLInstance(const GrShaderC
             patch out vec2 fanpoint;
 
             void main() {
-                // Figure out how many segments to divide the curve into.
-                float w = isinf(P[3].y) ? P[3].x : -1;  // w<0 means cubic.
-                float n = wangs_formula(PRECISION, P[0], P[1], P[2], P[3], w);
-
-                // Tessellate the first side of the patch into n triangles.
-                gl_TessLevelOuter[0] = min(n, MAX_TESSELLATION_SEGMENTS);
-
-                // Leave the other two sides of the patch as single segments.
-                gl_TessLevelOuter[1] = 1.0;
-                gl_TessLevelOuter[2] = 1.0;
-
-                // Changing the inner level to 1 when n == 1 collapses the entire
-                // patch to a single triangle. Otherwise, we need an inner level of 2 so our curve
-                // triangles have an interior point to originate from.
-                gl_TessLevelInner[0] = min(n, 2.0);
-
-                if (w < 0) {
+                float numSegments;
+                if (!isinf(P[3].y)) {
+                    // This is a cubic.
+                    numSegments = wangs_formula_cubic(PRECISION, P[0], P[1], P[2], P[3]);
                     rationalCubicXY = mat4x2(P[0], P[1], P[2], P[3]);
                     rationalCubicW = 1;
                 } else {
-                    // Convert the conic to a rational cubic in projected form.
+                    // This is a conic.
+                    float w = P[3].x;
+                    numSegments = wangs_formula_conic(PRECISION, P[0], P[1], P[2], w);
+                    // Convert to a rational cubic in projected form.
                     rationalCubicXY = mat4x2(P[0],
                                              mix(vec4(P[0], P[2]), (P[1] * w).xyxy, 2.0/3.0),
                                              P[2]);
                     rationalCubicW = fma(w, 2.0/3.0, 1.0/3.0);
                 }
                 fanpoint = P[4];
+
+                // Tessellate the first side of the patch into numSegments triangles.
+                gl_TessLevelOuter[0] = min(numSegments, MAX_TESSELLATION_SEGMENTS);
+
+                // Leave the other two sides of the patch as single segments.
+                gl_TessLevelOuter[1] = 1.0;
+                gl_TessLevelOuter[2] = 1.0;
+
+                // Changing the inner level to 1 when numSegments == 1 collapses the entire
+                // patch to a single triangle. Otherwise, we need an inner level of 2 so our curve
+                // triangles have an interior point to originate from.
+                gl_TessLevelInner[0] = min(numSegments, 2.0);
             })");
 
             return code;
@@ -223,8 +225,8 @@ GrGLSLGeometryProcessor* HardwareCurveShader::createGLSLInstance(const GrShaderC
                     if (w < 0) {
                         // The patch is a cubic. Calculate how many segments are required to
                         // linearize each half of the curve.
-                        n0 = wangs_formula(PRECISION, P[0], ab, abc, abcd, -1);  // w<0 means cubic.
-                        n1 = wangs_formula(PRECISION, abcd, bcd, cd, P[3], -1);
+                        n0 = wangs_formula_cubic(PRECISION, P[0], ab, abc, abcd);
+                        n1 = wangs_formula_cubic(PRECISION, abcd, bcd, cd, P[3]);
                         rationalCubicW = 1;
                     } else {
                         // The patch is a triangle (a conic with infinite weight).
@@ -240,8 +242,8 @@ GrGLSLGeometryProcessor* HardwareCurveShader::createGLSLInstance(const GrShaderC
                     // Put in "standard form" where w0 == w2 == w4 == 1.
                     float w_ = inversesqrt(r);  // Both halves have the same w' when chopping at .5.
                     // Calculate how many segments are needed to linearize each half of the curve.
-                    n0 = wangs_formula(PRECISION, P[0], ab, abc, float2(0), w_);
-                    n1 = wangs_formula(PRECISION, abc, bc, P[2], float2(0), w_);
+                    n0 = wangs_formula_conic(PRECISION, P[0], ab, abc, w_);
+                    n1 = wangs_formula_conic(PRECISION, abc, bc, P[2], w_);
                     // Covert the conic to a rational cubic in projected form.
                     rationalCubicXY = mat4x2(P[0],
                                              mix(float4(P[0],P[2]), p1w.xyxy, 2.0/3.0),
