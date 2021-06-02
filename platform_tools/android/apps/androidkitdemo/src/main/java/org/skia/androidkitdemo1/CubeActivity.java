@@ -34,6 +34,7 @@ import org.skia.androidkitdemo1.samples.SkottieSample;
 
 import static java.lang.Math.tan;
 
+import android.util.Log;
 // TODO: remove after all sides are migrated to something more interesting.
 class SolidColorSample implements Sample {
     private Paint mPaint = new Paint();
@@ -97,11 +98,22 @@ class Vec3 {
         x = xx; y = yy; z = zz;
         return this;
     }
+
+    public static Vec3 cross(Vec3 a, Vec3 b) {
+        return new Vec3(a.y*b.z - a.z*b.y,
+                        a.z*b.x - a.x*b.z,
+                        a.x*b.y - a.y*b.x);
+    }
+
+    public static float dot(Vec3 a, Vec3 b) {
+        return a.x*b.x + a.y*b.y + a.z*b.z;
+    }
 };
 
 class VSphereAnimator {
     private Matrix mRotMatrix = new Matrix();
-    private Vec3   mRotAxis   = new Vec3(0, 1, 0);
+    private Vec3   mRotAxis   = new Vec3(0, 1, 0),
+                   mCurrentDrag;
     private float  mRotSpeed  = (float)Math.PI,
                    mCenterX,
                    mCenterY,
@@ -132,11 +144,42 @@ class VSphereAnimator {
 
         double flingSpeed = Math.sqrt(dx*dx + dy*dy)/mRadius;
         mRotSpeed = (float)(flingSpeed*Math.PI);
+
+        mCurrentDrag = null;
+    }
+
+    public void drag(MotionEvent start, MotionEvent current) {
+        if (mCurrentDrag == null) {
+            Log.e("*** AK", "drag start");
+            // Drag gesture start.
+            mCurrentDrag = normalVec(start.getX(), start.getY());
+            mRotSpeed = 0;
+        }
+
+        Vec3 v = normalVec(current.getX(), current.getY()),
+          axis = Vec3.cross(mCurrentDrag, v).normalize();
+        double a = Vec3.dot(mCurrentDrag, v),
+              b = mCurrentDrag.length(),
+              c = v.length(),
+              d = a / b / c;
+
+        // float angle = (float)(Math.acos(Vec3.dot(mCurrentDrag, v) / mCurrentDrag.length() / v.length()));
+        float angle = (float)(Math.acos(Math.max(Math.min(d, 1), -1)));
+
+        Log.e("*** AK", "drag (" + mCurrentDrag.x + " " + mCurrentDrag.y + " " + mCurrentDrag.z +
+            ") -> (" + v.x + " " + v.y + " " + v.z + ")");
+
+        Log.e("*** AK", "a: " + a + " b: " + b + "c: " + c);
+        Log.e("*** AK", "axis: (" + axis.x + " " + axis.y + " " + axis.z + ") angle: " + angle);
+
+        mRotMatrix = new Matrix().rotate(axis.x, axis.y, axis.z, angle)
+                                 .preConcat(mRotMatrix);
+        mCurrentDrag = v;
     }
 
     private Vec3 normalVec(float x, float y) {
-        x = (x - mCenterX)/mRadius;
-        y = (y - mCenterY)/mRadius;
+        x =  (x - mCenterX)/mRadius;
+        y = -(y - mCenterY)/mRadius;
         float len2 = x*x + y*y;
 
         if (len2 > 1) {
@@ -233,7 +276,7 @@ class CubeRenderer extends SurfaceRenderer implements GestureDetector.OnGestureL
 
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float dx, float dy) {
-        mVSphere.fling(dx, -dy);
+        mVSphere.fling(dx, dy);
         return true;
     }
 
@@ -242,7 +285,10 @@ class CubeRenderer extends SurfaceRenderer implements GestureDetector.OnGestureL
     public boolean onDown(MotionEvent e) { return true; }
 
     @Override
-    public boolean onScroll(MotionEvent e1, MotionEvent e2, float dx, float dy) { return false; }
+    public boolean onScroll(MotionEvent e1, MotionEvent e2, float dx, float dy) {
+        mVSphere.drag(e1, e2);
+        return true;
+    }
 
     @Override
     public boolean onSingleTapUp(MotionEvent e) { return false; }
