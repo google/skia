@@ -72,7 +72,7 @@ echo "Compiling bitcode"
   ar=\"${EMAR}\" \
   extra_cflags_cc=[\"-frtti\"] \
   extra_cflags=[\"-s\", \"MAIN_MODULE=1\",
-    \"-DSKNX_NO_SIMD\", \"-DSK_DISABLE_AAA\", \"-DSK_DISABLE_NEW_GR_CLIP_STACK\",
+    \"-DSKNX_NO_SIMD\", \"-DSK_DISABLE_AAA\",
     \"-DSK_FORCE_8_BYTE_ALIGNMENT\",
     ${GN_GPU_FLAGS}
     ${EXTRA_CFLAGS}
@@ -85,6 +85,7 @@ echo "Compiling bitcode"
   \
   skia_use_angle=false \
   skia_use_dng_sdk=false \
+  skia_use_webgl=true \
   skia_use_expat=false \
   skia_use_fontconfig=false \
   skia_use_freetype=true \

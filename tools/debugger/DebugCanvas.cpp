@@ -135,7 +135,7 @@ void DebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
 
     originalCanvas->resetMatrix();
     if (!windowRect.isEmpty()) {
-        originalCanvas->clipRect(windowRect, kReplace_SkClipOp);
+        SkCanvasPriv::ReplaceClip(originalCanvas, windowRect.roundOut());
     }
 
     DebugPaintFilterCanvas filterCanvas(originalCanvas);
