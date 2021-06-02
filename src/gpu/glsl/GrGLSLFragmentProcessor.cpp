@@ -25,7 +25,7 @@ void GrGLSLFragmentProcessor::emitChildFunction(int childIndex, EmitArgs& args) 
     }
 
     // Emit the child's helper function if this is the first time we've seen a call
-    if (fFunctionNames[childIndex].size() == 0) {
+    if (fFunctionNames[childIndex].isEmpty()) {
         TransformedCoordVars coordVars = args.fTransformedCoords.childInputs(childIndex);
         EmitArgs childArgs(fragBuilder,
                            args.fUniformHandler,
@@ -33,7 +33,11 @@ void GrGLSLFragmentProcessor::emitChildFunction(int childIndex, EmitArgs& args) 
                            *args.fFp.childProcessor(childIndex),
                            "_input",
                            "_coords",
-                           coordVars);
+                           coordVars,
+                           args.fDstSampleType,
+                           args.fDstTextureSamplerHandle,
+                           args.fDstTextureOrigin);
+
         fFunctionNames[childIndex] =
                 fragBuilder->writeProcessorFunction(this->childProcessor(childIndex), childArgs);
     }

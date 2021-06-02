@@ -98,14 +98,20 @@ public:
                  const GrFragmentProcessor& fp,
                  const char* inputColor,
                  const char* sampleCoord,
-                 const TransformedCoordVars& transformedCoordVars)
+                 const TransformedCoordVars& transformedCoordVars,
+                 GrDstSampleType dstSampleType,
+                 const SamplerHandle dstTextureSamplerHandle,
+                 GrSurfaceOrigin dstTextureOrigin)
                 : fFragBuilder(fragBuilder)
                 , fUniformHandler(uniformHandler)
                 , fShaderCaps(caps)
                 , fFp(fp)
                 , fInputColor(inputColor ? inputColor : "half4(1.0)")
                 , fSampleCoord(sampleCoord)
-                , fTransformedCoords(transformedCoordVars) {}
+                , fTransformedCoords(transformedCoordVars)
+                , fDstSampleType(dstSampleType)
+                , fDstTextureSamplerHandle(dstTextureSamplerHandle)
+                , fDstTextureOrigin(dstTextureOrigin) {}
         GrGLSLFPFragmentBuilder* fFragBuilder;
         GrGLSLUniformHandler* fUniformHandler;
         const GrShaderCaps* fShaderCaps;
@@ -113,6 +119,9 @@ public:
         const char* fInputColor;
         const char* fSampleCoord;
         const TransformedCoordVars& fTransformedCoords;
+        GrDstSampleType fDstSampleType;
+        const SamplerHandle fDstTextureSamplerHandle;
+        GrSurfaceOrigin fDstTextureOrigin;
     };
 
     virtual void emitCode(EmitArgs&) = 0;
