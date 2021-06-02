@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d9d5474f_dccdd69c",
+        "filename": "src/sksl/dsl/DSLSymbols.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-02T17:59:32Z",
+      "side": 1,
+      "message": "This seems confusing to me. Two functions, both called Retain, but one is a take-ownership and one is an add-without-ownership. The doc comments say that both functions are intended to extend the lifetime which intuitively should mean take-ownership. I\u0027m sure it all adds up somehow, but I don\u0027t understand how the DSLVar version is meant to work.",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 1
+      },
+      "revId": "d558ea27d9b5a3d7261760a26e4e337101c8ac92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
