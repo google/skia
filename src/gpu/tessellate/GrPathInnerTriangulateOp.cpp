@@ -310,7 +310,7 @@ void GrPathInnerTriangulateOp::prePreparePrograms(const GrTessellationShader::Pr
 void GrPathInnerTriangulateOp::onPrePrepare(GrRecordingContext* context,
                                             const GrSurfaceProxyView& writeView,
                                             GrAppliedClip* clip,
-                                            const GrXferProcessor::DstProxyView& dstProxyView,
+                                            const GrDstProxyView& dstProxyView,
                                             GrXferBarrierFlags renderPassXferBarriers,
                                             GrLoadOp colorLoadOp) {
     this->prePreparePrograms({context->priv().recordTimeAllocator(), writeView, &dstProxyView,

@@ -37,7 +37,7 @@ public:
     SkArenaAlloc* allocator() override { return &fAllocator; }
     void putBackVertices(int vertices, size_t vertexStride) override { /* no-op */ }
     GrAppliedClip detachAppliedClip() override { return GrAppliedClip::Disabled(); }
-    const GrXferProcessor::DstProxyView& dstProxyView() const override { return fDstProxyView; }
+    const GrDstProxyView& dstProxyView() const override { return fDstProxyView; }
     GrXferBarrierFlags renderPassBarriers() const override { return GrXferBarrierFlags::kNone; }
     GrLoadOp colorLoadOp() const override { return GrLoadOp::kLoad; }
 
@@ -119,7 +119,7 @@ private:
     char fStaticIndirectData[sizeof(GrDrawIndexedIndirectCommand) * 32];
     sk_sp<GrGpuBuffer> fStaticIndirectBuffer;
     SkSTArenaAllocWithReset<1024 * 1024> fAllocator;
-    GrXferProcessor::DstProxyView fDstProxyView;
+    GrDstProxyView fDstProxyView;
 };
 
 #endif

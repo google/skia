@@ -26,7 +26,7 @@ public:
                                                 SkArenaAlloc*,
                                                 const GrSurfaceProxyView& writeViewSwizzle,
                                                 GrAppliedClip&&,
-                                                const GrXferProcessor::DstProxyView&,
+                                                const GrDstProxyView&,
                                                 GrGeometryProcessor*,
                                                 GrPrimitiveType,
                                                 GrXferBarrierFlags renderPassXferBarriers,

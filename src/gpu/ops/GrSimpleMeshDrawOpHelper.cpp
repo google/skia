@@ -111,7 +111,7 @@ const GrPipeline* GrSimpleMeshDrawOpHelper::CreatePipeline(
                                                 SkArenaAlloc* arena,
                                                 GrSwizzle writeViewSwizzle,
                                                 GrAppliedClip&& appliedClip,
-                                                const GrXferProcessor::DstProxyView& dstProxyView,
+                                                const GrDstProxyView& dstProxyView,
                                                 GrProcessorSet&& processorSet,
                                                 GrPipeline::InputFlags pipelineFlags) {
     GrPipeline::InitArgs pipelineArgs;
@@ -154,7 +154,7 @@ const GrPipeline* GrSimpleMeshDrawOpHelper::createPipeline(
         SkArenaAlloc* arena,
         GrSwizzle writeViewSwizzle,
         GrAppliedClip&& appliedClip,
-        const GrXferProcessor::DstProxyView& dstProxyView) {
+        const GrDstProxyView& dstProxyView) {
     return GrSimpleMeshDrawOpHelper::CreatePipeline(caps,
                                                     arena,
                                                     writeViewSwizzle,
@@ -169,7 +169,7 @@ GrProgramInfo* GrSimpleMeshDrawOpHelper::CreateProgramInfo(
             SkArenaAlloc* arena,
             const GrSurfaceProxyView& writeView,
             GrAppliedClip&& appliedClip,
-            const GrXferProcessor::DstProxyView& dstProxyView,
+            const GrDstProxyView& dstProxyView,
             GrGeometryProcessor* geometryProcessor,
             GrProcessorSet&& processorSet,
             GrPrimitiveType primitiveType,
@@ -213,7 +213,7 @@ GrProgramInfo* GrSimpleMeshDrawOpHelper::createProgramInfo(
                                             SkArenaAlloc* arena,
                                             const GrSurfaceProxyView& writeView,
                                             GrAppliedClip&& appliedClip,
-                                            const GrXferProcessor::DstProxyView& dstProxyView,
+                                            const GrDstProxyView& dstProxyView,
                                             GrGeometryProcessor* gp,
                                             GrPrimitiveType primType,
                                             GrXferBarrierFlags renderPassXferBarriers,
