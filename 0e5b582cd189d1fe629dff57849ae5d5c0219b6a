@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fdfcaf30_3b1cd396",
+        "filename": "src/gpu/GrXferProcessor.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-02T17:35:21Z",
+      "side": 1,
+      "message": "Do we still want this to be in GrXferProcessor.h given its not xfer only anymore? Should it be GrProcessor.h or its own file now?",
+      "range": {
+        "startLine": 48,
+        "startChar": 6,
+        "endLine": 48,
+        "endChar": 20
+      },
+      "revId": "0e5b582cd189d1fe629dff57849ae5d5c0219b6a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
