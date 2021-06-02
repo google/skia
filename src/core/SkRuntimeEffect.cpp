@@ -411,14 +411,20 @@ size_t SkRuntimeEffect::uniformSize() const {
 }
 
 const SkRuntimeEffect::Uniform* SkRuntimeEffect::findUniform(const char* name) const {
-    auto iter = std::find_if(fUniforms.begin(), fUniforms.end(),
-                             [name](const Uniform& u) { return u.name.equals(name); });
+    SkASSERT(name);
+    size_t len = strlen(name);
+    auto iter = std::find_if(fUniforms.begin(), fUniforms.end(), [name, len](const Uniform& u) {
+        return u.name.equals(name, len);
+    });
     return iter == fUniforms.end() ? nullptr : &(*iter);
 }
 
 const SkRuntimeEffect::Child* SkRuntimeEffect::findChild(const char* name) const {
-    auto iter = std::find_if(fChildren.begin(), fChildren.end(),
-                             [name](const Child& c) { return c.name.equals(name); });
+    SkASSERT(name);
+    size_t len = strlen(name);
+    auto iter = std::find_if(fChildren.begin(), fChildren.end(), [name, len](const Child& c) {
+        return c.name.equals(name, len);
+    });
     return iter == fChildren.end() ? nullptr : &(*iter);
 }
 
