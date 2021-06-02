@@ -144,7 +144,7 @@ DrawResult SimpleGM::onDraw(SkCanvas* canvas, SkString* errorMsg) {
 
 SkISize SimpleGpuGM::onISize() { return fSize; }
 SkString SimpleGpuGM::onShortName() { return fName; }
-DrawResult SimpleGpuGM::onDraw(GrRecordingContext* ctx, GrSurfaceDrawContext* rtc,
+DrawResult SimpleGpuGM::onDraw1(GrRecordingContext* ctx, GrSurfaceDrawContext* rtc,
                                SkCanvas* canvas, SkString* errorMsg) {
     return fDrawProc(ctx, rtc, canvas, errorMsg);
 }
@@ -189,19 +189,19 @@ void GM::drawSizeBounds(SkCanvas* canvas, SkColor color) {
 // need to explicitly declare this, or we get some weird infinite loop llist
 template GMRegistry* GMRegistry::gHead;
 
-DrawResult GpuGM::onDraw(GrRecordingContext* ctx, GrSurfaceDrawContext* rtc, SkCanvas* canvas,
+DrawResult GpuGM::onDraw1(GrRecordingContext* ctx, GrSurfaceDrawContext* rtc, SkCanvas* canvas,
                          SkString* errorMsg) {
-    this->onDraw(ctx, rtc, canvas);
+    this->onDraw2(ctx, rtc, canvas);
     return DrawResult::kOk;
 }
-void GpuGM::onDraw(GrRecordingContext*, GrSurfaceDrawContext*, SkCanvas*) {
+void GpuGM::onDraw2(GrRecordingContext*, GrSurfaceDrawContext*, SkCanvas*) {
     SK_ABORT("Not implemented.");
 }
 
 DrawResult GpuGM::onDraw(SkCanvas* canvas, SkString* errorMsg) {
 
     auto ctx = canvas->recordingContext();
-    GrSurfaceDrawContext* sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
+    GrSurfaceDrawContext* sdc = nullptr; //SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
     if (!ctx || !sdc) {
         *errorMsg = kErrorMsg_DrawSkippedGpuOnly;
         return DrawResult::kSkip;
@@ -210,7 +210,7 @@ DrawResult GpuGM::onDraw(SkCanvas* canvas, SkString* errorMsg) {
         *errorMsg = "GrContext abandoned.";
         return DrawResult::kSkip;
     }
-    return this->onDraw(ctx, sdc, canvas, errorMsg);
+    return this->onDraw1(ctx, sdc, canvas, errorMsg);
 }
 
 template <typename Fn>

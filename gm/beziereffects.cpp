@@ -225,7 +225,7 @@ protected:
         return SkISize::Make(kCellWidth, kNumConics*kCellHeight);
     }
 
-    void onDraw(GrRecordingContext* context, GrSurfaceDrawContext* surfaceDrawContext,
+    void onDraw2(GrRecordingContext* context, GrSurfaceDrawContext* surfaceDrawContext,
                 SkCanvas* canvas) override {
 
         const SkScalar w = kCellWidth, h = kCellHeight;
@@ -425,7 +425,7 @@ protected:
         return SkISize::Make(kCellWidth, kNumQuads*kCellHeight);
     }
 
-    void onDraw(GrRecordingContext* context, GrSurfaceDrawContext* surfaceDrawContext,
+    void onDraw2(GrRecordingContext* context, GrSurfaceDrawContext* surfaceDrawContext,
                 SkCanvas* canvas) override {
 
         const SkScalar w = kCellWidth, h = kCellHeight;

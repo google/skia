@@ -211,9 +211,9 @@ namespace skiagm {
         using GM::onDraw;
         DrawResult onDraw(SkCanvas*, SkString* errorMsg) final;
 
-        virtual DrawResult onDraw(GrRecordingContext*, GrSurfaceDrawContext*, SkCanvas*,
+        virtual DrawResult onDraw1(GrRecordingContext*, GrSurfaceDrawContext*, SkCanvas*,
                                   SkString* errorMsg);
-        virtual void onDraw(GrRecordingContext*, GrSurfaceDrawContext*, SkCanvas*);
+        virtual void onDraw2(GrRecordingContext*, GrSurfaceDrawContext*, SkCanvas*);
     };
 
     // SimpleGM is intended for basic GMs that can define their entire implementation inside a
@@ -244,7 +244,7 @@ namespace skiagm {
     private:
         SkISize onISize() override;
         SkString onShortName() override;
-        DrawResult onDraw(GrRecordingContext* ctx, GrSurfaceDrawContext* rtc, SkCanvas* canvas,
+        DrawResult onDraw1(GrRecordingContext* ctx, GrSurfaceDrawContext* rtc, SkCanvas* canvas,
                           SkString* errorMsg) override;
 
         const SkString fName;
