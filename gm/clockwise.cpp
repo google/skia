@@ -243,15 +243,15 @@ private:
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Test.
 
-void ClockwiseGM::onDraw(GrRecordingContext* ctx, GrSurfaceDrawContext* rtc, SkCanvas* canvas) {
-    rtc->clear(SK_PMColor4fBLACK);
+void ClockwiseGM::onDraw(GrRecordingContext* ctx, GrSurfaceDrawContext* sdc, SkCanvas* canvas) {
+    sdc->clear(SK_PMColor4fBLACK);
 
     // Draw the test directly to the frame buffer.
-    rtc->addDrawOp(ClockwiseTestOp::Make(ctx, false, 0));
-    rtc->addDrawOp(ClockwiseTestOp::Make(ctx, true, 100));
+    sdc->addDrawOp(ClockwiseTestOp::Make(ctx, false, 0));
+    sdc->addDrawOp(ClockwiseTestOp::Make(ctx, true, 100));
 
     // Draw the test to an off-screen, top-down render target.
-    GrColorType rtcColorType = rtc->colorInfo().colorType();
+    GrColorType rtcColorType = sdc->colorInfo().colorType();
     if (auto topLeftRTC = GrSurfaceDrawContext::Make(
                 ctx, rtcColorType, nullptr, SkBackingFit::kExact, {100, 200}, SkSurfaceProps(),
                 1, GrMipmapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin,
@@ -259,9 +259,9 @@ void ClockwiseGM::onDraw(GrRecordingContext* ctx, GrSurfaceDrawContext* rtc, SkC
         topLeftRTC->clear(SK_PMColor4fTRANSPARENT);
         topLeftRTC->addDrawOp(ClockwiseTestOp::Make(ctx, false, 0));
         topLeftRTC->addDrawOp(ClockwiseTestOp::Make(ctx, true, 100));
-        rtc->drawTexture(nullptr,
+        sdc->drawTexture(nullptr,
                          topLeftRTC->readSurfaceView(),
-                         rtc->colorInfo().alphaType(),
+                         sdc->colorInfo().alphaType(),
                          GrSamplerState::Filter::kNearest,
                          GrSamplerState::MipmapMode::kNone,
                          SkBlendMode::kSrcOver,
@@ -283,9 +283,9 @@ void ClockwiseGM::onDraw(GrRecordingContext* ctx, GrSurfaceDrawContext* rtc, SkC
         topLeftRTC->clear(SK_PMColor4fTRANSPARENT);
         topLeftRTC->addDrawOp(ClockwiseTestOp::Make(ctx, false, 0));
         topLeftRTC->addDrawOp(ClockwiseTestOp::Make(ctx, true, 100));
-        rtc->drawTexture(nullptr,
+        sdc->drawTexture(nullptr,
                          topLeftRTC->readSurfaceView(),
-                         rtc->colorInfo().alphaType(),
+                         sdc->colorInfo().alphaType(),
                          GrSamplerState::Filter::kNearest,
                          GrSamplerState::MipmapMode::kNone,
                          SkBlendMode::kSrcOver,
