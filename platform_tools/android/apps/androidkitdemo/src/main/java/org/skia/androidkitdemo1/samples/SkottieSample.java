@@ -13,11 +13,13 @@ import java.io.InputStream;
 
 import org.skia.androidkit.Canvas;
 import org.skia.androidkit.Matrix;
+import org.skia.androidkit.Paint;
 import org.skia.androidkit.SkottieAnimation;
 
 import org.skia.androidkitdemo1.samples.Sample;
 
 public class SkottieSample implements Sample {
+    private Paint            mClearPaint = new Paint().setColor(0.8f, 0.8f, 0.8f, 1);
     private SkottieAnimation mAnimation;
 
     public SkottieSample(Resources res, int resId) {
@@ -34,6 +36,8 @@ public class SkottieSample implements Sample {
     }
 
     public void render(Canvas canvas, long ms, float left, float top, float right, float bottom) {
+        canvas.drawRect(left, top, right, bottom, mClearPaint);
+
         double t = (double)ms / 1000 % mAnimation.getDuration();
         mAnimation.seekTime(t);
 
@@ -41,6 +45,7 @@ public class SkottieSample implements Sample {
               h = bottom - top,
               s = Math.min(w / mAnimation.getWidth(),
                            h / mAnimation.getHeight());
+
         canvas.save();
         canvas.concat(new Matrix().translate(left + (w - s*mAnimation.getWidth() )/2,
                                              top  + (h - s*mAnimation.getHeight())/2)

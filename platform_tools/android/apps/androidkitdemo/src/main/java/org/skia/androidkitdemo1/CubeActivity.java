@@ -188,7 +188,7 @@ class CubeRenderer extends SurfaceRenderer implements GestureDetector.OnGestureL
             new Face(0, -rot/2, new ImageShaderSample(res, R.raw.brickwork_texture)),
             new Face(0, 0     , new SkottieSample(res, R.raw.im_thirsty)),
             new Face(0, rot   , new RuntimeSample(res, R.raw.runtime_shader1)),
-            new Face(rot/2, 0 , new SolidColorSample(0, 0, 1, 1)),
+            new Face(rot/2, 0 , new SkottieSample(res, R.raw.permission)),
             new Face(-rot/2, 0, new SolidColorSample(1, 1, 0, 1)),
             new Face(0, rot/2 , new RuntimeSample(res, R.raw.runtime_shader2)),
         };
