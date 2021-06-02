@@ -16,6 +16,52 @@
       "message": "PTAL now that the cpu build is fixed.",
       "revId": "c6fee391f5b545637aa6e147150d022cc87457d6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b4dc316a_cdb5cd28",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 1806,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-02T23:19:28Z",
+      "side": 1,
+      "message": "Is this working correctly in your demos? I think I\u0027d have expected kBottomLeft (making your images come out upside down) if WebGL works like other GL, but I could be wrong.",
+      "range": {
+        "startLine": 1806,
+        "startChar": 46,
+        "endLine": 1806,
+        "endChar": 70
+      },
+      "revId": "c6fee391f5b545637aa6e147150d022cc87457d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d20b3bfa_659f96c0",
+        "filename": "modules/canvaskit/npm_build/types/index.d.ts",
+        "patchSetId": 12
+      },
+      "lineNbr": 2630,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-02T23:19:28Z",
+      "side": 1,
+      "message": "RGBA_8888",
+      "range": {
+        "startLine": 2630,
+        "startChar": 75,
+        "endLine": 2630,
+        "endChar": 83
+      },
+      "revId": "c6fee391f5b545637aa6e147150d022cc87457d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
