@@ -989,7 +989,7 @@ DEF_GM(return new WackyYUVFormatsGM(/* target cs */ false,
                                     /* subset */ false,
                                     WackyYUVFormatsGM::Type::kFromPixmaps);)
 
-class YUVMakeColorSpaceGM : public GM {
+class YUVMakeColorSpaceGM : public GpuGM {
 public:
     YUVMakeColorSpaceGM() {
         this->setBGColor(0xFFCCCCCC);
@@ -1068,14 +1068,13 @@ protected:
         return true;
     }
 
-    DrawResult onGpuSetup(GrDirectContext* dContext, SkString* errorMsg) override {
-        if (!dContext || dContext->abandoned()) {
-            *errorMsg = "DirectContext required to create YUV images";
+    DrawResult onGpuSetup(GrDirectContext* context, SkString* errorMsg) override {
+        if (!context || context->abandoned()) {
             return DrawResult::kSkip;
         }
 
         this->createBitmaps();
-        if (!this->createImages(dContext)) {
+        if (!this->createImages(context)) {
             *errorMsg = "Failed to create YUV images";
             return DrawResult::kFail;
         }
@@ -1087,11 +1086,12 @@ protected:
         fImages[0][0] = fImages[0][1] = fImages[1][0] = fImages[1][1] = nullptr;
     }
 
-    DrawResult onDraw(SkCanvas* canvas, SkString* msg) override {
+    DrawResult onDraw(GrRecordingContext* rContext, GrSurfaceDrawContext*,
+                      SkCanvas* canvas, SkString* msg) override {
         SkASSERT(fImages[0][0] && fImages[0][1] && fImages[1][0] && fImages[1][1]);
 
-        auto dContext = GrAsDirectContext(canvas->recordingContext());
-        if (!dContext) {
+        auto dContext = GrAsDirectContext(rContext);
+        if (rContext && !dContext) {
             *msg = "YUV ColorSpace image creation requires a direct context.";
             return DrawResult::kSkip;
         }
@@ -1101,8 +1101,8 @@ protected:
             for (int opaque : { 0, 1 }) {
                 int y = kPad;
 
-                auto raster = fOriginalBMs[opaque].asImage()->makeColorSpace(fTargetColorSpace,
-                                                                             nullptr);
+                auto raster = fOriginalBMs[opaque].asImage()
+                    ->makeColorSpace(fTargetColorSpace, nullptr);
                 canvas->drawImage(raster, x, y);
                 y += kTileWidthHeight + kPad;
 

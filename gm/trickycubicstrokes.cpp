@@ -17,10 +17,10 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrContextOptions.h"
-#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkGeometry.h"
-#include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrDrawingManager.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 
 static constexpr float kStrokeWidth = 30;
@@ -179,7 +179,7 @@ DEF_SIMPLE_GM(trickycubicstrokes_roundcaps, canvas, kTestWidth, kTestHeight) {
     draw_test(canvas, SkPaint::kRound_Cap, SkPaint::kRound_Join);
 }
 
-class TrickyCubicStrokes_tess_segs_5 : public skiagm::GM {
+class TrickyCubicStrokes_tess_segs_5 : public skiagm::GpuGM {
     SkString onShortName() override {
         return SkString("trickycubicstrokes_tess_segs_5");
     }
@@ -205,31 +205,26 @@ class TrickyCubicStrokes_tess_segs_5 : public skiagm::GM {
                                                         (int)GpuPathRenderers::kTessellation);
     }
 
-    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
-        auto dContext = GrAsDirectContext(canvas->recordingContext());
-        if (!dContext) {
-            *errorMsg = "GM relies on having access to a live direct context.";
-            return DrawResult::kSkip;
-        }
-
-        if (!dContext->priv().caps()->shaderCaps()->tessellationSupport() ||
-            !GrTessellationPathRenderer::IsSupported(*dContext->priv().caps())) {
+    DrawResult onDraw(GrRecordingContext* context, GrSurfaceDrawContext*, SkCanvas* canvas,
+                      SkString* errorMsg) override {
+        if (!context->priv().caps()->shaderCaps()->tessellationSupport() ||
+            !GrTessellationPathRenderer::IsSupported(*context->priv().caps())) {
             errorMsg->set("Tessellation not supported.");
             return DrawResult::kSkip;
         }
-        auto opts = dContext->priv().drawingManager()->testingOnly_getOptionsForPathRendererChain();
+        auto opts = context->priv().drawingManager()->testingOnly_getOptionsForPathRendererChain();
         if (!(opts.fGpuPathRenderers & GpuPathRenderers::kTessellation)) {
             errorMsg->set("GrTessellationPathRenderer disabled.");
             return DrawResult::kSkip;
         }
-        if (dContext->priv().caps()->shaderCaps()->maxTessellationSegments() !=
+        if (context->priv().caps()->shaderCaps()->maxTessellationSegments() !=
             kMaxTessellationSegmentsOverride) {
             errorMsg->set("modifyGrContextOptions did not affect maxTessellationSegments. "
                           "(Are you running viewer? If so use '--maxTessellationSegments 5'.)");
             return DrawResult::kFail;
         }
         // Suppress a tessellator warning message that caps.maxTessellationSegments is too small.
-        GrRecordingContextPriv::AutoSuppressWarningMessages aswm(dContext);
+        GrRecordingContextPriv::AutoSuppressWarningMessages aswm(context);
         draw_test(canvas, SkPaint::kButt_Cap, SkPaint::kMiter_Join);
         return DrawResult::kOk;
     }

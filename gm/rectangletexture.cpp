@@ -43,7 +43,7 @@
 class GrSurfaceDrawContext;
 
 namespace skiagm {
-class RectangleTexture : public GM {
+class RectangleTexture : public GpuGM {
 public:
     RectangleTexture() {
         this->setBGColor(0xFFFFFFFF);
@@ -147,7 +147,8 @@ private:
         fSmallImg = nullptr;
     }
 
-    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
+    DrawResult onDraw(GrRecordingContext*, GrSurfaceDrawContext*, SkCanvas* canvas,
+                      SkString*) override {
         SkASSERT(fGradImgs[0] && fGradImgs[1] && fSmallImg);
 
         static constexpr SkScalar kPad = 5.f;

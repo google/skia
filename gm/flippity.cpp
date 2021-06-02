@@ -82,7 +82,7 @@ static const SkMatrix kUVMatrices[kNumMatrices] = {
 
 
 // Create a fixed size text label like "LL" or "LR".
-static sk_sp<SkImage> make_text_image(GrDirectContext* dContext, const char* text, SkColor color) {
+static sk_sp<SkImage> make_text_image(GrDirectContext* direct, const char* text, SkColor color) {
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setColor(color);
@@ -107,12 +107,12 @@ static sk_sp<SkImage> make_text_image(GrDirectContext* dContext, const char* tex
 
     sk_sp<SkImage> image = surf->makeImageSnapshot();
 
-    return image->makeTextureImage(dContext);
+    return image->makeTextureImage(direct);
 }
 
 // Create an image with each corner marked w/ "LL", "LR", etc., with the origin either bottom-left
 // or top-left.
-static sk_sp<SkImage> make_reference_image(GrDirectContext* dContext,
+static sk_sp<SkImage> make_reference_image(GrDirectContext* context,
                                            const SkTArray<sk_sp<SkImage>>& labels,
                                            bool bottomLeftOrigin) {
     SkASSERT(kNumLabels == labels.count());
@@ -132,13 +132,13 @@ static sk_sp<SkImage> make_reference_image(GrDirectContext* dContext,
 
     auto origin = bottomLeftOrigin ? kBottomLeft_GrSurfaceOrigin : kTopLeft_GrSurfaceOrigin;
 
-    auto view = sk_gpu_test::MakeTextureProxyViewFromData(dContext, GrRenderable::kNo, origin,
+    auto view = sk_gpu_test::MakeTextureProxyViewFromData(context, GrRenderable::kNo, origin,
                                                           bm.pixmap());
     if (!view) {
         return nullptr;
     }
 
-    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(dContext),
+    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context),
                                    kNeedNewImageUniqueID,
                                    std::move(view),
                                    ii.colorInfo());
@@ -164,7 +164,7 @@ static bool UVMatToGeomMatForImage(SkMatrix* geomMat, const SkMatrix& uvMat) {
 
 // This GM exercises drawImage with a set of matrices that use an unusual amount of flips and
 // rotates.
-class FlippityGM : public skiagm::GM {
+class FlippityGM : public skiagm::GpuGM {
 public:
     FlippityGM() {
         this->setBGColor(0xFFCCCCCC);
@@ -230,7 +230,7 @@ private:
         canvas->restore();
     }
 
-    void makeLabels(GrDirectContext* dContext) {
+    void makeLabels(GrDirectContext* direct) {
         if (fLabels.count()) {
             return;
         }
@@ -245,20 +245,19 @@ private:
         };
 
         for (int i = 0; i < kNumLabels; ++i) {
-            fLabels.push_back(make_text_image(dContext, kLabelText[i], kLabelColors[i]));
+            fLabels.push_back(make_text_image(direct, kLabelText[i], kLabelColors[i]));
         }
         SkASSERT(kNumLabels == fLabels.count());
     }
 
-    DrawResult onGpuSetup(GrDirectContext* dContext, SkString* errorMsg) override {
-        if (!dContext || dContext->abandoned()) {
-            *errorMsg = "DirectContext required to create reference images";
+    DrawResult onGpuSetup(GrDirectContext* context, SkString* errorMsg) override {
+        if (!context || context->abandoned()) {
             return DrawResult::kSkip;
         }
 
-        this->makeLabels(dContext);
-        fReferenceImages[0] = make_reference_image(dContext, fLabels, false);
-        fReferenceImages[1] = make_reference_image(dContext, fLabels, true);
+        this->makeLabels(context);
+        fReferenceImages[0] = make_reference_image(context, fLabels, false);
+        fReferenceImages[1] = make_reference_image(context, fLabels, true);
         if (!fReferenceImages[0] || !fReferenceImages[1]) {
             *errorMsg = "Failed to create reference images.";
             return DrawResult::kFail;
@@ -272,7 +271,7 @@ private:
         fReferenceImages[0] = fReferenceImages[1] = nullptr;
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    void onDraw(GrRecordingContext*, GrSurfaceDrawContext*, SkCanvas* canvas) override {
         SkASSERT(fReferenceImages[0] && fReferenceImages[1]);
 
         canvas->save();
