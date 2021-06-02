@@ -12,7 +12,6 @@
 #include "include/core/SkPicture.h"
 #include "include/core/SkSurface.h"
 #include "src/core/SkTLazy.h"
-#include "src/gpu/SkGr.h"
 #include "src/image/SkImage_Base.h"
 
 class SkPictureImageGenerator : public SkImageGenerator {
@@ -93,6 +92,7 @@ bool SkPictureImageGenerator::onGetPixels(const SkImageInfo& info, void* pixels,
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/SkGr.h"
 
 GrSurfaceProxyView SkPictureImageGenerator::onGenerateTexture(GrRecordingContext* ctx,
                                                               const SkImageInfo& info,
