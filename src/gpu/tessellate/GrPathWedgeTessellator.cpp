@@ -1,0 +1,281 @@
+/*
+ * Copyright 2021 Google LLC.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#include "src/gpu/tessellate/GrPathWedgeTessellator.h"
+
+#include "src/gpu/geometry/GrPathUtils.h"
+#include "src/gpu/geometry/GrWangsFormula.h"
+#include "src/gpu/tessellate/GrCullTest.h"
+#include "src/gpu/tessellate/shaders/GrPathTessellationShader.h"
+
+namespace {
+
+constexpr static float kPrecision = GrTessellationPathRenderer::kLinearizationPrecision;
+
+// Parses out each contour in a path and tracks the midpoint. Example usage:
+//
+//   SkTPathContourParser parser;
+//   while (parser.parseNextContour()) {
+//       SkPoint midpoint = parser.currentMidpoint();
+//       for (auto [verb, pts] : parser.currentContour()) {
+//           ...
+//       }
+//   }
+//
+class MidpointContourParser {
+public:
+    MidpointContourParser(const SkPath& path)
+            : fPath(path)
+            , fVerbs(SkPathPriv::VerbData(fPath))
+            , fNumRemainingVerbs(fPath.countVerbs())
+            , fPoints(SkPathPriv::PointData(fPath))
+            , fWeights(SkPathPriv::ConicWeightData(fPath)) {}
+    // Advances the internal state to the next contour in the path. Returns false if there are no
+    // more contours.
+    bool parseNextContour() {
+        bool hasGeometry = false;
+        for (; fVerbsIdx < fNumRemainingVerbs; ++fVerbsIdx) {
+            switch (fVerbs[fVerbsIdx]) {
+                case SkPath::kMove_Verb:
+                    if (!hasGeometry) {
+                        fMidpoint = fPoints[fPtsIdx];
+                        fMidpointWeight = 1;
+                        this->advance();
+                        ++fPtsIdx;
+                        continue;
+                    }
+                    return true;
+                default:
+                    continue;
+                case SkPath::kLine_Verb:
+                    ++fPtsIdx;
+                    break;
+                case SkPath::kConic_Verb:
+                    ++fWtsIdx;
+                    [[fallthrough]];
+                case SkPath::kQuad_Verb:
+                    fPtsIdx += 2;
+                    break;
+                case SkPath::kCubic_Verb:
+                    fPtsIdx += 3;
+                    break;
+            }
+            fMidpoint += fPoints[fPtsIdx - 1];
+            ++fMidpointWeight;
+            hasGeometry = true;
+        }
+        return hasGeometry;
+    }
+
+    // Allows for iterating the current contour using a range-for loop.
+    SkPathPriv::Iterate currentContour() {
+        return SkPathPriv::Iterate(fVerbs, fVerbs + fVerbsIdx, fPoints, fWeights);
+    }
+
+    SkPoint currentMidpoint() { return fMidpoint * (1.f / fMidpointWeight); }
+
+private:
+    void advance() {
+        fVerbs += fVerbsIdx;
+        fNumRemainingVerbs -= fVerbsIdx;
+        fVerbsIdx = 0;
+        fPoints += fPtsIdx;
+        fPtsIdx = 0;
+        fWeights += fWtsIdx;
+        fWtsIdx = 0;
+    }
+
+    const SkPath& fPath;
+
+    const uint8_t* fVerbs;
+    int fNumRemainingVerbs = 0;
+    int fVerbsIdx = 0;
+
+    const SkPoint* fPoints;
+    int fPtsIdx = 0;
+
+    const float* fWeights;
+    int fWtsIdx = 0;
+
+    SkPoint fMidpoint;
+    int fMidpointWeight;
+};
+
+// Writes out wedge patches, chopping as necessary so none require more segments than are supported
+// by the hardware.
+class WedgeWriter {
+public:
+    WedgeWriter(const SkRect& cullBounds, const SkMatrix& viewMatrix,
+                const GrShaderCaps& shaderCaps)
+            : fCullTest(cullBounds, viewMatrix)
+            , fVectorXform(viewMatrix) {
+        float maxSegments = shaderCaps.maxTessellationSegments();
+        fMaxSegments_pow2 = maxSegments * maxSegments;
+        fMaxSegments_pow4 = fMaxSegments_pow2 * fMaxSegments_pow2;
+    }
+
+    SK_ALWAYS_INLINE void writeFlatWedge(GrVertexChunkBuilder* chunker, SkPoint p0, SkPoint p1,
+                                         SkPoint midpoint) {
+        if (GrVertexWriter vertexWriter = chunker->appendVertex()) {
+            GrPathUtils::writeLineAsCubic(p0, p1, &vertexWriter);
+            vertexWriter.write(midpoint);
+        }
+    }
+
+    SK_ALWAYS_INLINE void writeQuadraticWedge(GrVertexChunkBuilder* chunker, const SkPoint p[3],
+                                              SkPoint midpoint) {
+        if (GrWangsFormula::quadratic_pow4(kPrecision, p, fVectorXform) > fMaxSegments_pow4) {
+            this->chopAndWriteQuadraticWedges(chunker, p, midpoint);
+            return;
+        }
+        if (GrVertexWriter vertexWriter = chunker->appendVertex()) {
+            GrPathUtils::writeQuadAsCubic(p, &vertexWriter);
+            vertexWriter.write(midpoint);
+        }
+    }
+
+    SK_ALWAYS_INLINE void writeConicWedge(GrVertexChunkBuilder* chunker, const SkPoint p[3],
+                                          float w, SkPoint midpoint) {
+        if (GrWangsFormula::conic_pow2(1/kPrecision, p, w, fVectorXform) > fMaxSegments_pow2) {
+            this->chopAndWriteConicWedges(chunker, {p, w}, midpoint);
+            return;
+        }
+        if (GrVertexWriter vertexWriter = chunker->appendVertex()) {
+            GrTessellationShader::WriteConicPatch(p, w, &vertexWriter);
+            vertexWriter.write(midpoint);
+        }
+    }
+
+    SK_ALWAYS_INLINE void writeCubicWedge(GrVertexChunkBuilder* chunker, const SkPoint p[4],
+                                          SkPoint midpoint) {
+        if (GrWangsFormula::cubic_pow4(kPrecision, p, fVectorXform) > fMaxSegments_pow4) {
+            this->chopAndWriteCubicWedges(chunker, p, midpoint);
+            return;
+        }
+        if (GrVertexWriter vertexWriter = chunker->appendVertex()) {
+            vertexWriter.writeArray(p, 4);
+            vertexWriter.write(midpoint);
+        }
+    }
+
+private:
+    void chopAndWriteQuadraticWedges(GrVertexChunkBuilder* chunker, const SkPoint p[3],
+                                     SkPoint midpoint) {
+        SkPoint chops[5];
+        SkChopQuadAtHalf(p, chops);
+        for (int i = 0; i < 2; ++i) {
+            const SkPoint* q = chops + i*2;
+            if (fCullTest.areVisible3(q)) {
+                this->writeQuadraticWedge(chunker, q, midpoint);
+            } else {
+                this->writeFlatWedge(chunker, q[0], q[2], midpoint);
+            }
+        }
+    }
+
+    void chopAndWriteConicWedges(GrVertexChunkBuilder* chunker, const SkConic& conic,
+                                 SkPoint midpoint) {
+        SkConic chops[2];
+        if (!conic.chopAt(.5, chops)) {
+            return;
+        }
+        for (int i = 0; i < 2; ++i) {
+            if (fCullTest.areVisible3(chops[i].fPts)) {
+                this->writeConicWedge(chunker, chops[i].fPts, chops[i].fW, midpoint);
+            } else {
+                this->writeFlatWedge(chunker, chops[i].fPts[0], chops[i].fPts[2], midpoint);
+            }
+        }
+    }
+
+    void chopAndWriteCubicWedges(GrVertexChunkBuilder* chunker, const SkPoint p[4],
+                                 SkPoint midpoint) {
+        SkPoint chops[7];
+        SkChopCubicAtHalf(p, chops);
+        for (int i = 0; i < 2; ++i) {
+            const SkPoint* c = chops + i*3;
+            if (fCullTest.areVisible4(c)) {
+                this->writeCubicWedge(chunker, c, midpoint);
+            } else {
+                this->writeFlatWedge(chunker, c[0], c[3], midpoint);
+            }
+        }
+    }
+
+    GrCullTest fCullTest;
+    GrVectorXform fVectorXform;
+    float fMaxSegments_pow2;
+    float fMaxSegments_pow4;
+};
+
+}  // namespace
+
+
+GrPathTessellator* GrPathWedgeTessellator::Make(SkArenaAlloc* arena, const SkMatrix& viewMatrix,
+                                                const SkPMColor4f& color) {
+    auto shader = GrPathTessellationShader::MakeHardwareWedgeShader(arena, viewMatrix, color);
+    return arena->make<GrPathWedgeTessellator>(shader);
+}
+
+void GrPathWedgeTessellator::prepare(GrMeshDrawOp::Target* target, const SkRect& cullBounds,
+                                     const SkPath& path,
+                                     const BreadcrumbTriangleList* breadcrumbTriangleList) {
+    SkASSERT(target->caps().shaderCaps()->tessellationSupport());
+    SkASSERT(!breadcrumbTriangleList);
+    SkASSERT(fVertexChunkArray.empty());
+
+    // Over-allocate enough wedges for 1 in 4 to chop.
+    int maxWedges = GrPathTessellator::MaxSegmentsInPath(path);
+    int wedgeAllocCount = (maxWedges * 5 + 3) / 4;  // i.e., ceil(maxWedges * 5/4)
+    if (!wedgeAllocCount) {
+        return;
+    }
+    GrVertexChunkBuilder chunker(target, &fVertexChunkArray, sizeof(SkPoint) * 5, wedgeAllocCount);
+
+    WedgeWriter wedgeWriter(cullBounds, fShader->viewMatrix(), *target->caps().shaderCaps());
+    MidpointContourParser parser(path);
+    while (parser.parseNextContour()) {
+        SkPoint midpoint = parser.currentMidpoint();
+        SkPoint startPoint = {0, 0};
+        SkPoint lastPoint = startPoint;
+        for (auto [verb, pts, w] : parser.currentContour()) {
+            switch (verb) {
+                case SkPathVerb::kMove:
+                    startPoint = lastPoint = pts[0];
+                    break;
+                case SkPathVerb::kClose:
+                    break;  // Ignore. We can assume an implicit close at the end.
+                case SkPathVerb::kLine:
+                    wedgeWriter.writeFlatWedge(&chunker, pts[0], pts[1], midpoint);
+                    lastPoint = pts[1];
+                    break;
+                case SkPathVerb::kQuad:
+                    wedgeWriter.writeQuadraticWedge(&chunker, pts, midpoint);
+                    lastPoint = pts[2];
+                    break;
+                case SkPathVerb::kConic:
+                    wedgeWriter.writeConicWedge(&chunker, pts, *w, midpoint);
+                    lastPoint = pts[2];
+                    break;
+                case SkPathVerb::kCubic:
+                    wedgeWriter.writeCubicWedge(&chunker, pts, midpoint);
+                    lastPoint = pts[3];
+                    break;
+            }
+        }
+        if (lastPoint != startPoint) {
+            wedgeWriter.writeFlatWedge(&chunker, lastPoint, startPoint, midpoint);
+        }
+    }
+}
+
+void GrPathWedgeTessellator::draw(GrOpFlushState* flushState) const {
+    for (const GrVertexChunk& chunk : fVertexChunkArray) {
+        flushState->bindBuffers(nullptr, nullptr, chunk.fBuffer);
+        flushState->draw(chunk.fCount * 5, chunk.fBase * 5);
+    }
+}
