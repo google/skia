@@ -165,6 +165,8 @@ protected:
                 shade_rect(canvas, shader, cellRow, cellCol);
             }
         }
+
+
     }
 
 private:

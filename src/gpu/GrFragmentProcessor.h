@@ -112,6 +112,13 @@ public:
                                                         std::unique_ptr<GrFragmentProcessor> g);
 
     /**
+     * Returns a fragment processor that performs a framebuffer fetch; that is, sampling will return
+     * the last color of the sample that is currently being painted over. Returns half4(1) when
+     * framebuffer fetch is unavailable.
+     */
+    static std::unique_ptr<GrFragmentProcessor> DestColor();
+
+    /**
      * Makes a copy of this fragment processor that draws equivalently to the original.
      * If the processor has child processors they are cloned as well.
      */
@@ -415,7 +422,7 @@ private:
     enum PrivateFlags {
         kFirstPrivateFlag = kAll_OptimizationFlags + 1,
 
-        // Propagate up the FP tree to the root
+        // Propagates up the FP tree to the root
         kUsesSampleCoordsIndirectly_Flag = kFirstPrivateFlag,
 
         // Does not propagate at all
@@ -424,6 +431,9 @@ private:
         // Propagates down the FP to all its leaves
         kSampledWithExplicitCoords_Flag = kFirstPrivateFlag << 2,
         kNetTransformHasPerspective_Flag = kFirstPrivateFlag << 3,
+
+        // Propagates up the FP tree to the root
+        kWillReadDstColor_Flag = kFirstPrivateFlag << 4,
     };
     void addAndPushFlagToChildren(PrivateFlags flag);
 

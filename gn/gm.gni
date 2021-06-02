@@ -145,6 +145,7 @@ gm_sources = [
   "$_gm/dashcubics.cpp",
   "$_gm/dashing.cpp",
   "$_gm/degeneratesegments.cpp",
+  "$_gm/destcolor.cpp",
   "$_gm/dftext.cpp",
   "$_gm/dftext_blob_persp.cpp",
   "$_gm/discard.cpp",
