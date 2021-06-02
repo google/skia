@@ -256,32 +256,39 @@ describe('Core canvas behavior', () => {
         const paint = new CanvasKit.Paint();
         paint.setColor(CanvasKit.Color(0, 0, 0, 0.8));
 
-        const srcs = new CanvasKit.RectBuilder();
-        // left top right bottom
-        srcs.push(  0,   0, 256, 256);
-        srcs.push(256,   0, 512, 256);
-        srcs.push(  0, 256, 256, 512);
-        srcs.push(256, 256, 512, 512);
+        // Allocate space for 4 rectangles.
+        const srcs = CanvasKit.Malloc(Float32Array, 16);
+        srcs.toTypedArray().set([
+            0,   0, 256, 256, // LTRB
+          256,   0, 512, 256,
+            0, 256, 256, 512,
+          256, 256, 512, 512
+        ]);
 
-        const dsts = new CanvasKit.RSXFormBuilder();
-        // scos, ssin, tx, ty
-        dsts.push(0.5, 0,  20,  20);
-        dsts.push(0.5, 0, 300,  20);
-        dsts.push(0.5, 0,  20, 300);
-        dsts.push(0.5, 0, 300, 300);
+        // Allocate space for 4 RSXForms.
+        const dsts = CanvasKit.Malloc(Float32Array, 16);
+        dsts.toTypedArray().set([
+            0.5, 0,  20,  20, // scos, ssin, tx, ty
+            0.5, 0, 300,  20,
+            0.5, 0,  20, 300,
+            0.5, 0, 300, 300
+        ]);
 
-        const colors = new CanvasKit.ColorBuilder();
-        // note that the ColorBuilder expects int colors to be pushed.
-        // pushing float colors to it only causes weird problems way downstream.
-        // It does no type checking.
-        colors.push(CanvasKit.ColorAsInt( 85, 170,  10, 128)); // light green
-        colors.push(CanvasKit.ColorAsInt( 51,  51, 191, 128)); // light blue
-        colors.push(CanvasKit.ColorAsInt(  0,   0,   0, 128));
-        colors.push(CanvasKit.ColorAsInt(256, 256, 256, 128));
+        // Allocate space for 4 colors.
+        const colors = new CanvasKit.Malloc(Uint32Array, 4);
+        colors.toTypedArray().set([
+          CanvasKit.ColorAsInt( 85, 170,  10, 128), // light green
+          CanvasKit.ColorAsInt( 51,  51, 191, 128), // light blue
+          CanvasKit.ColorAsInt(  0,   0,   0, 128),
+          CanvasKit.ColorAsInt(256, 256, 256, 128),
+        ]);
 
         canvas.drawAtlas(atlas, srcs, dsts, paint, CanvasKit.BlendMode.Modulate, colors);
 
         atlas.delete();
+        CanvasKit.Free(srcs);
+        CanvasKit.Free(dsts);
+        CanvasKit.Free(colors);
         paint.delete();
     }, '/assets/mandrill_512.png');
 
