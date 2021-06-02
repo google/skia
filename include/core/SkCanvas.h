@@ -39,6 +39,7 @@
 
 class GrBackendRenderTarget;
 class GrRecordingContext;
+class GrRenderTargetProxy;
 class GrSurfaceDrawContext;
 class SkBaseDevice;
 class SkBitmap;
@@ -2298,6 +2299,7 @@ private:
     // operations should route to this device.
     SkBaseDevice* topDevice() const;
     virtual GrSurfaceDrawContext* topDeviceSurfaceDrawContext();
+    virtual GrRenderTargetProxy* topDeviceProxy();
 
     class MCRec;
 
