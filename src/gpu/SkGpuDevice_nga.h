@@ -38,7 +38,23 @@ public:
         return false;
     }
 
-    GrSurfaceDrawContext* surfaceDrawContext() override { return nullptr; }
+    void asyncRescaleAndReadPixels(const SkImageInfo&,
+                                   const SkIRect& srcRect,
+                                   RescaleGamma,
+                                   RescaleMode,
+                                   ReadPixelsCallback,
+                                   ReadPixelsContext) override;
+
+    void asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace,
+                                         sk_sp<SkColorSpace> dstColorSpace,
+                                         const SkIRect& srcRect,
+                                         SkISize dstSize,
+                                         RescaleGamma,
+                                         RescaleMode,
+                                         ReadPixelsCallback,
+                                         ReadPixelsContext) override;
+
+//    GrSurfaceDrawContext* surfaceDrawContext() override { return nullptr; }
 
 protected:
     void onSave() override;
