@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fe78608d_fc9ac7eb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-02T15:05:42Z",
+      "side": 1,
+      "message": "In the linked bug report, I determined that we were calling glDrawRangeElements via https://source.chromium.org/chromium/chromium/src/+/main:third_party/skia/src/gpu/ops/GrQuadPerEdgeAA.cpp;drc\u003d5a32828e5e291e852007008ca92668e3cf8248f4;l\u003d466.\n\nIt was a non-AA rect op drawing 1365 quads (total of 8190 indices). The base index and the min vertex were both 0, and we calculated the max vertex as 5460. Since maxVertex is inclusive, this leads to the overflow in the driver that assumes the max vertex + 1 * stride is less than or equal to the size of the bound vertex buffer.\n\nIf we subtract 1 to compute the index of the last vertex in the last quad, we correctly reconstruct the 65520 as the vertex buffer size, so we shouldn\u0027t crash in the Mali driver anymore.\n\nI am not sure how best to test this, since it\u0027s very driver specific in their handling of glDrawRangeElements, and the bug report noted it doesn\u0027t happen using Skia\u0027s vulkan backend on the same device, even though the problematic point (computing maxVertex in GrQuadPerEdgeAA::IssueDraw) is backend agnostic. Adding an assert is non-trivial in GrOpsRenderPass since it doesn\u0027t have the vertex buffer available IIUC. ",
+      "revId": "8dbb3242e1c5d3dd07060c99ed0bd0e01918b61d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
