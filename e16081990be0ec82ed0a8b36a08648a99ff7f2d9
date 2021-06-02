@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dfcaf555_50374644",
+        "filename": "modules/canvaskit/WasmCommon.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-02T14:18:56Z",
+      "side": 1,
+      "message": "Yes, this is due to our workaround of not being able to pass a pointers of primitives.",
+      "parentUuid": "2d8a30ba_0fa32a35",
+      "range": {
+        "startLine": 106,
+        "startChar": 11,
+        "endLine": 106,
+        "endChar": 22
+      },
+      "revId": "e16081990be0ec82ed0a8b36a08648a99ff7f2d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9b72a7db_a16cb77b",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-06-02T13:17:13Z",
       "side": 1,
       "message": "if we\u0027re going to do this more, perhaps we can create a predicate that has the same sense as our parameter (so we don\u0027t always have to ! it).",
+      "range": {
+        "startLine": 73,
+        "startChar": 58,
+        "endLine": 73,
+        "endChar": 69
+      },
+      "revId": "e16081990be0ec82ed0a8b36a08648a99ff7f2d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "66f46f9e_1de8c8e7",
+        "filename": "modules/canvaskit/font.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-02T14:18:56Z",
+      "side": 1,
+      "message": "Perhaps. A well-named one is escaping me for now.",
+      "parentUuid": "9b72a7db_a16cb77b",
       "range": {
         "startLine": 73,
         "startChar": 58,
