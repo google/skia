@@ -34,6 +34,7 @@ import org.skia.androidkitdemo1.samples.SkottieSample;
 
 import static java.lang.Math.tan;
 
+import android.util.Log;
 // TODO: remove after all sides are migrated to something more interesting.
 class SolidColorSample implements Sample {
     private Paint mPaint = new Paint();
@@ -101,7 +102,8 @@ class Vec3 {
 
 class VSphereAnimator {
     private Matrix mRotMatrix = new Matrix();
-    private Vec3   mRotAxis   = new Vec3(0, 1, 0);
+    private Vec3   mRotAxis   = new Vec3(0, 1, 0),
+                   mCurrentDrag;
     private float  mRotSpeed  = (float)Math.PI,
                    mCenterX,
                    mCenterY,
@@ -116,13 +118,17 @@ class VSphereAnimator {
     public void animate(float dt) {
         final float kDecay = 0.99f;
 
-        mRotMatrix = new Matrix().rotate(mRotAxis.x, mRotAxis.y, mRotAxis.z, mRotSpeed * dt)
-                                 .preConcat(mRotMatrix);
+        rotate(mRotAxis, mRotSpeed * dt);
+
         mRotSpeed *= kDecay;
     }
 
     public Matrix getMatrix() {
         return mRotMatrix;
+    }
+
+    public void finishDrag() {
+        mCurrentDrag = null;
     }
 
     public void fling(float dx, float dy) {
@@ -134,9 +140,26 @@ class VSphereAnimator {
         mRotSpeed = (float)(flingSpeed*Math.PI);
     }
 
+    public void drag(MotionEvent start, MotionEvent current) {
+        if (mCurrentDrag == null) {
+            // Initial scroll event -> drag gesture start.
+            mCurrentDrag = normalVec(start.getX(), start.getY());
+            mRotSpeed = 0;
+        }
+
+        Vec3 u = mCurrentDrag,
+             v = normalVec(current.getX(), current.getY());
+        float angle = (float)Math.acos(Math.max(-1, Math.min(1, u.dot(v)/u.length()/v.length())));
+        Vec3   axis = u.cross(v).normalize();
+
+        rotate(axis, angle);
+
+        mCurrentDrag = v;
+    }
+
     private Vec3 normalVec(float x, float y) {
-        x = (x - mCenterX)/mRadius;
-        y = (y - mCenterY)/mRadius;
+        x =  (x - mCenterX)/mRadius;
+        y = -(y - mCenterY)/mRadius;
         float len2 = x*x + y*y;
 
         if (len2 > 1) {
@@ -148,6 +171,11 @@ class VSphereAnimator {
         }
 
         return new Vec3(x, y, (float)Math.sqrt(1 - len2));
+    }
+
+    private void rotate(Vec3 axis, float angle) {
+        mRotMatrix = new Matrix().rotate(axis.x, axis.y, axis.z, angle)
+                                 .preConcat(mRotMatrix);
     }
 };
 
@@ -233,16 +261,30 @@ class CubeRenderer extends SurfaceRenderer implements GestureDetector.OnGestureL
 
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float dx, float dy) {
-        mVSphere.fling(dx, -dy);
+        mVSphere.finishDrag();
+        mVSphere.fling(dx, dy);
         return true;
+    }
+
+    @Override
+    public boolean onScroll(MotionEvent e1, MotionEvent e2, float dx, float dy) {
+        mVSphere.drag(e1, e2);
+        return true;
+    }
+
+    public boolean handleEvent(MotionEvent e) {
+        // Most events are routed through GestureDetector, but that does not notify when the
+        // scroll (drag) has ended.  Hence, we detect the condition here.
+        if (e.getAction() == MotionEvent.ACTION_UP) {
+            mVSphere.finishDrag();
+            return true;
+        }
+        return false;
     }
 
     // GestureDetector stubs
     @Override
     public boolean onDown(MotionEvent e) { return true; }
-
-    @Override
-    public boolean onScroll(MotionEvent e1, MotionEvent e2, float dx, float dy) { return false; }
 
     @Override
     public boolean onSingleTapUp(MotionEvent e) { return false; }
@@ -269,6 +311,7 @@ public class CubeActivity extends Activity {
         System.loadLibrary("androidkit");
     }
 
+    private CubeRenderer    mRenderer;
     private GestureDetector mDetector;
 
     @Override
@@ -278,14 +321,14 @@ public class CubeActivity extends Activity {
 
         SurfaceView sv = findViewById(R.id.surfaceView);
 
-        CubeRenderer renderer = new CubeRenderer(getResources());
-        sv.getHolder().addCallback(renderer);
+        mRenderer = new CubeRenderer(getResources());
+        sv.getHolder().addCallback(mRenderer);
 
-        mDetector = new GestureDetector(this, renderer);
+        mDetector = new GestureDetector(this, mRenderer);
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent e) {
-          return mDetector.onTouchEvent(e);
+          return mDetector.onTouchEvent(e) || mRenderer.handleEvent(e);
     }
 }
