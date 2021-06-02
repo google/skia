@@ -126,12 +126,12 @@ SK_ALWAYS_INLINE static int worst_case_cubic_log2(float precision, float devWidt
 }
 
 // Returns Wang's formula specialized for a conic curve, raised to the second power.
-// Input points should be in projected space, and note tolerance parameter is not "precision".
+// Input points should be in projected space.
 //
 // This is not actually due to Wang, but is an analogue from (Theorem 3, corollary 1):
 //   J. Zheng, T. Sederberg. "Estimating Tessellation Parameter Intervals for
 //   Rational Curves and Surfaces." ACM Transactions on Graphics 19(1). 2000.
-SK_ALWAYS_INLINE static float conic_pow2(float tolerance, const SkPoint pts[], float w,
+SK_ALWAYS_INLINE static float conic_pow2(float precision, const SkPoint pts[], float w,
                                          const GrVectorXform& vectorXform = GrVectorXform()) {
     using grvx::dot, grvx::float2, grvx::float4, skvx::bit_pun;
     float2 p0 = vectorXform(bit_pun<float2>(pts[0]));
@@ -152,13 +152,13 @@ SK_ALWAYS_INLINE static float conic_pow2(float tolerance, const SkPoint pts[], f
 
     // Compute forward differences
     const float2 dp = grvx::fast_madd<2>(-2 * w, p1, p0) + p2;
-    const float dw = fabsf(1 - 2 * w + 1);
+    const float dw = fabsf(-2 * w + 2);
 
-    // Compute numerator and denominator for parametric step size of linearization
-    const float r_minus_eps = std::max(0.f, max_len - tolerance);
-    const float min_w = std::min(w, 1.f);
-    const float numer = sqrtf(grvx::dot(dp, dp)) + r_minus_eps * dw;
-    const float denom = 4 * min_w * tolerance;
+    // Compute numerator and denominator for parametric step size of linearization. Here, the
+    // epsilon referenced from the cited paper is 1/precision.
+    const float rp_minus_1 = std::max(0.f, max_len * precision - 1);
+    const float numer = sqrtf(grvx::dot(dp, dp)) * precision + rp_minus_1 * dw;
+    const float denom = 4 * std::min(w, 1.f);
 
     // Number of segments = sqrt(numer / denom).
     // This assumes parametric interval of curve being linearized is [t0,t1] = [0, 1].
