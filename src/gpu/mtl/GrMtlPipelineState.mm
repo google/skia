@@ -95,14 +95,14 @@ void GrMtlPipelineState::setTextures(const GrGeometryProcessor& geomProc,
         fSamplerBindings.emplace_back(sampler.samplerState(), texture, fGpu);
     }
 
-    pipeline.visitTextureEffects([&](const GrTextureEffect& te) {
-        fSamplerBindings.emplace_back(te.samplerState(), te.texture(), fGpu);
-    });
-
     if (GrTextureProxy* dstTextureProxy = pipeline.dstProxyView().asTextureProxy()) {
         fSamplerBindings.emplace_back(
                 GrSamplerState::Filter::kNearest, dstTextureProxy->peekTexture(), fGpu);
     }
+
+    pipeline.visitTextureEffects([&](const GrTextureEffect& te) {
+        fSamplerBindings.emplace_back(te.samplerState(), te.texture(), fGpu);
+    });
 
     SkASSERT(fNumSamplers == fSamplerBindings.count());
 }
