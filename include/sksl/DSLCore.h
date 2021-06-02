@@ -23,6 +23,7 @@
 namespace SkSL {
 
 class Compiler;
+struct Program;
 struct ProgramSettings;
 
 namespace dsl {
@@ -48,6 +49,11 @@ void Start(SkSL::Compiler* compiler, SkSL::ProgramKind kind, const SkSL::Program
 void End();
 
 /**
+ * Returns all global elements (functions and global variables) as a self-contained Program.
+ */
+std::unique_ptr<SkSL::Program> ReleaseProgram();
+
+/**
  * Installs an ErrorHandler which will be notified of any errors that occur during DSL calls. If
  * no ErrorHandler is installed, any errors will be fatal.
  */
@@ -68,7 +74,7 @@ DSLStatement Break();
 DSLStatement Continue();
 
 /**
- * Creates a variable declaration statement.
+ * Creates a local variable declaration statement.
  */
 DSLStatement Declare(DSLVar& var, PositionInfo pos = PositionInfo());
 

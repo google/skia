@@ -43,6 +43,7 @@ class SkSLCompileBench;
 namespace SkSL {
 
 namespace dsl {
+    class DSLCore;
     class DSLWriter;
 }
 
@@ -262,6 +263,7 @@ private:
 
     friend class AutoSource;
     friend class ::SkSLCompileBench;
+    friend class dsl::DSLCore;
     friend class dsl::DSLWriter;
 };
 
