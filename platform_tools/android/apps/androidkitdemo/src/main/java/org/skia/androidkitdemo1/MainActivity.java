@@ -94,7 +94,11 @@ public class MainActivity extends Activity {
         @Override
         public void surfaceChanged(@NonNull SurfaceHolder holder, int format, int width, int height) {
             threadedSurface = Surface.createThreadedSurface(holder.getSurface());
-            threadedSurface.getCanvas().drawColor(0xffffffe0);
+            Paint p = new Paint();
+            p.setColor(new Color(1, 0, 0, 1));
+            ImageFilter filter = ImageFilter.distantLitDiffuse(.5f, .5f, .5f, new Color(1, 1, 1, 1), 1, 2, null);
+            p.setImageFilter(filter);
+            threadedSurface.getCanvas().drawRect(0, 0, width, height, p);
             threadedSurface.flushAndSubmit();
         }
 
