@@ -1,50 +1,6 @@
 // TODO(kjlubick)
 // The remaining functions here are deprecated and should be removed eventually.
 
-// Caching the Float32Arrays can save having to reallocate them
-// over and over again.
-var Float32ArrayCache = {};
-
-// Takes a 2D array of commands and puts them into the WASM heap
-// as a 1D array. This allows them to referenced from the C++ code.
-// Returns a 2 element array, with the first item being essentially a
-// pointer to the array and the second item being the length of
-// the new 1D array.
-//
-// Example usage:
-// let cmds = [
-//   [CanvasKit.MOVE_VERB, 0, 10],
-//   [CanvasKit.LINE_VERB, 30, 40],
-//   [CanvasKit.QUAD_VERB, 20, 50, 45, 60],
-// ];
-// TODO(kjlubick) remove this and Float32ArrayCache (superceded by Malloc).
-function loadCmdsTypedArray(arr) {
-  var len = 0;
-  for (var r = 0; r < arr.length; r++) {
-    len += arr[r].length;
-  }
-
-  var ta;
-  if (Float32ArrayCache[len]) {
-    ta = Float32ArrayCache[len];
-  } else {
-    ta = new Float32Array(len);
-    Float32ArrayCache[len] = ta;
-  }
-  // Flatten into a 1d array
-  var i = 0;
-  for (var r = 0; r < arr.length; r++) {
-    for (var c = 0; c < arr[r].length; c++) {
-      var item = arr[r][c];
-      ta[i] = item;
-      i++;
-    }
-  }
-
-  var ptr = copy1dArray(ta, 'HEAPF32');
-  return [ptr, len];
-}
-
 // TODO(kjlubick) remove Builders - no longer needed now that Malloc is a thing.
 /**
  * Generic helper for dealing with an array of four floats.

@@ -71,13 +71,13 @@ describe('Path Behavior', () => {
         expect(cmds).toBeTruthy();
         // 1 move, 4 lines, 1 close
         // each element in cmds is an array, with index 0 being the verb, and the rest being args
-        expect(cmds.length).toBe(6);
-        expect(cmds).toEqual([[CanvasKit.MOVE_VERB, 205, 5],
-                              [CanvasKit.LINE_VERB, 795, 5],
-                              [CanvasKit.LINE_VERB, 595, 295],
-                              [CanvasKit.LINE_VERB, 5, 295],
-                              [CanvasKit.LINE_VERB, 205, 5],
-                              [CanvasKit.CLOSE_VERB]]);
+        expect(cmds).toEqual(Float32Array.of(
+            CanvasKit.MOVE_VERB, 205, 5,
+            CanvasKit.LINE_VERB, 795, 5,
+            CanvasKit.LINE_VERB, 595, 295,
+            CanvasKit.LINE_VERB, 5, 295,
+            CanvasKit.LINE_VERB, 205, 5,
+            CanvasKit.CLOSE_VERB));
         path.delete();
     });
 
@@ -92,23 +92,24 @@ describe('Path Behavior', () => {
         const path = CanvasKit.Path.MakeFromOp(pathOne, pathTwo, CanvasKit.PathOp.Intersect);
         const cmds = path.toCmds();
         expect(cmds).toBeTruthy();
-        expect(cmds).toEqual([[CanvasKit.MOVE_VERB, 15, 15],
-            [CanvasKit.LINE_VERB, 20, 15],
-            [CanvasKit.LINE_VERB, 20, 20],
-            [CanvasKit.LINE_VERB, 15, 20],
-            [CanvasKit.CLOSE_VERB]]);
+        expect(cmds).toEqual(Float32Array.of(
+            CanvasKit.MOVE_VERB, 15, 15,
+            CanvasKit.LINE_VERB, 20, 15,
+            CanvasKit.LINE_VERB, 20, 20,
+            CanvasKit.LINE_VERB, 15, 20,
+            CanvasKit.CLOSE_VERB));
         path.delete();
         pathOne.delete();
         pathTwo.delete();
     });
 
     it('can create an SVG string from a path', () => {
-        const cmds = [[CanvasKit.MOVE_VERB, 205, 5],
-                   [CanvasKit.LINE_VERB, 795, 5],
-                   [CanvasKit.LINE_VERB, 595, 295],
-                   [CanvasKit.LINE_VERB, 5, 295],
-                   [CanvasKit.LINE_VERB, 205, 5],
-                   [CanvasKit.CLOSE_VERB]];
+        const cmds = [CanvasKit.MOVE_VERB, 205, 5,
+                   CanvasKit.LINE_VERB, 795, 5,
+                   CanvasKit.LINE_VERB, 595, 295,
+                   CanvasKit.LINE_VERB, 5, 295,
+                   CanvasKit.LINE_VERB, 205, 5,
+                   CanvasKit.CLOSE_VERB];
         const path = CanvasKit.Path.MakeFromCmds(cmds);
 
         const svgStr = path.toSVGString();
@@ -138,25 +139,25 @@ describe('Path Behavior', () => {
         let path = CanvasKit.Path.MakeFromVerbsPointsWeights(mVerbs, mPoints, mWeights);
 
         let cmds = path.toCmds();
-        expect(cmds).toEqual([
-            [CanvasKit.MOVE_VERB, 1, 2],
-            [CanvasKit.LINE_VERB, 3, 4],
-            [CanvasKit.QUAD_VERB, 5, 6, 7, 8],
-            [CanvasKit.CONIC_VERB, 9, 10, 11, 12, 117],
-            [CanvasKit.CUBIC_VERB, 13, 14, 15, 16, 17, 18],
-            [CanvasKit.CLOSE_VERB],
-        ]);
+        expect(cmds).toEqual(Float32Array.of(
+            CanvasKit.MOVE_VERB, 1, 2,
+            CanvasKit.LINE_VERB, 3, 4,
+            CanvasKit.QUAD_VERB, 5, 6, 7, 8,
+            CanvasKit.CONIC_VERB, 9, 10, 11, 12, 117,
+            CanvasKit.CUBIC_VERB, 13, 14, 15, 16, 17, 18,
+            CanvasKit.CLOSE_VERB,
+        ));
         path.delete();
 
         // If given insufficient points, it stops early (but doesn't read out of bounds).
         path = CanvasKit.Path.MakeFromVerbsPointsWeights(mVerbs, mPoints.subarray(0, 10), mWeights);
 
         cmds = path.toCmds();
-        expect(cmds).toEqual([
-            [CanvasKit.MOVE_VERB, 1, 2],
-            [CanvasKit.LINE_VERB, 3, 4],
-            [CanvasKit.QUAD_VERB, 5, 6, 7, 8],
-        ]);
+        expect(cmds).toEqual(Float32Array.of(
+            CanvasKit.MOVE_VERB, 1, 2,
+            CanvasKit.LINE_VERB, 3, 4,
+            CanvasKit.QUAD_VERB, 5, 6, 7, 8,
+        ));
         path.delete();
         CanvasKit.Free(mVerbs);
         CanvasKit.Free(mPoints);
@@ -168,10 +169,10 @@ describe('Path Behavior', () => {
           [CanvasKit.MOVE_VERB, CanvasKit.LINE_VERB],
           [1,2, 3,4]);
         let cmds = path.toCmds();
-        expect(cmds).toEqual([
-            [CanvasKit.MOVE_VERB, 1, 2],
-            [CanvasKit.LINE_VERB, 3, 4]
-        ]);
+        expect(cmds).toEqual(Float32Array.of(
+            CanvasKit.MOVE_VERB, 1, 2,
+            CanvasKit.LINE_VERB, 3, 4
+        ));
 
         path.addVerbsPointsWeights(
           [CanvasKit.QUAD_VERB, CanvasKit.CLOSE_VERB],
@@ -179,12 +180,12 @@ describe('Path Behavior', () => {
         );
 
         cmds = path.toCmds();
-        expect(cmds).toEqual([
-            [CanvasKit.MOVE_VERB, 1, 2],
-            [CanvasKit.LINE_VERB, 3, 4],
-            [CanvasKit.QUAD_VERB, 5, 6, 7, 8],
-            [CanvasKit.CLOSE_VERB]
-        ]);
+        expect(cmds).toEqual(Float32Array.of(
+            CanvasKit.MOVE_VERB, 1, 2,
+            CanvasKit.LINE_VERB, 3, 4,
+            CanvasKit.QUAD_VERB, 5, 6, 7, 8,
+            CanvasKit.CLOSE_VERB
+        ));
         path.delete();
     });
 
@@ -212,20 +213,20 @@ describe('Path Behavior', () => {
         path.addVerbsPointsWeights(mVerbs, mPoints, mWeights);
 
         let cmds = path.toCmds();
-        expect(cmds).toEqual([
-            [CanvasKit.MOVE_VERB, 0, 0],
-            [CanvasKit.LINE_VERB, 77, 88],
-            [CanvasKit.MOVE_VERB, 1, 2],
-            [CanvasKit.LINE_VERB, 3, 4],
-            [CanvasKit.QUAD_VERB, 5, 6, 7, 8],
-            [CanvasKit.CONIC_VERB, 9, 10, 11, 12, 117],
-            [CanvasKit.CUBIC_VERB, 13, 14, 15, 16, 17, 18],
-            [CanvasKit.CLOSE_VERB],
-        ]);
+        expect(cmds).toEqual(Float32Array.of(
+            CanvasKit.MOVE_VERB, 0, 0,
+            CanvasKit.LINE_VERB, 77, 88,
+            CanvasKit.MOVE_VERB, 1, 2,
+            CanvasKit.LINE_VERB, 3, 4,
+            CanvasKit.QUAD_VERB, 5, 6, 7, 8,
+            CanvasKit.CONIC_VERB, 9, 10, 11, 12, 117,
+            CanvasKit.CUBIC_VERB, 13, 14, 15, 16, 17, 18,
+            CanvasKit.CLOSE_VERB,
+        ));
 
         path.rewind();
         cmds = path.toCmds();
-        expect(cmds).toEqual([]);
+        expect(cmds).toEqual(new Float32Array(0));
 
         path.delete();
         CanvasKit.Free(mVerbs);
