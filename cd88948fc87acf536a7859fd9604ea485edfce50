@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "492a4dd3_a459f770",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-06-03T13:08:18Z",
+      "side": 1,
+      "message": "Can we separate out adding the bot from fixing the implementation?",
+      "revId": "cd88948fc87acf536a7859fd9604ea485edfce50",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a38d532f_684565be",
