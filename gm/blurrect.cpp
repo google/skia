@@ -28,11 +28,14 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
+#include "include/effects/SkImageFilters.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkBlurMask.h"
 #include "src/core/SkMask.h"
+#include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrResourceCache.h"
 #include "tools/timer/TimeUtils.h"
 
 #include <vector>
@@ -558,3 +561,62 @@ DEF_SIMPLE_GM(blur_matrix_rect, canvas, 650, 685) {
         canvas->translate(bounds.width(), 0);
     }
 }
+
+//////////////////////////////////////////////////////////////////////////////
+
+class BlurClipped : public skiagm::GM {
+public:
+    bool onChar(SkUnichar key) override {
+        if (key == '-') {
+            fSigma = std::max(0.0f, fSigma - 1.f);
+            return true;
+        } else if (key == '=') {
+            fSigma += 0.1f;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+protected:
+    static const int kWidth = 800;
+    static const int kHeight = 600;
+
+    SkString onShortName() override { return SkString("blur_clipped"); }
+
+    SkISize onISize() override { return {kWidth, kHeight}; }
+
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
+        SkPaint paint;
+        paint.setColor(SK_ColorGREEN);
+        paint.setImageFilter(SkImageFilters::Blur(fSigma, fSigma, nullptr));
+
+        SkRect bounds = SkRect::MakeIWH(kWidth, kHeight);
+        bounds.inset(50.f, 50.f);
+
+        SkRect rect = SkRect::MakeLTRB(kWidth / 2.f - 100.f, kHeight / 2.f - 100.f,
+                                       kWidth / 2.f + 100.f, kHeight / 2.f + 100.f);
+        canvas->clipRect(bounds);
+        canvas->drawRect(rect, paint);
+
+        auto ctx = canvas->recordingContext();
+        if (ctx && ctx->asDirectContext()) {
+            ctx->asDirectContext()->priv().getResourceCache()->purgeAllUnlocked();
+            ctx->asDirectContext()->priv().printCacheStats();
+        }
+
+        return DrawResult::kOk;
+    }
+    // bool onAnimate(double nanos) override {
+    //     fSigmaAnimationBoost = TimeUtils::SineWave(nanos, 5, 2.5f, 0.f, 2.f);
+    //     fRecalcMasksForAnimation = true;
+    //     return true;
+    // }
+
+
+
+private:
+    float fSigma = 0.1f;
+};
+
+DEF_GM(return new BlurClipped();)

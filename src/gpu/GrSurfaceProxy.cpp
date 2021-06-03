@@ -124,6 +124,8 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(GrResourceProvider* resourceP
         return nullptr;
     }
 
+    SkDebugf("GrSurfaceProxy::createSurfaceImpl [%d x %d], %u -> %u\n", surface->width(), surface->height(), this->uniqueID().asUInt(), surface->uniqueID().asUInt());
+
     return surface;
 }
 
@@ -148,6 +150,7 @@ void GrSurfaceProxy::assign(sk_sp<GrSurface> surface) {
     SkDEBUGCODE(this->validateSurface(surface.get());)
 
     fTarget = std::move(surface);
+    SkDebugf("Assigning proxy [%d x %d], %u -> %u\n", fTarget->width(), fTarget->height(), this->uniqueID().asUInt(), fTarget->uniqueID().asUInt());
 
 #ifdef SK_DEBUG
     if (this->asRenderTargetProxy()) {
@@ -169,6 +172,7 @@ bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int s
                                      const GrUniqueKey* uniqueKey) {
     SkASSERT(!this->isLazy());
     if (fTarget) {
+        SkDebugf("instantiateImpl already has a target: %u -> %u\n", this->uniqueID().asUInt(), fTarget->uniqueID().asUInt());
         if (uniqueKey && uniqueKey->isValid()) {
             SkASSERT(fTarget->getUniqueKey().isValid() && fTarget->getUniqueKey() == *uniqueKey);
         }

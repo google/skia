@@ -114,6 +114,9 @@ static std::unique_ptr<GrSurfaceDrawContext> convolve_gaussian_2d(GrRecordingCon
         return nullptr;
     }
 
+    SkDebugf("  2D convolve pass %u -> %u\n", srcView.proxy()->uniqueID().asUInt(), surfaceDrawContext->uniqueID().asUInt());
+
+
     SkISize size = SkISize::Make(SkGpuBlurUtils::KernelWidth(radiusX),
                                  SkGpuBlurUtils::KernelWidth(radiusY));
     SkIPoint kernelOffset = SkIPoint::Make(radiusX, radiusY);
@@ -167,6 +170,7 @@ static std::unique_ptr<GrSurfaceDrawContext> convolve_gaussian(GrRecordingContex
     if (!dstRenderTargetContext) {
         return nullptr;
     }
+    SkDebugf("  1D convolve pass %u -> %u\n", srcView.proxy()->uniqueID().asUInt(), dstRenderTargetContext->uniqueID().asUInt());
     // This represents the translation from 'dstRenderTargetContext' coords to 'srcView' coords.
     auto rtcToSrcOffset = dstBounds.topLeft();
 
@@ -319,6 +323,7 @@ static std::unique_ptr<GrSurfaceDrawContext> reexpand(GrRecordingContext* contex
         return nullptr;
     }
 
+    uint32_t srcID = srcView.proxy()->uniqueID().asUInt();
     GrPaint paint;
     auto fp = GrTextureEffect::MakeSubset(std::move(srcView), srcAlphaType, SkMatrix::I(),
                                           GrSamplerState::Filter::kLinear, srcBounds, srcBounds,
@@ -329,6 +334,7 @@ static std::unique_ptr<GrSurfaceDrawContext> reexpand(GrRecordingContext* contex
     dstRenderTargetContext->fillRectToRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
                                            SkRect::Make(dstSize), srcBounds);
 
+    SkDebugf("  reexpanding %u to %u\n", srcID, dstRenderTargetContext->uniqueID().asUInt());
     return dstRenderTargetContext;
 }
 
@@ -506,6 +512,8 @@ std::unique_ptr<GrSurfaceDrawContext> GaussianBlur(GrRecordingContext* context,
         }
     }
 
+    SkDebugf("GaussianBlur, src id = %u\n", srcView.proxy()->uniqueID().asUInt());
+
     // If we determined that there is no blurring necessary in either direction then just do a
     // a draw that applies the tile mode.
     if (!radiusX && !radiusY) {
@@ -527,6 +535,7 @@ std::unique_ptr<GrSurfaceDrawContext> GaussianBlur(GrRecordingContext* context,
                                               SkRect::Make(dstBounds),
                                               *context->priv().caps());
         result->fillRectToRectWithFP(dstBounds, SkIRect::MakeSize(dstBounds.size()), std::move(fp));
+        SkDebugf("  Pass through result id = %u\n", result->uniqueID().asUInt());
         return result;
     }
 
@@ -605,6 +614,7 @@ std::unique_ptr<GrSurfaceDrawContext> GaussianBlur(GrRecordingContext* context,
     if (!rescaledSDC) {
         return nullptr;
     }
+    SkDebugf("  decimating src into %u\n", rescaledSDC->uniqueID().asUInt());
     if ((padX || padY) && mode == SkTileMode::kDecal) {
         rescaledSDC->clear(SkPMColor4f{0, 0, 0, 0});
     }
