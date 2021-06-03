@@ -12,7 +12,7 @@
 void FakeMCBlob::MCState::apply(SkCanvas* canvas) const {
     canvas->save();
 
-    for (auto c : fRects) {
+    for (auto c : fRects1) {
         canvas->clipIRect(c);
     }
 
@@ -22,11 +22,17 @@ void FakeMCBlob::MCState::apply(SkCanvas* canvas) const {
 void FakeMCBlob::MCState::apply(FakeCanvas* canvas) const {
     canvas->save();
 
-    for (auto c : fRects) {
-        canvas->clipRect(c);
+    for (auto c : fRects1) {
+//        canvas->clipRect(c);
     }
 
     canvas->translate(fTrans);
+}
+
+void FakeMCBlob::MCState::popit(uint32_t zWhenPopped) {
+    for (auto c : fCmds) {
+        c->pop(zWhenPopped);
+    }
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -76,22 +82,22 @@ void FakeDevice::save() {
 }
 
 void FakeDevice::drawRect(int id, uint32_t paintersOrder, SkIRect r, FakePaint p) {
-
     sk_sp<FakeMCBlob> state = fTracker.snapState();
-
-    SortKey k(p.isTransparent(), state->id(), paintersOrder, p.toID());
 
     auto tmp = new RectCmd(id, paintersOrder, r, p, std::move(state));
 
-    fSortedCmds.push_back({k, tmp});
+    fSortedCmds.push_back(tmp);
 }
 
-void FakeDevice::clipRect(SkIRect r) {
-    fTracker.clipRect(r);
+void FakeDevice::clipRect(int id, uint32_t paintersOrder, SkIRect r) {
+    auto tmp = new ClipCmd(id, paintersOrder, r);
+
+    fSortedCmds.push_back(tmp);
+    fTracker.clipRect(r, tmp);
 }
 
-void FakeDevice::restore() {
-    fTracker.pop();
+void FakeDevice::restore(uint32_t z) {
+    fTracker.pop(z);
 }
 
 void FakeDevice::finalize() {
@@ -100,18 +106,29 @@ void FakeDevice::finalize() {
 
     this->sort();
     for (auto f : fSortedCmds) {
-        f.fCmd->rasterize(fZBuffer, &fBM, f.fKey.depth());
+        f->rasterize(fZBuffer, &fBM);
     }
 }
 
 void FakeDevice::getOrder(std::vector<int>* ops) const {
     SkASSERT(fFinalized);
 
-//    ops->reserve(fSortedCmds.size());
-
     for (auto f : fSortedCmds) {
-        ops->push_back(f.fCmd->id());
+        ops->push_back(f->id());
     }
+}
+
+void FakeDevice::sort() {
+    // In general we want:
+    //  opaque draws to occur front to back (i.e., in reverse painter's order) while minimizing
+    //        state changes due to materials
+    //  transparent draws to occur back to front (i.e., in painter's order)
+    //
+    // In both scenarios we would like to batch as much as possible.
+    std::sort(fSortedCmds.begin(), fSortedCmds.end(),
+                [](Cmd* a, Cmd* b) {
+                    return a->getKey() < b->getKey();
+                });
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -121,10 +138,10 @@ void FakeCanvas::drawRect(int id, SkIRect r, FakePaint p) {
     fDeviceStack.back()->drawRect(id, this->nextZ(), r, p);
 }
 
-void FakeCanvas::clipRect(SkIRect r) {
+void FakeCanvas::clipRect(int id, SkIRect r) {
     SkASSERT(!fFinalized);
 
-    fDeviceStack.back()->clipRect(r);
+    fDeviceStack.back()->clipRect(id, this->nextZ(), r);
 }
 
 void FakeCanvas::finalize() {

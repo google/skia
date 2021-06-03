@@ -14,6 +14,7 @@
 #include <vector>
 
 class Cmd;
+class ClipCmd;
 class FakeCanvas;
 class SkBitmap;
 class SkCanvas;
@@ -28,8 +29,9 @@ public:
     public:
         MCState() {}
 
-        void addRect(SkIRect r) {
-            fRects.push_back(r.makeOffset(fTrans.fX, fTrans.fY));
+        void addRect(SkIRect r, ClipCmd* clipCmd) {
+            fRects1.push_back(r.makeOffset(fTrans.fX, fTrans.fY));
+            fCmds.push_back(clipCmd);
             fCached = nullptr;
         }
 
@@ -42,20 +44,23 @@ public:
 
         bool operator==(const MCState& other) const {
             return fTrans == other.fTrans &&
-                   fRects == other.fRects;
+                   fRects1 == other.fRects1;
         }
 
         void apply(SkCanvas*) const;
         void apply(FakeCanvas*) const;
+#if 0
         bool clipped(int x, int y) const {
-            for (auto r : fRects) {
+            for (auto r : fRects1) {
                 if (!r.contains(x, y)) {
                     return true;
                 }
             }
             return false;
         }
-        const std::vector<SkIRect>& rects() const { return fRects; }
+#endif
+        const std::vector<SkIRect>& rects() const { return fRects1; }
+        const std::vector<ClipCmd*>& cmds() const { return fCmds; }
 
         sk_sp<FakeMCBlob> getCached() const {
             return fCached;
@@ -64,6 +69,8 @@ public:
             fCached = cached;
         }
 
+        void popit(uint32_t zWhenPopped);
+
     protected:
         friend class FakeMCBlob;
 
@@ -71,15 +78,19 @@ public:
         // These clip rects are in the 'parent' space of this MCState (i.e., in the coordinate
         // frame of the MCState prior to this one in 'fStack'). Alternatively, the 'fTrans' in
         // effect when they were added has already been applied.
-        std::vector<SkIRect> fRects;
-        sk_sp<FakeMCBlob>    fCached;
+        std::vector<SkIRect>  fRects1;
+        std::vector<ClipCmd*> fCmds;
+        sk_sp<FakeMCBlob>     fCached;
     };
 
     FakeMCBlob(const std::vector<MCState>& stack) : fID(NextID()), fStack(stack) {
+        fScissor = SkIRect::MakeLTRB(-1000, -1000, 1000, 1000);
+
         for (auto s : fStack) {
             // xform the clip rects into device space
-            for (auto& r : s.fRects) {
+            for (auto& r : s.fRects1) {
                 r.offset(fCTM);
+                SkAssertResult(fScissor.intersect(r));
             }
             fCTM += s.getTrans();
         }
@@ -104,7 +115,9 @@ public:
     SkIPoint ctm() const { return fCTM; }
     const std::vector<MCState>& mcStates() const { return fStack; }
     const MCState& operator[](int index) const { return fStack[index]; }
+    SkIRect scissor() const { return fScissor; }
 
+#if 0
     bool clipped(int x, int y) const {
         for (auto& s : fStack) {
             if (s.clipped(x, y)) {
@@ -114,6 +127,7 @@ public:
 
         return false;
     }
+#endif
 
 private:
     static int NextID() {
@@ -123,6 +137,7 @@ private:
 
     const int            fID;
     SkIPoint             fCTM { 0, 0 };
+    SkIRect              fScissor;
     std::vector<MCState> fStack;
 };
 
@@ -147,8 +162,8 @@ public:
         fStack.push_back(FakeMCBlob::MCState());
     }
 
-    void clipRect(SkIRect clipRect) {
-        fStack.back().addRect(clipRect);
+    void clipRect(SkIRect clipRect, ClipCmd* clipCmd) {
+        fStack.back().addRect(clipRect, clipCmd);
     }
 
     // For now we only store translates - in the full Skia this would be the whole 4x4 matrix
@@ -156,8 +171,9 @@ public:
         fStack.back().translate(trans);
     }
 
-    void pop() {
+    void pop(uint32_t z) {
         SkASSERT(fStack.size() > 0);
+        fStack.back().popit(z);
         fStack.pop_back();
     }
 
@@ -177,6 +193,11 @@ private:
 //   The transparent objects need to be draw back to front.
 class FakePaint {
 public:
+    FakePaint(SkColor c)
+        : fType(Type::kNormal)
+        , fColor0(c)
+        , fColor1(SK_ColorUNUSED) {
+    }
     FakePaint() {}
     FakePaint(SkColor c)
         : fType(Type::kNormal)
@@ -255,12 +276,12 @@ public:
 
     void save();
     void drawRect(int id, uint32_t z, SkIRect, FakePaint);
-    void clipRect(SkIRect r);
+    void clipRect(int id, uint32_t paintersOrder, SkIRect r);
     void translate(SkIPoint trans) {
         fTracker.translate(trans);
     }
 
-    void restore();
+    void restore(uint32_t z);
 
     void finalize();
 
@@ -270,31 +291,14 @@ public:
 protected:
 
 private:
-    class KeyAndCmd {
-    public:
-        SortKey fKey;
-        Cmd*    fCmd;
-    };
+    void sort();
 
-    void sort() {
-        // In general we want:
-        //  opaque draws to occur front to back (i.e., in reverse painter's order) while minimizing
-        //        state changes due to materials
-        //  transparent draws to occur back to front (i.e., in painter's order)
-        //
-        // In both scenarios we would like to batch as much as possible.
-        std::sort(fSortedCmds.begin(), fSortedCmds.end(),
-                  [](const KeyAndCmd& a, const KeyAndCmd& b) {
-                      return a.fKey < b.fKey;
-                  });
-    }
+    bool              fFinalized = false;
+    std::vector<Cmd*> fSortedCmds;
 
-    bool                   fFinalized = false;
-    std::vector<KeyAndCmd> fSortedCmds;
-
-    FakeStateTracker       fTracker;
-    SkBitmap               fBM;
-    uint32_t               fZBuffer[256][256];
+    FakeStateTracker  fTracker;
+    SkBitmap          fBM;
+    uint32_t          fZBuffer[256][256];
 };
 
 class FakeCanvas {
@@ -316,7 +320,7 @@ public:
 
     void drawRect(int id, SkIRect, FakePaint);
 
-    void clipRect(SkIRect);
+    void clipRect(int id, SkIRect);
 
     void translate(SkIPoint trans) {
         SkASSERT(!fFinalized);
@@ -326,7 +330,7 @@ public:
 
     void restore() {
         SkASSERT(!fFinalized);
-        fDeviceStack.back()->restore();
+        fDeviceStack.back()->restore(this->peekZ());
     }
 
     void finalize();
@@ -341,6 +345,9 @@ protected:
 private:
     uint32_t nextZ() {
         return fNextZ++;
+    }
+    uint32_t peekZ() const {
+        return fNextZ;
     }
 
     int                                      fNextZ = 1;
