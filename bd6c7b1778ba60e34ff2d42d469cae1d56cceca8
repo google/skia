@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e2259c77_2bb4b0e6",
+        "filename": "src/gpu/tessellate/GrStrokeHardwareTessellator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 831,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-03T00:08:39Z",
+      "side": 1,
+      "message": "Is this TODO addressed now?",
+      "range": {
+        "startLine": 831,
+        "startChar": 20,
+        "endLine": 831,
+        "endChar": 93
+      },
+      "revId": "bd6c7b1778ba60e34ff2d42d469cae1d56cceca8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
