@@ -662,7 +662,8 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
 
             // This is an nvidia extension that isn't supported by the debug layers so we get lots
             // of warnings. We don't actually use it, so it is easiest to just not enable it.
-            if (0 == strcmp(deviceExtensions[i].extensionName, "VK_NV_low_latency")) {
+            if (0 == strcmp(deviceExtensions[i].extensionName, "VK_NV_low_latency") ||
+                0 == strcmp(deviceExtensions[i].extensionName, "VK_NV_acquire_winrt_display")) {
                 continue;
             }
 
