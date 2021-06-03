@@ -22,6 +22,7 @@
 
 class GrAppliedClip;
 class GrCaps;
+class GrDstProxyView;
 class GrOpFlushState;
 class GrOpsRenderPass;
 class GrPaint;

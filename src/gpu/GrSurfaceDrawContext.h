@@ -28,6 +28,7 @@ class GrClip;
 class GrColorSpaceXform;
 class GrCoverageCountingPathRenderer;
 class GrDrawOp;
+class GrDstProxyView;
 class GrOp;
 class GrRenderTarget;
 class GrStyledShape;
