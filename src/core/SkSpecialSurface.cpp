@@ -124,7 +124,7 @@ sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRaster(const SkImageInfo& info,
 
 class SkSpecialSurface_Gpu : public SkSpecialSurface_Base {
 public:
-    SkSpecialSurface_Gpu(sk_sp<SkGpuDevice> device, SkIRect subset)
+    SkSpecialSurface_Gpu(sk_sp<SkBaseGpuDevice> device, SkIRect subset)
             : INHERITED(subset, device->surfaceProps())
             , fReadView(device->readSurfaceView()) {
 
