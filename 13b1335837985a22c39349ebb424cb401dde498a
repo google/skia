@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "12180472_a252e682",
+        "filename": "experimental/sktext/include/Text.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-03T18:37:11Z",
+      "side": 1,
+      "message": "also pass a default/shared fontchain here? Or just in blocks?",
+      "range": {
+        "startLine": 33,
+        "startChar": 38,
+        "endLine": 33,
+        "endChar": 51
+      },
+      "revId": "13b1335837985a22c39349ebb424cb401dde498a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "71ccf283_c68164c8",
+        "filename": "experimental/sktext/include/Text.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-03T18:37:11Z",
+      "side": 1,
+      "message": "Is this intended to be immutable/sharable?",
+      "range": {
+        "startLine": 70,
+        "startChar": 6,
+        "endLine": 70,
+        "endChar": 16
+      },
+      "revId": "13b1335837985a22c39349ebb424cb401dde498a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "13c14a82_719538f3",
+        "filename": "experimental/sktext/include/Text.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-03T18:37:11Z",
+      "side": 1,
+      "message": "Is this intended to be immutable/sharable?",
+      "range": {
+        "startLine": 119,
+        "startChar": 6,
+        "endLine": 119,
+        "endChar": 17
+      },
+      "revId": "13b1335837985a22c39349ebb424cb401dde498a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
