@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5d0acb35_7b01e02e",
+        "filename": "infra/bots/assets/skimage/VERSION",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2021-06-03T23:39:34Z",
+      "side": 0,
+      "message": "Undo?\n\nhttps://logs.chromium.org/logs/skia/53ecc6705fb99f11/+/steps/infra_tests/0/stdout",
+      "revId": "690a215606bc6d40cb0ff9308b73f3e91ca830aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
