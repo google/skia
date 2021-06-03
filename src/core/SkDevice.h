@@ -199,7 +199,8 @@ public:
     virtual bool android_utils_clipWithStencil() { return false; }
 
     virtual GrRecordingContext* recordingContext() const { return nullptr; }
-    virtual GrSurfaceDrawContext* surfaceDrawContext() { return nullptr; }
+//    virtual GrSurfaceDrawContext* surfaceDrawContext() { return nullptr; }
+    virtual GrRenderTargetProxy* targetProxy() { return nullptr; }
 
     // Ensure that non-RSXForm runs are passed to onDrawGlyphRunList.
     void drawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint);
