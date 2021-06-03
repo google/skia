@@ -1910,6 +1910,11 @@ void GrSurfaceDrawContext::addDrawOp(const GrClip* clip,
     // needed.
     if (drawOp->usesStencil()) {
         this->setNeedsStencil();
+        if (fCanUseDynamicMSAA) {
+            // Always trigger DMSAA when there is stencil. This ensures stencil contents get
+            // properly preserved between render passes, if needed.
+            usesMSAA = true;
+        }
     }
 
     auto opsTask = this->getOpsTask();
