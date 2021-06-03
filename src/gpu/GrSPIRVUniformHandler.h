@@ -33,7 +33,7 @@ public:
         kUniformDescriptorSet = 0,
         kSamplerTextureDescriptorSet = 1,
     };
-    uint32_t getRTHeightOffset() const;
+    uint32_t getRTFlipOffset() const;
 
     int numUniforms() const override {
         return fUniforms.count();
@@ -69,7 +69,7 @@ private:
     SkTArray<SkString>  fSamplerReferences;
 
     uint32_t fCurrentUBOOffset = 0;
-    uint32_t fRTHeightOffset = 0;
+    uint32_t fRTFlipOffset = 0;
 
     friend class GrD3DPipelineStateBuilder;
     friend class GrDawnProgramBuilder;

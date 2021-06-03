@@ -382,10 +382,10 @@ void GrVkUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* 
     }
 }
 
-uint32_t GrVkUniformHandler::getRTHeightOffset() const {
+uint32_t GrVkUniformHandler::getRTFlipOffset() const {
     Layout layout = fUsePushConstants ? kStd430Layout : kStd140Layout;
     uint32_t currentOffset = fCurrentOffsets[layout];
-    return get_aligned_offset(&currentOffset, kFloat_GrSLType, 0, layout);
+    return get_aligned_offset(&currentOffset, kFloat2_GrSLType, 0, layout);
 }
 
 void GrVkUniformHandler::determineIfUsePushConstants() const {
