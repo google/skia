@@ -2347,6 +2347,10 @@ void GrGLGpu::resolveRenderFBOs(GrGLRenderTarget* rt, const SkIRect& resolveRect
         this->bindFramebuffer(GR_GL_DRAW_FRAMEBUFFER, rt->singleSampleFBOID());
     } else {
         SkASSERT(resolveDirection == ResolveDirection::kSingleToMSAA);
+        // FIXME(skia:12069): This will fire on ES and/or ANGLE when not using
+        // multisampled_render_to_texture.
+        SkASSERT(!(this->glCaps().blitFramebufferSupportFlags() &
+                   GrGLCaps::kNoMSAADst_BlitFramebufferFlag));
         this->bindFramebuffer(GR_GL_READ_FRAMEBUFFER, rt->singleSampleFBOID());
         this->bindFramebuffer(GR_GL_DRAW_FRAMEBUFFER, rt->multisampleFBOID());
     }
