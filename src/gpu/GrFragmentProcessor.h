@@ -169,6 +169,11 @@ public:
                !SkToBool(fFlags & kSampledWithExplicitCoords_Flag);
     }
 
+    /** Do any of the FPs in this tree read back the color from the destination surface? */
+    bool willReadDstColor() const {
+        return SkToBool(fFlags & kWillReadDstColor_Flag);
+    }
+
    /**
      * True if this FP refers directly to the sample coordinate parameter of its function
      * (e.g. uses EmitArgs::fSampleCoord in emitCode()). This also returns true if the
@@ -415,7 +420,7 @@ private:
     enum PrivateFlags {
         kFirstPrivateFlag = kAll_OptimizationFlags + 1,
 
-        // Propagate up the FP tree to the root
+        // Propagates up the FP tree to the root
         kUsesSampleCoordsIndirectly_Flag = kFirstPrivateFlag,
 
         // Does not propagate at all
@@ -424,6 +429,9 @@ private:
         // Propagates down the FP to all its leaves
         kSampledWithExplicitCoords_Flag = kFirstPrivateFlag << 2,
         kNetTransformHasPerspective_Flag = kFirstPrivateFlag << 3,
+
+        // Propagates up the FP tree to the root
+        kWillReadDstColor_Flag = kFirstPrivateFlag << 4,
     };
     void addAndPushFlagToChildren(PrivateFlags flag);
 
