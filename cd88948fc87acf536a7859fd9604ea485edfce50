@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a38d532f_684565be",
+        "filename": "infra/bots/gen_tasks_logic/dm_flags.go",
+        "patchSetId": 12
+      },
+      "lineNbr": 460,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-03T11:59:33Z",
+      "side": 1,
+      "message": "Did you run `make train` from //infra/bots after making this change? I would expect this to have an impact on a few expectation files.",
+      "revId": "cd88948fc87acf536a7859fd9604ea485edfce50",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
