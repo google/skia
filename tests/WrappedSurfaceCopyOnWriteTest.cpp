@@ -36,8 +36,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(WrappedSurfaceCopyOnWrite, reporter, ctxInfo) {
     };
 
     auto surfaceProxyID = [&](const sk_sp<SkSurface>& surf) {
-        GrSurfaceDrawContext* sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(surf->getCanvas());
-        return sdc->asSurfaceProxy()->uniqueID();
+        GrRenderTargetProxy* rtp = SkCanvasPriv::TopDeviceTargetProxy(surf->getCanvas());
+        return rtp->uniqueID();
     };
 
     sk_sp<SkSurface> surf = makeDirectBackendSurface();

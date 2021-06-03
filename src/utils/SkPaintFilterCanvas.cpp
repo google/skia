@@ -252,18 +252,18 @@ void SkPaintFilterCanvas::onDrawEdgeAAImageSet2(const ImageSetEntry set[], int c
 
 sk_sp<SkSurface> SkPaintFilterCanvas::onNewSurface(const SkImageInfo& info,
                                                    const SkSurfaceProps& props) {
-    return proxy()->makeSurface(info, &props);
+    return this->proxy()->makeSurface(info, &props);
 }
 
 bool SkPaintFilterCanvas::onPeekPixels(SkPixmap* pixmap) {
-    return proxy()->peekPixels(pixmap);
+    return this->proxy()->peekPixels(pixmap);
 }
 
 bool SkPaintFilterCanvas::onAccessTopLayerPixels(SkPixmap* pixmap) {
     SkImageInfo info;
     size_t rowBytes;
 
-    void* addr = proxy()->accessTopLayerPixels(&info, &rowBytes);
+    void* addr = this->proxy()->accessTopLayerPixels(&info, &rowBytes);
     if (!addr) {
         return false;
     }
@@ -273,13 +273,17 @@ bool SkPaintFilterCanvas::onAccessTopLayerPixels(SkPixmap* pixmap) {
 }
 
 SkImageInfo SkPaintFilterCanvas::onImageInfo() const {
-    return proxy()->imageInfo();
+    return this->proxy()->imageInfo();
 }
 
 bool SkPaintFilterCanvas::onGetProps(SkSurfaceProps* props) const {
-    return proxy()->getProps(props);
+    return this->proxy()->getProps(props);
 }
 
 GrSurfaceDrawContext* SkPaintFilterCanvas::topDeviceSurfaceDrawContext() {
     return SkCanvasPriv::TopDeviceSurfaceDrawContext(this->proxy());
+}
+
+GrRenderTargetProxy* SkPaintFilterCanvas::topDeviceTargetProxy() {
+    return SkCanvasPriv::TopDeviceTargetProxy(this->proxy());
 }

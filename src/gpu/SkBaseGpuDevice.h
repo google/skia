@@ -43,7 +43,7 @@ public:
     }
 
     virtual GrSurfaceProxyView readSurfaceView() = 0;
-    GrRenderTargetProxy* targetProxy() {
+    GrRenderTargetProxy* targetProxy() override {
         return this->readSurfaceView().asRenderTargetProxy();
     }
 
