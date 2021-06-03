@@ -12,6 +12,8 @@ class FakeMCBlob;
 #include "include/core/SkColor.h"
 #include "include/core/SkRect.h"
 
+#include "experimental/ngatoy/Fake.h"
+
 class Cmd {
 public:
     Cmd(int id, int materialID, sk_sp<FakeMCBlob> state)
@@ -33,8 +35,6 @@ public:
     virtual void dump() const = 0;
 
 protected:
-    SkColor evalColor(int x, int y, const SkColor colors[2]) const;
-
     const int         fID;
     int               fMaterialID;
     sk_sp<FakeMCBlob> fMCState;
@@ -44,23 +44,25 @@ private:
 
 class RectCmd : public Cmd {
 public:
-    RectCmd(int id, int materialID, SkIRect r, SkColor c0, SkColor c1, sk_sp<FakeMCBlob> state = nullptr);
+    RectCmd(int id, uint32_t paintersOrder, SkIRect, const FakePaint&, sk_sp<FakeMCBlob> state);
 
     void execute(FakeCanvas*) const override;
     void execute(SkCanvas* c, const FakeMCBlob* priorState) const override;
     void rasterize(uint32_t zBuffer[256][256], SkBitmap* dstBM, unsigned int z) const override;
 
     void dump() const override {
-        SkDebugf("%d: drawRect %d %d %d %d",
+        SkDebugf("%d: drawRect %d %d %d %d -- %d",
                  fID,
-                 fRect.fLeft, fRect.fTop, fRect.fRight, fRect.fBottom);
+                 fRect.fLeft, fRect.fTop, fRect.fRight, fRect.fBottom,
+                 fPaintersOrder);
     }
 
 protected:
 
 private:
-    SkIRect fRect;
-    SkColor fColors[2];
+    uint32_t  fPaintersOrder;
+    SkIRect   fRect;
+    FakePaint fPaint;
 };
 
 #endif // Cmds_DEFINED
