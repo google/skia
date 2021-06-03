@@ -12,19 +12,15 @@
 GrColorFragmentProcessorAnalysis::GrColorFragmentProcessorAnalysis(
         const GrProcessorAnalysisColor& input,
         std::unique_ptr<GrFragmentProcessor> const fps[],
-        int cnt) {
+        int count) {
     fCompatibleWithCoverageAsAlpha = true;
     fIsOpaque = input.isOpaque();
     fUsesLocalCoords = false;
     fProcessorsToEliminate = 0;
-    fKnowOutputColor = input.isConstant(&fLastKnownOutputColor);
-    for (int i = 0; i < cnt; ++i) {
-        if (fUsesLocalCoords && !fKnowOutputColor && !fCompatibleWithCoverageAsAlpha &&
-            !fIsOpaque) {
-            break;
-        }
+    fOutputColorKnown = input.isConstant(&fLastKnownOutputColor);
+    for (int i = 0; i < count; ++i) {
         const auto& fp = fps[i];
-        if (fKnowOutputColor &&
+        if (fOutputColorKnown &&
             fp->hasConstantOutputForConstantInput(fLastKnownOutputColor, &fLastKnownOutputColor)) {
             ++fProcessorsToEliminate;
             fIsOpaque = fLastKnownOutputColor.isOpaque();
@@ -32,17 +28,18 @@ GrColorFragmentProcessorAnalysis::GrColorFragmentProcessorAnalysis(
             // processors.
             fCompatibleWithCoverageAsAlpha = true;
             fUsesLocalCoords = false;
-        } else {
-            fKnowOutputColor = false;
-            if (fIsOpaque && !fp->preservesOpaqueInput()) {
-                fIsOpaque = false;
-            }
-            if (fCompatibleWithCoverageAsAlpha && !fp->compatibleWithCoverageAsAlpha()) {
-                fCompatibleWithCoverageAsAlpha = false;
-            }
-            if (fp->usesVaryingCoords()) {
-                fUsesLocalCoords = true;
-            }
+            continue;
+        }
+
+        fOutputColorKnown = false;
+        if (fIsOpaque && !fp->preservesOpaqueInput()) {
+            fIsOpaque = false;
+        }
+        if (fCompatibleWithCoverageAsAlpha && !fp->compatibleWithCoverageAsAlpha()) {
+            fCompatibleWithCoverageAsAlpha = false;
+        }
+        if (fp->usesVaryingCoords()) {
+            fUsesLocalCoords = true;
         }
     }
 }
