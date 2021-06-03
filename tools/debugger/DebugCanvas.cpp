@@ -212,8 +212,8 @@ void DebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
 
         // get the render target of the top device (from the original canvas) so we can ignore ops
         // drawn offscreen
-        GrSurfaceDrawContext* sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(originalCanvas);
-        GrSurfaceProxy::UniqueID proxyID = sdc->asSurfaceProxy()->uniqueID();
+        GrRenderTargetProxy* rtp = SkCanvasPriv::TopDeviceTargetProxy(originalCanvas);
+        GrSurfaceProxy::UniqueID proxyID = rtp->uniqueID();
 
         // get the bounding boxes to draw
         SkTArray<GrAuditTrail::OpInfo> childrenBounds;
