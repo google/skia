@@ -314,10 +314,15 @@ public:
                                                GrColorType dstColorType) const;
 
     /**
-     * Do GrGpu::writePixels() and GrGpu::transferPixelsTo() support a src buffer where the row
-     * bytes is not equal to bpp * w?
+     * Does GrGpu::writePixels() support a src buffer where the row bytes is not equal to bpp * w?
      */
     bool writePixelsRowBytesSupport() const { return fWritePixelsRowBytesSupport; }
+
+    /**
+     * Does GrGpu::transferPixelsTo() support a src buffer where the row  is not equal to bpp * w?
+     */
+    bool transferPixelsRowBytesSupport() const { return fTransferPixelsRowBytesSupport; }
+
     /**
      * Does GrGpu::readPixels() support a dst buffer where the row bytes is not equal to bpp * w?
      */
@@ -537,6 +542,7 @@ protected:
     bool fTransferFromBufferToTextureSupport         : 1;
     bool fTransferFromSurfaceToBufferSupport         : 1;
     bool fWritePixelsRowBytesSupport                 : 1;
+    bool fTransferPixelsRowBytesSupport              : 1;
     bool fReadPixelsRowBytesSupport                  : 1;
     bool fShouldCollapseSrcOverToSrcWhenAble         : 1;
     bool fMustSyncGpuDuringAbandon                   : 1;

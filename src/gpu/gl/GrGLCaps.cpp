@@ -129,6 +129,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fWritePixelsRowBytesSupport = version >= GR_GL_VER(2, 0);
         fReadPixelsRowBytesSupport = version >= GR_GL_VER(2, 0);
     }
+    fTransferPixelsRowBytesSupport = fWritePixelsRowBytesSupport;
     if (fDriverBugWorkarounds.pack_parameters_workaround_with_pack_buffer) {
         // In some cases drivers handle copying the last row incorrectly
         // when using GL_PACK_ROW_LENGTH.  Chromium handles this by iterating
@@ -3518,10 +3519,11 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fTransferBufferType = TransferBufferType::kNone;
     }
 
+
     // The TransferPixelsToTexture test fails on ANGLE D3D.
     if (ctxInfo.angleBackend() == GrGLANGLEBackend::kD3D9 ||
         ctxInfo.angleBackend() == GrGLANGLEBackend::kD3D11) {
-        fTransferFromBufferToTextureSupport = false;
+        fTransferPixelsRowBytesSupport = false;
     }
 
     // Using MIPs on this GPU seems to be a source of trouble.
