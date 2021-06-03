@@ -557,10 +557,6 @@ SkBaseDevice* SkCanvas::topDevice() const {
     return fMCRec->fDevice;
 }
 
-GrSurfaceDrawContext* SkCanvas::topDeviceSurfaceDrawContext() {
-    return this->topDevice()->surfaceDrawContext();
-}
-
 GrRenderTargetProxy* SkCanvas::topDeviceTargetProxy() {
     return this->topDevice()->targetProxy();
 }

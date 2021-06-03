@@ -39,6 +39,7 @@
 
 class GrBackendRenderTarget;
 class GrRecordingContext;
+class GrRenderTargetProxy;
 class GrSurfaceDrawContext;
 class SkBaseDevice;
 class SkBitmap;

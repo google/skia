@@ -803,7 +803,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceClear_Gpu, reporter, ctxInfo) {
             ERRORF(reporter, "Could not create GPU SkSurface.");
             return;
         }
-        auto sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(surface->getCanvas());
+        auto sdc = nullptr; //SkCanvasPriv::TopDeviceSurfaceDrawContext(surface->getCanvas());
         if (!sdc) {
             ERRORF(reporter, "Could access surface context of GPU SkSurface.");
             return;
@@ -822,7 +822,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceClear_Gpu, reporter, ctxInfo) {
             ERRORF(reporter, "Could not create GPU SkSurface.");
             return;
         }
-        auto sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(surface->getCanvas());
+        GrSurfaceDrawContext* sdc = nullptr; //SkCanvasPriv::TopDeviceSurfaceDrawContext(surface->getCanvas());
         if (!sdc) {
             ERRORF(reporter, "Could access surface context of GPU SkSurface.");
             return;
