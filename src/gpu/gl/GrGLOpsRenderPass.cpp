@@ -68,6 +68,38 @@ bool GrGLOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo,
     return fGpu->flushGLState(fRenderTarget, fUseMultisampleFBO, programInfo);
 }
 
+void GrGLOpsRenderPass::applyXferBarrier(GrXferBarrierType xferBarrierType,
+                                         const SkIRect& xferBounds) {
+    if (xferBarrierType == kTexture_GrXferBarrierType && fUseMultisampleFBO) {
+        auto glRT = static_cast<GrGLRenderTarget*>(fRenderTarget);
+        if (glRT->hasDynamicMSAAAttachment()) {
+            // Offscreen MSAA attachment mode: Insead of issuing a GPU barrier, we need to blit our
+            // offscreen attachment back to the main texture. Since we've already flushed the GL
+            // state, we can't make any changes to it. It's also safe to leave the scissor as-is.
+            int l, t, r, b;
+            if (fGpu->glCaps().blitFramebufferSupportFlags() &
+                GrGLCaps::kResolveMustBeFull_BlitFrambufferFlag) {
+                l = 0;
+                b = glRT->height();
+                r = glRT->width();
+                t = 0;
+            } else {
+                auto nativeBounds = GrNativeRect::MakeRelativeTo(fOrigin, glRT->height(),
+                                                                 xferBounds);
+                l = nativeBounds.fX;
+                b = nativeBounds.fY;
+                r = nativeBounds.fX + nativeBounds.fWidth;
+                t = nativeBounds.fY + nativeBounds.fHeight;
+            }
+            GL_CALL(BindFramebuffer(GR_GL_DRAW_FRAMEBUFFER, glRT->singleSampleFBOID()));
+            GL_CALL(BlitFramebuffer(l, b, r, t, l, b, r, t, GR_GL_COLOR_BUFFER_BIT, GR_GL_NEAREST));
+            GL_CALL(BindFramebuffer(GR_GL_DRAW_FRAMEBUFFER, glRT->multisampleFBOID()));
+            return;
+        }
+    }
+    fGpu->xferBarrier(fRenderTarget, xferBarrierType);
+}
+
 void GrGLOpsRenderPass::onSetScissorRect(const SkIRect& scissor) {
     fGpu->flushScissorRect(scissor, fRenderTarget->height(), fOrigin);
 }

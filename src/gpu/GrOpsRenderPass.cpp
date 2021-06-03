@@ -121,6 +121,7 @@ void GrOpsRenderPass::bindPipeline(const GrProgramInfo& programInfo, const SkRec
 
     fDrawPipelineStatus = DrawPipelineStatus::kOk;
     fXferBarrierType = programInfo.pipeline().xferBarrierType(*this->gpu()->caps());
+    fXferBounds = drawBounds;
 }
 
 void GrOpsRenderPass::setScissorRect(const SkIRect& scissor) {
@@ -215,9 +216,16 @@ bool GrOpsRenderPass::prepareToDraw() {
     SkASSERT(DynamicStateStatus::kUninitialized != fTextureBindingStatus);
 
     if (kNone_GrXferBarrierType != fXferBarrierType) {
-        this->gpu()->xferBarrier(fRenderTarget, fXferBarrierType);
+        // Add an extra pixel of padding to account for AA bloat and the unpredictable rounding of
+        // coords near pixel centers during rasterization.
+        this->applyXferBarrier(fXferBarrierType, fXferBounds.roundOut().makeOutset(1, 1));
     }
     return true;
+}
+
+void GrOpsRenderPass::applyXferBarrier(GrXferBarrierType xferBarrierType,
+                                       const SkIRect& /*xferBounds*/) {
+    this->gpu()->xferBarrier(fRenderTarget, xferBarrierType);
 }
 
 void GrOpsRenderPass::draw(int vertexCount, int baseVertex) {

@@ -39,6 +39,7 @@ public:
 
 private:
     GrGpu* gpu() override { return fGpu; }
+    void applyXferBarrier(GrXferBarrierType, const SkIRect& xferBounds) override;
 
     void bindInstanceBuffer(const GrBuffer*, int baseInstance);
     void bindVertexBuffer(const GrBuffer*, int baseVertex);
