@@ -1228,6 +1228,8 @@ bool GrSurfaceContext::rescaleInto(GrSurfaceFillContext* dst,
         if (!linearRTC) {
             return false;
         }
+        SkDebugf("  linear color space pass %u -> %u\n", texView.proxy()->uniqueID().asUInt(),
+                 linearRTC->asSurfaceProxy()->uniqueID().asUInt());
         auto fp = GrTextureEffect::Make(std::move(texView),
                                         this->colorInfo().alphaType(),
                                         SkMatrix::Translate(srcRect.topLeft()),
@@ -1273,6 +1275,7 @@ bool GrSurfaceContext::rescaleInto(GrSurfaceFillContext* dst,
             if (!tempB) {
                 return false;
             }
+            SkDebugf("  downscale step %u -> %u\n", texView.proxy()->uniqueID().asUInt(), tempB->asSurfaceProxy()->uniqueID().asUInt());
             stepDst = tempB.get();
             stepDstRect = SkIRect::MakeSize(tempB->dimensions());
         }
