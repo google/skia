@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e9d692aa_ecdae066",
+        "filename": "modules/canvaskit/CHANGELOG.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2021-06-03T14:43:05Z",
+      "side": 1,
+      "message": "Provide more specific guidance, such as a code snippet here.",
+      "revId": "5616ef141605981c44c433c2feadcb93ab8f4b53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
