@@ -128,6 +128,7 @@ void GrGLProgram::updateUniforms(const GrRenderTarget* renderTarget,
 void GrGLProgram::bindTextures(const GrGeometryProcessor& geomProc,
                                const GrSurfaceProxy* const geomProcTextures[],
                                const GrPipeline& pipeline) {
+    // Bind textures from the geometry processor.
     for (int i = 0; i < geomProc.numTextureSamplers(); ++i) {
         SkASSERT(geomProcTextures[i]->asTextureProxy());
         auto* overrideTexture = static_cast<GrGLTexture*>(geomProcTextures[i]->peekTexture());
@@ -135,7 +136,13 @@ void GrGLProgram::bindTextures(const GrGeometryProcessor& geomProc,
                           geomProc.textureSampler(i).swizzle(), overrideTexture);
     }
     int nextTexSamplerIdx = geomProc.numTextureSamplers();
-
+    // Bind texture from the destination proxy view.
+    GrTexture* dstTexture = pipeline.peekDstTexture();
+    if (dstTexture) {
+        fGpu->bindTexture(nextTexSamplerIdx++, GrSamplerState::Filter::kNearest,
+                          pipeline.dstProxyView().swizzle(), static_cast<GrGLTexture*>(dstTexture));
+    }
+    // Bind textures from all of the fragment processors.
     pipeline.visitTextureEffects([&](const GrTextureEffect& te) {
         GrSamplerState samplerState = te.samplerState();
         GrSwizzle swizzle = te.view().swizzle();
@@ -143,12 +150,6 @@ void GrGLProgram::bindTextures(const GrGeometryProcessor& geomProc,
         fGpu->bindTexture(nextTexSamplerIdx++, samplerState, swizzle, texture);
     });
 
-    SkIPoint offset;
-    GrTexture* dstTexture = pipeline.peekDstTexture(&offset);
-    if (dstTexture) {
-        fGpu->bindTexture(nextTexSamplerIdx++, GrSamplerState::Filter::kNearest,
-                          pipeline.dstProxyView().swizzle(), static_cast<GrGLTexture*>(dstTexture));
-    }
     SkASSERT(nextTexSamplerIdx == fNumTextureSamplers);
 }
 

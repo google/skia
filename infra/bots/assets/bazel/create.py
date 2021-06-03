@@ -8,14 +8,17 @@
 
 """Create the asset."""
 
-import common # fixes python import path
 import argparse
+import os
 import subprocess
 import sys
+
+FILE_DIR = os.path.dirname(os.path.abspath(__file__))
+INFRA_BOTS_DIR = os.path.realpath(os.path.join(FILE_DIR, os.pardir, os.pardir))
+sys.path.insert(0, INFRA_BOTS_DIR)
 import utils
 
-
-URL = 'https://github.com/bazelbuild/bazel/releases/download/4.0.0/bazel-4.0.0-installer-linux-x86_64.sh'
+URL = 'https://github.com/bazelbuild/bazel/releases/download/4.1.0/bazel-4.1.0-installer-linux-x86_64.sh'
 INSTALLER_SCRIPT = URL.split('/')[-1]
 
 

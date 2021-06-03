@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<title>Texture demos</title>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script type="text/javascript" src="https://particles.skia.org/dist/canvaskit.js"></script>
+
+<style>
+  canvas {
+    border: 1px dashed grey;
+  }
+  #sourceImage, #sourceVideo {
+      width: 100px;
+      height: 100px;
+      border: 1px solid red;
+      cursor: pointer;
+  }
+</style>
+
+<body>
+  <h1>User Defined Textures</h1>
+
+  <p>Tap on one of the texture sources to switch to it.</p>
+
+  <canvas id=draw width=500 height=500></canvas>
+
+  <img id="sourceImage" src="/demo/textures/testimg.png">
+	<video id="sourceVideo" autoplay muted></video>
+</body>
+
+<script type="text/javascript" charset="utf-8">
+  const ckLoaded = CanvasKitInit({ locateFile: (file) => 'https://particles.skia.org/dist/' + file });
+  const canvasEle = document.getElementById('draw');
+  const imgEle = document.getElementById('sourceImage');
+  const videoEle = document.getElementById('sourceVideo');
+
+  // Links the web cam to the video element.
+  navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
+    videoEle.srcObject = stream;
+  }).catch((err) => {
+    console.error("Could not set up video", err);
+  });
+
+  // Enables switching between texture sources.
+  let srcEle = imgEle;
+  imgEle.addEventListener('click', () => {
+    srcEle = imgEle;
+  });
+  videoEle.addEventListener('click', () => {
+    srcEle = videoEle;
+  });
+
+  Promise.all([
+    ckLoaded,
+    imgEle.decode(),
+]).then(([
+    CanvasKit,
+    shouldBeNull,
+]) => {
+    const surface = CanvasKit.MakeCanvasSurface('draw');
+    if (!surface) {
+      throw 'Could not make surface';
+    }
+    const paint = new CanvasKit.Paint();
+
+    // This example creates a new texture, loads it into an image, and then deletes the image
+    // (which should delete the texture automatically).
+    let lastTS = Date.now();
+    function drawFrame(canvas) {
+      const now = Date.now();
+      canvas.rotate(10 * (now - lastTS) / 1000, 250, 250);
+      lastTS = now;
+      const img = surface.makeImageFromTextureSource(srcEle);
+      canvas.clear(CanvasKit.Color(200, 200, 200));
+      canvas.drawImage(img, 5, 5, paint);
+      img && img.delete();
+      surface.requestAnimationFrame(drawFrame);
+    }
+    surface.requestAnimationFrame(drawFrame);
+  });
+
+</script>

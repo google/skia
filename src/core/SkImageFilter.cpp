@@ -280,7 +280,7 @@ skif::LayerSpace<SkIRect> SkImageFilter_Base::getInputBounds(
             mapping, desiredBounds, contentBounds);
     // If we know what's actually going to be drawn into the layer, and we don't change transparent
     // black, then we can further restrict the layer to what the known content is
-    if (knownContentBounds && !this->affectsTransparentBlack()) {
+    if (knownContentBounds && this->canComputeFastBounds()) {
         if (!requiredInput.intersect(contentBounds)) {
             // Nothing would be output by the filter, so return empty rect
             return skif::LayerSpace<SkIRect>(SkIRect::MakeEmpty());
@@ -674,55 +674,4 @@ SkIRect SkImageFilter_Base::DetermineRepeatedSrcBound(const SkIRect& srcBounds,
 
 void SkImageFilter_Base::PurgeCache() {
     SkImageFilterCache::Get()->purge();
-}
-
-static sk_sp<SkImageFilter> apply_ctm_to_filter(sk_sp<SkImageFilter> input, const SkMatrix& ctm,
-                                                SkMatrix* remainder) {
-    if (ctm.isScaleTranslate() || as_IFB(input)->canHandleComplexCTM()) {
-        // The filter supports the CTM, so leave it as-is and 'remainder' stores the whole CTM
-        *remainder = ctm;
-        return input;
-    }
-
-    // We have a complex CTM and a filter that can't support them, so it needs to use the matrix
-    // transform filter that resamples the image contents. Decompose the simple portion of the ctm
-    // into 'remainder'
-    SkMatrix ctmToEmbed;
-    SkSize scale;
-    if (ctm.decomposeScale(&scale, &ctmToEmbed)) {
-        // decomposeScale splits ctm into scale * ctmToEmbed, so bake ctmToEmbed into DAG
-        // with a matrix filter and return scale as the remaining matrix for the real CTM.
-        remainder->setScale(scale.fWidth, scale.fHeight);
-
-        // ctmToEmbed is passed to SkMatrixImageFilter, which performs its transforms as if it were
-        // a pre-transformation before applying the image-filter context's CTM. In this case, we
-        // need ctmToEmbed to be a post-transformation (i.e. after the scale matrix since
-        // decomposeScale produces ctm = ctmToEmbed * scale). Giving scale^-1 * ctmToEmbed * scale
-        // to the matrix filter achieves this effect.
-        // TODO (michaelludwig) - When the original root node of a filter can be drawn directly to a
-        // device using ctmToEmbed, this abuse of SkMatrixImageFilter can go away.
-        ctmToEmbed.preScale(scale.fWidth, scale.fHeight);
-        ctmToEmbed.postScale(1.f / scale.fWidth, 1.f / scale.fHeight);
-    } else {
-        // Unable to decompose
-        // FIXME Ideally we'd embed the entire CTM as part of the matrix image filter, but
-        // the device <-> src bounds calculations for filters are very brittle under perspective,
-        // and can easily run into precision issues (wrong bounds that clip), or performance issues
-        // (producing large source-space images where 80% of the image is compressed into a few
-        // device pixels). A longer term solution for perspective-space image filtering is needed
-        // see skbug.com/9074
-        if (ctm.hasPerspective()) {
-                *remainder = ctm;
-            return input;
-        }
-
-        ctmToEmbed = ctm;
-        remainder->setIdentity();
-    }
-
-    return SkMatrixImageFilter::Make(ctmToEmbed, SkSamplingOptions(SkFilterMode::kLinear), input);
-}
-
-sk_sp<SkImageFilter> SkImageFilter_Base::applyCTM(const SkMatrix& ctm, SkMatrix* remainder) const {
-    return apply_ctm_to_filter(this->refMe(), ctm, remainder);
 }

@@ -134,16 +134,17 @@ bool GrVkPipelineState::setAndBindTextures(GrVkGpu* gpu,
         samplerBindings[currTextureBinding++] = {sampler.samplerState(), texture};
     }
 
-    pipeline.visitTextureEffects([&](const GrTextureEffect& te) {
-        GrSamplerState samplerState = te.samplerState();
-        auto* texture = static_cast<GrVkTexture*>(te.texture());
-        samplerBindings[currTextureBinding++] = {samplerState, texture};
-    });
 
     if (GrTexture* dstTexture = pipeline.peekDstTexture()) {
         samplerBindings[currTextureBinding++] = {GrSamplerState::Filter::kNearest,
                                                  static_cast<GrVkTexture*>(dstTexture)};
     }
+
+    pipeline.visitTextureEffects([&](const GrTextureEffect& te) {
+        GrSamplerState samplerState = te.samplerState();
+        auto* texture = static_cast<GrVkTexture*>(te.texture());
+        samplerBindings[currTextureBinding++] = {samplerState, texture};
+    });
 
     // Get new descriptor set
     SkASSERT(fNumSamplers == currTextureBinding);

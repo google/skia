@@ -24,7 +24,7 @@ def create_asset(target_dir):
   """Create the asset."""
 
   print("Installing some cross-compiling packages. Hit enter to continue.")
-  raw_input()
+  input()
   subprocess.check_call([
     "sudo","apt-get","install",
     "libstdc++-6-dev-armhf-cross",

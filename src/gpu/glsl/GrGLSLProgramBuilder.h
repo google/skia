@@ -108,6 +108,9 @@ public:
     std::unique_ptr<GrGLSLXferProcessor>     fXferProcessor;
     std::vector<std::unique_ptr<GrGLSLFragmentProcessor>> fFPImpls;
 
+    SamplerHandle fDstTextureSamplerHandle;
+    GrSurfaceOrigin fDstTextureOrigin;
+
 protected:
     explicit GrGLSLProgramBuilder(const GrProgramDesc&, const GrProgramInfo&);
 
@@ -146,6 +149,7 @@ private:
     void nameExpression(SkString*, const char* baseName);
 
     bool emitAndInstallPrimProc(SkString* outputColor, SkString* outputCoverage);
+    bool emitAndInstallDstTexture();
     bool emitAndInstallFragProcs(SkString* colorInOut, SkString* coverageInOut);
     SkString emitFragProc(const GrFragmentProcessor&,
                           GrGLSLFragmentProcessor&,

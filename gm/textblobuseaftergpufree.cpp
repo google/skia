@@ -24,7 +24,7 @@ class GrSurfaceDrawContext;
 
 // This tests that we correctly regenerate textblobs after freeing all gpu resources crbug/491350
 namespace skiagm {
-class TextBlobUseAfterGpuFree : public GM {
+class TextBlobUseAfterGpuFree : public GpuGM {
 public:
     TextBlobUseAfterGpuFree() { }
 
@@ -37,9 +37,7 @@ protected:
         return SkISize::Make(kWidth, kHeight);
     }
 
-    void onDraw(SkCanvas* canvas) override {
-        auto dContext = GrAsDirectContext(canvas->recordingContext());
-
+    void onDraw(GrRecordingContext* context, GrSurfaceDrawContext*, SkCanvas* canvas) override {
         const char text[] = "Hamburgefons";
 
         SkFont font(ToolUtils::create_portable_typeface(), 20);
@@ -53,8 +51,8 @@ protected:
         canvas->drawTextBlob(blob, 20, 60, SkPaint());
 
         // This text should look fine
-        if (dContext) {
-            dContext->freeGpuResources();
+        if (auto direct = context->asDirectContext()) {
+            direct->freeGpuResources();
         }
         canvas->drawTextBlob(blob, 20, 160, SkPaint());
     }
