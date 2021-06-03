@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "71c71897_503e2ef9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-03T14:58:28Z",
+      "side": 1,
+      "message": "Done: https://skia-review.googlesource.com/c/skia/+/415356",
+      "parentUuid": "492a4dd3_a459f770",
+      "revId": "cd88948fc87acf536a7859fd9604ea485edfce50",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a38d532f_684565be",
@@ -31,6 +49,24 @@
       "writtenOn": "2021-06-03T11:59:33Z",
       "side": 1,
       "message": "Did you run `make train` from //infra/bots after making this change? I would expect this to have an impact on a few expectation files.",
+      "revId": "cd88948fc87acf536a7859fd9604ea485edfce50",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2c274087_2122c2c4",
+        "filename": "infra/bots/gen_tasks_logic/dm_flags.go",
+        "patchSetId": 12
+      },
+      "lineNbr": 460,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-03T14:58:28Z",
+      "side": 1,
+      "message": "I did. We only had two DMSAA bots (Quadro and Android), and this new if() gave them both the same results.",
+      "parentUuid": "a38d532f_684565be",
       "revId": "cd88948fc87acf536a7859fd9604ea485edfce50",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
