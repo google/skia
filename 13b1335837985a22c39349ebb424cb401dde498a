@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "0e75e4a7_53d6ecfd",
+        "filename": "experimental/sktext/include/Text.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-06-03T18:40:49Z",
+      "side": 1,
+      "message": "Default fontchain is the fontchain with [0:text.size()) block.\nI can pass it separately but it could be more confusing than now.",
+      "parentUuid": "12180472_a252e682",
+      "range": {
+        "startLine": 33,
+        "startChar": 38,
+        "endLine": 33,
+        "endChar": 51
+      },
+      "revId": "13b1335837985a22c39349ebb424cb401dde498a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "71ccf283_c68164c8",
         "filename": "experimental/sktext/include/Text.h",
         "patchSetId": 9
@@ -49,6 +73,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "e65d36af_84543198",
+        "filename": "experimental/sktext/include/Text.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-06-03T18:40:49Z",
+      "side": 1,
+      "message": "Not at the moment. When we discussed that we decided it\u0027s immutable, and only later I discovered that it\u0027s really not convenient.",
+      "parentUuid": "71ccf283_c68164c8",
+      "range": {
+        "startLine": 70,
+        "startChar": 6,
+        "endLine": 70,
+        "endChar": 16
+      },
+      "revId": "13b1335837985a22c39349ebb424cb401dde498a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "13c14a82_719538f3",
         "filename": "experimental/sktext/include/Text.h",
         "patchSetId": 9
@@ -60,6 +108,30 @@
       "writtenOn": "2021-06-03T18:37:11Z",
       "side": 1,
       "message": "Is this intended to be immutable/sharable?",
+      "range": {
+        "startLine": 119,
+        "startChar": 6,
+        "endLine": 119,
+        "endChar": 17
+      },
+      "revId": "13b1335837985a22c39349ebb424cb401dde498a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9fdfca41_7d29df7e",
+        "filename": "experimental/sktext/include/Text.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-06-03T18:40:49Z",
+      "side": 1,
+      "message": "Not at the moment. When we discussed that we decided it\u0027s immutable, and only later I discovered that it\u0027s really not convenient.",
+      "parentUuid": "13c14a82_719538f3",
       "range": {
         "startLine": 119,
         "startChar": 6,
