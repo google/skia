@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c4a0c3d6_2059c400",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-03T18:14:04Z",
+      "side": 1,
+      "message": "I wonder if at some point we will want some base GrProcessor class for GrFP and GrXP to derive from. Basically holds all the support for adding to fragment code, getting dst textures, etc.",
+      "revId": "317e711c4bba0328f678e9784a64bcd3c77c77fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
