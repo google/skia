@@ -9,33 +9,35 @@
 """Create the asset and upload it."""
 
 
-import argparse
-import common
 import os
 import subprocess
 import sys
-import utils
+import tempfile
+
+
+FILE_DIR = os.path.dirname(os.path.abspath(__file__))
+ASSET = os.path.basename(FILE_DIR)
 
 
 def main():
-  parser = argparse.ArgumentParser()
-  parser.add_argument('--gsutil')
-  args = parser.parse_args()
+  sk = os.path.realpath(os.path.join(
+      FILE_DIR, os.pardir, os.pardir, os.pardir, os.pardir, 'bin', 'sk'))
+  if os.name == 'nt':
+    sk += '.exe'
+  if not os.path.isfile(sk):
+    raise Exception('`sk` not found at %s; maybe you need to run bin/fetch-sk?')
 
-  with utils.tmp_dir():
-    cwd = os.getcwd()
-    create_script = os.path.join(common.FILE_DIR, 'create.py')
-    upload_script = os.path.join(common.FILE_DIR, 'upload.py')
-
-    try:
-      subprocess.check_call(['python', create_script, '-t', cwd])
-      cmd = ['python', upload_script, '-t', cwd]
-      if args.gsutil:
-        cmd.extend(['--gsutil', args.gsutil])
-      subprocess.check_call(cmd)
-    except subprocess.CalledProcessError:
-      # Trap exceptions to avoid printing two stacktraces.
-      sys.exit(1)
+  # CIPD is picky about where files are downloaded. Use a subdirectory of the
+  # asset dir rather than /tmp.
+  tmp_prefix = os.path.join(FILE_DIR, '.')
+  with tempfile.TemporaryDirectory(prefix=tmp_prefix) as tmp:
+    subprocess.check_call([sk, 'asset', 'download', ASSET, tmp], cwd=FILE_DIR)
+    # Allow the user to modify the contents of the target dir.
+    input('Previous SKImage contents have been downloaded. Please make '
+          'your desired changes in the following directory and press enter '
+          'to continue:\n%s\n' % tmp)
+    subprocess.check_call([sk, 'asset', 'upload', '--in', tmp, ASSET],
+                          cwd=FILE_DIR)
 
 
 if __name__ == '__main__':

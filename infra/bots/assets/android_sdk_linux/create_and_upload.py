@@ -10,37 +10,41 @@
 
 
 import argparse
-import common
 import os
 import subprocess
 import sys
-import utils
+import tempfile
+import create
+
+
+FILE_DIR = os.path.dirname(os.path.abspath(__file__))
+ASSET = os.path.basename(FILE_DIR)
 
 
 def main():
   parser = argparse.ArgumentParser()
   parser.add_argument('--android_sdk_root')
-  parser.add_argument('--gsutil')
   args = parser.parse_args()
 
-  with utils.tmp_dir():
-    cwd = os.getcwd()
-    create_script = os.path.join(common.FILE_DIR, 'create.py')
-    upload_script = os.path.join(common.FILE_DIR, 'upload.py')
+  android_sdk_root = args.android_sdk_root
+  if not android_sdk_root:
+    android_sdk_root = (os.environ.get('ANDROID_HOME') or
+                        os.environ.get('ANDROID_SDK_ROOT'))
+  if not android_sdk_root:
+    raise Exception('No --android_sdk_root provided and no ANDROID_HOME or '
+                    'ANDROID_SDK_ROOT environment variables.')
 
-    try:
-      cmd = ['python', create_script, '-t', cwd]
-      if args.android_sdk_root:
-        cmd.extend(['--android_sdk_root', args.android_sdk_root])
-      subprocess.check_call(cmd)
+  os.environ[create.ENV_VAR] = android_sdk_root
 
-      cmd = ['python', upload_script, '-t', cwd]
-      if args.gsutil:
-        cmd.extend(['--gsutil', args.gsutil])
-      subprocess.check_call(cmd)
-    except subprocess.CalledProcessError:
-      # Trap exceptions to avoid printing two stacktraces.
-      sys.exit(1)
+  sk = os.path.realpath(os.path.join(
+      FILE_DIR, os.pardir, os.pardir, os.pardir, os.pardir, 'bin', 'sk'))
+  if os.name == 'nt':
+    sk += '.exe'
+  if not os.path.isfile(sk):
+    raise Exception('`sk` not found at %s; maybe you need to run bin/fetch-sk?')
+
+  # Upload the asset.
+  subprocess.check_call([sk, 'asset', 'upload', ASSET], cwd=FILE_DIR)
 
 
 if __name__ == '__main__':

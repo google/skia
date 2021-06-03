@@ -11,7 +11,6 @@
 
 from __future__ import print_function
 import argparse
-import common
 import grp
 import os
 import pwd
@@ -19,7 +18,11 @@ import shutil
 import subprocess
 import sys
 import tempfile
-import urllib2
+from urllib.request import urlopen
+
+FILE_DIR = os.path.dirname(os.path.abspath(__file__))
+INFRA_BOTS_DIR = os.path.realpath(os.path.join(FILE_DIR, os.pardir, os.pardir))
+sys.path.insert(0, INFRA_BOTS_DIR)
 import utils
 
 
@@ -35,7 +38,7 @@ def download_tarball():
     if os.path.isfile(TARBALL):
       return
     with open(TARBALL, 'wb') as f:
-      f.write(urllib2.urlopen(DOWNLOAD_URL).read())
+      f.write(urlopen(DOWNLOAD_URL).read())
 
 
 def unzip_tarball():

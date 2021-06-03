@@ -10,10 +10,15 @@
 
 
 import argparse
-import common
+import os
 import subprocess
 import sys
+
+FILE_DIR = os.path.dirname(os.path.abspath(__file__))
+INFRA_BOTS_DIR = os.path.realpath(os.path.join(FILE_DIR, os.pardir, os.pardir))
+sys.path.insert(0, INFRA_BOTS_DIR)
 import utils
+
 
 SDK_VERSION='1.2.141.0'
 SDK_URL=('https://sdk.lunarg.com/sdk/download/%s/linux/'
@@ -30,6 +35,7 @@ def create_asset(target_dir):
                            '--directory=%s' % target_dir,
                            '--strip-components=2',
                            '%s/x86_64' % SDK_VERSION])
+
 
 def main():
   if 'linux' not in sys.platform:

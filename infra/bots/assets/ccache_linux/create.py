@@ -10,10 +10,16 @@
 
 
 import argparse
-import common
 import os
 import subprocess
+import sys
+
+
+FILE_DIR = os.path.dirname(os.path.abspath(__file__))
+INFRA_BOTS_DIR = os.path.realpath(os.path.join(FILE_DIR, os.pardir, os.pardir))
+sys.path.insert(0, INFRA_BOTS_DIR)
 import utils
+
 
 URL = "https://github.com/ccache/ccache/releases/download/v3.7.7/ccache-3.7.7.tar.gz"
 VERSION = "ccache-3.7.7"

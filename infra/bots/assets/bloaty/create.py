@@ -11,12 +11,19 @@
 
 import argparse
 import os
-import subprocess
 import shutil
+import subprocess
+import sys
+
+FILE_DIR = os.path.dirname(os.path.abspath(__file__))
+INFRA_BOTS_DIR = os.path.realpath(os.path.join(FILE_DIR, os.pardir, os.pardir))
+sys.path.insert(0, INFRA_BOTS_DIR)
 import utils
+
 
 REPO = 'https://github.com/google/bloaty'
 TAG = 'v1.0'
+
 
 def create_asset(target_dir):
   with utils.tmp_dir():

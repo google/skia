@@ -10,13 +10,19 @@
 
 
 import argparse
-import common
 import os
 import subprocess
+import sys
+
+FILE_DIR = os.path.dirname(os.path.abspath(__file__))
+INFRA_BOTS_DIR = os.path.realpath(os.path.join(FILE_DIR, os.pardir, os.pardir))
+sys.path.insert(0, INFRA_BOTS_DIR)
 import utils
+
 
 URL = "https://github.com/ccache/ccache/releases/download/v3.7.7/ccache-3.7.7.tar.gz"
 VERSION = "ccache-3.7.7"
+
 
 def create_asset(target_dir):
   # configure --prefix requires an absolute path.
@@ -32,6 +38,7 @@ def create_asset(target_dir):
     subprocess.check_call(["./configure", "--disable-man", "--prefix=" + target_dir])
     subprocess.check_call(["make"])
     subprocess.check_call(["make" ,"install"])
+
 
 def main():
   parser = argparse.ArgumentParser()

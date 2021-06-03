@@ -15,12 +15,14 @@ import os
 import shutil
 import subprocess
 
+
 # See https://cloud.google.com/sdk/downloads#versioned for documentation on
 # scripting gcloud and also for updates.
 BASE_URL = 'https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/%s'
 GCLOUD_BASE_NAME='google-cloud-sdk'
 GCLOUD_ARCHIVE = '%s-250.0.0-linux-x86_64.tar.gz' % GCLOUD_BASE_NAME
 GCLOUD_URL = BASE_URL % GCLOUD_ARCHIVE
+
 
 def create_asset(target_dir):
   """Create the asset."""
@@ -58,11 +60,13 @@ def create_asset(target_dir):
   # Remove the tarball.
   os.remove(GCLOUD_ARCHIVE)
 
+
 def main():
   parser = argparse.ArgumentParser()
   parser.add_argument('--target_dir', '-t', required=True)
   args = parser.parse_args()
   create_asset(args.target_dir)
+
 
 if __name__ == '__main__':
   main()

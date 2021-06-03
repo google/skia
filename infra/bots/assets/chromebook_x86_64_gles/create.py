@@ -18,6 +18,18 @@ import subprocess
 import sys
 
 
+ENV_VAR = 'CHROMEBOOK_X86_64_GLES_LIB_PATH'
+
+
+def getenv(key):
+  val = os.environ.get(key)
+  if not val:
+    print(('Environment variable %s not set; you should run this via '
+           'create_and_upload.py.' % key), file=sys.stderr)
+    sys.exit(1)
+  return val
+
+
 def create_asset(target_dir, gl_path):
   """Create the asset."""
 
@@ -26,10 +38,6 @@ def create_asset(target_dir, gl_path):
     'libgles2-mesa-dev',
     'libegl1-mesa-dev'
   ]
-  print('About to run:')
-  print(' '.join(cmd))
-  print('Press Enter to Continue')
-  raw_input()
   subprocess.check_call(cmd)
 
 
@@ -56,9 +64,13 @@ def main():
     sys.exit(1)
   parser = argparse.ArgumentParser()
   parser.add_argument('--target_dir', '-t', required=True)
-  parser.add_argument('--lib_path', '-l', required=True)
   args = parser.parse_args()
-  create_asset(args.target_dir, args.lib_path)
+
+  # Obtain lib_path from create_and_upload via an environment variable, since
+  # this script is called via `sk` and not directly.
+  lib_path = getenv(ENV_VAR)
+
+  create_asset(args.target_dir, lib_path)
 
 
 if __name__ == '__main__':
