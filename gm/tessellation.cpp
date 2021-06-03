@@ -357,13 +357,13 @@ static SkPath build_outset_triangle(const std::array<float, 3>* tri) {
     return outset;
 }
 
-DrawResult TessellationGM::onDraw(GrRecordingContext* ctx, GrSurfaceDrawContext* rtc,
+DrawResult TessellationGM::onDraw(GrRecordingContext* rContext, GrSurfaceDrawContext* sdc,
                                   SkCanvas* canvas, SkString* errorMsg) {
-    if (!ctx->priv().caps()->shaderCaps()->tessellationSupport()) {
+    if (!rContext->priv().caps()->shaderCaps()->tessellationSupport()) {
         *errorMsg = "Requires GPU tessellation support.";
         return DrawResult::kSkip;
     }
-    if (!ctx->priv().caps()->shaderCaps()->shaderDerivativeSupport()) {
+    if (!rContext->priv().caps()->shaderCaps()->shaderDerivativeSupport()) {
         *errorMsg = "Requires shader derivatives."
                     "(These are expected to always be present when there is tessellation!!)";
         return DrawResult::kFail;
@@ -379,9 +379,9 @@ DrawResult TessellationGM::onDraw(GrRecordingContext* ctx, GrSurfaceDrawContext*
     borderPaint.setColor4f({1,0,1,1});
     canvas->drawRect(kRect.makeOutset(1.5f, 1.5f), borderPaint);
 
-    rtc->addDrawOp(GrOp::Make<TessellationTestOp>(ctx, canvas->getTotalMatrix(), kTri1));
-    rtc->addDrawOp(GrOp::Make<TessellationTestOp>(ctx, canvas->getTotalMatrix(), kTri2));
-    rtc->addDrawOp(GrOp::Make<TessellationTestOp>(ctx, canvas->getTotalMatrix(), nullptr));
+    sdc->addDrawOp(GrOp::Make<TessellationTestOp>(rContext, canvas->getTotalMatrix(), kTri1));
+    sdc->addDrawOp(GrOp::Make<TessellationTestOp>(rContext, canvas->getTotalMatrix(), kTri2));
+    sdc->addDrawOp(GrOp::Make<TessellationTestOp>(rContext, canvas->getTotalMatrix(), nullptr));
 
     return skiagm::DrawResult::kOk;
 }

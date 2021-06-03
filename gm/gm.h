@@ -244,7 +244,7 @@ namespace skiagm {
     private:
         SkISize onISize() override;
         SkString onShortName() override;
-        DrawResult onDraw(GrRecordingContext* ctx, GrSurfaceDrawContext* rtc, SkCanvas* canvas,
+        DrawResult onDraw(GrRecordingContext*, GrSurfaceDrawContext*, SkCanvas*,
                           SkString* errorMsg) override;
 
         const SkString fName;
