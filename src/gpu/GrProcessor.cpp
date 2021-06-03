@@ -44,6 +44,10 @@ public:
 
 void* GrProcessor::operator new(size_t size) { return MemoryPoolAccessor().pool()->allocate(size); }
 
+void* GrProcessor::operator new(size_t object_size, size_t footer_size) {
+    return MemoryPoolAccessor().pool()->allocate(object_size + footer_size);
+}
+
 void GrProcessor::operator delete(void* target) {
     return MemoryPoolAccessor().pool()->release(target);
 }

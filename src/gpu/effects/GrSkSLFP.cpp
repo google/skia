@@ -152,7 +152,7 @@ public:
         using Type = SkRuntimeEffect::Uniform::Type;
         size_t uniIndex = 0;
         const GrSkSLFP& outer = _proc.cast<GrSkSLFP>();
-        const uint8_t* uniformData = outer.fUniforms->bytes();
+        const uint8_t* uniformData = (const uint8_t*)outer.uniformData();
         for (const auto& v : outer.fEffect->uniforms()) {
             const UniformHandle handle = fUniformHandles[uniIndex++];
             auto floatData = [=] { return SkTAddOffset<const float>(uniformData, v.offset); };
@@ -188,7 +188,9 @@ std::unique_ptr<GrSkSLFP> GrSkSLFP::Make(sk_sp<SkRuntimeEffect> effect,
     if (uniforms->size() != effect->uniformSize()) {
         return nullptr;
     }
-    return std::unique_ptr<GrSkSLFP>(new GrSkSLFP(std::move(effect), name, std::move(uniforms)));
+    size_t uniformSize = uniforms->size();
+    return std::unique_ptr<GrSkSLFP>(
+            new (uniformSize) GrSkSLFP(std::move(effect), name, std::move(uniforms)));
 }
 
 GrSkSLFP::GrSkSLFP(sk_sp<SkRuntimeEffect> effect, const char* name, sk_sp<SkData> uniforms)
@@ -198,7 +200,9 @@ GrSkSLFP::GrSkSLFP(sk_sp<SkRuntimeEffect> effect, const char* name, sk_sp<SkData
                             : kNone_OptimizationFlags)
         , fEffect(std::move(effect))
         , fName(name)
-        , fUniforms(std::move(uniforms)) {
+        , fUniformSize(uniforms->size()) {
+    sk_careful_memcpy(this->uniformData(), uniforms->data(), fUniformSize);
+
     if (fEffect->usesSampleCoords()) {
         this->setUsesSampleCoordsDirectly();
     }
@@ -208,7 +212,9 @@ GrSkSLFP::GrSkSLFP(const GrSkSLFP& other)
         : INHERITED(kGrSkSLFP_ClassID, other.optimizationFlags())
         , fEffect(other.fEffect)
         , fName(other.fName)
-        , fUniforms(other.fUniforms) {
+        , fUniformSize(other.fUniformSize) {
+    sk_careful_memcpy(this->uniformData(), other.uniformData(), fUniformSize);
+
     if (fEffect->usesSampleCoords()) {
         this->setUsesSampleCoordsDirectly();
     }
@@ -236,16 +242,18 @@ void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBui
     // That ensures that we will (at worst) use the wrong program, but one that expects the same
     // amount of uniform data.
     b->add32(fEffect->hash());
-    b->add32(SkToU32(fUniforms->size()));
+    b->add32(SkToU32(fUniformSize));
 }
 
 bool GrSkSLFP::onIsEqual(const GrFragmentProcessor& other) const {
     const GrSkSLFP& sk = other.cast<GrSkSLFP>();
-    return fEffect->hash() == sk.fEffect->hash() && fUniforms->equals(sk.fUniforms.get());
+    return fEffect->hash() == sk.fEffect->hash() &&
+           fUniformSize == sk.fUniformSize &&
+           !sk_careful_memcmp(this->uniformData(), sk.uniformData(), fUniformSize);
 }
 
 std::unique_ptr<GrFragmentProcessor> GrSkSLFP::clone() const {
-    return std::unique_ptr<GrFragmentProcessor>(new GrSkSLFP(*this));
+    return std::unique_ptr<GrFragmentProcessor>(new (fUniformSize) GrSkSLFP(*this));
 }
 
 SkPMColor4f GrSkSLFP::constantOutputForConstantInput(const SkPMColor4f& inputColor) const {
@@ -256,7 +264,7 @@ SkPMColor4f GrSkSLFP::constantOutputForConstantInput(const SkPMColor4f& inputCol
         return ConstantOutputForConstantInput(this->childProcessor(index), color);
     };
 
-    return program->eval(inputColor, fUniforms->data(), evalChild);
+    return program->eval(inputColor, this->uniformData(), evalChild);
 }
 
 /**************************************************************************************************/
