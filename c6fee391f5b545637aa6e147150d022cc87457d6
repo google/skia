@@ -43,6 +43,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "0964ef0b_e7ffc30f",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 1806,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-03T12:02:51Z",
+      "side": 1,
+      "message": "TopLeft made the image appear upside down - this appears to work as I expected.",
+      "parentUuid": "b4dc316a_cdb5cd28",
+      "range": {
+        "startLine": 1806,
+        "startChar": 46,
+        "endLine": 1806,
+        "endChar": 70
+      },
+      "revId": "c6fee391f5b545637aa6e147150d022cc87457d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d20b3bfa_659f96c0",
         "filename": "modules/canvaskit/npm_build/types/index.d.ts",
         "patchSetId": 12
@@ -54,6 +78,30 @@
       "writtenOn": "2021-06-02T23:19:28Z",
       "side": 1,
       "message": "RGBA_8888",
+      "range": {
+        "startLine": 2630,
+        "startChar": 75,
+        "endLine": 2630,
+        "endChar": 83
+      },
+      "revId": "c6fee391f5b545637aa6e147150d022cc87457d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "69bf4d59_502323f4",
+        "filename": "modules/canvaskit/npm_build/types/index.d.ts",
+        "patchSetId": 12
+      },
+      "lineNbr": 2630,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-03T12:02:51Z",
+      "side": 1,
+      "message": "Green knows what it did.... Fixed.",
+      "parentUuid": "d20b3bfa_659f96c0",
       "range": {
         "startLine": 2630,
         "startChar": 75,
