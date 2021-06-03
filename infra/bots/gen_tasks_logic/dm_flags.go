@@ -457,8 +457,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		// Test dynamic MSAA.
 		if b.extraConfig("DMSAA") {
 			configs = []string{glPrefix + "dmsaa"}
-			if !b.os("Android") {
-				// Also enable hardware tessellation if not on android.
+			if b.gpu("QuadroP400") {
+				// Also test hardware tessellation if on Quadro.
 				args = append(args, "--hwtess")
 			}
 		}
