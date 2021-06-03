@@ -16,6 +16,23 @@
       "message": "+Brian for API review",
       "revId": "bc50b41312bf683da49d2cf8cfd59ad326c0cf25",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b593cb93_3130789c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-06-03T14:02:26Z",
+      "side": 1,
+      "message": "seems fine, but what\u0027s this for? I get that there won\u0027t be a SDC in NGA, but concretely what is this unblocking us from doing? e.g. are we running these unit tests on a different device type already?\n",
+      "revId": "bc50b41312bf683da49d2cf8cfd59ad326c0cf25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
