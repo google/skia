@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d02f1db1_59715ffb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 21
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-03T13:09:45Z",
+      "side": 1,
+      "message": "canaries all look good; android was an infra issue.",
+      "revId": "d29c0f64716bd2f7a9a48907eaafff8cddaf408a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
