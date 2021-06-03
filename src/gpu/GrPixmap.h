@@ -50,7 +50,25 @@ public:
                   (rect.fLeft - surfacePt->fX) * fInfo.bpp();
         surfacePt->fX = rect.fLeft;
         surfacePt->fY = rect.fTop;
-        return DERIVED{this->info().makeDimensions(rect.size()), addr, fRowBytes};
+        auto result = DERIVED{this->info().makeDimensions(rect.size()), addr, fRowBytes};
+        result.fPixelStorage = fPixelStorage;
+        return result;
+    }
+
+    /**
+     * Pixmap that aliases a subset of this pixmap. Result won't have pixels if subset is not
+     * actually a subset of this pixmap's bounds.
+     */
+    DERIVED extractSubset(SkIRect subset) {
+        if (!SkIRect::MakeSize(this->dimensions()).contains(subset)) {
+            return {};
+        }
+        T* addr = static_cast<sknonstd::copy_const_t<char, T>*>(fAddr) +
+                  subset.fTop*fRowBytes                                +
+                  subset.fLeft*fInfo.bpp();
+        auto result = DERIVED{this->info().makeDimensions(subset.size()), addr, fRowBytes};
+        result.fPixelStorage = fPixelStorage;
+        return result;
     }
 
 protected:
@@ -67,8 +85,8 @@ protected:
         }
     }
 
-    GrPixmapBase(GrImageInfo info, sk_sp<SkData> storage, size_t rowBytes)
-            : GrPixmapBase(std::move(info), const_cast<void*>(storage->data()), rowBytes) {
+    GrPixmapBase(GrImageInfo info, const void* addr, sk_sp<SkData> storage, size_t rowBytes)
+            : GrPixmapBase(std::move(info), const_cast<void*>(addr), rowBytes) {
         fPixelStorage = std::move(storage);
     }
 
@@ -95,20 +113,26 @@ public:
 
     /**
      * Returns a GrPixmap that owns its backing store. Copies of the pixmap (as GrPixmap or
-     * GrCPixmap) will share ownership.
+     * GrCPixmap) will share ownership. The row bytes must be sufficiently large and a multiple of
+     * the bpp.
      */
-    static GrPixmap Allocate(const GrImageInfo& info) {
-        size_t rb = info.minRowBytes();
-        size_t size = info.height()*rb;
-        if (!size) {
+    static GrPixmap Allocate(const GrImageInfo& info, size_t rowBytes) {
+        if (info.dimensions().isEmpty()   ||
+            rowBytes < info.minRowBytes() ||
+            (rowBytes%info.bpp() != 0)) {
             return {};
         }
-        return GrPixmap(info, SkData::MakeUninitialized(size), rb);
+        size_t size = info.height()*rowBytes;
+        return GrPixmap(info, SkData::MakeUninitialized(size), rowBytes);
     }
 
-private:
+    /** Version of above that uses tight row bytes. */
+    static GrPixmap Allocate(const GrImageInfo& info) { return Allocate(info, info.minRowBytes()); }
+
+    private:
     GrPixmap(GrImageInfo info, sk_sp<SkData> storage, size_t rowBytes)
-            : GrPixmapBase(std::move(info), std::move(storage), rowBytes) {}
+            // Must use {} to guarantee evaluation order.
+            : GrPixmapBase{std::move(info), storage->data(), std::move(storage), rowBytes} {}
 };
 
 /**
@@ -125,7 +149,7 @@ public:
 
     /* implicit*/ GrCPixmap(const GrPixmap& pixmap) {
         if (auto storage = pixmap.pixelStorage()) {
-            *this = GrCPixmap(pixmap.info(), std::move(storage), pixmap.rowBytes());
+            *this = GrCPixmap(pixmap.info(), pixmap.addr(), std::move(storage), pixmap.rowBytes());
         } else {
             *this = GrCPixmap(pixmap.info(), pixmap.addr(), pixmap.rowBytes());
         }
@@ -138,8 +162,8 @@ public:
             : GrPixmapBase(info, addr, rowBytes) {}
 
 private:
-    GrCPixmap(GrImageInfo info, sk_sp<SkData> storage, size_t rowBytes)
-            : GrPixmapBase(info, std::move(storage), rowBytes) {}
+    GrCPixmap(GrImageInfo info, void* data, sk_sp<SkData> storage, size_t rowBytes)
+            : GrPixmapBase(info, data, std::move(storage), rowBytes) {}
 };
 
 #endif
