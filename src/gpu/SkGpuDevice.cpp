@@ -72,13 +72,13 @@ bool SkGpuDevice::CheckAlphaTypeAndGetFlags(
     return true;
 }
 
-sk_sp<SkGpuDevice> SkGpuDevice::Make(GrRecordingContext* rContext,
-                                     GrColorType colorType,
-                                     sk_sp<GrSurfaceProxy> proxy,
-                                     sk_sp<SkColorSpace> colorSpace,
-                                     GrSurfaceOrigin origin,
-                                     const SkSurfaceProps& surfaceProps,
-                                     InitContents init) {
+sk_sp<SkBaseGpuDevice> SkGpuDevice::Make(GrRecordingContext* rContext,
+                                         GrColorType colorType,
+                                         sk_sp<GrSurfaceProxy> proxy,
+                                         sk_sp<SkColorSpace> colorSpace,
+                                         GrSurfaceOrigin origin,
+                                         const SkSurfaceProps& surfaceProps,
+                                         InitContents init) {
     auto sdc = GrSurfaceDrawContext::Make(rContext,
                                           colorType,
                                           std::move(proxy),
@@ -89,9 +89,9 @@ sk_sp<SkGpuDevice> SkGpuDevice::Make(GrRecordingContext* rContext,
     return SkGpuDevice::Make(std::move(sdc), nullptr, init);
 }
 
-sk_sp<SkGpuDevice> SkGpuDevice::Make(std::unique_ptr<GrSurfaceDrawContext> sdc,
-                                     const SkImageInfo* ii,
-                                     InitContents init) {
+sk_sp<SkBaseGpuDevice> SkGpuDevice::Make(std::unique_ptr<GrSurfaceDrawContext> sdc,
+                                         const SkImageInfo* ii,
+                                         InitContents init) {
     if (!sdc) {
         return nullptr;
     }
@@ -111,16 +111,16 @@ sk_sp<SkGpuDevice> SkGpuDevice::Make(std::unique_ptr<GrSurfaceDrawContext> sdc,
     return sk_sp<SkGpuDevice>(new SkGpuDevice(std::move(sdc), flags));
 }
 
-sk_sp<SkGpuDevice> SkGpuDevice::Make(GrRecordingContext* rContext,
-                                     SkBudgeted budgeted,
-                                     const SkImageInfo& ii,
-                                     SkBackingFit fit,
-                                     int sampleCount,
-                                     GrMipmapped mipMapped,
-                                     GrProtected isProtected,
-                                     GrSurfaceOrigin origin,
-                                     const SkSurfaceProps& props,
-                                     InitContents init) {
+sk_sp<SkBaseGpuDevice> SkGpuDevice::Make(GrRecordingContext* rContext,
+                                         SkBudgeted budgeted,
+                                         const SkImageInfo& ii,
+                                         SkBackingFit fit,
+                                         int sampleCount,
+                                         GrMipmapped mipMapped,
+                                         GrProtected isProtected,
+                                         GrSurfaceOrigin origin,
+                                         const SkSurfaceProps& props,
+                                         InitContents init) {
     auto sdc = MakeSurfaceDrawContext(rContext,
                                       budgeted,
                                       ii,
