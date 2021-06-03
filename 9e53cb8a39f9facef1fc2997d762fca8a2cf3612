@@ -56,6 +56,30 @@
       },
       "revId": "9e53cb8a39f9facef1fc2997d762fca8a2cf3612",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f78144bf_7789514d",
+        "filename": "src/effects/imagefilters/SkMagnifierImageFilter.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-03T19:05:26Z",
+      "side": 1,
+      "message": "I\u0027d be curious how you plan to use it, but I\u0027m very hesitant. There\u0027s no type checking at all, just concats all the objects into a blob. Also it doesn\u0027t account for struct padding. I would need to be convinced that the builder is expensive enough to justify this.",
+      "parentUuid": "65b202ce_9ff871ed",
+      "range": {
+        "startLine": 168,
+        "startChar": 0,
+        "endLine": 175,
+        "endChar": 83
+      },
+      "revId": "9e53cb8a39f9facef1fc2997d762fca8a2cf3612",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
