@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9f27c256_6973b3cc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-06-03T14:36:17Z",
+      "side": 1,
+      "message": "In the omnibus CL I tried removing SDC access completely except for w/in SkGpuDevice. Unfortunately, a good number of our GMs and unit tests rely on it. Together with https://skia-review.googlesource.com/c/skia/+/415167 (Retract the SDC from GMs where possible) this CL limits access to the SDC to only those GMs and unit tests that actually require it. When run in NGA mode those GMs and unit tests will just be skipped. So, this CL (along w/ the other one) is trying to keep as much testing as possible working while we bring up the NGA.",
+      "parentUuid": "b593cb93_3130789c",
+      "revId": "bc50b41312bf683da49d2cf8cfd59ad326c0cf25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a7bdc71b_0cd2abf0",
