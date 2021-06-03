@@ -48,6 +48,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b3231ef1_ba0a33fe",
+        "filename": "experimental/sktext/include/Text.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-03T18:44:02Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "0e75e4a7_53d6ecfd",
+      "range": {
+        "startLine": 33,
+        "startChar": 38,
+        "endLine": 33,
+        "endChar": 51
+      },
+      "revId": "13b1335837985a22c39349ebb424cb401dde498a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "71ccf283_c68164c8",
@@ -95,6 +119,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2c695cc2_9db92302",
+        "filename": "experimental/sktext/include/Text.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-03T18:44:02Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "e65d36af_84543198",
+      "range": {
+        "startLine": 70,
+        "startChar": 6,
+        "endLine": 70,
+        "endChar": 16
+      },
+      "revId": "13b1335837985a22c39349ebb424cb401dde498a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "13c14a82_719538f3",
@@ -132,6 +180,30 @@
       "side": 1,
       "message": "Not at the moment. When we discussed that we decided it\u0027s immutable, and only later I discovered that it\u0027s really not convenient.",
       "parentUuid": "13c14a82_719538f3",
+      "range": {
+        "startLine": 119,
+        "startChar": 6,
+        "endLine": 119,
+        "endChar": 17
+      },
+      "revId": "13b1335837985a22c39349ebb424cb401dde498a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bec18247_65f3bc2e",
+        "filename": "experimental/sktext/include/Text.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-03T18:44:02Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "9fdfca41_7d29df7e",
       "range": {
         "startLine": 119,
         "startChar": 6,
