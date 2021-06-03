@@ -19,7 +19,7 @@ class SkGpuDevice;
 
 class SkSurface_Gpu : public SkSurface_Base {
 public:
-    SkSurface_Gpu(sk_sp<SkGpuDevice>);
+    SkSurface_Gpu(sk_sp<SkBaseGpuDevice>);
     ~SkSurface_Gpu() override;
 
     GrRecordingContext* onGetRecordingContext() override;
@@ -61,7 +61,7 @@ public:
     SkBaseGpuDevice* getDevice();
 
 private:
-    sk_sp<SkGpuDevice> fDevice;
+    sk_sp<SkBaseGpuDevice> fDevice;
 
     using INHERITED = SkSurface_Base;
 };

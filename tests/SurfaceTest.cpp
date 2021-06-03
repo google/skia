@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#if 0
 #include "include/core/SkCanvas.h"
 #include "include/core/SkData.h"
 #include "include/core/SkOverdrawCanvas.h"
@@ -1184,3 +1185,4 @@ DEF_TEST(surface_image_unity, reporter) {
         }
     }
 }
+#endif
