@@ -34,7 +34,7 @@
 class GrSurfaceDrawContext;
 
 namespace skiagm {
-class TextBlobRandomFont : public GpuGM {
+class TextBlobRandomFont : public GM {
 public:
     // This gm tests that textblobs can be translated and scaled with a font that returns random
     // but deterministic masks
@@ -107,9 +107,14 @@ protected:
         return SkISize::Make(kWidth, kHeight);
     }
 
-    DrawResult onDraw(GrRecordingContext* context,
-                      GrSurfaceDrawContext*, SkCanvas* canvas,
-                      SkString* errorMsg) override {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
+        if (!canvas->recordingContext()) {
+            *errorMsg = "Active context required to create SkSurface";
+            return DrawResult::kSkip;
+        }
+
+        auto dContext = GrAsDirectContext(canvas->recordingContext());
+
         // This GM exists to test a specific feature of the GPU backend.
         // This GM uses ToolUtils::makeSurface which doesn't work well with vias.
         // This GM uses SkRandomTypeface which doesn't work well with serialization.
@@ -149,9 +154,9 @@ protected:
         surface->draw(canvas, 0, 0);
         yOffset += stride;
 
-        if (auto direct = context->asDirectContext()) {
+        if (dContext) {
             // free gpu resources and verify
-            direct->freeGpuResources();
+            dContext->freeGpuResources();
         }
 
         canvas->rotate(-0.05f);
