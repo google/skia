@@ -33,6 +33,52 @@
       "message": "seems fine, but what\u0027s this for? I get that there won\u0027t be a SDC in NGA, but concretely what is this unblocking us from doing? e.g. are we running these unit tests on a different device type already?\n",
       "revId": "bc50b41312bf683da49d2cf8cfd59ad326c0cf25",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a7bdc71b_0cd2abf0",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-03T14:15:23Z",
+      "side": 1,
+      "message": "We already just forward declare GrSurfaceDrawContext, which is also in src/ and gpu-only w/o checking SK_SUPPORT_GPU. I think we should just do the same for GrRenderTargetProxy to keep it simpler.",
+      "range": {
+        "startLine": 66,
+        "startChar": 0,
+        "endLine": 70,
+        "endChar": 6
+      },
+      "revId": "bc50b41312bf683da49d2cf8cfd59ad326c0cf25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "07cc4461_8dc7bc91",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 2307,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-03T14:15:23Z",
+      "side": 1,
+      "message": "What about topDeviceRenderTarget()? RenderTarget seems more informative to me than just Proxy, but we could do topDeviceRenderTargetProxy() (although I think that\u0027s getting long in the tooth).",
+      "range": {
+        "startLine": 2307,
+        "startChar": 33,
+        "endLine": 2307,
+        "endChar": 47
+      },
+      "revId": "bc50b41312bf683da49d2cf8cfd59ad326c0cf25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
