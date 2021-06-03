@@ -34,7 +34,7 @@
 class GrSurfaceDrawContext;
 
 namespace skiagm {
-class ImageFromYUVTextures : public GpuGM {
+class ImageFromYUVTextures : public GM {
 public:
     ImageFromYUVTextures() {
         this->setBGColor(0xFFFFFFFF);
@@ -148,8 +148,9 @@ protected:
         return resultSurface->makeImageSnapshot();
     }
 
-    DrawResult onGpuSetup(GrDirectContext* context, SkString* errorMsg) override {
-        if (!context || context->abandoned()) {
+    DrawResult onGpuSetup(GrDirectContext* dContext, SkString* errorMsg) override {
+        if (!dContext || dContext->abandoned()) {
+            *errorMsg = "DirectContext required to create YUV images";
             return DrawResult::kSkip;
         }
 
@@ -160,14 +161,14 @@ protected:
         // We make a version of this image for each draw because, if any draw flattens it to
         // RGBA, then all subsequent draws would use the RGBA texture.
         for (int i = 0; i < kNumImages; ++i) {
-            fYUVAImages[i] = this->makeYUVAImage(context);
+            fYUVAImages[i] = this->makeYUVAImage(dContext);
             if (!fYUVAImages[i]) {
                 *errorMsg = "Couldn't create src YUVA image.";
                 return DrawResult::kFail;
             }
         }
 
-        fReferenceImage = this->createReferenceImage(context);
+        fReferenceImage = this->createReferenceImage(dContext);
         if (!fReferenceImage) {
             *errorMsg = "Couldn't create reference YUVA image.";
             return DrawResult::kFail;
@@ -176,8 +177,8 @@ protected:
         // Some backends (e.g., Vulkan) require all work be completed for backend textures
         // before they are deleted. Since we don't know when we'll next have access to a
         // direct context, flush all the work now.
-        context->flush();
-        context->submit(true);
+        dContext->flush();
+        dContext->submit(true);
 
         return DrawResult::kOk;
     }
@@ -194,7 +195,7 @@ protected:
         return fYUVAImages[index].get();
     }
 
-    void onDraw(GrRecordingContext*, GrSurfaceDrawContext*, SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         auto draw_image = [canvas](SkImage* image, const SkSamplingOptions& sampling) -> SkSize {
             if (!image) {
                 return {0, 0};
