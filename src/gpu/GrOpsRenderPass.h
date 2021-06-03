@@ -172,6 +172,7 @@ private:
     }
 
     bool prepareToDraw();
+    virtual void applyXferBarrier(GrXferBarrierType, const SkIRect& xferBounds);
 
     // overridden by backend-specific derived class to perform the rendering command.
     virtual void onBegin() {}
@@ -208,6 +209,7 @@ private:
 
     DrawPipelineStatus fDrawPipelineStatus = DrawPipelineStatus::kNotConfigured;
     GrXferBarrierType fXferBarrierType;
+    SkRect fXferBounds;
 
 #ifdef SK_DEBUG
     enum class DynamicStateStatus {

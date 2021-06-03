@@ -202,6 +202,8 @@ public:
     // Version for programs that aren't GrGLProgram.
     void flushProgram(GrGLuint);
 
+    void xferBarrier(GrRenderTarget*, GrXferBarrierType) override;
+
 private:
     GrGLGpu(std::unique_ptr<GrGLContext>, GrDirectContext*);
 
@@ -229,8 +231,6 @@ private:
     void onResetContext(uint32_t resetBits) override;
 
     void onResetTextureBindings() override;
-
-    void xferBarrier(GrRenderTarget*, GrXferBarrierType) override;
 
     sk_sp<GrTexture> onCreateTexture(SkISize dimensions,
                                      const GrBackendFormat&,
