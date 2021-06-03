@@ -48,9 +48,11 @@ private:
 
     SkPMColor4f constantOutputForConstantInput(const SkPMColor4f&) const override;
 
+    void* uniformData() const { return (void*)(this + 1); }
+
     sk_sp<SkRuntimeEffect> fEffect;
     const char*            fName;
-    sk_sp<SkData>          fUniforms;
+    size_t                 fUniformSize;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 

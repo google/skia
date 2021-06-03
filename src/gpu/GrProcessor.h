@@ -177,6 +177,7 @@ public:
     CustomFeatures requestedFeatures() const { return fRequestedFeatures; }
 
     void* operator new(size_t size);
+    void* operator new(size_t object_size, size_t footer_size);
     void operator delete(void* target);
 
     void* operator new(size_t size, void* placement) {
