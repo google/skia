@@ -178,6 +178,11 @@ private:
 class FakePaint {
 public:
     FakePaint() {}
+    FakePaint(SkColor c)
+        : fType(Type::kNormal)
+        , fColor0(c)
+        , fColor1(SK_ColorUNUSED) {
+    }
 
     void setColor(SkColor c) {
         fType = Type::kNormal;
@@ -221,6 +226,8 @@ public:
         }
         SkUNREACHABLE;
     }
+
+    SkColor evalColor(int x, int y) const;
 
 protected:
 

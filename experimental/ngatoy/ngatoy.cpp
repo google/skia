@@ -17,6 +17,8 @@
 
 #include <algorithm>
 
+constexpr int kInvalidZ = 0;
+
 /*
  * Questions this is trying to answer:
  *   How to handle saveLayers (in w/ everything or separate)
@@ -276,12 +278,14 @@ static int test1(std::vector<const Cmd*>* test, std::vector<int>* expectedOrder)
     expectedOrder->push_back(1);
     expectedOrder->push_back(0);
 
+    //---------------------------------------------------------------------------------------------
     FakeStateTracker s;
     sk_sp<FakeMCBlob> state = s.snapState();
 
     SkIRect r{0, 0, 100, 100};
-    test->push_back(new RectCmd(0, kSolidMat, r.makeOffset(8, 8),   SK_ColorRED,   SK_ColorUNUSED, state));
-    test->push_back(new RectCmd(1, kSolidMat, r.makeOffset(48, 48), SK_ColorGREEN, SK_ColorUNUSED, state));
+    test->push_back(new RectCmd(0, kInvalidZ, r.makeOffset(8, 8),   FakePaint(SK_ColorRED),   state));
+    test->push_back(new RectCmd(1, kInvalidZ, r.makeOffset(48, 48), FakePaint(SK_ColorGREEN), state));
+
     return 1;
 }
 
@@ -292,13 +296,14 @@ static int test2(std::vector<const Cmd*>* test, std::vector<int>* expectedOrder)
     expectedOrder->push_back(1);
     expectedOrder->push_back(0);
 
+    //---------------------------------------------------------------------------------------------
     FakeStateTracker s;
     sk_sp<FakeMCBlob> state = s.snapState();
 
     SkIRect r{0, 0, 100, 100};
-    test->push_back(new RectCmd(0, kSolidMat, r.makeOffset(8, 8),   SK_ColorRED,   SK_ColorUNUSED, state));
-    test->push_back(new RectCmd(1, kSolidMat, r.makeOffset(48, 48), SK_ColorGREEN, SK_ColorUNUSED, state));
-    test->push_back(new RectCmd(2, kSolidMat, r.makeOffset(98, 98), SK_ColorBLUE,  SK_ColorUNUSED, state));
+    test->push_back(new RectCmd(0, kInvalidZ, r.makeOffset(8, 8),   FakePaint(SK_ColorRED),   state));
+    test->push_back(new RectCmd(1, kInvalidZ, r.makeOffset(48, 48), FakePaint(SK_ColorGREEN), state));
+    test->push_back(new RectCmd(2, kInvalidZ, r.makeOffset(98, 98), FakePaint(SK_ColorBLUE),  state));
     return 2;
 }
 
@@ -309,13 +314,14 @@ static int test3(std::vector<const Cmd*>* test, std::vector<int>* expectedOrder)
     expectedOrder->push_back(0);
     expectedOrder->push_back(1);
 
+    //---------------------------------------------------------------------------------------------
     FakeStateTracker s;
     sk_sp<FakeMCBlob> state = s.snapState();
 
     SkIRect r{0, 0, 100, 100};
-    test->push_back(new RectCmd(0, kSolidMat, r.makeOffset(8, 8),   SK_ColorRED,  SK_ColorUNUSED, state));
-    test->push_back(new RectCmd(1, kSolidMat, r.makeOffset(48, 48), 0x8000FF00,   SK_ColorUNUSED, state));
-    test->push_back(new RectCmd(2, kSolidMat, r.makeOffset(98, 98), SK_ColorBLUE, SK_ColorUNUSED, state));
+    test->push_back(new RectCmd(0, kInvalidZ, r.makeOffset(8, 8),   FakePaint(SK_ColorRED),  state));
+    test->push_back(new RectCmd(1, kInvalidZ, r.makeOffset(48, 48), FakePaint(0x8000FF00),   state));
+    test->push_back(new RectCmd(2, kInvalidZ, r.makeOffset(98, 98), FakePaint(SK_ColorBLUE), state));
     return 3;
 }
 
@@ -327,13 +333,14 @@ static int test4(std::vector<const Cmd*>* test, std::vector<int>* expectedOrder)
     expectedOrder->push_back(1);
     expectedOrder->push_back(2);
 
+    //---------------------------------------------------------------------------------------------
     FakeStateTracker s;
     sk_sp<FakeMCBlob> state = s.snapState();
 
     SkIRect r{0, 0, 100, 100};
-    test->push_back(new RectCmd(0, kSolidMat, r.makeOffset(8, 8),   0x80FF0000, SK_ColorUNUSED, state));
-    test->push_back(new RectCmd(1, kSolidMat, r.makeOffset(48, 48), 0x8000FF00, SK_ColorUNUSED, state));
-    test->push_back(new RectCmd(2, kSolidMat, r.makeOffset(98, 98), 0x800000FF, SK_ColorUNUSED, state));
+    test->push_back(new RectCmd(0, kInvalidZ, r.makeOffset(8, 8),   FakePaint(0x80FF0000), state));
+    test->push_back(new RectCmd(1, kInvalidZ, r.makeOffset(48, 48), FakePaint(0x8000FF00), state));
+    test->push_back(new RectCmd(2, kInvalidZ, r.makeOffset(98, 98), FakePaint(0x800000FF), state));
     return 4;
 }
 
@@ -353,32 +360,42 @@ static int test5(std::vector<const Cmd*>* test, std::vector<int>* expectedOrder)
     expectedOrder->push_back(5);
     expectedOrder->push_back(2);
 
+    //---------------------------------------------------------------------------------------------
     FakeStateTracker s;
     sk_sp<FakeMCBlob> state = s.snapState();
 
+    FakePaint p;
+
     SkIRect r{0, 0, 100, 100};
-    test->push_back(new RectCmd(0, kSolidMat,  r.makeOffset(8, 8),     SK_ColorRED,     SK_ColorUNUSED, state));
-    test->push_back(new RectCmd(1, kLinearMat, r.makeOffset(48, 48),   SK_ColorGREEN,   SK_ColorWHITE,  state));
-    test->push_back(new RectCmd(2, kRadialMat, r.makeOffset(98, 98),   SK_ColorBLUE,    SK_ColorBLACK,  state));
-    test->push_back(new RectCmd(3, kSolidMat,  r.makeOffset(148, 148), SK_ColorCYAN,    SK_ColorUNUSED, state));
-    test->push_back(new RectCmd(4, kLinearMat, r.makeOffset(148, 8),   SK_ColorMAGENTA, SK_ColorWHITE,  state));
-    test->push_back(new RectCmd(5, kRadialMat, r.makeOffset(8, 148),   SK_ColorYELLOW,  SK_ColorBLACK,  state));
+    test->push_back(new RectCmd(0, kInvalidZ, r.makeOffset(8, 8),     FakePaint(SK_ColorRED),  state));
+    p.setLinear(SK_ColorGREEN,   SK_ColorWHITE);
+    test->push_back(new RectCmd(1, kInvalidZ, r.makeOffset(48, 48),   p,                       state));
+    p.setRadial(SK_ColorBLUE,    SK_ColorBLACK);
+    test->push_back(new RectCmd(2, kInvalidZ, r.makeOffset(98, 98),   p,                       state));
+    test->push_back(new RectCmd(3, kInvalidZ, r.makeOffset(148, 148), FakePaint(SK_ColorCYAN), state));
+    p.setLinear(SK_ColorMAGENTA, SK_ColorWHITE);
+    test->push_back(new RectCmd(4, kInvalidZ, r.makeOffset(148, 8),   p,                       state));
+    p.setRadial(SK_ColorYELLOW,  SK_ColorBLACK);
+    test->push_back(new RectCmd(5, kInvalidZ, r.makeOffset(8, 148),   p,                       state));
     return 5;
 }
 
-// simple clipping test - 1 clip rect
+// simple clipping test - 1 clip w/ two opaque rects
 static int test6(std::vector<const Cmd*>* test, std::vector<int>* expectedOrder) {
+    // The expected is front to back after the clip
     expectedOrder->push_back(1);
     expectedOrder->push_back(0);
 
+    //---------------------------------------------------------------------------------------------
     FakeStateTracker s;
     s.clipRect(SkIRect::MakeXYWH(28, 28, 40, 40));
 
     sk_sp<FakeMCBlob> state = s.snapState();
 
     SkIRect r{0, 0, 100, 100};
-    test->push_back(new RectCmd(0, kSolidMat, r.makeOffset(8, 8),   SK_ColorRED,   SK_ColorUNUSED, state));
-    test->push_back(new RectCmd(1, kSolidMat, r.makeOffset(48, 48), SK_ColorGREEN, SK_ColorUNUSED, state));
+    test->push_back(new RectCmd(0, kInvalidZ, r.makeOffset(8, 8),   FakePaint(SK_ColorRED),   state));
+    test->push_back(new RectCmd(1, kInvalidZ, r.makeOffset(48, 48), FakePaint(SK_ColorGREEN), state));
+
     return 6;
 }
 
@@ -393,30 +410,31 @@ static int test7(std::vector<const Cmd*>* test, std::vector<int>* expectedOrder)
     expectedOrder->push_back(3);
     expectedOrder->push_back(2);
 
+    //---------------------------------------------------------------------------------------------
     FakeStateTracker s;
     s.clipRect(SkIRect::MakeXYWH(85, 0, 86, 256));  // select the middle third in x
 
     sk_sp<FakeMCBlob> state = s.snapState();
 
     SkIRect r{0, 0, 100, 100};
-    test->push_back(new RectCmd(0, kSolidMat, r.makeOffset(8, 8),     SK_ColorRED,     SK_ColorUNUSED, state));
-    test->push_back(new RectCmd(1, kSolidMat, r.makeOffset(48, 48),   SK_ColorGREEN,   SK_ColorUNUSED, state));
+    test->push_back(new RectCmd(0, kInvalidZ, r.makeOffset(8, 8),     FakePaint(SK_ColorRED),     state));
+    test->push_back(new RectCmd(1, kInvalidZ, r.makeOffset(48, 48),   FakePaint(SK_ColorGREEN),   state));
 
     s.push();
     s.clipRect(SkIRect::MakeXYWH(0, 85, 256, 86));  // intersect w/ the middle third in y
     state = s.snapState();
 
-    test->push_back(new RectCmd(2, kSolidMat, r.makeOffset(98, 98),   SK_ColorBLUE,    SK_ColorUNUSED, state));
-    test->push_back(new RectCmd(3, kSolidMat, r.makeOffset(148, 148), SK_ColorCYAN,    SK_ColorUNUSED, state));
+    test->push_back(new RectCmd(2, kInvalidZ, r.makeOffset(98, 98),   FakePaint(SK_ColorBLUE),    state));
+    test->push_back(new RectCmd(3, kInvalidZ, r.makeOffset(148, 148), FakePaint(SK_ColorCYAN),    state));
 
     s.pop();
     state = s.snapState();
 
-    test->push_back(new RectCmd(4, kSolidMat, r.makeOffset(148, 8),   SK_ColorMAGENTA, SK_ColorUNUSED, state));
-    test->push_back(new RectCmd(5, kSolidMat, r.makeOffset(8, 148),   SK_ColorYELLOW,  SK_ColorUNUSED, state));
+    test->push_back(new RectCmd(4, kInvalidZ, r.makeOffset(148, 8),   FakePaint(SK_ColorMAGENTA), state));
+    test->push_back(new RectCmd(5, kInvalidZ, r.makeOffset(8, 148),   FakePaint(SK_ColorYELLOW),  state));
+
     return 7;
 }
-
 
 int main(int argc, char** argv) {
     CommandLineFlags::Parse(argc, argv);
