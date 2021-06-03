@@ -283,12 +283,45 @@ func (b *taskBuilder) cipdPlatform() string {
 func (b *taskBuilder) usesPython() {
 	// TODO(borenet): This handling of the Python package is hacky and bad.
 	pythonPkgs := cipd.PkgsPython[b.cipdPlatform()]
+	pythonPkgs[0].Path = "cipd_bin_packages/cpython"
 	b.cipd(pythonPkgs[1])
-	if b.os("Mac10.15") && b.model("VMware7.1") {
+	if b.os("Mac") {
 		b.cipd(pythonPkgs[0])
+		b.cipd(&cipd.Package{
+			Name:    "infra/3pp/tools/cpython3/mac-amd64",
+			Path:    "cipd_bin_packages/cpython3",
+			Version: "version:2@3.9.5.chromium.17",
+		})
+		b.cipd(&cipd.Package{
+			Name:    "infra/tools/luci/vpython-native/mac-amd64",
+			Path:    "cipd_bin_packages",
+			Version: "git_revision:c9957ed0ce0fd363aac127056344eba1b873bad0",
+		})
+		b.addToPATH(
+			"cipd_bin_packages/cpython",
+			"cipd_bin_packages/cpython/bin",
+			"cipd_bin_packages/cpython3",
+			"cipd_bin_packages/cpython3/bin",
+		)
 	}
 	if b.matchOs("Win") || b.matchExtraConfig("Win") {
 		b.cipd(pythonPkgs[0])
+		b.cipd(&cipd.Package{
+			Name:    "infra/3pp/tools/cpython3/windows-amd64",
+			Path:    "cipd_bin_packages/cpython3",
+			Version: "version:2@3.9.5.chromium.17",
+		})
+		b.cipd(&cipd.Package{
+			Name:    "infra/tools/luci/vpython-native/windows-amd64",
+			Path:    "cipd_bin_packages",
+			Version: "git_revision:c9957ed0ce0fd363aac127056344eba1b873bad0",
+		})
+		b.addToPATH(
+			"cipd_bin_packages/cpython",
+			"cipd_bin_packages/cpython/bin",
+			"cipd_bin_packages/cpython3",
+			"cipd_bin_packages/cpython3/bin",
+		)
 	}
 
 	b.cache(&specs.Cache{
@@ -296,6 +329,7 @@ func (b *taskBuilder) usesPython() {
 		Path: "cache/vpython",
 	})
 	b.env("VPYTHON_VIRTUALENV_ROOT", "cache/vpython")
+	b.env("VPYTHON_LOG_TRACE", "1")
 }
 
 func (b *taskBuilder) usesNode() {
