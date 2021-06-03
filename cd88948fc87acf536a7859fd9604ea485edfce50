@@ -69,6 +69,24 @@
       "parentUuid": "a38d532f_684565be",
       "revId": "cd88948fc87acf536a7859fd9604ea485edfce50",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "914c5d7a_dfc9b3bb",
+        "filename": "infra/bots/gen_tasks_logic/dm_flags.go",
+        "patchSetId": 12
+      },
+      "lineNbr": 460,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-03T15:30:46Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "2c274087_2122c2c4",
+      "revId": "cd88948fc87acf536a7859fd9604ea485edfce50",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
