@@ -135,9 +135,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsSurface, report
                             colorType);
             // Ensure that the sample count stored on the resulting SkSurface is a valid value.
             if (surf) {
-                auto sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(surf->getCanvas());
-                int storedCnt = sdc->numSamples();
-                GrBackendFormat format = sdc->asSurfaceProxy()->backendFormat();
+                auto rtp = SkCanvasPriv::TopDeviceTargetProxy(surf->getCanvas());
+                int storedCnt = rtp->numSamples();
+                const GrBackendFormat& format = rtp->backendFormat();
                 int allowedCnt =
                         context->priv().caps()->getRenderTargetSampleCount(storedCnt, format);
                 REPORTER_ASSERT(reporter, storedCnt == allowedCnt,
@@ -168,9 +168,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsSurface, report
             REPORTER_ASSERT(reporter, can == SkToBool(surf), "ct: %d, sc: %d, can: %d, surf: %d",
                             colorType, sampleCnt, can, SkToBool(surf));
             if (surf) {
-                auto sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(surf->getCanvas());
-                auto backendFormat = sdc->asSurfaceProxy()->backendFormat();
-                int storedCnt = sdc->numSamples();
+                auto rtp = SkCanvasPriv::TopDeviceTargetProxy(surf->getCanvas());
+                int storedCnt = rtp->numSamples();
+                const GrBackendFormat& backendFormat = rtp->backendFormat();
                 int allowedCnt = context->priv().caps()->getRenderTargetSampleCount(storedCnt,
                                                                                     backendFormat);
                 REPORTER_ASSERT(reporter, storedCnt == allowedCnt,
@@ -1002,8 +1002,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceAttachStencil_Gpu, reporter, ctxInf
 
             // Validate that we can attach a stencil buffer to an SkSurface created by either of
             // our surface functions.
-            auto sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(surface->getCanvas());
-            GrRenderTarget* rt = sdc->accessRenderTarget();
+            auto rtp = SkCanvasPriv::TopDeviceTargetProxy(surface->getCanvas());
+            GrRenderTarget* rt = rtp->peekRenderTarget();
             REPORTER_ASSERT(reporter,
                             resourceProvider->attachStencilAttachment(rt, rt->numSamples() > 1));
         }
