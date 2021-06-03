@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2978866c_14db1e37",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-03T13:31:13Z",
+      "side": 1,
+      "message": "This CL isn\u0027t ready to land. Last time we talked, I mentioned trying to cut down on the overhead when using runtime FPs (mostly, the looking up uniforms by name every time). This CL converts magnifier to a runtime FP, but then has a bunch of examples of how we might write runtime FPs (starting with the current pattern). Curious what other people think about the tradeoffs (having to supply things in the correct order, vs. maybe being more verbose).\n\nMight be able to do a mix of the templated SkData factory that ALSO takes the effect and names, and validates things line up in debug builds?",
+      "revId": "9e53cb8a39f9facef1fc2997d762fca8a2cf3612",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "65b202ce_9ff871ed",
+        "filename": "src/effects/imagefilters/SkMagnifierImageFilter.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-03T13:31:13Z",
+      "side": 1,
+      "message": "Although I don\u0027t like the requirement that we write things in the same order as the SkSL, this pattern can actually be even more concise, using a templated function to assemble an SkData from a variable list of arguments (similar to GrVertexWriter):\n\nhttps://godbolt.org/z/cPrYqKchK\n\nThoughts?",
+      "range": {
+        "startLine": 168,
+        "startChar": 0,
+        "endLine": 175,
+        "endChar": 83
+      },
+      "revId": "9e53cb8a39f9facef1fc2997d762fca8a2cf3612",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
