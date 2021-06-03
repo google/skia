@@ -1896,6 +1896,17 @@ void GrSurfaceDrawContext::addDrawOp(const GrClip* clip,
     GrClampType clampType = GrColorTypeClampType(this->colorInfo().colorType());
     GrProcessorSet::Analysis analysis = drawOp->finalize(*this->caps(), &appliedClip, clampType);
 
+    // Note if the op needs stencil. Stencil clipping already called setNeedsStencil for itself, if
+    // needed.
+    if (drawOp->usesStencil()) {
+        this->setNeedsStencil();
+        if (fCanUseDynamicMSAA) {
+            // Always trigger DMSAA when there is stencil. This ensures stencil contents get
+            // properly preserved between render passes, if needed.
+            usesMSAA = true;
+        }
+    }
+
     // Must be called before setDstProxyView so that it sees the final bounds of the op.
     op->setClippedBounds(bounds);
 
@@ -1904,12 +1915,6 @@ void GrSurfaceDrawContext::addDrawOp(const GrClip* clip,
         if (!this->setupDstProxyView(*op, &dstProxyView)) {
             return;
         }
-    }
-
-    // Note if the op needs stencil. Stencil clipping already called setNeedsStencil for itself, if
-    // needed.
-    if (drawOp->usesStencil()) {
-        this->setNeedsStencil();
     }
 
     auto opsTask = this->getOpsTask();
