@@ -4102,6 +4102,11 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     if (ctxInfo.renderer() == kGoogleSwiftShader_GrGLRenderer) {
         fShaderCaps->fVertexIDSupport = false;
     }
+
+    // http://crbug.com/1197152
+    if (ctxInfo.renderer() == kPowerVRRogue_GrGLRenderer) {
+        fShaderCaps->fShaderDerivativeSupport = false;
+    }
 }
 
 void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
