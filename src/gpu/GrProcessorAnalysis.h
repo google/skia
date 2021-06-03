@@ -96,7 +96,7 @@ public:
 
     GrColorFragmentProcessorAnalysis(const GrProcessorAnalysisColor& input,
                                      std::unique_ptr<GrFragmentProcessor> const fps[],
-                                     int cnt);
+                                     int count);
 
     bool isOpaque() const { return fIsOpaque; }
 
@@ -134,7 +134,7 @@ public:
      * Provides known information about the last processor's output color.
      */
     GrProcessorAnalysisColor outputColor() const {
-        if (fKnowOutputColor) {
+        if (fOutputColorKnown) {
             return fLastKnownOutputColor;
         }
         return fIsOpaque ? GrProcessorAnalysisColor::Opaque::kYes
@@ -145,7 +145,7 @@ private:
     bool fIsOpaque;
     bool fCompatibleWithCoverageAsAlpha;
     bool fUsesLocalCoords;
-    bool fKnowOutputColor;
+    bool fOutputColorKnown;
     int fProcessorsToEliminate;
     SkPMColor4f fLastKnownOutputColor;
 };
