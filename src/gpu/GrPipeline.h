@@ -11,6 +11,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRefCnt.h"
 #include "src/gpu/GrColor.h"
+#include "src/gpu/GrDstProxyView.h"
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrProcessorSet.h"
 #include "src/gpu/GrScissorState.h"

@@ -41,58 +41,6 @@ enum class GrXferBarrierFlags {
 GR_MAKE_BITFIELD_CLASS_OPS(GrXferBarrierFlags)
 
 /**
- * GrDstProxyView holds a texture containing the destination pixel values, and an integer-coordinate
- * offset from device-space to the space of the texture. When framebuffer fetch is not available, a
- * GrDstProxyView may be used to support blending in the fragment shader/xfer processor.
- */
-class GrDstProxyView {
-public:
-    GrDstProxyView() { fOffset.set(0, 0); }
-
-    GrDstProxyView(const GrDstProxyView& other) {
-        *this = other;
-    }
-
-    GrDstProxyView& operator=(const GrDstProxyView& other) {
-        fProxyView = other.fProxyView;
-        fOffset = other.fOffset;
-        fDstSampleType = other.fDstSampleType;
-        return *this;
-    }
-
-    bool operator==(const GrDstProxyView& that) const {
-        return fProxyView == that.fProxyView &&
-               fOffset == that.fOffset &&
-               fDstSampleType == that.fDstSampleType;
-    }
-    bool operator!=(const GrDstProxyView& that) const { return !(*this == that); }
-
-    const SkIPoint& offset() const { return fOffset; }
-
-    void setOffset(const SkIPoint& offset) { fOffset = offset; }
-    void setOffset(int ox, int oy) { fOffset.set(ox, oy); }
-
-    GrSurfaceProxy* proxy() const { return fProxyView.proxy(); }
-    const GrSurfaceProxyView& proxyView() const { return fProxyView; }
-
-    void setProxyView(GrSurfaceProxyView view) {
-        fProxyView = std::move(view);
-        if (!fProxyView.proxy()) {
-            fOffset = {0, 0};
-        }
-    }
-
-    GrDstSampleType dstSampleType() const { return fDstSampleType; }
-
-    void setDstSampleType(GrDstSampleType dstSampleType) { fDstSampleType = dstSampleType; }
-
-private:
-    GrSurfaceProxyView       fProxyView;
-    SkIPoint                 fOffset;
-    GrDstSampleType          fDstSampleType = GrDstSampleType::kNone;
-};
-
-/**
  * GrXferProcessor is responsible for implementing the xfer mode that blends the src color and dst
  * color, and for applying any coverage. It does this by emitting fragment shader code and
  * controlling the fixed-function blend state. When dual-source blending is available, it may also

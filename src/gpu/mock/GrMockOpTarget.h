@@ -10,6 +10,7 @@
 
 #include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrDirectContextPriv.h"
+#include "src/gpu/GrDstProxyView.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 
