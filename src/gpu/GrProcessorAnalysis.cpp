@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "src/gpu/GrCaps.h"
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrProcessorAnalysis.h"
 #include "src/gpu/ops/GrDrawOp.h"
@@ -16,6 +17,7 @@ GrColorFragmentProcessorAnalysis::GrColorFragmentProcessorAnalysis(
     fCompatibleWithCoverageAsAlpha = true;
     fIsOpaque = input.isOpaque();
     fUsesLocalCoords = false;
+    fWillReadDstColor = false;
     fProcessorsToEliminate = 0;
     fOutputColorKnown = input.isConstant(&fLastKnownOutputColor);
     for (int i = 0; i < count; ++i) {
@@ -27,6 +29,7 @@ GrColorFragmentProcessorAnalysis::GrColorFragmentProcessorAnalysis(
             // We reset these flags since the earlier fragment processors are being eliminated.
             fCompatibleWithCoverageAsAlpha = true;
             fUsesLocalCoords = false;
+            fWillReadDstColor = false;
             continue;
         }
 
@@ -40,5 +43,12 @@ GrColorFragmentProcessorAnalysis::GrColorFragmentProcessorAnalysis(
         if (fp->usesVaryingCoords()) {
             fUsesLocalCoords = true;
         }
+        if (fp->willReadDstColor()) {
+            fWillReadDstColor = true;
+        }
     }
+}
+
+bool GrColorFragmentProcessorAnalysis::requiresDstTexture(const GrCaps& caps) const {
+    return this->willReadDstColor() && !caps.shaderCaps()->dstReadInShaderSupport();
 }
