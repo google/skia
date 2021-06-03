@@ -168,6 +168,11 @@ void GrFragmentProcessor::registerChild(std::unique_ptr<GrFragmentProcessor> chi
         child->addAndPushFlagToChildren(kNetTransformHasPerspective_Flag);
     }
 
+    // Propagate the "will read dest-color" flag up to parent FPs.
+    if (child->fFlags & kWillReadDstColor_Flag) {
+        fFlags |= kWillReadDstColor_Flag;
+    }
+
     // If the child is not sampled explicitly and not already accessing sample coords directly
     // (through reference or variable matrix expansion), then mark that this FP tree relies on
     // coordinates at a lower level. If the child is sampled with explicit coordinates and

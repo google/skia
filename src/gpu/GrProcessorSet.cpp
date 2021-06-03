@@ -154,7 +154,8 @@ GrProcessorSet::Analysis GrProcessorSet::finalize(
     GrXPFactory::AnalysisProperties props = GrXPFactory::GetAnalysisProperties(
             this->xpFactory(), colorAnalysis.outputColor(), outputCoverage, caps, clampType);
     analysis.fRequiresDstTexture =
-            SkToBool(props & GrXPFactory::AnalysisProperties::kRequiresDstTexture);
+            SkToBool(props & GrXPFactory::AnalysisProperties::kRequiresDstTexture) ||
+            (colorAnalysis.willReadDstColor() && !caps.shaderCaps()->dstReadInShaderSupport());
     analysis.fCompatibleWithCoverageAsAlpha &=
             SkToBool(props & GrXPFactory::AnalysisProperties::kCompatibleWithCoverageAsAlpha);
     analysis.fRequiresNonOverlappingDraws =
