@@ -3518,12 +3518,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fTransferBufferType = TransferBufferType::kNone;
     }
 
-    // The TransferPixelsToTexture test fails on ANGLE D3D.
-    if (ctxInfo.angleBackend() == GrGLANGLEBackend::kD3D9 ||
-        ctxInfo.angleBackend() == GrGLANGLEBackend::kD3D11) {
-        fTransferFromBufferToTextureSupport = false;
-    }
-
     // Using MIPs on this GPU seems to be a source of trouble.
     if (ctxInfo.renderer() == GrGLRenderer::kPowerVR54x) {
         fMipmapSupport = false;
