@@ -15,6 +15,7 @@
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/SkGr.h"
@@ -65,39 +66,29 @@ void determine_tolerances(GrColorType a, GrColorType b, float tolerances[4]) {
     }
 }
 
-bool read_pixels_from_texture(GrTexture* texture, GrPixmap pixmap, float tolerances[4]) {
-    auto* context = texture->getContext();
-    auto* gpu = context->priv().getGpu();
-    auto* caps = context->priv().caps();
+GrCPixmap read_pixels_from_texture(GrSurfaceContext* surfaceContext,
+                                   GrDirectContext* dContext,
+                                   float tolerances[4]) {
+    auto* caps = dContext->priv().caps();
 
-    int w = texture->width();
-    int h = texture->height();
+    GrColorType colorType = surfaceContext->colorInfo().colorType();
 
-    GrCaps::SupportedRead supportedRead =
-            caps->supportedReadPixelsColorType(pixmap.colorType(),
-                                               texture->backendFormat(),
-                                               pixmap.colorType());
-    std::fill_n(tolerances, 4, 0);
-    if (supportedRead.fColorType != pixmap.colorType()) {
-        GrPixmap temp = GrPixmap::Allocate(pixmap.info().makeColorType(supportedRead.fColorType));
-        if (!gpu->readPixels(texture,
-                             SkIRect::MakeWH(w, h),
-                             pixmap.colorType(),
-                             supportedRead.fColorType,
-                             temp.addr(),
-                             temp.rowBytes())) {
-            return false;
-        }
-        GrImageInfo tmpInfo(supportedRead.fColorType, kUnpremul_SkAlphaType, nullptr, w, h);
-        determine_tolerances(tmpInfo.colorType(), pixmap.colorType(), tolerances);
-        return GrConvertPixels(pixmap, temp);
+    auto result = GrPixmap::Allocate(surfaceContext->imageInfo());
+
+    if (!surfaceContext->readPixels(dContext, result, {0, 0})) {
+        return {};
     }
-    return gpu->readPixels(texture,
-                           SkIRect::MakeWH(w, h),
-                           pixmap.colorType(),
-                           supportedRead.fColorType,
-                           pixmap.addr(),
-                           pixmap.rowBytes());
+
+    // Figure out if we went through an intermediate color type and then determine how much
+    // tolerance to allow for color comparison.
+    GrCaps::SupportedRead supportedRead = caps->supportedReadPixelsColorType(
+            colorType,
+            surfaceContext->asSurfaceProxy()->backendFormat(),
+            colorType);
+
+    determine_tolerances(colorType, supportedRead.fColorType, tolerances);
+
+    return result;
 }
 
 void basic_transfer_to_test(skiatest::Reporter* reporter,
@@ -120,21 +111,32 @@ void basic_transfer_to_test(skiatest::Reporter* reporter,
 
     static constexpr SkISize kTexDims = {16, 16};
 
-    sk_sp<GrTexture> tex =
-            resourceProvider->createTexture(kTexDims, backendFormat, renderable, 1,
-                                            GrMipmapped::kNo, SkBudgeted::kNo, GrProtected::kNo);
-    if (!tex) {
-        ERRORF(reporter, "Could not create texture");
+    auto surfaceContext =
+            GrSurfaceContext::Make(dContext,
+                                   GrImageInfo(colorType, kUnpremul_SkAlphaType, nullptr, kTexDims),
+                                   SkBackingFit::kExact,
+                                   kTopLeft_GrSurfaceOrigin,
+                                   renderable);
+    if (!surfaceContext) {
+        ERRORF(reporter, "Could not create texture with color type %s",
+               GrColorTypeToStr(colorType));
         return;
     }
 
-    // We validate the results using GrGpu::readPixels, so exit if this is not supported.
-    // TODO: Do this through GrSurfaceContext once it works for all color types or support
-    // kCopyToTexture2D here.
-    if (GrCaps::SurfaceReadPixelsSupport::kSupported !=
-        caps->surfaceSupportsReadPixels(tex.get())) {
+    sk_sp<GrSurfaceProxy> proxy = surfaceContext->asSurfaceProxyRef();
+    if (!proxy->instantiate(dContext->priv().resourceProvider())) {
+        ERRORF(reporter, "Could not instantiate texture with color type %s",
+               GrColorTypeToStr(colorType));
         return;
     }
+    sk_sp<GrTexture> tex = sk_ref_sp(proxy->asTextureProxy()->peekTexture());
+
+    // We validate the results using GrGpu::readPixels, so exit if this is not supported.
+    if (caps->surfaceSupportsReadPixels(tex.get()) ==
+        GrCaps::SurfaceReadPixelsSupport::kUnsupported) {
+        return;
+    }
+
     // GL requires a texture to be framebuffer bindable to call glReadPixels. However, we have not
     // incorporated that test into surfaceSupportsReadPixels(). TODO: Remove this once we handle
     // drawing to a bindable format.
@@ -190,11 +192,10 @@ void basic_transfer_to_test(skiatest::Reporter* reporter,
                GrColorTypeToStr(colorType));
     }
 
-    GrPixmap read = GrPixmap::Allocate(srcInfo.makeColorType(colorType).makeDimensions(kTexDims));
     float compareTolerances[4] = {};
-    if (!read_pixels_from_texture(tex.get(), read, compareTolerances)) {
-        ERRORF(reporter,
-               "Could not read pixels from texture, color type: %s",
+    GrCPixmap read = read_pixels_from_texture(surfaceContext.get(), dContext, compareTolerances);
+    if (!read.hasPixels()) {
+        ERRORF(reporter, "Could not read pixels from texture, color type: %s",
                GrColorType(colorType));
         return;
     }
@@ -206,7 +207,6 @@ void basic_transfer_to_test(skiatest::Reporter* reporter,
                        x, y, GrColorTypeToStr(colorType),
                        diffs[0], diffs[1], diffs[2], diffs[3]);
             });
-    GrImageInfo dstInfo(colorType, kUnpremul_SkAlphaType, nullptr, tex->dimensions());
     ComparePixels(src.extractSubset(SkIRect::MakeSize(kTexDims)), read, compareTolerances, error);
 
     //////////////////////////
@@ -258,9 +258,9 @@ void basic_transfer_to_test(skiatest::Reporter* reporter,
         return;
     }
 
-    if (!read_pixels_from_texture(tex.get(), read, compareTolerances)) {
-        ERRORF(reporter,
-               "Could not read pixels from texture, color type: %s",
+    read = read_pixels_from_texture(surfaceContext.get(), dContext, compareTolerances);
+    if (!read.hasPixels()) {
+        ERRORF(reporter, "Could not read pixels from texture, color type: %s",
                GrColorTypeToStr(colorType));
         return;
     }
