@@ -83,6 +83,7 @@ var CanvasKit = {
   _decodeAnimatedImage: function() {},
   _decodeImage: function() {},
   _getShadowLocalBounds: function() {},
+  _setTextureCleanup: function() {},
 
   // The testing object is meant to expose internal functions
   // for more fine-grained testing, e.g. parseColor
@@ -214,7 +215,6 @@ var CanvasKit = {
     drawPath: function() {},
     drawPicture: function() {},
     drawRect4f: function() {},
-    drawText: function() {},
     drawTextBlob: function() {},
     drawVertices: function() {},
     getSaveCount: function() {},
@@ -667,12 +667,15 @@ var CanvasKit = {
     openGLversion: {},
 
     prototype: {
+      makeImageFromTexture: function() {},
+      makeImageFromTextureSource: function() {},
       /** @return {CanvasKit.Image} */
       makeImageSnapshot: function() {},
     },
 
     // private API
     _flush: function() {},
+    _makeImageFromTexture: function() {},
     _makeImageSnapshot: function() {},
     _makeRasterDirect: function() {},
     delete: function() {},

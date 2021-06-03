@@ -2619,6 +2619,27 @@ export interface Surface extends EmbindObject<Surface> {
     imageInfo(): ImageInfo;
 
     /**
+     * Creates an Image from the provided texture and info. The Image will own the texture;
+     * when the image is deleted, the texture will be cleaned up.
+     * @param tex
+     * @param info - describes the content of the texture.
+     */
+    makeImageFromTexture(tex: WebGLTexture, info: ImageInfo): Image | null;
+
+    /**
+     * Returns a texture-backed image based on the content in src. It uses RGBA_8888, unpremul
+     * and SRGB - for more control, use makeImageFromTexture.
+     *
+     * Not available for software-backed surfaces.
+     * @param src
+     * @param width - If provided, will be used as the width of src. Otherwise, the natural
+     *                width of src (if available) will be used.
+     * @param height - If provided, will be used as the height of src. Otherwise, the natural
+     *                height of src (if available) will be used.
+     */
+    makeImageFromTextureSource(src: TextureSource, width?: number, height?: number): Image | null;
+
+    /**
      * Returns current contents of the surface as an Image. This image will be optimized to be
      * drawn to another surface of the same type. For example, if this surface is backed by the
      * GPU, the returned Image will be backed by a GPU texture.
@@ -3743,6 +3764,10 @@ export type InputFlattenedRSXFormArray = MallocObj | Float32Array | number[];
  * For example, this is the x, y, z coordinates.
  */
 export type InputVector3 = MallocObj | Vector3 | Float32Array;
+/**
+ * These are the types that webGL's texImage2D supports as a way to get data from as a texture.
+ */
+export type TextureSource = TypedArray | HTMLImageElement | HTMLVideoElement | ImageData | ImageBitmap;
 
 export type AlphaType = EmbindEnumEntity;
 export type BlendMode = EmbindEnumEntity;

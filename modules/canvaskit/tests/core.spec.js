@@ -1280,4 +1280,58 @@ describe('Core canvas behavior', () => {
         surface.delete();
         CanvasKit.Free(rdsData);
     });
+
+    gm('makeImageFromTextureSource_TypedArray', (canvas, _, surface) => {
+        if (!CanvasKit.gpu) {
+            return;
+        }
+        // This creates and draws an Image that is 1 pixel wide, 4 pixels tall with
+        // the colors listed below.
+        const pixels = Uint8Array.from([
+            255,   0,   0, 255, // opaque red
+              0, 255,   0, 255, // opaque green
+              0,   0, 255, 255, // opaque blue
+            255,   0, 255, 100, // transparent purple
+        ]);
+        const img = surface.makeImageFromTextureSource(pixels, 1, 4);
+        canvas.drawImage(img, 1, 1, null);
+
+        const info = img.getImageInfo();
+        expect(info).toEqual({
+          'width': 1,
+          'height': 4,
+          'alphaType': CanvasKit.AlphaType.Unpremul,
+          'colorType': CanvasKit.ColorType.RGBA_8888,
+        });
+        const cs = img.getColorSpace();
+        expect(CanvasKit.ColorSpace.Equals(cs, CanvasKit.ColorSpace.SRGB)).toBeTruthy();
+
+        cs.delete();
+        img.delete();
+    });
+
+    gm('makeImageFromTextureSource_imgElement', (canvas, _, surface) => {
+        if (!CanvasKit.gpu) {
+            return;
+        }
+        // This makes an offscreen <img> with the provided source.
+        const imageEle = new Image();
+        imageEle.src = '/assets/mandrill_512.png';
+
+        // We need to wait until the image is loaded before the texture can use it. For good
+        // measure, we also wait for it to be decoded.
+        return imageEle.decode().then(() => {
+            const img = surface.makeImageFromTextureSource(imageEle);
+            canvas.drawImage(img, 0, 0, null);
+
+            const info = img.getImageInfo();
+            expect(info).toEqual({
+              'width': 512, // width and height should be derived from the image.
+              'height': 512,
+              'alphaType': CanvasKit.AlphaType.Unpremul,
+              'colorType': CanvasKit.ColorType.RGBA_8888,
+            });
+            img.delete();
+        });
+    });
 });

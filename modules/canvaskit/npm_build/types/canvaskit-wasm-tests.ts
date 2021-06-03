@@ -817,7 +817,10 @@ function shaderTests(CK: CanvasKit) {
     const s13 = CK.Shader.MakeTurbulence(0.1, 0.05, 2, 0, 80, 80); // $ExpectType Shader
 }
 
-function surfaceTests(CK: CanvasKit) {
+function surfaceTests(CK: CanvasKit, gl?: WebGLRenderingContext) {
+    if (!gl) {
+        return;
+    }
     const canvasEl = document.querySelector('canvas') as HTMLCanvasElement;
     const surfaceOne = CK.MakeCanvasSurface(canvasEl)!; // $ExpectType Surface
     const surfaceTwo = CK.MakeCanvasSurface('my_canvas')!;
@@ -851,6 +854,17 @@ function surfaceTests(CK: CanvasKit) {
     const count = surfaceThree.sampleCnt(); // $ExpectType number
     const img = surfaceFour.makeImageSnapshot([0, 3, 2, 5]); // $ExpectType Image
     const img2 = surfaceSix.makeImageSnapshot(); // $ExpectType Image
+    const img3 = surfaceFour.makeImageFromTexture(gl.createTexture()!, {
+      height: 40,
+      width: 80,
+      colorType: CK.ColorType.RGBA_8888,
+      alphaType: CK.AlphaType.Unpremul,
+      colorSpace: CK.ColorSpace.SRGB,
+    });
+    const img4 = surfaceFour.makeImageFromTextureSource(new Image()); // $ExpectType Image | null
+    const videoEle = document.createElement('video');
+    const img5 = surfaceFour.makeImageFromTextureSource(videoEle, 30, 10); // $ExpectType Image | null
+    const img6 = surfaceFour.makeImageFromTextureSource(new ImageData(40, 80)); // $ExpectType Image | null
 
     surfaceSeven.delete();
 
