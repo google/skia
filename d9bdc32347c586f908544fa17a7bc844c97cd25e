@@ -51,6 +51,24 @@
       "parentUuid": "3df4fb04_d3291375",
       "revId": "d9bdc32347c586f908544fa17a7bc844c97cd25e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "594bd1a1_972ea631",
+        "filename": "src/gpu/tessellate/GrPathWedgeTessellator.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 9300
+      },
+      "writtenOn": "2021-06-03T15:05:30Z",
+      "side": 1,
+      "message": "A static analysis tool flagged it.  There\u0027s no need to appease the analysis tool (it has plenty of false positives), although it might not be a bad idea to initialize this anyway in case that invariant were to change in the future, leaving us with hard-to-debug uninitialized behavior.\n\nI\u0027ll mark this comment Resolved, since we know it\u0027s not a current issue.  Thanks!",
+      "parentUuid": "f5531a5a_e09f51ed",
+      "revId": "d9bdc32347c586f908544fa17a7bc844c97cd25e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
