@@ -10,37 +10,34 @@
 
 
 import argparse
-import common
 import os
 import subprocess
 import sys
-import utils
+import tempfile
+import create
+
+
+FILE_DIR = os.path.dirname(os.path.abspath(__file__))
+ASSET = os.path.basename(FILE_DIR)
 
 
 def main():
   parser = argparse.ArgumentParser()
-  parser.add_argument('--gsutil')
   parser.add_argument('--src_dir', '-s', required=True)
   args = parser.parse_args()
+  # Pass src_dir to the creation script via an environment variable, since
+  # we're calling the script via `sk` and not directly.
+  os.environ[create.ENV_VAR] = args.src_dir
 
-  with utils.tmp_dir():
-    cwd = os.getcwd()
-    create_script = os.path.join(common.FILE_DIR, 'create.py')
-    upload_script = os.path.join(common.FILE_DIR, 'upload.py')
-    target_dir = os.path.join(cwd, 'win_toolchain')
+  sk = os.path.realpath(os.path.join(
+      FILE_DIR, os.pardir, os.pardir, os.pardir, os.pardir, 'bin', 'sk'))
+  if os.name == 'nt':
+    sk += '.exe'
+  if not os.path.isfile(sk):
+    raise Exception('`sk` not found at %s; maybe you need to run bin/fetch-sk?')
 
-    try:
-      cmd = ['python', create_script,
-             '-t', target_dir,
-             '-s', args.src_dir]
-      subprocess.check_call(cmd)
-      cmd = ['python', upload_script, '-t', target_dir]
-      if args.gsutil:
-        cmd.extend(['--gsutil', args.gsutil])
-      subprocess.check_call(cmd)
-    except subprocess.CalledProcessError:
-      # Trap exceptions to avoid printing two stacktraces.
-      sys.exit(1)
+  # Upload the asset.
+  subprocess.check_call([sk, 'asset', 'upload', ASSET], cwd=FILE_DIR)
 
 
 if __name__ == '__main__':

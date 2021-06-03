@@ -8,12 +8,14 @@
 
 """Create the asset."""
 
+
 import argparse
 import subprocess
 import os
 
 
 URL = "https://github.com/vektra/mockery/releases/download/v2.4.0/mockery_2.4.0_Linux_x86_64.tar.gz"
+
 
 def create_asset(target_dir):
   """Create the asset."""

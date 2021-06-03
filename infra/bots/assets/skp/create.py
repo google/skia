@@ -11,17 +11,33 @@
 
 from __future__ import print_function
 import argparse
-import common
 from distutils.dir_util import copy_tree
 import os
 import shutil
 import subprocess
+import sys
+
+FILE_DIR = os.path.dirname(os.path.abspath(__file__))
+INFRA_BOTS_DIR = os.path.realpath(os.path.join(FILE_DIR, os.pardir, os.pardir))
+sys.path.insert(0, INFRA_BOTS_DIR)
 import utils
 
 
-SKIA_TOOLS = os.path.join(common.INFRA_BOTS_DIR, os.pardir, os.pardir, 'tools')
+BROWSER_EXECUTABLE_ENV_VAR = 'SKP_BROWSER_EXECUTABLE'
+CHROME_SRC_PATH_ENV_VAR = 'SKP_CHROME_SRC_PATH'
+UPLOAD_TO_PARTNER_BUCKET_ENV_VAR = 'SKP_UPLOAD_TO_PARTNER_BUCKET'
 
+SKIA_TOOLS = os.path.join(INFRA_BOTS_DIR, os.pardir, os.pardir, 'tools')
 PRIVATE_SKPS_GS = 'gs://skia-skps/private/skps'
+
+
+def getenv(key):
+  val = os.environ.get(key)
+  if not val:
+    print(('Environment variable %s not set; you should run this via '
+           'create_and_upload.py.' % key), file=sys.stderr)
+    sys.exit(1)
+  return val
 
 
 def get_flutter_skps(target_dir):
@@ -116,12 +132,16 @@ def create_asset(chrome_src_path, browser_executable, target_dir,
 def main():
   parser = argparse.ArgumentParser()
   parser.add_argument('--target_dir', '-t', required=True)
-  parser.add_argument('--chrome_src_path', '-c', required=True)
-  parser.add_argument('--browser_executable', '-e', required=True)
-  parser.add_argument('--upload_to_partner_bucket', action='store_true')
   args = parser.parse_args()
-  create_asset(args.chrome_src_path, args.browser_executable, args.target_dir,
-               args.upload_to_partner_bucket)
+
+  # Obtain flags from create_and_upload via environment variables, since
+  # this script is called via `sk` and not directly.
+  chrome_src_path = getenv(CHROME_SRC_PATH_ENV_VAR)
+  browser_executable = getenv(BROWSER_EXECUTABLE_ENV_VAR)
+  upload_to_partner_bucket = getenv(UPLOAD_TO_PARTNER_BUCKET_ENV_VAR) == '1'
+
+  create_asset(chrome_src_path, browser_executable, args.target_dir,
+               upload_to_partner_bucket)
 
 
 if __name__ == '__main__':

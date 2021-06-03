@@ -10,9 +10,15 @@
 
 
 import argparse
-import common
+import os
 import subprocess
+import sys
+
+FILE_DIR = os.path.dirname(os.path.abspath(__file__))
+INFRA_BOTS_DIR = os.path.realpath(os.path.join(FILE_DIR, os.pardir, os.pardir))
+sys.path.insert(0, INFRA_BOTS_DIR)
 import utils
+
 
 VERSION = '3.13.4'
 URL = ('https://github.com/Kitware/CMake/releases/download/v%s/'

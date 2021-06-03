@@ -10,14 +10,14 @@
 
 
 import argparse
-import common
 import subprocess
 import os
 import shutil
 
 
-SVG_TOOLS = os.path.join(common.INFRA_BOTS_DIR, os.pardir, os.pardir, 'tools',
-                         'svg')
+FILE_DIR = os.path.dirname(os.path.abspath(__file__))
+INFRA_BOTS_DIR = os.path.realpath(os.path.join(FILE_DIR, os.pardir, os.pardir))
+SVG_TOOLS = os.path.join(INFRA_BOTS_DIR, os.pardir, os.pardir, 'tools', 'svg')
 SVG_GS_BUCKET = 'gs://skia-svgs'
 
 
