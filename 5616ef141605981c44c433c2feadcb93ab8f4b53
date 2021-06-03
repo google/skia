@@ -16,6 +16,24 @@
       "message": "Provide more specific guidance, such as a code snippet here.",
       "revId": "5616ef141605981c44c433c2feadcb93ab8f4b53",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fbbb3140_6c3ec853",
+        "filename": "modules/canvaskit/CHANGELOG.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-03T15:30:08Z",
+      "side": 1,
+      "message": "I don\u0027t think a changelog is the right place for code snippets.",
+      "parentUuid": "e9d692aa_ecdae066",
+      "revId": "5616ef141605981c44c433c2feadcb93ab8f4b53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
