@@ -47,10 +47,6 @@ public:
         canvas->androidFramework_replaceClip(rect);
     }
 
-    static GrSurfaceDrawContext* TopDeviceSurfaceDrawContext(SkCanvas* canvas) {
-        return canvas->topDeviceSurfaceDrawContext();
-    }
-
     static GrRenderTargetProxy* TopDeviceTargetProxy(SkCanvas* canvas) {
         return canvas->topDeviceTargetProxy();
     }
