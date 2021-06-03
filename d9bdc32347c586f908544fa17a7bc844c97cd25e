@@ -33,6 +33,24 @@
       "message": "Did we intend to initialize this field to 0 here, like we have for the other \u0027int\u0027 fields of this class?  This isn\u0027t set in the constructor, and it seems like otherwise we might have pathways where we could increment this value uninitialized.",
       "revId": "d9bdc32347c586f908544fa17a7bc844c97cd25e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f5531a5a_e09f51ed",
+        "filename": "src/gpu/tessellate/GrPathWedgeTessellator.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-03T14:49:02Z",
+      "side": 1,
+      "message": "Good point, this looks sketchy.\n\nIt turns out to be fine though because SkPaths _always_ start with kMove_Verb, and in that case we initialize to 1. Is there a compiler warning triggering somewhere?",
+      "parentUuid": "3df4fb04_d3291375",
+      "revId": "d9bdc32347c586f908544fa17a7bc844c97cd25e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
