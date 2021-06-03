@@ -24,6 +24,9 @@ public:
     virtual ~Cmd() {}
 
     int id() const { return fID; }
+
+    virtual SortKey getKey() = 0;
+
     const FakeMCBlob* state() const { return fMCState.get(); }
 
     // To generate the actual image
