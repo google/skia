@@ -117,6 +117,16 @@ public:
     bool usesLocalCoords() const { return fUsesLocalCoords; }
 
     /**
+     * Do any of the fragment processors read back the destination color?
+     */
+    bool willReadDstColor() const { return fWillReadDstColor; }
+
+    /**
+     * Will we require a destination-surface texture?
+     */
+    bool requiresDstTexture(const GrCaps& caps) const;
+
+    /**
      * If we detected that the result after the first N processors is a known color then we
      * eliminate those N processors and replace the GrDrawOp's color input to the GrPipeline with
      * the known output of the Nth processor, so that the Nth+1 fragment processor (or the XP if
@@ -145,6 +155,7 @@ private:
     bool fIsOpaque;
     bool fCompatibleWithCoverageAsAlpha;
     bool fUsesLocalCoords;
+    bool fWillReadDstColor;
     bool fOutputColorKnown;
     int fProcessorsToEliminate;
     SkPMColor4f fLastKnownOutputColor;
