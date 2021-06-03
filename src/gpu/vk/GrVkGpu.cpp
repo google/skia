@@ -26,7 +26,6 @@
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrThreadSafePipelineBuilder.h"
-#include "src/gpu/SkGpuDevice.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/vk/GrVkAMDMemoryAllocator.h"
 #include "src/gpu/vk/GrVkBuffer.h"

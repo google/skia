@@ -19,7 +19,6 @@
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxy.h"
-#include "src/gpu/SkGpuDevice.h"
 #include "src/gpu/vk/GrVkGpu.h"
 #include "src/gpu/vk/GrVkImageLayout.h"
 #include "src/gpu/vk/GrVkTexture.h"

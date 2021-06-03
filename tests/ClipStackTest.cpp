@@ -1545,8 +1545,6 @@ DEF_TEST(ClipStack, reporter) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-#include "src/gpu/SkGpuDevice.h"
-
 // For the GrClipStack case, this is covered in GrClipStack_SWMask
 #if defined(SK_DISABLE_NEW_GR_CLIP_STACK)
 

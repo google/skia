@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/SkGpuDevice.h"
+#include "include/gpu/GrTypes.h"
 
 // For the GrClipStack case, this is covered in GrClipStack_RectDeviceClip
 #if defined(SK_DISABLE_NEW_GR_CLIP_STACK)

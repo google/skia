@@ -30,7 +30,7 @@
 
 #if SK_SUPPORT_GPU
 
-SkSurface_Gpu::SkSurface_Gpu(sk_sp<SkGpuDevice> device)
+SkSurface_Gpu::SkSurface_Gpu(sk_sp<SkBaseGpuDevice> device)
     : INHERITED(device->width(), device->height(), &device->surfaceProps())
     , fDevice(std::move(device)) {
     SkASSERT(fDevice->targetProxy()->priv().isExact());
@@ -463,10 +463,10 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* rContext, SkBud
         mipMapped = GrMipmapped::kNo;
     }
 
-    sk_sp<SkGpuDevice> device(SkGpuDevice::Make(rContext, budgeted, info, SkBackingFit::kExact,
-                                                sampleCount, mipMapped, GrProtected::kNo, origin,
-                                                SkSurfacePropsCopyOrDefault(props),
-                                                SkBaseGpuDevice::kClear_InitContents));
+    sk_sp<SkBaseGpuDevice> device(SkGpuDevice::Make(rContext, budgeted, info, SkBackingFit::kExact,
+                                                    sampleCount, mipMapped, GrProtected::kNo,
+                                                    origin, SkSurfacePropsCopyOrDefault(props),
+                                                    SkBaseGpuDevice::kClear_InitContents));
     if (!device) {
         return nullptr;
     }

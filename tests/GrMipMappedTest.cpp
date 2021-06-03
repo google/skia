@@ -26,7 +26,7 @@
 #include "src/gpu/GrSurfaceProxyPriv.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxy.h"
-#include "src/gpu/SkGpuDevice.h"
+#include "src/gpu/SkBaseGpuDevice.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkSurface_Gpu.h"
 #include "tests/Test.h"
