@@ -557,8 +557,8 @@ SkBaseDevice* SkCanvas::topDevice() const {
     return fMCRec->fDevice;
 }
 
-GrSurfaceDrawContext* SkCanvas::topDeviceSurfaceDrawContext() {
-    return this->topDevice()->surfaceDrawContext();
+GrRenderTargetProxy* SkCanvas::topDeviceProxy() {
+    return this->topDevice()->targetProxy();
 }
 
 bool SkCanvas::readPixels(const SkPixmap& pm, int x, int y) {
@@ -1640,12 +1640,10 @@ SkIRect SkCanvas::topLayerBounds() const {
 }
 
 GrBackendRenderTarget SkCanvas::topLayerBackendRenderTarget() const {
-    const GrSurfaceDrawContext* sdc = const_cast<SkCanvas*>(this)->topDeviceSurfaceDrawContext();
-    if (!sdc) {
+    const GrRenderTargetProxy* proxy = const_cast<SkCanvas*>(this)->topDeviceProxy();
+    if (!proxy) {
         return {};
     }
-    const GrRenderTargetProxy* proxy = sdc->asRenderTargetProxy();
-    SkASSERT(proxy);
     const GrRenderTarget* renderTarget = proxy->peekRenderTarget();
     return renderTarget ? renderTarget->getBackendRenderTarget() : GrBackendRenderTarget();
 }

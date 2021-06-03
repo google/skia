@@ -49,7 +49,7 @@ static void draw_gradient_tiles(SkCanvas* canvas, bool alignGradients) {
     static constexpr SkPoint pts[] = { {0.f, 0.f}, {0.25f * kTileWidth, 0.25f * kTileHeight} };
     static constexpr SkColor colors[] = { SK_ColorBLUE, SK_ColorWHITE };
 
-    GrSurfaceDrawContext* sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
+    GrSurfaceDrawContext* sdc = nullptr; //SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
 
     auto context = canvas->recordingContext();
 
