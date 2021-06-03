@@ -775,10 +775,10 @@ static std::pair<skif::Mapping, skif::LayerSpace<SkIRect>> get_layer_mapping_and
     // be 2X larger per side of the prior device in order to fully cover it. We use the max of that
     // and 2048 for a reasonable upper limit (this allows small layers under extreme transforms to
     // use more relative resolution than a larger layer).
-    static const int kMaxDimThreshold = 2048;
-    int maxLayerDim = std::max(2 * std::max(SkIRect(targetOutput).width(),
-                                            SkIRect(targetOutput).height()),
-                               kMaxDimThreshold);
+    static const int kMinDimThreshold = 2048;
+    int maxLayerDim = std::max(Sk64_pin_to_s32(2 * std::max(SkIRect(targetOutput).width64(),
+                                                            SkIRect(targetOutput).height64())),
+                               kMinDimThreshold);
 
     skif::LayerSpace<SkIRect> layerBounds;
     if (filter) {
