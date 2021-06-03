@@ -15,7 +15,7 @@ import sys
 import utils
 
 
-URL = 'https://github.com/bazelbuild/bazel/releases/download/4.0.0/bazel-4.0.0-installer-linux-x86_64.sh'
+URL = 'https://github.com/bazelbuild/bazel/releases/download/4.1.0/bazel-4.1.0-installer-linux-x86_64.sh'
 INSTALLER_SCRIPT = URL.split('/')[-1]
 
 
