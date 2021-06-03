@@ -76,6 +76,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ec77dcf2_3dd61fb1",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-06-03T16:00:22Z",
+      "side": 1,
+      "message": "Added a comment that this style of declaration is forced upon us since it must match the one in SkDeferredDisplayList.h.",
+      "parentUuid": "a7bdc71b_0cd2abf0",
+      "range": {
+        "startLine": 66,
+        "startChar": 0,
+        "endLine": 70,
+        "endChar": 6
+      },
+      "revId": "bc50b41312bf683da49d2cf8cfd59ad326c0cf25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "07cc4461_8dc7bc91",
@@ -89,6 +113,30 @@
       "writtenOn": "2021-06-03T14:15:23Z",
       "side": 1,
       "message": "What about topDeviceRenderTarget()? RenderTarget seems more informative to me than just Proxy, but we could do topDeviceRenderTargetProxy() (although I think that\u0027s getting long in the tooth).",
+      "range": {
+        "startLine": 2307,
+        "startChar": 33,
+        "endLine": 2307,
+        "endChar": 47
+      },
+      "revId": "bc50b41312bf683da49d2cf8cfd59ad326c0cf25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c1b97df0_d8749390",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 2307,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-06-03T16:00:22Z",
+      "side": 1,
+      "message": "As discussed offline, we\u0027ve gone with topDeviceTargetProxy since this matches how we refer to the Device\u0027s RTP internally.",
+      "parentUuid": "07cc4461_8dc7bc91",
       "range": {
         "startLine": 2307,
         "startChar": 33,
