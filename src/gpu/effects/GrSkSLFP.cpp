@@ -193,6 +193,19 @@ std::unique_ptr<GrSkSLFP> GrSkSLFP::Make(sk_sp<SkRuntimeEffect> effect,
             new (uniformSize) GrSkSLFP(std::move(effect), name, std::move(uniforms)));
 }
 
+GrSkSLFP::GrSkSLFP(sk_sp<SkRuntimeEffect> effect, const char* name)
+        : INHERITED(kGrSkSLFP_ClassID,
+                    effect->getFilterColorProgram()
+                            ? kConstantOutputForConstantInput_OptimizationFlag
+                            : kNone_OptimizationFlags)
+        , fEffect(std::move(effect))
+        , fName(name)
+        , fUniformSize(fEffect->uniformSize()) {
+    if (fEffect->usesSampleCoords()) {
+        this->setUsesSampleCoordsDirectly();
+    }
+}
+
 GrSkSLFP::GrSkSLFP(sk_sp<SkRuntimeEffect> effect, const char* name, sk_sp<SkData> uniforms)
         : INHERITED(kGrSkSLFP_ClassID,
                     effect->getFilterColorProgram()
