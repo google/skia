@@ -533,8 +533,7 @@ wgpu::BindGroup GrDawnProgram::setTextures(GrDawnGpu* gpu,
         }
     }
 
-    SkIPoint offset;
-    if (GrTexture* dstTexture = pipeline.peekDstTexture(&offset)) {
+    if (GrTexture* dstTexture = pipeline.peekDstTexture()) {
         set_texture(gpu, GrSamplerState::Filter::kNearest, dstTexture, &bindings, &binding);
     }
 
