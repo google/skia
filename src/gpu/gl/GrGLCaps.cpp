@@ -986,6 +986,12 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
       // WebGL 1.0 doesn't support do-while loops.
       shaderCaps->fCanUseDoLoops = version >= GR_GL_VER(2, 0);
     }
+
+#ifdef SK_BUILD_FOR_ANDROID
+    // reduce the variety of shaders generated in Android so shader compile events cause
+    // less jank and need less caching.
+    shaderCaps->fReducedShaderMode = true;
+#endif
 }
 
 void GrGLCaps::initFSAASupport(const GrContextOptions& contextOptions,
