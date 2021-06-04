@@ -3,6 +3,7 @@
 
 #include "experimental/ngatoy/Cmds.h"
 #include "experimental/ngatoy/Fake.h"
+#include "experimental/ngatoy/SortKey.h"
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
@@ -20,6 +21,10 @@ RectCmd::RectCmd(int id,
     , fPaintersOrder(paintersOrder)
     , fRect(r)
     , fPaint(p) {
+}
+
+SortKey RectCmd::getKey() {
+    return SortKey(fPaint.isTransparent(), fMCState->id(), fPaintersOrder, fPaint.toID());
 }
 
 static void apply_diff(FakeCanvas* c, const FakeMCBlob& desired, const FakeMCBlob* prior) {

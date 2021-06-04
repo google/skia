@@ -79,11 +79,9 @@ void FakeDevice::drawRect(int id, uint32_t paintersOrder, SkIRect r, FakePaint p
 
     sk_sp<FakeMCBlob> state = fTracker.snapState();
 
-    SortKey k(p.isTransparent(), state->id(), paintersOrder, p.toID());
-
     auto tmp = new RectCmd(id, paintersOrder, r, p, std::move(state));
 
-    fSortedCmds.push_back({k, tmp});
+    fSortedCmds.push_back(tmp);
 }
 
 void FakeDevice::clipRect(SkIRect r) {
@@ -99,8 +97,8 @@ void FakeDevice::finalize() {
     fFinalized = true;
 
     this->sort();
-    for (auto f : fSortedCmds) {
-        f.fCmd->rasterize(fZBuffer, &fBM, f.fKey.depth());
+    for (auto c : fSortedCmds) {
+        c->rasterize(fZBuffer, &fBM, c->getKey().depth());
     }
 }
 
@@ -109,9 +107,22 @@ void FakeDevice::getOrder(std::vector<int>* ops) const {
 
 //    ops->reserve(fSortedCmds.size());
 
-    for (auto f : fSortedCmds) {
-        ops->push_back(f.fCmd->id());
+    for (auto c : fSortedCmds) {
+        ops->push_back(c->id());
     }
+}
+
+void FakeDevice::sort() {
+    // In general we want:
+    //  opaque draws to occur front to back (i.e., in reverse painter's order) while minimizing
+    //        state changes due to materials
+    //  transparent draws to occur back to front (i.e., in painter's order)
+    //
+    // In both scenarios we would like to batch as much as possible.
+    std::sort(fSortedCmds.begin(), fSortedCmds.end(),
+                [](Cmd* a, Cmd* b) {
+                    return a->getKey() < b->getKey();
+                });
 }
 
 //-------------------------------------------------------------------------------------------------

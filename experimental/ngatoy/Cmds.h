@@ -8,6 +8,7 @@ class SkBitmap;
 class SkCanvas;
 class FakeCanvas;
 class FakeMCBlob;
+class SortKey;
 
 #include "include/core/SkColor.h"
 #include "include/core/SkRect.h"
@@ -24,6 +25,9 @@ public:
     virtual ~Cmd() {}
 
     int id() const { return fID; }
+
+    virtual SortKey getKey() = 0;
+
     const FakeMCBlob* state() const { return fMCState.get(); }
 
     // To generate the actual image
@@ -45,6 +49,8 @@ private:
 class RectCmd : public Cmd {
 public:
     RectCmd(int id, uint32_t paintersOrder, SkIRect, const FakePaint&, sk_sp<FakeMCBlob> state);
+
+    SortKey getKey() override;
 
     void execute(FakeCanvas*) const override;
     void execute(SkCanvas* c, const FakeMCBlob* priorState) const override;
