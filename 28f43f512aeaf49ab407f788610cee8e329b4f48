@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "22f8e89f_bdcc9781",
+        "filename": "experimental/sktext/canvas2d.md",
+        "patchSetId": 8
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-04T20:53:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1e7f6121_b5f63f3d",
+      "range": {
+        "startLine": 4,
+        "startChar": 66,
+        "endLine": 4,
+        "endChar": 70
+      },
+      "revId": "28f43f512aeaf49ab407f788610cee8e329b4f48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "dfa7d66a_0bbf227b",
@@ -37,6 +61,24 @@
       "writtenOn": "2021-06-04T19:30:13Z",
       "side": 1,
       "message": "Is the idea here that the user would use the API like this:\n```\nfor (GlyphRun run in myShapedText.glyph_runs) {\n  context.fillGlyphs(run.glyph_ids, run.positions, run.Font);\n}\n```\nI\u0027m curious if there have been any thoughts around having a `fillGlyphRun` method instead. Is there any advantage to passing the glyphs, positions, and Font separately? Maybe there are other use cases that require this separation that I\u0027m not aware of?",
+      "revId": "28f43f512aeaf49ab407f788610cee8e329b4f48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "323837eb_12ebc852",
+        "filename": "experimental/sktext/canvas2d.md",
+        "patchSetId": 8
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-04T20:53:46Z",
+      "side": 1,
+      "message": "Could go either way. However, once you start adding in your own notion of \"decorations\", (as I did in my hacky demo textedit.js) I found the need to sometimes only draw a subset of a given Run... which was easy since I could take a slice of the glyphs and positions arrays, and pass those manually.",
+      "parentUuid": "dfa7d66a_0bbf227b",
       "revId": "28f43f512aeaf49ab407f788610cee8e329b4f48",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -60,6 +102,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "d6f61d97_a3c0bfde",
+        "filename": "experimental/sktext/canvas2d.md",
+        "patchSetId": 8
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-04T20:53:46Z",
+      "side": 1,
+      "message": "Yes, fillGlyphs() should work correctly regardless of how the glyph is represented in the typeface.\n\nI suggest all of these Font \"helpers\" to be utilities in case the client wanted to draw things in their own way (e.g. maybe extract the glyph\u0027s path and morph it).",
+      "parentUuid": "c66fa4dc_3987f7e0",
+      "revId": "28f43f512aeaf49ab407f788610cee8e329b4f48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "f665944b_d6dfa850",
         "filename": "experimental/sktext/overview.md",
         "patchSetId": 8
@@ -71,6 +131,30 @@
       "writtenOn": "2021-06-04T19:30:13Z",
       "side": 1,
       "message": "set of APIs",
+      "range": {
+        "startLine": 14,
+        "startChar": 313,
+        "endLine": 14,
+        "endChar": 321
+      },
+      "revId": "28f43f512aeaf49ab407f788610cee8e329b4f48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c20ccb62_4ed1d028",
+        "filename": "experimental/sktext/overview.md",
+        "patchSetId": 8
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-04T20:53:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f665944b_d6dfa850",
       "range": {
         "startLine": 14,
         "startChar": 313,
@@ -104,6 +188,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7cfbfad6_944126b1",
+        "filename": "experimental/sktext/overview.md",
+        "patchSetId": 8
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-04T20:53:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "23807bf3_27618c9c",
+      "range": {
+        "startLine": 33,
+        "startChar": 112,
+        "endLine": 33,
+        "endChar": 116
+      },
+      "revId": "28f43f512aeaf49ab407f788610cee8e329b4f48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "40d6c097_a023fe68",
@@ -117,6 +225,30 @@
       "writtenOn": "2021-06-04T19:30:13Z",
       "side": 1,
       "message": "identified",
+      "range": {
+        "startLine": 53,
+        "startChar": 207,
+        "endLine": 53,
+        "endChar": 215
+      },
+      "revId": "28f43f512aeaf49ab407f788610cee8e329b4f48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "22f0ccce_3ea3efff",
+        "filename": "experimental/sktext/overview.md",
+        "patchSetId": 8
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-04T20:53:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "40d6c097_a023fe68",
       "range": {
         "startLine": 53,
         "startChar": 207,
@@ -146,6 +278,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "94a3bcce_c6c379a1",
+        "filename": "experimental/sktext/overview.md",
+        "patchSetId": 8
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-04T20:53:46Z",
+      "side": 1,
+      "message": "Really good comment. I will incorporate that sentiment into the doc.",
+      "parentUuid": "164d8b1c_69f00607",
+      "revId": "28f43f512aeaf49ab407f788610cee8e329b4f48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "5f6aacb8_80f9a6ef",
         "filename": "experimental/sktext/shaper.md",
         "patchSetId": 8
@@ -157,6 +307,30 @@
       "writtenOn": "2021-06-04T19:30:13Z",
       "side": 1,
       "message": "to render",
+      "range": {
+        "startLine": 11,
+        "startChar": 52,
+        "endLine": 11,
+        "endChar": 64
+      },
+      "revId": "28f43f512aeaf49ab407f788610cee8e329b4f48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "51e6a1ee_32306d29",
+        "filename": "experimental/sktext/shaper.md",
+        "patchSetId": 8
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-04T20:53:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5f6aacb8_80f9a6ef",
       "range": {
         "startLine": 11,
         "startChar": 52,
@@ -190,6 +364,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "558fec0f_4172f026",
+        "filename": "experimental/sktext/shaper.md",
+        "patchSetId": 8
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-04T20:53:46Z",
+      "side": 1,
+      "message": "hehe, both I guess",
+      "parentUuid": "76218f41_aa53d12b",
+      "range": {
+        "startLine": 14,
+        "startChar": 92,
+        "endLine": 14,
+        "endChar": 102
+      },
+      "revId": "28f43f512aeaf49ab407f788610cee8e329b4f48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "143eb430_7bd62a53",
@@ -213,6 +411,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "22706fd5_f98ce227",
+        "filename": "experimental/sktext/shaper.md",
+        "patchSetId": 8
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-04T20:53:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "143eb430_7bd62a53",
+      "range": {
+        "startLine": 25,
+        "startChar": 86,
+        "endLine": 25,
+        "endChar": 98
+      },
+      "revId": "28f43f512aeaf49ab407f788610cee8e329b4f48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d36cd66c_b5c95086",
@@ -226,6 +448,24 @@
       "writtenOn": "2021-06-04T19:30:13Z",
       "side": 1,
       "message": "One thing that\u0027s not clear to me is the length of placeholder blocks. Are they supposed to have a length of zero? Or have a corresponding placeholder character in the string?",
+      "revId": "28f43f512aeaf49ab407f788610cee8e329b4f48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "04b8c8ff_5bfeeade",
+        "filename": "experimental/sktext/shaper.md",
+        "patchSetId": 8
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-04T20:53:46Z",
+      "side": 1,
+      "message": "Like a FontBlock, PlaceholderBlock \"inherits\" from TextBlock, and that \u0027base\u0027 always has a length.",
+      "parentUuid": "d36cd66c_b5c95086",
       "revId": "28f43f512aeaf49ab407f788610cee8e329b4f48",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
