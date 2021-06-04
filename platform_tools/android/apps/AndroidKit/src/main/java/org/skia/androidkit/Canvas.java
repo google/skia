@@ -81,6 +81,10 @@ public class Canvas {
                    sampling.getNativeDesc(), sampling.getCubicCoeffB(), sampling.getCubicCoeffC());
     }
 
+    public void drawPath(Path path, Paint paint) {
+        nDrawPath(mNativeInstance, path.getNativeInstance(), paint.getNativeInstance());
+    }
+
     // package private
     Canvas(Surface surface, long native_instance) {
         mNativeInstance = native_instance;
@@ -106,4 +110,5 @@ public class Canvas {
     private static native void nDrawImage(long nativeInstance, long nativeImage, float x, float y,
                                           int samplingDesc,
                                           float samplingCoeffB, float samplingCoeffC);
+    private static native void nDrawPath(long mNativeInstance, long nativePath, long nativePaint);
 }
