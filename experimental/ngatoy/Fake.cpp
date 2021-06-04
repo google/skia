@@ -12,7 +12,7 @@
 void FakeMCBlob::MCState::apply(SkCanvas* canvas) const {
     canvas->save();
 
-    for (auto c : fRects) {
+    for (auto c : fRects1) {
         canvas->clipIRect(c);
     }
 
@@ -22,11 +22,17 @@ void FakeMCBlob::MCState::apply(SkCanvas* canvas) const {
 void FakeMCBlob::MCState::apply(FakeCanvas* canvas) const {
     canvas->save();
 
-    for (auto c : fRects) {
-        canvas->clipRect(c);
+    for (auto c : fRects1) {
+//        canvas->clipRect(c);
     }
 
     canvas->translate(fTrans);
+}
+
+void FakeMCBlob::MCState::popit(PaintersOrder paintersOrderWhenPopped) {
+    for (auto c : fCmds) {
+        c->pop(paintersOrderWhenPopped);
+    }
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -75,8 +81,7 @@ void FakeDevice::save() {
     fTracker.push();
 }
 
-void FakeDevice::drawRect(int id, uint32_t paintersOrder, SkIRect r, FakePaint p) {
-
+void FakeDevice::drawRect(ID id, PaintersOrder paintersOrder, SkIRect r, FakePaint p) {
     sk_sp<FakeMCBlob> state = fTracker.snapState();
 
     auto tmp = new RectCmd(id, paintersOrder, r, p, std::move(state));
@@ -84,12 +89,15 @@ void FakeDevice::drawRect(int id, uint32_t paintersOrder, SkIRect r, FakePaint p
     fSortedCmds.push_back(tmp);
 }
 
-void FakeDevice::clipRect(SkIRect r) {
-    fTracker.clipRect(r);
+void FakeDevice::clipRect(ID id, PaintersOrder paintersOrder, SkIRect r) {
+    auto tmp = new ClipCmd(id, paintersOrder, r);
+
+    fSortedCmds.push_back(tmp);
+    fTracker.clipRect(r, tmp);
 }
 
-void FakeDevice::restore() {
-    fTracker.pop();
+void FakeDevice::restore(PaintersOrder paintersOrderWhenPopped) {
+    fTracker.pop(paintersOrderWhenPopped);
 }
 
 void FakeDevice::finalize() {
@@ -98,14 +106,12 @@ void FakeDevice::finalize() {
 
     this->sort();
     for (auto c : fSortedCmds) {
-        c->rasterize(fZBuffer, &fBM, c->getKey().depth());
+        c->rasterize(fZBuffer, &fBM);
     }
 }
 
-void FakeDevice::getOrder(std::vector<int>* ops) const {
+void FakeDevice::getOrder(std::vector<ID>* ops) const {
     SkASSERT(fFinalized);
-
-//    ops->reserve(fSortedCmds.size());
 
     for (auto c : fSortedCmds) {
         ops->push_back(c->id());
@@ -126,16 +132,16 @@ void FakeDevice::sort() {
 }
 
 //-------------------------------------------------------------------------------------------------
-void FakeCanvas::drawRect(int id, SkIRect r, FakePaint p) {
+void FakeCanvas::drawRect(ID id, SkIRect r, FakePaint p) {
     SkASSERT(!fFinalized);
 
-    fDeviceStack.back()->drawRect(id, this->nextZ(), r, p);
+    fDeviceStack.back()->drawRect(id, this->nextPaintersOrder(), r, p);
 }
 
-void FakeCanvas::clipRect(SkIRect r) {
+void FakeCanvas::clipRect(ID id, SkIRect r) {
     SkASSERT(!fFinalized);
 
-    fDeviceStack.back()->clipRect(r);
+    fDeviceStack.back()->clipRect(id, this->nextPaintersOrder(), r);
 }
 
 void FakeCanvas::finalize() {
@@ -147,10 +153,10 @@ void FakeCanvas::finalize() {
     }
 }
 
-std::vector<int> FakeCanvas::getOrder() const {
+std::vector<ID> FakeCanvas::getOrder() const {
     SkASSERT(fFinalized);
 
-    std::vector<int> ops;
+    std::vector<ID> ops;
 
     for (auto& d : fDeviceStack) {
         d->getOrder(&ops);

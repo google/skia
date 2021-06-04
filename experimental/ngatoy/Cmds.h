@@ -14,47 +14,87 @@ class SortKey;
 #include "include/core/SkRect.h"
 
 #include "experimental/ngatoy/Fake.h"
+#include "experimental/ngatoy/NGATypes.h"
+#include "experimental/ngatoy/SortKey.h"
 
+
+//------------------------------------------------------------------------------------------------
 class Cmd {
 public:
-    Cmd(int id, int materialID, sk_sp<FakeMCBlob> state)
-        : fID(id)
-        , fMaterialID(materialID)
-        , fMCState(std::move(state)) {
-    }
+    Cmd() : fID(ID::Invalid()) {}
+    Cmd(ID id) : fID(id) {}
     virtual ~Cmd() {}
 
-    int id() const { return fID; }
+    ID id() const { return fID; }
 
     virtual SortKey getKey() = 0;
 
-    const FakeMCBlob* state() const { return fMCState.get(); }
-
     // To generate the actual image
     virtual void execute(FakeCanvas*) const = 0;
-    virtual void rasterize(uint32_t zBuffer[256][256], SkBitmap* dstBM, unsigned int z) const = 0;
+    virtual void rasterize(uint32_t zBuffer[256][256], SkBitmap* dstBM) const = 0;
 
     // To generate the expected image
-    virtual void execute(SkCanvas*, const FakeMCBlob* priorState) const = 0;
+    virtual void execute(SkCanvas*) const = 0;
     virtual void dump() const = 0;
 
 protected:
-    const int         fID;
-    int               fMaterialID;
-    sk_sp<FakeMCBlob> fMCState;
+    const ID fID;
 
 private:
 };
 
+//------------------------------------------------------------------------------------------------
+class PushCmd : public Cmd {
+public:
+    PushCmd() : Cmd() {}
+
+    SortKey getKey() override { SkASSERT(0); return {}; }
+
+    void execute(FakeCanvas*) const override;
+    void execute(SkCanvas* c) const override;
+    void rasterize(uint32_t zBuffer[256][256], SkBitmap* dstBM) const override {
+        SkASSERT(0);
+    }
+
+    void dump() const override {
+        SkDebugf("%d: push", fID);
+    }
+
+protected:
+private:
+};
+
+//------------------------------------------------------------------------------------------------
+class PopCmd : public Cmd {
+public:
+    PopCmd() : Cmd() {}
+
+    SortKey getKey() override { SkASSERT(0); return {}; }
+
+    void execute(FakeCanvas*) const override;
+    void execute(SkCanvas* c) const override;
+    void rasterize(uint32_t zBuffer[256][256], SkBitmap* dstBM) const override {
+        SkASSERT(0);
+    }
+
+    void dump() const override {
+        SkDebugf("%d: pop", fID);
+    }
+
+protected:
+private:
+};
+
+//------------------------------------------------------------------------------------------------
 class RectCmd : public Cmd {
 public:
-    RectCmd(int id, uint32_t paintersOrder, SkIRect, const FakePaint&, sk_sp<FakeMCBlob> state);
+    RectCmd(ID, PaintersOrder, SkIRect, const FakePaint&, sk_sp<FakeMCBlob> state);
 
     SortKey getKey() override;
 
     void execute(FakeCanvas*) const override;
-    void execute(SkCanvas* c, const FakeMCBlob* priorState) const override;
-    void rasterize(uint32_t zBuffer[256][256], SkBitmap* dstBM, unsigned int z) const override;
+    void execute(SkCanvas* c) const override;
+    void rasterize(uint32_t zBuffer[256][256], SkBitmap* dstBM) const override;
 
     void dump() const override {
         SkDebugf("%d: drawRect %d %d %d %d -- %d",
@@ -66,9 +106,45 @@ public:
 protected:
 
 private:
-    uint32_t  fPaintersOrder;
-    SkIRect   fRect;
-    FakePaint fPaint;
+    uint32_t computeZ() const;
+
+    PaintersOrder     fPaintersOrder;
+    SkIRect           fRect;
+    FakePaint         fPaint;
+    sk_sp<FakeMCBlob> fMCState1;
 };
+
+//------------------------------------------------------------------------------------------------
+class ClipCmd : public Cmd {
+public:
+    ClipCmd(ID, PaintersOrder paintersOrderWhenAdded, SkIRect r);
+    ~ClipCmd() override { SkASSERT(fPaintersOrderWhenPopped.isValid()); }
+
+    SortKey getKey() override;
+    PaintersOrder getPaintersOrderWhenPopped() const {
+        SkASSERT(fPaintersOrderWhenPopped.isValid()); return fPaintersOrderWhenPopped;
+    }
+
+    void pop(PaintersOrder paintersOrderWhenPopped);
+
+    void execute(FakeCanvas*) const override;
+    void execute(SkCanvas*) const override;
+    void rasterize(uint32_t zBuffer[256][256], SkBitmap* dstBM) const override;
+
+    void dump() const override {
+        SkDebugf("%d: clipRect %d %d %d %d",
+                 fID,
+                 fRect.fLeft, fRect.fTop, fRect.fRight, fRect.fBottom);
+    }
+
+protected:
+
+private:
+    SkIRect       fRect;
+    PaintersOrder fPaintersOrderWhenAdded;
+    PaintersOrder fPaintersOrderWhenPopped;
+};
+
+//------------------------------------------------------------------------------------------------
 
 #endif // Cmds_DEFINED

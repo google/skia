@@ -2176,6 +2176,7 @@ if (skia_enable_tools) {
         "experimental/ngatoy/Cmds.h",
         "experimental/ngatoy/Fake.cpp",
         "experimental/ngatoy/Fake.h",
+        "experimental/ngatoy/NGATypes.h",
         "experimental/ngatoy/SortKey.h",
         "experimental/ngatoy/ngatoy.cpp",
       ]
