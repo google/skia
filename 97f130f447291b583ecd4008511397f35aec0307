@@ -46,6 +46,30 @@
       },
       "revId": "97f130f447291b583ecd4008511397f35aec0307",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "306da199_6d6f2bac",
+        "filename": "modules/svg/include/SkSVGDOM.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-06-04T18:32:03Z",
+      "side": 1,
+      "message": "Good point, we could just drop containerSize().\n\nAdded a DEPRECATED label.",
+      "parentUuid": "ecf572eb_70df4fc2",
+      "range": {
+        "startLine": 68,
+        "startChar": 0,
+        "endLine": 73,
+        "endChar": 78
+      },
+      "revId": "97f130f447291b583ecd4008511397f35aec0307",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
