@@ -19,7 +19,6 @@
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
-#include "src/gpu/SkGpuDevice.h"
 
 sk_sp<GrVkSecondaryCBDrawContext> GrVkSecondaryCBDrawContext::Make(GrRecordingContext* rContext,
                                                                    const SkImageInfo& imageInfo,
@@ -42,13 +41,12 @@ sk_sp<GrVkSecondaryCBDrawContext> GrVkSecondaryCBDrawContext::Make(GrRecordingCo
 
     SkASSERT(proxy->isInstantiated());
 
-    auto device = SkGpuDevice::Make(rContext,
-                                    SkColorTypeToGrColorType(imageInfo.colorType()),
-                                    std::move(proxy),
-                                    imageInfo.refColorSpace(),
-                                    kTopLeft_GrSurfaceOrigin,
-                                    SkSurfacePropsCopyOrDefault(props),
-                                    SkBaseGpuDevice::kUninit_InitContents);
+    auto device = rContext->priv().createDevice(SkColorTypeToGrColorType(imageInfo.colorType()),
+                                                std::move(proxy),
+                                                imageInfo.refColorSpace(),
+                                                kTopLeft_GrSurfaceOrigin,
+                                                SkSurfacePropsCopyOrDefault(props),
+                                                SkBaseGpuDevice::kUninit_InitContents);
     if (!device) {
         return nullptr;
     }

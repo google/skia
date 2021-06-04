@@ -14,6 +14,7 @@
 #include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTexture.h"
@@ -228,4 +229,29 @@ std::unique_ptr<GrFragmentProcessor> GrDirectContextPriv::createUPMToPMEffect(
     SkASSERT(this->validPMUPMConversionExists());
 
     return GrConfigConversionEffect::Make(std::move(fp), PMConversion::kToPremul);
+}
+
+sk_sp<SkBaseGpuDevice> GrDirectContextPriv::createDevice(GrColorType colorType,
+                                                         sk_sp<GrSurfaceProxy> proxy,
+                                                         sk_sp<SkColorSpace> colorSpace,
+                                                         GrSurfaceOrigin origin,
+                                                         const SkSurfaceProps& props,
+                                                         SkBaseGpuDevice::InitContents init) {
+    return fContext->GrRecordingContext::priv().createDevice(colorType, std::move(proxy),
+                                                             std::move(colorSpace),
+                                                             origin, props, init);
+}
+
+sk_sp<SkBaseGpuDevice> GrDirectContextPriv::createDevice(SkBudgeted budgeted,
+                                                         const SkImageInfo& ii,
+                                                         SkBackingFit fit,
+                                                         int sampleCount,
+                                                         GrMipmapped mipmapped,
+                                                         GrProtected isProtected,
+                                                         GrSurfaceOrigin origin,
+                                                         const SkSurfaceProps& props,
+                                                         SkBaseGpuDevice::InitContents init) {
+    return fContext->GrRecordingContext::priv().createDevice(budgeted, ii, fit, sampleCount,
+                                                             mipmapped, isProtected,
+                                                             origin, props, init);
 }

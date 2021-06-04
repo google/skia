@@ -19,6 +19,29 @@
  */
 class SkGpuDevice_nga : public SkBaseGpuDevice  {
 public:
+    static sk_sp<SkBaseGpuDevice> Make(GrRecordingContext*,
+                                       GrColorType,
+                                       sk_sp<GrSurfaceProxy>,
+                                       sk_sp<SkColorSpace>,
+                                       GrSurfaceOrigin,
+                                       const SkSurfaceProps&,
+                                       InitContents) {
+        return nullptr;
+    }
+
+    static sk_sp<SkBaseGpuDevice> Make(GrRecordingContext*,
+                                       SkBudgeted,
+                                       const SkImageInfo&,
+                                       SkBackingFit,
+                                       int sampleCount,
+                                       GrMipmapped,
+                                       GrProtected,
+                                       GrSurfaceOrigin,
+                                       const SkSurfaceProps&,
+                                       InitContents) {
+        return nullptr;
+    }
+
     ~SkGpuDevice_nga() override;
 
     GrSurfaceProxyView readSurfaceView() override { return {}; }
