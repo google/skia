@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5b086d3d_f385e9d4",
+        "filename": "src/gpu/glsl/GrGLSLProgramBuilder.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-06-04T15:40:24Z",
+      "side": 1,
+      "message": "samples",
+      "range": {
+        "startLine": 230,
+        "startChar": 53,
+        "endLine": 230,
+        "endChar": 59
+      },
+      "revId": "d372b1b2b7bac8cdcb247d6548f9df75f65ceebe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
