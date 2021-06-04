@@ -16,6 +16,24 @@
       "message": "Note https://github.com/tc39/proposal-intl-segmenter . They purposely leave out the line breaker since that\u0027s generally used for shaping, and they didn\u0027t want to get into that. Instead that proposal is more focussed on the \"app\" side.",
       "revId": "525c0efcdb788816a714bdb160a2e04b74dadb79",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e447f894_0c3478cf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-06-04T14:57:09Z",
+      "side": 1,
+      "message": "Oh, and that one already shipped in Chrome 88 and is in WebKit tech preview at the moment.",
+      "parentUuid": "a44b3037_17d78f93",
+      "revId": "525c0efcdb788816a714bdb160a2e04b74dadb79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
