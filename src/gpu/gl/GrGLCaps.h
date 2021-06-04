@@ -505,9 +505,7 @@ private:
 
     GrDstSampleType onGetDstSampleTypeForProxy(const GrRenderTargetProxy*) const override;
 
-    bool onSupportsDynamicMSAA(const GrRenderTargetProxy*) const override {
-        return !fDisallowDynamicMSAA;
-    }
+    bool onSupportsDynamicMSAA(const GrRenderTargetProxy*) const override { return true; }
 
     GrGLStandard fStandard = kNone_GrGLStandard;
 
@@ -559,7 +557,6 @@ private:
     bool fNeverDisableColorWrites : 1;
     bool fMustSetAnyTexParameterToEnableMipmapping : 1;
     bool fAllowBGRA8CopyTexSubImage : 1;
-    bool fDisallowDynamicMSAA : 1;
     int fMaxInstancesPerDrawWithoutCrashing = 0;
 
     uint32_t fBlitFramebufferFlags = kNoSupport_BlitFramebufferFlag;
