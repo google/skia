@@ -229,21 +229,16 @@ bool GrGLSLProgramBuilder::emitAndInstallDstTexture() {
 
         // Populate the _dstColor variable by sampling from the dest-texture sampler at the top of
         // the fragment shader.
-        const char* dstTopLeftName;
-        fUniformHandles.fDstTopLeftUni = this->uniformHandler()->addUniform(/*owner=*/nullptr,
-                                                                            kFragment_GrShaderFlag,
-                                                                            kHalf2_GrSLType,
-                                                                            "DstTextureUpperLeft",
-                                                                            &dstTopLeftName);
-        const char* dstCoordScaleName;
-        fUniformHandles.fDstScaleUni = this->uniformHandler()->addUniform(/*owner=*/nullptr,
-                                                                          kFragment_GrShaderFlag,
-                                                                          kHalf2_GrSLType,
-                                                                          "DstTextureCoordScale",
-                                                                          &dstCoordScaleName);
+        const char* dstTextureCoordsName;
+        fUniformHandles.fDstTextureCoordsUni = this->uniformHandler()->addUniform(
+                /*owner=*/nullptr,
+                kFragment_GrShaderFlag,
+                kHalf4_GrSLType,
+                "DstTextureCoords",
+                &dstTextureCoordsName);
         fFS.codeAppend("// Read color from copy of the destination\n");
-        fFS.codeAppendf("half2 _dstTexCoord = (half2(sk_FragCoord.xy) - %s) * %s;\n",
-                        dstTopLeftName, dstCoordScaleName);
+        fFS.codeAppendf("half2 _dstTexCoord = (half2(sk_FragCoord.xy) - %s.xy) * %s.zw;\n",
+                        dstTextureCoordsName, dstTextureCoordsName);
         if (fDstTextureOrigin == kBottomLeft_GrSurfaceOrigin) {
             fFS.codeAppend("_dstTexCoord.y = 1.0 - _dstTexCoord.y;\n");
         }

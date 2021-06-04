@@ -141,18 +141,14 @@ void GrPipeline::setDstTextureUniforms(const GrGLSLProgramDataManager& pdm,
     GrTexture* dstTexture = this->peekDstTexture(&offset);
 
     if (dstTexture) {
-        if (fBuiltinUniformHandles->fDstTopLeftUni.isValid()) {
-            pdm.set2f(fBuiltinUniformHandles->fDstTopLeftUni,
+        if (fBuiltinUniformHandles->fDstTextureCoordsUni.isValid()) {
+            pdm.set4f(fBuiltinUniformHandles->fDstTextureCoordsUni,
                       static_cast<float>(fDstTextureOffset.fX),
-                      static_cast<float>(fDstTextureOffset.fY));
-            pdm.set2f(fBuiltinUniformHandles->fDstScaleUni,
+                      static_cast<float>(fDstTextureOffset.fY),
                       1.f / dstTexture->width(),
                       1.f / dstTexture->height());
-        } else {
-            SkASSERT(!fBuiltinUniformHandles->fDstTopLeftUni.isValid());
         }
     } else {
-        SkASSERT(!fBuiltinUniformHandles->fDstTopLeftUni.isValid());
-        SkASSERT(!fBuiltinUniformHandles->fDstTopLeftUni.isValid());
+        SkASSERT(!fBuiltinUniformHandles->fDstTextureCoordsUni.isValid());
     }
 }
