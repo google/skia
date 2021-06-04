@@ -16,6 +16,29 @@
       "message": "Obv. feel free to add whoever else needs to look at this.",
       "revId": "2c99f57541a11877e68431bd222a85488d8a9894",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "041fe3f3_72f13b74",
+        "filename": "include/core/SkStringView.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-04T19:45:14Z",
+      "side": 1,
+      "message": "Should we try to match C++17 on constexpr usage? All these ctors and many member functions below can be constexpr.",
+      "range": {
+        "startLine": 26,
+        "startChar": 4,
+        "endLine": 26,
+        "endChar": 15
+      },
+      "revId": "2c99f57541a11877e68431bd222a85488d8a9894",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
