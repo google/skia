@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1603ffef_286e849f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2021-06-04T19:48:39Z",
+      "side": 1,
+      "message": "We\u0027ll also need to cherry-pick to android/next-release in order to access.",
+      "revId": "d5856c01273af38c06147296852961b2e13f5555",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
