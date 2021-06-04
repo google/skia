@@ -37,7 +37,8 @@ public:
                  GrDstSampleType dstSampleType,
                  const SamplerHandle dstTextureSamplerHandle,
                  GrSurfaceOrigin dstTextureOrigin,
-                 const GrSwizzle& writeSwizzle)
+                 const GrSwizzle& writeSwizzle,
+                 GrGLSLBuiltinUniformHandles* uniformHandles)
                 : fXPFragBuilder(fragBuilder)
                 , fUniformHandler(uniformHandler)
                 , fShaderCaps(caps)
@@ -49,7 +50,8 @@ public:
                 , fDstSampleType(dstSampleType)
                 , fDstTextureSamplerHandle(dstTextureSamplerHandle)
                 , fDstTextureOrigin(dstTextureOrigin)
-                , fWriteSwizzle(writeSwizzle) {}
+                , fWriteSwizzle(writeSwizzle)
+                , fUniformHandles(uniformHandles) {}
         GrGLSLXPFragmentBuilder* fXPFragBuilder;
         GrGLSLUniformHandler* fUniformHandler;
         const GrShaderCaps* fShaderCaps;
@@ -62,6 +64,9 @@ public:
         const SamplerHandle fDstTextureSamplerHandle;
         GrSurfaceOrigin fDstTextureOrigin;
         GrSwizzle fWriteSwizzle;
+        // TODO(skia:12066): remove from EmitArgs once GrGLSLXferProcessor no longer controls the
+        // uniforms for dest-texture origin and scale.
+        GrGLSLBuiltinUniformHandles* fUniformHandles = nullptr;
     };
     /**
      * This is similar to emitCode() in the base class, except it takes a full shader builder.
@@ -76,8 +81,7 @@ public:
         to have an identical processor key as the one that created this GrGLSLXferProcessor. This
         function calls onSetData on the subclass of GrGLSLXferProcessor
      */
-    void setData(const GrGLSLProgramDataManager& pdm, const GrXferProcessor& xp,
-                 const GrTexture* dstTexture, const SkIPoint& dstTextureOffset);
+    void setData(const GrGLSLProgramDataManager& pdm, const GrXferProcessor& xp);
 
 protected:
     static void DefaultCoverageModulation(GrGLSLXPFragmentBuilder* fragBuilder,
@@ -118,9 +122,6 @@ private:
                                   const char* outColor,
                                   const char* outColorSecondary) const;
 
-    virtual void onSetData(const GrGLSLProgramDataManager&, const GrXferProcessor&) = 0;
-
-    GrGLSLProgramDataManager::UniformHandle fDstTopLeftUni;
-    GrGLSLProgramDataManager::UniformHandle fDstScaleUni;
+    virtual void onSetData(const GrGLSLProgramDataManager&, const GrXferProcessor&) {}
 };
 #endif

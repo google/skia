@@ -25,6 +25,8 @@
 
 class GrAppliedClip;
 class GrAppliedHardClip;
+struct GrGLSLBuiltinUniformHandles;
+class GrGLSLProgramDataManager;
 class GrOp;
 class GrSurfaceDrawContext;
 
@@ -202,6 +204,9 @@ public:
     const GrSwizzle& writeSwizzle() const { return fWriteSwizzle; }
 
     void visitProxies(const GrOp::VisitProxyFunc&) const;
+
+    void setDstTextureUniforms(const GrGLSLProgramDataManager& pdm,
+                               GrGLSLBuiltinUniformHandles* fBuiltinUniformHandles) const;
 
 private:
     static constexpr uint8_t kLastInputFlag = (uint8_t)InputFlags::kSnapVerticesToPixelCenters;

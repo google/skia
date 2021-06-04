@@ -74,8 +74,6 @@ private:
         }
     }
 
-    void onSetData(const GrGLSLProgramDataManager&, const GrXferProcessor&) override {}
-
     using INHERITED = GrGLSLXferProcessor;
 };
 

@@ -462,8 +462,6 @@ private:
                             args.fInputColor, args.fInputCoverage);
     }
 
-    void onSetData(const GrGLSLProgramDataManager&, const GrXferProcessor&) override {}
-
     using INHERITED = GrGLSLXferProcessor;
 };
 
@@ -532,8 +530,6 @@ private:
         INHERITED::DefaultCoverageModulation(fragBuilder, srcCoverage, dstColor, outColor,
                                              outColorSecondary, xp);
     }
-
-    void onSetData(const GrGLSLProgramDataManager&, const GrXferProcessor&) override {}
 
     using INHERITED = GrGLSLXferProcessor;
 };

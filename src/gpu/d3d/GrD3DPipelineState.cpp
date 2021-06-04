@@ -54,13 +54,8 @@ void GrD3DPipelineState::setAndBindConstants(GrD3DGpu* gpu,
         }
     }
 
-    {
-        SkIPoint offset;
-        GrTexture* dstTexture = programInfo.pipeline().peekDstTexture(&offset);
-
-        fXferProcessor->setData(fDataManager, programInfo.pipeline().getXferProcessor(),
-                                dstTexture, offset);
-    }
+    programInfo.pipeline().setDstTextureUniforms(fDataManager, &fBuiltinUniformHandles);
+    fXferProcessor->setData(fDataManager, programInfo.pipeline().getXferProcessor());
 
     D3D12_GPU_VIRTUAL_ADDRESS constantsAddress = fDataManager.uploadConstants(gpu);
     gpu->currentCommandList()->setGraphicsRootConstantBufferView(

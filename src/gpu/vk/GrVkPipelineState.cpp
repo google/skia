@@ -86,13 +86,8 @@ bool GrVkPipelineState::setAndBindUniforms(GrVkGpu* gpu,
         }
     }
 
-    {
-        SkIPoint offset;
-        GrTexture* dstTexture = programInfo.pipeline().peekDstTexture(&offset);
-
-        fXferProcessor->setData(fDataManager, programInfo.pipeline().getXferProcessor(),
-                                dstTexture, offset);
-    }
+    programInfo.pipeline().setDstTextureUniforms(fDataManager, &fBuiltinUniformHandles);
+    fXferProcessor->setData(fDataManager, programInfo.pipeline().getXferProcessor());
 
     // Upload uniform data and bind descriptor set.
     auto [uniformBuffer, success] = fDataManager.uploadUniforms(gpu, fPipeline->layout(),
