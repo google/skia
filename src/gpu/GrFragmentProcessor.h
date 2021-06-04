@@ -112,6 +112,12 @@ public:
                                                         std::unique_ptr<GrFragmentProcessor> g);
 
     /**
+     * Returns a fragment processor that reads back the destination color; that is, sampling will
+     * return the color of the sample that is currently being painted over.
+     */
+    static std::unique_ptr<GrFragmentProcessor> DestColor();
+
+    /**
      * Makes a copy of this fragment processor that draws equivalently to the original.
      * If the processor has child processors they are cloned as well.
      */
