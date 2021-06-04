@@ -2343,11 +2343,20 @@ void GrGLGpu::resolveRenderFBOs(GrGLRenderTarget* rt, const SkIRect& resolveRect
     // single sample buffer is FBO 0). If it's zero, then there's nothing to resolve.
     SkASSERT(rt->multisampleFBOID() != 0);
 
+    const GrGLCaps& caps = this->glCaps();
+
     if (resolveDirection == ResolveDirection::kMSAAToSingle) {
         this->bindFramebuffer(GR_GL_READ_FRAMEBUFFER, rt->multisampleFBOID());
         this->bindFramebuffer(GR_GL_DRAW_FRAMEBUFFER, rt->singleSampleFBOID());
     } else {
         SkASSERT(resolveDirection == ResolveDirection::kSingleToMSAA);
+        if (caps.msFBOType() == GrGLCaps::kES_Apple_MSFBOType ||
+            (caps.blitFramebufferSupportFlags() & GrGLCaps::kNoMSAADst_BlitFramebufferFlag)) {
+            // Blitting from single to multisample is not supported. Make a draw instead.
+            this->copySurfaceAsDraw(rt, true/*drawToMultisampleFBO*/, rt, resolveRect,
+                                    resolveRect.topLeft());
+            return;
+        }
         this->bindFramebuffer(GR_GL_READ_FRAMEBUFFER, rt->singleSampleFBOID());
         this->bindFramebuffer(GR_GL_DRAW_FRAMEBUFFER, rt->multisampleFBOID());
     }
@@ -2355,7 +2364,7 @@ void GrGLGpu::resolveRenderFBOs(GrGLRenderTarget* rt, const SkIRect& resolveRect
     // make sure we go through flushRenderTarget() since we've modified
     // the bound DRAW FBO ID.
     fHWBoundRenderTargetUniqueID.makeInvalid();
-    if (GrGLCaps::kES_Apple_MSFBOType == this->glCaps().msFBOType()) {
+    if (GrGLCaps::kES_Apple_MSFBOType == caps.msFBOType()) {
         // The Apple extension doesn't support blitting from single to multisample.
         SkASSERT(resolveDirection != ResolveDirection::kSingleToMSAA);
         // Apple's extension uses the scissor as the blit bounds.
@@ -2368,8 +2377,7 @@ void GrGLGpu::resolveRenderFBOs(GrGLRenderTarget* rt, const SkIRect& resolveRect
         GL_CALL(ResolveMultisampleFramebuffer());
     } else {
         int l, b, r, t;
-        if (GrGLCaps::kResolveMustBeFull_BlitFrambufferFlag &
-            this->glCaps().blitFramebufferSupportFlags()) {
+        if (caps.blitFramebufferSupportFlags() & GrGLCaps::kResolveMustBeFull_BlitFrambufferFlag) {
             l = 0;
             b = 0;
             r = rt->width();
@@ -2387,17 +2395,21 @@ void GrGLGpu::resolveRenderFBOs(GrGLRenderTarget* rt, const SkIRect& resolveRect
         GL_CALL(BlitFramebuffer(l, b, r, t, l, b, r, t, GR_GL_COLOR_BUFFER_BIT, GR_GL_NEAREST));
     }
 
-    if (this->glCaps().invalidateFBType() != GrGLCaps::kNone_InvalidateFBType &&
+    if (caps.invalidateFBType() != GrGLCaps::kNone_InvalidateFBType &&
         invalidateReadBufferAfterBlit) {
         // Invalidate the read FBO attachment after the blit, in hopes that this allows the driver
         // to perform tiling optimizations.
         GrGLenum colorDiscardAttachment = (rt->multisampleFBOID() == 0) ? GR_GL_COLOR
                                                                         : GR_GL_COLOR_ATTACHMENT0;
-        if (this->glCaps().invalidateFBType() == GrGLCaps::kInvalidate_InvalidateFBType) {
+        if (caps.invalidateFBType() == GrGLCaps::kInvalidate_InvalidateFBType) {
             GL_CALL(InvalidateFramebuffer(GR_GL_READ_FRAMEBUFFER, 1, &colorDiscardAttachment));
         } else {
-            SkASSERT(this->glCaps().invalidateFBType() == GrGLCaps::kDiscard_InvalidateFBType);
-            GL_CALL(DiscardFramebuffer(GR_GL_READ_FRAMEBUFFER, 1, &colorDiscardAttachment));
+            SkASSERT(caps.invalidateFBType() == GrGLCaps::kDiscard_InvalidateFBType);
+            // glDiscardFramebuffer only accepts GL_FRAMEBUFFER.
+            GrGLuint discardFBO = (resolveDirection == ResolveDirection::kMSAAToSingle)
+                    ? rt->multisampleFBOID() : rt->singleSampleFBOID();
+            this->bindFramebuffer(GR_GL_FRAMEBUFFER, discardFBO);
+            GL_CALL(DiscardFramebuffer(GR_GL_FRAMEBUFFER, 1, &colorDiscardAttachment));
         }
     }
 }
@@ -3021,7 +3033,9 @@ bool GrGLGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRe
     bool preferCopy = SkToBool(dst->asRenderTarget());
     auto dstFormat = dst->backendFormat().asGLFormat();
     if (preferCopy && this->glCaps().canCopyAsDraw(dstFormat, SkToBool(src->asTexture()))) {
-        if (this->copySurfaceAsDraw(dst, src, srcRect, dstPoint)) {
+        GrRenderTarget* dstRT = dst->asRenderTarget();
+        bool drawToMultisampleFBO = dstRT && dstRT->numSamples() > 1;
+        if (this->copySurfaceAsDraw(dst, drawToMultisampleFBO, src, srcRect, dstPoint)) {
             return true;
         }
     }
@@ -3036,7 +3050,9 @@ bool GrGLGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRe
     }
 
     if (!preferCopy && this->glCaps().canCopyAsDraw(dstFormat, SkToBool(src->asTexture()))) {
-        if (this->copySurfaceAsDraw(dst, src, srcRect, dstPoint)) {
+        GrRenderTarget* dstRT = dst->asRenderTarget();
+        bool drawToMultisampleFBO = dstRT && dstRT->numSamples() > 1;
+        if (this->copySurfaceAsDraw(dst, drawToMultisampleFBO, src, srcRect, dstPoint)) {
             return true;
         }
     }
@@ -3311,8 +3327,8 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
     return true;
 }
 
-bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
-                                const SkIPoint& dstPoint) {
+bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst, bool drawToMultisampleFBO, GrSurface* src,
+                                const SkIRect& srcRect, const SkIPoint& dstPoint) {
     auto* srcTex = static_cast<GrGLTexture*>(src->asTexture());
     auto* dstTex = static_cast<GrGLTexture*>(src->asTexture());
     auto* dstRT  = static_cast<GrGLRenderTarget*>(src->asRenderTarget());
@@ -3336,7 +3352,14 @@ bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst, GrSurface* src, const SkIRect& s
     int h = srcRect.height();
     // We don't swizzle at all in our copies.
     this->bindTexture(0, GrSamplerState::Filter::kNearest, GrSwizzle::RGBA(), srcTex);
-    this->bindSurfaceFBOForPixelOps(dst, 0, GR_GL_FRAMEBUFFER, kDst_TempFBOTarget);
+    if (dstRT) {
+        this->flushRenderTarget(dstRT, drawToMultisampleFBO);
+    } else {
+        if (drawToMultisampleFBO) {
+            return false;
+        }
+        this->bindSurfaceFBOForPixelOps(dst, 0, GR_GL_FRAMEBUFFER, kDst_TempFBOTarget);
+    }
     this->flushViewport(SkIRect::MakeSize(dst->dimensions()),
                         dst->height(),
                         kTopLeft_GrSurfaceOrigin); // the origin is irrelevant in this case
