@@ -215,6 +215,7 @@ bool GrGLSLProgramBuilder::emitAndInstallDstTexture() {
 
     const GrSurfaceProxyView& dstView = this->pipeline().dstProxyView();
     if (this->pipeline().usesDstTexture()) {
+        // Set up a dest-texture sampler.
         GrTextureProxy* dstTextureProxy = dstView.asTextureProxy();
         SkASSERT(dstTextureProxy);
         const GrSwizzle& swizzle = dstView.swizzle();
@@ -232,6 +233,7 @@ bool GrGLSLProgramBuilder::emitAndInstallDstTexture() {
             return false;
         }
     }
+
     return true;
 }
 
@@ -270,7 +272,8 @@ bool GrGLSLProgramBuilder::emitAndInstallXferProc(const SkString& colorIn,
                                        this->pipeline().dstSampleType(),
                                        fDstTextureSamplerHandle,
                                        fDstTextureOrigin,
-                                       this->pipeline().writeSwizzle());
+                                       this->pipeline().writeSwizzle(),
+                                       &fUniformHandles);
     fXferProcessor->emitCode(args);
 
     // We have to check that effects and the code they emit are consistent, ie if an effect

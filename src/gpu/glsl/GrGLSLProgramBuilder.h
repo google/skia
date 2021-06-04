@@ -110,6 +110,8 @@ public:
 
     SamplerHandle fDstTextureSamplerHandle;
     GrSurfaceOrigin fDstTextureOrigin;
+    UniformHandle fDstTopLeftUni;
+    UniformHandle fDstScaleUni;
 
 protected:
     explicit GrGLSLProgramBuilder(const GrProgramDesc&, const GrProgramInfo&);

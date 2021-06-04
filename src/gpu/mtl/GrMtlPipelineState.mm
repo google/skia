@@ -65,12 +65,8 @@ void GrMtlPipelineState::setData(const GrRenderTarget* renderTarget,
         }
     }
 
-    {
-        SkIPoint offset;
-        GrTexture* dstTexture = programInfo.pipeline().peekDstTexture(&offset);
-        fXferProcessor->setData(fDataManager, programInfo.pipeline().getXferProcessor(), dstTexture,
-                                offset);
-    }
+    programInfo.pipeline().setDstTextureUniforms(fDataManager, &fBuiltinUniformHandles);
+    fXferProcessor->setData(fDataManager, programInfo.pipeline().getXferProcessor());
 
     fDataManager.resetDirtyBits();
 
