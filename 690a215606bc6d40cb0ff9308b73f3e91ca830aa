@@ -16,6 +16,24 @@
       "message": "Undo?\n\nhttps://logs.chromium.org/logs/skia/53ecc6705fb99f11/+/steps/infra_tests/0/stdout",
       "revId": "690a215606bc6d40cb0ff9308b73f3e91ca830aa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "58f0b3f6_6d10d6a9",
+        "filename": "infra/bots/assets/skimage/VERSION",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2021-06-04T14:00:14Z",
+      "side": 0,
+      "message": "No, that\u0027s on purpose. I just always forget the command I need to run to apply it everywhere. It\u0027s\n\n  go run infra/bots/gen_tasks.go",
+      "parentUuid": "5d0acb35_7b01e02e",
+      "revId": "690a215606bc6d40cb0ff9308b73f3e91ca830aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

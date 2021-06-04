@@ -50,6 +50,24 @@
       "message": "Suggestion: add a comment above this line:\n\n// See https://bugs.chromium.org/p/skia/issues/detail?id\u003d12055\n\nAnd also add a blank line below, so it\u0027s clearer that the bug reference only applies to the one line:\n\n----\n}\n\n// See https://bugs.chromium.org/p/skia/issues/detail?id\u003d12055\ndecoder-\u003eset_quirk_enabled(WUFFS_GIF__QUIRK_IGNORE_TOO_MUCH_PIXEL_DATA, true);\n\nwhile (true) {\n----",
       "revId": "0e18fb5fe87a96cc332d63a66e5c2dba095a3fbd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1647925a_a1b4dd2a",
+        "filename": "src/codec/SkWuffsCodec.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2021-06-04T14:00:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c1d41067_aff78c9c",
+      "revId": "0e18fb5fe87a96cc332d63a66e5c2dba095a3fbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
