@@ -22,6 +22,30 @@
       },
       "revId": "97f130f447291b583ecd4008511397f35aec0307",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ecf572eb_70df4fc2",
+        "filename": "modules/svg/include/SkSVGDOM.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-06-04T18:20:31Z",
+      "side": 1,
+      "message": "With getRoot() exposed, a user can now also call getWidth() / getHeight() on that root element to access those values. I wonder if that can help clarify things. Just documenting things seems fine for now though.",
+      "parentUuid": "3b0cc65f_31c795cf",
+      "range": {
+        "startLine": 68,
+        "startChar": 0,
+        "endLine": 73,
+        "endChar": 78
+      },
+      "revId": "97f130f447291b583ecd4008511397f35aec0307",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
