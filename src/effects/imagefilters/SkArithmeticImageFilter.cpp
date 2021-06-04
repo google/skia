@@ -308,7 +308,7 @@ std::unique_ptr<GrFragmentProcessor> make_arithmetic_fp(
         std::unique_ptr<GrFragmentProcessor> dstFP,
         const SkV4& k,
         bool enforcePMColor) {
-    static constexpr char kCode[] = R"(
+    static auto effect = SkRuntimeEffect::MakeForShader(SkString(R"(
         uniform shader srcFP;
         uniform shader dstFP;
         uniform half4 k;
@@ -323,13 +323,12 @@ std::unique_ptr<GrFragmentProcessor> make_arithmetic_fp(
             color.rgb = min(color.rgb, max(color.a, pmClamp));
             return color;
         }
-    )";
-    auto builder = GrRuntimeFPBuilder::Make<kCode, SkRuntimeEffect::MakeForShader>();
-    builder.child("srcFP") = std::move(srcFP);
-    builder.child("dstFP") = std::move(dstFP);
-    builder.uniform("k") = k;
-    builder.uniform("pmClamp") = enforcePMColor ? 0.0f : 1.0f;
-    return builder.makeFP();
+    )")).effect;
+    return GrSkSLFP::Make(effect, "arithmetic_fp",
+                          "srcFP", std::move(srcFP),
+                          "dstFP", std::move(dstFP),
+                          "k", k,
+                          "pmClamp", enforcePMColor ? 0.0f : 1.0f);
 }
 
 sk_sp<SkSpecialImage> SkArithmeticImageFilter::filterImageGPU(
