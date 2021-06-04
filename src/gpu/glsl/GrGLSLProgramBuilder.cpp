@@ -227,8 +227,8 @@ bool GrGLSLProgramBuilder::emitAndInstallDstTexture() {
         fDstTextureOrigin = dstView.origin();
         SkASSERT(dstTextureProxy->textureType() != GrTextureType::kExternal);
 
-        // Populate the _dstColor variable by sampling from the dest-texture sampler at the top of
-        // the fragment shader.
+        // Declare a _dstColor global variable which samples from the dest-texture sampler at the
+        // top of the fragment shader.
         const char* dstTextureCoordsName;
         fUniformHandles.fDstTextureCoordsUni = this->uniformHandler()->addUniform(
                 /*owner=*/nullptr,
@@ -243,7 +243,9 @@ bool GrGLSLProgramBuilder::emitAndInstallDstTexture() {
             fFS.codeAppend("_dstTexCoord.y = 1.0 - _dstTexCoord.y;\n");
         }
         const char* dstColor = fFS.dstColor();
-        fFS.codeAppendf("half4 %s = ", dstColor);
+        SkString dstColorDecl = SkStringPrintf("half4 %s;", dstColor);
+        fFS.definitionAppend(dstColorDecl.c_str());
+        fFS.codeAppendf("%s = ", dstColor);
         fFS.appendTextureLookup(fDstTextureSamplerHandle, "_dstTexCoord");
         fFS.codeAppend(";\n");
     } else if (this->pipeline().usesInputAttachment()) {
@@ -258,7 +260,9 @@ bool GrGLSLProgramBuilder::emitAndInstallDstTexture() {
         // fragment shader.
         fFS.codeAppend("// Read color from input attachment\n");
         const char* dstColor = fFS.dstColor();
-        fFS.codeAppendf("half4 %s = ", dstColor);
+        SkString dstColorDecl = SkStringPrintf("half4 %s;", dstColor);
+        fFS.definitionAppend(dstColorDecl.c_str());
+        fFS.codeAppendf("%s = ", dstColor);
         fFS.appendInputLoad(fDstTextureSamplerHandle);
         fFS.codeAppend(";\n");
     }
