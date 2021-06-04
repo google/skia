@@ -16,6 +16,23 @@
       "message": "Ok, I think this is finally ready to go at PS21.  PTAL.",
       "revId": "6260f98c6ed059aa608b48b49b375d32851817da",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "24486412_aff822a5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 21
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-04T17:13:47Z",
+      "side": 1,
+      "message": "still lgtm",
+      "revId": "6260f98c6ed059aa608b48b49b375d32851817da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
