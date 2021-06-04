@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f07ca59b_8dd6ad5b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-04T19:54:44Z",
+      "side": 1,
+      "message": "I converted two different FPs to the new factory pattern - one that just has a single uniform, another that also has a couple children. Generated code in release builds looks great.",
+      "revId": "eb4a2008fd3e35c5f1321443e1fbdf2f641e525b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
