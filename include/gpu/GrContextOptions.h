@@ -268,6 +268,12 @@ struct SK_API GrContextOptions {
     bool fEnableExperimentalHardwareTessellation = false;
 
     /**
+     * Experimental: Should the Ganesh' Next Generation Architecture be used instead of the
+     * old architecture?
+     */
+    Enable fUseNGA = Enable::kDefault;
+
+    /**
      * Uses a reduced variety of shaders. May perform less optimally in steady state but can reduce
      * jank due to shader compilations.
      */

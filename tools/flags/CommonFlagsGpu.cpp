@@ -41,6 +41,8 @@ static DEFINE_bool(disableDriverCorrectnessWorkarounds, false,
 static DEFINE_bool(dontReduceOpsTaskSplitting, false,
                    "Don't reorder tasks to reduce render passes");
 
+static DEFINE_bool(nga, false, "use Ganesh' New Ganesh Architecture");
+
 static DEFINE_int(gpuResourceCacheLimit, -1,
                   "Maximum number of bytes to use for budgeted GPU resources. "
                   "Default is -1, which means GrResourceCache::kDefaultMaxSize.");
@@ -111,5 +113,9 @@ void SetCtxOptionsFromCommonFlags(GrContextOptions* ctxOptions) {
         ctxOptions->fReduceOpsTaskSplitting = GrContextOptions::Enable::kNo;
     } else {
         ctxOptions->fReduceOpsTaskSplitting = GrContextOptions::Enable::kYes;
+    }
+
+    if (FLAGS_nga) {
+        ctxOptions->fUseNGA = GrContextOptions::Enable::kYes;
     }
 }
