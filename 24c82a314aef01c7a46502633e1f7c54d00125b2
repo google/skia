@@ -16,6 +16,29 @@
       "message": "Follow ups:\n\n  - restoreToCount(int), otherwise the return value is not particularly useful\n  - saveLayer(Paint), to allow applying image filters, etc to the layer content",
       "revId": "24c82a314aef01c7a46502633e1f7c54d00125b2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1678f98c_19e7edef",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Canvas.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-04T14:20:23Z",
+      "side": 1,
+      "message": "why not saveLayer(Rect, Paint), which is the general case, even if either could be null?",
+      "range": {
+        "startLine": 37,
+        "startChar": 15,
+        "endLine": 37,
+        "endChar": 24
+      },
+      "revId": "24c82a314aef01c7a46502633e1f7c54d00125b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
