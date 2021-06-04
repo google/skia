@@ -270,31 +270,14 @@ public:
 protected:
 
 private:
-    class KeyAndCmd {
-    public:
-        SortKey fKey;
-        Cmd*    fCmd;
-    };
+    void sort();
 
-    void sort() {
-        // In general we want:
-        //  opaque draws to occur front to back (i.e., in reverse painter's order) while minimizing
-        //        state changes due to materials
-        //  transparent draws to occur back to front (i.e., in painter's order)
-        //
-        // In both scenarios we would like to batch as much as possible.
-        std::sort(fSortedCmds.begin(), fSortedCmds.end(),
-                  [](const KeyAndCmd& a, const KeyAndCmd& b) {
-                      return a.fKey < b.fKey;
-                  });
-    }
+    bool              fFinalized = false;
+    std::vector<Cmd*> fSortedCmds;
 
-    bool                   fFinalized = false;
-    std::vector<KeyAndCmd> fSortedCmds;
-
-    FakeStateTracker       fTracker;
-    SkBitmap               fBM;
-    uint32_t               fZBuffer[256][256];
+    FakeStateTracker  fTracker;
+    SkBitmap          fBM;
+    uint32_t          fZBuffer[256][256];
 };
 
 class FakeCanvas {
