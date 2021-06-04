@@ -18,6 +18,23 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1f453d46_d3e1d6aa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-04T20:15:12Z",
+      "side": 1,
+      "message": "This looks great, thanks for putting it together!",
+      "revId": "2c99f57541a11877e68431bd222a85488d8a9894",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "041fe3f3_72f13b74",
@@ -36,6 +53,126 @@
         "startChar": 4,
         "endLine": 26,
         "endChar": 15
+      },
+      "revId": "2c99f57541a11877e68431bd222a85488d8a9894",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "78287a40_669dd51f",
+        "filename": "include/core/SkStringView.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-04T20:15:12Z",
+      "side": 1,
+      "message": "One of the most compelling features of string_view is that it supports implicit conversion from std::string. The standard library does this via an `operator string_view` in std::string:\nhttps://en.cppreference.com/w/cpp/string/basic_string/operator_basic_string_view\n\nAFAICS we don\u0027t have that luxury, but we could add an implicit ctor from std::string here and get somewhat close.",
+      "revId": "2c99f57541a11877e68431bd222a85488d8a9894",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "88893f78_d278a3c5",
+        "filename": "include/core/SkStringView.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-04T20:15:12Z",
+      "side": 1,
+      "message": "Let\u0027s put in swap(), that\u0027s pretty foundational.",
+      "revId": "2c99f57541a11877e68431bd222a85488d8a9894",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f8ebbf60_54dda800",
+        "filename": "include/core/SkStringView.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-04T20:15:12Z",
+      "side": 1,
+      "message": "Let\u0027s add in operator\u003c at least, to allow things like std::sort on a range of string_views.",
+      "range": {
+        "startLine": 104,
+        "startChar": 0,
+        "endLine": 104,
+        "endChar": 53
+      },
+      "revId": "2c99f57541a11877e68431bd222a85488d8a9894",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2686179b_babd4c44",
+        "filename": "include/private/SkSLString.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-04T20:15:12Z",
+      "side": 1,
+      "message": "This needs to be marked `explicit`. std::strings cannot implicitly be constructed from std::string_views. See ctor 10 at https://en.cppreference.com/w/cpp/string/basic_string/basic_string",
+      "range": {
+        "startLine": 81,
+        "startChar": 0,
+        "endLine": 81,
+        "endChar": 69
+      },
+      "revId": "2c99f57541a11877e68431bd222a85488d8a9894",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "370d36d6_a8ad2020",
+        "filename": "include/private/SkSLString.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-04T20:15:12Z",
+      "side": 1,
+      "message": "Maybe add an `operator skstd::string_view` here to match\n  https://en.cppreference.com/w/cpp/string/basic_string/operator_basic_string_view\n?",
+      "revId": "2c99f57541a11877e68431bd222a85488d8a9894",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a16640a2_6402a640",
+        "filename": "src/core/SkStringView.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-04T20:15:12Z",
+      "side": 1,
+      "message": "You don\u0027t actually need this check: https://stackoverflow.com/q/19034858\n\nI imagine you put this because you weren\u0027t sure, because memcmp docs aren\u0027t very clear on it (I had to hunt for this confirmation too!). If that\u0027s the case, consider `0 \u003d\u003d char_traits::compare(left.data(), right.data(), left.length())` instead? That does the same thing (in fact some specializations do just call `__builtin_memcmp`) but hopefully makes the intent clearer?",
+      "range": {
+        "startLine": 15,
+        "startChar": 11,
+        "endLine": 15,
+        "endChar": 33
       },
       "revId": "2c99f57541a11877e68431bd222a85488d8a9894",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
