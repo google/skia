@@ -83,6 +83,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "309af981_166f84fb",
+        "filename": "experimental/sktext/canvas2d.md",
+        "patchSetId": 8
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 17944
+      },
+      "writtenOn": "2021-06-04T21:13:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "323837eb_12ebc852",
+      "revId": "28f43f512aeaf49ab407f788610cee8e329b4f48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c66fa4dc_3987f7e0",
@@ -114,6 +132,24 @@
       "side": 1,
       "message": "Yes, fillGlyphs() should work correctly regardless of how the glyph is represented in the typeface.\n\nI suggest all of these Font \"helpers\" to be utilities in case the client wanted to draw things in their own way (e.g. maybe extract the glyph\u0027s path and morph it).",
       "parentUuid": "c66fa4dc_3987f7e0",
+      "revId": "28f43f512aeaf49ab407f788610cee8e329b4f48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "de26227b_cff32f5e",
+        "filename": "experimental/sktext/canvas2d.md",
+        "patchSetId": 8
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 17944
+      },
+      "writtenOn": "2021-06-04T21:13:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d6f61d97_a3c0bfde",
       "revId": "28f43f512aeaf49ab407f788610cee8e329b4f48",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -294,6 +330,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a1b6e918_7a43e6fc",
+        "filename": "experimental/sktext/overview.md",
+        "patchSetId": 8
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 17944
+      },
+      "writtenOn": "2021-06-04T21:13:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "94a3bcce_c6c379a1",
+      "revId": "28f43f512aeaf49ab407f788610cee8e329b4f48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5f6aacb8_80f9a6ef",
@@ -466,6 +520,24 @@
       "side": 1,
       "message": "Like a FontBlock, PlaceholderBlock \"inherits\" from TextBlock, and that \u0027base\u0027 always has a length.",
       "parentUuid": "d36cd66c_b5c95086",
+      "revId": "28f43f512aeaf49ab407f788610cee8e329b4f48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ac927362_e6201ea5",
+        "filename": "experimental/sktext/shaper.md",
+        "patchSetId": 8
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 17944
+      },
+      "writtenOn": "2021-06-04T21:13:52Z",
+      "side": 1,
+      "message": "I understand that part. I\u0027m just not sure what the value of the `length` property would be, since a placeholder block doesn\u0027t really represent a subset of the string.",
+      "parentUuid": "04b8c8ff_5bfeeade",
       "revId": "28f43f512aeaf49ab407f788610cee8e329b4f48",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
