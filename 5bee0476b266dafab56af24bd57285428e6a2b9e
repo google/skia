@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8d631ff1_d36dc3a8",
+        "filename": "modules/androidkit/src/ImageFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-06-04T19:08:14Z",
+      "side": 1,
+      "message": "I see makes sense. Done.",
+      "parentUuid": "e4b6503f_32d2d054",
+      "range": {
+        "startLine": 17,
+        "startChar": 4,
+        "endLine": 17,
+        "endChar": 10
+      },
+      "revId": "5bee0476b266dafab56af24bd57285428e6a2b9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7be22f0f_f24cd6a2",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-06-04T14:51:51Z",
       "side": 1,
       "message": "This truncates to unsigned, which introduces a subtle bias towards zero.  We should round instead:\n\n  SkScalarRoundToInt(r*255), ...",
+      "range": {
+        "startLine": 25,
+        "startChar": 40,
+        "endLine": 25,
+        "endChar": 47
+      },
+      "revId": "5bee0476b266dafab56af24bd57285428e6a2b9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d78515e0_16ac3d12",
+        "filename": "modules/androidkit/src/ImageFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-06-04T19:08:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7be22f0f_f24cd6a2",
       "range": {
         "startLine": 25,
         "startChar": 40,
@@ -70,6 +118,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bb6f311b_e1d5de85",
+        "filename": "modules/androidkit/src/ImageFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-06-04T19:08:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "771ec1c5_84d759c5",
+      "range": {
+        "startLine": 27,
+        "startChar": 88,
+        "endLine": 27,
+        "endChar": 93
+      },
+      "revId": "5bee0476b266dafab56af24bd57285428e6a2b9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "50d67d6f_95f04e1c",
@@ -83,6 +155,30 @@
       "writtenOn": "2021-06-04T14:51:51Z",
       "side": 1,
       "message": "nit: I think we just need the base class SkImageFilter (include/core/SkImageFilter.h).",
+      "range": {
+        "startLine": 12,
+        "startChar": 26,
+        "endLine": 12,
+        "endChar": 42
+      },
+      "revId": "5bee0476b266dafab56af24bd57285428e6a2b9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5e12e77f_71212c24",
+        "filename": "modules/androidkit/src/Paint.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-06-04T19:08:14Z",
+      "side": 1,
+      "message": "The DistantLitDiffuse factory and others are under the SkImageFilters namespace.",
+      "parentUuid": "50d67d6f_95f04e1c",
       "range": {
         "startLine": 12,
         "startChar": 26,
@@ -110,6 +206,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "16c07121_49b9905d",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/ImageFilter.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-06-04T19:08:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "334d871e_59f867cc",
+      "revId": "5bee0476b266dafab56af24bd57285428e6a2b9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "90636dd4_317164e1",
@@ -133,6 +247,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b425ebc4_b6718d4b",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Paint.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-06-04T19:08:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "90636dd4_317164e1",
+      "range": {
+        "startLine": 32,
+        "startChar": 27,
+        "endLine": 32,
+        "endChar": 40
+      },
+      "revId": "5bee0476b266dafab56af24bd57285428e6a2b9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "137b5c94_ccda9dd4",
@@ -146,6 +284,30 @@
       "writtenOn": "2021-06-04T14:51:51Z",
       "side": 1,
       "message": "Make this something other than red to verify the filter effect?",
+      "range": {
+        "startLine": 98,
+        "startChar": 33,
+        "endLine": 98,
+        "endChar": 43
+      },
+      "revId": "5bee0476b266dafab56af24bd57285428e6a2b9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "720adb0a_5320f333",
+        "filename": "platform_tools/android/apps/androidkitdemo/src/main/java/org/skia/androidkitdemo1/MainActivity.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-06-04T19:08:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "137b5c94_ccda9dd4",
       "range": {
         "startLine": 98,
         "startChar": 33,
