@@ -9,6 +9,7 @@
 #define GrYUVATextureProxies_DEFINED
 
 #include "include/core/SkYUVAInfo.h"
+#include "include/core/SkYUVAPixmaps.h"
 #include "src/core/SkYUVAInfoLocation.h"
 #include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/GrSurfaceProxyView.h"
@@ -64,6 +65,12 @@ public:
     bool isValid() const { return fYUVAInfo.isValid(); }
 
     const SkYUVAInfo::YUVALocations& yuvaLocations() const { return fYUVALocations; }
+
+    /**
+     * Gets the "data type" based on texture formats or kUnknown if the combination of
+     *  formats/channels don't map to single data type.
+     */
+    SkYUVAPixmapInfo::DataType dataType() const;
 
 private:
     std::array<sk_sp<GrSurfaceProxy>, SkYUVAInfo::kMaxPlanes> fProxies;

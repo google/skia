@@ -124,3 +124,73 @@ GrYUVATextureProxies::GrYUVATextureProxies(const SkYUVAInfo& yuvaInfo,
     fTextureOrigin = views[0].origin();
     SkASSERT(this->isValid());
 }
+
+SkYUVAPixmapInfo::DataType GrYUVATextureProxies::dataType() const {
+    GrColorFormatDesc descs[SkYUVAInfo::kMaxPlanes];
+    for (int i = 0; i < this->numPlanes(); ++i) {
+        descs[i] = fProxies[i]->backendFormat().desc();
+    }
+
+    auto result = SkYUVAPixmapInfo::DataType::kUnknown;
+    for (int l = 0; l < SkYUVAInfo::kYUVAChannelCount; ++l) {
+        const auto& location = fYUVALocations[l];
+        if (location.fPlane < 0) {
+            continue;
+        }
+        int bits;
+        switch (location.fChannel) {
+            case SkColorChannel::kR:
+                bits = descs[location.fPlane].r();
+                break;
+            case SkColorChannel::kG:
+                bits = descs[location.fPlane].g();
+                break;
+            case SkColorChannel::kB:
+                bits = descs[location.fPlane].b();
+                break;
+            case SkColorChannel::kA:
+                bits = descs[location.fPlane].a();
+                break;
+        }
+        if (bits == 0 && location.fChannel != SkColorChannel::kA) {
+            bits = descs[location.fPlane].gray();
+        }
+        auto chanDataType = SkYUVAPixmapInfo::DataType::kUnknown;
+        switch (descs[location.fPlane].encoding()) {
+            case GrColorTypeEncoding::kUnorm:
+                switch (bits) {
+                    case  8:
+                        chanDataType = SkYUVAPixmapInfo::DataType::kUnorm8;
+                        break;
+                    case 16:
+                        chanDataType = SkYUVAPixmapInfo::DataType::kUnorm16;
+                        break;
+                    case 10:
+                        if (l != static_cast<int>(SkYUVAInfo::YUVAChannels::kA)) {
+                            chanDataType = SkYUVAPixmapInfo::DataType::kUnorm10_Unorm2;
+                        }
+                        break;
+                    case 2:
+                        if (l == static_cast<int>(SkYUVAInfo::YUVAChannels::kA)) {
+                            chanDataType = SkYUVAPixmapInfo::DataType::kUnorm10_Unorm2;
+                        }
+                        break;
+                }
+                break;
+            case GrColorTypeEncoding::kSRGBUnorm:
+                // fail
+                break;
+            case GrColorTypeEncoding::kFloat:
+                if (bits == 16) {
+                    chanDataType = SkYUVAPixmapInfo::DataType::kFloat16;
+                }
+                break;
+        }
+        if (result == SkYUVAPixmapInfo::DataType::kUnknown) {
+            result = chanDataType;
+        } else if (chanDataType != result) {
+            return SkYUVAPixmapInfo::DataType::kUnknown;
+        }
+    }
+    return result;
+}

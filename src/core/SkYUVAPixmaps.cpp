@@ -178,6 +178,7 @@ bool SkYUVAPixmapInfo::isSupported(const SupportedDataTypes& supportedDataTypes)
 
 SkColorType SkYUVAPixmaps::RecommendedRGBAColorType(DataType dataType) {
     switch (dataType) {
+        case DataType::kUnknown:        return kUnknown_SkColorType;
         case DataType::kUnorm8:         return kRGBA_8888_SkColorType;
         // F16 has better GPU support than 16 bit unorm. Often "16" bit unorm values are actually
         // lower precision.

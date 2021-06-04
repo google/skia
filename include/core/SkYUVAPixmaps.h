@@ -35,6 +35,8 @@ public:
      * planes.
      **/
     enum class DataType {
+        kUnknown,
+
         kUnorm8,          ///< 8 bit unsigned normalized
         kUnorm16,         ///< 16 bit unsigned normalized
         kFloat16,         ///< 16 bit (half) floating point
@@ -294,6 +296,7 @@ constexpr SkColorType SkYUVAPixmapInfo::DefaultColorTypeForDataType(DataType dat
     switch (numChannels) {
         case 1:
             switch (dataType) {
+                case DataType::kUnknown:        return kUnknown_SkColorType;
                 case DataType::kUnorm8:         return kGray_8_SkColorType;
                 case DataType::kUnorm16:        return kA16_unorm_SkColorType;
                 case DataType::kFloat16:        return kA16_float_SkColorType;
@@ -302,6 +305,7 @@ constexpr SkColorType SkYUVAPixmapInfo::DefaultColorTypeForDataType(DataType dat
             break;
         case 2:
             switch (dataType) {
+                case DataType::kUnknown:        return kUnknown_SkColorType;
                 case DataType::kUnorm8:         return kR8G8_unorm_SkColorType;
                 case DataType::kUnorm16:        return kR16G16_unorm_SkColorType;
                 case DataType::kFloat16:        return kR16G16_float_SkColorType;
@@ -315,6 +319,7 @@ constexpr SkColorType SkYUVAPixmapInfo::DefaultColorTypeForDataType(DataType dat
             // choose them because 1) there is no inherent advantage and 2) there is better support
             // in the GPU backend for the "A" versions.
             switch (dataType) {
+                case DataType::kUnknown:        return kUnknown_SkColorType;
                 case DataType::kUnorm8:         return kRGBA_8888_SkColorType;
                 case DataType::kUnorm16:        return kR16G16B16A16_unorm_SkColorType;
                 case DataType::kFloat16:        return kRGBA_F16_SkColorType;
@@ -323,6 +328,7 @@ constexpr SkColorType SkYUVAPixmapInfo::DefaultColorTypeForDataType(DataType dat
             break;
         case 4:
             switch (dataType) {
+                case DataType::kUnknown:        return kUnknown_SkColorType;
                 case DataType::kUnorm8:         return kRGBA_8888_SkColorType;
                 case DataType::kUnorm16:        return kR16G16B16A16_unorm_SkColorType;
                 case DataType::kFloat16:        return kRGBA_F16_SkColorType;

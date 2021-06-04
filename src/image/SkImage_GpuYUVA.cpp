@@ -29,7 +29,25 @@
 #include "src/image/SkImage_Gpu.h"
 #include "src/image/SkImage_GpuYUVA.h"
 
-static constexpr auto kAssumedColorType = kRGBA_8888_SkColorType;
+static inline SkColorType image_color_type(const GrYUVATextureProxies& proxies) {
+    switch (proxies.dataType()) {
+        case SkYUVAPixmapInfo::DataType::kUnknown:
+            SkDebugf("Could not get data type of yuva proxies, assuming kUnorm8.");
+            [[fallthrough]];
+        case SkYUVAPixmapInfo::DataType::kUnorm8:
+            return proxies.yuvaInfo().hasAlpha() ?  kRGBA_8888_SkColorType : kRGB_888x_SkColorType;
+        case SkYUVAPixmapInfo::DataType::kUnorm16:
+            // There is no opaque color type for 16 bit unorm.
+            return kR16G16B16A16_unorm_SkColorType;
+        case SkYUVAPixmapInfo::DataType::kFloat16:
+            // There is no opaque color type for 16 bit float.
+            return kRGBA_F16_SkColorType;
+        case SkYUVAPixmapInfo::DataType::kUnorm10_Unorm2:
+            return proxies.yuvaInfo().hasAlpha() ? kRGBA_1010102_SkColorType
+                                                 : kRGB_101010x_SkColorType;
+    }
+    SkUNREACHABLE;
+}
 
 SkImage_GpuYUVA::SkImage_GpuYUVA(sk_sp<GrImageContext> context,
                                  uint32_t uniqueID,
@@ -37,7 +55,7 @@ SkImage_GpuYUVA::SkImage_GpuYUVA(sk_sp<GrImageContext> context,
                                  sk_sp<SkColorSpace> imageColorSpace)
         : INHERITED(std::move(context),
                     SkImageInfo::Make(proxies.yuvaInfo().dimensions(),
-                                      kAssumedColorType,
+                                      image_color_type(proxies),
                                       // If an alpha channel is present we always use kPremul. This
                                       // is because, although the planar data is always un-premul,
                                       // the final interleaved RGBA sample produced in the shader
@@ -355,12 +373,6 @@ sk_sp<SkImage> SkImage::MakePromiseYUVATexture(sk_sp<GrContextThreadSafeProxy> t
 
     SkAlphaType at = backendTextureInfo.yuvaInfo().hasAlpha() ? kPremul_SkAlphaType
                                                               : kOpaque_SkAlphaType;
-    SkImageInfo info = SkImageInfo::Make(backendTextureInfo.yuvaInfo().dimensions(),
-                                         kAssumedColorType, at, imageColorSpace);
-    if (!SkImageInfoIsValid(info)) {
-        return nullptr;
-    }
-
     // Make a lazy proxy for each plane and wrap in a view.
     sk_sp<GrSurfaceProxy> proxies[4];
     for (int i = 0; i < n; ++i) {
@@ -378,6 +390,13 @@ sk_sp<SkImage> SkImage::MakePromiseYUVATexture(sk_sp<GrContextThreadSafeProxy> t
                                             proxies,
                                             backendTextureInfo.textureOrigin());
     SkASSERT(yuvaTextureProxies.isValid());
+    SkImageInfo info = SkImageInfo::Make(backendTextureInfo.yuvaInfo().dimensions(),
+                                         image_color_type(yuvaTextureProxies),
+                                         at,
+                                         imageColorSpace);
+    if (!SkImageInfoIsValid(info)) {
+        return nullptr;
+    }
     sk_sp<GrImageContext> ctx(GrImageContextPriv::MakeForPromiseImage(std::move(threadSafeProxy)));
     return sk_make_sp<SkImage_GpuYUVA>(std::move(ctx),
                                        kNeedNewImageUniqueID,

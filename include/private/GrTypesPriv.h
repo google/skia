@@ -1045,6 +1045,8 @@ enum class GrColorTypeEncoding {
  */
 class GrColorFormatDesc {
 public:
+    constexpr GrColorFormatDesc() = default;
+
     static constexpr GrColorFormatDesc MakeRGBA(int rgba, GrColorTypeEncoding e) {
         return {rgba, rgba, rgba, rgba, 0, e};
     }
@@ -1108,8 +1110,6 @@ private:
     int fABits = 0;
     int fGrayBits = 0;
     GrColorTypeEncoding fEncoding = GrColorTypeEncoding::kUnorm;
-
-    constexpr GrColorFormatDesc() = default;
 
     constexpr GrColorFormatDesc(int r, int g, int b, int a, int gray, GrColorTypeEncoding encoding)
             : fRBits(r), fGBits(g), fBBits(b), fABits(a), fGrayBits(gray), fEncoding(encoding) {
