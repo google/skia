@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fb783143_474a8b42",
+        "filename": "src/gpu/GrOpsTask.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 691,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-04T14:23:00Z",
+      "side": 1,
+      "message": "don\u0027t need this for members",
+      "range": {
+        "startLine": 691,
+        "startChar": 49,
+        "endLine": 691,
+        "endChar": 55
+      },
+      "revId": "f91bc4dd10737baf32d3abb43892662bd004c8c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dab849fe_09ac994a",
+        "filename": "src/gpu/GrOpsTask.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 694,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-04T14:23:00Z",
+      "side": 1,
+      "message": "same",
+      "range": {
+        "startLine": 694,
+        "startChar": 32,
+        "endLine": 694,
+        "endChar": 38
+      },
+      "revId": "f91bc4dd10737baf32d3abb43892662bd004c8c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fabe3f83_0470e983",
+        "filename": "src/gpu/GrOpsTask.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 696,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-04T14:23:00Z",
+      "side": 1,
+      "message": "same",
+      "range": {
+        "startLine": 696,
+        "startChar": 32,
+        "endLine": 696,
+        "endChar": 38
+      },
+      "revId": "f91bc4dd10737baf32d3abb43892662bd004c8c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cc377d7e_f3d72be7",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1932,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-04T14:23:00Z",
+      "side": 1,
+      "message": "Can we not use texture barriers in some cases? Like what happens with renderToTexture?",
+      "range": {
+        "startLine": 1932,
+        "startChar": 16,
+        "endLine": 1932,
+        "endChar": 83
+      },
+      "revId": "f91bc4dd10737baf32d3abb43892662bd004c8c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7da5cdaa_75d8512e",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1982,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-04T14:23:00Z",
+      "side": 1,
+      "message": "don\u0027t we also need to get a different dstSampleType now? Like shouldn\u0027t this go to copy?",
+      "range": {
+        "startLine": 1982,
+        "startChar": 12,
+        "endLine": 1982,
+        "endChar": 35
+      },
+      "revId": "f91bc4dd10737baf32d3abb43892662bd004c8c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "478a323a_53b92a1d",
+        "filename": "src/gpu/gl/GrGLOpsRenderPass.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-04T14:23:00Z",
+      "side": 1,
+      "message": "Do we really need this? Shouldn\u0027t we have decided not to use barriers previously when adding the op? Like we would have broken up the render pass and done a copy and set that copy as the dst proxy.",
+      "range": {
+        "startLine": 167,
+        "startChar": 0,
+        "endLine": 174,
+        "endChar": 54
+      },
+      "revId": "f91bc4dd10737baf32d3abb43892662bd004c8c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
