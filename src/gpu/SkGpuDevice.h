@@ -8,11 +8,13 @@
 #ifndef SkGpuDevice_DEFINED
 #define SkGpuDevice_DEFINED
 
+#include "include/gpu/GrTypes.h"
+
+#if 1 //SK_OGA
 #include "include/core/SkBitmap.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkRegion.h"
 #include "include/core/SkSurface.h"
-#include "include/gpu/GrTypes.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/SkBaseGpuDevice.h"
 #include "src/gpu/SkGr.h"
@@ -250,5 +252,7 @@ private:
 };
 
 #undef GR_CLIP_STACK
+
+#endif // SK_OGA
 
 #endif
