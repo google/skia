@@ -16,6 +16,24 @@
       "message": "One would need to also pass in the script and language to assume to get a good answer. Under the hood these are always four byte tags which could be passed here as strings. Alternately a bcp47 string could be passed, which may actually be better. Probably whatever is easier to obtain.\n\nNote that one would already have needed to have broken up a longer string into parts which each have a single language/script for this to work well, so that would need to be a separate pass. Alternately this call could be modified to return this additional information (though that might be heavy). If this determines runs of language/script as well, there would still be a need to pass in a stack of bcp47 codes as context.",
       "revId": "f002fae21f14d33244e57c7611076ea26652002a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "27c11ad8_c3c4d031",
+        "filename": "site/docs/dev/design/uni_characterize.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-04T14:46:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "694b1ef1_11f59edf",
+      "revId": "f002fae21f14d33244e57c7611076ea26652002a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
