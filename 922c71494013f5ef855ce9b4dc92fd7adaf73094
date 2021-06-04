@@ -16,6 +16,24 @@
       "message": "This will enable on any build for Android, not just for the framework. If we\u0027re going to enable on either HWUI or RenderEngine we should bring this:\n\nhttps://source.chromium.org/chromium/chromium/src/+/main:third_party/skia/include/gpu/GrContextOptions.h;l\u003d275?q\u003dGrContextOptions.h\u0026ss\u003dchromium%2Fchromium%2Fsrc:third_party%2Fskia%2F\n\nout from behind GR_TEST_UTILS and have it enabled when the GrDirectContext is made on the Android side.",
       "revId": "922c71494013f5ef855ce9b4dc92fd7adaf73094",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1a277632_b4780730",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2021-06-04T18:47:43Z",
+      "side": 1,
+      "message": "Ok thanks.\nI think that would be here\nhttps://source.corp.google.com/sc-dev/frameworks/native/libs/renderengine/skia/SkiaGLRenderEngine.cpp;rcl\u003df824b538078f701b6881db46b630378b55a66dd0;l\u003d319",
+      "parentUuid": "abc6888f_95a5187b",
+      "revId": "922c71494013f5ef855ce9b4dc92fd7adaf73094",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
