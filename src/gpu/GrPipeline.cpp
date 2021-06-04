@@ -35,11 +35,7 @@ GrPipeline::GrPipeline(const InitArgs& args,
 
     SkASSERT((args.fDstProxyView.dstSampleType() != GrDstSampleType::kNone) ==
              SkToBool(args.fDstProxyView.proxy()));
-    if (args.fDstProxyView.proxy()) {
-        fDstProxyView = args.fDstProxyView.proxyView();
-        fDstTextureOffset = args.fDstProxyView.offset();
-    }
-    fDstSampleType = args.fDstProxyView.dstSampleType();
+    fDstProxy = args.fDstProxyView;
 }
 
 GrPipeline::GrPipeline(const InitArgs& args, GrProcessorSet&& processors,
@@ -66,7 +62,7 @@ GrPipeline::GrPipeline(const InitArgs& args, GrProcessorSet&& processors,
 }
 
 GrXferBarrierType GrPipeline::xferBarrierType(const GrCaps& caps) const {
-    if (fDstProxyView.proxy() && GrDstSampleTypeDirectlySamplesDst(fDstSampleType)) {
+    if (this->dstProxyView().proxy() && GrDstSampleTypeDirectlySamplesDst(this->dstSampleType())) {
         return kTexture_GrXferBarrierType;
     }
     return this->getXferProcessor().xferBarrierType(caps);
@@ -121,7 +117,7 @@ void GrPipeline::visitProxies(const GrOp::VisitProxyFunc& func) const {
         fp->visitProxies(func);
     }
     if (this->usesDstTexture()) {
-        func(fDstProxyView.proxy(), GrMipmapped::kNo);
+        func(this->dstProxyView().proxy(), GrMipmapped::kNo);
     }
 }
 
@@ -132,8 +128,8 @@ void GrPipeline::setDstTextureUniforms(const GrGLSLProgramDataManager& pdm,
     if (dstTexture) {
         if (fBuiltinUniformHandles->fDstTextureCoordsUni.isValid()) {
             pdm.set4f(fBuiltinUniformHandles->fDstTextureCoordsUni,
-                      static_cast<float>(fDstTextureOffset.fX),
-                      static_cast<float>(fDstTextureOffset.fY),
+                      static_cast<float>(this->dstTextureOffset().fX),
+                      static_cast<float>(this->dstTextureOffset().fY),
                       1.f / dstTexture->width(),
                       1.f / dstTexture->height());
         }
