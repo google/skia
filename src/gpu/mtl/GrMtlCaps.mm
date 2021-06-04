@@ -275,6 +275,7 @@ void GrMtlCaps::initGrCaps(id<MTLDevice> device) {
     // We always copy in/out of a transfer buffer so it's trivial to support row bytes.
     fReadPixelsRowBytesSupport = true;
     fWritePixelsRowBytesSupport = true;
+    fTransferPixelsToRowBytesSupport = true;
 
     // RenderTarget and Texture size
     if (this->isMac()) {
