@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"go.skia.org/infra/go/cipd"
+	"go.skia.org/infra/go/sklog"
 	"go.skia.org/infra/task_scheduler/go/specs"
 )
 
@@ -266,6 +267,7 @@ func (b *taskBuilder) cipdPlatform() string {
 		return cipd.PlatformLinuxAmd64
 	} else if b.matchOs("Win") || b.matchExtraConfig("Win") {
 		if b.matchArch("x86_64") {
+			sklog.Errorf("%s -> x86_64", b.Name)
 			return cipd.PlatformWindowsAmd64
 		} else {
 			return cipd.PlatformWindows386
@@ -296,6 +298,7 @@ func (b *taskBuilder) usesPython() {
 		Path: "cache/vpython",
 	})
 	b.env("VPYTHON_VIRTUALENV_ROOT", "cache/vpython")
+	b.env("VPYTHON_LOG_TRACE", "1")
 }
 
 func (b *taskBuilder) usesNode() {
