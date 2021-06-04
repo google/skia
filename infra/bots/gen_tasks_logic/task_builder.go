@@ -281,21 +281,21 @@ func (b *taskBuilder) cipdPlatform() string {
 
 // usesPython adds attributes to tasks which use python.
 func (b *taskBuilder) usesPython() {
-	// TODO(borenet): This handling of the Python package is hacky and bad.
 	pythonPkgs := cipd.PkgsPython[b.cipdPlatform()]
+	b.cipd(pythonPkgs...)
 	b.cipd(pythonPkgs[1])
-	if b.os("Mac10.15") && b.model("VMware7.1") {
-		b.cipd(pythonPkgs[0])
-	}
-	if b.matchOs("Win") || b.matchExtraConfig("Win") {
-		b.cipd(pythonPkgs[0])
-	}
-
+	b.addToPATH(
+		"cipd_bin_packages/cpython",
+		"cipd_bin_packages/cpython/bin",
+		"cipd_bin_packages/cpython3",
+		"cipd_bin_packages/cpython3/bin",
+	)
 	b.cache(&specs.Cache{
 		Name: "vpython",
 		Path: "cache/vpython",
 	})
 	b.env("VPYTHON_VIRTUALENV_ROOT", "cache/vpython")
+	b.env("VPYTHON_LOG_TRACE", "1")
 }
 
 func (b *taskBuilder) usesNode() {
