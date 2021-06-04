@@ -122,17 +122,13 @@ public:
         }
     }
 
-    GrDstSampleType dstSampleType() const {
-        return fDstSampleType;
-    }
-
     // Helper functions to quickly know if this GrPipeline will access the dst as a texture or an
     // input attachment.
     bool usesDstTexture() const {
-        return GrDstSampleTypeUsesTexture(fDstSampleType);
+        return GrDstSampleTypeUsesTexture(this->dstSampleType());
     }
     bool usesInputAttachment() const {
-        return fDstSampleType == GrDstSampleType::kAsInputAttachment;
+        return this->dstSampleType() == GrDstSampleType::kAsInputAttachment;
     }
 
     /**
@@ -140,7 +136,15 @@ public:
      * GrXferProcessor does not use the dst color then the proxy on the GrSurfaceProxyView will be
      * nullptr.
      */
-    const GrSurfaceProxyView& dstProxyView() const { return fDstProxyView; }
+    const GrSurfaceProxyView& dstProxyView() const { return fDstProxy.proxyView(); }
+
+    SkIPoint dstTextureOffset() const { return fDstProxy.offset(); }
+
+    /**
+     * This is the GrDstSampleType that is used for the render pass that this GrPipeline will be
+     * used in--i.e. if this GrPipeline does read the dst, it will do so using this sample type.
+     */
+    GrDstSampleType dstSampleType() const { return fDstProxy.dstSampleType(); }
 
     /** If this GrXferProcessor uses a texture to access the dst color, returns that texture. */
     GrTexture* peekDstTexture() const {
@@ -148,7 +152,7 @@ public:
             return nullptr;
         }
 
-        if (GrTextureProxy* dstProxy = fDstProxyView.asTextureProxy()) {
+        if (GrTextureProxy* dstProxy = this->dstProxyView().asTextureProxy()) {
             return dstProxy->peekTexture();
         }
 
@@ -183,8 +187,8 @@ public:
                 return false;
             }
         }
-        if (fDstProxyView.proxy()) {
-            return fDstProxyView.proxy()->isInstantiated();
+        if (this->dstProxyView().proxy()) {
+            return this->dstProxyView().proxy()->isInstantiated();
         }
 
         return true;
@@ -219,12 +223,7 @@ private:
     // A pipeline can contain up to three processors: color, paint coverage, and clip coverage.
     using FragmentProcessorArray = SkAutoSTArray<3, std::unique_ptr<const GrFragmentProcessor>>;
 
-    GrSurfaceProxyView fDstProxyView;
-    SkIPoint fDstTextureOffset;
-    // This is the GrDstSampleType that is used for the render pass that this GrPipeline will be
-    // used in (i.e. if this GrPipeline does read the dst, it will do so using this
-    // GrDstSampleType).
-    GrDstSampleType fDstSampleType = GrDstSampleType::kNone;
+    GrDstProxyView fDstProxy;
     GrWindowRectsState fWindowRectsState;
     Flags fFlags;
     sk_sp<const GrXferProcessor> fXferProcessor;
