@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3a2fdbe7_a1b62481",
+        "filename": "src/gpu/GrDynamicAtlas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-04T18:41:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "38b7f847_2fd57cc6",
+      "range": {
+        "startLine": 192,
+        "startChar": 9,
+        "endLine": 192,
+        "endChar": 13
+      },
+      "revId": "e169961ca79f5df9d782a4523e375e95cf09934d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "76744f9f_d76527d6",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-06-04T18:31:09Z",
       "side": 1,
       "message": "sdc?",
+      "range": {
+        "startLine": 308,
+        "startChar": 47,
+        "endLine": 308,
+        "endChar": 50
+      },
+      "revId": "e169961ca79f5df9d782a4523e375e95cf09934d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a1c7e8d7_0b14eb03",
+        "filename": "src/gpu/GrStencilMaskHelper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-04T18:41:30Z",
+      "side": 1,
+      "message": "Done. Also did fRTC -\u003e fSDC",
+      "parentUuid": "76744f9f_d76527d6",
       "range": {
         "startLine": 308,
         "startChar": 47,
