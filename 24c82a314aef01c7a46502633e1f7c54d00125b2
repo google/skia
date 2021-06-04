@@ -39,6 +39,30 @@
       },
       "revId": "24c82a314aef01c7a46502633e1f7c54d00125b2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e2a1a72a_3cfa5b20",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Canvas.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-06-04T14:23:45Z",
+      "side": 1,
+      "message": "Follow-up cl adds them and implements it in the demo app.",
+      "parentUuid": "1678f98c_19e7edef",
+      "range": {
+        "startLine": 37,
+        "startChar": 15,
+        "endLine": 37,
+        "endChar": 24
+      },
+      "revId": "24c82a314aef01c7a46502633e1f7c54d00125b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
