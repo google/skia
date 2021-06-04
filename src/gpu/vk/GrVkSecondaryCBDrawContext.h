@@ -15,9 +15,9 @@
 class GrBackendSemaphore;
 class GrRecordingContext;
 struct GrVkDrawableInfo;
+class SkBaseGpuDevice;
 class SkCanvas;
 class SkDeferredDisplayList;
-class SkBaseGpuDevice;
 struct SkImageInfo;
 class SkSurfaceCharacterization;
 class SkSurfaceProps;

@@ -11,10 +11,12 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrDirectContext.h"
+#include "src/gpu/SkBaseGpuDevice.h"
 
 class GrAtlasManager;
 class GrBackendFormat;
 class GrBackendRenderTarget;
+class SkBaseGpuDevice;
 class GrMemoryPool;
 class GrOnFlushCallbackObject;
 class GrRenderTargetProxy;
@@ -144,6 +146,22 @@ public:
     GrClientMappedBufferManager* clientMappedBufferManager() {
         return fContext->fMappedBufferManager.get();
     }
+
+    sk_sp<SkBaseGpuDevice> createDevice(GrColorType,
+                                        sk_sp<GrSurfaceProxy>,
+                                        sk_sp<SkColorSpace>,
+                                        GrSurfaceOrigin,
+                                        const SkSurfaceProps&,
+                                        SkBaseGpuDevice::InitContents);
+    sk_sp<SkBaseGpuDevice> createDevice(SkBudgeted,
+                                        const SkImageInfo&,
+                                        SkBackingFit,
+                                        int sampleCount,
+                                        GrMipmapped,
+                                        GrProtected,
+                                        GrSurfaceOrigin,
+                                        const SkSurfaceProps&,
+                                        SkBaseGpuDevice::InitContents);
 
 #if GR_TEST_UTILS
     /** Reset GPU stats */
