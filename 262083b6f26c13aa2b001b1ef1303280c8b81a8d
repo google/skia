@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7f998dee_bd5e6abc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-04T19:53:19Z",
+      "side": 1,
+      "message": "Brian pointed out the other day that even more than the builder\u0027s overhead - the uniforms were being stored in an SkData, which required an extra malloc. (This is unlike all other FPs, that typically have dedicated data members for any uniform parameters). The FPs are pooled, but the uniform SkData was just using ::malloc. This CL moves the FP\u0027s uniform data to the pool, directly after the FP itself. The follow-up CL takes advantage of this to make runtime FPs very low overhead, and just repetitive enough to validate that arguments are passed in the expected order.",
+      "revId": "262083b6f26c13aa2b001b1ef1303280c8b81a8d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
