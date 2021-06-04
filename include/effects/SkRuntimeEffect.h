@@ -18,7 +18,6 @@
 
 #include <vector>
 
-class GrFragmentProcessor;
 class GrRecordingContext;
 class SkColorFilter;
 class SkFilterColorProgram;
@@ -183,13 +182,6 @@ public:
 
     static void RegisterFlattenables();
     ~SkRuntimeEffect() override;
-
-#if SK_SUPPORT_GPU
-    // For internal use.
-    std::unique_ptr<GrFragmentProcessor> makeFP(sk_sp<SkData> uniforms,
-                                                std::unique_ptr<GrFragmentProcessor> children[],
-                                                size_t childCount) const;
-#endif
 
 private:
     enum Flags {
