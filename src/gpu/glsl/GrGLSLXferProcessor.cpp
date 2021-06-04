@@ -57,19 +57,19 @@ void GrGLSLXferProcessor::emitCode(const EmitArgs& args) {
                 bool flipY = kBottomLeft_GrSurfaceOrigin == args.fDstTextureOrigin;
 
                 const char* dstTopLeftName;
+                args.fUniformHandles->fDstTopLeftUni =
+                        uniformHandler->addUniform(/*owner=*/nullptr,
+                                                   kFragment_GrShaderFlag,
+                                                   kHalf2_GrSLType,
+                                                   "DstTextureUpperLeft",
+                                                   &dstTopLeftName);
                 const char* dstCoordScaleName;
-
-                fDstTopLeftUni = uniformHandler->addUniform(nullptr,
-                                                            kFragment_GrShaderFlag,
-                                                            kHalf2_GrSLType,
-                                                            "DstTextureUpperLeft",
-                                                            &dstTopLeftName);
-                fDstScaleUni = uniformHandler->addUniform(nullptr,
-                                                          kFragment_GrShaderFlag,
-                                                          kHalf2_GrSLType,
-                                                          "DstTextureCoordScale",
-                                                          &dstCoordScaleName);
-
+                args.fUniformHandles->fDstScaleUni =
+                        uniformHandler->addUniform(/*owner=*/nullptr,
+                                                   kFragment_GrShaderFlag,
+                                                   kHalf2_GrSLType,
+                                                   "DstTextureCoordScale",
+                                                   &dstCoordScaleName);
                 fragBuilder->codeAppend("// Read color from copy of the destination.\n");
                 fragBuilder->codeAppendf("half2 _dstTexCoord = (half2(sk_FragCoord.xy) - %s) * %s;",
                                          dstTopLeftName, dstCoordScaleName);
@@ -128,20 +128,7 @@ void GrGLSLXferProcessor::emitWriteSwizzle(GrGLSLXPFragmentBuilder* x,
     }
 }
 
-void GrGLSLXferProcessor::setData(const GrGLSLProgramDataManager& pdm, const GrXferProcessor& xp,
-                                  const GrTexture* dstTexture, const SkIPoint& dstTextureOffset) {
-    if (dstTexture) {
-        if (fDstTopLeftUni.isValid()) {
-            pdm.set2f(fDstTopLeftUni, static_cast<float>(dstTextureOffset.fX),
-                      static_cast<float>(dstTextureOffset.fY));
-            pdm.set2f(fDstScaleUni, 1.f / dstTexture->width(), 1.f / dstTexture->height());
-        } else {
-            SkASSERT(!fDstScaleUni.isValid());
-        }
-    } else {
-        SkASSERT(!fDstTopLeftUni.isValid());
-        SkASSERT(!fDstScaleUni.isValid());
-    }
+void GrGLSLXferProcessor::setData(const GrGLSLProgramDataManager& pdm, const GrXferProcessor& xp) {
     this->onSetData(pdm, xp);
 }
 
