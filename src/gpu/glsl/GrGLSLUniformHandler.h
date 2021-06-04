@@ -27,8 +27,7 @@ struct GrGLSLBuiltinUniformHandles {
     // origin_upper_left is not supported.
     GrGLSLProgramDataManager::UniformHandle fRTHeightUni;
     // Destination texture origin and scale, used when dest-texture readback is enabled.
-    GrGLSLProgramDataManager::UniformHandle fDstTopLeftUni;
-    GrGLSLProgramDataManager::UniformHandle fDstScaleUni;
+    GrGLSLProgramDataManager::UniformHandle fDstTextureCoordsUni;
 };
 
 class GrGLSLUniformHandler {
