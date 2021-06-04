@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6e1fe690_832a69fc",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-04T17:32:25Z",
+      "side": 1,
+      "message": "This default to chromium. Should change this to skia:12066",
+      "range": {
+        "startLine": 13,
+        "startChar": 5,
+        "endLine": 13,
+        "endChar": 10
+      },
+      "revId": "0277c9fa4d2fead0e57edcbf7908ce9994411ce8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
