@@ -12,6 +12,8 @@
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrXferProcessor.h"
+#include "src/gpu/glsl/GrGLSLProgramDataManager.h"
+#include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
 #include "src/gpu/ops/GrOp.h"
 
@@ -130,5 +132,27 @@ void GrPipeline::visitProxies(const GrOp::VisitProxyFunc& func) const {
     }
     if (this->usesDstTexture()) {
         func(fDstProxyView.proxy(), GrMipmapped::kNo);
+    }
+}
+
+void GrPipeline::setDstTextureUniforms(const GrGLSLProgramDataManager& pdm,
+                                       GrGLSLBuiltinUniformHandles* fBuiltinUniformHandles) const {
+    SkIPoint offset;
+    GrTexture* dstTexture = this->peekDstTexture(&offset);
+
+    if (dstTexture) {
+        if (fBuiltinUniformHandles->fDstTopLeftUni.isValid()) {
+            pdm.set2f(fBuiltinUniformHandles->fDstTopLeftUni,
+                      static_cast<float>(fDstTextureOffset.fX),
+                      static_cast<float>(fDstTextureOffset.fY));
+            pdm.set2f(fBuiltinUniformHandles->fDstScaleUni,
+                      1.f / dstTexture->width(),
+                      1.f / dstTexture->height());
+        } else {
+            SkASSERT(!fBuiltinUniformHandles->fDstTopLeftUni.isValid());
+        }
+    } else {
+        SkASSERT(!fBuiltinUniformHandles->fDstTopLeftUni.isValid());
+        SkASSERT(!fBuiltinUniformHandles->fDstTopLeftUni.isValid());
     }
 }

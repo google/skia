@@ -118,11 +118,8 @@ void GrGLProgram::updateUniforms(const GrRenderTarget* renderTarget,
         }
     }
 
-    const GrXferProcessor& xp = programInfo.pipeline().getXferProcessor();
-    SkIPoint offset;
-    GrTexture* dstTexture = programInfo.pipeline().peekDstTexture(&offset);
-
-    fXferProcessor->setData(fProgramDataManager, xp, dstTexture, offset);
+    programInfo.pipeline().setDstTextureUniforms(fProgramDataManager, &fBuiltinUniformHandles);
+    fXferProcessor->setData(fProgramDataManager, programInfo.pipeline().getXferProcessor());
 }
 
 void GrGLProgram::bindTextures(const GrGeometryProcessor& geomProc,
