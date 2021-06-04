@@ -42,6 +42,7 @@ public:
 
     bool isEmpty() const { return fOpChains.empty(); }
     bool usesMSAASurface() const { return fUsesMSAASurface; }
+    GrXferBarrierFlags renderPassXferBarriers() const { return fRenderPassXferBarriers; }
 
     /**
      * Empties the draw buffer of any queued up draws.
@@ -85,6 +86,9 @@ public:
 
     // Must only be called if native color buffer clearing is enabled.
     void setColorLoadOp(GrLoadOp op, std::array<float, 4> color = {0, 0, 0, 0});
+
+    // Returns whether the given opsTask can be appended at the end of this one.
+    bool canMerge(const GrOpsTask*) const;
 
     // Merge as many opsTasks as possible from the head of 'tasks'. They should all be
     // renderPass compatible. Return the number of tasks merged into 'this'.

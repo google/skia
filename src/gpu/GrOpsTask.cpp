@@ -687,12 +687,25 @@ void GrOpsTask::reset() {
     fRenderPassXferBarriers = GrXferBarrierFlags::kNone;
 }
 
+bool GrOpsTask::canMerge(const GrOpsTask* opsTask) const {
+    if (this->target(0) != opsTask->target(0) || this->fArenas != opsTask->fArenas) {
+        return false;
+    }
+    bool usesTextureBarriers = (this->fRenderPassXferBarriers | opsTask->fRenderPassXferBarriers) &
+                               GrXferBarrierFlags::kTexture;
+    if (usesTextureBarriers && (this->fUsesMSAASurface || opsTask->fUsesMSAASurface)) {
+        // We can't merge opsTasks that use texture barriers unless neither one writes to a DMSAA
+        // attachment.
+        return false;
+    }
+    return true;
+}
+
 int GrOpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
     int mergedCount = 0;
     for (const sk_sp<GrRenderTask>& task : tasks) {
         auto opsTask = task->asOpsTask();
-        if (!opsTask || opsTask->target(0) != this->target(0)
-                     || this->fArenas != opsTask->fArenas) {
+        if (!opsTask || !this->canMerge(opsTask)) {
             break;
         }
         SkASSERT(fTargetSwizzle == opsTask->fTargetSwizzle);
