@@ -215,6 +215,7 @@ bool GrGLSLProgramBuilder::emitAndInstallDstTexture() {
 
     const GrSurfaceProxyView& dstView = this->pipeline().dstProxyView();
     if (this->pipeline().usesDstTexture()) {
+        // Set up a sampler handle for the destination texture.
         GrTextureProxy* dstTextureProxy = dstView.asTextureProxy();
         SkASSERT(dstTextureProxy);
         const GrSwizzle& swizzle = dstView.swizzle();
@@ -225,13 +226,48 @@ bool GrGLSLProgramBuilder::emitAndInstallDstTexture() {
         }
         fDstTextureOrigin = dstView.origin();
         SkASSERT(dstTextureProxy->textureType() != GrTextureType::kExternal);
+
+        // Populate the _dstColor variable by sampling from the dest-texture sampler at the top of
+        // the fragment shader.
+        const char* dstTopLeftName;
+        fUniformHandles.fDstTopLeftUni = this->uniformHandler()->addUniform(/*owner=*/nullptr,
+                                                                            kFragment_GrShaderFlag,
+                                                                            kHalf2_GrSLType,
+                                                                            "DstTextureUpperLeft",
+                                                                            &dstTopLeftName);
+        const char* dstCoordScaleName;
+        fUniformHandles.fDstScaleUni = this->uniformHandler()->addUniform(/*owner=*/nullptr,
+                                                                          kFragment_GrShaderFlag,
+                                                                          kHalf2_GrSLType,
+                                                                          "DstTextureCoordScale",
+                                                                          &dstCoordScaleName);
+        fFS.codeAppend("// Read color from copy of the destination\n");
+        fFS.codeAppendf("half2 _dstTexCoord = (half2(sk_FragCoord.xy) - %s) * %s;\n",
+                        dstTopLeftName, dstCoordScaleName);
+        if (fDstTextureOrigin == kBottomLeft_GrSurfaceOrigin) {
+            fFS.codeAppend("_dstTexCoord.y = 1.0 - _dstTexCoord.y;\n");
+        }
+        const char* dstColor = fFS.dstColor();
+        fFS.codeAppendf("half4 %s = ", dstColor);
+        fFS.appendTextureLookup(fDstTextureSamplerHandle, "_dstTexCoord");
+        fFS.codeAppend(";\n");
     } else if (this->pipeline().usesInputAttachment()) {
+        // Set up an input attachment for the destination texture.
         const GrSwizzle& swizzle = dstView.swizzle();
         fDstTextureSamplerHandle = this->emitInputSampler(swizzle, "DstTextureInput");
         if (!fDstTextureSamplerHandle.isValid()) {
             return false;
         }
+
+        // Populate the _dstColor variable by loading from the input attachment at the top of the
+        // fragment shader.
+        fFS.codeAppend("// Read color from input attachment\n");
+        const char* dstColor = fFS.dstColor();
+        fFS.codeAppendf("half4 %s = ", dstColor);
+        fFS.appendInputLoad(fDstTextureSamplerHandle);
+        fFS.codeAppend(";\n");
     }
+
     return true;
 }
 
@@ -270,8 +306,7 @@ bool GrGLSLProgramBuilder::emitAndInstallXferProc(const SkString& colorIn,
                                        this->pipeline().dstSampleType(),
                                        fDstTextureSamplerHandle,
                                        fDstTextureOrigin,
-                                       this->pipeline().writeSwizzle(),
-                                       &fUniformHandles);
+                                       this->pipeline().writeSwizzle());
     fXferProcessor->emitCode(args);
 
     // We have to check that effects and the code they emit are consistent, ie if an effect

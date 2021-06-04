@@ -37,8 +37,7 @@ public:
                  GrDstSampleType dstSampleType,
                  const SamplerHandle dstTextureSamplerHandle,
                  GrSurfaceOrigin dstTextureOrigin,
-                 const GrSwizzle& writeSwizzle,
-                 GrGLSLBuiltinUniformHandles* uniformHandles)
+                 const GrSwizzle& writeSwizzle)
                 : fXPFragBuilder(fragBuilder)
                 , fUniformHandler(uniformHandler)
                 , fShaderCaps(caps)
@@ -50,8 +49,7 @@ public:
                 , fDstSampleType(dstSampleType)
                 , fDstTextureSamplerHandle(dstTextureSamplerHandle)
                 , fDstTextureOrigin(dstTextureOrigin)
-                , fWriteSwizzle(writeSwizzle)
-                , fUniformHandles(uniformHandles) {}
+                , fWriteSwizzle(writeSwizzle) {}
         GrGLSLXPFragmentBuilder* fXPFragBuilder;
         GrGLSLUniformHandler* fUniformHandler;
         const GrShaderCaps* fShaderCaps;
@@ -64,9 +62,6 @@ public:
         const SamplerHandle fDstTextureSamplerHandle;
         GrSurfaceOrigin fDstTextureOrigin;
         GrSwizzle fWriteSwizzle;
-        // TODO(skia:12066): remove from EmitArgs once GrGLSLXferProcessor no longer controls the
-        // uniforms for dest-texture origin and scale.
-        GrGLSLBuiltinUniformHandles* fUniformHandles = nullptr;
     };
     /**
      * This is similar to emitCode() in the base class, except it takes a full shader builder.
