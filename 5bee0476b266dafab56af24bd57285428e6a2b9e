@@ -189,6 +189,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "89a6ca0b_c1438970",
+        "filename": "modules/androidkit/src/Paint.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-06-04T19:32:06Z",
+      "side": 1,
+      "message": "Right, but that\u0027s in ImageFilter.cpp -- we only deal with the base class in Paint.",
+      "parentUuid": "5e12e77f_71212c24",
+      "range": {
+        "startLine": 12,
+        "startChar": 26,
+        "endLine": 12,
+        "endChar": 42
+      },
+      "revId": "5bee0476b266dafab56af24bd57285428e6a2b9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "334d871e_59f867cc",

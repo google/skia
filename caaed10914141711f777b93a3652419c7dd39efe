@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d01eb6aa_c1cc65ad",
+        "filename": "modules/androidkit/src/ImageFilter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-06-04T19:32:06Z",
+      "side": 1,
+      "message": "Oh, I meant adding docs to the java/public api :)",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 30,
+        "endChar": 3
+      },
+      "revId": "caaed10914141711f777b93a3652419c7dd39efe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
