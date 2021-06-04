@@ -26,7 +26,6 @@ static void adjust_for_lcd_coverage(GrGLSLXPFragmentBuilder* fragBuilder,
     }
 }
 
-
 void GrGLSLXferProcessor::emitCode(const EmitArgs& args) {
     if (!args.fXP.willReadDstColor()) {
         adjust_for_lcd_coverage(args.fXPFragBuilder, args.fInputCoverage, args.fXP);
@@ -41,50 +40,17 @@ void GrGLSLXferProcessor::emitCode(const EmitArgs& args) {
         if (args.fDstTextureSamplerHandle.isValid()) {
             if (args.fInputCoverage) {
                 // We don't think any shaders actually output negative coverage, but just as a
-                // safety check for floating point precision errors we compare with <= here. We just
-                // check the rgb values of the coverage since the alpha may not have been set when
-                // using lcd. If we are using single channel coverage alpha will equal to rgb
-                // anyways.
+                // safety check for floating point precision errors, we compare with <= here. We
+                // just check the RGB values of the coverage, since the alpha may not have been set
+                // when using LCD. If we are using single-channel coverage, alpha will be equal to
+                // RGB anyway.
                 //
-                // The discard here also helps for batching text draws together which need to read
-                // from a dst copy for blends. Though this only helps the case where the outer
+                // The discard here also helps for batching text-draws together, which need to read
+                // from a dst copy for blends. However, this only helps the case where the outer
                 // bounding boxes of each letter overlap and not two actually parts of the text.
                 fragBuilder->codeAppendf("if (all(lessThanEqual(%s.rgb, half3(0)))) {"
                                          "    discard;"
                                          "}", args.fInputCoverage);
-            }
-            if (GrDstSampleTypeUsesTexture(args.fDstSampleType)) {
-                bool flipY = kBottomLeft_GrSurfaceOrigin == args.fDstTextureOrigin;
-
-                const char* dstTopLeftName;
-                args.fUniformHandles->fDstTopLeftUni =
-                        uniformHandler->addUniform(/*owner=*/nullptr,
-                                                   kFragment_GrShaderFlag,
-                                                   kHalf2_GrSLType,
-                                                   "DstTextureUpperLeft",
-                                                   &dstTopLeftName);
-                const char* dstCoordScaleName;
-                args.fUniformHandles->fDstScaleUni =
-                        uniformHandler->addUniform(/*owner=*/nullptr,
-                                                   kFragment_GrShaderFlag,
-                                                   kHalf2_GrSLType,
-                                                   "DstTextureCoordScale",
-                                                   &dstCoordScaleName);
-                fragBuilder->codeAppend("// Read color from copy of the destination.\n");
-                fragBuilder->codeAppendf("half2 _dstTexCoord = (half2(sk_FragCoord.xy) - %s) * %s;",
-                                         dstTopLeftName, dstCoordScaleName);
-
-                if (flipY) {
-                    fragBuilder->codeAppend("_dstTexCoord.y = 1.0 - _dstTexCoord.y;");
-                }
-
-                fragBuilder->codeAppendf("half4 %s = ", dstColor);
-                fragBuilder->appendTextureLookup(args.fDstTextureSamplerHandle, "_dstTexCoord");
-                fragBuilder->codeAppend(";");
-            } else if (args.fDstSampleType == GrDstSampleType::kAsInputAttachment) {
-                fragBuilder->codeAppendf("half4 %s = ", dstColor);
-                fragBuilder->appendInputLoad(args.fDstTextureSamplerHandle);
-                fragBuilder->codeAppend(";");
             }
         } else {
             needsLocalOutColor = args.fShaderCaps->requiresLocalOutputColorForFBFetch();
@@ -150,4 +116,3 @@ void GrGLSLXferProcessor::DefaultCoverageModulation(GrGLSLXPFragmentBuilder* fra
         }
     }
 }
-
