@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8e1b407f_b1628a90",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Canvas.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-06-04T14:13:58Z",
+      "side": 1,
+      "message": "Follow ups:\n\n  - restoreToCount(int), otherwise the return value is not particularly useful\n  - saveLayer(Paint), to allow applying image filters, etc to the layer content",
+      "revId": "24c82a314aef01c7a46502633e1f7c54d00125b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
