@@ -12,56 +12,72 @@
 #include "include/effects/SkGradientShader.h"
 
 //------------------------------------------------------------------------------------------------
-RectCmd::RectCmd(int id,
-                 uint32_t paintersOrder,
+void PushCmd::execute(FakeCanvas* f) const {
+    f->save();
+}
+
+void PushCmd::execute(SkCanvas* c) const {
+    c->save();
+}
+
+//------------------------------------------------------------------------------------------------
+void PopCmd::execute(FakeCanvas* f) const {
+    f->restore();
+}
+
+void PopCmd::execute(SkCanvas* c) const {
+    c->restore();
+}
+
+//------------------------------------------------------------------------------------------------
+RectCmd::RectCmd(ID id,
+                 PaintersOrder paintersOrder,
                  SkIRect r,
                  const FakePaint& p,
                  sk_sp<FakeMCBlob> state)
-    : Cmd(id, p.toID(), std::move(state))
-    , fPaintersOrder(paintersOrder)
-    , fRect(r)
-    , fPaint(p) {
+        : Cmd(id)
+        , fPaintersOrder(paintersOrder)
+        , fRect(r)
+        , fPaint(p)
+        , fMCState1(std::move(state)) {
+}
+
+static bool is_transparent(int matID, SkColor c0, SkColor c1) {
+    SkASSERT(c0 != SK_ColorUNUSED);
+
+    if (matID == kSolidMat) {
+        SkASSERT(c1 == SK_ColorUNUSED);
+        return 0xFF != SkColorGetA(c0);
+    } else {
+        SkASSERT(c1 != SK_ColorUNUSED);
+        return 0xFF != SkColorGetA(c0) && 0xFF != SkColorGetA(c1);
+    }
+}
+
+uint32_t RectCmd::computeZ() const {
+    uint32_t maxZ = kInvalidZ;
+    for (auto s : fMCState1->mcStates()) {
+        for (auto c : s.cmds()) {
+            PaintersOrder tmp = c->getPaintersOrderWhenPopped();
+
+            maxZ = std::max(maxZ, tmp);
+        }
+    }
+
+    return maxZ != kInvalidZ ? maxZ+1 : fPaintersOrder;
 }
 
 SortKey RectCmd::getKey() {
-    return SortKey(fPaint.isTransparent(), fMCState->id(), fPaintersOrder, fPaint.toID());
-}
-
-static void apply_diff(FakeCanvas* c, const FakeMCBlob& desired, const FakeMCBlob* prior) {
-    int prefix = desired.determineSharedPrefix(prior);
-
-    if (prior) {
-        for (int j = prefix; j < prior->count(); ++j) {
-            c->restore();
-        }
-    }
-
-    for (int j = prefix; j < desired.count(); ++j) {
-        desired[j].apply(c);
-    }
+    return SortKey(fPaint.isTransparent(), /*is_transparent(fPaint.toID(), fPaint.c0(), fPaint.c1(),*/
+                   this->computeZ(),
+                   fPaint.toID());
 }
 
 void RectCmd::execute(FakeCanvas* c) const {
-    apply_diff(c, *fMCState, c->snapState().get());
-
     c->drawRect(fID, fRect, fPaint);
 }
 
-static void apply_diff(SkCanvas* c, const FakeMCBlob& desired, const FakeMCBlob* prior) {
-    int prefix = desired.determineSharedPrefix(prior);
-
-    if (prior) {
-        for (int j = prefix; j < prior->count(); ++j) {
-            c->restore();
-        }
-    }
-
-    for (int j = prefix; j < desired.count(); ++j) {
-        desired[j].apply(c);
-    }
-}
-
-void RectCmd::execute(SkCanvas* c, const FakeMCBlob* priorState) const {
+void RectCmd::execute(SkCanvas* c) const {
 
     SkColor4f colors[2] = {
         SkColor4f::FromColor(fPaint.c0()),
@@ -77,6 +93,7 @@ void RectCmd::execute(SkCanvas* c, const FakeMCBlob* priorState) const {
                                                  SkTileMode::kClamp));
     } else {
         SkASSERT(fPaint.toID() == kRadialMat);
+
         auto shader = SkGradientShader::MakeRadial(SkPoint::Make(128.0f, 128.0f),
                                                    128.0f,
                                                    colors,
@@ -87,8 +104,6 @@ void RectCmd::execute(SkCanvas* c, const FakeMCBlob* priorState) const {
         p.setShader(std::move(shader));
     }
 
-    apply_diff(c, *fMCState, priorState);
-
     c->drawRect(SkRect::Make(fRect), p);
 }
 
@@ -96,15 +111,18 @@ static bool is_opaque(SkColor c) {
     return 0xFF == SkColorGetA(c);
 }
 
-void RectCmd::rasterize(uint32_t zBuffer[256][256], SkBitmap* dstBM, unsigned int z) const {
+void RectCmd::rasterize(uint32_t zBuffer[256][256], SkBitmap* dstBM) const {
+
+    uint32_t z = this->computeZ();
+    SkIRect scissor = fMCState1->scissor();
 
     for (int y = fRect.fTop; y < fRect.fBottom; ++y) {
         for (int x = fRect.fLeft; x < fRect.fRight; ++x) {
-            if (fMCState->clipped(x, y)) {
-                continue;
-            }
-
             if (z > zBuffer[x][y]) {
+                if (!scissor.contains(x, y)) {
+                    continue;
+                }
+
                 zBuffer[x][y] = z;
 
                 SkColor c = fPaint.evalColor(x, y);
@@ -127,3 +145,43 @@ void RectCmd::rasterize(uint32_t zBuffer[256][256], SkBitmap* dstBM, unsigned in
     }
 }
 
+//------------------------------------------------------------------------------------------------
+ClipCmd::ClipCmd(ID id, PaintersOrder paintersOrderWhenAdded, SkIRect r)
+        : Cmd(id)
+        , fPaintersOrderWhenAdded(paintersOrderWhenAdded)
+        , fRect(r) {
+    SkASSERT(fPaintersOrderWhenAdded.isValid());
+}
+
+SortKey ClipCmd::getKey() {
+    SkASSERT(fPaintersOrderWhenPopped.isValid());
+
+    return SortKey(false, fPaintersOrder, kInvalidMat);
+}
+
+void ClipCmd::pop(PaintersOrder paintersOrderWhenPopped) {
+    SkASSERT(!fPaintersOrderWhenPopped.isValid() && paintersOrderWhenPopped.isValid());
+    fPaintersOrderWhenPopped = paintersOrderWhenPopped;
+}
+
+void ClipCmd::execute(FakeCanvas* c) const {
+    // This call is creating the 'real' ClipCmd for the "actual" case
+    SkASSERT(fPaintersOrder == kInvalidZ && fZWhenPopped == kInvalidZ);
+    c->clipRect(fID, fRect);
+}
+
+void ClipCmd::execute(SkCanvas* c) const {
+    c->clipRect(SkRect::Make(fRect));
+}
+
+void ClipCmd::rasterize(uint32_t zBuffer[256][256], SkBitmap* /* dstBM */) const {
+    SkASSERT(fZWhenPopped != kInvalidZ);
+
+    for (int y = fRect.fTop; y < fRect.fBottom; ++y) {
+        for (int x = fRect.fLeft; x < fRect.fRight; ++x) {
+            if (fZWhenPopped > zBuffer[x][y]) {
+                zBuffer[x][y] = fZWhenPopped;
+            }
+        }
+    }
+}
