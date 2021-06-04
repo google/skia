@@ -58,6 +58,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fNeverDisableColorWrites = false;
     fMustSetAnyTexParameterToEnableMipmapping = false;
     fAllowBGRA8CopyTexSubImage = false;
+    fDisallowDynamicMSAA = false;
     fProgramBinarySupport = false;
     fProgramParameterSupport = false;
     fSamplerObjectSupport = false;
@@ -3494,6 +3495,11 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         ctxInfo.renderer() == GrGLRenderer::kMali4xx ||
         ctxInfo.renderer() == GrGLRenderer::kTegra_PreK1) {
         fAllowBGRA8CopyTexSubImage = true;
+    }
+
+    if (fMSFBOType == kES_EXT_MsToTexture_MSFBOType &&
+        ctxInfo.angleBackend() == GrGLANGLEBackend::kD3D11) {
+        fDisallowDynamicMSAA = true;
     }
 
 #if defined(__has_feature)
