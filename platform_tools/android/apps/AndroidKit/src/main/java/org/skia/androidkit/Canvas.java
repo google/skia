@@ -55,8 +55,8 @@ public class Canvas {
         nConcat16f(mNativeInstance, rowMajorMatrix);
     }
 
-    public void drawRect(float left, float right, float top, float bottom, Paint paint) {
-        nDrawRect(mNativeInstance, left, right, top, bottom, paint.getNativeInstance());
+    public void drawRect(float left, float top, float right, float bottom, Paint paint) {
+        nDrawRect(mNativeInstance, left, top, right, bottom, paint.getNativeInstance());
     }
 
     public void drawColor(Color c) {
@@ -106,7 +106,7 @@ public class Canvas {
     private static native void nDrawColor(long nativeInstance, float r, float g, float b, float a);
 
     private static native void nDrawRect(long nativeInstance,
-                                         float left, float right, float top, float bottom,
+                                         float left, float top, float right, float bottom,
                                          long nativePaint);
     private static native void nDrawImage(long nativeInstance, long nativeImage, float x, float y,
                                           int samplingDesc,
