@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "313e5778_da85bf1d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 17944
+      },
+      "writtenOn": "2021-06-04T19:30:13Z",
+      "side": 1,
+      "message": "Thanks Mike for writing this up! This is great.\n\nHaving something like this exposed by the browser will help flutter web. Here are a few examples of things that could be simplified or even eliminated:\n\na) We currently implement our own line break detection, which means we have to bundle some unicode data [1] to map code points to line break properties. And from there, we implement the line breaking algorithm as described here [2]. All of this won\u0027t be necessary if we let the browser do the shaping/formatting for us.\n\nb) Text height measurement. We currently use canvas2d\u0027s measureText API to layout paragraphs. But this API only measures width, not height. So we are forced to use a DOM element to measure the height/baseline of text, which is slow.\n\nc) LTR/RTL handling. As part of the paragraph layout process, we have to figure out the positioning of LTR and RTL blocks of text.\n\n------------------\n\n[1] https://www.unicode.org/Public/13.0.0/ucd/LineBreak.txt\n[2] https://unicode.org/reports/tr14/tr14-45.html#Algorithm\n",
+      "revId": "d7b8dc086b0039456c73f1a27a09a4f766c0f71e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

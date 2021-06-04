@@ -1,0 +1,233 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1e7f6121_b5f63f3d",
+        "filename": "experimental/sktext/canvas2d.md",
+        "patchSetId": 8
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 17944
+      },
+      "writtenOn": "2021-06-04T19:30:13Z",
+      "side": 1,
+      "message": "needed",
+      "range": {
+        "startLine": 4,
+        "startChar": 66,
+        "endLine": 4,
+        "endChar": 70
+      },
+      "revId": "28f43f512aeaf49ab407f788610cee8e329b4f48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dfa7d66a_0bbf227b",
+        "filename": "experimental/sktext/canvas2d.md",
+        "patchSetId": 8
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 17944
+      },
+      "writtenOn": "2021-06-04T19:30:13Z",
+      "side": 1,
+      "message": "Is the idea here that the user would use the API like this:\n```\nfor (GlyphRun run in myShapedText.glyph_runs) {\n  context.fillGlyphs(run.glyph_ids, run.positions, run.Font);\n}\n```\nI\u0027m curious if there have been any thoughts around having a `fillGlyphRun` method instead. Is there any advantage to passing the glyphs, positions, and Font separately? Maybe there are other use cases that require this separation that I\u0027m not aware of?",
+      "revId": "28f43f512aeaf49ab407f788610cee8e329b4f48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c66fa4dc_3987f7e0",
+        "filename": "experimental/sktext/canvas2d.md",
+        "patchSetId": 8
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 17944
+      },
+      "writtenOn": "2021-06-04T19:30:13Z",
+      "side": 1,
+      "message": "Is the handling of path vs image done automatically by the new `fillGlyphs` method?",
+      "revId": "28f43f512aeaf49ab407f788610cee8e329b4f48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f665944b_d6dfa850",
+        "filename": "experimental/sktext/overview.md",
+        "patchSetId": 8
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 17944
+      },
+      "writtenOn": "2021-06-04T19:30:13Z",
+      "side": 1,
+      "message": "set of APIs",
+      "range": {
+        "startLine": 14,
+        "startChar": 313,
+        "endLine": 14,
+        "endChar": 321
+      },
+      "revId": "28f43f512aeaf49ab407f788610cee8e329b4f48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "23807bf3_27618c9c",
+        "filename": "experimental/sktext/overview.md",
+        "patchSetId": 8
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 17944
+      },
+      "writtenOn": "2021-06-04T19:30:13Z",
+      "side": 1,
+      "message": "needed",
+      "range": {
+        "startLine": 33,
+        "startChar": 112,
+        "endLine": 33,
+        "endChar": 116
+      },
+      "revId": "28f43f512aeaf49ab407f788610cee8e329b4f48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "40d6c097_a023fe68",
+        "filename": "experimental/sktext/overview.md",
+        "patchSetId": 8
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 17944
+      },
+      "writtenOn": "2021-06-04T19:30:13Z",
+      "side": 1,
+      "message": "identified",
+      "range": {
+        "startLine": 53,
+        "startChar": 207,
+        "endLine": 53,
+        "endChar": 215
+      },
+      "revId": "28f43f512aeaf49ab407f788610cee8e329b4f48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "164d8b1c_69f00607",
+        "filename": "experimental/sktext/overview.md",
+        "patchSetId": 8
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 17944
+      },
+      "writtenOn": "2021-06-04T19:30:13Z",
+      "side": 1,
+      "message": "I love it!\n\nIn flutter web for example, we could be drawing to the DOM, Canvas2d or CanvasKit. But in all 3 cases, we need to pre-measure the paragraph and lay it out.",
+      "revId": "28f43f512aeaf49ab407f788610cee8e329b4f48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5f6aacb8_80f9a6ef",
+        "filename": "experimental/sktext/shaper.md",
+        "patchSetId": 8
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 17944
+      },
+      "writtenOn": "2021-06-04T19:30:13Z",
+      "side": 1,
+      "message": "to render",
+      "range": {
+        "startLine": 11,
+        "startChar": 52,
+        "endLine": 11,
+        "endChar": 64
+      },
+      "revId": "28f43f512aeaf49ab407f788610cee8e329b4f48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "76218f41_aa53d12b",
+        "filename": "experimental/sktext/shaper.md",
+        "patchSetId": 8
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 17944
+      },
+      "writtenOn": "2021-06-04T19:30:13Z",
+      "side": 1,
+      "message": "interactive or iterative?",
+      "range": {
+        "startLine": 14,
+        "startChar": 92,
+        "endLine": 14,
+        "endChar": 102
+      },
+      "revId": "28f43f512aeaf49ab407f788610cee8e329b4f48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "143eb430_7bd62a53",
+        "filename": "experimental/sktext/shaper.md",
+        "patchSetId": 8
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 17944
+      },
+      "writtenOn": "2021-06-04T19:30:13Z",
+      "side": 1,
+      "message": "to expose",
+      "range": {
+        "startLine": 25,
+        "startChar": 86,
+        "endLine": 25,
+        "endChar": 98
+      },
+      "revId": "28f43f512aeaf49ab407f788610cee8e329b4f48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d36cd66c_b5c95086",
+        "filename": "experimental/sktext/shaper.md",
+        "patchSetId": 8
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 17944
+      },
+      "writtenOn": "2021-06-04T19:30:13Z",
+      "side": 1,
+      "message": "One thing that\u0027s not clear to me is the length of placeholder blocks. Are they supposed to have a length of zero? Or have a corresponding placeholder character in the string?",
+      "revId": "28f43f512aeaf49ab407f788610cee8e329b4f48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
