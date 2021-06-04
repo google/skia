@@ -24,16 +24,24 @@ jint Canvas_GetHeight(JNIEnv* env, jobject, jlong native_instance) {
     return canvas ? canvas->imageInfo().height() : 0;
 }
 
-void Canvas_Save(JNIEnv* env, jobject, jlong native_instance) {
+jint Canvas_Save(JNIEnv* env, jobject, jlong native_instance) {
     if (auto* canvas = reinterpret_cast<SkCanvas*>(native_instance)) {
-        canvas->save();
+        return canvas->save();
     }
+    return 0;
 }
 
 void Canvas_Restore(JNIEnv* env, jobject, jlong native_instance) {
     if (auto* canvas = reinterpret_cast<SkCanvas*>(native_instance)) {
         canvas->restore();
     }
+}
+
+jint Canvas_SaveLayer(JNIEnv* env, jobject, jlong native_instance) {
+    if (auto* canvas = reinterpret_cast<SkCanvas*>(native_instance)) {
+        return canvas->saveLayer(nullptr, nullptr);
+    }
+    return 0;
 }
 
 jlong Canvas_LocalToDevice(JNIEnv* env, jobject, jlong native_instance) {
@@ -98,7 +106,8 @@ int register_androidkit_Canvas(JNIEnv* env) {
     static const JNINativeMethod methods[] = {
         {"nGetWidth"        , "(J)I"      , reinterpret_cast<void*>(Canvas_GetWidth)      },
         {"nGetHeight"       , "(J)I"      , reinterpret_cast<void*>(Canvas_GetHeight)     },
-        {"nSave"            , "(J)V"      , reinterpret_cast<void*>(Canvas_Save)          },
+        {"nSave"            , "(J)I"      , reinterpret_cast<void*>(Canvas_Save)          },
+        {"nSaveLayer"       , "(J)I"      , reinterpret_cast<void*>(Canvas_SaveLayer)     },
         {"nRestore"         , "(J)V"      , reinterpret_cast<void*>(Canvas_Restore)       },
         {"nGetLocalToDevice", "(J)J"      , reinterpret_cast<void*>(Canvas_LocalToDevice) },
         {"nConcat"          , "(JJ)V"     , reinterpret_cast<void*>(Canvas_Concat)        },
