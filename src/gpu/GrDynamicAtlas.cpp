@@ -189,9 +189,9 @@ std::unique_ptr<GrSurfaceDrawContext> GrDynamicAtlas::instantiate(
 #endif
         fBackingTexture = std::move(backingTexture);
     }
-    auto rtc = onFlushRP->makeRenderTargetContext(fTextureProxy, kTextureOrigin, fColorType,
-                                                  nullptr, SkSurfaceProps());
-    if (!rtc) {
+    auto sdc = onFlushRP->makeSurfaceDrawContext(fTextureProxy, kTextureOrigin, fColorType,
+                                                 nullptr, SkSurfaceProps());
+    if (!sdc) {
         onFlushRP->printWarningMessage(SkStringPrintf(
                 "WARNING: failed to allocate a %ix%i atlas. Some masks will not be drawn.\n",
                 fWidth, fHeight).c_str());
@@ -199,6 +199,6 @@ std::unique_ptr<GrSurfaceDrawContext> GrDynamicAtlas::instantiate(
     }
 
     SkIRect clearRect = SkIRect::MakeSize(fDrawBounds);
-    rtc->clearAtLeast(clearRect, SK_PMColor4fTRANSPARENT);
-    return rtc;
+    sdc->clearAtLeast(clearRect, SK_PMColor4fTRANSPARENT);
+    return sdc;
 }

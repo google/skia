@@ -148,7 +148,7 @@ static std::unique_ptr<GrFragmentProcessor> wrap(std::unique_ptr<GrFragmentProce
     SkUNREACHABLE;
 }
 
-DEF_SIMPLE_GPU_GM(fp_sample_chaining, ctx, rtCtx, canvas, 232, 232) {
+DEF_SIMPLE_GPU_GM(fp_sample_chaining, ctx, sdCtx, canvas, 232, 232) {
     SkBitmap bmp = make_test_bitmap();
 
     int x = 10, y = 10;
@@ -171,7 +171,7 @@ DEF_SIMPLE_GPU_GM(fp_sample_chaining, ctx, rtCtx, canvas, 232, 232) {
         }
         GrPaint paint;
         paint.setColorFragmentProcessor(std::move(fp));
-        rtCtx->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::Translate(x, y),
+        sdCtx->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::Translate(x, y),
                         SkRect::MakeIWH(64, 64));
         nextCol();
     };

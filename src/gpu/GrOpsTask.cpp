@@ -596,7 +596,7 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
                 stencil->markHasPerformedInitialClear();
                 break;
             }
-            // renderTargetContexts are required to leave the user stencil bits in a cleared state
+            // SurfaceDrawContexts are required to leave the user stencil bits in a cleared state
             // once finished, meaning the stencil values will always remain cleared after the
             // initial clear. Just fall through to reloading the existing (cleared) stencil values
             // from memory.

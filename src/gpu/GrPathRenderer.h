@@ -116,7 +116,7 @@ public:
         GrRecordingContext*          fContext;
         GrPaint&&                    fPaint;
         const GrUserStencilSettings* fUserStencilSettings;
-        GrSurfaceDrawContext*        fRenderTargetContext;
+        GrSurfaceDrawContext*        fSurfaceDrawContext;
         const GrClip*                fClip;
         const SkIRect*               fClipConservativeBounds;
         const SkMatrix*              fViewMatrix;
@@ -127,7 +127,7 @@ public:
         void validate() const {
             SkASSERT(fContext);
             SkASSERT(fUserStencilSettings);
-            SkASSERT(fRenderTargetContext);
+            SkASSERT(fSurfaceDrawContext);
             SkASSERT(fClipConservativeBounds);
             SkASSERT(fViewMatrix);
             SkASSERT(fShape);
@@ -147,7 +147,7 @@ public:
         SkDEBUGCODE(StencilPathArgs() { memset(this, 0, sizeof(*this)); }) // For validation.
 
         GrRecordingContext*    fContext;
-        GrSurfaceDrawContext*  fRenderTargetContext;
+        GrSurfaceDrawContext*  fSurfaceDrawContext;
         const GrHardClip*      fClip;
         const SkIRect*         fClipConservativeBounds;
         const SkMatrix*        fViewMatrix;

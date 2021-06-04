@@ -1178,7 +1178,7 @@ GrOp::Owner GrTextureOp::Make(GrRecordingContext* context,
 // A helper class that assists in breaking up bulk API quad draws into manageable chunks.
 class GrTextureOp::BatchSizeLimiter {
 public:
-    BatchSizeLimiter(GrSurfaceDrawContext* rtc,
+    BatchSizeLimiter(GrSurfaceDrawContext* sdc,
                      const GrClip* clip,
                      GrRecordingContext* context,
                      int numEntries,
@@ -1188,7 +1188,7 @@ public:
                      SkCanvas::SrcRectConstraint constraint,
                      const SkMatrix& viewMatrix,
                      sk_sp<GrColorSpaceXform> textureColorSpaceXform)
-            : fRTC(rtc)
+            : fSDC(sdc)
             , fClip(clip)
             , fContext(context)
             , fFilter(filter)
@@ -1214,7 +1214,7 @@ public:
                                          fConstraint,
                                          fViewMatrix,
                                          fTextureColorSpaceXform);
-        fRTC->addDrawOp(fClip, std::move(op));
+        fSDC->addDrawOp(fClip, std::move(op));
 
         fNumLeft -= clumpSize;
         fNumClumped += clumpSize;
@@ -1224,7 +1224,7 @@ public:
     int baseIndex() const { return fNumClumped; }
 
 private:
-    GrSurfaceDrawContext*       fRTC;
+    GrSurfaceDrawContext*       fSDC;
     const GrClip*               fClip;
     GrRecordingContext*         fContext;
     GrSamplerState::Filter      fFilter;

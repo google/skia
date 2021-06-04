@@ -161,13 +161,13 @@ static std::unique_ptr<GrSurfaceDrawContext> convolve_gaussian(GrRecordingContex
     //
     // Create the sdc with default SkSurfaceProps. Gaussian blurs will soon use a
     // GrSurfaceFillContext, at which point the SkSurfaceProps won't exist anymore.
-    auto dstRenderTargetContext = GrSurfaceDrawContext::Make(
+    auto dstSurfaceDrawContext = GrSurfaceDrawContext::Make(
             context, srcColorType, std::move(finalCS), fit, dstBounds.size(), SkSurfaceProps(), 1,
             GrMipmapped::kNo, srcView.proxy()->isProtected(), srcView.origin());
-    if (!dstRenderTargetContext) {
+    if (!dstSurfaceDrawContext) {
         return nullptr;
     }
-    // This represents the translation from 'dstRenderTargetContext' coords to 'srcView' coords.
+    // This represents the translation from 'dstSurfaceDrawContext' coords to 'srcView' coords.
     auto rtcToSrcOffset = dstBounds.topLeft();
 
     auto srcBackingBounds = SkIRect::MakeSize(srcView.proxy()->backingStoreDimensions());
@@ -181,9 +181,9 @@ static std::unique_ptr<GrSurfaceDrawContext> convolve_gaussian(GrRecordingContex
             !(mode == SkTileMode::kDecal && !context->priv().caps()->clampToBorderSupport());
     if (!canSplit || canHWTile) {
         auto dstRect = SkIRect::MakeSize(dstBounds.size());
-        convolve_gaussian_1d(dstRenderTargetContext.get(), std::move(srcView), srcBounds,
+        convolve_gaussian_1d(dstSurfaceDrawContext.get(), std::move(srcView), srcBounds,
                              rtcToSrcOffset, dstRect, srcAlphaType, direction, radius, sigma, mode);
-        return dstRenderTargetContext;
+        return dstSurfaceDrawContext;
     }
 
     // 'left' and 'right' are the sub rects of 'srcBounds' where 'mode' must be enforced.
@@ -235,13 +235,13 @@ static std::unique_ptr<GrSurfaceDrawContext> convolve_gaussian(GrRecordingContex
     auto convolve = [&](SkIRect rect) {
         // Transform rect into the render target's coord system.
         rect.offset(-rtcToSrcOffset);
-        convolve_gaussian_1d(dstRenderTargetContext.get(), srcView, srcBounds, rtcToSrcOffset, rect,
+        convolve_gaussian_1d(dstSurfaceDrawContext.get(), srcView, srcBounds, rtcToSrcOffset, rect,
                              srcAlphaType, direction, radius, sigma, mode);
     };
     auto clear = [&](SkIRect rect) {
         // Transform rect into the render target's coord system.
         rect.offset(-rtcToSrcOffset);
-        dstRenderTargetContext->clearAtLeast(rect, SK_PMColor4fTRANSPARENT);
+        dstSurfaceDrawContext->clearAtLeast(rect, SK_PMColor4fTRANSPARENT);
     };
 
     // Doing mid separately will cause two draws to occur (left and right batch together). At
@@ -288,12 +288,11 @@ static std::unique_ptr<GrSurfaceDrawContext> convolve_gaussian(GrRecordingContex
         convolve(right);
         convolve(mid);
     }
-    return dstRenderTargetContext;
+    return dstSurfaceDrawContext;
 }
 
-// Expand the contents of 'srcRenderTargetContext' to fit in 'dstII'. At this point, we are
-// expanding an intermediate image, so there's no need to account for a proxy offset from the
-// original input.
+// Expand the contents of 'src' to fit in 'dstSize'. At this point, we are expanding an intermediate
+// image, so there's no need to account for a proxy offset from the original input.
 static std::unique_ptr<GrSurfaceDrawContext> reexpand(GrRecordingContext* context,
                                                       std::unique_ptr<GrSurfaceContext> src,
                                                       const SkRect& srcBounds,
@@ -312,10 +311,10 @@ static std::unique_ptr<GrSurfaceDrawContext> reexpand(GrRecordingContext* contex
 
     // Create the sdc with default SkSurfaceProps. Gaussian blurs will soon use a
     // GrSurfaceFillContext, at which point the SkSurfaceProps won't exist anymore.
-    auto dstRenderTargetContext = GrSurfaceDrawContext::Make(
+    auto dstSurfaceDrawContext = GrSurfaceDrawContext::Make(
             context, srcColorType, std::move(colorSpace), fit, dstSize, SkSurfaceProps(), 1,
             GrMipmapped::kNo, srcView.proxy()->isProtected(), srcView.origin());
-    if (!dstRenderTargetContext) {
+    if (!dstSurfaceDrawContext) {
         return nullptr;
     }
 
@@ -326,10 +325,10 @@ static std::unique_ptr<GrSurfaceDrawContext> reexpand(GrRecordingContext* contex
     paint.setColorFragmentProcessor(std::move(fp));
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
-    dstRenderTargetContext->fillRectToRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
-                                           SkRect::Make(dstSize), srcBounds);
+    dstSurfaceDrawContext->fillRectToRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
+                                          SkRect::Make(dstSize), srcBounds);
 
-    return dstRenderTargetContext;
+    return dstSurfaceDrawContext;
 }
 
 static std::unique_ptr<GrSurfaceDrawContext> two_pass_gaussian(GrRecordingContext* context,
@@ -346,7 +345,7 @@ static std::unique_ptr<GrSurfaceDrawContext> two_pass_gaussian(GrRecordingContex
                                                                SkTileMode mode,
                                                                SkBackingFit fit) {
     SkASSERT(radiusX || radiusY);
-    std::unique_ptr<GrSurfaceDrawContext> dstRenderTargetContext;
+    std::unique_ptr<GrSurfaceDrawContext> dstSurfaceDrawContext;
     if (radiusX > 0) {
         SkBackingFit xFit = radiusY > 0 ? SkBackingFit::kApprox : fit;
         // Expand the dstBounds vertically to produce necessary content for the y-pass. Then we will
@@ -419,20 +418,20 @@ static std::unique_ptr<GrSurfaceDrawContext> two_pass_gaussian(GrRecordingContex
                 }
             }
         }
-        dstRenderTargetContext = convolve_gaussian(
+        dstSurfaceDrawContext = convolve_gaussian(
                 context, std::move(srcView), srcColorType, srcAlphaType, srcBounds, xPassDstBounds,
                 Direction::kX, radiusX, sigmaX, mode, colorSpace, xFit);
-        if (!dstRenderTargetContext) {
+        if (!dstSurfaceDrawContext) {
             return nullptr;
         }
-        srcView = dstRenderTargetContext->readSurfaceView();
+        srcView = dstSurfaceDrawContext->readSurfaceView();
         SkIVector newDstBoundsOffset = dstBounds.topLeft() - xPassDstBounds.topLeft();
         dstBounds = SkIRect::MakeSize(dstBounds.size()).makeOffset(newDstBoundsOffset);
         srcBounds = SkIRect::MakeSize(xPassDstBounds.size());
     }
 
     if (!radiusY) {
-        return dstRenderTargetContext;
+        return dstSurfaceDrawContext;
     }
 
     return convolve_gaussian(context, std::move(srcView), srcColorType, srcAlphaType, srcBounds,

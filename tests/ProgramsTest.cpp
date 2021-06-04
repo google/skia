@@ -139,7 +139,7 @@ private:
 static const int kRenderTargetHeight = 1;
 static const int kRenderTargetWidth = 1;
 
-static std::unique_ptr<GrSurfaceDrawContext> random_render_target_context(
+static std::unique_ptr<GrSurfaceDrawContext> random_surface_draw_context(
         GrRecordingContext* rContext,
         SkRandom* random,
         const GrCaps* caps) {
@@ -283,7 +283,7 @@ bool GrDrawingManager::ProgramUnitTest(GrDirectContext* direct, int maxStages, i
     static const int NUM_TESTS = 1024;
     for (int t = 0; t < NUM_TESTS; t++) {
         // setup random render target(can fail)
-        auto surfaceDrawContext = random_render_target_context(direct, &random, caps);
+        auto surfaceDrawContext = random_surface_draw_context(direct, &random, caps);
         if (!surfaceDrawContext) {
             SkDebugf("Could not allocate surfaceDrawContext");
             return false;
