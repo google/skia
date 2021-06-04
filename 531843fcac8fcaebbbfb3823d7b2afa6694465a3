@@ -46,6 +46,30 @@
       },
       "revId": "531843fcac8fcaebbbfb3823d7b2afa6694465a3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3ba13b77_008f0cd3",
+        "filename": "src/gpu/GrPipeline.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-06-04T13:19:45Z",
+      "side": 1,
+      "message": "Maybe it doesn\u0027t really matter. Looks like two vec2s in std140 pack can pack into the space of one vec4. I was thinking it was worse but I was confusing it with how arrays work (round up to vec4). On GL without UBOs it\u0027ll mean two glUniform2fvs instead of one glUniform4fv, probably not significant.",
+      "parentUuid": "c741b610_8c35fed8",
+      "range": {
+        "startLine": 145,
+        "startChar": 0,
+        "endLine": 150,
+        "endChar": 50
+      },
+      "revId": "531843fcac8fcaebbbfb3823d7b2afa6694465a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
