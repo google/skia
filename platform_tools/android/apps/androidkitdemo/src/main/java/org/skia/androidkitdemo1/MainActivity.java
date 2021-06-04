@@ -94,7 +94,14 @@ public class MainActivity extends Activity {
         @Override
         public void surfaceChanged(@NonNull SurfaceHolder holder, int format, int width, int height) {
             threadedSurface = Surface.createThreadedSurface(holder.getSurface());
-            threadedSurface.getCanvas().drawColor(0xffffffe0);
+            Paint paint = new Paint().setColor(1, 0, 0, 1);
+            Path path = new Path();
+            path.moveTo(20, 20);
+            path.quadTo(180, 60, 180, 180);
+            path.close();
+            path.moveTo(180, 60);
+            path.quadTo(180, 180, 60, 180);
+            threadedSurface.getCanvas().drawPath(path, paint);
             threadedSurface.flushAndSubmit();
         }
 
