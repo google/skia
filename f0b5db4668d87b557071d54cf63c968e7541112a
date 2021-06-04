@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8e0710de_2ac75515",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 17950
+      },
+      "writtenOn": "2021-06-04T03:23:31Z",
+      "side": 1,
+      "message": "I tested this on a hana running M92 and the omni box is fixed, didnt see any other issues.",
+      "revId": "f0b5db4668d87b557071d54cf63c968e7541112a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
