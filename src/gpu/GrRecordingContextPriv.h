@@ -10,6 +10,7 @@
 
 #include "include/core/SkPaint.h"
 #include "include/gpu/GrRecordingContext.h"
+#include "src/gpu/SkBaseGpuDevice.h"
 #include "src/gpu/text/GrSDFTControl.h"
 
 class SkDeferredDisplayList;
@@ -116,6 +117,22 @@ public:
      * Create a GrRecordingContext without a resource cache
      */
     static sk_sp<GrRecordingContext> MakeDDL(sk_sp<GrContextThreadSafeProxy>);
+
+    sk_sp<SkBaseGpuDevice> createDevice(GrColorType,
+                                        sk_sp<GrSurfaceProxy>,
+                                        sk_sp<SkColorSpace>,
+                                        GrSurfaceOrigin,
+                                        const SkSurfaceProps&,
+                                        SkBaseGpuDevice::InitContents);
+    sk_sp<SkBaseGpuDevice> createDevice(SkBudgeted,
+                                        const SkImageInfo&,
+                                        SkBackingFit,
+                                        int sampleCount,
+                                        GrMipmapped,
+                                        GrProtected,
+                                        GrSurfaceOrigin,
+                                        const SkSurfaceProps&,
+                                        SkBaseGpuDevice::InitContents);
 
 private:
     explicit GrRecordingContextPriv(GrRecordingContext* context) : fContext(context) {}
