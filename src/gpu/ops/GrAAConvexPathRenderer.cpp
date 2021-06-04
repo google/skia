@@ -920,9 +920,9 @@ private:
 }  // anonymous namespace
 
 bool GrAAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
-    GR_AUDIT_TRAIL_AUTO_FRAME(args.fRenderTargetContext->auditTrail(),
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fSurfaceDrawContext->auditTrail(),
                               "GrAAConvexPathRenderer::onDrawPath");
-    SkASSERT(args.fRenderTargetContext->numSamples() <= 1);
+    SkASSERT(args.fSurfaceDrawContext->numSamples() <= 1);
     SkASSERT(!args.fShape->isEmpty());
 
     SkPath path;
@@ -931,7 +931,7 @@ bool GrAAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
     GrOp::Owner op = AAConvexPathOp::Make(args.fContext, std::move(args.fPaint),
                                           *args.fViewMatrix,
                                           path, args.fUserStencilSettings);
-    args.fRenderTargetContext->addDrawOp(args.fClip, std::move(op));
+    args.fSurfaceDrawContext->addDrawOp(args.fClip, std::move(op));
     return true;
 }
 

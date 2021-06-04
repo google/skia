@@ -310,7 +310,7 @@ static void stencil_path(GrRecordingContext* context,
                          const GrStyledShape& shape, GrAA aa) {
     GrPathRenderer::StencilPathArgs args;
     args.fContext = context;
-    args.fRenderTargetContext = rtc;
+    args.fSurfaceDrawContext = rtc;
     args.fClip = &clip;
     args.fClipConservativeBounds = &clip.scissorRect();
     args.fViewMatrix = &matrix;

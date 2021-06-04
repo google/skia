@@ -167,7 +167,7 @@ static GrOp::Owner make_op(GrRecordingContext* rContext, const GrSurfaceContext*
 }
 
 bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
-    GrSurfaceDrawContext* surfaceDrawContext = args.fRenderTargetContext;
+    GrSurfaceDrawContext* surfaceDrawContext = args.fSurfaceDrawContext;
 
     SkRect devBounds;
     args.fViewMatrix->mapRect(&devBounds, args.fShape->bounds());
@@ -261,7 +261,7 @@ bool GrTessellationPathRenderer::tryAddPathToAtlas(
 }
 
 void GrTessellationPathRenderer::onStencilPath(const StencilPathArgs& args) {
-    GrSurfaceDrawContext* surfaceDrawContext = args.fRenderTargetContext;
+    GrSurfaceDrawContext* surfaceDrawContext = args.fSurfaceDrawContext;
     GrAAType aaType = (GrAA::kYes == args.fDoStencilMSAA) ? GrAAType::kMSAA : GrAAType::kNone;
     SkRect devBounds;
     args.fViewMatrix->mapRect(&devBounds, args.fShape->bounds());

@@ -33,7 +33,7 @@ static void check_instantiation_status(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, tProxy->isInstantiated() == wrappedExpectation);
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(RenderTargetContextTest, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceDrawContextTest, reporter, ctxInfo) {
     auto dContext = ctxInfo.directContext();
 
     // Calling instantiate on a GrSurfaceDrawContext's textureProxy also instantiates the
