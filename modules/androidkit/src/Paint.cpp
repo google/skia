@@ -9,6 +9,7 @@
 
 #include "include/core/SkPaint.h"
 #include "include/core/SkShader.h"
+#include "include/effects/SkImageFilters.h"
 
 namespace {
 
@@ -45,6 +46,12 @@ static void Paint_SetShader(JNIEnv* env, jobject, jlong native_paint, jlong nati
     }
 }
 
+static void Paint_SetImageFilter(JNIEnv* env, jobject, jlong native_paint, jlong native_filter) {
+    if (auto* paint = reinterpret_cast<SkPaint*>(native_paint)) {
+        paint->setImageFilter(sk_ref_sp(reinterpret_cast<SkImageFilter*>(native_filter)));
+    }
+}
+
 }  // namespace
 
 int register_androidkit_Paint(JNIEnv* env) {
@@ -55,6 +62,7 @@ int register_androidkit_Paint(JNIEnv* env) {
         {"nSetStroke"      , "(JZ)V"   , reinterpret_cast<void*>(Paint_SetStroke)},
         {"nSetStrokeWidth" , "(JF)V"   , reinterpret_cast<void*>(Paint_SetStrokeWidth)},
         {"nSetShader"      , "(JJ)V"   , reinterpret_cast<void*>(Paint_SetShader)},
+        {"nSetImageFilter" , "(JJ)V"   , reinterpret_cast<void*>(Paint_SetImageFilter)},
     };
 
     const auto clazz = env->FindClass("org/skia/androidkit/Paint");
