@@ -18,6 +18,7 @@
 #include "src/core/SkTLazy.h"
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/effects/GrSkSLFP.h"
 #include "tests/Test.h"
 
 #include <algorithm>
@@ -593,7 +594,7 @@ DEF_TEST(SkRuntimeShaderSampleCoords, r) {
         REPORTER_ASSERT(r, effect);
 
         auto child = GrFragmentProcessor::MakeColor({ 1, 1, 1, 1 });
-        auto fp = effect->makeFP(nullptr, &child, 1);
+        auto fp = GrSkSLFP::Make(effect, "test_fp",  "child", std::move(child));
         REPORTER_ASSERT(r, fp);
 
         REPORTER_ASSERT(r, fp->childProcessor(0)->isSampledWithExplicitCoords() == expectExplicit);

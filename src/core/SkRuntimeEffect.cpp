@@ -923,22 +923,6 @@ sk_sp<SkFlattenable> SkRTShader::CreateProc(SkReadBuffer& buffer) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if SK_SUPPORT_GPU
-std::unique_ptr<GrFragmentProcessor> SkRuntimeEffect::makeFP(
-        sk_sp<SkData> uniforms,
-        std::unique_ptr<GrFragmentProcessor> children[],
-        size_t childCount) const {
-    if (!uniforms) {
-        uniforms = SkData::MakeEmpty();
-    }
-    auto fp = GrSkSLFP::Make(sk_ref_sp(this), "make_fp", std::move(uniforms));
-    for (size_t i = 0; i < childCount; ++i) {
-        fp->addChild(std::move(children[i]));
-    }
-    return std::move(fp);
-}
-#endif
-
 sk_sp<SkShader> SkRuntimeEffect::makeShader(sk_sp<SkData> uniforms,
                                             sk_sp<SkShader> children[],
                                             size_t childCount,
