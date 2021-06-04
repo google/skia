@@ -211,6 +211,8 @@ protected:
 
     void addOp(GrOp::Owner);
 
+    GrOpsTask* replaceOpsTask();
+
 private:
     sk_sp<GrArenas> arenas() { return fWriteView.proxy()->asRenderTargetProxy()->arenas(); }
 

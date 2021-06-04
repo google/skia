@@ -284,6 +284,11 @@ struct SK_API GrContextOptions {
     bool fSuppressDualSourceBlending = false;
 
     /**
+     * Prevents use of non-coefficient-based blend equations, to test GrCustomXfermode.
+     */
+    bool fSuppressAdvancedBlendEquations = false;
+
+    /**
      * If true, the caps will never support geometry shaders.
      */
     bool fSuppressGeometryShaders = false;

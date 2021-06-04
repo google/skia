@@ -163,6 +163,17 @@ void GrGLOpsRenderPass::bindVertexBuffer(const GrBuffer* vertexBuffer, int baseV
     }
 }
 
+void GrGLOpsRenderPass::insertXferBarrier(GrXferBarrierType xferBarrierType) {
+    auto glRT = static_cast<GrGLRenderTarget*>(fRenderTarget);
+    if (xferBarrierType == kTexture_GrXferBarrierType && fUseMultisampleFBO &&
+        glRT->hasDynamicMSAAAttachment()) {
+        // Texture barriers aren't necessary when DMSAA is enabled and implemented as a separate
+        // attachment (i.e., when not writing to the same texture we'll reading from.)
+        return;
+    }
+    fGpu->xferBarrier(fRenderTarget, xferBarrierType);
+}
+
 void GrGLOpsRenderPass::onDraw(int vertexCount, int baseVertex) {
     SkASSERT(fDidBindVertexBuffer || fGpu->glCaps().drawArraysBaseVertexIsBroken());
     GrGLenum glPrimType = fGpu->prepareToDraw(fPrimitiveType);

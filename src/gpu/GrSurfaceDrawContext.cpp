@@ -1912,8 +1912,26 @@ void GrSurfaceDrawContext::addDrawOp(const GrClip* clip,
 
     GrDstProxyView dstProxyView;
     if (analysis.requiresDstTexture()) {
-        if (!this->setupDstProxyView(*op, &dstProxyView)) {
+        SkDEBUGCODE(auto dstOpsTask = this->getOpsTask();)
+        if (!this->setupDstProxyView(*drawOp, &dstProxyView)) {
             return;
+        }
+#ifdef SK_DEBUG
+        if (fCanUseDynamicMSAA && (usesMSAA || dstOpsTask->usesMSAASurface())) {
+            // Since we aren't literally writing to the render target texture while using a DMSAA
+            // attachment, sampling that texture won't work. Ensure the current opsTask got closed
+            // off instead to ensure the actual texture contents got updated.
+            SkASSERT(this->getOpsTask() != dstOpsTask);
+        }
+#endif
+    } else if (fCanUseDynamicMSAA && usesMSAA) {  // Will we be using DMSAA?
+        auto dstOpsTask = this->getOpsTask();
+        if (!dstOpsTask->usesMSAASurface()) {
+            // This will be the op that actually triggers DMSAA. Texture barriers can't be promoted
+            // to DMSAA, so if there already are any on the current opsTask then we need to split.
+            if (dstOpsTask->renderPassXferBarriers() & GrXferBarrierFlags::kTexture) {
+                this->replaceOpsTask();
+            }
         }
     }
 
@@ -1942,7 +1960,7 @@ void GrSurfaceDrawContext::addDrawOp(const GrClip* clip,
 #endif
 }
 
-bool GrSurfaceDrawContext::setupDstProxyView(const GrOp& op, GrDstProxyView* dstProxyView) {
+bool GrSurfaceDrawContext::setupDstProxyView(const GrDrawOp& op, GrDstProxyView* dstProxyView) {
     // If we are wrapping a vulkan secondary command buffer, we can't make a dst copy because we
     // don't actually have a VkImage to make a copy of. Additionally we don't have the power to
     // start and stop the render pass in order to make the copy.
@@ -1950,21 +1968,25 @@ bool GrSurfaceDrawContext::setupDstProxyView(const GrOp& op, GrDstProxyView* dst
         return false;
     }
 
-    if (fDstSampleType == GrDstSampleType::kNone) {
-        fDstSampleType = this->caps()->getDstSampleTypeForProxy(this->asRenderTargetProxy());
-    }
-    SkASSERT(fDstSampleType != GrDstSampleType::kNone);
+    auto dstSampleType = this->caps()->getDstSampleTypeForProxy(this->asRenderTargetProxy());
+    SkASSERT(dstSampleType != GrDstSampleType::kNone);
 
-    if (GrDstSampleTypeDirectlySamplesDst(fDstSampleType)) {
+    if (GrDstSampleTypeDirectlySamplesDst(dstSampleType)) {
         // The render target is a texture or input attachment, so we can read from it directly in
         // the shader. The XP will be responsible to detect this situation and request a texture
         // barrier.
+        if (fCanUseDynamicMSAA && (op.usesMSAA() || this->getOpsTask()->usesMSAASurface())) {
+            // Since we aren't literally writing to the render target texture while using a DMSAA
+            // attachment, sampling that texture won't work. Close off the current opsTask instead
+            // to ensure the actual texture contents get updated.
+            this->replaceOpsTask();
+        }
         dstProxyView->setProxyView(this->readSurfaceView());
         dstProxyView->setOffset(0, 0);
-        dstProxyView->setDstSampleType(fDstSampleType);
+        dstProxyView->setDstSampleType(dstSampleType);
         return true;
     }
-    SkASSERT(fDstSampleType == GrDstSampleType::kAsTextureCopy);
+    SkASSERT(dstSampleType == GrDstSampleType::kAsTextureCopy);
 
     GrColorType colorType = this->colorInfo().colorType();
     // MSAA consideration: When there is support for reading MSAA samples in the shader we could
@@ -2003,6 +2025,6 @@ bool GrSurfaceDrawContext::setupDstProxyView(const GrOp& op, GrDstProxyView* dst
 
     dstProxyView->setProxyView({std::move(copy), this->origin(), this->readSwizzle()});
     dstProxyView->setOffset(dstOffset);
-    dstProxyView->setDstSampleType(fDstSampleType);
+    dstProxyView->setDstSampleType(dstSampleType);
     return true;
 }

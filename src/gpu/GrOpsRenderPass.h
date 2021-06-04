@@ -164,6 +164,7 @@ protected:
 
 private:
     virtual GrGpu* gpu() = 0;
+    virtual void insertXferBarrier(GrXferBarrierType);
 
     void resetActiveBuffers() {
         fActiveIndexBuffer.reset();

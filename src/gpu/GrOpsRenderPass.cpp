@@ -205,6 +205,10 @@ void GrOpsRenderPass::bindBuffers(sk_sp<const GrBuffer> indexBuffer,
                         primRestart);
 }
 
+void GrOpsRenderPass::insertXferBarrier(GrXferBarrierType xferBarrierType) {
+    this->gpu()->xferBarrier(fRenderTarget, xferBarrierType);
+}
+
 bool GrOpsRenderPass::prepareToDraw() {
     if (DrawPipelineStatus::kOk != fDrawPipelineStatus) {
         SkASSERT(DrawPipelineStatus::kNotConfigured != fDrawPipelineStatus);
@@ -215,7 +219,7 @@ bool GrOpsRenderPass::prepareToDraw() {
     SkASSERT(DynamicStateStatus::kUninitialized != fTextureBindingStatus);
 
     if (kNone_GrXferBarrierType != fXferBarrierType) {
-        this->gpu()->xferBarrier(fRenderTarget, fXferBarrierType);
+        this->insertXferBarrier(fXferBarrierType);
     }
     return true;
 }
