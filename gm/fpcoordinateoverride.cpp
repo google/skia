@@ -71,7 +71,7 @@ std::unique_ptr<GrGLSLFragmentProcessor> SampleCoordEffect::onMakeProgramImpl() 
     return std::make_unique<GLSLSampleCoordEffect>();
 }
 
-DEF_SIMPLE_GPU_GM_BG(fpcoordinateoverride, ctx, rtCtx, canvas, 512, 512,
+DEF_SIMPLE_GPU_GM_BG(fpcoordinateoverride, ctx, sdCtx, canvas, 512, 512,
                      ToolUtils::color_to_565(0xFF66AA99)) {
     SkRect bounds = SkRect::MakeIWH(512, 512);
 
@@ -88,5 +88,5 @@ DEF_SIMPLE_GPU_GM_BG(fpcoordinateoverride, ctx, rtCtx, canvas, 512, 512,
     GrPaint grPaint;
     grPaint.setCoverageFragmentProcessor(std::move(fp));
 
-    rtCtx->addDrawOp(GrFillRectOp::MakeNonAARect(ctx, std::move(grPaint), SkMatrix::I(), bounds));
+    sdCtx->addDrawOp(GrFillRectOp::MakeNonAARect(ctx, std::move(grPaint), SkMatrix::I(), bounds));
 }

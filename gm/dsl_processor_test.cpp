@@ -59,10 +59,10 @@ public:
     }
 };
 
-DEF_SIMPLE_GPU_GM(simple_dsl_test, ctx, rtCtx, canvas, 100, 100) {
+DEF_SIMPLE_GPU_GM(simple_dsl_test, ctx, sdCtx, canvas, 100, 100) {
     auto fp = std::make_unique<SimpleDSLEffect>();
     GrPaint paint;
     paint.setColorFragmentProcessor(std::move(fp));
-    rtCtx->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
+    sdCtx->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
                     SkRect::MakeIWH(100, 100));
 }
