@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c22f8105_7084a4d5",
+        "filename": "src/gpu/GrPipeline.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-06-04T13:00:33Z",
+      "side": 1,
+      "message": "In a future change, would it makes sense to just use one float4?",
+      "range": {
+        "startLine": 145,
+        "startChar": 0,
+        "endLine": 150,
+        "endChar": 50
+      },
+      "revId": "531843fcac8fcaebbbfb3823d7b2afa6694465a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
