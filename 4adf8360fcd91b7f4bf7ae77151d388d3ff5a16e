@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "002d46b4_0775fded",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-06-04T14:09:02Z",
+      "side": 1,
+      "message": "I don\u0027t feel strongly about this tweak - it does seem to slow down the emulator some.  Runs smoothly on the device though, and looks kinda cool.  Maybe we can land as an experiment and revisit when we get more content for face demos.",
+      "revId": "4adf8360fcd91b7f4bf7ae77151d388d3ff5a16e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
