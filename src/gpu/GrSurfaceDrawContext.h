@@ -711,7 +711,7 @@ private:
     // value is false then a texture copy could not be made.
     //
     // The op should have already had setClippedBounds called on it.
-    bool SK_WARN_UNUSED_RESULT setupDstProxyView(const GrOp& op, GrDstProxyView* result);
+    bool SK_WARN_UNUSED_RESULT setupDstProxyView(const GrDrawOp& op, GrDstProxyView* result);
 
     SkGlyphRunListPainter* glyphPainter() { return &fGlyphPainter; }
 
@@ -719,8 +719,6 @@ private:
     const bool fCanUseDynamicMSAA;
 
     bool fNeedsStencil = false;
-
-    GrDstSampleType fDstSampleType = GrDstSampleType::kNone;
 
 #if GR_TEST_UTILS
     bool fPreserveOpsOnFullClear_TestingOnly = false;

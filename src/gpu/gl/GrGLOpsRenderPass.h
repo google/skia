@@ -39,6 +39,7 @@ public:
 
 private:
     GrGpu* gpu() override { return fGpu; }
+    void insertXferBarrier(GrXferBarrierType) override;
 
     void bindInstanceBuffer(const GrBuffer*, int baseInstance);
     void bindVertexBuffer(const GrBuffer*, int baseVertex);
