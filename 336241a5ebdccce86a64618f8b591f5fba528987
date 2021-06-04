@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8852b5f8_e9af6b00",
+        "filename": "experimental/ngatoy/Fake.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-04T14:32:48Z",
+      "side": 1,
+      "message": "going forward, it\u0027ll probably be good to move the write depth directly into the Cmd since what\u0027s written can be different from what\u0027s used in the key (depending on how far we get with the theory I had come up with)",
+      "range": {
+        "startLine": 101,
+        "startChar": 37,
+        "endLine": 101,
+        "endChar": 56
+      },
+      "revId": "336241a5ebdccce86a64618f8b591f5fba528987",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
