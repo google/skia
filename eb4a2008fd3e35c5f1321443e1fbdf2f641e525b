@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5f1ff1d4_b2a5142b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-04T20:44:08Z",
+      "side": 1,
+      "message": "Ah, see what you mean about the name. I wasn\u0027t even sure how much value we get from FP names - the runtime builder just used a single name for all of them, so we could eliminate them entirely if we don\u0027t care to conjure \u0026 store them.\n\nThe second idea is interesting - seems like it would throw away all of the optimization, but I suppose we could have two different factories (MakeStrict vs. Make) or whatever.",
+      "parentUuid": "499314ad_618cfe0f",
+      "revId": "eb4a2008fd3e35c5f1321443e1fbdf2f641e525b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "67ac18b4_1a252337",
@@ -58,6 +76,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b786a223_c89ffda9",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-04T20:44:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "67ac18b4_1a252337",
+      "range": {
+        "startLine": 66,
+        "startChar": 7,
+        "endLine": 66,
+        "endChar": 14
+      },
+      "revId": "eb4a2008fd3e35c5f1321443e1fbdf2f641e525b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ad028742_1bb72634",
@@ -71,6 +113,30 @@
       "writtenOn": "2021-06-04T20:36:07Z",
       "side": 1,
       "message": "do we care to check in here that all children are passed before the first uniform?",
+      "range": {
+        "startLine": 144,
+        "startChar": 16,
+        "endLine": 144,
+        "endChar": 25
+      },
+      "revId": "eb4a2008fd3e35c5f1321443e1fbdf2f641e525b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4f20f8b1_5551833e",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-04T20:44:08Z",
+      "side": 1,
+      "message": "I\u0027m not sure how much I care. As the code written now, I\u0027d have to add some extra state flag that\u0027s passed along, I think.",
+      "parentUuid": "ad028742_1bb72634",
       "range": {
         "startLine": 144,
         "startChar": 16,
