@@ -40,7 +40,7 @@ static void test_dsl_fp(skiatest::Reporter* r,
             return;
         }
     }
-    std::unique_ptr<GrSurfaceDrawContext> rtCtx =
+    std::unique_ptr<GrSurfaceDrawContext> sdCtx =
             GrSurfaceDrawContext::Make(ctx,
                                        GrColorType::kRGBA_8888,
                                        /*colorSpace=*/nullptr,
@@ -48,13 +48,13 @@ static void test_dsl_fp(skiatest::Reporter* r,
                                        /*dimensions=*/{1, 1},
                                        SkSurfaceProps{});
 
-    rtCtx->fillRectWithFP(SkIRect::MakeWH(1, 1),
+    sdCtx->fillRectWithFP(SkIRect::MakeWH(1, 1),
                           FPClass::Make(std::forward<Uniforms>(uniforms)...));
 
     SkImageInfo dstInfo = SkImageInfo::Make(/*width=*/1, /*height=*/1, kRGBA_8888_SkColorType,
                                             kPremul_SkAlphaType, /*cs=*/nullptr);
     GrPixmap dstPM = GrPixmap::Allocate(dstInfo);
-    REPORTER_ASSERT(r, rtCtx->readPixels(ctx, dstPM, /*srcPt=*/{0, 0}));
+    REPORTER_ASSERT(r, sdCtx->readPixels(ctx, dstPM, /*srcPt=*/{0, 0}));
 
     const GrColor* color = static_cast<const GrColor*>(dstPM.addr());
     REPORTER_ASSERT(r, *color == GrColorPackRGBA(0x00, 0xFF, 0x00, 0xFF),

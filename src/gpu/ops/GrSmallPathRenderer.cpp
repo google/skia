@@ -694,7 +694,7 @@ private:
 };
 
 bool GrSmallPathRenderer::onDrawPath(const DrawPathArgs& args) {
-    GR_AUDIT_TRAIL_AUTO_FRAME(args.fRenderTargetContext->auditTrail(),
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fSurfaceDrawContext->auditTrail(),
                               "GrSmallPathRenderer::onDrawPath");
 
     // we've already bailed on inverse filled paths, so this is safe
@@ -704,7 +704,7 @@ bool GrSmallPathRenderer::onDrawPath(const DrawPathArgs& args) {
     GrOp::Owner op = SmallPathOp::Make(
             args.fContext, std::move(args.fPaint), *args.fShape, *args.fViewMatrix,
             args.fGammaCorrect, args.fUserStencilSettings);
-    args.fRenderTargetContext->addDrawOp(args.fClip, std::move(op));
+    args.fSurfaceDrawContext->addDrawOp(args.fClip, std::move(op));
 
     return true;
 }

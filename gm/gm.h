@@ -60,31 +60,31 @@ struct GrContextOptions;
 
 // A Simple GpuGM makes direct GPU calls. Its onDraw hook that includes GPU objects as params, and
 // is only invoked on GPU configs. Non-GPU configs automatically draw a GPU-only message and abort.
-#define DEF_SIMPLE_GPU_GM(NAME, GR_CONTEXT, RENDER_TARGET_CONTEXT, CANVAS, W, H) \
-    DEF_SIMPLE_GPU_GM_BG(NAME, GR_CONTEXT, RENDER_TARGET_CONTEXT, CANVAS, W, H, SK_ColorWHITE)
-#define DEF_SIMPLE_GPU_GM_BG(NAME, GR_CONTEXT, RENDER_TARGET_CONTEXT, CANVAS, W, H, BGCOLOR) \
+#define DEF_SIMPLE_GPU_GM(NAME, GR_CONTEXT, SURFACE_DRAW_CONTEXT, CANVAS, W, H) \
+    DEF_SIMPLE_GPU_GM_BG(NAME, GR_CONTEXT, SURFACE_DRAW_CONTEXT, CANVAS, W, H, SK_ColorWHITE)
+#define DEF_SIMPLE_GPU_GM_BG(NAME, GR_CONTEXT, SURFACE_DRAW_CONTEXT, CANVAS, W, H, BGCOLOR) \
     static void SK_MACRO_CONCAT(NAME,_GM_inner)(GrRecordingContext*, GrSurfaceDrawContext*, \
                                                 SkCanvas*); \
-    DEF_SIMPLE_GPU_GM_BG_CAN_FAIL(NAME, GR_CONTEXT, RENDER_TARGET_CONTEXT, CANVAS,, W, H, \
+    DEF_SIMPLE_GPU_GM_BG_CAN_FAIL(NAME, GR_CONTEXT, SURFACE_DRAW_CONTEXT, CANVAS,, W, H, \
                                   BGCOLOR) { \
-        SK_MACRO_CONCAT(NAME,_GM_inner)(GR_CONTEXT, RENDER_TARGET_CONTEXT, CANVAS); \
+        SK_MACRO_CONCAT(NAME,_GM_inner)(GR_CONTEXT, SURFACE_DRAW_CONTEXT, CANVAS); \
         return skiagm::DrawResult::kOk; \
     } \
     void SK_MACRO_CONCAT(NAME,_GM_inner)( \
-            GrRecordingContext* GR_CONTEXT, GrSurfaceDrawContext* RENDER_TARGET_CONTEXT, \
+            GrRecordingContext* GR_CONTEXT, GrSurfaceDrawContext* SURFACE_DRAW_CONTEXT, \
             SkCanvas* CANVAS)
 
-#define DEF_SIMPLE_GPU_GM_CAN_FAIL(NAME, GR_CONTEXT, RENDER_TARGET_CONTEXT, CANVAS, ERR_MSG, W, H) \
-    DEF_SIMPLE_GPU_GM_BG_CAN_FAIL(NAME, GR_CONTEXT, RENDER_TARGET_CONTEXT, CANVAS, \
+#define DEF_SIMPLE_GPU_GM_CAN_FAIL(NAME, GR_CONTEXT, SURFACE_DRAW_CONTEXT, CANVAS, ERR_MSG, W, H) \
+    DEF_SIMPLE_GPU_GM_BG_CAN_FAIL(NAME, GR_CONTEXT, SURFACE_DRAW_CONTEXT, CANVAS, \
                                   ERR_MSG, W, H, SK_ColorWHITE)
-#define DEF_SIMPLE_GPU_GM_BG_CAN_FAIL(NAME, GR_CONTEXT, RENDER_TARGET_CONTEXT, CANVAS, ERR_MSG, W, \
+#define DEF_SIMPLE_GPU_GM_BG_CAN_FAIL(NAME, GR_CONTEXT, SURFACE_DRAW_CONTEXT, CANVAS, ERR_MSG, W, \
                                       H, BGCOLOR) \
     static skiagm::DrawResult SK_MACRO_CONCAT(NAME,_GM)( \
             GrRecordingContext*, GrSurfaceDrawContext*, SkCanvas*, SkString*); \
     DEF_GM(return new skiagm::SimpleGpuGM(BGCOLOR, SkString(#NAME), {W,H}, \
                                           SK_MACRO_CONCAT(NAME,_GM));) \
     skiagm::DrawResult SK_MACRO_CONCAT(NAME,_GM)( \
-            GrRecordingContext* GR_CONTEXT, GrSurfaceDrawContext* RENDER_TARGET_CONTEXT, \
+            GrRecordingContext* GR_CONTEXT, GrSurfaceDrawContext* SURFACE_DRAW_CONTEXT, \
             SkCanvas* CANVAS, SkString* ERR_MSG)
 
 namespace skiagm {

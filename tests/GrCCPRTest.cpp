@@ -60,13 +60,13 @@ public:
     CCPRPathDrawer(sk_sp<GrDirectContext> dContext, skiatest::Reporter* reporter)
             : fDContext(dContext)
             , fCCPR(fDContext->priv().drawingManager()->getCoverageCountingPathRenderer())
-            , fRTC(GrSurfaceDrawContext::Make(
+            , fSDC(GrSurfaceDrawContext::Make(
                       fDContext.get(), GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,
                       {kCanvasSize, kCanvasSize}, SkSurfaceProps())) {
         if (!fCCPR) {
             ERRORF(reporter, "ccpr not enabled in GrDirectContext for ccpr tests");
         }
-        if (!fRTC) {
+        if (!fSDC) {
             ERRORF(reporter, "failed to create GrSurfaceDrawContext for ccpr tests");
         }
     }
@@ -74,11 +74,11 @@ public:
     GrDirectContext* dContext() const { return fDContext.get(); }
     GrCoverageCountingPathRenderer* ccpr() const { return fCCPR; }
 
-    bool valid() const { return fCCPR && fRTC; }
-    void clear() const { fRTC->clear(SK_PMColor4fTRANSPARENT); }
+    bool valid() const { return fCCPR && fSDC; }
+    void clear() const { fSDC->clear(SK_PMColor4fTRANSPARENT); }
     void destroyGrContext() {
         SkASSERT(fDContext->unique());
-        fRTC.reset();
+        fSDC.reset();
         fCCPR = nullptr;
         fDContext.reset();
     }
@@ -90,7 +90,7 @@ public:
         paint.setColor4f({0, 1, 0, 1});
 
         CCPRClip clip(fCCPR, clipPath);
-        fRTC->drawRect(&clip, std::move(paint), GrAA::kYes, SkMatrix::I(),
+        fSDC->drawRect(&clip, std::move(paint), GrAA::kYes, SkMatrix::I(),
                        SkRect::MakeIWH(kCanvasSize, kCanvasSize));
     }
 
@@ -102,7 +102,7 @@ public:
 private:
     sk_sp<GrDirectContext> fDContext;
     GrCoverageCountingPathRenderer* fCCPR;
-    std::unique_ptr<GrSurfaceDrawContext> fRTC;
+    std::unique_ptr<GrSurfaceDrawContext> fSDC;
 };
 
 class CCPRTest {

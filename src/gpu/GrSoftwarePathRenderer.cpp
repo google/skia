@@ -223,7 +223,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 // return true on success; false on failure
 bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
-    GR_AUDIT_TRAIL_AUTO_FRAME(args.fRenderTargetContext->auditTrail(),
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fSurfaceDrawContext->auditTrail(),
                               "GrSoftwarePathRenderer::onDrawPath");
     if (!fProxyProvider) {
         return false;
@@ -242,13 +242,13 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
     bool useCache = fAllowCaching && !inverseFilled && args.fViewMatrix->preservesAxisAlignment() &&
                     args.fShape->hasUnstyledKey() && (GrAAType::kCoverage == args.fAAType);
 
-    if (!GetShapeAndClipBounds(args.fRenderTargetContext,
+    if (!GetShapeAndClipBounds(args.fSurfaceDrawContext,
                                args.fClip, *args.fShape,
                                *args.fViewMatrix, &unclippedDevShapeBounds,
                                &clippedDevShapeBounds,
                                &devClipBounds)) {
         if (inverseFilled) {
-            DrawAroundInvPath(args.fRenderTargetContext, std::move(args.fPaint),
+            DrawAroundInvPath(args.fSurfaceDrawContext, std::move(args.fPaint),
                               *args.fUserStencilSettings, args.fClip, *args.fViewMatrix,
                               devClipBounds, unclippedDevShapeBounds);
         }
@@ -263,7 +263,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
         int64_t unclippedArea = sk_64_mul(unclippedWidth, unclippedHeight);
         int64_t clippedArea = sk_64_mul(clippedDevShapeBounds.width(),
                                         clippedDevShapeBounds.height());
-        int maxTextureSize = args.fRenderTargetContext->caps()->maxTextureSize();
+        int maxTextureSize = args.fSurfaceDrawContext->caps()->maxTextureSize();
         if (unclippedArea > 2 * clippedArea || unclippedWidth > maxTextureSize ||
             unclippedHeight > maxTextureSize) {
             useCache = false;
@@ -317,7 +317,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
     if (useCache) {
         auto proxy = fProxyProvider->findOrCreateProxyByUniqueKey(maskKey);
         if (proxy) {
-            GrSwizzle swizzle = args.fRenderTargetContext->caps()->getReadSwizzle(
+            GrSwizzle swizzle = args.fSurfaceDrawContext->caps()->getReadSwizzle(
                     proxy->backendFormat(), GrColorType::kAlpha_8);
             view = {std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle};
             args.fContext->priv().stats()->incNumPathMasksCacheHits();
@@ -383,11 +383,11 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
     }
     SkASSERT(view);
     if (inverseFilled) {
-        DrawAroundInvPath(args.fRenderTargetContext, GrPaint::Clone(args.fPaint),
+        DrawAroundInvPath(args.fSurfaceDrawContext, GrPaint::Clone(args.fPaint),
                           *args.fUserStencilSettings, args.fClip, *args.fViewMatrix, devClipBounds,
                           unclippedDevShapeBounds);
     }
-    DrawToTargetWithShapeMask(std::move(view), args.fRenderTargetContext, std::move(args.fPaint),
+    DrawToTargetWithShapeMask(std::move(view), args.fSurfaceDrawContext, std::move(args.fPaint),
                               *args.fUserStencilSettings, args.fClip, *args.fViewMatrix,
                               SkIPoint{boundsForMask->fLeft, boundsForMask->fTop}, *boundsForMask);
 

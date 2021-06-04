@@ -19,7 +19,7 @@
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
-DEF_SIMPLE_GPU_GM(swizzle, ctx, rtCtx, canvas, 512, 512) {
+DEF_SIMPLE_GPU_GM(swizzle, ctx, sdCtx, canvas, 512, 512) {
     SkRect bounds = SkRect::MakeIWH(512, 512);
 
     SkBitmap bmp;
@@ -35,5 +35,5 @@ DEF_SIMPLE_GPU_GM(swizzle, ctx, rtCtx, canvas, 512, 512) {
     GrPaint grPaint;
     grPaint.setColorFragmentProcessor(std::move(fp));
 
-    rtCtx->addDrawOp(GrFillRectOp::MakeNonAARect(ctx, std::move(grPaint), SkMatrix(), bounds));
+    sdCtx->addDrawOp(GrFillRectOp::MakeNonAARect(ctx, std::move(grPaint), SkMatrix(), bounds));
 }
