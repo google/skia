@@ -142,16 +142,10 @@ public:
      */
     const GrSurfaceProxyView& dstProxyView() const { return fDstProxyView; }
 
-    /**
-     * If the GrXferProcessor uses a texture to access the dst color, then this returns that
-     * texture and the offset to the dst contents within that texture.
-     */
-    GrTexture* peekDstTexture(SkIPoint* offset = nullptr) const {
+    /** If this GrXferProcessor uses a texture to access the dst color, returns that texture. */
+    GrTexture* peekDstTexture() const {
         if (!this->usesDstTexture()) {
             return nullptr;
-        }
-        if (offset) {
-            *offset = fDstTextureOffset;
         }
 
         if (GrTextureProxy* dstProxy = fDstProxyView.asTextureProxy()) {

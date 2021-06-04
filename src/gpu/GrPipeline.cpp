@@ -137,8 +137,7 @@ void GrPipeline::visitProxies(const GrOp::VisitProxyFunc& func) const {
 
 void GrPipeline::setDstTextureUniforms(const GrGLSLProgramDataManager& pdm,
                                        GrGLSLBuiltinUniformHandles* fBuiltinUniformHandles) const {
-    SkIPoint offset;
-    GrTexture* dstTexture = this->peekDstTexture(&offset);
+    GrTexture* dstTexture = this->peekDstTexture();
 
     if (dstTexture) {
         if (fBuiltinUniformHandles->fDstTextureCoordsUni.isValid()) {
