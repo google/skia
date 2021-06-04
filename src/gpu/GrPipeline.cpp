@@ -92,30 +92,20 @@ void GrPipeline::genKey(GrProcessorKeyBuilder* b, const GrCaps& caps) const {
         // Ganesh will omit kHWAntialias regardless of multisampleDisableSupport.
         ignoredFlags |= InputFlags::kHWAntialias;
     }
-    b->add32((uint32_t)fFlags & ~(uint32_t)ignoredFlags);
+    b->add32((uint32_t)fFlags & ~(uint32_t)ignoredFlags, "flags");
 
     const GrXferProcessor::BlendInfo& blendInfo = this->getXferProcessor().getBlendInfo();
 
-    static constexpr uint32_t kBlendWriteShift = 1;
-    static constexpr uint32_t kBlendCoeffShift = 5;
-    static constexpr uint32_t kBlendEquationShift = 5;
-    static constexpr uint32_t kDstSampleTypeInputShift = 1;
-    static_assert(kLast_GrBlendCoeff < (1 << kBlendCoeffShift));
-    static_assert(kLast_GrBlendEquation < (1 << kBlendEquationShift));
-    static_assert(kBlendWriteShift +
-                  2 * kBlendCoeffShift +
-                  kBlendEquationShift +
-                  kDstSampleTypeInputShift <= 32);
+    static constexpr uint32_t kBlendCoeffSize = 5;
+    static constexpr uint32_t kBlendEquationSize = 5;
+    static_assert(kLast_GrBlendCoeff < (1 << kBlendCoeffSize));
+    static_assert(kLast_GrBlendEquation < (1 << kBlendEquationSize));
 
-    uint32_t blendKey = blendInfo.fWriteColor;
-    blendKey |= (blendInfo.fSrcBlend << kBlendWriteShift);
-    blendKey |= (blendInfo.fDstBlend << (kBlendWriteShift + kBlendCoeffShift));
-    blendKey |= (blendInfo.fEquation << (kBlendWriteShift + 2 * kBlendCoeffShift));
-    // Note that we use the general fDstSampleType here and not localDstSampleType()
-    blendKey |= ((fDstSampleType == GrDstSampleType::kAsInputAttachment)
-                 << (kBlendWriteShift + 2 * kBlendCoeffShift + kBlendEquationShift));
-
-    b->add32(blendKey);
+    b->addBool(blendInfo.fWriteColor, "writeColor");
+    b->addBits(kBlendCoeffSize, blendInfo.fSrcBlend, "srcBlend");
+    b->addBits(kBlendCoeffSize, blendInfo.fDstBlend, "dstBlend");
+    b->addBits(kBlendEquationSize, blendInfo.fEquation, "equation");
+    b->addBool(this->usesInputAttachment(), "inputAttach");
 }
 
 void GrPipeline::visitTextureEffects(
