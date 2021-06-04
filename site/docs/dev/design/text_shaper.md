@@ -8,10 +8,10 @@ A related explainer focuses on suggested [extensions to canvas2d](text_c2d.md) t
 
 ## Target audience
 
-We want to target web apps that have already chosen to rendering their content either in canvas2d,
+We want to target web apps that have already chosen to render their content either in canvas2d,
 or webgl, or in some other fashion, but still want access to the powerful international text shaping
 and layout services inherent in the browser. In the case of canvas2d, which already has some facilities
-for text, we want to address the missing services and low-level results needed for creating interative
+for text, we want to address the missing services and low-level results needed for creating interactive
 text editing or high-perferformance rendering and animations.
 
 Rather than 'extend' the existing canvas2d fillText() method, we propose an explicit 2-step model:
@@ -22,7 +22,7 @@ JavaScript frameworks are another target audience. This proposal is heavily infl
 APIs on native platforms (desktop and mobile) and seeks to deliver similar control and performance.
 Thus it may be quite natural that sophiticated frameworks build upon these interfaces, providing more
 'friendly', constrained versions of the features. This is expected, since multiple 'high level' models
-for text are valid, each with its own opinions and tradeoffs. The goal of this API is to be expose the
+for text are valid, each with its own opinions and tradeoffs. The goal of this API is to expose the
 core services and results, and leave the opinionated layers to the JavaScript community.
 
 ### Principles

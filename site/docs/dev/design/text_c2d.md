@@ -1,7 +1,7 @@
 Canvas2D extensions for Shaped Text
 =============
 [Shaped Text](text_shaper.md) is a proposal for exposing the Browser's text shaping engine. It takes in
-a block of (annoated) text, and returns the low-level information need to correctly measure, hit-test,
+a block of (annoated) text, and returns the low-level information needed to correctly measure, hit-test,
 and draw the text as positioned glyphs. This processing step is needed whenever text is measured or
 drawn in the browser, and this processing can be complex and time consuming. The output of this processing
 is, however, simple and can be rendered quite efficiently. It is runs (tied to a specific Typeface and size)
