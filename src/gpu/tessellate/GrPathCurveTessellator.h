@@ -16,8 +16,14 @@
 // or a conic. Quadratics are converted to cubics and triangles are converted to conics with w=Inf.
 class GrPathCurveTessellator : public GrPathTessellator {
 public:
-    static GrPathTessellator* Make(SkArenaAlloc*, const SkMatrix&, const SkPMColor4f&,
-                                   DrawInnerFan);
+    // Creates a curve tessellator with a shader best suited for the given path description.
+    static GrPathTessellator* Make(SkArenaAlloc*, const SkMatrix& viewMatrix, const SkPMColor4f&,
+                                   DrawInnerFan, int numPathVerbs, const GrCaps&);
+
+    // Creates a curve tessellator with the given shader.
+    GrPathCurveTessellator(GrPathTessellationShader* shader, DrawInnerFan drawInnerFan)
+            : GrPathTessellator(shader)
+            , fDrawInnerFan(drawInnerFan == DrawInnerFan::kYes) {}
 
     void prepare(GrMeshDrawOp::Target*, const SkRect& cullBounds, const SkPath&,
                  const BreadcrumbTriangleList*) override;
@@ -25,14 +31,10 @@ public:
     void drawHullInstances(GrOpFlushState*) const override;
 
 private:
-    GrPathCurveTessellator(GrPathTessellationShader* shader, DrawInnerFan drawInnerFan)
-            : GrPathTessellator(shader)
-            , fDrawInnerFan(drawInnerFan == DrawInnerFan::kYes) {}
-
     const bool fDrawInnerFan;
     GrVertexChunkArray fVertexChunkArray;
-
-    friend class SkArenaAlloc;  // For constructor.
+    // If using fixed count, this us the number of vertices we need to emit per instance.
+    int fFixedVertexCount;
 };
 
 #endif
