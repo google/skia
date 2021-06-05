@@ -14,6 +14,9 @@
 // Converts keywords from shared SkSL strings to native GLSL keywords.
 constexpr static char kSkSLTypeDefs[] = R"(
 #define float4x3 mat4x3
+#define float4x2 mat4x2
+#define float3x2 mat3x2
+#define float2x2 mat2
 #define float2 vec2
 #define float3 vec3
 #define float4 vec4
@@ -37,17 +40,17 @@ public:
 
 private:
     const char* name() const final { return "tessellate_HardwareWedgeShader"; }
-    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const final {}
+    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const final {}
     GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const final;
 };
 
 GrGLSLGeometryProcessor* HardwareWedgeShader::createGLSLInstance(const GrShaderCaps&) const {
     class Impl : public GrPathTessellationShader::Impl {
         void emitVertexCode(GrGLSLVertexBuilder* v, GrGPArgs*) override {
-            v->declareGlobal(GrShaderVar("P", kFloat2_GrSLType, GrShaderVar::TypeModifier::Out));
+            v->declareGlobal(GrShaderVar("vsPt", kFloat2_GrSLType, GrShaderVar::TypeModifier::Out));
             v->codeAppend(R"(
             // If y is infinity then x is a conic weight. Don't transform.
-            P = (isinf(inputPoint.y)) ? inputPoint : AFFINE_MATRIX * inputPoint + TRANSLATE;)");
+            vsPt = (isinf(inputPoint.y)) ? inputPoint : AFFINE_MATRIX * inputPoint + TRANSLATE;)");
         }
         SkString getTessControlShaderGLSL(const GrGeometryProcessor&,
                                           const char* versionAndExtensionDecls,
@@ -64,29 +67,30 @@ GrGLSLGeometryProcessor* HardwareWedgeShader::createGLSLInstance(const GrShaderC
             code.append(R"(
             layout(vertices = 1) out;
 
-            in vec2 P[];
+            in vec2 vsPt[];
             patch out mat4x2 rationalCubicXY;
             patch out float rationalCubicW;
             patch out vec2 fanpoint;
 
             void main() {
+                mat4x2 P = mat4x2(vsPt[0], vsPt[1], vsPt[2], vsPt[3]);
                 float numSegments;
                 if (!isinf(P[3].y)) {
                     // This is a cubic.
-                    numSegments = wangs_formula_cubic(PRECISION, P[0], P[1], P[2], P[3]);
-                    rationalCubicXY = mat4x2(P[0], P[1], P[2], P[3]);
+                    numSegments = wangs_formula_cubic(PRECISION, P, mat2(1));
+                    rationalCubicXY = P;
                     rationalCubicW = 1;
                 } else {
                     // This is a conic.
                     float w = P[3].x;
-                    numSegments = wangs_formula_conic(PRECISION, P[0], P[1], P[2], w);
+                    numSegments = wangs_formula_conic(PRECISION, mat3x2(P), w);
                     // Convert to a rational cubic in projected form.
                     rationalCubicXY = mat4x2(P[0],
                                              mix(vec4(P[0], P[2]), (P[1] * w).xyxy, 2.0/3.0),
                                              P[2]);
                     rationalCubicW = fma(w, 2.0/3.0, 1.0/3.0);
                 }
-                fanpoint = P[4];
+                fanpoint = vsPt[4];
 
                 // Tessellate the first side of the patch into numSegments triangles.
                 gl_TessLevelOuter[0] = min(numSegments, MAX_TESSELLATION_SEGMENTS);
@@ -172,7 +176,7 @@ public:
 
 private:
     const char* name() const final { return "tessellate_HardwareCurveShader"; }
-    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const final {}
+    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const final {}
     GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const final;
 };
 
@@ -225,8 +229,8 @@ GrGLSLGeometryProcessor* HardwareCurveShader::createGLSLInstance(const GrShaderC
                     if (w < 0) {
                         // The patch is a cubic. Calculate how many segments are required to
                         // linearize each half of the curve.
-                        n0 = wangs_formula_cubic(PRECISION, P[0], ab, abc, abcd);
-                        n1 = wangs_formula_cubic(PRECISION, abcd, bcd, cd, P[3]);
+                        n0 = wangs_formula_cubic(PRECISION, mat4x2(P[0], ab, abc, abcd), mat2(1));
+                        n1 = wangs_formula_cubic(PRECISION, mat4x2(abcd, bcd, cd, P[3]), mat2(1));
                         rationalCubicW = 1;
                     } else {
                         // The patch is a triangle (a conic with infinite weight).
@@ -242,8 +246,8 @@ GrGLSLGeometryProcessor* HardwareCurveShader::createGLSLInstance(const GrShaderC
                     // Put in "standard form" where w0 == w2 == w4 == 1.
                     float w_ = inversesqrt(r);  // Both halves have the same w' when chopping at .5.
                     // Calculate how many segments are needed to linearize each half of the curve.
-                    n0 = wangs_formula_conic(PRECISION, P[0], ab, abc, w_);
-                    n1 = wangs_formula_conic(PRECISION, abc, bc, P[2], w_);
+                    n0 = wangs_formula_conic(PRECISION, mat3x2(P[0], ab, abc), w_);
+                    n1 = wangs_formula_conic(PRECISION, mat3x2(abc, bc, P[2]), w_);
                     // Covert the conic to a rational cubic in projected form.
                     rationalCubicXY = mat4x2(P[0],
                                              mix(float4(P[0],P[2]), p1w.xyxy, 2.0/3.0),
