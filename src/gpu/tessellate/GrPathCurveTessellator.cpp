@@ -34,32 +34,41 @@ public:
     }
 
     SK_ALWAYS_INLINE void writeQuadratic(GrVertexChunkBuilder* chunker, const SkPoint p[3]) {
-        if (GrWangsFormula::quadratic_pow4(kPrecision, p, fVectorXform) > fMaxSegments_pow4) {
+        float numSegments_pow4 = GrWangsFormula::quadratic_pow4(kPrecision, p, fVectorXform);
+        if (numSegments_pow4 > fMaxSegments_pow4) {
             this->chopAndWriteQuadratic(chunker, p);
             return;
         }
-        if (GrVertexWriter vertexWriter = chunker->appendVertex()) {
-            GrPathUtils::writeQuadAsCubic(p, &vertexWriter);
+        if (numSegments_pow4 > 1) {
+            if (GrVertexWriter vertexWriter = chunker->appendVertex()) {
+                GrPathUtils::writeQuadAsCubic(p, &vertexWriter);
+            }
         }
     }
 
     SK_ALWAYS_INLINE void writeConic(GrVertexChunkBuilder* chunker, const SkPoint p[3], float w) {
-        if (GrWangsFormula::conic_pow2(kPrecision, p, w, fVectorXform) > fMaxSegments_pow2) {
+        float numSegments_pow2 = GrWangsFormula::conic_pow2(kPrecision, p, w, fVectorXform);
+        if (numSegments_pow2 > fMaxSegments_pow2) {
             this->chopAndWriteConic(chunker, {p, w});
             return;
         }
-        if (GrVertexWriter vertexWriter = chunker->appendVertex()) {
-            GrTessellationShader::WriteConicPatch(p, w, &vertexWriter);
+        if (numSegments_pow2 > 1) {
+            if (GrVertexWriter vertexWriter = chunker->appendVertex()) {
+                GrTessellationShader::WriteConicPatch(p, w, &vertexWriter);
+            }
         }
     }
 
     SK_ALWAYS_INLINE void writeCubic(GrVertexChunkBuilder* chunker, const SkPoint p[4]) {
-        if (GrWangsFormula::cubic_pow4(kPrecision, p, fVectorXform) > fMaxSegments_pow4) {
+        float numSegments_pow4 = GrWangsFormula::cubic_pow4(kPrecision, p, fVectorXform);
+        if (numSegments_pow4 > fMaxSegments_pow4) {
             this->chopAndWriteCubic(chunker, p);
             return;
         }
-        if (GrVertexWriter vertexWriter = chunker->appendVertex()) {
-            vertexWriter.writeArray(p, 4);
+        if (numSegments_pow4 > 1) {
+            if (GrVertexWriter vertexWriter = chunker->appendVertex()) {
+                vertexWriter.writeArray(p, 4);
+            }
         }
     }
 
