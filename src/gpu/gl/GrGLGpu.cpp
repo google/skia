@@ -593,8 +593,7 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
 
     // we assume these values
     if (resetBits & kPixelStore_GrGLBackendState) {
-        if (this->caps()->writePixelsRowBytesSupport() ||
-            this->caps()->transferPixelsToRowBytesSupport()) {
+        if (this->caps()->writePixelsRowBytesSupport()) {
             GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
         }
         if (this->glCaps().readPixelsRowBytesSupport()) {
@@ -893,7 +892,7 @@ bool GrGLGpu::onTransferPixelsTo(GrTexture* texture,
     bool restoreGLRowLength = false;
     if (trimRowBytes != rowBytes) {
         // we should have checked for this support already
-        SkASSERT(this->glCaps().transferPixelsToRowBytesSupport());
+        SkASSERT(this->glCaps().writePixelsRowBytesSupport());
         GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, rowBytes / bpp));
         restoreGLRowLength = true;
     }
