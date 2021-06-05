@@ -332,6 +332,7 @@ SkString GrStrokeTessellationShader::HardwareImpl::getTessControlShaderGLSL(
     code.appendf("#define float3 vec3\n");
     code.appendf("#define float4 vec4\n");
     code.appendf("#define float2x2 mat2\n");
+    code.appendf("#define float3x2 mat3x2\n");
     code.appendf("#define float4x2 mat4x2\n");
     code.appendf("#define PI 3.141592653589793238\n");
     code.appendf("#define MAX_TESSELLATION_SEGMENTS %i.0\n", shaderCaps.maxTessellationSegments());
@@ -430,10 +431,9 @@ SkString GrStrokeTessellationShader::HardwareImpl::getTessControlShaderGLSL(
         float w = isinf(P[3].y) ? P[3].x : -1.0; // w<0 means the curve is an integral cubic.
         float numParametricSegments;
         if (w < 0.0) {
-            numParametricSegments = wangs_formula_cubic(PARAMETRIC_PRECISION, P[0], P[1], P[2],
-                                                        P[3]);
+            numParametricSegments = wangs_formula_cubic(PARAMETRIC_PRECISION, P, mat2(1));
         } else {
-            numParametricSegments = wangs_formula_conic(PARAMETRIC_PRECISION, P[0], P[1], P[2], w);
+            numParametricSegments = wangs_formula_conic(PARAMETRIC_PRECISION, mat3x2(P), w);
         }
         if (P[0] == P[1] && P[2] == P[3]) {
             // This is how the patch builder articulates lineTos but Wang's formula returns
