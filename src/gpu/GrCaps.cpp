@@ -52,7 +52,6 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fTransferFromBufferToTextureSupport = false;
     fTransferFromSurfaceToBufferSupport = false;
     fWritePixelsRowBytesSupport = false;
-    fTransferPixelsToRowBytesSupport = false;
     fReadPixelsRowBytesSupport = false;
     fShouldCollapseSrcOverToSrcWhenAble = false;
     fMustSyncGpuDuringAbandon = true;
@@ -135,9 +134,8 @@ void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
     if (options.fClearAllTextures) {
         fShouldInitializeTextures = true;
     }
-    if (options.fDisallowWriteAndTransferPixelRowBytes) {
+    if (options.fDisallowWritePixelRowBytes) {
         fWritePixelsRowBytesSupport = false;
-        fTransferPixelsToRowBytesSupport = false;
     }
 #endif
     if (options.fSuppressMipmapSupport) {
@@ -234,7 +232,6 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Supports transfers from textures to buffers",
                        fTransferFromSurfaceToBufferSupport);
     writer->appendBool("Write pixels row bytes support", fWritePixelsRowBytesSupport);
-    writer->appendBool("Transfer pixels to row bytes support", fTransferPixelsToRowBytesSupport);
     writer->appendBool("Read pixels row bytes support", fReadPixelsRowBytesSupport);
     writer->appendBool("Disable msaa clip mask atlas on current driver [workaround]",
                        fDriverDisableMSAAClipAtlas);

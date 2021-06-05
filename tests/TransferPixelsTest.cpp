@@ -123,7 +123,7 @@ void basic_transfer_to_test(skiatest::Reporter* reporter,
     GrGpu* gpu = dContext->priv().getGpu();
 
     static constexpr SkISize kTexDims = {16, 16};
-    int srcBufferWidth = caps->transferPixelsToRowBytesSupport() ? 20 : 16;
+    int srcBufferWidth = caps->writePixelsRowBytesSupport() ? 20 : 16;
     const int kBufferHeight = 16;
 
     sk_sp<GrTexture> tex =
@@ -217,7 +217,7 @@ void basic_transfer_to_test(skiatest::Reporter* reporter,
     // transfer partial data
 
     // We're relying on this cap to write partial texture data
-    if (!caps->transferPixelsToRowBytesSupport()) {
+    if (!caps->writePixelsRowBytesSupport()) {
         return;
     }
     // We keep a 1 to 1 correspondence between pixels in the buffer and the entire texture. We
