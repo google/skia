@@ -540,6 +540,24 @@
       "parentUuid": "04b8c8ff_5bfeeade",
       "revId": "28f43f512aeaf49ab407f788610cee8e329b4f48",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fce0c0b4_c5fa34ac",
+        "filename": "experimental/sktext/shaper.md",
+        "patchSetId": 8
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-05T01:48:24Z",
+      "side": 1,
+      "message": "Ah, gotcha.\n\nYea, I wasn\u0027t sure either, but what I thought I heard from flutter is that at least some clients *want* to associate some number of unicodes with the placeholder (even though by definition we wouldn\u0027t draw them).",
+      "parentUuid": "ac927362_e6201ea5",
+      "revId": "28f43f512aeaf49ab407f788610cee8e329b4f48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
