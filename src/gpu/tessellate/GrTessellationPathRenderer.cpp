@@ -19,7 +19,7 @@
 #include "src/gpu/ops/GrFillRectOp.h"
 #include "src/gpu/tessellate/GrDrawAtlasPathOp.h"
 #include "src/gpu/tessellate/GrPathInnerTriangulateOp.h"
-#include "src/gpu/tessellate/GrPathStencilFillOp.h"
+#include "src/gpu/tessellate/GrPathStencilCoverOp.h"
 #include "src/gpu/tessellate/GrStrokeTessellateOp.h"
 
 constexpr static SkISize kAtlasInitialSize{512, 512};
@@ -161,8 +161,8 @@ static GrOp::Owner make_op(GrRecordingContext* rContext, const GrSurfaceContext*
                                                             devBounds);
             }
         }
-        return GrOp::Make<GrPathStencilFillOp>(rContext, viewMatrix, path, std::move(paint), aaType,
-                                               opFlags, devBounds);
+        return GrOp::Make<GrPathStencilCoverOp>(rContext, viewMatrix, path, std::move(paint),
+                                                aaType, opFlags, devBounds);
     }
 }
 
@@ -317,10 +317,10 @@ void GrTessellationPathRenderer::renderAtlas(GrOnFlushResourceProvider* onFlushR
             }
             uberPath->setFillType(fillType);
             GrAAType aaType = (antialias) ? GrAAType::kMSAA : GrAAType::kNone;
-            auto op = GrOp::Make<GrPathStencilFillOp>(onFlushRP->recordingContext(), SkMatrix::I(),
-                                                      *uberPath, GrPaint(), aaType,
-                                                      OpFlags::kStencilOnly |
-                                                      OpFlags::kPreferWedges, atlasRect);
+            auto op = GrOp::Make<GrPathStencilCoverOp>(onFlushRP->recordingContext(), SkMatrix::I(),
+                                                       *uberPath, GrPaint(), aaType,
+                                                       OpFlags::kStencilOnly |
+                                                       OpFlags::kPreferWedges, atlasRect);
             rtc->addDrawOp(nullptr, std::move(op));
         }
     }
