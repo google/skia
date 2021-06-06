@@ -32,7 +32,7 @@ DEF_SIMPLE_GM(path_huge_crbug_800804, canvas, 50, 600) {
 
         path.reset();
         path.moveTo(30.5f,400);
-        path.lineTo(1000,-9.8765432109876543210e+19f);
+        path.lineTo(1000,-9.8765432109876543210e+17f);
         canvas->drawPath(path, paint);
 
         canvas->translate(3, 0);
