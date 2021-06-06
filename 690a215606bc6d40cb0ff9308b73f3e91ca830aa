@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c753600b_da4928c7",
+        "filename": "infra/bots/assets/skp/create.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2021-06-06T23:31:36Z",
+      "side": 1,
+      "message": "This is called from the recreate_skps recipe- https://skia.googlesource.com/skia/+/main/infra/bots/recipes/recreate_skps.py#73\n\nand is causing the bot to fail- https://ci.chromium.org/raw/build/logs.chromium.org/skia/53f88ed358080411/+/annotations",
+      "revId": "690a215606bc6d40cb0ff9308b73f3e91ca830aa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
