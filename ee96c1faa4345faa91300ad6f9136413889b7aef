@@ -212,6 +212,30 @@
       },
       "revId": "ee96c1faa4345faa91300ad6f9136413889b7aef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4ff0f56f_f8a4b4dd",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 4523,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-07T19:53:59Z",
+      "side": 1,
+      "message": "Wait we are doing copies still. We only get into this GL virtual if up in the GrCaps base class we can in this if:\n\nif (this-\u003etextureBarrierSupport() \u0026\u0026 !rt-\u003erequiresManualMSAAResolve()) {\n    return this-\u003eonGetDstSampleFlagsForProxy(rt);\n}\n\nIf we require manual resolves we always end up doing a copy.\n\nSo yeah this CL doesn\u0027t change how things work, and things work how we thought they did. In the future in setupDstProxy if this returns no sample flags, we can check if the RT is multisampled with a resolve and needing manual resolves. If so we can just trigger a resolve and set the dst proxy to the resolve without doing the full copy.\n\nThus if other things all area fine in this CL I say we land this as is.",
+      "parentUuid": "2a11e9f2_93385ddc",
+      "range": {
+        "startLine": 4523,
+        "startChar": 8,
+        "endLine": 4523,
+        "endChar": 29
+      },
+      "revId": "ee96c1faa4345faa91300ad6f9136413889b7aef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
