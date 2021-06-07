@@ -5,8 +5,13 @@
  * found in the LICENSE file.
  */
 
+
 #ifndef GrSurfaceFillContext_DEFINED
 #define GrSurfaceFillContext_DEFINED
+
+#include "include\gpu\GrTypes.h"
+
+#if SK_OGA
 
 #include "include/core/SkSize.h"
 #include "include/private/GrTypesPriv.h"
@@ -29,17 +34,6 @@ class SkColorSpace;
 
 class GrSurfaceFillContext : public GrSurfaceContext {
 public:
-    /**
-     * Checks whether the passed color type is renderable with the passed context. If so, the
-     * same color type is passed back along with the default format used for the color type. If
-     * not, provides an alternative (perhaps lower bit depth and/or unorm instead of float) color
-     * type that is supported along with it's default format or kUnknown if there no renderable
-     * fallback format.
-     */
-    static std::tuple<GrColorType, GrBackendFormat> GetFallbackColorTypeAndFormat(GrImageContext*,
-                                                                                  GrColorType,
-                                                                                  int sampleCount);
-
     GrSurfaceFillContext(GrRecordingContext*,
                          GrSurfaceProxyView readView,
                          GrSurfaceProxyView writeView,
@@ -271,4 +265,6 @@ std::array<float, 4> GrSurfaceFillContext::adjustColorAlphaType(SkRGBA4f<AlphaTy
     return (AlphaType == this->colorInfo().alphaType()) ? color.array() : ConvertColor(color);
 }
 
-#endif
+#endif // SK_OGA
+
+#endif // GrSurfaceFillContext_DEFINED

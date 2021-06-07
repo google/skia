@@ -5,8 +5,13 @@
  * found in the LICENSE file.
  */
 
+
 #ifndef GrSurfaceContext_DEFINED
 #define GrSurfaceContext_DEFINED
+
+#include "include\gpu\GrTypes.h"
+
+#if SK_OGA
 
 #include "include/core/SkImage.h"
 #include "include/core/SkRect.h"
@@ -272,4 +277,6 @@ private:
     using INHERITED = SkRefCnt;
 };
 
-#endif
+#endif // SK_OGA
+
+#endif // GrSurfaceContext_DEFINED
