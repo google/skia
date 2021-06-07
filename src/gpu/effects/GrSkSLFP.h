@@ -116,7 +116,26 @@ private:
     }
 
 #ifdef SK_DEBUG
-    // Validates that all args passed to the template factory have the right names and sizes
+    // Validates that all args passed to the template factory have the right names, sizes, and types
+    template <typename T> struct uniform_type {
+        template <typename U>
+        struct add_a_UNIFORM_TYPE_specialization_for {};
+        static constexpr add_a_UNIFORM_TYPE_specialization_for<T> value;
+    };
+    #define UNIFORM_TYPE(T, E)                                       \
+        template <> struct uniform_type<T> {                         \
+            static constexpr SkRuntimeEffect::Uniform::Type value =  \
+                             SkRuntimeEffect::Uniform::Type::E;      \
+        }
+
+    UNIFORM_TYPE(float,       kFloat);
+    UNIFORM_TYPE(SkV2,        kFloat2);
+    UNIFORM_TYPE(SkPMColor4f, kFloat4);
+    UNIFORM_TYPE(SkV4,        kFloat4);
+    UNIFORM_TYPE(int,         kInt);
+
+    #undef UNIFORM_TYPE
+
     using child_iterator = std::vector<SkRuntimeEffect::Child>::const_iterator;
     using uniform_iterator = std::vector<SkRuntimeEffect::Uniform>::const_iterator;
     static void checkArgs(uniform_iterator uIter,
@@ -158,6 +177,9 @@ private:
         SkASSERTF(uIter->sizeInBytes() == sizeof(val),
                   "Expected uniform '%s' to be %zu bytes, got %zu instead",
                   name, uIter->sizeInBytes(), sizeof(val));
+        SkASSERTF(uniform_type<T>::value == uIter->type,
+                  "Wrong type for uniform '%s'",
+                  name);
         checkArgs(++uIter, uEnd, cIter, cEnd, std::forward<Args>(remainder)...);
     }
 #endif
