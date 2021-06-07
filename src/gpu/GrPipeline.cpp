@@ -20,7 +20,10 @@
 GrPipeline::GrPipeline(const InitArgs& args,
                        sk_sp<const GrXferProcessor> xferProcessor,
                        const GrAppliedHardClip& hardClip)
-        : fWriteSwizzle(args.fWriteSwizzle) {
+        : fDstProxy(args.fDstProxyView)
+        , fWindowRectsState(hardClip.windowRectsState())
+        , fXferProcessor(std::move(xferProcessor))
+        , fWriteSwizzle(args.fWriteSwizzle) {
     fFlags = (Flags)args.fInputFlags;
     if (hardClip.hasStencilClip()) {
         fFlags |= Flags::kHasStencilClip;
@@ -28,14 +31,8 @@ GrPipeline::GrPipeline(const InitArgs& args,
     if (hardClip.scissorState().enabled()) {
         fFlags |= Flags::kScissorTestEnabled;
     }
-
-    fWindowRectsState = hardClip.windowRectsState();
-
-    fXferProcessor = std::move(xferProcessor);
-
-    SkASSERT((args.fDstProxyView.dstSampleType() != GrDstSampleType::kNone) ==
-             SkToBool(args.fDstProxyView.proxy()));
-    fDstProxy = args.fDstProxyView;
+    // If we have any special dst sample flags we better also have a dst proxy
+    SkASSERT(this->dstSampleFlags() == GrDstSampleFlags::kNone || this->dstProxyView());
 }
 
 GrPipeline::GrPipeline(const InitArgs& args, GrProcessorSet&& processors,
@@ -62,7 +59,7 @@ GrPipeline::GrPipeline(const InitArgs& args, GrProcessorSet&& processors,
 }
 
 GrXferBarrierType GrPipeline::xferBarrierType(const GrCaps& caps) const {
-    if (this->dstProxyView().proxy() && GrDstSampleTypeDirectlySamplesDst(this->dstSampleType())) {
+    if (this->dstSampleFlags() & GrDstSampleFlags::kRequiresTextureBarrier) {
         return kTexture_GrXferBarrierType;
     }
     return this->getXferProcessor().xferBarrierType(caps);
@@ -101,7 +98,7 @@ void GrPipeline::genKey(GrProcessorKeyBuilder* b, const GrCaps& caps) const {
     b->addBits(kBlendCoeffSize, blendInfo.fSrcBlend, "srcBlend");
     b->addBits(kBlendCoeffSize, blendInfo.fDstBlend, "dstBlend");
     b->addBits(kBlendEquationSize, blendInfo.fEquation, "equation");
-    b->addBool(this->usesInputAttachment(), "inputAttach");
+    b->addBool(this->usesDstInputAttachment(), "inputAttach");
 }
 
 void GrPipeline::visitTextureEffects(

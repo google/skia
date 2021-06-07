@@ -721,8 +721,6 @@ private:
 
     bool fNeedsStencil = false;
 
-    GrDstSampleType fDstSampleType = GrDstSampleType::kNone;
-
 #if GR_TEST_UTILS
     bool fPreserveOpsOnFullClear_TestingOnly = false;
 #endif
