@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5d112be9_08422ff9",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-07T13:55:20Z",
+      "side": 1,
+      "message": "Ah, just an explanation of what\u0027s going on internally. I\u0027ll rewrite this to explain better.",
+      "parentUuid": "1d5036a7_1ec1540f",
+      "range": {
+        "startLine": 137,
+        "startChar": 17,
+        "endLine": 137,
+        "endChar": 37
+      },
+      "revId": "3c68e1cdaa21ecff800e33ab655ca5daacef94bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b9d6834a_1c94a4cb",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-06-07T13:29:05Z",
       "side": 1,
       "message": "Consider using SkASSERTF to show these assertion reasons instead of comments",
+      "range": {
+        "startLine": 139,
+        "startChar": 48,
+        "endLine": 139,
+        "endChar": 65
+      },
+      "revId": "3c68e1cdaa21ecff800e33ab655ca5daacef94bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "eed28124_66625c36",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-07T13:55:20Z",
+      "side": 1,
+      "message": "Yup, done. Added much better messages with the relevant names/sizes, too.",
+      "parentUuid": "b9d6834a_1c94a4cb",
       "range": {
         "startLine": 139,
         "startChar": 48,
