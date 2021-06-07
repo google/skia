@@ -16,6 +16,473 @@
       "message": "Thanks Mike for writing this up! This is great.\n\nHaving something like this exposed by the browser will help flutter web. Here are a few examples of things that could be simplified or even eliminated:\n\na) We currently implement our own line break detection, which means we have to bundle some unicode data [1] to map code points to line break properties. And from there, we implement the line breaking algorithm as described here [2]. All of this won\u0027t be necessary if we let the browser do the shaping/formatting for us.\n\nb) Text height measurement. We currently use canvas2d\u0027s measureText API to layout paragraphs. But this API only measures width, not height. So we are forced to use a DOM element to measure the height/baseline of text, which is slow.\n\nc) LTR/RTL handling. As part of the paragraph layout process, we have to figure out the positioning of LTR and RTL blocks of text.\n\n------------------\n\n[1] https://www.unicode.org/Public/13.0.0/ucd/LineBreak.txt\n[2] https://unicode.org/reports/tr14/tr14-45.html#Algorithm\n",
       "revId": "d7b8dc086b0039456c73f1a27a09a4f766c0f71e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8019b881_3b3d1341",
+        "filename": "site/docs/dev/design/text_c2d.md",
+        "patchSetId": 11
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-06-07T17:31:54Z",
+      "side": 1,
+      "message": "nit: Shaped Text",
+      "revId": "d7b8dc086b0039456c73f1a27a09a4f766c0f71e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6cece235_8cde73bc",
+        "filename": "site/docs/dev/design/text_c2d.md",
+        "patchSetId": 11
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-06-07T17:31:54Z",
+      "side": 1,
+      "message": "OutFont?",
+      "range": {
+        "startLine": 55,
+        "startChar": 10,
+        "endLine": 55,
+        "endChar": 14
+      },
+      "revId": "d7b8dc086b0039456c73f1a27a09a4f766c0f71e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3338ca89_4b26b01c",
+        "filename": "site/docs/dev/design/text_c2d.md",
+        "patchSetId": 11
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-06-07T17:31:54Z",
+      "side": 1,
+      "message": "nit: position",
+      "range": {
+        "startLine": 72,
+        "startChar": 78,
+        "endLine": 72,
+        "endChar": 85
+      },
+      "revId": "d7b8dc086b0039456c73f1a27a09a4f766c0f71e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b1bd7ca7_2af0e683",
+        "filename": "site/docs/dev/design/text_c2d.md",
+        "patchSetId": 11
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-06-07T17:31:54Z",
+      "side": 1,
+      "message": "nit: relative",
+      "revId": "d7b8dc086b0039456c73f1a27a09a4f766c0f71e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3de25192_c17e79eb",
+        "filename": "site/docs/dev/design/text_c2d.md",
+        "patchSetId": 11
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-06-07T17:31:54Z",
+      "side": 1,
+      "message": "Since a glyph may be either a path or an image (and perhaps in the future something entirely new), what if this returned a `Glyph` object, which would internally provide accessors to either path or image? Example:\n\n```\nvar glyphs \u003d font.getGlyphs(glyphIDs, ...);\nfor (var glyph of glyphs) {\n  if (glyph.path) {\n    // ... draw using path ...\n  } else if (glyph.image) {\n    // ... draw using image ...\n  } else {\n    // whitespace\n  }\n}\n```",
+      "range": {
+        "startLine": 79,
+        "startChar": 13,
+        "endLine": 79,
+        "endChar": 19
+      },
+      "revId": "d7b8dc086b0039456c73f1a27a09a4f766c0f71e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2da84459_1dcd2757",
+        "filename": "site/docs/dev/design/text_overview.md",
+        "patchSetId": 11
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-06-07T17:31:54Z",
+      "side": 1,
+      "message": "nit: I believe markdown prefers one blank line between paragraphs and lists, although should probably be fine with or without it.",
+      "revId": "d7b8dc086b0039456c73f1a27a09a4f766c0f71e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fc4fd2f3_02f530ab",
+        "filename": "site/docs/dev/design/text_overview.md",
+        "patchSetId": 11
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-06-07T17:31:54Z",
+      "side": 1,
+      "message": "nit: \"set of APIs\"",
+      "revId": "d7b8dc086b0039456c73f1a27a09a4f766c0f71e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "367976fa_02e25180",
+        "filename": "site/docs/dev/design/text_overview.md",
+        "patchSetId": 11
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-06-07T17:31:54Z",
+      "side": 1,
+      "message": "nit: \"needed\"",
+      "revId": "d7b8dc086b0039456c73f1a27a09a4f766c0f71e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6dd3773b_fb2f5a00",
+        "filename": "site/docs/dev/design/text_overview.md",
+        "patchSetId": 11
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-06-07T17:31:54Z",
+      "side": 1,
+      "message": "nit: identified by",
+      "revId": "d7b8dc086b0039456c73f1a27a09a4f766c0f71e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9c006e04_046be016",
+        "filename": "site/docs/dev/design/text_overview.md",
+        "patchSetId": 11
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-06-07T17:31:54Z",
+      "side": 1,
+      "message": "I\u0027m not sure if this falls under \"computationally expensive\" but it also requires a lot of ICU data, which weighs a lot.",
+      "revId": "d7b8dc086b0039456c73f1a27a09a4f766c0f71e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9207e026_c534a48d",
+        "filename": "site/docs/dev/design/text_overview.md",
+        "patchSetId": 11
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-06-07T17:31:54Z",
+      "side": 1,
+      "message": "Typically \"here\" is the link. Alternatively, you could say something like \"The core shaping API is described in [text_shaping.md](text_shaping.md).\"",
+      "revId": "d7b8dc086b0039456c73f1a27a09a4f766c0f71e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "edb4b919_2eb6c274",
+        "filename": "site/docs/dev/design/text_overview.md",
+        "patchSetId": 11
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-06-07T17:31:54Z",
+      "side": 1,
+      "message": "ditto",
+      "revId": "d7b8dc086b0039456c73f1a27a09a4f766c0f71e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6d3b065c_1c56dbba",
+        "filename": "site/docs/dev/design/text_shaper.md",
+        "patchSetId": 11
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-06-07T17:31:54Z",
+      "side": 1,
+      "message": "nit: to render",
+      "revId": "d7b8dc086b0039456c73f1a27a09a4f766c0f71e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2d952ac6_59a3d075",
+        "filename": "site/docs/dev/design/text_shaper.md",
+        "patchSetId": 11
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-06-07T17:31:54Z",
+      "side": 1,
+      "message": "Should we call out a few concrete use-cases? I imagine some of the readers who come from \"typical\" web dev background (e.g. static web apps, crud apps, etc) may not realize that some important use-cases have vastly different technical constraints. We could list: games, maps, office document apps (e.g. rich text editors), charts, vector graphics and typesetting software (e.g. Adobe InDesign), cross-platform UI toolkits (e.g. Flutter, Qt, .Net).",
+      "revId": "d7b8dc086b0039456c73f1a27a09a4f766c0f71e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b8139660_a7f70e0d",
+        "filename": "site/docs/dev/design/text_shaper.md",
+        "patchSetId": 11
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-06-07T17:31:54Z",
+      "side": 1,
+      "message": "The shaped text results should also be inspectable, for example, for hit testing and decoration.",
+      "revId": "d7b8dc086b0039456c73f1a27a09a4f766c0f71e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8f022c08_d8383c85",
+        "filename": "site/docs/dev/design/text_shaper.md",
+        "patchSetId": 11
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-06-07T17:31:54Z",
+      "side": 1,
+      "message": "This document seems to use 3 names for the same thing: TextBuilder (above), ParagraphBuilder (here), and ShapedTextBuilder (in the WebIDL)",
+      "revId": "d7b8dc086b0039456c73f1a27a09a4f766c0f71e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "877bbbaf_db3ffe8e",
+        "filename": "site/docs/dev/design/text_shaper.md",
+        "patchSetId": 11
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-06-07T17:31:54Z",
+      "side": 1,
+      "message": "I\u0027m guessing if the client wants to break up text into multiple blocks the text will likely already be broken up into substrings. This API will require that the client first joins the text into one long string, and then likely the shaper would have to break it up again. Would it be more efficient for the client to supply blocks one by one? E.g.:\n\nvar block \u003d builder.addBlock(text);\n\nThe returned block may later be used to associate glyph runs in the shaped results with the original blocks of text and higher level styles (e.g. decorations, shadows).",
+      "revId": "d7b8dc086b0039456c73f1a27a09a4f766c0f71e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9d449aff_3d53fc47",
+        "filename": "site/docs/dev/design/text_shaper.md",
+        "patchSetId": 11
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-06-07T17:31:54Z",
+      "side": 1,
+      "message": "nit: s/Block/TextBlock/ ?",
+      "range": {
+        "startLine": 48,
+        "startChar": 2,
+        "endLine": 48,
+        "endChar": 7
+      },
+      "revId": "d7b8dc086b0039456c73f1a27a09a4f766c0f71e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "feeaaee9_aac94369",
+        "filename": "site/docs/dev/design/text_shaper.md",
+        "patchSetId": 11
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-06-07T17:31:54Z",
+      "side": 1,
+      "message": "`family-name` would be interpreted by JS as \"family minus name\". Maybe `familyName`? Having said that, a more typed API may be appropriate, e.g. split into `FontBuilder` and `Font`:\n\n```\nconst builder \u003d new FontBuilder();\nbuilder.familyName \u003d \u0027Helvetica\u0027;\nbuilder.size \u003d 14; // this may need integration with CSSOM\nconst font \u003d builder.build();\n```",
+      "revId": "d7b8dc086b0039456c73f1a27a09a4f766c0f71e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7805683d_def097c1",
+        "filename": "site/docs/dev/design/text_shaper.md",
+        "patchSetId": 11
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-06-07T17:31:54Z",
+      "side": 1,
+      "message": "Should this read `new InFont`?",
+      "revId": "d7b8dc086b0039456c73f1a27a09a4f766c0f71e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b646bb8a_5b5dc983",
+        "filename": "site/docs/dev/design/text_shaper.md",
+        "patchSetId": 11
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-06-07T17:31:54Z",
+      "side": 1,
+      "message": "Would be nice if this linked back to the original text block. It would make it trivial (and efficient) for clients to add decorations (e.g. you don\u0027t need to search through the string to locate the additional styling that needs to be done, such as underline). Pseudo-code:\n\n```\nvar builder \u003d new ShapedTextBuilder();\nvar block1 \u003d builder.addBlock(\u0027Hello \u0027, fontA);\nvar block2 \u003d builder.addBlock(\u0027World!\u0027, fontB);\n\nvar appStyles \u003d new Map();\nappStyles.set(block1, { underline: true });\nappStyles.set(block2, { color: \u0027#FF334455\u0027 });\n\nvar text \u003d builder.build();\nvar shaped \u003d text.shape(... layout constraints ...);\nvar lines \u003d shaped.lines;\nfor(var line of lines) {\n  for (var run on line.runs) {\n    var runStyle \u003d appStyles.get(run.block);\n    // render text and draw decorations (using `run` and `runStyle`)\n  }\n}\n```",
+      "revId": "d7b8dc086b0039456c73f1a27a09a4f766c0f71e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9d564116_505fe4a5",
+        "filename": "site/docs/dev/design/text_shaper.md",
+        "patchSetId": 11
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-06-07T17:31:54Z",
+      "side": 1,
+      "message": "nit: thinking \"out\" may not fully communicate what this class represents. How about `ResolvedFont`?",
+      "range": {
+        "startLine": 156,
+        "startChar": 10,
+        "endLine": 156,
+        "endChar": 17
+      },
+      "revId": "d7b8dc086b0039456c73f1a27a09a4f766c0f71e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eb339d6b_a241eb49",
+        "filename": "site/docs/dev/design/text_shaper.md",
+        "patchSetId": 11
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-06-07T17:31:54Z",
+      "side": 1,
+      "message": "nit: fashion",
+      "range": {
+        "startLine": 190,
+        "startChar": 59,
+        "endLine": 190,
+        "endChar": 65
+      },
+      "revId": "d7b8dc086b0039456c73f1a27a09a4f766c0f71e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7498b2bb_758e1ef5",
+        "filename": "site/docs/dev/design/text_shaper.md",
+        "patchSetId": 11
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-06-07T17:31:54Z",
+      "side": 1,
+      "message": "This may be sufficient for canvas2d, but for WebGL we also need the shapes for typefaces that the browser resolved. Is the idea that WebGL renderers still bring their own font parsers?",
+      "range": {
+        "startLine": 190,
+        "startChar": 18,
+        "endLine": 190,
+        "endChar": 31
+      },
+      "revId": "d7b8dc086b0039456c73f1a27a09a4f766c0f71e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "779e7b06_2ae7b8f2",
+        "filename": "site/docs/dev/design/text_shaper.md",
+        "patchSetId": 11
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-06-07T17:31:54Z",
+      "side": 1,
+      "message": "nit: excellent",
+      "revId": "d7b8dc086b0039456c73f1a27a09a4f766c0f71e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
