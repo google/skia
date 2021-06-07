@@ -1,0 +1,30 @@
+{
+  "comments": [
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000011507473",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/414796?revision\u003d4",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "28414a0f_7225b458",
+        "filename": "src/gpu/GrSPIRVUniformHandler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2021-06-07T21:10:03Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027complex\u0027, \u0027unexpected\u0027, or \u0027placeholder\u0027; see https://developers.google.com/style/inclusive-documentation#ableist-language for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 323,
+        "startChar": 27,
+        "endLine": 323,
+        "endChar": 32
+      },
+      "revId": "09b9bc1651cbeb7452bde1890a2cdf01a7bf8e6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
