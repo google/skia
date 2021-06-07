@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f91ebc24_3f2e77a3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-07T05:38:46Z",
+      "side": 1,
+      "message": "Jim - it might be easier to get compute first running for this shader instead of stroking. Strokes have a lot of extra complexity, whereas for filling we literally just have to chop them into smaller curves.",
+      "revId": "84e134da345cc3fc6561f35ea31033e6716edd79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
