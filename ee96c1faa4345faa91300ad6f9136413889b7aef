@@ -188,6 +188,30 @@
       },
       "revId": "ee96c1faa4345faa91300ad6f9136413889b7aef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2a11e9f2_93385ddc",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 4523,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-07T19:26:57Z",
+      "side": 1,
+      "message": "It must have been working correctly all along.\n\nIt is my understanding that the drawing manager does insert texture resolve tasks as needed, appropriately sets up dependencies, and splits up render passes. This ought to keep working if we don\u0027t insert barriers in cases were proxy-\u003erequiresManualMSAAResolve() is true. We also ought to do self reads in those cases even if there is no texture barrier support.\n\nThis CL doesn\u0027t seem to change any of the old functionality though. Should we land as-is and then fix up the MSAA self reads?",
+      "parentUuid": "d1555555_774ac663",
+      "range": {
+        "startLine": 4523,
+        "startChar": 8,
+        "endLine": 4523,
+        "endChar": 29
+      },
+      "revId": "ee96c1faa4345faa91300ad6f9136413889b7aef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
