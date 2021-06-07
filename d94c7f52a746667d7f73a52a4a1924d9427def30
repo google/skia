@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8f13a43d_8ab1f0cc",
+        "filename": "modules/skshaper/include/SkICU.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-06-07T14:46:56Z",
+      "side": 1,
+      "message": "I\u0027m not sure why any of this has the term \u0027ICU\u0027 in it. One possible implementation is to back this with ICU, but this isn\u0027t ICU.",
+      "range": {
+        "startLine": 13,
+        "startChar": 8,
+        "endLine": 13,
+        "endChar": 11
+      },
+      "revId": "d94c7f52a746667d7f73a52a4a1924d9427def30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "40e0ca0c_c991b351",
+        "filename": "modules/skshaper/include/SkICU.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-06-07T14:46:56Z",
+      "side": 1,
+      "message": "Probably want to reserve bits for possible intra-word breaks (like soft hyphens and implied hyphenation breaks).\n\nGraphite uses a priority system 0 to 100 for \"break before\" since after shaping only the highest priority break really matters, though in this case you actually want all of them.",
+      "revId": "d94c7f52a746667d7f73a52a4a1924d9427def30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
