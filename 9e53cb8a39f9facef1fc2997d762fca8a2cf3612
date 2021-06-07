@@ -80,6 +80,30 @@
       },
       "revId": "9e53cb8a39f9facef1fc2997d762fca8a2cf3612",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "569591d6_0991d85c",
+        "filename": "src/effects/imagefilters/SkMagnifierImageFilter.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-07T14:06:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f78144bf_7789514d",
+      "range": {
+        "startLine": 168,
+        "startChar": 0,
+        "endLine": 175,
+        "endChar": 83
+      },
+      "revId": "9e53cb8a39f9facef1fc2997d762fca8a2cf3612",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
