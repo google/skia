@@ -14,7 +14,6 @@
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/tessellate/GrMiddleOutPolygonTriangulator.h"
 #include "src/gpu/tessellate/GrPathCurveTessellator.h"
-#include "src/gpu/tessellate/GrPathIndirectTessellator.h"
 #include "src/gpu/tessellate/GrPathWedgeTessellator.h"
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 #include "src/gpu/tessellate/shaders/GrPathTessellationShader.h"
@@ -121,13 +120,15 @@ void GrPathStencilFillOp::prePreparePrograms(const GrTessellationShader::Program
         }
         if (!args.fCaps->shaderCaps()->tessellationSupport() ||
             fPath.countVerbs() < args.fCaps->minPathVerbsForHwTessellation()) {
-            fTessellator = GrPathIndirectTessellator::Make(args.fArena, fPath, fViewMatrix,
-                                                           SK_PMColor4fTRANSPARENT,
-                                                           drawFanWithTessellator);
+            auto shader = GrPathTessellationShader::MakeMiddleOutInstancedShader(
+                    args.fArena, fViewMatrix, SK_PMColor4fTRANSPARENT);
+            fTessellator = args.fArena->make<GrPathCurveTessellator>(shader,
+                                                                     drawFanWithTessellator);
         } else if (drawFanWithTessellator == GrPathTessellator::DrawInnerFan::kNo) {
-            fTessellator = GrPathCurveTessellator::Make(args.fArena, fViewMatrix,
-                                                        SK_PMColor4fTRANSPARENT,
-                                                        GrPathTessellator::DrawInnerFan::kNo);
+            auto shader = GrPathTessellationShader::MakeHardwareCurveShader(
+                    args.fArena, fViewMatrix, SK_PMColor4fTRANSPARENT);
+            fTessellator = args.fArena->make<GrPathCurveTessellator>(
+                    shader, GrPathTessellator::DrawInnerFan::kNo);
         } else {
             fTessellator = GrPathWedgeTessellator::Make(args.fArena, fViewMatrix,
                                                         SK_PMColor4fTRANSPARENT);
