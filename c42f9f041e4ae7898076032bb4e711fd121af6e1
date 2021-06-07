@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2e941c32_815b8e84",
+        "filename": "src/effects/imagefilters/SkMagnifierImageFilter.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-07T15:19:58Z",
+      "side": 1,
+      "message": "Maybe we should make a private function that assumes the input shader is valid and SK_ABORTs if anything bad happens? \n\n`SkRuntimeEffect::MakeForShader(twenty lines of code).effect` is a little quirky to read, eats errors, and it seems like we\u0027re about to use it in a lot of places.",
+      "range": {
+        "startLine": 102,
+        "startChar": 25,
+        "endLine": 102,
+        "endChar": 55
+      },
+      "revId": "c42f9f041e4ae7898076032bb4e711fd121af6e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
