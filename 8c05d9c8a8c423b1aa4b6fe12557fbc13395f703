@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cbc1479f_f62a8aeb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-07T15:57:30Z",
+      "side": 1,
+      "message": "This is the first DMSAA test that actually runs on every bot and verifies the copy in / copy out mechanism. It looks like we\u0027re passing across the board, minus an ANGLE bug I filed.",
+      "revId": "8c05d9c8a8c423b1aa4b6fe12557fbc13395f703",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
