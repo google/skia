@@ -220,6 +220,12 @@ GR_MAKE_BITFIELD_CLASS_OPS(GrStrokeTessellationShader::ShaderFlags);
 // emitTessellationCode and emitFragment code.
 class GrStrokeTessellationShader::Impl : public GrGLSLGeometryProcessor {
 protected:
+    // float exp_normalizer(float absX) { ...
+    //
+    // Returns a scalar that, when mulitplied by x, makes its exponent <= ~0. Used in cases where we
+    // want to avoid fp32 overflow.
+    static const char* ExpNormalizerFn(const GrShaderCaps&);
+
     // float atan2(float2 v) { ...
     //
     // The built-in atan() is undefined when x==0. This method relieves that restriction, but also
@@ -254,6 +260,7 @@ protected:
     // The subclass is responsible to define the following symbols before calling this method:
     //
     //     // Functions.
+    //     float exp_normalizer(float2 absX);
     //     float2 unchecked_mix(float2, float2, float);
     //     float unchecked_mix(float, float, float);
     //
