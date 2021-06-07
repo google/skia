@@ -16,6 +16,7 @@
 class GrAtlasManager;
 class GrBackendFormat;
 class GrBackendRenderTarget;
+class SkBaseGpuDevice;
 class GrMemoryPool;
 class GrOnFlushCallbackObject;
 class GrRenderTargetProxy;
