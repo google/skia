@@ -16,6 +16,24 @@
       "message": "This lgtm, but remind me where we\u0027ll be using it... Can it live in include/private?",
       "revId": "362340c960468f288aa3ebd6b157e833e90f3942",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7345c04b_a597d313",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-07T21:07:19Z",
+      "side": 1,
+      "message": "This happened because I needed to switch various public DSL APIs over from const char* to StringFragment in order to support DSLParser\u0027s use case, but then John pointed out that that would mean StringFragment would have to become public... so I figured that making our own string_view was the best resolution to that.\n\nSwitching the DSL APIs over and killing StringFragment in favor of this will come as followups.",
+      "parentUuid": "421e016e_3bc88625",
+      "revId": "362340c960468f288aa3ebd6b157e833e90f3942",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
