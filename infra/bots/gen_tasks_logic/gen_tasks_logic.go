@@ -549,7 +549,10 @@ func (b *taskBuilder) kitchenTaskNoBundle(recipe string, outputDir string) {
 	if outputDir != OUTPUT_NONE {
 		b.output(outputDir)
 	}
-	python := "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}"
+	python := "cipd_bin_packages/vpython3${EXECUTABLE_SUFFIX}"
+	if b.Name == "Test-Win7-Clang-Golo-CPU-AVX512-x86_64-Debug-All-NativeFonts" {
+		python = "cipd_bin_packages/cpython3/bin/python3${EXECUTABLE_SUFFIX}"
+	}
 	b.cmd(python, "-u", "skia/infra/bots/run_recipe.py", "${ISOLATED_OUTDIR}", recipe, b.getRecipeProps(), b.cfg.Project)
 	// Most recipes want this isolate; they can override if necessary.
 	b.cas(CAS_RUN_RECIPE)

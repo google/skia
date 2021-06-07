@@ -265,15 +265,13 @@ func (b *taskBuilder) cipdPlatform() string {
 	if b.role("Upload") {
 		return cipd.PlatformLinuxAmd64
 	} else if b.matchOs("Win") || b.matchExtraConfig("Win") {
-		if b.matchArch("x86_64") {
-			return cipd.PlatformWindowsAmd64
-		} else {
-			return cipd.PlatformWindows386
-		}
+		return cipd.PlatformWindowsAmd64
 	} else if b.matchOs("Mac") {
 		return cipd.PlatformMacAmd64
 	} else if b.matchArch("Arm64") {
 		return cipd.PlatformLinuxArm64
+	} else if b.matchOs("Android", "ChromeOS", "iOS") {
+		return cipd.PlatformLinuxArmv6l
 	} else {
 		return cipd.PlatformLinuxAmd64
 	}
@@ -281,21 +279,20 @@ func (b *taskBuilder) cipdPlatform() string {
 
 // usesPython adds attributes to tasks which use python.
 func (b *taskBuilder) usesPython() {
-	// TODO(borenet): This handling of the Python package is hacky and bad.
 	pythonPkgs := cipd.PkgsPython[b.cipdPlatform()]
-	b.cipd(pythonPkgs[1])
-	if b.os("Mac10.15") && b.model("VMware7.1") {
-		b.cipd(pythonPkgs[0])
-	}
-	if b.matchOs("Win") || b.matchExtraConfig("Win") {
-		b.cipd(pythonPkgs[0])
-	}
-
+	b.cipd(pythonPkgs...)
+	b.addToPATH(
+		"cipd_bin_packages/cpython",
+		"cipd_bin_packages/cpython/bin",
+		"cipd_bin_packages/cpython3",
+		"cipd_bin_packages/cpython3/bin",
+	)
 	b.cache(&specs.Cache{
 		Name: "vpython",
 		Path: "cache/vpython",
 	})
 	b.env("VPYTHON_VIRTUALENV_ROOT", "cache/vpython")
+	b.env("VPYTHON_LOG_TRACE", "1")
 }
 
 func (b *taskBuilder) usesNode() {
