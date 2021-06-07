@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "38ee6275_ad8835cb",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-07T14:04:26Z",
+      "side": 1,
+      "message": "future idea, not blocking this CL: seems like we\u0027re very close to being able to actually type-check here.\n\n   if constexpr (is_same\u003cT, float\u003e()::value) {\n       SkASSERT(uIter-\u003etype \u003d\u003d kFloat, \"expected float got %s\");\n   } else if constexpr (is_same...)\n   \n   \nThis glosses over a lot of details, e.g. do we require one particular type for vectors and matrices? At present we allow anything that holds N floats in a row. Maybe we don\u0027t need that flexibility, and we can choose one type that is good enough...? Or maybe we can do something more clever than `is_same`?",
+      "range": {
+        "startLine": 158,
+        "startChar": 8,
+        "endLine": 160,
+        "endChar": 59
+      },
+      "revId": "11c4c19555f1030cfac0e788f2988e1ed96997f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
