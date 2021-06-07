@@ -8,6 +8,7 @@
 #ifndef SKSL_STRING
 #define SKSL_STRING
 
+#include "include/core/SkStringView.h"
 #include "include/private/SkSLDefines.h"
 #include <cstring>
 #include <stdarg.h>
@@ -24,16 +25,20 @@ class String;
 // Represents a (not necessarily null-terminated) slice of a string.
 struct StringFragment {
     StringFragment()
-    : fChars("")
-    , fLength(0) {}
+        : fChars("")
+        , fLength(0) {}
 
     StringFragment(const char* chars)
-    : fChars(chars)
-    , fLength(strlen(chars)) {}
+        : fChars(chars)
+        , fLength(strlen(chars)) {}
 
     StringFragment(const char* chars, size_t length)
-    : fChars(chars)
-    , fLength(length) {}
+        : fChars(chars)
+        , fLength(length) {}
+
+    StringFragment(skstd::string_view s)
+        : fChars(s.data())
+        , fLength(s.length()) {}
 
     const char* begin() const { return fChars; }
     const char* end() const { return fChars + fLength; }
@@ -73,6 +78,8 @@ public:
 
     explicit String(std::string s) : INHERITED(std::move(s)) {}
     String(StringFragment s) : INHERITED(s.fChars, s.fLength) {}
+    String(skstd::string_view s) : INHERITED(s.data(), s.length()) {}
+    // TODO(johnstiles): add operator skstd::string_view
 
     static String printf(const char* fmt, ...) SK_PRINTF_LIKE(1, 2);
     void appendf(const char* fmt, ...) SK_PRINTF_LIKE(2, 3);
