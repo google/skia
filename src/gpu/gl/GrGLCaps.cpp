@@ -129,6 +129,8 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fWritePixelsRowBytesSupport = version >= GR_GL_VER(2, 0);
         fReadPixelsRowBytesSupport = version >= GR_GL_VER(2, 0);
     }
+    fTransferPixelsToRowBytesSupport = fWritePixelsRowBytesSupport;
+
     if (fDriverBugWorkarounds.pack_parameters_workaround_with_pack_buffer) {
         // In some cases drivers handle copying the last row incorrectly
         // when using GL_PACK_ROW_LENGTH.  Chromium handles this by iterating
@@ -3518,10 +3520,11 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fTransferBufferType = TransferBufferType::kNone;
     }
 
-    // The TransferPixelsToTexture test fails on ANGLE D3D.
+    // The TransferPixelsToTexture test fails on ANGLE D3D9 and D3D11 if this is enabled.
+    // https://anglebug.com/5542
     if (ctxInfo.angleBackend() == GrGLANGLEBackend::kD3D9 ||
         ctxInfo.angleBackend() == GrGLANGLEBackend::kD3D11) {
-        fTransferFromBufferToTextureSupport = false;
+        fTransferPixelsToRowBytesSupport = false;
     }
 
     // Using MIPs on this GPU seems to be a source of trouble.
@@ -3639,7 +3642,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     }
 
 #ifndef SK_BUILD_FOR_IOS
-    if (GrGLRenderer::kPowerVRRogue == ctxInfo.renderer()) {
+    if (ctxInfo.renderer() == GrGLRenderer::kPowerVRRogue) {
         // We saw this bug on a TecnoSpark 3 Pro with a PowerVR GE8300.
         // GL_VERSION: "OpenGL ES 3.2 build 1.10@51309121"
         // Possibly this could be more limited by driver version or HW generation.
@@ -3654,6 +3657,10 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         // only to single channel 8 bit unorm formats but we only have a monolithic query for this
         // support at present.
         fWritePixelsRowBytesSupport = false;
+        // TransferPixelsToTextureTest fails for all color types on
+        // TecnoSpark 3 Pro with a PowerVR GE8300, GL_VERSION: "OpenGL ES 3.2 build 1.10@51309121"
+        // if GL_UNPACK_ROW_LENGTH is used.
+        fTransferPixelsToRowBytesSupport = false;
     }
 #endif
 
@@ -3929,6 +3936,9 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // https://github.com/flutter/flutter/issues/16718
     // https://bugreport.apple.com/web/?problemID=39948888
     fWritePixelsRowBytesSupport = false;
+    // This affects all iOS devices for transfering from a PBO as well (presumably the issue is in
+    // the GL->Metal layer).
+    fTransferPixelsToRowBytesSupport = false;
 #endif
 
     if (ctxInfo.vendor()   == GrGLVendor::kIntel       ||  // IntelIris640 drops draws completely.
