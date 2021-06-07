@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b4ad1af8_3951cdb1",
+        "filename": "src/gpu/tessellate/GrPathCurveTessellator.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-06-07T21:19:26Z",
+      "side": 1,
+      "message": "Usually we\u0027d add another Make method here -- why the change to use a constructor?",
+      "range": {
+        "startLine": 24,
+        "startChar": 4,
+        "endLine": 24,
+        "endChar": 26
+      },
+      "revId": "45698958e72999c4e7b9fbe4a3569ae14bd8851f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "44389035_06dfa826",
+        "filename": "src/gpu/tessellate/shaders/GrPathTessellationShader_MiddleOut.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-06-07T21:19:26Z",
+      "side": 1,
+      "message": "Were the changes to the shader necessary for this CL? A separate CL would have been clearer, or maybe I\u0027m just missing something.",
+      "range": {
+        "startLine": 57,
+        "startChar": 0,
+        "endLine": 61,
+        "endChar": 21
+      },
+      "revId": "45698958e72999c4e7b9fbe4a3569ae14bd8851f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

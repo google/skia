@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8a55b324_0d747604",
+        "filename": "src/gpu/tessellate/GrPathTessellator.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-06-07T21:19:26Z",
+      "side": 0,
+      "message": "It\u0027s not clear to me why you removed this.",
+      "range": {
+        "startLine": 77,
+        "startChar": 4,
+        "endLine": 77,
+        "endChar": 39
+      },
+      "revId": "637291272d99c388d1e364fdeae06169ca57d9e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
