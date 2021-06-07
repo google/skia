@@ -208,7 +208,7 @@ private:
 
     void writeProgramElement(const ProgramElement& pe, OutputStream& out);
 
-    SpvId writeInterfaceBlock(const InterfaceBlock& intf, bool appendRTHeight = true);
+    SpvId writeInterfaceBlock(const InterfaceBlock& intf, bool appendRTFlip = true);
 
     SpvId writeFunctionStart(const FunctionDeclaration& f, OutputStream& out);
 
@@ -454,6 +454,8 @@ private:
 
     void writeUniformBuffer(std::shared_ptr<SymbolTable> topLevelSymbolTable);
 
+    void addRTFlipUniform(int offset);
+
     const Context& fContext;
     const MemoryLayout fDefaultLayout;
 
@@ -484,9 +486,7 @@ private:
     SpvId fCurrentBlock;
     std::stack<SpvId> fBreakTarget;
     std::stack<SpvId> fContinueTarget;
-    SpvId fRTHeightStructId = (SpvId) -1;
-    SpvId fRTHeightFieldIndex = (SpvId) -1;
-    SpvStorageClass_ fRTHeightStorageClass;
+    bool fWroteRTFlip = false;
     // holds variables synthesized during output, for lifetime purposes
     SymbolTable fSynthetics;
     int fSkInCount = 1;

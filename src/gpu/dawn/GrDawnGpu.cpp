@@ -924,14 +924,15 @@ void GrDawnGpu::moveStagingBuffersToBusyAndMapAsync() {
     fSubmittedStagingBuffers.clear();
 }
 
-SkSL::String GrDawnGpu::SkSLToSPIRV(const char* shaderString, SkSL::ProgramKind kind, bool flipY,
-                                    uint32_t rtHeightOffset, SkSL::Program::Inputs* inputs) {
+SkSL::String GrDawnGpu::SkSLToSPIRV(const char* shaderString,
+                                    SkSL::ProgramKind kind,
+                                    uint32_t rtFlipOffset,
+                                    SkSL::Program::Inputs* inputs) {
     auto errorHandler = this->getContext()->priv().getShaderErrorHandler();
     SkSL::Program::Settings settings;
-    settings.fFlipY = flipY;
-    settings.fRTHeightOffset = rtHeightOffset;
-    settings.fRTHeightBinding = 0;
-    settings.fRTHeightSet = 0;
+    settings.fRTFlipOffset = rtFlipOffset;
+    settings.fRTFlipBinding = 0;
+    settings.fRTFlipSet = 0;
     std::unique_ptr<SkSL::Program> program = this->shaderCompiler()->convertProgram(
         kind,
         shaderString,

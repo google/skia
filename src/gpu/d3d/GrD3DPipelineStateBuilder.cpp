@@ -125,8 +125,8 @@ bool GrD3DPipelineStateBuilder::loadHLSLFromCache(SkReadBuffer* reader, gr_cp<ID
     }
 
     auto compile = [&](SkSL::ProgramKind kind, GrShaderType shaderType) {
-        if (inputs[shaderType].fRTHeight) {
-            this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
+        if (inputs[shaderType].fUseFlipRTUniform) {
+            this->addRTHeightUniform(SKSL_RTFLIP_NAME);
         }
         shaders[shaderType] = GrCompileHLSLShader(fGpu, hlsl[shaderType], kind);
         return shaders[shaderType].get();
@@ -172,8 +172,8 @@ gr_cp<ID3DBlob> GrD3DPipelineStateBuilder::compileD3DProgram(
         }
     }
 
-    if (program->fInputs.fRTHeight) {
-        this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
+    if (program->fInputs.fUseFlipRTUniform) {
+        this->addRTHeightUniform(SKSL_RTFLIP_NAME);
     }
 
     return GrCompileHLSLShader(fGpu, *outHLSL, kind);
@@ -581,7 +581,7 @@ std::unique_ptr<GrD3DPipelineState> GrD3DPipelineStateBuilder::finalize() {
     settings.fFlipY = this->origin() != kTopLeft_GrSurfaceOrigin;
     settings.fSharpenTextures =
         this->gpu()->getContext()->priv().options().fSharpenMipmappedTextures;
-    settings.fRTHeightOffset = fUniformHandler.getRTHeightOffset();
+    settings.fRTHeightOffset = fUniformHandler.getRTFlipOffset();
     settings.fRTHeightBinding = 0;
     settings.fRTHeightSet = 0;
 
