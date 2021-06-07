@@ -302,7 +302,6 @@ bool GrGLSLProgramBuilder::emitAndInstallXferProc(const SkString& colorIn,
                                        coverageIn.size() ? coverageIn.c_str() : "float4(1)",
                                        fFS.getPrimaryColorOutputName(),
                                        fFS.getSecondaryColorOutputName(),
-                                       this->pipeline().dstSampleType(),
                                        fDstTextureSamplerHandle,
                                        fDstTextureOrigin,
                                        this->pipeline().writeSwizzle());

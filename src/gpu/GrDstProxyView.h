@@ -28,14 +28,14 @@ public:
     GrDstProxyView& operator=(const GrDstProxyView& other) {
         fProxyView = other.fProxyView;
         fOffset = other.fOffset;
-        fDstSampleType = other.fDstSampleType;
+        fDstSampleFlags = other.fDstSampleFlags;
         return *this;
     }
 
     bool operator==(const GrDstProxyView& that) const {
         return fProxyView == that.fProxyView &&
                fOffset == that.fOffset &&
-               fDstSampleType == that.fDstSampleType;
+               fDstSampleFlags == that.fDstSampleFlags;
     }
     bool operator!=(const GrDstProxyView& that) const { return !(*this == that); }
 
@@ -54,14 +54,14 @@ public:
         }
     }
 
-    GrDstSampleType dstSampleType() const { return fDstSampleType; }
+    GrDstSampleFlags dstSampleFlags() const { return fDstSampleFlags; }
 
-    void setDstSampleType(GrDstSampleType dstSampleType) { fDstSampleType = dstSampleType; }
+    void setDstSampleFlags(GrDstSampleFlags dstSampleFlags) { fDstSampleFlags = dstSampleFlags; }
 
 private:
     GrSurfaceProxyView       fProxyView;
     SkIPoint                 fOffset = {0, 0};
-    GrDstSampleType          fDstSampleType = GrDstSampleType::kNone;
+    GrDstSampleFlags         fDstSampleFlags = GrDstSampleFlags::kNone;
 };
 
 #endif

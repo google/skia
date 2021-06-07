@@ -503,7 +503,7 @@ private:
 
     GrSwizzle onGetReadSwizzle(const GrBackendFormat&, GrColorType) const override;
 
-    GrDstSampleType onGetDstSampleTypeForProxy(const GrRenderTargetProxy*) const override;
+    GrDstSampleFlags onGetDstSampleFlagsForProxy(const GrRenderTargetProxy*) const override;
 
     bool onSupportsDynamicMSAA(const GrRenderTargetProxy*) const override {
         switch (fMSFBOType) {
