@@ -162,6 +162,17 @@
   },
   {
     "cmd": [
+      "python",
+      "[START_DIR]/cache/work/skia/tools/fetch-sk"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "Fetch SK"
+  },
+  {
+    "cmd": [
       "[START_DIR]/cache/work/src/buildtools/linux64/gn",
       "gen",
       "[START_DIR]/cache/work/src/out/Release"
@@ -191,42 +202,13 @@
   },
   {
     "cmd": [
-      "vpython",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "rmtree",
-      "[START_DIR]/skp_output"
-    ],
-    "infra_step": true,
-    "name": "rmtree skp_output"
-  },
-  {
-    "cmd": [
-      "vpython",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "ensure-directory",
-      "--mode",
-      "0777",
-      "[START_DIR]/skp_output"
-    ],
-    "infra_step": true,
-    "name": "makedirs skp_output"
-  },
-  {
-    "cmd": [
       "python",
-      "[START_DIR]/cache/work/skia/infra/bots/assets/skp/create.py",
+      "[START_DIR]/cache/work/skia/infra/bots/assets/skp/create_and_upload.py",
       "--chrome_src_path",
       "[START_DIR]/cache/work/src",
       "--browser_executable",
       "[START_DIR]/cache/work/src/out/Release/chrome",
-      "--target_dir",
-      "[START_DIR]/skp_output"
+      "--dry_run"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
