@@ -58,6 +58,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ac6f6f97_fa646930",
+        "filename": "include/core/SkStringView.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-07T15:29:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "041fe3f3_72f13b74",
+      "range": {
+        "startLine": 26,
+        "startChar": 4,
+        "endLine": 26,
+        "endChar": 15
+      },
+      "revId": "2c99f57541a11877e68431bd222a85488d8a9894",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "78287a40_669dd51f",
@@ -71,6 +95,24 @@
       "writtenOn": "2021-06-04T20:15:12Z",
       "side": 1,
       "message": "One of the most compelling features of string_view is that it supports implicit conversion from std::string. The standard library does this via an `operator string_view` in std::string:\nhttps://en.cppreference.com/w/cpp/string/basic_string/operator_basic_string_view\n\nAFAICS we don\u0027t have that luxury, but we could add an implicit ctor from std::string here and get somewhat close.",
+      "revId": "2c99f57541a11877e68431bd222a85488d8a9894",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3149c393_93d6887c",
+        "filename": "include/core/SkStringView.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-07T15:29:57Z",
+      "side": 1,
+      "message": "I wasn\u0027t sure this mattered, given that we don\u0027t really use std::string all that much, but it can\u0027t hurt to add.",
+      "parentUuid": "78287a40_669dd51f",
       "revId": "2c99f57541a11877e68431bd222a85488d8a9894",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -92,6 +134,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6be25582_e3980b2a",
+        "filename": "include/core/SkStringView.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-07T15:29:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "88893f78_d278a3c5",
+      "revId": "2c99f57541a11877e68431bd222a85488d8a9894",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f8ebbf60_54dda800",
@@ -105,6 +165,30 @@
       "writtenOn": "2021-06-04T20:15:12Z",
       "side": 1,
       "message": "Let\u0027s add in operator\u003c at least, to allow things like std::sort on a range of string_views.",
+      "range": {
+        "startLine": 104,
+        "startChar": 0,
+        "endLine": 104,
+        "endChar": 53
+      },
+      "revId": "2c99f57541a11877e68431bd222a85488d8a9894",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aa1da5bf_871480a3",
+        "filename": "include/core/SkStringView.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-07T15:29:57Z",
+      "side": 1,
+      "message": "I couldn\u0027t bring myself to just add that one without also adding the others :-).",
+      "parentUuid": "f8ebbf60_54dda800",
       "range": {
         "startLine": 104,
         "startChar": 0,
@@ -138,6 +222,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1a153c2b_a3195d3e",
+        "filename": "include/private/SkSLString.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-07T15:29:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2686179b_babd4c44",
+      "range": {
+        "startLine": 81,
+        "startChar": 0,
+        "endLine": 81,
+        "endChar": 69
+      },
+      "revId": "2c99f57541a11877e68431bd222a85488d8a9894",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "370d36d6_a8ad2020",
@@ -157,6 +265,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "2ff3f296_dc38ae1c",
+        "filename": "include/private/SkSLString.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-07T15:29:57Z",
+      "side": 1,
+      "message": "I didn\u0027t think it seemed likely we\u0027d need it, so I just figured we could add it easily enough in the future if it ever mattered.",
+      "parentUuid": "370d36d6_a8ad2020",
+      "revId": "2c99f57541a11877e68431bd222a85488d8a9894",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "a16640a2_6402a640",
         "filename": "src/core/SkStringView.cpp",
         "patchSetId": 5
@@ -168,6 +294,30 @@
       "writtenOn": "2021-06-04T20:15:12Z",
       "side": 1,
       "message": "You don\u0027t actually need this check: https://stackoverflow.com/q/19034858\n\nI imagine you put this because you weren\u0027t sure, because memcmp docs aren\u0027t very clear on it (I had to hunt for this confirmation too!). If that\u0027s the case, consider `0 \u003d\u003d char_traits::compare(left.data(), right.data(), left.length())` instead? That does the same thing (in fact some specializations do just call `__builtin_memcmp`) but hopefully makes the intent clearer?",
+      "range": {
+        "startLine": 15,
+        "startChar": 11,
+        "endLine": 15,
+        "endChar": 33
+      },
+      "revId": "2c99f57541a11877e68431bd222a85488d8a9894",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1ed4e40f_00639179",
+        "filename": "src/core/SkStringView.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-07T15:29:57Z",
+      "side": 1,
+      "message": "This was to defend against UB, as memcmp on a null pointer is unfortunately undefined (https://stackoverflow.com/questions/16362925/can-i-pass-a-null-pointer-to-memcmp) even when the length is zero.\n\nBut presumably char_traits::compare doesn\u0027t have that issue, and as you suggest makes the intent clear, so I\u0027ve changed it.",
+      "parentUuid": "a16640a2_6402a640",
       "range": {
         "startLine": 15,
         "startChar": 11,
