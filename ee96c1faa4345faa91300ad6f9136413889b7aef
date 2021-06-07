@@ -50,6 +50,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "6d52f442_a0088c6c",
+        "filename": "src/gpu/GrPipeline.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-06-07T18:56:10Z",
+      "side": 1,
+      "message": "while we\u0027re here, should the this be usesDstInputAttachment?",
+      "range": {
+        "startLine": 128,
+        "startChar": 9,
+        "endLine": 128,
+        "endChar": 28
+      },
+      "revId": "ee96c1faa4345faa91300ad6f9136413889b7aef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "6c82196a_ff2bd392",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 1
@@ -85,6 +108,30 @@
       "side": 1,
       "message": "I guess they weren\u0027t making copies if we had texture barrier support and the MSAA was a texture (i.e. had a resolve target). But I also feel like the barrier isn\u0027t doing anything here. Because if our code says to sample the RT in a shader we are going to use its resolve attachment as the texture. I\u0027m less familiar about how our code handles triggering resolves, but will an attempted resolve happen on each texture we sample in a draw? So thus a resolve is actually happening in msaa before each draw that needs to sample itself?",
       "parentUuid": "6c82196a_ff2bd392",
+      "range": {
+        "startLine": 4523,
+        "startChar": 8,
+        "endLine": 4523,
+        "endChar": 29
+      },
+      "revId": "ee96c1faa4345faa91300ad6f9136413889b7aef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d1555555_774ac663",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 4523,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-06-07T18:56:10Z",
+      "side": 1,
+      "message": "I thought we did insert resolves automatically based on sampling of textures, but wouldn\u0027t we need to break the render pass to make this actually resolve at the right time? I\u0027m not familiar enough with how this all works to know if it\u0027ll work out correctly.",
+      "parentUuid": "3c13ecf7_2fecfbf5",
       "range": {
         "startLine": 4523,
         "startChar": 8,
