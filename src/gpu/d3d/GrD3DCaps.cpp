@@ -44,6 +44,7 @@ GrD3DCaps::GrD3DCaps(const GrContextOptions& contextOptions, IDXGIAdapter1* adap
     // We always copy in/out of a transfer buffer so it's trivial to support row bytes.
     fReadPixelsRowBytesSupport = true;
     fWritePixelsRowBytesSupport = true;
+    fTransferPixelsToRowBytesSupport = true;
 
     fTransferFromBufferToTextureSupport = true;
     fTransferFromSurfaceToBufferSupport = true;

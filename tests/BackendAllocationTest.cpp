@@ -740,7 +740,7 @@ DEF_GPUTEST(ColorTypeBackendAllocationTest, reporter, options) {
         if (info.directContext()->priv().caps()->writePixelsRowBytesSupport() &&
             info.directContext()->backend() == GrBackendApi::kOpenGL) {
             GrContextOptions overrideOptions = options;
-            overrideOptions.fDisallowWritePixelRowBytes = true;
+            overrideOptions.fDisallowWriteAndTransferPixelRowBytes = true;
             sk_gpu_test::GrContextFactory overrideFactory(overrideOptions);
             info = overrideFactory.getContextInfo(type);
             color_type_backend_allocation_test(info, reporter);

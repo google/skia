@@ -321,9 +321,9 @@ struct SK_API GrContextOptions {
     bool fRandomGLOOM = false;
 
     /**
-     * Force off support for write pixels row bytes in caps.
+     * Force off support for write/transfer pixels row bytes in caps.
      */
-    bool fDisallowWritePixelRowBytes = false;
+    bool fDisallowWriteAndTransferPixelRowBytes = false;
 
     /**
      * Include or exclude specific GPU path renderers.
