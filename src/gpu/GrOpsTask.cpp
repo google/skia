@@ -397,17 +397,14 @@ void GrOpsTask::addDrawOp(GrDrawingManager* drawingMgr, GrOp::Owner op, bool use
     op->visitProxies(addDependency);
     clip.visitProxies(addDependency);
     if (dstProxyView.proxy()) {
-        if (GrDstSampleTypeUsesTexture(dstProxyView.dstSampleType())) {
+        if (!(dstProxyView.dstSampleFlags() & GrDstSampleFlags::kAsInputAttachment)) {
             this->addSampledTexture(dstProxyView.proxy());
         }
-        addDependency(dstProxyView.proxy(), GrMipmapped::kNo);
-        if (this->target(0) == dstProxyView.proxy()) {
-            // Since we are sampling and drawing to the same surface we will need to use
-            // texture barriers.
-            SkASSERT(GrDstSampleTypeDirectlySamplesDst(dstProxyView.dstSampleType()));
+        if (dstProxyView.dstSampleFlags() & GrDstSampleFlags::kRequiresTextureBarrier) {
             fRenderPassXferBarriers |= GrXferBarrierFlags::kTexture;
         }
-        SkASSERT(dstProxyView.dstSampleType() != GrDstSampleType::kAsInputAttachment ||
+        addDependency(dstProxyView.proxy(), GrMipmapped::kNo);
+        SkASSERT(!(dstProxyView.dstSampleFlags() & GrDstSampleFlags::kAsInputAttachment) ||
                  dstProxyView.offset().isZero());
     }
 

@@ -437,12 +437,12 @@ bool GrCaps::isFormatCompressed(const GrBackendFormat& format) const {
     return GrBackendFormatToCompressionType(format) != SkImage::CompressionType::kNone;
 }
 
-GrDstSampleType GrCaps::getDstSampleTypeForProxy(const GrRenderTargetProxy* rt) const {
+GrDstSampleFlags GrCaps::getDstSampleFlagsForProxy(const GrRenderTargetProxy* rt) const {
     SkASSERT(rt);
     if (this->textureBarrierSupport() && !rt->requiresManualMSAAResolve()) {
-        return this->onGetDstSampleTypeForProxy(rt);
+        return this->onGetDstSampleFlagsForProxy(rt);
     }
-    return GrDstSampleType::kAsTextureCopy;
+    return GrDstSampleFlags::kNone;
 }
 
 bool GrCaps::supportsDynamicMSAA(const GrRenderTargetProxy* rtProxy) const {

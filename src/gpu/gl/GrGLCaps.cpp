@@ -4543,11 +4543,11 @@ GrSwizzle GrGLCaps::getWriteSwizzle(const GrBackendFormat& format, GrColorType c
     return {};
 }
 
-GrDstSampleType GrGLCaps::onGetDstSampleTypeForProxy(const GrRenderTargetProxy* rt) const {
+GrDstSampleFlags GrGLCaps::onGetDstSampleFlagsForProxy(const GrRenderTargetProxy* rt) const {
     if (rt->asTextureProxy()) {
-        return GrDstSampleType::kAsSelfTexture;
+        return GrDstSampleFlags::kRequiresTextureBarrier;
     }
-    return GrDstSampleType::kAsTextureCopy;
+    return GrDstSampleFlags::kNone;
 }
 
 uint64_t GrGLCaps::computeFormatKey(const GrBackendFormat& format) const {

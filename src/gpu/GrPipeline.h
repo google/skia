@@ -124,11 +124,9 @@ public:
 
     // Helper functions to quickly know if this GrPipeline will access the dst as a texture or an
     // input attachment.
-    bool usesDstTexture() const {
-        return GrDstSampleTypeUsesTexture(this->dstSampleType());
-    }
-    bool usesInputAttachment() const {
-        return this->dstSampleType() == GrDstSampleType::kAsInputAttachment;
+    bool usesDstTexture() const { return this->dstProxyView() && !this->usesDstInputAttachment(); }
+    bool usesDstInputAttachment() const {
+        return this->dstSampleFlags()& GrDstSampleFlags::kAsInputAttachment;
     }
 
     /**
@@ -140,7 +138,7 @@ public:
 
     SkIPoint dstTextureOffset() const { return fDstProxy.offset(); }
 
-    GrDstSampleType dstSampleType() const { return fDstProxy.dstSampleType(); }
+    GrDstSampleFlags dstSampleFlags() const { return fDstProxy.dstSampleFlags(); }
 
     /** If this GrXferProcessor uses a texture to access the dst color, returns that texture. */
     GrTexture* peekDstTexture() const {

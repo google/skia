@@ -104,7 +104,9 @@ static void gen_xp_key(const GrXferProcessor& xp,
         origin = pipeline.dstProxyView().origin();
         originIfDstTexture = &origin;
     }
-    xp.getGLSLProcessorKey(*caps.shaderCaps(), b, originIfDstTexture, pipeline.dstSampleType());
+
+    xp.getGLSLProcessorKey(*caps.shaderCaps(), b, originIfDstTexture,
+                           pipeline.dstSampleFlags() & GrDstSampleFlags::kAsInputAttachment);
 }
 
 static void gen_fp_key(const GrFragmentProcessor& fp,

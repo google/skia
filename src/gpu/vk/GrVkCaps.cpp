@@ -1690,15 +1690,15 @@ GrSwizzle GrVkCaps::getWriteSwizzle(const GrBackendFormat& format, GrColorType c
     return {};
 }
 
-GrDstSampleType GrVkCaps::onGetDstSampleTypeForProxy(const GrRenderTargetProxy* rt) const {
+GrDstSampleFlags GrVkCaps::onGetDstSampleFlagsForProxy(const GrRenderTargetProxy* rt) const {
     bool isMSAAWithResolve = rt->numSamples() > 1 && rt->asTextureProxy();
     // TODO: Currently if we have an msaa rt with a resolve, the supportsVkInputAttachment call
     // references whether the resolve is supported as an input attachment. We need to add a check to
     // allow checking the color attachment (msaa or not) supports input attachment specifically.
     if (!isMSAAWithResolve && rt->supportsVkInputAttachment()) {
-        return GrDstSampleType::kAsInputAttachment;
+        return GrDstSampleFlags::kRequiresTextureBarrier | GrDstSampleFlags::kAsInputAttachment;
     }
-    return GrDstSampleType::kAsTextureCopy;
+    return GrDstSampleFlags::kNone;
 }
 
 uint64_t GrVkCaps::computeFormatKey(const GrBackendFormat& format) const {

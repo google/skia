@@ -248,7 +248,7 @@ bool GrGLSLProgramBuilder::emitAndInstallDstTexture() {
         fFS.codeAppendf("%s = ", dstColor);
         fFS.appendTextureLookup(fDstTextureSamplerHandle, "_dstTexCoord");
         fFS.codeAppend(";\n");
-    } else if (this->pipeline().usesInputAttachment()) {
+    } else if (this->pipeline().usesDstInputAttachment()) {
         // Set up an input attachment for the destination texture.
         const GrSwizzle& swizzle = dstView.swizzle();
         fDstTextureSamplerHandle = this->emitInputSampler(swizzle, "DstTextureInput");
@@ -302,7 +302,6 @@ bool GrGLSLProgramBuilder::emitAndInstallXferProc(const SkString& colorIn,
                                        coverageIn.size() ? coverageIn.c_str() : "float4(1)",
                                        fFS.getPrimaryColorOutputName(),
                                        fFS.getSecondaryColorOutputName(),
-                                       this->pipeline().dstSampleType(),
                                        fDstTextureSamplerHandle,
                                        fDstTextureOrigin,
                                        this->pipeline().writeSwizzle());

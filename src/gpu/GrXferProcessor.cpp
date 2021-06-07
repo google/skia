@@ -30,7 +30,7 @@ bool GrXferProcessor::hasSecondaryOutput() const {
 
 void GrXferProcessor::getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b,
                                           const GrSurfaceOrigin* originIfDstTexture,
-                                          GrDstSampleType dstSampleType) const {
+                                          bool usesInputAttachmentForDstRead) const {
     uint32_t key = this->willReadDstColor() ? 0x1 : 0x0;
     if (key) {
         if (originIfDstTexture) {
@@ -38,9 +38,7 @@ void GrXferProcessor::getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorK
             if (kTopLeft_GrSurfaceOrigin == *originIfDstTexture) {
                 key |= 0x4;
             }
-            // We don't just add the whole dstSampleType to the key because sampling a copy or the
-            // rt directly produces the same shader code.
-            if (dstSampleType == GrDstSampleType::kAsInputAttachment) {
+            if (usesInputAttachmentForDstRead) {
                 key |= 0x8;
             }
         }

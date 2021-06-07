@@ -1950,21 +1950,16 @@ bool GrSurfaceDrawContext::setupDstProxyView(const GrOp& op, GrDstProxyView* dst
         return false;
     }
 
-    if (fDstSampleType == GrDstSampleType::kNone) {
-        fDstSampleType = this->caps()->getDstSampleTypeForProxy(this->asRenderTargetProxy());
-    }
-    SkASSERT(fDstSampleType != GrDstSampleType::kNone);
+    auto dstSampleFlags = this->caps()->getDstSampleFlagsForProxy(this->asRenderTargetProxy());
 
-    if (GrDstSampleTypeDirectlySamplesDst(fDstSampleType)) {
-        // The render target is a texture or input attachment, so we can read from it directly in
-        // the shader. The XP will be responsible to detect this situation and request a texture
-        // barrier.
+    if (dstSampleFlags & GrDstSampleFlags::kRequiresTextureBarrier) {
+        // If we require a barrier to sample the dst it means we are sampling the RT itself either
+        // as a texture or input attachment.
         dstProxyView->setProxyView(this->readSurfaceView());
         dstProxyView->setOffset(0, 0);
-        dstProxyView->setDstSampleType(fDstSampleType);
+        dstProxyView->setDstSampleFlags(dstSampleFlags);
         return true;
     }
-    SkASSERT(fDstSampleType == GrDstSampleType::kAsTextureCopy);
 
     GrColorType colorType = this->colorInfo().colorType();
     // MSAA consideration: When there is support for reading MSAA samples in the shader we could
@@ -2003,6 +1998,6 @@ bool GrSurfaceDrawContext::setupDstProxyView(const GrOp& op, GrDstProxyView* dst
 
     dstProxyView->setProxyView({std::move(copy), this->origin(), this->readSwizzle()});
     dstProxyView->setOffset(dstOffset);
-    dstProxyView->setDstSampleType(fDstSampleType);
+    dstProxyView->setDstSampleFlags(dstSampleFlags);
     return true;
 }
