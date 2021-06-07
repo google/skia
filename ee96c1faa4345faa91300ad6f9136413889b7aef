@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1e3e4943_5deca971",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1312,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-07T17:57:50Z",
+      "side": 1,
+      "message": "Do you think it would be worth it to call this kRequiresTextureBarrier, for the sake of clarity?",
+      "range": {
+        "startLine": 1312,
+        "startChar": 4,
+        "endLine": 1312,
+        "endChar": 20
+      },
+      "revId": "ee96c1faa4345faa91300ad6f9136413889b7aef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6c82196a_ff2bd392",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 4523,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-07T17:57:50Z",
+      "side": 1,
+      "message": "Does this mean MSAA proxies weren\u0027t actually making copies like we thought they were?\n\nWill this change soon since we don\u0027t actually need a barrier in the MSAA, non-render-to-texture case?",
+      "range": {
+        "startLine": 4523,
+        "startChar": 8,
+        "endLine": 4523,
+        "endChar": 29
+      },
+      "revId": "ee96c1faa4345faa91300ad6f9136413889b7aef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
