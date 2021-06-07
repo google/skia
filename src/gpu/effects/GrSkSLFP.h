@@ -21,6 +21,26 @@ class GrShaderCaps;
 class SkData;
 class SkRuntimeEffect;
 
+#ifdef SK_DEBUG
+// UNIFORM_TYPE allows C++ types to be mapped onto SkRuntimeEffect::Uniform::Type
+template <typename T> struct GrFPUniformType {
+    template <typename U> struct add_a_UNIFORM_TYPE_specialization_for {};
+    static constexpr add_a_UNIFORM_TYPE_specialization_for<T> value = {};
+};
+#define UNIFORM_TYPE(T, E)                                                                         \
+    template <> struct GrFPUniformType<T> {                                                        \
+        static constexpr SkRuntimeEffect::Uniform::Type value = SkRuntimeEffect::Uniform::Type::E; \
+    }
+
+UNIFORM_TYPE(float,       kFloat);
+UNIFORM_TYPE(SkV2,        kFloat2);
+UNIFORM_TYPE(SkPMColor4f, kFloat4);
+UNIFORM_TYPE(SkV4,        kFloat4);
+UNIFORM_TYPE(int,         kInt);
+
+#undef UNIFORM_TYPE
+#endif
+
 class GrSkSLFP : public GrFragmentProcessor {
 public:
     /**
@@ -116,9 +136,10 @@ private:
     }
 
 #ifdef SK_DEBUG
-    // Validates that all args passed to the template factory have the right names and sizes
     using child_iterator = std::vector<SkRuntimeEffect::Child>::const_iterator;
     using uniform_iterator = std::vector<SkRuntimeEffect::Uniform>::const_iterator;
+
+    // Validates that all args passed to the template factory have the right names, sizes, and types
     static void checkArgs(uniform_iterator uIter,
                           uniform_iterator uEnd,
                           child_iterator cIter,
@@ -158,6 +179,9 @@ private:
         SkASSERTF(uIter->sizeInBytes() == sizeof(val),
                   "Expected uniform '%s' to be %zu bytes, got %zu instead",
                   name, uIter->sizeInBytes(), sizeof(val));
+        SkASSERTF(GrFPUniformType<T>::value == uIter->type,
+                  "Wrong type for uniform '%s'",
+                  name);
         checkArgs(++uIter, uEnd, cIter, cEnd, std::forward<Args>(remainder)...);
     }
 #endif
