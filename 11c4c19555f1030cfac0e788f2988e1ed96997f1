@@ -22,6 +22,30 @@
       },
       "revId": "11c4c19555f1030cfac0e788f2988e1ed96997f1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a00db9e5_bde98e9d",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-07T14:07:15Z",
+      "side": 1,
+      "message": "Yeah, I was having the same train of thought. for scalars, it\u0027s easy. And for matrices, there\u0027s only a couple types that ever show up (SkRuntimeShaderBuilder handles that case with a specialization, anyway, to make sure things are column major). I figured we could either limit ourselves to the most recent (SkV2/3/4) types, or just use our own traits stuff here. There are only a few other types that are common and convenient (SkRect/SkIRect, SkPoint, ... that\u0027s about it?)",
+      "parentUuid": "38ee6275_ad8835cb",
+      "range": {
+        "startLine": 158,
+        "startChar": 8,
+        "endLine": 160,
+        "endChar": 59
+      },
+      "revId": "11c4c19555f1030cfac0e788f2988e1ed96997f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
