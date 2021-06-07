@@ -281,6 +281,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "37faab8f_68ba509d",
+        "filename": "include/private/SkSLString.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-07T19:17:03Z",
+      "side": 1,
+      "message": "I honestly expect I will run into this and add the conversion operator fairly soon, but it doesn\u0027t have to happen this second :) Could you add a TODO(johnstiles) here so I don\u0027t forget?",
+      "parentUuid": "2ff3f296_dc38ae1c",
+      "revId": "2c99f57541a11877e68431bd222a85488d8a9894",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a16640a2_6402a640",
