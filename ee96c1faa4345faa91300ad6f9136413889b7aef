@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c3aaa566_3a07afde",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1312,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-07T17:58:33Z",
+      "side": 1,
+      "message": "Or in Vulkan is this not a \"texture\" barrier?",
+      "parentUuid": "1e3e4943_5deca971",
+      "range": {
+        "startLine": 1312,
+        "startChar": 4,
+        "endLine": 1312,
+        "endChar": 20
+      },
+      "revId": "ee96c1faa4345faa91300ad6f9136413889b7aef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "6c82196a_ff2bd392",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 1
