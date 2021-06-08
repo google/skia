@@ -506,17 +506,7 @@ private:
     GrDstSampleFlags onGetDstSampleFlagsForProxy(const GrRenderTargetProxy*) const override;
 
     bool onSupportsDynamicMSAA(const GrRenderTargetProxy*) const override {
-        switch (fMSFBOType) {
-            // The Apple extension doesn't support blitting from single to multisample.
-            case kES_Apple_MSFBOType:
-            case kNone_MSFBOType:
-                return false;
-            case kStandard_MSFBOType:
-            case kES_IMG_MsToTexture_MSFBOType:
-            case kES_EXT_MsToTexture_MSFBOType:
-                return true;
-        }
-        SkUNREACHABLE;
+        return !fDisallowDynamicMSAA;
     }
 
     GrGLStandard fStandard = kNone_GrGLStandard;
@@ -569,6 +559,7 @@ private:
     bool fNeverDisableColorWrites : 1;
     bool fMustSetAnyTexParameterToEnableMipmapping : 1;
     bool fAllowBGRA8CopyTexSubImage : 1;
+    bool fDisallowDynamicMSAA : 1;
     int fMaxInstancesPerDrawWithoutCrashing = 0;
 
     uint32_t fBlitFramebufferFlags = kNoSupport_BlitFramebufferFlag;
