@@ -1550,17 +1550,19 @@ skvm::Color ProgramToSkVM(const Program& program,
     skvm::Val zero = builder->splat(0.0f).id;
     skvm::Val result[4] = {zero,zero,zero,zero};
 
-    skvm::Val args[6];  // At most 6 arguments (float2 coords, half4 inColor)
+    skvm::Val args[8];  // At most 8 arguments (half4 srcColor, half4 dstColor)
     size_t argSlots = 0;
     for (const SkSL::Variable* param : function.declaration().parameters()) {
         switch (param->modifiers().fLayout.fBuiltin) {
             case SK_MAIN_COORDS_BUILTIN:
                 SkASSERT(param->type().slotCount() == 2);
+                SkASSERT((argSlots + 2) <= SK_ARRAY_COUNT(args));
                 args[argSlots++] = local.x.id;
                 args[argSlots++] = local.y.id;
                 break;
             case SK_INPUT_COLOR_BUILTIN:
                 SkASSERT(param->type().slotCount() == 4);
+                SkASSERT((argSlots + 4) <= SK_ARRAY_COUNT(args));
                 args[argSlots++] = inputColor.r.id;
                 args[argSlots++] = inputColor.g.id;
                 args[argSlots++] = inputColor.b.id;

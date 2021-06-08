@@ -580,13 +580,14 @@ void RunSkSLMemoryBenchmarks(NanoJSONResultsWriter* log) {
         bench("sksl_compiler_gpu", after - before);
     }
 
-    // Heap used by a compiler with the runtime shader & color filter modules loaded
+    // Heap used by a compiler with the runtime shader, color filter and blending modules loaded
     {
         int before = heap_bytes_used();
         GrShaderCaps caps(GrContextOptions{});
         SkSL::Compiler compiler(&caps);
         compiler.moduleForProgramKind(SkSL::ProgramKind::kRuntimeColorFilter);
         compiler.moduleForProgramKind(SkSL::ProgramKind::kRuntimeShader);
+        compiler.moduleForProgramKind(SkSL::ProgramKind::kRuntimeBlend);
         int after = heap_bytes_used();
         bench("sksl_compiler_runtimeeffect", after - before);
     }

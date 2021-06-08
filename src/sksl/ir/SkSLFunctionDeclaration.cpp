@@ -88,13 +88,14 @@ static bool check_parameters(const Context& context,
         ProgramKind kind = context.fConfig->fKind;
         if (isMain && (kind == ProgramKind::kRuntimeColorFilter ||
                        kind == ProgramKind::kRuntimeShader ||
+                       kind == ProgramKind::kRuntimeBlend ||
                        kind == ProgramKind::kFragmentProcessor)) {
             // We verify that the signature is fully correct later. For now, if this is an .fp or
             // runtime effect of any flavor, a float2 param is supposed to be the coords, and
             // a half4/float parameter is supposed to be the input color:
             if (type == *context.fTypes.fFloat2) {
                 m.fLayout.fBuiltin = SK_MAIN_COORDS_BUILTIN;
-            } else if(typeIsValidForColor(type)) {
+            } else if (typeIsValidForColor(type)) {
                 m.fLayout.fBuiltin = SK_INPUT_COLOR_BUILTIN;
             }
             if (m.fLayout.fBuiltin) {
@@ -164,6 +165,21 @@ static bool check_main_signature(const Context& context, int offset, const Type&
                     (parameters.size() == 2 && paramIsCoords(0) && paramIsInputColor(1));
             if (!validParams) {
                 errors.error(offset, "'main' parameters must be (float2, (vec4|float4|half4)?)");
+                return false;
+            }
+            break;
+        }
+        case ProgramKind::kRuntimeBlend: {
+            // (half4|float4) main(half4|float4, half4|float4)
+            if (!typeIsValidForColor(returnType)) {
+                errors.error(offset, "'main' must return: 'vec4', 'float4', or 'half4'");
+                return false;
+            }
+            if (!(parameters.size() == 2 &&
+                  paramIsInputColor(0) &&
+                  paramIsInputColor(1))) {
+                errors.error(offset, "'main' parameters must be (vec4|float4|half4, "
+                                                                "vec4|float4|half4)");
                 return false;
             }
             break;

@@ -291,12 +291,14 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
         kind = SkSL::ProgramKind::kGeometry;
     } else if (inputPath.endsWith(".fp")) {
         kind = SkSL::ProgramKind::kFragmentProcessor;
+    } else if (inputPath.endsWith(".rtb")) {
+        kind = SkSL::ProgramKind::kRuntimeBlend;
     } else if (inputPath.endsWith(".rtcf")) {
         kind = SkSL::ProgramKind::kRuntimeColorFilter;
     } else if (inputPath.endsWith(".rts")) {
         kind = SkSL::ProgramKind::kRuntimeShader;
     } else {
-        printf("input filename must end in '.vert', '.frag', '.geom', '.fp', '.rtcf', "
+        printf("input filename must end in '.vert', '.frag', '.geom', '.fp', '.rtb', '.rtcf', "
                "'.rts', or '.sksl'\n");
         return ResultCode::kInputError;
     }
