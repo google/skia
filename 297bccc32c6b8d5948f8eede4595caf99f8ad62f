@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e73adaef_2d2c8043",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-08T19:26:56Z",
+      "side": 1,
+      "message": "just curious -- why not use java subclasses to scope the Gradient?",
+      "revId": "297bccc32c6b8d5948f8eede4595caf99f8ad62f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
