@@ -189,6 +189,9 @@ void GrShaderCaps::applyOptionsOverrides(const GrContextOptions& options) {
     if (!options.fEnableExperimentalHardwareTessellation) {
         fMaxTessellationSegments = 0;
     }
+    if (options.fReducedShaderVariations) {
+        fReducedShaderMode = true;
+    }
 #if GR_TEST_UTILS
     if (options.fSuppressDualSourceBlending) {
         fDualSourceBlendingSupport = false;
@@ -199,9 +202,6 @@ void GrShaderCaps::applyOptionsOverrides(const GrContextOptions& options) {
     if (options.fMaxTessellationSegmentsOverride > 0) {
         fMaxTessellationSegments = std::min(options.fMaxTessellationSegmentsOverride,
                                             fMaxTessellationSegments);
-    }
-    if (options.fReducedShaderVariations) {
-        fReducedShaderMode = true;
     }
 #endif
 }
