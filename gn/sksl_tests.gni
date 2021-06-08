@@ -566,6 +566,7 @@ sksl_settings_tests = [
   "/sksl/workarounds/LoopCondition.sksl",
   "/sksl/workarounds/MinAndAbsTogether.sksl",
   "/sksl/workarounds/NegatedAtan.sksl",
+  "/sksl/workarounds/NegatedLdexp.sksl",
   "/sksl/workarounds/PowWithConstantExponent.sksl",
   "/sksl/workarounds/RewriteDoWhileLoops.sksl",
   "/sksl/workarounds/RewriteMatrixComparisons.sksl",
