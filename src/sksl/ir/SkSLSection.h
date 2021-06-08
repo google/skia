@@ -19,21 +19,21 @@ class Section final : public ProgramElement {
 public:
     static constexpr Kind kProgramElementKind = Kind::kSection;
 
-    Section(int offset, String name, String arg, String text)
+    Section(int offset, StringFragment name, StringFragment arg, StringFragment text)
     : INHERITED(offset, kProgramElementKind)
-    , fName(std::move(name))
-    , fArgument(std::move(arg))
-    , fText(std::move(text)) {}
+    , fName(name)
+    , fArgument(arg)
+    , fText(text) {}
 
-    const String& name() const {
+    StringFragment name() const {
         return fName;
     }
 
-    const String& argument() const {
+    StringFragment argument() const {
         return fArgument;
     }
 
-    const String& text() const {
+    StringFragment text() const {
         return fText;
     }
 
@@ -52,9 +52,9 @@ public:
     }
 
 private:
-    String fName;
-    String fArgument;
-    String fText;
+    StringFragment fName;
+    StringFragment fArgument;
+    StringFragment fText;
 
     using INHERITED = ProgramElement;
 };

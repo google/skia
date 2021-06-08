@@ -546,7 +546,7 @@ void DSLCPPCodeGenerator::writeCppInitialValue(const Variable& var) {
     // the variable (which we do need, to fill in the Var's initial value).
     std::vector<String> argumentList;
     (void) this->formatRuntimeValue(var.type(), var.modifiers().fLayout,
-                                    var.name(), &argumentList);
+                                    String(var.name()), &argumentList);
 
     this->write(this->getTypeName(var.type()));
     this->write("(");
@@ -690,7 +690,7 @@ void DSLCPPCodeGenerator::writeAnyConstructor(const AnyConstructor& c,
 
 String DSLCPPCodeGenerator::getTypeName(const Type& type) {
     if (fCPPMode) {
-        return type.name();
+        return String(type.name());
     }
     switch (type.typeKind()) {
         case Type::TypeKind::kScalar:
@@ -711,7 +711,7 @@ String DSLCPPCodeGenerator::getTypeName(const Type& type) {
 
         default:
             SK_ABORT("not yet supported: getTypeName of %s", type.displayName().c_str());
-            return type.name();
+            return String(type.name());
     }
 }
 
@@ -741,7 +741,7 @@ String DSLCPPCodeGenerator::getDSLType(const Type& type) {
         }
         default:
             SK_ABORT("not yet supported: getDSLType of %s", type.displayName().c_str());
-            return type.name();
+            return String(type.name());
     }
 }
 
@@ -842,13 +842,13 @@ void DSLCPPCodeGenerator::writeFloatLiteral(const FloatLiteral& f) {
 }
 
 void DSLCPPCodeGenerator::writeSetting(const Setting& s) {
-    this->writef("sk_Caps.%s", s.name().c_str());
+    this->writef("sk_Caps.%.*s", (int)s.name().length(), s.name().data());
 }
 
 bool DSLCPPCodeGenerator::writeSection(const char* name, const char* prefix) {
     const Section* s = fSectionAndParameterHelper.getSection(name);
     if (s) {
-        this->writef("%s%s", prefix, s->text().c_str());
+        this->writef("%s%.*s", prefix, (int)s->text().length(), s->text().data());
         return true;
     }
     return false;
@@ -887,7 +887,7 @@ void DSLCPPCodeGenerator::addUniform(const Variable& var) {
     }
 
     const char* varCppName = this->getVariableCppName(var);
-    if (var.modifiers().fLayout.fWhen.fLength) {
+    if (var.modifiers().fLayout.fWhen.length()) {
         // In cases where the `when` clause is true, we set up the Var normally.
         this->writef(
                 "Var %s;\n"
@@ -904,7 +904,7 @@ void DSLCPPCodeGenerator::addUniform(const Variable& var) {
     this->writef("%.*sVar = VarUniformHandle(%s);\n",
                  (int)var.name().size(), var.name().data(), this->getVariableCppName(var));
 
-    if (var.modifiers().fLayout.fWhen.fLength) {
+    if (var.modifiers().fLayout.fWhen.length()) {
         this->writef("    DeclareGlobal(%s);\n", varCppName);
         // In cases where the `when` is false, we declare the Var as a const with a default value.
         this->writef("} else {\n"
@@ -1036,10 +1036,10 @@ bool DSLCPPCodeGenerator::writeEmitCode(std::vector<const Variable*>& uniforms) 
 void DSLCPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
     const char* fullName = fFullName.c_str();
     const Section* section = fSectionAndParameterHelper.getSection(kSetDataSection);
-    const char* pdman = section ? section->argument().c_str() : "pdman";
-    this->writef("    void onSetData(const GrGLSLProgramDataManager& %s, "
+    StringFragment pdman = section ? section->argument() : "pdman";
+    this->writef("    void onSetData(const GrGLSLProgramDataManager& %.*s, "
                                     "const GrFragmentProcessor& _proc) override {\n",
-                 pdman);
+                 (int)pdman.length(), pdman.data());
     bool wroteProcessor = false;
     for (const Variable* u : uniforms) {
         if (is_uniform_in(*u)) {
@@ -1066,7 +1066,8 @@ void DSLCPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
             }
 
             this->writef("%s%s;\n",
-                         indent.c_str(), mapper->setUniform(pdman, uniformName, valueVar).c_str());
+                         indent.c_str(),
+                         mapper->setUniform(String(pdman), uniformName, valueVar).c_str());
 
             if (conditionalUniform) {
                 // Close the earlier precheck block
@@ -1163,7 +1164,7 @@ void DSLCPPCodeGenerator::writeDumpInfo() {
             String fieldName = HCodeGenerator::FieldName(String(param->name()).c_str());
             String runtimeValue = this->formatRuntimeValue(param->type(),
                                                            param->modifiers().fLayout,
-                                                           param->name(),
+                                                           String(param->name()),
                                                            &argumentList);
             formatString.appendf("%s%s=%s",
                                  formatString.empty() ? "" : ", ",
@@ -1197,10 +1198,12 @@ void DSLCPPCodeGenerator::writeTest() {
         this->writef(
                 "GR_DEFINE_FRAGMENT_PROCESSOR_TEST(%s);\n"
                 "#if GR_TEST_UTILS\n"
-                "std::unique_ptr<GrFragmentProcessor> %s::TestCreate(GrProcessorTestData* %s) {\n",
+                "std::unique_ptr<GrFragmentProcessor> %s::TestCreate(GrProcessorTestData* %.*s) "
+                "{\n",
                 fFullName.c_str(),
                 fFullName.c_str(),
-                test->argument().c_str());
+                (int)test->argument().length(),
+                test->argument().data());
         this->writeSection(kTestCodeSection);
         this->write("}\n"
                     "#endif\n");
@@ -1267,7 +1270,7 @@ void DSLCPPCodeGenerator::writeGetKey() {
                     }
                     this->write(";\n");
                 }
-                if (var.modifiers().fLayout.fWhen.fLength) {
+                if (var.modifiers().fLayout.fWhen.length()) {
                     this->writef("if (%s) {\n", String(var.modifiers().fLayout.fWhen).c_str());
                 }
                 if (varType == *fContext.fTypes.fHalf4) {
@@ -1300,7 +1303,7 @@ void DSLCPPCodeGenerator::writeGetKey() {
                     SK_ABORT("NOT YET IMPLEMENTED: automatic key handling for %s\n",
                              varType.displayName().c_str());
                 }
-                if (var.modifiers().fLayout.fWhen.fLength) {
+                if (var.modifiers().fLayout.fWhen.length()) {
                     this->write("}\n");
                 }
             }

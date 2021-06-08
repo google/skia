@@ -475,6 +475,7 @@ struct ASTNode {
         return *reinterpret_cast<const SKSL_FLOAT*>(fData.fBytes);
     }
 
+    // TODO(ethannicholas): Rename this to getStringView() as part of changing the return type
     const StringFragment& getString() const {
         SkASSERT(fData.fKind == NodeData::Kind::kStringFragment);
         return *reinterpret_cast<const StringFragment*>(fData.fBytes);
