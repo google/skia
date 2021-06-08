@@ -30,9 +30,16 @@ Mapping Mapping::DecomposeCTM(const SkMatrix& ctm, const SkImageFilter* filter,
                               const skif::ParameterSpace<SkPoint>& representativePoint) {
     SkMatrix remainder, layer;
     SkSize scale;
-    if (!filter || ctm.isScaleTranslate() || as_IFB(filter)->canHandleComplexCTM()) {
-        // It doesn't matter what type of matrix ctm is, we can have layer space be equivalent to
-        // device space.
+    using MatrixCapability = SkImageFilter_Base::MatrixCapability;
+    MatrixCapability capability =
+            filter ? as_IFB(filter)->getCTMCapability() : MatrixCapability::kComplex;
+    if (capability == MatrixCapability::kTranslate) {
+        // Apply the entire CTM post-filtering
+        remainder = ctm;
+        layer = SkMatrix::I();
+    } else if (ctm.isScaleTranslate() || capability == MatrixCapability::kComplex) {
+        // Either layer space can be anything (kComplex) - or - it can be scale+translate, and the
+        // ctm is. In both cases, the layer space can be equivalent to device space.
         remainder = SkMatrix::I();
         layer = ctm;
     } else if (ctm.decomposeScale(&scale, &remainder)) {
