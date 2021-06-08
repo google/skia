@@ -648,11 +648,11 @@ public:
     // layer space where the image filters are evaluated, as well as the remaining transformation
     // from the layer space to the final device space. The layer space defined by the returned
     // Mapping may be the same as the root device space, or be an intermediate space that is
-    // supported by the image filter DAG (depending on what it returns from canHandleComplexCTM()).
-    // If a node returns false from canHandleComplexCTM(), the layer matrix of the mapping will be
-    // at most a scale + translate, and the remaining matrix will be appropriately set to transform
-    // the layer space to the final device space (applied by the SkCanvas when filtering is
-    // finished).
+    // supported by the image filter DAG (depending on what it returns from getCTMCapability()).
+    // If a node returns something other than kComplex from getCTMCapability(), the layer matrix of
+    // the mapping will respect that return value, and the remaining matrix will be appropriately
+    // set to transform the layer space to the final device space (applied by the SkCanvas when
+    // filtering is finished).
     const Mapping& mapping() const { return fMapping; }
     // DEPRECATED: Use mapping() and its coordinate-space types instead
     const SkMatrix& ctm() const { return fMapping.layerMatrix(); }

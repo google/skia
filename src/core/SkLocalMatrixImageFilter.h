@@ -27,7 +27,7 @@ protected:
     SkIRect onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
                            MapDirection, const SkIRect* inputRect) const override;
 
-    bool onCanHandleComplexCTM() const override { return true; }
+    MatrixCapability onGetCTMCapability() const override { return MatrixCapability::kComplex; }
 
 private:
     SK_FLATTENABLE_HOOKS(SkLocalMatrixImageFilter)

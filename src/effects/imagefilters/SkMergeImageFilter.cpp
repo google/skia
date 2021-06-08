@@ -26,7 +26,7 @@ public:
 
 protected:
     sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override;
-    bool onCanHandleComplexCTM() const override { return true; }
+    MatrixCapability onGetCTMCapability() const override { return MatrixCapability::kComplex; }
 
 private:
     friend void ::SkRegisterMergeImageFilterFlattenable();

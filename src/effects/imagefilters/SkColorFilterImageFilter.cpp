@@ -28,7 +28,7 @@ protected:
     void flatten(SkWriteBuffer&) const override;
     sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override;
     bool onIsColorFilterNode(SkColorFilter**) const override;
-    bool onCanHandleComplexCTM() const override { return true; }
+    MatrixCapability onGetCTMCapability() const override { return MatrixCapability::kComplex; }
     bool affectsTransparentBlack() const override;
 
 private:

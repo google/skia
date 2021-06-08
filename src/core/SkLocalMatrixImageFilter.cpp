@@ -18,7 +18,9 @@ sk_sp<SkImageFilter> SkLocalMatrixImageFilter::Make(const SkMatrix& localM,
     if (localM.isIdentity()) {
         return input;
     }
-    if (!as_IFB(input)->canHandleComplexCTM() && !localM.isScaleTranslate()) {
+    MatrixCapability inputCapability = as_IFB(input)->getCTMCapability();
+    if ((inputCapability == MatrixCapability::kTranslate && !localM.isTranslate()) ||
+        (inputCapability == MatrixCapability::kScaleTranslate && !localM.isScaleTranslate())) {
         // Nothing we can do at this point
         return nullptr;
     }
