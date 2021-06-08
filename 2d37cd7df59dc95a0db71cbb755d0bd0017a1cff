@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a1530d3f_19110863",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-06-08T13:22:46Z",
+      "side": 1,
+      "message": "the rest lgtm",
+      "revId": "2d37cd7df59dc95a0db71cbb755d0bd0017a1cff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "32700293_26a5afca",
+        "filename": "gn/skia/BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 478,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-06-08T13:22:46Z",
+      "side": 1,
+      "message": "What\u0027s this one about?  Seems like the sort of things we\u0027d like to fix if possible instead of silence.",
+      "revId": "2d37cd7df59dc95a0db71cbb755d0bd0017a1cff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
