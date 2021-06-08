@@ -200,7 +200,7 @@ DSLType Struct(skstd::string_view name, SkTArray<DSLField> fields) {
         skslFields.emplace_back(field.fModifiers.fModifiers, field.fName, &field.fType.skslType());
     }
     const SkSL::Type* result = DSLWriter::SymbolTable()->add(Type::MakeStructType(/*offset=*/-1,
-                                                                                  name,
+                                                                                  String(name),
                                                                                   skslFields));
     DSLWriter::ProgramElements().push_back(std::make_unique<SkSL::StructDefinition>(/*offset=*/-1,
                                                                                     *result));
