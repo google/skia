@@ -82,6 +82,8 @@ public:
     DSLType(const SkSL::Type* type)
         : fSkSLType(type) {}
 
+    DSLType(skstd::string_view name);
+
     /**
      * Returns true if this type is a bool.
      */
@@ -171,7 +173,7 @@ private:
     TypeConstant fTypeConstant;
 
     friend DSLType Array(const DSLType& base, int count);
-    friend DSLType Struct(const char* name, SkTArray<DSLField> fields);
+    friend DSLType Struct(skstd::string_view name, SkTArray<DSLField> fields);
     friend class DSLFunction;
     friend class DSLVar;
     friend class DSLWriter;
@@ -219,26 +221,26 @@ DSLType Array(const DSLType& base, int count);
 
 class DSLField {
 public:
-    DSLField(const DSLType type, const char* name)
+    DSLField(const DSLType type, skstd::string_view name)
         : DSLField(DSLModifiers(), type, name) {}
 
 private:
-    DSLField(DSLModifiers modifiers, const DSLType type, const char* name)
+    DSLField(DSLModifiers modifiers, const DSLType type, skstd::string_view name)
         : fModifiers(modifiers)
         , fType(type)
         , fName(name) {}
 
     DSLModifiers fModifiers;
     const DSLType fType;
-    const char* fName;
+    skstd::string_view fName;
 
-    friend DSLType Struct(const char* name, SkTArray<DSLField> fields);
+    friend DSLType Struct(skstd::string_view name, SkTArray<DSLField> fields);
 };
 
-DSLType Struct(const char* name, SkTArray<DSLField> fields);
+DSLType Struct(skstd::string_view name, SkTArray<DSLField> fields);
 
 template<typename... Field>
-DSLType Struct(const char* name, Field... fields) {
+DSLType Struct(skstd::string_view name, Field... fields) {
     SkTArray<DSLField> fieldTypes;
     fieldTypes.reserve_back(sizeof...(fields));
     // in C++17, we could just do:
