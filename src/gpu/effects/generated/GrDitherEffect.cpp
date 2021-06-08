@@ -43,9 +43,13 @@ half value;
     bits.xz = abs(bits.xz - bits.yw);
     value = dot(bits, half4(0.5, 0.25, 0.125, 0.0625)) - 0.46875;
 }
+if (color.w > 0.0 && color.w < 1.0) {
+    color.w = clamp(color.w + value * %s, 0.0, 1.0);
+}
 return half4(clamp(color.xyz + value * %s, 0.0, color.w), color.w);
 )SkSL",
                 _sample0.c_str(),
+                args.fUniformHandler->getUniformCStr(rangeVar),
                 args.fUniformHandler->getUniformCStr(rangeVar));
     }
 
