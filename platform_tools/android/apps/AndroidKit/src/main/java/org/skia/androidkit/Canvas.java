@@ -55,6 +55,22 @@ public class Canvas {
         nConcat16f(mNativeInstance, rowMajorMatrix);
     }
 
+    public void translate(float tx, float ty, float tz) {
+        nTranslate(mNativeInstance, tx ,ty, tz);
+    }
+
+    public void translate(float tx, float ty) {
+        nTranslate(mNativeInstance, tx ,ty, 0);
+    }
+
+    public void scale(float sx, float sy, float sz) {
+        nScale(mNativeInstance, sx ,sy, sz);
+    }
+
+    public void scale(float sx, float sy) {
+        nScale(mNativeInstance, sx ,sy, 1);
+    }
+
     public void drawRect(float left, float top, float right, float bottom, Paint paint) {
         nDrawRect(mNativeInstance, left, top, right, bottom, paint.getNativeInstance());
     }
@@ -102,6 +118,8 @@ public class Canvas {
     private static native long nGetLocalToDevice(long mNativeInstance);
     private static native void nConcat(long nativeInstance, long nativeMatrix);
     private static native void nConcat16f(long nativeInstance, float[] floatMatrix);
+    private static native void nTranslate(long nativeInstance, float tx, float ty, float tz);
+    private static native void nScale(long nativeInstance, float sx, float sy, float sz);
 
     private static native void nDrawColor(long nativeInstance, float r, float g, float b, float a);
 
