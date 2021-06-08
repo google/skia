@@ -172,6 +172,11 @@ static bool detect_shader_settings(const SkSL::String& text,
                     static auto s_negativeAtanCaps = Factory::MustForceNegatedAtanParamToFloat();
                     *caps = s_negativeAtanCaps.get();
                 }
+                if (settingsText.consumeSuffix(" MustForceNegatedLdexpParamToMultiply")) {
+                    static auto s_negativeLdexpCaps =
+                            Factory::MustForceNegatedLdexpParamToMultiply();
+                    *caps = s_negativeLdexpCaps.get();
+                }
                 if (settingsText.consumeSuffix(" NoGSInvocationsSupport")) {
                     static auto s_noGSInvocations = Factory::NoGSInvocationsSupport();
                     *caps = s_noGSInvocations.get();

@@ -113,6 +113,11 @@ public:
 
     bool mustForceNegatedAtanParamToFloat() const { return fMustForceNegatedAtanParamToFloat; }
 
+    // http://skbug.com/12076
+    bool mustForceNegatedLdexpParamToMultiply() const {
+        return fMustForceNegatedLdexpParamToMultiply;
+    }
+
     // Returns whether a device incorrectly implements atan(y,x) as atan(y/x)
     bool atan2ImplementedAsAtanYOverX() const { return fAtan2ImplementedAsAtanYOverX; }
 
@@ -307,6 +312,7 @@ private:
     bool fCanUseMinAndAbsTogether                     : 1;
     bool fCanUseFractForNegativeValues                : 1;
     bool fMustForceNegatedAtanParamToFloat            : 1;
+    bool fMustForceNegatedLdexpParamToMultiply        : 1;
     bool fAtan2ImplementedAsAtanYOverX                : 1;
     bool fMustDoOpBetweenFloorAndAbs                  : 1;
     bool fRequiresLocalOutputColorForFBFetch          : 1;

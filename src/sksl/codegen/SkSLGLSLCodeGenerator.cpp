@@ -496,6 +496,21 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                 }
             }
             break;
+        case k_ldexp_IntrinsicKind:
+            if (this->caps().mustForceNegatedLdexpParamToMultiply() &&
+                arguments.size() == 2 &&
+                arguments[1]->is<PrefixExpression>()) {
+                const PrefixExpression& p = arguments[1]->as<PrefixExpression>();
+                if (p.getOperator().kind() == Token::Kind::TK_MINUS) {
+                    this->write("ldexp(");
+                    this->writeExpression(*arguments[0], Precedence::kSequence);
+                    this->write(", ");
+                    this->writeExpression(*p.operand(), Precedence::kMultiplicative);
+                    this->write(" * -1)");
+                    return;
+                }
+            }
+            break;
         case k_dFdy_IntrinsicKind:
             if (fProgram.fConfig->fSettings.fFlipY) {
                 // Flipping Y also negates the Y derivatives.

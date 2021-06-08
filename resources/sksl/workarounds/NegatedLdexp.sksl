@@ -1,0 +1,12 @@
+/*#pragma settings MustForceNegatedLdexpParamToMultiply*/
+
+uniform float unknownFloat;
+uniform int unknownInt;
+
+void main() {
+    float m = unknownFloat;
+    int x = unknownInt;
+    sk_FragColor.r = half(ldexp(m, -x));
+    sk_FragColor.g = half(ldexp(m, -(x + 1)));
+    sk_FragColor.b = half(ldexp(m, -x - 1));
+}
