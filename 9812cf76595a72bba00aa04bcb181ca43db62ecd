@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1e673d62_5e053d3c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-08T13:00:10Z",
+      "side": 1,
+      "message": "Not ready to land yet, but wanted to get eyes on this. Looking for input on the plan to deal with subsets...",
+      "revId": "9812cf76595a72bba00aa04bcb181ca43db62ecd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a619bf8a_b333e355",
+        "filename": "src/effects/imagefilters/SkRuntimeImageFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-08T13:00:10Z",
+      "side": 1,
+      "message": "Michael, is my reasoning correct here? I think that if the inputOffset is 0,0, we\u0027re mostly correct? If I wanted to make things more correct (but not necessarily faster), I should be specifying inputBounds as the subset when I call asImage(), right? What\u0027s the easiest test to verify that works (vs. the current behavior)?",
+      "range": {
+        "startLine": 114,
+        "startChar": 0,
+        "endLine": 119,
+        "endChar": 0
+      },
+      "revId": "9812cf76595a72bba00aa04bcb181ca43db62ecd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
