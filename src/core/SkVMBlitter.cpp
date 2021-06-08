@@ -184,6 +184,19 @@ namespace {
         // First two arguments are always uniforms and the destination buffer.
         uniforms->base    = p->uniform();
         skvm::Ptr dst_ptr = p->arg(SkColorTypeBytesPerPixel(params.dst.colorType()));
+
+        // Load the destination color.
+        skvm::PixelFormat dstFormat = skvm::SkColorType_to_PixelFormat(params.dst.colorType());
+        skvm::Color dst = p->load(dstFormat, dst_ptr);
+        if (params.dst.isOpaque()) {
+            // When a destination is known opaque, we may assume it both starts and stays fully
+            // opaque, ignoring any math that disagrees.  This sometimes trims a little work.
+            dst.a = p->splat(1.0f);
+        } else if (params.dst.alphaType() == kUnpremul_SkAlphaType) {
+            // All our blending works in terms of premul.
+            dst = premul(dst);
+        }
+
         // A SpriteShader (in this file) may next use one argument as its varying source.
         // Subsequent arguments depend on params.coverage:
         //    - Full:      (no more arguments)
@@ -196,7 +209,7 @@ namespace {
         skvm::Color paint = p->uniformColor(params.paint, uniforms);
 
         // See note about arguments above: a SpriteShader will call p->arg() once during program().
-        skvm::Color src = as_SB(params.shader)->program(p, device,/*local=*/device, paint,
+        skvm::Color src = as_SB(params.shader)->program(p, device, /*local=*/device, paint,
                                                         params.matrices, /*localM=*/nullptr,
                                                         params.dst, uniforms, alloc);
         SkASSERT(src);
@@ -230,18 +243,6 @@ namespace {
             src_in_gamut = true;
         }
 
-        // Load the destination color.
-        skvm::PixelFormat dstFormat = skvm::SkColorType_to_PixelFormat(params.dst.colorType());
-        skvm::Color dst = p->load(dstFormat, dst_ptr);
-        if (params.dst.isOpaque()) {
-            // When a destination is known opaque, we may assume it both starts and stays fully
-            // opaque, ignoring any math that disagrees.  This sometimes trims a little work.
-            dst.a = p->splat(1.0f);
-        } else if (params.dst.alphaType() == kUnpremul_SkAlphaType) {
-            // All our blending works in terms of premul.
-            dst = premul(dst);
-        }
-
         // Load coverage.
         skvm::Color cov;
         switch (params.coverage) {
@@ -266,7 +267,7 @@ namespace {
             } break;
         }
         if (params.clip) {
-            skvm::Color clip = as_SB(params.clip)->program(p, device,/*local=*/device, paint,
+            skvm::Color clip = as_SB(params.clip)->program(p, device, /*local=*/device, paint,
                                                            params.matrices, /*localM=*/nullptr,
                                                            params.dst, uniforms, alloc);
             SkAssertResult(clip);
