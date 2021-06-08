@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "66cb6a1b_530643b0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-08T20:20:09Z",
+      "side": 1,
+      "message": "Maybe I should call the minimum capability kTranslate, because we can\u0027t really guarantee less than that?",
+      "revId": "d51aebec1f365b6525ac3b0eec2cfa916d25799f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
