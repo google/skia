@@ -71,6 +71,19 @@ void Canvas_Concat16f(JNIEnv* env, jobject, jlong native_instance, jfloatArray j
     }
 }
 
+void Canvas_Translate(JNIEnv* env, jobject, jlong native_instance,
+                      jfloat tx, jfloat ty, jfloat tz) {
+    if (auto* canvas = reinterpret_cast<SkCanvas*>(native_instance)) {
+        canvas->concat(SkM44::Translate(tx, ty, tz));
+    }
+}
+
+void Canvas_Scale(JNIEnv* env, jobject, jlong native_instance, jfloat sx, jfloat sy, jfloat sz) {
+    if (auto* canvas = reinterpret_cast<SkCanvas*>(native_instance)) {
+        canvas->concat(SkM44::Scale(sx, sy, sz));
+    }
+}
+
 void Canvas_DrawColor(JNIEnv* env, jobject, jlong native_instance,
                       float r, float g, float b, float a) {
     if (auto* canvas = reinterpret_cast<SkCanvas*>(native_instance)) {
@@ -112,6 +125,8 @@ int register_androidkit_Canvas(JNIEnv* env) {
         {"nGetLocalToDevice", "(J)J"      , reinterpret_cast<void*>(Canvas_LocalToDevice) },
         {"nConcat"          , "(JJ)V"     , reinterpret_cast<void*>(Canvas_Concat)        },
         {"nConcat16f"       , "(J[F)V"    , reinterpret_cast<void*>(Canvas_Concat16f)     },
+        {"nTranslate"       , "(JFFF)V"   , reinterpret_cast<void*>(Canvas_Translate)     },
+        {"nScale"           , "(JFFF)V"   , reinterpret_cast<void*>(Canvas_Scale)         },
         {"nDrawColor"       , "(JFFFF)V"  , reinterpret_cast<void*>(Canvas_DrawColor)     },
         {"nDrawRect"        , "(JFFFFJ)V" , reinterpret_cast<void*>(Canvas_DrawRect)      },
         {"nDrawImage"       , "(JJFFIFF)V", reinterpret_cast<void*>(Canvas_DrawImage)     },

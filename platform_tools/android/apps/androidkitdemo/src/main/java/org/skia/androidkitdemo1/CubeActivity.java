@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
@@ -161,12 +162,14 @@ class VSphereAnimator {
     }
 };
 
-class CubeRenderer extends SurfaceRenderer implements GestureDetector.OnGestureListener {
+class CubeRenderer extends SurfaceRenderer implements GestureDetector.OnGestureListener,
+                                                      ScaleGestureDetector.OnScaleGestureListener {
     private VSphereAnimator mVSphere;
     private Matrix          mViewMatrix;
     private float           mCubeSideLength;
     private long            mPrevMS;
     private Face[]          mFaces;
+    private float           mZoom = 1;
 
     public CubeRenderer(Resources res) {
         final float rot = (float) Math.PI;
@@ -220,6 +223,7 @@ class CubeRenderer extends SurfaceRenderer implements GestureDetector.OnGestureL
 
         canvas.save();
         canvas.concat(mViewMatrix);
+        canvas.scale(mZoom, mZoom);
         canvas.concat(mVSphere.getMatrix());
 
         drawFaces(canvas, ms, false);
@@ -242,6 +246,12 @@ class CubeRenderer extends SurfaceRenderer implements GestureDetector.OnGestureL
             }
             canvas.restore();
         }
+    }
+
+    private void zoom(float z) {
+        final float kMinZoom = 0.5f,
+                    kMaxZoom = 3.0f;
+        mZoom = Math.max(kMinZoom, Math.min(kMaxZoom, mZoom * z));
     }
 
     @Override
@@ -281,6 +291,24 @@ class CubeRenderer extends SurfaceRenderer implements GestureDetector.OnGestureL
         }
         return m2.getAtRowCol(2, 2) > 0;
     }
+
+    // OnScaleGestureListener
+    @Override
+    public boolean onScale(ScaleGestureDetector detector) {
+        zoom(detector.getScaleFactor());
+        return true;
+    }
+
+    @Override
+    public boolean onScaleBegin(ScaleGestureDetector detector) {
+        zoom(detector.getScaleFactor());
+        return true;
+    }
+
+    @Override
+    public void onScaleEnd(ScaleGestureDetector detector) {
+        zoom(detector.getScaleFactor());
+    }
 }
 
 public class CubeActivity extends Activity {
@@ -288,7 +316,8 @@ public class CubeActivity extends Activity {
         System.loadLibrary("androidkit");
     }
 
-    private GestureDetector mDetector;
+    private GestureDetector      mGestureDetector;
+    private ScaleGestureDetector mScaleDetector;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -300,11 +329,16 @@ public class CubeActivity extends Activity {
         CubeRenderer renderer = new CubeRenderer(getResources());
         sv.getHolder().addCallback(renderer);
 
-        mDetector = new GestureDetector(this, renderer);
+        mGestureDetector = new GestureDetector(this, renderer);
+        mScaleDetector = new ScaleGestureDetector(this, renderer);
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent e) {
-          return mDetector.onTouchEvent(e);
+        // always dispatch to both detectors
+        mGestureDetector.onTouchEvent(e);
+        mScaleDetector.onTouchEvent(e);
+
+        return true;
     }
 }
