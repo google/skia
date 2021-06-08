@@ -33,14 +33,11 @@ public:
     // 123575px x 123575px path. (See GrWangsFormula::worst_case_cubic.)
     constexpr static int kMaxResolveLevel = 10;
 
-    // We send these flags to the internal tessellation Ops to control how a path gets rendered.
-    enum class OpFlags {
+    // We send these flags to the internal path filling Ops to control how a path gets rendered.
+    enum class PathFlags {
         kNone = 0,
-        // Used when the path is an atlas with relatively small contours, or something else that
-        // does best with wedges.
-        kPreferWedges = (1 << 0),
-        kStencilOnly = (1 << 1),
-        kWireframe = (1 << 2)
+        kStencilOnly = (1 << 0),
+        kWireframe = (1 << 1)
     };
 
     static bool IsSupported(const GrCaps&);
@@ -73,6 +70,6 @@ private:
     SkPath fAtlasUberPaths[4];  // 2 fillTypes * 2 antialias modes.
 };
 
-GR_MAKE_BITFIELD_CLASS_OPS(GrTessellationPathRenderer::OpFlags);
+GR_MAKE_BITFIELD_CLASS_OPS(GrTessellationPathRenderer::PathFlags);
 
 #endif
