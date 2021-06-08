@@ -315,21 +315,21 @@ skif::FilterResult<For::kOutput> SkImageFilter_Base::onFilterImage(const skif::C
     return skif::FilterResult<For::kOutput>(std::move(image), skif::LayerSpace<SkIPoint>(origin));
 }
 
-bool SkImageFilter_Base::canHandleComplexCTM() const {
+SkImageFilter_Base::MatrixCapability SkImageFilter_Base::getCTMCapability() const {
+    MatrixCapability result = this->onGetCTMCapability();
     // CropRects need to apply in the source coordinate system, but are not aware of complex CTMs
     // when performing clipping. For a simple fix, any filter with a crop rect set cannot support
-    // complex CTMs until that's updated.
-    if (this->cropRectIsSet() || !this->onCanHandleComplexCTM()) {
-        return false;
+    // more than scale+translate CTMs until that's updated.
+    if (this->cropRectIsSet()) {
+        result = std::min(result, MatrixCapability::kScaleTranslate);
     }
     const int count = this->countInputs();
     for (int i = 0; i < count; ++i) {
-        const SkImageFilter_Base* input = as_IFB(this->getInput(i));
-        if (input && !input->canHandleComplexCTM()) {
-            return false;
+        if (const SkImageFilter_Base* input = as_IFB(this->getInput(i))) {
+            result = std::min(result, input->getCTMCapability());
         }
     }
-    return true;
+    return result;
 }
 
 void SkImageFilter_Base::CropRect::applyTo(const SkIRect& imageBounds, const SkMatrix& ctm,
