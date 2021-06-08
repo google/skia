@@ -15,6 +15,7 @@ skia_shaper_primitive_sources = [
 ]
 skia_shaper_icu_sources = [
   "$_src/SkUnicode.h",
+  "$_src/SkUnicodeProperties.cpp",
   "$_src/SkUnicode_icu.cpp",
 ]
 skia_shaper_harfbuzz_sources = [ "$_src/SkShaper_harfbuzz.cpp" ]
