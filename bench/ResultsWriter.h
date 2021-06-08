@@ -14,6 +14,7 @@
 #include "include/core/SkTypes.h"
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkJSONWriter.h"
+#include <cmath>
 
 /**
  NanoJSONResultsWriter helps nanobench writes the test results out in the following format:
@@ -49,7 +50,7 @@ public:
 
     void appendMetric(const char* name, double value) {
         // Don't record if nan, or -nan.
-        if (!sk_double_isnan(value)) {
+        if (std::isfinite(value)) {
             this->appendDoubleDigits(name, value, 16);
         }
     }
