@@ -66,6 +66,7 @@
 #include "src/sksl/generated/sksl_geom.dehydrated.sksl"
 #include "src/sksl/generated/sksl_gpu.dehydrated.sksl"
 #include "src/sksl/generated/sksl_public.dehydrated.sksl"
+#include "src/sksl/generated/sksl_rt_blend.dehydrated.sksl"
 #include "src/sksl/generated/sksl_rt_colorfilter.dehydrated.sksl"
 #include "src/sksl/generated/sksl_rt_shader.dehydrated.sksl"
 #include "src/sksl/generated/sksl_vert.dehydrated.sksl"
@@ -297,6 +298,15 @@ const ParsedModule& Compiler::loadRuntimeShaderModule() {
     return fRuntimeShaderModule;
 }
 
+const ParsedModule& Compiler::loadRuntimeBlendModule() {
+    if (!fRuntimeBlendModule.fSymbols) {
+        fRuntimeBlendModule = this->parseModule(
+                ProgramKind::kRuntimeBlend, MODULE_DATA(rt_blend), this->loadPublicModule());
+        add_glsl_type_aliases(fRuntimeBlendModule.fSymbols.get(), fContext->fTypes);
+    }
+    return fRuntimeBlendModule;
+}
+
 const ParsedModule& Compiler::moduleForProgramKind(ProgramKind kind) {
     switch (kind) {
         case ProgramKind::kVertex:             return this->loadVertexModule();             break;
@@ -305,6 +315,7 @@ const ParsedModule& Compiler::moduleForProgramKind(ProgramKind kind) {
         case ProgramKind::kFragmentProcessor:  return this->loadFPModule();                 break;
         case ProgramKind::kRuntimeColorFilter: return this->loadRuntimeColorFilterModule(); break;
         case ProgramKind::kRuntimeShader:      return this->loadRuntimeShaderModule();      break;
+        case ProgramKind::kRuntimeBlend:       return this->loadRuntimeBlendModule();       break;
         case ProgramKind::kGeneric:            return this->loadPublicModule();             break;
     }
     SkUNREACHABLE;
