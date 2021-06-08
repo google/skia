@@ -108,11 +108,16 @@ public:
     }
 
     /**
-     *  ImageFilters can natively handle scaling and translate components in the CTM. Only some of
-     *  them can handle affine (or more complex) matrices. This call returns true iff the filter
-     *  and all of its (non-null) inputs can handle these more complex matrices.
+     *  Most ImageFilters can natively handle scaling and translate components in the CTM. Only
+     *  some of them can handle affine (or more complex) matrices. Some may only handle translation.
+     *  This call returns the maximum "kind" of CTM for a filter and all of its (non-null) inputs.
      */
-    bool canHandleComplexCTM() const;
+    enum class MatrixCapability {
+        kTranslate,
+        kScaleTranslate,
+        kComplex,
+    };
+    MatrixCapability getCTMCapability() const;
 
     uint32_t uniqueID() const { return fUniqueID; }
 
@@ -350,11 +355,14 @@ private:
     virtual bool onIsColorFilterNode(SkColorFilter** /*filterPtr*/) const { return false; }
 
     /**
-     *  Return true if this filter can map from its parameter space to a layer space described by an
-     *  arbitrary transformation matrix. If this returns false, the filter only needs to worry about
-     *  mapping from parameter to layer using a scale+translate matrix.
+     *  Return the most complex matrix type this filter can support (mapping from its parameter
+     *  space to a layer space). If this returns anything less than kComplex, the filter only needs
+     *  to worry about mapping from parameter to layer using a matrix that is constrained in that
+     *  way (eg, scale+translate).
      */
-    virtual bool onCanHandleComplexCTM() const { return false; }
+    virtual MatrixCapability onGetCTMCapability() const {
+        return MatrixCapability::kScaleTranslate;
+    }
 
     /**
      *  Return true if this filter would transform transparent black pixels to a color other than
