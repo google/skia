@@ -15,7 +15,6 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/tessellate/GrPathCurveTessellator.h"
-#include "src/gpu/tessellate/GrPathIndirectTessellator.h"
 #include "src/gpu/tessellate/GrPathWedgeTessellator.h"
 #include "src/gpu/tessellate/shaders/GrPathTessellationShader.h"
 
@@ -70,16 +69,20 @@ private:
         constexpr static SkPMColor4f kCyan = {0,1,1,1};
         auto alloc = flushState->allocator();
         switch (fMode) {
+            GrPathTessellationShader* shader;
             case Mode::kCurveMiddleOut:
-                fTessellator = GrPathIndirectTessellator::Make(
-                        alloc, fPath, fMatrix, kCyan, GrPathTessellator::DrawInnerFan::kYes);
+                shader = GrPathTessellationShader::MakeMiddleOutInstancedShader(alloc, fMatrix,
+                                                                                kCyan);
+                fTessellator = alloc->make<GrPathCurveTessellator>(
+                        shader, GrPathTessellator::DrawInnerFan::kYes);
                 break;
             case Mode::kWedgeTessellate:
                 fTessellator = GrPathWedgeTessellator::Make(alloc, fMatrix, kCyan);
                 break;
             case Mode::kCurveTessellate:
-                fTessellator = GrPathCurveTessellator::Make(alloc, fMatrix, kCyan,
-                                                            GrPathTessellator::DrawInnerFan::kYes);
+                shader = GrPathTessellationShader::MakeHardwareCurveShader(alloc, fMatrix, kCyan);
+                fTessellator = alloc->make<GrPathCurveTessellator>(
+                        shader, GrPathTessellator::DrawInnerFan::kYes);
                 break;
         }
         fTessellator->prepare(flushState, this->bounds(), fPath);
