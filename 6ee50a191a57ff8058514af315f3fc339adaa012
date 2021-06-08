@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "da170c28_40c18f45",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-08T14:05:57Z",
+      "side": 1,
+      "message": "Bef",
+      "revId": "6ee50a191a57ff8058514af315f3fc339adaa012",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c0b17ecc_e0b44ac1",
+        "filename": "include/private/SkSLString.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-08T14:05:57Z",
+      "side": 1,
+      "message": "Could you please land a CL ahead of this one that marks this ctor as explicit?\n\nThis implicit conversion path between string_view and string is not part of C++17. I\u0027m worried that this conversion is currently somewhat load-bearing.",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 69
+      },
+      "revId": "6ee50a191a57ff8058514af315f3fc339adaa012",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
