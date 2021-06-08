@@ -41,6 +41,9 @@ half4 main() {
         // Manual binary sum, divide by N^2, and offset
         value = dot(bits, half4(8.0 / 16.0, 4.0 / 16.0, 2.0 / 16.0, 1.0 / 16.0)) - 15.0 / 32.0;
     }
+    if (color.a > 0 && color.a < 1) {
+        color.a = clamp(color.a + value * range, 0, 1);
+    }
     // For each color channel, add the random offset to the channel value and then clamp
     // between 0 and alpha to keep the color premultiplied.
     return half4(clamp(color.rgb + value * range, 0.0, color.a), color.a);
