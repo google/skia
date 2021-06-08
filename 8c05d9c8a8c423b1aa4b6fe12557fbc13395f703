@@ -100,6 +100,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6e35a69a_c01008ca",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 2352,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-06-08T16:23:57Z",
+      "side": 1,
+      "message": "Oh, right. I forgot that it doesn\u0027t even have glBlitFramebuffer. Perhaps we can just remove support for this extension at this point. Anyway, ok with leaving this as is.",
+      "parentUuid": "7e0c1954_ebcd1c4c",
+      "range": {
+        "startLine": 2352,
+        "startChar": 12,
+        "endLine": 2352,
+        "endChar": 61
+      },
+      "revId": "8c05d9c8a8c423b1aa4b6fe12557fbc13395f703",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d477a7a0_53918e8c",
