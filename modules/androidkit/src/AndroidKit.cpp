@@ -24,6 +24,7 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved) {
     }
 
     REGISTER_NATIVES(Canvas)
+    REGISTER_NATIVES(Gradient)
     REGISTER_NATIVES(Image)
     REGISTER_NATIVES(ImageFilter)
     REGISTER_NATIVES(Matrix)
