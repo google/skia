@@ -887,7 +887,7 @@ void DSLCPPCodeGenerator::addUniform(const Variable& var) {
     }
 
     const char* varCppName = this->getVariableCppName(var);
-    if (var.modifiers().fLayout.fWhen.fLength) {
+    if (var.modifiers().fLayout.fWhen.length()) {
         // In cases where the `when` clause is true, we set up the Var normally.
         this->writef(
                 "Var %s;\n"
@@ -904,7 +904,7 @@ void DSLCPPCodeGenerator::addUniform(const Variable& var) {
     this->writef("%.*sVar = VarUniformHandle(%s);\n",
                  (int)var.name().size(), var.name().data(), this->getVariableCppName(var));
 
-    if (var.modifiers().fLayout.fWhen.fLength) {
+    if (var.modifiers().fLayout.fWhen.length()) {
         this->writef("    DeclareGlobal(%s);\n", varCppName);
         // In cases where the `when` is false, we declare the Var as a const with a default value.
         this->writef("} else {\n"
@@ -1267,7 +1267,7 @@ void DSLCPPCodeGenerator::writeGetKey() {
                     }
                     this->write(";\n");
                 }
-                if (var.modifiers().fLayout.fWhen.fLength) {
+                if (var.modifiers().fLayout.fWhen.length()) {
                     this->writef("if (%s) {\n", String(var.modifiers().fLayout.fWhen).c_str());
                 }
                 if (varType == *fContext.fTypes.fHalf4) {
@@ -1300,7 +1300,7 @@ void DSLCPPCodeGenerator::writeGetKey() {
                     SK_ABORT("NOT YET IMPLEMENTED: automatic key handling for %s\n",
                              varType.displayName().c_str());
                 }
-                if (var.modifiers().fLayout.fWhen.fLength) {
+                if (var.modifiers().fLayout.fWhen.length()) {
                     this->write("}\n");
                 }
             }

@@ -291,24 +291,24 @@ void SPIRVCodeGenerator::writeString(const char* string, size_t length, OutputSt
 }
 
 void SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode, StringFragment string, OutputStream& out) {
-    this->writeOpCode(opCode, 1 + (string.fLength + 4) / 4, out);
-    this->writeString(string.fChars, string.fLength, out);
+    this->writeOpCode(opCode, 1 + (string.length() + 4) / 4, out);
+    this->writeString(string.data(), string.length(), out);
 }
 
 
 void SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode, int32_t word1, StringFragment string,
                                           OutputStream& out) {
-    this->writeOpCode(opCode, 2 + (string.fLength + 4) / 4, out);
+    this->writeOpCode(opCode, 2 + (string.length() + 4) / 4, out);
     this->writeWord(word1, out);
-    this->writeString(string.fChars, string.fLength, out);
+    this->writeString(string.data(), string.length(), out);
 }
 
 void SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode, int32_t word1, int32_t word2,
                                           StringFragment string, OutputStream& out) {
-    this->writeOpCode(opCode, 3 + (string.fLength + 4) / 4, out);
+    this->writeOpCode(opCode, 3 + (string.length() + 4) / 4, out);
     this->writeWord(word1, out);
     this->writeWord(word2, out);
-    this->writeString(string.fChars, string.fLength, out);
+    this->writeString(string.data(), string.length(), out);
 }
 
 void SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode, int32_t word1, int32_t word2,
@@ -3626,7 +3626,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     this->writeCapabilities(out);
     this->writeInstruction(SpvOpExtInstImport, fGLSLExtendedInstructions, "GLSL.std.450", out);
     this->writeInstruction(SpvOpMemoryModel, SpvAddressingModelLogical, SpvMemoryModelGLSL450, out);
-    this->writeOpCode(SpvOpEntryPoint, (SpvId) (3 + (main->name().fLength + 4) / 4) +
+    this->writeOpCode(SpvOpEntryPoint, (SpvId) (3 + (main->name().length() + 4) / 4) +
                       (int32_t) interfaceVars.size(), out);
     switch (program.fConfig->fKind) {
         case ProgramKind::kVertex:
@@ -3643,7 +3643,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     }
     SpvId entryPoint = fFunctionMap[main];
     this->writeWord(entryPoint, out);
-    this->writeString(main->name().fChars, main->name().fLength, out);
+    this->writeString(main->name().data(), main->name().length(), out);
     for (int var : interfaceVars) {
         this->writeWord(var, out);
     }

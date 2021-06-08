@@ -144,7 +144,7 @@ public:
     }
 
     bool isPrivate() const {
-        return this->name().startsWith("$");
+        return this->name().starts_with("$");
     }
 
     bool operator==(const Type& other) const {

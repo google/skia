@@ -109,6 +109,15 @@ public:
         other.fLength = tempLength;
     }
 
+    constexpr void remove_prefix(size_type n) {
+        fData += n;
+        fLength -= n;
+    }
+
+    constexpr void remove_suffix(size_type n) {
+        fLength -= n;
+    }
+
 private:
     const_pointer fData;
     size_type fLength;

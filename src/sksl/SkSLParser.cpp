@@ -335,12 +335,11 @@ ASTNode::ID Parser::section() {
     if (!this->expect(Token::Kind::TK_LBRACE, "'{'")) {
         return ASTNode::ID::Invalid();
     }
-    StringFragment text;
     Token codeStart = this->nextRawToken();
     size_t startOffset = codeStart.fOffset;
     this->pushback(codeStart);
-    text.fChars = fText.begin() + startOffset;
     int level = 1;
+    StringFragment text;
     for (;;) {
         Token next = this->nextRawToken();
         switch (next.fKind) {
@@ -357,13 +356,12 @@ ASTNode::ID Parser::section() {
                 break;
         }
         if (!level) {
-            text.fLength = next.fOffset - startOffset;
+            text = StringFragment(fText.begin() + startOffset, next.fOffset - startOffset);
             break;
         }
     }
     StringFragment name = this->text(start);
-    ++name.fChars;
-    --name.fLength;
+    name.remove_prefix(1);
     return this->createNode(start.fOffset, ASTNode::Kind::kSection,
                             ASTNode::SectionData(name, argument, text));
 }
@@ -809,7 +807,6 @@ StringFragment Parser::layoutCode() {
     Token start = this->nextRawToken();
     this->pushback(start);
     StringFragment code;
-    code.fChars = fText.begin() + start.fOffset;
     int level = 1;
     bool done = false;
     while (!done) {
@@ -836,7 +833,7 @@ StringFragment Parser::layoutCode() {
             done = true;
         }
         if (done) {
-            code.fLength = next.fOffset - start.fOffset;
+            code = StringFragment(fText.begin() + start.fOffset, next.fOffset - start.fOffset);
             this->pushback(std::move(next));
         }
     }
@@ -2021,11 +2018,10 @@ ASTNode::ID Parser::suffix(ASTNode::ID base) {
             // Swizzles that start with a constant number, e.g. '.000r', will be tokenized as
             // floating point literals, possibly followed by an identifier. Handle that here.
             StringFragment field = this->text(next);
-            SkASSERT(field.fChars[0] == '.');
-            ++field.fChars;
-            --field.fLength;
-            for (size_t i = 0; i < field.fLength; ++i) {
-                if (field.fChars[i] != '0' && field.fChars[i] != '1') {
+            SkASSERT(field[0] == '.');
+            field.remove_prefix(1);
+            for (auto iter = field.begin(); iter != field.end(); ++iter) {
+                if (*iter != '0' && *iter != '1') {
                     this->error(next, "invalid swizzle");
                     return ASTNode::ID::Invalid();
                 }
@@ -2034,7 +2030,7 @@ ASTNode::ID Parser::suffix(ASTNode::ID base) {
             // identifiers that directly follow the float
             Token id = this->nextRawToken();
             if (id.fKind == Token::Kind::TK_IDENTIFIER) {
-                field.fLength += id.fLength;
+                field = StringFragment(field.data(), field.length() + id.fLength);
             } else {
                 this->pushback(id);
             }
