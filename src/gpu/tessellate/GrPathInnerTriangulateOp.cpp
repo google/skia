@@ -18,7 +18,7 @@
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 #include "src/gpu/tessellate/shaders/GrPathTessellationShader.h"
 
-using OpFlags = GrTessellationPathRenderer::OpFlags;
+using PathFlags = GrTessellationPathRenderer::PathFlags;
 
 namespace {
 
@@ -166,8 +166,8 @@ void GrPathInnerTriangulateOp::prePreparePrograms(const GrTessellationShader::Pr
 
     // If using wireframe, we have to fall back on a standard Redbook "stencil then fill" algorithm
     // instead of bypassing the stencil buffer to fill the fan directly.
-    bool forceRedbookStencilPass = (fOpFlags & (OpFlags::kStencilOnly | OpFlags::kWireframe));
-    bool doFill = !(fOpFlags & OpFlags::kStencilOnly);
+    bool forceRedbookStencilPass = (fPathFlags & (PathFlags::kStencilOnly | PathFlags::kWireframe));
+    bool doFill = !(fPathFlags & PathFlags::kStencilOnly);
 
     bool isLinear;
     fFanTriangulator = args.fArena->make<GrInnerFanTriangulator>(fPath, args.fArena);
@@ -177,7 +177,7 @@ void GrPathInnerTriangulateOp::prePreparePrograms(const GrTessellationShader::Pr
     const GrPipeline* pipelineForStencils = nullptr;
     if (forceRedbookStencilPass || !isLinear) {  // Curves always get stencilled.
         pipelineForStencils = GrPathTessellationShader::MakeStencilOnlyPipeline(
-                args, fAAType, fOpFlags, appliedClip.hardClip());
+                args, fAAType, fPathFlags, appliedClip.hardClip());
     }
 
     // Create a pipeline for fill passes if needed.
