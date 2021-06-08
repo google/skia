@@ -16,6 +16,24 @@
       "message": "just curious -- why not use java subclasses to scope the Gradient?",
       "revId": "297bccc32c6b8d5948f8eede4595caf99f8ad62f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e2538541_9d278247",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-06-08T20:08:44Z",
+      "side": 1,
+      "message": "You mean have LinearGradient.java, RadialGradient.java etc. to anchor the factories?\n\nSince we don\u0027t really have gradient types, just shader factories, I was saving some typing and following the Skia pattern.\n\nI don\u0027t have a strong opinion though, I\u0027m good either way.",
+      "parentUuid": "e73adaef_2d2c8043",
+      "revId": "297bccc32c6b8d5948f8eede4595caf99f8ad62f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
