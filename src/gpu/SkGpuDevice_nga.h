@@ -10,7 +10,7 @@
 
 #include "include/gpu/GrTypes.h"
 
-#ifdef SK_NGA
+#if SK_NGA
 
 #include "src/gpu/SkBaseGpuDevice.h"
 

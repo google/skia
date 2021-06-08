@@ -5,6 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "include\gpu\GrTypes.h"
+
+#if SK_OGA
+
 #include "gm/gm.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
@@ -49,7 +53,7 @@ static void draw_gradient_tiles(SkCanvas* canvas, bool alignGradients) {
     static constexpr SkPoint pts[] = { {0.f, 0.f}, {0.25f * kTileWidth, 0.25f * kTileHeight} };
     static constexpr SkColor colors[] = { SK_ColorBLUE, SK_ColorWHITE };
 
-    GrSurfaceDrawContext* sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
+    GrRenderTargetProxy* rtp = SkCanvasPriv::TopDeviceProxy(canvas);
 
     auto context = canvas->recordingContext();
 
@@ -246,3 +250,6 @@ private:
 DEF_GM(return new DrawQuadSetGM();)
 
 } // namespace skiagm
+
+#endif // SK_OGA
+

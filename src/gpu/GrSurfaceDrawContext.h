@@ -5,8 +5,13 @@
  * found in the LICENSE file.
  */
 
+
 #ifndef GrSurfaceDrawContext_DEFINED
 #define GrSurfaceDrawContext_DEFINED
+
+#include "include/gpu/GrTypes.h"
+
+#if SK_OGA
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkDrawable.h"
@@ -730,4 +735,14 @@ private:
     using INHERITED = GrSurfaceFillContext;
 };
 
-#endif
+#else // SK_OGA
+
+// No OGA
+class GrSurfaceDrawContext {
+public:
+
+};
+
+#endif  // SK_OGA
+
+#endif // GrSurfaceDrawContext_DEFINED

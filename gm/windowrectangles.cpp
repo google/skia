@@ -5,6 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "include/gpu/GrTypes.h"
+
+#if SK_OGA
+
 #include "gm/gm.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkClipOp.h"
@@ -305,3 +309,6 @@ void WindowRectanglesMaskGM::stencilCheckerboard(GrSurfaceDrawContext* rtc, bool
 DEF_GM( return new WindowRectanglesMaskGM(); )
 
 }  // namespace skiagm
+
+#endif // SK_OGA
+
