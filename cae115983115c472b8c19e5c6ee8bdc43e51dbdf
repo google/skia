@@ -104,6 +104,30 @@
       },
       "revId": "cae115983115c472b8c19e5c6ee8bdc43e51dbdf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3bb2f1de_9bd42a71",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 608,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-06-08T13:36:44Z",
+      "side": 1,
+      "message": "Most shaders don\u0027t care about this, and when they do it\u0027s usually only the color space they\u0027re looking at, then less often the alpha type, and then I think only SkPictureShader cares about the color type, to decide what format to rasterize into.\n\nWe could plumb the whole dst SkColorInfo through color filters too if you like?  That way the choice here becomes a pass-through, and it might prevent future bug reports around SkPictureShader precision/clamping?\n\n(The SkVMBlitter-local DitherShader also uses the dst color type to decide how much to dither, but I don\u0027t think that can ever escape that file to become a child here.)",
+      "parentUuid": "f4ff9ed1_740cfb12",
+      "range": {
+        "startLine": 608,
+        "startChar": 73,
+        "endLine": 608,
+        "endChar": 80
+      },
+      "revId": "cae115983115c472b8c19e5c6ee8bdc43e51dbdf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
