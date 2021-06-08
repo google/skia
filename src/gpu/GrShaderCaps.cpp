@@ -29,6 +29,7 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fCanUseMinAndAbsTogether = true;
     fCanUseFractForNegativeValues = true;
     fMustForceNegatedAtanParamToFloat = false;
+    fMustForceNegatedLdexpParamToMultiply = false;
     fAtan2ImplementedAsAtanYOverX = false;
     fMustDoOpBetweenFloorAndAbs = false;
     fRequiresLocalOutputColorForFBFetch = false;
@@ -111,6 +112,8 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Can use min() and abs() together", fCanUseMinAndAbsTogether);
     writer->appendBool("Can use fract() for negative values", fCanUseFractForNegativeValues);
     writer->appendBool("Must force negated atan param to float", fMustForceNegatedAtanParamToFloat);
+    writer->appendBool("Must force negated ldexp param to multiply",
+                       fMustForceNegatedLdexpParamToMultiply);
     writer->appendBool("Must do op between floor and abs", fMustDoOpBetweenFloorAndAbs);
     writer->appendBool("Must use local out color for FBFetch", fRequiresLocalOutputColorForFBFetch);
     writer->appendBool("Must obfuscate uniform color", fMustObfuscateUniformColor);
@@ -164,6 +167,7 @@ void GrShaderCaps::applyOptionsOverrides(const GrContextOptions& options) {
         SkASSERT(fCanUseMinAndAbsTogether);
         SkASSERT(fCanUseFractForNegativeValues);
         SkASSERT(!fMustForceNegatedAtanParamToFloat);
+        SkASSERT(!fMustForceNegatedLdexpParamToMultiply);
         SkASSERT(!fAtan2ImplementedAsAtanYOverX);
         SkASSERT(!fMustDoOpBetweenFloorAndAbs);
         SkASSERT(!fRequiresLocalOutputColorForFBFetch);

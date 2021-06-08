@@ -70,6 +70,11 @@ public:
         return fMustForceNegatedAtanParamToFloat;
     }
 
+    bool fMustForceNegatedLdexpParamToMultiply = false;
+    bool mustForceNegatedLdexpParamToMultiply() const {
+        return fMustForceNegatedLdexpParamToMultiply;
+    }
+
     bool fGeometryShaderSupport = true;
     bool geometryShaderSupport() const {
         return fGeometryShaderSupport;
@@ -408,6 +413,13 @@ public:
         ShaderCapsPointer result = MakeShaderCaps();
         result->fVersionDeclString = "#version 400";
         result->fMustForceNegatedAtanParamToFloat = true;
+        return result;
+    }
+
+    static ShaderCapsPointer MustForceNegatedLdexpParamToMultiply() {
+        ShaderCapsPointer result = MakeShaderCaps();
+        result->fVersionDeclString = "#version 400";
+        result->fMustForceNegatedLdexpParamToMultiply = true;
         return result;
     }
 
