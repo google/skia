@@ -20,6 +20,16 @@ public:
                                                               const SkMatrix& viewMatrix,
                                                               const SkPMColor4f&);
 
+    // How many triangles are in a curve with 2^resolveLevel line segments?
+    constexpr static int NumTrianglesAtResolveLevel(int resolveLevel) {
+        // resolveLevel=0 -> 0 line segments -> 0 triangles
+        // resolveLevel=1 -> 2 line segments -> 1 triangle
+        // resolveLevel=2 -> 4 line segments -> 3 triangles
+        // resolveLevel=3 -> 8 line segments -> 7 triangles
+        // ...
+        return (1 << resolveLevel) - 1;
+    }
+
     // Uses instanced draws to triangulate standalone closed curves with a "middle-out" topology.
     // Middle-out draws a triangle with vertices at T=[0, 1/2, 1] and then recurses breadth first:
     //
@@ -28,9 +38,10 @@ public:
     //   depth=2: T=[0, 1/8, 2/8], T=[2/8, 3/8, 4/8], T=[4/8, 5/8, 6/8], T=[6/8, 7/8, 1]
     //   ...
     //
-    // The caller may compute each cubic's resolveLevel on the CPU (i.e., the log2 number of line
-    // segments it will be divided into; see GrWangsFormula::cubic_log2/quadratic_log2/conic_log2),
-    // and then sort the instance buffer by resolveLevel for efficient batching of indirect draws.
+    // The shader determines how many segments are required to render each individual curve
+    // smoothly, and emits empty triangles at any vertices whose sk_VertexIDs are higher than
+    // necessary. It is the caller's responsibility to draw enough vertices per instance for the
+    // most complex curve in the batch to render smoothly (i.e., NumTrianglesAtResolveLevel() * 3).
     static GrPathTessellationShader* MakeMiddleOutInstancedShader(SkArenaAlloc*,
                                                                   const SkMatrix& viewMatrix,
                                                                   const SkPMColor4f&);
