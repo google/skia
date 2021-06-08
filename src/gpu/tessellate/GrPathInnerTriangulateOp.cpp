@@ -42,7 +42,8 @@ private:
 
 GrGLSLGeometryProcessor* HullShader::createGLSLInstance(const GrShaderCaps&) const {
     class Impl : public GrPathTessellationShader::Impl {
-        void emitVertexCode(GrGLSLVertexBuilder* v, GrGPArgs* gpArgs) override {
+        void emitVertexCode(const GrPathTessellationShader&, GrGLSLVertexBuilder* v,
+                            GrGPArgs* gpArgs) override {
             v->codeAppend(R"(
             float4x2 P = float4x2(input_points_0_1, input_points_2_3);
             if (isinf(P[3].y)) {  // Is the curve a conic?
@@ -190,7 +191,7 @@ void GrPathInnerTriangulateOp::prePreparePrograms(const GrTessellationShader::Pr
     if (!isLinear) {
         fTessellator = GrPathCurveTessellator::Make(args.fArena, fViewMatrix,
                                                     SK_PMColor4fTRANSPARENT,
-                                                    GrPathTessellator::DrawInnerFan::kNo,
+                                                    GrPathCurveTessellator::DrawInnerFan::kNo,
                                                     fPath.countVerbs(), *args.fCaps);
         const GrUserStencilSettings* stencilPathSettings =
                 GrPathTessellationShader::StencilPathSettings(fPath.getFillType());
