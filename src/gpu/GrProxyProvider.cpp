@@ -25,7 +25,6 @@
 #include "src/gpu/GrImageContextPriv.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrResourceProvider.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
 #include "src/gpu/GrTexture.h"
@@ -243,14 +242,15 @@ GrSurfaceProxyView GrProxyProvider::findCachedProxyWithColorTypeFallback(const G
     if (!proxy) {
         return {};
     }
+    const GrCaps* caps = fImageContext->priv().caps();
+
     // Assume that we used a fallback color type if and only if the proxy is renderable.
     if (proxy->asRenderTargetProxy()) {
         GrBackendFormat expectedFormat;
-        std::tie(ct, expectedFormat) =
-                GrSurfaceFillContext::GetFallbackColorTypeAndFormat(fImageContext, ct, sampleCnt);
+        std::tie(ct, expectedFormat) = caps->getFallbackColorTypeAndFormat(ct, sampleCnt);
         SkASSERT(expectedFormat == proxy->backendFormat());
     }
-    GrSwizzle swizzle = fImageContext->priv().caps()->getReadSwizzle(proxy->backendFormat(), ct);
+    GrSwizzle swizzle = caps->getReadSwizzle(proxy->backendFormat(), ct);
     return {std::move(proxy), origin, swizzle};
 }
 

@@ -9,9 +9,9 @@
 
 #include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrDirectContextPriv.h"
+#include "src/gpu/GrGpuBuffer.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrResourceCache.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 
 GrThreadSafeCache::VertexData::~VertexData () {
     this->reset();
@@ -323,10 +323,10 @@ GrThreadSafeCache::CreateLazyView(GrDirectContext* dContext,
                                   GrSurfaceOrigin origin,
                                   SkBackingFit fit) {
     GrProxyProvider* proxyProvider = dContext->priv().proxyProvider();
+    const GrCaps* caps = dContext->priv().caps();
 
     constexpr int kSampleCnt = 1;
-    auto [newCT, format] =
-            GrSurfaceFillContext::GetFallbackColorTypeAndFormat(dContext, origCT, kSampleCnt);
+    auto [newCT, format] = caps->getFallbackColorTypeAndFormat(origCT, kSampleCnt);
 
     if (newCT == GrColorType::kUnknown) {
         return {GrSurfaceProxyView(nullptr), nullptr};

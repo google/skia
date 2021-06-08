@@ -450,3 +450,40 @@ bool GrCaps::supportsDynamicMSAA(const GrRenderTargetProxy* rtProxy) const {
            this->internalMultisampleCount(rtProxy->backendFormat()) > 1 &&
            this->onSupportsDynamicMSAA(rtProxy);
 }
+
+static inline GrColorType color_type_fallback(GrColorType ct) {
+    switch (ct) {
+        // kRGBA_8888 is our default fallback for many color types that may not have renderable
+        // backend formats.
+        case GrColorType::kAlpha_8:
+        case GrColorType::kBGR_565:
+        case GrColorType::kABGR_4444:
+        case GrColorType::kBGRA_8888:
+        case GrColorType::kRGBA_1010102:
+        case GrColorType::kBGRA_1010102:
+        case GrColorType::kRGBA_F16:
+        case GrColorType::kRGBA_F16_Clamped:
+            return GrColorType::kRGBA_8888;
+        case GrColorType::kAlpha_F16:
+            return GrColorType::kRGBA_F16;
+        case GrColorType::kGray_8:
+            return GrColorType::kRGB_888x;
+        default:
+            return GrColorType::kUnknown;
+    }
+}
+
+std::tuple<GrColorType, GrBackendFormat> GrCaps::getFallbackColorTypeAndFormat(
+                                                                            GrColorType ct,
+                                                                            int sampleCnt) const {
+    do {
+        auto format = this->getDefaultBackendFormat(ct, GrRenderable::kYes);
+        // We continue to the fallback color type if there no default renderable format or we
+        // requested msaa and the format doesn't support msaa.
+        if (format.isValid() && this->isFormatRenderable(format, sampleCnt)) {
+            return {ct, format};
+        }
+        ct = color_type_fallback(ct);
+    } while (ct != GrColorType::kUnknown);
+    return {GrColorType::kUnknown, {}};
+}

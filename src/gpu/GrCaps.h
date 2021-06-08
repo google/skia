@@ -493,6 +493,15 @@ public:
         return fAvoidReorderingRenderTasks;
     }
 
+    /**
+     * Checks whether the passed color type is renderable. If so, the same color type is passed
+     * back along with the default format used for the color type. If not, provides an alternative
+     * (perhaps lower bit depth and/or unorm instead of float) color type that is supported
+     * along with it's default format or kUnknown if there no renderable fallback format.
+     */
+    std::tuple<GrColorType, GrBackendFormat> getFallbackColorTypeAndFormat(GrColorType,
+                                                                           int sampleCount) const;
+
 #if GR_TEST_UTILS
     struct TestFormatColorTypeCombination {
         GrColorType fColorType;

@@ -207,7 +207,7 @@ std::unique_ptr<GrSurfaceDrawContext> GrSurfaceDrawContext::Make(
 }
 
 std::unique_ptr<GrSurfaceDrawContext> GrSurfaceDrawContext::MakeWithFallback(
-        GrRecordingContext* context,
+        GrRecordingContext* rContext,
         GrColorType colorType,
         sk_sp<SkColorSpace> colorSpace,
         SkBackingFit fit,
@@ -218,11 +218,12 @@ std::unique_ptr<GrSurfaceDrawContext> GrSurfaceDrawContext::MakeWithFallback(
         GrProtected isProtected,
         GrSurfaceOrigin origin,
         SkBudgeted budgeted) {
-    auto [ct, format] = GetFallbackColorTypeAndFormat(context, colorType, sampleCnt);
+    const GrCaps* caps = rContext->priv().caps();
+    auto [ct, format] = caps->getFallbackColorTypeAndFormat(colorType, sampleCnt);
     if (ct == GrColorType::kUnknown) {
         return nullptr;
     }
-    return GrSurfaceDrawContext::Make(context, ct, colorSpace, fit, dimensions, surfaceProps,
+    return GrSurfaceDrawContext::Make(rContext, ct, colorSpace, fit, dimensions, surfaceProps,
                                       sampleCnt, mipMapped, isProtected, origin, budgeted);
 }
 
