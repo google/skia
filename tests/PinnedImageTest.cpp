@@ -51,9 +51,7 @@ static void basic_test(skiatest::Reporter* reporter, GrRecordingContext* rContex
     sk_sp<SkSurface> gpuSurface = SkSurface::MakeRenderTarget(rContext, SkBudgeted::kYes, ii);
     SkCanvas* canvas = gpuSurface->getCanvas();
 
-    // w/o pinning - the gpu caches the contents of the image and assumes the bitmap is immutable.
-    // This is actually undefined but we're assuming the GPU backend will cache the original and
-    // that it won't be purged before this test ends.
+    // w/o pinning - the gpu draw always reflects the current state of the underlying bitmap
     {
         canvas->drawImage(img, 0, 0);
         REPORTER_ASSERT(reporter, surface_is_expected_color(gpuSurface.get(), ii, SK_ColorRED));
@@ -61,31 +59,28 @@ static void basic_test(skiatest::Reporter* reporter, GrRecordingContext* rContex
         bmCanvas.clear(SK_ColorGREEN);
 
         canvas->drawImage(img, 0, 0);
-        REPORTER_ASSERT(reporter, surface_is_expected_color(gpuSurface.get(), ii, SK_ColorRED));
+        REPORTER_ASSERT(reporter, surface_is_expected_color(gpuSurface.get(), ii, SK_ColorGREEN));
     }
 
     // w/ pinning - the gpu draw is stuck at the pinned state
     {
-        bmCanvas.clear(SK_ColorBLUE);
         SkImage_pinAsTexture(img.get(), rContext); // pin at blue
 
         canvas->drawImage(img, 0, 0);
-        REPORTER_ASSERT(reporter, surface_is_expected_color(gpuSurface.get(), ii, SK_ColorBLUE));
+        REPORTER_ASSERT(reporter, surface_is_expected_color(gpuSurface.get(), ii, SK_ColorGREEN));
 
-        bmCanvas.clear(SK_ColorGREEN);
+        bmCanvas.clear(SK_ColorBLUE);
 
         canvas->drawImage(img, 0, 0);
-        REPORTER_ASSERT(reporter, surface_is_expected_color(gpuSurface.get(), ii, SK_ColorBLUE));
+        REPORTER_ASSERT(reporter, surface_is_expected_color(gpuSurface.get(), ii, SK_ColorGREEN));
 
         SkImage_unpinAsTexture(img.get(), rContext);
     }
 
-    // once unpinned the original RED texture should be purged by SkBitmap's gen ID listener when
-    // we first modified it after making the image. We should upload and cache the now GREEN bitmap
-    // backing the image.
+    // once unpinned local changes will be picked up
     {
         canvas->drawImage(img, 0, 0);
-        REPORTER_ASSERT(reporter, surface_is_expected_color(gpuSurface.get(), ii, SK_ColorGREEN));
+        REPORTER_ASSERT(reporter, surface_is_expected_color(gpuSurface.get(), ii, SK_ColorBLUE));
     }
 }
 
