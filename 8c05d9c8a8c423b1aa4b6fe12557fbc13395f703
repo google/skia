@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d68e946e_ba6e4b2c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-08T16:16:03Z",
+      "side": 1,
+      "message": "Agreed!",
+      "parentUuid": "57ff9ec7_ee2bbfcc",
+      "revId": "8c05d9c8a8c423b1aa4b6fe12557fbc13395f703",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cba128ae_086e9117",
@@ -60,6 +78,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "7e0c1954_ebcd1c4c",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 2352,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-08T16:16:03Z",
+      "side": 1,
+      "message": "I think the Apple extension wasn\u0027t originally covered in those flags because the Apple extension doesn\u0027t even have a \"glBltFramebuffer\". You call \"glResolveMultisampleFramebuffer\". I am fine to add one, but I\u0027m just not quite sure what we would even call it? \"AppleVersion\"? \"NotSupported\"? \"ResolveMultisampleFramebuffer\"?",
+      "parentUuid": "cba128ae_086e9117",
+      "range": {
+        "startLine": 2352,
+        "startChar": 12,
+        "endLine": 2352,
+        "endChar": 61
+      },
+      "revId": "8c05d9c8a8c423b1aa4b6fe12557fbc13395f703",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d477a7a0_53918e8c",
         "filename": "src/gpu/gl/GrGLGpu.cpp",
         "patchSetId": 6
@@ -71,6 +113,30 @@
       "writtenOn": "2021-06-08T12:51:03Z",
       "side": 1,
       "message": "can we actually every get here? In the calling code we only set drawToMSFBO to true if the dst is a RT. So we would always take the if above.",
+      "range": {
+        "startLine": 3344,
+        "startChar": 9,
+        "endLine": 3344,
+        "endChar": 35
+      },
+      "revId": "8c05d9c8a8c423b1aa4b6fe12557fbc13395f703",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "acc8c1c4_ff5a6457",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 3344,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-08T16:16:03Z",
+      "side": 1,
+      "message": "Done. Good point",
+      "parentUuid": "d477a7a0_53918e8c",
       "range": {
         "startLine": 3344,
         "startChar": 9,
