@@ -23,16 +23,16 @@ class GrPathTessellator {
 public:
     using BreadcrumbTriangleList = GrInnerFanTriangulator::BreadcrumbTriangleList;
 
+    // For fixed count tessellators, this is the largest number of segments we can stuff into a
+    // single instance before we need to chop.
+    constexpr static int kMaxFixedCountSegments = 32;
+
     // For subclasses that use this enum, if DrawInnerFan is kNo, the class only emits the path's
     // outer curves. In that case the caller is responsible to handle the path's inner fan.
     enum class DrawInnerFan : bool {
         kNo = false,
         kYes
     };
-
-    // Creates the tessellator best suited to draw the given path.
-    static GrPathTessellator* Make(SkArenaAlloc*, const SkPath&, const SkMatrix&,
-                                   const SkPMColor4f&, DrawInnerFan, const GrCaps&);
 
     const GrPathTessellationShader* shader() const { return fShader; }
 
@@ -53,9 +53,6 @@ public:
 
     virtual ~GrPathTessellator() {}
 
-protected:
-    GrPathTessellator(GrPathTessellationShader* shader) : fShader(shader) {}
-
     // Returns an upper bound on the number of segments (lineTo, quadTo, conicTo, cubicTo) in a
     // path, also accounting for any implicit lineTos from closing contours.
     static int MaxSegmentsInPath(const SkPath& path) {
@@ -65,40 +62,8 @@ protected:
         return path.countVerbs();
     }
 
-    // Returns an upper bound on the number of triangles it would require to fan a path's inner
-    // polygon, in the case where no additional vertices are introduced.
-    static int MaxTrianglesInInnerFan(const SkPath& path) {
-        int maxEdgesInFan = MaxSegmentsInPath(path);
-        return std::max(maxEdgesInFan - 2, 0);  // An n-sided polygon is fanned by n-2 triangles.
-    }
-
-    // Writes out the non-degenerate triangles from 'breadcrumbTriangleList' as 4-point conic
-    // patches with w=Infinity.
-    static int WriteBreadcrumbTriangles(GrVertexWriter* writer,
-                                        const BreadcrumbTriangleList* breadcrumbTriangleList) {
-        int numWritten = 0;
-        SkDEBUGCODE(int count = 0;)
-        for (const auto* tri = breadcrumbTriangleList->head(); tri; tri = tri->fNext) {
-            SkDEBUGCODE(++count;)
-            auto p0 = grvx::float2::Load(tri->fPts);
-            auto p1 = grvx::float2::Load(tri->fPts + 1);
-            auto p2 = grvx::float2::Load(tri->fPts + 2);
-            if (skvx::any((p0 == p1) & (p1 == p2))) {
-                // Cull completely horizontal or vertical triangles. GrTriangulator can't always get
-                // these breadcrumb edges right when they run parallel to the sweep direction
-                // because their winding is undefined by its current definition.
-                // FIXME(skia:12060): This seemed safe, but if there is a view matrix it will
-                // introduce T-junctions.
-                continue;
-            }
-            writer->writeArray(tri->fPts, 3);
-            // Mark this instance as a triangle by setting it to a conic with w=Inf.
-            writer->fill(GrVertexWriter::kIEEE_32_infinity, 2);
-            ++numWritten;
-        }
-        SkASSERT(count == breadcrumbTriangleList->count());
-        return numWritten;
-    }
+protected:
+    GrPathTessellator(GrPathTessellationShader* shader) : fShader(shader) {}
 
     GrPathTessellationShader* fShader;
 };
