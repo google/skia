@@ -243,14 +243,15 @@ GrSurfaceProxyView GrProxyProvider::findCachedProxyWithColorTypeFallback(const G
     if (!proxy) {
         return {};
     }
+    const GrCaps* caps = fImageContext->priv().caps();
+
     // Assume that we used a fallback color type if and only if the proxy is renderable.
     if (proxy->asRenderTargetProxy()) {
         GrBackendFormat expectedFormat;
-        std::tie(ct, expectedFormat) =
-                GrSurfaceFillContext::GetFallbackColorTypeAndFormat(fImageContext, ct, sampleCnt);
+        std::tie(ct, expectedFormat) = GrCaps::GetFallbackColorTypeAndFormat(caps, ct, sampleCnt);
         SkASSERT(expectedFormat == proxy->backendFormat());
     }
-    GrSwizzle swizzle = fImageContext->priv().caps()->getReadSwizzle(proxy->backendFormat(), ct);
+    GrSwizzle swizzle = caps->getReadSwizzle(proxy->backendFormat(), ct);
     return {std::move(proxy), origin, swizzle};
 }
 
