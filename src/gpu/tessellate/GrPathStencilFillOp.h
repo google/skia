@@ -22,10 +22,10 @@ private:
     DEFINE_OP_CLASS_ID
 
     GrPathStencilFillOp(const SkMatrix& viewMatrix, const SkPath& path, GrPaint&& paint,
-                        GrAAType aaType, GrTessellationPathRenderer::OpFlags opFlags,
+                        GrAAType aaType, GrTessellationPathRenderer::PathFlags pathFlags,
                         const SkRect& devBounds)
             : GrDrawOp(ClassID())
-            , fOpFlags(opFlags)
+            , fPathFlags(pathFlags)
             , fViewMatrix(viewMatrix)
             , fPath(path)
             , fAAType(aaType)
@@ -48,7 +48,7 @@ private:
     void onPrepare(GrOpFlushState*) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
-    const GrTessellationPathRenderer::OpFlags fOpFlags;
+    const GrTessellationPathRenderer::PathFlags fPathFlags;
     const SkMatrix fViewMatrix;
     const SkPath fPath;
     const GrAAType fAAType;
