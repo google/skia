@@ -39,6 +39,30 @@
       },
       "revId": "af3f686e9bc5077909f59fe77f66d4c7753839f1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9223aea3_78e1f246",
+        "filename": "src/sksl/dsl/DSLType.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-08T13:02:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fe7cf2ec_d7ce0f8c",
+      "range": {
+        "startLine": 24,
+        "startChar": 59,
+        "endLine": 24,
+        "endChar": 63
+      },
+      "revId": "af3f686e9bc5077909f59fe77f66d4c7753839f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
