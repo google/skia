@@ -1,51 +1,51 @@
-(function(CanvasKit){
+(function (CanvasKit) {
   CanvasKit._extraInitializations = CanvasKit._extraInitializations || [];
-  CanvasKit._extraInitializations.push(function() {
+  CanvasKit._extraInitializations.push(function () {
 
-    CanvasKit.Paragraph.prototype.getRectsForRange = function(start, end, hStyle, wStyle) {
-    /**
-     * This is bytes, but we'll want to think about them as float32s
-     * @type {Float32Array}
-     */
+    CanvasKit.Paragraph.prototype.getRectsForRange = function (start, end, hStyle, wStyle) {
+      /**
+       * This is bytes, but we'll want to think about them as float32s
+       * @type {Float32Array}
+       */
       var floatArray = this._getRectsForRange(start, end, hStyle, wStyle);
       return floatArrayToRects(floatArray);
     }
 
-    CanvasKit.Paragraph.prototype.getRectsForPlaceholders = function() {
-        /**
-        * This is bytes, but we'll want to think about them as float32s
-        * @type {Float32Array}
-        */
-        var floatArray = this._getRectsForPlaceholders();
-        return floatArrayToRects(floatArray);
+    CanvasKit.Paragraph.prototype.getRectsForPlaceholders = function () {
+      /**
+      * This is bytes, but we'll want to think about them as float32s
+      * @type {Float32Array}
+      */
+      var floatArray = this._getRectsForPlaceholders();
+      return floatArrayToRects(floatArray);
     }
 
     function floatArrayToRects(floatArray) {
-        if (!floatArray || !floatArray.length) {
-            return [];
+      if (!floatArray || !floatArray.length) {
+        return [];
+      }
+      var ret = [];
+      for (var i = 0; i < floatArray.length; i += 5) {
+        var r = CanvasKit.LTRBRect(floatArray[i], floatArray[i + 1], floatArray[i + 2], floatArray[i + 3]);
+        if (floatArray[i + 4] === 0) {
+          r['direction'] = CanvasKit.TextDirection.RTL;
+        } else {
+          r['direction'] = CanvasKit.TextDirection.LTR;
         }
-        var ret = [];
-        for (var i = 0; i < floatArray.length; i+=5) {
-            var r = CanvasKit.LTRBRect(floatArray[i], floatArray[i+1], floatArray[i+2], floatArray[i+3]);
-            if (floatArray[i+4] === 0) {
-                r['direction'] = CanvasKit.TextDirection.RTL;
-            } else {
-                r['direction'] = CanvasKit.TextDirection.LTR;
-            }
-            ret.push(r);
-        }
-        CanvasKit._free(floatArray.byteOffset);
-        return ret;
+        ret.push(r);
+      }
+      CanvasKit._free(floatArray.byteOffset);
+      return ret;
     }
 
     // Registers the font (provided as an arrayBuffer) with the alias `family`.
-    CanvasKit.TypefaceFontProvider.prototype.registerFont = function(font, family) {
+    CanvasKit.TypefaceFontProvider.prototype.registerFont = function (font, family) {
       var typeface = CanvasKit.FontMgr.RefDefault().MakeTypefaceFromData(font);
       if (!typeface) {
-          Debug('Could not decode font data');
-          // We do not need to free the data since the C++ will do that for us
-          // when the font is deleted (or fails to decode);
-          return null;
+        Debug('Could not decode font data');
+        // We do not need to free the data since the C++ will do that for us
+        // when the font is deleted (or fails to decode);
+        return null;
       }
       var familyPtr = cacheOrCopyString(family);
       this._registerFont(typeface, familyPtr);
@@ -55,7 +55,7 @@
     // have undefined and it expects, for example, a float.
     // TODO(kjlubick) For efficiency, we should probably just return opaque WASM objects so we do
     //   not have to keep copying them across the wire.
-    CanvasKit.ParagraphStyle = function(s) {
+    CanvasKit.ParagraphStyle = function (s) {
       // Use [''] to tell closure not to minify the names
       s['disableHinting'] = s['disableHinting'] || false;
       if (s['ellipsis']) {
@@ -89,27 +89,27 @@
     }
 
     function strutStyle(s) {
-        s = s || {};
-        s['strutEnabled'] = s['strutEnabled'] || false;
+      s = s || {};
+      s['strutEnabled'] = s['strutEnabled'] || false;
 
-        if (s['strutEnabled'] && Array.isArray(s['fontFamilies']) && s['fontFamilies'].length) {
-            s['_fontFamiliesPtr'] = naiveCopyStrArray(s['fontFamilies']);
-            s['_fontFamiliesLen'] = s['fontFamilies'].length;
-        } else {
-            s['_fontFamiliesPtr'] = nullptr;
-            s['_fontFamiliesLen'] = 0;
-        }
-        s['fontStyle'] = fontStyle(s['fontStyle']);
-        s['fontSize'] = s['fontSize'] || 0;
-        s['heightMultiplier'] = s['heightMultiplier'] || 0;
-        s['halfLeading'] = s['halfLeading'] || false;
-        s['leading'] = s['leading'] || 0;
-        s['forceStrutHeight'] = s['forceStrutHeight'] || false;
-        return s;
+      if (s['strutEnabled'] && Array.isArray(s['fontFamilies']) && s['fontFamilies'].length) {
+        s['_fontFamiliesPtr'] = naiveCopyStrArray(s['fontFamilies']);
+        s['_fontFamiliesLen'] = s['fontFamilies'].length;
+      } else {
+        s['_fontFamiliesPtr'] = nullptr;
+        s['_fontFamiliesLen'] = 0;
+      }
+      s['fontStyle'] = fontStyle(s['fontStyle']);
+      s['fontSize'] = s['fontSize'] || 0;
+      s['heightMultiplier'] = s['heightMultiplier'] || 0;
+      s['halfLeading'] = s['halfLeading'] || false;
+      s['leading'] = s['leading'] || 0;
+      s['forceStrutHeight'] = s['forceStrutHeight'] || false;
+      return s;
     }
 
-    CanvasKit.TextStyle = function(s) {
-       // Use [''] to tell closure not to minify the names
+    CanvasKit.TextStyle = function (s) {
+      // Use [''] to tell closure not to minify the names
       if (!s['color']) {
         s['color'] = CanvasKit.BLACK;
       }
@@ -123,49 +123,9 @@
       s['wordSpacing'] = s['wordSpacing'] || 0;
       s['heightMultiplier'] = s['heightMultiplier'] || 0;
       s['halfLeading'] = s['halfLeading'] || false;
-      if (s['locale']) {
-        var str = s['locale'];
-        s['_localePtr'] = cacheOrCopyString(str);
-        s['_localeLen'] = lengthBytesUTF8(str) + 1; // add 1 for the null terminator.
-      } else {
-        s['_localePtr'] = nullptr;
-        s['_localeLen'] = 0;
-      }
       s['fontStyle'] = fontStyle(s['fontStyle']);
-      if (s['shadows']) {
-        var shadows = s['shadows'];
-        var shadowColors = shadows.map(function(s) { return s['color'] || CanvasKit.BLACK; });
-        var shadowBlurRadii = shadows.map(function(s) { return s['blurRadius'] || 0.0; });
-        s['_shadowLen'] = shadows.length;
-        var ptr = CanvasKit._malloc(shadows.length * 2, 'HEAPF32');
-        var adjustedPtr = ptr / 4;  // 4 bytes per float
-        for (var i = 0; i < shadows.length; i++) {
-          var offset = shadows[i]['offset'] || [0, 0];
-          CanvasKit.HEAPF32[adjustedPtr] = offset[0];
-          CanvasKit.HEAPF32[adjustedPtr + 1] = offset[1];
-          adjustedPtr += 2;
-        }
-        s['_shadowColorsPtr'] = copyFlexibleColorArray(shadowColors).colorPtr;
-        s['_shadowOffsetsPtr'] = ptr;
-        s['_shadowBlurRadiiPtr'] = copy1dArray(shadowBlurRadii, 'HEAPF32');
-      } else {
-        s['_shadowLen'] = 0;
-        s['_shadowColorsPtr'] = nullptr;
-        s['_shadowOffsetsPtr'] = nullptr;
-        s['_shadowBlurRadiiPtr'] = nullptr;
-      }
-      if (s['fontFeatures']) {
-        var fontFeatures = s['fontFeatures'];
-        var fontFeatureNames = fontFeatures.map(function(s) { return s['name']; });
-        var fontFeatureValues = fontFeatures.map(function(s) { return s['value']; });
-        s['_fontFeatureLen'] = fontFeatures.length;
-        s['_fontFeatureNamesPtr'] = naiveCopyStrArray(fontFeatureNames);
-        s['_fontFeatureValuesPtr'] = copy1dArray(fontFeatureValues, 'HEAPU32');
-      } else {
-        s['_fontFeatureLen'] = 0;
-        s['_fontFeatureNamesPtr'] = nullptr;
-        s['_fontFeatureValuesPtr'] = nullptr;
-      }
+
+      // Properties which need to be Malloc'ed are set in `copyArrays`.
 
       return s;
     };
@@ -240,61 +200,113 @@
         textStyle['_fontFamiliesLen'] = 0;
         Debug('no font families provided, text may draw wrong or not at all');
       }
+
+      if (textStyle['locale']) {
+        var str = s['locale'];
+        textStyle['_localePtr'] = cacheOrCopyString(str);
+        textStyle['_localeLen'] = lengthBytesUTF8(str) + 1; // add 1 for the null terminator.
+      } else {
+        textStyle['_localePtr'] = nullptr;
+        textStyle['_localeLen'] = 0;
+      }
+
+      if (Array.isArray(textStyle['shadows']) && textStyle['shadows'].length) {
+        var shadows = textStyle['shadows'];
+        var shadowColors = shadows.map(function (s) { return s['color'] || CanvasKit.BLACK; });
+        var shadowBlurRadii = shadows.map(function (s) { return s['blurRadius'] || 0.0; });
+        textStyle['_shadowLen'] = shadows.length;
+        // 2 floats per point, 4 bytes per float
+        var ptr = CanvasKit._malloc(shadows.length * 2 * 4);
+        var adjustedPtr = ptr / 4;  // 4 bytes per float
+        for (var i = 0; i < shadows.length; i++) {
+          var offset = shadows[i]['offset'] || [0, 0];
+          CanvasKit.HEAPF32[adjustedPtr] = offset[0];
+          CanvasKit.HEAPF32[adjustedPtr + 1] = offset[1];
+          adjustedPtr += 2;
+        }
+        textStyle['_shadowColorsPtr'] = copyFlexibleColorArray(shadowColors).colorPtr;
+        textStyle['_shadowOffsetsPtr'] = ptr;
+        textStyle['_shadowBlurRadiiPtr'] = copy1dArray(shadowBlurRadii, 'HEAPF32');
+      } else {
+        textStyle['_shadowLen'] = 0;
+        textStyle['_shadowColorsPtr'] = nullptr;
+        textStyle['_shadowOffsetsPtr'] = nullptr;
+        textStyle['_shadowBlurRadiiPtr'] = nullptr;
+      }
+
+      if (Array.isArray(textStyle['fontFeatures']) && textStyle['fontFeatures'].length) {
+        var fontFeatures = textStyle['fontFeatures'];
+        var fontFeatureNames = fontFeatures.map(function (s) { return s['name']; });
+        var fontFeatureValues = fontFeatures.map(function (s) { return s['value']; });
+        textStyle['_fontFeatureLen'] = fontFeatures.length;
+        textStyle['_fontFeatureNamesPtr'] = naiveCopyStrArray(fontFeatureNames);
+        textStyle['_fontFeatureValuesPtr'] = copy1dArray(fontFeatureValues, 'HEAPU32');
+      } else {
+        textStyle['_fontFeatureLen'] = 0;
+        textStyle['_fontFeatureNamesPtr'] = nullptr;
+        textStyle['_fontFeatureValuesPtr'] = nullptr;
+      }
     }
 
     function freeArrays(textStyle) {
       // The font family strings will get copied to a vector on the C++ side, which is owned by
       // the text style.
       CanvasKit._free(textStyle['_fontFamiliesPtr']);
+      CanvasKit._free(textStyle['_localePtr']);
+      CanvasKit._free(textStyle['_shadowColorsPtr']);
+      CanvasKit._free(textStyle['_shadowOffsetsPtr']);
+      CanvasKit._free(textStyle['_shadowBlurRadiiPtr']);
+      CanvasKit._free(textStyle['_fontFeatureNamesPtr']);
+      CanvasKit._free(textStyle['_fontFeatureValuesPtr']);
     }
 
-    CanvasKit.ParagraphBuilder.Make = function(paragraphStyle, fontManager) {
+    CanvasKit.ParagraphBuilder.Make = function (paragraphStyle, fontManager) {
       copyArrays(paragraphStyle['textStyle']);
 
-      var result =  CanvasKit.ParagraphBuilder._Make(paragraphStyle, fontManager);
+      var result = CanvasKit.ParagraphBuilder._Make(paragraphStyle, fontManager);
       freeArrays(paragraphStyle['textStyle']);
       return result;
     };
 
-    CanvasKit.ParagraphBuilder.MakeFromFontProvider = function(paragraphStyle, fontProvider) {
-        copyArrays(paragraphStyle['textStyle']);
+    CanvasKit.ParagraphBuilder.MakeFromFontProvider = function (paragraphStyle, fontProvider) {
+      copyArrays(paragraphStyle['textStyle']);
 
-        var result =  CanvasKit.ParagraphBuilder._MakeFromFontProvider(paragraphStyle, fontProvider);
-        freeArrays(paragraphStyle['textStyle']);
-        return result;
+      var result = CanvasKit.ParagraphBuilder._MakeFromFontProvider(paragraphStyle, fontProvider);
+      freeArrays(paragraphStyle['textStyle']);
+      return result;
     };
 
-    CanvasKit.ParagraphBuilder.ShapeText = function(text, blocks, width) {
-        let length = 0;
-        for (const b of blocks) {
-            length += b.length;
-        }
-        if (length !== text.length) {
-            throw "Accumulated block lengths must equal text.length";
-        }
-        return CanvasKit.ParagraphBuilder._ShapeText(text, blocks, width);
+    CanvasKit.ParagraphBuilder.ShapeText = function (text, blocks, width) {
+      let length = 0;
+      for (const b of blocks) {
+        length += b.length;
+      }
+      if (length !== text.length) {
+        throw "Accumulated block lengths must equal text.length";
+      }
+      return CanvasKit.ParagraphBuilder._ShapeText(text, blocks, width);
     };
 
-    CanvasKit.ParagraphBuilder.prototype.pushStyle = function(textStyle) {
+    CanvasKit.ParagraphBuilder.prototype.pushStyle = function (textStyle) {
       copyArrays(textStyle);
       this._pushStyle(textStyle);
       freeArrays(textStyle);
     };
 
-    CanvasKit.ParagraphBuilder.prototype.pushPaintStyle = function(textStyle, fg, bg) {
+    CanvasKit.ParagraphBuilder.prototype.pushPaintStyle = function (textStyle, fg, bg) {
       copyArrays(textStyle);
       this._pushPaintStyle(textStyle, fg, bg);
       freeArrays(textStyle);
     };
 
     CanvasKit.ParagraphBuilder.prototype.addPlaceholder =
-          function(width, height, alignment, baseline, offset) {
-      width = width || 0;
-      height = height || 0;
-      alignment = alignment || CanvasKit.PlaceholderAlignment.Baseline;
-      baseline = baseline || CanvasKit.TextBaseline.Alphabetic;
-      offset = offset || 0;
-      this._addPlaceholder(width, height, alignment, baseline, offset);
-    };
-});
+      function (width, height, alignment, baseline, offset) {
+        width = width || 0;
+        height = height || 0;
+        alignment = alignment || CanvasKit.PlaceholderAlignment.Baseline;
+        baseline = baseline || CanvasKit.TextBaseline.Alphabetic;
+        offset = offset || 0;
+        this._addPlaceholder(width, height, alignment, baseline, offset);
+      };
+  });
 }(Module)); // When this file is loaded in, the high level object is "Module";
