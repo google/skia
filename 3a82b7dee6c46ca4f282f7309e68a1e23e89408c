@@ -16,6 +16,24 @@
       "message": "Looks like this broke a unit test related to remote glyph cache and selection of distance fields. Not sure if it\u0027s a real problem or just a problem with the test\u0027s expectation.\n\nhttps://ci.chromium.org/raw/build/logs.chromium.org/skia/540404f89d31f411/+/annotations",
       "revId": "3a82b7dee6c46ca4f282f7309e68a1e23e89408c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "29d4ad67_d1a6a622",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-08T17:09:26Z",
+      "side": 1,
+      "message": "SDF isn\u0027t supported without derivatives and the test wasn\u0027t verifying this. I guess until this point, none of our bots lacked derivatives support ¯\\_(ツ)_/¯\n\nhttps://skia-review.googlesource.com/c/skia/+/416762",
+      "parentUuid": "590547f8_98c049af",
+      "revId": "3a82b7dee6c46ca4f282f7309e68a1e23e89408c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
