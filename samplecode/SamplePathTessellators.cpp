@@ -21,6 +21,7 @@
 namespace {
 
 enum class Mode {
+    kWedgeMiddleOut,
     kCurveMiddleOut,
     kWedgeTessellate,
     kCurveTessellate
@@ -28,12 +29,14 @@ enum class Mode {
 
 static const char* ModeName(Mode mode) {
     switch (mode) {
+        case Mode::kWedgeMiddleOut:
+            return "MiddleOutShader (kWedges)";
         case Mode::kCurveMiddleOut:
-            return "GrCurveMiddleOutShader";
+            return "MiddleOutShader (kCurves)";
         case Mode::kWedgeTessellate:
-            return "GrWedgeTessellateShader";
+            return "HardwareWedgeShader";
         case Mode::kCurveTessellate:
-            return "GrCurveTessellateShader";
+            return "HardwareCurveShader";
     }
     SkUNREACHABLE;
 }
@@ -68,21 +71,28 @@ private:
     void onPrepare(GrOpFlushState* flushState) override {
         constexpr static SkPMColor4f kCyan = {0,1,1,1};
         auto alloc = flushState->allocator();
+        const GrCaps& caps = flushState->caps();
+        int numVerbsToGetMiddleOut = 0;
+        int numVerbsToGetTessellation = caps.minPathVerbsForHwTessellation();
         switch (fMode) {
-            using DrawInnerFan = GrPathTessellator::DrawInnerFan;
-            using ShaderType = GrPathCurveTessellator::ShaderType;
+            using DrawInnerFan = GrPathCurveTessellator::DrawInnerFan;
+            case Mode::kWedgeMiddleOut:
+                fTessellator = GrPathWedgeTessellator::Make(alloc, fMatrix, kCyan,
+                                                            numVerbsToGetMiddleOut, caps);
+                break;
             case Mode::kCurveMiddleOut:
                 fTessellator = GrPathCurveTessellator::Make(alloc, fMatrix, kCyan,
                                                             DrawInnerFan::kYes,
-                                                            ShaderType::kFixedCountMiddleOut);
+                                                            numVerbsToGetMiddleOut, caps);
                 break;
             case Mode::kWedgeTessellate:
-                fTessellator = GrPathWedgeTessellator::Make(alloc, fMatrix, kCyan);
+                fTessellator = GrPathWedgeTessellator::Make(alloc, fMatrix, kCyan,
+                                                            numVerbsToGetTessellation, caps);
                 break;
             case Mode::kCurveTessellate:
                 fTessellator = GrPathCurveTessellator::Make(alloc, fMatrix, kCyan,
                                                             DrawInnerFan::kYes,
-                                                            ShaderType::kHardwareTessellation);
+                                                            numVerbsToGetTessellation, caps);
                 break;
         }
         fTessellator->prepare(flushState, this->bounds(), fPath);
@@ -147,7 +157,7 @@ private:
     SkPath fPath;
     GrPipeline::InputFlags fPipelineFlags = GrPipeline::InputFlags::kHWAntialias |
                                             GrPipeline::InputFlags::kWireframe;
-    Mode fMode = Mode::kCurveMiddleOut;
+    Mode fMode = Mode::kWedgeMiddleOut;
 
     float fConicWeight = .5;
 
@@ -289,6 +299,7 @@ bool SamplePathTessellators::onChar(SkUnichar unichar) {
         case '1':
         case '2':
         case '3':
+        case '4':
             fMode = (Mode)(unichar - '1');
             return true;
     }

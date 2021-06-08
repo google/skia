@@ -27,13 +27,6 @@ public:
     // single instance before we need to chop.
     constexpr static int kMaxFixedCountSegments = 32;
 
-    // For subclasses that use this enum, if DrawInnerFan is kNo, the class only emits the path's
-    // outer curves. In that case the caller is responsible to handle the path's inner fan.
-    enum class DrawInnerFan : bool {
-        kNo = false,
-        kYes
-    };
-
     const GrPathTessellationShader* shader() const { return fShader; }
 
     // Called before draw(). Prepares GPU buffers containing the geometry to tessellate. If the

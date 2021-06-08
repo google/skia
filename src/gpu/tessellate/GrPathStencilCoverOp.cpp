@@ -43,7 +43,8 @@ private:
 
 GrGLSLGeometryProcessor* BoundingBoxShader::createGLSLInstance(const GrShaderCaps&) const {
     class Impl : public GrPathTessellationShader::Impl {
-        void emitVertexCode(GrGLSLVertexBuilder* v, GrGPArgs* gpArgs) override {
+        void emitVertexCode(const GrPathTessellationShader&, GrGLSLVertexBuilder* v,
+                            GrGPArgs* gpArgs) override {
             v->codeAppend(R"(
             // Bloat the bounding box by 1/4px to avoid potential T-junctions at the edges.
             float2x2 M_ = inverse(AFFINE_MATRIX);
@@ -101,29 +102,22 @@ void GrPathStencilCoverOp::prePreparePrograms(const GrTessellationShader::Progra
     const GrUserStencilSettings* stencilPathSettings =
             GrPathTessellationShader::StencilPathSettings(fPath.getFillType());
 
-    auto drawFanWithTessellator = GrPathTessellator::DrawInnerFan::kYes;
     if (fPath.countVerbs() > 50 && this->bounds().height() * this->bounds().width() > 256 * 256) {
-        // Large complex paths do better with a dedicated triangle shader for the inner fan. This
-        // takes less PCI bus bandwidth (6 floats per triangle instead of 8) and allows us to make
-        // sure it has an efficient middle-out topology.
+        // Large complex paths do better with a dedicated triangle shader for the inner fan.
+        // This takes less PCI bus bandwidth (6 floats per triangle instead of 8) and allows us
+        // to make sure it has an efficient middle-out topology.
         auto shader = GrPathTessellationShader::MakeSimpleTriangleShader(
                 args.fArena, fViewMatrix, SK_PMColor4fTRANSPARENT);
         fStencilFanProgram = GrTessellationShader::MakeProgram(args, shader, stencilPipeline,
                                                                stencilPathSettings);
-        drawFanWithTessellator = GrPathTessellator::DrawInnerFan::kNo;
-    }
-    if (!args.fCaps->shaderCaps()->tessellationSupport() ||
-        fPath.countVerbs() < args.fCaps->minPathVerbsForHwTessellation()) {
-        fTessellator = GrPathCurveTessellator::Make(
-                args.fArena, fViewMatrix, SK_PMColor4fTRANSPARENT, drawFanWithTessellator,
-                GrPathCurveTessellator::ShaderType::kFixedCountMiddleOut);
-    } else if (drawFanWithTessellator == GrPathTessellator::DrawInnerFan::kNo) {
-        fTessellator = GrPathCurveTessellator::Make(
-                args.fArena, fViewMatrix, SK_PMColor4fTRANSPARENT, drawFanWithTessellator,
-                GrPathCurveTessellator::ShaderType::kHardwareTessellation);
+        fTessellator = GrPathCurveTessellator::Make(args.fArena, fViewMatrix,
+                                                    SK_PMColor4fTRANSPARENT,
+                                                    GrPathCurveTessellator::DrawInnerFan::kNo,
+                                                    fPath.countVerbs(), *args.fCaps);
     } else {
         fTessellator = GrPathWedgeTessellator::Make(args.fArena, fViewMatrix,
-                                                    SK_PMColor4fTRANSPARENT);
+                                                    SK_PMColor4fTRANSPARENT, fPath.countVerbs(),
+                                                    *args.fCaps);
     }
     fStencilPathProgram = GrTessellationShader::MakeProgram(args, fTessellator->shader(),
                                                             stencilPipeline, stencilPathSettings);
