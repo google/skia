@@ -26,8 +26,8 @@ constexpr SkColorType kColorType = kRGBA_8888_SkColorType;
 constexpr SkAlphaType kAlphaType = kUnpremul_SkAlphaType;
 
 /** Where to find the maximum and minimum of the model. */
-constexpr char kMaxPngPath[] = "max.png";
-constexpr char kMinPngPath[] = "min.png";
+inline constexpr char kMaxPngPath[] = "max.png";
+inline constexpr char kMinPngPath[] = "min.png";
 
 struct ModelResult {
     SkBitmap fErrors; // Correct pixels are white, failing pixels scale from black

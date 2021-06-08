@@ -41,7 +41,7 @@ inline sk_sp<SkRuntimeEffect> SkMakeRuntimeEffect(SkRuntimeEffect::Result (*make
 
 // This is mostly from skvm's rgb->hsl code, with some GPU-related finesse pulled from
 // GrHighContrastFilterEffect.fp, see next comment.
-constexpr char kRGB_to_HSL_sksl[] =
+inline constexpr char kRGB_to_HSL_sksl[] =
     "half3 rgb_to_hsl(half3 c) {"
         "half mx = max(max(c.r,c.g),c.b),"
         "     mn = min(min(c.r,c.g),c.b),"
@@ -64,7 +64,7 @@ constexpr char kRGB_to_HSL_sksl[] =
     "}";
 
 //This is straight out of GrHSLToRGBFilterEffect.fp.
-constexpr char kHSL_to_RGB_sksl[] =
+inline constexpr char kHSL_to_RGB_sksl[] =
     "half3 hsl_to_rgb(half3 hsl) {"
         "half  C = (1 - abs(2 * hsl.z - 1)) * hsl.y;"
         "half3 p = hsl.xxx + half3(0, 2/3.0, 1/3.0);"
