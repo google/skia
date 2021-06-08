@@ -38,7 +38,7 @@ protected:
     SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix& ctm,
                                MapDirection, const SkIRect* inputRect) const override;
 
-    bool onCanHandleComplexCTM() const override { return true; }
+    MatrixCapability onGetCTMCapability() const override { return MatrixCapability::kComplex; }
 
 private:
     friend void ::SkRegisterImageImageFilterFlattenable();
