@@ -5,6 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "include/gpu/GrTypes.h"
+
+#if SK_OGA
+
 #include "gm/gm.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
@@ -246,3 +250,6 @@ private:
 DEF_GM(return new DrawQuadSetGM();)
 
 } // namespace skiagm
+
+#endif // SK_OGA
+

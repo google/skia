@@ -609,13 +609,13 @@ private:
 }  // anonymous namespace
 
 bool GrTriangulatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
-    GR_AUDIT_TRAIL_AUTO_FRAME(args.fSurfaceDrawContext->auditTrail(),
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fContext->priv().auditTrail(),
                               "GrTriangulatingPathRenderer::onDrawPath");
 
     GrOp::Owner op = TriangulatingPathOp::Make(
             args.fContext, std::move(args.fPaint), *args.fShape, *args.fViewMatrix,
             *args.fClipConservativeBounds, args.fAAType, args.fUserStencilSettings);
-    args.fSurfaceDrawContext->addDrawOp(args.fClip, std::move(op));
+    args.fSurfaceDrawContext1->addDrawOp(args.fClip, std::move(op));
     return true;
 }
 

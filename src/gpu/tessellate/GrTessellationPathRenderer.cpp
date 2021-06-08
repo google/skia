@@ -81,7 +81,7 @@ GrPathRenderer::CanDrawPath GrTessellationPathRenderer::onCanDrawPath(
     return CanDrawPath::kYes;
 }
 
-static GrOp::Owner make_op(GrRecordingContext* rContext, const GrSurfaceContext* surfaceContext,
+static GrOp::Owner make_op(GrRecordingContext* rContext, const GrSurfaceProxy* targetProxy,
                            GrTessellationPathRenderer::OpFlags opFlags, GrAAType aaType,
                            const SkRect& shapeDevBounds, const SkMatrix& viewMatrix,
                            const GrStyledShape& shape, GrPaint&& paint) {
@@ -98,7 +98,7 @@ static GrOp::Owner make_op(GrRecordingContext* rContext, const GrSurfaceContext*
                                                                       shapeDevBounds.height());
     if (worstCaseResolveLevel > kMaxResolveLevel) {
         // The path is too large for our internal indirect draw shaders. Crop it to the viewport.
-        auto viewport = SkRect::MakeIWH(surfaceContext->width(), surfaceContext->height());
+        auto viewport = SkRect::MakeIWH(targetProxy->width(), targetProxy->height());
         float inflationRadius = 1;
         const SkStrokeRec& stroke = shape.style().strokeRec();
         if (stroke.getStyle() == SkStrokeRec::kHairline_Style) {
@@ -167,8 +167,6 @@ static GrOp::Owner make_op(GrRecordingContext* rContext, const GrSurfaceContext*
 }
 
 bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
-    GrSurfaceDrawContext* surfaceDrawContext = args.fSurfaceDrawContext;
-
     SkRect devBounds;
     args.fViewMatrix->mapRect(&devBounds, args.fShape->bounds());
 
@@ -186,16 +184,16 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
         // The atlas is not compatible with DDL. We should only be using it on direct contexts.
         SkASSERT(args.fContext->asDirectContext());
         auto op = GrOp::Make<GrDrawAtlasPathOp>(args.fContext,
-                surfaceDrawContext->numSamples(), sk_ref_sp(fAtlas.textureProxy()),
+                args.fTargetProxy->numSamples(), sk_ref_sp(fAtlas.textureProxy()),
                 devIBounds, locationInAtlas, transposedInAtlas, *args.fViewMatrix,
                 std::move(args.fPaint));
-        surfaceDrawContext->addDrawOp(args.fClip, std::move(op));
+        args.fSurfaceDrawContext1->addDrawOp(args.fClip, std::move(op));
         return true;
     }
 
-    if (auto op = make_op(args.fContext, surfaceDrawContext, OpFlags::kNone, args.fAAType,
+    if (auto op = make_op(args.fContext, args.fTargetProxy, OpFlags::kNone, args.fAAType,
                           devBounds, *args.fViewMatrix, *args.fShape, std::move(args.fPaint))) {
-        surfaceDrawContext->addDrawOp(args.fClip, std::move(op));
+        args.fSurfaceDrawContext1->addDrawOp(args.fClip, std::move(op));
     }
     return true;
 }
