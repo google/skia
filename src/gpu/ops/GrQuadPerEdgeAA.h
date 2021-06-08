@@ -95,7 +95,7 @@ namespace GrQuadPerEdgeAA {
         // Will always be 0 if hasLocalCoords is false, otherwise will be 2 or 3
         int localDimensionality() const;
 
-        int verticesPerQuad() const { return fUsesCoverageAA ? 8 : 4; }
+        int verticesPerQuad() const { return fUsesCoverageAA ? 12 : 4; }
 
         CoverageMode coverageMode() const;
         size_t vertexSize() const;

@@ -430,8 +430,8 @@ int GrResourceProvider::NumIndicesPerNonAAQuad() { return kIndicesPerNonAAQuad; 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 static constexpr int kMaxNumAAQuads = 1 << 9;  // max possible: (1 << 13) - 1;
-static const int kVertsPerAAQuad = 8;
-static const int kIndicesPerAAQuad = 30;
+static const int kVertsPerAAQuad = 12;
+static const int kIndicesPerAAQuad = 30 + 24;
 
 sk_sp<const GrGpuBuffer> GrResourceProvider::createAAQuadIndexBuffer() {
     static_assert(kVertsPerAAQuad * kMaxNumAAQuads <= 65535);  // indices fit in a uint16_t
@@ -443,6 +443,11 @@ sk_sp<const GrGpuBuffer> GrResourceProvider::createAAQuadIndexBuffer() {
         0, 6, 4, 0, 2, 6,
         2, 3, 6, 3, 7, 6,
         1, 5, 3, 3, 5, 7,
+
+        5,  8, 9,  8, 5, 4,
+        8,  4, 10, 4, 6, 10,
+        10, 6, 11, 6, 7, 11,
+        5,  9, 7,  7, 9, 11
     };
     // clang-format on
 

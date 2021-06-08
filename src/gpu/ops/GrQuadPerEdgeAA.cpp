@@ -345,12 +345,18 @@ void Tessellator::append(GrQuad* deviceQuad, GrQuad* localQuad,
             // non-aa quad batched into a coverage AA op.
             fWriteProc(&fVertexWriter, fVertexSpec, deviceQuad, localQuad, kFullCoverage, color,
                        geomSubset, uvSubset);
+            fWriteProc(&fVertexWriter, fVertexSpec, deviceQuad, localQuad, kZeroCoverage, color,
+                       geomSubset, uvSubset);
             // Since we pass the same corners in, the outer vertex structure will have 0 area and
             // the coverage interpolation from 1 to 0 will not be visible.
             fWriteProc(&fVertexWriter, fVertexSpec, deviceQuad, localQuad, kZeroCoverage, color,
                        geomSubset, uvSubset);
         } else {
             // Reset the tessellation helper to match the current geometry
+            GrQuad origDevice = *deviceQuad;
+            GrQuad origLocal;
+            if (localQuad) origLocal = *localQuad;
+
             fAAHelper.reset(*deviceQuad, localQuad);
 
             // Edge inset/outset distance ordered LBTR, set to 0.5 for a half pixel if the AA flag
@@ -385,8 +391,16 @@ void Tessellator::append(GrQuad* deviceQuad, GrQuad* localQuad,
                 // 2 - wh < 1 and represents the non-narrow axis so clamp to 1.
                 edgeDistances *= max(1.f, 2.f - maxWH);
             }
+
+            // Then the original vertices with 1/2 coverage
+            for (int i = 0; i < 4; ++i) {
+                coverage[i] *= 0.5f;
+            }
+            fWriteProc(&fVertexWriter, fVertexSpec, &origDevice, &origLocal, coverage, color, geomSubset, uvSubset);
+
             fAAHelper.outset(edgeDistances, deviceQuad, localQuad);
-            fWriteProc(&fVertexWriter, fVertexSpec, deviceQuad, localQuad, kZeroCoverage, color,
+            // Write the outset geometry but clone the original local coords
+            fWriteProc(&fVertexWriter, fVertexSpec, deviceQuad, &origLocal, kZeroCoverage, color,
                        geomSubset, uvSubset);
         }
     } else {
