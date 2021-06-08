@@ -22,6 +22,30 @@
       },
       "revId": "e14c33cf9033602aa0a54318f46a58b82bb7864c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eb768365_4dbc75b9",
+        "filename": "src/effects/imagefilters/SkRuntimeImageFilter.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-08T20:44:08Z",
+      "side": 1,
+      "message": "Yes, this version is assuming exactly one input. (But it\u0027s straightforward to take multiple input filters and match them up to the children declared in the SkSL, when we generalize this feature beyond Chrome\u0027s needs).",
+      "parentUuid": "15a5c28e_fe4a0b6c",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 73
+      },
+      "revId": "e14c33cf9033602aa0a54318f46a58b82bb7864c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
