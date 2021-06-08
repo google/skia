@@ -3497,9 +3497,9 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fAllowBGRA8CopyTexSubImage = true;
     }
 
-    // anglebug.com/6030
+    // http://anglebug.com/6030
     if (fMSFBOType == kES_EXT_MsToTexture_MSFBOType &&
-        ctxInfo.angleBackend() == GrGLANGLEBackend::kD3D11) {
+        (ctxInfo.angleBackend() == GrGLANGLEBackend::kD3D11 || GR_IS_GR_WEBGL(standard))) {
         fDisallowDynamicMSAA = true;
     }
 
