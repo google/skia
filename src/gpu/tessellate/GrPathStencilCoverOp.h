@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrPathStencilFillOp_DEFINED
-#define GrPathStencilFillOp_DEFINED
+#ifndef GrPathStencilCoverOp_DEFINED
+#define GrPathStencilCoverOp_DEFINED
 
 #include "src/gpu/ops/GrDrawOp.h"
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
@@ -14,16 +14,16 @@
 
 class GrPathTessellator;
 
-// Draws paths using a standard Redbook "stencil then fill" method. Curves get linearized by either
+// Draws paths using a standard Redbook "stencil then cover" method. Curves get linearized by either
 // GPU tessellation shaders or indirect draws. This Op doesn't apply analytic AA, so it requires
 // MSAA if AA is desired.
-class GrPathStencilFillOp : public GrDrawOp {
+class GrPathStencilCoverOp : public GrDrawOp {
 private:
     DEFINE_OP_CLASS_ID
 
-    GrPathStencilFillOp(const SkMatrix& viewMatrix, const SkPath& path, GrPaint&& paint,
-                        GrAAType aaType, GrTessellationPathRenderer::PathFlags pathFlags,
-                        const SkRect& devBounds)
+    GrPathStencilCoverOp(const SkMatrix& viewMatrix, const SkPath& path, GrPaint&& paint,
+                         GrAAType aaType, GrTessellationPathRenderer::PathFlags pathFlags,
+                         const SkRect& devBounds)
             : GrDrawOp(ClassID())
             , fPathFlags(pathFlags)
             , fViewMatrix(viewMatrix)
@@ -34,13 +34,13 @@ private:
         this->setBounds(devBounds, HasAABloat::kNo, IsHairline::kNo);
     }
 
-    const char* name() const override { return "GrPathStencilFillOp"; }
+    const char* name() const override { return "GrPathStencilCoverOp"; }
     void visitProxies(const VisitProxyFunc& fn) const override;
     FixedFunctionFlags fixedFunctionFlags() const override;
     GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*, GrClampType) override;
 
     // Chooses the rendering method we will use and creates the corresponding tessellator and
-    // stencil/fill programs.
+    // stencil/cover programs.
     void prePreparePrograms(const GrTessellationShader::ProgramArgs&, GrAppliedClip&& clip);
 
     void onPrePrepare(GrRecordingContext*, const GrSurfaceProxyView&, GrAppliedClip*,
@@ -59,7 +59,7 @@ private:
     GrPathTessellator* fTessellator = nullptr;
     const GrProgramInfo* fStencilFanProgram = nullptr;
     const GrProgramInfo* fStencilPathProgram = nullptr;
-    const GrProgramInfo* fFillBBoxProgram = nullptr;
+    const GrProgramInfo* fCoverBBoxProgram = nullptr;
 
     // Filled during onPrepare.
     sk_sp<const GrBuffer> fFanBuffer;
