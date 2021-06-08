@@ -188,6 +188,7 @@ private:
         kUsesSampleCoords_Flag = 0x1,
         kAllowColorFilter_Flag = 0x2,
         kAllowShader_Flag      = 0x4,
+        kAllowBlend_Flag       = 0x8,
     };
 
     SkRuntimeEffect(SkString sksl,

@@ -593,6 +593,7 @@ sksl_rte_error_tests = [
   "/sksl/runtime_errors/IllegalOperators.rts",
   "/sksl/runtime_errors/IllegalShaderUse.rts",
   "/sksl/runtime_errors/IllegalStatements.rts",
+  "/sksl/runtime_errors/InvalidBlendMain.rtb",
   "/sksl/runtime_errors/InvalidColorFilterFeatures.rtcf",
   "/sksl/runtime_errors/InvalidColorFilterMain.rtcf",
   "/sksl/runtime_errors/InvalidShaderMain.rts",
