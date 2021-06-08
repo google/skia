@@ -128,6 +128,7 @@ tests_sources = [
   "$_tests/HashTest.cpp",
   "$_tests/HighContrastFilterTest.cpp",
   "$_tests/ICCTest.cpp",
+  "$_tests/ICUTest.cpp",
   "$_tests/ImageBitmapTest.cpp",
   "$_tests/ImageCacheTest.cpp",
   "$_tests/ImageFilterCacheTest.cpp",
