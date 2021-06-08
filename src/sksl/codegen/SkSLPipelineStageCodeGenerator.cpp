@@ -139,7 +139,7 @@ void PipelineStageCodeGenerator::write(const String& s) {
 }
 
 void PipelineStageCodeGenerator::write(StringFragment s) {
-    fBuffer->write(s.fChars, s.fLength);
+    fBuffer->write(s.data(), s.length());
 }
 
 void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
@@ -279,7 +279,7 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
         fCastReturnsToHalf = false;
     }
 
-    String fnName = decl.isMain() ? decl.name()
+    String fnName = decl.isMain() ? String(decl.name())
                                   : fCallbacks->getMangledName(String(decl.name()).c_str());
 
     // This is similar to decl.description(), but substitutes a mangled name, and handles modifiers
@@ -385,7 +385,7 @@ String PipelineStageCodeGenerator::typeName(const Type& type) {
     }
 
     auto it = fStructNames.find(&type);
-    return it != fStructNames.end() ? it->second : type.name();
+    return it != fStructNames.end() ? it->second : String(type.name());
 }
 
 void PipelineStageCodeGenerator::writeType(const Type& type) {

@@ -272,7 +272,7 @@ void CPPCodeGenerator::writeVariableReference(const VariableReference& ref) {
                 String varCode = String::printf("args.fUniformHandler->getUniformCStr(%sVar)",
                                                 HCodeGenerator::FieldName(name.c_str()).c_str());
                 String code;
-                if (var.modifiers().fLayout.fWhen.fLength) {
+                if (var.modifiers().fLayout.fWhen.length()) {
                     code = String::printf("%sVar.isValid() ? %s : \"%s\"",
                                           HCodeGenerator::FieldName(name.c_str()).c_str(),
                                           varCode.c_str(),
@@ -574,7 +574,7 @@ void CPPCodeGenerator::addUniform(const Variable& var) {
     if (!needs_uniform_var(var)) {
         return;
     }
-    if (var.modifiers().fLayout.fWhen.fLength) {
+    if (var.modifiers().fLayout.fWhen.length()) {
         this->writef("        if (%s) {\n    ", String(var.modifiers().fLayout.fWhen).c_str());
     }
     String name(var.name());
@@ -592,7 +592,7 @@ void CPPCodeGenerator::addUniform(const Variable& var) {
                      name.c_str(),
                      var.type().columns());
     }
-    if (var.modifiers().fLayout.fWhen.fLength) {
+    if (var.modifiers().fLayout.fWhen.length()) {
         this->write("        }\n");
     }
 }
@@ -1147,7 +1147,7 @@ void CPPCodeGenerator::writeGetKey() {
                     }
                     this->write(";\n");
                 }
-                if (var.modifiers().fLayout.fWhen.fLength) {
+                if (var.modifiers().fLayout.fWhen.length()) {
                     this->writef("if (%s) {", String(var.modifiers().fLayout.fWhen).c_str());
                 }
                 if (varType == *fContext.fTypes.fHalf4) {
@@ -1180,7 +1180,7 @@ void CPPCodeGenerator::writeGetKey() {
                     SK_ABORT("NOT YET IMPLEMENTED: automatic key handling for %s\n",
                              varType.displayName().c_str());
                 }
-                if (var.modifiers().fLayout.fWhen.fLength) {
+                if (var.modifiers().fLayout.fWhen.length()) {
                     this->write("}");
                 }
             }

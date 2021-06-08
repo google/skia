@@ -47,7 +47,7 @@ void GLSLCodeGenerator::write(const String& s) {
 }
 
 void GLSLCodeGenerator::write(StringFragment s) {
-    if (!s.fLength) {
+    if (!s.length()) {
         return;
     }
     if (fAtLineStart) {
@@ -55,7 +55,7 @@ void GLSLCodeGenerator::write(StringFragment s) {
             fOut->writeText("    ");
         }
     }
-    fOut->write(s.fChars, s.fLength);
+    fOut->write(s.data(), s.length());
     fAtLineStart = false;
 }
 

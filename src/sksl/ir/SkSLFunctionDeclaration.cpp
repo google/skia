@@ -331,7 +331,7 @@ String FunctionDeclaration::mangledName() const {
         return this->name();
     }
     // GLSL forbids two underscores in a row; add an extra character if necessary to avoid this.
-    const char* splitter = this->name().endsWith("_") ? "x_" : "_";
+    const char* splitter = this->name().ends_with("_") ? "x_" : "_";
     // Rename function to `funcname_returntypeparamtypes`.
     String result = this->name() + splitter + this->returnType().abbreviatedName();
     for (const Variable* p : this->parameters()) {
