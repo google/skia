@@ -78,7 +78,7 @@ public:
 
     explicit String(std::string s) : INHERITED(std::move(s)) {}
     String(StringFragment s) : INHERITED(s.fChars, s.fLength) {}
-    String(skstd::string_view s) : INHERITED(s.data(), s.length()) {}
+    explicit String(skstd::string_view s) : INHERITED(s.data(), s.length()) {}
     // TODO(johnstiles): add operator skstd::string_view
 
     static String printf(const char* fmt, ...) SK_PRINTF_LIKE(1, 2);
