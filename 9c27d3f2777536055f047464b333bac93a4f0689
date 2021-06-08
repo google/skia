@@ -70,6 +70,30 @@
       },
       "revId": "9c27d3f2777536055f047464b333bac93a4f0689",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f522a167_f32626e6",
+        "filename": "site/dev/contrib/style.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-06-08T13:19:42Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "a51e7746_17306923",
+      "range": {
+        "startLine": 53,
+        "startChar": 12,
+        "endLine": 55,
+        "endChar": 0
+      },
+      "revId": "9c27d3f2777536055f047464b333bac93a4f0689",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
