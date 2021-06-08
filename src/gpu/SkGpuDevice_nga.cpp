@@ -7,7 +7,7 @@
 
 #include "src/gpu/SkGpuDevice_nga.h"
 
-#ifdef SK_NGA
+#if SK_NGA
 
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkImageFilterCache.h"
