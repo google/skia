@@ -22,7 +22,7 @@ using PathFlags = GrTessellationPathRenderer::PathFlags;
 namespace {
 
 // Fills an array of convex hulls surrounding 4-point cubic or conic instances. This shader is used
-// for the "fill" pass after the curves have been fully stencilled.
+// for the "cover" pass after the curves have been fully stencilled.
 class HullShader : public GrPathTessellationShader {
 public:
     HullShader(const SkMatrix& viewMatrix, SkPMColor4f color)
@@ -157,13 +157,13 @@ void GrPathInnerTriangulateOp::prePreparePrograms(const GrTessellationShader::Pr
     SkASSERT(!fTessellator);
     SkASSERT(!fStencilCurvesProgram);
     SkASSERT(fFanPrograms.empty());
-    SkASSERT(!fFillHullsProgram);
+    SkASSERT(!fCoverHullsProgram);
 
     if (fPath.countVerbs() <= 0) {
         return;
     }
 
-    // If using wireframe, we have to fall back on a standard Redbook "stencil then fill" algorithm
+    // If using wireframe, we have to fall back on a standard Redbook "stencil then cover" algorithm
     // instead of bypassing the stencil buffer to fill the fan directly.
     bool forceRedbookStencilPass = (fPathFlags & (PathFlags::kStencilOnly | PathFlags::kWireframe));
     bool doFill = !(fPathFlags & PathFlags::kStencilOnly);
@@ -202,8 +202,8 @@ void GrPathInnerTriangulateOp::prePreparePrograms(const GrTessellationShader::Pr
     // Pass 2: Fill the path's inner fan with a stencil test against the curves.
     if (fFanPolys) {
         if (forceRedbookStencilPass) {
-            // Use a standard Redbook "stencil then fill" algorithm instead of bypassing the stencil
-            // buffer to fill the fan directly.
+            // Use a standard Redbook "stencil then cover" algorithm instead of bypassing the
+            // stencil buffer to fill the fan directly.
             const GrUserStencilSettings* stencilPathSettings =
                     GrPathTessellationShader::StencilPathSettings(fPath.getFillType());
             this->pushFanStencilProgram(args, pipelineForStencils, stencilPathSettings);
@@ -299,7 +299,7 @@ void GrPathInnerTriangulateOp::prePreparePrograms(const GrTessellationShader::Pr
         // This will fill in any remaining samples and reset the stencil values back to zero.
         SkASSERT(fTessellator);
         auto* hullShader = args.fArena->make<HullShader>(fViewMatrix, fColor);
-        fFillHullsProgram = GrTessellationShader::MakeProgram(
+        fCoverHullsProgram = GrTessellationShader::MakeProgram(
                 args, hullShader, fPipelineForFills,
                 GrPathTessellationShader::TestAndResetStencilSettings());
     }
@@ -320,8 +320,8 @@ void GrPathInnerTriangulateOp::onPrePrepare(GrRecordingContext* context,
     for (const GrProgramInfo* fanProgram : fFanPrograms) {
         context->priv().recordProgramInfo(fanProgram);
     }
-    if (fFillHullsProgram) {
-        context->priv().recordProgramInfo(fFillHullsProgram);
+    if (fCoverHullsProgram) {
+        context->priv().recordProgramInfo(fCoverHullsProgram);
     }
 }
 
@@ -365,10 +365,10 @@ void GrPathInnerTriangulateOp::onExecute(GrOpFlushState* flushState, const SkRec
         flushState->draw(fFanVertexCount, fBaseFanVertex);
     }
 
-    if (fFillHullsProgram) {
+    if (fCoverHullsProgram) {
         SkASSERT(fTessellator);
-        flushState->bindPipelineAndScissorClip(*fFillHullsProgram, this->bounds());
-        flushState->bindTextures(fFillHullsProgram->geomProc(), nullptr, *fPipelineForFills);
+        flushState->bindPipelineAndScissorClip(*fCoverHullsProgram, this->bounds());
+        flushState->bindTextures(fCoverHullsProgram->geomProc(), nullptr, *fPipelineForFills);
         fTessellator->drawHullInstances(flushState);
     }
 }
