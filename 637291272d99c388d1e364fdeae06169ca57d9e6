@@ -22,6 +22,30 @@
       },
       "revId": "637291272d99c388d1e364fdeae06169ca57d9e6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f55ce3cf_1018224e",
+        "filename": "src/gpu/tessellate/GrPathTessellator.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-08T04:58:16Z",
+      "side": 0,
+      "message": "Since I deleted GrPathIndirectTessellator, there\u0027s only one file that does this. So I just stuffed it inline instead of in a shared function.",
+      "parentUuid": "8a55b324_0d747604",
+      "range": {
+        "startLine": 77,
+        "startChar": 4,
+        "endLine": 77,
+        "endChar": 39
+      },
+      "revId": "637291272d99c388d1e364fdeae06169ca57d9e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

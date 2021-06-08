@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "76bab849_b276945d",
+        "filename": "src/gpu/tessellate/GrPathCurveTessellator.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-08T04:58:16Z",
+      "side": 1,
+      "message": "This is what used to be the \"WriteBreadcrumbTriangles\" function.",
+      "range": {
+        "startLine": 205,
+        "startChar": 0,
+        "endLine": 225,
+        "endChar": 63
+      },
+      "revId": "12ccf79e6cb5b803d35d1c1e798886f04e7bb6a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

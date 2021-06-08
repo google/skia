@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "22749b2c_dfcaaf0b",
+        "filename": "src/gpu/tessellate/GrPathCurveTessellator.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-08T04:58:16Z",
+      "side": 1,
+      "message": "Good idea. I like this better.",
+      "parentUuid": "b4ad1af8_3951cdb1",
+      "range": {
+        "startLine": 24,
+        "startChar": 4,
+        "endLine": 24,
+        "endChar": 26
+      },
+      "revId": "45698958e72999c4e7b9fbe4a3569ae14bd8851f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "44389035_06dfa826",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-06-07T21:19:26Z",
       "side": 1,
       "message": "Were the changes to the shader necessary for this CL? A separate CL would have been clearer, or maybe I\u0027m just missing something.",
+      "range": {
+        "startLine": 57,
+        "startChar": 0,
+        "endLine": 61,
+        "endChar": 21
+      },
+      "revId": "45698958e72999c4e7b9fbe4a3569ae14bd8851f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "58c180f4_288053af",
+        "filename": "src/gpu/tessellate/shaders/GrPathTessellationShader_MiddleOut.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-08T04:58:16Z",
+      "side": 1,
+      "message": "Done. Lifted out everything I could in https://skia-review.googlesource.com/c/skia/+/416542.\n\nThis particular branch is a fixed-count thing though because now we may find ourselves emitting 31 triangles for an instance that only needs 3 (for example). So we draw the first 3 triangles, then burn the rest by making all their points colocated at T\u003d1 (i.e., triangle\u003d[p3, p3, p3]).",
+      "parentUuid": "44389035_06dfa826",
       "range": {
         "startLine": 57,
         "startChar": 0,
