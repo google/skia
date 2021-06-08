@@ -323,10 +323,10 @@ GrThreadSafeCache::CreateLazyView(GrDirectContext* dContext,
                                   GrSurfaceOrigin origin,
                                   SkBackingFit fit) {
     GrProxyProvider* proxyProvider = dContext->priv().proxyProvider();
+    const GrCaps* caps = dContext->priv().caps();
 
     constexpr int kSampleCnt = 1;
-    auto [newCT, format] =
-            GrSurfaceFillContext::GetFallbackColorTypeAndFormat(dContext, origCT, kSampleCnt);
+    auto [newCT, format] = GrCaps::GetFallbackColorTypeAndFormat(caps, origCT, kSampleCnt);
 
     if (newCT == GrColorType::kUnknown) {
         return {GrSurfaceProxyView(nullptr), nullptr};
