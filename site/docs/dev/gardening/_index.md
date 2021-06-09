@@ -26,7 +26,9 @@ weight: 8
   - [What to do if DEPS roll fails to land](#deps_roll_failures)
   - [How to rebaseline](#how_to_rebaseline)
 
-<a name="what_is_a_skia_gardener"></a> What does a Skia Gardener do?
+<a name="what_is_a_skia_gardener"></a>
+
+## What does a Skia Gardener do?
 
 ---
 
