@@ -59,7 +59,7 @@ protected:
         return true;
     }
 
-    skvm::Color onProgram(skvm::Builder* p, skvm::Color c, SkColorSpace* dstCS, skvm::Uniforms*,
+    skvm::Color onProgram(skvm::Builder* p, skvm::Color c, const SkColorInfo& dst, skvm::Uniforms*,
                           SkArenaAlloc*) const override {
         // x = 1 - x;
         // exp(-x * x * 4) - 0.018f;
