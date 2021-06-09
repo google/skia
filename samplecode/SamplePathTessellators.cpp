@@ -78,21 +78,25 @@ private:
             using DrawInnerFan = GrPathCurveTessellator::DrawInnerFan;
             case Mode::kWedgeMiddleOut:
                 fTessellator = GrPathWedgeTessellator::Make(alloc, fMatrix, kCyan,
-                                                            numVerbsToGetMiddleOut, caps);
+                                                            numVerbsToGetMiddleOut, fProcessors,
+                                                            caps);
                 break;
             case Mode::kCurveMiddleOut:
                 fTessellator = GrPathCurveTessellator::Make(alloc, fMatrix, kCyan,
                                                             DrawInnerFan::kYes,
-                                                            numVerbsToGetMiddleOut, caps);
+                                                            numVerbsToGetMiddleOut, fProcessors,
+                                                            caps);
                 break;
             case Mode::kWedgeTessellate:
                 fTessellator = GrPathWedgeTessellator::Make(alloc, fMatrix, kCyan,
-                                                            numVerbsToGetTessellation, caps);
+                                                            numVerbsToGetTessellation, fProcessors,
+                                                            caps);
                 break;
             case Mode::kCurveTessellate:
                 fTessellator = GrPathCurveTessellator::Make(alloc, fMatrix, kCyan,
                                                             DrawInnerFan::kYes,
-                                                            numVerbsToGetTessellation, caps);
+                                                            numVerbsToGetTessellation, fProcessors,
+                                                            caps);
                 break;
         }
         fTessellator->prepare(flushState, this->bounds(), fPath);
