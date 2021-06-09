@@ -16,6 +16,23 @@
       "message": "seems 95% just plumbing.\n\ncursory +1",
       "revId": "e3db4d41007169fa7102f3961fa66bfd6dabf641",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c4b4dae8_dac90cc6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-09T15:29:11Z",
+      "side": 1,
+      "message": "agreed, seems fine to me",
+      "revId": "e3db4d41007169fa7102f3961fa66bfd6dabf641",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
