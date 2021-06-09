@@ -109,13 +109,11 @@ private:
 // by the hardware.
 class WedgeWriter {
 public:
-    WedgeWriter(const SkRect& cullBounds, const SkMatrix& viewMatrix,
-                const GrShaderCaps& shaderCaps)
+    WedgeWriter(const SkRect& cullBounds, const SkMatrix& viewMatrix, int maxSegments)
             : fCullTest(cullBounds, viewMatrix)
-            , fVectorXform(viewMatrix) {
-        float maxSegments = shaderCaps.maxTessellationSegments();
-        fMaxSegments_pow2 = maxSegments * maxSegments;
-        fMaxSegments_pow4 = fMaxSegments_pow2 * fMaxSegments_pow2;
+            , fVectorXform(viewMatrix)
+            , fMaxSegments_pow2(maxSegments * maxSegments)
+            , fMaxSegments_pow4(fMaxSegments_pow2 * fMaxSegments_pow2) {
     }
 
     SK_ALWAYS_INLINE void writeFlatWedge(GrVertexChunkBuilder* chunker, SkPoint p0, SkPoint p1,
@@ -128,7 +126,8 @@ public:
 
     SK_ALWAYS_INLINE void writeQuadraticWedge(GrVertexChunkBuilder* chunker, const SkPoint p[3],
                                               SkPoint midpoint) {
-        if (GrWangsFormula::quadratic_pow4(kPrecision, p, fVectorXform) > fMaxSegments_pow4) {
+        float numSegments_pow4 = GrWangsFormula::quadratic_pow4(kPrecision, p, fVectorXform);
+        if (numSegments_pow4 > fMaxSegments_pow4) {
             this->chopAndWriteQuadraticWedges(chunker, p, midpoint);
             return;
         }
@@ -136,10 +135,12 @@ public:
             GrPathUtils::writeQuadAsCubic(p, &vertexWriter);
             vertexWriter.write(midpoint);
         }
+        fNumFixedSegments_pow4 = std::max(numSegments_pow4, fNumFixedSegments_pow4);
     }
 
     SK_ALWAYS_INLINE void writeConicWedge(GrVertexChunkBuilder* chunker, const SkPoint p[3],
                                           float w, SkPoint midpoint) {
+        float numSegments_pow2 = GrWangsFormula::conic_pow2(kPrecision, p, w, fVectorXform);
         if (GrWangsFormula::conic_pow2(kPrecision, p, w, fVectorXform) > fMaxSegments_pow2) {
             this->chopAndWriteConicWedges(chunker, {p, w}, midpoint);
             return;
@@ -148,11 +149,14 @@ public:
             GrTessellationShader::WriteConicPatch(p, w, &vertexWriter);
             vertexWriter.write(midpoint);
         }
+        fNumFixedSegments_pow4 = std::max(numSegments_pow2 * numSegments_pow2,
+                                          fNumFixedSegments_pow4);
     }
 
     SK_ALWAYS_INLINE void writeCubicWedge(GrVertexChunkBuilder* chunker, const SkPoint p[4],
                                           SkPoint midpoint) {
-        if (GrWangsFormula::cubic_pow4(kPrecision, p, fVectorXform) > fMaxSegments_pow4) {
+        float numSegments_pow4 = GrWangsFormula::cubic_pow4(kPrecision, p, fVectorXform);
+        if (numSegments_pow4 > fMaxSegments_pow4) {
             this->chopAndWriteCubicWedges(chunker, p, midpoint);
             return;
         }
@@ -160,7 +164,10 @@ public:
             vertexWriter.writeArray(p, 4);
             vertexWriter.write(midpoint);
         }
+        fNumFixedSegments_pow4 = std::max(numSegments_pow4, fNumFixedSegments_pow4);
     }
+
+    int numFixedSegments_pow4() const { return fNumFixedSegments_pow4; }
 
 private:
     void chopAndWriteQuadraticWedges(GrVertexChunkBuilder* chunker, const SkPoint p[3],
@@ -208,23 +215,37 @@ private:
 
     GrCullTest fCullTest;
     GrVectorXform fVectorXform;
-    float fMaxSegments_pow2;
-    float fMaxSegments_pow4;
+    const float fMaxSegments_pow2;
+    const float fMaxSegments_pow4;
+
+    // If using fixed count, this is the max number of curve segments we need to draw per instance.
+    float fNumFixedSegments_pow4 = 1;
 };
 
 }  // namespace
 
 
 GrPathTessellator* GrPathWedgeTessellator::Make(SkArenaAlloc* arena, const SkMatrix& viewMatrix,
-                                                const SkPMColor4f& color) {
-    auto shader = GrPathTessellationShader::MakeHardwareWedgeShader(arena, viewMatrix, color);
-    return arena->make<GrPathWedgeTessellator>(shader);
+                                                const SkPMColor4f& color, int numPathVerbs,
+                                                const GrCaps& caps) {
+    using PatchType = GrPathTessellationShader::PatchType;
+    GrPathTessellationShader* shader;
+    if (caps.shaderCaps()->tessellationSupport() &&
+        numPathVerbs >= caps.minPathVerbsForHwTessellation()) {
+        shader = GrPathTessellationShader::MakeHardwareTessellationShader(arena, viewMatrix, color,
+                                                                          PatchType::kWedges);
+    } else {
+        shader = GrPathTessellationShader::MakeMiddleOutFixedCountShader(arena, viewMatrix, color,
+                                                                         PatchType::kWedges);
+    }
+    return arena->make([=](void* objStart) {
+        return new(objStart) GrPathWedgeTessellator(shader);
+    });
 }
 
 void GrPathWedgeTessellator::prepare(GrMeshDrawOp::Target* target, const SkRect& cullBounds,
                                      const SkPath& path,
                                      const BreadcrumbTriangleList* breadcrumbTriangleList) {
-    SkASSERT(target->caps().shaderCaps()->tessellationSupport());
     SkASSERT(!breadcrumbTriangleList);
     SkASSERT(fVertexChunkArray.empty());
 
@@ -236,7 +257,14 @@ void GrPathWedgeTessellator::prepare(GrMeshDrawOp::Target* target, const SkRect&
     }
     GrVertexChunkBuilder chunker(target, &fVertexChunkArray, sizeof(SkPoint) * 5, wedgeAllocCount);
 
-    WedgeWriter wedgeWriter(cullBounds, fShader->viewMatrix(), *target->caps().shaderCaps());
+    int maxSegments;
+    if (fShader->willUseTessellationShaders()) {
+        maxSegments = target->caps().shaderCaps()->maxTessellationSegments();
+    } else {
+        maxSegments = kMaxFixedCountSegments;
+    }
+
+    WedgeWriter wedgeWriter(cullBounds, fShader->viewMatrix(), maxSegments);
     MidpointContourParser parser(path);
     while (parser.parseNextContour()) {
         SkPoint midpoint = parser.currentMidpoint();
@@ -271,11 +299,28 @@ void GrPathWedgeTessellator::prepare(GrMeshDrawOp::Target* target, const SkRect&
             wedgeWriter.writeFlatWedge(&chunker, lastPoint, startPoint, midpoint);
         }
     }
+
+    if (!fShader->willUseTessellationShaders()) {
+        // log2(n) == log16(n^4).
+        int fixedResolveLevel = GrWangsFormula::nextlog16(wedgeWriter.numFixedSegments_pow4());
+        int numCurveTriangles =
+                GrPathTessellationShader::NumCurveTrianglesAtResolveLevel(fixedResolveLevel);
+        // Emit 3 vertices per curve triangle, plus 3 more for the fan triangle.
+        fFixedVertexCount = numCurveTriangles * 3 + 3;
+    }
 }
 
 void GrPathWedgeTessellator::draw(GrOpFlushState* flushState) const {
-    for (const GrVertexChunk& chunk : fVertexChunkArray) {
-        flushState->bindBuffers(nullptr, nullptr, chunk.fBuffer);
-        flushState->draw(chunk.fCount * 5, chunk.fBase * 5);
+    if (fShader->willUseTessellationShaders()) {
+        for (const GrVertexChunk& chunk : fVertexChunkArray) {
+            flushState->bindBuffers(nullptr, nullptr, chunk.fBuffer);
+            flushState->draw(chunk.fCount * 5, chunk.fBase * 5);
+        }
+    } else {
+        SkASSERT(fShader->hasInstanceAttributes());
+        for (const GrVertexChunk& chunk : fVertexChunkArray) {
+            flushState->bindBuffers(nullptr, chunk.fBuffer, nullptr);
+            flushState->drawInstanced(chunk.fCount, chunk.fBase, fFixedVertexCount, 0);
+        }
     }
 }
