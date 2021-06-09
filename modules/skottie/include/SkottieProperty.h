@@ -119,6 +119,8 @@ using TransformPropertyHandle = PropertyHandle<TransformPropertyValue,
  */
 class SK_API PropertyObserver : public SkRefCnt {
 public:
+    enum class NodeType {COMPOSITION, LAYER, EFFECT, OTHER};
+
     template <typename T>
     using LazyHandle = std::function<std::unique_ptr<T>()>;
 
@@ -130,8 +132,8 @@ public:
                                      const LazyHandle<TextPropertyHandle>&);
     virtual void onTransformProperty(const char node_name[],
                                      const LazyHandle<TransformPropertyHandle>&);
-    virtual void onEnterNode(const char node_name[]);
-    virtual void onLeavingNode(const char node_name[]);
+    virtual void onEnterNode(const char node_name[], NodeType node_type);
+    virtual void onLeavingNode(const char node_name[], NodeType node_type);
 };
 
 } // namespace skottie
