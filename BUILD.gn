@@ -3326,3 +3326,13 @@ skia_executable("skia_c_api_example") {
   include_dirs = [ "." ]
   deps = [ ":skia" ]
 }
+
+skia_executable("simple_app") {
+  sources = [ "tools/simpleapp.cpp" ]
+  deps = [
+    ":skia",
+    "modules/skottie",
+  ]
+
+  # cflags = [ "-DSK_NO_FONTS" ]
+}
