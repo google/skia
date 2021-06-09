@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "23e71177_3fc7b0f1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2021-06-09T13:07:51Z",
+      "side": 1,
+      "message": "This change needs to go through the same gauntlet as the one before it \u003e_\u003c\n\nis this correct?\n1. Submit change in skia (done)\n2. Cherry pick to android/next-release\n3. An automatic cl rolls next-release into android master\n4. A automatic cl rolls android master into sc-dev, but it may fail with a merge conflict and needs to be annotated with a hash of the CL in step 3.",
+      "revId": "e0dfcbb4b2d2be42be1ae2f07d5ea5ef3a85de9f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
