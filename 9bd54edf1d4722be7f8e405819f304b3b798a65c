@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8bb6fbf0_1fc11f2b",
+        "filename": "samplecode/SamplePathTessellators.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-06-09T18:40:18Z",
+      "side": 1,
+      "message": "Would \"HardwareShader (kWedges)\" make sense ?\nand \"HardwareShader (kCurves)\" down below ?",
+      "range": {
+        "startLine": 37,
+        "startChar": 20,
+        "endLine": 37,
+        "endChar": 39
+      },
+      "revId": "9bd54edf1d4722be7f8e405819f304b3b798a65c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
