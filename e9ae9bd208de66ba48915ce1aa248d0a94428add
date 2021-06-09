@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d8591492_68788288",
+        "filename": "include/private/SkSLString.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-09T04:08:35Z",
+      "side": 1,
+      "message": "nit, nothing to change in this CL: `string_view + string_view` isn\u0027t something that would work with normal C++17 std::string_views. A string_view doesn\u0027t support any form of concatenation; you need to explicitly convert it into a string first.\n\nhttps://godbolt.org/z/4jevasMcW\n\nI\u0027m not too worried about it. For that matter, it might be possible to just continue providing this overload even if/when we transition to the standard types. There might be a rule against it (messing with standard library types is sometimes UB?), but I didn\u0027t see anything forbidding it on brief inspection, and it seems to work in practice:\n\nhttps://godbolt.org/z/aGn5971bj\n\nAt any rate, we can always fix this up in the future if it becomes an issue. I don\u0027t see a problem with it for this CL.",
+      "range": {
+        "startLine": 61,
+        "startChar": 0,
+        "endLine": 61,
+        "endChar": 60
+      },
+      "revId": "e9ae9bd208de66ba48915ce1aa248d0a94428add",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
