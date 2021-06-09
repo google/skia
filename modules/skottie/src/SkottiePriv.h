@@ -146,19 +146,19 @@ public:
 
     class AutoPropertyTracker {
     public:
-        AutoPropertyTracker(const AnimationBuilder* builder, const skjson::ObjectValue& obj)
+        AutoPropertyTracker(const AnimationBuilder* builder, const skjson::ObjectValue& obj, const PropertyObserver::NodeType node_type)
             : fBuilder(builder)
-            , fPrevContext(builder->fPropertyObserverContext) {
+            , fPrevContext(builder->fPropertyObserverContext), fNodeType(node_type) {
             if (fBuilder->fPropertyObserver) {
                 auto observer = builder->fPropertyObserver.get();
                 this->updateContext(observer, obj);
-                observer->onEnterNode(fBuilder->fPropertyObserverContext);
+                observer->onEnterNode(fBuilder->fPropertyObserverContext, fNodeType);
             }
         }
 
         ~AutoPropertyTracker() {
             if (fBuilder->fPropertyObserver) {
-                fBuilder->fPropertyObserver->onLeavingNode(fBuilder->fPropertyObserverContext);
+                fBuilder->fPropertyObserver->onLeavingNode(fBuilder->fPropertyObserverContext, fNodeType);
                 fBuilder->fPropertyObserverContext = fPrevContext;
             }
         }
@@ -167,6 +167,7 @@ public:
 
         const AnimationBuilder* fBuilder;
         const char*             fPrevContext;
+        const PropertyObserver::NodeType fNodeType;
     };
 
     bool dispatchColorProperty(const sk_sp<sksg::Color>&) const;
