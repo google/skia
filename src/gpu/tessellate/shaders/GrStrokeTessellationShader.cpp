@@ -13,26 +13,6 @@
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/tessellate/GrStrokeTessellator.h"
 
-// Returns a scalar that, when mulitplied by x, makes its exponent <= ~0. Used in cases where we
-// want to avoid fp32 overflow.
-const char* GrStrokeTessellationShader::Impl::ExpNormalizerFn(const GrShaderCaps& shaderCaps) {
-    if (shaderCaps.bitManipulationSupport()) {
-        static const char* kLdexpImpl = R"(
-        float exp_normalizer(float absX) {
-            int exp;
-            frexp(absX, exp);
-            return ldexp(1, min(-exp, 0));
-        })";
-        return kLdexpImpl;
-    } else {
-        static const char* kDivImpl = R"(
-        float exp_normalizer(float absX) {
-            return 1 / max(absX, 1);
-        })";
-        return kDivImpl;
-    }
-}
-
 // The built-in atan() is undefined when x==0. This method relieves that restriction, but also can
 // return values larger than 2*PI. This shouldn't matter for our purposes.
 const char* GrStrokeTessellationShader::Impl::kAtan2Fn = R"(
@@ -47,9 +27,6 @@ float atan2(float2 v) {
 
 const char* GrStrokeTessellationShader::Impl::kCosineBetweenVectorsFn = R"(
 float cosine_between_vectors(float2 a, float2 b) {
-    // Normalize the exponents in our vectors first so our math doesn't overflow.
-    a *= exp_normalizer(max(abs(a.x), abs(a.y)));
-    b *= exp_normalizer(max(abs(b.x), abs(b.y)));
     float ab_cosTheta = dot(a,b);
     float ab_pow2 = dot(a,a) * dot(b,b);
     return (ab_pow2 == 0.0) ? 1.0 : clamp(ab_cosTheta * inversesqrt(ab_pow2), -1.0, 1.0);
@@ -90,7 +67,6 @@ void GrStrokeTessellationShader::Impl::emitTessellationCode(
     // The subclass is responsible to define the following symbols before calling this method:
     //
     //     // Functions.
-    //     float exp_normalizer(float2 absX);
     //     float2 unchecked_mix(float2, float2, float);
     //     float unchecked_mix(float, float, float);
     //
@@ -140,13 +116,6 @@ void GrStrokeTessellationShader::Impl::emitTessellationCode(
             A = fma(float2(-3), E, D);
         }
 
-        // Normalize the exponents in our tangent function so our math doesn't overflow.
-        float3 m = max(abs(float3(A.x, B.x, C.x)), abs(float3(A.y, B.y, C.y)));
-        float expNorm = exp_normalizer(max(max(m.x, m.y), m.z));
-        A *= expNorm;
-        B *= expNorm;
-        C *= expNorm;
-
         // Now find the coefficients that give a tangent direction from a parametric edge ID:
         //
         //                                                                 |parametricEdgeID^2|
@@ -164,7 +133,7 @@ void GrStrokeTessellationShader::Impl::emitTessellationCode(
         //
         float lastParametricEdgeID = 0.0;
         float maxParametricEdgeID = min(numParametricSegments - 1.0, combinedEdgeID);
-        float2 tan0norm = normalize(tan0 * expNorm);  // *= expNorm so normalize() doesn't overflow.
+        float2 tan0norm = normalize(tan0);
         float negAbsRadsPerSegment = -abs(radsPerSegment);
         float maxRotation0 = (1.0 + combinedEdgeID) * abs(radsPerSegment);
         for (int exp = %i - 1; exp >= 0; --exp) {
@@ -250,7 +219,6 @@ void GrStrokeTessellationShader::Impl::emitTessellationCode(
         // tangent.)
         if (T != radialT) {
             tangent = (w >= 0.0) ? bc*u - ab*v : bcd - abc;
-            tangent *= expNorm;  // Make sure normalize(tangent) doesn't overflow.
         }
 
         strokeCoord = (w >= 0.0) ? abc/uv : abcd;
@@ -258,8 +226,6 @@ void GrStrokeTessellationShader::Impl::emitTessellationCode(
         // Edges at the beginning and end of the strip use exact endpoints and tangents. This
         // ensures crack-free seaming between instances.
         tangent = (combinedEdgeID == 0) ? tan0 : tan1;
-        // Make sure normalize(tangent) doesn't overflow.
-        tangent *= exp_normalizer(max(abs(tangent.x), abs(tangent.y)));
         strokeCoord = (combinedEdgeID == 0) ? P[0] : P[3];
     })", shader.maxParametricSegments_log2() /* Parametric/radial sort loop count. */);
 
