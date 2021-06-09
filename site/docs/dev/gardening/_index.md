@@ -26,7 +26,9 @@ weight: 8
   - [What to do if DEPS roll fails to land](#deps_roll_failures)
   - [How to rebaseline](#how_to_rebaseline)
 
-<a name="what_is_a_skia_gardener"></a> What does a Skia Gardener do?
+<a name="what_is_a_skia_gardener"></a>
+
+## What does a Skia Gardener do?
 
 ---
 
@@ -119,8 +121,9 @@ In general, gardeners should have a strong bias towards actions that keep the
 tree green and then open; if a simple revert can fix the problem, the gardener
 <b>should revert first and ask questions later</b>.
 
-<a name="view_current_upcoming_rotations"></a> View current and upcoming
-rotations
+<a name="view_current_upcoming_rotations"></a>
+
+## View current and upcoming rotations
 
 ---
 
@@ -138,7 +141,9 @@ vacation), please get approval from the person you want to swap with and
 directly make the swap via the
 [rotations page](https://rotations.corp.google.com/rotation/4699606003744768).
 
-<a name="preparations"></a> Preparing for your rotation
+<a name="preparations"></a>
+
+## Preparing for your rotation
 
 ---
 
@@ -160,7 +165,9 @@ directly make the swap via the
   our team.
 
 
-<a name="tips"></a> Tips for Skia Gardeners
+<a name="tips"></a>
+
+## Tips for Skia Gardeners
 
 ---
 
