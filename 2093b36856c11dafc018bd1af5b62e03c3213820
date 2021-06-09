@@ -16,6 +16,52 @@
       "message": "Waiting to make sure this fixes everything, but added an initializer to the unspecialized value, and moved all the helpers out of GrSkSLFP.",
       "revId": "2093b36856c11dafc018bd1af5b62e03c3213820",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "156f0cf4_6403766c",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-09T18:55:20Z",
+      "side": 1,
+      "message": "I\u0027d put this comment back where it used to be, and here, say something like this:\n\n\"UNIFORM_TYPE allows C++ types to be mapped onto SkRuntimeEffect::Uniform::Type.\"",
+      "range": {
+        "startLine": 25,
+        "startChar": 3,
+        "endLine": 25,
+        "endChar": 96
+      },
+      "revId": "2093b36856c11dafc018bd1af5b62e03c3213820",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3ff74e63_a0698e89",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-09T18:55:20Z",
+      "side": 1,
+      "message": "line too long",
+      "range": {
+        "startLine": 31,
+        "startChar": 102,
+        "endLine": 31,
+        "endChar": 103
+      },
+      "revId": "2093b36856c11dafc018bd1af5b62e03c3213820",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
