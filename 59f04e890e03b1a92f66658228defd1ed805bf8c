@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cd03c99c_96dfbdb5",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-09T14:39:24Z",
+      "side": 1,
+      "message": "If you try to pass a type that has no specialization, you get a flurry of ugly (compile-time) errors, but putting this here makes the FIRST error relatively helpful:\n\n  ../../src/gpu/effects/GrSkSLFP.h:178:42: error: invalid operands to binary expression (\u0027const add_a_UNIFORM_TYPE_specialization_for\u003cSkV2\u003e\u0027 and \u0027const SkRuntimeEffect::Uniform::Type\u0027)",
+      "range": {
+        "startLine": 123,
+        "startChar": 25,
+        "endLine": 123,
+        "endChar": 62
+      },
+      "revId": "59f04e890e03b1a92f66658228defd1ed805bf8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
