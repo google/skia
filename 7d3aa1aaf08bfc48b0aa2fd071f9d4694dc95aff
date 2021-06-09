@@ -22,6 +22,30 @@
       },
       "revId": "7d3aa1aaf08bfc48b0aa2fd071f9d4694dc95aff",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5fd79f9b_21cf7b3b",
+        "filename": "src/gpu/tessellate/GrTessellationPathRenderer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-09T22:08:05Z",
+      "side": 1,
+      "message": "Good find. I\u0027ve thought StencilPathSettings had a GrShape all along (not GrStyledShape). Done.",
+      "parentUuid": "362065a0_9191f53e",
+      "range": {
+        "startLine": 270,
+        "startChar": 14,
+        "endLine": 270,
+        "endChar": 36
+      },
+      "revId": "7d3aa1aaf08bfc48b0aa2fd071f9d4694dc95aff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
