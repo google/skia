@@ -43,11 +43,6 @@ public:
         return fCoverageFragmentProcessor.get();
     }
 
-    bool usesVaryingCoords() const {
-        return (fColorFragmentProcessor && fColorFragmentProcessor->usesVaryingCoords()) ||
-               (fCoverageFragmentProcessor && fCoverageFragmentProcessor->usesVaryingCoords());
-    }
-
     const GrXferProcessor* xferProcessor() const {
         SkASSERT(this->isFinalized());
         return fXP.fProcessor;
