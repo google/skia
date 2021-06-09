@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "38e03b4b_3586ce5c",
+        "filename": "gm/runtimeimagefilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-09T17:57:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e8b836cd_42c466c9",
+      "range": {
+        "startLine": 39,
+        "startChar": 4,
+        "endLine": 39,
+        "endChar": 21
+      },
+      "revId": "9812cf76595a72bba00aa04bcb181ca43db62ecd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4e9bad34_d7e66c91",
@@ -135,6 +159,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "818ebb2c_6809d516",
+        "filename": "src/effects/imagefilters/SkRuntimeImageFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-09T17:57:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3d92c60d_0f54f24a",
+      "range": {
+        "startLine": 114,
+        "startChar": 0,
+        "endLine": 119,
+        "endChar": 0
+      },
+      "revId": "9812cf76595a72bba00aa04bcb181ca43db62ecd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ff62cd6f_db63f422",
@@ -148,6 +196,30 @@
       "writtenOn": "2021-06-08T13:27:29Z",
       "side": 1,
       "message": "I think this logic is going to have subtle issues with implementing runtime image filters. The late-bound image that we use as the default input, as well as any other computed input, all represent rasterized content that\u0027s been transformed by ctx.ctm() already.\n\nIn this instance, what we have going on is that the shader is being evaluated with local coordinates pre ctx.ctm() (logically what we do want), but then it\u0027s passing them into it\u0027s child as if that image shader were in the same coordinate space.\n\nThe regular shader image filter gets away with this because its child shaders are assumed to be embedded things that should operate within its same local coordinate space, instead of representing the prior stage of the image filter graph that\u0027s in the shared layer coordinate space.\n\nMost other image filters that deal with this situation have ways of transforming their local parameters, such as blur radius, into the layer coordinate space so that everything works out. This is trickier in runtime image filters, since we don\u0027t know what uniforms or embedded constants, etc. are used for these geometric sampling parameters.\n\nThe easiest way to keep things consistent would be to require that ctx.ctm() is the identity matrix when the runtime image filter is in the DAG. We already have some API control over the matrix decomposition of the canvas that determines the ctx.ctm(). That is in skif::Mapping::DecomposeCTM() and relies on the SkImageFilter_Base::canHandleComplexCTM() function. Right now this is only a boolean, but we could add an option that requires the image filter DAG to be evaluated only under the identity.",
+      "range": {
+        "startLine": 132,
+        "startChar": 0,
+        "endLine": 142,
+        "endChar": 5
+      },
+      "revId": "9812cf76595a72bba00aa04bcb181ca43db62ecd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b7f96236_09b8d46c",
+        "filename": "src/effects/imagefilters/SkRuntimeImageFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-09T17:57:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ff62cd6f_db63f422",
       "range": {
         "startLine": 132,
         "startChar": 0,

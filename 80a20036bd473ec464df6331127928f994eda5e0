@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3c4883d7_aeb1fdfb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-09T17:57:38Z",
+      "side": 1,
+      "message": "Implemented approach discussed over chat with Michael. Added tests of various CTM transforms before the saveLayer. Everything looks correct.",
+      "revId": "80a20036bd473ec464df6331127928f994eda5e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
