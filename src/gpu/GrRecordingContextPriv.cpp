@@ -9,8 +9,11 @@
 
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDrawingManager.h"
+
+#if GR_OGA
 #include "src/gpu/SkGpuDevice.h"
-#ifdef SK_NGA
+#endif
+#if GR_NGA
 #include "src/gpu/SkGpuDevice_nga.h"
 #endif
 
@@ -22,7 +25,7 @@ sk_sp<SkBaseGpuDevice> GrRecordingContextPriv::createDevice(GrColorType colorTyp
                                                             SkBaseGpuDevice::InitContents init) {
 #if GR_TEST_UTILS
     if (this->options().fUseNGA == GrContextOptions::Enable::kYes) {
-#ifdef SK_NGA
+#if GR_NGA
         return SkGpuDevice_nga::Make(fContext, colorType, std::move(proxy), std::move(colorSpace),
                                      origin, props, init);
 #else
@@ -31,8 +34,12 @@ sk_sp<SkBaseGpuDevice> GrRecordingContextPriv::createDevice(GrColorType colorTyp
     } else
 #endif
     {
+#if GR_OGA
         return SkGpuDevice::Make(fContext, colorType, std::move(proxy), std::move(colorSpace),
                                  origin, props, init);
+#else
+        return nullptr;
+#endif
     }
 }
 
@@ -47,7 +54,7 @@ sk_sp<SkBaseGpuDevice> GrRecordingContextPriv::createDevice(SkBudgeted budgeted,
                                                             SkBaseGpuDevice::InitContents init) {
 #if GR_TEST_UTILS
     if (this->options().fUseNGA == GrContextOptions::Enable::kYes) {
-#ifdef SK_NGA
+#if GR_NGA
         return SkGpuDevice_nga::Make(fContext, budgeted, ii, fit, sampleCount,
                                      mipmapped, isProtected, origin, props, init);
 #else
@@ -56,8 +63,12 @@ sk_sp<SkBaseGpuDevice> GrRecordingContextPriv::createDevice(SkBudgeted budgeted,
     } else
 #endif
     {
+#if GR_OGA
         return SkGpuDevice::Make(fContext, budgeted, ii, fit, sampleCount,
                                  mipmapped, isProtected, origin, props, init);
+#else
+        return nullptr;
+#endif
     }
 }
 
