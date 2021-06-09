@@ -7,8 +7,6 @@
 
 #include "src/gpu/SkGpuDevice_nga.h"
 
-#ifdef SK_NGA
-
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkImageFilterCache.h"
 #include "src/gpu/GrRecordingContextPriv.h"
@@ -296,5 +294,3 @@ SkImageFilterCache* SkGpuDevice_nga::getImageFilterCache() {
     // We always return a transient cache, so it is freed after each filter traversal.
     return SkImageFilterCache::Create(SkImageFilterCache::kDefaultTransientSize);
 }
-
-#endif // SK_NGA

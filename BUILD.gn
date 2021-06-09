@@ -55,7 +55,10 @@ config("skia_public") {
     ]
   }
   if (skia_enable_nga) {
-    defines += [ "SK_NGA" ]
+    defines += [ "GR_NGA=1" ]
+  }
+  if (!skia_enable_oga) {
+    defines += [ "GR_OGA=0" ]
   }
 
   # Some older versions of the Clang toolchain change the visibility of
@@ -912,6 +915,9 @@ optional("gpu") {
 
   if (skia_enable_nga) {
     sources += skia_nga_sources
+  }
+  if (!skia_enable_oga) {
+    sources -= skia_oga_sources
   }
 
   libs = []

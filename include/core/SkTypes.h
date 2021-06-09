@@ -396,6 +396,14 @@
 #  define GR_TEST_UTILS 0
 #endif
 
+#ifndef GR_NGA
+#  define GR_NGA 0
+#endif
+
+#ifndef GR_OGA
+#  define GR_OGA 1
+#endif
+
 #if defined(SK_HISTOGRAM_ENUMERATION)  || \
     defined(SK_HISTOGRAM_BOOLEAN)      || \
     defined(SK_HISTOGRAM_EXACT_LINEAR) || \

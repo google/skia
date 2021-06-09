@@ -8,10 +8,6 @@
 #ifndef SkGpuDevice_nga_DEFINED
 #define SkGpuDevice_nga_DEFINED
 
-#include "include/gpu/GrTypes.h"
-
-#ifdef SK_NGA
-
 #include "src/gpu/SkBaseGpuDevice.h"
 
 /**
@@ -152,7 +148,5 @@ private:
 
     using INHERITED = SkBaseGpuDevice;
 };
-
-#endif // SK_NGA
 
 #endif // SkGpuDevice_nga_DEFINED
