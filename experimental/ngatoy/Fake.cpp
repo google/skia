@@ -75,7 +75,7 @@ void FakeDevice::save() {
     fTracker.push();
 }
 
-void FakeDevice::drawRect(int id, uint32_t paintersOrder, SkIRect r, FakePaint p) {
+void FakeDevice::drawRect(ID id, uint32_t paintersOrder, SkIRect r, FakePaint p) {
 
     sk_sp<FakeMCBlob> state = fTracker.snapState();
 
@@ -98,11 +98,11 @@ void FakeDevice::finalize() {
 
     this->sort();
     for (auto c : fSortedCmds) {
-        c->rasterize(fZBuffer, &fBM, c->getKey().depth());
+        c->rasterize(fZBuffer, &fBM);
     }
 }
 
-void FakeDevice::getOrder(std::vector<int>* ops) const {
+void FakeDevice::getOrder(std::vector<ID>* ops) const {
     SkASSERT(fFinalized);
 
 //    ops->reserve(fSortedCmds.size());
@@ -126,7 +126,7 @@ void FakeDevice::sort() {
 }
 
 //-------------------------------------------------------------------------------------------------
-void FakeCanvas::drawRect(int id, SkIRect r, FakePaint p) {
+void FakeCanvas::drawRect(ID id, SkIRect r, FakePaint p) {
     SkASSERT(!fFinalized);
 
     fDeviceStack.back()->drawRect(id, this->nextZ(), r, p);
@@ -147,10 +147,10 @@ void FakeCanvas::finalize() {
     }
 }
 
-std::vector<int> FakeCanvas::getOrder() const {
+std::vector<ID> FakeCanvas::getOrder() const {
     SkASSERT(fFinalized);
 
-    std::vector<int> ops;
+    std::vector<ID> ops;
 
     for (auto& d : fDeviceStack) {
         d->getOrder(&ops);

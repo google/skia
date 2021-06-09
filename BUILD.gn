@@ -2181,6 +2181,7 @@ if (skia_enable_tools) {
         "experimental/ngatoy/Fake.h",
         "experimental/ngatoy/SortKey.h",
         "experimental/ngatoy/ngatoy.cpp",
+        "experimental/ngatoy/ngatypes.h",
       ]
       deps = [
         ":flags",
