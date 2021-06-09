@@ -547,9 +547,6 @@ skia_gpu_sources = [
   # Sk files
   "$_src/gpu/SkBaseGpuDevice.cpp",
   "$_src/gpu/SkBaseGpuDevice.h",
-  "$_src/gpu/SkGpuDevice.cpp",
-  "$_src/gpu/SkGpuDevice.h",
-  "$_src/gpu/SkGpuDevice_drawTexture.cpp",
   "$_src/gpu/SkGr.cpp",
   "$_src/gpu/SkGr.h",
   "$_src/image/SkImage_Gpu.cpp",
@@ -643,6 +640,13 @@ skia_nga_sources = [
   # Sk files
   "$_src/gpu/SkGpuDevice_nga.cpp",
   "$_src/gpu/SkGpuDevice_nga.h",
+]
+
+skia_oga_sources = [
+  # Sk files
+  "$_src/gpu/SkGpuDevice.cpp",
+  "$_src/gpu/SkGpuDevice.h",
+  "$_src/gpu/SkGpuDevice_drawTexture.cpp",
 ]
 
 skia_vk_sources = [
