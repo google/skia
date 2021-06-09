@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "95f2eabb_c83560be",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-09T13:59:33Z",
+      "side": 1,
+      "message": "Looks like you need to remove kGrMagnifierEffect_ClassID as well, otherwise LGTM",
+      "revId": "beee0525ef014e03377c2e57abc502318e3f69c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "819be571_a575ec88",
+        "filename": "src/core/SkRuntimeEffectPriv.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-09T13:59:33Z",
+      "side": 1,
+      "message": "There\u0027s only one function here, so `API that assumes` ... `but does no`?",
+      "range": {
+        "startLine": 33,
+        "startChar": 12,
+        "endLine": 33,
+        "endChar": 28
+      },
+      "revId": "beee0525ef014e03377c2e57abc502318e3f69c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
