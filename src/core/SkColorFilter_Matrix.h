@@ -33,7 +33,7 @@ private:
 
     bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override;
     skvm::Color onProgram(skvm::Builder*, skvm::Color,
-                          SkColorSpace* dstCS,
+                          const SkColorInfo& dst,
                           skvm::Uniforms* uniforms, SkArenaAlloc*) const override;
 
     float   fMatrix[20];
