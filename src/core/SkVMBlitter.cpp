@@ -13,6 +13,7 @@
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkCoreBlitters.h"
+#include "src/core/SkCustomBlend.h"
 #include "src/core/SkLRUCache.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkOpts.h"
@@ -38,6 +39,7 @@ namespace {
     struct Params {
         sk_sp<SkShader>         shader;
         sk_sp<SkShader>         clip;
+        sk_sp<SkCustomBlend>    customBlend;
         SkColorInfo             dst;
         SkBlendMode             blendMode;
         Coverage                coverage;
@@ -55,6 +57,7 @@ namespace {
     struct Key {
         uint64_t shader,
                  clip,
+                 customBlend,
                  colorSpace;
         uint8_t  colorType,
                  alphaType,
@@ -66,13 +69,14 @@ namespace {
         // they'll be folded into the shader key if used.
 
         bool operator==(const Key& that) const {
-            return this->shader     == that.shader
-                && this->clip       == that.clip
-                && this->colorSpace == that.colorSpace
-                && this->colorType  == that.colorType
-                && this->alphaType  == that.alphaType
-                && this->blendMode  == that.blendMode
-                && this->coverage   == that.coverage;
+            return this->shader      == that.shader
+                && this->clip        == that.clip
+                && this->customBlend == that.customBlend
+                && this->colorSpace  == that.colorSpace
+                && this->colorType   == that.colorType
+                && this->alphaType   == that.alphaType
+                && this->blendMode   == that.blendMode
+                && this->coverage    == that.coverage;
         }
 
         Key withCoverage(Coverage c) const {
@@ -84,15 +88,16 @@ namespace {
     SK_END_REQUIRE_DENSE;
 
     static SkString debug_name(const Key& key) {
-        return SkStringPrintf(
-            "Shader-%" PRIx64 "_Clip-%" PRIx64 "_CS-%" PRIx64 "_CT-%d_AT-%d_Blend-%d_Cov-%d",
-            key.shader,
-            key.clip,
-            key.colorSpace,
-            key.colorType,
-            key.alphaType,
-            key.blendMode,
-            key.coverage);
+        return SkStringPrintf("Shader-%" PRIx64 "_Clip-%" PRIx64 "_CustomBlend-%" PRIx64
+                              "_CS-%" PRIx64 "_CT-%d_AT-%d_Blend-%d_Cov-%d",
+                              key.shader,
+                              key.clip,
+                              key.customBlend,
+                              key.colorSpace,
+                              key.colorType,
+                              key.alphaType,
+                              key.blendMode,
+                              key.coverage);
     }
 
     static SkLRUCache<Key, skvm::Program>* try_acquire_program_cache() {
@@ -171,6 +176,7 @@ namespace {
         return {
             shaderHash,
               clipHash,
+            /*customBlend=*/0, // TODO(skia:12080): hash the custom-blend function
             params.dst.colorSpace() ? params.dst.colorSpace()->hash() : 0,
             SkToU8(params.dst.colorType()),
             SkToU8(params.dst.alphaType()),
@@ -196,7 +202,7 @@ namespace {
         skvm::Color paint = p->uniformColor(params.paint, uniforms);
 
         // See note about arguments above: a SpriteShader will call p->arg() once during program().
-        skvm::Color src = as_SB(params.shader)->program(p, device,/*local=*/device, paint,
+        skvm::Color src = as_SB(params.shader)->program(p, device, /*local=*/device, paint,
                                                         params.matrices, /*localM=*/nullptr,
                                                         params.dst, uniforms, alloc);
         SkASSERT(src);
@@ -266,7 +272,7 @@ namespace {
             } break;
         }
         if (params.clip) {
-            skvm::Color clip = as_SB(params.clip)->program(p, device,/*local=*/device, paint,
+            skvm::Color clip = as_SB(params.clip)->program(p, device, /*local=*/device, paint,
                                                            params.matrices, /*localM=*/nullptr,
                                                            params.dst, uniforms, alloc);
             SkAssertResult(clip);
@@ -276,10 +282,11 @@ namespace {
             cov.a *= clip.a;
         }
 
-        // The math for some blend modes lets us fold coverage into src before the blend,
-        // which is simpler than the canonical post-blend lerp().
-        if (SkBlendMode_ShouldPreScaleCoverage(params.blendMode,
+        if (!params.customBlend &&
+            SkBlendMode_ShouldPreScaleCoverage(params.blendMode,
                                                params.coverage == Coverage::MaskLCD16)) {
+            // The math for some blend modes lets us fold coverage into src before the blend,
+            // which is simpler than the canonical post-blend lerp().
             src.r *= cov.r;
             src.g *= cov.g;
             src.b *= cov.b;
@@ -287,7 +294,8 @@ namespace {
 
             src = blend(params.blendMode, src, dst);
         } else {
-            src = blend(params.blendMode, src, dst);
+            src = params.customBlend ? params.customBlend->program(p, src, dst, uniforms, alloc)
+                                     : blend(params.blendMode, src, dst);
 
             src.r = lerp(dst.r, src.r, cov.r);
             src.g = lerp(dst.g, src.g, cov.g);
@@ -528,6 +536,7 @@ namespace {
         return {
             std::move(shader),
             std::move(clip),
+            nullptr,  // TODO(skia:12080): add custom blend function
             { device.colorType(), device.alphaType(), device.refColorSpace() },
             blendMode,
             Coverage::Full,  // Placeholder... withCoverage() will change as needed.
