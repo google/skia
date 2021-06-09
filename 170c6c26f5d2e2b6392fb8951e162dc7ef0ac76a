@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8a9cf739_03adc026",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-09T18:09:21Z",
+      "side": 1,
+      "message": "just noting: *if* we could clean up some includes (?) perhaps we can remove the need for this flag entirely, and just rely on the linker...",
+      "revId": "170c6c26f5d2e2b6392fb8951e162dc7ef0ac76a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
