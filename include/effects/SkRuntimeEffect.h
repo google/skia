@@ -20,6 +20,7 @@
 
 class GrRecordingContext;
 class SkColorFilter;
+class SkCustomBlend;
 class SkFilterColorProgram;
 class SkImage;
 class SkShader;
@@ -118,6 +119,10 @@ public:
     // Most shaders don't use the input color, so that parameter is optional.
     static Result MakeForShader(SkString sksl, const Options&);
 
+    // Blend SkSL requires an entry point that looks like:
+    //     vec4 main(vec4 srcColor, vec4 dstColor) { ... }
+    static Result MakeForBlend(SkString sksl, const Options&);
+
     // We can't use a default argument for `options` due to a bug in Clang.
     // https://bugs.llvm.org/show_bug.cgi?id=36684
     static Result MakeForColorFilter(SkString sksl) {
@@ -126,10 +131,15 @@ public:
     static Result MakeForShader(SkString sksl) {
         return MakeForShader(std::move(sksl), Options{});
     }
+    static Result MakeForBlend(SkString sksl) {
+        return MakeForBlend(std::move(sksl), Options{});
+    }
 
     static Result MakeForColorFilter(std::unique_ptr<SkSL::Program> program);
 
     static Result MakeForShader(std::unique_ptr<SkSL::Program> program);
+
+    static Result MakeForBlend(std::unique_ptr<SkSL::Program> program);
 
     sk_sp<SkShader> makeShader(sk_sp<SkData> uniforms,
                                sk_sp<SkShader> children[],
@@ -149,6 +159,7 @@ public:
     sk_sp<SkColorFilter> makeColorFilter(sk_sp<SkData> uniforms,
                                          sk_sp<SkColorFilter> children[],
                                          size_t childCount) const;
+    sk_sp<SkCustomBlend> makeBlend(sk_sp<SkData> uniforms) const;
 
     const SkString& source() const { return fSkSL; }
 
