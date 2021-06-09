@@ -43,21 +43,19 @@ void DSLFunction::init(const DSLType& returnType, const char* name,
         }
         param->fDeclared = true;
         param->fStorage = SkSL::VariableStorage::kParameter;
-        if (paramVars.empty()) {
-            SkSL::ProgramKind kind = DSLWriter::Context().fConfig->fKind;
-            if (isMain && (kind == ProgramKind::kRuntimeColorFilter ||
-                           kind == ProgramKind::kRuntimeShader ||
-                           kind == ProgramKind::kRuntimeBlend ||
-                           kind == ProgramKind::kFragmentProcessor)) {
-                const SkSL::Type& type = param->fType.skslType();
-                // We verify that the signature is fully correct later. For now, if this is an .fp
-                // or runtime effect of any flavor, a float2 param is supposed to be the coords, and
-                // a half4/float parameter is supposed to be the input or destination color:
-                if (type == *DSLWriter::Context().fTypes.fFloat2) {
-                    param->fModifiers.fModifiers.fLayout.fBuiltin = SK_MAIN_COORDS_BUILTIN;
-                } else if (typeIsValidForColor(type)) {
-                    param->fModifiers.fModifiers.fLayout.fBuiltin = SK_INPUT_COLOR_BUILTIN;
-                }
+        SkSL::ProgramKind kind = DSLWriter::Context().fConfig->fKind;
+        if (isMain && (kind == ProgramKind::kRuntimeColorFilter ||
+                       kind == ProgramKind::kRuntimeShader ||
+                       kind == ProgramKind::kRuntimeBlend ||
+                       kind == ProgramKind::kFragmentProcessor)) {
+            const SkSL::Type& type = param->fType.skslType();
+            // We verify that the signature is fully correct later. For now, if this is an .fp
+            // or runtime effect of any flavor, a float2 param is supposed to be the coords, and
+            // a half4/float parameter is supposed to be the input or destination color:
+            if (type == *DSLWriter::Context().fTypes.fFloat2) {
+                param->fModifiers.fModifiers.fLayout.fBuiltin = SK_MAIN_COORDS_BUILTIN;
+            } else if (typeIsValidForColor(type)) {
+                param->fModifiers.fModifiers.fLayout.fBuiltin = SK_INPUT_COLOR_BUILTIN;
             }
         }
         std::unique_ptr<SkSL::Variable> paramVar = DSLWriter::ParameterVar(*param);
