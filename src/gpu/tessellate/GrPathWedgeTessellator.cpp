@@ -227,10 +227,11 @@ private:
 
 GrPathTessellator* GrPathWedgeTessellator::Make(SkArenaAlloc* arena, const SkMatrix& viewMatrix,
                                                 const SkPMColor4f& color, int numPathVerbs,
-                                                const GrCaps& caps) {
+                                                const GrPipeline& pipeline, const GrCaps& caps) {
     using PatchType = GrPathTessellationShader::PatchType;
     GrPathTessellationShader* shader;
     if (caps.shaderCaps()->tessellationSupport() &&
+        !pipeline.usesVaryingCoords() &&  // Our tessellation back door doesn't handle varyings.
         numPathVerbs >= caps.minPathVerbsForHwTessellation()) {
         shader = GrPathTessellationShader::MakeHardwareTessellationShader(arena, viewMatrix, color,
                                                                           PatchType::kWedges);

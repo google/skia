@@ -25,7 +25,8 @@ public:
 
     // Creates a curve tessellator with the shader type best suited for the given path description.
     static GrPathTessellator* Make(SkArenaAlloc*, const SkMatrix& viewMatrix, const SkPMColor4f&,
-                                   DrawInnerFan, int numPathVerbs, const GrCaps&);
+                                   DrawInnerFan, int numPathVerbs, const GrPipeline&,
+                                   const GrCaps&);
 
     void prepare(GrMeshDrawOp::Target*, const SkRect& cullBounds, const SkPath&,
                  const BreadcrumbTriangleList*) override;
