@@ -113,18 +113,22 @@ protected:
 
 DEF_PATH_TESS_BENCH(GrPathOuterCurveTessellator, make_cubic_path(8), SkMatrix::I()) {
     SkArenaAlloc arena(1024);
+    GrPipeline noVaryingsPipeline(GrScissorTest::kDisabled, SkBlendMode::kSrcOver,
+                                  GrSwizzle::RGBA());
     auto tess = GrPathCurveTessellator::Make(&arena, fMatrix, SK_PMColor4fTRANSPARENT,
                                              GrPathCurveTessellator::DrawInnerFan::kNo,
                                              fTarget->caps().minPathVerbsForHwTessellation(),
-                                             fTarget->caps());
+                                             noVaryingsPipeline, fTarget->caps());
     tess->prepare(fTarget.get(), SkRectPriv::MakeLargest(), fPath, nullptr);
 }
 
 DEF_PATH_TESS_BENCH(GrPathWedgeTessellator, make_cubic_path(8), SkMatrix::I()) {
     SkArenaAlloc arena(1024);
+    GrPipeline noVaryingsPipeline(GrScissorTest::kDisabled, SkBlendMode::kSrcOver,
+                                  GrSwizzle::RGBA());
     auto tess = GrPathWedgeTessellator::Make(&arena, fMatrix, SK_PMColor4fTRANSPARENT,
                                              fTarget->caps().minPathVerbsForHwTessellation(),
-                                             fTarget->caps());
+                                             noVaryingsPipeline, fTarget->caps());
     tess->prepare(fTarget.get(), SkRectPriv::MakeLargest(), fPath, nullptr);
 }
 

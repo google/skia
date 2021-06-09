@@ -41,8 +41,6 @@ private:
         return allStatesEnabled || (fTotalCombinedVerbCnt <= kMaxVerbsToEnableDynamicState);
     }
 
-    bool canUseHardwareTessellation(int numVerbs, const GrCaps& caps);
-
     const char* name() const override { return "GrStrokeTessellateOp"; }
     void visitProxies(const VisitProxyFunc& fn) const override;
     bool usesMSAA() const override { return fAAType == GrAAType::kMSAA; }
