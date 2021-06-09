@@ -109,12 +109,12 @@ sk_sp<GrGpu> GrMtlGpu::Make(const GrMtlBackendContext& context, const GrContextO
     if (!context.fDevice || !context.fQueue) {
         return nullptr;
     }
-    if (@available(macOS 10.14, iOS 11.0, *)) {
+    if (@available(macOS 10.14, iOS 10.0, *)) {
         // no warning needed
     } else {
         SkDebugf("*** Error ***: Skia's Metal backend no longer supports this OS version.\n");
 #ifdef SK_BUILD_FOR_IOS
-        SkDebugf("Minimum supported version is iOS 11.0.\n");
+        SkDebugf("Minimum supported version is iOS 10.0.\n");
 #else
         SkDebugf("Minimum supported version is MacOS 10.14.\n");
 #endif
