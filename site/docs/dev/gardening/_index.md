@@ -9,6 +9,7 @@ weight: 8
 
 - [What does a Skia Gardener do?](#what_is_a_skia_gardener)
   - [Skia tree](#skia_tree)
+  - [Triage](#triage)
   - [AutoRollers](#autorollers)
   - [Gold and Perf](#gold_and_perf)
   - [Documentation](#skia_gardener_doc)
@@ -60,6 +61,9 @@ You should triage Chromium and Skia bugs that show up under "Untriaged Bugs" on
 the [status page](https://status.skia.org). The Android Gardener will triage the
 untriaged Android Bugs. For a more detailed view of bugs see
 [Skia Bugs Central](https://bugs-central.skia.org/).
+
+You should join the "Flutter Engine Sherriff" chat room and assist with any issue
+they discover that involves a potential Skia bug. Ask another gardener for an invite.
 
 <a name="blamer"></a>
 
