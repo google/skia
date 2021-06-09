@@ -122,7 +122,7 @@ void HCodeGenerator::writef(const char* s, ...) {
 bool HCodeGenerator::writeSection(const char* name, const char* prefix) {
     const Section* s = fSectionAndParameterHelper.getSection(name);
     if (s) {
-        this->writef("%s%s", prefix, s->text().c_str());
+        this->writef("%s%.*s", prefix, (int)s->text().length(), s->text().data());
         return true;
     }
     return false;
@@ -134,14 +134,13 @@ void HCodeGenerator::writeExtraConstructorParams(const char* separator) {
     // this with something more robust if the need arises.
     const Section* section = fSectionAndParameterHelper.getSection(kConstructorParamsSection);
     if (section) {
-        const char* s = section->text().c_str();
+        StringFragment s = section->text();
         #define BUFFER_SIZE 64
         char lastIdentifier[BUFFER_SIZE];
         int lastIdentifierLength = 0;
         bool foundBreak = false;
-        while (*s) {
-            char c = *s;
-            ++s;
+        for (auto iter = s.begin(); iter != s.end(); ++iter) {
+            char c = *iter;
             if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') ||
                 c == '_') {
                 if (foundBreak) {
