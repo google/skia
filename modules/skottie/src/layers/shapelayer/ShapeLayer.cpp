@@ -233,7 +233,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachShape(const skjson::ArrayValue* 
     };
 
     for (auto rec = recs.rbegin(); rec != recs.rend(); ++rec) {
-        const AutoPropertyTracker apt(this, rec->fJson);
+        const AutoPropertyTracker apt(this, rec->fJson, PropertyObserver::NodeType::OTHER);
 
         switch (rec->fInfo.fShapeType) {
         case ShapeType::kGeometry: {
@@ -328,7 +328,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachShape(const skjson::ArrayValue* 
 
     sk_sp<sksg::Transform> shape_transform;
     if (jtransform) {
-        const AutoPropertyTracker apt(this, *jtransform);
+        const AutoPropertyTracker apt(this, *jtransform, PropertyObserver::NodeType::OTHER);
 
         // This is tricky due to the interaction with ctx->fCommittedAnimators: we want any
         // animators related to tranform/opacity to be committed => they must be inserted in front
