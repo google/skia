@@ -344,7 +344,7 @@ sk_sp<sksg::Transform> LayerBuilder::getTransform(const AnimationBuilder& abuild
         // Set valid flag upfront to break cycles.
         fFlags |= cache_valid_mask;
 
-        const AnimationBuilder::AutoPropertyTracker apt(&abuilder, fJlayer);
+        const AnimationBuilder::AutoPropertyTracker apt(&abuilder, fJlayer, PropertyObserver::NodeType::LAYER);
         AnimationBuilder::AutoScope ascope(&abuilder, std::move(fLayerScope));
         fTransformCache[ttype] = this->doAttachTransform(abuilder, cbuilder, ttype);
         fLayerScope = ascope.release();
@@ -410,7 +410,7 @@ bool LayerBuilder::hasMotionBlur(const CompositionBuilder* cbuilder) const {
 sk_sp<sksg::RenderNode> LayerBuilder::buildRenderTree(const AnimationBuilder& abuilder,
                                                       CompositionBuilder* cbuilder,
                                                       const LayerBuilder* prev_layer) {
-    const AnimationBuilder::AutoPropertyTracker apt(&abuilder, fJlayer);
+    const AnimationBuilder::AutoPropertyTracker apt(&abuilder, fJlayer, PropertyObserver::NodeType::LAYER);
 
     using LayerBuilder =
         sk_sp<sksg::RenderNode> (AnimationBuilder::*)(const skjson::ObjectValue&,
