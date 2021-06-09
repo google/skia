@@ -84,7 +84,7 @@ skvm::Color SkColorFilterShader::onProgram(skvm::Builder* p,
     }
 
     // Finally run that through the color filter.
-    return fFilter->program(p,c, dst.colorSpace(), uniforms,alloc);
+    return fFilter->program(p,c, dst, uniforms,alloc);
 }
 
 #if SK_SUPPORT_GPU

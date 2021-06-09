@@ -64,10 +64,10 @@ bool SkColorFilterBase::appendStages(const SkStageRec& rec, bool shaderIsOpaque)
 }
 
 skvm::Color SkColorFilterBase::program(skvm::Builder* p, skvm::Color c,
-                                       SkColorSpace* dstCS,
+                                       const SkColorInfo& dst,
                                        skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
     skvm::F32 original = c.a;
-    if ((c = this->onProgram(p,c, dstCS, uniforms,alloc))) {
+    if ((c = this->onProgram(p,c, dst, uniforms,alloc))) {
         if (this->isAlphaUnchanged()) {
             c.a = original;
         }
@@ -116,8 +116,9 @@ SkPMColor4f SkColorFilterBase::onFilterColor4f(const SkPMColor4f& color,
     skvm::Builder b;
     skvm::Uniforms uni(b.uniform(), 4);
     SkColor4f uniColor = {color.fR, color.fG, color.fB, color.fA};
+    SkColorInfo dstInfo = {kRGBA_F32_SkColorType, kPremul_SkAlphaType, sk_ref_sp(dstCS)};
     if (skvm::Color filtered =
-            as_CFB(this)->program(&b, b.uniformColor(uniColor, &uni), dstCS, &uni, &alloc)) {
+            as_CFB(this)->program(&b, b.uniformColor(uniColor, &uni), dstInfo, &uni, &alloc)) {
 
         b.store({skvm::PixelFormat::FLOAT, 32,32,32,32, 0,32,64,96},
                 b.varying<SkColor4f>(), filtered);
@@ -150,10 +151,10 @@ public:
     }
 
     skvm::Color onProgram(skvm::Builder* p, skvm::Color c,
-                          SkColorSpace* dstCS,
+                          const SkColorInfo& dst,
                           skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
-               c = fInner->program(p, c, dstCS, uniforms, alloc);
-        return c ? fOuter->program(p, c, dstCS, uniforms, alloc) : skvm::Color{};
+               c = fInner->program(p, c, dst, uniforms, alloc);
+        return c ? fOuter->program(p, c, dst, uniforms, alloc) : skvm::Color{};
     }
 
 #if SK_SUPPORT_GPU
@@ -271,7 +272,7 @@ public:
         return true;
     }
 
-    skvm::Color onProgram(skvm::Builder* p, skvm::Color c, SkColorSpace* dstCS,
+    skvm::Color onProgram(skvm::Builder* p, skvm::Color c, const SkColorInfo& dst,
                           skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
         return premul(fSteps.program(p, uniforms, unpremul(c)));
     }
@@ -364,19 +365,19 @@ struct SkWorkingFormatColorFilter : public SkColorFilterBase {
 
     bool onAppendStages(const SkStageRec&, bool) const override { return false; }
 
-    skvm::Color onProgram(skvm::Builder* p, skvm::Color c, SkColorSpace* rawDstCS,
+    skvm::Color onProgram(skvm::Builder* p, skvm::Color c, const SkColorInfo& rawDst,
                           skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
-        sk_sp<SkColorSpace> dstCS = sk_ref_sp(rawDstCS);
+        sk_sp<SkColorSpace> dstCS = rawDst.refColorSpace();
         if (!dstCS) { dstCS = SkColorSpace::MakeSRGB(); }
 
         SkAlphaType workingAT;
         sk_sp<SkColorSpace> workingCS = this->workingFormat(dstCS, &workingAT);
 
-        SkColorInfo dst = {kUnknown_SkColorType, kPremul_SkAlphaType, dstCS},
-                working = {kUnknown_SkColorType, workingAT, workingCS};
+        SkColorInfo dst = {rawDst.colorType(), kPremul_SkAlphaType, dstCS},
+                working = {rawDst.colorType(), workingAT, workingCS};
 
         c = SkColorSpaceXformSteps{dst,working}.program(p, uniforms, c);
-        c = as_CFB(fChild)->program(p, c, working.colorSpace(), uniforms, alloc);
+        c = as_CFB(fChild)->program(p, c, working, uniforms, alloc);
         return c ? SkColorSpaceXformSteps{working,dst}.program(p, uniforms, c)
                  : c;
     }
