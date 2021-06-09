@@ -75,7 +75,7 @@ void FakeDevice::save() {
     fTracker.push();
 }
 
-void FakeDevice::drawRect(ID id, uint32_t paintersOrder, SkIRect r, FakePaint p) {
+void FakeDevice::drawRect(ID id, PaintersOrder paintersOrder, SkIRect r, FakePaint p) {
 
     sk_sp<FakeMCBlob> state = fTracker.snapState();
 
@@ -129,7 +129,7 @@ void FakeDevice::sort() {
 void FakeCanvas::drawRect(ID id, SkIRect r, FakePaint p) {
     SkASSERT(!fFinalized);
 
-    fDeviceStack.back()->drawRect(id, this->nextZ(), r, p);
+    fDeviceStack.back()->drawRect(id, this->nextPaintersOrder(), r, p);
 }
 
 void FakeCanvas::clipRect(SkIRect r) {
