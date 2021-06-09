@@ -177,6 +177,29 @@
       },
       "revId": "e9ae9bd208de66ba48915ce1aa248d0a94428add",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "13bddf69_0ef045e0",
+        "filename": "src/sksl/ir/SkSLSetting.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-09T14:22:35Z",
+      "side": 1,
+      "message": "Again--interesting cleanup, probably a good idea, but this CL is already very big. Does anything prevent these fixes from landing separately?",
+      "range": {
+        "startLine": 53,
+        "startChar": 4,
+        "endLine": 53,
+        "endChar": 25
+      },
+      "revId": "e9ae9bd208de66ba48915ce1aa248d0a94428add",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
