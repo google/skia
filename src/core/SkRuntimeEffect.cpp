@@ -294,6 +294,12 @@ SkRuntimeEffect::Result SkRuntimeEffect::MakeForShader(SkString sksl, const Opti
     return result;
 }
 
+SkRuntimeEffect::Result SkRuntimeEffect::MakeForBlend(SkString sksl, const Options& options) {
+    auto result = Make(std::move(sksl), options, SkSL::ProgramKind::kRuntimeBlend);
+    SkASSERT(!result.effect || result.effect->allowBlend());
+    return result;
+}
+
 SkRuntimeEffect::Result SkRuntimeEffect::MakeForColorFilter(std::unique_ptr<SkSL::Program> program) {
     auto result = Make(std::move(program), SkSL::ProgramKind::kRuntimeColorFilter);
     SkASSERT(!result.effect || result.effect->allowColorFilter());
@@ -303,6 +309,12 @@ SkRuntimeEffect::Result SkRuntimeEffect::MakeForColorFilter(std::unique_ptr<SkSL
 SkRuntimeEffect::Result SkRuntimeEffect::MakeForShader(std::unique_ptr<SkSL::Program> program) {
     auto result = Make(std::move(program), SkSL::ProgramKind::kRuntimeShader);
     SkASSERT(!result.effect || result.effect->allowShader());
+    return result;
+}
+
+SkRuntimeEffect::Result SkRuntimeEffect::MakeForBlend(std::unique_ptr<SkSL::Program> program) {
+    auto result = Make(std::move(program), SkSL::ProgramKind::kRuntimeBlend);
+    SkASSERT(!result.effect || result.effect->allowBlend());
     return result;
 }
 
@@ -569,7 +581,7 @@ static sk_sp<SkData> get_xformed_uniforms(const SkRuntimeEffect* effect,
     sk_sp<SkData> uniforms = nullptr;
     auto writableData = [&]() {
         if (!uniforms) {
-            uniforms =  SkData::MakeWithCopy(baseUniforms->data(), baseUniforms->size());
+            uniforms = SkData::MakeWithCopy(baseUniforms->data(), baseUniforms->size());
         }
         return uniforms->writable_data();
     };
@@ -1055,7 +1067,22 @@ sk_sp<SkColorFilter> SkRuntimeEffect::makeColorFilter(sk_sp<SkData> uniforms,
 }
 
 sk_sp<SkColorFilter> SkRuntimeEffect::makeColorFilter(sk_sp<SkData> uniforms) const {
-    return this->makeColorFilter(std::move(uniforms), nullptr, 0);
+    return this->makeColorFilter(std::move(uniforms), /*children=*/nullptr, /*childCount=*/0);
+}
+
+sk_sp<SkColorFilter> SkRuntimeEffect::makeBlend(sk_sp<SkData> uniforms) const {
+    if (!this->allowBlend()) {
+        return nullptr;
+    }
+    if (!uniforms) {
+        uniforms = SkData::MakeEmpty();
+    }
+    if (uniforms->size() != this->uniformSize() || !fChildren.empty()) {
+        return nullptr;
+    }
+    // TODO(skia:12080): create a runtime blend class
+    SkDEBUGFAIL("not yet implemented");
+    return nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
