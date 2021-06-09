@@ -848,7 +848,8 @@ void DSLCPPCodeGenerator::writeSetting(const Setting& s) {
 bool DSLCPPCodeGenerator::writeSection(const char* name, const char* prefix) {
     const Section* s = fSectionAndParameterHelper.getSection(name);
     if (s) {
-        this->writef("%s%s", prefix, s->text().c_str());
+        this->write(prefix);
+        this->write(s->text());
         return true;
     }
     return false;
@@ -1036,10 +1037,10 @@ bool DSLCPPCodeGenerator::writeEmitCode(std::vector<const Variable*>& uniforms) 
 void DSLCPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
     const char* fullName = fFullName.c_str();
     const Section* section = fSectionAndParameterHelper.getSection(kSetDataSection);
-    const char* pdman = section ? section->argument().c_str() : "pdman";
-    this->writef("    void onSetData(const GrGLSLProgramDataManager& %s, "
+    StringFragment pdman = section ? section->argument() : "pdman";
+    this->writef("    void onSetData(const GrGLSLProgramDataManager& %.*s, "
                                     "const GrFragmentProcessor& _proc) override {\n",
-                 pdman);
+                 (int)pdman.length(), pdman.data());
     bool wroteProcessor = false;
     for (const Variable* u : uniforms) {
         if (is_uniform_in(*u)) {
@@ -1197,10 +1198,12 @@ void DSLCPPCodeGenerator::writeTest() {
         this->writef(
                 "GR_DEFINE_FRAGMENT_PROCESSOR_TEST(%s);\n"
                 "#if GR_TEST_UTILS\n"
-                "std::unique_ptr<GrFragmentProcessor> %s::TestCreate(GrProcessorTestData* %s) {\n",
+                "std::unique_ptr<GrFragmentProcessor> %s::TestCreate(GrProcessorTestData* %.*s) "
+                "{\n",
                 fFullName.c_str(),
                 fFullName.c_str(),
-                test->argument().c_str());
+                (int)test->argument().length(),
+                test->argument().data());
         this->writeSection(kTestCodeSection);
         this->write("}\n"
                     "#endif\n");
