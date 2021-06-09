@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "362065a0_9191f53e",
+        "filename": "src/gpu/tessellate/GrTessellationPathRenderer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-09T20:27:24Z",
+      "side": 1,
+      "message": "so we know the shape isn\u0027t convex here, but do we know that this is not a stroke? Is that just something that always true for stencilPath?",
+      "range": {
+        "startLine": 270,
+        "startChar": 14,
+        "endLine": 270,
+        "endChar": 36
+      },
+      "revId": "7d3aa1aaf08bfc48b0aa2fd071f9d4694dc95aff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
