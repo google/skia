@@ -2072,8 +2072,10 @@ if (skia_enable_tools) {
   }
 
   if (is_linux || is_mac) {
-    test_app("skottie_tool") {
-      deps = [ "modules/skottie:tool" ]
+    if (skia_enable_skottie) {
+      test_app("skottie_tool") {
+        deps = [ "modules/skottie:tool" ]
+      }
     }
     test_app("svg_tool") {
       deps = [ "modules/svg:tool" ]
