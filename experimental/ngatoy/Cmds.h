@@ -14,51 +14,48 @@ class SortKey;
 #include "include/core/SkRect.h"
 
 #include "experimental/ngatoy/Fake.h"
+#include "experimental/ngatoy/ngatypes.h"
 
 class Cmd {
 public:
-    Cmd(int id, int materialID, sk_sp<FakeMCBlob> state)
-        : fID(id)
-        , fMaterialID(materialID)
-        , fMCState(std::move(state)) {
-    }
+    Cmd() : fID(ID::Invalid()) {}
+    Cmd(ID id) : fID(id) {}
     virtual ~Cmd() {}
 
-    int id() const { return fID; }
+    ID id() const { return fID; }
 
     virtual SortKey getKey() = 0;
 
-    const FakeMCBlob* state() const { return fMCState.get(); }
+    virtual const FakeMCBlob* state() const { return nullptr; }
 
     // To generate the actual image
     virtual void execute(FakeCanvas*) const = 0;
-    virtual void rasterize(uint32_t zBuffer[256][256], SkBitmap* dstBM, unsigned int z) const = 0;
+    virtual void rasterize(uint32_t zBuffer[256][256], SkBitmap* dstBM) const = 0;
 
     // To generate the expected image
     virtual void execute(SkCanvas*, const FakeMCBlob* priorState) const = 0;
     virtual void dump() const = 0;
 
 protected:
-    const int         fID;
-    int               fMaterialID;
-    sk_sp<FakeMCBlob> fMCState;
+    const ID fID;
 
 private:
 };
 
 class RectCmd : public Cmd {
 public:
-    RectCmd(int id, uint32_t paintersOrder, SkIRect, const FakePaint&, sk_sp<FakeMCBlob> state);
+    RectCmd(ID id, uint32_t paintersOrder, SkIRect, const FakePaint&, sk_sp<FakeMCBlob> state);
 
     SortKey getKey() override;
+    const FakeMCBlob* state() const override { return fMCState.get(); }
 
     void execute(FakeCanvas*) const override;
     void execute(SkCanvas* c, const FakeMCBlob* priorState) const override;
-    void rasterize(uint32_t zBuffer[256][256], SkBitmap* dstBM, unsigned int z) const override;
+    void rasterize(uint32_t zBuffer[256][256], SkBitmap* dstBM) const override;
 
     void dump() const override {
         SkDebugf("%d: drawRect %d %d %d %d -- %d",
-                 fID,
+                 fID.toInt(),
                  fRect.fLeft, fRect.fTop, fRect.fRight, fRect.fBottom,
                  fPaintersOrder);
     }
@@ -66,9 +63,10 @@ public:
 protected:
 
 private:
-    uint32_t  fPaintersOrder;
-    SkIRect   fRect;
-    FakePaint fPaint;
+    uint32_t          fPaintersOrder;
+    SkIRect           fRect;
+    FakePaint         fPaint;
+    sk_sp<FakeMCBlob> fMCState;
 };
 
 #endif // Cmds_DEFINED

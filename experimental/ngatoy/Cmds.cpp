@@ -12,15 +12,16 @@
 #include "include/effects/SkGradientShader.h"
 
 //------------------------------------------------------------------------------------------------
-RectCmd::RectCmd(int id,
+RectCmd::RectCmd(ID id,
                  uint32_t paintersOrder,
                  SkIRect r,
                  const FakePaint& p,
                  sk_sp<FakeMCBlob> state)
-    : Cmd(id, p.toID(), std::move(state))
+    : Cmd(id)
     , fPaintersOrder(paintersOrder)
     , fRect(r)
-    , fPaint(p) {
+    , fPaint(p)
+    , fMCState(std::move(state)) {
 }
 
 SortKey RectCmd::getKey() {
@@ -96,7 +97,9 @@ static bool is_opaque(SkColor c) {
     return 0xFF == SkColorGetA(c);
 }
 
-void RectCmd::rasterize(uint32_t zBuffer[256][256], SkBitmap* dstBM, unsigned int z) const {
+void RectCmd::rasterize(uint32_t zBuffer[256][256], SkBitmap* dstBM) const {
+
+    unsigned int z = fPaintersOrder;
 
     for (int y = fRect.fTop; y < fRect.fBottom; ++y) {
         for (int x = fRect.fLeft; x < fRect.fRight; ++x) {
