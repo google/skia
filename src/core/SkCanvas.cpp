@@ -1010,9 +1010,12 @@ static const SkImageFilter* optimize_layer_filter(const SkImageFilter* filter, S
 // See skbug.com/8783
 static bool must_cover_prior_device(const SkImageFilter* backdrop,
                                     const SkPaint& restorePaint) {
-    return SkToBool(backdrop) ||
-           (restorePaint.getColorFilter() &&
-            as_CFB(restorePaint.getColorFilter())->affectsTransparentBlack());
+    // FIXME(michaelludwig) - see skbug.com/12083, once clients do not depend on user bounds for
+    // clipping a layer visually, we can respect the fact that the color filter affects transparent
+    // black and should cover the device.
+    return SkToBool(backdrop); // ||
+           // (restorePaint.getColorFilter() &&
+           // as_CFB(restorePaint.getColorFilter())->affectsTransparentBlack());
 }
 
 void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy strategy) {
