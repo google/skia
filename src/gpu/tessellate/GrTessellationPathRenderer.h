@@ -33,10 +33,7 @@ public:
 
     GrTessellationPathRenderer(GrRecordingContext*);
     const char* name() const final { return "GrTessellationPathRenderer"; }
-    StencilSupport onGetStencilSupport(const GrStyledShape& shape) const override {
-        // TODO: Single-pass (e.g., convex) paths can have full support.
-        return kStencilOnly_StencilSupport;
-    }
+    StencilSupport onGetStencilSupport(const GrStyledShape&) const override;
     CanDrawPath onCanDrawPath(const CanDrawPathArgs&) const override;
     bool onDrawPath(const DrawPathArgs&) override;
     void onStencilPath(const StencilPathArgs&) override;
