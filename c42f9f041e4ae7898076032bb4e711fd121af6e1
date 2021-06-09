@@ -22,6 +22,30 @@
       },
       "revId": "c42f9f041e4ae7898076032bb4e711fd121af6e1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5ab2853b_46b0ae17",
+        "filename": "src/effects/imagefilters/SkMagnifierImageFilter.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-09T13:17:33Z",
+      "side": 1,
+      "message": "Done. We already had SkMakeCachedRuntimeEffect (which mostly exists for serialization, where we can\u0027t cache the result at the call site). But I made a similar SkMakeRuntimeEffect for all of these cases. (It\u0027s still wordy, because you need to specify shader vs. color filter), but it asserts (with the compiler error text).",
+      "parentUuid": "2e941c32_815b8e84",
+      "range": {
+        "startLine": 102,
+        "startChar": 25,
+        "endLine": 102,
+        "endChar": 55
+      },
+      "revId": "c42f9f041e4ae7898076032bb4e711fd121af6e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
