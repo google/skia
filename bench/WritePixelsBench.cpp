@@ -55,7 +55,6 @@ private:
 };
 
 //////////////////////////////////////////////////////////////////////////////
-
 DEF_BENCH(return new WritePixelsBench(kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr);)
 DEF_BENCH(return new WritePixelsBench(kRGBA_8888_SkColorType, kUnpremul_SkAlphaType, nullptr);)
 DEF_BENCH(return new WritePixelsBench(kRGBA_8888_SkColorType, kPremul_SkAlphaType, SkColorSpace::MakeSRGB());)
