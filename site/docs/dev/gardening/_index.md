@@ -26,7 +26,9 @@ weight: 8
   - [What to do if DEPS roll fails to land](#deps_roll_failures)
   - [How to rebaseline](#how_to_rebaseline)
 
-<a name="what_is_a_skia_gardener"></a> What does a Skia Gardener do?
+<a name="what_is_a_skia_gardener"></a>
+
+## What does a Skia Gardener do?
 
 ---
 
@@ -119,26 +121,9 @@ In general, gardeners should have a strong bias towards actions that keep the
 tree green and then open; if a simple revert can fix the problem, the gardener
 <b>should revert first and ask questions later</b>.
 
-<a name="view_current_upcoming_rotations"></a> View current and upcoming
-rotations
+<a name="preparations"></a>
 
----
-
-The list of Skia Gardeners is specified
-[here](https://rotations.corp.google.com/rotation/4699606003744768). The
-gardeners widget on the [status page](https://status.skia.org) also displays the
-current gardeners.
-
-<a name="how_to_swap"></a> How to swap rotation shifts
-
----
-
-If you need to swap shifts with someone (because you are out sick or on
-vacation), please get approval from the person you want to swap with and
-directly make the swap via the
-[rotations page](https://rotations.corp.google.com/rotation/4699606003744768).
-
-<a name="preparations"></a> Preparing for your rotation
+## Preparing for your rotation
 
 ---
 
@@ -159,8 +144,31 @@ directly make the swap via the
   watch for Flutter issues that are caused by Skia bugs or need assistance from
   our team.
 
+<a name="view_current_upcoming_rotations"></a>
 
-<a name="tips"></a> Tips for Skia Gardeners
+## View current and upcoming rotations
+
+---
+
+The list of Skia Gardeners is specified
+[here](https://rotations.corp.google.com/rotation/4699606003744768). The
+gardeners widget on the [status page](https://status.skia.org) also displays the
+current gardeners.
+
+<a name="how_to_swap"></a>
+
+## How to swap rotation shifts
+
+---
+
+If you need to swap shifts with someone (because you are out sick or on
+vacation), please get approval from the person you want to swap with and
+directly make the swap via the
+[rotations page](https://rotations.corp.google.com/rotation/4699606003744768).
+
+<a name="tips"></a>
+
+## Tips for Skia Gardeners
 
 ---
 
