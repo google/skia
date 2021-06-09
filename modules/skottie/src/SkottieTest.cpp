@@ -173,11 +173,17 @@ DEF_TEST(Skottie_Properties, reporter) {
             fTransforms.push_back({SkString(node_name), lh()});
         }
 
-        void onEnterNode(const char node_name[]) override {
+        void onEnterNode(const char node_name[], PropertyObserver::NodeType node_type) override {
+            if (node_name == nullptr) {
+                return;
+            }
             fCurrentNode = fCurrentNode.empty() ? node_name : fCurrentNode + "." + node_name;
         }
 
-        void onLeavingNode(const char node_name[]) override {
+        void onLeavingNode(const char node_name[], PropertyObserver::NodeType node_type) override {
+            if (node_name == nullptr) {
+                return;
+            }
             auto length = strlen(node_name);
             fCurrentNode =
                     fCurrentNode.length() > length
