@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9362c4e5_d32078b7",
+        "filename": "src/core/SkModeColorFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-09T13:56:09Z",
+      "side": 1,
+      "message": "Subtle decision here: I\u0027m ignoring dstInfo.alphaType(), to keep the behavior consistent with RP and GPU. We could respect the alpha type here, but there are only two ways it might not be premul, and:\n1) If someone is using the CPU backend to render to unpremul - this particular filter should *really* be operating in premul. Blend modes don\u0027t make sense otherwise.\n2) If someone wraps a mode color filter in a working-format filter... I don\u0027t think I care. See point #1 - it\u0027s nonsensical.",
+      "range": {
+        "startLine": 78,
+        "startChar": 49,
+        "endLine": 78,
+        "endChar": 68
+      },
+      "revId": "58f7da4398f4a5ae69f06622662933263b50f23e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
