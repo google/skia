@@ -29,43 +29,6 @@ private:
     GrDrawingManager* fDrawingManager;
 };
 
-static inline GrColorType color_type_fallback(GrColorType ct) {
-    switch (ct) {
-        // kRGBA_8888 is our default fallback for many color types that may not have renderable
-        // backend formats.
-        case GrColorType::kAlpha_8:
-        case GrColorType::kBGR_565:
-        case GrColorType::kABGR_4444:
-        case GrColorType::kBGRA_8888:
-        case GrColorType::kRGBA_1010102:
-        case GrColorType::kBGRA_1010102:
-        case GrColorType::kRGBA_F16:
-        case GrColorType::kRGBA_F16_Clamped:
-            return GrColorType::kRGBA_8888;
-        case GrColorType::kAlpha_F16:
-            return GrColorType::kRGBA_F16;
-        case GrColorType::kGray_8:
-            return GrColorType::kRGB_888x;
-        default:
-            return GrColorType::kUnknown;
-    }
-}
-
-std::tuple<GrColorType, GrBackendFormat> GrSurfaceFillContext::GetFallbackColorTypeAndFormat(
-        GrImageContext* context, GrColorType colorType, int sampleCnt) {
-    auto caps = context->priv().caps();
-    do {
-        auto format = caps->getDefaultBackendFormat(colorType, GrRenderable::kYes);
-        // We continue to the fallback color type if there no default renderable format or we
-        // requested msaa and the format doesn't support msaa.
-        if (format.isValid() && caps->isFormatRenderable(format, sampleCnt)) {
-            return {colorType, format};
-        }
-        colorType = color_type_fallback(colorType);
-    } while (colorType != GrColorType::kUnknown);
-    return {GrColorType::kUnknown, {}};
-}
-
 std::unique_ptr<GrSurfaceFillContext> GrSurfaceFillContext::Make(GrRecordingContext* context,
                                                                  SkAlphaType alphaType,
                                                                  sk_sp<SkColorSpace> colorSpace,
@@ -169,7 +132,7 @@ std::unique_ptr<GrSurfaceFillContext> GrSurfaceFillContext::Make(GrRecordingCont
 }
 
 std::unique_ptr<GrSurfaceFillContext> GrSurfaceFillContext::MakeWithFallback(
-        GrRecordingContext* context,
+        GrRecordingContext* rContext,
         GrImageInfo info,
         SkBackingFit fit,
         int sampleCount,
@@ -178,7 +141,7 @@ std::unique_ptr<GrSurfaceFillContext> GrSurfaceFillContext::MakeWithFallback(
         GrSurfaceOrigin origin,
         SkBudgeted budgeted) {
     if (info.alphaType() == kPremul_SkAlphaType || info.alphaType() == kOpaque_SkAlphaType) {
-        return GrSurfaceDrawContext::MakeWithFallback(context,
+        return GrSurfaceDrawContext::MakeWithFallback(rContext,
                                                       info.colorType(),
                                                       info.refColorSpace(),
                                                       fit,
@@ -190,12 +153,14 @@ std::unique_ptr<GrSurfaceFillContext> GrSurfaceFillContext::MakeWithFallback(
                                                       origin,
                                                       budgeted);
     }
-    auto [ct, _] = GetFallbackColorTypeAndFormat(context, info.colorType(), sampleCount);
+    const GrCaps* caps = rContext->priv().caps();
+
+    auto [ct, _] = caps->getFallbackColorTypeAndFormat(info.colorType(), sampleCount);
     if (ct == GrColorType::kUnknown) {
         return nullptr;
     }
     info = info.makeColorType(ct);
-    return GrSurfaceFillContext::Make(context,
+    return GrSurfaceFillContext::Make(rContext,
                                       info,
                                       fit,
                                       sampleCount,

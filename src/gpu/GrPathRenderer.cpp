@@ -46,12 +46,12 @@ bool GrPathRenderer::drawPath(const DrawPathArgs& args) {
     args.validate();
     CanDrawPathArgs canArgs;
     canArgs.fCaps = args.fContext->priv().caps();
-    canArgs.fProxy = args.fSurfaceDrawContext->asRenderTargetProxy();
+    canArgs.fProxy = args.fTargetProxy;
     canArgs.fClipConservativeBounds = args.fClipConservativeBounds;
     canArgs.fViewMatrix = args.fViewMatrix;
     canArgs.fShape = args.fShape;
     canArgs.fPaint = &args.fPaint;
-    canArgs.fSurfaceProps = &args.fSurfaceDrawContext->surfaceProps();
+    canArgs.fSurfaceProps = args.fSurfaceProps;
     canArgs.fAAType = args.fAAType;
     canArgs.validate();
 
@@ -110,6 +110,8 @@ void GrPathRenderer::onStencilPath(const StencilPathArgs& args) {
     DrawPathArgs drawArgs{args.fContext,
                           std::move(paint),
                           &kIncrementStencil,
+                          args.fTargetProxy,
+                          args.fSurfaceProps,
                           args.fSurfaceDrawContext,
                           nullptr,  // clip
                           args.fClipConservativeBounds,
