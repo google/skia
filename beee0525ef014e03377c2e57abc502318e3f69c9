@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b3c9f6fb_af1e67d3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-09T14:10:06Z",
+      "side": 1,
+      "message": "Oops. Done.",
+      "parentUuid": "95f2eabb_c83560be",
+      "revId": "beee0525ef014e03377c2e57abc502318e3f69c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "819be571_a575ec88",
@@ -31,6 +49,30 @@
       "writtenOn": "2021-06-09T13:59:33Z",
       "side": 1,
       "message": "There\u0027s only one function here, so `API that assumes` ... `but does no`?",
+      "range": {
+        "startLine": 33,
+        "startChar": 12,
+        "endLine": 33,
+        "endChar": 28
+      },
+      "revId": "beee0525ef014e03377c2e57abc502318e3f69c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "922f03d4_4356c4e4",
+        "filename": "src/core/SkRuntimeEffectPriv.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-09T14:10:06Z",
+      "side": 1,
+      "message": "Ah, right. (I started making two functions, then decided to just stick to the pattern of passing the factory).",
+      "parentUuid": "819be571_a575ec88",
       "range": {
         "startLine": 33,
         "startChar": 12,
