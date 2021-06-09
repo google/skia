@@ -31,7 +31,8 @@ private:
 
 GrGLSLGeometryProcessor* SimpleTriangleShader::createGLSLInstance(const GrShaderCaps&) const {
     class Impl : public GrPathTessellationShader::Impl {
-        void emitVertexCode(GrGLSLVertexBuilder* v, GrGPArgs* gpArgs) override {
+        void emitVertexCode(const GrPathTessellationShader&, GrGLSLVertexBuilder* v,
+                            GrGPArgs* gpArgs) override {
             v->codeAppend(R"(
             float2 localcoord = inputPoint;
             float2 vertexpos = AFFINE_MATRIX * localcoord + TRANSLATE;)");
@@ -81,7 +82,8 @@ float2 eval_rational_cubic(float4x3 P, float T) {
 })";
 
 void GrPathTessellationShader::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
-    args.fVaryingHandler->emitAttributes(args.fGeomProc);
+    const auto& shader = args.fGeomProc.cast<GrPathTessellationShader>();
+    args.fVaryingHandler->emitAttributes(shader);
 
     // Vertex shader.
     const char* affineMatrix, *translate;
@@ -92,7 +94,7 @@ void GrPathTessellationShader::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs
                                                          kFloat2_GrSLType, "translate", &translate);
     args.fVertBuilder->codeAppendf("float2x2 AFFINE_MATRIX = float2x2(%s);", affineMatrix);
     args.fVertBuilder->codeAppendf("float2 TRANSLATE = %s;", translate);
-    this->emitVertexCode(args.fVertBuilder, gpArgs);
+    this->emitVertexCode(shader, args.fVertBuilder, gpArgs);
 
     // Fragment shader.
     const char* color;

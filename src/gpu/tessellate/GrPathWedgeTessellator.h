@@ -17,7 +17,9 @@
 // lines are converted to cubics. Once stencilled, these wedges alone define the complete path.
 class GrPathWedgeTessellator : public GrPathTessellator {
 public:
-    static GrPathTessellator* Make(SkArenaAlloc*, const SkMatrix&, const SkPMColor4f&);
+    // Creates a wedge tessellator with the shader type best suited for the given path description.
+    static GrPathTessellator* Make(SkArenaAlloc*, const SkMatrix& viewMatrix, const SkPMColor4f&,
+                                   int numPathVerbs, const GrCaps&);
 
     void prepare(GrMeshDrawOp::Target*, const SkRect& cullBounds, const SkPath&,
                  const BreadcrumbTriangleList*) override;
@@ -29,7 +31,8 @@ private:
 
     GrVertexChunkArray fVertexChunkArray;
 
-    friend class SkArenaAlloc;  // For constructor.
+    // If using fixed count, this is the number of vertices we need to emit per instance.
+    int fFixedVertexCount;
 };
 
 #endif
