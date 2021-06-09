@@ -39,6 +39,144 @@
       },
       "revId": "e9ae9bd208de66ba48915ce1aa248d0a94428add",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "77904857_b6f7721a",
+        "filename": "include/private/SkSLString.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-09T14:18:34Z",
+      "side": 1,
+      "message": "tiny nit, OK in a followup CL: std::hash support is a built-in part of string_view, not SkSL specific, so we should probably migrate this to skstd and make it available to all users of the skstd class. \nhttps://en.cppreference.com/w/cpp/string/basic_string_view/hash",
+      "range": {
+        "startLine": 74,
+        "startChar": 0,
+        "endLine": 90,
+        "endChar": 18
+      },
+      "revId": "e9ae9bd208de66ba48915ce1aa248d0a94428add",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "02eda6de_178dea6c",
+        "filename": "src/sksl/codegen/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 537,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-09T14:18:34Z",
+      "side": 1,
+      "message": "Might be simpler to split it up?\n\n  this-\u003ewrite(\"sk_Caps.\");\n  this-\u003ewrite(s.name());",
+      "range": {
+        "startLine": 537,
+        "startChar": 4,
+        "endLine": 537,
+        "endChar": 74
+      },
+      "revId": "e9ae9bd208de66ba48915ce1aa248d0a94428add",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "209d21de_c80ff8bc",
+        "filename": "src/sksl/codegen/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 543,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-09T14:18:34Z",
+      "side": 1,
+      "message": "Does it work if we just replace this with\n\n  this-\u003ewrite(prefix);\n  this-\u003ewrite(s-\u003etext());",
+      "range": {
+        "startLine": 543,
+        "startChar": 0,
+        "endLine": 543,
+        "endChar": 82
+      },
+      "revId": "e9ae9bd208de66ba48915ce1aa248d0a94428add",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "31a25b46_cec760f0",
+        "filename": "src/sksl/codegen/SkSLDSLCPPCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 845,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-09T14:18:34Z",
+      "side": 1,
+      "message": "see above",
+      "range": {
+        "startLine": 845,
+        "startChar": 3,
+        "endLine": 845,
+        "endChar": 74
+      },
+      "revId": "e9ae9bd208de66ba48915ce1aa248d0a94428add",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1ee3a789_22954ba0",
+        "filename": "src/sksl/codegen/SkSLHCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-09T14:18:34Z",
+      "side": 1,
+      "message": "Probably better as two write()s",
+      "range": {
+        "startLine": 125,
+        "startChar": 8,
+        "endLine": 125,
+        "endChar": 82
+      },
+      "revId": "e9ae9bd208de66ba48915ce1aa248d0a94428add",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e87f4804_85f601c8",
+        "filename": "src/sksl/ir/SkSLSection.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-09T14:18:34Z",
+      "side": 1,
+      "message": "This change seems like it could have been done as its own CL. Given the large size of this CL and the complexity involved (see: mysterious DM errors), do you think this could be moved to a CL that lands first? Or is there a reason that this change needs to be part of this CL?",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 61,
+        "endChar": 0
+      },
+      "revId": "e9ae9bd208de66ba48915ce1aa248d0a94428add",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
