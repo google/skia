@@ -232,6 +232,7 @@ private:
 #endif
 
     friend class SkRTShader;            // fBaseProgram, fMain
+    friend class SkRTBlend;             //
     friend class SkRuntimeColorFilter;  //
 
     friend class SkFilterColorProgram;
