@@ -54,6 +54,7 @@ void GrStrokeTessellationShader::HardwareImpl::onEmitCode(EmitArgs& args, GrGPAr
     }
 
     v->insertFunction(kAtan2Fn);
+    v->insertFunction(ExpNormalizerFn(*args.fShaderCaps));
     v->insertFunction(kCosineBetweenVectorsFn);
     v->insertFunction(kMiterExtentFn);
     v->insertFunction(kUncheckedMixFn);
@@ -351,6 +352,7 @@ SkString GrStrokeTessellationShader::HardwareImpl::getTessControlShaderGLSL(
 
     code.append(GrWangsFormula::as_sksl());
     code.append(kAtan2Fn);
+    code.append(ExpNormalizerFn(shaderCaps));
     code.append(kCosineBetweenVectorsFn);
     code.append(kMiterExtentFn);
     code.append(R"(
@@ -583,6 +585,7 @@ SkString GrStrokeTessellationShader::HardwareImpl::getTessEvaluationShaderGLSL(
     code.append(R"(
     uniform vec4 sk_RTAdjust;)");
 
+    code.append(ExpNormalizerFn(shaderCaps));
     code.append(kUncheckedMixFn);
 
     code.append(R"(

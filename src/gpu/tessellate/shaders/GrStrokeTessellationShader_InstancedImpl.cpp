@@ -24,6 +24,7 @@ void GrStrokeTessellationShader::InstancedImpl::onEmitCode(EmitArgs& args, GrGPA
     if (shader.hasDynamicStroke()) {
         args.fVertBuilder->insertFunction(kNumRadialSegmentsPerRadianFn);
     }
+    args.fVertBuilder->insertFunction(ExpNormalizerFn(*args.fShaderCaps));
     args.fVertBuilder->insertFunction(kAtan2Fn);
     args.fVertBuilder->insertFunction(kCosineBetweenVectorsFn);
     args.fVertBuilder->insertFunction(kMiterExtentFn);
