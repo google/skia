@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e796f7cc_465bdaee",
+        "filename": "src/gpu/mtl/GrMtlUtil.mm",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-06-09T21:05:17Z",
+      "side": 0,
+      "message": "I\u0027m not sure how this even compiled on our end...",
+      "range": {
+        "startLine": 108,
+        "startChar": 26,
+        "endLine": 108,
+        "endChar": 29
+      },
+      "revId": "18a100bf4e1c4394aa81a03e25f5020e9e9c17b7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
