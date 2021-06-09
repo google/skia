@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0682d21f_00c5517f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-09T21:38:50Z",
+      "side": 1,
+      "message": "Turned out it was due to having the wrong signature on string_view(std::string).",
+      "parentUuid": "e43479b9_662efbc5",
+      "revId": "e9ae9bd208de66ba48915ce1aa248d0a94428add",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d8591492_68788288",
@@ -31,6 +49,30 @@
       "writtenOn": "2021-06-09T04:08:35Z",
       "side": 1,
       "message": "nit, nothing to change in this CL: `string_view + string_view` isn\u0027t something that would work with normal C++17 std::string_views. A string_view doesn\u0027t support any form of concatenation; you need to explicitly convert it into a string first.\n\nhttps://godbolt.org/z/4jevasMcW\n\nI\u0027m not too worried about it. For that matter, it might be possible to just continue providing this overload even if/when we transition to the standard types. There might be a rule against it (messing with standard library types is sometimes UB?), but I didn\u0027t see anything forbidding it on brief inspection, and it seems to work in practice:\n\nhttps://godbolt.org/z/aGn5971bj\n\nAt any rate, we can always fix this up in the future if it becomes an issue. I don\u0027t see a problem with it for this CL.",
+      "range": {
+        "startLine": 61,
+        "startChar": 0,
+        "endLine": 61,
+        "endChar": 60
+      },
+      "revId": "e9ae9bd208de66ba48915ce1aa248d0a94428add",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "94e8ffb3_4549fae5",
+        "filename": "include/private/SkSLString.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-09T21:38:50Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "d8591492_68788288",
       "range": {
         "startLine": 61,
         "startChar": 0,
@@ -64,6 +106,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "09e6b216_5013904e",
+        "filename": "include/private/SkSLString.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-09T21:38:50Z",
+      "side": 1,
+      "message": "Eh, let\u0027s go ahead and fix it here.",
+      "parentUuid": "77904857_b6f7721a",
+      "range": {
+        "startLine": 74,
+        "startChar": 0,
+        "endLine": 90,
+        "endChar": 18
+      },
+      "revId": "e9ae9bd208de66ba48915ce1aa248d0a94428add",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "02eda6de_178dea6c",
@@ -77,6 +143,30 @@
       "writtenOn": "2021-06-09T14:18:34Z",
       "side": 1,
       "message": "Might be simpler to split it up?\n\n  this-\u003ewrite(\"sk_Caps.\");\n  this-\u003ewrite(s.name());",
+      "range": {
+        "startLine": 537,
+        "startChar": 4,
+        "endLine": 537,
+        "endChar": 74
+      },
+      "revId": "e9ae9bd208de66ba48915ce1aa248d0a94428add",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "661402e2_d52ef194",
+        "filename": "src/sksl/codegen/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 537,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-09T21:38:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "02eda6de_178dea6c",
       "range": {
         "startLine": 537,
         "startChar": 4,
@@ -110,6 +200,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5faaaa4c_94eef317",
+        "filename": "src/sksl/codegen/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 543,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-09T21:38:50Z",
+      "side": 1,
+      "message": "Yep. Done.",
+      "parentUuid": "209d21de_c80ff8bc",
+      "range": {
+        "startLine": 543,
+        "startChar": 0,
+        "endLine": 543,
+        "endChar": 82
+      },
+      "revId": "e9ae9bd208de66ba48915ce1aa248d0a94428add",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "31a25b46_cec760f0",
@@ -123,6 +237,30 @@
       "writtenOn": "2021-06-09T14:18:34Z",
       "side": 1,
       "message": "see above",
+      "range": {
+        "startLine": 845,
+        "startChar": 3,
+        "endLine": 845,
+        "endChar": 74
+      },
+      "revId": "e9ae9bd208de66ba48915ce1aa248d0a94428add",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4e988f0d_4201408e",
+        "filename": "src/sksl/codegen/SkSLDSLCPPCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 845,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-09T21:38:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "31a25b46_cec760f0",
       "range": {
         "startLine": 845,
         "startChar": 3,
@@ -156,6 +294,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "adab525c_8530fd3c",
+        "filename": "src/sksl/codegen/SkSLHCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-09T21:38:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1ee3a789_22954ba0",
+      "range": {
+        "startLine": 125,
+        "startChar": 8,
+        "endLine": 125,
+        "endChar": 82
+      },
+      "revId": "e9ae9bd208de66ba48915ce1aa248d0a94428add",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e87f4804_85f601c8",
@@ -179,6 +341,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "47f50486_370161c5",
+        "filename": "src/sksl/ir/SkSLSection.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-09T21:38:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e87f4804_85f601c8",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 61,
+        "endChar": 0
+      },
+      "revId": "e9ae9bd208de66ba48915ce1aa248d0a94428add",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "13bddf69_0ef045e0",
@@ -192,6 +378,30 @@
       "writtenOn": "2021-06-09T14:22:35Z",
       "side": 1,
       "message": "Again--interesting cleanup, probably a good idea, but this CL is already very big. Does anything prevent these fixes from landing separately?",
+      "range": {
+        "startLine": 53,
+        "startChar": 4,
+        "endLine": 53,
+        "endChar": 25
+      },
+      "revId": "e9ae9bd208de66ba48915ce1aa248d0a94428add",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "603024ea_92dbbd62",
+        "filename": "src/sksl/ir/SkSLSetting.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-09T21:38:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "13bddf69_0ef045e0",
       "range": {
         "startLine": 53,
         "startChar": 4,
