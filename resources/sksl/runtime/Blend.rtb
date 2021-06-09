@@ -1,0 +1,7 @@
+half4 blend_src_over(half4 src, half4 dst) {
+    return src + (1 - src.a)*dst;
+}
+
+half4 main(half4 src, half4 dst) {
+    return blend_src_over(src, half4(1) - dst);
+}
