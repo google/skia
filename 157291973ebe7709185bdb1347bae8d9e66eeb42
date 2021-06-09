@@ -22,6 +22,30 @@
       },
       "revId": "157291973ebe7709185bdb1347bae8d9e66eeb42",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "031282d8_810b645f",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 376,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2021-06-09T20:48:12Z",
+      "side": 1,
+      "message": "I think this makes sense as you\u0027ve got it here in PS2, keeping the pipeline convention of premul throughout, any unpremul considerations handled by SkVMBlitter only.",
+      "parentUuid": "7521e007_4a75a918",
+      "range": {
+        "startLine": 376,
+        "startChar": 47,
+        "endLine": 376,
+        "endChar": 66
+      },
+      "revId": "157291973ebe7709185bdb1347bae8d9e66eeb42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
