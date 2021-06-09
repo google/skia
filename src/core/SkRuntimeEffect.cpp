@@ -649,9 +649,9 @@ public:
     }
 
     skvm::Color onProgram(skvm::Builder* p, skvm::Color c,
-                          const SkColorInfo& dst,
+                          SkColorSpace* dstCS,
                           skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
-        sk_sp<SkData> inputs = get_xformed_uniforms(fEffect.get(), fUniforms, dst.colorSpace());
+        sk_sp<SkData> inputs = get_xformed_uniforms(fEffect.get(), fUniforms, dstCS);
         SkASSERT(inputs);
 
         // There should be no way for the color filter to use device coords, but we need to supply
@@ -660,7 +660,7 @@ public:
 
         auto sampleChild = [&](int ix, skvm::Coord /*coord*/, skvm::Color color) {
             if (fChildren[ix]) {
-                return as_CFB(fChildren[ix])->program(p, color, dst, uniforms, alloc);
+                return as_CFB(fChildren[ix])->program(p, color, dstCS, uniforms, alloc);
             } else {
                 return color;
             }

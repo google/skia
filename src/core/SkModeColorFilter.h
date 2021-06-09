@@ -33,7 +33,7 @@ protected:
 
     bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override;
     skvm::Color onProgram(skvm::Builder*, skvm::Color,
-                          const SkColorInfo&, skvm::Uniforms*, SkArenaAlloc*) const override;
+                          SkColorSpace*, skvm::Uniforms*, SkArenaAlloc*) const override;
 
 private:
     SkColor     fColor;
