@@ -1,0 +1,4 @@
+half4 main(half4 src, half4 dst)
+{
+	return half4(_inColor + (1.0 - _inColor.w) * (half4(1.0) - _canvasColor));
+}
