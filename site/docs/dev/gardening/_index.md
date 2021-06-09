@@ -9,9 +9,14 @@ weight: 8
 
 - [What does a Skia Gardener do?](#what_is_a_skia_gardener)
   - [Skia tree](#skia_tree)
+  - [Triage](#triage)
+  - [Blamer](#blamer)
   - [AutoRollers](#autorollers)
   - [Gold and Perf](#gold_and_perf)
   - [Documentation](#skia_gardener_doc)
+- [Preparing for your rotation](#preparations)
+  - [Useful bookmarks](#useful_bookmarks)
+  - [Chat rooms](#chat_rooms)
 - [View current and upcoming rotations](#view_current_upcoming_rotations)
 - [How to swap rotation shifts](#how_to_swap)
 - [Tips for Skia Gardeners](#tips)
@@ -132,6 +137,28 @@ If you need to swap shifts with someone (because you are out sick or on
 vacation), please get approval from the person you want to swap with and
 directly make the swap via the
 [rotations page](https://rotations.corp.google.com/rotation/4699606003744768).
+
+<a name="preparations"></a> Preparing for your rotation
+
+---
+
+<a name="useful_bookmarks"></a>
+
+### Useful bookmarks
+
+- [The Chromium main console](https://ci.chromium.org/p/chromium/g/main/console).
+- [The Flutter engine console](https://ci.chromium.org/p/flutter/g/engine/console).
+- [Skia client search](https://brianosman.users.x20web.corp.google.com/www/skia-client-search.html),
+  a tool for searching the codebases of all skia clients at once.
+
+<a name="chat_rooms"></a>
+
+### Chat rooms
+
+- [Flutter Engine Sherriff](https://chat.google.com/room/AAAAm69vf-M) room to
+  watch for Flutter issues that are caused by Skia bugs or need assistance from
+  our team.
+
 
 <a name="tips"></a> Tips for Skia Gardeners
 
