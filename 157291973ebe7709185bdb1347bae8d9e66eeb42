@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7521e007_4a75a918",
+        "filename": "src/core/SkColorFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 376,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-09T19:51:00Z",
+      "side": 1,
+      "message": "PS2 removes the source of the bad images from the original CL. In the interest of changing as little as possible, this goes back to not changing any behavior in the working-format filter. The issue is that 565 and g8 both have a kOpaque alpha type, so we were failing to re-premul. It\u0027s possible that a better fix would be to check for kOpaque here, and use kPremul instead?",
+      "range": {
+        "startLine": 376,
+        "startChar": 47,
+        "endLine": 376,
+        "endChar": 66
+      },
+      "revId": "157291973ebe7709185bdb1347bae8d9e66eeb42",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
