@@ -74,30 +74,34 @@ private:
         const GrCaps& caps = flushState->caps();
         int numVerbsToGetMiddleOut = 0;
         int numVerbsToGetTessellation = caps.minPathVerbsForHwTessellation();
+        auto pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(flushState, std::move(fProcessors),
+                                                                 fPipelineFlags);
         switch (fMode) {
             using DrawInnerFan = GrPathCurveTessellator::DrawInnerFan;
             case Mode::kWedgeMiddleOut:
                 fTessellator = GrPathWedgeTessellator::Make(alloc, fMatrix, kCyan,
-                                                            numVerbsToGetMiddleOut, caps);
+                                                            numVerbsToGetMiddleOut, *pipeline,
+                                                            caps);
                 break;
             case Mode::kCurveMiddleOut:
                 fTessellator = GrPathCurveTessellator::Make(alloc, fMatrix, kCyan,
                                                             DrawInnerFan::kYes,
-                                                            numVerbsToGetMiddleOut, caps);
+                                                            numVerbsToGetMiddleOut, *pipeline,
+                                                            caps);
                 break;
             case Mode::kWedgeTessellate:
                 fTessellator = GrPathWedgeTessellator::Make(alloc, fMatrix, kCyan,
-                                                            numVerbsToGetTessellation, caps);
+                                                            numVerbsToGetTessellation, *pipeline,
+                                                            caps);
                 break;
             case Mode::kCurveTessellate:
                 fTessellator = GrPathCurveTessellator::Make(alloc, fMatrix, kCyan,
                                                             DrawInnerFan::kYes,
-                                                            numVerbsToGetTessellation, caps);
+                                                            numVerbsToGetTessellation, *pipeline,
+                                                            caps);
                 break;
         }
         fTessellator->prepare(flushState, this->bounds(), fPath);
-        auto pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(flushState, std::move(fProcessors),
-                                                                 fPipelineFlags);
         fProgram = GrTessellationShader::MakeProgram({alloc, flushState->writeView(),
                                                      &flushState->dstProxyView(),
                                                      flushState->renderPassBarriers(),

@@ -113,11 +113,12 @@ void GrPathStencilCoverOp::prePreparePrograms(const GrTessellationShader::Progra
         fTessellator = GrPathCurveTessellator::Make(args.fArena, fViewMatrix,
                                                     SK_PMColor4fTRANSPARENT,
                                                     GrPathCurveTessellator::DrawInnerFan::kNo,
-                                                    fPath.countVerbs(), *args.fCaps);
+                                                    fPath.countVerbs(), *stencilPipeline,
+                                                    *args.fCaps);
     } else {
         fTessellator = GrPathWedgeTessellator::Make(args.fArena, fViewMatrix,
                                                     SK_PMColor4fTRANSPARENT, fPath.countVerbs(),
-                                                    *args.fCaps);
+                                                    *stencilPipeline, *args.fCaps);
     }
     fStencilPathProgram = GrTessellationShader::MakeProgram(args, fTessellator->shader(),
                                                             stencilPipeline, stencilPathSettings);
