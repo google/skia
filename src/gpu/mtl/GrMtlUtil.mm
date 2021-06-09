@@ -103,6 +103,8 @@ id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
     MTLCompileOptions* options = [[MTLCompileOptions alloc] init];
     if (@available(macOS 10.13, iOS 11.0, *)) {
         options.languageVersion = MTLLanguageVersion2_0;
+    } else if (@available(ios 10.0, *)) {
+        options.languageVersion = MTLLanguageVersion1_2;
     }
     if (gpu->caps()->shaderCaps()->canUseFastMath()) {
         options.fastMathEnabled = YES;
