@@ -263,7 +263,7 @@ typedef void (*GrGpuSubmittedProc)(GrGpuSubmittedContext submittedContext, bool 
  * backend APIs the same in terms of how the submitted procs are treated.
  */
 struct GrFlushInfo {
-    int fNumSemaphores = 0;
+    size_t fNumSemaphores = 0;
     GrBackendSemaphore* fSignalSemaphores = nullptr;
     GrGpuFinishedProc fFinishedProc = nullptr;
     GrGpuFinishedContext fFinishedContext = nullptr;
