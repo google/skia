@@ -112,7 +112,7 @@ static const Type* get_type(const Context& context, int offset, const String& na
 }
 
 static std::unique_ptr<Expression> get_value(const Context& context, int offset,
-                                             const String& name) {
+                                             const StringFragment& name) {
     if (const CapsLookupMethod* caps = caps_lookup_table().lookup(name)) {
         return caps->value(context);
     }
@@ -122,7 +122,7 @@ static std::unique_ptr<Expression> get_value(const Context& context, int offset,
 }
 
 std::unique_ptr<Expression> Setting::Convert(const Context& context, int offset,
-                                             const String& name) {
+                                             const StringFragment& name) {
     SkASSERT(context.fConfig);
 
     if (context.fConfig->fSettings.fReplaceSettings) {
