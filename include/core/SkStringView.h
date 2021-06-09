@@ -109,6 +109,15 @@ public:
         other.fLength = tempLength;
     }
 
+    constexpr void remove_prefix(size_type n) {
+        fData += n;
+        fLength -= n;
+    }
+
+    constexpr void remove_suffix(size_type n) {
+        fLength -= n;
+    }
+
 private:
     const_pointer fData;
     size_type fLength;
@@ -127,5 +136,17 @@ bool operator>(string_view left, string_view right);
 bool operator>=(string_view left, string_view right);
 
 } // namespace skstd
+
+namespace std {
+    template<> struct hash<skstd::string_view> {
+        size_t operator()(const skstd::string_view& s) const {
+            size_t result = 0;
+            for (auto iter = s.begin(); iter != s.end(); ++iter) {
+                result = result * 101 + (size_t) *iter;
+            }
+            return result;
+        }
+    };
+} // namespace std
 
 #endif

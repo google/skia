@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkString.h"
+#include "include/core/SkStringView.h"
 #include "include/private/SkTPin.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkSafeMath.h"
@@ -292,6 +293,10 @@ SkString::SkString(SkString&& src) : fRec(std::move(src.validate().fRec)) {
 
 SkString::SkString(const std::string& src) {
     fRec = Rec::Make(src.c_str(), src.size());
+}
+
+SkString::SkString(skstd::string_view src) {
+    fRec = Rec::Make(src.data(), src.length());
 }
 
 SkString::~SkString() {

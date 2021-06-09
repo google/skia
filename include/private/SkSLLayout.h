@@ -208,7 +208,7 @@ struct Layout {
         if (fInvocations >= 0) {
             result += separator() + "invocations = " + to_string(fInvocations);
         }
-        if (fWhen.fLength) {
+        if (fWhen.length()) {
             result += separator() + "when = " + fWhen;
         }
         if (result.size() > 0) {
