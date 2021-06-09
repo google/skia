@@ -15,6 +15,7 @@
 #include "src/core/SkColorFilterBase.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
+#include "src/core/SkCustomBlend.h"
 #include "src/core/SkLRUCache.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkOpts.h"
@@ -933,6 +934,66 @@ sk_sp<SkFlattenable> SkRTShader::CreateProc(SkReadBuffer& buffer) {
     return effect->makeShader(std::move(uniforms), children.data(), children.size(), localMPtr,
                               isOpaque);
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+class SkRTBlend : public SkCustomBlend {
+public:
+    SkRTBlend(sk_sp<SkRuntimeEffect> effect, sk_sp<SkData> uniforms)
+            : fEffect(std::move(effect))
+            , fUniforms(std::move(uniforms)) {}
+
+    virtual skvm::Color onProgram(skvm::Builder* p, skvm::Color src, skvm::Color dst,
+                                  const SkColorInfo& colorInfo, skvm::Uniforms* uniforms,
+                                  SkArenaAlloc* alloc) const override {
+        sk_sp<SkData> inputs = get_xformed_uniforms(fEffect.get(), fUniforms,
+                                                    colorInfo.colorSpace());
+        SkASSERT(inputs);
+
+        const size_t uniformCount = fEffect->uniformSize() / 4;
+        std::vector<skvm::Val> uniform;
+        uniform.reserve(uniformCount);
+        for (size_t i = 0; i < uniformCount; i++) {
+            int bits;
+            memcpy(&bits, (const char*)inputs->data() + 4*i, 4);
+            uniform.push_back(p->uniform32(uniforms->push(bits)).id);
+        }
+
+        // TODO(skia:12080): finish program conversion
+               //SkSL::ProgramToSkVM(*fEffect->fBaseProgram, fEffect->fMain, p, SkMakeSpan(uniform),
+               //                    device, local, paint, sampleChild);
+        return src;
+    }
+
+    void flatten(SkWriteBuffer& buffer) const override {
+        buffer.writeString(fEffect->source().c_str());
+        if (fUniforms) {
+            buffer.writeDataAsByteArray(fUniforms.get());
+        } else {
+            buffer.writeByteArray(nullptr, 0);
+        }
+    }
+
+    SK_FLATTENABLE_HOOKS(SkRTBlend)
+
+private:
+    sk_sp<SkRuntimeEffect> fEffect;
+    sk_sp<SkData> fUniforms;
+};
+
+sk_sp<SkFlattenable> SkRTBlend::CreateProc(SkReadBuffer& buffer) {
+    SkString sksl;
+    buffer.readString(&sksl);
+    sk_sp<SkData> uniforms = buffer.readByteArrayAsData();
+
+    auto effect = SkMakeCachedRuntimeEffect(SkRuntimeEffect::MakeForBlend, std::move(sksl));
+    if (!buffer.validate(effect != nullptr)) {
+        return nullptr;
+    }
+
+    return effect->makeBlend(std::move(uniforms));
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
