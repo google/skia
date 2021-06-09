@@ -36,7 +36,7 @@ public:
     string_view(const_pointer data)
         : string_view(data, strlen(data)) {}
 
-    string_view(std::string str)
+    string_view(const std::string& str)
         : string_view(str.data(), str.length()) {}
 
     constexpr string_view& operator=(const string_view&) = default;
