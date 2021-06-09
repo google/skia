@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bc6dc506_db3706a3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-06-09T18:44:15Z",
+      "side": 1,
+      "message": "+reed@ for changes to SkTypes.h",
+      "revId": "3fa7d497a0b0a973a2dc3c07e35d9dbe19f0e3f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
