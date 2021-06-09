@@ -192,8 +192,7 @@ void GrPathInnerTriangulateOp::prePreparePrograms(const GrTessellationShader::Pr
         fTessellator = GrPathCurveTessellator::Make(args.fArena, fViewMatrix,
                                                     SK_PMColor4fTRANSPARENT,
                                                     GrPathCurveTessellator::DrawInnerFan::kNo,
-                                                    fPath.countVerbs(), *pipelineForStencils,
-                                                    *args.fCaps);
+                                                    fPath.countVerbs(), *args.fCaps);
         const GrUserStencilSettings* stencilPathSettings =
                 GrPathTessellationShader::StencilPathSettings(fPath.getFillType());
         fStencilCurvesProgram = GrTessellationShader::MakeProgram(args, fTessellator->shader(),
