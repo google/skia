@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "139f8085_c150c374",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-09T15:08:27Z",
+      "side": 1,
+      "message": "seems 95% just plumbing.\n\ncursory +1",
+      "revId": "e3db4d41007169fa7102f3961fa66bfd6dabf641",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
