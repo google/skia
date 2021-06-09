@@ -5,6 +5,7 @@
 #define Fake_DEFINED
 
 #include "experimental/ngatoy/SortKey.h"
+#include "experimental/ngatoy/ngatypes.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkMatrix.h"
@@ -254,7 +255,7 @@ public:
     ~FakeDevice() {}
 
     void save();
-    void drawRect(int id, uint32_t z, SkIRect, FakePaint);
+    void drawRect(ID id, uint32_t z, SkIRect, FakePaint);
     void clipRect(SkIRect r);
     void translate(SkIPoint trans) {
         fTracker.translate(trans);
@@ -264,7 +265,7 @@ public:
 
     void finalize();
 
-    void getOrder(std::vector<int>*) const;
+    void getOrder(std::vector<ID>*) const;
     sk_sp<FakeMCBlob> snapState() { return fTracker.snapState(); }
 
 protected:
@@ -297,7 +298,7 @@ public:
         fDeviceStack.back()->save();
     }
 
-    void drawRect(int id, SkIRect, FakePaint);
+    void drawRect(ID id, SkIRect, FakePaint);
 
     void clipRect(SkIRect);
 
@@ -314,7 +315,7 @@ public:
 
     void finalize();
 
-    std::vector<int> getOrder() const;
+    std::vector<ID> getOrder() const;
     sk_sp<FakeMCBlob> snapState() {
         return fDeviceStack.back()->snapState();
     }
