@@ -70,6 +70,9 @@ static bool check_parameters(const Context& context,
     };
 
     // Check modifiers on each function parameter.
+    static constexpr int kBuiltinColorIDs[] = {SK_INPUT_COLOR_BUILTIN, SK_DEST_COLOR_BUILTIN};
+    unsigned int builtinColorIndex = 0;
+
     for (auto& param : parameters) {
         IRGenerator::CheckModifiers(context, param->fOffset, param->modifiers(),
                                     Modifiers::kConst_Flag | Modifiers::kIn_Flag |
@@ -92,11 +95,13 @@ static bool check_parameters(const Context& context,
                        kind == ProgramKind::kFragmentProcessor)) {
             // We verify that the signature is fully correct later. For now, if this is an .fp or
             // runtime effect of any flavor, a float2 param is supposed to be the coords, and
-            // a half4/float parameter is supposed to be the input color:
+            // a half4/float parameter is supposed to be the input or destination color:
             if (type == *context.fTypes.fFloat2) {
                 m.fLayout.fBuiltin = SK_MAIN_COORDS_BUILTIN;
             } else if (typeIsValidForColor(type)) {
-                m.fLayout.fBuiltin = SK_INPUT_COLOR_BUILTIN;
+                // The first color we encounter is the input color; the second is the dest color.
+                SkASSERT(builtinColorIndex < SK_ARRAY_COUNT(kBuiltinColorIDs));
+                m.fLayout.fBuiltin = kBuiltinColorIDs[builtinColorIndex++];
             }
             if (m.fLayout.fBuiltin) {
                 param->setModifiers(context.fModifiersPool->add(m));
@@ -134,11 +139,15 @@ static bool check_main_signature(const Context& context, int offset, const Type&
                                                            : SK_MAIN_COORDS_BUILTIN);
     };
 
-    auto paramIsInputColor = [&](int idx) {
-        return typeIsValidForColor(parameters[idx]->type()) &&
-               parameters[idx]->modifiers().fFlags == 0 &&
-               parameters[idx]->modifiers().fLayout.fBuiltin == SK_INPUT_COLOR_BUILTIN;
+    auto paramIsBuiltinColor = [&](int idx, int builtinID) {
+        const Variable& p = *parameters[idx];
+        return typeIsValidForColor(p.type()) &&
+               p.modifiers().fFlags == 0 &&
+               p.modifiers().fLayout.fBuiltin == builtinID;
     };
+
+    auto paramIsInputColor = [&](int n) { return paramIsBuiltinColor(n, SK_INPUT_COLOR_BUILTIN); };
+    auto paramIsDestColor  = [&](int n) { return paramIsBuiltinColor(n, SK_DEST_COLOR_BUILTIN); };
 
     switch (kind) {
         case ProgramKind::kRuntimeColorFilter: {
@@ -177,7 +186,7 @@ static bool check_main_signature(const Context& context, int offset, const Type&
             }
             if (!(parameters.size() == 2 &&
                   paramIsInputColor(0) &&
-                  paramIsInputColor(1))) {
+                  paramIsDestColor(1))) {
                 errors.error(offset, "'main' parameters must be (vec4|float4|half4, "
                                                                 "vec4|float4|half4)");
                 return false;

@@ -51,7 +51,7 @@ bool FuzzSKSL2Pipeline(sk_sp<SkData> bytes) {
     };
 
     Callbacks callbacks;
-    SkSL::PipelineStage::ConvertProgram(*program, "coords", "inColor", &callbacks);
+    SkSL::PipelineStage::ConvertProgram(*program, "coords", "inColor", "half4(1)", &callbacks);
     return true;
 }
 

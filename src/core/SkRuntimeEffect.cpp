@@ -500,6 +500,7 @@ std::unique_ptr<SkFilterColorProgram> SkFilterColorProgram::Make(const SkRuntime
                                              /*device=*/zeroCoord,
                                              /*local=*/zeroCoord,
                                              inputColor,
+                                             inputColor,
                                              sampleChild);
 
     // Then store the result to the *third* arg ptr
@@ -676,7 +677,7 @@ public:
         }
 
         return SkSL::ProgramToSkVM(*fEffect->fBaseProgram, fEffect->fMain, p, SkMakeSpan(uniform),
-                                   /*device=*/zeroCoord, /*local=*/zeroCoord, c, sampleChild);
+                                   /*device=*/zeroCoord, /*local=*/zeroCoord, c, c, sampleChild);
     }
 
     SkPMColor4f onFilterColor4f(const SkPMColor4f& color, SkColorSpace* dstCS) const override {
@@ -845,7 +846,7 @@ public:
         }
 
         return SkSL::ProgramToSkVM(*fEffect->fBaseProgram, fEffect->fMain, p, SkMakeSpan(uniform),
-                                   device, local, paint, sampleChild);
+                                   device, local, paint, paint, sampleChild);
     }
 
     void flatten(SkWriteBuffer& buffer) const override {

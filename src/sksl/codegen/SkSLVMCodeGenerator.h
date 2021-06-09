@@ -22,7 +22,7 @@ struct Program;
 
 using SampleChildFn = std::function<skvm::Color(int, skvm::Coord, skvm::Color)>;
 
-// Convert 'function' to skvm instructions in 'builder', for use by shaders and color filters
+// Convert 'function' to skvm instructions in 'builder', for use by blends, shaders, & color filters
 skvm::Color ProgramToSkVM(const Program& program,
                           const FunctionDefinition& function,
                           skvm::Builder* builder,
@@ -30,6 +30,7 @@ skvm::Color ProgramToSkVM(const Program& program,
                           skvm::Coord device,
                           skvm::Coord local,
                           skvm::Color inputColor,
+                          skvm::Color destColor,
                           SampleChildFn sampleChild);
 
 struct SkVMSignature {
