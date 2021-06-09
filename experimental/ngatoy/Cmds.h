@@ -44,7 +44,10 @@ private:
 
 class RectCmd : public Cmd {
 public:
-    RectCmd(ID id, uint32_t paintersOrder, SkIRect, const FakePaint&, sk_sp<FakeMCBlob> state);
+    RectCmd(ID, PaintersOrder, SkIRect, const FakePaint&, sk_sp<FakeMCBlob> state);
+
+    uint32_t getSortZ() const;
+    uint32_t getDrawZ() const;
 
     SortKey getKey() override;
     const FakeMCBlob* state() const override { return fMCState.get(); }
@@ -57,13 +60,13 @@ public:
         SkDebugf("%d: drawRect %d %d %d %d -- %d",
                  fID.toInt(),
                  fRect.fLeft, fRect.fTop, fRect.fRight, fRect.fBottom,
-                 fPaintersOrder);
+                 fPaintersOrder.toUInt());
     }
 
 protected:
 
 private:
-    uint32_t          fPaintersOrder;
+    PaintersOrder     fPaintersOrder;
     SkIRect           fRect;
     FakePaint         fPaint;
     sk_sp<FakeMCBlob> fMCState;
