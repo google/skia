@@ -110,15 +110,6 @@ public:
     bool isColorFragmentProcessor(int idx) const { return idx < fNumColorProcessors; }
     bool isCoverageFragmentProcessor(int idx) const { return idx >= fNumColorProcessors; }
 
-    bool usesVaryingCoords() const {
-        for (const auto& fp : fFragmentProcessors) {
-            if (fp->usesVaryingCoords()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     void visitTextureEffects(const std::function<void(const GrTextureEffect&)>&) const;
 
     const GrXferProcessor& getXferProcessor() const {

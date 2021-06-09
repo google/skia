@@ -146,11 +146,12 @@ constexpr static GrUserStencilSettings kTestAndResetStencil(
         GrUserStencilOp::kReplace,
         0xffff>());
 
-bool can_use_hardware_tessellation(int numVerbs, const GrPipeline& pipeline, const GrCaps& caps) {
+bool GrStrokeTessellateOp::canUseHardwareTessellation(int numVerbs, const GrCaps& caps) {
+    SkASSERT(!fStencilProgram && !fFillProgram);  // Ensure we haven't std::moved fProcessors.
     if (!caps.shaderCaps()->tessellationSupport()) {
         return false;
     }
-    if (pipeline.usesVaryingCoords()) {
+    if (fProcessors.usesVaryingCoords()) {
         // Our back door for HW tessellation shaders isn't currently capable of passing varyings to
         // the fragment shader, so if the processors have varyings, we need to use instanced draws
         // instead.
@@ -184,10 +185,7 @@ void GrStrokeTessellateOp::prePrepareTessellator(GrTessellationShader::ProgramAr
     }
     SkRect strokeCullBounds = this->bounds().makeOutset(devInflationRadius, devInflationRadius);
 
-    auto* pipeline = GrTessellationShader::MakePipeline(args, fAAType, std::move(clip),
-                                                        std::move(fProcessors));
-
-    if (can_use_hardware_tessellation(fTotalCombinedVerbCnt, *pipeline, caps)) {
+    if (this->canUseHardwareTessellation(fTotalCombinedVerbCnt, caps)) {
         // Only use hardware tessellation if we're drawing a somewhat large number of verbs.
         // Otherwise we seem to be better off using instanced draws.
         fTessellator = arena->make<GrStrokeHardwareTessellator>(fShaderFlags, *caps.shaderCaps(),
@@ -201,6 +199,8 @@ void GrStrokeTessellateOp::prePrepareTessellator(GrTessellationShader::ProgramAr
                                                                   strokeCullBounds);
     }
 
+    auto* pipeline = GrTessellationShader::MakePipeline(args, fAAType, std::move(clip),
+                                                        std::move(fProcessors));
     auto fillStencil = &GrUserStencilSettings::kUnused;
     if (fNeedsStencil) {
         fStencilProgram = GrTessellationShader::MakeProgram(args, fTessellator->shader(), pipeline,
