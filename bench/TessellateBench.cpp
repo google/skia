@@ -114,7 +114,7 @@ protected:
 DEF_PATH_TESS_BENCH(GrPathOuterCurveTessellator, make_cubic_path(8), SkMatrix::I()) {
     SkArenaAlloc arena(1024);
     auto tess = GrPathCurveTessellator::Make(&arena, fMatrix, SK_PMColor4fTRANSPARENT,
-                                             GrPathTessellator::DrawInnerFan::kNo,
+                                             GrPathCurveTessellator::DrawInnerFan::kNo,
                                              fTarget->caps().minPathVerbsForHwTessellation(),
                                              fTarget->caps());
     tess->prepare(fTarget.get(), SkRectPriv::MakeLargest(), fPath, nullptr);
