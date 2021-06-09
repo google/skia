@@ -464,6 +464,17 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
 
                         String fOutput;
                     };
+                    // The .stage output is strange. It looks mostly like SkSL, but with quirks.
+                    // The PipelineStageGenerator is bridging the gap between the SkSL in `program`,
+                    // and the C++ FP builder API (see GrSkSLFP). In that API, children don't need
+                    // to be declared (so they don't emit declarations here). Children are sampled
+                    // by index, not name - so all children here are just "child_N".
+                    // The input color and coords may have names in the original SkSL (main's
+                    // parameters), but those are ignored here, so references to those variables
+                    // are just "_coords" and "_color". Again - at runtime, those variable names
+                    // are irrelevant when the new SkSL is emitted inside the FP - references to
+                    // those variables are tied to strings from EmitArgs, and might be varyings or
+                    // differently named parameters.
                     Callbacks callbacks;
                     SkSL::PipelineStage::ConvertProgram(program, "_coords", "_inColor", &callbacks);
                     out.writeString(GrShaderUtils::PrettyPrint(callbacks.fOutput));
