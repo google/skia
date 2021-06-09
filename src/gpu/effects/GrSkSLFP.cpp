@@ -144,7 +144,8 @@ public:
         }
 
         FPCallbacks callbacks(this, args, inputColorCopy.c_str(), *program.fContext);
-        SkSL::PipelineStage::ConvertProgram(program, coords, args.fInputColor, &callbacks);
+        SkSL::PipelineStage::ConvertProgram(program, coords, args.fInputColor, "half4(1)",
+                                            &callbacks);
     }
 
     void onSetData(const GrGLSLProgramDataManager& pdman,

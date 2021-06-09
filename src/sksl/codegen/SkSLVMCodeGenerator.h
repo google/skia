@@ -30,6 +30,7 @@ skvm::Color ProgramToSkVM(const Program& program,
                           skvm::Coord device,
                           skvm::Coord local,
                           skvm::Color inputColor,
+                          skvm::Color destColor,
                           SampleChildFn sampleChild);
 
 struct SkVMSignature {
