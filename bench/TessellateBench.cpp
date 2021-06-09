@@ -116,7 +116,7 @@ DEF_PATH_TESS_BENCH(GrPathOuterCurveTessellator, make_cubic_path(8), SkMatrix::I
     GrPipeline noVaryingsPipeline(GrScissorTest::kDisabled, SkBlendMode::kSrcOver,
                                   GrSwizzle::RGBA());
     auto tess = GrPathCurveTessellator::Make(&arena, fMatrix, SK_PMColor4fTRANSPARENT,
-                                             GrPathCurveTessellator::DrawInnerFan::kNo,
+                                             GrPathTessellator::DrawInnerFan::kNo,
                                              fTarget->caps().minPathVerbsForHwTessellation(),
                                              noVaryingsPipeline, fTarget->caps());
     tess->prepare(fTarget.get(), SkRectPriv::MakeLargest(), fPath, nullptr);
