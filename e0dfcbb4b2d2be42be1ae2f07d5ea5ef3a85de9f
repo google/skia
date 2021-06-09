@@ -16,6 +16,24 @@
       "message": "This change needs to go through the same gauntlet as the one before it \u003e_\u003c\n\nis this correct?\n1. Submit change in skia (done)\n2. Cherry pick to android/next-release\n3. An automatic cl rolls next-release into android master\n4. A automatic cl rolls android master into sc-dev, but it may fail with a merge conflict and needs to be annotated with a hash of the CL in step 3.",
       "revId": "e0dfcbb4b2d2be42be1ae2f07d5ea5ef3a85de9f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "871f547d_1d9e0ecb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2021-06-09T13:36:16Z",
+      "side": 1,
+      "message": "\u003e This change needs to go through the same gauntlet as the one before it \u003e_\u003c\n\u003e \n\u003e is this correct?\n\u003e 1. Submit change in skia (done)\n\nYes.\n\n\u003e 2. Cherry pick to android/next-release\n\nYes (this CL)\n\n\u003e 3. An automatic cl rolls next-release into android master\n\nNo - the Skia main CL (https://skia-review.googlesource.com/c/skia/+/416685) is rolled into android master. Looking at Status, this seems to have already happened. (I haven\u0027t found the CL, but I\u0027ll refer to it as \u003cmerge-master\u003e.)\n\nOnce this CL is submitted, it will automatically roll into sc-dev. I\u0027ll call this \u003cmerge-sc-dev\u003e.\n\n\u003e 4. A automatic cl rolls android master into sc-dev, but it may fail with a merge conflict and needs to be annotated with a hash of the CL in step 3.\n\nYou have this somewhat backwards. sc-dev merges into android master. The presubmit checks for \u003cmerge-sc-dev\u003e ensure that there won\u0027t be conflicts in the merge from sc-dev to android master. In this case you\u0027re making the same change in both cases, which *sometimes* resolves on its own. But if it doesn\u0027t, you\u0027ll need to find the Change-Id of \u003cmerge-master\u003e and add it at the bottom of \u003cmerge-sc-dev\u003e\u0027s commit description as\n\nMerged-In: ###",
+      "parentUuid": "23e71177_3fc7b0f1",
+      "revId": "e0dfcbb4b2d2be42be1ae2f07d5ea5ef3a85de9f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
