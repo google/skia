@@ -981,7 +981,12 @@ void SkCanvas::internalDrawDeviceWithFilter(SkBaseDevice* src,
 //
 // Assumes that 'filter', and thus its inputs, will remain owned by the caller. Modifies 'paint'
 // to have the updated color filter and returns the image filter to evaluate on restore.
-static const SkImageFilter* optimize_layer_filter(const SkImageFilter* filter, SkPaint* paint) {
+//
+// FIXME: skbug.com/12083 - we modify 'coversDevice' here because for now, only the color filter
+// produced from an image filter node is checked for affecting transparent black, even though it's
+// better in the long run to have any CF that affects transparent black expand to the clip.
+static const SkImageFilter* optimize_layer_filter(const SkImageFilter* filter, SkPaint* paint,
+                                                  bool* coversDevice=nullptr) {
     SkASSERT(paint);
     SkColorFilter* cf;
     if (filter && filter->isColorFilterNode(&cf)) {
@@ -996,10 +1001,19 @@ static const SkImageFilter* optimize_layer_filter(const SkImageFilter* filter, S
             paint->setAlphaf(1.f);
         }
 
+        // Check if the once-wrapped color filter affects transparent black *before* we combine
+        // it with any original color filter on the paint.
+        if (coversDevice) {
+            *coversDevice = as_CFB(inner)->affectsTransparentBlack();
+        }
+
         paint->setColorFilter(SkColorFilters::Compose(paint->refColorFilter(), std::move(inner)));
         SkASSERT(filter->countInputs() == 1);
         return filter->getInput(0);
     } else {
+        if (coversDevice) {
+            *coversDevice = false;
+        }
         return filter;
     }
 }
@@ -1010,9 +1024,12 @@ static const SkImageFilter* optimize_layer_filter(const SkImageFilter* filter, S
 // See skbug.com/8783
 static bool must_cover_prior_device(const SkImageFilter* backdrop,
                                     const SkPaint& restorePaint) {
-    return SkToBool(backdrop) ||
-           (restorePaint.getColorFilter() &&
-            as_CFB(restorePaint.getColorFilter())->affectsTransparentBlack());
+    // FIXME(michaelludwig) - see skbug.com/12083, once clients do not depend on user bounds for
+    // clipping a layer visually, we can respect the fact that the color filter affects transparent
+    // black and should cover the device.
+    return SkToBool(backdrop); // ||
+           // (restorePaint.getColorFilter() &&
+           // as_CFB(restorePaint.getColorFilter())->affectsTransparentBlack());
 }
 
 void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy strategy) {
@@ -1037,8 +1054,10 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
     // bilerp also smoothed cropped edges. See skbug.com/11252
     restorePaint.setAntiAlias(true);
 
+    bool optimizedCFAffectsTransparent;
     const SkImageFilter* filter = optimize_layer_filter(
-            rec.fPaint ? rec.fPaint->getImageFilter() : nullptr, &restorePaint);
+            rec.fPaint ? rec.fPaint->getImageFilter() : nullptr, &restorePaint,
+            &optimizedCFAffectsTransparent);
 
     // Size the new layer relative to the prior device, which may already be aligned for filters.
     SkBaseDevice* priorDevice = this->topDevice();
@@ -1048,7 +1067,7 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
             filter, priorDevice->localToDevice(),
             skif::DeviceSpace<SkIRect>(priorDevice->devClipBounds()),
             skif::ParameterSpace<SkRect>::Optional(rec.fBounds),
-            must_cover_prior_device(rec.fBackdrop, restorePaint));
+            must_cover_prior_device(rec.fBackdrop, restorePaint) || optimizedCFAffectsTransparent);
 
     if (layerBounds.isEmpty()) {
         // The filtered content of the layer would not draw anything, so skip the layer
