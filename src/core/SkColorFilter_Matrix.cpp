@@ -79,7 +79,7 @@ bool SkColorFilter_Matrix::onAppendStages(const SkStageRec& rec, bool shaderIsOp
 
 
 skvm::Color SkColorFilter_Matrix::onProgram(skvm::Builder* p, skvm::Color c,
-                                            const SkColorInfo& /*dst*/,
+                                            SkColorSpace* /*dstCS*/,
                                             skvm::Uniforms* uniforms, SkArenaAlloc*) const {
     auto apply_matrix = [&](auto xyzw) {
         auto dot = [&](int j) {

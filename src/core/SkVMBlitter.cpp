@@ -324,7 +324,7 @@ namespace {
 
     struct NoopColorFilter : public SkColorFilterBase {
         skvm::Color onProgram(skvm::Builder*, skvm::Color c,
-                              const SkColorInfo&, skvm::Uniforms*, SkArenaAlloc*) const override {
+                              SkColorSpace*, skvm::Uniforms*, SkArenaAlloc*) const override {
             return c;
         }
 
