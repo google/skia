@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f9386e13_cdcc1a19",
+        "filename": "src/effects/imagefilters/SkRuntimeImageFilter.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-09T20:23:15Z",
+      "side": 1,
+      "message": "I think I gave you bad advice here. In FP land, we want to transform our parameter space coords that the runtime effect had first by ctx.ctm(), then subtract off the inputOffset to map that into the logical special-image\u0027s origin, and then add the special image\u0027s subset origin to finally access the pixels.\n\nSince the local matrix we provide at the skshader level is the inverse of those steps, we\u0027d be:\n\n   inverse * Translate(inputOffset.fXY) * Translate(-input-\u003esubset().fLeft/Top)",
+      "range": {
+        "startLine": 113,
+        "startChar": 22,
+        "endLine": 115,
+        "endChar": 87
+      },
+      "revId": "38f53b60f000e24996165ed1c19bd5e478549283",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
