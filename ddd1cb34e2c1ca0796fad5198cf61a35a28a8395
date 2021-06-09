@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "50d2dd0d_494b095f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 13495
+      },
+      "writtenOn": "2021-06-09T21:19:47Z",
+      "side": 1,
+      "message": "How do we resolve issues when bringing these changes into Google3? This would break existing PropertyObserver implementations",
+      "revId": "ddd1cb34e2c1ca0796fad5198cf61a35a28a8395",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
