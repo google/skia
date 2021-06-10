@@ -90,7 +90,8 @@ private:
             case SkBlendMode::kClear:
             case SkBlendMode::kSrc:
             case SkBlendMode::kDst:
-                SK_ABORT("Shouldn't have created a Blend FP as 'clear', 'src', or 'dst'.");
+            case SkBlendMode::kCustom:
+                SK_ABORT("Shouldn't have created a Blend FP as 'clear', 'src', 'dst' or 'custom'.");
                 flags = kNone_OptimizationFlags;
                 break;
 

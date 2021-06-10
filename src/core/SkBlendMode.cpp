@@ -118,6 +118,8 @@ void SkBlendMode_AppendStages(SkBlendMode mode, SkRasterPipeline* p) {
         case SkBlendMode::kSaturation: stage = SkRasterPipeline::saturation; break;
         case SkBlendMode::kColor:      stage = SkRasterPipeline::color; break;
         case SkBlendMode::kLuminosity: stage = SkRasterPipeline::luminosity; break;
+
+        case SkBlendMode::kCustom:     return;  // the raster pipeline doesn't support custom-blend
     }
     p->append(stage);
 }
