@@ -18,7 +18,6 @@ One primitive in particular stands out: **Text**. It can be drawn with the same 
 
 This proposal embraces this pattern, and aims to expose this functionality to the Web.
 
-
 ## Background
 
 Part of this complexity lies in language and alphabets themselves, and part is due to how our system of fonts and font formats have evolved. This document does not claim to detail either of these, but will briefly touch on each to motivate the proposed API suite.
