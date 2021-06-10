@@ -79,7 +79,7 @@ protected:
         GrResourceCache* cache = context->priv().getResourceCache();
 
         // Make sure the cache is empty.
-        cache->purgeAllUnlocked();
+        cache->purgeUnlockedResources();
         SkASSERT(0 == cache->getResourceCount() && 0 == cache->getResourceBytes());
 
         GrGpu* gpu = context->priv().getGpu();
@@ -125,7 +125,7 @@ protected:
         GrResourceCache* cache = fContext->priv().getResourceCache();
 
         // Make sure the cache is empty.
-        cache->purgeAllUnlocked();
+        cache->purgeUnlockedResources();
         SkASSERT(0 == cache->getResourceCount() && 0 == cache->getResourceBytes());
 
         GrGpu* gpu = fContext->priv().getGpu();
