@@ -256,8 +256,6 @@ public:
         return Instance().fSettings.fDSLMarkVarsDeclared;
     }
 
-    static std::unique_ptr<SkSL::Program> ReleaseProgram();
-
     static DSLWriter& Instance();
 
     static void SetInstance(std::unique_ptr<DSLWriter> instance);

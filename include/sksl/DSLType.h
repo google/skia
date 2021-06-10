@@ -8,6 +8,7 @@
 #ifndef SKSL_DSL_TYPE
 #define SKSL_DSL_TYPE
 
+#include "include/private/SkSLString.h"
 #include "include/sksl/DSLExpression.h"
 #include "include/sksl/DSLModifiers.h"
 
@@ -76,6 +77,9 @@ enum TypeConstant : uint8_t {
 
 class DSLType {
 public:
+    DSLType()
+        : DSLType(kVoid_Type) {}
+
     DSLType(TypeConstant tc)
         : fTypeConstant(tc) {}
 
