@@ -15,7 +15,10 @@ class SortKey;
 
 #include "experimental/ngatoy/Fake.h"
 #include "experimental/ngatoy/ngatypes.h"
+#include "experimental/ngatoy/SortKey.h"
 
+
+//------------------------------------------------------------------------------------------------
 class Cmd {
 public:
     Cmd() : fID(ID::Invalid()) {}
@@ -26,14 +29,12 @@ public:
 
     virtual SortKey getKey() = 0;
 
-    virtual const FakeMCBlob* state() const { return nullptr; }
-
     // To generate the actual image
     virtual void execute(FakeCanvas*) const = 0;
     virtual void rasterize(uint32_t zBuffer[256][256], SkBitmap* dstBM) const = 0;
 
     // To generate the expected image
-    virtual void execute(SkCanvas*, const FakeMCBlob* priorState) const = 0;
+    virtual void execute(SkCanvas*) const = 0;
     virtual void dump() const = 0;
 
 protected:
@@ -42,6 +43,49 @@ protected:
 private:
 };
 
+//------------------------------------------------------------------------------------------------
+class SaveCmd : public Cmd {
+public:
+    SaveCmd() : Cmd() {}
+
+    SortKey getKey() override { SkASSERT(0); return {}; }
+
+    void execute(FakeCanvas*) const override;
+    void execute(SkCanvas* c) const override;
+    void rasterize(uint32_t zBuffer[256][256], SkBitmap* dstBM) const override {
+        SkASSERT(0);
+    }
+
+    void dump() const override {
+        SkDebugf("%d: push", fID);
+    }
+
+protected:
+private:
+};
+
+//------------------------------------------------------------------------------------------------
+class RestoreCmd : public Cmd {
+public:
+    RestoreCmd() : Cmd() {}
+
+    SortKey getKey() override { SkASSERT(0); return {}; }
+
+    void execute(FakeCanvas*) const override;
+    void execute(SkCanvas* c) const override;
+    void rasterize(uint32_t zBuffer[256][256], SkBitmap* dstBM) const override {
+        SkASSERT(0);
+    }
+
+    void dump() const override {
+        SkDebugf("%d: pop", fID);
+    }
+
+protected:
+private:
+};
+
+//------------------------------------------------------------------------------------------------
 class RectCmd : public Cmd {
 public:
     RectCmd(ID, PaintersOrder, SkIRect, const FakePaint&, sk_sp<FakeMCBlob> state);
@@ -50,10 +94,10 @@ public:
     uint32_t getDrawZ() const;
 
     SortKey getKey() override;
-    const FakeMCBlob* state() const override { return fMCState.get(); }
+    const FakeMCBlob* state() const { return fMCState1.get(); }
 
     void execute(FakeCanvas*) const override;
-    void execute(SkCanvas* c, const FakeMCBlob* priorState) const override;
+    void execute(SkCanvas* c) const override;
     void rasterize(uint32_t zBuffer[256][256], SkBitmap* dstBM) const override;
 
     void dump() const override {
@@ -66,10 +110,45 @@ public:
 protected:
 
 private:
+    uint32_t computeZ() const;
+
     PaintersOrder     fPaintersOrder;
     SkIRect           fRect;
     FakePaint         fPaint;
-    sk_sp<FakeMCBlob> fMCState;
+    sk_sp<FakeMCBlob> fMCState1;
 };
+
+//------------------------------------------------------------------------------------------------
+class ClipCmd : public Cmd {
+public:
+    ClipCmd(ID, PaintersOrder paintersOrderWhenAdded, SkIRect r);
+    ~ClipCmd() override { SkASSERT(fPaintersOrderWhenPopped.isValid()); }
+
+    SortKey getKey() override;
+    PaintersOrder getPaintersOrderWhenPopped() const {
+        SkASSERT(fPaintersOrderWhenPopped.isValid()); return fPaintersOrderWhenPopped;
+    }
+
+    void pop(PaintersOrder paintersOrderWhenPopped);
+
+    void execute(FakeCanvas*) const override;
+    void execute(SkCanvas*) const override;
+    void rasterize(uint32_t zBuffer[256][256], SkBitmap* dstBM) const override;
+
+    void dump() const override {
+        SkDebugf("%d: clipRect %d %d %d %d",
+                 fID,
+                 fRect.fLeft, fRect.fTop, fRect.fRight, fRect.fBottom);
+    }
+
+protected:
+
+private:
+    SkIRect       fRect;
+    PaintersOrder fPaintersOrderWhenAdded;
+    PaintersOrder fPaintersOrderWhenPopped;
+};
+
+//------------------------------------------------------------------------------------------------
 
 #endif // Cmds_DEFINED
