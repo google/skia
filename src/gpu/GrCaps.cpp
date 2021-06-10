@@ -132,6 +132,9 @@ void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
 
     fMaxTextureSize = std::min(fMaxTextureSize, options.fMaxTextureSizeOverride);
 #if GR_TEST_UTILS
+    if (options.fSuppressAdvancedBlendEquations) {
+        fBlendEquationSupport = kBasic_BlendEquationSupport;
+    }
     if (options.fClearAllTextures) {
         fShouldInitializeTextures = true;
     }
