@@ -268,12 +268,6 @@ struct SK_API GrContextOptions {
     bool fEnableExperimentalHardwareTessellation = false;
 
     /**
-     * Experimental: Should the Ganesh' Next Generation Architecture be used instead of the
-     * old architecture?
-     */
-    Enable fUseNGA = Enable::kDefault;
-
-    /**
      * Uses a reduced variety of shaders. May perform less optimally in steady state but can reduce
      * jank due to shader compilations.
      */
@@ -283,6 +277,12 @@ struct SK_API GrContextOptions {
     /**
      * Private options that are only meant for testing within Skia's tools.
      */
+
+    /**
+     * Experimental: Should the Ganesh' Next Generation Architecture be used instead of the
+     * old architecture?
+     */
+    Enable fUseNGA = Enable::kDefault;
 
     /**
      * Prevents use of dual source blending, to test that all xfer modes work correctly without it.
