@@ -21,6 +21,7 @@
 #include "src/core/SkColorFilterBase.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
+#include "src/core/SkCustomBlend.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkMaskGamma.h"
 #include "src/core/SkOpts.h"
@@ -86,13 +87,26 @@ bool operator==(const SkPaint& a, const SkPaint& b) {
 #undef EQUAL
 }
 
-#define DEFINE_REF_FOO(type)    sk_sp<Sk##type> SkPaint::ref##type() const { return f##type; }
-DEFINE_REF_FOO(ColorFilter)
-DEFINE_REF_FOO(ImageFilter)
-DEFINE_REF_FOO(MaskFilter)
-DEFINE_REF_FOO(PathEffect)
-DEFINE_REF_FOO(Shader)
-#undef DEFINE_REF_FOO
+#define DEFINE_FIELD_REF(type) \
+    sk_sp<Sk##type> SkPaint::ref##type() const { return f##type; }
+DEFINE_FIELD_REF(ColorFilter)
+DEFINE_FIELD_REF(CustomBlend)
+DEFINE_FIELD_REF(ImageFilter)
+DEFINE_FIELD_REF(MaskFilter)
+DEFINE_FIELD_REF(PathEffect)
+DEFINE_FIELD_REF(Shader)
+#undef DEFINE_FIELD_REF
+
+#define DEFINE_FIELD_SET(Field) \
+    void SkPaint::set##Field(sk_sp<Sk##Field> f) { f##Field = std::move(f); }
+DEFINE_FIELD_SET(ColorFilter)
+DEFINE_FIELD_SET(ImageFilter)
+DEFINE_FIELD_SET(MaskFilter)
+DEFINE_FIELD_SET(PathEffect)
+DEFINE_FIELD_SET(Shader)
+#undef DEFINE_FIELD_SET
+
+///////////////////////////////////////////////////////////////////////////////
 
 void SkPaint::reset() { *this = SkPaint(); }
 
@@ -130,6 +144,16 @@ void SkPaint::setAlphaf(float a) {
 
 void SkPaint::setARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
     this->setColor(SkColorSetARGB(a, r, g, b));
+}
+
+void SkPaint::setBlendMode(SkBlendMode mode) {
+    fBitfields.fBlendMode = (unsigned)mode;
+    fCustomBlend = nullptr;
+}
+
+void SkPaint::setCustomBlend(sk_sp<SkCustomBlend> blend) {
+    fBitfields.fBlendMode = (unsigned)SkBlendMode::kSrc;
+    fCustomBlend = std::move(blend);
 }
 
 void SkPaint::setStrokeWidth(SkScalar width) {
@@ -171,16 +195,6 @@ void SkPaint::setStrokeJoin(Join jt) {
 #endif
     }
 }
-
-///////////////////////////////////////////////////////////////////////////////
-
-#define MOVE_FIELD(Field) void SkPaint::set##Field(sk_sp<Sk##Field> f) { f##Field = std::move(f); }
-MOVE_FIELD(ImageFilter)
-MOVE_FIELD(Shader)
-MOVE_FIELD(ColorFilter)
-MOVE_FIELD(PathEffect)
-MOVE_FIELD(MaskFilter)
-#undef MOVE_FIELD
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -441,9 +455,9 @@ bool SkPaint::nothingToDraw() const {
 }
 
 uint32_t SkPaint::getHash() const {
-    // We're going to hash 5 pointers and 6 floats, finishing up with fBitfields,
-    // so fBitfields should be 5 pointers and 6 floats from the start.
-    static_assert(offsetof(SkPaint, fBitfieldsUInt) == 5 * sizeof(void*) + 6 * sizeof(float),
+    // We're going to hash 6 pointers and 6 floats, finishing up with fBitfields,
+    // so fBitfields should be 6 pointers and 6 floats from the start.
+    static_assert(offsetof(SkPaint, fBitfieldsUInt) == 6 * sizeof(void*) + 6 * sizeof(float),
                   "SkPaint_notPackedTightly");
     return SkOpts::hash(reinterpret_cast<const uint32_t*>(this),
                         offsetof(SkPaint, fBitfieldsUInt) + sizeof(fBitfieldsUInt));
