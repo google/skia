@@ -6,8 +6,6 @@
 
 #include "include/gpu/GrTypes.h"
 
-// This is strictly used to check if we get the order of draw operations we expected. It is
-// pretty much the same as painters order though.
 class ID {
 public:
     explicit ID(int id) : fID(id) {
@@ -22,15 +20,12 @@ public:
 
     bool operator==(ID other) const { return fID == other.fID; }
 
-    int toInt() const { return fID; }
-
 private:
     ID() : fID(-1) {}
 
     int fID;
 };
 
-// This class just serves to strictly differentiate between painter's order and the sort/draw Zs
 class PaintersOrder {
 public:
     PaintersOrder() : fPaintersOrder(0) {}
@@ -48,8 +43,10 @@ public:
     uint32_t toUInt() const { return fPaintersOrder; }
 
 private:
+
     uint32_t fPaintersOrder = 0;
 };
+
 
 #endif
 
