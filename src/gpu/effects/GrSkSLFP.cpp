@@ -9,6 +9,7 @@
 
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/GrContext_Base.h"
+#include "include/private/SkSLString.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkVM.h"
 #include "src/gpu/GrBaseContextPriv.h"
@@ -41,8 +42,15 @@ public:
             FPCallbacks(GrGLSLSkSLFP* self,
                         EmitArgs& args,
                         const char* inputColor,
-                        const SkSL::Context& context)
-                    : fSelf(self), fArgs(args), fInputColor(inputColor), fContext(context) {}
+                        const SkSL::Context& context,
+                        const uint8_t* uniformData,
+                        const GrSkSLFP::UniformFlags* uniformFlags)
+                    : fSelf(self)
+                    , fArgs(args)
+                    , fInputColor(inputColor)
+                    , fContext(context)
+                    , fUniformData(uniformData)
+                    , fUniformFlags(uniformFlags) {}
 
             using String = SkSL::String;
 
@@ -56,6 +64,11 @@ public:
                 }
 
                 const SkSL::Type* type = &var.type();
+                size_t sizeInBytes = type->slotCount() * sizeof(float);
+                const float* floatData = reinterpret_cast<const float*>(fUniformData);
+                const int* intData = reinterpret_cast<const int*>(fUniformData);
+                fUniformData += sizeInBytes;
+
                 bool isArray = false;
                 if (type->isArray()) {
                     type = &type->componentType();
@@ -64,6 +77,23 @@ public:
 
                 GrSLType gpuType;
                 SkAssertResult(SkSL::type_to_grsltype(fContext, *type, &gpuType));
+
+                if (*fUniformFlags++ & GrSkSLFP::kSpecialize_Flag) {
+                    SkASSERTF(!isArray, "specializing array uniforms is not allowed");
+                    String value = GrGLSLTypeString(gpuType);
+                    value.append("(");
+
+                    bool isFloat = GrSLTypeIsFloatType(gpuType);
+                    size_t slots = type->slotCount();
+                    for (size_t i = 0; i < slots; ++i) {
+                        value.append(isFloat ? SkSL::to_string(floatData[i])
+                                             : SkSL::to_string(intData[i]));
+                        value.append(",");
+                    }
+                    value.back() = ')';
+                    return value;
+                }
+
                 const char* uniformName = nullptr;
                 auto handle =
                         fArgs.fUniformHandler->addUniformArray(&fArgs.fFp.cast<GrSkSLFP>(),
@@ -120,10 +150,13 @@ public:
                                       .c_str());
             }
 
-            GrGLSLSkSLFP*        fSelf;
-            EmitArgs&            fArgs;
-            const char*          fInputColor;
-            const SkSL::Context& fContext;
+            GrGLSLSkSLFP*                 fSelf;
+            EmitArgs&                     fArgs;
+            const char*                   fInputColor;
+            const SkSL::Context&          fContext;
+            const uint8_t*                fUniformData;
+            const GrSkSLFP::UniformFlags* fUniformFlags;
+            int                           fUniformIndex = 0;
         };
 
         // Snap off a global copy of the input color at the start of main. We need this when
@@ -143,9 +176,14 @@ public:
             args.fFragBuilder->codeAppendf("float2 %s = %s;\n", coords, args.fSampleCoord);
         }
 
-        FPCallbacks callbacks(this, args, inputColorCopy.c_str(), *program.fContext);
-        SkSL::PipelineStage::ConvertProgram(program, coords, args.fInputColor, "half4(1)",
-                                            &callbacks);
+        FPCallbacks callbacks(this,
+                              args,
+                              inputColorCopy.c_str(),
+                              *program.fContext,
+                              fp.uniformData(),
+                              fp.uniformFlags());
+        SkSL::PipelineStage::ConvertProgram(
+                program, coords, args.fInputColor, "half4(1)", &callbacks);
     }
 
     void onSetData(const GrGLSLProgramDataManager& pdman,
@@ -153,8 +191,12 @@ public:
         using Type = SkRuntimeEffect::Uniform::Type;
         size_t uniIndex = 0;
         const GrSkSLFP& outer = _proc.cast<GrSkSLFP>();
-        const uint8_t* uniformData = (const uint8_t*)outer.uniformData();
+        const uint8_t* uniformData = outer.uniformData();
+        const GrSkSLFP::UniformFlags* uniformFlags = outer.uniformFlags();
         for (const auto& v : outer.fEffect->uniforms()) {
+            if (*uniformFlags++ & GrSkSLFP::kSpecialize_Flag) {
+                continue;
+            }
             const UniformHandle handle = fUniformHandles[uniIndex++];
             auto floatData = [=] { return SkTAddOffset<const float>(uniformData, v.offset); };
             auto intData = [=] { return SkTAddOffset<const int>(uniformData, v.offset); };
@@ -190,7 +232,9 @@ std::unique_ptr<GrSkSLFP> GrSkSLFP::Make(sk_sp<SkRuntimeEffect> effect,
         return nullptr;
     }
     size_t uniformSize = uniforms->size();
-    std::unique_ptr<GrSkSLFP> fp(new (uniformSize) GrSkSLFP(std::move(effect), name));
+    size_t uniformFlagSize = effect->uniforms().count() * sizeof(UniformFlags);
+    std::unique_ptr<GrSkSLFP> fp(new (uniformSize + uniformFlagSize)
+                                         GrSkSLFP(std::move(effect), name));
     sk_careful_memcpy(fp->uniformData(), uniforms->data(), uniformSize);
     return fp;
 }
@@ -203,6 +247,7 @@ GrSkSLFP::GrSkSLFP(sk_sp<SkRuntimeEffect> effect, const char* name)
         , fEffect(std::move(effect))
         , fName(name)
         , fUniformSize(fEffect->uniformSize()) {
+    memset(this->uniformFlags(), 0, fEffect->uniforms().count() * sizeof(UniformFlags));
     if (fEffect->usesSampleCoords()) {
         this->setUsesSampleCoordsDirectly();
     }
@@ -213,6 +258,9 @@ GrSkSLFP::GrSkSLFP(const GrSkSLFP& other)
         , fEffect(other.fEffect)
         , fName(other.fName)
         , fUniformSize(other.fUniformSize) {
+    sk_careful_memcpy(this->uniformFlags(),
+                      other.uniformFlags(),
+                      fEffect->uniforms().count() * sizeof(UniformFlags));
     sk_careful_memcpy(this->uniformData(), other.uniformData(), fUniformSize);
 
     if (fEffect->usesSampleCoords()) {
@@ -220,10 +268,6 @@ GrSkSLFP::GrSkSLFP(const GrSkSLFP& other)
     }
 
     this->cloneAndRegisterAllChildProcessors(other);
-}
-
-const char* GrSkSLFP::name() const {
-    return fName;
 }
 
 void GrSkSLFP::addChild(std::unique_ptr<GrFragmentProcessor> child) {
@@ -243,17 +287,34 @@ void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBui
     // amount of uniform data.
     b->add32(fEffect->hash());
     b->add32(SkToU32(fUniformSize));
+
+    const UniformFlags* flags = this->uniformFlags();
+    const uint8_t* uniformData = this->uniformData();
+    size_t uniformCount = fEffect->uniforms().count();
+    auto iter = fEffect->uniforms().begin();
+
+    for (size_t i = 0; i < uniformCount; ++i) {
+        bool specialize = flags[i] & kSpecialize_Flag;
+        b->addBool(specialize, "specialize");
+        if (specialize) {
+            b->addBytes(iter->sizeInBytes(), uniformData + iter->offset, iter->name.c_str());
+        }
+    }
 }
 
 bool GrSkSLFP::onIsEqual(const GrFragmentProcessor& other) const {
     const GrSkSLFP& sk = other.cast<GrSkSLFP>();
+    const size_t uniformFlagSize = fEffect->uniforms().count() * sizeof(UniformFlags);
     return fEffect->hash() == sk.fEffect->hash() &&
+           fEffect->uniforms().count() == sk.fEffect->uniforms().count() &&
            fUniformSize == sk.fUniformSize &&
-           !sk_careful_memcmp(this->uniformData(), sk.uniformData(), fUniformSize);
+           !sk_careful_memcmp(
+                   this->uniformData(), sk.uniformData(), fUniformSize + uniformFlagSize);
 }
 
 std::unique_ptr<GrFragmentProcessor> GrSkSLFP::clone() const {
-    return std::unique_ptr<GrFragmentProcessor>(new (fUniformSize) GrSkSLFP(*this));
+    return std::unique_ptr<GrFragmentProcessor>(new (UniformPayloadSize(fEffect.get()))
+                                                        GrSkSLFP(*this));
 }
 
 SkPMColor4f GrSkSLFP::constantOutputForConstantInput(const SkPMColor4f& inputColor) const {

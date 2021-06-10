@@ -17,6 +17,7 @@
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkTLazy.h"
 #include "src/gpu/GrColor.h"
+#include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/effects/GrSkSLFP.h"
 #include "tests/Test.h"
@@ -631,4 +632,40 @@ DEF_TEST(SkRuntimeShaderSampleCoords, r) {
     // Use of coords passed to helper function
     test("half4 helper(float2 xy) { return sample(child, xy); }"
          "half4 main(float2 xy) { return helper(xy); }", true, true);
+}
+
+DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSkSLFP_Specialized, r, ctxInfo) {
+    struct FpAndKey {
+        std::unique_ptr<GrFragmentProcessor> fp;
+        SkTArray<uint32_t, true>             key;
+    };
+
+    // Constant color, but with a similar option to GrOverrideInputFragmentProcessor
+    // specialize decides if the color is inserted in the SkSL as a literal, or left as a uniform
+    auto make_color_fp = [&](SkPMColor4f color, bool specialize) {
+        auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
+            uniform half4 color;
+            half4 main(float2 xy) { return color; }
+        )");
+        FpAndKey result;
+        result.fp = GrSkSLFP::Make(
+                std::move(effect), "color_fp", "color", GrSkSLFP::SpecializeIf(specialize, color));
+        GrProcessorKeyBuilder builder(&result.key);
+        result.fp->getGLSLProcessorKey(*ctxInfo.directContext()->priv().caps()->shaderCaps(),
+                                       &builder);
+        builder.flush();
+        return result;
+    };
+
+    FpAndKey uRed   = make_color_fp({1, 0, 0, 1}, false),
+             uGreen = make_color_fp({0, 1, 0, 1}, false),
+             sRed   = make_color_fp({1, 0, 0, 1}, true),
+             sGreen = make_color_fp({0, 1, 0, 1}, true);
+
+    // uRed and uGreen should have the same key - they just have different uniforms
+    SkASSERT(uRed.key == uGreen.key);
+    // sRed and sGreen should have keys that are different from the uniform case, and each other
+    SkASSERT(sRed.key != uRed.key);
+    SkASSERT(sGreen.key != uRed.key);
+    SkASSERT(sRed.key != sGreen.key);
 }
