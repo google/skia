@@ -44,6 +44,8 @@ public:
 
     ~DSLCase();
 
+    DSLCase& operator=(DSLCase&&);
+
     void append(DSLStatement stmt);
 
 private:
