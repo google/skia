@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "483e5ce5_4fb73d0d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-10T14:13:55Z",
+      "side": 1,
+      "message": "Strangely, my local ASAN build doesn\u0027t trigger the UB error when running the testcase. I can see that it\u0027s dividing by zero in the debugger, and the compile command line includes -fsanitize\u003dundefined. Regardless, I expect this to fix the linked bug.",
+      "revId": "521876798ee263c311ecdf9417f3e08efb233e34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
