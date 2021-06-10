@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a4262486_fb08ed1c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-10T16:46:52Z",
+      "side": 1,
+      "message": "Nice!",
+      "revId": "eaba5932a4cc55401daecd82190b875332fa462a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b6ad33cc_d8ecbee6",
+        "filename": "src/sksl/SkSLASTNode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-10T16:46:52Z",
+      "side": 1,
+      "message": "tiny nit: in terse comments like these, it\u0027s probably better to omit the `skstd::` prefix",
+      "range": {
+        "startLine": 70,
+        "startChar": 22,
+        "endLine": 70,
+        "endChar": 40
+      },
+      "revId": "eaba5932a4cc55401daecd82190b875332fa462a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
