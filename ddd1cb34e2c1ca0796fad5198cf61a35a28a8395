@@ -56,6 +56,30 @@
       },
       "revId": "ddd1cb34e2c1ca0796fad5198cf61a35a28a8395",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8710bce0_4f957801",
+        "filename": "modules/skottie/include/SkottieProperty.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 13495
+      },
+      "writtenOn": "2021-06-10T18:28:36Z",
+      "side": 1,
+      "message": "Thanks for all of the context - I really appreciate it! Sent out a couple CLs to remove the overrides since that seems like the simplest/quickest option.",
+      "parentUuid": "49cf7a0b_106817e5",
+      "range": {
+        "startLine": 135,
+        "startChar": 0,
+        "endLine": 136,
+        "endChar": 75
+      },
+      "revId": "ddd1cb34e2c1ca0796fad5198cf61a35a28a8395",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
