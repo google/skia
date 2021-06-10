@@ -9,7 +9,9 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
+#include "include/core/SkDrawable.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPictureRecorder.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkTo.h"
@@ -1012,8 +1014,12 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(
                 // TT_SUPPORT_COLRV1 flag defined by the FreeType headers in
                 // that case.
 
-                haveLayers = colrv1_start_glyph(&canvas, palette, face, glyph.getGlyphID(),
+                SkPictureRecorder recorder;
+                SkCanvas* recordingCanvas = recorder.beginRecording(SkRect::Make(glyph.mask().fBounds));
+                haveLayers = colrv1_start_glyph(recordingCanvas, palette, face, glyph.getGlyphID(),
                                                 FT_COLOR_INCLUDE_ROOT_TRANSFORM);
+                sk_sp<SkDrawable> glyphDrawable = recorder.finishRecordingAsDrawable();
+                canvas.drawDrawable(glyphDrawable.get());
 #else
                 haveLayers = false;
 #endif
