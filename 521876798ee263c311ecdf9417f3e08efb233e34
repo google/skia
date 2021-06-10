@@ -33,6 +33,24 @@
       "message": "Given the second divide on the line, might be clearer to do like,\n\n  float invA \u003d sk_ieee_float_divide(...);\n  invA \u003d is_finite(invA) ? invA : 0;\n\n?",
       "revId": "521876798ee263c311ecdf9417f3e08efb233e34",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "37b39947_f57be99a",
+        "filename": "src/core/SkColorSpaceXformSteps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-10T14:23:57Z",
+      "side": 1,
+      "message": "Yup, reads nicer.",
+      "parentUuid": "b844eea8_e5a08b27",
+      "revId": "521876798ee263c311ecdf9417f3e08efb233e34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
