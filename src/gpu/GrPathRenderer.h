@@ -1,3 +1,4 @@
+#if 0
 /*
  * Copyright 2011 Google Inc.
  *
@@ -207,4 +208,5 @@ private:
     using INHERITED = SkRefCnt;
 };
 
+#endif
 #endif

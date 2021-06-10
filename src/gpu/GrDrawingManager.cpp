@@ -49,7 +49,9 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 GrDrawingManager::GrDrawingManager(GrRecordingContext* context,
+#if GR_OGA
                                    const GrPathRendererChain::Options& optionsForPathRendererChain,
+#endif
                                    bool reduceOpsTaskSplitting)
         : fContext(context)
         , fOptionsForPathRendererChain(optionsForPathRendererChain)

@@ -8,6 +8,7 @@
 #ifndef GrTriangulatingPathRenderer_DEFINED
 #define GrTriangulatingPathRenderer_DEFINED
 
+#if 0
 #include "src/gpu/GrPathRenderer.h"
 
 /**
@@ -35,5 +36,7 @@ private:
 
     using INHERITED = GrPathRenderer;
 };
+
+#endif
 
 #endif

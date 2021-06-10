@@ -8,6 +8,8 @@
 #ifndef GrSoftwarePathRenderer_DEFINED
 #define GrSoftwarePathRenderer_DEFINED
 
+#if 0
+
 #include "src/gpu/GrPathRenderer.h"
 #include "src/gpu/GrSurfaceProxyView.h"
 
@@ -76,5 +78,7 @@ private:
 
     using INHERITED = GrPathRenderer;
 };
+
+#endif
 
 #endif

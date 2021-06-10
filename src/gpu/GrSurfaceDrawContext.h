@@ -8,6 +8,7 @@
 #ifndef GrSurfaceDrawContext_DEFINED
 #define GrSurfaceDrawContext_DEFINED
 
+#if 0
 #include "include/core/SkCanvas.h"
 #include "include/core/SkDrawable.h"
 #include "include/core/SkRefCnt.h"
@@ -29,6 +30,7 @@ class GrColorSpaceXform;
 class GrCoverageCountingPathRenderer;
 class GrDrawOp;
 class GrDstProxyView;
+class GrHardClip;
 class GrOp;
 class GrRenderTarget;
 class GrStyledShape;
@@ -727,5 +729,14 @@ private:
     SkGlyphRunListPainter fGlyphPainter;
     using INHERITED = GrSurfaceFillContext;
 };
+
+#else
+
+class GrSurfaceDrawContext {
+public:
+
+};
+
+#endif
 
 #endif

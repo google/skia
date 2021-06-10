@@ -8,6 +8,7 @@
 #ifndef GrReducedClip_DEFINED
 #define GrReducedClip_DEFINED
 
+#if 0
 #include "src/core/SkClipStack.h"
 #include "src/core/SkTLList.h"
 #include "src/gpu/GrFragmentProcessor.h"
@@ -161,5 +162,7 @@ private:
     // Does not count against the analytic FP limit.
     sk_sp<SkShader> fShader;
 };
+
+#endif
 
 #endif

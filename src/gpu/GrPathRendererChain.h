@@ -1,3 +1,4 @@
+#if 0
 /*
  * Copyright 2011 Google Inc.
  *
@@ -68,4 +69,5 @@ private:
     GrPathRenderer*                                     fTessellationPathRenderer = nullptr;
 };
 
+#endif
 #endif
