@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1f0e1cde_bdc51f12",
+        "filename": "modules/skottie/src/layers/PrecompLayer.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-06-10T19:39:34Z",
+      "side": 1,
+      "message": "Looking closer, it appears we\u0027re going to name the COMPOSITION scope based on the current precomp layer name, not on the composition id.  That\u0027s probably not ideal, since compositions can be referenced from multiple precomp layers.\n\nI *think* we want to push the COMPOSITION scope down to CompositionBuilder::build(), and use a different property to extract the name (\"id\" instead of \"nm\").\n\nWe can refine this in a different CL.",
+      "revId": "dafed63fd6e1f6ab4c30c9886f775cb80993a334",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3dd38704_976dcb85",
+        "filename": "modules/skottie/utils/SkottieUtils.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-06-10T19:39:34Z",
+      "side": 1,
+      "message": "The newly added trackers are dispatching callbacks with null node_name (for e.g. the root composition), crashing the test.  You can probably just return in that case here (also in onLeavingNode).",
+      "range": {
+        "startLine": 48,
+        "startChar": 32,
+        "endLine": 48,
+        "endChar": 41
+      },
+      "revId": "dafed63fd6e1f6ab4c30c9886f775cb80993a334",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
