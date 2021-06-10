@@ -187,13 +187,6 @@ public:
         if it gets cached or used more generally. */
     sk_sp<SkImage> testingOnly_getFontAtlasImage(GrMaskFormat format, unsigned int index = 0);
 
-    /**
-     * Purge all the unlocked resources from the cache.
-     * This entry point is mainly meant for timing texture uploads
-     * and is not defined in normal builds of Skia.
-     */
-    void testingOnly_purgeAllUnlockedResources();
-
     void testingOnly_flushAndRemoveOnFlushCallbackObject(GrOnFlushCallbackObject*);
 #endif
 

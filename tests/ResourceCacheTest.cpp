@@ -331,7 +331,7 @@ public:
         SkASSERT(fDContext);
         fDContext->setResourceCacheLimit(maxBytes);
         GrResourceCache* cache = fDContext->priv().getResourceCache();
-        cache->purgeAllUnlocked();
+        cache->purgeUnlockedResources();
         SkASSERT(0 == cache->getResourceCount() && 0 == cache->getResourceBytes());
     }
 
@@ -364,7 +364,7 @@ static void test_no_key(skiatest::Reporter* reporter) {
                               d->gpuMemorySize() == cache->getResourceBytes());
 
     // Should be safe to purge without deleting the resources since we still have refs.
-    cache->purgeAllUnlocked();
+    cache->purgeUnlockedResources();
     REPORTER_ASSERT(reporter, 4 == TestResource::NumAlive());
 
     // Since the resources have neither unique nor scratch keys, delete immediately upon unref.
@@ -578,7 +578,7 @@ static void test_budgeting(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 0 == cache->getPurgeableBytes());
 
     // Our refs mean that the resources are non purgeable.
-    cache->purgeAllUnlocked();
+    cache->purgeUnlockedResources();
     REPORTER_ASSERT(reporter, 5 == cache->getResourceCount());
     REPORTER_ASSERT(reporter, scratch->gpuMemorySize() + unique->gpuMemorySize() +
                                               wrappedCacheable->gpuMemorySize() +
@@ -607,7 +607,7 @@ static void test_budgeting(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 11 == cache->getPurgeableBytes());
     // This will free 'unique' but not wrappedCacheable which has a key. That requires the key to be
     // removed to be freed.
-    cache->purgeAllUnlocked();
+    cache->purgeUnlockedResources();
     REPORTER_ASSERT(reporter, 4 == cache->getResourceCount());
 
     wrappedCacheableViaKey = cache->findAndRefUniqueResource(uniqueKey2);
@@ -631,7 +631,7 @@ static void test_budgeting(skiatest::Reporter* reporter) {
 
     scratch->unref();
     REPORTER_ASSERT(reporter, 10 == cache->getPurgeableBytes());
-    cache->purgeAllUnlocked();
+    cache->purgeUnlockedResources();
     REPORTER_ASSERT(reporter, 3 == cache->getResourceCount());
     REPORTER_ASSERT(reporter, unbudgeted->gpuMemorySize() + wrappedCacheable->gpuMemorySize() +
                                               wrappedUncacheable->gpuMemorySize() ==
@@ -719,7 +719,7 @@ static void test_unbudgeted(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 21 == cache->getBudgetedResourceBytes());
     REPORTER_ASSERT(reporter, 21 == cache->getPurgeableBytes());
 
-    cache->purgeAllUnlocked();
+    cache->purgeUnlockedResources();
     REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
     REPORTER_ASSERT(reporter, 0 == cache->getResourceBytes());
     REPORTER_ASSERT(reporter, 0 == cache->getBudgetedResourceCount());
@@ -824,7 +824,7 @@ static void test_duplicate_scratch_key(skiatest::Reporter* reporter) {
                               cache->getResourceBytes());
 
     // Our refs mean that the resources are non purgeable.
-    cache->purgeAllUnlocked();
+    cache->purgeUnlockedResources();
     REPORTER_ASSERT(reporter, 2 == TestResource::NumAlive());
     REPORTER_ASSERT(reporter, 2 == cache->getResourceCount());
 
@@ -836,7 +836,7 @@ static void test_duplicate_scratch_key(skiatest::Reporter* reporter) {
     SkDEBUGCODE(REPORTER_ASSERT(reporter, 2 == cache->countScratchEntriesForKey(scratchKey));)
 
     // Purge again. This time resources should be purgeable.
-    cache->purgeAllUnlocked();
+    cache->purgeUnlockedResources();
     REPORTER_ASSERT(reporter, 0 == TestResource::NumAlive());
     REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
     SkDEBUGCODE(REPORTER_ASSERT(reporter, 0 == cache->countScratchEntriesForKey(scratchKey));)
@@ -1017,7 +1017,7 @@ static void test_duplicate_unique_key(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 1 == TestResource::NumAlive());
 
     // c shouldn't be purged because it is ref'ed.
-    cache->purgeAllUnlocked();
+    cache->purgeUnlockedResources();
     REPORTER_ASSERT(reporter, 1 == cache->getResourceCount());
     REPORTER_ASSERT(reporter, c->gpuMemorySize() == cache->getResourceBytes());
     REPORTER_ASSERT(reporter, 1 == TestResource::NumAlive());
@@ -1111,7 +1111,7 @@ static void test_purge_invalidated(skiatest::Reporter* reporter) {
     SkSafeUnref(scratch);
 
     // Get rid of c.
-    cache->purgeAllUnlocked();
+    cache->purgeUnlockedResources();
     scratch = cache->findAndRefScratchResource(scratchKey);
     REPORTER_ASSERT(reporter, 0 == TestResource::NumAlive());
     REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
@@ -1146,14 +1146,14 @@ static void test_cache_chained_purge(skiatest::Reporter* reporter) {
 
     REPORTER_ASSERT(reporter, 2 == TestResource::NumAlive());
 
-    cache->purgeAllUnlocked();
+    cache->purgeUnlockedResources();
     REPORTER_ASSERT(reporter, 2 == TestResource::NumAlive());
 
     // Break the cycle
     unownedA->setUnrefWhenDestroyed(nullptr);
     REPORTER_ASSERT(reporter, 2 == TestResource::NumAlive());
 
-    cache->purgeAllUnlocked();
+    cache->purgeUnlockedResources();
     REPORTER_ASSERT(reporter, 0 == TestResource::NumAlive());
 }
 
@@ -1267,7 +1267,7 @@ static void test_time_purge(skiatest::Reporter* reporter) {
             }
 
             REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
-            cache->purgeAllUnlocked();
+            cache->purgeUnlockedResources();
         }
 
         // Do a similar test but where we leave refs on some resources to prevent them from being
@@ -1301,7 +1301,37 @@ static void test_time_purge(skiatest::Reporter* reporter) {
                 REPORTER_ASSERT(reporter, cnt / 2 - i - 1 == cache->getResourceCount());
             }
 
-            cache->purgeAllUnlocked();
+            cache->purgeUnlockedResources();
+        }
+
+        REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
+
+        // Do a similar test where we alternate adding scratch and uniquely keyed resources, but
+        // then purge old scratch resources.
+        {
+            for (int i = 0; i < cnt; ++i) {
+                const bool isScratch = (i % 2 == 0);
+                const SkBudgeted budgeted = SkBudgeted::kYes;
+                const TestResource::SimulatedProperty property = TestResource::kA_SimulatedProperty;
+                TestResource* r = isScratch ? TestResource::CreateScratch(gpu, budgeted, property)
+                                            : new TestResource(gpu, budgeted, property);
+                if (!isScratch) {
+                    GrUniqueKey k;
+                    make_unique_key<1>(&k, i);
+                    r->resourcePriv().setUniqueKey(k);
+                }
+                r->unref();
+                timeStamps.get()[i] = nowish();
+            }
+
+            for (int i = 0; i < cnt; ++i) {
+                // Should get a resource purged every other frame, since the uniquely keyed
+                // resources will not be considered.
+                cache->purgeResourcesNotUsedSince(timeStamps[i], /*scratchResourcesOnly=*/true);
+                REPORTER_ASSERT(reporter, cnt - i / 2 - 1 == cache->getResourceCount());
+            }
+            // Unref remaining resources
+            cache->purgeResourcesNotUsedSince(nowish());
         }
 
         REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
@@ -1421,7 +1451,7 @@ static void test_partial_purge(skiatest::Reporter* reporter) {
         }
 
         // ensure all are purged before the next
-        dContext->priv().testingOnly_purgeAllUnlockedResources();
+        dContext->priv().getResourceCache()->purgeUnlockedResources();
         REPORTER_ASSERT(reporter, 0 == cache->getBudgetedResourceCount());
         REPORTER_ASSERT(reporter, 0 == cache->getPurgeableBytes());
 

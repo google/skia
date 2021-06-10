@@ -193,7 +193,7 @@ void GrDirectContext::freeGpuResources() {
 
     this->drawingManager()->freeGpuResources();
 
-    fResourceCache->purgeAllUnlocked();
+    fResourceCache->purgeUnlockedResources();
 }
 
 bool GrDirectContext::init() {
@@ -317,7 +317,8 @@ void GrDirectContext::purgeUnlockedResources(bool scratchResourcesOnly) {
     fGpu->releaseUnlockedBackendObjects();
 }
 
-void GrDirectContext::performDeferredCleanup(std::chrono::milliseconds msNotUsed) {
+void GrDirectContext::performDeferredCleanup(std::chrono::milliseconds msNotUsed,
+                                             bool scratchResourcesOnly) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
     ASSERT_SINGLE_OWNER
@@ -331,7 +332,7 @@ void GrDirectContext::performDeferredCleanup(std::chrono::milliseconds msNotUsed
     auto purgeTime = GrStdSteadyClock::now() - msNotUsed;
 
     fResourceCache->purgeAsNeeded();
-    fResourceCache->purgeResourcesNotUsedSince(purgeTime);
+    fResourceCache->purgeResourcesNotUsedSince(purgeTime, scratchResourcesOnly);
 
     // The textBlob Cache doesn't actually hold any GPU resource but this is a convenient
     // place to purge stale blobs

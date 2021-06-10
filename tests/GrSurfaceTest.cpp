@@ -281,7 +281,7 @@ DEF_GPUTEST(InitialTextureClear, reporter, baseOptions) {
                             }
                         }
 
-                        dContext->priv().testingOnly_purgeAllUnlockedResources();
+                        dContext->priv().getResourceCache()->purgeUnlockedResources();
                     }
 
                     // Try creating the texture as a deferred proxy.
@@ -311,7 +311,7 @@ DEF_GPUTEST(InitialTextureClear, reporter, baseOptions) {
                                 }
                             }
                         }
-                        dContext->priv().testingOnly_purgeAllUnlockedResources();
+                        dContext->priv().getResourceCache()->purgeUnlockedResources();
                     }
                 }
             }
