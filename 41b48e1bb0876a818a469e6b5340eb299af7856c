@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ebb5a7e4_44f9c36f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-10T12:56:46Z",
+      "side": 1,
+      "message": "+bsalomon for the public header change.\n\nThis variant of performDeferredCleanup will be useful for android. Purging stale scratch-only resources is particularly useful for cleaning up textures used for layers or image filters that are no longer relevant given the active rendering parameters (e.g. an animating blur radius will progress through a range of scratch surface sizes).",
+      "revId": "41b48e1bb0876a818a469e6b5340eb299af7856c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
