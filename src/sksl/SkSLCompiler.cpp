@@ -409,20 +409,20 @@ ParsedModule Compiler::parseModule(ProgramKind kind, ModuleData data, const Pars
             case ProgramElement::Kind::kEnum: {
                 const Enum& e = element->as<Enum>();
                 SkASSERT(e.isBuiltin());
-                intrinsics->insertOrDie(e.typeName(), std::move(element));
+                intrinsics->insertOrDie(String(e.typeName()), std::move(element));
                 break;
             }
             case ProgramElement::Kind::kGlobalVar: {
                 const GlobalVarDeclaration& global = element->as<GlobalVarDeclaration>();
                 const Variable& var = global.declaration()->as<VarDeclaration>().var();
                 SkASSERT(var.isBuiltin());
-                intrinsics->insertOrDie(var.name(), std::move(element));
+                intrinsics->insertOrDie(String(var.name()), std::move(element));
                 break;
             }
             case ProgramElement::Kind::kInterfaceBlock: {
                 const Variable& var = element->as<InterfaceBlock>().variable();
                 SkASSERT(var.isBuiltin());
-                intrinsics->insertOrDie(var.name(), std::move(element));
+                intrinsics->insertOrDie(String(var.name()), std::move(element));
                 break;
             }
             default:

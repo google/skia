@@ -222,7 +222,8 @@ private:
     std::unique_ptr<StructDefinition> convertStructDefinition(const ASTNode& expression);
     std::unique_ptr<Expression> convertTypeField(int offset, const Type& type,
                                                  StringFragment field);
-    std::unique_ptr<Expression> convertSwizzle(std::unique_ptr<Expression> base, String fields);
+    std::unique_ptr<Expression> convertSwizzle(std::unique_ptr<Expression> base,
+                                               StringFragment fields);
     std::unique_ptr<Expression> convertTernaryExpression(const ASTNode& expression);
     std::unique_ptr<Statement> convertVarDeclarationStatement(const ASTNode& s);
     std::unique_ptr<Statement> convertWhile(const ASTNode& w);

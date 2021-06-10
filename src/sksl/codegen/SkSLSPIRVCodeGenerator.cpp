@@ -273,9 +273,9 @@ void SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode, int32_t word1, OutputSt
     this->writeWord(word1, out);
 }
 
-void SPIRVCodeGenerator::writeString(const char* string, size_t length, OutputStream& out) {
-    out.write(string, length);
-    switch (length % 4) {
+void SPIRVCodeGenerator::writeString(StringFragment s, OutputStream& out) {
+    out.write(s.data(), s.length());
+    switch (s.length() % 4) {
         case 1:
             out.write8(0);
             [[fallthrough]];
@@ -291,24 +291,24 @@ void SPIRVCodeGenerator::writeString(const char* string, size_t length, OutputSt
 }
 
 void SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode, StringFragment string, OutputStream& out) {
-    this->writeOpCode(opCode, 1 + (string.fLength + 4) / 4, out);
-    this->writeString(string.fChars, string.fLength, out);
+    this->writeOpCode(opCode, 1 + (string.length() + 4) / 4, out);
+    this->writeString(string, out);
 }
 
 
 void SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode, int32_t word1, StringFragment string,
                                           OutputStream& out) {
-    this->writeOpCode(opCode, 2 + (string.fLength + 4) / 4, out);
+    this->writeOpCode(opCode, 2 + (string.length() + 4) / 4, out);
     this->writeWord(word1, out);
-    this->writeString(string.fChars, string.fLength, out);
+    this->writeString(string, out);
 }
 
 void SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode, int32_t word1, int32_t word2,
                                           StringFragment string, OutputStream& out) {
-    this->writeOpCode(opCode, 3 + (string.fLength + 4) / 4, out);
+    this->writeOpCode(opCode, 3 + (string.length() + 4) / 4, out);
     this->writeWord(word1, out);
     this->writeWord(word2, out);
-    this->writeString(string.fChars, string.fLength, out);
+    this->writeString(string, out);
 }
 
 void SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode, int32_t word1, int32_t word2,
@@ -510,7 +510,7 @@ SpvId SPIRVCodeGenerator::getType(const Type& type) {
 
 SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layout) {
     const Type& type = this->getActualType(rawType);
-    String key = type.name();
+    String key(type.name());
     if (type.isStruct() || type.isArray()) {
         key += to_string((int)layout.fStd);
 #ifdef SK_DEBUG
@@ -2065,7 +2065,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
                                          /*invocations=*/-1, /*when=*/"", Layout::CType::kDefault),
                                   /*flags=*/0),
                         SKSL_RTHEIGHT_NAME, fContext.fTypes.fFloat.get());
-                StringFragment name("sksl_synthetic_uniforms");
+                String name("sksl_synthetic_uniforms");
                 std::unique_ptr<Type> intfStruct = Type::MakeStructType(/*offset=*/-1, name,
                                                                         fields);
                 int binding = fProgram.fConfig->fSettings.fRTHeightBinding;
@@ -2092,8 +2092,11 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
                                                    intfStruct.get(),
                                                    /*builtin=*/false,
                                                    Variable::Storage::kGlobal));
-                InterfaceBlock intf(/*offset=*/-1, intfVar, name,
-                                    /*instanceName=*/"", /*arraySize=*/0,
+                InterfaceBlock intf(/*offset=*/-1,
+                                    intfVar,
+                                    name,
+                                    /*instanceName=*/"",
+                                    /*arraySize=*/0,
                                     std::make_shared<SymbolTable>(&fErrors, /*builtin=*/false));
 
                 fRTHeightStructId = this->writeInterfaceBlock(intf, false);
@@ -3063,7 +3066,8 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
         fRTHeightStorageClass = storageClass;
         fields.emplace_back(Modifiers(), StringFragment(SKSL_RTHEIGHT_NAME),
                             fContext.fTypes.fFloat.get());
-        rtHeightStructType = Type::MakeStructType(type->fOffset, type->name(), std::move(fields));
+        rtHeightStructType = Type::MakeStructType(type->fOffset, String(type->name()),
+                                                  std::move(fields));
         type = rtHeightStructType.get();
     }
     SpvId typeId;
@@ -3626,7 +3630,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     this->writeCapabilities(out);
     this->writeInstruction(SpvOpExtInstImport, fGLSLExtendedInstructions, "GLSL.std.450", out);
     this->writeInstruction(SpvOpMemoryModel, SpvAddressingModelLogical, SpvMemoryModelGLSL450, out);
-    this->writeOpCode(SpvOpEntryPoint, (SpvId) (3 + (main->name().fLength + 4) / 4) +
+    this->writeOpCode(SpvOpEntryPoint, (SpvId) (3 + (main->name().length() + 4) / 4) +
                       (int32_t) interfaceVars.size(), out);
     switch (program.fConfig->fKind) {
         case ProgramKind::kVertex:
@@ -3643,7 +3647,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     }
     SpvId entryPoint = fFunctionMap[main];
     this->writeWord(entryPoint, out);
-    this->writeString(main->name().fChars, main->name().fLength, out);
+    this->writeString(main->name(), out);
     for (int var : interfaceVars) {
         this->writeWord(var, out);
     }
@@ -3658,7 +3662,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     }
     for (const ProgramElement* e : program.elements()) {
         if (e->is<Extension>()) {
-            this->writeInstruction(SpvOpSourceExtension, e->as<Extension>().name().c_str(), out);
+            this->writeInstruction(SpvOpSourceExtension, e->as<Extension>().name(), out);
         }
     }
 

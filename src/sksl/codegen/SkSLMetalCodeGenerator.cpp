@@ -38,14 +38,14 @@ const char* MetalCodeGenerator::OperatorName(Operator op) {
 class MetalCodeGenerator::GlobalStructVisitor {
 public:
     virtual ~GlobalStructVisitor() = default;
-    virtual void visitInterfaceBlock(const InterfaceBlock& block, const String& blockName) = 0;
-    virtual void visitTexture(const Type& type, const String& name) = 0;
-    virtual void visitSampler(const Type& type, const String& name) = 0;
+    virtual void visitInterfaceBlock(const InterfaceBlock& block, StringFragment blockName) = 0;
+    virtual void visitTexture(const Type& type, StringFragment name) = 0;
+    virtual void visitSampler(const Type& type, StringFragment name) = 0;
     virtual void visitVariable(const Variable& var, const Expression* value) = 0;
 };
 
-void MetalCodeGenerator::write(const char* s) {
-    if (!s[0]) {
+void MetalCodeGenerator::write(StringFragment s) {
+    if (s.empty()) {
         return;
     }
     if (fAtLineStart) {
@@ -53,24 +53,12 @@ void MetalCodeGenerator::write(const char* s) {
             fOut->writeText("    ");
         }
     }
-    fOut->writeText(s);
+    fOut->writeText(String(s).c_str());
     fAtLineStart = false;
 }
 
-void MetalCodeGenerator::writeLine(const char* s) {
+void MetalCodeGenerator::writeLine(StringFragment s) {
     this->write(s);
-    this->writeLine();
-}
-
-void MetalCodeGenerator::write(const String& s) {
-    this->write(s.c_str());
-}
-
-void MetalCodeGenerator::writeLine(const String& s) {
-    this->writeLine(s.c_str());
-}
-
-void MetalCodeGenerator::writeLine() {
     fOut->writeText(fLineEnding);
     fAtLineStart = true;
 }
@@ -108,9 +96,9 @@ String MetalCodeGenerator::typeName(const Type& type) {
         default:
             if (type == *fContext.fTypes.fHalf) {
                 // FIXME - Currently only supporting floats in MSL to avoid type coercion issues.
-                return fContext.fTypes.fFloat->name();
+                return String(fContext.fTypes.fFloat->name());
             } else {
-                return type.name();
+                return String(type.name());
             }
     }
 }
@@ -1872,7 +1860,7 @@ void MetalCodeGenerator::writeVarInitializer(const Variable& var, const Expressi
     this->writeExpression(value, Precedence::kTopLevel);
 }
 
-void MetalCodeGenerator::writeName(const String& name) {
+void MetalCodeGenerator::writeName(StringFragment name) {
     if (fReservedWords.find(name) != fReservedWords.end()) {
         this->write("_"); // adding underscore before name to avoid conflict with reserved words
     }
@@ -2207,7 +2195,7 @@ void MetalCodeGenerator::visitGlobalStruct(GlobalStructVisitor* visitor) {
         if (var.type().typeKind() == Type::TypeKind::kSampler) {
             // Samplers are represented as a "texture/sampler" duo in the global struct.
             visitor->visitTexture(var.type(), var.name());
-            visitor->visitSampler(var.type(), String(var.name()) + SAMPLER_SUFFIX);
+            visitor->visitSampler(var.type(), var.name() + SAMPLER_SUFFIX);
             continue;
         }
 
@@ -2222,7 +2210,7 @@ void MetalCodeGenerator::visitGlobalStruct(GlobalStructVisitor* visitor) {
 void MetalCodeGenerator::writeGlobalStruct() {
     class : public GlobalStructVisitor {
     public:
-        void visitInterfaceBlock(const InterfaceBlock& block, const String& blockName) override {
+        void visitInterfaceBlock(const InterfaceBlock& block, StringFragment blockName) override {
             this->addElement();
             fCodeGen->write("    constant ");
             fCodeGen->write(block.typeName());
@@ -2230,7 +2218,7 @@ void MetalCodeGenerator::writeGlobalStruct() {
             fCodeGen->writeName(blockName);
             fCodeGen->write(";\n");
         }
-        void visitTexture(const Type& type, const String& name) override {
+        void visitTexture(const Type& type, StringFragment name) override {
             this->addElement();
             fCodeGen->write("    ");
             fCodeGen->writeType(type);
@@ -2238,7 +2226,7 @@ void MetalCodeGenerator::writeGlobalStruct() {
             fCodeGen->writeName(name);
             fCodeGen->write(";\n");
         }
-        void visitSampler(const Type&, const String& name) override {
+        void visitSampler(const Type&, StringFragment name) override {
             this->addElement();
             fCodeGen->write("    sampler ");
             fCodeGen->writeName(name);
@@ -2279,16 +2267,16 @@ void MetalCodeGenerator::writeGlobalInit() {
     class : public GlobalStructVisitor {
     public:
         void visitInterfaceBlock(const InterfaceBlock& blockType,
-                                 const String& blockName) override {
+                                 StringFragment blockName) override {
             this->addElement();
             fCodeGen->write("&");
             fCodeGen->writeName(blockName);
         }
-        void visitTexture(const Type&, const String& name) override {
+        void visitTexture(const Type&, StringFragment name) override {
             this->addElement();
             fCodeGen->writeName(name);
         }
-        void visitSampler(const Type&, const String& name) override {
+        void visitSampler(const Type&, StringFragment name) override {
             this->addElement();
             fCodeGen->writeName(name);
         }

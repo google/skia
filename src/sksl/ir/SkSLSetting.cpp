@@ -65,13 +65,13 @@ public:
         }
     }
 
-    const CapsLookupMethod* lookup(const String& name) const {
+    const CapsLookupMethod* lookup(StringFragment name) const {
         auto iter = fMap.find(name);
         return (iter != fMap.end()) ? iter->second.get() : nullptr;
     }
 
 private:
-    std::unordered_map<String, std::unique_ptr<CapsLookupMethod>> fMap;
+    std::unordered_map<StringFragment, std::unique_ptr<CapsLookupMethod>> fMap;
 };
 
 static const CapsLookupTable& caps_lookup_table() {
@@ -102,7 +102,7 @@ static const CapsLookupTable& caps_lookup_table() {
 
 }  // namespace
 
-static const Type* get_type(const Context& context, int offset, const String& name) {
+static const Type* get_type(const Context& context, int offset, StringFragment name) {
     if (const CapsLookupMethod* caps = caps_lookup_table().lookup(name)) {
         return caps->type(context);
     }
