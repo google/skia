@@ -1,5 +1,6 @@
 // Copyright 2021 Google LLC.
 
+#include "experimental/sktext/editor/Editor.h"
 #include "experimental/sktext/src/Paint.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorFilter.h"
@@ -162,9 +163,11 @@ private:
     using INHERITED = Sample;
     std::unique_ptr<SkUnicode> fUnicode;
 };
+
 }  // namespace
 
 DEF_SAMPLE(return new TextSample_HelloWorld();)
 DEF_SAMPLE(return new TextSample_Align_Dir();)
 DEF_SAMPLE(return new TextSample_LongLTR();)
 DEF_SAMPLE(return new TextSample_LongRTL();)
+
