@@ -65,8 +65,6 @@ skia_gpu_sources = [
   "$_src/gpu/GrClip.h",
   "$_src/gpu/GrClipStack.cpp",
   "$_src/gpu/GrClipStack.h",
-  "$_src/gpu/GrClipStackClip.cpp",
-  "$_src/gpu/GrClipStackClip.h",
   "$_src/gpu/GrColor.h",
   "$_src/gpu/GrColorInfo.cpp",
   "$_src/gpu/GrColorInfo.h",
@@ -225,12 +223,6 @@ skia_gpu_sources = [
   "$_src/gpu/GrSubRunAllocator.h",
   "$_src/gpu/GrSurface.cpp",
   "$_src/gpu/GrSurface.h",
-  "$_src/gpu/GrSurfaceContext.cpp",
-  "$_src/gpu/GrSurfaceContext.h",
-  "$_src/gpu/GrSurfaceDrawContext.cpp",
-  "$_src/gpu/GrSurfaceDrawContext.h",
-  "$_src/gpu/GrSurfaceFillContext.cpp",
-  "$_src/gpu/GrSurfaceFillContext.h",
   "$_src/gpu/GrSurfaceProxy.cpp",
   "$_src/gpu/GrSurfaceProxy.h",
   "$_src/gpu/GrSurfaceProxyPriv.h",
@@ -639,6 +631,15 @@ skia_nga_sources = [
 ]
 
 skia_oga_sources = [
+  "$_src/gpu/GrClipStackClip.cpp",
+  "$_src/gpu/GrClipStackClip.h",
+  "$_src/gpu/GrSurfaceContext.cpp",
+  "$_src/gpu/GrSurfaceContext.h",
+  "$_src/gpu/GrSurfaceDrawContext.cpp",
+  "$_src/gpu/GrSurfaceDrawContext.h",
+  "$_src/gpu/GrSurfaceFillContext.cpp",
+  "$_src/gpu/GrSurfaceFillContext.h",
+
   # Sk files
   "$_src/gpu/SkGpuDevice.cpp",
   "$_src/gpu/SkGpuDevice.h",

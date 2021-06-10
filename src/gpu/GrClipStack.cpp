@@ -1261,7 +1261,7 @@ GrClip::PreClipResult GrClipStack::preApply(const SkRect& bounds, GrAA aa) const
     SkUNREACHABLE;
 }
 
-GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrSurfaceDrawContext* rtc,
+GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrSurfaceDrawContext* sdc,
                                   GrAAType aa, GrAppliedClip* out, SkRect* bounds) const {
     // TODO: Once we no longer store SW masks, we don't need to sneak the provider in like this
     if (!fProxyProvider) {
@@ -1349,7 +1349,7 @@ GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrSurfaceDrawCont
     int remainingAnalyticFPs = kMaxAnalyticFPs;
 
     // If window rectangles are supported, we can use them to exclude inner bounds of difference ops
-    int maxWindowRectangles = rtc->maxWindowRectangles();
+    int maxWindowRectangles = sdc->maxWindowRectangles();
     GrWindowRectangles windowRects;
 
     // Elements not represented as an analytic FP or skipped will be collected here and later
@@ -1462,10 +1462,10 @@ GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrSurfaceDrawCont
     // flattened into a single mask.
     if (!elementsForMask.empty()) {
         bool stencilUnavailable =
-                !rtc->asRenderTargetProxy()->canUseStencil(*context->priv().caps());
+                !sdc->asRenderTargetProxy()->canUseStencil(*context->priv().caps());
 
         bool hasSWMask = false;
-        if ((rtc->numSamples() <= 1 && maskRequiresAA) || stencilUnavailable) {
+        if ((sdc->numSamples() <= 1 && maskRequiresAA) || stencilUnavailable) {
             // Must use a texture mask to represent the combined clip elements since the stencil
             // cannot be used, or cannot handle smooth clips.
             std::tie(hasSWMask, clipFP) = GetSWMaskFP(
@@ -1480,7 +1480,7 @@ GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrSurfaceDrawCont
                 return Effect::kClippedOut;
             } else {
                 // Rasterize the remaining elements to the stencil buffer
-                render_stencil_mask(context, rtc, cs.genID(), scissorBounds,
+                render_stencil_mask(context, sdc, cs.genID(), scissorBounds,
                                     elementsForMask.begin(), elementsForMask.count(), out);
             }
         }
@@ -1488,7 +1488,7 @@ GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrSurfaceDrawCont
 
     // Finish CCPR paths now that the render target's ops task is stable.
     if (!elementsForAtlas.empty()) {
-        uint32_t opsTaskID = rtc->getOpsTask()->uniqueID();
+        uint32_t opsTaskID = sdc->getOpsTask()->uniqueID();
         for (int i = 0; i < elementsForAtlas.count(); ++i) {
             SkASSERT(elementsForAtlas[i]->aa() == GrAA::kYes);
             bool success;

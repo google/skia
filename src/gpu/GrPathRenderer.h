@@ -9,6 +9,7 @@
 #define GrPathRenderer_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSurfaceProps.h"
 #include "include/private/GrTypesPriv.h"
 #include "include/private/SkTArray.h"
 
@@ -84,7 +85,7 @@ public:
         const SkMatrix*             fViewMatrix;
         const GrStyledShape*        fShape;
         const GrPaint*              fPaint;
-        const SkSurfaceProps*       fSurfaceProps;
+        const SkSurfaceProps        fSurfaceProps;
         GrAAType                    fAAType;
 
         // This is only used by GrTessellationPathRenderer
@@ -97,7 +98,6 @@ public:
             SkASSERT(fClipConservativeBounds);
             SkASSERT(fViewMatrix);
             SkASSERT(fShape);
-            SkASSERT(fSurfaceProps);
         }
 #endif
     };
@@ -116,7 +116,11 @@ public:
         GrRecordingContext*          fContext;
         GrPaint&&                    fPaint;
         const GrUserStencilSettings* fUserStencilSettings;
-        GrSurfaceDrawContext*        fSurfaceDrawContext;
+
+        GrRenderTargetProxy*         fTargetProxy;
+        const SkSurfaceProps         fSurfaceProps;
+
+        GrSurfaceDrawContext*        fSurfaceDrawContext1;
         const GrClip*                fClip;
         const SkIRect*               fClipConservativeBounds;
         const SkMatrix*              fViewMatrix;
@@ -127,7 +131,7 @@ public:
         void validate() const {
             SkASSERT(fContext);
             SkASSERT(fUserStencilSettings);
-            SkASSERT(fSurfaceDrawContext);
+            SkASSERT(fSurfaceDrawContext1);
             SkASSERT(fClipConservativeBounds);
             SkASSERT(fViewMatrix);
             SkASSERT(fShape);
@@ -147,6 +151,10 @@ public:
         SkDEBUGCODE(StencilPathArgs() { memset(this, 0, sizeof(*this)); }) // For validation.
 
         GrRecordingContext*    fContext;
+
+        GrRenderTargetProxy*   fTargetProxy;
+        SkSurfaceProps         fSurfaceProps;
+
         GrSurfaceDrawContext*  fSurfaceDrawContext;
         const GrHardClip*      fClip;
         const SkIRect*         fClipConservativeBounds;

@@ -5,6 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "include/gpu/GrTypes.h"
+
+#if SK_OGA
+
 #include "include/core/SkCanvas.h"
 #include "include/core/SkData.h"
 #include "include/core/SkOverdrawCanvas.h"
@@ -1184,3 +1188,6 @@ DEF_TEST(surface_image_unity, reporter) {
         }
     }
 }
+
+#endif // SK_OGA
+

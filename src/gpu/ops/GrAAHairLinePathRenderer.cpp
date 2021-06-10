@@ -1309,9 +1309,9 @@ void AAHairlineOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBoun
 }
 
 bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
-    GR_AUDIT_TRAIL_AUTO_FRAME(args.fSurfaceDrawContext->auditTrail(),
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fContext->priv().auditTrail(),
                               "GrAAHairlinePathRenderer::onDrawPath");
-    SkASSERT(args.fSurfaceDrawContext->numSamples() <= 1);
+    SkASSERT(args.fTargetProxy->numSamples() <= 1);
 
     SkPath path;
     args.fShape->asPath(&path);
@@ -1319,7 +1319,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
             AAHairlineOp::Make(args.fContext, std::move(args.fPaint), *args.fViewMatrix, path,
                                args.fShape->style(), *args.fClipConservativeBounds,
                                args.fUserStencilSettings);
-    args.fSurfaceDrawContext->addDrawOp(args.fClip, std::move(op));
+    args.fSurfaceDrawContext1->addDrawOp(args.fClip, std::move(op));
     return true;
 }
 

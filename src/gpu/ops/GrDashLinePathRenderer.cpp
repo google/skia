@@ -29,7 +29,7 @@ GrDashLinePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
 }
 
 bool GrDashLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
-    GR_AUDIT_TRAIL_AUTO_FRAME(args.fSurfaceDrawContext->auditTrail(),
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fContext->priv().auditTrail(),
                               "GrDashLinePathRenderer::onDrawPath");
     GrDashOp::AAMode aaMode;
     switch (args.fAAType) {
@@ -37,7 +37,7 @@ bool GrDashLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
             aaMode = GrDashOp::AAMode::kNone;
             break;
         case GrAAType::kMSAA:
-            if (args.fSurfaceDrawContext->canUseDynamicMSAA()) {
+            if (args.fSurfaceDrawContext1->canUseDynamicMSAA()) {
                 // In DMSAA we avoid using MSAA, in order to reduce the number of MSAA triggers.
                 aaMode = GrDashOp::AAMode::kCoverage;
             } else {
@@ -59,6 +59,6 @@ bool GrDashLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
     if (!op) {
         return false;
     }
-    args.fSurfaceDrawContext->addDrawOp(args.fClip, std::move(op));
+    args.fSurfaceDrawContext1->addDrawOp(args.fClip, std::move(op));
     return true;
 }

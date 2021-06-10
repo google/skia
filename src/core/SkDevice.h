@@ -217,13 +217,13 @@ protected:
 
     virtual void onSave() {}
     virtual void onRestore() {}
-    virtual void onClipRect(const SkRect& rect, SkClipOp, bool aa) {}
-    virtual void onClipRRect(const SkRRect& rrect, SkClipOp, bool aa) {}
-    virtual void onClipPath(const SkPath& path, SkClipOp, bool aa) {}
+    virtual void onClipRect(const SkRect& /* rect */, SkClipOp, bool /* aa */) {}
+    virtual void onClipRRect(const SkRRect& /* rrect */, SkClipOp, bool /* aa */) {}
+    virtual void onClipPath(const SkPath& /* path */, SkClipOp, bool /* aa */) {}
     virtual void onClipShader(sk_sp<SkShader>) {}
-    virtual void onClipRegion(const SkRegion& deviceRgn, SkClipOp) {}
-    virtual void onReplaceClip(const SkIRect& rect) {}
-    virtual void onSetDeviceClipRestriction(SkIRect* mutableClipRestriction) {}
+    virtual void onClipRegion(const SkRegion& /* deviceRgn */, SkClipOp) {}
+    virtual void onReplaceClip(const SkIRect& /* rect */) {}
+    virtual void onSetDeviceClipRestriction(SkIRect* /* mutableClipRestriction */) {}
     virtual bool onClipIsAA() const = 0;
     virtual bool onClipIsWideOpen() const = 0;
     virtual void onAsRgnClip(SkRegion*) const = 0;
@@ -242,15 +242,12 @@ protected:
      When these are called, we have already applied any saveLayer operations,
      and are handling any looping from the paint.
      */
-    virtual void drawPaint(const SkPaint& paint) = 0;
-    virtual void drawPoints(SkCanvas::PointMode mode, size_t count,
-                            const SkPoint[], const SkPaint& paint) = 0;
-    virtual void drawRect(const SkRect& r,
-                          const SkPaint& paint) = 0;
-    virtual void drawRegion(const SkRegion& r,
-                            const SkPaint& paint);
-    virtual void drawOval(const SkRect& oval,
-                          const SkPaint& paint) = 0;
+    virtual void drawPaint(const SkPaint&) = 0;
+    virtual void drawPoints(SkCanvas::PointMode, size_t count,
+                            const SkPoint[], const SkPaint&) = 0;
+    virtual void drawRect(const SkRect&, const SkPaint&) = 0;
+    virtual void drawRegion(const SkRegion&, const SkPaint&);
+    virtual void drawOval(const SkRect& oval, const SkPaint&) = 0;
     /** By the time this is called we know that abs(sweepAngle) is in the range [0, 360). */
     virtual void drawArc(const SkRect& oval, SkScalar startAngle,
                          SkScalar sweepAngle, bool useCenter, const SkPaint& paint);
@@ -515,7 +512,7 @@ protected:
     ClipType onGetClipType() const override;
     SkIRect onDevClipBounds() const override { return this->clip().getBounds(); }
 
-    void drawPaint(const SkPaint& paint) override {}
+    void drawPaint(const SkPaint& /* paint */) override {}
     void drawPoints(SkCanvas::PointMode, size_t, const SkPoint[], const SkPaint&) override {}
     void drawImageRect(const SkImage*, const SkRect*, const SkRect&,
                        const SkSamplingOptions&, const SkPaint&,
@@ -527,10 +524,10 @@ protected:
     void drawDevice(SkBaseDevice*, const SkSamplingOptions&, const SkPaint&) override {}
     void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) override {}
 
-    void drawFilteredImage(const skif::Mapping&, SkSpecialImage* src, const SkImageFilter*,
+    void drawFilteredImage(const skif::Mapping&, SkSpecialImage* /* src */, const SkImageFilter*,
                            const SkSamplingOptions&, const SkPaint&) override {}
 
-    void onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) override {}
+    void onDrawGlyphRunList(const SkGlyphRunList&, const SkPaint&) override {}
 
 
     bool isNoPixelsDevice() const override { return true; }
