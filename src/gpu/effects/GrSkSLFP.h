@@ -41,6 +41,9 @@ UNIFORM_TYPE(int,         kInt);
 #undef UNIFORM_TYPE
 #endif
 
+template <typename T> struct GrSpecializedUniform { T value; };
+template <typename T> GrSpecializedUniform<T> Specialize(const T& value) { return {value}; }
+
 class GrSkSLFP : public GrFragmentProcessor {
 public:
     /**
@@ -100,7 +103,7 @@ public:
 
         size_t uniformSize = effect->uniformSize();
         std::unique_ptr<GrSkSLFP> fp(new (uniformSize) GrSkSLFP(std::move(effect), name));
-        fp->appendArgs(fp->uniformData(), std::forward<Args>(args)...);
+        fp->appendArgs(fp->uniformData(), /*index=*/0, std::forward<Args>(args)...);
         return fp;
     }
 
@@ -119,19 +122,30 @@ private:
     void* uniformData() const { return (void*)(this + 1); }
 
     // Helpers to attach variadic template args to a newly constructed FP:
-    void appendArgs(void* ptr) {}
+    void appendArgs(void* ptr, int index) {}
     template <typename... Args>
     void appendArgs(void* ptr,
+                    int index,
                     const char* name,
                     std::unique_ptr<GrFragmentProcessor>&& child,
                     Args&&... remainder) {
         this->addChild(std::move(child));
-        this->appendArgs(ptr, std::forward<Args>(remainder)...);
+        this->appendArgs(ptr, index, std::forward<Args>(remainder)...);
     }
     template <typename T, typename... Args>
-    void appendArgs(void* ptr, const char* name, const T& val, Args&&... remainder) {
+    void appendArgs(void* ptr,
+                    int index,
+                    const char* name,
+                    const GrSpecializedUniform<T>& val,
+                    Args&&... remainder) {
+        this->fSpecializeUniforms |= (1U << index);
+        this->appendArgs(ptr, index, name, val.value, std::forward<Args>(remainder)...);
+    }
+    template <typename T, typename... Args>
+    void appendArgs(void* ptr, int index, const char* name, const T& val, Args&&... remainder) {
         memcpy(ptr, &val, sizeof(val));
-        this->appendArgs(SkTAddOffset<void>(ptr, sizeof(val)), std::forward<Args>(remainder)...);
+        this->appendArgs(
+                SkTAddOffset<void>(ptr, sizeof(val)), index + 1, std::forward<Args>(remainder)...);
     }
 
 #ifdef SK_DEBUG
@@ -169,6 +183,17 @@ private:
                           child_iterator cIter,
                           child_iterator cEnd,
                           const char* name,
+                          const GrSpecializedUniform<T>& val,
+                          Args&&... remainder) {
+        // TODO: Thread index through here, assert that it's less than 32?
+        checkArgs(uIter, uEnd, cIter, cEnd, name, val.value, std::forward<Args>(remainder)...);
+    }
+    template <typename T, typename... Args>
+    static void checkArgs(uniform_iterator uIter,
+                          uniform_iterator uEnd,
+                          child_iterator cIter,
+                          child_iterator cEnd,
+                          const char* name,
                           const T& val,
                           Args&&... remainder) {
         SkASSERTF(uIter != uEnd, "Too many uniforms, wasn't expecting '%s'", name);
@@ -188,6 +213,7 @@ private:
     sk_sp<SkRuntimeEffect> fEffect;
     const char*            fName;
     size_t                 fUniformSize;
+    uint32_t               fSpecializeUniforms;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
