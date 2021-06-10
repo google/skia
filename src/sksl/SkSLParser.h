@@ -64,7 +64,7 @@ public:
      */
     std::unique_ptr<ASTFile> compilationUnit();
 
-    StringFragment text(Token token);
+    skstd::string_view text(Token token);
 
     Position position(Token token);
 
@@ -125,7 +125,7 @@ private:
      * Returns true if the 'name' identifier refers to a type name. For instance, isType("int") will
      * always return true.
      */
-    bool isType(StringFragment name);
+    bool isType(skstd::string_view name);
 
     /**
      * Returns true if the passed-in ASTNode is an array type, or false if it is a non-arrayed type.
@@ -170,15 +170,15 @@ private:
 
     ASTNode::ID structVarDeclaration(Modifiers modifiers);
 
-    ASTNode::ID varDeclarationEnd(Modifiers modifiers, ASTNode::ID type, StringFragment name);
+    ASTNode::ID varDeclarationEnd(Modifiers modifiers, ASTNode::ID type, skstd::string_view name);
 
     ASTNode::ID parameter();
 
     int layoutInt();
 
-    StringFragment layoutIdentifier();
+    skstd::string_view layoutIdentifier();
 
-    StringFragment layoutCode();
+    skstd::string_view layoutCode();
 
     Layout::CType layoutCType();
 
@@ -260,7 +260,7 @@ private:
 
     bool boolLiteral(bool* dest);
 
-    bool identifier(StringFragment* dest);
+    bool identifier(skstd::string_view* dest);
 
     template <typename... Args> ASTNode::ID createNode(Args&&... args);
 
@@ -294,7 +294,7 @@ private:
 
     static std::unordered_map<String, LayoutToken>* layoutTokens;
 
-    StringFragment fText;
+    skstd::string_view fText;
     Lexer fLexer;
     // current parse depth, used to enforce a recursion limit to try to keep us from overflowing the
     // stack on pathological inputs

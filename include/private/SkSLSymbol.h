@@ -31,7 +31,7 @@ public:
         kLast = kVariable
     };
 
-    Symbol(int offset, Kind kind, StringFragment name, const Type* type = nullptr)
+    Symbol(int offset, Kind kind, skstd::string_view name, const Type* type = nullptr)
         : INHERITED(offset, (int) kind)
         , fName(name)
         , fType(type) {
@@ -49,7 +49,7 @@ public:
         return (Kind) fKind;
     }
 
-    StringFragment name() const {
+    skstd::string_view name() const {
         return fName;
     }
 
@@ -78,7 +78,7 @@ public:
     }
 
 private:
-    StringFragment fName;
+    skstd::string_view fName;
     const Type* fType;
 
     using INHERITED = IRNode;
