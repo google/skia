@@ -19,6 +19,7 @@
 #include "src/gpu/tessellate/GrDrawAtlasPathOp.h"
 #include "src/gpu/tessellate/GrPathInnerTriangulateOp.h"
 #include "src/gpu/tessellate/GrPathStencilCoverOp.h"
+#include "src/gpu/tessellate/GrPathTessellateOp.h"
 #include "src/gpu/tessellate/GrStrokeTessellateOp.h"
 
 constexpr static SkISize kAtlasInitialSize{512, 512};
@@ -53,6 +54,16 @@ GrTessellationPathRenderer::GrTessellationPathRenderer(GrRecordingContext* rCont
     }
 }
 
+GrPathRenderer::StencilSupport GrTessellationPathRenderer::onGetStencilSupport(
+        const GrStyledShape& shape) const {
+    if (!shape.style().isSimpleFill()) {
+        // Don't bother with stroke stencilling yet. Skia probably shouldn't support this at all
+        // since you can't clip by a stroke.
+        return kNoSupport_StencilSupport;
+    }
+    return shape.knownToBeConvex() ? kNoRestriction_StencilSupport : kStencilOnly_StencilSupport;
+}
+
 GrPathRenderer::CanDrawPath GrTessellationPathRenderer::onCanDrawPath(
         const CanDrawPathArgs& args) const {
     const GrStyledShape& shape = *args.fShape;
@@ -61,7 +72,6 @@ GrPathRenderer::CanDrawPath GrTessellationPathRenderer::onCanDrawPath(
         args.fViewMatrix->hasPerspective() ||
         shape.style().strokeRec().getStyle() == SkStrokeRec::kStrokeAndFill_Style ||
         shape.inverseFilled() ||
-        args.fHasUserStencilSettings ||
         !args.fProxy->canUseStencil(*args.fCaps)) {
         return CanDrawPath::kNo;
     }
@@ -77,49 +87,61 @@ GrPathRenderer::CanDrawPath GrTessellationPathRenderer::onCanDrawPath(
             return CanDrawPath::kNo;
         }
     }
+    if (args.fHasUserStencilSettings) {
+        // Non-convex paths and strokes use the stencil buffer internally, so they can't support
+        // draws with stencil settings.
+        if (!shape.style().isSimpleFill() || !shape.knownToBeConvex()) {
+            return CanDrawPath::kNo;
+        }
+    }
     return CanDrawPath::kYes;
 }
 
-static GrOp::Owner make_op(GrRecordingContext* rContext, const GrSurfaceContext* surfaceContext,
-                           GrTessellationPathRenderer::PathFlags pathFlags, GrAAType aaType,
-                           const SkRect& shapeDevBounds, const SkMatrix& viewMatrix,
-                           const GrStyledShape& shape, GrPaint&& paint) {
-    SkPath path;
-    shape.asPath(&path);
-    if (!shape.style().isSimpleFill()) {
-        const SkStrokeRec& stroke = shape.style().strokeRec();
-        SkASSERT(stroke.getStyle() != SkStrokeRec::kStrokeAndFill_Style);
-        return GrOp::Make<GrStrokeTessellateOp>(rContext, aaType, viewMatrix, path, stroke,
-                                                std::move(paint));
-    } else {
-        SkRect devBounds;
-        viewMatrix.mapRect(&devBounds, path.getBounds());
-        int numVerbs = path.countVerbs();
-        if (numVerbs > 0) {
-            // Check if the path is large and/or simple enough that we can triangulate the inner fan
-            // on the CPU. This is our fastest approach. It allows us to stencil only the curves,
-            // and then fill the inner fan directly to the final render target, thus drawing the
-            // majority of pixels in a single render pass.
-            float gpuFragmentWork = devBounds.height() * devBounds.width();
-            float cpuTessellationWork = numVerbs * SkNextLog2(numVerbs);  // N log N.
-            constexpr static float kCpuWeight = 512;
-            constexpr static float kMinNumPixelsToTriangulate = 256 * 256;
-            if (cpuTessellationWork * kCpuWeight + kMinNumPixelsToTriangulate < gpuFragmentWork) {
-                return GrOp::Make<GrPathInnerTriangulateOp>(rContext, viewMatrix, path,
-                                                            std::move(paint), aaType, pathFlags,
-                                                            devBounds);
-            }
+static GrOp::Owner make_non_convex_fill_op(GrRecordingContext* rContext,
+                                           GrTessellationPathRenderer::PathFlags pathFlags,
+                                           GrAAType aaType, const SkRect& pathDevBounds,
+                                           const SkMatrix& viewMatrix, const SkPath& path,
+                                           GrPaint&& paint) {
+    SkASSERT(!path.isConvex());
+    int numVerbs = path.countVerbs();
+    if (numVerbs > 0) {
+        // Check if the path is large and/or simple enough that we can triangulate the inner fan
+        // on the CPU. This is our fastest approach. It allows us to stencil only the curves,
+        // and then fill the inner fan directly to the final render target, thus drawing the
+        // majority of pixels in a single render pass.
+        float gpuFragmentWork = pathDevBounds.height() * pathDevBounds.width();
+        float cpuTessellationWork = numVerbs * SkNextLog2(numVerbs);  // N log N.
+        constexpr static float kCpuWeight = 512;
+        constexpr static float kMinNumPixelsToTriangulate = 256 * 256;
+        if (cpuTessellationWork * kCpuWeight + kMinNumPixelsToTriangulate < gpuFragmentWork) {
+            return GrOp::Make<GrPathInnerTriangulateOp>(rContext, viewMatrix, path,
+                                                        std::move(paint), aaType, pathFlags,
+                                                        pathDevBounds);
         }
-        return GrOp::Make<GrPathStencilCoverOp>(rContext, viewMatrix, path, std::move(paint),
-                                                aaType, pathFlags, devBounds);
     }
+    return GrOp::Make<GrPathStencilCoverOp>(rContext, viewMatrix, path, std::move(paint), aaType,
+                                            pathFlags, pathDevBounds);
 }
 
 bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
     GrSurfaceDrawContext* surfaceDrawContext = args.fSurfaceDrawContext;
 
-    SkRect devBounds;
-    args.fViewMatrix->mapRect(&devBounds, args.fShape->bounds());
+    SkPath path;
+    args.fShape->asPath(&path);
+
+    // Handle strokes first.
+    if (!args.fShape->style().isSimpleFill()) {
+        SkASSERT(args.fUserStencilSettings->isUnused());
+        const SkStrokeRec& stroke = args.fShape->style().strokeRec();
+        SkASSERT(stroke.getStyle() != SkStrokeRec::kStrokeAndFill_Style);
+        auto op = GrOp::Make<GrStrokeTessellateOp>(args.fContext, args.fAAType, *args.fViewMatrix,
+                                                   path, stroke, std::move(args.fPaint));
+        surfaceDrawContext->addDrawOp(args.fClip, std::move(op));
+        return true;
+    }
+
+    SkRect pathDevBounds;
+    args.fViewMatrix->mapRect(&pathDevBounds, args.fShape->bounds());
 
     // See if the path is small and simple enough to atlas instead of drawing directly.
     //
@@ -129,8 +151,9 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkIRect devIBounds;
     SkIPoint16 locationInAtlas;
     bool transposedInAtlas;
-    if (this->tryAddPathToAtlas(*args.fContext->priv().caps(), *args.fViewMatrix, *args.fShape,
-                                devBounds, args.fAAType, &devIBounds, &locationInAtlas,
+    if (args.fUserStencilSettings->isUnused() &&
+        this->tryAddPathToAtlas(*args.fContext->priv().caps(), *args.fViewMatrix, path,
+                                pathDevBounds, args.fAAType, &devIBounds, &locationInAtlas,
                                 &transposedInAtlas)) {
         // The atlas is not compatible with DDL. We should only be using it on direct contexts.
         SkASSERT(args.fContext->asDirectContext());
@@ -142,21 +165,64 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
         return true;
     }
 
-    if (auto op = make_op(args.fContext, surfaceDrawContext, PathFlags::kNone, args.fAAType,
-                          devBounds, *args.fViewMatrix, *args.fShape, std::move(args.fPaint))) {
+    // Handle convex paths only if we couldn't fit them in the atlas. We give the atlas priority in
+    // an effort to reduce DMSAA triggers.
+    if (args.fShape->knownToBeConvex()) {
+        auto op = GrOp::Make<GrPathTessellateOp>(args.fContext, *args.fViewMatrix, path,
+                                                 std::move(args.fPaint), args.fAAType,
+                                                 args.fUserStencilSettings, pathDevBounds);
         surfaceDrawContext->addDrawOp(args.fClip, std::move(op));
+        return true;
     }
+
+    SkASSERT(args.fUserStencilSettings->isUnused());  // See onGetStencilSupport().
+    auto op = make_non_convex_fill_op(args.fContext, PathFlags::kNone, args.fAAType, pathDevBounds,
+                                      *args.fViewMatrix, path, std::move(args.fPaint));
+    surfaceDrawContext->addDrawOp(args.fClip, std::move(op));
     return true;
 }
 
-bool GrTessellationPathRenderer::tryAddPathToAtlas(
-        const GrCaps& caps, const SkMatrix& viewMatrix, const GrStyledShape& shape,
-        const SkRect& devBounds, GrAAType aaType, SkIRect* devIBounds, SkIPoint16* locationInAtlas,
-        bool* transposedInAtlas) {
-    if (!shape.style().isSimpleFill()) {
-        return false;
+void GrTessellationPathRenderer::onStencilPath(const StencilPathArgs& args) {
+    SkASSERT(args.fShape->style().isSimpleFill());  // See onGetStencilSupport().
+
+    GrSurfaceDrawContext* surfaceDrawContext = args.fSurfaceDrawContext;
+    GrAAType aaType = (GrAA::kYes == args.fDoStencilMSAA) ? GrAAType::kMSAA : GrAAType::kNone;
+
+    SkRect pathDevBounds;
+    args.fViewMatrix->mapRect(&pathDevBounds, args.fShape->bounds());
+
+    SkPath path;
+    args.fShape->asPath(&path);
+
+    if (args.fShape->knownToBeConvex()) {
+        constexpr static GrUserStencilSettings kMarkStencil(
+            GrUserStencilSettings::StaticInit<
+                0x0001,
+                GrUserStencilTest::kAlways,
+                0xffff,
+                GrUserStencilOp::kReplace,
+                GrUserStencilOp::kKeep,
+                0xffff>());
+
+        GrPaint stencilPaint;
+        stencilPaint.setXPFactory(GrDisableColorXPFactory::Get());
+        auto op = GrOp::Make<GrPathTessellateOp>(args.fContext, *args.fViewMatrix, path,
+                                                 std::move(stencilPaint), aaType, &kMarkStencil,
+                                                 pathDevBounds);
+        surfaceDrawContext->addDrawOp(args.fClip, std::move(op));
+        return;
     }
 
+    auto op = make_non_convex_fill_op(args.fContext, PathFlags::kStencilOnly, aaType, pathDevBounds,
+                                      *args.fViewMatrix, path, GrPaint());
+    surfaceDrawContext->addDrawOp(args.fClip, std::move(op));
+}
+
+bool GrTessellationPathRenderer::tryAddPathToAtlas(const GrCaps& caps, const SkMatrix& viewMatrix,
+                                                   const SkPath& path, const SkRect& pathDevBounds,
+                                                   GrAAType aaType, SkIRect* devIBounds,
+                                                   SkIPoint16* locationInAtlas,
+                                                   bool* transposedInAtlas) {
     if (!fMaxAtlasPathWidth) {
         return false;
     }
@@ -168,7 +234,7 @@ bool GrTessellationPathRenderer::tryAddPathToAtlas(
     // Transpose tall paths in the atlas. Since we limit ourselves to small-area paths, this
     // guarantees that every atlas entry has a small height, which lends very well to efficient pow2
     // atlas packing.
-    devBounds.roundOut(devIBounds);
+    pathDevBounds.roundOut(devIBounds);
     int maxDimenstion = devIBounds->width();
     int minDimension = devIBounds->height();
     *transposedInAtlas = minDimension > maxDimenstion;
@@ -201,23 +267,10 @@ bool GrTessellationPathRenderer::tryAddPathToAtlas(
     }
 
     // Concatenate this path onto our uber path that matches its fill and AA types.
-    SkPath path;
-    shape.asPath(&path);
     SkPath* uberPath = this->getAtlasUberPath(path.getFillType(), GrAAType::kNone != aaType);
     uberPath->moveTo(locationInAtlas->x(), locationInAtlas->y());  // Implicit moveTo(0,0).
     uberPath->addPath(path, atlasMatrix);
     return true;
-}
-
-void GrTessellationPathRenderer::onStencilPath(const StencilPathArgs& args) {
-    GrSurfaceDrawContext* surfaceDrawContext = args.fSurfaceDrawContext;
-    GrAAType aaType = (GrAA::kYes == args.fDoStencilMSAA) ? GrAAType::kMSAA : GrAAType::kNone;
-    SkRect devBounds;
-    args.fViewMatrix->mapRect(&devBounds, args.fShape->bounds());
-    if (auto op = make_op(args.fContext, surfaceDrawContext, PathFlags::kStencilOnly, aaType,
-                          devBounds, *args.fViewMatrix, *args.fShape, GrPaint())) {
-        surfaceDrawContext->addDrawOp(args.fClip, std::move(op));
-    }
 }
 
 void GrTessellationPathRenderer::preFlush(GrOnFlushResourceProvider* onFlushRP,
