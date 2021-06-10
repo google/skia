@@ -45,6 +45,30 @@
       },
       "revId": "915f88cfc01a1dc9721efd47cf0a83b937318d18",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1215bba1_70eee198",
+        "filename": "src/gpu/GrCaps.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 459,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-10T18:44:28Z",
+      "side": 1,
+      "message": "Also FWIW with my suggestion canSampleSelf and the presence of the texture barrier flag will be identical. So you could just return the flags and not the bool.",
+      "parentUuid": "b65f1c72_d10bc616",
+      "range": {
+        "startLine": 454,
+        "startChar": 4,
+        "endLine": 459,
+        "endChar": 20
+      },
+      "revId": "915f88cfc01a1dc9721efd47cf0a83b937318d18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
