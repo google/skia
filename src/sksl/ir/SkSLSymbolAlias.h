@@ -28,7 +28,7 @@ public:
     }
 
     String description() const override {
-        return this->name();
+        return String(this->name());
     }
 
 private:

@@ -30,7 +30,7 @@ bool FuzzSKSL2Pipeline(sk_sp<SkData> bytes) {
         using String = SkSL::String;
 
         String declareUniform(const SkSL::VarDeclaration* decl) override {
-            return decl->var().name();
+            return String(decl->var().name());
         }
 
         void defineFunction(const char* /*decl*/, const char* /*body*/, bool /*isMain*/) override {}

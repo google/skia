@@ -64,17 +64,9 @@ public:
 protected:
     using Precedence = Operator::Precedence;
 
-    void write(const char* s);
-
-    void writeLine();
-
-    void writeLine(const char* s);
-
-    void write(const String& s);
-
     void write(StringFragment s);
 
-    void writeLine(const String& s);
+    void writeLine(StringFragment s = StringFragment());
 
     void finishLine();
 
@@ -88,9 +80,7 @@ protected:
 
     void writeType(const Type& type);
 
-    void writeExtension(const String& name);
-
-    void writeExtension(const String& name, bool require);
+    void writeExtension(StringFragment name, bool require = true);
 
     void writeInterfaceBlock(const InterfaceBlock& intf);
 
