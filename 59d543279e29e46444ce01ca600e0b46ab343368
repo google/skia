@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "261fa612_4a6a54c3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-10T21:06:06Z",
+      "side": 1,
+      "message": "Take 3 doesn\u0027t change the caps part at all. How\u0027s this?",
+      "revId": "59d543279e29e46444ce01ca600e0b46ab343368",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
