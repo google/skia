@@ -98,7 +98,8 @@ void SkColorSpaceXformSteps::apply(float* rgba) const {
         // I don't know why isfinite(x) stopped working on the Chromecast bots...
         auto is_finite = [](float x) { return x*0 == 0; };
 
-        float invA = is_finite(1.0f / rgba[3]) ? 1.0f / rgba[3] : 0;
+        float invA = sk_ieee_float_divide(1.0f, rgba[3]);
+        invA = is_finite(invA) ? invA : 0;
         rgba[0] *= invA;
         rgba[1] *= invA;
         rgba[2] *= invA;
