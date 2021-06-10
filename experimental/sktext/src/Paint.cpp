@@ -4,7 +4,6 @@
 namespace skia {
 namespace text {
 
-
 bool Paint::drawText(std::u16string text, SkCanvas* canvas, SkScalar x, SkScalar y) {
 
     return drawText(std::move(text), canvas, TextDirection::kLtr, TextAlign::kLeft, SK_ColorBLACK, SK_ColorWHITE, SkString("Roboto"), 14, SkFontStyle::Normal(), x, y);
