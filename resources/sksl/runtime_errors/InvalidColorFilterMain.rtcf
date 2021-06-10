@@ -1,8 +1,11 @@
 // Runtime color filters require specific main signatures. Test that older signatures, or those
 // intended for shaders don't work.
 
-// Expect 3 errors
+// Expect 4 errors
 
 half4 main() { return half(1); }
 half4 main(float2 coord) { return half4(1); }
 half4 main(float2 coord, half4 color) { return color; }
+half4 main(half4 color, half4 bonusColor) { return color; }
+
+half4 main(half4 color) { return color; }  // the correct signature is allowed
