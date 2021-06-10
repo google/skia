@@ -458,6 +458,8 @@ skia_gpu_sources = [
   "$_src/gpu/tessellate/GrPathInnerTriangulateOp.h",
   "$_src/gpu/tessellate/GrPathStencilCoverOp.cpp",
   "$_src/gpu/tessellate/GrPathStencilCoverOp.h",
+  "$_src/gpu/tessellate/GrPathTessellateOp.cpp",
+  "$_src/gpu/tessellate/GrPathTessellateOp.h",
   "$_src/gpu/tessellate/GrPathTessellator.h",
   "$_src/gpu/tessellate/GrPathWedgeTessellator.cpp",
   "$_src/gpu/tessellate/GrPathWedgeTessellator.h",
