@@ -169,6 +169,8 @@ public:
     Line(const Stretch& stretch, const Stretch& spaces, SkSTArray<1, size_t, true> visualOrder);
     ~Line() = default;
 
+    TextMetrics getMetrics() const { return fTextMetrics; }
+
 private:
     friend class WrappedText;
     friend class FormattedText;
