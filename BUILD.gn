@@ -2910,6 +2910,10 @@ if (skia_enable_tools) {
       is_shared_library = is_android
       deps = [ "modules/skplaintexteditor:editor_app" ]
     }
+    test_app("text_editor") {
+      is_shared_library = is_android
+      deps = [ "experimental/sktext:text_editor" ]
+    }
   }
 
   skia_executable("image_diff_metric") {

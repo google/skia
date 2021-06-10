@@ -138,7 +138,7 @@ public:
 
 typedef Range<TextIndex> TextRange;
 typedef Range<GlyphIndex> GlyphRange;
-const Range EMPTY_RANGE = Range(EMPTY_INDEX, EMPTY_INDEX);
+const Range<size_t> EMPTY_RANGE = Range<size_t>(EMPTY_INDEX, EMPTY_INDEX);
 
 // Blocks
 enum BlockType {

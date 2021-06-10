@@ -114,30 +114,31 @@ private:
     SkTArray<TextRun, false> fRuns;
     SkTArray<GlyphUnitFlags, true> fGlyphUnitProperties;
 };
-
 class FormattedText;
 class WrappedText {
 public:
     sk_sp<FormattedText> format(TextAlign, TextDirection);
     SkSize size() const { return fSize; }
-    int countLines() const { return fLines.size(); }
+    size_t countLines() const { return fLines.size(); }
 private:
     friend class ShapedText;
-    WrappedText() { }
+    WrappedText() : fSize(SkSize::MakeEmpty()) { }
     void addLine(Stretch& stretch, Stretch& spaces, SkUnicode* unicode);
     SkTArray<TextRun, false> fRuns;
     SkTArray<Line, false> fLines;
     SkTArray<GlyphUnitFlags, true> fGlyphUnitProperties;
     SkSize fSize;
 };
-
 class FormattedText : public SkRefCnt {
 public:
     SkSize  size() const { return fSize; }
 
-    std::tuple<const Line*, const TextRun*, GlyphIndex> indexToAdjustedGraphemePosition(TextIndex textIndex) const;
-
+    std::tuple<const Line*, const TextRun*, GlyphIndex, SkRect> indexToAdjustedGraphemePosition(TextIndex textIndex) const;
     TextIndex positionToAdjustedGraphemeIndex(SkPoint xy) const;
+    size_t lineIndex(const Line* line) const {
+        return line - fLines.data();
+    }
+    size_t countLines() const { return fLines.size(); }
 
     // This one does not make sense; how would we get glyphRange in the first place?
     // It has to point to the same run or we cannot even index it
@@ -145,6 +146,7 @@ public:
 
     class Visitor {
     public:
+        virtual ~Visitor() = default;
         virtual void onBeginLine(TextRange, float baselineY) = 0;
         virtual void onEndLine(TextRange, float baselineY) = 0;
         virtual void onGlyphRun(SkFont font,
