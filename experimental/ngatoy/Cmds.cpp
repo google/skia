@@ -11,6 +11,25 @@
 #include "include/core/SkPaint.h"
 #include "include/effects/SkGradientShader.h"
 
+
+//------------------------------------------------------------------------------------------------
+void SaveCmd::execute(FakeCanvas* f) const {
+    f->save();
+}
+
+void SaveCmd::execute(SkCanvas* c) const {
+    c->save();
+}
+
+//------------------------------------------------------------------------------------------------
+void RestoreCmd::execute(FakeCanvas* f) const {
+    f->restore();
+}
+
+void RestoreCmd::execute(SkCanvas* c) const {
+    c->restore();
+}
+
 //------------------------------------------------------------------------------------------------
 RectCmd::RectCmd(ID id,
                  PaintersOrder paintersOrder,
@@ -51,26 +70,16 @@ static void apply_diff(FakeCanvas* c, const FakeMCBlob& desired, const FakeMCBlo
 }
 
 void RectCmd::execute(FakeCanvas* c) const {
-    apply_diff(c, *fMCState, c->snapState().get());
+    if (fMCState) {
+        // When replaying the test case 'fMCState' will be null. When actually executing the Cmd
+        // after sorting, 'fMCState' will be non-null.
+        apply_diff(c, *fMCState, c->snapState().get());
+    }
 
     c->drawRect(fID, fRect, fPaint);
 }
 
-static void apply_diff(SkCanvas* c, const FakeMCBlob& desired, const FakeMCBlob* prior) {
-    int prefix = desired.determineSharedPrefix(prior);
-
-    if (prior) {
-        for (int j = prefix; j < prior->count(); ++j) {
-            c->restore();
-        }
-    }
-
-    for (int j = prefix; j < desired.count(); ++j) {
-        desired[j].apply(c);
-    }
-}
-
-void RectCmd::execute(SkCanvas* c, const FakeMCBlob* priorState) const {
+void RectCmd::execute(SkCanvas* c) const {
 
     SkColor4f colors[2] = {
         SkColor4f::FromColor(fPaint.c0()),
@@ -95,8 +104,6 @@ void RectCmd::execute(SkCanvas* c, const FakeMCBlob* priorState) const {
                                                    SkTileMode::kRepeat);
         p.setShader(std::move(shader));
     }
-
-    apply_diff(c, *fMCState, priorState);
 
     c->drawRect(SkRect::Make(fRect), p);
 }
@@ -138,3 +145,60 @@ void RectCmd::rasterize(uint32_t zBuffer[256][256], SkBitmap* dstBM) const {
     }
 }
 
+//------------------------------------------------------------------------------------------------
+ClipCmd::ClipCmd(ID id, PaintersOrder paintersOrderWhenAdded, SkIRect r)
+        : Cmd(id)
+        , fRect(r)
+        , fPaintersOrderWhenAdded(paintersOrderWhenAdded) {
+}
+
+uint32_t ClipCmd::getSortZ() const {
+    // Not used this iteration
+    SkASSERT(0);
+
+    SkASSERT(fPaintersOrderWhenAdded.isValid());
+
+    return fPaintersOrderWhenAdded.toUInt();
+}
+
+uint32_t ClipCmd::getDrawZ() const {
+    // Not used this iteration
+    SkASSERT(0);
+
+    return 0;
+}
+
+SortKey ClipCmd::getKey() {
+    // Not used this iteration
+    SkASSERT(0);
+
+    return SortKey(false, 0, this->getSortZ(), kInvalidMat);
+}
+
+void ClipCmd::execute(FakeCanvas* c) const {
+    // This call is creating the 'real' ClipCmd for the "actual" case
+    SkASSERT(!fPaintersOrderWhenAdded.isValid());
+
+    c->clipRect(fID, fRect);
+}
+
+void ClipCmd::execute(SkCanvas* c) const {
+    c->clipRect(SkRect::Make(fRect));
+}
+
+void ClipCmd::rasterize(uint32_t zBuffer[256][256], SkBitmap* /* dstBM */) const {
+    // Not used this iteration
+    SkASSERT(0);
+
+    uint32_t drawZ = this->getDrawZ();
+
+    for (int y = fRect.fTop; y < fRect.fBottom; ++y) {
+        for (int x = fRect.fLeft; x < fRect.fRight; ++x) {
+            if (drawZ > zBuffer[x][y]) {
+                zBuffer[x][y] = drawZ;
+            }
+        }
+    }
+}
+
+//------------------------------------------------------------------------------------------------

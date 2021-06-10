@@ -256,7 +256,7 @@ public:
 
     void save();
     void drawRect(ID, PaintersOrder, SkIRect, FakePaint);
-    void clipRect(SkIRect r);
+    void clipRect(ID, SkIRect);
     void translate(SkIPoint trans) {
         fTracker.translate(trans);
     }
@@ -300,7 +300,7 @@ public:
 
     void drawRect(ID, SkIRect, FakePaint);
 
-    void clipRect(SkIRect);
+    void clipRect(ID, SkIRect);
 
     void translate(SkIPoint trans) {
         SkASSERT(!fFinalized);
