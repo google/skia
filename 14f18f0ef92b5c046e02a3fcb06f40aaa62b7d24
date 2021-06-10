@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "85f2d88a_75fbfa6c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-10T23:26:37Z",
+      "side": 1,
+      "message": "This is needed to help reduce long term memory occupancy when render effects are involved in hwui",
+      "revId": "14f18f0ef92b5c046e02a3fcb06f40aaa62b7d24",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
