@@ -53,6 +53,29 @@ void SetErrorHandler(ErrorHandler* errorHandler) {
 
 class DSLCore {
 public:
+    static std::unique_ptr<SkSL::Program> ReleaseProgram() {
+        DSLWriter& instance = DSLWriter::Instance();
+        SkSL::IRGenerator& ir = DSLWriter::IRGenerator();
+        IRGenerator::IRBundle bundle = ir.finish();
+        Pool* pool = DSLWriter::Instance().fPool.get();
+        auto result = std::make_unique<SkSL::Program>(/*source=*/nullptr,
+                                                      std::move(instance.fConfig),
+                                                      DSLWriter::Instance().fCompiler->fContext,
+                                                      std::move(bundle.fElements),
+                                                      std::move(bundle.fSharedElements),
+                                                      std::move(instance.fModifiersPool),
+                                                      std::move(bundle.fSymbolTable),
+                                                      std::move(instance.fPool),
+                                                      bundle.fInputs);
+        DSLWriter::Compiler().optimize(*result);
+        if (pool) {
+            pool->detachFromThread();
+        }
+        SkASSERT(DSLWriter::ProgramElements().empty());
+        SkASSERT(!DSLWriter::SymbolTable());
+        return result;
+    }
+
     static DSLVar sk_FragColor() {
         return DSLVar("sk_FragColor");
     }
@@ -199,6 +222,10 @@ public:
                                           stmt.release(), DSLWriter::SymbolTable());
     }
 };
+
+std::unique_ptr<SkSL::Program> ReleaseProgram() {
+    return DSLCore::ReleaseProgram();
+}
 
 DSLVar sk_FragColor() {
     return DSLCore::sk_FragColor();
