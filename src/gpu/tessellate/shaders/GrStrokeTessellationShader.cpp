@@ -27,6 +27,7 @@ float atan2(float2 v) {
 
 const char* GrStrokeTessellationShader::Impl::kCosineBetweenVectorsFn = R"(
 float cosine_between_vectors(float2 a, float2 b) {
+    // FIXME(crbug.com/800804,skbug.com/11268): This can overflow if we don't normalize exponents.
     float ab_cosTheta = dot(a,b);
     float ab_pow2 = dot(a,a) * dot(b,b);
     return (ab_pow2 == 0.0) ? 1.0 : clamp(ab_cosTheta * inversesqrt(ab_pow2), -1.0, 1.0);
@@ -115,6 +116,8 @@ void GrStrokeTessellationShader::Impl::emitTessellationCode(
             B = E - C;
             A = fma(float2(-3), E, D);
         }
+        // FIXME(crbug.com/800804,skbug.com/11268): Consider normalizing the exponents in A,B,C at
+        // this point in order to prevent fp32 overflow.
 
         // Now find the coefficients that give a tangent direction from a parametric edge ID:
         //
@@ -133,6 +136,7 @@ void GrStrokeTessellationShader::Impl::emitTessellationCode(
         //
         float lastParametricEdgeID = 0.0;
         float maxParametricEdgeID = min(numParametricSegments - 1.0, combinedEdgeID);
+        // FIXME(crbug.com/800804,skbug.com/11268): This normalize() can overflow.
         float2 tan0norm = normalize(tan0);
         float negAbsRadsPerSegment = -abs(radsPerSegment);
         float maxRotation0 = (1.0 + combinedEdgeID) * abs(radsPerSegment);
@@ -230,6 +234,7 @@ void GrStrokeTessellationShader::Impl::emitTessellationCode(
     })", shader.maxParametricSegments_log2() /* Parametric/radial sort loop count. */);
 
     code->append(R"(
+    // FIXME(crbug.com/800804,skbug.com/11268): This normalize() can overflow.
     float2 ortho = normalize(float2(tangent.y, -tangent.x));
     strokeCoord += ortho * (STROKE_RADIUS * strokeOutset);)");
 
