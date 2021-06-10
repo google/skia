@@ -65,8 +65,6 @@ skia_gpu_sources = [
   "$_src/gpu/GrClip.h",
   "$_src/gpu/GrClipStack.cpp",
   "$_src/gpu/GrClipStack.h",
-  "$_src/gpu/GrClipStackClip.cpp",
-  "$_src/gpu/GrClipStackClip.h",
   "$_src/gpu/GrColor.h",
   "$_src/gpu/GrColorInfo.cpp",
   "$_src/gpu/GrColorInfo.h",
@@ -173,8 +171,6 @@ skia_gpu_sources = [
   "$_src/gpu/GrRectanizerPow2.h",
   "$_src/gpu/GrRectanizerSkyline.cpp",
   "$_src/gpu/GrRectanizerSkyline.h",
-  "$_src/gpu/GrReducedClip.cpp",
-  "$_src/gpu/GrReducedClip.h",
   "$_src/gpu/GrRefCnt.h",
   "$_src/gpu/GrRenderTarget.cpp",
   "$_src/gpu/GrRenderTarget.h",
@@ -639,6 +635,11 @@ skia_nga_sources = [
 ]
 
 skia_oga_sources = [
+  "$_src/gpu/GrClipStackClip.cpp",
+  "$_src/gpu/GrClipStackClip.h",
+  "$_src/gpu/GrReducedClip.cpp",
+  "$_src/gpu/GrReducedClip.h",
+
   # Sk files
   "$_src/gpu/SkGpuDevice.cpp",
   "$_src/gpu/SkGpuDevice.h",
