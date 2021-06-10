@@ -255,7 +255,7 @@ public:
     ~FakeDevice() {}
 
     void save();
-    void drawRect(ID id, uint32_t z, SkIRect, FakePaint);
+    void drawRect(ID, PaintersOrder, SkIRect, FakePaint);
     void clipRect(SkIRect r);
     void translate(SkIPoint trans) {
         fTracker.translate(trans);
@@ -298,7 +298,7 @@ public:
         fDeviceStack.back()->save();
     }
 
-    void drawRect(ID id, SkIRect, FakePaint);
+    void drawRect(ID, SkIRect, FakePaint);
 
     void clipRect(SkIRect);
 
@@ -323,11 +323,14 @@ public:
 protected:
 
 private:
-    uint32_t nextZ() {
-        return fNextZ++;
+    PaintersOrder nextPaintersOrder() {
+        return PaintersOrder(fNextPaintersOrder++);
+    }
+    PaintersOrder peekPaintersOrder() const {
+        return PaintersOrder(fNextPaintersOrder);
     }
 
-    int                                      fNextZ = 1;
+    uint32_t                                 fNextPaintersOrder = 1;
     bool                                     fFinalized = false;
     std::vector<std::unique_ptr<FakeDevice>> fDeviceStack;
 };

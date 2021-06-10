@@ -30,6 +30,27 @@ private:
     int fID;
 };
 
+// This class just serves to strictly differentiate between painter's order and the sort/draw Zs
+class PaintersOrder {
+public:
+    PaintersOrder() : fPaintersOrder(0) {}
+
+    explicit PaintersOrder(uint32_t paintersOrder) : fPaintersOrder(paintersOrder) {
+        SkASSERT(paintersOrder != 0);
+    }
+
+    static PaintersOrder Invalid() {
+        return PaintersOrder();
+    }
+
+    bool isValid() const { return fPaintersOrder != 0; }
+
+    uint32_t toUInt() const { return fPaintersOrder; }
+
+private:
+    uint32_t fPaintersOrder = 0;
+};
+
 #endif
 
 
