@@ -74,12 +74,25 @@ if (skia_enable_sktext && skia_enable_skshaper && skia_use_icu &&
 
     source_set("samples") {
       testonly = true
-      sources = [ "samples/Text.cpp" ]
+      sources = [
+        "editor/Editor.cpp",
+        "samples/Text.cpp",
+      ]
       deps = [
         ":sktext",
         "../..:skia",
         "../../modules/skshaper",
       ]
+    }
+
+    skia_source_set("text_editor") {
+      testonly = true
+      sources = [
+        "editor/App.cpp",
+        "editor/Editor.cpp",
+      ]
+      public_deps = [ "../..:sk_app" ]
+      deps = [ ":sktext" ]
     }
   }
 } else {

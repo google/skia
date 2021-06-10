@@ -18,6 +18,9 @@ class TextRun {
   void commit();
 
   SkScalar calculateWidth(GlyphRange glyphRange) const;
+  SkScalar calculateWidth(GlyphIndex start, GlyphIndex end) const {
+      return calculateWidth(GlyphRange(start, end));
+  }
 
   bool leftToRight() const { return fBidiLevel % 2 == 0; }
   uint8_t bidiLevel() const { return fBidiLevel; }
