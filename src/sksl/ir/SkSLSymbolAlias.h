@@ -19,7 +19,7 @@ class SymbolAlias final : public Symbol {
 public:
     static constexpr Kind kSymbolKind = Kind::kSymbolAlias;
 
-    SymbolAlias(int offset, StringFragment name, const Symbol* origSymbol)
+    SymbolAlias(int offset, skstd::string_view name, const Symbol* origSymbol)
         : INHERITED(offset, kSymbolKind, name)
         , fOrigSymbol(origSymbol) {}
 

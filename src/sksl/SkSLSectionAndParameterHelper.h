@@ -39,7 +39,7 @@ class SectionAndParameterHelper {
 public:
     SectionAndParameterHelper(const Program* program, ErrorReporter& errors);
 
-    const Section* getSection(StringFragment name) {
+    const Section* getSection(skstd::string_view name) {
         auto found = fSections.find(name);
         if (found == fSections.end()) {
             return nullptr;
@@ -48,7 +48,7 @@ public:
         return found->second[0];
     }
 
-    std::vector<const Section*> getSections(StringFragment name) {
+    std::vector<const Section*> getSections(skstd::string_view name) {
         auto found = fSections.find(name);
         if (found == fSections.end()) {
             return std::vector<const Section*>();
@@ -65,7 +65,7 @@ public:
                -1 == var.modifiers().fLayout.fBuiltin;
     }
 
-    static bool IsSupportedSection(StringFragment name) {
+    static bool IsSupportedSection(skstd::string_view name) {
         return name == kClassSection ||
                name == kCloneSection ||
                name == kConstructorSection ||
@@ -85,18 +85,18 @@ public:
                name == kTestCodeSection;
     }
 
-    static bool SectionAcceptsArgument(StringFragment name) {
+    static bool SectionAcceptsArgument(skstd::string_view name) {
         return name == kSetDataSection || name == kTestCodeSection;
     }
 
-    static bool SectionRequiresArgument(StringFragment name) {
+    static bool SectionRequiresArgument(skstd::string_view name) {
         return name == kSetDataSection || name == kTestCodeSection;
     }
 
 private:
     const Program& fProgram;
     std::vector<const Variable*> fParameters;
-    std::unordered_map<StringFragment, std::vector<const Section*>> fSections;
+    std::unordered_map<skstd::string_view, std::vector<const Section*>> fSections;
 };
 
 } // namespace SkSL

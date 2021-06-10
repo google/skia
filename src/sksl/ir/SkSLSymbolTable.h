@@ -57,12 +57,12 @@ public:
      * UnresolvedFunction symbol (pointing to all of the candidates) will be added to the symbol
      * table and returned.
      */
-    const Symbol* operator[](StringFragment name);
+    const Symbol* operator[](skstd::string_view name);
 
     /**
      * Creates a new name for a symbol which already exists; does not take ownership of Symbol*.
      */
-    void addAlias(StringFragment name, const Symbol* symbol);
+    void addAlias(skstd::string_view name, const Symbol* symbol);
 
     void addWithoutOwnership(const Symbol* symbol);
 
@@ -119,7 +119,7 @@ public:
 
 private:
     struct SymbolKey {
-        StringFragment fName;
+        skstd::string_view fName;
         uint32_t       fHash;
 
         bool operator==(const SymbolKey& that) const { return fName == that.fName; }
@@ -129,7 +129,7 @@ private:
         };
     };
 
-    static SymbolKey MakeSymbolKey(StringFragment name) {
+    static SymbolKey MakeSymbolKey(skstd::string_view name) {
         return SymbolKey{name, SkOpts::hash_fn(name.data(), name.size(), 0)};
     }
 

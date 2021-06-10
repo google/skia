@@ -235,7 +235,7 @@ static bool check_main_signature(const Context& context, int offset, const Type&
  * (or null if none) on success, returns false on error.
  */
 static bool find_existing_declaration(const Context& context, SymbolTable& symbols, int offset,
-                                      StringFragment name,
+                                      skstd::string_view name,
                                       std::vector<std::unique_ptr<Variable>>& parameters,
                                       const Type* returnType, bool isBuiltin,
                                       const FunctionDeclaration** outExistingDecl) {
@@ -308,7 +308,7 @@ static bool find_existing_declaration(const Context& context, SymbolTable& symbo
 
 FunctionDeclaration::FunctionDeclaration(int offset,
                                          const Modifiers* modifiers,
-                                         StringFragment name,
+                                         skstd::string_view name,
                                          std::vector<const Variable*> parameters,
                                          const Type* returnType,
                                          bool builtin)
@@ -323,7 +323,7 @@ FunctionDeclaration::FunctionDeclaration(int offset,
 
 const FunctionDeclaration* FunctionDeclaration::Convert(const Context& context,
         SymbolTable& symbols, int offset, const Modifiers* modifiers,
-        StringFragment name, std::vector<std::unique_ptr<Variable>> parameters,
+        skstd::string_view name, std::vector<std::unique_ptr<Variable>> parameters,
         const Type* returnType, bool isBuiltin) {
     bool isMain = (name == "main");
 
