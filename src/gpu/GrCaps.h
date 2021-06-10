@@ -26,6 +26,7 @@ struct GrContextOptions;
 class GrProcessorKeyBuilder;
 class GrProgramDesc;
 class GrProgramInfo;
+class GrTextureRenderTargetProxy;
 class GrRenderTargetProxy;
 class GrSurface;
 class SkJSONWriter;
@@ -396,8 +397,9 @@ public:
     // Should we disable GrTessellationPathRenderer due to a faulty driver?
     bool disableTessellationPathRenderer() const { return fDisableTessellationPathRenderer; }
 
-    // Returns how to sample the dst values for the passed in GrRenderTargetProxy.
-    GrDstSampleFlags getDstSampleFlagsForProxy(const GrRenderTargetProxy*) const;
+    // Blah
+    bool canRenderTargetSampleSelf(const GrRenderTargetProxy*, bool usesMSAA,
+                                   GrDstSampleFlags*) const;
 
     /**
      * This is used to try to ensure a successful copy a dst in order to perform shader-based
@@ -622,8 +624,9 @@ private:
 
     virtual GrSwizzle onGetReadSwizzle(const GrBackendFormat&, GrColorType) const = 0;
 
-    virtual GrDstSampleFlags onGetDstSampleFlagsForProxy(const GrRenderTargetProxy*) const {
-        return GrDstSampleFlags::kNone;
+    virtual bool onCanRenderTargetSampleSelf(const GrTextureRenderTargetProxy*,
+                                             GrDstSampleFlags*) const {
+        return false;
     }
 
     bool fSuppressPrints : 1;

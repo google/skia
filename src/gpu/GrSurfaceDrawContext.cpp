@@ -1913,8 +1913,26 @@ void GrSurfaceDrawContext::addDrawOp(const GrClip* clip,
 
     GrDstProxyView dstProxyView;
     if (analysis.requiresDstTexture()) {
-        if (!this->setupDstProxyView(*op, &dstProxyView)) {
+        SkDEBUGCODE(auto dstOpsTask = this->getOpsTask();)
+        if (!this->setupDstProxyView(*drawOp, &dstProxyView)) {
             return;
+        }
+#ifdef SK_DEBUG
+        if (fCanUseDynamicMSAA && (usesMSAA || dstOpsTask->usesMSAASurface())) {
+            // Since we aren't literally writing to the render target texture while using a DMSAA
+            // attachment, sampling that texture won't work. Ensure the current opsTask got closed
+            // off instead, in order to update the actual texture contents.
+            SkASSERT(dstOpsTask->isEmpty() || this->getOpsTask() != dstOpsTask);
+        }
+#endif
+    } else if (fCanUseDynamicMSAA && usesMSAA) {  // Will we be using DMSAA?
+        auto dstOpsTask = this->getOpsTask();
+        if (!dstOpsTask->usesMSAASurface()) {
+            // This will be the op that actually triggers DMSAA. Texture barriers can't be promoted
+            // to DMSAA, so if there already are any on the current opsTask then we need to split.
+            if (dstOpsTask->renderPassXferBarriers() & GrXferBarrierFlags::kTexture) {
+                this->replaceOpsTask()->setCannotMergeBackward();
+            }
         }
     }
 
@@ -1943,32 +1961,38 @@ void GrSurfaceDrawContext::addDrawOp(const GrClip* clip,
 #endif
 }
 
-bool GrSurfaceDrawContext::setupDstProxyView(const GrOp& op, GrDstProxyView* dstProxyView) {
+bool GrSurfaceDrawContext::setupDstProxyView(const GrDrawOp& op, GrDstProxyView* dstProxyView) {
     // If we are wrapping a vulkan secondary command buffer, we can't make a dst copy because we
     // don't actually have a VkImage to make a copy of. Additionally we don't have the power to
     // start and stop the render pass in order to make the copy.
-    if (this->asRenderTargetProxy()->wrapsVkSecondaryCB()) {
+    auto rtProxy = this->asRenderTargetProxy();
+    if (rtProxy->wrapsVkSecondaryCB()) {
         return false;
     }
 
-    auto dstSampleFlags = this->caps()->getDstSampleFlagsForProxy(this->asRenderTargetProxy());
-
-    if (dstSampleFlags & GrDstSampleFlags::kRequiresTextureBarrier) {
-        // If we require a barrier to sample the dst it means we are sampling the RT itself either
-        // as a texture or input attachment.
+    bool opUsesMSAA = op.usesMSAA();
+    GrDstSampleFlags selfSampleFlags;
+    if (this->caps()->canRenderTargetSampleSelf(rtProxy, opUsesMSAA, &selfSampleFlags)) {
+        // Blah
+        SkASSERT((selfSampleFlags & GrDstSampleFlags::kRequiresTextureBarrier) == !opUsesMSAA);
+        if (opUsesMSAA || this->getOpsTask()->usesMSAASurface()) {
+            // Since we aren't literally writing to the render target texture while using a DMSAA
+            // attachment, sampling that texture won't work. Close off the current opsTask instead
+            // to ensure the actual texture contents get updated.
+            this->replaceOpsTask()->setCannotMergeBackward();
+        }
         dstProxyView->setProxyView(this->readSurfaceView());
         dstProxyView->setOffset(0, 0);
-        dstProxyView->setDstSampleFlags(dstSampleFlags);
+        dstProxyView->setDstSampleFlags(selfSampleFlags);
         return true;
     }
 
     GrColorType colorType = this->colorInfo().colorType();
     // MSAA consideration: When there is support for reading MSAA samples in the shader we could
     // have per-sample dst values by making the copy multisampled.
-    GrCaps::DstCopyRestrictions restrictions = this->caps()->getDstCopyRestrictions(
-            this->asRenderTargetProxy(), colorType);
+    auto restrictions = this->caps()->getDstCopyRestrictions(rtProxy, colorType);
 
-    SkIRect copyRect = SkIRect::MakeSize(this->asSurfaceProxy()->backingStoreDimensions());
+    SkIRect copyRect = SkIRect::MakeSize(rtProxy->backingStoreDimensions());
     if (!restrictions.fMustCopyWholeSrc) {
         // If we don't need the whole source, restrict to the op's bounds. We add an extra pixel
         // of padding to account for AA bloat and the unpredictable rounding of coords near pixel
@@ -1999,6 +2023,6 @@ bool GrSurfaceDrawContext::setupDstProxyView(const GrOp& op, GrDstProxyView* dst
 
     dstProxyView->setProxyView({std::move(copy), this->origin(), this->readSwizzle()});
     dstProxyView->setOffset(dstOffset);
-    dstProxyView->setDstSampleFlags(dstSampleFlags);
+    dstProxyView->setDstSampleFlags(GrDstSampleFlags::kNone);
     return true;
 }

@@ -14,6 +14,7 @@
 #include "src/gpu/GrRenderTargetProxy.h"
 #include "src/gpu/GrSurface.h"
 #include "src/gpu/GrSurfaceProxy.h"
+#include "src/gpu/GrTextureRenderTargetProxy.h"
 #include "src/gpu/GrWindowRectangles.h"
 #include "src/utils/SkJSONWriter.h"
 
@@ -132,6 +133,9 @@ void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
 
     fMaxTextureSize = std::min(fMaxTextureSize, options.fMaxTextureSizeOverride);
 #if GR_TEST_UTILS
+    if (options.fSuppressAdvancedBlendEquations) {
+        fBlendEquationSupport = kBasic_BlendEquationSupport;
+    }
     if (options.fClearAllTextures) {
         fShouldInitializeTextures = true;
     }
@@ -437,12 +441,24 @@ bool GrCaps::isFormatCompressed(const GrBackendFormat& format) const {
     return GrBackendFormatToCompressionType(format) != SkImage::CompressionType::kNone;
 }
 
-GrDstSampleFlags GrCaps::getDstSampleFlagsForProxy(const GrRenderTargetProxy* rt) const {
-    SkASSERT(rt);
-    if (this->textureBarrierSupport() && !rt->requiresManualMSAAResolve()) {
-        return this->onGetDstSampleFlagsForProxy(rt);
+bool GrCaps::canRenderTargetSampleSelf(const GrRenderTargetProxy* rt, bool usesMSAA,
+                                       GrDstSampleFlags* flags) const {
+    auto texRTProxy = static_cast<const GrTextureRenderTargetProxy*>(rt->asTextureProxy());
+    if (!texRTProxy) {
+        return false;
     }
-    return GrDstSampleFlags::kNone;
+    if (texRTProxy->numSamples() > 1) {
+        // Blah
+        return false;
+    }
+    if (usesMSAA && !this->msaaResolvesAutomatically()) {
+        // DMSAA attachment blah blah blah
+        SkASSERT(texRTProxy->numSamples() == 1);
+        SkASSERT(this->supportsDynamicMSAA(texRTProxy));
+        *flags = GrDstSampleFlags::kNone;
+        return true;
+    }
+    return this->onCanRenderTargetSampleSelf(texRTProxy, flags);
 }
 
 bool GrCaps::supportsDynamicMSAA(const GrRenderTargetProxy* rtProxy) const {
