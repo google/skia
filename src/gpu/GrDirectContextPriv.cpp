@@ -184,10 +184,6 @@ sk_sp<SkImage> GrDirectContextPriv::testingOnly_getFontAtlasImage(GrMaskFormat f
                                    SkColorInfo(colorType, kPremul_SkAlphaType, nullptr));
 }
 
-void GrDirectContextPriv::testingOnly_purgeAllUnlockedResources() {
-    fContext->fResourceCache->purgeAllUnlocked();
-}
-
 void GrDirectContextPriv::testingOnly_flushAndRemoveOnFlushCallbackObject(
         GrOnFlushCallbackObject* cb) {
     fContext->flushAndSubmit();
