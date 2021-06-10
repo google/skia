@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d4cca3f6_32b08db2",
+        "filename": "src/gpu/GrCaps.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-10T18:37:40Z",
+      "side": 1,
+      "message": "This is not true for Vulkan. Vulkan can possibly use input attachments on non textures. This is more a GL requirement and should be moved there.",
+      "range": {
+        "startLine": 446,
+        "startChar": 4,
+        "endLine": 449,
+        "endChar": 5
+      },
+      "revId": "915f88cfc01a1dc9721efd47cf0a83b937318d18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b65f1c72_d10bc616",
+        "filename": "src/gpu/GrCaps.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 459,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-10T18:37:40Z",
+      "side": 1,
+      "message": "I\u0027m not a fan of this. IMO this query should be about can we sample the actually thing we are rendering to or not. In the DMSAA case the answer to this is no.\n\nLike in the long run this function will just take a GrAttachment. So for DMSAA this function will just see a multisampled attachment without automatic resolves and we\u0027ll want to return false here. The the calling code in setupDstProxy will be in charge of getting a texture proxy we can resolve/copy into to use as our dst proxy.",
+      "range": {
+        "startLine": 454,
+        "startChar": 4,
+        "endLine": 459,
+        "endChar": 20
+      },
+      "revId": "915f88cfc01a1dc9721efd47cf0a83b937318d18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
