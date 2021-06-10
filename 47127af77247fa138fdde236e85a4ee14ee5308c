@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e5cbb808_825db192",
+        "filename": "src/gpu/tessellate/GrTessellationPathRenderer.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-10T13:06:39Z",
+      "side": 1,
+      "message": "we have this assert written here 3 times. I would say just have it once about all this code, but then the code looks like.\n\nif (!simpleFill) {}\nSkASSERT(simpleFill);\n\nAnd that assert seems kind of unnecessary IMO. Thus I\u0027m wondering if these asserts are really even doing anything for us. And maybe should just be removed?",
+      "range": {
+        "startLine": 180,
+        "startChar": 4,
+        "endLine": 180,
+        "endChar": 51
+      },
+      "revId": "47127af77247fa138fdde236e85a4ee14ee5308c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8a240424_972e9f12",
+        "filename": "src/gpu/tessellate/GrTessellationPathRenderer.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-10T13:06:39Z",
+      "side": 1,
+      "message": "can expand this comment from \"simple enough\" to what that means. I.e. it is a simple fill and whatever requirements we have.",
+      "range": {
+        "startLine": 51,
+        "startChar": 65,
+        "endLine": 51,
+        "endChar": 71
+      },
+      "revId": "47127af77247fa138fdde236e85a4ee14ee5308c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
