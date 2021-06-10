@@ -105,7 +105,14 @@ public:
         if (stmt) {
             DSLWriter::ProgramElements().push_back(std::make_unique<SkSL::GlobalVarDeclaration>(
                     std::move(stmt)));
-        }
+        } else {
+            // Special variables (e.g. sk_FragColor) can end up with null declarations despite no
+            // error occurring due to specific treatment in the compiler. Ignore the null and just
+            // grab the existing variable from the symbol table.
+            const Symbol* alreadyDeclared = (*DSLWriter::SymbolTable())[var.fName];
+            if (alreadyDeclared && alreadyDeclared->is<Variable>()) {
+                var.fVar = &alreadyDeclared->as<Variable>();
+            }
     }
 
     static DSLStatement Discard() {
