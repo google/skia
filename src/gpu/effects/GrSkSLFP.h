@@ -41,8 +41,21 @@ UNIFORM_TYPE(int,         kInt);
 #undef UNIFORM_TYPE
 #endif
 
+template <typename T> struct GrSpecializedUniform {
+    bool specialize;
+    T value;
+};
+template <typename T> GrSpecializedUniform<T> Specialize(const T& value) { return {true, value}; }
+template <typename T> GrSpecializedUniform<T> SpecializeIf(bool condition, const T& value) {
+    return {condition, value};
+}
+
 class GrSkSLFP : public GrFragmentProcessor {
 public:
+    enum UniformFlags : uint8_t {
+        kSpecialize_Flag = 0x1,
+    };
+
     /**
      * Creates a new fragment processor from an SkRuntimeEffect and a data blob containing values
      * for all of the 'uniform' variables in the SkSL source. The layout of the uniforms blob is
@@ -52,7 +65,7 @@ public:
                                           const char* name,
                                           sk_sp<SkData> uniforms);
 
-    const char* name() const override;
+    const char* name() const override { return fName; }
 
     void addChild(std::unique_ptr<GrFragmentProcessor> child);
 
@@ -98,9 +111,9 @@ public:
                   std::forward<Args>(args)...);
 #endif
 
-        size_t uniformSize = effect->uniformSize();
-        std::unique_ptr<GrSkSLFP> fp(new (uniformSize) GrSkSLFP(std::move(effect), name));
-        fp->appendArgs(fp->uniformData(), std::forward<Args>(args)...);
+        size_t uniformPayloadSize = UniformPayloadSize(effect.get());
+        std::unique_ptr<GrSkSLFP> fp(new (uniformPayloadSize) GrSkSLFP(std::move(effect), name));
+        fp->appendArgs(fp->uniformData(), /*uniformIndex=*/0, std::forward<Args>(args)...);
         return fp;
     }
 
@@ -116,22 +129,50 @@ private:
 
     SkPMColor4f constantOutputForConstantInput(const SkPMColor4f&) const override;
 
-    void* uniformData() const { return (void*)(this + 1); }
+    // An instance of GrSkSLFP is always allocated with a payload immediately following the FP.
+    // First the the values of all the uniforms, and then a set of flags (one per uniform).
+    static size_t UniformPayloadSize(const SkRuntimeEffect* effect) {
+        return effect->uniformSize() + effect->uniforms().count() * sizeof(UniformFlags);
+    }
+
+    uint8_t* uniformData() const { return (uint8_t*)(this + 1); }
+    UniformFlags* uniformFlags() const {
+        return SkTAddOffset<UniformFlags>(this->uniformData(), fUniformSize);
+    }
 
     // Helpers to attach variadic template args to a newly constructed FP:
-    void appendArgs(void* ptr) {}
+    void appendArgs(uint8_t* uniformDataPtr, int uniformIndex) {}
     template <typename... Args>
-    void appendArgs(void* ptr,
+    void appendArgs(uint8_t* uniformDataPtr,
+                    int uniformIndex,
                     const char* name,
                     std::unique_ptr<GrFragmentProcessor>&& child,
                     Args&&... remainder) {
         this->addChild(std::move(child));
-        this->appendArgs(ptr, std::forward<Args>(remainder)...);
+        this->appendArgs(uniformDataPtr, uniformIndex, std::forward<Args>(remainder)...);
     }
     template <typename T, typename... Args>
-    void appendArgs(void* ptr, const char* name, const T& val, Args&&... remainder) {
-        memcpy(ptr, &val, sizeof(val));
-        this->appendArgs(SkTAddOffset<void>(ptr, sizeof(val)), std::forward<Args>(remainder)...);
+    void appendArgs(uint8_t* uniformDataPtr,
+                    int uniformIndex,
+                    const char* name,
+                    const GrSpecializedUniform<T>& val,
+                    Args&&... remainder) {
+        if (val.specialize) {
+            this->uniformFlags()[uniformIndex] = static_cast<UniformFlags>(
+                    this->uniformFlags()[uniformIndex] | UniformFlags::kSpecialize_Flag);
+        }
+        this->appendArgs(
+                uniformDataPtr, uniformIndex, name, val.value, std::forward<Args>(remainder)...);
+    }
+    template <typename T, typename... Args>
+    void appendArgs(uint8_t* uniformDataPtr,
+                    int uniformIndex,
+                    const char* name,
+                    const T& val,
+                    Args&&... remainder) {
+        memcpy(uniformDataPtr, &val, sizeof(val));
+        this->appendArgs(
+                uniformDataPtr + sizeof(val), uniformIndex + 1, std::forward<Args>(remainder)...);
     }
 
 #ifdef SK_DEBUG
@@ -162,6 +203,17 @@ private:
                   "Expected child '%s', got '%s' instead",
                   cIter->name.c_str(), name);
         checkArgs(uIter, uEnd, ++cIter, cEnd, std::forward<Args>(remainder)...);
+    }
+    template <typename T, typename... Args>
+    static void checkArgs(uniform_iterator uIter,
+                          uniform_iterator uEnd,
+                          child_iterator cIter,
+                          child_iterator cEnd,
+                          const char* name,
+                          const GrSpecializedUniform<T>& val,
+                          Args&&... remainder) {
+        static_assert(!std::is_array<T>::value);  // No specializing arrays
+        checkArgs(uIter, uEnd, cIter, cEnd, name, val.value, std::forward<Args>(remainder)...);
     }
     template <typename T, typename... Args>
     static void checkArgs(uniform_iterator uIter,
