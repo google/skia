@@ -1,0 +1,188 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b860fda6_0a8b0db4",
+        "filename": "src/sksl/SkSLASTNode.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 478,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-10T14:14:33Z",
+      "side": 1,
+      "message": "Intended for a followup?",
+      "range": {
+        "startLine": 478,
+        "startChar": 0,
+        "endLine": 478,
+        "endChar": 94
+      },
+      "revId": "c9f5f36d39d09168bad4fab8f345bb4a8c57d044",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7ee77f3d_d3eafc3d",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1626,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-10T14:14:33Z",
+      "side": 1,
+      "message": "Guessing this can probably take StringFragments now as well.",
+      "range": {
+        "startLine": 1626,
+        "startChar": 55,
+        "endLine": 1626,
+        "endChar": 69
+      },
+      "revId": "c9f5f36d39d09168bad4fab8f345bb4a8c57d044",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b9af5cd7_714184fb",
+        "filename": "src/sksl/SkSLParser.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-10T14:14:33Z",
+      "side": 1,
+      "message": "nit: This loop is simple enough to use regular looping constructs.\n\nwhile (level \u003e 0)",
+      "range": {
+        "startLine": 343,
+        "startChar": 4,
+        "endLine": 343,
+        "endChar": 14
+      },
+      "revId": "c9f5f36d39d09168bad4fab8f345bb4a8c57d044",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5ee15bc0_a02596af",
+        "filename": "src/sksl/SkSLParser.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 361,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-10T14:14:33Z",
+      "side": 1,
+      "message": "Move the `text \u003d ...` statement after while loop body. If/break is no longer needed.",
+      "range": {
+        "startLine": 358,
+        "startChar": 0,
+        "endLine": 361,
+        "endChar": 9
+      },
+      "revId": "c9f5f36d39d09168bad4fab8f345bb4a8c57d044",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cc55a02d_4c61bc31",
+        "filename": "src/sksl/codegen/SkSLHCodeGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-10T14:14:33Z",
+      "side": 1,
+      "message": "Can these two `writef`s just be `write`?",
+      "range": {
+        "startLine": 125,
+        "startChar": 14,
+        "endLine": 125,
+        "endChar": 20
+      },
+      "revId": "c9f5f36d39d09168bad4fab8f345bb4a8c57d044",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "77fad718_987ef008",
+        "filename": "src/sksl/codegen/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2095,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-10T14:14:33Z",
+      "side": 1,
+      "message": "`name` is a String.",
+      "range": {
+        "startLine": 2095,
+        "startChar": 60,
+        "endLine": 2095,
+        "endChar": 72
+      },
+      "revId": "c9f5f36d39d09168bad4fab8f345bb4a8c57d044",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4d478551_238c79a1",
+        "filename": "src/sksl/codegen/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 3647,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-10T14:14:33Z",
+      "side": 1,
+      "message": "`writeString` should probably take a StringFragment. It\u0027s called in four places, and all of them do this same deconstruction of a fragment into a pointer and a length.",
+      "range": {
+        "startLine": 3647,
+        "startChar": 10,
+        "endLine": 3647,
+        "endChar": 21
+      },
+      "revId": "c9f5f36d39d09168bad4fab8f345bb4a8c57d044",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aef23acc_be2f76bd",
+        "filename": "src/sksl/ir/SkSLFunctionDeclaration.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-10T14:14:33Z",
+      "side": 1,
+      "message": "nit: should we have `identify_intrinsic` take a StringFragment and have its unordered_map be based on StringFragment? I don\u0027t think that worked at the time I wrote it, but since StringFragment is all shiny and working better now, let\u0027s use it.",
+      "range": {
+        "startLine": 313,
+        "startChar": 35,
+        "endLine": 313,
+        "endChar": 67
+      },
+      "revId": "c9f5f36d39d09168bad4fab8f345bb4a8c57d044",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
