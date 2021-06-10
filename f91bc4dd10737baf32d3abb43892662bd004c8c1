@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fd2f0f7e_fb3a2c95",
+        "filename": "src/gpu/GrOpsTask.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 691,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-10T18:15:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fb783143_474a8b42",
+      "range": {
+        "startLine": 691,
+        "startChar": 49,
+        "endLine": 691,
+        "endChar": 55
+      },
+      "revId": "f91bc4dd10737baf32d3abb43892662bd004c8c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "dab849fe_09ac994a",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-06-04T14:23:00Z",
       "side": 1,
       "message": "same",
+      "range": {
+        "startLine": 694,
+        "startChar": 32,
+        "endLine": 694,
+        "endChar": 38
+      },
+      "revId": "f91bc4dd10737baf32d3abb43892662bd004c8c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aeb14392_1a1fb48c",
+        "filename": "src/gpu/GrOpsTask.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 694,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-10T18:15:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dab849fe_09ac994a",
       "range": {
         "startLine": 694,
         "startChar": 32,
@@ -70,6 +118,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "20219c21_13dea4b1",
+        "filename": "src/gpu/GrOpsTask.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 696,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-10T18:15:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fabe3f83_0470e983",
+      "range": {
+        "startLine": 696,
+        "startChar": 32,
+        "endLine": 696,
+        "endChar": 38
+      },
+      "revId": "f91bc4dd10737baf32d3abb43892662bd004c8c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cc377d7e_f3d72be7",
@@ -83,6 +155,30 @@
       "writtenOn": "2021-06-04T14:23:00Z",
       "side": 1,
       "message": "Can we not use texture barriers in some cases? Like what happens with renderToTexture?",
+      "range": {
+        "startLine": 1932,
+        "startChar": 16,
+        "endLine": 1932,
+        "endChar": 83
+      },
+      "revId": "f91bc4dd10737baf32d3abb43892662bd004c8c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c2072e6d_bc24b62b",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1932,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-10T18:15:21Z",
+      "side": 1,
+      "message": "Done.\n\nmultisampled_render_to_texture uses barriers\n\nDMSAA attachments do not use barriers, but this branch isn\u0027t necessary for that case.",
+      "parentUuid": "cc377d7e_f3d72be7",
       "range": {
         "startLine": 1932,
         "startChar": 16,
@@ -116,6 +212,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f36d6f6c_8d26e579",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1982,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-10T18:15:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7da5cdaa_75d8512e",
+      "range": {
+        "startLine": 1982,
+        "startChar": 12,
+        "endLine": 1982,
+        "endChar": 35
+      },
+      "revId": "f91bc4dd10737baf32d3abb43892662bd004c8c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "478a323a_53b92a1d",
@@ -129,6 +249,30 @@
       "writtenOn": "2021-06-04T14:23:00Z",
       "side": 1,
       "message": "Do we really need this? Shouldn\u0027t we have decided not to use barriers previously when adding the op? Like we would have broken up the render pass and done a copy and set that copy as the dst proxy.",
+      "range": {
+        "startLine": 167,
+        "startChar": 0,
+        "endLine": 174,
+        "endChar": 54
+      },
+      "revId": "f91bc4dd10737baf32d3abb43892662bd004c8c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c8d797b0_6a244da6",
+        "filename": "src/gpu/gl/GrGLOpsRenderPass.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-10T18:15:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "478a323a_53b92a1d",
       "range": {
         "startLine": 167,
         "startChar": 0,
