@@ -136,7 +136,7 @@ public:
     }
 
     String displayName() const {
-        return this->scalarTypeForLiteral().name();
+        return String(this->scalarTypeForLiteral().name());
     }
 
     String description() const override {
@@ -144,7 +144,7 @@ public:
     }
 
     bool isPrivate() const {
-        return this->name().startsWith("$");
+        return this->name().starts_with("$");
     }
 
     bool operator==(const Type& other) const {

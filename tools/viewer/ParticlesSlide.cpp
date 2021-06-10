@@ -333,7 +333,7 @@ void ParticlesSlide::draw(SkCanvas* canvas) {
                     float* vals = data + uni.fSlot;
 
                     // Skip over builtin uniforms, to reduce clutter
-                    if (uni.fName == "dt" || uni.fName.startsWith("effect.")) {
+                    if (uni.fName == "dt" || uni.fName.starts_with("effect.")) {
                         continue;
                     }
 

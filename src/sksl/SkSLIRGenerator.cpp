@@ -270,7 +270,7 @@ void IRGenerator::checkVarDeclaration(int offset, const Modifiers& modifiers, co
                     offset,
                     "'in uniform' variables only permitted within fragment processors");
         }
-        if (modifiers.fLayout.fWhen.fLength) {
+        if (modifiers.fLayout.fWhen.length()) {
             this->errorReporter().error(offset,
                                         "'when' is only permitted within fragment processors");
         }
@@ -1061,7 +1061,8 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
             }
         }
     }
-    const Type* type = old->takeOwnershipOfSymbol(Type::MakeStructType(intf.fOffset, id.fTypeName,
+    const Type* type = old->takeOwnershipOfSymbol(Type::MakeStructType(intf.fOffset,
+                                                                       String(id.fTypeName),
                                                                        fields));
     int arraySize = 0;
     if (id.fIsArray) {
@@ -1082,14 +1083,14 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
     const Variable* var = old->takeOwnershipOfSymbol(
             std::make_unique<Variable>(intf.fOffset,
                                        this->modifiersPool().add(id.fModifiers),
-                                       id.fInstanceName.fLength ? id.fInstanceName : id.fTypeName,
+                                       id.fInstanceName.length() ? id.fInstanceName : id.fTypeName,
                                        type,
                                        fIsBuiltinCode,
                                        Variable::Storage::kGlobal));
     if (foundRTAdjust) {
         fRTAdjustInterfaceBlock = var;
     }
-    if (id.fInstanceName.fLength) {
+    if (id.fInstanceName.length()) {
         old->addWithoutOwnership(var);
     } else {
         for (size_t i = 0; i < fields.size(); i++) {
@@ -1098,8 +1099,8 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
     }
     return std::make_unique<InterfaceBlock>(intf.fOffset,
                                             var,
-                                            id.fTypeName,
-                                            id.fInstanceName,
+                                            String(id.fTypeName),
+                                            String(id.fInstanceName),
                                             arraySize,
                                             symbols);
 }
@@ -1334,8 +1335,7 @@ std::unique_ptr<Section> IRGenerator::convertSection(const ASTNode& s) {
     }
 
     const ASTNode::SectionData& section = s.getSectionData();
-    return std::make_unique<Section>(s.fOffset, section.fName, section.fArgument,
-                                                section.fText);
+    return std::make_unique<Section>(s.fOffset, section.fName, section.fArgument, section.fText);
 }
 
 std::unique_ptr<Expression> IRGenerator::coerce(std::unique_ptr<Expression> expr,
@@ -1526,7 +1526,7 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(const ASTNode& 
 // secondary swizzle to put them back into the right order, so in this case we end up with
 // 'float4(base.xw, 1, 0).xzyw'.
 std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expression> base,
-                                                        String fields) {
+                                                        StringFragment fields) {
     const int offset = base->fOffset;
     const Type& baseType = base->type();
     if (!baseType.isVector() && !baseType.isNumber()) {
@@ -1623,7 +1623,7 @@ std::unique_ptr<Expression> IRGenerator::convertTypeField(int offset, const Type
     }
     // ... and if that fails, check the intrinsics, add it to our shared elements
     if (!enumElement && !fIsBuiltinCode && fIntrinsics) {
-        if (const ProgramElement* found = fIntrinsics->findAndInclude(type.name())) {
+        if (const ProgramElement* found = fIntrinsics->findAndInclude(String(type.name()))) {
             fSharedElements->push_back(found);
             enumElement = found;
         }
@@ -1792,7 +1792,7 @@ void IRGenerator::findAndDeclareBuiltinVariables() {
 
         bool visitExpression(const Expression& e) override {
             if (e.is<VariableReference>() && e.as<VariableReference>().variable()->isBuiltin()) {
-                this->addDeclaringElement(e.as<VariableReference>().variable()->name());
+                this->addDeclaringElement(String(e.as<VariableReference>().variable()->name()));
             }
             return INHERITED::visitExpression(e);
         }

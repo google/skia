@@ -335,14 +335,14 @@ ASTNode::ID Parser::section() {
     if (!this->expect(Token::Kind::TK_LBRACE, "'{'")) {
         return ASTNode::ID::Invalid();
     }
-    StringFragment text;
     Token codeStart = this->nextRawToken();
     size_t startOffset = codeStart.fOffset;
     this->pushback(codeStart);
-    text.fChars = fText.begin() + startOffset;
     int level = 1;
-    for (;;) {
-        Token next = this->nextRawToken();
+    StringFragment text;
+    Token next;
+    while (level > 0) {
+        next = this->nextRawToken();
         switch (next.fKind) {
             case Token::Kind::TK_LBRACE:
                 ++level;
@@ -356,14 +356,10 @@ ASTNode::ID Parser::section() {
             default:
                 break;
         }
-        if (!level) {
-            text.fLength = next.fOffset - startOffset;
-            break;
-        }
     }
+    text = StringFragment(fText.begin() + startOffset, next.fOffset - startOffset);
     StringFragment name = this->text(start);
-    ++name.fChars;
-    --name.fLength;
+    name.remove_prefix(1);
     return this->createNode(start.fOffset, ASTNode::Kind::kSection,
                             ASTNode::SectionData(name, argument, text));
 }
@@ -385,7 +381,7 @@ ASTNode::ID Parser::enumDeclaration() {
     if (!this->expect(Token::Kind::TK_LBRACE, "'{'")) {
         return ASTNode::ID::Invalid();
     }
-    fSymbols.add(Type::MakeEnumType(this->text(name)));
+    fSymbols.add(Type::MakeEnumType(String(this->text(name))));
     ASTNode::ID result = this->createNode(name.fOffset, ASTNode::Kind::kEnum, this->text(name));
     if (!this->checkNext(Token::Kind::TK_RBRACE)) {
         Token id;
@@ -629,7 +625,8 @@ ASTNode::ID Parser::structDeclaration() {
                     "struct '" + this->text(name) + "' must contain at least one field");
         return ASTNode::ID::Invalid();
     }
-    std::unique_ptr<Type> newType = Type::MakeStructType(name.fOffset, this->text(name), fields);
+    std::unique_ptr<Type> newType = Type::MakeStructType(name.fOffset, String(this->text(name)),
+                                                         fields);
     if (struct_is_too_deeply_nested(*newType, kMaxStructDepth)) {
         this->error(name.fOffset, "struct '" + this->text(name) + "' is too deeply nested");
         return ASTNode::ID::Invalid();
@@ -809,7 +806,6 @@ StringFragment Parser::layoutCode() {
     Token start = this->nextRawToken();
     this->pushback(start);
     StringFragment code;
-    code.fChars = fText.begin() + start.fOffset;
     int level = 1;
     bool done = false;
     while (!done) {
@@ -836,7 +832,7 @@ StringFragment Parser::layoutCode() {
             done = true;
         }
         if (done) {
-            code.fLength = next.fOffset - start.fOffset;
+            code = StringFragment(fText.begin() + start.fOffset, next.fOffset - start.fOffset);
             this->pushback(std::move(next));
         }
     }
@@ -846,7 +842,7 @@ StringFragment Parser::layoutCode() {
 Layout::CType Parser::layoutCType() {
     if (this->expect(Token::Kind::TK_EQ, "'='")) {
         Token t = this->nextToken();
-        String text = this->text(t);
+        String text(this->text(t));
         auto found = layoutTokens->find(text);
         if (found != layoutTokens->end()) {
             switch (found->second) {
@@ -885,7 +881,7 @@ Layout Parser::layout() {
         }
         for (;;) {
             Token t = this->nextToken();
-            String text = this->text(t);
+            String text(this->text(t));
             auto setFlag = [&](Layout::Flag f) {
                 if (flags & f) {
                     this->error(t, "layout qualifier '" + text + "' appears more than once");
@@ -2021,11 +2017,10 @@ ASTNode::ID Parser::suffix(ASTNode::ID base) {
             // Swizzles that start with a constant number, e.g. '.000r', will be tokenized as
             // floating point literals, possibly followed by an identifier. Handle that here.
             StringFragment field = this->text(next);
-            SkASSERT(field.fChars[0] == '.');
-            ++field.fChars;
-            --field.fLength;
-            for (size_t i = 0; i < field.fLength; ++i) {
-                if (field.fChars[i] != '0' && field.fChars[i] != '1') {
+            SkASSERT(field[0] == '.');
+            field.remove_prefix(1);
+            for (auto iter = field.begin(); iter != field.end(); ++iter) {
+                if (*iter != '0' && *iter != '1') {
                     this->error(next, "invalid swizzle");
                     return ASTNode::ID::Invalid();
                 }
@@ -2034,7 +2029,7 @@ ASTNode::ID Parser::suffix(ASTNode::ID base) {
             // identifiers that directly follow the float
             Token id = this->nextRawToken();
             if (id.fKind == Token::Kind::TK_IDENTIFIER) {
-                field.fLength += id.fLength;
+                field = StringFragment(field.data(), field.length() + id.fLength);
             } else {
                 this->pushback(id);
             }

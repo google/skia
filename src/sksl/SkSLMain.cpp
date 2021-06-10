@@ -283,19 +283,19 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
 
     SkSL::ProgramKind kind;
     const SkSL::String& inputPath = args[1];
-    if (inputPath.endsWith(".vert")) {
+    if (inputPath.ends_with(".vert")) {
         kind = SkSL::ProgramKind::kVertex;
-    } else if (inputPath.endsWith(".frag") || inputPath.endsWith(".sksl")) {
+    } else if (inputPath.ends_with(".frag") || inputPath.ends_with(".sksl")) {
         kind = SkSL::ProgramKind::kFragment;
-    } else if (inputPath.endsWith(".geom")) {
+    } else if (inputPath.ends_with(".geom")) {
         kind = SkSL::ProgramKind::kGeometry;
-    } else if (inputPath.endsWith(".fp")) {
+    } else if (inputPath.ends_with(".fp")) {
         kind = SkSL::ProgramKind::kFragmentProcessor;
-    } else if (inputPath.endsWith(".rtb")) {
+    } else if (inputPath.ends_with(".rtb")) {
         kind = SkSL::ProgramKind::kRuntimeBlend;
-    } else if (inputPath.endsWith(".rtcf")) {
+    } else if (inputPath.ends_with(".rtcf")) {
         kind = SkSL::ProgramKind::kRuntimeColorFilter;
-    } else if (inputPath.endsWith(".rts")) {
+    } else if (inputPath.ends_with(".rts")) {
         kind = SkSL::ProgramKind::kRuntimeShader;
     } else {
         printf("input filename must end in '.vert', '.frag', '.geom', '.fp', '.rtb', '.rtcf', "
@@ -350,13 +350,13 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
         return ResultCode::kSuccess;
     };
 
-    if (outputPath.endsWith(".spirv")) {
+    if (outputPath.ends_with(".spirv")) {
         return compileProgram(
                 [](SkSL::Compiler& compiler, SkSL::Program& program, SkSL::OutputStream& out) {
                     return compiler.toSPIRV(program, out);
                 });
-    } else if (outputPath.endsWith(".asm.frag") || outputPath.endsWith(".asm.vert") ||
-               outputPath.endsWith(".asm.geom")) {
+    } else if (outputPath.ends_with(".asm.frag") || outputPath.ends_with(".asm.vert") ||
+               outputPath.ends_with(".asm.geom")) {
         return compileProgram(
                 [](SkSL::Compiler& compiler, SkSL::Program& program, SkSL::OutputStream& out) {
                     // Compile program to SPIR-V assembly in a string-stream.
@@ -376,24 +376,24 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
                     out.write(disassembly.data(), disassembly.size());
                     return true;
                 });
-    } else if (outputPath.endsWith(".glsl")) {
+    } else if (outputPath.ends_with(".glsl")) {
         return compileProgram(
                 [](SkSL::Compiler& compiler, SkSL::Program& program, SkSL::OutputStream& out) {
                     return compiler.toGLSL(program, out);
                 });
-    } else if (outputPath.endsWith(".metal")) {
+    } else if (outputPath.ends_with(".metal")) {
         return compileProgram(
                 [](SkSL::Compiler& compiler, SkSL::Program& program, SkSL::OutputStream& out) {
                     return compiler.toMetal(program, out);
                 });
-    } else if (outputPath.endsWith(".h")) {
+    } else if (outputPath.ends_with(".h")) {
         settings.fReplaceSettings = false;
         settings.fPermitInvalidStaticTests = true;
         return compileProgram(
                 [&](SkSL::Compiler& compiler, SkSL::Program& program, SkSL::OutputStream& out) {
                     return compiler.toH(program, base_name(inputPath.c_str(), "Gr", ".fp"), out);
                 });
-    } else if (outputPath.endsWith(".dsl.cpp")) {
+    } else if (outputPath.ends_with(".dsl.cpp")) {
         settings.fReplaceSettings = false;
         settings.fPermitInvalidStaticTests = true;
         return compileProgram(
@@ -401,14 +401,14 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
                     return compiler.toDSLCPP(program, base_name(inputPath.c_str(), "Gr", ".fp"),
                                              out);
                 });
-    } else if (outputPath.endsWith(".cpp")) {
+    } else if (outputPath.ends_with(".cpp")) {
         settings.fReplaceSettings = false;
         settings.fPermitInvalidStaticTests = true;
         return compileProgram(
                 [&](SkSL::Compiler& compiler, SkSL::Program& program, SkSL::OutputStream& out) {
                     return compiler.toCPP(program, base_name(inputPath.c_str(), "Gr", ".fp"), out);
                 });
-    } else if (outputPath.endsWith(".skvm")) {
+    } else if (outputPath.ends_with(".skvm")) {
         return compileProgram(
                 [](SkSL::Compiler&, SkSL::Program& program, SkSL::OutputStream& out) {
                     skvm::Builder builder{skvm::Features{}};
@@ -420,7 +420,7 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
                     builder.done().dump(redirect.get());
                     return true;
                 });
-    } else if (outputPath.endsWith(".stage")) {
+    } else if (outputPath.ends_with(".stage")) {
         return compileProgram(
                 [](SkSL::Compiler&, SkSL::Program& program, SkSL::OutputStream& out) {
                     class Callbacks : public SkSL::PipelineStage::Callbacks {
@@ -433,7 +433,7 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
 
                         String declareUniform(const SkSL::VarDeclaration* decl) override {
                             fOutput += decl->description();
-                            return decl->var().name();
+                            return String(decl->var().name());
                         }
 
                         void defineFunction(const char* decl,
@@ -481,7 +481,7 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
                     out.writeString(GrShaderUtils::PrettyPrint(callbacks.fOutput));
                     return true;
                 });
-    } else if (outputPath.endsWith(".dehydrated.sksl")) {
+    } else if (outputPath.ends_with(".dehydrated.sksl")) {
         SkSL::FileOutputStream out(outputPath);
         SkSL::Compiler compiler(caps);
         if (!out.isValid()) {
@@ -522,7 +522,7 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
  */
 ResultCode processWorklist(const char* worklistPath) {
     SkSL::String inputPath(worklistPath);
-    if (!inputPath.endsWith(".worklist")) {
+    if (!inputPath.ends_with(".worklist")) {
         printf("expected .worklist file, found: %s\n\n", worklistPath);
         show_usage();
         return ResultCode::kConfigurationError;

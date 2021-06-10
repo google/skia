@@ -63,7 +63,7 @@ bool CPPCodeGenerator::usesPrecisionModifiers() const {
 }
 
 String CPPCodeGenerator::getTypeName(const Type& type) {
-    return type.name();
+    return String(type.name());
 }
 
 void CPPCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
@@ -227,7 +227,7 @@ void CPPCodeGenerator::writeRuntimeValue(const Type& type, const Layout& layout,
 
 void CPPCodeGenerator::writeVarInitializer(const Variable& var, const Expression& value) {
     if (is_private(var)) {
-        this->writeRuntimeValue(var.type(), var.modifiers().fLayout, var.name());
+        this->writeRuntimeValue(var.type(), var.modifiers().fLayout, String(var.name()));
     } else {
         this->writeExpression(value, Precedence::kTopLevel);
     }
@@ -268,11 +268,11 @@ void CPPCodeGenerator::writeVariableReference(const VariableReference& ref) {
             const Variable& var = *ref.variable();
             if (var.modifiers().fFlags & Modifiers::kUniform_Flag) {
                 this->write("%s");
-                String name = var.name();
+                String name(var.name());
                 String varCode = String::printf("args.fUniformHandler->getUniformCStr(%sVar)",
                                                 HCodeGenerator::FieldName(name.c_str()).c_str());
                 String code;
-                if (var.modifiers().fLayout.fWhen.fLength) {
+                if (var.modifiers().fLayout.fWhen.length()) {
                     code = String::printf("%sVar.isValid() ? %s : \"%s\"",
                                           HCodeGenerator::FieldName(name.c_str()).c_str(),
                                           varCode.c_str(),
@@ -456,7 +456,7 @@ void CPPCodeGenerator::prepareHelperFunction(const FunctionDeclaration& decl) {
         return;
     }
 
-    String funcName = decl.name();
+    String funcName(decl.name());
     this->addExtraEmitCodeLine(
             String::printf("SkString %s_name = fragBuilder->getMangledFunctionName(\"%s\");",
                            funcName.c_str(),
@@ -465,7 +465,7 @@ void CPPCodeGenerator::prepareHelperFunction(const FunctionDeclaration& decl) {
     String args = String::printf("const GrShaderVar %s_args[] = { ", funcName.c_str());
     const char* separator = "";
     for (const Variable* param : decl.parameters()) {
-        String paramName = param->name();
+        String paramName(param->name());
         args.appendf("%sGrShaderVar(\"%s\", %s)", separator, paramName.c_str(),
                                                   glsltype_string(fContext, param->type()));
         separator = ", ";
@@ -476,7 +476,7 @@ void CPPCodeGenerator::prepareHelperFunction(const FunctionDeclaration& decl) {
 }
 
 void CPPCodeGenerator::prototypeHelperFunction(const FunctionDeclaration& decl) {
-    String funcName = decl.name();
+    String funcName(decl.name());
     this->addExtraEmitCodeLine(String::printf(
             "fragBuilder->emitFunctionPrototype(%s, %s_name.c_str(), {%s_args, %zu});",
             glsltype_string(fContext, decl.returnType()),
@@ -512,7 +512,7 @@ void CPPCodeGenerator::writeFunction(const FunctionDefinition& f) {
         }
 
         fOut = oldOut;
-        String funcName = decl.name();
+        String funcName(decl.name());
 
         String funcImpl;
         if (!fFormatArgs.empty()) {
@@ -576,7 +576,7 @@ void CPPCodeGenerator::addUniform(const Variable& var) {
     if (!needs_uniform_var(var)) {
         return;
     }
-    if (var.modifiers().fLayout.fWhen.fLength) {
+    if (var.modifiers().fLayout.fWhen.length()) {
         this->writef("        if (%s) {\n    ", String(var.modifiers().fLayout.fWhen).c_str());
     }
     String name(var.name());
@@ -594,7 +594,7 @@ void CPPCodeGenerator::addUniform(const Variable& var) {
                      name.c_str(),
                      var.type().columns());
     }
-    if (var.modifiers().fLayout.fWhen.fLength) {
+    if (var.modifiers().fLayout.fWhen.length()) {
         this->write("        }\n");
     }
 }
@@ -946,7 +946,8 @@ void CPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
             }
 
             this->writef("%s%s;\n",
-                         indent.c_str(), mapper->setUniform(pdman, uniformName, valueVar).c_str());
+                         indent.c_str(),
+                         mapper->setUniform(String(pdman), uniformName, valueVar).c_str());
 
             if (conditionalUniform) {
                 // Close the earlier precheck block
@@ -1044,7 +1045,7 @@ void CPPCodeGenerator::writeDumpInfo() {
             String fieldName = HCodeGenerator::FieldName(String(param->name()).c_str());
             String runtimeValue = this->formatRuntimeValue(param->type(),
                                                            param->modifiers().fLayout,
-                                                           param->name(),
+                                                           String(param->name()),
                                                            &argumentList);
             formatString.appendf("%s%s=%s",
                                  formatString.empty() ? "" : ", ",
@@ -1151,7 +1152,7 @@ void CPPCodeGenerator::writeGetKey() {
                     }
                     this->write(";\n");
                 }
-                if (var.modifiers().fLayout.fWhen.fLength) {
+                if (var.modifiers().fLayout.fWhen.length()) {
                     this->writef("if (%s) {", String(var.modifiers().fLayout.fWhen).c_str());
                 }
                 if (varType == *fContext.fTypes.fHalf4) {
@@ -1184,7 +1185,7 @@ void CPPCodeGenerator::writeGetKey() {
                     SK_ABORT("NOT YET IMPLEMENTED: automatic key handling for %s\n",
                              varType.displayName().c_str());
                 }
-                if (var.modifiers().fLayout.fWhen.fLength) {
+                if (var.modifiers().fLayout.fWhen.length()) {
                     this->write("}");
                 }
             }

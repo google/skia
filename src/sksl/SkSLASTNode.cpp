@@ -67,7 +67,7 @@ String ASTNode::description() const {
             if (this->begin() != this->end()) {
                 return String(getString()) + " = " + this->begin()->description();
             }
-            return getString();
+            return String(getString());
         case Kind::kExtension:
             return "#extension " + getString();
         case Kind::kField:
@@ -111,7 +111,7 @@ String ASTNode::description() const {
             return result;
         }
         case Kind::kIdentifier:
-            return getString();
+            return String(getString());
         case Kind::kIndex:
             return this->begin()->description() + "[" + (this->begin() + 1)->description() + "]";
         case Kind::kIf: {
@@ -204,10 +204,10 @@ String ASTNode::description() const {
             return "(" + this->begin()->description() + " ? " + (this->begin() + 1)->description() +
                    " : " + (this->begin() + 2)->description() + ")";
         case Kind::kType:
-            return getString();
+            return String(getString());
         case Kind::kVarDeclaration: {
             const VarData& vd = getVarData();
-            String result = vd.fName;
+            String result(vd.fName);
             auto iter = this->begin();
             if (vd.fIsArray) {
                 result += "[" + (iter++)->description() + "]";

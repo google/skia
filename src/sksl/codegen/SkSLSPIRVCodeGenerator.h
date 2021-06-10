@@ -397,7 +397,7 @@ private:
 
     void writeWord(int32_t word, OutputStream& out);
 
-    void writeString(const char* string, size_t length, OutputStream& out);
+    void writeString(StringFragment s, OutputStream& out);
 
     void writeLabel(SpvId id, OutputStream& out);
 

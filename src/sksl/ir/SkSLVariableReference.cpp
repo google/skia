@@ -36,7 +36,7 @@ bool VariableReference::isConstantOrUniform() const {
 }
 
 String VariableReference::description() const {
-    return this->variable()->name();
+    return String(this->variable()->name());
 }
 
 void VariableReference::setRefKind(RefKind refKind) {

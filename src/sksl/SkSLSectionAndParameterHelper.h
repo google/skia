@@ -39,7 +39,7 @@ class SectionAndParameterHelper {
 public:
     SectionAndParameterHelper(const Program* program, ErrorReporter& errors);
 
-    const Section* getSection(const char* name) {
+    const Section* getSection(StringFragment name) {
         auto found = fSections.find(name);
         if (found == fSections.end()) {
             return nullptr;
@@ -48,7 +48,7 @@ public:
         return found->second[0];
     }
 
-    std::vector<const Section*> getSections(const char* name) {
+    std::vector<const Section*> getSections(StringFragment name) {
         auto found = fSections.find(name);
         if (found == fSections.end()) {
             return std::vector<const Section*>();
@@ -65,40 +65,38 @@ public:
                -1 == var.modifiers().fLayout.fBuiltin;
     }
 
-    static bool IsSupportedSection(const char* name) {
-        return !strcmp(name, kClassSection) ||
-               !strcmp(name, kCloneSection) ||
-               !strcmp(name, kConstructorSection) ||
-               !strcmp(name, kConstructorCodeSection) ||
-               !strcmp(name, kConstructorParamsSection) ||
-               !strcmp(name, kCppSection) ||
-               !strcmp(name, kCppEndSection) ||
-               !strcmp(name, kDumpInfoSection) ||
-               !strcmp(name, kEmitCodeSection) ||
-               !strcmp(name, kFieldsSection) ||
-               !strcmp(name, kHeaderSection) ||
-               !strcmp(name, kHeaderEndSection) ||
-               !strcmp(name, kInitializersSection) ||
-               !strcmp(name, kMakeSection) ||
-               !strcmp(name, kOptimizationFlagsSection) ||
-               !strcmp(name, kSetDataSection) ||
-               !strcmp(name, kTestCodeSection);
+    static bool IsSupportedSection(StringFragment name) {
+        return name == kClassSection ||
+               name == kCloneSection ||
+               name == kConstructorSection ||
+               name == kConstructorCodeSection ||
+               name == kConstructorParamsSection ||
+               name == kCppSection ||
+               name == kCppEndSection ||
+               name == kDumpInfoSection ||
+               name == kEmitCodeSection ||
+               name == kFieldsSection ||
+               name == kHeaderSection ||
+               name == kHeaderEndSection ||
+               name == kInitializersSection ||
+               name == kMakeSection ||
+               name == kOptimizationFlagsSection ||
+               name == kSetDataSection ||
+               name == kTestCodeSection;
     }
 
-    static bool SectionAcceptsArgument(const char* name) {
-        return !strcmp(name, kSetDataSection) ||
-               !strcmp(name, kTestCodeSection);
+    static bool SectionAcceptsArgument(StringFragment name) {
+        return name == kSetDataSection || name == kTestCodeSection;
     }
 
-    static bool SectionRequiresArgument(const char* name) {
-        return !strcmp(name, kSetDataSection) ||
-               !strcmp(name, kTestCodeSection);
+    static bool SectionRequiresArgument(StringFragment name) {
+        return name == kSetDataSection || name == kTestCodeSection;
     }
 
 private:
     const Program& fProgram;
     std::vector<const Variable*> fParameters;
-    std::unordered_map<String, std::vector<const Section*>> fSections;
+    std::unordered_map<StringFragment, std::vector<const Section*>> fSections;
 };
 
 } // namespace SkSL

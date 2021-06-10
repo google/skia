@@ -34,8 +34,8 @@ public:
                    int arraySize, std::shared_ptr<SymbolTable> typeOwner)
     : INHERITED(offset, kProgramElementKind)
     , fVariable(var)
-    , fTypeName(std::move(typeName))
-    , fInstanceName(std::move(instanceName))
+    , fTypeName(typeName)
+    , fInstanceName(instanceName)
     , fArraySize(arraySize)
     , fTypeOwner(std::move(typeOwner)) {}
 
@@ -47,11 +47,11 @@ public:
         fVariable = var;
     }
 
-    const String& typeName() const {
+    String typeName() const {
         return fTypeName;
     }
 
-    const String& instanceName() const {
+    String instanceName() const {
         return fInstanceName;
     }
 

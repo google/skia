@@ -223,7 +223,7 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl,
             // Child effects that can be sampled ('shader' or 'colorFilter')
             if (varType.isEffectChild()) {
                 Child c;
-                c.name  = var.name();
+                c.name  = SkString(var.name());
                 c.type  = child_type(varType);
                 c.index = children.size();
                 children.push_back(c);
@@ -233,7 +233,7 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl,
             // 'uniform' variables
             else if (var.modifiers().fFlags & SkSL::Modifiers::kUniform_Flag) {
                 Uniform uni;
-                uni.name = var.name();
+                uni.name = SkString(var.name());
                 uni.flags = 0;
                 uni.count = 1;
 

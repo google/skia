@@ -38,15 +38,15 @@ SectionAndParameterHelper::SectionAndParameterHelper(const Program* program, Err
             }
             case ProgramElement::Kind::kSection: {
                 const Section& s = p->as<Section>();
-                const String& name = s.name();
-                const String& arg = s.argument();
-                if (IsSupportedSection(name.c_str())) {
-                    if (SectionRequiresArgument(name.c_str()) && !arg.size()) {
+                StringFragment name = s.name();
+                StringFragment arg = s.argument();
+                if (IsSupportedSection(name)) {
+                    if (SectionRequiresArgument(name) && !arg.size()) {
                         errors.error(s.fOffset,
                                      ("section '@" + name +
                                       "' requires one parameter").c_str());
                     }
-                    if (!SectionAcceptsArgument(name.c_str()) && arg.size()) {
+                    if (!SectionAcceptsArgument(name) && arg.size()) {
                         errors.error(s.fOffset,
                                      ("section '@" + name + "' has no parameters").c_str());
                     }

@@ -24,30 +24,8 @@
 
 namespace SkSL {
 
-void GLSLCodeGenerator::write(const char* s) {
-    if (s[0] == 0) {
-        return;
-    }
-    if (fAtLineStart) {
-        for (int i = 0; i < fIndentation; i++) {
-            fOut->writeText("    ");
-        }
-    }
-    fOut->writeText(s);
-    fAtLineStart = false;
-}
-
-void GLSLCodeGenerator::writeLine(const char* s) {
-    this->write(s);
-    this->writeLine();
-}
-
-void GLSLCodeGenerator::write(const String& s) {
-    this->write(s.c_str());
-}
-
 void GLSLCodeGenerator::write(StringFragment s) {
-    if (!s.fLength) {
+    if (!s.length()) {
         return;
     }
     if (fAtLineStart) {
@@ -55,15 +33,12 @@ void GLSLCodeGenerator::write(StringFragment s) {
             fOut->writeText("    ");
         }
     }
-    fOut->write(s.fChars, s.fLength);
+    fOut->write(s.data(), s.length());
     fAtLineStart = false;
 }
 
-void GLSLCodeGenerator::writeLine(const String& s) {
-    this->writeLine(s.c_str());
-}
-
-void GLSLCodeGenerator::writeLine() {
+void GLSLCodeGenerator::writeLine(StringFragment s) {
+    this->write(s);
     fOut->writeText(fLineEnding);
     fAtLineStart = true;
 }
@@ -74,13 +49,9 @@ void GLSLCodeGenerator::finishLine() {
     }
 }
 
-void GLSLCodeGenerator::writeExtension(const String& name) {
-    this->writeExtension(name, true);
-}
-
-void GLSLCodeGenerator::writeExtension(const String& name, bool require) {
+void GLSLCodeGenerator::writeExtension(StringFragment name, bool require) {
     fExtensions.writeText("#extension ");
-    fExtensions.write(name.c_str(), name.length());
+    fExtensions.write(name.data(), name.length());
     fExtensions.writeText(require ? " : require\n" : " : enable\n");
 }
 
@@ -145,14 +116,14 @@ String GLSLCodeGenerator::getTypeName(const Type& type) {
                 return "uint";
             }
             else {
-                return type.name();
+                return String(type.name());
             }
             break;
         }
         case Type::TypeKind::kEnum:
             return "int";
         default:
-            return type.name();
+            return String(type.name());
     }
 }
 

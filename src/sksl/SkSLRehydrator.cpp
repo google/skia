@@ -150,7 +150,7 @@ const Symbol* Rehydrator::symbol() {
             uint16_t id = this->readU16();
             const Type* componentType = this->type();
             int8_t count = this->readS8();
-            String name = componentType->name();
+            String name(componentType->name());
             if (count == Type::kUnsizedArray) {
                 name += "[]";
             } else {
@@ -164,7 +164,8 @@ const Symbol* Rehydrator::symbol() {
         case kEnumType_Command: {
             uint16_t id = this->readU16();
             StringFragment name = this->readString();
-            const Type* result = fSymbolTable->takeOwnershipOfSymbol(Type::MakeEnumType(name));
+            const Type* result =
+                    fSymbolTable->takeOwnershipOfSymbol(Type::MakeEnumType(String(name)));
             this->addSymbol(id, result);
             return result;
         }
@@ -199,7 +200,7 @@ const Symbol* Rehydrator::symbol() {
         }
         case kStructType_Command: {
             uint16_t id = this->readU16();
-            StringFragment name = this->readString();
+            String name(this->readString());
             uint8_t fieldCount = this->readU8();
             std::vector<Type::Field> fields;
             fields.reserve(fieldCount);
@@ -324,11 +325,12 @@ std::unique_ptr<ProgramElement> Rehydrator::element() {
         case Rehydrator::kInterfaceBlock_Command: {
             const Symbol* var = this->symbol();
             SkASSERT(var && var->is<Variable>());
-            StringFragment typeName = this->readString();
-            StringFragment instanceName = this->readString();
+            String typeName(this->readString());
+            String instanceName(this->readString());
             int arraySize = this->readS8();
-            return std::make_unique<InterfaceBlock>(/*offset=*/-1, &var->as<Variable>(), typeName,
-                                                    instanceName, arraySize, nullptr);
+            return std::make_unique<InterfaceBlock>(/*offset=*/-1, &var->as<Variable>(),
+                                                    std::move(typeName), std::move(instanceName),
+                                                    arraySize, nullptr);
         }
         case Rehydrator::kVarDeclarations_Command: {
             std::unique_ptr<Statement> decl = this->statement();
@@ -543,7 +545,7 @@ std::unique_ptr<Expression> Rehydrator::expression() {
             return PrefixExpression::Make(fContext, op, std::move(operand));
         }
         case Rehydrator::kSetting_Command: {
-            StringFragment name = this->readString();
+            String name(this->readString());
             return Setting::Convert(fContext, /*offset=*/-1, name);
         }
         case Rehydrator::kSwizzle_Command: {
