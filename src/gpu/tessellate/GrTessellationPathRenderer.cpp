@@ -7,7 +7,6 @@
 
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 
-#include "include/pathops/SkPathOps.h"
 #include "src/core/SkIPoint16.h"
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/GrClip.h"
@@ -85,58 +84,8 @@ static GrOp::Owner make_op(GrRecordingContext* rContext, const GrSurfaceContext*
                            GrTessellationPathRenderer::PathFlags pathFlags, GrAAType aaType,
                            const SkRect& shapeDevBounds, const SkMatrix& viewMatrix,
                            const GrStyledShape& shape, GrPaint&& paint) {
-    constexpr static auto kLinearizationPrecision =
-            GrTessellationPathRenderer::kLinearizationPrecision;
-    constexpr static auto kMaxResolveLevel = GrTessellationPathRenderer::kMaxResolveLevel;
     SkPath path;
     shape.asPath(&path);
-
-    // Find the worst-case log2 number of line segments that a curve in this path might need to be
-    // divided into.
-    int worstCaseResolveLevel = GrWangsFormula::worst_case_cubic_log2(kLinearizationPrecision,
-                                                                      shapeDevBounds.width(),
-                                                                      shapeDevBounds.height());
-    if (worstCaseResolveLevel > kMaxResolveLevel) {
-        // The path is too large for our internal indirect draw shaders. Crop it to the viewport.
-        auto viewport = SkRect::MakeIWH(surfaceContext->width(), surfaceContext->height());
-        float inflationRadius = 1;
-        const SkStrokeRec& stroke = shape.style().strokeRec();
-        if (stroke.getStyle() == SkStrokeRec::kHairline_Style) {
-            inflationRadius += SkStrokeRec::GetInflationRadius(stroke.getJoin(), stroke.getMiter(),
-                                                               stroke.getCap(), 1);
-        } else if (stroke.getStyle() != SkStrokeRec::kFill_Style) {
-            inflationRadius += stroke.getInflationRadius() * viewMatrix.getMaxScale();
-        }
-        viewport.outset(inflationRadius, inflationRadius);
-
-        SkPath viewportPath;
-        viewportPath.addRect(viewport);
-        // Perform the crop in device space so it's a simple rect-path intersection.
-        path.transform(viewMatrix);
-        if (!Op(viewportPath, path, kIntersect_SkPathOp, &path)) {
-            // The crop can fail if the PathOps encounter NaN or infinities. Return true
-            // because drawing nothing is acceptable behavior for FP overflow.
-            return nullptr;
-        }
-
-        // Transform the path back to its own local space.
-        SkMatrix inverse;
-        if (!viewMatrix.invert(&inverse)) {
-            return nullptr;  // Singular view matrix. Nothing would have drawn anyway. Return null.
-        }
-        path.transform(inverse);
-        path.setIsVolatile(true);
-
-        SkRect newDevBounds;
-        viewMatrix.mapRect(&newDevBounds, path.getBounds());
-        worstCaseResolveLevel = GrWangsFormula::worst_case_cubic_log2(kLinearizationPrecision,
-                                                                      newDevBounds.width(),
-                                                                      newDevBounds.height());
-        // kMaxResolveLevel should be large enough to tessellate paths the size of any screen we
-        // might encounter.
-        SkASSERT(worstCaseResolveLevel <= kMaxResolveLevel);
-    }
-
     if (!shape.style().isSimpleFill()) {
         const SkStrokeRec& stroke = shape.style().strokeRec();
         SkASSERT(stroke.getStyle() != SkStrokeRec::kStrokeAndFill_Style);
