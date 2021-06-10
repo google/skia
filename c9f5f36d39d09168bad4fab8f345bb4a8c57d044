@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9983211e_0141b888",
+        "filename": "src/sksl/SkSLASTNode.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 478,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-10T15:22:20Z",
+      "side": 1,
+      "message": "Yeah, the next CL addresses this.",
+      "parentUuid": "b860fda6_0a8b0db4",
+      "range": {
+        "startLine": 478,
+        "startChar": 0,
+        "endLine": 478,
+        "endChar": 94
+      },
+      "revId": "c9f5f36d39d09168bad4fab8f345bb4a8c57d044",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7ee77f3d_d3eafc3d",
@@ -71,6 +95,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4a373928_30bb6d03",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1626,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-10T15:22:20Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "8eb1c413_ae15b84b",
+      "range": {
+        "startLine": 1626,
+        "startChar": 55,
+        "endLine": 1626,
+        "endChar": 69
+      },
+      "revId": "c9f5f36d39d09168bad4fab8f345bb4a8c57d044",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b9af5cd7_714184fb",
@@ -84,6 +132,30 @@
       "writtenOn": "2021-06-10T14:14:33Z",
       "side": 1,
       "message": "nit: This loop is simple enough to use regular looping constructs.\n\nwhile (level \u003e 0)",
+      "range": {
+        "startLine": 343,
+        "startChar": 4,
+        "endLine": 343,
+        "endChar": 14
+      },
+      "revId": "c9f5f36d39d09168bad4fab8f345bb4a8c57d044",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b37d9533_d9d3b2e6",
+        "filename": "src/sksl/SkSLParser.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-10T15:22:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b9af5cd7_714184fb",
       "range": {
         "startLine": 343,
         "startChar": 4,
@@ -117,6 +189,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "06b585b4_cb6c7b85",
+        "filename": "src/sksl/SkSLParser.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 361,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-10T15:22:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5ee15bc0_a02596af",
+      "range": {
+        "startLine": 358,
+        "startChar": 0,
+        "endLine": 361,
+        "endChar": 9
+      },
+      "revId": "c9f5f36d39d09168bad4fab8f345bb4a8c57d044",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cc55a02d_4c61bc31",
@@ -130,6 +226,30 @@
       "writtenOn": "2021-06-10T14:14:33Z",
       "side": 1,
       "message": "Can these two `writef`s just be `write`?",
+      "range": {
+        "startLine": 125,
+        "startChar": 14,
+        "endLine": 125,
+        "endChar": 20
+      },
+      "revId": "c9f5f36d39d09168bad4fab8f345bb4a8c57d044",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3f8e2814_c47689ab",
+        "filename": "src/sksl/codegen/SkSLHCodeGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-10T15:22:20Z",
+      "side": 1,
+      "message": "HCodeGenerator doesn\u0027t have a write method, and it didn\u0027t seem worth adding just for this.",
+      "parentUuid": "cc55a02d_4c61bc31",
       "range": {
         "startLine": 125,
         "startChar": 14,
@@ -163,6 +283,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "040c0615_d40cadff",
+        "filename": "src/sksl/codegen/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2095,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-10T15:22:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "77fad718_987ef008",
+      "range": {
+        "startLine": 2095,
+        "startChar": 60,
+        "endLine": 2095,
+        "endChar": 72
+      },
+      "revId": "c9f5f36d39d09168bad4fab8f345bb4a8c57d044",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4d478551_238c79a1",
@@ -176,6 +320,30 @@
       "writtenOn": "2021-06-10T14:14:33Z",
       "side": 1,
       "message": "`writeString` should probably take a StringFragment. It\u0027s called in four places, and all of them do this same deconstruction of a fragment into a pointer and a length.",
+      "range": {
+        "startLine": 3647,
+        "startChar": 10,
+        "endLine": 3647,
+        "endChar": 21
+      },
+      "revId": "c9f5f36d39d09168bad4fab8f345bb4a8c57d044",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8b6cb5e0_76daa71d",
+        "filename": "src/sksl/codegen/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 3647,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-10T15:22:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4d478551_238c79a1",
       "range": {
         "startLine": 3647,
         "startChar": 10,
@@ -223,6 +391,30 @@
       "side": 1,
       "message": "EDIT: probably better to do this sort of fixup in a followup CL",
       "parentUuid": "aef23acc_be2f76bd",
+      "range": {
+        "startLine": 313,
+        "startChar": 35,
+        "endLine": 313,
+        "endChar": 67
+      },
+      "revId": "c9f5f36d39d09168bad4fab8f345bb4a8c57d044",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6007e623_543adc5f",
+        "filename": "src/sksl/ir/SkSLFunctionDeclaration.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-10T15:22:20Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "4558ae89_e71d9981",
       "range": {
         "startLine": 313,
         "startChar": 35,
