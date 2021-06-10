@@ -23,7 +23,7 @@ void FakeMCBlob::MCState::apply(FakeCanvas* canvas) const {
     canvas->save();
 
     for (auto c : fRects) {
-        canvas->clipRect(c);
+        canvas->clipRect(ID::Invalid(), c);
     }
 
     canvas->translate(fTrans);
@@ -78,13 +78,14 @@ void FakeDevice::save() {
 void FakeDevice::drawRect(ID id, PaintersOrder paintersOrder, SkIRect r, FakePaint p) {
 
     sk_sp<FakeMCBlob> state = fTracker.snapState();
+    SkASSERT(state);
 
     auto tmp = new RectCmd(id, paintersOrder, r, p, std::move(state));
 
     fSortedCmds.push_back(tmp);
 }
 
-void FakeDevice::clipRect(SkIRect r) {
+void FakeDevice::clipRect(ID id, SkIRect r) {
     fTracker.clipRect(r);
 }
 
@@ -132,10 +133,10 @@ void FakeCanvas::drawRect(ID id, SkIRect r, FakePaint p) {
     fDeviceStack.back()->drawRect(id, this->nextPaintersOrder(), r, p);
 }
 
-void FakeCanvas::clipRect(SkIRect r) {
+void FakeCanvas::clipRect(ID id, SkIRect r) {
     SkASSERT(!fFinalized);
 
-    fDeviceStack.back()->clipRect(r);
+    fDeviceStack.back()->clipRect(id, r);
 }
 
 void FakeCanvas::finalize() {
