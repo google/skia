@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ee6196a6_b71e0d5b",
+        "filename": "src/sksl/dsl/DSLCore.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-10T21:45:01Z",
+      "side": 1,
+      "message": "Compiler::convertProgram makes sure never to optimize a program with errors in it. That can crash or go off the rails.",
+      "range": {
+        "startLine": 70,
+        "startChar": 8,
+        "endLine": 70,
+        "endChar": 48
+      },
+      "revId": "24aec751f5ea09edce0658ab9b90f4cafa6d8325",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
