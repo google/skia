@@ -207,6 +207,30 @@
       },
       "revId": "c9f5f36d39d09168bad4fab8f345bb4a8c57d044",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4558ae89_e71d9981",
+        "filename": "src/sksl/ir/SkSLFunctionDeclaration.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-10T14:17:07Z",
+      "side": 1,
+      "message": "EDIT: probably better to do this sort of fixup in a followup CL",
+      "parentUuid": "aef23acc_be2f76bd",
+      "range": {
+        "startLine": 313,
+        "startChar": 35,
+        "endLine": 313,
+        "endChar": 67
+      },
+      "revId": "c9f5f36d39d09168bad4fab8f345bb4a8c57d044",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
