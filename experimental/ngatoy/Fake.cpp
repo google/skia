@@ -132,10 +132,10 @@ void FakeCanvas::drawRect(ID id, SkIRect r, FakePaint p) {
     fDeviceStack.back()->drawRect(id, this->nextPaintersOrder(), r, p);
 }
 
-void FakeCanvas::clipRect(SkIRect r) {
+void FakeCanvas::clipRect(ID id, SkIRect r) {
     SkASSERT(!fFinalized);
 
-    fDeviceStack.back()->clipRect(r);
+    fDeviceStack.back()->clipRect(id, r);
 }
 
 void FakeCanvas::finalize() {

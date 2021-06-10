@@ -11,6 +11,25 @@
 #include "include/core/SkPaint.h"
 #include "include/effects/SkGradientShader.h"
 
+
+//------------------------------------------------------------------------------------------------
+void PushCmd::execute(FakeCanvas* f) const {
+    f->save();
+}
+
+void PushCmd::execute(SkCanvas* c, const FakeMCBlob* priorState) const {
+    c->save();
+}
+
+//------------------------------------------------------------------------------------------------
+void PopCmd::execute(FakeCanvas* f) const {
+    f->restore();
+}
+
+void PopCmd::execute(SkCanvas* c, const FakeMCBlob* priorState) const {
+    c->restore();
+}
+
 //------------------------------------------------------------------------------------------------
 RectCmd::RectCmd(ID id,
                  PaintersOrder paintersOrder,
@@ -138,3 +157,55 @@ void RectCmd::rasterize(uint32_t zBuffer[256][256], SkBitmap* dstBM) const {
     }
 }
 
+//------------------------------------------------------------------------------------------------
+ClipCmd::ClipCmd(ID id, PaintersOrder paintersOrderWhenAdded, SkIRect r)
+        : Cmd(id)
+        , fPaintersOrderWhenAdded(paintersOrderWhenAdded)
+        , fRect(r) {
+    SkASSERT(fPaintersOrderWhenAdded.isValid());
+}
+
+uint32_t ClipCmd::getSortZ() const {
+    SkASSERT(fPaintersOrderWhenAdded.isValid());
+
+    return fPaintersOrderWhenAdded.toUInt();
+}
+
+uint32_t ClipCmd::getDrawZ() const {
+    return fPaintersOrderWhenPopped.toUInt();
+}
+
+SortKey ClipCmd::getKey() {
+    return SortKey(false, 0, this->getSortZ(), kInvalidMat);
+}
+
+void ClipCmd::pop(PaintersOrder paintersOrderWhenPopped) {
+    SkASSERT(!fPaintersOrderWhenPopped.isValid() && paintersOrderWhenPopped.isValid());
+    fPaintersOrderWhenPopped = paintersOrderWhenPopped;
+}
+
+void ClipCmd::execute(FakeCanvas* c) const {
+    // This call is creating the 'real' ClipCmd for the "actual" case
+    SkASSERT(!fPaintersOrderWhenAdded.isValid() && !fPaintersOrderWhenPopped.isValid());
+    c->clipRect(fID, fRect);
+}
+
+void ClipCmd::execute(SkCanvas* c, const FakeMCBlob* priorState) const {
+    c->clipRect(SkRect::Make(fRect));
+}
+
+void ClipCmd::rasterize(uint32_t zBuffer[256][256], SkBitmap* /* dstBM */) const {
+    SkASSERT(fPaintersOrderWhenPopped.isValid());
+
+    uint32_t drawZ = this->getDrawZ();
+
+    for (int y = fRect.fTop; y < fRect.fBottom; ++y) {
+        for (int x = fRect.fLeft; x < fRect.fRight; ++x) {
+            if (drawZ > zBuffer[x][y]) {
+                zBuffer[x][y] = drawZ;
+            }
+        }
+    }
+}
+
+//------------------------------------------------------------------------------------------------
