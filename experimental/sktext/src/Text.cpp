@@ -157,7 +157,7 @@ std::unique_ptr<WrappedText> ShapedText::wrap(SkScalar width, SkScalar heightCur
           // The entire cluster belongs to a single run
           SkASSERT(cluster.glyphStart().runIndex() == runIndex);
 
-          auto clusterWidth = run.fPositions[glyphIndex].fX - run.fPositions[cluster.glyphStartIndex()].fX;
+          auto clusterWidth = run.calculateWidth(cluster.glyphStartIndex(), glyphIndex);
           cluster.finish(glyphIndex, textIndex, clusterWidth);
 
           auto isHardLineBreak = this->isHardLineBreak(cluster.textStart());
@@ -165,7 +165,7 @@ std::unique_ptr<WrappedText> ShapedText::wrap(SkScalar width, SkScalar heightCur
           auto isWhitespaces = this->isWhitespaces(cluster.textRange());
           auto isEndOfText = run.leftToRight() ? textIndex == run.fUtf16Range.fEnd : textIndex == run.fUtf16Range.fStart;
 
-          if (isSoftLineBreak || isWhitespaces || isHardLineBreak) {
+          if (isWhitespaces || isHardLineBreak) {
               // This is the end of the word
               if (!clusters.isEmpty()) {
                   line.moveTo(spaces);
@@ -209,6 +209,7 @@ std::unique_ptr<WrappedText> ShapedText::wrap(SkScalar width, SkScalar heightCur
                   //  (start it from a new line or squeeze the part of it on this line)
               }
               wrappedText->addLine(line, spaces, unicode);
+              line = spaces;
               clusters.moveTo(cluster);
           }
 
