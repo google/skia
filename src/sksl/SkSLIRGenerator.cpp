@@ -1709,10 +1709,7 @@ std::unique_ptr<Expression> IRGenerator::convertFieldExpression(const ASTNode& f
     }
     const skstd::string_view& field = fieldNode.getStringView();
     const Type& baseType = base->type();
-    if (baseType == *fContext.fTypes.fSkCaps) {
-        return Setting::Convert(fContext, fieldNode.fOffset, field);
-    }
-    if (baseType.isStruct()) {
+    if (baseType == *fContext.fTypes.fSkCaps || baseType.isStruct()) {
         return FieldAccess::Convert(fContext, std::move(base), field);
     }
     return this->convertSwizzle(std::move(base), field);
