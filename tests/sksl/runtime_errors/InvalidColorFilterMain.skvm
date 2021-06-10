@@ -3,4 +3,5 @@
 error: 6: 'main' parameter must be 'vec4', 'float4', or 'half4'
 error: 7: 'main' parameter must be 'vec4', 'float4', or 'half4'
 error: 8: 'main' parameter must be 'vec4', 'float4', or 'half4'
-3 errors
+error: 9: 'main' parameter must be 'vec4', 'float4', or 'half4'
+4 errors

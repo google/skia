@@ -69,10 +69,11 @@ static bool check_parameters(const Context& context,
         return type == *context.fTypes.fHalf4 || type == *context.fTypes.fFloat4;
     };
 
-    // Check modifiers on each function parameter.
+    // The first color parameter passed to main() is the input color; the second is the dest color.
     static constexpr int kBuiltinColorIDs[] = {SK_INPUT_COLOR_BUILTIN, SK_DEST_COLOR_BUILTIN};
     unsigned int builtinColorIndex = 0;
 
+    // Check modifiers on each function parameter.
     for (auto& param : parameters) {
         IRGenerator::CheckModifiers(context, param->fOffset, param->modifiers(),
                                     Modifiers::kConst_Flag | Modifiers::kIn_Flag |
@@ -98,9 +99,8 @@ static bool check_parameters(const Context& context,
             // a half4/float parameter is supposed to be the input or destination color:
             if (type == *context.fTypes.fFloat2) {
                 m.fLayout.fBuiltin = SK_MAIN_COORDS_BUILTIN;
-            } else if (typeIsValidForColor(type)) {
-                // The first color we encounter is the input color; the second is the dest color.
-                SkASSERT(builtinColorIndex < SK_ARRAY_COUNT(kBuiltinColorIDs));
+            } else if (typeIsValidForColor(type) &&
+                       builtinColorIndex < SK_ARRAY_COUNT(kBuiltinColorIDs)) {
                 m.fLayout.fBuiltin = kBuiltinColorIDs[builtinColorIndex++];
             }
             if (m.fLayout.fBuiltin) {
