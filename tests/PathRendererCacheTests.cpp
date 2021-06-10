@@ -124,7 +124,7 @@ static void test_path(skiatest::Reporter* reporter,
     }
     dContext->flushAndSubmit();
     REPORTER_ASSERT(reporter, SkPathPriv::GenIDChangeListenersCount(path) == 20);
-    cache->purgeAllUnlocked();
+    cache->purgeUnlockedResources();
     // The listeners don't actually purge until we try to add another one.
     draw_path(dContext.get(), rtc.get(), path, pathRenderer.get(), aaType, style);
     REPORTER_ASSERT(reporter, SkPathPriv::GenIDChangeListenersCount(path) == 1);

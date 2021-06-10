@@ -564,19 +564,43 @@ void GrResourceCache::purgeAsNeeded() {
     this->validate();
 }
 
-void GrResourceCache::purgeUnlockedResources(bool scratchResourcesOnly) {
+void GrResourceCache::purgeUnlockedResources(const GrStdSteadyClock::time_point* purgeTime,
+                                             bool scratchResourcesOnly) {
 
     if (!scratchResourcesOnly) {
-        fThreadSafeCache->dropUniqueRefs(nullptr);
+        if (purgeTime) {
+            fThreadSafeCache->dropUniqueRefsOlderThan(*purgeTime);
+        } else {
+            fThreadSafeCache->dropUniqueRefs(nullptr);
+        }
 
         // We could disable maintaining the heap property here, but it would add a lot of
         // complexity. Moreover, this is rarely called.
         while (fPurgeableQueue.count()) {
             GrGpuResource* resource = fPurgeableQueue.peek();
+
+            const GrStdSteadyClock::time_point resourceTime =
+                    resource->cacheAccess().timeWhenResourceBecamePurgeable();
+            if (purgeTime && resourceTime >= *purgeTime) {
+                // Resources were given both LRU timestamps and tagged with a frame number when
+                // they first became purgeable. The LRU timestamp won't change again until the
+                // resource is made non-purgeable again. So, at this point all the remaining
+                // resources in the timestamp-sorted queue will have a frame number >= to this
+                // one.
+                break;
+            }
+
             SkASSERT(resource->resourcePriv().isPurgeable());
             resource->cacheAccess().release();
         }
     } else {
+        // Early out if the very first item is too new to purge to avoid sorting the queue when
+        // nothing will be deleted.
+        if (purgeTime && fPurgeableQueue.count() &&
+            fPurgeableQueue.peek()->cacheAccess().timeWhenResourceBecamePurgeable() >= *purgeTime) {
+            return;
+        }
+
         // Sort the queue
         fPurgeableQueue.sort();
 
@@ -584,6 +608,13 @@ void GrResourceCache::purgeUnlockedResources(bool scratchResourcesOnly) {
         SkTDArray<GrGpuResource*> scratchResources;
         for (int i = 0; i < fPurgeableQueue.count(); i++) {
             GrGpuResource* resource = fPurgeableQueue.at(i);
+
+            const GrStdSteadyClock::time_point resourceTime =
+                    resource->cacheAccess().timeWhenResourceBecamePurgeable();
+            if (purgeTime && resourceTime >= *purgeTime) {
+                // scratch or not, all later iterations will be too recently used to purge.
+                break;
+            }
             SkASSERT(resource->resourcePriv().isPurgeable());
             if (!resource->getUniqueKey().isValid()) {
                 *scratchResources.append() = resource;
@@ -598,26 +629,6 @@ void GrResourceCache::purgeUnlockedResources(bool scratchResourcesOnly) {
     }
 
     this->validate();
-}
-
-void GrResourceCache::purgeResourcesNotUsedSince(GrStdSteadyClock::time_point purgeTime) {
-    fThreadSafeCache->dropUniqueRefsOlderThan(purgeTime);
-
-    while (fPurgeableQueue.count()) {
-        const GrStdSteadyClock::time_point resourceTime =
-                fPurgeableQueue.peek()->cacheAccess().timeWhenResourceBecamePurgeable();
-        if (resourceTime >= purgeTime) {
-            // Resources were given both LRU timestamps and tagged with a frame number when
-            // they first became purgeable. The LRU timestamp won't change again until the
-            // resource is made non-purgeable again. So, at this point all the remaining
-            // resources in the timestamp-sorted queue will have a frame number >= to this
-            // one.
-            break;
-        }
-        GrGpuResource* resource = fPurgeableQueue.peek();
-        SkASSERT(resource->resourcePriv().isPurgeable());
-        resource->cacheAccess().release();
-    }
 }
 
 bool GrResourceCache::purgeToMakeHeadroom(size_t desiredHeadroomBytes) {

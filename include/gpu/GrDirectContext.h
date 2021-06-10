@@ -253,8 +253,18 @@ public:
     /**
      * Purge GPU resources that haven't been used in the past 'msNotUsed' milliseconds or are
      * otherwise marked for deletion, regardless of whether the context is under budget.
+     *
+     * If 'scratchResourcesOnly' is true all unlocked scratch resources older than 'msNotUsed' will
+     * be purged but the unlocked resources with persistent data will remain. If
+     * 'scratchResourcesOnly' is false then all unlocked resources older than 'msNotUsed' will be
+     * purged.
+     *
+     * @param msNotUsed              Only unlocked resources not used in these last milliseconds
+     *                               will be cleaned up.
+     * @param scratchResourcesOnly   If true only unlocked scratch resources will be purged.
      */
-    void performDeferredCleanup(std::chrono::milliseconds msNotUsed);
+    void performDeferredCleanup(std::chrono::milliseconds msNotUsed,
+                                bool scratchResourcesOnly=false);
 
     // Temporary compatibility API for Android.
     void purgeResourcesNotUsedInMs(std::chrono::milliseconds msNotUsed) {
