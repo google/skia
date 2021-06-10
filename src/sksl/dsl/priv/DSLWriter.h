@@ -256,8 +256,6 @@ public:
         return Instance().fSettings.fDSLMarkVarsDeclared;
     }
 
-    static std::unique_ptr<SkSL::Program> ReleaseProgram();
-
     static DSLWriter& Instance();
 
     static void SetInstance(std::unique_ptr<DSLWriter> instance);
@@ -274,6 +272,7 @@ private:
     ErrorHandler* fErrorHandler = nullptr;
     ProgramSettings fSettings;
     Mangler fMangler;
+    bool fEncounteredErrors = false;
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
     struct StackFrame {
         GrGLSLFragmentProcessor* fProcessor;
