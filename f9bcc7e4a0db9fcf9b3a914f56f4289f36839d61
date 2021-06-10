@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "889bd172_212d6676",
+        "filename": "src/gpu/tessellate/GrTessellationPathRenderer.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-10T17:46:39Z",
+      "side": 1,
+      "message": "copypasta!",
+      "range": {
+        "startLine": 185,
+        "startChar": 0,
+        "endLine": 219,
+        "endChar": 1
+      },
+      "revId": "f9bcc7e4a0db9fcf9b3a914f56f4289f36839d61",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
