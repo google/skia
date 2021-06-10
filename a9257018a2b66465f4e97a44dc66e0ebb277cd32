@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8010621a_61260ed4",
+        "filename": "src/sksl/SkSLMain.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 474,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-10T13:28:21Z",
+      "side": 1,
+      "message": "_inColor",
+      "range": {
+        "startLine": 474,
+        "startChar": 38,
+        "endLine": 474,
+        "endChar": 44
+      },
+      "revId": "a9257018a2b66465f4e97a44dc66e0ebb277cd32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
