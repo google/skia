@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dcf94b62_dc9a7566",
+        "filename": "resources/sksl/runtime_errors/InvalidBlendMain.rtb",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-10T13:44:49Z",
+      "side": 1,
+      "message": "The fuzzer discovered this signature.",
+      "range": {
+        "startLine": 10,
+        "startChar": 11,
+        "endLine": 10,
+        "endChar": 49
+      },
+      "revId": "439bd4d427d91686250e337b0f135fd2dcc0f9bb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
