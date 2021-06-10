@@ -15,6 +15,7 @@ querying attributes of the glyphs (not needed for drawing, but useful for other 
 * It is expected that drawing glyphs can be faster than fillText() -- no shaping/processing is needed.
 * With the additional utilities, new effects should be easy and efficient.
 
+
 ## Drawing glyphs
 
 At the heart of the proposal is a parallel to fillText/strokeText...
