@@ -16,6 +16,46 @@
       "message": "How do we resolve issues when bringing these changes into Google3? This would break existing PropertyObserver implementations",
       "revId": "ddd1cb34e2c1ca0796fad5198cf61a35a28a8395",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7a5b3b59_a659b9a4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-06-10T16:15:10Z",
+      "side": 1,
+      "message": "Looks good, but I think modules/skottie/utils/SkottieUtils.cpp has a PropertyObserve impl that needs updating + we need to make sure we\u0027re not breaking downstream clients (see below).\n",
+      "revId": "ddd1cb34e2c1ca0796fad5198cf61a35a28a8395",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "49cf7a0b_106817e5",
+        "filename": "modules/skottie/include/SkottieProperty.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-06-10T16:15:10Z",
+      "side": 1,
+      "message": "We need to find a way to update the API without breaking existing clients (otherwise this will block the Skia roll).\n\nThe usual approach is to land API-breaking changes guarded by a build flag, after the flag has been added to the existing codebases.  E.g. add SK_USE_LEGACY_PROPERTY_OBSERVER to g3, then land the Skia change, wait for it to roll to g3, update all g3 clients and remove the flag, then circle back to Skia and delete the legacy code/flag.\n\nThat\u0027s a lot of churn, so we try to opportunistically find other ways.\n\nIn this case, you might be able to temporarily keep both versions of the virtuals and dispatch to both.  Then update all g3 clients, and circle back to Skia for cleanup.  Small improvement.\n\nSkimming through g3, I think none of the overriders care about these though -- so yet another approach could be to go ahead and delete all g3 overrides and then we should be able to land the Skia change directly.  Do you want to take a stab at that?",
+      "range": {
+        "startLine": 135,
+        "startChar": 0,
+        "endLine": 136,
+        "endChar": 75
+      },
+      "revId": "ddd1cb34e2c1ca0796fad5198cf61a35a28a8395",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
