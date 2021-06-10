@@ -106,7 +106,6 @@ public:
 
 private:
     GrSkSLFP(sk_sp<SkRuntimeEffect> effect, const char* name);
-    GrSkSLFP(sk_sp<SkRuntimeEffect> effect, const char* name, sk_sp<SkData> uniforms);
     GrSkSLFP(const GrSkSLFP& other);
 
     std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
