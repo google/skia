@@ -154,16 +154,20 @@ public:
         keys. */
     void purgeAsNeeded();
 
-    /** Purges all resources that don't have external owners. */
-    void purgeAllUnlocked() { this->purgeUnlockedResources(false); }
-
     // Purge unlocked resources. If 'scratchResourcesOnly' is true the purgeable resources
     // containing persistent data are spared. If it is false then all purgeable resources will
     // be deleted.
-    void purgeUnlockedResources(bool scratchResourcesOnly);
+    void purgeUnlockedResources(bool scratchResourcesOnly=false) {
+        this->purgeUnlockedResources(/*purgeTime=*/nullptr, scratchResourcesOnly);
+    }
 
-    /** Purge all resources not used since the passed in time. */
-    void purgeResourcesNotUsedSince(GrStdSteadyClock::time_point);
+    // Purge unlocked resources not used since the passed point in time. If 'scratchResourcesOnly'
+    // is true the purgeable resources containing persistent data are spared. If it is false then
+    // all purgeable resources older than 'purgeTime' will be deleted.
+    void purgeResourcesNotUsedSince(GrStdSteadyClock::time_point purgeTime,
+                                    bool scratchResourcesOnly=false) {
+        this->purgeUnlockedResources(&purgeTime, scratchResourcesOnly);
+    }
 
     /** If it's possible to purge enough resources to get the provided amount of budget
         headroom, do so and return true. If it's not possible, do nothing and return false.
@@ -272,6 +276,9 @@ private:
     bool wouldFit(size_t bytes) const { return fBudgetedBytes+bytes <= fMaxBytes; }
 
     uint32_t getNextTimestamp();
+
+    void purgeUnlockedResources(const GrStdSteadyClock::time_point* purgeTime,
+                                bool scratchResourcesOnly);
 
 #ifdef SK_DEBUG
     bool isInCache(const GrGpuResource* r) const;
