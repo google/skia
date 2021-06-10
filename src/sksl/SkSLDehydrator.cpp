@@ -121,7 +121,7 @@ void Dehydrator::write(Modifiers m) {
     }
 }
 
-void Dehydrator::write(StringFragment s) {
+void Dehydrator::write(skstd::string_view s) {
     this->write(String(s));
 }
 
@@ -242,11 +242,11 @@ void Dehydrator::write(const SymbolTable& symbols) {
         this->write(*s);
     }
     this->writeU16(symbols.fSymbols.count());
-    std::map<StringFragment, const Symbol*> ordered;
-    symbols.foreach([&](StringFragment name, const Symbol* symbol) {
+    std::map<skstd::string_view, const Symbol*> ordered;
+    symbols.foreach([&](skstd::string_view name, const Symbol* symbol) {
         ordered.insert({name, symbol});
     });
-    for (std::pair<StringFragment, const Symbol*> p : ordered) {
+    for (std::pair<skstd::string_view, const Symbol*> p : ordered) {
         bool found = false;
         for (size_t i = 0; i < symbols.fOwnedSymbols.size(); ++i) {
             if (symbols.fOwnedSymbols[i].get() == p.second) {

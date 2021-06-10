@@ -39,7 +39,7 @@ public:
 
     FunctionDeclaration(int offset,
                         const Modifiers* modifiers,
-                        StringFragment name,
+                        skstd::string_view name,
                         std::vector<const Variable*> parameters,
                         const Type* returnType,
                         bool builtin);
@@ -48,7 +48,7 @@ public:
                                               SymbolTable& symbols,
                                               int offset,
                                               const Modifiers* modifiers,
-                                              StringFragment name,
+                                              skstd::string_view name,
                                               std::vector<std::unique_ptr<Variable>> parameters,
                                               const Type* returnType,
                                               bool isBuiltin);

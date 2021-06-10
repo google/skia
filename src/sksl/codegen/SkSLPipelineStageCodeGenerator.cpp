@@ -57,8 +57,8 @@ public:
 private:
     using Precedence = Operator::Precedence;
 
-    void write(StringFragment s);
-    void writeLine(StringFragment s = StringFragment());
+    void write(skstd::string_view s);
+    void writeLine(skstd::string_view s = skstd::string_view());
 
     String typeName(const Type& type);
     void writeType(const Type& type);
@@ -68,7 +68,7 @@ private:
     String modifierString(const Modifiers& modifiers);
 
     // Handles arrays correctly, eg: `float x[2]`
-    String typedVariable(const Type& type, StringFragment name);
+    String typedVariable(const Type& type, skstd::string_view name);
 
     void writeVarDeclaration(const VarDeclaration& var);
     void writeGlobalVarDeclaration(const GlobalVarDeclaration& g);
@@ -125,11 +125,11 @@ private:
 };
 
 
-void PipelineStageCodeGenerator::write(StringFragment s) {
+void PipelineStageCodeGenerator::write(skstd::string_view s) {
     fBuffer->write(s.data(), s.length());
 }
 
-void PipelineStageCodeGenerator::writeLine(StringFragment s) {
+void PipelineStageCodeGenerator::writeLine(skstd::string_view s) {
     fBuffer->write(s.data(), s.length());
     fBuffer->writeText("\n");
 }
@@ -313,7 +313,8 @@ void PipelineStageCodeGenerator::writeGlobalVarDeclaration(const GlobalVarDeclar
     } else {
         String mangledName = fCallbacks->getMangledName(String(var.name()).c_str());
         String declaration = this->modifierString(var.modifiers()) +
-                             this->typedVariable(var.type(), StringFragment(mangledName.c_str()));
+                             this->typedVariable(var.type(),
+                                                 skstd::string_view(mangledName.c_str()));
         if (decl.value()) {
             AutoOutputBuffer outputToBuffer(this);
             this->writeExpression(*decl.value(), Precedence::kTopLevel);
@@ -553,7 +554,7 @@ String PipelineStageCodeGenerator::modifierString(const Modifiers& modifiers) {
     return result;
 }
 
-String PipelineStageCodeGenerator::typedVariable(const Type& type, StringFragment name) {
+String PipelineStageCodeGenerator::typedVariable(const Type& type, skstd::string_view name) {
     const Type& baseType = type.isArray() ? type.componentType() : type;
 
     String decl = this->typeName(baseType) + " " + name;

@@ -59,7 +59,7 @@ public:
     static constexpr Kind kSymbolKind = Kind::kType;
 
     struct Field {
-        Field(Modifiers modifiers, StringFragment name, const Type* type)
+        Field(Modifiers modifiers, skstd::string_view name, const Type* type)
         : fModifiers(modifiers)
         , fName(name)
         , fType(std::move(type)) {}
@@ -69,7 +69,7 @@ public:
         }
 
         Modifiers fModifiers;
-        StringFragment fName;
+        skstd::string_view fName;
         const Type* fType;
     };
 
@@ -496,7 +496,7 @@ private:
             , fIsArrayed(false)
             , fIsMultisampled(false)
             , fIsSampled(false) {
-        fName = StringFragment(fNameString.c_str(), fNameString.length());
+        fName = skstd::string_view(fNameString.c_str(), fNameString.length());
     }
 
     // Constructor for MakeGenericType.
@@ -566,7 +566,7 @@ private:
         } else {
             SkASSERT(this->columns() > 0);
         }
-        fName = StringFragment(fNameString.c_str(), fNameString.length());
+        fName = skstd::string_view(fNameString.c_str(), fNameString.length());
     }
 
     // Constructor for MakeMatrixType.
@@ -596,7 +596,7 @@ private:
             , fIsMultisampled(false)
             , fIsSampled(false)
             , fFields(std::move(fields)) {
-        fName = StringFragment(fNameString.c_str(), fNameString.length());
+        fName = skstd::string_view(fNameString.c_str(), fNameString.length());
     }
 
     // Constructor for MakeTextureType.

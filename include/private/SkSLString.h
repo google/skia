@@ -22,8 +22,6 @@ namespace SkSL {
 
 class String;
 
-using StringFragment = skstd::string_view;
-
 class SK_API String : public std::string {
 public:
     using std::string::string;
@@ -37,28 +35,28 @@ public:
     void vappendf(const char* fmt, va_list va);
 
     bool starts_with(const char prefix[]) const {
-        return StringFragment(data(), size()).starts_with(prefix);
+        return skstd::string_view(data(), size()).starts_with(prefix);
     }
     bool ends_with(const char suffix[]) const {
-        return StringFragment(data(), size()).ends_with(suffix);
+        return skstd::string_view(data(), size()).ends_with(suffix);
     }
 
     bool consumeSuffix(const char suffix[]);
 
     String operator+(const char* s) const;
     String operator+(const String& s) const;
-    String operator+(StringFragment s) const;
+    String operator+(skstd::string_view s) const;
     String& operator+=(char c);
     String& operator+=(const char* s);
     String& operator+=(const String& s);
-    String& operator+=(StringFragment s);
+    String& operator+=(skstd::string_view s);
     friend String operator+(const char* s1, const String& s2);
 
 private:
     using INHERITED = std::string;
 };
 
-String operator+(StringFragment left, StringFragment right);
+String operator+(skstd::string_view left, skstd::string_view right);
 
 String to_string(double value);
 String to_string(int32_t value);
@@ -66,8 +64,8 @@ String to_string(uint32_t value);
 String to_string(int64_t value);
 String to_string(uint64_t value);
 
-bool stod(const StringFragment& s, SKSL_FLOAT* value);
-bool stoi(const StringFragment& s, SKSL_INT* value);
+bool stod(const skstd::string_view& s, SKSL_FLOAT* value);
+bool stoi(const skstd::string_view& s, SKSL_INT* value);
 
 } // namespace SkSL
 
