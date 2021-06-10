@@ -324,6 +324,7 @@ gm_sources = [
   "$_gm/rsxtext.cpp",
   "$_gm/runtimecolorfilter.cpp",
   "$_gm/runtimeeffectimage.cpp",
+  "$_gm/runtimefpspecialized.cpp",
   "$_gm/runtimefunctions.cpp",
   "$_gm/runtimeimagefilter.cpp",
   "$_gm/runtimeintrinsics.cpp",
