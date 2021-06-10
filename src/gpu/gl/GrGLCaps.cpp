@@ -17,6 +17,7 @@
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
 #include "src/gpu/GrTextureProxyPriv.h"
+#include "src/gpu/GrTextureRenderTargetProxy.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/gl/GrGLContext.h"
 #include "src/gpu/gl/GrGLRenderTarget.h"
@@ -4556,11 +4557,14 @@ GrSwizzle GrGLCaps::getWriteSwizzle(const GrBackendFormat& format, GrColorType c
     return {};
 }
 
-GrDstSampleFlags GrGLCaps::onGetDstSampleFlagsForProxy(const GrRenderTargetProxy* rt) const {
-    if (rt->asTextureProxy()) {
-        return GrDstSampleFlags::kRequiresTextureBarrier;
+bool GrGLCaps::onCanRenderTargetSampleSelf(const GrTextureRenderTargetProxy* texRTProxy,
+                                           GrDstSampleFlags* flags) const {
+    SkASSERT(texRTProxy->numSamples() == 1);  // Handled in base class.
+    if (this->textureBarrierSupport()) {
+        *flags = GrDstSampleFlags::kRequiresTextureBarrier;
+        return true;
     }
-    return GrDstSampleFlags::kNone;
+    return false;
 }
 
 uint64_t GrGLCaps::computeFormatKey(const GrBackendFormat& format) const {

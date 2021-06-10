@@ -19,6 +19,7 @@
 #include "src/gpu/GrRenderTargetProxy.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrStencilSettings.h"
+#include "src/gpu/GrTextureRenderTargetProxy.h"
 #include "src/gpu/GrUtil.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/vk/GrVkGpu.h"
@@ -1690,15 +1691,14 @@ GrSwizzle GrVkCaps::getWriteSwizzle(const GrBackendFormat& format, GrColorType c
     return {};
 }
 
-GrDstSampleFlags GrVkCaps::onGetDstSampleFlagsForProxy(const GrRenderTargetProxy* rt) const {
-    bool isMSAAWithResolve = rt->numSamples() > 1 && rt->asTextureProxy();
-    // TODO: Currently if we have an msaa rt with a resolve, the supportsVkInputAttachment call
-    // references whether the resolve is supported as an input attachment. We need to add a check to
-    // allow checking the color attachment (msaa or not) supports input attachment specifically.
-    if (!isMSAAWithResolve && rt->supportsVkInputAttachment()) {
-        return GrDstSampleFlags::kRequiresTextureBarrier | GrDstSampleFlags::kAsInputAttachment;
+bool GrVkCaps::onCanRenderTargetSampleSelf(const GrTextureRenderTargetProxy* texRTProxy,
+                                           GrDstSampleFlags* flags) const {
+    SkASSERT(texRTProxy->numSamples() == 1);  // Handled in base class.
+    if (texRTProxy->supportsVkInputAttachment()) {
+        *flags = GrDstSampleFlags::kRequiresTextureBarrier | GrDstSampleFlags::kAsInputAttachment;
+        return true;
     }
-    return GrDstSampleFlags::kNone;
+    return false;
 }
 
 uint64_t GrVkCaps::computeFormatKey(const GrBackendFormat& format) const {

@@ -684,12 +684,17 @@ void GrOpsTask::reset() {
     fRenderPassXferBarriers = GrXferBarrierFlags::kNone;
 }
 
+bool GrOpsTask::canMerge(const GrOpsTask* opsTask) const {
+    return this->target(0) == opsTask->target(0) &&
+           fArenas == opsTask->fArenas &&
+           !opsTask->fCannotMergeBackward;
+}
+
 int GrOpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
     int mergedCount = 0;
     for (const sk_sp<GrRenderTask>& task : tasks) {
         auto opsTask = task->asOpsTask();
-        if (!opsTask || opsTask->target(0) != this->target(0)
-                     || this->fArenas != opsTask->fArenas) {
+        if (!opsTask || !this->canMerge(opsTask)) {
             break;
         }
         SkASSERT(fTargetSwizzle == opsTask->fTargetSwizzle);
