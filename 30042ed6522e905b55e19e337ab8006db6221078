@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "148854c8_ee51dc59",
+        "filename": "src/sksl/SkSLParser.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-10T16:00:04Z",
+      "side": 1,
+      "message": "tiny nit (feel free to address later or ignore): this doesn\u0027t need to be declared above the loop anymore",
+      "range": {
+        "startLine": 342,
+        "startChar": 4,
+        "endLine": 342,
+        "endChar": 23
+      },
+      "revId": "30042ed6522e905b55e19e337ab8006db6221078",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
