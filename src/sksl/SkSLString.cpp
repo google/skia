@@ -73,7 +73,7 @@ String String::operator+(const String& s) const {
     return result;
 }
 
-String String::operator+(StringFragment s) const {
+String String::operator+(skstd::string_view s) const {
     String result(*this);
     result.append(s.data(), s.length());
     return result;
@@ -94,7 +94,7 @@ String& String::operator+=(const String& s) {
     return *this;
 }
 
-String& String::operator+=(StringFragment s) {
+String& String::operator+=(skstd::string_view s) {
     this->append(s.data(), s.length());
     return *this;
 }
@@ -105,7 +105,7 @@ String operator+(const char* s1, const String& s2) {
     return result;
 }
 
-String operator+(StringFragment left, StringFragment right) {
+String operator+(skstd::string_view left, skstd::string_view right) {
     return String(left) + right;
 }
 
@@ -145,7 +145,7 @@ String to_string(double value) {
     return String(buffer.str().c_str());
 }
 
-bool stod(const StringFragment& s, SKSL_FLOAT* value) {
+bool stod(const skstd::string_view& s, SKSL_FLOAT* value) {
     std::string str(s.data(), s.size());
     std::stringstream buffer(str);
     buffer.imbue(std::locale::classic());
@@ -153,7 +153,7 @@ bool stod(const StringFragment& s, SKSL_FLOAT* value) {
     return !buffer.fail();
 }
 
-bool stoi(const StringFragment& s, SKSL_INT* value) {
+bool stoi(const skstd::string_view& s, SKSL_INT* value) {
     char* p;
     errno = 0;
     unsigned long long result = strtoull(s.begin(), &p, /*base=*/0);

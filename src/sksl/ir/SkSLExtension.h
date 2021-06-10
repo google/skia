@@ -19,11 +19,11 @@ class Extension final : public ProgramElement {
 public:
     static constexpr Kind kProgramElementKind = Kind::kExtension;
 
-    Extension(int offset, StringFragment name)
+    Extension(int offset, skstd::string_view name)
         : INHERITED(offset, kProgramElementKind)
         , fName(name) {}
 
-    StringFragment name() const {
+    skstd::string_view name() const {
         return fName;
     }
 
@@ -36,7 +36,7 @@ public:
     }
 
 private:
-    StringFragment fName;
+    skstd::string_view fName;
 
     using INHERITED = ProgramElement;
 };

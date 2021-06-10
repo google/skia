@@ -12,7 +12,7 @@ namespace SkSL {
 
 std::unique_ptr<Expression> FieldAccess::Convert(const Context& context,
                                                  std::unique_ptr<Expression> base,
-                                                 StringFragment field) {
+                                                 skstd::string_view field) {
     const Type& baseType = base->type();
     if (baseType.isStruct()) {
         const std::vector<Type::Field>& fields = baseType.fields();

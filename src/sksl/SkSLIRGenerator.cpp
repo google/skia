@@ -124,7 +124,7 @@ bool IRGenerator::detectVarDeclarationWithoutScope(const Statement& stmt) {
     return true;
 }
 
-std::unique_ptr<Extension> IRGenerator::convertExtension(int offset, StringFragment name) {
+std::unique_ptr<Extension> IRGenerator::convertExtension(int offset, skstd::string_view name) {
     if (this->programKind() != ProgramKind::kFragment &&
         this->programKind() != ProgramKind::kVertex &&
         this->programKind() != ProgramKind::kGeometry) {
@@ -328,7 +328,7 @@ void IRGenerator::checkVarDeclaration(int offset, const Modifiers& modifiers, co
 }
 
 std::unique_ptr<Variable> IRGenerator::convertVar(int offset, const Modifiers& modifiers,
-                                                  const Type* baseType, StringFragment name,
+                                                  const Type* baseType, skstd::string_view name,
                                                   bool isArray,
                                                   std::unique_ptr<Expression> arraySize,
                                                   Variable::Storage storage) {
@@ -389,7 +389,7 @@ std::unique_ptr<Statement> IRGenerator::convertVarDeclaration(std::unique_ptr<Va
 std::unique_ptr<Statement> IRGenerator::convertVarDeclaration(int offset,
                                                               const Modifiers& modifiers,
                                                               const Type* baseType,
-                                                              StringFragment name,
+                                                              skstd::string_view name,
                                                               bool isArray,
                                                               std::unique_ptr<Expression> arraySize,
                                                               std::unique_ptr<Expression> value,
@@ -1129,7 +1129,7 @@ void IRGenerator::convertEnum(const ASTNode& e) {
     SkASSERT(e.fKind == ASTNode::Kind::kEnum);
     SKSL_INT currentValue = 0;
     Layout layout;
-    ASTNode enumType(e.fNodes, e.fOffset, ASTNode::Kind::kType, e.getString());
+    ASTNode enumType(e.fNodes, e.fOffset, ASTNode::Kind::kType, e.getStringView());
     const Type* type = this->convertType(enumType);
     Modifiers modifiers(layout, Modifiers::kConst_Flag);
     std::shared_ptr<SymbolTable> oldTable = fSymbolTable;
@@ -1154,7 +1154,7 @@ void IRGenerator::convertEnum(const ASTNode& e) {
         value = IntLiteral::Make(fContext, e.fOffset, currentValue);
         ++currentValue;
         auto var = std::make_unique<Variable>(e.fOffset, this->modifiersPool().add(modifiers),
-                                              child.getString(), type, fIsBuiltinCode,
+                                              child.getStringView(), type, fIsBuiltinCode,
                                               Variable::Storage::kGlobal);
         // enum variables aren't really 'declared', but we have to create a declaration to store
         // the value
@@ -1165,7 +1165,7 @@ void IRGenerator::convertEnum(const ASTNode& e) {
     }
     // Now we orphanize the Enum's symbol table, so that future lookups in it are strict
     fSymbolTable->fParent = nullptr;
-    fProgramElements->push_back(std::make_unique<Enum>(e.fOffset, e.getString(), fSymbolTable,
+    fProgramElements->push_back(std::make_unique<Enum>(e.fOffset, e.getStringView(), fSymbolTable,
                                                        /*isSharedWithCpp=*/fIsBuiltinCode,
                                                        /*isBuiltin=*/fIsBuiltinCode));
     fSymbolTable = oldTable;
@@ -1187,7 +1187,7 @@ bool IRGenerator::typeContainsPrivateFields(const Type& type) {
 }
 
 const Type* IRGenerator::convertType(const ASTNode& type, bool allowVoid) {
-    StringFragment name = type.getString();
+    skstd::string_view name = type.getStringView();
     const Symbol* symbol = (*fSymbolTable)[name];
     if (!symbol || !symbol->is<Type>()) {
         this->errorReporter().error(type.fOffset, "unknown type '" + name + "'");
@@ -1247,7 +1247,7 @@ std::unique_ptr<Expression> IRGenerator::convertExpression(const ASTNode& expr) 
     }
 }
 
-std::unique_ptr<Expression> IRGenerator::convertIdentifier(int offset, StringFragment name) {
+std::unique_ptr<Expression> IRGenerator::convertIdentifier(int offset, skstd::string_view name) {
     const Symbol* result = (*fSymbolTable)[name];
     if (!result) {
         this->errorReporter().error(offset, "unknown identifier '" + name + "'");
@@ -1325,7 +1325,7 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(int offset, StringFra
 }
 
 std::unique_ptr<Expression> IRGenerator::convertIdentifier(const ASTNode& identifier) {
-    return this->convertIdentifier(identifier.fOffset, identifier.getString());
+    return this->convertIdentifier(identifier.fOffset, identifier.getStringView());
 }
 
 std::unique_ptr<Section> IRGenerator::convertSection(const ASTNode& s) {
@@ -1526,7 +1526,7 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(const ASTNode& 
 // secondary swizzle to put them back into the right order, so in this case we end up with
 // 'float4(base.xw, 1, 0).xzyw'.
 std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expression> base,
-                                                        StringFragment fields) {
+                                                        skstd::string_view fields) {
     const int offset = base->fOffset;
     const Type& baseType = base->type();
     if (!baseType.isVector() && !baseType.isNumber()) {
@@ -1603,7 +1603,7 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
 }
 
 std::unique_ptr<Expression> IRGenerator::convertTypeField(int offset, const Type& type,
-                                                          StringFragment field) {
+                                                          skstd::string_view field) {
     const ProgramElement* enumElement = nullptr;
     // Find the Enum element that this type refers to, start by searching our elements
     for (const std::unique_ptr<ProgramElement>& e : *fProgramElements) {
@@ -1707,7 +1707,7 @@ std::unique_ptr<Expression> IRGenerator::convertFieldExpression(const ASTNode& f
     if (!base) {
         return nullptr;
     }
-    const StringFragment& field = fieldNode.getString();
+    const skstd::string_view& field = fieldNode.getStringView();
     const Type& baseType = base->type();
     if (baseType == *fContext.fTypes.fSkCaps) {
         return Setting::Convert(fContext, fieldNode.fOffset, field);
@@ -1727,7 +1727,7 @@ std::unique_ptr<Expression> IRGenerator::convertScopeExpression(const ASTNode& s
         this->errorReporter().error(scopeNode.fOffset, "'::' must follow a type name");
         return nullptr;
     }
-    const StringFragment& member = scopeNode.getString();
+    const skstd::string_view& member = scopeNode.getStringView();
     return this->convertTypeField(base->fOffset, base->as<TypeReference>().value(), member);
 }
 
@@ -1991,7 +1991,7 @@ IRGenerator::IRBundle IRGenerator::convertProgram(
                 }
                 case ASTNode::Kind::kExtension: {
                     std::unique_ptr<Extension> e = this->convertExtension(decl.fOffset,
-                                                                          decl.getString());
+                                                                          decl.getStringView());
                     if (e) {
                         fProgramElements->push_back(std::move(e));
                     }

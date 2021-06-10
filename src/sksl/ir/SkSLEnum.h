@@ -24,7 +24,7 @@ class Enum final : public ProgramElement {
 public:
     static constexpr Kind kProgramElementKind = Kind::kEnum;
 
-    Enum(int offset, StringFragment typeName, std::shared_ptr<SymbolTable> symbols,
+    Enum(int offset, skstd::string_view typeName, std::shared_ptr<SymbolTable> symbols,
          bool isSharedWithCpp, bool isBuiltin = true)
     : INHERITED(offset, kProgramElementKind)
     , fTypeName(typeName)
@@ -32,7 +32,7 @@ public:
     , fIsSharedWithCpp(isSharedWithCpp)
     , fIsBuiltin(isBuiltin) {}
 
-    StringFragment typeName() const {
+    skstd::string_view typeName() const {
         return fTypeName;
     }
 
@@ -57,10 +57,10 @@ public:
     String code() const {
         String result = "enum class " + this->typeName() + " {\n";
         String separator;
-        struct Enumerant { StringFragment name; SKSL_INT value; };
+        struct Enumerant { skstd::string_view name; SKSL_INT value; };
         std::vector<Enumerant> sortedSymbols;
         sortedSymbols.reserve(symbols()->count());
-        this->foreach([&](StringFragment name, SKSL_INT value){
+        this->foreach([&](skstd::string_view name, SKSL_INT value){
             sortedSymbols.push_back({name, value});
         });
         std::sort(sortedSymbols.begin(), sortedSymbols.end(),
@@ -79,7 +79,9 @@ public:
 
     template <typename Fn> void foreach(Fn&& fn) const {
         this->symbols()->foreach(
-                [&fn](StringFragment name, const Symbol* symbol) { fn(name, EnumValue(symbol)); });
+                [&fn](skstd::string_view name, const Symbol* symbol) {
+                    fn(name, EnumValue(symbol));
+                });
     }
 
 private:
@@ -87,7 +89,7 @@ private:
         return symbol->as<Variable>().initialValue()->as<IntLiteral>().value();
     }
 
-    StringFragment fTypeName;
+    skstd::string_view fTypeName;
     std::shared_ptr<SymbolTable> fSymbols;
     bool fIsSharedWithCpp;
     bool fIsBuiltin;

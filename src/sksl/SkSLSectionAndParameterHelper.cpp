@@ -38,8 +38,8 @@ SectionAndParameterHelper::SectionAndParameterHelper(const Program* program, Err
             }
             case ProgramElement::Kind::kSection: {
                 const Section& s = p->as<Section>();
-                StringFragment name = s.name();
-                StringFragment arg = s.argument();
+                skstd::string_view name = s.name();
+                skstd::string_view arg = s.argument();
                 if (IsSupportedSection(name)) {
                     if (SectionRequiresArgument(name) && !arg.size()) {
                         errors.error(s.fOffset,

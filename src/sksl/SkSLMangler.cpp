@@ -38,7 +38,7 @@ String Mangler::uniqueName(String baseName, SymbolTable* symbolTable) {
     String uniqueName;
     for (;;) {
         uniqueName = String::printf("_%d_%s", fCounter++, baseName.c_str());
-        StringFragment frag{uniqueName.data(), uniqueName.length()};
+        skstd::string_view frag{uniqueName.data(), uniqueName.length()};
         if ((*symbolTable)[frag] == nullptr) {
             break;
         }

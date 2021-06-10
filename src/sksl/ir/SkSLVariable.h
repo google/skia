@@ -43,7 +43,7 @@ public:
 
     static constexpr Kind kSymbolKind = Kind::kVariable;
 
-    Variable(int offset, const Modifiers* modifiers, StringFragment name, const Type* type,
+    Variable(int offset, const Modifiers* modifiers, skstd::string_view name, const Type* type,
              bool builtin, Storage storage)
     : INHERITED(offset, kSymbolKind, name, type)
     , fModifiers(modifiers)

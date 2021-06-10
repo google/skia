@@ -700,7 +700,7 @@ void CPPCodeGenerator::flushEmittedCode() {
 
                 SKSL_INT codeBlock;
                 SkAssertResult(
-                        stoi(StringFragment(sksl.c_str() + tokenStart + 2, i - tokenStart - 2),
+                        stoi(skstd::string_view(sksl.c_str() + tokenStart + 2, i - tokenStart - 2),
                              &codeBlock));
                 SkASSERT((size_t)codeBlock < fExtraEmitCodeBlocks.size());
                 if (fExtraEmitCodeBlocks[codeBlock].size() > 0) {
@@ -916,7 +916,7 @@ bool CPPCodeGenerator::writeEmitCode(std::vector<const Variable*>& uniforms) {
 void CPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
     const char* fullName = fFullName.c_str();
     const Section* section = fSectionAndParameterHelper.getSection(kSetDataSection);
-    StringFragment pdman = section ? section->argument() : "pdman";
+    skstd::string_view pdman = section ? section->argument() : "pdman";
     this->writef("    void onSetData(const GrGLSLProgramDataManager& %.*s, "
                                     "const GrFragmentProcessor& _proc) override {\n",
                  (int)pdman.length(), pdman.data());
@@ -1106,7 +1106,7 @@ void CPPCodeGenerator::writeGetKey() {
                 continue;
             }
             SKSL_INT minVal = 0, maxVal = 0;
-            auto gatherEnumRange = [&](StringFragment, SKSL_INT value) {
+            auto gatherEnumRange = [&](skstd::string_view, SKSL_INT value) {
                 minVal = std::min(minVal, value);
                 maxVal = std::max(maxVal, value);
             };

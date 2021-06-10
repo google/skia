@@ -64,9 +64,9 @@ public:
 protected:
     using Precedence = Operator::Precedence;
 
-    void write(StringFragment s);
+    void write(skstd::string_view s);
 
-    void writeLine(StringFragment s = StringFragment());
+    void writeLine(skstd::string_view s = skstd::string_view());
 
     void finishLine();
 
@@ -80,7 +80,7 @@ protected:
 
     void writeType(const Type& type);
 
-    void writeExtension(StringFragment name, bool require = true);
+    void writeExtension(skstd::string_view name, bool require = true);
 
     void writeInterfaceBlock(const InterfaceBlock& intf);
 
@@ -218,7 +218,7 @@ protected:
         kTexture,
         kTranspose
     };
-    static std::unordered_map<StringFragment, FunctionClass>* fFunctionClasses;
+    static std::unordered_map<skstd::string_view, FunctionClass>* fFunctionClasses;
 
     using INHERITED = CodeGenerator;
 };

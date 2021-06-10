@@ -108,7 +108,7 @@ private:
 
     void write(Modifiers m);
 
-    void write(StringFragment s);
+    void write(skstd::string_view s);
 
     void write(String s);
 

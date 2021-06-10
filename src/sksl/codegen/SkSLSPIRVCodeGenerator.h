@@ -397,19 +397,20 @@ private:
 
     void writeWord(int32_t word, OutputStream& out);
 
-    void writeString(StringFragment s, OutputStream& out);
+    void writeString(skstd::string_view s, OutputStream& out);
 
     void writeLabel(SpvId id, OutputStream& out);
 
     void writeInstruction(SpvOp_ opCode, OutputStream& out);
 
-    void writeInstruction(SpvOp_ opCode, StringFragment string, OutputStream& out);
+    void writeInstruction(SpvOp_ opCode, skstd::string_view string, OutputStream& out);
 
     void writeInstruction(SpvOp_ opCode, int32_t word1, OutputStream& out);
 
-    void writeInstruction(SpvOp_ opCode, int32_t word1, StringFragment string, OutputStream& out);
+    void writeInstruction(SpvOp_ opCode, int32_t word1, skstd::string_view string,
+                          OutputStream& out);
 
-    void writeInstruction(SpvOp_ opCode, int32_t word1, int32_t word2, StringFragment string,
+    void writeInstruction(SpvOp_ opCode, int32_t word1, int32_t word2, skstd::string_view string,
                           OutputStream& out);
 
     void writeInstruction(SpvOp_ opCode, int32_t word1, int32_t word2, OutputStream& out);

@@ -1038,7 +1038,7 @@ bool DSLCPPCodeGenerator::writeEmitCode(std::vector<const Variable*>& uniforms) 
 void DSLCPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
     const char* fullName = fFullName.c_str();
     const Section* section = fSectionAndParameterHelper.getSection(kSetDataSection);
-    StringFragment pdman = section ? section->argument() : "pdman";
+    skstd::string_view pdman = section ? section->argument() : "pdman";
     this->writef("    void onSetData(const GrGLSLProgramDataManager& %.*s, "
                                     "const GrFragmentProcessor& _proc) override {\n",
                  (int)pdman.length(), pdman.data());
@@ -1227,7 +1227,7 @@ void DSLCPPCodeGenerator::writeGetKey() {
                 continue;
             }
             SKSL_INT minVal = 0, maxVal = 0;
-            auto gatherEnumRange = [&](StringFragment, SKSL_INT value) {
+            auto gatherEnumRange = [&](skstd::string_view, SKSL_INT value) {
                 minVal = std::min(minVal, value);
                 maxVal = std::max(maxVal, value);
             };

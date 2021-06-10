@@ -145,7 +145,7 @@ public:
                                int permittedModifierFlags,
                                int permittedLayoutFlags);
 
-    std::unique_ptr<Expression> convertIdentifier(int offset, StringFragment identifier);
+    std::unique_ptr<Expression> convertIdentifier(int offset, skstd::string_view identifier);
 
     const Context& fContext;
 
@@ -162,13 +162,13 @@ private:
                              const Type* baseType,
                              Variable::Storage storage);
     std::unique_ptr<Variable> convertVar(int offset, const Modifiers& modifiers,
-                                         const Type* baseType, StringFragment name, bool isArray,
-                                         std::unique_ptr<Expression> arraySize,
+                                         const Type* baseType, skstd::string_view name,
+                                         bool isArray, std::unique_ptr<Expression> arraySize,
                                          Variable::Storage storage);
     std::unique_ptr<Statement> convertVarDeclaration(std::unique_ptr<Variable> var,
                                                      std::unique_ptr<Expression> value);
     std::unique_ptr<Statement> convertVarDeclaration(int offset, const Modifiers& modifiers,
-                                                     const Type* baseType, StringFragment name,
+                                                     const Type* baseType, skstd::string_view name,
                                                      bool isArray,
                                                      std::unique_ptr<Expression> arraySize,
                                                      std::unique_ptr<Expression> value,
@@ -201,10 +201,10 @@ private:
     std::unique_ptr<Statement> convertDo(const ASTNode& d);
     std::unique_ptr<Statement> convertSwitch(const ASTNode& s);
     std::unique_ptr<Expression> convertBinaryExpression(const ASTNode& expression);
-    std::unique_ptr<Extension> convertExtension(int offset, StringFragment name);
+    std::unique_ptr<Extension> convertExtension(int offset, skstd::string_view name);
     std::unique_ptr<Statement> convertExpressionStatement(const ASTNode& s);
     std::unique_ptr<Expression> convertField(std::unique_ptr<Expression> base,
-                                             StringFragment field);
+                                             skstd::string_view field);
     std::unique_ptr<Statement> convertFor(const ASTNode& f);
     std::unique_ptr<Expression> convertIdentifier(const ASTNode& identifier);
     std::unique_ptr<Statement> convertIf(const ASTNode& s);
@@ -221,9 +221,9 @@ private:
     std::unique_ptr<Expression> convertScopeExpression(const ASTNode& expression);
     std::unique_ptr<StructDefinition> convertStructDefinition(const ASTNode& expression);
     std::unique_ptr<Expression> convertTypeField(int offset, const Type& type,
-                                                 StringFragment field);
+                                                 skstd::string_view field);
     std::unique_ptr<Expression> convertSwizzle(std::unique_ptr<Expression> base,
-                                               StringFragment fields);
+                                               skstd::string_view fields);
     std::unique_ptr<Expression> convertTernaryExpression(const ASTNode& expression);
     std::unique_ptr<Statement> convertVarDeclarationStatement(const ASTNode& s);
     std::unique_ptr<Statement> convertWhile(const ASTNode& w);

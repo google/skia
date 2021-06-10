@@ -54,7 +54,7 @@ String ASTNode::description() const {
                    (this->begin() + 1)->description() + ")";
         case Kind::kEnum: {
             String result = "enum ";
-            result += getString();
+            result += getStringView();
             result += " {\n";
             for (const auto& c : *this) {
                 result += c.description();
@@ -65,13 +65,13 @@ String ASTNode::description() const {
         }
         case Kind::kEnumCase:
             if (this->begin() != this->end()) {
-                return String(getString()) + " = " + this->begin()->description();
+                return String(getStringView()) + " = " + this->begin()->description();
             }
-            return String(getString());
+            return String(getStringView());
         case Kind::kExtension:
-            return "#extension " + getString();
+            return "#extension " + getStringView();
         case Kind::kField:
-            return this->begin()->description() + "." + getString();
+            return this->begin()->description() + "." + getStringView();
         case Kind::kFile: {
             String result;
             for (const auto& c : *this) {
@@ -111,7 +111,7 @@ String ASTNode::description() const {
             return result;
         }
         case Kind::kIdentifier:
-            return String(getString());
+            return String(getStringView());
         case Kind::kIndex:
             return this->begin()->description() + "[" + (this->begin() + 1)->description() + "]";
         case Kind::kIf: {
@@ -171,7 +171,7 @@ String ASTNode::description() const {
             }
             return "return;";
         case Kind::kScope:
-            return this->begin()->description() + "::" + getString();
+            return this->begin()->description() + "::" + getStringView();
         case Kind::kSection:
             return "@section { ... }";
         case Kind::kSwitchCase: {
@@ -204,7 +204,7 @@ String ASTNode::description() const {
             return "(" + this->begin()->description() + " ? " + (this->begin() + 1)->description() +
                    " : " + (this->begin() + 2)->description() + ")";
         case Kind::kType:
-            return String(getString());
+            return String(getStringView());
         case Kind::kVarDeclaration: {
             const VarData& vd = getVarData();
             String result(vd.fName);
