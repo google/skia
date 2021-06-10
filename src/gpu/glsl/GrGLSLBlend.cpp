@@ -42,6 +42,10 @@ const char* BlendFuncName(SkBlendMode mode) {
         case SkBlendMode::kSaturation: return "blend_saturation";
         case SkBlendMode::kColor:      return "blend_color";
         case SkBlendMode::kLuminosity: return "blend_luminosity";
+        case SkBlendMode::kCustom:
+            // We can't provide a built-in function for user-supplied blending code (by definition).
+            SkDEBUGFAIL("no built-in blending function for SkBlendMode::kCustom; using src-over");
+            return "blend_src_over";
     }
     SkUNREACHABLE;
 }

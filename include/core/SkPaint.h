@@ -16,6 +16,7 @@
 
 class SkColorFilter;
 class SkColorSpace;
+class SkCustomBlend;
 struct SkRect;
 class SkImageFilter;
 class SkMaskFilter;
@@ -512,6 +513,15 @@ public:
     */
     void setBlendMode(SkBlendMode mode) { fBitfields.fBlendMode = (unsigned)mode; }
 
+    /** Sets blending to use a custom user-supplied function (create these via SkRuntimeEffect).
+        Increments blend SkRefCnt by one, and sets SkBlendMode to `kCustom`.
+
+        TODO(skia:12080): this feature is incomplete; do not use!
+
+        @param blend  the custom blend function to use
+    */
+    void setBlendMode(sk_sp<SkCustomBlend> blend);
+
     /** Returns SkPathEffect if set, or nullptr.
         Does not alter SkPathEffect SkRefCnt.
 
@@ -691,6 +701,7 @@ private:
     sk_sp<SkMaskFilter>   fMaskFilter;
     sk_sp<SkColorFilter>  fColorFilter;
     sk_sp<SkImageFilter>  fImageFilter;
+    sk_sp<SkCustomBlend>  fCustomBlend;
 
     SkColor4f       fColor4f;
     SkScalar        fWidth;

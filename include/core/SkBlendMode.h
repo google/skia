@@ -68,6 +68,8 @@ enum class SkBlendMode {
     kColor,         //!< hue and saturation of source with luminosity of destination
     kLuminosity,    //!< luminosity of source with hue and saturation of destination
 
+    kCustom,        //!< r = f(s, d) where `f` is a user-supplied SkSL function
+
     kLastCoeffMode     = kScreen,     //!< last porter duff blend mode
     kLastSeparableMode = kMultiply,   //!< last blend mode operating separately on components
     kLastMode          = kLuminosity, //!< last valid value

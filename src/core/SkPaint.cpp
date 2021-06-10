@@ -21,6 +21,7 @@
 #include "src/core/SkColorFilterBase.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
+#include "src/core/SkCustomBlend.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkMaskGamma.h"
 #include "src/core/SkOpts.h"
@@ -170,6 +171,11 @@ void SkPaint::setStrokeJoin(Join jt) {
         SkDebugf("SkPaint::setStrokeJoin(%d) out of range\n", jt);
 #endif
     }
+}
+
+void SkPaint::setBlendMode(sk_sp<SkCustomBlend> blend) {
+    fCustomBlend = blend;
+    fBitfields.fBlendMode = (unsigned)SkBlendMode::kCustom;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -441,9 +447,9 @@ bool SkPaint::nothingToDraw() const {
 }
 
 uint32_t SkPaint::getHash() const {
-    // We're going to hash 5 pointers and 6 floats, finishing up with fBitfields,
-    // so fBitfields should be 5 pointers and 6 floats from the start.
-    static_assert(offsetof(SkPaint, fBitfieldsUInt) == 5 * sizeof(void*) + 6 * sizeof(float),
+    // We're going to hash 6 pointers and 6 floats, finishing up with fBitfields,
+    // so fBitfields should be 6 pointers and 6 floats from the start.
+    static_assert(offsetof(SkPaint, fBitfieldsUInt) == 6 * sizeof(void*) + 6 * sizeof(float),
                   "SkPaint_notPackedTightly");
     return SkOpts::hash(reinterpret_cast<const uint32_t*>(this),
                         offsetof(SkPaint, fBitfieldsUInt) + sizeof(fBitfieldsUInt));

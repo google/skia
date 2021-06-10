@@ -122,6 +122,7 @@ void GrGLSLShaderBuilder::appendTextureLookupAndBlend(
         SamplerHandle samplerHandle,
         const char* coordName,
         GrGLSLColorSpaceXformHelper* colorXformHelper) {
+    SkASSERT(mode != SkBlendMode::kCustom);
     if (!dst) {
         dst = "half4(1)";
     }
