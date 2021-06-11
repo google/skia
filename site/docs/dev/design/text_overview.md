@@ -64,5 +64,8 @@ Assocated [Canvas2D extensions](text_c2d.md) are detailed here.
 
 Note: it is an explicit goal to **not** tie Shaping or its results to Canvas2D. We envision multiple scenarios where a framework or app will want to shape text, but not need a Canvas2D context (e.g. it may draw using WebGL or WebGPU, or with a bespoke renderer).
 
+We are also proposing a lower level interface, one that just addresses exposing [unicode properties](uni_characterize.md).
+
+
 ## Contributors:
  [mikerreed](https://github.com/mikerreed),
