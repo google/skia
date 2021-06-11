@@ -170,8 +170,8 @@ void GrFragmentProcessor::registerChild(std::unique_ptr<GrFragmentProcessor> chi
     }
 
     // Propagate the "will read dest-color" flag up to parent FPs.
-    if (child->fFlags & kWillReadDstColor_Flag) {
-        fFlags |= kWillReadDstColor_Flag;
+    if (child->willReadDstColor()) {
+        this->setWillReadDstColor();
     }
 
     // If the child is not sampled explicitly and not already accessing sample coords directly
@@ -520,7 +520,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::DestColor() {
         }
 
         DestColorProcessor() : INHERITED(kDestColorProcessor_ClassID, kNone_OptimizationFlags) {
-            fFlags |= kWillReadDstColor_Flag;
+            this->setWillReadDstColor();
         }
 
         void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
