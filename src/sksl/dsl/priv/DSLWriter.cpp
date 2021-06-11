@@ -235,12 +235,19 @@ const SkSL::Variable& DSLWriter::Var(DSLVar& var) {
                                                                           /*isArray=*/false,
                                                                           /*arraySize=*/nullptr,
                                                                           var.fStorage);
+        SkASSERT(skslvar);
         var.fVar = skslvar.get();
         // We can't call VarDeclaration::Convert directly here, because the IRGenerator has special
-        // treatment for sk_FragColor and sk_RTHeight that we want to preserve in DSL.
+        // treatment for sk_FragColor and sk_RTHeight that we want to preserve in DSL. We also do
+        // not want the variable added to the symbol table for several reasons - DSLParser handles
+        // the symbol table itself, parameters don't go into the symbol table until after the
+        // FunctionDeclaration is created which makes this the wrong spot for them, and outside of
+        // DSLParser we don't even need DSL variables to show up in the symbol table in the first
+        // place.
         var.fDeclaration = DSLWriter::IRGenerator().convertVarDeclaration(
                                                                        std::move(skslvar),
-                                                                       var.fInitialValue.release());
+                                                                       var.fInitialValue.release(),
+                                                                       /*addToSymbolTable=*/false);
     }
     return *var.fVar;
 }
@@ -262,28 +269,6 @@ std::unique_ptr<SkSL::Statement> DSLWriter::Declaration(DSLVar& var) {
 void DSLWriter::MarkDeclared(DSLVar& var) {
     SkASSERT(!var.fDeclared);
     var.fDeclared = true;
-}
-
-std::unique_ptr<SkSL::Program> DSLWriter::ReleaseProgram() {
-    DSLWriter& instance = Instance();
-    SkSL::IRGenerator& ir = IRGenerator();
-    IRGenerator::IRBundle bundle = ir.finish();
-    Pool* pool = Instance().fPool.get();
-    auto result = std::make_unique<SkSL::Program>(/*source=*/nullptr,
-                                                  std::move(instance.fConfig),
-                                                  Compiler().fContext,
-                                                  std::move(bundle.fElements),
-                                                  std::move(bundle.fSharedElements),
-                                                  std::move(instance.fModifiersPool),
-                                                  std::move(bundle.fSymbolTable),
-                                                  std::move(instance.fPool),
-                                                  bundle.fInputs);
-    if (pool) {
-        pool->detachFromThread();
-    }
-    SkASSERT(ProgramElements().empty());
-    SkASSERT(!SymbolTable());
-    return result;
 }
 
 #if SKSL_USE_THREAD_LOCAL

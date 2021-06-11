@@ -153,6 +153,8 @@ private:
     friend class DSLFunction;
     friend class DSLWriter;
     friend class ::SkSL::IRGenerator;
+
+    template<typename T> friend class DSLWrapper;
 };
 
 } // namespace dsl
