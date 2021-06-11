@@ -916,7 +916,7 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
         }
     }
     // at this point we're done with prePathMatrix
-    SkDEBUGCODE(prePathMatrix = (const SkMatrix*)0x50FF8001;)
+    SkDEBUGCODE(prePathMatrix = nullptr;)
 
     SkTCopyOnFirstWrite<SkPaint> paint(origPaint);
 
