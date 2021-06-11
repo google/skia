@@ -70,6 +70,30 @@
       },
       "revId": "24aec751f5ea09edce0658ab9b90f4cafa6d8325",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7160b8f3_dc8066d5",
+        "filename": "src/sksl/dsl/DSLCore.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-11T14:19:49Z",
+      "side": 1,
+      "message": "You\u0027re right, we should not be returning it in the event of errors.",
+      "parentUuid": "f868f853_90d19789",
+      "range": {
+        "startLine": 70,
+        "startChar": 8,
+        "endLine": 70,
+        "endChar": 48
+      },
+      "revId": "24aec751f5ea09edce0658ab9b90f4cafa6d8325",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
