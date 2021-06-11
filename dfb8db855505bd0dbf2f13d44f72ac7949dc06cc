@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "64e540f2_db387a61",
+        "filename": "src/sksl/dsl/DSLCore.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-11T17:41:40Z",
+      "side": 1,
+      "message": "This feels weird, because `null` can also mean a legitimate error occurred. AFAICS the only time this special case comes up at all is `sk_FragColor`. Unfortunately from here, there\u0027s no good way AFAICS to distinguish the error case from the `sk_FragColor` case without hard-coding in some extra special-case magic, and it feels wrong to let the special-case treatment \"leak\" outside of the IRGenerator.\n\nHere\u0027s an alternative idea: what if we had a dedicated accessor function `sk_FragColor()` (kind of like `sk_SampleCoord()`)? It can just assume that `sk_FragColor` exists in the symbol table and yoink it out. Then DeclareGlobal doesn\u0027t need to think about sk_FragColor.",
+      "range": {
+        "startLine": 109,
+        "startChar": 0,
+        "endLine": 111,
+        "endChar": 64
+      },
+      "revId": "dfb8db855505bd0dbf2f13d44f72ac7949dc06cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
