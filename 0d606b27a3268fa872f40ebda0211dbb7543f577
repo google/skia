@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e22ee1f6_e73c1fbc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11849
+      },
+      "writtenOn": "2021-06-11T02:18:29Z",
+      "side": 1,
+      "message": "Hi John, happy to provide more context about this change if that\u0027s helpful.\n\nI\u0027m not sure what the best way to verify that this change is valid (specifically, that the version of fidlc that skia uses is up to date enough to have the flag that has been added). Do you know about either\n\n1. how to check what the most recent roll of the Fuchsia SDK into skia is? It\u0027s unclear to me where the fidlc binary is coming from - sdk.gni references `//fuchsia/sdk/$host_os` but i don\u0027t see this directory in the repository\n2. how to exercise this code and run a build that will call fidlc?\n\nIf this script gets executed as part of CQ then that would obviate the need for the above I think, but I seem to recall that this is not the case.",
+      "revId": "0d606b27a3268fa872f40ebda0211dbb7543f577",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
