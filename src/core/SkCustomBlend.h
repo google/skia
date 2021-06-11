@@ -13,6 +13,9 @@
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkVM.h"
 
+struct GrFPArgs;
+class GrFragmentProcessor;
+
 /**
  * Encapsulates a custom blend function for Runtime Effects. These combine a source color (the
  * result of our paint) and destination color (from the canvas) into a final color.
@@ -25,6 +28,16 @@ public:
                         SkArenaAlloc* alloc) const {
         return this->onProgram(p, src, dst, colorInfo, uniforms, alloc);
     }
+
+#if SK_SUPPORT_GPU
+    /**
+     *  Returns a GrFragmentProcessor that implements this blend for the GPU backend.
+     *
+     *  The GrFragmentProcessor expects a premultiplied input and returns a premultiplied output.
+     */
+    virtual std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
+            std::unique_ptr<GrFragmentProcessor> inputFP, const GrFPArgs& fpArgs) const = 0;
+#endif
 
     static SkFlattenable::Type GetFlattenableType() { return kSkCustomBlend_Type; }
     Type getFlattenableType() const override { return GetFlattenableType(); }
