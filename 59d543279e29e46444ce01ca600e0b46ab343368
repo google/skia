@@ -16,6 +16,29 @@
       "message": "Take 3 doesn\u0027t change the caps part at all. How\u0027s this?",
       "revId": "59d543279e29e46444ce01ca600e0b46ab343368",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5f222078_4a1c495a",
+        "filename": "src/gpu/GrCaps.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-11T13:35:40Z",
+      "side": 1,
+      "message": "For now we still need the useMSAA in here right? Like what we need to pass into this function is a description of the color attachment we\u0027re rendering to.\n\nWhat I was saying in the long term is that we\u0027ll be able to pass in a GrAttachmentProxy that describes the color attachment we\u0027re actually rendering to. So we\u0027ll be able to look at that specific attachment to know if is mutlisampled, how it is resolved, is it also texureable, etc.\n\nHowever, right now we don\u0027t have such a proxy in DMSAA mode. So we just need this function to take extra params, like usesMSAA, to describe the color attachment itself.",
+      "range": {
+        "startLine": 443,
+        "startChar": 51,
+        "endLine": 443,
+        "endChar": 80
+      },
+      "revId": "59d543279e29e46444ce01ca600e0b46ab343368",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
