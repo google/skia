@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkTypes.h"
+
 #include "gm/gm.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkClipOp.h"
@@ -19,7 +21,6 @@
 #include "include/core/SkRegion.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
-#include "include/core/SkTypes.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/private/GrTypesPriv.h"
@@ -33,7 +34,6 @@
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrReducedClip.h"
 #include "src/gpu/GrStencilClip.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTextureProxy.h"
@@ -132,7 +132,11 @@ DEF_GM( return new WindowRectanglesGM(); )
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#if GR_OGA
+#include "src/gpu/GrReducedClip.h"
+
 constexpr static int kNumWindows = 8;
+
 
 /**
  * Visualizes the mask (alpha or stencil) for a clip with several window rectangles. The purpose of
@@ -209,6 +213,9 @@ DrawResult WindowRectanglesMaskGM::onCoverClipStack(const SkClipStack& stack, Sk
         return DrawResult::kSkip;
     }
 
+    SkPaint p;
+    p.setColor(SK_ColorRED);
+    canvas->drawPaint(p);
     const GrReducedClip reducedClip(stack, SkRect::Make(kCoverRect), sdc->caps(), kNumWindows);
 
     GrPaint paint;
@@ -303,5 +310,7 @@ void WindowRectanglesMaskGM::stencilCheckerboard(GrSurfaceDrawContext* rtc, bool
 }
 
 DEF_GM( return new WindowRectanglesMaskGM(); )
+#endif // GR_OGA
 
 }  // namespace skiagm
+

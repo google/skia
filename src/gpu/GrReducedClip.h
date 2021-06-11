@@ -8,6 +8,7 @@
 #ifndef GrReducedClip_DEFINED
 #define GrReducedClip_DEFINED
 
+#if 1
 #include "src/core/SkClipStack.h"
 #include "src/core/SkTLList.h"
 #include "src/gpu/GrFragmentProcessor.h"
@@ -162,4 +163,5 @@ private:
     sk_sp<SkShader> fShader;
 };
 
+#endif
 #endif

@@ -7,6 +7,7 @@
 #ifndef GrClipStackClip_DEFINED
 #define GrClipStackClip_DEFINED
 
+#if 1
 #include "src/core/SkClipStack.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrReducedClip.h"
@@ -58,4 +59,5 @@ private:
     const SkMatrixProvider* fMatrixProvider; // for applying clip shaders
 };
 
+#endif
 #endif // GrClipStackClip_DEFINED
