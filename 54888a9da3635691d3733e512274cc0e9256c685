@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "55f6709b_cda29959",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-11T16:18:17Z",
+      "side": 1,
+      "message": "we *could* still keep the comment (or some variant of it), but also ok to not.",
+      "revId": "54888a9da3635691d3733e512274cc0e9256c685",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
