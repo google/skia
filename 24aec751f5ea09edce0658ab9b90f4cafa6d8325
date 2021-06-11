@@ -46,6 +46,30 @@
       },
       "revId": "24aec751f5ea09edce0658ab9b90f4cafa6d8325",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f868f853_90d19789",
+        "filename": "src/sksl/dsl/DSLCore.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-11T13:49:41Z",
+      "side": 1,
+      "message": "We still return the program with errors in it. Compiler::convertProgram refuses to return broken programs at all. Is that the intent?\n\nIt\u0027s hard for me to guess the intent because this is only used in `EndRuntimeShader` which doesn\u0027t do any error checking at all and just assumes the program can be passed along. (Which is probably not right...?)",
+      "parentUuid": "23d4290c_11f2b197",
+      "range": {
+        "startLine": 70,
+        "startChar": 8,
+        "endLine": 70,
+        "endChar": 48
+      },
+      "revId": "24aec751f5ea09edce0658ab9b90f4cafa6d8325",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
