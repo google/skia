@@ -22,6 +22,30 @@
       },
       "revId": "dfb8db855505bd0dbf2f13d44f72ac7949dc06cc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "14ab55c6_66c1cae5",
+        "filename": "src/sksl/dsl/DSLCore.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-11T21:03:24Z",
+      "side": 1,
+      "message": "We do have a special accessor for sk_FragColor; this code handles declarations, not accesses.\n\nI agree that the magic leaking out of IRGenerator is not ideal. Long term, we can certainly come up with a better solution - maybe have IRGenerator return a nop or something in this case so it\u0027s at least returning something, or potentially even just kill the ability to redeclare sk_FragColor altogether (Do we really need to support that? Maybe, I don\u0027t know). \n\nBut wherever the special handling for this variable lives, I think it needs to be no farther out than here; I don\u0027t want DSLParser having to do anything special, since DSLParser represents something that end users should (eventually) be able to write using public APIs.\n\nIn the short term I think probably the best way to address this is just to verify that the variable we failed to declare was in fact sk_FragColor before we grab it from the symbol table, which should at least guarantee no weird side effects. Sound good?",
+      "parentUuid": "64e540f2_db387a61",
+      "range": {
+        "startLine": 109,
+        "startChar": 0,
+        "endLine": 111,
+        "endChar": 64
+      },
+      "revId": "dfb8db855505bd0dbf2f13d44f72ac7949dc06cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
