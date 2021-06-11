@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e6199558_c9978e86",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 491,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-11T20:13:08Z",
+      "side": 1,
+      "message": "I think we are pretty close, but it definitely didn\u0027t work the last time I tried it. I\u0027ll revisit this once things settle down.",
+      "parentUuid": "443605be_1676fb97",
+      "range": {
+        "startLine": 491,
+        "startChar": 43,
+        "endLine": 491,
+        "endChar": 77
+      },
+      "revId": "af70c2ee192357b0d377731226ff9c7bc578b3b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "56b984ae_4828cb1f",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-06-11T15:34:32Z",
       "side": 1,
       "message": "I vaguely recall that freeing the program this way in Compiler::convertProgram caused some sort of issue, due to some sort of issue with the memory pool. In that case, I ended up dodging the issue with a `success` boolean that freed the program outside of the scope of the pool. (see SkSLCompiler.cpp:509).\n\nThis might be a historical issue/not relevant any more? I\u0027m honestly not sure. The memory handling issues with the pool have stabilized a LOT since it was first implemented.\n\nWould it be possible to add a test that exercises the failure path here, just to be sure? I am not sure it will matter but it would definitely give some peace of mind. If we already have such a test, that\u0027s fine too.",
+      "range": {
+        "startLine": 73,
+        "startChar": 12,
+        "endLine": 73,
+        "endChar": 29
+      },
+      "revId": "af70c2ee192357b0d377731226ff9c7bc578b3b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "404a8963_8162fc62",
+        "filename": "src/sksl/dsl/DSLCore.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-11T20:13:08Z",
+      "side": 1,
+      "message": "You were dead on.",
+      "parentUuid": "56b984ae_4828cb1f",
       "range": {
         "startLine": 73,
         "startChar": 12,
