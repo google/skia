@@ -11,7 +11,10 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkTypes.h"
+#include "include/effects/SkGradientShader.h"
 #include "include/effects/SkImageFilters.h"
+#include "include/effects/SkRuntimeEffect.h"
+#include "src/core/SkCustomBlend.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrStyle.h"
@@ -83,4 +86,34 @@ DEF_SIMPLE_GPU_GM(destcolor, ctx, rtCtx, canvas, 640, 640) {
     invertPaint.setColorFragmentProcessor(DestColorTestFP::Make(GrFragmentProcessor::DestColor()));
     rtCtx->drawOval(/*clip*/ nullptr, std::move(invertPaint), GrAA::kYes, SkMatrix::I(),
                     SkRect::MakeLTRB(128, 128, 640, 640), GrStyle::SimpleFill());
+}
+
+DEF_SIMPLE_GM(customblend, canvas, 640, 640) {
+    SkRect bounds = SkRect::MakeIWH(512, 512);
+
+    // Draw the mandrill.
+    SkPaint p;
+    p.setImageFilter(SkImageFilters::Image(GetResourceAsImage("images/mandrill_512.png"),
+                                           bounds, bounds, SkSamplingOptions()));
+    canvas->drawPaint(p);
+
+    // Draw an oval on top of the mandrill which inverts the canvas color.
+    SkRuntimeEffect::Result result = SkRuntimeEffect::MakeForBlend(SkString(R"(
+        half4 main(half4 src, half4 dst) {
+            // 50% paint color, 50% the inverse of the canvas
+            return (0.5 * src) + (0.5 * ((half4(1) - dst).rgb1));
+        }
+    )"));
+    SkASSERT(result.effect);
+
+    static constexpr SkColor gradColors[] = {SK_ColorBLACK, SK_ColorWHITE, SK_ColorCYAN};
+
+    p.reset();
+    p.setShader(SkGradientShader::MakeRadial(/*center=*/{384, 384},
+                                             /*radius=*/256,
+                                             gradColors, /*pos=*/nullptr,
+                                             SK_ARRAY_COUNT(gradColors),
+                                             SkTileMode::kClamp));
+    p.setCustomBlend(result.effect->makeBlend(/*uniforms=*/nullptr));
+    canvas->drawOval(SkRect::MakeLTRB(128, 128, 640, 640), p);
 }

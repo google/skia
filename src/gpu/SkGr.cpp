@@ -21,6 +21,7 @@
 #include "src/core/SkBlendModePriv.h"
 #include "src/core/SkColorFilterBase.h"
 #include "src/core/SkColorSpacePriv.h"
+#include "src/core/SkCustomBlend.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkMessageBus.h"
@@ -431,11 +432,19 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
         }
     }
 
-    // When the xfermode is null on the SkPaint (meaning kSrcOver) we need the XPFactory field on
-    // the GrPaint to also be null (also kSrcOver).
-    SkASSERT(!grPaint->getXPFactory());
-    if (!skPaint.isSrcOver()) {
-        grPaint->setXPFactory(SkBlendMode_AsXPFactory(skPaint.getBlendMode()));
+    SkCustomBlend* customBlend = skPaint.getCustomBlend();
+    if (customBlend) {
+        // Apply the custom blend, and force the XP to kSrc. We don't honor the SkBlendMode when a
+        // custom blend is applied.
+        paintFP = customBlend->asFragmentProcessor(std::move(paintFP), fpArgs);
+        grPaint->setXPFactory(SkBlendMode_AsXPFactory(SkBlendMode::kSrc));
+    } else {
+        // When the xfermode is null on the SkPaint (meaning kSrcOver) we need the XPFactory field on
+        // the GrPaint to also be null (also kSrcOver).
+        SkASSERT(!grPaint->getXPFactory());
+        if (!skPaint.isSrcOver()) {
+            grPaint->setXPFactory(SkBlendMode_AsXPFactory(skPaint.getBlendMode()));
+        }
     }
 
 #ifndef SK_IGNORE_GPU_DITHER

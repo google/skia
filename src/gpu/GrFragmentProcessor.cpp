@@ -520,7 +520,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::DestColor() {
         }
 
         DestColorProcessor() : INHERITED(kDestColorProcessor_ClassID, kNone_OptimizationFlags) {
-            fFlags |= kWillReadDstColor_Flag;
+            this->setWillReadDstColor();
         }
 
         void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
