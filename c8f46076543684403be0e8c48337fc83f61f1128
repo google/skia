@@ -16,6 +16,23 @@
       "message": "And adding Derek for the public API review",
       "revId": "c8f46076543684403be0e8c48337fc83f61f1128",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4ee24b5b_d335652f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-06-11T15:22:34Z",
+      "side": 1,
+      "message": "Substance of the CL lgtm",
+      "revId": "c8f46076543684403be0e8c48337fc83f61f1128",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
