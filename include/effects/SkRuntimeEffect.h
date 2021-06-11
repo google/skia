@@ -249,6 +249,7 @@ private:
 #endif
 
     friend class SkRTShader;            // fBaseProgram, fMain
+    friend class SkRTBlend;             //
     friend class SkRuntimeColorFilter;  //
 
     friend class SkFilterColorProgram;
@@ -417,6 +418,20 @@ public:
 
 private:
     using INHERITED = SkRuntimeEffectBuilder<sk_sp<SkShader>>;
+};
+
+/**
+ * SkRuntimeBlendBuilder is a utility to simplify creation and uniform setup of SkCustomBlends.
+ */
+class SK_API SkRuntimeBlendBuilder : public SkRuntimeEffectBuilder<sk_sp<SkCustomBlend>> {
+public:
+    explicit SkRuntimeBlendBuilder(sk_sp<SkRuntimeEffect>);
+    ~SkRuntimeBlendBuilder();
+
+    sk_sp<SkCustomBlend> makeBlend();
+
+private:
+    using INHERITED = SkRuntimeEffectBuilder<sk_sp<SkCustomBlend>>;
 };
 
 #endif
