@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "32422dab_664bb11b",
+        "filename": "src/sksl/dsl/DSLCore.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-11T20:23:50Z",
+      "side": 1,
+      "message": "If optimize() returns false, we can\u0027t return the program either. (Should this happen--no. Can this happen... maybe??? It\u0027s certainly happened in the past, e.g. forgetting to coerce something can fail in the inliner.)\n\nI think you should just steal the flow from Compiler::convertProgram here verbatim; it took a while to get right and is nice and defensive:\n\n    bool success \u003d false;\n    if (/*has error*/) {\n        // Do not return programs that failed to compile.\n    } else if (!this-\u003eoptimize(*program)) {\n        // Do not return programs that failed to optimize.\n    } else {\n        // We have a successful program!\n        success \u003d true;\n    }\n    if (memoryPool) {\n        memoryPool-\u003edetachFromThread();\n    }\n    return success ? std::move(program) : nullptr;",
+      "range": {
+        "startLine": 71,
+        "startChar": 12,
+        "endLine": 71,
+        "endChar": 52
+      },
+      "revId": "e9d5d724b01237e474adac56cff35507d8389413",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
