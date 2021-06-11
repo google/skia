@@ -208,6 +208,7 @@ DSLPossibleStatement DSLWriter::ConvertSwitch(std::unique_ptr<Expression> value,
 }
 
 void DSLWriter::ReportError(const char* msg, PositionInfo* info) {
+    Instance().fEncounteredErrors = true;
     if (info && !info->file_name()) {
         info = nullptr;
     }
@@ -262,28 +263,6 @@ std::unique_ptr<SkSL::Statement> DSLWriter::Declaration(DSLVar& var) {
 void DSLWriter::MarkDeclared(DSLVar& var) {
     SkASSERT(!var.fDeclared);
     var.fDeclared = true;
-}
-
-std::unique_ptr<SkSL::Program> DSLWriter::ReleaseProgram() {
-    DSLWriter& instance = Instance();
-    SkSL::IRGenerator& ir = IRGenerator();
-    IRGenerator::IRBundle bundle = ir.finish();
-    Pool* pool = Instance().fPool.get();
-    auto result = std::make_unique<SkSL::Program>(/*source=*/nullptr,
-                                                  std::move(instance.fConfig),
-                                                  Compiler().fContext,
-                                                  std::move(bundle.fElements),
-                                                  std::move(bundle.fSharedElements),
-                                                  std::move(instance.fModifiersPool),
-                                                  std::move(bundle.fSymbolTable),
-                                                  std::move(instance.fPool),
-                                                  bundle.fInputs);
-    if (pool) {
-        pool->detachFromThread();
-    }
-    SkASSERT(ProgramElements().empty());
-    SkASSERT(!SymbolTable());
-    return result;
 }
 
 #if SKSL_USE_THREAD_LOCAL

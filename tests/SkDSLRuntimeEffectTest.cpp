@@ -36,10 +36,12 @@ public:
         StartRuntimeShader(fCompiler.get());
     }
 
-    void end() {
+    void end(bool expectSuccess = true) {
         sk_sp<SkRuntimeEffect> effect = EndRuntimeShader();
-        SkASSERT(effect);
-        fBuilder.init(std::move(effect));
+        REPORTER_ASSERT(fReporter, expectSuccess == (bool) effect);
+        if (effect) {
+            fBuilder.init(std::move(effect));
+        }
     }
 
     SkRuntimeShaderBuilder::BuilderUniform uniform(const char* name) {
@@ -235,6 +237,28 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
         effect.child("child") = nullptr;
         effect.test(0xFF00FFFF,
                     [](SkCanvas*, SkPaint* paint) { paint->setColor4f({1.0f, 1.0f, 0.0f, 1.0f}); });
+    }
+
+    //
+    // Error test
+    //
+    {
+        class SimpleErrorHandler : public ErrorHandler {
+        public:
+            void handleError(const char* msg, PositionInfo* pos) override {
+                fMsg = msg;
+            }
+
+            SkSL::String fMsg;
+        } errorHandler;
+        effect.start();
+        SetErrorHandler(&errorHandler);
+        Var p(kFloat2_Type, "p");
+        Function(kHalf4_Type, "main", p).define(
+            Return(1) // Error, type mismatch
+        );
+        effect.end(false);
+        REPORTER_ASSERT(r, errorHandler.fMsg == "error: expected 'half4', but found 'int'\n");
     }
 }
 
