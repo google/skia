@@ -398,6 +398,12 @@ protected:
         fFlags |= kUsesSampleCoordsDirectly_Flag;
     }
 
+    // FP implementations must set this flag if their GrGLSLFragmentProcessor's emitCode() function
+    // calls dstColor() to read back the framebuffer.
+    void setWillReadDstColor() {
+        fFlags |= kWillReadDstColor_Flag;
+    }
+
     void mergeOptimizationFlags(OptimizationFlags flags) {
         SkASSERT((flags & ~kAll_OptimizationFlags) == 0);
         fFlags &= (flags | ~kAll_OptimizationFlags);
