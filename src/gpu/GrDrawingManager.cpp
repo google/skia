@@ -49,12 +49,16 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 GrDrawingManager::GrDrawingManager(GrRecordingContext* context,
+#if GR_OGA
                                    const GrPathRendererChain::Options& optionsForPathRendererChain,
+#endif
                                    bool reduceOpsTaskSplitting)
         : fContext(context)
+#if GR_OGA
         , fOptionsForPathRendererChain(optionsForPathRendererChain)
         , fPathRendererChain(nullptr)
         , fSoftwarePathRenderer(nullptr)
+#endif
         , fFlushing(false)
         , fReduceOpsTaskSplitting(reduceOpsTaskSplitting) { }
 
@@ -75,9 +79,11 @@ void GrDrawingManager::freeGpuResources() {
         }
     }
 
+#if GR_OGA
     // a path renderer may be holding onto resources
     fPathRendererChain = nullptr;
     fSoftwarePathRenderer = nullptr;
+#endif
 }
 
 // MDB TODO: make use of the 'proxies' parameter.
@@ -586,11 +592,13 @@ void GrDrawingManager::moveRenderTasksToDDL(SkDeferredDisplayList* ddl) {
 
     fContext->priv().detachProgramData(&ddl->fProgramData);
 
+#if GR_OGA
     if (fPathRendererChain) {
         if (auto ccpr = fPathRendererChain->getCoverageCountingPathRenderer()) {
             ddl->fPendingPaths = ccpr->detachPendingPaths();
         }
     }
+#endif
 
     SkDEBUGCODE(this->validate());
 }
@@ -878,6 +886,7 @@ bool GrDrawingManager::newWritePixelsTask(sk_sp<GrSurfaceProxy> dst,
     return true;
 }
 
+#if GR_OGA
 /*
  * This method finds a path renderer that can draw the specified path on
  * the provided target.
@@ -935,6 +944,8 @@ GrPathRenderer* GrDrawingManager::getTessellationPathRenderer() {
     }
     return fPathRendererChain->getTessellationPathRenderer();
 }
+
+#endif // GR_OGA
 
 void GrDrawingManager::flushIfNecessary() {
     auto direct = fContext->asDirectContext();
