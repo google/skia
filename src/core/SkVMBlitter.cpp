@@ -556,6 +556,9 @@ namespace {
             shader = sk_make_sp<DitherShader>(std::move(shader));
         }
 
+        // Add the custom blend mode.
+        sk_sp<SkCustomBlend> customBlend = paint.refCustomBlend();
+
         // The most common blend mode is SrcOver, and it can be strength-reduced
         // _greatly_ to Src mode when the shader is opaque.
         //
@@ -582,7 +585,7 @@ namespace {
         return {
             std::move(shader),
             std::move(clip),
-            /*customBlend=*/nullptr,
+            std::move(customBlend),
             { device.colorType(), device.alphaType(), device.refColorSpace() },
             blendMode,
             Coverage::Full,  // Placeholder... withCoverage() will change as needed.
