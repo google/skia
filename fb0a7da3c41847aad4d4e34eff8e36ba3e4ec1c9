@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0907e417_a8c84cb7",
+        "filename": "modules/skottie/src/Skottie.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5642
+      },
+      "writtenOn": "2021-06-11T14:28:09Z",
+      "side": 1,
+      "message": "The test is still crashing [1], I think you also need to remove this for now or make the test observer handle null names.\n\n[1] https://logs.chromium.org/logs/skia/54143f00c92c8611/+/steps/symbolized_dm/0/stdout",
+      "revId": "fb0a7da3c41847aad4d4e34eff8e36ba3e4ec1c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
