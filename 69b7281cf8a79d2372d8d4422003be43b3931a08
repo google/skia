@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8115a6cc_dcae54a3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 21
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-12T12:53:25Z",
+      "side": 1,
+      "message": "may not be important, but we had been not reusing flattenable enums (maybe for older serialized files?)",
+      "revId": "69b7281cf8a79d2372d8d4422003be43b3931a08",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
