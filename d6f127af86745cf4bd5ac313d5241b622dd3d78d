@@ -16,6 +16,23 @@
       "message": "Friendly ping",
       "revId": "d6f127af86745cf4bd5ac313d5241b622dd3d78d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3f168643_e4965a51",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-12T13:00:03Z",
+      "side": 1,
+      "message": "What is the narrowing that happens? the for-loop seems to be all ints",
+      "revId": "d6f127af86745cf4bd5ac313d5241b622dd3d78d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
