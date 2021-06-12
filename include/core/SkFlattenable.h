@@ -32,7 +32,7 @@ public:
         kSkImageFilter_Type,
         kSkMaskFilter_Type,
         kSkPathEffect_Type,
-        kSkPixelRef_Type,
+        kWas_SkPixelRef_Type,
         kSkUnused_Type4,    // used to be SkRasterizer
         kSkShaderBase_Type,
         kSkUnused_Type,     // used to be SkUnitMapper
