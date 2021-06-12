@@ -33,11 +33,7 @@ public:
         kSkMaskFilter_Type,
         kSkPathEffect_Type,
         kSkPixelRef_Type,
-        kSkUnused_Type4,    // used to be SkRasterizer
         kSkShaderBase_Type,
-        kSkUnused_Type,     // used to be SkUnitMapper
-        kSkUnused_Type2,
-        kSkUnused_Type3,    // use to be NormalSource,
     };
 
     typedef sk_sp<SkFlattenable> (*Factory)(SkReadBuffer&);
