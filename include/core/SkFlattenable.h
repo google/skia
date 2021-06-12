@@ -32,7 +32,6 @@ public:
         kSkImageFilter_Type,
         kSkMaskFilter_Type,
         kSkPathEffect_Type,
-        kSkPixelRef_Type,
         kSkShaderBase_Type,
     };
 
