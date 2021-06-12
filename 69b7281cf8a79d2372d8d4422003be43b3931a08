@@ -16,6 +16,24 @@
       "message": "may not be important, but we had been not reusing flattenable enums (maybe for older serialized files?)",
       "revId": "69b7281cf8a79d2372d8d4422003be43b3931a08",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c26deefa_579b9c01",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 21
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-12T14:02:26Z",
+      "side": 1,
+      "message": "On Wednesday I started a discussion about this in the Skia chat room (starts with \"If I add a new SkFlattenable type\"). The group consensus was to reuse one to minimize breakage, but I\u0027m the least qualified one here to decide whether that\u0027s the best choice :)  If you think we should add one instead of reusing, let\u0027s reopen the discussion?",
+      "parentUuid": "8115a6cc_dcae54a3",
+      "revId": "69b7281cf8a79d2372d8d4422003be43b3931a08",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
