@@ -10,7 +10,6 @@
 
 #include "include/core/SkMatrix.h"
 #include "include/gpu/GrConfig.h"
-#include "include/pathops/SkPathOps.h"
 #include "include/private/SkTPin.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkGeometry.h"
@@ -18,7 +17,21 @@
 #include "src/core/SkRectPriv.h"
 #include "src/gpu/geometry/GrPathUtils.h"
 
-#include "src/pathops/SkPathOpsPoint.h"
+namespace {
+// TODO: should we make this real (i.e. src/core) and distinguish it from
+//       pathops SkDPoint?
+struct DPoint {
+    double fX, fY;
+
+    double distanceSquared(DPoint p) const {
+        double dx = fX - p.fX;
+        double dy = fY - p.fY;
+        return dx*dx + dy*dy;
+    }
+
+    double distance(DPoint p) const { return sqrt(this->distanceSquared(p)); }
+};
+}
 
 /**
  * If a scanline (a row of texel) cross from the kRight_SegSide
@@ -95,12 +108,12 @@ public:
     // alias for reset()
     void setIdentity() { this->reset(); }
 
-    SkDPoint mapPoint(const SkPoint& src) const {
-        SkDPoint pt = {src.fX, src.fY};
+    DPoint mapPoint(const SkPoint& src) const {
+        DPoint pt = {src.fX, src.fY};
         return this->mapPoint(pt);
     }
 
-    SkDPoint mapPoint(const SkDPoint& src) const {
+    DPoint mapPoint(const DPoint& src) const {
         return { fMat[0] * src.fX + fMat[1] * src.fY + fMat[2],
                  fMat[3] * src.fX + fMat[4] * src.fY + fMat[5] };
     }
@@ -190,7 +203,7 @@ public:
     // line uses 2 pts, quad uses 3 pts
     SkPoint fPts[3];
 
-    SkDPoint  fP0T, fP2T;
+    DPoint  fP0T, fP2T;
     DAffineMatrix fXformMatrix;  // transforms the segment into canonical space
     double fScalingFactor;
     double fScalingFactorSqd;
@@ -214,8 +227,8 @@ public:
 typedef SkTArray<PathSegment, true> PathSegmentArray;
 
 void PathSegment::init() {
-    const SkDPoint p0 = { fPts[0].fX, fPts[0].fY };
-    const SkDPoint p2 = { this->endPt().fX, this->endPt().fY };
+    const DPoint p0 = { fPts[0].fX, fPts[0].fY };
+    const DPoint p2 = { this->endPt().fX, this->endPt().fY };
     const double p0x = p0.fX;
     const double p0y = p0.fY;
     const double p2x = p2.fX;
@@ -375,7 +388,7 @@ static inline void add_cubic(const SkPoint pts[4],
 
 static float calculate_nearest_point_for_quad(
                 const PathSegment& segment,
-                const SkDPoint &xFormPt) {
+                const DPoint &xFormPt) {
     static const float kThird = 0.33333333333f;
     static const float kTwentySeventh = 0.037037037f;
 
@@ -442,8 +455,8 @@ void precomputation_for_row(RowData *rowData, const PathSegment& segment,
         return;
     }
 
-    const SkDPoint& xFormPtLeft = segment.fXformMatrix.mapPoint(pointLeft);
-    const SkDPoint& xFormPtRight = segment.fXformMatrix.mapPoint(pointRight);
+    const DPoint& xFormPtLeft = segment.fXformMatrix.mapPoint(pointLeft);
+    const DPoint& xFormPtRight = segment.fXformMatrix.mapPoint(pointRight);
 
     rowData->fQuadXDirection = (int)sign_of(segment.fP2T.fX - segment.fP0T.fX);
     rowData->fScanlineXDirection = (int)sign_of(xFormPtRight.fX - xFormPtLeft.fX);
@@ -492,7 +505,7 @@ void precomputation_for_row(RowData *rowData, const PathSegment& segment,
 SegSide calculate_side_of_quad(
             const PathSegment& segment,
             const SkPoint& point,
-            const SkDPoint& xFormPt,
+            const DPoint& xFormPt,
             const RowData& rowData) {
     SegSide side = kNA_SegSide;
 
@@ -557,7 +570,7 @@ static float distance_to_segment(const SkPoint& point,
                                  SegSide* side) {
     SkASSERT(side);
 
-    const SkDPoint xformPt = segment.fXformMatrix.mapPoint(point);
+    const DPoint xformPt = segment.fXformMatrix.mapPoint(point);
 
     if (segment.fType == PathSegment::kLine) {
         float result = SK_DistanceFieldPad * SK_DistanceFieldPad;
@@ -586,7 +599,7 @@ static float distance_to_segment(const SkPoint& point,
         float dist;
 
         if (between_closed(nearestPoint, segment.fP0T.fX, segment.fP2T.fX)) {
-            SkDPoint x = { nearestPoint, nearestPoint * nearestPoint };
+            DPoint x = { nearestPoint, nearestPoint * nearestPoint };
             dist = (float)xformPt.distanceSquared(x);
         } else {
             const float distToB0T = (float)xformPt.distanceSquared(segment.fP0T);

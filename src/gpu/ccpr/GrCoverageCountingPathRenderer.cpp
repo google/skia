@@ -8,7 +8,6 @@
 #include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
 #include <memory>
 
-#include "include/pathops/SkPathOps.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
