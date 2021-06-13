@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "321fecee_f8821544",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-06-13T18:16:07Z",
+      "side": 1,
+      "message": "I\u0027ve been getting sporadic app build failures for a while, and since migrating to a new MBP the failures seem to be permanent:\n\n  java.lang.OutOfMemoryError: Java heap space\n\nIncreasing the heap space seems to solve it.\n",
+      "revId": "96912f12c22d68ed80a4f5ddffd61fc847149e00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
