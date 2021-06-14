@@ -10,6 +10,7 @@
 #include "src/gpu/mtl/GrMtlGpu.h"
 #include "src/gpu/mtl/GrMtlOpsRenderPass.h"
 #include "src/gpu/mtl/GrMtlPipelineState.h"
+#include "src/gpu/mtl/GrMtlRenderCommandEncoder.h"
 
 #if !__has_feature(objc_arc)
 #error This file must be compiled with Arc. Use -fobjc-arc flag
@@ -72,7 +73,7 @@ static bool compatible(const MTLRenderPassAttachmentDescriptor* first,
             (storeActionsValid && loadActionsValid && secondDoesntSampleFirst));
 }
 
-id<MTLRenderCommandEncoder> GrMtlCommandBuffer::getRenderCommandEncoder(
+GrMtlRenderCommandEncoder* GrMtlCommandBuffer::getRenderCommandEncoder(
         MTLRenderPassDescriptor* descriptor, const GrMtlPipelineState* pipelineState,
         GrMtlOpsRenderPass* opsRenderPass) {
     if (nil != fPreviousRenderPassDescriptor) {
@@ -80,19 +81,20 @@ id<MTLRenderCommandEncoder> GrMtlCommandBuffer::getRenderCommandEncoder(
                        descriptor.colorAttachments[0], pipelineState) &&
             compatible(fPreviousRenderPassDescriptor.stencilAttachment,
                        descriptor.stencilAttachment, pipelineState)) {
-            return fActiveRenderCommandEncoder;
+            return fActiveRenderCommandEncoder.get();
         }
     }
 
     this->endAllEncoding();
-    fActiveRenderCommandEncoder = [fCmdBuffer renderCommandEncoderWithDescriptor:descriptor];
+    fActiveRenderCommandEncoder = GrMtlRenderCommandEncoder::Make(
+            [fCmdBuffer renderCommandEncoderWithDescriptor:descriptor]);
     if (opsRenderPass) {
-        opsRenderPass->initRenderState(fActiveRenderCommandEncoder);
+        opsRenderPass->initRenderState(fActiveRenderCommandEncoder.get());
     }
     fPreviousRenderPassDescriptor = descriptor;
     fHasWork = true;
 
-    return fActiveRenderCommandEncoder;
+    return fActiveRenderCommandEncoder.get();
 }
 
 bool GrMtlCommandBuffer::commit(bool waitUntilCompleted) {
@@ -113,8 +115,8 @@ bool GrMtlCommandBuffer::commit(bool waitUntilCompleted) {
 
 void GrMtlCommandBuffer::endAllEncoding() {
     if (fActiveRenderCommandEncoder) {
-        [fActiveRenderCommandEncoder endEncoding];
-        fActiveRenderCommandEncoder = nil;
+        fActiveRenderCommandEncoder->endEncoding();
+        fActiveRenderCommandEncoder.reset();
         fPreviousRenderPassDescriptor = nil;
     }
     if (fActiveBlitCommandEncoder) {

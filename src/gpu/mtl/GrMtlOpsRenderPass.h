@@ -17,6 +17,7 @@
 typedef uint32_t GrColor;
 class GrMtlBuffer;
 class GrMtlPipelineState;
+class GrMtlRenderCommandEncoder;
 class GrMtlRenderTarget;
 
 class GrMtlOpsRenderPass : public GrOpsRenderPass {
@@ -27,7 +28,7 @@ public:
 
     ~GrMtlOpsRenderPass() override;
 
-    void initRenderState(id<MTLRenderCommandEncoder>);
+    void initRenderState(GrMtlRenderCommandEncoder*);
 
     void inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) override;
     void submit();
@@ -61,14 +62,14 @@ private:
     void setupRenderPass(const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
                          const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo);
 
-    void setVertexBuffer(id<MTLRenderCommandEncoder>, const GrBuffer*, size_t offset,
+    void setVertexBuffer(GrMtlRenderCommandEncoder*, const GrBuffer*, size_t offset,
                          size_t inputBufferIndex);
     void resetBufferBindings();
     void precreateCmdEncoder();
 
     GrMtlGpu*                   fGpu;
 
-    id<MTLRenderCommandEncoder> fActiveRenderCmdEncoder;
+    GrMtlRenderCommandEncoder*  fActiveRenderCmdEncoder;
     GrMtlPipelineState*         fActivePipelineState = nullptr;
     MTLPrimitiveType            fActivePrimitiveType;
     MTLRenderPassDescriptor*    fRenderPassDesc;

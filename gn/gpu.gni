@@ -835,6 +835,8 @@ skia_metal_sources = [
   "$_src/gpu/mtl/GrMtlPipelineStateBuilder.mm",
   "$_src/gpu/mtl/GrMtlPipelineStateDataManager.h",
   "$_src/gpu/mtl/GrMtlPipelineStateDataManager.mm",
+  "$_src/gpu/mtl/GrMtlRenderCommandEncoder.h",
+  "$_src/gpu/mtl/GrMtlRenderCommandEncoder.mm",
   "$_src/gpu/mtl/GrMtlRenderTarget.h",
   "$_src/gpu/mtl/GrMtlRenderTarget.mm",
   "$_src/gpu/mtl/GrMtlResourceProvider.h",

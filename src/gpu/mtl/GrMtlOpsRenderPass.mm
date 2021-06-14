@@ -13,6 +13,7 @@
 #include "src/gpu/mtl/GrMtlCommandBuffer.h"
 #include "src/gpu/mtl/GrMtlPipelineState.h"
 #include "src/gpu/mtl/GrMtlPipelineStateBuilder.h"
+#include "src/gpu/mtl/GrMtlRenderCommandEncoder.h"
 #include "src/gpu/mtl/GrMtlRenderTarget.h"
 #include "src/gpu/mtl/GrMtlTexture.h"
 
@@ -36,7 +37,7 @@ GrMtlOpsRenderPass::~GrMtlOpsRenderPass() {
 void GrMtlOpsRenderPass::precreateCmdEncoder() {
     // For clears, we may not have an associated draw. So we prepare a cmdEncoder that
     // will be submitted whether there's a draw or not.
-    SkDEBUGCODE(id<MTLRenderCommandEncoder> cmdEncoder =)
+    SkDEBUGCODE(GrMtlRenderCommandEncoder* cmdEncoder =)
             fGpu->commandBuffer()->getRenderCommandEncoder(fRenderPassDesc, nullptr, this);
     SkASSERT(nil != cmdEncoder);
 }
@@ -92,14 +93,14 @@ bool GrMtlOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo,
                 fGpu->commandBuffer()->getRenderCommandEncoder(fRenderPassDesc, nullptr, this);
     }
 
-    [fActiveRenderCmdEncoder setRenderPipelineState:fActivePipelineState->mtlPipelineState()];
+    fActiveRenderCmdEncoder->setRenderPipelineState(fActivePipelineState->mtlPipelineState());
     fActivePipelineState->setDrawState(fActiveRenderCmdEncoder,
                                        programInfo.pipeline().writeSwizzle(),
                                        programInfo.pipeline().getXferProcessor());
     if (this->gpu()->caps()->wireframeMode() || programInfo.pipeline().isWireframe()) {
-        [fActiveRenderCmdEncoder setTriangleFillMode:MTLTriangleFillModeLines];
+        fActiveRenderCmdEncoder->setTriangleFillMode(MTLTriangleFillModeLines);
     } else {
-        [fActiveRenderCmdEncoder setTriangleFillMode:MTLTriangleFillModeFill];
+        fActiveRenderCmdEncoder->setTriangleFillMode(MTLTriangleFillModeFill);
     }
 
     if (!programInfo.pipeline().isScissorTestEnabled()) {
@@ -181,17 +182,17 @@ void GrMtlOpsRenderPass::inlineUpload(GrOpFlushState* state, GrDeferredTextureUp
             fGpu->commandBuffer()->getRenderCommandEncoder(fRenderPassDesc, nullptr, this);
 }
 
-void GrMtlOpsRenderPass::initRenderState(id<MTLRenderCommandEncoder> encoder) {
-    [encoder pushDebugGroup:@"initRenderState"];
-    [encoder setFrontFacingWinding:MTLWindingCounterClockwise];
+void GrMtlOpsRenderPass::initRenderState(GrMtlRenderCommandEncoder* encoder) {
+    encoder->pushDebugGroup(@"initRenderState");
+    encoder->setFrontFacingWinding(MTLWindingCounterClockwise);
     // Strictly speaking we shouldn't have to set this, as the default viewport is the size of
     // the drawable used to generate the renderCommandEncoder -- but just in case.
     MTLViewport viewport = { 0.0, 0.0,
                              (double) fRenderTarget->width(), (double) fRenderTarget->height(),
                              0.0, 1.0 };
-    [encoder setViewport:viewport];
+    encoder->setViewport(viewport);
     this->resetBufferBindings();
-    [encoder popDebugGroup];
+    encoder->popDebugGroup();
 }
 
 void GrMtlOpsRenderPass::setupRenderPass(
@@ -291,9 +292,7 @@ void GrMtlOpsRenderPass::onDraw(int vertexCount, int baseVertex) {
     SkASSERT(nil != fActiveRenderCmdEncoder);
     this->setVertexBuffer(fActiveRenderCmdEncoder, fActiveVertexBuffer.get(), 0, 0);
 
-    [fActiveRenderCmdEncoder drawPrimitives:fActivePrimitiveType
-                                vertexStart:baseVertex
-                                vertexCount:vertexCount];
+    fActiveRenderCmdEncoder->drawPrimitives(fActivePrimitiveType, baseVertex, vertexCount);
     fGpu->stats()->incNumDraws();
 }
 
@@ -307,11 +306,9 @@ void GrMtlOpsRenderPass::onDrawIndexed(int indexCount, int baseIndex, uint16_t m
 
     auto mtlIndexBuffer = static_cast<const GrMtlBuffer*>(fActiveIndexBuffer.get());
     size_t indexOffset = mtlIndexBuffer->offset() + sizeof(uint16_t) * baseIndex;
-    [fActiveRenderCmdEncoder drawIndexedPrimitives:fActivePrimitiveType
-                                        indexCount:indexCount
-                                         indexType:MTLIndexTypeUInt16
-                                       indexBuffer:mtlIndexBuffer->mtlBuffer()
-                                 indexBufferOffset:indexOffset];
+    id<MTLBuffer> indexBuffer = mtlIndexBuffer->mtlBuffer();
+    fActiveRenderCmdEncoder->drawIndexedPrimitives(fActivePrimitiveType, indexCount,
+                                                   MTLIndexTypeUInt16, indexBuffer, indexOffset);
     fGpu->stats()->incNumDraws();
 }
 
@@ -322,11 +319,8 @@ void GrMtlOpsRenderPass::onDrawInstanced(int instanceCount, int baseInstance, in
     this->setVertexBuffer(fActiveRenderCmdEncoder, fActiveVertexBuffer.get(), 0, 0);
 
     if (@available(macOS 10.11, iOS 9.0, *)) {
-        [fActiveRenderCmdEncoder drawPrimitives:fActivePrimitiveType
-                                    vertexStart:baseVertex
-                                    vertexCount:vertexCount
-                                  instanceCount:instanceCount
-                                   baseInstance:baseInstance];
+        fActiveRenderCmdEncoder->drawPrimitives(fActivePrimitiveType, baseVertex, vertexCount,
+                                                instanceCount, baseInstance);
     } else {
         SkASSERT(false);
     }
@@ -343,14 +337,10 @@ void GrMtlOpsRenderPass::onDrawIndexedInstanced(
     auto mtlIndexBuffer = static_cast<const GrMtlBuffer*>(fActiveIndexBuffer.get());
     size_t indexOffset = mtlIndexBuffer->offset() + sizeof(uint16_t) * baseIndex;
     if (@available(macOS 10.11, iOS 9.0, *)) {
-        [fActiveRenderCmdEncoder drawIndexedPrimitives:fActivePrimitiveType
-                                            indexCount:indexCount
-                                             indexType:MTLIndexTypeUInt16
-                                           indexBuffer:mtlIndexBuffer->mtlBuffer()
-                                     indexBufferOffset:indexOffset
-                                         instanceCount:instanceCount
-                                            baseVertex:baseVertex
-                                          baseInstance:baseInstance];
+        fActiveRenderCmdEncoder->drawIndexedPrimitives(fActivePrimitiveType, indexCount,
+                                                       MTLIndexTypeUInt16,
+                                                       mtlIndexBuffer->mtlBuffer(), indexOffset,
+                                                       instanceCount, baseVertex, baseInstance);
     } else {
         SkASSERT(false);
     }
@@ -369,9 +359,8 @@ void GrMtlOpsRenderPass::onDrawIndirect(const GrBuffer* drawIndirectBuffer,
     const size_t stride = sizeof(GrDrawIndirectCommand);
     while (drawCount >= 1) {
         if (@available(macOS 10.11, iOS 9.0, *)) {
-            [fActiveRenderCmdEncoder drawPrimitives:fActivePrimitiveType
-                                     indirectBuffer:mtlIndirectBuffer->mtlBuffer()
-                               indirectBufferOffset:bufferOffset];
+            fActiveRenderCmdEncoder->drawPrimitives(fActivePrimitiveType,
+                                                    mtlIndirectBuffer->mtlBuffer(), bufferOffset);
         } else {
             SkASSERT(false);
         }
@@ -397,12 +386,12 @@ void GrMtlOpsRenderPass::onDrawIndexedIndirect(const GrBuffer* drawIndirectBuffe
     const size_t stride = sizeof(GrDrawIndexedIndirectCommand);
     while (drawCount >= 1) {
         if (@available(macOS 10.11, iOS 9.0, *)) {
-            [fActiveRenderCmdEncoder drawIndexedPrimitives:fActivePrimitiveType
-                                                 indexType:MTLIndexTypeUInt16
-                                               indexBuffer:mtlIndexBuffer->mtlBuffer()
-                                         indexBufferOffset:indexOffset
-                                            indirectBuffer:mtlIndirectBuffer->mtlBuffer()
-                                      indirectBufferOffset:bufferOffset];
+            fActiveRenderCmdEncoder->drawIndexedPrimitives(fActivePrimitiveType,
+                                                           MTLIndexTypeUInt16,
+                                                           mtlIndexBuffer->mtlBuffer(),
+                                                           indexOffset,
+                                                           mtlIndirectBuffer->mtlBuffer(),
+                                                           bufferOffset);
         } else {
             SkASSERT(false);
         }
@@ -412,7 +401,7 @@ void GrMtlOpsRenderPass::onDrawIndexedIndirect(const GrBuffer* drawIndirectBuffe
     }
 }
 
-void GrMtlOpsRenderPass::setVertexBuffer(id<MTLRenderCommandEncoder> encoder,
+void GrMtlOpsRenderPass::setVertexBuffer(GrMtlRenderCommandEncoder* encoder,
                                          const GrBuffer* buffer,
                                          size_t vertexOffset,
                                          size_t inputBufferIndex) {
@@ -428,17 +417,15 @@ void GrMtlOpsRenderPass::setVertexBuffer(id<MTLRenderCommandEncoder> encoder,
     SkASSERT(mtlVertexBuffer);
     // Apple recommends using setVertexBufferOffset: when changing the offset
     // for a currently bound vertex buffer, rather than setVertexBuffer:
+    // TODO: ensure this is tracking state properly, or track in GrMtlRenderCommandEncoder.
     size_t offset = mtlBuffer->offset() + vertexOffset;
     if (fBufferBindings[index].fBuffer != mtlVertexBuffer) {
-        [encoder setVertexBuffer: mtlVertexBuffer
-                          offset: offset
-                         atIndex: index];
+        encoder->setVertexBuffer(mtlVertexBuffer, offset, index);
         fBufferBindings[index].fBuffer = mtlVertexBuffer;
         fBufferBindings[index].fOffset = offset;
     } else if (fBufferBindings[index].fOffset != offset) {
         if (@available(macOS 10.11, iOS 8.3, *)) {
-            [encoder setVertexBufferOffset: offset
-                                   atIndex: index];
+            encoder->setVertexBufferOffset(offset, index);
         } else {
             // We only support iOS 9.0+, so we should never hit this
             SK_ABORT("Missing interface. Skia only supports Metal on iOS 9.0 and higher");

@@ -15,6 +15,7 @@
 #include "src/gpu/glsl/GrGLSLXferProcessor.h"
 #include "src/gpu/mtl/GrMtlBuffer.h"
 #include "src/gpu/mtl/GrMtlGpu.h"
+#include "src/gpu/mtl/GrMtlRenderCommandEncoder.h"
 #include "src/gpu/mtl/GrMtlTexture.h"
 
 #if !__has_feature(objc_arc)
@@ -103,27 +104,25 @@ void GrMtlPipelineState::setTextures(const GrGeometryProcessor& geomProc,
     SkASSERT(fNumSamplers == fSamplerBindings.count());
 }
 
-void GrMtlPipelineState::setDrawState(id<MTLRenderCommandEncoder> renderCmdEncoder,
+void GrMtlPipelineState::setDrawState(GrMtlRenderCommandEncoder* renderCmdEncoder,
                                       const GrSwizzle& writeSwizzle,
                                       const GrXferProcessor& xferProcessor) {
-    [renderCmdEncoder pushDebugGroup:@"setDrawState"];
+    renderCmdEncoder->pushDebugGroup(@"setDrawState");
     this->bindUniforms(renderCmdEncoder);
     this->setBlendConstants(renderCmdEncoder, writeSwizzle, xferProcessor);
     this->setDepthStencilState(renderCmdEncoder);
-    [renderCmdEncoder popDebugGroup];
+    renderCmdEncoder->popDebugGroup();
 }
 
-void GrMtlPipelineState::bindUniforms(id<MTLRenderCommandEncoder> renderCmdEncoder) {
+void GrMtlPipelineState::bindUniforms(GrMtlRenderCommandEncoder* renderCmdEncoder) {
     fDataManager.uploadAndBindUniformBuffers(fGpu, renderCmdEncoder);
 }
 
-void GrMtlPipelineState::bindTextures(id<MTLRenderCommandEncoder> renderCmdEncoder) {
+void GrMtlPipelineState::bindTextures(GrMtlRenderCommandEncoder* renderCmdEncoder) {
     SkASSERT(fNumSamplers == fSamplerBindings.count());
     for (int index = 0; index < fNumSamplers; ++index) {
-        [renderCmdEncoder setFragmentTexture: fSamplerBindings[index].fTexture
-                                     atIndex: index];
-        [renderCmdEncoder setFragmentSamplerState: fSamplerBindings[index].fSampler->mtlSampler()
-                                          atIndex: index];
+        renderCmdEncoder->setFragmentTexture(fSamplerBindings[index].fTexture, index);
+        renderCmdEncoder->setFragmentSamplerState(fSamplerBindings[index].fSampler, index);
     }
 }
 
@@ -151,7 +150,7 @@ void GrMtlPipelineState::setRenderTargetState(const GrRenderTarget* rt, GrSurfac
     }
 }
 
-void GrMtlPipelineState::setBlendConstants(id<MTLRenderCommandEncoder> renderCmdEncoder,
+void GrMtlPipelineState::setBlendConstants(GrMtlRenderCommandEncoder* renderCmdEncoder,
                                            const GrSwizzle& swizzle,
                                            const GrXferProcessor& xferProcessor) {
     if (!renderCmdEncoder) {
@@ -165,36 +164,33 @@ void GrMtlPipelineState::setBlendConstants(id<MTLRenderCommandEncoder> renderCmd
         // Swizzle the blend to match what the shader will output.
         SkPMColor4f blendConst = swizzle.applyTo(blendInfo.fBlendConstant);
 
-        [renderCmdEncoder setBlendColorRed: blendConst.fR
-                                     green: blendConst.fG
-                                      blue: blendConst.fB
-                                     alpha: blendConst.fA];
+        renderCmdEncoder->setBlendColor(blendConst);
     }
 }
 
-void GrMtlPipelineState::setDepthStencilState(id<MTLRenderCommandEncoder> renderCmdEncoder) {
+void GrMtlPipelineState::setDepthStencilState(GrMtlRenderCommandEncoder* renderCmdEncoder) {
     const GrSurfaceOrigin& origin = fRenderTargetState.fRenderTargetOrigin;
     GrMtlDepthStencil* state =
             fGpu->resourceProvider().findOrCreateCompatibleDepthStencilState(fStencil, origin);
     if (!fStencil.isDisabled()) {
         if (fStencil.isTwoSided()) {
             if (@available(macOS 10.11, iOS 9.0, *)) {
-                [renderCmdEncoder
-                        setStencilFrontReferenceValue:fStencil.postOriginCCWFace(origin).fRef
-                        backReferenceValue:fStencil.postOriginCWFace(origin).fRef];
+                renderCmdEncoder->setStencilFrontBackReferenceValues(
+                        fStencil.postOriginCCWFace(origin).fRef,
+                        fStencil.postOriginCWFace(origin).fRef);
             } else {
                 // Two-sided stencil not supported on older versions of iOS
                 // TODO: Find a way to recover from this
                 SkASSERT(false);
             }
         } else {
-            [renderCmdEncoder setStencilReferenceValue:fStencil.singleSidedFace().fRef];
+            renderCmdEncoder->setStencilReferenceValue(fStencil.singleSidedFace().fRef);
         }
     }
-    [renderCmdEncoder setDepthStencilState:state->mtlDepthStencil()];
+    renderCmdEncoder->setDepthStencilState(state->mtlDepthStencil());
 }
 
-void GrMtlPipelineState::SetDynamicScissorRectState(id<MTLRenderCommandEncoder> renderCmdEncoder,
+void GrMtlPipelineState::SetDynamicScissorRectState(GrMtlRenderCommandEncoder* renderCmdEncoder,
                                                     const GrRenderTarget* renderTarget,
                                                     GrSurfaceOrigin rtOrigin,
                                                     SkIRect scissorRect) {
@@ -216,7 +212,7 @@ void GrMtlPipelineState::SetDynamicScissorRectState(id<MTLRenderCommandEncoder> 
     SkASSERT(scissor.x >= 0);
     SkASSERT(scissor.y >= 0);
 
-    [renderCmdEncoder setScissorRect: scissor];
+    renderCmdEncoder->setScissorRect(scissor);
 }
 
 bool GrMtlPipelineState::doesntSampleAttachment(
