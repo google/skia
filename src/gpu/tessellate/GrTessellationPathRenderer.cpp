@@ -77,18 +77,6 @@ GrPathRenderer::CanDrawPath GrTessellationPathRenderer::onCanDrawPath(
         !args.fProxy->canUseStencil(*args.fCaps)) {
         return CanDrawPath::kNo;
     }
-    if (shape.style().strokeRec().getStyle() != SkStrokeRec::kStroke_Style) {
-        // On platforms that don't have native support for indirect draws and/or hardware
-        // tessellation, we find that the default path renderer can draw fills faster sometimes. Let
-        // fills fall through to the default renderer on these platforms for now.
-        // (crbug.com/1163441, skbug.com/11138, skbug.com/11139)
-        if (!args.fCaps->nativeDrawIndirectSupport() &&
-            !args.fCaps->shaderCaps()->tessellationSupport() &&
-            // Is the path cacheable? TODO: This check is outdated. Remove it next.
-            shape.hasUnstyledKey()) {
-            return CanDrawPath::kNo;
-        }
-    }
     if (args.fHasUserStencilSettings) {
         // Non-convex paths and strokes use the stencil buffer internally, so they can't support
         // draws with stencil settings.
