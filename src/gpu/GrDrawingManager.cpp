@@ -928,7 +928,7 @@ GrCoverageCountingPathRenderer* GrDrawingManager::getCoverageCountingPathRendere
     return fPathRendererChain->getCoverageCountingPathRenderer();
 }
 
-GrPathRenderer* GrDrawingManager::getTessellationPathRenderer() {
+GrTessellationPathRenderer* GrDrawingManager::getTessellationPathRenderer() {
     if (!fPathRendererChain) {
         fPathRendererChain = std::make_unique<GrPathRendererChain>(fContext,
                                                                    fOptionsForPathRendererChain);

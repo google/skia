@@ -19,7 +19,6 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrSWMaskHelper.h"
 #include "src/gpu/GrStencilMaskHelper.h"
-#include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
 #include "src/gpu/effects/GrBlendFragmentProcessor.h"
 #include "src/gpu/effects/GrConvexPolyEffect.h"
 #include "src/gpu/effects/GrRRectEffect.h"
@@ -27,6 +26,7 @@
 #include "src/gpu/effects/generated/GrAARectEffect.h"
 #include "src/gpu/effects/generated/GrDeviceSpaceEffect.h"
 #include "src/gpu/geometry/GrQuadUtils.h"
+#include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 
 namespace {
 
@@ -232,45 +232,23 @@ static GrFPResult analytic_clip_fp(const GrClipStack::Element& e,
     return GrFPFailure(std::move(fp));
 }
 
-// TODO: Currently this only works with CCPR because CCPR owns and manages the clip atlas. The
-// high-level concept should be generalized to support any path renderer going into a shared atlas.
-static GrFPResult clip_atlas_fp(GrCoverageCountingPathRenderer* ccpr,
-                                uint32_t opsTaskID,
-                                const SkIRect& bounds,
+// TODO: Currently this only works with tessellation because the tessellation path renderer owns and
+// manages the atlas. The high-level concept could be generalized to support any path renderer going
+// into a shared atlas.
+static GrFPResult clip_atlas_fp(GrTessellationPathRenderer* tessellator,
+                                const SkIRect& scissorBounds,
                                 const GrClipStack::Element& e,
-                                SkPath* devicePath,
-                                const GrCaps& caps,
-                                std::unique_ptr<GrFragmentProcessor> fp) {
-    // TODO: Currently the atlas manages device-space paths, so we have to transform by the ctm.
-    // In the future, the atlas manager should see the local path and the ctm so that it can
-    // cache across integer-only translations (internally, it already does this, just not exposed).
-    if (devicePath->isEmpty()) {
-        e.fShape.asPath(devicePath);
-        devicePath->transform(e.fLocalToDevice);
-        SkASSERT(!devicePath->isEmpty());
+                                std::unique_ptr<GrFragmentProcessor> inputFP,
+                                const GrCaps& caps) {
+    SkPath path;
+    e.fShape.asPath(&path);
+    SkASSERT(!path.isInverseFillType());
+    if (e.fOp == SkClipOp::kDifference) {
+        // Toggling fill type does not affect the path's "generationID" key.
+        path.toggleInverseFillType();
     }
-
-    SkASSERT(!devicePath->isInverseFillType());
-    if (e.fOp == SkClipOp::kIntersect) {
-        return ccpr->makeClipProcessor(std::move(fp), opsTaskID, *devicePath, bounds, caps);
-    } else {
-        // Use kDstOut to convert the non-inverted mask alpha into (1-alpha), so the atlas only
-        // ever renders non-inverse filled paths.
-        //  - When the input FP is null, this turns into "(1-sample(ccpr, 1).a) * input"
-        //  - When not null, it works out to
-        //       (1-sample(ccpr, input.rgb1).a) * sample(fp, input.rgb1) * input.a
-        //  - Since clips only care about the alpha channel, these are both equivalent to the
-        //    desired product of (1-ccpr) * fp * input.a.
-        auto [success, atlasFP] = ccpr->makeClipProcessor(nullptr, opsTaskID, *devicePath, bounds,
-                                                          caps);
-        if (!success) {
-            // "Difference" draws that don't intersect the clip need to be drawn "wide open".
-            return GrFPSuccess(nullptr);
-        }
-        return GrFPSuccess(GrBlendFragmentProcessor::Make(std::move(atlasFP),  // src
-                                                          std::move(fp),       // dst
-                                                          SkBlendMode::kDstOut));
-    }
+    return tessellator->makeAtlasClipFP(scissorBounds, e.fLocalToDevice, path, e.fAA,
+                                        std::move(inputFP), caps);
 }
 
 static void draw_to_sw_mask(GrSWMaskHelper* helper, const GrClipStack::Element& e, bool clearMask) {
@@ -1353,12 +1331,11 @@ GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrSurfaceDrawCont
     GrWindowRectangles windowRects;
 
     // Elements not represented as an analytic FP or skipped will be collected here and later
-    // applied by using the stencil buffer, CCPR clip atlas, or a cached SW mask.
+    // applied by using the stencil buffer or a cached SW mask.
     SkSTArray<kNumStackMasks, const Element*> elementsForMask;
-    SkSTArray<kNumStackMasks, const RawElement*> elementsForAtlas;
 
     bool maskRequiresAA = false;
-    auto* ccpr = context->priv().drawingManager()->getCoverageCountingPathRenderer();
+    auto* tessellator = context->priv().drawingManager()->getTessellationPathRenderer();
 
     int i = fElements.count();
     for (const RawElement& e : fElements.ritems()) {
@@ -1410,23 +1387,13 @@ GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrSurfaceDrawCont
                     std::tie(fullyApplied, clipFP) = analytic_clip_fp(e.asElement(),
                                                                       *caps->shaderCaps(),
                                                                       std::move(clipFP));
+                    if (!fullyApplied && tessellator) {
+                        std::tie(fullyApplied, clipFP) = clip_atlas_fp(tessellator, scissorBounds,
+                                                                       e.asElement(),
+                                                                       std::move(clipFP), *caps);
+                    }
                     if (fullyApplied) {
                         remainingAnalyticFPs--;
-                    } else if (ccpr && e.aa() == GrAA::kYes) {
-                        constexpr static int64_t kMaxClipPathArea =
-                                GrCoverageCountingPathRenderer::kMaxClipPathArea;
-                        SkIRect maskBounds;
-                        if (maskBounds.intersect(e.outerBounds(), draw.outerBounds()) &&
-                            maskBounds.height64() * maskBounds.width64() < kMaxClipPathArea) {
-                            // While technically the element is turned into a mask, each atlas entry
-                            // counts towards the FP complexity of the clip.
-                            // TODO - CCPR needs a stable ops task ID so we can't create FPs until
-                            // we know any other mask generation is finished. It also only works
-                            // with AA shapes, future atlas systems can improve on this.
-                            elementsForAtlas.push_back(&e);
-                            remainingAnalyticFPs--;
-                            fullyApplied = true;
-                        }
                     }
                 }
 
@@ -1442,13 +1409,12 @@ GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrSurfaceDrawCont
 
     if (!scissorIsNeeded) {
         // More detailed analysis of the element shapes determined no clip is needed
-        SkASSERT(elementsForMask.empty() && elementsForAtlas.empty() && !clipFP);
+        SkASSERT(elementsForMask.empty() && !clipFP);
         return Effect::kUnclipped;
     }
 
     // Fill out the GrAppliedClip with what we know so far, possibly with a tightened scissor
-    if (cs.op() == SkClipOp::kIntersect &&
-        (!elementsForMask.empty() || !elementsForAtlas.empty())) {
+    if (cs.op() == SkClipOp::kIntersect && !elementsForMask.empty()) {
         SkAssertResult(scissorBounds.intersect(draw.outerBounds()));
     }
     if (!GrClip::IsInsideClip(scissorBounds, *bounds)) {
@@ -1482,22 +1448,6 @@ GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrSurfaceDrawCont
                 // Rasterize the remaining elements to the stencil buffer
                 render_stencil_mask(context, rtc, cs.genID(), scissorBounds,
                                     elementsForMask.begin(), elementsForMask.count(), out);
-            }
-        }
-    }
-
-    // Finish CCPR paths now that the render target's ops task is stable.
-    if (!elementsForAtlas.empty()) {
-        uint32_t opsTaskID = rtc->getOpsTask()->uniqueID();
-        for (int i = 0; i < elementsForAtlas.count(); ++i) {
-            SkASSERT(elementsForAtlas[i]->aa() == GrAA::kYes);
-            bool success;
-            std::tie(success, clipFP) = clip_atlas_fp(ccpr, opsTaskID, scissorBounds,
-                                                      elementsForAtlas[i]->asElement(),
-                                                      elementsForAtlas[i]->devicePath(), *caps,
-                                                      std::move(clipFP));
-            if (!success) {
-                return Effect::kClippedOut;
             }
         }
     }
