@@ -8,6 +8,7 @@
 #ifndef GrDashLinePathRenderer_DEFINED
 #define GrDashLinePathRenderer_DEFINED
 
+#if 0
 #include "src/gpu/GrPathRenderer.h"
 
 class GrGpu;
@@ -28,5 +29,5 @@ private:
     using INHERITED = GrPathRenderer;
 };
 
-
+#endif
 #endif

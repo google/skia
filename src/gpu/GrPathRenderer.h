@@ -8,6 +8,8 @@
 #ifndef GrPathRenderer_DEFINED
 #define GrPathRenderer_DEFINED
 
+#if 0
+
 #include "include/core/SkRefCnt.h"
 #include "include/private/GrTypesPriv.h"
 #include "include/private/SkTArray.h"
@@ -206,5 +208,18 @@ private:
 
     using INHERITED = SkRefCnt;
 };
+
+#else
+
+class GrStyle;
+
+class GrPathRenderer : public SkRefCnt {
+public:
+    static bool IsStrokeHairlineOrEquivalent(const GrStyle&, const SkMatrix&,
+                                             SkScalar* outCoverage);
+
+};
+
+#endif
 
 #endif

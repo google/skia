@@ -2035,6 +2035,9 @@ if (skia_enable_tools) {
     if (skia_use_gl) {
       sources += gl_tests_sources
     }
+    if (!skia_enable_oga) {
+      sources -= oga_tests_sources
+    }
     deps = [
       ":flags",
       ":fontmgr_android_tests",
