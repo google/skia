@@ -23992,7 +23992,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-26.20.13031.18002",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -24075,7 +24075,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-26.20.13031.18002",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -24098,6 +24098,87 @@
         "perf"
       ]
     },
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
+=======
+    "Perf-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-AllPathsVolatile_Skpbench": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "casSpec": "skpbench",
+      "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@2.7.18.chromium.35"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
+        },
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
+        },
+        {
+          "name": "skia/bots/mskp",
+          "path": "mskp",
+          "version": "version:5"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:321"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "skpbench",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-AllPathsVolatile_Skpbench\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\",\"task_id\":\"<(TASK_ID)\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Build-Win-Clang-x86_64-Release",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:1002:6646-26.20.13031.18002",
+        "os:Windows-10-19041",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "max_attempts": 2,
+      "outputs": [
+        "perf"
+      ]
+    },
+>>>>>>> CHANGE (ef1f49 Update the "os" dimension of Windows tasks to "Windows-19041)
     "Perf-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-Vulkan": {
       "caches": [
         {
@@ -24158,7 +24239,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-26.20.13031.18002",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -24181,6 +24262,87 @@
         "perf"
       ]
     },
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
+=======
+    "Perf-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-Vulkan_AllPathsVolatile_Skpbench": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "casSpec": "skpbench",
+      "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython/windows-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:2@2.7.18.chromium.35"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
+        },
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
+        },
+        {
+          "name": "skia/bots/mskp",
+          "path": "mskp",
+          "version": "version:5"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:321"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "skpbench",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-Vulkan_AllPathsVolatile_Skpbench\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\",\"task_id\":\"<(TASK_ID)\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Build-Win-Clang-x86_64-Release-Vulkan",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "gpu:1002:6646-26.20.13031.18002",
+        "os:Windows-10-19041",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "max_attempts": 2,
+      "outputs": [
+        "perf"
+      ]
+    },
+>>>>>>> CHANGE (ef1f49 Update the "os" dimension of Windows tasks to "Windows-19041)
     "Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All": {
       "caches": [
         {
@@ -24724,7 +24886,7 @@
       ],
       "dimensions": [
         "gpu:8086:162b-20.19.15.4963",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -24807,7 +24969,7 @@
       ],
       "dimensions": [
         "gpu:8086:162b-20.19.15.4963",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -24890,7 +25052,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-26.20.100.7463",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -24973,7 +25135,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-26.20.100.7463",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -25056,7 +25218,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-26.20.100.7463",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -25139,7 +25301,7 @@
       ],
       "dimensions": [
         "gpu:8086:3ea5-26.20.100.7463",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -25222,7 +25384,7 @@
       ],
       "dimensions": [
         "gpu:8086:3ea5-26.20.100.7463",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -25305,7 +25467,7 @@
       ],
       "dimensions": [
         "gpu:8086:3ea5-26.20.100.7463",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -25388,7 +25550,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4963",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -25471,7 +25633,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4963",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -25554,7 +25716,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-26.21.14.4120",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -25637,7 +25799,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-26.21.14.4120",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -25720,7 +25882,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-26.21.14.4120",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -25803,7 +25965,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-26.20.13031.18002",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -25886,7 +26048,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-26.20.13031.18002",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -25969,7 +26131,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-26.20.13031.18002",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -26051,8 +26213,13 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
         "gpu:10de:1401-26.21.14.4120",
         "os:Windows-10-18363",
+=======
+        "gpu:10de:1401-27.21.14.5671",
+        "os:Windows-10-19041",
+>>>>>>> CHANGE (ef1f49 Update the "os" dimension of Windows tasks to "Windows-19041)
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -26134,8 +26301,13 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
         "gpu:10de:1401-26.21.14.4120",
         "os:Windows-10-18363",
+=======
+        "gpu:10de:1401-27.21.14.5671",
+        "os:Windows-10-19041",
+>>>>>>> CHANGE (ef1f49 Update the "os" dimension of Windows tasks to "Windows-19041)
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -26217,8 +26389,13 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
         "gpu:10de:1401-26.21.14.4120",
         "os:Windows-10-18363",
+=======
+        "gpu:10de:1401-27.21.14.5671",
+        "os:Windows-10-19041",
+>>>>>>> CHANGE (ef1f49 Update the "os" dimension of Windows tasks to "Windows-19041)
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -41446,7 +41623,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-26.20.13031.18002",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -41529,7 +41706,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-26.20.13031.18002",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -41612,7 +41789,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-26.20.13031.18002",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -41695,7 +41872,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-26.20.13031.18002",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -41778,7 +41955,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-26.20.13031.18002",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -41861,7 +42038,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-26.20.13031.18002",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -43199,7 +43376,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-i7-5557U",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -43282,7 +43459,7 @@
       ],
       "dimensions": [
         "gpu:8086:162b-20.19.15.4963",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -43365,7 +43542,7 @@
       ],
       "dimensions": [
         "gpu:8086:162b-20.19.15.4963",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -43448,7 +43625,7 @@
       ],
       "dimensions": [
         "gpu:8086:162b-20.19.15.4963",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -43531,7 +43708,7 @@
       ],
       "dimensions": [
         "gpu:8086:162b-20.19.15.4963",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -43614,7 +43791,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-26.20.100.7463",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -43697,7 +43874,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-26.20.100.7463",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -43863,7 +44040,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-26.20.100.7463",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -43946,7 +44123,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-26.20.100.7463",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -44029,7 +44206,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-26.20.100.7463",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -44112,7 +44289,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-26.20.100.7463",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -44195,7 +44372,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-26.20.100.7463",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -44278,7 +44455,7 @@
       ],
       "dimensions": [
         "gpu:8086:3ea5-26.20.100.7463",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -44361,7 +44538,7 @@
       ],
       "dimensions": [
         "gpu:8086:3ea5-26.20.100.7463",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -44527,7 +44704,7 @@
       ],
       "dimensions": [
         "gpu:8086:3ea5-26.20.100.7463",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -44610,7 +44787,7 @@
       ],
       "dimensions": [
         "gpu:8086:3ea5-26.20.100.7463",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -44693,7 +44870,7 @@
       ],
       "dimensions": [
         "gpu:8086:3ea5-26.20.100.7463",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -44776,7 +44953,7 @@
       ],
       "dimensions": [
         "gpu:8086:3ea5-26.20.100.7463",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -44859,7 +45036,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4963",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -44942,7 +45119,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4963",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -45025,7 +45202,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4963",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -45108,7 +45285,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4963",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -45191,7 +45368,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-26.21.14.4120",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -45274,7 +45451,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-26.21.14.4120",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -45357,7 +45534,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-26.21.14.4120",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -45440,7 +45617,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-26.21.14.4120",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -45523,7 +45700,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-26.21.14.4120",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -45606,7 +45783,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-26.21.14.4120",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -45689,7 +45866,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-26.20.13031.18002",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -45772,7 +45949,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-26.20.13031.18002",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -45855,7 +46032,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-26.20.13031.18002",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -45938,7 +46115,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-26.20.13031.18002",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -46021,7 +46198,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-26.20.13031.18002",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -46104,7 +46281,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-26.20.13031.18002",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -46187,7 +46364,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-26.20.13031.18002",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -46270,7 +46447,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-26.20.13031.18002",
-        "os:Windows-10-18363",
+        "os:Windows-10-19041",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -46352,8 +46529,13 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
         "gpu:10de:1401-26.21.14.4120",
         "os:Windows-10-18363",
+=======
+        "gpu:10de:1401-27.21.14.5671",
+        "os:Windows-10-19041",
+>>>>>>> CHANGE (ef1f49 Update the "os" dimension of Windows tasks to "Windows-19041)
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -46435,8 +46617,13 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
         "gpu:10de:1401-26.21.14.4120",
         "os:Windows-10-18363",
+=======
+        "gpu:10de:1401-27.21.14.5671",
+        "os:Windows-10-19041",
+>>>>>>> CHANGE (ef1f49 Update the "os" dimension of Windows tasks to "Windows-19041)
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -46518,8 +46705,13 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
         "gpu:10de:1401-26.21.14.4120",
         "os:Windows-10-18363",
+=======
+        "gpu:10de:1401-27.21.14.5671",
+        "os:Windows-10-19041",
+>>>>>>> CHANGE (ef1f49 Update the "os" dimension of Windows tasks to "Windows-19041)
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -46601,8 +46793,13 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
         "gpu:10de:1401-26.21.14.4120",
         "os:Windows-10-18363",
+=======
+        "gpu:10de:1401-27.21.14.5671",
+        "os:Windows-10-19041",
+>>>>>>> CHANGE (ef1f49 Update the "os" dimension of Windows tasks to "Windows-19041)
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -46684,8 +46881,13 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
         "gpu:10de:1401-26.21.14.4120",
         "os:Windows-10-18363",
+=======
+        "gpu:10de:1401-27.21.14.5671",
+        "os:Windows-10-19041",
+>>>>>>> CHANGE (ef1f49 Update the "os" dimension of Windows tasks to "Windows-19041)
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -46767,8 +46969,13 @@
         "Housekeeper-PerCommit-BundleRecipes"
       ],
       "dimensions": [
+<<<<<<< HEAD   (f1e4f2 Force expected MSL version to match the features that we req)
         "gpu:10de:1401-26.21.14.4120",
         "os:Windows-10-18363",
+=======
+        "gpu:10de:1401-27.21.14.5671",
+        "os:Windows-10-19041",
+>>>>>>> CHANGE (ef1f49 Update the "os" dimension of Windows tasks to "Windows-19041)
         "pool:Skia"
       ],
       "env_prefixes": {
