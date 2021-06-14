@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0c864a71_48985925",
+        "filename": "src/gpu/tessellate/GrTessellationPathRenderer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-14T18:53:04Z",
+      "side": 1,
+      "message": "Done\n\nThanks for catching that! This wasn\u0027t necessary yet, but the clip atlas CL needed to check for perspective.",
+      "parentUuid": "908f82e8_96c53745",
+      "range": {
+        "startLine": 248,
+        "startChar": 8,
+        "endLine": 248,
+        "endChar": 55
+      },
+      "revId": "bdc61ad741ec18e7cf57a61c56f48ea070c8bf4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5b917a2c_cab26683",
@@ -47,6 +71,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f828f405_3f48633f",
+        "filename": "src/gpu/tessellate/GrTessellationPathRenderer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-14T18:53:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5b917a2c_cab26683",
+      "range": {
+        "startLine": 285,
+        "startChar": 7,
+        "endLine": 285,
+        "endChar": 15
+      },
+      "revId": "bdc61ad741ec18e7cf57a61c56f48ea070c8bf4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "18956fde_91acd595",
@@ -60,6 +108,30 @@
       "writtenOn": "2021-06-14T18:24:16Z",
       "side": 1,
       "message": "what ensures that the total bounds of uberPath doesn\u0027t exceed the max atlas dimensions?",
+      "range": {
+        "startLine": 303,
+        "startChar": 4,
+        "endLine": 305,
+        "endChar": 41
+      },
+      "revId": "bdc61ad741ec18e7cf57a61c56f48ea070c8bf4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "32ddcc65_23530a26",
+        "filename": "src/gpu/tessellate/GrTessellationPathRenderer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-14T18:53:04Z",
+      "side": 1,
+      "message": "fAtlas knows its max dimensions, and will fail on fAtlas.addRect() before adding an entry outside those dimensions.",
+      "parentUuid": "18956fde_91acd595",
       "range": {
         "startLine": 303,
         "startChar": 4,
