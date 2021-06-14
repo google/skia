@@ -16,6 +16,24 @@
       "message": "This doesn\u0027t really line up very closely to the original doc... are we planning to get rid of the old `builder.uniform(\"foo\") \u003d bar` style?",
       "revId": "c84bd5f34b108257207ca50d953a86c5fcab92e9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "18303f00_ab311e2a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-14T20:11:52Z",
+      "side": 1,
+      "message": "If we expose the feature to clients, (via runtime shader and color fitler) I think we\u0027ll keep that pattern - but I\u0027m tempted at the moment to just leave this as an internal-only tool. For now, this is about how we can convert more .fp files to one-off runtime FPs without sacrificing the perf benefits of layout(key).",
+      "parentUuid": "0956a4fe_4706ad0e",
+      "revId": "c84bd5f34b108257207ca50d953a86c5fcab92e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
