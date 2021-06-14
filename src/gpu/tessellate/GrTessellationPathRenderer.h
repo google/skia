@@ -8,6 +8,7 @@
 #ifndef GrTessellationPathRenderer_DEFINED
 #define GrTessellationPathRenderer_DEFINED
 
+#include "src/core/SkIPoint16.h"
 #include "src/gpu/GrDynamicAtlas.h"
 #include "src/gpu/GrOnFlushResourceProvider.h"
 #include "src/gpu/GrPathRenderer.h"
@@ -52,13 +53,29 @@ private:
     // Currently, "small enough" means 128*128 total pixels or less, and no larger than half the
     // atlas size in either dimension.
     bool tryAddPathToAtlas(const GrCaps&, const SkMatrix&, const SkPath&,
-                           const SkRect& pathDevBounds, GrAAType, SkIRect* devIBounds,
+                           const SkRect& pathDevBounds, bool antialias, SkIRect* devIBounds,
                            SkIPoint16* locationInAtlas, bool* transposedInAtlas);
     void renderAtlas(GrOnFlushResourceProvider*);
 
     GrDynamicAtlas fAtlas;
     int fMaxAtlasPathWidth = 0;
     SkPath fAtlasUberPaths[4];  // 2 fillTypes * 2 antialias modes.
+
+    // This simple cache remembers the locations of cacheable path masks in the atlas. Its main
+    // motivation is for clip paths.
+    struct AtlasPathKey {
+        void set(const SkMatrix&, bool antialias, const SkPath&);
+        bool operator==(const AtlasPathKey& k) const {
+            static_assert(sizeof(*this) == sizeof(uint32_t) * 6);
+            return !memcmp(this, &k, sizeof(*this));
+        }
+        float fAffineMatrix[4];
+        uint8_t fSubpixelPositionKey[2];
+        uint8_t fAntialias;
+        uint8_t fFillRule;
+        uint32_t fPathGenID;
+    };
+    SkTHashMap<AtlasPathKey, SkIPoint16> fAtlasPathCache;
 };
 
 GR_MAKE_BITFIELD_CLASS_OPS(GrTessellationPathRenderer::PathFlags);
