@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f21b1fb5_c83d9bf7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-06-14T19:44:54Z",
+      "side": 1,
+      "message": "Adding Greg for general content, Adlai to make sure I didn\u0027t break retain avoidance.\n\nIn looking at some GPU captures, setting duplicate state in rendercommandencoders came up a lot as an error (many hundreds of cases sometimes), so this is the first step to tracking that state and only setting it once.",
+      "revId": "5329ed67790ac02cc0039c747864c712fd7fa790",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
