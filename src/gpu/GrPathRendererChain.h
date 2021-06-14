@@ -16,6 +16,7 @@
 #include "include/private/SkTArray.h"
 
 class GrCoverageCountingPathRenderer;
+class GrTessellationPathRenderer;
 
 /**
  * Keeps track of an ordered list of path renderers. When a path needs to be
@@ -55,7 +56,7 @@ public:
 
     /** Returns a direct pointer to the tessellation path renderer, or null if it is not in the
         chain. */
-    GrPathRenderer* getTessellationPathRenderer() {
+    GrTessellationPathRenderer* getTessellationPathRenderer() {
         return fTessellationPathRenderer;
     }
 
@@ -65,7 +66,7 @@ private:
     };
     SkSTArray<kPreAllocCount, sk_sp<GrPathRenderer>>    fChain;
     std::unique_ptr<GrCoverageCountingPathRenderer>     fCoverageCountingPathRenderer;
-    GrPathRenderer*                                     fTessellationPathRenderer = nullptr;
+    GrTessellationPathRenderer*                         fTessellationPathRenderer = nullptr;
 };
 
 #endif
