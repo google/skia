@@ -84,6 +84,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "f54fda81_9b6799ed",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-14T20:35:38Z",
+      "side": 1,
+      "message": "Those are different in a subtle way. uniIndex is the number of actual (non-specialized) uniforms, whereas the uniformFlags pointer increments on every value, whether or not it maps to a real uniform.",
+      "parentUuid": "684068d5_710d4230",
+      "range": {
+        "startLine": 199,
+        "startChar": 16,
+        "endLine": 199,
+        "endChar": 31
+      },
+      "revId": "c84bd5f34b108257207ca50d953a86c5fcab92e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "bcd72da7_54031990",
         "filename": "src/gpu/effects/GrSkSLFP.h",
         "patchSetId": 10
