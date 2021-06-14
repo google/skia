@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bac3d584_28116f2e",
+        "filename": "src/core/SkDraw.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 576,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-14T19:02:06Z",
+      "side": 1,
+      "message": "never mind this",
+      "range": {
+        "startLine": 576,
+        "startChar": 32,
+        "endLine": 576,
+        "endChar": 50
+      },
+      "revId": "43750f9836dcf348c4481fc6fd034d5928679059",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
