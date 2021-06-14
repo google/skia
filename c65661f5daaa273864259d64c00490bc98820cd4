@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b8778db9_44c76aa5",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-14T18:39:50Z",
+      "side": 1,
+      "message": "can we keep these each on their own line?",
+      "range": {
+        "startLine": 238,
+        "startChar": 32,
+        "endLine": 240,
+        "endChar": 96
+      },
+      "revId": "c65661f5daaa273864259d64c00490bc98820cd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "984cd71c_86322a58",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-14T18:39:50Z",
+      "side": 1,
+      "message": "why is this needed?",
+      "range": {
+        "startLine": 72,
+        "startChar": 0,
+        "endLine": 72,
+        "endChar": 58
+      },
+      "revId": "c65661f5daaa273864259d64c00490bc98820cd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "087dbabc_29365b51",
+        "filename": "src/gpu/tessellate/GrTessellationPathRenderer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-14T18:39:50Z",
+      "side": 1,
+      "message": "when we draw into the atlas, does it already ignore the inverseness of the fill? The FP building code below seems to imply that.",
+      "range": {
+        "startLine": 231,
+        "startChar": 15,
+        "endLine": 231,
+        "endChar": 56
+      },
+      "revId": "c65661f5daaa273864259d64c00490bc98820cd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
