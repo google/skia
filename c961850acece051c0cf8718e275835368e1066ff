@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a65a176f_5f719500",
+        "filename": "BUILD.gn",
+        "patchSetId": 8
+      },
+      "lineNbr": 2039,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-14T13:54:18Z",
+      "side": 1,
+      "message": "if it works, I think it reads better to have it be \n\n   if (skia_enable_oga) { sources +\u003d oga_tests_sources }",
+      "range": {
+        "startLine": 2038,
+        "startChar": 8,
+        "endLine": 2039,
+        "endChar": 34
+      },
+      "revId": "c961850acece051c0cf8718e275835368e1066ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
