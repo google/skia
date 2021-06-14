@@ -62,6 +62,23 @@
       },
       "revId": "5329ed67790ac02cc0039c747864c712fd7fa790",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b3d3410d_06b7a39a",
+        "filename": "src/gpu/mtl/GrMtlRenderCommandEncoder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-06-14T21:02:34Z",
+      "side": 1,
+      "message": "You\u0027ll want GR_NORETAIN_BEGIN/END here also.",
+      "revId": "5329ed67790ac02cc0039c747864c712fd7fa790",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
