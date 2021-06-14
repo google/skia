@@ -98,7 +98,13 @@ public class MainActivity extends Activity {
             p.setColor(new Color(1, 1, 0, 1));
             ImageFilter filter = ImageFilter.distantLitDiffuse(.5f, .5f, .5f, new Color(1, 0, 0, 1), 1, 1, null);
             p.setImageFilter(filter);
-            threadedSurface.getCanvas().drawRect(20, 20, 250, 250, p);
+            Path path = new Path();
+            path.moveTo(20, 20);
+            path.quadTo(180, 60, 180, 180);
+            path.close();
+            path.moveTo(180, 60);
+            path.quadTo(180, 180, 60, 180);
+            threadedSurface.getCanvas().drawPath(path, p);
             threadedSurface.flushAndSubmit();
         }
 
