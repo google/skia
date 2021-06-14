@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "070cebf1_602cef65",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-06-14T21:12:50Z",
+      "side": 1,
+      "message": "Updated to make this clearer.",
+      "parentUuid": "f21b1fb5_c83d9bf7",
+      "revId": "5329ed67790ac02cc0039c747864c712fd7fa790",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e4f8fbf9_889f24a4",
@@ -31,6 +49,30 @@
       "writtenOn": "2021-06-14T20:02:22Z",
       "side": 1,
       "message": "100 chars",
+      "range": {
+        "startLine": 89,
+        "startChar": 78,
+        "endLine": 89,
+        "endChar": 125
+      },
+      "revId": "5329ed67790ac02cc0039c747864c712fd7fa790",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "58637110_4c049c3b",
+        "filename": "src/gpu/mtl/GrMtlCommandBuffer.mm",
+        "patchSetId": 2
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-06-14T21:12:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e4f8fbf9_889f24a4",
       "range": {
         "startLine": 89,
         "startChar": 78,
@@ -77,6 +119,24 @@
       "writtenOn": "2021-06-14T21:02:34Z",
       "side": 1,
       "message": "You\u0027ll want GR_NORETAIN_BEGIN/END here also.",
+      "revId": "5329ed67790ac02cc0039c747864c712fd7fa790",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7894d453_81b06b88",
+        "filename": "src/gpu/mtl/GrMtlRenderCommandEncoder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-06-14T21:12:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b3d3410d_06b7a39a",
       "revId": "5329ed67790ac02cc0039c747864c712fd7fa790",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
