@@ -63,6 +63,30 @@
       },
       "revId": "f173a45c127d0103afc0e9f5b4b3bbf651b5daa6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6619b6da_d24d6bf4",
+        "filename": "gm/runtimefpspecialized.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-14T21:08:26Z",
+      "side": 1,
+      "message": "Done. I actually removed the drawing - the key stuff was the big win here, I think (vs. other places that are actually testing drawing with runtime FPs).",
+      "parentUuid": "ad1516a7_2932effc",
+      "range": {
+        "startLine": 65,
+        "startChar": 0,
+        "endLine": 71,
+        "endChar": 0
+      },
+      "revId": "f173a45c127d0103afc0e9f5b4b3bbf651b5daa6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

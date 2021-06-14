@@ -59,6 +59,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "da12f67a_492281ad",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-14T21:08:26Z",
+      "side": 1,
+      "message": "I like that.",
+      "parentUuid": "aa16036c_0ce0cedd",
+      "range": {
+        "startLine": 88,
+        "startChar": 0,
+        "endLine": 95,
+        "endChar": 38
+      },
+      "revId": "c84bd5f34b108257207ca50d953a86c5fcab92e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "684068d5_710d4230",
@@ -190,6 +214,30 @@
       "writtenOn": "2021-06-14T20:28:28Z",
       "side": 1,
       "message": "I agree with Michael, it takes some going back and forth between the multiple `appendArgs` functions to determine what is happening.\n\nTwo ideas to make it simpler:\n- Add comments explaining the flow. It\u0027s non-obvious and there are multiple overloads that cooperate. Just briefly explain what each function does and where it\u0027s going next.\n- See if it reads better if you do this incrementing-forward happen above the appendArgs call instead of inside of it:\n\n    uniformDataPtr +\u003d sizeof(val);\n    uniformIndex++;\n    this-\u003eappendArgs(uniformDataPtr, uniformIndex, std::forward\u003cArgs\u003e(remainder)...);\n    \nNot sure about this one, but it feels like it might improve readability a touch.",
+      "range": {
+        "startLine": 175,
+        "startChar": 16,
+        "endLine": 175,
+        "endChar": 62
+      },
+      "revId": "c84bd5f34b108257207ca50d953a86c5fcab92e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3361359a_76a87b84",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-14T21:08:26Z",
+      "side": 1,
+      "message": "Yup, agreed.",
+      "parentUuid": "8a3e2c77_e9de4bb2",
       "range": {
         "startLine": 175,
         "startChar": 16,
