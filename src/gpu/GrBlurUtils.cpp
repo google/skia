@@ -14,7 +14,6 @@
 #include "src/gpu/GrFixedClip.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrSoftwarePathRenderer.h"
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTextureProxy.h"
@@ -29,6 +28,11 @@
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkTLazy.h"
 #include "src/gpu/SkGr.h"
+
+#include "src/gpu/GrPathRenderer.h"
+#if GR_OGA
+#include "src/gpu/GrSoftwarePathRenderer.h"
+#endif
 
 static bool clip_bounds_quick_reject(const SkIRect& clipBounds, const SkIRect& rect) {
     return clipBounds.isEmpty() || rect.isEmpty() || !SkIRect::Intersects(clipBounds, rect);
