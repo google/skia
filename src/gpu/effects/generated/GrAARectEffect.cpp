@@ -28,12 +28,10 @@ public:
         (void)edgeType;
         auto rect = _outer.rect;
         (void)rect;
-        prevRect = float4(-1.0);
         rectUniformVar = args.fUniformHandler->addUniform(
                 &_outer, kFragment_GrShaderFlag, kFloat4_GrSLType, "rectUniform");
         fragBuilder->codeAppendf(
-                R"SkSL(float4 prevRect = float4(%f, %f, %f, %f);
-half coverage;
+                R"SkSL(half coverage;
 @switch (%d) {
     case 0:
     case 2:
@@ -47,10 +45,6 @@ half coverage;
 @if (%d == 2 || %d == 3) {
     coverage = 1.0 - coverage;
 })SkSL",
-                prevRect.left(),
-                prevRect.top(),
-                prevRect.right(),
-                prevRect.bottom(),
                 (int)_outer.edgeType,
                 args.fUniformHandler->getUniformCStr(rectUniformVar),
                 args.fUniformHandler->getUniformCStr(rectUniformVar),
@@ -81,12 +75,8 @@ private:
         // to interpolate from 0 at a half pixel inset and 1 at a half pixel outset of rect.
         const SkRect& newRect =
                 GrProcessorEdgeTypeIsAA(edgeType) ? rect.makeOutset(.5f, .5f) : rect;
-        if (newRect != prevRect) {
-            pdman.set4f(rectUniform, newRect.fLeft, newRect.fTop, newRect.fRight, newRect.fBottom);
-            prevRect = newRect;
-        }
+        pdman.set4f(rectUniform, newRect.fLeft, newRect.fTop, newRect.fRight, newRect.fBottom);
     }
-    SkRect prevRect = float4(0);
     UniformHandle rectUniformVar;
 };
 std::unique_ptr<GrGLSLFragmentProcessor> GrAARectEffect::onMakeProgramImpl() const {

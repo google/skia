@@ -8,7 +8,6 @@
 in fragmentProcessor inputFP;
 layout(key) in GrClipEdgeType edgeType;
 in float4 rect;
-float4 prevRect = float4(-1);
 uniform float4 rectUniform;
 
 @optimizationFlags {
@@ -43,12 +42,8 @@ half4 main() {
     SkASSERT(rect.isSorted());
     // The AA math in the shader evaluates to 0 at the uploaded coordinates, so outset by 0.5
     // to interpolate from 0 at a half pixel inset and 1 at a half pixel outset of rect.
-    const SkRect& newRect = GrProcessorEdgeTypeIsAA(edgeType) ?
-                            rect.makeOutset(.5f, .5f) : rect;
-    if (newRect != prevRect) {
-        pdman.set4f(rectUniform, newRect.fLeft, newRect.fTop, newRect.fRight, newRect.fBottom);
-        prevRect = newRect;
-    }
+    const SkRect& newRect = GrProcessorEdgeTypeIsAA(edgeType) ? rect.makeOutset(.5f, .5f) : rect;
+    pdman.set4f(rectUniform, newRect.fLeft, newRect.fTop, newRect.fRight, newRect.fBottom);
 }
 
 @test(d) {

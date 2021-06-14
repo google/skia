@@ -14,8 +14,6 @@ layout(key) in GrClipEdgeType edgeType;
 in float2 center;
 in float2 radii;
 
-float2 prevCenter;
-float2 prevRadii = float2(-1);
 // The ellipse uniform is (center.x, center.y, 1 / rx^2, 1 / ry^2)
 // The last two terms can underflow when float != fp32, so we also provide a workaround.
 uniform float4 ellipse;
@@ -47,30 +45,25 @@ layout(when=!sk_Caps.floatIs32Bits) uniform float2 scale;
 }
 
 @setData(pdman) {
-    if (radii != prevRadii || center != prevCenter) {
-        float invRXSqd;
-        float invRYSqd;
-        // If we're using a scale factor to work around precision issues, choose the larger
-        // radius as the scale factor. The inv radii need to be pre-adjusted by the scale
-        // factor.
-        if (scale.isValid()) {
-            if (radii.fX > radii.fY) {
-                invRXSqd = 1.f;
-                invRYSqd = (radii.fX * radii.fX) / (radii.fY * radii.fY);
-                pdman.set2f(scale, radii.fX, 1.f / radii.fX);
-            } else {
-                invRXSqd = (radii.fY * radii.fY) / (radii.fX * radii.fX);
-                invRYSqd = 1.f;
-                pdman.set2f(scale, radii.fY, 1.f / radii.fY);
-            }
+    float invRXSqd;
+    float invRYSqd;
+    // If we're using a scale factor to work around precision issues, choose the larger radius as
+    // the scale factor. The inv radii need to be pre-adjusted by the scale factor.
+    if (scale.isValid()) {
+        if (radii.fX > radii.fY) {
+            invRXSqd = 1.f;
+            invRYSqd = (radii.fX * radii.fX) / (radii.fY * radii.fY);
+            pdman.set2f(scale, radii.fX, 1.f / radii.fX);
         } else {
-            invRXSqd = 1.f / (radii.fX * radii.fX);
-            invRYSqd = 1.f / (radii.fY * radii.fY);
+            invRXSqd = (radii.fY * radii.fY) / (radii.fX * radii.fX);
+            invRYSqd = 1.f;
+            pdman.set2f(scale, radii.fY, 1.f / radii.fY);
         }
-        pdman.set4f(ellipse, center.fX, center.fY, invRXSqd, invRYSqd);
-        prevCenter = center;
-        prevRadii = radii;
+    } else {
+        invRXSqd = 1.f / (radii.fX * radii.fX);
+        invRYSqd = 1.f / (radii.fY * radii.fY);
     }
+    pdman.set4f(ellipse, center.fX, center.fY, invRXSqd, invRYSqd);
 }
 
 half4 main() {
