@@ -16,6 +16,29 @@
       "message": "lgtm with the renames, thanks 😊",
       "revId": "f173a45c127d0103afc0e9f5b4b3bbf651b5daa6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "98a7503f_cd8d578f",
+        "filename": "gm/runtimefpspecialized.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-14T20:02:18Z",
+      "side": 1,
+      "message": "This reminds me a lot of SkSLTest.cpp, just drawing basic red and green boxes to verify that the right thing happened. Should we just turn these into DEF_TEST following the pattern from SkSLTest, where we draw the color and read it back? This isn\u0027t a very compelling slide visually; seems like we would want to detect failures by assertions occurring, not by a GM slide mysteriously changing color.",
+      "range": {
+        "startLine": 65,
+        "startChar": 0,
+        "endLine": 71,
+        "endChar": 0
+      },
+      "revId": "f173a45c127d0103afc0e9f5b4b3bbf651b5daa6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
