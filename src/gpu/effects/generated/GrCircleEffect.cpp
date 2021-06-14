@@ -30,19 +30,15 @@ public:
         (void)center;
         auto radius = _outer.radius;
         (void)radius;
-        prevRadius = -1.0;
         circleVar = args.fUniformHandler->addUniform(
                 &_outer, kFragment_GrShaderFlag, kFloat4_GrSLType, "circle");
         fragBuilder->codeAppendf(
-                R"SkSL(float2 prevCenter;
-float prevRadius = %f;
-half d;
+                R"SkSL(half d;
 @if (%d == 2 || %d == 3) {
     d = half((length((%s.xy - sk_FragCoord.xy) * %s.w) - 1.0) * %s.z);
 } else {
     d = half((1.0 - length((%s.xy - sk_FragCoord.xy) * %s.w)) * %s.z);
 })SkSL",
-                prevRadius,
                 (int)_outer.edgeType,
                 (int)_outer.edgeType,
                 args.fUniformHandler->getUniformCStr(circleVar),
@@ -79,24 +75,16 @@ private:
         UniformHandle& circle = circleVar;
         (void)circle;
 
-        if (radius != prevRadius || center != prevCenter) {
-            SkScalar effectiveRadius = radius;
-            if (GrProcessorEdgeTypeIsInverseFill((GrClipEdgeType)edgeType)) {
-                effectiveRadius -= 0.5f;
-                // When the radius is 0.5 effectiveRadius is 0 which causes an inf * 0 in the
-                // shader.
-                effectiveRadius = std::max(0.001f, effectiveRadius);
-            } else {
-                effectiveRadius += 0.5f;
-            }
-            pdman.set4f(
-                    circle, center.fX, center.fY, effectiveRadius, SkScalarInvert(effectiveRadius));
-            prevCenter = center;
-            prevRadius = radius;
+        SkScalar effectiveRadius = radius;
+        if (GrProcessorEdgeTypeIsInverseFill(edgeType)) {
+            effectiveRadius -= 0.5f;
+            // When the radius is 0.5 effectiveRadius is 0 which causes an inf * 0 in the shader.
+            effectiveRadius = std::max(0.001f, effectiveRadius);
+        } else {
+            effectiveRadius += 0.5f;
         }
+        pdman.set4f(circle, center.fX, center.fY, effectiveRadius, SkScalarInvert(effectiveRadius));
     }
-    SkPoint prevCenter = float2(0);
-    float prevRadius = 0;
     UniformHandle circleVar;
 };
 std::unique_ptr<GrGLSLFragmentProcessor> GrCircleEffect::onMakeProgramImpl() const {
