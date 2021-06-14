@@ -573,7 +573,7 @@ SkDraw::RectType SkDraw::ComputeRectType(const SkRect& rect,
 
     if (paint.getPathEffect() || paint.getMaskFilter() ||
         !matrix.rectStaysRect() || SkPaint::kStrokeAndFill_Style == style) {
-        rtype = kPath_RectType;
+        rtype = kPath_RectType;         // Try me?
     } else if (SkPaint::kFill_Style == style) {
         rtype = kFill_RectType;
     } else if (zeroWidth) {

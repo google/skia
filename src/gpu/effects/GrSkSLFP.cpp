@@ -137,14 +137,26 @@ public:
 
         // Copy the incoming coords to a local variable. Code in main might modify the coords
         // parameter. fSampleCoord could be a varying, so writes to it would be illegal.
-        SkString coordsVarName = args.fFragBuilder->newTmpVarName("coords");
-        const char* coords = coordsVarName.c_str();
+        const char* coords = "float2(0)";
+        SkString coordsVarName;
         if (fp.referencesSampleCoords()) {
+            coordsVarName = args.fFragBuilder->newTmpVarName("coords");
+            coords = coordsVarName.c_str();
             args.fFragBuilder->codeAppendf("float2 %s = %s;\n", coords, args.fSampleCoord);
         }
 
+        // For blend effects, we need to copy the dest-color to a local variable as well.
+        const char* destColor = "half4(1)";
+        SkString destColorVarName;
+        if (fp.fEffect->allowBlend()) {
+            destColorVarName = args.fFragBuilder->newTmpVarName("destColor");
+            destColor = destColorVarName.c_str();
+            args.fFragBuilder->codeAppendf("half4 %s = %s;\n", destColor,
+                                                               args.fFragBuilder->dstColor());
+        }
+
         FPCallbacks callbacks(this, args, inputColorCopy.c_str(), *program.fContext);
-        SkSL::PipelineStage::ConvertProgram(program, coords, args.fInputColor, "half4(1)",
+        SkSL::PipelineStage::ConvertProgram(program, coords, args.fInputColor, destColor,
                                             &callbacks);
     }
 
@@ -206,6 +218,10 @@ GrSkSLFP::GrSkSLFP(sk_sp<SkRuntimeEffect> effect, const char* name)
     if (fEffect->usesSampleCoords()) {
         this->setUsesSampleCoordsDirectly();
     }
+
+    if (fEffect->allowBlend()) {
+        this->setWillReadDstColor();
+    }
 }
 
 GrSkSLFP::GrSkSLFP(const GrSkSLFP& other)
@@ -217,6 +233,10 @@ GrSkSLFP::GrSkSLFP(const GrSkSLFP& other)
 
     if (fEffect->usesSampleCoords()) {
         this->setUsesSampleCoordsDirectly();
+    }
+
+    if (other.willReadDstColor()) {
+        this->setWillReadDstColor();
     }
 
     this->cloneAndRegisterAllChildProcessors(other);
