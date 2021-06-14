@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c259098b_da6fe635",
+        "filename": "src/core/SkBlitter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 650,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-14T18:14:08Z",
+      "side": 0,
+      "message": "I\u0027m trying to reason about this part of the change. Previously, SK_FORCE_RASTER_PIPELINE_BLITTER wasn\u0027t doing anything (here). Now, it really does ensure that we never use the legacy blitter. Flutter has that flag set.",
+      "range": {
+        "startLine": 650,
+        "startChar": 4,
+        "endLine": 650,
+        "endChar": 9
+      },
+      "revId": "d6c51edd524307088b15ed90aa3b13443ff157df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
