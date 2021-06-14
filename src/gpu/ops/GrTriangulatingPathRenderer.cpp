@@ -161,34 +161,6 @@ private:
 }  // namespace
 
 //-------------------------------------------------------------------------------------------------
-void* GrCpuVertexAllocator::lock(size_t stride, int eagerCount) {
-    SkASSERT(!fLockStride && !fVertices && !fVertexData);
-    SkASSERT(stride && eagerCount);
-
-    fVertices = sk_malloc_throw(eagerCount * stride);
-    fLockStride = stride;
-
-    return fVertices;
-}
-
-void GrCpuVertexAllocator::unlock(int actualCount) {
-    SkASSERT(fLockStride && fVertices && !fVertexData);
-
-    fVertices = sk_realloc_throw(fVertices, actualCount * fLockStride);
-
-    fVertexData = GrThreadSafeCache::MakeVertexData(fVertices, actualCount, fLockStride);
-
-    fVertices = nullptr;
-    fLockStride = 0;
-}
-
-sk_sp<GrThreadSafeCache::VertexData> GrCpuVertexAllocator::detachVertexData() {
-    SkASSERT(!fLockStride && !fVertices && fVertexData);
-
-    return std::move(fVertexData);
-}
-
-//-------------------------------------------------------------------------------------------------
 GrTriangulatingPathRenderer::GrTriangulatingPathRenderer()
   : fMaxVerbCount(GR_AA_TESSELLATOR_MAX_VERB_COUNT) {
 }
