@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
+#if 0
 #ifndef SkGpuDevice_DEFINED
 #define SkGpuDevice_DEFINED
 
@@ -251,4 +251,5 @@ private:
 
 #undef GR_CLIP_STACK
 
+#endif
 #endif

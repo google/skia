@@ -54,7 +54,6 @@ samples_sources = [
   "$_samplecode/SamplePathClip.cpp",
   "$_samplecode/SamplePathEffects.cpp",
   "$_samplecode/SamplePathOverstroke.cpp",
-  "$_samplecode/SamplePathTessellators.cpp",
   "$_samplecode/SamplePathText.cpp",
   "$_samplecode/SamplePolyToPoly.cpp",
   "$_samplecode/SampleQuadStroker.cpp",
@@ -83,3 +82,7 @@ samples_sources = [
   "$_samplecode/SampleXfermodesBlur.cpp",
   "$_samplecode/vertexdump.cpp",
 ]
+
+oga_samples_sources = [ "$_samplecode/SamplePathTessellators.cpp" ]
+
+samples_sources += oga_samples_sources
