@@ -120,8 +120,7 @@ public:
     IRBundle convertProgram(
             const ParsedModule& base,
             bool isBuiltinCode,
-            const char* text,
-            size_t length);
+            skstd::string_view text);
 
     const Program::Settings& settings() const { return fContext.fConfig->fSettings; }
     ProgramKind programKind() const { return fContext.fConfig->fKind; }

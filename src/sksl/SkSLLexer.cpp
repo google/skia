@@ -779,12 +779,12 @@ Token Lexer::next() {
     // tokens. Our grammar doesn't have this property, so we can simplify the logic
     // a bit.
     int32_t startOffset = fOffset;
-    if (startOffset == fLength) {
+    if (startOffset == (int32_t)fText.length()) {
         return Token(Token::Kind::TK_END_OF_FILE, startOffset, 0);
     }
     State state = 1;
     for (;;) {
-        if (fOffset >= fLength) {
+        if (fOffset >= (int32_t)fText.length()) {
             if (accepts[state] == -1) {
                 return Token(Token::Kind::TK_END_OF_FILE, startOffset, 0);
             }
