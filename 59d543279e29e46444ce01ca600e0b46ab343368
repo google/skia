@@ -39,6 +39,30 @@
       },
       "revId": "59d543279e29e46444ce01ca600e0b46ab343368",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "53095c95_b82bd15f",
+        "filename": "src/gpu/GrCaps.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-14T15:56:47Z",
+      "side": 1,
+      "message": "\u003e So we\u0027ll be able to look at that specific attachment to know if is mutlisampled, how it is resolved, is it also texureable, etc.\n\nI think that sounds like a longer term vision. The DMSAA attachment is multisampled, and as of how Skia works right now, an MSAA attachment can never sample itself.\n\nI\u0027d like to push to land this as-is. It fixes DMSAA, doesn\u0027t modify GrCaps at all, and starts running new tests that will be important when switching over to the GrAttachment world.",
+      "parentUuid": "5f222078_4a1c495a",
+      "range": {
+        "startLine": 443,
+        "startChar": 51,
+        "endLine": 443,
+        "endChar": 80
+      },
+      "revId": "59d543279e29e46444ce01ca600e0b46ab343368",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
