@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5b7ba324_2b40f735",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-14T19:45:06Z",
+      "side": 1,
+      "message": "Correct (left as index because we didn\u0027t advance uniformDataPtr). index should probably be named uniformIndex, children are exempt.",
+      "parentUuid": "275a40ba_a95d87dc",
+      "range": {
+        "startLine": 152,
+        "startChar": 41,
+        "endLine": 152,
+        "endChar": 46
+      },
+      "revId": "56a3185f9f05812b7a76d6d63c4b1b2fd9b790d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ac295370_57b18d1b",
@@ -47,6 +71,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a60e3258_5950ac65",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-14T19:45:06Z",
+      "side": 1,
+      "message": "Yup.",
+      "parentUuid": "ac295370_57b18d1b",
+      "range": {
+        "startLine": 164,
+        "startChar": 41,
+        "endLine": 164,
+        "endChar": 46
+      },
+      "revId": "56a3185f9f05812b7a76d6d63c4b1b2fd9b790d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2fb265d1_9a9d6d0e",
@@ -60,6 +108,30 @@
       "writtenOn": "2021-06-14T19:00:48Z",
       "side": 1,
       "message": "what happens if T is a std::unique_ptr\u003cGrFragmentProcessor\u003e? should we prevent that here, or is this restricted elsewhere?",
+      "range": {
+        "startLine": 213,
+        "startChar": 8,
+        "endLine": 214,
+        "endChar": 95
+      },
+      "revId": "56a3185f9f05812b7a76d6d63c4b1b2fd9b790d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a6fe8512_660bacc4",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-14T19:45:06Z",
+      "side": 1,
+      "message": "Yes, it should be prevented. I didn\u0027t bother coming up with a way to do it explicitly -- functionally it\u0027s prevented because GrSpecializedUniform copies the T by value, and won\u0027t compile with std::unique_ptr.",
+      "parentUuid": "2fb265d1_9a9d6d0e",
       "range": {
         "startLine": 213,
         "startChar": 8,
