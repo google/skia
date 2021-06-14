@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cbdc0516_5a210e6d",
+        "filename": "tests/SkDSLRuntimeEffectTest.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-14T22:43:06Z",
+      "side": 1,
+      "message": "up to you: the pointer-to-bool cast threw me for a minute. What do you think of:\n\n    effect ? expectSuccess : !expectSuccess\n    \nDon\u0027t feel strongly either way.",
+      "range": {
+        "startLine": 41,
+        "startChar": 35,
+        "endLine": 41,
+        "endChar": 65
+      },
+      "revId": "2ad2cd39a8db51a3e45089c2d23c31a28cce29b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
