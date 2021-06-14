@@ -33,6 +33,92 @@
       "message": "Ops task merging stuff seems fine to me, no opinion on the rest.",
       "revId": "5981f6a17e4bb5cd80b5f91e9ce026b765dd83b5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c9b5e6ed_7d46bde5",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1933,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-14T17:16:21Z",
+      "side": 1,
+      "message": "Do we need to also check !renderToTexture here?",
+      "range": {
+        "startLine": 1933,
+        "startChar": 16,
+        "endLine": 1933,
+        "endChar": 83
+      },
+      "revId": "5981f6a17e4bb5cd80b5f91e9ce026b765dd83b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3df22787_9f0e1e48",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1936,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-14T17:16:21Z",
+      "side": 1,
+      "message": "shouldn\u0027t this all happen before we decide how we are going to sample the dst and setup the view?\n\nAlso isn\u0027t this independent of if we requireDstTexture is true or not? Like if I used a bunch of texture barriers in previous draws. And now I get a draw that wants to use DMSAA but doesn\u0027t need the dst itself. I still need to break up the OpsTask because the previous barriers won\u0027t work if draw using dmsaa.",
+      "range": {
+        "startLine": 1929,
+        "startChar": 7,
+        "endLine": 1936,
+        "endChar": 9
+      },
+      "revId": "5981f6a17e4bb5cd80b5f91e9ce026b765dd83b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "57d14584_e4d29177",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1972,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-14T17:16:21Z",
+      "side": 1,
+      "message": "What if we wrote this whole section like (lots of partial pseudocode here).\n\nbool drawsToMSAA \u003d this-\u003egetOpsTask()-\u003eusesMSAASurface();\n// This caps call will return kNone if drawsToMSAA is true and we don\u0027t support\n// renderToTexture. If we do support renderToTexture it may return kTexBarrier if\n// they are supported (and in gl the rt is a texture)\nauto dstSampleFlags \u003d this-\u003ecaps()-\u003egetDstSampleFlagsForProxy(rtProxy, drawsToMSAA);\n\n// First check if we can sample directly the color attachment as either a texture\n// or an input attachment. In either case the flags will always have returned\n// kTexBarrier\nif (dstSampleFlags \u0026 kTexBarrier) {\n    dstProxyView-\u003esetProxyView(this-\u003ereadSurfaceView());\n    dstProxyView-\u003esetOffset(0, 0);\n    dstProxyView-\u003esetDstSampleFlags(dstSampleFlags);\n    return;\n}\n\nSkASSERT(dstSampleFlags \u003d\u003d kNone);\n\n// To sample the dst we must use a separate surface for the color attachment.\n// First if the color attachment is MSAA we will try to use a resolve attachment\n// as our texture. Otherwise we will have to do a copy to scratch texture.\nauto resolveTex \u003d rtProxy-\u003easTextureProxy();\nif (drawsToMSAA \u0026\u0026 resolveTex) {\n    // If we had renderToTexture and barrier support we should have been able to\n    // use a barrier\n    SkASSERT(!renderToTexture || !barrierSupport);\n  \n    if (!first draw into opsTask) {\n        this-\u003ereplaceOpsTask()-\u003esetCannotMergeBackward();\n    }\n    \n    if (!usingDMSAA) { // so using normal msaa\n        // Does this have to go before the replaceOpsTask above?? I\u0027m not sure\n        // what our required ordering is to make sure the resolve task gets\n        // placed between the two opsTasks.\n        this-\u003eaddResolveTask(resolveTex, rt);\n    }\n    \n    // I understand that these three lines look the same as the texBarrier block\n    // above. However, that is just because right now we get the RT tex and\n    // resolve texture from the same object today. In the not too far off future\n    // these may come from different objects. Also I think organizing the code\n    // this way makes it much clearer the logic that we are trying to do.\n    dstProxyView-\u003esetProxyView(this-\u003ereadSurfaceView());\n    dstProxyView-\u003esetOffset(0, 0);\n    dstProxyView-\u003esetDstSampleFlags(dstSampleFlags);\n    return;\n}\n\n// All our current copy code.",
+      "revId": "5981f6a17e4bb5cd80b5f91e9ce026b765dd83b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4347130a_88ff03a5",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1989,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-14T17:16:21Z",
+      "side": 1,
+      "message": "I feel like we shouldn\u0027t worry about what the OP needs inside this setupDstRead function. Like once we are in this function we already know the op needs to read the dst. At this point all we care about is if the OpsTask itself is rendering to an MSAA target or not. And that should have all been setup before setupDstRead is called.",
+      "range": {
+        "startLine": 1989,
+        "startChar": 15,
+        "endLine": 1989,
+        "endChar": 42
+      },
+      "revId": "5981f6a17e4bb5cd80b5f91e9ce026b765dd83b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
