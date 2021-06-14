@@ -10,8 +10,6 @@ layout(key) in GrClipEdgeType edgeType;
 in float2 center;
 in float radius;
 
-float2 prevCenter;
-float prevRadius = -1;
 // The circle uniform is (center.x, center.y, radius + 0.5, 1 / (radius + 0.5)) for regular
 // fills and (..., radius - 0.5, 1 / (radius - 0.5)) for inverse fills.
 uniform float4 circle;
@@ -34,20 +32,15 @@ uniform float4 circle;
 }
 
 @setData(pdman) {
-    if (radius != prevRadius || center != prevCenter) {
-        SkScalar effectiveRadius = radius;
-        if (GrProcessorEdgeTypeIsInverseFill((GrClipEdgeType) edgeType)) {
-            effectiveRadius -= 0.5f;
-            // When the radius is 0.5 effectiveRadius is 0 which causes an inf * 0 in the shader.
-            effectiveRadius = std::max(0.001f, effectiveRadius);
-        } else {
-            effectiveRadius += 0.5f;
-        }
-        pdman.set4f(circle, center.fX, center.fY, effectiveRadius,
-                    SkScalarInvert(effectiveRadius));
-        prevCenter = center;
-        prevRadius = radius;
+    SkScalar effectiveRadius = radius;
+    if (GrProcessorEdgeTypeIsInverseFill(edgeType)) {
+        effectiveRadius -= 0.5f;
+        // When the radius is 0.5 effectiveRadius is 0 which causes an inf * 0 in the shader.
+        effectiveRadius = std::max(0.001f, effectiveRadius);
+    } else {
+        effectiveRadius += 0.5f;
     }
+    pdman.set4f(circle, center.fX, center.fY, effectiveRadius, SkScalarInvert(effectiveRadius));
 }
 
 half4 main() {

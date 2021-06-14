@@ -30,7 +30,6 @@ public:
         (void)center;
         auto radii = _outer.radii;
         (void)radii;
-        prevRadii = float2(-1.0);
         ellipseVar = args.fUniformHandler->addUniform(
                 &_outer, kFragment_GrShaderFlag, kFloat4_GrSLType, "ellipse");
         if (!sk_Caps.floatIs32Bits) {
@@ -38,9 +37,7 @@ public:
                     &_outer, kFragment_GrShaderFlag, kFloat2_GrSLType, "scale");
         }
         fragBuilder->codeAppendf(
-                R"SkSL(float2 prevCenter;
-float2 prevRadii = float2(%f, %f);
-float2 d = sk_FragCoord.xy - %s.xy;
+                R"SkSL(float2 d = sk_FragCoord.xy - %s.xy;
 const bool medPrecision = !sk_Caps.floatIs32Bits;
 @if (medPrecision) {
     d *= %s.y;
@@ -74,8 +71,6 @@ half alpha;
     default:
         discard;
 })SkSL",
-                prevRadii.fX,
-                prevRadii.fY,
                 args.fUniformHandler->getUniformCStr(ellipseVar),
                 scaleVar.isValid() ? args.fUniformHandler->getUniformCStr(scaleVar) : "float2(0)",
                 args.fUniformHandler->getUniformCStr(ellipseVar),
@@ -104,33 +99,26 @@ private:
         UniformHandle& scale = scaleVar;
         (void)scale;
 
-        if (radii != prevRadii || center != prevCenter) {
-            float invRXSqd;
-            float invRYSqd;
-            // If we're using a scale factor to work around precision issues, choose the larger
-            // radius as the scale factor. The inv radii need to be pre-adjusted by the scale
-            // factor.
-            if (scale.isValid()) {
-                if (radii.fX > radii.fY) {
-                    invRXSqd = 1.f;
-                    invRYSqd = (radii.fX * radii.fX) / (radii.fY * radii.fY);
-                    pdman.set2f(scale, radii.fX, 1.f / radii.fX);
-                } else {
-                    invRXSqd = (radii.fY * radii.fY) / (radii.fX * radii.fX);
-                    invRYSqd = 1.f;
-                    pdman.set2f(scale, radii.fY, 1.f / radii.fY);
-                }
+        float invRXSqd;
+        float invRYSqd;
+        // If we're using a scale factor to work around precision issues, choose the larger radius
+        // as the scale factor. The inv radii need to be pre-adjusted by the scale factor.
+        if (scale.isValid()) {
+            if (radii.fX > radii.fY) {
+                invRXSqd = 1.f;
+                invRYSqd = (radii.fX * radii.fX) / (radii.fY * radii.fY);
+                pdman.set2f(scale, radii.fX, 1.f / radii.fX);
             } else {
-                invRXSqd = 1.f / (radii.fX * radii.fX);
-                invRYSqd = 1.f / (radii.fY * radii.fY);
+                invRXSqd = (radii.fY * radii.fY) / (radii.fX * radii.fX);
+                invRYSqd = 1.f;
+                pdman.set2f(scale, radii.fY, 1.f / radii.fY);
             }
-            pdman.set4f(ellipse, center.fX, center.fY, invRXSqd, invRYSqd);
-            prevCenter = center;
-            prevRadii = radii;
+        } else {
+            invRXSqd = 1.f / (radii.fX * radii.fX);
+            invRYSqd = 1.f / (radii.fY * radii.fY);
         }
+        pdman.set4f(ellipse, center.fX, center.fY, invRXSqd, invRYSqd);
     }
-    SkPoint prevCenter = float2(0);
-    SkPoint prevRadii = float2(0);
     UniformHandle ellipseVar;
     UniformHandle scaleVar;
 };
