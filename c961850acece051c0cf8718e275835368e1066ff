@@ -22,6 +22,30 @@
       },
       "revId": "c961850acece051c0cf8718e275835368e1066ff",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d2a0369f_e7e6808a",
+        "filename": "BUILD.gn",
+        "patchSetId": 8
+      },
+      "lineNbr": 2039,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-06-14T17:24:26Z",
+      "side": 1,
+      "message": "Done + swapped skia_oga_sources sense too",
+      "parentUuid": "a65a176f_5f719500",
+      "range": {
+        "startLine": 2038,
+        "startChar": 8,
+        "endLine": 2039,
+        "endChar": 34
+      },
+      "revId": "c961850acece051c0cf8718e275835368e1066ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
