@@ -11,6 +11,7 @@
 #include "src/gpu/GrPathRenderer.h"
 #include "src/gpu/ops/GrOp.h"
 
+#if 0
 class GrDrawOp;
 class GrRecordingContext;
 class GrStyledShape;
@@ -42,5 +43,7 @@ private:
 
     using INHERITED = GrPathRenderer;
 };
+
+#endif
 
 #endif

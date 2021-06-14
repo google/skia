@@ -7,6 +7,7 @@
 #ifndef GrClipStackClip_DEFINED
 #define GrClipStackClip_DEFINED
 
+#if 0
 #include "src/core/SkClipStack.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrReducedClip.h"
@@ -59,3 +60,4 @@ private:
 };
 
 #endif // GrClipStackClip_DEFINED
+#endif

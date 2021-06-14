@@ -8,6 +8,8 @@
 #ifndef GrDefaultPathRenderer_DEFINED
 #define GrDefaultPathRenderer_DEFINED
 
+#if 0
+
 #include "include/core/SkTypes.h"
 #include "src/gpu/GrPathRenderer.h"
 #include "src/gpu/ops/GrPathStencilSettings.h"
@@ -42,5 +44,7 @@ private:
 
     using INHERITED = GrPathRenderer;
 };
+
+#endif
 
 #endif
