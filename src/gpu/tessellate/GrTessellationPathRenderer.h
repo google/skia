@@ -8,6 +8,10 @@
 #ifndef GrTessellationPathRenderer_DEFINED
 #define GrTessellationPathRenderer_DEFINED
 
+#include "include/gpu/GrTypes.h"
+
+#if GR_OGA
+
 #include "src/gpu/GrDynamicAtlas.h"
 #include "src/gpu/GrOnFlushResourceProvider.h"
 #include "src/gpu/GrPathRenderer.h"
@@ -60,5 +64,27 @@ private:
 };
 
 GR_MAKE_BITFIELD_CLASS_OPS(GrTessellationPathRenderer::PathFlags);
+
+#else // GR_OGA
+
+class GrTessellationPathRenderer {
+public:
+    // Don't allow linearized segments to be off by more than 1/4th of a pixel from the true curve.
+    constexpr static float kLinearizationPrecision = 4;
+
+    // We send these flags to the internal path filling Ops to control how a path gets rendered.
+    enum class PathFlags {
+        kNone = 0,
+        kStencilOnly = (1 << 0),
+        kWireframe = (1 << 1)
+    };
+
+    static bool IsSupported(const GrCaps&) { return false; }
+
+};
+
+GR_MAKE_BITFIELD_CLASS_OPS(GrTessellationPathRenderer::PathFlags);
+
+#endif // GR_OGA
 
 #endif
