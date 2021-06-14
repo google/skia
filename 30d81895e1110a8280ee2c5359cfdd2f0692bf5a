@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cb5844b7_74d50cb9",
+        "filename": "experimental/ngatoy/Cmds.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-14T15:37:33Z",
+      "side": 1,
+      "message": "I\u0027m hopeful that for nga rasterization, we can do away with this apply_diff entirely. Does that seem possible to you?",
+      "range": {
+        "startLine": 73,
+        "startChar": 4,
+        "endLine": 77,
+        "endChar": 5
+      },
+      "revId": "30d81895e1110a8280ee2c5359cfdd2f0692bf5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6f03f664_f67d4192",
+        "filename": "experimental/ngatoy/Cmds.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-14T15:37:33Z",
+      "side": 1,
+      "message": "and we expect the painters order to be invalid because when being executed like this, it\u0027s a Cmd created for the test commands vector. We\u0027ll only set the painters order when we start creating ClipCmd instances within the FakeCanvas, and at that point, it\u0027ll be rasterize() not execute() that\u0027s called, right?",
+      "range": {
+        "startLine": 180,
+        "startChar": 4,
+        "endLine": 180,
+        "endChar": 49
+      },
+      "revId": "30d81895e1110a8280ee2c5359cfdd2f0692bf5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f6b821b2_15a96d85",
+        "filename": "experimental/ngatoy/Cmds.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-14T15:37:33Z",
+      "side": 1,
+      "message": "If these ClipCmds represent intersect operations, the zbuffer needs to have drawZ written to every pixel NOT inside fRect, since clip is meant to rasterize to the pixels that cannot be drawn to. If it\u0027s a difference op, then we just rasterize the rect itself.\n\nMy doc talked about limiting the rasterization of intersect clip ops the bounds of the shape because it could rely on the scissor test to clip out everything outside the bounds of the shape. Since we don\u0027t have a scissor in this particular case, we should do (everything - rect) directly. And since the clips are limited to integer rects, it would just always be the scissor and then we wouldn\u0027t actually be testing the fundamental theory of the clip sorting.",
+      "range": {
+        "startLine": 195,
+        "startChar": 4,
+        "endLine": 201,
+        "endChar": 5
+      },
+      "revId": "30d81895e1110a8280ee2c5359cfdd2f0692bf5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
