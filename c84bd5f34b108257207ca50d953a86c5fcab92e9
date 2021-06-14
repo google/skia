@@ -38,6 +38,52 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "aa16036c_0ce0cedd",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-14T20:28:28Z",
+      "side": 1,
+      "message": "Here\u0027s a trick I have always liked if you are open to it:\n\n                    for (size_t i \u003d 0; i \u003c slots; ++i) {\n                        value.append(isFloat ? SkSL::to_string(floatData[i])\n                                             : SkSL::to_string(intData[i]));\n                        value.push_back(\",\");\n                    }\n                    value.back() \u003d \u0027)\u0027;",
+      "range": {
+        "startLine": 88,
+        "startChar": 0,
+        "endLine": 95,
+        "endChar": 38
+      },
+      "revId": "c84bd5f34b108257207ca50d953a86c5fcab92e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "684068d5_710d4230",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-14T20:28:28Z",
+      "side": 1,
+      "message": "your call: might be clearer as `uniformFlags[uniIndex]`.",
+      "range": {
+        "startLine": 199,
+        "startChar": 16,
+        "endLine": 199,
+        "endChar": 31
+      },
+      "revId": "c84bd5f34b108257207ca50d953a86c5fcab92e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "bcd72da7_54031990",
         "filename": "src/gpu/effects/GrSkSLFP.h",
         "patchSetId": 10
@@ -78,6 +124,29 @@
         "startChar": 46,
         "endLine": 48,
         "endChar": 56
+      },
+      "revId": "c84bd5f34b108257207ca50d953a86c5fcab92e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8a3e2c77_e9de4bb2",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-14T20:28:28Z",
+      "side": 1,
+      "message": "I agree with Michael, it takes some going back and forth between the multiple `appendArgs` functions to determine what is happening.\n\nTwo ideas to make it simpler:\n- Add comments explaining the flow. It\u0027s non-obvious and there are multiple overloads that cooperate. Just briefly explain what each function does and where it\u0027s going next.\n- See if it reads better if you do this incrementing-forward happen above the appendArgs call instead of inside of it:\n\n    uniformDataPtr +\u003d sizeof(val);\n    uniformIndex++;\n    this-\u003eappendArgs(uniformDataPtr, uniformIndex, std::forward\u003cArgs\u003e(remainder)...);\n    \nNot sure about this one, but it feels like it might improve readability a touch.",
+      "range": {
+        "startLine": 175,
+        "startChar": 16,
+        "endLine": 175,
+        "endChar": 62
       },
       "revId": "c84bd5f34b108257207ca50d953a86c5fcab92e9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
