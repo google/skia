@@ -16,6 +16,7 @@
 
 class SkColorFilter;
 class SkColorSpace;
+class SkCustomBlend;
 struct SkRect;
 class SkImageFilter;
 class SkMaskFilter;
@@ -506,11 +507,38 @@ public:
     bool isSrcOver() const { return (SkBlendMode)fBitfields.fBlendMode == SkBlendMode::kSrcOver; }
 
     /** Sets SkBlendMode to mode.
-        Does not check for valid input.
+        Does not verify that `mode` corresponds to a valid SkBlendMode.
+        Does not clear the custom blend function, if one has been set. You can clear a custom blend
+        function on the SkPaint by calling `paint.setCustomBlend(nullptr)`. When drawing, custom
+        blend functions take precedence over the SkBlendMode.
 
         @param mode  SkBlendMode used to combine source color and destination
     */
-    void setBlendMode(SkBlendMode mode) { fBitfields.fBlendMode = (unsigned)mode; }
+    void setBlendMode(SkBlendMode mode);
+
+    /** Returns the custom user-supplied blend function, if one has been set.
+        Does not alter SkCustomBlend SkRefCnt.
+
+        @return  the SkCustomBlend assigned to this paint, otherwise nullptr
+    */
+    SkCustomBlend* getCustomBlend() const { return fCustomBlend.get(); }
+
+    /** Returns the custom user-supplied blend function, if one has been set.
+        Increments the SkCustomBlend SkRefCnt by one.
+
+        @return  the SkCustomBlend assigned to this paint, otherwise nullptr
+    */
+    sk_sp<SkCustomBlend> refCustomBlend() const;
+
+    /** Enables a custom user-supplied blend function (create these via SkRuntimeEffect).
+        If a custom blend function is set, it takes precedence over the SkBlendMode.
+        Increments the passed-in blend SkRefCnt by one.
+
+        TODO(skia:12080): this feature is incomplete; do not use!
+
+        @param blend  the custom blend function to use
+    */
+    void setCustomBlend(sk_sp<SkCustomBlend> blend);
 
     /** Returns SkPathEffect if set, or nullptr.
         Does not alter SkPathEffect SkRefCnt.
@@ -691,6 +719,7 @@ private:
     sk_sp<SkMaskFilter>   fMaskFilter;
     sk_sp<SkColorFilter>  fColorFilter;
     sk_sp<SkImageFilter>  fImageFilter;
+    sk_sp<SkCustomBlend>  fCustomBlend;
 
     SkColor4f       fColor4f;
     SkScalar        fWidth;
