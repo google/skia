@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "260a1214_686a8a48",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-14T21:09:55Z",
+      "side": 1,
+      "message": "Let\u0027s use reinterpret_cast? I\u0027m actually wondering if this cast is stripping away const.",
+      "range": {
+        "startLine": 142,
+        "startChar": 42,
+        "endLine": 142,
+        "endChar": 52
+      },
+      "revId": "227f6cd4cbdc6f0ab5a5660c8d0c3c5507e2393c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
