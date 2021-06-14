@@ -16,6 +16,23 @@
       "message": "Adding Adlai for the opsTask merging stuff.",
       "revId": "5981f6a17e4bb5cd80b5f91e9ce026b765dd83b5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b753b676_5aa40910",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-06-14T16:11:10Z",
+      "side": 1,
+      "message": "Ops task merging stuff seems fine to me, no opinion on the rest.",
+      "revId": "5981f6a17e4bb5cd80b5f91e9ce026b765dd83b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
