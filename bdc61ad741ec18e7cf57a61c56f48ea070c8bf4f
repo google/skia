@@ -140,6 +140,30 @@
       },
       "revId": "bdc61ad741ec18e7cf57a61c56f48ea070c8bf4f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8a303531_48168bde",
+        "filename": "src/gpu/tessellate/GrTessellationPathRenderer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-14T19:02:43Z",
+      "side": 1,
+      "message": "ah, thanks, I had missed that.",
+      "parentUuid": "32ddcc65_23530a26",
+      "range": {
+        "startLine": 303,
+        "startChar": 4,
+        "endLine": 305,
+        "endChar": 41
+      },
+      "revId": "bdc61ad741ec18e7cf57a61c56f48ea070c8bf4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
