@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "275a40ba_a95d87dc",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-14T19:00:48Z",
+      "side": 1,
+      "message": "We don\u0027t pass index+1 because we didn\u0027t advance within uniformDataPtr? Or should it be index+1 because we consumed \u0027child\u0027?",
+      "range": {
+        "startLine": 152,
+        "startChar": 41,
+        "endLine": 152,
+        "endChar": 46
+      },
+      "revId": "56a3185f9f05812b7a76d6d63c4b1b2fd9b790d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ac295370_57b18d1b",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-14T19:00:48Z",
+      "side": 1,
+      "message": "I\u0027m assuming no index+1 here because we are actually appending the current value, now that we\u0027ve stripped off the GrSpecializedUniform business.",
+      "range": {
+        "startLine": 164,
+        "startChar": 41,
+        "endLine": 164,
+        "endChar": 46
+      },
+      "revId": "56a3185f9f05812b7a76d6d63c4b1b2fd9b790d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2fb265d1_9a9d6d0e",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-14T19:00:48Z",
+      "side": 1,
+      "message": "what happens if T is a std::unique_ptr\u003cGrFragmentProcessor\u003e? should we prevent that here, or is this restricted elsewhere?",
+      "range": {
+        "startLine": 213,
+        "startChar": 8,
+        "endLine": 214,
+        "endChar": 95
+      },
+      "revId": "56a3185f9f05812b7a76d6d63c4b1b2fd9b790d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
