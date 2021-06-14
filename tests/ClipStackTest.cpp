@@ -30,9 +30,7 @@
 #include "src/core/SkClipStack.h"
 #include "src/core/SkTLList.h"
 #include "src/gpu/GrClip.h"
-#include "src/gpu/GrClipStackClip.h"
 #include "src/gpu/GrDirectContextPriv.h"
-#include "src/gpu/GrReducedClip.h"
 #include "src/gpu/GrResourceCache.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxy.h"
@@ -44,9 +42,6 @@
 #include <new>
 
 class GrCaps;
-
-typedef GrReducedClip::ElementList ElementList;
-typedef GrReducedClip::InitialState InitialState;
 
 static void test_assign_and_comparison(skiatest::Reporter* reporter) {
     SkClipStack s;
@@ -878,6 +873,13 @@ static void test_invfill_diff_bug(skiatest::Reporter* reporter) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+#if GR_OGA
+#include "src/gpu/GrClipStackClip.h"
+#include "src/gpu/GrReducedClip.h"
+
+typedef GrReducedClip::ElementList ElementList;
+typedef GrReducedClip::InitialState InitialState;
+
 // Functions that add a shape to the clip stack. The shape is computed from a rectangle.
 // AA is always disabled since the clip stack reducer can cause changes in aa rasterization of the
 // stack. A fractional edge repeated in different elements may be rasterized fewer times using the
@@ -1452,6 +1454,8 @@ static void test_tiny_query_bounds_assertion_bug(skiatest::Reporter* reporter) {
     }
 }
 
+#endif // GR_OGA
+
 static void test_is_rrect_deep_rect_stack(skiatest::Reporter* reporter) {
     static constexpr SkRect kTargetBounds = SkRect::MakeWH(1000, 500);
     // All antialiased or all not antialiased.
@@ -1534,12 +1538,14 @@ DEF_TEST(ClipStack, reporter) {
     test_quickContains(reporter);
     test_invfill_diff_bug(reporter);
 
+#if GR_OGA
     test_reduced_clip_stack(reporter, /* clipShader */ false);
     test_reduced_clip_stack(reporter, /* clipShader */ true);
     test_reduced_clip_stack_genid(reporter);
     test_reduced_clip_stack_no_aa_crash(reporter);
     test_reduced_clip_stack_aa(reporter);
     test_tiny_query_bounds_assertion_bug(reporter);
+#endif
     test_is_rrect_deep_rect_stack(reporter);
 }
 

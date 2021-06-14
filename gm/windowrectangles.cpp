@@ -33,8 +33,6 @@
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrReducedClip.h"
-#include "src/gpu/GrStencilClip.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/GrUserStencilSettings.h"
@@ -129,8 +127,15 @@ DrawResult WindowRectanglesGM::onCoverClipStack(const SkClipStack& stack, SkCanv
 }
 
 DEF_GM( return new WindowRectanglesGM(); )
+}  // namespace skiagm
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#if GR_OGA
+#include "src/gpu/GrReducedClip.h"
+#include "src/gpu/GrStencilClip.h"
+
+namespace skiagm {
 
 constexpr static int kNumWindows = 8;
 
@@ -303,5 +308,7 @@ void WindowRectanglesMaskGM::stencilCheckerboard(GrSurfaceDrawContext* rtc, bool
 }
 
 DEF_GM( return new WindowRectanglesMaskGM(); )
-
 }  // namespace skiagm
+
+#endif // GR_OGA
+
