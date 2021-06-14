@@ -9,6 +9,7 @@
 
 #include "src/gpu/mtl/GrMtlBuffer.h"
 #include "src/gpu/mtl/GrMtlGpu.h"
+#include "src/gpu/mtl/GrMtlRenderCommandEncoder.h"
 
 #if !__has_feature(objc_arc)
 #error This file must be compiled with Arc. Use -fobjc-arc flag
@@ -106,16 +107,14 @@ void GrMtlPipelineStateDataManager::setMatrix2fv(UniformHandle u,
 
 void GrMtlPipelineStateDataManager::uploadAndBindUniformBuffers(
         GrMtlGpu* gpu,
-        id<MTLRenderCommandEncoder> renderCmdEncoder) const {
+        GrMtlRenderCommandEncoder* renderCmdEncoder) const {
     if (fUniformSize && fUniformsDirty) {
         if (@available(macOS 10.11, iOS 8.3, *)) {
             SkASSERT(fUniformSize <= gpu->caps()->maxPushConstantsSize());
-            [renderCmdEncoder setVertexBytes: fUniformData.get()
-                                      length: fUniformSize
-                                     atIndex: GrMtlUniformHandler::kUniformBinding];
-            [renderCmdEncoder setFragmentBytes: fUniformData.get()
-                                        length: fUniformSize
-                                       atIndex: GrMtlUniformHandler::kUniformBinding];
+            renderCmdEncoder->setVertexBytes(fUniformData.get(), fUniformSize,
+                                             GrMtlUniformHandler::kUniformBinding);
+            renderCmdEncoder->setFragmentBytes(fUniformData.get(), fUniformSize,
+                                               GrMtlUniformHandler::kUniformBinding);
         } else {
             // We only support iOS 9.0+, so we should never hit this
             SK_ABORT("Missing interface. Skia only supports Metal on iOS 9.0 and higher");

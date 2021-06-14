@@ -18,6 +18,7 @@
 
 class GrMtlGpu;
 class GrMtlPipelineStateDataManager;
+class GrMtlRenderCommandEncoder;
 class GrMtlSampler;
 class GrMtlTexture;
 class GrPipeline;
@@ -50,13 +51,13 @@ public:
     void setTextures(const GrGeometryProcessor&,
                      const GrPipeline&,
                      const GrSurfaceProxy* const geomProcTextures[]);
-    void bindTextures(id<MTLRenderCommandEncoder> renderCmdEncoder);
+    void bindTextures(GrMtlRenderCommandEncoder* renderCmdEncoder);
 
-    void setDrawState(id<MTLRenderCommandEncoder>,
+    void setDrawState(GrMtlRenderCommandEncoder*,
                       const GrSwizzle& writeSwizzle,
                       const GrXferProcessor&);
 
-    static void SetDynamicScissorRectState(id<MTLRenderCommandEncoder> renderCmdEncoder,
+    static void SetDynamicScissorRectState(GrMtlRenderCommandEncoder* renderCmdEncoder,
                                            const GrRenderTarget* renderTarget,
                                            GrSurfaceOrigin rtOrigin,
                                            SkIRect scissorRect);
@@ -83,11 +84,11 @@ private:
 
     void setRenderTargetState(const GrRenderTarget*, GrSurfaceOrigin);
 
-    void bindUniforms(id<MTLRenderCommandEncoder>);
+    void bindUniforms(GrMtlRenderCommandEncoder*);
 
-    void setBlendConstants(id<MTLRenderCommandEncoder>, const GrSwizzle&, const GrXferProcessor&);
+    void setBlendConstants(GrMtlRenderCommandEncoder*, const GrSwizzle&, const GrXferProcessor&);
 
-    void setDepthStencilState(id<MTLRenderCommandEncoder> renderCmdEncoder);
+    void setDepthStencilState(GrMtlRenderCommandEncoder* renderCmdEncoder);
 
     struct SamplerBindings {
         GrMtlSampler*  fSampler;
