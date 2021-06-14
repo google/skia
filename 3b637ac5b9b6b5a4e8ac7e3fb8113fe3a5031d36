@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "860f664d_b394566e",
+        "filename": "src/sksl/dsl/DSLCore.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-14T12:51:58Z",
+      "side": 1,
+      "message": "Sorry I haven\u0027t kept up: What\u0027s the distinction here? Is one of these a strict superset of the other?",
+      "range": {
+        "startLine": 71,
+        "startChar": 12,
+        "endLine": 71,
+        "endChar": 90
+      },
+      "revId": "3b637ac5b9b6b5a4e8ac7e3fb8113fe3a5031d36",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3c64cee4_f224f603",
+        "filename": "src/sksl/dsl/DSLRuntimeEffects.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-14T12:51:58Z",
+      "side": 1,
+      "message": "Will skipping this trigger an assert on the next StartRuntimeShader call?",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 43,
+        "endChar": 1
+      },
+      "revId": "3b637ac5b9b6b5a4e8ac7e3fb8113fe3a5031d36",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
