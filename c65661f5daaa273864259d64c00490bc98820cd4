@@ -95,6 +95,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7beebefe_41e73e73",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-14T19:03:17Z",
+      "side": 1,
+      "message": "ack",
+      "parentUuid": "b6e9f0f6_b46e3f62",
+      "range": {
+        "startLine": 72,
+        "startChar": 0,
+        "endLine": 72,
+        "endChar": 58
+      },
+      "revId": "c65661f5daaa273864259d64c00490bc98820cd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "087dbabc_29365b51",
@@ -132,6 +156,30 @@
       "side": 1,
       "message": "Yes, it ignores inverseness.",
       "parentUuid": "087dbabc_29365b51",
+      "range": {
+        "startLine": 231,
+        "startChar": 15,
+        "endLine": 231,
+        "endChar": 56
+      },
+      "revId": "c65661f5daaa273864259d64c00490bc98820cd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b48401df_70a10739",
+        "filename": "src/gpu/tessellate/GrTessellationPathRenderer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-14T19:03:17Z",
+      "side": 1,
+      "message": "perfect, just wanted to double check",
+      "parentUuid": "b53be778_03e39fff",
       "range": {
         "startLine": 231,
         "startChar": 15,
