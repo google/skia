@@ -15,6 +15,8 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrVx.h"
+#include "src/gpu/effects/GrBlendFragmentProcessor.h"
+#include "src/gpu/effects/generated/GrDeviceSpaceEffect.h"
 #include "src/gpu/geometry/GrStyledShape.h"
 #include "src/gpu/geometry/GrWangsFormula.h"
 #include "src/gpu/ops/GrFillRectOp.h"
@@ -218,6 +220,71 @@ void GrTessellationPathRenderer::onStencilPath(const StencilPathArgs& args) {
     auto op = make_non_convex_fill_op(args.fContext, PathFlags::kStencilOnly, aaType, pathDevBounds,
                                       *args.fViewMatrix, path, GrPaint());
     surfaceDrawContext->addDrawOp(args.fClip, std::move(op));
+}
+
+GrFPResult GrTessellationPathRenderer::makeAtlasClipFP(
+        const SkIRect& drawBounds, const SkMatrix& viewMatrix, const SkPath& path, GrAA aa,
+        std::unique_ptr<GrFragmentProcessor> inputCoverage, const GrCaps& caps) {
+    if (viewMatrix.hasPerspective()) {
+        return GrFPFailure(std::move(inputCoverage));
+    }
+    SkIRect devIBounds;
+    SkIPoint16 locationInAtlas;
+    bool transposedInAtlas;
+    // tryAddPathToAtlas() ignores inverseness of the fill. See getAtlasUberPath().
+    if (!this->tryAddPathToAtlas(caps, viewMatrix, path, viewMatrix.mapRect(path.getBounds()),
+                                 aa != GrAA::kNo, &devIBounds, &locationInAtlas,
+                                 &transposedInAtlas)) {
+        // The path is too big, or the atlas ran out of room.
+        return GrFPFailure(std::move(inputCoverage));
+    }
+    GrSurfaceProxyView atlasView(sk_ref_sp(fAtlas.textureProxy()), GrDynamicAtlas::kTextureOrigin,
+                                 caps.getReadSwizzle(fAtlas.textureProxy()->backendFormat(),
+                                                     GrColorType::kAlpha_8));
+    SkMatrix atlasMatrix;
+    SkRect atlasSubset, atlasDomain;
+    auto [atlasX, atlasY] = locationInAtlas;
+    if (!transposedInAtlas) {
+        auto atlasOffset = SkVector::Make(atlasX - devIBounds.left(), atlasY - devIBounds.top());
+        atlasMatrix = SkMatrix::Translate(atlasOffset);
+        atlasSubset = SkRect::Make(devIBounds).makeOffset(atlasOffset);
+        atlasDomain = SkRect::Make(drawBounds).makeOffset(atlasOffset);
+    } else {
+        atlasMatrix.setAll(0, 1, atlasX - devIBounds.top(),
+                           1, 0, atlasY - devIBounds.left(),
+                           0, 0, 1);
+        atlasSubset = SkRect::MakeXYWH(atlasX, atlasY, devIBounds.height(), devIBounds.width());
+        atlasDomain = atlasMatrix.mapRect(SkRect::Make(drawBounds));
+    }
+    // Allow for padding so GrTextureEffect doesn't enforce the subset unnecessarily.
+    atlasSubset.outset(GrDynamicAtlas::kPadding, GrDynamicAtlas::kPadding);
+#ifdef SK_DEBUG
+    if (!path.isInverseFillType()) {
+        // At this point in time we expect callers to tighten the scissor for "kIntersect" clips, as
+        // opposed to us having to enforce the texture subset. Feel free to remove this assert if
+        // that ever changes.
+        SkASSERT(atlasSubset.contains(atlasDomain));
+    }
+#endif
+    GrSamplerState samplerState(GrSamplerState::WrapMode::kClampToBorder,
+                                GrSamplerState::Filter::kNearest);
+    // Look up clip coverage in the atlas.
+    auto fp = GrTextureEffect::MakeSubset(std::move(atlasView), kPremul_SkAlphaType, atlasMatrix,
+                                          samplerState, atlasSubset, atlasDomain, caps);
+    // Feed sk_FragCoord into the above texture lookup.
+    fp = GrDeviceSpaceEffect::Make(std::move(fp));
+    if (path.isInverseFillType()) {
+        // outputCoverage = inputCoverage * (1 - atlasAlpha)
+        fp = GrBlendFragmentProcessor::Make(
+                std::move(fp), std::move(inputCoverage), SkBlendMode::kDstOut,
+                GrBlendFragmentProcessor::BlendBehavior::kSkModeBehavior);
+    } else {
+        // outputCoverage = inputCoverage * atlasAlpha
+        fp = GrBlendFragmentProcessor::Make(
+                std::move(fp), std::move(inputCoverage), SkBlendMode::kDstIn,
+                GrBlendFragmentProcessor::BlendBehavior::kSkModeBehavior);
+    }
+    return GrFPSuccess(std::move(fp));
 }
 
 void GrTessellationPathRenderer::AtlasPathKey::set(const SkMatrix& m, bool antialias,
