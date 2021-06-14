@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b7917ccc_021c160d",
+        "filename": "include/core/SkFlattenable.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-14T15:09:56Z",
+      "side": 0,
+      "message": "driveby comment: Is this still used externally?",
+      "range": {
+        "startLine": 31,
+        "startChar": 8,
+        "endLine": 31,
+        "endChar": 26
+      },
+      "revId": "bc4bc5f1e2844dbfcd91d173c41c2bb63bc88334",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
