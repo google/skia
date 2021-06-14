@@ -28,5 +28,4 @@ private:
     using INHERITED = GrPathRenderer;
 };
 
-
 #endif

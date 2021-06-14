@@ -8,8 +8,11 @@
 #ifndef GrPathRenderer_DEFINED
 #define GrPathRenderer_DEFINED
 
-#include "include/core/SkRefCnt.h"
 #include "include/private/GrTypesPriv.h"
+
+#if GR_OGA
+
+#include "include/core/SkRefCnt.h"
 #include "include/private/SkTArray.h"
 
 class GrCaps;
@@ -206,5 +209,32 @@ private:
 
     using INHERITED = SkRefCnt;
 };
+
+#else // GR_OGA
+
+#include "src/core/SkDrawProcs.h"
+#include "src/gpu/GrStyle.h"
+
+class GrPathRenderer {
+public:
+    static bool IsStrokeHairlineOrEquivalent(const GrStyle& style, const SkMatrix& matrix,
+                                             SkScalar* outCoverage) {
+        if (style.pathEffect()) {
+            return false;
+        }
+        const SkStrokeRec& stroke = style.strokeRec();
+        if (stroke.isHairlineStyle()) {
+            if (outCoverage) {
+                *outCoverage = SK_Scalar1;
+            }
+            return true;
+        }
+        return stroke.getStyle() == SkStrokeRec::kStroke_Style &&
+               SkDrawTreatAAStrokeAsHairline(stroke.getWidth(), matrix, outCoverage);
+    }
+
+};
+
+#endif // GR_OGA
 
 #endif
