@@ -100,7 +100,6 @@ tests_sources = [
   "$_tests/GrAHardwareBufferTest.cpp",
   "$_tests/GrBlockAllocatorTest.cpp",
   "$_tests/GrCCPRTest.cpp",
-  "$_tests/GrClipStackTest.cpp",
   "$_tests/GrContextAbandonTest.cpp",
   "$_tests/GrContextFactoryTest.cpp",
   "$_tests/GrContextOOM.cpp",
@@ -427,3 +426,7 @@ pathops_tests_sources = [
   "$_tests/PathOpsTypesTest.cpp",
   "$_tests/WangsFormulaTest.cpp",
 ]
+
+oga_tests_sources = [ "$_tests/GrClipStackTest.cpp" ]
+
+tests_sources += oga_tests_sources
