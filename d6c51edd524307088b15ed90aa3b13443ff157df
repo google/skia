@@ -22,6 +22,30 @@
       },
       "revId": "d6c51edd524307088b15ed90aa3b13443ff157df",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "75f6ecc6_5e613078",
+        "filename": "src/core/SkBlitter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 650,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-14T18:15:26Z",
+      "side": 0,
+      "message": "This was meant to be a no-op change... what does the `0 ||` contribute? I\u0027m not seeing it.",
+      "parentUuid": "c259098b_da6fe635",
+      "range": {
+        "startLine": 650,
+        "startChar": 4,
+        "endLine": 650,
+        "endChar": 9
+      },
+      "revId": "d6c51edd524307088b15ed90aa3b13443ff157df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
