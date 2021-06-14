@@ -8,6 +8,7 @@
 #ifndef GrAALinearizingConvexPathRenderer_DEFINED
 #define GrAALinearizingConvexPathRenderer_DEFINED
 
+#if 0
 #include "src/gpu/GrPathRenderer.h"
 
 class GrAALinearizingConvexPathRenderer : public GrPathRenderer {
@@ -21,5 +22,7 @@ private:
 
     bool onDrawPath(const DrawPathArgs&) override;
 };
+
+#endif
 
 #endif

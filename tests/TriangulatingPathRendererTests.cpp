@@ -707,6 +707,7 @@ static std::unique_ptr<GrFragmentProcessor> create_linear_gradient_processor(
     return as_SB(shader)->asFragmentProcessor({rContext, matrixProvider, &colorInfo});
 }
 
+#if GR_OGA
 static void test_path(GrRecordingContext* rContext,
                       GrSurfaceDrawContext* surfaceDrawContext,
                       const SkPath& path,
@@ -773,6 +774,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TriangulatingPathRendererTests, reporter, ctxInfo) 
     test_path(ctx, rtc.get(), create_path_45(), SkMatrix(), GrAAType::kCoverage);
     test_path(ctx, rtc.get(), create_path_46(), SkMatrix(), GrAAType::kCoverage);
 }
+
+#endif // GR_OGA
 
 namespace {
 
