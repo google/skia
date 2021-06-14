@@ -17,7 +17,6 @@
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/effects/GrPorterDuffXferProcessor.h"
 #include "src/gpu/geometry/GrStyledShape.h"
-#include "src/gpu/ops/GrTriangulatingPathRenderer.h"
 #include "src/shaders/SkShaderBase.h"
 #include "tools/ToolUtils.h"
 #include <map>
@@ -707,6 +706,9 @@ static std::unique_ptr<GrFragmentProcessor> create_linear_gradient_processor(
     return as_SB(shader)->asFragmentProcessor({rContext, matrixProvider, &colorInfo});
 }
 
+#if GR_OGA
+#include "src/gpu/ops/GrTriangulatingPathRenderer.h"
+
 static void test_path(GrRecordingContext* rContext,
                       GrSurfaceDrawContext* surfaceDrawContext,
                       const SkPath& path,
@@ -773,6 +775,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TriangulatingPathRendererTests, reporter, ctxInfo) 
     test_path(ctx, rtc.get(), create_path_45(), SkMatrix(), GrAAType::kCoverage);
     test_path(ctx, rtc.get(), create_path_46(), SkMatrix(), GrAAType::kCoverage);
 }
+
+#endif // GR_OGA
 
 namespace {
 
