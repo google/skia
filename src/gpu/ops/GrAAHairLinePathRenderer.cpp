@@ -23,6 +23,7 @@
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
+#include "src/gpu/GrUtil.h"
 #include "src/gpu/effects/GrBezierEffect.h"
 #include "src/gpu/geometry/GrPathUtils.h"
 #include "src/gpu/geometry/GrStyledShape.h"
@@ -740,7 +741,7 @@ GrAAHairLinePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
         return CanDrawPath::kNo;
     }
 
-    if (!IsStrokeHairlineOrEquivalent(args.fShape->style(), *args.fViewMatrix, nullptr)) {
+    if (!GrIsStrokeHairlineOrEquivalent(args.fShape->style(), *args.fViewMatrix, nullptr)) {
         return CanDrawPath::kNo;
     }
 
@@ -810,7 +811,7 @@ public:
                             const GrUserStencilSettings* stencilSettings) {
         SkScalar hairlineCoverage;
         uint8_t newCoverage = 0xff;
-        if (GrPathRenderer::IsStrokeHairlineOrEquivalent(style, viewMatrix, &hairlineCoverage)) {
+        if (GrIsStrokeHairlineOrEquivalent(style, viewMatrix, &hairlineCoverage)) {
             newCoverage = SkScalarRoundToInt(hairlineCoverage * 0xff);
         }
 

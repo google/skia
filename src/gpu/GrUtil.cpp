@@ -7,6 +7,9 @@
 
 #include "src/gpu/GrUtil.h"
 
+#include "src/core/SkDrawProcs.h"
+#include "src/gpu/GrStyle.h"
+
 GrIntelGpuFamily GrGetIntelGpuFamily(uint32_t deviceID) {
     // https://en.wikipedia.org/wiki/List_of_Intel_graphics_processing_units
     uint32_t maskedID = deviceID & 0xFF00;
@@ -57,4 +60,21 @@ GrIntelGpuFamily GrGetIntelGpuFamily(uint32_t deviceID) {
             break;
     }
     return kUnknown_IntelGpuFamily;
+}
+
+bool GrIsStrokeHairlineOrEquivalent(const GrStyle& style,
+                                    const SkMatrix& matrix,
+                                    SkScalar* outCoverage) {
+    if (style.pathEffect()) {
+        return false;
+    }
+    const SkStrokeRec& stroke = style.strokeRec();
+    if (stroke.isHairlineStyle()) {
+        if (outCoverage) {
+            *outCoverage = SK_Scalar1;
+        }
+        return true;
+    }
+    return stroke.getStyle() == SkStrokeRec::kStroke_Style &&
+           SkDrawTreatAAStrokeAsHairline(stroke.getWidth(), matrix, outCoverage);
 }
