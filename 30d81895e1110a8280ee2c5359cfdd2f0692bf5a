@@ -140,6 +140,30 @@
       },
       "revId": "30d81895e1110a8280ee2c5359cfdd2f0692bf5a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b644e80b_9edb3093",
+        "filename": "experimental/ngatoy/Cmds.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-14T20:17:01Z",
+      "side": 1,
+      "message": "But as currently written (ignoring the assert(0)), we\u0027re updating the zbuffer with all the pixels inside the clip rect instead of all the pixels outside the clip rect, so that would lead to incorrect rendering. It also doesn\u0027t apply the current MC state to the rect, which maybe it should? If it does, it makes sense to have the scissor and still rasterize the clip into the zbuffer, but if it\u0027s always axis-aligned integer rect, the set of pixels outside the clip but inside the scissor is empty.\n\nIf I\u0027m just fixating on this function that\u0027s not really used or up-to-date yet, don\u0027t let that stop you from landing the CL, though.",
+      "parentUuid": "9eacad5d_dabe3418",
+      "range": {
+        "startLine": 195,
+        "startChar": 4,
+        "endLine": 201,
+        "endChar": 5
+      },
+      "revId": "30d81895e1110a8280ee2c5359cfdd2f0692bf5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
