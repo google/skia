@@ -13,11 +13,13 @@
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/GrTypes.h"
 #include "src/gpu/GrBuffer.h"
+#include "src/gpu/mtl/GrMtlRenderCommandEncoder.h"
 #include "src/gpu/mtl/GrMtlUtil.h"
 
 class GrMtlGpu;
 class GrMtlPipelineState;
 class GrMtlOpsRenderPass;
+class GrMtlRenderCommandEncoder;
 
 GR_NORETAIN_BEGIN
 
@@ -34,9 +36,9 @@ public:
     }
 
     id<MTLBlitCommandEncoder> getBlitCommandEncoder();
-    id<MTLRenderCommandEncoder> getRenderCommandEncoder(MTLRenderPassDescriptor*,
-                                                        const GrMtlPipelineState*,
-                                                        GrMtlOpsRenderPass* opsRenderPass);
+    GrMtlRenderCommandEncoder* getRenderCommandEncoder(MTLRenderPassDescriptor*,
+                                                       const GrMtlPipelineState*,
+                                                       GrMtlOpsRenderPass* opsRenderPass);
 
     void addCompletedHandler(MTLCommandBufferHandler block) {
         [fCmdBuffer addCompletedHandler:block];
@@ -72,7 +74,7 @@ private:
 
     id<MTLCommandBuffer>        fCmdBuffer;
     id<MTLBlitCommandEncoder>   fActiveBlitCommandEncoder;
-    id<MTLRenderCommandEncoder> fActiveRenderCommandEncoder;
+    std::unique_ptr<GrMtlRenderCommandEncoder> fActiveRenderCommandEncoder;
     MTLRenderPassDescriptor*    fPreviousRenderPassDescriptor;
     bool                        fHasWork;
 
