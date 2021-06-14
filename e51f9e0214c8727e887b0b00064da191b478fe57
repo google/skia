@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4db3ecec_92cfe391",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-14T18:27:54Z",
+      "side": 1,
+      "message": "Please remove extra files (does our .gitignore need updating?)",
+      "revId": "e51f9e0214c8727e887b0b00064da191b478fe57",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
