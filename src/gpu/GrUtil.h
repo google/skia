@@ -7,7 +7,11 @@
 #ifndef GrUtil_DEFINED
 #define GrUtil_DEFINED
 
+#include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
+
+class GrStyle;
+class SkMatrix;
 
 enum GrIntelGpuFamily {
     kUnknown_IntelGpuFamily,
@@ -36,5 +40,9 @@ enum GrIntelGpuFamily {
 };
 
 GrIntelGpuFamily GrGetIntelGpuFamily(uint32_t deviceID);
+
+// Helper for determining if we can treat a thin stroke as a hairline w/ coverage.
+// If we can, we draw lots faster (raster device does this same test).
+bool GrIsStrokeHairlineOrEquivalent(const GrStyle&, const SkMatrix&, SkScalar* outCoverage);
 
 #endif
