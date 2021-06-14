@@ -56,7 +56,7 @@ public:
         SKV4,
     };
 
-    Parser(const char* text, size_t length, SymbolTable& symbols, ErrorReporter& errors);
+    Parser(skstd::string_view text, SymbolTable& symbols, ErrorReporter& errors);
 
     /**
      * Consumes a complete .sksl file and returns the parse tree. Errors are reported via the

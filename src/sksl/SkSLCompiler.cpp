@@ -359,7 +359,7 @@ LoadedModule Compiler::loadModule(ProgramKind kind,
     dsl::StartModule(this, kind, settings, baseModule);
     AutoSource as(this, source);
     IRGenerator::IRBundle ir = fIRGenerator->convertProgram(baseModule, /*isBuiltinCode=*/true,
-                                                            source->c_str(), source->length());
+                                                            *source);
     SkASSERT(ir.fSharedElements.empty());
     LoadedModule module = { kind, std::move(ir.fSymbolTable), std::move(ir.fElements) };
     dsl::End();
@@ -486,7 +486,7 @@ std::unique_ptr<Program> Compiler::convertProgram(
 
     dsl::Start(this, kind, settings);
     IRGenerator::IRBundle ir = fIRGenerator->convertProgram(baseModule, /*isBuiltinCode=*/false,
-                                                            textPtr->c_str(), textPtr->size());
+                                                            *textPtr);
     // Ideally, we would just use DSLWriter::ReleaseProgram and not have to do any manual mucking
     // about with the memory pool, but we've got some impedance mismatches to solve first
     Pool* memoryPool = dsl::DSLWriter::MemoryPool().get();
