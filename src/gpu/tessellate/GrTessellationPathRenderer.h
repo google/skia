@@ -19,15 +19,14 @@
 // desired.
 class GrTessellationPathRenderer : public GrPathRenderer, public GrOnFlushCallbackObject {
 public:
-    // Don't allow linearized segments to be off by more than 1/4th of a pixel from the true curve.
-    constexpr static float kLinearizationPrecision = 4;
-
+#if 0
     // We send these flags to the internal path filling Ops to control how a path gets rendered.
     enum class PathFlags {
         kNone = 0,
         kStencilOnly = (1 << 0),
         kWireframe = (1 << 1)
     };
+#endif
 
     static bool IsSupported(const GrCaps&);
 
@@ -61,6 +60,6 @@ private:
     SkPath fAtlasUberPaths[4];  // 2 fillTypes * 2 antialias modes.
 };
 
-GR_MAKE_BITFIELD_CLASS_OPS(GrTessellationPathRenderer::PathFlags);
+//GR_MAKE_BITFIELD_CLASS_OPS(GrTessellationPathRenderer::PathFlags);
 
 #endif

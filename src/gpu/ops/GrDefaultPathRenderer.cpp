@@ -22,6 +22,7 @@
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrSimpleMesh.h"
 #include "src/gpu/GrStyle.h"
+#include "src/gpu/GrUtil.h"
 #include "src/gpu/geometry/GrPathUtils.h"
 #include "src/gpu/geometry/GrStyledShape.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
@@ -566,7 +567,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrSurfaceDrawContext* surfaceDrawCo
     SkScalar hairlineCoverage;
     uint8_t newCoverage = 0xff;
     bool isHairline = false;
-    if (IsStrokeHairlineOrEquivalent(shape.style(), viewMatrix, &hairlineCoverage)) {
+    if (GrIsStrokeHairlineOrEquivalent(shape.style(), viewMatrix, &hairlineCoverage)) {
         newCoverage = SkScalarRoundToInt(hairlineCoverage * 0xff);
         isHairline = true;
     } else {
@@ -696,7 +697,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrSurfaceDrawContext* surfaceDrawCo
 
 GrPathRenderer::CanDrawPath
 GrDefaultPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
-    bool isHairline = IsStrokeHairlineOrEquivalent(
+    bool isHairline = GrIsStrokeHairlineOrEquivalent(
             args.fShape->style(), *args.fViewMatrix, nullptr);
     // If we aren't a single_pass_shape or hairline, we require stencil buffers.
     if (!(single_pass_shape(*args.fShape) || isHairline) &&
