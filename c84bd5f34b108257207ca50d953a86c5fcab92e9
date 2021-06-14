@@ -57,6 +57,30 @@
       },
       "revId": "c84bd5f34b108257207ca50d953a86c5fcab92e9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "620ab414_952e1ecf",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-14T20:27:54Z",
+      "side": 1,
+      "message": "Yeah, I don\u0027t like that aspect. I was hesitant to make them longer to type, but it\u0027s probably worth it. Moved them into GrSkSLFP.",
+      "parentUuid": "bcd72da7_54031990",
+      "range": {
+        "startLine": 48,
+        "startChar": 46,
+        "endLine": 48,
+        "endChar": 56
+      },
+      "revId": "c84bd5f34b108257207ca50d953a86c5fcab92e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
