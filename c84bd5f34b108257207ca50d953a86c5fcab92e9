@@ -34,6 +34,29 @@
       "parentUuid": "0956a4fe_4706ad0e",
       "revId": "c84bd5f34b108257207ca50d953a86c5fcab92e9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bcd72da7_54031990",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-14T20:13:43Z",
+      "side": 1,
+      "message": "Is there any chance that the name `Specialize` could end up polluting our clients\u0027 namespaces? These are not in a namespace and not prefixed with Gr.",
+      "range": {
+        "startLine": 48,
+        "startChar": 46,
+        "endLine": 48,
+        "endChar": 56
+      },
+      "revId": "c84bd5f34b108257207ca50d953a86c5fcab92e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
