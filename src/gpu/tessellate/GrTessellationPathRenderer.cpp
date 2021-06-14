@@ -7,12 +7,14 @@
 
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 
+#include "include/private/SkVx.h"
 #include "src/core/SkIPoint16.h"
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
+#include "src/gpu/GrVx.h"
 #include "src/gpu/geometry/GrStyledShape.h"
 #include "src/gpu/geometry/GrWangsFormula.h"
 #include "src/gpu/ops/GrFillRectOp.h"
@@ -153,14 +155,14 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
     bool transposedInAtlas;
     if (args.fUserStencilSettings->isUnused() &&
         this->tryAddPathToAtlas(*args.fContext->priv().caps(), *args.fViewMatrix, path,
-                                pathDevBounds, args.fAAType, &devIBounds, &locationInAtlas,
-                                &transposedInAtlas)) {
+                                pathDevBounds, args.fAAType != GrAAType::kNone, &devIBounds,
+                                &locationInAtlas, &transposedInAtlas)) {
         // The atlas is not compatible with DDL. We should only be using it on direct contexts.
         SkASSERT(args.fContext->asDirectContext());
-        auto op = GrOp::Make<GrDrawAtlasPathOp>(args.fContext,
-                surfaceDrawContext->numSamples(), sk_ref_sp(fAtlas.textureProxy()),
-                devIBounds, locationInAtlas, transposedInAtlas, *args.fViewMatrix,
-                std::move(args.fPaint));
+        auto op = GrOp::Make<GrDrawAtlasPathOp>(args.fContext, surfaceDrawContext->numSamples(),
+                                                sk_ref_sp(fAtlas.textureProxy()), devIBounds,
+                                                locationInAtlas, transposedInAtlas,
+                                                *args.fViewMatrix, std::move(args.fPaint));
         surfaceDrawContext->addDrawOp(args.fClip, std::move(op));
         return true;
     }
@@ -218,16 +220,34 @@ void GrTessellationPathRenderer::onStencilPath(const StencilPathArgs& args) {
     surfaceDrawContext->addDrawOp(args.fClip, std::move(op));
 }
 
+void GrTessellationPathRenderer::AtlasPathKey::set(const SkMatrix& m, bool antialias,
+                                                   const SkPath& path) {
+    using grvx::float2;
+    fAffineMatrix[0] = m.getScaleX();
+    fAffineMatrix[1] = m.getSkewX();
+    fAffineMatrix[2] = m.getSkewY();
+    fAffineMatrix[3] = m.getScaleY();
+    float2 translate = {m.getTranslateX(), m.getTranslateY()};
+    float2 subpixelPosition = translate - skvx::floor(translate);
+    float2 subpixelPositionKey = skvx::trunc(subpixelPosition * kLinearizationPrecision);
+    skvx::cast<uint8_t>(subpixelPositionKey).store(fSubpixelPositionKey);
+    fAntialias = antialias;
+    fFillRule = (uint8_t)GrFillRuleForSkPath(path);  // Fill rule doesn't affect the path's genID.
+    fPathGenID = path.getGenerationID();
+}
+
 bool GrTessellationPathRenderer::tryAddPathToAtlas(const GrCaps& caps, const SkMatrix& viewMatrix,
                                                    const SkPath& path, const SkRect& pathDevBounds,
-                                                   GrAAType aaType, SkIRect* devIBounds,
+                                                   bool antialias, SkIRect* devIBounds,
                                                    SkIPoint16* locationInAtlas,
                                                    bool* transposedInAtlas) {
+    SkASSERT(!viewMatrix.hasPerspective());  // See onCanDrawPath().
+
     if (!fMaxAtlasPathWidth) {
         return false;
     }
 
-    if (!caps.multisampleDisableSupport() && GrAAType::kNone == aaType) {
+    if (!caps.multisampleDisableSupport() && !antialias) {
         return false;
     }
 
@@ -250,8 +270,23 @@ bool GrTessellationPathRenderer::tryAddPathToAtlas(const GrCaps& caps, const SkM
         return false;
     }
 
+    // Check if this path is already in the atlas. This is mainly for clip paths.
+    AtlasPathKey atlasPathKey;
+    if (!path.isVolatile()) {
+        atlasPathKey.set(viewMatrix, antialias, path);
+        if (const SkIPoint16* existingLocation = fAtlasPathCache.find(atlasPathKey)) {
+            *locationInAtlas = *existingLocation;
+            return true;
+        }
+    }
+
     if (!fAtlas.addRect(maxDimenstion, minDimension, locationInAtlas)) {
         return false;
+    }
+
+    // Remember this path's location in the atlas, in case it gets drawn again.
+    if (!path.isVolatile()) {
+        fAtlasPathCache.set(atlasPathKey, *locationInAtlas);
     }
 
     SkMatrix atlasMatrix = viewMatrix;
@@ -267,7 +302,7 @@ bool GrTessellationPathRenderer::tryAddPathToAtlas(const GrCaps& caps, const SkM
     }
 
     // Concatenate this path onto our uber path that matches its fill and AA types.
-    SkPath* uberPath = this->getAtlasUberPath(path.getFillType(), GrAAType::kNone != aaType);
+    SkPath* uberPath = this->getAtlasUberPath(path.getFillType(), antialias);
     uberPath->moveTo(locationInAtlas->x(), locationInAtlas->y());  // Implicit moveTo(0,0).
     uberPath->addPath(path, atlasMatrix);
     return true;
@@ -282,6 +317,7 @@ void GrTessellationPathRenderer::preFlush(GrOnFlushResourceProvider* onFlushRP,
     for (SkPath& path : fAtlasUberPaths) {
         path.reset();
     }
+    fAtlasPathCache.reset();
 }
 
 constexpr static GrUserStencilSettings kTestStencil(
