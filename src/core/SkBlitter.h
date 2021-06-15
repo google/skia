@@ -154,7 +154,7 @@ public:
                                    SkArenaAlloc*, sk_sp<SkShader> clipShader);
     ///@}
 
-    static bool UseRasterPipelineBlitter(const SkPixmap&, const SkPaint&, const SkMatrix&);
+    static bool UseLegacyBlitter(const SkPixmap&, const SkPaint&, const SkMatrix&);
 
 protected:
     SkAutoMalloc fBlitMemory;
