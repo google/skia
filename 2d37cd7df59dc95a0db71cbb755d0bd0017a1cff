@@ -51,6 +51,24 @@
       "parentUuid": "32700293_26a5afca",
       "revId": "2d37cd7df59dc95a0db71cbb755d0bd0017a1cff",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e8b62a48_0e4b55f7",
+        "filename": "gn/skia/BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 478,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-15T15:25:43Z",
+      "side": 1,
+      "message": "Yeah, I\u0027m thinking we should fix this one in GrGLTypes.h, with:\n\n#pragma clang diagnostic push\n#pragma clang diagnostic ignored \"-Wreserved-identifier\"\n...\n#pragma clang diagnostic pop",
+      "parentUuid": "01b105c0_62d9b401",
+      "revId": "2d37cd7df59dc95a0db71cbb755d0bd0017a1cff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
