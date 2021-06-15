@@ -99,7 +99,6 @@ tests_sources = [
   "$_tests/GpuRectanizerTest.cpp",
   "$_tests/GrAHardwareBufferTest.cpp",
   "$_tests/GrBlockAllocatorTest.cpp",
-  "$_tests/GrCCPRTest.cpp",
   "$_tests/GrContextAbandonTest.cpp",
   "$_tests/GrContextFactoryTest.cpp",
   "$_tests/GrContextOOM.cpp",
@@ -189,7 +188,6 @@ tests_sources = [
   "$_tests/PathBuilderTest.cpp",
   "$_tests/PathCoverageTest.cpp",
   "$_tests/PathMeasureTest.cpp",
-  "$_tests/PathRendererCacheTests.cpp",
   "$_tests/PathTest.cpp",
   "$_tests/PictureBBHTest.cpp",
   "$_tests/PictureShaderTest.cpp",
@@ -427,6 +425,10 @@ pathops_tests_sources = [
   "$_tests/WangsFormulaTest.cpp",
 ]
 
-oga_tests_sources = [ "$_tests/GrClipStackTest.cpp" ]
+oga_tests_sources = [
+  "$_tests/GrCCPRTest.cpp",
+  "$_tests/GrClipStackTest.cpp",
+  "$_tests/PathRendererCacheTests.cpp",
+]
 
 tests_sources += oga_tests_sources
