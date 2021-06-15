@@ -16,6 +16,23 @@
       "message": "We should investigate if this branch is *actually* supported.",
       "revId": "9859070480366a9a3a227b8cecda8500764e57d3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5895ae6c_c7201cfd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-15T21:06:36Z",
+      "side": 1,
+      "message": "If tasks.json didn\u0027t update, then this branch doesn\u0027t need updating",
+      "revId": "9859070480366a9a3a227b8cecda8500764e57d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
