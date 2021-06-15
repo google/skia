@@ -129,6 +129,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4b4f937e_586322cb",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1936,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-15T17:09:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "90d00b8a_ed0e1fb8",
+      "range": {
+        "startLine": 1929,
+        "startChar": 7,
+        "endLine": 1936,
+        "endChar": 9
+      },
+      "revId": "5981f6a17e4bb5cd80b5f91e9ce026b765dd83b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "57d14584_e4d29177",
@@ -160,6 +184,24 @@
       "side": 1,
       "message": "I\u0027m kind of reluctant to add DMSAA stuff to GrCaps::getDstSampleFlagsForProxy right now when we know it will just return no flags, when the function will change for GrAttachment anyway, and when we have to add special handling in this function anyway. But regardless I think we are bikeshedding at this point. The current DMSAA implementation is a hacky, temporary one-off until it gets replaced with your GrAttachment stuff.\n\nI think after various failed attempts I am still not quite tapping into your vision. We are so tight on time right now, WDYT about landing this as-is, getting the tests running on all the bots, and then you can feel free to change it as much as you want as long as the tests keep passing?",
       "parentUuid": "57d14584_e4d29177",
+      "revId": "5981f6a17e4bb5cd80b5f91e9ce026b765dd83b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aaac2cdb_c271b0cb",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1972,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-15T17:09:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1d94d4bf_e0335338",
       "revId": "5981f6a17e4bb5cd80b5f91e9ce026b765dd83b5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -201,6 +243,30 @@
       "side": 1,
       "message": "\u003e At this point all we care about is if the OpsTask itself is rendering to an MSAA target or not.\n\nI think that\u0027s what op.usesMSAA() answers, right? It, together with opsTask-\u003eusesMSAASurface(), tells us whether the opsTask will need MSAA after adding this op.\n\n\u003e And that should have all been setup before setupDstRead is called.\n\nIt actually doesn\u0027t. The opsTask won\u0027t update itself to require MSAA until after we call addDrawOp, which happens after setupDstProxyView.",
       "parentUuid": "4347130a_88ff03a5",
+      "range": {
+        "startLine": 1989,
+        "startChar": 15,
+        "endLine": 1989,
+        "endChar": 42
+      },
+      "revId": "5981f6a17e4bb5cd80b5f91e9ce026b765dd83b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "eb2fe899_c0045cc9",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1989,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-15T17:09:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cc439293_d96e5a82",
       "range": {
         "startLine": 1989,
         "startChar": 15,

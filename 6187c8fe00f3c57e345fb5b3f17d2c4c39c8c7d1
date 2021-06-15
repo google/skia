@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eae0bdc4_57272107",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 1996,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-15T17:09:16Z",
+      "side": 1,
+      "message": "lets not do this because it is not sample its self. It is sampling a different object. I don\u0027t want to bake our annoying concept of a GrRT having multiple objects (msaa target and resolve) into the idea of self. I want self to mean the gpu object you are rendering to is the same gpu object you are sampling.",
+      "range": {
+        "startLine": 1996,
+        "startChar": 11,
+        "endLine": 1996,
+        "endChar": 68
+      },
+      "revId": "6187c8fe00f3c57e345fb5b3f17d2c4c39c8c7d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
