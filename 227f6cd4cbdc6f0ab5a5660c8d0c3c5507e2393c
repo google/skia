@@ -22,6 +22,30 @@
       },
       "revId": "227f6cd4cbdc6f0ab5a5660c8d0c3c5507e2393c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e209bd87_33ab5e98",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-15T13:28:40Z",
+      "side": 1,
+      "message": "Yeah, we were. I was originally just telling myself it was okay, because the only times we use it in a non-const fashion was in the factories to initialize the payload after allocation. I\u0027ve gone ahead and added both const and non-const versions, so that each call-site is forced to do the right thing.",
+      "parentUuid": "260a1214_686a8a48",
+      "range": {
+        "startLine": 142,
+        "startChar": 42,
+        "endLine": 142,
+        "endChar": 52
+      },
+      "revId": "227f6cd4cbdc6f0ab5a5660c8d0c3c5507e2393c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

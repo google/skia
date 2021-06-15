@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "976856c7_bbc0760b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-15T13:28:40Z",
+      "side": 1,
+      "message": "PS13 also tweaked appendArgs slighty - before I had a uniform data pointer that advanced, and an index that was used to compute the uniformFlags. I switched it to use a consistent pattern (with a uniformFlags pointer that advances, as well).",
+      "revId": "c9fede8766efe89c9ccb8c86d402f5357097a27f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
