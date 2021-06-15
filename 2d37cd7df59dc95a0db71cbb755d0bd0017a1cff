@@ -69,6 +69,24 @@
       "parentUuid": "01b105c0_62d9b401",
       "revId": "2d37cd7df59dc95a0db71cbb755d0bd0017a1cff",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "41c99fe5_374455a1",
+        "filename": "gn/skia/BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 478,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-15T15:47:39Z",
+      "side": 1,
+      "message": "... actually, I may be changing my mind on this one. I just fired up my Windows build again, and there are a TON of these, some of them are easy to fix, but some of them are really annoying. I think putting reserved-identifier in the list of things we suppress (but wish we could fix) makes more sense.",
+      "parentUuid": "e8b62a48_0e4b55f7",
+      "revId": "2d37cd7df59dc95a0db71cbb755d0bd0017a1cff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
