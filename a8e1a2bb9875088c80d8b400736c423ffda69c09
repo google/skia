@@ -64,6 +64,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a4e420b6_fb46223a",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-15T20:37:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5e573642_27b101b0",
+      "range": {
+        "startLine": 162,
+        "startChar": 41,
+        "endLine": 162,
+        "endChar": 62
+      },
+      "revId": "a8e1a2bb9875088c80d8b400736c423ffda69c09",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7ce5f12e_7be7866b",
@@ -77,6 +101,30 @@
       "writtenOn": "2021-06-15T20:19:51Z",
       "side": 1,
       "message": "Does this paren belong at the end of the sentence?",
+      "range": {
+        "startLine": 163,
+        "startChar": 96,
+        "endLine": 163,
+        "endChar": 97
+      },
+      "revId": "a8e1a2bb9875088c80d8b400736c423ffda69c09",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7e1227fe_94e624cf",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-15T20:37:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7ce5f12e_7be7866b",
       "range": {
         "startLine": 163,
         "startChar": 96,
@@ -172,6 +220,30 @@
       "side": 1,
       "message": "Can you leave an empty slot at 0 if there\u0027s no input FP?",
       "parentUuid": "67402797_742cdcfa",
+      "range": {
+        "startLine": 99,
+        "startChar": 0,
+        "endLine": 101,
+        "endChar": 5
+      },
+      "revId": "a8e1a2bb9875088c80d8b400736c423ffda69c09",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c9bd0beb_7d62652a",
+        "filename": "src/utils/SkShadowUtils.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-15T20:37:22Z",
+      "side": 1,
+      "message": "Yeah, that would line up with how most C++ FPs are written today - the nullptr input gets added. Doing it unconditionally like that would at least make the one-off logic for child indexing non-conditional, though it means burning the one pre-allocated slot in fChildProcessors all the time. Of course, the number of shader-like FPs that have exactly one child is probably pretty small, so maybe that\u0027s fine.",
+      "parentUuid": "90f70a67_cb515d79",
       "range": {
         "startLine": 99,
         "startChar": 0,
