@@ -15060,15 +15060,11 @@
           "path": "cache/gopath"
         },
         {
-          "name": "vpython",
-          "path": "cache/vpython"
-        },
-        {
           "name": "work",
           "path": "cache/work"
         }
       ],
-      "casSpec": "run-recipe",
+      "casSpec": "recreate-skps",
       "cipd_packages": [
         {
           "name": "infra/3pp/tools/git/linux-amd64",
@@ -15091,32 +15087,24 @@
           "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
         },
         {
-          "name": "infra/tools/luci/kitchen/${platform}",
-          "path": ".",
-          "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
-        },
-        {
-          "name": "infra/tools/luci/vpython/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
-        },
-        {
           "name": "skia/bots/go",
           "path": "go",
           "version": "version:14"
         }
       ],
       "command": [
-        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
-        "-u",
-        "skia/infra/bots/run_recipe.py",
-        "${ISOLATED_OUTDIR}",
-        "recreate_skps",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Housekeeper-Nightly-RecreateSKPs_DryRun\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
-        "skia"
+        "./recreate_skps",
+        "--local=false",
+        "--project_id",
+        "skia-swarming-bots",
+        "--task_id",
+        "<(TASK_ID)",
+        "--task_name",
+        "Housekeeper-Nightly-RecreateSKPs_DryRun",
+        "--alsologtostderr"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
       ],
       "dimensions": [
         "pool:SkiaCT",
@@ -15126,15 +15114,9 @@
         "PATH": [
           "cipd_bin_packages",
           "cipd_bin_packages/bin"
-        ],
-        "VPYTHON_VIRTUALENV_ROOT": [
-          "cache/vpython"
         ]
       },
       "execution_timeout_ns": 14400000000000,
-      "extra_tags": {
-        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
-      },
       "io_timeout_ns": 14400000000000,
       "max_attempts": 2,
       "service_account": "skia-recreate-skps@skia-swarming-bots.iam.gserviceaccount.com"
@@ -16511,15 +16493,11 @@
           "path": "cache/gopath"
         },
         {
-          "name": "vpython",
-          "path": "cache/vpython"
-        },
-        {
           "name": "work",
           "path": "cache/work"
         }
       ],
-      "casSpec": "run-recipe",
+      "casSpec": "recreate-skps",
       "cipd_packages": [
         {
           "name": "infra/3pp/tools/git/linux-amd64",
@@ -16542,32 +16520,24 @@
           "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
         },
         {
-          "name": "infra/tools/luci/kitchen/${platform}",
-          "path": ".",
-          "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
-        },
-        {
-          "name": "infra/tools/luci/vpython/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:09cdd9c70101c341f7cf9e156641ca884849e01e"
-        },
-        {
           "name": "skia/bots/go",
           "path": "go",
           "version": "version:14"
         }
       ],
       "command": [
-        "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}",
-        "-u",
-        "skia/infra/bots/run_recipe.py",
-        "${ISOLATED_OUTDIR}",
-        "recreate_skps",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Housekeeper-Weekly-RecreateSKPs\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
-        "skia"
+        "./recreate_skps",
+        "--local=false",
+        "--project_id",
+        "skia-swarming-bots",
+        "--task_id",
+        "<(TASK_ID)",
+        "--task_name",
+        "Housekeeper-Weekly-RecreateSKPs",
+        "--alsologtostderr"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
       ],
       "dimensions": [
         "pool:SkiaCT",
@@ -16577,15 +16547,9 @@
         "PATH": [
           "cipd_bin_packages",
           "cipd_bin_packages/bin"
-        ],
-        "VPYTHON_VIRTUALENV_ROOT": [
-          "cache/vpython"
         ]
       },
       "execution_timeout_ns": 14400000000000,
-      "extra_tags": {
-        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
-      },
       "io_timeout_ns": 14400000000000,
       "max_attempts": 2,
       "service_account": "skia-recreate-skps@skia-swarming-bots.iam.gserviceaccount.com"
@@ -67304,6 +67268,17 @@
         "skia/infra/bots/recipe_modules",
         "skia/infra/bots/recipes",
         "skia/infra/bots/recipes.py"
+      ],
+      "excludes": [
+        "^(.*\\/)*\\.git(\\/.*)*$"
+      ]
+    },
+    "recreate-skps": {
+      "root": "..",
+      "paths": [
+        "skia/bin/fetch-sk",
+        "skia/infra/bots/assets/skp",
+        "skia/infra/config/recipes.cfg"
       ],
       "excludes": [
         "^(.*\\/)*\\.git(\\/.*)*$"
