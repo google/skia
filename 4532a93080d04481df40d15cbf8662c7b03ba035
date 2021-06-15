@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d1b124e6_5ec82d59",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 16
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-06-15T16:38:02Z",
+      "side": 1,
+      "message": "I believe the conditional code in the SDC and GrTessellatingPathRenderer.h will drop away once more objects are made OGA-only (i.e., the Ops)",
+      "revId": "4532a93080d04481df40d15cbf8662c7b03ba035",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
