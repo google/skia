@@ -113,21 +113,18 @@ static void save_files(int testID, const SkBitmap& expected, const SkBitmap& act
 static void key_test() {
     SortKey k;
     SkASSERT(!k.transparent());
-    SkASSERT(k.clipID() == 0);
     SkASSERT(k.depth() == 0);
     SkASSERT(k.material() == 0);
 //    k.dump();
 
-    SortKey k1(false, 4, 1, 3);
+    SortKey k1(false, 1, 3);
     SkASSERT(!k1.transparent());
-    SkASSERT(k1.clipID() == 4);
     SkASSERT(k1.depth() == 1);
     SkASSERT(k1.material() == 3);
 //    k1.dump();
 
-    SortKey k2(true, 7, 2, 1);
+    SortKey k2(true, 2, 1);
     SkASSERT(k2.transparent());
-    SkASSERT(k2.clipID() == 7);
     SkASSERT(k2.depth() == 2);
     SkASSERT(k2.material() == 1);
 //    k2.dump();
@@ -180,7 +177,7 @@ static void mcstack_test() {
     //----------------
     s.push();
     s.translate(s1Trans);
-    s.clipRect(r);
+    s.clipRect(r, new ClipCmd(ID(1), {}, r));
 
     auto state1 = s.snapState();
     check_state(state1.get(), s1Trans, expectedS1Clips);
@@ -188,13 +185,13 @@ static void mcstack_test() {
     //----------------
     s.push();
     s.translate(s2TransA);
-    s.clipRect(r);
+    s.clipRect(r, new ClipCmd(ID(2), {}, r));
 
     auto state2a = s.snapState();
     check_state(state2a.get(), s1Trans + s2TransA, expectedS2aClips);
 
     s.translate(s2TransB);
-    s.clipRect(r);
+    s.clipRect(r, new ClipCmd(ID(3), {}, r));
 
     auto state2b = s.snapState();
     check_state(state2b.get(), s1Trans + s2TransA + s2TransB, expectedS2bClips);
