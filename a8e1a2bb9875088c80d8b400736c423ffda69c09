@@ -132,6 +132,30 @@
       },
       "revId": "a8e1a2bb9875088c80d8b400736c423ffda69c09",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "67402797_742cdcfa",
+        "filename": "src/utils/SkShadowUtils.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-15T20:31:09Z",
+      "side": 1,
+      "message": "I thought about that - yeah, it\u0027s definitely cleaner. It\u0027s strange because most of the runtime effects these days are shader semantics, so have no use for the input FP, but that\u0027s already true for lots of C++ FPs.\n\nProblem I hit is that my current impl requires the input FP to be last. I could hoist it so that it\u0027s the first child, but then I need to do more careful code elsewhere, because the indices from the generator (and the sample usages) are all off-by-one. Bleh.",
+      "parentUuid": "8582ad90_f7a036bf",
+      "range": {
+        "startLine": 99,
+        "startChar": 0,
+        "endLine": 101,
+        "endChar": 5
+      },
+      "revId": "a8e1a2bb9875088c80d8b400736c423ffda69c09",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
