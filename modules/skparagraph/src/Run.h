@@ -279,6 +279,7 @@ public:
 
     Cluster(TextRange textRange) : fTextRange(textRange), fGraphemeRange(EMPTY_RANGE) { }
 
+    Cluster(const Cluster&) = default;
     ~Cluster() = default;
 
     SkScalar sizeToChar(TextIndex ch) const;

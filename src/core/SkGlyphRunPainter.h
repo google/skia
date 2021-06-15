@@ -67,6 +67,8 @@ public:
 
     class BitmapDevicePainter {
     public:
+        BitmapDevicePainter() = default;
+        BitmapDevicePainter(const BitmapDevicePainter&) = default;
         virtual ~BitmapDevicePainter() = default;
 
         virtual void paintPaths(
