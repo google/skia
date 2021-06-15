@@ -55,6 +55,7 @@ def CleanupCFlags(cflags):
     "-Wno-missing-field-initializers",
     "-Wno-sign-conversion",
     "-Wno-thread-safety-analysis",
+    "-Wno-unknown-warning-option",
     "-Wno-unused-parameter",
     "-Wno-unused-variable",
   ])
