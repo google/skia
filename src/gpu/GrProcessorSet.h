@@ -73,6 +73,8 @@ public:
         Analysis(const Analysis&) = default;
         Analysis() { *reinterpret_cast<uint32_t*>(this) = 0; }
 
+        Analysis& operator=(const Analysis &other) = default;
+
         bool isInitialized() const { return fIsInitialized; }
         bool usesLocalCoords() const { return fUsesLocalCoords; }
         bool requiresDstTexture() const { return fRequiresDstTexture; }
