@@ -114,12 +114,12 @@ void Parser::InitLayoutMap() {
     #undef TOKEN
 }
 
-Parser::Parser(const char* text, size_t length, SymbolTable& symbols, ErrorReporter& errors)
-: fText(text, length)
+Parser::Parser(skstd::string_view text, SymbolTable& symbols, ErrorReporter& errors)
+: fText(text)
 , fPushback(Token::Kind::TK_NONE, -1, -1)
 , fSymbols(symbols)
 , fErrors(errors) {
-    fLexer.start(text, length);
+    fLexer.start(text);
     static const bool layoutMapInitialized = []{ return (void)InitLayoutMap(), true; }();
     (void) layoutMapInitialized;
 }

@@ -131,8 +131,7 @@ protected:
     void onDraw(int loops, SkCanvas*) override {
         for (int i = 0; i < loops; i++) {
             fCompiler.irGenerator().pushSymbolTable();
-            SkSL::Parser parser(fSrc.c_str(), fSrc.length(), *fCompiler.irGenerator().symbolTable(),
-                                fCompiler);
+            SkSL::Parser parser(fSrc, *fCompiler.irGenerator().symbolTable(), fCompiler);
             parser.compilationUnit();
             fCompiler.irGenerator().popSymbolTable();
             if (fCompiler.errorCount()) {
