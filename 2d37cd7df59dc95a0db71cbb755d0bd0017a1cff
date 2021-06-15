@@ -33,6 +33,24 @@
       "message": "What\u0027s this one about?  Seems like the sort of things we\u0027d like to fix if possible instead of silence.",
       "revId": "2d37cd7df59dc95a0db71cbb755d0bd0017a1cff",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "01b105c0_62d9b401",
+        "filename": "gn/skia/BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 478,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-15T14:59:22Z",
+      "side": 1,
+      "message": "It\u0027s not happy with `typedef struct __GLsync* GrGLsync;` from GrGLTypes.h which appears to be out of our control.",
+      "parentUuid": "32700293_26a5afca",
+      "revId": "2d37cd7df59dc95a0db71cbb755d0bd0017a1cff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
