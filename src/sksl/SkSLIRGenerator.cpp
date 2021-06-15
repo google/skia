@@ -1951,9 +1951,8 @@ IRGenerator::IRBundle IRGenerator::finish() {
 IRGenerator::IRBundle IRGenerator::convertProgram(
         const ParsedModule& base,
         bool isBuiltinCode,
-        const char* text,
-        size_t length) {
-    Parser parser(text, length, *fSymbolTable, this->errorReporter());
+        skstd::string_view text) {
+    Parser parser(text, *fSymbolTable, this->errorReporter());
     fFile = parser.compilationUnit();
     if (this->errorReporter().errorCount() == 0) {
         SkASSERT(fFile);

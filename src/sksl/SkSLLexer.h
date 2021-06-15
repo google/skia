@@ -11,6 +11,7 @@
 #define SKSL_Lexer
 #include <cstddef>
 #include <cstdint>
+#include "include/core/SkStringView.h"
 namespace SkSL {
 
 struct Token {
@@ -117,9 +118,8 @@ struct Token {
 
 class Lexer {
 public:
-    void start(const char* text, int32_t length) {
+    void start(skstd::string_view text) {
         fText = text;
-        fLength = length;
         fOffset = 0;
     }
 
@@ -130,8 +130,7 @@ public:
     void rewindToCheckpoint(int32_t checkpoint) { fOffset = checkpoint; }
 
 private:
-    const char* fText;
-    int32_t fLength;
+    skstd::string_view fText;
     int32_t fOffset;
 };
 
