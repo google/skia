@@ -96,7 +96,10 @@ GrFPResult SkGaussianColorFilter::asFragmentProcessor(std::unique_ptr<GrFragment
         }
     )");
     auto fp = GrSkSLFP::Make(effect, "gaussian_fp");
-    return GrFPSuccess(GrFragmentProcessor::Compose(std::move(fp), std::move(inputFP)));
+    if (inputFP) {
+        fp->setInput(std::move(inputFP));
+    }
+    return GrFPSuccess(std::move(fp));
 }
 #endif
 
