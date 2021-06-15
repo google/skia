@@ -15,7 +15,7 @@ import subprocess
 import sys
 
 
-INFRA_BOTS_DIR = os.path.dirname(os.path.realpath(__file__))
+INFRA_BOTS_DIR = "/home/robertphillips/src/skia.0/infra/bots/"
 SKIA_DIR = os.path.abspath(os.path.join(INFRA_BOTS_DIR, os.pardir, os.pardir))
 
 
