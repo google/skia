@@ -621,6 +621,7 @@ static std::unique_ptr<GrFragmentProcessor> make_effect_fp(
         sk_sp<SkRuntimeEffect> effect,
         const char* name,
         sk_sp<SkData> uniforms,
+        std::unique_ptr<GrFragmentProcessor> input,
         SkSpan<const SkRuntimeEffect::ChildPtr> children,
         const GrFPArgs& childArgs) {
     auto fp = GrSkSLFP::Make(std::move(effect), name, std::move(uniforms));
@@ -643,6 +644,9 @@ static std::unique_ptr<GrFragmentProcessor> make_effect_fp(
         } else {
             fp->addChild(nullptr);
         }
+    }
+    if (input) {
+        fp->setInput(std::move(input));
     }
     return std::move(fp);
 }
@@ -669,17 +673,14 @@ public:
         auto fp = make_effect_fp(fEffect,
                                  "Runtime_Color_Filter",
                                  std::move(uniforms),
+                                 std::move(inputFP),
                                  SkMakeSpan(fChildren),
                                  childArgs);
         if (!fp) {
-            return GrFPFailure(std::move(inputFP));
+            return GrFPFailure(nullptr);
         }
 
-        // Runtime effect scripts are written to take an input color, not a fragment processor.
-        // We need to pass the input to the runtime filter using Compose. This ensures that it will
-        // be invoked exactly once, and the result will be returned when null children are sampled,
-        // or as the (default) input color for non-null children.
-        return GrFPSuccess(GrFragmentProcessor::Compose(std::move(fp), std::move(inputFP)));
+        return GrFPSuccess(std::move(fp));
     }
 #endif
 
@@ -834,8 +835,12 @@ public:
         GrFPArgs childArgs = args;
         childArgs.fInputColorIsOpaque = false;
 
-        auto result = make_effect_fp(
-                fEffect, "runtime_shader", std::move(uniforms), SkMakeSpan(fChildren), childArgs);
+        auto result = make_effect_fp(fEffect,
+                                     "runtime_shader",
+                                     std::move(uniforms),
+                                     /*input=*/nullptr,
+                                     SkMakeSpan(fChildren),
+                                     childArgs);
         if (!result) {
             return nullptr;
         }

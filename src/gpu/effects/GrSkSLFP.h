@@ -71,7 +71,16 @@ public:
 
     const char* name() const override { return fName; }
 
+    /**
+     * GrSkSLFP can have an arbitrary number of child FPs (via calls to addChild), but at most one
+     * "primary" input FP. For instances that have color-filter semantics, 'input' is the source
+     * color. By default, it's assumed to be null. This is an implicit child that doesn't map to
+     * any child declared in the SkSL.
+     *
+     * setInput must be called at most once, and *after* all calls to addChild.
+     */
     void addChild(std::unique_ptr<GrFragmentProcessor> child);
+    void setInput(std::unique_ptr<GrFragmentProcessor> input);
 
     std::unique_ptr<GrFragmentProcessor> clone() const override;
 
@@ -260,7 +269,8 @@ private:
 
     sk_sp<SkRuntimeEffect> fEffect;
     const char*            fName;
-    size_t                 fUniformSize;
+    uint32_t               fUniformSize;
+    int                    fInputChildIndex = -1;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
