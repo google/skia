@@ -68,6 +68,23 @@
       "message": "This takes up no extra space, fixes warnings, and size_t is the right thing to use for counts of things, so lgtm.\n\nNote that there is, a bit confusingly, another `int fNumSemaphores` in GrWaitRenderTask, but this one seems to be independent.",
       "revId": "d6f127af86745cf4bd5ac313d5241b622dd3d78d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2f984d3b_8f20a9eb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9153
+      },
+      "writtenOn": "2021-06-15T16:47:00Z",
+      "side": 1,
+      "message": "reed: Can you stamp this, since it touches a public .h?",
+      "revId": "d6f127af86745cf4bd5ac313d5241b622dd3d78d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
