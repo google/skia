@@ -28,7 +28,7 @@
 #include "src/core/SkBlurMask.h"
 
 /*
- * Spits out a dummy gradient to test blur with shader on paint
+ * Spits out an arbitrary gradient to test blur with shader on paint
  */
 static sk_sp<SkShader> MakeRadial() {
     SkPoint pts[2] = {

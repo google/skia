@@ -701,7 +701,7 @@ static void codex_test_write_fn(png_structp png_ptr, png_bytep data, png_size_t 
 }
 
 DEF_TEST(Codec_pngChunkReader, r) {
-    // Create a dummy bitmap. Use unpremul RGBA for libpng.
+    // Create a bitmap for hashing. Use unpremul RGBA for libpng.
     SkBitmap bm;
     const int w = 1;
     const int h = 1;

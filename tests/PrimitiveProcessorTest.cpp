@@ -33,7 +33,7 @@ class Op : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    const char* name() const override { return "Dummy Op"; }
+    const char* name() const override { return "Placeholder Op"; }
 
     static GrOp::Owner Make(GrRecordingContext* rContext, int numAttribs) {
         return GrOp::Make<Op>(rContext, numAttribs);
@@ -71,7 +71,7 @@ private:
                 });
             }
 
-            const char* name() const override { return "Dummy GP"; }
+            const char* name() const override { return "Placeholder GP"; }
 
             GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const override {
                 class GLSLGP : public GrGLSLGeometryProcessor {

@@ -172,10 +172,10 @@ SK_STDMETHODIMP StreamFontFileEnumerator::MoveNext(BOOL* hasCurrentFile) {
     }
     fHasNext = false;
 
-    UINT32 dummy = 0;
+    UINT32 ignored = 0;
     HR(fFactory->CreateCustomFontFileReference(
-            &dummy, //cannot be nullptr
-            sizeof(dummy), //even if this is 0
+            &ignored, //cannot be nullptr
+            sizeof(ignored), //even if this is 0
             fFontFileLoader.get(),
             &fCurrentFile));
 
