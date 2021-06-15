@@ -1913,8 +1913,29 @@ void GrSurfaceDrawContext::addDrawOp(const GrClip* clip,
 
     GrDstProxyView dstProxyView;
     if (analysis.requiresDstTexture()) {
-        if (!this->setupDstProxyView(*op, &dstProxyView)) {
+        if (!this->setupDstProxyView(*drawOp, &dstProxyView)) {
             return;
+        }
+#ifdef SK_DEBUG
+        if (fCanUseDynamicMSAA && usesMSAA && !this->caps()->msaaResolvesAutomatically()) {
+            // Since we aren't literally writing to the render target texture while using a DMSAA
+            // attachment, we need to resolve that texture before sampling it. Ensure the current
+            // opsTask got closed off in order to initiate an implicit resolve.
+            SkASSERT(this->getOpsTask()->isEmpty());
+        }
+#endif
+    } else {
+        bool opUsesDMSAAAttachment = fCanUseDynamicMSAA && usesMSAA &&
+                                     !this->caps()->msaaResolvesAutomatically();
+        bool opTriggersDMSAAAttachment = opUsesDMSAAAttachment &&
+                                         !this->getOpsTask()->usesMSAASurface();
+        if (opTriggersDMSAAAttachment) {
+            // This will be the op that actually triggers use of a DMSAA attachment. Texture
+            // barriers can't be moved to a DMSAA attachment, so if there already are any on the
+            // current opsTask then we need to split.
+            if (this->getOpsTask()->renderPassXferBarriers() & GrXferBarrierFlags::kTexture) {
+                this->replaceOpsTask()->setCannotMergeBackward();
+            }
         }
     }
 
@@ -1943,7 +1964,7 @@ void GrSurfaceDrawContext::addDrawOp(const GrClip* clip,
 #endif
 }
 
-bool GrSurfaceDrawContext::setupDstProxyView(const GrOp& op, GrDstProxyView* dstProxyView) {
+bool GrSurfaceDrawContext::setupDstProxyView(const GrDrawOp& op, GrDstProxyView* dstProxyView) {
     // If we are wrapping a vulkan secondary command buffer, we can't make a dst copy because we
     // don't actually have a VkImage to make a copy of. Additionally we don't have the power to
     // start and stop the render pass in order to make the copy.
@@ -1951,15 +1972,36 @@ bool GrSurfaceDrawContext::setupDstProxyView(const GrOp& op, GrDstProxyView* dst
         return false;
     }
 
-    auto dstSampleFlags = this->caps()->getDstSampleFlagsForProxy(this->asRenderTargetProxy());
+    bool usesAttachmentIfDMSAA = fCanUseDynamicMSAA && !this->caps()->msaaResolvesAutomatically();
+    if (usesAttachmentIfDMSAA && (this->getOpsTask()->usesMSAASurface() || op.usesMSAA())) {
+        // Always split the current opsTask if we either are, or will be rendering to an explicit
+        // DMSAA attachment.
+        //
+        // If already rendering to a DMSAA attachment, split so the texture gets resolved before
+        // we read it.
+        //
+        // If not yet rendering to DMSAA (i.e., this will be the op to trigger DMSAA), split so the
+        // previous rendering goes directly to the texture before we read it.
+        this->replaceOpsTask()->setCannotMergeBackward();
+        if (this->asTextureProxy() && op.usesMSAA()) {
+            // If the op will be rendering to a DMSAA attachment, we can read the RT's texture
+            // without barriers.
+            dstProxyView->setProxyView(this->readSurfaceView());
+            dstProxyView->setOffset(0, 0);
+            dstProxyView->setDstSampleFlags(GrDstSampleFlags::kNone);
+            return true;
+        }
+    } else {
+        auto dstSampleFlags = this->caps()->getDstSampleFlagsForProxy(this->asRenderTargetProxy());
 
-    if (dstSampleFlags & GrDstSampleFlags::kRequiresTextureBarrier) {
-        // If we require a barrier to sample the dst it means we are sampling the RT itself either
-        // as a texture or input attachment.
-        dstProxyView->setProxyView(this->readSurfaceView());
-        dstProxyView->setOffset(0, 0);
-        dstProxyView->setDstSampleFlags(dstSampleFlags);
-        return true;
+        if (dstSampleFlags & GrDstSampleFlags::kRequiresTextureBarrier) {
+            // If we require a barrier to sample the dst it means we are sampling the RT itself
+            // either as a texture or input attachment.
+            dstProxyView->setProxyView(this->readSurfaceView());
+            dstProxyView->setOffset(0, 0);
+            dstProxyView->setDstSampleFlags(dstSampleFlags);
+            return true;
+        }
     }
 
     GrColorType colorType = this->colorInfo().colorType();
@@ -1999,6 +2041,6 @@ bool GrSurfaceDrawContext::setupDstProxyView(const GrOp& op, GrDstProxyView* dst
 
     dstProxyView->setProxyView({std::move(copy), this->origin(), this->readSwizzle()});
     dstProxyView->setOffset(dstOffset);
-    dstProxyView->setDstSampleFlags(dstSampleFlags);
+    dstProxyView->setDstSampleFlags(GrDstSampleFlags::kNone);
     return true;
 }
