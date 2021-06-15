@@ -16,6 +16,29 @@
       "message": "PS13 also tweaked appendArgs slighty - before I had a uniform data pointer that advanced, and an index that was used to compute the uniformFlags. I switched it to use a consistent pattern (with a uniformFlags pointer that advances, as well).",
       "revId": "c9fede8766efe89c9ccb8c86d402f5357097a27f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4aff846e_d3908a09",
+        "filename": "tests/SkRuntimeEffectTest.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 660,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-15T14:22:17Z",
+      "side": 1,
+      "message": "`auto` here is not great. To figure out the type, you have to scan up to `make_color_fp`, but it also doesn\u0027t declare its return type; it\u0027s inferred. So look to the bottom of the function and there\u0027s `return result`--that also doesn\u0027t say what the type is. Now scan upwards until you find the declaration `FpAndKey result`. At long last, a concrete non-implied type!\n\nLet\u0027s just put FpAndKey here instead? :)",
+      "range": {
+        "startLine": 660,
+        "startChar": 4,
+        "endLine": 660,
+        "endChar": 8
+      },
+      "revId": "c9fede8766efe89c9ccb8c86d402f5357097a27f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
