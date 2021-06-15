@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "31b9cefe_794fe4d1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-15T15:49:10Z",
+      "side": 1,
+      "message": "Other than a small merge, this is a straight reland.",
+      "revId": "edb2fd61eb282ea5a0a0b62dedf0b6d5917e3c11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
