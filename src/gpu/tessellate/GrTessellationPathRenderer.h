@@ -20,9 +20,6 @@
 // desired.
 class GrTessellationPathRenderer : public GrPathRenderer, public GrOnFlushCallbackObject {
 public:
-    // Don't allow linearized segments to be off by more than 1/4th of a pixel from the true curve.
-    constexpr static float kLinearizationPrecision = 4;
-
     // We send these flags to the internal path filling Ops to control how a path gets rendered.
     enum class PathFlags {
         kNone = 0,

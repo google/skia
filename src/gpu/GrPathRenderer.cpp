@@ -67,22 +67,6 @@ bool GrPathRenderer::drawPath(const DrawPathArgs& args) {
     return this->onDrawPath(args);
 }
 
-bool GrPathRenderer::IsStrokeHairlineOrEquivalent(const GrStyle& style, const SkMatrix& matrix,
-                                                  SkScalar* outCoverage) {
-    if (style.pathEffect()) {
-        return false;
-    }
-    const SkStrokeRec& stroke = style.strokeRec();
-    if (stroke.isHairlineStyle()) {
-        if (outCoverage) {
-            *outCoverage = SK_Scalar1;
-        }
-        return true;
-    }
-    return stroke.getStyle() == SkStrokeRec::kStroke_Style &&
-           SkDrawTreatAAStrokeAsHairline(stroke.getWidth(), matrix, outCoverage);
-}
-
 void GrPathRenderer::GetPathDevBounds(const SkPath& path,
                                       SkISize devSize,
                                       const SkMatrix& matrix,
