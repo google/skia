@@ -642,18 +642,19 @@ SkBlitter* SkBlitterClipper::apply(SkBlitter* blitter, const SkRegion* clip,
 
 #include "src/core/SkCoreBlitters.h"
 
-bool SkBlitter::UseRasterPipelineBlitter(const SkPixmap& device, const SkPaint& paint,
-                                         const SkMatrix& matrix) {
+bool SkBlitter::UseLegacyBlitter(const SkPixmap& device,
+                                 const SkPaint& paint,
+                                 const SkMatrix& matrix) {
     if (gSkForceRasterPipelineBlitter) {
-        return true;
+        return false;
     }
-#if 0 || defined(SK_FORCE_RASTER_PIPELINE_BLITTER)
-    return true;
+#if defined(SK_FORCE_RASTER_PIPELINE_BLITTER)
+    return false;
 #else
 
 #if !defined(SK_SUPPORT_LEGACY_DITHER)
     if (paint.isDither()) {
-        return true;
+        return false;
     }
 #endif
 
@@ -663,13 +664,13 @@ bool SkBlitter::UseRasterPipelineBlitter(const SkPixmap& device, const SkPaint& 
     if (device.alphaType() == kUnpremul_SkAlphaType        ||
         paint.getBlendMode() > SkBlendMode::kLastCoeffMode ||
         (mf && mf->getFormat() == SkMask::k3D_Format)) {
-        return true;
+        return false;
     }
 
     // All the real legacy fast paths are for shaders and SrcOver.
     // Choosing SkRasterPipelineBlitter will also let us to hit its single-color memset path.
     if (!paint.getShader() && paint.getBlendMode() != SkBlendMode::kSrcOver) {
-        return true;
+        return false;
     }
 
     auto cs = device.colorSpace();
@@ -677,13 +678,13 @@ bool SkBlitter::UseRasterPipelineBlitter(const SkPixmap& device, const SkPaint& 
     // in legacy mode, so here we just focus on if a single color needs raster-pipeline.
     if (cs && !paint.getShader()) {
         if (!paint.getColor4f().fitsInBytes() || !cs->isSRGB()) {
-            return true;
+            return false;
         }
     }
 
     // Only kN32 and 565 are handled by legacy blitters now, 565 mostly just for Android.
-    return device.colorType() != kN32_SkColorType
-        && device.colorType() != kRGB_565_SkColorType;
+    return device.colorType() == kN32_SkColorType
+        || device.colorType() == kRGB_565_SkColorType;
 #endif
 }
 
@@ -765,7 +766,7 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
 
     SkMatrix ctm = matrixProvider.localToDevice();
     // We'll end here for many interesting cases: color spaces, color filters, most color types.
-    if (UseRasterPipelineBlitter(device, *paint, ctm) || clipShader) {
+    if (clipShader || !UseLegacyBlitter(device, *paint, ctm)) {
         return create_SkRP_or_SkVMBlitter();
     }
 
