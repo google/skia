@@ -311,4 +311,3 @@ DEF_GM( return new WindowRectanglesMaskGM(); )
 }  // namespace skiagm
 
 #endif // GR_OGA
-
