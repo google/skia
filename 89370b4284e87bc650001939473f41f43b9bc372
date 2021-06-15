@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2ca3687b_70b66a53",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-15T13:46:52Z",
+      "side": 1,
+      "message": "Realized this the other day, hadn\u0027t fixed it yet, then saw it again in https://skia-review.googlesource.com/c/skia/+/417006. Figured it was time to clean it up.",
+      "revId": "89370b4284e87bc650001939473f41f43b9bc372",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
