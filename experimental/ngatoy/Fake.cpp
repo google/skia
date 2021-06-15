@@ -4,10 +4,23 @@
 #include "experimental/ngatoy/Fake.h"
 
 #include "experimental/ngatoy/Cmds.h"
+#include "experimental/ngatoy/SortKey.h"
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 
+//-------------------------------------------------------------------------------------------------
+FakeMCBlob::MCState::MCState(const MCState&) {
+}
+
+FakeMCBlob::MCState::~MCState() {
+}
+
+void FakeMCBlob::MCState::addRect(SkIRect r, std::unique_ptr<ClipCmd> clipCmd) {
+    fRects.push_back(r.makeOffset(fTrans.fX, fTrans.fY));
+    fCmds.push_back(std::move(clipCmd));
+    fCached = nullptr;
+}
 
 void FakeMCBlob::MCState::apply(SkCanvas* canvas) const {
     canvas->save();
@@ -48,6 +61,15 @@ static SkColor blend(float t, SkColor c0, SkColor c1) {
     return result.toSkColor();
 }
 
+int FakePaint::toID() const {
+    switch (fType) {
+        case Type::kNormal: return kSolidMat;
+        case Type::kLinear: return kLinearMat;
+        case Type::kRadial: return kRadialMat;
+    }
+    SkUNREACHABLE;
+}
+
 SkColor FakePaint::evalColor(int x, int y) const {
     switch (fType) {
         case Type::kNormal: return fColor0;
@@ -76,17 +98,18 @@ void FakeDevice::save() {
 }
 
 void FakeDevice::drawRect(ID id, PaintersOrder paintersOrder, SkIRect r, FakePaint p) {
-
     sk_sp<FakeMCBlob> state = fTracker.snapState();
     SkASSERT(state);
 
-    auto tmp = new RectCmd(id, paintersOrder, r, p, std::move(state));
+    std::unique_ptr<Cmd> tmp = std::make_unique<RectCmd>(id, paintersOrder, r, p, std::move(state));
 
-    fSortedCmds.push_back(tmp);
+    fSortedCmds.push_back(std::move(tmp));
 }
 
-void FakeDevice::clipRect(ID id, SkIRect r) {
-    fTracker.clipRect(r);
+void FakeDevice::clipRect(ID id, PaintersOrder paintersOrder, SkIRect r) {
+  std::unique_ptr<ClipCmd> tmp = std::make_unique<ClipCmd>(id, paintersOrder, r);
+
+  fTracker.clipRect(r, std::move(tmp));
 }
 
 void FakeDevice::restore() {
@@ -98,7 +121,7 @@ void FakeDevice::finalize() {
     fFinalized = true;
 
     this->sort();
-    for (auto c : fSortedCmds) {
+    for (const std::unique_ptr<Cmd>& c : fSortedCmds) {
         c->rasterize(fZBuffer, &fBM);
     }
 }
@@ -106,9 +129,7 @@ void FakeDevice::finalize() {
 void FakeDevice::getOrder(std::vector<ID>* ops) const {
     SkASSERT(fFinalized);
 
-//    ops->reserve(fSortedCmds.size());
-
-    for (auto c : fSortedCmds) {
+    for (const std::unique_ptr<Cmd>& c : fSortedCmds) {
         ops->push_back(c->id());
     }
 }
@@ -121,7 +142,7 @@ void FakeDevice::sort() {
     //
     // In both scenarios we would like to batch as much as possible.
     std::sort(fSortedCmds.begin(), fSortedCmds.end(),
-                [](Cmd* a, Cmd* b) {
+              [](const std::unique_ptr<Cmd>& a, const std::unique_ptr<Cmd>& b) {
                     return a->getKey() < b->getKey();
                 });
 }
@@ -136,7 +157,7 @@ void FakeCanvas::drawRect(ID id, SkIRect r, FakePaint p) {
 void FakeCanvas::clipRect(ID id, SkIRect r) {
     SkASSERT(!fFinalized);
 
-    fDeviceStack.back()->clipRect(id, r);
+    fDeviceStack.back()->clipRect(id, this->nextPaintersOrder(), r);
 }
 
 void FakeCanvas::finalize() {
@@ -159,4 +180,3 @@ std::vector<ID> FakeCanvas::getOrder() const {
 
     return ops;
 }
-
