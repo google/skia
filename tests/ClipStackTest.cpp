@@ -1546,6 +1546,7 @@ DEF_TEST(ClipStack, reporter) {
     test_reduced_clip_stack_aa(reporter);
     test_tiny_query_bounds_assertion_bug(reporter);
 #endif
+
     test_is_rrect_deep_rect_stack(reporter);
 }
 
