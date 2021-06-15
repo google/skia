@@ -61,19 +61,24 @@ public:
     };
 
     /**
+     * Both factories support a single 'input' FP, as well as a collection of other 'child' FPs.
+     * The 'child' FPs correspond to the children declared in the effect's SkSL. The inputFP is
+     * optional, and intended for instances that have color filter semantics. This is an implicit
+     * child - if present, it's evaluated to produce the input color fed to the SkSL. Otherwise,
+     * the SkSL receives this FP's input color directly.
+     */
+
+    /**
      * Creates a new fragment processor from an SkRuntimeEffect and a data blob containing values
      * for all of the 'uniform' variables in the SkSL source. The layout of the uniforms blob is
      * dictated by the SkRuntimeEffect.
      */
-    static std::unique_ptr<GrSkSLFP> Make(sk_sp<SkRuntimeEffect> effect,
-                                          const char* name,
-                                          sk_sp<SkData> uniforms);
-
-    const char* name() const override { return fName; }
-
-    void addChild(std::unique_ptr<GrFragmentProcessor> child);
-
-    std::unique_ptr<GrFragmentProcessor> clone() const override;
+    static std::unique_ptr<GrSkSLFP> MakeWithData(
+            sk_sp<SkRuntimeEffect> effect,
+            const char* name,
+            std::unique_ptr<GrFragmentProcessor> inputFP,
+            sk_sp<SkData> uniforms,
+            SkSpan<std::unique_ptr<GrFragmentProcessor>> childFPs);
 
     /*
      * Constructs a GrSkSLFP from a series of name-value pairs, corresponding to the children and
@@ -93,7 +98,7 @@ public:
      *   std::unique_ptr<GrFragmentProcessor> child = ...;
      *   float scaleVal = ...;
      *   SkV2 ptVal = ...;
-     *   auto fp = GrSkSLFP::Make(effect, "my_effect",
+     *   auto fp = GrSkSLFP::Make(effect, "my_effect", nullptr,
      *                            "input", std::move(child),
      *                            "scale", scaleVal,
      *                            "pt", ptVal);
@@ -106,6 +111,7 @@ public:
     template <typename... Args>
     static std::unique_ptr<GrSkSLFP> Make(sk_sp<SkRuntimeEffect> effect,
                                           const char* name,
+                                          std::unique_ptr<GrFragmentProcessor> inputFP,
                                           Args&&... args) {
 #ifdef SK_DEBUG
         checkArgs(effect->fUniforms.begin(),
@@ -118,12 +124,21 @@ public:
         size_t uniformPayloadSize = UniformPayloadSize(effect.get());
         std::unique_ptr<GrSkSLFP> fp(new (uniformPayloadSize) GrSkSLFP(std::move(effect), name));
         fp->appendArgs(fp->uniformData(), fp->uniformFlags(), std::forward<Args>(args)...);
+        if (inputFP) {
+            fp->setInput(std::move(inputFP));
+        }
         return fp;
     }
+
+    const char* name() const override { return fName; }
+    std::unique_ptr<GrFragmentProcessor> clone() const override;
 
 private:
     GrSkSLFP(sk_sp<SkRuntimeEffect> effect, const char* name);
     GrSkSLFP(const GrSkSLFP& other);
+
+    void addChild(std::unique_ptr<GrFragmentProcessor> child);
+    void setInput(std::unique_ptr<GrFragmentProcessor> input);
 
     std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
 
@@ -260,7 +275,8 @@ private:
 
     sk_sp<SkRuntimeEffect> fEffect;
     const char*            fName;
-    size_t                 fUniformSize;
+    uint32_t               fUniformSize;
+    int                    fInputChildIndex = -1;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 

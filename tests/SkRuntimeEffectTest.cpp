@@ -662,7 +662,7 @@ DEF_TEST(SkRuntimeShaderSampleCoords, r) {
         REPORTER_ASSERT(r, effect);
 
         auto child = GrFragmentProcessor::MakeColor({ 1, 1, 1, 1 });
-        auto fp = GrSkSLFP::Make(effect, "test_fp",  "child", std::move(child));
+        auto fp = GrSkSLFP::Make(effect, "test_fp", /*inputFP=*/nullptr, "child", std::move(child));
         REPORTER_ASSERT(r, fp);
 
         REPORTER_ASSERT(r, fp->childProcessor(0)->isSampledWithExplicitCoords() == expectExplicit);
@@ -715,8 +715,8 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSkSLFP_Specialized, r, ctxInfo) {
             half4 main(float2 xy) { return color; }
         )");
         FpAndKey result;
-        result.fp = GrSkSLFP::Make(
-                std::move(effect), "color_fp", "color", GrSkSLFP::SpecializeIf(specialize, color));
+        result.fp = GrSkSLFP::Make(std::move(effect), "color_fp", /*inputFP=*/nullptr,
+                                   "color", GrSkSLFP::SpecializeIf(specialize, color));
         GrProcessorKeyBuilder builder(&result.key);
         result.fp->getGLSLProcessorKey(*ctxInfo.directContext()->priv().caps()->shaderCaps(),
                                        &builder);

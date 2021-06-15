@@ -324,7 +324,7 @@ std::unique_ptr<GrFragmentProcessor> make_arithmetic_fp(
             return color;
         }
     )");
-    return GrSkSLFP::Make(effect, "arithmetic_fp",
+    return GrSkSLFP::Make(effect, "arithmetic_fp", /*inputFP=*/nullptr,
                           "srcFP", std::move(srcFP),
                           "dstFP", std::move(dstFP),
                           "k", k,

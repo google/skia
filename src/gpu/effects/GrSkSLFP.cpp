@@ -159,6 +159,14 @@ public:
             int                           fUniformIndex = 0;
         };
 
+        // If we have an input child, we invoke it now, and make the result of that be the "input
+        // color" for all other purposes later (eg, the default passed via sample calls, etc.)
+        if (fp.fInputChildIndex >= 0) {
+            args.fFragBuilder->codeAppendf("%s = %s;\n",
+                                           args.fInputColor,
+                                           this->invokeChild(fp.fInputChildIndex, args).c_str());
+        }
+
         // Snap off a global copy of the input color at the start of main. We need this when
         // we call child processors (particularly from helper functions, which can't "see" the
         // parameter to main). Even from within main, if the code mutates the parameter, calls to
@@ -225,9 +233,12 @@ public:
     std::vector<UniformHandle> fUniformHandles;
 };
 
-std::unique_ptr<GrSkSLFP> GrSkSLFP::Make(sk_sp<SkRuntimeEffect> effect,
-                                         const char* name,
-                                         sk_sp<SkData> uniforms) {
+std::unique_ptr<GrSkSLFP> GrSkSLFP::MakeWithData(
+        sk_sp<SkRuntimeEffect> effect,
+        const char* name,
+        std::unique_ptr<GrFragmentProcessor> inputFP,
+        sk_sp<SkData> uniforms,
+        SkSpan<std::unique_ptr<GrFragmentProcessor>> childFPs) {
     if (uniforms->size() != effect->uniformSize()) {
         return nullptr;
     }
@@ -236,6 +247,12 @@ std::unique_ptr<GrSkSLFP> GrSkSLFP::Make(sk_sp<SkRuntimeEffect> effect,
     std::unique_ptr<GrSkSLFP> fp(new (uniformSize + uniformFlagSize)
                                          GrSkSLFP(std::move(effect), name));
     sk_careful_memcpy(fp->uniformData(), uniforms->data(), uniformSize);
+    for (auto& childFP : childFPs) {
+        fp->addChild(std::move(childFP));
+    }
+    if (inputFP) {
+        fp->setInput(std::move(inputFP));
+    }
     return fp;
 }
 
@@ -246,7 +263,7 @@ GrSkSLFP::GrSkSLFP(sk_sp<SkRuntimeEffect> effect, const char* name)
                             : kNone_OptimizationFlags)
         , fEffect(std::move(effect))
         , fName(name)
-        , fUniformSize(fEffect->uniformSize()) {
+        , fUniformSize(SkToU32(fEffect->uniformSize())) {
     memset(this->uniformFlags(), 0, fEffect->uniforms().count() * sizeof(UniformFlags));
     if (fEffect->usesSampleCoords()) {
         this->setUsesSampleCoordsDirectly();
@@ -257,7 +274,8 @@ GrSkSLFP::GrSkSLFP(const GrSkSLFP& other)
         : INHERITED(kGrSkSLFP_ClassID, other.optimizationFlags())
         , fEffect(other.fEffect)
         , fName(other.fName)
-        , fUniformSize(other.fUniformSize) {
+        , fUniformSize(other.fUniformSize)
+        , fInputChildIndex(other.fInputChildIndex) {
     sk_careful_memcpy(this->uniformFlags(),
                       other.uniformFlags(),
                       fEffect->uniforms().count() * sizeof(UniformFlags));
@@ -271,10 +289,19 @@ GrSkSLFP::GrSkSLFP(const GrSkSLFP& other)
 }
 
 void GrSkSLFP::addChild(std::unique_ptr<GrFragmentProcessor> child) {
+    SkASSERTF(fInputChildIndex == -1, "all addChild calls must happen before setInput");
     int childIndex = this->numChildProcessors();
     SkASSERT((size_t)childIndex < fEffect->fSampleUsages.size());
     this->mergeOptimizationFlags(ProcessorOptimizationFlags(child.get()));
     this->registerChild(std::move(child), fEffect->fSampleUsages[childIndex]);
+}
+
+void GrSkSLFP::setInput(std::unique_ptr<GrFragmentProcessor> input) {
+    SkASSERTF(fInputChildIndex == -1, "setInput should not be called more than once");
+    fInputChildIndex = this->numChildProcessors();
+    SkASSERT((size_t)fInputChildIndex == fEffect->fSampleUsages.size());
+    this->mergeOptimizationFlags(ProcessorOptimizationFlags(input.get()));
+    this->registerChild(std::move(input), SkSL::SampleUsage::PassThrough());
 }
 
 std::unique_ptr<GrGLSLFragmentProcessor> GrSkSLFP::onMakeProgramImpl() const {
@@ -286,7 +313,7 @@ void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBui
     // That ensures that we will (at worst) use the wrong program, but one that expects the same
     // amount of uniform data.
     b->add32(fEffect->hash());
-    b->add32(SkToU32(fUniformSize));
+    b->add32(fUniformSize);
 
     const UniformFlags* flags = this->uniformFlags();
     const uint8_t* uniformData = this->uniformData();
@@ -325,7 +352,11 @@ SkPMColor4f GrSkSLFP::constantOutputForConstantInput(const SkPMColor4f& inputCol
         return ConstantOutputForConstantInput(this->childProcessor(index), color);
     };
 
-    return program->eval(inputColor, this->uniformData(), evalChild);
+    SkPMColor4f color = (fInputChildIndex >= 0)
+                                ? ConstantOutputForConstantInput(
+                                          this->childProcessor(fInputChildIndex), inputColor)
+                                : inputColor;
+    return program->eval(color, this->uniformData(), evalChild);
 }
 
 /**************************************************************************************************/
