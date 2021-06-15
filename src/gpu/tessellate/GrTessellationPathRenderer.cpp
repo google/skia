@@ -22,6 +22,7 @@
 #include "src/gpu/tessellate/GrPathInnerTriangulateOp.h"
 #include "src/gpu/tessellate/GrPathStencilCoverOp.h"
 #include "src/gpu/tessellate/GrPathTessellateOp.h"
+#include "src/gpu/tessellate/GrPathTessellator.h"
 #include "src/gpu/tessellate/GrStrokeTessellateOp.h"
 
 constexpr static SkISize kAtlasInitialSize{512, 512};
