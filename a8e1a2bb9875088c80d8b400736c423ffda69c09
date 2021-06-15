@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fbbfdcac_46515d98",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-15T20:19:51Z",
+      "side": 1,
+      "message": "This is awesome and will save me from needing a Compose FP as well :) ",
+      "revId": "a8e1a2bb9875088c80d8b400736c423ffda69c09",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a21c20cd_5ab81a18",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 680,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-15T20:19:51Z",
+      "side": 1,
+      "message": "Isn\u0027t this a problem? We aren\u0027t supposed to swallow up the input FP on failure.",
+      "range": {
+        "startLine": 680,
+        "startChar": 31,
+        "endLine": 680,
+        "endChar": 38
+      },
+      "revId": "a8e1a2bb9875088c80d8b400736c423ffda69c09",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5e573642_27b101b0",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-15T20:19:51Z",
+      "side": 1,
+      "message": "I think the meaning flows better if we just strike \"treat it as special\".",
+      "range": {
+        "startLine": 162,
+        "startChar": 41,
+        "endLine": 162,
+        "endChar": 62
+      },
+      "revId": "a8e1a2bb9875088c80d8b400736c423ffda69c09",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7ce5f12e_7be7866b",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-15T20:19:51Z",
+      "side": 1,
+      "message": "Does this paren belong at the end of the sentence?",
+      "range": {
+        "startLine": 163,
+        "startChar": 96,
+        "endLine": 163,
+        "endChar": 97
+      },
+      "revId": "a8e1a2bb9875088c80d8b400736c423ffda69c09",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "214fa5aa_4ba8b35e",
+        "filename": "src/utils/SkShadowUtils.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-15T20:19:51Z",
+      "side": 1,
+      "message": "We should allow setting a null input FP. Everywhere else in the code can handle it; it feels weird to need to guard this.",
+      "range": {
+        "startLine": 99,
+        "startChar": 0,
+        "endLine": 101,
+        "endChar": 5
+      },
+      "revId": "a8e1a2bb9875088c80d8b400736c423ffda69c09",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
