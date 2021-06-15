@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "07f6c50c_74b1ba7b",
+        "filename": "src/utils/win/SkWGL_win.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-15T17:55:20Z",
+      "side": 1,
+      "message": "Note to self: https://developers.google.com/style/inclusive-documentation#ableist-language",
+      "range": {
+        "startLine": 259,
+        "startChar": 30,
+        "endLine": 259,
+        "endChar": 38
+      },
+      "revId": "1b3566829ec558630f5bb061e5db200e005281b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
