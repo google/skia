@@ -14,7 +14,7 @@
 
 namespace {
 
-constexpr static float kPrecision = GrTessellationPathRenderer::kLinearizationPrecision;
+constexpr static float kPrecision = GrPathTessellator::kLinearizationPrecision;
 
 // Parses out each contour in a path and tracks the midpoint. Example usage:
 //

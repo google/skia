@@ -217,7 +217,8 @@ void GrTessellationPathRenderer::AtlasPathKey::set(const SkMatrix& m, bool antia
     fAffineMatrix[3] = m.getScaleY();
     float2 translate = {m.getTranslateX(), m.getTranslateY()};
     float2 subpixelPosition = translate - skvx::floor(translate);
-    float2 subpixelPositionKey = skvx::trunc(subpixelPosition * kLinearizationPrecision);
+    float2 subpixelPositionKey = skvx::trunc(subpixelPosition *
+                                             GrPathTessellator::kLinearizationPrecision);
     skvx::cast<uint8_t>(subpixelPositionKey).store(fSubpixelPositionKey);
     fAntialias = antialias;
     fFillRule = (uint8_t)GrFillRuleForSkPath(path);  // Fill rule doesn't affect the path's genID.

@@ -21,6 +21,7 @@
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrSWMaskHelper.h"
+#include "src/gpu/GrUtil.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/geometry/GrStyledShape.h"
 #include "src/gpu/ops/GrDrawOp.h"
@@ -233,8 +234,8 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
     // We really need to know if the shape will be inverse filled or not
     // If the path is hairline, ignore inverse fill.
     bool inverseFilled = args.fShape->inverseFilled() &&
-                        !IsStrokeHairlineOrEquivalent(args.fShape->style(),
-                                                      *args.fViewMatrix, nullptr);
+                        !GrIsStrokeHairlineOrEquivalent(args.fShape->style(),
+                                                        *args.fViewMatrix, nullptr);
 
     SkIRect unclippedDevShapeBounds, clippedDevShapeBounds, devClipBounds;
     // To prevent overloading the cache with entries during animations we limit the cache of masks

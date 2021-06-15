@@ -167,11 +167,6 @@ public:
         this->onStencilPath(args);
     }
 
-    // Helper for determining if we can treat a thin stroke as a hairline w/ coverage.
-    // If we can, we draw lots faster (raster device does this same test).
-    static bool IsStrokeHairlineOrEquivalent(const GrStyle&, const SkMatrix&,
-                                             SkScalar* outCoverage);
-
 protected:
     // Helper for getting the device bounds of a path. Inverse filled paths will have bounds set
     // by devSize. Non-inverse path bounds will not necessarily be clipped to devSize.

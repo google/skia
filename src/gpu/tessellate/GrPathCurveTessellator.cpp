@@ -15,7 +15,7 @@
 
 namespace {
 
-constexpr static float kPrecision = GrTessellationPathRenderer::kLinearizationPrecision;
+constexpr static float kPrecision = GrPathTessellator::kLinearizationPrecision;
 
 // Writes out curve patches, chopping as necessary so none require more segments than are
 // supported by the hardware.

@@ -19,6 +19,7 @@
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/GrThreadSafeCache.h"
+#include "src/gpu/GrUtil.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/geometry/GrStyledShape.h"
@@ -490,8 +491,7 @@ static void draw_shape_with_mask_filter(GrRecordingContext* rContext,
 
     // If the path is hairline, ignore inverse fill.
     bool inverseFilled = shape->inverseFilled() &&
-                         !GrPathRenderer::IsStrokeHairlineOrEquivalent(shape->style(),
-                                                                       viewMatrix, nullptr);
+                         !GrIsStrokeHairlineOrEquivalent(shape->style(), viewMatrix, nullptr);
 
     SkIRect unclippedDevShapeBounds, devClipBounds;
     if (!get_shape_and_clip_bounds(surfaceDrawContext, clip, *shape, viewMatrix,

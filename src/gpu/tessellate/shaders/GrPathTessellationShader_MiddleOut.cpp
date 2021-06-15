@@ -10,6 +10,7 @@
 #include "src/gpu/geometry/GrWangsFormula.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
+#include "src/gpu/tessellate/GrPathTessellator.h"
 
 namespace {
 
@@ -56,7 +57,7 @@ GrGLSLGeometryProcessor* MiddleOutShader::createGLSLInstance(const GrShaderCaps&
     class Impl : public GrPathTessellationShader::Impl {
         void emitVertexCode(const GrPathTessellationShader& shader, GrGLSLVertexBuilder* v,
                             GrGPArgs* gpArgs) override {
-            v->defineConstant("PRECISION", GrTessellationPathRenderer::kLinearizationPrecision);
+            v->defineConstant("PRECISION", GrPathTessellator::kLinearizationPrecision);
             v->insertFunction(GrWangsFormula::as_sksl().c_str());
             if (v->getProgramBuilder()->shaderCaps()->bitManipulationSupport()) {
                 // Determines the T value at which to place the given vertex in a "middle-out"
