@@ -33,6 +33,23 @@
       "message": "https://skia-review.googlesource.com/c/skia/+/418218/5..7",
       "revId": "320af76bff78124db1c36fea1b46aabba65cab31",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "73bc1344_ea1a5904",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-15T14:30:44Z",
+      "side": 1,
+      "message": "new inset logic looks good to me, appreciate the detailed comment",
+      "revId": "320af76bff78124db1c36fea1b46aabba65cab31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
