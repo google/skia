@@ -37,7 +37,6 @@ void writeH(const DFA& dfa, const char* lexer, const char* token,
     out << HEADER;
     out << "#ifndef SKSL_" << lexer << "\n";
     out << "#define SKSL_" << lexer << "\n";
-    out << "#include \"include/core/SkStringView.h\"\n";
     out << "#include <cstddef>\n";
     out << "#include <cstdint>\n";
     out << "namespace SkSL {\n";
@@ -68,8 +67,9 @@ void writeH(const DFA& dfa, const char* lexer, const char* token,
 
 class )" << lexer << R"( {
 public:
-    void start(skstd::string_view text) {
+    void start(const char* text, int32_t length) {
         fText = text;
+        fLength = length;
         fOffset = 0;
     }
 
@@ -84,7 +84,8 @@ public:
     }
 
 private:
-    skstd::string_view fText;
+    const char* fText;
+    int32_t fLength;
     int32_t fOffset;
 };
 
@@ -152,12 +153,12 @@ void writeCPP(const DFA& dfa, const char* lexer, const char* token, const char* 
     // tokens. Our grammar doesn't have this property, so we can simplify the logic
     // a bit.
     int32_t startOffset = fOffset;
-    if (startOffset == (int32_t)fText.length()) {
+    if (startOffset == fLength) {
         return )" << token << "(" << token << R"(::Kind::TK_END_OF_FILE, startOffset, 0);
     }
     State state = 1;
     for (;;) {
-        if (fOffset >= (int32_t)fText.length()) {
+        if (fOffset >= fLength) {
             if (accepts[state] == -1) {
                 return Token(Token::Kind::TK_END_OF_FILE, startOffset, 0);
             }
