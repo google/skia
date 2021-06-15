@@ -29,13 +29,13 @@ void StartRuntimeShader(SkSL::Compiler* compiler) {
 }
 
 sk_sp<SkRuntimeEffect> EndRuntimeShader() {
-    std::unique_ptr<SkSL::Program> program = DSLWriter::ReleaseProgram();
-    auto result = SkRuntimeEffect::MakeForShader(std::move(program));
-    // TODO(skbug.com/11862): propagate errors properly
-    SkASSERTF(result.effect, "%s\n", result.errorText.c_str());
-    SkSL::ProgramSettings& settings = DSLWriter::IRGenerator().fContext.fConfig->fSettings;
-    settings.fInlineThreshold = SkSL::kDefaultInlineThreshold;
-    settings.fAllowNarrowingConversions = false;
+    std::unique_ptr<SkSL::Program> program = ReleaseProgram();
+    SkRuntimeEffect::Result result;
+    if (program) {
+        result = SkRuntimeEffect::MakeForShader(std::move(program));
+        // TODO(skbug.com/11862): propagate errors properly
+        SkASSERTF(result.effect, "%s\n", result.errorText.c_str());
+    }
     End();
     return result.effect;
 }

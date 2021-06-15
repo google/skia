@@ -36,10 +36,12 @@ public:
         StartRuntimeShader(fCompiler.get());
     }
 
-    void end() {
+    void end(bool expectSuccess = true) {
         sk_sp<SkRuntimeEffect> effect = EndRuntimeShader();
-        SkASSERT(effect);
-        fBuilder.init(std::move(effect));
+        REPORTER_ASSERT(fReporter, effect ? expectSuccess : !expectSuccess);
+        if (effect) {
+            fBuilder.init(std::move(effect));
+        }
     }
 
     SkRuntimeShaderBuilder::BuilderUniform uniform(const char* name) {
@@ -189,6 +191,27 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
         );
         effect.end();
         effect.test(0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFF00FFFF);
+    }
+
+    // Test error reporting. We put this before a couple of successful tests to ensure that a
+    // failure doesn't leave us in a broken state.
+    {
+        class SimpleErrorHandler : public ErrorHandler {
+        public:
+            void handleError(const char* msg, PositionInfo* pos) override {
+                fMsg = msg;
+            }
+
+            SkSL::String fMsg;
+        } errorHandler;
+        effect.start();
+        SetErrorHandler(&errorHandler);
+        Var p(kFloat2_Type, "p");
+        Function(kHalf4_Type, "main", p).define(
+            Return(1) // Error, type mismatch
+        );
+        effect.end(false);
+        REPORTER_ASSERT(r, errorHandler.fMsg == "error: expected 'half4', but found 'int'\n");
     }
 
     // Mutating coords should work. (skbug.com/10918)
