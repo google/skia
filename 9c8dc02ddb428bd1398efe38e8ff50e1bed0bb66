@@ -1,6 +1,40 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "3fd4c9b8_aed126be",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-06-15T20:40:49Z",
+      "side": 1,
+      "message": "Should mention PDF here somewhere, like \u0027[pdf]\u0027 or something like that.",
+      "revId": "9c8dc02ddb428bd1398efe38e8ff50e1bed0bb66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2194f6fd_b79673db",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-06-15T20:40:49Z",
+      "side": 1,
+      "message": "This is a real fix, so I think we can drop this before landing. However, we should note that this may cause issues with Pdfium https://bugs.chromium.org/p/pdfium/issues/detail?id\u003d1693 .",
+      "revId": "9c8dc02ddb428bd1398efe38e8ff50e1bed0bb66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "7813a564_797e824f",
@@ -14,6 +48,23 @@
       "writtenOn": "2021-06-15T17:41:10Z",
       "side": 1,
       "message": "So I think this is probably the right fix, but it may be exposing a bug in Pdfium. With this patch Adobe Reader works as expected, but with this patch Pdfium does not apply any alpha. Without this patch Adobe Reader applies both alphas, but Pdfium only one of them. As a result, it appears that perhaps Pdfium is not applying the alpha from the graphics state to Pattern?\n\nOn the one hand, probably worth just landing this and then opening an issue against Pdfium. However, it would be nice to fix that first.",
+      "revId": "9c8dc02ddb428bd1398efe38e8ff50e1bed0bb66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0dd8a5d1_785f90ae",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-06-15T20:40:49Z",
+      "side": 1,
+      "message": "Even if this produces PDFs that don\u0027t look great in Pdfium, we should prioritize creating correct PDFs. We have opened a Pdfium issue and it would be best to create correct PDFs so that when Pdfium is fixed things look better instead of worse.\n\nLGTM with a better commit message.",
       "revId": "9c8dc02ddb428bd1398efe38e8ff50e1bed0bb66",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
