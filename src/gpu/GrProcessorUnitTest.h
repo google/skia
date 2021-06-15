@@ -30,12 +30,6 @@ class GrGeometryProcessor;
 
 namespace GrProcessorUnitTest {
 
-// Used to access the dummy textures in TestCreate procs.
-enum {
-    kSkiaPMTextureIdx = 0,
-    kAlphaTextureIdx = 1,
-};
-
 /** This allows parent FPs to implement a test create with known leaf children in order to avoid
  *  creating an unbounded FP tree which may overflow various shader limits.
  *  MakeOptionalChildFP is the same as MakeChildFP, but can return null.

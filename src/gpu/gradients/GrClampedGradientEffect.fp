@@ -7,9 +7,9 @@
 
 // This top-level effect implements clamping on the layout coordinate and requires specifying the
 // border colors that are used when outside the clamped boundary. Gradients with the
-// SkShader::kClamp_TileMode should use the colors at their first and last stop (after adding dummy
-// stops for t=0,t=1) as the border color. This will automatically replicate the edge color, even if
-// when there is a hard stop.
+// SkShader::kClamp_TileMode should use the colors at their first and last stop (after adding
+// default stops for t=0,t=1) as the border color. This will automatically replicate the edge color,
+// even if when there is a hard stop.
 //
 // The SkShader::kDecal_TileMode can be produced by specifying transparent black as the border
 // colors, regardless of the gradient's stop colors.

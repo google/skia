@@ -2016,10 +2016,10 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
             }
         }
         default: {
-            // expr isn't actually an lvalue, create a dummy variable for it. This case happens due
-            // to the need to store values in temporary variables during function calls (see
-            // comments in getFunctionType); erroneous uses of rvalues as lvalues should have been
-            // caught by IRGenerator
+            // expr isn't actually an lvalue, create a placeholder variable for it. This case
+            // happens due to the need to store values in temporary variables during function
+            // calls (see comments in getFunctionType); erroneous uses of rvalues as lvalues
+            // should have been caught by IRGenerator
             SpvId result = this->nextId(nullptr);
             SpvId pointerType = this->getPointerType(type, SpvStorageClassFunction);
             this->writeInstruction(SpvOpVariable, pointerType, result, SpvStorageClassFunction,

@@ -319,6 +319,6 @@ void GrSPIRVUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkStrin
 }
 
 uint32_t GrSPIRVUniformHandler::getRTHeightOffset() const {
-    uint32_t dummy = fCurrentUBOOffset;
-    return get_ubo_offset(&dummy, kFloat_GrSLType, 0);
+    uint32_t ignored = fCurrentUBOOffset;
+    return get_ubo_offset(&ignored, kFloat_GrSLType, 0);
 }
