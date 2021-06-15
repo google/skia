@@ -370,6 +370,8 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         shaderCaps->fShaderDerivativeSupport = version >= GR_GL_VER(3, 0) ||
             ctxInfo.hasExtension("GL_OES_standard_derivatives");
 
+        SkDebugf("Shader Derivs: %d\n", shaderCaps->fShaderDerivativeSupport);
+
         // Mali and early Adreno both have support for geometry shaders, but they appear to be
         // implemented in software. In practice with ccpr, they are slower than the backup impl that
         // only uses vertex shaders.
