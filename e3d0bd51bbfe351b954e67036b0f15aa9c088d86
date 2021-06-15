@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "14cc3492_9575cd04",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 1181,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-15T13:38:22Z",
+      "side": 1,
+      "message": "As long as we\u0027re going to enforce this here, we should probably do the same in MakeForBlend - so you can\u0027t even generate a blend effect with any children declared (and get an error if you try).\n\nEventually, I could see allowing shaders or color filters as children here, but that\u0027s going to require more guts \u0026 plumbing, obviously.",
+      "range": {
+        "startLine": 1181,
+        "startChar": 51,
+        "endLine": 1181,
+        "endChar": 69
+      },
+      "revId": "e3d0bd51bbfe351b954e67036b0f15aa9c088d86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
