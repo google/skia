@@ -87,6 +87,24 @@
       "parentUuid": "e8b62a48_0e4b55f7",
       "revId": "2d37cd7df59dc95a0db71cbb755d0bd0017a1cff",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "19ccc3bb_a023939a",
+        "filename": "gn/skia/BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 478,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-15T16:58:41Z",
+      "side": 1,
+      "message": "Moved it to the \"nice to have\" fix list.",
+      "parentUuid": "41c99fe5_374455a1",
+      "revId": "2d37cd7df59dc95a0db71cbb755d0bd0017a1cff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
