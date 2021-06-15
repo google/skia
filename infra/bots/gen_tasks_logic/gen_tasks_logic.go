@@ -714,7 +714,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 			"Mac11":      "Mac-11.1",
 			"Ubuntu18":   "Ubuntu-18.04",
 			"Win":        DEFAULT_OS_WIN,
-			"Win10":      "Windows-10-18363",
+			"Win10":      "Windows-10-19041",
 			"Win2019":    DEFAULT_OS_WIN,
 			"Win7":       "Windows-7-SP1",
 			"Win8":       "Windows-8.1-SP0",
