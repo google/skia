@@ -92,7 +92,7 @@ static bool check_parameters(const Context& context,
         ProgramKind kind = context.fConfig->fKind;
         if (isMain && (kind == ProgramKind::kRuntimeColorFilter ||
                        kind == ProgramKind::kRuntimeShader ||
-                       kind == ProgramKind::kRuntimeBlend ||
+                       kind == ProgramKind::kRuntimeBlendFilter ||
                        kind == ProgramKind::kFragmentProcessor)) {
             // We verify that the signature is fully correct later. For now, if this is an .fp or
             // runtime effect of any flavor, a float2 param is supposed to be the coords, and
@@ -178,7 +178,7 @@ static bool check_main_signature(const Context& context, int offset, const Type&
             }
             break;
         }
-        case ProgramKind::kRuntimeBlend: {
+        case ProgramKind::kRuntimeBlendFilter: {
             // (half4|float4) main(half4|float4, half4|float4)
             if (!typeIsValidForColor(returnType)) {
                 errors.error(offset, "'main' must return: 'vec4', 'float4', or 'half4'");

@@ -298,13 +298,13 @@ const ParsedModule& Compiler::loadRuntimeShaderModule() {
     return fRuntimeShaderModule;
 }
 
-const ParsedModule& Compiler::loadRuntimeBlendModule() {
-    if (!fRuntimeBlendModule.fSymbols) {
-        fRuntimeBlendModule = this->parseModule(
-                ProgramKind::kRuntimeBlend, MODULE_DATA(rt_blend), this->loadPublicModule());
-        add_glsl_type_aliases(fRuntimeBlendModule.fSymbols.get(), fContext->fTypes);
+const ParsedModule& Compiler::loadRuntimeBlendFilterModule() {
+    if (!fRuntimeBlendFilterModule.fSymbols) {
+        fRuntimeBlendFilterModule = this->parseModule(
+                ProgramKind::kRuntimeBlendFilter, MODULE_DATA(rt_blend), this->loadPublicModule());
+        add_glsl_type_aliases(fRuntimeBlendFilterModule.fSymbols.get(), fContext->fTypes);
     }
-    return fRuntimeBlendModule;
+    return fRuntimeBlendFilterModule;
 }
 
 const ParsedModule& Compiler::moduleForProgramKind(ProgramKind kind) {
@@ -315,7 +315,7 @@ const ParsedModule& Compiler::moduleForProgramKind(ProgramKind kind) {
         case ProgramKind::kFragmentProcessor:  return this->loadFPModule();                 break;
         case ProgramKind::kRuntimeColorFilter: return this->loadRuntimeColorFilterModule(); break;
         case ProgramKind::kRuntimeShader:      return this->loadRuntimeShaderModule();      break;
-        case ProgramKind::kRuntimeBlend:       return this->loadRuntimeBlendModule();       break;
+        case ProgramKind::kRuntimeBlendFilter: return this->loadRuntimeBlendFilterModule(); break;
         case ProgramKind::kGeneric:            return this->loadPublicModule();             break;
     }
     SkUNREACHABLE;

@@ -46,7 +46,7 @@ void DSLFunction::init(const DSLType& returnType, const char* name,
         SkSL::ProgramKind kind = DSLWriter::Context().fConfig->fKind;
         if (isMain && (kind == ProgramKind::kRuntimeColorFilter ||
                        kind == ProgramKind::kRuntimeShader ||
-                       kind == ProgramKind::kRuntimeBlend ||
+                       kind == ProgramKind::kRuntimeBlendFilter ||
                        kind == ProgramKind::kFragmentProcessor)) {
             const SkSL::Type& type = param->fType.skslType();
             // We verify that the signature is fully correct later. For now, if this is an .fp
