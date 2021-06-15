@@ -123,49 +123,9 @@
       s['wordSpacing'] = s['wordSpacing'] || 0;
       s['heightMultiplier'] = s['heightMultiplier'] || 0;
       s['halfLeading'] = s['halfLeading'] || false;
-      if (s['locale']) {
-        var str = s['locale'];
-        s['_localePtr'] = cacheOrCopyString(str);
-        s['_localeLen'] = lengthBytesUTF8(str) + 1; // add 1 for the null terminator.
-      } else {
-        s['_localePtr'] = nullptr;
-        s['_localeLen'] = 0;
-      }
       s['fontStyle'] = fontStyle(s['fontStyle']);
-      if (s['shadows']) {
-        var shadows = s['shadows'];
-        var shadowColors = shadows.map(function(s) { return s['color'] || CanvasKit.BLACK; });
-        var shadowBlurRadii = shadows.map(function(s) { return s['blurRadius'] || 0.0; });
-        s['_shadowLen'] = shadows.length;
-        var ptr = CanvasKit._malloc(shadows.length * 2, 'HEAPF32');
-        var adjustedPtr = ptr / 4;  // 4 bytes per float
-        for (var i = 0; i < shadows.length; i++) {
-          var offset = shadows[i]['offset'] || [0, 0];
-          CanvasKit.HEAPF32[adjustedPtr] = offset[0];
-          CanvasKit.HEAPF32[adjustedPtr + 1] = offset[1];
-          adjustedPtr += 2;
-        }
-        s['_shadowColorsPtr'] = copyFlexibleColorArray(shadowColors).colorPtr;
-        s['_shadowOffsetsPtr'] = ptr;
-        s['_shadowBlurRadiiPtr'] = copy1dArray(shadowBlurRadii, 'HEAPF32');
-      } else {
-        s['_shadowLen'] = 0;
-        s['_shadowColorsPtr'] = nullptr;
-        s['_shadowOffsetsPtr'] = nullptr;
-        s['_shadowBlurRadiiPtr'] = nullptr;
-      }
-      if (s['fontFeatures']) {
-        var fontFeatures = s['fontFeatures'];
-        var fontFeatureNames = fontFeatures.map(function(s) { return s['name']; });
-        var fontFeatureValues = fontFeatures.map(function(s) { return s['value']; });
-        s['_fontFeatureLen'] = fontFeatures.length;
-        s['_fontFeatureNamesPtr'] = naiveCopyStrArray(fontFeatureNames);
-        s['_fontFeatureValuesPtr'] = copy1dArray(fontFeatureValues, 'HEAPU32');
-      } else {
-        s['_fontFeatureLen'] = 0;
-        s['_fontFeatureNamesPtr'] = nullptr;
-        s['_fontFeatureValuesPtr'] = nullptr;
-      }
+
+      // Properties which need to be Malloc'ed are set in `copyArrays`.
 
       return s;
     };
@@ -240,12 +200,64 @@
         textStyle['_fontFamiliesLen'] = 0;
         Debug('no font families provided, text may draw wrong or not at all');
       }
+
+      if (textStyle['locale']) {
+        var str = textStyle['locale'];
+        textStyle['_localePtr'] = cacheOrCopyString(str);
+        textStyle['_localeLen'] = lengthBytesUTF8(str) + 1; // add 1 for the null terminator.
+      } else {
+        textStyle['_localePtr'] = nullptr;
+        textStyle['_localeLen'] = 0;
+      }
+
+      if (Array.isArray(textStyle['shadows']) && textStyle['shadows'].length) {
+        var shadows = textStyle['shadows'];
+        var shadowColors = shadows.map(function (s) { return s['color'] || CanvasKit.BLACK; });
+        var shadowBlurRadii = shadows.map(function (s) { return s['blurRadius'] || 0.0; });
+        textStyle['_shadowLen'] = shadows.length;
+        // 2 floats per point, 4 bytes per float
+        var ptr = CanvasKit._malloc(shadows.length * 2 * 4);
+        var adjustedPtr = ptr / 4;  // 4 bytes per float
+        for (var i = 0; i < shadows.length; i++) {
+          var offset = shadows[i]['offset'] || [0, 0];
+          CanvasKit.HEAPF32[adjustedPtr] = offset[0];
+          CanvasKit.HEAPF32[adjustedPtr + 1] = offset[1];
+          adjustedPtr += 2;
+        }
+        textStyle['_shadowColorsPtr'] = copyFlexibleColorArray(shadowColors).colorPtr;
+        textStyle['_shadowOffsetsPtr'] = ptr;
+        textStyle['_shadowBlurRadiiPtr'] = copy1dArray(shadowBlurRadii, 'HEAPF32');
+      } else {
+        textStyle['_shadowLen'] = 0;
+        textStyle['_shadowColorsPtr'] = nullptr;
+        textStyle['_shadowOffsetsPtr'] = nullptr;
+        textStyle['_shadowBlurRadiiPtr'] = nullptr;
+      }
+
+      if (Array.isArray(textStyle['fontFeatures']) && textStyle['fontFeatures'].length) {
+        var fontFeatures = textStyle['fontFeatures'];
+        var fontFeatureNames = fontFeatures.map(function (s) { return s['name']; });
+        var fontFeatureValues = fontFeatures.map(function (s) { return s['value']; });
+        textStyle['_fontFeatureLen'] = fontFeatures.length;
+        textStyle['_fontFeatureNamesPtr'] = naiveCopyStrArray(fontFeatureNames);
+        textStyle['_fontFeatureValuesPtr'] = copy1dArray(fontFeatureValues, 'HEAPU32');
+      } else {
+        textStyle['_fontFeatureLen'] = 0;
+        textStyle['_fontFeatureNamesPtr'] = nullptr;
+        textStyle['_fontFeatureValuesPtr'] = nullptr;
+      }
     }
 
     function freeArrays(textStyle) {
       // The font family strings will get copied to a vector on the C++ side, which is owned by
       // the text style.
       CanvasKit._free(textStyle['_fontFamiliesPtr']);
+      CanvasKit._free(textStyle['_localePtr']);
+      CanvasKit._free(textStyle['_shadowColorsPtr']);
+      CanvasKit._free(textStyle['_shadowOffsetsPtr']);
+      CanvasKit._free(textStyle['_shadowBlurRadiiPtr']);
+      CanvasKit._free(textStyle['_fontFeatureNamesPtr']);
+      CanvasKit._free(textStyle['_fontFeatureValuesPtr']);
     }
 
     CanvasKit.ParagraphBuilder.Make = function(paragraphStyle, fontManager) {
