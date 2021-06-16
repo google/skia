@@ -46,6 +46,30 @@
       },
       "revId": "02993c076d34ed646b26851cc067e0cbeeca2131",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "837372df_f2e6eaaa",
+        "filename": "modules/canvaskit/gm_bindings.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-16T18:57:47Z",
+      "side": 1,
+      "message": "Well as-is, passing from JS doesn\u0027t work because we don\u0027t have a GM yet.\n\nThe order needs to be:\n\n1) Find the GM\n2) Make a GrContextOptions object and call gm.modifyGrContextOptions()\n3) Create a context from the modified GrContextOptions\n4) gm.run",
+      "parentUuid": "b1c101f3_5db7556b",
+      "range": {
+        "startLine": 113,
+        "startChar": 22,
+        "endLine": 113,
+        "endChar": 67
+      },
+      "revId": "02993c076d34ed646b26851cc067e0cbeeca2131",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
