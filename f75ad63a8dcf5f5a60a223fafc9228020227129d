@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "674a12c7_cfe014e6",
+        "filename": "gm/b_119394958.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-16T15:04:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2ca490b9_92483a01",
+      "range": {
+        "startLine": 18,
+        "startChar": 18,
+        "endLine": 18,
+        "endChar": 29
+      },
+      "revId": "f75ad63a8dcf5f5a60a223fafc9228020227129d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3ede8735_8e4987bd",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-06-16T14:37:39Z",
       "side": 1,
       "message": "We don\u0027t really need a named variable at all here:\n\n   SkIRect{}.intersect(a, b)",
+      "range": {
+        "startLine": 533,
+        "startChar": 15,
+        "endLine": 533,
+        "endChar": 16
+      },
+      "revId": "f75ad63a8dcf5f5a60a223fafc9228020227129d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1d927dfe_a3baf845",
+        "filename": "include/core/SkRect.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 533,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-16T15:04:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3ede8735_8e4987bd",
       "range": {
         "startLine": 533,
         "startChar": 15,
@@ -70,6 +118,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "66d7bb18_b534993a",
+        "filename": "src/gpu/GrSPIRVUniformHandler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-16T15:04:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "45e63b89_26e99c1d",
+      "range": {
+        "startLine": 322,
+        "startChar": 13,
+        "endLine": 322,
+        "endChar": 20
+      },
+      "revId": "f75ad63a8dcf5f5a60a223fafc9228020227129d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2d0dcfa0_191944c3",
@@ -83,6 +155,30 @@
       "writtenOn": "2021-06-16T14:37:39Z",
       "side": 1,
       "message": "This isn\u0027t ignored per se, we just don\u0027t care about it.\n\nHow about `fontFileReferenceKey` (the param name)",
+      "range": {
+        "startLine": 175,
+        "startChar": 11,
+        "endLine": 175,
+        "endChar": 18
+      },
+      "revId": "f75ad63a8dcf5f5a60a223fafc9228020227129d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5bdd7528_26c81f62",
+        "filename": "src/ports/SkFontMgr_win_dw.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-16T15:04:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2d0dcfa0_191944c3",
       "range": {
         "startLine": 175,
         "startChar": 11,
@@ -116,6 +212,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "45fea4a7_07295822",
+        "filename": "src/utils/win/SkWGL_win.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-16T15:04:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3b50268b_fd62eadd",
+      "range": {
+        "startLine": 177,
+        "startChar": 35,
+        "endLine": 177,
+        "endChar": 51
+      },
+      "revId": "f75ad63a8dcf5f5a60a223fafc9228020227129d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9278f715_1fddf268",
@@ -129,6 +249,30 @@
       "writtenOn": "2021-06-16T14:37:39Z",
       "side": 1,
       "message": "wnd",
+      "range": {
+        "startLine": 228,
+        "startChar": 37,
+        "endLine": 228,
+        "endChar": 48
+      },
+      "revId": "f75ad63a8dcf5f5a60a223fafc9228020227129d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a298518e_a76baf48",
+        "filename": "src/utils/win/SkWGL_win.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-16T15:04:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9278f715_1fddf268",
       "range": {
         "startLine": 228,
         "startChar": 37,
@@ -162,6 +306,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "be648023_762bdd2b",
+        "filename": "tests/DrawOpAtlasTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-16T15:04:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a81be2c_33793084",
+      "range": {
+        "startLine": 75,
+        "startChar": 6,
+        "endLine": 75,
+        "endChar": 15
+      },
+      "revId": "f75ad63a8dcf5f5a60a223fafc9228020227129d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e849f2f4_c071ae99",
@@ -175,6 +343,30 @@
       "writtenOn": "2021-06-16T14:37:39Z",
       "side": 1,
       "message": "Test",
+      "range": {
+        "startLine": 36,
+        "startChar": 48,
+        "endLine": 36,
+        "endChar": 59
+      },
+      "revId": "f75ad63a8dcf5f5a60a223fafc9228020227129d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "693b28fc_dcd9dd70",
+        "filename": "tests/PrimitiveProcessorTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-16T15:04:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e849f2f4_c071ae99",
       "range": {
         "startLine": 36,
         "startChar": 48,
@@ -208,6 +400,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "04c50bb2_12ad8dbb",
+        "filename": "tests/PrimitiveProcessorTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-16T15:04:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "56986055_85faabcc",
+      "range": {
+        "startLine": 74,
+        "startChar": 56,
+        "endLine": 74,
+        "endChar": 67
+      },
+      "revId": "f75ad63a8dcf5f5a60a223fafc9228020227129d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8cabf37c_22f7aff9",
@@ -231,6 +447,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0c5901d6_5ec6d68f",
+        "filename": "tests/TestUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-16T15:04:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8cabf37c_22f7aff9",
+      "range": {
+        "startLine": 163,
+        "startChar": 31,
+        "endLine": 163,
+        "endChar": 48
+      },
+      "revId": "f75ad63a8dcf5f5a60a223fafc9228020227129d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "53036fe4_d4bac782",
@@ -244,6 +484,30 @@
       "writtenOn": "2021-06-16T14:37:39Z",
       "side": 1,
       "message": "Probably we shouldn\u0027t change third_party",
+      "range": {
+        "startLine": 892,
+        "startChar": 24,
+        "endLine": 892,
+        "endChar": 25
+      },
+      "revId": "f75ad63a8dcf5f5a60a223fafc9228020227129d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6858d038_3de69d5b",
+        "filename": "third_party/vulkanmemoryallocator/include/vk_mem_alloc.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 892,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-16T15:04:13Z",
+      "side": 1,
+      "message": "Ah, I mistakenly thought this was in externals. Reverted.",
+      "parentUuid": "53036fe4_d4bac782",
       "range": {
         "startLine": 892,
         "startChar": 24,
