@@ -139,7 +139,7 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc, const SkMatri
 
     /*  Note: we let the caller skip the first and/or last position.
         i.e. pos[0] = 0.3, pos[1] = 0.7
-        In these cases, we insert dummy entries to ensure that the final data
+        In these cases, we insert entries to ensure that the final data
         will be bracketed by [0, 1].
         i.e. our_pos[0] = 0, our_pos[1] = 0.3, our_pos[2] = 0.7, our_pos[3] = 1
 
@@ -149,13 +149,13 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc, const SkMatri
             fColorCount = 4
      */
     fColorCount = desc.fCount;
-    // check if we need to add in dummy start and/or end position/colors
-    bool dummyFirst = false;
-    bool dummyLast = false;
+    // check if we need to add in start and/or end position/colors
+    bool needsFirst = false;
+    bool needsLast = false;
     if (desc.fPos) {
-        dummyFirst = desc.fPos[0] != 0;
-        dummyLast = desc.fPos[desc.fCount - 1] != SK_Scalar1;
-        fColorCount += dummyFirst + dummyLast;
+        needsFirst = desc.fPos[0] != 0;
+        needsLast = desc.fPos[desc.fCount - 1] != SK_Scalar1;
+        fColorCount += needsFirst + needsLast;
     }
 
     size_t storageSize = fColorCount * (sizeof(SkColor4f) + (desc.fPos ? sizeof(SkScalar) : 0));
@@ -165,14 +165,14 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc, const SkMatri
 
     // Now copy over the colors, adding the dummies as needed
     SkColor4f* origColors = fOrigColors4f;
-    if (dummyFirst) {
+    if (needsFirst) {
         *origColors++ = desc.fColors[0];
     }
     for (int i = 0; i < desc.fCount; ++i) {
         origColors[i] = desc.fColors[i];
         fColorsAreOpaque = fColorsAreOpaque && (desc.fColors[i].fA == 1);
     }
-    if (dummyLast) {
+    if (needsLast) {
         origColors += desc.fCount;
         *origColors = desc.fColors[desc.fCount - 1];
     }
@@ -182,8 +182,8 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc, const SkMatri
         SkScalar* origPosPtr = fOrigPos;
         *origPosPtr++ = prev; // force the first pos to 0
 
-        int startIndex = dummyFirst ? 0 : 1;
-        int count = desc.fCount + dummyLast;
+        int startIndex = needsFirst ? 0 : 1;
+        int count = desc.fCount + needsLast;
 
         bool uniformStops = true;
         const SkScalar uniformStep = desc.fPos[startIndex] - prev;
@@ -369,7 +369,7 @@ bool SkGradientShaderBase::onAppendStages(const SkStageRec& rec) const {
 
             ctx->ts = alloc->makeArray<float>(fColorCount+1);
 
-            // Remove the dummy stops inserted by SkGradientShaderBase::SkGradientShaderBase
+            // Remove the default stops inserted by SkGradientShaderBase::SkGradientShaderBase
             // because they are naturally handled by the search method.
             int firstStop;
             int lastStop;
@@ -558,7 +558,7 @@ skvm::Color SkGradientShaderBase::onProgram(skvm::Builder* p,
                 // ix -= (t >= stop) ? -1 : 0
                 ix -= (t >= uniformF(stop));
             }
-            // TODO: we could skip any of the dummy stops GradientShaderBase's ctor added
+            // TODO: we could skip any of the default stops GradientShaderBase's ctor added
             // to ensure the full [0,1] span is covered.  This linear search doesn't need
             // them for correctness, and it'd be up to two fewer stops to check.
             // N.B. we do still need those stops for the fOrigPos == nullptr direct math path.

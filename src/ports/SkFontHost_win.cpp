@@ -1722,7 +1722,7 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> LogFontTypeface::onGetAdvancedMetrics
     return info;
 }
 
-//Dummy representation of a Base64 encoded GUID from create_unique_font_name.
+//Placeholder representation of a Base64 encoded GUID from create_unique_font_name.
 #define BASE64_GUID_ID "XXXXXXXXXXXXXXXXXXXXXXXX"
 //Length of GUID representation from create_id, including nullptr terminator.
 #define BASE64_GUID_ID_LEN SK_ARRAY_COUNT(BASE64_GUID_ID)

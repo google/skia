@@ -59,7 +59,7 @@
 //make it clear when converting a scalar that this is what is wanted.
 #define SkScalarToFLOAT(n) SkScalarToFloat(n)
 
-//Dummy representation of a GUID from createId.
+//Placeholder representation of a GUID from createId.
 #define L_GUID_ID L"XXXXXXXXsXXXXsXXXXsXXXXsXXXXXXXXXXXX"
 //Length of GUID representation from createId, including nullptr terminator.
 #define GUID_ID_LEN SK_ARRAY_COUNT(L_GUID_ID)

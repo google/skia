@@ -92,7 +92,7 @@ public:
     // unchanged.
     //
     // NOTE: This binds the default VAO (ID=zero) unless we are on a core profile, in which case we
-    // use a dummy array instead.
+    // use a placeholder array instead.
     GrGLAttribArrayState* bindInternalVertexArray(const GrBuffer* indexBuffer, int numAttribs,
                                                   GrPrimitiveRestart primitiveRestart) {
         auto* attribState = fHWVertexArrayState.bindInternalVertexArray(this, indexBuffer);
@@ -640,7 +640,7 @@ private:
         /**
          * Binds the vertex array that should be used for internal draws, and returns its attrib
          * state. This binds the default VAO (ID=zero) unless we are on a core profile, in which
-         * case we use a dummy array instead.
+         * case we use a placeholder array instead.
          *
          * If an index buffer is provided, it will be bound to the vertex array. Otherwise the
          * index buffer binding will be left unchanged.

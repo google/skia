@@ -160,8 +160,8 @@ bool ComparePixels(const GrCPixmap& a,
                    const float tolRGBA[4],
                    std::function<ComparePixmapsErrorReporter>& error) {
     if (a.dimensions() != b.dimensions()) {
-        static constexpr float kDummyDiffs[4] = {};
-        error(-1, -1, kDummyDiffs);
+        static constexpr float kEmptyDiffs[4] = {};
+        error(-1, -1, kEmptyDiffs);
         return false;
     }
 

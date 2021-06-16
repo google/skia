@@ -186,7 +186,7 @@ private:
     //
     // In the current world we end the RT proxy at 12 bytes. Technically any padding between 0-4
     // will work, but we use 4 to be more explicit about getting it to 16 byte alignment.
-    char               fDummyPadding[4];
+    char               fPadding[4];
 
     using INHERITED = GrSurfaceProxy;
 };

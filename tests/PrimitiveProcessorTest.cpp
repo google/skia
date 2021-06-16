@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-// This is a GPU-backend specific test. It relies on static intializers to work
+// This is a GPU-backend specific test. It relies on static initializers to work
 
 #include <memory>
 
@@ -33,7 +33,7 @@ class Op : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    const char* name() const override { return "Dummy Op"; }
+    const char* name() const override { return "Test Op"; }
 
     static GrOp::Owner Make(GrRecordingContext* rContext, int numAttribs) {
         return GrOp::Make<Op>(rContext, numAttribs);
@@ -71,7 +71,7 @@ private:
                 });
             }
 
-            const char* name() const override { return "Dummy GP"; }
+            const char* name() const override { return "Test GP"; }
 
             GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const override {
                 class GLSLGP : public GrGLSLGeometryProcessor {

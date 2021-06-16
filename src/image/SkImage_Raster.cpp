@@ -39,8 +39,8 @@ public:
         const int maxDimension = SK_MaxS32 >> 2;
 
         // TODO(mtklein): eliminate anything here that setInfo() has already checked.
-        SkBitmap dummy;
-        if (!dummy.setInfo(info, rowBytes)) {
+        SkBitmap b;
+        if (!b.setInfo(info, rowBytes)) {
             return false;
         }
 

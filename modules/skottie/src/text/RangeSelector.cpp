@@ -32,7 +32,7 @@ T ParseEnum(const TArray& arr, const skjson::Value& jenum,
         return arr[idx - 1];
     }
 
-    // For animators without selectors, BM emits dummy selector entries with 0 (inval) props.
+    // For animators without selectors, BM emits placeholder selector entries with 0 (inval) props.
     // Supress warnings for these as they are "normal".
     if (idx != 0) {
         abuilder->log(Logger::Level::kWarning, nullptr,

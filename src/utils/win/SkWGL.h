@@ -13,10 +13,10 @@
 #include "src/core/SkLeanWindows.h"
 
 /**
- * Working with WGL extensions can be a pain. Among the reasons is that You must
+ * Working with WGL extensions can be a pain. Among the reasons is that you must
  * have a GL context to get the proc addresses, but you want to use the procs to
- * create a context in the first place. So you have to create a dummy GL ctx to
- * get the proc addresses.
+ * create a context in the first place. So you have to create a placeholder GL
+ * ctx to get the proc addresses.
  *
  * This file helps by providing SkCreateWGLInterface(). It returns a struct of
  * function pointers that it initializes. It also has a helper function to query

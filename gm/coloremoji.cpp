@@ -34,7 +34,7 @@
 #include <utility>
 
 /*
- * Spits out a dummy gradient to test blur with shader on paint
+ * Spits out an arbitrary gradient to test blur with shader on paint
  */
 static sk_sp<SkShader> MakeLinear() {
     constexpr SkPoint     kPts[] = { { 0, 0 }, { 32, 32 } };

@@ -80,7 +80,7 @@ static void draw_donut_skewed(SkCanvas* canvas, const SkRect& r, const SkPaint& 
 }
 
 /*
- * Spits out a dummy gradient to test blur with shader on paint
+ * Spits out an arbitrary gradient to test blur with shader on paint
  */
 static sk_sp<SkShader> make_radial() {
     SkPoint pts[2] = {

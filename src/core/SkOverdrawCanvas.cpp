@@ -185,8 +185,8 @@ void SkOverdrawCanvas::onDrawImageLattice2(const SkImage* image, const Lattice& 
     if (SkLatticeIter::Valid(image->width(), image->height(), latticePlusBounds)) {
         SkLatticeIter iter(latticePlusBounds, dst);
 
-        SkRect dummy, iterDst;
-        while (iter.next(&dummy, &iterDst)) {
+        SkRect ignored, iterDst;
+        while (iter.next(&ignored, &iterDst)) {
             fList[0]->onDrawRect(iterDst, fPaint);
         }
     } else {

@@ -59,7 +59,7 @@ private:
 };
 #else
 #define GR_ASSERT_SINGLE_OWNER(obj)
-class GrSingleOwner {}; // Provide a dummy implementation so we can pass pointers to constructors
+class GrSingleOwner {}; // Provide a no-op implementation so we can pass pointers to constructors
 #endif
 
 #endif
