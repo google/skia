@@ -19,6 +19,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    but can be an array, a TypedArray, or a MallocObj.
  - `CanvasKit.*Builder` have all been removed. Clients should use Malloc instead.
 
+### Known Bugs
+ - On older versions of SwiftShader, certain paths that require tessellation may not be drawn
+   correctly when using a WebGL-backed surface.
+
 ## [0.27.0] - 2021-05-20
 
 ### Added
