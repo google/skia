@@ -40,6 +40,12 @@ public:
         return kSkMaskFilter_Type;
     }
 
+    /**
+     *  Returns the approximate bounds that would result from filtering the src rect.
+     *  If this fails, the empty rect will be returned (width == height == 0).
+     */
+    SkRect computeFilteredBounds(const SkRect& src) const;
+
     static sk_sp<SkMaskFilter> Deserialize(const void* data, size_t size,
                                           const SkDeserialProcs* procs = nullptr) {
         return sk_sp<SkMaskFilter>(static_cast<SkMaskFilter*>(
