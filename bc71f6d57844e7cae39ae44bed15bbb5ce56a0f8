@@ -43,6 +43,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "38fdb5c7_549c4e3e",
+        "filename": "modules/androidkit/src/Path.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-06-16T18:40:31Z",
+      "side": 1,
+      "message": "I don\u0027t think SkPath implements SkRefCnt, is there an alternative I should try?",
+      "parentUuid": "aa6c687c_45e6e197",
+      "range": {
+        "startLine": 14,
+        "startChar": 4,
+        "endLine": 14,
+        "endChar": 10
+      },
+      "revId": "bc71f6d57844e7cae39ae44bed15bbb5ce56a0f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4ba2ffaa_5b34adbe",
         "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Path.java",
         "patchSetId": 4
@@ -54,6 +78,30 @@
       "writtenOn": "2021-06-16T15:59:03Z",
       "side": 1,
       "message": "Looks like we want package private, not protected.",
+      "range": {
+        "startLine": 13,
+        "startChar": 4,
+        "endLine": 13,
+        "endChar": 13
+      },
+      "revId": "bc71f6d57844e7cae39ae44bed15bbb5ce56a0f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d185aecc_63231eeb",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Path.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-06-16T18:40:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4ba2ffaa_5b34adbe",
       "range": {
         "startLine": 13,
         "startChar": 4,
@@ -81,6 +129,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6475cc35_462ca0e6",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/PathBuilder.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-06-16T18:40:31Z",
+      "side": 1,
+      "message": "Added, lineTo, cubicTo, and conicTo. We can add more separately.",
+      "parentUuid": "a6e0e128_86da552d",
+      "revId": "bc71f6d57844e7cae39ae44bed15bbb5ce56a0f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e3a8ebac_ae43522d",
@@ -94,6 +160,30 @@
       "writtenOn": "2021-06-16T16:37:46Z",
       "side": 1,
       "message": "+\u003d INVERSE_EVEN_ODD\n\n(or we can leave off both INVERSE options for now)",
+      "range": {
+        "startLine": 33,
+        "startChar": 8,
+        "endLine": 33,
+        "endChar": 23
+      },
+      "revId": "bc71f6d57844e7cae39ae44bed15bbb5ce56a0f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2d4cd36c_22d78e55",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/PathBuilder.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-06-16T18:40:31Z",
+      "side": 1,
+      "message": "Added",
+      "parentUuid": "e3a8ebac_ae43522d",
       "range": {
         "startLine": 33,
         "startChar": 8,
@@ -140,6 +230,30 @@
       "writtenOn": "2021-06-16T16:37:46Z",
       "side": 1,
       "message": "May be premature, but the C++ side is very deliberate about the semantics here (hence the two methods)\n\n- snapshot --\u003e returns a path, but keeps the builder in its current state\n- detach --\u003e returns a path, and resets the builder to empty\n\nThere are (maybe minor) memory and perf differences, so we might expose them here, or at least be explicit about which behavior your \"makePath\" is following. (I think I would vote for the detach behavior if we only had one).",
+      "range": {
+        "startLine": 44,
+        "startChar": 16,
+        "endLine": 44,
+        "endChar": 24
+      },
+      "revId": "bc71f6d57844e7cae39ae44bed15bbb5ce56a0f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5c23ae3d_752ecb67",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/PathBuilder.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-06-16T18:40:31Z",
+      "side": 1,
+      "message": "I\u0027ll keep detach as the one, then specify in javadocs which it is doing.",
+      "parentUuid": "ab401b8a_c460df80",
       "range": {
         "startLine": 44,
         "startChar": 16,
