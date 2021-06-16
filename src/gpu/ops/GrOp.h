@@ -8,6 +8,8 @@
 #ifndef GrOp_DEFINED
 #define GrOp_DEFINED
 
+#if 0
+
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkString.h"
@@ -69,7 +71,7 @@ class GrPaint;
 
 class GrOp : private SkNoncopyable {
 public:
-        using Owner = std::unique_ptr<GrOp>;
+    using Owner = std::unique_ptr<GrOp>;
 
     template<typename Op, typename... Args>
     static Owner Make(GrRecordingContext* context, Args&&... args) {
@@ -91,8 +93,6 @@ public:
     virtual ~GrOp() = default;
 
     virtual const char* name() const = 0;
-
-    using VisitProxyFunc = std::function<void(GrSurfaceProxy*, GrMipmapped)>;
 
     virtual void visitProxies(const VisitProxyFunc&) const {
         // This default implementation assumes the op has no proxies
@@ -360,5 +360,6 @@ private:
     static std::atomic<uint32_t> gCurrOpUniqueID;
     static std::atomic<uint32_t> gCurrOpClassID;
 };
+#endif
 
 #endif

@@ -8,6 +8,7 @@
 #include "src/gpu/tessellate/GrStrokeHardwareTessellator.h"
 
 #include "src/core/SkPathPriv.h"
+#include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrVx.h"
 #include "src/gpu/geometry/GrPathUtils.h"
@@ -51,7 +52,7 @@ public:
         kBowtie = SkPaint::kLast_Join + 1  // Double sided round join.
     };
 
-    PatchWriter(ShaderFlags shaderFlags, GrMeshDrawOp::Target* target,
+    PatchWriter(ShaderFlags shaderFlags, Target2* target,
                 const SkRect& strokeCullBounds, const SkMatrix& viewMatrix, float matrixMaxScale,
                 GrVertexChunkArray* patchChunks, size_t patchStride, int minPatchesPerChunk)
             : fShaderFlags(shaderFlags)
@@ -702,7 +703,7 @@ SK_ALWAYS_INLINE static bool cubic_has_cusp(const SkPoint p[4]) {
 
 }  // namespace
 
-void GrStrokeHardwareTessellator::prepare(GrMeshDrawOp::Target* target, int totalCombinedVerbCnt) {
+void GrStrokeHardwareTessellator::prepare(Target2* target, int totalCombinedVerbCnt) {
     using JoinType = PatchWriter::JoinType;
 
     // Over-allocate enough patches for 1 in 4 strokes to chop and for 8 extra caps.
