@@ -16,6 +16,10 @@
  * result of our paint) and destination color (from the canvas) into a final color.
  */
 class SK_API SkBlender : public SkFlattenable {
+public:
+    static SkFlattenable::Type GetFlattenableType() { return kSkBlender_Type; }
+    Type getFlattenableType() const override { return GetFlattenableType(); }
+
 private:
     SkBlender() = default;
     friend class SkBlenderBase;
