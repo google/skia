@@ -547,6 +547,9 @@ SkBlurMaskFilterImpl::filterRectsToNine(const SkRect rects[], int count,
 
 void SkBlurMaskFilterImpl::computeFastBounds(const SkRect& src,
                                              SkRect* dst) const {
+    // TODO: if we're doing kInner blur, should we return a different outset?
+    //       i.e. pad == 0 ?
+
     SkScalar pad = 3.0f * fSigma;
 
     dst->setLTRB(src.fLeft  - pad, src.fTop    - pad,
