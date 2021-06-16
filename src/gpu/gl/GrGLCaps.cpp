@@ -4145,7 +4145,9 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     }
 
     // http://skbug.com/11965
+    SkDebugf("@@@@@> ctxInfo.renderer()=%i\n", ctxInfo.renderer());
     if (ctxInfo.renderer() == GrGLRenderer::kGoogleSwiftShader) {
+        SkDebugf("@@@@@@@@> should disable swiftshader\n");
         fShaderCaps->fVertexIDSupport = false;
     }
 
