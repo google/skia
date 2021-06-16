@@ -8,6 +8,7 @@
 #ifndef GrSimpleMeshDrawOpHelper_DEFINED
 #define GrSimpleMeshDrawOpHelper_DEFINED
 
+#if 0
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOpFlushState.h"
@@ -95,7 +96,7 @@ public:
 
     bool compatibleWithCoverageAsAlpha() const { return fCompatibleWithCoverageAsAlpha; }
 
-    void visitProxies(const GrOp::VisitProxyFunc& func) const {
+    void visitProxies(const GrVisitProxyFunc& func) const {
         if (fProcessors) {
             fProcessors->visitProxies(func);
         }
@@ -214,5 +215,6 @@ GrOp::Owner GrSimpleMeshDrawOpHelper::FactoryHelper(GrRecordingContext* context,
 }
 
 GR_MAKE_BITFIELD_CLASS_OPS(GrSimpleMeshDrawOpHelper::InputFlags)
+#endif
 
 #endif

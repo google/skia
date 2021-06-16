@@ -108,7 +108,7 @@ void GrPipeline::visitTextureEffects(
     }
 }
 
-void GrPipeline::visitProxies(const GrOp::VisitProxyFunc& func) const {
+void GrPipeline::visitProxies(const GrVisitProxyFunc& func) const {
     // This iteration includes any clip coverage FPs
     for (auto& fp : fFragmentProcessors) {
         fp->visitProxies(func);

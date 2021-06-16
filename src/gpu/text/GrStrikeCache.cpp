@@ -11,6 +11,7 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrDistanceFieldGenFromVector.h"
+#include "src/gpu/GrSimpleMesh.h"
 #include "src/gpu/text/GrAtlasManager.h"
 #include "src/gpu/text/GrStrikeCache.h"
 

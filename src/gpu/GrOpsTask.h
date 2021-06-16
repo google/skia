@@ -8,6 +8,7 @@
 #ifndef GrOpsTask_DEFINED
 #define GrOpsTask_DEFINED
 
+#if 0
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
@@ -93,7 +94,7 @@ public:
 
 #ifdef SK_DEBUG
     int numClips() const override { return fNumClips; }
-    void visitProxies_debugOnly(const GrOp::VisitProxyFunc&) const override;
+    void visitProxies_debugOnly(const GrVisitProxyFunc&) const override;
 #endif
 
 #if GR_TEST_UTILS
@@ -155,7 +156,7 @@ private:
         OpChain(OpChain&&) = default;
         OpChain& operator=(OpChain&&) = default;
 
-        void visitProxies(const GrOp::VisitProxyFunc&) const;
+        void visitProxies(const GrVisitProxyFunc&) const;
 
         GrOp* head() const { return fList.head(); }
 
@@ -274,5 +275,5 @@ private:
     SkRect fTotalBounds = SkRect::MakeEmpty();
     SkIRect fClippedContentBounds = SkIRect::MakeEmpty();
 };
-
+#endif
 #endif

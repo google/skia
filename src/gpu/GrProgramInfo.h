@@ -88,7 +88,7 @@ public:
 
     // Invokes the visitor function on all FP proxies in the pipeline. The caller is responsible
     // to call the visitor on its own primProc proxies.
-    void visitFPProxies(const GrOp::VisitProxyFunc& func) const { fPipeline->visitProxies(func); }
+    void visitFPProxies(const GrVisitProxyFunc& func) const { fPipeline->visitProxies(func); }
 
 #ifdef SK_DEBUG
     void validate(bool flushTime) const;

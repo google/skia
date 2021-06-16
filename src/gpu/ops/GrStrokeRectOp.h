@@ -8,6 +8,7 @@
 #ifndef GrStrokeRectOp_DEFINED
 #define GrStrokeRectOp_DEFINED
 
+#if 0
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/ops/GrOp.h"
 
@@ -43,4 +44,5 @@ GrOp::Owner MakeNested(GrRecordingContext* context,
 
 }  // namespace GrStrokeRectOp
 
+#endif
 #endif // GrStrokeRectOp_DEFINED

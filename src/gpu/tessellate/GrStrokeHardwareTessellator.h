@@ -26,7 +26,7 @@ public:
                                   strokeCullBounds) {
     }
 
-    void prepare(GrMeshDrawOp::Target*, int totalCombinedVerbCnt) override;
+    void prepare(Target2*, int totalCombinedVerbCnt) override;
     void draw(GrOpFlushState*) const override;
 
 private:

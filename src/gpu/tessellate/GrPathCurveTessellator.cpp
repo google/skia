@@ -7,6 +7,8 @@
 
 #include "src/gpu/tessellate/GrPathCurveTessellator.h"
 
+#include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrSimpleMesh.h"
 #include "src/gpu/geometry/GrPathUtils.h"
 #include "src/gpu/geometry/GrWangsFormula.h"
 #include "src/gpu/tessellate/GrCullTest.h"
@@ -155,7 +157,7 @@ GrPathTessellator* GrPathCurveTessellator::Make(SkArenaAlloc* arena, const SkMat
     });
 }
 
-void GrPathCurveTessellator::prepare(GrMeshDrawOp::Target* target, const SkRect& cullBounds,
+void GrPathCurveTessellator::prepare(Target2* target, const SkRect& cullBounds,
                                      const SkPath& path,
                                      const BreadcrumbTriangleList* breadcrumbTriangleList) {
     SkASSERT(fVertexChunkArray.empty());
