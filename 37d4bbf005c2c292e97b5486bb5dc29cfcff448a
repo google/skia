@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "408bd40a_b20e17b0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-16T18:29:31Z",
+      "side": 1,
+      "message": "OK. I did some more drastic refactors - the input and all children are now provided to the factories, so there\u0027s no more external child registration. It makes the new-style call-sites much nicer. I also fixed up the result behavior, so we\u0027re not losing input FPs when things go wrong.",
+      "revId": "37d4bbf005c2c292e97b5486bb5dc29cfcff448a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1c19a734_7d969dc8",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-16T18:29:31Z",
+      "side": 1,
+      "message": "Renamed this one, because (although I think it\u0027s fine now), it\u0027s so easy for an error with parameters to cause the resulting call to get swallowed up by the variadic templates below. This makes each call site clearer about what\u0027s happening.",
+      "range": {
+        "startLine": 76,
+        "startChar": 37,
+        "endLine": 76,
+        "endChar": 49
+      },
+      "revId": "37d4bbf005c2c292e97b5486bb5dc29cfcff448a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

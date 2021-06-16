@@ -113,6 +113,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d26a4b64_0bd39342",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 680,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-16T18:29:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1d63ac38_a843b1c1",
+      "range": {
+        "startLine": 680,
+        "startChar": 31,
+        "endLine": 680,
+        "endChar": 38
+      },
+      "revId": "a8e1a2bb9875088c80d8b400736c423ffda69c09",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5e573642_27b101b0",
@@ -340,6 +364,30 @@
       "side": 1,
       "message": "I suspect we\u0027re well within the noise floor here.",
       "parentUuid": "c9bd0beb_7d62652a",
+      "range": {
+        "startLine": 99,
+        "startChar": 0,
+        "endLine": 101,
+        "endChar": 5
+      },
+      "revId": "a8e1a2bb9875088c80d8b400736c423ffda69c09",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e4a0aa88_445d2466",
+        "filename": "src/utils/SkShadowUtils.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-16T18:29:31Z",
+      "side": 1,
+      "message": "I ended up not needing to reorder the children (so the implicit input is last, if it\u0027s present), but resolved all the API issues, I think. PTAL.",
+      "parentUuid": "73abf2c0_1f397f60",
       "range": {
         "startLine": 99,
         "startChar": 0,
