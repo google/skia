@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e2b65f3f_52575f67",
+        "filename": "gn/gpu.gni",
+        "patchSetId": 17
+      },
+      "lineNbr": 446,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-06-16T16:06:50Z",
+      "side": 1,
+      "message": "This is still needed in both configs for the time being. Once the rest of the eligible classes are made OGA-only, this will also move.",
+      "parentUuid": "1a0839d0_a27bedca",
+      "range": {
+        "startLine": 446,
+        "startChar": 2,
+        "endLine": 446,
+        "endChar": 53
+      },
+      "revId": "54677fa540332bc5b816cbdf1be1094519d5a8d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d5644560_e79c631c",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-06-16T14:23:40Z",
       "side": 1,
       "message": "this feels tricky, maybe it\u0027d be best to have the two constructor variants explicitly written out in a single #if GR_OGA #else? Same for the declaration in the header, then?",
+      "range": {
+        "startLine": 54,
+        "startChar": 0,
+        "endLine": 65,
+        "endChar": 10
+      },
+      "revId": "54677fa540332bc5b816cbdf1be1094519d5a8d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "eb1902ba_188b2d03",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-06-16T16:06:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d5644560_e79c631c",
       "range": {
         "startLine": 54,
         "startChar": 0,
@@ -70,6 +118,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "82bb3f85_035a5eea",
+        "filename": "src/gpu/GrDrawingManager.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-06-16T16:06:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "64b73f55_ef23f412",
+      "range": {
+        "startLine": 216,
+        "startChar": 38,
+        "endLine": 218,
+        "endChar": 60
+      },
+      "revId": "54677fa540332bc5b816cbdf1be1094519d5a8d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "01408762_7d639b30",
@@ -83,6 +155,30 @@
       "writtenOn": "2021-06-16T14:23:40Z",
       "side": 1,
       "message": "At some point, GrSDC will be OGA, too right? Then all these ifs are redundant. Would it be easier to get SDC moved to OGA first? Hmm, probably not, but then let\u0027s not let these temporary scaffoldings remain longer than necessary.",
+      "range": {
+        "startLine": 880,
+        "startChar": 0,
+        "endLine": 880,
+        "endChar": 10
+      },
+      "revId": "54677fa540332bc5b816cbdf1be1094519d5a8d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ff47d043_9c48c328",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 880,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-06-16T16:06:50Z",
+      "side": 1,
+      "message": "Right - once all the ops are made OGA-only the SDC should also be able to slide over more easily.",
+      "parentUuid": "01408762_7d639b30",
       "range": {
         "startLine": 880,
         "startChar": 0,
@@ -116,6 +212,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0fda21db_162909b5",
+        "filename": "src/gpu/tessellate/GrTessellationPathRenderer.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-06-16T16:06:50Z",
+      "side": 1,
+      "message": "Right and Right.\n\nThe CL right after this one moves the rest of the GrOp-derived classes over. There isn\u0027t really a great way to move all these files over piece meal and all at once would probably be too much.",
+      "parentUuid": "166eb813_653d6c60",
+      "range": {
+        "startLine": 97,
+        "startChar": 6,
+        "endLine": 97,
+        "endChar": 33
+      },
+      "revId": "54677fa540332bc5b816cbdf1be1094519d5a8d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c69eb656_fd80e8e4",
@@ -139,6 +259,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "914a517b_414611bf",
+        "filename": "tools/gpu/GrTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-06-16T16:06:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c69eb656_fd80e8e4",
+      "range": {
+        "startLine": 59,
+        "startChar": 4,
+        "endLine": 59,
+        "endChar": 10
+      },
+      "revId": "54677fa540332bc5b816cbdf1be1094519d5a8d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ba4e1e04_9019afa0",
@@ -152,6 +296,30 @@
       "writtenOn": "2021-06-16T14:23:40Z",
       "side": 1,
       "message": "Here, any change in ordering will cause us to run a new config of random draws, so maybe we don\u0027t re-order it at all? Or if it doesn\u0027t uncover any silly issue, we have it split into two sections like the externs?",
+      "range": {
+        "startLine": 92,
+        "startChar": 4,
+        "endLine": 92,
+        "endChar": 10
+      },
+      "revId": "54677fa540332bc5b816cbdf1be1094519d5a8d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bfb3d12f_4b0780f4",
+        "filename": "tools/gpu/GrTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-06-16T16:06:50Z",
+      "side": 1,
+      "message": "I\u0027ve split it into two sections. If it causes any silly issues I\u0027ll fall back to leaving the order alone. Eventually these will all just be OGA-only and I would like to land in a world where they are all alphabetically sorted.",
+      "parentUuid": "ba4e1e04_9019afa0",
       "range": {
         "startLine": 92,
         "startChar": 4,
