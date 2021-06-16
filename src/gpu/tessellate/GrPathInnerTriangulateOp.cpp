@@ -109,7 +109,7 @@ GrGLSLGeometryProcessor* HullShader::createGLSLInstance(const GrShaderCaps&) con
 
 }  // namespace
 
-void GrPathInnerTriangulateOp::visitProxies(const VisitProxyFunc& fn) const {
+void GrPathInnerTriangulateOp::visitProxies(const GrVisitProxyFunc& fn) const {
     if (fPipelineForFills) {
         fPipelineForFills->visitProxies(fn);
     } else {
