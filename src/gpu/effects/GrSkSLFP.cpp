@@ -245,7 +245,7 @@ std::unique_ptr<GrSkSLFP> GrSkSLFP::MakeWithData(
     size_t uniformSize = uniforms->size();
     size_t uniformFlagSize = effect->uniforms().count() * sizeof(UniformFlags);
     std::unique_ptr<GrSkSLFP> fp(new (uniformSize + uniformFlagSize)
-                                         GrSkSLFP(std::move(effect), name));
+                                         GrSkSLFP(std::move(effect), name, OptFlags::kNone));
     sk_careful_memcpy(fp->uniformData(), uniforms->data(), uniformSize);
     for (auto& childFP : childFPs) {
         fp->addChild(std::move(childFP));
@@ -256,11 +256,12 @@ std::unique_ptr<GrSkSLFP> GrSkSLFP::MakeWithData(
     return fp;
 }
 
-GrSkSLFP::GrSkSLFP(sk_sp<SkRuntimeEffect> effect, const char* name)
+GrSkSLFP::GrSkSLFP(sk_sp<SkRuntimeEffect> effect, const char* name, OptFlags optFlags)
         : INHERITED(kGrSkSLFP_ClassID,
-                    effect->getFilterColorProgram()
-                            ? kConstantOutputForConstantInput_OptimizationFlag
-                            : kNone_OptimizationFlags)
+                    static_cast<OptimizationFlags>(optFlags) |
+                            (effect->getFilterColorProgram()
+                                     ? kConstantOutputForConstantInput_OptimizationFlag
+                                     : kNone_OptimizationFlags))
         , fEffect(std::move(effect))
         , fName(name)
         , fUniformSize(SkToU32(fEffect->uniformSize())) {

@@ -214,7 +214,10 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MakeColor(SkPMColor4f 
         uniform half4 color;
         half4 main(half4 inColor) { return color; }
     )");
-    return GrSkSLFP::Make(effect, "color_fp", /*inputFP=*/nullptr, "color", color);
+    return GrSkSLFP::Make(effect, "color_fp", /*inputFP=*/nullptr,
+                          color.isOpaque() ? GrSkSLFP::OptFlags::kPreservesOpaqueInput
+                                           : GrSkSLFP::OptFlags::kNone,
+                          "color", color);
 }
 
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MulChildByInputAlpha(
