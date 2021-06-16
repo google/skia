@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c386a116_bbc1eec3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-16T21:01:13Z",
+      "side": 1,
+      "message": "Yes, I\u0027m determined, after looking over our usage. The new parser doesn\u0027t support them yet. Of the .fp files we have, one uses an enum that\u0027s really a boolean. Three others use an enum that has four values. Given that runtime FPs can put the SkSL and scaffolding in one spot, I\u0027m not worried about bridging the gap to an integer in the SkSL (with static_asserts), or some other similar tricks.",
+      "parentUuid": "baea6383_b865a4a8",
+      "revId": "c1e9f3a419daacdcaf8204c49ad9f41999401037",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e32d9d60_55f4e22c",
@@ -48,6 +66,24 @@
       "writtenOn": "2021-06-16T20:52:12Z",
       "side": 1,
       "message": "Definitely wouldn\u0027t have predicted this diff!",
+      "revId": "c1e9f3a419daacdcaf8204c49ad9f41999401037",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f774400d_9c86ff7f",
+        "filename": "tests/sksl/blend/BlendHardLight.glsl",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-16T21:01:13Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "e32d9d60_55f4e22c",
       "revId": "c1e9f3a419daacdcaf8204c49ad9f41999401037",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
