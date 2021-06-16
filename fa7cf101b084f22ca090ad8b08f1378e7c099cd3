@@ -16,6 +16,24 @@
       "message": "There is no intention of bubbling special input effect up to the public sksl right? This is purely so that runtime FPs can be composed together into a linked list or chain more readily?",
       "revId": "fa7cf101b084f22ca090ad8b08f1378e7c099cd3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2c7c20d3_943b8f13",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-16T15:29:07Z",
+      "side": 1,
+      "message": "Right, this is just an implementation detail to fix the impedance mismatch between things that look like color filters, and the way that GrSkSLFP has worked.",
+      "parentUuid": "f533ff5b_52e660ec",
+      "revId": "fa7cf101b084f22ca090ad8b08f1378e7c099cd3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
