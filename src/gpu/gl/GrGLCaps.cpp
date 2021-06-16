@@ -90,6 +90,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
 void GrGLCaps::init(const GrContextOptions& contextOptions,
                     const GrGLContextInfo& ctxInfo,
                     const GrGLInterface* gli) {
+    SkDebugf("@@@@@> GrGLCaps::init\n");
     GrGLStandard standard = ctxInfo.standard();
     // standard can be unused (optimzed away) if SK_ASSUME_GL_ES is set
     sk_ignore_unused_variable(standard);
@@ -735,6 +736,8 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
     FormatWorkarounds formatWorkarounds;
 
+    SkDebugf("@@@@@> contextOptions.fDisableDriverCorrectnessWorkarounds=%i\n",
+             contextOptions.fDisableDriverCorrectnessWorkarounds);
     if (!contextOptions.fDisableDriverCorrectnessWorkarounds) {
         this->applyDriverCorrectnessWorkarounds(ctxInfo, contextOptions, gli, shaderCaps,
                                                 &formatWorkarounds);
@@ -3457,6 +3460,8 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
                                                  const GrGLInterface* glInterface,
                                                  GrShaderCaps* shaderCaps,
                                                  FormatWorkarounds* formatWorkarounds) {
+
+    SkDebugf("@@@@@> applyDriverCorrectnessWorkaround\n");
     // A driver bug on the nexus 6 causes incorrect dst copies when invalidate is called beforehand.
     // Thus we are disabling this extension for now on Adreno4xx devices.
     if (ctxInfo.renderer() == GrGLRenderer::kAdreno430       ||
@@ -4145,7 +4150,9 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     }
 
     // http://skbug.com/11965
+    SkDebugf("@@@@@> ctxInfo.renderer()=%i\n", ctxInfo.renderer());
     if (ctxInfo.renderer() == GrGLRenderer::kGoogleSwiftShader) {
+        SkDebugf("@@@@@@@@> should disable swiftshader\n");
         fShaderCaps->fVertexIDSupport = false;
     }
 
