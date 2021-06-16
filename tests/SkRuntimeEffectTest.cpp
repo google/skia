@@ -15,6 +15,8 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/core/SkColorSpacePriv.h"
+#include "src/core/SkPaintPriv.h"
+#include "src/core/SkReadBuffer.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkTLazy.h"
 #include "src/gpu/GrColor.h"
@@ -735,4 +737,35 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSkSLFP_Specialized, r, ctxInfo) {
     SkASSERT(sRed.key != uRed.key);
     SkASSERT(sGreen.key != uRed.key);
     SkASSERT(sRed.key != sGreen.key);
+}
+
+DEF_TEST(Paint_FlatteningSupportsRuntimeBlend, r) {
+    // Create a simple user blend function to attach to the SkPaint.
+    static constexpr char kSource[] = "half4 main(half4 s, half4 d) { return s - d; }";
+    sk_sp<SkRuntimeEffect> effect = SkRuntimeEffect::MakeForBlender(SkString(kSource)).effect;
+    REPORTER_ASSERT(r, effect);
+    sk_sp<SkBlender> blender = effect->makeBlender(/*uniforms=*/{});
+    REPORTER_ASSERT(r, blender);
+
+    SkPaint paint;
+    paint.setColor(0x00AABBCC);
+    paint.experimental_setBlender(blender);
+
+    SkBinaryWriteBuffer writer;
+    SkPaintPriv::Flatten(paint, writer);
+
+    SkAutoMalloc buf(writer.bytesWritten());
+    writer.writeToMemory(buf.get());
+    SkReadBuffer reader(buf.get(), writer.bytesWritten());
+
+    SkPaint other;
+    SkPaintPriv::Unflatten(&other, reader, nullptr);
+    REPORTER_ASSERT(r, reader.offset() == writer.bytesWritten());
+
+    REPORTER_ASSERT(r, other.getColor() == paint.getColor());
+    // We should have unflattened a brand new sk_sp<SkBlender> into the `other` SkPaint.
+    // It should have the same SkSL source as the original.
+    REPORTER_ASSERT(r, other.getBlender());
+    REPORTER_ASSERT(r, other.getBlender() != paint.getBlender());
+    REPORTER_ASSERT(r, other.getBlender()->asRuntimeEffect()->source().equals(kSource));
 }
