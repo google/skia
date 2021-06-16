@@ -16,6 +16,24 @@
       "message": "Let\u0027s consider a dual approach:\n\n1. PathBuider (with the expected methods)\n2. Path (which is immutable, snapped off the builder)\n2.1 one-shot builder that takes arrays (see SkPath.h static factories)",
       "revId": "4d909e016967a80439f4de0961db1dc15e557138",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b43c203f_f87fafa4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-06-16T15:59:03Z",
+      "side": 1,
+      "message": "Agreed, let\u0027s add the equivalent of SkPathBuilder and make Path.java immutable.\n\nPath mutability is problematic, and in practice nobody wants to update paths after creation.",
+      "parentUuid": "f2395b66_bf597949",
+      "revId": "4d909e016967a80439f4de0961db1dc15e557138",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

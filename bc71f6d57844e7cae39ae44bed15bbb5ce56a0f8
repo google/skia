@@ -1,0 +1,107 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "144b5111_61aea349",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-06-16T15:59:03Z",
+      "side": 1,
+      "message": "LGTM with some minor tweaks.",
+      "revId": "bc71f6d57844e7cae39ae44bed15bbb5ce56a0f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aa6c687c_45e6e197",
+        "filename": "modules/androidkit/src/Path.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-06-16T15:59:03Z",
+      "side": 1,
+      "message": "SkPath is ref-counted, let\u0027s use SkSafeUnref instead of delete.",
+      "range": {
+        "startLine": 14,
+        "startChar": 4,
+        "endLine": 14,
+        "endChar": 10
+      },
+      "revId": "bc71f6d57844e7cae39ae44bed15bbb5ce56a0f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4ba2ffaa_5b34adbe",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Path.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-06-16T15:59:03Z",
+      "side": 1,
+      "message": "Looks like we want package private, not protected.",
+      "range": {
+        "startLine": 13,
+        "startChar": 4,
+        "endLine": 13,
+        "endChar": 13
+      },
+      "revId": "bc71f6d57844e7cae39ae44bed15bbb5ce56a0f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a6e0e128_86da552d",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/PathBuilder.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-06-16T15:59:03Z",
+      "side": 1,
+      "message": "lineTo, cubicTo, conicTo + relative variants?\n\nWe can add separately, but the API is not complete without them.",
+      "revId": "bc71f6d57844e7cae39ae44bed15bbb5ce56a0f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "38a39f80_09806a03",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/PathBuilder.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-06-16T15:59:03Z",
+      "side": 1,
+      "message": "I\u0027ve been using .ordinal() for other enums, but I like this approach better - seems more reliable.",
+      "range": {
+        "startLine": 41,
+        "startChar": 47,
+        "endLine": 41,
+        "endChar": 56
+      },
+      "revId": "bc71f6d57844e7cae39ae44bed15bbb5ce56a0f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
