@@ -898,7 +898,7 @@ public:
         fRQ.fPts[0].set(0, 0);
         fRQ.fPts[1].set(100, 0);
         fRQ.fPts[2].set(100, 100);
-        fRQ.fW = SkScalarCos(SK_ScalarPI/4);
+        fRQ.fW = SkScalarCos(SK_FloatPI/4);
     }
 
     bool isSuitableFor(Backend backend) override {

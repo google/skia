@@ -5565,7 +5565,7 @@ DEF_TEST(SkParagraph_FormattingInfinity, reporter) {
         ParagraphBuilderImpl builder(paragraphStyle, fontCollection);
         builder.addText(text);
         auto paragraph = builder.Build();
-        paragraph->layout(SK_ScalarInfinity);
+        paragraph->layout(SK_FloatInfinity);
         paragraph->paint(canvas.get(), 0, 0);
         canvas.get()->translate(0, 100);
     };
@@ -5577,21 +5577,21 @@ DEF_TEST(SkParagraph_FormattingInfinity, reporter) {
 };
 
 DEF_TEST(SkParagraph_Infinity, reporter) {
-    SkASSERT(nearlyEqual(1, SK_ScalarInfinity) == false);
-    SkASSERT(nearlyEqual(1, SK_ScalarNegativeInfinity) == false);
-    SkASSERT(nearlyEqual(1, SK_ScalarNaN) == false);
+    SkASSERT(nearlyEqual(1, SK_FloatInfinity) == false);
+    SkASSERT(nearlyEqual(1, SK_FloatNegativeInfinity) == false);
+    SkASSERT(nearlyEqual(1, SK_FloatNaN) == false);
 
-    SkASSERT(nearlyEqual(SK_ScalarInfinity, SK_ScalarInfinity) == true);
-    SkASSERT(nearlyEqual(SK_ScalarInfinity, SK_ScalarNegativeInfinity) == false);
-    SkASSERT(nearlyEqual(SK_ScalarInfinity, SK_ScalarNaN) == false);
+    SkASSERT(nearlyEqual(SK_FloatInfinity, SK_FloatInfinity) == true);
+    SkASSERT(nearlyEqual(SK_FloatInfinity, SK_FloatNegativeInfinity) == false);
+    SkASSERT(nearlyEqual(SK_FloatInfinity, SK_FloatNaN) == false);
 
-    SkASSERT(nearlyEqual(SK_ScalarNegativeInfinity, SK_ScalarInfinity) == false);
-    SkASSERT(nearlyEqual(SK_ScalarNegativeInfinity, SK_ScalarNegativeInfinity) == true);
-    SkASSERT(nearlyEqual(SK_ScalarNegativeInfinity, SK_ScalarNaN) == false);
+    SkASSERT(nearlyEqual(SK_FloatNegativeInfinity, SK_FloatInfinity) == false);
+    SkASSERT(nearlyEqual(SK_FloatNegativeInfinity, SK_FloatNegativeInfinity) == true);
+    SkASSERT(nearlyEqual(SK_FloatNegativeInfinity, SK_FloatNaN) == false);
 
-    SkASSERT(nearlyEqual(SK_ScalarNaN, SK_ScalarInfinity) == false);
-    SkASSERT(nearlyEqual(SK_ScalarNaN, SK_ScalarNegativeInfinity) == false);
-    SkASSERT(nearlyEqual(SK_ScalarNaN, SK_ScalarNaN) == false);
+    SkASSERT(nearlyEqual(SK_FloatNaN, SK_FloatInfinity) == false);
+    SkASSERT(nearlyEqual(SK_FloatNaN, SK_FloatNegativeInfinity) == false);
+    SkASSERT(nearlyEqual(SK_FloatNaN, SK_FloatNaN) == false);
 };
 
 DEF_TEST(SkParagraph_LineMetrics, reporter) {
@@ -5687,10 +5687,10 @@ DEF_TEST(SkParagraph_PlaceholderHeightInf, reporter) {
 
     PlaceholderStyle placeholder_style;
     placeholder_style.fWidth = 16.0f;
-    placeholder_style.fHeight = SK_ScalarInfinity;
+    placeholder_style.fHeight = SK_FloatInfinity;
     placeholder_style.fAlignment = PlaceholderAlignment::kBottom;
     placeholder_style.fBaseline = TextBaseline::kAlphabetic;
-    placeholder_style.fBaselineOffset = SK_ScalarInfinity;
+    placeholder_style.fBaselineOffset = SK_FloatInfinity;
 
     ParagraphStyle paragraph_style;
     paragraph_style.setDrawOptions(DrawOptions::kRecord);
@@ -5699,7 +5699,7 @@ DEF_TEST(SkParagraph_PlaceholderHeightInf, reporter) {
     builder.addText("Limited by budget");
     builder.addPlaceholder(placeholder_style);
     auto paragraph = builder.Build();
-    paragraph->layout(SK_ScalarInfinity);
+    paragraph->layout(SK_FloatInfinity);
     paragraph->paint(canvas.get(), 0, 0);
 
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());

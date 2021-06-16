@@ -42,7 +42,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        SkScalar angle = kAngle*SK_ScalarPI + SkScalarHalf(SK_ScalarPI);
+        SkScalar angle = kAngle*SK_FloatPI + SkScalarHalf(SK_FloatPI);
         SkScalar size = SkIntToScalar(std::min(kWidth, kHeight));
         SkPoint center = SkPoint::Make(SkScalarHalf(kWidth), SkScalarHalf(kHeight));
         SkScalar length = 5;
@@ -55,7 +55,7 @@ protected:
             SkPoint rp = SkPoint::Make(length*SkScalarCos(step) + center.fX,
                                        length*SkScalarSin(step) + center.fY);
             path.lineTo(rp);
-            length += angle / SkScalarHalf(SK_ScalarPI);
+            length += angle / SkScalarHalf(SK_FloatPI);
             step += angle;
         }
 

@@ -217,7 +217,7 @@ static int step(int x, SkScalar min, SkScalar max) {
 
 // Implement a Gaussian function with 0 mean and std.dev. of 'sigma'.
 static float gaussian(int x, SkScalar sigma) {
-    float k = SK_Scalar1/(sigma * sqrtf(2.0f*SK_ScalarPI));
+    float k = SK_Scalar1/(sigma * sqrtf(2.0f*SK_FloatPI));
     float exponent = -(x * x) / (2 * sigma * sigma);
     return k * expf(exponent);
 }

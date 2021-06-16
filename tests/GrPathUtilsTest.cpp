@@ -41,22 +41,22 @@ static void check_cubic_convex_180(skiatest::Reporter* r, const SkPoint p[4]) {
         float radsSum = 0;
         for (int i = 0; i <= convex180N; ++i) {
             float rads = SkMeasureNonInflectCubicRotation(chops + i*3);
-            SkASSERT(rads < SK_ScalarPI + SK_ScalarNearlyZero);
+            SkASSERT(rads < SK_FloatPI + SK_ScalarNearlyZero);
             radsSum += rads;
         }
-        if (totalRotation < SK_ScalarPI - SK_ScalarNearlyZero) {
+        if (totalRotation < SK_FloatPI - SK_ScalarNearlyZero) {
             // The curve should never chop if rotation is <180 degrees.
             REPORTER_ASSERT(r, convex180N == 0);
         } else if (!is_linear(p)) {
             REPORTER_ASSERT(r, SkScalarNearlyEqual(radsSum, totalRotation));
-            if (totalRotation > SK_ScalarPI + SK_ScalarNearlyZero) {
+            if (totalRotation > SK_FloatPI + SK_ScalarNearlyZero) {
                 REPORTER_ASSERT(r, convex180N == 1);
                 // This works because cusps take the "inflection" path above, so we don't get
                 // non-lilnear curves that lose rotation when chopped.
                 REPORTER_ASSERT(r, SkScalarNearlyEqual(
-                    SkMeasureNonInflectCubicRotation(chops), SK_ScalarPI));
+                    SkMeasureNonInflectCubicRotation(chops), SK_FloatPI));
                 REPORTER_ASSERT(r, SkScalarNearlyEqual(
-                    SkMeasureNonInflectCubicRotation(chops + 3), totalRotation - SK_ScalarPI));
+                    SkMeasureNonInflectCubicRotation(chops + 3), totalRotation - SK_FloatPI));
             }
             REPORTER_ASSERT(r, !areCusps);
         } else {

@@ -539,7 +539,7 @@ SkTSpan* SkTSect::addOne() {
     result->fCoinEnd.debugInit();
     result->fPrev = result->fNext = nullptr;
     result->fBounds.debugInit();
-    result->fStartT = result->fEndT = result->fBoundsMax = SK_ScalarNaN;
+    result->fStartT = result->fEndT = result->fBoundsMax = SK_FloatNaN;
     result->fCollapsed = result->fIsLinear = result->fIsLine = 0xFF;
 #endif
     return result;

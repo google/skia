@@ -106,8 +106,8 @@ class DashingGM : public skiagm::GM {
 ///////////////////////////////////////////////////////////////////////////////
 
 static SkPath make_unit_star(int n) {
-    SkScalar rad = -SK_ScalarPI / 2;
-    const SkScalar drad = (n >> 1) * SK_ScalarPI * 2 / n;
+    SkScalar rad = -SK_FloatPI / 2;
+    const SkScalar drad = (n >> 1) * SK_FloatPI * 2 / n;
 
     SkPathBuilder b;
     b.moveTo(0, -SK_Scalar1);

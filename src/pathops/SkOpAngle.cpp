@@ -575,8 +575,8 @@ bool SkOpAngle::endsIntersect(SkOpAngle* rh) {
         }
         double delta = fabs(rayDist - endDist);
         double minX, minY, maxX, maxY;
-        minX = minY = SK_ScalarInfinity;
-        maxX = maxY = -SK_ScalarInfinity;
+        minX = minY = SK_FloatInfinity;
+        maxX = maxY = -SK_FloatInfinity;
         const SkDCurve& curve = index ? rh->fPart.fCurve : this->fPart.fCurve;
         int ptCount = index ? rPts : lPts;
         for (int idx2 = 0; idx2 <= ptCount; ++idx2) {
@@ -660,8 +660,8 @@ bool SkOpAngle::endToSide(const SkOpAngle* rh, bool* inside) const {
     start.set(this->fStart->pt());
     // OPTIMIZATION: multiple times in the code we find the max scalar
     double minX, minY, maxX, maxY;
-    minX = minY = SK_ScalarInfinity;
-    maxX = maxY = -SK_ScalarInfinity;
+    minX = minY = SK_FloatInfinity;
+    maxX = maxY = -SK_FloatInfinity;
     const SkDCurve& curve = rh->fPart.fCurve;
     int oppPts = SkPathOpsVerbToPoints(oppVerb);
     for (int idx2 = 0; idx2 <= oppPts; ++idx2) {
@@ -977,7 +977,7 @@ void SkOpAngle::setSpans() {
     const SkPoint* pts = segment->pts();
     SkDEBUGCODE(fPart.fCurve.fVerb = SkPath::kCubic_Verb);  // required for SkDCurve debug check
     SkDEBUGCODE(fPart.fCurve[2].fX = fPart.fCurve[2].fY = fPart.fCurve[3].fX = fPart.fCurve[3].fY
-            = SK_ScalarNaN);   //  make the non-line part uninitialized
+            = SK_FloatNaN);   //  make the non-line part uninitialized
     SkDEBUGCODE(fPart.fCurve.fVerb = segment->verb());  //  set the curve type for real
     segment->subDivide(fStart, fEnd, &fPart.fCurve);  //  set at least the line part if not more
     fOriginalCurvePart = fPart.fCurve;

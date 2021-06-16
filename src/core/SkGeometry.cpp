@@ -581,7 +581,7 @@ float SkMeasureNonInflectCubicRotation(const SkPoint pts[4]) {
     }
     // Postulate: When no points are colocated and there are no inflection points in T=0..1, the
     // rotation is: 360 degrees, minus the angle [p0,p1,p2], minus the angle [p1,p2,p3].
-    return 2*SK_ScalarPI - SkMeasureAngleBetweenVectors(a,-b) - SkMeasureAngleBetweenVectors(b,-c);
+    return 2*SK_FloatPI - SkMeasureAngleBetweenVectors(a,-b) - SkMeasureAngleBetweenVectors(b,-c);
 }
 
 static Sk4f fma(const Sk4f& f, float m, const Sk4f& a) {
@@ -976,8 +976,8 @@ static int solve_cubic_poly(const SkScalar coeff[4], SkScalar tValues[3]) {
         SkScalar neg2RootQ = -2 * SkScalarSqrt(Q);
 
         tValues[0] = SkTPin(neg2RootQ * SkScalarCos(theta/3) - adiv3, 0.0f, 1.0f);
-        tValues[1] = SkTPin(neg2RootQ * SkScalarCos((theta + 2*SK_ScalarPI)/3) - adiv3, 0.0f, 1.0f);
-        tValues[2] = SkTPin(neg2RootQ * SkScalarCos((theta - 2*SK_ScalarPI)/3) - adiv3, 0.0f, 1.0f);
+        tValues[1] = SkTPin(neg2RootQ * SkScalarCos((theta + 2*SK_FloatPI)/3) - adiv3, 0.0f, 1.0f);
+        tValues[2] = SkTPin(neg2RootQ * SkScalarCos((theta - 2*SK_FloatPI)/3) - adiv3, 0.0f, 1.0f);
         SkDEBUGCODE(test_collaps_duplicates();)
 
         // now sort the roots

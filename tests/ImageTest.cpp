@@ -1377,7 +1377,7 @@ DEF_TEST(Image_nonfinite_dst, reporter) {
     auto surf = SkSurface::MakeRasterN32Premul(10, 10);
     auto img = any_image_will_do();
 
-    for (SkScalar bad : { SK_ScalarInfinity, SK_ScalarNaN}) {
+    for (SkScalar bad : { SK_FloatInfinity, SK_FloatNaN}) {
         for (int bits = 1; bits <= 15; ++bits) {
             SkRect dst = { 0, 0, 10, 10 };
             if (bits & 1) dst.fLeft = bad;

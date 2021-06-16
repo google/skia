@@ -22,7 +22,7 @@ DEF_SIMPLE_GM(crbug_1086705, canvas, 200, 200) {
 
     SkPoint circleVertices[700];
     for (int i = 0; i < 700; ++i) {
-        SkScalar angleRads = 2 * SK_ScalarPI * i / 700.f;
+        SkScalar angleRads = 2 * SK_FloatPI * i / 700.f;
         circleVertices[i] = {100.f + 2.f * SkScalarCos(angleRads),
                              100.f + 2.f * SkScalarSin(angleRads)};
     }
