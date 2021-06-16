@@ -327,9 +327,9 @@ DEF_SIMPLE_GM(imagefilter_transformed_image, canvas, 256, 256) {
                SkM44::Scale(-.8f, .8f);
 
     SkM44 m2 = SkM44::RectToRect({-1.f, -1.f, 1.f, 1.f}, imageRect) *
-               SkM44::Perspective(0.01f, 100.f, SK_ScalarPI / 3.f) *
+               SkM44::Perspective(0.01f, 100.f, SK_FloatPI / 3.f) *
                SkM44::Translate(0.f, 0.f, -2.f) *
-               SkM44::Rotate({0.f, 1.f, 0.f}, SK_ScalarPI / 6.f) *
+               SkM44::Rotate({0.f, 1.f, 0.f}, SK_FloatPI / 6.f) *
                SkM44::RectToRect(imageRect, {-1.f, -1.f, 1.f, 1.f});
 
     SkFont font(ToolUtils::create_portable_typeface());

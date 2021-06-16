@@ -14,7 +14,7 @@ void draw(SkCanvas* canvas) {
         canvas->drawLine(origin, point, paint);
         SkAutoCanvasRestore acr(canvas, true);
         SkScalar angle = SkScalarATan2((point.fY - origin.fY), point.fX - origin.fX);
-        canvas->rotate(angle * 180 / SK_ScalarPI, origin.fX, origin.fY);
+        canvas->rotate(angle * 180 / SK_FloatPI, origin.fX, origin.fY);
         SkString distance("distance = ");
         distance.appendScalar(point.distanceToOrigin());
         canvas->drawString(distance, origin.fX + 25, origin.fY - 4, paint);

@@ -20,7 +20,7 @@ class GrGLConvexPolyEffect : public GrGLSLFragmentProcessor {
 public:
     GrGLConvexPolyEffect() {
         for (size_t i = 0; i < SK_ARRAY_COUNT(fPrevEdges); ++i) {
-            fPrevEdges[i] = SK_ScalarNaN;
+            fPrevEdges[i] = SK_FloatNaN;
         }
     }
 

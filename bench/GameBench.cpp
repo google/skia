@@ -121,8 +121,8 @@ protected:
         } else {
             SkASSERT(kRotate_Type == fType);
             // Yes, some rotations will be off the top and left sides
-            maxTransX = size.fWidth  - SK_ScalarSqrt2 * height;
-            maxTransY = size.fHeight - SK_ScalarSqrt2 * height;
+            maxTransX = size.fWidth  - SK_FloatSqrt2 * height;
+            maxTransY = size.fHeight - SK_FloatSqrt2 * height;
         }
 
         SkMatrix mat;

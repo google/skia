@@ -462,7 +462,7 @@ template <SkPaint::Cap capStyle>
 void extend_pts(SkPath::Verb prevVerb, SkPath::Verb nextVerb, SkPoint* pts, int ptCount) {
     SkASSERT(SkPaint::kSquare_Cap == capStyle || SkPaint::kRound_Cap == capStyle);
     // The area of a circle is PI*R*R. For a unit circle, R=1/2, and the cap covers half of that.
-    const SkScalar capOutset = SkPaint::kSquare_Cap == capStyle ? 0.5f : SK_ScalarPI / 8;
+    const SkScalar capOutset = SkPaint::kSquare_Cap == capStyle ? 0.5f : SK_FloatPI / 8;
     if (SkPath::kMove_Verb == prevVerb) {
         SkPoint* first = pts;
         SkPoint* ctrl = first;

@@ -402,7 +402,7 @@ static sk_sp<SkTypeface> makeDistortableWithNonDefaultAxes(skiatest::Reporter* r
     }
 
     const SkFontArguments::VariationPosition::Coordinate position[] = {
-        { SkSetFourByteTag('w','g','h','t'), SK_ScalarSqrt2 },
+        { SkSetFourByteTag('w','g','h','t'), SK_FloatSqrt2 },
     };
     SkFontArguments params;
     params.setVariationDesignPosition({position, SK_ARRAY_COUNT(position)});

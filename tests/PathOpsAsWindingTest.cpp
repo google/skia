@@ -70,7 +70,7 @@ DEF_TEST(PathOpsAsWinding, reporter) {
     REPORTER_ASSERT(reporter, test == result);
     // if test has infinity
     test.reset();
-    test.addRect({1, 2, 3, SK_ScalarInfinity});
+    test.addRect({1, 2, 3, SK_FloatInfinity});
     test.setFillType(SkPathFillType::kEvenOdd);
     REPORTER_ASSERT(reporter, !AsWinding(test, &result));
     // if test has only one contour

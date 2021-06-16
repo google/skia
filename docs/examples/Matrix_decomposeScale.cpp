@@ -8,7 +8,7 @@ void draw(SkCanvas* canvas) {
     matrix.setRotate(90 * SK_Scalar1);
     matrix.postScale(1.f / 4, 1.f / 2);
     matrix.dump();
-    SkSize scale = {SK_ScalarNaN, SK_ScalarNaN};
+    SkSize scale = {SK_FloatNaN, SK_FloatNaN};
     SkMatrix remaining;
     remaining.reset();
     bool success = matrix.decomposeScale(&scale, &remaining);

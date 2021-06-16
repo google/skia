@@ -323,8 +323,8 @@ static SkRSXform random_xform(SkRandom* random) {
     static const SkScalar kMaxExtent = 100.f;
     static const SkScalar kMinScale = 0.1f;
     static const SkScalar kMaxScale = 100.f;
-    static const SkScalar kMinRotate = -SK_ScalarPI;
-    static const SkScalar kMaxRotate = SK_ScalarPI;
+    static const SkScalar kMinRotate = -SK_FloatPI;
+    static const SkScalar kMaxRotate = SK_FloatPI;
 
     SkRSXform xform = SkRSXform::MakeFromRadians(random->nextRangeScalar(kMinScale, kMaxScale),
                                                  random->nextRangeScalar(kMinRotate, kMaxRotate),

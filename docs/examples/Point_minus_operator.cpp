@@ -5,8 +5,8 @@
 REG_FIDDLE(Point_minus_operator, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkPoint test[] = { {0.f, -0.f}, {-1, -2},
-                       { SK_ScalarInfinity, SK_ScalarNegativeInfinity },
-                       { SK_ScalarNaN, -SK_ScalarNaN } };
+                       { SK_FloatInfinity, SK_FloatNegativeInfinity },
+                       { SK_FloatNaN, -SK_FloatNaN } };
     for (const SkPoint& pt : test) {
         SkPoint negPt = -pt;
         SkDebugf("pt: %g, %g  negate: %g, %g\n", pt.fX, pt.fY, negPt.fX, negPt.fY);

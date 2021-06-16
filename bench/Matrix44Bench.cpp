@@ -176,7 +176,7 @@ public:
             case MapMatrixType::kPerspective:
                 typeName = "p";
                 // Hand chosen to have all corners with w > 0 and w != 1
-                fM = SkM44::Perspective(0.01f, 10.f, SK_ScalarPI / 3.f);
+                fM = SkM44::Perspective(0.01f, 10.f, SK_FloatPI / 3.f);
                 fM.preTranslate(0.f, 5.f, -0.1f);
                 fM.preConcat(SkM44::Rotate({0.f, 1.f, 0.f}, 0.008f /* radians */));
                 break;

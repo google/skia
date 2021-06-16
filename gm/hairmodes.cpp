@@ -58,8 +58,8 @@ static SkScalar drawCell(SkCanvas* canvas, SkBlendMode mode, SkAlpha a0, SkAlpha
     paint.setAlpha(a1);
     paint.setBlendMode(mode);
     for (int angle = 0; angle < 24; ++angle) {
-        SkScalar x = SkScalarCos(SkIntToScalar(angle) * (SK_ScalarPI * 2) / 24) * gWidth;
-        SkScalar y = SkScalarSin(SkIntToScalar(angle) * (SK_ScalarPI * 2) / 24) * gHeight;
+        SkScalar x = SkScalarCos(SkIntToScalar(angle) * (SK_FloatPI * 2) / 24) * gWidth;
+        SkScalar y = SkScalarSin(SkIntToScalar(angle) * (SK_FloatPI * 2) / 24) * gHeight;
         paint.setStrokeWidth(SK_Scalar1 * angle * 2 / 24);
         canvas->drawLine(W/2, H/2, W/2 + x, H/2 + y, paint);
     }

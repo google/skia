@@ -644,7 +644,7 @@ static void test_addrect_isfinite(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, path.isFinite());
 
     path.moveTo(0, 0);
-    path.lineTo(SK_ScalarInfinity, 42);
+    path.lineTo(SK_FloatInfinity, 42);
     REPORTER_ASSERT(reporter, !path.isFinite());
 
     path.addRect(SkRect::MakeWH(50, 100));
@@ -884,9 +884,9 @@ static void test_arb_zero_rad_round_rect_is_rect(skiatest::Reporter* reporter) {
 }
 
 static void test_rect_isfinite(skiatest::Reporter* reporter) {
-    const SkScalar inf = SK_ScalarInfinity;
-    const SkScalar negInf = SK_ScalarNegativeInfinity;
-    const SkScalar nan = SK_ScalarNaN;
+    const SkScalar inf = SK_FloatInfinity;
+    const SkScalar negInf = SK_FloatNegativeInfinity;
+    const SkScalar nan = SK_FloatNaN;
 
     SkRect r;
     r.setEmpty();
@@ -918,9 +918,9 @@ static void test_rect_isfinite(skiatest::Reporter* reporter) {
 }
 
 static void test_path_isfinite(skiatest::Reporter* reporter) {
-    const SkScalar inf = SK_ScalarInfinity;
-    const SkScalar negInf = SK_ScalarNegativeInfinity;
-    const SkScalar nan = SK_ScalarNaN;
+    const SkScalar inf = SK_FloatInfinity;
+    const SkScalar negInf = SK_FloatNegativeInfinity;
+    const SkScalar nan = SK_FloatNaN;
 
     SkPath path;
     REPORTER_ASSERT(reporter, path.isFinite());
@@ -1612,17 +1612,17 @@ static void test_convexity(skiatest::Reporter* reporter) {
     }
 
     static const SkPoint nonFinitePts[] = {
-        { SK_ScalarInfinity, 0 },
-        { 0, SK_ScalarInfinity },
-        { SK_ScalarInfinity, SK_ScalarInfinity },
-        { SK_ScalarNegativeInfinity, 0},
-        { 0, SK_ScalarNegativeInfinity },
-        { SK_ScalarNegativeInfinity, SK_ScalarNegativeInfinity },
-        { SK_ScalarNegativeInfinity, SK_ScalarInfinity },
-        { SK_ScalarInfinity, SK_ScalarNegativeInfinity },
-        { SK_ScalarNaN, 0 },
-        { 0, SK_ScalarNaN },
-        { SK_ScalarNaN, SK_ScalarNaN },
+        { SK_FloatInfinity, 0 },
+        { 0, SK_FloatInfinity },
+        { SK_FloatInfinity, SK_FloatInfinity },
+        { SK_FloatNegativeInfinity, 0},
+        { 0, SK_FloatNegativeInfinity },
+        { SK_FloatNegativeInfinity, SK_FloatNegativeInfinity },
+        { SK_FloatNegativeInfinity, SK_FloatInfinity },
+        { SK_FloatInfinity, SK_FloatNegativeInfinity },
+        { SK_FloatNaN, 0 },
+        { 0, SK_FloatNaN },
+        { SK_FloatNaN, SK_FloatNaN },
     };
 
     const size_t nonFinitePtsCount = sizeof(nonFinitePts) / sizeof(nonFinitePts[0]);
@@ -2989,8 +2989,8 @@ static void test_iter(skiatest::Reporter* reporter) {
     // check to see if the result is correct.
     for (int setNaN = 0; setNaN < 4; ++setNaN) {
         p.reset();
-        p.moveTo(setNaN == 0 ? SK_ScalarNaN : 0, setNaN == 1 ? SK_ScalarNaN : 0);
-        p.lineTo(setNaN == 2 ? SK_ScalarNaN : 1, setNaN == 3 ? SK_ScalarNaN : 1);
+        p.moveTo(setNaN == 0 ? SK_FloatNaN : 0, setNaN == 1 ? SK_FloatNaN : 0);
+        p.lineTo(setNaN == 2 ? SK_FloatNaN : 1, setNaN == 3 ? SK_FloatNaN : 1);
         iter.setPath(p, true);
         iter.next(pts);
         iter.next(pts);
@@ -3680,7 +3680,7 @@ static void test_rrect(skiatest::Reporter* reporter) {
     test_rrect_convexity_is_unknown(reporter, &p, SkPathDirection::kCW);
 
     // we check for non-finites
-    SkRect infR = {0, 0, SK_ScalarMax, SK_ScalarInfinity};
+    SkRect infR = {0, 0, SK_ScalarMax, SK_FloatInfinity};
     rr.setRectRadii(infR, radii);
     REPORTER_ASSERT(reporter, rr.isEmpty());
 }
@@ -4011,7 +4011,7 @@ static void test_conicTo_special_case(skiatest::Reporter* reporter) {
     SkPath p;
     p.conicTo(1, 2, 3, 4, -1);
     check_path_is_line_and_reset(reporter, &p, 3, 4);
-    p.conicTo(1, 2, 3, 4, SK_ScalarInfinity);
+    p.conicTo(1, 2, 3, 4, SK_FloatInfinity);
     check_path_is_line_pair_and_reset(reporter, &p, 1, 2, 3, 4);
     p.conicTo(1, 2, 3, 4, 1);
     check_path_is_quad_and_reset(reporter, &p, 1, 2, 3, 4);
@@ -5075,7 +5075,7 @@ DEF_TEST(PathRefSerialization, reporter) {
 
 DEF_TEST(NonFinitePathIteration, reporter) {
     SkPath path;
-    path.moveTo(SK_ScalarInfinity, SK_ScalarInfinity);
+    path.moveTo(SK_FloatInfinity, SK_FloatInfinity);
     SkPathPriv::Iterate iterate(path);
     REPORTER_ASSERT(reporter, iterate.begin() == iterate.end());
 }
@@ -5121,7 +5121,7 @@ DEF_TEST(HugeGeometry, reporter) {
     };
     const SkScalar values[] = {
         0, 1, 1000, 1000 * 1000, 1000.f * 1000 * 10000, SK_ScalarMax / 2, SK_ScalarMax,
-        SK_ScalarInfinity
+        SK_FloatInfinity
     };
 
     SkPaint paint;
@@ -5150,7 +5150,7 @@ DEF_TEST(ClipPath_nonfinite, reporter) {
     REPORTER_ASSERT(reporter, !canvas->isClipEmpty());
     for (bool aa : {false, true}) {
         for (auto ft : {SkPathFillType::kWinding, SkPathFillType::kInverseWinding}) {
-            for (SkScalar bad : {SK_ScalarInfinity, SK_ScalarNaN}) {
+            for (SkScalar bad : {SK_FloatInfinity, SK_FloatNaN}) {
                 for (int bits = 1; bits <= 15; ++bits) {
                     SkPoint p0 = { 0, 0 };
                     SkPoint p1 = { 0, 0 };

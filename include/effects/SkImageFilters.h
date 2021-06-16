@@ -23,8 +23,8 @@ class SkPaint;
 class SkRegion;
 
 namespace skif {
-  static constexpr SkRect kNoCropRect = {SK_ScalarNegativeInfinity, SK_ScalarNegativeInfinity,
-                                         SK_ScalarInfinity, SK_ScalarInfinity};
+  static constexpr SkRect kNoCropRect = {SK_FloatNegativeInfinity, SK_FloatNegativeInfinity,
+                                         SK_FloatInfinity, SK_FloatInfinity};
 }
 
 // A set of factory functions providing useful SkImageFilter effects. For image filters that take an

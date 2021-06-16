@@ -11,17 +11,17 @@
 #include "tests/Test.h"
 
 static const SkPoint nonFinitePts[] = {
-    { SK_ScalarInfinity, 0 },
-    { 0, SK_ScalarInfinity },
-    { SK_ScalarInfinity, SK_ScalarInfinity },
-    { SK_ScalarNegativeInfinity, 0},
-    { 0, SK_ScalarNegativeInfinity },
-    { SK_ScalarNegativeInfinity, SK_ScalarNegativeInfinity },
-    { SK_ScalarNegativeInfinity, SK_ScalarInfinity },
-    { SK_ScalarInfinity, SK_ScalarNegativeInfinity },
-    { SK_ScalarNaN, 0 },
-    { 0, SK_ScalarNaN },
-    { SK_ScalarNaN, SK_ScalarNaN },
+    { SK_FloatInfinity, 0 },
+    { 0, SK_FloatInfinity },
+    { SK_FloatInfinity, SK_FloatInfinity },
+    { SK_FloatNegativeInfinity, 0},
+    { 0, SK_FloatNegativeInfinity },
+    { SK_FloatNegativeInfinity, SK_FloatNegativeInfinity },
+    { SK_FloatNegativeInfinity, SK_FloatInfinity },
+    { SK_FloatInfinity, SK_FloatNegativeInfinity },
+    { SK_FloatNaN, 0 },
+    { 0, SK_FloatNaN },
+    { SK_FloatNaN, SK_FloatNaN },
 };
 
 const size_t nonFinitePtsCount = sizeof(nonFinitePts) / sizeof(nonFinitePts[0]);

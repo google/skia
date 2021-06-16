@@ -251,7 +251,7 @@ SkPath make_star(const SkRect& bounds, int numPts, int step) {
     builder.moveTo(0, -1);
     for (int i = 1; i < numPts; ++i) {
         int      idx   = i * step % numPts;
-        SkScalar theta = idx * 2 * SK_ScalarPI / numPts + SK_ScalarPI / 2;
+        SkScalar theta = idx * 2 * SK_FloatPI / numPts + SK_FloatPI / 2;
         SkScalar x     = SkScalarCos(theta);
         SkScalar y     = -SkScalarSin(theta);
         builder.lineTo(x, y);

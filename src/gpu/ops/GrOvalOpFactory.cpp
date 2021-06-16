@@ -1160,7 +1160,7 @@ public:
             // case.
             auto absSweep = SkScalarAbs(arcParams->fSweepAngleRadians);
             bool useCenter = (arcParams->fUseCenter || isStrokeOnly) &&
-                             !SkScalarNearlyEqual(absSweep, SK_ScalarPI);
+                             !SkScalarNearlyEqual(absSweep, SK_FloatPI);
             if (useCenter) {
                 SkVector norm0 = {startPoint.fY, -startPoint.fX};
                 SkVector norm1 = {stopPoint.fY, -stopPoint.fX};
@@ -1170,7 +1170,7 @@ public:
                 }
                 norm0.negate();
                 fClipPlane = true;
-                if (absSweep > SK_ScalarPI) {
+                if (absSweep > SK_FloatPI) {
                     fCircles.emplace_back(Circle{
                             color,
                             innerRadius,
@@ -3417,8 +3417,8 @@ GR_DRAW_OP_TEST_DEFINE(CircleOp) {
         CircleOp::ArcParams arcParamsTmp;
         const CircleOp::ArcParams* arcParams = nullptr;
         if (random->nextBool()) {
-            arcParamsTmp.fStartAngleRadians = random->nextSScalar1() * SK_ScalarPI * 2;
-            arcParamsTmp.fSweepAngleRadians = random->nextSScalar1() * SK_ScalarPI * 2 - .01f;
+            arcParamsTmp.fStartAngleRadians = random->nextSScalar1() * SK_FloatPI * 2;
+            arcParamsTmp.fSweepAngleRadians = random->nextSScalar1() * SK_FloatPI * 2 - .01f;
             arcParamsTmp.fUseCenter = random->nextBool();
             arcParams = &arcParamsTmp;
         }

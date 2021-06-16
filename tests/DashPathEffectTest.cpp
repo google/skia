@@ -28,7 +28,7 @@
 DEF_TEST(DashPathEffectTest_crbug_348821, r) {
     SkScalar intervals[] = { 1.76934361e+36f, 2.80259693e-45f };  // Values from bug.
     const int count = 2;
-    SkScalar phase = SK_ScalarInfinity;  // Used to force a nonsense effect.
+    SkScalar phase = SK_FloatInfinity;  // Used to force a nonsense effect.
     sk_sp<SkPathEffect> dash(SkDashPathEffect::Make(intervals, count, phase));
 
     REPORTER_ASSERT(r, dash == nullptr);

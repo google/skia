@@ -484,7 +484,7 @@ DEF_SIMPLE_GM(clip_shader_difference, canvas, 512, 512) {
         path.lineTo(256.f, 128.f);
         path.lineTo(128.f, 0.f);
 
-        SkScalar d = 64.f * SK_ScalarSqrt2;
+        SkScalar d = 64.f * SK_FloatSqrt2;
         path.moveTo(128.f - d, 128.f - d);
         path.lineTo(128.f - d, 128.f + d);
         path.lineTo(128.f + d, 128.f + d);

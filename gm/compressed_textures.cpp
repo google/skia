@@ -46,7 +46,7 @@ static SkPoint gen_pt(float angle, const SkVector& scale) {
 static SkPath make_gear(SkISize dimensions, int numTeeth) {
     SkVector outerRad{ dimensions.fWidth / 2.0f, dimensions.fHeight / 2.0f };
     SkVector innerRad{ dimensions.fWidth / 2.5f, dimensions.fHeight / 2.5f };
-    const float kAnglePerTooth = 2.0f * SK_ScalarPI / (3 * numTeeth);
+    const float kAnglePerTooth = 2.0f * SK_FloatPI / (3 * numTeeth);
 
     float angle = 0.0f;
 
