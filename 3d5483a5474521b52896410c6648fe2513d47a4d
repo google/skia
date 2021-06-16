@@ -51,6 +51,24 @@
       "message": "can we see these warnings on most/all of our bots, or only on android?",
       "revId": "3d5483a5474521b52896410c6648fe2513d47a4d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1e6110dc_8a6196d0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-16T14:19:28Z",
+      "side": 1,
+      "message": "We always build with -Wno-unknown-warning-option, because we tend to build with multiple versions of clang, and keeping track of which versions have support for new warnings that we want to enforce (or ignore) just isn\u0027t worth the trouble.",
+      "parentUuid": "17fa1939_8e4aac26",
+      "revId": "3d5483a5474521b52896410c6648fe2513d47a4d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
