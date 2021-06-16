@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3a149221_04c34587",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2021-06-16T13:58:17Z",
+      "side": 1,
+      "message": "This is causing errors on the Android build. See https://android-build.googleplex.com/builds/pending/P23740806/aosp_crosshatch-userdebug/latest/view/logs/build_error.log",
+      "revId": "3d5483a5474521b52896410c6648fe2513d47a4d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
