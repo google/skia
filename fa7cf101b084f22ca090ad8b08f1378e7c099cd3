@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f533ff5b_52e660ec",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-16T14:07:39Z",
+      "side": 1,
+      "message": "There is no intention of bubbling special input effect up to the public sksl right? This is purely so that runtime FPs can be composed together into a linked list or chain more readily?",
+      "revId": "fa7cf101b084f22ca090ad8b08f1378e7c099cd3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

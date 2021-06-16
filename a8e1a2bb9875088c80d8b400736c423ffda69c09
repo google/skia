@@ -43,6 +43,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "01b68b7e_f0eafb02",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 680,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-16T14:07:39Z",
+      "side": 1,
+      "message": "Right, make_effect_fp should return a GrFPSuccess or failure, since inputFP is being moved when it\u0027s called.",
+      "parentUuid": "a21c20cd_5ab81a18",
+      "range": {
+        "startLine": 680,
+        "startChar": 31,
+        "endLine": 680,
+        "endChar": 38
+      },
+      "revId": "a8e1a2bb9875088c80d8b400736c423ffda69c09",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "5e573642_27b101b0",
         "filename": "src/gpu/effects/GrSkSLFP.cpp",
         "patchSetId": 3
