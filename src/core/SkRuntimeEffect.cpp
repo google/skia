@@ -11,6 +11,7 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkChecksum.h"
 #include "include/private/SkMutex.h"
+#include "src/core/SkBlenderBase.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkColorFilterBase.h"
 #include "src/core/SkColorSpacePriv.h"
@@ -191,14 +192,14 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl,
         default: SkUNREACHABLE;
     }
 
-
     if (sampleCoordsUsage.fRead || sampleCoordsUsage.fWrite) {
         flags |= kUsesSampleCoords_Flag;
     }
 
-    // Color filters are not allowed to depend on position (local or device) in any way.
-    // The signature of main, and the declarations in sksl_rt_colorfilter should guarantee this.
-    if (flags & kAllowColorFilter_Flag) {
+    // Color filters and blends are not allowed to depend on position (local or device) in any way.
+    // The signature of main, and the declarations in sksl_rt_colorfilter/sksl_rt_blend should
+    // guarantee this.
+    if (flags & (kAllowColorFilter_Flag | kAllowBlender_Flag)) {
         SkASSERT(!(flags & kUsesSampleCoords_Flag));
         SkASSERT(!SkSL::Analysis::ReferencesFragCoords(*program));
     }
@@ -222,6 +223,12 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl,
 
             // Child effects that can be sampled ('shader' or 'colorFilter')
             if (varType.isEffectChild()) {
+                // Runtime blends currently don't support child effects.
+                if (kind == SkSL::ProgramKind::kRuntimeBlender) {
+                    RETURN_FAILURE("'%s' is not allowed in runtime blend",
+                                   varType.displayName().c_str());
+                }
+
                 Child c;
                 c.name  = SkString(var.name());
                 c.type  = child_type(varType);
@@ -294,6 +301,12 @@ SkRuntimeEffect::Result SkRuntimeEffect::MakeForShader(SkString sksl, const Opti
     return result;
 }
 
+SkRuntimeEffect::Result SkRuntimeEffect::MakeForBlender(SkString sksl, const Options& options) {
+    auto result = Make(std::move(sksl), options, SkSL::ProgramKind::kRuntimeBlender);
+    SkASSERT(!result.effect || result.effect->allowBlender());
+    return result;
+}
+
 SkRuntimeEffect::Result SkRuntimeEffect::MakeForColorFilter(std::unique_ptr<SkSL::Program> program) {
     auto result = Make(std::move(program), SkSL::ProgramKind::kRuntimeColorFilter);
     SkASSERT(!result.effect || result.effect->allowColorFilter());
@@ -303,6 +316,12 @@ SkRuntimeEffect::Result SkRuntimeEffect::MakeForColorFilter(std::unique_ptr<SkSL
 SkRuntimeEffect::Result SkRuntimeEffect::MakeForShader(std::unique_ptr<SkSL::Program> program) {
     auto result = Make(std::move(program), SkSL::ProgramKind::kRuntimeShader);
     SkASSERT(!result.effect || result.effect->allowShader());
+    return result;
+}
+
+SkRuntimeEffect::Result SkRuntimeEffect::MakeForBlender(std::unique_ptr<SkSL::Program> program) {
+    auto result = Make(std::move(program), SkSL::ProgramKind::kRuntimeBlender);
+    SkASSERT(!result.effect || result.effect->allowBlender());
     return result;
 }
 
@@ -581,7 +600,7 @@ static sk_sp<SkData> get_xformed_uniforms(const SkRuntimeEffect* effect,
     sk_sp<SkData> uniforms = nullptr;
     auto writableData = [&]() {
         if (!uniforms) {
-            uniforms =  SkData::MakeWithCopy(baseUniforms->data(), baseUniforms->size());
+            uniforms = SkData::MakeWithCopy(baseUniforms->data(), baseUniforms->size());
         }
         return uniforms->writable_data();
     };
@@ -1148,6 +1167,21 @@ sk_sp<SkColorFilter> SkRuntimeEffect::makeColorFilter(sk_sp<SkData> uniforms,
 
 sk_sp<SkColorFilter> SkRuntimeEffect::makeColorFilter(sk_sp<SkData> uniforms) const {
     return this->makeColorFilter(std::move(uniforms), /*children=*/{});
+}
+
+sk_sp<SkBlender> SkRuntimeEffect::makeBlender(sk_sp<SkData> uniforms) const {
+    if (!this->allowBlender()) {
+        return nullptr;
+    }
+    if (!uniforms) {
+        uniforms = SkData::MakeEmpty();
+    }
+    if (uniforms->size() != this->uniformSize() || !fChildren.empty()) {
+        return nullptr;
+    }
+    // TODO(skia:12080): create a runtime blend class
+    SkDEBUGFAIL("not yet implemented");
+    return nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
