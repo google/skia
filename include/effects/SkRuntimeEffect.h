@@ -204,7 +204,7 @@ private:
         kUsesSampleCoords_Flag = 0x1,
         kAllowColorFilter_Flag = 0x2,
         kAllowShader_Flag      = 0x4,
-        kAllowBlendFilter_Flag = 0x8,
+        kAllowBlender_Flag     = 0x8,
     };
 
     SkRuntimeEffect(SkString sksl,
@@ -227,7 +227,7 @@ private:
     bool usesSampleCoords() const { return (fFlags & kUsesSampleCoords_Flag); }
     bool allowShader()      const { return (fFlags & kAllowShader_Flag);      }
     bool allowColorFilter() const { return (fFlags & kAllowColorFilter_Flag); }
-    bool allowBlendFilter() const { return (fFlags & kAllowBlendFilter_Flag); }
+    bool allowBlender()     const { return (fFlags & kAllowBlender_Flag);     }
 
     const SkFilterColorProgram* getFilterColorProgram();
 

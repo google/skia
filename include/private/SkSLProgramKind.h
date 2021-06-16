@@ -22,7 +22,7 @@ enum class ProgramKind : int8_t {
     kFragmentProcessor,
     kRuntimeColorFilter,  // Runtime effect only suitable as SkColorFilter
     kRuntimeShader,       //   "       "     "      "     "  SkShader
-    kRuntimeBlendFilter,  //   "       "     "      "     "  SkBlendFilter
+    kRuntimeBlender,      //   "       "     "      "     "  SkBlender
     kGeneric,
 };
 

@@ -187,7 +187,7 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl,
     switch (kind) {
         case SkSL::ProgramKind::kRuntimeColorFilter: flags |= kAllowColorFilter_Flag; break;
         case SkSL::ProgramKind::kRuntimeShader:      flags |= kAllowShader_Flag;      break;
-        case SkSL::ProgramKind::kRuntimeBlendFilter: flags |= kAllowBlendFilter_Flag; break;
+        case SkSL::ProgramKind::kRuntimeBlender:     flags |= kAllowBlender_Flag;     break;
         default: SkUNREACHABLE;
     }
 

@@ -586,7 +586,7 @@ void RunSkSLMemoryBenchmarks(NanoJSONResultsWriter* log) {
         SkSL::Compiler compiler(&caps);
         compiler.moduleForProgramKind(SkSL::ProgramKind::kRuntimeColorFilter);
         compiler.moduleForProgramKind(SkSL::ProgramKind::kRuntimeShader);
-        compiler.moduleForProgramKind(SkSL::ProgramKind::kRuntimeBlendFilter);
+        compiler.moduleForProgramKind(SkSL::ProgramKind::kRuntimeBlender);
         int after = heap_bytes_used();
         bench("sksl_compiler_runtimeeffect", after - before);
     }
