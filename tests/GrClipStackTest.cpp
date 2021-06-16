@@ -1954,15 +1954,15 @@ DEF_TEST(GrClipStack_SimpleApply, r) {
     }
 }
 
-// Must disable CCPR in order to trigger SW mask generation when the clip stack is applied.
-static void only_allow_default(GrContextOptions* options) {
+// Must disable tessellation in order to trigger SW mask generation when the clip stack is applied.
+static void disable_tessellation_atlas(GrContextOptions* options) {
     options->fGpuPathRenderers = GpuPathRenderers::kNone;
-    options->fDisableCoverageCountingPaths = true;
+    options->fAvoidStencilBuffers = true;
 }
 
 DEF_GPUTEST_FOR_CONTEXTS(GrClipStack_SWMask,
                          sk_gpu_test::GrContextFactory::IsRenderingContext,
-                         r, ctxInfo, only_allow_default) {
+                         r, ctxInfo, disable_tessellation_atlas) {
     GrDirectContext* context = ctxInfo.directContext();
     std::unique_ptr<GrSurfaceDrawContext> rtc = GrSurfaceDrawContext::Make(
             context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact, kDeviceBounds.size(),
