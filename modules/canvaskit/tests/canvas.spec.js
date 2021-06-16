@@ -381,7 +381,7 @@ describe('Canvas Behavior', () => {
         final.delete();
     });
 
-    gm('clips_canvas', (canvas) => {
+    pause_gm('clips_canvas', (canvas) => {
         const path = starPath(CanvasKit);
         const paint = new CanvasKit.Paint();
         paint.setColor(CanvasKit.BLUE);
