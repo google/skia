@@ -9,13 +9,11 @@ package org.skia.androidkitdemo1;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
-import android.graphics.SurfaceTexture;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.TextureView;
 import android.widget.ImageView;
 import org.skia.androidkit.*;
 import org.skia.androidkit.util.SurfaceRenderer;
@@ -98,7 +96,14 @@ public class MainActivity extends Activity {
             p.setColor(new Color(1, 1, 0, 1));
             ImageFilter filter = ImageFilter.distantLitDiffuse(.5f, .5f, .5f, new Color(1, 0, 0, 1), 1, 1, null);
             p.setImageFilter(filter);
-            threadedSurface.getCanvas().drawRect(20, 20, 250, 250, p);
+            PathBuilder pathBuilder = new PathBuilder();
+            pathBuilder.moveTo(20, 20);
+            pathBuilder.quadTo(180, 60, 180, 180);
+            pathBuilder.close();
+            pathBuilder.moveTo(180, 60);
+            pathBuilder.quadTo(180, 180, 60, 180);
+            Path path = pathBuilder.makePath();
+            threadedSurface.getCanvas().drawPath(path, p);
             threadedSurface.flushAndSubmit();
         }
 
