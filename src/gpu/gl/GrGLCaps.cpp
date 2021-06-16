@@ -370,6 +370,8 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         shaderCaps->fShaderDerivativeSupport = version >= GR_GL_VER(3, 0) ||
             ctxInfo.hasExtension("GL_OES_standard_derivatives");
 
+        SkDebugf("Shader Derivs: %d\n", shaderCaps->fShaderDerivativeSupport);
+
         // Mali and early Adreno both have support for geometry shaders, but they appear to be
         // implemented in software. In practice with ccpr, they are slower than the backup impl that
         // only uses vertex shaders.
@@ -4138,9 +4140,8 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     }
 
     // skbug.com/11935. Don't reorder on these GPUs in GL on old drivers.
-    if ((ctxInfo.renderer() == GrGLRenderer::kAdreno620 ||
-        ctxInfo.renderer() == GrGLRenderer::kAdreno640) &&
-        ctxInfo.driverVersion() < GR_GL_DRIVER_VER(571, 0, 0)) {
+    if (ctxInfo.renderer() == GrGLRenderer::kAdreno620 ||
+        ctxInfo.renderer() == GrGLRenderer::kAdreno640) {
         fAvoidReorderingRenderTasks = true;
     }
 
@@ -4151,6 +4152,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
 
     // http://crbug.com/1197152
     if (ctxInfo.renderer() == GrGLRenderer::kPowerVRRogue) {
+        SkDebugf("PowerVRRogue\n");
         fShaderCaps->fShaderDerivativeSupport = false;
     }
 }
