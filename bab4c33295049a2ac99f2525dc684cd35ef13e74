@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7f287132_9d9ce1af",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-06-16T13:40:35Z",
+      "side": 1,
+      "message": "Really cool to see a purposeful subbing of old terminology instead of a blind find-replace.",
+      "revId": "bab4c33295049a2ac99f2525dc684cd35ef13e74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7ae6915b_f9ced6b2",
+        "filename": "tests/SurfaceTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1168,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-06-16T13:40:35Z",
+      "side": 1,
+      "message": "nit: tempPixel",
+      "range": {
+        "startLine": 1168,
+        "startChar": 17,
+        "endLine": 1168,
+        "endChar": 21
+      },
+      "revId": "bab4c33295049a2ac99f2525dc684cd35ef13e74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "08465ee8_b25cc715",
+        "filename": "third_party/vulkanmemoryallocator/include/vk_mem_alloc.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 969,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-06-16T13:40:35Z",
+      "side": 1,
+      "message": "Can this space be deleted?",
+      "range": {
+        "startLine": 969,
+        "startChar": 0,
+        "endLine": 969,
+        "endChar": 12
+      },
+      "revId": "bab4c33295049a2ac99f2525dc684cd35ef13e74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "723d7305_b8b54120",
+        "filename": "third_party/vulkanmemoryallocator/include/vk_mem_alloc.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 17223,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-06-16T13:40:35Z",
+      "side": 1,
+      "message": "See other space",
+      "range": {
+        "startLine": 17223,
+        "startChar": 0,
+        "endLine": 17223,
+        "endChar": 4
+      },
+      "revId": "bab4c33295049a2ac99f2525dc684cd35ef13e74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
