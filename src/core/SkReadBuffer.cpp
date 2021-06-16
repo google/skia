@@ -385,7 +385,7 @@ sk_sp<SkImage> SkReadBuffer::readImage_preV78() {
 #include "src/core/SkMipmap.h"
 
 // If we see a corrupt stream, we return null (fail). If we just fail trying to decode
-// the image, we don't fail, but return a dummy image.
+// the image, we don't fail, but return a 1x1 empty image.
 sk_sp<SkImage> SkReadBuffer::readImage() {
     if (this->isVersionLT(SkPicturePriv::kSerializeMipmaps_Version)) {
         return this->readImage_preV78();

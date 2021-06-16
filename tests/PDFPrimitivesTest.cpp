@@ -39,8 +39,6 @@
 #include <cmath>
 #include <memory>
 
-#define DUMMY_TEXT "DCT compessed stream."
-
 template <typename T>
 static SkString emit_to_string(T& obj) {
     SkDynamicMemoryWStream buffer;
@@ -254,10 +252,10 @@ DEF_TEST(SkPDF_Primitives, reporter) {
 
 namespace {
 
-class DummyImageFilter : public SkImageFilter_Base {
+class TestImageFilter : public SkImageFilter_Base {
 public:
-    static sk_sp<DummyImageFilter> Make(bool visited = false) {
-        return sk_sp<DummyImageFilter>(new DummyImageFilter(visited));
+    static sk_sp<TestImageFilter> Make(bool visited = false) {
+        return sk_sp<TestImageFilter>(new TestImageFilter(visited));
     }
 
     bool visited() const { return fVisited; }
@@ -270,18 +268,18 @@ protected:
     }
 
 private:
-    SK_FLATTENABLE_HOOKS(DummyImageFilter)
-    DummyImageFilter(bool visited) : INHERITED(nullptr, 0, nullptr), fVisited(visited) {}
+    SK_FLATTENABLE_HOOKS(TestImageFilter)
+    TestImageFilter(bool visited) : INHERITED(nullptr, 0, nullptr), fVisited(visited) {}
 
     mutable bool fVisited;
 
     using INHERITED = SkImageFilter_Base;
 };
 
-sk_sp<SkFlattenable> DummyImageFilter::CreateProc(SkReadBuffer& buffer) {
+sk_sp<SkFlattenable> TestImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 0);
     bool visited = buffer.readBool();
-    return DummyImageFilter::Make(visited);
+    return TestImageFilter::Make(visited);
 }
 
 }  // namespace
@@ -294,7 +292,7 @@ DEF_TEST(SkPDF_ImageFilter, reporter) {
     auto doc = SkPDF::MakeDocument(&stream);
     SkCanvas* canvas = doc->beginPage(100.0f, 100.0f);
 
-    sk_sp<DummyImageFilter> filter(DummyImageFilter::Make());
+    sk_sp<TestImageFilter> filter(TestImageFilter::Make());
 
     // Filter just created; should be unvisited.
     REPORTER_ASSERT(reporter, !filter->visited());

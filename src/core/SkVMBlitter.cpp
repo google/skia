@@ -655,7 +655,7 @@ namespace {
             }
             // We don't really _need_ to rebuild fUniforms here.
             // It's just more natural to have effects unconditionally emit them,
-            // and more natural to rebuild fUniforms than to emit them into a dummy buffer.
+            // and more natural to rebuild fUniforms than to emit them into a temporary buffer.
             // fUniforms should reuse the exact same memory, so this is very cheap.
             SkDEBUGCODE(size_t prev = fUniforms.buf.size();)
             fUniforms.buf.resize(kBlitterUniformsCount);

@@ -34,7 +34,7 @@
 #endif
 
 /*
- * A dummy processor which just tries to insert a massive key and verify that it can retrieve the
+ * A simple processor which just tries to insert a massive key and verify that it can retrieve the
  * whole thing correctly
  */
 static const uint32_t kMaxKeySize = 1024;
@@ -249,13 +249,13 @@ bool GrDrawingManager::ProgramUnitTest(GrDirectContext* direct, int maxStages, i
 
     GrProcessorTestData::ViewInfo views[2];
 
-    // setup dummy textures
+    // setup arbitrary textures
     GrMipmapped mipMapped = GrMipmapped(caps->mipmapSupport());
     {
-        static constexpr SkISize kDummyDims = {34, 18};
+        static constexpr SkISize kDims = {34, 18};
         const GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                                      GrRenderable::kYes);
-        auto proxy = proxyProvider->createProxy(format, kDummyDims, GrRenderable::kYes, 1,
+        auto proxy = proxyProvider->createProxy(format, kDims, GrRenderable::kYes, 1,
                                                 mipMapped, SkBackingFit::kExact, SkBudgeted::kNo,
                                                 GrProtected::kNo, GrInternalSurfaceFlags::kNone);
         GrSwizzle swizzle = caps->getReadSwizzle(format, GrColorType::kRGBA_8888);
@@ -263,10 +263,10 @@ bool GrDrawingManager::ProgramUnitTest(GrDirectContext* direct, int maxStages, i
                     GrColorType::kRGBA_8888, kPremul_SkAlphaType};
     }
     {
-        static constexpr SkISize kDummyDims = {16, 22};
+        static constexpr SkISize kDims = {16, 22};
         const GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kAlpha_8,
                                                                      GrRenderable::kNo);
-        auto proxy = proxyProvider->createProxy(format, kDummyDims, GrRenderable::kNo, 1, mipMapped,
+        auto proxy = proxyProvider->createProxy(format, kDims, GrRenderable::kNo, 1, mipMapped,
                                                 SkBackingFit::kExact, SkBudgeted::kNo,
                                                 GrProtected::kNo, GrInternalSurfaceFlags::kNone);
         GrSwizzle swizzle = caps->getReadSwizzle(format, GrColorType::kAlpha_8);
@@ -275,7 +275,7 @@ bool GrDrawingManager::ProgramUnitTest(GrDirectContext* direct, int maxStages, i
     }
 
     if (!std::get<0>(views[0]) || !std::get<0>(views[1])) {
-        SkDebugf("Could not allocate dummy textures");
+        SkDebugf("Could not allocate textures for test");
         return false;
     }
 
