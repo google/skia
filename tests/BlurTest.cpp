@@ -386,6 +386,13 @@ DEF_TEST(BlurAsABlur, reporter) {
                     } else {
                         REPORTER_ASSERT(reporter, !success);
                     }
+
+                    const SkRect src = {0, 0, 100, 100};
+                    const auto dst = mf->approximateFilteredBounds(src);
+
+                    // This is a very conservative test. With more knowledge, we could
+                    // consider more stringent tests.
+                    REPORTER_ASSERT(reporter, dst.contains(src));
                 }
             }
         }

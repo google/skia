@@ -368,6 +368,12 @@ void SkMaskFilterBase::computeFastBounds(const SkRect& src, SkRect* dst) const {
     }
 }
 
+SkRect SkMaskFilter::approximateFilteredBounds(const SkRect& src) const {
+    SkRect dst;
+    as_MFB(this)->computeFastBounds(src, &dst);
+    return dst;
+}
+
 void SkMaskFilter::RegisterFlattenables() {
     sk_register_blur_maskfilter_createproc();
 #if SK_SUPPORT_GPU
