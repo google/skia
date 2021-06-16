@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
+/*
 #include "bench/Benchmark.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/core/SkPathPriv.h"
@@ -381,3 +381,4 @@ DEF_BENCH(return new TessPrepareBench(
         make_motionmark_paths, make_fixed_count_tessellator, ShaderFlags::kDynamicStroke, 1,
         "GrStrokeFixedCountTessellator_motionmark");
 )
+*/
