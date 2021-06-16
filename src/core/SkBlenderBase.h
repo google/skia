@@ -26,9 +26,6 @@ public:
         return this->onProgram(p, src, dst, colorInfo, uniforms, alloc);
     }
 
-    static SkFlattenable::Type GetFlattenableType() { return kSkBlender_Type; }
-    Type getFlattenableType() const override { return GetFlattenableType(); }
-
 private:
     virtual skvm::Color onProgram(skvm::Builder* p, skvm::Color src, skvm::Color dst,
                                   const SkColorInfo& colorInfo, skvm::Uniforms* uniforms,
