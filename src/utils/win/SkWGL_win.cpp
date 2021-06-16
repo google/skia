@@ -276,11 +276,6 @@ SkWGLExtensions::SkWGLExtensions() {
             SkASSERT(dummyGLRC);
             wglMakeCurrent(dummyDC, dummyGLRC);
 
-            #if defined(__clang__)
-                #pragma clang diagnostic push
-                #pragma clang diagnostic ignored "-Wcast-function-type"
-            #endif
-
             GET_PROC(GetExtensionsString, ARB);
             GET_PROC(ChoosePixelFormat, ARB);
             GET_PROC(GetPixelFormatAttribiv, ARB);
@@ -291,10 +286,6 @@ SkWGLExtensions::SkWGLExtensions() {
             GET_PROC(GetPbufferDC, ARB);
             GET_PROC(ReleasePbufferDC, ARB);
             GET_PROC(DestroyPbuffer, ARB);
-
-            #if defined(__clang__)
-                #pragma clang diagnostic pop
-            #endif
 
             wglMakeCurrent(dummyDC, nullptr);
             wglDeleteContext(dummyGLRC);
