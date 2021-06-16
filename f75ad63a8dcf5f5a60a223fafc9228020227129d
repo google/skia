@@ -1,0 +1,257 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2ca490b9_92483a01",
+        "filename": "gm/b_119394958.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-16T14:37:39Z",
+      "side": 1,
+      "message": "zero-width?",
+      "range": {
+        "startLine": 18,
+        "startChar": 18,
+        "endLine": 18,
+        "endChar": 29
+      },
+      "revId": "f75ad63a8dcf5f5a60a223fafc9228020227129d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3ede8735_8e4987bd",
+        "filename": "include/core/SkRect.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 533,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-16T14:37:39Z",
+      "side": 1,
+      "message": "We don\u0027t really need a named variable at all here:\n\n   SkIRect{}.intersect(a, b)",
+      "range": {
+        "startLine": 533,
+        "startChar": 15,
+        "endLine": 533,
+        "endChar": 16
+      },
+      "revId": "f75ad63a8dcf5f5a60a223fafc9228020227129d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "45e63b89_26e99c1d",
+        "filename": "src/gpu/GrSPIRVUniformHandler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-16T14:37:39Z",
+      "side": 1,
+      "message": "this is an in/out param, it\u0027s not ignored.\nHow about just `currentOffset`?",
+      "range": {
+        "startLine": 322,
+        "startChar": 13,
+        "endLine": 322,
+        "endChar": 20
+      },
+      "revId": "f75ad63a8dcf5f5a60a223fafc9228020227129d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2d0dcfa0_191944c3",
+        "filename": "src/ports/SkFontMgr_win_dw.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-16T14:37:39Z",
+      "side": 1,
+      "message": "This isn\u0027t ignored per se, we just don\u0027t care about it.\n\nHow about `fontFileReferenceKey` (the param name)",
+      "range": {
+        "startLine": 175,
+        "startChar": 11,
+        "endLine": 175,
+        "endChar": 18
+      },
+      "revId": "f75ad63a8dcf5f5a60a223fafc9228020227129d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3b50268b_fd62eadd",
+        "filename": "src/utils/win/SkWGL_win.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-16T14:37:39Z",
+      "side": 1,
+      "message": "Throughout this file in general, the \"placeholder window\" feels wrong TBH (and \"dummy window\" didn\u0027t feel that much better). We need a real window with sane pixelformats, etc., so we can look up GL procs. It\u0027s just a temporary ephemeral thing that we need.\n\ntemp_window? scratch_window?",
+      "range": {
+        "startLine": 177,
+        "startChar": 35,
+        "endLine": 177,
+        "endChar": 51
+      },
+      "revId": "f75ad63a8dcf5f5a60a223fafc9228020227129d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9278f715_1fddf268",
+        "filename": "src/utils/win/SkWGL_win.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-16T14:37:39Z",
+      "side": 1,
+      "message": "wnd",
+      "range": {
+        "startLine": 228,
+        "startChar": 37,
+        "endLine": 228,
+        "endChar": 48
+      },
+      "revId": "f75ad63a8dcf5f5a60a223fafc9228020227129d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3a81be2c_33793084",
+        "filename": "tests/DrawOpAtlasTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-16T14:37:39Z",
+      "side": 1,
+      "message": "Not exactly a no-op, it asserts if evict() is ever called",
+      "range": {
+        "startLine": 75,
+        "startChar": 6,
+        "endLine": 75,
+        "endChar": 15
+      },
+      "revId": "f75ad63a8dcf5f5a60a223fafc9228020227129d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e849f2f4_c071ae99",
+        "filename": "tests/PrimitiveProcessorTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-16T14:37:39Z",
+      "side": 1,
+      "message": "Test",
+      "range": {
+        "startLine": 36,
+        "startChar": 48,
+        "endLine": 36,
+        "endChar": 59
+      },
+      "revId": "f75ad63a8dcf5f5a60a223fafc9228020227129d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "56986055_85faabcc",
+        "filename": "tests/PrimitiveProcessorTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-16T14:37:39Z",
+      "side": 1,
+      "message": "Test",
+      "range": {
+        "startLine": 74,
+        "startChar": 56,
+        "endLine": 74,
+        "endChar": 67
+      },
+      "revId": "f75ad63a8dcf5f5a60a223fafc9228020227129d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8cabf37c_22f7aff9",
+        "filename": "tests/TestUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-16T14:37:39Z",
+      "side": 1,
+      "message": "kEmptyDiffs?",
+      "range": {
+        "startLine": 163,
+        "startChar": 31,
+        "endLine": 163,
+        "endChar": 48
+      },
+      "revId": "f75ad63a8dcf5f5a60a223fafc9228020227129d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "53036fe4_d4bac782",
+        "filename": "third_party/vulkanmemoryallocator/include/vk_mem_alloc.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 892,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-16T14:37:39Z",
+      "side": 1,
+      "message": "Probably we shouldn\u0027t change third_party",
+      "range": {
+        "startLine": 892,
+        "startChar": 24,
+        "endLine": 892,
+        "endChar": 25
+      },
+      "revId": "f75ad63a8dcf5f5a60a223fafc9228020227129d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
