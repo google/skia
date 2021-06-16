@@ -81,6 +81,29 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "e3a8ebac_ae43522d",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/PathBuilder.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-16T16:37:46Z",
+      "side": 1,
+      "message": "+\u003d INVERSE_EVEN_ODD\n\n(or we can leave off both INVERSE options for now)",
+      "range": {
+        "startLine": 33,
+        "startChar": 8,
+        "endLine": 33,
+        "endChar": 23
+      },
+      "revId": "bc71f6d57844e7cae39ae44bed15bbb5ce56a0f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "38a39f80_09806a03",
@@ -99,6 +122,29 @@
         "startChar": 47,
         "endLine": 41,
         "endChar": 56
+      },
+      "revId": "bc71f6d57844e7cae39ae44bed15bbb5ce56a0f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ab401b8a_c460df80",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/PathBuilder.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-16T16:37:46Z",
+      "side": 1,
+      "message": "May be premature, but the C++ side is very deliberate about the semantics here (hence the two methods)\n\n- snapshot --\u003e returns a path, but keeps the builder in its current state\n- detach --\u003e returns a path, and resets the builder to empty\n\nThere are (maybe minor) memory and perf differences, so we might expose them here, or at least be explicit about which behavior your \"makePath\" is following. (I think I would vote for the detach behavior if we only had one).",
+      "range": {
+        "startLine": 44,
+        "startChar": 16,
+        "endLine": 44,
+        "endChar": 24
       },
       "revId": "bc71f6d57844e7cae39ae44bed15bbb5ce56a0f8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
