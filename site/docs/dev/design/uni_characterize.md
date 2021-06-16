@@ -26,64 +26,67 @@ sequence between JS and the Browser.
 - Minimize # calls needed for a block of text
 - Homogenous arrays rather than sequence of objects
 
-Given this, implementations are encourged to use **Uint32Array** typed array buffer for the result.
-
-```WebIDL
-//  Bulk call to characterize the code-points in a string.
-//  This can return a number of different properties per code-point, so to maximize performance,
-//  it will only compute the requested properties requested (see optional boolean request fields).
+```js
+// Specifies which propties are wanted in a call to ComputeTextProperties()
 //
-interface TextProperties {
-    const unsigned long BidiLevelMask   = 31,       // 0..31 bidi level
+interface TextPropertiesMasks {
+    BidiLevel:      number;  // 63 for the low 6 bits
 
-    const unsigned long GraphemeBreak   = 1 << 5,
-    const unsigned long IntraWordBreak  = 1 << 6,
-    const unsigned long WordBreak       = 1 << 7,
-    const unsigned long SoftLineBreak   = 1 << 8,
-    const unsigned long HardLineBreak   = 1 << 9,
+    GraphemeBreak:  number;  // 1 << 6,
+    IntraWordBreak: nubmer;  // 1 << 7,
+    WordBreak:      number;  // 1 << 8,
+    SoftLineBreak:  number;  // 1 << 9,
+    HardLineBreak:  number;  // 1 << 10,
 
-    const unsigned long IsControl       = 1 << 10,
-    const unsigned long IsSpace         = 1 << 11,
-    const unsigned long IsWhiteSpace    = 1 << 12,
-
-    attribute boolean bidiLevel?;
-    attribute boolean graphemeBreak?;
-    attribute boolean wordBreak?;       // returns Word and IntraWord break properties
-    attribute boolean lineBreak?;       // returns Soft and Hard linebreak properties
-
-    attribute boolean isControl?;
-    attribute boolean isSpace?;
-    attribute boolean isWhiteSpace?;
-
-    // Returns an array the same length as the input string. Each returned value contains the
-    // bitfield results for the corresponding code-point in the string. For surrogate pairs
-    // in the input, the results will be in the first output value, and the 2nd output value
-    // will be zero.
-    //
-    // Bitfields that are currently unused, or which correspond to an Option attribute that
-    // was not requested, will be set to zero.
-    //
-    sequence<unsigned long> characterize(DOMString inputString,
-                                         DOMString bcp47?);
+    IsControl:      number;  // 1 << 11,
+    IsSpace:        number;  // 1 << 12,
+    IsWhiteSpace:   number;  // 1 << 13,
 }
+
+// These identify the bit-masks for the outputs of ComputeTextProperties()
+//
+interface TextPropertiesRequests {
+    bidiLevel:     boolean?;
+
+    graphemeBreak: boolean?;
+    wordBreak:     boolean?;       // returns Word and IntraWord break properties
+    lineBreak:     boolean?;       // returns Soft and Hard linebreak properties
+
+    isControl:     boolean?;
+    isSpace:       boolean?;
+    isWhiteSpace:  boolean?;
+}
+
+// Returns an array the same length as the input string. Each returned value contains the
+// bitfield results for the corresponding code-point in the string. For surrogate pairs
+// in the input, the results will be in the first output value, and the 2nd output value
+// will be zero.
+//
+// Bitfields that are currently unused, or which correspond to an Option attribute that
+// was not requested, will be set to zero.
+//
+ComputeTextProperties(requests: TextPropertiesRequests,
+                      text: string,
+                      bcp47: string?): Uint32Array;
 ```
 
 ## Example
 
 ```js
-const properties = {
+const requests = {
     isWhiteSpace: true,
     lineBreak: true,
 };
 
 const text = "Because I could not stop for Death\nHe kindly stopped for me";
 
-const results = properties.characterize(text);
+const results = ComputeTextProperties(requests, text);
 
 // expected results
 
-results[7,9,15,19,24,28,37,44,52,65] --> IsWhiteSpace | SoftLineBreak
-results[34] --> HardLineBreak
+results[7,9,15,19,24,28,37,44,52,65] --> TextPropertiesMasks.IsWhiteSpace |
+                                         TextPropertiesMasks.SoftLineBreak
+results[34] --> TextPropertiesMasks.HardLineBreak
 ```
 
 ## Related
