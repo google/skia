@@ -36,7 +36,7 @@ public:
 // GrMeshDrawOp::Target::putBackVertices.
 class GrEagerDynamicVertexAllocator : public GrEagerVertexAllocator {
 public:
-    GrEagerDynamicVertexAllocator(GrMeshDrawOp::Target* target,
+    GrEagerDynamicVertexAllocator(Target2* target,
                                   sk_sp<const GrBuffer>* vertexBuffer,
                                   int* baseVertex)
             : fTarget(target)

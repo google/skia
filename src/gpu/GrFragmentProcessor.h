@@ -258,7 +258,7 @@ public:
      */
     bool isEqual(const GrFragmentProcessor& that) const;
 
-    void visitProxies(const GrOp::VisitProxyFunc& func) const;
+    void visitProxies(const GrVisitProxyFunc& func) const;
 
     void visitTextureEffects(const std::function<void(const GrTextureEffect&)>&) const;
 

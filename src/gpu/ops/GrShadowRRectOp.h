@@ -8,6 +8,7 @@
 #ifndef GrShadowRRectOp_DEFINED
 #define GrShadowRRectOp_DEFINED
 
+#if 0
 #include <memory>
 #include "src/gpu/GrColor.h"
 #include "src/gpu/ops/GrOp.h"
@@ -27,5 +28,6 @@ GrOp::Owner Make(GrRecordingContext*,
                  SkScalar blurWidth,
                  SkScalar insetWidth);
 }  // namespace GrShadowRRectOp
+#endif
 
 #endif

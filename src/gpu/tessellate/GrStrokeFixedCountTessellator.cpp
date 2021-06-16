@@ -25,7 +25,7 @@ class InstanceWriter {
 public:
     using ShaderFlags = GrStrokeTessellator::ShaderFlags;
 
-    InstanceWriter(ShaderFlags shaderFlags, GrMeshDrawOp::Target* target, float matrixMaxScale,
+    InstanceWriter(ShaderFlags shaderFlags, Target2* target, float matrixMaxScale,
                    const SkRect& strokeCullBounds, const SkMatrix& viewMatrix,
                    GrVertexChunkArray* patchChunks, size_t instanceStride, int minInstancesPerChunk)
             : fShaderFlags(shaderFlags)
