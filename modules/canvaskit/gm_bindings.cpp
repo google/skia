@@ -252,6 +252,7 @@ static JSObject RunTest(std::string name) {
     if (test.needsGpu) {
         result.set("result", "passed"); // default to passing - the reporter will mark failed.
         WasmReporter reporter(name, result);
+        test.modifyGrContextOptions(&grOpts);
         test.run(&reporter, grOpts);
         return result;
     }
