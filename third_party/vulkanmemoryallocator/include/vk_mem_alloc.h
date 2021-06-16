@@ -889,7 +889,7 @@ for(uint32_t i = 0; i < allocCount; ++i)
         VkBufferCreateInfo bufferInfo = ...;
         vkCreateBuffer(device, &bufferInfo, nullptr, &buffers[i]);
             
-        // You can make dummy call to vkGetBufferMemoryRequirements here to silence validation layer warning.
+        // You can make a call to vkGetBufferMemoryRequirements here to silence validation layer warning.
             
         // Bind new buffer to new memory region. Data contained in it is already moved.
         VmaAllocationInfo allocInfo;
@@ -967,7 +967,7 @@ for(uint32_t i = 0; i < allocCount; ++i)
         VkBufferCreateInfo bufferInfo = ...;
         vkCreateBuffer(device, &bufferInfo, nullptr, &buffers[i]);
             
-        // You can make dummy call to vkGetBufferMemoryRequirements here to silence validation layer warning.
+        // You can make a call to vkGetBufferMemoryRequirements here to silence validation layer warning.
             
         // Bind new buffer to new memory region. Data contained in it is already moved.
         VmaAllocationInfo allocInfo;
@@ -1130,7 +1130,7 @@ images. This is still valid as long as you implement proper handling of lost
 allocations (like in the example above) and don't use them.
 
 You can create an allocation that is already in lost state from the beginning using function
-vmaCreateLostAllocation(). It may be useful if you need a "dummy" allocation that is not null.
+vmaCreateLostAllocation(). It may be useful if you need a placeholder allocation that is not null.
 
 You can call function vmaMakePoolAllocationsLost() to set all eligible allocations
 in a specified custom pool to lost state.
@@ -2804,7 +2804,7 @@ VMA_CALL_PRE VkResult VMA_CALL_POST vmaFindMemoryTypeIndex(
 \brief Helps to find memoryTypeIndex, given VkBufferCreateInfo and VmaAllocationCreateInfo.
 
 It can be useful e.g. to determine value to be used as VmaPoolCreateInfo::memoryTypeIndex.
-It internally creates a temporary, dummy buffer that never has memory bound.
+It internally creates a temporary buffer that never has memory bound.
 It is just a convenience function, equivalent to calling:
 
 - `vkCreateBuffer`
@@ -2822,7 +2822,7 @@ VMA_CALL_PRE VkResult VMA_CALL_POST vmaFindMemoryTypeIndexForBufferInfo(
 \brief Helps to find memoryTypeIndex, given VkImageCreateInfo and VmaAllocationCreateInfo.
 
 It can be useful e.g. to determine value to be used as VmaPoolCreateInfo::memoryTypeIndex.
-It internally creates a temporary, dummy image that never has memory bound.
+It internally creates a temporary image that never has memory bound.
 It is just a convenience function, equivalent to calling:
 
 - `vkCreateImage`
@@ -3273,7 +3273,7 @@ VMA_CALL_PRE void VMA_CALL_POST vmaSetAllocationUserData(
 
 /** \brief Creates new allocation that is in lost state from the beginning.
 
-It can be useful if you need a dummy, non-null allocation.
+It can be useful if you need a placeholder, non-null allocation.
 
 You still need to destroy created object using vmaFreeMemory().
 
@@ -17228,15 +17228,15 @@ void VmaAllocator_T::FreeDedicatedMemory(const VmaAllocation allocation)
 
 uint32_t VmaAllocator_T::CalculateGpuDefragmentationMemoryTypeBits() const
 {
-    VkBufferCreateInfo dummyBufCreateInfo;
-    VmaFillGpuDefragmentationBufferCreateInfo(dummyBufCreateInfo);
+    VkBufferCreateInfo ignoredBufCreateInfo;
+    VmaFillGpuDefragmentationBufferCreateInfo(ignoredBufCreateInfo);
 
     uint32_t memoryTypeBits = 0;
 
     // Create buffer.
     VkBuffer buf = VK_NULL_HANDLE;
     VkResult res = (*GetVulkanFunctions().vkCreateBuffer)(
-        m_hDevice, &dummyBufCreateInfo, GetAllocationCallbacks(), &buf);
+        m_hDevice, &ignoredBufCreateInfo, GetAllocationCallbacks(), &buf);
     if(res == VK_SUCCESS)
     {
         // Query for supported memory types.

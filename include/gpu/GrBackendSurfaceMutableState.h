@@ -78,7 +78,7 @@ private:
 #endif
 
     union {
-        char fDummy;
+        char fPlaceholder;
 #ifdef SK_VULKAN
         GrVkSharedImageInfo fVkState;
 #endif

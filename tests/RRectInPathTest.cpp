@@ -100,14 +100,14 @@ static void force_path_contains_rrect(skiatest::Reporter* reporter, SkPath& path
 }
 
 static void test_undetected_paths(skiatest::Reporter* reporter) {
-    // We use a dummy path to get the exact conic weight used by SkPath for a circular arc. This
+    // We first get the exact conic weight used by SkPath for a circular arc. This
     // allows our local, hand-crafted, artisanal round rect paths below to exactly match the
     // factory made corporate paths produced by SkPath.
-    SkPath dummyPath;
-    dummyPath.addCircle(0, 0, 10);
-    REPORTER_ASSERT(reporter, SkPath::kMove_Verb == SkPathPriv::VerbData(dummyPath)[0]);
-    REPORTER_ASSERT(reporter, SkPath::kConic_Verb == SkPathPriv::VerbData(dummyPath)[1]);
-    const SkScalar weight = SkPathPriv::ConicWeightData(dummyPath)[0];
+    SkPath exactPath;
+    exactPath.addCircle(0, 0, 10);
+    REPORTER_ASSERT(reporter, SkPath::kMove_Verb == SkPathPriv::VerbData(exactPath)[0]);
+    REPORTER_ASSERT(reporter, SkPath::kConic_Verb == SkPathPriv::VerbData(exactPath)[1]);
+    const SkScalar weight = SkPathPriv::ConicWeightData(exactPath)[0];
 
     SkPath path;
     path.moveTo(0, 62.5f);

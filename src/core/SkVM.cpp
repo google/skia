@@ -2966,7 +2966,7 @@ namespace skvm {
         fImpl->loop = 0;
         fImpl->instructions.reserve(instructions.size());
 
-        // Add a dummy mapping for the N/A sentinel Val to any arbitrary register
+        // Add a mapping for the N/A sentinel Val to any arbitrary register
         // so lookups don't have to know which arguments are used by which Ops.
         auto lookup_register = [&](Val id) {
             return id == NA ? (Reg)0

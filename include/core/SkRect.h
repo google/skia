@@ -529,8 +529,8 @@ struct SK_API SkIRect {
         @return   true if a and b have area in common
     */
     static bool Intersects(const SkIRect& a, const SkIRect& b) {
-        SkIRect dummy;
-        return dummy.intersect(a, b);
+        SkIRect r;
+        return r.intersect(a, b);
     }
 
     /** Sets SkIRect to the union of itself and r.
