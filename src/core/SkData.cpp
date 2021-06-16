@@ -81,7 +81,7 @@ sk_sp<SkData> SkData::PrivateNewWithCopy(const void* srcOrNull, size_t length) {
     return data;
 }
 
-void SkData::DummyReleaseProc(const void*, void*) {}
+void SkData::NoopReleaseProc(const void*, void*) {}
 
 ///////////////////////////////////////////////////////////////////////////////
 

@@ -72,7 +72,7 @@ void GrDrawOpAtlas::setMaxPages_TestingOnly(uint32_t maxPages) {
     fMaxPages = maxPages;
 }
 
-class DummyEvict : public GrDrawOpAtlas::EvictionCallback {
+class AssertOnEvict : public GrDrawOpAtlas::EvictionCallback {
 public:
     void evict(GrDrawOpAtlas::PlotLocator) override {
         SkASSERT(0); // The unit test shouldn't exercise this code path
@@ -144,7 +144,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BasicDrawOpAtlas, reporter, ctxInfo) {
     GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kAlpha_8,
                                                            GrRenderable::kNo);
 
-    DummyEvict evictor;
+    AssertOnEvict evictor;
     GrDrawOpAtlas::GenerationCounter counter;
 
     std::unique_ptr<GrDrawOpAtlas> atlas = GrDrawOpAtlas::Make(

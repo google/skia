@@ -1741,7 +1741,7 @@ void test_rrect(skiatest::Reporter* r, const SkRRect& rrect) {
     Key exampleInvHairlineCaseKey;
     make_key(&exampleInvHairlineCaseKey, exampleInvHairlineCase);
 
-    // These are dummy initializations to suppress warnings.
+    // These initializations suppress warnings.
     SkRRect queryRR = SkRRect::MakeEmpty();
     SkPathDirection queryDir = SkPathDirection::kCW;
     unsigned queryStart = ~0U;

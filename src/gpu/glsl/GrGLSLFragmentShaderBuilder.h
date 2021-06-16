@@ -24,7 +24,7 @@ public:
     /** Appease the compiler; the derived class initializes GrGLSLShaderBuilder. */
     GrGLSLFPFragmentBuilder() : GrGLSLShaderBuilder(nullptr) {
         // Suppress unused warning error
-        (void) fDummyPadding;
+        (void) fPadding;
     }
 
     enum class ScopeFlags {
@@ -61,7 +61,7 @@ private:
     // to start aligned, even though clang is already correctly offsetting the individual fields
     // that require the larger alignment. In the current world, this extra padding is sufficient to
     // correctly initialize GrGLSLXPFragmentBuilder second.
-    char fDummyPadding[4] = {};
+    char fPadding[4] = {};
 };
 
 GR_MAKE_BITFIELD_CLASS_OPS(GrGLSLFPFragmentBuilder::ScopeFlags);

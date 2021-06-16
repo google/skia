@@ -301,7 +301,7 @@ public:
         SkImageInfo imageInfo = SkImageInfo::Make({fWidth, fHeight},
                                                   {fColorType, kPremul_SkAlphaType, fColorSpace});
         GrVkDrawableInfo vkInfo;
-        // putting in a bunch of dummy values here
+        // putting in a bunch of placeholder values here
         vkInfo.fSecondaryCommandBuffer = (VkCommandBuffer)1;
         vkInfo.fColorAttachmentIndex = 0;
         vkInfo.fCompatibleRenderPass = (VkRenderPass)1;
@@ -1167,7 +1167,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLMultipleDDLs, reporter, ctxInfo) {
 
 #ifdef SK_GL
 
-static sk_sp<SkPromiseImageTexture> dummy_fulfill_proc(void*) {
+static sk_sp<SkPromiseImageTexture> noop_fulfill_proc(void*) {
     SkASSERT(0);
     return nullptr;
 }
@@ -1199,7 +1199,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DDLTextureFlagsTest, reporter, ctxInfo) {
                     kRGBA_8888_SkColorType,
                     kPremul_SkAlphaType,
                     /*color space*/nullptr,
-                    dummy_fulfill_proc,
+                    noop_fulfill_proc,
                     /*release proc*/ nullptr,
                     /*context*/nullptr);
             if (GR_GL_TEXTURE_2D != target && mipMapped == GrMipmapped::kYes) {
