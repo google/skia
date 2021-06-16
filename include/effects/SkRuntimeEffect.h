@@ -21,6 +21,7 @@
 #include <vector>
 
 class GrRecordingContext;
+class SkBlender;
 class SkFilterColorProgram;
 class SkImage;
 
@@ -120,6 +121,10 @@ public:
     // Most shaders don't use the input color, so that parameter is optional.
     static Result MakeForShader(SkString sksl, const Options&);
 
+    // Blend SkSL requires an entry point that looks like:
+    //     vec4 main(vec4 srcColor, vec4 dstColor) { ... }
+    static Result MakeForBlender(SkString sksl, const Options&);
+
     // We can't use a default argument for `options` due to a bug in Clang.
     // https://bugs.llvm.org/show_bug.cgi?id=36684
     static Result MakeForColorFilter(SkString sksl) {
@@ -128,10 +133,15 @@ public:
     static Result MakeForShader(SkString sksl) {
         return MakeForShader(std::move(sksl), Options{});
     }
+    static Result MakeForBlender(SkString sksl) {
+        return MakeForBlender(std::move(sksl), Options{});
+    }
 
     static Result MakeForColorFilter(std::unique_ptr<SkSL::Program> program);
 
     static Result MakeForShader(std::unique_ptr<SkSL::Program> program);
+
+    static Result MakeForBlender(std::unique_ptr<SkSL::Program> program);
 
     // Object that allows passing either an SkShader or SkColorFilter as a child
     struct ChildPtr {
@@ -165,6 +175,8 @@ public:
                                          size_t childCount) const;
     sk_sp<SkColorFilter> makeColorFilter(sk_sp<SkData> uniforms,
                                          SkSpan<ChildPtr> children) const;
+
+    sk_sp<SkBlender> makeBlender(sk_sp<SkData> uniforms) const;
 
     const SkString& source() const { return fSkSL; }
 
