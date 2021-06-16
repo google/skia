@@ -292,7 +292,7 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
     } else if (inputPath.ends_with(".fp")) {
         kind = SkSL::ProgramKind::kFragmentProcessor;
     } else if (inputPath.ends_with(".rtb")) {
-        kind = SkSL::ProgramKind::kRuntimeBlendFilter;
+        kind = SkSL::ProgramKind::kRuntimeBlender;
     } else if (inputPath.ends_with(".rtcf")) {
         kind = SkSL::ProgramKind::kRuntimeColorFilter;
     } else if (inputPath.ends_with(".rts")) {
