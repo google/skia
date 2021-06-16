@@ -52,6 +52,24 @@
       "parentUuid": "3ef625f1_cb08c978",
       "revId": "0e3ee7abaa5cfb6beb331edf96a007255a48359d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "44ffd4ca_81a3a91e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 35
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-16T15:03:30Z",
+      "side": 1,
+      "message": "I\u0027m just asking because I feel like it would be valuable to see what happens to the test suite when running skslc over it with the new parser. Even if we get some failures, that will help guide review IMO.",
+      "parentUuid": "5d18988d_34b12ccd",
+      "revId": "0e3ee7abaa5cfb6beb331edf96a007255a48359d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
