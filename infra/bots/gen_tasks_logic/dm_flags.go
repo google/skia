@@ -179,7 +179,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	glPrefix := ""
 	if b.extraConfig("SwiftShader") {
 		configs = append(configs, "gles", "glesdft")
-		args = append(args, "--disableDriverCorrectnessWorkarounds")
 	} else if b.cpu() {
 		args = append(args, "--nogpu")
 
