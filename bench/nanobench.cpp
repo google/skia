@@ -1406,7 +1406,12 @@ int main(int argc, char** argv) {
             const bool want_plot = !FLAGS_quiet;
 
             Stats stats(samples, want_plot);
+
+
             log.beginObject(config);
+            if (config == nullptr) {
+                exit(1);
+            }
 
             log.beginObject("options");
             log.appendString("name", bench->getName());
