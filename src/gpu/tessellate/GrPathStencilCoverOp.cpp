@@ -63,7 +63,7 @@ GrGLSLGeometryProcessor* BoundingBoxShader::createGLSLInstance(const GrShaderCap
 
 }  // namespace
 
-void GrPathStencilCoverOp::visitProxies(const VisitProxyFunc& fn) const {
+void GrPathStencilCoverOp::visitProxies(const GrVisitProxyFunc& fn) const {
     if (fCoverBBoxProgram) {
         fCoverBBoxProgram->pipeline().visitProxies(fn);
     } else {
