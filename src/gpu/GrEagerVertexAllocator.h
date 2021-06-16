@@ -11,6 +11,8 @@
 #include "src/gpu/GrThreadSafeCache.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 
+class Target2;
+
 // This interface is used to allocate and map GPU vertex data before the exact number of required
 // vertices is known. Usage pattern:
 //
@@ -36,7 +38,7 @@ public:
 // GrMeshDrawOp::Target::putBackVertices.
 class GrEagerDynamicVertexAllocator : public GrEagerVertexAllocator {
 public:
-    GrEagerDynamicVertexAllocator(GrMeshDrawOp::Target* target,
+    GrEagerDynamicVertexAllocator(Target2* target,
                                   sk_sp<const GrBuffer>* vertexBuffer,
                                   int* baseVertex)
             : fTarget(target)

@@ -116,9 +116,9 @@ public:
 #ifdef SK_DEBUG
     virtual int numClips() const { return 0; }
 
-    virtual void visitProxies_debugOnly(const GrOp::VisitProxyFunc&) const = 0;
+    virtual void visitProxies_debugOnly(const GrVisitProxyFunc&) const = 0;
 
-    void visitTargetAndSrcProxies_debugOnly(const GrOp::VisitProxyFunc& fn) const {
+    void visitTargetAndSrcProxies_debugOnly(const GrVisitProxyFunc& fn) const {
         this->visitProxies_debugOnly(fn);
         for (const sk_sp<GrSurfaceProxy>& target : fTargets) {
             fn(target.get(), GrMipmapped::kNo);

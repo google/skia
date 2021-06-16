@@ -10,6 +10,7 @@
 
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrGeometryProcessor.h"
+#include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
