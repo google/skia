@@ -34,6 +34,23 @@
       "parentUuid": "3a149221_04c34587",
       "revId": "3d5483a5474521b52896410c6648fe2513d47a4d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "17fa1939_8e4aac26",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-16T14:06:11Z",
+      "side": 1,
+      "message": "can we see these warnings on most/all of our bots, or only on android?",
+      "revId": "3d5483a5474521b52896410c6648fe2513d47a4d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
