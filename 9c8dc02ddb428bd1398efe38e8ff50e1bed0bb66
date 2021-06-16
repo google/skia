@@ -67,6 +67,24 @@
       "message": "Even if this produces PDFs that don\u0027t look great in Pdfium, we should prioritize creating correct PDFs. We have opened a Pdfium issue and it would be best to create correct PDFs so that when Pdfium is fixed things look better instead of worse.\n\nLGTM with a better commit message.",
       "revId": "9c8dc02ddb428bd1398efe38e8ff50e1bed0bb66",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0a43c95a_f522f421",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-16T12:36:49Z",
+      "side": 1,
+      "message": "That fits the bug\u0027s premise -- that pdfium had a bug already.\n\nI\u0027ll try to find our analog on that side to see what they think.",
+      "parentUuid": "7813a564_797e824f",
+      "revId": "9c8dc02ddb428bd1398efe38e8ff50e1bed0bb66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
