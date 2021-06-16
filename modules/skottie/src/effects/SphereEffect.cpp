@@ -359,7 +359,7 @@ private:
         };
 
         const auto light_vec = [](float height, float direction) {
-            float z = std::sin(height * SK_ScalarPI / 2),
+            float z = std::sin(height * SK_FloatPI / 2),
                   r = std::sqrt(1 - z*z),
                   x = std::cos(direction) * r,
                   y = std::sin(direction) * r;

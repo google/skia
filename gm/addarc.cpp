@@ -280,7 +280,7 @@ DEF_SIMPLE_GM(tinyanglearcs, canvas, 620, 330) {
         SkScalar innerRadius = outerRadius - 20.0f;
         SkScalar centerX = 50;
         SkScalar centerY = outerRadius;
-        SkScalar startAngles[] = { 1.5f * SK_ScalarPI , 1.501f * SK_ScalarPI  };
+        SkScalar startAngles[] = { 1.5f * SK_FloatPI , 1.501f * SK_FloatPI  };
         SkScalar sweepAngle = 10.0f / outerRadius;
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(startAngles); ++i) {
@@ -292,12 +292,12 @@ DEF_SIMPLE_GM(tinyanglearcs, canvas, 620, 330) {
                         centerY + outerRadius * sk_float_sin(startAngles[i]));
             // A combination of tiny sweepAngle + large radius, we should draw a line.
             html_canvas_arc(&path, centerX, outerRadius, outerRadius,
-                            startAngles[i] * 180 / SK_ScalarPI, endAngle * 180 / SK_ScalarPI,
+                            startAngles[i] * 180 / SK_FloatPI, endAngle * 180 / SK_FloatPI,
                             true, true);
             path.lineTo(centerX + innerRadius * sk_float_cos(endAngle),
                         centerY + innerRadius * sk_float_sin(endAngle));
             html_canvas_arc(&path, centerX, outerRadius, innerRadius,
-                            endAngle * 180 / SK_ScalarPI, startAngles[i] * 180 / SK_ScalarPI,
+                            endAngle * 180 / SK_FloatPI, startAngles[i] * 180 / SK_FloatPI,
                             true, false);
             canvas->drawPath(path.detach(), paint);
             canvas->translate(20, 0);

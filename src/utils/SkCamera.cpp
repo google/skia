@@ -204,15 +204,15 @@ void Sk3DView::translate(SkScalar x, SkScalar y, SkScalar z) {
 }
 
 void Sk3DView::rotateX(SkScalar deg) {
-    fRec->fMatrix.preConcat(SkM44::Rotate({1, 0, 0}, deg * SK_ScalarPI / 180));
+    fRec->fMatrix.preConcat(SkM44::Rotate({1, 0, 0}, deg * SK_FloatPI / 180));
 }
 
 void Sk3DView::rotateY(SkScalar deg) {
-    fRec->fMatrix.preConcat(SkM44::Rotate({0,-1, 0}, deg * SK_ScalarPI / 180));
+    fRec->fMatrix.preConcat(SkM44::Rotate({0,-1, 0}, deg * SK_FloatPI / 180));
 }
 
 void Sk3DView::rotateZ(SkScalar deg) {
-    fRec->fMatrix.preConcat(SkM44::Rotate({0, 0, 1}, deg * SK_ScalarPI / 180));
+    fRec->fMatrix.preConcat(SkM44::Rotate({0, 0, 1}, deg * SK_FloatPI / 180));
 }
 
 SkScalar Sk3DView::dotWithNormal(SkScalar x, SkScalar y, SkScalar z) const {

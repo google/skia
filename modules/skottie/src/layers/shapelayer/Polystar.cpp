@@ -42,7 +42,7 @@ private:
     void onSync() override {
         static constexpr int kMaxPointCount = 100000;
         const auto count = SkToUInt(SkTPin(SkScalarRoundToInt(fPointCount), 0, kMaxPointCount));
-        const auto arc   = sk_ieee_float_divide(SK_ScalarPI * 2, count);
+        const auto arc   = sk_ieee_float_divide(SK_FloatPI * 2, count);
 
         const auto pt_on_circle = [](const SkV2& c, SkScalar r, SkScalar a) {
             return SkPoint::Make(c.x + r * std::cos(a),

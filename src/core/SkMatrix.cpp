@@ -1858,7 +1858,7 @@ SkScalar SkMatrixPriv::DifferentialAreaScale(const SkMatrix& m, const SkPoint& p
 
     if (xyw.fZ < SK_ScalarNearlyZero) {
         // Reaching the discontinuity of xy/w and where the point would clip to w >= 0
-        return SK_ScalarInfinity;
+        return SK_FloatInfinity;
     }
     SkMatrix jacobian = SkMatrix::MakeAll(xyw.fX, xyw.fY, xyw.fZ,
                                           m.getScaleX(), m.getSkewY(), m.getPerspX(),

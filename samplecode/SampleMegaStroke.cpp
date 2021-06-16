@@ -51,8 +51,8 @@ protected:
 
         SkPaint divSimPaint;
         divSimPaint.setColor(SK_ColorBLUE);
-	    SkScalar x = SkScalarSin(fAngle * SK_ScalarPI / 180) * 200 + 250;
-	    SkScalar y = SkScalarCos(fAngle * SK_ScalarPI / 180) * 200 + 250;
+	    SkScalar x = SkScalarSin(fAngle * SK_FloatPI / 180) * 200 + 250;
+	    SkScalar y = SkScalarCos(fAngle * SK_FloatPI / 180) * 200 + 250;
 
         if ((fPlusMinus ^= 1)) {
             fAngle += 5;

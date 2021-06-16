@@ -23,7 +23,7 @@ protected:
     SkString name() override { return SkString("StringArt"); }
 
     void onDrawContent(SkCanvas* canvas) override {
-        SkScalar angle = fAngle*SK_ScalarPI + SkScalarHalf(SK_ScalarPI);
+        SkScalar angle = fAngle*SK_FloatPI + SkScalarHalf(SK_FloatPI);
 
         SkPoint center = SkPoint::Make(SkScalarHalf(this->width()), SkScalarHalf(this->height()));
         SkScalar length = 5;
@@ -37,7 +37,7 @@ protected:
             SkPoint rp = SkPoint::Make(length*SkScalarCos(step) + center.fX,
                                        length*SkScalarSin(step) + center.fY);
             path.lineTo(rp);
-            length += angle / SkScalarHalf(SK_ScalarPI);
+            length += angle / SkScalarHalf(SK_FloatPI);
             step += angle;
         }
         path.close();

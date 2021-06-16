@@ -109,11 +109,11 @@ struct SkPathOpsDebug::GlitchLog {
         glitch->fEndSpan = nullptr;
         glitch->fOppSpan = nullptr;
         glitch->fOppEndSpan = nullptr;
-        glitch->fStartT = SK_ScalarNaN;
-        glitch->fEndT = SK_ScalarNaN;
-        glitch->fOppStartT = SK_ScalarNaN;
-        glitch->fOppEndT = SK_ScalarNaN;
-        glitch->fPt = { SK_ScalarNaN, SK_ScalarNaN };
+        glitch->fStartT = SK_FloatNaN;
+        glitch->fEndT = SK_FloatNaN;
+        glitch->fOppStartT = SK_FloatNaN;
+        glitch->fOppEndT = SK_FloatNaN;
+        glitch->fPt = { SK_FloatNaN, SK_FloatNaN };
         glitch->fType = type;
         return glitch;
     }
@@ -713,7 +713,7 @@ void SkDConic::debugSet(const SkDPoint* pts, SkScalar weight) {
 }
 
 void SkDRect::debugInit() {
-    fLeft = fTop = fRight = fBottom = SK_ScalarNaN;
+    fLeft = fTop = fRight = fBottom = SK_FloatNaN;
 }
 
 #include "src/pathops/SkOpAngle.h"

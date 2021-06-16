@@ -40,16 +40,16 @@ static void test_isRectFinite(skiatest::Reporter* reporter) {
     };
 
     static const SkPoint gI0[] = {
-        { 0, 0 }, { 1, 1 }, { 99.234f, -42342 }, { SK_ScalarNaN, 3 }, { 2, 3 },
+        { 0, 0 }, { 1, 1 }, { 99.234f, -42342 }, { SK_FloatNaN, 3 }, { 2, 3 },
     };
     static const SkPoint gI1[] = {
-        { 0, 0 }, { 1, 1 }, { 99.234f, -42342 }, { 3, SK_ScalarNaN }, { 2, 3 },
+        { 0, 0 }, { 1, 1 }, { 99.234f, -42342 }, { 3, SK_FloatNaN }, { 2, 3 },
     };
     static const SkPoint gI2[] = {
-        { 0, 0 }, { 1, 1 }, { 99.234f, -42342 }, { SK_ScalarInfinity, 3 }, { 2, 3 },
+        { 0, 0 }, { 1, 1 }, { 99.234f, -42342 }, { SK_FloatInfinity, 3 }, { 2, 3 },
     };
     static const SkPoint gI3[] = {
-        { 0, 0 }, { 1, 1 }, { 99.234f, -42342 }, { 3, SK_ScalarInfinity }, { 2, 3 },
+        { 0, 0 }, { 1, 1 }, { 99.234f, -42342 }, { 3, SK_FloatInfinity }, { 2, 3 },
     };
 
     static const struct {

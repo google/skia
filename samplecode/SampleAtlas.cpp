@@ -110,7 +110,7 @@ class DrawAtlasDrawable : public SkDrawable {
             }
 
             fRadian += fDRadian;
-            fRadian = SkScalarMod(fRadian, 2 * SK_ScalarPI);
+            fRadian = SkScalarMod(fRadian, 2 * SK_FloatPI);
 
             fAlpha += fDAlpha;
             if (fAlpha > 1) {

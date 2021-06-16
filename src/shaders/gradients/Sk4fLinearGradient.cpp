@@ -265,7 +265,7 @@ public:
                             SkScalar fx,
                             SkScalar dx,
                             bool is_vertical)
-        : fAdvX(is_vertical ? SK_ScalarInfinity : (i->fT1 - fx) / dx)
+        : fAdvX(is_vertical ? SK_FloatInfinity : (i->fT1 - fx) / dx)
         , fFirstInterval(firstInterval)
         , fLastInterval(lastInterval)
         , fInterval(i)
@@ -327,7 +327,7 @@ private:
     }
 
     void init_average_props() {
-        fAdvX     = SK_ScalarInfinity;
+        fAdvX     = SK_FloatInfinity;
         fZeroRamp = true;
         fDcDx     = 0;
         fCc       = Sk4f(0);

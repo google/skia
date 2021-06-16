@@ -97,7 +97,7 @@ DEF_TEST(Rect_grow, reporter) {
 }
 
 DEF_TEST(Rect_path_nan, reporter) {
-    SkRect r = { 0, 0, SK_ScalarNaN, 100 };
+    SkRect r = { 0, 0, SK_FloatNaN, 100 };
     SkPath p;
     p.addRect(r);
     // path normally just jams its bounds to be r, but it must notice that r is non-finite
@@ -119,10 +119,10 @@ DEF_TEST(Rect_largest, reporter) {
  *  - setBoundsNoCheck should ensure that rect.isFinite() is false (definitely NOT all zeros)
  */
 DEF_TEST(Rect_setbounds, reporter) {
-    const SkPoint p0[] = { { SK_ScalarInfinity, 0 }, { 1, 1 }, { 2, 2 }, { 3, 3 } };
-    const SkPoint p1[] = { { 0, SK_ScalarInfinity }, { 1, 1 }, { 2, 2 }, { 3, 3 } };
-    const SkPoint p2[] = { { SK_ScalarNaN, 0 }, { 1, 1 }, { 2, 2 }, { 3, 3 } };
-    const SkPoint p3[] = { { 0, SK_ScalarNaN }, { 1, 1 }, { 2, 2 }, { 3, 3 } };
+    const SkPoint p0[] = { { SK_FloatInfinity, 0 }, { 1, 1 }, { 2, 2 }, { 3, 3 } };
+    const SkPoint p1[] = { { 0, SK_FloatInfinity }, { 1, 1 }, { 2, 2 }, { 3, 3 } };
+    const SkPoint p2[] = { { SK_FloatNaN, 0 }, { 1, 1 }, { 2, 2 }, { 3, 3 } };
+    const SkPoint p3[] = { { 0, SK_FloatNaN }, { 1, 1 }, { 2, 2 }, { 3, 3 } };
 
     SkRect r;
     const SkRect zeror = { 0, 0, 0, 0 };

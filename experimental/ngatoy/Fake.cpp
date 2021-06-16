@@ -53,7 +53,7 @@ SkColor FakePaint::evalColor(int x, int y) const {
         case Type::kNormal: return fColor0;
         case Type::kLinear: {
             float t = SK_ScalarRoot2Over2 * x + SK_ScalarRoot2Over2 * y;
-            t /= SK_ScalarSqrt2 * 256.0f;
+            t /= SK_FloatSqrt2 * 256.0f;
             return blend(t, fColor0, fColor1);
         }
         case Type::kRadial: {

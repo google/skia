@@ -363,7 +363,7 @@ public:
         SkASSERT(paint.getStyle() == SkPaint::kStrokeAndFill_Style);
         // Converted to an outset rectangle or round rect
         return (paint.getStrokeJoin() == SkPaint::kMiter_Join &&
-                paint.getStrokeMiter() >= SK_ScalarSqrt2) ||
+                paint.getStrokeMiter() >= SK_FloatSqrt2) ||
                paint.getStrokeJoin() == SkPaint::kRound_Join;
     }
 

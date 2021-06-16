@@ -514,7 +514,7 @@ double SkOpSegment::distSq(double t, const SkOpAngle* oppAngle) const {
     SkIntersections i;
     const SkOpSegment* oppSegment = oppAngle->segment();
     (*CurveIntersectRay[oppSegment->verb()])(oppSegment->pts(), oppSegment->weight(), testPerp, &i);
-    double closestDistSq = SK_ScalarInfinity;
+    double closestDistSq = SK_FloatInfinity;
     for (int index = 0; index < i.used(); ++index) {
         if (!between(oppAngle->start()->t(), i[0][index], oppAngle->end()->t())) {
             continue;

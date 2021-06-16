@@ -257,7 +257,7 @@ static void test_conic_to_quads(skiatest::Reporter* reporter) {
             w *= 2;
             test_this_conic_to_quad(reporter, pts, w);
         } while (SkScalarIsFinite(w));
-        test_this_conic_to_quad(reporter, pts, SK_ScalarNaN);
+        test_this_conic_to_quad(reporter, pts, SK_FloatNaN);
     }
 }
 
@@ -485,22 +485,22 @@ static void test_chop_cubic_at_midtangent(skiatest::Reporter* reporter, const Sk
         float leftRotation = SkMeasureNonInflectCubicRotation(chopped);
         float rightRotation = SkMeasureNonInflectCubicRotation(chopped+3);
         if (cubicType == SkCubicType::kLineOrPoint &&
-            (SkScalarNearlyEqual(fullRotation, 2*SK_ScalarPI, kTolerance) ||
+            (SkScalarNearlyEqual(fullRotation, 2*SK_FloatPI, kTolerance) ||
              SkScalarNearlyEqual(fullRotation, 0, kTolerance))) {
             // 0- and 360-degree flat lines don't have single points of midtangent.
             // (tangent == midtangent at every point on these curves except the cusp points.)
             // Instead verify the promise from SkChopCubicAtMidTangent that neither side will rotate
             // more than 180 degrees.
-            REPORTER_ASSERT(reporter, std::abs(leftRotation) - kTolerance <= SK_ScalarPI);
-            REPORTER_ASSERT(reporter, std::abs(rightRotation) - kTolerance <= SK_ScalarPI);
+            REPORTER_ASSERT(reporter, std::abs(leftRotation) - kTolerance <= SK_FloatPI);
+            REPORTER_ASSERT(reporter, std::abs(rightRotation) - kTolerance <= SK_FloatPI);
             continue;
         }
         float expectedChoppedRotation = fullRotation/2;
         if (cubicType == SkCubicType::kLocalCusp ||
             (cubicType == SkCubicType::kLineOrPoint &&
-             SkScalarNearlyEqual(fullRotation, SK_ScalarPI, kTolerance))) {
+             SkScalarNearlyEqual(fullRotation, SK_FloatPI, kTolerance))) {
             // If we chop a cubic at a cusp, we lose 180 degrees of rotation.
-            expectedChoppedRotation = (fullRotation - SK_ScalarPI)/2;
+            expectedChoppedRotation = (fullRotation - SK_FloatPI)/2;
         }
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(leftRotation, expectedChoppedRotation,
                                                       kTolerance));
@@ -527,19 +527,19 @@ static void test_measure_rotation(skiatest::Reporter* reporter) {
 
     static SkPoint kFlatCubic180_1[4] = {{0, 0}, {1, 0}, {3, 0}, {2, 0}};
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(SkMeasureNonInflectCubicRotation(kFlatCubic180_1),
-                                                  SK_ScalarPI));
+                                                  SK_FloatPI));
 
     static SkPoint kFlatCubic180_2[4] = {{0, 1}, {0, 0}, {0, 2}, {0, 3}};
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(SkMeasureNonInflectCubicRotation(kFlatCubic180_2),
-                                                  SK_ScalarPI));
+                                                  SK_FloatPI));
 
     static SkPoint kFlatCubic360[4] = {{0, 1}, {0, 0}, {0, 3}, {0, 2}};
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(SkMeasureNonInflectCubicRotation(kFlatCubic360),
-                                                  2*SK_ScalarPI));
+                                                  2*SK_FloatPI));
 
     static SkPoint kSquare180[4] = {{0, 0}, {0, 1}, {1, 1}, {1, 0}};
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(SkMeasureNonInflectCubicRotation(kSquare180),
-                                                  SK_ScalarPI));
+                                                  SK_FloatPI));
 
     auto checkQuadRotation = [=](const SkPoint pts[3], float expectedRotation) {
         float r = SkMeasureQuadRotation(pts);
@@ -562,13 +562,13 @@ static void test_measure_rotation(skiatest::Reporter* reporter) {
     checkQuadRotation(kFlatQuad, 0);
 
     static SkPoint kFlatQuad180_1[4] = {{1, 0}, {0, 0}, {2, 0}};
-    checkQuadRotation(kFlatQuad180_1, SK_ScalarPI);
+    checkQuadRotation(kFlatQuad180_1, SK_FloatPI);
 
     static SkPoint kFlatQuad180_2[4] = {{0, 0}, {0, 2}, {0, 1}};
-    checkQuadRotation(kFlatQuad180_2, SK_ScalarPI);
+    checkQuadRotation(kFlatQuad180_2, SK_FloatPI);
 
     static SkPoint kTri120[3] = {{0, 0}, {.5f, std::sqrt(3.f)/2}, {1, 0}};
-    checkQuadRotation(kTri120, 2*SK_ScalarPI/3);
+    checkQuadRotation(kTri120, 2*SK_FloatPI/3);
 }
 
 static void test_chop_at_midtangent(skiatest::Reporter* reporter) {
