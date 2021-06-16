@@ -14,9 +14,9 @@
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 
-// This is a mock GrMeshDrawOp::Target implementation that just gives back pointers into
+// This is a mock GrMeshDrawTarget implementation that just gives back pointers into
 // pre-allocated CPU buffers, rather than allocating and mapping GPU buffers.
-class GrMockOpTarget : public GrMeshDrawOp::Target {
+class GrMockOpTarget : public GrMeshDrawTarget {
 public:
     GrMockOpTarget(sk_sp<GrDirectContext> mockContext) : fMockContext(std::move(mockContext)) {
         fStaticVertexBuffer = fMockContext->priv().getGpu()->createBuffer(
