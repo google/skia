@@ -531,7 +531,6 @@ sksl_blend_tests = [
   "/sksl/blend/BlendDstIn.sksl",
   "/sksl/blend/BlendDstOut.sksl",
   "/sksl/blend/BlendDstOver.sksl",
-  "/sksl/blend/BlendEnum.sksl",
   "/sksl/blend/BlendExclusion.sksl",
   "/sksl/blend/BlendHardLight.sksl",
   "/sksl/blend/BlendHue.sksl",

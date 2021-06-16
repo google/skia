@@ -1,7 +1,0 @@
-/*#pragma settings Default*/
-
-uniform half4 src, dst;
-
-void main() {
-    sk_FragColor = blend(SkBlendMode::kModulate, src, dst);
-}

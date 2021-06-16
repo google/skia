@@ -1,1 +1,5 @@
-SkBlendMode w=0;
+enum class E {
+    kZero = 0
+};
+
+E e=0;

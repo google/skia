@@ -15,9 +15,6 @@ class GrGLSLShaderBuilder;
 namespace GrGLSLBlend {
 /*
  * Returns the name of the built in blend function for a SkBlendMode.
- * When and if the SkSL compiler supports inlining it'd be simpler to just call
- * blend(mode, src, dst) where mode is a literal when the desired blend mode is
- * not variable.
  */
 const char* BlendFuncName(SkBlendMode mode);
 
