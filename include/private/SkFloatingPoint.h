@@ -265,9 +265,6 @@ static inline double sk_ieee_double_divide(double numer, double denom) {
 static inline float sk_ieee_float_divide_TODO_IS_DIVIDE_BY_ZERO_SAFE_HERE(float n, float d) {
     return sk_ieee_float_divide(n,d);
 }
-static inline float sk_ieee_double_divide_TODO_IS_DIVIDE_BY_ZERO_SAFE_HERE(double n, double d) {
-    return sk_ieee_double_divide(n,d);
-}
 
 static inline float sk_fmaf(float f, float m, float a) {
 #if defined(FP_FAST_FMA)
