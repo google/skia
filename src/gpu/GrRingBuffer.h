@@ -24,6 +24,7 @@ class GrRingBuffer {
 public:
     GrRingBuffer(GrGpu* gpu, size_t size, size_t alignment, GrGpuBufferType intendedType)
         : fGpu(gpu)
+        , fNewAllocation(false)
         , fTotalSize(size)
         , fAlignment(alignment)
         , fType(intendedType)
@@ -57,7 +58,8 @@ private:
 
     GrGpu* fGpu;
     sk_sp<GrGpuBuffer> fCurrentBuffer;
-    std::vector<sk_sp<GrGpuBuffer>> fTrackedBuffers;  // all buffers we've used in this submit
+    std::vector<sk_sp<GrGpuBuffer>> fTrackedBuffers;  // previous buffers we've used in this submit
+    bool fNewAllocation;
     size_t fTotalSize;
     size_t fAlignment;
     GrGpuBufferType fType;

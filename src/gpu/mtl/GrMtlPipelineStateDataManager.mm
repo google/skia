@@ -109,16 +109,25 @@ void GrMtlPipelineStateDataManager::uploadAndBindUniformBuffers(
         GrMtlGpu* gpu,
         GrMtlRenderCommandEncoder* renderCmdEncoder) const {
     if (fUniformSize && fUniformsDirty) {
-        if (@available(macOS 10.11, iOS 8.3, *)) {
-            SkASSERT(fUniformSize <= gpu->caps()->maxPushConstantsSize());
-            renderCmdEncoder->setVertexBytes(fUniformData.get(), fUniformSize,
-                                             GrMtlUniformHandler::kUniformBinding);
-            renderCmdEncoder->setFragmentBytes(fUniformData.get(), fUniformSize,
-                                               GrMtlUniformHandler::kUniformBinding);
-        } else {
-            // We only support iOS 9.0+, so we should never hit this
-            SK_ABORT("Missing interface. Skia only supports Metal on iOS 9.0 and higher");
-        }
+//        if (@available(macOS 10.11, iOS 8.3, *)) {
+//            SkASSERT(fUniformSize <= gpu->caps()->maxPushConstantsSize());
+//            renderCmdEncoder->setVertexBytes(fUniformData.get(), fUniformSize,
+//                                             GrMtlUniformHandler::kUniformBinding);
+//            renderCmdEncoder->setFragmentBytes(fUniformData.get(), fUniformSize,
+//                                               GrMtlUniformHandler::kUniformBinding);
+//        } else {
+            // upload the data
+            size_t paddedSize = GrAlignTo(fUniformSize, 4);
+            GrRingBuffer::Slice slice = gpu->uniformsRingBuffer()->suballocate(paddedSize);
+            GrMtlBuffer* buffer = (GrMtlBuffer*) slice.fBuffer;
+            char* destPtr = static_cast<char*>(slice.fBuffer->map()) + slice.fOffset;
+            memcpy(destPtr, fUniformData.get(), fUniformSize);
+
+            renderCmdEncoder->setVertexBuffer(buffer->mtlBuffer(), slice.fOffset,
+                                              GrMtlUniformHandler::kUniformBinding);
+            renderCmdEncoder->setFragmentBuffer(buffer->mtlBuffer(), slice.fOffset,
+                                                GrMtlUniformHandler::kUniformBinding);
+//        }
         fUniformsDirty = false;
     }
 }
