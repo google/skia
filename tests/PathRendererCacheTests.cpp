@@ -83,10 +83,10 @@ static void test_path(skiatest::Reporter* reporter,
     dContext->setResourceCacheLimit(8000000);
     GrResourceCache* cache = dContext->priv().getResourceCache();
 
-    auto rtc = GrSurfaceDrawContext::Make(
+    auto sdc = GrSurfaceDrawContext::Make(
             dContext.get(), GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox, {800, 800},
             SkSurfaceProps(), 1, GrMipmapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
-    if (!rtc) {
+    if (!sdc) {
         return;
     }
 
@@ -97,7 +97,7 @@ static void test_path(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, cache_non_scratch_resources_equals(cache, 0));
 
     // Draw the path, check that new resource count matches expectations
-    draw_path(dContext.get(), rtc.get(), path, pathRenderer.get(), aaType, style);
+    draw_path(dContext.get(), sdc.get(), path, pathRenderer.get(), aaType, style);
     dContext->flushAndSubmit();
     REPORTER_ASSERT(reporter, cache_non_scratch_resources_equals(cache, expected));
 
@@ -120,13 +120,13 @@ static void test_path(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, SkPathPriv::GenIDChangeListenersCount(path) == 0);
     for (int i = 0; i < 20; ++i) {
         float scaleX = 1 + ((float)i + 1)/20.f;
-        draw_path(dContext.get(), rtc.get(), path, pathRenderer.get(), aaType, style, scaleX);
+        draw_path(dContext.get(), sdc.get(), path, pathRenderer.get(), aaType, style, scaleX);
     }
     dContext->flushAndSubmit();
     REPORTER_ASSERT(reporter, SkPathPriv::GenIDChangeListenersCount(path) == 20);
     cache->purgeUnlockedResources();
     // The listeners don't actually purge until we try to add another one.
-    draw_path(dContext.get(), rtc.get(), path, pathRenderer.get(), aaType, style);
+    draw_path(dContext.get(), sdc.get(), path, pathRenderer.get(), aaType, style);
     REPORTER_ASSERT(reporter, SkPathPriv::GenIDChangeListenersCount(path) == 1);
 }
 

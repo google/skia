@@ -40,7 +40,6 @@
 #include "src/gpu/GrImageContextPriv.h"
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrMemoryPool.h"
-#include "src/gpu/GrPathRenderer.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrResourceProvider.h"
@@ -72,6 +71,10 @@
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 #include "src/gpu/text/GrSDFTControl.h"
 #include "src/gpu/text/GrTextBlobCache.h"
+
+#if GR_OGA
+#include "src/gpu/GrPathRenderer.h"
+#endif
 
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == this->drawingManager()->getContext())
 #define ASSERT_SINGLE_OWNER        GR_ASSERT_SINGLE_OWNER(this->singleOwner())
@@ -874,6 +877,7 @@ bool GrSurfaceDrawContext::stencilPath(const GrHardClip* clip,
                                        GrAA doStencilMSAA,
                                        const SkMatrix& viewMatrix,
                                        const SkPath& path) {
+#if GR_OGA
     SkIRect clipBounds = clip ? clip->getConservativeBounds()
                               : SkIRect::MakeSize(this->dimensions());
     GrStyledShape shape(path, GrStyledShape::DoSimplify::kNo);
@@ -905,6 +909,9 @@ bool GrSurfaceDrawContext::stencilPath(const GrHardClip* clip,
     args.fDoStencilMSAA = doStencilMSAA;
     pr->stencilPath(args);
     return true;
+#else
+    return false;
+#endif // GR_OGA
 }
 
 void GrSurfaceDrawContext::drawTextureSet(const GrClip* clip,
@@ -1532,9 +1539,11 @@ void GrSurfaceDrawContext::drawShape(const GrClip* clip,
                                      /* attemptDrawSimple */ true);
 }
 
+#if GR_OGA
 static SkIRect get_clip_bounds(const GrSurfaceDrawContext* rtc, const GrClip* clip) {
     return clip ? clip->getConservativeBounds() : SkIRect::MakeWH(rtc->width(), rtc->height());
 }
+#endif // GR_OGA
 
 bool GrSurfaceDrawContext::drawAndStencilPath(const GrHardClip* clip,
                                               const GrUserStencilSettings* ss,
@@ -1543,6 +1552,7 @@ bool GrSurfaceDrawContext::drawAndStencilPath(const GrHardClip* clip,
                                               GrAA aa,
                                               const SkMatrix& viewMatrix,
                                               const SkPath& path) {
+#if GR_OGA
     ASSERT_SINGLE_OWNER
     RETURN_FALSE_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -1601,6 +1611,9 @@ bool GrSurfaceDrawContext::drawAndStencilPath(const GrHardClip* clip,
                                       this->colorInfo().isLinearlyBlended()};
     pr->drawPath(args);
     return true;
+#else
+    return false;
+#endif
 }
 
 SkBudgeted GrSurfaceDrawContext::isBudgeted() const {
@@ -1722,6 +1735,7 @@ void GrSurfaceDrawContext::drawShapeUsingPathRenderer(const GrClip* clip,
                                                       const SkMatrix& viewMatrix,
                                                       GrStyledShape&& shape,
                                                       bool attemptDrawSimple) {
+#if GR_OGA
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     GR_CREATE_TRACE_MARKER_CONTEXT("GrSurfaceDrawContext", "internalDrawPath", fContext);
@@ -1830,6 +1844,7 @@ void GrSurfaceDrawContext::drawShapeUsingPathRenderer(const GrClip* clip,
                                       aaType,
                                       this->colorInfo().isLinearlyBlended()};
     pr->drawPath(args);
+#endif
 }
 
 static void op_bounds(SkRect* bounds, const GrOp* op) {

@@ -18,10 +18,11 @@
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/utils/SkRandom.h"
 #include "src/core/SkGeometry.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrDrawingManager.h"
-#include "src/gpu/tessellate/GrTessellationPathRenderer.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 
 static constexpr float kStrokeWidth = 30;
 static constexpr int kCellSize = 200;
@@ -179,6 +180,9 @@ DEF_SIMPLE_GM(trickycubicstrokes_roundcaps, canvas, kTestWidth, kTestHeight) {
     draw_test(canvas, SkPaint::kRound_Cap, SkPaint::kRound_Join);
 }
 
+#if GR_OGA
+#include "src/gpu/tessellate/GrTessellationPathRenderer.h"
+
 class TrickyCubicStrokes_tess_segs_5 : public skiagm::GM {
     SkString onShortName() override {
         return SkString("trickycubicstrokes_tess_segs_5");
@@ -236,3 +240,4 @@ class TrickyCubicStrokes_tess_segs_5 : public skiagm::GM {
 };
 
 DEF_GM( return new TrickyCubicStrokes_tess_segs_5; )
+#endif // GR_OGA

@@ -309,7 +309,6 @@ gm_sources = [
   "$_gm/polygonoffset.cpp",
   "$_gm/polygons.cpp",
   "$_gm/postercircle.cpp",
-  "$_gm/preservefillrule.cpp",
   "$_gm/quadpaths.cpp",
   "$_gm/radial_gradient_precision.cpp",
   "$_gm/rasterhandleallocator.cpp",
@@ -404,7 +403,6 @@ gm_sources = [
   "$_gm/vertices.cpp",
   "$_gm/verylargebitmap.cpp",
   "$_gm/wacky_yuv_formats.cpp",
-  "$_gm/widebuttcaps.cpp",
   "$_gm/windowrectangles.cpp",
   "$_gm/xfermodeimagefilter.cpp",
   "$_gm/xfermodes.cpp",
@@ -416,3 +414,10 @@ gm_sources = [
 ]
 
 gl_gm_sources = [ "$_gm/rectangletexture.cpp" ]
+
+oga_gm_sources = [
+  "$_gm/preservefillrule.cpp",
+  "$_gm/widebuttcaps.cpp",
+]
+
+gm_sources += oga_gm_sources
