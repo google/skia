@@ -6,7 +6,6 @@
  */
 
 #include "include/core/SkBitmap.h"
-#include "include/core/SkBlender.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkData.h"
@@ -330,7 +329,7 @@ public:
 
     void test(GrColor TL, GrColor TR, GrColor BL, GrColor BR,
               PreTestFn preTestCallback = nullptr) {
-        auto shader = fBuilder->makeShader(/*localMatrix=*/nullptr, /*isOpaque=*/false);
+        auto shader = fBuilder->makeShader(nullptr, false);
         if (!shader) {
             REPORT_FAILURE(fReporter, "shader", SkString("Effect didn't produce a shader"));
             return;
@@ -500,27 +499,10 @@ DEF_TEST(SkRuntimeShaderBuilderReuse, r) {
     // Test passes if this sequence doesn't assert.  skbug.com/10667
     SkRuntimeShaderBuilder b(std::move(effect));
     b.uniform("x") = 0.0f;
-    auto shader_0 = b.makeShader(/*localMatrix=*/nullptr, /*isOpaque=*/false);
+    auto shader_0 = b.makeShader(nullptr, false);
 
     b.uniform("x") = 1.0f;
-    auto shader_1 = b.makeShader(/*localMatrix=*/nullptr, /*isOpaque=*/true);
-}
-
-DEF_TEST(SkRuntimeBlendBuilderReuse, r) {
-    const char* kSource = R"(
-        uniform half x;
-        half4 main(half4 s, half4 d) { return half4(x); }
-    )";
-
-    sk_sp<SkRuntimeEffect> effect = SkRuntimeEffect::MakeForBlender(SkString(kSource)).effect;
-    REPORTER_ASSERT(r, effect);
-
-    // We should be able to construct multiple SkBlenders in a row without asserting.
-    SkRuntimeBlendBuilder b(std::move(effect));
-    for (float x = 0.0f; x <= 2.0f; x += 2.0f) {
-        b.uniform("x") = x;
-        sk_sp<SkBlender> blender = b.makeBlender();
-    }
+    auto shader_1 = b.makeShader(nullptr, true);
 }
 
 DEF_TEST(SkRuntimeShaderBuilderSetUniforms, r) {
@@ -548,7 +530,8 @@ DEF_TEST(SkRuntimeShaderBuilderSetUniforms, r) {
     REPORTER_ASSERT(r, !b.uniform("offset").set<float>(origin, 3));
 #endif
 
-    auto shader = b.makeShader(/*localMatrix=*/nullptr, /*isOpaque=*/false);
+
+    auto shader = b.makeShader(nullptr, false);
 }
 
 DEF_TEST(SkRuntimeEffectThreaded, r) {
