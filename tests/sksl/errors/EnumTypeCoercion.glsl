@@ -1,4 +1,4 @@
 ### Compilation failed:
 
-error: 1: cannot construct 'SkBlendMode'
+error: 5: cannot construct 'E'
 1 error

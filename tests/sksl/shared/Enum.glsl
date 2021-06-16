@@ -20,20 +20,6 @@ void main() {
     {
         sk_FragColor = vec4(13.0);
     }
-    {
-        sk_FragColor = vec4(15.0);
-    }
-    {
-        sk_FragColor = vec4(16.0);
-    }
-    {
-        sk_FragColor = vec4(18.0);
-    }
-    sk_FragColor = vec4(19.0);
-    sk_FragColor = vec4(20.0);
-    {
-        sk_FragColor = vec4(21.0);
-    }
     int f = 1;
     if (f == 1) {
         sk_FragColor = vec4(1.0);
