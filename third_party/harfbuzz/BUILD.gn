@@ -15,7 +15,6 @@ if (skia_use_system_harfbuzz) {
     include_dirs = [ "/usr/include/harfbuzz" ]
     libs = [
       "harfbuzz",
-      "harfbuzz-icu",
     ]
   }
 } else {
@@ -26,12 +25,11 @@ if (skia_use_system_harfbuzz) {
       _src,
     ]
     defines = [
-      "HAVE_ICU",
-      "HAVE_ICU_BUILTIN",
+      #"HAVE_ICU",
+      #"HAVE_ICU_BUILTIN",
       "HAVE_INTEL_ATOMIC_PRIMITIVES",
       "HAVE_OT",
     ]
-    deps = [ "//third_party/icu" ]
     public = [
       "$_src/hb-blob.h",
       "$_src/hb-buffer.h",
