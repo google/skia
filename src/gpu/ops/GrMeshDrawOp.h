@@ -8,6 +8,7 @@
 #ifndef GrMeshDrawOp_DEFINED
 #define GrMeshDrawOp_DEFINED
 
+#if 0
 #include "src/core/SkArenaAlloc.h"
 #include "src/gpu/GrAppliedClip.h"
 #include "src/gpu/GrDrawIndirectCommand.h"
@@ -256,4 +257,5 @@ public:
     virtual SkArenaAlloc* allocator() = 0;
 };
 
+#endif
 #endif
