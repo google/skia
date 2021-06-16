@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0b55d823_452a5516",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-16T21:44:28Z",
+      "side": 1,
+      "message": "I suggest we scale back, and don\u0027t attempt to also serialize in this CL.\n\nJust landing the experimental settings is a great step forward to enable other folks to contribute to impl and tests.",
+      "revId": "1b5b881fd187e58a9c1ab2aedaac4ddbe4a0006d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "75577067_0e6b5118",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-16T21:44:28Z",
+      "side": 1,
+      "message": "I think this breaks compatibility with old code (pre this CL) and any new files we might create.\n\nI suggest we just skip trying to serialize blenders for this CL (there would be even more to do).",
+      "range": {
+        "startLine": 295,
+        "startChar": 15,
+        "endLine": 295,
+        "endChar": 31
+      },
+      "revId": "1b5b881fd187e58a9c1ab2aedaac4ddbe4a0006d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
