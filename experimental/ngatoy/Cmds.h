@@ -12,11 +12,13 @@ class SortKey;
 
 #include "include/core/SkColor.h"
 #include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 
 #include "experimental/ngatoy/Fake.h"
 #include "experimental/ngatoy/ngatypes.h"
 
-class Cmd {
+//------------------------------------------------------------------------------------------------
+class Cmd : public SkRefCnt {
 public:
     Cmd() : fID(ID::Invalid()) {}
     Cmd(ID id) : fID(id) {}
@@ -25,8 +27,6 @@ public:
     ID id() const { return fID; }
 
     virtual SortKey getKey() = 0;
-
-    virtual const FakeMCBlob* state() const { return nullptr; }
 
     // To generate the actual image
     virtual void execute(FakeCanvas*) const = 0;
@@ -49,7 +49,7 @@ class SaveCmd : public Cmd {
 public:
     SaveCmd() : Cmd() {}
 
-    SortKey getKey() override { SkASSERT(0); return {}; }
+    SortKey getKey() override;
 
     void execute(FakeCanvas*) const override;
     void execute(SkCanvas*) const override;
@@ -72,7 +72,7 @@ class RestoreCmd : public Cmd {
 public:
     RestoreCmd() : Cmd() {}
 
-    SortKey getKey() override { SkASSERT(0); return {}; }
+    SortKey getKey() override;
 
     void execute(FakeCanvas*) const override;
     void execute(SkCanvas*) const override;
@@ -97,7 +97,7 @@ public:
     uint32_t getDrawZ() const;
 
     SortKey getKey() override;
-    const FakeMCBlob* state() const override { return fMCState.get(); }
+    const FakeMCBlob* state() const { return fMCState.get(); }
 
     void execute(FakeCanvas*) const override;
     void execute(SkCanvas*) const override;
@@ -123,6 +123,7 @@ private:
 class ClipCmd : public Cmd {
 public:
     ClipCmd(ID, PaintersOrder paintersOrderWhenAdded, SkIRect r);
+    ~ClipCmd() override;
 
     uint32_t getSortZ() const;
     uint32_t getDrawZ() const;
@@ -147,4 +148,5 @@ private:
 };
 
 //------------------------------------------------------------------------------------------------
+
 #endif // Cmds_DEFINED
