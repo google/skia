@@ -34,8 +34,8 @@ public:
 
     void debugInit() {
 #ifdef SK_DEBUG
-        this->fPerpPt.fX = this->fPerpPt.fY = SK_ScalarNaN;
-        this->fPerpT = SK_ScalarNaN;
+        this->fPerpPt.fX = this->fPerpPt.fY = SK_FloatNaN;
+        this->fPerpT = SK_FloatNaN;
         this->fMatch = 0xFF;
 #endif
     }
@@ -51,7 +51,7 @@ public:
     void init() {
         fPerpT = -1;
         fMatch = false;
-        fPerpPt.fX = fPerpPt.fY = SK_ScalarNaN;
+        fPerpPt.fX = fPerpPt.fY = SK_FloatNaN;
     }
 
     void markCoincident() {

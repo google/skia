@@ -156,10 +156,10 @@ public:
         kNaN_Constructor
     };
     constexpr SkM44(NaN_Constructor)
-        : fMat{SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN,
-               SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN,
-               SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN,
-               SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN}
+        : fMat{SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN,
+               SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN,
+               SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN,
+               SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN}
     {}
 
     /**

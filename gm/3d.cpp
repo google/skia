@@ -12,7 +12,7 @@
 struct Info {
     float   fNear = 0.05f;
     float   fFar = 4;
-    float   fAngle = SK_ScalarPI / 4;
+    float   fAngle = SK_FloatPI / 4;
 
     SkV3    fEye { 0, 0, 1.0f/tan(fAngle/2) - 1 };
     SkV3    fCOA { 0, 0, 0 };
@@ -48,7 +48,7 @@ static void do_draw(SkCanvas* canvas, SkColor color) {
 
     Info info;
 
-    SkM44 m = SkM44::Rotate({0, 1, 0}, SK_ScalarPI/6);
+    SkM44 m = SkM44::Rotate({0, 1, 0}, SK_FloatPI/6);
 
     canvas->concat(make_ctm(info, m, {300, 300}));
 

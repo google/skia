@@ -66,7 +66,7 @@ protected:
         constexpr SkScalar kRadius = 50.f;
         const SkPoint center = { kRadius, kRadius };
         for (int i = 0; i < GrConvexPolyEffect::kMaxEdges; ++i) {
-            SkScalar angle = 2 * SK_ScalarPI * i / GrConvexPolyEffect::kMaxEdges;
+            SkScalar angle = 2 * SK_FloatPI * i / GrConvexPolyEffect::kMaxEdges;
             SkPoint point = { SkScalarCos(angle), SkScalarSin(angle) };
             point.scale(kRadius);
             point = center + point;

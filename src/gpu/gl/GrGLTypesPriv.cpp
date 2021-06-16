@@ -25,8 +25,8 @@ void GrGLTextureParameters::SamplerOverriddenState::invalidate() {
     fMagFilter = ~0U;
     fWrapS = ~0U;
     fWrapT = ~0U;
-    fMinLOD = SK_ScalarNaN;
-    fMaxLOD = SK_ScalarNaN;
+    fMinLOD = SK_FloatNaN;
+    fMaxLOD = SK_FloatNaN;
     fBorderColorInvalid = true;
 }
 

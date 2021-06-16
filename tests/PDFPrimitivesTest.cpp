@@ -363,7 +363,7 @@ DEF_TEST(SkPDF_Primitives_Scalar, reporter) {
         check_pdf_scalar_serialization(reporter, f);
     }
     float alwaysCheck[] = {
-        0.0f, -0.0f, 1.0f, -1.0f, SK_ScalarPI, 0.1f, FLT_MIN, FLT_MAX,
+        0.0f, -0.0f, 1.0f, -1.0f, SK_FloatPI, 0.1f, FLT_MIN, FLT_MAX,
         -FLT_MIN, -FLT_MAX, FLT_MIN / 16.0f, -FLT_MIN / 16.0f,
         SK_FloatNaN, SK_FloatInfinity, SK_FloatNegativeInfinity,
         -FLT_MIN / 8388608.0

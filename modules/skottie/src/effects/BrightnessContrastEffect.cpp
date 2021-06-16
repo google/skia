@@ -62,7 +62,7 @@ namespace  {
 static sk_sp<SkData> make_contrast_coeffs(float contrast) {
     struct { float a, b, c; } coeffs;
 
-    coeffs.b = SK_ScalarPI * contrast;
+    coeffs.b = SK_FloatPI * contrast;
     coeffs.a = -2 * coeffs.b / 3;
     coeffs.c =  1 - coeffs.b / 3;
 
@@ -88,7 +88,7 @@ static constexpr char CONTRAST_EFFECT[] = R"(
 //   a = -contrast/3π
 //
 static sk_sp<SkData> make_contrast_coeffs(float contrast) {
-    const auto coeff_a = -contrast / (3 * SK_ScalarPI);
+    const auto coeff_a = -contrast / (3 * SK_FloatPI);
 
     return SkData::MakeWithCopy(&coeff_a, sizeof(coeff_a));
 }

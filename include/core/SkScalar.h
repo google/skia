@@ -17,14 +17,10 @@ typedef float SkScalar;
 
 #define SK_Scalar1                  1.0f
 #define SK_ScalarHalf               0.5f
-#define SK_ScalarSqrt2              SK_FloatSqrt2
-#define SK_ScalarPI                 SK_FloatPI
 #define SK_ScalarTanPIOver8         0.414213562f
 #define SK_ScalarRoot2Over2         0.707106781f
 #define SK_ScalarMax                3.402823466e+38f
 #define SK_ScalarInfinity           SK_FloatInfinity
-#define SK_ScalarNegativeInfinity   SK_FloatNegativeInfinity
-#define SK_ScalarNaN                SK_FloatNaN
 
 #define SkScalarFloorToScalar(x)    sk_float_floor(x)
 #define SkScalarCeilToScalar(x)     sk_float_ceil(x)
@@ -109,8 +105,8 @@ static inline SkScalar SkScalarSquare(SkScalar x) { return x * x; }
 #define SkScalarAve(a, b)           (((a) + (b)) * SK_ScalarHalf)
 #define SkScalarHalf(a)             ((a) * SK_ScalarHalf)
 
-#define SkDegreesToRadians(degrees) ((degrees) * (SK_ScalarPI / 180))
-#define SkRadiansToDegrees(radians) ((radians) * (180 / SK_ScalarPI))
+#define SkDegreesToRadians(degrees) ((degrees) * (SK_FloatPI / 180))
+#define SkRadiansToDegrees(radians) ((radians) * (180 / SK_FloatPI))
 
 static inline bool SkScalarIsInt(SkScalar x) {
     return x == SkScalarFloorToScalar(x);

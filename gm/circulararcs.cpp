@@ -275,7 +275,7 @@ DEF_SIMPLE_GM(circular_arc_stroke_matrix, canvas, 820, 1090) {
     static constexpr SkScalar kRadius = 40.f;
     static constexpr SkScalar kStrokeWidth = 5.f;
     static constexpr SkScalar kStart = 89.f;
-    static constexpr SkScalar kSweep = 180.f/SK_ScalarPI; // one radian
+    static constexpr SkScalar kSweep = 180.f/SK_FloatPI; // one radian
 
     SkTArray<SkMatrix> matrices;
     matrices.push_back().setRotate(kRadius, kRadius, 45.f);

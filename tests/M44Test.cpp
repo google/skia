@@ -139,7 +139,7 @@ DEF_TEST(M44_rotate, reporter) {
                z = {0, 0, 1};
 
     // We have radians version of setRotateAbout methods, but even with our best approx
-    // for PI, sin(SK_ScalarPI) != 0, so to make the comparisons in the unittest clear,
+    // for PI, sin(SK_FloatPI) != 0, so to make the comparisons in the unittest clear,
     // I'm using the variants that explicitly take the sin,cos values.
 
     struct {
@@ -337,13 +337,13 @@ DEF_TEST(M44_mapRect, reporter) {
                                  10.f + 2.f * src.fRight, 8.f + 4.f * src.fBottom);
     assertMapRect(SkM44::Scale(2.f, 4.f).postTranslate(10.f, 8.f), src, &st);
     // Rotate 45 degrees about center
-    assertMapRect(SkM44::Rotate({0.f, 0.f, 1.f}, SK_ScalarPI / 4.f)
+    assertMapRect(SkM44::Rotate({0.f, 0.f, 1.f}, SK_FloatPI / 4.f)
                         .preTranslate(-src.centerX(), -src.centerY())
                         .postTranslate(src.centerX(), src.centerY()),
                   src, nullptr);
 
     // Perspective matrix where src does not need to be clipped w > 0
-    SkM44 p = SkM44::Perspective(0.01f, 10.f, SK_ScalarPI / 3.f);
+    SkM44 p = SkM44::Perspective(0.01f, 10.f, SK_FloatPI / 3.f);
     p.preTranslate(0.f, 5.f, -0.1f);
     p.preConcat(SkM44::Rotate({0.f, 1.f, 0.f}, 0.008f /* radians */));
     assertMapRect(p, src, nullptr);

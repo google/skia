@@ -71,7 +71,7 @@ public:
                 fTex[currIndex] = SkRect::MakeLTRB(0.0f, 0.0f,
                                                    SkIntToScalar(fAtlas->width()),
                                                    SkIntToScalar(fAtlas->height()));
-                fXform[currIndex] = SkRSXform::MakeFromRadians(0.1f, SK_ScalarPI*0.5f,
+                fXform[currIndex] = SkRSXform::MakeFromRadians(0.1f, SK_FloatPI*0.5f,
                                                                xPos, yPos, anchorX, anchorY);
                 currIndex++;
             }
@@ -79,7 +79,7 @@ public:
         fTex[currIndex] = SkRect::MakeLTRB(0.0f, 0.0f,
                                            SkIntToScalar(fAtlas->width()),
                                            SkIntToScalar(fAtlas->height()));
-        fXform[currIndex] = SkRSXform::MakeFromRadians(0.5f, SK_ScalarPI*0.5f,
+        fXform[currIndex] = SkRSXform::MakeFromRadians(0.5f, SK_FloatPI*0.5f,
                                                        kWidth*0.5f, kHeight*0.5f, anchorX, anchorY);
 
     }

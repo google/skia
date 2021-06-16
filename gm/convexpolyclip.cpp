@@ -123,7 +123,7 @@ protected:
         constexpr SkScalar kRadius = 45.f;
         const SkPoint center = { kRadius, kRadius };
         for (int i = 0; i < 6; ++i) {
-            SkScalar angle = 2 * SK_ScalarPI * i / 6;
+            SkScalar angle = 2 * SK_FloatPI * i / 6;
             SkPoint point = { SkScalarCos(angle), SkScalarSin(angle) };
             point.scale(kRadius);
             point = center + point;

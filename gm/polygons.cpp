@@ -54,7 +54,7 @@ protected:
                         {45, 30}, {55, 50}, {30, 40}, {5, 50}, {15, 30}};  // five-point stars
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(p4); ++i) {
-            SkScalar angle = 2 * SK_ScalarPI * i / SK_ARRAY_COUNT(p4);
+            SkScalar angle = 2 * SK_FloatPI * i / SK_ARRAY_COUNT(p4);
             p4[i].set(20 * SkScalarCos(angle) + 20, 20 * SkScalarSin(angle) + 20);
         }
 
