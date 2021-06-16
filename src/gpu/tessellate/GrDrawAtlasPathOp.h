@@ -31,7 +31,7 @@ public:
     FixedFunctionFlags fixedFunctionFlags() const override {
         return (fEnableHWAA) ? FixedFunctionFlags::kUsesHWAA : FixedFunctionFlags::kNone;
     }
-    void visitProxies(const VisitProxyFunc& fn) const override {
+    void visitProxies(const GrVisitProxyFunc& fn) const override {
         fn(fAtlasProxy.get(), GrMipmapped::kNo);
         fProcessors.visitProxies(fn);
     }
