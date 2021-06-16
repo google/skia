@@ -1982,6 +1982,9 @@ if (skia_enable_tools) {
     if (skia_use_gl) {
       sources += gl_gm_sources
     }
+    if (!skia_enable_oga) {
+      sources -= oga_gm_sources
+    }
     deps = [
       ":etc1",
       ":flags",
@@ -2100,6 +2103,9 @@ if (skia_enable_tools) {
   import("gn/samples.gni")
   test_lib("samples") {
     sources = samples_sources
+    if (!skia_enable_oga) {
+      sources -= oga_samples_sources
+    }
     public_deps = [ ":tool_utils" ]
     deps = [
       ":flags",
