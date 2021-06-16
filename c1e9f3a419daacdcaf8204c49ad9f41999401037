@@ -16,6 +16,40 @@
       "message": "Per discussion with Ethan - We\u0027re actually getting very little value out of enum support these days (the few actual use cases could be covered with \u0027const int kFoo \u003d \u0027, if we really cared, and then the new parser doesn\u0027t need to worry about them. This is the biggest enum, but it\u0027s entirely unused in real code.",
       "revId": "c1e9f3a419daacdcaf8204c49ad9f41999401037",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "baea6383_b865a4a8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-16T20:52:12Z",
+      "side": 1,
+      "message": "Are we committed to removing enums? This change removes a lot of test coverage for them.",
+      "revId": "c1e9f3a419daacdcaf8204c49ad9f41999401037",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e32d9d60_55f4e22c",
+        "filename": "tests/sksl/blend/BlendHardLight.glsl",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-16T20:52:12Z",
+      "side": 1,
+      "message": "Definitely wouldn\u0027t have predicted this diff!",
+      "revId": "c1e9f3a419daacdcaf8204c49ad9f41999401037",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
