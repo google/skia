@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b14d61e7_bbdaca4c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-16T12:37:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3fd4c9b8_aed126be",
+      "revId": "9c8dc02ddb428bd1398efe38e8ff50e1bed0bb66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2194f6fd_b79673db",
@@ -31,6 +49,24 @@
       "writtenOn": "2021-06-15T20:40:49Z",
       "side": 1,
       "message": "This is a real fix, so I think we can drop this before landing. However, we should note that this may cause issues with Pdfium https://bugs.chromium.org/p/pdfium/issues/detail?id\u003d1693 .",
+      "revId": "9c8dc02ddb428bd1398efe38e8ff50e1bed0bb66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "545389de_2cf2014b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-16T12:37:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2194f6fd_b79673db",
       "revId": "9c8dc02ddb428bd1398efe38e8ff50e1bed0bb66",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
