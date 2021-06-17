@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7a4388ef_5be9d9b6",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-17T19:12:59Z",
+      "side": 1,
+      "message": "Do you find this more readable?\n\n   return GrSkSLFP::Make(effect, \"Clamp\", std::move(fp),\n                         GrSkSLFP::OptFlags::kPreservesOpaqueInput);\n                         \nsomething about the current wrapping messes with my eye tracking, but it\u0027s also not a show stopper",
+      "range": {
+        "startLine": 262,
+        "startChar": 4,
+        "endLine": 263,
+        "endChar": 87
+      },
+      "revId": "f230809317ad7e48f5144b5580e9bd138bef1ab7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
