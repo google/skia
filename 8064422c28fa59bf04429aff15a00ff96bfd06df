@@ -16,6 +16,24 @@
       "message": "where was this ever used?",
       "revId": "8064422c28fa59bf04429aff15a00ff96bfd06df",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f94b1d3c_8c8634d4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-17T14:06:05Z",
+      "side": 1,
+      "message": "No idea. I noticed it in John\u0027s CL, and then we were talking about it. It\u0027s a really bad hash, because it doesn\u0027t even guarantee that if A \u003d\u003d B, hash(A) \u003d\u003d hash(B).\n\nRunning all the canaries to be sure, but I\u0027d claim that no one should use it.",
+      "parentUuid": "80b0bedb_73573cc5",
+      "revId": "8064422c28fa59bf04429aff15a00ff96bfd06df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
