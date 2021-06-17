@@ -4150,9 +4150,11 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     }
 
     // http://crbug.com/1197152
+#ifndef SK_BUILD_FOR_IOS
     if (ctxInfo.renderer() == GrGLRenderer::kPowerVRRogue) {
         fShaderCaps->fShaderDerivativeSupport = false;
     }
+#endif
 }
 
 void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
