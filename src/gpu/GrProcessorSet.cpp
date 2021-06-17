@@ -196,7 +196,7 @@ GrProcessorSet::Analysis GrProcessorSet::finalize(
     return analysis;
 }
 
-void GrProcessorSet::visitProxies(const GrOp::VisitProxyFunc& func) const {
+void GrProcessorSet::visitProxies(const GrVisitProxyFunc& func) const {
     if (this->hasColorFragmentProcessor()) {
         fColorFragmentProcessor->visitProxies(func);
     }
