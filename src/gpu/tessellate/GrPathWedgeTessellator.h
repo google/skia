@@ -11,6 +11,9 @@
 #include "src/gpu/GrVertexChunkArray.h"
 #include "src/gpu/tessellate/GrPathTessellator.h"
 
+class GrCaps;
+class GrPipeline;
+
 // Prepares an array of "wedge" patches for GrWedgeTessellateShader. A wedge is an independent,
 // 5-point closed contour consisting of 4 control points plus an anchor point fanning from the
 // center of the curve's resident contour. A wedge can be either a cubic or a conic. Quadratics and
@@ -21,7 +24,7 @@ public:
     static GrPathTessellator* Make(SkArenaAlloc*, const SkMatrix& viewMatrix, const SkPMColor4f&,
                                    int numPathVerbs, const GrPipeline&, const GrCaps&);
 
-    void prepare(GrMeshDrawOp::Target*, const SkRect& cullBounds, const SkPath&,
+    void prepare(GrMeshDrawTarget*, const SkRect& cullBounds, const SkPath&,
                  const BreadcrumbTriangleList*) override;
     void draw(GrOpFlushState*) const override;
 

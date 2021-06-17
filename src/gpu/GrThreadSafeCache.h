@@ -13,9 +13,8 @@
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkTDynamicHash.h"
 #include "src/core/SkTInternalLList.h"
+#include "src/gpu/GrGpuBuffer.h"
 #include "src/gpu/GrSurfaceProxyView.h"
-
-class GrGpuBuffer;
 
 // Ganesh creates a lot of utility textures (e.g., blurred-rrect masks) that need to be shared
 // between the direct context and all the DDL recording contexts. This thread-safe cache

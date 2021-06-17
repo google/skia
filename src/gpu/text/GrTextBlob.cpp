@@ -320,7 +320,7 @@ public:
             int begin, int end,
             GrMaskFormat maskFormat,
             int srcPadding,
-            GrMeshDrawOp::Target *target,
+            GrMeshDrawTarget *,
             bool bilerpPadding = false);
 
     static size_t GlyphVectorSize(size_t count) {
@@ -367,7 +367,7 @@ void GlyphVector::packedGlyphIDToGrGlyph(GrStrikeCache* cache) {
 std::tuple<bool, int> GlyphVector::regenerateAtlas(int begin, int end,
                                                    GrMaskFormat maskFormat,
                                                    int srcPadding,
-                                                   GrMeshDrawOp::Target* target,
+                                                   GrMeshDrawTarget* target,
                                                    bool bilerpPadding) {
     GrAtlasManager* atlasManager = target->atlasManager();
     GrDeferredUploadTarget* uploadTarget = target->deferredUploadTarget();
@@ -472,7 +472,7 @@ public:
     void testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) override;
 
     std::tuple<bool, int>
-    regenerateAtlas(int begin, int end, GrMeshDrawOp::Target* target) const override;
+    regenerateAtlas(int begin, int end, GrMeshDrawTarget*) const override;
 
     void fillVertexData(void* vertexDst, int offset, int count, GrColor color,
                         const SkMatrix& positionMatrix, SkIRect clip) const override;
@@ -693,7 +693,7 @@ void DirectMaskSubRun::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) 
 }
 
 std::tuple<bool, int>
-DirectMaskSubRun::regenerateAtlas(int begin, int end, GrMeshDrawOp::Target* target) const {
+DirectMaskSubRun::regenerateAtlas(int begin, int end, GrMeshDrawTarget* target) const {
     return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, 0, target);
 }
 
@@ -859,8 +859,7 @@ public:
 
     void testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) override;
 
-    std::tuple<bool, int> regenerateAtlas(
-            int begin, int end, GrMeshDrawOp::Target* target) const override;
+    std::tuple<bool, int> regenerateAtlas(int begin, int end, GrMeshDrawTarget*) const override;
 
     void fillVertexData(
             void* vertexDst, int offset, int count,
@@ -987,7 +986,7 @@ void TransformedMaskSubRun::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *ca
 }
 
 std::tuple<bool, int> TransformedMaskSubRun::regenerateAtlas(int begin, int end,
-                                                             GrMeshDrawOp::Target* target) const {
+                                                             GrMeshDrawTarget* target) const {
     return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, 1, target, true);
 }
 
@@ -1115,8 +1114,7 @@ public:
 
     void testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) override;
 
-    std::tuple<bool, int> regenerateAtlas(
-            int begin, int end, GrMeshDrawOp::Target* target) const override;
+    std::tuple<bool, int> regenerateAtlas(int begin, int end, GrMeshDrawTarget*) const override;
 
     void fillVertexData(
             void* vertexDst, int offset, int count,
@@ -1301,7 +1299,7 @@ void SDFTSubRun::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) {
 }
 
 std::tuple<bool, int> SDFTSubRun::regenerateAtlas(
-        int begin, int end, GrMeshDrawOp::Target *target) const {
+        int begin, int end, GrMeshDrawTarget *target) const {
 
     return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, SK_DistanceFieldInset, target);
 }
@@ -1662,7 +1660,7 @@ public:
     void testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) override;
 
     std::tuple<bool, int>
-    regenerateAtlas(int begin, int end, GrMeshDrawOp::Target* target) const override;
+    regenerateAtlas(int begin, int end, GrMeshDrawTarget*) const override;
 
     void fillVertexData(void* vertexDst, int offset, int count, GrColor color,
                         const SkMatrix& positionMatrix, SkIRect clip) const override;
@@ -1812,7 +1810,7 @@ void DirectMaskSubRunNoCache::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *
 }
 
 std::tuple<bool, int>
-DirectMaskSubRunNoCache::regenerateAtlas(int begin, int end, GrMeshDrawOp::Target* target) const {
+DirectMaskSubRunNoCache::regenerateAtlas(int begin, int end, GrMeshDrawTarget* target) const {
     return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, 0, target);
 }
 
@@ -1896,8 +1894,7 @@ public:
 
     void testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) override;
 
-    std::tuple<bool, int> regenerateAtlas(
-            int begin, int end, GrMeshDrawOp::Target* target) const override;
+    std::tuple<bool, int> regenerateAtlas(int begin, int end, GrMeshDrawTarget*) const override;
 
     void fillVertexData(
             void* vertexDst, int offset, int count,
@@ -2004,7 +2001,7 @@ void TransformedMaskSubRunNoCache::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCa
 }
 
 std::tuple<bool, int> TransformedMaskSubRunNoCache::regenerateAtlas(
-        int begin, int end, GrMeshDrawOp::Target* target) const {
+        int begin, int end, GrMeshDrawTarget* target) const {
     return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, 1, target, true);
 }
 
@@ -2118,8 +2115,7 @@ public:
 
     void testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) override;
 
-    std::tuple<bool, int> regenerateAtlas(
-            int begin, int end, GrMeshDrawOp::Target* target) const override;
+    std::tuple<bool, int> regenerateAtlas(int begin, int end, GrMeshDrawTarget*) const override;
 
     void fillVertexData(
             void* vertexDst, int offset, int count,
@@ -2244,7 +2240,7 @@ void SDFTSubRunNoCache::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache)
 }
 
 std::tuple<bool, int> SDFTSubRunNoCache::regenerateAtlas(
-        int begin, int end, GrMeshDrawOp::Target *target) const {
+        int begin, int end, GrMeshDrawTarget *target) const {
 
     return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, SK_DistanceFieldInset, target);
 }
