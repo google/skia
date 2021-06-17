@@ -263,7 +263,7 @@ DEF_SIMPLE_GM(quadcap, canvas, 200, 200) {
     tangent.normalize();
     SkPoint pts2[3];
     memcpy(pts2, pts, sizeof(pts));
-    const SkScalar capOutset = SK_ScalarPI / 8;
+    const SkScalar capOutset = SK_FloatPI / 8;
     pts2[0].fX += tangent.fX * capOutset;
     pts2[0].fY += tangent.fY * capOutset;
     pts2[1].fX += tangent.fX * capOutset;

@@ -41,8 +41,8 @@ static void draw_fins(SkCanvas* canvas, const SkPoint& offset, float angle, cons
     SkScalar cos, sin;
 
     // first fin
-    sin = SkScalarSin(angle + (SK_ScalarPI/4));
-    cos = SkScalarCos(angle + (SK_ScalarPI/4));
+    sin = SkScalarSin(angle + (SK_FloatPI/4));
+    cos = SkScalarCos(angle + (SK_FloatPI/4));
     sin *= kRadius / 2.0f;
     cos *= kRadius / 2.0f;
 
@@ -52,8 +52,8 @@ static void draw_fins(SkCanvas* canvas, const SkPoint& offset, float angle, cons
     canvas->drawPath(p, paint);
 
     // second fin
-    sin = SkScalarSin(angle - (SK_ScalarPI/4));
-    cos = SkScalarCos(angle - (SK_ScalarPI/4));
+    sin = SkScalarSin(angle - (SK_FloatPI/4));
+    cos = SkScalarCos(angle - (SK_FloatPI/4));
     sin *= kRadius / 2.0f;
     cos *= kRadius / 2.0f;
 
@@ -69,7 +69,7 @@ static void draw_snowflake(SkCanvas* canvas, const SkPaint& paint) {
     canvas->clipRect(SkRect::MakeLTRB(-kRadius-kPad, -kRadius-kPad, kRadius+kPad, kRadius+kPad));
 
     SkScalar sin, cos, angle = 0.0f;
-    for (int i = 0; i < kNumSpokes/2; ++i, angle += SK_ScalarPI/(kNumSpokes/2)) {
+    for (int i = 0; i < kNumSpokes/2; ++i, angle += SK_FloatPI/(kNumSpokes/2)) {
         sin = SkScalarSin(angle);
         cos = SkScalarCos(angle);
         sin *= kRadius;
@@ -87,7 +87,7 @@ static void draw_snowflake(SkCanvas* canvas, const SkPaint& paint) {
 
         // fins on negative side
         const SkPoint negOffset = SkPoint::Make(-0.5f * cos, -0.5f * sin);
-        draw_fins(canvas, negOffset, angle+SK_ScalarPI, paint);
+        draw_fins(canvas, negOffset, angle+SK_FloatPI, paint);
     }
 }
 

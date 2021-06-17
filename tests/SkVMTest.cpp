@@ -2006,7 +2006,7 @@ DEF_TEST(SkVM_approx_math, r) {
 
     // sine, cosine, tangent
     {
-        constexpr float P = SK_ScalarPI;
+        constexpr float P = SK_FloatPI;
         constexpr float tol = 0.00175f;
         for (float rad = -5*P; rad <= 5*P; rad += 0.1f) {
             test(rad, sk_float_sin(rad), tol, [](skvm::F32 x) {

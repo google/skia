@@ -636,7 +636,7 @@ void GrStyledShape::simplifyStroke() {
         fStyle.strokeRec().getStyle() == SkStrokeRec::kStrokeAndFill_Style) {
         if (fStyle.strokeRec().getJoin() == SkPaint::kBevel_Join ||
             (fStyle.strokeRec().getJoin() == SkPaint::kMiter_Join &&
-             fStyle.strokeRec().getMiter() < SK_ScalarSqrt2)) {
+             fStyle.strokeRec().getMiter() < SK_FloatSqrt2)) {
             // Bevel-stroked rect needs path rendering
             return;
         }

@@ -4,7 +4,7 @@
 // HASH=be10cb1411dbcf7e38e0198e8a9b8b0e
 REG_FIDDLE(Rect_setBoundsNoCheck, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
-    SkPoint points[] = {{3, 4}, {1, 2}, {SK_ScalarInfinity, 6}, {SK_ScalarNaN, 8}};
+    SkPoint points[] = {{3, 4}, {1, 2}, {SK_FloatInfinity, 6}, {SK_FloatNaN, 8}};
     for (int count = 0; count <= (int) SK_ARRAY_COUNT(points); ++count) {
         SkRect rect;
         rect.setBoundsNoCheck(points, count);

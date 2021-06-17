@@ -34,7 +34,7 @@ static void test_Normalize(skiatest::Reporter* reporter,
 }
 
 static void test_normalize_cannormalize_consistent(skiatest::Reporter* reporter) {
-    const SkScalar values[] = { 1, 1e18f, 1e20f, 1e38f, SK_ScalarInfinity, SK_ScalarNaN };
+    const SkScalar values[] = { 1, 1e18f, 1e20f, 1e38f, SK_FloatInfinity, SK_FloatNaN };
 
     for (SkScalar val : values) {
         const SkScalar variants[] = { val, -val, SkScalarInvert(val), -SkScalarInvert(val) };

@@ -920,7 +920,7 @@ void ShaperDrivenWrapper::wrap(char const * const utf8, size_t utf8Bytes,
             SkBreakIterator& breakIterator = *fLineBreakIterator;
 
             ShapedRun best(RunHandler::Range(), SkFont(), 0, nullptr, 0,
-                           { SK_ScalarNegativeInfinity, SK_ScalarNegativeInfinity });
+                           { SK_FloatNegativeInfinity, SK_FloatNegativeInfinity });
             bool bestIsInvalid = true;
             bool bestUsesModelForGlyphs = false;
             SkScalar widthLeft = width - line.fAdvance.fX;

@@ -81,10 +81,10 @@ public:
         , fTypeMask(kIdentity_Mask) {}
 
     SkMatrix44(NaN_Constructor)
-        : fMat{{ SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN },
-               { SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN },
-               { SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN },
-               { SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN }}
+        : fMat{{ SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN },
+               { SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN },
+               { SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN },
+               { SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN }}
         , fTypeMask(kTranslate_Mask | kScale_Mask | kAffine_Mask | kPerspective_Mask) {}
 
     constexpr SkMatrix44() : SkMatrix44{kIdentity_Constructor} {}
@@ -279,7 +279,7 @@ public:
     }
 
     void setRotateDegreesAbout(SkScalar x, SkScalar y, SkScalar z, SkScalar degrees) {
-        this->setRotateAbout(x, y, z, degrees * SK_ScalarPI / 180);
+        this->setRotateAbout(x, y, z, degrees * SK_FloatPI / 180);
     }
 
     /** Rotate about the vector [x,y,z]. If that vector is not unit-length,

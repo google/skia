@@ -177,7 +177,7 @@ static void check_length(skiatest::Reporter* reporter,
 
 static void unittest_isfinite(skiatest::Reporter* reporter) {
     float nan = sk_float_asin(2);
-    float inf = SK_ScalarInfinity;
+    float inf = SK_FloatInfinity;
     float big = 3.40282e+038f;
 
     REPORTER_ASSERT(reporter, !SkScalarIsNaN(inf));
@@ -404,8 +404,8 @@ static void huge_vector_normalize(skiatest::Reporter* reporter) {
     // these values should fail (overflow/underflow) trying to normalize
     const SkVector fail[] = {
         { 0, 0 },
-        { SK_ScalarInfinity, 0 }, { 0, SK_ScalarInfinity },
-        { 0, SK_ScalarNaN }, { SK_ScalarNaN, 0 },
+        { SK_FloatInfinity, 0 }, { 0, SK_FloatInfinity },
+        { 0, SK_FloatNaN }, { SK_FloatNaN, 0 },
     };
     for (SkVector v : fail) {
         SkVector v2 = v;
@@ -444,7 +444,7 @@ DEF_TEST(Math, reporter) {
     test_copysign(reporter);
 
     {
-        SkScalar x = SK_ScalarNaN;
+        SkScalar x = SK_FloatNaN;
         REPORTER_ASSERT(reporter, SkScalarIsNaN(x));
     }
 
@@ -675,9 +675,9 @@ DEF_TEST(FloatSaturate32, reporter) {
         { (float)SK_MinS32, SK_MinS32FitsInFloat },
         { SK_MaxS32 * 100.0f, SK_MaxS32FitsInFloat },
         { SK_MinS32 * 100.0f, SK_MinS32FitsInFloat },
-        { SK_ScalarInfinity, SK_MaxS32FitsInFloat },
-        { SK_ScalarNegativeInfinity, SK_MinS32FitsInFloat },
-        { SK_ScalarNaN, SK_MaxS32FitsInFloat },
+        { SK_FloatInfinity, SK_MaxS32FitsInFloat },
+        { SK_FloatNegativeInfinity, SK_MinS32FitsInFloat },
+        { SK_FloatNaN, SK_MaxS32FitsInFloat },
     };
 
     for (auto r : recs) {
@@ -701,9 +701,9 @@ DEF_TEST(FloatSaturate64, reporter) {
         { (float)SK_MinS64, SK_MinS64FitsInFloat },
         { SK_MaxS64 * 100.0f, SK_MaxS64FitsInFloat },
         { SK_MinS64 * 100.0f, SK_MinS64FitsInFloat },
-        { SK_ScalarInfinity, SK_MaxS64FitsInFloat },
-        { SK_ScalarNegativeInfinity, SK_MinS64FitsInFloat },
-        { SK_ScalarNaN, SK_MaxS64FitsInFloat },
+        { SK_FloatInfinity, SK_MaxS64FitsInFloat },
+        { SK_FloatNegativeInfinity, SK_MinS64FitsInFloat },
+        { SK_FloatNaN, SK_MaxS64FitsInFloat },
     };
 
     for (auto r : recs) {
@@ -725,9 +725,9 @@ DEF_TEST(DoubleSaturate32, reporter) {
         { SK_MinS32 + 1, SK_MinS32 + 1 },
         { SK_MaxS32 * 100.0, SK_MaxS32 },
         { SK_MinS32 * 100.0, SK_MinS32 },
-        { SK_ScalarInfinity, SK_MaxS32 },
-        { SK_ScalarNegativeInfinity, SK_MinS32 },
-        { SK_ScalarNaN, SK_MaxS32 },
+        { SK_FloatInfinity, SK_MaxS32 },
+        { SK_FloatNegativeInfinity, SK_MinS32 },
+        { SK_FloatNaN, SK_MaxS32 },
     };
 
     for (auto r : recs) {
@@ -780,7 +780,7 @@ DEF_TEST(unit_floats, r) {
 
         // check some bad values
         const float non_norms[] = {
-            1.0000001f, 2, SK_ScalarInfinity, SK_ScalarNaN
+            1.0000001f, 2, SK_FloatInfinity, SK_FloatNaN
         };
         for (float bad : non_norms) {
             v[index] = bad;

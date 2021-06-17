@@ -31,8 +31,8 @@ static void draw_clipped_flower(SkCanvas* canvas, SkPathFillType fillType) {
     flower.moveTo(1, 0);
     constexpr static int kNumPetals = 9;
     for (int i = 1; i <= kNumPetals; ++i) {
-        float c = 2*SK_ScalarPI*(i - .5f) / kNumPetals;
-        float theta = 2*SK_ScalarPI*i / kNumPetals;
+        float c = 2*SK_FloatPI*(i - .5f) / kNumPetals;
+        float theta = 2*SK_FloatPI*i / kNumPetals;
         flower.quadTo(cosf(c)*2, sinf(c)*2, cosf(theta), sinf(theta));
     }
     flower.close();

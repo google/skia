@@ -186,8 +186,8 @@ protected:
         mandoline.reset({1, 0});
         constexpr int nquads = 5;
         for (int i = 0; i < nquads; ++i) {
-            float theta1 = 2*SK_ScalarPI/nquads * (i + .5f);
-            float theta2 = 2*SK_ScalarPI/nquads * (i + 1);
+            float theta1 = 2*SK_FloatPI/nquads * (i + .5f);
+            float theta2 = 2*SK_FloatPI/nquads * (i + 1);
             mandoline.sliceQuadratic({cosf(theta1)*2, sinf(theta1)*2},
                                      {cosf(theta2), sinf(theta2)});
         }

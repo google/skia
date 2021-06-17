@@ -29,7 +29,7 @@ SkScalar length_size_for_type(const SkSize& viewport, SkSVGLengthContext::Length
         return viewport.height();
     case SkSVGLengthContext::LengthType::kOther: {
         // https://www.w3.org/TR/SVG11/coords.html#Units_viewport_percentage
-        constexpr SkScalar rsqrt2 = 1.0f / SK_ScalarSqrt2;
+        constexpr SkScalar rsqrt2 = 1.0f / SK_FloatSqrt2;
         const SkScalar w = viewport.width(), h = viewport.height();
         return rsqrt2 * SkScalarSqrt(w * w + h * h);
     }

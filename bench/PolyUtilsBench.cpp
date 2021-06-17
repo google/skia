@@ -119,7 +119,7 @@ public:
         const SkScalar r2 = SkIntToScalar(3);
         const int n = 500;
         SkScalar rad = 0;
-        const SkScalar drad = SK_ScalarPI / n;
+        const SkScalar drad = SK_FloatPI / n;
         for (int i = 0; i < n; i++) {
             *poly->push() = SkPoint::Make(c + SkScalarCos(rad) * r1, c + SkScalarSin(rad) * r1);
             rad += drad;
@@ -144,7 +144,7 @@ public:
         const SkScalar r = SkIntToScalar(20);
         const int n = 1000;
         SkScalar rad = 0;
-        const SkScalar drad = 2 * SK_ScalarPI / n;
+        const SkScalar drad = 2 * SK_FloatPI / n;
         for (int i = 0; i < n; i++) {
             *poly->push() = SkPoint::Make(c + SkScalarCos(rad) * r, c + SkScalarSin(rad) * r);
             rad += drad;
@@ -167,8 +167,8 @@ public:
         const SkScalar r = SkIntToScalar(20);
         const int n = 1000;
 
-        SkScalar rad = -SK_ScalarPI / 2;
-        const SkScalar drad = (n >> 1) * SK_ScalarPI * 2 / n;
+        SkScalar rad = -SK_FloatPI / 2;
+        const SkScalar drad = (n >> 1) * SK_FloatPI * 2 / n;
         *poly->push() = SkPoint::Make(c, c - r);
         for (int i = 1; i < n; i++) {
             rad += drad;
@@ -193,7 +193,7 @@ public:
         const SkScalar r = SkIntToScalar(20);
         const int n = 1000;
         SkScalar rad = 0;
-        const SkScalar drad = 3 * SK_ScalarPI / (2*n);
+        const SkScalar drad = 3 * SK_FloatPI / (2*n);
         for (int i = 0; i < n; i++) {
             *poly->push() = SkPoint::Make(c + SkScalarCos(rad) * r, c + SkScalarSin(rad) * r);
             rad += drad;
@@ -218,7 +218,7 @@ public:
         const SkScalar r = SkIntToScalar(20);
         const int n = 1000;
         SkScalar rad = 0;
-        const SkScalar drad = 3 * SK_ScalarPI / (2*n);
+        const SkScalar drad = 3 * SK_FloatPI / (2*n);
         for (int i = 0; i < n; i++) {
             *poly->push() = SkPoint::Make(c + SkScalarCos(rad) * r, c + SkScalarSin(rad) * r);
             rad += drad;
