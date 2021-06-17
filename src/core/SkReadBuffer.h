@@ -17,6 +17,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkSerialProcs.h"
 #include "src/core/SkColorFilterBase.h"
+#include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkPicturePriv.h"
@@ -117,7 +118,7 @@ public:
 #ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
     sk_sp<SkDrawLooper> readDrawLooper() { return this->readFlattenable<SkDrawLooper>(); }
 #endif
-    sk_sp<SkImageFilter> readImageFilter() { return this->readFlattenable<SkImageFilter>(); }
+    sk_sp<SkImageFilter> readImageFilter() { return this->readFlattenable<SkImageFilter_Base>(); }
     sk_sp<SkMaskFilter> readMaskFilter() { return this->readFlattenable<SkMaskFilterBase>(); }
     sk_sp<SkPathEffect> readPathEffect() { return this->readFlattenable<SkPathEffect>(); }
     sk_sp<SkShader> readShader() { return this->readFlattenable<SkShaderBase>(); }
