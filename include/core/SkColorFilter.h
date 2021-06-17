@@ -59,6 +59,9 @@ public:
         return kSkColorFilter_Type;
     }
 
+    static sk_sp<SkColorFilter> Deserialize(const void* data, size_t size,
+                                            const SkDeserialProcs* procs = nullptr);
+
 private:
     SkColorFilter() = default;
     friend class SkColorFilterBase;
