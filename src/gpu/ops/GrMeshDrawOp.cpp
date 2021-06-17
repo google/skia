@@ -16,7 +16,7 @@ GrMeshDrawOp::GrMeshDrawOp(uint32_t classID) : INHERITED(classID) {}
 
 void GrMeshDrawOp::onPrepare(GrOpFlushState* state) { this->onPrepareDraws(state); }
 
-void GrMeshDrawOp::createProgramInfo(Target* target) {
+void GrMeshDrawOp::createProgramInfo(GrMeshDrawTarget* target) {
     this->createProgramInfo(&target->caps(),
                             target->allocator(),
                             target->writeView(),
@@ -52,7 +52,7 @@ void GrMeshDrawOp::onPrePrepareDraws(GrRecordingContext* context,
 
 //////////////////////////////////////////////////////////////////////////////
 
-GrMeshDrawOp::PatternHelper::PatternHelper(Target* target, GrPrimitiveType primitiveType,
+GrMeshDrawOp::PatternHelper::PatternHelper(GrMeshDrawTarget* target, GrPrimitiveType primitiveType,
                                            size_t vertexStride, sk_sp<const GrBuffer> indexBuffer,
                                            int verticesPerRepetition, int indicesPerRepetition,
                                            int repeatCount, int maxRepetitions) {
@@ -60,7 +60,7 @@ GrMeshDrawOp::PatternHelper::PatternHelper(Target* target, GrPrimitiveType primi
                indicesPerRepetition, repeatCount, maxRepetitions);
 }
 
-void GrMeshDrawOp::PatternHelper::init(Target* target, GrPrimitiveType primitiveType,
+void GrMeshDrawOp::PatternHelper::init(GrMeshDrawTarget* target, GrPrimitiveType primitiveType,
                                        size_t vertexStride, sk_sp<const GrBuffer> indexBuffer,
                                        int verticesPerRepetition, int indicesPerRepetition,
                                        int repeatCount, int maxRepetitions) {
@@ -87,12 +87,13 @@ void GrMeshDrawOp::PatternHelper::init(Target* target, GrPrimitiveType primitive
                                firstVertex);
 }
 
-void GrMeshDrawOp::PatternHelper::recordDraw(Target* target, const GrGeometryProcessor* gp) const {
+void GrMeshDrawOp::PatternHelper::recordDraw(GrMeshDrawTarget* target,
+                                             const GrGeometryProcessor* gp) const {
     target->recordDraw(gp, fMesh, 1, fPrimitiveType);
 }
 
 void GrMeshDrawOp::PatternHelper::recordDraw(
-        Target* target,
+        GrMeshDrawTarget* target,
         const GrGeometryProcessor* gp,
         const GrSurfaceProxy* const primProcProxies[]) const {
     target->recordDraw(gp, fMesh, 1, primProcProxies, fPrimitiveType);
@@ -100,7 +101,9 @@ void GrMeshDrawOp::PatternHelper::recordDraw(
 
 //////////////////////////////////////////////////////////////////////////////
 
-GrMeshDrawOp::QuadHelper::QuadHelper(Target* target, size_t vertexStride, int quadsToDraw) {
+GrMeshDrawOp::QuadHelper::QuadHelper(GrMeshDrawTarget* target,
+                                     size_t vertexStride,
+                                     int quadsToDraw) {
     sk_sp<const GrGpuBuffer> indexBuffer = target->resourceProvider()->refNonAAQuadIndexBuffer();
     if (!indexBuffer) {
         SkDebugf("Could not get quad index buffer.");
