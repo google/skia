@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ed430b6f_903a2120",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-17T03:27:02Z",
+      "side": 1,
+      "message": "OK, SGTM. I\u0027ve removed the changes to SkPaint flattening and unflattening. I\u0027m going to abandon this CL and move these changes (modulo SkPaintPriv::Flatten/Unflatten) to a cloned CL at http://review.skia.org/419236",
+      "parentUuid": "0b55d823_452a5516",
+      "revId": "1b5b881fd187e58a9c1ab2aedaac4ddbe4a0006d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "75577067_0e6b5118",
@@ -31,6 +49,30 @@
       "writtenOn": "2021-06-16T21:44:28Z",
       "side": 1,
       "message": "I think this breaks compatibility with old code (pre this CL) and any new files we might create.\n\nI suggest we just skip trying to serialize blenders for this CL (there would be even more to do).",
+      "range": {
+        "startLine": 295,
+        "startChar": 15,
+        "endLine": 295,
+        "endChar": 31
+      },
+      "revId": "1b5b881fd187e58a9c1ab2aedaac4ddbe4a0006d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3b60974f_c875c60b",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-17T03:27:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "75577067_0e6b5118",
       "range": {
         "startLine": 295,
         "startChar": 15,
