@@ -109,6 +109,11 @@ GrDynamicAtlas::Node* GrDynamicAtlas::makeNode(Node* previous, int l, int t, int
     return fNodeAllocator.make<Node>(previous, rectanizer, l, t);
 }
 
+GrSurfaceProxyView GrDynamicAtlas::surfaceProxyView(const GrCaps& caps) const {
+    return {fTextureProxy, kTextureOrigin,
+            caps.getReadSwizzle(fTextureProxy->backendFormat(), fColorType)};
+}
+
 bool GrDynamicAtlas::addRect(int width, int height, SkIPoint16* location) {
     // This can't be called anymore once instantiate() has been called.
     SkASSERT(!this->isInstantiated());
