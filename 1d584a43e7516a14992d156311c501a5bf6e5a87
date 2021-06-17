@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1f53d46e_fa833f20",
+        "filename": "include/core/SkBlender.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-17T13:54:14Z",
+      "side": 1,
+      "message": "can be in SkBlenderBase (see SkShader/SkShaderBase)",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 0
+      },
+      "revId": "1d584a43e7516a14992d156311c501a5bf6e5a87",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d526d8ea_243eb4d4",
+        "filename": "include/core/SkBlender.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-17T13:54:14Z",
+      "side": 1,
+      "message": "not sure yet for public, so I\u0027d vote to move into base as well (at least for now)",
+      "range": {
+        "startLine": 25,
+        "startChar": 29,
+        "endLine": 25,
+        "endChar": 44
+      },
+      "revId": "1d584a43e7516a14992d156311c501a5bf6e5a87",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
