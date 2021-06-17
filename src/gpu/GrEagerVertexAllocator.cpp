@@ -7,6 +7,33 @@
 
 #include "src/gpu/GrEagerVertexAllocator.h"
 
+#include "src/gpu/GrMeshDrawTarget.h"
+
+//-------------------------------------------------------------------------------------------------
+void* GrEagerDynamicVertexAllocator::lock(size_t stride, int eagerCount) {
+    SkASSERT(!fLockCount);
+    SkASSERT(eagerCount);
+    if (void* data = fTarget->makeVertexSpace(stride, eagerCount, fVertexBuffer, fBaseVertex)) {
+        fLockStride = stride;
+        fLockCount = eagerCount;
+        return data;
+    }
+    fVertexBuffer->reset();
+    *fBaseVertex = 0;
+    return nullptr;
+}
+
+void GrEagerDynamicVertexAllocator::unlock(int actualCount) {
+    SkASSERT(fLockCount);
+    SkASSERT(actualCount <= fLockCount);
+    fTarget->putBackVertices(fLockCount - actualCount, fLockStride);
+    if (!actualCount) {
+        fVertexBuffer->reset();
+        *fBaseVertex = 0;
+    }
+    fLockCount = 0;
+}
+
 //-------------------------------------------------------------------------------------------------
 void* GrCpuVertexAllocator::lock(size_t stride, int eagerCount) {
     SkASSERT(!fLockStride && !fVertices && !fVertexData);

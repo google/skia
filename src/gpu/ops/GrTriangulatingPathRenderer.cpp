@@ -527,7 +527,7 @@ private:
         }
     }
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepareDraws(GrMeshDrawTarget* target) override {
         if (fAntiAlias) {
             this->createAAMesh(target);
         } else {
@@ -535,8 +535,10 @@ private:
         }
     }
 
-    static GrSimpleMesh* CreateMesh(Target* target, sk_sp<const GrBuffer> vb,
-                                    int firstVertex, int count) {
+    static GrSimpleMesh* CreateMesh(GrMeshDrawTarget* target,
+                                    sk_sp<const GrBuffer> vb,
+                                    int firstVertex,
+                                    int count) {
         auto mesh = target->allocMesh();
         mesh->set(std::move(vb), count, firstVertex);
         return mesh;

@@ -244,7 +244,7 @@ GrPathTessellator* GrPathWedgeTessellator::Make(SkArenaAlloc* arena, const SkMat
     });
 }
 
-void GrPathWedgeTessellator::prepare(GrMeshDrawOp::Target* target, const SkRect& cullBounds,
+void GrPathWedgeTessellator::prepare(GrMeshDrawTarget* target, const SkRect& cullBounds,
                                      const SkPath& path,
                                      const BreadcrumbTriangleList* breadcrumbTriangleList) {
     SkASSERT(!breadcrumbTriangleList);
