@@ -90,6 +90,11 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
                                          const SkMatrixProvider& matrixProvider,
                                          SkArenaAlloc* alloc,
                                          sk_sp<SkShader> clipShader) {
+    if (paint.getBlender()) {
+        // The raster pipeline doesn't support SkBlender.
+        return nullptr;
+    }
+
     SkColorSpace* dstCS = dst.colorSpace();
     SkColorType dstCT = dst.colorType();
     SkColor4f paintColor = paint.getColor4f();
