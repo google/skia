@@ -1009,6 +1009,8 @@ public:
             : fEffect(std::move(effect))
             , fUniforms(std::move(uniforms)) {}
 
+    SkRuntimeEffect* asRuntimeEffect() const override { return fEffect.get(); }
+
     skvm::Color onProgram(skvm::Builder* p, skvm::Color src, skvm::Color dst,
                           const SkColorInfo& colorInfo, skvm::Uniforms* uniforms,
                           SkArenaAlloc* alloc) const override {
@@ -1245,6 +1247,7 @@ sk_sp<SkBlender> SkRuntimeEffect::makeBlender(sk_sp<SkData> uniforms) const {
 void SkRuntimeEffect::RegisterFlattenables() {
     SK_REGISTER_FLATTENABLE(SkRuntimeColorFilter);
     SK_REGISTER_FLATTENABLE(SkRTShader);
+    SK_REGISTER_FLATTENABLE(SkRuntimeBlender);
 }
 
 SkRuntimeShaderBuilder::SkRuntimeShaderBuilder(sk_sp<SkRuntimeEffect> effect)
