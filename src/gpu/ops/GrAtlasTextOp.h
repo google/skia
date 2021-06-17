@@ -189,7 +189,7 @@ private:
         // TODO [PI]: implement
     }
 
-    void onPrepareDraws(Target*) override;
+    void onPrepareDraws(GrMeshDrawTarget*) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
 #if GR_TEST_UTILS
@@ -227,7 +227,7 @@ private:
     }
 
     inline void createDrawForGeneratedGlyphs(
-            GrMeshDrawOp::Target* target, FlushInfo* flushInfo) const;
+            GrMeshDrawTarget* target, FlushInfo* flushInfo) const;
 
     MaskType maskType() const { return static_cast<MaskType>(fMaskType); }
 
