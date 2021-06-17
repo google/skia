@@ -195,3 +195,10 @@ void SkPathEffectBase::RegisterFlattenables() {
     SK_REGISTER_FLATTENABLE(SkComposePathEffect);
     SK_REGISTER_FLATTENABLE(SkSumPathEffect);
 }
+
+sk_sp<SkPathEffect> SkPathEffect::Deserialize(const void* data, size_t size,
+                                              const SkDeserialProcs* procs) {
+    return sk_sp<SkPathEffect>(static_cast<SkPathEffect*>(
+                               SkFlattenable::Deserialize(
+                               kSkPathEffect_Type, data, size, procs).release()));
+}

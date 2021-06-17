@@ -86,6 +86,9 @@ public:
      */
     bool filterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect* cullR) const;
 
+    static sk_sp<SkPathEffect> Deserialize(const void* data, size_t size,
+                                           const SkDeserialProcs* procs = nullptr);
+
 private:
     SkPathEffect() = default;
     friend class SkPathEffectBase;
