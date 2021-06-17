@@ -2131,7 +2131,7 @@ void SkCanvas::onDrawImage2(const SkImage* image, SkScalar x, SkScalar y,
     }
 
     if (realPaint.getImageFilter() &&
-        this->canDrawBitmapAsSprite(x, y, image->width(), image->height(), sampling, realPaint)  &&
+        this->canDrawBitmapAsSprite(x, y, image->width(), image->height(), sampling, realPaint) &&
         !image_to_color_filter(&realPaint)) {
         // Evaluate the image filter directly on the input image and then draw the result, instead
         // of first drawing the image to a temporary layer and filtering.
