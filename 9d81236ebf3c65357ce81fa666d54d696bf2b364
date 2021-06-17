@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b3535697_7de34e5e",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-17T02:59:31Z",
+      "side": 1,
+      "message": "should not be called more than once",
+      "range": {
+        "startLine": 300,
+        "startChar": 48,
+        "endLine": 300,
+        "endChar": 75
+      },
+      "revId": "9d81236ebf3c65357ce81fa666d54d696bf2b364",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "df8f9d19_7f4b75e6",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 301,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-17T02:59:31Z",
+      "side": 1,
+      "message": "Should we assert that fInputChildIndex equals `fEffect-\u003efSampleUsages.size()` here? Otherwise we missed an addChild, right?\n\nFor that matter, if we allowed registering child FPs at a particular index, we could remove the ordering restriction entirely, but that\u0027s not really a big deal.",
+      "range": {
+        "startLine": 301,
+        "startChar": 23,
+        "endLine": 301,
+        "endChar": 50
+      },
+      "revId": "9d81236ebf3c65357ce81fa666d54d696bf2b364",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
