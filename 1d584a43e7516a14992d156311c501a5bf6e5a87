@@ -45,6 +45,30 @@
       },
       "revId": "1d584a43e7516a14992d156311c501a5bf6e5a87",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "85dcbae3_fe4e3d15",
+        "filename": "include/core/SkBlender.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-17T13:56:42Z",
+      "side": 1,
+      "message": "I doubt it\u0027s valuable as a public API, moving to Base should be fine.",
+      "parentUuid": "d526d8ea_243eb4d4",
+      "range": {
+        "startLine": 25,
+        "startChar": 29,
+        "endLine": 25,
+        "endChar": 44
+      },
+      "revId": "1d584a43e7516a14992d156311c501a5bf6e5a87",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
