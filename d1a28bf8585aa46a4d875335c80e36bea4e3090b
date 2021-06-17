@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c301a344_5eb5cc8b",
+        "filename": "experimental/ngatoy/Fake.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-06-17T19:34:40Z",
+      "side": 1,
+      "message": "Right. Right now there is a lot of redundancy between the parallel \u0027fRects\u0027 and \u0027fCmds\u0027 arrays. The \u0027fCmds\u0027 are used to figure out the \"painter\u0027s order number\" used to draw the clip while the \u0027fRects\u0027 is used for the actual clip rect (i.e., the rect in the ClipCmd isn\u0027t used). In a follow up I\u0027ll remove the \u0027fRects\u0027 array and mutate the ClipCmd instead.",
+      "parentUuid": "6082f010_6aefd482",
+      "range": {
+        "startLine": 36,
+        "startChar": 28,
+        "endLine": 36,
+        "endChar": 35
+      },
+      "revId": "d1a28bf8585aa46a4d875335c80e36bea4e3090b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "bf6bac35_fa8bc220",
         "filename": "experimental/ngatoy/Fake.h",
         "patchSetId": 2
@@ -37,6 +61,30 @@
       "writtenOn": "2021-06-17T17:13:03Z",
       "side": 1,
       "message": "This can return false if the scissor or r are empty. The usual pattern I go with is:\n\n  if (!fScissor.intersect(r)) {\n     fScissor.setEmpty();\n  }\n\nsince in this case, it seems plausible the clip rects could result in an empty clip and not a situation where they definitely intersect each other.",
+      "range": {
+        "startLine": 84,
+        "startChar": 16,
+        "endLine": 84,
+        "endChar": 30
+      },
+      "revId": "d1a28bf8585aa46a4d875335c80e36bea4e3090b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "996635f7_e3ebf12c",
+        "filename": "experimental/ngatoy/Fake.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-06-17T19:34:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bf6bac35_fa8bc220",
       "range": {
         "startLine": 84,
         "startChar": 16,
