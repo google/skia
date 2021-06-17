@@ -13,6 +13,8 @@
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkVM.h"
 
+class SkRuntimeEffect;
+
 /**
  * Encapsulates a custom blend function for Runtime Effects. These combine a source color (the
  * result of our paint) and destination color (from the canvas) into a final color.
@@ -25,6 +27,8 @@ public:
                         SkArenaAlloc* alloc) const {
         return this->onProgram(p, src, dst, colorInfo, uniforms, alloc);
     }
+
+    virtual SkRuntimeEffect* asRuntimeEffect() const { return nullptr; }
 
     static SkFlattenable::Type GetFlattenableType() { return kSkBlender_Type; }
     Type getFlattenableType() const override { return GetFlattenableType(); }

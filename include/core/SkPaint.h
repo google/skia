@@ -14,6 +14,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkTo.h"
 
+class SkBlender;
 class SkColorFilter;
 class SkColorSpace;
 struct SkRect;
@@ -490,11 +491,38 @@ public:
     bool isSrcOver() const { return (SkBlendMode)fBitfields.fBlendMode == SkBlendMode::kSrcOver; }
 
     /** Sets SkBlendMode to mode.
-        Does not check for valid input.
+        Does not verify that `mode` corresponds to a valid SkBlendMode.
+        Does not remove the SkBlender blend function, if one has been set; when drawing, SkBlender
+        takes precedence over the SkBlendMode. You can clear the SkBlender on an SkPaint by calling
+        `paint.setBlender(nullptr)`.
 
         @param mode  SkBlendMode used to combine source color and destination
     */
     void setBlendMode(SkBlendMode mode) { fBitfields.fBlendMode = (unsigned)mode; }
+
+    /** Returns the user-supplied blend function, if one has been set.
+        Does not alter SkBlender's SkRefCnt.
+
+        @return  the SkBlender assigned to this paint, otherwise nullptr
+    */
+    SkBlender* getBlender() const { return fBlender.get(); }
+
+    /** Returns the user-supplied blend function, if one has been set.
+        Increments the SkBlender's SkRefCnt by one.
+
+        @return  the SkBlender assigned to this paint, otherwise nullptr
+    */
+    sk_sp<SkBlender> refBlender() const;
+
+    /** Assigns a user-supplied blend function (create these via SkRuntimeEffect).
+        If an SkBlender has been set, it takes precedence over the SkBlendMode.
+        Increments the passed-in SkBlender's SkRefCnt by one.
+
+        TODO(skia:12080): this feature is incomplete; do not use!
+
+        @param blend  the blend filter to use
+    */
+    void experimental_setBlender(sk_sp<SkBlender> blend);
 
     /** Returns SkPathEffect if set, or nullptr.
         Does not alter SkPathEffect SkRefCnt.
@@ -675,6 +703,7 @@ private:
     sk_sp<SkMaskFilter>   fMaskFilter;
     sk_sp<SkColorFilter>  fColorFilter;
     sk_sp<SkImageFilter>  fImageFilter;
+    sk_sp<SkBlender>      fBlender;
 
     SkColor4f       fColor4f;
     SkScalar        fWidth;
