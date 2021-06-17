@@ -31,7 +31,6 @@ DEF_TEST(Paint_copy, reporter) {
 
     // copy the paint using the copy constructor and check they are the same
     SkPaint copiedPaint = paint;
-    REPORTER_ASSERT(reporter, paint.getHash() == copiedPaint.getHash());
     REPORTER_ASSERT(reporter, paint == copiedPaint);
 
     // copy the paint using the equal operator and check they are the same
@@ -161,26 +160,6 @@ DEF_TEST(Paint_MoreFlattening, r) {
     // No matter the encoding, these must always hold.
     ASSERT(other.getColor()      == paint.getColor());
     ASSERT(other.getBlendMode()  == paint.getBlendMode());
-}
-
-DEF_TEST(Paint_getHash, r) {
-    // Try not to inspect the actual hash values in here.
-    // We might want to change the hash function.
-
-    SkPaint paint;
-    const uint32_t defaultHash = paint.getHash();
-
-    // Check that some arbitrary field affects the hash.
-    paint.setColor(0xFF00FF00);
-    REPORTER_ASSERT(r, paint.getHash() != defaultHash);
-    paint.setColor(SK_ColorBLACK);  // Reset to default value.
-    REPORTER_ASSERT(r, paint.getHash() == defaultHash);
-
-    // This is part of fBitfields, the last field we hash.
-    paint.setBlendMode(SkBlendMode::kSrc);
-    REPORTER_ASSERT(r, paint.getHash() != defaultHash);
-    paint.setBlendMode(SkBlendMode::kSrcOver);
-    REPORTER_ASSERT(r, paint.getHash() == defaultHash);
 }
 
 #include "include/effects/SkColorMatrixFilter.h"

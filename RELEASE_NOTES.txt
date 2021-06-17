@@ -6,7 +6,8 @@ This file includes a list of high level updates for each milestone release.
 
 Milestone 93
 ------------
-  *
+  * Removed SkPaint::getHash
+    https://review.skia.org/419336
 
 * * *
 
