@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9970ddd6_5aad3002",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-17T23:03:09Z",
+      "side": 1,
+      "message": "Pretty sure the BonusConfigs error is because we don\u0027t support Flattening yet.\n\nruntime_androidblendmodes: Pixels don\u0027t match reference\n\nhttp://go/paste/6055424018087936",
+      "revId": "f16ab1325f1248f30e33b73e309741aed21bce83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
