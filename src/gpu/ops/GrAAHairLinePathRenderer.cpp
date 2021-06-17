@@ -919,7 +919,7 @@ private:
                            GrXferBarrierFlags renderPassXferBarriers,
                            GrLoadOp colorLoadOp) override;
 
-    void onPrepareDraws(Target*) override;
+    void onPrepareDraws(GrMeshDrawTarget*) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
     typedef SkTArray<SkPoint, true> PtArray;
@@ -1171,7 +1171,7 @@ void AAHairlineOp::onPrePrepareDraws(GrRecordingContext* context,
     context->priv().recordProgramInfo(fProgramInfos[2]);
 }
 
-void AAHairlineOp::onPrepareDraws(Target* target) {
+void AAHairlineOp::onPrepareDraws(GrMeshDrawTarget* target) {
     // Setup the viewmatrix and localmatrix for the GrGeometryProcessor.
     SkMatrix invert;
     if (!this->viewMatrix().invert(&invert)) {

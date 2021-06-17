@@ -10,9 +10,9 @@
 
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/GrInnerFanTriangulator.h"
+#include "src/gpu/GrMeshDrawTarget.h"
 #include "src/gpu/GrVertexWriter.h"
 #include "src/gpu/GrVx.h"
-#include "src/gpu/ops/GrMeshDrawOp.h"
 
 class SkPath;
 class GrPathTessellationShader;
@@ -35,7 +35,7 @@ public:
     // Called before draw(). Prepares GPU buffers containing the geometry to tessellate. If the
     // given BreadcrumbTriangleList is non-null, then this class will also include the breadcrumb
     // triangles in its draw.
-    virtual void prepare(GrMeshDrawOp::Target*, const SkRect& cullBounds, const SkPath&,
+    virtual void prepare(GrMeshDrawTarget*, const SkRect& cullBounds, const SkPath&,
                          const BreadcrumbTriangleList* = nullptr) = 0;
 
     // Issues draw calls for the tessellated geometry. The caller is responsible for binding its
