@@ -985,22 +985,22 @@ DEF_TEST(GrInnerFanTriangulator, r) {
             .lineTo(1,0).lineTo(1,1).lineTo(0,1)
             .moveTo(.5f,.5f).lineTo(1.5f,.5f).lineTo(1.5f,1.5f).lineTo(.5f,1.5f).close());
     verify_simple_inner_polygons(r, "6-point \"Star of David\"", SkPath()
-            .moveTo(cosf(-SK_ScalarPI/3), sinf(-SK_ScalarPI/3))
-            .lineTo(cosf(SK_ScalarPI/3), sinf(SK_ScalarPI/3))
-            .lineTo(cosf(SK_ScalarPI), sinf(SK_ScalarPI))
+            .moveTo(cosf(-SK_FloatPI/3), sinf(-SK_FloatPI/3))
+            .lineTo(cosf(SK_FloatPI/3), sinf(SK_FloatPI/3))
+            .lineTo(cosf(SK_FloatPI), sinf(SK_FloatPI))
             .moveTo(cosf(0), sinf(0))
-            .lineTo(cosf(2*SK_ScalarPI/3), sinf(2*SK_ScalarPI/3))
-            .lineTo(cosf(-2*SK_ScalarPI/3), sinf(-2*SK_ScalarPI/3)));
+            .lineTo(cosf(2*SK_FloatPI/3), sinf(2*SK_FloatPI/3))
+            .lineTo(cosf(-2*SK_FloatPI/3), sinf(-2*SK_FloatPI/3)));
     verify_simple_inner_polygons(r, "double wound \"Star of David\"", SkPath()
-            .moveTo(cosf(-SK_ScalarPI/3), sinf(-SK_ScalarPI/3))
-            .lineTo(cosf(SK_ScalarPI/3), sinf(SK_ScalarPI/3))
-            .lineTo(cosf(SK_ScalarPI), sinf(SK_ScalarPI))
-            .lineTo(cosf(-SK_ScalarPI/3), sinf(-SK_ScalarPI/3))
-            .lineTo(cosf(SK_ScalarPI/3), sinf(SK_ScalarPI/3))
-            .lineTo(cosf(SK_ScalarPI), sinf(SK_ScalarPI))
+            .moveTo(cosf(-SK_FloatPI/3), sinf(-SK_FloatPI/3))
+            .lineTo(cosf(SK_FloatPI/3), sinf(SK_FloatPI/3))
+            .lineTo(cosf(SK_FloatPI), sinf(SK_FloatPI))
+            .lineTo(cosf(-SK_FloatPI/3), sinf(-SK_FloatPI/3))
+            .lineTo(cosf(SK_FloatPI/3), sinf(SK_FloatPI/3))
+            .lineTo(cosf(SK_FloatPI), sinf(SK_FloatPI))
             .moveTo(cosf(0), sinf(0))
-            .lineTo(cosf(2*SK_ScalarPI/3), sinf(2*SK_ScalarPI/3))
-            .lineTo(cosf(-2*SK_ScalarPI/3), sinf(-2*SK_ScalarPI/3)));
+            .lineTo(cosf(2*SK_FloatPI/3), sinf(2*SK_FloatPI/3))
+            .lineTo(cosf(-2*SK_FloatPI/3), sinf(-2*SK_FloatPI/3)));
     verify_simple_inner_polygons(r, "5-point star", ToolUtils::make_star(SkRect::MakeWH(100, 200)));
     verify_simple_inner_polygons(r, "\"pointy\" intersecting triangles", SkPath()
             .moveTo(0,-100).lineTo(-1e-6f,100).lineTo(1e-6f,100)

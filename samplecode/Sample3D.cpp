@@ -84,7 +84,7 @@ class Sample3DView : public Sample {
 protected:
     float   fNear = 0.05f;
     float   fFar = 4;
-    float   fAngle = SK_ScalarPI / 12;
+    float   fAngle = SK_FloatPI / 12;
 
     SkV3    fEye { 0, 0, 1.0f/tan(fAngle/2) - 1 };
     SkV3    fCOA { 0, 0, 0 };
@@ -134,13 +134,13 @@ static bool front(const SkM44& m) {
 
 const Face faces[] = {
     {             0,             0,  SK_ColorRED }, // front
-    {             0,   SK_ScalarPI,  SK_ColorGREEN }, // back
+    {             0,   SK_FloatPI,  SK_ColorGREEN }, // back
 
-    { SK_ScalarPI/2,             0,  SK_ColorBLUE }, // top
-    {-SK_ScalarPI/2,             0,  SK_ColorCYAN }, // bottom
+    { SK_FloatPI/2,             0,  SK_ColorBLUE }, // top
+    {-SK_FloatPI/2,             0,  SK_ColorCYAN }, // bottom
 
-    {             0, SK_ScalarPI/2,  SK_ColorMAGENTA }, // left
-    {             0,-SK_ScalarPI/2,  SK_ColorYELLOW }, // right
+    {             0, SK_FloatPI/2,  SK_ColorMAGENTA }, // left
+    {             0,-SK_FloatPI/2,  SK_ColorYELLOW }, // right
 };
 
 #include "include/effects/SkRuntimeEffect.h"

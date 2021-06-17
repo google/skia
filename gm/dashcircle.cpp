@@ -55,7 +55,7 @@ protected:
         const SkScalar radius = 125;
         SkRect oval = SkRect::MakeLTRB(-radius - 20, -radius - 20, radius + 20, radius + 20);
         SkPath circle = SkPath::Circle(0, 0, radius);
-        SkScalar circumference = radius * SK_ScalarPI * 2;
+        SkScalar circumference = radius * SK_FloatPI * 2;
         int wedges[] = { 6, 12, 36 };
         canvas->translate(radius+20, radius+20);
         for (int wedge : wedges) {
@@ -157,7 +157,7 @@ protected:
         sk_sp<SkPathEffect> deffects[SK_ARRAY_COUNT(kIntervals)];
         sk_sp<SkPathEffect> thinDEffects[SK_ARRAY_COUNT(kIntervals)];
         for (int i = 0; i < kN; ++i) {
-            static constexpr SkScalar kTau = 2 * SK_ScalarPI;
+            static constexpr SkScalar kTau = 2 * SK_FloatPI;
             static constexpr SkScalar kCircumference = kRadius * kTau;
             SkScalar scaledIntervals[2] = {kCircumference * kIntervals[i][0],
                                            kCircumference * kIntervals[i][1]};

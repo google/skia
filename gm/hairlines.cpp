@@ -38,7 +38,7 @@ protected:
                 kRadius = 40,
             };
             for (int i = 0; i < kNumAngles; ++i) {
-                SkScalar angle = SK_ScalarPI * SkIntToScalar(i) / kNumAngles;
+                SkScalar angle = SK_FloatPI * SkIntToScalar(i) / kNumAngles;
                 SkScalar x = kRadius * SkScalarCos(angle);
                 SkScalar y = kRadius * SkScalarSin(angle);
                 lineAngles.moveTo(x, y).lineTo(-x, -y);

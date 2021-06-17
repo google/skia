@@ -170,12 +170,12 @@ static void init_distances(DFData* data, unsigned char* edges, int width, int he
                 // if you're inside, gradient points away from edge
                 SkPoint currGrad;
                 currGrad.fX = (prevData+1)->fAlpha - (prevData-1)->fAlpha
-                             + SK_ScalarSqrt2*(currData+1)->fAlpha
-                             - SK_ScalarSqrt2*(currData-1)->fAlpha
+                             + SK_FloatSqrt2*(currData+1)->fAlpha
+                             - SK_FloatSqrt2*(currData-1)->fAlpha
                              + (nextData+1)->fAlpha - (nextData-1)->fAlpha;
                 currGrad.fY = (nextData-1)->fAlpha - (prevData-1)->fAlpha
-                             + SK_ScalarSqrt2*nextData->fAlpha
-                             - SK_ScalarSqrt2*prevData->fAlpha
+                             + SK_FloatSqrt2*nextData->fAlpha
+                             - SK_FloatSqrt2*prevData->fAlpha
                              + (nextData+1)->fAlpha - (prevData+1)->fAlpha;
                 SkPointPriv::SetLengthFast(&currGrad, 1.0f);
 

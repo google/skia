@@ -287,7 +287,7 @@ DEF_TEST(TypefaceAxes, reporter) {
         // ensure the last one since that's what css-fonts-4 requires.
         const Variation::Coordinate position[] = {
             { SkSetFourByteTag('w','g','h','t'), 1.618033988749895f },
-            { SkSetFourByteTag('w','g','h','t'), SK_ScalarSqrt2 },
+            { SkSetFourByteTag('w','g','h','t'), SK_FloatSqrt2 },
         };
         SkFontArguments params;
         params.setVariationDesignPosition({position, SK_ARRAY_COUNT(position)});

@@ -105,7 +105,7 @@ next:   ;
 
 static double quadAngle(skiatest::Reporter* reporter, const SkDQuad& quad, double t) {
     const SkDVector& pt = quad.ptAtT(t) - quad[0];
-    double angle = (atan2(pt.fY, pt.fX) + SK_ScalarPI) * 8 / (SK_ScalarPI * 2);
+    double angle = (atan2(pt.fY, pt.fX) + SK_FloatPI) * 8 / (SK_FloatPI * 2);
     REPORTER_ASSERT(reporter, angle >= 0 && angle <= 8);
     return angle;
 }
@@ -209,10 +209,10 @@ static int quadHullsOverlap(skiatest::Reporter* reporter, const SkDQuad& quad1,
 
 static double radianSweep(double start, double end) {
     double sweep = end - start;
-    if (sweep > SK_ScalarPI) {
-        sweep -= 2 * SK_ScalarPI;
-    } else if (sweep < -SK_ScalarPI) {
-        sweep += 2 * SK_ScalarPI;
+    if (sweep > SK_FloatPI) {
+        sweep -= 2 * SK_FloatPI;
+    } else if (sweep < -SK_FloatPI) {
+        sweep += 2 * SK_FloatPI;
     }
     return sweep;
 }
@@ -288,8 +288,8 @@ static bool bruteMinT(skiatest::Reporter* reporter, const SkDQuad& quad1, const 
     double maxQuads = std::max(maxQuad(quad1), maxQuad(quad2));
     double r = maxRadius / 2;
     double rStep = r / 2;
-    SkDPoint best1 = {SK_ScalarInfinity, SK_ScalarInfinity};
-    SkDPoint best2 = {SK_ScalarInfinity, SK_ScalarInfinity};
+    SkDPoint best1 = {SK_FloatInfinity, SK_FloatInfinity};
+    SkDPoint best2 = {SK_FloatInfinity, SK_FloatInfinity};
     int bestCCW = -1;
     double bestR = maxRadius;
     upperRange->tMin = 0;
@@ -443,9 +443,9 @@ static void testQuadAngles(skiatest::Reporter* reporter, const SkDQuad& quad1, c
         || radianBetween(a1s, a2e, a1e) || radianBetween(a2s, a1s, a2e)
         || radianBetween(a2s, a1e, a2e);
     int overlap = quadHullsOverlap(reporter, quad1, quad2);
-    bool realMatchesOverlap = realOverlap == overlap || SK_ScalarPI - fabs(a2s - a1s) < 0.002;
+    bool realMatchesOverlap = realOverlap == overlap || SK_FloatPI - fabs(a2s - a1s) < 0.002;
     if (realOverlap != overlap) {
-        SkDebugf("\nSK_ScalarPI - fabs(a2s - a1s) = %1.9g\n", SK_ScalarPI - fabs(a2s - a1s));
+        SkDebugf("\nSK_FloatPI - fabs(a2s - a1s) = %1.9g\n", SK_FloatPI - fabs(a2s - a1s));
     }
     if (!realMatchesOverlap) {
         DumpQ(quad1, quad2, testNo);
@@ -479,8 +479,8 @@ static void testQuadAngles(skiatest::Reporter* reporter, const SkDQuad& quad1, c
     SkDVector midSpokes[2];
     SkIntersections intersect[2];
     double minX, minY, maxX, maxY;
-    minX = minY = SK_ScalarInfinity;
-    maxX = maxY = -SK_ScalarInfinity;
+    minX = minY = SK_FloatInfinity;
+    maxX = maxY = -SK_FloatInfinity;
     double maxWidth = 0;
     bool useIntersect = false;
     double smallestTs[] = {1, 1};

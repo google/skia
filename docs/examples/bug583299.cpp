@@ -830,8 +830,8 @@ void draw(SkCanvas* canvas) {
         path.lineTo(SkDoubleToScalar(wedge.fLine1[0]), SkDoubleToScalar(wedge.fLine1[1]));
         SkASSERT(wedge.fArc1Angles[0] == wedge.fArc2Angles[1]);
         SkASSERT(wedge.fArc1Angles[1] == wedge.fArc2Angles[0]);
-        SkScalar start = SkDoubleToScalar(wedge.fArc1Angles[0] * 180.f / SK_ScalarPI);
-        SkScalar end = SkDoubleToScalar(wedge.fArc1Angles[1] * 180.f / SK_ScalarPI);
+        SkScalar start = SkDoubleToScalar(wedge.fArc1Angles[0] * 180.f / SK_FloatPI);
+        SkScalar end = SkDoubleToScalar(wedge.fArc1Angles[1] * 180.f / SK_FloatPI);
         if (end < start) {
             end += 360;
         }

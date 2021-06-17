@@ -115,9 +115,9 @@ static void test_empty(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, r.rect() == emptyRects[i]);
     }
 
-    r.setRect({SK_ScalarNaN, 10, 10, 20});
+    r.setRect({SK_FloatNaN, 10, 10, 20});
     REPORTER_ASSERT(reporter, r == SkRRect::MakeEmpty());
-    r.setRect({0, 10, 10, SK_ScalarInfinity});
+    r.setRect({0, 10, 10, SK_FloatInfinity});
     REPORTER_ASSERT(reporter, r == SkRRect::MakeEmpty());
 }
 
@@ -969,8 +969,8 @@ void test_read_rrect(skiatest::Reporter* reporter, const SkRRect& rrect, bool sh
 
 static void test_read(skiatest::Reporter* reporter) {
     static const SkRect kRect = {10.f, 10.f, 20.f, 20.f};
-    static const SkRect kNaNRect = {10.f, 10.f, 20.f, SK_ScalarNaN};
-    static const SkRect kInfRect = {10.f, 10.f, SK_ScalarInfinity, 20.f};
+    static const SkRect kNaNRect = {10.f, 10.f, 20.f, SK_FloatNaN};
+    static const SkRect kInfRect = {10.f, 10.f, SK_FloatInfinity, 20.f};
     SkRRect rrect;
 
     test_read_rrect(reporter, SkRRect::MakeEmpty(), true);
@@ -1007,9 +1007,9 @@ static void test_read(skiatest::Reporter* reporter) {
     SkASSERT(*innerRadius == 1.5f);
     *innerRadius = 400.f;
     test_read_rrect(reporter, rrect, false);
-    *innerRadius = SK_ScalarInfinity;
+    *innerRadius = SK_FloatInfinity;
     test_read_rrect(reporter, rrect, false);
-    *innerRadius = SK_ScalarNaN;
+    *innerRadius = SK_FloatNaN;
     test_read_rrect(reporter, rrect, false);
     *innerRadius = -10.f;
     test_read_rrect(reporter, rrect, false);
@@ -1040,8 +1040,8 @@ static void test_inner_bounds(skiatest::Reporter* reporter) {
     float expectedArea =
             (2.f * radius * radius) +                      // area in the 4 circular corners
             (width-2.f*radius) * (height-2.f*radius) +     // inner area excluding corners and edges
-            SK_ScalarSqrt2 * radius * (width-2.f*radius) + // two horiz. rects between corners
-            SK_ScalarSqrt2 * radius * (height-2.f*radius); // two vert. rects between corners
+            SK_FloatSqrt2 * radius * (width-2.f*radius) + // two horiz. rects between corners
+            SK_FloatSqrt2 * radius * (height-2.f*radius); // two vert. rects between corners
 
     inner = SkRRectPriv::InnerBounds(SkRRect::MakeRectXY(r, radius, radius));
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(inner.width() * inner.height(),

@@ -96,7 +96,7 @@ bool SkRect::setBoundsCheck(const SkPoint pts[], int count) {
 
 void SkRect::setBoundsNoCheck(const SkPoint pts[], int count) {
     if (!this->setBoundsCheck(pts, count)) {
-        this->setLTRB(SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN);
+        this->setLTRB(SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN);
     }
 }
 

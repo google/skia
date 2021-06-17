@@ -411,10 +411,10 @@ static float calculate_nearest_point_for_quad(
         if (xFormPt.fX > 0.f) {
             result = 2.f * (float)sqrt(-a * kThird) * (float)cos(phi * kThird);
             if (!between_closed(result, segment.fP0T.fX, segment.fP2T.fX)) {
-                result = 2.f * (float)sqrt(-a * kThird) * (float)cos((phi * kThird) + (SK_ScalarPI * 2.f * kThird));
+                result = 2.f * (float)sqrt(-a * kThird) * (float)cos((phi * kThird) + (SK_FloatPI * 2.f * kThird));
             }
         } else {
-            result = 2.f * (float)sqrt(-a * kThird) * (float)cos((phi * kThird) + (SK_ScalarPI * 2.f * kThird));
+            result = 2.f * (float)sqrt(-a * kThird) * (float)cos((phi * kThird) + (SK_FloatPI * 2.f * kThird));
             if (!between_closed(result, segment.fP0T.fX, segment.fP2T.fX)) {
                 result = 2.f * (float)sqrt(-a * kThird) * (float)cos(phi * kThird);
             }

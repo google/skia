@@ -310,12 +310,12 @@ DEF_TEST(contour_measure, reporter) {
     auto cm1 = fact.next();
 
     REPORTER_ASSERT(reporter, cm0->isClosed());
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(cm0->length(), 200 * SK_ScalarPI, 1.5f));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(cm0->length(), 200 * SK_FloatPI, 1.5f));
 
     test_90_degrees(cm0, 100, reporter);
 
     REPORTER_ASSERT(reporter, cm1->isClosed());
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(cm1->length(), 20 * SK_ScalarPI, 0.5f));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(cm1->length(), 20 * SK_FloatPI, 0.5f));
 
     test_90_degrees(cm1, 10, reporter);
 

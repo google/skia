@@ -227,8 +227,8 @@ private:
                               SkColor boundsColor, bool labelBounds)
     {
         SkGlyphID left = 0, right = 0, top = 0, bottom = 0;
-        SkRect min = SkRect::MakeLTRB(SK_ScalarInfinity, SK_ScalarInfinity,
-                                      SK_ScalarNegativeInfinity, SK_ScalarNegativeInfinity);
+        SkRect min = SkRect::MakeLTRB(SK_FloatInfinity, SK_FloatInfinity,
+                                      SK_FloatNegativeInfinity, SK_FloatNegativeInfinity);
         {
             int numGlyphs = font.getTypefaceOrDefault()->countGlyphs();
             for (int i = 0; i < numGlyphs; ++i) {

@@ -438,7 +438,7 @@ private:
         //      (sqrt(2)*(umbraInset - outerRadius) + outerRadius)/sqrt(2)*umbraInset
         //
         // Setting the components of the diagonal offset to the following value will give us that.
-        SkScalar diagVal = umbraInset / (SK_ScalarSqrt2*(outerRadius - umbraInset) - outerRadius);
+        SkScalar diagVal = umbraInset / (SK_FloatSqrt2*(outerRadius - umbraInset) - outerRadius);
         SkVector diagVec = SkVector::Make(diagVal, diagVal);
         SkScalar distanceCorrection = umbraInset / blurRadius;
 

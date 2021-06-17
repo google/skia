@@ -41,7 +41,7 @@ inline static bool allowed_stroke(const SkStrokeRec& stroke, GrAA aa, bool* isMi
         return aa == GrAA::kYes; // bevel only supported with AA
     }
     if (stroke.getJoin() == SkPaint::kMiter_Join) {
-        *isMiter = stroke.getMiter() >= SK_ScalarSqrt2;
+        *isMiter = stroke.getMiter() >= SK_FloatSqrt2;
         // Supported under non-AA only if it remains mitered
         return aa == GrAA::kYes || *isMiter;
     }

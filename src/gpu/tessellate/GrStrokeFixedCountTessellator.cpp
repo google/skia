@@ -226,8 +226,8 @@ static int worst_case_edges_in_join(SkPaint::Join joinType, float numRadialSegme
     int numEdges = GrStrokeTessellationShader::NumFixedEdgesInJoin(joinType);
     if (joinType == SkPaint::kRound_Join) {
         // For round joins we need to count the radial edges on our own. Account for a worst-case
-        // join of 180 degrees (SK_ScalarPI radians).
-        numEdges += std::max(SkScalarCeilToInt(numRadialSegmentsPerRadian * SK_ScalarPI) - 1, 0);
+        // join of 180 degrees (SK_FloatPI radians).
+        numEdges += std::max(SkScalarCeilToInt(numRadialSegmentsPerRadian * SK_FloatPI) - 1, 0);
     }
     return numEdges;
 }
@@ -373,9 +373,9 @@ void GrStrokeFixedCountTessellator::prepare(GrMeshDrawOp::Target* target,
         }
     }
 
-    // The maximum rotation we can have in a stroke is 180 degrees (SK_ScalarPI radians).
+    // The maximum rotation we can have in a stroke is 180 degrees (SK_FloatPI radians).
     int maxRadialSegmentsInStroke =
-            std::max(SkScalarCeilToInt(maxRadialSegmentsPerRadian * SK_ScalarPI), 1);
+            std::max(SkScalarCeilToInt(maxRadialSegmentsPerRadian * SK_FloatPI), 1);
 
     int maxParametricSegmentsInStroke = SkScalarCeilToInt(sqrtf(sqrtf(
             instanceWriter.maxParametricSegments_pow4())));

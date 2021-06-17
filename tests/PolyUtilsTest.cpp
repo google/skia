@@ -199,7 +199,7 @@ DEF_TEST(PolyUtils, reporter) {
         const int n = 500;
         poly.rewind();
         SkScalar rad = 0;
-        const SkScalar drad = SK_ScalarPI / n;
+        const SkScalar drad = SK_FloatPI / n;
         for (int i = 0; i < n; i++) {
             *poly.push() = SkPoint::Make(c + SkScalarCos(rad) * r1, c + SkScalarSin(rad) * r1);
             rad += drad;
