@@ -39,7 +39,10 @@ public:
     }
 
     void setRenderPipelineState(id<MTLRenderPipelineState> pso) {
-        [fCommandEncoder setRenderPipelineState:pso];
+        if (fCurrentRenderPipelineState != pso) {
+            [fCommandEncoder setRenderPipelineState:pso];
+            fCurrentRenderPipelineState = pso;
+        }
     }
 
     void setTriangleFillMode(MTLTriangleFillMode fillMode) {
@@ -55,35 +58,68 @@ public:
     }
 
     void setVertexBuffer(id<MTLBuffer> buffer, NSUInteger offset, NSUInteger index) {
+        if (@available(macOS 10.11, iOS 8.3, *)) {
+            if (fCurrentVertexBuffer[index] == buffer) {
+                this->setVertexBufferOffset(offset, index);
+                return;
+            }
+        }
         [fCommandEncoder setVertexBuffer:buffer
                                   offset:offset
                                  atIndex:index];
+        fCurrentVertexBuffer[index] = buffer;
     }
-    void setVertexBufferOffset(NSUInteger offset, NSUInteger index) SK_API_AVAILABLE(ios(8.3)) {
+    void setVertexBufferOffset(NSUInteger offset, NSUInteger index)
+            SK_API_AVAILABLE(macos(10.11), ios(8.3)) {
         [fCommandEncoder setVertexBufferOffset:offset
                                        atIndex:index];
     }
 
+    void setFragmentBuffer(id<MTLBuffer> buffer, NSUInteger offset, NSUInteger index) {
+        if (@available(macOS 10.11, iOS 8.3, *)) {
+            if (fCurrentFragmentBuffer[index] == buffer) {
+                this->setFragmentBufferOffset(offset, index);
+                return;
+            }
+        }
+        [fCommandEncoder setFragmentBuffer:buffer
+                                    offset:offset
+                                   atIndex:index];
+        fCurrentFragmentBuffer[index] = buffer;
+    }
+    void setFragmentBufferOffset(NSUInteger offset, NSUInteger index)
+            SK_API_AVAILABLE(macos(10.11), ios(8.3)) {
+        [fCommandEncoder setFragmentBufferOffset:offset
+                                         atIndex:index];
+    }
+
     void setVertexBytes(const void* bytes, NSUInteger length, NSUInteger index)
-            SK_API_AVAILABLE(ios(8.3)) {
+            SK_API_AVAILABLE(macos(10.11), ios(8.3)) {
         [fCommandEncoder setVertexBytes:bytes
                                  length:length
                                 atIndex:index];
     }
-    void setFragmentBytes(void* bytes, NSUInteger length, NSUInteger index)
-            SK_API_AVAILABLE(ios(8.3)) {
+    void setFragmentBytes(const void* bytes, NSUInteger length, NSUInteger index)
+            SK_API_AVAILABLE(macos(10.11), ios(8.3)) {
         [fCommandEncoder setFragmentBytes:bytes
                                    length:length
                                   atIndex:index];
     }
 
     void setFragmentTexture(id<MTLTexture> texture, NSUInteger index) {
-        [fCommandEncoder setFragmentTexture:texture
-                                     atIndex:index];
+        SkASSERT(index < 16);
+        if (fCurrentTexture[index] != texture) {
+            [fCommandEncoder setFragmentTexture:texture
+                                         atIndex:index];
+            fCurrentTexture[index] = texture;
+        }
     }
     void setFragmentSamplerState(GrMtlSampler* sampler, NSUInteger index) {
-        [fCommandEncoder setFragmentSamplerState: sampler->mtlSampler()
-                                     atIndex: index];
+        if (fCurrentSampler[index] != sampler) {
+            [fCommandEncoder setFragmentSamplerState: sampler->mtlSampler()
+                                         atIndex: index];
+            fCurrentSampler[index] = sampler;
+        }
     }
 
     void setBlendColor(SkPMColor4f blendConst) {
@@ -104,11 +140,20 @@ public:
         [fCommandEncoder setStencilReferenceValue:referenceValue];
     }
     void setDepthStencilState(id<MTLDepthStencilState> depthStencilState) {
-        [fCommandEncoder setDepthStencilState:depthStencilState];
+        if (depthStencilState != fCurrentDepthStencilState) {
+            [fCommandEncoder setDepthStencilState:depthStencilState];
+            fCurrentDepthStencilState = depthStencilState;
+        }
     }
 
     void setScissorRect(const MTLScissorRect& scissorRect) {
-        [fCommandEncoder setScissorRect:scissorRect];
+        if (fCurrentScissorRect.x != scissorRect.x ||
+            fCurrentScissorRect.y != scissorRect.y ||
+            fCurrentScissorRect.width != scissorRect.width ||
+            fCurrentScissorRect.height != scissorRect.height) {
+            [fCommandEncoder setScissorRect:scissorRect];
+            fCurrentScissorRect = scissorRect;
+        }
     }
 
     void drawPrimitives(MTLPrimitiveType primitiveType, NSUInteger vertexStart,
@@ -179,6 +224,14 @@ private:
         : fCommandEncoder(encoder) {}
 
     id<MTLRenderCommandEncoder> fCommandEncoder = nil;
+
+    __weak id<MTLRenderPipelineState> fCurrentRenderPipelineState = nil;
+    __weak id<MTLDepthStencilState> fCurrentDepthStencilState = nil;
+    __weak id<MTLTexture> fCurrentTexture[16];
+    __weak id<MTLBuffer> fCurrentVertexBuffer[16];
+    __weak id<MTLBuffer> fCurrentFragmentBuffer[16];
+    GrMtlSampler* fCurrentSampler[16] = { 0 };
+    MTLScissorRect fCurrentScissorRect = { 0, 0, 0, 0 };
 };
 
 GR_NORETAIN_END

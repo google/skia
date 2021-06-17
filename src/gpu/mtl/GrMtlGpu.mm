@@ -149,6 +149,7 @@ GrMtlGpu::GrMtlGpu(GrDirectContext* direct, const GrContextOptions& options,
         , fOutstandingCommandBuffers(sizeof(OutstandingCommandBuffer), kDefaultOutstandingAllocCnt)
         , fResourceProvider(this)
         , fStagingBufferManager(this)
+        , fUniformsRingBuffer(this, 128 * 1024, 4, GrGpuBufferType::kVertex)
         , fDisconnected(false) {
     fMtlCaps.reset(new GrMtlCaps(options, fDevice, featureSet));
     this->initCapsAndCompiler(fMtlCaps);
@@ -225,8 +226,8 @@ GrMtlCommandBuffer* GrMtlGpu::commandBuffer() {
 }
 
 void GrMtlGpu::takeOwnershipOfBuffer(sk_sp<GrGpuBuffer> buffer) {
-    SkASSERT(fCurrentCmdBuffer);
-    fCurrentCmdBuffer->addGrBuffer(std::move(buffer));
+    SkASSERT(buffer);
+    this->commandBuffer()->addGrBuffer(std::move(buffer));
 }
 
 void GrMtlGpu::submit(GrOpsRenderPass* renderPass) {
@@ -391,12 +392,7 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex,
 
 
     // offset value must be a multiple of the destination texture's pixel size in bytes
-#ifdef SK_BUILD_FOR_MAC
-    static const size_t kMinAlignment = 4;
-#else
-    static const size_t kMinAlignment = 1;
-#endif
-    size_t alignment = std::max(bpp, kMinAlignment);
+    size_t alignment = std::max(bpp, this->caps()->transferBufferAlignment());
     GrStagingBufferManager::Slice slice = fStagingBufferManager.allocateStagingBufferSlice(
             combinedBufferSize, alignment);
     if (!slice.fBuffer) {
