@@ -843,7 +843,7 @@ public:
 
     const char* name() const override { return "AAHairlineOp"; }
 
-    void visitProxies(const VisitProxyFunc& func) const override {
+    void visitProxies(const GrVisitProxyFunc& func) const override {
 
         bool visited = false;
         for (int i = 0; i < 3; ++i) {

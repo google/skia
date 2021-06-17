@@ -20,6 +20,7 @@
 
 #if SK_SUPPORT_GPU
 #include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/GrSurfaceProxyView.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/text/GrSDFMaskFilter.h"
 #endif

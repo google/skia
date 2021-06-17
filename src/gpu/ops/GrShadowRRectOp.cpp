@@ -639,7 +639,7 @@ private:
     }
 #endif
 
-    void visitProxies(const VisitProxyFunc& func) const override {
+    void visitProxies(const GrVisitProxyFunc& func) const override {
         func(fFalloffView.proxy(), GrMipmapped(false));
         if (fProgramInfo) {
             fProgramInfo->visitFPProxies(func);

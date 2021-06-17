@@ -41,8 +41,8 @@ private:
     const char* name() const final { return "Copy"; }
 #endif
 #ifdef SK_DEBUG
-    void visitProxies_debugOnly(const GrOp::VisitProxyFunc& fn) const override {
-        fn(fSrc.get(), GrMipmapped::kNo);
+    void visitProxies_debugOnly(const GrVisitProxyFunc& func) const override {
+        func(fSrc.get(), GrMipmapped::kNo);
     }
 #endif
 

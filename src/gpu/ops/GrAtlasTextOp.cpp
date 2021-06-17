@@ -133,7 +133,7 @@ void GrAtlasTextOp::Geometry::fillVertexData(void *dst, int offset, int count) c
             dst, offset, count, fColor.toBytes_RGBA(), positionMatrix, fClipRect);
 }
 
-void GrAtlasTextOp::visitProxies(const VisitProxyFunc& func) const {
+void GrAtlasTextOp::visitProxies(const GrVisitProxyFunc& func) const {
     fProcessors.visitProxies(func);
 }
 

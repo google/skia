@@ -60,7 +60,7 @@ public:
             return GrOp::Make<Op>(context, context, proxyProvider, test, nullTexture);
         }
 
-        void visitProxies(const VisitProxyFunc& func) const override {
+        void visitProxies(const GrVisitProxyFunc& func) const override {
             func(fProxy.get(), GrMipmapped::kNo);
         }
 
@@ -315,7 +315,7 @@ public:
                                                          shouldFailInstantiation);
     }
 
-    void visitProxies(const VisitProxyFunc& func) const override {
+    void visitProxies(const GrVisitProxyFunc& func) const override {
         func(fLazyProxy.get(), GrMipmapped::kNo);
     }
 

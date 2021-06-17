@@ -35,7 +35,7 @@ private:
     }
 
     const char* name() const override { return "GrPathStencilCoverOp"; }
-    void visitProxies(const VisitProxyFunc& fn) const override;
+    void visitProxies(const GrVisitProxyFunc&) const override;
     FixedFunctionFlags fixedFunctionFlags() const override;
     GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*, GrClampType) override;
 

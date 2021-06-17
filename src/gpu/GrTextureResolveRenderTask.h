@@ -33,7 +33,7 @@ private:
     const char* name() const final { return "TextureResolve"; }
 #endif
 #ifdef SK_DEBUG
-    void visitProxies_debugOnly(const GrOp::VisitProxyFunc&) const override;
+    void visitProxies_debugOnly(const GrVisitProxyFunc&) const override;
 #endif
 
     struct Resolve {

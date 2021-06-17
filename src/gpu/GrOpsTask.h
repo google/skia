@@ -93,7 +93,7 @@ public:
 
 #ifdef SK_DEBUG
     int numClips() const override { return fNumClips; }
-    void visitProxies_debugOnly(const GrOp::VisitProxyFunc&) const override;
+    void visitProxies_debugOnly(const GrVisitProxyFunc&) const override;
 #endif
 
 #if GR_TEST_UTILS
@@ -155,7 +155,7 @@ private:
         OpChain(OpChain&&) = default;
         OpChain& operator=(OpChain&&) = default;
 
-        void visitProxies(const GrOp::VisitProxyFunc&) const;
+        void visitProxies(const GrVisitProxyFunc&) const;
 
         GrOp* head() const { return fList.head(); }
 

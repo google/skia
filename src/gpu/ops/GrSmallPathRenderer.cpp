@@ -137,7 +137,7 @@ public:
 
     const char* name() const override { return "SmallPathOp"; }
 
-    void visitProxies(const VisitProxyFunc& func) const override {
+    void visitProxies(const GrVisitProxyFunc& func) const override {
         fHelper.visitProxies(func);
     }
 

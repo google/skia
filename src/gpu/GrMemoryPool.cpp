@@ -9,7 +9,6 @@
 
 #include "include/private/SkTPin.h"
 #include "src/core/SkASAN.h"
-#include "src/gpu/ops/GrOp.h"
 
 #ifdef SK_DEBUG
     #include <atomic>

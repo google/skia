@@ -96,7 +96,7 @@ public:
 
     const char* name() const override { return "AtlasTextOp"; }
 
-    void visitProxies(const VisitProxyFunc& func) const override;
+    void visitProxies(const GrVisitProxyFunc&) const override;
 
     FixedFunctionFlags fixedFunctionFlags() const override;
 

@@ -103,7 +103,7 @@ public:
                                       const GrAppliedClip*,
                                       GrClampType) override;
 
-    void visitProxies(const VisitProxyFunc& func) const override {
+    void visitProxies(const GrVisitProxyFunc& func) const override {
         if (fProgramInfo) {
             fProgramInfo->visitFPProxies(func);
         } else {

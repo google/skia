@@ -10,11 +10,11 @@
 #include "src/gpu/tessellate/GrPathWedgeTessellator.h"
 #include "src/gpu/tessellate/shaders/GrPathTessellationShader.h"
 
-void GrPathTessellateOp::visitProxies(const VisitProxyFunc& fn) const {
+void GrPathTessellateOp::visitProxies(const GrVisitProxyFunc& func) const {
     if (fTessellationProgram) {
-        fTessellationProgram->pipeline().visitProxies(fn);
+        fTessellationProgram->pipeline().visitProxies(func);
     } else {
-        fProcessors.visitProxies(fn);
+        fProcessors.visitProxies(func);
     }
 }
 

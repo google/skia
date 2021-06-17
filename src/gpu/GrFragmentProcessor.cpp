@@ -44,7 +44,7 @@ bool GrFragmentProcessor::isEqual(const GrFragmentProcessor& that) const {
     return true;
 }
 
-void GrFragmentProcessor::visitProxies(const GrOp::VisitProxyFunc& func) const {
+void GrFragmentProcessor::visitProxies(const GrVisitProxyFunc& func) const {
     this->visitTextureEffects([&func](const GrTextureEffect& te) {
         func(te.view().proxy(), te.samplerState().mipmapped());
     });

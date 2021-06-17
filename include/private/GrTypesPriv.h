@@ -19,6 +19,7 @@
 
 class GrBackendFormat;
 class GrCaps;
+class GrSurfaceProxy;
 
 // The old libstdc++ uses the draft name "monotonic_clock" rather than "steady_clock". This might
 // not actually be monotonic, depending on how libstdc++ was built. However, this is only currently
@@ -1313,6 +1314,8 @@ enum class GrDstSampleFlags {
     kAsInputAttachment = 1 << 1,
 };
 GR_MAKE_BITFIELD_CLASS_OPS(GrDstSampleFlags)
+
+using GrVisitProxyFunc = std::function<void(GrSurfaceProxy*, GrMipmapped)>;
 
 #if defined(SK_DEBUG) || GR_TEST_UTILS || defined(SK_ENABLE_DUMP_GPU)
 static constexpr const char* GrBackendApiToStr(GrBackendApi api) {

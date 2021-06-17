@@ -128,7 +128,7 @@ GrOpsTask::OpChain::OpChain(GrOp::Owner op, GrProcessorSet::Analysis processorAn
     fBounds = fList.head()->bounds();
 }
 
-void GrOpsTask::OpChain::visitProxies(const GrOp::VisitProxyFunc& func) const {
+void GrOpsTask::OpChain::visitProxies(const GrVisitProxyFunc& func) const {
     if (fList.empty()) {
         return;
     }
@@ -853,7 +853,7 @@ void GrOpsTask::dump(const SkString& label,
 #endif
 
 #ifdef SK_DEBUG
-void GrOpsTask::visitProxies_debugOnly(const GrOp::VisitProxyFunc& func) const {
+void GrOpsTask::visitProxies_debugOnly(const GrVisitProxyFunc& func) const {
     auto textureFunc = [ func ] (GrSurfaceProxy* tex, GrMipmapped mipmapped) {
         func(tex, mipmapped);
     };
