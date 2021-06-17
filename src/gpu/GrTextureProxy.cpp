@@ -12,6 +12,7 @@
 #include "src/gpu/GrDeferredProxyUploader.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrSimpleMesh.h"
 #include "src/gpu/GrSurface.h"
 #include "src/gpu/GrTexture.h"
 

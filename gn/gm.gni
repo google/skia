@@ -81,7 +81,6 @@ gm_sources = [
   "$_gm/clip_strokerect.cpp",
   "$_gm/clipdrawdraw.cpp",
   "$_gm/clippedbitmapshaders.cpp",
-  "$_gm/clockwise.cpp",
   "$_gm/collapsepaths.cpp",
   "$_gm/color4f.cpp",
   "$_gm/coloremoji.cpp",
@@ -191,7 +190,6 @@ gm_sources = [
   "$_gm/fontscalerdistortable.cpp",
   "$_gm/fp_sample_chaining.cpp",
   "$_gm/fpcoordinateoverride.cpp",
-  "$_gm/fwidth_squircle.cpp",
   "$_gm/gammatext.cpp",
   "$_gm/getpostextpath.cpp",
   "$_gm/giantbitmap.cpp",
@@ -370,7 +368,6 @@ gm_sources = [
   "$_gm/swizzle.cpp",
   "$_gm/tablecolorfilter.cpp",
   "$_gm/tallstretchedbitmaps.cpp",
-  "$_gm/tessellation.cpp",
   "$_gm/testgradient.cpp",
   "$_gm/texelsubset.cpp",
   "$_gm/text_scale_skew.cpp",
@@ -416,7 +413,10 @@ gm_sources = [
 gl_gm_sources = [ "$_gm/rectangletexture.cpp" ]
 
 oga_gm_sources = [
+  "$_gm/clockwise.cpp",
+  "$_gm/fwidth_squircle.cpp",
   "$_gm/preservefillrule.cpp",
+  "$_gm/tessellation.cpp",
   "$_gm/widebuttcaps.cpp",
 ]
 

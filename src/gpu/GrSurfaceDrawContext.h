@@ -603,6 +603,8 @@ public:
 
     // Allows caller of addDrawOp to know which op list an op will be added to.
     using WillAddOpFn = void(GrOp*, uint32_t opsTaskID);
+
+#if GR_OGA
     // These perform processing specific to GrDrawOp-derived ops before recording them into an
     // op list. Before adding the op to an op list the WillAddOpFn is called. Note that it
     // will not be called in the event that the op is discarded. Moreover, the op may merge into
@@ -613,6 +615,7 @@ public:
                    GrOp::Owner,
                    const std::function<WillAddOpFn>& = std::function<WillAddOpFn>());
     void addDrawOp(GrOp::Owner op) { this->addDrawOp(nullptr, std::move(op)); }
+#endif
 
     bool refsWrappedObjects() const { return this->asRenderTargetProxy()->refsWrappedObjects(); }
 
@@ -653,7 +656,10 @@ private:
 
     GrAAType chooseAAType(GrAA);
 
+#if GR_OGA
     GrOpsTask::CanDiscardPreviousOps canDiscardPreviousOpsOnFullClear() const override;
+#endif
+
     void setNeedsStencil();
 
     void internalStencilClear(const SkIRect* scissor, bool insideStencilMask);

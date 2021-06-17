@@ -16,6 +16,8 @@
 
 class SkPath;
 class GrPathTessellationShader;
+class Target2;
+class GrOpFlushState;
 
 // Prepares GPU data for, and then draws a path's tessellated geometry. Depending on the subclass,
 // the caller may or may not be required to draw the path's inner fan separately.
@@ -35,7 +37,7 @@ public:
     // Called before draw(). Prepares GPU buffers containing the geometry to tessellate. If the
     // given BreadcrumbTriangleList is non-null, then this class will also include the breadcrumb
     // triangles in its draw.
-    virtual void prepare(GrMeshDrawOp::Target*, const SkRect& cullBounds, const SkPath&,
+    virtual void prepare(Target2*, const SkRect& cullBounds, const SkPath&,
                          const BreadcrumbTriangleList* = nullptr) = 0;
 
     // Issues draw calls for the tessellated geometry. The caller is responsible for binding its
