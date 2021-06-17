@@ -11,8 +11,8 @@
 #include "include/private/SkNoncopyable.h"
 #include "include/private/SkTArray.h"
 #include "src/gpu/GrBuffer.h"
+#include "src/gpu/GrMeshDrawTarget.h"
 #include "src/gpu/GrVertexWriter.h"
-#include "src/gpu/ops/GrMeshDrawOp.h"
 
 // Represents a chunk of vertex data. Use with GrVertexChunkArray and GrVertexChunkBuilder. We write
 // the data out in chunks when we don't start out knowing exactly how many vertices (or instances)
@@ -33,7 +33,7 @@ using GrVertexChunkArray = SkSTArray<1, GrVertexChunk>;
 // entire lifetime of this object.
 class GrVertexChunkBuilder : SkNoncopyable {
 public:
-    GrVertexChunkBuilder(GrMeshDrawOp::Target* target, GrVertexChunkArray* chunks, size_t stride,
+    GrVertexChunkBuilder(GrMeshDrawTarget* target, GrVertexChunkArray* chunks, size_t stride,
                          int minVerticesPerChunk)
             : fTarget(target)
             , fChunks(chunks)
@@ -101,7 +101,7 @@ private:
         return true;
     }
 
-    GrMeshDrawOp::Target* const fTarget;
+    GrMeshDrawTarget* const fTarget;
     GrVertexChunkArray* const fChunks;
     const size_t fStride;
     int fMinVerticesPerChunk;

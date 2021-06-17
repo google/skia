@@ -28,7 +28,7 @@ public:
                                    DrawInnerFan, int numPathVerbs, const GrPipeline&,
                                    const GrCaps&);
 
-    void prepare(GrMeshDrawOp::Target*, const SkRect& cullBounds, const SkPath&,
+    void prepare(GrMeshDrawTarget*, const SkRect& cullBounds, const SkPath&,
                  const BreadcrumbTriangleList*) override;
     void draw(GrOpFlushState*) const override;
     void drawHullInstances(GrOpFlushState*) const override;
