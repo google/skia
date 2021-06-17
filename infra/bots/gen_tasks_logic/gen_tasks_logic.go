@@ -1760,7 +1760,7 @@ func (b *jobBuilder) perf() {
 	if !b.extraConfig("LottieWeb") {
 		compileTaskName = b.compile()
 	}
-	doUpload := b.release() && b.doUpload()
+	doUpload := /*b.release() &&*/ b.doUpload()
 	b.addTask(b.Name, func(b *taskBuilder) {
 		recipe := "perf"
 		cas := CAS_PERF
