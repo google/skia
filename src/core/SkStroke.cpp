@@ -1593,7 +1593,7 @@ void SkStroke::strokeRect(const SkRect& origRect, SkPath* dst,
     r.outset(radius, radius);
 
     SkPaint::Join join = (SkPaint::Join)fJoin;
-    if (SkPaint::kMiter_Join == join && fMiterLimit < SK_ScalarSqrt2) {
+    if (SkPaint::kMiter_Join == join && fMiterLimit < SK_FloatSqrt2) {
         join = SkPaint::kBevel_Join;
     }
 

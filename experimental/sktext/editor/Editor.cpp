@@ -229,7 +229,7 @@ std::unique_ptr<Editor> Editor::MakeDemo(SkScalar width) {
 
     sk_sp<TrivialFontChain> fontChain = sk_make_sp<TrivialFontChain>("Roboto", 40);
     Block block(text0.size(), fontChain);
-    return Editor::Make(text0, SkSize::Make(width, SK_ScalarInfinity), SkSpan<Block>(&block, 1));
+    return Editor::Make(text0, SkSize::Make(width, SK_FloatInfinity), SkSpan<Block>(&block, 1));
 }
 } // namespace text
 } // namespace skia

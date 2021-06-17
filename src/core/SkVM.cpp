@@ -728,7 +728,7 @@ namespace skvm {
     // radians into that range first.
     //
     F32 Builder::approx_sin(F32 radians) {
-        constexpr float Pi = SK_ScalarPI;
+        constexpr float Pi = SK_FloatPI;
         // x = radians mod 2pi
         F32 x = fract(radians * (0.5f/Pi)) * (2*Pi);
         I32 neg = x > Pi;   // are we pi < x < 2pi --> need to negate result
@@ -762,7 +762,7 @@ namespace skvm {
                     1 - tan(x')
      */
     F32 Builder::approx_tan(F32 x) {
-        constexpr float Pi = SK_ScalarPI;
+        constexpr float Pi = SK_FloatPI;
         // periodic between -pi/2 ... pi/2
         // shift to 0...Pi, scale 1/Pi to get into 0...1, then fract, scale-up, shift-back
         x = fract((1/Pi)*x + 0.5f) * Pi - (Pi/2);
@@ -787,7 +787,7 @@ namespace skvm {
      F32 Builder::approx_asin(F32 x) {
          I32 neg = (x < 0.0f);
          x = select(neg, -x, x);
-         x = SK_ScalarPI/2 - sqrt(1-x) * poly(x, -0.0187293f, 0.0742610f, -0.2121144f, 1.5707288f);
+         x = SK_FloatPI/2 - sqrt(1-x) * poly(x, -0.0187293f, 0.0742610f, -0.2121144f, 1.5707288f);
          x = select(neg, -x, x);
          return x;
      }
@@ -814,7 +814,7 @@ namespace skvm {
         I32 flip = (x > 1.0f);
         x = select(flip, 1/x, x);
         x = approx_atan_unit(x);
-        x = select(flip, SK_ScalarPI/2 - x, x);
+        x = select(flip, SK_FloatPI/2 - x, x);
         x = select(neg, -x, x);
         return x;
     }
@@ -834,12 +834,12 @@ namespace skvm {
         arg = select(neg, -arg, arg);
 
         F32 r = approx_atan_unit(arg);
-        r = select(flip, SK_ScalarPI/2 - r, r);
+        r = select(flip, SK_FloatPI/2 - r, r);
         r = select(neg, -r, r);
 
         // handle quadrant distinctions
-        r = select((y0 >= 0) & (x0  < 0), r + SK_ScalarPI, r);
-        r = select((y0  < 0) & (x0 <= 0), r - SK_ScalarPI, r);
+        r = select((y0 >= 0) & (x0  < 0), r + SK_FloatPI, r);
+        r = select((y0  < 0) & (x0 <= 0), r - SK_FloatPI, r);
         // Note: we don't try to handle 0,0 or infinities (yet)
         return r;
     }

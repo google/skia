@@ -133,7 +133,7 @@ DEF_TEST(Paint_regression_measureText, reporter) {
     font.setSize(12.0f);
 
     SkRect r;
-    r.setLTRB(SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN);
+    r.setLTRB(SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN);
 
     // test that the rect was reset
     font.measureText("", 0, SkTextEncoding::kUTF8, &r);

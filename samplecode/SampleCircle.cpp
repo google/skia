@@ -57,7 +57,7 @@ class CircleView : public Sample {
         }
         path->incReserve(n + 1);
         path->moveTo(SK_Scalar1, 0);
-        SkScalar step = SK_ScalarPI * 2 / n;
+        SkScalar step = SK_FloatPI * 2 / n;
         SkScalar angle = 0;
         for (int i = 1; i < n; i++) {
             angle += step;

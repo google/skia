@@ -113,7 +113,7 @@ uint64_t resource_cache_shared_id() {
 
 /** Factory for an ambient shadow mesh with particular shadow properties. */
 struct AmbientVerticesFactory {
-    SkScalar fOccluderHeight = SK_ScalarNaN;  // NaN so that isCompatible will fail until init'ed.
+    SkScalar fOccluderHeight = SK_FloatNaN;  // NaN so that isCompatible will fail until init'ed.
     bool fTransparent;
     SkVector fOffset;
 
@@ -155,7 +155,7 @@ struct SpotVerticesFactory {
 
     SkVector fOffset;
     SkPoint  fLocalCenter;
-    SkScalar fOccluderHeight = SK_ScalarNaN; // NaN so that isCompatible will fail until init'ed.
+    SkScalar fOccluderHeight = SK_FloatNaN; // NaN so that isCompatible will fail until init'ed.
     SkPoint3 fDevLightPos;
     SkScalar fLightRadius;
     OccluderType fOccluderType;

@@ -65,10 +65,10 @@ static void test_quick_reject(skiatest::Reporter* reporter) {
     SkRect r4 = SkRect::MakeLTRB(-50.0f, -120.0f, 50.0f, 120.0f);
     SkRect r5 = SkRect::MakeLTRB(-120.0f, -120.0f, 120.0f, 120.0f);
     SkRect r6 = SkRect::MakeLTRB(-120.0f, -120.0f, -110.0f, -110.0f);
-    SkRect r7 = SkRect::MakeLTRB(SK_ScalarNaN, -50.0f, 50.0f, 50.0f);
-    SkRect r8 = SkRect::MakeLTRB(-50.0f, SK_ScalarNaN, 50.0f, 50.0f);
-    SkRect r9 = SkRect::MakeLTRB(-50.0f, -50.0f, SK_ScalarNaN, 50.0f);
-    SkRect r10 = SkRect::MakeLTRB(-50.0f, -50.0f, 50.0f, SK_ScalarNaN);
+    SkRect r7 = SkRect::MakeLTRB(SK_FloatNaN, -50.0f, 50.0f, 50.0f);
+    SkRect r8 = SkRect::MakeLTRB(-50.0f, SK_FloatNaN, 50.0f, 50.0f);
+    SkRect r9 = SkRect::MakeLTRB(-50.0f, -50.0f, SK_FloatNaN, 50.0f);
+    SkRect r10 = SkRect::MakeLTRB(-50.0f, -50.0f, 50.0f, SK_FloatNaN);
     REPORTER_ASSERT(reporter, false == canvas.quickReject(r0));
     REPORTER_ASSERT(reporter, true == canvas.quickReject(r1));
     REPORTER_ASSERT(reporter, true == canvas.quickReject(r2));

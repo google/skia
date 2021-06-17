@@ -494,7 +494,7 @@ struct SK_API SkPoint {
         to vec->fY, if possible. If original length is nearly zero, sets vec to (0, 0) and returns
         zero; otherwise, returns length of vec before vec is scaled.
 
-        Returned prior length may be SK_ScalarInfinity if it can not be represented by SkScalar.
+        Returned prior length may be SK_FloatInfinity if it can not be represented by SkScalar.
 
         Note that normalize() is faster if prior length is not required.
 

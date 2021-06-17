@@ -12,7 +12,7 @@ bool Paint::drawText(std::u16string text, SkCanvas* canvas, SkScalar x, SkScalar
 bool Paint::drawText(std::u16string text, SkCanvas* canvas, SkScalar width) {
     return drawText(std::move(text), canvas,
                     TextDirection::kLtr, TextAlign::kLeft, SK_ColorBLACK, SK_ColorWHITE, SkString("Roboto"), 14, SkFontStyle::Normal(),
-                    SkSize::Make(width, SK_ScalarInfinity), 0, 0);
+                    SkSize::Make(width, SK_FloatInfinity), 0, 0);
 }
 
 bool Paint::drawText(std::u16string text, SkCanvas* canvas,
@@ -21,7 +21,7 @@ bool Paint::drawText(std::u16string text, SkCanvas* canvas,
                      const SkString& fontFamily, SkScalar fontSize, SkFontStyle fontStyle, SkScalar x, SkScalar y) {
     return drawText(std::move(text), canvas,
                     textDirection, textAlign, foreground, background,
-                    fontFamily, fontSize, fontStyle, SkSize::Make(SK_ScalarInfinity, SK_ScalarInfinity), x, y);
+                    fontFamily, fontSize, fontStyle, SkSize::Make(SK_FloatInfinity, SK_FloatInfinity), x, y);
 }
 
 bool Paint::drawText(std::u16string text, SkCanvas* canvas,

@@ -11,7 +11,7 @@
 #include <iostream>
 #include <cmath>
 
-#define PI SK_ScalarPI
+#define PI SK_FloatPI
 
 #define LIN_SEGMENTS 10
 

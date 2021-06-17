@@ -302,7 +302,7 @@ public:
 
     /** Returns true for finite SkPoint array values between negative SK_ScalarMax and
         positive SK_ScalarMax. Returns false for any SkPoint array value of
-        SK_ScalarInfinity, SK_ScalarNegativeInfinity, or SK_ScalarNaN.
+        SK_FloatInfinity, SK_FloatNegativeInfinity, or SK_FloatNaN.
 
         @return  true if all SkPoint values are finite
     */

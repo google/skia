@@ -50,7 +50,7 @@ namespace {
         canvas->save();
         canvas->translate(b.fX, b.fY);
         SkScalar angle = SkScalarATan2((b.fY - a.fY), b.fX - a.fX);
-        canvas->rotate(angle * 180 / SK_ScalarPI - 90);
+        canvas->rotate(angle * 180 / SK_FloatPI - 90);
         // arrow head
         canvas->drawPath(arrowHead, paint);
         canvas->restore();

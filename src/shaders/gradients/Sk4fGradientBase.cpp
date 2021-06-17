@@ -202,7 +202,7 @@ void Sk4fGradientIntervalBuffer::init(const SkGradientShaderBase& shader, SkColo
         // synthetic edge interval: -/+inf .. P0
         const Sk4f clamp_color = pack_color(xformedColors.fColors[first_index],
                                             premulColors, componentScale);
-        const SkScalar clamp_pos = reverse ? SK_ScalarInfinity : SK_ScalarNegativeInfinity;
+        const SkScalar clamp_pos = reverse ? SK_FloatInfinity : SK_FloatNegativeInfinity;
         fIntervals.emplace_back(clamp_color, clamp_pos,
                                 clamp_color, first_pos);
     } else if (tileMode == SkTileMode::kMirror && reverse) {
@@ -224,7 +224,7 @@ void Sk4fGradientIntervalBuffer::init(const SkGradientShaderBase& shader, SkColo
         // synthetic edge interval: Pn .. +/-inf
         const Sk4f clamp_color = pack_color(xformedColors.fColors[last_index],
                                             premulColors, componentScale);
-        const SkScalar clamp_pos = reverse ? SK_ScalarNegativeInfinity : SK_ScalarInfinity;
+        const SkScalar clamp_pos = reverse ? SK_FloatNegativeInfinity : SK_FloatInfinity;
         fIntervals.emplace_back(clamp_color, last_pos,
                                 clamp_color, clamp_pos);
     } else if (tileMode == SkTileMode::kMirror && !reverse) {

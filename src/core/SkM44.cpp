@@ -193,7 +193,7 @@ static SkRect map_rect_perspective(const SkRect& src, const float mat[16]) {
 
                     return flip * skvx::shuffle<0,1,0,1>(c);
                 } else {
-                    return sk4f(SK_ScalarInfinity);
+                    return sk4f(SK_FloatInfinity);
                 }
             };
             // Clip both edges leaving p0, and return the min/max of the two clipped points

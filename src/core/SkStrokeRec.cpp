@@ -163,7 +163,7 @@ SkScalar SkStrokeRec::GetInflationRadius(SkPaint::Join join, SkScalar miterLimit
         multiplier = std::max(multiplier, miterLimit);
     }
     if (SkPaint::kSquare_Cap == cap) {
-        multiplier = std::max(multiplier, SK_ScalarSqrt2);
+        multiplier = std::max(multiplier, SK_FloatSqrt2);
     }
     return strokeWidth/2 * multiplier;
 }

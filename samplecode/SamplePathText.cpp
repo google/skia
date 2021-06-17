@@ -341,8 +341,8 @@ private:
         SkPoint apply(float tsec, const Sk2f matrix[3], const SkPoint& pt) const;
 
     private:
-        constexpr static double kAverageAngle = SK_ScalarPI / 8.0;
-        constexpr static double kMaxOffsetAngle = SK_ScalarPI / 3.0;
+        constexpr static double kAverageAngle = SK_FloatPI / 8.0;
+        constexpr static double kMaxOffsetAngle = SK_FloatPI / 3.0;
 
         float fAmplitudes[4];
         float fFrequencies[4];
@@ -369,11 +369,11 @@ void PathText::WavyGlyphAnimator::Waves::reset(SkRandom& rand, int w, int h) {
         const double wavelength = intensity * medianWavelength;
 
         fAmplitudes[i] = intensity * medianWaveAmplitude;
-        fFrequencies[i] = 2 * SK_ScalarPI / wavelength;
+        fFrequencies[i] = 2 * SK_FloatPI / wavelength;
         fDirsX[i] = cosf(kAverageAngle + offsetAngle);
         fDirsY[i] = sinf(kAverageAngle + offsetAngle);
-        fSpeeds[i] = -sqrt(gravity * 2 * SK_ScalarPI / wavelength);
-        fOffsets[i] = rand.nextF() * 2 * SK_ScalarPI;
+        fSpeeds[i] = -sqrt(gravity * 2 * SK_FloatPI / wavelength);
+        fOffsets[i] = rand.nextF() * 2 * SK_FloatPI;
     }
 }
 
@@ -384,7 +384,7 @@ SkPoint PathText::WavyGlyphAnimator::Waves::apply(float tsec, const Sk2f matrix[
     static SkOnce initTable;
     initTable([]() {
         for (int i = 0; i <= kTablePeriod; ++i) {
-            const double sintheta = sin(i * (SK_ScalarPI / kTablePeriod));
+            const double sintheta = sin(i * (SK_FloatPI / kTablePeriod));
             sin2table[i] = static_cast<float>(sintheta * sintheta - 0.5);
         }
     });
@@ -401,7 +401,7 @@ SkPoint PathText::WavyGlyphAnimator::Waves::apply(float tsec, const Sk2f matrix[
 
     const Sk4f t = (frequencies * (dirsX * devicePt[0] + dirsY * devicePt[1]) +
                     speeds * tsec +
-                    offsets).abs() * (float(kTablePeriod) / float(SK_ScalarPI));
+                    offsets).abs() * (float(kTablePeriod) / float(SK_FloatPI));
 
     const Sk4i ipart = SkNx_cast<int>(t);
     const Sk4f fpart = t - SkNx_cast<float>(ipart);

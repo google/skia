@@ -721,11 +721,11 @@ namespace skvm {
 
 
         F32 approx_sin(F32 radians);
-        F32 approx_cos(F32 radians) { return approx_sin(add(radians, SK_ScalarPI/2)); }
+        F32 approx_cos(F32 radians) { return approx_sin(add(radians, SK_FloatPI/2)); }
         F32 approx_tan(F32 radians);
 
         F32 approx_asin(F32 x);
-        F32 approx_acos(F32 x) { return sub(SK_ScalarPI/2, approx_asin(x)); }
+        F32 approx_acos(F32 x) { return sub(SK_FloatPI/2, approx_asin(x)); }
         F32 approx_atan(F32 x);
         F32 approx_atan2(F32 y, F32 x);
 
