@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "580b0ef3_a36c2d00",
+        "filename": "src/gpu/tessellate/shaders/GrModulateAtlasCoverageFP.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-17T14:21:34Z",
+      "side": 1,
+      "message": "Should fAtlas just have a view() function that returns a GrSurfaceProxyView?",
+      "range": {
+        "startLine": 24,
+        "startChar": 49,
+        "endLine": 24,
+        "endChar": 61
+      },
+      "revId": "b6dec3b4e8988dcd67b0efdb687c3c2bb33e94ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b8ce3317_4c64b59c",
+        "filename": "src/gpu/tessellate/shaders/GrModulateAtlasCoverageFP.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-17T14:21:34Z",
+      "side": 1,
+      "message": "If we aren\u0027t writing a .fp file for this, it seems like a good candidate to try the DSL right?",
+      "range": {
+        "startLine": 42,
+        "startChar": 8,
+        "endLine": 67,
+        "endChar": 87
+      },
+      "revId": "b6dec3b4e8988dcd67b0efdb687c3c2bb33e94ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
