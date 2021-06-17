@@ -40,6 +40,13 @@ bool SkColorFilter::isAlphaUnchanged() const {
     return as_CFB(this)->onIsAlphaUnchanged();
 }
 
+sk_sp<SkColorFilter> SkColorFilter::Deserialize(const void* data, size_t size,
+                                                const SkDeserialProcs* procs) {
+    return sk_sp<SkColorFilter>(static_cast<SkColorFilter*>(
+                                SkFlattenable::Deserialize(
+                                kSkColorFilter_Type, data, size, procs).release()));
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool SkColorFilterBase::onAsAColorMode(SkColor*, SkBlendMode*) const {
