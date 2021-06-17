@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "63f0e90a_3038e2c2",
+        "filename": "src/gpu/tessellate/shaders/GrModulateAtlasCoverageFP.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-17T16:47:14Z",
+      "side": 1,
+      "message": "Awesome suggestion! I think this is much cleaner now.",
+      "parentUuid": "580b0ef3_a36c2d00",
+      "range": {
+        "startLine": 24,
+        "startChar": 49,
+        "endLine": 24,
+        "endChar": 61
+      },
+      "revId": "b6dec3b4e8988dcd67b0efdb687c3c2bb33e94ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b8ce3317_4c64b59c",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-06-17T14:21:34Z",
       "side": 1,
       "message": "If we aren\u0027t writing a .fp file for this, it seems like a good candidate to try the DSL right?",
+      "range": {
+        "startLine": 42,
+        "startChar": 8,
+        "endLine": 67,
+        "endChar": 87
+      },
+      "revId": "b6dec3b4e8988dcd67b0efdb687c3c2bb33e94ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cbb0c9f8_2a01fb1a",
+        "filename": "src/gpu/tessellate/shaders/GrModulateAtlasCoverageFP.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-17T16:47:14Z",
+      "side": 1,
+      "message": "That\u0027s an interesting thought. I\u0027m also really pressed for time right now trying to deliver for the next Chrome release though. How would you feel about landing as-is, with the intention that I (or anyone, really) could convert to DSL later?",
+      "parentUuid": "b8ce3317_4c64b59c",
       "range": {
         "startLine": 42,
         "startChar": 8,
