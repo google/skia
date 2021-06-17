@@ -25,7 +25,6 @@
 #include "src/gpu/tessellate/GrPathStencilCoverOp.h"
 #include "src/gpu/tessellate/GrPathTessellateOp.h"
 #include "src/gpu/tessellate/GrStrokeTessellateOp.h"
-#include "src/gpu/tessellate/shaders/GrModulateAtlasCoverageFP.h"
 
 constexpr static SkISize kAtlasInitialSize{512, 512};
 constexpr static int kMaxAtlasSize = 2048;
@@ -211,13 +210,11 @@ void GrTessellationPathRenderer::onStencilPath(const StencilPathArgs& args) {
     surfaceDrawContext->addDrawOp(args.fClip, std::move(op));
 }
 
-GrFPResult GrTessellationPathRenderer::makeAtlasClipFP(const SkIRect& drawBounds,
-                                                       const SkMatrix& viewMatrix,
-                                                       const SkPath& path, GrAA aa,
-                                                       std::unique_ptr<GrFragmentProcessor> inputFP,
-                                                       const GrCaps& caps) {
+GrFPResult GrTessellationPathRenderer::makeAtlasClipFP(
+        const SkIRect& drawBounds, const SkMatrix& viewMatrix, const SkPath& path, GrAA aa,
+        std::unique_ptr<GrFragmentProcessor> inputCoverage, const GrCaps& caps) {
     if (viewMatrix.hasPerspective()) {
-        return GrFPFailure(std::move(inputFP));
+        return GrFPFailure(std::move(inputCoverage));
     }
     SkIRect devIBounds;
     SkIPoint16 locationInAtlas;
@@ -227,31 +224,63 @@ GrFPResult GrTessellationPathRenderer::makeAtlasClipFP(const SkIRect& drawBounds
                                  aa != GrAA::kNo, &devIBounds, &locationInAtlas,
                                  &transposedInAtlas)) {
         // The path is too big, or the atlas ran out of room.
-        return GrFPFailure(std::move(inputFP));
+        return GrFPFailure(std::move(inputCoverage));
     }
+    GrSurfaceProxyView atlasView(sk_ref_sp(fAtlas.textureProxy()), GrDynamicAtlas::kTextureOrigin,
+                                 caps.getReadSwizzle(fAtlas.textureProxy()->backendFormat(),
+                                                     GrColorType::kAlpha_8));
     SkMatrix atlasMatrix;
+    SkRect atlasSubset, atlasDomain;
     auto [atlasX, atlasY] = locationInAtlas;
     if (!transposedInAtlas) {
-        atlasMatrix = SkMatrix::Translate(atlasX - devIBounds.left(), atlasY - devIBounds.top());
+        auto atlasOffset = SkVector::Make(atlasX - devIBounds.left(), atlasY - devIBounds.top());
+        atlasMatrix = SkMatrix::Translate(atlasOffset);
+        atlasSubset = SkRect::Make(devIBounds).makeOffset(atlasOffset);
+        atlasDomain = SkRect::Make(drawBounds).makeOffset(atlasOffset);
     } else {
         atlasMatrix.setAll(0, 1, atlasX - devIBounds.top(),
                            1, 0, atlasY - devIBounds.left(),
                            0, 0, 1);
+        atlasSubset = SkRect::MakeXYWH(atlasX, atlasY, devIBounds.height(), devIBounds.width());
+        atlasDomain = atlasMatrix.mapRect(SkRect::Make(drawBounds));
     }
-    auto flags = GrModulateAtlasCoverageFP::Flags::kNone;
-    if (path.isInverseFillType()) {
-        flags |= GrModulateAtlasCoverageFP::Flags::kInvertCoverage;
-    }
-    if (!devIBounds.contains(drawBounds)) {
-        flags |= GrModulateAtlasCoverageFP::Flags::kCheckBounds;
+#ifdef SK_DEBUG
+    if (!path.isInverseFillType()) {
         // At this point in time we expect callers to tighten the scissor for "kIntersect" clips, as
-        // opposed to us having to check the path bounds. Feel free to remove this assert if that
-        // ever changes.
-        SkASSERT(path.isInverseFillType());
+        // opposed to us having to enforce the texture subset. Feel free to remove this assert if
+        // that ever changes.
+        SkASSERT(atlasDomain.isEmpty() || atlasSubset.contains(atlasDomain));
     }
-    return GrFPSuccess(std::make_unique<GrModulateAtlasCoverageFP>(flags, std::move(inputFP),
-                                                                   fAtlas.surfaceProxyView(caps),
-                                                                   atlasMatrix, devIBounds));
+#endif
+    // Inset the domain because if it is equal to the subset, then it falls on an exact boundary
+    // between pixels, the "nearest" filter becomes undefined, and GrTextureEffect is forced to
+    // manually enforce the subset. This inset is justifiable because textures are sampled at pixel
+    // center, unless sample shading is enabled, in which case we assume standard sample locations
+    // (https://www.khronos.org/registry/vulkan/specs/1.2/html/chap25.html).
+    // NOTE: At MSAA16, standard sample locations begin falling on actual pixel boundaries. If this
+    // happens then we simply have to rely on the fact that the atlas has a 1px padding between
+    // entries.
+    constexpr static float kMinInsetOfStandardMSAA8Locations = 1/16.f;
+    atlasDomain.inset(kMinInsetOfStandardMSAA8Locations, kMinInsetOfStandardMSAA8Locations);
+    // Look up clip coverage in the atlas.
+    GrSamplerState samplerState(GrSamplerState::WrapMode::kClampToBorder,
+                                GrSamplerState::Filter::kNearest);
+    auto fp = GrTextureEffect::MakeSubset(std::move(atlasView), kPremul_SkAlphaType, atlasMatrix,
+                                          samplerState, atlasSubset, atlasDomain, caps);
+    // Feed sk_FragCoord into the above texture lookup.
+    fp = GrDeviceSpaceEffect::Make(std::move(fp));
+    if (path.isInverseFillType()) {
+        // outputCoverage = inputCoverage * (1 - atlasAlpha)
+        fp = GrBlendFragmentProcessor::Make(
+                std::move(fp), std::move(inputCoverage), SkBlendMode::kDstOut,
+                GrBlendFragmentProcessor::BlendBehavior::kSkModeBehavior);
+    } else {
+        // outputCoverage = inputCoverage * atlasAlpha
+        fp = GrBlendFragmentProcessor::Make(
+                std::move(fp), std::move(inputCoverage), SkBlendMode::kDstIn,
+                GrBlendFragmentProcessor::BlendBehavior::kSkModeBehavior);
+    }
+    return GrFPSuccess(std::move(fp));
 }
 
 void GrTessellationPathRenderer::AtlasPathKey::set(const SkMatrix& m, bool antialias,
