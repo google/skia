@@ -23,7 +23,7 @@ public:
 
     // Overrides.
 #ifdef SK_DEBUG
-    void visitProxies_debugOnly(const GrOp::VisitProxyFunc&) const override { return; }
+    void visitProxies_debugOnly(const GrVisitProxyFunc&) const override { return; }
 #endif
     void gatherProxyIntervals(GrResourceAllocator*) const override {}
     ExpectedOutcome onMakeClosed(const GrCaps&, SkIRect*) override { SkUNREACHABLE; }

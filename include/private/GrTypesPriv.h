@@ -1314,6 +1314,9 @@ enum class GrDstSampleFlags {
 };
 GR_MAKE_BITFIELD_CLASS_OPS(GrDstSampleFlags)
 
+class GrSurfaceProxy;
+using GrVisitProxyFunc = std::function<void(GrSurfaceProxy*, GrMipmapped)>;
+
 #if defined(SK_DEBUG) || GR_TEST_UTILS || defined(SK_ENABLE_DUMP_GPU)
 static constexpr const char* GrBackendApiToStr(GrBackendApi api) {
     switch (api) {
