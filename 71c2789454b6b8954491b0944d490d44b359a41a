@@ -1,0 +1,280 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a0202dda_8aff923f",
+        "filename": "site/docs/dev/design/uni_characterize.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-17T13:19:00Z",
+      "side": 1,
+      "message": "nit: is this extra or supposed to be markdown formatting?",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 1
+      },
+      "revId": "71c2789454b6b8954491b0944d490d44b359a41a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2ec0d7d1_cf03227e",
+        "filename": "site/docs/dev/design/uni_characterize.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-17T13:19:00Z",
+      "side": 1,
+      "message": "suggestion: Maybe add an explicit non-goals heading that details what this API is not - font decoding/font properties, etc. That will help make it even more clear that this is about the abstract code-points themselves, not a font\u0027s specific \"implementation\" of them.",
+      "range": {
+        "startLine": 20,
+        "startChar": 44,
+        "endLine": 20,
+        "endChar": 54
+      },
+      "revId": "71c2789454b6b8954491b0944d490d44b359a41a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c295e66d_a675df3d",
+        "filename": "site/docs/dev/design/uni_characterize.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-17T13:19:00Z",
+      "side": 1,
+      "message": "nit: Functional",
+      "range": {
+        "startLine": 24,
+        "startChar": 26,
+        "endLine": 24,
+        "endChar": 34
+      },
+      "revId": "71c2789454b6b8954491b0944d490d44b359a41a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d5689dd7_c102186f",
+        "filename": "site/docs/dev/design/uni_characterize.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-17T13:19:00Z",
+      "side": 1,
+      "message": "nit: typo",
+      "range": {
+        "startLine": 36,
+        "startChar": 20,
+        "endLine": 36,
+        "endChar": 26
+      },
+      "revId": "71c2789454b6b8954491b0944d490d44b359a41a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2fb2daa8_a42d5aa9",
+        "filename": "site/docs/dev/design/uni_characterize.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-17T13:19:00Z",
+      "side": 1,
+      "message": "JS ints are 53 bits, so we\u0027d have a whole extra 40 options of future-proofing. sgtm.\n\nhttps://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER",
+      "range": {
+        "startLine": 43,
+        "startChar": 37,
+        "endLine": 43,
+        "endChar": 39
+      },
+      "revId": "71c2789454b6b8954491b0944d490d44b359a41a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b87da07d_30dd3d44",
+        "filename": "site/docs/dev/design/uni_characterize.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-17T13:19:00Z",
+      "side": 1,
+      "message": "bikeshed: TextPropertiesOptions which some other APIs call their configuration option\n\nhttps://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/createImageBitmap\nhttps://developer.mozilla.org/en-US/docs/Web/API/Worker/Worker",
+      "range": {
+        "startLine": 48,
+        "startChar": 10,
+        "endLine": 48,
+        "endChar": 32
+      },
+      "revId": "71c2789454b6b8954491b0944d490d44b359a41a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a5f7850d_cc93c1b1",
+        "filename": "site/docs/dev/design/uni_characterize.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-17T13:19:00Z",
+      "side": 1,
+      "message": "I think it would be good to have an example of surrogate pairs below to make this explicit.",
+      "range": {
+        "startLine": 61,
+        "startChar": 68,
+        "endLine": 61,
+        "endChar": 87
+      },
+      "revId": "71c2789454b6b8954491b0944d490d44b359a41a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5b0e7f98_66a93811",
+        "filename": "site/docs/dev/design/uni_characterize.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-17T13:19:00Z",
+      "side": 1,
+      "message": "suggestion: make this take exactly 2 parameters - the text and the TextPropertiesRequests (TextPropertiesOptions?). bcp47 would be folded into that, as well as other options we add in the future.",
+      "range": {
+        "startLine": 68,
+        "startChar": 0,
+        "endLine": 68,
+        "endChar": 21
+      },
+      "revId": "71c2789454b6b8954491b0944d490d44b359a41a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "49f69651_23dc7301",
+        "filename": "site/docs/dev/design/uni_characterize.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-17T13:19:00Z",
+      "side": 1,
+      "message": "Please describe this param - IIUC, this allows people to specify the language. Should we consider making this required, so there\u0027s less \"undefined\" behavior?\n\nI recall there being situations where setting the language to different settings can cause breaking or spaces or graphemes to be different - I think it would be illustrative to provide at least one motivating case here for that.",
+      "range": {
+        "startLine": 70,
+        "startChar": 22,
+        "endLine": 70,
+        "endChar": 27
+      },
+      "revId": "71c2789454b6b8954491b0944d490d44b359a41a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ba2da1c9_676ac21f",
+        "filename": "site/docs/dev/design/uni_characterize.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-17T13:19:00Z",
+      "side": 1,
+      "message": "One thing we\u0027ve been wanting for other APIs is the ability to specify a buffer that the output can be copied into. This way, we don\u0027t have to do as much explicit copying into a WASM heap.\n\nProposed solution: Add a field to TextPropertiesRequests (TextPropertiesOptions?) called output or outputBuffer. If provided, this function will put the data into that buffer (throwing an exception if the buffer is too small) and return a reference to the buffer.",
+      "range": {
+        "startLine": 70,
+        "startChar": 39,
+        "endLine": 70,
+        "endChar": 50
+      },
+      "revId": "71c2789454b6b8954491b0944d490d44b359a41a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d00ca632_8b179106",
+        "filename": "site/docs/dev/design/uni_characterize.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-17T13:19:00Z",
+      "side": 1,
+      "message": "This psuedocode was a bit hard for me to understand at first. What about trying to keep it as valid TS/JS code?\n\n  let mask \u003d TextPropertiesMasks.IsWhiteSpace | TextPropertiesMasks.SoftLineBreak;\n  const spacesAndBreakIndices \u003d [];\n  results.forEach((props, idx) \u003d\u003e {\n    if ((props \u0026 mask) \u003e 0) {\n      spacesAndBreakIndices.push(idx);\n    }\n  });\n  // spacesAndBreakIndices at this point should be [7,9,15,19,24,28,37,44,52,65] because\n  // the code points at those indexes were spaces and could be treated as soft line breaks.\n\n  mask \u003d TextPropertiesMasks.HardLineBreak;\n  const hardBreakIndices \u003d [];\n  results.forEach((props, idx) \u003d\u003e {\n    if ((props \u0026 mask) \u003e 0) {\n      hardBreakIndices.push(idx);\n    }\n  });\n  // hardBreakIndices at this point should be [34], because that is the only index\n  // which is a hard break in this text (\\n).\n\n  // Possible example with surrogate pairs.",
+      "range": {
+        "startLine": 87,
+        "startChar": 0,
+        "endLine": 87,
+        "endChar": 36
+      },
+      "revId": "71c2789454b6b8954491b0944d490d44b359a41a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d704a33c_0b194948",
+        "filename": "site/docs/dev/design/uni_characterize.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-17T13:19:00Z",
+      "side": 1,
+      "message": "nit: typo",
+      "range": {
+        "startLine": 99,
+        "startChar": 30,
+        "endLine": 99,
+        "endChar": 41
+      },
+      "revId": "71c2789454b6b8954491b0944d490d44b359a41a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
