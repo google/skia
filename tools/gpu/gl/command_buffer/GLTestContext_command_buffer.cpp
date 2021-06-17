@@ -29,6 +29,7 @@ typedef void (*__eglMustCastToProperFunctionPointerType)(void);
 #define EGL_FALSE 0
 #define EGL_TRUE 1
 #define EGL_OPENGL_ES2_BIT 0x0004
+#define EGL_OPENGL_ES3_BIT 0x0040
 #define EGL_CONTEXT_CLIENT_VERSION 0x3098
 #define EGL_NO_SURFACE ((EGLSurface)0)
 #define EGL_NO_DISPLAY ((EGLDisplay)0)
@@ -214,12 +215,28 @@ std::function<void()> context_restorer() {
 
 namespace sk_gpu_test {
 
-CommandBufferGLTestContext::CommandBufferGLTestContext(CommandBufferGLTestContext* shareContext)
+CommandBufferGLTestContext::CommandBufferGLTestContext(int version,
+                                                       CommandBufferGLTestContext* shareContext)
     : fContext(EGL_NO_CONTEXT), fDisplay(EGL_NO_DISPLAY), fSurface(EGL_NO_SURFACE) {
 
-    static const EGLint configAttribs[] = {
+        SkDebugf("@@@@@@@> making version %i\n", version);
+    EGLint renderableType;
+    switch (version) {
+        case 2:
+            renderableType = EGL_OPENGL_ES2_BIT;
+        SkDebugf("@@@@@@@> requesting EGL_OPENGL_ES2_BIT\n", version);
+            break;
+        case 3:
+            renderableType = EGL_OPENGL_ES3_BIT;
+        SkDebugf("@@@@@@@> requesting EGL_OPENGL_ES3_BIT\n", version);
+            break;
+        default:
+            return;
+    }
+
+    EGLint configAttribs[] = {
         EGL_SURFACE_TYPE, EGL_PBUFFER_BIT,
-        EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
+        EGL_RENDERABLE_TYPE, renderableType,
         EGL_RED_SIZE, 8,
         EGL_GREEN_SIZE, 8,
         EGL_BLUE_SIZE, 8,
@@ -266,8 +283,8 @@ CommandBufferGLTestContext::CommandBufferGLTestContext(CommandBufferGLTestContex
         return;
     }
 
-    static const EGLint contextAttribs[] = {
-        EGL_CONTEXT_CLIENT_VERSION, 2,
+    EGLint contextAttribs[] = {
+        EGL_CONTEXT_CLIENT_VERSION, version,
         EGL_NONE
     };
     EGLContext eglShareContext = shareContext

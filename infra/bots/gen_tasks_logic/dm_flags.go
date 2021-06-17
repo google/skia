@@ -273,7 +273,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 		// CommandBuffer bot *only* runs the command_buffer config.
 		if b.extraConfig("CommandBuffer") {
-			configs = []string{"commandbuffer"}
+			configs = []string{"commandbuffer_es2", "commandbuffer_es3", "commandbuffer_es3_msaa4"}
 		}
 
 		// Dawn bot *only* runs the dawn config
