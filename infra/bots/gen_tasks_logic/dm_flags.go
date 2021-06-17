@@ -987,6 +987,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		match = append(match, "~VkPrepareForExternalIOQueueTransitionTest")
 	}
 
+	match = []string{"complexclip"}
+
 	if len(skipped) > 0 {
 		args = append(args, "--skip")
 		args = append(args, skipped...)
