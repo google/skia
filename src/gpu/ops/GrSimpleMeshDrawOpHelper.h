@@ -95,7 +95,7 @@ public:
 
     bool compatibleWithCoverageAsAlpha() const { return fCompatibleWithCoverageAsAlpha; }
 
-    void visitProxies(const GrOp::VisitProxyFunc& func) const {
+    void visitProxies(const GrVisitProxyFunc& func) const {
         if (fProcessors) {
             fProcessors->visitProxies(func);
         }

@@ -14,7 +14,6 @@
 #include "src/gpu/GrSurfaceProxyView.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/GrTextureResolveManager.h"
-#include "src/gpu/ops/GrOp.h"
 
 class GrMockRenderTask;
 class GrOpFlushState;
@@ -116,12 +115,12 @@ public:
 #ifdef SK_DEBUG
     virtual int numClips() const { return 0; }
 
-    virtual void visitProxies_debugOnly(const GrOp::VisitProxyFunc&) const = 0;
+    virtual void visitProxies_debugOnly(const GrVisitProxyFunc&) const = 0;
 
-    void visitTargetAndSrcProxies_debugOnly(const GrOp::VisitProxyFunc& fn) const {
-        this->visitProxies_debugOnly(fn);
+    void visitTargetAndSrcProxies_debugOnly(const GrVisitProxyFunc& func) const {
+        this->visitProxies_debugOnly(func);
         for (const sk_sp<GrSurfaceProxy>& target : fTargets) {
-            fn(target.get(), GrMipmapped::kNo);
+            func(target.get(), GrMipmapped::kNo);
         }
     }
 #endif

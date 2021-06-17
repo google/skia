@@ -12,7 +12,6 @@
 
 #include "include/private/SkSLSampleUsage.h"
 #include "src/gpu/GrProcessor.h"
-#include "src/gpu/ops/GrOp.h"
 
 class GrGLSLFragmentProcessor;
 class GrPaint;
@@ -258,7 +257,7 @@ public:
      */
     bool isEqual(const GrFragmentProcessor& that) const;
 
-    void visitProxies(const GrOp::VisitProxyFunc& func) const;
+    void visitProxies(const GrVisitProxyFunc&) const;
 
     void visitTextureEffects(const std::function<void(const GrTextureEffect&)>&) const;
 

@@ -15,8 +15,6 @@
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
-#include "src/gpu/ops/GrOp.h"
-
 GrPipeline::GrPipeline(const InitArgs& args,
                        sk_sp<const GrXferProcessor> xferProcessor,
                        const GrAppliedHardClip& hardClip)
@@ -108,7 +106,7 @@ void GrPipeline::visitTextureEffects(
     }
 }
 
-void GrPipeline::visitProxies(const GrOp::VisitProxyFunc& func) const {
+void GrPipeline::visitProxies(const GrVisitProxyFunc& func) const {
     // This iteration includes any clip coverage FPs
     for (auto& fp : fFragmentProcessors) {
         fp->visitProxies(func);
