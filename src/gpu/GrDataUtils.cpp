@@ -16,9 +16,11 @@
 #include "src/core/SkTLazy.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/core/SkUtils.h"
+#include "src/gpu/GrCaps.h"
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrPixmap.h"
+#include "src/gpu/GrSwizzle.h"
 
 struct ETC1Block {
     uint32_t fHigh;

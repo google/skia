@@ -45,11 +45,11 @@ public:
     GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*, GrClampType) final;
     CombineResult onCombineIfPossible(GrOp*, SkArenaAlloc*, const GrCaps&) final;
 
-    void visitProxies(const VisitProxyFunc& fn) const override {
+    void visitProxies(const GrVisitProxyFunc& func) const override {
         if (fProgramInfo) {
-            fProgramInfo->visitFPProxies(fn);
+            fProgramInfo->visitFPProxies(func);
         } else {
-            fHelper.visitProxies(fn);
+            fHelper.visitProxies(func);
         }
     }
 

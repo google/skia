@@ -154,7 +154,7 @@ public:
     SkString dumpProcessors() const;
 #endif
 
-    void visitProxies(const GrOp::VisitProxyFunc& func) const;
+    void visitProxies(const GrVisitProxyFunc&) const;
 
 private:
     GrProcessorSet(Empty) : fXP((const GrXferProcessor*)nullptr), fFlags(kFinalized_Flag) {}

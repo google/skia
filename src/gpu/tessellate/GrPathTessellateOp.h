@@ -34,7 +34,7 @@ private:
 
     const char* name() const override { return "GrPathTessellateOp"; }
     bool usesMSAA() const override { return fAAType == GrAAType::kMSAA; }
-    void visitProxies(const VisitProxyFunc& fn) const override;
+    void visitProxies(const GrVisitProxyFunc&) const override;
     GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*, GrClampType) override;
     bool usesStencil() const override { return !fStencil->isUnused(); }
 

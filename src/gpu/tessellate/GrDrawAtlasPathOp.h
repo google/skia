@@ -31,9 +31,9 @@ public:
     FixedFunctionFlags fixedFunctionFlags() const override {
         return (fEnableHWAA) ? FixedFunctionFlags::kUsesHWAA : FixedFunctionFlags::kNone;
     }
-    void visitProxies(const VisitProxyFunc& fn) const override {
-        fn(fAtlasProxy.get(), GrMipmapped::kNo);
-        fProcessors.visitProxies(fn);
+    void visitProxies(const GrVisitProxyFunc& func) const override {
+        func(fAtlasProxy.get(), GrMipmapped::kNo);
+        fProcessors.visitProxies(func);
     }
     GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*, GrClampType) override;
     CombineResult onCombineIfPossible(GrOp*, SkArenaAlloc*, const GrCaps&) override;

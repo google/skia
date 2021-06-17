@@ -38,7 +38,7 @@ private:
     const char* name() const final { return "WritePixels"; }
 #endif
 #ifdef SK_DEBUG
-    void visitProxies_debugOnly(const GrOp::VisitProxyFunc& fn) const override {}
+    void visitProxies_debugOnly(const GrVisitProxyFunc&) const override {}
 #endif
 
     SkAutoSTArray<16, GrMipLevel> fLevels;
