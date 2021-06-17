@@ -8,6 +8,7 @@
 #include "src/gpu/ops/GrQuadPerEdgeAA.h"
 
 #include "include/private/SkVx.h"
+#include "src/gpu/GrMeshDrawTarget.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/geometry/GrQuadUtils.h"
 #include "src/gpu/glsl/GrGLSLColorSpaceXformHelper.h"
@@ -398,7 +399,7 @@ void Tessellator::append(GrQuad* deviceQuad, GrQuad* localQuad,
     }
 }
 
-sk_sp<const GrBuffer> GetIndexBuffer(GrMeshDrawOp::Target* target,
+sk_sp<const GrBuffer> GetIndexBuffer(GrMeshDrawTarget* target,
                                      IndexBufferOption indexBufferOption) {
     auto resourceProvider = target->resourceProvider();
 
