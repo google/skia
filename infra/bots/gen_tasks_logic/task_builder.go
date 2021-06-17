@@ -283,7 +283,7 @@ func (b *taskBuilder) cipdPlatform() string {
 func (b *taskBuilder) usesPython() {
 	// TODO(borenet): This handling of the Python package is hacky and bad.
 	pythonPkgs := cipd.PkgsPython[b.cipdPlatform()]
-	b.cipd(pythonPkgs[1])
+	b.cipd(pythonPkgs[2])
 	if b.os("Mac10.15") && b.model("VMware7.1") {
 		b.cipd(pythonPkgs[0])
 	}
