@@ -16,6 +16,8 @@ class SortKey;
 #include "experimental/ngatoy/Fake.h"
 #include "experimental/ngatoy/ngatypes.h"
 
+
+//------------------------------------------------------------------------------------------------
 class Cmd {
 public:
     Cmd() : fID(ID::Invalid()) {}
@@ -25,8 +27,6 @@ public:
     ID id() const { return fID; }
 
     virtual SortKey getKey() = 0;
-
-    virtual const FakeMCBlob* state() const { return nullptr; }
 
     // To generate the actual image
     virtual void execute(FakeCanvas*) const = 0;
@@ -97,7 +97,7 @@ public:
     uint32_t getDrawZ() const;
 
     SortKey getKey() override;
-    const FakeMCBlob* state() const override { return fMCState.get(); }
+    const FakeMCBlob* state() const { return fMCState.get(); }
 
     void execute(FakeCanvas*) const override;
     void execute(SkCanvas*) const override;
@@ -147,4 +147,5 @@ private:
 };
 
 //------------------------------------------------------------------------------------------------
+
 #endif // Cmds_DEFINED

@@ -36,28 +36,21 @@ public:
     static const uint32_t kDepthMask = (0x1 << kNumDepthBits) - 1;
     static const uint32_t kMaxDepth = kDepthMask;
 
-    static const uint32_t kClipShift = kNumMaterialBits + kNumDepthBits;
-    static const uint32_t kNumClipBits = 8;
-    static const uint32_t kClipMask = (0x01 << kNumClipBits) - 1;
-    static const uint32_t kMaxClipID = kClipMask;
-
-    static const uint32_t kTransparentShift = kNumMaterialBits + kNumDepthBits + kNumClipBits;
+    static const uint32_t kTransparentShift = kNumMaterialBits + kNumDepthBits;
     static const uint32_t kNumTransparentBits = 1;
     static const uint32_t kTransparentMask = (0x1 << kNumTransparentBits) - 1;
 
     // TODO: make it clearer that we're initializing the default depth to be 0 here (since the
     // default key is opaque, its sense is flipped)
     SortKey() : fKey((kMaxDepth - 1) << kMaterialShift) {}
-    explicit SortKey(bool transparent, uint32_t clipID, uint32_t depth, uint32_t material) {
-        SkASSERT(clipID != 0 && depth != 0 /* && material != 0*/);
-        SkASSERT(!(clipID & ~kClipMask));
+    explicit SortKey(bool transparent, uint32_t depth, uint32_t material) {
+        SkASSERT(depth != 0 /* && material != 0*/);
         SkASSERT(!(depth & ~kDepthMask));
         SkASSERT(!(material & ~kMaterialMask));
 
         // TODO: better encapsulate the reversal of the depth & material when the key is opaque
         if (transparent) {
             fKey = (0x1 << kTransparentShift) |
-                   (clipID & kClipMask) << kClipShift |
                    (depth & kDepthMask) << kDepthShift |
                    (material & kMaterialMask) << kMaterialShift;
         } else {
@@ -68,8 +61,7 @@ public:
             munged = kMaxDepth - depth - 1;
             SkASSERT(!(munged & ~kDepthMask));
 
-            fKey = (clipID & kClipMask) << kClipShift |
-                   (munged & kDepthMask) << kMaterialShift |
+            fKey = (munged & kDepthMask) << kMaterialShift |
                    (material & kMaterialMask) << kDepthShift;
         }
     }
@@ -78,16 +70,12 @@ public:
         return (fKey >> kTransparentShift) & kTransparentMask;
     }
 
-    uint32_t clipID() const {
-        return (fKey >> kClipShift) & kClipMask;
-    }
-
     uint32_t depth() const {
         if (this->transparent()) {
             return (fKey >> kDepthShift) & kDepthMask;
         }
 
-        // TODO: foo
+        // TODO: better encapsulate the reversal of the depth & material when the key is opaque
         uint32_t tmp = (fKey >> kMaterialShift) & kDepthMask;
         return (kMaxDepth - tmp) - 1;
     }

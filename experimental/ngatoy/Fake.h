@@ -6,6 +6,7 @@
 
 #include "experimental/ngatoy/SortKey.h"
 #include "experimental/ngatoy/ngatypes.h"
+
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkMatrix.h"
@@ -15,6 +16,7 @@
 #include <vector>
 
 class Cmd;
+class ClipCmd;
 class FakeCanvas;
 class SkBitmap;
 class SkCanvas;
@@ -29,8 +31,9 @@ public:
     public:
         MCState() {}
 
-        void addRect(SkIRect r) {
+        void addRect(SkIRect r, ClipCmd* clipCmd) {
             fRects.push_back(r.makeOffset(fTrans.fX, fTrans.fY));
+            fCmds.push_back(clipCmd);
             fCached = nullptr;
         }
 
@@ -48,15 +51,9 @@ public:
 
         void apply(SkCanvas*) const;
         void apply(FakeCanvas*) const;
-        bool clipped(int x, int y) const {
-            for (auto r : fRects) {
-                if (!r.contains(x, y)) {
-                    return true;
-                }
-            }
-            return false;
-        }
+
         const std::vector<SkIRect>& rects() const { return fRects; }
+        const std::vector<ClipCmd*>& cmds() const { return fCmds; }
 
         sk_sp<FakeMCBlob> getCached() const {
             return fCached;
@@ -68,19 +65,25 @@ public:
     protected:
         friend class FakeMCBlob;
 
-        SkIPoint             fTrans { 0, 0 };
+        SkIPoint              fTrans { 0, 0 };
         // These clip rects are in the 'parent' space of this MCState (i.e., in the coordinate
         // frame of the MCState prior to this one in 'fStack'). Alternatively, the 'fTrans' in
         // effect when they were added has already been applied.
-        std::vector<SkIRect> fRects;
-        sk_sp<FakeMCBlob>    fCached;
+        std::vector<SkIRect>  fRects;
+        std::vector<ClipCmd*> fCmds;
+        sk_sp<FakeMCBlob>     fCached;
     };
 
     FakeMCBlob(const std::vector<MCState>& stack) : fID(NextID()), fStack(stack) {
+        fScissor = SkIRect::MakeLTRB(-1000, -1000, 1000, 1000);
+
         for (auto s : fStack) {
             // xform the clip rects into device space
             for (auto& r : s.fRects) {
                 r.offset(fCTM);
+                if (!fScissor.intersect(r)) {
+                    fScissor.setEmpty();
+                }
             }
             fCTM += s.getTrans();
         }
@@ -105,16 +108,7 @@ public:
     SkIPoint ctm() const { return fCTM; }
     const std::vector<MCState>& mcStates() const { return fStack; }
     const MCState& operator[](int index) const { return fStack[index]; }
-
-    bool clipped(int x, int y) const {
-        for (auto& s : fStack) {
-            if (s.clipped(x, y)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
+    SkIRect scissor() const { return fScissor; }
 
 private:
     static int NextID() {
@@ -124,6 +118,7 @@ private:
 
     const int            fID;
     SkIPoint             fCTM { 0, 0 };
+    SkIRect              fScissor;
     std::vector<MCState> fStack;
 };
 
@@ -148,8 +143,8 @@ public:
         fStack.push_back(FakeMCBlob::MCState());
     }
 
-    void clipRect(SkIRect clipRect) {
-        fStack.back().addRect(clipRect);
+    void clipRect(SkIRect clipRect, ClipCmd* clipCmd) {
+        fStack.back().addRect(clipRect, clipCmd);
     }
 
     // For now we only store translates - in the full Skia this would be the whole 4x4 matrix
@@ -256,7 +251,7 @@ public:
 
     void save();
     void drawRect(ID, PaintersOrder, SkIRect, FakePaint);
-    void clipRect(ID, SkIRect);
+    void clipRect(ID, PaintersOrder, SkIRect);
     void translate(SkIPoint trans) {
         fTracker.translate(trans);
     }
