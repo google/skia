@@ -52,30 +52,10 @@ uint32_t RectCmd::getDrawZ() const {
 }
 
 SortKey RectCmd::getKey() {
-    return SortKey(fPaint.isTransparent(), fMCState->id(), this->getSortZ(), fPaint.toID());
-}
-
-static void apply_diff(FakeCanvas* c, const FakeMCBlob& desired, const FakeMCBlob* prior) {
-    int prefix = desired.determineSharedPrefix(prior);
-
-    if (prior) {
-        for (int j = prefix; j < prior->count(); ++j) {
-            c->restore();
-        }
-    }
-
-    for (int j = prefix; j < desired.count(); ++j) {
-        desired[j].apply(c);
-    }
+    return SortKey(fPaint.isTransparent(), this->getSortZ(), fPaint.toID());
 }
 
 void RectCmd::execute(FakeCanvas* c) const {
-    if (fMCState) {
-        // When replaying the test case 'fMCState' will be null. When actually executing the Cmd
-        // after sorting, 'fMCState' will be non-null.
-        apply_diff(c, *fMCState, c->snapState().get());
-    }
-
     c->drawRect(fID, fRect, fPaint);
 }
 
@@ -95,6 +75,7 @@ void RectCmd::execute(SkCanvas* c) const {
                                                  SkTileMode::kClamp));
     } else {
         SkASSERT(fPaint.toID() == kRadialMat);
+
         auto shader = SkGradientShader::MakeRadial(SkPoint::Make(128.0f, 128.0f),
                                                    128.0f,
                                                    colors,
@@ -115,14 +96,15 @@ static bool is_opaque(SkColor c) {
 void RectCmd::rasterize(uint32_t zBuffer[256][256], SkBitmap* dstBM) const {
 
     uint32_t z = this->getDrawZ();
+    SkIRect scissor = fMCState->scissor();
 
     for (int y = fRect.fTop; y < fRect.fBottom; ++y) {
         for (int x = fRect.fLeft; x < fRect.fRight; ++x) {
-            if (fMCState->clipped(x, y)) {
-                continue;
-            }
-
             if (z > zBuffer[x][y]) {
+                if (!scissor.contains(x, y)) {
+                    continue;
+                }
+
                 zBuffer[x][y] = z;
 
                 SkColor c = fPaint.evalColor(x, y);
@@ -172,7 +154,7 @@ SortKey ClipCmd::getKey() {
     // Not used this iteration
     SkASSERT(0);
 
-    return SortKey(false, 0, this->getSortZ(), kInvalidMat);
+    return SortKey(false, this->getSortZ(), kInvalidMat);
 }
 
 void ClipCmd::execute(FakeCanvas* c) const {

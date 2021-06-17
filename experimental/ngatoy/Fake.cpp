@@ -76,7 +76,6 @@ void FakeDevice::save() {
 }
 
 void FakeDevice::drawRect(ID id, PaintersOrder paintersOrder, SkIRect r, FakePaint p) {
-
     sk_sp<FakeMCBlob> state = fTracker.snapState();
     SkASSERT(state);
 
@@ -85,8 +84,10 @@ void FakeDevice::drawRect(ID id, PaintersOrder paintersOrder, SkIRect r, FakePai
     fSortedCmds.push_back(tmp);
 }
 
-void FakeDevice::clipRect(ID id, SkIRect r) {
-    fTracker.clipRect(r);
+void FakeDevice::clipRect(ID id, PaintersOrder paintersOrder, SkIRect r) {
+    auto tmp = new ClipCmd(id, paintersOrder, r);
+
+    fTracker.clipRect(r, tmp);
 }
 
 void FakeDevice::restore() {
@@ -105,8 +106,6 @@ void FakeDevice::finalize() {
 
 void FakeDevice::getOrder(std::vector<ID>* ops) const {
     SkASSERT(fFinalized);
-
-//    ops->reserve(fSortedCmds.size());
 
     for (auto c : fSortedCmds) {
         ops->push_back(c->id());
@@ -136,7 +135,7 @@ void FakeCanvas::drawRect(ID id, SkIRect r, FakePaint p) {
 void FakeCanvas::clipRect(ID id, SkIRect r) {
     SkASSERT(!fFinalized);
 
-    fDeviceStack.back()->clipRect(id, r);
+    fDeviceStack.back()->clipRect(id, this->nextPaintersOrder(), r);
 }
 
 void FakeCanvas::finalize() {
