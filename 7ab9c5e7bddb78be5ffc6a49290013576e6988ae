@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8f7a9936_eb38fc3a",
+        "filename": "src/gpu/GrMeshDrawTarget.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-17T18:29:57Z",
+      "side": 1,
+      "message": "creating vertices, indices, and meshes, as well as invoking GPU draw operations.",
+      "range": {
+        "startLine": 15,
+        "startChar": 36,
+        "endLine": 15,
+        "endChar": 51
+      },
+      "revId": "7ab9c5e7bddb78be5ffc6a49290013576e6988ae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
