@@ -866,7 +866,7 @@ private:
     }
 
     // onPrePrepareDraws may or may not have been called at this point
-    void onPrepareDraws(Target* target) override {
+    void onPrepareDraws(GrMeshDrawTarget* target) override {
         TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
         SkDEBUGCODE(this->validate();)

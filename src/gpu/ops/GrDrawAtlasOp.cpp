@@ -59,7 +59,7 @@ private:
                              GrXferBarrierFlags renderPassXferBarriers,
                              GrLoadOp colorLoadOp) override;
 
-    void onPrepareDraws(Target*) override;
+    void onPrepareDraws(GrMeshDrawTarget*) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 #if GR_TEST_UTILS
     SkString onDumpInfo() const override;
@@ -216,7 +216,7 @@ void DrawAtlasOp::onCreateProgramInfo(const GrCaps* caps,
                                              renderPassXferBarriers, colorLoadOp);
 }
 
-void DrawAtlasOp::onPrepareDraws(Target* target) {
+void DrawAtlasOp::onPrepareDraws(GrMeshDrawTarget* target) {
     if (!fProgramInfo) {
         this->createProgramInfo(target);
     }

@@ -16,7 +16,6 @@
 #include "src/gpu/GrXferProcessor.h"
 #include "src/gpu/effects/GrPorterDuffXferProcessor.h"
 #include "src/gpu/gl/GrGLCaps.h"
-#include "src/gpu/ops/GrMeshDrawOp.h"
 #include "tools/gpu/GrContextFactory.h"
 #include "tools/gpu/ManagedBackendTexture.h"
 
