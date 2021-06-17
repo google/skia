@@ -22,6 +22,30 @@
       },
       "revId": "f230809317ad7e48f5144b5580e9bd138bef1ab7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0decf3f4_71706d06",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-17T19:16:37Z",
+      "side": 1,
+      "message": "Yes, I actually formatted it like that, but clang-format really wanted this, and I decided to give in.",
+      "parentUuid": "7a4388ef_5be9d9b6",
+      "range": {
+        "startLine": 262,
+        "startChar": 4,
+        "endLine": 263,
+        "endChar": 87
+      },
+      "revId": "f230809317ad7e48f5144b5580e9bd138bef1ab7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
