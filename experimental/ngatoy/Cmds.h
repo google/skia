@@ -12,17 +12,17 @@ class SortKey;
 
 #include "include/core/SkColor.h"
 #include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 
 #include "experimental/ngatoy/Fake.h"
 #include "experimental/ngatoy/ngatypes.h"
 
-
 //------------------------------------------------------------------------------------------------
-class Cmd {
+class Cmd : public SkRefCnt {
 public:
     Cmd() : fID(ID::Invalid()) {}
     Cmd(ID id) : fID(id) {}
-    virtual ~Cmd() {}
+    ~Cmd() override {}
 
     ID id() const { return fID; }
 
@@ -49,7 +49,7 @@ class SaveCmd : public Cmd {
 public:
     SaveCmd() : Cmd() {}
 
-    SortKey getKey() override { SkASSERT(0); return {}; }
+    SortKey getKey() override;
 
     void execute(FakeCanvas*) const override;
     void execute(SkCanvas*) const override;
@@ -72,7 +72,7 @@ class RestoreCmd : public Cmd {
 public:
     RestoreCmd() : Cmd() {}
 
-    SortKey getKey() override { SkASSERT(0); return {}; }
+    SortKey getKey() override;
 
     void execute(FakeCanvas*) const override;
     void execute(SkCanvas*) const override;
@@ -91,6 +91,7 @@ private:
 //------------------------------------------------------------------------------------------------
 class RectCmd : public Cmd {
 public:
+    RectCmd(ID, SkIRect, const FakePaint&);  // for creating the test cases
     RectCmd(ID, PaintersOrder, SkIRect, const FakePaint&, sk_sp<FakeMCBlob> state);
 
     uint32_t getSortZ() const;
@@ -123,6 +124,7 @@ private:
 class ClipCmd : public Cmd {
 public:
     ClipCmd(ID, PaintersOrder paintersOrderWhenAdded, SkIRect r);
+    ~ClipCmd() override;
 
     uint32_t getSortZ() const;
     uint32_t getDrawZ() const;

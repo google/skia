@@ -3,6 +3,7 @@
 
 #include "experimental/ngatoy/Cmds.h"
 #include "experimental/ngatoy/Fake.h"
+#include "experimental/ngatoy/SortKey.h"
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkGraphics.h"
@@ -177,7 +178,7 @@ static void mcstack_test() {
     //----------------
     s.push();
     s.translate(s1Trans);
-    s.clipRect(r, new ClipCmd(ID(1), {}, r));
+    s.clipRect(r, sk_make_sp<ClipCmd>(ID(1), PaintersOrder::Invalid(), r));
 
     auto state1 = s.snapState();
     check_state(state1.get(), s1Trans, expectedS1Clips);
@@ -185,13 +186,13 @@ static void mcstack_test() {
     //----------------
     s.push();
     s.translate(s2TransA);
-    s.clipRect(r, new ClipCmd(ID(2), {}, r));
+    s.clipRect(r, sk_make_sp<ClipCmd>(ID(2), PaintersOrder::Invalid(), r));
 
     auto state2a = s.snapState();
     check_state(state2a.get(), s1Trans + s2TransA, expectedS2aClips);
 
     s.translate(s2TransB);
-    s.clipRect(r, new ClipCmd(ID(3), {}, r));
+    s.clipRect(r, sk_make_sp<ClipCmd>(ID(3), PaintersOrder::Invalid(), r));
 
     auto state2b = s.snapState();
     check_state(state2b.get(), s1Trans + s2TransA + s2TransB, expectedS2bClips);
@@ -234,10 +235,10 @@ static void check_order(const std::vector<ID>& actualOrder,
     }
 }
 
-typedef int (*PFTest)(std::vector<const Cmd*>* test, std::vector<ID>* expectedOrder);
+typedef int (*PFTest)(std::vector<sk_sp<Cmd>>* test, std::vector<ID>* expectedOrder);
 
 static void sort_test(PFTest testcase) {
-    std::vector<const Cmd*> test;
+    std::vector<sk_sp<Cmd>> test;
     std::vector<ID> expectedOrder;
     int testID = testcase(&test, &expectedOrder);
 
@@ -252,7 +253,7 @@ static void sort_test(PFTest testcase) {
     actualBM.eraseColor(SK_ColorBLACK);
 
     FakeCanvas fake(actualBM);
-    for (auto c : test) {
+    for (const sk_sp<Cmd>& c : test) {
         c->execute(&fake);
         c->execute(&real);
     }
@@ -266,77 +267,77 @@ static void sort_test(PFTest testcase) {
 }
 
 // Simple test - green rect should appear atop the red rect
-static int test1(std::vector<const Cmd*>* test, std::vector<ID>* expectedOrder) {
+static int test1(std::vector<sk_sp<Cmd>>* test, std::vector<ID>* expectedOrder) {
     // front-to-back order bc all opaque
     expectedOrder->push_back(ID(1));
     expectedOrder->push_back(ID(0));
 
     //---------------------------------------------------------------------------------------------
-    test->push_back(new SaveCmd());
+    test->push_back(sk_make_sp<SaveCmd>());
 
     SkIRect r{0, 0, 100, 100};
-    test->push_back(new RectCmd(ID(0), {}, r.makeOffset(8, 8),   FakePaint(SK_ColorRED),   nullptr));
-    test->push_back(new RectCmd(ID(1), {}, r.makeOffset(48, 48), FakePaint(SK_ColorGREEN), nullptr));
+    test->push_back(sk_make_sp<RectCmd>(ID(0), r.makeOffset(8, 8),   FakePaint(SK_ColorRED)));
+    test->push_back(sk_make_sp<RectCmd>(ID(1), r.makeOffset(48, 48), FakePaint(SK_ColorGREEN)));
 
-    test->push_back(new RestoreCmd());
+    test->push_back(sk_make_sp<RestoreCmd>());
     return 1;
 }
 
 // Simple test - blue rect atop green rect atop red rect
-static int test2(std::vector<const Cmd*>* test, std::vector<ID>* expectedOrder) {
+static int test2(std::vector<sk_sp<Cmd>>* test, std::vector<ID>* expectedOrder) {
     // front-to-back order bc all opaque
     expectedOrder->push_back(ID(2));
     expectedOrder->push_back(ID(1));
     expectedOrder->push_back(ID(0));
 
     //---------------------------------------------------------------------------------------------
-    test->push_back(new SaveCmd());
+    test->push_back(sk_make_sp<SaveCmd>());
 
     SkIRect r{0, 0, 100, 100};
-    test->push_back(new RectCmd(ID(0), {}, r.makeOffset(8, 8),   FakePaint(SK_ColorRED),   nullptr));
-    test->push_back(new RectCmd(ID(1), {}, r.makeOffset(48, 48), FakePaint(SK_ColorGREEN), nullptr));
-    test->push_back(new RectCmd(ID(2), {}, r.makeOffset(98, 98), FakePaint(SK_ColorBLUE),  nullptr));
+    test->push_back(sk_make_sp<RectCmd>(ID(0), r.makeOffset(8, 8),   FakePaint(SK_ColorRED)));
+    test->push_back(sk_make_sp<RectCmd>(ID(1), r.makeOffset(48, 48), FakePaint(SK_ColorGREEN)));
+    test->push_back(sk_make_sp<RectCmd>(ID(2), r.makeOffset(98, 98), FakePaint(SK_ColorBLUE)));
 
-    test->push_back(new RestoreCmd());
+    test->push_back(sk_make_sp<RestoreCmd>());
     return 2;
 }
 
 // Transparency test - opaque blue rect atop transparent green rect atop opaque red rect
-static int test3(std::vector<const Cmd*>* test, std::vector<ID>* expectedOrder) {
+static int test3(std::vector<sk_sp<Cmd>>* test, std::vector<ID>* expectedOrder) {
     // opaque draws are first and are front-to-back. Transparent draw is last.
     expectedOrder->push_back(ID(2));
     expectedOrder->push_back(ID(0));
     expectedOrder->push_back(ID(1));
 
     //---------------------------------------------------------------------------------------------
-    test->push_back(new SaveCmd());
+    test->push_back(sk_make_sp<SaveCmd>());
 
     SkIRect r{0, 0, 100, 100};
-    test->push_back(new RectCmd(ID(0), {}, r.makeOffset(8, 8),   FakePaint(SK_ColorRED),  nullptr));
-    test->push_back(new RectCmd(ID(1), {}, r.makeOffset(48, 48), FakePaint(0x8000FF00),   nullptr));
-    test->push_back(new RectCmd(ID(2), {}, r.makeOffset(98, 98), FakePaint(SK_ColorBLUE), nullptr));
+    test->push_back(sk_make_sp<RectCmd>(ID(0), r.makeOffset(8, 8),   FakePaint(SK_ColorRED)));
+    test->push_back(sk_make_sp<RectCmd>(ID(1), r.makeOffset(48, 48), FakePaint(0x8000FF00)));
+    test->push_back(sk_make_sp<RectCmd>(ID(2), r.makeOffset(98, 98), FakePaint(SK_ColorBLUE)));
 
-    test->push_back(new RestoreCmd());
+    test->push_back(sk_make_sp<RestoreCmd>());
     return 3;
 }
 
 // Multi-transparency test - transparent blue rect atop transparent green rect atop
 // transparent red rect
-static int test4(std::vector<const Cmd*>* test, std::vector<ID>* expectedOrder) {
+static int test4(std::vector<sk_sp<Cmd>>* test, std::vector<ID>* expectedOrder) {
     // All in back-to-front order bc they're all transparent
     expectedOrder->push_back(ID(0));
     expectedOrder->push_back(ID(1));
     expectedOrder->push_back(ID(2));
 
     //---------------------------------------------------------------------------------------------
-    test->push_back(new SaveCmd());
+    test->push_back(sk_make_sp<SaveCmd>());
 
     SkIRect r{0, 0, 100, 100};
-    test->push_back(new RectCmd(ID(0), {}, r.makeOffset(8, 8),   FakePaint(0x80FF0000), nullptr));
-    test->push_back(new RectCmd(ID(1), {}, r.makeOffset(48, 48), FakePaint(0x8000FF00), nullptr));
-    test->push_back(new RectCmd(ID(2), {}, r.makeOffset(98, 98), FakePaint(0x800000FF), nullptr));
+    test->push_back(sk_make_sp<RectCmd>(ID(0), r.makeOffset(8, 8),   FakePaint(0x80FF0000)));
+    test->push_back(sk_make_sp<RectCmd>(ID(1), r.makeOffset(48, 48), FakePaint(0x8000FF00)));
+    test->push_back(sk_make_sp<RectCmd>(ID(2), r.makeOffset(98, 98), FakePaint(0x800000FF)));
 
-    test->push_back(new RestoreCmd());
+    test->push_back(sk_make_sp<RestoreCmd>());
     return 4;
 }
 
@@ -346,7 +347,7 @@ static int test4(std::vector<const Cmd*>* test, std::vector<ID>* expectedOrder) 
 // Which gets sorted to:
 //   normal2, normal1, linear2, linear1, radial2, radial1
 // So, front to back w/in each material type.
-static int test5(std::vector<const Cmd*>* test, std::vector<ID>* expectedOrder) {
+static int test5(std::vector<sk_sp<Cmd>>* test, std::vector<ID>* expectedOrder) {
     // Note: This pushes sorting by material above sorting by Z. Thus we'll get less front to
     // back benefit.
     expectedOrder->push_back(ID(3));
@@ -357,47 +358,47 @@ static int test5(std::vector<const Cmd*>* test, std::vector<ID>* expectedOrder) 
     expectedOrder->push_back(ID(2));
 
     //---------------------------------------------------------------------------------------------
-    test->push_back(new SaveCmd());
+    test->push_back(sk_make_sp<SaveCmd>());
 
     FakePaint p;
 
     SkIRect r{0, 0, 100, 100};
-    test->push_back(new RectCmd(ID(0), {}, r.makeOffset(8, 8),     FakePaint(SK_ColorRED),  nullptr));
+    test->push_back(sk_make_sp<RectCmd>(ID(0), r.makeOffset(8, 8),     FakePaint(SK_ColorRED)));
     p.setLinear(SK_ColorGREEN,   SK_ColorWHITE);
-    test->push_back(new RectCmd(ID(1), {}, r.makeOffset(48, 48),   p,                       nullptr));
+    test->push_back(sk_make_sp<RectCmd>(ID(1), r.makeOffset(48, 48),   p));
     p.setRadial(SK_ColorBLUE,    SK_ColorBLACK);
-    test->push_back(new RectCmd(ID(2), {}, r.makeOffset(98, 98),   p,                       nullptr));
-    test->push_back(new RectCmd(ID(3), {}, r.makeOffset(148, 148), FakePaint(SK_ColorCYAN), nullptr));
+    test->push_back(sk_make_sp<RectCmd>(ID(2), r.makeOffset(98, 98),   p));
+    test->push_back(sk_make_sp<RectCmd>(ID(3), r.makeOffset(148, 148), FakePaint(SK_ColorCYAN)));
     p.setLinear(SK_ColorMAGENTA, SK_ColorWHITE);
-    test->push_back(new RectCmd(ID(4), {}, r.makeOffset(148, 8),   p,                       nullptr));
+    test->push_back(sk_make_sp<RectCmd>(ID(4), r.makeOffset(148, 8),   p));
     p.setRadial(SK_ColorYELLOW,  SK_ColorBLACK);
-    test->push_back(new RectCmd(ID(5), {}, r.makeOffset(8, 148),   p,                       nullptr));
+    test->push_back(sk_make_sp<RectCmd>(ID(5), r.makeOffset(8, 148),   p));
 
-    test->push_back(new RestoreCmd());
+    test->push_back(sk_make_sp<RestoreCmd>());
     return 5;
 }
 
 // simple clipping test - 1 clip w/ two opaque rects
-static int test6(std::vector<const Cmd*>* test, std::vector<ID>* expectedOrder) {
+static int test6(std::vector<sk_sp<Cmd>>* test, std::vector<ID>* expectedOrder) {
     // The expected is front to back after the clip
     expectedOrder->push_back(ID(2));
     expectedOrder->push_back(ID(1));
 
     //---------------------------------------------------------------------------------------------
-    test->push_back(new SaveCmd());
+    test->push_back(sk_make_sp<SaveCmd>());
 
-    test->push_back(new ClipCmd(ID(0), {}, SkIRect::MakeXYWH(28, 28, 40, 40)));
+    test->push_back(sk_make_sp<ClipCmd>(ID(0), PaintersOrder::Invalid(), SkIRect::MakeXYWH(28, 28, 40, 40)));
 
     SkIRect r{0, 0, 100, 100};
-    test->push_back(new RectCmd(ID(1), {}, r.makeOffset(8, 8),   FakePaint(SK_ColorRED),   nullptr));
-    test->push_back(new RectCmd(ID(2), {}, r.makeOffset(48, 48), FakePaint(SK_ColorGREEN), nullptr));
+    test->push_back(sk_make_sp<RectCmd>(ID(1), r.makeOffset(8, 8),   FakePaint(SK_ColorRED)));
+    test->push_back(sk_make_sp<RectCmd>(ID(2), r.makeOffset(48, 48), FakePaint(SK_ColorGREEN)));
 
-    test->push_back(new RestoreCmd());
+    test->push_back(sk_make_sp<RestoreCmd>());
     return 6;
 }
 
 // more complicated clipping w/ opaque draws -> should reorder
-static int test7(std::vector<const Cmd*>* test, std::vector<ID>* expectedOrder) {
+static int test7(std::vector<sk_sp<Cmd>>* test, std::vector<ID>* expectedOrder) {
     // The expected is front to back modulated by the two clip states
     expectedOrder->push_back(ID(7));
     expectedOrder->push_back(ID(6));
@@ -408,27 +409,27 @@ static int test7(std::vector<const Cmd*>* test, std::vector<ID>* expectedOrder) 
     expectedOrder->push_back(ID(4));
 
     //---------------------------------------------------------------------------------------------
-    test->push_back(new SaveCmd());
+    test->push_back(sk_make_sp<SaveCmd>());
     // select the middle third in x
-    test->push_back(new ClipCmd(ID(0), {}, SkIRect::MakeXYWH(85, 0, 86, 256)));
+    test->push_back(sk_make_sp<ClipCmd>(ID(0), PaintersOrder::Invalid(), SkIRect::MakeXYWH(85, 0, 86, 256)));
 
     SkIRect r{0, 0, 100, 100};
-    test->push_back(new RectCmd(ID(1), {}, r.makeOffset(8, 8),     FakePaint(SK_ColorRED),     nullptr));
-    test->push_back(new RectCmd(ID(2), {}, r.makeOffset(48, 48),   FakePaint(SK_ColorGREEN),   nullptr));
+    test->push_back(sk_make_sp<RectCmd>(ID(1), r.makeOffset(8, 8),     FakePaint(SK_ColorRED)));
+    test->push_back(sk_make_sp<RectCmd>(ID(2), r.makeOffset(48, 48),   FakePaint(SK_ColorGREEN)));
 
-    test->push_back(new SaveCmd());
+    test->push_back(sk_make_sp<SaveCmd>());
     // intersect w/ the middle third in y
-    test->push_back(new ClipCmd(ID(3), {}, SkIRect::MakeXYWH(0, 85, 256, 86)));
+    test->push_back(sk_make_sp<ClipCmd>(ID(3), PaintersOrder::Invalid(), SkIRect::MakeXYWH(0, 85, 256, 86)));
 
-    test->push_back(new RectCmd(ID(4), {}, r.makeOffset(98, 98),   FakePaint(SK_ColorBLUE),    nullptr));
-    test->push_back(new RectCmd(ID(5), {}, r.makeOffset(148, 148), FakePaint(SK_ColorCYAN),    nullptr));
+    test->push_back(sk_make_sp<RectCmd>(ID(4), r.makeOffset(98, 98),   FakePaint(SK_ColorBLUE)));
+    test->push_back(sk_make_sp<RectCmd>(ID(5), r.makeOffset(148, 148), FakePaint(SK_ColorCYAN)));
 
-    test->push_back(new RestoreCmd());
+    test->push_back(sk_make_sp<RestoreCmd>());
 
-    test->push_back(new RectCmd(ID(6), {}, r.makeOffset(148, 8),   FakePaint(SK_ColorMAGENTA), nullptr));
-    test->push_back(new RectCmd(ID(7), {}, r.makeOffset(8, 148),   FakePaint(SK_ColorYELLOW),  nullptr));
+    test->push_back(sk_make_sp<RectCmd>(ID(6), r.makeOffset(148, 8),   FakePaint(SK_ColorMAGENTA)));
+    test->push_back(sk_make_sp<RectCmd>(ID(7), r.makeOffset(8, 148),   FakePaint(SK_ColorYELLOW)));
 
-    test->push_back(new RestoreCmd());
+    test->push_back(sk_make_sp<RestoreCmd>());
     return 7;
 }
 

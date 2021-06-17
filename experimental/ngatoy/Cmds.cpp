@@ -13,6 +13,11 @@
 
 
 //------------------------------------------------------------------------------------------------
+SortKey SaveCmd::getKey() {
+    SkASSERT(0);
+    return {};
+}
+
 void SaveCmd::execute(FakeCanvas* f) const {
     f->save();
 }
@@ -22,6 +27,11 @@ void SaveCmd::execute(SkCanvas* c) const {
 }
 
 //------------------------------------------------------------------------------------------------
+SortKey RestoreCmd::getKey() {
+    SkASSERT(0);
+    return {};
+}
+
 void RestoreCmd::execute(FakeCanvas* f) const {
     f->restore();
 }
@@ -31,6 +41,14 @@ void RestoreCmd::execute(SkCanvas* c) const {
 }
 
 //------------------------------------------------------------------------------------------------
+RectCmd::RectCmd(ID id,
+                 SkIRect r,
+                 const FakePaint& p)
+    : Cmd(id)
+    , fRect(r)
+    , fPaint(p) {
+}
+
 RectCmd::RectCmd(ID id,
                  PaintersOrder paintersOrder,
                  SkIRect r,
@@ -132,6 +150,9 @@ ClipCmd::ClipCmd(ID id, PaintersOrder paintersOrderWhenAdded, SkIRect r)
         : Cmd(id)
         , fRect(r)
         , fPaintersOrderWhenAdded(paintersOrderWhenAdded) {
+}
+
+ClipCmd::~ClipCmd() {
 }
 
 uint32_t ClipCmd::getSortZ() const {

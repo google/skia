@@ -4,7 +4,6 @@
 #ifndef Fake_DEFINED
 #define Fake_DEFINED
 
-#include "experimental/ngatoy/SortKey.h"
 #include "experimental/ngatoy/ngatypes.h"
 
 #include "include/core/SkBitmap.h"
@@ -31,11 +30,7 @@ public:
     public:
         MCState() {}
 
-        void addRect(SkIRect r, ClipCmd* clipCmd) {
-            fRects.push_back(r.makeOffset(fTrans.fX, fTrans.fY));
-            fCmds.push_back(clipCmd);
-            fCached = nullptr;
-        }
+        void addRect(SkIRect r, sk_sp<ClipCmd> clipCmd);
 
         void translate(SkIPoint trans) {
             fTrans += trans;
@@ -47,13 +42,13 @@ public:
         bool operator==(const MCState& other) const {
             return fTrans == other.fTrans &&
                    fRects == other.fRects;
-        }
+       }
 
         void apply(SkCanvas*) const;
         void apply(FakeCanvas*) const;
 
         const std::vector<SkIRect>& rects() const { return fRects; }
-        const std::vector<ClipCmd*>& cmds() const { return fCmds; }
+        const std::vector<sk_sp<ClipCmd>>& cmds() const { return fCmds; }
 
         sk_sp<FakeMCBlob> getCached() const {
             return fCached;
@@ -69,15 +64,15 @@ public:
         // These clip rects are in the 'parent' space of this MCState (i.e., in the coordinate
         // frame of the MCState prior to this one in 'fStack'). Alternatively, the 'fTrans' in
         // effect when they were added has already been applied.
-        std::vector<SkIRect>  fRects;
-        std::vector<ClipCmd*> fCmds;
-        sk_sp<FakeMCBlob>     fCached;
+        std::vector<SkIRect>        fRects;
+        std::vector<sk_sp<ClipCmd>> fCmds;
+        sk_sp<FakeMCBlob>           fCached;
     };
 
     FakeMCBlob(const std::vector<MCState>& stack) : fID(NextID()), fStack(stack) {
         fScissor = SkIRect::MakeLTRB(-1000, -1000, 1000, 1000);
 
-        for (auto s : fStack) {
+        for (MCState& s : fStack) {
             // xform the clip rects into device space
             for (auto& r : s.fRects) {
                 r.offset(fCTM);
@@ -143,8 +138,8 @@ public:
         fStack.push_back(FakeMCBlob::MCState());
     }
 
-    void clipRect(SkIRect clipRect, ClipCmd* clipCmd) {
-        fStack.back().addRect(clipRect, clipCmd);
+    void clipRect(SkIRect clipRect, sk_sp<ClipCmd> clipCmd) {
+        fStack.back().addRect(clipRect, std::move(clipCmd));
     }
 
     // For now we only store translates - in the full Skia this would be the whole 4x4 matrix
@@ -214,14 +209,7 @@ public:
     }
 
     // Get a material id for this paint that should be jammed into the sort key
-    int toID() const {
-        switch (fType) {
-            case Type::kNormal: return kSolidMat;
-            case Type::kLinear: return kLinearMat;
-            case Type::kRadial: return kRadialMat;
-        }
-        SkUNREACHABLE;
-    }
+    int toID() const;
 
     SkColor evalColor(int x, int y) const;
 
@@ -268,12 +256,12 @@ protected:
 private:
     void sort();
 
-    bool              fFinalized = false;
-    std::vector<Cmd*> fSortedCmds;
+    bool                    fFinalized = false;
+    std::vector<sk_sp<Cmd>> fSortedCmds;
 
-    FakeStateTracker  fTracker;
-    SkBitmap          fBM;
-    uint32_t          fZBuffer[256][256];
+    FakeStateTracker        fTracker;
+    SkBitmap                fBM;
+    uint32_t                fZBuffer[256][256];
 };
 
 class FakeCanvas {
