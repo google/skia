@@ -8,6 +8,10 @@
 #ifndef GrTessellationPathRenderer_DEFINED
 #define GrTessellationPathRenderer_DEFINED
 
+#include "include/gpu/GrTypes.h"
+
+#if GR_OGA
+
 #include "src/core/SkIPoint16.h"
 #include "src/gpu/GrDynamicAtlas.h"
 #include "src/gpu/GrOnFlushResourceProvider.h"
@@ -37,6 +41,17 @@ public:
 
     bool onDrawPath(const DrawPathArgs&) override;
     void onStencilPath(const StencilPathArgs&) override;
+
+    // Returns a fragment processor that modulates inputCoverage by the given deviceSpacePath's
+    // coverage, implemented using an internal atlas.
+    //
+    // Returns 'inputCoverage' wrapped in GrFPFailure() if the path was too big, or if the atlas was
+    // out of room. (Currently, "too big" means more than 128*128 total pixels, or larger than half
+    // the atlas size in either dimension.)
+    //
+    // Also return GrFPFailure() if the view matrix has perspective.
+    GrFPResult makeAtlasClipFP(const SkIRect& drawBounds, const SkMatrix&, const SkPath&, GrAA,
+                               std::unique_ptr<GrFragmentProcessor> inputCoverage, const GrCaps&);
 
     void preFlush(GrOnFlushResourceProvider*, SkSpan<const uint32_t> taskIDs) override;
 
@@ -76,5 +91,24 @@ private:
 };
 
 GR_MAKE_BITFIELD_CLASS_OPS(GrTessellationPathRenderer::PathFlags);
+
+#else // GR_OGA
+
+class GrTessellationPathRenderer {
+public:
+    // We send these flags to the internal path filling Ops to control how a path gets rendered.
+    enum class PathFlags {
+        kNone = 0,
+        kStencilOnly = (1 << 0),
+        kWireframe = (1 << 1)
+    };
+
+    static bool IsSupported(const GrCaps&) { return false; }
+
+};
+
+GR_MAKE_BITFIELD_CLASS_OPS(GrTessellationPathRenderer::PathFlags);
+
+#endif // GR_OGA
 
 #endif

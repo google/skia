@@ -1,9 +1,14 @@
 # Prerequisites
 
+Node v14 or later is required to run tests. We use npm (the Node Package Manager) to install
+test dependencies. Recent installations of Node have npm as well.
+CanvasKit has no other external source dependencies.
+
 To compile CanvasKit, you will first need to [install `emscripten`][1].  This
 will set the environment `EMSDK` (among others) which is required for
 compilation. Which version should you use?  [`/infra/wasm-common/docker/emsdk-base/Dockerfile`][2]
-shows the version we build and test with. We try to keep this up-to-date.
+shows the version we build and test with. We try to use as recent a version of emscripten as
+is reasonable.
 
 [1]: https://emscripten.org/docs/getting_started/downloads.html
 [2]: https://github.com/google/skia/blob/master/infra/wasm-common/docker/emsdk-base/Dockerfile
@@ -27,6 +32,10 @@ for a solution to Python3 using the wrong certificates.
 # Compile and Run Local Example
 
 ```
+# The following installs all npm dependencies and only needs to be when setting up
+# or if our npm dependencies have changed (rarely).
+npm ci
+
 make release  # make debug is much faster and has better error messages
 make local-example
 ```

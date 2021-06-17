@@ -57,6 +57,7 @@ public:
             : fPointers{ts...}
             , fSize{size} {}
     constexpr SkZip(const SkZip& that) = default;
+    constexpr SkZip& operator=(const SkZip &that) = default;
 
     // Check to see if U can be used for const T or is the same as T
     template <typename U, typename T>

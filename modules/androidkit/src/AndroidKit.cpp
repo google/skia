@@ -28,6 +28,8 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved) {
     REGISTER_NATIVES(ImageFilter)
     REGISTER_NATIVES(Matrix)
     REGISTER_NATIVES(Paint)
+    REGISTER_NATIVES(Path)
+    REGISTER_NATIVES(PathBuilder)
     REGISTER_NATIVES(RuntimeShaderBuilder)
     REGISTER_NATIVES(Shader)
     REGISTER_NATIVES(SkottieAnimation)

@@ -63,7 +63,7 @@ type reportBody struct {
 var defaultKeys map[string]string
 
 // contains all the results reported in through report_gold_data
-var results []*jsonio.Result
+var results []jsonio.Result
 var resultsMutex sync.Mutex
 
 func main() {
@@ -85,7 +85,7 @@ func main() {
 		"source_type":       *sourceType,
 	}
 
-	results = []*jsonio.Result{}
+	results = []jsonio.Result{}
 
 	http.HandleFunc("/report_gold_data", reporter)
 	http.HandleFunc("/dump_json", dumpJSON)
@@ -132,7 +132,7 @@ func reporter(w http.ResponseWriter, r *http.Request) {
 
 	resultsMutex.Lock()
 	defer resultsMutex.Unlock()
-	results = append(results, &jsonio.Result{
+	results = append(results, jsonio.Result{
 		Digest: types.Digest(hash),
 		Key: map[string]string{
 			"name":   testOutput.TestName,

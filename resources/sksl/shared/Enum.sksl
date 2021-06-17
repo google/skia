@@ -30,22 +30,6 @@ void main() {
         case E::kOne:  sk_FragColor = half4(14); break;
     }
 
-    // Test that built-in enums work equally well.
-    const SkBlendMode m = SkBlendMode::kClear;
-    if (m == SkBlendMode::kClear)  { sk_FragColor = half4(15); }
-    @if (m == SkBlendMode::kClear) { sk_FragColor = half4(16); }
-    if (m == SkBlendMode::kSrc)    { sk_FragColor = half4(17); }
-    @if (m != SkBlendMode::kDst)   { sk_FragColor = half4(18); }
-
-    sk_FragColor = (m == SkBlendMode::kClear) ? half4(19)  : half4(-19);
-    sk_FragColor = (m != SkBlendMode::kSrc)   ? half4(20)  : half4(-20);
-
-    @switch (SkBlendMode::kClear) {
-        case SkBlendMode::kClear: sk_FragColor = half4(21); break;
-        case SkBlendMode::kSrc:   sk_FragColor = half4(22); break;
-        case SkBlendMode::kDst:   sk_FragColor = half4(23); break;
-    }
-
     // Test with a non-const enum.
     E f = E::kOne;
     if (f == E::kOne) { sk_FragColor = half4(1); }

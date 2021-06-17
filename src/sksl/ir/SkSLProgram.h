@@ -197,7 +197,7 @@ struct Program {
 
     String description() const {
         String result;
-        for (const auto& e : this->elements()) {
+        for (const ProgramElement* e : this->elements()) {
             result += e->description();
         }
         return result;
