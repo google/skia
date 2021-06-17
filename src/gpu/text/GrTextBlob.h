@@ -21,8 +21,8 @@
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTLazy.h"
 #include "src/gpu/GrColor.h"
+#include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrSubRunAllocator.h"
-#include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/ops/GrOp.h"
 
 class GrAtlasManager;
@@ -62,6 +62,7 @@ public:
     virtual size_t vertexStride(const SkMatrix& drawMatrix) const = 0;
     virtual int glyphCount() const = 0;
 
+#if GR_OGA
     virtual std::tuple<const GrClip*, GrOp::Owner>
     makeAtlasTextOp(
             const GrClip* clip,
@@ -70,6 +71,7 @@ public:
             const SkPaint& paint,
             GrSurfaceDrawContext* rtc,
             GrAtlasSubRunOwner subRun) const = 0;
+#endif
     virtual void fillVertexData(
             void* vertexDst, int offset, int count,
             GrColor color, const SkMatrix& positionMatrix,
@@ -80,7 +82,7 @@ public:
     // This call is not thread safe. It should only be called from GrDrawOp::onPrepare which
     // is single threaded.
     virtual std::tuple<bool, int> regenerateAtlas(
-            int begin, int end, GrMeshDrawOp::Target* target) const = 0;
+            int begin, int end, GrMeshDrawTarget* target) const = 0;
 };
 
 // -- GrSubRun -------------------------------------------------------------------------------------

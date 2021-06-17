@@ -8,6 +8,7 @@
 #ifndef GrQuadPerEdgeAA_DEFINED
 #define GrQuadPerEdgeAA_DEFINED
 
+#if 0
 #include "include/core/SkPoint.h"
 #include "include/core/SkPoint3.h"
 #include "include/private/GrTypesPriv.h"
@@ -198,5 +199,6 @@ namespace GrQuadPerEdgeAA {
                    int quadCount, int maxVerts, int absVertBufferOffset);
 
 } // namespace GrQuadPerEdgeAA
+#endif
 
 #endif // GrQuadPerEdgeAA_DEFINED

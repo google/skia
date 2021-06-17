@@ -8,6 +8,7 @@
 #ifndef GrDrawAtlasOp_DEFINED
 #define GrDrawAtlasOp_DEFINED
 
+#if 0
 #include "include/core/SkRefCnt.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/ops/GrOp.h"
@@ -28,4 +29,5 @@ GrOp::Owner Make(GrRecordingContext*,
                  const SkColor* colors);
 }  // namespace GrDrawAtlasOp
 
+#endif
 #endif
