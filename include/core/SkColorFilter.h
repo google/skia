@@ -55,10 +55,6 @@ public:
      */
     sk_sp<SkColorFilter> makeComposed(sk_sp<SkColorFilter> inner) const;
 
-    static SkFlattenable::Type GetFlattenableType() {
-        return kSkColorFilter_Type;
-    }
-
 private:
     SkColorFilter() = default;
     friend class SkColorFilterBase;
