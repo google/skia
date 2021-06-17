@@ -89,6 +89,7 @@ void GrRingBuffer::startSubmit(GrGpu* gpu) {
     fPreviousBuffers.clear();
 
     if (fNewAllocation) {
+        fCurrentBuffer->unmap(); //*** Needed for Mac, is there a better place to put this?
         SubmitData* submitData = new SubmitData();
         submitData->fOwner = this;
         submitData->fLastHead = fHead;
