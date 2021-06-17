@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d197e8c5_afa22c8d",
+        "filename": "experimental/ngatoy/Cmds.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-17T18:24:01Z",
+      "side": 1,
+      "message": "We want to use the clip\u0027s painter\u0027s order z here to determine the rect\u0027s z.",
+      "range": {
+        "startLine": 50,
+        "startChar": 32,
+        "endLine": 50,
+        "endChar": 58
+      },
+      "revId": "c1196f398dde010f006895229a6a143232fdc36e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
