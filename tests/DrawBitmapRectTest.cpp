@@ -206,7 +206,7 @@ static void test_nan_antihair() {
 
     SkPath path;
     path.moveTo(0, 0);
-    path.lineTo(10, SK_ScalarNaN);
+    path.lineTo(10, SK_FloatNaN);
 
     SkPaint paint;
     paint.setAntiAlias(true);

@@ -103,7 +103,7 @@ public:
         // 180 and 360 degrees respectively. These are used for "quick accepts" that allow us to
         // send almost all curves directly to the hardware without having to chop.
         float2 numRadialSegments_180_360 = skvx::max(skvx::ceil(
-                float2{SK_ScalarPI, 2*SK_ScalarPI} * fNumRadialSegmentsPerRadian), 1);
+                float2{SK_FloatPI, 2*SK_FloatPI} * fNumRadialSegmentsPerRadian), 1);
         // numEdges = numSegments + 1. See num_combined_segments().
         float maxTotalEdges = fMaxTessellationSegments + 1;
         // numParametricSegments = numTotalEdges - numRadialSegments. See num_combined_segments().

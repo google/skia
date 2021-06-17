@@ -137,8 +137,8 @@ private:
 };
 
 static void make_unit_star(SkPath* path, int n) {
-    SkScalar rad = -SK_ScalarPI / 2;
-    const SkScalar drad = (n >> 1) * SK_ScalarPI * 2 / n;
+    SkScalar rad = -SK_FloatPI / 2;
+    const SkScalar drad = (n >> 1) * SK_FloatPI * 2 / n;
 
     path->moveTo(0, -SK_Scalar1);
     for (int i = 1; i < n; i++) {

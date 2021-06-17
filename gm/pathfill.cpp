@@ -135,8 +135,8 @@ static PathDY make_star(int n) {
     const SkScalar c = SkIntToScalar(45);
     const SkScalar r = SkIntToScalar(20);
 
-    SkScalar rad = -SK_ScalarPI / 2;
-    const SkScalar drad = (n >> 1) * SK_ScalarPI * 2 / n;
+    SkScalar rad = -SK_FloatPI / 2;
+    const SkScalar drad = (n >> 1) * SK_FloatPI * 2 / n;
 
     SkPathBuilder builder;
     builder.moveTo(c, c - r);

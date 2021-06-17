@@ -499,16 +499,16 @@ SkPathBuilder& SkPathBuilder::arcTo(SkPoint rad, SkScalar angle, SkPathBuilder::
     SkScalar theta2 = SkScalarATan2(unitPts[1].fY, unitPts[1].fX);
     SkScalar thetaArc = theta2 - theta1;
     if (thetaArc < 0 && (arcSweep == SkPathDirection::kCW)) {  // arcSweep flipped from the original implementation
-        thetaArc += SK_ScalarPI * 2;
+        thetaArc += SK_FloatPI * 2;
     } else if (thetaArc > 0 && (arcSweep != SkPathDirection::kCW)) {  // arcSweep flipped from the original implementation
-        thetaArc -= SK_ScalarPI * 2;
+        thetaArc -= SK_FloatPI * 2;
     }
 
     // Very tiny angles cause our subsequent math to go wonky (skbug.com/9272)
     // so we do a quick check here. The precise tolerance amount is just made up.
     // PI/million happens to fix the bug in 9272, but a larger value is probably
     // ok too.
-    if (SkScalarAbs(thetaArc) < (SK_ScalarPI / (1000 * 1000))) {
+    if (SkScalarAbs(thetaArc) < (SK_FloatPI / (1000 * 1000))) {
         return this->lineTo(endPt);
     }
 
@@ -516,7 +516,7 @@ SkPathBuilder& SkPathBuilder::arcTo(SkPoint rad, SkScalar angle, SkPathBuilder::
     pointTransform.preScale(rx, ry);
 
     // the arc may be slightly bigger than 1/4 circle, so allow up to 1/3rd
-    int segments = SkScalarCeilToInt(SkScalarAbs(thetaArc / (2 * SK_ScalarPI / 3)));
+    int segments = SkScalarCeilToInt(SkScalarAbs(thetaArc / (2 * SK_FloatPI / 3)));
     SkScalar thetaWidth = thetaArc / segments;
     SkScalar t = SkScalarTan(0.5f * thetaWidth);
     if (!SkScalarIsFinite(t)) {
@@ -527,7 +527,7 @@ SkPathBuilder& SkPathBuilder::arcTo(SkPoint rad, SkScalar angle, SkPathBuilder::
     auto scalar_is_integer = [](SkScalar scalar) -> bool {
         return scalar == SkScalarFloorToScalar(scalar);
     };
-    bool expectIntegers = SkScalarNearlyZero(SK_ScalarPI/2 - SkScalarAbs(thetaWidth)) &&
+    bool expectIntegers = SkScalarNearlyZero(SK_FloatPI/2 - SkScalarAbs(thetaWidth)) &&
         scalar_is_integer(rx) && scalar_is_integer(ry) &&
         scalar_is_integer(endPt.fX) && scalar_is_integer(endPt.fY);
 

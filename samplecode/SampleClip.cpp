@@ -430,7 +430,7 @@ static SkHalfPlane half_plane_w0(const SkMatrix& m) {
 class SampleCameraView : public Sample {
     float   fNear = 0.05f;
     float   fFar = 4;
-    float   fAngle = SK_ScalarPI / 4;
+    float   fAngle = SK_FloatPI / 4;
 
     SkV3    fEye { 0, 0, 1.0f/tan(fAngle/2) - 1 };
     SkV3    fCOA { 0, 0, 0 };
@@ -466,7 +466,7 @@ public:
     }
 
     bool onChar(SkUnichar uni) override {
-        float delta = SK_ScalarPI / 30;
+        float delta = SK_FloatPI / 30;
         switch (uni) {
             case '8': this->rotate( delta, 0, 0); return true;
             case '2': this->rotate(-delta, 0, 0); return true;

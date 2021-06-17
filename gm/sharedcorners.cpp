@@ -98,12 +98,12 @@ protected:
         std::vector<std::array<int, 3>> indices;
         SkScalar theta = 0;
         pts.push_back({0, 0});
-        while (theta < 2*SK_ScalarPI) {
+        while (theta < 2*SK_FloatPI) {
             pts.push_back({SkScalarCos(theta), SkScalarSin(theta)});
             if (pts.size() > 2) {
                 indices.push_back({{0, (int)pts.size() - 2, (int)pts.size() - 1}});
             }
-            theta += rand.nextRangeF(0, SK_ScalarPI/3);
+            theta += rand.nextRangeF(0, SK_FloatPI/3);
         }
         indices.push_back({{0, (int)pts.size() - 1, 1}});
         this->drawTriangleBoxes(canvas, pts, indices);

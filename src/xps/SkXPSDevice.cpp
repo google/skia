@@ -1079,7 +1079,7 @@ static bool rect_must_be_pathed(const SkPaint& paint, const SkMatrix& matrix) {
                (matrix.hasPerspective() && !zeroWidth) ||
                SkPaint::kMiter_Join != paint.getStrokeJoin() ||
                (SkPaint::kMiter_Join == paint.getStrokeJoin() &&
-                paint.getStrokeMiter() < SK_ScalarSqrt2)
+                paint.getStrokeMiter() < SK_FloatSqrt2)
            ))
     ;
 }

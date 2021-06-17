@@ -954,8 +954,8 @@ DEF_TEST(Matrix, reporter) {
 
     mat2.reset();
     mat.reset();
-    mat.set(SkMatrix::kMSkewX, SK_ScalarNaN);
-    mat2.set(SkMatrix::kMSkewX, SK_ScalarNaN);
+    mat.set(SkMatrix::kMSkewX, SK_FloatNaN);
+    mat2.set(SkMatrix::kMSkewX, SK_FloatNaN);
     REPORTER_ASSERT(reporter, !are_equal(reporter, mat, mat2));
 
     test_matrix_min_max_scale(reporter);

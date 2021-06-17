@@ -247,7 +247,7 @@ DEF_SIMPLE_GM(blob_rsxform, canvas, 500, 100) {
     SkScalar scale = 1;
     SkScalar x = 0, y = 0;
     for (size_t i = 0; i < len; ++i) {
-        scale = SkScalarSin(i * SK_ScalarPI / (len-1)) * 0.75f + 0.5f;
+        scale = SkScalarSin(i * SK_FloatPI / (len-1)) * 0.75f + 0.5f;
         xforms[i] = SkRSXform::Make(scale, 0, x, y);
         x += 50 * scale;
     }
@@ -285,7 +285,7 @@ DEF_SIMPLE_GM(blob_rsxform_distortable, canvas, 500, 100) {
     SkScalar scale = 1;
     SkScalar x = 0, y = 0;
     for (size_t i = 0; i < len; ++i) {
-        scale = SkScalarSin(i * SK_ScalarPI / (len-1)) * 0.75f + 0.5f;
+        scale = SkScalarSin(i * SK_FloatPI / (len-1)) * 0.75f + 0.5f;
         xforms[i] = SkRSXform::Make(scale, 0, x, y);
         x += 50 * scale;
     }

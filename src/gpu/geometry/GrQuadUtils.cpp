@@ -325,10 +325,10 @@ SkRect GrQuad::projectedBounds() const {
         V4f y2d = ys / ws;
         // Bounds of just the projected points in front of w = epsilon
         SkRect frontBounds = {
-            min(if_then_else(clipW, V4f(SK_ScalarInfinity), x2d)),
-            min(if_then_else(clipW, V4f(SK_ScalarInfinity), y2d)),
-            max(if_then_else(clipW, V4f(SK_ScalarNegativeInfinity), x2d)),
-            max(if_then_else(clipW, V4f(SK_ScalarNegativeInfinity), y2d))
+            min(if_then_else(clipW, V4f(SK_FloatInfinity), x2d)),
+            min(if_then_else(clipW, V4f(SK_FloatInfinity), y2d)),
+            max(if_then_else(clipW, V4f(SK_FloatNegativeInfinity), x2d)),
+            max(if_then_else(clipW, V4f(SK_FloatNegativeInfinity), y2d))
         };
         // Calculate clipped coordinates by following CCW edges, only keeping points where the w
         // actually changes sign between the vertices.
