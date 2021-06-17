@@ -546,7 +546,7 @@ private:
                                                                    &GrUserStencilSettings::kUnused);
     }
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepareDraws(GrMeshDrawTarget* target) override {
         int instanceCount = fGeoData.count();
 
         sk_sp<const GrBuffer> vertexBuffer;

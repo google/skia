@@ -186,7 +186,7 @@ private:
         // TODO [PI]: implement
     }
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepareDraws(GrMeshDrawTarget* target) override {
         int instanceCount = fShapes.count();
 
         GrSmallPathAtlasMgr* atlasMgr = target->smallPathAtlasManager();
@@ -363,7 +363,7 @@ private:
         this->flush(target, &flushInfo);
     }
 
-    bool addToAtlasWithRetry(GrMeshDrawOp::Target* target,
+    bool addToAtlasWithRetry(GrMeshDrawTarget* target,
                              FlushInfo* flushInfo,
                              GrSmallPathAtlasMgr* atlasMgr,
                              int width, int height, const void* image,
@@ -391,7 +391,7 @@ private:
         return GrDrawOpAtlas::ErrorCode::kSucceeded == code;
     }
 
-    bool addDFPathToAtlas(GrMeshDrawOp::Target* target, FlushInfo* flushInfo,
+    bool addDFPathToAtlas(GrMeshDrawTarget* target, FlushInfo* flushInfo,
                           GrSmallPathAtlasMgr* atlasMgr, GrSmallPathShapeData* shapeData,
                           const GrStyledShape& shape, uint32_t dimension, SkScalar scale) const {
 
@@ -483,7 +483,7 @@ private:
                                          drawBounds, SK_DistanceFieldPad, shapeData);
     }
 
-    bool addBMPathToAtlas(GrMeshDrawOp::Target* target, FlushInfo* flushInfo,
+    bool addBMPathToAtlas(GrMeshDrawTarget* target, FlushInfo* flushInfo,
                           GrSmallPathAtlasMgr* atlasMgr, GrSmallPathShapeData* shapeData,
                           const GrStyledShape& shape, const SkMatrix& ctm) const {
         const SkRect& bounds = shape.bounds();
@@ -574,7 +574,7 @@ private:
         }
     }
 
-    void flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) const {
+    void flush(GrMeshDrawTarget* target, FlushInfo* flushInfo) const {
         GrSmallPathAtlasMgr* atlasMgr = target->smallPathAtlasManager();
         if (!atlasMgr) {
             return;
