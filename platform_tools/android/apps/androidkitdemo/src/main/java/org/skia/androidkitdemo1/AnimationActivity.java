@@ -26,8 +26,14 @@ class AnimationRenderer extends SurfaceRenderer {
 
         canvas.drawColor(0xffffffe0);
 
-        Paint p = new Paint();
-        p.setColor(new Color(0, 1, 0, 1));
+        Color[] colors = { new Color(1,0,0,1),
+                           new Color(0,1,0,1),
+                           new Color(0,0,1,1)};
+        float[] pos = {0, 0.5f, 1};
+        Shader gradient = new LinearGradient(0, 0, canvas.getWidth(), 0,
+                                             colors, pos, TileMode.CLAMP);
+
+        Paint p = new Paint().setShader(gradient);
 
         float x = (float)(java.lang.Math.cos(ms * kSpeed / 1000) + 1) * canvas.getWidth()/2;
         canvas.drawRect(x - kWidth/2, (canvas.getHeight() - kHeight)/2,
