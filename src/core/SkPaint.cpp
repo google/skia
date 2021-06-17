@@ -439,12 +439,3 @@ bool SkPaint::nothingToDraw() const {
     }
     return false;
 }
-
-uint32_t SkPaint::getHash() const {
-    // We're going to hash 5 pointers and 6 floats, finishing up with fBitfields,
-    // so fBitfields should be 5 pointers and 6 floats from the start.
-    static_assert(offsetof(SkPaint, fBitfieldsUInt) == 5 * sizeof(void*) + 6 * sizeof(float),
-                  "SkPaint_notPackedTightly");
-    return SkOpts::hash(reinterpret_cast<const uint32_t*>(this),
-                        offsetof(SkPaint, fBitfieldsUInt) + sizeof(fBitfieldsUInt));
-}

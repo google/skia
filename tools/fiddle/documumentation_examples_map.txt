@@ -2044,10 +2044,6 @@ SkScalar getFontMetrics(SkFontMetrics* metrics) const;
 SkPaint
 SkScalar getFontSpacing() const;
 
-[Paint_getHash]
-SkPaint
-uint32_t getHash() const;
-
 [Paint_getHinting]
 SkPaint
 SkFontHinting getHinting() const;

@@ -530,7 +530,6 @@
 #include "../../docs/examples/Paint_getFlags.cpp"
 #include "../../docs/examples/Paint_getFontMetrics.cpp"
 #include "../../docs/examples/Paint_getFontSpacing.cpp"
-#include "../../docs/examples/Paint_getHash.cpp"
 #include "../../docs/examples/Paint_getHinting.cpp"
 #include "../../docs/examples/Paint_getImageFilter.cpp"
 #include "../../docs/examples/Paint_getMaskFilter.cpp"

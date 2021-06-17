@@ -144,22 +144,6 @@ public:
         return !(a == b);
     }
 
-    /** Returns a hash generated from SkPaint values and pointers.
-        Identical hashes guarantee that the paints are
-        equivalent, but differing hashes do not guarantee that the paints have differing
-        contents.
-
-        If operator==(const SkPaint& a, const SkPaint& b) returns true for two paints,
-        their hashes are also equal.
-
-        The hash returned is platform and implementation specific.
-
-        @return  a shallow hash
-
-        example: https://fiddle.skia.org/c/@Paint_getHash
-    */
-    uint32_t getHash() const;
-
     /** Sets all SkPaint contents to their initial values. This is equivalent to replacing
         SkPaint with the result of SkPaint().
 
