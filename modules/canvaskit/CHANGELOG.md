@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.28.0] - 2021-06-17
+
 ### Added
  - `Surface.makeImageFromTexture` and `Surface.makeImageFromTextureSource` as easy ways to provide
    CanvasKit with a WebGL texture and interact with WebGL texture sources (e.g. &lt;video&gt;)
