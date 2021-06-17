@@ -96,6 +96,12 @@ public:
                                                               const GrSwizzle&);
 
     /**
+     *  Returns a fragment processor that calls the passed in fragment processor, and then clamps
+     *  the output to [0, 1].
+     */
+    static std::unique_ptr<GrFragmentProcessor> ClampOutput(std::unique_ptr<GrFragmentProcessor>);
+
+    /**
      *  Returns a fragment processor that calls the passed in fragment processor, and then ensures
      *  the output is a valid premul color by clamping RGB to [0, A].
      */

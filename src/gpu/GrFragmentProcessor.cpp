@@ -11,7 +11,6 @@
 #include "src/gpu/GrProcessorAnalysis.h"
 #include "src/gpu/effects/GrBlendFragmentProcessor.h"
 #include "src/gpu/effects/GrSkSLFP.h"
-#include "src/gpu/effects/generated/GrClampFragmentProcessor.h"
 #include "src/gpu/effects/generated/GrOverrideInputFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -252,12 +251,29 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::ModulateRGBA(
             GrBlendFragmentProcessor::BlendBehavior::kSkModeBehavior);
 }
 
+std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::ClampOutput(
+        std::unique_ptr<GrFragmentProcessor> fp) {
+    SkASSERT(fp);
+    static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter, R"(
+        half4 main(half4 inColor) {
+            return saturate(inColor);
+        }
+    )");
+    return GrSkSLFP::Make(
+            effect, "Clamp", std::move(fp), GrSkSLFP::OptFlags::kPreservesOpaqueInput);
+}
+
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::ClampPremulOutput(
         std::unique_ptr<GrFragmentProcessor> fp) {
-    if (!fp) {
-        return nullptr;
-    }
-    return GrClampFragmentProcessor::Make(std::move(fp), /*clampToPremul=*/true);
+    SkASSERT(fp);
+    static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter, R"(
+        half4 main(half4 inColor) {
+            half alpha = saturate(inColor.a);
+            return half4(clamp(inColor.rgb, 0, alpha), alpha);
+        }
+    )");
+    return GrSkSLFP::Make(
+            effect, "ClampPremul", std::move(fp), GrSkSLFP::OptFlags::kPreservesOpaqueInput);
 }
 
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::SwizzleOutput(

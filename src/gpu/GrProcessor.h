@@ -63,7 +63,6 @@ public:
         kGrCircleBlurFragmentProcessor_ClassID,
         kGrCircleEffect_ClassID,
         kGrClampedGradientEffect_ClassID,
-        kGrClampFragmentProcessor_ClassID,
         kGrColorMatrixFragmentProcessor_ClassID,
         kGrColorSpaceXformEffect_ClassID,
         kGrConfigConversionEffect_ClassID,
