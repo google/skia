@@ -58,7 +58,7 @@ Determining what glyphs, in what order and positions, are needed to represent a 
 
 We posit that drawing *internationally correct* Text is critical to most Web Apps, and that it is both complex to get correct, and can be computationally expensive. We propose exposing this processing to apps, providing them with results that can be efficiently drawn / animated.
 
-The core [Shaping APIs](text_shaping.md) are detailed here.
+The core [Shaping APIs](text_shaper.md) are detailed here.
 
 Assocated [Canvas2D extensions](text_c2d.md) are detailed here.
 
