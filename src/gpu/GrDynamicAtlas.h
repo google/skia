@@ -56,7 +56,6 @@ public:
 
     int maxAtlasSize() const { return fMaxAtlasSize; }
     GrTextureProxy* textureProxy() const { return fTextureProxy.get(); }
-    GrSurfaceProxyView surfaceProxyView(const GrCaps&) const;
     bool isInstantiated() const { return fTextureProxy->isInstantiated(); }
     int currentWidth() const { return fWidth; }
     int currentHeight() const { return fHeight; }

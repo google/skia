@@ -128,7 +128,6 @@ public:
         kFwidthSquircleTestProcessor_ClassID,
         kSwizzleFragmentProcessor_ClassID,
         kTessellate_BoundingBoxShader_ClassID,
-        kTessellate_GrModulateAtlasCoverageFP_ClassID,
         kTessellate_GrStrokeTessellationShader_ClassID,
         kTessellate_HardwareCurveShader_ClassID,
         kTessellate_HardwareWedgeShader_ClassID,

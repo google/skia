@@ -447,8 +447,6 @@ skia_gpu_sources = [
   "$_src/gpu/tessellate/GrVectorXform.h",
 
   # tessellate/shaders
-  "$_src/gpu/tessellate/shaders/GrModulateAtlasCoverageFP.cpp",
-  "$_src/gpu/tessellate/shaders/GrModulateAtlasCoverageFP.h",
   "$_src/gpu/tessellate/shaders/GrPathTessellationShader.cpp",
   "$_src/gpu/tessellate/shaders/GrPathTessellationShader.h",
   "$_src/gpu/tessellate/shaders/GrPathTessellationShader_Hardware.cpp",

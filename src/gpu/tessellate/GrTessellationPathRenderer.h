@@ -42,16 +42,16 @@ public:
     bool onDrawPath(const DrawPathArgs&) override;
     void onStencilPath(const StencilPathArgs&) override;
 
-    // Returns a fragment processor that modulates inputFP by the given deviceSpacePath's coverage,
-    // implemented using an internal atlas.
+    // Returns a fragment processor that modulates inputCoverage by the given deviceSpacePath's
+    // coverage, implemented using an internal atlas.
     //
-    // Returns 'inputFP' wrapped in GrFPFailure() if the path was too big, or if the atlas was out
-    // of room. (Currently, "too big" means more than 128*128 total pixels, or larger than half the
-    // atlas size in either dimension.)
+    // Returns 'inputCoverage' wrapped in GrFPFailure() if the path was too big, or if the atlas was
+    // out of room. (Currently, "too big" means more than 128*128 total pixels, or larger than half
+    // the atlas size in either dimension.)
     //
-    // Also returns GrFPFailure() if the view matrix has perspective.
+    // Also return GrFPFailure() if the view matrix has perspective.
     GrFPResult makeAtlasClipFP(const SkIRect& drawBounds, const SkMatrix&, const SkPath&, GrAA,
-                               std::unique_ptr<GrFragmentProcessor> inputFP, const GrCaps&);
+                               std::unique_ptr<GrFragmentProcessor> inputCoverage, const GrCaps&);
 
     void preFlush(GrOnFlushResourceProvider*, SkSpan<const uint32_t> taskIDs) override;
 
