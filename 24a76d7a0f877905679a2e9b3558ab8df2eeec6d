@@ -22,6 +22,30 @@
       },
       "revId": "24a76d7a0f877905679a2e9b3558ab8df2eeec6d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "87453ec9_8972dfea",
+        "filename": "include/core/SkBlender.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-17T14:44:54Z",
+      "side": 1,
+      "message": "Good catch, moved to SkBlenderBase (needed for `asRuntimeEffect`).",
+      "parentUuid": "457999e0_82ffc3ab",
+      "range": {
+        "startLine": 13,
+        "startChar": 6,
+        "endLine": 13,
+        "endChar": 21
+      },
+      "revId": "24a76d7a0f877905679a2e9b3558ab8df2eeec6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
