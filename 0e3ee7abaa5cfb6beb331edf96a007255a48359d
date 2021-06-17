@@ -70,6 +70,115 @@
       "parentUuid": "5d18988d_34b12ccd",
       "revId": "0e3ee7abaa5cfb6beb331edf96a007255a48359d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9aa367d4_a2d75412",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 35
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-17T16:05:28Z",
+      "side": 1,
+      "message": "still reading...",
+      "revId": "0e3ee7abaa5cfb6beb331edf96a007255a48359d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "13daeddf_b56cbbb6",
+        "filename": "src/sksl/SkSLDSLParser.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-17T16:05:28Z",
+      "side": 1,
+      "message": "We don\u0027t need to use the comma operator here at all, AFAICS?\n\n  []{ InitLayoutMap(); return true; }",
+      "range": {
+        "startLine": 124,
+        "startChar": 49,
+        "endLine": 124,
+        "endChar": 85
+      },
+      "revId": "0e3ee7abaa5cfb6beb331edf96a007255a48359d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "88b60201_c8cf3a0d",
+        "filename": "src/sksl/SkSLDSLParser.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-17T16:05:28Z",
+      "side": 1,
+      "message": "It looks like fail immediately if any call to parameter() returns an unpopulated optional.\n\nSo why does our SkTArray contain the skstd::optionals? Can we strip off the optional, and make `parameters` be an array of DSLWrapper\u003cDSLVar\u003e?",
+      "range": {
+        "startLine": 304,
+        "startChar": 12,
+        "endLine": 307,
+        "endChar": 55
+      },
+      "revId": "0e3ee7abaa5cfb6beb331edf96a007255a48359d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "88e66e0c_32bb1e8a",
+        "filename": "src/sksl/SkSLDSLParser.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-17T16:05:28Z",
+      "side": 1,
+      "message": "This is kind of spooky for two reasons:\n- If `parameters` is resized, all the objects inside of it are going to get move-constructed. It is very hard to reason about whether a `skstd::optional\u003cDSLWrapper\u003cDSLVar\u003e\u003e` is going to be a stable pointer after being moved or not. If this is safe, please add a comment addressing this somewhere.\n- It is hard to reason about the meaning of `\u0026**` since both optional and DSLWrapper override * to mean something special.\n\nFor #1, I don\u0027t know the answer.\nFor #2, I think this will read better if (a) we get rid of the optional\u003c\u003e inside the array and (b) unwrap the DSLWrapper using a getter-method instead of *. So we\u0027d have `\u0026parameters.back().get()` or something.",
+      "range": {
+        "startLine": 308,
+        "startChar": 11,
+        "endLine": 308,
+        "endChar": 62
+      },
+      "revId": "0e3ee7abaa5cfb6beb331edf96a007255a48359d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3b5d0d74_a9a5e50e",
+        "filename": "src/sksl/dsl/priv/DSLWriter.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-17T16:05:28Z",
+      "side": 1,
+      "message": "I think it\u0027s a valuable guarantee that we can find variables in the symbol table. I wouldn\u0027t want to give that up without getting something in return. (Not saying anything needs to change, since DSLParser apparently does add them)",
+      "range": {
+        "startLine": 245,
+        "startChar": 88,
+        "endLine": 247,
+        "endChar": 17
+      },
+      "revId": "0e3ee7abaa5cfb6beb331edf96a007255a48359d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
