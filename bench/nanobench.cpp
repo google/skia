@@ -1227,14 +1227,9 @@ int main(int argc, char** argv) {
 
     std::unique_ptr<SkWStream> logStream(new SkNullWStream);
     if (!FLAGS_outResultsFile.isEmpty()) {
-#if defined(SK_RELEASE)
         // SkJSONWriter uses a 32k in-memory cache, so it only flushes occasionally and is well
         // equipped for a stream that re-opens, appends, and closes the file on every write.
         logStream.reset(new NanoFILEAppendAndCloseStream(FLAGS_outResultsFile[0]));
-#else
-        SkDebugf("I'm ignoring --outResultsFile because this is a Debug build.");
-        return 1;
-#endif
     }
     NanoJSONResultsWriter log(logStream.get(), SkJSONWriter::Mode::kPretty);
     log.beginObject(); // root
@@ -1406,7 +1401,12 @@ int main(int argc, char** argv) {
             const bool want_plot = !FLAGS_quiet;
 
             Stats stats(samples, want_plot);
-            log.beginObject(config);
+
+            if (config == nullptr) {
+                log.beginObject("nullptr_for_test_name");
+            } else {
+                log.beginObject(config);
+            }
 
             log.beginObject("options");
             log.appendString("name", bench->getName());
