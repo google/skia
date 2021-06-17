@@ -40,6 +40,17 @@ constexpr static auto kAtlasAlgorithm = GrDynamicAtlas::RectanizerAlgorithm::kPo
 constexpr static int kMaxAtlasPathHeight = 128;
 
 bool GrTessellationPathRenderer::IsSupported(const GrCaps& caps) {
+    SkDebugf(R"(GrTessellationPathRenderer::IsSupported
+           !caps.avoidStencilBuffers()=%i
+           caps.drawInstancedSupport()=%i
+           caps.shaderCaps()->vertexIDSupport()=%i
+           !caps.disableTessellationPathRenderer()=%i
+)",
+           !caps.avoidStencilBuffers(),
+           caps.drawInstancedSupport(),
+           caps.shaderCaps()->vertexIDSupport(),
+           !caps.disableTessellationPathRenderer()
+            );
     return !caps.avoidStencilBuffers() &&
            caps.drawInstancedSupport() &&
            caps.shaderCaps()->vertexIDSupport() &&
@@ -116,6 +127,7 @@ static GrOp::Owner make_non_convex_fill_op(GrRecordingContext* rContext,
 }
 
 bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
+    SkDebugf("@@@>GrTessellationPathRenderer::onDrawPath\n");
     GrSurfaceDrawContext* surfaceDrawContext = args.fSurfaceDrawContext;
 
     SkPath path;
