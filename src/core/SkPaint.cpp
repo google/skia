@@ -18,6 +18,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/private/SkMutex.h"
 #include "include/private/SkTo.h"
+#include "src/core/SkBlenderBase.h"
 #include "src/core/SkColorFilterBase.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
@@ -77,6 +78,7 @@ bool operator==(const SkPaint& a, const SkPaint& b) {
         && EQUAL(fShader)
         && EQUAL(fMaskFilter)
         && EQUAL(fColorFilter)
+        && EQUAL(fBlender)
         && EQUAL(fImageFilter)
         && EQUAL(fColor4f)
         && EQUAL(fWidth)
@@ -86,13 +88,26 @@ bool operator==(const SkPaint& a, const SkPaint& b) {
 #undef EQUAL
 }
 
-#define DEFINE_REF_FOO(type)    sk_sp<Sk##type> SkPaint::ref##type() const { return f##type; }
-DEFINE_REF_FOO(ColorFilter)
-DEFINE_REF_FOO(ImageFilter)
-DEFINE_REF_FOO(MaskFilter)
-DEFINE_REF_FOO(PathEffect)
-DEFINE_REF_FOO(Shader)
-#undef DEFINE_REF_FOO
+#define DEFINE_FIELD_REF(type) \
+    sk_sp<Sk##type> SkPaint::ref##type() const { return f##type; }
+DEFINE_FIELD_REF(ColorFilter)
+DEFINE_FIELD_REF(Blender)
+DEFINE_FIELD_REF(ImageFilter)
+DEFINE_FIELD_REF(MaskFilter)
+DEFINE_FIELD_REF(PathEffect)
+DEFINE_FIELD_REF(Shader)
+#undef DEFINE_FIELD_REF
+
+#define DEFINE_FIELD_SET(Field) \
+    void SkPaint::set##Field(sk_sp<Sk##Field> f) { f##Field = std::move(f); }
+DEFINE_FIELD_SET(ColorFilter)
+DEFINE_FIELD_SET(ImageFilter)
+DEFINE_FIELD_SET(MaskFilter)
+DEFINE_FIELD_SET(PathEffect)
+DEFINE_FIELD_SET(Shader)
+#undef DEFINE_FIELD_SET
+
+///////////////////////////////////////////////////////////////////////////////
 
 void SkPaint::reset() { *this = SkPaint(); }
 
@@ -130,6 +145,10 @@ void SkPaint::setAlphaf(float a) {
 
 void SkPaint::setARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
     this->setColor(SkColorSetARGB(a, r, g, b));
+}
+
+void SkPaint::experimental_setBlender(sk_sp<SkBlender> blend) {
+    fBlender = std::move(blend);
 }
 
 void SkPaint::setStrokeWidth(SkScalar width) {
@@ -171,16 +190,6 @@ void SkPaint::setStrokeJoin(Join jt) {
 #endif
     }
 }
-
-///////////////////////////////////////////////////////////////////////////////
-
-#define MOVE_FIELD(Field) void SkPaint::set##Field(sk_sp<Sk##Field> f) { f##Field = std::move(f); }
-MOVE_FIELD(ImageFilter)
-MOVE_FIELD(Shader)
-MOVE_FIELD(ColorFilter)
-MOVE_FIELD(PathEffect)
-MOVE_FIELD(MaskFilter)
-#undef MOVE_FIELD
 
 ///////////////////////////////////////////////////////////////////////////////
 
