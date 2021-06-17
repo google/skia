@@ -19,7 +19,7 @@ public:
                                   std::array<float,2> matrixMinMaxScales,
                                   const SkRect& strokeCullBounds);
 
-    void prepare(GrMeshDrawOp::Target*, int totalCombinedVerbCnt) override;
+    void prepare(GrMeshDrawTarget*, int totalCombinedVerbCnt) override;
     void draw(GrOpFlushState*) const override;
 
 private:

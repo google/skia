@@ -22,13 +22,13 @@
 #include "src/core/SkTLazy.h"
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrSubRunAllocator.h"
-#include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/ops/GrOp.h"
 
 class GrAtlasManager;
 class GrAtlasTextOp;
 class GrDeferredUploadTarget;
 class GrGlyph;
+class GrMeshDrawTarget;
 class GrStrikeCache;
 class GrSubRun;
 
@@ -80,7 +80,7 @@ public:
     // This call is not thread safe. It should only be called from GrDrawOp::onPrepare which
     // is single threaded.
     virtual std::tuple<bool, int> regenerateAtlas(
-            int begin, int end, GrMeshDrawOp::Target* target) const = 0;
+            int begin, int end, GrMeshDrawTarget* target) const = 0;
 };
 
 // -- GrSubRun -------------------------------------------------------------------------------------

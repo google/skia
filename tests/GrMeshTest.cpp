@@ -64,7 +64,7 @@ public:
     }
     template<typename T> sk_sp<const GrBuffer> makeVertexBuffer(const T* data, int count);
 
-    GrMeshDrawOp::Target* target() { return fState; }
+    GrMeshDrawTarget* target() { return fState; }
 
     sk_sp<const GrBuffer> fIndexBuffer;
     sk_sp<const GrBuffer> fIndexBuffer2;

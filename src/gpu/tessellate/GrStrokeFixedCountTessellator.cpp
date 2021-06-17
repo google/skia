@@ -25,7 +25,7 @@ class InstanceWriter {
 public:
     using ShaderFlags = GrStrokeTessellator::ShaderFlags;
 
-    InstanceWriter(ShaderFlags shaderFlags, GrMeshDrawOp::Target* target, float matrixMaxScale,
+    InstanceWriter(ShaderFlags shaderFlags, GrMeshDrawTarget* target, float matrixMaxScale,
                    const SkRect& strokeCullBounds, const SkMatrix& viewMatrix,
                    GrVertexChunkArray* patchChunks, size_t instanceStride, int minInstancesPerChunk)
             : fShaderFlags(shaderFlags)
@@ -244,7 +244,7 @@ GrStrokeFixedCountTessellator::GrStrokeFixedCountTessellator(ShaderFlags shaderF
                               matrixMinMaxScales, strokeCullBounds) {
 }
 
-void GrStrokeFixedCountTessellator::prepare(GrMeshDrawOp::Target* target,
+void GrStrokeFixedCountTessellator::prepare(GrMeshDrawTarget* target,
                                             int totalCombinedVerbCnt) {
     int maxEdgesInJoin = 0;
     float maxRadialSegmentsPerRadian = 0;

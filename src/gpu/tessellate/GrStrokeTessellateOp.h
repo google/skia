@@ -9,7 +9,7 @@
 #define GrStrokeTessellateOp_DEFINED
 
 #include "include/core/SkStrokeRec.h"
-#include "src/gpu/ops/GrMeshDrawOp.h"
+#include "src/gpu/ops/GrDrawOp.h"
 #include "src/gpu/tessellate/GrStrokeTessellator.h"
 #include "src/gpu/tessellate/shaders/GrTessellationShader.h"
 

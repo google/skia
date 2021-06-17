@@ -239,7 +239,7 @@ private:
                              GrXferBarrierFlags renderPassXferBarriers,
                              GrLoadOp colorLoadOp) override;
 
-    void onPrepareDraws(Target*) override;
+    void onPrepareDraws(GrMeshDrawTarget*) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 #if GR_TEST_UTILS
     SkString onDumpInfo() const override;
@@ -404,7 +404,7 @@ void DrawVerticesOp::onCreateProgramInfo(const GrCaps* caps,
                                              renderPassXferBarriers, colorLoadOp);
 }
 
-void DrawVerticesOp::onPrepareDraws(Target* target) {
+void DrawVerticesOp::onPrepareDraws(GrMeshDrawTarget* target) {
     // Allocate buffers.
     size_t vertexStride = this->vertexStride();
     sk_sp<const GrBuffer> vertexBuffer;

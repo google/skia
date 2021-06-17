@@ -124,7 +124,7 @@ private:
                                                  renderPassXferBarriers, colorLoadOp);
     }
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepareDraws(GrMeshDrawTarget* target) override {
 
         // The vertex attrib order is always pos, color, local coords.
         static const int kColorOffset = sizeof(SkPoint);

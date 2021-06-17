@@ -178,7 +178,7 @@ private:
         return tmp;
     }
 
-    void onPrepareDraws(Target* target) final {
+    void onPrepareDraws(GrMeshDrawTarget* target) final {
         QuadHelper helper(target, sizeof(Vertex), 1);
         Vertex* verts = reinterpret_cast<Vertex*>(helper.vertices());
         if (!verts) {
@@ -382,7 +382,7 @@ private:
         return tmp;
     }
 
-    void onPrepareDraws(Target* target) final {
+    void onPrepareDraws(GrMeshDrawTarget* target) final {
         QuadHelper helper(target, sizeof(Vertex), 1);
         Vertex* verts = reinterpret_cast<Vertex*>(helper.vertices());
         if (!verts) {

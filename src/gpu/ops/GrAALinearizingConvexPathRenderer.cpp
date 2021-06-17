@@ -221,7 +221,7 @@ private:
                                                             renderPassXferBarriers, colorLoadOp);
     }
 
-    void recordDraw(Target* target,
+    void recordDraw(GrMeshDrawTarget* target,
                     int vertexCount, size_t vertexStride, void* vertices,
                     int indexCount, uint16_t* indices) {
         if (vertexCount == 0 || indexCount == 0) {
@@ -251,7 +251,7 @@ private:
         fMeshes.push_back(mesh);
     }
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepareDraws(GrMeshDrawTarget* target) override {
         if (!fProgramInfo) {
             this->createProgramInfo(target);
             if (!fProgramInfo) {

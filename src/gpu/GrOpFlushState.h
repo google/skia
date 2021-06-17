@@ -14,6 +14,7 @@
 #include "src/gpu/GrAppliedClip.h"
 #include "src/gpu/GrBufferAllocPool.h"
 #include "src/gpu/GrDeferredUpload.h"
+#include "src/gpu/GrMeshDrawTarget.h"
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRenderTargetProxy.h"
 #include "src/gpu/GrSurfaceProxyView.h"
@@ -24,7 +25,7 @@ class GrOpsRenderPass;
 class GrResourceProvider;
 
 /** Tracks the state across all the GrOps (really just the GrDrawOps) in a GrOpsTask flush. */
-class GrOpFlushState final : public GrDeferredUploadTarget, public GrMeshDrawOp::Target {
+class GrOpFlushState final : public GrDeferredUploadTarget, public GrMeshDrawTarget {
 public:
     // vertexSpace and indexSpace may either be null or an alloation of size
     // GrBufferAllocPool::kDefaultBufferSize. If the latter, then CPU memory is only allocated for
@@ -123,7 +124,7 @@ public:
     GrDeferredUploadToken addInlineUpload(GrDeferredTextureUploadFn&&) final;
     GrDeferredUploadToken addASAPUpload(GrDeferredTextureUploadFn&&) final;
 
-    /** Overrides of GrMeshDrawOp::Target. */
+    /** Overrides of GrMeshDrawTarget. */
     void recordDraw(const GrGeometryProcessor*,
                     const GrSimpleMesh[],
                     int meshCnt,
@@ -186,7 +187,7 @@ public:
     GrAtlasManager* atlasManager() const final;
     GrSmallPathAtlasMgr* smallPathAtlasManager() const final;
 
-    /** GrMeshDrawOp::Target override. */
+    /** GrMeshDrawTarget override. */
     SkArenaAlloc* allocator() override { return &fArena; }
 
     // This is a convenience method that binds the given pipeline, and then, if our applied clip has

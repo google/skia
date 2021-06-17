@@ -195,7 +195,7 @@ private:
                                                  renderPassXferBarriers, colorLoadOp);
     }
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepareDraws(GrMeshDrawTarget* target) override {
         if (!fProgramInfo) {
             this->createProgramInfo(target);
         }
@@ -445,7 +445,7 @@ private:
                              GrXferBarrierFlags renderPassXferBarriers,
                              GrLoadOp colorLoadOp) override;
 
-    void onPrepareDraws(Target*) override;
+    void onPrepareDraws(GrMeshDrawTarget*) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
 #if GR_TEST_UTILS
@@ -543,7 +543,7 @@ void AAStrokeRectOp::onCreateProgramInfo(const GrCaps* caps,
                                              colorLoadOp);
 }
 
-void AAStrokeRectOp::onPrepareDraws(Target* target) {
+void AAStrokeRectOp::onPrepareDraws(GrMeshDrawTarget* target) {
 
     if (!fProgramInfo) {
         this->createProgramInfo(target);

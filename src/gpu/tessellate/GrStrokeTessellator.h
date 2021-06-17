@@ -40,7 +40,7 @@ public:
     const GrTessellationShader* shader() const { return &fShader; }
 
     // Called before draw(). Prepares GPU buffers containing the geometry to tessellate.
-    virtual void prepare(GrMeshDrawOp::Target*, int totalCombinedVerbCnt) = 0;
+    virtual void prepare(GrMeshDrawTarget*, int totalCombinedVerbCnt) = 0;
 
     // Issues draw calls for the tessellated stroke. The caller is responsible for creating and
     // binding a pipeline that uses this class's shader() before calling draw().

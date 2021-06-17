@@ -155,7 +155,7 @@ GrPathTessellator* GrPathCurveTessellator::Make(SkArenaAlloc* arena, const SkMat
     });
 }
 
-void GrPathCurveTessellator::prepare(GrMeshDrawOp::Target* target, const SkRect& cullBounds,
+void GrPathCurveTessellator::prepare(GrMeshDrawTarget* target, const SkRect& cullBounds,
                                      const SkPath& path,
                                      const BreadcrumbTriangleList* breadcrumbTriangleList) {
     SkASSERT(fVertexChunkArray.empty());

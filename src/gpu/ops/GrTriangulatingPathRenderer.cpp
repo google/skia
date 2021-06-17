@@ -320,7 +320,7 @@ private:
         return GrTriangulator::PathToTriangles(path, tol, clipBounds, allocator, isLinear);
     }
 
-    void createNonAAMesh(Target* target) {
+    void createNonAAMesh(GrMeshDrawTarget* target) {
         SkASSERT(!fAntiAlias);
         GrResourceProvider* rp = target->resourceProvider();
         auto threadSafeCache = target->threadSafeCache();
@@ -387,7 +387,7 @@ private:
         fMesh = CreateMesh(target, fVertexData->refGpuBuffer(), 0, fVertexData->numVertices());
     }
 
-    void createAAMesh(Target* target) {
+    void createAAMesh(GrMeshDrawTarget* target) {
         SkASSERT(!fVertexData);
         SkASSERT(fAntiAlias);
         SkPath path = this->getPath();
@@ -527,7 +527,7 @@ private:
         }
     }
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepareDraws(GrMeshDrawTarget* target) override {
         if (fAntiAlias) {
             this->createAAMesh(target);
         } else {
@@ -535,8 +535,10 @@ private:
         }
     }
 
-    static GrSimpleMesh* CreateMesh(Target* target, sk_sp<const GrBuffer> vb,
-                                    int firstVertex, int count) {
+    static GrSimpleMesh* CreateMesh(GrMeshDrawTarget* target,
+                                    sk_sp<const GrBuffer> vb,
+                                    int firstVertex,
+                                    int count) {
         auto mesh = target->allocMesh();
         mesh->set(std::move(vb), count, firstVertex);
         return mesh;
