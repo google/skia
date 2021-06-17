@@ -43,7 +43,7 @@ GrStrokeTessellateOp::GrStrokeTessellateOp(GrAAType aaType, const SkMatrix& view
     this->setBounds(devBounds, HasAABloat::kNo, IsHairline::kNo);
 }
 
-void GrStrokeTessellateOp::visitProxies(const VisitProxyFunc& fn) const {
+void GrStrokeTessellateOp::visitProxies(const GrVisitProxyFunc& fn) const {
     if (fFillProgram) {
         fFillProgram->visitFPProxies(fn);
     } else if (fStencilProgram) {

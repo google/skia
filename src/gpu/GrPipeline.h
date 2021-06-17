@@ -205,7 +205,7 @@ public:
 
     const GrSwizzle& writeSwizzle() const { return fWriteSwizzle; }
 
-    void visitProxies(const GrOp::VisitProxyFunc&) const;
+    void visitProxies(const GrVisitProxyFunc&) const;
 
     void setDstTextureUniforms(const GrGLSLProgramDataManager& pdm,
                                GrGLSLBuiltinUniformHandles* fBuiltinUniformHandles) const;
