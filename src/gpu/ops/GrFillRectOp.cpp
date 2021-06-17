@@ -256,7 +256,7 @@ private:
         }
     }
 
-    void onPrepareDraws(Target* target) override {
+    void onPrepareDraws(GrMeshDrawTarget* target) override {
         TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
         const VertexSpec vertexSpec = this->vertexSpec();
