@@ -27,6 +27,7 @@ public:
         , fTotalSize(size)
         , fAlignment(alignment)
         , fType(intendedType)
+        , fNewAllocation(false)
         , fHead(0)
         , fTail(0)
         , fGenID(0) {
@@ -57,13 +58,14 @@ private:
 
     GrGpu* fGpu;
     sk_sp<GrGpuBuffer> fCurrentBuffer;
-    std::vector<sk_sp<GrGpuBuffer>> fTrackedBuffers;  // all buffers we've used in this submit
+    std::vector<sk_sp<GrGpuBuffer>> fPreviousBuffers; // previous buffers we've used in this submit
     size_t fTotalSize;
     size_t fAlignment;
     GrGpuBufferType fType;
-    size_t fHead;     // where we start allocating
-    size_t fTail;     // where we start deallocating
-    uint64_t fGenID;  // incremented when createBuffer is called
+    bool fNewAllocation; // true if there's been a new allocation in this submit
+    size_t fHead;        // where we start allocating
+    size_t fTail;        // where we start deallocating
+    uint64_t fGenID;     // incremented when createBuffer is called
 };
 
 #endif
