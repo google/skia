@@ -10,10 +10,6 @@ package org.skia.androidkit;
 public class Shader {
     private long mNativeInstance;
 
-    protected Shader(long native_instance) {
-        mNativeInstance = native_instance;
-    }
-
     /**
      * Releases any resources associated with this Shader.
      */
@@ -28,6 +24,10 @@ public class Shader {
     }
 
     // package private
+    Shader(long native_instance) {
+        mNativeInstance = native_instance;
+    }
+
     long getNativeInstance() { return mNativeInstance; }
 
     private static native void nRelease(long nativeInstance);
