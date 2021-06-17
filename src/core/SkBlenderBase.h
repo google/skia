@@ -26,6 +26,8 @@ public:
         return this->onProgram(p, src, dst, colorInfo, uniforms, alloc);
     }
 
+    virtual SkRuntimeEffect* asRuntimeEffect() const { return nullptr; }
+
     static SkFlattenable::Type GetFlattenableType() { return kSkBlender_Type; }
     Type getFlattenableType() const override { return GetFlattenableType(); }
 

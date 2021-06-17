@@ -10,6 +10,8 @@
 
 #include "include/core/SkFlattenable.h"
 
+class SkRuntimeEffect;
+
 /**
  * SkBlender represents a custom blend function in the Skia pipeline. When an SkBlender is
  * present in a paint, the SkBlendMode is ignored. A blender combines a source color (the
