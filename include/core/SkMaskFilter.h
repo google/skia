@@ -48,11 +48,7 @@ public:
     SkRect approximateFilteredBounds(const SkRect& src) const;
 
     static sk_sp<SkMaskFilter> Deserialize(const void* data, size_t size,
-                                          const SkDeserialProcs* procs = nullptr) {
-        return sk_sp<SkMaskFilter>(static_cast<SkMaskFilter*>(
-                                  SkFlattenable::Deserialize(
-                                  kSkMaskFilter_Type, data, size, procs).release()));
-    }
+                                           const SkDeserialProcs* procs = nullptr);
 
 private:
     static void RegisterFlattenables();
