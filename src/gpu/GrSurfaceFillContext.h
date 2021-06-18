@@ -198,7 +198,9 @@ protected:
      */
     static void ClearToGrPaint(std::array<float, 4> color, GrPaint* paint);
 
+#if GR_OGA
     void addOp(GrOp::Owner);
+#endif
 
 private:
     sk_sp<GrArenas> arenas() { return fWriteView.proxy()->asRenderTargetProxy()->arenas(); }
@@ -212,6 +214,7 @@ private:
     /** Override to be notified in subclass before the current ops task is replaced. */
     virtual void willReplaceOpsTask(GrOpsTask* prevTask, GrOpsTask* nextTask) {}
 
+#if GR_OGA
     /**
      * Override to be called to participate in the decision to discard all previous ops if a
      * fullscreen clear occurs.
@@ -219,12 +222,15 @@ private:
     virtual GrOpsTask::CanDiscardPreviousOps canDiscardPreviousOpsOnFullClear() const {
         return GrOpsTask::CanDiscardPreviousOps::kYes;
     }
+#endif
 
     void internalClear(const SkIRect* scissor,
                        std::array<float, 4> color,
                        bool upgradePartialToFull = false);
 
+#if GR_OGA
     void addDrawOp(GrOp::Owner);
+#endif
 
     SkDEBUGCODE(void onValidate() const override;)
 

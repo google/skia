@@ -8,6 +8,7 @@
 #ifndef GrRegionOp_DEFINED
 #define GrRegionOp_DEFINED
 
+#if 0
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/ops/GrOp.h"
 
@@ -27,5 +28,6 @@ GrOp::Owner Make(GrRecordingContext*,
                  GrAAType,
                  const GrUserStencilSettings* stencilSettings = nullptr);
 }  // namespace GrRegionOp
+#endif
 
 #endif

@@ -23,6 +23,7 @@
 #include "src/gpu/GrTextureProxyPriv.h"
 #include "src/gpu/mock/GrMockGpu.h"
 
+#if GR_OGA
 // This test verifies that lazy proxy callbacks get invoked during flush, after onFlush callbacks,
 // but before Ops are executed. It also ensures that lazy proxy callbacks are invoked both for
 // regular Ops and for clips.
@@ -195,6 +196,7 @@ private:
     bool fHasOpTexture;
     bool fHasClipTexture;
 };
+#endif
 
 DEF_GPUTEST(LazyProxyTest, reporter, /* options */) {
     GrMockOptions mockOptions;
@@ -300,6 +302,7 @@ DEF_GPUTEST(LazyProxyReleaseTest, reporter, /* options */) {
     }
 }
 
+#if GR_OGA
 class LazyFailedInstantiationTestOp : public GrDrawOp {
 public:
     DEFINE_OP_CLASS_ID
@@ -399,3 +402,4 @@ DEF_GPUTEST(LazyProxyFailedInstantiationTest, reporter, /* options */) {
         }
     }
 }
+#endif
