@@ -7,6 +7,7 @@
 
 #include "gm/gm.h"
 
+#if 0
 #include "include/effects/SkGradientShader.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkGpuBlurUtils.h"
@@ -423,3 +424,4 @@ DEF_SIMPLE_GPU_GM(very_large_sigma_gpu_blur_subset_transparent_border,
     auto src = make_src_image(ctx, imageSize, &srcB);
     do_very_large_blur_gm(sdc, ctx, std::move(src), srcB.makeOutset(1, 1));
 }
+#endif
