@@ -49,7 +49,7 @@ if len(found) != 1:
 desired_version = found[0]
 
 # Determine which version (if any) we currently have.
-sk_path = os.path.join('bin', 'sk')
+sk_path = os.path.join('bin', sk)
 current_sha256 = sha256sum(sk_path)
 sk_version_path = os.path.join('bin', 'sk.version')
 
