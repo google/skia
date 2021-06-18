@@ -2252,6 +2252,7 @@ if (skia_enable_tools) {
 
   test_app("skpinfo") {
     sources = [ "tools/skpinfo.cpp" ]
+    configs = [ ":our_vulkan_headers" ]
     deps = [
       ":flags",
       ":skia",
