@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "41d3a54c_b69d293f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-18T18:02:38Z",
+      "side": 1,
+      "message": "I bet this is correct, but it may be someone redundant if we make the larger semantic change of blender\u003d\u003dsrc_of_truth. Is it important to land this now?",
+      "revId": "e30b666dccf59154b1c9a39726921fdaa5356383",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
