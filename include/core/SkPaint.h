@@ -27,6 +27,9 @@ class SkShader;
 // Move to clients when they are ready -- aid in deprecating the enum
 #define SK_SUPPORT_LEGACY_SETFILTERQUALITY
 
+// Move to clients when they're ready
+#define SK_SUPPORT_LEGACY_GETBLENDMODE
+
 /** \class SkPaint
     SkPaint controls options applied when drawing. SkPaint collects all
     options outside of the SkCanvas clip and SkCanvas matrix.
@@ -477,37 +480,45 @@ public:
     */
     void setColorFilter(sk_sp<SkColorFilter> colorFilter);
 
+#ifdef SK_SUPPORT_LEGACY_GETBLENDMODE
     /** Returns SkBlendMode.
         By default, returns SkBlendMode::kSrcOver.
 
         @return  mode used to combine source color with destination color
     */
-    SkBlendMode getBlendMode() const { return (SkBlendMode)fBitfields.fBlendMode; }
+    SkBlendMode getBlendMode() const;
+#endif
+
+    /**
+     *  If the current blender can be expressed as one of the standard modes, this
+     *  returns true, and if mode != null, it is set to that mode. If the current blender
+     *  cannot be expressed as a standard mode, this returns false, and mode is ignored.
+     */
+    bool SK_WARN_UNUSED_RESULT asBlendMode(SkBlendMode* mode) const;
+
+    /**
+     *  Returns true iff the current blender is equivalent to the specified mode,
+     */
+    bool isBlendMode(SkBlendMode mode) const;
 
     /** Returns true if SkBlendMode is SkBlendMode::kSrcOver, the default.
 
         @return  true if SkBlendMode is SkBlendMode::kSrcOver
     */
-    bool isSrcOver() const { return (SkBlendMode)fBitfields.fBlendMode == SkBlendMode::kSrcOver; }
+    bool isSrcOver() const { return this->isBlendMode(SkBlendMode::kSrcOver); }
 
-    /** Sets SkBlendMode to mode.
-        Does not verify that `mode` corresponds to a valid SkBlendMode.
-        Does not remove the SkBlender blend function, if one has been set; when drawing, SkBlender
-        takes precedence over the SkBlendMode. You can clear the SkBlender on an SkPaint by calling
-        `paint.setBlender(nullptr)`.
+    /** Sets the blender to one of standard set of modes.
+     *  This is a helper for creating the equivalent blend object, and calling setBlender().
+     *  @param mode  SkBlendMode used to combine source color and destination
+     */
+    void setBlendMode(SkBlendMode);
 
-        @param mode  SkBlendMode used to combine source color and destination
-    */
-    void setBlendMode(SkBlendMode mode) { fBitfields.fBlendMode = (unsigned)mode; }
-
-    /** Returns the user-supplied blend function, if one has been set.
-        Does not alter SkBlender's SkRefCnt.
-
+    /** Returns the paint's blender, or null (indicating SrcOver blending).
         @return  the SkBlender assigned to this paint, otherwise nullptr
     */
     SkBlender* getBlender() const { return fBlender.get(); }
 
-    /** Returns the user-supplied blend function, if one has been set.
+    /** Returns the paint's blender, or null (indicating SrcOver blending).
         Increments the SkBlender's SkRefCnt by one.
 
         @return  the SkBlender assigned to this paint, otherwise nullptr
@@ -515,8 +526,6 @@ public:
     sk_sp<SkBlender> refBlender() const;
 
     /** Assigns a user-supplied blend function (create these via SkRuntimeEffect).
-        If an SkBlender has been set, it takes precedence over the SkBlendMode.
-        Increments the passed-in SkBlender's SkRefCnt by one.
 
         TODO(skia:12080): this feature is incomplete; do not use!
 

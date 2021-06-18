@@ -448,3 +448,26 @@ bool SkPaint::nothingToDraw() const {
     }
     return false;
 }
+
+////////////////////////////
+
+bool SkPaint::asBlendMode(SkBlendMode* mode) const {
+    if (fBlender) {
+        return as_BB(fBlender)->asMode(mode);
+    } else {
+        if (mode) {
+            *mode = SkBlendMode::kSrcOver;
+        }
+        return true;
+    }
+}
+
+bool SkPaint::isBlendMode(SkBlendMode mode) const {
+    SkBlendMode asMode;
+    return this->asBlendMode(&asMode) && asMode == mode;
+}
+
+void SkPaint::setBlendMode(SkBlendMode mode) {
+    this->experimental_setBlender(SkBlenderBase::Mode(mode));
+}
+
