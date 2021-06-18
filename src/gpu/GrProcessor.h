@@ -90,7 +90,6 @@ public:
         kGrMatrixEffect_ClassID,
         kGrMeshTestProcessor_ClassID,
         kGrMorphologyEffect_ClassID,
-        kGrOverrideInputFragmentProcessor_ClassID,
         kGrPathProcessor_ClassID,
         kGrPerlinNoise2Effect_ClassID,
         kGrPipelineDynamicStateTestProcessor_ClassID,
