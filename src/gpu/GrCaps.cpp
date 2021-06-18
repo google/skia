@@ -132,12 +132,18 @@ void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
 
     fMaxTextureSize = std::min(fMaxTextureSize, options.fMaxTextureSizeOverride);
 #if GR_TEST_UTILS
+    if (options.fSuppressAdvancedBlendEquations) {
+        fBlendEquationSupport = kBasic_BlendEquationSupport;
+    }
     if (options.fClearAllTextures) {
         fShouldInitializeTextures = true;
     }
     if (options.fDisallowWriteAndTransferPixelRowBytes) {
         fWritePixelsRowBytesSupport = false;
         fTransferPixelsToRowBytesSupport = false;
+    }
+    if (options.fAlwaysPreferHardwareTessellation) {
+        fMinPathVerbsForHwTessellation = fMinStrokeVerbsForHwTessellation = 0;
     }
 #endif
     if (options.fSuppressMipmapSupport) {
@@ -151,12 +157,6 @@ void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
     }
 
     fInternalMultisampleCount = options.fInternalMultisampleCount;
-
-#if GR_TEST_UTILS
-    if (options.fAlwaysPreferHardwareTessellation) {
-        fMinPathVerbsForHwTessellation = fMinStrokeVerbsForHwTessellation = 0;
-    }
-#endif
 
     fAvoidStencilBuffers = options.fAvoidStencilBuffers;
 
@@ -437,9 +437,12 @@ bool GrCaps::isFormatCompressed(const GrBackendFormat& format) const {
     return GrBackendFormatToCompressionType(format) != SkImage::CompressionType::kNone;
 }
 
-GrDstSampleFlags GrCaps::getDstSampleFlagsForProxy(const GrRenderTargetProxy* rt) const {
+GrDstSampleFlags GrCaps::getDstSampleFlagsForProxy(const GrRenderTargetProxy* rt,
+                                                   bool useMSAA) const {
     SkASSERT(rt);
-    if (this->textureBarrierSupport() && !rt->requiresManualMSAAResolve()) {
+    // If the rt has samples we better have set useMSAA
+    SkASSERT((rt->numSamples() <= 1) || useMSAA);
+    if (this->textureBarrierSupport() && (!useMSAA || this->msaaResolvesAutomatically())) {
         return this->onGetDstSampleFlagsForProxy(rt);
     }
     return GrDstSampleFlags::kNone;
