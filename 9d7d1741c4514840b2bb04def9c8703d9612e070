@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6b321864_f813310f",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-18T23:14:13Z",
+      "side": 1,
+      "message": "we might hold off on this CL until we settle on (possibly) the unified model.\n\nIn that world, we could/should pretend there is no blender (for flattening purposes) unless the blender *doesn\u0027t* mirror an enum. This in turn might also change what we write in the flatFlags (which today contains the enum).",
+      "range": {
+        "startLine": 281,
+        "startChar": 14,
+        "endLine": 281,
+        "endChar": 24
+      },
+      "revId": "9d7d1741c4514840b2bb04def9c8703d9612e070",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
