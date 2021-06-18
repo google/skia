@@ -48,6 +48,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3244f3bb_96967b59",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 456,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-18T14:15:06Z",
+      "side": 1,
+      "message": "Done (http://review.skia.org/419778 )",
+      "parentUuid": "50906212_d92384a5",
+      "range": {
+        "startLine": 449,
+        "startChar": 0,
+        "endLine": 456,
+        "endChar": 0
+      },
+      "revId": "eaf88515069ce053f525145cfa8c2860961dfdc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f02daffc_2735d0f9",
@@ -61,6 +85,30 @@
       "writtenOn": "2021-06-18T13:01:11Z",
       "side": 1,
       "message": "nit: Maybe make this check \"fp.willReadDstColor()\", to match up with the previous check (and clearly align the check with the code it\u0027s enabling).",
+      "range": {
+        "startLine": 192,
+        "startChar": 12,
+        "endLine": 192,
+        "endChar": 38
+      },
+      "revId": "eaf88515069ce053f525145cfa8c2860961dfdc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3932f34c_b55b701d",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-18T14:15:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f02daffc_2735d0f9",
       "range": {
         "startLine": 192,
         "startChar": 12,
