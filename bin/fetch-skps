@@ -7,5 +7,11 @@
 set -x
 set -e
 
-DOWNLOAD_SCRIPT=$(cd $(dirname $0)/..; pwd)/infra/bots/assets/skp/download.py
-python ${DOWNLOAD_SCRIPT} -t $(pwd)/skps
+ROOT_DIR="$(cd $(dirname $0)/..; pwd)"
+python ${ROOT_DIR}/bin/fetch-sk
+case "$(uname -s)" in
+  CYGWIN*) SK_EXE="sk.exe";;
+  MINGW*)  SK_EXE="sk.exe";;
+  *)       SK_EXE="sk";;
+esac
+${ROOT_DIR}/bin/${SK_EXE} asset download skp $(pwd)/skps
