@@ -11,7 +11,6 @@
 #include "src/gpu/GrProcessorAnalysis.h"
 #include "src/gpu/effects/GrBlendFragmentProcessor.h"
 #include "src/gpu/effects/GrSkSLFP.h"
-#include "src/gpu/effects/generated/GrOverrideInputFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
@@ -420,7 +419,19 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(
     if (!fp) {
         return nullptr;
     }
-    return GrOverrideInputFragmentProcessor::Make(std::move(fp), color, useUniform);
+    static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter, R"(
+        uniform colorFilter fp;  // Declared as colorFilter so we can use sample(..., color)
+        uniform half4 color;
+        half4 main(half4 inColor) {
+            return sample(fp, color);
+        }
+    )");
+    SkASSERT(SkRuntimeEffectPriv::SupportsConstantOutputForConstantInput(effect));
+    return GrSkSLFP::Make(effect, "OverrideInput", /*inputFP=*/nullptr,
+                          color.isOpaque() ? GrSkSLFP::OptFlags::kPreservesOpaqueInput
+                                           : GrSkSLFP::OptFlags::kNone,
+                          "fp", std::move(fp),
+                          "color", GrSkSLFP::SpecializeIf(!useUniform, color));
 }
 
 //////////////////////////////////////////////////////////////////////////////
