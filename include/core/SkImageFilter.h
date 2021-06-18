@@ -93,14 +93,6 @@ public:
      */
     sk_sp<SkImageFilter> makeWithLocalMatrix(const SkMatrix& matrix) const;
 
-    static SkFlattenable::Type GetFlattenableType() {
-        return kSkImageFilter_Type;
-    }
-
-    SkFlattenable::Type getFlattenableType() const override {
-        return kSkImageFilter_Type;
-    }
-
     static sk_sp<SkImageFilter> Deserialize(const void* data, size_t size,
                                           const SkDeserialProcs* procs = nullptr) {
         return sk_sp<SkImageFilter>(static_cast<SkImageFilter*>(

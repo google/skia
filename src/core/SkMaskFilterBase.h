@@ -159,6 +159,14 @@ public:
      */
     virtual bool asABlur(BlurRec*) const;
 
+    static SkFlattenable::Type GetFlattenableType() {
+        return kSkMaskFilter_Type;
+    }
+
+    SkFlattenable::Type getFlattenableType() const override {
+        return kSkMaskFilter_Type;
+    }
+
 protected:
     SkMaskFilterBase() {}
 

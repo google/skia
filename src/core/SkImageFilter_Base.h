@@ -121,6 +121,14 @@ public:
 
     uint32_t uniqueID() const { return fUniqueID; }
 
+    static SkFlattenable::Type GetFlattenableType() {
+        return kSkImageFilter_Type;
+    }
+
+    SkFlattenable::Type getFlattenableType() const override {
+        return kSkImageFilter_Type;
+    }
+
 protected:
     // DEPRECATED: Will be removed once cropping is handled by a standalone image filter
     class CropRect {
