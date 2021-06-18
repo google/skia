@@ -1033,6 +1033,18 @@ public:
                                    src, dst, /*sampleChild=*/nullptr);
     }
 
+#if SK_SUPPORT_GPU
+    std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
+            std::unique_ptr<GrFragmentProcessor> inputFP, const GrFPArgs& args) const override {
+        sk_sp<SkData> uniforms = get_xformed_uniforms(fEffect.get(), fUniforms,
+                                                      args.fDstColorInfo->colorSpace());
+        SkASSERT(uniforms);
+
+        return GrSkSLFP::MakeWithData(fEffect, "runtime_blender", std::move(inputFP),
+                                      std::move(uniforms), /*childFPs=*/{});
+    }
+#endif
+
     void flatten(SkWriteBuffer& buffer) const override {
         buffer.writeString(fEffect->source().c_str());
         buffer.writeDataAsByteArray(fUniforms.get());
