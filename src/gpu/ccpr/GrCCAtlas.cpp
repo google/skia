@@ -10,6 +10,7 @@
 #include "include/private/SkTPin.h"
 #include "src/core/SkIPoint16.h"
 #include "src/gpu/GrOnFlushResourceProvider.h"
+#include "src/gpu/GrSimpleMesh.h"
 
 static SkISize choose_initial_atlas_size(const GrCCAtlas::Specs& specs) {
     // Begin with the first pow2 dimensions whose area is theoretically large enough to contain the

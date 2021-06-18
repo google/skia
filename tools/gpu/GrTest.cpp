@@ -32,27 +32,11 @@
 
 #include <algorithm>
 
-///////////////////////////////////////////////////////////////////////////////
-
-void GrResourceCache::changeTimestamp(uint32_t newTimestamp) { fTimestamp = newTimestamp; }
-
-#ifdef SK_DEBUG
-int GrResourceCache::countUniqueKeysWithTag(const char* tag) const {
-    int count = 0;
-    fUniqueHash.foreach([&](const GrGpuResource& resource){
-        if (0 == strcmp(tag, resource.getUniqueKey().tag())) {
-            ++count;
-        }
-    });
-    return count;
-}
-#endif
-
 //////////////////////////////////////////////////////////////////////////////
 
 #define DRAW_OP_TEST_EXTERN(Op) \
     extern GrOp::Owner Op##__Test(GrPaint&&, SkRandom*, \
-                                    GrRecordingContext*, GrSurfaceDrawContext*, int)
+                                  GrRecordingContext*, GrSurfaceDrawContext*, int)
 #define DRAW_OP_TEST_ENTRY(Op) Op##__Test
 
 #if GR_OGA

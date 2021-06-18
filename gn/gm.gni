@@ -10,7 +10,6 @@ gm_sources = [
   "$_gm/3d.cpp",
   "$_gm/aaa.cpp",
   "$_gm/aaclip.cpp",
-  "$_gm/aarecteffect.cpp",
   "$_gm/aarectmodes.cpp",
   "$_gm/aaxfermodes.cpp",
   "$_gm/addarc.cpp",
@@ -81,7 +80,6 @@ gm_sources = [
   "$_gm/clip_strokerect.cpp",
   "$_gm/clipdrawdraw.cpp",
   "$_gm/clippedbitmapshaders.cpp",
-  "$_gm/clockwise.cpp",
   "$_gm/collapsepaths.cpp",
   "$_gm/color4f.cpp",
   "$_gm/coloremoji.cpp",
@@ -104,11 +102,9 @@ gm_sources = [
   "$_gm/compressed_textures.cpp",
   "$_gm/concavepaths.cpp",
   "$_gm/conicpaths.cpp",
-  "$_gm/constcolorprocessor.cpp",
   "$_gm/convex_all_line_paths.cpp",
   "$_gm/convexpaths.cpp",
   "$_gm/convexpolyclip.cpp",
-  "$_gm/convexpolyeffect.cpp",
   "$_gm/copy_to_4444.cpp",
   "$_gm/crbug_1041204.cpp",
   "$_gm/crbug_1073670.cpp",
@@ -191,7 +187,6 @@ gm_sources = [
   "$_gm/fontscalerdistortable.cpp",
   "$_gm/fp_sample_chaining.cpp",
   "$_gm/fpcoordinateoverride.cpp",
-  "$_gm/fwidth_squircle.cpp",
   "$_gm/gammatext.cpp",
   "$_gm/getpostextpath.cpp",
   "$_gm/giantbitmap.cpp",
@@ -370,9 +365,7 @@ gm_sources = [
   "$_gm/swizzle.cpp",
   "$_gm/tablecolorfilter.cpp",
   "$_gm/tallstretchedbitmaps.cpp",
-  "$_gm/tessellation.cpp",
   "$_gm/testgradient.cpp",
-  "$_gm/texelsubset.cpp",
   "$_gm/text_scale_skew.cpp",
   "$_gm/textblob.cpp",
   "$_gm/textblobblockreordering.cpp",
@@ -416,7 +409,14 @@ gm_sources = [
 gl_gm_sources = [ "$_gm/rectangletexture.cpp" ]
 
 oga_gm_sources = [
+  "$_gm/aarecteffect.cpp",  # uses TestOps and SDC
+  "$_gm/clockwise.cpp",
+  "$_gm/constcolorprocessor.cpp",  # uses TestOps and SDC
+  "$_gm/convexpolyeffect.cpp",  # uses TestOps and SDC
+  "$_gm/fwidth_squircle.cpp",
   "$_gm/preservefillrule.cpp",
+  "$_gm/tessellation.cpp",
+  "$_gm/texelsubset.cpp",  # uses TestOps and SDC
   "$_gm/widebuttcaps.cpp",
 ]
 
