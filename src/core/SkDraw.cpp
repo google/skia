@@ -969,6 +969,14 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
     this->drawDevPath(*devPathPtr, *paint, drawCoverage, customBlitter, doFill);
 }
 
+void SkDraw::drawDrawable(const SkDrawable&,
+                          const SkPaint&,
+                          const SkMatrix* preMatrix,
+                          bool drawCoverage,
+                          SkBlitter* customBlitter) const {
+    //TODO:
+}
+
 void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap, const SkSamplingOptions& sampling,
                               const SkPaint& paint) const {
     SkASSERT(bitmap.colorType() == kAlpha_8_SkColorType);

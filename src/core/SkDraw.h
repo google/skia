@@ -57,6 +57,11 @@ public:
         this->drawPath(path, paint, prePathMatrix, pathIsMutable, false);
     }
 
+    void    drawDrawable(const SkDrawable& drawable, const SkPaint& paint,
+                         const SkMatrix* prePathMatrix = nullptr) const {
+        this->drawDrawable(drawable, paint, prePathMatrix, false);
+    }
+
     /* If dstOrNull is null, computes a dst by mapping the bitmap's bounds through the matrix. */
     void    drawBitmap(const SkBitmap&, const SkMatrix&, const SkRect* dstOrNull,
                        const SkSamplingOptions&, const SkPaint&) const override;
@@ -85,6 +90,11 @@ public:
                     SkScalar scale,
                     SkPoint origin,
                     const SkPaint& paint) const override;
+
+    void paintDrawables(SkDrawableGlyphBuffer* drawables,
+                        SkScalar scale,
+                        SkPoint origin,
+                        const SkPaint& paint) const override;
 
     void paintMasks(SkDrawableGlyphBuffer* drawables, const SkPaint& paint) const override;
 
@@ -135,6 +145,12 @@ private:
                   bool pathIsMutable,
                   bool drawCoverage,
                   SkBlitter* customBlitter = nullptr) const;
+
+    void drawDrawable(const SkDrawable&,
+                      const SkPaint&,
+                      const SkMatrix* preMatrix,
+                      bool drawCoverage,
+                      SkBlitter* customBlitter = nullptr) const;
 
     void drawLine(const SkPoint[2], const SkPaint&) const;
 

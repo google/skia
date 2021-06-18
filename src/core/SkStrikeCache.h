@@ -11,6 +11,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
+#include "include/core/SkDrawable.h"
 #include "include/private/SkSpinlock.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkDescriptor.h"
@@ -59,6 +60,12 @@ public:
             auto [glyphPath, increase] = fScalerCache.mergePath(glyph, path);
             this->updateDelta(increase);
             return glyphPath;
+        }
+
+        const SkDrawable* mergeDrawable(SkGlyph* glyph, sk_sp<SkDrawable> drawable) {
+            auto [glyphDrawable, increase] = fScalerCache.mergeDrawable(glyph, std::move(drawable));
+            this->updateDelta(increase);
+            return glyphDrawable;
         }
 
         SkScalerContext* getScalerContext() const {
@@ -123,6 +130,12 @@ public:
         void prepareForPathDrawing(
                 SkDrawableGlyphBuffer* drawbles, SkSourceGlyphBuffer* rejects) override {
             size_t increase = fScalerCache.prepareForPathDrawing(drawbles, rejects);
+            this->updateDelta(increase);
+        }
+
+        void prepareForPictureDrawing(
+                SkDrawableGlyphBuffer* drawbles, SkSourceGlyphBuffer* rejects) override {
+            size_t increase = fScalerCache.prepareForPictureDrawing(drawbles, rejects);
             this->updateDelta(increase);
         }
 
