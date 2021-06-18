@@ -117,4 +117,13 @@ private:
     bool                    fAlphaUnchanged;
 };
 
+class SkRuntimeEffectPriv {
+public:
+    // Helper function when creating an effect for a GrSkSLFP that verifies an effect will
+    // implement the constant output for constant input optimization flag.
+    static bool SupportsConstantOutputForConstantInput(sk_sp<SkRuntimeEffect> effect) {
+        return effect->getFilterColorProgram();
+    }
+};
+
 #endif

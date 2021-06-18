@@ -213,6 +213,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MakeColor(SkPMColor4f 
         uniform half4 color;
         half4 main(half4 inColor) { return color; }
     )");
+    SkASSERT(SkRuntimeEffectPriv::SupportsConstantOutputForConstantInput(effect));
     return GrSkSLFP::Make(effect, "color_fp", /*inputFP=*/nullptr,
                           color.isOpaque() ? GrSkSLFP::OptFlags::kPreservesOpaqueInput
                                            : GrSkSLFP::OptFlags::kNone,
@@ -259,6 +260,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::ClampOutput(
             return saturate(inColor);
         }
     )");
+    SkASSERT(SkRuntimeEffectPriv::SupportsConstantOutputForConstantInput(effect));
     return GrSkSLFP::Make(
             effect, "Clamp", std::move(fp), GrSkSLFP::OptFlags::kPreservesOpaqueInput);
 }
@@ -272,6 +274,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::ClampPremulOutput(
             return half4(clamp(inColor.rgb, 0, alpha), alpha);
         }
     )");
+    SkASSERT(SkRuntimeEffectPriv::SupportsConstantOutputForConstantInput(effect));
     return GrSkSLFP::Make(
             effect, "ClampPremul", std::move(fp), GrSkSLFP::OptFlags::kPreservesOpaqueInput);
 }
@@ -543,6 +546,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::ColorMatrix(
             return color;
         }
     )");
+    SkASSERT(SkRuntimeEffectPriv::SupportsConstantOutputForConstantInput(effect));
 
     SkM44 m44(matrix[ 0], matrix[ 1], matrix[ 2], matrix[ 3],
               matrix[ 5], matrix[ 6], matrix[ 7], matrix[ 8],

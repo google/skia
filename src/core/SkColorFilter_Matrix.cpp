@@ -164,6 +164,7 @@ static std::unique_ptr<GrFragmentProcessor> rgb_to_hsl(std::unique_ptr<GrFragmen
             return half4(H, S, L, c.a);
         }
     )");
+    SkASSERT(SkRuntimeEffectPriv::SupportsConstantOutputForConstantInput(effect));
     return GrSkSLFP::Make(
             effect, "RgbToHsl", std::move(child), GrSkSLFP::OptFlags::kPreservesOpaqueInput);
 }
@@ -190,6 +191,7 @@ static std::unique_ptr<GrFragmentProcessor> hsl_to_rgb(std::unique_ptr<GrFragmen
             return color;
         }
     )");
+    SkASSERT(SkRuntimeEffectPriv::SupportsConstantOutputForConstantInput(effect));
     return GrSkSLFP::Make(
             effect, "HslToRgb", std::move(child), GrSkSLFP::OptFlags::kPreservesOpaqueInput);
 }
