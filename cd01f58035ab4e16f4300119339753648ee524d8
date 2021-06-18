@@ -121,6 +121,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "34001e98_2278c75e",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 529,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-18T15:09:11Z",
+      "side": 1,
+      "message": "Yeah - runtime effects had that feature previously (for things that were declared as \u0027in\u0027 vs. \u0027uniform\u0027). In this case, where we\u0027re always specializing, I agree it feels a little awkward, but the concise rationale is that I want to keep the language as trim as possible. Of course, after I convert all the FPs, if we realize that it\u0027s worth putting the info in the SkSL, we can do that (I think it would work fine, and may even be simpler overall). But there are other FPs where we want to conditionally specialize, and I suspect Brian\u0027s reduced-shader-mode will produce even more of that pattern.\n\nThe \u0027@if\u0027 syntax doesn\u0027t quite work here, because we defer baking the values until we re-generate the SkSL in the FP. So the first compile of the runtime effect fails (it looks like we\u0027re branching on a uniform). I had held off on using @if without realizing this, thinking that I didn\u0027t want to use non-GLSL-isms in runtime effect code, but it could obviously be locked behind a flag for internal usage. We\u0027d need a way to ignore it on the first compile though. And if we\u0027re going to have syntax like \u0027@if\u0027, it seems cleaner to just make the SkSL state that the given uniform is always specialized.",
+      "parentUuid": "b6f3c41a_96960694",
+      "range": {
+        "startLine": 527,
+        "startChar": 8,
+        "endLine": 529,
+        "endChar": 33
+      },
+      "revId": "cd01f58035ab4e16f4300119339753648ee524d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "dfaf6424_c7b6341d",
         "filename": "src/gpu/GrFragmentProcessor.cpp",
         "patchSetId": 3
@@ -203,6 +227,30 @@
       "side": 1,
       "message": "A using-decl and `Specialize(unpremulInput ? 1 : 0)` works for me.",
       "parentUuid": "515661b6_7e4917d3",
+      "range": {
+        "startLine": 556,
+        "startChar": 43,
+        "endLine": 556,
+        "endChar": 72
+      },
+      "revId": "cd01f58035ab4e16f4300119339753648ee524d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8d4d3f80_48b1b4a9",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 556,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-18T15:09:11Z",
+      "side": 1,
+      "message": "using can\u0027t be used in this situation (can\u0027t use a class member and/or function). But I still rewrote it to be clearer. Other option:\n\n  GrSkSLFP::Specialize\u003cint\u003e(unpremulInput)\n  \n  ???",
+      "parentUuid": "0dc88ced_b6570c10",
       "range": {
         "startLine": 556,
         "startChar": 43,
