@@ -8,6 +8,7 @@
 #ifndef SKSL_DSL_EXPRESSION
 #define SKSL_DSL_EXPRESSION
 
+#include "include/core/SkStringView.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkTArray.h"
 #include "include/sksl/DSLErrorHandling.h"
@@ -104,7 +105,7 @@ public:
     /**
      * Creates an SkSL struct field access expression.
      */
-    DSLExpression field(const char* name, PositionInfo pos = PositionInfo());
+    DSLExpression field(skstd::string_view name, PositionInfo pos = PositionInfo());
 
     /**
      * Creates an SkSL array index expression.
@@ -113,14 +114,16 @@ public:
 
     DSLPossibleExpression operator()(SkTArray<DSLWrapper<DSLExpression>> args);
 
+    bool valid() const { return fExpression != nullptr; }
+
+    void swap(DSLExpression& other);
+
     /**
      * Invalidates this object and returns the SkSL expression it represents.
      */
     std::unique_ptr<SkSL::Expression> release();
 
 private:
-    void swap(DSLExpression& other);
-
     /**
      * Invalidates this object and returns the SkSL expression it represents coerced to the
      * specified type. If the expression cannot be coerced, reports an error and returns null.
@@ -197,6 +200,13 @@ public:
 
     ~DSLPossibleExpression();
 
+    bool valid() { return fExpression != nullptr; }
+
+    /**
+     * Reports any pending errors at the specified position.
+     */
+    void handleError(PositionInfo pos);
+
     DSLType type();
 
     DSLExpression x(PositionInfo pos = PositionInfo());
@@ -215,7 +225,7 @@ public:
 
     DSLExpression a(PositionInfo pos = PositionInfo());
 
-    DSLExpression field(const char* name, PositionInfo pos = PositionInfo());
+    DSLExpression field(skstd::string_view name, PositionInfo pos = PositionInfo());
 
     DSLPossibleExpression operator=(DSLExpression expr);
 

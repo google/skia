@@ -39,20 +39,14 @@ DSLStatement::DSLStatement(std::unique_ptr<SkSL::Expression> expr)
 
 DSLStatement::DSLStatement(std::unique_ptr<SkSL::Statement> stmt)
     : fStatement(std::move(stmt)) {
-    if (DSLWriter::Compiler().errorCount()) {
-        DSLWriter::ReportError(DSLWriter::Compiler().errorText(/*showCount=*/false).c_str());
-        DSLWriter::Compiler().setErrorCount(0);
-    }
+    DSLWriter::HandleErrors();
 }
 
 DSLStatement::DSLStatement(DSLPossibleExpression expr, PositionInfo pos)
     : DSLStatement(DSLExpression(std::move(expr), pos)) {}
 
 DSLStatement::DSLStatement(DSLPossibleStatement stmt, PositionInfo pos) {
-    if (DSLWriter::Compiler().errorCount()) {
-        DSLWriter::ReportError(DSLWriter::Compiler().errorText(/*showCount=*/false).c_str(), &pos);
-        DSLWriter::Compiler().setErrorCount(0);
-    }
+    DSLWriter::HandleErrors(pos);
     fStatement = std::move(stmt.fStatement);
 }
 
@@ -63,7 +57,6 @@ DSLStatement::~DSLStatement() {
         return;
     }
 #endif
-    SkASSERTF(!fStatement, "Statement destroyed without being incorporated into program");
 }
 
 DSLPossibleStatement::DSLPossibleStatement(std::unique_ptr<SkSL::Statement> statement)

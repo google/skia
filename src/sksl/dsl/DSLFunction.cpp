@@ -66,9 +66,6 @@ void DSLFunction::init(const DSLType& returnType, const char* name,
         param->fDeclaration = nullptr;
     }
     SkASSERT(paramVars.size() == params.size());
-    for (size_t i = 0; i < params.size(); ++i) {
-        params[i]->fVar = paramVars[i].get();
-    }
     fDecl = SkSL::FunctionDeclaration::Convert(DSLWriter::Context(),
                                                *DSLWriter::SymbolTable(),
                                                /*offset=*/-1,
@@ -76,10 +73,17 @@ void DSLFunction::init(const DSLType& returnType, const char* name,
                                                isMain ? name : DSLWriter::Name(name),
                                                std::move(paramVars), &returnType.skslType(),
                                                /*isBuiltin=*/false);
+    DSLWriter::HandleErrors();
+    if (fDecl) {
+        for (size_t i = 0; i < params.size(); ++i) {
+            params[i]->fVar = fDecl->parameters()[i];
+        }
+    }
 }
 
 void DSLFunction::define(DSLBlock block) {
     if (!fDecl) {
+        block.release();
         return;
     }
     SkASSERTF(!fDecl->definition(), "function '%s' already defined", fDecl->description().c_str());
@@ -87,11 +91,7 @@ void DSLFunction::define(DSLBlock block) {
     DSLWriter::IRGenerator().finalizeFunction(*fDecl, body.get());
     auto function = std::make_unique<SkSL::FunctionDefinition>(/*offset=*/-1, fDecl,
                                                                /*builtin=*/false, std::move(body));
-    if (DSLWriter::Compiler().errorCount()) {
-        DSLWriter::ReportError(DSLWriter::Compiler().errorText(/*showCount=*/false).c_str());
-        DSLWriter::Compiler().setErrorCount(0);
-        SkASSERT(!DSLWriter::Compiler().errorCount());
-    }
+    DSLWriter::HandleErrors();
     fDecl->fDefinition = function.get();
     DSLWriter::ProgramElements().push_back(std::move(function));
 }
