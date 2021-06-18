@@ -51,34 +51,6 @@ sk_sp<SkShader> SkShaders::Blend(SkBlendMode mode, sk_sp<SkShader> dst, sk_sp<Sk
     return sk_sp<SkShader>(new SkShader_Blend(mode, std::move(dst), std::move(src)));
 }
 
-sk_sp<SkShader> SkShaders::Lerp(float weight, sk_sp<SkShader> dst, sk_sp<SkShader> src) {
-    if (SkScalarIsNaN(weight)) {
-        return nullptr;
-    }
-    if (dst == src || weight <= 0) {
-        return dst;
-    }
-    if (weight >= 1) {
-        return src;
-    }
-
-    sk_sp<SkRuntimeEffect> effect = SkMakeCachedRuntimeEffect(
-        SkRuntimeEffect::MakeForShader,
-        "uniform shader a;"
-        "uniform shader b;"
-        "uniform half w;"
-        "half4 main(float2 xy) { return mix(sample(a, xy), sample(b, xy), w); }"
-    );
-    SkASSERT(effect);
-
-    sk_sp<SkShader> inputs[] = {dst, src};
-    return effect->makeShader(SkData::MakeWithCopy(&weight, sizeof(weight)),
-                              inputs,
-                              SK_ARRAY_COUNT(inputs),
-                              nullptr,
-                              false);
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 static bool append_shader_or_paint(const SkStageRec& rec, SkShader* shader) {
