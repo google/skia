@@ -12,6 +12,7 @@
 
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkMutex.h"
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkJSONWriter.h"
 #include <cmath>
@@ -66,6 +67,8 @@ public:
  See: https://b.corp.google.com/issues/143074513
 */
 class NanoFILEAppendAndCloseStream : public SkWStream {
+protected:
+    mutable SkMutex fMutex;
 public:
     NanoFILEAppendAndCloseStream(const char* filePath) : fFilePath(filePath) {
         // Open the file as "write" to ensure it exists and clear any contents before we begin
@@ -82,6 +85,8 @@ public:
     size_t bytesWritten() const override { return fBytesWritten; }
 
     bool write(const void* buffer, size_t size) override {
+        // Protect against a race between checking isEmpty and sk_fclose.
+        SkAutoMutexExclusive l(fMutex);
         if (fFilePath.isEmpty()) {
             return false;
         }
