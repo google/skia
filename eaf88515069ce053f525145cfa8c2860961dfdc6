@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b61df907_59c58cf7",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 456,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-18T13:01:11Z",
+      "side": 1,
+      "message": "Hmm, this is interesting. Dither isn\u0027t used that often, but this moves the dither to AFTER the blend. It means that in the presence of dither, kSrcOver isn\u0027t the same as a blender that implements SrcOver, among other things. I\u0027m not actually sure which way is better - at first I thought it was neat to dither after blend, but that runs the risk of amplifying the dither as more layers are drawn.\n\nIn the extreme case, imagine implementing SrcOver in a blender, then drawing a large number of largely-transparent primitives (like a bunch of sprites with transparent edges, or whatever). The dither (which is fixed in screen space) will keep getting re-applied to the same destination pixels as the transparent pixels are drawn.\n\nI think I\u0027ve convinced myself that we should swap this around, so the dither is always applied only to the source. It will match existing logic, and it ensures that each \"layer\" of drawing is only dithered once.",
+      "range": {
+        "startLine": 449,
+        "startChar": 0,
+        "endLine": 456,
+        "endChar": 0
+      },
+      "revId": "eaf88515069ce053f525145cfa8c2860961dfdc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f02daffc_2735d0f9",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-18T13:01:11Z",
+      "side": 1,
+      "message": "nit: Maybe make this check \"fp.willReadDstColor()\", to match up with the previous check (and clearly align the check with the code it\u0027s enabling).",
+      "range": {
+        "startLine": 192,
+        "startChar": 12,
+        "endLine": 192,
+        "endChar": 38
+      },
+      "revId": "eaf88515069ce053f525145cfa8c2860961dfdc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
