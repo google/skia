@@ -762,7 +762,8 @@ static std::pair<skif::Mapping, skif::LayerSpace<SkIRect>> get_layer_mapping_and
         const skif::ParameterSpace<SkRect>* contentBounds = nullptr,
         bool mustCoverDst = true) {
     skif::ParameterSpace<SkPoint> center;
-    if (!compute_decomposition_center(localToDst, contentBounds, targetOutput, &center)) {
+    if (!localToDst.isFinite() ||
+        !compute_decomposition_center(localToDst, contentBounds, targetOutput, &center)) {
         return {{}, skif::LayerSpace<SkIRect>(SkIRect::MakeEmpty())};
     }
     // *after* possibly getting a representative point from the provided content bounds, it might
