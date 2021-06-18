@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "87f20b12_22ee41b6",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1587,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-18T15:41:24Z",
+      "side": 0,
+      "message": "Can you add a note to //modules/canvaskit/CHANGELOG.md?",
+      "range": {
+        "startLine": 1587,
+        "startChar": 25,
+        "endLine": 1587,
+        "endChar": 33
+      },
+      "revId": "39e9887dc3ba6566c33d60c93dbf5510203a3fcc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
