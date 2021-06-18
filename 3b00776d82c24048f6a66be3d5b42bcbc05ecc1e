@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5a9cd146_3798444e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-18T18:13:38Z",
+      "side": 1,
+      "message": "Rebased and added comments to call out that bools are always specialized.",
+      "revId": "3b00776d82c24048f6a66be3d5b42bcbc05ecc1e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
