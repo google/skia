@@ -696,8 +696,7 @@ bool SkScalerContext::getPath(SkPackedGlyphID glyphID, SkPath* path) {
 }
 
 sk_sp<SkDrawable> SkScalerContext::getDrawable(SkPackedGlyphID glyphID) {
-    // The TODO
-    return nullptr;
+    return this->generateDrawable(glyphID.glyphID());
 }
 
 void SkScalerContext::getFontMetrics(SkFontMetrics* fm) {
@@ -1241,6 +1240,9 @@ std::unique_ptr<SkScalerContext> SkScalerContext::MakeEmpty(
             glyph->zeroMetrics();
         }
         void generateImage(const SkGlyph& glyph) override {}
+
+        sk_sp<SkDrawable> generateDrawable(SkGlyphID glyph) override { return nullptr; }
+
         bool generatePath(SkGlyphID glyph, SkPath* path) override {
             path->reset();
             return false;

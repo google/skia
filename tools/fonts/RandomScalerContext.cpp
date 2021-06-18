@@ -26,6 +26,7 @@ protected:
     bool     generateAdvance(SkGlyph*) override;
     void     generateMetrics(SkGlyph*) override;
     void     generateImage(const SkGlyph&) override;
+    sk_sp<SkDrawable> generateDrawable(SkGlyphID glyph) override { return nullptr; };
     bool     generatePath(SkGlyphID, SkPath*) override;
     void     generateFontMetrics(SkFontMetrics*) override;
 

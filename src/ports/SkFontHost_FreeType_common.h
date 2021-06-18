@@ -47,6 +47,7 @@ protected:
     {}
 
     void generateGlyphImage(FT_Face face, const SkGlyph& glyph, const SkMatrix& bitmapTransform);
+    sk_sp<SkDrawable> generateFTDrawable(FT_Face face, const SkRect& bounds, SkGlyphID glyphId);
     bool generateGlyphPath(FT_Face face, SkPath* path);
     bool generateFacePath(FT_Face face, SkGlyphID glyphID, SkPath* path);
 private:

@@ -178,6 +178,8 @@ protected:
 
     void generateImage(const SkGlyph&) override { SK_ABORT("Should have generated from path."); }
 
+    sk_sp<SkDrawable> generateDrawable(SkGlyphID glyph) override { return nullptr; }
+
     bool generatePath(SkGlyphID glyph, SkPath* path) override {
         *path = this->getTestTypeface()->getPath(glyph).makeTransform(fMatrix);
         return true;

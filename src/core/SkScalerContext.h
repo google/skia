@@ -384,6 +384,9 @@ protected:
      */
     virtual void generateImage(const SkGlyph& glyph) = 0;
 
+    /** Generates the SkDrawable for scalable (color) glyphs. */
+    virtual sk_sp<SkDrawable> generateDrawable(SkGlyphID glyph) = 0;
+
     /** Sets the passed path to the glyph outline.
      *  If this cannot be done the path is set to empty;
      *  @return false if this glyph does not have any path.
