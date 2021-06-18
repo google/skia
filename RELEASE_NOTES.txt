@@ -9,6 +9,9 @@ Milestone 93
   * Removed SkPaint::getHash
     https://review.skia.org/419336
 
+  * Removed SkShaders::Lerp. It was unused (and easy to replicate with SkRuntimeEffect).
+    https://review.skia.org/419796
+
 * * *
 
 Milestone 92
