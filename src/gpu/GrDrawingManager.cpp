@@ -42,7 +42,6 @@
 #include "src/gpu/GrTransferFromRenderTask.h"
 #include "src/gpu/GrWaitRenderTask.h"
 #include "src/gpu/GrWritePixelsRenderTask.h"
-#include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
 #include "src/gpu/text/GrSDFTControl.h"
 #include "src/image/SkSurface_Gpu.h"
 
@@ -601,14 +600,6 @@ void GrDrawingManager::moveRenderTasksToDDL(SkDeferredDisplayList* ddl) {
 
     fContext->priv().detachProgramData(&ddl->fProgramData);
 
-#if GR_OGA
-    if (fPathRendererChain) {
-        if (auto ccpr = fPathRendererChain->getCoverageCountingPathRenderer()) {
-            ddl->fPendingPaths = ccpr->detachPendingPaths();
-        }
-    }
-#endif
-
     SkDEBUGCODE(this->validate());
 }
 
@@ -642,14 +633,6 @@ void GrDrawingManager::createDDLTask(sk_sp<const SkDeferredDisplayList> ddl,
     // Here we jam the proxy that backs the current replay SkSurface into the LazyProxyData.
     // The lazy proxy that references it (in the DDL opsTasks) will then steal its GrTexture.
     ddl->fLazyProxyData->fReplayDest = newDest.get();
-
-#if GR_OGA
-    if (ddl->fPendingPaths.size()) {
-        GrCoverageCountingPathRenderer* ccpr = this->getCoverageCountingPathRenderer();
-
-        ccpr->mergePendingPaths(ddl->fPendingPaths);
-    }
-#endif
 
     // Add a task to handle drawing and lifetime management of the DDL.
     SkDEBUGCODE(auto ddlTask =) this->appendTask(sk_make_sp<GrDDLTask>(this,
@@ -938,14 +921,6 @@ GrPathRenderer* GrDrawingManager::getSoftwarePathRenderer() {
                                            fOptionsForPathRendererChain.fAllowPathMaskCaching));
     }
     return fSoftwarePathRenderer.get();
-}
-
-GrCoverageCountingPathRenderer* GrDrawingManager::getCoverageCountingPathRenderer() {
-    if (!fPathRendererChain) {
-        fPathRendererChain = std::make_unique<GrPathRendererChain>(fContext,
-                                                                   fOptionsForPathRendererChain);
-    }
-    return fPathRendererChain->getCoverageCountingPathRenderer();
 }
 
 GrTessellationPathRenderer* GrDrawingManager::getTessellationPathRenderer() {
