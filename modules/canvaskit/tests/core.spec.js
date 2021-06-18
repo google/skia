@@ -944,7 +944,6 @@ describe('Core canvas behavior', () => {
     gm('combined_shaders', (canvas) => {
         const rShader = CanvasKit.Shader.Color(CanvasKit.Color(255, 0, 0, 1.0)); // deprecated
         const gShader = CanvasKit.Shader.MakeColor(CanvasKit.Color(0, 255, 0, 0.6));
-        const bShader = CanvasKit.Shader.MakeColor(CanvasKit.Color(0, 0, 255, 1.0));
 
         const rgShader = CanvasKit.Shader.MakeBlend(CanvasKit.BlendMode.SrcOver, rShader, gShader);
 
@@ -952,15 +951,9 @@ describe('Core canvas behavior', () => {
         p.setShader(rgShader);
         canvas.drawPaint(p);
 
-        const gbShader = CanvasKit.Shader.MakeLerp(0.5, gShader, bShader);
-
-        p.setShader(gbShader);
-        canvas.drawRect(CanvasKit.LTRBRect(5, 100, 300, 400), p);
         rShader.delete();
         gShader.delete();
-        bShader.delete();
         rgShader.delete();
-        gbShader.delete();
         p.delete();
     });
 

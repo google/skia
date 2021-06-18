@@ -717,7 +717,6 @@ function shaderTests(CK: CanvasKit) {
     const s1 = CK.Shader.MakeColor([0.8, 0.2, 0.5, 0.9], // $ExpectType Shader
                                  CK.ColorSpace.SRGB);
     const s2 = CK.Shader.MakeBlend(CK.BlendMode.Src, s1, s1); // $ExpectType Shader
-    const s3 = CK.Shader.MakeLerp(0.3, s1, s2); // $ExpectType Shader
     const s4 = CK.Shader.MakeLinearGradient(// $ExpectType Shader
         [0, 0], [50, 100],
         Float32Array.of(
