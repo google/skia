@@ -417,7 +417,20 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(
     if (!fp) {
         return nullptr;
     }
-    return GrOverrideInputFragmentProcessor::Make(std::move(fp), color, useUniform);
+    static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter, R"(
+        uniform colorFilter fp;  // Declared as colorFilter so we can use sample(..., color)
+        uniform half4 color;
+        half4 main(half4 inColor) {
+            return sample(fp, color);
+        }
+    )");
+    SkASSERT(SkRuntimeEffectPriv::SupportsConstantOutputForConstantInput(effect));
+    // Constant -> Constant for uniform case? We're not going to get it here. Hmm.
+    return GrSkSLFP::Make(effect, "OverrideInput", /*inputFP=*/nullptr,
+                          color.isOpaque() ? GrSkSLFP::OptFlags::kPreservesOpaqueInput
+                                           : GrSkSLFP::OptFlags::kNone,
+                          "fp", std::move(fp),
+                          "color", GrSkSLFP::SpecializeIf(!useUniform, color));
 }
 
 //////////////////////////////////////////////////////////////////////////////
