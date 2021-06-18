@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "60a6ba3f_b421c543",
+        "filename": "src/core/SkBlenderBase.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-18T15:06:42Z",
+      "side": 1,
+      "message": "Feel like `Make` would be Skia-y",
+      "range": {
+        "startLine": 41,
+        "startChar": 28,
+        "endLine": 41,
+        "endChar": 32
+      },
+      "revId": "8d1bf35fa20388866aa93307a02191130888b9e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "08e0d928_3f7311fd",
+        "filename": "src/core/SkBlenderBase.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-18T15:06:42Z",
+      "side": 1,
+      "message": "MakeCoeff?",
+      "range": {
+        "startLine": 42,
+        "startChar": 28,
+        "endLine": 42,
+        "endChar": 33
+      },
+      "revId": "8d1bf35fa20388866aa93307a02191130888b9e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
