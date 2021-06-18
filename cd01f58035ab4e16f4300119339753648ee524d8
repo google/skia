@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dfaf6424_c7b6341d",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 531,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-18T13:52:52Z",
+      "side": 1,
+      "message": "Does it work to put @if here? Do we want to keep this tradition alive?",
+      "range": {
+        "startLine": 531,
+        "startChar": 12,
+        "endLine": 531,
+        "endChar": 14
+      },
+      "revId": "cd01f58035ab4e16f4300119339753648ee524d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "80d84b0b_78e4e2a9",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 556,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-18T13:52:52Z",
+      "side": 1,
+      "message": "optional: is the lambda carrying its weight? IMO just having an explicit cast would be simpler for the reader:\n\n    GrSkSLFP::Specialize(int(unpremulInput)),",
+      "range": {
+        "startLine": 556,
+        "startChar": 43,
+        "endLine": 556,
+        "endChar": 72
+      },
+      "revId": "cd01f58035ab4e16f4300119339753648ee524d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
