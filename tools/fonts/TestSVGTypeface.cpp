@@ -246,6 +246,8 @@ protected:
         glyphData.render(&canvas);
     }
 
+    sk_sp<SkDrawable> generateDrawable(SkGlyphID glyph) override { return nullptr; }
+
     bool generatePath(SkGlyphID glyph, SkPath* path) override {
         path->reset();
         return false;

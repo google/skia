@@ -287,6 +287,7 @@ public:
     SkGlyph     makeGlyph(SkPackedGlyphID);
     void        getImage(const SkGlyph&);
     bool SK_WARN_UNUSED_RESULT getPath(SkPackedGlyphID, SkPath*);
+    sk_sp<SkDrawable> getDrawable(SkPackedGlyphID);
     void        getFontMetrics(SkFontMetrics*);
 
     /** Return the size in bytes of the associated gamma lookup table
@@ -382,6 +383,9 @@ protected:
      *  generateMetrics will be called before generateImage.
      */
     virtual void generateImage(const SkGlyph& glyph) = 0;
+
+    /** Generates the SkDrawable for scalable (color) glyphs. */
+    virtual sk_sp<SkDrawable> generateDrawable(SkGlyphID glyph) = 0;
 
     /** Sets the passed path to the glyph outline.
      *  If this cannot be done the path is set to empty;

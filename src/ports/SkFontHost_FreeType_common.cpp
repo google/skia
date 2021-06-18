@@ -9,6 +9,7 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
+#include "include/core/SkDrawable.h"
 #include "include/core/SkPath.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/private/SkColorData.h"
@@ -948,6 +949,61 @@ bool colrv1_start_glyph(SkCanvas* canvas,
 
 }  // namespace
 
+class SkCOLRv1Drawable : public SkDrawable {
+public:
+    SkCOLRv1Drawable(const FT_Color* palette, FT_Face ftFace, uint16_t glyphId, SkRect bounds)
+            : fPalette(palette)
+            , fFtFace(ftFace)
+            , fGlyphId(glyphId)
+            , fBounds(bounds) {}
+
+    bool hasLayers() {
+        FT_OpaquePaint opaqueLayerPaint;
+        opaqueLayerPaint.p = nullptr;
+        return FT_Get_Color_Glyph_Paint(
+                fFtFace, fGlyphId, FT_COLOR_INCLUDE_ROOT_TRANSFORM, &opaqueLayerPaint);
+    }
+
+protected:
+    virtual SkRect onGetBounds() override { return fBounds; }
+
+    virtual void onDraw(SkCanvas* canvas) override {
+        colrv1_start_glyph(canvas, fPalette, fFtFace, fGlyphId, FT_COLOR_INCLUDE_ROOT_TRANSFORM);
+    }
+
+private:
+    const FT_Color* fPalette;
+    FT_Face fFtFace;
+    uint16_t fGlyphId;
+    SkRect fBounds;
+};
+
+sk_sp<SkDrawable> SkScalerContext_FreeType_Base::generateFTDrawable(FT_Face face, const SkRect& bounds, SkGlyphID glyphId) {
+#ifdef TT_SUPPORT_COLRV1
+  if (face->glyph->format != FT_GLYPH_FORMAT_OUTLINE)
+    return nullptr;
+
+  FT_Color* palette;
+  FT_Error err = FT_Palette_Select(face, 0, &palette);
+  if (err) {
+      SK_TRACEFTR(err, "Could not get palette from %s fontFace.", face->family_name);
+      return nullptr;
+  }
+
+  FT_Bool haveLayers = false;
+
+  // TODO: What about the top level
+  // canvas.translate(-glyph.fLeft, -glyph.fTop);
+  // that's done for the bitmap glyphs?
+
+  sk_sp<SkCOLRv1Drawable> colrV1Drawable(new SkCOLRv1Drawable(palette, face, glyphId, bounds));
+  haveLayers = colrV1Drawable->hasLayers();
+  if (haveLayers) {
+      return std::move(colrV1Drawable);
+  }
+#endif
+}
+
 void SkScalerContext_FreeType_Base::generateGlyphImage(
     FT_Face face,
     const SkGlyph& glyph,
@@ -1012,8 +1068,16 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(
                 // TT_SUPPORT_COLRV1 flag defined by the FreeType headers in
                 // that case.
 
-                haveLayers = colrv1_start_glyph(&canvas, palette, face, glyph.getGlyphID(),
-                                                FT_COLOR_INCLUDE_ROOT_TRANSFORM);
+                sk_sp<SkCOLRv1Drawable> colrV1Drawable(new SkCOLRv1Drawable(
+                        palette, face, glyph.getGlyphID(), SkRect::Make(glyph.mask().fBounds)));
+                haveLayers = colrV1Drawable->hasLayers();
+
+                if (haveLayers) {
+                  canvas.drawDrawable(colrV1Drawable.get());
+                }
+
+                // haveLayers = colrv1_start_glyph(&canvas, palette, face, glyph.getGlyphID(),
+                //                                 FT_COLOR_INCLUDE_ROOT_TRANSFORM);
 #else
                 haveLayers = false;
 #endif

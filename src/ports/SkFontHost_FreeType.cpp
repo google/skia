@@ -8,6 +8,7 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkData.h"
+#include "include/core/SkDrawable.h"
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkStream.h"
@@ -538,6 +539,7 @@ protected:
     bool generateAdvance(SkGlyph* glyph) override;
     void generateMetrics(SkGlyph* glyph) override;
     void generateImage(const SkGlyph& glyph) override;
+    sk_sp<SkDrawable> generateDrawable(SkGlyphID glyph) override;
     bool generatePath(SkGlyphID glyphID, SkPath* path) override;
     void generateFontMetrics(SkFontMetrics*) override;
 
@@ -1555,6 +1557,23 @@ bool SkScalerContext_FreeType::generatePath(SkGlyphID glyphID, SkPath* path) {
         path->offset(SkFDot6ToScalar(vector.x), -SkFDot6ToScalar(vector.y));
     }
     return true;
+}
+
+sk_sp<SkDrawable> SkScalerContext_FreeType::generateDrawable(SkGlyphID glyphID) {
+    SkAutoMutexExclusive  ac(f_t_mutex());
+
+    if (this->setupSize()) {
+        return nullptr;
+    }
+
+    FT_Error err = FT_Load_Glyph(fFace, glyphID, fLoadGlyphFlags);
+    if (err != 0) {
+        return nullptr;
+    }
+
+    // TODO: Calculate bounds from base glyph? Have an SkGlyph* argument to this function and use
+    // values from SkGlyph?
+    return generateFTDrawable(fFace, SkRect::MakeWH(fRec.fTextSize, fRec.fTextSize), glyphID);
 }
 
 void SkScalerContext_FreeType::generateFontMetrics(SkFontMetrics* metrics) {

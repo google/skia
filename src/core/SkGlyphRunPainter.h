@@ -74,6 +74,9 @@ public:
         virtual void paintPaths(
                 SkDrawableGlyphBuffer* drawables, SkScalar scale, SkPoint origin,
                 const SkPaint& paint) const = 0;
+        virtual void paintDrawables(
+                SkDrawableGlyphBuffer* drawables, SkScalar scale, SkPoint origin,
+                const SkPaint& paint) const = 0;
 
         virtual void paintMasks(SkDrawableGlyphBuffer* drawables, const SkPaint& paint) const = 0;
         virtual void drawBitmap(const SkBitmap&, const SkMatrix&, const SkRect* dstOrNull,
@@ -146,6 +149,10 @@ public:
     virtual void processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                     const SkFont& runFont,
                                     const SkStrikeSpec& strikeSpec) = 0;
+
+    virtual void processSourceDrawables(const SkZip<SkGlyphVariant, SkPoint>& drawables,
+                                        const SkFont& runFont,
+                                        const SkStrikeSpec& strikeSpec) = 0;
 
     virtual void processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                    const SkStrikeSpec& strikeSpec,

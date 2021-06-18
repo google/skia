@@ -47,6 +47,7 @@ protected:
     bool generateAdvance(SkGlyph* glyph) override;
     void generateMetrics(SkGlyph* glyph) override;
     void generateImage(const SkGlyph& glyph) override;
+    sk_sp<SkDrawable> generateDrawable(SkGlyphID glyph) override { return nullptr; }
     bool generatePath(SkGlyphID glyph, SkPath* path) override;
     void generateFontMetrics(SkFontMetrics*) override;
 

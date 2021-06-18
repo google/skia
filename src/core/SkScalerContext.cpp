@@ -8,6 +8,7 @@
 #include "include/core/SkPaint.h"
 #include "src/core/SkScalerContext.h"
 
+#include "include/core/SkDrawable.h"
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkPathEffect.h"
@@ -694,6 +695,10 @@ bool SkScalerContext::getPath(SkPackedGlyphID glyphID, SkPath* path) {
     return this->internalGetPath(glyphID, path);
 }
 
+sk_sp<SkDrawable> SkScalerContext::getDrawable(SkPackedGlyphID glyphID) {
+    return this->generateDrawable(glyphID.glyphID());
+}
+
 void SkScalerContext::getFontMetrics(SkFontMetrics* fm) {
     SkASSERT(fm);
     this->generateFontMetrics(fm);
@@ -1235,6 +1240,9 @@ std::unique_ptr<SkScalerContext> SkScalerContext::MakeEmpty(
             glyph->zeroMetrics();
         }
         void generateImage(const SkGlyph& glyph) override {}
+
+        sk_sp<SkDrawable> generateDrawable(SkGlyphID glyph) override { return nullptr; }
+
         bool generatePath(SkGlyphID glyph, SkPath* path) override {
             path->reset();
             return false;
