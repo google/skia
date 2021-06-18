@@ -636,7 +636,6 @@ var CanvasKit = {
     MakeBlend: function() {},
     MakeColor: function() {},
     MakeFractalNoise: function() {},
-    MakeLerp: function() {},
     MakeLinearGradient: function() {},
     MakeRadialGradient: function() {},
     MakeSweepGradient: function() {},

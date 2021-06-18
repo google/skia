@@ -3364,14 +3364,6 @@ export interface ShaderFactory {
                      tileW: number, tileH: number): Shader;
 
     /**
-     * Returns a shader is a linear interpolation combines the given shaders with a BlendMode.
-     * @param t - range of [0.0, 1.0], indicating how far we should be between one and two.
-     * @param one
-     * @param two
-     */
-    MakeLerp(t: number, one: Shader, two: Shader): Shader;
-
-    /**
      * Returns a shader that generates a linear gradient between the two specified points.
      * See SkGradientShader.h for more.
      * @param start

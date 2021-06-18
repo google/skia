@@ -1584,7 +1584,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
                 return SkShaders::Color(ptrToSkColor4f(cPtr), colorSpace);
             })
         )
-        .class_function("MakeLerp", select_overload<sk_sp<SkShader>(float, sk_sp<SkShader>, sk_sp<SkShader>)>(&SkShaders::Lerp))
         .class_function("MakeFractalNoise", optional_override([](
                                                 SkScalar baseFreqX, SkScalar baseFreqY,
                                                 int numOctaves, SkScalar seed,

@@ -884,7 +884,6 @@ CanvasKit.onRuntimeInitialized = function() {
   // TODO(kjlubick) remove deprecated names.
   CanvasKit.Shader.Blend = CanvasKit.Shader.MakeBlend;
   CanvasKit.Shader.Color = CanvasKit.Shader.MakeColor;
-  CanvasKit.Shader.Lerp = CanvasKit.Shader.MakeLerp;
 
   CanvasKit.Shader.MakeLinearGradient = function(start, end, colors, pos, mode, localMatrix, flags, colorSpace) {
     colorSpace = colorSpace || null;
