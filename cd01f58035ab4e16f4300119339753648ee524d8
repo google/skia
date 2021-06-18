@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "b6f3c41a_96960694",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 529,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-18T14:29:13Z",
+      "side": 1,
+      "message": "If you are interested in the rationale for the design, Brian wrote a doc that actually addresses these exact points pretty well:\n\nhttps://docs.google.com/document/d/1JZHzjj_N8vo2KoQIQHCqZ_kJsY8Hg2wRV3DDvCy9JBo/edit#bookmark\u003did.mdwzqtexy0vu\n\nI don\u0027t feel too strongly about the \"always specialized\" comment either way, but if @if is allowed in the code below, then I think that might convey the meaning directly.",
+      "parentUuid": "1410138f_0b8b9dba",
+      "range": {
+        "startLine": 527,
+        "startChar": 8,
+        "endLine": 529,
+        "endChar": 33
+      },
+      "revId": "cd01f58035ab4e16f4300119339753648ee524d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "dfaf6424_c7b6341d",
         "filename": "src/gpu/GrFragmentProcessor.cpp",
         "patchSetId": 3
@@ -84,6 +108,30 @@
       "side": 1,
       "message": "Hmm, I dislike casting bool to int for readability. If we get rid of the lambda, I\u0027d still vote for \"b ? 1 : 0\". The compiler won\u0027t care.\n\nThe lambda is nice in that removes the number of GrSkSLFP prefixes that are being repeated. Could we add a using instead?",
       "parentUuid": "80d84b0b_78e4e2a9",
+      "range": {
+        "startLine": 556,
+        "startChar": 43,
+        "endLine": 556,
+        "endChar": 72
+      },
+      "revId": "cd01f58035ab4e16f4300119339753648ee524d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0dc88ced_b6570c10",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 556,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-18T14:29:13Z",
+      "side": 1,
+      "message": "A using-decl and `Specialize(unpremulInput ? 1 : 0)` works for me.",
+      "parentUuid": "515661b6_7e4917d3",
       "range": {
         "startLine": 556,
         "startChar": 43,
