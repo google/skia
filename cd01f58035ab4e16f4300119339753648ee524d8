@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "bf8f2ba5_478dda9e",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 524,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-18T14:34:28Z",
+      "side": 1,
+      "message": "We don\u0027t actually need the cached version here, because we\u0027re storing the result in a static. The Cached API primarily exists for situations where the caller can\u0027t guarantee that they\u0027ll keep the resulting object around (specifically, deserializing any runtime shader or color filter).",
+      "parentUuid": "f86ee0a0_0a61a9ec",
+      "range": {
+        "startLine": 524,
+        "startChar": 25,
+        "endLine": 524,
+        "endChar": 44
+      },
+      "revId": "cd01f58035ab4e16f4300119339753648ee524d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "1410138f_0b8b9dba",
         "filename": "src/gpu/GrFragmentProcessor.cpp",
         "patchSetId": 3
