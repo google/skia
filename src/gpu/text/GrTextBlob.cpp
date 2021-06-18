@@ -461,6 +461,7 @@ public:
 
     int glyphCount() const override;
 
+#if GR_OGA
     std::tuple<const GrClip*, GrOp::Owner>
     makeAtlasTextOp(const GrClip* clip,
                     const SkMatrixProvider& viewMatrix,
@@ -468,6 +469,7 @@ public:
                     const SkPaint& paint,
                     GrSurfaceDrawContext* sdc,
                     GrAtlasSubRunOwner) const override;
+#endif
 
     void testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) override;
 

@@ -8,6 +8,7 @@
 #ifndef GrMeshDrawOp_DEFINED
 #define GrMeshDrawOp_DEFINED
 
+#if 0
 #include "src/gpu/GrAppliedClip.h"
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/ops/GrDrawOp.h"
@@ -135,4 +136,5 @@ private:
     using INHERITED = GrDrawOp;
 };
 
+#endif
 #endif
