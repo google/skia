@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e7ed1004_5f24ae3b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-06-18T21:10:03Z",
+      "side": 1,
+      "message": "This should fix shaping not working when the font data is woff (or other compressed formats).",
+      "revId": "a326f5da356f8c3f5f5924f55a654866450a0a55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
