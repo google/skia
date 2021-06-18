@@ -281,8 +281,8 @@ static void TestBitmapSerialization(const SkBitmap& validBitmap,
                               std::move(validBitmapSource), nullptr));
 
     sk_sp<SkImageFilter> deserializedFilter(
-        TestFlattenableSerialization<SkImageFilter>(
-            xfermodeImageFilter.get(), shouldSucceed, reporter));
+        TestFlattenableSerialization<SkImageFilter_Base>(
+            (SkImageFilter_Base*)xfermodeImageFilter.get(), shouldSucceed, reporter));
 
     // Try to render a small bitmap using the invalid deserialized filter
     // to make sure we don't crash while trying to render it
