@@ -141,6 +141,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "1d1147b8_6f576f3b",
+        "filename": "src/core/SkScalerContext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 698,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-06-18T12:10:06Z",
+      "side": 1,
+      "message": "Could the argument to this method also be an SkGlyph* pointer? Background: For COLRv1 glyphs, the previous generateMetrics() step is important to determine the bounds from the bas glyph. For generating an SkDrawable that reacts correctly to onGetBounds(), it\u0027s useful to carry those over without recomputing it.",
+      "revId": "2633dc0e1da33f971db3040b99d78f132c7cf1fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e1390f54_747f088d",
         "filename": "src/gpu/text/GrTextBlob.cpp",
         "patchSetId": 1
