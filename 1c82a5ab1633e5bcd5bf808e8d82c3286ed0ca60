@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "65687c32_eb14c0f4",
+        "filename": "include/core/SkShader.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-18T14:44:56Z",
+      "side": 1,
+      "message": "this one will be fun to think about in the future with blender...",
+      "range": {
+        "startLine": 140,
+        "startChar": 27,
+        "endLine": 140,
+        "endChar": 32
+      },
+      "revId": "1c82a5ab1633e5bcd5bf808e8d82c3286ed0ca60",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
