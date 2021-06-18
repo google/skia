@@ -662,6 +662,7 @@ bool SkBlitter::UseLegacyBlitter(const SkPixmap& device,
 
     // The legacy blitters cannot handle any of these complex features (anymore).
     if (device.alphaType() == kUnpremul_SkAlphaType        ||
+        paint.getBlender()                                 ||
         paint.getBlendMode() > SkBlendMode::kLastCoeffMode ||
         (mf && mf->getFormat() == SkMask::k3D_Format)) {
         return false;
@@ -703,26 +704,28 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
     // We may tweak the original paint as we go.
     SkTCopyOnFirstWrite<SkPaint> paint(origPaint);
 
-    // We have the most fast-paths for SrcOver, so see if we can act like SrcOver.
-    if (paint->getBlendMode() != SkBlendMode::kSrcOver) {
-        switch (SkInterpretXfermode(*paint, SkColorTypeIsAlwaysOpaque(device.colorType()))) {
-            case kSrcOver_SkXfermodeInterpretation:
-                paint.writable()->setBlendMode(SkBlendMode::kSrcOver);
-                break;
-            case kSkipDrawing_SkXfermodeInterpretation:
-                return alloc->make<SkNullBlitter>();
-            default:
-                break;
+    if (!paint->getBlender()) {
+        // We have the most fast-paths for SrcOver, so see if we can act like SrcOver.
+        if (paint->getBlendMode() != SkBlendMode::kSrcOver) {
+            switch (SkInterpretXfermode(*paint, SkColorTypeIsAlwaysOpaque(device.colorType()))) {
+                case kSrcOver_SkXfermodeInterpretation:
+                    paint.writable()->setBlendMode(SkBlendMode::kSrcOver);
+                    break;
+                case kSkipDrawing_SkXfermodeInterpretation:
+                    return alloc->make<SkNullBlitter>();
+                default:
+                    break;
+            }
         }
-    }
 
-    // A Clear blend mode will ignore the entire color pipeline, as if Src mode with 0x00000000.
-    if (paint->getBlendMode() == SkBlendMode::kClear) {
-        SkPaint* p = paint.writable();
-        p->setShader(nullptr);
-        p->setColorFilter(nullptr);
-        p->setBlendMode(SkBlendMode::kSrc);
-        p->setColor(0x00000000);
+        // A Clear blend mode will ignore the entire color pipeline, as if Src mode with 0x00000000.
+        if (paint->getBlendMode() == SkBlendMode::kClear) {
+            SkPaint* p = paint.writable();
+            p->setShader(nullptr);
+            p->setColorFilter(nullptr);
+            p->setBlendMode(SkBlendMode::kSrc);
+            p->setColor(0x00000000);
+        }
     }
 
     if (paint->getColorFilter()) {
