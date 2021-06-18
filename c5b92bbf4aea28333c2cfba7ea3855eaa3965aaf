@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "37b018d4_a273a348",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-18T20:53:51Z",
+      "side": 1,
+      "message": "Wondering if I should just make this a parameter to SkMakeRuntimeEffect instead? It\u0027s almost true that: \"if we passed MakeForColorFilter, we expect this assertion to hold\", but not quite. There are some FPs with color filter semantics that can\u0027t implement the constant optimization (today, and probably not worth doing ever).",
+      "revId": "c5b92bbf4aea28333c2cfba7ea3855eaa3965aaf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
