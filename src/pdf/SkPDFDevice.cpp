@@ -1144,6 +1144,7 @@ static void populate_graphic_state_entry_from_paint(
     NOT_IMPLEMENTED(paint.getPathEffect() != nullptr, false);
     NOT_IMPLEMENTED(paint.getMaskFilter() != nullptr, false);
     NOT_IMPLEMENTED(paint.getColorFilter() != nullptr, false);
+    NOT_IMPLEMENTED(paint.getBlender() != nullptr, false);
 
     entry->fMatrix = matrix;
     entry->fClipStackGenID = clipStack ? clipStack->getTopmostGenID()

@@ -94,10 +94,9 @@ SkSpriteBlitter* SkSpriteBlitter::ChooseL32(const SkPixmap& source, const SkPain
                                             SkArenaAlloc* allocator) {
     SkASSERT(allocator != nullptr);
 
-    if (paint.getColorFilter() != nullptr) {
-        return nullptr;
-    }
-    if (paint.getMaskFilter() != nullptr) {
+    if (paint.getColorFilter() ||
+        paint.getMaskFilter() ||
+        paint.getBlender()) {
         return nullptr;
     }
 

@@ -307,12 +307,12 @@ private:
     static bool PaintMayAffectTransparentBlack(const SkPaint* paint) {
         if (paint) {
             // FIXME: this is very conservative
-            if (paint->getImageFilter() || paint->getColorFilter()) {
+            if (paint->getImageFilter() || paint->getColorFilter() || paint->getBlender()) {
                 return true;
             }
 
             // Unusual blendmodes require us to process a saved layer
-            // even with operations outisde the clip.
+            // even with operations outside the clip.
             // For example, DstIn is used by masking layers.
             // https://code.google.com/p/skia/issues/detail?id=1291
             // https://crbug.com/401593

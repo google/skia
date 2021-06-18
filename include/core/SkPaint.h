@@ -484,11 +484,13 @@ public:
     */
     SkBlendMode getBlendMode() const { return (SkBlendMode)fBitfields.fBlendMode; }
 
-    /** Returns true if SkBlendMode is SkBlendMode::kSrcOver, the default.
+    /** Returns true if the paint's effective blend mode is SkBlendMode::kSrcOver, the default.
 
-        @return  true if SkBlendMode is SkBlendMode::kSrcOver
+        @return  true if SkBlendMode is SkBlendMode::kSrcOver and no SkBlender is set
     */
-    bool isSrcOver() const { return (SkBlendMode)fBitfields.fBlendMode == SkBlendMode::kSrcOver; }
+    bool isSrcOver() const {
+        return !fBlender && (SkBlendMode)fBitfields.fBlendMode == SkBlendMode::kSrcOver;
+    }
 
     /** Sets SkBlendMode to mode.
         Does not verify that `mode` corresponds to a valid SkBlendMode.
