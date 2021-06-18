@@ -9,6 +9,9 @@ Milestone 93
   * Removed SkPaint::getHash
     https://review.skia.org/419336
 
+  * The default value of GrContextOptions::fReduceOpsTaskSplitting is now enabled.
+    https://review.skia.org/???
+
 * * *
 
 Milestone 92

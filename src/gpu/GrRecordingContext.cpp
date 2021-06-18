@@ -73,7 +73,7 @@ bool GrRecordingContext::init() {
     }
 #endif
 
-    bool reduceOpsTaskSplitting = false;
+    bool reduceOpsTaskSplitting = true;
     if (this->caps()->avoidReorderingRenderTasks()) {
         reduceOpsTaskSplitting = false;
     } else if (GrContextOptions::Enable::kYes == this->options().fReduceOpsTaskSplitting) {
