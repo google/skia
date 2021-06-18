@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ef903fd0_a35ab854",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 493,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-18T15:05:30Z",
+      "side": 1,
+      "message": "(we\u0027d want to rephrase this to avoid implying that if a user writes an SkSL blender that\u0027s equivalent to a Porter-Duff blend, we\u0027ll be able to detect this. Unfortunately that\u0027s way above our capabilities...)",
+      "range": {
+        "startLine": 493,
+        "startChar": 31,
+        "endLine": 493,
+        "endChar": 76
+      },
+      "revId": "85addb407f8999f371cc761118106919687f62af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8201eef2_1ce857ea",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 497,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-18T15:05:30Z",
+      "side": 1,
+      "message": "The name `asBlendMode` really threw me for a loop (I actually wrote and deleted a long comment here based on a misconception of what was going on here).\n\nI think the root of the misconception was that \"asFoo\" and \"isFoo\" makes it seem like a Paint *is* a blend mode, instead of a Paint *has* a blend mode. Seems like a nitpick, but it took me several minutes to actually understand what these APIs were meant to do, and I think that\u0027s the root cause of my initial confusion.\n\nWe might be better off putting these sorts of helpers on the SkBlender, then just let the user call `paint.getBlender()-\u003eisBlendMode(kDstOut)` or something. Alternatively, we ought to try and think of more descriptive names for this API.",
+      "range": {
+        "startLine": 497,
+        "startChar": 31,
+        "endLine": 497,
+        "endChar": 42
+      },
+      "revId": "85addb407f8999f371cc761118106919687f62af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "919a28e9_438685a4",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 500,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-18T15:05:30Z",
+      "side": 1,
+      "message": "(same as above, need to avoid implying that we are clever enough to map arbitrary SkSL blend functions to Porter-Duff)",
+      "range": {
+        "startLine": 500,
+        "startChar": 48,
+        "endLine": 500,
+        "endChar": 61
+      },
+      "revId": "85addb407f8999f371cc761118106919687f62af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2e2e9018_4a88d860",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 516,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-18T15:05:30Z",
+      "side": 1,
+      "message": "We\u0027ll probably have a global SrcOver object that we can return back to the user in this case, even if internally we represent SrcOver as null to avoid bumping its ref up and down all the time. I think it would make the API a lot more seamless if we always returned a blender, so users don\u0027t have to worry about storing the return value in a variable and doing a null check. They can just do `paint.getBlender()-\u003ewhatever()` in a single shot.",
+      "range": {
+        "startLine": 516,
+        "startChar": 35,
+        "endLine": 516,
+        "endChar": 75
+      },
+      "revId": "85addb407f8999f371cc761118106919687f62af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6e10dc32_cf5c1a2d",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 521,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-18T15:05:30Z",
+      "side": 1,
+      "message": "same no-nulls idea as above",
+      "range": {
+        "startLine": 521,
+        "startChar": 40,
+        "endLine": 521,
+        "endChar": 44
+      },
+      "revId": "85addb407f8999f371cc761118106919687f62af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b484515b_ddca2bdc",
+        "filename": "src/core/SkBlenderBase.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-18T15:05:30Z",
+      "side": 1,
+      "message": "What if...\n\n    virtual skstd::optional\u003cSkBlendMode\u003e getBlendMode() const { return nullopt; }",
+      "range": {
+        "startLine": 31,
+        "startChar": 12,
+        "endLine": 31,
+        "endChar": 42
+      },
+      "revId": "85addb407f8999f371cc761118106919687f62af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
