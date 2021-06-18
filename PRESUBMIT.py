@@ -29,7 +29,6 @@ PUBLIC_API_OWNERS = (
     'djsollen@google.com',
     'hcm@chromium.org',
     'hcm@google.com',
-    'mtklein@google.com',
     'reed@chromium.org',
     'reed@google.com',
 )
