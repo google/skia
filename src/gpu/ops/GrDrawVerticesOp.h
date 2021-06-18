@@ -8,6 +8,7 @@
 #ifndef GrDrawVerticesOp_DEFINED
 #define GrDrawVerticesOp_DEFINED
 
+#if 0
 #include "include/core/SkRefCnt.h"
 #include "include/private/GrTypesPriv.h"
 
@@ -37,5 +38,5 @@ namespace GrDrawVerticesOp {
                      const SkRuntimeEffect*);
 
 }  // namespace GrDrawVerticesOp
-
+#endif
 #endif

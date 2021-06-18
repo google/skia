@@ -6,6 +6,7 @@
  */
 
 #include "src/gpu/GrCaps.h"
+#include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrProcessorAnalysis.h"
 #include "src/gpu/ops/GrDrawOp.h"

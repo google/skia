@@ -168,7 +168,6 @@ tests_sources = [
   "$_tests/OffsetSimplePolyTest.cpp",
   "$_tests/OnFlushCallbackTest.cpp",
   "$_tests/OnceTest.cpp",
-  "$_tests/OpChainTest.cpp",
   "$_tests/OverAlignedTest.cpp",
   "$_tests/PDFDeflateWStreamTest.cpp",
   "$_tests/PDFDocumentTest.cpp",
@@ -200,7 +199,6 @@ tests_sources = [
   "$_tests/PremulAlphaRoundTripTest.cpp",
   "$_tests/PrimitiveProcessorTest.cpp",
   "$_tests/ProcessorTest.cpp",
-  "$_tests/ProgramsTest.cpp",
   "$_tests/PromiseImageTest.cpp",
   "$_tests/ProxyConversionTest.cpp",
   "$_tests/ProxyRefTest.cpp",
@@ -303,7 +301,6 @@ tests_sources = [
   "$_tests/TestTest.cpp",
   "$_tests/TextBlobCacheTest.cpp",
   "$_tests/TextBlobTest.cpp",
-  "$_tests/TextureOpTest.cpp",
   "$_tests/TextureProxyTest.cpp",
   "$_tests/TextureStripAtlasManagerTest.cpp",
   "$_tests/Time.cpp",
@@ -428,7 +425,10 @@ pathops_tests_sources = [
 oga_tests_sources = [
   "$_tests/GrCCPRTest.cpp",
   "$_tests/GrClipStackTest.cpp",
+  "$_tests/OpChainTest.cpp",
   "$_tests/PathRendererCacheTests.cpp",
+  "$_tests/ProgramsTest.cpp",
+  "$_tests/TextureOpTest.cpp",
 ]
 
 tests_sources += oga_tests_sources
