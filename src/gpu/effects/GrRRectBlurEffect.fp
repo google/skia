@@ -79,6 +79,7 @@ uniform half blurRadius;
                             const SkRRect& rrectToDraw,
                             const SkISize& dimensions,
                             float xformedSigma) {
+#if GR_OGA
         SkASSERT(!SkGpuBlurUtils::IsEffectivelyZeroSigma(xformedSigma));
 
         // We cache blur masks. Use default surface props here so we can use the same cached mask
@@ -122,6 +123,9 @@ uniform half blurRadius;
         trampoline->fProxy = view.asTextureProxyRef();
 
         return true;
+#else
+        return false;
+#endif
     }
 
     // Evaluate the vertical blur at the specified 'y' value given the location of the top of the
