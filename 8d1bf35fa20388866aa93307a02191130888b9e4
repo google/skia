@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "85a9fbf2_a87b0546",
+        "filename": "src/core/SkBlenderBase.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-18T15:08:25Z",
+      "side": 1,
+      "message": "Make.. is so last year -- see SkMatrix.h, SkM44.h SkShaders factories, etc.",
+      "parentUuid": "60a6ba3f_b421c543",
+      "range": {
+        "startLine": 41,
+        "startChar": 28,
+        "endLine": 41,
+        "endChar": 32
+      },
+      "revId": "8d1bf35fa20388866aa93307a02191130888b9e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "08e0d928_3f7311fd",
         "filename": "src/core/SkBlenderBase.h",
         "patchSetId": 2
