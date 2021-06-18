@@ -90,6 +90,9 @@ sk_sp<GrVkAttachment> GrVkAttachment::MakeTexture(GrVkGpu* gpu,
         vkUsageFlags |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
         // We always make our render targets support being used as input attachments
         vkUsageFlags |= VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
+        if (numSamples > 1) {
+            SkDebugf("hello\n");
+        }
     }
 
     return GrVkAttachment::Make(gpu, dimensions, usageFlags, numSamples, format, mipLevels,
