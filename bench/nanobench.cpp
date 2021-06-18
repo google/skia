@@ -1230,7 +1230,7 @@ int main(int argc, char** argv) {
 #if defined(SK_RELEASE)
         // SkJSONWriter uses a 32k in-memory cache, so it only flushes occasionally and is well
         // equipped for a stream that re-opens, appends, and closes the file on every write.
-        logStream.reset(new NanoFILEAppendAndCloseStream(FLAGS_outResultsFile[0]));
+        logStream.reset(new SkFILEWStream(FLAGS_outResultsFile[0]));
 #else
         SkDebugf("I'm ignoring --outResultsFile because this is a Debug build.");
         return 1;
