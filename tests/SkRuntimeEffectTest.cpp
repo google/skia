@@ -604,8 +604,7 @@ static void test_RuntimeEffect_Blenders(skiatest::Reporter* r, GrRecordingContex
 }
 
 DEF_TEST(SkRuntimeEffect_Blender_CPU, r) {
-    // TODO(skia:12080): add CPU support for SkBlender
-//  test_RuntimeEffect_Blenders(r, /*rContext=*/nullptr);
+    test_RuntimeEffect_Blenders(r, /*rContext=*/nullptr);
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRuntimeEffect_Blender_GPU, r, ctxInfo) {

@@ -357,7 +357,7 @@ namespace {
         }
 
         // Clamp to fit destination color format if needed.
-        if (src_in_gamut) {
+        if (!params.blender && src_in_gamut) {
             // An in-gamut src blended with an in-gamut dst should stay in gamut.
             // Being in-gamut implies all channels are in [0,1], so no need to clamp.
             // We allow one ulp error above 1.0f, and about that much (~1.2e-7) below 0.
@@ -556,6 +556,9 @@ namespace {
             shader = sk_make_sp<DitherShader>(std::move(shader));
         }
 
+        // Add the user blend function.
+        sk_sp<SkBlender> blender = paint.refBlender();
+
         // The most common blend mode is SrcOver, and it can be strength-reduced
         // _greatly_ to Src mode when the shader is opaque.
         //
@@ -570,8 +573,8 @@ namespace {
         // not just a property of the uniforms.  The shader program hash includes
         // this information, making it safe to use anywhere in the blitter codegen.
         SkBlendMode blendMode = paint.getBlendMode();
-        if (blendMode == SkBlendMode::kSrcOver && shader->isOpaque()) {
-            blendMode =  SkBlendMode::kSrc;
+        if ((blendMode == SkBlendMode::kSrcOver && shader->isOpaque()) || blender) {
+            blendMode = SkBlendMode::kSrc;
         }
 
         SkColor4f paintColor = paint.getColor4f();
@@ -582,7 +585,7 @@ namespace {
         return {
             std::move(shader),
             std::move(clip),
-            /*blender=*/nullptr,
+            std::move(blender),
             { device.colorType(), device.alphaType(), device.refColorSpace() },
             blendMode,
             Coverage::Full,  // Placeholder... withCoverage() will change as needed.
