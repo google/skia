@@ -156,7 +156,7 @@ static sk_sp<SkColorFilter> MakeMatrix(const float array[20],
     if (!sk_floats_are_finite(array, 20)) {
         return nullptr;
     }
-#if 1
+#if defined(SK_SUPPORT_LEGACY_RUNTIME_EFFECTS)
     return sk_make_sp<SkColorFilter_Matrix>(array, domain);
 #else
     const bool alphaUnchanged = SkScalarNearlyEqual(array[15], 0)
