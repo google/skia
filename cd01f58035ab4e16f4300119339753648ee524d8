@@ -3,6 +3,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "1410138f_0b8b9dba",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 529,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-18T14:23:03Z",
+      "side": 1,
+      "message": "I know these are all internal use only, but it does end up feeling a little weird to me that we have 3 uniforms declared that are always going to be specialized, but the fact that they are specialized doesn\u0027t happen until we call Make.\n\nI\u0027d been thinking we could tag the declaration in sksl so that the uniform flags defaulted to having it marked as specialized, and then not have to wrap the values in Specialize(). That\u0027s probably not even possible with the template system currently, and would mean runtime sksl parsing would need to handle this internal special feature. So let\u0027s scrap that idea.\n\nMaybe we just add a `// always specialized` comment to their declarations for the reader?",
+      "range": {
+        "startLine": 527,
+        "startChar": 8,
+        "endLine": 529,
+        "endChar": 33
+      },
+      "revId": "cd01f58035ab4e16f4300119339753648ee524d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "dfaf6424_c7b6341d",
         "filename": "src/gpu/GrFragmentProcessor.cpp",
         "patchSetId": 3
@@ -37,6 +60,30 @@
       "writtenOn": "2021-06-18T13:52:52Z",
       "side": 1,
       "message": "optional: is the lambda carrying its weight? IMO just having an explicit cast would be simpler for the reader:\n\n    GrSkSLFP::Specialize(int(unpremulInput)),",
+      "range": {
+        "startLine": 556,
+        "startChar": 43,
+        "endLine": 556,
+        "endChar": 72
+      },
+      "revId": "cd01f58035ab4e16f4300119339753648ee524d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "515661b6_7e4917d3",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 556,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-18T14:23:03Z",
+      "side": 1,
+      "message": "Hmm, I dislike casting bool to int for readability. If we get rid of the lambda, I\u0027d still vote for \"b ? 1 : 0\". The compiler won\u0027t care.\n\nThe lambda is nice in that removes the number of GrSkSLFP prefixes that are being repeated. Could we add a using instead?",
+      "parentUuid": "80d84b0b_78e4e2a9",
       "range": {
         "startLine": 556,
         "startChar": 43,
