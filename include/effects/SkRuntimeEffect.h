@@ -253,6 +253,7 @@ private:
     friend class SkRuntimeColorFilter;  //
 
     friend class SkFilterColorProgram;
+    friend class SkRuntimeEffectPriv;
 
     uint32_t fHash;
     SkString fSkSL;
