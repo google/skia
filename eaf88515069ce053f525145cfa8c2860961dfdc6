@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "50906212_d92384a5",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 456,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-18T14:00:10Z",
+      "side": 1,
+      "message": "Good catch!! Very tricky how this code appears after the blend setup, even though it\u0027s modifying the paint (and XPs always run after the paint FP). I will reorder the code in a separate (landed-first) CL to move the dither code upwards to better match the actual draw order. It should hopefully not change any results in a world without SkBlenders.",
+      "parentUuid": "b61df907_59c58cf7",
+      "range": {
+        "startLine": 449,
+        "startChar": 0,
+        "endLine": 456,
+        "endChar": 0
+      },
+      "revId": "eaf88515069ce053f525145cfa8c2860961dfdc6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "f02daffc_2735d0f9",
         "filename": "src/gpu/effects/GrSkSLFP.cpp",
         "patchSetId": 7
