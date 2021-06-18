@@ -176,7 +176,8 @@ static bool effectively_srcover(const SkPaint* paint) {
     }
     // src-mode with opaque and no effects (which might change opaqueness) is ok too.
     return !paint->getShader() && !paint->getColorFilter() && !paint->getImageFilter() &&
-           0xFF == paint->getAlpha() && paint->getBlendMode() == SkBlendMode::kSrc;
+           !paint->getBlender() && 0xFF == paint->getAlpha() &&
+           paint->getBlendMode() == SkBlendMode::kSrc;
 }
 
 // For some SaveLayer-[drawing command]-Restore patterns, merge the SaveLayer's alpha into the
