@@ -430,13 +430,6 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
         }
     }
 
-    // When the xfermode is null on the SkPaint (meaning kSrcOver) we need the XPFactory field on
-    // the GrPaint to also be null (also kSrcOver).
-    SkASSERT(!grPaint->getXPFactory());
-    if (!skPaint.isSrcOver()) {
-        grPaint->setXPFactory(SkBlendMode_AsXPFactory(skPaint.getBlendMode()));
-    }
-
 #ifndef SK_IGNORE_GPU_DITHER
     GrColorType ct = dstColorInfo.colorType();
     if (SkPaintPriv::ShouldDither(skPaint, GrColorTypeToSkColorType(ct)) && paintFP != nullptr) {
@@ -444,6 +437,13 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
         paintFP = GrDitherEffect::Make(std::move(paintFP), ditherRange);
     }
 #endif
+
+    // When the xfermode is null on the SkPaint (meaning kSrcOver) we need the XPFactory field on
+    // the GrPaint to also be null (also kSrcOver).
+    SkASSERT(!grPaint->getXPFactory());
+    if (!skPaint.isSrcOver()) {
+        grPaint->setXPFactory(SkBlendMode_AsXPFactory(skPaint.getBlendMode()));
+    }
 
     if (GrColorTypeClampType(dstColorInfo.colorType()) == GrClampType::kManual) {
         if (paintFP != nullptr) {
