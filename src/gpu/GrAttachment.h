@@ -97,6 +97,6 @@ private:
     using INHERITED = GrSurface;
 };
 
-GR_MAKE_BITFIELD_CLASS_OPS(GrAttachment::UsageFlags);
+GR_MAKE_BITFIELD_CLASS_OPS(GrAttachment::UsageFlags)
 
 #endif

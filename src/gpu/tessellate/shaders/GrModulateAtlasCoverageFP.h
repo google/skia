@@ -47,6 +47,6 @@ private:
     const SkIRect fBounds;
 };
 
-GR_MAKE_BITFIELD_CLASS_OPS(GrModulateAtlasCoverageFP::Flags);
+GR_MAKE_BITFIELD_CLASS_OPS(GrModulateAtlasCoverageFP::Flags)
 
 #endif

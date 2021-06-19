@@ -90,7 +90,7 @@ private:
     SkTHashMap<AtlasPathKey, SkIPoint16> fAtlasPathCache;
 };
 
-GR_MAKE_BITFIELD_CLASS_OPS(GrTessellationPathRenderer::PathFlags);
+GR_MAKE_BITFIELD_CLASS_OPS(GrTessellationPathRenderer::PathFlags)
 
 #else // GR_OGA
 
@@ -107,7 +107,7 @@ public:
 
 };
 
-GR_MAKE_BITFIELD_CLASS_OPS(GrTessellationPathRenderer::PathFlags);
+GR_MAKE_BITFIELD_CLASS_OPS(GrTessellationPathRenderer::PathFlags)
 
 #endif // GR_OGA
 
