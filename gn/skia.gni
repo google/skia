@@ -13,7 +13,6 @@ declare_args() {
   skia_compile_processors = false
   skia_enable_api_available_macro = true
   skia_enable_android_utils = is_skia_dev_build
-  skia_enable_ccpr = true
   skia_enable_nga = false
   skia_enable_oga = true
   skia_enable_discrete_gpu = true
