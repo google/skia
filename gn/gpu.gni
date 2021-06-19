@@ -582,23 +582,6 @@ skia_gl_gpu_sources = [
   "$_src/gpu/gl/builders/GrGLShaderStringBuilder.h",
 ]
 
-skia_ccpr_sources = [
-  # coverage counting path renderer
-  "$_src/gpu/ccpr/GrCCAtlas.cpp",
-  "$_src/gpu/ccpr/GrCCAtlas.h",
-  "$_src/gpu/ccpr/GrCCClipPath.cpp",
-  "$_src/gpu/ccpr/GrCCClipPath.h",
-  "$_src/gpu/ccpr/GrCCClipProcessor.cpp",
-  "$_src/gpu/ccpr/GrCCClipProcessor.h",
-  "$_src/gpu/ccpr/GrCCPerFlushResources.cpp",
-  "$_src/gpu/ccpr/GrCCPerFlushResources.h",
-  "$_src/gpu/ccpr/GrCCPerOpsTaskPaths.h",
-  "$_src/gpu/ccpr/GrCoverageCountingPathRenderer.cpp",
-  "$_src/gpu/ccpr/GrCoverageCountingPathRenderer.h",
-]
-
-skia_gpu_sources += skia_ccpr_sources
-
 skia_null_gpu_sources = [ "$_src/gpu/gl/GrGLMakeNativeInterface_none.cpp" ]
 
 skia_nga_sources = [
