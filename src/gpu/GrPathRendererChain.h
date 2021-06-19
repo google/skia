@@ -15,6 +15,7 @@
 #include "include/private/SkNoncopyable.h"
 #include "include/private/SkTArray.h"
 
+class GrCoverageCountingPathRenderer;
 class GrTessellationPathRenderer;
 
 /**
@@ -47,6 +48,12 @@ public:
                                     DrawType drawType,
                                     GrPathRenderer::StencilSupport* stencilSupport);
 
+    /** Returns a direct pointer to the coverage counting path renderer, or null if it is not in the
+        chain. */
+    GrCoverageCountingPathRenderer* getCoverageCountingPathRenderer() {
+        return fCoverageCountingPathRenderer.get();
+    }
+
     /** Returns a direct pointer to the tessellation path renderer, or null if it is not in the
         chain. */
     GrTessellationPathRenderer* getTessellationPathRenderer() {
@@ -58,6 +65,7 @@ private:
         kPreAllocCount = 8,
     };
     SkSTArray<kPreAllocCount, sk_sp<GrPathRenderer>>    fChain;
+    std::unique_ptr<GrCoverageCountingPathRenderer>     fCoverageCountingPathRenderer;
     GrTessellationPathRenderer*                         fTessellationPathRenderer = nullptr;
 };
 

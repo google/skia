@@ -31,6 +31,7 @@
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrPersistentCacheUtils.h"
 #include "src/gpu/GrShaderUtils.h"
+#include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 #include "src/image/SkImage_Base.h"
 #include "src/sksl/SkSLCompiler.h"
@@ -342,6 +343,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     gPathRendererNames[GpuPathRenderers::kDefault] = "Default Path Renderers";
     gPathRendererNames[GpuPathRenderers::kTessellation] = "Tessellation";
     gPathRendererNames[GpuPathRenderers::kSmall] = "Small paths (cached sdf or alpha masks)";
+    gPathRendererNames[GpuPathRenderers::kCoverageCounting] = "CCPR";
     gPathRendererNames[GpuPathRenderers::kTriangulating] = "Triangulating";
     gPathRendererNames[GpuPathRenderers::kNone] = "Software masks";
 
@@ -1936,6 +1938,9 @@ void Viewer::drawImGui() {
                             }
                         }
                         if (1 == fWindow->sampleCount()) {
+                            if (GrCoverageCountingPathRenderer::IsSupported(ctx)) {
+                                prButton(GpuPathRenderers::kCoverageCounting);
+                            }
                             prButton(GpuPathRenderers::kSmall);
                         }
                         prButton(GpuPathRenderers::kTriangulating);
@@ -2767,6 +2772,10 @@ void Viewer::updateUIState() {
                     }
                 }
                 if (1 == fWindow->sampleCount()) {
+                    if(GrCoverageCountingPathRenderer::IsSupported(ctx)) {
+                        writer.appendString(
+                            gPathRendererNames[GpuPathRenderers::kCoverageCounting].c_str());
+                    }
                     writer.appendString(gPathRendererNames[GpuPathRenderers::kSmall].c_str());
                 }
                 writer.appendString(gPathRendererNames[GpuPathRenderers::kTriangulating].c_str());

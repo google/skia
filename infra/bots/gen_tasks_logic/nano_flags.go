@@ -259,7 +259,7 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 			"--dmsaaStatsDump")
 		// Don't collect stats on the skps generated from vector content. We want these to actually
 		// trigger dmsaa.
-		match = append(match, "~svg", "~chalkboard", "~motionmark")
+		match = append(match, "~svg", "~chalkboard", "~motionmark", "~ccpr")
 	}
 
 	// We do not need or want to benchmark the decodes of incomplete images.

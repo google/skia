@@ -45,11 +45,23 @@ private:
     SkISize onISize() override { return SkISize::Make(fStarSize * 2, fStarSize * 2); }
 
     void modifyGrContextOptions(GrContextOptions* ctxOptions) override {
+        ctxOptions->fGpuPathRenderers = GpuPathRenderers::kCoverageCounting;
         ctxOptions->fAllowPathMaskCaching = true;
     }
 
     DrawResult onDraw(GrRecordingContext* rContext, GrSurfaceDrawContext* rtc, SkCanvas* canvas,
                       SkString* errorMsg) override {
+        if (rtc->numSamples() > 1) {
+            errorMsg->set("ccpr is currently only used for coverage AA");
+            return DrawResult::kSkip;
+        }
+
+        auto* ccpr = rContext->priv().drawingManager()->getCoverageCountingPathRenderer();
+        if (!ccpr) {
+            errorMsg->set("ccpr only");
+            return DrawResult::kSkip;
+        }
+
         auto dContext = GrAsDirectContext(rContext);
         if (!dContext) {
             *errorMsg = "Requires a direct context.";

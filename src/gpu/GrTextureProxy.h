@@ -128,8 +128,8 @@ protected:
     // The basic knowledge version is used for DDL where we know the type of proxy we are going to
     // use, but we don't have access to the GPU yet to instantiate it.
     //
-    // The minimal knowledge version is used for when we are generating an atlas but we do not know
-    // the final size until we have finished adding to it.
+    // The minimal knowledge version is used for CCPR where we are generating an atlas but we do not
+    // know the final size until flush time.
     GrTextureProxy(LazyInstantiateCallback&&,
                    const GrBackendFormat&,
                    SkISize,

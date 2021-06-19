@@ -276,8 +276,9 @@ private:
     // the shared state once and then issue draws for each mesh.
     struct Draw {
         ~Draw();
-        // The geometry processor is always forced to be in an arena allocation. This object does
-        // not need to manage its lifetime.
+        // The geometry processor is always forced to be in an arena allocation or appears on
+        // the stack (for CCPR). In either case this object does not need to manage its
+        // lifetime.
         const GrGeometryProcessor* fGeometryProcessor = nullptr;
         // Must have GrGeometryProcessor::numTextureSamplers() entries. Can be null if no samplers.
         const GrSurfaceProxy* const* fGeomProcProxies = nullptr;
