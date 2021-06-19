@@ -44,6 +44,14 @@ public:
     static SkFlattenable::Type GetFlattenableType() { return kSkBlender_Type; }
     Type getFlattenableType() const override { return GetFlattenableType(); }
 
+    virtual bool asMode(SkBlendMode* mode) const { return false; }
+    virtual bool asCoeff(SkBlendModeCoeff* src, SkBlendModeCoeff* dst) { return false; }
+
+    // Factories to make "common" blenders
+
+    static sk_sp<SkBlender> Mode(SkBlendMode);
+    static sk_sp<SkBlender> Coeff(SkBlendModeCoeff src, SkBlendModeCoeff dst);
+
 private:
     virtual skvm::Color onProgram(skvm::Builder* p, skvm::Color src, skvm::Color dst,
                                   const SkColorInfo& colorInfo, skvm::Uniforms* uniforms,
