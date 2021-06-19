@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2d3abefb_0c06ce3c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-19T15:14:20Z",
+      "side": 1,
+      "message": "FYI: I suspect that the shuffling of includes induced by https://skia-review.googlesource.com/c/skia/+/419857 is what caused the Chrome failure in the first place. I just reverted that CL because it also broke the Android roll (for other reasons). Regardless, we should land this to clean up all of these stray semicolons.",
+      "revId": "414100d2aeb2609c0e2a83def5510cdd136a7ff2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
