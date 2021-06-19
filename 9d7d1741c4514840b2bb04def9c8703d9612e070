@@ -46,6 +46,30 @@
       },
       "revId": "9d7d1741c4514840b2bb04def9c8703d9612e070",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9fee4e41_93f42dd7",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-19T17:10:24Z",
+      "side": 1,
+      "message": "On more thought, I bet this is fine either way.\n\nIf we do go with the src-of-truth model, it must means that we could then/still serialize an enum (and not an object) for blenders that \u0027claim\u0027 to be \u003d\u003d\u003d to an enum, thus not what we serialize (today).\n\nWe would have to check this getBlender() call, but only at the same time that we\u0027ve added blender-\u003easMode().\n\nIf this CL allows more gm testing, lets land it as is.",
+      "parentUuid": "00b0f731_b54f3c2d",
+      "range": {
+        "startLine": 281,
+        "startChar": 14,
+        "endLine": 281,
+        "endChar": 24
+      },
+      "revId": "9d7d1741c4514840b2bb04def9c8703d9612e070",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
