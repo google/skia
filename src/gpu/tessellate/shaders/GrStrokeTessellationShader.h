@@ -213,7 +213,7 @@ private:
     class InstancedImpl;
 };
 
-GR_MAKE_BITFIELD_CLASS_OPS(GrStrokeTessellationShader::ShaderFlags);
+GR_MAKE_BITFIELD_CLASS_OPS(GrStrokeTessellationShader::ShaderFlags)
 
 // This common base class emits shader code for our parametric/radial stroke tessellation algorithm
 // described above. The subclass emits its own specific setup code before calling into

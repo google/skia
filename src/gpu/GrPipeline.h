@@ -238,8 +238,8 @@ private:
     GrSwizzle fWriteSwizzle;
 };
 
-GR_MAKE_BITFIELD_CLASS_OPS(GrPipeline::InputFlags);
-GR_MAKE_BITFIELD_CLASS_OPS(GrPipeline::Flags);
+GR_MAKE_BITFIELD_CLASS_OPS(GrPipeline::InputFlags)
+GR_MAKE_BITFIELD_CLASS_OPS(GrPipeline::Flags)
 
 inline bool operator&(GrPipeline::Flags flags, GrPipeline::InputFlags inputFlag) {
     return (flags & (GrPipeline::Flags)inputFlag);

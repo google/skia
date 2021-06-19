@@ -198,7 +198,7 @@ private:
     using INHERITED = GrVkManagedResource;
 };
 
-GR_MAKE_BITFIELD_OPS(GrVkRenderPass::AttachmentFlags);
-GR_MAKE_BITFIELD_CLASS_OPS(GrVkRenderPass::SelfDependencyFlags);
+GR_MAKE_BITFIELD_OPS(GrVkRenderPass::AttachmentFlags)
+GR_MAKE_BITFIELD_CLASS_OPS(GrVkRenderPass::SelfDependencyFlags)
 
 #endif
