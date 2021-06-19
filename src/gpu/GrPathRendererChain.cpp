@@ -15,6 +15,7 @@
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
 #include "src/gpu/geometry/GrStyledShape.h"
 #include "src/gpu/ops/GrAAConvexPathRenderer.h"
 #include "src/gpu/ops/GrAAHairLinePathRenderer.h"
@@ -32,6 +33,14 @@ GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Opti
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kAAConvex) {
         fChain.push_back(sk_make_sp<GrAAConvexPathRenderer>());
+    }
+    if (options.fGpuPathRenderers & GpuPathRenderers::kCoverageCounting) {
+        fCoverageCountingPathRenderer = GrCoverageCountingPathRenderer::CreateIfSupported(context);
+        if (fCoverageCountingPathRenderer) {
+            // Don't add to the chain. This is only for clips.
+            // TODO: Remove from here.
+            context->priv().addOnFlushCallbackObject(fCoverageCountingPathRenderer.get());
+        }
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kAAHairline) {
         fChain.push_back(sk_make_sp<GrAAHairLinePathRenderer>());

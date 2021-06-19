@@ -909,6 +909,11 @@ optional("gpu") {
 
   sources =
       skia_gpu_sources + skia_sksl_gpu_sources + skia_gpu_processor_outputs
+  if (!skia_enable_ccpr) {
+    sources -= skia_ccpr_sources
+    sources += [ "src/gpu/ccpr/GrCoverageCountingPathRenderer_none.cpp" ]
+  }
+
   if (skia_enable_nga) {
     sources += skia_nga_sources
   }

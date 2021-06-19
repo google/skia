@@ -1104,7 +1104,7 @@ void GrClipStack::SaveRecord::replaceWithElement(RawElement&& toAdd, RawElement:
 // of the draws, with extra head room for more complex clips encountered in the wild.
 //
 // The mask stack increment size was chosen to be smaller since only 0.2% of the evaluated draw call
-// set ever used a mask (which includes stencil masks), or up to 0.3% when the atlas is disabled.
+// set ever used a mask (which includes stencil masks), or up to 0.3% when CCPR is disabled.
 static constexpr int kElementStackIncrement = 8;
 static constexpr int kSaveStackIncrement = 8;
 static constexpr int kMaskStackIncrement = 4;
@@ -1453,7 +1453,7 @@ GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrSurfaceDrawCont
     }
 
     if (clipFP) {
-        // This will include all analytic FPs, all atlas FPs, and a SW mask FP.
+        // This will include all analytic FPs, all CCPR atlas FPs, and a SW mask FP.
         out->addCoverageFP(std::move(clipFP));
     }
 

@@ -27,6 +27,7 @@
 #define GR_PATH_RENDERER_SPEW 0
 
 class GrArenas;
+class GrCoverageCountingPathRenderer;
 class GrGpuBuffer;
 class GrOnFlushCallbackObject;
 class GrOpFlushState;
@@ -112,6 +113,10 @@ public:
                                     GrPathRenderer::StencilSupport* stencilSupport = nullptr);
 
     GrPathRenderer* getSoftwarePathRenderer();
+
+    // Returns a direct pointer to the coverage counting path renderer, or null if it is not
+    // supported and turned on.
+    GrCoverageCountingPathRenderer* getCoverageCountingPathRenderer();
 
     // Returns a direct pointer to the tessellation path renderer, or null if it is not supported
     // and turned on.

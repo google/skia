@@ -30,8 +30,8 @@ static DEFINE_bool(alwaysHwTess, false,
 
 static DEFINE_string(pr, "",
               "Set of enabled gpu path renderers. Defined as a list of: "
-              "[~]none [~]dashline [~]aahairline [~]aaconvex [~]aalinearizing [~]small [~]tri "
-              "[~]tess [~]all");
+              "[~]none [~]dashline [~]ccpr [~]aahairline [~]aaconvex [~]aalinearizing "
+              "[~]small [~]tri [~]tess [~]all");
 
 static DEFINE_int(internalSamples, 4, "Number of samples for internal draws that use MSAA.");
 
@@ -52,6 +52,8 @@ static GpuPathRenderers get_named_pathrenderers_flags(const char* name) {
         return GpuPathRenderers::kNone;
     } else if (!strcmp(name, "dashline")) {
         return GpuPathRenderers::kDashLine;
+    } else if (!strcmp(name, "ccpr")) {
+        return GpuPathRenderers::kCoverageCounting;
     } else if (!strcmp(name, "aahairline")) {
         return GpuPathRenderers::kAAHairline;
     } else if (!strcmp(name, "aaconvex")) {

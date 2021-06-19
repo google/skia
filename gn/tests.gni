@@ -426,6 +426,7 @@ pathops_tests_sources = [
 ]
 
 oga_tests_sources = [
+  "$_tests/GrCCPRTest.cpp",
   "$_tests/GrClipStackTest.cpp",
   "$_tests/PathRendererCacheTests.cpp",
 ]

@@ -36,7 +36,7 @@ static const char* verb_type_name(VerbType verbType) {
 /**
  * This sample visualizes simple strokes.
  */
-class StrokeVerbView : public Sample {
+class CCPRGeometryView : public Sample {
     void onOnceBeforeDraw() override { this->updatePath(); }
     void onDrawContent(SkCanvas*) override;
 
@@ -64,7 +64,7 @@ class StrokeVerbView : public Sample {
     SkPath fPath;
 };
 
-void StrokeVerbView::onDrawContent(SkCanvas* canvas) {
+void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
     canvas->clear(SK_ColorBLACK);
 
     SkPaint outlinePaint;
@@ -104,7 +104,7 @@ void StrokeVerbView::onDrawContent(SkCanvas* canvas) {
     canvas->drawString(caption, 10, 30, font, captionPaint);
 }
 
-void StrokeVerbView::updatePath() {
+void CCPRGeometryView::updatePath() {
     fPath.reset();
     fPath.moveTo(fPoints[0]);
     switch (fVerbType) {
@@ -125,7 +125,7 @@ void StrokeVerbView::updatePath() {
     }
 }
 
-class StrokeVerbView::Click : public Sample::Click {
+class CCPRGeometryView::Click : public Sample::Click {
 public:
     Click(int ptIdx) : fPtIdx(ptIdx) {}
 
@@ -143,7 +143,7 @@ private:
     int fPtIdx;
 };
 
-Sample::Click* StrokeVerbView::onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey) {
+Sample::Click* CCPRGeometryView::onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey) {
     for (int i = 0; i < 4; ++i) {
         if (VerbType::kCubics != fVerbType && 2 == i) {
             continue;
@@ -155,14 +155,14 @@ Sample::Click* StrokeVerbView::onFindClickHandler(SkScalar x, SkScalar y, skui::
     return new Click(-1);
 }
 
-bool StrokeVerbView::onClick(Sample::Click* click) {
+bool CCPRGeometryView::onClick(Sample::Click* click) {
     Click* myClick = (Click*)click;
     myClick->doClick(fPoints);
     this->updateAndInval();
     return true;
 }
 
-bool StrokeVerbView::onChar(SkUnichar unichar) {
+bool CCPRGeometryView::onChar(SkUnichar unichar) {
         if (unichar >= '1' && unichar <= '4') {
             fVerbType = VerbType(unichar - '1');
             this->updateAndInval();
@@ -218,6 +218,6 @@ bool StrokeVerbView::onChar(SkUnichar unichar) {
         return false;
 }
 
-DEF_SAMPLE(return new StrokeVerbView;)
+DEF_SAMPLE(return new CCPRGeometryView;)
 
 #endif  // SK_SUPPORT_GPU

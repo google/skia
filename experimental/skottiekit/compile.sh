@@ -163,6 +163,7 @@ echo "Compiling bitcode"
   ${GN_GPU} \
   \
   skia_enable_skshaper=true \
+  skia_enable_ccpr=false \
   skia_enable_nga=false \
   skia_enable_pdf=false"
 

@@ -401,7 +401,7 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
     this->initShaderCaps(properties, features);
 
     if (kQualcomm_VkVendor == properties.vendorID) {
-        // A "clear" load for atlases runs faster on QC than a "discard" load followed by a
+        // A "clear" load for the CCPR atlas runs faster on QC than a "discard" load followed by a
         // scissored clear.
         // On NVIDIA and Intel, the discard load followed by clear is faster.
         // TODO: Evaluate on ARM, Imagination, and ATI.

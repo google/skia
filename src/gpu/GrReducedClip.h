@@ -13,6 +13,7 @@
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrWindowRectangles.h"
 
+class GrCoverageCountingPathRenderer;
 class GrRecordingContext;
 class GrSurfaceDrawContext;
 
@@ -26,7 +27,8 @@ public:
     using ElementList = SkTLList<SkClipStack::Element, 16>;
 
     GrReducedClip(const SkClipStack&, const SkRect& queryBounds, const GrCaps* caps,
-                  int maxWindowRectangles = 0, int maxAnalyticElements = 0);
+                  int maxWindowRectangles = 0, int maxAnalyticElements = 0,
+                  int maxCCPRClipPaths = 0);
 
     enum class InitialState : bool {
         kAllIn,
@@ -103,7 +105,8 @@ public:
      * may cause flushes or otherwise change which opsTask the actual draw is going into.
      */
     GrFPResult finishAndDetachAnalyticElements(GrRecordingContext*, const SkMatrixProvider&
-                                               matrixProvider, uint32_t opsTaskID);
+                                               matrixProvider, GrCoverageCountingPathRenderer*,
+                                               uint32_t opsTaskID);
 
 private:
     void walkStack(const SkClipStack&, const SkRect& queryBounds);
@@ -139,6 +142,7 @@ private:
     const GrCaps* fCaps;
     const int fMaxWindowRectangles;
     const int fMaxAnalyticElements;
+    const int fMaxCCPRClipPaths;
 
     InitialState fInitialState;
     SkIRect fScissor;
@@ -152,6 +156,7 @@ private:
     bool fMaskRequiresAA = false;
     std::unique_ptr<GrFragmentProcessor> fAnalyticFP;
     int fNumAnalyticElements = 0;
+    SkSTArray<4, SkPath> fCCPRClipPaths; // Converted to FPs once we have an opsTask ID for CCPR.
     // Will be the combination of all kShader elements or null if there's no clip shader.
     // Does not count against the analytic FP limit.
     sk_sp<SkShader> fShader;
