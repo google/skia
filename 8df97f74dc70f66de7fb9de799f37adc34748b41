@@ -1,0 +1,205 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "79ed204e_7924d846",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-19T18:25:00Z",
+      "side": 1,
+      "message": "Sorry I didn\u0027t see this yesterday! For some reason I missed your message and didn\u0027t get an email notification. I tried to think of every possible issue below...",
+      "revId": "8df97f74dc70f66de7fb9de799f37adc34748b41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9584567d_28e420b7",
+        "filename": "src/gpu/GrCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-19T18:25:00Z",
+      "side": 1,
+      "message": "Mega nit: WDYT about \"fMSAAResolvesAutomatically\"? I just got confused by the \"this-\u003e\" on GrCaps.. Totally not important.",
+      "range": {
+        "startLine": 445,
+        "startChar": 54,
+        "endLine": 445,
+        "endChar": 87
+      },
+      "revId": "8df97f74dc70f66de7fb9de799f37adc34748b41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "927f2e6f_6bd632d3",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1941,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-19T18:25:00Z",
+      "side": 1,
+      "message": "opNeedsDMSAAAttachment?\nopRequiresDMSAAAttachment?\n\n\"Uses\" might be confusing because non-msaa ops might also end up using a DMSAA attachcment.",
+      "range": {
+        "startLine": 1941,
+        "startChar": 9,
+        "endLine": 1941,
+        "endChar": 30
+      },
+      "revId": "8df97f74dc70f66de7fb9de799f37adc34748b41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fadae0a3_42a5e449",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1949,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-19T18:25:00Z",
+      "side": 1,
+      "message": "SkASSERT(!this-\u003egetOpsTask()-\u003eisNoOp()) before replacing?",
+      "range": {
+        "startLine": 1949,
+        "startChar": 12,
+        "endLine": 1949,
+        "endChar": 16
+      },
+      "revId": "8df97f74dc70f66de7fb9de799f37adc34748b41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "017b0e19_cd95806a",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1994,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-19T18:25:00Z",
+      "side": 1,
+      "message": "opRequiresMSAA?",
+      "range": {
+        "startLine": 1994,
+        "startChar": 50,
+        "endLine": 1994,
+        "endChar": 62
+      },
+      "revId": "8df97f74dc70f66de7fb9de799f37adc34748b41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9af2ca53_289152b9",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2013,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-19T18:25:00Z",
+      "side": 1,
+      "message": "\"false /*opRequiresMSAA*/\"? (Just for clarity?)",
+      "range": {
+        "startLine": 2013,
+        "startChar": 85,
+        "endLine": 2013,
+        "endChar": 97
+      },
+      "revId": "8df97f74dc70f66de7fb9de799f37adc34748b41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "191eef75_d28b3fcb",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2034,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-19T18:25:00Z",
+      "side": 1,
+      "message": "I think this will break the msaa_render_to_texture, no-texture-barrier-support case, and also the non-texture-target case.\n\nMaybe we should create a new function:\n\n bool sdc::rendersMSAAInSeparateDMSAASurface() {\n     // Comment about vk input attachments.\n     return fCanUseDynamicMSAA \u0026\u0026\n            (!this-\u003ecaps()-\u003emsaaResolvesAutomatically() ||\n             !this-\u003easTextureProxy());\n }\n \nThen here looks like:\n\n  if (opRequiresMSAA \u0026\u0026\n      op-\u003easTextureProxy() \u0026\u0026\n      this-\u003erendersMSAAInSeparateDMSAASurface()) {",
+      "range": {
+        "startLine": 2034,
+        "startChar": 9,
+        "endLine": 2034,
+        "endChar": 42
+      },
+      "revId": "8df97f74dc70f66de7fb9de799f37adc34748b41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3d531804_10c95796",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2035,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-19T18:25:00Z",
+      "side": 1,
+      "message": "We also still want to call \"setCannotMergeBackward\" even if it\u0027s a NoOp. What about:\n\n  this-\u003ereplaceOpsTaskIfModifiesColor()-\u003esetCannotMergeBackward();\n\n\nAlso, \"isNoOp\" is scary because it doesn\u0027t look at stencil... But I guess that doesn\u0027t matter here because we\u0027re only concerned about the color contents for dst reads?? (And anything with stencil goes to DMSAA anyway.)\n\nCan it be called \"isColorNoOp\"?",
+      "range": {
+        "startLine": 2035,
+        "startChar": 33,
+        "endLine": 2035,
+        "endChar": 39
+      },
+      "revId": "8df97f74dc70f66de7fb9de799f37adc34748b41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f27d7d30_615f5f35",
+        "filename": "src/gpu/GrSurfaceDrawContext.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 717,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-19T18:25:00Z",
+      "side": 1,
+      "message": "I would say \"opRequiresMSAA\"?\n\n\"drawUsesMSAA\" seems like it means \"opUsesMSAA || opsTask-\u003eusesMSAASurface()\"",
+      "range": {
+        "startLine": 717,
+        "startChar": 54,
+        "endLine": 717,
+        "endChar": 66
+      },
+      "revId": "8df97f74dc70f66de7fb9de799f37adc34748b41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
