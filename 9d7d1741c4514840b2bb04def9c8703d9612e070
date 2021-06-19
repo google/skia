@@ -22,6 +22,30 @@
       },
       "revId": "9d7d1741c4514840b2bb04def9c8703d9612e070",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "00b0f731_b54f3c2d",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-19T01:05:30Z",
+      "side": 1,
+      "message": "For sure--that\u0027s a good point. If we change the API model so that `getBlender` always returns a SkBlender*, even for basic blends, this code as-written will not do quite what we want and will write out every SkPaint with the effects-bit set. I can add a TODO here to call out that point, or I could write a test that verifies that \"simple\" SkPaints flatten into the smaller format. That would keep us honest (and would be a useful test for each of the effect fields, actually?). \n\nEither way I plan on manually reviewing all the call sites to `getBlender` if/when we do change its semantics. Many of them would suffer from similar subtle changes in meaning (where we\u0027d treat boring blends as if they were custom).\n\nIdea I just had--I can add a call `SkPaint::experimental_usesBlender()` and use that instead of `paint.getBlender` in places where what we really mean is \"does this paint use a custom blend?\" It\u0027s a band-aid until we finalize things, but it\u0027s a one-liner, and it\u0027ll be super easy to search-and-replace that name if we end up revamping the API. What do you think?",
+      "parentUuid": "6b321864_f813310f",
+      "range": {
+        "startLine": 281,
+        "startChar": 14,
+        "endLine": 281,
+        "endChar": 24
+      },
+      "revId": "9d7d1741c4514840b2bb04def9c8703d9612e070",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
