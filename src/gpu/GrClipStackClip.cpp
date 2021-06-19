@@ -132,10 +132,9 @@ GrClip::Effect GrClipStackClip::apply(GrRecordingContext* context,
         // We disable MSAA when stencil isn't supported.
         SkASSERT(surfaceDrawContext->asRenderTargetProxy()->canUseStencil(*context->priv().caps()));
     }
-    auto* ccpr = context->priv().drawingManager()->getCoverageCountingPathRenderer();
 
     GrReducedClip reducedClip(*fStack, devBounds, context->priv().caps(), maxWindowRectangles,
-                              maxAnalyticElements, ccpr ? maxAnalyticElements : 0);
+                              maxAnalyticElements);
     if (InitialState::kAllOut == reducedClip.initialState() &&
         reducedClip.maskElements().isEmpty()) {
         return Effect::kClippedOut;
@@ -164,7 +163,7 @@ GrClip::Effect GrClipStackClip::apply(GrRecordingContext* context,
     // can cause a flush or otherwise change which opstask our draw is going into.
     uint32_t opsTaskID = surfaceDrawContext->getOpsTask()->uniqueID();
     auto [success, clipFPs] = reducedClip.finishAndDetachAnalyticElements(context, *fMatrixProvider,
-                                                                          ccpr, opsTaskID);
+                                                                          opsTaskID);
     if (success) {
         out->addCoverageFP(std::move(clipFPs));
         effect = Effect::kClipped;

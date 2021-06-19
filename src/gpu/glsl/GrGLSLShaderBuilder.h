@@ -280,7 +280,6 @@ protected:
     // Counter for generating unique scratch variable names in a shader.
     int fTmpVariableCounter;
 
-    friend class GrCCCoverageProcessor; // to access code().
     friend class GrGLSLProgramBuilder;
     friend class GrGLProgramBuilder;
     friend class GrD3DPipelineStateBuilder;
