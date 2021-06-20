@@ -576,6 +576,9 @@ luci.cq_group(
             builder = "skia:skia.primary/Build-Debian10-GCC-x86_64-Release-Docker",
         ),
         luci.cq_tryjob_verifier(
+            builder = "skia:skia.primary/Build-Mac-Clang-arm64-Debug-iOS",
+        ),
+        luci.cq_tryjob_verifier(
             builder = "skia:skia.primary/Build-Mac-Clang-x86_64-Release",
         ),
         luci.cq_tryjob_verifier(
