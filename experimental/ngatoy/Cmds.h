@@ -131,6 +131,13 @@ public:
 
     SortKey getKey() override;
 
+    PaintersOrder getPaintersOrderWhenPopped() const {
+        SkASSERT(fPaintersOrderWhenPopped.isValid());
+        return fPaintersOrderWhenPopped;
+    }
+
+    void onAboutToBePopped(PaintersOrder paintersOrderWhenPopped);
+
     void execute(FakeCanvas*) const override;
     void execute(SkCanvas*) const override;
     void rasterize(uint32_t zBuffer[256][256], SkBitmap* dstBM) const override;
@@ -146,6 +153,7 @@ protected:
 private:
     SkIRect       fRect;
     PaintersOrder fPaintersOrderWhenAdded;
+    PaintersOrder fPaintersOrderWhenPopped;
 };
 
 //------------------------------------------------------------------------------------------------
