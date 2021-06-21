@@ -36,6 +36,23 @@ public class ImageFilter {
         return new ImageFilter(nDistantLitDiffuse(x, y, z, c.r(), c.g(), c.b(),
                                                   surfaceScale, kd, nativeInput));
     }
+
+    /**
+     *  Create a filter that calculates the diffuse illumination from a distant light source,
+     *  interpreting the alpha channel of the input as the height profile of the surface (to
+     *  approximate normal vectors).
+     *  @param sigmaX   The Gaussian sigma value for blurring along the X axis.
+     *  @param sigmaY   The Gaussian sigma value for blurring along the Y axis.
+     *  @param tileMode The tile mode applied at edges
+     *  @param input    The input filter that is blurred, uses source bitmap if this is null.
+     */
+    public static ImageFilter blur(float sigmaX, float sigmaY, TileMode tileMode, @Nullable ImageFilter input) {
+        long nativeInput = 0;
+        if (input != null) {
+            nativeInput = input.getNativeInstance();
+        }
+        return new ImageFilter(nBlur(sigmaX, sigmaY, tileMode.nativeInt, nativeInput));
+    }
     /**
      * Releases any resources associated with this Shader.
      */
@@ -57,4 +74,5 @@ public class ImageFilter {
                                                   float r, float g, float b,
                                                   float surfaceScale, float kd,
                                                   long native_input);
+    private static native long nBlur(float sigmaX, float sigmaY, int tileMode, long native_input);
 }

@@ -56,7 +56,7 @@ public class Image {
     public Shader makeShader(TileMode tmx, TileMode tmy, SamplingOptions sampling,
                              @Nullable Matrix localMatrix) {
         long nativeMatrix = localMatrix != null ? localMatrix.getNativeInstance() : 0;
-        return new Shader(nMakeShader(mNativeInstance, tmx.ordinal(), tmy.ordinal(),
+        return new Shader(nMakeShader(mNativeInstance, tmx.nativeInt, tmy.nativeInt,
                                       sampling.getNativeDesc(),
                                       sampling.getCubicCoeffB(), sampling.getCubicCoeffC(),
                                       nativeMatrix));
