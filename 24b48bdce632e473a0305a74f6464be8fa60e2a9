@@ -86,6 +86,30 @@
       },
       "revId": "24b48bdce632e473a0305a74f6464be8fa60e2a9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ec106840_6d0cf0c3",
+        "filename": "src/core/SkVM.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 929,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-21T21:04:16Z",
+      "side": 1,
+      "message": "Oh, this parallels `allImm`. I see it now.",
+      "parentUuid": "019829a3_bd3b48fe",
+      "range": {
+        "startLine": 929,
+        "startChar": 13,
+        "endLine": 929,
+        "endChar": 23
+      },
+      "revId": "24b48bdce632e473a0305a74f6464be8fa60e2a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
