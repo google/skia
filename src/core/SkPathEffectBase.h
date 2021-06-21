@@ -90,7 +90,9 @@ public:
                                   kSkPathEffect_Type, data, size, procs).release()));
     }
 
-    virtual bool onFilterPath(SkPath*, const SkPath&, SkStrokeRec*, const SkRect*) const = 0;
+    virtual bool onFilterPath(SkPath*, const SkPath&, SkStrokeRec*, const SkRect*) const {
+        return false;
+    }
     virtual bool onAsPoints(PointData*, const SkPath&, const SkStrokeRec&, const SkMatrix&,
                             const SkRect*) const {
         return false;
@@ -108,6 +110,15 @@ public:
     virtual bool computeFastBounds(SkRect* bounds) const = 0;
 
     static void RegisterFlattenables();
+
+    /*
+     *  EXPERIMENTAL -- provide the CTM as an FYI
+     */
+    virtual bool onFilterPath2(SkPath* dst, const SkPath& src,
+                                            SkStrokeRec* rec, const SkRect* cullR,
+                                            const SkMatrix& /* ctm */) const {
+        return this->onFilterPath(dst, src, rec, cullR);
+    }
 
 private:
     using INHERITED = SkPathEffect;

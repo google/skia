@@ -365,7 +365,8 @@ bool SkPaint::getFillPath(const SkPath& src, SkPath* dst, const SkRect* cullRect
     const SkPath* srcPtr = &src;
     SkPath tmpPath;
 
-    if (fPathEffect && fPathEffect->filterPath(&tmpPath, src, &rec, cullRect)) {
+    if (fPathEffect && fPathEffect->filterPath2(&tmpPath, src, &rec, cullRect,
+                                                SkMatrix::Scale(resScale, resScale))) {
         srcPtr = &tmpPath;
     }
 
