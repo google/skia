@@ -158,6 +158,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "887db8f5_d57523da",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2034,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-21T19:29:09Z",
+      "side": 1,
+      "message": "Sorry are you referring to a single case that is both msaa_render_to_texture and no barrier support? If we are in that case we have to break up the render pass right? Won\u0027t this do that or am I missing something?",
+      "parentUuid": "191eef75_d28b3fcb",
+      "range": {
+        "startLine": 2034,
+        "startChar": 9,
+        "endLine": 2034,
+        "endChar": 42
+      },
+      "revId": "8df97f74dc70f66de7fb9de799f37adc34748b41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "3d531804_10c95796",
         "filename": "src/gpu/GrSurfaceDrawContext.cpp",
         "patchSetId": 4
@@ -169,6 +193,30 @@
       "writtenOn": "2021-06-19T18:25:00Z",
       "side": 1,
       "message": "We also still want to call \"setCannotMergeBackward\" even if it\u0027s a NoOp. What about:\n\n  this-\u003ereplaceOpsTaskIfModifiesColor()-\u003esetCannotMergeBackward();\n\n\nAlso, \"isNoOp\" is scary because it doesn\u0027t look at stencil... But I guess that doesn\u0027t matter here because we\u0027re only concerned about the color contents for dst reads?? (And anything with stencil goes to DMSAA anyway.)\n\nCan it be called \"isColorNoOp\"?",
+      "range": {
+        "startLine": 2035,
+        "startChar": 33,
+        "endLine": 2035,
+        "endChar": 39
+      },
+      "revId": "8df97f74dc70f66de7fb9de799f37adc34748b41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5b088034_b1ad2c8c",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2035,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-21T19:29:09Z",
+      "side": 1,
+      "message": "Is this suggestion to remove this whole if statement and instead always call this-\u003ereplaceOpsTaskIfModifiesColor()-\u003esetCannotMergeBackward();?\n\nThen this no-op check goes into replaceOpsTaskIfModifiesColor which either returns a new ops task or the current one (if a color no op).\n\nThat sounds good, just want to clarify to be sure I\u0027m understanding correctly.",
+      "parentUuid": "3d531804_10c95796",
       "range": {
         "startLine": 2035,
         "startChar": 33,
