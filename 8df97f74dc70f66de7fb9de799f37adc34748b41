@@ -182,6 +182,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "48257e16_3e229478",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2034,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-21T21:57:35Z",
+      "side": 1,
+      "message": "I agree that this will break up the render pass in the case that is both msaa_render_to_texture and no barrier support. But I think the problem is that we might STILL need a barrier before sampling that texture, even though we broke up the render pass. We\u0027re still reading from and writing to the same texture after all, and in GL there isn\u0027t a notion of render passes, so I don\u0027t know how else the driver would know it needs to flush that texture so we can sample it.\n\nEither way though we definitely need to check whether we are a texture proxy before taking this branch.",
+      "parentUuid": "887db8f5_d57523da",
+      "range": {
+        "startLine": 2034,
+        "startChar": 9,
+        "endLine": 2034,
+        "endChar": 42
+      },
+      "revId": "8df97f74dc70f66de7fb9de799f37adc34748b41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "3d531804_10c95796",
         "filename": "src/gpu/GrSurfaceDrawContext.cpp",
         "patchSetId": 4
@@ -217,6 +241,30 @@
       "side": 1,
       "message": "Is this suggestion to remove this whole if statement and instead always call this-\u003ereplaceOpsTaskIfModifiesColor()-\u003esetCannotMergeBackward();?\n\nThen this no-op check goes into replaceOpsTaskIfModifiesColor which either returns a new ops task or the current one (if a color no op).\n\nThat sounds good, just want to clarify to be sure I\u0027m understanding correctly.",
       "parentUuid": "3d531804_10c95796",
+      "range": {
+        "startLine": 2035,
+        "startChar": 33,
+        "endLine": 2035,
+        "endChar": 39
+      },
+      "revId": "8df97f74dc70f66de7fb9de799f37adc34748b41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a0b13a48_3baa36d6",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2035,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-21T21:57:35Z",
+      "side": 1,
+      "message": "Yes, what you described is what I was suggesting. I\u0027m really not picky though as long as we make sure to call setCannotMergeBackward.",
+      "parentUuid": "5b088034_b1ad2c8c",
       "range": {
         "startLine": 2035,
         "startChar": 33,
