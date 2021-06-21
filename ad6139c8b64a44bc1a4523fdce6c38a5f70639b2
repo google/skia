@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6a55c28e_26397722",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-21T16:55:19Z",
+      "side": 1,
+      "message": "Thoughts? We can\u0027t check the FP itself, because the input FP might not support the optimization, so we will have masked off the flag. This is really just checking that the runtime effect is able to do the optimization (which means the FP will, *if all children do as well*).",
+      "revId": "ad6139c8b64a44bc1a4523fdce6c38a5f70639b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
