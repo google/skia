@@ -473,10 +473,23 @@ std::unique_ptr<SkFilterColorProgram> SkFilterColorProgram::Make(const SkRuntime
         return nullptr;
     }
 
-    // When we run this program later, these uniform values are replaced with either the results of
-    // the child (using the SampleCall), or the input color (if the child is nullptr).
-    // These Uniform ids are loads from the *first* arg ptr.
     skvm::Builder p;
+
+    // For SkSL uniforms, we reserve space and allocate skvm Uniform ids for each one. When we run
+    // the program, these ids will be loads from the *first* arg ptr, the uniform data of the
+    // specific color filter instance.
+    skvm::Uniforms skslUniforms{p.uniform(), 0};
+    const size_t uniformCount = effect->uniformSize() / 4;
+    std::vector<skvm::Val> uniform;
+    uniform.reserve(uniformCount);
+    for (size_t i = 0; i < uniformCount; i++) {
+        uniform.push_back(p.uniform32(skslUniforms.push(/*placeholder*/ 0)).id);
+    }
+
+    // We reserve a uniform color for each call to sample(). While processing the SkSL, we record
+    // the index of the child being sampled, and the color being filtered (in a SampleCall struct).
+    // When we run this program later, we use the SampleCall to evaluate the correct child, and
+    // populate these uniform values. These Uniform ids are loads from the *second* arg ptr.
     skvm::Uniforms childColorUniforms{p.uniform(), 0};
     skvm::Color inputColor = p.uniformColor(/*placeholder*/ SkColors::kWhite, &childColorUniforms);
     std::vector<SkFilterColorProgram::SampleCall> sampleCalls;
@@ -509,17 +522,6 @@ std::unique_ptr<SkFilterColorProgram> SkFilterColorProgram::Make(const SkRuntime
         childColors.push_back(result);
         return result;
     };
-
-    // For SkSL uniforms, we reserve space and allocate skvm Uniform ids for each one. When we run
-    // the program, these ids will be loads from the *second* arg ptr, the uniform data of the
-    // specific color filter instance.
-    skvm::Uniforms skslUniforms{p.uniform(), 0};
-    const size_t uniformCount = effect->uniformSize() / 4;
-    std::vector<skvm::Val> uniform;
-    uniform.reserve(uniformCount);
-    for (size_t i = 0; i < uniformCount; i++) {
-        uniform.push_back(p.uniform32(skslUniforms.push(/*placeholder*/ 0)).id);
-    }
 
     // Emit the skvm instructions for the SkSL
     skvm::Coord zeroCoord = {p.splat(0.0f), p.splat(0.0f)};
@@ -579,7 +581,7 @@ SkPMColor4f SkFilterColorProgram::eval(
     }
 
     SkPMColor4f result;
-    fProgram.eval(1, childColors.begin(), uniformData, result.vec());
+    fProgram.eval(1, uniformData, childColors.begin(), result.vec());
     return result;
 }
 
