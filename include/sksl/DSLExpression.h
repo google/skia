@@ -113,6 +113,11 @@ public:
 
     DSLPossibleExpression operator()(SkTArray<DSLWrapper<DSLExpression>> args);
 
+    bool valid() const {
+        // NOLINTNEXTLINE(readability-redundant-smartptr-get)
+        return fExpression.get() != nullptr;
+    }
+
     /**
      * Invalidates this object and returns the SkSL expression it represents.
      */
@@ -196,6 +201,11 @@ public:
     DSLPossibleExpression(DSLPossibleExpression&& other);
 
     ~DSLPossibleExpression();
+
+    bool valid() const {
+        // NOLINTNEXTLINE(readability-redundant-smartptr-get)
+        return fExpression.get() != nullptr;
+    }
 
     DSLType type();
 

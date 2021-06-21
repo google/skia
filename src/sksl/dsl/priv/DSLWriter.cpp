@@ -19,6 +19,7 @@
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLConstructor.h"
+#include "src/sksl/ir/SkSLNop.h"
 #include "src/sksl/ir/SkSLPostfixExpression.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
 #include "src/sksl/ir/SkSLSwitchStatement.h"
@@ -128,6 +129,12 @@ GrGLSLUniformHandler::UniformHandle DSLWriter::VarUniformHandle(const DSLVar& va
 
 std::unique_ptr<SkSL::Expression> DSLWriter::Call(const FunctionDeclaration& function,
                                                   ExpressionArray arguments) {
+    for (const std::unique_ptr<SkSL::Expression>& expr : arguments) {
+        // NOLINTNEXTLINE(readability-redundant-smartptr-get)
+        if (expr.get() == nullptr) {
+            return nullptr;
+        }
+    }
     // We can't call FunctionCall::Convert directly here, because intrinsic management is handled in
     // IRGenerator::call.
     return IRGenerator().call(/*offset=*/-1, function, std::move(arguments));
@@ -135,20 +142,26 @@ std::unique_ptr<SkSL::Expression> DSLWriter::Call(const FunctionDeclaration& fun
 
 std::unique_ptr<SkSL::Expression> DSLWriter::Call(std::unique_ptr<SkSL::Expression> expr,
                                                   ExpressionArray arguments) {
+    // NOLINTNEXTLINE(readability-redundant-smartptr-get)
+    if (expr.get() == nullptr) {
+        return nullptr;
+    }
+    for (const std::unique_ptr<SkSL::Expression>& expr : arguments) {
+        // NOLINTNEXTLINE(readability-redundant-smartptr-get)
+        if (expr.get() == nullptr) {
+            return nullptr;
+        }
+    }
     // We can't call FunctionCall::Convert directly here, because intrinsic management is handled in
     // IRGenerator::call.
     return IRGenerator().call(/*offset=*/-1, std::move(expr), std::move(arguments));
 }
 
-std::unique_ptr<SkSL::Expression> DSLWriter::Check(std::unique_ptr<SkSL::Expression> expr) {
-    if (DSLWriter::Compiler().errorCount()) {
-        DSLWriter::ReportError(DSLWriter::Compiler().errorText(/*showCount=*/false).c_str());
-        DSLWriter::Compiler().setErrorCount(0);
-    }
-    return expr;
-}
-
 DSLPossibleExpression DSLWriter::Coerce(std::unique_ptr<Expression> left, const SkSL::Type& type) {
+    // NOLINTNEXTLINE(readability-redundant-smartptr-get)
+    if (left.get() == nullptr) {
+        return DSLPossibleExpression(nullptr);
+    }
     return IRGenerator().coerce(std::move(left), type);
 }
 
@@ -158,6 +171,9 @@ DSLPossibleExpression DSLWriter::Construct(const SkSL::Type& type,
     args.reserve_back(rawArgs.size());
 
     for (DSLExpression& arg : rawArgs) {
+        if (!arg.valid()) {
+            return DSLPossibleExpression(nullptr);
+        }
         args.push_back(arg.release());
     }
     return SkSL::Constructor::Convert(Context(), /*offset=*/-1, type, std::move(args));
@@ -166,26 +182,46 @@ DSLPossibleExpression DSLWriter::Construct(const SkSL::Type& type,
 std::unique_ptr<SkSL::Expression> DSLWriter::ConvertBinary(std::unique_ptr<Expression> left,
                                                            Operator op,
                                                            std::unique_ptr<Expression> right) {
+    // NOLINTNEXTLINE(readability-redundant-smartptr-get)
+    if (left.get() == nullptr || right.get() == nullptr) {
+        return nullptr;
+    }
     return BinaryExpression::Convert(Context(), std::move(left), op, std::move(right));
 }
 
 std::unique_ptr<SkSL::Expression> DSLWriter::ConvertField(std::unique_ptr<Expression> base,
                                                           const char* name) {
+    // NOLINTNEXTLINE(readability-redundant-smartptr-get)
+    if (base.get() == nullptr) {
+        return nullptr;
+    }
     return FieldAccess::Convert(Context(), std::move(base), name);
 }
 
 std::unique_ptr<SkSL::Expression> DSLWriter::ConvertIndex(std::unique_ptr<Expression> base,
                                                           std::unique_ptr<Expression> index) {
+    // NOLINTNEXTLINE(readability-redundant-smartptr-get)
+    if (base.get() == nullptr || index.get() == nullptr) {
+        return nullptr;
+    }
     return IndexExpression::Convert(Context(), std::move(base), std::move(index));
 }
 
 std::unique_ptr<SkSL::Expression> DSLWriter::ConvertPostfix(std::unique_ptr<Expression> expr,
                                                             Operator op) {
+    // NOLINTNEXTLINE(readability-redundant-smartptr-get)
+    if (expr.get() == nullptr) {
+        return nullptr;
+    }
     return PostfixExpression::Convert(Context(), std::move(expr), op);
 }
 
 std::unique_ptr<SkSL::Expression> DSLWriter::ConvertPrefix(Operator op,
                                                            std::unique_ptr<Expression> expr) {
+    // NOLINTNEXTLINE(readability-redundant-smartptr-get)
+    if (expr.get() == nullptr) {
+        return nullptr;
+    }
     return PrefixExpression::Convert(Context(), op, std::move(expr));
 }
 
@@ -193,6 +229,10 @@ DSLPossibleStatement DSLWriter::ConvertSwitch(std::unique_ptr<Expression> value,
                                               ExpressionArray caseValues,
                                               SkTArray<SkSL::StatementArray> caseStatements,
                                               bool isStatic) {
+    // NOLINTNEXTLINE(readability-redundant-smartptr-get)
+    if (value.get() == nullptr) {
+        return SkSL::Nop::Make();
+    }
     StatementArray caseBlocks;
     caseBlocks.resize(caseStatements.count());
     for (int index = 0; index < caseStatements.count(); ++index) {
@@ -222,7 +262,7 @@ void DSLWriter::ReportError(const char* msg, PositionInfo* info) {
     }
 }
 
-const SkSL::Variable& DSLWriter::Var(DSLVar& var) {
+const SkSL::Variable* DSLWriter::Var(DSLVar& var) {
     if (!var.fVar) {
         if (var.fStorage != SkSL::VariableStorage::kParameter) {
             DSLWriter::IRGenerator().checkVarDeclaration(/*offset=*/-1, var.fModifiers.fModifiers,
@@ -236,14 +276,18 @@ const SkSL::Variable& DSLWriter::Var(DSLVar& var) {
                                                                           /*isArray=*/false,
                                                                           /*arraySize=*/nullptr,
                                                                           var.fStorage);
-        var.fVar = skslvar.get();
+        SkSL::Variable* varPtr = skslvar.get();
         // We can't call VarDeclaration::Convert directly here, because the IRGenerator has special
         // treatment for sk_FragColor and sk_RTHeight that we want to preserve in DSL.
         var.fDeclaration = DSLWriter::IRGenerator().convertVarDeclaration(
                                                                        std::move(skslvar),
                                                                        var.fInitialValue.release());
+        if (var.fDeclaration) {
+            var.fVar = varPtr;
+        }
+        HandleErrors();
     }
-    return *var.fVar;
+    return var.fVar;
 }
 
 std::unique_ptr<SkSL::Variable> DSLWriter::ParameterVar(DSLVar& var) {
@@ -263,6 +307,13 @@ std::unique_ptr<SkSL::Statement> DSLWriter::Declaration(DSLVar& var) {
 void DSLWriter::MarkDeclared(DSLVar& var) {
     SkASSERT(!var.fDeclared);
     var.fDeclared = true;
+}
+
+void DSLWriter::HandleErrors(PositionInfo pos) {
+    if (Compiler().errorCount()) {
+        ReportError(DSLWriter::Compiler().errorText(/*showCount=*/false).c_str(), &pos);
+        Compiler().setErrorCount(0);
+    }
 }
 
 #if SKSL_USE_THREAD_LOCAL
