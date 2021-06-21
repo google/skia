@@ -61,6 +61,7 @@ public:
         kNone                          = kNone_OptimizationFlags,
         kCompatibleWithCoverageAsAlpha = kCompatibleWithCoverageAsAlpha_OptimizationFlag,
         kPreservesOpaqueInput          = kPreservesOpaqueInput_OptimizationFlag,
+        kAll                           = kCompatibleWithCoverageAsAlpha | kPreservesOpaqueInput,
     };
 
     /**

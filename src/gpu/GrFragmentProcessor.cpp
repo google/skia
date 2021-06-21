@@ -598,6 +598,20 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::DestColor() {
 
 //////////////////////////////////////////////////////////////////////////////
 
+std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::DeviceSpace(
+        std::unique_ptr<GrFragmentProcessor> fp) {
+    static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
+        uniform shader fp;
+        half4 main(float2 xy) {
+            return sample(fp, sk_FragCoord.xy);
+        }
+    )");
+    return GrSkSLFP::Make(effect, "DeviceSpace", /*inputFP=*/nullptr, GrSkSLFP::OptFlags::kAll,
+                          "fp", std::move(fp));
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 GrFragmentProcessor::CIter::CIter(const GrPaint& paint) {
     if (paint.hasCoverageFragmentProcessor()) {
         fFPStack.push_back(paint.getCoverageFragmentProcessor());

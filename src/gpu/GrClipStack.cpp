@@ -24,7 +24,6 @@
 #include "src/gpu/effects/GrRRectEffect.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/effects/generated/GrAARectEffect.h"
-#include "src/gpu/effects/generated/GrDeviceSpaceEffect.h"
 #include "src/gpu/geometry/GrQuadUtils.h"
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 
@@ -1601,7 +1600,7 @@ GrFPResult GrClipStack::GetSWMaskFP(GrRecordingContext* context, Mask::Stack* ma
     auto domain = subset.makeInset(0.5, 0.5);
     auto fp = GrTextureEffect::MakeSubset(std::move(maskProxy), kPremul_SkAlphaType, m,
                                           samplerState, subset, domain, *context->priv().caps());
-    fp = GrDeviceSpaceEffect::Make(std::move(fp));
+    fp = GrFragmentProcessor::DeviceSpace(std::move(fp));
 
     // Must combine the coverage sampled from the texture effect with the previous coverage
     fp = GrBlendFragmentProcessor::Make(std::move(fp), std::move(clipFP), SkBlendMode::kDstIn);
