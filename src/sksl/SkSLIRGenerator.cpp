@@ -353,7 +353,8 @@ std::unique_ptr<Variable> IRGenerator::convertVar(int offset, const Modifiers& m
 }
 
 std::unique_ptr<Statement> IRGenerator::convertVarDeclaration(std::unique_ptr<Variable> var,
-                                                              std::unique_ptr<Expression> value) {
+                                                              std::unique_ptr<Expression> value,
+                                                              bool addToSymbolTable) {
     std::unique_ptr<Statement> varDecl = VarDeclaration::Convert(fContext, var.get(),
                                                                  std::move(value));
     if (!varDecl) {
@@ -382,7 +383,11 @@ std::unique_ptr<Statement> IRGenerator::convertVarDeclaration(std::unique_ptr<Va
         fRTAdjust = var.get();
     }
 
-    fSymbolTable->add(std::move(var));
+    if (addToSymbolTable) {
+        fSymbolTable->add(std::move(var));
+    } else {
+        fSymbolTable->takeOwnershipOfSymbol(std::move(var));
+    }
     return varDecl;
 }
 
@@ -1529,11 +1534,6 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
                                                         skstd::string_view fields) {
     const int offset = base->fOffset;
     const Type& baseType = base->type();
-    if (!baseType.isVector() && !baseType.isNumber()) {
-        this->errorReporter().error(
-                offset, "cannot swizzle value of type '" + baseType.displayName() + "'");
-        return nullptr;
-    }
 
     if (fields.length() > 4) {
         this->errorReporter().error(offset, "too many components in swizzle mask '" + fields + "'");
