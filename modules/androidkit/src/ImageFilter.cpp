@@ -10,6 +10,7 @@
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkPoint3.h"
 #include "include/effects/SkImageFilters.h"
+#include "modules/androidkit/src/Utils.h"
 
 namespace {
 
@@ -27,6 +28,15 @@ static long ImageFilter_DistantLitDiffuse(JNIEnv* env, jobject, jfloat x, jfloat
                                         SkScalarRoundToInt(b * 255));
     auto input = sk_ref_sp(reinterpret_cast<SkImageFilter*>(native_input));
     auto filter = SkImageFilters::DistantLitDiffuse(direction, color, surfaceScale, kd, std::move(input));
+    return reinterpret_cast<jlong>(filter.release());
+}
+
+static long ImageFilter_Blur(JNIEnv* env, jobject, jfloat sigmaX, jfloat sigmaY,
+                                                   jint jTileMode, jlong native_input) {
+    auto input = sk_ref_sp(reinterpret_cast<SkImageFilter*>(native_input));
+    auto filter = SkImageFilters::Blur(sigmaX, sigmaY,
+                                       androidkit::utils::TileMode(jTileMode),
+                                       std::move(input));
     return reinterpret_cast<jlong>(filter.release());
 }
 
