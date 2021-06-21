@@ -16,6 +16,75 @@
       "message": "Looks like some of the WritePixels/TransferPixels tests are failing on Mac, looking into it.",
       "revId": "624e4163ec6bffb321d6f60a2282e3ff0a841992",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9770bd29_a7a6f9bf",
+        "filename": "src/gpu/GrRingBuffer.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-21T19:19:28Z",
+      "side": 1,
+      "message": "I forget what GrGpuBuffer\u0027s we back the GrRingBuffer with, but is there a way to just handle only really unmapping in metal inside the unmap virtual there and always call unmap here?",
+      "range": {
+        "startLine": 94,
+        "startChar": 24,
+        "endLine": 94,
+        "endChar": 29
+      },
+      "revId": "624e4163ec6bffb321d6f60a2282e3ff0a841992",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eb0116e8_5ad2ef03",
+        "filename": "src/gpu/mtl/GrMtlRenderCommandEncoder.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-21T19:19:28Z",
+      "side": 1,
+      "message": "If we don\u0027t have setVertexBufferOffset, should we have a check here for\nif(fCurrentBuffer !\u003d buffer || fCurrentOffset !\u003d offset)?",
+      "range": {
+        "startLine": 69,
+        "startChar": 5,
+        "endLine": 71,
+        "endChar": 48
+      },
+      "revId": "624e4163ec6bffb321d6f60a2282e3ff0a841992",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dca9a9b1_fae1f9bd",
+        "filename": "src/gpu/mtl/GrMtlRenderCommandEncoder.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-21T19:19:28Z",
+      "side": 1,
+      "message": "do we not track fragment offsets?",
+      "range": {
+        "startLine": 98,
+        "startChar": 2,
+        "endLine": 99,
+        "endChar": 56
+      },
+      "revId": "624e4163ec6bffb321d6f60a2282e3ff0a841992",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
