@@ -531,6 +531,8 @@ namespace skvm {
         return (uint64_t)lo | (uint64_t)hi << 32;
     }
 
+    bool operator!=(Ptr a, Ptr b) { return a.ix != b.ix; }
+
     bool operator==(const Instruction& a, const Instruction& b) {
         return a.op   == b.op
             && a.x    == b.x

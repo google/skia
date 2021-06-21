@@ -97,14 +97,16 @@ private:
         enum class Kind {
             kInputColor,  // eg sample(child) or sample(child, inputColor)
             kImmediate,   // eg sample(child, half4(1))
-            kPrevious     // eg sample(child1, sample(child2))
+            kPrevious,    // eg sample(child1, sample(child2))
+            kUniform,     // eg uniform half4 color; ... sample(child, color)
         };
 
         int  fChild;
         Kind fKind;
         union {
-            SkPMColor4f fImm;
-            int         fPrevious;
+            SkPMColor4f fImm;       // for kImmediate
+            int         fPrevious;  // for kPrevious
+            int         fOffset;    // for kUniform
         };
     };
 
