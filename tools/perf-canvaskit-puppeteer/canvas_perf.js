@@ -683,3 +683,31 @@ tests.push({
     },
     perfKey: 'canvas_blur_mask_filter',
 });
+
+for (const variant of ['ttf', 'woff', 'woff2']) {
+    tests.push({
+        description: `Get glyphIDs from a ${variant} font`,
+        setup: function (CanvasKit, ctx) {
+            const fontMgr = CanvasKit.FontMgr.RefDefault();
+            const robotoData = ctx.files['Roboto-Regular.' + variant];
+            ctx.robotoFace = fontMgr.MakeTypefaceFromData(robotoData);
+            if (!ctx.robotoFace) {
+                throw 'could not load ' + variant;
+            }
+            ctx.robotoFont = new CanvasKit.Font(ctx.robotoFace, 20);
+        },
+        test: function (CanvasKit, ctx) {
+            // We get one glyph ID at a time to force cache misses and require Skia to
+            // perhaps re-access the font. See skbug.com/12112 for example.
+            const output = new Uint16Array(1);
+            for (let i = 1; i < 300; i++) {
+                ctx.robotoFont.getGlyphIDs(String.fromCodePoint(i), 1, output);
+            }
+        },
+        teardown: function (CanvasKit, ctx) {
+            ctx.robotoFace.delete();
+            ctx.robotoFont.delete();
+        },
+        perfKey: 'font_getGlyphIDs_' + variant,
+    });
+}
