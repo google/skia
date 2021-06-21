@@ -9,6 +9,8 @@
 #include <type_traits>
 #include <utility>
 
+#include "src/core/SkMatrixInvert.h"
+
 // Copying SkMatrix44 byte-wise is performance-critical to Blink. This class is
 // contained in several Transform classes, which are copied multiple times
 // during the rendering life cycle. See crbug.com/938563 for reference.
@@ -480,16 +482,6 @@ double SkMatrix44::determinant() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static bool is_matrix_finite(const SkMatrix44& matrix) {
-    SkScalar accumulator = 0;
-    for (int row = 0; row < 4; ++row) {
-        for (int col = 0; col < 4; ++col) {
-            accumulator *= matrix.get(row, col);
-        }
-    }
-    return accumulator == 0;
-}
-
 bool SkMatrix44::invert(SkMatrix44* storage) const {
     if (this->isIdentity()) {
         if (storage) {
@@ -539,7 +531,7 @@ bool SkMatrix44::invert(SkMatrix44* storage) const {
 
         inverse->setTypeMask(this->getType());
 
-        if (!is_matrix_finite(*inverse)) {
+        if (!SkScalarsAreFinite(&inverse->fMat[0][0], 16)) {
             return false;
         }
         if (storage && inverse != storage) {
@@ -548,33 +540,28 @@ bool SkMatrix44::invert(SkMatrix44* storage) const {
         return true;
     }
 
-    double a00 = fMat[0][0];
-    double a01 = fMat[0][1];
-    double a02 = fMat[0][2];
-    double a03 = fMat[0][3];
-    double a10 = fMat[1][0];
-    double a11 = fMat[1][1];
-    double a12 = fMat[1][2];
-    double a13 = fMat[1][3];
-    double a20 = fMat[2][0];
-    double a21 = fMat[2][1];
-    double a22 = fMat[2][2];
-    double a23 = fMat[2][3];
-    double a30 = fMat[3][0];
-    double a31 = fMat[3][1];
-    double a32 = fMat[3][2];
-    double a33 = fMat[3][3];
-
     if (!(this->getType() & kPerspective_Mask)) {
         // If we know the matrix has no perspective, then the perspective
         // component is (0, 0, 0, 1). We can use this information to save a lot
         // of arithmetic that would otherwise be spent to compute the inverse
         // of a general matrix.
 
-        SkASSERT(a03 == 0);
-        SkASSERT(a13 == 0);
-        SkASSERT(a23 == 0);
-        SkASSERT(a33 == 1);
+        double a00 = fMat[0][0];
+        double a01 = fMat[0][1];
+        double a02 = fMat[0][2];
+        double a10 = fMat[1][0];
+        double a11 = fMat[1][1];
+        double a12 = fMat[1][2];
+        double a20 = fMat[2][0];
+        double a21 = fMat[2][1];
+        double a22 = fMat[2][2];
+        double a30 = fMat[3][0];
+        double a31 = fMat[3][1];
+        double a32 = fMat[3][2];
+        SkASSERT(fMat[0][3] == 0);
+        SkASSERT(fMat[1][3] == 0);
+        SkASSERT(fMat[2][3] == 0);
+        SkASSERT(fMat[3][3] == 1);
 
         double b00 = a00 * a11 - a01 * a10;
         double b01 = a00 * a12 - a02 * a10;
@@ -625,72 +612,18 @@ bool SkMatrix44::invert(SkMatrix44* storage) const {
         inverse->fMat[3][3] = 1;
 
         inverse->setTypeMask(this->getType());
-        if (!is_matrix_finite(*inverse)) {
+        if (!SkScalarsAreFinite(&inverse->fMat[0][0], 16)) {
             return false;
         }
-        if (storage && inverse != storage) {
-            *storage = *inverse;
+    } else {
+        // We don't have any shortcuts available to us. Fall back to general-case matrix inversion.
+        bool resultIsFinite = SkInvert4x4Matrix(&fMat[0][0], &inverse->fMat[0][0]);
+        inverse->setTypeMask(this->getType());
+        if (!resultIsFinite) {
+            return false;
         }
-        return true;
     }
 
-    double b00 = a00 * a11 - a01 * a10;
-    double b01 = a00 * a12 - a02 * a10;
-    double b02 = a00 * a13 - a03 * a10;
-    double b03 = a01 * a12 - a02 * a11;
-    double b04 = a01 * a13 - a03 * a11;
-    double b05 = a02 * a13 - a03 * a12;
-    double b06 = a20 * a31 - a21 * a30;
-    double b07 = a20 * a32 - a22 * a30;
-    double b08 = a20 * a33 - a23 * a30;
-    double b09 = a21 * a32 - a22 * a31;
-    double b10 = a21 * a33 - a23 * a31;
-    double b11 = a22 * a33 - a23 * a32;
-
-    // Calculate the determinant
-    double det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
-
-    double invdet = sk_ieee_double_divide(1.0, det);
-    // If det is zero, we want to return false. However, we also want to return false
-    // if 1/det overflows to infinity (i.e. det is denormalized). Both of these are
-    // handled by checking that 1/det is finite.
-    if (!sk_float_isfinite(sk_double_to_float(invdet))) {
-        return false;
-    }
-
-    b00 *= invdet;
-    b01 *= invdet;
-    b02 *= invdet;
-    b03 *= invdet;
-    b04 *= invdet;
-    b05 *= invdet;
-    b06 *= invdet;
-    b07 *= invdet;
-    b08 *= invdet;
-    b09 *= invdet;
-    b10 *= invdet;
-    b11 *= invdet;
-
-    inverse->fMat[0][0] = SkDoubleToScalar(a11 * b11 - a12 * b10 + a13 * b09);
-    inverse->fMat[0][1] = SkDoubleToScalar(a02 * b10 - a01 * b11 - a03 * b09);
-    inverse->fMat[0][2] = SkDoubleToScalar(a31 * b05 - a32 * b04 + a33 * b03);
-    inverse->fMat[0][3] = SkDoubleToScalar(a22 * b04 - a21 * b05 - a23 * b03);
-    inverse->fMat[1][0] = SkDoubleToScalar(a12 * b08 - a10 * b11 - a13 * b07);
-    inverse->fMat[1][1] = SkDoubleToScalar(a00 * b11 - a02 * b08 + a03 * b07);
-    inverse->fMat[1][2] = SkDoubleToScalar(a32 * b02 - a30 * b05 - a33 * b01);
-    inverse->fMat[1][3] = SkDoubleToScalar(a20 * b05 - a22 * b02 + a23 * b01);
-    inverse->fMat[2][0] = SkDoubleToScalar(a10 * b10 - a11 * b08 + a13 * b06);
-    inverse->fMat[2][1] = SkDoubleToScalar(a01 * b08 - a00 * b10 - a03 * b06);
-    inverse->fMat[2][2] = SkDoubleToScalar(a30 * b04 - a31 * b02 + a33 * b00);
-    inverse->fMat[2][3] = SkDoubleToScalar(a21 * b02 - a20 * b04 - a23 * b00);
-    inverse->fMat[3][0] = SkDoubleToScalar(a11 * b07 - a10 * b09 - a12 * b06);
-    inverse->fMat[3][1] = SkDoubleToScalar(a00 * b09 - a01 * b07 + a02 * b06);
-    inverse->fMat[3][2] = SkDoubleToScalar(a31 * b01 - a30 * b03 - a32 * b00);
-    inverse->fMat[3][3] = SkDoubleToScalar(a20 * b03 - a21 * b01 + a22 * b00);
-    inverse->setTypeMask(this->getType());
-    if (!is_matrix_finite(*inverse)) {
-        return false;
-    }
     if (storage && inverse != storage) {
         *storage = *inverse;
     }
