@@ -70,6 +70,30 @@
       },
       "revId": "9d7d1741c4514840b2bb04def9c8703d9612e070",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "de5bf593_b599f732",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-21T13:07:23Z",
+      "side": 1,
+      "message": "SGTM!\nI\u0027m thinking it\u0027s probably still a good idea to put in `experimental_usesBlender` for the short term, until we are certain how the API will shake out. That\u0027ll give us a way to identify runtime blends in places where we need to do code fixes, without baking in any assumptions about how getBlender should behave when a SkBlendMode is in use. It\u0027ll make the eventual cleanup pass very easy.",
+      "parentUuid": "9fee4e41_93f42dd7",
+      "range": {
+        "startLine": 281,
+        "startChar": 14,
+        "endLine": 281,
+        "endChar": 24
+      },
+      "revId": "9d7d1741c4514840b2bb04def9c8703d9612e070",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
