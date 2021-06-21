@@ -68,13 +68,11 @@ public:
                                                       std::move(instance.fPool),
                                                       bundle.fInputs);
         bool success = false;
+        DSLWriter::HandleErrors();
         if (DSLWriter::Compiler().errorCount() || DSLWriter::Instance().fEncounteredErrors) {
-            // Make sure that if we encountered any compiler errors, we reported them through the
-            // DSL error handling side of things.
-            SkASSERT(!DSLWriter::Compiler().errorCount() ||
-                     DSLWriter::Instance().fEncounteredErrors);
             // Do not return programs that failed to compile.
         } else if (!DSLWriter::Compiler().optimize(*result)) {
+            DSLWriter::HandleErrors();
             // Do not return programs that failed to optimize.
         } else {
             // We have a successful program!
@@ -85,6 +83,9 @@ public:
         }
         SkASSERT(DSLWriter::ProgramElements().empty());
         SkASSERT(!DSLWriter::SymbolTable());
+        // Make sure that if we encountered any compiler errors, we reported them through the
+        // DSL error handling side of things.
+        SkASSERT(!DSLWriter::Compiler().errorCount() || DSLWriter::Instance().fEncounteredErrors);
         return success ? std::move(result) : nullptr;
     }
 
@@ -140,7 +141,7 @@ public:
         if (stmt) {
             DSLWriter::ProgramElements().push_back(std::make_unique<SkSL::GlobalVarDeclaration>(
                     std::move(stmt)));
-        } else if (var.fName && !strcmp(var.fName, SkSL::Compiler::FRAGCOLOR_NAME)) {
+        } else if (var.fName == SkSL::Compiler::FRAGCOLOR_NAME) {
             // sk_FragColor can end up with a null declaration despite no error occurring due to
             // specific treatment in the compiler. Ignore the null and just grab the existing
             // variable from the symbol table.
@@ -298,6 +299,9 @@ DSLStatement For(DSLStatement initializer, DSLExpression test, DSLExpression nex
 }
 
 DSLStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse, PositionInfo pos) {
+    if (!test.valid() || !ifTrue.valid()) {
+        return {};
+    }
     return DSLStatement(DSLCore::If(std::move(test), std::move(ifTrue), std::move(ifFalse),
                                     /*isStatic=*/false),
                         pos);

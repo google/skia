@@ -42,6 +42,10 @@ public:
         return fModifiers.fFlags;
     }
 
+    DSLLayout layout() const {
+        return DSLLayout(fModifiers.fLayout);
+    }
+
 private:
     SkSL::Modifiers fModifiers;
 
