@@ -295,7 +295,13 @@ void GrMtlCaps::initGrCaps(id<MTLDevice> device) {
     fMaxPreferredRenderTargetSize = fMaxRenderTargetSize;
     fMaxTextureSize = fMaxRenderTargetSize;
 
-    fMaxPushConstantsSize = 4*1024;
+    fMaxPushConstantsSize = 0; // TODO: should be 4*1024 but disabled for now
+#ifdef SK_BUILD_FOR_MAC
+    // TODO: Adjust this for Apple Silicon Macs?
+    fTransferBufferAlignment = 4;
+#else
+    fTransferBufferAlignment = 1;
+#endif
 
     // Init sample counts. All devices support 1 (i.e. 0 in skia).
     fSampleCounts.push_back(1);
