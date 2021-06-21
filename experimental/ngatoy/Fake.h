@@ -57,6 +57,8 @@ public:
             fCached = cached;
         }
 
+        void popit(PaintersOrder paintersOrderWhenPopped);
+
     protected:
         friend class FakeMCBlob;
 
@@ -147,8 +149,9 @@ public:
         fStack.back().translate(trans);
     }
 
-    void pop() {
+    void pop(PaintersOrder paintersOrderWhenPopped) {
         SkASSERT(fStack.size() > 0);
+        fStack.back().popit(paintersOrderWhenPopped);
         fStack.pop_back();
     }
 
@@ -244,7 +247,7 @@ public:
         fTracker.translate(trans);
     }
 
-    void restore();
+    void restore(PaintersOrder paintersOrderWhenPopped);
 
     void finalize();
 
@@ -293,7 +296,7 @@ public:
 
     void restore() {
         SkASSERT(!fFinalized);
-        fDeviceStack.back()->restore();
+        fDeviceStack.back()->restore(this->peekPaintersOrder());
     }
 
     void finalize();
