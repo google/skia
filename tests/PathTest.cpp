@@ -5834,3 +5834,23 @@ DEF_TEST(path_moveto_addrect, r) {
         }
     }
 }
+
+// crbug.com/1220754
+DEF_TEST(path_moveto_twopass_convexity, r) {
+    // There had been a bug when the last moveTo index > 0, the calculated point count was incorrect
+    // and the BySign convexity pass would not evaluate the entire path, effectively only using the
+    // winding rule for determining convexity.
+    SkPath path;
+    path.setFillType(SkPathFillType::kWinding);
+    path.moveTo(3.25f, 115.5f);
+    path.conicTo(9.98099e+17f, 2.83874e+15f, 1.75098e-30f, 1.75097e-30f, 1.05385e+18f);
+    path.conicTo(9.96938e+17f, 6.3804e+19f, 9.96934e+17f, 1.75096e-30f, 1.75096e-30f);
+    path.quadTo(1.28886e+10f, 9.9647e+17f, 9.98101e+17f, 2.61006e+15f);
+    REPORTER_ASSERT(r, !path.isConvex());
+
+    SkPath pathWithExtraMoveTo;
+    pathWithExtraMoveTo.setFillType(SkPathFillType::kWinding);
+    pathWithExtraMoveTo.moveTo(5.90043e-39f, 1.34525e-43f);
+    pathWithExtraMoveTo.addPath(path);
+    REPORTER_ASSERT(r, !pathWithExtraMoveTo.isConvex());
+}
