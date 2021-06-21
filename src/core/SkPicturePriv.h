@@ -91,6 +91,12 @@ public:
     // V79: Cubic Resampler option on imageshader
     // V80: Smapling options on imageshader
     // V81: sampling parameters on drawImage/drawImageRect/etc.
+    // V82: Add filter param to picture-shader
+    // V83: SkMatrixImageFilter now takes SkSamplingOptions instead of SkFilterQuality
+    // V84: SkImageFilters::Image now takes SkSamplingOptions instead of SkFilterQuality
+    // V85: Remove legacy support for inheriting sampling from the paint.
+    // V86: Remove support for custom data inside SkVertices
+    // V87: SkPaint now holds a user-defined blend function (SkBlender), no longer has DrawLooper
 
     enum Version {
         kEdgeAAQuadColor4f_Version          = 73,
@@ -107,10 +113,11 @@ public:
         kImageFilterImageSampling_Version   = 84,
         kNoFilterQualityShaders_Version     = 85,
         kVerticesRemoveCustomData_Version   = 86,
+        kSkBlenderInSkPaint                 = 87,
 
         // Only SKPs within the min/current picture version range (inclusive) can be read.
         kMin_Version     = kEdgeAAQuadColor4f_Version,
-        kCurrent_Version = kVerticesRemoveCustomData_Version
+        kCurrent_Version = kSkBlenderInSkPaint
     };
 
     static_assert(SkPicturePriv::kMin_Version <= SkPicturePriv::kCubicResamplerImageShader_Version,

@@ -277,7 +277,8 @@ void SkPaintPriv::Flatten(const SkPaint& paint, SkWriteBuffer& buffer) {
         paint.getShader() ||
         paint.getMaskFilter() ||
         paint.getColorFilter() ||
-        paint.getImageFilter()) {
+        paint.getImageFilter() ||
+        paint.getBlender()) {
         flatFlags |= kHasEffects_FlatFlag;
     }
 
@@ -292,8 +293,8 @@ void SkPaintPriv::Flatten(const SkPaint& paint, SkWriteBuffer& buffer) {
         buffer.writeFlattenable(paint.getShader());
         buffer.writeFlattenable(paint.getMaskFilter());
         buffer.writeFlattenable(paint.getColorFilter());
-        buffer.write32(0);  // legacy, was drawlooper
         buffer.writeFlattenable(paint.getImageFilter());
+        buffer.writeFlattenable(paint.getBlender());
     }
 }
 
@@ -310,19 +311,30 @@ SkReadPaintResult SkPaintPriv::Unflatten(SkPaint* paint, SkReadBuffer& buffer, S
 
     unsigned flatFlags = unpack_v68(paint, buffer.readUInt(), safe);
 
-    if (flatFlags & kHasEffects_FlatFlag) {
-        paint->setPathEffect(buffer.readPathEffect());
-        paint->setShader(buffer.readShader());
-        paint->setMaskFilter(buffer.readMaskFilter());
-        paint->setColorFilter(buffer.readColorFilter());
-        (void)buffer.read32();  // was drawLooper (zero)
-        paint->setImageFilter(buffer.readImageFilter());
-    } else {
+    if (!(flatFlags & kHasEffects_FlatFlag)) {
+        // This is a simple SkPaint without any effects, so clear all the effect-related fields.
         paint->setPathEffect(nullptr);
         paint->setShader(nullptr);
         paint->setMaskFilter(nullptr);
         paint->setColorFilter(nullptr);
         paint->setImageFilter(nullptr);
+        paint->experimental_setBlender(nullptr);
+    } else if (buffer.isVersionLT(SkPicturePriv::kSkBlenderInSkPaint)) {
+        // This paint predates the introduction of user blend functions (via SkBlender).
+        paint->setPathEffect(buffer.readPathEffect());
+        paint->setShader(buffer.readShader());
+        paint->setMaskFilter(buffer.readMaskFilter());
+        paint->setColorFilter(buffer.readColorFilter());
+        (void)buffer.read32();  // was drawLooper (now deprecated)
+        paint->setImageFilter(buffer.readImageFilter());
+        paint->experimental_setBlender(nullptr);
+    } else {
+        paint->setPathEffect(buffer.readPathEffect());
+        paint->setShader(buffer.readShader());
+        paint->setMaskFilter(buffer.readMaskFilter());
+        paint->setColorFilter(buffer.readColorFilter());
+        paint->setImageFilter(buffer.readImageFilter());
+        paint->experimental_setBlender(buffer.readBlender());
     }
 
     if (!buffer.validate(safe)) {
