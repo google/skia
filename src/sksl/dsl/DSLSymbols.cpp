@@ -27,7 +27,13 @@ std::shared_ptr<SymbolTable> CurrentSymbolTable() {
 }
 
 DSLExpression Symbol(skstd::string_view name) {
-    return DSLWriter::IRGenerator().convertIdentifier(/*offset=*/-1, name);
+    std::unique_ptr<Expression> result =  DSLWriter::IRGenerator().convertIdentifier(/*offset=*/-1,
+                                                                                     name);
+    if (result) {
+        return std::move(result);
+    } else {
+        return {};
+    }
 }
 
 bool IsType(skstd::string_view name) {
@@ -36,7 +42,10 @@ bool IsType(skstd::string_view name) {
 }
 
 void AddToSymbolTable(DSLVar& var) {
-    CurrentSymbolTable()->addWithoutOwnership(&DSLWriter::Var(var));
+    const SkSL::Variable* skslVar = DSLWriter::Var(var);
+    if (skslVar) {
+        CurrentSymbolTable()->addWithoutOwnership(skslVar);
+    }
 }
 
 const String* Retain(String string) {

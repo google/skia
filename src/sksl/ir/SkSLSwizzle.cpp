@@ -19,10 +19,15 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
     const int offset = base->fOffset;
     const Type& baseType = base->type();
 
-    // The IRGenerator is responsible for enforcing these invariants.
-    SkASSERTF(baseType.isVector() || baseType.isScalar(),
-              "cannot swizzle type '%s'", baseType.description().c_str());
-    SkASSERT(inComponents.count() >= 1 && inComponents.count() <= 4);
+    if (!baseType.isVector() && !baseType.isNumber()) {
+        context.fErrors.error(offset, "cannot swizzle value of type '" + baseType.displayName() +
+                                      "'");
+        return nullptr;
+    }
+    if (inComponents.count() > 4) {
+        context.fErrors.error(offset, "too many components in swizzle mask");
+        return nullptr;
+    }
 
     ComponentArray maskComponents;
     for (int8_t component : inComponents) {
@@ -53,7 +58,7 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
                 }
                 [[fallthrough]];
             default:
-                SkDEBUGFAILF("invalid swizzle component %d", component);
+                context.fErrors.error(offset, "invalid swizzle mask");
                 return nullptr;
         }
     }

@@ -189,7 +189,9 @@ DSLExpression DSLType::Construct(DSLType type, SkTArray<DSLExpression> argArray)
 }
 
 DSLType Array(const DSLType& base, int count) {
-    SkASSERT(count >= 1);
+    if (count <= 0) {
+        DSLWriter::ReportError("array size must be positive\n");
+    }
     return DSLWriter::SymbolTable()->addArrayDimension(&base.skslType(), count);
 }
 

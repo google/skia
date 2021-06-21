@@ -33,21 +33,33 @@ public:
      * name conflicts and the variable's name is only important when debugging shaders, the name
      * parameter is optional.
      */
-    DSLVar(DSLType type, const char* name = "var", DSLExpression initialValue = DSLExpression());
+    DSLVar(DSLType type, skstd::string_view name = "var",
+           DSLExpression initialValue = DSLExpression());
+
+    DSLVar(DSLType type, const char* name, DSLExpression initialValue = DSLExpression())
+        : DSLVar(type, skstd::string_view(name), std::move(initialValue)) {}
 
     DSLVar(DSLType type, DSLExpression initialValue);
 
-    DSLVar(DSLModifiers modifiers, DSLType type, const char* name = "var",
+    DSLVar(DSLModifiers modifiers, DSLType type, skstd::string_view name = "var",
            DSLExpression initialValue = DSLExpression());
+
+    DSLVar(DSLModifiers modifiers, DSLType type, const char* name,
+           DSLExpression initialValue = DSLExpression())
+        : DSLVar(modifiers, type, skstd::string_view(name), std::move(initialValue)) {}
 
     DSLVar(DSLModifiers modifiers, DSLType type, DSLExpression initialValue);
 
-    DSLVar(DSLVar&&) = default;
+    DSLVar(DSLVar&& other) = default;
 
     ~DSLVar();
 
-    const char* name() const {
+    skstd::string_view name() const {
         return fName;
+    }
+
+    DSLModifiers modifiers() const {
+        return fModifiers;
     }
 
     void swap(DSLVar& other);
@@ -135,13 +147,13 @@ private:
     // We only need to keep track of the type here so that we can create the SkSL::Variable. For
     // predefined variables this field is unnecessary, so we don't bother tracking it and just set
     // it to kVoid; in other words, you shouldn't generally be relying on this field to be correct.
-    // If you need to determine the variable's type, look at DSLWriter::Var(...).type() instead.
+    // If you need to determine the variable's type, look at DSLWriter::Var(...)->type() instead.
     DSLType fType;
     int fUniformHandle = -1;
     std::unique_ptr<SkSL::Statement> fDeclaration;
     const SkSL::Variable* fVar = nullptr;
-    const char* fRawName = nullptr; // for error reporting
-    const char* fName = nullptr;
+    skstd::string_view fRawName; // for error reporting
+    skstd::string_view fName;
     DSLExpression fInitialValue;
     VariableStorage fStorage;
     bool fDeclared = false;
