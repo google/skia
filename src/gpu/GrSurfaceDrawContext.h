@@ -8,6 +8,10 @@
 #ifndef GrSurfaceDrawContext_DEFINED
 #define GrSurfaceDrawContext_DEFINED
 
+#include "include/gpu/GrTypes.h"
+
+#if GR_OGA
+
 #include "include/core/SkCanvas.h"
 #include "include/core/SkDrawable.h"
 #include "include/core/SkRefCnt.h"
@@ -602,6 +606,8 @@ public:
 
     // Allows caller of addDrawOp to know which op list an op will be added to.
     using WillAddOpFn = void(GrOp*, uint32_t opsTaskID);
+
+#if GR_OGA
     // These perform processing specific to GrDrawOp-derived ops before recording them into an
     // op list. Before adding the op to an op list the WillAddOpFn is called. Note that it
     // will not be called in the event that the op is discarded. Moreover, the op may merge into
@@ -612,6 +618,7 @@ public:
                    GrOp::Owner,
                    const std::function<WillAddOpFn>& = std::function<WillAddOpFn>());
     void addDrawOp(GrOp::Owner op) { this->addDrawOp(nullptr, std::move(op)); }
+#endif
 
     bool refsWrappedObjects() const { return this->asRenderTargetProxy()->refsWrappedObjects(); }
 
@@ -652,7 +659,10 @@ private:
 
     GrAAType chooseAAType(GrAA);
 
+#if GR_OGA
     GrOpsTask::CanDiscardPreviousOps canDiscardPreviousOpsOnFullClear() const override;
+#endif
+
     void setNeedsStencil();
 
     void internalStencilClear(const SkIRect* scissor, bool insideStencilMask);
@@ -727,5 +737,30 @@ private:
     SkGlyphRunListPainter fGlyphPainter;
     using INHERITED = GrSurfaceFillContext;
 };
+
+#else
+
+#include "src/gpu/GrSurfaceFillContext.h"
+
+class GrSurfaceDrawContext { // : public GrSurfaceFillContext {
+public:
+
+    static std::unique_ptr<GrSurfaceDrawContext> MakeWithFallback(
+            GrRecordingContext*,
+            GrColorType,
+            sk_sp<SkColorSpace>,
+            SkBackingFit,
+            SkISize dimensions,
+            const SkSurfaceProps&,
+            int sampleCnt = 1,
+            GrMipmapped = GrMipmapped::kNo,
+            GrProtected = GrProtected::kNo,
+            GrSurfaceOrigin = kBottomLeft_GrSurfaceOrigin,
+            SkBudgeted = SkBudgeted::kYes) {
+        return nullptr;
+    }
+};
+
+#endif // GR_OGA
 
 #endif
