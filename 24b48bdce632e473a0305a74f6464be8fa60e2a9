@@ -16,6 +16,29 @@
       "message": "Herb, some minor skvm changes here (allUniform similar to allImm). This CL enables the follow-up CL to work correctly (by allowing a uniform color to be the \"seed\" color when invoking a child).",
       "revId": "24b48bdce632e473a0305a74f6464be8fa60e2a9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "019829a3_bd3b48fe",
+        "filename": "src/core/SkVM.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 929,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-21T20:56:03Z",
+      "side": 1,
+      "message": "various ideas/food for thought:\n\n- from the API name, I would not have expected it to modify `uni`. Maybe `getUniforms`?\n- does the variadic template add any value? What if we just did one at a time?\n\n    bool getUniform(Val id, Uniform* uni);\n\n    if (!p.getUniform(c.r.id, \u0026ur) || \n        !p.getUniform(c.g.id, \u0026ug) || \n        !p.getUniform(c.b.id, \u0026ub) || \n        !p.getUniform(c.a.id, \u0026ua)) {\n      return false;\n    }\n        \n- Now that we have optional\u003c\u003e, we could even do\n\n  optional\u003cUniform\u003e ur \u003d p.getUniform(c.r.id);\n  optional\u003cUniform\u003e ug \u003d p.getUniform(c.g.id);\n  optional\u003cUniform\u003e ub \u003d p.getUniform(c.b.id);\n  optional\u003cUniform\u003e ua \u003d p.getUniform(c.a.id);\n  if (!ur || !ug || !ub || !ua) { return false; }",
+      "range": {
+        "startLine": 929,
+        "startChar": 13,
+        "endLine": 929,
+        "endChar": 23
+      },
+      "revId": "24b48bdce632e473a0305a74f6464be8fa60e2a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
