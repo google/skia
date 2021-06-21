@@ -22,6 +22,30 @@
       },
       "revId": "c1196f398dde010f006895229a6a143232fdc36e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "757e3edb_f18b1019",
+        "filename": "experimental/ngatoy/Cmds.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-06-21T16:45:44Z",
+      "side": 1,
+      "message": "updated",
+      "parentUuid": "d197e8c5_afa22c8d",
+      "range": {
+        "startLine": 50,
+        "startChar": 32,
+        "endLine": 50,
+        "endChar": 58
+      },
+      "revId": "c1196f398dde010f006895229a6a143232fdc36e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
