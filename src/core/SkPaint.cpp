@@ -278,7 +278,7 @@ void SkPaintPriv::Flatten(const SkPaint& paint, SkWriteBuffer& buffer) {
         paint.getMaskFilter() ||
         paint.getColorFilter() ||
         paint.getImageFilter() ||
-        paint.getBlender()) {
+        paint.experimental_usesBlender()) {
         flatFlags |= kHasEffects_FlatFlag;
     }
 

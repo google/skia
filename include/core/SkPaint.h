@@ -500,17 +500,26 @@ public:
     */
     void setBlendMode(SkBlendMode mode) { fBitfields.fBlendMode = (unsigned)mode; }
 
+    /** Returns true if a user-supplied blend function has been assigned to this paint, or false
+        if this paint uses a built-in SkBlendMode-based blend.
+
+        TODO(skia:12080): this feature is incomplete; do not use!
+
+        @return  true if an SkBlender-based blend is assigned
+    */
+    bool experimental_usesBlender() const { return fBlender != nullptr; }
+
     /** Returns the user-supplied blend function, if one has been set.
         Does not alter SkBlender's SkRefCnt.
 
-        @return  the SkBlender assigned to this paint, otherwise nullptr
+        @return  the SkBlender assigned to this paint
     */
     SkBlender* getBlender() const { return fBlender.get(); }
 
     /** Returns the user-supplied blend function, if one has been set.
         Increments the SkBlender's SkRefCnt by one.
 
-        @return  the SkBlender assigned to this paint, otherwise nullptr
+        @return  the SkBlender assigned to this paint
     */
     sk_sp<SkBlender> refBlender() const;
 
