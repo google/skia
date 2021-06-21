@@ -486,6 +486,21 @@ std::unique_ptr<SkFilterColorProgram> SkFilterColorProgram::Make(const SkRuntime
         uniform.push_back(p.uniform32(skslUniforms.push(/*placeholder*/ 0)).id);
     }
 
+    auto is_simple_uniform = [&](skvm::Color c, int* baseOffset) {
+        skvm::Uniform ur, ug, ub, ua;
+        if (!p.allUniform(c.r.id, &ur, c.g.id, &ug, c.b.id, &ub, c.a.id, &ua)) {
+            return false;
+        }
+        skvm::Ptr uniPtr = skslUniforms.base;
+        if (ur.ptr != uniPtr || ug.ptr != uniPtr || ub.ptr != uniPtr || ua.ptr != uniPtr) {
+            return false;
+        }
+        *baseOffset = ur.offset;
+        return ug.offset == ur.offset + 4 &&
+               ub.offset == ur.offset + 8 &&
+               ua.offset == ur.offset + 12;
+    };
+
     // We reserve a uniform color for each call to sample(). While processing the SkSL, we record
     // the index of the child being sampled, and the color being filtered (in a SampleCall struct).
     // When we run this program later, we use the SampleCall to evaluate the correct child, and
@@ -515,6 +530,8 @@ std::unique_ptr<SkFilterColorProgram> SkFilterColorProgram::Make(const SkRuntime
                    it != childColors.end()) {
             call.fKind = SkFilterColorProgram::SampleCall::Kind::kPrevious;
             call.fPrevious = SkTo<int>(it - childColors.begin());
+        } else if (is_simple_uniform(c, &call.fOffset)) {
+            call.fKind = SkFilterColorProgram::SampleCall::Kind::kUniform;
         } else {
             allSampleCallsSupported = false;
         }
@@ -576,6 +593,9 @@ SkPMColor4f SkFilterColorProgram::eval(
             case SampleCall::Kind::kInputColor:                                             break;
             case SampleCall::Kind::kImmediate:  passedColor = s.fImm;                       break;
             case SampleCall::Kind::kPrevious:   passedColor = childColors[s.fPrevious + 1]; break;
+            case SampleCall::Kind::kUniform:
+                passedColor = *SkTAddOffset<const SkPMColor4f>(uniformData, s.fOffset);
+                break;
         }
         childColors.push_back(evalChild(s.fChild, passedColor));
     }
