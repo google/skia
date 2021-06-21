@@ -439,11 +439,10 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
     }
 #endif
 
-    SkBlender* blender = skPaint.getBlender();
-    if (blender) {
+    if (skPaint.experimental_usesBlender()) {
         // Apply the custom blend, and force the XP to kSrc. We don't honor the SkBlendMode when a
         // custom blend is applied.
-        paintFP = as_BB(blender)->asFragmentProcessor(std::move(paintFP), fpArgs);
+        paintFP = as_BB(skPaint.getBlender())->asFragmentProcessor(std::move(paintFP), fpArgs);
         grPaint->setXPFactory(SkBlendMode_AsXPFactory(SkBlendMode::kSrc));
     } else {
         // When the xfermode is null on the SkPaint (meaning kSrcOver) we need the XPFactory field

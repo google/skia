@@ -507,6 +507,13 @@ public:
     */
     SkBlender* getBlender() const { return fBlender.get(); }
 
+    /** Returns true if a user-supplied blend function has been assigned to this paint, or false
+        if this paint uses a built-in SkBlendMode-based blend.
+
+        @return  true if an SkBlender-based blend is assigned
+    */
+    bool experimental_usesBlender() const { return fBlender != nullptr; }
+
     /** Returns the user-supplied blend function, if one has been set.
         Increments the SkBlender's SkRefCnt by one.
 
