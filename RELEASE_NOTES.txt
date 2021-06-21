@@ -12,6 +12,9 @@ Milestone 93
   * Removed SkShaders::Lerp. It was unused (and easy to replicate with SkRuntimeEffect).
     https://review.skia.org/419796
 
+  * The default value of GrContextOptions::fReduceOpsTaskSplitting is now enabled.
+    https://review.skia.org/419836
+
 * * *
 
 Milestone 92
