@@ -479,6 +479,8 @@ namespace skvm {
 
     struct Ptr { int ix; };
 
+    bool operator!=(Ptr a, Ptr b);
+
     struct I32 {
         Builder* builder = nullptr;
         Val      id      = NA;
@@ -917,6 +919,18 @@ namespace skvm {
                 static_assert(sizeof(T) == 4);
                 memcpy(imm, &fProgram[id].immA, 4);
                 return this->allImm(rest...);
+            }
+            return false;
+        }
+
+        bool allUniform() const { return true; }
+
+        template <typename... Rest>
+        bool allUniform(Val id, Uniform* uni, Rest... rest) const {
+            if (fProgram[id].op == Op::uniform32) {
+                uni->ptr.ix = fProgram[id].immA;
+                uni->offset = fProgram[id].immB;
+                return this->allUniform(rest...);
             }
             return false;
         }
