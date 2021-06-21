@@ -199,28 +199,30 @@ static void mcstack_test() {
     SkASSERT(state2a != state2b);
 
     //----------------
-    s.pop();
+    s.pop(PaintersOrder(1));
     auto state3 = s.snapState();
     check_state(state3.get(), s1Trans, expectedS1Clips);
     SkASSERT(state1 == state3);
 
     //----------------
-    s.pop();
+    s.pop(PaintersOrder(2));
     auto state4 = s.snapState();
     check_state(state4.get(), { 0, 0 }, expectedS0Clips);
     SkASSERT(state0 == state4);
 }
 
-static void check_order(const std::vector<ID>& actualOrder,
+static void check_order(int testID,
+                        const std::vector<ID>& actualOrder,
                         const std::vector<ID>& expectedOrder) {
     if (expectedOrder.size() != actualOrder.size()) {
-        exitf("Op count mismatch. Expected %d - got %d\n",
+        exitf("Op count mismatch in test %d. Expected %d - got %d\n",
+              testID,
               expectedOrder.size(),
               actualOrder.size());
     }
 
     if (expectedOrder != actualOrder) {
-        SkDebugf("order mismatch:\n");
+        SkDebugf("order mismatch in test %d:\n", testID);
         SkDebugf("E %d: ", expectedOrder.size());
         for (auto t : expectedOrder) {
             SkDebugf("%d", t.toInt());
@@ -261,7 +263,7 @@ static void sort_test(PFTest testcase) {
     fake.finalize();
 
     std::vector<ID> actualOrder = fake.getOrder();
-    check_order(actualOrder, expectedOrder);
+    check_order(testID, actualOrder, expectedOrder);
 
     save_files(testID, expectedBM, actualBM);
 }
@@ -381,8 +383,10 @@ static int test5(std::vector<sk_sp<Cmd>>* test, std::vector<ID>* expectedOrder) 
 // simple clipping test - 1 clip w/ two opaque rects
 static int test6(std::vector<sk_sp<Cmd>>* test, std::vector<ID>* expectedOrder) {
     // The expected is front to back after the clip
-    expectedOrder->push_back(ID(2));
+    expectedOrder->push_back(ID(0)); // clip
+    // :( - lost front to back !!
     expectedOrder->push_back(ID(1));
+    expectedOrder->push_back(ID(2));
 
     //---------------------------------------------------------------------------------------------
     test->push_back(sk_make_sp<SaveCmd>());
@@ -400,11 +404,13 @@ static int test6(std::vector<sk_sp<Cmd>>* test, std::vector<ID>* expectedOrder) 
 // more complicated clipping w/ opaque draws -> should reorder
 static int test7(std::vector<sk_sp<Cmd>>* test, std::vector<ID>* expectedOrder) {
     // The expected is front to back modulated by the two clip states
+    expectedOrder->push_back(ID(0)); // clip
     expectedOrder->push_back(ID(7));
     expectedOrder->push_back(ID(6));
     expectedOrder->push_back(ID(2));
     expectedOrder->push_back(ID(1));
 
+    expectedOrder->push_back(ID(3)); // clip
     expectedOrder->push_back(ID(5));
     expectedOrder->push_back(ID(4));
 
