@@ -2217,20 +2217,32 @@ SkPathConvexity SkPath::computeConvexity() const {
         return setFail();
     }
 
-    // Check to see if path changes direction more than three times as quick concave test
+    // pointCount potentially includes a block of leading moveTos and trailing moveTos. Convexity
+    // only cares about the last of the initial moveTos and the verbs before the final moveTos.
     int pointCount = this->countPoints();
-    // last moveTo index may exceed point count if data comes from fuzzer (via SkImageFilter)
-    if (0 < fLastMoveToIndex && fLastMoveToIndex < pointCount) {
-        pointCount = fLastMoveToIndex;
+    int skipCount = SkPathPriv::LeadingMoveToCount(*this) - 1;
+
+    if (fLastMoveToIndex >= 0) {
+        if (fLastMoveToIndex == pointCount - 1) {
+            // Find the last real verb that affects convexity
+            auto verbs = fPathRef->verbsEnd() - 1;
+            while(verbs > fPathRef->verbsBegin() && *verbs == Verb::kMove_Verb) {
+                verbs--;
+                pointCount--;
+            }
+        } else if (fLastMoveToIndex != skipCount) {
+            // There's an additional moveTo between two blocks of other verbs, so the path must have
+            // more than one contour and cannot be convex.
+            return setComputedConvexity(SkPathConvexity::kConcave);
+        } // else no trailing or intermediate moveTos to worry about
     }
     const SkPoint* points = fPathRef->points();
-    // only consider the last of the initial move tos
-    int skipCount = SkPathPriv::LeadingMoveToCount(*this) - 1;
     if (skipCount > 0) {
         points += skipCount;
         pointCount -= skipCount;
     }
 
+    // Check to see if path changes direction more than three times as quick concave test
     SkPathConvexity convexity = Convexicator::BySign(points, pointCount);
     if (SkPathConvexity::kConvex != convexity) {
         return setComputedConvexity(SkPathConvexity::kConcave);
