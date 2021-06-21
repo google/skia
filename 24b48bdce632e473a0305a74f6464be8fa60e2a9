@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5b81ad7f_7bf50f14",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-21T20:17:13Z",
+      "side": 1,
+      "message": "Herb, some minor skvm changes here (allUniform similar to allImm). This CL enables the follow-up CL to work correctly (by allowing a uniform color to be the \"seed\" color when invoking a child).",
+      "revId": "24b48bdce632e473a0305a74f6464be8fa60e2a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
