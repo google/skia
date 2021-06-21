@@ -5,6 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "include/gpu/GrTypes.h"
+
+#if SK_OGA
+
 #include "include/core/SkCanvas.h"
 #include "include/core/SkDeferredDisplayListRecorder.h"
 #include "include/core/SkSurfaceCharacterization.h"
@@ -1504,3 +1508,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache16Verts, reporter, ctxInfo) 
     helper.checkImage(reporter, std::move(ddl1));
     helper.checkImage(reporter, std::move(ddl2));
 }
+
+#endif // SK_OGA
+

@@ -8,6 +8,10 @@
 #ifndef GrSurfaceFillContext_DEFINED
 #define GrSurfaceFillContext_DEFINED
 
+#include "include/gpu/GrTypes.h"
+
+#if SK_OGA
+
 #include "include/core/SkSize.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrImageInfo.h"
@@ -260,4 +264,6 @@ std::array<float, 4> GrSurfaceFillContext::adjustColorAlphaType(SkRGBA4f<AlphaTy
     return (AlphaType == this->colorInfo().alphaType()) ? color.array() : ConvertColor(color);
 }
 
-#endif
+#endif // SK_OGA
+
+#endif // GrSurfaceFillContext_DEFINED

@@ -18,6 +18,7 @@
 #include "include/private/SkHalf.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrImageInfo.h"
+#include "src/gpu/GrPixmap.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/GrTextureProxy.h"

@@ -26,7 +26,7 @@ public:
             , fAllowCaching(allowCaching) {
     }
 
-    static bool GetShapeAndClipBounds(GrSurfaceDrawContext*,
+    static bool GetShapeAndClipBounds(GrSurfaceProxy* targetProxy,
                                       const GrClip* clip,
                                       const GrStyledShape& shape,
                                       const SkMatrix& matrix,

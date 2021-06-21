@@ -8,6 +8,7 @@
 #include "gm/gm.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "include/private/SkColorData.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrSwizzle.h"
@@ -15,15 +16,15 @@
 // Size of each clear
 static constexpr int kSize = 64;
 
-DEF_SIMPLE_GPU_GM(clear_swizzle, ctx, sdCtx, canvas, 6*kSize, 2*kSize) {
-    if (ctx->abandoned()) {
+DEF_SIMPLE_GPU_GM(clear_swizzle, rContext, sdCtx, canvas, 6*kSize, 2*kSize) {
+    if (rContext->abandoned()) {
         return;
     }
 
     auto make_offscreen = [&](const SkISize dimensions) {
         GrSwizzle readSwizzle  = GrSwizzle::Concat(sdCtx->readSwizzle(), GrSwizzle{"bgra"});
         GrSwizzle writeSwizzle = GrSwizzle::Concat(sdCtx->readSwizzle(), GrSwizzle{"bgra"});
-        return GrSurfaceFillContext::Make(ctx,
+        return GrSurfaceFillContext::Make(rContext,
                                           kPremul_SkAlphaType,
                                           sdCtx->colorInfo().refColorSpace(),
                                           dimensions,

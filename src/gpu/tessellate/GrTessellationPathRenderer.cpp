@@ -110,7 +110,6 @@ static GrOp::Owner make_non_convex_fill_op(GrRecordingContext* rContext,
             return GrOp::Make<GrPathInnerTriangulateOp>(rContext, viewMatrix, path,
                                                         std::move(paint), aaType, pathFlags,
                                                         pathDevBounds);
-        }
     }
     return GrOp::Make<GrPathStencilCoverOp>(rContext, viewMatrix, path, std::move(paint), aaType,
                                             pathFlags, pathDevBounds);

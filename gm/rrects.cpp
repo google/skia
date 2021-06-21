@@ -5,6 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "include/gpu/GrTypes.h"
+
+#if SK_OGA
+
 #include "gm/gm.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
@@ -271,3 +275,6 @@ DEF_GM( return new RRectGM(RRectGM::kBW_Clip_Type); )
 DEF_GM( return new RRectGM(RRectGM::kEffect_Type); )
 
 }  // namespace skiagm
+
+#endif // SK_OGA
+

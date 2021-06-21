@@ -67,7 +67,7 @@ static bool get_unclipped_shape_dev_bounds(const GrStyledShape& shape, const SkM
 
 // Gets the shape bounds, the clip bounds, and the intersection (if any). Returns false if there
 // is no intersection.
-bool GrSoftwarePathRenderer::GetShapeAndClipBounds(GrSurfaceDrawContext* surfaceDrawContext,
+bool GrSoftwarePathRenderer::GetShapeAndClipBounds(GrSurfaceProxy* targetProxy,
                                                    const GrClip* clip,
                                                    const GrStyledShape& shape,
                                                    const SkMatrix& matrix,
@@ -76,8 +76,8 @@ bool GrSoftwarePathRenderer::GetShapeAndClipBounds(GrSurfaceDrawContext* surface
                                                    SkIRect* devClipBounds) {
     // compute bounds as intersection of rt size, clip, and path
     *devClipBounds = clip ? clip->getConservativeBounds()
-                          : SkIRect::MakeWH(surfaceDrawContext->width(),
-                                            surfaceDrawContext->height());
+                          : SkIRect::MakeWH(targetProxy->width(),
+                                            targetProxy->height());
 
     if (!get_unclipped_shape_dev_bounds(shape, matrix, unclippedDevShapeBounds)) {
         *unclippedDevShapeBounds = SkIRect::MakeEmpty();
@@ -100,6 +100,7 @@ void GrSoftwarePathRenderer::DrawNonAARect(GrSurfaceDrawContext* surfaceDrawCont
                                            const SkMatrix& viewMatrix,
                                            const SkRect& rect,
                                            const SkMatrix& localMatrix) {
+    //$$
     surfaceDrawContext->stencilRect(clip, &userStencilSettings, std::move(paint), GrAA::kNo,
                                     viewMatrix, rect, &localMatrix);
 }
@@ -224,7 +225,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 // return true on success; false on failure
 bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
-    GR_AUDIT_TRAIL_AUTO_FRAME(args.fSurfaceDrawContext->auditTrail(),
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fContext->priv().auditTrail(),
                               "GrSoftwarePathRenderer::onDrawPath");
     if (!fProxyProvider) {
         return false;
@@ -243,7 +244,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
     bool useCache = fAllowCaching && !inverseFilled && args.fViewMatrix->preservesAxisAlignment() &&
                     args.fShape->hasUnstyledKey() && (GrAAType::kCoverage == args.fAAType);
 
-    if (!GetShapeAndClipBounds(args.fSurfaceDrawContext,
+    if (!GetShapeAndClipBounds(args.fTargetProxy,
                                args.fClip, *args.fShape,
                                *args.fViewMatrix, &unclippedDevShapeBounds,
                                &clippedDevShapeBounds,
@@ -264,7 +265,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
         int64_t unclippedArea = sk_64_mul(unclippedWidth, unclippedHeight);
         int64_t clippedArea = sk_64_mul(clippedDevShapeBounds.width(),
                                         clippedDevShapeBounds.height());
-        int maxTextureSize = args.fSurfaceDrawContext->caps()->maxTextureSize();
+        int maxTextureSize = args.fContext->priv().caps()->maxTextureSize();
         if (unclippedArea > 2 * clippedArea || unclippedWidth > maxTextureSize ||
             unclippedHeight > maxTextureSize) {
             useCache = false;
@@ -318,7 +319,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
     if (useCache) {
         auto proxy = fProxyProvider->findOrCreateProxyByUniqueKey(maskKey);
         if (proxy) {
-            GrSwizzle swizzle = args.fSurfaceDrawContext->caps()->getReadSwizzle(
+            GrSwizzle swizzle = args.fContext->priv().caps()->getReadSwizzle(
                     proxy->backendFormat(), GrColorType::kAlpha_8);
             view = {std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle};
             args.fContext->priv().stats()->incNumPathMasksCacheHits();

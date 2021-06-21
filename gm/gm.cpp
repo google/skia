@@ -200,17 +200,17 @@ void GpuGM::onDraw(GrRecordingContext*, GrSurfaceDrawContext*, SkCanvas*) {
 
 DrawResult GpuGM::onDraw(SkCanvas* canvas, SkString* errorMsg) {
 
-    auto ctx = canvas->recordingContext();
+    auto rContext = canvas->recordingContext();
     GrSurfaceDrawContext* sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
-    if (!ctx || !sdc) {
+    if (!rContext || !sdc) {
         *errorMsg = kErrorMsg_DrawSkippedGpuOnly;
         return DrawResult::kSkip;
     }
-    if (ctx->abandoned()) {
+    if (rContext->abandoned()) {
         *errorMsg = "GrContext abandoned.";
         return DrawResult::kSkip;
     }
-    return this->onDraw(ctx, sdc, canvas, errorMsg);
+    return this->onDraw(rContext, sdc, canvas, errorMsg);
 }
 
 template <typename Fn>
