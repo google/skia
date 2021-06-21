@@ -318,8 +318,6 @@ skia_gpu_sources = [
   "$_src/gpu/effects/generated/GrCircleEffect.h",
   "$_src/gpu/effects/generated/GrConfigConversionEffect.cpp",
   "$_src/gpu/effects/generated/GrConfigConversionEffect.h",
-  "$_src/gpu/effects/generated/GrDeviceSpaceEffect.cpp",
-  "$_src/gpu/effects/generated/GrDeviceSpaceEffect.h",
   "$_src/gpu/effects/generated/GrDitherEffect.cpp",
   "$_src/gpu/effects/generated/GrDitherEffect.h",
   "$_src/gpu/effects/generated/GrEllipseEffect.cpp",

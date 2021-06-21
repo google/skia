@@ -134,6 +134,12 @@ public:
     static std::unique_ptr<GrFragmentProcessor> DestColor();
 
     /**
+     * Returns a fragment processor that calls the passed in fragment processor, but evaluates it
+     * in device-space (rather than local space).
+     */
+    static std::unique_ptr<GrFragmentProcessor> DeviceSpace(std::unique_ptr<GrFragmentProcessor>);
+
+    /**
      * Makes a copy of this fragment processor that draws equivalently to the original.
      * If the processor has child processors they are cloned as well.
      */

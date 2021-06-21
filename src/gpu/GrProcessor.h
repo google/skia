@@ -65,7 +65,6 @@ public:
         kGrConfigConversionEffect_ClassID,
         kGrConicEffect_ClassID,
         kGrConvexPolyEffect_ClassID,
-        kGrDeviceSpaceEffect_ClassID,
         kGrDiffuseLightingEffect_ClassID,
         kGrDisplacementMapEffect_ClassID,
         kGrDistanceFieldA8TextGeoProc_ClassID,

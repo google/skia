@@ -23,7 +23,6 @@
 #include "src/gpu/effects/GrConvexPolyEffect.h"
 #include "src/gpu/effects/GrRRectEffect.h"
 #include "src/gpu/effects/generated/GrAARectEffect.h"
-#include "src/gpu/effects/generated/GrDeviceSpaceEffect.h"
 #include "src/gpu/geometry/GrStyledShape.h"
 #include "src/shaders/SkShaderBase.h"
 
