@@ -65,6 +65,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c428108f_84524219",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 500,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-21T21:08:40Z",
+      "side": 1,
+      "message": "Yup. You beat me to to it. I had already drafted the response that using the same base and checking for 4/8/12 is easier to read.",
+      "parentUuid": "17f1f50c_08f6d238",
+      "range": {
+        "startLine": 500,
+        "startChar": 39,
+        "endLine": 500,
+        "endChar": 41
+      },
+      "revId": "24b48bdce632e473a0305a74f6464be8fa60e2a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "019829a3_bd3b48fe",
