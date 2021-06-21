@@ -25,7 +25,6 @@
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/effects/GrBlendFragmentProcessor.h"
 #include "src/gpu/effects/GrRRectEffect.h"
-#include "src/gpu/effects/generated/GrDeviceSpaceEffect.h"
 #include "src/gpu/geometry/GrStyledShape.h"
 
 typedef SkClipStack::Element Element;
@@ -83,7 +82,7 @@ static std::unique_ptr<GrFragmentProcessor> create_fp_for_mask(GrSurfaceProxyVie
     auto fp = GrTextureEffect::MakeSubset(std::move(mask), kPremul_SkAlphaType, m, samplerState,
                                           subset, domain, caps);
     fp = GrBlendFragmentProcessor::Make(std::move(fp), nullptr, SkBlendMode::kDstIn);
-    return GrDeviceSpaceEffect::Make(std::move(fp));
+    return GrFragmentProcessor::DeviceSpace(std::move(fp));
 }
 
 /*

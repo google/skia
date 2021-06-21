@@ -36,7 +36,6 @@
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/GrUserStencilSettings.h"
-#include "src/gpu/effects/generated/GrDeviceSpaceEffect.h"
 #include "tools/ToolUtils.h"
 
 #include <utility>
@@ -183,7 +182,7 @@ private:
         auto domain = bounds->makeOffset(-fX, -fY).makeInset(0.5, 0.5);
         auto fp = GrTextureEffect::MakeSubset(fMask, kPremul_SkAlphaType, m, samplerState, subset,
                                               domain, *ctx->priv().caps());
-        fp = GrDeviceSpaceEffect::Make(std::move(fp));
+        fp = GrFragmentProcessor::DeviceSpace(std::move(fp));
         out->addCoverageFP(std::move(fp));
         return Effect::kClipped;
     }

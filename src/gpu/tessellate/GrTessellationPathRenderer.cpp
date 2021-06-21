@@ -16,7 +16,6 @@
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrVx.h"
 #include "src/gpu/effects/GrBlendFragmentProcessor.h"
-#include "src/gpu/effects/generated/GrDeviceSpaceEffect.h"
 #include "src/gpu/geometry/GrStyledShape.h"
 #include "src/gpu/geometry/GrWangsFormula.h"
 #include "src/gpu/ops/GrFillRectOp.h"
