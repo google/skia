@@ -556,25 +556,32 @@ namespace {
             shader = sk_make_sp<DitherShader>(std::move(shader));
         }
 
-        // Add the user blend function.
-        sk_sp<SkBlender> blender = paint.refBlender();
+        sk_sp<SkBlender> blender;
+        SkBlendMode blendMode;
 
-        // The most common blend mode is SrcOver, and it can be strength-reduced
-        // _greatly_ to Src mode when the shader is opaque.
-        //
-        // In general all the information we use to make decisions here need to
-        // be reflected in Params and Key to make program caching sound, and it
-        // might appear that shader->isOpaque() is a property of the shader's
-        // uniforms than its fundamental program structure and so unsafe to use.
-        //
-        // Opacity is such a powerful property that SkShaderBase::program()
-        // forces opacity for any shader subclass that claims isOpaque(), so
-        // the opaque bit is strongly guaranteed to be part of the program and
-        // not just a property of the uniforms.  The shader program hash includes
-        // this information, making it safe to use anywhere in the blitter codegen.
-        SkBlendMode blendMode = paint.getBlendMode();
-        if ((blendMode == SkBlendMode::kSrcOver && shader->isOpaque()) || blender) {
+        if (paint.experimental_usesBlender()) {
+            // Add the user blend function.
+            blender = paint.refBlender();
             blendMode = SkBlendMode::kSrc;
+        } else {
+            // The most common blend mode is SrcOver, and it can be strength-reduced
+            // _greatly_ to Src mode when the shader is opaque.
+            //
+            // In general all the information we use to make decisions here need to
+            // be reflected in Params and Key to make program caching sound, and it
+            // might appear that shader->isOpaque() is a property of the shader's
+            // uniforms than its fundamental program structure and so unsafe to use.
+            //
+            // Opacity is such a powerful property that SkShaderBase::program()
+            // forces opacity for any shader subclass that claims isOpaque(), so
+            // the opaque bit is strongly guaranteed to be part of the program and
+            // not just a property of the uniforms.  The shader program hash includes
+            // this information, making it safe to use anywhere in the blitter codegen.
+            blender = nullptr;
+            blendMode = paint.getBlendMode();
+            if (blendMode == SkBlendMode::kSrcOver && shader->isOpaque()) {
+                blendMode = SkBlendMode::kSrc;
+            }
         }
 
         SkColor4f paintColor = paint.getColor4f();
