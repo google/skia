@@ -139,9 +139,9 @@ static void check_state(FakeMCBlob* actualState,
     int i = 0;
     auto states = actualState->mcStates();
     for (auto& s : states) {
-        for (auto r : s.rects()) {
+        for (const sk_sp<ClipCmd>& c : s.cmds()) {
             SkAssertResult(i < (int) expectedClips.size());
-            SkAssertResult(r == expectedClips[i]);
+            SkAssertResult(c->rect() == expectedClips[i]);
             i++;
         }
     }

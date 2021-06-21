@@ -39,15 +39,11 @@ public:
 
         SkIPoint getTrans() const { return fTrans; }
 
-        bool operator==(const MCState& other) const {
-            return fTrans == other.fTrans &&
-                   fRects == other.fRects;
-       }
+        bool operator==(const MCState& other) const;
 
         void apply(SkCanvas*) const;
         void apply(FakeCanvas*) const;
 
-        const std::vector<SkIRect>& rects() const { return fRects; }
         const std::vector<sk_sp<ClipCmd>>& cmds() const { return fCmds; }
 
         sk_sp<FakeMCBlob> getCached() const {
@@ -63,28 +59,14 @@ public:
         friend class FakeMCBlob;
 
         SkIPoint              fTrans { 0, 0 };
-        // These clip rects are in the 'parent' space of this MCState (i.e., in the coordinate
-        // frame of the MCState prior to this one in 'fStack'). Alternatively, the 'fTrans' in
-        // effect when they were added has already been applied.
-        std::vector<SkIRect>        fRects;
+        // The clip rects in the ClipCmds have been transformed into the 'parent' space of this
+        // MCState (i.e., in the coordinate frame of the MCState prior to this one in 'fStack').
+        // Alternatively, the 'fTrans' in effect when they were added has already been applied.
         std::vector<sk_sp<ClipCmd>> fCmds;
         sk_sp<FakeMCBlob>           fCached;
     };
 
-    FakeMCBlob(const std::vector<MCState>& stack) : fID(NextID()), fStack(stack) {
-        fScissor = SkIRect::MakeLTRB(-1000, -1000, 1000, 1000);
-
-        for (MCState& s : fStack) {
-            // xform the clip rects into device space to compute the scissor
-            for (SkIRect r : s.fRects) {
-                r.offset(fCTM);
-                if (!fScissor.intersect(r)) {
-                    fScissor.setEmpty();
-                }
-            }
-            fCTM += s.getTrans();
-        }
-    }
+    FakeMCBlob(const std::vector<MCState>& stack);
 
     // Find the common prefix between the two states
     int determineSharedPrefix(const FakeMCBlob* other) const {
