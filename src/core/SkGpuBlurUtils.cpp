@@ -18,6 +18,8 @@
 #include "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.h"
 #include "src/gpu/effects/GrMatrixConvolutionEffect.h"
 
+#if GR_OGA
+
 using Direction = GrGaussianConvolutionFragmentProcessor::Direction;
 
 static void fill_in_2D_gaussian_kernel(float* kernel, int width, int height,
@@ -437,9 +439,11 @@ static std::unique_ptr<GrSurfaceDrawContext> two_pass_gaussian(GrRecordingContex
     return convolve_gaussian(context, std::move(srcView), srcColorType, srcAlphaType, srcBounds,
                              dstBounds, Direction::kY, radiusY, sigmaY, mode, colorSpace, fit);
 }
+#endif // GR_OGA
 
 namespace SkGpuBlurUtils {
 
+#if GR_OGA
 std::unique_ptr<GrSurfaceDrawContext> GaussianBlur(GrRecordingContext* context,
                                                    GrSurfaceProxyView srcView,
                                                    GrColorType srcColorType,
@@ -709,6 +713,7 @@ std::unique_ptr<GrSurfaceDrawContext> GaussianBlur(GrRecordingContext* context,
     return reexpand(context, std::move(sdc), scaledDstBounds, dstBounds.size(),
                     std::move(colorSpace), fit);
 }
+#endif // GR_OGA
 
 bool ComputeBlurredRRectParams(const SkRRect& srcRRect, const SkRRect& devRRect,
                                SkScalar sigma, SkScalar xformedSigma,

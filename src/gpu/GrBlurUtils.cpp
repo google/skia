@@ -7,6 +7,8 @@
 
 #include "src/gpu/GrBlurUtils.h"
 
+#if GR_OGA
+
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrCaps.h"
@@ -582,3 +584,24 @@ void GrBlurUtils::drawShapeWithMaskFilter(GrRecordingContext* context,
                                       viewMatrix, GrStyledShape(shape));
     }
 }
+
+#else // GR_OGA
+
+void GrBlurUtils::drawShapeWithMaskFilter(GrRecordingContext* context,
+                                          GrSurfaceDrawContext* surfaceDrawContext,
+                                          const GrClip* clip,
+                                          const GrStyledShape& shape,
+                                          GrPaint&& paint,
+                                          const SkMatrix& viewMatrix,
+                                          const SkMaskFilter* mf) {
+}
+
+void GrBlurUtils::drawShapeWithMaskFilter(GrRecordingContext* context,
+                                          GrSurfaceDrawContext* surfaceDrawContext,
+                                          const GrClip* clip,
+                                          const SkPaint& paint,
+                                          const SkMatrixProvider& matrixProvider,
+                                          const GrStyledShape& shape) {
+}
+
+#endif // GR_OGA

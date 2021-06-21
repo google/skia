@@ -198,7 +198,6 @@ gm_sources = [
   "$_gm/glyph_pos.cpp",
   "$_gm/gm.cpp",
   "$_gm/gm.h",
-  "$_gm/gpu_blur_utils.cpp",
   "$_gm/gradient_dirty_laundry.cpp",
   "$_gm/gradient_matrix.cpp",
   "$_gm/gradients.cpp",
@@ -416,6 +415,7 @@ gm_sources = [
 gl_gm_sources = [ "$_gm/rectangletexture.cpp" ]
 
 oga_gm_sources = [
+  "$_gm/gpu_blur_utils.cpp",
   "$_gm/preservefillrule.cpp",
   "$_gm/widebuttcaps.cpp",
 ]
