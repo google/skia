@@ -1,4 +1,4 @@
-// Copyright 2021 Google LLC.
+﻿// Copyright 2021 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 
 #include "experimental/ngatoy/Cmds.h"
@@ -54,17 +54,37 @@ RectCmd::RectCmd(ID id,
                  SkIRect r,
                  const FakePaint& p,
                  sk_sp<FakeMCBlob> state)
-    : Cmd(id)
-    , fPaintersOrder(paintersOrder)
-    , fRect(r)
-    , fPaint(p)
-    , fMCState(std::move(state)) {
+        : Cmd(id)
+        , fPaintersOrder(paintersOrder)
+        , fRect(r)
+        , fPaint(p)
+        , fMCState(std::move(state)) {
 }
 
+// For an opaque draw (Or) the sort z = 1+max { sort z(C), C ∈ clips(Or) }
+// For a transparent draw (Or) the sort z = 1+max { sort z(Os), s < r && (bounds(Os) ∩ bounds(Or)) }
 uint32_t RectCmd::getSortZ() const {
-    return fPaintersOrder.toUInt();
+
+    if (!fPaint.isTransparent()) {
+        uint32_t maxClipZ = 0;
+        for (auto s : fMCState->mcStates()) {
+            for (const sk_sp<ClipCmd>& c : s.cmds()) {
+                uint32_t clipZ = c->getSortZ();
+                SkASSERT(clipZ != 0);
+
+                maxClipZ = std::max(maxClipZ, clipZ);
+            }
+        }
+
+        return maxClipZ != 0 ? maxClipZ+1 : fPaintersOrder.toUInt();
+    } else {
+        // Here we just ignore the bounds intersection portion of the sortZ computation - we
+        // assume the pessemistic "everything always intersects" case.
+        return fPaintersOrder.toUInt();
+    }
 }
 
+// Opaque and transparent draws both write their painter’s index to the depth buffer
 uint32_t RectCmd::getDrawZ() const {
     return fPaintersOrder.toUInt();
 }
@@ -152,35 +172,36 @@ ClipCmd::ClipCmd(ID id, PaintersOrder paintersOrderWhenAdded, SkIRect r)
         , fPaintersOrderWhenAdded(paintersOrderWhenAdded) {
 }
 
-ClipCmd::~ClipCmd() {
-}
+ClipCmd::~ClipCmd() {}
 
+// A clip (Or) has sort z = 1+max { sort z(Os), s < r && (bounds(Os) ∩ bounds(Or)) }
 uint32_t ClipCmd::getSortZ() const {
-    // Not used this iteration
-    SkASSERT(0);
-
     SkASSERT(fPaintersOrderWhenAdded.isValid());
 
+    // Here we just ignore the bounds intersection portion of the sortZ computation - we
+    // assume the pessemistic "everything always intersects" case.
     return fPaintersOrderWhenAdded.toUInt();
 }
 
+// A clip writes the painter’s index corresponding to when it’s “popped” off the clip stack
 uint32_t ClipCmd::getDrawZ() const {
-    // Not used this iteration
-    SkASSERT(0);
+    SkASSERT(fPaintersOrderWhenPopped.isValid());
 
-    return 0;
+    return fPaintersOrderWhenPopped.toUInt();
 }
 
 SortKey ClipCmd::getKey() {
-    // Not used this iteration
-    SkASSERT(0);
-
     return SortKey(false, this->getSortZ(), kInvalidMat);
+}
+
+void ClipCmd::pop(PaintersOrder paintersOrderWhenPopped) {
+    SkASSERT(!fPaintersOrderWhenPopped.isValid() && paintersOrderWhenPopped.isValid());
+    fPaintersOrderWhenPopped = paintersOrderWhenPopped;
 }
 
 void ClipCmd::execute(FakeCanvas* c) const {
     // This call is creating the 'real' ClipCmd for the "actual" case
-    SkASSERT(!fPaintersOrderWhenAdded.isValid());
+    SkASSERT(!fPaintersOrderWhenAdded.isValid() && !fPaintersOrderWhenPopped.isValid());
 
     c->clipRect(fID, fRect);
 }
@@ -190,9 +211,6 @@ void ClipCmd::execute(SkCanvas* c) const {
 }
 
 void ClipCmd::rasterize(uint32_t zBuffer[256][256], SkBitmap* /* dstBM */) const {
-    // Not used this iteration
-    SkASSERT(0);
-
     uint32_t drawZ = this->getDrawZ();
 
     for (int y = fRect.fTop; y < fRect.fBottom; ++y) {
