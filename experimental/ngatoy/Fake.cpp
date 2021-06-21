@@ -11,16 +11,31 @@
 
 //-------------------------------------------------------------------------------------------------
 void FakeMCBlob::MCState::addRect(SkIRect r, sk_sp<ClipCmd> clipCmd) {
-    fRects.push_back(r.makeOffset(fTrans.fX, fTrans.fY));
+    clipCmd->mutate(fTrans);
     fCmds.push_back(std::move(clipCmd));
     fCached = nullptr;
+}
+
+bool FakeMCBlob::MCState::operator==(const MCState& other) const {
+    if (fTrans != other.fTrans || fCmds.size() != other.fCmds.size()) {
+        return false;
+    }
+
+    for (size_t i = 0; i < fCmds.size(); ++i) {
+        if (fCmds[i]->rect() != other.fCmds[i]->rect()) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 void FakeMCBlob::MCState::apply(SkCanvas* canvas) const {
     canvas->save();
 
-    for (SkIRect c : fRects) {
-        canvas->clipIRect(c);
+    for (const sk_sp<ClipCmd>& c : fCmds) {
+        SkASSERT(c->hasBeenMutated());
+        canvas->clipIRect(c->rect());
     }
 
     canvas->translate(fTrans.fX, fTrans.fY);
@@ -29,9 +44,9 @@ void FakeMCBlob::MCState::apply(SkCanvas* canvas) const {
 void FakeMCBlob::MCState::apply(FakeCanvas* canvas) const {
     canvas->save();
 
-    // ID::Invalid seems wrong here
-    for (SkIRect c : fRects) {
-        canvas->clipRect(ID::Invalid(), c);
+    for (const sk_sp<ClipCmd>& c : fCmds) {
+        SkASSERT(c->hasBeenMutated());
+        canvas->clipRect(c->id(), c->rect());
     }
 
     canvas->translate(fTrans);
@@ -40,6 +55,24 @@ void FakeMCBlob::MCState::apply(FakeCanvas* canvas) const {
 void FakeMCBlob::MCState::aboutToBePopped(PaintersOrder paintersOrderWhenPopped) {
     for (sk_sp<ClipCmd>& c : fCmds) {
         c->onAboutToBePopped(paintersOrderWhenPopped);
+    }
+}
+
+
+FakeMCBlob::FakeMCBlob(const std::vector<MCState>& stack) : fID(NextID()), fStack(stack) {
+    fScissor = SkIRect::MakeLTRB(-1000, -1000, 1000, 1000);
+
+    for (MCState& s : fStack) {
+        // xform the clip rects into device space to compute the scissor
+        for (const sk_sp<ClipCmd>& c : s.fCmds) {
+            SkASSERT(c->hasBeenMutated());
+            SkIRect r = c->rect();
+            r.offset(fCTM);
+            if (!fScissor.intersect(r)) {
+                fScissor.setEmpty();
+            }
+        }
+        fCTM += s.getTrans();
     }
 }
 

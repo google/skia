@@ -129,6 +129,8 @@ public:
     uint32_t getSortZ() const;
     uint32_t getDrawZ() const;
 
+    SkIRect rect() const { return fRect; }
+
     SortKey getKey() override;
 
     PaintersOrder getPaintersOrderWhenPopped() const {
@@ -148,9 +150,19 @@ public:
                  fRect.fLeft, fRect.fTop, fRect.fRight, fRect.fBottom);
     }
 
+    bool hasBeenMutated() const { return fHasBeenMutated; }
+
+    void mutate(SkIPoint trans) {
+        SkASSERT(!fHasBeenMutated);
+
+        fRect.offset(trans.fX, trans.fY);
+        fHasBeenMutated = true;
+    }
+
 protected:
 
 private:
+    bool          fHasBeenMutated = false;
     SkIRect       fRect;
     PaintersOrder fPaintersOrderWhenAdded;
     PaintersOrder fPaintersOrderWhenPopped;
