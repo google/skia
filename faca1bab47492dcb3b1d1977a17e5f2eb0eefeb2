@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "beb10db2_37e367d3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-21T21:24:26Z",
+      "side": 1,
+      "message": "big gory hack\n\nIf you grep for filterPath_TODO, you\u0027ll see the sites where I need the CTM, but don\u0027t currently have access to it. Do you think that would be easy to add? (i.e. the number of call-sites would be finite?)\n\nNot intended to land, as much as start to scope out how this might look...",
+      "revId": "faca1bab47492dcb3b1d1977a17e5f2eb0eefeb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
