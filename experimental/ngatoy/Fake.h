@@ -30,7 +30,7 @@ public:
     public:
         MCState() {}
 
-        void addRect(SkIRect r, sk_sp<ClipCmd> clipCmd);
+        void addClip(sk_sp<ClipCmd> clipCmd);
 
         void translate(SkIPoint trans) {
             fTrans += trans;
@@ -39,15 +39,8 @@ public:
 
         SkIPoint getTrans() const { return fTrans; }
 
-        bool operator==(const MCState& other) const {
-            return fTrans == other.fTrans &&
-                   fRects == other.fRects;
-       }
+        bool operator==(const MCState& other) const;
 
-        void apply(SkCanvas*) const;
-        void apply(FakeCanvas*) const;
-
-        const std::vector<SkIRect>& rects() const { return fRects; }
         const std::vector<sk_sp<ClipCmd>>& cmds() const { return fCmds; }
 
         sk_sp<FakeMCBlob> getCached() const {
@@ -63,42 +56,14 @@ public:
         friend class FakeMCBlob;
 
         SkIPoint              fTrans { 0, 0 };
-        // These clip rects are in the 'parent' space of this MCState (i.e., in the coordinate
-        // frame of the MCState prior to this one in 'fStack'). Alternatively, the 'fTrans' in
-        // effect when they were added has already been applied.
-        std::vector<SkIRect>        fRects;
+        // The clip rects in the ClipCmds have been transformed into the 'parent' space of this
+        // MCState (i.e., in the coordinate frame of the MCState prior to this one in 'fStack').
+        // Alternatively, the 'fTrans' in effect when they were added has already been applied.
         std::vector<sk_sp<ClipCmd>> fCmds;
         sk_sp<FakeMCBlob>           fCached;
     };
 
-    FakeMCBlob(const std::vector<MCState>& stack) : fID(NextID()), fStack(stack) {
-        fScissor = SkIRect::MakeLTRB(-1000, -1000, 1000, 1000);
-
-        for (MCState& s : fStack) {
-            // xform the clip rects into device space to compute the scissor
-            for (SkIRect r : s.fRects) {
-                r.offset(fCTM);
-                if (!fScissor.intersect(r)) {
-                    fScissor.setEmpty();
-                }
-            }
-            fCTM += s.getTrans();
-        }
-    }
-
-    // Find the common prefix between the two states
-    int determineSharedPrefix(const FakeMCBlob* other) const {
-        if (!other) {
-            return 0;
-        }
-
-        int i = 0;
-        for ( ; i < this->count() && i < other->count() && (*this)[i] == (*other)[i]; ++i) {
-            /**/
-        }
-
-        return i;
-    }
+    FakeMCBlob(const std::vector<MCState>& stack);
 
     int count() const { return fStack.size(); }
     int id() const { return fID; }
@@ -140,8 +105,8 @@ public:
         fStack.push_back(FakeMCBlob::MCState());
     }
 
-    void clipRect(SkIRect clipRect, sk_sp<ClipCmd> clipCmd) {
-        fStack.back().addRect(clipRect, std::move(clipCmd));
+    void clipRect(sk_sp<ClipCmd> clipCmd) {
+        fStack.back().addClip(std::move(clipCmd));
     }
 
     // For now we only store translates - in the full Skia this would be the whole 4x4 matrix
