@@ -16,6 +16,12 @@ DEF_TEST(SkTOptionalEmpty, r) {
     REPORTER_ASSERT(r, !o.has_value());
 }
 
+DEF_TEST(SkTOptionalNulloptCtor, r) {
+    skstd::optional<int> o(skstd::nullopt);
+    REPORTER_ASSERT(r, !o);
+    REPORTER_ASSERT(r, !o.has_value());
+}
+
 DEF_TEST(SkTOptionalValue, r) {
     skstd::optional<const char*> o("test");
     REPORTER_ASSERT(r, o);
@@ -23,6 +29,23 @@ DEF_TEST(SkTOptionalValue, r) {
     REPORTER_ASSERT(r, !strcmp(*o, "test"));
     REPORTER_ASSERT(r, !strcmp(o.value(), "test"));
     o.reset();
+    REPORTER_ASSERT(r, !o);
+    REPORTER_ASSERT(r, !o.has_value());
+}
+
+DEF_TEST(SkTOptionalNulloptAssignment, r) {
+    skstd::optional<const char*> o("test");
+    REPORTER_ASSERT(r, o);
+    REPORTER_ASSERT(r, o.has_value());
+    o = skstd::nullopt;
+    REPORTER_ASSERT(r, !o);
+    REPORTER_ASSERT(r, !o.has_value());
+}
+
+DEF_TEST(SkTOptionalNulloptReturn, r) {
+    auto fn = []() -> skstd::optional<float> { return skstd::nullopt; };
+
+    skstd::optional<float> o = fn();
     REPORTER_ASSERT(r, !o);
     REPORTER_ASSERT(r, !o.has_value());
 }
