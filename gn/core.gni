@@ -267,6 +267,8 @@ skia_core_sources = [
   "$_src/core/SkMatrix44.cpp",
   "$_src/core/SkMatrixImageFilter.cpp",
   "$_src/core/SkMatrixImageFilter.h",
+  "$_src/core/SkMatrixInvert.cpp",
+  "$_src/core/SkMatrixInvert.h",
   "$_src/core/SkMatrixUtils.h",
   "$_src/core/SkMessageBus.h",
   "$_src/core/SkMiniRecorder.cpp",

@@ -16,6 +16,7 @@
 #include "src/sksl/ir/SkSLIntLiteral.h"
 
 #include "include/sksl/DSLCore.h"
+#include "src/core/SkMatrixInvert.h"
 
 namespace SkSL {
 
@@ -534,78 +535,44 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
             // Our matrix inverse is adapted from the logic in GLSLCodeGenerator::writeInverseHack.
             switch (arguments[0]->type().slotCount()) {
                 case 4: {
-                    float a00 = M(0, 0), a01 = M(0, 1);
-                    float a10 = M(1, 0), a11 = M(1, 1);
-                    float ind = 1 / (a00 * a11 - a01 * a10);  // inverse determinant
-                    if (!std::isfinite(ind)) {
+                    float mat2[4] = {M(0, 0), M(0, 1),
+                                     M(1, 0), M(1, 1)};
+                    if (!SkInvert2x2Matrix(mat2, mat2)) {
                         return nullptr;
                     }
                     return DSLType::Construct(&arguments[0]->type(),
-                                               a11 * ind, -a01 * ind,
-                                              -a10 * ind,  a00 * ind).release();
+                                              mat2[0], mat2[1],
+                                              mat2[2], mat2[3]).release();
                 }
                 case 9: {
-                    float a00 = M(0, 0), a01 = M(0, 1), a02 = M(0, 2);
-                    float a10 = M(1, 0), a11 = M(1, 1), a12 = M(1, 2);
-                    float a20 = M(2, 0), a21 = M(2, 1), a22 = M(2, 2);
-                    float b01 =  a22 * a11 - a12 * a21;
-                    float b11 = -a22 * a10 + a12 * a20;
-                    float b21 =  a21 * a10 - a11 * a20;
-                    float ind = 1 / (a00 * b01 + a01 * b11 + a02 * b21);  // inverse determinant
-                    if (!std::isfinite(ind)) {
+                    float mat3[9] = {M(0, 0), M(0, 1), M(0, 2),
+                                     M(1, 0), M(1, 1), M(1, 2),
+                                     M(2, 0), M(2, 1), M(2, 2)};
+                    if (!SkInvert3x3Matrix(mat3, mat3)) {
                         return nullptr;
                     }
                     return DSLType::Construct(&arguments[0]->type(),
-                        b01 * ind, (-a22 * a01 + a02 * a21) * ind, ( a12 * a01 - a02 * a11) * ind,
-                        b11 * ind, ( a22 * a00 - a02 * a20) * ind, (-a12 * a00 + a02 * a10) * ind,
-                        b21 * ind, (-a21 * a00 + a01 * a20) * ind, ( a11 * a00 - a01 * a10) * ind)
-                    .release();
+                                              mat3[0], mat3[1], mat3[2],
+                                              mat3[3], mat3[4], mat3[5],
+                                              mat3[6], mat3[7], mat3[8]).release();
                 }
                 case 16: {
-                    float a00 = M(0, 0), a01 = M(0, 1), a02 = M(0, 2), a03 = M(0, 3);
-                    float a10 = M(1, 0), a11 = M(1, 1), a12 = M(1, 2), a13 = M(1, 3);
-                    float a20 = M(2, 0), a21 = M(2, 1), a22 = M(2, 2), a23 = M(2, 3);
-                    float a30 = M(3, 0), a31 = M(3, 1), a32 = M(3, 2), a33 = M(3, 3);
-                    float b00 = a00 * a11 - a01 * a10;
-                    float b01 = a00 * a12 - a02 * a10;
-                    float b02 = a00 * a13 - a03 * a10;
-                    float b03 = a01 * a12 - a02 * a11;
-                    float b04 = a01 * a13 - a03 * a11;
-                    float b05 = a02 * a13 - a03 * a12;
-                    float b06 = a20 * a31 - a21 * a30;
-                    float b07 = a20 * a32 - a22 * a30;
-                    float b08 = a20 * a33 - a23 * a30;
-                    float b09 = a21 * a32 - a22 * a31;
-                    float b10 = a21 * a33 - a23 * a31;
-                    float b11 = a22 * a33 - a23 * a32;
-                    float ind = 1 / (b00 * b11 - b01 * b10 + b02 * b09 +
-                                     b03 * b08 - b04 * b07 + b05 * b06);  // inverse determinant
-                    if (!std::isfinite(ind)) {
+                    float mat4[16] = {M(0, 0), M(0, 1), M(0, 2), M(0, 3),
+                                      M(1, 0), M(1, 1), M(1, 2), M(1, 3),
+                                      M(2, 0), M(2, 1), M(2, 2), M(2, 3),
+                                      M(3, 0), M(3, 1), M(3, 2), M(3, 3)};
+                    if (!SkInvert4x4Matrix(mat4, mat4)) {
                         return nullptr;
                     }
                     return DSLType::Construct(&arguments[0]->type(),
-                                              (a11 * b11 - a12 * b10 + a13 * b09) * ind,
-                                              (a02 * b10 - a01 * b11 - a03 * b09) * ind,
-                                              (a31 * b05 - a32 * b04 + a33 * b03) * ind,
-                                              (a22 * b04 - a21 * b05 - a23 * b03) * ind,
-                                              (a12 * b08 - a10 * b11 - a13 * b07) * ind,
-                                              (a00 * b11 - a02 * b08 + a03 * b07) * ind,
-                                              (a32 * b02 - a30 * b05 - a33 * b01) * ind,
-                                              (a20 * b05 - a22 * b02 + a23 * b01) * ind,
-                                              (a10 * b10 - a11 * b08 + a13 * b06) * ind,
-                                              (a01 * b08 - a00 * b10 - a03 * b06) * ind,
-                                              (a30 * b04 - a31 * b02 + a33 * b00) * ind,
-                                              (a21 * b02 - a20 * b04 - a23 * b00) * ind,
-                                              (a11 * b07 - a10 * b09 - a12 * b06) * ind,
-                                              (a00 * b09 - a01 * b07 + a02 * b06) * ind,
-                                              (a31 * b01 - a30 * b03 - a32 * b00) * ind,
-                                              (a20 * b03 - a21 * b01 + a22 * b00) * ind).release();
-                    break;
+                                              mat4[0],  mat4[1],  mat4[2],  mat4[3],
+                                              mat4[4],  mat4[5],  mat4[6],  mat4[7],
+                                              mat4[8],  mat4[9],  mat4[10], mat4[11],
+                                              mat4[12], mat4[13], mat4[14], mat4[15]).release();
                 }
             }
             SkDEBUGFAILF("unsupported type %s", arguments[0]->type().description().c_str());
             return nullptr;
-            break;
         }
 
         // 8.6 : Vector Relational Functions

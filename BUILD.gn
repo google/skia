@@ -620,6 +620,7 @@ if (skia_compile_processors || skia_compile_sksl_tests) {
       "src/core/SkHalf.cpp",
       "src/core/SkMalloc.cpp",
       "src/core/SkMath.cpp",
+      "src/core/SkMatrixInvert.cpp",
       "src/core/SkSemaphore.cpp",
       "src/core/SkStream.cpp",
       "src/core/SkString.cpp",
