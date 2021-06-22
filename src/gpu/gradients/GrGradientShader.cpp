@@ -17,7 +17,6 @@
 
 #include "src/gpu/gradients/GrGradientBitmapCache.h"
 #include "src/gpu/gradients/generated/GrDualIntervalGradientColorizer.h"
-#include "src/gpu/gradients/generated/GrSingleIntervalGradientColorizer.h"
 #include "src/gpu/gradients/generated/GrUnrolledBinaryGradientColorizer.h"
 
 #include "include/gpu/GrRecordingContext.h"
@@ -26,6 +25,7 @@
 #include "src/gpu/GrColorInfo.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/effects/GrGradientEffect.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 
 // Intervals smaller than this (that aren't hard stops) on low-precision-only devices force us to
@@ -95,7 +95,7 @@ static std::unique_ptr<GrFragmentProcessor> make_colorizer(const SkPMColor4f* co
     // Two remaining colors means a single interval from 0 to 1
     // (but it may have originally been a 3 or 4 color gradient with 1-2 hard stops at the ends)
     if (count == 2) {
-        return GrSingleIntervalGradientColorizer::Make(colors[offset], colors[offset + 1]);
+        return GrGradientColorizer::SingleInterval(colors[offset], colors[offset + 1]);
     }
 
     // Do an early test for the texture fallback to skip all of the other tests for specific
