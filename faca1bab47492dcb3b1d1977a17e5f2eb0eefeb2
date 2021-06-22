@@ -34,6 +34,52 @@
       "parentUuid": "beb10db2_37e367d3",
       "revId": "faca1bab47492dcb3b1d1977a17e5f2eb0eefeb2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8b30295e_618310a7",
+        "filename": "modules/sksg/src/SkSGGeometryEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-22T13:48:43Z",
+      "side": 1,
+      "message": "we\u0027d need to bring Florin in on the SG access to the transform.",
+      "range": {
+        "startLine": 67,
+        "startChar": 29,
+        "endLine": 67,
+        "endChar": 44
+      },
+      "revId": "faca1bab47492dcb3b1d1977a17e5f2eb0eefeb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b6f91fae_4a4ec3fb",
+        "filename": "src/gpu/GrStyle.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-22T13:48:43Z",
+      "side": 1,
+      "message": "Should be easy to update applyPathEffect to take the ctm, it\u0027s not called in many places and those places have the ctm.",
+      "range": {
+        "startLine": 151,
+        "startChar": 29,
+        "endLine": 151,
+        "endChar": 44
+      },
+      "revId": "faca1bab47492dcb3b1d1977a17e5f2eb0eefeb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
