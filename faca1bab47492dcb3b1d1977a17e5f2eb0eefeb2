@@ -61,6 +61,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "1d02b5f8_60d71d16",
+        "filename": "modules/sksg/src/SkSGGeometryEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-06-22T14:14:43Z",
+      "side": 1,
+      "message": "It\u0027s doable, but it goes against my intuition that geometry effects (p\u0027 \u003d F(p)) need to be aware of the CTM.\n\nAlso, since the filterPath() is public, the effect application can be (and is in the case of SG) decoupled from the rasterization stage.  This would make caching the result more complicated.\n\nWhy do path effects need to know the full CTM and e.g. SkPaint::getFillPath() doesn\u0027t?",
+      "parentUuid": "8b30295e_618310a7",
+      "range": {
+        "startLine": 67,
+        "startChar": 29,
+        "endLine": 67,
+        "endChar": 44
+      },
+      "revId": "faca1bab47492dcb3b1d1977a17e5f2eb0eefeb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b6f91fae_4a4ec3fb",
         "filename": "src/gpu/GrStyle.cpp",
         "patchSetId": 1
