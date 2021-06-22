@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "386d5ede_60a59543",
+        "filename": "experimental/ngatoy/Fake.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-22T13:59:58Z",
+      "side": 1,
+      "message": "Is it possible that originally, draw calls could be intermixed with the clip commands that were recorded for a test before we call apply()? If so, then this would mangle the painter\u0027s order of those clip commands because they will all be grouped together.\n\nBut maybe I\u0027m forgetting what apply() is meant to do?",
+      "range": {
+        "startLine": 45,
+        "startChar": 4,
+        "endLine": 52,
+        "endChar": 30
+      },
+      "revId": "089fe59711e18258becf2c63bf1ea3c6afd3032a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
