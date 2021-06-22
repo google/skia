@@ -12,22 +12,27 @@ public enum TileMode {
      *  Replicate the edge color if the shader draws outside of its
      *  original bounds.
      */
-    CLAMP,
+    CLAMP(0),
 
     /**
      *  Repeat the shader's image horizontally and vertically.
      */
-    REPEAT,
+    REPEAT(1),
 
     /**
      *  Repeat the shader's image horizontally and vertically, alternating
      *  mirror images so that adjacent images always seam.
      */
-    MIRROR,
+    MIRROR(2),
 
 
     /**
      *  Only draw within the original domain, return transparent-black everywhere else.
      */
-    DECAL,
+    DECAL(3);
+
+    TileMode(int nativeInt) {
+        this.nativeInt = nativeInt;
+    }
+    final int nativeInt;
 }
