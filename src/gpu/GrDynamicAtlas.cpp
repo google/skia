@@ -109,9 +109,14 @@ GrDynamicAtlas::Node* GrDynamicAtlas::makeNode(Node* previous, int l, int t, int
     return fNodeAllocator.make<Node>(previous, rectanizer, l, t);
 }
 
-GrSurfaceProxyView GrDynamicAtlas::surfaceProxyView(const GrCaps& caps) const {
+GrSurfaceProxyView GrDynamicAtlas::readView(const GrCaps& caps) const {
     return {fTextureProxy, kTextureOrigin,
             caps.getReadSwizzle(fTextureProxy->backendFormat(), fColorType)};
+}
+
+GrSurfaceProxyView GrDynamicAtlas::writeView(const GrCaps& caps) const {
+    return {fTextureProxy, kTextureOrigin,
+            caps.getWriteSwizzle(fTextureProxy->backendFormat(), fColorType)};
 }
 
 bool GrDynamicAtlas::addRect(int width, int height, SkIPoint16* location) {
@@ -171,8 +176,8 @@ bool GrDynamicAtlas::internalPlaceRect(int w, int h, SkIPoint16* loc) {
     return true;
 }
 
-std::unique_ptr<GrSurfaceDrawContext> GrDynamicAtlas::instantiate(
-        GrOnFlushResourceProvider* onFlushRP, sk_sp<GrTexture> backingTexture) {
+void GrDynamicAtlas::instantiate(GrOnFlushResourceProvider* onFlushRP,
+                                 sk_sp<GrTexture> backingTexture) {
     SkASSERT(!this->isInstantiated());  // This method should only be called once.
     // Caller should have cropped any paths to the destination render target instead of asking for
     // an atlas larger than maxRenderTargetSize.
@@ -194,16 +199,5 @@ std::unique_ptr<GrSurfaceDrawContext> GrDynamicAtlas::instantiate(
 #endif
         fBackingTexture = std::move(backingTexture);
     }
-    auto sdc = onFlushRP->makeSurfaceDrawContext(fTextureProxy, kTextureOrigin, fColorType,
-                                                 nullptr, SkSurfaceProps());
-    if (!sdc) {
-        onFlushRP->printWarningMessage(SkStringPrintf(
-                "WARNING: failed to allocate a %ix%i atlas. Some masks will not be drawn.\n",
-                fWidth, fHeight).c_str());
-        return nullptr;
-    }
-
-    SkIRect clearRect = SkIRect::MakeSize(fDrawBounds);
-    sdc->clearAtLeast(clearRect, SK_PMColor4fTRANSPARENT);
-    return sdc;
+    onFlushRP->instatiateProxy(fTextureProxy.get());
 }

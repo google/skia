@@ -55,6 +55,8 @@ public:
                                 sk_sp<GrArenas> arenas,
                                 bool flushTimeOpsTask);
 
+    void insertAtlasTask(sk_sp<GrRenderTask> atlasTask, GrRenderTask* previousAtlasTask);
+
     // Create a render task that can resolve MSAA and/or regenerate mipmap levels on proxies. This
     // method will only add the new render task to the list. It is up to the caller to call
     // addProxy() on the returned object.

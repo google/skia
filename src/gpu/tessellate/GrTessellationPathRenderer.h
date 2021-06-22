@@ -16,7 +16,8 @@
 #include "src/gpu/GrDynamicAtlas.h"
 #include "src/gpu/GrOnFlushResourceProvider.h"
 #include "src/gpu/GrPathRenderer.h"
-#include <map>
+
+class GrAtlasRenderTask;
 
 // This is the tie-in point for path rendering via GrPathTessellateOp. This path renderer draws
 // paths using a hybrid Red Book "stencil, then cover" method. Curves get linearized by GPU
@@ -50,31 +51,28 @@ public:
     // atlas size in either dimension.)
     //
     // Also returns GrFPFailure() if the view matrix has perspective.
-    GrFPResult makeAtlasClipFP(const SkIRect& drawBounds, const SkMatrix&, const SkPath&, GrAA,
-                               std::unique_ptr<GrFragmentProcessor> inputFP, const GrCaps&);
+    GrFPResult makeAtlasClipFP(GrRecordingContext*, const SkIRect& drawBounds, const SkMatrix&,
+                               const SkPath&, GrAA, std::unique_ptr<GrFragmentProcessor> inputFP);
 
     void preFlush(GrOnFlushResourceProvider*, SkSpan<const uint32_t> taskIDs) override;
 
 private:
-    SkPath* getAtlasUberPath(SkPathFillType fillType, bool antialias) {
-        int idx = (int)antialias << 1;
-        idx |= (int)fillType & 1;
-        return &fAtlasUberPaths[idx];
-    }
-    // Adds the filled path to fAtlas if the path is small enough, and if the atlas isn't full.
+    // Adds the filled path to an atlas if the path is small enough, and if the atlas isn't full.
     // Currently, "small enough" means 128*128 total pixels or less, and no larger than half the
     // atlas size in either dimension.
-    bool tryAddPathToAtlas(const GrCaps&, const SkMatrix&, const SkPath&,
+    bool tryAddPathToAtlas(GrRecordingContext*, const SkMatrix&, const SkPath&,
                            const SkRect& pathDevBounds, bool antialias, SkIRect* devIBounds,
                            SkIPoint16* locationInAtlas, bool* transposedInAtlas);
-    void renderAtlas(GrOnFlushResourceProvider*);
 
-    GrDynamicAtlas fAtlas;
-    int fMaxAtlasPathWidth = 0;
-    SkPath fAtlasUberPaths[4];  // 2 fillTypes * 2 antialias modes.
+    int fAtlasMaxSize = 0;
+    int fAtlasInitialSize = 0;
 
-    // This simple cache remembers the locations of cacheable path masks in the atlas. Its main
-    // motivation is for clip paths.
+    // A collection of all atlases we've created and used since the last flush. We instantiate these
+    // at flush time during preFlush().
+    SkSTArray<4, sk_sp<GrAtlasRenderTask>> fAtlasRenderTasks;
+
+    // This simple cache remembers the locations of cacheable path masks in the most recent atlas.
+    // Its main motivation is for clip paths.
     struct AtlasPathKey {
         void set(const SkMatrix&, bool antialias, const SkPath&);
         bool operator==(const AtlasPathKey& k) const {
@@ -87,7 +85,7 @@ private:
         uint8_t fFillRule;
         uint32_t fPathGenID;
     };
-    SkTHashMap<AtlasPathKey, SkIPoint16> fAtlasPathCache;
+    SkTHashMap<AtlasPathKey, SkIPoint16> fAtlasCache;
 };
 
 GR_MAKE_BITFIELD_CLASS_OPS(GrTessellationPathRenderer::PathFlags)

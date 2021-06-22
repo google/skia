@@ -250,6 +250,11 @@ struct SK_API GrContextOptions {
     int  fInternalMultisampleCount = 4;
 
     /**
+     * Maximum width and height of internal texture atlases.
+     */
+    int  fMaxTextureAtlasSize = 2048;
+
+    /**
      * In Skia's vulkan backend a single GrContext submit equates to the submission of a single
      * primary command buffer to the VkQueue. This value specifies how many vulkan secondary command
      * buffers we will cache for reuse on a given primary command buffer. A single submit may use

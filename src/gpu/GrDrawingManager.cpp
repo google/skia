@@ -705,6 +705,33 @@ sk_sp<GrOpsTask> GrDrawingManager::newOpsTask(GrSurfaceProxyView surfaceView,
     return opsTask;
 }
 
+void GrDrawingManager::insertAtlasTask(sk_sp<GrRenderTask> atlasTask,
+                                       GrRenderTask* previousAtlasTask) {
+    SkDEBUGCODE(this->validate());
+    SkASSERT(fContext);
+
+    if (previousAtlasTask) {
+        // If there already was an atlas in use during this flush, close off every render task that
+        // used it. This almost always allows the new atlas to recycle the old atlas's texture, and
+        // makes it so we almost never have memory allocated for more than one atlas texture at a
+        // time. (The one exception to this would be a single op that references two atlases, which
+        // can happen in a clip stack with multiple clip FPs. In practice though, with 2048x2048
+        // atlases, a single op will never reference more than 2 atlases.)
+        for (GrRenderTask* previousAtlasUser : previousAtlasTask->dependents()) {
+            atlasTask->addDependency(previousAtlasUser);
+            previousAtlasUser->makeClosed(*fContext->priv().caps());
+            if (previousAtlasUser == fActiveOpsTask) {
+                fActiveOpsTask = nullptr;
+            }
+        }
+    }
+
+    atlasTask->makeClosed(*fContext->priv().caps());
+    this->insertTaskBeforeLast(std::move(atlasTask));
+
+    SkDEBUGCODE(this->validate());
+}
+
 GrTextureResolveRenderTask* GrDrawingManager::newTextureResolveRenderTask(const GrCaps& caps) {
     // Unlike in the "new opsTask" case, we do not want to close the active opsTask, nor (if we are
     // in sorting and opsTask reduction mode) the render tasks that depend on any proxy's current
