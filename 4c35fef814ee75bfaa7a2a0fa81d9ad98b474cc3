@@ -39,6 +39,30 @@
       },
       "revId": "4c35fef814ee75bfaa7a2a0fa81d9ad98b474cc3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "29895441_52fb0466",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Canvas.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-06-22T14:25:47Z",
+      "side": 1,
+      "message": "Sounds good, I was running into trouble on how to signal to JNI that bounds were optional. An empty rect didn\u0027t seem correct. I like the idea of a boolean flag passed to JNI. Went ahead and did it now so we don\u0027t have to worry about it later.",
+      "parentUuid": "2bc38fe8_29105a46",
+      "range": {
+        "startLine": 34,
+        "startChar": 25,
+        "endLine": 34,
+        "endChar": 92
+      },
+      "revId": "4c35fef814ee75bfaa7a2a0fa81d9ad98b474cc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
