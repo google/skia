@@ -44,42 +44,42 @@ bool SkBlendMode_SupportsCoverageAsAlpha(SkBlendMode mode) {
     return SkBlendMode_ShouldPreScaleCoverage(mode, false);
 }
 
-struct CoeffRec {
-    SkBlendModeCoeff    fSrc;
-    SkBlendModeCoeff    fDst;
-};
-
-const CoeffRec gCoeffs[] = {
-    // For Porter-Duff blend functions, color = src * src coeff + dst * dst coeff
-    // src coeff                  dst coeff                     blend func
-    // ----------------------     -----------------------       ----------
-    { SkBlendModeCoeff::kZero,    SkBlendModeCoeff::kZero }, // clear
-    { SkBlendModeCoeff::kOne,     SkBlendModeCoeff::kZero }, // src
-    { SkBlendModeCoeff::kZero,    SkBlendModeCoeff::kOne  }, // dst
-    { SkBlendModeCoeff::kOne,     SkBlendModeCoeff::kISA  }, // src-over
-    { SkBlendModeCoeff::kIDA,     SkBlendModeCoeff::kOne  }, // dst-over
-    { SkBlendModeCoeff::kDA,      SkBlendModeCoeff::kZero }, // src-in
-    { SkBlendModeCoeff::kZero,    SkBlendModeCoeff::kSA   }, // dst-in
-    { SkBlendModeCoeff::kIDA,     SkBlendModeCoeff::kZero }, // src-out
-    { SkBlendModeCoeff::kZero,    SkBlendModeCoeff::kISA  }, // dst-out
-    { SkBlendModeCoeff::kDA,      SkBlendModeCoeff::kISA  }, // src-atop
-    { SkBlendModeCoeff::kIDA,     SkBlendModeCoeff::kSA   }, // dst-atop
-    { SkBlendModeCoeff::kIDA,     SkBlendModeCoeff::kISA  }, // xor
-
-    { SkBlendModeCoeff::kOne,     SkBlendModeCoeff::kOne  }, // plus
-    { SkBlendModeCoeff::kZero,    SkBlendModeCoeff::kSC   }, // modulate
-    { SkBlendModeCoeff::kOne,     SkBlendModeCoeff::kISC  }, // screen
-};
-
 bool SkBlendMode_AsCoeff(SkBlendMode mode, SkBlendModeCoeff* src, SkBlendModeCoeff* dst) {
+    struct CoeffRec {
+        SkBlendModeCoeff    fSrc;
+        SkBlendModeCoeff    fDst;
+    };
+
+    static constexpr CoeffRec kCoeffs[] = {
+        // For Porter-Duff blend functions, color = src * src coeff + dst * dst coeff
+        // src coeff                  dst coeff                     blend func
+        // ----------------------     -----------------------       ----------
+        { SkBlendModeCoeff::kZero,    SkBlendModeCoeff::kZero }, // clear
+        { SkBlendModeCoeff::kOne,     SkBlendModeCoeff::kZero }, // src
+        { SkBlendModeCoeff::kZero,    SkBlendModeCoeff::kOne  }, // dst
+        { SkBlendModeCoeff::kOne,     SkBlendModeCoeff::kISA  }, // src-over
+        { SkBlendModeCoeff::kIDA,     SkBlendModeCoeff::kOne  }, // dst-over
+        { SkBlendModeCoeff::kDA,      SkBlendModeCoeff::kZero }, // src-in
+        { SkBlendModeCoeff::kZero,    SkBlendModeCoeff::kSA   }, // dst-in
+        { SkBlendModeCoeff::kIDA,     SkBlendModeCoeff::kZero }, // src-out
+        { SkBlendModeCoeff::kZero,    SkBlendModeCoeff::kISA  }, // dst-out
+        { SkBlendModeCoeff::kDA,      SkBlendModeCoeff::kISA  }, // src-atop
+        { SkBlendModeCoeff::kIDA,     SkBlendModeCoeff::kSA   }, // dst-atop
+        { SkBlendModeCoeff::kIDA,     SkBlendModeCoeff::kISA  }, // xor
+
+        { SkBlendModeCoeff::kOne,     SkBlendModeCoeff::kOne  }, // plus
+        { SkBlendModeCoeff::kZero,    SkBlendModeCoeff::kSC   }, // modulate
+        { SkBlendModeCoeff::kOne,     SkBlendModeCoeff::kISC  }, // screen
+    };
+
     if (mode > SkBlendMode::kScreen) {
         return false;
     }
     if (src) {
-        *src = gCoeffs[static_cast<int>(mode)].fSrc;
+        *src = kCoeffs[static_cast<int>(mode)].fSrc;
     }
     if (dst) {
-        *dst = gCoeffs[static_cast<int>(mode)].fDst;
+        *dst = kCoeffs[static_cast<int>(mode)].fDst;
     }
     return true;
 }
