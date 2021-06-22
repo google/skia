@@ -72,6 +72,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6389868e_5dd76249",
+        "filename": "include/private/SkTOptional.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-22T19:44:01Z",
+      "side": 1,
+      "message": "Let me know if this reads better for you?",
+      "parentUuid": "69d70a39_447bb2ce",
+      "range": {
+        "startLine": 178,
+        "startChar": 11,
+        "endLine": 178,
+        "endChar": 87
+      },
+      "revId": "a81d376d8a68fd171a781003feafba0d01e6c423",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f323e5d9_39a54d0c",
@@ -85,6 +109,30 @@
       "writtenOn": "2021-06-22T19:01:49Z",
       "side": 1,
       "message": "(a.has_value() !\u003d b.has_value()) || (a.has_value() \u0026\u0026 *a !\u003d *b)",
+      "range": {
+        "startLine": 182,
+        "startChar": 11,
+        "endLine": 182,
+        "endChar": 86
+      },
+      "revId": "a81d376d8a68fd171a781003feafba0d01e6c423",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ef92db14_36bb91e4",
+        "filename": "include/private/SkTOptional.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-22T19:44:01Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "f323e5d9_39a54d0c",
       "range": {
         "startLine": 182,
         "startChar": 11,
@@ -118,6 +166,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8b48348f_362d7932",
+        "filename": "include/private/SkTOptional.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-22T19:44:01Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "4257956a_032bac5c",
+      "range": {
+        "startLine": 186,
+        "startChar": 11,
+        "endLine": 186,
+        "endChar": 69
+      },
+      "revId": "a81d376d8a68fd171a781003feafba0d01e6c423",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "25f38830_ac56d8c3",
@@ -131,6 +203,30 @@
       "writtenOn": "2021-06-22T19:01:49Z",
       "side": 1,
       "message": "!a.has_value() || (b.has_value() \u0026\u0026 *a \u003c\u003d *b)",
+      "range": {
+        "startLine": 190,
+        "startChar": 11,
+        "endLine": 190,
+        "endChar": 70
+      },
+      "revId": "a81d376d8a68fd171a781003feafba0d01e6c423",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3870439c_248601af",
+        "filename": "include/private/SkTOptional.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-22T19:44:01Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "25f38830_ac56d8c3",
       "range": {
         "startLine": 190,
         "startChar": 11,
@@ -164,6 +260,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d472e0dd_85567702",
+        "filename": "include/private/SkTOptional.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-22T19:44:01Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "d07756e6_e995e3ce",
+      "range": {
+        "startLine": 194,
+        "startChar": 11,
+        "endLine": 194,
+        "endChar": 69
+      },
+      "revId": "a81d376d8a68fd171a781003feafba0d01e6c423",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ad2b3965_ea1ff4fe",
@@ -177,6 +297,30 @@
       "writtenOn": "2021-06-22T19:01:49Z",
       "side": 1,
       "message": "!b.has_value() || (a.has_value() \u0026\u0026 *a \u003e\u003d *b))",
+      "range": {
+        "startLine": 198,
+        "startChar": 11,
+        "endLine": 198,
+        "endChar": 70
+      },
+      "revId": "a81d376d8a68fd171a781003feafba0d01e6c423",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1d2aa66f_103f8e89",
+        "filename": "include/private/SkTOptional.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-22T19:44:01Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "ad2b3965_ea1ff4fe",
       "range": {
         "startLine": 198,
         "startChar": 11,
