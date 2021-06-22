@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "93f9c76e_2e8a082c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-22T23:53:48Z",
+      "side": 1,
+      "message": "I\u0027ll try patching in this CL tomorrow to look at the \"actual\" results and see if that sheds any enlightenment. Although, it looks like it ought to work as-is, so you could also land it if you\u0027re okay with the toy being broken and in vcs?",
+      "revId": "b2d9c8668d22b8de6e2c757148c1650fd1ebfaf9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ade69817_06df86f0",
+        "filename": "experimental/ngatoy/Cmds.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-22T23:53:48Z",
+      "side": 1,
+      "message": "should this be testing the pixel center, e.g. 1/2 px offset?",
+      "range": {
+        "startLine": 69,
+        "startChar": 0,
+        "endLine": 80,
+        "endChar": 1
+      },
+      "revId": "b2d9c8668d22b8de6e2c757148c1650fd1ebfaf9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "82f97ac4_3832c34c",
+        "filename": "experimental/ngatoy/ngatoy.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 398,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-22T23:53:48Z",
+      "side": 1,
+      "message": "1 clip of opposite shape",
+      "range": {
+        "startLine": 398,
+        "startChar": 26,
+        "endLine": 398,
+        "endChar": 52
+      },
+      "revId": "b2d9c8668d22b8de6e2c757148c1650fd1ebfaf9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
