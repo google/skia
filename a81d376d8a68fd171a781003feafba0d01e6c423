@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "600bcf24_968f1ff4",
+        "filename": "include/private/SkTOptional.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-22T19:01:49Z",
+      "side": 1,
+      "message": "This is equivalent to the (to me, at least) much more readable:\n\n(a.has_value() \u003d\u003d b.has_value()) \u0026\u0026 (!a.has_value() || *a \u003d\u003d *b)\n\nSeems like it would be better to use straightforward expressions like this rather than nested ternaries.",
+      "range": {
+        "startLine": 178,
+        "startChar": 11,
+        "endLine": 178,
+        "endChar": 87
+      },
+      "revId": "a81d376d8a68fd171a781003feafba0d01e6c423",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f323e5d9_39a54d0c",
+        "filename": "include/private/SkTOptional.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-22T19:01:49Z",
+      "side": 1,
+      "message": "(a.has_value() !\u003d b.has_value()) || (a.has_value() \u0026\u0026 *a !\u003d *b)",
+      "range": {
+        "startLine": 182,
+        "startChar": 11,
+        "endLine": 182,
+        "endChar": 86
+      },
+      "revId": "a81d376d8a68fd171a781003feafba0d01e6c423",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4257956a_032bac5c",
+        "filename": "include/private/SkTOptional.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-22T19:01:49Z",
+      "side": 1,
+      "message": "b.has_value() \u0026\u0026 (!a.has_value() || *a \u003c *b)",
+      "range": {
+        "startLine": 186,
+        "startChar": 11,
+        "endLine": 186,
+        "endChar": 69
+      },
+      "revId": "a81d376d8a68fd171a781003feafba0d01e6c423",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "25f38830_ac56d8c3",
+        "filename": "include/private/SkTOptional.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-22T19:01:49Z",
+      "side": 1,
+      "message": "!a.has_value() || (b.has_value() \u0026\u0026 *a \u003c\u003d *b)",
+      "range": {
+        "startLine": 190,
+        "startChar": 11,
+        "endLine": 190,
+        "endChar": 70
+      },
+      "revId": "a81d376d8a68fd171a781003feafba0d01e6c423",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d07756e6_e995e3ce",
+        "filename": "include/private/SkTOptional.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-22T19:01:49Z",
+      "side": 1,
+      "message": "a.has_value() \u0026\u0026 (!b.has_value() || *a \u003e *b)",
+      "range": {
+        "startLine": 194,
+        "startChar": 11,
+        "endLine": 194,
+        "endChar": 69
+      },
+      "revId": "a81d376d8a68fd171a781003feafba0d01e6c423",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ad2b3965_ea1ff4fe",
+        "filename": "include/private/SkTOptional.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-22T19:01:49Z",
+      "side": 1,
+      "message": "!b.has_value() || (a.has_value() \u0026\u0026 *a \u003e\u003d *b))",
+      "range": {
+        "startLine": 198,
+        "startChar": 11,
+        "endLine": 198,
+        "endChar": 70
+      },
+      "revId": "a81d376d8a68fd171a781003feafba0d01e6c423",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
