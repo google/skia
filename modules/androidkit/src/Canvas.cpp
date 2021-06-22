@@ -37,9 +37,16 @@ void Canvas_Restore(JNIEnv* env, jobject, jlong native_instance) {
     }
 }
 
-jint Canvas_SaveLayer(JNIEnv* env, jobject, jlong native_instance) {
+void Canvas_RestoreToCount(JNIEnv* env, jobject, jlong native_instance, jint count) {
     if (auto* canvas = reinterpret_cast<SkCanvas*>(native_instance)) {
-        return canvas->saveLayer(nullptr, nullptr);
+        canvas->restoreToCount(count);
+    }
+}
+
+jint Canvas_SaveLayer(JNIEnv* env, jobject, jlong native_instance, jlong native_paint) {
+    auto* paint = reinterpret_cast<SkPaint* >(native_paint);
+    if (auto* canvas = reinterpret_cast<SkCanvas*>(native_instance)) {
+        return canvas->saveLayer(nullptr, paint);
     }
     return 0;
 }
@@ -130,8 +137,9 @@ int register_androidkit_Canvas(JNIEnv* env) {
         {"nGetWidth"        , "(J)I"      , reinterpret_cast<void*>(Canvas_GetWidth)      },
         {"nGetHeight"       , "(J)I"      , reinterpret_cast<void*>(Canvas_GetHeight)     },
         {"nSave"            , "(J)I"      , reinterpret_cast<void*>(Canvas_Save)          },
-        {"nSaveLayer"       , "(J)I"      , reinterpret_cast<void*>(Canvas_SaveLayer)     },
+        {"nSaveLayer"       , "(JJ)I"     , reinterpret_cast<void*>(Canvas_SaveLayer)     },
         {"nRestore"         , "(J)V"      , reinterpret_cast<void*>(Canvas_Restore)       },
+        {"nRestoreToCount"  , "(JI)V"     , reinterpret_cast<void*>(Canvas_RestoreToCount)},
         {"nGetLocalToDevice", "(J)J"      , reinterpret_cast<void*>(Canvas_LocalToDevice) },
         {"nConcat"          , "(JJ)V"     , reinterpret_cast<void*>(Canvas_Concat)        },
         {"nConcat16f"       , "(J[F)V"    , reinterpret_cast<void*>(Canvas_Concat16f)     },
