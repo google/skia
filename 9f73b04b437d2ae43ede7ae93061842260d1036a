@@ -22,6 +22,30 @@
       },
       "revId": "9f73b04b437d2ae43ede7ae93061842260d1036a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9cb19e05_261db8ee",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2225,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-22T13:46:10Z",
+      "side": 1,
+      "message": "Yes, fLastMoveToIndex is made negative and some extra bit twiddling when a moveTo needs to be injected on the next path operation. The negation records that it\u0027s not a real moveTo yet and specifies the index of the vertex that represents where the moveTo would go back to.\n\nOnce everything is on the path builder, a lot of this can be cleaned up since fLastMoveToIndex wont\u0027 change and we could probably get away with just stripping leading and trailing moveTos from the final path entirely.",
+      "parentUuid": "9959cc67_5501b292",
+      "range": {
+        "startLine": 2225,
+        "startChar": 0,
+        "endLine": 2225,
+        "endChar": 32
+      },
+      "revId": "9f73b04b437d2ae43ede7ae93061842260d1036a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
