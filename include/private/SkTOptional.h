@@ -15,6 +15,18 @@
 namespace skstd {
 
 /**
+ * An empty optional is represented with `nullopt`.
+ */
+struct nullopt_t {
+    struct tag {};
+
+    // nullopt_t must not be default-constructible.
+    explicit constexpr nullopt_t(tag) {}
+};
+
+inline constexpr nullopt_t nullopt{nullopt_t::tag{}};
+
+/**
  * Simple drop-in replacement for std::optional until we move to C++17. This does not have all of
  * std::optional's capabilities, but it covers our needs for the time being.
  */
@@ -36,6 +48,9 @@ public:
     optional(const optional& other) {
         *this = other;
     }
+
+    // Construction with nullopt is the same as default construction.
+    optional(nullopt_t) : optional() {}
 
     // We need a non-const copy constructor because otherwise optional(nonConstSrc) isn't an exact
     // match for the copy constructor, and we'd end up invoking the Args&&... template by mistake.
@@ -94,6 +109,12 @@ public:
                 }
             }
         }
+        return *this;
+    }
+
+    // Assignment to nullopt is the same as reset().
+    optional& operator=(nullopt_t) {
+        this->reset();
         return *this;
     }
 
