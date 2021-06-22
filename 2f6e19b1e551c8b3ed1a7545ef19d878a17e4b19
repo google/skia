@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f92451dd_9f005212",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-22T20:39:40Z",
+      "side": 1,
+      "message": "New day, new thoughts 😣 These should be easy",
+      "revId": "2f6e19b1e551c8b3ed1a7545ef19d878a17e4b19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "02e37d5d_7ebe81e2",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 2011,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-22T20:39:40Z",
+      "side": 1,
+      "message": "I think it\u0027s possible for non-aa ops to not require MSAA when rendering to a fully MSAA surface. I think we also need to check fCanUseDynamicMSAA here.\n\n(It looks like this is the is the source of that ASAN failure.)",
+      "range": {
+        "startLine": 2011,
+        "startChar": 4,
+        "endLine": 2011,
+        "endChar": 8
+      },
+      "revId": "2f6e19b1e551c8b3ed1a7545ef19d878a17e4b19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d38a6595_1ee2227a",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 2017,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-22T20:39:40Z",
+      "side": 1,
+      "message": "Is it possible for the opsTask to be empty here? I think not if DMSAA and the opsTask uses MSAA. Can we SkASSERT(!isColorNoOp()) just to remember that it has to not be empty by now?",
+      "range": {
+        "startLine": 2017,
+        "startChar": 36,
+        "endLine": 2017,
+        "endChar": 58
+      },
+      "revId": "2f6e19b1e551c8b3ed1a7545ef19d878a17e4b19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "15f758ce_f1d4c830",
+        "filename": "tools/gpu/vk/VkTestUtils.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 668,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-22T20:39:40Z",
+      "side": 1,
+      "message": "Did this get squashed in by accident?",
+      "range": {
+        "startLine": 668,
+        "startChar": 64,
+        "endLine": 668,
+        "endChar": 87
+      },
+      "revId": "2f6e19b1e551c8b3ed1a7545ef19d878a17e4b19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
