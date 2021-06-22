@@ -94,7 +94,8 @@ public class MainActivity extends Activity {
             threadedSurface = Surface.createThreadedSurface(holder.getSurface());
             Paint p = new Paint();
             p.setColor(new Color(1, 1, 0, 1));
-            ImageFilter filter = ImageFilter.distantLitDiffuse(.5f, .5f, .5f, new Color(1, 0, 0, 1), 1, 1, null);
+            //ImageFilter filter = ImageFilter.distantLitDiffuse(.5f, .5f, .5f, new Color(1, 0, 0, 1), 1, 1, null);
+            ImageFilter filter = ImageFilter.blur(10, 10, TileMode.DECAL, null);
             p.setImageFilter(filter);
             PathBuilder pathBuilder = new PathBuilder();
             pathBuilder.moveTo(20, 20);

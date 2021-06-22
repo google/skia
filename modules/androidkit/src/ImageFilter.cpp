@@ -10,6 +10,7 @@
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkPoint3.h"
 #include "include/effects/SkImageFilters.h"
+#include "modules/androidkit/src/Utils.h"
 
 namespace {
 
@@ -30,12 +31,22 @@ static long ImageFilter_DistantLitDiffuse(JNIEnv* env, jobject, jfloat x, jfloat
     return reinterpret_cast<jlong>(filter.release());
 }
 
+static long ImageFilter_Blur(JNIEnv* env, jobject, jfloat sigmaX, jfloat sigmaY,
+                                                   jint jTileMode, jlong native_input) {
+    auto input = sk_ref_sp(reinterpret_cast<SkImageFilter*>(native_input));
+    auto filter = SkImageFilters::Blur(sigmaX, sigmaY,
+                                       androidkit::utils::TileMode(jTileMode),
+                                       std::move(input));
+    return reinterpret_cast<jlong>(filter.release());
+}
+
 } // namespace
 
 int register_androidkit_ImageFilter(JNIEnv* env) {
     static const JNINativeMethod methods[] = {
         {"nRelease"          , "(J)V"        , reinterpret_cast<void*>(ImageFilter_Release)},
         {"nDistantLitDiffuse", "(FFFFFFFFJ)J", reinterpret_cast<void*>(ImageFilter_DistantLitDiffuse)},
+        {"nBlur"             , "(FFIJ)J"     , reinterpret_cast<void*>(ImageFilter_Blur)},
     };
 
     const auto clazz = env->FindClass("org/skia/androidkit/ImageFilter");
