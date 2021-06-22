@@ -173,6 +173,144 @@ private:
     bool fHasValue = false;
 };
 
+// Comparison operators for optional x optional
+template <typename T, typename U> bool operator==(const optional<T>& a, const optional<U>& b) {
+    return (a.has_value() != b.has_value()) ? false :
+                            !a.has_value()  ? true :
+                                              (*a == *b);
+}
+
+template <typename T, typename U> bool operator!=(const optional<T>& a, const optional<U>& b) {
+    return (a.has_value() != b.has_value()) ? true :
+                            !a.has_value()  ? false :
+                                              (*a != *b);
+}
+
+template <typename T, typename U> bool operator<(const optional<T>& a, const optional<U>& b) {
+    return !b.has_value() ? false :
+           !a.has_value() ? true :
+                            (*a < *b);
+}
+
+template <typename T, typename U> bool operator<=(const optional<T>& a, const optional<U>& b) {
+    return !a.has_value() ? true :
+           !b.has_value() ? false :
+                            (*a <= *b);
+}
+
+template <typename T, typename U> bool operator>(const optional<T>& a, const optional<U>& b) {
+    return !a.has_value() ? false :
+           !b.has_value() ? true :
+                            (*a > *b);
+}
+
+template <typename T, typename U> bool operator>=(const optional<T>& a, const optional<U>& b) {
+    return !b.has_value() ? true :
+           !a.has_value() ? false :
+                            (*a >= *b);
+}
+
+// Comparison operators for optional x nullopt
+template <typename T> bool operator==(const optional<T>& a, nullopt_t) {
+    return !a.has_value();
+}
+
+template <typename T> bool operator!=(const optional<T>& a, nullopt_t) {
+    return a.has_value();
+}
+
+template <typename T> bool operator<(const optional<T>& a, nullopt_t) {
+    return false;
+}
+
+template <typename T> bool operator<=(const optional<T>& a, nullopt_t) {
+    return !a.has_value();
+}
+
+template <typename T> bool operator>(const optional<T>& a, nullopt_t) {
+    return a.has_value();
+}
+
+template <typename T>
+bool operator>=(const optional<T>& a, nullopt_t) {
+    return true;
+}
+
+// Comparison operators for nullopt x optional
+template <typename U> bool operator==(nullopt_t, const optional<U>& b) {
+    return !b.has_value();
+}
+
+template <typename U> bool operator!=(nullopt_t, const optional<U>& b) {
+    return b.has_value();
+}
+
+template <typename U> bool operator<(nullopt_t, const optional<U>& b) {
+  return b.has_value();
+}
+
+template <typename U> bool operator<=(nullopt_t, const optional<U>& b) {
+    return true;
+}
+
+template <typename U> bool operator>(nullopt_t, const optional<U>& b) {
+    return false;
+}
+
+template <typename U> bool operator>=(nullopt_t, const optional<U>& b) {
+    return !b.has_value();
+}
+
+// Comparison operators for optional x value
+template <typename T, typename U> bool operator==(const optional<T>& a, const U& b) {
+    return a.has_value() && (*a == b);
+}
+
+template <typename T, typename U> bool operator!=(const optional<T>& a, const U& b) {
+    return !a.has_value() || (*a != b);
+}
+
+template <typename T, typename U> bool operator<(const optional<T>& a, const U& b) {
+    return !a.has_value() || (*a < b);
+}
+
+template <typename T, typename U> bool operator<=(const optional<T>& a, const U& b) {
+    return !a.has_value() || (*a <= b);
+}
+
+template <typename T, typename U> bool operator>(const optional<T>& a, const U& b) {
+  return a.has_value() && (*a > b);
+}
+
+template <typename T, typename U> bool operator>=(const optional<T>& a, const U& b) {
+  return a.has_value() && (*a >= b);
+}
+
+// Comparison operators for value x optional
+template <typename T, typename U> bool operator==(const T& a, const optional<U>& b) {
+    return b.has_value() && (a == *b);
+}
+
+template <typename T, typename U> bool operator!=(const T& a, const optional<U>& b) {
+    return !b.has_value() || (a != *b);
+}
+
+template <typename T, typename U> bool operator<(const T& a, const optional<U>& b) {
+    return b.has_value() && (a < *b);
+}
+
+template <typename T, typename U> bool operator<=(const T& a, const optional<U>& b) {
+    return b.has_value() && (a <= *b);
+}
+
+template <typename T, typename U> bool operator>(const T& a, const optional<U>& b) {
+    return !b.has_value() || (a > *b);
+}
+
+template <typename T, typename U> bool operator>=(const T& a, const optional<U>& b) {
+    return !b.has_value() || (a >= *b);
+}
+
 } // namespace skstd
 
 #endif
