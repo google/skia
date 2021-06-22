@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4dd4b979_4a949780",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Canvas.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-06-22T11:52:02Z",
+      "side": 1,
+      "message": "👍",
+      "revId": "4c35fef814ee75bfaa7a2a0fa81d9ad98b474cc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2bc38fe8_29105a46",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Canvas.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-06-22T11:52:02Z",
+      "side": 1,
+      "message": "The presence/absences of these args has specific semantics in Skia and all combinations are actually interesting to support:\n\n  -- no bounds/no paint\n  -- bounds / no paint\n  -- no bounds / paint\n  -- bounds / paint\n\nSo ideally both params should be optional (we should have multiple overloads and ways to signal JNI that args is missing).\n\nShould be easy for Paint (make it nullable, pass zero for the native handle).\n\nThe bounds rect is somewhat trickier, and it\u0027s also a more niche feature.   Let\u0027s leave it out for now, and just add the (optional) paint.",
+      "range": {
+        "startLine": 34,
+        "startChar": 25,
+        "endLine": 34,
+        "endChar": 92
+      },
+      "revId": "4c35fef814ee75bfaa7a2a0fa81d9ad98b474cc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
