@@ -33,6 +33,29 @@
       "message": "modification: I see the it is shared with the intrinsic_call, so the sharing makes sense. I suggest we don\u0027t modify SkMatrix44 (to make it easier to migrate).",
       "revId": "c04eaedf67639a3c0bf5292ab40733baf4b01fc5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5d4ce659_0a5b0f6b",
+        "filename": "src/core/SkMatrixInvert.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-22T13:20:47Z",
+      "side": 1,
+      "message": "These are taking column-major matrices, right?",
+      "range": {
+        "startLine": 14,
+        "startChar": 49,
+        "endLine": 14,
+        "endChar": 52
+      },
+      "revId": "c04eaedf67639a3c0bf5292ab40733baf4b01fc5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
