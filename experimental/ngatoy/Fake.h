@@ -57,6 +57,8 @@ public:
             fCached = cached;
         }
 
+        void aboutToBePopped(PaintersOrder paintersOrderWhenPopped);
+
     protected:
         friend class FakeMCBlob;
 
@@ -73,8 +75,8 @@ public:
         fScissor = SkIRect::MakeLTRB(-1000, -1000, 1000, 1000);
 
         for (MCState& s : fStack) {
-            // xform the clip rects into device space
-            for (auto& r : s.fRects) {
+            // xform the clip rects into device space to compute the scissor
+            for (SkIRect r : s.fRects) {
                 r.offset(fCTM);
                 if (!fScissor.intersect(r)) {
                     fScissor.setEmpty();
@@ -147,8 +149,9 @@ public:
         fStack.back().translate(trans);
     }
 
-    void pop() {
+    void pop(PaintersOrder paintersOrderWhenPopped) {
         SkASSERT(fStack.size() > 0);
+        fStack.back().aboutToBePopped(paintersOrderWhenPopped);
         fStack.pop_back();
     }
 
@@ -244,7 +247,7 @@ public:
         fTracker.translate(trans);
     }
 
-    void restore();
+    void restore(PaintersOrder paintersOrderWhenPopped);
 
     void finalize();
 
@@ -293,7 +296,7 @@ public:
 
     void restore() {
         SkASSERT(!fFinalized);
-        fDeviceStack.back()->restore();
+        fDeviceStack.back()->restore(this->peekPaintersOrder());
     }
 
     void finalize();
