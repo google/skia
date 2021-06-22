@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6cdf2f46_a489e1e9",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/TileMode.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-06-22T12:03:31Z",
+      "side": 1,
+      "message": "nit: stale import?",
+      "revId": "59abc17c031c0cd0311f75d7d0ad1cf6aa4ad0f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
