@@ -149,6 +149,7 @@ GrMtlGpu::GrMtlGpu(GrDirectContext* direct, const GrContextOptions& options,
         , fOutstandingCommandBuffers(sizeof(OutstandingCommandBuffer), kDefaultOutstandingAllocCnt)
         , fResourceProvider(this)
         , fStagingBufferManager(this)
+        , fUniformsRingBuffer(this, 128 * 1024, 256, GrGpuBufferType::kVertex)
         , fDisconnected(false) {
     fMtlCaps.reset(new GrMtlCaps(options, fDevice, featureSet));
     this->initCapsAndCompiler(fMtlCaps);
@@ -225,8 +226,8 @@ GrMtlCommandBuffer* GrMtlGpu::commandBuffer() {
 }
 
 void GrMtlGpu::takeOwnershipOfBuffer(sk_sp<GrGpuBuffer> buffer) {
-    SkASSERT(fCurrentCmdBuffer);
-    fCurrentCmdBuffer->addGrBuffer(std::move(buffer));
+    SkASSERT(buffer);
+    this->commandBuffer()->addGrBuffer(std::move(buffer));
 }
 
 void GrMtlGpu::submit(GrOpsRenderPass* renderPass) {
