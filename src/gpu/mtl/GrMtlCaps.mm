@@ -295,7 +295,8 @@ void GrMtlCaps::initGrCaps(id<MTLDevice> device) {
     fMaxPreferredRenderTargetSize = fMaxRenderTargetSize;
     fMaxTextureSize = fMaxRenderTargetSize;
 
-    fMaxPushConstantsSize = 4*1024;
+    fMaxPushConstantsSize = 0; // TODO: should be 4*1024 but disabled for now
+    fTransferBufferAlignment = 1;
 
     // Init sample counts. All devices support 1 (i.e. 0 in skia).
     fSampleCounts.push_back(1);

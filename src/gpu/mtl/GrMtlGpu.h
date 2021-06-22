@@ -14,6 +14,7 @@
 #include "src/gpu/GrFinishCallbacks.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrRenderTarget.h"
+#include "src/gpu/GrRingBuffer.h"
 #include "src/gpu/GrSemaphore.h"
 #include "src/gpu/GrStagingBufferManager.h"
 #include "src/gpu/GrTexture.h"
@@ -113,6 +114,8 @@ public:
                                      const SkIRect* bounds) {
         this->didWriteToSurface(surface, origin, bounds);
     }
+
+    GrRingBuffer* uniformsRingBuffer() override { return &fUniformsRingBuffer; }
 
 private:
     GrMtlGpu(GrDirectContext*, const GrContextOptions&, id<MTLDevice>,
@@ -303,6 +306,7 @@ private:
 
     GrMtlResourceProvider fResourceProvider;
     GrStagingBufferManager fStagingBufferManager;
+    GrRingBuffer fUniformsRingBuffer;
 
     bool fDisconnected;
 

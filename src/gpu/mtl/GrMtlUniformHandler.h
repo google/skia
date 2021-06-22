@@ -26,6 +26,7 @@ public:
         kUniformBinding = 0,
         kLastUniformBinding = kUniformBinding,
     };
+    static constexpr int kUniformBindingCount = kLastUniformBinding + 1;
 
     // fUBOffset is only valid if the GrSLType of the fVariable is not a sampler
     struct MtlUniformInfo : public UniformInfo {

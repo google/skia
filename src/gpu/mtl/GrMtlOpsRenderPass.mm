@@ -191,7 +191,6 @@ void GrMtlOpsRenderPass::initRenderState(GrMtlRenderCommandEncoder* encoder) {
                              (double) fRenderTarget->width(), (double) fRenderTarget->height(),
                              0.0, 1.0 };
     encoder->setViewport(viewport);
-    this->resetBufferBindings();
     encoder->popDebugGroup();
 }
 
@@ -415,29 +414,8 @@ void GrMtlOpsRenderPass::setVertexBuffer(GrMtlRenderCommandEncoder* encoder,
     auto mtlBuffer = static_cast<const GrMtlBuffer*>(buffer);
     id<MTLBuffer> mtlVertexBuffer = mtlBuffer->mtlBuffer();
     SkASSERT(mtlVertexBuffer);
-    // Apple recommends using setVertexBufferOffset: when changing the offset
-    // for a currently bound vertex buffer, rather than setVertexBuffer:
-    // TODO: ensure this is tracking state properly, or track in GrMtlRenderCommandEncoder.
     size_t offset = mtlBuffer->offset() + vertexOffset;
-    if (fBufferBindings[index].fBuffer != mtlVertexBuffer) {
-        encoder->setVertexBuffer(mtlVertexBuffer, offset, index);
-        fBufferBindings[index].fBuffer = mtlVertexBuffer;
-        fBufferBindings[index].fOffset = offset;
-    } else if (fBufferBindings[index].fOffset != offset) {
-        if (@available(macOS 10.11, iOS 8.3, *)) {
-            encoder->setVertexBufferOffset(offset, index);
-        } else {
-            // We only support iOS 9.0+, so we should never hit this
-            SK_ABORT("Missing interface. Skia only supports Metal on iOS 9.0 and higher");
-        }
-        fBufferBindings[index].fOffset = offset;
-    }
-}
-
-void GrMtlOpsRenderPass::resetBufferBindings() {
-    for (size_t i = 0; i < kNumBindings; ++i) {
-        fBufferBindings[i].fBuffer = nil;
-    }
+    encoder->setVertexBuffer(mtlVertexBuffer, offset, index);
 }
 
 GR_NORETAIN_END

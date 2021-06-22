@@ -64,7 +64,6 @@ private:
 
     void setVertexBuffer(GrMtlRenderCommandEncoder*, const GrBuffer*, size_t offset,
                          size_t inputBufferIndex);
-    void resetBufferBindings();
     void precreateCmdEncoder();
 
     GrMtlGpu*                   fGpu;
@@ -76,7 +75,7 @@ private:
     SkRect                      fBounds;
     size_t                      fCurrentVertexStride;
 
-    static constexpr size_t kNumBindings = GrMtlUniformHandler::kLastUniformBinding + 3;
+    static constexpr size_t kNumBindings = GrMtlUniformHandler::kUniformBindingCount + 2;
     struct {
         id<MTLBuffer> fBuffer;
         size_t fOffset;

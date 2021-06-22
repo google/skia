@@ -89,6 +89,12 @@ void GrRingBuffer::startSubmit(GrGpu* gpu) {
     fPreviousBuffers.clear();
 
     if (fNewAllocation) {
+#ifdef SK_BUILD_FOR_MAC
+        // Since we're using a Managed buffer on MacOS we need to unmap to write back to GPU
+        // TODO: once we set up persistently mapped UPLOAD buffers on D3D, we can remove the
+        // platform restriction.
+        fCurrentBuffer->unmap();
+#endif
         SubmitData* submitData = new SubmitData();
         submitData->fOwner = this;
         submitData->fLastHead = fHead;
