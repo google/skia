@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c3404c8e_1a5612e4",
+        "filename": "src/gpu/GrCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-22T19:52:18Z",
+      "side": 1,
+      "message": "I personally would rather use the function call if its there. Allows us to change the implementation of it whenever.",
+      "parentUuid": "9584567d_28e420b7",
+      "range": {
+        "startLine": 445,
+        "startChar": 54,
+        "endLine": 445,
+        "endChar": 87
+      },
+      "revId": "8df97f74dc70f66de7fb9de799f37adc34748b41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "927f2e6f_6bd632d3",
@@ -54,6 +78,30 @@
       "writtenOn": "2021-06-19T18:25:00Z",
       "side": 1,
       "message": "opNeedsDMSAAAttachment?\nopRequiresDMSAAAttachment?\n\n\"Uses\" might be confusing because non-msaa ops might also end up using a DMSAA attachcment.",
+      "range": {
+        "startLine": 1941,
+        "startChar": 9,
+        "endLine": 1941,
+        "endChar": 30
+      },
+      "revId": "8df97f74dc70f66de7fb9de799f37adc34748b41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ad1a50c8_d6941545",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1941,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-22T19:52:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "927f2e6f_6bd632d3",
       "range": {
         "startLine": 1941,
         "startChar": 9,
@@ -87,6 +135,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8eb5e9af_7a21091d",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1949,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-22T19:52:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fadae0a3_42a5e449",
+      "range": {
+        "startLine": 1949,
+        "startChar": 12,
+        "endLine": 1949,
+        "endChar": 16
+      },
+      "revId": "8df97f74dc70f66de7fb9de799f37adc34748b41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "017b0e19_cd95806a",
@@ -110,6 +182,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7e045945_e41211f4",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1994,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-22T19:52:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "017b0e19_cd95806a",
+      "range": {
+        "startLine": 1994,
+        "startChar": 50,
+        "endLine": 1994,
+        "endChar": 62
+      },
+      "revId": "8df97f74dc70f66de7fb9de799f37adc34748b41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9af2ca53_289152b9",
@@ -123,6 +219,30 @@
       "writtenOn": "2021-06-19T18:25:00Z",
       "side": 1,
       "message": "\"false /*opRequiresMSAA*/\"? (Just for clarity?)",
+      "range": {
+        "startLine": 2013,
+        "startChar": 85,
+        "endLine": 2013,
+        "endChar": 97
+      },
+      "revId": "8df97f74dc70f66de7fb9de799f37adc34748b41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "565394d8_a79e431f",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2013,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-22T19:52:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9af2ca53_289152b9",
       "range": {
         "startLine": 2013,
         "startChar": 85,
@@ -252,6 +372,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "04b5ade7_3b11aa6a",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2034,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-22T19:52:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "03555b97_83cc5b2b",
+      "range": {
+        "startLine": 2034,
+        "startChar": 9,
+        "endLine": 2034,
+        "endChar": 42
+      },
+      "revId": "8df97f74dc70f66de7fb9de799f37adc34748b41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3d531804_10c95796",
@@ -323,6 +467,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ccb1fcec_665046a9",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2035,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-22T19:52:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a0b13a48_3baa36d6",
+      "range": {
+        "startLine": 2035,
+        "startChar": 33,
+        "endLine": 2035,
+        "endChar": 39
+      },
+      "revId": "8df97f74dc70f66de7fb9de799f37adc34748b41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f27d7d30_615f5f35",
@@ -336,6 +504,30 @@
       "writtenOn": "2021-06-19T18:25:00Z",
       "side": 1,
       "message": "I would say \"opRequiresMSAA\"?\n\n\"drawUsesMSAA\" seems like it means \"opUsesMSAA || opsTask-\u003eusesMSAASurface()\"",
+      "range": {
+        "startLine": 717,
+        "startChar": 54,
+        "endLine": 717,
+        "endChar": 66
+      },
+      "revId": "8df97f74dc70f66de7fb9de799f37adc34748b41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c7435788_5129a9bb",
+        "filename": "src/gpu/GrSurfaceDrawContext.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 717,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-22T19:52:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f27d7d30_615f5f35",
       "range": {
         "startLine": 717,
         "startChar": 54,
