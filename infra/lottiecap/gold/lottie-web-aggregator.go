@@ -62,7 +62,7 @@ type reportBody struct {
 var defaultKeys map[string]string
 
 // contains all the results reported in through report_gold_data
-var results []*jsonio.Result
+var results []jsonio.Result
 
 func main() {
 	flag.Parse()
@@ -77,7 +77,7 @@ func main() {
 		"source_type":      "lottie",
 	}
 
-	results = []*jsonio.Result{}
+	results = []jsonio.Result{}
 
 	http.HandleFunc("/report_gold_data", reporter)
 	http.HandleFunc("/dump_json", dumpJSON)
@@ -122,7 +122,7 @@ func reporter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	results = append(results, &jsonio.Result{
+	results = append(results, jsonio.Result{
 		Digest: types.Digest(hash),
 		Key: map[string]string{
 			"name": testOutput.TestName,
@@ -164,14 +164,12 @@ func dumpJSON(w http.ResponseWriter, r *http.Request) {
 	}
 
 	results := jsonio.GoldResults{
-		Builder:                     *builder,
 		ChangelistID:                *issue,
 		GitHash:                     *gitHash,
 		CodeReviewSystem:            "gerrit",
 		Key:                         defaultKeys,
 		PatchsetOrder:               *patchset,
 		Results:                     results,
-		TaskID:                      *taskId,
 		TryJobID:                    *buildBucketID,
 		ContinuousIntegrationSystem: "buildbucket",
 	}
