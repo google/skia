@@ -4155,6 +4155,12 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fShaderCaps->fShaderDerivativeSupport = false;
     }
 #endif
+
+    if (ctxInfo.renderer() == GrGLRenderer::kPowerVRRogue ||
+        ctxInfo.renderer() == GrGLRenderer::kPowerVR54x) {
+        // crbug.com/1203652
+        fAlwaysDrawQuadsIndexed = true;
+    }
 }
 
 void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {

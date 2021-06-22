@@ -41,7 +41,7 @@ namespace GrQuadPerEdgeAA {
     };
     static const int kIndexBufferOptionCount = static_cast<int>(IndexBufferOption::kLast) + 1;
 
-    IndexBufferOption CalcIndexBufferOption(GrAAType aa, int numQuads);
+    IndexBufferOption CalcIndexBufferOption(GrAAType aa, int numQuads, const GrCaps&);
 
     // Gets the minimum ColorType that can represent a color.
     ColorType MinColorType(SkPMColor4f);
