@@ -83,6 +83,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fRequiresManualFBBarrierAfterTessellatedStencilDraw = false;
     fNativeDrawIndexedIndirectIsBroken = false;
     fAvoidReorderingRenderTasks = false;
+    fAlwaysDrawQuadsIndexed = false;
 
     fPreferVRAMUseOverFlushes = true;
 

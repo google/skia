@@ -693,7 +693,7 @@ private:
         SkArenaAlloc* arena = context->priv().recordTimeAllocator();
 
         fDesc = arena->make<Desc>();
-        this->characterize(fDesc);
+        this->characterize(fDesc, *context->priv().caps());
         fDesc->allocatePrePreparedVertices(arena);
         FillInVertices(*context->priv().caps(), this, fDesc, fDesc->fPrePreparedVertices);
 
@@ -788,7 +788,7 @@ private:
     int numQuads() const final { return this->totNumQuads(); }
 #endif
 
-    void characterize(Desc* desc) const {
+    void characterize(Desc* desc, const GrCaps& caps) const {
         SkDEBUGCODE(this->validate();)
 
         GrQuad::Type quadType = GrQuad::Type::kAxisAligned;
@@ -829,7 +829,8 @@ private:
         SkASSERT(!CombinedQuadCountWillOverflow(overallAAType, false, desc->fNumTotalQuads));
 
         auto indexBufferOption = GrQuadPerEdgeAA::CalcIndexBufferOption(overallAAType,
-                                                                        maxQuadsPerMesh);
+                                                                        maxQuadsPerMesh,
+                                                                        caps);
 
         desc->fVertexSpec = VertexSpec(quadType, colorType, srcQuadType, /* hasLocal */ true,
                                        subset, overallAAType, /* alpha as coverage */ true,
@@ -875,7 +876,7 @@ private:
         if (!fDesc) {
             SkArenaAlloc* arena = target->allocator();
             fDesc = arena->make<Desc>();
-            this->characterize(fDesc);
+            this->characterize(fDesc, target->caps());
             SkASSERT(!fDesc->fPrePreparedVertices);
         }
 
