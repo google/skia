@@ -267,15 +267,12 @@ private:
     using FT_Set_Default_PropertiesProc = void (*)(FT_Library);
 };
 
-struct SkFaceRec;
-
 static SkMutex& f_t_mutex() {
     static SkMutex& mutex = *(new SkMutex);
     return mutex;
 }
 
 static FreeTypeLibrary* gFTLibrary;
-static SkFaceRec* gFaceRecHead;
 
 // Private to ref_ft_library and unref_ft_library
 static int gFTCount;
@@ -300,7 +297,6 @@ static void unref_ft_library() {
 
     --gFTCount;
     if (0 == gFTCount) {
-        SkASSERT(nullptr == gFaceRecHead);
         SkASSERT(nullptr != gFTLibrary);
         delete gFTLibrary;
         SkDEBUGCODE(gFTLibrary = nullptr;)
@@ -310,12 +306,9 @@ static void unref_ft_library() {
 ///////////////////////////////////////////////////////////////////////////
 
 struct SkFaceRec {
-    SkFaceRec* fNext;
     SkUniqueFTFace fFace;
     FT_StreamRec fFTStream;
     std::unique_ptr<SkStreamAsset> fSkStream;
-    uint32_t fRefCnt;
-    uint32_t fFontID;
 
     // FreeType prior to 2.7.1 does not implement retreiving variation design metrics.
     // Cache the variation design metrics used to create the font if the user specifies them.
@@ -327,7 +320,8 @@ struct SkFaceRec {
     // Manually keep track of when a named variation is requested for 2.6.1 until 2.7.1.
     bool fNamedVariationSpecified;
 
-    SkFaceRec(std::unique_ptr<SkStreamAsset> stream, uint32_t fontID);
+    SkFaceRec(std::unique_ptr<SkStreamAsset> stream);
+    ~SkFaceRec();
 };
 
 extern "C" {
@@ -350,15 +344,22 @@ extern "C" {
     static void sk_ft_stream_close(FT_Stream) {}
 }
 
-SkFaceRec::SkFaceRec(std::unique_ptr<SkStreamAsset> stream, uint32_t fontID)
-        : fNext(nullptr), fSkStream(std::move(stream)), fRefCnt(1), fFontID(fontID)
-        , fAxesCount(0), fNamedVariationSpecified(false)
+SkFaceRec::SkFaceRec(std::unique_ptr<SkStreamAsset> stream)
+        : fSkStream(std::move(stream)), fAxesCount(0), fNamedVariationSpecified(false)
 {
     sk_bzero(&fFTStream, sizeof(fFTStream));
     fFTStream.size = fSkStream->getLength();
     fFTStream.descriptor.pointer = fSkStream.get();
     fFTStream.read  = sk_ft_stream_io;
     fFTStream.close = sk_ft_stream_close;
+
+    f_t_mutex().assertHeld();
+    ref_ft_library();
+}
+SkFaceRec::~SkFaceRec() {
+    SkAutoMutexExclusive  ac(f_t_mutex());
+    fFace.reset(); // Must release face before the library, the library frees existing faces.
+    unref_ft_library();
 }
 
 static void ft_face_setup_axes(SkFaceRec* rec, const SkFontData& data) {
@@ -407,26 +408,15 @@ static void ft_face_setup_axes(SkFaceRec* rec, const SkFontData& data) {
 
 // Will return nullptr on failure
 // Caller must lock f_t_mutex() before calling this function.
-static SkFaceRec* ref_ft_face(const SkTypeface_FreeType* typeface) {
+static std::unique_ptr<SkFaceRec> make_ft_rec(const SkTypeface_FreeType* typeface) {
     f_t_mutex().assertHeld();
-
-    const SkFontID fontID = typeface->uniqueID();
-    SkFaceRec* cachedRec = gFaceRecHead;
-    while (cachedRec) {
-        if (cachedRec->fFontID == fontID) {
-            SkASSERT(cachedRec->fFace);
-            cachedRec->fRefCnt += 1;
-            return cachedRec;
-        }
-        cachedRec = cachedRec->fNext;
-    }
 
     std::unique_ptr<SkFontData> data = typeface->makeFontData();
     if (nullptr == data || !data->hasStream()) {
         return nullptr;
     }
 
-    std::unique_ptr<SkFaceRec> rec(new SkFaceRec(data->detachStream(), fontID));
+    std::unique_ptr<SkFaceRec> rec(new SkFaceRec(data->detachStream()));
 
     FT_Open_Args args;
     memset(&args, 0, sizeof(args));
@@ -444,7 +434,7 @@ static SkFaceRec* ref_ft_face(const SkTypeface_FreeType* typeface) {
         FT_Face rawFace;
         FT_Error err = FT_Open_Face(gFTLibrary->library(), &args, data->getIndex(), &rawFace);
         if (err) {
-            SK_TRACEFTR(err, "unable to open font '%x'", fontID);
+            SK_TRACEFTR(err, "unable to open font '%x'", typeface->uniqueID());
             return nullptr;
         }
         rec->fFace.reset(rawFace);
@@ -463,50 +453,17 @@ static SkFaceRec* ref_ft_face(const SkTypeface_FreeType* typeface) {
         FT_Select_Charmap(rec->fFace.get(), FT_ENCODING_MS_SYMBOL);
     }
 
-    rec->fNext = gFaceRecHead;
-    gFaceRecHead = rec.get();
-    return rec.release();
-}
-
-// Caller must lock f_t_mutex() before calling this function.
-// Marked extern because vc++ does not support internal linkage template parameters.
-extern /*static*/ void unref_ft_face(SkFaceRec* faceRec) {
-    f_t_mutex().assertHeld();
-
-    SkFaceRec*  rec = gFaceRecHead;
-    SkFaceRec*  prev = nullptr;
-    while (rec) {
-        SkFaceRec* next = rec->fNext;
-        if (rec->fFace == faceRec->fFace) {
-            if (--rec->fRefCnt == 0) {
-                if (prev) {
-                    prev->fNext = next;
-                } else {
-                    gFaceRecHead = next;
-                }
-                delete rec;
-            }
-            return;
-        }
-        prev = rec;
-        rec = next;
-    }
-    SkDEBUGFAIL("shouldn't get here, face not in list");
+    return rec;
 }
 
 class AutoFTAccess {
 public:
     AutoFTAccess(const SkTypeface_FreeType* tf) : fFaceRec(nullptr) {
         f_t_mutex().acquire();
-        SkASSERT_RELEASE(ref_ft_library());
-        fFaceRec = ref_ft_face(tf);
+        fFaceRec = tf->getFTFace();
     }
 
     ~AutoFTAccess() {
-        if (fFaceRec) {
-            unref_ft_face(fFaceRec);
-        }
-        unref_ft_library();
         f_t_mutex().release();
     }
 
@@ -542,12 +499,10 @@ protected:
     void generateFontMetrics(SkFontMetrics*) override;
 
 private:
-    using UnrefFTFace = SkFunctionWrapper<decltype(unref_ft_face), unref_ft_face>;
-    std::unique_ptr<SkFaceRec, UnrefFTFace> fFaceRec;
-
-    FT_Face   fFace;  // Borrowed face from gFaceRecHead.
-    FT_Size   fFTSize;  // The size on the fFace for this scaler.
-    FT_Int    fStrikeIndex;
+    SkFaceRec* fFaceRec; // Borrowed face from the typeface's SkFaceRec.
+    FT_Face   fFace;  // Borrowed face from fFaceRec.
+    FT_Size   fFTSize;  // The size to apply to the fFace.
+    FT_Int    fStrikeIndex; // The bitmap strike for the fFace (or -1 if none).
 
     /** The rest of the matrix after FreeType handles the size.
      *  With outline font rasterization this is handled by FreeType with FT_Set_Transform.
@@ -957,9 +912,7 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface_FreeType> ty
     , fStrikeIndex(-1)
 {
     SkAutoMutexExclusive  ac(f_t_mutex());
-    SkASSERT_RELEASE(ref_ft_library());
-
-    fFaceRec.reset(ref_ft_face(static_cast<SkTypeface_FreeType*>(this->getTypeface())));
+    fFaceRec = static_cast<SkTypeface_FreeType*>(this->getTypeface())->getFTFace();
 
     // load the font file
     if (nullptr == fFaceRec) {
@@ -1141,8 +1094,6 @@ SkScalerContext_FreeType::~SkScalerContext_FreeType() {
     }
 
     fFaceRec = nullptr;
-
-    unref_ft_library();
 }
 
 /*  We call this before each use of the fFace, since we may be sharing
@@ -1745,6 +1696,12 @@ void SkScalerContext_FreeType::emboldenIfNeeded(FT_Face face, FT_GlyphSlot glyph
 
 #include "src/core/SkUtils.h"
 
+SkTypeface_FreeType::SkTypeface_FreeType(const SkFontStyle& style, bool isFixedPitch)
+    : INHERITED(style, isFixedPitch)
+{}
+
+SkTypeface_FreeType::~SkTypeface_FreeType() {}
+
 // Just made up, so we don't end up storing 1000s of entries
 constexpr int kMaxC2GCacheCount = 512;
 
@@ -1946,6 +1903,12 @@ sk_sp<SkData> SkTypeface_FreeType::onCopyTableData(SkFontTableTag tag) const {
         }
     }
     return data;
+}
+
+SkFaceRec* SkTypeface_FreeType::getFTFace() const {
+    f_t_mutex().assertHeld();
+    fFTFaceOnce([this]{ fFTFace = make_ft_rec(this); });
+    return fFTFace.get();
 }
 
 std::unique_ptr<SkFontData> SkTypeface_FreeType::makeFontData() const {

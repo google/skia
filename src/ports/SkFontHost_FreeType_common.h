@@ -23,6 +23,7 @@ typedef struct FT_LibraryRec_* FT_Library;
 typedef struct FT_FaceRec_* FT_Face;
 typedef struct FT_StreamRec_* FT_Stream;
 typedef signed long FT_Pos;
+struct SkFaceRec;
 
 
 #ifdef SK_DEBUG
@@ -94,11 +95,11 @@ public:
      *  Return the font data, or nullptr on failure.
      */
     std::unique_ptr<SkFontData> makeFontData() const;
+    SkFaceRec* getFTFace() const;
 
 protected:
-    SkTypeface_FreeType(const SkFontStyle& style, bool isFixedPitch)
-        : INHERITED(style, isFixedPitch)
-    {}
+    SkTypeface_FreeType(const SkFontStyle& style, bool isFixedPitch);
+    ~SkTypeface_FreeType() override;
 
     std::unique_ptr<SkFontData> cloneFontData(const SkFontArguments&) const;
     std::unique_ptr<SkScalerContext> onCreateScalerContext(const SkScalerContextEffects&,
@@ -128,6 +129,9 @@ protected:
     virtual std::unique_ptr<SkFontData> onMakeFontData() const = 0;
 
 private:
+    mutable SkOnce fFTFaceOnce;
+    mutable std::unique_ptr<SkFaceRec> fFTFace;
+
     mutable SkSharedMutex fC2GCacheMutex;
     mutable SkCharToGlyphCache fC2GCache;
 
