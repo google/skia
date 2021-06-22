@@ -16,6 +16,24 @@
       "message": "nit: stale import?",
       "revId": "59abc17c031c0cd0311f75d7d0ad1cf6aa4ad0f6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8d40cd00_d74e35bc",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/TileMode.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-06-22T14:31:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6cdf2f46_a489e1e9",
+      "revId": "59abc17c031c0cd0311f75d7d0ad1cf6aa4ad0f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
