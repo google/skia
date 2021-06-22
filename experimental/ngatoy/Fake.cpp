@@ -19,7 +19,7 @@ void FakeMCBlob::MCState::addRect(SkIRect r, sk_sp<ClipCmd> clipCmd) {
 void FakeMCBlob::MCState::apply(SkCanvas* canvas) const {
     canvas->save();
 
-    for (auto c : fRects) {
+    for (SkIRect c : fRects) {
         canvas->clipIRect(c);
     }
 
@@ -29,11 +29,18 @@ void FakeMCBlob::MCState::apply(SkCanvas* canvas) const {
 void FakeMCBlob::MCState::apply(FakeCanvas* canvas) const {
     canvas->save();
 
-    for (auto c : fRects) {
+    // ID::Invalid seems wrong here
+    for (SkIRect c : fRects) {
         canvas->clipRect(ID::Invalid(), c);
     }
 
     canvas->translate(fTrans);
+}
+
+void FakeMCBlob::MCState::aboutToBePopped(PaintersOrder paintersOrderWhenPopped) {
+    for (sk_sp<ClipCmd>& c : fCmds) {
+        c->onAboutToBePopped(paintersOrderWhenPopped);
+    }
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -106,8 +113,8 @@ void FakeDevice::clipRect(ID id, PaintersOrder paintersOrder, SkIRect r) {
     fTracker.clipRect(r, std::move(tmp));
 }
 
-void FakeDevice::restore() {
-    fTracker.pop();
+void FakeDevice::restore(PaintersOrder paintersOrderWhenPopped) {
+    fTracker.pop(paintersOrderWhenPopped);
 }
 
 void FakeDevice::finalize() {

@@ -65,6 +65,7 @@ uint32_t RectCmd::getSortZ() const {
     return fPaintersOrder.toUInt();
 }
 
+// Opaque and transparent draws both write their painter's index to the depth buffer
 uint32_t RectCmd::getDrawZ() const {
     return fPaintersOrder.toUInt();
 }
@@ -152,35 +153,33 @@ ClipCmd::ClipCmd(ID id, PaintersOrder paintersOrderWhenAdded, SkIRect r)
         , fPaintersOrderWhenAdded(paintersOrderWhenAdded) {
 }
 
-ClipCmd::~ClipCmd() {
-}
+ClipCmd::~ClipCmd() {}
 
 uint32_t ClipCmd::getSortZ() const {
-    // Not used this iteration
-    SkASSERT(0);
-
     SkASSERT(fPaintersOrderWhenAdded.isValid());
 
     return fPaintersOrderWhenAdded.toUInt();
 }
 
+// A clip writes the painter's index corresponding to when it's "popped" off the clip stack
 uint32_t ClipCmd::getDrawZ() const {
-    // Not used this iteration
-    SkASSERT(0);
+    SkASSERT(fPaintersOrderWhenPopped.isValid());
 
-    return 0;
+    return fPaintersOrderWhenPopped.toUInt();
 }
 
 SortKey ClipCmd::getKey() {
-    // Not used this iteration
-    SkASSERT(0);
-
     return SortKey(false, this->getSortZ(), kInvalidMat);
+}
+
+void ClipCmd::onAboutToBePopped(PaintersOrder paintersOrderWhenPopped) {
+    SkASSERT(!fPaintersOrderWhenPopped.isValid() && paintersOrderWhenPopped.isValid());
+    fPaintersOrderWhenPopped = paintersOrderWhenPopped;
 }
 
 void ClipCmd::execute(FakeCanvas* c) const {
     // This call is creating the 'real' ClipCmd for the "actual" case
-    SkASSERT(!fPaintersOrderWhenAdded.isValid());
+    SkASSERT(!fPaintersOrderWhenAdded.isValid() && !fPaintersOrderWhenPopped.isValid());
 
     c->clipRect(fID, fRect);
 }
@@ -190,14 +189,12 @@ void ClipCmd::execute(SkCanvas* c) const {
 }
 
 void ClipCmd::rasterize(uint32_t zBuffer[256][256], SkBitmap* /* dstBM */) const {
-    // Not used this iteration
-    SkASSERT(0);
-
     uint32_t drawZ = this->getDrawZ();
 
-    for (int y = fRect.fTop; y < fRect.fBottom; ++y) {
-        for (int x = fRect.fLeft; x < fRect.fRight; ++x) {
-            if (drawZ > zBuffer[x][y]) {
+    // TODO: limit this via the scissor!
+    for (int y = 0; y < 256; ++y) {
+        for (int x = 0; x < 256; ++x) {
+            if (!fRect.contains(x, y) && drawZ > zBuffer[x][y]) {
                 zBuffer[x][y] = drawZ;
             }
         }

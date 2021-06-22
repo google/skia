@@ -199,28 +199,30 @@ static void mcstack_test() {
     SkASSERT(state2a != state2b);
 
     //----------------
-    s.pop();
+    s.pop(PaintersOrder(1));
     auto state3 = s.snapState();
     check_state(state3.get(), s1Trans, expectedS1Clips);
     SkASSERT(state1 == state3);
 
     //----------------
-    s.pop();
+    s.pop(PaintersOrder(2));
     auto state4 = s.snapState();
     check_state(state4.get(), { 0, 0 }, expectedS0Clips);
     SkASSERT(state0 == state4);
 }
 
-static void check_order(const std::vector<ID>& actualOrder,
+static void check_order(int testID,
+                        const std::vector<ID>& actualOrder,
                         const std::vector<ID>& expectedOrder) {
     if (expectedOrder.size() != actualOrder.size()) {
-        exitf("Op count mismatch. Expected %d - got %d\n",
+        exitf("Op count mismatch in test %d. Expected %d - got %d\n",
+              testID,
               expectedOrder.size(),
               actualOrder.size());
     }
 
     if (expectedOrder != actualOrder) {
-        SkDebugf("order mismatch:\n");
+        SkDebugf("order mismatch in test %d:\n", testID);
         SkDebugf("E %d: ", expectedOrder.size());
         for (auto t : expectedOrder) {
             SkDebugf("%d", t.toInt());
@@ -261,7 +263,7 @@ static void sort_test(PFTest testcase) {
     fake.finalize();
 
     std::vector<ID> actualOrder = fake.getOrder();
-    check_order(actualOrder, expectedOrder);
+    check_order(testID, actualOrder, expectedOrder);
 
     save_files(testID, expectedBM, actualBM);
 }
