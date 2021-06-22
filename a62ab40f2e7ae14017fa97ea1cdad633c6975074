@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "f7631db6_8f5259ea",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-22T17:34:39Z",
+      "side": 1,
+      "message": "I considered that, but the issue is that we\u0027ll still have to pass type checks everywhere if I do that - that dummy expression will have to have the right type to be accepted wherever it\u0027s being used, at least if we want to avoid adding a ton of extra checks on the SkSL side of things.\n\nIt seemed like just tossing in a few null checks and keeping all of the changes confined to DSL was probably safer and easier.",
+      "parentUuid": "1f2b8062_fe177a79",
+      "revId": "a62ab40f2e7ae14017fa97ea1cdad633c6975074",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "06feb749_d38ef7ee",
         "filename": "include/sksl/DSLExpression.h",
         "patchSetId": 1
@@ -31,6 +49,30 @@
       "writtenOn": "2021-06-22T14:00:21Z",
       "side": 1,
       "message": "Does `fExpression !\u003d nullptr` do something different here? It seems like it ought to work...?\n\n(throughout, for each NOLINT)",
+      "range": {
+        "startLine": 117,
+        "startChar": 26,
+        "endLine": 117,
+        "endChar": 60
+      },
+      "revId": "a62ab40f2e7ae14017fa97ea1cdad633c6975074",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "03f6f4af_8c7bb00e",
+        "filename": "include/sksl/DSLExpression.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-22T17:34:39Z",
+      "side": 1,
+      "message": "The pointers are implicitly convertible to DSLExpression, so some compilers complain about it being ambiguous whether we mean the built in pointer \u003d\u003d or operator\u003d\u003d(DSLExpression, DSLExpression).",
+      "parentUuid": "06feb749_d38ef7ee",
       "range": {
         "startLine": 117,
         "startChar": 26,
@@ -64,6 +106,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e5a38318_fc3077c7",
+        "filename": "src/sksl/dsl/DSLExpression.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-22T17:34:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b04dbf80_693bc12e",
+      "range": {
+        "startLine": 37,
+        "startChar": 13,
+        "endLine": 37,
+        "endChar": 24
+      },
+      "revId": "a62ab40f2e7ae14017fa97ea1cdad633c6975074",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8efbcefa_ea987dd3",
@@ -77,6 +143,30 @@
       "writtenOn": "2021-06-22T14:00:21Z",
       "side": 1,
       "message": "Should we say `expr.valid()`?",
+      "range": {
+        "startLine": 83,
+        "startChar": 8,
+        "endLine": 83,
+        "endChar": 24
+      },
+      "revId": "a62ab40f2e7ae14017fa97ea1cdad633c6975074",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "52f9a003_314e8fab",
+        "filename": "src/sksl/dsl/DSLExpression.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-22T17:34:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8efbcefa_ea987dd3",
       "range": {
         "startLine": 83,
         "startChar": 8,
@@ -110,6 +200,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "28f8b15c_356af284",
+        "filename": "src/sksl/dsl/priv/DSLWriter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-22T17:34:39Z",
+      "side": 1,
+      "message": "Good question. Probably copied and pasted some code at some point without fixing the parameter name. Fixed.",
+      "parentUuid": "16576735_c6ad3946",
+      "range": {
+        "startLine": 160,
+        "startChar": 68,
+        "endLine": 160,
+        "endChar": 72
+      },
+      "revId": "a62ab40f2e7ae14017fa97ea1cdad633c6975074",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f0507823_4d792dc8",
@@ -123,6 +237,30 @@
       "writtenOn": "2021-06-22T14:00:21Z",
       "side": 1,
       "message": "Consider calling this `ReportErrors`, it doesn\u0027t actually do anything else with them besides report and flush.",
+      "range": {
+        "startLine": 312,
+        "startChar": 16,
+        "endLine": 312,
+        "endChar": 28
+      },
+      "revId": "a62ab40f2e7ae14017fa97ea1cdad633c6975074",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e8197677_21dc4ef8",
+        "filename": "src/sksl/dsl/priv/DSLWriter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 312,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-22T17:34:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f0507823_4d792dc8",
       "range": {
         "startLine": 312,
         "startChar": 16,
