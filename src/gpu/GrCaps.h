@@ -397,7 +397,8 @@ public:
     bool disableTessellationPathRenderer() const { return fDisableTessellationPathRenderer; }
 
     // Returns how to sample the dst values for the passed in GrRenderTargetProxy.
-    GrDstSampleFlags getDstSampleFlagsForProxy(const GrRenderTargetProxy*) const;
+    GrDstSampleFlags getDstSampleFlagsForProxy(const GrRenderTargetProxy*,
+                                               bool opRequiresMSAA) const;
 
     /**
      * This is used to try to ensure a successful copy a dst in order to perform shader-based
