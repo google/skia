@@ -7,6 +7,8 @@
 
 package org.skia.androidkit;
 
+import android.support.annotation.Nullable;
+
 public class Canvas {
     private long mNativeInstance;
     private Surface mSurface;
@@ -27,8 +29,16 @@ public class Canvas {
         nRestore(mNativeInstance);
     }
 
-    public int saveLayer() {
-        return nSaveLayer(mNativeInstance);
+    public void restoreToCount(int count) {
+        nRestoreToCount(mNativeInstance, count);
+    }
+
+    public int saveLayer(@Nullable Paint paint) {
+        long nativePaint = 0;
+        if (paint != null) {
+            nativePaint = paint.getNativeInstance();
+        }
+        return nSaveLayer(mNativeInstance, nativePaint);
     }
 
     public Matrix getLocalToDevice() {
@@ -111,7 +121,8 @@ public class Canvas {
     private static native int  nGetHeight(long nativeInstance);
     private static native int  nSave(long nativeInstance);
     private static native void nRestore(long nativeInstance);
-    private static native int  nSaveLayer(long nativeInstance);
+    private static native void nRestoreToCount(long nativeInstance, int count);
+    private static native int  nSaveLayer(long nativeInstance, long nativePaint);
     private static native long nGetLocalToDevice(long mNativeInstance);
     private static native void nConcat(long nativeInstance, long nativeMatrix);
     private static native void nConcat16f(long nativeInstance, float[] floatMatrix);
