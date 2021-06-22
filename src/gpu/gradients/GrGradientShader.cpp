@@ -10,14 +10,9 @@
 #include "src/gpu/gradients/generated/GrClampedGradientEffect.h"
 #include "src/gpu/gradients/generated/GrTiledGradientEffect.h"
 
-#include "src/gpu/gradients/generated/GrLinearGradientLayout.h"
-#include "src/gpu/gradients/generated/GrRadialGradientLayout.h"
-#include "src/gpu/gradients/generated/GrSweepGradientLayout.h"
 #include "src/gpu/gradients/generated/GrTwoPointConicalGradientLayout.h"
 
 #include "src/gpu/gradients/GrGradientBitmapCache.h"
-#include "src/gpu/gradients/generated/GrDualIntervalGradientColorizer.h"
-#include "src/gpu/gradients/generated/GrSingleIntervalGradientColorizer.h"
 #include "src/gpu/gradients/generated/GrUnrolledBinaryGradientColorizer.h"
 
 #include "include/gpu/GrRecordingContext.h"
@@ -26,6 +21,7 @@
 #include "src/gpu/GrColorInfo.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/effects/GrGradientEffect.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 
 // Intervals smaller than this (that aren't hard stops) on low-precision-only devices force us to
@@ -95,7 +91,7 @@ static std::unique_ptr<GrFragmentProcessor> make_colorizer(const SkPMColor4f* co
     // Two remaining colors means a single interval from 0 to 1
     // (but it may have originally been a 3 or 4 color gradient with 1-2 hard stops at the ends)
     if (count == 2) {
-        return GrSingleIntervalGradientColorizer::Make(colors[offset], colors[offset + 1]);
+        return GrGradientColorizer::SingleInterval(colors[offset], colors[offset + 1]);
     }
 
     // Do an early test for the texture fallback to skip all of the other tests for specific
@@ -125,15 +121,15 @@ static std::unique_ptr<GrFragmentProcessor> make_colorizer(const SkPMColor4f* co
         if (count == 3) {
             // Must be a dual interval gradient, where the middle point is at offset+1 and the two
             // intervals share the middle color stop.
-            return GrDualIntervalGradientColorizer::Make(colors[offset], colors[offset + 1],
-                                                         colors[offset + 1], colors[offset + 2],
-                                                         positions[offset + 1]);
+            return GrGradientColorizer::DualInterval(colors[offset], colors[offset + 1],
+                                                     colors[offset + 1], colors[offset + 2],
+                                                     positions[offset + 1]);
         } else if (count == 4 && SkScalarNearlyEqual(positions[offset + 1],
                                                      positions[offset + 2])) {
             // Two separate intervals that join at the same threshold position
-            return GrDualIntervalGradientColorizer::Make(colors[offset], colors[offset + 1],
-                                                         colors[offset + 2], colors[offset + 3],
-                                                         positions[offset + 1]);
+            return GrGradientColorizer::DualInterval(colors[offset], colors[offset + 1],
+                                                     colors[offset + 2], colors[offset + 3],
+                                                     positions[offset + 1]);
         }
 
         // The single and dual intervals are a specialized case of the unrolled binary search
@@ -257,17 +253,17 @@ namespace GrGradientShader {
 
 std::unique_ptr<GrFragmentProcessor> MakeLinear(const SkLinearGradient& shader,
                                                 const GrFPArgs& args) {
-    return make_gradient(shader, args, GrLinearGradientLayout::Make(shader, args));
+    return make_gradient(shader, args, GrGradientLayout::Linear(shader, args));
 }
 
 std::unique_ptr<GrFragmentProcessor> MakeRadial(const SkRadialGradient& shader,
                                                 const GrFPArgs& args) {
-    return make_gradient(shader,args, GrRadialGradientLayout::Make(shader, args));
+    return make_gradient(shader,args, GrGradientLayout::Radial(shader, args));
 }
 
 std::unique_ptr<GrFragmentProcessor> MakeSweep(const SkSweepGradient& shader,
                                                const GrFPArgs& args) {
-    return make_gradient(shader,args, GrSweepGradientLayout::Make(shader, args));
+    return make_gradient(shader,args, GrGradientLayout::Sweep(shader, args));
 }
 
 std::unique_ptr<GrFragmentProcessor> MakeConical(const SkTwoPointConicalGradient& shader,
