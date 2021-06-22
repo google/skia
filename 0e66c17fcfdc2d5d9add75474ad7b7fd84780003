@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "26f9c6d3_b8d819c9",
+        "filename": "experimental/ngatoy/Cmds.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-22T13:59:52Z",
+      "side": 1,
+      "message": "this will still need to be updated to write every (x,y) \u003d drawZ that\u0027s not in fRect.",
+      "range": {
+        "startLine": 194,
+        "startChar": 4,
+        "endLine": 200,
+        "endChar": 5
+      },
+      "revId": "0e66c17fcfdc2d5d9add75474ad7b7fd84780003",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
