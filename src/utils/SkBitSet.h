@@ -9,6 +9,7 @@
 #define SkBitSet_DEFINED
 
 #include "include/private/SkMalloc.h"
+#include "include/private/SkTOptional.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkMathPriv.h"
 #include <climits>
@@ -89,38 +90,7 @@ public:
         }
     }
 
-    // Use std::optional<size_t> when possible.
-    class OptionalIndex {
-        bool fHasValue;
-        size_t fValue;
-    public:
-        OptionalIndex() : fHasValue(false) {}
-        constexpr OptionalIndex(size_t index) : fHasValue(true), fValue(index) {}
-
-        constexpr size_t* operator->() { return &fValue; }
-        constexpr const size_t* operator->() const { return &fValue; }
-        constexpr size_t& operator*() & { return fValue; }
-        constexpr const size_t& operator*() const& { return fValue; }
-        constexpr size_t&& operator*() && { return std::move(fValue); }
-        constexpr const size_t&& operator*() const&& { return std::move(fValue); }
-
-        constexpr explicit operator bool() const noexcept { return fHasValue; }
-        constexpr bool has_value() const noexcept { return fHasValue; }
-
-        constexpr size_t& value() & { return fValue; }
-        constexpr const size_t& value() const & { return fValue; }
-        constexpr size_t&& value() && { return std::move(fValue); }
-        constexpr const size_t&& value() const && { return std::move(fValue); }
-
-        template<typename U> constexpr size_t value_or(U&& defaultValue) const& {
-            return bool(*this) ? **this
-                               : static_cast<size_t>(std::forward<U>(defaultValue));
-        }
-        template<typename U> constexpr size_t value_or(U&& defaultValue) && {
-            return bool(*this) ? std::move(**this)
-                               : static_cast<size_t>(std::forward<U>(defaultValue));
-        }
-    };
+    using OptionalIndex = skstd::optional<size_t>;
 
     // If any bits are set, returns the index of the first.
     OptionalIndex findFirst() {

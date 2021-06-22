@@ -132,7 +132,7 @@ std::unique_ptr<GrD3DCpuDescriptorManager::Heap> GrD3DCpuDescriptorManager::Heap
 
 GrD3DDescriptorHeap::CPUHandle GrD3DCpuDescriptorManager::Heap::allocateCPUHandle() {
     SkBitSet::OptionalIndex freeBlock = fFreeBlocks.findFirst();
-    SkASSERT(freeBlock);
+    SkASSERT(freeBlock.has_value());
     fFreeBlocks.reset(*freeBlock);
     --fFreeCount;
     return fHeap->getCPUHandle(*freeBlock);
