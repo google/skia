@@ -217,12 +217,6 @@ skia_gpu_processor_sources = [
   "$_src/gpu/effects/GrRRectBlurEffect.fp",
   "$_src/gpu/effects/GrRectBlurEffect.fp",
   "$_src/gpu/gradients/GrClampedGradientEffect.fp",
-  "$_src/gpu/gradients/GrDualIntervalGradientColorizer.fp",
-  "$_src/gpu/gradients/GrLinearGradientLayout.fp",
-  "$_src/gpu/gradients/GrRadialGradientLayout.fp",
-  "$_src/gpu/gradients/GrSingleIntervalGradientColorizer.fp",
-  "$_src/gpu/gradients/GrSweepGradientLayout.fp",
   "$_src/gpu/gradients/GrTiledGradientEffect.fp",
-  "$_src/gpu/gradients/GrTwoPointConicalGradientLayout.fp",
   "$_src/gpu/gradients/GrUnrolledBinaryGradientColorizer.fp",
 ]
