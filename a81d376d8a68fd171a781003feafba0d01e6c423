@@ -50,6 +50,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "69d70a39_447bb2ce",
+        "filename": "include/private/SkTOptional.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-22T19:31:17Z",
+      "side": 1,
+      "message": "Alright, fair enough. At least just put parentheses around the nested ternary :-).",
+      "parentUuid": "e48de91d_afbc398e",
+      "range": {
+        "startLine": 178,
+        "startChar": 11,
+        "endLine": 178,
+        "endChar": 87
+      },
+      "revId": "a81d376d8a68fd171a781003feafba0d01e6c423",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "f323e5d9_39a54d0c",
         "filename": "include/private/SkTOptional.h",
         "patchSetId": 3
