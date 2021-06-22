@@ -206,7 +206,7 @@ public:
     ~FakeDevice() {}
 
     void save();
-    void drawRect(ID, PaintersOrder, SkIRect, FakePaint);
+    void drawShape(ID, PaintersOrder, Shape, SkIRect, FakePaint);
     void clipRect(ID, PaintersOrder, SkIRect);
     void translate(SkIPoint trans) {
         fTracker.translate(trans);
@@ -249,7 +249,7 @@ public:
         fDeviceStack.back()->save();
     }
 
-    void drawRect(ID, SkIRect, FakePaint);
+    void drawShape(ID, Shape, SkIRect, FakePaint);
 
     void clipRect(ID, SkIRect);
 

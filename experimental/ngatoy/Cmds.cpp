@@ -41,44 +41,62 @@ void RestoreCmd::execute(SkCanvas* c) const {
 }
 
 //------------------------------------------------------------------------------------------------
-RectCmd::RectCmd(ID id,
+DrawCmd::DrawCmd(ID id,
+                 Shape shape,
                  SkIRect r,
                  const FakePaint& p)
     : Cmd(id)
+    , fShape(shape)
     , fRect(r)
     , fPaint(p) {
 }
 
-RectCmd::RectCmd(ID id,
+DrawCmd::DrawCmd(ID id,
                  PaintersOrder paintersOrder,
+                 Shape shape,
                  SkIRect r,
                  const FakePaint& p,
                  sk_sp<FakeMCBlob> state)
     : Cmd(id)
     , fPaintersOrder(paintersOrder)
+    , fShape(shape)
     , fRect(r)
     , fPaint(p)
     , fMCState(std::move(state)) {
 }
 
-uint32_t RectCmd::getSortZ() const {
+bool DrawCmd::contains(int x, int y) const {
+    if (fShape == Shape::kRect) {
+        return fRect.contains(x, y);
+    } else {
+        float a = fRect.width() / 2.0f;   // horizontal radius
+        float b = fRect.height() / 2.0f;  // vertical radius
+        float h = 0.5f * (fRect.fLeft + fRect.fRight); // center X
+        float k = 0.5f * (fRect.fTop + fRect.fBottom); // center Y
+
+        return (x - h) * (x - h) / (a * a) + (y - k) * (y - k) / (b * b) < 1.0f;
+    }
+}
+
+
+uint32_t DrawCmd::getSortZ() const {
     return fPaintersOrder.toUInt();
 }
 
 // Opaque and transparent draws both write their painter's index to the depth buffer
-uint32_t RectCmd::getDrawZ() const {
+uint32_t DrawCmd::getDrawZ() const {
     return fPaintersOrder.toUInt();
 }
 
-SortKey RectCmd::getKey() {
+SortKey DrawCmd::getKey() {
     return SortKey(fPaint.isTransparent(), this->getSortZ(), fPaint.toID());
 }
 
-void RectCmd::execute(FakeCanvas* c) const {
-    c->drawRect(fID, fRect, fPaint);
+void DrawCmd::execute(FakeCanvas* c) const {
+    c->drawShape(fID, fShape, fRect, fPaint);
 }
 
-void RectCmd::execute(SkCanvas* c) const {
+void DrawCmd::execute(SkCanvas* c) const {
 
     SkColor4f colors[2] = {
         SkColor4f::FromColor(fPaint.c0()),
@@ -105,25 +123,33 @@ void RectCmd::execute(SkCanvas* c) const {
         p.setShader(std::move(shader));
     }
 
-    c->drawRect(SkRect::Make(fRect), p);
+    if (fShape == Shape::kRect) {
+        c->drawRect(SkRect::Make(fRect), p);
+    } else {
+        c->drawOval(SkRect::Make(fRect), p);
+    }
 }
 
 static bool is_opaque(SkColor c) {
     return 0xFF == SkColorGetA(c);
 }
 
-void RectCmd::rasterize(uint32_t zBuffer[256][256], SkBitmap* dstBM) const {
+void DrawCmd::rasterize(uint32_t zBuffer[256][256], SkBitmap* dstBM) const {
 
     uint32_t z = this->getDrawZ();
     SkIRect scissor = fMCState->scissor();
 
     for (int y = fRect.fTop; y < fRect.fBottom; ++y) {
         for (int x = fRect.fLeft; x < fRect.fRight; ++x) {
-            if (z > zBuffer[x][y]) {
-                if (!scissor.contains(x, y)) {
-                    continue;
-                }
+            if (!scissor.contains(x, y)) {
+                continue;
+            }
 
+            if (!this->contains(x, y)) {
+                continue;
+            }
+
+            if (z > zBuffer[x][y]) {
                 zBuffer[x][y] = z;
 
                 SkColor c = fPaint.evalColor(x, y);

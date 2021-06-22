@@ -109,11 +109,11 @@ void FakeDevice::save() {
     fTracker.push();
 }
 
-void FakeDevice::drawRect(ID id, PaintersOrder paintersOrder, SkIRect r, FakePaint p) {
+void FakeDevice::drawShape(ID id, PaintersOrder paintersOrder, Shape shape, SkIRect r, FakePaint p) {
     sk_sp<FakeMCBlob> state = fTracker.snapState();
     SkASSERT(state);
 
-    sk_sp<Cmd> tmp = sk_make_sp<RectCmd>(id, paintersOrder, r, p, std::move(state));
+    sk_sp<Cmd> tmp = sk_make_sp<DrawCmd>(id, paintersOrder, shape, r, p, std::move(state));
 
     fSortedCmds.push_back(std::move(tmp));
 }
@@ -160,10 +160,10 @@ void FakeDevice::sort() {
 }
 
 //-------------------------------------------------------------------------------------------------
-void FakeCanvas::drawRect(ID id, SkIRect r, FakePaint p) {
+void FakeCanvas::drawShape(ID id, Shape shape, SkIRect r, FakePaint p) {
     SkASSERT(!fFinalized);
 
-    fDeviceStack.back()->drawRect(id, this->nextPaintersOrder(), r, p);
+    fDeviceStack.back()->drawShape(id, this->nextPaintersOrder(), shape, r, p);
 }
 
 void FakeCanvas::clipRect(ID id, SkIRect r) {

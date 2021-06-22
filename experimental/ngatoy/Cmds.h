@@ -89,10 +89,12 @@ private:
 };
 
 //------------------------------------------------------------------------------------------------
-class RectCmd : public Cmd {
+class DrawCmd : public Cmd {
 public:
-    RectCmd(ID, SkIRect, const FakePaint&);  // for creating the test cases
-    RectCmd(ID, PaintersOrder, SkIRect, const FakePaint&, sk_sp<FakeMCBlob> state);
+    DrawCmd(ID, Shape, SkIRect, const FakePaint&);  // for creating the test cases
+    DrawCmd(ID, PaintersOrder, Shape, SkIRect, const FakePaint&, sk_sp<FakeMCBlob> state);
+
+    bool contains(int x, int y) const;
 
     uint32_t getSortZ() const;
     uint32_t getDrawZ() const;
@@ -105,7 +107,8 @@ public:
     void rasterize(uint32_t zBuffer[256][256], SkBitmap* dstBM) const override;
 
     void dump() const override {
-        SkDebugf("%d: drawRect %d %d %d %d -- %d",
+        SkDebugf("%d: %s rect %d %d %d %d -- %d",
+                 fShape == Shape::kRect ? "rect" : "oval",
                  fID.toInt(),
                  fRect.fLeft, fRect.fTop, fRect.fRight, fRect.fBottom,
                  fPaintersOrder.toUInt());
@@ -115,6 +118,7 @@ protected:
 
 private:
     PaintersOrder     fPaintersOrder;
+    Shape             fShape;
     SkIRect           fRect;
     FakePaint         fPaint;
     sk_sp<FakeMCBlob> fMCState;
