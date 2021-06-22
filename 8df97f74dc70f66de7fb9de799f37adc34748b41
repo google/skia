@@ -206,6 +206,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "78758504_8e2784b9",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2034,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-22T17:58:27Z",
+      "side": 1,
+      "message": "Hmmm I see the issue your seeing now. So is your suggestion that for render to texture without barrier support we also just end up doing a copy? Otherwise yeah I\u0027m not sure how we would trigger the driver to flush since its not like we put in a manual resolve.\n\nBy the way completely agree about the texture part, I missed that check.",
+      "parentUuid": "48257e16_3e229478",
+      "range": {
+        "startLine": 2034,
+        "startChar": 9,
+        "endLine": 2034,
+        "endChar": 42
+      },
+      "revId": "8df97f74dc70f66de7fb9de799f37adc34748b41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "3d531804_10c95796",
         "filename": "src/gpu/GrSurfaceDrawContext.cpp",
         "patchSetId": 4
