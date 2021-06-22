@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4b19a262_081ff875",
+        "filename": "src/gpu/GrRingBuffer.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-06-22T14:40:08Z",
+      "side": 1,
+      "message": "Right now it\u0027s only used on Metal and D3D, and it\u0027s backed with a dynamic access vertex buffer. Currently on D3D unmap will call Unmap() on the ID3D12Resource*, which isn\u0027t necessary for write-back since it uses the UPLOAD heap type. I can probably set up an UPLOAD backed GrD3DBuffer to be persistently mapped, but it\u0027s not set up that way right now. I\u0027ll add a TODO.",
+      "parentUuid": "9770bd29_a7a6f9bf",
+      "range": {
+        "startLine": 94,
+        "startChar": 24,
+        "endLine": 94,
+        "endChar": 29
+      },
+      "revId": "624e4163ec6bffb321d6f60a2282e3ff0a841992",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "eb0116e8_5ad2ef03",
@@ -64,6 +88,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "245c856a_d5458a5e",
+        "filename": "src/gpu/mtl/GrMtlRenderCommandEncoder.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-06-22T14:40:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eb0116e8_5ad2ef03",
+      "range": {
+        "startLine": 69,
+        "startChar": 5,
+        "endLine": 71,
+        "endChar": 48
+      },
+      "revId": "624e4163ec6bffb321d6f60a2282e3ff0a841992",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "dca9a9b1_fae1f9bd",
@@ -77,6 +125,30 @@
       "writtenOn": "2021-06-21T19:19:28Z",
       "side": 1,
       "message": "do we not track fragment offsets?",
+      "range": {
+        "startLine": 98,
+        "startChar": 2,
+        "endLine": 99,
+        "endChar": 56
+      },
+      "revId": "624e4163ec6bffb321d6f60a2282e3ff0a841992",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "19300dd9_73fe4bff",
+        "filename": "src/gpu/mtl/GrMtlRenderCommandEncoder.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-06-22T14:40:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dca9a9b1_fae1f9bd",
       "range": {
         "startLine": 98,
         "startChar": 2,
