@@ -244,10 +244,10 @@ static void write_2d_cov_uv_strict(GrVertexWriter* vb, const GrQuadPerEdgeAA::Ve
 
 namespace GrQuadPerEdgeAA {
 
-IndexBufferOption CalcIndexBufferOption(GrAAType aa, int numQuads) {
+IndexBufferOption CalcIndexBufferOption(GrAAType aa, int numQuads, const GrCaps& caps) {
     if (aa == GrAAType::kCoverage) {
         return IndexBufferOption::kPictureFramed;
-    } else if (numQuads > 1) {
+    } else if (numQuads > 1 || caps.alwaysDrawQuadsIndexed()) {
         return IndexBufferOption::kIndexedRects;
     } else {
         return IndexBufferOption::kTriStrips;

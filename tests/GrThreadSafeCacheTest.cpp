@@ -1164,13 +1164,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache9Verts, reporter, ctxInfo) {
 static void test_10(GrDirectContext* dContext, skiatest::Reporter* reporter,
                     TestHelper::addAccessFP addAccess,
                     TestHelper::checkFP check) {
-
-    if (GrBackendApi::kOpenGL != dContext->backend()) {
-        // The lower-level backends have too much going on for the following simple purging
-        // test to work
-        return;
-    }
-
     TestHelper helper(dContext);
 
     (helper.*addAccess)(helper.liveCanvas(), kImageWH, kNoID, false, false);
@@ -1224,8 +1217,25 @@ static void test_10(GrDirectContext* dContext, skiatest::Reporter* reporter,
                                               /*hits*/ 2, /*misses*/ 2, /*refs*/ 0, kNoID));
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache10View, reporter, ctxInfo) {
-    test_10(ctxInfo.directContext(), reporter, &TestHelper::addViewAccess, &TestHelper::checkView);
+DEF_GPUTEST(GrThreadSafeCache10View, reporter, origOptions) {
+    // Workarounds can affect the correctness of this test by causing extra allocations.
+    GrContextOptions options = origOptions;
+    options.fDisableDriverCorrectnessWorkarounds = true;
+    for (int ct = 0; ct < sk_gpu_test::GrContextFactory::kContextTypeCnt; ++ct) {
+        auto type = static_cast<sk_gpu_test::GrContextFactory::ContextType>(ct);
+        if (sk_gpu_test::GrContextFactory::ContextTypeBackend(type) != GrBackendApi::kOpenGL) {
+            // The lower-level backends have too much going on for the following simple purging
+            // test to work. This will likely stop working on GL if we do a better job of tracking
+            // actual purgeability WRT GPU work completion.
+            continue;
+        }
+        sk_gpu_test::GrContextFactory factory(options);
+        GrDirectContext* dContext = factory.get(type);
+        if (!dContext) {
+            continue;
+        }
+        test_10(dContext, reporter, &TestHelper::addViewAccess, &TestHelper::checkView);
+    }
 }
 
 // To enable test_10 with verts would require a bit more work, namely:
