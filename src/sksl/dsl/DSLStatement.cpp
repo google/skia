@@ -39,20 +39,14 @@ DSLStatement::DSLStatement(std::unique_ptr<SkSL::Expression> expr)
 
 DSLStatement::DSLStatement(std::unique_ptr<SkSL::Statement> stmt)
     : fStatement(std::move(stmt)) {
-    if (DSLWriter::Compiler().errorCount()) {
-        DSLWriter::ReportError(DSLWriter::Compiler().errorText(/*showCount=*/false).c_str());
-        DSLWriter::Compiler().setErrorCount(0);
-    }
+    DSLWriter::ReportErrors();
 }
 
 DSLStatement::DSLStatement(DSLPossibleExpression expr, PositionInfo pos)
     : DSLStatement(DSLExpression(std::move(expr), pos)) {}
 
 DSLStatement::DSLStatement(DSLPossibleStatement stmt, PositionInfo pos) {
-    if (DSLWriter::Compiler().errorCount()) {
-        DSLWriter::ReportError(DSLWriter::Compiler().errorText(/*showCount=*/false).c_str(), &pos);
-        DSLWriter::Compiler().setErrorCount(0);
-    }
+    DSLWriter::ReportErrors(pos);
     fStatement = std::move(stmt.fStatement);
 }
 

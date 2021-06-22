@@ -87,11 +87,7 @@ void DSLFunction::define(DSLBlock block) {
     DSLWriter::IRGenerator().finalizeFunction(*fDecl, body.get());
     auto function = std::make_unique<SkSL::FunctionDefinition>(/*offset=*/-1, fDecl,
                                                                /*builtin=*/false, std::move(body));
-    if (DSLWriter::Compiler().errorCount()) {
-        DSLWriter::ReportError(DSLWriter::Compiler().errorText(/*showCount=*/false).c_str());
-        DSLWriter::Compiler().setErrorCount(0);
-        SkASSERT(!DSLWriter::Compiler().errorCount());
-    }
+    DSLWriter::ReportErrors();
     fDecl->fDefinition = function.get();
     DSLWriter::ProgramElements().push_back(std::move(function));
 }
