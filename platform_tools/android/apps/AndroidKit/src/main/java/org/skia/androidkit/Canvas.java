@@ -27,8 +27,24 @@ public class Canvas {
         nRestore(mNativeInstance);
     }
 
+    public void restoreToCount(int count) {
+        nRestoreToCount(mNativeInstance, count);
+    }
+
+    public int saveLayer(float lBound, float tBound, float rBound, float bBound, Paint paint) {
+        return nSaveLayer(mNativeInstance, lBound, tBound, rBound, bBound, paint.getNativeInstance(), true);
+    }
+
+    public int saveLayer(Paint paint) {
+        return nSaveLayer(mNativeInstance, 0, 0, 0, 0, paint.getNativeInstance(), false);
+    }
+
+    public int saveLayer(float lBound, float tBound, float rBound, float bBound) {
+        return nSaveLayer(mNativeInstance, lBound, tBound, rBound, bBound, 0, true);
+    }
+
     public int saveLayer() {
-        return nSaveLayer(mNativeInstance);
+        return nSaveLayer(mNativeInstance, 0, 0, 0, 0, 0, false);
     }
 
     public Matrix getLocalToDevice() {
@@ -111,7 +127,8 @@ public class Canvas {
     private static native int  nGetHeight(long nativeInstance);
     private static native int  nSave(long nativeInstance);
     private static native void nRestore(long nativeInstance);
-    private static native int  nSaveLayer(long nativeInstance);
+    private static native void nRestoreToCount(long nativeInstance, int count);
+    private static native int  nSaveLayer(long nativeInstance, float l, float t, float r, float b, long nativePaint, boolean bounded);
     private static native long nGetLocalToDevice(long mNativeInstance);
     private static native void nConcat(long nativeInstance, long nativeMatrix);
     private static native void nConcat16f(long nativeInstance, float[] floatMatrix);
