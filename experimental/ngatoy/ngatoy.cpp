@@ -139,9 +139,9 @@ static void check_state(FakeMCBlob* actualState,
     int i = 0;
     auto states = actualState->mcStates();
     for (auto& s : states) {
-        for (auto r : s.rects()) {
+        for (const sk_sp<ClipCmd>& c : s.cmds()) {
             SkAssertResult(i < (int) expectedClips.size());
-            SkAssertResult(r == expectedClips[i]);
+            SkAssertResult(c->rect() == expectedClips[i]);
             i++;
         }
     }
@@ -178,7 +178,7 @@ static void mcstack_test() {
     //----------------
     s.push();
     s.translate(s1Trans);
-    s.clipRect(r, sk_make_sp<ClipCmd>(ID(1), PaintersOrder::Invalid(), r));
+    s.clipRect(sk_make_sp<ClipCmd>(ID(1), PaintersOrder::Invalid(), r));
 
     auto state1 = s.snapState();
     check_state(state1.get(), s1Trans, expectedS1Clips);
@@ -186,13 +186,13 @@ static void mcstack_test() {
     //----------------
     s.push();
     s.translate(s2TransA);
-    s.clipRect(r, sk_make_sp<ClipCmd>(ID(2), PaintersOrder::Invalid(), r));
+    s.clipRect(sk_make_sp<ClipCmd>(ID(2), PaintersOrder::Invalid(), r));
 
     auto state2a = s.snapState();
     check_state(state2a.get(), s1Trans + s2TransA, expectedS2aClips);
 
     s.translate(s2TransB);
-    s.clipRect(r, sk_make_sp<ClipCmd>(ID(3), PaintersOrder::Invalid(), r));
+    s.clipRect(sk_make_sp<ClipCmd>(ID(3), PaintersOrder::Invalid(), r));
 
     auto state2b = s.snapState();
     check_state(state2b.get(), s1Trans + s2TransA + s2TransB, expectedS2bClips);
