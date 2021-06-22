@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8fa0eb4e_690dd91a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-22T13:36:07Z",
+      "side": 1,
+      "message": "SkMatrix44 has been reverted.",
+      "parentUuid": "fcd1c7bf_f1e312af",
+      "revId": "c04eaedf67639a3c0bf5292ab40733baf4b01fc5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5d4ce659_0a5b0f6b",
@@ -48,6 +66,30 @@
       "writtenOn": "2021-06-22T13:20:47Z",
       "side": 1,
       "message": "These are taking column-major matrices, right?",
+      "range": {
+        "startLine": 14,
+        "startChar": 49,
+        "endLine": 14,
+        "endChar": 52
+      },
+      "revId": "c04eaedf67639a3c0bf5292ab40733baf4b01fc5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f4cdee3b_36fff7ee",
+        "filename": "src/core/SkMatrixInvert.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-22T13:36:07Z",
+      "side": 1,
+      "message": "Done. I overthought it. SkM44 flips the input from the ctor when it stores it into fMat and this always confuses me.",
+      "parentUuid": "5d4ce659_0a5b0f6b",
       "range": {
         "startLine": 14,
         "startChar": 49,
