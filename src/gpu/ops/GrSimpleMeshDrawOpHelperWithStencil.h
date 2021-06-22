@@ -8,6 +8,7 @@
 #ifndef GrSimpleMeshDrawOpHelperWithStencil_DEFINED
 #define GrSimpleMeshDrawOpHelperWithStencil_DEFINED
 
+#if 0
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
 /**
@@ -80,4 +81,5 @@ private:
     using INHERITED = GrSimpleMeshDrawOpHelper;
 };
 
+#endif
 #endif

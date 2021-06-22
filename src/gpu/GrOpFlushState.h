@@ -15,8 +15,10 @@
 #include "src/gpu/GrBufferAllocPool.h"
 #include "src/gpu/GrDeferredUpload.h"
 #include "src/gpu/GrMeshDrawTarget.h"
+#include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRenderTargetProxy.h"
+#include "src/gpu/GrSimpleMesh.h"
 #include "src/gpu/GrSurfaceProxyView.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 

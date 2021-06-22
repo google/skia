@@ -87,6 +87,7 @@ std::unique_ptr<GrFragmentProcessor> GrConfigConversionEffect::TestCreate(
 #endif
 
 bool GrConfigConversionEffect::TestForPreservingPMConversions(GrDirectContext* dContext) {
+#if GR_OGA
     static constexpr int kSize = 256;
     SkAutoTMalloc<uint32_t> data(kSize * kSize * 3);
     uint32_t* srcData = data.get();
@@ -167,6 +168,7 @@ bool GrConfigConversionEffect::TestForPreservingPMConversions(GrDirectContext* d
             }
         }
     }
+#endif
 
     return true;
 }

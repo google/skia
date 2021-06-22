@@ -9,6 +9,7 @@
 #include "include/core/SkFont.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "src/gpu/GrDirectContextPriv.h"
+#include "src/gpu/GrPaint.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/ops/GrFillRectOp.h"
 #include "src/sksl/dsl/priv/DSLFPs.h"
