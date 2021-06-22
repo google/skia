@@ -63,6 +63,30 @@
       },
       "revId": "4c35fef814ee75bfaa7a2a0fa81d9ad98b474cc3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "628a523b_6f511f20",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Canvas.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-06-22T20:35:09Z",
+      "side": 1,
+      "message": "Deleted bounds and made paint nullable",
+      "parentUuid": "29895441_52fb0466",
+      "range": {
+        "startLine": 34,
+        "startChar": 25,
+        "endLine": 34,
+        "endChar": 92
+      },
+      "revId": "4c35fef814ee75bfaa7a2a0fa81d9ad98b474cc3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
