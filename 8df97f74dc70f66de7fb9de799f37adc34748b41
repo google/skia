@@ -230,6 +230,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "03555b97_83cc5b2b",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2034,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-22T19:08:02Z",
+      "side": 1,
+      "message": "Yep! Lets just do a copy. This case is nonexistent anyway because the msaa_render_to_texture hardware almost all gives us framebuffer fetches and advanced blend equations. (Also memory barriers on ES 3.1 if we ever start using them.)",
+      "parentUuid": "78758504_8e2784b9",
+      "range": {
+        "startLine": 2034,
+        "startChar": 9,
+        "endLine": 2034,
+        "endChar": 42
+      },
+      "revId": "8df97f74dc70f66de7fb9de799f37adc34748b41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "3d531804_10c95796",
         "filename": "src/gpu/GrSurfaceDrawContext.cpp",
         "patchSetId": 4
