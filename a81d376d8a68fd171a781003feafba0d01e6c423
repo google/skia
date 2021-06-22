@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "e48de91d_afbc398e",
+        "filename": "include/private/SkTOptional.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-22T19:22:37Z",
+      "side": 1,
+      "message": "The structure of these comparators was actually patterned directly off of the C++17 spec:\nhttp://screen/8abZVagiFNkXgib\nhttp://screen/BWeft8zXURuAUKR\n\nAbseil\u0027s implementation also follows a similar pattern; I correctness-checked my work against theirs:\nhttp://screen/AsY33GoVyYPDUjJ\n\nI did take a few liberties with the \"optional x value\" forms, but I think there is some value here in keeping things in line with the standard since the checks are actually pretty nuanced.\n\nIf you want I can reformat them onto multiple lines? Might make the ternaries read better.\n\n  return a.has_value() !\u003d b.has_value() ? false :\n                         !a.has_value() ? true :\n                                          (*a \u003d\u003d *b);",
+      "parentUuid": "600bcf24_968f1ff4",
+      "range": {
+        "startLine": 178,
+        "startChar": 11,
+        "endLine": 178,
+        "endChar": 87
+      },
+      "revId": "a81d376d8a68fd171a781003feafba0d01e6c423",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "f323e5d9_39a54d0c",
         "filename": "include/private/SkTOptional.h",
         "patchSetId": 3
