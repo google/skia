@@ -223,13 +223,13 @@ static void check_order(int testID,
 
     if (expectedOrder != actualOrder) {
         SkDebugf("order mismatch in test %d:\n", testID);
-        SkDebugf("E %d: ", expectedOrder.size());
+        SkDebugf("E %zu: ", expectedOrder.size());
         for (auto t : expectedOrder) {
             SkDebugf("%d", t.toInt());
         }
         SkDebugf("\n");
 
-        SkDebugf("A %d: ", actualOrder.size());
+        SkDebugf("A %zu: ", actualOrder.size());
         for (auto t : actualOrder) {
             SkDebugf("%d", t.toInt());
         }

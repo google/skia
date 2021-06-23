@@ -159,7 +159,7 @@ namespace skvm {
             size_t fBytesWritten = 0;
 
             bool write(const void* buffer, size_t size) override {
-                SkDebugf("%.*s", size, buffer);
+                SkDebugf("%.*s", (int)size, (const char*)buffer);
                 fBytesWritten += size;
                 return true;
             }
