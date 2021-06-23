@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "492ca63e_128c9a09",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-23T21:48:11Z",
+      "side": 1,
+      "message": "Glad you like it! \nThis was another question I had. I debated both ways, but GrGradientShader was already pretty beefy. Regardless, it probably makes sense to just put the effects there - I\u0027ll do that before landing.",
+      "parentUuid": "761721bc_06f66020",
+      "revId": "2060e39f9fbbfd5252dabb65280def0cd923e5e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9a4f5132_0589df89",
@@ -41,6 +59,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c5016436_b5725846",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-23T21:48:11Z",
+      "side": 1,
+      "message": "Interesting - I suspect it doesn\u0027t make much difference. Klein\u0027s advice was always that fixed-size memcpy is about the fastest thing you can do (because the compiler is free to implement it however it wants if it knows the size, and the size is small).",
+      "parentUuid": "9a4f5132_0589df89",
+      "range": {
+        "startLine": 39,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 45
+      },
+      "revId": "2060e39f9fbbfd5252dabb65280def0cd923e5e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "27340c4b_3275284c",
@@ -54,6 +96,30 @@
       "writtenOn": "2021-06-23T20:53:37Z",
       "side": 1,
       "message": "THese are the only places that call Linear, etc. Would it make sense to fold the runtime sksl into GrGradientShader.cpp instead of adding GrGradientEffect?",
+      "range": {
+        "startLine": 256,
+        "startChar": 39,
+        "endLine": 256,
+        "endChar": 79
+      },
+      "revId": "2060e39f9fbbfd5252dabb65280def0cd923e5e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3487702d_d9a00867",
+        "filename": "src/gpu/gradients/GrGradientShader.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-23T21:48:11Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "27340c4b_3275284c",
       "range": {
         "startLine": 256,
         "startChar": 39,
