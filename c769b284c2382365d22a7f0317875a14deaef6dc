@@ -16,6 +16,23 @@
       "message": "Corresponding change to remove flag. PTAL. ",
       "revId": "c769b284c2382365d22a7f0317875a14deaef6dc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "77e011b9_5e9a0782",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-06-23T12:39:43Z",
+      "side": 1,
+      "message": "PS: This one should not be auto submitted yet since we need to wait for landing https://chromium-review.googlesource.com/c/chromium/src/+/2980293 in Chromium.",
+      "revId": "c769b284c2382365d22a7f0317875a14deaef6dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
