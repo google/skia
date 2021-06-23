@@ -111,6 +111,30 @@
       },
       "revId": "80295cf84b8c48dd34c8dc10a21e66a762573fa9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ac8d7f87_d6dc814a",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/RadialGradient.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-23T20:25:14Z",
+      "side": 1,
+      "message": "Ah! -- ick -- An array of small objects, each of which has to get GC\u0027d.\n\nI vote for two variants:\nint[].  // skcolor\nfloat[]  // skcolor4f (4 at a time)\n\nnotice you (and I applaud it :)) don\u0027t take an array of Point[] for pos...",
+      "parentUuid": "de38909f_d7104b30",
+      "range": {
+        "startLine": 14,
+        "startChar": 53,
+        "endLine": 14,
+        "endChar": 58
+      },
+      "revId": "80295cf84b8c48dd34c8dc10a21e66a762573fa9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
