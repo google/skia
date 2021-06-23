@@ -442,7 +442,8 @@ void GrOpsTask::onPrePrepare(GrRecordingContext* context) {
     // can end up with GrOpsTasks that only have a discard load op and no ops. For vulkan validation
     // we need to keep that discard and not drop it. Once we have reduce op list splitting enabled
     // we shouldn't end up with GrOpsTasks with only discard.
-    if (this->isNoOp() || (fClippedContentBounds.isEmpty() && fColorLoadOp != GrLoadOp::kDiscard)) {
+    if (this->isColorNoOp() ||
+        (fClippedContentBounds.isEmpty() && fColorLoadOp != GrLoadOp::kDiscard)) {
         return;
     }
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
@@ -467,7 +468,8 @@ void GrOpsTask::onPrepare(GrOpFlushState* flushState) {
     // can end up with GrOpsTasks that only have a discard load op and no ops. For vulkan validation
     // we need to keep that discard and not drop it. Once we have reduce op list splitting enabled
     // we shouldn't end up with GrOpsTasks with only discard.
-    if (this->isNoOp() || (fClippedContentBounds.isEmpty() && fColorLoadOp != GrLoadOp::kDiscard)) {
+    if (this->isColorNoOp() ||
+        (fClippedContentBounds.isEmpty() && fColorLoadOp != GrLoadOp::kDiscard)) {
         return;
     }
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
@@ -548,7 +550,8 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
     // can end up with GrOpsTasks that only have a discard load op and no ops. For vulkan validation
     // we need to keep that discard and not drop it. Once we have reduce op list splitting enabled
     // we shouldn't end up with GrOpsTasks with only discard.
-    if (this->isNoOp() || (fClippedContentBounds.isEmpty() && fColorLoadOp != GrLoadOp::kDiscard)) {
+    if (this->isColorNoOp() ||
+        (fClippedContentBounds.isEmpty() && fColorLoadOp != GrLoadOp::kDiscard)) {
         return false;
     }
 
@@ -684,12 +687,17 @@ void GrOpsTask::reset() {
     fRenderPassXferBarriers = GrXferBarrierFlags::kNone;
 }
 
+bool GrOpsTask::canMerge(const GrOpsTask* opsTask) const {
+    return this->target(0) == opsTask->target(0) &&
+           fArenas == opsTask->fArenas &&
+           !opsTask->fCannotMergeBackward;
+}
+
 int GrOpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
     int mergedCount = 0;
     for (const sk_sp<GrRenderTask>& task : tasks) {
         auto opsTask = task->asOpsTask();
-        if (!opsTask || opsTask->target(0) != this->target(0)
-                     || this->fArenas != opsTask->fArenas) {
+        if (!opsTask || !this->canMerge(opsTask)) {
             break;
         }
         SkASSERT(fTargetSwizzle == opsTask->fTargetSwizzle);
@@ -871,7 +879,7 @@ void GrOpsTask::onMakeSkippable() {
     this->deleteOps();
     fDeferredProxies.reset();
     fColorLoadOp = GrLoadOp::kLoad;
-    SkASSERT(this->isNoOp());
+    SkASSERT(this->isColorNoOp());
 }
 
 bool GrOpsTask::onIsUsed(GrSurfaceProxy* proxyToCheck) const {
@@ -898,7 +906,7 @@ bool GrOpsTask::onIsUsed(GrSurfaceProxy* proxyToCheck) const {
 
 void GrOpsTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {
     SkASSERT(this->isClosed());
-    if (this->isNoOp()) {
+    if (this->isColorNoOp()) {
         return;
     }
 
@@ -1043,7 +1051,7 @@ void GrOpsTask::forwardCombine(const GrCaps& caps) {
 GrRenderTask::ExpectedOutcome GrOpsTask::onMakeClosed(const GrCaps& caps,
                                                       SkIRect* targetUpdateBounds) {
     this->forwardCombine(caps);
-    if (!this->isNoOp()) {
+    if (!this->isColorNoOp()) {
         GrSurfaceProxy* proxy = this->target(0);
         // Use the entire backing store bounds since the GPU doesn't clip automatically to the
         // logical dimensions.
