@@ -8,6 +8,7 @@
 #ifndef SkBlender_DEFINED
 #define SkBlender_DEFINED
 
+#include "include/core/SkBlendMode.h"
 #include "include/core/SkFlattenable.h"
 
 /**
@@ -21,6 +22,18 @@ private:
     friend class SkBlenderBase;
 
     using INHERITED = SkFlattenable;
+};
+
+/**
+ * Factory functions for synthesizing an SkBlender.
+ */
+class SK_API SkBlenders {
+public:
+    /** Returns a SkBlender for the requested SkBlendMode. */
+    static sk_sp<SkBlender> Mode(SkBlendMode mode);
+
+private:
+    SkBlenders() = delete;
 };
 
 #endif
