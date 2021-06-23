@@ -529,51 +529,6 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::Compose(
 
 //////////////////////////////////////////////////////////////////////////////
 
-std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::ColorMatrix(
-        std::unique_ptr<GrFragmentProcessor> child,
-        const float matrix[20],
-        bool unpremulInput,
-        bool clampRGBOutput,
-        bool premulOutput) {
-    static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter, R"(
-        uniform half4x4 m;
-        uniform half4   v;
-        uniform int unpremulInput;   // always specialized
-        uniform int clampRGBOutput;  // always specialized
-        uniform int premulOutput;    // always specialized
-        half4 main(half4 color) {
-            if (bool(unpremulInput)) {
-                color = unpremul(color);
-            }
-            color = m * color + v;
-            if (bool(clampRGBOutput)) {
-                color = saturate(color);
-            } else {
-                color.a = saturate(color.a);
-            }
-            if (bool(premulOutput)) {
-                color.rgb *= color.a;
-            }
-            return color;
-        }
-    )");
-    SkASSERT(SkRuntimeEffectPriv::SupportsConstantOutputForConstantInput(effect));
-
-    SkM44 m44(matrix[ 0], matrix[ 1], matrix[ 2], matrix[ 3],
-              matrix[ 5], matrix[ 6], matrix[ 7], matrix[ 8],
-              matrix[10], matrix[11], matrix[12], matrix[13],
-              matrix[15], matrix[16], matrix[17], matrix[18]);
-    SkV4 v4 = {matrix[4], matrix[9], matrix[14], matrix[19]};
-    return GrSkSLFP::Make(effect, "ColorMatrix", std::move(child), GrSkSLFP::OptFlags::kNone,
-                          "m", m44,
-                          "v", v4,
-                          "unpremulInput",  GrSkSLFP::Specialize(unpremulInput  ? 1 : 0),
-                          "clampRGBOutput", GrSkSLFP::Specialize(clampRGBOutput ? 1 : 0),
-                          "premulOutput",   GrSkSLFP::Specialize(premulOutput   ? 1 : 0));
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::DestColor() {
     class DestColorProcessor : public GrFragmentProcessor {
     public:

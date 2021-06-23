@@ -27,6 +27,7 @@
 #include "src/gpu/GrSurfaceFillContext.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrBicubicEffect.h"
+#include "src/gpu/effects/generated/GrColorMatrixFragmentProcessor.h"
 
 #define ASSERT_SINGLE_OWNER         GR_ASSERT_SINGLE_OWNER(this->singleOwner())
 #define RETURN_FALSE_IF_ABANDONED   if (this->fContext->abandoned()) { return false;   }
@@ -976,11 +977,11 @@ void GrSurfaceContext::asyncRescaleAndReadPixelsYUV420(GrDirectContext* dContext
     std::copy_n(baseM + 0, 5, yM + 15);
 
     auto yFP = GrTextureEffect::Make(srcView, this->colorInfo().alphaType(), texMatrix);
-    yFP = GrFragmentProcessor::ColorMatrix(std::move(yFP),
-                                           yM,
-                                           /*unpremulInput=*/false,
-                                           /*clampRGBOutput=*/true,
-                                           /*premulOutput=*/false);
+    yFP = GrColorMatrixFragmentProcessor::Make(std::move(yFP),
+                                               yM,
+                                               /*unpremulInput=*/false,
+                                               /*clampRGBOutput=*/true,
+                                               /*premulOutput=*/false);
     yFC->fillWithFP(std::move(yFP));
     if (!doSynchronousRead) {
         yTransfer = yFC->transferPixels(GrColorType::kAlpha_8,
@@ -1001,11 +1002,11 @@ void GrSurfaceContext::asyncRescaleAndReadPixelsYUV420(GrDirectContext* dContext
                                      this->colorInfo().alphaType(),
                                      texMatrix,
                                      GrSamplerState::Filter::kLinear);
-    uFP = GrFragmentProcessor::ColorMatrix(std::move(uFP),
-                                           uM,
-                                           /*unpremulInput=*/false,
-                                           /*clampRGBOutput=*/true,
-                                           /*premulOutput=*/false);
+    uFP = GrColorMatrixFragmentProcessor::Make(std::move(uFP),
+                                               uM,
+                                               /*unpremulInput=*/false,
+                                               /*clampRGBOutput=*/true,
+                                               /*premulOutput=*/false);
     uFC->fillWithFP(std::move(uFP));
     if (!doSynchronousRead) {
         uTransfer = uFC->transferPixels(GrColorType::kAlpha_8,
@@ -1024,11 +1025,11 @@ void GrSurfaceContext::asyncRescaleAndReadPixelsYUV420(GrDirectContext* dContext
                                      this->colorInfo().alphaType(),
                                      texMatrix,
                                      GrSamplerState::Filter::kLinear);
-    vFP = GrFragmentProcessor::ColorMatrix(std::move(vFP),
-                                           vM,
-                                           /*unpremulInput=*/false,
-                                           /*clampRGBOutput=*/true,
-                                           /*premulOutput=*/false);
+    vFP = GrColorMatrixFragmentProcessor::Make(std::move(vFP),
+                                               vM,
+                                               /*unpremulInput=*/false,
+                                               /*clampRGBOutput=*/true,
+                                               /*premulOutput=*/false);
     vFC->fillWithFP(std::move(vFP));
 
     if (!doSynchronousRead) {
