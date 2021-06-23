@@ -126,8 +126,13 @@ public:
 
 private:
     void drawBitmapAsMask(const SkBitmap&, const SkSamplingOptions&, const SkPaint&) const;
-    void draw_fixed_vertices(const SkVertices*, SkBlendMode, const SkPaint&, const SkMatrix&,
-                             const SkPoint dev2[], const SkPoint3 dev3[], SkArenaAlloc*) const;
+    void drawFixedVertices(const SkVertices* vertices,
+                           SkBlendMode blendMode,
+                           const SkPaint& paint,
+                           const SkMatrix& ctmInverse,
+                           const SkPoint* dev2,
+                           const SkPoint3* dev3,
+                           SkArenaAlloc* outerAlloc) const;
 
     void drawPath(const SkPath&,
                   const SkPaint&,
