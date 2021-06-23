@@ -36,7 +36,6 @@ void FakeMCBlob::MCState::aboutToBePopped(PaintersOrder paintersOrderWhenPopped)
     }
 }
 
-
 FakeMCBlob::FakeMCBlob(const std::vector<MCState>& stack) : fID(NextID()), fStack(stack) {
     fScissor = SkIRect::MakeLTRB(-1000, -1000, 1000, 1000);
 
@@ -121,6 +120,7 @@ void FakeDevice::drawShape(ID id, PaintersOrder paintersOrder, Shape shape, SkIR
 void FakeDevice::clipShape(ID id, PaintersOrder paintersOrder, Shape shape, SkIRect r) {
     sk_sp<ClipCmd> tmp = sk_make_sp<ClipCmd>(id, paintersOrder, shape, r);
 
+    fSortedCmds.push_back(tmp);
     fTracker.clip(std::move(tmp));
 }
 

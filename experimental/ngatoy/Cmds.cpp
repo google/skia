@@ -1,4 +1,4 @@
-// Copyright 2021 Google LLC.
+﻿// Copyright 2021 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 
 #include "experimental/ngatoy/Cmds.h"
@@ -58,12 +58,12 @@ DrawCmd::DrawCmd(ID id,
                  SkIRect r,
                  const FakePaint& p,
                  sk_sp<FakeMCBlob> state)
-    : Cmd(id)
-    , fPaintersOrder(paintersOrder)
-    , fShape(shape)
-    , fRect(r)
-    , fPaint(p)
-    , fMCState(std::move(state)) {
+        : Cmd(id)
+        , fPaintersOrder(paintersOrder)
+        , fShape(shape)
+        , fRect(r)
+        , fPaint(p)
+        , fMCState(std::move(state)) {
 }
 
 static bool shared_contains(int x, int y, Shape s, SkIRect r) {
@@ -86,8 +86,27 @@ bool DrawCmd::contains(int x, int y) const {
     return shared_contains(x, y, fShape, fRect);
 }
 
+// For an opaque draw (Or) the sort z = 1+max { sort z(C), C ∈ clips(Or) }
+// For a transparent draw (Or) the sort z = 1+max { sort z(Os), s < r && (bounds(Os) ∩ bounds(Or)) }
 uint32_t DrawCmd::getSortZ() const {
-    return fPaintersOrder.toUInt();
+
+    if (!fPaint.isTransparent()) {
+        uint32_t maxClipZ = 0;
+        for (auto s : fMCState->mcStates()) {
+            for (const sk_sp<ClipCmd>& c : s.cmds()) {
+                uint32_t clipZ = c->getSortZ();
+                SkASSERT(clipZ != 0);
+
+                maxClipZ = std::max(maxClipZ, clipZ);
+            }
+        }
+
+        return maxClipZ != 0 ? maxClipZ+1 : fPaintersOrder.toUInt();
+    } else {
+        // Here we just ignore the bounds intersection portion of the sortZ computation - we
+        // assume the pessemistic "everything always intersects" case.
+        return fPaintersOrder.toUInt();
+    }
 }
 
 // Opaque and transparent draws both write their painter's index to the depth buffer
@@ -199,9 +218,12 @@ bool ClipCmd::contains(int x, int y) const {
     return shared_contains(x, y, fShape, fRect);
 }
 
+// A clip (Or) has sort z = 1+max { sort z(Os), s < r && (bounds(Os) ∩ bounds(Or)) }
 uint32_t ClipCmd::getSortZ() const {
     SkASSERT(fPaintersOrderWhenAdded.isValid());
 
+    // Here we just ignore the bounds intersection portion of the sortZ computation - we
+    // assume the pessemistic "everything always intersects" case.
     return fPaintersOrderWhenAdded.toUInt();
 }
 
