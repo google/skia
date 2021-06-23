@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "57dedb39_bd929a7d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-23T13:11:59Z",
+      "side": 1,
+      "message": "what is the RAM impact per face, now that they won\u0027t get purged (ala a cache)?",
+      "revId": "e84aec7208f6ee5762352aff796686526b25a7ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
