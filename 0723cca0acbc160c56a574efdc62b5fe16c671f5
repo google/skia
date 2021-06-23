@@ -183,6 +183,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3477fa72_17cbc5a5",
+        "filename": "src/sksl/dsl/DSLVar.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-23T20:21:05Z",
+      "side": 1,
+      "message": "http://review.skia.org/420902",
+      "parentUuid": "440c86d6_e4314030",
+      "range": {
+        "startLine": 57,
+        "startChar": 63,
+        "endLine": 57,
+        "endChar": 77
+      },
+      "revId": "0723cca0acbc160c56a574efdc62b5fe16c671f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c5b7b6c8_a08eb3b6",
