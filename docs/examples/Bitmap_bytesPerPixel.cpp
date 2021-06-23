@@ -17,7 +17,7 @@ void draw(SkCanvas* canvas) {
                                  } ) {
         bitmap.setInfo(info.makeColorType(colorType));
         SkDebugf("color: k" "%s" "_SkColorType" "%*s" "bytesPerPixel: %d\n",
-                colors[colorType], 13 - strlen(colors[colorType]), " ",
+                colors[colorType], (int)(13 - strlen(colors[colorType])), " ",
                 bitmap.bytesPerPixel());
     }
 }

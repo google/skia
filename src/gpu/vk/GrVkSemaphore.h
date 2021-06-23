@@ -14,6 +14,8 @@
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/vk/GrVkManagedResource.h"
 
+#include <cinttypes>
+
 class GrBackendSemaphore;
 class GrVkGpu;
 
@@ -66,7 +68,8 @@ public:
 
 #ifdef SK_TRACE_MANAGED_RESOURCES
         void dumpInfo() const override {
-            SkDebugf("GrVkSemaphore: %d (%d refs)\n", fSemaphore, this->getRefCnt());
+            SkDebugf("GrVkSemaphore: %" PRIdPTR " (%d refs)\n", (intptr_t)fSemaphore,
+                     this->getRefCnt());
         }
 #endif
     private:
