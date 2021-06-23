@@ -50,12 +50,12 @@ void GrOnFlushResourceProvider::addTextureResolveTask(sk_sp<GrTextureProxy> text
     // task gets closed before making a texture resolve task. makeClosed is what will mark msaa and
     // mipmaps dirty.
     if (GrRenderTask* renderTask = fDrawingMgr->getLastRenderTask(textureProxy.get())) {
-        renderTask->makeClosed(*this->caps());
+        renderTask->makeClosed(fDrawingMgr->getContext());
     }
     auto task = static_cast<GrTextureResolveRenderTask*>(fDrawingMgr->fOnFlushRenderTasks.push_back(
             sk_make_sp<GrTextureResolveRenderTask>()).get());
     task->addProxy(fDrawingMgr, std::move(textureProxy), resolveFlags, *this->caps());
-    task->makeClosed(*this->caps());
+    task->makeClosed(fDrawingMgr->getContext());
 }
 
 bool GrOnFlushResourceProvider::assignUniqueKeyToProxy(const GrUniqueKey& key,
