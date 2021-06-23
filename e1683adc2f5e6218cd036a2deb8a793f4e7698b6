@@ -16,6 +16,23 @@
       "message": "If this format looks good, I\u0027ll add other clip functions like clipRect.",
       "revId": "e1683adc2f5e6218cd036a2deb8a793f4e7698b6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "29c037f4_85fa35a0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-23T17:59:31Z",
+      "side": 1,
+      "message": "cool\n\nrect,\nrrect,\npath,\nshader",
+      "revId": "e1683adc2f5e6218cd036a2deb8a793f4e7698b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
