@@ -51,6 +51,24 @@
       "parentUuid": "54c55eca_6bb20995",
       "revId": "c769b284c2382365d22a7f0317875a14deaef6dc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fac9c9ae_2b24d8ba",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-06-23T12:55:04Z",
+      "side": 1,
+      "message": "No, the COLRv1 code in Skia builds only under #ifdef TT_SUPPORT_COLRV1 [1] which only is defined for when ToT FreeType is used from third_party/external or in Chromium until this API becomes stable in FreeType.\n\n[1] https://source.chromium.org/chromium/chromium/src/+/main:third_party/skia/src/ports/SkFontHost_FreeType_common.cpp?q\u003dfonthost%20freetype%20common",
+      "parentUuid": "d72bbc5e_e668cae2",
+      "revId": "c769b284c2382365d22a7f0317875a14deaef6dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
