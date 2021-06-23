@@ -85,6 +85,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "bf066660_c62251f3",
+        "filename": "include/sksl/DSLExpression.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-23T03:26:59Z",
+      "side": 1,
+      "message": "I wonder if you can make it unambiguous by telling it the type? Not beautiful, but maybe better than a NOLINT.\n\n    return fExpression !\u003d Expression(nullptr);",
+      "parentUuid": "03f6f4af_8c7bb00e",
+      "range": {
+        "startLine": 117,
+        "startChar": 26,
+        "endLine": 117,
+        "endChar": 60
+      },
+      "revId": "a62ab40f2e7ae14017fa97ea1cdad633c6975074",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b04dbf80_693bc12e",
         "filename": "src/sksl/dsl/DSLExpression.cpp",
         "patchSetId": 1
