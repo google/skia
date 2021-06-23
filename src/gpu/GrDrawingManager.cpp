@@ -373,14 +373,14 @@ void GrDrawingManager::sortTasks() {
 
 #ifdef SK_DEBUG
     // This block checks for any unnecessary splits in the opsTasks. If two sequential opsTasks
-    // could have merged it means the opsTask was artificially split.
+    // share the same backing GrSurfaceProxy it means the opsTask was artificially split.
     if (!fDAG.empty()) {
         GrOpsTask* prevOpsTask = fDAG[0]->asOpsTask();
         for (int i = 1; i < fDAG.count(); ++i) {
             GrOpsTask* curOpsTask = fDAG[i]->asOpsTask();
 
             if (prevOpsTask && curOpsTask) {
-                SkASSERT(!prevOpsTask->canMerge(curOpsTask));
+                SkASSERT(prevOpsTask->target(0) != curOpsTask->target(0));
             }
 
             prevOpsTask = curOpsTask;

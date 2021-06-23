@@ -306,17 +306,12 @@ GrOpsTask* GrSurfaceFillContext::getOpsTask() {
     SkDEBUGCODE(this->validate();)
 
     if (!fOpsTask || fOpsTask->isClosed()) {
-        this->replaceOpsTask();
+        sk_sp<GrOpsTask> newOpsTask = this->drawingManager()->newOpsTask(
+                this->writeSurfaceView(), this->arenas(), fFlushTimeOpsTask);
+        this->willReplaceOpsTask(fOpsTask.get(), newOpsTask.get());
+        fOpsTask = std::move(newOpsTask);
     }
     SkASSERT(!fOpsTask->isClosed());
-    return fOpsTask.get();
-}
-
-GrOpsTask* GrSurfaceFillContext::replaceOpsTask() {
-    sk_sp<GrOpsTask> newOpsTask = this->drawingManager()->newOpsTask(
-            this->writeSurfaceView(), this->arenas(), fFlushTimeOpsTask);
-    this->willReplaceOpsTask(fOpsTask.get(), newOpsTask.get());
-    fOpsTask = std::move(newOpsTask);
     return fOpsTask.get();
 }
 

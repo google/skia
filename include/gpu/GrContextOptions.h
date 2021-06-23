@@ -293,17 +293,6 @@ struct SK_API GrContextOptions {
     bool fSuppressDualSourceBlending = false;
 
     /**
-     * Prevents the use of non-coefficient-based blend equations, for testing dst reads, barriers,
-     * and in-shader blending.
-     */
-    bool fSuppressAdvancedBlendEquations = false;
-
-    /**
-     * Prevents the use of framebuffer fetches, for testing dst reads and texture barriers.
-     */
-    bool fSuppressFramebufferFetch = false;
-
-    /**
      * If true, the caps will never support geometry shaders.
      */
     bool fSuppressGeometryShaders = false;
