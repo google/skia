@@ -14,7 +14,7 @@ class SkBlendModeBlender : public SkBlenderBase {
 public:
     SkBlendModeBlender(SkBlendMode mode) : fMode(mode) {}
 
-    bool asBlendMode(SkBlendMode* mode) const {
+    bool asBlendMode(SkBlendMode* mode) const final {
         *mode = fMode;
         return true;
     }
