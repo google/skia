@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "adfd8191_78fa41a2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-23T15:38:46Z",
+      "side": 1,
+      "message": "I don\u0027t think there was a Chrome bug filed for the regression, just an email thread.",
+      "revId": "010963f5cc9b36b3db678796a802d375c1376319",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
