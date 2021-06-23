@@ -33,7 +33,11 @@ static DEFINE_string(pr, "",
               "[~]none [~]dashline [~]aahairline [~]aaconvex [~]aalinearizing [~]small [~]tri "
               "[~]tess [~]all");
 
-static DEFINE_int(internalSamples, 4, "Number of samples for internal draws that use MSAA.");
+static DEFINE_int(internalSamples, -1,
+        "Number of samples for internal draws that use MSAA, or default value if negative.");
+
+static DEFINE_int(maxAtlasSize, -1,
+        "Maximum width and height of internal texture atlases, or default value if negative.");
 
 static DEFINE_bool(disableDriverCorrectnessWorkarounds, false,
                    "Disables all GPU driver correctness workarounds");
@@ -103,9 +107,15 @@ void SetCtxOptionsFromCommonFlags(GrContextOptions* ctxOptions) {
     ctxOptions->fMaxTessellationSegmentsOverride     = FLAGS_maxTessellationSegments;
     ctxOptions->fAlwaysPreferHardwareTessellation    = FLAGS_alwaysHwTess;
     ctxOptions->fGpuPathRenderers                    = collect_gpu_path_renderers_from_flags();
-    ctxOptions->fInternalMultisampleCount            = FLAGS_internalSamples;
     ctxOptions->fDisableDriverCorrectnessWorkarounds = FLAGS_disableDriverCorrectnessWorkarounds;
     ctxOptions->fResourceCacheLimitOverride          = FLAGS_gpuResourceCacheLimit;
+
+    if (FLAGS_internalSamples >= 0) {
+        ctxOptions->fInternalMultisampleCount = FLAGS_internalSamples;
+    }
+    if (FLAGS_maxAtlasSize >= 0) {
+        ctxOptions->fMaxTextureAtlasSize = FLAGS_maxAtlasSize;
+    }
 
     if (FLAGS_dontReduceOpsTaskSplitting) {
         ctxOptions->fReduceOpsTaskSplitting = GrContextOptions::Enable::kNo;
