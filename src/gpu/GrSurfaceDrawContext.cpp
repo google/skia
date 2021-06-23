@@ -415,12 +415,14 @@ void GrSurfaceDrawContext::drawGlyphRunList(const GrClip* clip,
 void GrSurfaceDrawContext::drawPaint(const GrClip* clip,
                                      GrPaint&& paint,
                                      const SkMatrix& viewMatrix) {
+    SkIRect paintBounds = (clip) ? clip->getConservativeBounds()
+                                 : SkIRect::MakeSize(this->asSurfaceProxy()->dimensions());
     // Start with the render target, since that is the maximum content we could possibly fill.
     // drawFilledQuad() will automatically restrict it to clip bounds for us if possible.
     if (!paint.numTotalFragmentProcessors()) {
         // The paint is trivial so we won't need to use local coordinates, so skip calculating the
         // inverse view matrix.
-        SkRect r = this->asSurfaceProxy()->getBoundsRect();
+        SkRect r = SkRect::Make(paintBounds);
         this->fillRectToRect(clip, std::move(paint), GrAA::kNo, SkMatrix::I(), r, r);
     } else {
         // Use the inverse view matrix to arrive at appropriate local coordinates for the paint.
@@ -428,8 +430,7 @@ void GrSurfaceDrawContext::drawPaint(const GrClip* clip,
         if (!viewMatrix.invert(&localMatrix)) {
             return;
         }
-        SkIRect bounds = SkIRect::MakeSize(this->asSurfaceProxy()->dimensions());
-        this->fillPixelsWithLocalMatrix(clip, std::move(paint), bounds, localMatrix);
+        this->fillPixelsWithLocalMatrix(clip, std::move(paint), paintBounds, localMatrix);
     }
 }
 
