@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "df34bf7f_b318dd8c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-23T14:35:24Z",
+      "side": 1,
+      "message": "lgtm, % one comment",
+      "revId": "0723cca0acbc160c56a574efdc62b5fe16c671f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e04c4666_3da21d2f",
+        "filename": "src/sksl/dsl/DSLVar.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-23T14:35:24Z",
+      "side": 1,
+      "message": "needs int cast?",
+      "range": {
+        "startLine": 57,
+        "startChar": 63,
+        "endLine": 57,
+        "endChar": 77
+      },
+      "revId": "0723cca0acbc160c56a574efdc62b5fe16c671f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
