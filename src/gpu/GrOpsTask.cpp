@@ -382,7 +382,8 @@ void GrOpsTask::addOp(GrDrawingManager* drawingMgr, GrOp::Owner op,
 
     op->visitProxies(addDependency);
 
-    this->recordOp(std::move(op), GrProcessorSet::EmptySetAnalysis(), nullptr, nullptr, caps);
+    this->recordOp(std::move(op), false/*usesMSAA*/, GrProcessorSet::EmptySetAnalysis(), nullptr,
+                   nullptr, caps);
 }
 
 void GrOpsTask::addDrawOp(GrDrawingManager* drawingMgr, GrOp::Owner op, bool usesMSAA,
@@ -412,16 +413,7 @@ void GrOpsTask::addDrawOp(GrDrawingManager* drawingMgr, GrOp::Owner op, bool use
         fRenderPassXferBarriers |= GrXferBarrierFlags::kBlend;
     }
 
-#ifdef SK_DEBUG
-    // Ensure we can support dynamic msaa if the caller is trying to trigger it.
-    GrRenderTargetProxy* rtProxy = this->target(0)->asRenderTargetProxy();
-    if (rtProxy->numSamples() == 1 && usesMSAA) {
-        SkASSERT(caps.supportsDynamicMSAA(rtProxy));
-    }
-#endif
-    fUsesMSAASurface |= usesMSAA;
-
-    this->recordOp(std::move(op), processorAnalysis, clip.doesClip() ? &clip : nullptr,
+    this->recordOp(std::move(op), usesMSAA, processorAnalysis, clip.doesClip() ? &clip : nullptr,
                    &dstProxyView, caps);
 }
 
@@ -947,18 +939,26 @@ void GrOpsTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {
 }
 
 void GrOpsTask::recordOp(
-        GrOp::Owner op, GrProcessorSet::Analysis processorAnalysis, GrAppliedClip* clip,
-        const GrDstProxyView* dstProxyView, const GrCaps& caps) {
-    SkDEBUGCODE(op->validate();)
-    SkASSERT(processorAnalysis.requiresDstTexture() == (dstProxyView && dstProxyView->proxy()));
+        GrOp::Owner op, bool usesMSAA, GrProcessorSet::Analysis processorAnalysis,
+        GrAppliedClip* clip, const GrDstProxyView* dstProxyView, const GrCaps& caps) {
     GrSurfaceProxy* proxy = this->target(0);
+#ifdef SK_DEBUG
+    op->validate();
+    SkASSERT(processorAnalysis.requiresDstTexture() == (dstProxyView && dstProxyView->proxy()));
     SkASSERT(proxy);
-
     // A closed GrOpsTask should never receive new/more ops
     SkASSERT(!this->isClosed());
+    // Ensure we can support dynamic msaa if the caller is trying to trigger it.
+    if (proxy->asRenderTargetProxy()->numSamples() == 1 && usesMSAA) {
+        SkASSERT(caps.supportsDynamicMSAA(proxy->asRenderTargetProxy()));
+    }
+#endif
+
     if (!op->bounds().isFinite()) {
         return;
     }
+
+    fUsesMSAASurface |= usesMSAA;
 
     // Account for this op's bounds before we attempt to combine.
     // NOTE: The caller should have already called "op->setClippedBounds()" by now, if applicable.
