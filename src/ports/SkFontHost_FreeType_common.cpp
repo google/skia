@@ -712,7 +712,11 @@ void colrv1_draw_paint(SkCanvas* canvas,
             canvas->drawPaint(colrPaint);
             break;
         }
+#ifdef SK_AFTER_FT_TRANSFORM_RENAME
+        case FT_COLR_PAINTFORMAT_TRANSFORM:
+#else
         case FT_COLR_PAINTFORMAT_TRANSFORMED:
+#endif
         case FT_COLR_PAINTFORMAT_TRANSLATE:
         case FT_COLR_PAINTFORMAT_ROTATE:
         case FT_COLR_PAINTFORMAT_SKEW:
@@ -759,8 +763,13 @@ void colrv1_transform(SkCanvas* canvas, FT_Face face, FT_COLR_Paint colrv1_paint
     SkMatrix transform;
 
     switch (colrv1_paint.format) {
+#ifdef SK_AFTER_FT_TRANSFORM_RENAME
+        case FT_COLR_PAINTFORMAT_TRANSFORM: {
+            transform = ToSkMatrix(colrv1_paint.u.transform.affine);
+#else
         case FT_COLR_PAINTFORMAT_TRANSFORMED: {
             transform = ToSkMatrix(colrv1_paint.u.transformed.affine);
+#endif
             break;
         }
         case FT_COLR_PAINTFORMAT_TRANSLATE: {
@@ -880,10 +889,17 @@ bool colrv1_traverse_paint(SkCanvas* canvas,
             traverse_result = colrv1_start_glyph(canvas, palette, face, paint.u.colr_glyph.glyphID,
                                                  FT_COLOR_NO_ROOT_TRANSFORM);
             break;
+#ifdef SK_AFTER_FT_TRANSFORM_RENAME
+        case FT_COLR_PAINTFORMAT_TRANSFORM:
+            colrv1_transform(canvas, face, paint);
+            traverse_result = colrv1_traverse_paint(canvas, palette, face,
+                                                    paint.u.transform.paint, visited_set);
+#else
         case FT_COLR_PAINTFORMAT_TRANSFORMED:
             colrv1_transform(canvas, face, paint);
             traverse_result = colrv1_traverse_paint(canvas, palette, face,
                                                     paint.u.transformed.paint, visited_set);
+#endif
             break;
         case FT_COLR_PAINTFORMAT_TRANSLATE:
             colrv1_transform(canvas, face, paint);
