@@ -36,6 +36,7 @@ UNIFORM_TYPE(float,       kFloat);
 UNIFORM_TYPE(SkV2,        kFloat2);
 UNIFORM_TYPE(SkPMColor4f, kFloat4);
 UNIFORM_TYPE(SkV4,        kFloat4);
+UNIFORM_TYPE(SkM44,       kFloat4x4);
 UNIFORM_TYPE(int,         kInt);
 
 #undef UNIFORM_TYPE
