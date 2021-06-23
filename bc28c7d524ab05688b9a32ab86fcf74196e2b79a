@@ -1,0 +1,136 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aa40efbe_8616c96a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-23T17:11:49Z",
+      "side": 1,
+      "message": "This is fine as-is, since it\u0027s all OGA, but I added a lot of thoughts on how we could further simplify apply()\u0027s signature and addDrawOp if you\u0027re interested in taking any of them now or in a follow-up.",
+      "revId": "bc28c7d524ab05688b9a32ab86fcf74196e2b79a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "88312e7d_b2fed423",
+        "filename": "src/gpu/GrClip.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-23T17:11:49Z",
+      "side": 1,
+      "message": "wdyt about having this return std::tuple\u003cEffect, SkRect\u003e where the clipped bounds are returned and \u0027bounds\u0027 is no longer a parameter to apply()?\n\nAlternatively, we could keep it returning just Effect but make \u0027opBeingClipped\u0027 be non-const so that apply() calls setClippedBounds(). This makes some sense since it\u0027s part of \"applying the clip\", but it also means every GrClip has to remember to do it, which feels a little cumbersome.",
+      "range": {
+        "startLine": 65,
+        "startChar": 12,
+        "endLine": 65,
+        "endChar": 19
+      },
+      "revId": "bc28c7d524ab05688b9a32ab86fcf74196e2b79a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "688e5769_08c2fc4b",
+        "filename": "src/gpu/GrClip.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-23T17:11:49Z",
+      "side": 1,
+      "message": "Can this be a GrDrawOp?",
+      "range": {
+        "startLine": 65,
+        "startChar": 75,
+        "endLine": 65,
+        "endChar": 79
+      },
+      "revId": "bc28c7d524ab05688b9a32ab86fcf74196e2b79a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e425077b_8114d11a",
+        "filename": "src/gpu/GrClip.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-23T17:11:49Z",
+      "side": 1,
+      "message": "This is redundant with \u0027opBeingClipped\u0027 if we change the op\u0027s type to GrDrawOp (to get at usesHWAA).",
+      "range": {
+        "startLine": 66,
+        "startChar": 25,
+        "endLine": 66,
+        "endChar": 33
+      },
+      "revId": "bc28c7d524ab05688b9a32ab86fcf74196e2b79a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f64efdfb_c1942728",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1850,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-23T17:11:49Z",
+      "side": 1,
+      "message": "it would be nice if this was handled automatically by GrOp so GrClip\u0027s could just grab the Op\u0027s bounds from within apply() instead of having a mutable in/out parameter.",
+      "range": {
+        "startLine": 1850,
+        "startChar": 12,
+        "endLine": 1850,
+        "endChar": 21
+      },
+      "revId": "bc28c7d524ab05688b9a32ab86fcf74196e2b79a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8129fdfa_bd8f0870",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1901,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-23T17:11:49Z",
+      "side": 1,
+      "message": "IIRC, GrClipStack and GrClipStackClip are the only GrClips that change behavior based on GrAAType. With GrClipStackClip going away soon, maybe we take this opportunity to remove GrAAType from apply() and just have the ClipStack::apply implementations query the op?",
+      "range": {
+        "startLine": 1896,
+        "startChar": 8,
+        "endLine": 1901,
+        "endChar": 9
+      },
+      "revId": "bc28c7d524ab05688b9a32ab86fcf74196e2b79a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
