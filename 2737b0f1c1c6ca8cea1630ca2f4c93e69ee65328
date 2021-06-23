@@ -16,6 +16,24 @@
       "message": "Wouldn\u0027t this break DrawVertices + ColorMatrix again?",
       "revId": "2737b0f1c1c6ca8cea1630ca2f4c93e69ee65328",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "60fe9542_d6e2b1d0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-23T15:54:59Z",
+      "side": 1,
+      "message": "No - that was broken because the SkColorFilter itself was (previously) implemented using an SkRuntimeEffect. This change is similar, but just alters how the FPs used by that color filter (for the GPU) are built. With this (and all the similar changes), the top-level Skia objects remain as separate classes for each kind of filter (eg, SkColorFilter_Matrix). The CPU implementation of those has dedicated skvm and raster-pipeline implementations. The GPU backend used to use dedicated FPs, but now uses runtime FPs. (And we only hit the FP case if we\u0027re on the GPU backend, so the drawVertices limitation doesn\u0027t apply).",
+      "parentUuid": "d7f8c358_9ea7bde7",
+      "revId": "2737b0f1c1c6ca8cea1630ca2f4c93e69ee65328",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
