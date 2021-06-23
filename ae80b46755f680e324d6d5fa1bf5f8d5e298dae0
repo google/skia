@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5dad037f_861eca47",
+        "filename": "src/gpu/effects/GrGradientEffect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-23T19:21:37Z",
+      "side": 1,
+      "message": "This is the first FP I\u0027ve converted that used caps. Curious what you think of the pattern? (vs. having sk_Caps in the SkSL itself)",
+      "revId": "ae80b46755f680e324d6d5fa1bf5f8d5e298dae0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
