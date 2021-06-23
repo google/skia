@@ -22,6 +22,30 @@
       },
       "revId": "4ff60723515487ae855d92d1c8087693c42df891",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c7f47ddd_45372b06",
+        "filename": "tests/GrThreadSafeCacheTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1164,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-06-23T16:01:10Z",
+      "side": 0,
+      "message": "This test is making predictions about what happens in the cache when images are drawn based on assumptions about what is in the cache. Adding the index buffer makes its logic for predicting the purge behavior no longer correct.",
+      "parentUuid": "0c8b5430_15f89ec2",
+      "range": {
+        "startLine": 1164,
+        "startChar": 12,
+        "endLine": 1164,
+        "endChar": 19
+      },
+      "revId": "4ff60723515487ae855d92d1c8087693c42df891",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
