@@ -1239,7 +1239,8 @@ GrClip::PreClipResult GrClipStack::preApply(const SkRect& bounds, GrAA aa) const
 }
 
 GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrSurfaceDrawContext* rtc,
-                                  GrAAType aa, GrAppliedClip* out, SkRect* bounds) const {
+                                  const GrDrawOp* opBeingClipped, GrAAType aa, GrAppliedClip* out,
+                                  SkRect* bounds) const {
     // TODO: Once we no longer store SW masks, we don't need to sneak the provider in like this
     if (!fProxyProvider) {
         fProxyProvider = context->priv().proxyProvider();

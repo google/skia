@@ -103,7 +103,8 @@ bool GrClipStackClip::UseSWOnlyPath(GrRecordingContext* context,
 // scissor, or entirely software
 GrClip::Effect GrClipStackClip::apply(GrRecordingContext* context,
                                       GrSurfaceDrawContext* surfaceDrawContext,
-                                      GrAAType aa, GrAppliedClip* out, SkRect* bounds) const {
+                                      const GrDrawOp* opBeingClipped, GrAAType aa,
+                                      GrAppliedClip* out, SkRect* bounds) const {
     SkASSERT(surfaceDrawContext->width() == fDeviceSize.fWidth &&
              surfaceDrawContext->height() == fDeviceSize.fHeight);
     SkRect devBounds = SkRect::MakeIWH(fDeviceSize.fWidth, fDeviceSize.fHeight);
