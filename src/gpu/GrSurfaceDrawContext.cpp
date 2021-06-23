@@ -1903,7 +1903,7 @@ void GrSurfaceDrawContext::addDrawOp(const GrClip* clip,
         } else {
             aaType = op->hasAABloat() ? GrAAType::kCoverage : GrAAType::kNone;
         }
-        skipDraw = clip->apply(fContext, this, aaType,
+        skipDraw = clip->apply(fContext, this, drawOp, aaType,
                                &appliedClip, &bounds) == GrClip::Effect::kClippedOut;
     } else {
         // No clipping, so just clip the bounds against the logical render target dimensions

@@ -71,8 +71,8 @@ public:
     void replaceClip(const SkIRect& rect);
 
     // GrClip implementation
-    GrClip::Effect apply(GrRecordingContext*, GrSurfaceDrawContext*, GrAAType aa,
-                         GrAppliedClip*, SkRect* bounds) const override;
+    GrClip::Effect apply(GrRecordingContext*, GrSurfaceDrawContext*, const GrDrawOp* opBeingClipped,
+                         GrAAType aa, GrAppliedClip*, SkRect* bounds) const override;
     GrClip::PreClipResult preApply(const SkRect& drawBounds, GrAA aa) const override;
     SkIRect getConservativeBounds() const override;
 
