@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "54c55eca_6bb20995",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-06-23T12:39:05Z",
+      "side": 1,
+      "message": "Corresponding change to remove flag. PTAL. ",
+      "revId": "c769b284c2382365d22a7f0317875a14deaef6dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
