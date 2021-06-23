@@ -833,6 +833,7 @@ GrOp::Owner Make(GrRecordingContext* context,
                  const SkMatrix& viewMatrix,
                  const SkRect& rect,
                  const SkStrokeRec& stroke) {
+    SkASSERT(!context->priv().caps()->reducedShaderMode());
     if (aaType == GrAAType::kCoverage) {
         // The AA op only supports axis-aligned rectangles
         if (!viewMatrix.rectStaysRect()) {
