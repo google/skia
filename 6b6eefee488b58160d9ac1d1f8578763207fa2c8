@@ -16,6 +16,24 @@
       "message": "What\u0027s the diff?",
       "revId": "6b6eefee488b58160d9ac1d1f8578763207fa2c8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "79aea27c_ba9430d6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-23T23:13:29Z",
+      "side": 1,
+      "message": "There isn\u0027t one yet. But I have to create the reland first before uploading changes. This way patch set 1 is the original landing and easy to diff from.",
+      "parentUuid": "489cf877_46999692",
+      "revId": "6b6eefee488b58160d9ac1d1f8578763207fa2c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
