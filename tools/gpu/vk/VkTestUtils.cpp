@@ -664,7 +664,8 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
             // of warnings. We don't actually use it, so it is easiest to just not enable it.
             if (0 == strcmp(deviceExtensions[i].extensionName, "VK_NV_low_latency") ||
                 0 == strcmp(deviceExtensions[i].extensionName, "VK_NV_acquire_winrt_display") ||
-                0 == strcmp(deviceExtensions[i].extensionName, "VK_NV_cuda_kernel_launch")) {
+                0 == strcmp(deviceExtensions[i].extensionName, "VK_NV_cuda_kernel_launch") ||
+                0 == strcmp(deviceExtensions[i].extensionName, "VK_EXT_provoking_vertex")) {
                 continue;
             }
 
