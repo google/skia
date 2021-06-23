@@ -151,7 +151,6 @@ tests_sources = [
   "$_tests/MallocPixelRefTest.cpp",
   "$_tests/MaskCacheTest.cpp",
   "$_tests/MathTest.cpp",
-  "$_tests/Matrix44Test.cpp",
   "$_tests/MatrixClipCollapseTest.cpp",
   "$_tests/MatrixColorFilterTest.cpp",
   "$_tests/MatrixTest.cpp",
