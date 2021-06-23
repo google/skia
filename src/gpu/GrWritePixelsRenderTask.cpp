@@ -48,7 +48,7 @@ void GrWritePixelsTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {
     alloc->incOps();
 }
 
-GrRenderTask::ExpectedOutcome GrWritePixelsTask::onMakeClosed(const GrCaps&,
+GrRenderTask::ExpectedOutcome GrWritePixelsTask::onMakeClosed(GrRecordingContext*,
                                                               SkIRect* targetUpdateBounds) {
     *targetUpdateBounds = fRect;
     return ExpectedOutcome::kTargetDirty;
