@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "761721bc_06f66020",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-23T20:53:37Z",
+      "side": 1,
+      "message": "wow! this is so much cleaner IMO. I am not opposed to keeping GrGradientEFfect separate from GrGradientShader, but given how the FP tree is structured, could we just move the runtime sksl into GrGradientShader instead of adding a new h/cpp?",
+      "revId": "2060e39f9fbbfd5252dabb65280def0cd923e5e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9a4f5132_0589df89",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-23T20:53:37Z",
+      "side": 1,
+      "message": "When we pass skvx::Vec\u003c4, float\u003e in to GrSkSLFP::Make(), it\u0027ll just do a memcpy of the data into the uniform block for the FP, right? We\u0027re effectively doing the skvx::store() automatically. Do we lose out on any machine specific instruction for this, or is store always memcpy? I cannot recall.",
+      "range": {
+        "startLine": 39,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 45
+      },
+      "revId": "2060e39f9fbbfd5252dabb65280def0cd923e5e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "27340c4b_3275284c",
+        "filename": "src/gpu/gradients/GrGradientShader.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-23T20:53:37Z",
+      "side": 1,
+      "message": "THese are the only places that call Linear, etc. Would it make sense to fold the runtime sksl into GrGradientShader.cpp instead of adding GrGradientEffect?",
+      "range": {
+        "startLine": 256,
+        "startChar": 39,
+        "endLine": 256,
+        "endChar": 79
+      },
+      "revId": "2060e39f9fbbfd5252dabb65280def0cd923e5e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

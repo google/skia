@@ -16,6 +16,24 @@
       "message": "This is the first FP I\u0027ve converted that used caps. Curious what you think of the pattern? (vs. having sk_Caps in the SkSL itself)",
       "revId": "ae80b46755f680e324d6d5fa1bf5f8d5e298dae0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e6ed0a3a_54b33060",
+        "filename": "src/gpu/effects/GrGradientEffect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-23T20:53:37Z",
+      "side": 1,
+      "message": "Seems totally reasonable, particularly if it means the sk_Caps can eventually be removed from SkSL. I\u0027d still nit for the // specialized comment on useAtanWorkaround.\n\nI think that\u0027s my main sticking point with the specialized uniforms that are always specialized. I see \u0027uniform\u0027 first and start to think that\u0027ll be part of the data block going to the GPU, when that\u0027s not actually what happens.",
+      "parentUuid": "5dad037f_861eca47",
+      "revId": "ae80b46755f680e324d6d5fa1bf5f8d5e298dae0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
