@@ -4571,6 +4571,23 @@ GrDstSampleFlags GrGLCaps::onGetDstSampleFlagsForProxy(const GrRenderTargetProxy
     return GrDstSampleFlags::kNone;
 }
 
+bool GrGLCaps::onSupportsDynamicMSAA(const GrRenderTargetProxy* rtProxy) const {
+    if (fDisallowDynamicMSAA) {
+        return false;
+    }
+    // We only allow DMSAA in two cases:
+    //
+    //   1) Desktop GL and EXT_multisample_compatibility: Here it's easy to use all our existing
+    //      coverage ops because we can just call glDisable(GL_MULTISAMPLE). So we only trigger
+    //      MSAA for paths and use the coverage ops for everything else with MSAA disabled.
+    //
+    //   2) EXT_multisampled_render_to_to_texture (86% adoption on Android): The assumption here
+    //      is that MSAA is almost free. So we just allow MSAA to be triggered often and don't
+    //      worry about it.
+    return fMultisampleDisableSupport ||
+           (fMSAAResolvesAutomatically && rtProxy->asTextureProxy());
+}
+
 uint64_t GrGLCaps::computeFormatKey(const GrBackendFormat& format) const {
     auto glFormat = format.asGLFormat();
     return (uint64_t)(glFormat);
