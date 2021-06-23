@@ -825,6 +825,18 @@ bool GrMtlPipelineStateBuilder::PrecompileShaders(GrMtlGpu* gpu, const SkData& c
 #endif
     {
         TRACE_EVENT0("skia.shaders", "newRenderPipelineStateWithDescriptor");
+        MTLNewRenderPipelineStateCompletionHandler completionHandler =
+                ^(id<MTLRenderPipelineState> state, NSError* error) {
+                    // cache the pipeline
+                    // release the semaphore
+                };
+
+        // increment semaphore (I think it's safe to assume GrGpu is live here so no mutex needed)
+        [device newRenderPipelineStateWithDescriptor: pipelineDescriptor
+                                   completionHandler: completionHandler];
+
+        //*** remove all below
+
 #if defined(SK_BUILD_FOR_MAC)
         precompiledLibs->fPipelineState =
             GrMtlNewRenderPipelineStateWithDescriptor(gpu->device(), pipelineDescriptor, &error);
@@ -833,11 +845,6 @@ bool GrMtlPipelineStateBuilder::PrecompileShaders(GrMtlGpu* gpu, const SkData& c
             [gpu->device() newRenderPipelineStateWithDescriptor: pipelineDescriptor
                                                            error: &error];
 #endif
-    }
-    if (error) {
-        SkDebugf("Error creating pipeline: %s\n",
-                 [[error localizedDescription] cStringUsingEncoding: NSASCIIStringEncoding]);
-        return false;
     }
 
     precompiledLibs->fRTHeight = inputs[kFragment_GrShaderType].fRTHeight;
