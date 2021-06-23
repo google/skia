@@ -27,7 +27,7 @@ class DSLType;
 class DSLFunction {
 public:
     template<class... Parameters>
-    DSLFunction(const DSLType& returnType, const char* name, Parameters&... parameters) {
+    DSLFunction(const DSLType& returnType, skstd::string_view name, Parameters&... parameters) {
         SkTArray<DSLVar*> parameterArray;
         parameterArray.reserve_back(sizeof...(parameters));
 
@@ -88,7 +88,7 @@ private:
         collectArgs(args, std::forward<RemainingArgs>(remaining)...);
     }
 
-    void init(const DSLType& returnType, const char* name, SkTArray<DSLVar*> params);
+    void init(const DSLType& returnType, skstd::string_view name, SkTArray<DSLVar*> params);
 
     const SkSL::FunctionDeclaration* fDecl = nullptr;
 };

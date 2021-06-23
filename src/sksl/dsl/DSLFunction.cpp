@@ -18,11 +18,11 @@ namespace SkSL {
 
 namespace dsl {
 
-void DSLFunction::init(const DSLType& returnType, const char* name,
+void DSLFunction::init(const DSLType& returnType, skstd::string_view name,
                        SkTArray<DSLVar*> params) {
     std::vector<std::unique_ptr<Variable>> paramVars;
     paramVars.reserve(params.size());
-    bool isMain = !strcmp(name, "main");
+    bool isMain = name == "main";
     auto typeIsValidForColor = [&](const SkSL::Type& type) {
         return type == *DSLWriter::Context().fTypes.fHalf4 ||
                type == *DSLWriter::Context().fTypes.fFloat4;

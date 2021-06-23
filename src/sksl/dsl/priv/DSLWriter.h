@@ -131,7 +131,7 @@ public:
      * Returns the (possibly mangled) final name that should be used for an entity with the given
      * raw name.
      */
-    static const char* Name(const char* name);
+    static skstd::string_view Name(skstd::string_view name);
 
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
     /**
@@ -191,7 +191,7 @@ public:
                                                      std::unique_ptr<Expression> right);
 
     static std::unique_ptr<SkSL::Expression> ConvertField(std::unique_ptr<Expression> base,
-                                                          const char* name);
+                                                          skstd::string_view name);
 
     static std::unique_ptr<Expression> ConvertIndex(std::unique_ptr<Expression> base,
                                                     std::unique_ptr<Expression> index);

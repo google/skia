@@ -44,11 +44,12 @@ public:
         }
     }
 
-    SkRuntimeShaderBuilder::BuilderUniform uniform(const char* name) {
-        return fBuilder->uniform(name);
+    SkRuntimeShaderBuilder::BuilderUniform uniform(skstd::string_view name) {
+        return fBuilder->uniform(SkString(name).c_str());
     }
-    SkRuntimeShaderBuilder::BuilderChild child(const char* name) {
-        return fBuilder->child(name);
+
+    SkRuntimeShaderBuilder::BuilderChild child(skstd::string_view name) {
+        return fBuilder->child(SkString(name).c_str());
     }
 
     using PreTestFn = std::function<void(SkCanvas*, SkPaint*)>;
@@ -255,7 +256,7 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
             Return(Sample(child, p2))
         );
         effect.end();
-        effect.child("child") = nullptr;
+        effect.child(child.name()) = nullptr;
         effect.test(0xFF00FFFF,
                     [](SkCanvas*, SkPaint* paint) { paint->setColor4f({1.0f, 1.0f, 0.0f, 1.0f}); });
     }
