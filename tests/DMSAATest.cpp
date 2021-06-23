@@ -19,15 +19,6 @@ constexpr static SkPMColor4f kTransYellow = {.5f,.5f,.0f,.5f};
 constexpr static SkPMColor4f kTransCyan = {.0f,.5f,.5f,.5f};
 constexpr static int w=10, h=10;
 
-static void draw_paint_with_aa(GrSurfaceDrawContext* sdc, const SkPMColor4f& color,
-                               SkBlendMode blendMode) {
-    GrPaint paint;
-    paint.setColor4f(color);
-    paint.setXPFactory(SkBlendMode_AsXPFactory(blendMode));
-    sdc->drawRect(nullptr, std::move(paint), GrAA::kYes, SkMatrix::I(), SkRect::MakeIWH(w, h),
-                  nullptr);
-}
-
 static void draw_paint_with_dmsaa(GrSurfaceDrawContext* sdc, const SkPMColor4f& color,
                                   SkBlendMode blendMode) {
     // drawVertices should always trigger dmsaa, but draw something non-rectangular just to be 100%
@@ -95,84 +86,6 @@ DEF_GPUTEST_FOR_CONTEXTS(DMSAA_preserve_contents,
     // DMSAA attachment before the renderPass.
     draw_paint_with_dmsaa(sdc.get(), kTransCyan, SkBlendMode::kSrcOver);
     SkPMColor4f dstColor = SkBlendMode_Apply(SkBlendMode::kSrcOver, kTransCyan, kTransYellow);
-
-    check_sdc_color(reporter, sdc.get(), ctx, dstColor);
-}
-
-static void require_dst_reads(GrContextOptions* options) {
-    options->fSuppressAdvancedBlendEquations = true;
-    options->fSuppressFramebufferFetch = true;
-}
-
-DEF_GPUTEST_FOR_CONTEXTS(DMSAA_dst_read, &sk_gpu_test::GrContextFactory::IsRenderingContext,
-                         reporter, ctxInfo, require_dst_reads) {
-    auto ctx = ctxInfo.directContext();
-    auto sdc = GrSurfaceDrawContext::Make(ctx, GrColorType::kRGBA_8888, nullptr,
-                                          SkBackingFit::kApprox, {w, h}, kDMSAAProps);
-
-    // Initialize the texture and dmsaa attachment with transparent.
-    draw_paint_with_dmsaa(sdc.get(), SK_PMColor4fTRANSPARENT, SkBlendMode::kSrc);
-    check_sdc_color(reporter, sdc.get(), ctx, SK_PMColor4fTRANSPARENT);
-
-    sdc->clear(SK_PMColor4fWHITE);
-    SkPMColor4f dstColor = SK_PMColor4fWHITE;
-
-    draw_paint_with_dmsaa(sdc.get(), kTransYellow, SkBlendMode::kDarken);
-    dstColor = SkBlendMode_Apply(SkBlendMode::kDarken, kTransYellow, dstColor);
-
-    draw_paint_with_dmsaa(sdc.get(), kTransCyan, SkBlendMode::kDarken);
-    dstColor = SkBlendMode_Apply(SkBlendMode::kDarken, kTransCyan, dstColor);
-
-    check_sdc_color(reporter, sdc.get(), ctx, dstColor);
-}
-
-DEF_GPUTEST_FOR_CONTEXTS(DMSAA_aa_dst_read_after_dmsaa,
-                         &sk_gpu_test::GrContextFactory::IsRenderingContext, reporter, ctxInfo,
-                         require_dst_reads) {
-    auto ctx = ctxInfo.directContext();
-    auto sdc = GrSurfaceDrawContext::Make(ctx, GrColorType::kRGBA_8888, nullptr,
-                                          SkBackingFit::kApprox, {w, h}, kDMSAAProps);
-
-    // Initialize the texture and dmsaa attachment with transparent.
-    draw_paint_with_dmsaa(sdc.get(), SK_PMColor4fTRANSPARENT, SkBlendMode::kSrc);
-    check_sdc_color(reporter, sdc.get(), ctx, SK_PMColor4fTRANSPARENT);
-
-    sdc->clear(SK_PMColor4fWHITE);
-    SkPMColor4f dstColor = SK_PMColor4fWHITE;
-
-    draw_paint_with_dmsaa(sdc.get(), kTransYellow, SkBlendMode::kDarken);
-    dstColor = SkBlendMode_Apply(SkBlendMode::kDarken, kTransYellow, dstColor);
-
-    // Draw with aa after dmsaa. This should break up the render pass and issue a texture barrier.
-    draw_paint_with_aa(sdc.get(), kTransCyan, SkBlendMode::kDarken);
-    dstColor = SkBlendMode_Apply(SkBlendMode::kDarken, kTransCyan, dstColor);
-
-    check_sdc_color(reporter, sdc.get(), ctx, dstColor);
-}
-
-DEF_GPUTEST_FOR_CONTEXTS(DMSAA_dst_read_with_existing_barrier,
-                         &sk_gpu_test::GrContextFactory::IsRenderingContext, reporter, ctxInfo,
-                         require_dst_reads) {
-    auto ctx = ctxInfo.directContext();
-    auto sdc = GrSurfaceDrawContext::Make(ctx, GrColorType::kRGBA_8888, nullptr,
-                                          SkBackingFit::kApprox, {w, h}, kDMSAAProps);
-
-    // Initialize the texture and dmsaa attachment with transparent.
-    draw_paint_with_dmsaa(sdc.get(), SK_PMColor4fTRANSPARENT, SkBlendMode::kSrc);
-    check_sdc_color(reporter, sdc.get(), ctx, SK_PMColor4fTRANSPARENT);
-
-    sdc->clear(SK_PMColor4fWHITE);
-    SkPMColor4f dstColor = SK_PMColor4fWHITE;
-
-    // Blend to the texture (not the dmsaa attachment) with a dst read. This creates a texture
-    // barrier.
-    draw_paint_with_aa(sdc.get(), kTransYellow, SkBlendMode::kDarken);
-    dstColor = SkBlendMode_Apply(SkBlendMode::kDarken, kTransYellow, dstColor);
-
-    // Blend to the msaa attachment _without_ a dst read. This ensures we respect the prior texture
-    // barrier by splitting the opsTask.
-    draw_paint_with_dmsaa(sdc.get(), kTransCyan, SkBlendMode::kSrcOver);
-    dstColor = SkBlendMode_Apply(SkBlendMode::kSrcOver, kTransCyan, dstColor);
 
     check_sdc_color(reporter, sdc.get(), ctx, dstColor);
 }

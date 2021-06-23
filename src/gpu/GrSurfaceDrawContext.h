@@ -712,11 +712,7 @@ private:
     // value is false then a texture copy could not be made.
     //
     // The op should have already had setClippedBounds called on it.
-    bool SK_WARN_UNUSED_RESULT setupDstProxyView(const SkRect& opBounds,
-                                                 bool opRequiresMSAA,
-                                                 GrDstProxyView* result);
-
-    GrOpsTask* replaceOpsTaskIfModifiesColor();
+    bool SK_WARN_UNUSED_RESULT setupDstProxyView(const GrOp& op, GrDstProxyView* result);
 
     SkGlyphRunListPainter* glyphPainter() { return &fGlyphPainter; }
 
