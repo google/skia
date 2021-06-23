@@ -33,6 +33,23 @@
       "message": "alternate question: could we adopt a diff cache policy other than just refcounting the usage? i.e. tie it into our larger glyphcache?",
       "revId": "e84aec7208f6ee5762352aff796686526b25a7ee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "51be5b89_1afe3364",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-23T14:32:19Z",
+      "side": 1,
+      "message": "FWIW I don\u0027t see any changes in the perf test I added \nhttps://perf.skia.org/e/?queries\u003dsub_result%3Dmedian_render_without_flush_ms%26test%3Dfont_getGlyphIDs_woff2\n\nMaybe that font is so quick to decompress/decode that the effect of the change is being swamped by something else?",
+      "revId": "e84aec7208f6ee5762352aff796686526b25a7ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
