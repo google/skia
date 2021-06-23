@@ -74,7 +74,7 @@ public:
 
     DSLExpression(DSLPossibleExpression expr, PositionInfo pos = PositionInfo());
 
-    DSLExpression(std::unique_ptr<SkSL::Expression> expression);
+    explicit DSLExpression(std::unique_ptr<SkSL::Expression> expression);
 
     ~DSLExpression();
 
@@ -112,6 +112,10 @@ public:
     DSLPossibleExpression operator[](DSLExpression index);
 
     DSLPossibleExpression operator()(SkTArray<DSLWrapper<DSLExpression>> args);
+
+    bool valid() const {
+        return fExpression != nullptr;
+    }
 
     /**
      * Invalidates this object and returns the SkSL expression it represents.
@@ -196,6 +200,10 @@ public:
     DSLPossibleExpression(DSLPossibleExpression&& other);
 
     ~DSLPossibleExpression();
+
+    bool valid() const {
+        return fExpression != nullptr;
+    }
 
     DSLType type();
 

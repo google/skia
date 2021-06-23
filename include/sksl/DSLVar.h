@@ -50,6 +50,10 @@ public:
         return fName;
     }
 
+    DSLModifiers modifiers() const {
+        return fModifiers;
+    }
+
     void swap(DSLVar& other);
 
     DSLExpression x() {

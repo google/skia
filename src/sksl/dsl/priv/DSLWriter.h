@@ -109,7 +109,7 @@ public:
     /**
      * Returns the SkSL variable corresponding to a (non-parameter) DSLVar.
      */
-    static const SkSL::Variable& Var(DSLVar& var);
+    static const SkSL::Variable* Var(DSLVar& var);
 
     /**
      * Creates an SkSL variable corresponding to a parameter DSLVar.
@@ -182,12 +182,7 @@ public:
     static std::unique_ptr<SkSL::Expression> Call(std::unique_ptr<SkSL::Expression> expr,
                                                   ExpressionArray arguments);
 
-    /**
-     * Reports an error if the argument is null. Returns its argument unmodified.
-     */
-    static std::unique_ptr<SkSL::Expression> Check(std::unique_ptr<SkSL::Expression> expr);
-
-    static DSLPossibleExpression Coerce(std::unique_ptr<Expression> left, const SkSL::Type& type);
+    static DSLPossibleExpression Coerce(std::unique_ptr<Expression> expr, const SkSL::Type& type);
 
     static DSLPossibleExpression Construct(const SkSL::Type& type,
                                            SkTArray<DSLExpression> rawArgs);
@@ -255,6 +250,11 @@ public:
     static bool MarkVarsDeclared() {
         return Instance().fSettings.fDSLMarkVarsDeclared;
     }
+
+    /**
+     * Forwards any pending Compiler errors to the DSL ErrorHandler.
+     */
+    static void ReportErrors(PositionInfo pos = PositionInfo());
 
     static DSLWriter& Instance();
 

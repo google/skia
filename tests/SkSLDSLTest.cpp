@@ -1223,14 +1223,14 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDecrement, r, ctxInfo) {
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLCall, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     {
-        DSLExpression sqrt = DSLWriter::IRGenerator().convertIdentifier(/*offset=*/-1, "sqrt");
+        DSLExpression sqrt(DSLWriter::IRGenerator().convertIdentifier(/*offset=*/-1, "sqrt"));
         SkTArray<DSLWrapper<DSLExpression>> args;
         args.emplace_back(16);
         EXPECT_EQUAL(sqrt(std::move(args)), "4.0");  // sqrt(16) gets optimized to 4
     }
 
     {
-        DSLExpression pow = DSLWriter::IRGenerator().convertIdentifier(/*offset=*/-1, "pow");
+        DSLExpression pow(DSLWriter::IRGenerator().convertIdentifier(/*offset=*/-1, "pow"));
         DSLVar a(kFloat_Type, "a");
         DSLVar b(kFloat_Type, "b");
         SkTArray<DSLWrapper<DSLExpression>> args;
@@ -1767,34 +1767,33 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLModifiers, r, ctxInfo) {
     // context, so we can't as yet Declare() variables with these modifiers.
     // TODO: better tests when able
     Var v2(kIn_Modifier, kInt_Type, "v2");
-    REPORTER_ASSERT(r, DSLWriter::Var(v2).modifiers().fFlags == SkSL::Modifiers::kIn_Flag);
+    REPORTER_ASSERT(r, v2.modifiers().flags() == SkSL::Modifiers::kIn_Flag);
     DSLWriter::MarkDeclared(v2);
 
     Var v3(kOut_Modifier, kInt_Type, "v3");
-    REPORTER_ASSERT(r, DSLWriter::Var(v3).modifiers().fFlags == SkSL::Modifiers::kOut_Flag);
+    REPORTER_ASSERT(r, v3.modifiers().flags() == SkSL::Modifiers::kOut_Flag);
     DSLWriter::MarkDeclared(v3);
 
     Var v4(kFlat_Modifier, kInt_Type, "v4");
-    REPORTER_ASSERT(r, DSLWriter::Var(v4).modifiers().fFlags == SkSL::Modifiers::kFlat_Flag);
+    REPORTER_ASSERT(r, v4.modifiers().flags() == SkSL::Modifiers::kFlat_Flag);
     DSLWriter::MarkDeclared(v4);
 
     Var v5(kNoPerspective_Modifier, kInt_Type, "v5");
-    REPORTER_ASSERT(r, DSLWriter::Var(v5).modifiers().fFlags ==
-                       SkSL::Modifiers::kNoPerspective_Flag);
+    REPORTER_ASSERT(r, v5.modifiers().flags() == SkSL::Modifiers::kNoPerspective_Flag);
     DSLWriter::MarkDeclared(v5);
 
     Var v6(kIn_Modifier | kOut_Modifier, kInt_Type, "v6");
-    REPORTER_ASSERT(r, DSLWriter::Var(v6).modifiers().fFlags ==
-                       (SkSL::Modifiers::kIn_Flag | SkSL::Modifiers::kOut_Flag));
+    REPORTER_ASSERT(r, v6.modifiers().flags() == (SkSL::Modifiers::kIn_Flag |
+                                                  SkSL::Modifiers::kOut_Flag));
     DSLWriter::MarkDeclared(v6);
 
     Var v7(kInOut_Modifier, kInt_Type, "v7");
-    REPORTER_ASSERT(r, DSLWriter::Var(v7).modifiers().fFlags ==
-                       (SkSL::Modifiers::kIn_Flag | SkSL::Modifiers::kOut_Flag));
+    REPORTER_ASSERT(r, v7.modifiers().flags() == (SkSL::Modifiers::kIn_Flag |
+                                                  SkSL::Modifiers::kOut_Flag));
     DSLWriter::MarkDeclared(v7);
 
     Var v8(kUniform_Modifier, kInt_Type, "v8");
-    REPORTER_ASSERT(r, DSLWriter::Var(v8).modifiers().fFlags == SkSL::Modifiers::kUniform_Flag);
+    REPORTER_ASSERT(r, v8.modifiers().flags() == SkSL::Modifiers::kUniform_Flag);
     DSLWriter::MarkDeclared(v8);
     // Uniforms do not need to be explicitly declared
 }
@@ -1816,9 +1815,11 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLLayout, r, ctxInfo) {
     Var v5(DSLLayout().blendSupportAllEquations(), kHalf4_Type, "v5");
     EXPECT_EQUAL(Declare(v5), "layout (blend_support_all_equations) half4 v5;");
 
-    Var v6(DSLModifiers(DSLLayout().srgbUnpremul(), kUniform_Modifier), kBool_Type, "v6");
-    DeclareGlobal(v6);
-    EXPECT_EQUAL(*DSLWriter::ProgramElements()[0], "layout (srgb_unpremul) uniform bool v6;");
+    {
+        ExpectError error(r, "error: 'srgb_unpremul' is only permitted in runtime effects\n");
+        Var v(DSLModifiers(DSLLayout().srgbUnpremul(), kUniform_Modifier), kHalf4_Type, "v");
+        DeclareGlobal(v);
+    }
 
     {
         ExpectError error(r, "error: layout qualifier 'location' appears more than once\n");
@@ -1948,5 +1949,5 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLWrapper, r, ctxInfo) {
 
     std::vector<Wrapper<DSLVar>> vars;
     vars.emplace_back(DSLVar(kInt_Type, "x"));
-    REPORTER_ASSERT(r, DSLWriter::Var(*vars[0]).name() == "x");
+    REPORTER_ASSERT(r, DSLWriter::Var(*vars[0])->name() == "x");
 }

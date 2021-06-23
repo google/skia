@@ -37,7 +37,7 @@ public:
                 // Test for skbug.com/11384
                 Var x(kInt_Type, 1);
                 Declare(x);
-                SkASSERT(DSLWriter::Var(x).initialValue()->description() == "1");
+                SkASSERT(DSLWriter::Var(x)->initialValue()->description() == "1");
 
                 Var blueAlpha(kUniform_Modifier, kHalf2_Type, "blueAlpha");
                 DeclareGlobal(blueAlpha);
