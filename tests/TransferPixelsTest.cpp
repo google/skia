@@ -199,19 +199,25 @@ void basic_transfer_to_test(skiatest::Reporter* reporter,
         return;
     }
 
+    float maxdiffs[4] = {};
     auto error = std::function<ComparePixmapsErrorReporter>(
-            [reporter, colorType](int x, int y, const float diffs[4]) {
-                ERRORF(reporter,
-                       "Error at (%d %d) in transfer, color type: %s, diffs: (%f, %f, %f, %f)",
-                       x, y, GrColorTypeToStr(colorType),
-                       diffs[0], diffs[1], diffs[2], diffs[3]);
+            [&maxdiffs](int x, int y, const float diffs[4]) {
+                for (int i = 0; i < 4; ++i) {
+                    maxdiffs[i] = std::abs(diffs[i]) > std::abs(maxdiffs[i]) ? diffs[i] : maxdiffs[i];
+                }
             });
     GrImageInfo srcInfo(allowedSrc.fColorType, kUnpremul_SkAlphaType, nullptr, tex->dimensions());
     GrImageInfo dstInfo(            colorType, kUnpremul_SkAlphaType, nullptr, tex->dimensions());
-    ComparePixels(GrCPixmap(srcInfo,   srcData.get(), srcRowBytes),
+    if (!ComparePixels(GrCPixmap(srcInfo,   srcData.get(), srcRowBytes),
                   GrCPixmap(dstInfo, dstBuffer.get(), dstRowBytes),
                   compareTolerances,
-                  error);
+                  error)) {
+        ERRORF(reporter,
+               "Error in FULL transfer, color type: %s, maxdiffs: (%f, %f, %f, %f)",
+               GrColorTypeToStr(colorType),
+               maxdiffs[0], maxdiffs[1], maxdiffs[2], maxdiffs[3]);
+    }
+    for (int i = 0; i < 4; ++i) { maxdiffs[i] = 0; }
 
     //////////////////////////
     // transfer partial data
@@ -270,10 +276,16 @@ void basic_transfer_to_test(skiatest::Reporter* reporter,
                static_cast<int>(colorType));
         return;
     }
-    ComparePixels(GrCPixmap(srcInfo,   srcData.get(), srcRowBytes),
+    if (!ComparePixels(GrCPixmap(srcInfo,   srcData.get(), srcRowBytes),
                   GrCPixmap(dstInfo, dstBuffer.get(), dstRowBytes),
                   compareTolerances,
-                  error);
+                  error)) {
+        ERRORF(reporter,
+               "Error in PARTIAL transfer, color type: %s, maxdiffs: (%f, %f, %f, %f)",
+               GrColorTypeToStr(colorType),
+               maxdiffs[0], maxdiffs[1], maxdiffs[2], maxdiffs[3]);
+
+    }
 }
 
 void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::ContextInfo& ctxInfo,
@@ -390,18 +402,24 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
 
     float tol[4];
     determine_tolerances(allowedRead.fColorType, colorType, tol);
+    float maxdiffs[4] = {};
     auto error = std::function<ComparePixmapsErrorReporter>(
-            [reporter, colorType](int x, int y, const float diffs[4]) {
-                ERRORF(reporter,
-                       "Error at (%d %d) in transfer, color type: %s, diffs: (%f, %f, %f, %f)",
-                       x, y, GrColorTypeToStr(colorType),
-                       diffs[0], diffs[1], diffs[2], diffs[3]);
+            [&maxdiffs](int x, int y, const float diffs[4]) {
+              for (int i = 0; i < 4; ++i) {
+                  maxdiffs[i] = std::abs(diffs[i]) > std::abs(maxdiffs[i]) ? diffs[i] : maxdiffs[i];
+              }
             });
     GrImageInfo textureDataInfo(colorType, kUnpremul_SkAlphaType, nullptr, kTexDims);
-    ComparePixels(GrCPixmap(textureDataInfo,  textureData.get(), textureDataRowBytes),
+    if (!ComparePixels(GrCPixmap(textureDataInfo,  textureData.get(), textureDataRowBytes),
                   GrCPixmap(   transferInfo, transferData.get(),  fullBufferRowBytes),
                   tol,
-                  error);
+                  error)) {
+        ERRORF(reporter,
+               "Error in FULL transfer, color type: %s, maxdiffs: (%f, %f, %f, %f)",
+               GrColorTypeToStr(colorType),
+               maxdiffs[0], maxdiffs[1], maxdiffs[2], maxdiffs[3]);
+    }
+    for (int i = 0; i < 4; ++i) { maxdiffs[i] = 0; }
 
     ///////////////////////
     // Now test a partial read at an offset into the buffer.
@@ -436,10 +454,15 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
     const char* textureDataStart =
             textureData.get() + textureDataRowBytes * kPartialTop + textureDataBpp * kPartialLeft;
     textureDataInfo = textureDataInfo.makeWH(kPartialWidth, kPartialHeight);
-    ComparePixels(GrCPixmap(textureDataInfo,   textureDataStart,   textureDataRowBytes),
+    if (!ComparePixels(GrCPixmap(textureDataInfo,   textureDataStart,   textureDataRowBytes),
                   GrCPixmap(transferInfo   , transferData.get(), partialBufferRowBytes),
                   tol,
-                  error);
+                  error)) {
+        ERRORF(reporter,
+               "Error in PARTIAL transfer, color type: %s, maxdiffs: (%f, %f, %f, %f)",
+               GrColorTypeToStr(colorType),
+               maxdiffs[0], maxdiffs[1], maxdiffs[2], maxdiffs[3]);
+    }
 #if GR_GPU_STATS
     REPORTER_ASSERT(reporter, gpu->stats()->transfersFromSurface() == expectedTransferCnt);
 #else

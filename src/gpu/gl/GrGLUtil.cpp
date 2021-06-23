@@ -634,6 +634,7 @@ GrGLDriverInfo GrGLGetDriverInfo(const GrGLInterface* interface) {
     const char* const renderer   = getString(GR_GL_RENDERER);
     const char* const vendor     = getString(GR_GL_VENDOR);
 
+    SkDebugf("VER: %s\nREN: %s\nVEN: %s\n", version, renderer, vendor);
     info.fVersion     = GrGLGetVersionFromString(version);
     info.fGLSLVersion = get_glsl_version(slversion);
     info.fVendor      = get_vendor(vendor);
