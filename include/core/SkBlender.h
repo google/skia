@@ -17,6 +17,47 @@
  * result of our paint) and destination color (from the canvas) into a final color.
  */
 class SK_API SkBlender : public SkFlattenable {
+public:
+    /** Returns true if this SkBlender represents any SkBlendMode. */
+    bool isBlendMode() const {
+        SkBlendMode mode;
+        return this->asBlendMode(&mode);
+    }
+
+    /** Returns true if this SkBlender does NOT represent any SkBlendMode. */
+    bool isCustomBlend() const {
+        return !this->isBlendMode();
+    }
+
+    /** Returns true if this SkBlender matches the passed-in SkBlendMode. */
+    bool isBlendMode(SkBlendMode expected) const {
+        SkBlendMode mode;
+        return this->asBlendMode(&mode) && (mode == expected);
+    }
+
+    /** Returns true if this SkBlender represents any coefficient-based SkBlendMode. */
+    bool isCoefficient() const {
+        return this->asCoefficient(/*src=*/nullptr, /*dst=*/nullptr);
+    }
+
+    /**
+     * For a SkBlendMode-based Porter-Duff blend, retrieves its coefficients into `src` and `dst`
+     * and returns true. Returns false for other types of blends.
+     */
+    bool asCoefficient(SkBlendModeCoeff* src, SkBlendModeCoeff* dst) const {
+        SkBlendMode mode;
+        return this->asBlendMode(&mode) && SkBlendMode_AsCoeff(mode, src, dst);
+    }
+
+    /**
+     * Returns true if this SkBlender represents any SkBlendMode, and returns the blender's
+     * SkBlendMode in `mode`. Returns false for other types of blends.
+     */
+    virtual bool asBlendMode(SkBlendMode* mode) const {
+        (void)mode;
+        return false;
+    }
+
 private:
     SkBlender() = default;
     friend class SkBlenderBase;
