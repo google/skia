@@ -44,6 +44,8 @@ public:
     static SkFlattenable::Type GetFlattenableType() { return kSkBlender_Type; }
     Type getFlattenableType() const override { return GetFlattenableType(); }
 
+    static void RegisterFlattenables();
+
 private:
     virtual skvm::Color onProgram(skvm::Builder* p, skvm::Color src, skvm::Color dst,
                                   const SkColorInfo& colorInfo, skvm::Uniforms* uniforms,
