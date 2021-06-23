@@ -105,7 +105,7 @@ public:
         fStack.push_back(FakeMCBlob::MCState());
     }
 
-    void clipRect(sk_sp<ClipCmd> clipCmd) {
+    void clip(sk_sp<ClipCmd> clipCmd) {
         fStack.back().addClip(std::move(clipCmd));
     }
 
@@ -206,8 +206,8 @@ public:
     ~FakeDevice() {}
 
     void save();
-    void drawRect(ID, PaintersOrder, SkIRect, FakePaint);
-    void clipRect(ID, PaintersOrder, SkIRect);
+    void drawShape(ID, PaintersOrder, Shape, SkIRect, FakePaint);
+    void clipShape(ID, PaintersOrder, Shape, SkIRect);
     void translate(SkIPoint trans) {
         fTracker.translate(trans);
     }
@@ -249,9 +249,9 @@ public:
         fDeviceStack.back()->save();
     }
 
-    void drawRect(ID, SkIRect, FakePaint);
+    void drawShape(ID, Shape, SkIRect, FakePaint);
 
-    void clipRect(ID, SkIRect);
+    void clipShape(ID, Shape, SkIRect);
 
     void translate(SkIPoint trans) {
         SkASSERT(!fFinalized);
