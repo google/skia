@@ -3792,6 +3792,11 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fDrawArraysBaseVertexIsBroken = true;
     }
 
+    // https://b.corp.google.com/issues/188410972
+    if (ctxInfo.renderer() == GrGLRenderer::kVirgl) {
+        fDrawInstancedSupport = false;
+    }
+
     // http://anglebug.com/4538
     if (fBaseVertexBaseInstanceSupport && !fDrawInstancedSupport) {
         fBaseVertexBaseInstanceSupport = false;

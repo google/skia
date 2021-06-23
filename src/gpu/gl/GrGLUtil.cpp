@@ -339,6 +339,9 @@ static GrGLRenderer get_renderer(const char* rendererString, const GrGLExtension
     if (strstr(rendererString, "llvmpipe")) {
         return GrGLRenderer::kGalliumLLVM;
     }
+    if (strstr(rendererString, "virgl")) {
+        return GrGLRenderer::kVirgl;
+    }
     static const char kMaliGStr[] = "Mali-G";
     if (0 == strncmp(rendererString, kMaliGStr, SK_ARRAY_COUNT(kMaliGStr) - 1)) {
         return GrGLRenderer::kMaliG;
