@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d7f8c358_9ea7bde7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-23T15:51:48Z",
+      "side": 1,
+      "message": "Wouldn\u0027t this break DrawVertices + ColorMatrix again?",
+      "revId": "2737b0f1c1c6ca8cea1630ca2f4c93e69ee65328",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
