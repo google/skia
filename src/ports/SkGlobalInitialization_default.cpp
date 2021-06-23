@@ -27,6 +27,7 @@
     #include "include/effects/SkRuntimeEffect.h"
     #include "include/effects/SkShaderMaskFilter.h"
     #include "include/effects/SkTableColorFilter.h"
+    #include "src/core/SkBlendModeBlender.h"
     #include "src/core/SkColorFilter_Matrix.h"
     #include "src/core/SkImageFilter_Base.h"
     #include "src/core/SkRecordedDrawable.h"
@@ -52,7 +53,7 @@
     #include "include/effects/SkLayerDrawLooper.h"
 #endif
 
-    /*
+    /**
      *  Register most effects for deserialization.
      *
      *  None of these are strictly required for Skia to operate, so if you're
@@ -77,7 +78,10 @@
         SkColorFilterBase::RegisterFlattenables();
         SkTableColorFilter::RegisterFlattenables();
 
-        // Shader & color filter.
+        // Blenders.
+        SK_REGISTER_FLATTENABLE(SkBlendModeBlender);
+
+        // Runtime shaders, color filters, and blenders.
         SkRuntimeEffect::RegisterFlattenables();
 
         // Mask filters.
