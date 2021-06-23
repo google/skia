@@ -6,6 +6,11 @@
 
 #include "include/gpu/GrTypes.h"
 
+enum class Shape {
+    kRect,
+    kOval
+};
+
 // This is strictly used to check if we get the order of draw operations we expected. It is
 // pretty much the same as painters order though.
 class ID {
