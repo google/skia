@@ -412,7 +412,7 @@ void SkResourceCache::validate() const {
 void SkResourceCache::dump() const {
     this->validate();
 
-    SkDebugf("SkResourceCache: count=%d bytes=%d %s\n",
+    SkDebugf("SkResourceCache: count=%d bytes=%zu %s\n",
              fCount, fTotalBytesUsed, fDiscardableFactory ? "discardable" : "malloc");
 }
 
