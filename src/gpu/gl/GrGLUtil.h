@@ -188,6 +188,8 @@ enum class GrGLRenderer {
 
     kGalliumLLVM,
 
+    kVirgl,
+
     kMali4xx,
     /** G-3x, G-5x, or G-7x */
     kMaliG,
