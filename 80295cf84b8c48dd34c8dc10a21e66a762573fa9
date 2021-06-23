@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9f676319_7fa1ae1e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-06-23T15:56:15Z",
+      "side": 1,
+      "message": "I like the abstraction of Gradient and its subclasses.",
+      "revId": "80295cf84b8c48dd34c8dc10a21e66a762573fa9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
