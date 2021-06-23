@@ -561,7 +561,6 @@ icu_sources = [
   "$_src/i18n/nfsubs.h",
   "$_src/i18n/nortrans.cpp",
   "$_src/i18n/nortrans.h",
-  "$_src/i18n/nounit.cpp",
   "$_src/i18n/nultrans.cpp",
   "$_src/i18n/nultrans.h",
   "$_src/i18n/number_affixutils.cpp",

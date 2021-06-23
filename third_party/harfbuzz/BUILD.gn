@@ -185,7 +185,6 @@ if (skia_use_system_harfbuzz) {
       "$_src/hb-ot-shape-complex-myanmar.hh",
       "$_src/hb-ot-shape-complex-thai.cc",
       "$_src/hb-ot-shape-complex-use-machine.hh",
-      "$_src/hb-ot-shape-complex-use-table.cc",
       "$_src/hb-ot-shape-complex-use.cc",
       "$_src/hb-ot-shape-complex-use.hh",
       "$_src/hb-ot-shape-complex-vowel-constraints.cc",
