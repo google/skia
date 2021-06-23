@@ -178,7 +178,7 @@ bool GrDrawingManager::flush(
             onFlushCBObject->preFlush(&onFlushProvider, SkMakeSpan(fFlushingRenderTaskIDs));
         }
         for (const auto& onFlushRenderTask : fOnFlushRenderTasks) {
-            onFlushRenderTask->makeClosed(*fContext->priv().caps());
+            onFlushRenderTask->makeClosed(fContext);
 #ifdef SK_DEBUG
             // OnFlush callbacks are invoked during flush, and are therefore expected to handle
             // resource allocation & usage on their own. (No deferred or lazy proxies!)
@@ -444,10 +444,9 @@ bool GrDrawingManager::reorderTasks(GrResourceAllocator* resourceAllocator) {
 }
 
 void GrDrawingManager::closeAllTasks() {
-    const GrCaps& caps = *fContext->priv().caps();
     for (auto& task : fDAG) {
         if (task) {
-            task->makeClosed(caps);
+            task->makeClosed(fContext);
         }
     }
 }
@@ -613,7 +612,7 @@ void GrDrawingManager::createDDLTask(sk_sp<const SkDeferredDisplayList> ddl,
         // reordering so ops that (in the single opsTask world) would've just glommed onto the
         // end of the single opsTask but referred to a far earlier RT need to appear in their
         // own opsTask.
-        fActiveOpsTask->makeClosed(*fContext->priv().caps());
+        fActiveOpsTask->makeClosed(fContext);
         fActiveOpsTask = nullptr;
     }
 
@@ -674,7 +673,7 @@ void GrDrawingManager::closeActiveOpsTask() {
         // reordering so ops that (in the single opsTask world) would've just glommed onto the
         // end of the single opsTask but referred to a far earlier RT need to appear in their
         // own opsTask.
-        fActiveOpsTask->makeClosed(*fContext->priv().caps());
+        fActiveOpsTask->makeClosed(fContext);
         fActiveOpsTask = nullptr;
     }
 }
@@ -725,8 +724,6 @@ void GrDrawingManager::newWaitRenderTask(sk_sp<GrSurfaceProxy> proxy,
     SkDEBUGCODE(this->validate());
     SkASSERT(fContext);
 
-    const GrCaps& caps = *fContext->priv().caps();
-
     sk_sp<GrWaitRenderTask> waitTask = sk_make_sp<GrWaitRenderTask>(GrSurfaceProxyView(proxy),
                                                                     std::move(semaphores),
                                                                     numSemaphores);
@@ -761,7 +758,7 @@ void GrDrawingManager::newWaitRenderTask(sk_sp<GrSurfaceProxy> proxy,
         this->closeActiveOpsTask();
         this->appendTask(waitTask);
     }
-    waitTask->makeClosed(caps);
+    waitTask->makeClosed(fContext);
 
     SkDEBUGCODE(this->validate());
 }
@@ -786,7 +783,7 @@ void GrDrawingManager::newTransferFromRenderTask(sk_sp<GrSurfaceProxy> srcProxy,
     // don't need to make sure the whole mip map chain is valid.
     task->addDependency(this, srcProxy.get(), GrMipmapped::kNo,
                         GrTextureResolveManager(this), caps);
-    task->makeClosed(caps);
+    task->makeClosed(fContext);
 
     // We have closed the previous active oplist but since a new oplist isn't being added there
     // shouldn't be an active one.
@@ -830,7 +827,7 @@ sk_sp<GrRenderTask> GrDrawingManager::newCopyRenderTask(sk_sp<GrSurfaceProxy> sr
     // We always say GrMipmapped::kNo here since we are always just copying from the base layer to
     // another base layer. We don't need to make sure the whole mip map chain is valid.
     task->addDependency(this, src.get(), GrMipmapped::kNo, GrTextureResolveManager(this), caps);
-    task->makeClosed(caps);
+    task->makeClosed(fContext);
 
     // We have closed the previous active oplist but since a new oplist isn't being added there
     // shouldn't be an active one.
@@ -871,7 +868,7 @@ bool GrDrawingManager::newWritePixelsTask(sk_sp<GrSurfaceProxy> dst,
         return false;
     }
 
-    task->makeClosed(caps);
+    task->makeClosed(fContext);
 
     // We have closed the previous active oplist but since a new oplist isn't being added there
     // shouldn't be an active one.
