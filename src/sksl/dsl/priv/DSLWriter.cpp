@@ -96,10 +96,10 @@ const SkSL::Modifiers* DSLWriter::Modifiers(const SkSL::Modifiers& modifiers) {
     return Context().fModifiersPool->add(modifiers);
 }
 
-const char* DSLWriter::Name(const char* name) {
+skstd::string_view DSLWriter::Name(skstd::string_view name) {
     if (ManglingEnabled()) {
         const String* s = SymbolTable()->takeOwnershipOfString(
-                Instance().fMangler.uniqueName(name, SymbolTable().get()));
+                Instance().fMangler.uniqueName(SkString(name).c_str(), SymbolTable().get()));
         return s->c_str();
     }
     return name;
@@ -185,7 +185,7 @@ std::unique_ptr<SkSL::Expression> DSLWriter::ConvertBinary(std::unique_ptr<Expre
 }
 
 std::unique_ptr<SkSL::Expression> DSLWriter::ConvertField(std::unique_ptr<Expression> base,
-                                                          const char* name) {
+                                                          skstd::string_view name) {
     if (!base) {
         return nullptr;
     }

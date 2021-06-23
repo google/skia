@@ -54,11 +54,11 @@ DSLVar::DSLVar(const char* name)
     }
 #endif
     const SkSL::Symbol* result = (*DSLWriter::SymbolTable())[fName];
-    SkASSERTF(result, "could not find '%s' in symbol table", fName);
+    SkASSERTF(result, "could not find '%.*s' in symbol table", (int)fName.length(), fName.data());
     fVar = &result->as<SkSL::Variable>();
 }
 
-DSLVar::DSLVar(DSLType type, const char* name, DSLExpression initialValue)
+DSLVar::DSLVar(DSLType type, skstd::string_view name, DSLExpression initialValue)
     : DSLVar(DSLModifiers(), std::move(type), name, std::move(initialValue)) {}
 
 DSLVar::DSLVar(DSLType type, DSLExpression initialValue)
@@ -67,7 +67,8 @@ DSLVar::DSLVar(DSLType type, DSLExpression initialValue)
 DSLVar::DSLVar(DSLModifiers modifiers, DSLType type, DSLExpression initialValue)
     : DSLVar(modifiers, type, "var", std::move(initialValue)) {}
 
-DSLVar::DSLVar(DSLModifiers modifiers, DSLType type, const char* name, DSLExpression initialValue)
+DSLVar::DSLVar(DSLModifiers modifiers, DSLType type, skstd::string_view name,
+               DSLExpression initialValue)
     : fModifiers(std::move(modifiers))
     , fType(std::move(type))
     , fRawName(name)
@@ -99,7 +100,7 @@ DSLVar::DSLVar(DSLModifiers modifiers, DSLType type, const char* name, DSLExpres
                                                                  &DSLWriter::CurrentEmitArgs()->fFp,
                                                                  kFragment_GrShaderFlag,
                                                                  grslType,
-                                                                 this->name(),
+                                                                 String(this->name()).c_str(),
                                                                  count,
                                                                  &name).toIndex();
             fName = name;
@@ -110,8 +111,10 @@ DSLVar::DSLVar(DSLModifiers modifiers, DSLType type, const char* name, DSLExpres
 
 DSLVar::~DSLVar() {
     if (!fDeclared) {
-        DSLWriter::ReportError(String::printf("error: variable '%s' was destroyed without being "
-                                              "declared\n", fRawName).c_str());
+        DSLWriter::ReportError(String::printf("error: variable '%.*s' was destroyed without being "
+                                              "declared\n",
+                                              (int)fRawName.length(),
+                                              fRawName.data()).c_str());
     }
 }
 

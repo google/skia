@@ -33,12 +33,20 @@ public:
      * name conflicts and the variable's name is only important when debugging shaders, the name
      * parameter is optional.
      */
-    DSLVar(DSLType type, const char* name = "var", DSLExpression initialValue = DSLExpression());
+    DSLVar(DSLType type, skstd::string_view name = "var",
+           DSLExpression initialValue = DSLExpression());
+
+    DSLVar(DSLType type, const char* name, DSLExpression initialValue = DSLExpression())
+        : DSLVar(type, skstd::string_view(name), std::move(initialValue)) {}
 
     DSLVar(DSLType type, DSLExpression initialValue);
 
-    DSLVar(DSLModifiers modifiers, DSLType type, const char* name = "var",
+    DSLVar(DSLModifiers modifiers, DSLType type, skstd::string_view name = "var",
            DSLExpression initialValue = DSLExpression());
+
+    DSLVar(DSLModifiers modifiers, DSLType type, const char* name,
+           DSLExpression initialValue = DSLExpression())
+        : DSLVar(modifiers, type, skstd::string_view(name), std::move(initialValue)) {}
 
     DSLVar(DSLModifiers modifiers, DSLType type, DSLExpression initialValue);
 
@@ -46,7 +54,7 @@ public:
 
     ~DSLVar();
 
-    const char* name() const {
+    skstd::string_view name() const {
         return fName;
     }
 
@@ -88,7 +96,7 @@ public:
         return DSLExpression(*this).a();
     }
 
-    DSLExpression field(const char* name) {
+    DSLExpression field(skstd::string_view name) {
         return DSLExpression(*this).field(name);
     }
 
@@ -144,8 +152,8 @@ private:
     int fUniformHandle = -1;
     std::unique_ptr<SkSL::Statement> fDeclaration;
     const SkSL::Variable* fVar = nullptr;
-    const char* fRawName = nullptr; // for error reporting
-    const char* fName = nullptr;
+    skstd::string_view fRawName; // for error reporting
+    skstd::string_view fName;
     DSLExpression fInitialValue;
     VariableStorage fStorage;
     bool fDeclared = false;

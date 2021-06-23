@@ -8,6 +8,7 @@
 #ifndef SKSL_DSL_EXPRESSION
 #define SKSL_DSL_EXPRESSION
 
+#include "include/core/SkStringView.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkTArray.h"
 #include "include/sksl/DSLErrorHandling.h"
@@ -104,7 +105,7 @@ public:
     /**
      * Creates an SkSL struct field access expression.
      */
-    DSLExpression field(const char* name, PositionInfo pos = PositionInfo());
+    DSLExpression field(skstd::string_view name, PositionInfo pos = PositionInfo());
 
     /**
      * Creates an SkSL array index expression.
@@ -223,7 +224,7 @@ public:
 
     DSLExpression a(PositionInfo pos = PositionInfo());
 
-    DSLExpression field(const char* name, PositionInfo pos = PositionInfo());
+    DSLExpression field(skstd::string_view name, PositionInfo pos = PositionInfo());
 
     DSLPossibleExpression operator=(DSLExpression expr);
 
