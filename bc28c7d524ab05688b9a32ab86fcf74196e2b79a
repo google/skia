@@ -64,6 +64,54 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "74c06451_4d5d8974",
+        "filename": "src/gpu/GrClip.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-23T19:38:22Z",
+      "side": 1,
+      "message": "I think those are good ideas, but also maybe ideas for a separate CL.",
+      "parentUuid": "88312e7d_b2fed423",
+      "range": {
+        "startLine": 65,
+        "startChar": 12,
+        "endLine": 65,
+        "endChar": 19
+      },
+      "revId": "bc28c7d524ab05688b9a32ab86fcf74196e2b79a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "68f90947_21772a52",
+        "filename": "src/gpu/GrClip.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-23T19:38:22Z",
+      "side": 1,
+      "message": "Done - makes it easier to try out future simplifications",
+      "parentUuid": "688e5769_08c2fc4b",
+      "range": {
+        "startLine": 65,
+        "startChar": 75,
+        "endLine": 65,
+        "endChar": 79
+      },
+      "revId": "bc28c7d524ab05688b9a32ab86fcf74196e2b79a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e425077b_8114d11a",
@@ -77,6 +125,30 @@
       "writtenOn": "2021-06-23T17:11:49Z",
       "side": 1,
       "message": "This is redundant with \u0027opBeingClipped\u0027 if we change the op\u0027s type to GrDrawOp (to get at usesHWAA).",
+      "range": {
+        "startLine": 66,
+        "startChar": 25,
+        "endLine": 66,
+        "endChar": 33
+      },
+      "revId": "bc28c7d524ab05688b9a32ab86fcf74196e2b79a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "588c4ef6_18904ea7",
+        "filename": "src/gpu/GrClip.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-23T19:38:22Z",
+      "side": 1,
+      "message": "That\u0027s actually not true for the case of DMSAA. In there we might want an MSAA clip with an op that doesn\u0027t use MSAA, or a single op might not use MSAA but the render task might. I think we still need to let the caller choose the aa type.",
+      "parentUuid": "e425077b_8114d11a",
       "range": {
         "startLine": 66,
         "startChar": 25,
@@ -110,6 +182,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4f9d03f2_2b1398da",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1850,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-23T19:38:22Z",
+      "side": 1,
+      "message": "Yeah, a lot of old stuff that would be nice to update.. But.. OGA ¯\\_(ツ)_/¯",
+      "parentUuid": "f64efdfb_c1942728",
+      "range": {
+        "startLine": 1850,
+        "startChar": 12,
+        "endLine": 1850,
+        "endChar": 21
+      },
+      "revId": "bc28c7d524ab05688b9a32ab86fcf74196e2b79a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8129fdfa_bd8f0870",
@@ -123,6 +219,30 @@
       "writtenOn": "2021-06-23T17:11:49Z",
       "side": 1,
       "message": "IIRC, GrClipStack and GrClipStackClip are the only GrClips that change behavior based on GrAAType. With GrClipStackClip going away soon, maybe we take this opportunity to remove GrAAType from apply() and just have the ClipStack::apply implementations query the op?",
+      "range": {
+        "startLine": 1896,
+        "startChar": 8,
+        "endLine": 1901,
+        "endChar": 9
+      },
+      "revId": "bc28c7d524ab05688b9a32ab86fcf74196e2b79a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2725f6e5_7518a2fc",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1901,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-23T19:38:22Z",
+      "side": 1,
+      "message": "As mentioned earlier, I don\u0027t think that\u0027s totally compatible with DMSAA. I have a change planned where we choose AA type here based on DMSAA as well as the op.",
+      "parentUuid": "8129fdfa_bd8f0870",
       "range": {
         "startLine": 1896,
         "startChar": 8,
