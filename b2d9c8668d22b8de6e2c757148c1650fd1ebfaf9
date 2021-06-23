@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6fe97468_71e092c9",
+        "filename": "experimental/ngatoy/Cmds.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-06-23T13:10:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ade69817_06df86f0",
+      "range": {
+        "startLine": 69,
+        "startChar": 0,
+        "endLine": 80,
+        "endChar": 1
+      },
+      "revId": "b2d9c8668d22b8de6e2c757148c1650fd1ebfaf9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "82f97ac4_3832c34c",
@@ -54,6 +78,30 @@
       "writtenOn": "2021-06-22T23:53:48Z",
       "side": 1,
       "message": "1 clip of opposite shape",
+      "range": {
+        "startLine": 398,
+        "startChar": 26,
+        "endLine": 398,
+        "endChar": 52
+      },
+      "revId": "b2d9c8668d22b8de6e2c757148c1650fd1ebfaf9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a4a8329f_2a7c2adb",
+        "filename": "experimental/ngatoy/ngatoy.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 398,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-06-23T13:10:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "82f97ac4_3832c34c",
       "range": {
         "startLine": 398,
         "startChar": 26,
