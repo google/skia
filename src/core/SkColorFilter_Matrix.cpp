@@ -121,6 +121,7 @@ skvm::Color SkColorFilter_Matrix::onProgram(skvm::Builder* p, skvm::Color c,
 
 #if SK_SUPPORT_GPU
 #include "src/gpu/effects/GrSkSLFP.h"
+#include "src/gpu/effects/generated/GrColorMatrixFragmentProcessor.h"
 
 // Convert RGBA -> HSLA (including unpremul).
 //
@@ -201,19 +202,28 @@ GrFPResult SkColorFilter_Matrix::asFragmentProcessor(std::unique_ptr<GrFragmentP
                                                      const GrColorInfo&) const {
     switch (fDomain) {
         case Domain::kRGBA:
-            fp = GrFragmentProcessor::ColorMatrix(std::move(fp), fMatrix,
-                                                  /* unpremulInput = */  true,
-                                                  /* clampRGBOutput = */ true,
-                                                  /* premulOutput = */   true);
+            fp = GrColorMatrixFragmentProcessor::Make(std::move(fp), fMatrix,
+                                                      /* unpremulInput = */  true,
+                                                      /* clampRGBOutput = */ true,
+                                                      /* premulOutput = */   true);
             break;
 
         case Domain::kHSLA:
+<<<<<<< HEAD
             fp = rgb_to_hsl(std::move(fp));
-            fp = GrFragmentProcessor::ColorMatrix(std::move(fp), fMatrix,
-                                                  /* unpremulInput = */  false,
-                                                  /* clampRGBOutput = */ false,
-                                                  /* premulOutput = */   false);
+            fp = GrColorMatrixFragmentProcessor::Make(std::move(fp), fMatrix,
+                                                      /* unpremulInput = */  false,
+                                                      /* clampRGBOutput = */ false,
+                                                      /* premulOutput = */   false);
             fp = hsl_to_rgb(std::move(fp));
+=======
+            fp = GrRGBToHSLFilterEffect::Make(std::move(fp));
+            fp = GrColorMatrixFragmentProcessor::Make(std::move(fp), fMatrix,
+                                                      /* unpremulInput = */  false,
+                                                      /* clampRGBOutput = */ false,
+                                                      /* premulOutput = */   false);
+            fp = GrHSLToRGBFilterEffect::Make(std::move(fp));
+>>>>>>> parent of 311010405e (Replace GrColorMatrixFragmentProcessor with a runtime FP)
             break;
     }
 

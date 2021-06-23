@@ -116,17 +116,6 @@ public:
     static std::unique_ptr<GrFragmentProcessor> Compose(std::unique_ptr<GrFragmentProcessor> f,
                                                         std::unique_ptr<GrFragmentProcessor> g);
 
-    /*
-     * Returns a fragment processor that calls the passed in fragment processor, then runs the
-     * resulting color through the supplied color matrix.
-     */
-    static std::unique_ptr<GrFragmentProcessor> ColorMatrix(
-            std::unique_ptr<GrFragmentProcessor> child,
-            const float matrix[20],
-            bool unpremulInput,
-            bool clampRGBOutput,
-            bool premulOutput);
-
     /**
      * Returns a fragment processor that reads back the destination color; that is, sampling will
      * return the color of the sample that is currently being painted over.
