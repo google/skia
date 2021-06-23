@@ -91,6 +91,15 @@ void Canvas_Scale(JNIEnv* env, jobject, jlong native_instance, jfloat sx, jfloat
     }
 }
 
+void Canvas_ClipPath(JNIEnv* env, jobject, jlong native_instance, jlong native_path,
+                                           jint native_clipOp, jboolean doAA) {
+    if (auto* canvas = reinterpret_cast<SkCanvas*>(native_instance)) {
+        if (auto* path = reinterpret_cast<SkPath*>(native_path)) {
+            canvas->clipPath(*path, static_cast<SkClipOp>(native_clipOp), doAA);
+        }
+    }
+}
+
 void Canvas_DrawColor(JNIEnv* env, jobject, jlong native_instance,
                       float r, float g, float b, float a) {
     if (auto* canvas = reinterpret_cast<SkCanvas*>(native_instance)) {
@@ -145,6 +154,7 @@ int register_androidkit_Canvas(JNIEnv* env) {
         {"nConcat16f"       , "(J[F)V"    , reinterpret_cast<void*>(Canvas_Concat16f)     },
         {"nTranslate"       , "(JFFF)V"   , reinterpret_cast<void*>(Canvas_Translate)     },
         {"nScale"           , "(JFFF)V"   , reinterpret_cast<void*>(Canvas_Scale)         },
+        {"nClipPath"        , "(JJIZ)V"   , reinterpret_cast<void*>(Canvas_ClipPath)      },
         {"nDrawColor"       , "(JFFFF)V"  , reinterpret_cast<void*>(Canvas_DrawColor)     },
         {"nDrawRect"        , "(JFFFFJ)V" , reinterpret_cast<void*>(Canvas_DrawRect)      },
         {"nDrawImage"       , "(JJFFIFF)V", reinterpret_cast<void*>(Canvas_DrawImage)     },
