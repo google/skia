@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "13355568_9f75ba1e",
+        "filename": "include/sksl/DSLVar.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-23T15:00:15Z",
+      "side": 1,
+      "message": "The compiler happily converts const char* to string_view, but only if it can\u0027t find a better match. Since this constructor takes const char*, it\u0027s a better match - without the explicit string_view construction, it would just be recursively calling itself endlessly.",
+      "parentUuid": "a574cea2_87d2f8b2",
+      "range": {
+        "startLine": 47,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 0
+      },
+      "revId": "0723cca0acbc160c56a574efdc62b5fe16c671f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e04c4666_3da21d2f",
@@ -87,6 +111,54 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "440c86d6_e4314030",
+        "filename": "src/sksl/dsl/DSLVar.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-23T15:00:15Z",
+      "side": 1,
+      "message": "Huh, I wonder why this didn\u0027t trigger a warning? Fixed.",
+      "parentUuid": "e04c4666_3da21d2f",
+      "range": {
+        "startLine": 57,
+        "startChar": 63,
+        "endLine": 57,
+        "endChar": 77
+      },
+      "revId": "0723cca0acbc160c56a574efdc62b5fe16c671f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fb2aceba_cc12b493",
+        "filename": "src/sksl/dsl/DSLVar.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-23T15:00:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "14695b7c_91e01b51",
+      "range": {
+        "startLine": 57,
+        "startChar": 62,
+        "endLine": 57,
+        "endChar": 63
+      },
+      "revId": "0723cca0acbc160c56a574efdc62b5fe16c671f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c5b7b6c8_a08eb3b6",
@@ -110,6 +182,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fc3a0ab0_6cc5924f",
+        "filename": "src/sksl/dsl/DSLVar.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-23T15:00:15Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "c5b7b6c8_a08eb3b6",
+      "range": {
+        "startLine": 99,
+        "startChar": 76,
+        "endLine": 99,
+        "endChar": 91
+      },
+      "revId": "0723cca0acbc160c56a574efdc62b5fe16c671f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "64cbcb2d_85990d7a",
@@ -123,6 +219,30 @@
       "writtenOn": "2021-06-23T14:36:50Z",
       "side": 1,
       "message": "This works either way, right? You didn\u0027t *have* to change this, hopefully.",
+      "range": {
+        "startLine": 259,
+        "startChar": 21,
+        "endLine": 259,
+        "endChar": 33
+      },
+      "revId": "0723cca0acbc160c56a574efdc62b5fe16c671f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1e985de7_c561cddb",
+        "filename": "tests/SkDSLRuntimeEffectTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-23T15:00:15Z",
+      "side": 1,
+      "message": "Correct, it did work but only because mangling is disabled, so this is a bad pattern to be showing off. I caught it while working on this and figured I\u0027d go ahead and fix it.",
+      "parentUuid": "64cbcb2d_85990d7a",
       "range": {
         "startLine": 259,
         "startChar": 21,
