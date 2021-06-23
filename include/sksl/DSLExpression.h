@@ -118,14 +118,14 @@ public:
         return fExpression != nullptr;
     }
 
+    void swap(DSLExpression& other);
+
     /**
      * Invalidates this object and returns the SkSL expression it represents.
      */
     std::unique_ptr<SkSL::Expression> release();
 
 private:
-    void swap(DSLExpression& other);
-
     /**
      * Invalidates this object and returns the SkSL expression it represents coerced to the
      * specified type. If the expression cannot be coerced, reports an error and returns null.
@@ -205,6 +205,11 @@ public:
     bool valid() const {
         return fExpression != nullptr;
     }
+
+    /**
+     * Reports any pending errors at the specified position.
+     */
+    void reportErrors(PositionInfo pos);
 
     DSLType type();
 
