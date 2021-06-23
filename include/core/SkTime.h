@@ -51,7 +51,7 @@ public:
         , fNow(SkTime::GetMSecs()) {}
     ~SkAutoTime() {
         uint64_t dur = static_cast<uint64_t>(SkTime::GetMSecs() - fNow);
-        SkDebugf("%s %ld\n", fLabel ? fLabel : "", dur);
+        SkDebugf("%s %llu\n", fLabel ? fLabel : "", dur);
     }
 private:
     const char* fLabel;
