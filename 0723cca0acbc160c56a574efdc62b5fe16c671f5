@@ -20,6 +20,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "a574cea2_87d2f8b2",
+        "filename": "include/sksl/DSLVar.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-23T14:35:39Z",
+      "side": 1,
+      "message": "It wouldn\u0027t automatically coerce `name` to string_view, huh? That\u0027s weird.",
+      "range": {
+        "startLine": 47,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 0
+      },
+      "revId": "0723cca0acbc160c56a574efdc62b5fe16c671f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e04c4666_3da21d2f",
         "filename": "src/sksl/dsl/DSLVar.cpp",
         "patchSetId": 1
@@ -36,6 +59,52 @@
         "startChar": 63,
         "endLine": 57,
         "endChar": 77
+      },
+      "revId": "0723cca0acbc160c56a574efdc62b5fe16c671f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "14695b7c_91e01b51",
+        "filename": "src/sksl/dsl/DSLVar.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-23T14:35:39Z",
+      "side": 1,
+      "message": "(int) fName.length()",
+      "range": {
+        "startLine": 57,
+        "startChar": 62,
+        "endLine": 57,
+        "endChar": 63
+      },
+      "revId": "0723cca0acbc160c56a574efdc62b5fe16c671f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c5b7b6c8_a08eb3b6",
+        "filename": "src/sksl/dsl/DSLVar.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-23T14:35:39Z",
+      "side": 1,
+      "message": "(not for this CL) I wonder how hard it would be for addUniformArray to take a string_view and avoid the ugly conversion below.",
+      "range": {
+        "startLine": 99,
+        "startChar": 76,
+        "endLine": 99,
+        "endChar": 91
       },
       "revId": "0723cca0acbc160c56a574efdc62b5fe16c671f5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
