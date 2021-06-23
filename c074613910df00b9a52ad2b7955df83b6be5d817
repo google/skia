@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "66172c6e_e7fe61ab",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1370,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-23T20:21:50Z",
+      "side": 1,
+      "message": "I\u0027m not sure this is right. IsOutsideClip returns true if the two rects are completely disjoint. If that\u0027s the case, we shouldn\u0027t see kBoth, we\u0027d have hit the kEmpty switch case.\n\nCurrently, IsOutsideClip is also only used in GrReducedClip so I don\u0027t want to add more calls to it, since once expanding clip ops are fully deleted, we can clean it up.",
+      "range": {
+        "startLine": 1370,
+        "startChar": 34,
+        "endLine": 1370,
+        "endChar": 86
+      },
+      "revId": "c074613910df00b9a52ad2b7955df83b6be5d817",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "710fd161_02602f98",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1415,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-23T20:21:50Z",
+      "side": 1,
+      "message": "scissorIsNeeded is true when we have clip shaders, and that produces a clipFP and should return Effect::kClipped, so I don\u0027t think this is right. As written in this CL, a clipstack that\u0027s only a clipShader would return kUnclipped.",
+      "range": {
+        "startLine": 1415,
+        "startChar": 8,
+        "endLine": 1415,
+        "endChar": 23
+      },
+      "revId": "c074613910df00b9a52ad2b7955df83b6be5d817",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9ef2d756_9c5dba24",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1425,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-23T20:21:50Z",
+      "side": 1,
+      "message": "If we draw the conservative clip bounds with drawPaint, should IsInsideClip return true here, and the rest of your CL\u0027s changes inside GrClipStack be unnecessary?",
+      "range": {
+        "startLine": 1425,
+        "startChar": 8,
+        "endLine": 1425,
+        "endChar": 53
+      },
+      "revId": "c074613910df00b9a52ad2b7955df83b6be5d817",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "97e58b96_c46b6343",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-23T20:21:50Z",
+      "side": 1,
+      "message": "We don\u0027t usually have the null check wrapped in parens. If you want it more called out compared to just \u0027clip\u0027, I\u0027d vote for SkToBool(clip).",
+      "range": {
+        "startLine": 418,
+        "startChar": 26,
+        "endLine": 418,
+        "endChar": 32
+      },
+      "revId": "c074613910df00b9a52ad2b7955df83b6be5d817",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "44bf2b39_ad1105c6",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 419,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-23T20:21:50Z",
+      "side": 1,
+      "message": "This seems like a good optimization, since it limits the pixels we need to touch. When the view matrix is scale+translate and the clip is a rect, both fillRectToRect and fillPixelsWithLocalMatrix should go through attemptQuadOptimization, which would then result in roughly equivalent geometry as the conservative bounds.\n\nWhen the clip is complex or the view matrix is complex, that optimization won\u0027t happen and we only crop the geometry if it\u0027s excessively large. For drawPaint, it makes sense to be as tight as possible.",
+      "range": {
+        "startLine": 418,
+        "startChar": 4,
+        "endLine": 419,
+        "endChar": 91
+      },
+      "revId": "c074613910df00b9a52ad2b7955df83b6be5d817",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
