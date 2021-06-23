@@ -63,6 +63,30 @@
       },
       "revId": "80295cf84b8c48dd34c8dc10a21e66a762573fa9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5b64ad7e_2605f142",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/RadialGradient.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-23T19:01:06Z",
+      "side": 1,
+      "message": "Is Color an object or an Int? I thought it was an int.",
+      "parentUuid": "c058c6b9_28260210",
+      "range": {
+        "startLine": 14,
+        "startChar": 53,
+        "endLine": 14,
+        "endChar": 58
+      },
+      "revId": "80295cf84b8c48dd34c8dc10a21e66a762573fa9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
