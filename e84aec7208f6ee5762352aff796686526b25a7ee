@@ -16,6 +16,23 @@
       "message": "what is the RAM impact per face, now that they won\u0027t get purged (ala a cache)?",
       "revId": "e84aec7208f6ee5762352aff796686526b25a7ee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2ab6f74f_8b0d5153",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-23T14:20:36Z",
+      "side": 1,
+      "message": "alternate question: could we adopt a diff cache policy other than just refcounting the usage? i.e. tie it into our larger glyphcache?",
+      "revId": "e84aec7208f6ee5762352aff796686526b25a7ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
