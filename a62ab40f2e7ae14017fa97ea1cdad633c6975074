@@ -107,6 +107,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "13efca22_f19a2545",
+        "filename": "include/sksl/DSLExpression.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-23T14:30:50Z",
+      "side": 1,
+      "message": "You know, I really should have taken a step back and said \"Is there even a good reason why it\u0027s implicitly convertible in the first place...?\".\n\nBecause... no, no there wasn\u0027t. Fixed.",
+      "parentUuid": "bf066660_c62251f3",
+      "range": {
+        "startLine": 117,
+        "startChar": 26,
+        "endLine": 117,
+        "endChar": 60
+      },
+      "revId": "a62ab40f2e7ae14017fa97ea1cdad633c6975074",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b04dbf80_693bc12e",
