@@ -505,9 +505,7 @@ private:
 
     GrDstSampleFlags onGetDstSampleFlagsForProxy(const GrRenderTargetProxy*) const override;
 
-    bool onSupportsDynamicMSAA(const GrRenderTargetProxy*) const override {
-        return !fDisallowDynamicMSAA;
-    }
+    bool onSupportsDynamicMSAA(const GrRenderTargetProxy*) const override;
 
     GrGLStandard fStandard = kNone_GrGLStandard;
 
