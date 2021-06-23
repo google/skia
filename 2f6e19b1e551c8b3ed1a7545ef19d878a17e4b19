@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "48c5884e_268ed0a6",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 2011,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-23T15:59:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "02e37d5d_7ebe81e2",
+      "range": {
+        "startLine": 2011,
+        "startChar": 4,
+        "endLine": 2011,
+        "endChar": 8
+      },
+      "revId": "2f6e19b1e551c8b3ed1a7545ef19d878a17e4b19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d38a6595_1ee2227a",
@@ -64,6 +88,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "770821c7_71b3d744",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 2017,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-23T15:59:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d38a6595_1ee2227a",
+      "range": {
+        "startLine": 2017,
+        "startChar": 36,
+        "endLine": 2017,
+        "endChar": 58
+      },
+      "revId": "2f6e19b1e551c8b3ed1a7545ef19d878a17e4b19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "15f758ce_f1d4c830",
@@ -77,6 +125,30 @@
       "writtenOn": "2021-06-22T20:39:40Z",
       "side": 1,
       "message": "Did this get squashed in by accident?",
+      "range": {
+        "startLine": 668,
+        "startChar": 64,
+        "endLine": 668,
+        "endChar": 87
+      },
+      "revId": "2f6e19b1e551c8b3ed1a7545ef19d878a17e4b19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6934eece_ab3f196d",
+        "filename": "tools/gpu/vk/VkTestUtils.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 668,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-23T15:59:01Z",
+      "side": 1,
+      "message": "I wouldn\u0027t say it was an accident (I couldn\u0027t build without it). But I just sent it out as its own CL.",
+      "parentUuid": "15f758ce_f1d4c830",
       "range": {
         "startLine": 668,
         "startChar": 64,
