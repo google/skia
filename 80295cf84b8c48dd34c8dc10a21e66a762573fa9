@@ -16,6 +16,29 @@
       "message": "I like the abstraction of Gradient and its subclasses.",
       "revId": "80295cf84b8c48dd34c8dc10a21e66a762573fa9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a791f9c1_8495c7ab",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/RadialGradient.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-23T16:05:17Z",
+      "side": 1,
+      "message": "float?",
+      "range": {
+        "startLine": 14,
+        "startChar": 53,
+        "endLine": 14,
+        "endChar": 58
+      },
+      "revId": "80295cf84b8c48dd34c8dc10a21e66a762573fa9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
