@@ -1339,6 +1339,7 @@ GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrSurfaceDrawCont
     auto* tessellator = context->priv().drawingManager()->getTessellationPathRenderer();
 
     int i = fElements.count();
+    bool fullyInsideClip = true;
     for (const RawElement& e : fElements.ritems()) {
         --i;
         if (i < cs.oldestElementIndex()) {
@@ -1365,7 +1366,8 @@ GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrSurfaceDrawCont
 
             case ClipGeometry::kBoth: {
                 // The element must apply coverage to the draw, enable the scissor to limit overdraw
-                scissorIsNeeded = true;
+                fullyInsideClip = false;
+                scissorIsNeeded = GrClip::IsOutsideClip(scissorBounds, draw.bounds());
 
                 // First apply using HW methods (scissor and window rects). When the inner and outer
                 // bounds match, nothing else needs to be done.
@@ -1409,7 +1411,7 @@ GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrSurfaceDrawCont
         }
     }
 
-    if (!scissorIsNeeded) {
+    if (fullyInsideClip) {
         // More detailed analysis of the element shapes determined no clip is needed
         SkASSERT(elementsForMask.empty() && !clipFP);
         return Effect::kUnclipped;
