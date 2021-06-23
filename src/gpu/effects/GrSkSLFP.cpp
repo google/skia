@@ -341,7 +341,7 @@ void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBui
     size_t uniformCount = fEffect->uniforms().count();
     auto iter = fEffect->uniforms().begin();
 
-    for (size_t i = 0; i < uniformCount; ++i) {
+    for (size_t i = 0; i < uniformCount; ++i, ++iter) {
         bool specialize = flags[i] & kSpecialize_Flag;
         b->addBool(specialize, "specialize");
         if (specialize) {
