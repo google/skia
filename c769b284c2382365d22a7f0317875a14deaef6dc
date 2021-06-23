@@ -33,6 +33,24 @@
       "message": "PS: This one should not be auto submitted yet since we need to wait for landing https://chromium-review.googlesource.com/c/chromium/src/+/2980293 in Chromium.",
       "revId": "c769b284c2382365d22a7f0317875a14deaef6dc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d72bbc5e_e668cae2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5642
+      },
+      "writtenOn": "2021-06-23T12:52:32Z",
+      "side": 1,
+      "message": "Ben or Mike may know the answer -- do we need to keep this around for other clients (g3, Android, Flutter)?\n\nIf so, is it feasible to refactor based on the actual FT version (FT_VERSION) and avoid custom build flags altogether?",
+      "parentUuid": "54c55eca_6bb20995",
+      "revId": "c769b284c2382365d22a7f0317875a14deaef6dc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
