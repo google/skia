@@ -304,24 +304,30 @@ bool GrTessellationPathRenderer::tryAddPathToAtlas(GrRecordingContext* rContext,
         return false;
     }
 
-    // Transpose tall paths in the atlas. Since we limit ourselves to small-area paths, this
-    // guarantees that every atlas entry has a small height, which lends very well to efficient pow2
-    // atlas packing.
     pathDevBounds.roundOut(devIBounds);
-    int maxDimension = devIBounds->width();
-    int minDimension = devIBounds->height();
-    *transposedInAtlas = minDimension > maxDimension;
+    int widthInAtlas = devIBounds->width();
+    int heightInAtlas = devIBounds->height();
+    if (SkNextPow2(widthInAtlas) == SkNextPow2(heightInAtlas)) {
+        // Both dimensions go to the same pow2 band in the atlas. Use the larger dimension as height
+        // for more efficient packing.
+        *transposedInAtlas = widthInAtlas > heightInAtlas;
+    } else {
+        // Both dimensions go to different pow2 bands in the atlas. Use the smaller pow2 band for
+        // most efficient packing.
+        *transposedInAtlas = heightInAtlas > widthInAtlas;
+    }
     if (*transposedInAtlas) {
-        std::swap(minDimension, maxDimension);
+        std::swap(heightInAtlas, widthInAtlas);
     }
 
-    // Check if the path is too large for an atlas. Since we transpose paths in the atlas so height
-    // is always "minDimension", limiting to kAtlasMaxPathHeight^2 pixels guarantees height <=
-    // kAtlasMaxPathHeight, while also allowing paths that are very wide and short.
-    if ((uint64_t)maxDimension * minDimension > kAtlasMaxPathHeight * kAtlasMaxPathHeight ||
-        maxDimension > fAtlasMaxSize) {
+    // Check if the path is too large for an atlas. Since we transpose tall skinny paths, limiting
+    // to kAtlasMaxPathHeight^2 pixels guarantees heightInAtlas <= kAtlasMaxPathHeight, while also
+    // allowing paths that are very wide and short.
+    if ((uint64_t)widthInAtlas * heightInAtlas > kAtlasMaxPathHeight * kAtlasMaxPathHeight ||
+        widthInAtlas > fAtlasMaxSize) {
         return false;
     }
+    SkASSERT(heightInAtlas <= kAtlasMaxPathHeight);
 
     // Check if this path is already in the atlas. This is mainly for clip paths.
     AtlasPathKey atlasPathKey;
@@ -335,7 +341,7 @@ bool GrTessellationPathRenderer::tryAddPathToAtlas(GrRecordingContext* rContext,
 
     if (fAtlasRenderTasks.empty() ||
         !fAtlasRenderTasks.back()->addPath(viewMatrix, path, antialias, devIBounds->topLeft(),
-                                           maxDimension, minDimension, *transposedInAtlas,
+                                           widthInAtlas, heightInAtlas, *transposedInAtlas,
                                            locationInAtlas)) {
         // We either don't have an atlas yet or the current one is full. Try to replace it.
         GrAtlasRenderTask* currentAtlasTask = (!fAtlasRenderTasks.empty())
@@ -367,7 +373,7 @@ bool GrTessellationPathRenderer::tryAddPathToAtlas(GrRecordingContext* rContext,
                                                           std::move(dynamicAtlas));
         rContext->priv().drawingManager()->addAtlasTask(newAtlasTask, currentAtlasTask);
         SkAssertResult(newAtlasTask->addPath(viewMatrix, path, antialias, devIBounds->topLeft(),
-                                             maxDimension, minDimension, *transposedInAtlas,
+                                             widthInAtlas, heightInAtlas, *transposedInAtlas,
                                              locationInAtlas));
         fAtlasRenderTasks.push_back(std::move(newAtlasTask));
         fAtlasPathCache.reset();
