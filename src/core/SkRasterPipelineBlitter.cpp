@@ -90,8 +90,8 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
                                          const SkMatrixProvider& matrixProvider,
                                          SkArenaAlloc* alloc,
                                          sk_sp<SkShader> clipShader) {
-    if (paint.getBlender()) {
-        // The raster pipeline doesn't support SkBlender.
+    if (paint.isCustomBlend()) {
+        // The raster pipeline doesn't support user-defined blend modes.
         return nullptr;
     }
 
