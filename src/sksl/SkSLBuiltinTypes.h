@@ -57,6 +57,7 @@ public:
     const std::unique_ptr<Type> fBool4;
 
     const std::unique_ptr<Type> fInvalid;
+    const std::unique_ptr<Type> fPoison;
     const std::unique_ptr<Type> fVoid;
     const std::unique_ptr<Type> fFloatLiteral;
     const std::unique_ptr<Type> fIntLiteral;

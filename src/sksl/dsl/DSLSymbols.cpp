@@ -26,8 +26,8 @@ std::shared_ptr<SymbolTable> CurrentSymbolTable() {
     return DSLWriter::IRGenerator().symbolTable();
 }
 
-DSLExpression Symbol(skstd::string_view name) {
-    return DSLExpression(DSLWriter::IRGenerator().convertIdentifier(/*offset=*/-1, name));
+DSLPossibleExpression Symbol(skstd::string_view name) {
+    return DSLWriter::IRGenerator().convertIdentifier(/*offset=*/-1, name);
 }
 
 bool IsType(skstd::string_view name) {
