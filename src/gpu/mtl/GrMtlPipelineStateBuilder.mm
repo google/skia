@@ -729,8 +729,6 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(
 
 bool GrMtlPipelineStateBuilder::PrecompileShaders(GrMtlGpu* gpu, const SkData& cachedData,
                                                   GrMtlPrecompiledLibraries* precompiledLibs) {
-    SkASSERT(precompiledLibs);
-
     SkReadBuffer reader(cachedData.data(), cachedData.size());
     SkFourByteTag shaderType = GrPersistentCacheUtils::GetType(&reader);
 
@@ -825,6 +823,22 @@ bool GrMtlPipelineStateBuilder::PrecompileShaders(GrMtlGpu* gpu, const SkData& c
 #endif
     {
         TRACE_EVENT0("skia.shaders", "newRenderPipelineStateWithDescriptor");
+        if (!precompiledLibs) {
+            MTLNewRenderPipelineStateCompletionHandler completionHandler =
+                     ^(id<MTLRenderPipelineState> state, NSError* error) {
+                         if (error) {
+                             SkDebugf("Error creating pipeline: %s\n",
+                                      [[error localizedDescription]
+                                               cStringUsingEncoding: NSASCIIStringEncoding]);
+                         }
+                     };
+
+            // kick off asynchronous pipeline build and depend on Apple's cache to manage it
+            [gpu->device() newRenderPipelineStateWithDescriptor: pipelineDescriptor
+                                              completionHandler: completionHandler];
+            return true;
+        }
+
 #if defined(SK_BUILD_FOR_MAC)
         precompiledLibs->fPipelineState =
             GrMtlNewRenderPipelineStateWithDescriptor(gpu->device(), pipelineDescriptor, &error);
