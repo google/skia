@@ -467,7 +467,7 @@ void SkBitmapDevice::drawImageRect(const SkImage* image, const SkRect* src, cons
         }
     }
 
-    if (paint.getBlender()) {
+    if (paint.isCustomBlend()) {
         goto USE_SHADER;
     }
 

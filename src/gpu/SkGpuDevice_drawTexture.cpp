@@ -319,7 +319,7 @@ static ImageDrawMode optimize_sample_area(const SkISize& image, const SkRect* or
  */
 static bool can_use_draw_texture(const SkPaint& paint, bool useCubicResampler, SkMipmapMode mm) {
     return (!paint.getColorFilter() && !paint.getShader() && !paint.getMaskFilter() &&
-            !paint.getImageFilter() && !paint.getBlender() && !useCubicResampler &&
+            !paint.getImageFilter() && !paint.isCustomBlend() && !useCubicResampler &&
             mm == SkMipmapMode::kNone);
 }
 
