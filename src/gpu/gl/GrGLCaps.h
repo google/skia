@@ -475,6 +475,7 @@ private:
         bool fDisallowDirectRG8ReadPixels = false;
         bool fDisallowBGRA8ReadPixels = false;
         bool fDisallowR8ForPowerVRSGX54x = false;
+        bool fDisallowUnorm16Transfers = false;
     };
 
     void applyDriverCorrectnessWorkarounds(const GrGLContextInfo&, const GrContextOptions&,
@@ -673,12 +674,17 @@ private:
         }
 
         enum {
-            kTexturable_Flag                 = 0x1,
+            kTexturable_Flag                 = 0x01,
             /** kFBOColorAttachment means that even if the format cannot be a GrRenderTarget, we can
                 still attach it to a FBO for blitting or reading pixels. */
-            kFBOColorAttachment_Flag         = 0x2,
-            kFBOColorAttachmentWithMSAA_Flag = 0x4,
-            kUseTexStorage_Flag              = 0x8,
+            kFBOColorAttachment_Flag         = 0x02,
+            kFBOColorAttachmentWithMSAA_Flag = 0x04,
+            kUseTexStorage_Flag              = 0x08,
+            /**
+             * Are pixel buffer objects supported in/out of this format? Ignored if PBOs are not
+             * supported at all.
+             */
+            kTransfers_Flag                  = 0x10,
         };
         uint32_t fFlags = 0;
 

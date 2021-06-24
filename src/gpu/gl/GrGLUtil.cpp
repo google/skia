@@ -369,6 +369,7 @@ static bool is_commamd_buffer(const char* rendererString, const char* versionStr
 
 static std::tuple<GrGLDriver, GrGLDriverVersion> get_driver_and_version(GrGLStandard standard,
                                                                         GrGLVendor vendor,
+                                                                        const char* vendorString,
                                                                         const char* rendererString,
                                                                         const char* versionString) {
     SkASSERT(rendererString);
@@ -378,7 +379,10 @@ static std::tuple<GrGLDriver, GrGLDriverVersion> get_driver_and_version(GrGLStan
     GrGLDriverVersion driverVersion = GR_GL_DRIVER_UNKNOWN_VER;
 
     int major, minor, rev, driverMajor, driverMinor, driverPoint;
-    if (GR_IS_GR_GL(standard)) {
+    // This is the same on ES and regular GL.
+    if (!strcmp(vendorString, "freedreno")) {
+        driver = GrGLDriver::kFreedreno;
+    } else if (GR_IS_GR_GL(standard)) {
         if (vendor == GrGLVendor::kNVIDIA) {
             driver = GrGLDriver::kNVIDIA;
             int n = sscanf(versionString,
@@ -554,6 +558,7 @@ get_angle_gl_vendor_and_renderer(
 
     auto [angleDriver, angleDriverVersion] = get_driver_and_version(kGLES_GrGLStandard,
                                                                     angleVendor,
+                                                                    angleVendorString,
                                                                     angleRendererString,
                                                                     angleVersionString);
 
@@ -629,10 +634,10 @@ GrGLDriverInfo GrGLGetDriverInfo(const GrGLInterface* interface) {
         return reinterpret_cast<const char*>(bytes);
     };
 
-    const char* const version    = getString(GR_GL_VERSION);
-    const char* const slversion  = getString(GR_GL_SHADING_LANGUAGE_VERSION);
-    const char* const renderer   = getString(GR_GL_RENDERER);
-    const char* const vendor     = getString(GR_GL_VENDOR);
+    const char* const version   = getString(GR_GL_VERSION);
+    const char* const slversion = getString(GR_GL_SHADING_LANGUAGE_VERSION);
+    const char* const renderer  = getString(GR_GL_RENDERER);
+    const char* const vendor    = getString(GR_GL_VENDOR);
 
     info.fVersion     = GrGLGetVersionFromString(version);
     info.fGLSLVersion = get_glsl_version(slversion);
@@ -641,6 +646,7 @@ GrGLDriverInfo GrGLGetDriverInfo(const GrGLInterface* interface) {
 
     std::tie(info.fDriver, info.fDriverVersion) = get_driver_and_version(interface->fStandard,
                                                                          info.fVendor,
+                                                                         vendor,
                                                                          renderer,
                                                                          version);
 
