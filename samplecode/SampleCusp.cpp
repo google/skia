@@ -162,7 +162,6 @@ protected:
         // draw time to make it easier to guess when the bad cubic was drawn
         std::string timeStr = std::to_string((float) (curTime - start) / 1000.f);
         canvas->drawSimpleText(timeStr.c_str(), timeStr.size(), SkTextEncoding::kUTF8, 20, 20, SkFont(), SkPaint());
-        SkDebugf("");
     }
 
     bool onAnimate(double nanos) override {

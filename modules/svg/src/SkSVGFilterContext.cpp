@@ -112,7 +112,7 @@ std::tuple<sk_sp<SkImageFilter>, SkSVGColorspace> SkSVGFilterContext::getInput(
             break;
         }
         default:
-            SkDebugf("unhandled filter input type %d\n", inputType.type());
+            SkDebugf("unhandled filter input type %d\n", (int)inputType.type());
             break;
     }
 
