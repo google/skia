@@ -31,7 +31,7 @@ private:
 
     bool onIsUsed(GrSurfaceProxy* proxy) const override { return false; }
     void gatherProxyIntervals(GrResourceAllocator*) const override;
-    ExpectedOutcome onMakeClosed(const GrCaps&, SkIRect* targetUpdateBounds) override;
+    ExpectedOutcome onMakeClosed(GrRecordingContext*, SkIRect* targetUpdateBounds) override;
     bool onExecute(GrOpFlushState*) override;
 
 #if GR_TEST_UTILS

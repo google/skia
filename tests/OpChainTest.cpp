@@ -242,7 +242,7 @@ DEF_GPUTEST(OpChainTest, reporter, /*ctxInfo*/) {
                                   GrTextureResolveManager(dContext->priv().drawingManager()),
                                   *caps);
                 }
-                opsTask.makeClosed(*caps);
+                opsTask.makeClosed(dContext.get());
                 opsTask.prepare(&flushState);
                 opsTask.execute(&flushState);
                 opsTask.endFlush(drawingMgr);

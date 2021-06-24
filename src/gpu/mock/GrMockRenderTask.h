@@ -26,7 +26,7 @@ public:
     void visitProxies_debugOnly(const GrVisitProxyFunc&) const override { return; }
 #endif
     void gatherProxyIntervals(GrResourceAllocator*) const override {}
-    ExpectedOutcome onMakeClosed(const GrCaps&, SkIRect*) override { SkUNREACHABLE; }
+    ExpectedOutcome onMakeClosed(GrRecordingContext*, SkIRect*) override { SkUNREACHABLE; }
     bool onIsUsed(GrSurfaceProxy* proxy) const override {
         for (const auto& entry : fUsed) {
             if (entry.get() == proxy) {

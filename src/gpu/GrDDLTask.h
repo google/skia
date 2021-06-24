@@ -41,7 +41,7 @@ private:
 
     void gatherProxyIntervals(GrResourceAllocator*) const override;
 
-    ExpectedOutcome onMakeClosed(const GrCaps&, SkIRect* targetUpdateBounds) override;
+    ExpectedOutcome onMakeClosed(GrRecordingContext*, SkIRect* targetUpdateBounds) override;
 
     void gatherIDs(SkSTArray<8, uint32_t, true>* idArray) const override;
 

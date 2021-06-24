@@ -231,7 +231,7 @@ private:
 
     void forwardCombine(const GrCaps&);
 
-    ExpectedOutcome onMakeClosed(const GrCaps& caps, SkIRect* targetUpdateBounds) override;
+    ExpectedOutcome onMakeClosed(GrRecordingContext*, SkIRect* targetUpdateBounds) override;
 
     // Remove all ops, proxies, etc. Used in the merging algorithm when tasks can be skipped.
     void reset();

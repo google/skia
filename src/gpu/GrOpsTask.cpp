@@ -1040,9 +1040,9 @@ void GrOpsTask::forwardCombine(const GrCaps& caps) {
     }
 }
 
-GrRenderTask::ExpectedOutcome GrOpsTask::onMakeClosed(const GrCaps& caps,
+GrRenderTask::ExpectedOutcome GrOpsTask::onMakeClosed(GrRecordingContext* rContext,
                                                       SkIRect* targetUpdateBounds) {
-    this->forwardCombine(caps);
+    this->forwardCombine(*rContext->priv().caps());
     if (!this->isNoOp()) {
         GrSurfaceProxy* proxy = this->target(0);
         // Use the entire backing store bounds since the GPU doesn't clip automatically to the

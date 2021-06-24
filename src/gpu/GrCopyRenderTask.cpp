@@ -62,7 +62,7 @@ void GrCopyRenderTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {
     alloc->incOps();
 }
 
-GrRenderTask::ExpectedOutcome GrCopyRenderTask::onMakeClosed(const GrCaps&,
+GrRenderTask::ExpectedOutcome GrCopyRenderTask::onMakeClosed(GrRecordingContext*,
                                                              SkIRect* targetUpdateBounds) {
     // We don't expect to be marked skippable before being closed.
     SkASSERT(fSrc);

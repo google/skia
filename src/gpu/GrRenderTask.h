@@ -29,7 +29,7 @@ public:
     GrRenderTask();
     SkDEBUGCODE(~GrRenderTask() override);
 
-    void makeClosed(const GrCaps&);
+    void makeClosed(GrRecordingContext*);
 
     void prePrepare(GrRecordingContext* context) { this->onPrePrepare(context); }
 
@@ -167,7 +167,7 @@ protected:
     // modify in targetUpdateBounds.
     //
     // targetUpdateBounds must not extend beyond the proxy bounds.
-    virtual ExpectedOutcome onMakeClosed(const GrCaps&, SkIRect* targetUpdateBounds) = 0;
+    virtual ExpectedOutcome onMakeClosed(GrRecordingContext*, SkIRect* targetUpdateBounds) = 0;
 
     SkSTArray<1, sk_sp<GrSurfaceProxy>> fTargets;
 
@@ -209,7 +209,7 @@ protected:
     }
 
 private:
-    // for TopoSortTraits, fTextureResolveTask, closeThoseWhoDependOnMe, addDependency
+    // for TopoSortTraits, fTextureResolveTask, addDependency
     friend class GrDrawingManager;
     friend class GrMockRenderTask;
 
@@ -221,7 +221,6 @@ private:
     void addDependent(GrRenderTask* dependent);
     SkDEBUGCODE(bool isDependent(const GrRenderTask* dependent) const;)
     SkDEBUGCODE(void validate() const;)
-    void closeThoseWhoDependOnMe(const GrCaps&);
 
     static uint32_t CreateUniqueID();
 
