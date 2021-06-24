@@ -726,7 +726,7 @@ static void check_drawdevice_colorspaces(SkColorSpace* src, SkColorSpace* dst) {
 
 // Helper function to compute the center reference point used for scale decomposition under
 // non-linear transformations.
-static bool compute_decomposition_center(const SkMatrix& localToDst,
+static bool compute_decomposition_center(const SkMatrix& dstToLocal,
                                          const skif::ParameterSpace<SkRect>* contentBounds,
                                          const skif::DeviceSpace<SkIRect>& targetOutput,
                                          skif::ParameterSpace<SkPoint>* out) {
@@ -734,12 +734,6 @@ static bool compute_decomposition_center(const SkMatrix& localToDst,
     SkRect rect = contentBounds ? SkRect(*contentBounds) : SkRect::Make(SkIRect(targetOutput));
     SkPoint center = {rect.centerX(), rect.centerY()};
     if (!contentBounds) {
-        // Must transform from device to local space
-        SkMatrix dstToLocal;
-        if (!localToDst.invert(&dstToLocal)) {
-            // The local coordinate space is degenerate, so nothing should be drawn
-            return false;
-        }
         // Theoretically, the inverse transform could put center's homogeneous coord behind W = 0,
         // but that case is handled automatically in DecomposeCTM later.
         dstToLocal.mapPoints(&center, 1);
@@ -762,8 +756,10 @@ static std::pair<skif::Mapping, skif::LayerSpace<SkIRect>> get_layer_mapping_and
         const skif::ParameterSpace<SkRect>* contentBounds = nullptr,
         bool mustCoverDst = true) {
     skif::ParameterSpace<SkPoint> center;
+    SkMatrix dstToLocal;
     if (!localToDst.isFinite() ||
-        !compute_decomposition_center(localToDst, contentBounds, targetOutput, &center)) {
+        !localToDst.invert(&dstToLocal) ||
+        !compute_decomposition_center(dstToLocal, contentBounds, targetOutput, &center)) {
         return {{}, skif::LayerSpace<SkIRect>(SkIRect::MakeEmpty())};
     }
     // *after* possibly getting a representative point from the provided content bounds, it might
