@@ -47,6 +47,11 @@ const opts = [
     type: Boolean,
     description: 'Print this usage guide.'
   },
+  {
+    name: 'timeout',
+    description: 'Number of seconds to allow test to run.',
+    type: Number,
+  },
 ];
 
 const usage = [
@@ -69,7 +74,9 @@ if (!options.output) {
 if (!options.port) {
   options.port = 8081;
 }
-
+if (!options.timeout) {
+  options.timeout = 90;
+}
 if (options.help) {
   console.log(commandLineUsage(usage));
   process.exit(0);
@@ -161,9 +168,9 @@ async function driveBrowser() {
       waitUntil: 'networkidle0'
     });
 
-    console.log('Waiting 90s for run to be done');
+    console.log('Waiting ${options.timeout}s for run to be done');
     await page.waitForFunction(`(window._skottieDone === true) || window._error`, {
-      timeout: 90000,
+      timeout: options.timeout*1000,
     });
 
     const err = await page.evaluate('window._error');
