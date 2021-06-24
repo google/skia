@@ -15,8 +15,38 @@ import org.skia.androidkit.*;
 import org.skia.androidkit.util.*;
 
 class AnimationRenderer extends SurfaceRenderer {
+    private Shader mLinearGradient,
+                   mRadialGradient,
+                   mConicalGradient,
+                   mSweepGradient;
+
     @Override
-    protected void onSurfaceInitialized(Surface surface) {}
+    protected void onSurfaceInitialized(Surface surface) {
+        float sw = surface.getWidth(),
+              sh = surface.getHeight();
+
+        float[] colors1 = {
+                            1,0,0,1,
+                            0,1,0,1,
+                            0,0,1,1
+                          };
+        int[]   colors2 = {
+                            0xffffff00,
+                            0xff00ffff,
+                            0xffff00ff
+                          };
+
+        float[] pos = {0, 0.5f, 1};
+
+        mLinearGradient = new LinearGradient(0, 0, sw, 0,
+                                             colors1, pos, TileMode.CLAMP);
+        mRadialGradient = new RadialGradient(sw/2, sh/4, Math.min(sw, sh)/2,
+                                             colors2, pos, TileMode.REPEAT);
+        mConicalGradient = new TwoPointConicalGradient(sw/4, sh/2, sw/4,
+                                                       sw/2, sh/2, sw/2,
+                                                       colors1, pos, TileMode.MIRROR);
+        mSweepGradient = new SweepGradient(sw/2, sh/4, 0, 90, colors2, pos, TileMode.REPEAT);
+    }
 
     @Override
     protected void onRenderFrame(Canvas canvas, long ms) {
@@ -26,18 +56,23 @@ class AnimationRenderer extends SurfaceRenderer {
 
         canvas.drawColor(0xffffffe0);
 
-        Color[] colors = { new Color(1,0,0,1),
-                           new Color(0,1,0,1),
-                           new Color(0,0,1,1)};
-        float[] pos = {0, 0.5f, 1};
-        Shader gradient = new LinearGradient(0, 0, canvas.getWidth(), 0,
-                                             colors, pos, TileMode.CLAMP);
+        float cw = canvas.getWidth(),
+              ch = canvas.getHeight(),
+            osc1 = (float)(java.lang.Math.cos(ms * kSpeed / 1000)),
+            osc2 = (float)(java.lang.Math.sin(ms * kSpeed / 1000));
 
-        Paint p = new Paint().setShader(gradient);
+        drawRect(canvas, (1 + osc1)*cw/2, ch/2, mLinearGradient);
+        drawRect(canvas, (1 - osc1)*cw/2, ch/2, mConicalGradient);
+        drawRect(canvas, cw/2, (1 + osc2)*ch/2, mRadialGradient);
+        drawRect(canvas, cw/2, (1 - osc2)*ch/2, mSweepGradient);
+    }
 
-        float x = (float)(java.lang.Math.cos(ms * kSpeed / 1000) + 1) * canvas.getWidth()/2;
-        canvas.drawRect(x - kWidth/2, (canvas.getHeight() - kHeight)/2,
-                        x + kWidth/2, (canvas.getHeight() + kHeight)/2, p);
+    private void drawRect(Canvas canvas, float cx, float cy, Shader shader) {
+        final float kWidth  = 400,
+                    kHeight = 200;
+
+        canvas.drawRect(cx - kWidth/2, cy - kHeight/2, cx + kWidth/2, cy + kHeight/2,
+                        new Paint().setShader(shader));
     }
 }
 

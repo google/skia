@@ -31,10 +31,13 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved) {
     REGISTER_NATIVES(Paint)
     REGISTER_NATIVES(Path)
     REGISTER_NATIVES(PathBuilder)
+    REGISTER_NATIVES(RadialGradient)
     REGISTER_NATIVES(RuntimeShaderBuilder)
     REGISTER_NATIVES(Shader)
     REGISTER_NATIVES(SkottieAnimation)
     REGISTER_NATIVES(Surface)
+    REGISTER_NATIVES(SweepGradient)
+    REGISTER_NATIVES(TwoPointConicalGradient)
 
     return JNI_VERSION_1_6;
 }
