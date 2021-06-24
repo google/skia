@@ -627,6 +627,205 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::DeviceSpace(
 
 //////////////////////////////////////////////////////////////////////////////
 
+#define CLIP_EDGE_SKSL              \
+    "const int kFillBW = 0;"        \
+    "const int kFillAA = 1;"        \
+    "const int kInverseFillBW = 2;" \
+    "const int kInverseFillAA = 3;"
+
+static_assert(static_cast<int>(GrClipEdgeType::kFillBW) == 0);
+static_assert(static_cast<int>(GrClipEdgeType::kFillAA) == 1);
+static_assert(static_cast<int>(GrClipEdgeType::kInverseFillBW) == 2);
+static_assert(static_cast<int>(GrClipEdgeType::kInverseFillAA) == 3);
+
+std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::Rect(
+        std::unique_ptr<GrFragmentProcessor> inputFP, GrClipEdgeType edgeType, SkRect rect) {
+    static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, CLIP_EDGE_SKSL R"(
+        uniform int edgeType;  // GrClipEdgeType, specialized
+        uniform float4 rectUniform;
+
+        half4 main(float2 xy, half4 inColor) {
+            half coverage;
+            if (edgeType == kFillBW || edgeType == kInverseFillBW) {
+                // non-AA
+                coverage = all(greaterThan(float4(sk_FragCoord.xy, rectUniform.zw),
+                                           float4(rectUniform.xy, sk_FragCoord.xy))) ? 1 : 0;
+            } else {
+                // compute coverage relative to left and right edges, add, then subtract 1 to
+                // account for double counting. And similar for top/bottom.
+                half4 dists4 = clamp(half4(1, 1, -1, -1) *
+                                     half4(sk_FragCoord.xyxy - rectUniform), 0, 1);
+                half2 dists2 = dists4.xy + dists4.zw - 1;
+                coverage = dists2.x * dists2.y;
+            }
+
+            if (edgeType == kInverseFillBW || edgeType == kInverseFillAA) {
+                coverage = 1.0 - coverage;
+            }
+
+            return inColor * coverage;
+        }
+    )");
+
+    SkASSERT(rect.isSorted());
+    // The AA math in the shader evaluates to 0 at the uploaded coordinates, so outset by 0.5
+    // to interpolate from 0 at a half pixel inset and 1 at a half pixel outset of rect.
+    SkRect rectUniform = GrProcessorEdgeTypeIsAA(edgeType) ? rect.makeOutset(.5f, .5f) : rect;
+
+    return GrSkSLFP::Make(effect, "Rect", std::move(inputFP),
+                          GrSkSLFP::OptFlags::kCompatibleWithCoverageAsAlpha,
+                          "edgeType", GrSkSLFP::Specialize(static_cast<int>(edgeType)),
+                          "rectUniform", rectUniform);
+}
+
+GrFPResult GrFragmentProcessor::Circle(std::unique_ptr<GrFragmentProcessor> inputFP,
+                                       GrClipEdgeType edgeType,
+                                       SkPoint center,
+                                       float radius) {
+    // A radius below half causes the implicit insetting done by this processor to become
+    // inverted. We could handle this case by making the processor code more complicated.
+    if (radius < .5f && GrProcessorEdgeTypeIsInverseFill(edgeType)) {
+        return GrFPFailure(std::move(inputFP));
+    }
+
+    static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, CLIP_EDGE_SKSL R"(
+        uniform int edgeType;  // GrClipEdgeType, specialized
+        // The circle uniform is (center.x, center.y, radius + 0.5, 1 / (radius + 0.5)) for regular
+        // fills and (..., radius - 0.5, 1 / (radius - 0.5)) for inverse fills.
+        uniform float4 circle;
+
+        half4 main(float2 xy, half4 inColor) {
+            // TODO: Right now the distance to circle calculation is performed in a space normalized
+            // to the radius and then denormalized. This is to mitigate overflow on devices that
+            // don't have full float.
+            half d;
+            if (edgeType == kInverseFillBW || edgeType == kInverseFillAA) {
+                d = half((length((circle.xy - sk_FragCoord.xy) * circle.w) - 1.0) * circle.z);
+            } else {
+                d = half((1.0 - length((circle.xy - sk_FragCoord.xy) *  circle.w)) * circle.z);
+            }
+            if (edgeType == kFillAA || edgeType == kInverseFillAA) {
+                return inColor * saturate(d);
+            } else {
+                return d > 0.5 ? inColor : half4(0);
+            }
+        }
+    )");
+
+    SkScalar effectiveRadius = radius;
+    if (GrProcessorEdgeTypeIsInverseFill(edgeType)) {
+        effectiveRadius -= 0.5f;
+        // When the radius is 0.5 effectiveRadius is 0 which causes an inf * 0 in the shader.
+        effectiveRadius = std::max(0.001f, effectiveRadius);
+    } else {
+        effectiveRadius += 0.5f;
+    }
+    SkV4 circle = {center.fX, center.fY, effectiveRadius, SkScalarInvert(effectiveRadius)};
+
+    return GrFPSuccess(GrSkSLFP::Make(effect, "Circle", std::move(inputFP),
+                                      GrSkSLFP::OptFlags::kCompatibleWithCoverageAsAlpha,
+                                      "edgeType", GrSkSLFP::Specialize(static_cast<int>(edgeType)),
+                                      "circle", circle));
+}
+
+GrFPResult GrFragmentProcessor::Ellipse(std::unique_ptr<GrFragmentProcessor> inputFP,
+                                        GrClipEdgeType edgeType,
+                                        SkPoint center,
+                                        SkPoint radii,
+                                        const GrShaderCaps& caps) {
+    const bool medPrecision = !caps.floatIs32Bits();
+
+    // Small radii produce bad results on devices without full float.
+    if (medPrecision && (radii.fX < 0.5f || radii.fY < 0.5f)) {
+        return GrFPFailure(std::move(inputFP));
+    }
+    // Very narrow ellipses produce bad results on devices without full float
+    if (medPrecision && (radii.fX > 255*radii.fY || radii.fY > 255*radii.fX)) {
+        return GrFPFailure(std::move(inputFP));
+    }
+    // Very large ellipses produce bad results on devices without full float
+    if (medPrecision && (radii.fX > 16384 || radii.fY > 16384)) {
+        return GrFPFailure(std::move(inputFP));
+    }
+
+    static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, CLIP_EDGE_SKSL R"(
+        uniform int edgeType;      // GrClipEdgeType, specialized
+        uniform int medPrecision;  // !sk_Caps.floatIs32Bits, specialized
+
+        uniform float4 ellipse;
+        uniform float2 scale;    // only for medPrecision
+
+        half4 main(float2 xy, half4 inColor) {
+            // d is the offset to the ellipse center
+            float2 d = sk_FragCoord.xy - ellipse.xy;
+            // If we're on a device with a "real" mediump then we'll do the distance computation in
+            // a space that is normalized by the larger radius or 128, whichever is smaller. The
+            // scale uniform will be scale, 1/scale. The inverse squared radii uniform values are
+            // already in this normalized space. The center is not.
+            if (bool(medPrecision)) {
+                d *= scale.y;
+            }
+            float2 Z = d * ellipse.zw;
+            // implicit is the evaluation of (x/rx)^2 + (y/ry)^2 - 1.
+            float implicit = dot(Z, d) - 1;
+            // grad_dot is the squared length of the gradient of the implicit.
+            float grad_dot = 4 * dot(Z, Z);
+            // Avoid calling inversesqrt on zero.
+            if (bool(medPrecision)) {
+                grad_dot = max(grad_dot, 6.1036e-5);
+            } else {
+                grad_dot = max(grad_dot, 1.1755e-38);
+            }
+            float approx_dist = implicit * inversesqrt(grad_dot);
+            if (bool(medPrecision)) {
+                approx_dist *= scale.x;
+            }
+
+            half alpha;
+            if (edgeType == kFillBW) {
+                alpha = approx_dist > 0.0 ? 0.0 : 1.0;
+            } else if (edgeType == kFillAA) {
+                alpha = saturate(0.5 - half(approx_dist));
+            } else if (edgeType == kInverseFillBW) {
+                alpha = approx_dist > 0.0 ? 1.0 : 0.0;
+            } else {  // edgeType == kInverseFillAA
+                alpha = saturate(0.5 + half(approx_dist));
+            }
+            return inColor * alpha;
+        }
+    )");
+
+    float invRXSqd;
+    float invRYSqd;
+    SkV2 scale = {1, 1};
+    // If we're using a scale factor to work around precision issues, choose the larger radius as
+    // the scale factor. The inv radii need to be pre-adjusted by the scale factor.
+    if (medPrecision) {
+        if (radii.fX > radii.fY) {
+            invRXSqd = 1.f;
+            invRYSqd = (radii.fX * radii.fX) / (radii.fY * radii.fY);
+            scale = {radii.fX, 1.f / radii.fX};
+        } else {
+            invRXSqd = (radii.fY * radii.fY) / (radii.fX * radii.fX);
+            invRYSqd = 1.f;
+            scale = {radii.fY, 1.f / radii.fY};
+        }
+    } else {
+        invRXSqd = 1.f / (radii.fX * radii.fX);
+        invRYSqd = 1.f / (radii.fY * radii.fY);
+    }
+    SkV4 ellipse = {center.fX, center.fY, invRXSqd, invRYSqd};
+
+    return GrFPSuccess(GrSkSLFP::Make(effect, "Ellipse", std::move(inputFP),
+                                      GrSkSLFP::OptFlags::kCompatibleWithCoverageAsAlpha,
+                                      "edgeType", GrSkSLFP::Specialize(static_cast<int>(edgeType)),
+                                      "medPrecision",  GrSkSLFP::Specialize<int>(medPrecision),
+                                      "ellipse", ellipse,
+                                      "scale", scale));
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 GrFragmentProcessor::CIter::CIter(const GrPaint& paint) {
     if (paint.hasCoverageFragmentProcessor()) {
         fFPStack.push_back(paint.getCoverageFragmentProcessor());
