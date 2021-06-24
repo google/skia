@@ -35,6 +35,7 @@ template <typename T> struct GrFPUniformType {
 UNIFORM_TYPE(kFloat,    float);
 UNIFORM_TYPE(kFloat2,   SkV2);
 UNIFORM_TYPE(kFloat4,   SkPMColor4f);
+UNIFORM_TYPE(kFloat4,   SkRect);
 UNIFORM_TYPE(kFloat4,   SkV4);
 UNIFORM_TYPE(kFloat4,   skvx::Vec<4, float>);
 UNIFORM_TYPE(kFloat4x4, SkM44);

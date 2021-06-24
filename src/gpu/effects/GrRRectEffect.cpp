@@ -13,7 +13,6 @@
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/effects/GrConvexPolyEffect.h"
 #include "src/gpu/effects/GrOvalEffect.h"
-#include "src/gpu/effects/generated/GrAARectEffect.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
@@ -712,7 +711,7 @@ GrFPResult GrRRectEffect::Make(std::unique_ptr<GrFragmentProcessor> inputFP,
                                GrClipEdgeType edgeType, const SkRRect& rrect,
                                const GrShaderCaps& caps) {
     if (rrect.isRect()) {
-        auto fp = GrAARectEffect::Make(std::move(inputFP), edgeType, rrect.getBounds());
+        auto fp = GrFragmentProcessor::Rect(std::move(inputFP), edgeType, rrect.getBounds());
         return GrFPSuccess(std::move(fp));
     }
 
@@ -725,7 +724,7 @@ GrFPResult GrRRectEffect::Make(std::unique_ptr<GrFragmentProcessor> inputFP,
             SkRRectPriv::GetSimpleRadii(rrect).fY < kRadiusMin) {
             // In this case the corners are extremely close to rectangular and we collapse the
             // clip to a rectangular clip.
-            auto fp = GrAARectEffect::Make(std::move(inputFP), edgeType, rrect.getBounds());
+            auto fp = GrFragmentProcessor::Rect(std::move(inputFP), edgeType, rrect.getBounds());
             return GrFPSuccess(std::move(fp));
         }
         if (SkRRectPriv::GetSimpleRadii(rrect).fX == SkRRectPriv::GetSimpleRadii(rrect).fY) {
@@ -792,7 +791,8 @@ GrFPResult GrRRectEffect::Make(std::unique_ptr<GrFragmentProcessor> inputFP,
                 return CircularRRectEffect::Make(std::move(inputFP), edgeType, cornerFlags, *rr);
             }
             case CircularRRectEffect::kNone_CornerFlags: {
-                auto fp = GrAARectEffect::Make(std::move(inputFP), edgeType, rrect.getBounds());
+                auto fp =
+                        GrFragmentProcessor::Rect(std::move(inputFP), edgeType, rrect.getBounds());
                 return GrFPSuccess(std::move(fp));
             }
             default: {
