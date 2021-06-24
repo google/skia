@@ -657,7 +657,8 @@ void GrDrawingManager::validate() const {
             // activeTask does.
             bool isActiveResolveTask =
                 fActiveOpsTask && fActiveOpsTask->fTextureResolveTask == fDAG[i].get();
-            SkASSERT(isActiveResolveTask || fDAG[i]->isClosed());
+            bool isAtlas = fDAG[i]->isSetFlag(GrRenderTask::kAtlas_Flag);
+            SkASSERT(isActiveResolveTask || isAtlas || fDAG[i]->isClosed());
         }
     }
 
@@ -702,6 +703,32 @@ sk_sp<GrOpsTask> GrDrawingManager::newOpsTask(GrSurfaceProxyView surfaceView,
 
     SkDEBUGCODE(this->validate());
     return opsTask;
+}
+
+void GrDrawingManager::addAtlasTask(sk_sp<GrRenderTask> atlasTask,
+                                    GrRenderTask* previousAtlasTask) {
+    SkDEBUGCODE(this->validate());
+    SkASSERT(fContext);
+
+    if (previousAtlasTask) {
+        previousAtlasTask->makeClosed(fContext);
+        for (GrRenderTask* previousAtlasUser : previousAtlasTask->dependents()) {
+            // Make the new atlas depend on everybody who used the old atlas, and close their tasks.
+            // This guarantees that the previous atlas is totally out of service before we render
+            // the next one, meaning there is only ever one atlas active at a time and that they can
+            // all share the same texture.
+            atlasTask->addDependency(previousAtlasUser);
+            previousAtlasUser->makeClosed(fContext);
+            if (previousAtlasUser == fActiveOpsTask) {
+                fActiveOpsTask = nullptr;
+            }
+        }
+    }
+
+    atlasTask->setFlag(GrRenderTask::kAtlas_Flag);
+    this->insertTaskBeforeLast(std::move(atlasTask));
+
+    SkDEBUGCODE(this->validate());
 }
 
 GrTextureResolveRenderTask* GrDrawingManager::newTextureResolveRenderTask(const GrCaps& caps) {

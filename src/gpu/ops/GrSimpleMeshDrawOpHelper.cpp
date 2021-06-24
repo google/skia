@@ -88,7 +88,7 @@ GrProcessorSet::Analysis GrSimpleMeshDrawOpHelper::finalizeProcessors(
     if (fProcessors) {
         GrProcessorAnalysisCoverage coverage = geometryCoverage;
         if (GrProcessorAnalysisCoverage::kNone == coverage) {
-            coverage = clip->hasCoverageFragmentProcessor()
+            coverage = (clip && clip->hasCoverageFragmentProcessor())
                                ? GrProcessorAnalysisCoverage::kSingleChannel
                                : GrProcessorAnalysisCoverage::kNone;
         }

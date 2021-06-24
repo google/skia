@@ -234,11 +234,12 @@ static GrFPResult analytic_clip_fp(const GrClipStack::Element& e,
 // TODO: Currently this only works with tessellation because the tessellation path renderer owns and
 // manages the atlas. The high-level concept could be generalized to support any path renderer going
 // into a shared atlas.
-static GrFPResult clip_atlas_fp(GrTessellationPathRenderer* tessellator,
+static GrFPResult clip_atlas_fp(GrRecordingContext* rContext,
+                                const GrOp* opBeingClipped,
+                                GrTessellationPathRenderer* tessellator,
                                 const SkIRect& scissorBounds,
                                 const GrClipStack::Element& e,
-                                std::unique_ptr<GrFragmentProcessor> inputFP,
-                                const GrCaps& caps) {
+                                std::unique_ptr<GrFragmentProcessor> inputFP) {
     SkPath path;
     e.fShape.asPath(&path);
     SkASSERT(!path.isInverseFillType());
@@ -246,8 +247,8 @@ static GrFPResult clip_atlas_fp(GrTessellationPathRenderer* tessellator,
         // Toggling fill type does not affect the path's "generationID" key.
         path.toggleInverseFillType();
     }
-    return tessellator->makeAtlasClipFP(scissorBounds, e.fLocalToDevice, path, e.fAA,
-                                        std::move(inputFP), caps);
+    return tessellator->makeAtlasClipFP(rContext, opBeingClipped, std::move(inputFP), scissorBounds,
+                                        e.fLocalToDevice, path, e.fAA);
 }
 
 static void draw_to_sw_mask(GrSWMaskHelper* helper, const GrClipStack::Element& e, bool clearMask) {
@@ -1388,9 +1389,10 @@ GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrSurfaceDrawCont
                                                                       *caps->shaderCaps(),
                                                                       std::move(clipFP));
                     if (!fullyApplied && tessellator) {
-                        std::tie(fullyApplied, clipFP) = clip_atlas_fp(tessellator, scissorBounds,
+                        std::tie(fullyApplied, clipFP) = clip_atlas_fp(context, opBeingClipped ,
+                                                                       tessellator, scissorBounds,
                                                                        e.asElement(),
-                                                                       std::move(clipFP), *caps);
+                                                                       std::move(clipFP));
                     }
                     if (fullyApplied) {
                         remainingAnalyticFPs--;

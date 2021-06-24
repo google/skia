@@ -149,10 +149,12 @@ void GrRenderTask::addDependency(GrDrawingManager* drawingMgr, GrSurfaceProxy* d
             return;  // don't add duplicate dependencies
         }
 
-        // We are closing 'dependedOnTask' here bc the current contents of it are what 'this'
-        // renderTask depends on. We need a break in 'dependedOnTask' so that the usage of
-        // that state has a chance to execute.
-        dependedOnTask->makeClosed(drawingMgr->getContext());
+        if (!dependedOnTask->isSetFlag(kAtlas_Flag)) {
+            // We are closing 'dependedOnTask' here bc the current contents of it are what 'this'
+            // renderTask depends on. We need a break in 'dependedOnTask' so that the usage of
+            // that state has a chance to execute.
+            dependedOnTask->makeClosed(drawingMgr->getContext());
+        }
     }
 
     auto resolveFlags = GrSurfaceProxy::ResolveFlags::kNone;

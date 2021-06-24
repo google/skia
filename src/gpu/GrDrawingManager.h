@@ -55,6 +55,12 @@ public:
                                 sk_sp<GrArenas> arenas,
                                 bool flushTimeOpsTask);
 
+    // Adds 'atlasTask' to the DAG and leaves it open.
+    //
+    // If 'previousAtlasTask' is provided, closes it and configures dependencies to guarantee
+    // previousAtlasTask and all its users are completely out of service before atlasTask executes.
+    void addAtlasTask(sk_sp<GrRenderTask> atlasTask, GrRenderTask* previousAtlasTask);
+
     // Create a render task that can resolve MSAA and/or regenerate mipmap levels on proxies. This
     // method will only add the new render task to the list. It is up to the caller to call
     // addProxy() on the returned object.
