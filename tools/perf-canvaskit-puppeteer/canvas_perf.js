@@ -695,14 +695,16 @@ for (const variant of ['ttf', 'woff', 'woff2']) {
                 throw 'could not load ' + variant;
             }
             ctx.robotoFont = new CanvasKit.Font(ctx.robotoFace, 20);
+            ctx.testGlyphID = 1;
         },
         test: function (CanvasKit, ctx) {
             // We get one glyph ID at a time to force cache misses and require Skia to
             // perhaps re-access the font. See skbug.com/12112 for example.
             const output = new Uint16Array(1);
-            for (let i = 1; i < 300; i++) {
+            for (let i = ctx.testGlyphID; i < ctx.testGlyphID+100; i++) {
                 ctx.robotoFont.getGlyphIDs(String.fromCodePoint(i), 1, output);
             }
+            ctx.testGlyphID += 100;
         },
         teardown: function (CanvasKit, ctx) {
             ctx.robotoFace.delete();
