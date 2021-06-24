@@ -88,6 +88,24 @@
       "parentUuid": "62855369_a9ef72fe",
       "revId": "2d528f04f954c6bdbe908df8ff7d4a16186d4f9e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6e74357b_20f61808",
+        "filename": "src/core/SkBlendModeBlender.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-24T19:07:52Z",
+      "side": 1,
+      "message": "SGTM, kClear works if we\u0027re just going to jettison it.",
+      "parentUuid": "80f0c1bd_6b525b9f",
+      "revId": "2d528f04f954c6bdbe908df8ff7d4a16186d4f9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
