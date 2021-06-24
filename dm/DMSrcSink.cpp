@@ -1704,7 +1704,10 @@ Result GPUPrecompileTestingSink::draw(const Src& src, SkBitmap* dst, SkWStream* 
     if (!refResult.isOk()) {
         return refResult;
     }
-    SkASSERT(!replayCache.numCacheMisses());
+    // In Metal we currently depend on the Apple cache to store the result
+    if (this->contextType() != sk_gpu_test::GrContextFactory::kMetal_ContextType) {
+        SkASSERT(!replayCache.numCacheMisses());
+    }
 
     return compare_bitmaps(reference, *dst);
 }
