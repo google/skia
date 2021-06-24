@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c3e421b0_4c110b73",
+        "filename": "include/core/SkBlender.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-24T17:48:08Z",
+      "side": 1,
+      "message": "let\u0027s see how many of these we can move to blenderbase",
+      "range": {
+        "startLine": 22,
+        "startChar": 9,
+        "endLine": 22,
+        "endChar": 20
+      },
+      "revId": "dbf4b99f4cc139cc677868f4d59fe81e3e675dc8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
