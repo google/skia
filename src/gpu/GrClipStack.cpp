@@ -1453,7 +1453,8 @@ GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrSurfaceDrawCont
                 !rtc->asRenderTargetProxy()->canUseStencil(*context->priv().caps());
 
         bool hasSWMask = false;
-        if ((rtc->numSamples() <= 1 && maskRequiresAA) || stencilUnavailable) {
+        if ((rtc->numSamples() <= 1 && !rtc->canUseDynamicMSAA() && maskRequiresAA) ||
+            stencilUnavailable) {
             // Must use a texture mask to represent the combined clip elements since the stencil
             // cannot be used, or cannot handle smooth clips.
             std::tie(hasSWMask, clipFP) = GetSWMaskFP(
