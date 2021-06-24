@@ -192,16 +192,17 @@ bool ComparePixels(const GrCPixmap& a,
         return SkTAddOffset<const float>(base, y*rb + x*sizeof(float)*4);
     };
 
+    bool ok = true;
     for (int y = 0; y < floatA.height(); ++y) {
         for (int x = 0; x < floatA.width(); ++x) {
             const float* rgbaA = at(floatA.addr(), x, y);
             const float* rgbaB = at(floatB.addr(), x, y);
             if (!compare_colors(x, y, rgbaA, rgbaB, tolRGBA, error)) {
-                return false;
+                ok = false;
             }
         }
     }
-    return true;
+    return ok;
 }
 
 bool CheckSolidPixels(const SkColor4f& col,
