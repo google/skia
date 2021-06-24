@@ -70,6 +70,24 @@
       "parentUuid": "62855369_a9ef72fe",
       "revId": "2d528f04f954c6bdbe908df8ff7d4a16186d4f9e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "80f0c1bd_6b525b9f",
+        "filename": "src/core/SkBlendModeBlender.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-24T19:07:08Z",
+      "side": 1,
+      "message": "I think once we\u0027ve got a bad buffer, it doesn\u0027t make much difference. kClear is fine. That top level picture deserialization (or client written equivalent) should be discarding the results of any operation where the buffer ends in an invalid state.",
+      "parentUuid": "62855369_a9ef72fe",
+      "revId": "2d528f04f954c6bdbe908df8ff7d4a16186d4f9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
