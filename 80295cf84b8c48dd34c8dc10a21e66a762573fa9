@@ -159,6 +159,30 @@
       },
       "revId": "80295cf84b8c48dd34c8dc10a21e66a762573fa9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c5e38f03_2bbff7c8",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/RadialGradient.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-24T16:42:14Z",
+      "side": 1,
+      "message": "I\u0027m completely fine with converting ints whenever, that decision can always be changed later (or not).",
+      "parentUuid": "c605d43d_99d86be4",
+      "range": {
+        "startLine": 14,
+        "startChar": 53,
+        "endLine": 14,
+        "endChar": 58
+      },
+      "revId": "80295cf84b8c48dd34c8dc10a21e66a762573fa9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
