@@ -3465,6 +3465,16 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fInvalidateFBType = kNone_InvalidateFBType;
     }
 
+    if (ctxInfo.renderer() == GrGLRenderer::kIntelCherryView) {
+        // When running DMSAA_dst_read_with_existing_barrier with DMSAA disabled on linux Intel
+        // HD405, the test fails when using texture barriers. Oddly the gpu doing the draw which
+        // uses the barrier correctly. It is the next draw, which does not use or need a barrier,
+        // that is blending with a dst as if the barrier draw didn't happen. Since this GPU is not
+        // that important to us and this driver bug could probably manifest itself in the wild, we
+        // are just disabling texture barrier support for the gpu.
+        fTextureBarrierSupport = false;
+    }
+
     // glClearTexImage seems to have a bug in NVIDIA drivers that was fixed sometime between
     // 340.96 and 367.57.
     if (GR_IS_GR_GL(ctxInfo.standard()) && ctxInfo.driver() == GrGLDriver::kNVIDIA &&

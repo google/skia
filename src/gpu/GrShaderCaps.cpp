@@ -196,6 +196,9 @@ void GrShaderCaps::applyOptionsOverrides(const GrContextOptions& options) {
     if (options.fSuppressDualSourceBlending) {
         fDualSourceBlendingSupport = false;
     }
+    if (options.fSuppressFramebufferFetch) {
+        fFBFetchSupport = false;
+    }
     if (options.fSuppressGeometryShaders) {
         fGeometryShaderSupport = false;
     }

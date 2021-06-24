@@ -400,7 +400,7 @@ public:
     bool alwaysDrawQuadsIndexed() const { return fAlwaysDrawQuadsIndexed; }
 
     // Returns how to sample the dst values for the passed in GrRenderTargetProxy.
-    GrDstSampleFlags getDstSampleFlagsForProxy(const GrRenderTargetProxy*) const;
+    GrDstSampleFlags getDstSampleFlagsForProxy(const GrRenderTargetProxy*, bool drawUsesMSAA) const;
 
     /**
      * This is used to try to ensure a successful copy a dst in order to perform shader-based

@@ -43,6 +43,7 @@ public:
 
     bool isEmpty() const { return fOpChains.empty(); }
     bool usesMSAASurface() const { return fUsesMSAASurface; }
+    GrXferBarrierFlags renderPassXferBarriers() const { return fRenderPassXferBarriers; }
 
     /**
      * Empties the draw buffer of any queued up draws.
@@ -86,6 +87,9 @@ public:
 
     // Must only be called if native color buffer clearing is enabled.
     void setColorLoadOp(GrLoadOp op, std::array<float, 4> color = {0, 0, 0, 0});
+
+    // Returns whether the given opsTask can be appended at the end of this one.
+    bool canMerge(const GrOpsTask*) const;
 
     // Merge as many opsTasks as possible from the head of 'tasks'. They should all be
     // renderPass compatible. Return the number of tasks merged into 'this'.
@@ -133,12 +137,9 @@ protected:
     ExpectedOutcome onMakeClosed(GrRecordingContext*, SkIRect* targetUpdateBounds) override;
 
 private:
-    bool isNoOp() const {
+    bool isColorNoOp() const {
         // TODO: GrLoadOp::kDiscard (i.e., storing a discard) should also be grounds for skipping
         // execution. We currently don't because of Vulkan. See http://skbug.com/9373.
-        //
-        // TODO: We should also consider stencil load/store here. We get away with it for now
-        // because we never discard stencil buffers.
         return fOpChains.empty() && GrLoadOp::kLoad == fColorLoadOp;
     }
 
@@ -147,6 +148,11 @@ private:
     // If a surfaceDrawContext splits its opsTask, it uses this method to guarantee stencil values
     // get preserved across its split tasks.
     void setMustPreserveStencil() { fMustPreserveStencil = true; }
+
+    // Prevents this opsTask from merging backward. This is used by DMSAA when a non-multisampled
+    // opsTask cannot be promoted to MSAA, or when we split a multisampled opsTask in order to
+    // resolve its texture.
+    void setCannotMergeBackward() { fCannotMergeBackward = true; }
 
     class OpChain {
     public:
@@ -255,6 +261,7 @@ private:
     std::array<float, 4> fLoadClearColor = {0, 0, 0, 0};
     StencilContent fInitialStencilContent = StencilContent::kDontCare;
     bool fMustPreserveStencil = false;
+    bool fCannotMergeBackward = false;
 
     uint32_t fLastClipStackGenID = SK_InvalidUniqueID;
     SkIRect fLastDevClipBounds;
