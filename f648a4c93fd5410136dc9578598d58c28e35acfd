@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7420b183_b4baeb09",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-06-24T19:14:59Z",
+      "side": 1,
+      "message": "You can hold off on reviewing for the moment -- I\u0027m going to go ahead and add MSL shader caching to avoid any possible loss of perf there. That should also allow the precompile test to work properly and I won\u0027t need to disable the assert.",
+      "revId": "f648a4c93fd5410136dc9578598d58c28e35acfd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
