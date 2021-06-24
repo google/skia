@@ -14,6 +14,8 @@
 #include "src/gpu/GrXferProcessor.h"
 #include "src/gpu/vk/GrVkManagedResource.h"
 
+#include <cinttypes>
+
 class GrPipeline;
 class GrProgramInfo;
 class GrRenderTarget;
@@ -74,7 +76,7 @@ public:
 
 #ifdef SK_TRACE_MANAGED_RESOURCES
     void dumpInfo() const override {
-        SkDebugf("GrVkPipeline: %d (%d refs)\n", fPipeline, this->getRefCnt());
+        SkDebugf("GrVkPipeline: %" PRIdPTR " (%d refs)\n", (intptr_t)fPipeline, this->getRefCnt());
     }
 #endif
 

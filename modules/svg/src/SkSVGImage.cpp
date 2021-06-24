@@ -47,7 +47,7 @@ static sk_sp<SkImage> LoadImage(const sk_sp<skresources::ResourceProvider>& rp,
             break;
         }
         default:
-            SkDebugf("error loading image: unhandled iri type %d\n", href.type());
+            SkDebugf("error loading image: unhandled iri type %d\n", (int)href.type());
             return nullptr;
     }
 

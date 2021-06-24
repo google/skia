@@ -88,7 +88,6 @@ static void testOneOffs(skiatest::Reporter* reporter) {
             SkDPoint lineXY = line.ptAtT(lineT);
             if (!conicXY.approximatelyEqual(lineXY)) {
                 conicXY.approximatelyEqual(lineXY);
-                SkDebugf("");
             }
             REPORTER_ASSERT(reporter, conicXY.approximatelyEqual(lineXY));
         }

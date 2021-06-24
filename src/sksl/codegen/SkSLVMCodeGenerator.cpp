@@ -644,7 +644,7 @@ Value SkVMGenerator::writeTypeConversion(const Value& src,
         default:
             break;
     }
-    SkDEBUGFAILF("Unsupported type conversion: %d -> %d", srcKind, dstKind);
+    SkDEBUGFAILF("Unsupported type conversion: %d -> %d", (int)srcKind, (int)dstKind);
     return {};
 }
 
@@ -1348,7 +1348,7 @@ Value SkVMGenerator::writeExpression(const Expression& e) {
 
 Value SkVMGenerator::writeStore(const Expression& lhs, const Value& rhs) {
     SkASSERTF(rhs.slots() == lhs.type().slotCount(),
-              "lhs=%s (%s)\nrhs=%d slot",
+              "lhs=%s (%s)\nrhs=%zu slot",
               lhs.type().description().c_str(), lhs.description().c_str(), rhs.slots());
 
     // We need to figure out the collection of slots that we're storing into. The l-value (lhs)

@@ -29,7 +29,7 @@ protected:
     void onOnceBeforeDraw() override {
         SkFILEStream svgStream(fPath.c_str());
         if (!svgStream.isValid()) {
-            SkDebugf("file not found: \"path\"\n", fPath.c_str());
+            SkDebugf("file not found: \"%s\"\n", fPath.c_str());
             return;
         }
 

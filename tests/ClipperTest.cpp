@@ -100,7 +100,8 @@ static void test_intersectline(skiatest::Reporter* reporter) {
     for (i = 0; i < SK_ARRAY_COUNT(gEmpty); i += 2) {
         bool valid = SkLineClipper::IntersectLine(&gEmpty[i], gR, dst);
         if (valid) {
-            SkDebugf("----- [%d] %g %g -> %g %g\n", i/2, dst[0].fX, dst[0].fY, dst[1].fX, dst[1].fY);
+            SkDebugf("----- [%zu] %g %g -> %g %g\n",
+                     i/2, dst[0].fX, dst[0].fY, dst[1].fX, dst[1].fY);
         }
         REPORTER_ASSERT(reporter, !valid);
     }
@@ -124,7 +125,8 @@ static void test_intersectline(skiatest::Reporter* reporter) {
     for (i = 0; i < SK_ARRAY_COUNT(gFull); i += 2) {
         bool valid = SkLineClipper::IntersectLine(&gFull[i], gR, dst);
         if (!valid || 0 != memcmp(&gFull[i], dst, sizeof(dst))) {
-            SkDebugf("++++ [%d] %g %g -> %g %g\n", i/2, dst[0].fX, dst[0].fY, dst[1].fX, dst[1].fY);
+            SkDebugf("++++ [%zu] %g %g -> %g %g\n",
+                     i/2, dst[0].fX, dst[0].fY, dst[1].fX, dst[1].fY);
         }
         REPORTER_ASSERT(reporter, valid && !memcmp(&gFull[i], dst, sizeof(dst)));
     }
@@ -143,7 +145,8 @@ static void test_intersectline(skiatest::Reporter* reporter) {
     for (i = 0; i < SK_ARRAY_COUNT(gPartial); i += 4) {
         bool valid = SkLineClipper::IntersectLine(&gPartial[i], gR, dst);
         if (!valid || 0 != memcmp(&gPartial[i+2], dst, sizeof(dst))) {
-            SkDebugf("++++ [%d] %g %g -> %g %g\n", i/2, dst[0].fX, dst[0].fY, dst[1].fX, dst[1].fY);
+            SkDebugf("++++ [%zu] %g %g -> %g %g\n",
+                     i/2, dst[0].fX, dst[0].fY, dst[1].fX, dst[1].fY);
         }
         REPORTER_ASSERT(reporter, valid &&
                                   !memcmp(&gPartial[i+2], dst, sizeof(dst)));

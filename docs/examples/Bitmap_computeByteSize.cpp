@@ -9,7 +9,7 @@ void draw(SkCanvas* canvas) {
         for (int height: { 1, 1000, 1000000 } ) {
             SkImageInfo imageInfo = SkImageInfo::MakeN32(width, height, kPremul_SkAlphaType);
             bitmap.setInfo(imageInfo, width * 5);
-            SkDebugf("width: %7d height: %7d computeByteSize: %13lld\n", width, height,
+            SkDebugf("width: %7d height: %7d computeByteSize: %13zu\n", width, height,
                      bitmap.computeByteSize());
         }
     }

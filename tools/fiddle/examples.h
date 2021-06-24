@@ -6,6 +6,7 @@
 #include "tools/Registry.h"
 #include "skia.h"
 
+#include <cinttypes>
 #include <cmath>
 #include <string>
 

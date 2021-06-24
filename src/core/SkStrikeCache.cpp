@@ -58,7 +58,7 @@ void SkStrikeCache::Dump() {
     SkDebugf("GlyphCache [     used    budget ]\n");
     SkDebugf("    bytes  [ %8zu  %8zu ]\n",
              SkGraphics::GetFontCacheUsed(), SkGraphics::GetFontCacheLimit());
-    SkDebugf("    count  [ %8zu  %8zu ]\n",
+    SkDebugf("    count  [ %8d  %8d ]\n",
              SkGraphics::GetFontCacheCountUsed(), SkGraphics::GetFontCacheCountLimit());
 
     int counter = 0;
@@ -342,7 +342,7 @@ void SkStrikeCache::validate() const {
         SK_ABORT("fCacheCount != computedCount");
     }
     if (fTotalMemoryUsed != computedBytes) {
-        SkDebugf("fTotalMemoryUsed: %d, computedBytes: %d", fTotalMemoryUsed, computedBytes);
+        SkDebugf("fTotalMemoryUsed: %zu, computedBytes: %zu", fTotalMemoryUsed, computedBytes);
         SK_ABORT("fTotalMemoryUsed == computedBytes");
     }
 #endif
