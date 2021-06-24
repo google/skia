@@ -52,6 +52,24 @@
       "parentUuid": "b6a63dcf_42725524",
       "revId": "2d528f04f954c6bdbe908df8ff7d4a16186d4f9e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "109f2cf2_eac7f787",
+        "filename": "src/core/SkBlendModeBlender.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-24T19:06:41Z",
+      "side": 1,
+      "message": "Don\u0027t think its terribly important what we return if the stream is invalid, but createprocs can return null...",
+      "parentUuid": "62855369_a9ef72fe",
+      "revId": "2d528f04f954c6bdbe908df8ff7d4a16186d4f9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
