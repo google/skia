@@ -662,7 +662,7 @@ bool SkBlitter::UseLegacyBlitter(const SkPixmap& device,
 
     // The legacy blitters cannot handle any of these complex features (anymore).
     if (device.alphaType() == kUnpremul_SkAlphaType        ||
-        paint.getBlender()                                 ||
+        paint.isCustomBlend()                              ||
         paint.getBlendMode() > SkBlendMode::kLastCoeffMode ||
         (mf && mf->getFormat() == SkMask::k3D_Format)) {
         return false;
@@ -704,9 +704,9 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
     // We may tweak the original paint as we go.
     SkTCopyOnFirstWrite<SkPaint> paint(origPaint);
 
-    if (!paint->getBlender()) {
+    if (!paint->isCustomBlend()) {
         // We have the most fast-paths for SrcOver, so see if we can act like SrcOver.
-        if (paint->getBlendMode() != SkBlendMode::kSrcOver) {
+        if (!paint->isSrcOver()) {
             switch (SkInterpretXfermode(*paint, SkColorTypeIsAlwaysOpaque(device.colorType()))) {
                 case kSrcOver_SkXfermodeInterpretation:
                     paint.writable()->setBlendMode(SkBlendMode::kSrcOver);
