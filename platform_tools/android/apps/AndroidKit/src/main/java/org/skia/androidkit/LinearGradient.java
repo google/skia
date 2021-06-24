@@ -10,36 +10,29 @@ package org.skia.androidkit;
 import android.support.annotation.Nullable;
 import java.lang.IllegalArgumentException;
 
-public class LinearGradient extends Shader {
-    public LinearGradient(float x0, float y0, float x1, float y1, Color[] colors,
+public class LinearGradient extends Gradient {
+    public LinearGradient(float x0, float y0, float x1, float y1, int[] colors,
                           float[] pos, TileMode tm,
                           @Nullable Matrix localMatrix) throws IllegalArgumentException {
-        super(makeNative(x0, y0, x1, y1, colors, pos, tm, localMatrix));
+        super(colors, pos, tm, localMatrix,
+            (c, p, t, m) -> nMakeLinear(x0, y0, x1, y1, c, p, t, m));
     }
 
-    public LinearGradient(float x0, float y0, float x1, float y1, Color[] colors,
+    public LinearGradient(float x0, float y0, float x1, float y1, int[] colors,
                           float[] pos, TileMode tm) throws IllegalArgumentException {
         this(x0, y0, x1, y1, colors, pos, tm, null);
     }
 
-    private static long makeNative(float x0, float y0, float x1, float y1, Color[] colors,
-                                   float[] pos, TileMode tm,
-                                   @Nullable Matrix localMatrix) throws IllegalArgumentException {
-        if (colors.length != pos.length) {
-            throw new IllegalArgumentException("Expecting equal-length colors and positions.");
-        }
+    public LinearGradient(float x0, float y0, float x1, float y1, float[] colors,
+                          float[] pos, TileMode tm,
+                          @Nullable Matrix localMatrix) throws IllegalArgumentException {
+        super(colors, pos, tm, localMatrix,
+            (c, p, t, m) -> nMakeLinear(x0, y0, x1, y1, c, p, t, m));
+    }
 
-        float[] fcolors = new float[colors.length * 4];
-        for (int i = 0; i < colors.length; ++i) {
-            fcolors[4*i + 0] = colors[i].r();
-            fcolors[4*i + 1] = colors[i].g();
-            fcolors[4*i + 2] = colors[i].b();
-            fcolors[4*i + 3] = colors[i].a();
-        }
-
-        long nativeLocalMatrix = localMatrix != null ? localMatrix.getNativeInstance() : 0;
-
-        return nMakeLinear(x0, y0, x1, y1, fcolors, pos, tm.ordinal(), nativeLocalMatrix);
+    public LinearGradient(float x0, float y0, float x1, float y1, float[] colors,
+                          float[] pos, TileMode tm) throws IllegalArgumentException {
+        this(x0, y0, x1, y1, colors, pos, tm, null);
     }
 
     private static native long nMakeLinear(float x0, float y0, float x1, float y1,
