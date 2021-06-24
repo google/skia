@@ -12,9 +12,9 @@
 #include "include/core/SkFlattenable.h"
 
 /**
- * SkBlender represents a custom blend function in the Skia pipeline. When an SkBlender is
- * present in a paint, the SkBlendMode is ignored. A blender combines a source color (the
- * result of our paint) and destination color (from the canvas) into a final color.
+ * SkBlender represents a blend function in the Skia pipeline. SkBlender is capable of representing
+ * an SkBlendMode, or a user-defined blend SkSL blend function. Blenders combine a source color
+ * (the result of our paint) and destination color (from the canvas) into a final color.
  */
 class SK_API SkBlender : public SkFlattenable {
 private:

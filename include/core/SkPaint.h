@@ -477,50 +477,54 @@ public:
     */
     void setColorFilter(sk_sp<SkColorFilter> colorFilter);
 
-    /** Returns SkBlendMode.
-        By default, returns SkBlendMode::kSrcOver.
+    /** Returns the SkBlendMode assigned to this paint.
+        If the blending mode is not SkBlendMode-based, the result is undefined.
 
-        @return  mode used to combine source color with destination color
+        TODO(skia:12080): add value to SkBlendMode allowing us to indicate "custom blend."
+
+        @return  SkBlendMode used to combine source color with destination color
     */
-    SkBlendMode getBlendMode() const { return (SkBlendMode)fBitfields.fBlendMode; }
+    SkBlendMode getBlendMode() const;
 
-    /** Returns true if SkBlendMode is SkBlendMode::kSrcOver, the default.
+    /** Returns true if the blend mode on the paint is SkBlendMode::kSrcOver, the default.
 
-        @return  true if SkBlendMode is SkBlendMode::kSrcOver
+        @return  true if the blend mode is SkBlendMode::kSrcOver
     */
-    bool isSrcOver() const { return (SkBlendMode)fBitfields.fBlendMode == SkBlendMode::kSrcOver; }
+    bool isSrcOver() const;
 
-    /** Sets SkBlendMode to mode.
-        Does not verify that `mode` corresponds to a valid SkBlendMode.
-        Does not remove the SkBlender blend function, if one has been set; when drawing, SkBlender
-        takes precedence over the SkBlendMode. You can clear the SkBlender on an SkPaint by calling
-        `paint.setBlender(nullptr)`.
+    /** Returns true if the blend mode on the paint is a custom blend (not SkBlendMode-based).
+
+        @return  true if the blend mode is not SkBlendMode-based
+    */
+    bool isCustomBlend() const;
+
+    /** Sets the blending mode on the paint to `mode`.
+        If `mode` is not a valid SkBlendMode, nothing is changed.
 
         @param mode  SkBlendMode used to combine source color and destination
     */
-    void setBlendMode(SkBlendMode mode) { fBitfields.fBlendMode = (unsigned)mode; }
+    void setBlendMode(SkBlendMode mode);
 
-    /** Returns the user-supplied blend function, if one has been set.
+    /** Returns the blend function for this paint; a null return indicates SrcOver.
         Does not alter SkBlender's SkRefCnt.
 
-        @return  the SkBlender assigned to this paint, otherwise nullptr
+        @return  the SkBlender assigned to this paint, or null for SrcOver
     */
     SkBlender* getBlender() const { return fBlender.get(); }
 
-    /** Returns the user-supplied blend function, if one has been set.
+    /** Returns the blend function for this paint; a null return indicates SrcOver.
         Increments the SkBlender's SkRefCnt by one.
 
-        @return  the SkBlender assigned to this paint, otherwise nullptr
+        @return  the SkBlender assigned to this paint, or null for SrcOver
     */
     sk_sp<SkBlender> refBlender() const;
 
-    /** Assigns a user-supplied blend function (create these via SkRuntimeEffect).
-        If an SkBlender has been set, it takes precedence over the SkBlendMode.
+    /** Sets the blending mode on the paint to `blend`.
         Increments the passed-in SkBlender's SkRefCnt by one.
 
         TODO(skia:12080): this feature is incomplete; do not use!
 
-        @param blend  the blend filter to use
+        @param blend  the blender used to combine source color and destination
     */
     void experimental_setBlender(sk_sp<SkBlender> blend);
 
@@ -716,8 +720,7 @@ private:
             unsigned    fJoinType : 2;
             unsigned    fStyle : 2;
             unsigned    fFilterQuality : 2;
-            unsigned    fBlendMode : 8; // only need 5-6?
-            unsigned    fPadding : 14;  // 14==32-1-1-2-2-2-2-8
+            unsigned    fPadding : 22;  // 14==32-1-1-2-2-2-2
         } fBitfields;
         uint32_t fBitfieldsUInt;
     };
