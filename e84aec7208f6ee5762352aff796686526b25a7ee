@@ -50,6 +50,60 @@
       "message": "FWIW I don\u0027t see any changes in the perf test I added \nhttps://perf.skia.org/e/?queries\u003dsub_result%3Dmedian_render_without_flush_ms%26test%3Dfont_getGlyphIDs_woff2\n\nMaybe that font is so quick to decompress/decode that the effect of the change is being swamped by something else?",
       "revId": "e84aec7208f6ee5762352aff796686526b25a7ee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e085b37b_580441c2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-06-24T16:49:13Z",
+      "side": 1,
+      "message": "With this change (at Patchset 2) the FT_Face is no longer refcounted at all. The only thing refcounted is the FT_Library and there is only one of those at a time. The idea being that if you end up getting rid of all extant SkTypeface_FreeType and we don\u0027t have any SkScalerContext_FreeType left in the strike cache then we should clean up the FT_Library.",
+      "parentUuid": "2ab6f74f_8b0d5153",
+      "revId": "e84aec7208f6ee5762352aff796686526b25a7ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "12989d3a_f4af7bf6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-06-24T16:49:13Z",
+      "side": 1,
+      "message": "So previously an FT_Face existed for an SkTypeface_FreeType if any SkScalerContext_FreeType existed (was in the cache). With this change an FT_Face will exist on any SkTypeface_FreeType which has been \"used\" in any way. The following sizes are from a 64bit build, and there are a lot of pointers, so these are smaller on a 32bit build. This also removes 16 bytes per existing FT_Face and a linked-list search on each call into SkTypeface_FreeType or SkScalerContext_FreeType.\n\nAn FT_FaceRec is itself 248 bytes, plus space for a cached family name, style name, list of available bitmap sizes (32 bytes each), metadata on each character map (16 bytes each), another 128 bytes for internal data (FT_Face_InternalRec_), plus autohinting data if it\u0027s been created, which is generally a set of six or so blue zones.\n\nThe actual TT_FaceRec one gets from creating an sfnt font is 1472 bytes (including an embedded FT_FaceRec), plus the current palette data. This TT_FaceRec size includes a number of local cached copies of frequently used fixed sized tables (and fixed size headers to tables) like the header, hhea, maxp, vhea, name, OS/2, post (no glyph names), gasp. Note that if the FT_Stream is memory based the cmap table data is referred to directly, if not an in-memory copy of the currently selected cmap will be made. Similarly the font and cvt programs along with the original cvt table values, the hdmx, sbit, and kern tables will be used directly if the FT_Stream is memory based but copies may be made to bring them into memory if needed. Strings from the name table are only actually loaded when requested, but once loaded don\u0027t unload.\n\nSo, generally speaking, I would expect extra use of ~2KB per SkTypeface_FreeType which is \"used\" but has no SkScalerContext_FreeType entries in the strike cache. This seems to line up with actual measurement. Given this, the actual question is why not always create the FT_Face on SkTypeface_FreeType creation like we do on macOS and DirectWrite? This small step to wait until \"use\" was done to ensure that it\u0027s still possible to create a large number of SkTypeface_FreeType and only pay for the FT_Face that are actually needed, since the FreeType backend tends to be used more often in resource constrained environments. I believe the whole caching of FT_Face was done on Android originally to avoid forcing the FT_Faces into every process even if it didn\u0027t need them (though now Android just mmaps every font file in the system anyway).\n\nIn a very constrained environment, I don\u0027t see this change making a big difference. It seems likely that there won\u0027t be that many font files available to begin with, so once used they\u0027re likely to have an SkScalerContext in the strike cache anyway, which would have keep the FT_Face active.",
+      "parentUuid": "57dedb39_bd929a7d",
+      "revId": "e84aec7208f6ee5762352aff796686526b25a7ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d9e8149e_6a8bb967",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-06-24T16:49:13Z",
+      "side": 1,
+      "message": "Looking at the current plot of the ttf, woff, and woff2 versions [0] they all look pretty similar already, so I\u0027m thinking something is preventing a reproduction.\n\n[0] https://perf.skia.org/e/?queries\u003dsub_result%3Dmedian_render_without_flush_ms%26test%3Dfont_getGlyphIDs_woff2%26test%3Dfont_getGlyphIDs_ttf%26test%3Dfont_getGlyphIDs_woff",
+      "parentUuid": "51be5b89_1afe3364",
+      "revId": "e84aec7208f6ee5762352aff796686526b25a7ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
