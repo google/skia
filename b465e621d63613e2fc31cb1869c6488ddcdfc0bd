@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7d3bb90e_6d59b44d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-24T23:20:17Z",
+      "side": 1,
+      "message": "Okay this reland should be ready now. The diff is can be seen comparing patch set 1. All that is added is disabling texture barriers on the gpu. The diffs in GrOpsTask.h are simply a rebase and not actually part of this change.",
+      "revId": "b465e621d63613e2fc31cb1869c6488ddcdfc0bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
