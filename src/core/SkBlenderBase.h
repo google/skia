@@ -18,11 +18,54 @@ class GrFragmentProcessor;
 class SkRuntimeEffect;
 
 /**
- * Encapsulates a custom blend function for Runtime Effects. These combine a source color (the
- * result of our paint) and destination color (from the canvas) into a final color.
+ * Encapsulates a blend function, including non-public APIs.
+ * Blends combine a source color (the result of our paint) and destination color (from the canvas)
+ * into a final color.
  */
 class SkBlenderBase : public SkBlender {
 public:
+public:
+    /** Returns true if this SkBlender represents any SkBlendMode. */
+    bool isBlendMode() const {
+        SkBlendMode mode;
+        return this->asBlendMode(&mode);
+    }
+
+    /** Returns true if this SkBlender does NOT represent any SkBlendMode. */
+    bool isCustomBlend() const {
+        return !this->isBlendMode();
+    }
+
+    /** Returns true if this SkBlender matches the passed-in SkBlendMode. */
+    bool isBlendMode(SkBlendMode expected) const {
+        SkBlendMode mode;
+        return this->asBlendMode(&mode) && (mode == expected);
+    }
+
+    /** Returns true if this SkBlender represents any coefficient-based SkBlendMode. */
+    bool isCoefficient() const {
+        return this->asCoefficient(/*src=*/nullptr, /*dst=*/nullptr);
+    }
+
+    /**
+     * For a SkBlendMode-based Porter-Duff blend, retrieves its coefficients into `src` and `dst`
+     * and returns true. Returns false for other types of blends.
+     */
+    bool asCoefficient(SkBlendModeCoeff* src, SkBlendModeCoeff* dst) const {
+        SkBlendMode mode;
+        return this->asBlendMode(&mode) && SkBlendMode_AsCoeff(mode, src, dst);
+    }
+
+    /**
+     * Returns true if this SkBlender represents any SkBlendMode, and returns the blender's
+     * SkBlendMode in `mode`. Returns false for other types of blends.
+     */
+    virtual bool asBlendMode(SkBlendMode* mode) const {
+        (void)mode;
+        return false;
+    }
+
+    /** Creates the blend program in SkVM. */
     SK_WARN_UNUSED_RESULT
     skvm::Color program(skvm::Builder* p, skvm::Color src, skvm::Color dst,
                         const SkColorInfo& colorInfo, skvm::Uniforms* uniforms,
@@ -32,8 +75,8 @@ public:
 
 #if SK_SUPPORT_GPU
     /**
-     *  Returns a GrFragmentProcessor that implements this blend for the GPU backend.
-     *  The GrFragmentProcessor expects a premultiplied input and returns a premultiplied output.
+     * Returns a GrFragmentProcessor that implements this blend for the GPU backend.
+     * The GrFragmentProcessor expects a premultiplied input and returns a premultiplied output.
      */
     virtual std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
             std::unique_ptr<GrFragmentProcessor> inputFP, const GrFPArgs& fpArgs) const = 0;
