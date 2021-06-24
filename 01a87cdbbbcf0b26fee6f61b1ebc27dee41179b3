@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "798d0b0d_6a1cc890",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-06-24T17:08:14Z",
+      "side": 1,
+      "message": "This is to unblock adding bots for a CrOS device running freedreno.",
+      "revId": "01a87cdbbbcf0b26fee6f61b1ebc27dee41179b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8e826cb3_e065cbb1",
+        "filename": "src/gpu/gl/GrGLUtil.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-06-24T17:08:14Z",
+      "side": 1,
+      "message": "I called this a driver not a vendor even though it\u0027s derived from the vendor string. We tend to treat Vendor as \"maker of the HW\" and driver as \"source of the software\"",
+      "range": {
+        "startLine": 212,
+        "startChar": 4,
+        "endLine": 212,
+        "endChar": 14
+      },
+      "revId": "01a87cdbbbcf0b26fee6f61b1ebc27dee41179b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
