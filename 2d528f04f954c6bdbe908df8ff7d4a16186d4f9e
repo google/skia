@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ca77d983_dffc958e",
+        "filename": "src/core/SkBlendModeBlender.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-24T19:02:46Z",
+      "side": 1,
+      "message": "I think we want to explicitly prevent calling Mode() when the buffer is now invalid (so that we don\u0027t trigger the SkDEBUGFAILF internally), right? For clients that are serializing things, I *think* our standard idiom is that we safely run without assertion if trying deserialize bad data (but we will definitely report the failure at the top level)? Mike can verify.",
+      "revId": "2d528f04f954c6bdbe908df8ff7d4a16186d4f9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
