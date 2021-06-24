@@ -13,6 +13,8 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkMacros.h"
 
+#include <cinttypes>
+
 class SkString;
 
 /** \class SkTime
@@ -51,7 +53,7 @@ public:
         , fNow(SkTime::GetMSecs()) {}
     ~SkAutoTime() {
         uint64_t dur = static_cast<uint64_t>(SkTime::GetMSecs() - fNow);
-        SkDebugf("%s %ld\n", fLabel ? fLabel : "", dur);
+        SkDebugf("%s %" PRIu64 "\n", fLabel ? fLabel : "", dur);
     }
 private:
     const char* fLabel;
