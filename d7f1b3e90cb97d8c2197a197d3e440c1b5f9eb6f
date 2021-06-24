@@ -70,6 +70,24 @@
       "parentUuid": "0a180749_506d5915",
       "revId": "d7f1b3e90cb97d8c2197a197d3e440c1b5f9eb6f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2ade8bd1_7553b43a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-24T14:56:35Z",
+      "side": 1,
+      "message": "It is a config. We just haven\u0027t been adding it unless you\u0027re a DMSAA bot. I\u0027ll do that CL next.",
+      "parentUuid": "423914c3_0e9ac2ff",
+      "revId": "d7f1b3e90cb97d8c2197a197d3e440c1b5f9eb6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
