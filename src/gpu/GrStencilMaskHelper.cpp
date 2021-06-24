@@ -322,6 +322,9 @@ static void stencil_path(GrRecordingContext* context,
 }
 
 static GrAA supported_aa(GrSurfaceDrawContext* sdc, GrAA aa) {
+    if (sdc->canUseDynamicMSAA()) {
+        return GrAA::kYes;
+    }
     if (sdc->numSamples() > 1) {
         if (sdc->caps()->multisampleDisableSupport()) {
             return aa;
