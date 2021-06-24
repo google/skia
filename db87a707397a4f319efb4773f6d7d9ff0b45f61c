@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4ab2dd43_3a867e7b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-06-24T16:38:46Z",
+      "side": 1,
+      "message": "Added more clip functions, please review additional clips and clipOp java enum",
+      "revId": "db87a707397a4f319efb4773f6d7d9ff0b45f61c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

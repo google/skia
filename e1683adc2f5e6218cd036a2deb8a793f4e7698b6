@@ -50,6 +50,24 @@
       "message": "nit: line break @100",
       "revId": "e1683adc2f5e6218cd036a2deb8a793f4e7698b6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "728eed3b_f583762b",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/Canvas.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2021-06-24T16:38:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26c4f25a_c296efb2",
+      "revId": "e1683adc2f5e6218cd036a2deb8a793f4e7698b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
