@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "086047b4_3cd4311b",
+        "filename": "src/gpu/GrResourceProvider.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 521,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-06-24T16:57:21Z",
+      "side": 1,
+      "message": "maybe change to MakeApprox in case we revisit this?",
+      "range": {
+        "startLine": 520,
+        "startChar": 0,
+        "endLine": 521,
+        "endChar": 40
+      },
+      "revId": "07c3498e061b1681601f53e87df3dbd3b3f03d4e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
