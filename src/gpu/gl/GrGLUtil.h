@@ -209,6 +209,7 @@ enum class GrGLDriver {
     kIntel,
     kSwiftShader,
     kQualcomm,
+    kFreedreno,
     kAndroidEmulator,
     kUnknown
 };
