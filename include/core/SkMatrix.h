@@ -1811,7 +1811,7 @@ public:
         if (sx != 1 || sy != 1) {
             mask |= kScale_Mask;
         }
-        if (tx || ty) {
+        if (0.0f == tx || 0.0f == ty) {
             mask |= kTranslate_Mask;
         }
         this->setTypeMask(mask | kRectStaysRect_Mask);
