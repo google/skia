@@ -23,7 +23,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fReuseScratchTextures = true;
     fReuseScratchBuffers = true;
     fGpuTracingSupport = false;
-    fOversizedStencilSupport = false;
+    fOversizedAttachmentSupport = false;
     fTextureBarrierSupport = false;
     fSampleLocationsSupport = false;
     fMultisampleDisableSupport = false;
@@ -202,7 +202,7 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Reuse Scratch Textures", fReuseScratchTextures);
     writer->appendBool("Reuse Scratch Buffers", fReuseScratchBuffers);
     writer->appendBool("Gpu Tracing Support", fGpuTracingSupport);
-    writer->appendBool("Oversized Stencil Support", fOversizedStencilSupport);
+    writer->appendBool("Oversized Attachment Support", fOversizedAttachmentSupport);
     writer->appendBool("Texture Barrier Support", fTextureBarrierSupport);
     writer->appendBool("Sample Locations Support", fSampleLocationsSupport);
     writer->appendBool("Multisample disable support", fMultisampleDisableSupport);
