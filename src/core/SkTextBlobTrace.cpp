@@ -63,8 +63,8 @@ void SkTextBlobTrace::DumpTrace(const std::vector<SkTextBlobTrace::Record>& trac
                     font.getScaleX(),
                     font.getSkewX(),
                     SkFontPriv::Flags(font),
-                    font.getEdging(),
-                    font.getHinting());
+                    (int)font.getEdging(),
+                    (int)font.getHinting());
             uint32_t glyphCount = iter.glyphCount();
             const uint16_t* glyphs = iter.glyphs();
             for (uint32_t i = 0; i < glyphCount; i++) {
