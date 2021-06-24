@@ -83,12 +83,6 @@ public:
                                                               bool useUniform = true);
 
     /**
-     *  Returns a fragment processor that premuls the input before calling the passed in fragment
-     *  processor.
-     */
-    static std::unique_ptr<GrFragmentProcessor> PremulInput(std::unique_ptr<GrFragmentProcessor>);
-
-    /**
      *  Returns a fragment processor that calls the passed in fragment processor, and then swizzles
      *  the output.
      */
