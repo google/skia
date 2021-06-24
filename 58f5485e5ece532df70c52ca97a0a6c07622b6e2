@@ -34,6 +34,24 @@
       "parentUuid": "ace5e16a_5880258d",
       "revId": "58f5485e5ece532df70c52ca97a0a6c07622b6e2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "92e26dab_0d88ded4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-24T18:11:29Z",
+      "side": 1,
+      "message": "Worst case, we could just enable the warnings for Skia code (eg, add the annotation only if SKIA_IMPLEMENTATION\u003d1)",
+      "parentUuid": "ae77947d_48dede56",
+      "revId": "58f5485e5ece532df70c52ca97a0a6c07622b6e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
