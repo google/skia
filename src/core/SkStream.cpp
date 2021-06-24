@@ -428,7 +428,7 @@ bool SkFILEWStream::write(const void* buffer, size_t size)
 
     if (sk_fwrite(buffer, size, fFILE) != size)
     {
-        SkDEBUGCODE(SkDebugf("SkFILEWStream failed writing %d bytes\n", size);)
+        SkDEBUGCODE(SkDebugf("SkFILEWStream failed writing %zu bytes\n", size);)
         sk_fclose(fFILE);
         fFILE = nullptr;
         return false;
