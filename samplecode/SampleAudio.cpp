@@ -30,7 +30,7 @@ protected:
             SkDebugf("make: dur:%g time%g state:%d",
                      fPlayer->duration(),
                      fPlayer->time(),
-                     fPlayer->state());
+                     (int)fPlayer->state());
         }
 
         fBar = { 10, 10, 510, 30 };
