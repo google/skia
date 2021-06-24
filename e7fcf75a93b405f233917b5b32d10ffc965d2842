@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ce9a034a_c2702309",
+        "filename": "src/core/SkBlendModeBlender.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-24T17:51:13Z",
+      "side": 1,
+      "message": "could use read32LE(SkBlendMode::kLastMode)\n\nIt does the range check, and marks the buffer as invalid if the int was out of range. We use this in several other createprocs.",
+      "range": {
+        "startLine": 62,
+        "startChar": 26,
+        "endLine": 62,
+        "endChar": 33
+      },
+      "revId": "e7fcf75a93b405f233917b5b32d10ffc965d2842",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
