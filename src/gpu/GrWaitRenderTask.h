@@ -27,7 +27,7 @@ private:
     }
     void gatherProxyIntervals(GrResourceAllocator*) const override;
 
-    ExpectedOutcome onMakeClosed(const GrCaps&, SkIRect*) override {
+    ExpectedOutcome onMakeClosed(GrRecordingContext*, SkIRect*) override {
         return ExpectedOutcome::kTargetUnchanged;
     }
 
