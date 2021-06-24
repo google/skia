@@ -967,7 +967,16 @@ void GrSurfaceContext::asyncRescaleAndReadPixelsYUV420(GrDirectContext* dContext
 
     auto texMatrix = SkMatrix::Translate(x, y);
 
-    bool doSynchronousRead = !this->caps()->transferFromSurfaceToBufferSupport();
+    auto [readCT, offsetAlignment] =
+            this->caps()->supportedReadPixelsColorType(yFC->colorInfo().colorType(),
+                                                       yFC->asSurfaceProxy()->backendFormat(),
+                                                       GrColorType::kAlpha_8);
+    if (readCT == GrColorType::kUnknown) {
+        callback(callbackContext, nullptr);
+        return;
+    }
+    bool doSynchronousRead = !this->caps()->transferFromSurfaceToBufferSupport() ||
+                             !offsetAlignment;
     PixelTransferResult yTransfer, uTransfer, vTransfer;
 
     // This matrix generates (r,g,b,a) = (0, 0, 0, y)

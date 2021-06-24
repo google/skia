@@ -152,6 +152,9 @@ void basic_transfer_to_test(skiatest::Reporter* reporter,
     // either of which may differ from 'colorType'.
     GrCaps::SupportedWrite allowedSrc =
             caps->supportedWritePixelsColorType(colorType, tex->backendFormat(), colorType);
+    if (!allowedSrc.fOffsetAlignmentForTransferBuffer) {
+        return;
+    }
     size_t srcRowBytes = GrAlignTo(GrColorTypeBytesPerPixel(allowedSrc.fColorType) * srcBufferWidth,
                                    caps->transferBufferAlignment());
 
@@ -331,6 +334,9 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
     // Create the transfer buffer.
     auto allowedRead =
             caps->supportedReadPixelsColorType(colorType, tex->backendFormat(), colorType);
+    if (!allowedRead.fOffsetAlignmentForTransferBuffer) {
+        return;
+    }
     GrImageInfo readInfo(allowedRead.fColorType, kUnpremul_SkAlphaType, nullptr, kTexDims);
 
     size_t bpp = GrColorTypeBytesPerPixel(allowedRead.fColorType);
