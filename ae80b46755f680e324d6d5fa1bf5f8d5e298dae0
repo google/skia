@@ -52,6 +52,24 @@
       "parentUuid": "e6ed0a3a_54b33060",
       "revId": "ae80b46755f680e324d6d5fa1bf5f8d5e298dae0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7794f51b_4f8afea7",
+        "filename": "src/gpu/effects/GrGradientEffect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-24T17:03:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b9d639f9_b5be32d5",
+      "revId": "ae80b46755f680e324d6d5fa1bf5f8d5e298dae0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

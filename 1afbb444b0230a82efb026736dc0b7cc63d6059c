@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "63f8015f_a7cda84f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-24T17:03:24Z",
+      "side": 1,
+      "message": "May want to take one more look. I\u0027m running tests to make sure I got the matrix math right with my refactor for two-point conical, but I think the new organization is quite a bit better.",
+      "revId": "1afbb444b0230a82efb026736dc0b7cc63d6059c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b46c195d_1ebd21ca",
+        "filename": "src/gpu/gradients/GrGradientShader.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-24T17:03:24Z",
+      "side": 1,
+      "message": "I hoisted the total matrix (and concatenation by the gradient matrix) here, to cut down on repetition. The one special case (radial TwoPointConical) makes use of the optional SkMatrix* to replace the raw gradient matrix.",
+      "revId": "1afbb444b0230a82efb026736dc0b7cc63d6059c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7f5db0d5_caaedc92",
+        "filename": "src/gpu/gradients/GrGradientShader.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 406,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-24T17:03:24Z",
+      "side": 1,
+      "message": "We don\u0027t offer switch in public SkSL, but it actually seemed much simpler to just make this three separate effects (because each one uses a different set of uniforms and flags).",
+      "revId": "1afbb444b0230a82efb026736dc0b7cc63d6059c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
