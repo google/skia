@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "99867152_2f38dff6",
+        "filename": "include/sksl/DSLStatement.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-24T19:40:48Z",
+      "side": 1,
+      "message": "This is equivalent to `return std::move(fStatement)`.\n\nWhich is the original `release()` API, actually.",
+      "range": {
+        "startLine": 59,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 23
+      },
+      "revId": "5f5df36f757eeeed84815bf8744f4b989bc63187",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e7b7bd5d_d8954354",
+        "filename": "src/sksl/SkSLBuiltinTypes.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-24T19:40:48Z",
+      "side": 1,
+      "message": "Hmm, could we have just used fInvalid for our poison type?",
+      "range": {
+        "startLine": 125,
+        "startChar": 10,
+        "endLine": 125,
+        "endChar": 18
+      },
+      "revId": "5f5df36f757eeeed84815bf8744f4b989bc63187",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4d52d331_7089d9d7",
+        "filename": "src/sksl/dsl/DSLCore.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-24T19:40:48Z",
+      "side": 1,
+      "message": "It looks like you\u0027ve also hardened the API by switching `release` calls into two forms:\n- release() : assert if the expr/stmt is null\n- releaseIfValid() : a null expr/stmt is okay\n\nThis doesn\u0027t seem like a DSL-specific concern. Would it make more sense to just move those checks into each IR node?\n\nSo, release() would go back to its original behavior, the DSL convert calls would go back to just using release(), but at the top of IfStatement::Convert we\u0027d now have this:\n    \n     SkASSERT(ifTrue);\n  \nThis gives us the null checking anywhere that Foo::Convert is called, instead of just here. AFAICS such a check would always be desirable.",
+      "range": {
+        "startLine": 172,
+        "startChar": 0,
+        "endLine": 174,
+        "endChar": 0
+      },
+      "revId": "5f5df36f757eeeed84815bf8744f4b989bc63187",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "14197ce1_2edc76b4",
+        "filename": "src/sksl/dsl/DSLExpression.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-24T19:40:48Z",
+      "side": 1,
+      "message": "return std::move(fExpression);",
+      "range": {
+        "startLine": 112,
+        "startChar": 0,
+        "endLine": 115,
+        "endChar": 19
+      },
+      "revId": "5f5df36f757eeeed84815bf8744f4b989bc63187",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "228d516a_9567968a",
+        "filename": "src/sksl/ir/SkSLExpression.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-24T19:40:48Z",
+      "side": 1,
+      "message": "For better or worse, placing this in a CPP prevents us from saying `expr-\u003eis\u003cPoison\u003e()`. Not sure if that\u0027s a desirable property or not.",
+      "range": {
+        "startLine": 15,
+        "startChar": 6,
+        "endLine": 15,
+        "endChar": 12
+      },
+      "revId": "5f5df36f757eeeed84815bf8744f4b989bc63187",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
