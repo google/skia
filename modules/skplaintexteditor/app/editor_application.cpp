@@ -209,7 +209,7 @@ struct EditorLayer : public sk_app::Window::Layer {
             switch (c) {
                 case 'p':
                     for (StringView str : fEditor.text()) {
-                        SkDebugf(">>  '%.*s'\n", str.size, str.data);
+                        SkDebugf(">>  '%.*s'\n", (int)str.size, str.data);
                     }
                     return true;
                 case 's':
