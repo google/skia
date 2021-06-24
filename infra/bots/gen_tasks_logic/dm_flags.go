@@ -451,15 +451,14 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			// verify the chopping logic.
 			args = append(args,
 				"--pr", "tess", "--hwtess", "--alwaysHwTess", "--maxTessellationSegments", "16")
+		} else if b.gpu("QuadroP400") {
+			// Test hardware tessellation on the quadro bots.
+			args = append(args, "--hwtess")
 		}
 
 		// Test dynamic MSAA.
 		if b.extraConfig("DMSAA") {
 			configs = []string{glPrefix + "dmsaa"}
-			if !b.os("Android") {
-				// Also enable hardware tessellation if not on android.
-				args = append(args, "--hwtess")
-			}
 		}
 
 		// DDL is a GPU-only feature
