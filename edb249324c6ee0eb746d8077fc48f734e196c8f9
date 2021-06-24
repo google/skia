@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "acfc14f6_eb4655ce",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-24T05:05:01Z",
+      "side": 1,
+      "message": "I thought we needed the GrAAType to do this but I was wrong. Looks like we can remove that GrAAType param if we want.",
+      "revId": "edb249324c6ee0eb746d8077fc48f734e196c8f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
