@@ -10,6 +10,8 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkSemaphore.h"
 
+#include <cinttypes>
+
 #if !defined(__has_feature)
     #define __has_feature(x) 0
 #endif
@@ -132,10 +134,10 @@
             SkAutoMutexExclusive l(fMu);
 
             SkASSERTF(!fCurrentShared->find(threadID),
-                      "Thread %lx already has an shared lock\n", threadID);
+                      "Thread %" PRIx64 " already has an shared lock\n", threadID);
 
             if (!fWaitingExclusive->tryAdd(threadID)) {
-                SkDEBUGFAILF("Thread %lx already has an exclusive lock\n", threadID);
+                SkDEBUGFAILF("Thread %" PRIx64 " already has an exclusive lock\n", threadID);
             }
 
             currentSharedCount = fCurrentShared->count();
@@ -162,7 +164,7 @@
             SkAutoMutexExclusive l(fMu);
             SkASSERT(0 == fCurrentShared->count());
             if (!fWaitingExclusive->tryRemove(threadID)) {
-                SkDEBUGFAILF("Thread %lx did not have the lock held.\n", threadID);
+                SkDEBUGFAILF("Thread %" PRIx64 " did not have the lock held.\n", threadID);
             }
             exclusiveWaitingCount = fWaitingExclusive->count();
             sharedWaitingCount = fWaitingShared->count();
@@ -196,11 +198,11 @@
             exclusiveWaitingCount = fWaitingExclusive->count();
             if (exclusiveWaitingCount > 0) {
                 if (!fWaitingShared->tryAdd(threadID)) {
-                    SkDEBUGFAILF("Thread %lx was already waiting!\n", threadID);
+                    SkDEBUGFAILF("Thread %" PRIx64 " was already waiting!\n", threadID);
                 }
             } else {
                 if (!fCurrentShared->tryAdd(threadID)) {
-                    SkDEBUGFAILF("Thread %lx already holds a shared lock!\n", threadID);
+                    SkDEBUGFAILF("Thread %" PRIx64 " already holds a shared lock!\n", threadID);
                 }
             }
             sharedQueueSelect = fSharedQueueSelect;
@@ -222,7 +224,7 @@
         {
             SkAutoMutexExclusive l(fMu);
             if (!fCurrentShared->tryRemove(threadID)) {
-                SkDEBUGFAILF("Thread %lx does not hold a shared lock.\n", threadID);
+                SkDEBUGFAILF("Thread %" PRIx64 " does not hold a shared lock.\n", threadID);
             }
             currentSharedCount = fCurrentShared->count();
             waitingExclusiveCount = fWaitingExclusive->count();
