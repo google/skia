@@ -515,12 +515,6 @@ bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt, bool useMSA
     if (!rt->wasDestroyed() && rt->canAttemptStencilAttachment(useMSAASurface)) {
         GrUniqueKey sbKey;
 
-#if 0
-        if (this->caps()->oversizedStencilSupport()) {
-            width  = SkNextPow2(width);
-            height = SkNextPow2(height);
-        }
-#endif
         GrBackendFormat stencilFormat = this->gpu()->getPreferredStencilFormat(rt->backendFormat());
         if (!stencilFormat.isValid()) {
             return false;
@@ -548,6 +542,7 @@ bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt, bool useMSA
              stencil->numSamples() == num_stencil_samples(rt, useMSAASurface, *this->caps()));
     return stencil != nullptr;
 }
+
 sk_sp<GrAttachment> GrResourceProvider::getDiscardableMSAAAttachment(SkISize dimensions,
                                                                      const GrBackendFormat& format,
                                                                      int sampleCnt,
@@ -558,6 +553,10 @@ sk_sp<GrAttachment> GrResourceProvider::getDiscardableMSAAAttachment(SkISize dim
 
     if (this->isAbandoned()) {
         return nullptr;
+    }
+
+    if (this->caps()->oversizedAttachmentSupport()) {
+        dimensions = MakeApprox(dimensions);
     }
 
     if (!fCaps->validateSurfaceParams(
@@ -578,6 +577,7 @@ sk_sp<GrAttachment> GrResourceProvider::getDiscardableMSAAAttachment(SkISize dim
     if (msaaAttachment) {
         return msaaAttachment;
     }
+
     msaaAttachment = this->makeMSAAAttachment(dimensions, format, sampleCnt, isProtected);
     if (msaaAttachment) {
         this->assignUniqueKeyToResource(key, msaaAttachment.get());
