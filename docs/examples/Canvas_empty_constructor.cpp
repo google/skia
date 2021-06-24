@@ -5,7 +5,7 @@
 REG_FIDDLE(Canvas_empty_constructor, 256, 256, true, 0) {
 static void check_for_rotated_ctm(const SkCanvas* canvas) {
     const SkM44 matrix = canvas->getLocalToDevice();
-    SkDebugf("ctm is identity = \n", matrix == SkM44() ? "true" : "false");
+    SkDebugf("ctm is identity = %s\n", matrix == SkM44() ? "true" : "false");
 }
 
 void draw(SkCanvas* canvas) {

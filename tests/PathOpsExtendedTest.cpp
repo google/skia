@@ -450,7 +450,7 @@ static bool check_for_duplicate_names(const char* testName) {
     if (PathOpsDebug::gCheckForDuplicateNames) {
         if (gUniqueNames.end() != std::find(gUniqueNames.begin(), gUniqueNames.end(),
                 std::string(testName))) {
-            SkDebugf("");  // convenience for setting breakpoints
+            SkDebugf("%s", "");  // convenience for setting breakpoints
         }
         gUniqueNames.push_back(std::string(testName));
         return true;

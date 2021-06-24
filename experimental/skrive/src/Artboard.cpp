@@ -48,7 +48,7 @@ std::tuple<sk_sp<Component>, size_t> parse_component(StreamReader* sr) {
             break;
     }
 
-    SkDebugf("!! unsupported node type: %d\n", block.type());
+    SkDebugf("!! unsupported node type: %d\n", (int)block.type());
     return {nullptr, 0};
 }
 
@@ -109,7 +109,7 @@ sk_sp<Artboard> parse_artboard(StreamReader* sr) {
             ab->setRoot(parse_components(sr));
             break;
         default:
-            SkDebugf("!! Unsupported block type: %d\n", block.type());
+            SkDebugf("!! Unsupported block type: %d\n", (int)block.type());
             break;
         }
     }
