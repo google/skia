@@ -135,6 +135,30 @@
       },
       "revId": "80295cf84b8c48dd34c8dc10a21e66a762573fa9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c605d43d_99d86be4",
+        "filename": "platform_tools/android/apps/AndroidKit/src/main/java/org/skia/androidkit/RadialGradient.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-06-24T16:25:33Z",
+      "side": 1,
+      "message": "\u003e Ah! -- ick -- An array of small objects, each of which has to get GC\u0027d.\n\u003e \n\u003e I vote for two variants:\n\u003e int[].  // skcolor\n\u003e float[]  // skcolor4f (4 at a time)\n\nDone.\n\nFor now int colors are converted upfront, but we can plumb all the way later.\n\n\n\u003e notice you (and I applaud it :)) don\u0027t take an array of Point[] for pos...\n\nI\u0027ll take all the credit, but pos happens to be an array of scalars :)",
+      "parentUuid": "ac8d7f87_d6dc814a",
+      "range": {
+        "startLine": 14,
+        "startChar": 53,
+        "endLine": 14,
+        "endChar": 58
+      },
+      "revId": "80295cf84b8c48dd34c8dc10a21e66a762573fa9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
