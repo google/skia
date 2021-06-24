@@ -106,18 +106,7 @@ public:
     const GrOp* getChain(int index) const { return fOpChains[index].head(); }
 #endif
 
-private:
-    bool isNoOp() const {
-        // TODO: GrLoadOp::kDiscard (i.e., storing a discard) should also be grounds for skipping
-        // execution. We currently don't because of Vulkan. See http://skbug.com/9373.
-        //
-        // TODO: We should also consider stencil load/store here. We get away with it for now
-        // because we never discard stencil buffers.
-        return fOpChains.empty() && GrLoadOp::kLoad == fColorLoadOp;
-    }
-
-    void deleteOps();
-
+protected:
     enum class StencilContent {
         kDontCare,
         kUserBitsCleared,  // User bits: cleared
@@ -137,6 +126,23 @@ private:
     void setInitialStencilContent(StencilContent initialContent) {
         fInitialStencilContent = initialContent;
     }
+
+    void recordOp(GrOp::Owner, bool usesMSAA, GrProcessorSet::Analysis, GrAppliedClip*,
+                  const GrDstProxyView*, const GrCaps&);
+
+    ExpectedOutcome onMakeClosed(GrRecordingContext*, SkIRect* targetUpdateBounds) override;
+
+private:
+    bool isNoOp() const {
+        // TODO: GrLoadOp::kDiscard (i.e., storing a discard) should also be grounds for skipping
+        // execution. We currently don't because of Vulkan. See http://skbug.com/9373.
+        //
+        // TODO: We should also consider stencil load/store here. We get away with it for now
+        // because we never discard stencil buffers.
+        return fOpChains.empty() && GrLoadOp::kLoad == fColorLoadOp;
+    }
+
+    void deleteOps();
 
     // If a surfaceDrawContext splits its opsTask, it uses this method to guarantee stencil values
     // get preserved across its split tasks.
@@ -226,12 +232,7 @@ private:
 
     void gatherProxyIntervals(GrResourceAllocator*) const override;
 
-    void recordOp(GrOp::Owner, GrProcessorSet::Analysis, GrAppliedClip*,
-                  const GrDstProxyView*, const GrCaps&);
-
     void forwardCombine(const GrCaps&);
-
-    ExpectedOutcome onMakeClosed(GrRecordingContext*, SkIRect* targetUpdateBounds) override;
 
     // Remove all ops, proxies, etc. Used in the merging algorithm when tasks can be skipped.
     void reset();
