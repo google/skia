@@ -104,6 +104,24 @@
       "parentUuid": "51be5b89_1afe3364",
       "revId": "e84aec7208f6ee5762352aff796686526b25a7ee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5b3a3e95_c4337908",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-24T17:36:06Z",
+      "side": 1,
+      "message": "Yes, I think I needed to take a different approach since the benchmark wasn\u0027t actually drawing anything.\n\nWhen I patched in this PS locally, getting 30 glyph IDs one at a time from the big Flutter Emoji font went from ~3.8s to \u003c200ms. \n\nlgtm!",
+      "parentUuid": "d9e8149e_6a8bb967",
+      "revId": "e84aec7208f6ee5762352aff796686526b25a7ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
