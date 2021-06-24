@@ -22,6 +22,30 @@
       },
       "revId": "e7fcf75a93b405f233917b5b32d10ffc965d2842",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "03478413_4d7919b9",
+        "filename": "src/core/SkBlendModeBlender.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-24T18:58:18Z",
+      "side": 1,
+      "message": "Nice, that is an improvement! Done.",
+      "parentUuid": "ce9a034a_c2702309",
+      "range": {
+        "startLine": 62,
+        "startChar": 26,
+        "endLine": 62,
+        "endChar": 33
+      },
+      "revId": "e7fcf75a93b405f233917b5b32d10ffc965d2842",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
