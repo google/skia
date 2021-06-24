@@ -34,6 +34,24 @@
       "parentUuid": "ca77d983_dffc958e",
       "revId": "2d528f04f954c6bdbe908df8ff7d4a16186d4f9e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "62855369_a9ef72fe",
+        "filename": "src/core/SkBlendModeBlender.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-24T19:05:08Z",
+      "side": 1,
+      "message": "Do we actually want kClear in the case of bad data? Maybe kSrcOver is a better fallback. (How do we detect failure from read32LE, versus a valid 0?)",
+      "parentUuid": "b6a63dcf_42725524",
+      "revId": "2d528f04f954c6bdbe908df8ff7d4a16186d4f9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
