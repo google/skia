@@ -52,7 +52,6 @@ SkPaint::SkPaint()
                  (unsigned)SkPaint::kDefault_Join,  // fJoinType
                  (unsigned)SkPaint::kFill_Style,    // fStyle
                  (unsigned)kNone_SkFilterQuality,   // fFilterQuality
-                 (unsigned)SkBlendMode::kSrcOver,   // fBlendMode
                  0}                                 // fPadding
 {
     static_assert(sizeof(fBitfields) == sizeof(fBitfieldsUInt), "");
@@ -145,6 +144,26 @@ void SkPaint::setAlphaf(float a) {
 
 void SkPaint::setARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
     this->setColor(SkColorSetARGB(a, r, g, b));
+}
+
+SkBlendMode SkPaint::getBlendMode() const {
+    if (!fBlender) {
+        return SkBlendMode::kSrcOver;
+    }
+    SkBlendMode mode;
+    return fBlender->asBlendMode(&mode) ? mode : (SkBlendMode)-1;
+}
+
+bool SkPaint::isSrcOver() const {
+    return !fBlender || fBlender->isBlendMode(SkBlendMode::kSrcOver);
+}
+
+bool SkPaint::isCustomBlend() const {
+    return fBlender && fBlender->isCustomBlend();
+}
+
+void SkPaint::setBlendMode(SkBlendMode mode) {
+    fBlender = (mode != SkBlendMode::kSrcOver) ? SkBlenders::Mode(mode) : nullptr;
 }
 
 void SkPaint::experimental_setBlender(sk_sp<SkBlender> blend) {
@@ -278,7 +297,7 @@ void SkPaintPriv::Flatten(const SkPaint& paint, SkWriteBuffer& buffer) {
         paint.getMaskFilter() ||
         paint.getColorFilter() ||
         paint.getImageFilter() ||
-        paint.getBlender()) {
+        paint.isCustomBlend()) {
         flatFlags |= kHasEffects_FlatFlag;
     }
 
@@ -318,7 +337,6 @@ SkReadPaintResult SkPaintPriv::Unflatten(SkPaint* paint, SkReadBuffer& buffer, S
         paint->setMaskFilter(nullptr);
         paint->setColorFilter(nullptr);
         paint->setImageFilter(nullptr);
-        paint->experimental_setBlender(nullptr);
     } else if (buffer.isVersionLT(SkPicturePriv::kSkBlenderInSkPaint)) {
         // This paint predates the introduction of user blend functions (via SkBlender).
         paint->setPathEffect(buffer.readPathEffect());
@@ -327,7 +345,6 @@ SkReadPaintResult SkPaintPriv::Unflatten(SkPaint* paint, SkReadBuffer& buffer, S
         paint->setColorFilter(buffer.readColorFilter());
         (void)buffer.read32();  // was drawLooper (now deprecated)
         paint->setImageFilter(buffer.readImageFilter());
-        paint->experimental_setBlender(nullptr);
     } else {
         paint->setPathEffect(buffer.readPathEffect());
         paint->setShader(buffer.readShader());
