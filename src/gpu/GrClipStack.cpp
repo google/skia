@@ -15,6 +15,7 @@
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrDeferredProxyUploader.h"
 #include "src/gpu/GrDirectContextPriv.h"
+#include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrSWMaskHelper.h"
@@ -23,7 +24,6 @@
 #include "src/gpu/effects/GrConvexPolyEffect.h"
 #include "src/gpu/effects/GrRRectEffect.h"
 #include "src/gpu/effects/GrTextureEffect.h"
-#include "src/gpu/effects/generated/GrAARectEffect.h"
 #include "src/gpu/geometry/GrQuadUtils.h"
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 
@@ -213,7 +213,7 @@ static GrFPResult analytic_clip_fp(const GrClipStack::Element& e,
     GrClipEdgeType edgeType = get_clip_edge_type(e.fOp, e.fAA);
     if (e.fLocalToDevice.isIdentity()) {
         if (e.fShape.isRect()) {
-            return GrFPSuccess(GrAARectEffect::Make(std::move(fp), edgeType, e.fShape.rect()));
+            return GrFPSuccess(GrFragmentProcessor::Rect(std::move(fp), edgeType, e.fShape.rect()));
         } else if (e.fShape.isRRect()) {
             return GrRRectEffect::Make(std::move(fp), edgeType, e.fShape.rrect(), caps);
         }
