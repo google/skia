@@ -52,6 +52,24 @@
       "parentUuid": "ae77947d_48dede56",
       "revId": "58f5485e5ece532df70c52ca97a0a6c07622b6e2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6d410089_fd412033",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-24T18:19:30Z",
+      "side": 1,
+      "message": "Actually, why should SkDebugf be API? Is there any reason for exposing it?",
+      "parentUuid": "92e26dab_0d88ded4",
+      "revId": "58f5485e5ece532df70c52ca97a0a6c07622b6e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
