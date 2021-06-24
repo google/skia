@@ -46,8 +46,9 @@ public:
         kFunctionReference,
         kFunctionCall,
         kIndex,
-        kPrefix,
+        kPoison,
         kPostfix,
+        kPrefix,
         kSetting,
         kSwizzle,
         kTernary,
@@ -62,6 +63,8 @@ public:
         kSideEffects,
         kContainsRTAdjust
     };
+
+    static std::unique_ptr<Expression> MakePoison(const Context& context);
 
     Expression(int offset, Kind kind, const Type* type)
         : INHERITED(offset, (int) kind)
