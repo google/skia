@@ -297,10 +297,10 @@ void GrSurfaceDrawContext::willReplaceOpsTask(GrOpsTask* prevTask, GrOpsTask* ne
 }
 
 inline GrAAType GrSurfaceDrawContext::chooseAAType(GrAA aa) {
-    if (fCanUseDynamicMSAA && !this->caps()->multisampleDisableSupport()) {
-        // Trigger dmsaa by default if we have it and we can't disable multisample. The few coverage
-        // ops we have that know how to handle both single and multisample targets without popping
-        // will do so without calling chooseAAType.
+    if (fCanUseDynamicMSAA) {
+        // Trigger dmsaa by default if the render target has it. Coverage ops that know how to
+        // handle both single and multisample targets without popping will do so without calling
+        // chooseAAType.
         return GrAAType::kMSAA;
     }
     if (GrAA::kNo == aa) {
@@ -730,7 +730,7 @@ void GrSurfaceDrawContext::drawRect(const GrClip* clip,
                !this->caps()->reducedShaderMode()) {
         // Only use the StrokeRectOp for non-empty rectangles. Empty rectangles will be processed by
         // GrStyledShape to handle stroke caps and dashing properly.
-        GrAAType aaType = this->chooseAAType(aa);
+        GrAAType aaType = (fCanUseDynamicMSAA) ? GrAAType::kCoverage : this->chooseAAType(aa);
         GrOp::Owner op = GrStrokeRectOp::Make(
                 fContext, std::move(paint), aaType, viewMatrix, rect, stroke);
         // op may be null if the stroke is not supported or if using coverage aa and the view matrix
@@ -1070,7 +1070,7 @@ void GrSurfaceDrawContext::drawRRect(const GrClip* origClip,
         op = GrFillRRectOp::Make(fContext, std::move(paint), viewMatrix, rrect, rrect.rect(),
                                  GrAA(aaType != GrAAType::kNone));
     }
-    if (!op && GrAAType::kCoverage == aaType) {
+    if (!op && (GrAAType::kCoverage == aaType || fCanUseDynamicMSAA)) {
         assert_alive(paint);
         op = GrOvalOpFactory::MakeRRectOp(
                 fContext, std::move(paint), viewMatrix, rrect, stroke, this->caps()->shaderCaps());
@@ -1383,7 +1383,7 @@ void GrSurfaceDrawContext::drawOval(const GrClip* clip,
         op = GrFillRRectOp::Make(fContext, std::move(paint), viewMatrix, SkRRect::MakeOval(oval),
                                  oval, GrAA(aaType != GrAAType::kNone));
     }
-    if (!op && GrAAType::kCoverage == aaType) {
+    if (!op && (GrAAType::kCoverage == aaType || fCanUseDynamicMSAA)) {
         assert_alive(paint);
         op = GrOvalOpFactory::MakeOvalOp(fContext, std::move(paint), viewMatrix, oval, style,
                                          this->caps()->shaderCaps());
@@ -1416,7 +1416,7 @@ void GrSurfaceDrawContext::drawArc(const GrClip* clip,
     AutoCheckFlush acf(this->drawingManager());
 
     GrAAType aaType = this->chooseAAType(aa);
-    if (GrAAType::kCoverage == aaType) {
+    if (GrAAType::kCoverage == aaType || fCanUseDynamicMSAA) {
         const GrShaderCaps* shaderCaps = this->caps()->shaderCaps();
         GrOp::Owner op = GrOvalOpFactory::MakeArcOp(fContext,
                                                     std::move(paint),
