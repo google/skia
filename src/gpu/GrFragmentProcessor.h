@@ -21,6 +21,15 @@ class GrShaderCaps;
 class GrSwizzle;
 class GrTextureEffect;
 
+/**
+ * Some fragment-processor creation methods have preconditions that might not be satisfied by the
+ * calling code. Those methods can return a `GrFPResult` from their factory methods. If creation
+ * succeeds, the new fragment processor is created and `success` is true. If a precondition is not
+ * met, `success` is set to false and the input FP is returned unchanged.
+ */
+class GrFragmentProcessor;
+using GrFPResult = std::tuple<bool /*success*/, std::unique_ptr<GrFragmentProcessor>>;
+
 /** Provides custom fragment shader code. Fragment processors receive an input position and
     produce an output color. They may contain uniforms and may have children fragment processors
     that are sampled.
@@ -132,6 +141,26 @@ public:
      * in device-space (rather than local space).
      */
     static std::unique_ptr<GrFragmentProcessor> DeviceSpace(std::unique_ptr<GrFragmentProcessor>);
+
+    /**
+     * "Shape" FPs, often used for clipping. Each one evaluates a particular kind of shape (rect,
+     * circle, ellipse), and modulates the coverage of that shape against the results of the input
+     * FP. GrClipEdgeType is used to select inverse/normal fill, and AA or non-AA edges.
+     */
+    static std::unique_ptr<GrFragmentProcessor> Rect(std::unique_ptr<GrFragmentProcessor>,
+                                                     GrClipEdgeType,
+                                                     SkRect);
+
+    static GrFPResult Circle(std::unique_ptr<GrFragmentProcessor>,
+                             GrClipEdgeType,
+                             SkPoint center,
+                             float radius);
+
+    static GrFPResult Ellipse(std::unique_ptr<GrFragmentProcessor>,
+                              GrClipEdgeType,
+                              SkPoint center,
+                              SkPoint radii,
+                              const GrShaderCaps&);
 
     /**
      * Makes a copy of this fragment processor that draws equivalently to the original.
@@ -516,13 +545,6 @@ private:
     const Src& fT;
 };
 
-/**
- * Some fragment-processor creation methods have preconditions that might not be satisfied by the
- * calling code. Those methods can return a `GrFPResult` from their factory methods. If creation
- * succeeds, the new fragment processor is created and `success` is true. If a precondition is not
- * met, `success` is set to false and the input FP is returned unchanged.
- */
-using GrFPResult = std::tuple<bool /*success*/, std::unique_ptr<GrFragmentProcessor>>;
 static inline GrFPResult GrFPFailure(std::unique_ptr<GrFragmentProcessor> fp) {
     return {false, std::move(fp)};
 }
