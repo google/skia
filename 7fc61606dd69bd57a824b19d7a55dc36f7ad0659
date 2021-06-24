@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3f6855e4_5078859d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-06-24T16:01:39Z",
+      "side": 1,
+      "message": "for now? I assume we\u0027ll eventually want to extend this to contexts that don\u0027t have 1 or 2, right?",
+      "range": {
+        "startLine": 20,
+        "startChar": 60,
+        "endLine": 20,
+        "endChar": 67
+      },
+      "revId": "7fc61606dd69bd57a824b19d7a55dc36f7ad0659",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
