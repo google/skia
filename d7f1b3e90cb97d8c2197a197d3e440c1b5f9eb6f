@@ -34,6 +34,24 @@
       "parentUuid": "d1a48bf4_ab1d3f01",
       "revId": "d7f1b3e90cb97d8c2197a197d3e440c1b5f9eb6f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0a180749_506d5915",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-24T14:10:27Z",
+      "side": 1,
+      "message": "I\u0027m wanting to start testing gldmsaa on enough bots that having a \"DMSAA\" extra_config probably doesn\u0027t make sense.\n\nWRT the \"--hwtess\" flag, the motivation of this CL was simply that we were turning on -hwtess for DMSAA on the quadro bot. But, considering priorities and the fact that we have fixed count now, maybe the \"GpuTess\" bot is enough and we can just not bother with --hwtess on our DMSAA bots for now.",
+      "parentUuid": "70973c60_f4a2058e",
+      "revId": "d7f1b3e90cb97d8c2197a197d3e440c1b5f9eb6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
