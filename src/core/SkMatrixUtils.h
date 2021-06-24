@@ -17,7 +17,7 @@ struct SkSamplingOptions;
 
 /**
  *  Given a matrix, size and paint, return true if the computed dst-rect would
- *  align such that there is a 1-to-1 coorspondence between src and dst pixels.
+ *  align such that there is a 1-to-1 correspondence between src and dst pixels.
  *  This can be called by drawing code to see if drawBitmap can be turned into
  *  drawSprite (which is faster).
  *

@@ -556,9 +556,6 @@ namespace {
             shader = sk_make_sp<DitherShader>(std::move(shader));
         }
 
-        // Add the user blend function.
-        sk_sp<SkBlender> blender = paint.refBlender();
-
         // The most common blend mode is SrcOver, and it can be strength-reduced
         // _greatly_ to Src mode when the shader is opaque.
         //
@@ -572,9 +569,16 @@ namespace {
         // the opaque bit is strongly guaranteed to be part of the program and
         // not just a property of the uniforms.  The shader program hash includes
         // this information, making it safe to use anywhere in the blitter codegen.
-        SkBlendMode blendMode = paint.getBlendMode();
-        if ((blendMode == SkBlendMode::kSrcOver && shader->isOpaque()) || blender) {
+        SkBlendMode blendMode;
+        sk_sp<SkBlender> blender;
+
+        if (paint.isCustomBlend()) {
+            blender = paint.refBlender();
             blendMode = SkBlendMode::kSrc;
+        } else if (paint.isSrcOver() && shader->isOpaque()) {
+            blendMode = SkBlendMode::kSrc;
+        } else {
+            blendMode = paint.getBlendMode();
         }
 
         SkColor4f paintColor = paint.getColor4f();
