@@ -129,11 +129,6 @@ GrGLSLUniformHandler::UniformHandle DSLWriter::VarUniformHandle(const DSLVar& va
 
 std::unique_ptr<SkSL::Expression> DSLWriter::Call(const FunctionDeclaration& function,
                                                   ExpressionArray arguments) {
-    for (const std::unique_ptr<SkSL::Expression>& expr : arguments) {
-        if (!expr) {
-            return nullptr;
-        }
-    }
     // We can't call FunctionCall::Convert directly here, because intrinsic management is handled in
     // IRGenerator::call.
     return IRGenerator().call(/*offset=*/-1, function, std::move(arguments));
@@ -141,23 +136,12 @@ std::unique_ptr<SkSL::Expression> DSLWriter::Call(const FunctionDeclaration& fun
 
 std::unique_ptr<SkSL::Expression> DSLWriter::Call(std::unique_ptr<SkSL::Expression> expr,
                                                   ExpressionArray arguments) {
-    if (!expr) {
-        return nullptr;
-    }
-    for (const std::unique_ptr<SkSL::Expression>& arg : arguments) {
-        if (!arg) {
-            return nullptr;
-        }
-    }
     // We can't call FunctionCall::Convert directly here, because intrinsic management is handled in
     // IRGenerator::call.
     return IRGenerator().call(/*offset=*/-1, std::move(expr), std::move(arguments));
 }
 
 DSLPossibleExpression DSLWriter::Coerce(std::unique_ptr<Expression> expr, const SkSL::Type& type) {
-    if (!expr) {
-        return DSLPossibleExpression(nullptr);
-    }
     return IRGenerator().coerce(std::move(expr), type);
 }
 
@@ -167,9 +151,6 @@ DSLPossibleExpression DSLWriter::Construct(const SkSL::Type& type,
     args.reserve_back(rawArgs.size());
 
     for (DSLExpression& arg : rawArgs) {
-        if (!arg.valid()) {
-            return DSLPossibleExpression(nullptr);
-        }
         args.push_back(arg.release());
     }
     return SkSL::Constructor::Convert(Context(), /*offset=*/-1, type, std::move(args));
@@ -178,41 +159,26 @@ DSLPossibleExpression DSLWriter::Construct(const SkSL::Type& type,
 std::unique_ptr<SkSL::Expression> DSLWriter::ConvertBinary(std::unique_ptr<Expression> left,
                                                            Operator op,
                                                            std::unique_ptr<Expression> right) {
-    if (!left || !right) {
-        return nullptr;
-    }
     return BinaryExpression::Convert(Context(), std::move(left), op, std::move(right));
 }
 
 std::unique_ptr<SkSL::Expression> DSLWriter::ConvertField(std::unique_ptr<Expression> base,
                                                           skstd::string_view name) {
-    if (!base) {
-        return nullptr;
-    }
     return FieldAccess::Convert(Context(), std::move(base), name);
 }
 
 std::unique_ptr<SkSL::Expression> DSLWriter::ConvertIndex(std::unique_ptr<Expression> base,
                                                           std::unique_ptr<Expression> index) {
-    if (!base || !index) {
-        return nullptr;
-    }
     return IndexExpression::Convert(Context(), std::move(base), std::move(index));
 }
 
 std::unique_ptr<SkSL::Expression> DSLWriter::ConvertPostfix(std::unique_ptr<Expression> expr,
                                                             Operator op) {
-    if (!expr) {
-        return nullptr;
-    }
     return PostfixExpression::Convert(Context(), std::move(expr), op);
 }
 
 std::unique_ptr<SkSL::Expression> DSLWriter::ConvertPrefix(Operator op,
                                                            std::unique_ptr<Expression> expr) {
-    if (!expr) {
-        return nullptr;
-    }
     return PrefixExpression::Convert(Context(), op, std::move(expr));
 }
 
@@ -220,9 +186,6 @@ DSLPossibleStatement DSLWriter::ConvertSwitch(std::unique_ptr<Expression> value,
                                               ExpressionArray caseValues,
                                               SkTArray<SkSL::StatementArray> caseStatements,
                                               bool isStatic) {
-    if (!value) {
-        return SkSL::Nop::Make();
-    }
     StatementArray caseBlocks;
     caseBlocks.resize(caseStatements.count());
     for (int index = 0; index < caseStatements.count(); ++index) {
@@ -270,8 +233,8 @@ const SkSL::Variable* DSLWriter::Var(DSLVar& var) {
         // We can't call VarDeclaration::Convert directly here, because the IRGenerator has special
         // treatment for sk_FragColor and sk_RTHeight that we want to preserve in DSL.
         var.fDeclaration = DSLWriter::IRGenerator().convertVarDeclaration(
-                                                                       std::move(skslvar),
-                                                                       var.fInitialValue.release());
+                                                                std::move(skslvar),
+                                                                var.fInitialValue.releaseIfValid());
         if (var.fDeclaration) {
             var.fVar = varPtr;
         }
@@ -291,6 +254,12 @@ std::unique_ptr<SkSL::Variable> DSLWriter::ParameterVar(DSLVar& var) {
 
 std::unique_ptr<SkSL::Statement> DSLWriter::Declaration(DSLVar& var) {
     Var(var);
+    if (!var.fDeclaration) {
+        // We should have already reported an error before ending up here, just clean up the
+        // initial value so it doesn't assert and return a nop.
+        var.fInitialValue.releaseIfValid();
+        return SkSL::Nop::Make();
+    }
     return std::move(var.fDeclaration);
 }
 

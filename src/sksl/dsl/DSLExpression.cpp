@@ -82,6 +82,8 @@ DSLExpression::DSLExpression(DSLPossibleExpression expr, PositionInfo pos) {
     DSLWriter::ReportErrors(pos);
     if (expr.valid()) {
         fExpression = std::move(expr.fExpression);
+    } else {
+        fExpression = SkSL::Expression::MakePoison(DSLWriter::Context());
     }
 }
 
@@ -102,7 +104,15 @@ void DSLExpression::swap(DSLExpression& other) {
 }
 
 std::unique_ptr<SkSL::Expression> DSLExpression::release() {
+    SkASSERT(this->valid());
     return std::move(fExpression);
+}
+
+std::unique_ptr<SkSL::Expression> DSLExpression::releaseIfValid() {
+    if (this->valid()) {
+        return this->release();
+    }
+    return nullptr;
 }
 
 DSLType DSLExpression::type() {
@@ -343,8 +353,8 @@ DSLPossibleExpression DSLPossibleExpression::operator--(int) {
     return DSLExpression(this->release())--;
 }
 
-std::unique_ptr<SkSL::Expression> DSLPossibleExpression::release() {
-    return std::move(fExpression);
+std::unique_ptr<SkSL::Expression> DSLPossibleExpression::release(PositionInfo pos) {
+    return DSLExpression(std::move(*this), pos).release();
 }
 
 } // namespace dsl

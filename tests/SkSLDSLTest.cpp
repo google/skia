@@ -689,7 +689,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLPlus, r, ctxInfo) {
     {
         ExpectError error(r, "error: '+' cannot operate on 'bool'\n");
         Var c(kBool_Type);
-        DSLExpression(+c);
+        DSLExpression(+c).release();
     }
 }
 
@@ -728,7 +728,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLMinus, r, ctxInfo) {
     {
         ExpectError error(r, "error: '-' cannot operate on 'bool'\n");
         Var c(kBool_Type);
-        DSLExpression(-c);
+        DSLExpression(-c).release();
     }
 }
 
@@ -1541,12 +1541,12 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSelect, r, ctxInfo) {
 
     {
         ExpectError error(r, "error: expected 'bool', but found 'int'\n");
-        DSLExpression x = Select(a, 1, -1);
+        Select(a, 1, -1).release();
     }
 
     {
         ExpectError error(r, "error: ternary operator result mismatch: 'float2', 'float3'\n");
-        DSLExpression x = Select(a > 0, Float2(1), Float3(1));
+        Select(a > 0, Float2(1), Float3(1)).release();
     }
 }
 
@@ -1669,7 +1669,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLWhile, r, ctxInfo) {
 
     {
         ExpectError error(r, "error: expected 'bool', but found 'int'\n");
-        DSLStatement x = While(7, Block());
+        While(7, Block()).release();
     }
 }
 
@@ -1682,17 +1682,17 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLIndex, r, ctxInfo) {
 
     {
         ExpectError error(r, "error: expected 'int', but found 'bool'\n");
-        DSLExpression x = a[true];
+        a[true].release();
     }
 
     {
         ExpectError error(r, "error: expected array, but found 'int'\n");
-        DSLExpression x = b[0];
+        b[0].release();
     }
 
     {
         ExpectError error(r, "error: index -1 out of range for 'int[5]'\n");
-        DSLExpression x = a[-1];
+        a[-1].release();
     }
 }
 
