@@ -46,6 +46,30 @@
       },
       "revId": "dbf4b99f4cc139cc677868f4d59fe81e3e675dc8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8e704f97_872d0c8c",
+        "filename": "include/core/SkBlender.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-24T19:21:13Z",
+      "side": 1,
+      "message": "OK, done. Moved them all.",
+      "parentUuid": "1b42fec7_b03ff2c6",
+      "range": {
+        "startLine": 22,
+        "startChar": 9,
+        "endLine": 22,
+        "endChar": 20
+      },
+      "revId": "dbf4b99f4cc139cc677868f4d59fe81e3e675dc8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
