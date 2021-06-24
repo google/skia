@@ -3465,6 +3465,14 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fInvalidateFBType = kNone_InvalidateFBType;
     }
 
+    if (ctxInfo.renderer() == GrGLRenderer::kIntelCherryView) {
+        // When running DMSAA_dst_read_with_existing_barrier with DMSAA disabled on intel HD405,
+        // the test fails when using texture barriers. Oddly the gpu is not respecting the results
+        // of the draw that uses the barrier in the follow on draw which does not use or need a
+        // barrier.
+        fTextureBarrierSupport = false;
+    }
+
     // glClearTexImage seems to have a bug in NVIDIA drivers that was fixed sometime between
     // 340.96 and 367.57.
     if (GR_IS_GR_GL(ctxInfo.standard()) && ctxInfo.driver() == GrGLDriver::kNVIDIA &&
