@@ -16,6 +16,24 @@
       "message": "What do you think? Too heavy? I\u0027m trying to get rid of the special \"DMSAA\" extra_config",
       "revId": "d7f1b3e90cb97d8c2197a197d3e440c1b5f9eb6f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "70973c60_f4a2058e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-06-24T12:58:09Z",
+      "side": 1,
+      "message": "What\u0027s wrong with the extra_config?",
+      "parentUuid": "d1a48bf4_ab1d3f01",
+      "revId": "d7f1b3e90cb97d8c2197a197d3e440c1b5f9eb6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
