@@ -11,6 +11,7 @@
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrFixedClip.h"
+#include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrPathRenderer.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrReducedClip.h"
@@ -22,7 +23,6 @@
 #include "src/gpu/GrUserStencilSettings.h"
 #include "src/gpu/effects/GrConvexPolyEffect.h"
 #include "src/gpu/effects/GrRRectEffect.h"
-#include "src/gpu/effects/generated/GrAARectEffect.h"
 #include "src/gpu/geometry/GrStyledShape.h"
 #include "src/shaders/SkShaderBase.h"
 
@@ -644,8 +644,8 @@ GrReducedClip::ClipResult GrReducedClip::addAnalyticRect(const SkRect& deviceSpa
         return ClipResult::kNotClipped;
     }
 
-    fAnalyticFP = GrAARectEffect::Make(std::move(fAnalyticFP), GetClipEdgeType(invert, aa),
-                                       deviceSpaceRect);
+    fAnalyticFP = GrFragmentProcessor::Rect(
+            std::move(fAnalyticFP), GetClipEdgeType(invert, aa), deviceSpaceRect);
 
     SkASSERT(fAnalyticFP != nullptr);
     ++fNumAnalyticElements;
