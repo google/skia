@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5aaadd46_a673d7d9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-24T16:07:03Z",
+      "side": 1,
+      "message": "AppleM1 is next once Greg\u0027s fix is back in.",
+      "revId": "55c56f5ae33d00e6e52abf3e98e6a5598ef6bf95",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
