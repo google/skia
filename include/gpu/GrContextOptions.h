@@ -345,6 +345,11 @@ struct SK_API GrContextOptions {
      * If true, then always try to use hardware tessellation, regardless of how small a path may be.
      */
     bool fAlwaysPreferHardwareTessellation = false;
+
+    /**
+     * Maximum width and height of internal texture atlases.
+     */
+    int  fMaxTextureAtlasSize = 2048;
 #endif
 
     GrDriverBugWorkarounds fDriverBugWorkarounds;
