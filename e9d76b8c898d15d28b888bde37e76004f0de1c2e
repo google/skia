@@ -16,6 +16,24 @@
       "message": "https://chromium.googlesource.com/chromium/deps/icu.git/+/a0718d4f121727e30b8d52c7a189ebf5ab52421f/scripts/make_data_assembly.py\n\nStill starts with #!python2 ? Should that get updated first?",
       "revId": "e9d76b8c898d15d28b888bde37e76004f0de1c2e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2941dc16_ccb725ac",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-25T17:04:06Z",
+      "side": 1,
+      "message": "It seems like it, but at least for me on Windows (where I don\u0027t even have a python2 installed), this worked fine. I think the #! may not matter in the context of GN/ninja, because it ends up invoking `python \u003cscript\u003e` directly, or something along those lines?",
+      "parentUuid": "58e0c867_16cdda9b",
+      "revId": "e9d76b8c898d15d28b888bde37e76004f0de1c2e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
