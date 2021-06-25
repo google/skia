@@ -93,14 +93,10 @@ void GrPathStencilCoverOp::prePreparePrograms(const GrTessellationShader::Progra
     SkASSERT(!fStencilPathProgram);
     SkASSERT(!fCoverBBoxProgram);
 
-    if (fPath.countVerbs() <= 0) {
-        return;
-    }
-
     const GrPipeline* stencilPipeline = GrPathTessellationShader::MakeStencilOnlyPipeline(
             args, fAAType, fPathFlags, appliedClip.hardClip());
     const GrUserStencilSettings* stencilPathSettings =
-            GrPathTessellationShader::StencilPathSettings(fPath.getFillType());
+            GrPathTessellationShader::StencilPathSettings(GrFillRuleForSkPath(fPath));
 
     if (fPath.countVerbs() > 50 && this->bounds().height() * this->bounds().width() > 256 * 256) {
         // Large complex paths do better with a dedicated triangle shader for the inner fan.
@@ -130,7 +126,8 @@ void GrPathStencilCoverOp::prePreparePrograms(const GrTessellationShader::Progra
         auto* bboxPipeline = GrTessellationShader::MakePipeline(args, fAAType,
                                                                 std::move(appliedClip),
                                                                 std::move(fProcessors));
-        auto* bboxStencil = GrPathTessellationShader::TestAndResetStencilSettings();
+        auto* bboxStencil =
+                GrPathTessellationShader::TestAndResetStencilSettings(fPath.isInverseFillType());
         fCoverBBoxProgram = GrTessellationShader::MakeProgram(args, bboxShader, bboxPipeline,
                                                               bboxStencil);
     }
@@ -184,7 +181,13 @@ void GrPathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
     if (fCoverBBoxProgram) {
         GrVertexWriter vertexWriter = flushState->makeVertexSpace(sizeof(SkRect), 1, &fBBoxBuffer,
                                                                   &fBBoxBaseInstance);
-        vertexWriter.write(fPath.getBounds());
+        SkRect pathSpaceClipBounds;
+        if (fPath.isInverseFillType() &&
+            SkMatrixPriv::InverseMapRect(fViewMatrix, &pathSpaceClipBounds, this->bounds())) {
+            vertexWriter.write(pathSpaceClipBounds);
+        } else {
+            vertexWriter.write(fPath.getBounds());
+        }
     }
 }
 
