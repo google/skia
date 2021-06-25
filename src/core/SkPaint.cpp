@@ -147,6 +147,27 @@ void SkPaint::setARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
     this->setColor(SkColorSetARGB(a, r, g, b));
 }
 
+// DEPRECATED
+SkBlendMode SkPaint::getBlendMode() const {
+    SkBlendMode mode;
+    if (!fBlender || !as_BB(fBlender)->asBlendMode(&mode)) {
+        // Our default if the blender obj is null or does not mirror an enum
+        mode = SkBlendMode::kSrcOver;
+    }
+    return mode;
+}
+
+bool SkPaint::isSrcOver() const {
+    SkBlendMode mode;
+    return !fBlender ||
+           (as_BB(fBlender)->asBlendMode(&mode) && (mode == SkBlendMode::kSrcOver));
+}
+
+void SkPaint::setBlendMode(SkBlendMode mode) {
+    this->experimental_setBlender(mode == SkBlendMode::kSrcOver ? nullptr
+                                                                : SkBlenders::Mode(mode));
+}
+
 void SkPaint::experimental_setBlender(sk_sp<SkBlender> blend) {
     fBlender = std::move(blend);
 }
