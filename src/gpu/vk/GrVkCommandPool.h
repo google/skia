@@ -12,6 +12,8 @@
 #include "src/gpu/vk/GrVkManagedResource.h"
 #include "src/gpu/vk/GrVkResourceProvider.h"
 
+#include <cinttypes>
+
 class GrVkPrimaryCommandBuffer;
 class GrVkSecondaryCommandBuffer;
 class GrVkGpu;
@@ -43,7 +45,8 @@ public:
 
 #ifdef SK_TRACE_MANAGED_RESOURCES
     void dumpInfo() const override {
-        SkDebugf("GrVkCommandPool: %p (%d refs)\n", fCommandPool, this->getRefCnt());
+        SkDebugf("GrVkCommandPool: %" PRIdPTR " (%d refs)\n",
+                 (intptr_t)fCommandPool, this->getRefCnt());
     }
 #endif
 

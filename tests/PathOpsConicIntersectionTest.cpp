@@ -311,9 +311,6 @@ static void oneOff(skiatest::Reporter* reporter, const ConicPts& conic1, const C
     SkASSERT(ValidConic(c2));
     SkIntersections intersections;
     intersections.intersect(c1, c2);
-    if (coin && intersections.used() != 2) {
-        SkDebugf("");
-    }
     REPORTER_ASSERT(reporter, !coin || intersections.used() == 2);
     double tt1, tt2;
     SkDPoint xy1, xy2;

@@ -82,7 +82,7 @@ private:
 
 #ifdef SK_TRACE_MANAGED_RESOURCES
         void dumpInfo() const override {
-            SkDebugf("GrD3DDescriptorTable::Heap: %d (%d refs)\n", fHeap.get(), this->getRefCnt());
+            SkDebugf("GrD3DDescriptorTable::Heap: %p (%d refs)\n", fHeap.get(), this->getRefCnt());
         }
 #endif
 
