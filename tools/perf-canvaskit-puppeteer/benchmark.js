@@ -46,11 +46,18 @@ function startTimingFrames(drawFn, surface, warmupFrames, maxFrames, timeoutMill
     let previousFrame;
 
     function drawFrame() {
-      const start = performance.now();
-      drawFn();
-      const afterDraw = performance.now();
-      surface.flush();
-      const end = performance.now();
+      let start, afterDraw, end;
+      try {
+        start = performance.now();
+        drawFn();
+        afterDraw = performance.now();
+        surface.flush();
+        end = performance.now();
+      } catch (e) {
+        console.error(e);
+        window._error = e.stack || e.toString();
+        return;
+      }
 
       if (warmUp) {
         idx++;

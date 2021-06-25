@@ -28,7 +28,7 @@ would display the animation (e.g. using clock time to determine where to seek, n
   <script type="text/javascript" charset="utf-8">
     const WIDTH  = 1000;
     const HEIGHT = 1000;
-    const WARM_UP_FRAMES = 0; // No warmup, so that the jank of initial frames gets's measured.
+    const WARM_UP_FRAMES = 0; // No warmup, so that the jank of initial frames gets measured.
     // We sample MAX_FRAMES or until MAX_SAMPLE_SECONDS has elapsed.
     const MAX_FRAMES = 600; // ~10s at 60fps
     const MAX_SAMPLE_MS = 45 * 1000; // in case something takes a while, stop after 30 seconds.
@@ -86,7 +86,6 @@ would display the animation (e.g. using clock time to determine where to seek, n
         const canvas = surface.getCanvas();
 
         document.getElementById('start_bench').addEventListener('click', async () => {
-          const clearColor = CanvasKit.WHITE;
           const startTime = Date.now();
           const damageRect = Float32Array.of(0, 0, 0, 0);
 
@@ -95,7 +94,6 @@ would display the animation (e.g. using clock time to determine where to seek, n
             const damage = animation.seek(seek, damageRect);
 
             if (damage[2] > damage[0] && damage[3] > damage[1]) {
-              canvas.clear(clearColor);
               animation.render(canvas, bounds);
             }
           }
