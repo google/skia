@@ -73,7 +73,7 @@ std::unique_ptr<GrFragmentProcessor> SkBlendModeBlender::asFragmentProcessor(
     // Using a SkBlendModeBlender on the GPU side isn't supported; we should use GrXferProcessor to
     // perform this blend instead. The Xfer processor is able to perform coefficient-based blends
     // without readback, so it's more efficient.
-    SkDEBUGFAIL("SkBuiltInBlender::asFragmentProcessor is not supported");
+    SkDEBUGFAIL("SkBlendModeBlender::asFragmentProcessor is not supported");
     return nullptr;
 }
 #endif
