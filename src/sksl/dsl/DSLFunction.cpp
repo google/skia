@@ -37,9 +37,10 @@ void DSLFunction::init(const DSLType& returnType, skstd::string_view name,
             DSLWriter::ReportError("error: using an already-declared variable as a function "
                                    "parameter\n");
         }
-        if (param->fInitialValue.release()) {
+        if (param->fInitialValue.valid()) {
             DSLWriter::ReportError("error: variables used as function parameters cannot have "
                                    "initial values\n");
+            param->fInitialValue.release();
         }
         param->fDeclared = true;
         param->fStorage = SkSL::VariableStorage::kParameter;
