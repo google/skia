@@ -195,7 +195,7 @@ void GrPathInnerTriangulateOp::prePreparePrograms(const GrTessellationShader::Pr
                                                     fPath.countVerbs(), *pipelineForStencils,
                                                     *args.fCaps);
         const GrUserStencilSettings* stencilPathSettings =
-                GrPathTessellationShader::StencilPathSettings(fPath.getFillType());
+                GrPathTessellationShader::StencilPathSettings(GrFillRuleForSkPath(fPath));
         fStencilCurvesProgram = GrTessellationShader::MakeProgram(args, fTessellator->shader(),
                                                                   pipelineForStencils,
                                                                   stencilPathSettings);
@@ -207,7 +207,7 @@ void GrPathInnerTriangulateOp::prePreparePrograms(const GrTessellationShader::Pr
             // Use a standard Redbook "stencil then cover" algorithm instead of bypassing the
             // stencil buffer to fill the fan directly.
             const GrUserStencilSettings* stencilPathSettings =
-                    GrPathTessellationShader::StencilPathSettings(fPath.getFillType());
+                    GrPathTessellationShader::StencilPathSettings(GrFillRuleForSkPath(fPath));
             this->pushFanStencilProgram(args, pipelineForStencils, stencilPathSettings);
             if (doFill) {
                 this->pushFanFillProgram(args,

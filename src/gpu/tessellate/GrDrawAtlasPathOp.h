@@ -17,14 +17,16 @@ public:
 
     GrDrawAtlasPathOp(int numRenderTargetSamples, sk_sp<GrTextureProxy> atlasProxy,
                       const SkIRect& devIBounds, const SkIPoint16& locationInAtlas,
-                      bool transposedInAtlas, const SkMatrix& viewMatrix, GrPaint&& paint)
+                      bool transposedInAtlas, const SkMatrix& viewMatrix,
+                      GrPaint&& paint, const SkRect& drawBounds, bool isInverseFill)
             : GrDrawOp(ClassID())
             , fEnableHWAA(numRenderTargetSamples > 1)
+            , fIsInverseFill(isInverseFill)
             , fAtlasProxy(std::move(atlasProxy))
-            , fInstanceList(devIBounds, locationInAtlas, transposedInAtlas, paint.getColor4f(),
-                            viewMatrix)
+            , fHeadInstance(devIBounds, locationInAtlas, transposedInAtlas, paint.getColor4f(),
+                            drawBounds, viewMatrix)
             , fProcessors(std::move(paint)) {
-        this->setBounds(SkRect::Make(devIBounds), HasAABloat::kYes, IsHairline::kNo);
+        this->setBounds(drawBounds, HasAABloat::kYes, IsHairline::kNo);
     }
 
     const char* name() const override { return "GrDrawAtlasPathOp"; }
@@ -49,20 +51,15 @@ private:
                       GrLoadOp colorLoadOp) override;
 
     struct Instance {
-        constexpr static size_t Stride(bool usesLocalCoords) {
-            size_t stride = sizeof(Instance);
-            if (!usesLocalCoords) {
-                stride -= sizeof(Instance::fViewMatrixIfUsingLocalCoords);
-            }
-            return stride;
-        }
         Instance(const SkIRect& devIBounds, const SkIPoint16& locationInAtlas,
-                 bool transposedInAtlas, const SkPMColor4f& color, const SkMatrix& m)
+                 bool transposedInAtlas, const SkPMColor4f& color, const SkRect& drawBounds,
+                 const SkMatrix& m)
                 : fDevXYWH{devIBounds.left(), devIBounds.top(), devIBounds.width(),
                            // We use negative height to indicate that the path is transposed.
                            (transposedInAtlas) ? -devIBounds.height() : devIBounds.height()}
                 , fAtlasXY{locationInAtlas.x(), locationInAtlas.y()}
                 , fColor(color)
+                , fDrawBoundsIfInverseFilled(drawBounds)
                 , fViewMatrixIfUsingLocalCoords{m.getScaleX(), m.getSkewY(),
                                                 m.getSkewX(), m.getScaleY(),
                                                 m.getTranslateX(), m.getTranslateY()} {
@@ -70,25 +67,21 @@ private:
         std::array<int, 4> fDevXYWH;
         std::array<int, 2> fAtlasXY;
         SkPMColor4f fColor;
-        float fViewMatrixIfUsingLocalCoords[6];
-    };
-
-    struct InstanceList {
-        InstanceList(const SkIRect& devIBounds, const SkIPoint16& locationInAtlas,
-                     bool transposedInAtlas, const SkPMColor4f& color, const SkMatrix& viewMatrix)
-                : fInstance(devIBounds, locationInAtlas, transposedInAtlas, color, viewMatrix) {
-        }
-        InstanceList* fNext = nullptr;
-        Instance fInstance;
+        SkRect fDrawBoundsIfInverseFilled;
+        std::array<float, 6> fViewMatrixIfUsingLocalCoords;
+        Instance* fNext = nullptr;
     };
 
     const bool fEnableHWAA;
+    const bool fIsInverseFill;
     const sk_sp<GrTextureProxy> fAtlasProxy;
     bool fUsesLocalCoords = false;
 
-    InstanceList fInstanceList;
-    InstanceList** fInstanceTail = &fInstanceList.fNext;
+    Instance fHeadInstance;
+    Instance** fTailInstance = &fHeadInstance.fNext;
     int fInstanceCount = 1;
+
+    GrProgramInfo* fProgram = nullptr;
 
     sk_sp<const GrBuffer> fInstanceBuffer;
     int fBaseInstance;
