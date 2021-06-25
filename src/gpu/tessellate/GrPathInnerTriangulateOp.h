@@ -29,7 +29,7 @@ private:
 
     GrPathInnerTriangulateOp(const SkMatrix& viewMatrix, const SkPath& path, GrPaint&& paint,
                        GrAAType aaType, GrTessellationPathRenderer::PathFlags pathFlags,
-                       const SkRect& devBounds)
+                       const SkRect& drawBounds)
             : GrDrawOp(ClassID())
             , fPathFlags(pathFlags)
             , fViewMatrix(viewMatrix)
@@ -37,7 +37,8 @@ private:
             , fAAType(aaType)
             , fColor(paint.getColor4f())
             , fProcessors(std::move(paint)) {
-        this->setBounds(devBounds, HasAABloat::kNo, IsHairline::kNo);
+        SkASSERT(!fPath.isInverseFillType());
+        this->setBounds(drawBounds, HasAABloat::kNo, IsHairline::kNo);
     }
 
     const char* name() const override { return "GrPathInnerTriangulateOp"; }

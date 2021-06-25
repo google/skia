@@ -62,7 +62,7 @@ public:
                                                                     const SkPMColor4f&, PatchType);
 
     // Returns the stencil settings to use for a standard Redbook "stencil" pass.
-    static const GrUserStencilSettings* StencilPathSettings(SkPathFillType fillType) {
+    static const GrUserStencilSettings* StencilPathSettings(GrFillRule fillRule) {
         // Increments clockwise triangles and decrements counterclockwise. Used for "winding" fill.
         constexpr static GrUserStencilSettings kIncrDecrStencil(
             GrUserStencilSettings::StaticInitSeparate<
@@ -83,14 +83,13 @@ public:
                 GrUserStencilOp::kKeep,
                 0x0001>());
 
-        SkASSERT(fillType == SkPathFillType::kWinding || fillType == SkPathFillType::kEvenOdd);
-        return (fillType == SkPathFillType::kWinding) ? &kIncrDecrStencil : &kInvertStencil;
+        return (fillRule == GrFillRule::kNonzero) ? &kIncrDecrStencil : &kInvertStencil;
     }
 
     // Returns the stencil settings to use for a standard Redbook "fill" pass. Allows non-zero
     // stencil values to pass and write a color, and resets the stencil value back to zero; discards
     // immediately on stencil values of zero.
-    static const GrUserStencilSettings* TestAndResetStencilSettings() {
+    static const GrUserStencilSettings* TestAndResetStencilSettings(bool isInverseFill = false) {
         constexpr static GrUserStencilSettings kTestAndResetStencil(
             GrUserStencilSettings::StaticInit<
                 0x0000,
@@ -101,7 +100,19 @@ public:
                 GrUserStencilOp::kZero,
                 GrUserStencilOp::kKeep,
                 0xffff>());
-        return &kTestAndResetStencil;
+
+        constexpr static GrUserStencilSettings kTestAndResetStencilInverted(
+            GrUserStencilSettings::StaticInit<
+                0x0000,
+                // No need to check the clip because the previous stencil pass will have only
+                // written to samples already inside the clip.
+                GrUserStencilTest::kEqual,
+                0xffff,
+                GrUserStencilOp::kKeep,
+                GrUserStencilOp::kZero,
+                0xffff>());
+
+        return isInverseFill ? &kTestAndResetStencilInverted : &kTestAndResetStencil;
     }
 
     // Creates a pipeline that does not write to the color buffer.
