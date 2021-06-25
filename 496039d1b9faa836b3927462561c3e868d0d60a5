@@ -16,6 +16,29 @@
       "message": "This lgtm now, but waiting to make sure reed@ agrees.",
       "revId": "496039d1b9faa836b3927462561c3e868d0d60a5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8faf11ae_dac0923b",
+        "filename": "src/core/SkBlendModeBlender.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-25T13:55:47Z",
+      "side": 1,
+      "message": "Note to self/others: can can also trivially override onStages, so this could work in rasterpipeline.",
+      "range": {
+        "startLine": 34,
+        "startChar": 16,
+        "endLine": 34,
+        "endChar": 25
+      },
+      "revId": "496039d1b9faa836b3927462561c3e868d0d60a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
