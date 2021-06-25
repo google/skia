@@ -10,7 +10,7 @@ perf_js:
 frames:
 	node perf-canvaskit-with-puppeteer.js --canvaskit_js ../../out/canvaskit_wasm/canvaskit.js \
 	--canvaskit_wasm ../../out/canvaskit_wasm/canvaskit.wasm --use_gpu \
-	--input_lottie ~/Downloads/lottie-samples/lottiefiles.com\ -\ Octopus.json \
+	--input_lottie ~/Downloads/lottie-samples/stacking.json \
 	--bench_html skottie-frames.html
 
 frames_cpu:
