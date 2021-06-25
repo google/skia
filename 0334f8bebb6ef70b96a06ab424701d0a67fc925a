@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3300680f_eb4bff1e",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-25T14:12:29Z",
+      "side": 1,
+      "message": "I could have stuck these in some other dedicated header/translation unit (and Circle/Ellipse are only referenced in one spot), but it seemed to make sense to just have them live together here?",
+      "range": {
+        "startLine": 150,
+        "startChar": 0,
+        "endLine": 164,
+        "endChar": 0
+      },
+      "revId": "0334f8bebb6ef70b96a06ab424701d0a67fc925a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
