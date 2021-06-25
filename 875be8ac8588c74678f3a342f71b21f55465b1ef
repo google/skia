@@ -16,6 +16,23 @@
       "message": "Fixed for real! Thanks for the test suggestion. PTAL",
       "revId": "875be8ac8588c74678f3a342f71b21f55465b1ef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ee2fcc2e_36121a7d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-25T20:16:01Z",
+      "side": 1,
+      "message": "Thanks for adding the test - the octopus test case appears to have passed in the test, so lgtm",
+      "revId": "875be8ac8588c74678f3a342f71b21f55465b1ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
