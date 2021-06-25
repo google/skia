@@ -1,5 +1,6 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
+#include "../../docs/examples/50_percent_srgb.cpp"
 #include "../../docs/examples/Alpha_Constants_a.cpp"
 #include "../../docs/examples/Alpha_Constants_b.cpp"
 #include "../../docs/examples/Alpha_Type_Opaque.cpp"
@@ -605,6 +606,7 @@
 #include "../../docs/examples/Path_ArcSize.cpp"
 #include "../../docs/examples/Path_ConvertConicToQuads.cpp"
 #include "../../docs/examples/Path_ConvertToNonInverseFillType.cpp"
+#include "../../docs/examples/Path_Convexity.cpp"
 #include "../../docs/examples/Path_Direction.cpp"
 #include "../../docs/examples/Path_Effect_Methods.cpp"
 #include "../../docs/examples/Path_FillType_a.cpp"
@@ -1079,6 +1081,7 @@
 #include "../../docs/examples/bug583299.cpp"
 #include "../../docs/examples/bug6495.cpp"
 #include "../../docs/examples/bug7573.cpp"
+#include "../../docs/examples/bug7573_1.cpp"
 #include "../../docs/examples/bug767834.cpp"
 #include "../../docs/examples/bugoftheday.cpp"
 #include "../../docs/examples/checker_board.cpp"
@@ -1145,6 +1148,7 @@
 #include "../../docs/examples/setimagefilter.cpp"
 #include "../../docs/examples/shader.cpp"
 #include "../../docs/examples/shader_alphaimage.cpp"
+#include "../../docs/examples/shapes.cpp"
 #include "../../docs/examples/shapes_with_motion.cpp"
 #include "../../docs/examples/skbug6031.cpp"
 #include "../../docs/examples/skbug_237_drawImageRect.cpp"
@@ -1188,6 +1192,7 @@
 #include "../../docs/examples/sum_path_effect.cpp"
 #include "../../docs/examples/sweep_gradient_talk_1.cpp"
 #include "../../docs/examples/sweep_gradient_talk_2.cpp"
+#include "../../docs/examples/sweep_gradient_talk_4.cpp"
 #include "../../docs/examples/sweep_gradient_talk_lots.cpp"
 #include "../../docs/examples/text_only.cpp"
 #include "../../docs/examples/text_rendering.cpp"
