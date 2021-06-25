@@ -29,7 +29,7 @@ void draw(SkCanvas* canvas) {
                                    kGray_8_SkColorType,    kRGBA_F16_SkColorType } ) {
         SkPixmap pixmap(info.makeColorType(colorType), nullptr, 4);
         SkDebugf("color: k" "%s" "_SkColorType" "%*s" "bytesPerPixel: %d shiftPerPixel: %d\n",
-                color_type(colorType), 10 - strlen(color_type(colorType)), " ",
+                color_type(colorType), (int)(10 - strlen(color_type(colorType))), " ",
                 pixmap.info().bytesPerPixel(), pixmap.shiftPerPixel());
     }
 }

@@ -5,6 +5,6 @@
 REG_FIDDLE(IRect_height64, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkIRect large = { 1, -2147483647, 2, 2147483644 };
-    SkDebugf("height: %d height64: %lld\n", large.height(), large.height64());
+    SkDebugf("height: %d height64: %" PRId64 "\n", large.height(), large.height64());
 }
 }  // END FIDDLE

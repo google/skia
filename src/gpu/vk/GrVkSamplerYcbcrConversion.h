@@ -13,6 +13,8 @@
 #include "include/gpu/vk/GrVkTypes.h"
 #include "src/core/SkOpts.h"
 
+#include <cinttypes>
+
 class GrVkGpu;
 
 class GrVkSamplerYcbcrConversion : public GrVkManagedResource {
@@ -53,7 +55,8 @@ public:
 
 #ifdef SK_TRACE_MANAGED_RESOURCES
     void dumpInfo() const override {
-        SkDebugf("GrVkSamplerYcbcrConversion: %d (%d refs)\n", fYcbcrConversion, this->getRefCnt());
+        SkDebugf("GrVkSamplerYcbcrConversion: %" PRIdPTR " (%d refs)\n", (intptr_t)fYcbcrConversion,
+                 this->getRefCnt());
     }
 #endif
 

@@ -7,6 +7,6 @@ void draw(SkCanvas* canvas) {
     SkPaint paint1, paint2;
     paint1.setColor(SK_ColorRED);
     paint2 = std::move(paint1);
-    SkDebugf("SK_ColorRED == paint2.getColor()\n", SK_ColorRED == paint2.getColor() ? '=' : '!');
+    SkDebugf("SK_ColorRED %c= paint2.getColor()\n", SK_ColorRED == paint2.getColor() ? '=' : '!');
 }
 }  // END FIDDLE
