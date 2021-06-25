@@ -27,17 +27,18 @@ template <typename T> struct GrFPUniformType {
     template <typename U> struct add_a_UNIFORM_TYPE_specialization_for {};
     static constexpr add_a_UNIFORM_TYPE_specialization_for<T> value = {};
 };
-#define UNIFORM_TYPE(T, E)                                                                         \
-    template <> struct GrFPUniformType<T> {                                                        \
+#define UNIFORM_TYPE(E, ...)                                                                       \
+    template <> struct GrFPUniformType<__VA_ARGS__> {                                              \
         static constexpr SkRuntimeEffect::Uniform::Type value = SkRuntimeEffect::Uniform::Type::E; \
     }
 
-UNIFORM_TYPE(float,       kFloat);
-UNIFORM_TYPE(SkV2,        kFloat2);
-UNIFORM_TYPE(SkPMColor4f, kFloat4);
-UNIFORM_TYPE(SkV4,        kFloat4);
-UNIFORM_TYPE(SkM44,       kFloat4x4);
-UNIFORM_TYPE(int,         kInt);
+UNIFORM_TYPE(kFloat,    float);
+UNIFORM_TYPE(kFloat2,   SkV2);
+UNIFORM_TYPE(kFloat4,   SkPMColor4f);
+UNIFORM_TYPE(kFloat4,   SkV4);
+UNIFORM_TYPE(kFloat4,   skvx::Vec<4, float>);
+UNIFORM_TYPE(kFloat4x4, SkM44);
+UNIFORM_TYPE(kInt,      int);
 
 #undef UNIFORM_TYPE
 #endif
