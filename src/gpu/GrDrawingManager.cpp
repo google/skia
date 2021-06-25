@@ -452,9 +452,11 @@ void GrDrawingManager::closeAllTasks() {
 }
 
 GrRenderTask* GrDrawingManager::insertTaskBeforeLast(sk_sp<GrRenderTask> task) {
-    SkASSERT(!fDAG.empty());
     if (!task) {
         return nullptr;
+    }
+    if (fDAG.empty()) {
+        return fDAG.push_back(std::move(task)).get();
     }
     // Release 'fDAG.back()' and grab the raw pointer, in case the SkTArray grows
     // and reallocates during emplace_back.
@@ -662,8 +664,18 @@ void GrDrawingManager::validate() const {
         }
     }
 
-    if (!fDAG.empty() && !fDAG.back()->isClosed()) {
-        SkASSERT(fActiveOpsTask == fDAG.back().get());
+    // The active opsTask, if any, should always be at the back of the DAG.
+    if (!fDAG.empty()) {
+        if (fDAG.back()->isSetFlag(GrRenderTask::kAtlas_Flag)) {
+            SkASSERT(fActiveOpsTask == nullptr);
+            SkASSERT(!fDAG.back()->isClosed());
+        } else if (fDAG.back()->isClosed()) {
+            SkASSERT(fActiveOpsTask == nullptr);
+        } else {
+            SkASSERT(fActiveOpsTask == fDAG.back().get());
+        }
+    } else {
+        SkASSERT(fActiveOpsTask == nullptr);
     }
 }
 #endif
