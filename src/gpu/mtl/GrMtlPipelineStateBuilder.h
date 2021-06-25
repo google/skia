@@ -24,9 +24,8 @@ class GrMtlPipelineState;
 class SkReadBuffer;
 
 struct GrMtlPrecompiledLibraries {
-    // TODO: wrap these in sk_cfp<> or unique_ptr<> when we remove ARC
-    id<MTLLibrary> fVertexLibrary;
-    id<MTLLibrary> fFragmentLibrary;
+    // TODO: wrap this in sk_cfp<> or unique_ptr<> when we remove ARC
+    id<MTLRenderPipelineState> fPipelineState;
     bool fRTHeight = false;
 };
 
