@@ -175,7 +175,7 @@ async function driveBrowser() {
 
     const err = await page.evaluate('window._error');
     if (err) {
-      console.log(`ERROR: ${err}`)
+      console.log(`ERROR on input ${options.input}:\n${err}`)
       process.exit(1);
     }
 

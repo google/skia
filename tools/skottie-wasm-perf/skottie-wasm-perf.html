@@ -82,7 +82,7 @@
           if (frame >= MAX_FRAMES) {
             // Reached the end of one loop.
             loop++;
-            if (loop == MAX_LOOPS) {
+            if (loop === MAX_LOOPS) {
               // This global variable signals we are done.
               window._skottieDone = true;
               return;
@@ -92,10 +92,16 @@
             seek = 0;
           }
 
-          let damage = animation.seek(seek, damageRect);
-          if (damage[2] > damage[0] && damage[3] > damage[1]) {
-            animation.render(canvas, bounds);
-            surface.flush();
+          try {
+            let damage = animation.seek(seek, damageRect);
+            if (damage[2] > damage[0] && damage[3] > damage[1]) {
+              animation.render(canvas, bounds);
+              surface.flush();
+            }
+          } catch (e) {
+            console.error(e);
+            window._error = e.stack || e.toString();
+            return;
           }
           console.log(`Used seek: ${seek}`);
           seek += t_rate;
