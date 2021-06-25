@@ -1866,7 +1866,14 @@ EMSCRIPTEN_BINDINGS(Skia) {
         }), allow_raw_pointers());
 
     class_<SkTypeface>("Typeface")
-        .smart_ptr<sk_sp<SkTypeface>>("sk_sp<Typeface>");
+        .smart_ptr<sk_sp<SkTypeface>>("sk_sp<Typeface>")
+        .class_function("_MakeFreeTypeFaceFromData", optional_override([](WASMPointerU8 fPtr,
+                                                int flen)->sk_sp<SkTypeface> {
+            uint8_t* font = reinterpret_cast<uint8_t*>(fPtr);
+            sk_sp<SkData> fontData = SkData::MakeFromMalloc(font, flen);
+
+            return SkFontMgr::RefDefault()->makeFromData(fontData);
+        }), allow_raw_pointers());
 #endif
 
     class_<SkVertices>("Vertices")

@@ -419,6 +419,7 @@ export interface CanvasKit {
     readonly RuntimeEffect: RuntimeEffectFactory;
     readonly Shader: ShaderFactory;
     readonly TextBlob: TextBlobFactory;
+    readonly Typeface: TypefaceFactory;
     readonly TypefaceFontProvider: TypefaceFontProviderFactory;
 
     // Misc
@@ -3521,6 +3522,15 @@ export interface TextStyleConstructor {
      * @param ts
      */
     new(ts: TextStyle): TextStyle;
+}
+
+export interface TypefaceFactory {
+    /**
+     * Create a typeface using Freetype from the specified bytes and return it. CanvasKit supports
+     * .ttf, .woff and .woff2 fonts. It returns null if the bytes cannot be decoded.
+     * @param fontData
+     */
+    MakeFreeTypeFaceFromData(fontData: ArrayBuffer): Typeface | null;
 }
 
 export interface TypefaceFontProviderFactory {
