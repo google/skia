@@ -20,9 +20,9 @@ void OneLineShaper::commitRunBuffer(const RunInfo&) {
 
     auto oldUnresolvedCount = fUnresolvedBlocks.size();
 /*
-    SkDebugf("Run [%zu:%zu)\n", fCurrentRun->fTextRange.start, fCurrentRun->fTextRange.end);
+    SkDebugf("Run [%d:%d)\n", fCurrentRun->fTextRange.start, fCurrentRun->fTextRange.end);
     for (size_t i = 0; i < fCurrentRun->size(); ++i) {
-        SkDebugf("[%zu] %hu %u %f\n", i, fCurrentRun->fGlyphs[i], fCurrentRun->fClusterIndexes[i], fCurrentRun->fPositions[i].fX);
+        SkDebugf("[%d] %d %d %f\n", i, fCurrentRun->fGlyphs[i], fCurrentRun->fClusterIndexes[i], fCurrentRun->fPositions[i].fX);
     }
 */
     // Find all unresolved blocks
@@ -56,10 +56,10 @@ void OneLineShaper::commitRunBuffer(const RunInfo&) {
 
 #ifdef SK_DEBUG
 void OneLineShaper::printState() {
-    SkDebugf("Resolved: %zu\n", fResolvedBlocks.size());
+    SkDebugf("Resolved: %d\n", fResolvedBlocks.size());
     for (auto& resolved : fResolvedBlocks) {
         if (resolved.fRun ==  nullptr) {
-            SkDebugf("[%zu:%zu) unresolved\n",
+            SkDebugf("[%d:%d) unresolved\n",
                     resolved.fText.start, resolved.fText.end);
             continue;
         }
@@ -67,16 +67,16 @@ void OneLineShaper::printState() {
         if (resolved.fRun->fFont.getTypeface() != nullptr) {
             resolved.fRun->fFont.getTypeface()->getFamilyName(&name);
         }
-        SkDebugf("[%zu:%zu) ", resolved.fGlyphs.start, resolved.fGlyphs.end);
-        SkDebugf("[%zu:%zu) with %s\n",
+        SkDebugf("[%d:%d) ", resolved.fGlyphs.start, resolved.fGlyphs.end);
+        SkDebugf("[%d:%d) with %s\n",
                 resolved.fText.start, resolved.fText.end,
                 name.c_str());
     }
 
     auto size = fUnresolvedBlocks.size();
-    SkDebugf("Unresolved: %zu\n", size);
+    SkDebugf("Unresolved: %d\n", size);
     for (const auto& unresolved : fUnresolvedBlocks) {
-        SkDebugf("[%zu:%zu)\n", unresolved.fText.start, unresolved.fText.end);
+        SkDebugf("[%d:%d)\n", unresolved.fText.start, unresolved.fText.end);
     }
 }
 #endif
@@ -180,8 +180,7 @@ void OneLineShaper::finish(const Block& block, SkScalar height, SkScalar& advanc
         auto glyphs = resolvedBlock.fGlyphs;
         auto text = resolvedBlock.fText;
         if (lastTextEnd != text.start) {
-            SkDEBUGF("Text ranges mismatch: ...:%zu] - [%zu:%zu] (%zu-%zu)\n",
-                     lastTextEnd, text.start, text.end,  glyphs.start, glyphs.end);
+            SkDEBUGF("Text ranges mismatch: ...:%d] - [%d:%d] (%d-%d)\n", lastTextEnd, text.start, text.end,  glyphs.start, glyphs.end);
             SkASSERT(false);
         }
         lastTextEnd = text.end;
@@ -236,7 +235,7 @@ void OneLineShaper::finish(const Block& block, SkScalar height, SkScalar& advanc
 
     advanceX = fAdvance.fX;
     if (lastTextEnd != blockText.end) {
-        SkDEBUGF("Last range mismatch: %zu - %zu\n", lastTextEnd, blockText.end);
+        SkDEBUGF("Last range mismatch: %d - %d\n", lastTextEnd, blockText.end);
         SkASSERT(false);
     }
 }

@@ -169,7 +169,7 @@
 
         static LONG WINAPI handler(EXCEPTION_POINTERS* e) {
             const DWORD code = e->ExceptionRecord->ExceptionCode;
-            SkDebugf("\nCaught exception %lu", code);
+            SkDebugf("\nCaught exception %u", code);
             for (size_t i = 0; i < SK_ARRAY_COUNT(kExceptions); i++) {
                 if (kExceptions[i].code == code) {
                     SkDebugf(" %s", kExceptions[i].name);
@@ -230,7 +230,7 @@
                 DWORD64 offset;
                 SymGetSymFromAddr64(hProcess, frame.AddrPC.Offset, &offset, symbol);
 
-                SkDebugf("%s +%llx\n", symbol->Name, offset);
+                SkDebugf("%s +%x\n", symbol->Name, offset);
             }
         #endif //SK_WINUWP
 

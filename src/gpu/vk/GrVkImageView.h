@@ -12,8 +12,6 @@
 #include "include/gpu/vk/GrVkTypes.h"
 #include "src/gpu/vk/GrVkManagedResource.h"
 
-#include <cinttypes>
-
 class GrVkSamplerYcbcrConversion;
 struct GrVkYcbcrConversionInfo;
 
@@ -32,8 +30,7 @@ public:
 
 #ifdef SK_TRACE_MANAGED_RESOURCES
     void dumpInfo() const override {
-        SkDebugf("GrVkImageView: %" PRIdPTR " (%d refs)\n",
-                 (intptr_t)fImageView, this->getRefCnt());
+        SkDebugf("GrVkImageView: %d (%d refs)\n", fImageView, this->getRefCnt());
     }
 #endif
 

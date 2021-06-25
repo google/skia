@@ -777,13 +777,13 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
                       "0x%08x, processor: %s", failedPixelCount, kRenderSize * kRenderSize,
                       fpGenerator.initialSeed(), fp->dumpInfo().c_str());
                 if (!coverageMessage.isEmpty()) {
-                    INFOF(reporter, "%s", coverageMessage.c_str());
+                    INFOF(reporter, coverageMessage.c_str());
                 }
                 if (!constMessage.isEmpty()) {
-                    INFOF(reporter, "%s", constMessage.c_str());
+                    INFOF(reporter, constMessage.c_str());
                 }
                 if (!opaqueMessage.isEmpty()) {
-                    INFOF(reporter, "%s", opaqueMessage.c_str());
+                    INFOF(reporter, opaqueMessage.c_str());
                 }
                 if (!loggedFirstWarning) {
                     SkString input;

@@ -334,6 +334,9 @@ static bool bruteMinT(skiatest::Reporter* reporter, const SkDQuad& quad1, const 
             rStep /= 2;
         } while (rStep > FLT_EPSILON);
         if (bestCCW < 0) {
+            if (bestR >= maxRadius) {
+                SkDebugf("");
+            }
             REPORTER_ASSERT(reporter, bestR < maxRadius);
             return false;
         }

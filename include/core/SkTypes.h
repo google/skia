@@ -453,15 +453,10 @@
 [[noreturn]] SK_API extern void sk_abort_no_print(void);
 
 #ifndef SkDebugf
-    #if SKIA_IMPLEMENTATION
-        SK_API void SkDebugf(const char format[], ...) SK_PRINTF_LIKE(1, 2);
-    #else
-        // TODO(johnstiles): fix external code which misuses format specifiers
-        SK_API void SkDebugf(const char format[], ...);
-    #endif
+    SK_API void SkDebugf(const char format[], ...);
 #endif
 #if defined(SK_BUILD_FOR_LIBFUZZER)
-    SK_API SK_PRINTF_LIKE(1, 2) inline void SkDebugf(const char format[], ...) {}
+    SK_API inline void SkDebugf(const char format[], ...) {}
 #endif
 
 // SkASSERT, SkASSERTF and SkASSERT_RELEASE can be used as stand alone assertion expressions, e.g.

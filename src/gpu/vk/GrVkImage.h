@@ -17,8 +17,6 @@
 #include "src/gpu/GrManagedResource.h"
 #include "src/gpu/GrTexture.h"
 
-#include <cinttypes>
-
 class GrVkGpu;
 class GrVkTexture;
 
@@ -195,7 +193,7 @@ private:
 
 #ifdef SK_TRACE_MANAGED_RESOURCES
         void dumpInfo() const override {
-            SkDebugf("GrVkImage: %" PRIdPTR " (%d refs)\n", (intptr_t)fImage, this->getRefCnt());
+            SkDebugf("GrVkImage: %d (%d refs)\n", fImage, this->getRefCnt());
         }
 #endif
 

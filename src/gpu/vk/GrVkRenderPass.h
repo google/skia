@@ -12,8 +12,6 @@
 #include "include/gpu/vk/GrVkTypes.h"
 #include "src/gpu/vk/GrVkManagedResource.h"
 
-#include <cinttypes>
-
 class GrProcessorKeyBuilder;
 class GrVkGpu;
 class GrVkRenderTarget;
@@ -166,8 +164,7 @@ public:
 
 #ifdef SK_TRACE_MANAGED_RESOURCES
     void dumpInfo() const override {
-        SkDebugf("GrVkRenderPass: %" PRIdPTR " (%d refs)\n",
-                 (intptr_t)fRenderPass, this->getRefCnt());
+        SkDebugf("GrVkRenderPass: %d (%d refs)\n", fRenderPass, this->getRefCnt());
     }
 #endif
 

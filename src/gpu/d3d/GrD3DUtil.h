@@ -13,14 +13,14 @@
 #include "include/gpu/d3d/GrD3DTypes.h"
 #include "include/private/GrTypesPriv.h"
 
-#define GR_D3D_CALL_ERRCHECK(X)                                         \
-    do {                                                                \
-        HRESULT result = X;                                             \
-        SkASSERT(SUCCEEDED(result));                                    \
-        if (!SUCCEEDED(result)) {                                       \
-            SkDebugf("Failed Direct3D call. Error: 0x%08lx\n", result); \
-        }                                                               \
-    } while (false)
+#define GR_D3D_CALL_ERRCHECK(X)                                       \
+    do {                                                              \
+       HRESULT result = X;                                            \
+       SkASSERT(SUCCEEDED(result));                                   \
+       if (!SUCCEEDED(result)) {                                      \
+           SkDebugf("Failed Direct3D call. Error: 0x%08x\n", result); \
+       }                                                              \
+    } while(false)
 
 static constexpr bool operator==(const D3D12_CPU_DESCRIPTOR_HANDLE & first,
                                  const D3D12_CPU_DESCRIPTOR_HANDLE & second) {

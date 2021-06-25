@@ -40,7 +40,7 @@ void SkTCoincident::setPerp(const SkTCurve& c1, double t,
     fMatch = cPt.approximatelyEqual(fPerpPt);
 #if DEBUG_T_SECT
     if (fMatch) {
-        SkDebugf("%s", "");  // allow setting breakpoint
+        SkDebugf("");  // allow setting breakpoint
     }
 #endif
 }
@@ -233,7 +233,7 @@ bool SkTSpan::initBounds(const SkTCurve& c) {
     fDeleted = false;
 #if DEBUG_T_SECT
     if (fCollapsed) {
-        SkDebugf("%s", "");  // for convenient breakpoints
+        SkDebugf("");  // for convenient breakpoints
     }
 #endif
     return fBounds.valid();

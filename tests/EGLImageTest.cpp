@@ -197,7 +197,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
 
     //TestReadPixels(reporter, context0, surfaceContext.get(), pixels.get(), "EGLImageTest-read");
 
-    SkDebugf("type: %d\n", (int)surfaceContext->asTextureProxy()->textureType());
+    SkDebugf("type: %d\n", surfaceContext->asTextureProxy()->textureType());
     // We should not be able to write to an EXTERNAL texture
     TestWritePixels(reporter, context0, surfaceContext.get(), false, "EGLImageTest-write");
 

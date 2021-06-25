@@ -667,7 +667,7 @@ static void fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
                         bitmap.rowBytes(), &options);
                 if (SkCodec::kSuccess != result) {
                     SkDebugf("[terminated] failed to start incremental decode "
-                             "in frame %zu with error %d\n", i, result);
+                             "in frame %d with error %d\n", i, result);
                     return;
                 }
 
@@ -678,7 +678,7 @@ static void fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
                     break;
                 }
                 if (result == SkCodec::kSuccess) {
-                    SkDebugf("okay - decoded frame %zu\n", i);
+                    SkDebugf("okay - decoded frame %d\n", i);
                 } else {
                     SkDebugf("[terminated] incremental decode failed with "
                              "error %d\n", result);
