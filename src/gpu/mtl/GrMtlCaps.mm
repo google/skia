@@ -322,7 +322,7 @@ void GrMtlCaps::initGrCaps(id<MTLDevice> device) {
     // Buffers are always fully mapped.
     fMapBufferFlags =  kCanMap_MapFlag | kAsyncRead_MapFlag;
 
-    fOversizedAttachmentSupport = true;
+    fOversizedStencilSupport = true;
 
     fMipmapSupport = true;   // always available in Metal
     fNPOTTextureTileSupport = true;  // always available in Metal

@@ -600,18 +600,18 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         // ARB allows mixed size FBO attachments, EXT does not.
         if (version >= GR_GL_VER(3, 0) ||
             ctxInfo.hasExtension("GL_ARB_framebuffer_object")) {
-            fOversizedAttachmentSupport = true;
+            fOversizedStencilSupport = true;
         } else {
             SkASSERT(ctxInfo.hasExtension("GL_EXT_framebuffer_object"));
         }
     } else if (GR_IS_GR_GL_ES(standard)) {
         // ES 3.0 supports mixed size FBO attachments, 2.0 does not.
-        fOversizedAttachmentSupport = version >= GR_GL_VER(3, 0);
+        fOversizedStencilSupport = version >= GR_GL_VER(3, 0);
     } else if (GR_IS_GR_WEBGL(standard)) {
         // WebGL 1.0 has some constraints for FBO attachments:
         // https://www.khronos.org/registry/webgl/specs/1.0/index.html#6.6
         // These constraints "no longer apply in WebGL 2"
-        fOversizedAttachmentSupport = version >= GR_GL_VER(2, 0);
+        fOversizedStencilSupport = version >= GR_GL_VER(2, 0);
     }
 
     if (GR_IS_GR_GL(standard)) {
