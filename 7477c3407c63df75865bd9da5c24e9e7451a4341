@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "768cf14f_9aadd971",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-25T17:19:53Z",
+      "side": 1,
+      "message": "The current failure appears to be the same as the (deprecated) skottie-wasm perf tests.\n\nI believe https://skia-review.googlesource.com/c/skia/+/421826 should fix that source of the crash.",
+      "revId": "7477c3407c63df75865bd9da5c24e9e7451a4341",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
