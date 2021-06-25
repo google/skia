@@ -144,6 +144,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c537ef97_ec122322",
+        "filename": "src/sksl/dsl/DSLCore.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-06-25T14:38:09Z",
+      "side": 1,
+      "message": "I totally agree that null checks are easy to forget, but don\u0027t we get unilateral coverage against all things null if we put checks inside the SkSL IR nodes? At that point, we wouldn\u0027t need checks anywhere else AFAICS; adding additional checks into DSL would be redundant with the existing IR checks.",
+      "parentUuid": "c87889fe_dc3f2a78",
+      "range": {
+        "startLine": 172,
+        "startChar": 0,
+        "endLine": 174,
+        "endChar": 0
+      },
+      "revId": "5f5df36f757eeeed84815bf8744f4b989bc63187",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "14197ce1_2edc76b4",
         "filename": "src/sksl/dsl/DSLExpression.cpp",
         "patchSetId": 5
