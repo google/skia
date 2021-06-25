@@ -53,6 +53,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "366289df_73bc247a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-25T20:05:00Z",
+      "side": 1,
+      "message": "The diffs are misleading. The red and green lines should be identical before and after. I think gold is picking an old image that got attributed to QuadroP400 dmsaa a long time ago.\n\nThe actual diff on the compositor tests is that drawTextureSet() is choosing kCoverage now instead of kMSAA. I haven\u0027t looked into all of them, since we already know this CL will choose kCoverage a lot more than it used to, but I have made sure that path rendering still goes through DMSAA like we want.",
+      "parentUuid": "faa7ed28_8b5a6617",
+      "revId": "24c868da02c1c5efb3b1e2f3b6896ef03951a39a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "89d36ad7_ab3b526f",
@@ -66,6 +84,30 @@
       "writtenOn": "2021-06-25T18:27:25Z",
       "side": 1,
       "message": "nit: switch from yoda to just aaType \u003d\u003d GrAAType::kCoverage",
+      "range": {
+        "startLine": 1073,
+        "startChar": 15,
+        "endLine": 1073,
+        "endChar": 44
+      },
+      "revId": "24c868da02c1c5efb3b1e2f3b6896ef03951a39a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1837a741_adcd49e6",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1073,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-25T20:05:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "89d36ad7_ab3b526f",
       "range": {
         "startLine": 1073,
         "startChar": 15,
@@ -99,6 +141,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c9346a38_172efabc",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1329,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-25T20:05:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5126aa4d_783f8650",
+      "range": {
+        "startLine": 1327,
+        "startChar": 0,
+        "endLine": 1329,
+        "endChar": 48
+      },
+      "revId": "24c868da02c1c5efb3b1e2f3b6896ef03951a39a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "313cdee1_85a1948f",
@@ -112,6 +178,30 @@
       "writtenOn": "2021-06-25T18:27:25Z",
       "side": 1,
       "message": "ditto",
+      "range": {
+        "startLine": 1385,
+        "startChar": 15,
+        "endLine": 1385,
+        "endChar": 44
+      },
+      "revId": "24c868da02c1c5efb3b1e2f3b6896ef03951a39a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "463f15ac_a0b4773a",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1385,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-25T20:05:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "313cdee1_85a1948f",
       "range": {
         "startLine": 1385,
         "startChar": 15,
@@ -145,6 +235,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e9626edf_1f8fc93f",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1418,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-25T20:05:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "57e105d2_53e4c308",
+      "range": {
+        "startLine": 1418,
+        "startChar": 8,
+        "endLine": 1418,
+        "endChar": 37
+      },
+      "revId": "24c868da02c1c5efb3b1e2f3b6896ef03951a39a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cdbbe023_b4dd1c62",
@@ -158,6 +272,30 @@
       "writtenOn": "2021-06-25T18:32:40Z",
       "side": 1,
       "message": "why the parens?",
+      "range": {
+        "startLine": 1753,
+        "startChar": 22,
+        "endLine": 1753,
+        "endChar": 42
+      },
+      "revId": "24c868da02c1c5efb3b1e2f3b6896ef03951a39a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e3eae330_b4759832",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1753,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-25T20:05:00Z",
+      "side": 1,
+      "message": "Done\n\nOld habit. I guess I wrap the condition in parens to make it look more like an if()",
+      "parentUuid": "cdbbe023_b4dd1c62",
       "range": {
         "startLine": 1753,
         "startChar": 22,
