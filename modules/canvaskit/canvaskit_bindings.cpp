@@ -1873,7 +1873,17 @@ EMSCRIPTEN_BINDINGS(Skia) {
             sk_sp<SkData> fontData = SkData::MakeFromMalloc(font, flen);
 
             return SkFontMgr::RefDefault()->makeFromData(fontData);
-        }), allow_raw_pointers());
+        }), allow_raw_pointers())
+        .function("_getGlyphIDs", optional_override([](SkTypeface& self, WASMPointerU8 sptr,
+                                                   size_t strLen, size_t expectedCodePoints,
+                                                   WASMPointerU16 iPtr) -> int {
+            char* str = reinterpret_cast<char*>(sptr);
+            SkGlyphID* glyphIDs = reinterpret_cast<SkGlyphID*>(iPtr);
+
+            int actualCodePoints = self.textToGlyphs(str, strLen, SkTextEncoding::kUTF8,
+                                                     glyphIDs, expectedCodePoints);
+            return actualCodePoints;
+        }));
 #endif
 
     class_<SkVertices>("Vertices")
