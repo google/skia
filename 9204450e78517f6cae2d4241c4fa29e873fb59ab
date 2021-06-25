@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "598bad72_13b60e5d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-06-25T14:27:19Z",
+      "side": 1,
+      "message": "Originally this was on SkPaint/SkFont because it was thought that the code point to glyph mapping might depend on the requested size. However, this has changed a bit in that this can now be done based on the \u0027opsz\u0027 axis which Skia un-ties from the requested drawing size. So this sort of selection is now done on the SkTypeface when setting the variation.",
+      "revId": "9204450e78517f6cae2d4241c4fa29e873fb59ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
