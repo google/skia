@@ -426,8 +426,8 @@ GrSwizzle GrCaps::getReadSwizzle(const GrBackendFormat& format, GrColorType colo
         if (colorType == GrColorType::kRGB_888x || colorType == GrColorType::kRGBA_8888) {
             return GrSwizzle::RGBA();
         }
-        SkDEBUGFAILF("Illegal color type (%d) and compressed format (%d) combination.", colorType,
-                     compression);
+        SkDEBUGFAILF("Illegal color type (%d) and compressed format (%d) combination.",
+                     (int)colorType, (int)compression);
         return {};
     }
 

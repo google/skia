@@ -411,9 +411,6 @@ static void oneOff(skiatest::Reporter* reporter, const CubicPts& cubic1, const C
         SkDebugf("sect%d,\n", index);
     }
 #endif
-    if (coin && intersections.used() < 2) {
-        SkDebugf("");
-    }
     REPORTER_ASSERT(reporter, !coin || intersections.used() >= 2);
     double tt1, tt2;
     SkDPoint xy1, xy2;

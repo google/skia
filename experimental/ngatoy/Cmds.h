@@ -108,8 +108,8 @@ public:
 
     void dump() const override {
         SkDebugf("%d: draw%s %d %d %d %d -- %d",
-                 fShape == Shape::kRect ? "Rect" : "Oval",
                  fID.toInt(),
+                 fShape == Shape::kRect ? "Rect" : "Oval",
                  fRect.fLeft, fRect.fTop, fRect.fRight, fRect.fBottom,
                  fPaintersOrder.toUInt());
     }
@@ -146,8 +146,8 @@ public:
 
     void dump() const override {
         SkDebugf("%d: clip%s %d %d %d %d",
-                 fShape == Shape::kRect ? "Rect" : "Oval",
                  fID.toInt(),
+                 fShape == Shape::kRect ? "Rect" : "Oval",
                  fRect.fLeft, fRect.fTop, fRect.fRight, fRect.fBottom);
     }
 

@@ -67,7 +67,7 @@ SkScalar SkSVGLengthContext::resolve(const SkSVGLength& l, LengthType t) const {
     case SkSVGLength::Unit::kPC:
         return l.value() * fDPI * kPCMultiplier;
     default:
-        SkDebugf("unsupported unit type: <%d>\n", l.unit());
+        SkDebugf("unsupported unit type: <%d>\n", (int)l.unit());
         return 0;
     }
 }

@@ -12,6 +12,8 @@
 #include "src/gpu/vk/GrVkDescriptorSetManager.h"
 #include "src/gpu/vk/GrVkManagedResource.h"
 
+#include <cinttypes>
+
 class GrVkDescriptorPool;
 class GrVkGpu;
 
@@ -28,7 +30,8 @@ public:
 
 #ifdef SK_TRACE_MANAGED_RESOURCES
     void dumpInfo() const override {
-        SkDebugf("GrVkDescriptorSet: %d (%d refs)\n", fDescSet, this->getRefCnt());
+        SkDebugf("GrVkDescriptorSet: %" PRIdPTR " (%d refs)\n", (intptr_t)fDescSet,
+                 this->getRefCnt());
     }
 #endif
 

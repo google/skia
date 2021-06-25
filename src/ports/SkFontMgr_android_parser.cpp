@@ -126,9 +126,11 @@ static bool memeq(const char* s1, const char* s2, size_t n1, size_t n2) {
 
 #define SK_FONTMGR_ANDROID_PARSER_PREFIX "[SkFontMgr Android Parser] "
 
-#define SK_FONTCONFIGPARSER_WARNING(message, ...)                                                  \
-    SkDebugf(SK_FONTMGR_ANDROID_PARSER_PREFIX "%s:%d:%d: warning: " message "\n", self->fFilename, \
-             XML_GetCurrentLineNumber(self->fParser), XML_GetCurrentColumnNumber(self->fParser),   \
+#define SK_FONTCONFIGPARSER_WARNING(message, ...)                                 \
+    SkDebugf(SK_FONTMGR_ANDROID_PARSER_PREFIX "%s:%d:%d: warning: " message "\n", \
+             self->fFilename,                                                     \
+             (int)XML_GetCurrentLineNumber(self->fParser),                        \
+             (int)XML_GetCurrentColumnNumber(self->fParser),                      \
              ##__VA_ARGS__)
 
 static bool is_whitespace(char c) {

@@ -30,7 +30,7 @@ void draw(SkCanvas* canvas) {
                                  } ) {
         SkImageInfo info = SkImageInfo::Make(1, 1, colorType, kOpaque_SkAlphaType);
         SkDebugf("color: k" "%s" "_SkColorType" "%*s" "shiftPerPixel: %d\n",
-                color_type(colorType), 14 - strlen(color_type(colorType)), " ",
+                color_type(colorType), (int)(14 - strlen(color_type(colorType))), " ",
                 info.shiftPerPixel());
     }
 }

@@ -99,7 +99,7 @@ private:
 
 #ifdef SK_TRACE_MANAGED_RESOURCES
         void dumpInfo() const override {
-            SkDebugf("GrD3DTextureResource: %d (%d refs)\n", fResource.get(), this->getRefCnt());
+            SkDebugf("GrD3DTextureResource: %p (%d refs)\n", fResource.get(), this->getRefCnt());
         }
 #endif
 

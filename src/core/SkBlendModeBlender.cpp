@@ -52,7 +52,7 @@ sk_sp<SkBlender> SkBlenders::Mode(SkBlendMode mode) {
         RETURN_SINGLETON_BLENDER(SkBlendMode::kLuminosity)
     }
 
-    SkDEBUGFAILF("invalid blend mode %d", mode);
+    SkDEBUGFAILF("invalid blend mode %d", (int)mode);
     return nullptr;
 
 #undef RETURN_SINGLETON_BLENDER
