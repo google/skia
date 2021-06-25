@@ -69,6 +69,24 @@
       "parentUuid": "137680da_dcb76602",
       "revId": "43339942f83510a01beccdc7a9b31d48a4b6256f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "221cfdad_419a03d5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-06-25T17:31:59Z",
+      "side": 1,
+      "message": "Ok, Typeface.MakeFreetypeTypefaceFromData or something like that sounds fine.",
+      "parentUuid": "512dcba9_09513021",
+      "revId": "43339942f83510a01beccdc7a9b31d48a4b6256f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
