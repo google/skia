@@ -64,8 +64,7 @@ describe('Font Behavior', () => {
     });
 
     gm('serif_text_on_path', (canvas) => {
-        const fontMgr = CanvasKit.FontMgr.RefDefault();
-        const notoSerif = fontMgr.MakeTypefaceFromData(notoSerifFontBuffer);
+        const notoSerif = CanvasKit.Typeface.MakeFreeTypeFaceFromData(notoSerifFontBuffer);
 
         const paint = new CanvasKit.Paint();
         paint.setAntiAlias(true);
@@ -93,13 +92,11 @@ describe('Font Behavior', () => {
         notoSerif.delete();
         font.delete();
         fontPaint.delete();
-        fontMgr.delete();
     });
 
     // https://bugs.chromium.org/p/skia/issues/detail?id=9314
     gm('nullterminators_skbug_9314', (canvas) => {
-        const fontMgr = CanvasKit.FontMgr.RefDefault();
-        const bungee = fontMgr.MakeTypefaceFromData(bungeeFontBuffer);
+        const bungee = CanvasKit.Typeface.MakeFreeTypeFaceFromData(bungeeFontBuffer);
 
         // yellow, to make sure tofu is plainly visible
         canvas.clear(CanvasKit.Color(255, 255, 0, 1));
@@ -123,13 +120,11 @@ describe('Font Behavior', () => {
         bungee.delete();
         font.delete();
         fontPaint.delete();
-        fontMgr.delete();
     });
 
     gm('textblobs_with_glyphs', (canvas) => {
         canvas.clear(CanvasKit.WHITE);
-        const fontMgr = CanvasKit.FontMgr.RefDefault();
-        const notoSerif = fontMgr.MakeTypefaceFromData(notoSerifFontBuffer);
+        const notoSerif = CanvasKit.Typeface.MakeFreeTypeFaceFromData(notoSerifFontBuffer);
 
         const font = new CanvasKit.Font(notoSerif, 24);
         const bluePaint = new CanvasKit.Paint();
@@ -187,7 +182,6 @@ describe('Font Behavior', () => {
         redPaint.delete();
         notoSerif.delete();
         font.delete();
-        fontMgr.delete();
     });
 
     it('can make a font mgr with passed in fonts', () => {
@@ -216,7 +210,6 @@ describe('Font Behavior', () => {
     });
 
     gm('various_font_formats', (canvas, fetchedByteBuffers) => {
-        const fontMgr = CanvasKit.FontMgr.RefDefault();
         const fontPaint = new CanvasKit.Paint();
         fontPaint.setAntiAlias(true);
         fontPaint.setStyle(CanvasKit.PaintStyle.Fill);
@@ -245,7 +238,7 @@ describe('Font Behavior', () => {
             // smoke test that the font bytes loaded.
             expect(fontType.buffer).toBeTruthy(fontType.type + ' did not load');
 
-            const typeface = fontMgr.MakeTypefaceFromData(fontType.buffer);
+            const typeface = CanvasKit.Typeface.MakeFreeTypeFaceFromData(fontType.buffer);
             const font = new CanvasKit.Font(typeface, 24);
 
             if (font && typeface) {
@@ -261,7 +254,7 @@ describe('Font Behavior', () => {
         // which doesn't have very many glyphs in it, so we just check that we got a non-zero
         // typeface for it. I was able to load NotoSansCJK-Regular.ttc just fine in a
         // manual test.
-        const typeface = fontMgr.MakeTypefaceFromData(fetchedByteBuffers[3]);
+        const typeface = CanvasKit.Typeface.MakeFreeTypeFaceFromData(fetchedByteBuffers[3]);
         expect(typeface).toBeTruthy('.ttc font');
         if (typeface) {
             canvas.drawText('.ttc loaded', 5, 180, fontPaint, defaultFont);
@@ -272,12 +265,10 @@ describe('Font Behavior', () => {
 
         defaultFont.delete();
         fontPaint.delete();
-        fontMgr.delete();
     }, '/assets/Roboto-Regular.otf', '/assets/Roboto-Regular.woff', '/assets/Roboto-Regular.woff2', '/assets/test.ttc');
 
     it('can measure text very precisely with proper settings', () => {
-        const fontMgr = CanvasKit.FontMgr.RefDefault();
-        const typeface = fontMgr.MakeTypefaceFromData(notoSerifFontBuffer);
+        const typeface = CanvasKit.Typeface.MakeFreeTypeFaceFromData(notoSerifFontBuffer);
         const fontSizes = [257, 100, 11];
         // The point of these values is to let us know 1) we can measure to sub-pixel levels
         // and 2) that measurements don't drastically change. If these change a little bit,
@@ -298,15 +289,13 @@ describe('Font Behavior', () => {
         }
 
         typeface.delete();
-        fontMgr.delete();
     });
 
     gm('font_edging', (canvas) => {
         // Draw a small font scaled up to see the aliasing artifacts.
         canvas.scale(8, 8);
         canvas.clear(CanvasKit.WHITE);
-        const fontMgr = CanvasKit.FontMgr.RefDefault();
-        const notoSerif = fontMgr.MakeTypefaceFromData(notoSerifFontBuffer);
+        const notoSerif = CanvasKit.Typeface.MakeFreeTypeFaceFromData(notoSerifFontBuffer);
 
         const textPaint = new CanvasKit.Paint();
         const annotationFont = new CanvasKit.Font(notoSerif, 6);
@@ -330,7 +319,6 @@ describe('Font Behavior', () => {
         annotationFont.delete();
         testFont.delete();
         notoSerif.delete();
-        fontMgr.delete();
     });
 
     it('can get the intercepts of glyphs', () => {

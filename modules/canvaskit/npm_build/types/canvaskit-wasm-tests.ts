@@ -51,6 +51,7 @@ CanvasKitInit({locateFile: (file: string) => '/node_modules/canvaskit/bin/' + fi
     shaderTests(CK);
     surfaceTests(CK);
     textBlobTests(CK);
+    typefaceTests(CK);
     vectorTests(CK);
     verticesTests(CK);
 });
@@ -897,6 +898,10 @@ function textBlobTests(CK: CanvasKit, font?: Font, path?: Path) {
     const blob6 = tb.MakeFromText('xyz', font); // $ExpectType TextBlob
     const blob7 = tb.MakeOnPath('tuv', path, font); // $ExpectType TextBlob
     const blob8 = tb.MakeOnPath('tuv', path, font, 10); // $ExpectType TextBlob
+}
+
+function typefaceTests(CK: CanvasKit) {
+    const face = CK.Typeface.MakeFreeTypeFaceFromData(new ArrayBuffer(10));
 }
 
 function vectorTests(CK: CanvasKit) {
