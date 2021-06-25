@@ -1662,7 +1662,7 @@ func (b *jobBuilder) puppeteer() {
 			b.cipd(&specs.CipdPackage{
 				Name:    "skia/internal/lotties_with_assets",
 				Path:    "lotties_with_assets",
-				Version: "version:0",
+				Version: "version:1",
 			})
 		} else if b.extraConfig("RenderSKP") {
 			b.cmd(
