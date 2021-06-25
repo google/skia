@@ -52,6 +52,24 @@
       "parentUuid": "2941dc16_ccb725ac",
       "revId": "e9d76b8c898d15d28b888bde37e76004f0de1c2e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3497ac2e_c4919eec",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-06-25T17:38:01Z",
+      "side": 1,
+      "message": "Yeah, I suppose the #! doesn\u0027t matter that much, since this script is basically never invoked directly from the command line. Looking through the history it looks like it should probably just be changed to \u0027python\u0027 at this point, but it doesn\u0027t matter that much since gn will run it with whichever script interpreter is currently configured.",
+      "parentUuid": "21e74776_2aa84c2e",
+      "revId": "e9d76b8c898d15d28b888bde37e76004f0de1c2e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
