@@ -37,8 +37,9 @@ bool GrDashLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
             aaMode = GrDashOp::AAMode::kNone;
             break;
         case GrAAType::kMSAA:
-            if (args.fSurfaceDrawContext->canUseDynamicMSAA()) {
-                // In DMSAA we avoid using MSAA, in order to reduce the number of MSAA triggers.
+            if (args.fSurfaceDrawContext->canUseDynamicMSAA() &&
+                args.fContext->priv().caps()->multisampleDisableSupport()) {
+                // The coverage-only mode works as well as MSAA, so try to avoid DMSAA triggers.
                 aaMode = GrDashOp::AAMode::kCoverage;
             } else {
                 // In this mode we will use aa between dashes but the outer border uses MSAA.
