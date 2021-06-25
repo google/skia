@@ -183,10 +183,9 @@ private:
     int numQuads() const final { return fQuads.count(); }
 #endif
 
-    VertexSpec vertexSpec(const GrCaps& caps) const {
+    VertexSpec vertexSpec() const {
         auto indexBufferOption = GrQuadPerEdgeAA::CalcIndexBufferOption(fHelper.aaType(),
-                                                                        fQuads.count(),
-                                                                        caps);
+                                                                        fQuads.count());
 
         return VertexSpec(fQuads.deviceQuadType(), fColorType, fQuads.localQuadType(),
                           fHelper.usesLocalCoords(), GrQuadPerEdgeAA::Subset::kNo,
@@ -205,7 +204,7 @@ private:
                              const GrDstProxyView& dstProxyView,
                              GrXferBarrierFlags renderPassXferBarriers,
                              GrLoadOp colorLoadOp) override {
-        const VertexSpec vertexSpec = this->vertexSpec(*caps);
+        const VertexSpec vertexSpec = this->vertexSpec();
 
         GrGeometryProcessor* gp = GrQuadPerEdgeAA::MakeProcessor(arena, vertexSpec);
         SkASSERT(gp->vertexStride() == vertexSpec.vertexSize());
@@ -232,7 +231,7 @@ private:
 
         SkArenaAlloc* arena = rContext->priv().recordTimeAllocator();
 
-        const VertexSpec vertexSpec = this->vertexSpec(*rContext->priv().caps());
+        const VertexSpec vertexSpec = this->vertexSpec();
 
         const int totalNumVertices = fQuads.count() * vertexSpec.verticesPerQuad();
         const size_t totalVertexSizeInBytes = vertexSpec.vertexSize() * totalNumVertices;
@@ -260,7 +259,7 @@ private:
     void onPrepareDraws(GrMeshDrawTarget* target) override {
         TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
-        const VertexSpec vertexSpec = this->vertexSpec(target->caps());
+        const VertexSpec vertexSpec = this->vertexSpec();
 
         // Make sure that if the op thought it was a solid color, the vertex spec does not use
         // local coords.
@@ -298,7 +297,7 @@ private:
             return;
         }
 
-        const VertexSpec vertexSpec = this->vertexSpec(flushState->caps());
+        const VertexSpec vertexSpec = this->vertexSpec();
 
         if (vertexSpec.needsIndexBuffer() && !fIndexBuffer) {
             return;
@@ -377,15 +376,13 @@ private:
     }
 #endif
 
-    bool canAddQuads(int numQuads, GrAAType aaType, const GrCaps& caps) {
+    bool canAddQuads(int numQuads, GrAAType aaType) {
         // The new quad's aa type should be the same as the first quad's or none, except when the
         // first quad's aa type was already downgraded to none, in which case the stored type must
         // be lifted to back to the requested type.
         int quadCount = fQuads.count() + numQuads;
         if (aaType != fHelper.aaType() && aaType != GrAAType::kNone) {
-            auto indexBufferOption = GrQuadPerEdgeAA::CalcIndexBufferOption(aaType,
-                                                                            quadCount,
-                                                                            caps);
+            auto indexBufferOption = GrQuadPerEdgeAA::CalcIndexBufferOption(aaType, quadCount);
             if (quadCount > GrQuadPerEdgeAA::QuadLimit(indexBufferOption)) {
                 // Promoting to the new aaType would've caused an overflow of the indexBuffer
                 // limit
@@ -397,8 +394,7 @@ private:
             fHelper.setAAType(aaType);
         } else {
             auto indexBufferOption = GrQuadPerEdgeAA::CalcIndexBufferOption(fHelper.aaType(),
-                                                                            quadCount,
-                                                                            caps);
+                                                                            quadCount);
             if (quadCount > GrQuadPerEdgeAA::QuadLimit(indexBufferOption)) {
                 return false; // This op can't grow any more
             }
@@ -409,7 +405,7 @@ private:
 
     // Similar to onCombineIfPossible, but adds a quad assuming its op would have been compatible.
     // But since it's avoiding the op list management, it must update the op's bounds.
-    bool addQuad(DrawQuad* quad, const SkPMColor4f& color, GrAAType aaType, const GrCaps& caps) {
+    bool addQuad(DrawQuad* quad, const SkPMColor4f& color, GrAAType aaType) {
         SkRect newBounds = this->bounds();
         newBounds.joinPossiblyEmptyRect(quad->fDevice.bounds());
 
@@ -419,7 +415,7 @@ private:
         if (count == 0 ) {
             // Just skip the append (trivial success)
             return true;
-        } else if (!this->canAddQuads(count, aaType, caps)) {
+        } else if (!this->canAddQuads(count, aaType)) {
             // Not enough room in the index buffer for the AA type
             return false;
         } else {
@@ -508,7 +504,7 @@ GrOp::Owner GrFillRectOp::MakeOp(GrRecordingContext* context,
         GrQuadUtils::ResolveAAType(aaType, quads[i].fAAFlags, quad.fDevice,
                                    &resolvedAA, &quad.fEdgeFlags);
 
-        if (!fillRects->addQuad(&quad, quads[i].fColor, resolvedAA, *context->priv().caps())) {
+        if (!fillRects->addQuad(&quad, quads[i].fColor, resolvedAA)) {
             break;
         }
 
