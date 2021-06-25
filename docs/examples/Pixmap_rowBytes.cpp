@@ -7,7 +7,7 @@ void draw(SkCanvas* canvas) {
     SkPixmap badPixmap = {SkImageInfo::MakeA8(4, 4), nullptr, 2};
     SkPixmap okPixmap = {SkImageInfo::MakeA8(4, 4), nullptr, 8};
     for (auto& pixmap : { badPixmap, okPixmap } ) {
-        SkDebugf("rowBytes: %d minRowBytes: %d\n", pixmap.rowBytes(),
+        SkDebugf("rowBytes: %zu minRowBytes: %zu\n", pixmap.rowBytes(),
            pixmap.info().minRowBytes());
     }
 }

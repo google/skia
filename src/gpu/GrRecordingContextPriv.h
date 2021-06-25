@@ -99,7 +99,7 @@ public:
             return;
         }
 #endif
-        SkDebugf(msg);
+        SkDebugf("%s", msg);
     }
 
     GrRecordingContext::Stats* stats() {
