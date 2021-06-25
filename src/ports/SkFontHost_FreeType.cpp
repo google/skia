@@ -1455,7 +1455,7 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
     FT_Error err = FT_Load_Glyph(fFace, glyph.getGlyphID(), fLoadGlyphFlags);
     if (err != 0) {
         SK_TRACEFTR(err, "SkScalerContext_FreeType::generateImage: FT_Load_Glyph(glyph:%d "
-                     "width:%d height:%d rb:%d flags:%d) failed.",
+                     "width:%d height:%d rb:%zu flags:%d) failed.",
                      glyph.getGlyphID(), glyph.width(), glyph.height(), glyph.rowBytes(),
                      fLoadGlyphFlags);
         sk_bzero(glyph.fImage, glyph.imageSize());

@@ -15,7 +15,7 @@ void draw(SkCanvas* canvas) {
                                  } ) {
         SkImageInfo info = SkImageInfo::Make(1, 1, colorType, kOpaque_SkAlphaType);
         SkDebugf("color: k" "%s" "_SkColorType" "%*s" "bytesPerPixel: %d\n",
-                colors[colorType], 13 - strlen(colors[colorType]), " ",
+                colors[colorType], (int)(13 - strlen(colors[colorType])), " ",
                 info.bytesPerPixel());
     }
 }
