@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "58e0c867_16cdda9b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-06-25T16:54:31Z",
+      "side": 1,
+      "message": "https://chromium.googlesource.com/chromium/deps/icu.git/+/a0718d4f121727e30b8d52c7a189ebf5ab52421f/scripts/make_data_assembly.py\n\nStill starts with #!python2 ? Should that get updated first?",
+      "revId": "e9d76b8c898d15d28b888bde37e76004f0de1c2e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
