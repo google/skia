@@ -157,6 +157,38 @@ CanvasKit._extraInitializations.push(function() {
     return font;
   };
 
+  CanvasKit.Typeface.prototype.getGlyphIDs = function(str, numGlyphIDs, optionalOutputArray) {
+    if (!numGlyphIDs) {
+      numGlyphIDs = str.length;
+    }
+    // lengthBytesUTF8 and stringToUTF8Array are defined in the emscripten
+    // JS.  See https://kripken.github.io/emscripten-site/docs/api_reference/preamble.js.html#stringToUTF8
+    // Add 1 for null terminator
+    var strBytes = lengthBytesUTF8(str) + 1;
+    var strPtr = CanvasKit._malloc(strBytes);
+    stringToUTF8(str, strPtr, strBytes); // This includes the null terminator
+
+    var bytesPerGlyph = 2;
+    var glyphPtr = CanvasKit._malloc(numGlyphIDs * bytesPerGlyph);
+    // We don't need to compute the id for the null terminator, so subtract 1.
+    var actualIDs = this._getGlyphIDs(strPtr, strBytes - 1, numGlyphIDs, glyphPtr);
+    CanvasKit._free(strPtr);
+    if (actualIDs < 0) {
+      Debug('Could not get glyphIDs');
+      CanvasKit._free(glyphPtr);
+      return null;
+    }
+    var glyphs = new Uint16Array(CanvasKit.HEAPU8.buffer, glyphPtr, actualIDs);
+    if (optionalOutputArray) {
+      optionalOutputArray.set(glyphs);
+      CanvasKit._free(glyphPtr);
+      return optionalOutputArray;
+    }
+    var rv = Uint16Array.from(glyphs);
+    CanvasKit._free(glyphPtr);
+    return rv;
+  };
+
   CanvasKit.TextBlob.MakeOnPath = function(str, path, font, initialOffset) {
     if (!str || !str.length) {
       Debug('ignoring 0 length string');

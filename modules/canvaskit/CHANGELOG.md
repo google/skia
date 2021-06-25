@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
  - `Typeface.MakeFreeTypeFaceFromData` as a more convenient way to create a Typeface from the bytes
    of a .ttf, .woff, or .woff2 file.
+ - `Typeface.getGlyphIDs` - provides the same functionality as `Font.getGlyphIDs`.  
+
+### Changed
+ - ICU has been updated from v65 to v69.
 
 ### Fixed
  - We should no longer have to decode the same font multiple times (skbug.com/12112)
