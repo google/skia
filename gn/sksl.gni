@@ -151,6 +151,7 @@ skia_sksl_sources = [
   "$_src/sksl/ir/SkSLInterfaceBlock.h",
   "$_src/sksl/ir/SkSLModifiersDeclaration.h",
   "$_src/sksl/ir/SkSLNop.h",
+  "$_src/sksl/ir/SkSLPoison.h",
   "$_src/sksl/ir/SkSLPostfixExpression.cpp",
   "$_src/sksl/ir/SkSLPostfixExpression.h",
   "$_src/sksl/ir/SkSLPrefixExpression.cpp",

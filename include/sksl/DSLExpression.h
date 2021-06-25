@@ -114,16 +114,27 @@ public:
 
     DSLPossibleExpression operator()(SkTArray<DSLWrapper<DSLExpression>> args);
 
+    /**
+     * Returns true if this object contains an expression. DSLExpressions which were created with
+     * the empty constructor or which have already been release()ed are not valid. DSLExpressions
+     * created with errors are still considered valid (but contain a poison value).
+     */
     bool valid() const {
         return fExpression != nullptr;
     }
 
     /**
-     * Invalidates this object and returns the SkSL expression it represents.
+     * Invalidates this object and returns the SkSL expression it represents. It is an error to call
+     * this on an invalid DSLExpression.
      */
     std::unique_ptr<SkSL::Expression> release();
 
 private:
+    /**
+     * Calls release if this expression is valid, otherwise returns null.
+     */
+    std::unique_ptr<SkSL::Expression> releaseIfValid();
+
     void swap(DSLExpression& other);
 
     /**
@@ -246,7 +257,7 @@ public:
 
     DSLPossibleExpression operator--(int);
 
-    std::unique_ptr<SkSL::Expression> release();
+    std::unique_ptr<SkSL::Expression> release(PositionInfo pos = PositionInfo());
 
 private:
     std::unique_ptr<SkSL::Expression> fExpression;
