@@ -26,7 +26,7 @@ class SkReadBuffer;
 struct GrMtlPrecompiledLibraries {
     // TODO: wrap this in sk_cfp<> or unique_ptr<> when we remove ARC
     id<MTLRenderPipelineState> fPipelineState;
-    bool fRTHeight = false;
+    bool fRTFlip = false;
 };
 
 class GrMtlPipelineStateBuilder : public GrGLSLProgramBuilder {
