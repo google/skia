@@ -168,6 +168,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c2ba1889_a0bc1d79",
+        "filename": "src/sksl/dsl/DSLCore.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-25T16:32:23Z",
+      "side": 1,
+      "message": "Even if we successfully instrument every single spot in SkSL without missing any, I still don\u0027t think that null checks on the DSL side of things would have no value - there are many situations where they will catch errors closer to the source.\n\nFor instance, dsl::Block() releases its statements, so if you create a block with a broken statement, this CL will cause the error to be caught immediately as opposed to later when we turn it into an SkSL Block. That\u0027s why I added this in the first place; it helped me figure out a spot where a broken node was being propagated.\n\nOf course, we could (and maybe should) fix dsl::Block to behave differently; there\u0027s no reason it couldn\u0027t just go ahead and create the SkSL Block immediately. But the point stands that I don\u0027t think it\u0027s unreasonable to have an extra layer of checks on the DSL side of things regardless of what SkSL does behind the scenes.\n\nI\u0027ve gone ahead and made releaseIfValid() private API, since there really wasn\u0027t any reason for it to be public. If we tighten up all of the problem spots and decide that this doesn\u0027t provide value any more, we can remove it easily enough.\n\nSound good?",
+      "parentUuid": "c537ef97_ec122322",
+      "range": {
+        "startLine": 172,
+        "startChar": 0,
+        "endLine": 174,
+        "endChar": 0
+      },
+      "revId": "5f5df36f757eeeed84815bf8744f4b989bc63187",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "14197ce1_2edc76b4",
         "filename": "src/sksl/dsl/DSLExpression.cpp",
         "patchSetId": 5
