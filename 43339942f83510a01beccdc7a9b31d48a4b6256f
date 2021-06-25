@@ -16,6 +16,23 @@
       "message": "deferring to bunge",
       "revId": "43339942f83510a01beccdc7a9b31d48a4b6256f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "091635f7_0a706dea",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-06-25T16:52:21Z",
+      "side": 1,
+      "message": "The Skia side SkTypeface::MakeFrom* are a real pain since they rely on a magic singleton global in a library. If we were writing Skia from scratch we wouldn\u0027t want SkFontMgr::RefDefault to exist, and at this point it mostly only exists for our tests, which is not a good reason. The user should always create the appropriate factory (or factories) and use it. Since we have to opportunity to avoid such an API mistake here, I\u0027m against adding it. No other library has a weird thing like this, DirectWrite and CoreText create only IDWriteFont and CTFont, respectively. Cairo has specific function calls to create FreeType, LOGFONT, CGFont, User, or Toy fonts explicitly, with no generic create from data. QT has QRawFont which uses whatever QFontDatabase is using and seems to explicitly only allow one backend (selected at compile time, also QT is way higher level and far more opinionated).\n\nBasically, either guarantee that there will every only be exactly one factory ever (only FreeType) and remove all of the FontMgr.MakeTypeface* and use only SkTypeface::MakeFrom*, or don\u0027t make this guarantee and have only FontMgr.MakeTypeface* and no SkTypeface::MakeFrom*. Either way, anything which can be done not to use SkFontMgr::RefDefault ever is a good idea.\n\nThat being said, avoiding SkFontMgr::RefDefault is still a pain since SkFontMgr still hasn\u0027t been split into SkFontFactory and the SkFontCollection.",
+      "revId": "43339942f83510a01beccdc7a9b31d48a4b6256f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
