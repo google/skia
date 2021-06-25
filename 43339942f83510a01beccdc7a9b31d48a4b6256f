@@ -51,6 +51,24 @@
       "parentUuid": "091635f7_0a706dea",
       "revId": "43339942f83510a01beccdc7a9b31d48a4b6256f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "512dcba9_09513021",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-25T17:16:02Z",
+      "side": 1,
+      "message": "For CanvasKit, I think we can guarantee that there is only one factory - Freetype. I do plan to remove the FontMgr.MakeTypefaceFromData() and FontMgr.RefDefault() in the next breaking release (which is why it is deprecated now).\n\nIf we want to be explicit and call this new API Typeface.MakeFromFreetypeData() or something similar, I\u0027m open to that.",
+      "parentUuid": "137680da_dcb76602",
+      "revId": "43339942f83510a01beccdc7a9b31d48a4b6256f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
