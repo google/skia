@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2731c27e_c4d4fb63",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 459,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-25T17:19:05Z",
+      "side": 1,
+      "message": "driveby: Is it possible to have a unit test that repros this? I think we were fortunate that a particular lottie file caught this on one particular backend.",
+      "revId": "280b01c08a19e23ff3a9045f29a13b1f86ac202a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
