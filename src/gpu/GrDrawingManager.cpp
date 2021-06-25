@@ -452,9 +452,11 @@ void GrDrawingManager::closeAllTasks() {
 }
 
 GrRenderTask* GrDrawingManager::insertTaskBeforeLast(sk_sp<GrRenderTask> task) {
-    SkASSERT(!fDAG.empty());
     if (!task) {
         return nullptr;
+    }
+    if (fDAG.empty()) {
+        return fDAG.push_back(std::move(task)).get();
     }
     // Release 'fDAG.back()' and grab the raw pointer, in case the SkTArray grows
     // and reallocates during emplace_back.
