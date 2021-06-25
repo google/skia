@@ -429,6 +429,7 @@ void Dehydrator::write(const Expression* e) {
                 break;
             }
             case Expression::Kind::kFunctionReference:
+            case Expression::Kind::kPoison:
             case Expression::Kind::kTypeReference:
                 SkDEBUGFAIL("this expression shouldn't appear in finished code");
                 break;

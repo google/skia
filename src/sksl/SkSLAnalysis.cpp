@@ -1060,6 +1060,9 @@ public:
             case Expression::Kind::kFunctionCall:
                 return true;
 
+            case Expression::Kind::kPoison:
+                return true;
+
             // These should never appear in final IR
             case Expression::Kind::kExternalFunctionReference:
             case Expression::Kind::kFunctionReference:
@@ -1153,6 +1156,7 @@ template <typename T> bool TProgramVisitor<T>::visitExpression(typename T::Expre
         case Expression::Kind::kFloatLiteral:
         case Expression::Kind::kFunctionReference:
         case Expression::Kind::kIntLiteral:
+        case Expression::Kind::kPoison:
         case Expression::Kind::kSetting:
         case Expression::Kind::kTypeReference:
         case Expression::Kind::kVariableReference:

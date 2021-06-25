@@ -1033,6 +1033,10 @@ Position Compiler::position(int offset) {
 }
 
 void Compiler::error(int offset, String msg) {
+    if (strstr(msg.c_str(), POISON_TAG)) {
+        // don't report errors on poison values
+        return;
+    }
     fErrorCount++;
     Position pos = this->position(offset);
     fErrorTextLength.push_back(fErrorText.length());

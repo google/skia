@@ -13,6 +13,7 @@
 #include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
+#include "src/sksl/ir/SkSLNop.h"
 
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -35,7 +36,9 @@ DSLStatement::DSLStatement(DSLExpression expr) {
 }
 
 DSLStatement::DSLStatement(std::unique_ptr<SkSL::Expression> expr)
-    : fStatement(std::make_unique<SkSL::ExpressionStatement>(std::move(expr))) {}
+    : fStatement(std::make_unique<SkSL::ExpressionStatement>(std::move(expr))) {
+    SkASSERT(this->valid());
+}
 
 DSLStatement::DSLStatement(std::unique_ptr<SkSL::Statement> stmt)
     : fStatement(std::move(stmt)) {
@@ -47,7 +50,11 @@ DSLStatement::DSLStatement(DSLPossibleExpression expr, PositionInfo pos)
 
 DSLStatement::DSLStatement(DSLPossibleStatement stmt, PositionInfo pos) {
     DSLWriter::ReportErrors(pos);
-    fStatement = std::move(stmt.fStatement);
+    if (stmt.valid()) {
+        fStatement = std::move(stmt.fStatement);
+    } else {
+        fStatement = SkSL::Nop::Make();
+    }
 }
 
 DSLStatement::~DSLStatement() {

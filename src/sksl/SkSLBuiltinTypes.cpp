@@ -8,6 +8,7 @@
 #include "src/sksl/SkSLBuiltinTypes.h"
 
 #include "include/private/SkSLModifiers.h"
+#include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/spirv.h"
@@ -122,6 +123,7 @@ BuiltinTypes::BuiltinTypes()
         , fBool3(MakeVectorType("bool3", "b3", *fBool, /*columns=*/3))
         , fBool4(MakeVectorType("bool4", "b4", *fBool, /*columns=*/4))
         , fInvalid(MakeSpecialType("<INVALID>", "O", Type::TypeKind::kOther))
+        , fPoison(MakeSpecialType(Compiler::POISON_TAG, "P", Type::TypeKind::kOther))
         , fVoid(MakeSpecialType("void", "v", Type::TypeKind::kVoid))
         , fFloatLiteral(MakeLiteralType("$floatLiteral", *fFloat, /*priority=*/8))
         , fIntLiteral(MakeLiteralType("$intLiteral", *fInt, /*priority=*/5))
