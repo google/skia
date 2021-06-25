@@ -260,7 +260,7 @@ std::unique_ptr<GrSkSLFP> GrSkSLFP::MakeWithData(
                                          GrSkSLFP(std::move(effect), name, OptFlags::kNone));
     sk_careful_memcpy(fp->uniformData(), uniforms->data(), uniformSize);
     for (auto& childFP : childFPs) {
-        fp->addChild(std::move(childFP));
+        fp->addChild(std::move(childFP), /*mergeOptFlags=*/true);
     }
     if (inputFP) {
         fp->setInput(std::move(inputFP));
@@ -309,11 +309,13 @@ GrSkSLFP::GrSkSLFP(const GrSkSLFP& other)
     this->cloneAndRegisterAllChildProcessors(other);
 }
 
-void GrSkSLFP::addChild(std::unique_ptr<GrFragmentProcessor> child) {
+void GrSkSLFP::addChild(std::unique_ptr<GrFragmentProcessor> child, bool mergeOptFlags) {
     SkASSERTF(fInputChildIndex == -1, "all addChild calls must happen before setInput");
     int childIndex = this->numChildProcessors();
     SkASSERT((size_t)childIndex < fEffect->fSampleUsages.size());
-    this->mergeOptimizationFlags(ProcessorOptimizationFlags(child.get()));
+    if (mergeOptFlags) {
+        this->mergeOptimizationFlags(ProcessorOptimizationFlags(child.get()));
+    }
     this->registerChild(std::move(child), fEffect->fSampleUsages[childIndex]);
 }
 
