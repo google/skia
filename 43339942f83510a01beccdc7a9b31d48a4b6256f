@@ -87,6 +87,24 @@
       "parentUuid": "512dcba9_09513021",
       "revId": "43339942f83510a01beccdc7a9b31d48a4b6256f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c0ec0758_fb8d5d71",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-25T17:48:35Z",
+      "side": 1,
+      "message": "Done. Typeface.MakeFreeTypeFaceFromData() is what I went with to avoid a TypeType stutter.",
+      "parentUuid": "221cfdad_419a03d5",
+      "revId": "43339942f83510a01beccdc7a9b31d48a4b6256f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
