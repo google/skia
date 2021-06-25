@@ -34,6 +34,92 @@
       "parentUuid": "26b3ee4d_fea579a1",
       "revId": "24c868da02c1c5efb3b1e2f3b6896ef03951a39a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "faa7ed28_8b5a6617",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-25T18:27:25Z",
+      "side": 1,
+      "message": "A bunch of nits. Are the AA diffs I see in gold expected/desired here?",
+      "revId": "24c868da02c1c5efb3b1e2f3b6896ef03951a39a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "89d36ad7_ab3b526f",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1073,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-25T18:27:25Z",
+      "side": 1,
+      "message": "nit: switch from yoda to just aaType \u003d\u003d GrAAType::kCoverage",
+      "range": {
+        "startLine": 1073,
+        "startChar": 15,
+        "endLine": 1073,
+        "endChar": 44
+      },
+      "revId": "24c868da02c1c5efb3b1e2f3b6896ef03951a39a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "313cdee1_85a1948f",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1385,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-25T18:27:25Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 1385,
+        "startChar": 15,
+        "endLine": 1385,
+        "endChar": 44
+      },
+      "revId": "24c868da02c1c5efb3b1e2f3b6896ef03951a39a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "57e105d2_53e4c308",
+        "filename": "src/gpu/GrSurfaceDrawContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1418,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-25T18:27:25Z",
+      "side": 1,
+      "message": "again",
+      "range": {
+        "startLine": 1418,
+        "startChar": 8,
+        "endLine": 1418,
+        "endChar": 37
+      },
+      "revId": "24c868da02c1c5efb3b1e2f3b6896ef03951a39a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
