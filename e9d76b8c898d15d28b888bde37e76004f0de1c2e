@@ -34,6 +34,24 @@
       "parentUuid": "58e0c867_16cdda9b",
       "revId": "e9d76b8c898d15d28b888bde37e76004f0de1c2e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "21e74776_2aa84c2e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-25T17:23:28Z",
+      "side": 1,
+      "message": "... and holy crap. I just went down the rabbit hole of trying to figure out what the correct #! would be these days, and ... wow. Just one example of the pile of information out there giving (often conflicting) advice: https://blogs.gnome.org/mcatanzaro/2018/02/16/on-python-shebangs/",
+      "parentUuid": "2941dc16_ccb725ac",
+      "revId": "e9d76b8c898d15d28b888bde37e76004f0de1c2e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
