@@ -23,17 +23,27 @@ namespace skiagm {
  * now, but we decided to keep the test.
  */
 class ManyPathAtlasesGM : public GpuGM {
+public:
+    ManyPathAtlasesGM(int maxAtlasSize) : fMaxAtlasSize(maxAtlasSize) {}
 private:
-    SkString onShortName() override { return SkString("manypathatlases"); }
+    SkString onShortName() override { return SkStringPrintf("manypathatlases_%i", fMaxAtlasSize); }
     SkISize onISize() override { return SkISize::Make(128, 128); }
 
     void modifyGrContextOptions(GrContextOptions* ctxOptions) override {
-        ctxOptions->fMaxTextureAtlasSize = 128;  // Put each path in its own atlas.
+        // This will test the case where the atlas runs out of room if fMaxAtlasSize is small.
+        ctxOptions->fMaxTextureAtlasSize = fMaxAtlasSize;
     }
 
-    DrawResult onDraw(GrRecordingContext*, GrSurfaceDrawContext*, SkCanvas* canvas,
+    DrawResult onDraw(GrRecordingContext* rContext, GrSurfaceDrawContext*, SkCanvas* canvas,
                       SkString* errorMsg) override {
         canvas->clear({1,1,0,1});
+
+        // Flush the context to make the DAG empty. This will test the case where we try to add an
+        // atlas task to an empty DAG.
+        if (auto dContext = rContext->asDirectContext()) {
+            dContext->flush();
+        }
+
         SkPath clip = SkPath().moveTo(-50, 20)
                               .cubicTo(-50, -20, 50, -20, 50, 40)
                               .cubicTo(20, 0, -20, 0, -50, 20);
@@ -56,8 +66,11 @@ private:
         canvas->drawPath(path, teal);
         return DrawResult::kOk;
     }
+
+    const int fMaxAtlasSize;
 };
 
-DEF_GM( return new ManyPathAtlasesGM(); )
+DEF_GM( return new ManyPathAtlasesGM(128); )  // Atlas runs out of room.
+DEF_GM( return new ManyPathAtlasesGM(2048); )  // Atlas does not run out of room.
 
 }  // namespace skiagm
