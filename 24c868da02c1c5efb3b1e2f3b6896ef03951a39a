@@ -16,6 +16,24 @@
       "message": "were there any changes on this reland or were they all done in other CLs?",
       "revId": "24c868da02c1c5efb3b1e2f3b6896ef03951a39a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "506b39f4_b46d9aab",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-25T17:54:02Z",
+      "side": 1,
+      "message": "I\u0027m sorry, the diffs got lost in abandons and rebases. Basically GrGLCaps stayed the same, and GrSurfaceDrawContext and GrDashLinePathRenderer are completely different.",
+      "parentUuid": "26b3ee4d_fea579a1",
+      "revId": "24c868da02c1c5efb3b1e2f3b6896ef03951a39a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
