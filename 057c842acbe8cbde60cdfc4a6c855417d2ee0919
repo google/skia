@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d344547e_63e99b8c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-25T18:09:29Z",
+      "side": 1,
+      "message": "One thing I\u0027m not sure about is deprecating/removing the equivalent API on the Font object. Should we leave it as is or plan to remove it?",
+      "revId": "057c842acbe8cbde60cdfc4a6c855417d2ee0919",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
