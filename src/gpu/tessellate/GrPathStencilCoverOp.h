@@ -21,9 +21,11 @@ class GrPathStencilCoverOp : public GrDrawOp {
 private:
     DEFINE_OP_CLASS_ID
 
+    // If the path is inverse filled, drawBounds must be the entire backing store dimensions of the
+    // render target.
     GrPathStencilCoverOp(const SkMatrix& viewMatrix, const SkPath& path, GrPaint&& paint,
                          GrAAType aaType, GrTessellationPathRenderer::PathFlags pathFlags,
-                         const SkRect& devBounds)
+                         const SkRect& drawBounds)
             : GrDrawOp(ClassID())
             , fPathFlags(pathFlags)
             , fViewMatrix(viewMatrix)
@@ -31,7 +33,8 @@ private:
             , fAAType(aaType)
             , fColor(paint.getColor4f())
             , fProcessors(std::move(paint)) {
-        this->setBounds(devBounds, HasAABloat::kNo, IsHairline::kNo);
+        this->setBounds(drawBounds, HasAABloat::kNo, IsHairline::kNo);
+        SkDEBUGCODE(fOriginalDrawBounds = drawBounds;)
     }
 
     const char* name() const override { return "GrPathStencilCoverOp"; }
@@ -54,6 +57,7 @@ private:
     const GrAAType fAAType;
     SkPMColor4f fColor;
     GrProcessorSet fProcessors;
+    SkDEBUGCODE(SkRect fOriginalDrawBounds;)
 
     // Decided during prePreparePrograms.
     GrPathTessellator* fTessellator = nullptr;

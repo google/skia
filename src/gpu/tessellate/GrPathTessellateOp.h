@@ -21,7 +21,7 @@ private:
 
     GrPathTessellateOp(const SkMatrix& viewMatrix, const SkPath& path, GrPaint&& paint,
                        GrAAType aaType, const GrUserStencilSettings* stencil,
-                       const SkRect& devBounds)
+                       const SkRect& drawBounds)
             : GrDrawOp(ClassID())
             , fViewMatrix(viewMatrix)
             , fPath(path)
@@ -29,7 +29,8 @@ private:
             , fStencil(stencil)
             , fColor(paint.getColor4f())
             , fProcessors(std::move(paint)) {
-        this->setBounds(devBounds, HasAABloat::kNo, IsHairline::kNo);
+        SkASSERT(!fPath.isInverseFillType());
+        this->setBounds(drawBounds, HasAABloat::kNo, IsHairline::kNo);
     }
 
     const char* name() const override { return "GrPathTessellateOp"; }
