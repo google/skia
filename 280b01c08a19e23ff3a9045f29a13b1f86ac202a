@@ -34,6 +34,24 @@
       "parentUuid": "2731c27e_c4d4fb63",
       "revId": "280b01c08a19e23ff3a9045f29a13b1f86ac202a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "56fc84db_cbceccc0",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 459,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2021-06-25T18:27:47Z",
+      "side": 1,
+      "message": "Rob\u0027s out today. We don\u0027t have a unit test for the DAG as such, but could we make a regular unit test that triggers this case – maybe extract the part of the lottie file that did it?",
+      "parentUuid": "98439e39_7cbfb499",
+      "revId": "280b01c08a19e23ff3a9045f29a13b1f86ac202a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
