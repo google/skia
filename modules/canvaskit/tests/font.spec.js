@@ -135,7 +135,7 @@ describe('Font Behavior', () => {
         const redPaint = new CanvasKit.Paint();
         redPaint.setColor(CanvasKit.parseColorString('#770b1e')); // arbitrary deep red
 
-        const ids = font.getGlyphIDs('AEGIS ægis');
+        const ids = notoSerif.getGlyphIDs('AEGIS ægis');
         expect(ids.length).toEqual(10); // one glyph id per glyph
         expect(ids[0]).toEqual(36); // spot check this, should be consistent as long as the font is.
 

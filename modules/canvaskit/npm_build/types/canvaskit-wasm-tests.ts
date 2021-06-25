@@ -902,6 +902,9 @@ function textBlobTests(CK: CanvasKit, font?: Font, path?: Path) {
 
 function typefaceTests(CK: CanvasKit) {
     const face = CK.Typeface.MakeFreeTypeFaceFromData(new ArrayBuffer(10));
+
+    const ids = face!.getGlyphIDs('abcd');
+    face!.getGlyphIDs('efgh', 4, ids);
 }
 
 function vectorTests(CK: CanvasKit) {
