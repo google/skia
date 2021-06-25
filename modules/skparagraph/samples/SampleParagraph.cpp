@@ -2073,16 +2073,14 @@ protected:
             auto impl = static_cast<ParagraphImpl*>(paragraph.get());
             for (auto& line : impl->lines()) {
                 if (this->isVerbose()) {
-                    SkDebugf("line[%d]: %f + %f\n", (int)(&line - impl->lines().begin()),
-                                                    line.offset().fX, line.shift());
+                    SkDebugf("line[%d]: %f + %f\n", &line - impl->lines().begin(), line.offset().fX, line.shift());
                 }
                 line.iterateThroughVisualRuns(true,
                     [&](const Run* run, SkScalar runOffset, TextRange textRange, SkScalar* width) {
                     *width = line.measureTextInsideOneRun(textRange, run, runOffset, 0, true, false).clip.width();
                     if (this->isVerbose()) {
-                        SkDebugf("%zu[%zu: %zu) @%f + %f %s\n",
-                                 run->index(), textRange.start, textRange.end, runOffset, *width,
-                                 run->leftToRight() ? "left" : "right");
+                        SkDebugf("%d[%d: %d) @%f + %f %s\n", run->index(),
+                                 textRange.start, textRange.end, runOffset, *width, run->leftToRight() ? "left" : "right");
                     }
                     return true;
                 });
@@ -2279,9 +2277,8 @@ protected:
             {18, 22},
         };
         for (auto rect: rects) {
-            auto results = paragraph->getRectsForRange(
-                    rect.first, rect.second, RectHeightStyle::kTight, RectWidthStyle::kTight);
-            SkDebugf("[%zu : %zu) ", rect.first, rect.second);
+            auto results = paragraph->getRectsForRange(rect.first, rect.second, RectHeightStyle::kTight, RectWidthStyle::kTight);
+            SkDebugf("[%d : %d) ", rect.first, rect.second);
             if (!results.empty()) {
                 SkASSERT(results.size() == 1);
                 SkDebugf("[%f : %f]\n", results[0].rect.fLeft,results[0].rect.fRight);
@@ -2574,7 +2571,7 @@ protected:
             size_t c = 0;
             SkDebugf("clusters\n");
             for (auto& cluster: clusters) {
-                SkDebugf("%zu: [%zu:%zu) %s\n", c++,
+                SkDebugf("%d: [%d:%d) %s\n", c++,
                          cluster.textRange().start, cluster.textRange().end,
                          cluster.isSoftBreak() ? "soft" :
                          cluster.isHardBreak() ? "hard" :
@@ -2585,7 +2582,7 @@ protected:
             size_t i = 0;
             SkDebugf("lines\n");
             for (auto& line : lines) {
-                SkDebugf("%zu: [%zu:%zu)\n", i++, line.trimmedText().start, line.trimmedText().end);
+                SkDebugf("%d: [%d:%d)\n", i++, line.trimmedText().start, line.trimmedText().end);
             }
         }
 

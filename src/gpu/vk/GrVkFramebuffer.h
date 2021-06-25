@@ -13,8 +13,6 @@
 #include "src/gpu/vk/GrVkManagedResource.h"
 #include "src/gpu/vk/GrVkResourceProvider.h"
 
-#include <cinttypes>
-
 class GrVkAttachment;
 class GrVkGpu;
 class GrVkImageView;
@@ -59,8 +57,7 @@ public:
 
 #ifdef SK_TRACE_MANAGED_RESOURCES
     void dumpInfo() const override {
-        SkDebugf("GrVkFramebuffer: %" PRIdPTR " (%d refs)\n",
-                 (intptr_t)fFramebuffer, this->getRefCnt());
+        SkDebugf("GrVkFramebuffer: %d (%d refs)\n", fFramebuffer, this->getRefCnt());
     }
 #endif
 

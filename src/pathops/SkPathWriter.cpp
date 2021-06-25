@@ -364,6 +364,7 @@ void SkPathWriter::assemble() {
                        connect by following segments from one to the other, rather than introducing
                        a diagonal to connect the two.
                      */
+                    SkDebugf("");
                 }
             }
             if (forward) {

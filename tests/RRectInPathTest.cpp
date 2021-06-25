@@ -63,7 +63,7 @@ static void path_contains_rrect_check(skiatest::Reporter* reporter, const SkRRec
                                       SkPathDirection dir, unsigned start) {
     SkRRect out = inner_path_contains_rrect(reporter, in, dir, start);
     if (in != out) {
-        SkDebugf("%s", "");
+        SkDebugf("");
     }
     REPORTER_ASSERT(reporter, in == out);
 }
@@ -72,7 +72,7 @@ static void path_contains_rrect_nocheck(skiatest::Reporter* reporter, const SkRR
                                         SkPathDirection dir, unsigned start) {
     SkRRect out = inner_path_contains_rrect(reporter, in, dir, start);
     if (in == out) {
-        SkDebugf("%s", "");
+        SkDebugf("");
     }
 }
 

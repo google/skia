@@ -1070,7 +1070,7 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(
                 FT_Error err = FT_Render_Glyph(face->glyph, doVert ? FT_RENDER_MODE_LCD_V :
                                                                      FT_RENDER_MODE_LCD);
                 if (err) {
-                    SK_TRACEFTR(err, "Could not render glyph %p.", face->glyph);
+                    SK_TRACEFTR(err, "Could not render glyph %x.", face->glyph);
                     return;
                 }
 
