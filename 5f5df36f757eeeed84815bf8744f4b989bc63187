@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6186cd83_d33c2749",
+        "filename": "include/sksl/DSLStatement.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-25T14:02:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "99867152_2f38dff6",
+      "range": {
+        "startLine": 59,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 23
+      },
+      "revId": "5f5df36f757eeeed84815bf8744f4b989bc63187",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e7b7bd5d_d8954354",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-06-24T19:40:48Z",
       "side": 1,
       "message": "Hmm, could we have just used fInvalid for our poison type?",
+      "range": {
+        "startLine": 125,
+        "startChar": 10,
+        "endLine": 125,
+        "endChar": 18
+      },
+      "revId": "5f5df36f757eeeed84815bf8744f4b989bc63187",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f5cc3686_e8411a0c",
+        "filename": "src/sksl/SkSLBuiltinTypes.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-25T14:02:08Z",
+      "side": 1,
+      "message": "Making it a separate type let me key off the name to easily exclude most poison-related messages in Compiler::error().",
+      "parentUuid": "e7b7bd5d_d8954354",
       "range": {
         "startLine": 125,
         "startChar": 10,
@@ -72,6 +120,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c87889fe_dc3f2a78",
+        "filename": "src/sksl/dsl/DSLCore.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-25T14:02:08Z",
+      "side": 1,
+      "message": "Null checks are easy to forget - it seemed best to have \"this can\u0027t be null\" be the default behavior, with the ability to flag the small handful of spots where nulls are actually ok, rather than have to go through the rest of the code and make sure we had appropriate null checks everywhere. Obviously there\u0027s nothing wrong with *also* adding null checks anywhere in SkSL where they\u0027re missing.",
+      "parentUuid": "4d52d331_7089d9d7",
+      "range": {
+        "startLine": 172,
+        "startChar": 0,
+        "endLine": 174,
+        "endChar": 0
+      },
+      "revId": "5f5df36f757eeeed84815bf8744f4b989bc63187",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "14197ce1_2edc76b4",
         "filename": "src/sksl/dsl/DSLExpression.cpp",
         "patchSetId": 5
@@ -83,6 +155,30 @@
       "writtenOn": "2021-06-24T19:40:48Z",
       "side": 1,
       "message": "return std::move(fExpression);",
+      "range": {
+        "startLine": 112,
+        "startChar": 0,
+        "endLine": 115,
+        "endChar": 19
+      },
+      "revId": "5f5df36f757eeeed84815bf8744f4b989bc63187",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7d0a2a80_52058212",
+        "filename": "src/sksl/dsl/DSLExpression.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-25T14:02:08Z",
+      "side": 1,
+      "message": "I had originally been toying with a more complicated definition of valid(). Should have rolled this back when I went back to the simple approach.",
+      "parentUuid": "14197ce1_2edc76b4",
       "range": {
         "startLine": 112,
         "startChar": 0,
@@ -106,6 +202,30 @@
       "writtenOn": "2021-06-24T19:40:48Z",
       "side": 1,
       "message": "For better or worse, placing this in a CPP prevents us from saying `expr-\u003eis\u003cPoison\u003e()`. Not sure if that\u0027s a desirable property or not.",
+      "range": {
+        "startLine": 15,
+        "startChar": 6,
+        "endLine": 15,
+        "endChar": 12
+      },
+      "revId": "5f5df36f757eeeed84815bf8744f4b989bc63187",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "023dbdfe_27171b09",
+        "filename": "src/sksl/ir/SkSLExpression.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-25T14:02:08Z",
+      "side": 1,
+      "message": "Made it a public class.",
+      "parentUuid": "228d516a_9567968a",
       "range": {
         "startLine": 15,
         "startChar": 6,
