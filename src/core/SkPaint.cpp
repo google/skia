@@ -52,7 +52,6 @@ SkPaint::SkPaint()
                  (unsigned)SkPaint::kDefault_Join,  // fJoinType
                  (unsigned)SkPaint::kFill_Style,    // fStyle
                  (unsigned)kNone_SkFilterQuality,   // fFilterQuality
-                 (unsigned)SkBlendMode::kSrcOver,   // fBlendMode
                  0}                                 // fPadding
 {
     static_assert(sizeof(fBitfields) == sizeof(fBitfieldsUInt), "");
@@ -147,6 +146,26 @@ void SkPaint::setARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
     this->setColor(SkColorSetARGB(a, r, g, b));
 }
 
+SkBlendMode SkPaint::getBlendMode() const {
+    if (!fBlender) {
+        return SkBlendMode::kSrcOver;
+    }
+    SkBlendMode mode;
+    return as_BB(fBlender)->asBlendMode(&mode) ? mode : (SkBlendMode)-1;
+}
+
+bool SkPaint::isSrcOver() const {
+    return !fBlender || as_BB(fBlender)->isBlendMode(SkBlendMode::kSrcOver);
+}
+
+bool SkPaint::isCustomBlend() const {
+    return fBlender && as_BB(fBlender)->isCustomBlend();
+}
+
+void SkPaint::setBlendMode(SkBlendMode mode) {
+    fBlender = (mode != SkBlendMode::kSrcOver) ? SkBlenders::Mode(mode) : nullptr;
+}
+
 void SkPaint::experimental_setBlender(sk_sp<SkBlender> blend) {
     fBlender = std::move(blend);
 }
@@ -234,10 +253,12 @@ template <typename T> uint32_t shift_bits(T value, unsigned shift, unsigned bits
  total : 32
  */
 static uint32_t pack_v68(const SkPaint& paint, unsigned flatFlags) {
+    // If the paint uses a custom blend, the return value from getBlendMode() is indeterminate.
+    SkBlendMode blendMode = paint.isCustomBlend() ? SkBlendMode::kSrcOver : paint.getBlendMode();
     uint32_t packed = 0;
     packed |= shift_bits(((unsigned)paint.isDither() << 1) |
                           (unsigned)paint.isAntiAlias(), 0, 8);
-    packed |= shift_bits(paint.getBlendMode(),      8, 8);
+    packed |= shift_bits(blendMode,                 8, 8);
     packed |= shift_bits(paint.getStrokeCap(),     16, 2);
     packed |= shift_bits(paint.getStrokeJoin(),    18, 2);
     packed |= shift_bits(paint.getStyle(),         20, 2);
@@ -278,7 +299,7 @@ void SkPaintPriv::Flatten(const SkPaint& paint, SkWriteBuffer& buffer) {
         paint.getMaskFilter() ||
         paint.getColorFilter() ||
         paint.getImageFilter() ||
-        paint.getBlender()) {
+        paint.isCustomBlend()) {
         flatFlags |= kHasEffects_FlatFlag;
     }
 
@@ -318,7 +339,6 @@ SkReadPaintResult SkPaintPriv::Unflatten(SkPaint* paint, SkReadBuffer& buffer, S
         paint->setMaskFilter(nullptr);
         paint->setColorFilter(nullptr);
         paint->setImageFilter(nullptr);
-        paint->experimental_setBlender(nullptr);
     } else if (buffer.isVersionLT(SkPicturePriv::kSkBlenderInSkPaint)) {
         // This paint predates the introduction of user blend functions (via SkBlender).
         paint->setPathEffect(buffer.readPathEffect());
@@ -327,7 +347,6 @@ SkReadPaintResult SkPaintPriv::Unflatten(SkPaint* paint, SkReadBuffer& buffer, S
         paint->setColorFilter(buffer.readColorFilter());
         (void)buffer.read32();  // was drawLooper (now deprecated)
         paint->setImageFilter(buffer.readImageFilter());
-        paint->experimental_setBlender(nullptr);
     } else {
         paint->setPathEffect(buffer.readPathEffect());
         paint->setShader(buffer.readShader());

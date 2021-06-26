@@ -65,7 +65,10 @@ public:
         if (dst.colorType() != src.colorType()) {
             return false;
         }
-        if (paint.getMaskFilter() || paint.getColorFilter() || paint.getImageFilter()) {
+        if (paint.getMaskFilter() ||
+            paint.getColorFilter() ||
+            paint.getImageFilter() ||
+            paint.isCustomBlend()) {
             return false;
         }
         if (0xFF != paint.getAlpha()) {
@@ -217,7 +220,7 @@ SkBlitter* SkBlitter::ChooseSprite(const SkPixmap& dst, const SkPaint& paint,
             }
         }
     }
-    if (!blitter && !paint.getMaskFilter()) {
+    if (!blitter && !paint.getMaskFilter() && !paint.isCustomBlend()) {
         blitter = alloc->make<SkRasterPipelineSpriteBlitter>(source, alloc, clipShader);
     }
 
