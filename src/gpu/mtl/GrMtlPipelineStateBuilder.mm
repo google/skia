@@ -803,6 +803,7 @@ bool GrMtlPipelineStateBuilder::PrecompileShaders(GrMtlGpu* gpu, const SkData& c
     pipelineDescriptor.fragmentFunction =
             [fragmentLibrary newFunctionWithName: @"fragmentMain"];
 
+    NSError* error = nil;
 #if GR_METAL_SDK_VERSION >= 230
     if (@available(macOS 11.0, iOS 14.0, *)) {
         id<MTLBinaryArchive> archive = gpu->binaryArchive();
@@ -810,7 +811,6 @@ bool GrMtlPipelineStateBuilder::PrecompileShaders(GrMtlGpu* gpu, const SkData& c
             NSArray* archiveArray = [NSArray arrayWithObjects:archive, nil];
             pipelineDescriptor.binaryArchives = archiveArray;
             BOOL result;
-            NSError* error = nil;
             {
                 TRACE_EVENT0("skia.shaders", "addRenderPipelineFunctionsWithDescriptor");
                 result = [archive addRenderPipelineFunctionsWithDescriptor: pipelineDescriptor
