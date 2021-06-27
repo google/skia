@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "61f0c9aa_7c842b40",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-27T21:17:37Z",
+      "side": 1,
+      "message": "GPU side hits the assert re: xferprocess -vs- fragprocessor?",
+      "revId": "016aafda5186a02a272dc72c215401a20d74058b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
