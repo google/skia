@@ -39,9 +39,8 @@ namespace {
     struct Params {
         sk_sp<SkShader>         shader;
         sk_sp<SkShader>         clip;
-        sk_sp<SkBlender>        blender;
+        sk_sp<SkBlender>        blender;    // never null
         SkColorInfo             dst;
-        SkBlendMode             blendMode;
         Coverage                coverage;
         SkColor4f               paint;
         const SkMatrixProvider& matrices;
@@ -61,8 +60,8 @@ namespace {
                  colorSpace;
         uint8_t  colorType,
                  alphaType,
-                 blendMode,
                  coverage;
+        uint8_t  padding8{0};
         uint32_t padding{0};
         // Params::{paint,quality,matrices} are only passed to {shader,clip}->program(),
         // not used here by the blitter itself.  No need to include them in the key;
@@ -75,7 +74,6 @@ namespace {
                 && this->colorSpace  == that.colorSpace
                 && this->colorType   == that.colorType
                 && this->alphaType   == that.alphaType
-                && this->blendMode   == that.blendMode
                 && this->coverage    == that.coverage;
         }
 
@@ -96,7 +94,6 @@ namespace {
                               key.colorSpace,
                               key.colorType,
                               key.alphaType,
-                              key.blendMode,
                               key.coverage);
     }
 
@@ -190,7 +187,7 @@ namespace {
 
         // Calculate a hash for the blend shader, if one exists.
         uint64_t blendHash = 0;
-        if (params.blender) {
+        {
             const SkBlenderBase* blender = as_BB(params.blender);
             skvm::Builder p;
 
@@ -222,7 +219,6 @@ namespace {
             params.dst.colorSpace() ? params.dst.colorSpace()->hash() : 0,
             SkToU8(params.dst.colorType()),
             SkToU8(params.dst.alphaType()),
-            SkToU8(params.blendMode),
             SkToU8(params.coverage),
         };
     }
@@ -327,9 +323,7 @@ namespace {
         // The math for some blend modes lets us fold coverage into src before the blend, which is
         // simpler than the canonical post-blend lerp().
         bool applyPostBlendCoverage = true;
-        if (!params.blender &&
-            SkBlendMode_ShouldPreScaleCoverage(params.blendMode,
-                                               params.coverage == Coverage::MaskLCD16)) {
+        if (as_BB(params.blender)->shouldPreScaleCoverage(params.coverage == Coverage::MaskLCD16)) {
             applyPostBlendCoverage = false;
             src.r *= cov.r;
             src.g *= cov.g;
@@ -338,9 +332,7 @@ namespace {
         }
 
         // Apply our blend function to the computed color.
-        src = params.blender
-                      ? as_BB(params.blender)->program(p, src, dst, params.dst, uniforms, alloc)
-                      : blend(params.blendMode, src, dst);
+        src = as_BB(params.blender)->program(p, src, dst, params.dst, uniforms, alloc);
 
         if (applyPostBlendCoverage) {
             src.r = lerp(dst.r, src.r, cov.r);
@@ -556,8 +548,11 @@ namespace {
             shader = sk_make_sp<DitherShader>(std::move(shader));
         }
 
-        // Add the user blend function.
+        // Add the blender.
         sk_sp<SkBlender> blender = paint.refBlender();
+        if (!blender) {
+            blender = SkBlenders::Mode(SkBlendMode::kSrcOver);
+        }
 
         // The most common blend mode is SrcOver, and it can be strength-reduced
         // _greatly_ to Src mode when the shader is opaque.
@@ -572,9 +567,8 @@ namespace {
         // the opaque bit is strongly guaranteed to be part of the program and
         // not just a property of the uniforms.  The shader program hash includes
         // this information, making it safe to use anywhere in the blitter codegen.
-        SkBlendMode blendMode = paint.getBlendMode();
-        if ((blendMode == SkBlendMode::kSrcOver && shader->isOpaque()) || blender) {
-            blendMode = SkBlendMode::kSrc;
+        if (as_BB(blender)->isBlendMode(SkBlendMode::kSrcOver) && shader->isOpaque()) {
+            blender = SkBlenders::Mode(SkBlendMode::kSrc);
         }
 
         SkColor4f paintColor = paint.getColor4f();
@@ -587,7 +581,6 @@ namespace {
             std::move(clip),
             std::move(blender),
             { device.colorType(), device.alphaType(), device.refColorSpace() },
-            blendMode,
             Coverage::Full,  // Placeholder... withCoverage() will change as needed.
             paintColor,
             matrices,
