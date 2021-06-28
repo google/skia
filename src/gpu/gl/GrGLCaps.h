@@ -476,6 +476,8 @@ private:
         bool fDisallowBGRA8ReadPixels = false;
         bool fDisallowR8ForPowerVRSGX54x = false;
         bool fDisallowUnorm16Transfers = false;
+        bool fDisallowTextureNorm16 = false;
+        bool fDisallowETC2Compression = false;
     };
 
     void applyDriverCorrectnessWorkarounds(const GrGLContextInfo&, const GrContextOptions&,
