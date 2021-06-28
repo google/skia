@@ -24,7 +24,6 @@ class SkRuntimeEffect;
  */
 class SkBlenderBase : public SkBlender {
 public:
-public:
     /** Returns true if this SkBlender represents any SkBlendMode. */
     bool isBlendMode() const {
         SkBlendMode mode;
@@ -72,6 +71,8 @@ public:
                         SkArenaAlloc* alloc) const {
         return this->onProgram(p, src, dst, colorInfo, uniforms, alloc);
     }
+
+    bool shouldPreScaleCoverage(bool rgb_coverage) const;
 
 #if SK_SUPPORT_GPU
     /**
