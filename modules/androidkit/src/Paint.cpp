@@ -40,6 +40,50 @@ static void Paint_SetStrokeWidth(JNIEnv* env, jobject, jlong native_paint, jfloa
     }
 }
 
+static void Paint_SetStrokeCap(JNIEnv* env, jobject, jlong native_paint, jint native_cap) {
+    if (auto* paint = reinterpret_cast<SkPaint*>(native_paint)) {
+        switch (native_cap)
+        {
+        case 0:
+            paint->setStrokeCap(SkPaint::kButt_Cap);
+            break;
+        case 1:
+            paint->setStrokeCap(SkPaint::kRound_Cap);
+            break;
+        case 2:
+            paint->setStrokeCap(SkPaint::kSquare_Cap);
+            break;
+        default:
+            break;
+        }
+    }
+}
+
+static void Paint_SetStrokeJoin(JNIEnv* env, jobject, jlong native_paint, jint native_join) {
+    if (auto* paint = reinterpret_cast<SkPaint*>(native_paint)) {
+        switch (native_join)
+        {
+        case 0:
+            paint->setStrokeJoin(SkPaint::kMiter_Join);
+            break;
+        case 1:
+            paint->setStrokeJoin(SkPaint::kRound_Join);
+            break;
+        case 2:
+            paint->setStrokeJoin(SkPaint::kBevel_Join);
+            break;
+        default:
+            break;
+        }
+    }
+}
+
+static void Paint_SetStrokeMiter(JNIEnv* env, jobject, jlong native_paint, jfloat limit) {
+    if (auto* paint = reinterpret_cast<SkPaint*>(native_paint)) {
+        paint->setStrokeMiter(limit);
+    }
+}
+
 static void Paint_SetShader(JNIEnv* env, jobject, jlong native_paint, jlong native_shader) {
     if (auto* paint = reinterpret_cast<SkPaint*>(native_paint)) {
         paint->setShader(sk_ref_sp(reinterpret_cast<SkShader*>(native_shader)));
@@ -61,6 +105,9 @@ int register_androidkit_Paint(JNIEnv* env) {
         {"nSetColor"       , "(JFFFF)V", reinterpret_cast<void*>(Paint_SetColor)},
         {"nSetStroke"      , "(JZ)V"   , reinterpret_cast<void*>(Paint_SetStroke)},
         {"nSetStrokeWidth" , "(JF)V"   , reinterpret_cast<void*>(Paint_SetStrokeWidth)},
+        {"nSetStrokeCap"   , "(JI)V"   , reinterpret_cast<void*>(Paint_SetStrokeCap)},
+        {"nSetStrokeJoin"  , "(JI)V"   , reinterpret_cast<void*>(Paint_SetStrokeJoin)},
+        {"nSetStrokeMiter" , "(JF)V"   , reinterpret_cast<void*>(Paint_SetStrokeMiter)},
         {"nSetShader"      , "(JJ)V"   , reinterpret_cast<void*>(Paint_SetShader)},
         {"nSetImageFilter" , "(JJ)V"   , reinterpret_cast<void*>(Paint_SetImageFilter)},
     };
