@@ -233,6 +233,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			configs = append(configs, glPrefix, glPrefix+"dft", glPrefix+"srgb")
 			if sampleCount > 0 {
 				configs = append(configs, fmt.Sprintf("%smsaa%d", glPrefix, sampleCount))
+				// Temporarily limit the bots we test dynamic MSAA on.
+				if b.gpu("QuadroP400", "MaliG77") {
+					configs = append(configs, fmt.Sprintf("%sdmsaa", glPrefix))
+				}
 			}
 		}
 
@@ -451,11 +455,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			// verify the chopping logic.
 			args = append(args,
 				"--pr", "tess", "--hwtess", "--alwaysHwTess", "--maxTessellationSegments", "16")
-		}
-
-		// Test dynamic MSAA.
-		if b.extraConfig("DMSAA") {
-			configs = []string{glPrefix + "dmsaa"}
 		}
 
 		// DDL is a GPU-only feature
