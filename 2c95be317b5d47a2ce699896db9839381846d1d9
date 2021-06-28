@@ -46,6 +46,30 @@
       },
       "revId": "2c95be317b5d47a2ce699896db9839381846d1d9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a4610a84_6d38c3ff",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 479,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-28T15:03:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6a241956_08842bb2",
+      "range": {
+        "startLine": 479,
+        "startChar": 13,
+        "endLine": 479,
+        "endChar": 35
+      },
+      "revId": "2c95be317b5d47a2ce699896db9839381846d1d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
