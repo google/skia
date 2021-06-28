@@ -19,6 +19,12 @@ class AnimationRenderer extends SurfaceRenderer {
                    mRadialGradient,
                    mConicalGradient,
                    mSweepGradient;
+    private ColorFilter mColorFilter = new MatrixColorFilter(new float[]{
+        0.75f, 0, 0, 0,    0,
+            0, 1, 0, 0, 0.5f,
+            0, 0, 1, 0,    0,
+            0, 0, 0, 1,    0,
+    });
 
     @Override
     protected void onSurfaceInitialized(Surface surface) {
@@ -38,8 +44,8 @@ class AnimationRenderer extends SurfaceRenderer {
 
         float[] pos = {0, 0.5f, 1};
 
-        mLinearGradient = new LinearGradient(0, 0, sw, 0,
-                                             colors1, pos, TileMode.CLAMP);
+        mLinearGradient = new LinearGradient(0, 0, sw/4, 0,
+                                             colors1, pos, TileMode.REPEAT);
         mRadialGradient = new RadialGradient(sw/2, sh/4, Math.min(sw, sh)/2,
                                              colors2, pos, TileMode.REPEAT);
         mConicalGradient = new TwoPointConicalGradient(sw/4, sh/2, sw/4,
@@ -72,7 +78,7 @@ class AnimationRenderer extends SurfaceRenderer {
                     kHeight = 200;
 
         canvas.drawRect(cx - kWidth/2, cy - kHeight/2, cx + kWidth/2, cy + kHeight/2,
-                        new Paint().setShader(shader));
+                        new Paint().setShader(shader).setColorFilter(mColorFilter));
     }
 }
 

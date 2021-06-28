@@ -26,6 +26,11 @@ public class Paint {
         return this;
     }
 
+    public Paint setColorFilter(@Nullable ColorFilter filter) {
+        nSetColorFilter(mNativeInstance, filter != null ? filter.getNativeInstance() : 0);
+        return this;
+    }
+
     public Paint setShader(@Nullable Shader shader) {
         nSetShader(mNativeInstance, shader != null ? shader.getNativeInstance() : 0);
         return this;
@@ -107,6 +112,7 @@ public class Paint {
     private static native void nSetStrokeCap(long nativeInstance, int native_cap);
     private static native void nSetStrokeJoin(long nativeInstance, int native_join);
     private static native void nSetStrokeMiter(long nativeInstance, float limit);
+    private static native void nSetColorFilter(long nativeInstance, long nativeCF);
     private static native void nSetShader(long nativeInstance, long nativeShader);
     private static native void nSetImageFilter(long nativeInstance, long nativeFilter);
 }
