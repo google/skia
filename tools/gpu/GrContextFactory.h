@@ -31,19 +31,20 @@ public:
     // The availability of context types is subject to platform and build configuration
     // restrictions.
     enum ContextType {
-        kGL_ContextType,             //! OpenGL context.
-        kGLES_ContextType,           //! OpenGL ES context.
-        kANGLE_D3D9_ES2_ContextType, //! ANGLE on Direct3D9 OpenGL ES 2 context.
-        kANGLE_D3D11_ES2_ContextType,//! ANGLE on Direct3D11 OpenGL ES 2 context.
-        kANGLE_D3D11_ES3_ContextType,//! ANGLE on Direct3D11 OpenGL ES 3 context.
-        kANGLE_GL_ES2_ContextType,   //! ANGLE on OpenGL OpenGL ES 2 context.
-        kANGLE_GL_ES3_ContextType,   //! ANGLE on OpenGL OpenGL ES 3 context.
-        kCommandBuffer_ContextType,  //! Chromium command buffer OpenGL ES context.
-        kVulkan_ContextType,         //! Vulkan
-        kMetal_ContextType,          //! Metal
-        kDirect3D_ContextType,       //! Direct3D 12
-        kDawn_ContextType,           //! Dawn
-        kMock_ContextType,           //! Mock context that does not draw.
+        kGL_ContextType,                 //! OpenGL context.
+        kGLES_ContextType,               //! OpenGL ES context.
+        kANGLE_D3D9_ES2_ContextType,     //! ANGLE on Direct3D9 OpenGL ES 2 context.
+        kANGLE_D3D11_ES2_ContextType,    //! ANGLE on Direct3D11 OpenGL ES 2 context.
+        kANGLE_D3D11_ES3_ContextType,    //! ANGLE on Direct3D11 OpenGL ES 3 context.
+        kANGLE_GL_ES2_ContextType,       //! ANGLE on OpenGL OpenGL ES 2 context.
+        kANGLE_GL_ES3_ContextType,       //! ANGLE on OpenGL OpenGL ES 3 context.
+        kCommandBuffer_ES2_ContextType,  //! Chromium command buffer OpenGL ES 2 context.
+        kCommandBuffer_ES3_ContextType,  //! Chromium command buffer OpenGL ES 3 context.
+        kVulkan_ContextType,             //! Vulkan
+        kMetal_ContextType,              //! Metal
+        kDirect3D_ContextType,           //! Direct3D 12
+        kDawn_ContextType,               //! Dawn
+        kMock_ContextType,               //! Mock context that does not draw.
         kLastContextType = kMock_ContextType
     };
 
@@ -102,8 +103,10 @@ public:
                 return "ANGLE GL ES2";
             case kANGLE_GL_ES3_ContextType:
                 return "ANGLE GL ES3";
-            case kCommandBuffer_ContextType:
-                return "Command Buffer";
+            case kCommandBuffer_ES2_ContextType:
+                return "Command Buffer ES2";
+            case kCommandBuffer_ES3_ContextType:
+                return "Command Buffer ES3";
             case kVulkan_ContextType:
                 return "Vulkan";
             case kMetal_ContextType:
