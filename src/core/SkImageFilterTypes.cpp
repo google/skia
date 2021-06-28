@@ -72,6 +72,7 @@ bool Mapping::adjustLayerSpace(const SkMatrix& layer) {
         return false;
     }
     fParamToLayerMatrix.postConcat(layer);
+    fDevToLayerMatrix.postConcat(layer);
     fLayerToDevMatrix.preConcat(invLayer);
     return true;
 }
