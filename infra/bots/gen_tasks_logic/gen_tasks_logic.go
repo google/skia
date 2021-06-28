@@ -614,7 +614,7 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 				"ReleaseAndAbandonGpuContext", "FSAA", "FAAA", "FDAA", "NativeFonts", "GDI",
 				"NoGPUThreads", "ProcDump", "DDL1", "DDL3", "OOPRDDL", "T8888",
 				"DDLTotal", "DDLRecord", "9x9", "BonusConfigs", "SkottieTracing", "SkottieWASM",
-				"GpuTess", "DMSAA", "DMSAAStats", "Mskp", "Docker", "PDF", "SkVM", "Puppeteer",
+				"GpuTess", "DMSAAStats", "Mskp", "Docker", "PDF", "SkVM", "Puppeteer",
 				"SkottieFrames", "RenderSKP", "CanvasPerf", "AllPathsVolatile", "WebGL2"}
 			keep := make([]string, 0, len(ec))
 			for _, part := range ec {
