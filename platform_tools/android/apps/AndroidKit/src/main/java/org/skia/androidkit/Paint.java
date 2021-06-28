@@ -9,9 +9,6 @@ package org.skia.androidkit;
 
 import android.support.annotation.Nullable;
 
-import org.skia.androidkit.Color;
-import org.skia.androidkit.Shader;
-
 public class Paint {
     private long mNativeInstance;
 
@@ -26,6 +23,11 @@ public class Paint {
 
     public Paint setColor(float r, float g, float b, float a) {
         nSetColor(mNativeInstance, r, g, b, a);
+        return this;
+    }
+
+    public Paint setColorFilter(@Nullable ColorFilter filter) {
+        nSetColorFilter(mNativeInstance, filter != null ? filter.getNativeInstance() : 0);
         return this;
     }
 
@@ -70,6 +72,7 @@ public class Paint {
     private static native void nSetColor(long nativeInstance, float r, float g, float b, float a);
     private static native void nSetStroke(long nativeInstance, boolean stroke);
     private static native void nSetStrokeWidth(long nativeInstance, float w);
+    private static native void nSetColorFilter(long nativeInstance, long nativeCF);
     private static native void nSetShader(long nativeInstance, long nativeShader);
     private static native void nSetImageFilter(long nativeInstance, long nativeFilter);
 }
