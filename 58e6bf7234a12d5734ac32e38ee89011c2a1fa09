@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7a4dd632_8191ee9e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2021-06-28T15:14:02Z",
+      "side": 1,
+      "message": "Pixel2XL is already lowish on capacity (4 devices) but better than the not-quite-one Pixel device we currently have.",
+      "revId": "58e6bf7234a12d5734ac32e38ee89011c2a1fa09",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
