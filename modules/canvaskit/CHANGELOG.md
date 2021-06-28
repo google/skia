@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.28.1] - 2021-06-28
+
 ### Added
  - `Typeface.MakeFreeTypeFaceFromData` as a more convenient way to create a Typeface from the bytes
    of a .ttf, .woff, or .woff2 file.
@@ -13,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
  - ICU has been updated from v65 to v69.
+ - Freetype has been updated from f9350be to ff40776.
 
 ### Fixed
  - We should no longer have to decode the same font multiple times (skbug.com/12112)
@@ -21,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated
  - `FontMgr.MakeTypefaceFromData` will be removed in favor of `Typeface.MakeFreeTypeFaceFromData`
  - `FontMgr.RefDefault` will be removed in an upcoming version. It's only real use was
-   for `FontMgr.MakeTypeface`.
+   for `FontMgr.MakeTypefaceFromData`.
 
 ## [0.28.0] - 2021-06-17
 
