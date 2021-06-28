@@ -91,7 +91,7 @@ id<MTLLibrary> GrMtlPipelineStateBuilder::compileMtlShaderLibrary(
         const SkSL::String& shader, SkSL::Program::Inputs inputs,
         GrContextOptions::ShaderErrorHandler* errorHandler) {
     id<MTLLibrary> shaderLibrary = GrCompileMtlShaderLibrary(fGpu, shader, errorHandler);
-    if (shaderLibrary != nil && inputs.fRTHeight) {
+    if (shaderLibrary != nil && inputs.fUseRTFlipUniform) {
         this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
     }
     return shaderLibrary;
@@ -832,7 +832,7 @@ bool GrMtlPipelineStateBuilder::PrecompileShaders(GrMtlGpu* gpu, const SkData& c
                                           completionHandler: completionHandler];
     }
 
-    precompiledLibs->fRTHeight = inputs[kFragment_GrShaderType].fRTHeight;
+    precompiledLibs->fRTFlip = inputs[kFragment_GrShaderType].fUseRTFlipUniform;
     return true;
 }
 

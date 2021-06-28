@@ -21,9 +21,6 @@ class ExternalFunction;
  * Holds the compiler settings for a program.
  */
 struct ProgramSettings {
-    // if false, sk_FragCoord is exactly the same as gl_FragCoord. If true, the y coordinate
-    // must be flipped.
-    bool fFlipY = false;
     // If true the destination fragment color is read sk_FragColor. It must be declared inout.
     bool fFragColorIsInOut = false;
     // if true, Setting objects (e.g. sk_Caps.fbFetchSupport) should be replaced with their
@@ -33,13 +30,13 @@ struct ProgramSettings {
     bool fForceHighPrecision = false;
     // if true, add -0.5 bias to LOD of all texture lookups
     bool fSharpenTextures = false;
-    // if the program needs to create an RTHeight uniform, this is its offset in the uniform
+    // if the program needs to create an RTFlip uniform, this is its offset in the uniform
     // buffer
-    int fRTHeightOffset = -1;
-    // if the program needs to create an RTHeight uniform and is creating spriv, this is the
+    int fRTFlipOffset = -1;
+    // if the program needs to create an RTFlip uniform and is creating spriv, this is the
     // binding and set number of the uniform buffer.
-    int fRTHeightBinding = -1;
-    int fRTHeightSet = -1;
+    int fRTFlipBinding = -1;
+    int fRTFlipSet = -1;
     // If layout(set=S, binding=B) is not specified for a uniform, these values will be used.
     // At present, zero is always used by our backends.
     int fDefaultUniformSet = 0;
@@ -75,6 +72,8 @@ struct ProgramSettings {
     bool fDSLMangling = true;
     // If true, the DSL should automatically mark variables declared upon creation.
     bool fDSLMarkVarsDeclared = false;
+    // If true, the DSL should install a memory pool when possible.
+    bool fDSLUseMemoryPool = true;
     // External functions available for use in runtime effects. These values are registered in the
     // symbol table of the Program, but ownership is *not* transferred. It is up to the caller to
     // keep them alive.
