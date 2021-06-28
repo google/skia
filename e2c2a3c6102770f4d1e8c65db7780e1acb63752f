@@ -16,6 +16,23 @@
       "message": "needed for this: https://skia-review.googlesource.com/c/skia/+/421997",
       "revId": "e2c2a3c6102770f4d1e8c65db7780e1acb63752f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c33a02c5_d67bfa67",
+        "filename": "include/private/SkTOptional.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-28T19:31:42Z",
+      "side": 1,
+      "message": "Are we concerned about multiple definitions of a (zero-byte) symbol? Sigh, C++.",
+      "revId": "e2c2a3c6102770f4d1e8c65db7780e1acb63752f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
