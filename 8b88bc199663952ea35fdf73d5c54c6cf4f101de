@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "19447e68_8bbc687f",
+        "filename": "src/gpu/vk/GrVkDescriptorSetManager.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-06-28T21:07:10Z",
+      "side": 1,
+      "message": "Won\u0027t this overwrite the values you set above? Or do you only care that it\u0027s set for failure?",
+      "range": {
+        "startLine": 124,
+        "startChar": 8,
+        "endLine": 124,
+        "endChar": 48
+      },
+      "revId": "8b88bc199663952ea35fdf73d5c54c6cf4f101de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
