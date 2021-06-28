@@ -31,7 +31,7 @@ would display the animation (e.g. using clock time to determine where to seek, n
     const WARM_UP_FRAMES = 0; // No warmup, so that the jank of initial frames gets measured.
     // We sample MAX_FRAMES or until MAX_SAMPLE_SECONDS has elapsed.
     const MAX_FRAMES = 600; // ~10s at 60fps
-    const MAX_SAMPLE_MS = 45 * 1000; // in case something takes a while, stop after 30 seconds.
+    const MAX_SAMPLE_MS = 50 * 1000; // in case something takes a while, stop after 50 seconds.
     const LOTTIE_JSON_PATH = '/static/lottie.json';
     const ASSETS_PATH = '/static/assets/';
     (function() {
@@ -139,6 +139,9 @@ would display the animation (e.g. using clock time to determine where to seek, n
 
   function loadAssets(assets) {
     const promises = [];
+    if (!assets) {
+      return [];
+    }
     for (const asset of assets) {
       // asset.p is the filename, if it's an image.
       // Don't try to load inline/dataURI images.

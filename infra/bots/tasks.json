@@ -25897,7 +25897,7 @@
         {
           "name": "skia/internal/lotties_with_assets",
           "path": "lotties_with_assets",
-          "version": "version:0"
+          "version": "version:1"
         }
       ],
       "command": [
@@ -28277,7 +28277,7 @@
         {
           "name": "skia/internal/lotties_with_assets",
           "path": "lotties_with_assets",
-          "version": "version:0"
+          "version": "version:1"
         }
       ],
       "command": [
@@ -28349,7 +28349,7 @@
         {
           "name": "skia/internal/lotties_with_assets",
           "path": "lotties_with_assets",
-          "version": "version:0"
+          "version": "version:1"
         }
       ],
       "command": [
