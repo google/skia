@@ -36,6 +36,17 @@ constexpr static auto kAtlasAlgorithm = GrDynamicAtlas::RectanizerAlgorithm::kPo
 constexpr static int kAtlasMaxPathHeight = 128;
 
 bool GrTessellationPathRenderer::IsSupported(const GrCaps& caps) {
+    SkDebugf(R"(GrTessellationPathRenderer::IsSupported(
+!caps.avoidStencilBuffers()=%i
+caps.drawInstancedSupport()=%i
+caps.shaderCaps()->vertexIDSupport()=%i
+!caps.disableTessellationPathRenderer()=%i
+))",
+!caps.avoidStencilBuffers(),
+caps.drawInstancedSupport(),
+caps.shaderCaps()->vertexIDSupport(),
+!caps.disableTessellationPathRenderer());
+
     return !caps.avoidStencilBuffers() &&
            caps.drawInstancedSupport() &&
            caps.shaderCaps()->vertexIDSupport() &&
