@@ -149,7 +149,7 @@ GrMtlGpu::GrMtlGpu(GrDirectContext* direct, const GrContextOptions& options,
         , fOutstandingCommandBuffers(sizeof(OutstandingCommandBuffer), kDefaultOutstandingAllocCnt)
         , fResourceProvider(this)
         , fStagingBufferManager(this)
-        , fUniformsRingBuffer(this, 128 * 1024, 256, GrGpuBufferType::kVertex)
+        , fUniformsRingBuffer(this, 128 * 1024, 256, GrGpuBufferType::kUniform)
         , fDisconnected(false) {
     fMtlCaps.reset(new GrMtlCaps(options, fDevice, featureSet));
     this->initCapsAndCompiler(fMtlCaps);
@@ -487,22 +487,25 @@ bool GrMtlGpu::clearTexture(GrMtlTexture* tex, size_t bpp, uint32_t levelMask) {
     }
     SkASSERT(combinedBufferSize > 0 && !individualMipOffsets.empty());
 
-    // TODO: Create GrMtlTransferBuffer
-    NSUInteger options = 0;
-    if (@available(macOS 10.11, iOS 9.0, *)) {
-        options |= MTLResourceStorageModePrivate;
+#ifdef SK_BUILD_FOR_MAC
+    static const size_t kMinAlignment = 4;
+#else
+    static const size_t kMinAlignment = 1;
+#endif
+    size_t alignment = std::max(bpp, kMinAlignment);
+    GrStagingBufferManager::Slice slice = fStagingBufferManager.allocateStagingBufferSlice(
+            combinedBufferSize, alignment);
+    if (!slice.fBuffer) {
+        return nullptr;
     }
-    id<MTLBuffer> transferBuffer = [fDevice newBufferWithLength: combinedBufferSize
-                                                        options: options];
-    if (nil == transferBuffer) {
-        return false;
-    }
+    GrMtlBuffer* mtlBuffer = static_cast<GrMtlBuffer*>(slice.fBuffer);
+    id<MTLBuffer> transferBuffer = mtlBuffer->mtlBuffer();
 
     auto cmdBuffer = this->commandBuffer();
     id<MTLBlitCommandEncoder> GR_NORETAIN blitCmdEncoder = cmdBuffer->getBlitCommandEncoder();
     // clear the buffer to transparent black
     NSRange clearRange;
-    clearRange.location = 0;
+    clearRange.location = slice.fOffset;
     clearRange.length = combinedBufferSize;
     [blitCmdEncoder fillBuffer: transferBuffer
                          range: clearRange
@@ -517,7 +520,7 @@ bool GrMtlGpu::clearTexture(GrMtlTexture* tex, size_t bpp, uint32_t levelMask) {
             const size_t rowBytes = currentWidth * bpp;
 
             [blitCmdEncoder copyFromBuffer: transferBuffer
-                              sourceOffset: individualMipOffsets[currentMipLevel]
+                              sourceOffset: slice.fOffset + individualMipOffsets[currentMipLevel]
                          sourceBytesPerRow: rowBytes
                        sourceBytesPerImage: rowBytes * currentHeight
                                 sourceSize: MTLSizeMake(currentWidth, currentHeight, 1)
@@ -924,6 +927,7 @@ bool GrMtlGpu::createMtlTextureForBackendSurface(MTLPixelFormat mtlFormat,
         desc.textureType = MTLTextureType2DMultisample;
     }
     id<MTLTexture> testTexture = [fDevice newTextureWithDescriptor: desc];
+    testTexture.label = @"testTexture";
     info->fTexture.reset(GrRetainPtrFromId(testTexture));
     return true;
 }
