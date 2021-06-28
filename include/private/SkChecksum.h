@@ -61,6 +61,10 @@ struct SkGoodHash {
     uint32_t operator()(const SkString& k) const {
         return SkOpts::hash_fn(k.c_str(), k.size(), 0);
     }
+
+    uint32_t operator()(const std::string& k) const {
+        return SkOpts::hash_fn(k.c_str(), k.size(), 0);
+    }
 };
 
 #endif
