@@ -231,7 +231,8 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fDrawInstancedSupport =
                 version >= GR_GL_VER(3, 0) ||
                 (ctxInfo.hasExtension("GL_EXT_draw_instanced") &&
-                 ctxInfo.hasExtension("GL_EXT_instanced_arrays"));
+                 ctxInfo.hasExtension("GL_EXT_instanced_arrays")) ||
+                ctxInfo.hasExtension("GL_ANGLE_instanced_arrays");
     }  else if (GR_IS_GR_WEBGL(standard)) {
         // WebGL 2.0 has DrawArraysInstanced and drawElementsInstanced
         fDrawInstancedSupport = version >= GR_GL_VER(2, 0);
