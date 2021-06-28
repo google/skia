@@ -40,6 +40,33 @@ private:
     CString& operator=(const CString&) = delete;
 };
 
+// RAII helper for float array access
+class CFloats {
+public:
+    CFloats(JNIEnv* env, const jfloatArray& jfloats)
+        : fEnv(env)
+        , fJFloats(jfloats)
+        , fCFloats(env->GetFloatArrayElements(jfloats, nullptr))
+    {}
+
+    ~CFloats() {
+        fEnv->ReleaseFloatArrayElements(fJFloats, fCFloats, 0);
+    }
+
+    operator const float*() const { return fCFloats; }
+
+private:
+    JNIEnv*            fEnv;
+    const jfloatArray& fJFloats;
+    float*             fCFloats;
+
+
+    CFloats(CFloats&&) = delete;
+    CFloats(const CFloats&) = delete;
+    CFloats& operator=(CFloats&&) = delete;
+    CFloats& operator=(const CFloats&) = delete;
+};
+
 SkSamplingOptions SamplingOptions(jint, jfloat, jfloat);
 SkTileMode TileMode(jint);
 

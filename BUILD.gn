@@ -2519,6 +2519,7 @@ if (skia_enable_tools) {
       sources = [
         "modules/androidkit/src/AndroidKit.cpp",
         "modules/androidkit/src/Canvas.cpp",
+        "modules/androidkit/src/ColorFilters.cpp",
         "modules/androidkit/src/Gradients.cpp",
         "modules/androidkit/src/Image.cpp",
         "modules/androidkit/src/ImageFilter.cpp",
