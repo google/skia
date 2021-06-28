@@ -193,9 +193,6 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLESInterface(void *ctx, GrGLGetProc
     } else if (extensions.has("GL_EXT_draw_instanced")) {
         GET_PROC_SUFFIX(DrawArraysInstanced, EXT);
         GET_PROC_SUFFIX(DrawElementsInstanced, EXT);
-    } else if (extensions.has("GL_ANGLE_instanced_arrays")) {
-        GET_PROC_SUFFIX(DrawArraysInstanced, ANGLE);
-        GET_PROC_SUFFIX(DrawElementsInstanced, ANGLE);
     }
 
     if (extensions.has("GL_EXT_base_instance")) {
@@ -277,8 +274,6 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLESInterface(void *ctx, GrGLGetProc
         GET_PROC(VertexAttribDivisor);
     } else if (extensions.has("GL_EXT_instanced_arrays")) {
         GET_PROC_SUFFIX(VertexAttribDivisor, EXT);
-    } else if (extensions.has("GL_ANGLE_instanced_arrays")) {
-        GET_PROC_SUFFIX(VertexAttribDivisor, ANGLE);
     }
 
     if (glVer >= GR_GL_VER(3,0)) {
