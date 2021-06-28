@@ -469,7 +469,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         }
     } else if (GR_IS_GR_GL_ES(standard)) {
         // Unextended GLES2 doesn't have any buffer mapping.
-        fMapBufferFlags = kNone_MapBufferType;
+        fMapBufferFlags = kNone_MapFlags;
         if (ctxInfo.hasExtension("GL_CHROMIUM_map_sub")) {
             fMapBufferFlags = kCanMap_MapFlag | kSubset_MapFlag;
             fMapBufferType = kChromium_MapBufferType;
@@ -482,7 +482,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         }
     } else if (GR_IS_GR_WEBGL(standard)) {
         // explicitly removed https://www.khronos.org/registry/webgl/specs/2.0/#5.14
-        fMapBufferFlags = kNone_MapBufferType;
+        fMapBufferFlags = kNone_MapFlags;
     }
 
     if (GR_IS_GR_GL(standard)) {
@@ -2793,16 +2793,19 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         FormatInfo& info = this->getFormatInfo(GrGLFormat::kCOMPRESSED_RGB8_ETC2);
         info.fFormatType = FormatType::kNormalizedFixedPoint;
         info.fInternalFormatForTexImageOrStorage = GR_GL_COMPRESSED_RGB8_ETC2;
-        if (GR_IS_GR_GL(standard)) {
-            if (version >= GR_GL_VER(4, 3) || ctxInfo.hasExtension("GL_ARB_ES3_compatibility")) {
-                info.fFlags = FormatInfo::kTexturable_Flag;
-            }
-        } else if (GR_IS_GR_GL_ES(standard)) {
-            if (version >= GR_GL_VER(3, 0) ||
-                ctxInfo.hasExtension("GL_OES_compressed_ETC2_RGB8_texture")) {
-                info.fFlags = FormatInfo::kTexturable_Flag;
-            }
-        } // No WebGL support
+        if (!formatWorkarounds.fDisallowETC2Compression) {
+            if (GR_IS_GR_GL(standard)) {
+                if (version >= GR_GL_VER(4, 3) ||
+                    ctxInfo.hasExtension("GL_ARB_ES3_compatibility")) {
+                    info.fFlags = FormatInfo::kTexturable_Flag;
+                }
+            } else if (GR_IS_GR_GL_ES(standard)) {
+                if (version >= GR_GL_VER(3, 0) ||
+                    ctxInfo.hasExtension("GL_OES_compressed_ETC2_RGB8_texture")) {
+                    info.fFlags = FormatInfo::kTexturable_Flag;
+                }
+            } // No WebGL support
+        }
 
         // There are no support GrColorTypes for this format
     }
@@ -2830,11 +2833,14 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         info.fDefaultExternalType = GR_GL_UNSIGNED_SHORT;
         info.fDefaultColorType = GrColorType::kR_16;
         bool r16Supported = false;
-        if (GR_IS_GR_GL(standard)) {
-            r16Supported = version >= GR_GL_VER(3, 0) || ctxInfo.hasExtension("GL_ARB_texture_rg");
-        } else if (GR_IS_GR_GL_ES(standard)) {
-            r16Supported = ctxInfo.hasExtension("GL_EXT_texture_norm16");
-        }  // No WebGL support
+        if (!formatWorkarounds.fDisallowTextureUnorm16) {
+            if (GR_IS_GR_GL(standard)) {
+                r16Supported = version >= GR_GL_VER(3, 0) ||
+                               ctxInfo.hasExtension("GL_ARB_texture_rg");
+            } else if (GR_IS_GR_GL_ES(standard)) {
+                r16Supported = ctxInfo.hasExtension("GL_EXT_texture_norm16");
+            }  // No WebGL support
+        }
 
         if (r16Supported) {
             info.fFlags = FormatInfo::kTexturable_Flag | msaaRenderFlags;
@@ -2903,11 +2909,14 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         info.fDefaultExternalType = GR_GL_UNSIGNED_SHORT;
         info.fDefaultColorType = GrColorType::kRG_1616;
         bool rg16Supported = false;
-        if (GR_IS_GR_GL(standard)) {
-            rg16Supported = version >= GR_GL_VER(3, 0) || ctxInfo.hasExtension("GL_ARB_texture_rg");
-        } else if (GR_IS_GR_GL_ES(standard)) {
-            rg16Supported = ctxInfo.hasExtension("GL_EXT_texture_norm16");
-        }  // No WebGL support
+        if (!formatWorkarounds.fDisallowTextureUnorm16) {
+            if (GR_IS_GR_GL(standard)) {
+                rg16Supported = version >= GR_GL_VER(3, 0) ||
+                                ctxInfo.hasExtension("GL_ARB_texture_rg");
+            } else if (GR_IS_GR_GL_ES(standard)) {
+                rg16Supported = ctxInfo.hasExtension("GL_EXT_texture_norm16");
+            }  // No WebGL support
+        }
 
         if (rg16Supported) {
             info.fFlags = FormatInfo::kTexturable_Flag | msaaRenderFlags;
@@ -2966,11 +2975,13 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
     // Format: RGBA16
     {
         bool rgba16Support = false;
-        if (GR_IS_GR_GL(standard)) {
-            rgba16Support = version >= GR_GL_VER(3, 0);
-        } else if (GR_IS_GR_GL_ES(standard)) {
-            rgba16Support = ctxInfo.hasExtension("GL_EXT_texture_norm16");
-        }  // No WebGL support
+        if (!formatWorkarounds.fDisallowTextureUnorm16) {
+            if (GR_IS_GR_GL(standard)) {
+                rgba16Support = version >= GR_GL_VER(3, 0);
+            } else if (GR_IS_GR_GL_ES(standard)) {
+                rgba16Support = ctxInfo.hasExtension("GL_EXT_texture_norm16");
+            }  // No WebGL support
+        }
 
         FormatInfo& info = this->getFormatInfo(GrGLFormat::kRGBA16);
         info.fFormatType = FormatType::kNormalizedFixedPoint;
@@ -3587,6 +3598,16 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     }
 #endif
 
+    if (ctxInfo.isOverCommandBuffer() && ctxInfo.version() >= GR_GL_VER(3,0)) {
+        formatWorkarounds->fDisallowTextureUnorm16 = true;  // http://crbug.com/1224108
+        formatWorkarounds->fDisallowETC2Compression = true;  // http://crbug.com/1224111
+        fTransferFromSurfaceToBufferSupport = false;  // http://crbug.com/1224138
+
+        // http://crbug.com/1224117
+        fMapBufferFlags = kNone_MapFlags;
+        fMapBufferType = kNone_MapBufferType;
+    }
+
     // https://b.corp.google.com/issues/143074513
     // https://skbug.com/11152
     if (ctxInfo.renderer() == GrGLRenderer::kAdreno615 ||
@@ -3740,6 +3761,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // glGenerateMipmap. Our implementation requires mip-level sampling control. Additionally,
     // it can be much slower (especially on mobile GPUs), so we opt-in only when necessary:
     if (fMipmapLevelControlSupport &&
+        !ctxInfo.isOverCommandBuffer() &&  // http://crbug.com/1224110
         (contextOptions.fDoManualMipmapping                 ||
          ctxInfo.vendor()  == GrGLVendor::kIntel            ||
          (ctxInfo.driver() == GrGLDriver::kNVIDIA && isMAC) ||
