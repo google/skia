@@ -67,9 +67,6 @@ void DSLFunction::init(const DSLType& returnType, skstd::string_view name,
         param->fDeclaration = nullptr;
     }
     SkASSERT(paramVars.size() == params.size());
-    for (size_t i = 0; i < params.size(); ++i) {
-        params[i]->fVar = paramVars[i].get();
-    }
     fDecl = SkSL::FunctionDeclaration::Convert(DSLWriter::Context(),
                                                *DSLWriter::SymbolTable(),
                                                /*offset=*/-1,
@@ -77,10 +74,17 @@ void DSLFunction::init(const DSLType& returnType, skstd::string_view name,
                                                isMain ? name : DSLWriter::Name(name),
                                                std::move(paramVars), &returnType.skslType(),
                                                /*isBuiltin=*/false);
+    DSLWriter::ReportErrors();
+    if (fDecl) {
+        for (size_t i = 0; i < params.size(); ++i) {
+            params[i]->fVar = fDecl->parameters()[i];
+        }
+    }
 }
 
 void DSLFunction::define(DSLBlock block) {
     if (!fDecl) {
+        block.release();
         return;
     }
     SkASSERTF(!fDecl->definition(), "function '%s' already defined", fDecl->description().c_str());

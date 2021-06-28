@@ -36,6 +36,11 @@ DSLBlock::~DSLBlock() {
 }
 
 std::unique_ptr<SkSL::Statement> DSLBlock::release() {
+    for (int i = fStatements.count() - 1; i >= 0; --i) {
+        if (!fStatements[i]) {
+            fStatements.removeShuffle(i);
+        }
+    }
     return std::make_unique<SkSL::Block>(/*offset=*/-1, std::move(fStatements),
                                          std::move(fSymbols));
 }
