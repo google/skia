@@ -416,12 +416,16 @@ class Mapping {
 public:
     Mapping() = default;
 
-    // This constructor allows the decomposition to be explicitly provided
+    // This constructor allows the decomposition to be explicitly provided, requires
+    // layerToDev to be invertable.
     Mapping(const SkMatrix& layerToDev, const SkMatrix& paramToLayer)
             : fLayerToDevMatrix(layerToDev)
-            , fParamToLayerMatrix(paramToLayer) {}
+            , fParamToLayerMatrix(paramToLayer) {
+        SkAssertResult(fLayerToDevMatrix.invert(&fDevToLayerMatrix));
+    }
 
     // Make the default decomposition Mapping, given the total CTM and the root image filter.
+    // Requires 'ctm' to be invertible.
     static Mapping DecomposeCTM(const SkMatrix& ctm, const SkImageFilter* filter,
                                 const skif::ParameterSpace<SkPoint>& representativePoint);
 
@@ -458,15 +462,7 @@ public:
 
     template<typename T>
     LayerSpace<T> deviceToLayer(const DeviceSpace<T>& devGeometry) const {
-        // The mapping from device space to layer space is defined by the inverse of the
-        // layer-to-device matrix
-        SkMatrix devToLayerMatrix;
-        if (!fLayerToDevMatrix.invert(&devToLayerMatrix)) {
-            // Punt and just pass through the geometry unmodified...
-            return LayerSpace<T>(static_cast<const T&>(devGeometry));
-        } else {
-            return LayerSpace<T>(map(static_cast<const T&>(devGeometry), devToLayerMatrix));
-        }
+        return LayerSpace<T>(map(static_cast<const T&>(devGeometry), fDevToLayerMatrix));
     }
 
     template<typename T>
@@ -481,6 +477,9 @@ private:
     // sometimes neither).
     SkMatrix fLayerToDevMatrix;
     SkMatrix fParamToLayerMatrix;
+
+    // Cached inverse of fLayerToDevMatrix
+    SkMatrix fDevToLayerMatrix;
 
     // Actual geometric mapping operations that work on coordinates and matrices w/o the type
     // safety of the coordinate space wrappers (hence these are private).
