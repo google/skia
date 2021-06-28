@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c03c8a20_b8d5d397",
+        "filename": "gm/badpaint.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-06-28T19:29:27Z",
+      "side": 1,
+      "message": "debugging/leftover?",
+      "revId": "888ce0ea7b2af9260a5ce8db4e1c5182933a7d83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c3dd15b1_dddede3b",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 489,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-06-28T19:29:27Z",
+      "side": 1,
+      "message": "naming nit: \u0027asFoo\u0027 would normally lead me to believe we\u0027re converting this -\u003e Foo, which is not the case here.  I don\u0027t have a better suggestion though :)",
+      "range": {
+        "startLine": 489,
+        "startChar": 33,
+        "endLine": 489,
+        "endChar": 44
+      },
+      "revId": "888ce0ea7b2af9260a5ce8db4e1c5182933a7d83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e93fdc67_662330e7",
+        "filename": "src/core/SkBlendModeBlender.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-06-28T19:29:27Z",
+      "side": 1,
+      "message": "delete/comment",
+      "revId": "888ce0ea7b2af9260a5ce8db4e1c5182933a7d83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "410b217b_d4aa9f7a",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-06-28T19:29:27Z",
+      "side": 1,
+      "message": "maybe add a comment to explain why this is happening for someone who triggers the assert.",
+      "revId": "888ce0ea7b2af9260a5ce8db4e1c5182933a7d83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
