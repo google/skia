@@ -78,6 +78,14 @@ private:
             // Don't inline if it would require a do loop, some devices don't support them.
             fCaps->fCanUseDoLoops = false;
 
+            // SkSL created by the GPU backend is typically parsed, converted to a backend format,
+            // and the IR is immediately discarded. In that situation, it makes sense to use node
+            // pools to accelerate the IR allocations. Here, SkRuntimeEffect instances are often
+            // long-lived (especially those created internally for runtime FPs). In this situation,
+            // we're willing to pay for a slightly longer compile so that we don't waste huge
+            // amounts of memory.
+            fCaps->fUseNodePools = false;
+
             fCompiler = new SkSL::Compiler(fCaps.get());
         }
 
