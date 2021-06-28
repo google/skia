@@ -22,6 +22,30 @@
       },
       "revId": "8b88bc199663952ea35fdf73d5c54c6cf4f101de",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bb4c5ac9_7dd3d0a4",
+        "filename": "src/gpu/vk/GrVkDescriptorSetManager.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-28T21:47:53Z",
+      "side": 1,
+      "message": "ahhh yes forgot to delete that, nice catch.",
+      "parentUuid": "19447e68_8bbc687f",
+      "range": {
+        "startLine": 124,
+        "startChar": 8,
+        "endLine": 124,
+        "endChar": 48
+      },
+      "revId": "8b88bc199663952ea35fdf73d5c54c6cf4f101de",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
