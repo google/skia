@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4a98e124_f926c042",
+        "filename": "gm/badpaint.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-28T20:37:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c03c8a20_b8d5d397",
+      "revId": "888ce0ea7b2af9260a5ce8db4e1c5182933a7d83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c3dd15b1_dddede3b",
@@ -31,6 +49,30 @@
       "writtenOn": "2021-06-28T19:29:27Z",
       "side": 1,
       "message": "naming nit: \u0027asFoo\u0027 would normally lead me to believe we\u0027re converting this -\u003e Foo, which is not the case here.  I don\u0027t have a better suggestion though :)",
+      "range": {
+        "startLine": 489,
+        "startChar": 33,
+        "endLine": 489,
+        "endChar": 44
+      },
+      "revId": "888ce0ea7b2af9260a5ce8db4e1c5182933a7d83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b225534a_0b73eeec",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 489,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-28T20:37:11Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "c3dd15b1_dddede3b",
       "range": {
         "startLine": 489,
         "startChar": 33,
@@ -58,6 +100,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "598f31e8_932197fb",
+        "filename": "src/core/SkBlendModeBlender.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-28T20:37:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e93fdc67_662330e7",
+      "revId": "888ce0ea7b2af9260a5ce8db4e1c5182933a7d83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "410b217b_d4aa9f7a",
@@ -71,6 +131,24 @@
       "writtenOn": "2021-06-28T19:29:27Z",
       "side": 1,
       "message": "maybe add a comment to explain why this is happening for someone who triggers the assert.",
+      "revId": "888ce0ea7b2af9260a5ce8db4e1c5182933a7d83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "66901d86_b1d2a104",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-28T20:37:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "410b217b_d4aa9f7a",
       "revId": "888ce0ea7b2af9260a5ce8db4e1c5182933a7d83",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
