@@ -147,6 +147,18 @@ public:
     // Returns true if it supports ycbcr conversion for samplers
     bool supportsYcbcrConversion() const { return fSupportsYcbcrConversion; }
 
+    // Returns the number of descriptor slots used by immutable ycbcr VkImages.
+    //
+    // TODO: We should update this to return a count for a specific format or external format. We
+    // can use vkGetPhysicalDeviceImageFormatProperties2 with a
+    // VkSamplerYcbcrConversionImageFormatProperties to query this. However, right now that call
+    // does not support external android formats which is where the majority of ycbcr images are
+    // coming from. So for now we stay safe and always return 3 here which is the max value that the
+    // count could be for any format.
+    uint32_t ycbcrCombinedImageSamplerDescriptorCount() const {
+        return 3;
+    }
+
     // Returns true if the device supports protected memory.
     bool supportsProtectedMemory() const { return fSupportsProtectedMemory; }
 
