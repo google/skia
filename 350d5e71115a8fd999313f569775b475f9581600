@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "82e5f899_c4d5adce",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-28T12:47:16Z",
+      "side": 1,
+      "message": "This looks good, but from the comments on the linked bug ... are we saying it\u0027s not even possible for this to work or be tested?",
+      "revId": "350d5e71115a8fd999313f569775b475f9581600",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "81090570_86958781",
+        "filename": "tools/fm/fm.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 501,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-28T12:47:16Z",
+      "side": 1,
+      "message": "nit: Update the config names here to match dm, just for consistency.",
+      "revId": "350d5e71115a8fd999313f569775b475f9581600",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
