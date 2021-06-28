@@ -33,6 +33,24 @@
       "message": "Are we concerned about multiple definitions of a (zero-byte) symbol? Sigh, C++.",
       "revId": "e2c2a3c6102770f4d1e8c65db7780e1acb63752f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "671b5dc5_77fc8100",
+        "filename": "include/private/SkTOptional.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-06-28T21:13:00Z",
+      "side": 1,
+      "message": "So.. ummm. Maybe. I think in C++14 we will in fact get multiple definitions of this symbol, though in C++17 we won\u0027t. Maybe we should mark this as \u0027static\u0027 so each TU gets its own zero byte copy in C++14 but in C++17 the \u0027static\u0027 will also be implicitly \u0027static inline\u0027 and we\u0027ll only get one?\n\nRecommendation: mark this as `static`. Haven\u0027t tried it though, might cause other issues in C++14.",
+      "parentUuid": "c33a02c5_d67bfa67",
+      "revId": "e2c2a3c6102770f4d1e8c65db7780e1acb63752f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
