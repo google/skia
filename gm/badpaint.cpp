@@ -48,7 +48,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         SkRect rect = SkRect::MakeXYWH(10, 10, 80, 80);
-        for (int i = 0; i < fPaints.count(); ++i) {
+        for (int i = 0; i < 1;/*fPaints.count();*/ ++i) {
             canvas->drawRect(rect, fPaints[i]);
         }
     }
