@@ -14,6 +14,10 @@ class SkBlendModeBlender : public SkBlenderBase {
 public:
     SkBlendModeBlender(SkBlendMode mode) : fMode(mode) {}
 
+    ~SkBlendModeBlender() override {
+        SkDebugf("deleting blender mode %d\n", fMode);
+    }
+
     bool asBlendMode(SkBlendMode* mode) const final {
         *mode = fMode;
         return true;
