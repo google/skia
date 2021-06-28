@@ -22,6 +22,30 @@
       },
       "revId": "2c95be317b5d47a2ce699896db9839381846d1d9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6a241956_08842bb2",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 479,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-28T14:52:17Z",
+      "side": 1,
+      "message": "The extension is called \"GL_EXT_texture_norm16\". Is the difference between \"norm\" and \"unorm\" that unorm is strictly for unsigned values? Does Skia only 16 bit unsigned values?",
+      "parentUuid": "171936d0_5d05b49f",
+      "range": {
+        "startLine": 479,
+        "startChar": 13,
+        "endLine": 479,
+        "endChar": 35
+      },
+      "revId": "2c95be317b5d47a2ce699896db9839381846d1d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
