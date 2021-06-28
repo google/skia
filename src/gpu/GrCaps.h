@@ -396,9 +396,6 @@ public:
     // Should we disable GrTessellationPathRenderer due to a faulty driver?
     bool disableTessellationPathRenderer() const { return fDisableTessellationPathRenderer; }
 
-    // Always use an index buffer to draw quads
-    bool alwaysDrawQuadsIndexed() const { return fAlwaysDrawQuadsIndexed; }
-
     // Returns how to sample the dst values for the passed in GrRenderTargetProxy.
     GrDstSampleFlags getDstSampleFlagsForProxy(const GrRenderTargetProxy*, bool drawUsesMSAA) const;
 
@@ -568,7 +565,6 @@ protected:
     bool fRequiresManualFBBarrierAfterTessellatedStencilDraw : 1;
     bool fNativeDrawIndexedIndirectIsBroken          : 1;
     bool fAvoidReorderingRenderTasks                 : 1;
-    bool fAlwaysDrawQuadsIndexed                     : 1;
 
     // ANGLE performance workaround
     bool fPreferVRAMUseOverFlushes                   : 1;

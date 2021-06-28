@@ -4192,12 +4192,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     }
 #endif
 
-    if (ctxInfo.renderer() == GrGLRenderer::kPowerVRRogue ||
-        ctxInfo.renderer() == GrGLRenderer::kPowerVR54x) {
-        // crbug.com/1203652
-        fAlwaysDrawQuadsIndexed = true;
-    }
-
     if (ctxInfo.driver() == GrGLDriver::kFreedreno) {
         formatWorkarounds->fDisallowUnorm16Transfers = true;
     }
