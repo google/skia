@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "171936d0_5d05b49f",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 479,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-06-28T13:18:12Z",
+      "side": 1,
+      "message": "Lets either change this one to \"Unorm\" or the above one to \"Norm\".",
+      "range": {
+        "startLine": 479,
+        "startChar": 13,
+        "endLine": 479,
+        "endChar": 35
+      },
+      "revId": "2c95be317b5d47a2ce699896db9839381846d1d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
