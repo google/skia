@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f59a490e_70d9e277",
+        "filename": "src/gpu/ops/GrDefaultPathRenderer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-28T17:34:44Z",
+      "side": 1,
+      "message": "If we failed to make vertices, should we bother to try allocating indices?",
+      "range": {
+        "startLine": 258,
+        "startChar": 12,
+        "endLine": 258,
+        "endChar": 29
+      },
+      "revId": "fc7be98ab87eb2d28d8e6bf084adf7d181d812da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "14d8d7bb_e3e7b181",
+        "filename": "src/gpu/ops/GrDefaultPathRenderer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-28T17:34:44Z",
+      "side": 1,
+      "message": "If we failed to make indices, but presumably succeeded with vertices, is there a way to return the vertices we just allocated since we won\u0027t actually use them?\n\nI\u0027m not sure if other ops actually bother returning, so maybe that\u0027s not worth trying to play nice here, either.",
+      "range": {
+        "startLine": 268,
+        "startChar": 12,
+        "endLine": 271,
+        "endChar": 13
+      },
+      "revId": "fc7be98ab87eb2d28d8e6bf084adf7d181d812da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
