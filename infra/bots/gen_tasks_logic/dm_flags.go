@@ -271,9 +271,9 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			skip("gltestthreading gm _ draw_image_set")
 		}
 
-		// CommandBuffer bot *only* runs the command_buffer config.
+		// CommandBuffer bot *only* runs the cmdbuffer_es2 config.
 		if b.extraConfig("CommandBuffer") {
-			configs = []string{"commandbuffer"}
+			configs = []string{"cmdbuffer_es2"}
 		}
 
 		// Dawn bot *only* runs the dawn config

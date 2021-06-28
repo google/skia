@@ -99,7 +99,7 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 		}
 
 		if b.extraConfig("CommandBuffer") {
-			configs = []string{"commandbuffer"}
+			configs = []string{"cmdbuffer_es2"}
 		}
 
 		if b.extraConfig("Vulkan") {
