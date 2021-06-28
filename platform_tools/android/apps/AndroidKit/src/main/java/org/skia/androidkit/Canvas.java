@@ -74,6 +74,24 @@ public class Canvas {
         nScale(mNativeInstance, sx ,sy, 1);
     }
 
+    public void clipPath(Path path, ClipOp op, boolean antiAliasing) {
+        nClipPath(mNativeInstance, path.getNativeInstance(), op.mNativeInt, antiAliasing);
+    }
+
+    public void clipRect(float left, float top, float right, float bottom,
+                         ClipOp op, boolean antiAliasing) {
+        nClipRect(mNativeInstance, left, top, right, bottom, op.mNativeInt, antiAliasing);
+    }
+
+    public void clipRRect(float left, float top, float right, float bottom, float xRad, float yRad,
+                         ClipOp op, boolean antiAliasing) {
+        nClipRRect(mNativeInstance, left, top, right, bottom, xRad, yRad, op.mNativeInt, antiAliasing);
+    }
+
+    public void clipShader(Shader shader, ClipOp op) {
+        nClipShader(mNativeInstance, shader.getNativeInstance(), op.mNativeInt);
+    }
+
     public void drawRect(float left, float top, float right, float bottom, Paint paint) {
         nDrawRect(mNativeInstance, left, top, right, bottom, paint.getNativeInstance());
     }
@@ -128,6 +146,16 @@ public class Canvas {
     private static native void nConcat16f(long nativeInstance, float[] floatMatrix);
     private static native void nTranslate(long nativeInstance, float tx, float ty, float tz);
     private static native void nScale(long nativeInstance, float sx, float sy, float sz);
+
+    private static native void nClipPath(long nativeInstance, long nativePath, int clipOp,
+                                         boolean doAA);
+    private static native void nClipRect(long nativeInstance, float left, float top, float right,
+                                         float bottom, int clipOp, boolean doAA);
+    private static native void nClipRRect(long nativeInstance, float left, float top, float right,
+                                          float bottom, float xRad, float yRad,
+                                          int clipOp, boolean doAA);
+    private static native void nClipShader(long nativeInstance, long nativeShader, int clipOp);
+
 
     private static native void nDrawColor(long nativeInstance, float r, float g, float b, float a);
 
