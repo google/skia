@@ -82,7 +82,12 @@ id<MTLTexture> create_msaa_texture(GrMtlGpu* gpu, SkISize dimensions, MTLPixelFo
         texDesc.usage = MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget;
     }
 
-    return [gpu->device() newTextureWithDescriptor:texDesc];
+    id<MTLTexture> msaaTexture = [gpu->device() newTextureWithDescriptor:texDesc];
+    msaaTexture.label = @"MSAA Texture";
+    if (@available(macOS 10.11, iOS 9.0, *)) {
+        SkASSERT((MTLTextureUsageShaderRead|MTLTextureUsageRenderTarget) & msaaTexture.usage);
+    }
+    return msaaTexture;
 }
 
 sk_sp<GrMtlTextureRenderTarget> GrMtlTextureRenderTarget::MakeNewTextureRenderTarget(
@@ -105,9 +110,6 @@ sk_sp<GrMtlTextureRenderTarget> GrMtlTextureRenderTarget::MakeNewTextureRenderTa
                 create_msaa_texture(gpu, dimensions, texture.pixelFormat, sampleCnt);
         if (!colorTexture) {
             return nullptr;
-        }
-        if (@available(macOS 10.11, iOS 9.0, *)) {
-            SkASSERT((MTLTextureUsageShaderRead|MTLTextureUsageRenderTarget) & colorTexture.usage);
         }
         return sk_sp<GrMtlTextureRenderTarget>(new GrMtlTextureRenderTarget(
                 gpu, budgeted, dimensions, sampleCnt, colorTexture, texture, mipmapStatus));
@@ -135,9 +137,6 @@ sk_sp<GrMtlTextureRenderTarget> GrMtlTextureRenderTarget::MakeWrappedTextureRend
                 create_msaa_texture(gpu, dimensions, texture.pixelFormat, sampleCnt);
         if (!colorTexture) {
             return nullptr;
-        }
-        if (@available(macOS 10.11, iOS 9.0, *)) {
-            SkASSERT((MTLTextureUsageShaderRead|MTLTextureUsageRenderTarget) & colorTexture.usage);
         }
         return sk_sp<GrMtlTextureRenderTarget>(new GrMtlTextureRenderTarget(
                 gpu, dimensions, sampleCnt, colorTexture, texture, mipmapStatus, cacheable));

@@ -23,6 +23,15 @@
 
 GR_NORETAIN_BEGIN
 
+NSString* kBufferTypeNames[kGrGpuBufferTypeCount] = {
+    @"Vertex",
+    @"Index",
+    @"Indirect",
+    @"Xfer CPU to GPU",
+    @"Xfer GPU to CPU",
+    @"Uniform",
+};
+
 sk_sp<GrMtlBuffer> GrMtlBuffer::Make(GrMtlGpu* gpu, size_t size, GrGpuBufferType intendedType,
                                      GrAccessPattern accessPattern, const void* data) {
     sk_sp<GrMtlBuffer> buffer(new GrMtlBuffer(gpu, size, intendedType, accessPattern));
@@ -57,6 +66,7 @@ GrMtlBuffer::GrMtlBuffer(GrMtlGpu* gpu, size_t size, GrGpuBufferType intendedTyp
     fMtlBuffer = size == 0 ? nil :
             [gpu->device() newBufferWithLength: size
                                        options: options];
+    fMtlBuffer.label = kBufferTypeNames[(int)intendedType];
     this->registerWithCache(SkBudgeted::kYes);
     VALIDATE();
 }
