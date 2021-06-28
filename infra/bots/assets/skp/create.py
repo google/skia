@@ -46,6 +46,7 @@ def get_flutter_skps(target_dir):
   Documentation is at https://github.com/flutter/tests/tree/master/skp_generator
   """
   with utils.tmp_dir():
+    print('Retrieving Flutter SKPs...')
     utils.git_clone('https://github.com/flutter/tests.git', '.')
     os.chdir('skp_generator')
     subprocess.check_call(['bash', 'build.sh'])
@@ -58,6 +59,7 @@ def get_flutter_skps(target_dir):
         os.rename(os.path.join('skps', f),
                   os.path.join('skps', new_file_name + '.skp'))
     copy_tree('skps', target_dir)
+    print('Done retrieving Flutter SKPs.')
 
 
 def create_asset(chrome_src_path, browser_executable, target_dir,
@@ -82,6 +84,7 @@ def create_asset(chrome_src_path, browser_executable, target_dir,
   # 2. Skia's SKPs from tools/skp/page_sets/
   with utils.tmp_dir():
     if os.environ.get('CHROME_HEADLESS'):
+      print('Starting xvfb')
       # Start Xvfb if running on a bot.
       try:
         subprocess.Popen(['sudo', 'Xvfb', ':0', '-screen', '0', '1280x1024x24'])
@@ -90,6 +93,7 @@ def create_asset(chrome_src_path, browser_executable, target_dir,
         # is already up.
         pass
 
+    print('Running webpages_playback to generate SKPs...')
     webpages_playback_cmd = [
       'python', os.path.join(SKIA_TOOLS, 'skp', 'webpages_playback.py'),
       '--page_sets', 'all',
@@ -108,7 +112,7 @@ def create_asset(chrome_src_path, browser_executable, target_dir,
       # Clean up any leftover browser instances. This can happen if there are
       # telemetry crashes, processes are not always cleaned up appropriately by
       # the webpagereplay and telemetry frameworks.
-      procs = subprocess.check_output(['ps', 'ax'])
+      procs = subprocess.check_output(['ps', 'ax']).decode()
       for line in procs.splitlines():
         if browser_executable in line:
           pid = line.strip().split(' ')[0]
@@ -123,10 +127,13 @@ def create_asset(chrome_src_path, browser_executable, target_dir,
     for f in os.listdir(src):
       if f.endswith('.skp'):
         shutil.copyfile(os.path.join(src, f), os.path.join(target_dir, f))
+    print('Done running webpages_playback.')
 
   # 3. Copy over private SKPs from Google storage into the target_dir.
+  print('Copying SKPs from private GCS bucket...')
   subprocess.call([
         'gsutil', 'cp', os.path.join(PRIVATE_SKPS_GS, '*'), target_dir])
+  print('Done copying SKPs from private GCS bucket.')
 
 
 def main():
