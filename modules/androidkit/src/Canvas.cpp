@@ -8,6 +8,8 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkShader.h"
 #include "modules/androidkit/src/Utils.h"
 
 #include <jni.h>
@@ -91,6 +93,39 @@ void Canvas_Scale(JNIEnv* env, jobject, jlong native_instance, jfloat sx, jfloat
     }
 }
 
+void Canvas_ClipPath(JNIEnv* env, jobject, jlong native_instance, jlong native_path,
+                                           jint native_clipOp, jboolean doAA) {
+    if (auto* canvas = reinterpret_cast<SkCanvas*>(native_instance)) {
+        if (auto* path = reinterpret_cast<SkPath*>(native_path)) {
+            canvas->clipPath(*path, static_cast<SkClipOp>(native_clipOp), doAA);
+        }
+    }
+}
+
+void Canvas_ClipRect(JNIEnv* env, jobject, jlong native_instance, jfloat l, jfloat t, jfloat r, jfloat b,
+                                           jint native_clipOp, jboolean doAA) {
+    if (auto* canvas = reinterpret_cast<SkCanvas*>(native_instance)) {
+        canvas->clipRect(SkRect::MakeLTRB(l, t, r, b), static_cast<SkClipOp>(native_clipOp), doAA);
+    }
+}
+
+void Canvas_ClipRRect(JNIEnv* env, jobject, jlong native_instance, jfloat l, jfloat t, jfloat r, jfloat b,
+                                                                   jfloat xRad, jfloat yRad,
+                                                                   jint native_clipOp, jboolean doAA) {
+    if (auto* canvas = reinterpret_cast<SkCanvas*>(native_instance)) {
+        canvas->clipRRect(SkRRect::MakeRectXY(SkRect::MakeLTRB(l, t, r, b), xRad, yRad),
+                          static_cast<SkClipOp>(native_clipOp), doAA);
+    }
+}
+
+void Canvas_ClipShader(JNIEnv* env, jobject, jlong native_instance, jlong native_shader, jint native_clipOp) {
+    if (auto* canvas = reinterpret_cast<SkCanvas*>(native_instance)) {
+        if (auto* shader = reinterpret_cast<SkShader*>(native_shader)) {
+            canvas->clipShader(sk_ref_sp(shader), static_cast<SkClipOp>(native_clipOp));
+        }
+    }
+}
+
 void Canvas_DrawColor(JNIEnv* env, jobject, jlong native_instance,
                       float r, float g, float b, float a) {
     if (auto* canvas = reinterpret_cast<SkCanvas*>(native_instance)) {
@@ -134,21 +169,25 @@ void Canvas_DrawPath(JNIEnv* env, jobject, jlong native_instance, jlong native_p
 
 int register_androidkit_Canvas(JNIEnv* env) {
     static const JNINativeMethod methods[] = {
-        {"nGetWidth"        , "(J)I"      , reinterpret_cast<void*>(Canvas_GetWidth)      },
-        {"nGetHeight"       , "(J)I"      , reinterpret_cast<void*>(Canvas_GetHeight)     },
-        {"nSave"            , "(J)I"      , reinterpret_cast<void*>(Canvas_Save)          },
-        {"nSaveLayer"       , "(JJ)I"     , reinterpret_cast<void*>(Canvas_SaveLayer)     },
-        {"nRestore"         , "(J)V"      , reinterpret_cast<void*>(Canvas_Restore)       },
-        {"nRestoreToCount"  , "(JI)V"     , reinterpret_cast<void*>(Canvas_RestoreToCount)},
-        {"nGetLocalToDevice", "(J)J"      , reinterpret_cast<void*>(Canvas_LocalToDevice) },
-        {"nConcat"          , "(JJ)V"     , reinterpret_cast<void*>(Canvas_Concat)        },
-        {"nConcat16f"       , "(J[F)V"    , reinterpret_cast<void*>(Canvas_Concat16f)     },
-        {"nTranslate"       , "(JFFF)V"   , reinterpret_cast<void*>(Canvas_Translate)     },
-        {"nScale"           , "(JFFF)V"   , reinterpret_cast<void*>(Canvas_Scale)         },
-        {"nDrawColor"       , "(JFFFF)V"  , reinterpret_cast<void*>(Canvas_DrawColor)     },
-        {"nDrawRect"        , "(JFFFFJ)V" , reinterpret_cast<void*>(Canvas_DrawRect)      },
-        {"nDrawImage"       , "(JJFFIFF)V", reinterpret_cast<void*>(Canvas_DrawImage)     },
-        {"nDrawPath"        , "(JJJ)V"    , reinterpret_cast<void*>(Canvas_DrawPath)      },
+        {"nGetWidth"        , "(J)I"        , reinterpret_cast<void*>(Canvas_GetWidth)      },
+        {"nGetHeight"       , "(J)I"        , reinterpret_cast<void*>(Canvas_GetHeight)     },
+        {"nSave"            , "(J)I"        , reinterpret_cast<void*>(Canvas_Save)          },
+        {"nSaveLayer"       , "(JJ)I"       , reinterpret_cast<void*>(Canvas_SaveLayer)     },
+        {"nRestore"         , "(J)V"        , reinterpret_cast<void*>(Canvas_Restore)       },
+        {"nRestoreToCount"  , "(JI)V"       , reinterpret_cast<void*>(Canvas_RestoreToCount)},
+        {"nGetLocalToDevice", "(J)J"        , reinterpret_cast<void*>(Canvas_LocalToDevice) },
+        {"nConcat"          , "(JJ)V"       , reinterpret_cast<void*>(Canvas_Concat)        },
+        {"nConcat16f"       , "(J[F)V"      , reinterpret_cast<void*>(Canvas_Concat16f)     },
+        {"nTranslate"       , "(JFFF)V"     , reinterpret_cast<void*>(Canvas_Translate)     },
+        {"nScale"           , "(JFFF)V"     , reinterpret_cast<void*>(Canvas_Scale)         },
+        {"nClipPath"        , "(JJIZ)V"     , reinterpret_cast<void*>(Canvas_ClipPath)      },
+        {"nClipRect"        , "(JFFFFIZ)V"  , reinterpret_cast<void*>(Canvas_ClipRect)      },
+        {"nClipRRect"       , "(JFFFFFFIZ)V", reinterpret_cast<void*>(Canvas_ClipRRect)     },
+        {"nClipShader"      , "(JJI)V"      , reinterpret_cast<void*>(Canvas_ClipShader)    },
+        {"nDrawColor"       , "(JFFFF)V"    , reinterpret_cast<void*>(Canvas_DrawColor)     },
+        {"nDrawRect"        , "(JFFFFJ)V"   , reinterpret_cast<void*>(Canvas_DrawRect)      },
+        {"nDrawImage"       , "(JJFFIFF)V"  , reinterpret_cast<void*>(Canvas_DrawImage)     },
+        {"nDrawPath"        , "(JJJ)V"      , reinterpret_cast<void*>(Canvas_DrawPath)      },
     };
 
     const auto clazz = env->FindClass("org/skia/androidkit/Canvas");
