@@ -9,7 +9,6 @@
 #include "include/core/SkData.h"
 #include "include/core/SkSurface.h"
 #include "include/effects/SkRuntimeEffect.h"
-#include "include/private/SkChecksum.h"
 #include "include/private/SkMutex.h"
 #include "src/core/SkBlenderBase.h"
 #include "src/core/SkCanvasPriv.h"
@@ -160,17 +159,18 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl, const Options& opti
             RETURN_FAILURE("%s", compiler->errorText().c_str());
         }
     }
-    return Make(std::move(sksl), std::move(program), options, kind);
+    return Make(std::move(program), options, kind);
 }
 
 SkRuntimeEffect::Result SkRuntimeEffect::Make(std::unique_ptr<SkSL::Program> program,
                                               SkSL::ProgramKind kind) {
-    SkString source(program->description().c_str());
-    return Make(std::move(source), std::move(program), Options{}, kind);
+    // This factory is used for all DSL runtime effects, which don't have anything stored in the
+    // program's source. Populate it so that we can compute fHash, and serialize these effects.
+    program->fSource = std::make_unique<SkSL::String>(program->description());
+    return Make(std::move(program), Options{}, kind);
 }
 
-SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl,
-                                              std::unique_ptr<SkSL::Program> program,
+SkRuntimeEffect::Result SkRuntimeEffect::Make(std::unique_ptr<SkSL::Program> program,
                                               const Options& options,
                                               SkSL::ProgramKind kind) {
     SkSL::SharedCompiler compiler;
@@ -286,8 +286,7 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl,
 
 #undef RETURN_FAILURE
 
-    sk_sp<SkRuntimeEffect> effect(new SkRuntimeEffect(std::move(sksl),
-                                                      std::move(program),
+    sk_sp<SkRuntimeEffect> effect(new SkRuntimeEffect(std::move(program),
                                                       options,
                                                       *main,
                                                       std::move(uniforms),
@@ -398,16 +397,14 @@ size_t SkRuntimeEffect::Uniform::sizeInBytes() const {
     return element_size(this->type) * this->count;
 }
 
-SkRuntimeEffect::SkRuntimeEffect(SkString sksl,
-                                 std::unique_ptr<SkSL::Program> baseProgram,
+SkRuntimeEffect::SkRuntimeEffect(std::unique_ptr<SkSL::Program> baseProgram,
                                  const Options& options,
                                  const SkSL::FunctionDefinition& main,
                                  std::vector<Uniform>&& uniforms,
                                  std::vector<Child>&& children,
                                  std::vector<SkSL::SampleUsage>&& sampleUsages,
                                  uint32_t flags)
-        : fHash(SkGoodHash()(sksl))
-        , fSkSL(std::move(sksl))
+        : fHash(SkOpts::hash_fn(baseProgram->fSource->c_str(), baseProgram->fSource->size(), 0))
         , fBaseProgram(std::move(baseProgram))
         , fMain(main)
         , fUniforms(std::move(uniforms))
@@ -432,6 +429,10 @@ SkRuntimeEffect::SkRuntimeEffect(SkString sksl,
 }
 
 SkRuntimeEffect::~SkRuntimeEffect() = default;
+
+const std::string& SkRuntimeEffect::source() const {
+    return *fBaseProgram->fSource;
+}
 
 size_t SkRuntimeEffect::uniformSize() const {
     return fUniforms.empty() ? 0

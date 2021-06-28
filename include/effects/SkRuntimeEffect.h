@@ -19,6 +19,7 @@
 #include "include/private/SkOnce.h"
 #include "include/private/SkSLSampleUsage.h"
 
+#include <string>
 #include <vector>
 
 class GrRecordingContext;
@@ -178,7 +179,7 @@ public:
 
     sk_sp<SkBlender> makeBlender(sk_sp<SkData> uniforms) const;
 
-    const SkString& source() const { return fSkSL; }
+    const std::string& source() const;
 
     template <typename T>
     class ConstIterable {
@@ -219,8 +220,7 @@ private:
         kAllowBlender_Flag     = 0x8,
     };
 
-    SkRuntimeEffect(SkString sksl,
-                    std::unique_ptr<SkSL::Program> baseProgram,
+    SkRuntimeEffect(std::unique_ptr<SkSL::Program> baseProgram,
                     const Options& options,
                     const SkSL::FunctionDefinition& main,
                     std::vector<Uniform>&& uniforms,
@@ -232,8 +232,9 @@ private:
 
     static Result Make(SkString sksl, const Options& options, SkSL::ProgramKind kind);
 
-    static Result Make(SkString sksl, std::unique_ptr<SkSL::Program> program,
-                       const Options& options, SkSL::ProgramKind kind);
+    static Result Make(std::unique_ptr<SkSL::Program> program,
+                       const Options& options,
+                       SkSL::ProgramKind kind);
 
     uint32_t hash() const { return fHash; }
     bool usesSampleCoords() const { return (fFlags & kUsesSampleCoords_Flag); }
@@ -256,7 +257,6 @@ private:
     friend class SkRuntimeEffectPriv;
 
     uint32_t fHash;
-    SkString fSkSL;
 
     std::unique_ptr<SkSL::Program> fBaseProgram;
     const SkSL::FunctionDefinition& fMain;
