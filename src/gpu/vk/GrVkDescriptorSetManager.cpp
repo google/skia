@@ -78,6 +78,7 @@ static bool get_layout_and_desc_count(GrVkGpu* gpu,
         uint32_t numBindings = visibilities.count();
         std::unique_ptr<VkDescriptorSetLayoutBinding[]> dsSamplerBindings(
                 new VkDescriptorSetLayoutBinding[numBindings]);
+        *descCountPerSet = 0;
         for (uint32_t i = 0; i < numBindings; ++i) {
             uint32_t visibility = visibilities[i];
             dsSamplerBindings[i].binding = i;
@@ -86,8 +87,10 @@ static bool get_layout_and_desc_count(GrVkGpu* gpu,
             dsSamplerBindings[i].stageFlags = visibility_to_vk_stage_flags(visibility);
             if (VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER == type) {
                 if (immutableSamplers[i]) {
+                    (*descCountPerSet) += gpu->vkCaps().ycbcrCombinedImageSamplerDescriptorCount();
                     dsSamplerBindings[i].pImmutableSamplers = immutableSamplers[i]->samplerPtr();
                 } else {
+                    (*descCountPerSet)++;
                     dsSamplerBindings[i].pImmutableSamplers = nullptr;
                 }
             }
@@ -117,8 +120,6 @@ static bool get_layout_and_desc_count(GrVkGpu* gpu,
         if (result != VK_SUCCESS) {
             return false;
         }
-
-        *descCountPerSet = visibilities.count();
     } else if (type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER) {
         static constexpr int kUniformDescPerSet = 1;
         SkASSERT(kUniformDescPerSet == visibilities.count());
