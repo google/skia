@@ -24,7 +24,7 @@ struct nullopt_t {
     explicit constexpr nullopt_t(tag) {}
 };
 
-inline constexpr nullopt_t nullopt{nullopt_t::tag{}};
+constexpr nullopt_t nullopt{nullopt_t::tag{}};
 
 /**
  * Simple drop-in replacement for std::optional until we move to C++17. This does not have all of
@@ -219,7 +219,7 @@ template <typename T> bool operator!=(const optional<T>& a, nullopt_t) {
     return a.has_value();
 }
 
-template <typename T> bool operator<(const optional<T>& a, nullopt_t) {
+template <typename T> bool operator<(const optional<T>&, nullopt_t) {
     return false;
 }
 
@@ -232,7 +232,7 @@ template <typename T> bool operator>(const optional<T>& a, nullopt_t) {
 }
 
 template <typename T>
-bool operator>=(const optional<T>& a, nullopt_t) {
+bool operator>=(const optional<T>&, nullopt_t) {
     return true;
 }
 
@@ -249,11 +249,11 @@ template <typename U> bool operator<(nullopt_t, const optional<U>& b) {
   return b.has_value();
 }
 
-template <typename U> bool operator<=(nullopt_t, const optional<U>& b) {
+template <typename U> bool operator<=(nullopt_t, const optional<U>&) {
     return true;
 }
 
-template <typename U> bool operator>(nullopt_t, const optional<U>& b) {
+template <typename U> bool operator>(nullopt_t, const optional<U>&) {
     return false;
 }
 
