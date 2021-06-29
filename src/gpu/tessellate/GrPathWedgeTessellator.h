@@ -12,6 +12,7 @@
 #include "src/gpu/tessellate/GrPathTessellator.h"
 
 class GrCaps;
+class GrGpuBuffer;
 class GrPipeline;
 
 // Prepares an array of "wedge" patches for GrWedgeTessellateShader. A wedge is an independent,
@@ -35,7 +36,9 @@ private:
     GrVertexChunkArray fVertexChunkArray;
 
     // If using fixed count, this is the number of vertices we need to emit per instance.
-    int fFixedVertexCount;
+    int fFixedIndexCount;
+    sk_sp<const GrGpuBuffer> fFixedCountVertexBuffer;
+    sk_sp<const GrGpuBuffer> fFixedCountIndexBuffer;
 };
 
 #endif

@@ -10,7 +10,6 @@
 #include "src/gpu/geometry/GrWangsFormula.h"
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
-#include "src/gpu/tessellate/GrPathTessellator.h"
 
 namespace {
 
@@ -62,7 +61,7 @@ GrGLSLGeometryProcessor* HardwareWedgeShader::createGLSLInstance(const GrShaderC
             code.appendf(R"(
             #define MAX_TESSELLATION_SEGMENTS %i)", shaderCaps.maxTessellationSegments());
             code.appendf(R"(
-            #define PRECISION %f)", GrPathTessellator::kLinearizationPrecision);
+            #define PRECISION %f)", GrTessellationShader::kLinearizationPrecision);
             code.append(kSkSLTypeDefs);
             code.append(GrWangsFormula::as_sksl());
             code.append(kUnpackRationalCubicFn);
@@ -190,7 +189,7 @@ GrGLSLGeometryProcessor* HardwareCurveShader::createGLSLInstance(const GrShaderC
             code.appendf(R"(
             #define MAX_TESSELLATION_SEGMENTS %i)", shaderCaps.maxTessellationSegments());
             code.appendf(R"(
-            #define PRECISION %f)", GrPathTessellator::kLinearizationPrecision);
+            #define PRECISION %f)", GrTessellationShader::kLinearizationPrecision);
             code.append(kSkSLTypeDefs);
             code.append(GrWangsFormula::as_sksl());
             code.append(kUnpackRationalCubicFn);
