@@ -20,6 +20,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "7d7b1ef2_9c3300f4",
+        "filename": "src/gpu/mtl/GrMtlBuffer.mm",
+        "patchSetId": 4
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5970
+      },
+      "writtenOn": "2021-06-29T19:58:39Z",
+      "side": 1,
+      "message": "This isn\u0027t something we typically configure. What is the cost of always enabling this? Perhaps we can enable this in our profile modes at the very least. Are there other defined we are missing in Flutter?",
+      "revId": "062c9e78beb06d3132712099d16aa36021ca2ce9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "adb736d9_2da1334a",
         "filename": "src/gpu/mtl/GrMtlGpu.mm",
         "patchSetId": 4
@@ -37,6 +54,23 @@
         "endLine": 417,
         "endChar": 55
       },
+      "revId": "062c9e78beb06d3132712099d16aa36021ca2ce9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ee90a4d4_12961c22",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 4
+      },
+      "lineNbr": 499,
+      "author": {
+        "id": 5970
+      },
+      "writtenOn": "2021-06-29T19:58:39Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be derived from the MTLPixelFormat and its pixel byte stride? Not sure how this can be 1 on iOS?",
       "revId": "062c9e78beb06d3132712099d16aa36021ca2ce9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -83,6 +117,23 @@
         "endLine": 308,
         "endChar": 42
       },
+      "revId": "062c9e78beb06d3132712099d16aa36021ca2ce9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "33332969_fe457df2",
+        "filename": "src/gpu/mtl/GrMtlPipelineStateBuilder.mm",
+        "patchSetId": 4
+      },
+      "lineNbr": 408,
+      "author": {
+        "id": 5970
+      },
+      "writtenOn": "2021-06-29T19:58:39Z",
+      "side": 1,
+      "message": "From someone unfamiliar with the codebase, just curious why this form of string initialization is preferred over object literal syntax. For instance, `pipelineDescriptor.label \u003d @(description.c_str())`. I say this because SkString assumes UTF8 encoding and the object literal syntax expands to `stringWithUTF8String:`. Also, assuming my understanding of SkString is accurate, the second argument is should be NSUTF8StringEncoding (if you wanted to avoid the object literal syntax).",
       "revId": "062c9e78beb06d3132712099d16aa36021ca2ce9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
