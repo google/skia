@@ -1175,6 +1175,14 @@ static void validate_edge_pair(Edge* left, Edge* right, const Comparator& c) {
         SkASSERT(left->isLeftOf(right->fTop));
         SkASSERT(right->isRightOf(left->fTop));
     } else if (c.sweep_lt(right->fBottom->fPoint, left->fBottom->fPoint)) {
+//            bool isLeftOf(Vertex* v) const { return fLine.dist(v->fPoint) > 0.0; }
+        SkDebugf("------------------------------------------------------------------------\n");
+        SkDebugf("dir %s\n", c.fDirection == GrTriangulator::Comparator::Direction::kHorizontal ? "horiz" : "vert");
+        SkDebugf("Rbot %f %f\n", right->fBottom->fPoint.fX, right->fBottom->fPoint.fY);
+        SkDebugf("Lbot %f %f\n", left->fBottom->fPoint.fX, left->fBottom->fPoint.fY);
+        SkDebugf("Line A: %g B: %g C: %g\n", left->fLine.fA, left->fLine.fB, left->fLine.fC);
+        double tmp = left->fLine.dist(right->fBottom->fPoint);
+        SkDebugf("-- %g\n", tmp);
         SkASSERT(left->isLeftOf(right->fBottom));
     } else {
         SkASSERT(right->isRightOf(left->fBottom));
@@ -1197,7 +1205,15 @@ static void validate_edge_list(EdgeList* edges, const Comparator& c) {
 
 GrTriangulator::SimplifyResult GrTriangulator::simplify(VertexList* mesh,
                                                         const Comparator& c) const {
-    TESS_LOG("simplifying complex polygons\n");
+    SkDebugf("simplifying complex polygons----------------\n");
+#if 0
+    for (Vertex* v = mesh->fHead; v != nullptr; v = v->fNext) {
+        if (!v->isConnected()) {
+            continue;
+        }
+        SkDebugf("vertex (%g,%g)\n", v->fPoint.fX, v->fPoint.fY);
+    }
+#endif
     EdgeList activeEdges;
     auto result = SimplifyResult::kAlreadySimple;
     for (Vertex* v = mesh->fHead; v != nullptr; v = v->fNext) {
@@ -1208,13 +1224,22 @@ GrTriangulator::SimplifyResult GrTriangulator::simplify(VertexList* mesh,
         Edge* rightEnclosingEdge;
         bool restartChecks;
         do {
-            TESS_LOG("\nvertex %g: (%g,%g), alpha %d\n",
-                     v->fID, v->fPoint.fX, v->fPoint.fY, v->fAlpha);
+            SkDebugf("vertex %g: (%g,%g), alpha %d\n",
+                     v->fPoint.fX, v->fPoint.fY, v->fAlpha);
             restartChecks = false;
             FindEnclosingEdges(v, &activeEdges, &leftEnclosingEdge, &rightEnclosingEdge);
+            if (leftEnclosingEdge) {
+                SkASSERT(leftEnclosingEdge->isLeftOf(v));
+                SkASSERT(!leftEnclosingEdge->isRightOf(v));
+            }
+            if (rightEnclosingEdge) {
+                SkASSERT(!rightEnclosingEdge->isLeftOf(v));
+                SkASSERT(rightEnclosingEdge->isRightOf(v));
+            }
             v->fLeftEnclosingEdge = leftEnclosingEdge;
             v->fRightEnclosingEdge = rightEnclosingEdge;
             if (v->fFirstEdgeBelow) {
+                SkDebugf("case1-");
                 for (Edge* edge = v->fFirstEdgeBelow; edge; edge = edge->fNextEdgeBelow) {
                     if (this->checkForIntersection(
                             leftEnclosingEdge, edge, &activeEdges, &v, mesh, c) ||
@@ -1222,17 +1247,22 @@ GrTriangulator::SimplifyResult GrTriangulator::simplify(VertexList* mesh,
                             edge, rightEnclosingEdge, &activeEdges, &v, mesh, c)) {
                         result = SimplifyResult::kFoundSelfIntersection;
                         restartChecks = true;
+                        SkDebugf("a\n");
                         break;
                     }
                 }
             } else {
+                SkDebugf("case2\n");
                 if (this->checkForIntersection(leftEnclosingEdge, rightEnclosingEdge, &activeEdges,
                                                &v, mesh, c)) {
                     result = SimplifyResult::kFoundSelfIntersection;
                     restartChecks = true;
+                    SkDebugf("b\n");
                 }
 
             }
+//            validate_edge_list(&activeEdges, c);
+
         } while (restartChecks);
 #ifdef SK_DEBUG
         validate_edge_list(&activeEdges, c);
