@@ -707,7 +707,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 			"Mac10.14":   "Mac-10.14.3",
 			"Mac10.15.1": "Mac-10.15.1",
 			"Mac10.15.7": "Mac-10.15.7", // Same as 'Mac', but explicit.
-			"Mac11":      "Mac-11.1",
+			"Mac11":      "Mac-11.4",
 			"Ubuntu18":   "Ubuntu-18.04",
 			"Win":        DEFAULT_OS_WIN,
 			"Win10":      "Windows-10-19041",
