@@ -55,7 +55,6 @@ public:
         kVertexColorSpaceBenchGP_ClassID,
         kGrBicubicEffect_ClassID,
         kGrBitmapTextGeoProc_ClassID,
-        kGrCircleBlurFragmentProcessor_ClassID,
         kGrColorSpaceXformEffect_ClassID,
         kGrConfigConversionEffect_ClassID,
         kGrConicEffect_ClassID,
