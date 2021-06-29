@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "127ea22e_d1858e3b",
+        "filename": "src/gpu/gradients/GrGradientShader.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-29T19:41:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d0c39038_4e618233",
+      "range": {
+        "startLine": 217,
+        "startChar": 3,
+        "endLine": 217,
+        "endChar": 28
+      },
+      "revId": "b26ceeccf9d483f2a9e69aca8af992d0c1ed2a65",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "36876180_b5fda4e5",
@@ -47,6 +71,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5848edcc_d756e921",
+        "filename": "src/gpu/gradients/GrGradientShader.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-29T19:41:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "36876180_b5fda4e5",
+      "range": {
+        "startLine": 221,
+        "startChar": 7,
+        "endLine": 221,
+        "endChar": 32
+      },
+      "revId": "b26ceeccf9d483f2a9e69aca8af992d0c1ed2a65",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c02f97a9_ccc76f15",
@@ -60,6 +108,30 @@
       "writtenOn": "2021-06-29T18:31:13Z",
       "side": 1,
       "message": "const bool? Maybe put it down with the other specialized parameters?",
+      "range": {
+        "startLine": 293,
+        "startChar": 4,
+        "endLine": 293,
+        "endChar": 9
+      },
+      "revId": "b26ceeccf9d483f2a9e69aca8af992d0c1ed2a65",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7c151e04_09d13f0e",
+        "filename": "src/gpu/gradients/GrGradientShader.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-29T19:41:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c02f97a9_ccc76f15",
       "range": {
         "startLine": 293,
         "startChar": 4,
@@ -95,6 +167,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "3d283f96_61c92f1b",
+        "filename": "src/gpu/gradients/GrGradientShader.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-29T19:41:01Z",
+      "side": 1,
+      "message": "Seems like there\u0027s enough scaffolding in common that it wouldn\u0027t be worth it?",
+      "parentUuid": "84f4a3b9_a8d21d75",
+      "range": {
+        "startLine": 313,
+        "startChar": 16,
+        "endLine": 326,
+        "endChar": 17
+      },
+      "revId": "b26ceeccf9d483f2a9e69aca8af992d0c1ed2a65",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "2811f9c6_bc34f90f",
         "filename": "src/gpu/gradients/GrGradientShader.cpp",
         "patchSetId": 6
@@ -106,6 +202,30 @@
       "writtenOn": "2021-06-29T18:31:13Z",
       "side": 1,
       "message": "Do we now have a premul built-in or wrapping FP that we could use instead of implementing it ourselves?",
+      "range": {
+        "startLine": 330,
+        "startChar": 16,
+        "endLine": 335,
+        "endChar": 17
+      },
+      "revId": "b26ceeccf9d483f2a9e69aca8af992d0c1ed2a65",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aa1c9b68_a033e1c9",
+        "filename": "src/gpu/gradients/GrGradientShader.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-29T19:41:01Z",
+      "side": 1,
+      "message": "Hmm. We used to have a premul() intrinsic, but removed it (I think we decided it was trivial). We do still have unpremul(). We also - apparently - had a Premul FP at one point, but I recently discovered the leftover declaration without any implementation and removed it.\n\nI did rewrite this to look like the clamped gradient version, which is a little less clumsy, though.",
+      "parentUuid": "2811f9c6_bc34f90f",
       "range": {
         "startLine": 330,
         "startChar": 16,
