@@ -140,7 +140,7 @@ public:
                 // children sampled like this, invokeChild doesn't even use the coords parameter,
                 // except for that assert.
                 const GrFragmentProcessor* child = fArgs.fFp.childProcessor(index);
-                if (child && !child->isSampledWithExplicitCoords()) {
+                if (child && child->sampleUsage().isPassThrough()) {
                     coords.clear();
                 }
                 return String(fSelf->invokeChild(index,
