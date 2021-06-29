@@ -16,6 +16,24 @@
       "message": "I\u0027d advocate for making this a GN config over gating this on SK_DEBUG. When profiling, we try to disable assertions and used optimized builds. In such cases, we\u0027d lose instrumentation.",
       "revId": "8d750a459cf1f618c522d4ff9751d7eba88f29e7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "49dec074_5be734a9",
+        "filename": "src/gpu/mtl/GrMtlUtil.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-06-29T21:28:52Z",
+      "side": 1,
+      "message": "Sounds good, would it be all right if I set that up in a separate CL?",
+      "parentUuid": "f88e256b_7f8623cc",
+      "revId": "8d750a459cf1f618c522d4ff9751d7eba88f29e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

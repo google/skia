@@ -200,6 +200,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "74174cb9_89eb5fab",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 4
+      },
+      "lineNbr": 508,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-06-29T21:28:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2bbb053b_d4fb5fd5",
+      "range": {
+        "startLine": 501,
+        "startChar": 0,
+        "endLine": 508,
+        "endChar": 58
+      },
+      "revId": "062c9e78beb06d3132712099d16aa36021ca2ce9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5ff47083_f012f3f6",
@@ -247,6 +271,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cce1900e_81800c16",
+        "filename": "src/gpu/mtl/GrMtlOpsRenderPass.mm",
+        "patchSetId": 4
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-06-29T21:28:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e15e2a97_20127643",
+      "range": {
+        "startLine": 308,
+        "startChar": 29,
+        "endLine": 308,
+        "endChar": 42
+      },
+      "revId": "062c9e78beb06d3132712099d16aa36021ca2ce9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "33332969_fe457df2",
@@ -278,6 +326,24 @@
       "side": 1,
       "message": "I wasn\u0027t aware that syntax was possible -- I\u0027ll change it. As far as ASCII vs. UTF8, that\u0027s a good point though we\u0027re using ASCII in other places in this file, I\u0027m not sure why. I\u0027ll submit that as a separate CL.",
       "parentUuid": "33332969_fe457df2",
+      "revId": "062c9e78beb06d3132712099d16aa36021ca2ce9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8b5003c2_92db6c10",
+        "filename": "src/gpu/mtl/GrMtlPipelineStateBuilder.mm",
+        "patchSetId": 4
+      },
+      "lineNbr": 408,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-06-29T21:28:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3dd19a3e_54168ce5",
       "revId": "062c9e78beb06d3132712099d16aa36021ca2ce9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
