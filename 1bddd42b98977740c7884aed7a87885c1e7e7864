@@ -16,6 +16,24 @@
       "message": "Thanks, how about\nthird_party/skia/resources/fonts/more_samples-glyf_colr_1.ttf\nthe second test font, which is generate differently in the color-fonts repo and thus unfortunately still separate at this point?",
       "revId": "1bddd42b98977740c7884aed7a87885c1e7e7864",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3da6f7b6_b4bd6390",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-06-29T15:22:35Z",
+      "side": 1,
+      "message": "I was going to update that one, but it already uses solid boxes instead of a zero area two point contour.",
+      "parentUuid": "12d32c0a_854f23af",
+      "revId": "1bddd42b98977740c7884aed7a87885c1e7e7864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
