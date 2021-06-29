@@ -189,6 +189,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3545bce5_af9450de",
+        "filename": "src/gpu/gradients/GrGradientShader.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-29T20:11:14Z",
+      "side": 1,
+      "message": "Yeah, it had mostly popped into my head if the premul suffix code was extracted into its own Premul step.",
+      "parentUuid": "3d283f96_61c92f1b",
+      "range": {
+        "startLine": 313,
+        "startChar": 16,
+        "endLine": 326,
+        "endChar": 17
+      },
+      "revId": "b26ceeccf9d483f2a9e69aca8af992d0c1ed2a65",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2811f9c6_bc34f90f",
