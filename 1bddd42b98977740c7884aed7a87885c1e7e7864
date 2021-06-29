@@ -70,6 +70,24 @@
       "parentUuid": "0161b8da_6ef53470",
       "revId": "1bddd42b98977740c7884aed7a87885c1e7e7864",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c3017a52_4d06f081",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-06-29T18:17:32Z",
+      "side": 1,
+      "message": "Also changed glyph 35. This is strange as if I use ttx to decode the previous version of colrv1_samples.ttf and then re-encode the same changes happen. Though it does appear to steady state there. Not sure what may have changed.\n\nI was going to try to update this font (colrv1_samples.ttf) with samples-glyf_colr_1.ttf from upstream, but it seems significantly different and doesn\u0027t appear to test quite as much. If it turns out there is a good upstream source to modify instead I\u0027d be interested in using that. At the moment I just hacked this font directly so we wouldn\u0027t be triaging empty images.",
+      "parentUuid": "f0014364_1447817a",
+      "revId": "1bddd42b98977740c7884aed7a87885c1e7e7864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
