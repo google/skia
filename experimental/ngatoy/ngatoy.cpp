@@ -113,22 +113,25 @@ static void save_files(int testID, Shape s, const SkBitmap& expected, const SkBi
 // Exercise basic SortKey behavior
 static void key_test() {
     SortKey k;
-    SkASSERT(!k.transparent());
-    SkASSERT(k.depth() == 0);
-    SkASSERT(k.material() == 0);
 //    k.dump();
+    SkASSERT(!k.transparent());
+    SkASSERT(k.sortZ() == 0);
+    SkASSERT(k.order() == 0);
+    SkASSERT(k.material() == 0);
 
-    SortKey k1(false, 1, 3);
-    SkASSERT(!k1.transparent());
-    SkASSERT(k1.depth() == 1);
-    SkASSERT(k1.material() == 3);
+    SortKey k1(false, 1, 2, 3);
 //    k1.dump();
+    SkASSERT(!k1.transparent());
+    SkASSERT(k1.sortZ() == 1);
+    SkASSERT(k1.order() == 2);
+    SkASSERT(k1.material() == 3);
 
-    SortKey k2(true, 2, 1);
-    SkASSERT(k2.transparent());
-    SkASSERT(k2.depth() == 2);
-    SkASSERT(k2.material() == 1);
+    SortKey k2(true, 3, 2, 1);
 //    k2.dump();
+    SkASSERT(k2.transparent());
+    SkASSERT(k2.sortZ() == 3);
+    SkASSERT(k2.order() == 2);
+    SkASSERT(k2.material() == 1);
 }
 
 static void check_state(FakeMCBlob* actualState,
@@ -400,6 +403,7 @@ static int test6(std::vector<sk_sp<Cmd>>* test,
                  Shape shape,
                  std::vector<ID>* expectedOrder) {
     // The expected is front to back after the clip
+    expectedOrder->push_back(ID(0)); // clip
     expectedOrder->push_back(ID(2));
     expectedOrder->push_back(ID(1));
 
@@ -422,11 +426,13 @@ static int test7(std::vector<sk_sp<Cmd>>* test,
                  Shape shape,
                  std::vector<ID>* expectedOrder) {
     // The expected is front to back modulated by the two clip states
+    expectedOrder->push_back(ID(0)); // clip
     expectedOrder->push_back(ID(7));
     expectedOrder->push_back(ID(6));
     expectedOrder->push_back(ID(2));
     expectedOrder->push_back(ID(1));
 
+    expectedOrder->push_back(ID(3)); // clip
     expectedOrder->push_back(ID(5));
     expectedOrder->push_back(ID(4));
 
