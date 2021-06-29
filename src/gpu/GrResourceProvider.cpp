@@ -24,6 +24,7 @@
 #include "src/gpu/GrResourceCache.h"
 #include "src/gpu/GrSemaphore.h"
 #include "src/gpu/GrTexture.h"
+#include "src/gpu/GrVertexWriter.h"
 #include "src/gpu/SkGr.h"
 
 const int GrResourceProvider::kMinScratchTextureSize = 16;
@@ -352,17 +353,51 @@ sk_sp<GrGpuResource> GrResourceProvider::findResourceByUniqueKey(const GrUniqueK
 
 sk_sp<const GrGpuBuffer> GrResourceProvider::findOrMakeStaticBuffer(GrGpuBufferType intendedType,
                                                                     size_t size,
-                                                                    const void* data,
+                                                                    const void* staticData,
                                                                     const GrUniqueKey& key) {
     if (auto buffer = this->findByUniqueKey<GrGpuBuffer>(key)) {
         return std::move(buffer);
     }
-    if (auto buffer = this->createBuffer(size, intendedType, kStatic_GrAccessPattern, data)) {
+    if (auto buffer = this->createBuffer(size, intendedType, kStatic_GrAccessPattern, staticData)) {
         // We shouldn't bin and/or cache static buffers.
         SkASSERT(buffer->size() == size);
         SkASSERT(!buffer->resourcePriv().getScratchKey().isValid());
         buffer->resourcePriv().setUniqueKey(key);
         return sk_sp<const GrGpuBuffer>(buffer);
+    }
+    return nullptr;
+}
+
+sk_sp<const GrGpuBuffer> GrResourceProvider::findOrMakeStaticBuffer(
+        GrGpuBufferType intendedType,
+        size_t size,
+        const GrUniqueKey& uniqueKey,
+        InitializeBufferFn initializeBufferFn) {
+    if (auto buffer = this->findByUniqueKey<GrGpuBuffer>(uniqueKey)) {
+        return std::move(buffer);
+    }
+    if (auto buffer = this->createBuffer(size, intendedType, kStatic_GrAccessPattern)) {
+        // We shouldn't bin and/or cache static buffers.
+        SkASSERT(buffer->size() == size);
+        SkASSERT(!buffer->resourcePriv().getScratchKey().isValid());
+        buffer->resourcePriv().setUniqueKey(uniqueKey);
+
+        // Map the buffer. Use a staging buffer on the heap if mapping isn't supported.
+        GrVertexWriter vertexWriter = buffer->map();
+        SkAutoTMalloc<char> stagingBuffer;
+        if (!vertexWriter) {
+            SkASSERT(!buffer->isMapped());
+            vertexWriter = stagingBuffer.reset(size);
+        }
+
+        initializeBufferFn(std::move(vertexWriter), size);
+
+        if (buffer->isMapped()) {
+            buffer->unmap();
+        } else {
+            buffer->updateData(stagingBuffer, size);
+        }
+        return std::move(buffer);
     }
     return nullptr;
 }

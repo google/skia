@@ -18,6 +18,9 @@ class SkArenaAlloc;
  // This is a common base class for shaders in the GPU tessellator.
 class GrTessellationShader : public GrGeometryProcessor {
 public:
+    // Don't allow linearized segments to be off by more than 1/4th of a pixel from the true curve.
+    constexpr static float kLinearizationPrecision = 4;
+
     GrTessellationShader(ClassID classID, GrPrimitiveType primitiveType,
                          int tessellationPatchVertexCount, const SkMatrix& viewMatrix,
                          const SkPMColor4f& color)

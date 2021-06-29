@@ -14,7 +14,7 @@
 
 namespace {
 
-constexpr static float kPrecision = GrPathTessellator::kLinearizationPrecision;
+constexpr static float kPrecision = GrTessellationShader::kLinearizationPrecision;
 
 // Parses out each contour in a path and tracks the midpoint. Example usage:
 //
@@ -244,6 +244,9 @@ GrPathTessellator* GrPathWedgeTessellator::Make(SkArenaAlloc* arena, const SkMat
     });
 }
 
+GR_DECLARE_STATIC_UNIQUE_KEY(gFixedCountVertexBufferKey);
+GR_DECLARE_STATIC_UNIQUE_KEY(gFixedCountIndexBufferKey);
+
 void GrPathWedgeTessellator::prepare(GrMeshDrawTarget* target, const SkRect& cullBounds,
                                      const SkPath& path,
                                      const BreadcrumbTriangleList* breadcrumbTriangleList) {
@@ -262,7 +265,7 @@ void GrPathWedgeTessellator::prepare(GrMeshDrawTarget* target, const SkRect& cul
     if (fShader->willUseTessellationShaders()) {
         maxSegments = target->caps().shaderCaps()->maxTessellationSegments();
     } else {
-        maxSegments = kMaxFixedCountSegments;
+        maxSegments = GrPathTessellationShader::kMaxFixedCountSegments;
     }
 
     WedgeWriter wedgeWriter(cullBounds, fShader->viewMatrix(), maxSegments);
@@ -307,7 +310,23 @@ void GrPathWedgeTessellator::prepare(GrMeshDrawTarget* target, const SkRect& cul
         int numCurveTriangles =
                 GrPathTessellationShader::NumCurveTrianglesAtResolveLevel(fixedResolveLevel);
         // Emit 3 vertices per curve triangle, plus 3 more for the fan triangle.
-        fFixedVertexCount = numCurveTriangles * 3 + 3;
+        fFixedIndexCount = numCurveTriangles * 3 + 3;
+
+        GR_DEFINE_STATIC_UNIQUE_KEY(gFixedCountVertexBufferKey);
+
+        fFixedCountVertexBuffer = target->resourceProvider()->findOrMakeStaticBuffer(
+                GrGpuBufferType::kVertex,
+                GrPathTessellationShader::SizeOfVertexBufferForMiddleOutWedges(),
+                gFixedCountVertexBufferKey,
+                GrPathTessellationShader::InitializeVertexBufferForMiddleOutWedges);
+
+        GR_DEFINE_STATIC_UNIQUE_KEY(gFixedCountIndexBufferKey);
+
+        fFixedCountIndexBuffer = target->resourceProvider()->findOrMakeStaticBuffer(
+                GrGpuBufferType::kIndex,
+                GrPathTessellationShader::SizeOfIndexBufferForMiddleOutWedges(),
+                gFixedCountIndexBufferKey,
+                GrPathTessellationShader::InitializeIndexBufferForMiddleOutWedges);
     }
 }
 
@@ -320,8 +339,8 @@ void GrPathWedgeTessellator::draw(GrOpFlushState* flushState) const {
     } else {
         SkASSERT(fShader->hasInstanceAttributes());
         for (const GrVertexChunk& chunk : fVertexChunkArray) {
-            flushState->bindBuffers(nullptr, chunk.fBuffer, nullptr);
-            flushState->drawInstanced(chunk.fCount, chunk.fBase, fFixedVertexCount, 0);
+            flushState->bindBuffers(fFixedCountIndexBuffer, chunk.fBuffer, fFixedCountVertexBuffer);
+            flushState->drawIndexedInstanced(fFixedIndexCount, 0, chunk.fCount, chunk.fBase, 0);
         }
     }
 }

@@ -9,7 +9,6 @@
 #define GrStrokeTessellator_DEFINED
 
 #include "src/gpu/GrVx.h"
-#include "src/gpu/tessellate/GrPathTessellator.h"
 #include "src/gpu/tessellate/shaders/GrStrokeTessellationShader.h"
 
 // Prepares GPU data for, and then draws a stroke's tessellated geometry.
@@ -63,7 +62,7 @@ struct GrStrokeTolerances {
     // once transformed into device space, they never deviate by more than
     // 1/GrTessellationPathRenderer::kLinearizationPrecision pixels from the true curve.
     constexpr static float CalcParametricPrecision(float matrixMaxScale) {
-        return matrixMaxScale * GrPathTessellator::kLinearizationPrecision;
+        return matrixMaxScale * GrTessellationShader::kLinearizationPrecision;
     }
     // Decides the number of radial segments the tessellator adds for each curve. (Uniform steps
     // in tangent angle.) The tessellator will add this number of radial segments for each
