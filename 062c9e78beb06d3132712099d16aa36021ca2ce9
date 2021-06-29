@@ -55,6 +55,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "828c5e97_093a925e",
+        "filename": "src/gpu/mtl/GrMtlBuffer.mm",
+        "patchSetId": 4
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5970
+      },
+      "writtenOn": "2021-06-29T21:14:40Z",
+      "side": 1,
+      "message": "Cool. A GN config would be really easy to setup in Flutter. We can enable it in debug and profile.",
+      "parentUuid": "a33053a3_b56ce553",
+      "revId": "062c9e78beb06d3132712099d16aa36021ca2ce9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "adb736d9_2da1334a",
         "filename": "src/gpu/mtl/GrMtlGpu.mm",
         "patchSetId": 4

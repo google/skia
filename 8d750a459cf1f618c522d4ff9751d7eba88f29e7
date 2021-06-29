@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f88e256b_7f8623cc",
+        "filename": "src/gpu/mtl/GrMtlUtil.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5970
+      },
+      "writtenOn": "2021-06-29T21:14:40Z",
+      "side": 1,
+      "message": "I\u0027d advocate for making this a GN config over gating this on SK_DEBUG. When profiling, we try to disable assertions and used optimized builds. In such cases, we\u0027d lose instrumentation.",
+      "revId": "8d750a459cf1f618c522d4ff9751d7eba88f29e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
