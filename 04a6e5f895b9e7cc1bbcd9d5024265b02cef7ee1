@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "95c73481_5122fb9c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-29T21:24:18Z",
+      "side": 1,
+      "message": "Patchset #6 is my attempt at cleaning up the static vertex buffer creation code in a way that can be reused for other code in the tessellation renderer.",
+      "revId": "04a6e5f895b9e7cc1bbcd9d5024265b02cef7ee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
