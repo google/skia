@@ -102,3 +102,15 @@ void SkPaintPriv::RemoveColorFilter(SkPaint* p, SkColorSpace* dstCS) {
         p->setColorFilter(nullptr);
     }
 }
+
+// move to SkBlender.cpp
+
+#include "src/core/SkBlendModePriv.h"
+#include "src/core/SkBlenderBase.h"
+
+bool SkBlenderBase::shouldPreScaleCoverage(bool rgb_coverage) const {
+    if (auto bm = this->asBlendMode()) {
+        return SkBlendMode_ShouldPreScaleCoverage(bm.value(), rgb_coverage);
+    }
+    return false;
+}
