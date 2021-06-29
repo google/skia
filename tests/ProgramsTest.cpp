@@ -244,6 +244,7 @@ static void set_random_color_coverage_stages(GrPaint* paint,
 bool GrDrawingManager::ProgramUnitTest(GrDirectContext*, int) { return true; }
 #else
 bool GrDrawingManager::ProgramUnitTest(GrDirectContext* direct, int maxStages, int maxLevels) {
+    if (direct->backend() != GrBackendApi::kOpenGL) return true;
     GrProxyProvider* proxyProvider = direct->priv().proxyProvider();
     const GrCaps* caps = direct->priv().caps();
 
@@ -281,8 +282,11 @@ bool GrDrawingManager::ProgramUnitTest(GrDirectContext* direct, int maxStages, i
 
     SkRandom random;
     static const int NUM_TESTS = 1024;
+    random.setJK(90044594, 865564369);
     for (int t = 0; t < NUM_TESTS; t++) {
         // setup random render target(can fail)
+        auto j = random.j();
+        auto k = random.k();
         auto surfaceDrawContext = random_surface_draw_context(direct, &random, caps);
         if (!surfaceDrawContext) {
             SkDebugf("Could not allocate surfaceDrawContext");
@@ -293,7 +297,10 @@ bool GrDrawingManager::ProgramUnitTest(GrDirectContext* direct, int maxStages, i
         GrProcessorTestData ptd(&random, direct, /*maxTreeDepth=*/1, SK_ARRAY_COUNT(views), views);
         set_random_color_coverage_stages(&paint, &ptd, maxStages, maxLevels);
         set_random_xpf(&paint, &ptd);
+        SkDebugf("t: %d %d %d\n", t, j, k);
         GrDrawRandomOp(&random, surfaceDrawContext.get(), std::move(paint));
+        direct->flush(GrFlushInfo());
+        direct->submit(false);
     }
     // Flush everything, test passes if flush is successful(ie, no asserts are hit, no crashes)
     direct->flush(GrFlushInfo());
@@ -312,6 +319,8 @@ bool GrDrawingManager::ProgramUnitTest(GrDirectContext* direct, int maxStages, i
     for (int i = 0; i < fpFactoryCnt; ++i) {
         // Since FP factories internally randomize, call each 10 times.
         for (int j = 0; j < 10; ++j) {
+            auto jj = random.j();
+            auto kk = random.k();
             GrProcessorTestData ptd(&random, direct, /*maxTreeDepth=*/1, SK_ARRAY_COUNT(views),
                                     views);
 
@@ -320,6 +329,7 @@ bool GrDrawingManager::ProgramUnitTest(GrDirectContext* direct, int maxStages, i
             auto fp = GrFragmentProcessorTestFactory::MakeIdx(i, &ptd);
             auto blockFP = BlockInputFragmentProcessor::Make(std::move(fp));
             paint.setColorFragmentProcessor(std::move(blockFP));
+            SkDebugf("i: %d j: %d %d %d\n", i, j, jj, kk);
             GrDrawRandomOp(&random, surfaceDrawContext.get(), std::move(paint));
 
             direct->flush(GrFlushInfo());
