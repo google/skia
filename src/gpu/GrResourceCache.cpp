@@ -553,6 +553,7 @@ void GrResourceCache::purgeAsNeeded() {
     if (stillOverbudget) {
         fThreadSafeCache->dropUniqueRefs(this);
 
+        stillOverbudget = this->overBudget();
         while (stillOverbudget && fPurgeableQueue.count()) {
             GrGpuResource* resource = fPurgeableQueue.peek();
             SkASSERT(resource->resourcePriv().isPurgeable());
