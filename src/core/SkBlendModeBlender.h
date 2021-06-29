@@ -14,10 +14,7 @@ class SkBlendModeBlender : public SkBlenderBase {
 public:
     SkBlendModeBlender(SkBlendMode mode) : fMode(mode) {}
 
-    bool asBlendMode(SkBlendMode* mode) const final {
-        *mode = fMode;
-        return true;
-    }
+    skstd::optional<SkBlendMode> asBlendMode() const final { return fMode; }
 
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
