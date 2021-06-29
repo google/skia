@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a96c1f05_54ac1894",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-29T14:30:27Z",
+      "side": 1,
+      "message": "While debugging the node-pool memory regression, I also noticed some other potential memory savings in SkRuntimeEffect. One easy one was the fact that we were storing two copies of the SkSL. One SkString in the effect itself, plus another SkSL::String in the Program. This changes it so that the Program copy is the only one that sticks around.\n\nThere are other possible (further) improvements: The effect scrapes metadata about uniforms and children, and stores the names in SkString copies. Those could be string_views, pointing into the program-owned source. If we wanted to get really clever, we could have a string container that supports static strings (without copying them), because all of the runtime FPs exist as yet another copy of string data, in the executable itself.",
+      "revId": "e955a14d30315c0f7097f9535c8bd1c1926c50ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1881f07d_15df76b1",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-29T14:30:27Z",
+      "side": 1,
+      "message": "This looks/feels funny, but seems like the right thing to do.",
+      "revId": "e955a14d30315c0f7097f9535c8bd1c1926c50ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
