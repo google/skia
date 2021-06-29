@@ -10,7 +10,6 @@
 #include "src/gpu/geometry/GrWangsFormula.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
-#include "src/gpu/tessellate/GrPathTessellator.h"
 
 namespace {
 
@@ -32,13 +31,19 @@ public:
             : GrPathTessellationShader(kTessellate_MiddleOutShader_ClassID,
                                        GrPrimitiveType::kTriangles, 0, viewMatrix, color)
             , fPatchType(patchType) {
-        fAttribs.emplace_back("inputPoints_0_1", kFloat4_GrVertexAttribType, kFloat4_GrSLType);
-        fAttribs.emplace_back("inputPoints_2_3", kFloat4_GrVertexAttribType, kFloat4_GrSLType);
+        fInstanceAttribs.emplace_back("inputPoints_0_1", kFloat4_GrVertexAttribType,
+                                      kFloat4_GrSLType);
+        fInstanceAttribs.emplace_back("inputPoints_2_3", kFloat4_GrVertexAttribType,
+                                      kFloat4_GrSLType);
         if (fPatchType == PatchType::kWedges) {
-            fAttribs.emplace_back("fanPoint", kFloat2_GrVertexAttribType, kFloat2_GrSLType);
+            fInstanceAttribs.emplace_back("fanPoint", kFloat2_GrVertexAttribType, kFloat2_GrSLType);
         }
-        this->setInstanceAttributes(fAttribs.data(), fAttribs.count());
-        SkASSERT(fAttribs.count() <= kMaxAttribCount);
+        this->setInstanceAttributes(fInstanceAttribs.data(), fInstanceAttribs.count());
+        SkASSERT(fInstanceAttribs.count() <= kMaxInstanceAttribCount);
+
+        constexpr static Attribute kVertexAttrib("resolveLevel_and_idx", kFloat2_GrVertexAttribType,
+                                                 kFloat2_GrSLType);
+        this->setVertexAttributes(&kVertexAttrib, 1);
     }
 
 private:
@@ -49,73 +54,46 @@ private:
     GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const final;
     const PatchType fPatchType;
 
-    constexpr static int kMaxAttribCount = 3;
-    SkSTArray<kMaxAttribCount, Attribute> fAttribs;
+    constexpr static int kMaxInstanceAttribCount = 3;
+    SkSTArray<kMaxInstanceAttribCount, Attribute> fInstanceAttribs;
 };
 
 GrGLSLGeometryProcessor* MiddleOutShader::createGLSLInstance(const GrShaderCaps&) const {
     class Impl : public GrPathTessellationShader::Impl {
         void emitVertexCode(const GrPathTessellationShader& shader, GrGLSLVertexBuilder* v,
                             GrGPArgs* gpArgs) override {
-            v->defineConstant("PRECISION", GrPathTessellator::kLinearizationPrecision);
+            v->defineConstant("PRECISION", GrTessellationShader::kLinearizationPrecision);
+            v->defineConstant("MAX_FIXED_RESOLVE_LEVEL", (float)kMaxFixedCountResolveLevel);
+            v->defineConstant("MAX_FIXED_SEGMENTS", (float)kMaxFixedCountSegments);
             v->insertFunction(GrWangsFormula::as_sksl().c_str());
             if (v->getProgramBuilder()->shaderCaps()->bitManipulationSupport()) {
-                // Determines the T value at which to place the given vertex in a "middle-out"
-                // topology.
                 v->insertFunction(R"(
-                float find_middle_out_T(int middleOutVertexID, float maxResolveLevel) {
-                    int totalTriangleIdx = middleOutVertexID/3 + 1;
-                    int resolveLevel = findMSB(totalTriangleIdx) + 1;
-                    if (resolveLevel > int(maxResolveLevel)) {
-                        // This vertex is at a higher resolve level than we need. Emit a degenerate
-                        // triangle at T=1.
-                        return 1;
-                    }
-                    int firstTriangleAtDepth = (1 << (resolveLevel - 1));
-                    int triangleIdxWithinDepth = totalTriangleIdx - firstTriangleAtDepth;
-                    int vertexIdxWithinDepth = triangleIdxWithinDepth * 2 + middleOutVertexID % 3;
-                    return ldexp(float(vertexIdxWithinDepth), -resolveLevel);
+                float ldexp_portable(float x, float p) {
+                    return ldexp(x, int(p));
                 })");
             } else {
-                // Determines the T value at which to place the given vertex in a "middle-out"
-                // topology.
                 v->insertFunction(R"(
-                float find_middle_out_T(int middleOutVertexID, float maxResolveLevel) {
-                    float totalTriangleIdx = float(middleOutVertexID/3) + 1;
-                    float resolveLevel = floor(log2(totalTriangleIdx)) + 1;
-                    if (resolveLevel > maxResolveLevel) {
-                        // This vertex is at a higher resolve level than we need. Emit a degenerate
-                        // triangle at T=1.
-                        return 1;
-                    }
-                    float firstTriangleAtDepth = exp2(resolveLevel - 1);
-                    float triangleIdxWithinDepth = totalTriangleIdx - firstTriangleAtDepth;
-                    float vertexIdxWithinDepth =
-                            triangleIdxWithinDepth * 2 + float(middleOutVertexID % 3);
-                    return vertexIdxWithinDepth * exp2(-resolveLevel);
+                float ldexp_portable(float x, float p) {
+                    return x * exp2(p);
                 })");
             }
             v->codeAppend(R"(
-            int middleOutVertexID = sk_VertexID;
+            float resolveLevel = resolveLevel_and_idx.x;
+            float idxInResolveLevel = resolveLevel_and_idx.y;
             float2 localcoord;)");
             if (shader.cast<MiddleOutShader>().fPatchType == PatchType::kWedges) {
                 v->codeAppend(R"(
-                // The first triangle is the fan triangle.
-                middleOutVertexID -= 3;
-                if (middleOutVertexID < 0) {
-                    float2 endpoint = isinf(inputPoints_2_3.w) ? inputPoints_2_3.xy /*conic*/
-                                                               : inputPoints_2_3.zw /*cubic*/;
-                    localcoord = (sk_VertexID < 1)  ? inputPoints_0_1.xy
-                               : (sk_VertexID == 1) ? endpoint
-                                                    : fanPoint;
+                // A negative resolve level means this is the fan point.
+                if (resolveLevel < 0) {
+                    localcoord = fanPoint;
                 } else)");  // Fall through to next if ().
             }
             v->codeAppend(R"(
             if (isinf(inputPoints_2_3.z)) {
                 // A conic with w=Inf is an exact triangle.
-                localcoord = (middleOutVertexID < 1)  ? inputPoints_0_1.xy
-                           : (middleOutVertexID == 1) ? inputPoints_0_1.zw
-                                                      : inputPoints_2_3.xy;
+                localcoord = (resolveLevel != 0)      ? inputPoints_0_1.zw
+                           : (idxInResolveLevel != 0) ? inputPoints_2_3.xy
+                                                      : inputPoints_0_1.xy;
             } else {
                 float w = -1;  // w < 0 tells us to treat the instance as an integral cubic.
                 float4x2 P = float4x2(inputPoints_0_1, inputPoints_2_3);
@@ -131,8 +109,22 @@ GrGLSLGeometryProcessor* MiddleOutShader::createGLSLInstance(const GrShaderCaps&
                     // The patch is an integral cubic.
                     maxResolveLevel = wangs_formula_cubic_log2(PRECISION, P, AFFINE_MATRIX);
                 }
-                float T = find_middle_out_T(middleOutVertexID, maxResolveLevel);
-                if (0 < T && T < 1) {
+                if (resolveLevel > maxResolveLevel) {
+                    // This vertex is at a higher resolve level than we need. Demote to a lower
+                    // resolveLevel, which will produce a degenerate triangle.
+                    idxInResolveLevel = floor(ldexp_portable(idxInResolveLevel,
+                                                             maxResolveLevel - resolveLevel));
+                    resolveLevel = maxResolveLevel;
+                }
+                // Promote our location to a discrete position in the maximum fixed resolve level.
+                // This is extra paranoia to ensure we get the exact same fp32 coordinates for
+                // colocated points from different resolve levels (e.g., the vertices T=3/4 and
+                // T=6/8 should be exactly colocated).
+                float fixedVertexID = round(ldexp_portable(idxInResolveLevel,
+                                                           MAX_FIXED_RESOLVE_LEVEL - resolveLevel));
+                if (0 < fixedVertexID && fixedVertexID < MAX_FIXED_SEGMENTS) {
+                    float T = fixedVertexID * (1 / MAX_FIXED_SEGMENTS);
+
                     // Evaluate at T. Use De Casteljau's for its accuracy and stability.
                     float2 ab = mix(P[0], P[1], T);
                     float2 bc = mix(P[1], P[2], T);
@@ -148,7 +140,7 @@ GrGLSLGeometryProcessor* MiddleOutShader::createGLSLInstance(const GrShaderCaps&
 
                     localcoord = (w < 0) ? /*cubic*/ abcd : /*conic*/ abc/uv;
                 } else {
-                    localcoord = (T == 0) ? P[0].xy : P[3].xy;
+                    localcoord = (fixedVertexID == 0) ? P[0].xy : P[3].xy;
                 }
             }
             float2 vertexpos = AFFINE_MATRIX * localcoord + TRANSLATE;)");
@@ -165,4 +157,107 @@ GrPathTessellationShader* GrPathTessellationShader::MakeMiddleOutFixedCountShade
         SkArenaAlloc* arena, const SkMatrix& viewMatrix, const SkPMColor4f& color,
         PatchType patchType) {
     return arena->make<MiddleOutShader>(viewMatrix, color, patchType);
+}
+
+void GrPathTessellationShader::InitializeVertexBufferForMiddleOutCurves(GrVertexWriter vertexWriter,
+                                                                        size_t bufferSize) {
+    SkASSERT(bufferSize >= kMiddleOutVertexStride * 2);
+    SkASSERT(bufferSize % kMiddleOutVertexStride == 0);
+    int vertexCount = bufferSize / kMiddleOutVertexStride;
+    SkASSERT(vertexCount > 3);
+    SkDEBUGCODE(GrVertexWriter end = vertexWriter.makeOffset(vertexCount * kMiddleOutVertexStride);)
+
+    // Lay out the vertices in "middle-out" order:
+    //
+    // T= 0/1, 1/1,              ; resolveLevel=0
+    //    1/2,                   ; resolveLevel=1  (0/2 and 2/2 are already in resolveLevel 0)
+    //    1/4, 3/4,              ; resolveLevel=2  (2/4 is already in resolveLevel 1)
+    //    1/8, 3/8, 5/8, 7/8,    ; resolveLevel=3  (2/8 and 6/8 are already in resolveLevel 2)
+    //    ...                    ; resolveLevel=...
+    //
+    // Resolve level 0 is just the beginning and ending vertices.
+    vertexWriter.write<float, float>(0/*resolveLevel*/, 0/*idx*/);
+    vertexWriter.write<float, float>(0/*resolveLevel*/, 1/*idx*/);
+
+    // Resolve levels 1..kMaxResolveLevel.
+    int maxResolveLevel = SkPrevLog2(vertexCount - 1);
+    SkASSERT((1 << maxResolveLevel) + 1 == vertexCount);
+    for (int resolveLevel = 1; resolveLevel <= maxResolveLevel; ++resolveLevel) {
+        int numSegmentsInResolveLevel = 1 << resolveLevel;
+        // Write out the odd vertices in this resolveLevel. The even vertices were already written
+        // out in previous resolveLevels and will be indexed from there.
+        for (int i = 1; i < numSegmentsInResolveLevel; i += 2) {
+            vertexWriter.write<float, float>(resolveLevel, i);
+        }
+    }
+
+    SkASSERT(vertexWriter == end);
+}
+
+void GrPathTessellationShader::InitializeVertexBufferForMiddleOutWedges(GrVertexWriter vertexWriter,
+                                                                        size_t bufferSize) {
+    SkASSERT(bufferSize >= kMiddleOutVertexStride);
+    // Start out with the fan point. A negative resolve level indicates the fan point.
+    vertexWriter.write<float, float>(-1/*resolveLevel*/, -1/*idx*/);
+
+    InitializeVertexBufferForMiddleOutCurves(std::move(vertexWriter),
+                                             bufferSize - kMiddleOutVertexStride);
+}
+
+static void fill_index_buffer_for_curves(GrVertexWriter vertexWriter, size_t bufferSize,
+                                         uint16_t baseIndex) {
+    SkASSERT(bufferSize % (sizeof(uint16_t) * 3) == 0);
+    int triangleCount = bufferSize / (sizeof(uint16_t) * 3);
+    SkASSERT(triangleCount >= 1);
+    SkTArray<std::array<uint16_t, 3>> indexData(triangleCount);
+
+    // Connect the vertices with a middle-out triangulation. Refer to
+    // InitializeVertexBufferForMiddleOutCurves() for the exact vertex ordering.
+    //
+    // Resolve level 1 is just a single triangle at T=[0, 1/2, 1].
+    const auto* neighborInLastResolveLevel = &indexData.push_back({baseIndex,
+                                                                   (uint16_t)(baseIndex + 2),
+                                                                   (uint16_t)(baseIndex + 1)});
+
+    // Resolve levels 2..maxResolveLevel
+    int maxResolveLevel = SkPrevLog2(triangleCount + 1);
+    uint16_t nextIndex = baseIndex + 3;
+    SkASSERT(GrPathTessellationShader::NumCurveTrianglesAtResolveLevel(maxResolveLevel) ==
+             triangleCount);
+    for (int resolveLevel = 2; resolveLevel <= maxResolveLevel; ++resolveLevel) {
+        SkDEBUGCODE(auto* firstTriangleInCurrentResolveLevel = indexData.end());
+        int numOuterTrianglelsInResolveLevel = 1 << (resolveLevel - 1);
+        SkASSERT(numOuterTrianglelsInResolveLevel % 2 == 0);
+        int numTrianglePairsInResolveLevel = numOuterTrianglelsInResolveLevel >> 1;
+        for (int i = 0; i < numTrianglePairsInResolveLevel; ++i) {
+            // First triangle shares the left edge of "neighborInLastResolveLevel".
+            indexData.push_back({(*neighborInLastResolveLevel)[0],
+                                 nextIndex++,
+                                 (*neighborInLastResolveLevel)[1]});
+            // Second triangle shares the right edge of "neighborInLastResolveLevel".
+            indexData.push_back({(*neighborInLastResolveLevel)[1],
+                                 nextIndex++,
+                                 (*neighborInLastResolveLevel)[2]});
+            ++neighborInLastResolveLevel;
+        }
+        SkASSERT(neighborInLastResolveLevel == firstTriangleInCurrentResolveLevel);
+    }
+    SkASSERT(indexData.count() == triangleCount);
+    SkASSERT(nextIndex == baseIndex + triangleCount + 2);
+
+    vertexWriter.writeArray(indexData.data(), indexData.count());
+}
+
+void GrPathTessellationShader::InitializeIndexBufferForMiddleOutCurves(GrVertexWriter vertexWriter,
+                                                                       size_t bufferSize) {
+    fill_index_buffer_for_curves(std::move(vertexWriter), bufferSize, 0);
+}
+
+void GrPathTessellationShader::InitializeIndexBufferForMiddleOutWedges(GrVertexWriter vertexWriter,
+                                                                       size_t bufferSize) {
+    SkASSERT(bufferSize >= sizeof(uint16_t) * 3);
+    // Start out with the fan triangle.
+    vertexWriter.write<uint16_t, uint16_t, uint16_t>(0, 1, 2);
+
+    fill_index_buffer_for_curves(std::move(vertexWriter), bufferSize - sizeof(uint16_t) * 3, 1);
 }

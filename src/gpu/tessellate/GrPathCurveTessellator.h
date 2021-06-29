@@ -12,6 +12,7 @@
 #include "src/gpu/tessellate/GrPathTessellator.h"
 
 class GrCaps;
+class GrGpuBuffer;
 class GrPipeline;
 
 // Draws an array of "outer curve" patches and, optionally, inner fan triangles for
@@ -45,7 +46,9 @@ private:
     GrVertexChunkArray fVertexChunkArray;
 
     // If using fixed count, this is the number of vertices we need to emit per instance.
-    int fFixedVertexCount;
+    int fFixedIndexCount;
+    sk_sp<const GrGpuBuffer> fFixedCountVertexBuffer;
+    sk_sp<const GrGpuBuffer> fFixedCountIndexBuffer;
 };
 
 #endif

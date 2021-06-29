@@ -15,7 +15,7 @@
 
 namespace {
 
-constexpr static float kPrecision = GrPathTessellator::kLinearizationPrecision;
+constexpr static float kPrecision = GrTessellationShader::kLinearizationPrecision;
 
 // Writes out curve patches, chopping as necessary so none require more segments than are
 // supported by the hardware.
@@ -155,6 +155,9 @@ GrPathTessellator* GrPathCurveTessellator::Make(SkArenaAlloc* arena, const SkMat
     });
 }
 
+GR_DECLARE_STATIC_UNIQUE_KEY(gFixedCountVertexBufferKey);
+GR_DECLARE_STATIC_UNIQUE_KEY(gFixedCountIndexBufferKey);
+
 void GrPathCurveTessellator::prepare(GrMeshDrawTarget* target, const SkRect& cullBounds,
                                      const SkPath& path,
                                      const BreadcrumbTriangleList* breadcrumbTriangleList) {
@@ -226,7 +229,7 @@ void GrPathCurveTessellator::prepare(GrMeshDrawTarget* target, const SkRect& cul
         // for the range T=0..1.
         maxSegments = target->caps().shaderCaps()->maxTessellationSegments() * 2;
     } else {
-        maxSegments = kMaxFixedCountSegments;
+        maxSegments = GrPathTessellationShader::kMaxFixedCountSegments;
     }
 
     CurveWriter curveWriter(cullBounds, fShader->viewMatrix(), maxSegments);
@@ -249,8 +252,24 @@ void GrPathCurveTessellator::prepare(GrMeshDrawTarget* target, const SkRect& cul
     if (!fShader->willUseTessellationShaders()) {
         // log2(n) == log16(n^4).
         int fixedResolveLevel = GrWangsFormula::nextlog16(curveWriter.numFixedSegments_pow4());
-        fFixedVertexCount =
+        fFixedIndexCount =
                 GrPathTessellationShader::NumCurveTrianglesAtResolveLevel(fixedResolveLevel) * 3;
+
+        GR_DEFINE_STATIC_UNIQUE_KEY(gFixedCountVertexBufferKey);
+
+        fFixedCountVertexBuffer = target->resourceProvider()->findOrMakeStaticBuffer(
+                GrGpuBufferType::kVertex,
+                GrPathTessellationShader::SizeOfVertexBufferForMiddleOutCurves(),
+                gFixedCountVertexBufferKey,
+                GrPathTessellationShader::InitializeVertexBufferForMiddleOutCurves);
+
+        GR_DEFINE_STATIC_UNIQUE_KEY(gFixedCountIndexBufferKey);
+
+        fFixedCountIndexBuffer = target->resourceProvider()->findOrMakeStaticBuffer(
+                GrGpuBufferType::kIndex,
+                GrPathTessellationShader::SizeOfIndexBufferForMiddleOutCurves(),
+                gFixedCountIndexBufferKey,
+                GrPathTessellationShader::InitializeIndexBufferForMiddleOutCurves);
     }
 }
 
@@ -263,8 +282,8 @@ void GrPathCurveTessellator::draw(GrOpFlushState* flushState) const {
     } else {
         SkASSERT(fShader->hasInstanceAttributes());
         for (const GrVertexChunk& chunk : fVertexChunkArray) {
-            flushState->bindBuffers(nullptr, chunk.fBuffer, nullptr);
-            flushState->drawInstanced(chunk.fCount, chunk.fBase, fFixedVertexCount, 0);
+            flushState->bindBuffers(fFixedCountIndexBuffer, chunk.fBuffer, fFixedCountVertexBuffer);
+            flushState->drawIndexedInstanced(fFixedIndexCount, 0, chunk.fCount, chunk.fBase, 0);
         }
     }
 }

@@ -54,6 +54,42 @@ public:
                                                                    const SkMatrix& viewMatrix,
                                                                    const SkPMColor4f&, PatchType);
 
+    // This is the largest number of segments the middle-out shader will accept in a single
+    // instance. If a curve requires more segments, it needs to be chopped.
+    constexpr static int kMaxFixedCountSegments = 32;
+    constexpr static int kMaxFixedCountResolveLevel = 5;  // log2(kMaxFixedCountSegments)
+    static_assert(kMaxFixedCountSegments == 1 << kMaxFixedCountResolveLevel);
+
+    // These functions define the vertex and index buffers that should be bound when drawing with
+    // the middle-out fixed count shader. The data sequence is identical for any length of
+    // tessellation segments, so the caller can use them with any instance length (up to
+    // kMaxFixedCountResolveLevel).
+    //
+    // The "curve" and "wedge" buffers are nearly identical, but we keep them separate for now in
+    // case there is a perf hit in the curve case for not using index 0.
+    constexpr static int SizeOfVertexBufferForMiddleOutCurves() {
+        constexpr int kMaxVertexCount = (1 << kMaxFixedCountResolveLevel) + 1;
+        return kMaxVertexCount * kMiddleOutVertexStride;
+    }
+    static void InitializeVertexBufferForMiddleOutCurves(GrVertexWriter, size_t bufferSize);
+
+    constexpr static size_t SizeOfIndexBufferForMiddleOutCurves() {
+        constexpr int kMaxTriangleCount =
+                NumCurveTrianglesAtResolveLevel(kMaxFixedCountResolveLevel);
+        return kMaxTriangleCount * 3 * sizeof(uint16_t);
+    }
+    static void InitializeIndexBufferForMiddleOutCurves(GrVertexWriter, size_t bufferSize);
+
+    constexpr static int SizeOfVertexBufferForMiddleOutWedges() {
+        return SizeOfVertexBufferForMiddleOutCurves() + kMiddleOutVertexStride;
+    }
+    static void InitializeVertexBufferForMiddleOutWedges(GrVertexWriter, size_t bufferSize);
+
+    constexpr static size_t SizeOfIndexBufferForMiddleOutWedges() {
+        return SizeOfIndexBufferForMiddleOutCurves() + 3 * sizeof(uint16_t);
+    }
+    static void InitializeIndexBufferForMiddleOutWedges(GrVertexWriter, size_t bufferSize);
+
     // Uses GPU tessellation shaders to linearize, triangulate, and render cubic "wedge" patches. A
     // wedge is a 5-point patch consisting of 4 cubic control points, plus an anchor point fanning
     // from the center of the curve's resident contour.
@@ -134,6 +170,8 @@ public:
     }
 
 protected:
+    constexpr static size_t kMiddleOutVertexStride = 2 * sizeof(float);
+
     GrPathTessellationShader(ClassID classID, GrPrimitiveType primitiveType,
                              int tessellationPatchVertexCount, const SkMatrix& viewMatrix,
                              const SkPMColor4f& color)
