@@ -16,6 +16,75 @@
       "message": "PTAL.",
       "revId": "062c9e78beb06d3132712099d16aa36021ca2ce9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "adb736d9_2da1334a",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 4
+      },
+      "lineNbr": 417,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-29T19:57:43Z",
+      "side": 1,
+      "message": "why do we not use GrMtlCommandEncoder in the code here(and thus the push/pop methods there)? Or whats the difference between pushing the group on the encoder vs the commandbuffer?",
+      "range": {
+        "startLine": 417,
+        "startChar": 4,
+        "endLine": 417,
+        "endChar": 55
+      },
+      "revId": "062c9e78beb06d3132712099d16aa36021ca2ce9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "991c4f5c_35db6176",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 4
+      },
+      "lineNbr": 508,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-29T19:57:43Z",
+      "side": 1,
+      "message": "should this all be in its own change? This seems like actual functional change outside of debug stuff",
+      "range": {
+        "startLine": 501,
+        "startChar": 0,
+        "endLine": 508,
+        "endChar": 58
+      },
+      "revId": "062c9e78beb06d3132712099d16aa36021ca2ce9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5ff47083_f012f3f6",
+        "filename": "src/gpu/mtl/GrMtlOpsRenderPass.mm",
+        "patchSetId": 4
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-06-29T19:57:43Z",
+      "side": 1,
+      "message": "is guaranteed that we\u0027ve called pushDebugGroup before this? Should we assert that fDebugGroupActive is true?",
+      "range": {
+        "startLine": 308,
+        "startChar": 29,
+        "endLine": 308,
+        "endChar": 42
+      },
+      "revId": "062c9e78beb06d3132712099d16aa36021ca2ce9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
