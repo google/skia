@@ -37,6 +37,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "a33053a3_b56ce553",
+        "filename": "src/gpu/mtl/GrMtlBuffer.mm",
+        "patchSetId": 4
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-06-29T20:40:30Z",
+      "side": 1,
+      "message": "The CL just added this (see GrMtlUtil.h), and it\u0027s enabled in debug. The concern is bloating the code and the size of the command buffer in a final build with all these strings. I can change it to a GN config if need be.",
+      "parentUuid": "7d7b1ef2_9c3300f4",
+      "revId": "062c9e78beb06d3132712099d16aa36021ca2ce9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "adb736d9_2da1334a",
         "filename": "src/gpu/mtl/GrMtlGpu.mm",
         "patchSetId": 4
@@ -48,6 +66,30 @@
       "writtenOn": "2021-06-29T19:57:43Z",
       "side": 1,
       "message": "why do we not use GrMtlCommandEncoder in the code here(and thus the push/pop methods there)? Or whats the difference between pushing the group on the encoder vs the commandbuffer?",
+      "range": {
+        "startLine": 417,
+        "startChar": 4,
+        "endLine": 417,
+        "endChar": 55
+      },
+      "revId": "062c9e78beb06d3132712099d16aa36021ca2ce9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4cefdf9f_35335f6f",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 4
+      },
+      "lineNbr": 417,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-06-29T20:40:30Z",
+      "side": 1,
+      "message": "I don\u0027t have a wrapper class for MTLBlitCommandEncoder like I have for MTLRenderCommandEncoder, since we don\u0027t have the same issues with duplicate state.",
+      "parentUuid": "adb736d9_2da1334a",
       "range": {
         "startLine": 417,
         "startChar": 4,
@@ -77,6 +119,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "f09760f3_81c95a93",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 4
+      },
+      "lineNbr": 499,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-06-29T20:40:30Z",
+      "side": 1,
+      "message": "In line 501 the bytes per pixel are applied. On Mac, the offset alignment has to be at least 4, regardless of the bpp.",
+      "parentUuid": "ee90a4d4_12961c22",
+      "revId": "062c9e78beb06d3132712099d16aa36021ca2ce9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "991c4f5c_35db6176",
         "filename": "src/gpu/mtl/GrMtlGpu.mm",
         "patchSetId": 4
@@ -88,6 +148,30 @@
       "writtenOn": "2021-06-29T19:57:43Z",
       "side": 1,
       "message": "should this all be in its own change? This seems like actual functional change outside of debug stuff",
+      "range": {
+        "startLine": 501,
+        "startChar": 0,
+        "endLine": 508,
+        "endChar": 58
+      },
+      "revId": "062c9e78beb06d3132712099d16aa36021ca2ce9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2bbb053b_d4fb5fd5",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 4
+      },
+      "lineNbr": 508,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-06-29T20:40:30Z",
+      "side": 1,
+      "message": "Sure, I can pull it out.",
+      "parentUuid": "991c4f5c_35db6176",
       "range": {
         "startLine": 501,
         "startChar": 0,
@@ -123,6 +207,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "e15e2a97_20127643",
+        "filename": "src/gpu/mtl/GrMtlOpsRenderPass.mm",
+        "patchSetId": 4
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-06-29T20:40:30Z",
+      "side": 1,
+      "message": "Good idea, I\u0027ll add that.",
+      "parentUuid": "5ff47083_f012f3f6",
+      "range": {
+        "startLine": 308,
+        "startChar": 29,
+        "endLine": 308,
+        "endChar": 42
+      },
+      "revId": "062c9e78beb06d3132712099d16aa36021ca2ce9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "33332969_fe457df2",
         "filename": "src/gpu/mtl/GrMtlPipelineStateBuilder.mm",
         "patchSetId": 4
@@ -134,6 +242,24 @@
       "writtenOn": "2021-06-29T19:58:39Z",
       "side": 1,
       "message": "From someone unfamiliar with the codebase, just curious why this form of string initialization is preferred over object literal syntax. For instance, `pipelineDescriptor.label \u003d @(description.c_str())`. I say this because SkString assumes UTF8 encoding and the object literal syntax expands to `stringWithUTF8String:`. Also, assuming my understanding of SkString is accurate, the second argument is should be NSUTF8StringEncoding (if you wanted to avoid the object literal syntax).",
+      "revId": "062c9e78beb06d3132712099d16aa36021ca2ce9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3dd19a3e_54168ce5",
+        "filename": "src/gpu/mtl/GrMtlPipelineStateBuilder.mm",
+        "patchSetId": 4
+      },
+      "lineNbr": 408,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-06-29T20:40:30Z",
+      "side": 1,
+      "message": "I wasn\u0027t aware that syntax was possible -- I\u0027ll change it. As far as ASCII vs. UTF8, that\u0027s a good point though we\u0027re using ASCII in other places in this file, I\u0027m not sure why. I\u0027ll submit that as a separate CL.",
+      "parentUuid": "33332969_fe457df2",
       "revId": "062c9e78beb06d3132712099d16aa36021ca2ce9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
