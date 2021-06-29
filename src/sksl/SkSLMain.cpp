@@ -376,6 +376,12 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
                     out.write(disassembly.data(), disassembly.size());
                     return true;
                 });
+    } else if (outputPath.ends_with(".dsl.glsl")) {
+        settings.fUseDSLParser = true;
+        return compileProgram(
+                [](SkSL::Compiler& compiler, SkSL::Program& program, SkSL::OutputStream& out) {
+                    return compiler.toGLSL(program, out);
+                });
     } else if (outputPath.ends_with(".glsl")) {
         return compileProgram(
                 [](SkSL::Compiler& compiler, SkSL::Program& program, SkSL::OutputStream& out) {

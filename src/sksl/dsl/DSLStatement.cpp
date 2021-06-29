@@ -42,7 +42,7 @@ DSLStatement::DSLStatement(std::unique_ptr<SkSL::Expression> expr)
 
 DSLStatement::DSLStatement(std::unique_ptr<SkSL::Statement> stmt)
     : fStatement(std::move(stmt)) {
-    DSLWriter::ReportErrors();
+    SkASSERT(this->valid());
 }
 
 DSLStatement::DSLStatement(DSLPossibleExpression expr, PositionInfo pos)
@@ -64,7 +64,9 @@ DSLStatement::~DSLStatement() {
         return;
     }
 #endif
-    SkASSERTF(!fStatement, "Statement destroyed without being incorporated into program");
+    SkASSERTF(!fStatement || !DSLWriter::Settings().fAssertDSLObjectsReleased,
+              "Statement destroyed without being incorporated into program (see "
+              "ProgramSettings::fAssertDSLObjectsReleased)");
 }
 
 DSLPossibleStatement::DSLPossibleStatement(std::unique_ptr<SkSL::Statement> statement)
