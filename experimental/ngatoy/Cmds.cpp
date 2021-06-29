@@ -96,7 +96,7 @@ uint32_t DrawCmd::getDrawZ() const {
 }
 
 SortKey DrawCmd::getKey() {
-    return SortKey(fPaint.isTransparent(), this->getSortZ(), fPaint.toID());
+    return SortKey(fPaint.isTransparent(), this->getSortZ(), fPaintersOrder.toUInt(), fPaint.toID());
 }
 
 void DrawCmd::execute(FakeCanvas* c) const {
@@ -199,9 +199,12 @@ bool ClipCmd::contains(int x, int y) const {
     return shared_contains(x, y, fShape, fRect);
 }
 
+// A clip (Or) has sort z = 1+max { sort z(Os), s < r && (bounds(Os) intersects bounds(Or)) }
 uint32_t ClipCmd::getSortZ() const {
     SkASSERT(fPaintersOrderWhenAdded.isValid());
 
+    // Here we just ignore the bounds intersection portion of the sortZ computation - we
+    // assume the pessemistic "everything always intersects" case.
     return fPaintersOrderWhenAdded.toUInt();
 }
 
@@ -213,7 +216,7 @@ uint32_t ClipCmd::getDrawZ() const {
 }
 
 SortKey ClipCmd::getKey() {
-    return SortKey(false, this->getSortZ(), kInvalidMat);
+    return SortKey(false, this->getSortZ(), 0, kInvalidMat);
 }
 
 void ClipCmd::onAboutToBePopped(PaintersOrder paintersOrderWhenPopped) {
