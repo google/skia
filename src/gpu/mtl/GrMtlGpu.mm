@@ -149,7 +149,7 @@ GrMtlGpu::GrMtlGpu(GrDirectContext* direct, const GrContextOptions& options,
         , fOutstandingCommandBuffers(sizeof(OutstandingCommandBuffer), kDefaultOutstandingAllocCnt)
         , fResourceProvider(this)
         , fStagingBufferManager(this)
-        , fUniformsRingBuffer(this, 128 * 1024, 256, GrGpuBufferType::kVertex)
+        , fUniformsRingBuffer(this, 128 * 1024, 256, GrGpuBufferType::kUniform)
         , fDisconnected(false) {
     fMtlCaps.reset(new GrMtlCaps(options, fDevice, featureSet));
     this->initCapsAndCompiler(fMtlCaps);
@@ -413,6 +413,9 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex,
 
     auto cmdBuffer = this->commandBuffer();
     id<MTLBlitCommandEncoder> GR_NORETAIN blitCmdEncoder = cmdBuffer->getBlitCommandEncoder();
+#ifdef GR_MTL_GPU_DEBUG
+    [blitCmdEncoder pushDebugGroup:@"uploadToTexture"];
+#endif
     for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
         if (texels[currentMipLevel].fPixels) {
             SkASSERT(1 == mipLevelCount || currentHeight == layerHeight);
@@ -440,6 +443,9 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex,
     }
 #ifdef SK_BUILD_FOR_MAC
     [mtlBuffer->mtlBuffer() didModifyRange: NSMakeRange(slice.fOffset, combinedBufferSize)];
+#endif
+#ifdef GR_MTL_GPU_DEBUG
+    [blitCmdEncoder popDebugGroup];
 #endif
 
     if (mipLevelCount < (int) tex->mtlTexture().mipmapLevelCount) {
@@ -500,6 +506,9 @@ bool GrMtlGpu::clearTexture(GrMtlTexture* tex, size_t bpp, uint32_t levelMask) {
 
     auto cmdBuffer = this->commandBuffer();
     id<MTLBlitCommandEncoder> GR_NORETAIN blitCmdEncoder = cmdBuffer->getBlitCommandEncoder();
+#ifdef GR_MTL_GPU_DEBUG
+    [blitCmdEncoder pushDebugGroup:@"clearTexture"];
+#endif
     // clear the buffer to transparent black
     NSRange clearRange;
     clearRange.location = 0;
@@ -529,6 +538,9 @@ bool GrMtlGpu::clearTexture(GrMtlTexture* tex, size_t bpp, uint32_t levelMask) {
         currentWidth = std::max(1, currentWidth/2);
         currentHeight = std::max(1, currentHeight/2);
     }
+#ifdef GR_MTL_GPU_DEBUG
+    [blitCmdEncoder popDebugGroup];
+#endif
 
     if (mipLevelCount < (int) tex->mtlTexture().mipmapLevelCount) {
         tex->markMipmapsDirty();
@@ -688,6 +700,9 @@ sk_sp<GrTexture> GrMtlGpu::onCreateCompressedTexture(SkISize dimensions,
 
     auto cmdBuffer = this->commandBuffer();
     id<MTLBlitCommandEncoder> GR_NORETAIN blitCmdEncoder = cmdBuffer->getBlitCommandEncoder();
+#ifdef GR_MTL_GPU_DEBUG
+    [blitCmdEncoder pushDebugGroup:@"onCreateCompressedTexture"];
+#endif
 
     // copy data into the buffer, skipping any trailing bytes
     memcpy(bufferData, data, dataSize);
@@ -714,6 +729,9 @@ sk_sp<GrTexture> GrMtlGpu::onCreateCompressedTexture(SkISize dimensions,
     }
 #ifdef SK_BUILD_FOR_MAC
     [mtlBuffer->mtlBuffer() didModifyRange: NSMakeRange(slice.fOffset, dataSize)];
+#endif
+#ifdef GR_MTL_GPU_DEBUG
+    [blitCmdEncoder popDebugGroup];
 #endif
 
     return std::move(tex);
@@ -924,6 +942,9 @@ bool GrMtlGpu::createMtlTextureForBackendSurface(MTLPixelFormat mtlFormat,
         desc.textureType = MTLTextureType2DMultisample;
     }
     id<MTLTexture> testTexture = [fDevice newTextureWithDescriptor: desc];
+#ifdef GR_MTL_GPU_DEBUG
+    testTexture.label = @"testTexture";
+#endif
     info->fTexture.reset(GrRetainPtrFromId(testTexture));
     return true;
 }
@@ -991,6 +1012,9 @@ bool GrMtlGpu::onClearBackendTexture(const GrBackendTexture& backendTexture,
 
     GrMtlCommandBuffer* cmdBuffer = this->commandBuffer();
     id<MTLBlitCommandEncoder> GR_NORETAIN blitCmdEncoder = cmdBuffer->getBlitCommandEncoder();
+#ifdef GR_MTL_GPU_DEBUG
+    [blitCmdEncoder pushDebugGroup:@"onClearBackendTexture"];
+#endif
     GrMtlBuffer* mtlBuffer = static_cast<GrMtlBuffer*>(slice.fBuffer);
 
     SkISize levelDimensions(backendTexture.dimensions());
@@ -1021,6 +1045,7 @@ bool GrMtlGpu::onClearBackendTexture(const GrBackendTexture& backendTexture,
 #ifdef SK_BUILD_FOR_MAC
     [mtlBuffer->mtlBuffer() didModifyRange: NSMakeRange(slice.fOffset, combinedBufferSize)];
 #endif
+    [blitCmdEncoder popDebugGroup];
 
     if (finishedCallback) {
         this->addFinishedCallback(std::move(finishedCallback));
@@ -1088,6 +1113,9 @@ bool GrMtlGpu::onUpdateCompressedBackendTexture(const GrBackendTexture& backendT
 
     GrMtlCommandBuffer* cmdBuffer = this->commandBuffer();
     id<MTLBlitCommandEncoder> blitCmdEncoder = cmdBuffer->getBlitCommandEncoder();
+#ifdef GR_MTL_GPU_DEBUG
+    [blitCmdEncoder pushDebugGroup:@"onUpdateCompressedBackendTexture"];
+#endif
     GrMtlBuffer* mtlBuffer = static_cast<GrMtlBuffer*>(slice.fBuffer);
 
     SkISize levelDimensions(backendTexture.dimensions());
@@ -1117,6 +1145,7 @@ bool GrMtlGpu::onUpdateCompressedBackendTexture(const GrBackendTexture& backendT
 #ifdef SK_BUILD_FOR_MAC
     [mtlBuffer->mtlBuffer() didModifyRange:NSMakeRange(slice.fOffset, combinedBufferSize)];
 #endif
+    [blitCmdEncoder popDebugGroup];
 
     if (finishedCallback) {
         this->addFinishedCallback(std::move(finishedCallback));
@@ -1231,6 +1260,9 @@ void GrMtlGpu::copySurfaceAsBlit(GrSurface* dst, GrSurface* src, const SkIRect& 
 
     auto cmdBuffer = this->commandBuffer();
     id<MTLBlitCommandEncoder> GR_NORETAIN blitCmdEncoder = cmdBuffer->getBlitCommandEncoder();
+#ifdef GR_MTL_GPU_DEBUG
+    [blitCmdEncoder pushDebugGroup:@"copySurfaceAsBlit"];
+#endif
     [blitCmdEncoder copyFromTexture: srcTex
                         sourceSlice: 0
                         sourceLevel: 0
@@ -1240,6 +1272,9 @@ void GrMtlGpu::copySurfaceAsBlit(GrSurface* dst, GrSurface* src, const SkIRect& 
                    destinationSlice: 0
                    destinationLevel: 0
                   destinationOrigin: MTLOriginMake(dstPoint.fX, dstPoint.fY, 0)];
+#ifdef GR_MTL_GPU_DEBUG
+    [blitCmdEncoder popDebugGroup];
+#endif
 }
 
 bool GrMtlGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
@@ -1379,6 +1414,9 @@ bool GrMtlGpu::onTransferPixelsTo(GrTexture* texture,
 
     auto cmdBuffer = this->commandBuffer();
     id<MTLBlitCommandEncoder> GR_NORETAIN blitCmdEncoder = cmdBuffer->getBlitCommandEncoder();
+#ifdef GR_MTL_GPU_DEBUG
+    [blitCmdEncoder pushDebugGroup:@"onTransferPixelsTo"];
+#endif
     [blitCmdEncoder copyFromBuffer: mtlBuffer
                       sourceOffset: offset + grMtlBuffer->offset()
                  sourceBytesPerRow: rowBytes
@@ -1388,6 +1426,9 @@ bool GrMtlGpu::onTransferPixelsTo(GrTexture* texture,
                   destinationSlice: 0
                   destinationLevel: 0
                  destinationOrigin: origin];
+#ifdef GR_MTL_GPU_DEBUG
+    [blitCmdEncoder popDebugGroup];
+#endif
 
     return true;
 }
@@ -1457,6 +1498,9 @@ bool GrMtlGpu::readOrTransferPixels(GrSurface* surface,
 
     auto cmdBuffer = this->commandBuffer();
     id<MTLBlitCommandEncoder> GR_NORETAIN blitCmdEncoder = cmdBuffer->getBlitCommandEncoder();
+#ifdef GR_MTL_GPU_DEBUG
+    [blitCmdEncoder pushDebugGroup:@"readOrTransferPixels"];
+#endif
     [blitCmdEncoder copyFromTexture: mtlTexture
                         sourceSlice: 0
                         sourceLevel: 0
@@ -1469,6 +1513,9 @@ bool GrMtlGpu::readOrTransferPixels(GrSurface* surface,
 #ifdef SK_BUILD_FOR_MAC
     // Sync GPU data back to the CPU
     [blitCmdEncoder synchronizeResource: transferBuffer];
+#endif
+#ifdef GR_MTL_GPU_DEBUG
+    [blitCmdEncoder popDebugGroup];
 #endif
 
     return true;

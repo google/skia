@@ -94,6 +94,10 @@ bool GrMtlOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo,
     }
 
     fActiveRenderCmdEncoder->setRenderPipelineState(fActivePipelineState->mtlPipelineState());
+    if (!fDebugGroupActive) {
+        fActiveRenderCmdEncoder->pushDebugGroup(@"bindAndDraw");
+        fDebugGroupActive = true;
+    }
     fActivePipelineState->setDrawState(fActiveRenderCmdEncoder,
                                        programInfo.pipeline().writeSwizzle(),
                                        programInfo.pipeline().getXferProcessor());
@@ -128,6 +132,10 @@ bool GrMtlOpsRenderPass::onBindTextures(const GrGeometryProcessor& geomProc,
                                         const GrPipeline& pipeline) {
     SkASSERT(fActivePipelineState);
     SkASSERT(fActiveRenderCmdEncoder);
+    if (!fDebugGroupActive) {
+        fActiveRenderCmdEncoder->pushDebugGroup(@"bindAndDraw");
+        fDebugGroupActive = true;
+    }
     fActivePipelineState->setTextures(geomProc, pipeline, geomProcTextures);
     fActivePipelineState->bindTextures(fActiveRenderCmdEncoder);
     return true;
@@ -262,6 +270,10 @@ void GrMtlOpsRenderPass::onBindBuffers(sk_sp<const GrBuffer> indexBuffer,
                                        sk_sp<const GrBuffer> instanceBuffer,
                                        sk_sp<const GrBuffer> vertexBuffer,
                                        GrPrimitiveRestart primRestart) {
+    if (!fDebugGroupActive) {
+        fActiveRenderCmdEncoder->pushDebugGroup(@"bindAndDraw");
+        fDebugGroupActive = true;
+    }
     SkASSERT(GrPrimitiveRestart::kNo == primRestart);
     int inputBufferIndex = 0;
     if (vertexBuffer) {
@@ -293,6 +305,9 @@ void GrMtlOpsRenderPass::onDraw(int vertexCount, int baseVertex) {
 
     fActiveRenderCmdEncoder->drawPrimitives(fActivePrimitiveType, baseVertex, vertexCount);
     fGpu->stats()->incNumDraws();
+    SkASSERT(fDebugGroupActive);
+    fActiveRenderCmdEncoder->popDebugGroup();
+    fDebugGroupActive = false;
 }
 
 void GrMtlOpsRenderPass::onDrawIndexed(int indexCount, int baseIndex, uint16_t minIndexValue,
@@ -309,6 +324,9 @@ void GrMtlOpsRenderPass::onDrawIndexed(int indexCount, int baseIndex, uint16_t m
     fActiveRenderCmdEncoder->drawIndexedPrimitives(fActivePrimitiveType, indexCount,
                                                    MTLIndexTypeUInt16, indexBuffer, indexOffset);
     fGpu->stats()->incNumDraws();
+    SkASSERT(fDebugGroupActive);
+    fActiveRenderCmdEncoder->popDebugGroup();
+    fDebugGroupActive = false;
 }
 
 void GrMtlOpsRenderPass::onDrawInstanced(int instanceCount, int baseInstance, int vertexCount,
@@ -324,6 +342,9 @@ void GrMtlOpsRenderPass::onDrawInstanced(int instanceCount, int baseInstance, in
         SkASSERT(false);
     }
     fGpu->stats()->incNumDraws();
+    SkASSERT(fDebugGroupActive);
+    fActiveRenderCmdEncoder->popDebugGroup();
+    fDebugGroupActive = false;
 }
 
 void GrMtlOpsRenderPass::onDrawIndexedInstanced(
@@ -344,6 +365,9 @@ void GrMtlOpsRenderPass::onDrawIndexedInstanced(
         SkASSERT(false);
     }
     fGpu->stats()->incNumDraws();
+    SkASSERT(fDebugGroupActive);
+    fActiveRenderCmdEncoder->popDebugGroup();
+    fDebugGroupActive = false;
 }
 
 void GrMtlOpsRenderPass::onDrawIndirect(const GrBuffer* drawIndirectBuffer,
@@ -367,6 +391,9 @@ void GrMtlOpsRenderPass::onDrawIndirect(const GrBuffer* drawIndirectBuffer,
         bufferOffset += stride;
         fGpu->stats()->incNumDraws();
     }
+    SkASSERT(fDebugGroupActive);
+    fActiveRenderCmdEncoder->popDebugGroup();
+    fDebugGroupActive = false;
 }
 
 void GrMtlOpsRenderPass::onDrawIndexedIndirect(const GrBuffer* drawIndirectBuffer,
@@ -398,6 +425,9 @@ void GrMtlOpsRenderPass::onDrawIndexedIndirect(const GrBuffer* drawIndirectBuffe
         bufferOffset += stride;
         fGpu->stats()->incNumDraws();
     }
+    SkASSERT(fDebugGroupActive);
+    fActiveRenderCmdEncoder->popDebugGroup();
+    fDebugGroupActive = false;
 }
 
 void GrMtlOpsRenderPass::setVertexBuffer(GrMtlRenderCommandEncoder* encoder,
