@@ -26,6 +26,8 @@ public:
 
     ID id() const { return fID; }
 
+    virtual uint32_t getSortZ() const { return 0; }
+
     virtual SortKey getKey() = 0;
 
     // To generate the actual image
@@ -96,7 +98,7 @@ public:
 
     bool contains(int x, int y) const;
 
-    uint32_t getSortZ() const;
+    uint32_t getSortZ() const override;
     uint32_t getDrawZ() const;
 
     SortKey getKey() override;
@@ -108,13 +110,11 @@ public:
 
     void dump() const override {
         SkDebugf("%d: draw%s %d %d %d %d -- %d",
-                 fShape == Shape::kRect ? "Rect" : "Oval",
                  fID.toInt(),
+                 fShape == Shape::kRect ? "Rect" : "Oval",
                  fRect.fLeft, fRect.fTop, fRect.fRight, fRect.fBottom,
                  fPaintersOrder.toUInt());
     }
-
-protected:
 
 private:
     PaintersOrder     fPaintersOrder;
@@ -133,7 +133,7 @@ public:
 
     bool contains(int x, int y) const;
 
-    uint32_t getSortZ() const;
+    uint32_t getSortZ() const override;
     uint32_t getDrawZ() const;
 
     SortKey getKey() override;
@@ -145,10 +145,11 @@ public:
     void rasterize(uint32_t zBuffer[256][256], SkBitmap* dstBM) const override;
 
     void dump() const override {
-        SkDebugf("%d: clip%s %d %d %d %d",
-                 fShape == Shape::kRect ? "Rect" : "Oval",
+        SkDebugf("%d: clip%s %d %d %d %d -- %d %d",
                  fID.toInt(),
-                 fRect.fLeft, fRect.fTop, fRect.fRight, fRect.fBottom);
+                 fShape == Shape::kRect ? "Rect" : "Oval",
+                 fRect.fLeft, fRect.fTop, fRect.fRight, fRect.fBottom,
+                 fPaintersOrderWhenAdded.toUInt(), fPaintersOrderWhenPopped.toUInt());
     }
 
     void mutate(SkIPoint trans) {
@@ -160,8 +161,6 @@ public:
 
     bool hasBeenMutated() const { return fHasBeenMutated; }
     SkIRect rect() const { return fRect; }
-
-protected:
 
 private:
     bool          fHasBeenMutated = false;
