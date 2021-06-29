@@ -18,6 +18,10 @@
 class GrMtlGpu;
 class GrSurface;
 
+#ifdef SK_DEBUG
+#define GR_MTL_GPU_DEBUG
+#endif
+
 GR_NORETAIN_BEGIN
 
 /**
