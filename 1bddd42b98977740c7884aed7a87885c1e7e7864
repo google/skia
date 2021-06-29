@@ -52,6 +52,24 @@
       "parentUuid": "3da6f7b6_b4bd6390",
       "revId": "1bddd42b98977740c7884aed7a87885c1e7e7864",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f0014364_1447817a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2021-06-29T18:02:28Z",
+      "side": 1,
+      "message": "Also from my side, thinking more about this: Any change for this font should be made in https://github.com/drott/color-fonts/blob/scalingTest/config/more_samples-glyf_colr_1.py - so that we can straight copy that from this generator.\n\nI am about to update that COLRv1 test font generator code with samples for PaintScale and friends that I am in the process of implementing.",
+      "parentUuid": "0161b8da_6ef53470",
+      "revId": "1bddd42b98977740c7884aed7a87885c1e7e7864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
