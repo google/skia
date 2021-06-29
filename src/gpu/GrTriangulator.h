@@ -150,6 +150,7 @@ protected:
                              int windingScale = 1) const;
     void mergeVertices(Vertex* src, Vertex* dst, VertexList* mesh, const Comparator&) const;
     static void FindEnclosingEdges(Vertex* v, EdgeList* edges, Edge** left, Edge** right);
+    static void FindEnclosingEdges2(Vertex* v, EdgeList* edges, Edge** left, Edge** right);
     void mergeCollinearEdges(Edge* edge, EdgeList* activeEdges, Vertex** current,
                              const Comparator&) const;
     bool splitEdge(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current,
@@ -415,7 +416,9 @@ struct GrTriangulator::Edge {
     Line     fLine;
     double dist(const SkPoint& p) const { return fLine.dist(p); }
     bool isRightOf(Vertex* v) const { return fLine.dist(v->fPoint) < 0.0; }
+    bool isRightOfOrOn(Vertex* v) const { return fLine.dist(v->fPoint) <= 0.0; }
     bool isLeftOf(Vertex* v) const { return fLine.dist(v->fPoint) > 0.0; }
+    bool isLeftOfOrOn(Vertex* v) const { return fLine.dist(v->fPoint) >= 0.0; }
     void recompute() { fLine = Line(fTop, fBottom); }
     void insertAbove(Vertex*, const Comparator&);
     void insertBelow(Vertex*, const Comparator&);

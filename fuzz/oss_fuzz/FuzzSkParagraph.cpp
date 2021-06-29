@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#if 0
 #include "fuzz/Fuzz.h"
 
 void fuzz_SkParagraph(Fuzz* f);
@@ -17,3 +18,4 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     fuzz_SkParagraph(&fuzz);
     return 0;
 }
+#endif

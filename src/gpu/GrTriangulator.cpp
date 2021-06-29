@@ -558,6 +558,24 @@ void GrTriangulator::FindEnclosingEdges(Vertex* v, EdgeList* edges, Edge** left,
     *right = next;
 }
 
+void GrTriangulator::FindEnclosingEdges2(Vertex* v, EdgeList* edges, Edge** left, Edge** right) {
+    if (v->fFirstEdgeAbove && v->fLastEdgeAbove) {
+        *left = v->fFirstEdgeAbove->fLeft;
+        *right = v->fLastEdgeAbove->fRight;
+        return;
+    }
+    Edge* next = nullptr;
+    Edge* prev;
+    for (prev = edges->fTail; prev != nullptr; prev = prev->fLeft) {
+        if (prev->isLeftOf(v) && prev->(v->fFirstEdgeBelow)) {
+            break;
+        }
+        next = prev;
+    }
+    *left = prev;
+    *right = next;
+}
+
 void GrTriangulator::Edge::insertAbove(Vertex* v, const Comparator& c) {
     if (fTop->fPoint == fBottom->fPoint ||
         c.sweep_lt(fBottom->fPoint, fTop->fPoint)) {
@@ -1175,6 +1193,13 @@ static void validate_edge_pair(Edge* left, Edge* right, const Comparator& c) {
         SkASSERT(left->isLeftOf(right->fTop));
         SkASSERT(right->isRightOf(left->fTop));
     } else if (c.sweep_lt(right->fBottom->fPoint, left->fBottom->fPoint)) {
+        SkDebugf("------------------------------------------------------------------------\n");
+        SkDebugf("dir %s\n", c.fDirection == GrTriangulator::Comparator::Direction::kHorizontal ? "horiz" : "vert");
+        SkDebugf("Rbot %f %f\n", right->fBottom->fPoint.fX, right->fBottom->fPoint.fY);
+        SkDebugf("Lbot %f %f\n", left->fBottom->fPoint.fX, left->fBottom->fPoint.fY);
+        SkDebugf("Left Line A: %g B: %g C: %g\n", left->fLine.fA, left->fLine.fB, left->fLine.fC);
+        double tmp = left->fLine.dist(right->fBottom->fPoint);
+        SkDebugf("-- %g should be > 0.0\n", tmp);
         SkASSERT(left->isLeftOf(right->fBottom));
     } else {
         SkASSERT(right->isRightOf(left->fBottom));
@@ -1197,24 +1222,49 @@ static void validate_edge_list(EdgeList* edges, const Comparator& c) {
 
 GrTriangulator::SimplifyResult GrTriangulator::simplify(VertexList* mesh,
                                                         const Comparator& c) const {
-    TESS_LOG("simplifying complex polygons\n");
-    EdgeList activeEdges;
-    auto result = SimplifyResult::kAlreadySimple;
+    SkDebugf("simplifying complex polygons----------------\n");
+#if 0
     for (Vertex* v = mesh->fHead; v != nullptr; v = v->fNext) {
         if (!v->isConnected()) {
             continue;
+        }
+        SkDebugf("vertex (%g,%g)\n", v->fPoint.fX, v->fPoint.fY);
+    }
+#endif
+    EdgeList activeEdges;
+    auto result = SimplifyResult::kAlreadySimple;
+    int iFoo = 0;
+    for (Vertex* v = mesh->fHead; v != nullptr; v = v->fNext) {
+        if (!v->isConnected()) {
+            continue;
+        }
+        SkDebugf("vertex #: %d\n", iFoo);
+        if (iFoo == 1445) {
+            int iBar = 0;
         }
         Edge* leftEnclosingEdge;
         Edge* rightEnclosingEdge;
         bool restartChecks;
         do {
-            TESS_LOG("\nvertex %g: (%g,%g), alpha %d\n",
-                     v->fID, v->fPoint.fX, v->fPoint.fY, v->fAlpha);
+            SkDebugf("vertex %g: (%g,%g), alpha %d\n",
+                     v->fPoint.fX, v->fPoint.fY, v->fAlpha);
             restartChecks = false;
-            FindEnclosingEdges(v, &activeEdges, &leftEnclosingEdge, &rightEnclosingEdge);
+            FindEnclosingEdges2(v, &activeEdges, &leftEnclosingEdge, &rightEnclosingEdge);
+            if (leftEnclosingEdge) {
+                SkASSERT(leftEnclosingEdge->isLeftOf(v));
+                SkASSERT(!leftEnclosingEdge->isRightOf(v));
+            }
+            if (rightEnclosingEdge) {
+                SkASSERT(!rightEnclosingEdge->isLeftOf(v));
+                SkASSERT(rightEnclosingEdge->isRightOfOrOn(v));
+            }
             v->fLeftEnclosingEdge = leftEnclosingEdge;
             v->fRightEnclosingEdge = rightEnclosingEdge;
             if (v->fFirstEdgeBelow) {
+                SkDebugf("case1-");
+                if (iFoo == 1445) {
+                    int iBar = 0;
+                }
                 for (Edge* edge = v->fFirstEdgeBelow; edge; edge = edge->fNextEdgeBelow) {
                     if (this->checkForIntersection(
                             leftEnclosingEdge, edge, &activeEdges, &v, mesh, c) ||
@@ -1222,29 +1272,49 @@ GrTriangulator::SimplifyResult GrTriangulator::simplify(VertexList* mesh,
                             edge, rightEnclosingEdge, &activeEdges, &v, mesh, c)) {
                         result = SimplifyResult::kFoundSelfIntersection;
                         restartChecks = true;
+                        SkDebugf("a");
                         break;
                     }
                 }
             } else {
+                SkDebugf("case2-h");
                 if (this->checkForIntersection(leftEnclosingEdge, rightEnclosingEdge, &activeEdges,
                                                &v, mesh, c)) {
                     result = SimplifyResult::kFoundSelfIntersection;
                     restartChecks = true;
+                    SkDebugf("b");
                 }
-
             }
+            SkDebugf("\n");
+
         } while (restartChecks);
-#ifdef SK_DEBUG
+
         validate_edge_list(&activeEdges, c);
-#endif
+
         for (Edge* e = v->fFirstEdgeAbove; e; e = e->fNextEdgeAbove) {
             activeEdges.remove(e);
         }
+
+        validate_edge_list(&activeEdges, c);
+
+        if (iFoo == 1445) {
+            int iBar = 0;
+        }
+
         Edge* leftEdge = leftEnclosingEdge;
         for (Edge* e = v->fFirstEdgeBelow; e; e = e->fNextEdgeBelow) {
+            if (leftEdge) {
+                double tmp = leftEdge->fLine.dist(e->fBottom->fPoint);
+                SkDebugf("-- %g should be > 0.0\n", tmp);
+//                SkASSERT(leftEdge->isLeftOfOrOn(e->fBottom));
+            }
+//            validate_edge_pair(leftEdge, e, c);
             activeEdges.insert(e, leftEdge);
             leftEdge = e;
         }
+
+        validate_edge_list(&activeEdges, c);
+        iFoo++;
     }
     SkASSERT(!activeEdges.fHead && !activeEdges.fTail);
     return result;
