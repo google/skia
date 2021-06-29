@@ -96,8 +96,9 @@ DSLExpression::~DSLExpression() {
         return;
     }
 #endif
-    SkASSERTF(fExpression == nullptr,
-              "Expression destroyed without being incorporated into program");
+    SkASSERTF(!fExpression || !DSLWriter::Settings().fAssertDSLObjectsReleased,
+              "Expression destroyed without being incorporated into program (see "
+              "ProgramSettings::fAssertDSLObjectsReleased)");
 }
 
 void DSLExpression::swap(DSLExpression& other) {
@@ -266,6 +267,11 @@ DSLPossibleExpression::~DSLPossibleExpression() {
         // this handles incorporating the expression into the output tree
         DSLExpression(std::move(fExpression));
     }
+}
+
+void DSLPossibleExpression::reportErrors(PositionInfo pos) {
+    SkASSERT(!this->valid());
+    DSLWriter::ReportErrors(pos);
 }
 
 DSLType DSLPossibleExpression::type() {

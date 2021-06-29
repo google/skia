@@ -8,6 +8,7 @@
 #ifndef SKSL_DSLWRITER
 #define SKSL_DSLWRITER
 
+#include "include/core/SkStringView.h"
 #include "include/private/SkSLModifiers.h"
 #include "include/private/SkSLStatement.h"
 #include "include/sksl/DSLExpression.h"
@@ -66,6 +67,11 @@ public:
      * Returns the Context used by DSL operations in the current thread.
      */
     static const SkSL::Context& Context();
+
+    /**
+     * Returns the Settings used by DSL operations in the current thread.
+     */
+    static SkSL::ProgramSettings& Settings();
 
     /**
      * Returns the collection to which DSL program elements in this thread should be appended.

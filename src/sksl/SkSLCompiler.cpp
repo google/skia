@@ -15,6 +15,7 @@
 #include "src/core/SkTraceEvent.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLConstantFolder.h"
+#include "src/sksl/SkSLDSLParser.h"
 #include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/SkSLOperators.h"
 #include "src/sksl/SkSLProgramSettings.h"
@@ -480,6 +481,11 @@ std::unique_ptr<Program> Compiler::convertProgram(
     fErrorText = "";
     fErrorCount = 0;
     fInliner.reset();
+
+    if (settings.fUseDSLParser) {
+        settings.fDSLMangling = false;
+        return DSLParser(this, settings, kind, text).program();
+    }
 
     auto textPtr = std::make_unique<String>(std::move(text));
     AutoSource as(this, textPtr.get());
@@ -1040,7 +1046,10 @@ void Compiler::error(int offset, String msg) {
     fErrorCount++;
     Position pos = this->position(offset);
     fErrorTextLength.push_back(fErrorText.length());
-    fErrorText += "error: " + (pos.fLine >= 1 ? to_string(pos.fLine) + ": " : "") + msg + "\n";
+    if (!msg.starts_with("error: ")) {
+        fErrorText += "error: ";
+    }
+    fErrorText += (pos.fLine >= 1 ? to_string(pos.fLine) + ": " : "") + msg + "\n";
 }
 
 void Compiler::setErrorCount(int c) {

@@ -873,6 +873,12 @@ if (skia_compile_sksl_tests) {
     lang = "--spirv"
     settings = "--settings"
   }
+  compile_sksl("dslparser_tests") {
+    sources = sksl_glsl_tests_sources + sksl_glsl_settings_tests_sources
+    outExtensions = [ ".dsl.glsl" ]
+    lang = "--dsl"
+    settings = "--settings"
+  }
 } else {
   group("compile_sksl_fp_tests") {
   }
@@ -886,12 +892,15 @@ if (skia_compile_sksl_tests) {
   }
   group("compile_sksl_spirv_tests") {
   }
+  group("compile_sksl_dslparser_tests") {
+  }
 }
 
 optional("gpu") {
   enabled = skia_enable_gpu
   deps = [
     ":compile_processors",
+    ":compile_sksl_dslparser_tests",
     ":compile_sksl_fp_tests",
     ":compile_sksl_glsl_nosettings_tests",
     ":compile_sksl_glsl_tests",

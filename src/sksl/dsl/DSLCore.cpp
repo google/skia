@@ -17,6 +17,7 @@
 #include "src/sksl/ir/SkSLDoStatement.h"
 #include "src/sksl/ir/SkSLForStatement.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
+#include "src/sksl/ir/SkSLNop.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
 #include "src/sksl/ir/SkSLTernaryExpression.h"
@@ -68,13 +69,11 @@ public:
                                                       std::move(instance.fPool),
                                                       bundle.fInputs);
         bool success = false;
+        DSLWriter::ReportErrors();
         if (DSLWriter::Compiler().errorCount() || DSLWriter::Instance().fEncounteredErrors) {
-            // Make sure that if we encountered any compiler errors, we reported them through the
-            // DSL error handling side of things.
-            SkASSERT(!DSLWriter::Compiler().errorCount() ||
-                     DSLWriter::Instance().fEncounteredErrors);
             // Do not return programs that failed to compile.
         } else if (!DSLWriter::Compiler().optimize(*result)) {
+            DSLWriter::ReportErrors();
             // Do not return programs that failed to optimize.
         } else {
             // We have a successful program!
@@ -85,6 +84,9 @@ public:
         }
         SkASSERT(DSLWriter::ProgramElements().empty());
         SkASSERT(!DSLWriter::SymbolTable());
+        // Make sure that if we encountered any compiler errors, we reported them through the
+        // DSL error handling side of things.
+        SkASSERT(!DSLWriter::Compiler().errorCount() || DSLWriter::Instance().fEncounteredErrors);
         return success ? std::move(result) : nullptr;
     }
 
@@ -138,8 +140,10 @@ public:
         var.fStorage = SkSL::Variable::Storage::kGlobal;
         std::unique_ptr<SkSL::Statement> stmt = DSLWriter::Declaration(var);
         if (stmt) {
-            DSLWriter::ProgramElements().push_back(std::make_unique<SkSL::GlobalVarDeclaration>(
-                    std::move(stmt)));
+            if (!stmt->is<SkSL::Nop>()) {
+                DSLWriter::ProgramElements().push_back(std::make_unique<SkSL::GlobalVarDeclaration>(
+                        std::move(stmt)));
+            }
         } else if (var.fName == SkSL::Compiler::FRAGCOLOR_NAME) {
             // sk_FragColor can end up with a null declaration despite no error occurring due to
             // specific treatment in the compiler. Ignore the null and just grab the existing
@@ -299,6 +303,9 @@ DSLStatement For(DSLStatement initializer, DSLExpression test, DSLExpression nex
 }
 
 DSLStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse, PositionInfo pos) {
+    if (!test.valid() || !ifTrue.valid()) {
+        return {};
+    }
     return DSLStatement(DSLCore::If(std::move(test), std::move(ifTrue), std::move(ifFalse),
                                     /*isStatic=*/false),
                         pos);
