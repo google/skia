@@ -307,7 +307,11 @@ void GrPathWedgeTessellator::prepare(GrMeshDrawTarget* target, const SkRect& cul
         int numCurveTriangles =
                 GrPathTessellationShader::NumCurveTrianglesAtResolveLevel(fixedResolveLevel);
         // Emit 3 vertices per curve triangle, plus 3 more for the fan triangle.
-        fFixedVertexCount = numCurveTriangles * 3 + 3;
+        fFixedIndexCount = numCurveTriangles * 3 + 3;
+        fFixedCountIndexBuffer = GrPathTessellationShader::FindOrMakeMiddleOutIndexBuffer(
+                target->resourceProvider(), GrPathTessellationShader::PatchType::kWedges);
+        fFixedCountVertexBuffer = GrPathTessellationShader::FindOrMakeMiddleOutVertexBuffer(
+                target->resourceProvider(), GrPathTessellationShader::PatchType::kWedges);
     }
 }
 
@@ -320,8 +324,8 @@ void GrPathWedgeTessellator::draw(GrOpFlushState* flushState) const {
     } else {
         SkASSERT(fShader->hasInstanceAttributes());
         for (const GrVertexChunk& chunk : fVertexChunkArray) {
-            flushState->bindBuffers(nullptr, chunk.fBuffer, nullptr);
-            flushState->drawInstanced(chunk.fCount, chunk.fBase, fFixedVertexCount, 0);
+            flushState->bindBuffers(fFixedCountIndexBuffer, chunk.fBuffer, fFixedCountVertexBuffer);
+            flushState->drawIndexedInstanced(fFixedIndexCount, 0, chunk.fCount, chunk.fBase, 0);
         }
     }
 }

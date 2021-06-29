@@ -249,8 +249,12 @@ void GrPathCurveTessellator::prepare(GrMeshDrawTarget* target, const SkRect& cul
     if (!fShader->willUseTessellationShaders()) {
         // log2(n) == log16(n^4).
         int fixedResolveLevel = GrWangsFormula::nextlog16(curveWriter.numFixedSegments_pow4());
-        fFixedVertexCount =
-                GrPathTessellationShader::NumCurveTrianglesAtResolveLevel(fixedResolveLevel) * 3;
+        fFixedIndexCount = GrPathTessellationShader::NumCurveTrianglesAtResolveLevel(
+                fixedResolveLevel) * 3;
+        fFixedCountIndexBuffer = GrPathTessellationShader::FindOrMakeMiddleOutIndexBuffer(
+                target->resourceProvider(), GrPathTessellationShader::PatchType::kCurves);
+        fFixedCountVertexBuffer = GrPathTessellationShader::FindOrMakeMiddleOutVertexBuffer(
+                target->resourceProvider(), GrPathTessellationShader::PatchType::kCurves);
     }
 }
 
@@ -263,8 +267,8 @@ void GrPathCurveTessellator::draw(GrOpFlushState* flushState) const {
     } else {
         SkASSERT(fShader->hasInstanceAttributes());
         for (const GrVertexChunk& chunk : fVertexChunkArray) {
-            flushState->bindBuffers(nullptr, chunk.fBuffer, nullptr);
-            flushState->drawInstanced(chunk.fCount, chunk.fBase, fFixedVertexCount, 0);
+            flushState->bindBuffers(fFixedCountIndexBuffer, chunk.fBuffer, fFixedCountVertexBuffer);
+            flushState->drawIndexedInstanced(fFixedIndexCount, 0, chunk.fCount, chunk.fBase, 0);
         }
     }
 }

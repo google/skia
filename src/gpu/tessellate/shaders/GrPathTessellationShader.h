@@ -54,6 +54,12 @@ public:
                                                                    const SkMatrix& viewMatrix,
                                                                    const SkPMColor4f&, PatchType);
 
+    // These two functions return the vertex and index buffers that should be bound when drawing
+    // with the middle-out fixed count shader. (The buffers hold enough data for an instance up to
+    // as long as GrPathTessellator::kMaxFixedCountSegments.)
+    static sk_sp<const GrGpuBuffer> FindOrMakeMiddleOutVertexBuffer(GrResourceProvider*, PatchType);
+    static sk_sp<const GrGpuBuffer> FindOrMakeMiddleOutIndexBuffer(GrResourceProvider*, PatchType);
+
     // Uses GPU tessellation shaders to linearize, triangulate, and render cubic "wedge" patches. A
     // wedge is a 5-point patch consisting of 4 cubic control points, plus an anchor point fanning
     // from the center of the curve's resident contour.
