@@ -7,9 +7,6 @@
 
 #include "src/gpu/gradients/GrGradientShader.h"
 
-#include "src/gpu/gradients/generated/GrClampedGradientEffect.h"
-#include "src/gpu/gradients/generated/GrTiledGradientEffect.h"
-
 #include "src/gpu/gradients/GrGradientBitmapCache.h"
 #include "src/gpu/gradients/generated/GrUnrolledBinaryGradientColorizer.h"
 
@@ -215,6 +212,149 @@ static std::unique_ptr<GrFragmentProcessor> make_colorizer(const SkPMColor4f* co
     return make_textured_colorizer(colors + offset, positions + offset, count, premul, args);
 }
 
+// This top-level effect implements clamping on the layout coordinate and requires specifying the
+// border colors that are used when outside the clamped boundary. Gradients with the
+// SkTileMode::kClamp should use the colors at their first and last stop (after adding default stops
+// for t=0,t=1) as the border color. This will automatically replicate the edge color, even when
+// there is a hard stop.
+//
+// The SkTileMode::kDecal can be produced by specifying transparent black as the border colors,
+// regardless of the gradient's stop colors.
+static std::unique_ptr<GrFragmentProcessor> make_clamped_gradient(
+        std::unique_ptr<GrFragmentProcessor> colorizer,
+        std::unique_ptr<GrFragmentProcessor> gradLayout,
+        SkPMColor4f leftBorderColor,
+        SkPMColor4f rightBorderColor,
+        bool makePremul,
+        bool colorsAreOpaque) {
+    static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
+        uniform shader colorizer;
+        uniform shader gradLayout;
+
+        uniform half4 leftBorderColor;  // t < 0.0
+        uniform half4 rightBorderColor; // t > 1.0
+
+        uniform int makePremul;              // specialized
+        uniform int layoutPreservesOpacity;  // specialized
+
+        half4 main(float2 coord) {
+            half4 t = sample(gradLayout, coord);
+            half4 outColor;
+
+            // If t.x is below 0, use the left border color without invoking the child processor.
+            // If any t.x is above 1, use the right border color. Otherwise, t is in the [0, 1]
+            // range assumed by the colorizer FP, so delegate to the child processor.
+            if (!bool(layoutPreservesOpacity) && t.y < 0) {
+                // layout has rejected this fragment (rely on sksl to remove this branch if the
+                // layout FP preserves opacity is false)
+                outColor = half4(0);
+            } else if (t.x < 0) {
+                outColor = leftBorderColor;
+            } else if (t.x > 1.0) {
+                outColor = rightBorderColor;
+            } else {
+                // Always sample from (x, 0), discarding y, since the layout FP can use y as a
+                // side-channel.
+                outColor = sample(colorizer, t.x0);
+            }
+            if (bool(makePremul)) {
+                outColor.rgb *= outColor.a;
+            }
+            return outColor;
+        }
+    )");
+
+    // If the layout does not preserve opacity, remove the opaque optimization,
+    // but otherwise respect the provided color opacity state (which should take
+    // into account the opacity of the border colors).
+    bool layoutPreservesOpacity = gradLayout->preservesOpaqueInput();
+    GrSkSLFP::OptFlags optFlags = GrSkSLFP::OptFlags::kCompatibleWithCoverageAsAlpha;
+    if (colorsAreOpaque && layoutPreservesOpacity) {
+        optFlags |= GrSkSLFP::OptFlags::kPreservesOpaqueInput;
+    }
+
+    return GrSkSLFP::Make(effect, "ClampedGradient", /*inputFP=*/nullptr, optFlags,
+                          "colorizer", GrSkSLFP::IgnoreOptFlags(std::move(colorizer)),
+                          "gradLayout", GrSkSLFP::IgnoreOptFlags(std::move(gradLayout)),
+                          "leftBorderColor", leftBorderColor,
+                          "rightBorderColor", rightBorderColor,
+                          "makePremul", GrSkSLFP::Specialize<int>(makePremul),
+                          "layoutPreservesOpacity",
+                              GrSkSLFP::Specialize<int>(layoutPreservesOpacity));
+}
+
+static std::unique_ptr<GrFragmentProcessor> make_tiled_gradient(
+        const GrFPArgs& args,
+        std::unique_ptr<GrFragmentProcessor> colorizer,
+        std::unique_ptr<GrFragmentProcessor> gradLayout,
+        bool mirror,
+        bool makePremul,
+        bool colorsAreOpaque) {
+    static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
+        uniform shader colorizer;
+        uniform shader gradLayout;
+
+        uniform int mirror;                  // specialized
+        uniform int makePremul;              // specialized
+        uniform int layoutPreservesOpacity;  // specialized
+        uniform int useFloorAbsWorkaround;   // specialized
+
+        half4 main(float2 coord) {
+            half4 t = sample(gradLayout, coord);
+
+            if (!bool(layoutPreservesOpacity) && t.y < 0) {
+                // layout has rejected this fragment (rely on sksl to remove this branch if the
+                // layout FP preserves opacity is false)
+                return half4(0);
+            } else {
+                if (bool(mirror)) {
+                    half t_1 = t.x - 1;
+                    half tiled_t = t_1 - 2 * floor(t_1 * 0.5) - 1;
+                    if (bool(useFloorAbsWorkaround)) {
+                        // At this point the expected value of tiled_t should between -1 and 1, so
+                        // this clamp has no effect other than to break up the floor and abs calls
+                        // and make sure the compiler doesn't merge them back together.
+                        tiled_t = clamp(tiled_t, -1, 1);
+                    }
+                    t.x = abs(tiled_t);
+                } else {
+                    // Simple repeat mode
+                    t.x = fract(t.x);
+                }
+
+                // Always sample from (x, 0), discarding y, since the layout FP can use y as a
+                // side-channel.
+                half4 outColor = sample(colorizer, t.x0);
+                if (bool(makePremul)) {
+                    outColor.rgb *= outColor.a;
+                }
+                return outColor;
+            }
+        }
+    )");
+
+    // If the layout does not preserve opacity, remove the opaque optimization,
+    // but otherwise respect the provided color opacity state (which should take
+    // into account the opacity of the border colors).
+    bool layoutPreservesOpacity = gradLayout->preservesOpaqueInput();
+    GrSkSLFP::OptFlags optFlags = GrSkSLFP::OptFlags::kCompatibleWithCoverageAsAlpha;
+    if (colorsAreOpaque && layoutPreservesOpacity) {
+        optFlags |= GrSkSLFP::OptFlags::kPreservesOpaqueInput;
+    }
+    const bool useFloorAbsWorkaround =
+            args.fContext->priv().caps()->shaderCaps()->mustDoOpBetweenFloorAndAbs();
+
+    return GrSkSLFP::Make(effect, "TiledGradient", /*inputFP=*/nullptr, optFlags,
+                          "colorizer", GrSkSLFP::IgnoreOptFlags(std::move(colorizer)),
+                          "gradLayout", GrSkSLFP::IgnoreOptFlags(std::move(gradLayout)),
+                          "mirror", GrSkSLFP::Specialize<int>(mirror),
+                          "makePremul", GrSkSLFP::Specialize<int>(makePremul),
+                          "layoutPreservesOpacity",
+                                GrSkSLFP::Specialize<int>(layoutPreservesOpacity),
+                          "useFloorAbsWorkaround",
+                                GrSkSLFP::Specialize<int>(useFloorAbsWorkaround));
+}
+
 // Combines the colorizer and layout with an appropriately configured top-level effect based on the
 // gradient's tile mode
 static std::unique_ptr<GrFragmentProcessor> make_gradient(
@@ -288,29 +428,28 @@ static std::unique_ptr<GrFragmentProcessor> make_gradient(
     std::unique_ptr<GrFragmentProcessor> gradient;
     switch(shader.getTileMode()) {
         case SkTileMode::kRepeat:
-            gradient = GrTiledGradientEffect::Make(std::move(colorizer), std::move(layout),
-                                                   /* mirror */ false, makePremul, allOpaque);
+            gradient = make_tiled_gradient(args, std::move(colorizer), std::move(layout),
+                                           /* mirror */ false, makePremul, allOpaque);
             break;
         case SkTileMode::kMirror:
-            gradient = GrTiledGradientEffect::Make(std::move(colorizer), std::move(layout),
-                                                   /* mirror */ true, makePremul, allOpaque);
+            gradient = make_tiled_gradient(args, std::move(colorizer), std::move(layout),
+                                           /* mirror */ true, makePremul, allOpaque);
             break;
         case SkTileMode::kClamp:
             // For the clamped mode, the border colors are the first and last colors, corresponding
             // to t=0 and t=1, because SkGradientShaderBase enforces that by adding color stops as
             // appropriate. If there is a hard stop, this grabs the expected outer colors for the
             // border.
-            gradient = GrClampedGradientEffect::Make(std::move(colorizer), std::move(layout),
-                                                     colors[0], colors[shader.fColorCount - 1],
-                                                     makePremul, allOpaque);
+            gradient = make_clamped_gradient(std::move(colorizer), std::move(layout),
+                                             colors[0], colors[shader.fColorCount - 1],
+                                             makePremul, allOpaque);
             break;
         case SkTileMode::kDecal:
             // Even if the gradient colors are opaque, the decal borders are transparent so
             // disable that optimization
-            gradient = GrClampedGradientEffect::Make(std::move(colorizer), std::move(layout),
-                                                     SK_PMColor4fTRANSPARENT,
-                                                     SK_PMColor4fTRANSPARENT,
-                                                     makePremul, /* colorsAreOpaque */ false);
+            gradient = make_clamped_gradient(std::move(colorizer), std::move(layout),
+                                             SK_PMColor4fTRANSPARENT, SK_PMColor4fTRANSPARENT,
+                                             makePremul, /* colorsAreOpaque */ false);
             break;
     }
 
