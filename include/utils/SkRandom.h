@@ -123,6 +123,8 @@ public:
      */
     void setSeed(uint32_t seed) { init(seed); }
 
+    uint32_t j() const { return fJ; }
+    uint32_t k() const { return fK; }
 private:
     // Initialize state variables with LCG.
     // We must ensure that both J and K are non-zero, otherwise the
