@@ -17,7 +17,7 @@ class GrStrokeFixedCountTessellator : public GrStrokeTessellator {
 public:
     GrStrokeFixedCountTessellator(ShaderFlags, const SkMatrix&, PathStrokeList*,
                                   std::array<float,2> matrixMinMaxScales,
-                                  const SkRect& strokeCullBounds);
+                                  const SkRect& strokeCullBounds, const GrShaderCaps& shaderCaps);
 
     void prepare(GrMeshDrawTarget*, int totalCombinedVerbCnt) override;
     void draw(GrOpFlushState*) const override;
@@ -25,6 +25,7 @@ public:
 private:
     GrVertexChunkArray fInstanceChunks;
     int fFixedVertexCount = 0;
+    sk_sp<const GrGpuBuffer> fVertexBufferIfNoVertexIDSupport;
 };
 
 #endif

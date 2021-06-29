@@ -11,7 +11,7 @@
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
-#include "src/gpu/tessellate/GrStrokeTessellator.h"
+#include "src/gpu/tessellate/GrStrokeFixedCountTessellator.h"
 
 void GrStrokeTessellationShader::InstancedImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     const auto& shader = args.fGeomProc.cast<GrStrokeTessellationShader>();
@@ -126,6 +126,15 @@ void GrStrokeTessellationShader::InstancedImpl::onEmitCode(EmitArgs& args, GrGPA
         tan1 = float2(-1,0);
     })");
 
+    // Unpack edgeID if needed.
+    if (args.fShaderCaps->vertexIDSupport()) {
+        args.fVertBuilder->codeAppend(R"(
+        float edgeID = float(sk_VertexID >> 1);
+        if ((sk_VertexID & 1) != 0) {
+            edgeID = -edgeID;
+        })");
+    }
+
     // Potential optimization: (shader.hasDynamicStroke() && shader.hasRoundJoins())?
     if (shader.stroke().getJoin() == SkPaint::kRound_Join || shader.hasDynamicStroke()) {
         args.fVertBuilder->codeAppend(R"(
@@ -167,7 +176,7 @@ void GrStrokeTessellationShader::InstancedImpl::onEmitCode(EmitArgs& args, GrGPA
     // NOTE: Since the curve is not allowed to inflect, we can just check F'(.5) x F''(.5).
     // NOTE: F'(.5) x F''(.5) has the same sign as (P2 - P0) x (P3 - P1)
     float turn = cross(P[2] - P[0], P[3] - P[1]);
-    float combinedEdgeID = float(sk_VertexID >> 1) - numEdgesInJoin;
+    float combinedEdgeID = abs(edgeID) - numEdgesInJoin;
     if (combinedEdgeID < 0) {
         tan1 = tan0;
         // Don't let tan0 become zero. The code as-is isn't built to handle that case. tan0=0
@@ -188,7 +197,7 @@ void GrStrokeTessellationShader::InstancedImpl::onEmitCode(EmitArgs& args, GrGPA
     }
 
     float numRadialSegments;
-    float strokeOutset = ((sk_VertexID & 1) == 0) ? +1 : -1;
+    float strokeOutset = sign(edgeID);
     if (combinedEdgeID < 0) {
         // We belong to the preceding join. The first and final edges get duplicated, so we only
         // have "numEdgesInJoin - 2" segments.
@@ -235,8 +244,8 @@ void GrStrokeTessellationShader::InstancedImpl::onEmitCode(EmitArgs& args, GrGPA
 
     if (joinType == SkPaint::kMiter_Join || shader.hasDynamicStroke()) {
         args.fVertBuilder->codeAppendf(R"(
-        // Vertices #4 and #5 belong to the edge of the join that extends to the miter point.
-        if ((sk_VertexID | 1) == (4 | 5) && %s) {
+        // Edge #2 extends to the miter point.
+        if (abs(edgeID) == 2 && %s) {
             strokeOutset *= miter_extent(cosTheta, JOIN_TYPE/*miterLimit*/);
         })", shader.hasDynamicStroke() ? "JOIN_TYPE > 0/*Is the join a miter type?*/" : "true");
     }
@@ -244,4 +253,46 @@ void GrStrokeTessellationShader::InstancedImpl::onEmitCode(EmitArgs& args, GrGPA
     this->emitTessellationCode(shader, &args.fVertBuilder->code(), gpArgs, *args.fShaderCaps);
 
     this->emitFragmentCode(shader, args);
+}
+
+GR_DECLARE_STATIC_UNIQUE_KEY(gVertexBufferKey);
+
+sk_sp<const GrGpuBuffer> GrStrokeTessellationShader::FindOrMakeFixedCountVertexBuffer(
+        GrResourceProvider* resourceProvider) {
+    GR_DEFINE_STATIC_UNIQUE_KEY(gVertexBufferKey);
+    if (auto buffer = resourceProvider->findByUniqueKey<GrGpuBuffer>(gVertexBufferKey)) {
+        return std::move(buffer);
+    }
+
+    constexpr static int kVertexCount =
+            (1024 + 1) * 2;
+    auto buffer = resourceProvider->createBuffer(kVertexCount * sizeof(float),
+                                                 GrGpuBufferType::kVertex, kStatic_GrAccessPattern);
+    if (!buffer) {
+        return nullptr;
+    }
+
+    // We shouldn't bin and/or cache static buffers.
+    SkASSERT(buffer->size() == kVertexCount * sizeof(float));
+    SkASSERT(!buffer->resourcePriv().getScratchKey().isValid());
+
+    GrVertexWriter vertexWriter = buffer->map();
+    SkAutoTMalloc<float> stagingBuffer;
+    if (!vertexWriter) {
+        SkASSERT(!buffer->isMapped());
+        vertexWriter = stagingBuffer.reset(kVertexCount);
+    }
+
+    for (int i = 0; i < kVertexCount/2; ++i) {
+        vertexWriter.write<float>(i);
+        vertexWriter.write<float>(-i);
+    }
+
+    if (buffer->isMapped()) {
+        buffer->unmap();
+    } else {
+        buffer->updateData(stagingBuffer, kVertexCount * sizeof(float));
+    }
+    buffer->resourcePriv().setUniqueKey(gVertexBufferKey);
+    return std::move(buffer);
 }
