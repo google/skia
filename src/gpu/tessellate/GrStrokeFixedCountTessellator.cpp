@@ -238,10 +238,11 @@ GrStrokeFixedCountTessellator::GrStrokeFixedCountTessellator(ShaderFlags shaderF
                                                              const SkMatrix& viewMatrix,
                                                              PathStrokeList* pathStrokeList,
                                                              std::array<float,2> matrixMinMaxScales,
-                                                             const SkRect& strokeCullBounds)
+                                                             const SkRect& strokeCullBounds,
+                                                             const GrShaderCaps& shaderCaps)
         : GrStrokeTessellator(GrStrokeTessellationShader::Mode::kFixedCount, shaderFlags,
                               kMaxParametricSegments_log2, viewMatrix, pathStrokeList,
-                              matrixMinMaxScales, strokeCullBounds) {
+                              matrixMinMaxScales, strokeCullBounds, shaderCaps) {
 }
 
 void GrStrokeFixedCountTessellator::prepare(GrMeshDrawTarget* target,
@@ -406,6 +407,11 @@ void GrStrokeFixedCountTessellator::prepare(GrMeshDrawTarget* target,
 
     fShader.setFixedCountNumTotalEdges(fixedEdgeCount);
     fFixedVertexCount = fixedEdgeCount * 2;
+    if (!target->caps().shaderCaps()->vertexIDSupport()) {
+        fVertexBufferIfNoVertexIDSupport =
+                GrStrokeTessellationShader::FindOrMakeFixedCountVertexBuffer(
+                        target->resourceProvider());
+    }
 }
 
 void GrStrokeFixedCountTessellator::draw(GrOpFlushState* flushState) const {
@@ -413,7 +419,7 @@ void GrStrokeFixedCountTessellator::draw(GrOpFlushState* flushState) const {
         return;
     }
     for (const auto& instanceChunk : fInstanceChunks) {
-        flushState->bindBuffers(nullptr, instanceChunk.fBuffer, nullptr);
+        flushState->bindBuffers(nullptr, instanceChunk.fBuffer, fVertexBufferIfNoVertexIDSupport);
         flushState->drawInstanced(instanceChunk.fCount, instanceChunk.fBase, fFixedVertexCount, 0);
     }
 }
