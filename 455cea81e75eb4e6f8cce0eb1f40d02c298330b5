@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "840354f1_23649b3f",
+        "filename": "src/gpu/tessellate/shaders/GrPathTessellationShader_MiddleOut.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-06-29T13:34:28Z",
+      "side": 1,
+      "message": "clever",
+      "range": {
+        "startLine": 122,
+        "startChar": 15,
+        "endLine": 127,
+        "endChar": 100
+      },
+      "revId": "455cea81e75eb4e6f8cce0eb1f40d02c298330b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b6485978_bb044248",
+        "filename": "src/gpu/tessellate/shaders/GrPathTessellationShader_MiddleOut.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 303,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-06-29T13:34:28Z",
+      "side": 1,
+      "message": "kIndex",
+      "range": {
+        "startLine": 303,
+        "startChar": 66,
+        "endLine": 303,
+        "endChar": 73
+      },
+      "revId": "455cea81e75eb4e6f8cce0eb1f40d02c298330b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
