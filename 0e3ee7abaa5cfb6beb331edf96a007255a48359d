@@ -89,6 +89,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cc689b42_f050a070",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 35
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-29T14:27:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "44ffd4ca_81a3a91e",
+      "revId": "0e3ee7abaa5cfb6beb331edf96a007255a48359d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "13daeddf_b56cbbb6",
@@ -102,6 +120,30 @@
       "writtenOn": "2021-06-17T16:05:28Z",
       "side": 1,
       "message": "We don\u0027t need to use the comma operator here at all, AFAICS?\n\n  []{ InitLayoutMap(); return true; }",
+      "range": {
+        "startLine": 124,
+        "startChar": 49,
+        "endLine": 124,
+        "endChar": 85
+      },
+      "revId": "0e3ee7abaa5cfb6beb331edf96a007255a48359d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "40808043_20de1268",
+        "filename": "src/sksl/SkSLDSLParser.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-29T14:27:56Z",
+      "side": 1,
+      "message": "I guess not. This section was copied from Parser; I have no idea why it was written like that.",
+      "parentUuid": "13daeddf_b56cbbb6",
       "range": {
         "startLine": 124,
         "startChar": 49,
@@ -135,6 +177,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "468f6f70_99ce6da9",
+        "filename": "src/sksl/SkSLDSLParser.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-29T14:27:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "88b60201_c8cf3a0d",
+      "range": {
+        "startLine": 304,
+        "startChar": 12,
+        "endLine": 307,
+        "endChar": 55
+      },
+      "revId": "0e3ee7abaa5cfb6beb331edf96a007255a48359d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "88e66e0c_32bb1e8a",
@@ -158,6 +224,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d87fe442_418e778d",
+        "filename": "src/sksl/SkSLDSLParser.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-29T14:27:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "88e66e0c_32bb1e8a",
+      "range": {
+        "startLine": 308,
+        "startChar": 11,
+        "endLine": 308,
+        "endChar": 62
+      },
+      "revId": "0e3ee7abaa5cfb6beb331edf96a007255a48359d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3b5d0d74_a9a5e50e",
@@ -171,6 +261,30 @@
       "writtenOn": "2021-06-17T16:05:28Z",
       "side": 1,
       "message": "I think it\u0027s a valuable guarantee that we can find variables in the symbol table. I wouldn\u0027t want to give that up without getting something in return. (Not saying anything needs to change, since DSLParser apparently does add them)",
+      "range": {
+        "startLine": 245,
+        "startChar": 88,
+        "endLine": 247,
+        "endChar": 17
+      },
+      "revId": "0e3ee7abaa5cfb6beb331edf96a007255a48359d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "43fd2bd5_04e2a37c",
+        "filename": "src/sksl/dsl/priv/DSLWriter.cpp",
+        "patchSetId": 35
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-29T14:27:56Z",
+      "side": 1,
+      "message": "Normal DSL usage doesn\u0027t care about the symbol table, though. Since it\u0027s creating nodes directly, and never having to pull anything out of the symbol table, the symbol table is used only for lifetime management rather than name lookup.\n\nSo I think it\u0027s reasonable to separate the two so normal DSL usage doesn\u0027t touch the symbol table, and this sort of parser usage then requires you to manage them manually.",
+      "parentUuid": "3b5d0d74_a9a5e50e",
       "range": {
         "startLine": 245,
         "startChar": 88,
