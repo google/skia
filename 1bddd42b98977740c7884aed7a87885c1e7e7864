@@ -34,6 +34,24 @@
       "parentUuid": "12d32c0a_854f23af",
       "revId": "1bddd42b98977740c7884aed7a87885c1e7e7864",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0161b8da_6ef53470",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-06-29T15:23:36Z",
+      "side": 1,
+      "message": "That being said, it looks like something changed with glyph 33 in this font, not sure exactly why yet.",
+      "parentUuid": "3da6f7b6_b4bd6390",
+      "revId": "1bddd42b98977740c7884aed7a87885c1e7e7864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
