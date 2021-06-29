@@ -1,6 +1,0 @@
-/*#pragma settings FlipY*/
-
-void main() {
-    sk_FragColor.r = half(dFdx(1)),
-    sk_FragColor.g = half(dFdy(1));
-}

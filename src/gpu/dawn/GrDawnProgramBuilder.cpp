@@ -438,10 +438,10 @@ wgpu::ShaderModule GrDawnProgramBuilder::createShaderModule(const GrGLSLShaderBu
     printf("converting program:\n%s\n", sksl.c_str());
 #endif
 
-    SkSL::String spirvSource = fGpu->SkSLToSPIRV(source.c_str(), kind, flipY,
+    SkSL::String spirvSource = fGpu->SkSLToSPIRV(source.c_str(), kind,
                                                  fUniformHandler.getRTHeightOffset(), inputs);
-    if (inputs->fRTHeight) {
-        this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
+    if (inputs->fUseFlipRTUniform) {
+        this->addRTFlipUniform(SKSL_RTHEIGHT_NAME);
     }
 
     return fGpu->createShaderModule(spirvSource);
