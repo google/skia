@@ -121,6 +121,7 @@ void FakeDevice::drawShape(ID id, PaintersOrder paintersOrder, Shape shape, SkIR
 void FakeDevice::clipShape(ID id, PaintersOrder paintersOrder, Shape shape, SkIRect r) {
     sk_sp<ClipCmd> tmp = sk_make_sp<ClipCmd>(id, paintersOrder, shape, r);
 
+    fSortedCmds.push_back(tmp);
     fTracker.clip(std::move(tmp));
 }
 
@@ -147,6 +148,12 @@ void FakeDevice::getOrder(std::vector<ID>* ops) const {
 }
 
 void FakeDevice::sort() {
+    SkDebugf("------------------------------------------------\n");
+    for (const sk_sp<Cmd>& c : fSortedCmds) {
+        SkDebugf("Cmd %d: sort key %d\n", c->id().toInt(), c->getSortZ());
+    }
+    SkDebugf("------------------------------------------------\n");
+
     // In general we want:
     //  opaque draws to occur front to back (i.e., in reverse painter's order) while minimizing
     //        state changes due to materials
@@ -156,7 +163,15 @@ void FakeDevice::sort() {
     std::sort(fSortedCmds.begin(), fSortedCmds.end(),
               [](const sk_sp<Cmd>& a, const sk_sp<Cmd>& b) {
                     return a->getKey() < b->getKey();
-                });
+              });
+
+    SkDebugf("------------------------------------------------\n");
+    for (const sk_sp<Cmd>& c : fSortedCmds) {
+        SortKey k = c->getKey();
+        SkDebugf("** Cmd %d: sort Z %d --- %d\n", c->id().toInt(), c->getSortZ(), k.fKey);
+    }
+    SkDebugf("------------------------------------------------\n");
+
 }
 
 //-------------------------------------------------------------------------------------------------

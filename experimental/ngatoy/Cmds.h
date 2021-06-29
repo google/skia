@@ -26,6 +26,8 @@ public:
 
     ID id() const { return fID; }
 
+    virtual uint32_t getSortZ() const { return 0; }
+
     virtual SortKey getKey() = 0;
 
     // To generate the actual image
@@ -96,7 +98,7 @@ public:
 
     bool contains(int x, int y) const;
 
-    uint32_t getSortZ() const;
+    uint32_t getSortZ() const override;
     uint32_t getDrawZ() const;
 
     SortKey getKey() override;
@@ -133,7 +135,7 @@ public:
 
     bool contains(int x, int y) const;
 
-    uint32_t getSortZ() const;
+    uint32_t getSortZ() const override;
     uint32_t getDrawZ() const;
 
     SortKey getKey() override;
