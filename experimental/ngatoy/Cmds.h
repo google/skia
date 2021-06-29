@@ -114,8 +114,6 @@ public:
                  fPaintersOrder.toUInt());
     }
 
-protected:
-
 private:
     PaintersOrder     fPaintersOrder;
     Shape             fShape;
@@ -160,8 +158,6 @@ public:
 
     bool hasBeenMutated() const { return fHasBeenMutated; }
     SkIRect rect() const { return fRect; }
-
-protected:
 
 private:
     bool          fHasBeenMutated = false;

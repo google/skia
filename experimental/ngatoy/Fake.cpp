@@ -121,6 +121,7 @@ void FakeDevice::drawShape(ID id, PaintersOrder paintersOrder, Shape shape, SkIR
 void FakeDevice::clipShape(ID id, PaintersOrder paintersOrder, Shape shape, SkIRect r) {
     sk_sp<ClipCmd> tmp = sk_make_sp<ClipCmd>(id, paintersOrder, shape, r);
 
+    fSortedCmds.push_back(tmp);
     fTracker.clip(std::move(tmp));
 }
 
@@ -156,7 +157,7 @@ void FakeDevice::sort() {
     std::sort(fSortedCmds.begin(), fSortedCmds.end(),
               [](const sk_sp<Cmd>& a, const sk_sp<Cmd>& b) {
                     return a->getKey() < b->getKey();
-                });
+              });
 }
 
 //-------------------------------------------------------------------------------------------------
