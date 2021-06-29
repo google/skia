@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fe85aeab_03fe53c6",
+        "filename": "experimental/ngatoy/SortKey.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-29T16:50:58Z",
+      "side": 1,
+      "message": "This should be:\n\nGeneral Key:\nfield: | sortZ | state |\nbits:  |  4    |  9    |\n\nDepending on the type of command, the state key is different:\nOpaque Order:\nfield: | sortZ | transparent (false) | material   | inverse draw order |\nbits:  |  4    |   1                 |   4        |    4               |\nTransparent: \nfield: | sortZ | transparent (true)  | material   | zeros              |\nbits:  |  4    |   1                 |   4        |    4               |\nClip:\nfield: | sortZ | zeros                                                 |\nbits:  |  4    |   9                                                   |\n\nTransparent draws are drawn back to front, but that\u0027s handled by the sortZ already. We could include their painters order in the key as well, but keeping it as 0s seems simpler. Similarly, the only requirement for clip commands sorting is handled by the sort z, so we can have the state key set to 0s. Because we use painters order pessimistically (or eventually do max(prior)+1), there won\u0027t be other types of commands that intersect the clip geometry with the same sort Z that would require the state key to have a consistent structure across the types.\n\n(eventually, we could encode the clip shape type into the state key so we could group paths together, or atlases together, etc. but that\u0027s a future thing).",
+      "range": {
+        "startLine": 17,
+        "startChar": 4,
+        "endLine": 23,
+        "endChar": 77
+      },
+      "revId": "10994698cae9373d89392a284145846fd40fd06a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "354affc8_9653fd38",
+        "filename": "experimental/ngatoy/SortKey.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-06-29T16:50:58Z",
+      "side": 1,
+      "message": "The sort z bits need to be the most significant. If we don\u0027t consider the drawing-order inversion in the key, there\u0027s no need for the transparent vs. opaque 1-bit portion of the key since the choice of sort z for opaque or transparent draws groups them in the same way, while respecting the clip elements that affect the overall ordering.\n\nThat being said, having the opaque draws go front-to-back based on their inverted painters order seems useful, but it should be part of the \"state\" portion of the key.",
+      "range": {
+        "startLine": 51,
+        "startChar": 26,
+        "endLine": 51,
+        "endChar": 44
+      },
+      "revId": "10994698cae9373d89392a284145846fd40fd06a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
