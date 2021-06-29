@@ -30,6 +30,8 @@ public:
     // For fixed count tessellators, this is the largest number of segments we can stuff into a
     // single instance before we need to chop.
     constexpr static int kMaxFixedCountSegments = 32;
+    constexpr static int kMaxFixedCountResolveLevel = 5;  // log2(kMaxFixedCountSegments)
+    static_assert(kMaxFixedCountSegments == 1 << kMaxFixedCountResolveLevel);
 
     const GrPathTessellationShader* shader() const { return fShader; }
 
