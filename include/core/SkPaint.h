@@ -12,6 +12,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkFilterQuality.h"
 #include "include/core/SkRefCnt.h"
+#include "include/private/SkTOptional.h"
 #include "include/private/SkTo.h"
 
 class SkBlender;
@@ -477,28 +478,25 @@ public:
     */
     void setColorFilter(sk_sp<SkColorFilter> colorFilter);
 
-    /** Returns SkBlendMode.
-        By default, returns SkBlendMode::kSrcOver.
+    /** DEPRECATED
+     *
+     *  This attempts to inspect the current blender, and if it claims to be equivalent to
+     *  one of the predefiend SkBlendMode enums, returns that mode. If the blender does not,
+     *  this returns kSrcOver.
+     */
+    SkBlendMode getBlendMode() const;
 
-        @return  mode used to combine source color with destination color
+    skstd::optional<SkBlendMode> asBlendMode() const;
+
+    /** Returns true iff the current blender claims to be equivalent to SkBlendMode::kSrcOver.
     */
-    SkBlendMode getBlendMode() const { return (SkBlendMode)fBitfields.fBlendMode; }
+    bool isSrcOver() const;
 
-    /** Returns true if SkBlendMode is SkBlendMode::kSrcOver, the default.
-
-        @return  true if SkBlendMode is SkBlendMode::kSrcOver
-    */
-    bool isSrcOver() const { return (SkBlendMode)fBitfields.fBlendMode == SkBlendMode::kSrcOver; }
-
-    /** Sets SkBlendMode to mode.
-        Does not verify that `mode` corresponds to a valid SkBlendMode.
-        Does not remove the SkBlender blend function, if one has been set; when drawing, SkBlender
-        takes precedence over the SkBlendMode. You can clear the SkBlender on an SkPaint by calling
-        `paint.setBlender(nullptr)`.
-
-        @param mode  SkBlendMode used to combine source color and destination
-    */
-    void setBlendMode(SkBlendMode mode) { fBitfields.fBlendMode = (unsigned)mode; }
+    /** Helper method for calling setBlender().
+     *
+     *  This sets a blender that implements the specified blendmode enum.
+     */
+    void setBlendMode(SkBlendMode mode);
 
     /** Returns the user-supplied blend function, if one has been set.
         Does not alter SkBlender's SkRefCnt.
@@ -514,14 +512,9 @@ public:
     */
     sk_sp<SkBlender> refBlender() const;
 
-    /** Assigns a user-supplied blend function (create these via SkRuntimeEffect).
-        If an SkBlender has been set, it takes precedence over the SkBlendMode.
-        Increments the passed-in SkBlender's SkRefCnt by one.
-
-        TODO(skia:12080): this feature is incomplete; do not use!
-
-        @param blend  the blend filter to use
-    */
+    /** Sets the current blender, increasing its refcnt, and if a blender is already
+     *  present, decreasing that object's refcnt.
+     */
     void experimental_setBlender(sk_sp<SkBlender> blend);
 
     /** Returns SkPathEffect if set, or nullptr.
@@ -716,8 +709,7 @@ private:
             unsigned    fJoinType : 2;
             unsigned    fStyle : 2;
             unsigned    fFilterQuality : 2;
-            unsigned    fBlendMode : 8; // only need 5-6?
-            unsigned    fPadding : 14;  // 14==32-1-1-2-2-2-2-8
+            unsigned    fPadding : 22;  // 22 == 32 -1-1-2-2-2-2
         } fBitfields;
         uint32_t fBitfieldsUInt;
     };

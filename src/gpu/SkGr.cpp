@@ -439,19 +439,18 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
     }
 #endif
 
-    SkBlender* blender = skPaint.getBlender();
-    if (blender) {
-        // Apply the custom blend, and force the XP to kSrc. We don't honor the SkBlendMode when a
-        // custom blend is applied.
-        paintFP = as_BB(blender)->asFragmentProcessor(std::move(paintFP), fpArgs);
-        grPaint->setXPFactory(SkBlendMode_AsXPFactory(SkBlendMode::kSrc));
-    } else {
+    if (auto bm = skPaint.asBlendMode()) {
         // When the xfermode is null on the SkPaint (meaning kSrcOver) we need the XPFactory field
         // on the GrPaint to also be null (also kSrcOver).
         SkASSERT(!grPaint->getXPFactory());
-        if (!skPaint.isSrcOver()) {
-            grPaint->setXPFactory(SkBlendMode_AsXPFactory(skPaint.getBlendMode()));
+        if (bm.value() != SkBlendMode::kSrcOver) {
+            grPaint->setXPFactory(SkBlendMode_AsXPFactory(bm.value()));
         }
+    } else {
+        // Apply the custom blend, and force the XP to kSrc. We don't honor the SkBlendMode when a
+        // custom blend is applied.
+        paintFP = as_BB(skPaint.getBlender())->asFragmentProcessor(std::move(paintFP), fpArgs);
+        grPaint->setXPFactory(SkBlendMode_AsXPFactory(SkBlendMode::kSrc));
     }
 
     if (GrColorTypeClampType(dstColorInfo.colorType()) == GrClampType::kManual) {

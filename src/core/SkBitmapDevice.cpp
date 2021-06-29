@@ -467,10 +467,6 @@ void SkBitmapDevice::drawImageRect(const SkImage* image, const SkRect* src, cons
         }
     }
 
-    if (paint.getBlender()) {
-        goto USE_SHADER;
-    }
-
     if (src && !src->contains(bitmapBounds) &&
         SkCanvas::kFast_SrcRectConstraint == constraint &&
         sampling != SkSamplingOptions()) {
