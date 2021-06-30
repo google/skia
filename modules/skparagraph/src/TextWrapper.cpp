@@ -231,7 +231,7 @@ std::tuple<Cluster*, size_t, SkScalar> TextWrapper::trimStartSpaces(Cluster* end
         // End of line is always end of cluster, but need to skip \n
         auto width = fEndLine.width();
         auto cluster = fEndLine.endCluster() + 1;
-        while (cluster < fEndLine.breakCluster() && cluster->isWhitespaceBreak()) {
+        while (cluster < fEndLine.breakCluster() && cluster->isWhitespaceBreak())  {
             width += cluster->width();
             ++cluster;
         }
@@ -335,10 +335,12 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
         }
 
         // TODO: keep start/end/break info for text and runs but in a better way that below
-        TextRange text(fEndLine.startCluster()->textRange().start, fEndLine.endCluster()->textRange().end);
-        TextRange textWithSpaces(fEndLine.startCluster()->textRange().start, startLine->textRange().start);
+        TextRange textExcludingSpaces(fEndLine.startCluster()->textRange().start, fEndLine.endCluster()->textRange().end);
+        TextRange text(fEndLine.startCluster()->textRange().start, fEndLine.breakCluster()->textRange().start);
+        TextRange textIncludingNewlines(fEndLine.startCluster()->textRange().start, startLine->textRange().start);
         if (startLine == end) {
-            textWithSpaces.end = parent->text().size();
+            textIncludingNewlines.end = parent->text().size();
+            text.end = parent->text().size();
         }
         ClusterRange clusters(fEndLine.startCluster() - start, fEndLine.endCluster() - start + 1);
         ClusterRange clustersWithGhosts(fEndLine.startCluster() - start, startLine - start);
@@ -355,11 +357,13 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
 
         if (fEndLine.empty()) {
             // Correct text and clusters (make it empty for an empty line)
-            text.end = text.start;
+            textExcludingSpaces.end = textExcludingSpaces.start;
             clusters.end = clusters.start;
         }
 
-        addLine(text, textWithSpaces, clusters, clustersWithGhosts, widthWithSpaces,
+        addLine(textExcludingSpaces,
+                text,
+                textIncludingNewlines, clusters, clustersWithGhosts, widthWithSpaces,
                 fEndLine.startPos(),
                 fEndLine.endPos(),
                 SkVector::Make(0, fHeight),
@@ -456,6 +460,7 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
 
         ClusterRange clusters(fEndLine.breakCluster() - start, fEndLine.endCluster() - start);
         addLine(fEndLine.breakCluster()->textRange(),
+                fEndLine.breakCluster()->textRange(),
                 fEndLine.endCluster()->textRange(),
                 clusters,
                 clusters,

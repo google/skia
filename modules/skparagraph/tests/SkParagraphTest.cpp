@@ -6333,3 +6333,113 @@ DEF_TEST(SkParagraph_RTLGlyphPositionsForTrailingSpaces, reporter) {
     test("               hello", -10);
 }
 
+DEF_TEST(SkParagraph_LTRLineMetricsDoesNotIncludeNewLine, reporter) {
+
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    if (!fontCollection->fontsFound()) return;
+
+    TestCanvas canvas("SkParagraph_LTRLineMetricsDoesNotIncludeNewLine");
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.setTextDirection(TextDirection::kRtl);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto") });
+    text_style.setFontSize(20);
+    text_style.setColor(SK_ColorBLACK);
+    builder.pushStyle(text_style);
+    builder.addText("one two\n\nthree four\nwith spaces     \n    ");
+    builder.pop();
+    auto paragraph = builder.Build();
+    paragraph->layout(500);
+    paragraph->paint(canvas.get(), 0, 0);
+
+    std::vector<std::tuple<size_t, size_t, size_t, size_t>> expected = {
+            { 0, 7, 7, 8 },             // one two\n
+            { 8, 8, 8, 9 },             // \n
+            { 9, 19, 19, 20 },          // three four\n
+            { 20, 31, 36, 37 },         // with spaces    \n
+            { 37, 37, 41, 41 },         //      { just spaces }
+    };
+    std::vector<LineMetrics> metrics;
+    paragraph->getLineMetrics(metrics);
+    for (auto& metric : metrics) {
+        //SkDebugf("Line[%d:%d <= %d <=%d)\n", metric.fStartIndex, metric.fEndExcludingWhitespaces, metric.fEndIndex, metric.fEndIncludingNewline);
+        auto result = expected[metric.fLineNumber];
+        REPORTER_ASSERT(reporter, metric.fStartIndex ==std::get<0>(result));
+        REPORTER_ASSERT(reporter, metric.fEndExcludingWhitespaces == std::get<1>(result));
+        REPORTER_ASSERT(reporter, metric.fEndIndex == std::get<2>(result));
+        REPORTER_ASSERT(reporter, metric.fEndIncludingNewline == std::get<3>(result));
+    }
+}
+
+DEF_TEST(SkParagraph_RTLLineMetricsDoesNotIncludeNewLine, reporter) {
+
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    if (!fontCollection->fontsFound()) return;
+
+    TestCanvas canvas("SkParagraph_RTLLineMetricsDoesNotIncludeNewLine");
+    canvas.get()->translate(100, 100);
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.setTextDirection(TextDirection::kRtl);
+    paragraph_style.setTextAlign(TextAlign::kRight);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto") });
+    text_style.setFontSize(20);
+    text_style.setColor(SK_ColorBLACK);
+    builder.pushStyle(text_style);
+    builder.addText(mirror("one two\n\nthree four\nwith spaces     \n    "));
+    builder.pop();
+    auto paragraph = builder.Build();
+    paragraph->layout(500);
+    paragraph->paint(canvas.get(), 0, 0);
+    //auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+
+    SkPaint gray;
+    gray.setColor(SK_ColorGRAY);
+    gray.setStyle(SkPaint::kStroke_Style);
+    gray.setAntiAlias(true);
+    gray.setStrokeWidth(1);
+    canvas.get()->drawRect(SkRect::MakeXYWH(0, 0, paragraph->getMaxWidth(), paragraph->getHeight()), gray);
+
+    SkPaint red;
+    red.setColor(SK_ColorRED);
+    red.setStyle(SkPaint::kStroke_Style);
+    red.setAntiAlias(true);
+    red.setStrokeWidth(1);
+
+    SkPaint blue;
+    blue.setColor(SK_ColorRED);
+    blue.setStyle(SkPaint::kStroke_Style);
+    blue.setAntiAlias(true);
+    blue.setStrokeWidth(1);
+
+    auto boxes = paragraph->getRectsForRange(0, 100, RectHeightStyle::kTight, RectWidthStyle::kTight);
+    bool even = false;
+    for (auto& box : boxes) {
+        canvas.get()->drawRect(box.rect, even ? red : blue);
+        even = !even;
+    }
+
+    std::vector<std::tuple<int, int, int, int>> expected = {
+            { -3, 0, 4, 5 },                 //      { just spaces; the end of the text considered as a new line in libtxt?!? }
+            { 5, 21, 21, 22 },              // with spaces    \n
+            { 22, 32, 32, 33 },             // three four\n
+            { 33, 33, 33, 34 },             // \n
+            { 34, 41, 41, 41 },             // one two\n
+    };
+
+    std::vector<LineMetrics> metrics;
+    paragraph->getLineMetrics(metrics);
+    for (auto& metric : metrics) {
+        //SkDebugf("Line[%d:%d <= %d <=%d]\n", metric.fStartIndex, metric.fEndExcludingWhitespaces, metric.fEndIndex, metric.fEndIncludingNewline);
+        auto result = expected[metric.fLineNumber];
+        //SkDebugf("expected: %d %d %d %d\n", 3 + std::get<0>(result), 3 + std::get<1>(result), 3 + std::get<2>(result), 3 + std::get<3>(result));
+        REPORTER_ASSERT(reporter, metric.fStartIndex == SkToU32(3 + std::get<0>(result)));
+        REPORTER_ASSERT(reporter, metric.fEndExcludingWhitespaces == SkToU32(3 + std::get<1>(result)));
+        REPORTER_ASSERT(reporter, metric.fEndIndex == SkToU32(3 + std::get<2>(result)));
+        REPORTER_ASSERT(reporter, metric.fEndIncludingNewline == SkToU32(3 + std::get<3>(result)));
+    }
+}
