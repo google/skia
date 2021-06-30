@@ -33,6 +33,24 @@
       "message": "I didn\u0027t look too closely to make sure the 90% copy-paste didn\u0027t get mangled, but overall structure looks good. I might vote for larger comment banners at the start of each section for circle, rect, and rrect blurs, since each comes with a number of static functions that are only relevant for that effect.",
       "revId": "22d2d7d428dc20491649bf3cab1596b044db2ee3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d8f81fe0_be9081c7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-30T20:33:17Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "e5a15868_adcd448f",
+      "revId": "22d2d7d428dc20491649bf3cab1596b044db2ee3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
