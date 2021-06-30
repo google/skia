@@ -31,8 +31,9 @@ public:
         if (!fp) {
             return nullptr;
         }
-        return std::unique_ptr<GrFragmentProcessor>(
+        fp = std::unique_ptr<GrFragmentProcessor>(
                 new GrConfigConversionEffect(std::move(fp), pmConversion));
+        return GrFragmentProcessor::HighPrecision(std::move(fp));
     }
     GrConfigConversionEffect(const GrConfigConversionEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;

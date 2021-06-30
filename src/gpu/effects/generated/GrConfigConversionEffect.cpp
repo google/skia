@@ -26,8 +26,6 @@ public:
         (void)_outer;
         auto pmConversion = _outer.pmConversion;
         (void)pmConversion;
-
-        fragBuilder->forceHighPrecision();
         SkString _sample0 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(half4 color = floor(%s * 255.0 + 0.5) / 255.0;

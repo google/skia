@@ -87,6 +87,7 @@ public:
         kGrTextureEffect_ClassID,
         kGrUnrolledBinaryGradientColorizer_ClassID,
         kGrYUVtoRGBEffect_ClassID,
+        kHighPrecisionFragmentProcessor_ClassID,
         kLatticeGP_ClassID,
         kPDLCDXferProcessor_ClassID,
         kPorterDuffXferProcessor_ClassID,

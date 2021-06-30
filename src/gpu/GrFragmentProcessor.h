@@ -163,6 +163,12 @@ public:
                               const GrShaderCaps&);
 
     /**
+     * Returns a fragment processor that calls the passed in fragment processor, but ensures the
+     * entire program is compiled with high-precision types.
+     */
+    static std::unique_ptr<GrFragmentProcessor> HighPrecision(std::unique_ptr<GrFragmentProcessor>);
+
+    /**
      * Makes a copy of this fragment processor that draws equivalently to the original.
      * If the processor has child processors they are cloned as well.
      */
