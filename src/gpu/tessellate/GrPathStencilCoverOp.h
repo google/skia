@@ -73,6 +73,9 @@ private:
     sk_sp<const GrBuffer> fBBoxBuffer;
     int fBBoxBaseInstance = 0;
 
+    // Only used if sk_VertexID is not supported.
+    sk_sp<const GrGpuBuffer> fBBoxVertexBufferIfNoIDSupport;
+
     friend class GrOp;  // For ctor.
 };
 

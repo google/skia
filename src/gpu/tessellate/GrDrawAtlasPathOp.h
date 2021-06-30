@@ -86,6 +86,9 @@ private:
     sk_sp<const GrBuffer> fInstanceBuffer;
     int fBaseInstance;
 
+    // Only used if sk_VertexID is not supported.
+    sk_sp<const GrGpuBuffer> fVertexBufferIfNoIDSupport;
+
     GrProcessorSet fProcessors;
 };
 

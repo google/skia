@@ -135,10 +135,12 @@ private:
 }  // namespace
 
 
-GrPathTessellator* GrPathCurveTessellator::Make(SkArenaAlloc* arena, const SkMatrix& viewMatrix,
-                                                const SkPMColor4f& color, DrawInnerFan drawInnerFan,
-                                                int numPathVerbs, const GrPipeline& pipeline,
-                                                const GrCaps& caps) {
+GrPathCurveTessellator* GrPathCurveTessellator::Make(SkArenaAlloc* arena,
+                                                     const SkMatrix& viewMatrix,
+                                                     const SkPMColor4f& color,
+                                                     DrawInnerFan drawInnerFan, int numPathVerbs,
+                                                     const GrPipeline& pipeline,
+                                                     const GrCaps& caps) {
     using PatchType = GrPathTessellationShader::PatchType;
     GrPathTessellationShader* shader;
     if (caps.shaderCaps()->tessellationSupport() &&
@@ -288,9 +290,10 @@ void GrPathCurveTessellator::draw(GrOpFlushState* flushState) const {
     }
 }
 
-void GrPathCurveTessellator::drawHullInstances(GrOpFlushState* flushState) const {
+void GrPathCurveTessellator::drawHullInstances(
+        GrOpFlushState* flushState, sk_sp<const GrGpuBuffer> vertexBufferIfNeeded) const {
     for (const GrVertexChunk& chunk : fVertexChunkArray) {
-        flushState->bindBuffers(nullptr, chunk.fBuffer, nullptr);
+        flushState->bindBuffers(nullptr, chunk.fBuffer, vertexBufferIfNeeded);
         flushState->drawInstanced(chunk.fCount, chunk.fBase, 4, 0);
     }
 }

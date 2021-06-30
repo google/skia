@@ -15,6 +15,7 @@
 
 class SkPath;
 class GrMeshDrawTarget;
+class GrGpuBuffer;
 class GrOpFlushState;
 class GrPathTessellationShader;
 
@@ -35,11 +36,6 @@ public:
     // Issues draw calls for the tessellated geometry. The caller is responsible for binding its
     // desired pipeline ahead of time.
     virtual void draw(GrOpFlushState*) const = 0;
-
-    // Draws a 4-point instance for each curve. This method is used for drawing convex hulls over
-    // each cubic with GrFillCubicHullShader. The caller is responsible for binding its desired
-    // pipeline ahead of time. This method is not supported by every subclass.
-    virtual void drawHullInstances(GrOpFlushState*) const { SK_ABORT("Not supported."); }
 
     virtual ~GrPathTessellator() {}
 

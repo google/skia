@@ -38,7 +38,7 @@ constexpr static int kAtlasMaxPathHeight = 128;
 bool GrTessellationPathRenderer::IsSupported(const GrCaps& caps) {
     return !caps.avoidStencilBuffers() &&
            caps.drawInstancedSupport() &&
-           caps.shaderCaps()->vertexIDSupport() &&
+           caps.shaderCaps()->integerSupport() &&
            !caps.disableTessellationPathRenderer();
 }
 
@@ -74,9 +74,14 @@ GrPathRenderer::CanDrawPath GrTessellationPathRenderer::onCanDrawPath(
         shape.style().hasPathEffect() ||
         args.fViewMatrix->hasPerspective() ||
         shape.style().strokeRec().getStyle() == SkStrokeRec::kStrokeAndFill_Style ||
-        (shape.inverseFilled() && !shape.style().isSimpleFill()) ||
         !args.fProxy->canUseStencil(*args.fCaps)) {
         return CanDrawPath::kNo;
+    }
+    if (!shape.style().isSimpleFill()) {
+        if (shape.inverseFilled() ||
+            !args.fCaps->shaderCaps()->vertexIDSupport()) {
+            return CanDrawPath::kNo;
+        }
     }
     if (args.fHasUserStencilSettings) {
         // Non-convex paths and strokes use the stencil buffer internally, so they can't support

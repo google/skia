@@ -12,6 +12,7 @@
 #include "src/gpu/GrInnerFanTriangulator.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/tessellate/GrPathCurveTessellator.h"
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
@@ -25,13 +26,18 @@ namespace {
 // for the "cover" pass after the curves have been fully stencilled.
 class HullShader : public GrPathTessellationShader {
 public:
-    HullShader(const SkMatrix& viewMatrix, SkPMColor4f color)
+    HullShader(const SkMatrix& viewMatrix, SkPMColor4f color, const GrShaderCaps& shaderCaps)
             : GrPathTessellationShader(kTessellate_HullShader_ClassID,
                                        GrPrimitiveType::kTriangleStrip, 0, viewMatrix, color) {
         constexpr static Attribute kPtsAttribs[] = {
                 {"input_points_0_1", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
                 {"input_points_2_3", kFloat4_GrVertexAttribType, kFloat4_GrSLType}};
         this->setInstanceAttributes(kPtsAttribs, SK_ARRAY_COUNT(kPtsAttribs));
+        if (!shaderCaps.vertexIDSupport()) {
+            constexpr static Attribute kVertexIdxAttrib("vertexidx", kFloat_GrVertexAttribType,
+                                                        kFloat_GrSLType);
+            this->setVertexAttributes(&kVertexIdxAttrib, 1);
+        }
     }
 
 private:
@@ -75,30 +81,47 @@ GrGLSLGeometryProcessor* HullShader::createGLSLInstance(const GrShaderCaps&) con
                     P[2] = P[3];  // swap(P2, P3)
                     P[3] = tmp;
                 }
+            })");
+
+            if (v->getProgramBuilder()->caps()->shaderCaps()->vertexIDSupport()) {
+                // If we don't have sk_VertexID support then "vertexidx" already came in as a
+                // vertex attrib.
+                v->codeAppend(R"(
+                // sk_VertexID comes in fan order. Convert to strip order.
+                int vertexidx = sk_VertexID;
+                vertexidx ^= vertexidx >> 1;)");
             }
 
-            // sk_VertexID comes in fan order. Convert to strip order.
-            int vertexidx = sk_VertexID;
-            vertexidx ^= vertexidx >> 1;
-
+            v->codeAppend(R"(
             // Find the "turn direction" of each corner and net turn direction.
             float vertexdir = 0;
             float netdir = 0;
+            float2 prev, next;
+            float dir;
+            float2 localcoord;
+            float2 nextcoord;)");
+
             for (int i = 0; i < 4; ++i) {
-                float2 prev = P[i] - P[(i + 3) & 3], next = P[(i + 1) & 3] - P[i];
-                float dir = sign(determinant(float2x2(prev, next)));
-                if (i == vertexidx) {
+                v->codeAppendf(R"(
+                prev = P[%i] - P[%i];)", i, (i + 3) % 4);
+                v->codeAppendf(R"(
+                next = P[%i] - P[%i];)", (i + 1) % 4, i);
+                v->codeAppendf(R"(
+                dir = sign(determinant(float2x2(prev, next)));
+                if (vertexidx == %i) {
                     vertexdir = dir;
+                    localcoord = P[%i];
+                    nextcoord = P[%i];
                 }
-                netdir += dir;
+                netdir += dir;)", i, i, (i + 1) % 4);
             }
 
+            v->codeAppend(R"(
             // Remove the non-convex vertex, if any.
             if (vertexdir != sign(netdir)) {
-                vertexidx = (vertexidx + 1) & 3;
+                localcoord = nextcoord;
             }
 
-            float2 localcoord = P[vertexidx];
             float2 vertexpos = AFFINE_MATRIX * localcoord + TRANSLATE;)");
             gpArgs->fLocalCoordVar.set(kFloat2_GrSLType, "localcoord");
             gpArgs->fPositionVar.set(kFloat2_GrSLType, "vertexpos");
@@ -300,7 +323,8 @@ void GrPathInnerTriangulateOp::prePreparePrograms(const GrTessellationShader::Pr
         // by curves. We issue a final cover pass over the curves by drawing their convex hulls.
         // This will fill in any remaining samples and reset the stencil values back to zero.
         SkASSERT(fTessellator);
-        auto* hullShader = args.fArena->make<HullShader>(fViewMatrix, fColor);
+        auto* hullShader = args.fArena->make<HullShader>(fViewMatrix, fColor,
+                                                         *args.fCaps->shaderCaps());
         fCoverHullsProgram = GrTessellationShader::MakeProgram(
                 args, hullShader, fPipelineForFills,
                 GrPathTessellationShader::TestAndResetStencilSettings());
@@ -327,6 +351,8 @@ void GrPathInnerTriangulateOp::onPrePrepare(GrRecordingContext* context,
     }
 }
 
+GR_DECLARE_STATIC_UNIQUE_KEY(gHullVertexBufferKey);
+
 void GrPathInnerTriangulateOp::onPrepare(GrOpFlushState* flushState) {
     if (!fFanTriangulator) {
         this->prePreparePrograms({flushState->allocator(), flushState->writeView(),
@@ -346,6 +372,16 @@ void GrPathInnerTriangulateOp::onPrepare(GrOpFlushState* flushState) {
     if (fTessellator) {
         // Must be called after polysToTriangles() in order for fFanBreadcrumbs to be complete.
         fTessellator->prepare(flushState, this->bounds(), fPath, &fFanBreadcrumbs);
+    }
+
+    if (!flushState->caps().shaderCaps()->vertexIDSupport()) {
+        constexpr static float kStripOrderIDs[4] = {0, 1, 3, 2};
+
+        GR_DEFINE_STATIC_UNIQUE_KEY(gHullVertexBufferKey);
+
+        fHullVertexBufferIfNoIDSupport = flushState->resourceProvider()->findOrMakeStaticBuffer(
+                GrGpuBufferType::kVertex, sizeof(kStripOrderIDs), kStripOrderIDs,
+                gHullVertexBufferKey);
     }
 }
 
@@ -371,6 +407,6 @@ void GrPathInnerTriangulateOp::onExecute(GrOpFlushState* flushState, const SkRec
         SkASSERT(fTessellator);
         flushState->bindPipelineAndScissorClip(*fCoverHullsProgram, this->bounds());
         flushState->bindTextures(fCoverHullsProgram->geomProc(), nullptr, *fPipelineForFills);
-        fTessellator->drawHullInstances(flushState);
+        fTessellator->drawHullInstances(flushState, fHullVertexBufferIfNoIDSupport);
     }
 }
