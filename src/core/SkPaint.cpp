@@ -248,6 +248,8 @@ template <typename T> uint32_t shift_bits(T value, unsigned shift, unsigned bits
     return v << shift;
 }
 
+constexpr uint8_t CUSTOM_BLEND_MODE_SENTINEL = 0xFF;
+
 /*  Packing the paint
  flags :  8  // 2...
  blend :  8  // 30+
@@ -260,9 +262,13 @@ template <typename T> uint32_t shift_bits(T value, unsigned shift, unsigned bits
  */
 static uint32_t pack_v68(const SkPaint& paint, unsigned flatFlags) {
     uint32_t packed = 0;
+    const auto bm = paint.asBlendMode();
+    const unsigned mode = bm ? static_cast<unsigned>(bm.value())
+                             : CUSTOM_BLEND_MODE_SENTINEL;
+
     packed |= shift_bits(((unsigned)paint.isDither() << 1) |
                           (unsigned)paint.isAntiAlias(), 0, 8);
-    packed |= shift_bits(paint.getBlendMode(),      8, 8);
+    packed |= shift_bits(mode,                      8, 8);
     packed |= shift_bits(paint.getStrokeCap(),     16, 2);
     packed |= shift_bits(paint.getStrokeJoin(),    18, 2);
     packed |= shift_bits(paint.getStyle(),         20, 2);
@@ -277,7 +283,13 @@ static uint32_t unpack_v68(SkPaint* paint, uint32_t packed, SkSafeRange& safe) {
     paint->setAntiAlias((packed & 1) != 0);
     paint->setDither((packed & 2) != 0);
     packed >>= 8;
-    paint->setBlendMode(safe.checkLE(packed & 0xFF, SkBlendMode::kLastMode));
+    {
+        unsigned mode = packed & 0xFF;
+        if (mode != CUSTOM_BLEND_MODE_SENTINEL) { // sentinel for custom blender
+            paint->setBlendMode(safe.checkLE(mode, SkBlendMode::kLastMode));
+        }
+        // else we will unflatten the custom blender
+    }
     packed >>= 8;
     paint->setStrokeCap(safe.checkLE(packed & 0x3, SkPaint::kLast_Cap));
     packed >>= 2;
@@ -297,13 +309,14 @@ static uint32_t unpack_v68(SkPaint* paint, uint32_t packed, SkSafeRange& safe) {
  */
 void SkPaintPriv::Flatten(const SkPaint& paint, SkWriteBuffer& buffer) {
     uint8_t flatFlags = 0;
+    const auto bm = paint.asBlendMode();
 
     if (paint.getPathEffect() ||
         paint.getShader() ||
         paint.getMaskFilter() ||
         paint.getColorFilter() ||
         paint.getImageFilter() ||
-        paint.getBlender()) {
+        !bm) {
         flatFlags |= kHasEffects_FlatFlag;
     }
 
