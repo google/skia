@@ -22,13 +22,7 @@
 }
 
 in fragmentProcessor inputFP;
-in float4 rect;
-
-layout(key) bool highPrecision = abs(rect.x) > 16000 || abs(rect.y) > 16000 ||
-                                 abs(rect.z) > 16000 || abs(rect.w) > 16000;
-
-layout(when= highPrecision) uniform float4 rectF;
-layout(when=!highPrecision) uniform half4  rectH;
+in uniform float4 rect;
 
 layout(key) in bool applyInvVM;
 layout(when=applyInvVM) in uniform float3x3 invVM;
@@ -186,12 +180,7 @@ half4 main() {
         // The integral texture goes "backwards" (from 3*sigma to -3*sigma), So, the below
         // computations align the left edge of the integral texture with the inset rect's edge
         // extending outward 6 * sigma from the inset rect.
-        half2 xy;
-        @if (highPrecision) {
-            xy = max(half2(rectF.LT - pos), half2(pos - rectF.RB));
-       } else {
-            xy = max(half2(rectH.LT - pos), half2(pos - rectH.RB));
-        }
+        half2 xy = max(half2(rect.LT - pos), half2(pos - rect.RB));
         xCoverage = sample(integral, half2(xy.x, 0.5)).a;
         yCoverage = sample(integral, half2(xy.y, 0.5)).a;
     } else {
@@ -210,25 +199,13 @@ half4 main() {
         // in to the below calculations.
         // Also, our rect uniform was pre-inset by 3 sigma from the actual rect being blurred,
         // also factored in.
-        half4 rect;
-        @if (highPrecision) {
-            rect.LT = half2(rectF.LT - pos);
-            rect.RB = half2(pos - rectF.RB);
-        } else {
-            rect.LT = half2(rectH.LT - pos);
-            rect.RB = half2(pos - rectH.RB);
-        }
+        half4 rect = half4(half2(rect.LT - pos), half2(pos - rect.RB));
         xCoverage = 1 - sample(integral, half2(rect.L, 0.5)).a
                       - sample(integral, half2(rect.R, 0.5)).a;
         yCoverage = 1 - sample(integral, half2(rect.T, 0.5)).a
                       - sample(integral, half2(rect.B, 0.5)).a;
     }
     return sample(inputFP) * xCoverage * yCoverage;
-}
-
-@setData(pdman) {
-    float r[] {rect.fLeft, rect.fTop, rect.fRight, rect.fBottom};
-    pdman.set4fv(highPrecision ? rectF : rectH, 1, r);
 }
 
 @test(data) {
