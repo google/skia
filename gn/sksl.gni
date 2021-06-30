@@ -207,7 +207,5 @@ skia_sksl_gpu_sources = [
   "$_src/sksl/codegen/SkSLSPIRVtoHLSL.h",
 ]
 
-skia_gpu_processor_sources = [
-  "$_src/gpu/effects/GrDitherEffect.fp",
-  "$_src/gpu/gradients/GrUnrolledBinaryGradientColorizer.fp",
-]
+skia_gpu_processor_sources =
+    [ "$_src/gpu/gradients/GrUnrolledBinaryGradientColorizer.fp" ]
