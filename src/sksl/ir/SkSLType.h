@@ -353,16 +353,16 @@ public:
     }
 
     const std::vector<Field>& fields() const {
-        SkASSERT(this->isStruct());
-        return fFields;
+        SkASSERT(this->isStruct() && fFields);
+        return *fFields;
     }
 
     /**
      * For generic types, returns the types that this generic type can substitute for.
      */
     const std::vector<const Type*>& coercibleTypes() const {
-        SkASSERT(fCoercibleTypes.size() > 0);
-        return fCoercibleTypes;
+        SkASSERT(fCoercibleTypes && fCoercibleTypes->size() > 0);
+        return *fCoercibleTypes;
     }
 
     SpvDim_ dimensions() const {
@@ -505,7 +505,7 @@ private:
             , fAbbreviatedName("G")
             , fTypeKind(TypeKind::kGeneric)
             , fNumberKind(NumberKind::kNonnumeric)
-            , fCoercibleTypes(std::move(types))
+            , fCoercibleTypes(new std::vector<const Type*>(std::move(types)))
             , fIsDepth(false)
             , fIsArrayed(false)
             , fIsMultisampled(false)
@@ -595,7 +595,7 @@ private:
             , fIsArrayed(false)
             , fIsMultisampled(false)
             , fIsSampled(false)
-            , fFields(std::move(fields)) {
+            , fFields(new std::vector<Field>(std::move(fields))) {
         fName = skstd::string_view(fNameString.c_str(), fNameString.length());
     }
 
@@ -631,7 +631,7 @@ private:
     // always kNonnumeric_NumberKind for non-scalar values
     NumberKind fNumberKind;
     const Type* fComponentType = nullptr;
-    std::vector<const Type*> fCoercibleTypes;
+    std::unique_ptr<std::vector<const Type*>> fCoercibleTypes;
     int fColumns = -1;
     int8_t fRows = -1;
     int8_t fPriority = -1;
@@ -640,7 +640,7 @@ private:
     bool fIsArrayed : 1;
     bool fIsMultisampled : 1;
     bool fIsSampled : 1;
-    std::vector<Field> fFields;
+    std::unique_ptr<std::vector<Field>> fFields;
     SpvDim_ fDimensions = SpvDim1D;
     const Type* fTextureType = nullptr;
     const Type* fScalarTypeForLiteral = nullptr;
