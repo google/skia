@@ -114,16 +114,13 @@ in fragmentProcessor inputFP;
         if (!fp) {
             return nullptr;
         }
-        return std::unique_ptr<GrFragmentProcessor>(
+        fp = std::unique_ptr<GrFragmentProcessor>(
                 new GrConfigConversionEffect(std::move(fp), pmConversion));
+        return GrFragmentProcessor::HighPrecision(std::move(fp));
     }
 }
 
 layout(key) in PMConversion pmConversion;
-
-@emitCode {
-    fragBuilder->forceHighPrecision();
-}
 
 half4 main() {
     // Aggressively round to the nearest exact (N / 255) floating point value. This lets us find a

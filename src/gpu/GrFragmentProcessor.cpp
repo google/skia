@@ -826,6 +826,56 @@ GrFPResult GrFragmentProcessor::Ellipse(std::unique_ptr<GrFragmentProcessor> inp
 
 //////////////////////////////////////////////////////////////////////////////
 
+std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::HighPrecision(
+        std::unique_ptr<GrFragmentProcessor> fp) {
+    class HighPrecisionFragmentProcessor : public GrFragmentProcessor {
+    public:
+        static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> fp) {
+            return std::unique_ptr<GrFragmentProcessor>(
+                    new HighPrecisionFragmentProcessor(std::move(fp)));
+        }
+
+        const char* name() const override { return "HighPrecision"; }
+
+        std::unique_ptr<GrFragmentProcessor> clone() const override {
+            return Make(this->childProcessor(0)->clone());
+        }
+
+    private:
+        HighPrecisionFragmentProcessor(std::unique_ptr<GrFragmentProcessor> fp)
+                : INHERITED(kHighPrecisionFragmentProcessor_ClassID,
+                            ProcessorOptimizationFlags(fp.get())) {
+            this->registerChild(std::move(fp));
+        }
+
+        std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override {
+            class GLFP : public GrGLSLFragmentProcessor {
+            public:
+                void emitCode(EmitArgs& args) override {
+                    SkString childColor = this->invokeChild(0, args);
+
+                    args.fFragBuilder->forceHighPrecision();
+                    args.fFragBuilder->codeAppendf("return %s;", childColor.c_str());
+                }
+            };
+            return std::make_unique<GLFP>();
+        }
+
+        void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {}
+        bool onIsEqual(const GrFragmentProcessor& other) const override { return true; }
+
+        SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& input) const override {
+            return ConstantOutputForConstantInput(this->childProcessor(0), input);
+        }
+
+        using INHERITED = GrFragmentProcessor;
+    };
+
+    return HighPrecisionFragmentProcessor::Make(std::move(fp));
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 GrFragmentProcessor::CIter::CIter(const GrPaint& paint) {
     if (paint.hasCoverageFragmentProcessor()) {
         fFPStack.push_back(paint.getCoverageFragmentProcessor());
