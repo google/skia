@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9db7a6f5_c422afbc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-30T18:17:34Z",
+      "side": 1,
+      "message": "The diffs are from SwiftShader being able to run tessellation again.",
+      "revId": "29f2e84a6640845df3f6f7cd11991a52b7bf02ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
