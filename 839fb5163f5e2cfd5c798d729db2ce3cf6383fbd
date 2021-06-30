@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fc744052_f4f69521",
+        "filename": "site/docs/dev/design/text_overview.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-30T15:07:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "283cc24a_664c07ae",
+      "revId": "839fb5163f5e2cfd5c798d729db2ce3cf6383fbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9e22de71_157dc92b",
@@ -48,6 +66,24 @@
       "writtenOn": "2021-06-07T17:50:01Z",
       "side": 1,
       "message": "Not sure if it falls under DOM, but SVG may be another use-case where you lay out absolute-positioned content and so knowing the resolved layout of text could be helpful.",
+      "revId": "839fb5163f5e2cfd5c798d729db2ce3cf6383fbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d66936aa_da71d691",
+        "filename": "site/docs/dev/design/text_overview.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-06-30T15:07:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9e22de71_157dc92b",
       "revId": "839fb5163f5e2cfd5c798d729db2ce3cf6383fbd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
