@@ -3504,11 +3504,6 @@ protected:
 
         SkString text("");
         canvas->drawColor(SK_ColorWHITE);
-        /*
-        auto fontCollection = sk_make_sp<FontCollection>();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
-        fontCollection->enableFontFallback();
-        */
         auto fontCollection = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str(), true, true);
 
         TextStyle text_style;
@@ -3524,6 +3519,38 @@ protected:
         paragraph->layout(width());
         auto result = paragraph->getGlyphPositionAtCoordinate(20, 2); // "hello    " 60,2
         SkDebugf("getGlyphPositionAtCoordinate(20,2)=%d %s\n", result.position, result.affinity == Affinity::kDownstream ? "D" : "U");
+    }
+
+private:
+    using INHERITED = Sample;
+};
+
+class ParagraphView61 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("ParagraphView61"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+
+        SkString text("");
+        canvas->drawColor(SK_ColorWHITE);
+        auto fontCollection = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str(), true, true);
+
+        TextStyle text_style;
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontFamilies({SkString("Ahem")});
+        text_style.setFontSize(10.0f);
+        ParagraphStyle paragraph_style;
+        paragraph_style.setTextStyle(text_style);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        builder.pushStyle(text_style);
+        builder.addText("one two\n\nthree four\nwith spaces     \n    ");
+        auto paragraph = builder.Build();
+        paragraph->layout(width());
+        std::vector<LineMetrics> metrics;
+        paragraph->getLineMetrics(metrics);
+        for (auto& metric : metrics) {
+            SkDebugf("Line[%d:%d <= %d <=%d)\n", metric.fStartIndex, metric.fEndExcludingWhitespaces, metric.fEndIndex, metric.fEndIncludingNewline);
+        }
     }
 
 private:
@@ -3590,3 +3617,4 @@ DEF_SAMPLE(return new ParagraphView57();)
 DEF_SAMPLE(return new ParagraphView58();)
 DEF_SAMPLE(return new ParagraphView59();)
 DEF_SAMPLE(return new ParagraphView60();)
+DEF_SAMPLE(return new ParagraphView61();)
