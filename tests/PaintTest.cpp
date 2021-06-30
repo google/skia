@@ -158,8 +158,8 @@ DEF_TEST(Paint_MoreFlattening, r) {
     ASSERT(reader.offset() == writer.bytesWritten());
 
     // No matter the encoding, these must always hold.
-    ASSERT(other.getColor()      == paint.getColor());
-    ASSERT(other.getBlendMode()  == paint.getBlendMode());
+    ASSERT(other.getColor()    == paint.getColor());
+    ASSERT(other.asBlendMode() == paint.asBlendMode());
 }
 
 #include "include/effects/SkColorMatrixFilter.h"
