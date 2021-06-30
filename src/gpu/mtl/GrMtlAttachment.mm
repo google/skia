@@ -42,9 +42,13 @@ sk_sp<GrMtlAttachment> GrMtlAttachment::MakeStencil(GrMtlGpu* gpu,
     if (sampleCnt > 1) {
         desc.textureType = MTLTextureType2DMultisample;
     }
+    id<MTLTexture> stencilTexture = [gpu->device() newTextureWithDescriptor:desc];
+#ifdef GR_MTL_GPU_DEBUG
+    stencilTexture.label = @"Stencil";
+#endif
     return sk_sp<GrMtlAttachment>(
             new GrMtlAttachment(gpu, dimensions, UsageFlags::kStencilAttachment,
-                                [gpu->device() newTextureWithDescriptor:desc]));
+                                stencilTexture));
 }
 
 GrMtlAttachment::~GrMtlAttachment() {
