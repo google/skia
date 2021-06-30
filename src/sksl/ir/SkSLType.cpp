@@ -19,6 +19,19 @@
 
 namespace SkSL {
 
+Type::~Type() {
+    switch (fTypeKind) {
+        case TypeKind::kGeneric:
+            fData.fCoercibleTypes.~unique_ptr<std::vector<const Type*>>();
+            break;
+        case TypeKind::kStruct:
+            fData.fFields.~unique_ptr<std::vector<Field>>();
+            break;
+        default:
+            break;
+    }
+}
+
 CoercionCost Type::coercionCost(const Type& other) const {
     if (*this == other) {
         return CoercionCost::Free();
@@ -46,9 +59,9 @@ CoercionCost Type::coercionCost(const Type& other) const {
             return CoercionCost::Narrowing(this->priority() - other.priority());
         }
     }
-    if (fCoercibleTypes) {
-        for (size_t i = 0; i < fCoercibleTypes->size(); i++) {
-            if (*(*fCoercibleTypes)[i] == other) {
+    if (fTypeKind == TypeKind::kGeneric) {
+        for (size_t i = 0; i < fData.fCoercibleTypes->size(); i++) {
+            if (*(*fData.fCoercibleTypes)[i] == other) {
                 return CoercionCost::Normal((int) i + 1);
             }
         }
