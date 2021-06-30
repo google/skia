@@ -67,6 +67,86 @@ static AngleType Dot2AngleType(SkScalar dot) {
     }
 }
 
+/*
+ * Consider the two line segments:
+ *
+ *               s     Inside
+ *      q +------+-----------------+
+ *        |      |                 |
+ * prevPt +------+ pivotPt---------+ nextPt
+ *        |      |                 |
+ *        +------+-----------------+
+ *                     Outside
+ *
+ * If the perpendicular distance from q to the line (pivot, nextPt) is less than
+ * the stroke radius, the inner join geometry is needed. Or if s, which is the first
+ * point on the inner stroke of the next segment, lies to the left of line (prevPt, q),
+ * we also need the inner join. Then, we also need to check the reverse configuration:
+ *
+ *               s     Inside      q
+ *        +------+-----------------+
+ *        |      |                 |
+ * prevPt +------+ pivotPt---------+ nextPt
+ *        |      |                 |
+ *        +------+-----------------+
+ *                     Outside
+ *
+ * In the reverse case, s is the last point on the inner stroke of the previous
+ * segment (no longer the first point on the inner stroke of the next segment).
+ */
+static bool NeedInnerJoin(const SkPoint& beforeUnitNormal,
+                          const SkPoint& afterUnitNormal,
+                          const SkPoint& prevPt,
+                          const SkPoint& pivot,
+                          const SkPoint& nextPt,
+                          float radius,
+                          bool ccw) {
+#ifdef SK_LEGACY_INNER_JOINS
+    // Previously we would always add inner joins.
+    return true;
+#else
+    SkPoint scaledBefore = beforeUnitNormal;
+    scaledBefore.scale(radius);
+    SkPoint scaledAfter = afterUnitNormal;
+    scaledAfter.scale(radius);
+
+    const int sgn = ccw ? 1 : -1;
+    bool needInnerJoin = false;
+
+    // Forward case
+    {
+        const SkPoint q = prevPt - scaledBefore;
+        const SkPoint s = pivot - scaledAfter;
+
+        // Perpendicular distance
+        const SkPoint n = -afterUnitNormal;
+        needInnerJoin |= n.dot(q - pivot) < radius;
+
+        // Which-side-of-line
+        const SkPoint v1 = s - prevPt;
+        const SkPoint v2 = q - prevPt;
+        needInnerJoin |= sgn * v1.cross(v2) > 0;
+    }
+
+    // Reverse
+    {
+        const SkPoint q = nextPt - scaledAfter;
+        const SkPoint s = pivot - scaledBefore;
+
+        // Perpendicular distance
+        const SkPoint n = -beforeUnitNormal;
+        needInnerJoin |= n.dot(q - pivot) < radius;
+
+        // Which-side-of-line
+        const SkPoint v1 = s - nextPt;
+        const SkPoint v2 = q - nextPt;
+        needInnerJoin |= sgn * v1.cross(v2) < 0;
+    }
+
+    return needInnerJoin;
+#endif
+}
+
 static void HandleInnerJoin(SkPath* inner, const SkPoint& pivot, const SkVector& after) {
 #if 1
     /*  In the degenerate case that the stroke radius is larger than our segments
@@ -83,7 +163,8 @@ static void HandleInnerJoin(SkPath* inner, const SkPoint& pivot, const SkVector&
 
 static void BluntJoiner(SkPath* outer, SkPath* inner, const SkVector& beforeUnitNormal,
                         const SkPoint& pivot, const SkVector& afterUnitNormal,
-                        SkScalar radius, SkScalar invMiterLimit, bool, bool) {
+                        SkScalar radius, SkScalar invMiterLimit, bool, bool,
+                        const SkPoint&, const SkPoint&) {
     SkVector    after;
     afterUnitNormal.scale(radius, &after);
 
@@ -99,7 +180,8 @@ static void BluntJoiner(SkPath* outer, SkPath* inner, const SkVector& beforeUnit
 
 static void RoundJoiner(SkPath* outer, SkPath* inner, const SkVector& beforeUnitNormal,
                         const SkPoint& pivot, const SkVector& afterUnitNormal,
-                        SkScalar radius, SkScalar invMiterLimit, bool, bool) {
+                        SkScalar radius, SkScalar invMiterLimit, bool, bool,
+                        const SkPoint&, const SkPoint&) {
     SkScalar    dotProd = SkPoint::DotProduct(beforeUnitNormal, afterUnitNormal);
     AngleType   angleType = Dot2AngleType(dotProd);
 
@@ -137,7 +219,8 @@ static void RoundJoiner(SkPath* outer, SkPath* inner, const SkVector& beforeUnit
 static void MiterJoiner(SkPath* outer, SkPath* inner, const SkVector& beforeUnitNormal,
                         const SkPoint& pivot, const SkVector& afterUnitNormal,
                         SkScalar radius, SkScalar invMiterLimit,
-                        bool prevIsLine, bool currIsLine) {
+                        bool prevIsLine, bool currIsLine,
+                        const SkPoint& prevPt, const SkPoint& nextPt) {
     // negate the dot since we're using normals instead of tangents
     SkScalar    dotProd = SkPoint::DotProduct(beforeUnitNormal, afterUnitNormal);
     AngleType   angleType = Dot2AngleType(dotProd);
@@ -145,7 +228,7 @@ static void MiterJoiner(SkPath* outer, SkPath* inner, const SkVector& beforeUnit
     SkVector    after = afterUnitNormal;
     SkVector    mid;
     SkScalar    sinHalfAngle;
-    bool        ccw;
+    bool        ccw = !is_clockwise(before, after);
 
     if (angleType == kNearlyLine_AngleType) {
         return;
@@ -155,7 +238,6 @@ static void MiterJoiner(SkPath* outer, SkPath* inner, const SkVector& beforeUnit
         goto DO_BLUNT;
     }
 
-    ccw = !is_clockwise(before, after);
     if (ccw) {
         using std::swap;
         swap(outer, inner);
@@ -207,11 +289,21 @@ DO_MITER:
     }
 
 DO_BLUNT:
+    // Save copy of unit normal before scaling it
+    const SkPoint savedAfter = after;
     after.scale(radius);
     if (!currIsLine) {
         outer->lineTo(pivot.fX + after.fX, pivot.fY + after.fY);
     }
-    HandleInnerJoin(inner, pivot, after);
+
+    // With two line segments, sometimes we can omit the inner join geometry.
+    if (prevIsLine && currIsLine &&
+        !NeedInnerJoin(before, savedAfter, prevPt, pivot, nextPt, radius, ccw)) {
+        // Skip the inner join: move last inner point to mirrored miter point.
+        inner->setLastPt(pivot - mid);
+    } else {
+        HandleInnerJoin(inner, pivot, after);
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////
