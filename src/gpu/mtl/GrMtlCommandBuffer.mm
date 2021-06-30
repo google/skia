@@ -25,7 +25,9 @@ sk_sp<GrMtlCommandBuffer> GrMtlCommandBuffer::Make(id<MTLCommandQueue> queue) {
         return nullptr;
     }
 
-    mtlCommandBuffer.label = @"GrMtlCommandBuffer::Create";
+#ifdef SK_ENABLE_MTL_DEBUG_INFO
+    mtlCommandBuffer.label = @"GrMtlCommandBuffer::Make";
+#endif
 
     return sk_sp<GrMtlCommandBuffer>(new GrMtlCommandBuffer(mtlCommandBuffer));
 }

@@ -107,11 +107,9 @@ void GrMtlPipelineState::setTextures(const GrGeometryProcessor& geomProc,
 void GrMtlPipelineState::setDrawState(GrMtlRenderCommandEncoder* renderCmdEncoder,
                                       const GrSwizzle& writeSwizzle,
                                       const GrXferProcessor& xferProcessor) {
-    renderCmdEncoder->pushDebugGroup(@"setDrawState");
     this->bindUniforms(renderCmdEncoder);
     this->setBlendConstants(renderCmdEncoder, writeSwizzle, xferProcessor);
     this->setDepthStencilState(renderCmdEncoder);
-    renderCmdEncoder->popDebugGroup();
 }
 
 void GrMtlPipelineState::bindUniforms(GrMtlRenderCommandEncoder* renderCmdEncoder) {

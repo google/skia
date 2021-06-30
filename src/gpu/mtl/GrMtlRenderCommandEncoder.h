@@ -33,11 +33,14 @@ public:
         [fCommandEncoder setLabel:label];
     }
 
-    void pushDebugGroup(NSString* debugString) {
-        [fCommandEncoder pushDebugGroup:debugString];
+    void pushDebugGroup(NSString* string) {
+        [fCommandEncoder pushDebugGroup:string];
     }
     void popDebugGroup() {
         [fCommandEncoder popDebugGroup];
+    }
+    void insertDebugSignpost(NSString* string) {
+        [fCommandEncoder insertDebugSignpost:string];
     }
 
     void setRenderPipelineState(id<MTLRenderPipelineState> pso) {
@@ -48,7 +51,10 @@ public:
     }
 
     void setTriangleFillMode(MTLTriangleFillMode fillMode) {
-        [fCommandEncoder setTriangleFillMode:fillMode];
+        if (fCurrentTriangleFillMode != fillMode) {
+            [fCommandEncoder setTriangleFillMode:fillMode];
+            fCurrentTriangleFillMode = fillMode;
+        }
     }
 
     void setFrontFacingWinding(MTLWinding winding) {
@@ -248,6 +254,7 @@ private:
     __weak id<MTLTexture> fCurrentTexture[GrSamplerState::kNumUniqueSamplers];
     GrMtlSampler* fCurrentSampler[GrSamplerState::kNumUniqueSamplers] = { 0 };
     MTLScissorRect fCurrentScissorRect = { 0, 0, 0, 0 };
+    MTLTriangleFillMode fCurrentTriangleFillMode = (MTLTriangleFillMode)-1;
 };
 
 GR_NORETAIN_END

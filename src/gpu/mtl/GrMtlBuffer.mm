@@ -23,6 +23,17 @@
 
 GR_NORETAIN_BEGIN
 
+#ifdef SK_ENABLE_MTL_DEBUG_INFO
+NSString* kBufferTypeNames[kGrGpuBufferTypeCount] = {
+    @"Vertex",
+    @"Index",
+    @"Indirect",
+    @"Xfer CPU to GPU",
+    @"Xfer GPU to CPU",
+    @"Uniform",
+};
+#endif
+
 sk_sp<GrMtlBuffer> GrMtlBuffer::Make(GrMtlGpu* gpu, size_t size, GrGpuBufferType intendedType,
                                      GrAccessPattern accessPattern, const void* data) {
     sk_sp<GrMtlBuffer> buffer(new GrMtlBuffer(gpu, size, intendedType, accessPattern));
@@ -57,6 +68,9 @@ GrMtlBuffer::GrMtlBuffer(GrMtlGpu* gpu, size_t size, GrGpuBufferType intendedTyp
     fMtlBuffer = size == 0 ? nil :
             [gpu->device() newBufferWithLength: size
                                        options: options];
+#ifdef SK_ENABLE_MTL_DEBUG_INFO
+    fMtlBuffer.label = kBufferTypeNames[(int)intendedType];
+#endif
     this->registerWithCache(SkBudgeted::kYes);
     VALIDATE();
 }
@@ -194,7 +208,8 @@ void GrMtlBuffer::validate() const {
              this->intendedType() == GrGpuBufferType::kIndex ||
              this->intendedType() == GrGpuBufferType::kXferCpuToGpu ||
              this->intendedType() == GrGpuBufferType::kXferGpuToCpu ||
-             this->intendedType() == GrGpuBufferType::kDrawIndirect);
+             this->intendedType() == GrGpuBufferType::kDrawIndirect ||
+             this->intendedType() == GrGpuBufferType::kUniform);
     SkASSERT(fMappedBuffer == nil || fMtlBuffer == nil ||
              fMappedBuffer.length <= fMtlBuffer.length);
 }
