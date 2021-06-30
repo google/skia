@@ -87,14 +87,20 @@ public:
         int      index;
     };
 
-    struct Options {
+    class Options {
+    public:
         // For testing purposes, completely disable the inliner. (Normally, Runtime Effects don't
         // run the inliner directly, but they still get an inlining pass once they are painted.)
         bool forceNoInline = false;
-        // For testing purposes only; only honored when GR_TEST_UTILS is enabled. This flag lifts
-        // the ES2 restrictions on Runtime Effects that are gated by the `strictES2Mode` check.
-        // Be aware that the software renderer and pipeline-stage effect are still largely
-        // ES3-unaware and can still fail or crash if post-ES2 features are used.
+
+    private:
+        friend class SkRuntimeEffect;
+        friend class SkRuntimeEffectPriv;
+
+        // This flag lifts the ES2 restrictions on Runtime Effects that are gated by the
+        // `strictES2Mode` check. Be aware that the software renderer and pipeline-stage effect are
+        // still largely ES3-unaware and can still fail or crash if post-ES2 features are used.
+        // This is only intended for use by tests and certain internally created effects.
         bool enforceES2Restrictions = true;
     };
 
