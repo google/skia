@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bae1ddec_3c3357f3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-30T14:05:10Z",
+      "side": 1,
+      "message": "The first of two changes to make rect-blur easier to convert to GrSkSLFP. I can\u0027t imagine that the lower precision version is that much faster (it only impacts a couple intermediate subtractions)?",
+      "revId": "c8d1db838e1d48f995fa1988bf8fe5947a2e29ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
