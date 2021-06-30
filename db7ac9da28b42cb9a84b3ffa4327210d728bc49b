@@ -46,6 +46,30 @@
       },
       "revId": "db7ac9da28b42cb9a84b3ffa4327210d728bc49b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c6737627_1cbae25f",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1169,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-06-30T22:41:16Z",
+      "side": 1,
+      "message": "Working on a new version I forgot all about RTL (it\u0027s well encapsulated there).",
+      "parentUuid": "857dc179_8e731c66",
+      "range": {
+        "startLine": 1169,
+        "startChar": 29,
+        "endLine": 1169,
+        "endChar": 35
+      },
+      "revId": "db7ac9da28b42cb9a84b3ffa4327210d728bc49b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
