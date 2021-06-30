@@ -381,7 +381,7 @@ ASTNode::ID Parser::enumDeclaration() {
     if (!this->expect(Token::Kind::TK_LBRACE, "'{'")) {
         return ASTNode::ID::Invalid();
     }
-    fSymbols.add(Type::MakeEnumType(String(this->text(name))));
+    fSymbols.add(Type::MakeEnumType(this->text(name)));
     ASTNode::ID result = this->createNode(name.fOffset, ASTNode::Kind::kEnum, this->text(name));
     if (!this->checkNext(Token::Kind::TK_RBRACE)) {
         Token id;
@@ -625,8 +625,7 @@ ASTNode::ID Parser::structDeclaration() {
                     "struct '" + this->text(name) + "' must contain at least one field");
         return ASTNode::ID::Invalid();
     }
-    std::unique_ptr<Type> newType = Type::MakeStructType(name.fOffset, String(this->text(name)),
-                                                         fields);
+    std::unique_ptr<Type> newType = Type::MakeStructType(name.fOffset, this->text(name), fields);
     if (struct_is_too_deeply_nested(*newType, kMaxStructDepth)) {
         this->error(name.fOffset, "struct '" + this->text(name) + "' is too deeply nested");
         return ASTNode::ID::Invalid();

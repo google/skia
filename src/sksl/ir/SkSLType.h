@@ -104,21 +104,21 @@ public:
     Type(const Type& other) = delete;
 
     /** Creates an enum type. */
-    static std::unique_ptr<Type> MakeEnumType(String name) {
+    static std::unique_ptr<Type> MakeEnumType(skstd::string_view name) {
         return std::unique_ptr<Type>(new Type(std::move(name), "e", TypeKind::kEnum));
     }
 
     /** Creates a struct type with the given fields. */
-    static std::unique_ptr<Type> MakeStructType(int offset, String name,
+    static std::unique_ptr<Type> MakeStructType(int offset, skstd::string_view name,
                                                 std::vector<Field> fields) {
-        return std::unique_ptr<Type>(new Type(offset, std::move(name), std::move(fields)));
+        return std::unique_ptr<Type>(new Type(offset, name, std::move(fields)));
     }
 
     /** Creates an array type. */
     static constexpr int kUnsizedArray = -1;
-    static std::unique_ptr<Type> MakeArrayType(String name, const Type& componentType,
+    static std::unique_ptr<Type> MakeArrayType(skstd::string_view name, const Type& componentType,
                                                int columns) {
-        return std::unique_ptr<Type>(new Type(std::move(name), componentType.abbreviatedName(),
+        return std::unique_ptr<Type>(new Type(name, componentType.abbreviatedName(),
                                               TypeKind::kArray, componentType, columns));
     }
 
@@ -486,18 +486,15 @@ private:
             , fIsSampled(false) {}
 
     // Constructor for MakeEnumType.
-    Type(String name, const char* abbrev, TypeKind kind)
-            : INHERITED(/*offset=*/-1, kSymbolKind, /*name=*/"")
+    Type(skstd::string_view name, const char* abbrev, TypeKind kind)
+            : INHERITED(/*offset=*/-1, kSymbolKind, name)
             , fAbbreviatedName(abbrev)
-            , fNameString(std::move(name))
             , fTypeKind(kind)
             , fNumberKind(NumberKind::kNonnumeric)
             , fIsDepth(false)
             , fIsArrayed(false)
             , fIsMultisampled(false)
-            , fIsSampled(false) {
-        fName = skstd::string_view(fNameString.c_str(), fNameString.length());
-    }
+            , fIsSampled(false) {}
 
     // Constructor for MakeGenericType.
     Type(const char* name, std::vector<const Type*> types)
@@ -544,10 +541,10 @@ private:
             , fScalarTypeForLiteral(&scalarType) {}
 
     // Constructor shared by MakeVectorType and MakeArrayType.
-    Type(String name, const char* abbrev, TypeKind kind, const Type& componentType, int columns)
-            : INHERITED(/*offset=*/-1, kSymbolKind, /*name=*/"")
+    Type(skstd::string_view name, const char* abbrev, TypeKind kind, const Type& componentType,
+         int columns)
+            : INHERITED(/*offset=*/-1, kSymbolKind, name)
             , fAbbreviatedName(abbrev)
-            , fNameString(std::move(name))
             , fTypeKind(kind)
             , fNumberKind(NumberKind::kNonnumeric)
             , fComponentType(&componentType)
@@ -566,7 +563,6 @@ private:
         } else {
             SkASSERT(this->columns() > 0);
         }
-        fName = skstd::string_view(fNameString.c_str(), fNameString.length());
     }
 
     // Constructor for MakeMatrixType.
@@ -585,19 +581,16 @@ private:
             , fDimensions(SpvDim1D) {}
 
     // Constructor for MakeStructType.
-    Type(int offset, String name, std::vector<Field> fields)
-            : INHERITED(offset, kSymbolKind, "")
+    Type(int offset, skstd::string_view name, std::vector<Field> fields)
+            : INHERITED(offset, kSymbolKind, name)
             , fAbbreviatedName("S")
-            , fNameString(std::move(name))
             , fTypeKind(TypeKind::kStruct)
             , fNumberKind(NumberKind::kNonnumeric)
             , fIsDepth(false)
             , fIsArrayed(false)
             , fIsMultisampled(false)
             , fIsSampled(false)
-            , fFields(std::move(fields)) {
-        fName = skstd::string_view(fNameString.c_str(), fNameString.length());
-    }
+            , fFields(std::move(fields)) {}
 
     // Constructor for MakeTextureType.
     Type(const char* name, SpvDim_ dimensions, bool isDepth, bool isArrayedTexture,
@@ -626,7 +619,6 @@ private:
             , fTextureType(&textureType) {}
 
     const char* fAbbreviatedName = "";
-    String fNameString;
     TypeKind fTypeKind;
     // always kNonnumeric_NumberKind for non-scalar values
     NumberKind fNumberKind;

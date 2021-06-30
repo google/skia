@@ -1062,7 +1062,7 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
         }
     }
     const Type* type = old->takeOwnershipOfSymbol(Type::MakeStructType(intf.fOffset,
-                                                                       String(id.fTypeName),
+                                                                       id.fTypeName,
                                                                        fields));
     int arraySize = 0;
     if (id.fIsArray) {
