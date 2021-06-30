@@ -33,6 +33,7 @@ public:
       size_t size;
       SkScalar fTextShift; // Shifts the text inside the run so it's placed at the right position
       SkRect clip;
+      SkScalar fExcludedTrailingSpaces;
       bool clippingNeeded;
     };
 
@@ -62,7 +63,7 @@ public:
     InternalLineMetrics sizes() const { return fSizes; }
     bool empty() const { return fTextRange.empty(); }
 
-    SkScalar spacesWidth() { return fWidthWithSpaces - width(); }
+    SkScalar spacesWidth() const { return fWidthWithSpaces - width(); }
     SkScalar height() const { return fAdvance.fY; }
     SkScalar width() const {
         return fAdvance.fX + (fEllipsis != nullptr ? fEllipsis->fAdvance.fX : 0);

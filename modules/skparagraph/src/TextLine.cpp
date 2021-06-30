@@ -588,7 +588,7 @@ TextLine::ClipContext TextLine::measureTextInsideOneRun(TextRange textRange,
                                                         SkScalar textOffsetInRunInLine,
                                                         bool includeGhostSpaces,
                                                         bool limitToGraphemes) const {
-    ClipContext result = { run, 0, run->size(), 0, SkRect::MakeEmpty(), false };
+    ClipContext result = { run, 0, run->size(), 0, SkRect::MakeEmpty(), 0, false };
 
     if (run->fEllipsis) {
         // Both ellipsis and placeholders can only be measured as one glyph
@@ -694,8 +694,12 @@ TextLine::ClipContext TextLine::measureTextInsideOneRun(TextRange textRange,
 
     if (compareRound(result.clip.fRight, fAdvance.fX) > 0 && !includeGhostSpaces) {
         // There are few cases when we need it.
-        // The most important one: we measure the text with spaces at the end
+        // The most important one: we measure the text with spaces at the end (or at the beginning in RTL)
         // and we should ignore these spaces
+        if (run->leftToRight()) {
+            // We only use this member for LTR
+            result.fExcludedTrailingSpaces = std::max(result.clip.fRight - fAdvance.fX, 0.0f);
+        }
         result.clippingNeeded = true;
         result.clip.fRight = fAdvance.fX;
     }
@@ -1144,9 +1148,9 @@ void TextLine::getRectsForRange(TextRange textRange0,
 
 PositionWithAffinity TextLine::getGlyphPositionAtCoordinate(SkScalar dx) {
 
-    if (SkScalarNearlyZero(this->width())) {
+    if (SkScalarNearlyZero(this->width()) && SkScalarNearlyZero(this->spacesWidth())) {
         // TODO: this is one of the flutter changes that have to go away eventually
-        //  Empty line is a special case in txtlib
+        //  Empty line is a special case in txtlib (but only when there are no spaces, too)
         auto utf16Index = fOwner->getUTF16Index(this->fTextRange.end);
         return { SkToS32(utf16Index) , kDownstream };
     }
@@ -1164,6 +1168,12 @@ PositionWithAffinity TextLine::getGlyphPositionAtCoordinate(SkScalar dx) {
                 SkScalar offsetX = this->offset().fX;
                 ClipContext context = context0;
 
+                // Correct the clip size because libtxt counts trailing spaces
+                if (run->leftToRight()) {
+                    context.clip.fRight += context.fExcludedTrailingSpaces; // extending clip to the right
+                } else {
+                    // Clip starts from 0; we cannot extend it to the left from that
+                }
                 // This patch will help us to avoid a floating point error
                 if (SkScalarNearlyEqual(context.clip.fRight, dx - offsetX, 0.01f)) {
                     context.clip.fRight = dx - offsetX;
@@ -1177,7 +1187,8 @@ PositionWithAffinity TextLine::getGlyphPositionAtCoordinate(SkScalar dx) {
                     } else {
                         result = { SkToS32(utf16Index + 1), kUpstream };
                     }
-                    return keepLooking = false;
+                    // For RTL we go another way
+                    return keepLooking = !run->leftToRight();
                 }
 
                 if (dx >= context.clip.fRight + offsetX) {
@@ -1188,7 +1199,8 @@ PositionWithAffinity TextLine::getGlyphPositionAtCoordinate(SkScalar dx) {
                     } else {
                         result = {SkToS32(utf16Index), kDownstream};
                     }
-                    return keepLooking = true;
+                    // For RTL we go another way
+                    return keepLooking = run->leftToRight();
                 }
 
                 // So we found the run that contains our coordinates
@@ -1199,6 +1211,9 @@ PositionWithAffinity TextLine::getGlyphPositionAtCoordinate(SkScalar dx) {
                     // TODO: this rounding is done to match Flutter tests. Must be removed..
                     auto end = littleRound(context.run->positionX(index) + context.fTextShift + offsetX);
                     if (end > dx) {
+                        break;
+                    } else if (end == dx && !context.run->leftToRight()) {
+                        // When we move RTL variable end points to the beginning of the code point which is included
                         break;
                     }
                     found = index;

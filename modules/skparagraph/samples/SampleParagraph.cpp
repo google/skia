@@ -3504,32 +3504,21 @@ protected:
 
         SkString text("");
         canvas->drawColor(SK_ColorWHITE);
-
-        auto fontCollection = sk_make_sp<FontCollection>();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
-        fontCollection->enableFontFallback();
+        auto fontCollection = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str(), true, true);
 
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
-        text_style.setFontFamilies({SkString("Roboto")});
-        text_style.setFontSize(56.0f);
-        text_style.setHeight(3.0f);
-        text_style.setHeightOverride(true);
+        text_style.setFontFamilies({SkString("Ahem")});
+        text_style.setFontSize(10.0f);
         ParagraphStyle paragraph_style;
         paragraph_style.setTextStyle(text_style);
-
-        auto draw = [&](const char* text) {
-            ParagraphBuilderImpl builder(paragraph_style, fontCollection);
-            builder.pushStyle(text_style);
-            builder.addText(text);
-            auto paragraph = builder.Build();
-            paragraph->layout(width());
-            paragraph->paint(canvas, 0, 0);
-            SkDebugf("Height: %f\n", paragraph->getHeight());
-        };
-        draw("Something");
-        draw("\n");
-        draw("");
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        builder.pushStyle(text_style);
+        builder.addText("    ");
+        auto paragraph = builder.Build();
+        paragraph->layout(width());
+        auto result = paragraph->getGlyphPositionAtCoordinate(20, 2); // "hello    " 60,2
+        SkDebugf("getGlyphPositionAtCoordinate(20,2)=%d %s\n", result.position, result.affinity == Affinity::kDownstream ? "D" : "U");
     }
 
 private:
