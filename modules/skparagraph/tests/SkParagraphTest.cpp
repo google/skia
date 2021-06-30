@@ -69,6 +69,26 @@ bool equal(const char* base, TextRange a, const char* b) {
     return std::strncmp(b, base + a.start, a.width()) == 0;
 }
 
+std::u16string mirror(const std::string& text) {
+    std::u16string result;
+    result += u"\u202E";
+    for (auto i = text.size(); i > 0; --i) {
+        result += text[i - 1];
+    }
+    result += u"\u202C";
+    return result;
+}
+
+std::u16string normal(const std::string& text) {
+    std::u16string result;
+    result += u"\u202D";
+    for (auto ch : text) {
+        result += ch;
+    }
+  return result;
+       result += u"\u202C";
+}
+
 class ResourceFontCollection : public FontCollection {
 public:
     ResourceFontCollection(bool testOnly = false)
@@ -6214,3 +6234,78 @@ DEF_TEST(SkParagraph_RTLGlyphPositionsInEmptyLines, reporter) {
     auto res3 = paragraph->getGlyphPositionAtCoordinate(0, height);
     REPORTER_ASSERT(reporter, res3.position == 10 && res3.affinity == Affinity::kUpstream);
 }
+
+DEF_TEST(SkParagraph_LTRGlyphPositionsForTrailingSpaces, reporter) {
+
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    if (!fontCollection->fontsFound()) return;
+
+    TestCanvas canvas("SkParagraph_LTRGlyphPositionsForTrailingSpaces");
+
+    ParagraphStyle paragraph_style;;
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Ahem") });
+    text_style.setFontSize(10);
+    text_style.setColor(SK_ColorBLACK);
+
+    auto test = [&](const char* text) {
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        builder.pushStyle(text_style);
+        builder.addText(normal(text));
+        builder.pop();
+        SkPaint gray; gray.setColor(SK_ColorGRAY);
+        auto paragraph = builder.Build();
+        paragraph->layout(500);
+        canvas.get()->translate(0, 20);
+        canvas.get()->drawRect(SkRect::MakeXYWH(0, 0, paragraph->getMaxIntrinsicWidth(), paragraph->getHeight()), gray);
+        paragraph->paint(canvas.get(), 0, 0);
+        canvas.get()->translate(0, paragraph->getHeight());
+
+        for (size_t i = 0; i < std::strlen(text); ++i) {
+            auto res = paragraph->getGlyphPositionAtCoordinate(i * 10, 2);
+            REPORTER_ASSERT(reporter, res.position == SkToInt(i + 1) && res.affinity == Affinity::kDownstream);
+        }
+    };
+
+    test("    ");
+    test("hello    ");
+}
+
+DEF_TEST(SkParagraph_RTLGlyphPositionsForTrailingSpaces, reporter) {
+
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    if (!fontCollection->fontsFound()) return;
+
+    TestCanvas canvas("SkParagraph_RTLGlyphPositionsForTrailingSpaces");
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.setTextDirection(TextDirection::kRtl);
+    paragraph_style.setTextAlign(TextAlign::kLeft);
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Ahem") });
+    text_style.setFontSize(10);
+    text_style.setColor(SK_ColorBLACK);
+
+    auto test = [&](const char* text) {
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        builder.pushStyle(text_style);
+        builder.addText(mirror(text));
+        builder.pop();
+        SkPaint gray; gray.setColor(SK_ColorGRAY);
+        auto paragraph = builder.Build();
+        paragraph->layout(300);
+        canvas.get()->translate(0, 20);
+        canvas.get()->drawRect(SkRect::MakeXYWH(0, 0, paragraph->getMaxIntrinsicWidth(), paragraph->getHeight()), gray);
+        paragraph->paint(canvas.get(), 0, 0);
+        canvas.get()->translate(0, paragraph->getHeight());
+
+        for (size_t i = 1; i <= std::strlen(text); ++i) {
+            auto res = paragraph->getGlyphPositionAtCoordinate(paragraph->getMaxIntrinsicWidth() - i * 10, 2);
+            REPORTER_ASSERT(reporter, res.position == SkToInt(i + 1) && res.affinity == Affinity::kDownstream);
+        }
+    };
+
+    test("    ");
+    test("hello    ");
+}
+
