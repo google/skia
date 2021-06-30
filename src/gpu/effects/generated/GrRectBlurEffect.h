@@ -26,6 +26,7 @@
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrThreadSafeCache.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/effects/GrMatrixEffect.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 
 #include "src/gpu/GrFragmentProcessor.h"
@@ -145,36 +146,27 @@ public:
         // less than 6 sigma wide then things aren't so simple and we have to consider both the
         // left and right edge of the rectangle (and similar in y).
         bool isFast = insetRect.isSorted();
-        return std::unique_ptr<GrFragmentProcessor>(new GrRectBlurEffect(std::move(inputFP),
-                                                                         insetRect,
-                                                                         !invM.isIdentity(),
-                                                                         invM,
-                                                                         std::move(integral),
-                                                                         isFast));
+        std::unique_ptr<GrFragmentProcessor> fp(
+                new GrRectBlurEffect(insetRect, std::move(integral), isFast));
+        if (!invM.isIdentity()) {
+            fp = GrMatrixEffect::Make(invM, std::move(fp));
+        }
+        fp = GrFragmentProcessor::DeviceSpace(std::move(fp));
+        return GrFragmentProcessor::MulInputByChildAlpha(std::move(fp));
     }
     GrRectBlurEffect(const GrRectBlurEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "RectBlurEffect"; }
     SkRect rect;
-    bool applyInvVM;
-    SkMatrix invVM;
     bool isFast;
 
 private:
-    GrRectBlurEffect(std::unique_ptr<GrFragmentProcessor> inputFP,
-                     SkRect rect,
-                     bool applyInvVM,
-                     SkMatrix invVM,
-                     std::unique_ptr<GrFragmentProcessor> integral,
-                     bool isFast)
+    GrRectBlurEffect(SkRect rect, std::unique_ptr<GrFragmentProcessor> integral, bool isFast)
             : INHERITED(kGrRectBlurEffect_ClassID,
-                        (OptimizationFlags)ProcessorOptimizationFlags(inputFP.get()) &
-                                kCompatibleWithCoverageAsAlpha_OptimizationFlag)
+                        (OptimizationFlags)kCompatibleWithCoverageAsAlpha_OptimizationFlag)
             , rect(rect)
-            , applyInvVM(applyInvVM)
-            , invVM(invVM)
             , isFast(isFast) {
-        this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
+        this->setUsesSampleCoordsDirectly();
         this->registerChild(std::move(integral), SkSL::SampleUsage::Explicit());
     }
     std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;

@@ -26,138 +26,102 @@ public:
         (void)_outer;
         auto rect = _outer.rect;
         (void)rect;
-        auto applyInvVM = _outer.applyInvVM;
-        (void)applyInvVM;
-        auto invVM = _outer.invVM;
-        (void)invVM;
         auto isFast = _outer.isFast;
         (void)isFast;
         rectVar = args.fUniformHandler->addUniform(
                 &_outer, kFragment_GrShaderFlag, kFloat4_GrSLType, "rect");
-        if (applyInvVM) {
-            invVMVar = args.fUniformHandler->addUniform(
-                    &_outer, kFragment_GrShaderFlag, kFloat3x3_GrSLType, "invVM");
-        }
         fragBuilder->codeAppendf(
                 R"SkSL(half xCoverage;
 half yCoverage;
 
-float2 pos = sk_FragCoord.xy;
 @if (%s) {
-    pos = (%s * float3(pos, 1.0)).xy;
-}
-@if (%s) {
-    half2 xy = max(half2(%s.xy - pos), half2(pos - %s.zw));)SkSL",
-                (_outer.applyInvVM ? "true" : "false"),
-                invVMVar.isValid() ? args.fUniformHandler->getUniformCStr(invVMVar) : "float3x3(1)",
+    half2 xy = max(half2(%s.xy - %s), half2(%s - %s.zw));)SkSL",
                 (_outer.isFast ? "true" : "false"),
                 args.fUniformHandler->getUniformCStr(rectVar),
+                args.fSampleCoord,
+                args.fSampleCoord,
                 args.fUniformHandler->getUniformCStr(rectVar));
         SkString _coords0("float2(half2(xy.x, 0.5))");
-        SkString _sample0 = this->invokeChild(1, args, _coords0.c_str());
+        SkString _sample0 = this->invokeChild(0, args, _coords0.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(
     xCoverage = %s.w;)SkSL",
                 _sample0.c_str());
         SkString _coords1("float2(half2(xy.y, 0.5))");
-        SkString _sample1 = this->invokeChild(1, args, _coords1.c_str());
+        SkString _sample1 = this->invokeChild(0, args, _coords1.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(
     yCoverage = %s.w;
 } else {
-    half4 rect = half4(half2(%s.xy - pos), half2(pos - %s.zw));)SkSL",
+    half4 rect = half4(half2(%s.xy - %s), half2(%s - %s.zw));)SkSL",
                 _sample1.c_str(),
                 args.fUniformHandler->getUniformCStr(rectVar),
+                args.fSampleCoord,
+                args.fSampleCoord,
                 args.fUniformHandler->getUniformCStr(rectVar));
         SkString _coords2("float2(half2(rect.x, 0.5))");
-        SkString _sample2 = this->invokeChild(1, args, _coords2.c_str());
+        SkString _sample2 = this->invokeChild(0, args, _coords2.c_str());
         SkString _coords3("float2(half2(rect.z, 0.5))");
-        SkString _sample3 = this->invokeChild(1, args, _coords3.c_str());
+        SkString _sample3 = this->invokeChild(0, args, _coords3.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(
     xCoverage = (1.0 - %s.w) - %s.w;)SkSL",
                 _sample2.c_str(),
                 _sample3.c_str());
         SkString _coords4("float2(half2(rect.y, 0.5))");
-        SkString _sample4 = this->invokeChild(1, args, _coords4.c_str());
+        SkString _sample4 = this->invokeChild(0, args, _coords4.c_str());
         SkString _coords5("float2(half2(rect.w, 0.5))");
-        SkString _sample5 = this->invokeChild(1, args, _coords5.c_str());
+        SkString _sample5 = this->invokeChild(0, args, _coords5.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(
     yCoverage = (1.0 - %s.w) - %s.w;
-})SkSL",
+}
+return half4(xCoverage * yCoverage);
+)SkSL",
                 _sample4.c_str(),
                 _sample5.c_str());
-        SkString _sample6 = this->invokeChild(0, args);
-        fragBuilder->codeAppendf(
-                R"SkSL(
-return (%s * xCoverage) * yCoverage;
-)SkSL",
-                _sample6.c_str());
     }
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
                    const GrFragmentProcessor& _proc) override {
         const GrRectBlurEffect& _outer = _proc.cast<GrRectBlurEffect>();
-        {
-            pdman.set4fv(rectVar, 1, reinterpret_cast<const float*>(&_outer.rect));
-            if (invVMVar.isValid()) {
-                pdman.setSkMatrix(invVMVar, _outer.invVM);
-            }
-        }
+        { pdman.set4fv(rectVar, 1, reinterpret_cast<const float*>(&_outer.rect)); }
     }
     UniformHandle rectVar;
-    UniformHandle invVMVar;
 };
 std::unique_ptr<GrGLSLFragmentProcessor> GrRectBlurEffect::onMakeProgramImpl() const {
     return std::make_unique<GrGLSLRectBlurEffect>();
 }
 void GrRectBlurEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                              GrProcessorKeyBuilder* b) const {
-    b->addBool(applyInvVM, "applyInvVM");
     b->addBool(isFast, "isFast");
 }
 bool GrRectBlurEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrRectBlurEffect& that = other.cast<GrRectBlurEffect>();
     (void)that;
     if (rect != that.rect) return false;
-    if (applyInvVM != that.applyInvVM) return false;
-    if (invVM != that.invVM) return false;
     if (isFast != that.isFast) return false;
     return true;
 }
 GrRectBlurEffect::GrRectBlurEffect(const GrRectBlurEffect& src)
         : INHERITED(kGrRectBlurEffect_ClassID, src.optimizationFlags())
         , rect(src.rect)
-        , applyInvVM(src.applyInvVM)
-        , invVM(src.invVM)
         , isFast(src.isFast) {
     this->cloneAndRegisterAllChildProcessors(src);
+    this->setUsesSampleCoordsDirectly();
 }
 std::unique_ptr<GrFragmentProcessor> GrRectBlurEffect::clone() const {
     return std::make_unique<GrRectBlurEffect>(*this);
 }
 #if GR_TEST_UTILS
 SkString GrRectBlurEffect::onDumpInfo() const {
-    return SkStringPrintf(
-            "(rect=float4(%f, %f, %f, %f), applyInvVM=%s, invVM=float3x3(%f, %f, %f, %f, %f, %f, "
-            "%f, %f, %f), isFast=%s)",
-            rect.left(),
-            rect.top(),
-            rect.right(),
-            rect.bottom(),
-            (applyInvVM ? "true" : "false"),
-            invVM.rc(0, 0),
-            invVM.rc(1, 0),
-            invVM.rc(2, 0),
-            invVM.rc(0, 1),
-            invVM.rc(1, 1),
-            invVM.rc(2, 1),
-            invVM.rc(0, 2),
-            invVM.rc(1, 2),
-            invVM.rc(2, 2),
-            (isFast ? "true" : "false"));
+    return SkStringPrintf("(rect=float4(%f, %f, %f, %f), isFast=%s)",
+                          rect.left(),
+                          rect.top(),
+                          rect.right(),
+                          rect.bottom(),
+                          (isFast ? "true" : "false"));
 }
 #endif
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrRectBlurEffect);
