@@ -46,9 +46,11 @@ CoercionCost Type::coercionCost(const Type& other) const {
             return CoercionCost::Narrowing(this->priority() - other.priority());
         }
     }
-    for (size_t i = 0; i < fCoercibleTypes.size(); i++) {
-        if (*fCoercibleTypes[i] == other) {
-            return CoercionCost::Normal((int) i + 1);
+    if (fCoercibleTypes) {
+        for (size_t i = 0; i < fCoercibleTypes->size(); i++) {
+            if (*(*fCoercibleTypes)[i] == other) {
+                return CoercionCost::Normal((int) i + 1);
+            }
         }
     }
     return CoercionCost::Impossible();
@@ -206,7 +208,7 @@ const Type* Type::clone(SymbolTable* symbolTable) const {
     switch (this->typeKind()) {
         case TypeKind::kArray:
             return symbolTable->add(Type::MakeArrayType(String(this->name()), this->componentType(),
-                                                        this->columns()));
+                                                               this->columns()));
 
         case TypeKind::kStruct:
             return symbolTable->add(Type::MakeStructType(this->fOffset, String(this->name()),
