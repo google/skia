@@ -13,7 +13,7 @@
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 #include "src/gpu/tessellate/shaders/GrTessellationShader.h"
 
-class GrPathTessellator;
+class GrPathCurveTessellator;
 
 // This op is a 3-pass twist on the standard Redbook "stencil then cover" algorithm:
 //
@@ -73,7 +73,7 @@ private:
     const GrPipeline* fPipelineForFills = nullptr;
 
     // Tessellates the outer curves.
-    GrPathTessellator* fTessellator = nullptr;
+    GrPathCurveTessellator* fTessellator = nullptr;
 
     // Pass 1: Tessellate the outer curves into the stencil buffer.
     const GrProgramInfo* fStencilCurvesProgram = nullptr;
@@ -89,6 +89,9 @@ private:
     sk_sp<const GrBuffer> fFanBuffer;
     int fBaseFanVertex = 0;
     int fFanVertexCount = 0;
+
+    // Only used if sk_VertexID is not supported.
+    sk_sp<const GrGpuBuffer> fHullVertexBufferIfNoIDSupport;
 
     friend class GrOp;  // For ctor.
 };
