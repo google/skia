@@ -33,6 +33,24 @@
       "message": "ping",
       "revId": "da7a1aafa14b467c407134c572a097eeb58d48c0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e072cd70_57a802e6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10009
+      },
+      "writtenOn": "2021-06-30T17:21:57Z",
+      "side": 1,
+      "message": "Derek just confirmed that this branch is safe to ignore. Abandoning this CL.",
+      "parentUuid": "f48155c5_87ee01f5",
+      "revId": "da7a1aafa14b467c407134c572a097eeb58d48c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
