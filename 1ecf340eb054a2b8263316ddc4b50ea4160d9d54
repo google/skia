@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7c3a09c8_b0450b1d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-06-30T14:06:04Z",
+      "side": 1,
+      "message": "The second change to make this easier to convert. I didn\u0027t do the DeviceSpace hoisting on the other blurs (though I could) - it was necessary here to get the matrix hoisted out.",
+      "revId": "1ecf340eb054a2b8263316ddc4b50ea4160d9d54",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
