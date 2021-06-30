@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d042d8cb_b4283c45",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 18009
+      },
+      "writtenOn": "2021-06-30T23:31:25Z",
+      "side": 1,
+      "message": "Please take a second look, it doesn\u0027t let me submit.",
+      "revId": "5646b3c20301841d89febef5edaf023719f982e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
