@@ -99,9 +99,9 @@ luci.cq_group(
         luci.cq_tryjob_verifier(
             builder = "skia:skia.primary/Build-Debian10-GCC-x86_64-Release-Docker",
         ),
-        luci.cq_tryjob_verifier(
-            builder = "skia:skia.primary/Build-Mac-Clang-arm64-Debug-iOS",
-        ),
+        #luci.cq_tryjob_verifier(
+        #    builder = "skia:skia.primary/Build-Mac-Clang-arm64-Debug-iOS",
+        #),
         luci.cq_tryjob_verifier(
             builder = "skia:skia.primary/Build-Mac-Clang-x86_64-Release",
         ),
@@ -198,9 +198,9 @@ luci.cq_group(
         luci.cq_tryjob_verifier(
             builder = "skia:skia.primary/Build-Debian10-GCC-x86_64-Release-Docker",
         ),
-        luci.cq_tryjob_verifier(
-            builder = "skia:skia.primary/Build-Mac-Clang-arm64-Debug-iOS",
-        ),
+        #luci.cq_tryjob_verifier(
+        #    builder = "skia:skia.primary/Build-Mac-Clang-arm64-Debug-iOS",
+        #),
         luci.cq_tryjob_verifier(
             builder = "skia:skia.primary/Build-Mac-Clang-x86_64-Release",
         ),
@@ -322,9 +322,9 @@ luci.cq_group(
         luci.cq_tryjob_verifier(
             builder = "skia:skia.primary/Build-Debian10-GCC-x86_64-Release-Docker",
         ),
-        luci.cq_tryjob_verifier(
-            builder = "skia:skia.primary/Build-Mac-Clang-arm64-Debug-iOS",
-        ),
+        #luci.cq_tryjob_verifier(
+        #    builder = "skia:skia.primary/Build-Mac-Clang-arm64-Debug-iOS",
+        #),
         luci.cq_tryjob_verifier(
             builder = "skia:skia.primary/Build-Mac-Clang-x86_64-Release",
         ),
@@ -575,9 +575,9 @@ luci.cq_group(
         luci.cq_tryjob_verifier(
             builder = "skia:skia.primary/Build-Debian10-GCC-x86_64-Release-Docker",
         ),
-        luci.cq_tryjob_verifier(
-            builder = "skia:skia.primary/Build-Mac-Clang-arm64-Debug-iOS",
-        ),
+        #luci.cq_tryjob_verifier(
+        #    builder = "skia:skia.primary/Build-Mac-Clang-arm64-Debug-iOS",
+        #),
         luci.cq_tryjob_verifier(
             builder = "skia:skia.primary/Build-Mac-Clang-x86_64-Release",
         ),
@@ -717,9 +717,9 @@ luci.cq_group(
         luci.cq_tryjob_verifier(
             builder = "skia:skia.primary/Build-Debian10-GCC-x86_64-Release-Docker",
         ),
-        luci.cq_tryjob_verifier(
-            builder = "skia:skia.primary/Build-Mac-Clang-arm64-Debug-iOS",
-        ),
+        #luci.cq_tryjob_verifier(
+        #    builder = "skia:skia.primary/Build-Mac-Clang-arm64-Debug-iOS",
+        #),
         luci.cq_tryjob_verifier(
             builder = "skia:skia.primary/Build-Mac-Clang-x86_64-Debug-Metal",
         ),
@@ -772,9 +772,9 @@ luci.cq_group(
         luci.cq_tryjob_verifier(
             builder = "skia:skia.primary/Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All",
         ),
-        luci.cq_tryjob_verifier(
-            builder = "skia:skia.primary/Test-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Debug-All",
-        ),
+        #luci.cq_tryjob_verifier(
+        #    builder = "skia:skia.primary/Test-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Debug-All",
+        #),
     ],
 )
 
