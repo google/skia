@@ -364,7 +364,7 @@ SkTypeface_FreeType::FaceRec::FaceRec(std::unique_ptr<SkStreamAsset> stream)
 }
 
 SkTypeface_FreeType::FaceRec::~FaceRec() {
-    SkAutoMutexExclusive  ac(f_t_mutex());
+    f_t_mutex().assertHeld();
     fFace.reset(); // Must release face before the library, the library frees existing faces.
     unref_ft_library();
 }
@@ -1706,7 +1706,12 @@ SkTypeface_FreeType::SkTypeface_FreeType(const SkFontStyle& style, bool isFixedP
     : INHERITED(style, isFixedPitch)
 {}
 
-SkTypeface_FreeType::~SkTypeface_FreeType() {}
+SkTypeface_FreeType::~SkTypeface_FreeType() {
+    if (fFaceRec) {
+        SkAutoMutexExclusive ac(f_t_mutex());
+        fFaceRec.reset();
+    }
+}
 
 // Just made up, so we don't end up storing 1000s of entries
 constexpr int kMaxC2GCacheCount = 512;
