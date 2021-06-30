@@ -163,8 +163,9 @@ public:
          fExceededMaxLines = false;
     }
 
-    using AddLineToParagraph = std::function<void(TextRange text,
-                                                  TextRange textWithSpaces,
+    using AddLineToParagraph = std::function<void(TextRange textExcludingSpaces,
+                                                  TextRange text,
+                                                  TextRange textIncludingNewlines,
                                                   ClusterRange clusters,
                                                   ClusterRange clustersWithGhosts,
                                                   SkScalar AddLineToParagraph,
