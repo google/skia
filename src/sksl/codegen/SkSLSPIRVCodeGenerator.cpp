@@ -2066,7 +2066,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
                                          /*invocations=*/-1, /*when=*/"", Layout::CType::kDefault),
                                   /*flags=*/0),
                         SKSL_RTHEIGHT_NAME, fContext.fTypes.fFloat.get());
-                String name("sksl_synthetic_uniforms");
+                const char* name = "sksl_synthetic_uniforms";
                 std::unique_ptr<Type> intfStruct = Type::MakeStructType(/*offset=*/-1, name,
                                                                         fields);
                 int binding = fProgram.fConfig->fSettings.fRTHeightBinding;
@@ -3067,8 +3067,7 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
         fRTHeightStorageClass = storageClass;
         fields.emplace_back(Modifiers(), skstd::string_view(SKSL_RTHEIGHT_NAME),
                             fContext.fTypes.fFloat.get());
-        rtHeightStructType = Type::MakeStructType(type->fOffset, String(type->name()),
-                                                  std::move(fields));
+        rtHeightStructType = Type::MakeStructType(type->fOffset, type->name(), std::move(fields));
         type = rtHeightStructType.get();
     }
     SpvId typeId;

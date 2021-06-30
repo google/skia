@@ -156,16 +156,16 @@ const Symbol* Rehydrator::symbol() {
             } else {
                 name += "[" + to_string(count) + "]";
             }
+            const char* nameChars = fSymbolTable->takeOwnershipOfString(std::move(name))->c_str();
             const Type* result = fSymbolTable->takeOwnershipOfSymbol(
-                    Type::MakeArrayType(name, *componentType, count));
+                    Type::MakeArrayType(nameChars, *componentType, count));
             this->addSymbol(id, result);
             return result;
         }
         case kEnumType_Command: {
             uint16_t id = this->readU16();
             skstd::string_view name = this->readString();
-            const Type* result =
-                    fSymbolTable->takeOwnershipOfSymbol(Type::MakeEnumType(String(name)));
+            const Type* result = fSymbolTable->takeOwnershipOfSymbol(Type::MakeEnumType(name));
             this->addSymbol(id, result);
             return result;
         }
@@ -210,8 +210,9 @@ const Symbol* Rehydrator::symbol() {
                 const Type* type = this->type();
                 fields.emplace_back(m, fieldName, type);
             }
+            const char* nameChars = fSymbolTable->takeOwnershipOfString(std::move(name))->c_str();
             const Type* result = fSymbolTable->takeOwnershipOfSymbol(
-                    Type::MakeStructType(/*offset=*/-1, name, std::move(fields)));
+                    Type::MakeStructType(/*offset=*/-1, nameChars, std::move(fields)));
             this->addSymbol(id, result);
             return result;
         }
