@@ -16,6 +16,23 @@
       "message": "Like the idea. Looks like we\u0027re probably getting a lifetime issue somewhere from the one failing bot?",
       "revId": "7e3038bbfddb0b930f85c70e59c00d6b5f2d8d40",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9e25cbf5_ec338925",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-06-30T17:50:03Z",
+      "side": 1,
+      "message": "Issue with the failing bot turns out to be that a function gets inlined, becomes dead code, and then the type names it owns go away when the function is destroyed.\n\nThe problem itself is fairly trivial, but I\u0027m not sure of the best way to fix it yet, so I\u0027ll pull this out of review for now.",
+      "revId": "7e3038bbfddb0b930f85c70e59c00d6b5f2d8d40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
