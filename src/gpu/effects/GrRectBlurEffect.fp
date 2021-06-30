@@ -18,14 +18,11 @@
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrThreadSafeCache.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/effects/GrMatrixEffect.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 }
 
-in fragmentProcessor inputFP;
 in uniform float4 rect;
-
-layout(key) in bool applyInvVM;
-layout(when=applyInvVM) in uniform float3x3 invVM;
 
 // Effect that is a LUT for integral of normal distribution. The value at x:[0,6*sigma] is the
 // integral from -inf to (3*sigma - x). I.e. x is mapped from [0, 6*sigma] to [3*sigma to -3*sigma].
@@ -37,7 +34,7 @@ in fragmentProcessor integral;
 layout(key) in bool isFast;
 
 @optimizationFlags {
-    ProcessorOptimizationFlags(inputFP.get()) & kCompatibleWithCoverageAsAlpha_OptimizationFlag
+    kCompatibleWithCoverageAsAlpha_OptimizationFlag
 }
 
 @class {
@@ -158,22 +155,19 @@ static std::unique_ptr<GrFragmentProcessor> MakeIntegralFP(GrRecordingContext* r
          // less than 6 sigma wide then things aren't so simple and we have to consider both the
          // left and right edge of the rectangle (and similar in y).
          bool isFast = insetRect.isSorted();
-         return std::unique_ptr<GrFragmentProcessor>(new GrRectBlurEffect(std::move(inputFP),
-                                                                          insetRect,
-                                                                          !invM.isIdentity(),
-                                                                          invM,
-                                                                          std::move(integral),
-                                                                          isFast));
+         std::unique_ptr<GrFragmentProcessor> fp(new GrRectBlurEffect(insetRect,
+                                                                      std::move(integral),
+                                                                      isFast));
+        if (!invM.isIdentity()) {
+            fp = GrMatrixEffect::Make(invM, std::move(fp));
+        }
+        fp = GrFragmentProcessor::DeviceSpace(std::move(fp));
+        return GrFragmentProcessor::MulInputByChildAlpha(std::move(fp));
      }
 }
 
-half4 main() {
+half4 main(float2 pos) {
     half xCoverage, yCoverage;
-    float2 pos = sk_FragCoord.xy;
-    @if (applyInvVM) {
-        // It'd be great if we could lift this to the VS.
-        pos = (invVM*float3(pos,1)).xy;
-    }
     @if (isFast) {
         // Get the smaller of the signed distance from the frag coord to the left and right
         // edges and similar for y.
@@ -205,7 +199,7 @@ half4 main() {
         yCoverage = 1 - sample(integral, half2(rect.T, 0.5)).a
                       - sample(integral, half2(rect.B, 0.5)).a;
     }
-    return sample(inputFP) * xCoverage * yCoverage;
+    return half4(xCoverage * yCoverage);
 }
 
 @test(data) {
