@@ -618,3 +618,17 @@ DEF_SIMPLE_GM(inner_join_geometry, canvas, 1000, 700) {
         }
     }
 }
+
+DEF_SIMPLE_GM(b165379671, canvas, 200, 200) {
+    SkPaint p;
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setAntiAlias(true);
+    p.setStrokeWidth(16.0f);
+
+    SkPath path;
+    path.moveTo(100.0f, 72.0f);
+    path.lineTo(98.0f, 110.0f);
+    path.lineTo(97.0f, 121.0f);
+
+    canvas->drawPath(path, p);
+}
