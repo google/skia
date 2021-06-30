@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0a7dd7c4_5a738701",
+        "filename": "src/gpu/tessellate/shaders/GrStrokeTessellationShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-06-30T18:32:44Z",
+      "side": 1,
+      "message": "This whole chunk is copypasta except this spot I\u0027ve highlighted.",
+      "range": {
+        "startLine": 83,
+        "startChar": 0,
+        "endLine": 87,
+        "endChar": 9
+      },
+      "revId": "5476fd80890259d8f51b63e57dfc0a537987fa3b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
