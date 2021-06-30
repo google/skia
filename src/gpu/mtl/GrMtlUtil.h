@@ -18,6 +18,10 @@
 class GrMtlGpu;
 class GrSurface;
 
+#ifdef SK_DEBUG
+#define SK_ENABLE_MTL_DEBUG_INFO
+#endif
+
 GR_NORETAIN_BEGIN
 
 /**
