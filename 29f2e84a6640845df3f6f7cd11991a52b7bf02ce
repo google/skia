@@ -63,6 +63,30 @@
       },
       "revId": "29f2e84a6640845df3f6f7cd11991a52b7bf02ce",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "31a811e3_764b713f",
+        "filename": "src/gpu/tessellate/GrPathCurveTessellator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-06-30T21:11:12Z",
+      "side": 1,
+      "message": "Oh, oh course. Def not worth it.",
+      "parentUuid": "91fa920b_f5c56b0b",
+      "range": {
+        "startLine": 296,
+        "startChar": 56,
+        "endLine": 296,
+        "endChar": 76
+      },
+      "revId": "29f2e84a6640845df3f6f7cd11991a52b7bf02ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
