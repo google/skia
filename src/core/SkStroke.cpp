@@ -193,7 +193,7 @@ private:
     SkScalar    fInvResScaleSquared;
 
     SkVector    fFirstNormal, fPrevNormal, fFirstUnitNormal, fPrevUnitNormal;
-    SkPoint     fFirstPt, fPrevPt;  // on original path
+    SkPoint     fFirstPt, fPrevPt, fPrevPrevPt;  // on original path
     SkPoint     fFirstOuterPt;
     int         fFirstOuterPtIndexInContour;
     int         fSegmentCount;
@@ -311,7 +311,8 @@ bool SkPathStroker::preJoinTo(const SkPoint& currPt, SkVector* normal,
         fInner.moveTo(prevX - normal->fX, prevY - normal->fY);
     } else {    // we have a previous segment
         fJoiner(&fOuter, &fInner, fPrevUnitNormal, fPrevPt, *unitNormal,
-                fRadius, fInvMiterLimit, fPrevIsLine, currIsLine);
+                fRadius, fInvMiterLimit, fPrevIsLine, currIsLine,
+                fPrevPrevPt, currPt);
     }
     fPrevIsLine = currIsLine;
     return true;
@@ -320,6 +321,7 @@ bool SkPathStroker::preJoinTo(const SkPoint& currPt, SkVector* normal,
 void SkPathStroker::postJoinTo(const SkPoint& currPt, const SkVector& normal,
                                const SkVector& unitNormal) {
     fJoinCompleted = true;
+    fPrevPrevPt = fPrevPt;
     fPrevPt = currPt;
     fPrevUnitNormal = unitNormal;
     fPrevNormal = normal;
@@ -333,7 +335,7 @@ void SkPathStroker::finishContour(bool close, bool currIsLine) {
         if (close) {
             fJoiner(&fOuter, &fInner, fPrevUnitNormal, fPrevPt,
                     fFirstUnitNormal, fRadius, fInvMiterLimit,
-                    fPrevIsLine, currIsLine);
+                    fPrevIsLine, currIsLine, fPrevPrevPt, fFirstPt);
             fOuter.close();
 
             if (fCanIgnoreCenter) {
@@ -422,7 +424,7 @@ void SkPathStroker::moveTo(const SkPoint& pt) {
         this->finishContour(false, false);
     }
     fSegmentCount = 0;
-    fFirstPt = fPrevPt = pt;
+    fFirstPt = fPrevPt = fPrevPrevPt = pt;
     fJoinCompleted = false;
 }
 
