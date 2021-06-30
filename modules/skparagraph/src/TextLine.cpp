@@ -588,7 +588,7 @@ TextLine::ClipContext TextLine::measureTextInsideOneRun(TextRange textRange,
                                                         SkScalar textOffsetInRunInLine,
                                                         bool includeGhostSpaces,
                                                         bool limitToGraphemes) const {
-    ClipContext result = { run, 0, run->size(), 0, SkRect::MakeEmpty(), false };
+    ClipContext result = { run, 0, run->size(), 0, SkRect::MakeEmpty(), 0, false };
 
     if (run->fEllipsis) {
         // Both ellipsis and placeholders can only be measured as one glyph
@@ -696,6 +696,7 @@ TextLine::ClipContext TextLine::measureTextInsideOneRun(TextRange textRange,
         // There are few cases when we need it.
         // The most important one: we measure the text with spaces at the end
         // and we should ignore these spaces
+        result.fExcludedTrailingSpaces = std::max(result.clip.fRight - fAdvance.fX, 0.0f);
         result.clippingNeeded = true;
         result.clip.fRight = fAdvance.fX;
     }
@@ -1144,9 +1145,9 @@ void TextLine::getRectsForRange(TextRange textRange0,
 
 PositionWithAffinity TextLine::getGlyphPositionAtCoordinate(SkScalar dx) {
 
-    if (SkScalarNearlyZero(this->width())) {
+    if (SkScalarNearlyZero(this->width()) && SkScalarNearlyZero(this->spacesWidth())) {
         // TODO: this is one of the flutter changes that have to go away eventually
-        //  Empty line is a special case in txtlib
+        //  Empty line is a special case in txtlib (but only when there are no spaces, too)
         auto utf16Index = fOwner->getUTF16Index(this->fTextRange.end);
         return { SkToS32(utf16Index) , kDownstream };
     }
@@ -1164,6 +1165,8 @@ PositionWithAffinity TextLine::getGlyphPositionAtCoordinate(SkScalar dx) {
                 SkScalar offsetX = this->offset().fX;
                 ClipContext context = context0;
 
+                // Correct the clip size because libtxt counts trailing spaces
+                context.clip.fRight += context.fExcludedTrailingSpaces;
                 // This patch will help us to avoid a floating point error
                 if (SkScalarNearlyEqual(context.clip.fRight, dx - offsetX, 0.01f)) {
                     context.clip.fRight = dx - offsetX;
