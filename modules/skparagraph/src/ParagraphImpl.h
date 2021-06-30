@@ -43,6 +43,7 @@ enum CodeUnitFlags {
     kSoftLineBreakBefore = 0x04,
     kHardLineBreakBefore = 0x08,
     kPartOfIntraWordBreak = 0x10,
+    kControl = 0x20,
 };
 }  // namespace textlayout
 }  // namespace skia
@@ -125,7 +126,8 @@ public:
 
     size_t lineNumber() override { return fLines.size(); }
 
-    TextLine& addLine(SkVector offset, SkVector advance, TextRange text, TextRange textWithSpaces,
+    TextLine& addLine(SkVector offset, SkVector advance,
+                      TextRange textExcludingSpaces, TextRange text, TextRange textIncludingNewlines,
                       ClusterRange clusters, ClusterRange clustersWithGhosts, SkScalar widthWithSpaces,
                       InternalLineMetrics sizes);
 

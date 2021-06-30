@@ -278,6 +278,12 @@ bool ParagraphImpl::computeCodeUnitProperties() {
                     fCodeUnitProperties[i] |=  CodeUnitFlags::kPartOfIntraWordBreak;
                 }
             }
+            if (fUnicode->isControl(unichar)) {
+                for (auto i = start; i < end; ++i) {
+                    fCodeUnitProperties[i] |=  CodeUnitFlags::kControl;
+                }
+            }
+
        });
 
     // Get line breaks
@@ -515,8 +521,9 @@ void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
     textWrapper.breakTextIntoLines(
             this,
             maxWidth,
-            [&](TextRange text,
-                TextRange textWithSpaces,
+            [&](TextRange textExcludingSpaces,
+                TextRange text,
+                TextRange textWithNewlines,
                 ClusterRange clusters,
                 ClusterRange clustersWithGhosts,
                 SkScalar widthWithSpaces,
@@ -527,7 +534,7 @@ void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
                 InternalLineMetrics metrics,
                 bool addEllipsis) {
                 // TODO: Take in account clipped edges
-                auto& line = this->addLine(offset, advance, text, textWithSpaces, clusters, clustersWithGhosts, widthWithSpaces, metrics);
+                auto& line = this->addLine(offset, advance, textExcludingSpaces, text, textWithNewlines, clusters, clustersWithGhosts, widthWithSpaces, metrics);
                 if (addEllipsis) {
                     line.createEllipsis(maxWidth, getEllipsis(), true);
                 }
@@ -639,15 +646,18 @@ BlockRange ParagraphImpl::findAllBlocks(TextRange textRange) {
 
 TextLine& ParagraphImpl::addLine(SkVector offset,
                                  SkVector advance,
+                                 TextRange textExcludingSpaces,
                                  TextRange text,
-                                 TextRange textWithSpaces,
+                                 TextRange textIncludingNewLines,
                                  ClusterRange clusters,
                                  ClusterRange clustersWithGhosts,
                                  SkScalar widthWithSpaces,
                                  InternalLineMetrics sizes) {
     // Define a list of styles that covers the line
-    auto blocks = findAllBlocks(text);
-    return fLines.emplace_back(this, offset, advance, blocks, text, textWithSpaces, clusters, clustersWithGhosts, widthWithSpaces, sizes);
+    auto blocks = findAllBlocks(textExcludingSpaces);
+    return fLines.emplace_back(this, offset, advance, blocks,
+                               textExcludingSpaces, text, textIncludingNewLines,
+                               clusters, clustersWithGhosts, widthWithSpaces, sizes);
 }
 
 // Returns a vector of bounding boxes that enclose all text between
@@ -698,7 +708,7 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
     }
     //SkDebugf("getRectsForRange(%d,%d) -> (%d:%d)\n", start, end, text.start, text.end);
     for (auto& line : fLines) {
-        auto lineText = line.textWithSpaces();
+        auto lineText = line.textWithNewlines();
         auto intersect = lineText * text;
         if (intersect.empty() && lineText.start != text.start) {
             continue;
