@@ -11,6 +11,7 @@
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/tessellate/GrMiddleOutPolygonTriangulator.h"
 #include "src/gpu/tessellate/GrPathCurveTessellator.h"
@@ -27,12 +28,17 @@ namespace {
 // NOTE: The emitted geometry may not be axis-aligned, depending on the view matrix.
 class BoundingBoxShader : public GrPathTessellationShader {
 public:
-    BoundingBoxShader(const SkMatrix& viewMatrix, SkPMColor4f color)
+    BoundingBoxShader(const SkMatrix& viewMatrix, SkPMColor4f color, const GrShaderCaps& shaderCaps)
             : GrPathTessellationShader(kTessellate_BoundingBoxShader_ClassID,
                                        GrPrimitiveType::kTriangleStrip, 0, viewMatrix, color) {
-        constexpr static Attribute kPathBoundsAttrib = {"pathBounds", kFloat4_GrVertexAttribType,
-                                                        kFloat4_GrSLType};
+        constexpr static Attribute kPathBoundsAttrib("pathBounds", kFloat4_GrVertexAttribType,
+                                                     kFloat4_GrSLType);
         this->setInstanceAttributes(&kPathBoundsAttrib, 1);
+        if (!shaderCaps.vertexIDSupport()) {
+            constexpr static Attribute kUnitCoordAttrib("unitCoord", kFloat2_GrVertexAttribType,
+                                                        kFloat2_GrSLType);
+            this->setVertexAttributes(&kUnitCoordAttrib, 1);
+        }
     }
 
 private:
@@ -45,14 +51,20 @@ GrGLSLGeometryProcessor* BoundingBoxShader::createGLSLInstance(const GrShaderCap
     class Impl : public GrPathTessellationShader::Impl {
         void emitVertexCode(const GrPathTessellationShader&, GrGLSLVertexBuilder* v,
                             GrGPArgs* gpArgs) override {
+            if (v->getProgramBuilder()->caps()->shaderCaps()->vertexIDSupport()) {
+                // If we don't have sk_VertexID support then "unitCoord" already came in as a vertex
+                // attrib.
+                v->codeAppendf(R"(
+                float2 unitCoord = float2(sk_VertexID & 1, sk_VertexID >> 1);)");
+            }
+
             v->codeAppend(R"(
             // Bloat the bounding box by 1/4px to avoid potential T-junctions at the edges.
             float2x2 M_ = inverse(AFFINE_MATRIX);
             float2 bloat = float2(abs(M_[0]) + abs(M_[1])) * .25;
 
             // Find the vertex position.
-            float2 T = float2(sk_VertexID & 1, sk_VertexID >> 1);
-            float2 localcoord = mix(pathBounds.xy - bloat, pathBounds.zw + bloat, T);
+            float2 localcoord = mix(pathBounds.xy - bloat, pathBounds.zw + bloat, unitCoord);
             float2 vertexpos = AFFINE_MATRIX * localcoord + TRANSLATE;)");
             gpArgs->fLocalCoordVar.set(kFloat2_GrSLType, "localcoord");
             gpArgs->fPositionVar.set(kFloat2_GrSLType, "vertexpos");
@@ -122,7 +134,8 @@ void GrPathStencilCoverOp::prePreparePrograms(const GrTessellationShader::Progra
     if (!(fPathFlags & PathFlags::kStencilOnly)) {
         // Create a program that draws a bounding box over the path and fills its stencil coverage
         // into the color buffer.
-        auto* bboxShader = args.fArena->make<BoundingBoxShader>(fViewMatrix, fColor);
+        auto* bboxShader = args.fArena->make<BoundingBoxShader>(fViewMatrix, fColor,
+                                                                *args.fCaps->shaderCaps());
         auto* bboxPipeline = GrTessellationShader::MakePipeline(args, fAAType,
                                                                 std::move(appliedClip),
                                                                 std::move(fProcessors));
@@ -151,6 +164,8 @@ void GrPathStencilCoverOp::onPrePrepare(GrRecordingContext* context,
         context->priv().recordProgramInfo(fCoverBBoxProgram);
     }
 }
+
+GR_DECLARE_STATIC_UNIQUE_KEY(gUnitQuadBufferKey);
 
 void GrPathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
     if (!fTessellator) {
@@ -196,6 +211,15 @@ void GrPathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
             vertexWriter.write(fPath.getBounds());
         }
     }
+
+    if (!flushState->caps().shaderCaps()->vertexIDSupport()) {
+        constexpr static SkPoint kUnitQuad[4] = {{0,0}, {0,1}, {1,0}, {1,1}};
+
+        GR_DEFINE_STATIC_UNIQUE_KEY(gUnitQuadBufferKey);
+
+        fBBoxVertexBufferIfNoIDSupport = flushState->resourceProvider()->findOrMakeStaticBuffer(
+                GrGpuBufferType::kVertex, sizeof(kUnitQuad), kUnitQuad, gUnitQuadBufferKey);
+    }
 }
 
 void GrPathStencilCoverOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
@@ -225,7 +249,7 @@ void GrPathStencilCoverOp::onExecute(GrOpFlushState* flushState, const SkRect& c
         flushState->bindPipelineAndScissorClip(*fCoverBBoxProgram, this->bounds());
         flushState->bindTextures(fCoverBBoxProgram->geomProc(), nullptr,
                                  fCoverBBoxProgram->pipeline());
-        flushState->bindBuffers(nullptr, fBBoxBuffer, nullptr);
+        flushState->bindBuffers(nullptr, fBBoxBuffer, fBBoxVertexBufferIfNoIDSupport);
         flushState->drawInstanced(1, fBBoxBaseInstance, 4, 0);
     }
 }
