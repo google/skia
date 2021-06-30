@@ -3519,11 +3519,14 @@ protected:
         paragraph_style.setTextStyle(text_style);
         ParagraphBuilderImpl builder(paragraph_style, fontCollection);
         builder.pushStyle(text_style);
-        builder.addText("    ");
+        builder.addText("one two\n\nthree four\nwith spaces     \n    ");
         auto paragraph = builder.Build();
         paragraph->layout(width());
-        auto result = paragraph->getGlyphPositionAtCoordinate(20, 2); // "hello    " 60,2
-        SkDebugf("getGlyphPositionAtCoordinate(20,2)=%d %s\n", result.position, result.affinity == Affinity::kDownstream ? "D" : "U");
+        std::vector<LineMetrics> metrics;
+        paragraph->getLineMetrics(metrics);
+        for (auto& metric : metrics) {
+            SkDebugf("Line[%d:%d <= %d <=%d)\n", metric.fStartIndex, metric.fEndExcludingWhitespaces, metric.fEndIndex, metric.fEndIncludingNewline);
+        }
     }
 
 private:

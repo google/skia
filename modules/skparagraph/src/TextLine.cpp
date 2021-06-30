@@ -82,16 +82,18 @@ TextLine::TextLine(ParagraphImpl* owner,
                    SkVector offset,
                    SkVector advance,
                    BlockRange blocks,
+                   TextRange textExcludingSpaces,
                    TextRange text,
-                   TextRange textWithSpaces,
+                   TextRange textIncludingNewlines,
                    ClusterRange clusters,
                    ClusterRange clustersWithGhosts,
                    SkScalar widthWithSpaces,
                    InternalLineMetrics sizes)
         : fOwner(owner)
         , fBlockRange(blocks)
-        , fTextRange(text)
-        , fTextWithWhitespacesRange(textWithSpaces)
+        , fTextExcludingSpaces(textExcludingSpaces)
+        , fText(text)
+        , fTextIncludingNewlines(textIncludingNewlines)
         , fClusterRange(clusters)
         , fGhostClusterRange(clustersWithGhosts)
         , fRunsInVisualOrder()
@@ -862,7 +864,7 @@ void TextLine::iterateThroughVisualRuns(bool includingGhostSpaces, const RunVisi
             // that RTL run could start before the line (trailing spaces)
             // so we need to do runOffset -= "trailing whitespaces length"
             TextRange whitespaces = intersected(
-                    TextRange(fTextRange.end, fTextWithWhitespacesRange.end), run->fTextRange);
+                    TextRange(fTextExcludingSpaces.end, fTextIncludingNewlines.end), run->fTextRange);
             if (whitespaces.width() > 0) {
                 auto whitespacesLen = measureTextInsideOneRun(whitespaces, run, runOffset, 0, true, false).clip.width();
                 runOffset -= whitespacesLen;
@@ -900,10 +902,10 @@ LineMetrics TextLine::getMetrics() const {
     LineMetrics result;
 
     // Fill out the metrics
-    result.fStartIndex = fTextRange.start;
-    result.fEndIndex = fTextWithWhitespacesRange.end;
-    result.fEndExcludingWhitespaces = fTextRange.end;
-    result.fEndIncludingNewline = fTextWithWhitespacesRange.end; // TODO: implement
+    result.fStartIndex = fTextExcludingSpaces.start;
+    result.fEndExcludingWhitespaces = fTextExcludingSpaces.end;
+    result.fEndIndex = fText.end;
+    result.fEndIncludingNewline = fTextIncludingNewlines.end;
     result.fHardBreak = endsWithHardLineBreak();
     result.fAscent = - fMaxRunMetrics.ascent();
     result.fDescent = fMaxRunMetrics.descent();
@@ -1148,7 +1150,7 @@ PositionWithAffinity TextLine::getGlyphPositionAtCoordinate(SkScalar dx) {
     if (SkScalarNearlyZero(this->width()) && SkScalarNearlyZero(this->spacesWidth())) {
         // TODO: this is one of the flutter changes that have to go away eventually
         //  Empty line is a special case in txtlib (but only when there are no spaces, too)
-        auto utf16Index = fOwner->getUTF16Index(this->fTextRange.end);
+        auto utf16Index = fOwner->getUTF16Index(this->fTextExcludingSpaces.end);
         return { SkToS32(utf16Index) , kDownstream };
     }
 
