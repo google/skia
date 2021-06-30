@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1c0ce33d_21decf3d",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1169,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2021-06-30T22:05:42Z",
+      "side": 1,
+      "message": "Is this assuming the trailing spaces will always be to the right? What about rtl paragraphs where they should end up on the left?",
+      "range": {
+        "startLine": 1169,
+        "startChar": 29,
+        "endLine": 1169,
+        "endChar": 35
+      },
+      "revId": "db7ac9da28b42cb9a84b3ffa4327210d728bc49b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
