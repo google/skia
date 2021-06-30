@@ -23,14 +23,6 @@
     {
       "ref": "refs/heads/main",
       "owner": "skiabot@google.com"
-    },
-    {
-      "ref": "refs/heads/skqp/dev",
-      "owner": "halcanary@google.com"
-    },
-    {
-      "ref": "refs/heads/skqp/release",
-      "owner": "halcanary@google.com"
     }
   ]
 }
