@@ -126,6 +126,10 @@ public:
     static bool SupportsConstantOutputForConstantInput(sk_sp<SkRuntimeEffect> effect) {
         return effect->getFilterColorProgram();
     }
+
+    static void DisableES2Restrictions(SkRuntimeEffect::Options* options) {
+        options->enforceES2Restrictions = false;
+    }
 };
 
 #endif
