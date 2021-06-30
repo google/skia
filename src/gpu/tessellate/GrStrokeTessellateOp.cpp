@@ -198,7 +198,8 @@ void GrStrokeTessellateOp::prePrepareTessellator(GrTessellationShader::ProgramAr
         fTessellator = arena->make<GrStrokeFixedCountTessellator>(fShaderFlags, fViewMatrix,
                                                                   &fPathStrokeList,
                                                                   matrixMinMaxScales,
-                                                                  strokeCullBounds);
+                                                                  strokeCullBounds,
+                                                                  *caps.shaderCaps());
     }
 
     auto fillStencil = &GrUserStencilSettings::kUnused;
