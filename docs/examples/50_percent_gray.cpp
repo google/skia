@@ -14,6 +14,7 @@ static sk_sp<SkShader> make_bw_dither() {
 
 void draw(SkCanvas* canvas) {
     canvas->drawColor(SK_ColorWHITE);
+
     SkFont font(nullptr, 12);
 
     // BW Dither

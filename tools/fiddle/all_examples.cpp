@@ -667,6 +667,7 @@
 #include "../../docs/examples/Path_empty_constructor.cpp"
 #include "../../docs/examples/Path_equal_operator.cpp"
 #include "../../docs/examples/Path_getBounds.cpp"
+#include "../../docs/examples/Path_getConvexityOrUnknown.cpp"
 #include "../../docs/examples/Path_getFillType.cpp"
 #include "../../docs/examples/Path_getGenerationID.cpp"
 #include "../../docs/examples/Path_getLastPt.cpp"

@@ -249,6 +249,18 @@ def _CheckDEPSValid(input_api, output_api):
   return results
 
 
+def _RegenerateAllExamplesCPP(input_api, output_api):
+  """askjsdf."""
+  for f in input_api.AffectedFiles():
+    print(f.LocalPath())
+  if not any(f.LocalPath().startswith('docs/examples/')
+             for f in input_api.AffectedFiles()):
+    return []
+  cmd = ['python', 'tools/fiddle/make_all_examples_cpp.py']
+  if 0 != subprocess.call(cmd):
+    return [output_api.PresubmitError('`%s` failed' % ' '.join(cmd))]
+  return []
+
 def _CommonChecks(input_api, output_api):
   """Presubmit checks common to upload and commit."""
   results = []
@@ -276,6 +288,7 @@ def _CommonChecks(input_api, output_api):
   results.extend(_CheckIncludesFormatted(input_api, output_api))
   results.extend(_CheckGNFormatted(input_api, output_api))
   results.extend(_CheckGitConflictMarkers(input_api, output_api))
+  results.extend(_RegenerateAllExamplesCPP(input_api, output_api))
   return results
 
 
