@@ -10,7 +10,7 @@
 
 #include "include/gpu/GrTypes.h"
 
-#if GR_OGA
+#if SK_GPU_V1
 
 #include "src/core/SkIPoint16.h"
 #include "src/gpu/GrDynamicAtlas.h"
@@ -96,7 +96,7 @@ private:
 
 GR_MAKE_BITFIELD_CLASS_OPS(GrTessellationPathRenderer::PathFlags)
 
-#else // GR_OGA
+#else // SK_GPU_V1
 
 class GrTessellationPathRenderer {
 public:
@@ -113,6 +113,6 @@ public:
 
 GR_MAKE_BITFIELD_CLASS_OPS(GrTessellationPathRenderer::PathFlags)
 
-#endif // GR_OGA
+#endif // SK_GPU_V1
 
 #endif

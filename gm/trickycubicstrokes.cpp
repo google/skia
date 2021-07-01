@@ -180,7 +180,7 @@ DEF_SIMPLE_GM(trickycubicstrokes_roundcaps, canvas, kTestWidth, kTestHeight) {
     draw_test(canvas, SkPaint::kRound_Cap, SkPaint::kRound_Join);
 }
 
-#if GR_OGA
+#if SK_GPU_V1
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 
 class TrickyCubicStrokes_tess_segs_5 : public skiagm::GM {
@@ -240,4 +240,4 @@ class TrickyCubicStrokes_tess_segs_5 : public skiagm::GM {
 };
 
 DEF_GM( return new TrickyCubicStrokes_tess_segs_5; )
-#endif // GR_OGA
+#endif // SK_GPU_V1

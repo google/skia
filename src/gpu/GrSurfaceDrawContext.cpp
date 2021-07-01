@@ -72,7 +72,7 @@
 #include "src/gpu/text/GrSDFTControl.h"
 #include "src/gpu/text/GrTextBlobCache.h"
 
-#if GR_OGA
+#if SK_GPU_V1
 #include "src/gpu/GrPathRenderer.h"
 #endif
 
@@ -879,7 +879,7 @@ bool GrSurfaceDrawContext::stencilPath(const GrHardClip* clip,
                                        GrAA doStencilMSAA,
                                        const SkMatrix& viewMatrix,
                                        const SkPath& path) {
-#if GR_OGA
+#if SK_GPU_V1
     SkIRect clipBounds = clip ? clip->getConservativeBounds()
                               : SkIRect::MakeSize(this->dimensions());
     GrStyledShape shape(path, GrStyledShape::DoSimplify::kNo);
@@ -913,7 +913,7 @@ bool GrSurfaceDrawContext::stencilPath(const GrHardClip* clip,
     return true;
 #else
     return false;
-#endif // GR_OGA
+#endif // SK_GPU_V1
 }
 
 void GrSurfaceDrawContext::drawTextureSet(const GrClip* clip,
@@ -1543,11 +1543,11 @@ void GrSurfaceDrawContext::drawShape(const GrClip* clip,
                                      /* attemptDrawSimple */ true);
 }
 
-#if GR_OGA
+#if SK_GPU_V1
 static SkIRect get_clip_bounds(const GrSurfaceDrawContext* rtc, const GrClip* clip) {
     return clip ? clip->getConservativeBounds() : SkIRect::MakeWH(rtc->width(), rtc->height());
 }
-#endif // GR_OGA
+#endif // SK_GPU_V1
 
 bool GrSurfaceDrawContext::drawAndStencilPath(const GrHardClip* clip,
                                               const GrUserStencilSettings* ss,
@@ -1556,7 +1556,7 @@ bool GrSurfaceDrawContext::drawAndStencilPath(const GrHardClip* clip,
                                               GrAA aa,
                                               const SkMatrix& viewMatrix,
                                               const SkPath& path) {
-#if GR_OGA
+#if SK_GPU_V1
     ASSERT_SINGLE_OWNER
     RETURN_FALSE_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -1741,7 +1741,7 @@ void GrSurfaceDrawContext::drawShapeUsingPathRenderer(const GrClip* clip,
                                                       const SkMatrix& viewMatrix,
                                                       GrStyledShape&& shape,
                                                       bool attemptDrawSimple) {
-#if GR_OGA
+#if SK_GPU_V1
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     GR_CREATE_TRACE_MARKER_CONTEXT("GrSurfaceDrawContext", "internalDrawPath", fContext);

@@ -61,7 +61,7 @@ bool GrRecordingContext::init() {
         return false;
     }
 
-#if GR_OGA
+#if SK_GPU_V1
     GrPathRendererChain::Options prcOptions;
     prcOptions.fAllowPathMaskCaching = this->options().fAllowPathMaskCaching;
 #if GR_TEST_UTILS
@@ -82,7 +82,7 @@ bool GrRecordingContext::init() {
         reduceOpsTaskSplitting = false;
     }
     fDrawingManager.reset(new GrDrawingManager(this,
-#if GR_OGA
+#if SK_GPU_V1
                                                prcOptions,
 #endif
                                                reduceOpsTaskSplitting));

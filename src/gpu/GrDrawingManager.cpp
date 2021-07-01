@@ -45,12 +45,12 @@
 #include "src/gpu/text/GrSDFTControl.h"
 #include "src/image/SkSurface_Gpu.h"
 
-#if GR_OGA
+#if SK_GPU_V1
 #include "src/gpu/GrSoftwarePathRenderer.h"
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-#if GR_OGA
+#if SK_GPU_V1
 GrDrawingManager::GrDrawingManager(GrRecordingContext* rContext,
                                    const GrPathRendererChain::Options& optionsForPathRendererChain,
                                    bool reduceOpsTaskSplitting)
@@ -87,7 +87,7 @@ void GrDrawingManager::freeGpuResources() {
         }
     }
 
-#if GR_OGA
+#if SK_GPU_V1
     // a path renderer may be holding onto resources
     fPathRendererChain = nullptr;
     fSoftwarePathRenderer = nullptr;
@@ -916,7 +916,7 @@ bool GrDrawingManager::newWritePixelsTask(sk_sp<GrSurfaceProxy> dst,
     return true;
 }
 
-#if GR_OGA
+#if SK_GPU_V1
 /*
  * This method finds a path renderer that can draw the specified path on
  * the provided target.
@@ -967,7 +967,7 @@ GrTessellationPathRenderer* GrDrawingManager::getTessellationPathRenderer() {
     return fPathRendererChain->getTessellationPathRenderer();
 }
 
-#endif // GR_OGA
+#endif // SK_GPU_V1
 
 void GrDrawingManager::flushIfNecessary() {
     auto direct = fContext->asDirectContext();

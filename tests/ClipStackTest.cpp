@@ -873,7 +873,7 @@ static void test_invfill_diff_bug(skiatest::Reporter* reporter) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if GR_OGA
+#if SK_GPU_V1
 #include "src/gpu/GrClipStackClip.h"
 #include "src/gpu/GrReducedClip.h"
 
@@ -1454,7 +1454,7 @@ static void test_tiny_query_bounds_assertion_bug(skiatest::Reporter* reporter) {
     }
 }
 
-#endif // GR_OGA
+#endif // SK_GPU_V1
 
 static void test_is_rrect_deep_rect_stack(skiatest::Reporter* reporter) {
     static constexpr SkRect kTargetBounds = SkRect::MakeWH(1000, 500);
@@ -1538,7 +1538,7 @@ DEF_TEST(ClipStack, reporter) {
     test_quickContains(reporter);
     test_invfill_diff_bug(reporter);
 
-#if GR_OGA
+#if SK_GPU_V1
     test_reduced_clip_stack(reporter, /* clipShader */ false);
     test_reduced_clip_stack(reporter, /* clipShader */ true);
     test_reduced_clip_stack_genid(reporter);
