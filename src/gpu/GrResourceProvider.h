@@ -10,7 +10,6 @@
 
 #include "include/gpu/GrContextOptions.h"
 #include "include/private/SkImageInfoPriv.h"
-#include "src/core/SkScalerContext.h"
 #include "src/gpu/GrGpuBuffer.h"
 #include "src/gpu/GrResourceCache.h"
 
