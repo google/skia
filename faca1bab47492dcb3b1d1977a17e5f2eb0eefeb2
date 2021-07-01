@@ -102,6 +102,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "3d25b3f4_896cfb79",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-07-01T20:32:40Z",
+      "side": 1,
+      "message": "Quite true -- this is incomplete -- would need this function to (eventually) have access to the full ctm.",
+      "parentUuid": "6bff0548_ae22e9fd",
+      "revId": "faca1bab47492dcb3b1d1977a17e5f2eb0eefeb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b6f91fae_4a4ec3fb",
         "filename": "src/gpu/GrStyle.cpp",
         "patchSetId": 1
