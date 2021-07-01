@@ -206,5 +206,3 @@ skia_sksl_gpu_sources = [
   "$_src/sksl/codegen/SkSLSPIRVtoHLSL.cpp",
   "$_src/sksl/codegen/SkSLSPIRVtoHLSL.h",
 ]
-
-skia_gpu_processor_sources = []

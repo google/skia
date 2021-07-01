@@ -3,71 +3,6 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-sksl_fp_error_tests = [
-  "/sksl/errors/GrBadIn.fp",
-  "/sksl/errors/GrMainParameterWrongType.fp",
-  "/sksl/errors/GrMainTooManyParameters.fp",
-  "/sksl/errors/GrNoFragmentProcessorConstruction.fp",
-  "/sksl/errors/GrNoFragmentProcessorExpressions.fp",
-  "/sksl/errors/GrNoFragmentProcessorLocals.fp",
-  "/sksl/errors/GrNoFragmentProcessorParams.fp",
-  "/sksl/errors/GrNoFragmentProcessorReturn.fp",
-  "/sksl/errors/GrRecursion.fp",
-]
-
-sksl_dsl_fp_tests = [
-  "/sksl/dslfp/GrDSLFPTest_Builtins.fp",
-  "/sksl/dslfp/GrDSLFPTest_DoStatement.fp",
-  "/sksl/dslfp/GrDSLFPTest_ForStatement.fp",
-  "/sksl/dslfp/GrDSLFPTest_HelloWorld.fp",
-  "/sksl/dslfp/GrDSLFPTest_IfStatement.fp",
-  "/sksl/dslfp/GrDSLFPTest_Sample.fp",
-  "/sksl/dslfp/GrDSLFPTest_SwitchStatement.fp",
-  "/sksl/dslfp/GrDSLFPTest_Swizzle.fp",
-  "/sksl/dslfp/GrDSLFPTest_Ternary.fp",
-  "/sksl/dslfp/GrDSLFPTest_WhileStatement.fp",
-]
-
-sksl_fp_tests = [
-  "/sksl/fp/GrChildProcessorAndGlobal.fp",
-  "/sksl/fp/GrChildProcessorSampleCoords.fp",
-  "/sksl/fp/GrChildProcessorSampleWithColor.fp",
-  "/sksl/fp/GrChildProcessorWithInputExpression.fp",
-  "/sksl/fp/GrChildProcessors.fp",
-  "/sksl/fp/GrChildProcessorsWithInput.fp",
-  "/sksl/fp/GrConditionalInUniform.fp",
-  "/sksl/fp/GrFunction.fp",
-  "/sksl/fp/GrFunctionArgTypes.fp",
-  "/sksl/fp/GrFunctionReturnTypes.fp",
-  "/sksl/fp/GrGrSLTypesAreSupported.fp",
-  "/sksl/fp/GrHelloWorld.fp",
-  "/sksl/fp/GrInUniform.fp",
-  "/sksl/fp/GrInUniformCType.fp",
-  "/sksl/fp/GrInlinedFunction.fp",
-  "/sksl/fp/GrKeyIn.fp",
-  "/sksl/fp/GrLayoutWhen.fp",
-  "/sksl/fp/GrMainCoords.fp",
-  "/sksl/fp/GrModuloOp.fp",
-  "/sksl/fp/GrNestedCall.fp",
-  "/sksl/fp/GrNestedChildProcessors.fp",
-  "/sksl/fp/GrNonInlinedInUniform.fp",
-  "/sksl/fp/GrSectionClass.fp",
-  "/sksl/fp/GrSectionConstructor.fp",
-  "/sksl/fp/GrSectionConstructorParams.fp",
-  "/sksl/fp/GrSectionCpp.fp",
-  "/sksl/fp/GrSectionDumpInfo.fp",
-  "/sksl/fp/GrSectionEmitCode.fp",
-  "/sksl/fp/GrSectionFields.fp",
-  "/sksl/fp/GrSectionHeader.fp",
-  "/sksl/fp/GrSectionInitializers.fp",
-  "/sksl/fp/GrSectionMake.fp",
-  "/sksl/fp/GrSectionSetData.fp",
-  "/sksl/fp/GrSectionTest.fp",
-  "/sksl/fp/GrUniform.fp",
-  "/sksl/fp/GrUniformArrays.fp",
-  "/sksl/fp/GrUseExplicitReturn.fp",
-]
-
 sksl_error_tests = [
   "/sksl/errors/ArgumentCountMismatch.sksl",
   "/sksl/errors/ArgumentMismatch.sksl",
@@ -602,14 +537,6 @@ sksl_rte_error_tests = [
   "/sksl/runtime_errors/UnsupportedTypeSampler.rts",
   "/sksl/runtime_errors/UnsupportedTypeTexture.rts",
 ]
-
-# Tests in sksl_fp_tests_sources will be compiled with --settings on, and are expected to generate
-# a .cpp and a .h output file.
-sksl_fp_tests_sources = sksl_fp_error_tests + sksl_fp_tests
-
-# Tests in sksl_dsl_fp_tests_sources will be compiled with --settings on, and are expected to
-# generate a .dsl.cpp and a .h output file.
-sksl_dsl_fp_tests_sources = sksl_dsl_fp_tests
 
 # Tests in sksl_glsl_tests_sources will be compiled with --settings on, and are expected to generate
 # a .glsl output file.

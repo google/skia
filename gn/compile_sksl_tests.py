@@ -73,21 +73,7 @@ for input, targetDir in pairwise(inputs):
 
     targets.append(target)
 
-    if lang == "--fp":
-        worklist.write(input + "\n")
-        worklist.write(target + ".cpp\n")
-        worklist.write(settings + "\n\n")
-        worklist.write(input + "\n")
-        worklist.write(target + ".h\n")
-        worklist.write(settings + "\n\n")
-    elif lang == "--dslfp":
-        worklist.write(input + "\n")
-        worklist.write(target + ".dsl.cpp\n")
-        worklist.write(settings + "\n\n")
-        worklist.write(input + "\n")
-        worklist.write(target + ".h\n")
-        worklist.write(settings + "\n\n")
-    elif lang == "--glsl":
+    if lang == "--glsl":
         worklist.write(input + "\n")
         worklist.write(target + ".glsl\n")
         worklist.write(settings + "\n\n")
@@ -108,8 +94,7 @@ for input, targetDir in pairwise(inputs):
         worklist.write(target + ".stage\n")
         worklist.write(settings + "\n\n")
     else:
-        sys.exit("### Expected one of: --fp --dslfp --glsl --metal --spirv --skvm --stage, got " +
-                 lang)
+        sys.exit("### Expected one of: --glsl --metal --spirv --skvm --stage, got " + lang)
 
     # Compile items one at a time.
     if not batchCompile:
@@ -122,22 +107,3 @@ if batchCompile:
 else:
     worklist.close()
     os.remove(worklist.name)
-
-# A special case cleanup pass, just for CPP and H files: if either one of these files starts with
-# `### Compilation failed`, its sibling should be replaced by an empty file. This improves clarity
-# during code review; a failure on either file means that success on the sibling is irrelevant.
-if lang == "--fp" or lang == "--dslfp":
-    cppExtension = (".dsl.cpp" if lang == "--dslfp" else ".cpp")
-    hExtension = ".h"
-
-    for target in targets:
-        cppFile = open(target + cppExtension, 'r')
-        hFile = open(target + hExtension, 'r')
-        if cppFile.readline().startswith("### Compilation failed"):
-            # The CPP had a compilation failure. Clear the header file.
-            hFile.close()
-            makeEmptyFile(target + hExtension)
-        elif hFile.readline().startswith("### Compilation failed"):
-            # The header had a compilation failure. Clear the CPP file.
-            cppFile.close()
-            makeEmptyFile(target + cppExtension)
