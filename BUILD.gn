@@ -606,8 +606,8 @@ if (skia_lex) {
   }
 }
 
-# `Compile Processors` and `Compile SkSL Tests` both rely on skslc.
-if (skia_compile_processors || skia_compile_sksl_tests) {
+# `Compile SkSL Tests` relies on skslc.
+if (skia_compile_sksl_tests) {
   skia_executable("skslc") {
     defines = [
       "SKSL_STANDALONE",
@@ -723,45 +723,6 @@ if (skia_compile_processors || skia_compile_sksl_tests) {
   }
 }
 
-skia_gpu_processor_outputs = []
-if (skia_compile_processors) {
-  foreach(src, skia_gpu_processor_sources) {
-    dir = get_path_info(src, "dir")
-    name = get_path_info(src, "name")
-
-    # GN insists its outputs should go somewhere underneath target_out_dir, so we trick it with a
-    # path that starts with target_out_dir and then uses ".." to back up into the src dir.
-    skia_gpu_processor_outputs += [
-      "$target_out_dir/" +
-          rebase_path("$dir/generated/$name.h", target_out_dir),
-      # the script also modifies the corresponding .cpp file, but if we tell GN that it gets
-      # confused due to the same file being named by two different paths
-    ]
-  }
-
-  #  action("compile_processors") {
-  #    script = "gn/compile_processors.py"
-  #    deps = [
-  #      ":create_sksl_fp",
-  #      ":sksl_pre_includes",
-  #      ":skslc(//gn/toolchain:$host_toolchain)",
-  #    ]
-  #    sources = skia_gpu_processor_sources
-  #    outputs = skia_gpu_processor_outputs
-  #    args = [
-  #      rebase_path(skslc_path),
-  #      rebase_path("bin/clang-format"),
-  #      rebase_path("bin/fetch-clang-format"),
-  #    ]
-  #    args += rebase_path(skia_gpu_processor_sources)
-  #  }
-  group("compile_processors") {
-  }
-} else {
-  group("compile_processors") {
-  }
-}
-
 if (skia_compile_sksl_tests) {
   import("gn/sksl_tests.gni")
 
@@ -821,24 +782,6 @@ if (skia_compile_sksl_tests) {
       }
     }
   }
-  compile_sksl("fp_tests") {
-    sources = sksl_fp_tests_sources
-    outExtensions = [
-      ".cpp",
-      ".h",
-    ]
-    lang = "--fp"
-    settings = "--settings"
-  }
-  compile_sksl("dsl_fp_tests") {
-    sources = sksl_dsl_fp_tests_sources
-    outExtensions = [
-      ".dsl.cpp",
-      ".h",
-    ]
-    lang = "--dslfp"
-    settings = "--settings"
-  }
   compile_sksl("glsl_tests") {
     sources = sksl_glsl_tests_sources + sksl_glsl_settings_tests_sources
     outExtensions = [ ".glsl" ]
@@ -876,8 +819,6 @@ if (skia_compile_sksl_tests) {
     settings = "--settings"
   }
 } else {
-  group("compile_sksl_fp_tests") {
-  }
   group("compile_sksl_glsl_tests") {
   }
   group("compile_sksl_glsl_nosettings_tests") {
@@ -893,8 +834,6 @@ if (skia_compile_sksl_tests) {
 optional("gpu") {
   enabled = skia_enable_gpu
   deps = [
-    ":compile_processors",
-    ":compile_sksl_fp_tests",
     ":compile_sksl_glsl_nosettings_tests",
     ":compile_sksl_glsl_tests",
     ":compile_sksl_metal_tests",
@@ -910,8 +849,7 @@ optional("gpu") {
   public_configs = []
   public_deps = []
 
-  sources =
-      skia_gpu_sources + skia_sksl_gpu_sources + skia_gpu_processor_outputs
+  sources = skia_gpu_sources + skia_sksl_gpu_sources
   if (skia_enable_skgpu_v2) {
     sources += skia_skgpu_v2_sources
   }
@@ -1252,7 +1190,8 @@ if (skia_enable_gpu && skia_generate_workarounds) {
 
     inputs = [ "src/gpu/gpu_workaround_list.txt" ]
 
-    # see comments in skia_compile_processors about out dir path shenanigans.
+    # GN insists its outputs should go somewhere underneath root_out_dir, so we trick it with a
+    # path that starts with root_out_dir and then uses ".." to back up into the src dir.
     output_file =
         rebase_path("include/gpu/GrDriverBugWorkaroundsAutogen.h", root_out_dir)
 
@@ -1294,7 +1233,6 @@ skia_component("skia") {
     ":arm64",
     ":armv7",
     ":avx",
-    ":compile_processors",
     ":crc32",
     ":dehydrate_sksl",
     ":fontmgr_factory",
