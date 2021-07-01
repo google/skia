@@ -130,7 +130,7 @@ DEF_GM( return new WindowRectanglesGM(); )
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if GR_OGA
+#if SK_GPU_V1
 #include "src/gpu/GrReducedClip.h"
 #include "src/gpu/GrStencilClip.h"
 
@@ -309,5 +309,5 @@ void WindowRectanglesMaskGM::stencilCheckerboard(GrSurfaceDrawContext* rtc, bool
 DEF_GM( return new WindowRectanglesMaskGM(); )
 }  // namespace skiagm
 
-#endif // GR_OGA
+#endif // SK_GPU_V1
 
