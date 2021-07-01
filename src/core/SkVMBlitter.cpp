@@ -581,7 +581,7 @@ namespace {
         // the opaque bit is strongly guaranteed to be part of the program and
         // not just a property of the uniforms.  The shader program hash includes
         // this information, making it safe to use anywhere in the blitter codegen.
-        if (as_BB(blender)->isBlendMode(SkBlendMode::kSrcOver) && shader->isOpaque()) {
+        if (as_BB(blender)->asBlendMode() == SkBlendMode::kSrcOver && shader->isOpaque()) {
             blender = SkBlenders::Mode(SkBlendMode::kSrc);
         }
 

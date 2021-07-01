@@ -164,7 +164,7 @@ skstd::optional<SkBlendMode> SkPaint::asBlendMode() const {
 }
 
 bool SkPaint::isSrcOver() const {
-    return !fBlender || as_BB(fBlender)->isBlendMode(SkBlendMode::kSrcOver);
+    return !fBlender || as_BB(fBlender)->asBlendMode() == SkBlendMode::kSrcOver;
 }
 
 void SkPaint::setBlendMode(SkBlendMode mode) {

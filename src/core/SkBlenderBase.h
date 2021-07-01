@@ -25,14 +25,6 @@ class SkRuntimeEffect;
  */
 class SkBlenderBase : public SkBlender {
 public:
-    /** Returns true if this SkBlender matches the passed-in SkBlendMode. */
-    bool isBlendMode(SkBlendMode expected) const {
-        if (auto bm = this->asBlendMode()) {
-            return bm.value() == expected;
-        }
-        return false;
-    }
-
     /**
      * Returns true if this SkBlender represents any SkBlendMode, and returns the blender's
      * SkBlendMode in `mode`. Returns false for other types of blends.

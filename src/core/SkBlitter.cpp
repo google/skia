@@ -659,18 +659,19 @@ bool SkBlitter::UseLegacyBlitter(const SkPixmap& device,
 #endif
 
     const SkMaskFilterBase* mf = as_MFB(paint.getMaskFilter());
+    const auto mode = paint.asBlendMode();
 
     // The legacy blitters cannot handle any of these complex features (anymore).
-    if (device.alphaType() == kUnpremul_SkAlphaType        ||
-        !paint.asBlendMode()                               ||
-        paint.getBlendMode() > SkBlendMode::kLastCoeffMode ||
+    if (device.alphaType() == kUnpremul_SkAlphaType   ||
+        !mode                                         ||
+        mode.value() > SkBlendMode::kLastCoeffMode    ||
         (mf && mf->getFormat() == SkMask::k3D_Format)) {
         return false;
     }
 
     // All the real legacy fast paths are for shaders and SrcOver.
     // Choosing SkRasterPipelineBlitter will also let us to hit its single-color memset path.
-    if (!paint.getShader() && paint.getBlendMode() != SkBlendMode::kSrcOver) {
+    if (!paint.getShader() && mode != SkBlendMode::kSrcOver) {
         return false;
     }
 
@@ -704,9 +705,9 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
     // We may tweak the original paint as we go.
     SkTCopyOnFirstWrite<SkPaint> paint(origPaint);
 
-    if (auto bm = paint->asBlendMode()) {
+    if (auto mode = paint->asBlendMode()) {
         // We have the most fast-paths for SrcOver, so see if we can act like SrcOver.
-        if (bm.value() != SkBlendMode::kSrcOver) {
+        if (mode.value() != SkBlendMode::kSrcOver) {
             switch (SkInterpretXfermode(*paint, SkColorTypeIsAlwaysOpaque(device.colorType()))) {
                 case kSrcOver_SkXfermodeInterpretation:
                     paint.writable()->setBlendMode(SkBlendMode::kSrcOver);
@@ -719,7 +720,7 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
         }
 
         // A Clear blend mode will ignore the entire color pipeline, as if Src mode with 0x00000000.
-        if (paint->getBlendMode() == SkBlendMode::kClear) {
+        if (mode.value() == SkBlendMode::kClear) {
             SkPaint* p = paint.writable();
             p->setShader(nullptr);
             p->setColorFilter(nullptr);
