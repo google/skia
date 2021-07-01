@@ -47,12 +47,11 @@ void DSLFunction::init(const DSLType& returnType, skstd::string_view name,
         SkSL::ProgramKind kind = DSLWriter::Context().fConfig->fKind;
         if (isMain && (kind == ProgramKind::kRuntimeColorFilter ||
                        kind == ProgramKind::kRuntimeShader ||
-                       kind == ProgramKind::kRuntimeBlender ||
-                       kind == ProgramKind::kFragmentProcessor)) {
+                       kind == ProgramKind::kRuntimeBlender)) {
             const SkSL::Type& type = param->fType.skslType();
-            // We verify that the signature is fully correct later. For now, if this is an .fp
-            // or runtime effect of any flavor, a float2 param is supposed to be the coords, and
-            // a half4/float parameter is supposed to be the input or destination color:
+            // We verify that the signature is fully correct later. For now, if this is a runtime
+            // effect of any flavor, a float2 param is supposed to be the coords, and a half4/float
+            // parameter is supposed to be the input or destination color:
             if (type == *DSLWriter::Context().fTypes.fFloat2) {
                 param->fModifiers.fModifiers.fLayout.fBuiltin = SK_MAIN_COORDS_BUILTIN;
             } else if (typeIsValidForColor(type)) {
