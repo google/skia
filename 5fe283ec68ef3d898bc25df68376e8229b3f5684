@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d2aabd1c_ed4a67c2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-07-01T13:39:40Z",
+      "side": 1,
+      "message": "With the HighPrecision helper FP, this was actually a really easy one to change.",
+      "revId": "5fe283ec68ef3d898bc25df68376e8229b3f5684",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
