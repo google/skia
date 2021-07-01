@@ -329,6 +329,11 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			skip("_ test _ Programs")
 		}
 
+		if b.model("Spin513") {
+			// skbug.com/11876
+			skip("_ test _ Programs")
+		}
+
 		if b.extraConfig("CommandBuffer") {
 			// skbug.com/10412
 			skip("_ test _ GLBackendAllocationTest")
