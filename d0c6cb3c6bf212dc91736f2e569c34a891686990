@@ -46,6 +46,30 @@
       },
       "revId": "d0c6cb3c6bf212dc91736f2e569c34a891686990",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "25dad984_0f52d65e",
+        "filename": "src/gpu/tessellate/shaders/GrTessellationShader.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-07-01T17:21:19Z",
+      "side": 1,
+      "message": "Oh, that makes sense. Thanks for clarifying!",
+      "parentUuid": "cf4dd21e_de93eaeb",
+      "range": {
+        "startLine": 71,
+        "startChar": 33,
+        "endLine": 71,
+        "endChar": 42
+      },
+      "revId": "d0c6cb3c6bf212dc91736f2e569c34a891686990",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
