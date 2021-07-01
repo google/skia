@@ -78,7 +78,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrWrappedMipMappedTest, reporter, ctxInfo) {
                         sk_gpu_test::ManagedBackendTexture::ReleaseProc,
                         mbet->releaseContext());
 
-                SkBaseGpuDevice* device = ((SkSurface_Gpu*)surface.get())->getDevice();
+                auto device = ((SkSurface_Gpu*)surface.get())->getDevice();
                 proxy = device->readSurfaceView().asTextureProxyRef();
             } else {
                 image = SkImage::MakeFromTexture(dContext,
@@ -310,7 +310,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrImageSnapshotMipMappedTest, reporter, ctxIn
                                                       willUseMips);
             }
             REPORTER_ASSERT(reporter, surface);
-            SkBaseGpuDevice* device = ((SkSurface_Gpu*)surface.get())->getDevice();
+            auto device = ((SkSurface_Gpu*)surface.get())->getDevice();
             GrTextureProxy* texProxy = device->readSurfaceView().asTextureProxy();
             REPORTER_ASSERT(reporter, mipmapped == texProxy->mipmapped());
 

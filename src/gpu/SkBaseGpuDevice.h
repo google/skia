@@ -8,9 +8,10 @@
 #ifndef SkBaseGpuDevice_DEFINED
 #define SkBaseGpuDevice_DEFINED
 
-#include "src/gpu/GrSurfaceProxyView.h"
-
 #include "include/core/SkImage.h"
+#include "include/private/GrTypesPriv.h"
+
+class GrSurfaceProxyView;
 
 // NOTE: when not defined, SkGpuDevice extends SkBaseDevice directly and manages its clip stack
 // using GrClipStack. When false, SkGpuDevice continues to extend SkClipStackDevice and uses
@@ -30,24 +31,24 @@
     #define BASE_DEVICE   SkClipStackDevice
 #endif
 
-class SkBaseGpuDevice : public BASE_DEVICE {
+namespace skgpu {
+
+class BaseDevice : public BASE_DEVICE {
 public:
     enum InitContents {
         kClear_InitContents,
         kUninit_InitContents
     };
 
-    SkBaseGpuDevice(sk_sp<GrRecordingContext> rContext,
-                    const SkImageInfo& ii,
-                    const SkSurfaceProps& props)
+    BaseDevice(sk_sp<GrRecordingContext> rContext,
+               const SkImageInfo& ii,
+               const SkSurfaceProps& props)
         : INHERITED(ii, props)
         , fContext(std::move(rContext)) {
     }
 
     virtual GrSurfaceProxyView readSurfaceView() = 0;
-    GrRenderTargetProxy* targetProxy() override {
-        return this->readSurfaceView().asRenderTargetProxy();
-    }
+    GrRenderTargetProxy* targetProxy() override;
 
     GrRecordingContext* recordingContext() const override { return fContext.get(); }
 
@@ -91,6 +92,8 @@ protected:
 private:
     using INHERITED = BASE_DEVICE;
 };
+
+} // skgpu
 
 #undef BASE_DEVICE
 
