@@ -57,7 +57,7 @@ private:
                 : fDevXYWH{devIBounds.left(), devIBounds.top(), devIBounds.width(),
                            // We use negative height to indicate that the path is transposed.
                            (transposedInAtlas) ? -devIBounds.height() : devIBounds.height()}
-                , fAtlasXY{locationInAtlas.x(), locationInAtlas.y()}
+                , fAtlasXY(locationInAtlas)
                 , fColor(color)
                 , fDrawBoundsIfInverseFilled(drawBounds)
                 , fViewMatrixIfUsingLocalCoords{m.getScaleX(), m.getSkewY(),
@@ -65,7 +65,7 @@ private:
                                                 m.getTranslateX(), m.getTranslateY()} {
         }
         std::array<int, 4> fDevXYWH;
-        std::array<int, 2> fAtlasXY;
+        SkIPoint16 fAtlasXY;
         SkPMColor4f fColor;
         SkRect fDrawBoundsIfInverseFilled;
         std::array<float, 6> fViewMatrixIfUsingLocalCoords;
