@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e7ad47d5_63d448b4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-07-01T13:17:22Z",
+      "side": 1,
+      "message": "Orthogonal to this (don\u0027t need to worry about it for this CL), but I previously realized the Kind vs. NumberKind distinction isn\u0027t helping us much? They\u0027re strictly mutually exclusive at this point - either kScalar (and then NumberKind fully determines the actual kind), or non-numeric, where NumberKind is ignored. Seems like we could collapse to a single enum?",
+      "revId": "1bae0feff27ac4b74f9fbccfc534038923bbfb00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "92c21cc5_fb7393bb",
+        "filename": "src/sksl/ir/SkSLType.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 642,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-07-01T13:17:22Z",
+      "side": 1,
+      "message": "If my math is right, this is the only union member that needs more than 128 bits (on a 64-bit build). fColumns used to be int - if we go back to that, I think we shave another 64 bits (thanks to padding)?",
+      "revId": "1bae0feff27ac4b74f9fbccfc534038923bbfb00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
