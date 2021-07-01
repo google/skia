@@ -23,9 +23,8 @@ class GrSurfaceProxy;
 // Handles for program uniforms (other than per-effect uniforms)
 struct GrGLSLBuiltinUniformHandles {
     GrGLSLProgramDataManager::UniformHandle fRTAdjustmentUni;
-    // Render target height, used to implement u_skRTHeight and to calculate sk_FragCoord when
-    // origin_upper_left is not supported.
-    GrGLSLProgramDataManager::UniformHandle fRTHeightUni;
+    // Render target flip uniform (used for dFdy, sk_Clockwise, and sk_FragCoord)
+    GrGLSLProgramDataManager::UniformHandle fRTFlipUni;
     // Destination texture origin and scale, used when dest-texture readback is enabled.
     GrGLSLProgramDataManager::UniformHandle fDstTextureCoordsUni;
 };
