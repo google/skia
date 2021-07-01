@@ -13,14 +13,14 @@
 
 namespace GrPersistentCacheUtils {
 
-static constexpr int kCurrentVersion = 6;
+static constexpr int kCurrentVersion = 7;
 
 int GetCurrentVersion() {
     // The persistent cache stores a copy of the SkSL::Program::Inputs struct. If you alter the
     // Program::Inputs struct in any way, you must increment kCurrentVersion to invalidate the
     // outdated persistent cache files. The KnownSkSLProgramInputs struct must also be updated to
     // match the new contents of Program::Inputs.
-    struct KnownSkSLProgramInputs { bool height, flipY, usesYDeriv; };
+    struct KnownSkSLProgramInputs { bool useRTFlipUniform; };
     static_assert(sizeof(SkSL::Program::Inputs) == sizeof(KnownSkSLProgramInputs));
 
     return kCurrentVersion;
@@ -46,7 +46,6 @@ sk_sp<SkData> PackCachedShaders(SkFourByteTag shaderType,
     if (meta) {
         writer.writeBool(SkToBool(meta->fSettings));
         if (meta->fSettings) {
-            writer.writeBool(meta->fSettings->fFlipY);
             writer.writeBool(meta->fSettings->fFragColorIsInOut);
             writer.writeBool(meta->fSettings->fForceHighPrecision);
             writer.writeBool(meta->fSettings->fUsePushConstants);
@@ -97,7 +96,6 @@ bool UnpackCachedShaders(SkReadBuffer* reader,
         SkASSERT(meta->fSettings != nullptr);
 
         if (reader->readBool()) {
-            meta->fSettings->fFlipY              = reader->readBool();
             meta->fSettings->fFragColorIsInOut   = reader->readBool();
             meta->fSettings->fForceHighPrecision = reader->readBool();
             meta->fSettings->fUsePushConstants   = reader->readBool();
