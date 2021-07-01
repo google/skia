@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "719b97b3_78e0c026",
+        "filename": "src/core/SkBlitter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 662,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-07-01T14:43:13Z",
+      "side": 1,
+      "message": "Not sure if the compiler is smart enough to restructure this for you, or if it would make any difference, but we\u0027re now calling a virtual upfront.\n\nMight be worth moving the cheap tests first?",
+      "revId": "fbbaa772b88afee77e162cf0c809815ee0c0df52",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
