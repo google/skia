@@ -13,6 +13,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrGpu.h"
+#include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrTexture.h"
 #include "src/image/SkImage_Gpu.h"
 #include "tools/gpu/ManagedBackendTexture.h"

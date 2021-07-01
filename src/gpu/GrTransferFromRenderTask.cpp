@@ -10,6 +10,7 @@
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrResourceAllocator.h"
+#include "src/gpu/GrResourceProvider.h"
 
 void GrTransferFromRenderTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {
     // This renderTask doesn't have "normal" ops. In this case we still need to add an interval (so

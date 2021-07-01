@@ -15,6 +15,7 @@
 #include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"

@@ -7,6 +7,7 @@
 
 #include "src/gpu/tessellate/shaders/GrPathTessellationShader.h"
 
+#include "src/core/SkMathPriv.h"
 #include "src/gpu/geometry/GrWangsFormula.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"

@@ -11,7 +11,6 @@
 #include "src/gpu/GrSemaphore.h"
 
 #include "include/gpu/vk/GrVkTypes.h"
-#include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/vk/GrVkManagedResource.h"
 
 #include <cinttypes>
@@ -23,11 +22,9 @@ class GrVkSemaphore : public GrSemaphore {
 public:
     static std::unique_ptr<GrVkSemaphore> Make(GrVkGpu* gpu, bool isOwned);
 
-    using WrapType = GrResourceProvider::SemaphoreWrapType;
-
-    static std::unique_ptr<GrVkSemaphore> MakeWrapped(GrVkGpu* gpu,
-                                                      VkSemaphore semaphore,
-                                                      WrapType wrapType,
+    static std::unique_ptr<GrVkSemaphore> MakeWrapped(GrVkGpu*,
+                                                      VkSemaphore,
+                                                      GrSemaphoreWrapType,
                                                       GrWrapOwnership);
 
     ~GrVkSemaphore() override;

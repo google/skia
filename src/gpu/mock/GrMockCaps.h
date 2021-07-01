@@ -84,19 +84,7 @@ public:
         return sampleCount <= this->maxRenderTargetSampleCount(format.asMockColorType());
     }
 
-    int getRenderTargetSampleCount(int requestCount, GrColorType ct) const {
-        requestCount = std::max(requestCount, 1);
-
-        switch (fOptions.fConfigOptions[(int)ct].fRenderability) {
-            case GrMockOptions::ConfigOptions::Renderability::kNo:
-                return 0;
-            case GrMockOptions::ConfigOptions::Renderability::kNonMSAA:
-                return requestCount > 1 ? 0 : 1;
-            case GrMockOptions::ConfigOptions::Renderability::kMSAA:
-                return requestCount > kMaxSampleCnt ? 0 : GrNextPow2(requestCount);
-        }
-        return 0;
-    }
+    int getRenderTargetSampleCount(int requestCount, GrColorType) const;
 
     int getRenderTargetSampleCount(int requestCount,
                                    const GrBackendFormat& format) const override {

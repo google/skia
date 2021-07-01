@@ -11,6 +11,10 @@
 #include "src/gpu/GrDrawIndirectCommand.h"
 #include "src/gpu/GrSimpleMesh.h"
 
+class GrAtlasManager;
+class GrSmallPathAtlasMgr;
+class GrStrikeCache;
+
 /*
  * Abstract interface that supports creating vertices, indices, and meshes, as well as
  * invoking GPU draw operations.
@@ -115,7 +119,7 @@ public:
 
     virtual GrThreadSafeCache* threadSafeCache() const = 0;
     virtual GrResourceProvider* resourceProvider() const = 0;
-    uint32_t contextUniqueID() const { return this->resourceProvider()->contextUniqueID(); }
+    uint32_t contextUniqueID() const;
 
     virtual GrStrikeCache* strikeCache() const = 0;
     virtual GrAtlasManager* atlasManager() const = 0;

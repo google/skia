@@ -382,8 +382,9 @@ public:
 
     virtual std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(
             bool isOwned = true) = 0;
-    virtual std::unique_ptr<GrSemaphore> wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
-            GrResourceProvider::SemaphoreWrapType wrapType, GrWrapOwnership ownership) = 0;
+    virtual std::unique_ptr<GrSemaphore> wrapBackendSemaphore(const GrBackendSemaphore&,
+                                                              GrSemaphoreWrapType,
+                                                              GrWrapOwnership) = 0;
     virtual void insertSemaphore(GrSemaphore* semaphore) = 0;
     virtual void waitSemaphore(GrSemaphore* semaphore) = 0;
 

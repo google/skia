@@ -1644,10 +1644,9 @@ bool GrD3DGpu::onSubmitToGpu(bool syncCpu) {
 std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT GrD3DGpu::makeSemaphore(bool) {
     return GrD3DSemaphore::Make(this);
 }
-std::unique_ptr<GrSemaphore> GrD3DGpu::wrapBackendSemaphore(
-        const GrBackendSemaphore& semaphore,
-        GrResourceProvider::SemaphoreWrapType,
-        GrWrapOwnership) {
+std::unique_ptr<GrSemaphore> GrD3DGpu::wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
+                                                            GrSemaphoreWrapType /* wrapType */,
+                                                            GrWrapOwnership /* ownership */) {
     SkASSERT(this->caps()->semaphoreSupport());
     GrD3DFenceInfo fenceInfo;
     if (!semaphore.getD3DFenceInfo(&fenceInfo)) {

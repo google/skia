@@ -7,6 +7,7 @@
 
 #include "src/gpu/tessellate/GrPathCurveTessellator.h"
 
+#include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/geometry/GrPathUtils.h"
 #include "src/gpu/geometry/GrWangsFormula.h"
 #include "src/gpu/tessellate/GrCullTest.h"

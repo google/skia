@@ -23,6 +23,7 @@
 #include "src/gpu/GrNativeRect.h"
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/GrRenderTarget.h"
+#include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrThreadSafePipelineBuilder.h"
@@ -2555,10 +2556,9 @@ std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT GrVkGpu::makeSemaphore(bool i
     return GrVkSemaphore::Make(this, isOwned);
 }
 
-std::unique_ptr<GrSemaphore> GrVkGpu::wrapBackendSemaphore(
-        const GrBackendSemaphore& semaphore,
-        GrResourceProvider::SemaphoreWrapType wrapType,
-        GrWrapOwnership ownership) {
+std::unique_ptr<GrSemaphore> GrVkGpu::wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
+                                                           GrSemaphoreWrapType wrapType,
+                                                           GrWrapOwnership ownership) {
     return GrVkSemaphore::MakeWrapped(this, semaphore.vkSemaphore(), wrapType, ownership);
 }
 

@@ -10,11 +10,13 @@
 #include "include/private/GrTypesPriv.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkConvertPixels.h"
+#include "src/core/SkMathPriv.h"
 #include "src/core/SkMipmap.h"
 #include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrRenderTarget.h"
+#include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrThreadSafePipelineBuilder.h"
 #include "src/gpu/mtl/GrMtlBuffer.h"
@@ -1511,10 +1513,9 @@ std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT GrMtlGpu::makeSemaphore(bool 
     return GrMtlSemaphore::Make(this);
 }
 
-std::unique_ptr<GrSemaphore> GrMtlGpu::wrapBackendSemaphore(
-        const GrBackendSemaphore& semaphore,
-        GrResourceProvider::SemaphoreWrapType wrapType,
-        GrWrapOwnership /*ownership*/) {
+std::unique_ptr<GrSemaphore> GrMtlGpu::wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
+                                                            GrSemaphoreWrapType /* wrapType */,
+                                                            GrWrapOwnership /*ownership*/) {
     SkASSERT(this->caps()->semaphoreSupport());
     return GrMtlSemaphore::MakeWrapped(semaphore.mtlSemaphore(), semaphore.mtlValue());
 }

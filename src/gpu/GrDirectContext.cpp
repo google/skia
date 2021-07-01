@@ -358,7 +358,7 @@ bool GrDirectContext::wait(int numSemaphores, const GrBackendSemaphore waitSemap
             deleteSemaphoresAfterWait ? kAdopt_GrWrapOwnership : kBorrow_GrWrapOwnership;
     for (int i = 0; i < numSemaphores; ++i) {
         std::unique_ptr<GrSemaphore> sema = fResourceProvider->wrapBackendSemaphore(
-                waitSemaphores[i], GrResourceProvider::SemaphoreWrapType::kWillWait, ownership);
+                waitSemaphores[i], GrSemaphoreWrapType::kWillWait, ownership);
         // If we failed to wrap the semaphore it means the client didn't give us a valid semaphore
         // to begin with. Therefore, it is fine to not wait on it.
         if (sema) {

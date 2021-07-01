@@ -148,14 +148,6 @@ enum class GrBudgetedType : uint8_t {
     kUnbudgetedCacheable,
 };
 
-/**
- * Clips are composed from these objects.
- */
-enum GrClipType {
-    kRect_ClipType,
-    kPath_ClipType
-};
-
 enum class GrScissorTest : bool {
     kDisabled = false,
     kEnabled = true
@@ -166,6 +158,11 @@ struct GrMipLevel {
     size_t fRowBytes = 0;
     // This may be used to keep fPixels from being freed while a GrMipLevel exists.
     sk_sp<SkData> fOptionalStorage;
+};
+
+enum class GrSemaphoreWrapType {
+    kWillSignal,
+    kWillWait,
 };
 
 /**

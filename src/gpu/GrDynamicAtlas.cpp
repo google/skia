@@ -13,6 +13,7 @@
 #include "src/gpu/GrRectanizerPow2.h"
 #include "src/gpu/GrRectanizerSkyline.h"
 #include "src/gpu/GrRenderTarget.h"
+#include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 
 // Each Node covers a sub-rectangle of the final atlas. When a GrDynamicAtlas runs out of room, we

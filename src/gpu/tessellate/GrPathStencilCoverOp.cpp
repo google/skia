@@ -11,6 +11,7 @@
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/tessellate/GrMiddleOutPolygonTriangulator.h"

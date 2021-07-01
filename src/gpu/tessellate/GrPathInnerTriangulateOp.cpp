@@ -12,6 +12,7 @@
 #include "src/gpu/GrInnerFanTriangulator.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/tessellate/GrPathCurveTessellator.h"

@@ -94,12 +94,7 @@ protected:
 
     static bool CombinedQuadCountWillOverflow(GrAAType aaType,
                                               bool willBeUpgradedToAA,
-                                              int combinedQuadCount) {
-        bool willBeAA = (aaType == GrAAType::kCoverage) || willBeUpgradedToAA;
-
-        return combinedQuadCount > (willBeAA ? GrResourceProvider::MaxNumAAQuads()
-                                             : GrResourceProvider::MaxNumNonAAQuads());
-    }
+                                              int combinedQuadCount);
 
     virtual void onPrePrepareDraws(GrRecordingContext*,
                                    const GrSurfaceProxyView& writeView,

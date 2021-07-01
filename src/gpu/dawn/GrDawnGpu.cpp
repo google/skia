@@ -821,10 +821,9 @@ std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT GrDawnGpu::makeSemaphore(bool
     return nullptr;
 }
 
-std::unique_ptr<GrSemaphore> GrDawnGpu::wrapBackendSemaphore(
-        const GrBackendSemaphore& semaphore,
-        GrResourceProvider::SemaphoreWrapType wrapType,
-        GrWrapOwnership ownership) {
+std::unique_ptr<GrSemaphore> GrDawnGpu::wrapBackendSemaphore(const GrBackendSemaphore& /* sema */,
+                                                             GrSemaphoreWrapType /* wrapType */,
+                                                             GrWrapOwnership /* ownership */) {
     SkASSERT(!"unimplemented");
     return nullptr;
 }
