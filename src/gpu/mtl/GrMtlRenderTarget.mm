@@ -100,9 +100,6 @@ sk_sp<GrMtlRenderTarget> GrMtlRenderTarget::MakeWrappedRenderTarget(GrMtlGpu* gp
                 SkASSERT((MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget) &
                          colorTexture.usage);
             }
-#ifdef SK_ENABLE_MTL_DEBUG_INFO
-            colorTexture.label = @"MSAA RenderTarget";
-#endif
             mtlRT = new GrMtlRenderTarget(
                     gpu, dimensions, sampleCnt, colorTexture, texture, kWrapped);
             mtlRT->setRequiresManualMSAAResolve();
