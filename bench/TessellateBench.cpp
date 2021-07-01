@@ -222,11 +222,12 @@ static std::unique_ptr<GrStrokeTessellator> make_hw_tessellator(
 }
 
 static std::unique_ptr<GrStrokeTessellator> make_fixed_count_tessellator(
-        ShaderFlags shaderFlags, const GrShaderCaps&, const SkMatrix& viewMatrix,
+        ShaderFlags shaderFlags, const GrShaderCaps& shaderCaps, const SkMatrix& viewMatrix,
         PathStrokeList* pathStrokeList, std::array<float, 2> matrixMinMaxScales,
         const SkRect& strokeCullBounds) {
     return std::make_unique<GrStrokeFixedCountTessellator>(shaderFlags, viewMatrix, pathStrokeList,
-                                                           matrixMinMaxScales, strokeCullBounds);
+                                                           matrixMinMaxScales, strokeCullBounds,
+                                                           shaderCaps);
 }
 
 using MakePathStrokesFn = std::vector<PathStrokeList>(*)();

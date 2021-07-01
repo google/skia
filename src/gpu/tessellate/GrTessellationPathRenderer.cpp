@@ -78,8 +78,7 @@ GrPathRenderer::CanDrawPath GrTessellationPathRenderer::onCanDrawPath(
         return CanDrawPath::kNo;
     }
     if (!shape.style().isSimpleFill()) {
-        if (shape.inverseFilled() ||
-            !args.fCaps->shaderCaps()->vertexIDSupport()) {
+        if (shape.inverseFilled()) {
             return CanDrawPath::kNo;
         }
     }

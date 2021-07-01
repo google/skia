@@ -13,6 +13,83 @@
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/tessellate/GrStrokeTessellator.h"
 
+GrStrokeTessellationShader::GrStrokeTessellationShader(Mode mode, ShaderFlags shaderFlags,
+                                                       const SkMatrix& viewMatrix,
+                                                       const SkStrokeRec& stroke, SkPMColor4f color,
+                                                       int8_t maxParametricSegments_log2,
+                                                       const GrShaderCaps& shaderCaps)
+        : GrTessellationShader(kTessellate_GrStrokeTessellationShader_ClassID,
+                               (mode == Mode::kHardwareTessellation)
+                                       ? GrPrimitiveType::kPatches
+                                       : GrPrimitiveType::kTriangleStrip,
+                               (mode == Mode::kHardwareTessellation) ? 1 : 0, viewMatrix, color)
+        , fMode(mode)
+        , fShaderFlags(shaderFlags)
+        , fStroke(stroke)
+        , fMaxParametricSegments_log2(maxParametricSegments_log2) {
+    if (fMode == Mode::kHardwareTessellation) {
+        // A join calculates its starting angle using prevCtrlPtAttr.
+        fAttribs.emplace_back("prevCtrlPtAttr", kFloat2_GrVertexAttribType, kFloat2_GrSLType);
+        // pts 0..3 define the stroke as a cubic bezier. If p3.y is infinity, then it's a conic
+        // with w=p3.x.
+        //
+        // If p0 == prevCtrlPtAttr, then no join is emitted.
+        //
+        // pts=[p0, p3, p3, p3] is a reserved pattern that means this patch is a join only,
+        // whose start and end tangents are (p0 - inputPrevCtrlPt) and (p3 - p0).
+        //
+        // pts=[p0, p0, p0, p3] is a reserved pattern that means this patch is a "bowtie", or
+        // double-sided round join, anchored on p0 and rotating from (p0 - prevCtrlPtAttr) to
+        // (p3 - p0).
+        fAttribs.emplace_back("pts01Attr", kFloat4_GrVertexAttribType, kFloat4_GrSLType);
+        fAttribs.emplace_back("pts23Attr", kFloat4_GrVertexAttribType, kFloat4_GrSLType);
+    } else {
+        // pts 0..3 define the stroke as a cubic bezier. If p3.y is infinity, then it's a conic
+        // with w=p3.x.
+        //
+        // An empty stroke (p0==p1==p2==p3) is a special case that denotes a circle, or
+        // 180-degree point stroke.
+        fAttribs.emplace_back("pts01Attr", kFloat4_GrVertexAttribType, kFloat4_GrSLType);
+        fAttribs.emplace_back("pts23Attr", kFloat4_GrVertexAttribType, kFloat4_GrSLType);
+        if (fMode == Mode::kLog2Indirect) {
+            // argsAttr.xy contains the lastControlPoint for setting up the join.
+            //
+            // "argsAttr.z=numTotalEdges" tells the shader the literal number of edges in the
+            // triangle strip being rendered (i.e., it should be vertexCount/2). If
+            // numTotalEdges is negative and the join type is "kRound", it also instructs the
+            // shader to only allocate one segment the preceding round join.
+            fAttribs.emplace_back("argsAttr", kFloat3_GrVertexAttribType, kFloat3_GrSLType);
+        } else {
+            SkASSERT(fMode == Mode::kFixedCount);
+            // argsAttr contains the lastControlPoint for setting up the join.
+            fAttribs.emplace_back("argsAttr", kFloat2_GrVertexAttribType, kFloat2_GrSLType);
+        }
+    }
+    if (fShaderFlags & ShaderFlags::kDynamicStroke) {
+        fAttribs.emplace_back("dynamicStrokeAttr", kFloat2_GrVertexAttribType,
+                              kFloat2_GrSLType);
+    }
+    if (fShaderFlags & ShaderFlags::kDynamicColor) {
+        fAttribs.emplace_back("dynamicColorAttr",
+                              (fShaderFlags & ShaderFlags::kWideColor)
+                                      ? kFloat4_GrVertexAttribType
+                                      : kUByte4_norm_GrVertexAttribType,
+                              kHalf4_GrSLType);
+    }
+    if (fMode == Mode::kHardwareTessellation) {
+        this->setVertexAttributes(fAttribs.data(), fAttribs.count());
+    } else {
+        this->setInstanceAttributes(fAttribs.data(), fAttribs.count());
+        if (!shaderCaps.vertexIDSupport()) {
+            constexpr static Attribute kVertexAttrib("edgeID", kFloat_GrVertexAttribType,
+                                                     kFloat_GrSLType);
+            this->setVertexAttributes(&kVertexAttrib, 1);
+        }
+    }
+    SkASSERT(fAttribs.count() <= kMaxAttribCount);
+}
+
+
 // The built-in atan() is undefined when x==0. This method relieves that restriction, but also can
 // return values larger than 2*PI. This shouldn't matter for our purposes.
 const char* GrStrokeTessellationShader::Impl::kAtan2Fn = R"(
