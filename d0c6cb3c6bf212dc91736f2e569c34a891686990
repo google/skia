@@ -22,6 +22,30 @@
       },
       "revId": "d0c6cb3c6bf212dc91736f2e569c34a891686990",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cf4dd21e_de93eaeb",
+        "filename": "src/gpu/tessellate/shaders/GrTessellationShader.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 12019
+      },
+      "writtenOn": "2021-07-01T02:43:59Z",
+      "side": 1,
+      "message": "This shows much more precision than a 32 bit float can actually hold. It will round back to 2^127 when it\u0027s compiled because that\u0027s the closest value.",
+      "parentUuid": "546cc70c_88a9300f",
+      "range": {
+        "startLine": 71,
+        "startChar": 33,
+        "endLine": 71,
+        "endChar": 42
+      },
+      "revId": "d0c6cb3c6bf212dc91736f2e569c34a891686990",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
