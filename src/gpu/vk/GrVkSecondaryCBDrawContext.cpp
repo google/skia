@@ -46,7 +46,7 @@ sk_sp<GrVkSecondaryCBDrawContext> GrVkSecondaryCBDrawContext::Make(GrRecordingCo
                                                 imageInfo.refColorSpace(),
                                                 kTopLeft_GrSurfaceOrigin,
                                                 SkSurfacePropsCopyOrDefault(props),
-                                                SkBaseGpuDevice::kUninit_InitContents);
+                                                skgpu::BaseDevice::kUninit_InitContents);
     if (!device) {
         return nullptr;
     }
@@ -55,7 +55,7 @@ sk_sp<GrVkSecondaryCBDrawContext> GrVkSecondaryCBDrawContext::Make(GrRecordingCo
                                                                             props));
 }
 
-GrVkSecondaryCBDrawContext::GrVkSecondaryCBDrawContext(sk_sp<SkBaseGpuDevice> device,
+GrVkSecondaryCBDrawContext::GrVkSecondaryCBDrawContext(sk_sp<skgpu::BaseDevice> device,
                                                        const SkSurfaceProps* props)
     : fDevice(device)
     , fProps(SkSurfacePropsCopyOrDefault(props)) {}
