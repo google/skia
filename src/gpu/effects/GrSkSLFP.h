@@ -60,6 +60,15 @@ public:
         return {condition, value};
     }
 
+    template <typename T> struct GrOptionalUniform {
+        bool enabled;
+        T value;
+    };
+    template <typename T>
+    static GrOptionalUniform<T> When(bool condition, const T& value) {
+        return {condition, value};
+    }
+
     struct GrIgnoreOptFlags {
         std::unique_ptr<GrFragmentProcessor> child;
     };
@@ -233,6 +242,25 @@ private:
     void appendArgs(uint8_t* uniformDataPtr,
                     UniformFlags* uniformFlagsPtr,
                     const char* name,
+                    const GrOptionalUniform<T>& val,
+                    Args&&... remainder) {
+        // Optional uniform case -- This just handles skipping over uniforms that aren't enabled.
+        // The generic `const T&` case (below) handles copying the data into our uniform block,
+        // and advancing the per-value uniform data and flags pointers.
+        if (val.enabled) {
+            this->appendArgs(uniformDataPtr,
+                             uniformFlagsPtr,
+                             name,
+                             val.value,
+                             std::forward<Args>(remainder)...);
+        } else {
+            this->appendArgs(uniformDataPtr, uniformFlagsPtr, std::forward<Args>(remainder)...);
+        }
+    }
+    template <typename T, typename... Args>
+    void appendArgs(uint8_t* uniformDataPtr,
+                    UniformFlags* uniformFlagsPtr,
+                    const char* name,
                     const T& val,
                     Args&&... remainder) {
         // Raw uniform value case -- We copy the supplied value into our uniform data area,
@@ -299,6 +327,20 @@ private:
                           Args&&... remainder) {
         static_assert(!std::is_array<T>::value);  // No specializing arrays
         checkArgs(uIter, uEnd, cIter, cEnd, name, val.value, std::forward<Args>(remainder)...);
+    }
+    template <typename T, typename... Args>
+    static void checkArgs(uniform_iterator uIter,
+                          uniform_iterator uEnd,
+                          child_iterator cIter,
+                          child_iterator cEnd,
+                          const char* name,
+                          const GrOptionalUniform<T>& val,
+                          Args&&... remainder) {
+        if (val.enabled) {
+            checkArgs(uIter, uEnd, cIter, cEnd, name, val.value, std::forward<Args>(remainder)...);
+        } else {
+            checkArgs(uIter, uEnd, cIter, cEnd, std::forward<Args>(remainder)...);
+        }
     }
     template <typename T, typename... Args>
     static void checkArgs(uniform_iterator uIter,
