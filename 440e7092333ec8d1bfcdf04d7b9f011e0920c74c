@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6be743cb_214b2f39",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-07-01T13:48:48Z",
+      "side": 1,
+      "message": "Here\u0027s the magic that lets this runtime effect bypass the ES2 restrictions.",
+      "range": {
+        "startLine": 349,
+        "startChar": 12,
+        "endLine": 349,
+        "endChar": 45
+      },
+      "revId": "440e7092333ec8d1bfcdf04d7b9f011e0920c74c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
