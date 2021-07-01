@@ -618,11 +618,7 @@ bool MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c, IntrinsicKind
             return true;
         }
         case k_dFdy_IntrinsicKind: {
-            // Flipping Y also negates the Y derivatives.
-            if (fProgram.fConfig->fSettings.fFlipY) {
-                this->write("-");
-            }
-            this->write("dfdy");
+            this->write(fRTFlipName + ".y*dfdy");
             this->writeArgumentList(c.arguments());
             return true;
         }
@@ -1107,13 +1103,12 @@ void MetalCodeGenerator::writeCastConstructor(const AnyConstructor& c,
 }
 
 void MetalCodeGenerator::writeFragCoord() {
-    if (fRTHeightName.length()) {
-        this->write("float4(_fragCoord.x, ");
-        this->write(fRTHeightName.c_str());
-        this->write(" - _fragCoord.y, 0.0, _fragCoord.w)");
-    } else {
-        this->write("float4(_fragCoord.x, _fragCoord.y, 0.0, _fragCoord.w)");
-    }
+    SkASSERT(fRTFlipName.length());
+    this->write("float4(_fragCoord.x, ");
+    this->write(fRTFlipName.c_str());
+    this->write(".x + ");
+    this->write(fRTFlipName.c_str());
+    this->write(".y * _fragCoord.y, 0.0, _fragCoord.w)");
 }
 
 void MetalCodeGenerator::writeVariableReference(const VariableReference& ref) {
@@ -1141,7 +1136,7 @@ void MetalCodeGenerator::writeVariableReference(const VariableReference& ref) {
         case SK_CLOCKWISE_BUILTIN:
             // We'd set the front facing winding in the MTLRenderCommandEncoder to be counter
             // clockwise to match Skia convention.
-            this->write(fProgram.fConfig->fSettings.fFlipY ? "_frontFacing" : "(!_frontFacing)");
+            this->write("(" + fRTFlipName + ".y < 0 ? _frontFacing : !_frontFacing)");
             break;
         default:
             const Variable& var = *ref.variable();
@@ -1596,7 +1591,9 @@ int MetalCodeGenerator::getUniformSet(const Modifiers& m) {
 }
 
 bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) {
-    fRTHeightName = fProgram.fInputs.fRTHeight ? "_globals._anonInterface0->u_skRTHeight" : "";
+    fRTFlipName = fProgram.fInputs.fUseFlipRTUniform
+                          ? "_globals._anonInterface0->" SKSL_RTFLIP_NAME
+                          : "";
     const char* separator = "";
     if (f.isMain()) {
         switch (fProgram.fConfig->fKind) {
@@ -1657,9 +1654,9 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
             }
         }
         if (fProgram.fConfig->fKind == ProgramKind::kFragment) {
-            if (fProgram.fInputs.fRTHeight && fInterfaceBlockNameMap.empty()) {
+            if (fProgram.fInputs.fUseFlipRTUniform && fInterfaceBlockNameMap.empty()) {
                 this->write(", constant sksl_synthetic_uniforms& _anonInterface0 [[buffer(1)]]");
-                fRTHeightName = "_anonInterface0.u_skRTHeight";
+                fRTFlipName = "_anonInterface0." SKSL_RTFLIP_NAME;
             }
             this->write(", bool _frontFacing [[front_facing]]");
             this->write(", float4 _fragCoord [[position]]");
@@ -1784,8 +1781,8 @@ void MetalCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     }
     fIndentation++;
     this->writeFields(structType->fields(), structType->fOffset, &intf);
-    if (fProgram.fInputs.fRTHeight) {
-        this->writeLine("float u_skRTHeight;");
+    if (fProgram.fInputs.fUseFlipRTUniform) {
+        this->writeLine("float2 " SKSL_RTFLIP_NAME ";");
     }
     fIndentation--;
     this->write("}");
@@ -2165,9 +2162,9 @@ void MetalCodeGenerator::writeInterfaceBlocks() {
             wroteInterfaceBlock = true;
         }
     }
-    if (!wroteInterfaceBlock && fProgram.fInputs.fRTHeight) {
+    if (!wroteInterfaceBlock && fProgram.fInputs.fUseFlipRTUniform) {
         this->writeLine("struct sksl_synthetic_uniforms {");
-        this->writeLine("    float u_skRTHeight;");
+        this->writeLine("    float2 " SKSL_RTFLIP_NAME ";");
         this->writeLine("};");
     }
 }
