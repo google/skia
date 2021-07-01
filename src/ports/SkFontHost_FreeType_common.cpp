@@ -714,6 +714,7 @@ void colrv1_draw_paint(SkCanvas* canvas,
         }
         case FT_COLR_PAINTFORMAT_TRANSFORM:
         case FT_COLR_PAINTFORMAT_TRANSLATE:
+        case FT_COLR_PAINTFORMAT_SCALE:
         case FT_COLR_PAINTFORMAT_ROTATE:
         case FT_COLR_PAINTFORMAT_SKEW:
             SkASSERT(false);  // Transforms handled in colrv1_transform.
@@ -767,6 +768,14 @@ void colrv1_transform(SkCanvas* canvas, FT_Face face, FT_COLR_Paint colrv1_paint
             transform = SkMatrix::Translate(
                 SkFixedToScalar(colrv1_paint.u.translate.dx),
                 -SkFixedToScalar(colrv1_paint.u.translate.dy));
+            break;
+        }
+        case FT_COLR_PAINTFORMAT_SCALE: {
+            transform.setScaleTranslate(
+                SkFixedToScalar(colrv1_paint.u.scale.scale_x),
+                SkFixedToScalar(colrv1_paint.u.scale.scale_y),
+                SkFixedToScalar(colrv1_paint.u.scale.center_x),
+                -SkFixedToScalar(colrv1_paint.u.scale.center_y));
             break;
         }
         case FT_COLR_PAINTFORMAT_ROTATE: {
@@ -889,6 +898,11 @@ bool colrv1_traverse_paint(SkCanvas* canvas,
             colrv1_transform(canvas, face, paint);
             traverse_result = colrv1_traverse_paint(canvas, palette, face,
                                                     paint.u.translate.paint, visited_set);
+            break;
+        case FT_COLR_PAINTFORMAT_SCALE:
+            colrv1_transform(canvas, face, paint);
+            traverse_result = colrv1_traverse_paint(canvas, palette, face,
+                                                    paint.u.scale.paint, visited_set);
             break;
         case FT_COLR_PAINTFORMAT_ROTATE:
             colrv1_transform(canvas, face, paint);
