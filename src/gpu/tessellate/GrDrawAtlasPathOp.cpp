@@ -28,8 +28,8 @@ public:
             , fAtlasDimensions(atlasProxy->backingStoreDimensions())
             , fIsInverseFill(isInverseFill)
             , fUsesLocalCoords(usesLocalCoords) {
-        fAttribs.emplace_back("dev_xywh", kInt4_GrVertexAttribType, kInt4_GrSLType);
-        fAttribs.emplace_back("atlas_xy", kInt2_GrVertexAttribType, kInt2_GrSLType);
+        fAttribs.emplace_back("dev_xywh", kFloat4_GrVertexAttribType, kFloat4_GrSLType);
+        fAttribs.emplace_back("atlas_xy", kFloat2_GrVertexAttribType, kFloat2_GrSLType);
         fAttribs.emplace_back("color", kFloat4_GrVertexAttribType, kHalf4_GrSLType);
         if (fIsInverseFill) {
             fAttribs.emplace_back("drawbounds", kFloat4_GrVertexAttribType, kFloat4_GrSLType);
@@ -91,14 +91,14 @@ class DrawAtlasPathShader::Impl : public GrGLSLGeometryProcessor {
         }
 
         args.fVertBuilder->codeAppendf(R"(
-        float2 devtopleft = float2(dev_xywh.xy);)");
+        float2 devtopleft = dev_xywh.xy;)");
 
         if (shader.fIsInverseFill) {
             args.fVertBuilder->codeAppendf(R"(
             float2 devcoord = mix(drawbounds.xy, drawbounds.zw, unit_coord);)");
         } else {
             args.fVertBuilder->codeAppendf(R"(
-            float2 devcoord = abs(float2(dev_xywh.zw)) * unit_coord + devtopleft;)");
+            float2 devcoord = abs(dev_xywh.zw) * unit_coord + devtopleft;)");
         }
 
         args.fVertBuilder->codeAppendf(R"(
@@ -107,7 +107,7 @@ class DrawAtlasPathShader::Impl : public GrGLSLGeometryProcessor {
         if (transposed) {
             atlascoord = atlascoord.yx;
         }
-        atlascoord += float2(atlas_xy);
+        atlascoord += atlas_xy;
         %s = atlascoord * %s;)",
         atlasCoord.vsOut(), atlasAdjust);
 
@@ -125,9 +125,8 @@ class DrawAtlasPathShader::Impl : public GrGLSLGeometryProcessor {
             args.fVaryingHandler->addVarying("atlasbounds", &atlasBounds,
                                              GrGLSLVaryingHandler::Interpolation::kCanBeFlat);
             args.fVertBuilder->codeAppendf(R"(
-            int2 atlas_wh = (transposed) ? abs(dev_xywh.wz) : dev_xywh.zw;
-            %s = float4(atlas_xy, atlas_xy + atlas_wh) * %s.xyxy;)", atlasBounds.vsOut(),
-                    atlasAdjust);
+            float2 atlas_wh = (transposed) ? abs(dev_xywh.wz) : dev_xywh.zw;
+            %s = (atlas_xy.xyxy + atlas_wh.00xy) * %s.xyxy;)", atlasBounds.vsOut(), atlasAdjust);
 
             args.fFragBuilder->codeAppendf(R"(
             half coverage = 0;
@@ -224,8 +223,12 @@ void GrDrawAtlasPathOp::onPrepare(GrOpFlushState* state) {
                 shader->instanceStride(), fInstanceCount, &fInstanceBuffer, &fBaseInstance)) {
         for (const Instance* instance = &fHeadInstance; instance; instance = instance->fNext) {
             instanceWriter.write(
-                    instance->fDevXYWH,
-                    instance->fAtlasXY,
+                    (float)instance->fDevXYWH[0],
+                    (float)instance->fDevXYWH[1],
+                    (float)instance->fDevXYWH[2],
+                    (float)instance->fDevXYWH[3],
+                    (float)instance->fAtlasXY.x(),
+                    (float)instance->fAtlasXY.y(),
                     instance->fColor,
                     GrVertexWriter::If(fIsInverseFill, instance->fDrawBoundsIfInverseFilled),
                     GrVertexWriter::If(fUsesLocalCoords, instance->fViewMatrixIfUsingLocalCoords));

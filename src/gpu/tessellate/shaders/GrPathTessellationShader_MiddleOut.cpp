@@ -31,10 +31,8 @@ public:
             : GrPathTessellationShader(kTessellate_MiddleOutShader_ClassID,
                                        GrPrimitiveType::kTriangles, 0, viewMatrix, color)
             , fPatchType(patchType) {
-        fInstanceAttribs.emplace_back("inputPoints_0_1", kFloat4_GrVertexAttribType,
-                                      kFloat4_GrSLType);
-        fInstanceAttribs.emplace_back("inputPoints_2_3", kFloat4_GrVertexAttribType,
-                                      kFloat4_GrSLType);
+        fInstanceAttribs.emplace_back("p01", kFloat4_GrVertexAttribType, kFloat4_GrSLType);
+        fInstanceAttribs.emplace_back("p23", kFloat4_GrVertexAttribType, kFloat4_GrSLType);
         if (fPatchType == PatchType::kWedges) {
             fInstanceAttribs.emplace_back("fanPoint", kFloat2_GrVertexAttribType, kFloat2_GrSLType);
         }
@@ -90,25 +88,27 @@ GrGLSLGeometryProcessor* MiddleOutShader::createGLSLInstance(const GrShaderCaps&
                 } else)");  // Fall through to next if ().
             }
             v->codeAppend(R"(
-            if (isinf_portable(inputPoints_2_3.z)) {
+            if (isinf_portable(p23.z)) {
                 // A conic with w=Inf is an exact triangle.
-                localcoord = (resolveLevel != 0)      ? inputPoints_0_1.zw
-                           : (idxInResolveLevel != 0) ? inputPoints_2_3.xy
-                                                      : inputPoints_0_1.xy;
+                localcoord = (resolveLevel != 0)      ? p01.zw
+                           : (idxInResolveLevel != 0) ? p23.xy
+                                                      : p01.xy;
             } else {
+                float2 p0=p01.xy, p1=p01.zw, p2=p23.xy, p3=p23.zw;
                 float w = -1;  // w < 0 tells us to treat the instance as an integral cubic.
-                float4x2 P = float4x2(inputPoints_0_1, inputPoints_2_3);
                 float maxResolveLevel;
-                if (isinf_portable(P[3].y)) {
+                if (isinf_portable(p3.y)) {
                     // The patch is a conic.
-                    w = P[3].x;
-                    maxResolveLevel =
-                            wangs_formula_conic_log2(PRECISION, AFFINE_MATRIX * float3x2(P), w);
-                    P[3] = P[2];  // Duplicate the endpoint.
-                    P[1] *= w;  // Unproject p1.
+                    w = p3.x;
+                    maxResolveLevel = wangs_formula_conic_log2(PRECISION, AFFINE_MATRIX * p0,
+                                                                          AFFINE_MATRIX * p1,
+                                                                          AFFINE_MATRIX * p2, w);
+                    p1 *= w;  // Unproject p1.
+                    p3 = p2;  // Duplicate the endpoint.
                 } else {
                     // The patch is an integral cubic.
-                    maxResolveLevel = wangs_formula_cubic_log2(PRECISION, P, AFFINE_MATRIX);
+                    maxResolveLevel = wangs_formula_cubic_log2(PRECISION, p0, p1, p2, p3,
+                                                               AFFINE_MATRIX);
                 }
                 if (resolveLevel > maxResolveLevel) {
                     // This vertex is at a higher resolve level than we need. Demote to a lower
@@ -121,15 +121,15 @@ GrGLSLGeometryProcessor* MiddleOutShader::createGLSLInstance(const GrShaderCaps&
                 // This is extra paranoia to ensure we get the exact same fp32 coordinates for
                 // colocated points from different resolve levels (e.g., the vertices T=3/4 and
                 // T=6/8 should be exactly colocated).
-                float fixedVertexID = round(ldexp_portable(idxInResolveLevel,
-                                                           MAX_FIXED_RESOLVE_LEVEL - resolveLevel));
+                float fixedVertexID = floor(.5 + ldexp_portable(
+                        idxInResolveLevel, MAX_FIXED_RESOLVE_LEVEL - resolveLevel));
                 if (0 < fixedVertexID && fixedVertexID < MAX_FIXED_SEGMENTS) {
                     float T = fixedVertexID * (1 / MAX_FIXED_SEGMENTS);
 
                     // Evaluate at T. Use De Casteljau's for its accuracy and stability.
-                    float2 ab = mix(P[0], P[1], T);
-                    float2 bc = mix(P[1], P[2], T);
-                    float2 cd = mix(P[2], P[3], T);
+                    float2 ab = mix(p0, p1, T);
+                    float2 bc = mix(p1, p2, T);
+                    float2 cd = mix(p2, p3, T);
                     float2 abc = mix(ab, bc, T);
                     float2 bcd = mix(bc, cd, T);
                     float2 abcd = mix(abc, bcd, T);
@@ -141,7 +141,7 @@ GrGLSLGeometryProcessor* MiddleOutShader::createGLSLInstance(const GrShaderCaps&
 
                     localcoord = (w < 0) ? /*cubic*/ abcd : /*conic*/ abc/uv;
                 } else {
-                    localcoord = (fixedVertexID == 0) ? P[0].xy : P[3].xy;
+                    localcoord = (fixedVertexID == 0) ? p0.xy : p3.xy;
                 }
             }
             float2 vertexpos = AFFINE_MATRIX * localcoord + TRANSLATE;)");
