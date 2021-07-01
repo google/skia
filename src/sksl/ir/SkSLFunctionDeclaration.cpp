@@ -82,7 +82,7 @@ static bool check_parameters(const Context& context,
         // Only the (builtin) declarations of 'sample' are allowed to have shader/colorFilter or FP
         // parameters. You can pass other opaque types to functions safely; this restriction is
         // specific to "child" objects.
-        if ((type.isEffectChild() || type.isFragmentProcessor()) && !isBuiltin) {
+        if (type.isEffectChild() && !isBuiltin) {
             context.fErrors.error(param->fOffset, "parameters of type '" + type.displayName() +
                                                   "' not allowed");
             return false;
@@ -92,11 +92,10 @@ static bool check_parameters(const Context& context,
         ProgramKind kind = context.fConfig->fKind;
         if (isMain && (kind == ProgramKind::kRuntimeColorFilter ||
                        kind == ProgramKind::kRuntimeShader ||
-                       kind == ProgramKind::kRuntimeBlender ||
-                       kind == ProgramKind::kFragmentProcessor)) {
-            // We verify that the signature is fully correct later. For now, if this is an .fp or
-            // runtime effect of any flavor, a float2 param is supposed to be the coords, and
-            // a half4/float parameter is supposed to be the input or destination color:
+                       kind == ProgramKind::kRuntimeBlender)) {
+            // We verify that the signature is fully correct later. For now, if this is a runtime
+            // effect of any flavor, a float2 param is supposed to be the coords, and a half4/float
+            // parameter is supposed to be the input or destination color:
             if (type == *context.fTypes.fFloat2) {
                 m.fLayout.fBuiltin = SK_MAIN_COORDS_BUILTIN;
             } else if (typeIsValidForColor(type) &&
@@ -189,19 +188,6 @@ static bool check_main_signature(const Context& context, int offset, const Type&
                   paramIsDestColor(1))) {
                 errors.error(offset, "'main' parameters must be (vec4|float4|half4, "
                                                                 "vec4|float4|half4)");
-                return false;
-            }
-            break;
-        }
-        case ProgramKind::kFragmentProcessor: {
-            if (returnType != *context.fTypes.fHalf4) {
-                errors.error(offset, ".fp 'main' must return 'half4'");
-                return false;
-            }
-            bool validParams = (parameters.size() == 0) ||
-                               (parameters.size() == 1 && paramIsCoords(0));
-            if (!validParams) {
-                errors.error(offset, ".fp 'main' must be declared main() or main(float2)");
                 return false;
             }
             break;

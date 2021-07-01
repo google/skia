@@ -39,8 +39,7 @@ DSLVar::DSLVar(const char* name)
                                              /*binding=*/-1, /*index=*/-1, /*set=*/-1,
                                              SK_MAIN_COORDS_BUILTIN, /*inputAttachmentIndex=*/-1,
                                              Layout::kUnspecified_Primitive, /*maxVertices=*/1,
-                                             /*invocations=*/-1, /*when=*/"",
-                                             Layout::CType::kDefault),
+                                             /*invocations=*/-1),
                                 SkSL::Modifiers::kNo_Flag));
 
         fVar = DSLWriter::SymbolTable()->takeOwnershipOfIRNode(std::make_unique<SkSL::Variable>(
