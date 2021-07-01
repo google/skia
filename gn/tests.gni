@@ -424,9 +424,9 @@ pathops_tests_sources = [
   "$_tests/WangsFormulaTest.cpp",
 ]
 
-oga_tests_sources = [
+skgpu_v1_tests_sources = [
   "$_tests/GrClipStackTest.cpp",
   "$_tests/PathRendererCacheTests.cpp",
 ]
 
-tests_sources += oga_tests_sources
+tests_sources += skgpu_v1_tests_sources
