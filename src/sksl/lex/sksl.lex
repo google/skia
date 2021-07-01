@@ -43,7 +43,6 @@ ENUM           = "enum"
 CLASS          = "class"
 IDENTIFIER     = [a-zA-Z_$]([0-9]|[a-zA-Z_$])*
 DIRECTIVE      = #[a-zA-Z_$]([0-9]|[a-zA-Z_$])*
-SECTION        = @[a-zA-Z_$]([0-9]|[a-zA-Z_$])*
 LPAREN         = "("
 RPAREN         = ")"
 LBRACE         = "{"

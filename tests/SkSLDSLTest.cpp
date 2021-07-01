@@ -158,7 +158,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFlags, r, ctxInfo) {
         SkSL::ProgramSettings settings;
         settings.fOptimize = false;
         AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), settings,
-                               SkSL::ProgramKind::kFragmentProcessor);
+                               SkSL::ProgramKind::kFragment);
         EXPECT_EQUAL(All(GreaterThan(Float4(1), Float4(0))),
                      "all(greaterThan(float4(1.0), float4(0.0)))");
     }
@@ -1877,21 +1877,6 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLLayout, r, ctxInfo) {
     {
         ExpectError error(r, "error: layout qualifier 'srgb_unpremul' appears more than once\n");
         DSLLayout().srgbUnpremul().srgbUnpremul();
-    }
-}
-
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSampleFragmentProcessor, r, ctxInfo) {
-    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), default_settings(),
-                           SkSL::ProgramKind::kFragmentProcessor);
-    DSLVar child(kUniform_Modifier, kFragmentProcessor_Type, "child");
-    EXPECT_EQUAL(Sample(child), "sample(child)");
-    EXPECT_EQUAL(Sample(child, Float2(0, 0)), "sample(child, float2(0.0, 0.0))");
-    EXPECT_EQUAL(Sample(child, Half4(1)), "sample(child, half4(1.0))");
-    EXPECT_EQUAL(Sample(child, Float2(0), Half4(1)), "sample(child, float2(0.0), half4(1.0))");
-
-    {
-        ExpectError error(r, "error: no match for sample(fragmentProcessor, bool)\n");
-        Sample(child, true).release();
     }
 }
 
