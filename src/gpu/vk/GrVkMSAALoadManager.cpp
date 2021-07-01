@@ -10,6 +10,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/GrDirectContextPriv.h"
+#include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/vk/GrVkBuffer.h"
 #include "src/gpu/vk/GrVkCommandBuffer.h"
 #include "src/gpu/vk/GrVkDescriptorSet.h"

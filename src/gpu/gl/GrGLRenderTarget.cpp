@@ -12,6 +12,7 @@
 #include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrGpuResourcePriv.h"
+#include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/gl/GrGLGpu.h"
 #include "src/gpu/gl/GrGLUtil.h"
 

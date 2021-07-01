@@ -19,6 +19,7 @@
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrThreadSafeCache.h"

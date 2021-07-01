@@ -13,7 +13,6 @@
 #include "include/private/SkTArray.h"
 #include "src/gpu/GrDeferredUpload.h"
 #include "src/gpu/GrOpFlushState.h"
-#include "src/gpu/GrResourceProvider.h"
 
 class GrDrawingManager;
 class GrOnFlushResourceProvider;

@@ -11,6 +11,7 @@
 #include "include/private/SkSpinlock.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkLRUCache.h"
+#include "src/core/SkTDynamicHash.h"
 #include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrThreadSafePipelineBuilder.h"
 #include "src/gpu/mtl/GrMtlDepthStencil.h"
