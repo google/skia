@@ -39,16 +39,52 @@ public:
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     const SkPMColor4f& color() const { return fColor;}
 
+    static bool SupportsPortableInfinity(const GrShaderCaps& shaderCaps) {
+        // If we don't have native infinity then we need full 32-bit floats in order to emulate it.
+        return shaderCaps.infinitySupport() || shaderCaps.floatIs32Bits();
+    }
+
+    static uint32_t PortableInfinityBits32(const GrShaderCaps& shaderCaps) {
+        SkASSERT(SupportsPortableInfinity(shaderCaps));
+        // Tessellation shaders use infinity to flag conics, and also as a weight that turns conics
+        // into triangles.
+        constexpr static uint32_t kIEEE_32_infinity = 0xff << 23;
+        // On hardware that doesn't support infinity, we pretend that inputs >= 2^126 are infinity.
+        // The rationale for doing this is that these number are so large, they will overflow if we
+        // try to do any bezier math with them anyway.
+        constexpr static uint32_t kIEEE_32_pseudo_infinity =
+                (0xfd << 23) | (1 << 22);  // 1.5 * 2^126.
+        return shaderCaps.infinitySupport() ? kIEEE_32_infinity : kIEEE_32_pseudo_infinity;
+    }
+
+    static const char* SkSLPortable_isinf(const GrShaderCaps& shaderCaps) {
+        SkASSERT(SupportsPortableInfinity(shaderCaps));
+        if (shaderCaps.infinitySupport()) {
+            return R"(
+            bool isinf_portable(float x) {
+                return isinf(x);
+            })";
+        } else {
+            SkASSERT(shaderCaps.floatIs32Bits());
+            return R"(
+            bool isinf_portable(float x) {
+                return abs(x) >= exp2(126);
+            })";
+        }
+    }
+
     // Fills in a 4-point patch in such a way that the shader will recognize it as a conic.
-    static void WriteConicPatch(const SkPoint pts[3], float w, GrVertexWriter* writer) {
+    static void WriteConicPatch(const GrShaderCaps& shaderCaps, const SkPoint pts[3], float w,
+                                GrVertexWriter* writer) {
         // Write out the 3 conic points to patch[0..2], the weight to patch[3].x, and then set
         // patch[3].y as NaN to flag this patch as a conic.
         writer->writeArray(pts, 3);
-        writer->write(w, GrVertexWriter::kIEEE_32_infinity);
+        writer->write(w, PortableInfinityBits32(shaderCaps));
     }
-    static void WriteConicPatch(const SkPoint pts[3], float w, SkPoint patch[4]) {
+    static void WriteConicPatch(const GrShaderCaps& shaderCaps, const SkPoint pts[3], float w,
+                                SkPoint patch[4]) {
         GrVertexWriter writer(patch);
-        WriteConicPatch(pts, w, &writer);
+        WriteConicPatch(shaderCaps, pts, w, &writer);
     }
 
     struct ProgramArgs {
