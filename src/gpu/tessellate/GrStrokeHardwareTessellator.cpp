@@ -709,10 +709,9 @@ GrStrokeHardwareTessellator::GrStrokeHardwareTessellator(ShaderFlags shaderFlags
                                                          PathStrokeList* pathStrokeList,
                                                          std::array<float,2> matrixMinMaxScales,
                                                          const SkRect& strokeCullBounds)
-        : GrStrokeTessellator(GrStrokeTessellationShader::Mode::kHardwareTessellation,
-                              shaderFlags, SkNextLog2(shaderCaps.maxTessellationSegments()),
-                              viewMatrix, pathStrokeList, matrixMinMaxScales,
-                              strokeCullBounds) {
+        : GrStrokeTessellator(GrStrokeTessellationShader::Mode::kHardwareTessellation, shaderFlags,
+                              SkNextLog2(shaderCaps.maxTessellationSegments()), viewMatrix,
+                              pathStrokeList, matrixMinMaxScales, strokeCullBounds, shaderCaps) {
 }
 
 void GrStrokeHardwareTessellator::prepare(GrMeshDrawTarget* target, int totalCombinedVerbCnt) {

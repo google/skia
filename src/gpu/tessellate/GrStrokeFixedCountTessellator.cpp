@@ -8,6 +8,7 @@
 #include "src/gpu/tessellate/GrStrokeFixedCountTessellator.h"
 
 #include "src/core/SkGeometry.h"
+#include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/geometry/GrPathUtils.h"
 #include "src/gpu/geometry/GrWangsFormula.h"
 #include "src/gpu/tessellate/GrCullTest.h"
@@ -238,11 +239,14 @@ GrStrokeFixedCountTessellator::GrStrokeFixedCountTessellator(ShaderFlags shaderF
                                                              const SkMatrix& viewMatrix,
                                                              PathStrokeList* pathStrokeList,
                                                              std::array<float,2> matrixMinMaxScales,
-                                                             const SkRect& strokeCullBounds)
+                                                             const SkRect& strokeCullBounds,
+                                                             const GrShaderCaps& shaderCaps)
         : GrStrokeTessellator(GrStrokeTessellationShader::Mode::kFixedCount, shaderFlags,
                               kMaxParametricSegments_log2, viewMatrix, pathStrokeList,
-                              matrixMinMaxScales, strokeCullBounds) {
+                              matrixMinMaxScales, strokeCullBounds, shaderCaps) {
 }
+
+GR_DECLARE_STATIC_UNIQUE_KEY(gVertexIDFallbackBufferKey);
 
 void GrStrokeFixedCountTessellator::prepare(GrMeshDrawTarget* target,
                                             int totalCombinedVerbCnt) {
@@ -404,6 +408,26 @@ void GrStrokeFixedCountTessellator::prepare(GrMeshDrawTarget* target,
     // emit both because the join's edge is half-width and the stroke's is full-width.
     int fixedEdgeCount = maxEdgesInJoin + maxEdgesInStroke;
 
+    // Don't draw more vertices than can be indexed by a signed short. We just have to draw the line
+    // somewhere and this seems reasonable enough. (There are two vertices per edge, so 2^14 edges
+    // make 2^15 vertices.)
+    fixedEdgeCount = std::min(fixedEdgeCount, (1 << 14) - 1);
+
+    if (!target->caps().shaderCaps()->vertexIDSupport()) {
+        // Our shader won't be able to use sk_VertexID. Bind a fallback vertex buffer with the IDs
+        // in it instead.
+        constexpr static int kMaxVerticesInFallbackBuffer = 2048;
+        fixedEdgeCount = std::min(fixedEdgeCount, kMaxVerticesInFallbackBuffer/2);
+
+        GR_DEFINE_STATIC_UNIQUE_KEY(gVertexIDFallbackBufferKey);
+
+        fVertexBufferIfNoIDSupport = target->resourceProvider()->findOrMakeStaticBuffer(
+                GrGpuBufferType::kVertex,
+                kMaxVerticesInFallbackBuffer * sizeof(float),
+                gVertexIDFallbackBufferKey,
+                GrStrokeTessellationShader::InitializeVertexIDFallbackBuffer);
+    }
+
     fShader.setFixedCountNumTotalEdges(fixedEdgeCount);
     fFixedVertexCount = fixedEdgeCount * 2;
 }
@@ -413,7 +437,7 @@ void GrStrokeFixedCountTessellator::draw(GrOpFlushState* flushState) const {
         return;
     }
     for (const auto& instanceChunk : fInstanceChunks) {
-        flushState->bindBuffers(nullptr, instanceChunk.fBuffer, nullptr);
+        flushState->bindBuffers(nullptr, instanceChunk.fBuffer, fVertexBufferIfNoIDSupport);
         flushState->drawInstanced(instanceChunk.fCount, instanceChunk.fBase, fFixedVertexCount, 0);
     }
 }
