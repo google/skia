@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "be7217d4_2670a1f9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-07-01T20:28:28Z",
+      "side": 1,
+      "message": "Nothing tricky here. Just a lot of mechanical renaming",
+      "revId": "6a396dac0f85c51c9507ae65968c84ab3c20cd6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
