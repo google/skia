@@ -9,9 +9,9 @@ void draw(SkCanvas* canvas) {
     bitmap.allocPixels(imageInfo);
     SkCanvas offscreen(bitmap);
     offscreen.clear(SK_ColorGREEN);
-    canvas->drawBitmap(bitmap, 0, 0);
+    canvas->drawImage(bitmap.asImage(), 0, 0);
     offscreen.clear(SK_ColorGRAY);
-    canvas->drawBitmap(bitmap, 2, 2);
+    canvas->drawImage(bitmap.asImage(), 2, 2);
     auto pack4444 = [](unsigned a, unsigned r, unsigned g, unsigned b) -> uint16_t {
         return (a << 0) | (b << 4) | (g << 8) | (r << 12);
     };
@@ -22,11 +22,11 @@ void draw(SkCanvas* canvas) {
     SkImageInfo pixInfo = SkImageInfo::Make(2, 2, kARGB_4444_SkColorType, kPremul_SkAlphaType);
     SkPixmap redPixmap(imageInfo, &red4444, 4);
     if (bitmap.writePixels(redPixmap, 0, 0)) {
-        canvas->drawBitmap(bitmap, 4, 4);
+        canvas->drawImage(bitmap.asImage(), 4, 4);
     }
     SkPixmap bluePixmap(imageInfo, &blue4444, 4);
     if (bitmap.writePixels(bluePixmap, 0, 0)) {
-        canvas->drawBitmap(bitmap, 6, 6);
+        canvas->drawImage(bitmap.asImage(), 6, 6);
     }
 }
 }  // END FIDDLE

@@ -418,7 +418,7 @@ void draw(SkCanvas* canvas) {
         return;
     }
     canvas->scale(4, 4);
-    canvas->drawBitmap(bm, 0, 0);
+    canvas->drawImage(bm.asImage(), 0, 0);
 }
 
 }  // END FIDDLE
