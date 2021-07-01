@@ -19,7 +19,6 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkSLDefines.h"  // for kDefaultInlineThreshold
 #include "include/utils/SkRandom.h"
-#include "src/core/SkRuntimeEffectPriv.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "tests/Test.h"
@@ -99,8 +98,8 @@ static void test_permutations(skiatest::Reporter* r,
                               SkSurface* surface,
                               const char* testFile,
                               bool worksInES2) {
-    SkRuntimeEffect::Options options =
-            worksInES2 ? SkRuntimeEffect::Options{} : SkRuntimeEffectPriv::ES3Options();
+    SkRuntimeEffect::Options options;
+    options.enforceES2Restrictions = worksInES2;
     options.forceNoInline = false;
     test_one_permutation(r, surface, testFile, "", options);
 
