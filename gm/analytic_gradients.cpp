@@ -6,8 +6,8 @@
  */
 
 /*
- * This GM presents a variety of gradients meant to test the correctness of the analytic
- * GrUnrolledBinaryGradientColorizer, which can handle arbitrary gradients with 1 to 8 interpolation
+ * This GM presents a variety of gradients meant to test the correctness of the analytic unrolled
+ * binary gradient colorizer, which can handle arbitrary gradients with 1 to 8 interpolation
  * intervals. These intervals can be either hardstops or smooth color transitions.
  *
  * It produces an image similar to that of GM_hardstop_gradients, but is arranged as follows:
