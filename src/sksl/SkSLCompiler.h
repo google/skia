@@ -161,14 +161,6 @@ public:
 
     bool toMetal(Program& program, String* out);
 
-#if defined(SKSL_STANDALONE) || GR_TEST_UTILS
-    bool toCPP(Program& program, String name, OutputStream& out);
-
-    bool toDSLCPP(Program& program, String name, OutputStream& out);
-
-    bool toH(Program& program, String name, OutputStream& out);
-#endif
-
     void error(int offset, String msg) override;
 
     String errorText(bool showCount = true);
@@ -215,7 +207,6 @@ private:
     const ParsedModule& loadGPUModule();
     const ParsedModule& loadFragmentModule();
     const ParsedModule& loadVertexModule();
-    const ParsedModule& loadFPModule();
     const ParsedModule& loadGeometryModule();
     const ParsedModule& loadPublicModule();
     const ParsedModule& loadRuntimeColorFilterModule();
@@ -255,7 +246,6 @@ private:
     ParsedModule fVertexModule;              // [GPU] + Vertex stage decls
     ParsedModule fFragmentModule;            // [GPU] + Fragment stage decls
     ParsedModule fGeometryModule;            // [GPU] + Geometry stage decls
-    ParsedModule fFPModule;                  // [GPU] + FP features
 
     ParsedModule fPublicModule;              // [Root] + Public features
     ParsedModule fRuntimeColorFilterModule;  // [Public] + Runtime shader decls

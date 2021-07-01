@@ -3051,9 +3051,7 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
                                              /*inputAttachmentIndex=*/-1,
                                              Layout::kUnspecified_Primitive,
                                              /*maxVertices=*/1,
-                                             /*invocations=*/-1,
-                                             /*when=*/"",
-                                             Layout::CType::kDefault),
+                                             /*invocations=*/-1),
                                       /*flags=*/0),
                             SKSL_RTFLIP_NAME,
                             fContext.fTypes.fFloat2.get());
@@ -3590,9 +3588,7 @@ void SPIRVCodeGenerator::addRTFlipUniform(int offset) {
                                          /*inputAttachmentIndex=*/-1,
                                          Layout::kUnspecified_Primitive,
                                          /*maxVertices=*/1,
-                                         /*invocations=*/-1,
-                                         /*when=*/"",
-                                         Layout::CType::kDefault),
+                                         /*invocations=*/-1),
                                   /*flags=*/0),
                         SKSL_RTFLIP_NAME,
                         fContext.fTypes.fFloat2.get());
@@ -3622,9 +3618,7 @@ void SPIRVCodeGenerator::addRTFlipUniform(int offset) {
                                /*inputAttachmentIndex=*/-1,
                                Layout::kUnspecified_Primitive,
                                /*maxVertices=*/-1,
-                               /*invocations=*/-1,
-                               /*when=*/"",
-                               Layout::CType::kDefault),
+                               /*invocations=*/-1),
                         Modifiers::kUniform_Flag);
     const Modifiers* modsPtr = fProgram.fModifiers->add(modifiers);
     if (fProgram.fPool) {
