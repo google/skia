@@ -85,6 +85,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "6bff0548_ae22e9fd",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-07-01T20:22:56Z",
+      "side": 1,
+      "message": "From my understanding of what we\u0027re trying to do here, this isn\u0027t quite enough. This is just the scale component of the CTM, right? Meaning, whatever code that is currently calling getFillPath prior to scanline conversion will have to call a different version of getFillPath that takes a CTM?",
+      "revId": "faca1bab47492dcb3b1d1977a17e5f2eb0eefeb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b6f91fae_4a4ec3fb",
         "filename": "src/gpu/GrStyle.cpp",
         "patchSetId": 1
