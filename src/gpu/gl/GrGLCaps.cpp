@@ -11,6 +11,7 @@
 
 #include "include/gpu/GrContextOptions.h"
 #include "src/core/SkCompressedDataUtils.h"
+#include "src/core/SkMathPriv.h"
 #include "src/core/SkTSearch.h"
 #include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrProgramDesc.h"
