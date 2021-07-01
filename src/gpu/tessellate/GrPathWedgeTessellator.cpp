@@ -139,15 +139,16 @@ public:
         fNumFixedSegments_pow4 = std::max(numSegments_pow4, fNumFixedSegments_pow4);
     }
 
-    SK_ALWAYS_INLINE void writeConicWedge(GrVertexChunkBuilder* chunker, const SkPoint p[3],
+    SK_ALWAYS_INLINE void writeConicWedge(const GrShaderCaps& shaderCaps,
+                                          GrVertexChunkBuilder* chunker, const SkPoint p[3],
                                           float w, SkPoint midpoint) {
         float numSegments_pow2 = GrWangsFormula::conic_pow2(kPrecision, p, w, fVectorXform);
         if (GrWangsFormula::conic_pow2(kPrecision, p, w, fVectorXform) > fMaxSegments_pow2) {
-            this->chopAndWriteConicWedges(chunker, {p, w}, midpoint);
+            this->chopAndWriteConicWedges(shaderCaps, chunker, {p, w}, midpoint);
             return;
         }
         if (GrVertexWriter vertexWriter = chunker->appendVertex()) {
-            GrTessellationShader::WriteConicPatch(p, w, &vertexWriter);
+            GrTessellationShader::WriteConicPatch(shaderCaps, p, w, &vertexWriter);
             vertexWriter.write(midpoint);
         }
         fNumFixedSegments_pow4 = std::max(numSegments_pow2 * numSegments_pow2,
@@ -185,15 +186,15 @@ private:
         }
     }
 
-    void chopAndWriteConicWedges(GrVertexChunkBuilder* chunker, const SkConic& conic,
-                                 SkPoint midpoint) {
+    void chopAndWriteConicWedges(const GrShaderCaps& shaderCaps, GrVertexChunkBuilder* chunker,
+                                 const SkConic& conic, SkPoint midpoint) {
         SkConic chops[2];
         if (!conic.chopAt(.5, chops)) {
             return;
         }
         for (int i = 0; i < 2; ++i) {
             if (fCullTest.areVisible3(chops[i].fPts)) {
-                this->writeConicWedge(chunker, chops[i].fPts, chops[i].fW, midpoint);
+                this->writeConicWedge(shaderCaps, chunker, chops[i].fPts, chops[i].fW, midpoint);
             } else {
                 this->writeFlatWedge(chunker, chops[i].fPts[0], chops[i].fPts[2], midpoint);
             }
@@ -269,6 +270,7 @@ void GrPathWedgeTessellator::prepare(GrMeshDrawTarget* target, const SkRect& cul
         maxSegments = GrPathTessellationShader::kMaxFixedCountSegments;
     }
 
+    const GrShaderCaps& shaderCaps = *target->caps().shaderCaps();
     WedgeWriter wedgeWriter(cullBounds, fShader->viewMatrix(), maxSegments);
     MidpointContourParser parser(path);
     while (parser.parseNextContour()) {
@@ -291,7 +293,7 @@ void GrPathWedgeTessellator::prepare(GrMeshDrawTarget* target, const SkRect& cul
                     lastPoint = pts[2];
                     break;
                 case SkPathVerb::kConic:
-                    wedgeWriter.writeConicWedge(&chunker, pts, *w, midpoint);
+                    wedgeWriter.writeConicWedge(shaderCaps, &chunker, pts, *w, midpoint);
                     lastPoint = pts[2];
                     break;
                 case SkPathVerb::kCubic:
