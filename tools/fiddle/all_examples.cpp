@@ -1,6 +1,5 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
-#include "../../docs/examples/50_percent_gray.cpp"
 #include "../../docs/examples/50_percent_srgb.cpp"
 #include "../../docs/examples/Alpha_Constants_a.cpp"
 #include "../../docs/examples/Alpha_Constants_b.cpp"
