@@ -410,14 +410,6 @@ static void check_mipmaps(GrDirectContext* dContext,
                                         texMatrix,
                                         kNearestNearest,
                                         *dstFillContext->caps());
-        // Our swizzles for alpha color types currently produce (a, a, a, a) in the shader. Remove
-        // this once they are correctly (0, 0, 0, a).
-        if (GrColorTypeIsAlphaOnly(colorType)) {
-            auto black = GrFragmentProcessor::MakeColor(SK_PMColor4fBLACK);
-            fp = GrBlendFragmentProcessor::Make(std::move(fp),
-                                                std::move(black),
-                                                SkBlendMode::kModulate);
-        }
         dstFillContext->fillRectWithFP(SkIRect::MakeWH(rectSize, rectSize), std::move(fp));
 
         SkImageInfo readbackII = SkImageInfo::Make(rectSize, rectSize,
