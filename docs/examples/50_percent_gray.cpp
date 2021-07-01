@@ -8,7 +8,7 @@ static sk_sp<SkShader> make_bw_dither() {
     surf->getCanvas()->drawRect({0, 0, 1, 1}, SkPaint());
     surf->getCanvas()->drawRect({1, 1, 2, 2}, SkPaint());
     return surf->makeImageSnapshot()->makeShader(SkTileMode::kRepeat,
-                                                 SkTileMode::kRepeat
+                                                 SkTileMode::kRepeat,
                                                  SkSamplingOptions(SkFilterMode::kLinear));
 }
 
@@ -38,7 +38,7 @@ void draw(SkCanvas* canvas) {
     p.setShader(nullptr);
     canvas->drawRect({0, 0, 100, 100}, p);
     p.setShader(nullptr);
-    drawString(canvas,"Blend", 0, 125, font, black);
+    canvas->drawString("Blend", 0, 125, font, black);
 
     // Opaque color (0xFFBCBCBC)
     canvas->translate(105, 0);
