@@ -149,7 +149,9 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(SkString sksl, const Options& opti
         SkSL::Program::Settings settings;
         settings.fInlineThreshold = 0;
         settings.fForceNoInline = options.forceNoInline;
+#if GR_TEST_UTILS
         settings.fEnforceES2Restrictions = options.enforceES2Restrictions;
+#endif
         settings.fAllowNarrowingConversions = true;
         program = compiler->convertProgram(kind, SkSL::String(sksl.c_str(), sksl.size()), settings);
 
@@ -172,6 +174,10 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(std::unique_ptr<SkSL::Program> pro
                                               const Options& options,
                                               SkSL::ProgramKind kind) {
     SkSL::SharedCompiler compiler;
+    SkSL::Program::Settings settings;
+    settings.fInlineThreshold = 0;
+    settings.fForceNoInline = options.forceNoInline;
+    settings.fAllowNarrowingConversions = true;
 
     // Find 'main', then locate the sample coords parameter. (It might not be present.)
     const SkSL::FunctionDefinition* main = SkSL::Program_GetFunction(*program, "main");

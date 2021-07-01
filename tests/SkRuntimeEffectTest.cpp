@@ -79,7 +79,8 @@ DEF_TEST(SkRuntimeEffectInvalid_SkCapsDisallowed, r) {
 
 DEF_TEST(SkRuntimeEffectCanDisableES2Restrictions, r) {
     auto test_valid_es3 = [](skiatest::Reporter* r, const char* sksl) {
-        SkRuntimeEffect::Options opt = SkRuntimeEffectPriv::ES3Options();
+        SkRuntimeEffect::Options opt;
+        opt.enforceES2Restrictions = false;
         auto [effect, errorText] = SkRuntimeEffect::MakeForShader(SkString(sksl), opt);
         REPORTER_ASSERT(r, effect, "%s", errorText.c_str());
     };
