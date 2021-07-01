@@ -172,8 +172,6 @@ String ASTNode::description() const {
             return "return;";
         case Kind::kScope:
             return this->begin()->description() + "::" + getStringView();
-        case Kind::kSection:
-            return "@section { ... }";
         case Kind::kSwitchCase: {
             auto iter = this->begin();
             String result;
