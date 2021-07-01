@@ -153,13 +153,7 @@ void GrGLProgram::bindTextures(const GrGeometryProcessor& geomProc,
 void GrGLProgram::setRenderTargetState(const GrRenderTarget* rt,
                                        GrSurfaceOrigin origin,
                                        const GrGeometryProcessor& geomProc) {
-    // Load the RT height uniform if it is needed
-    if (fBuiltinUniformHandles.fRTHeightUni.isValid() &&
-        fRenderTargetState.fRenderTargetSize.fHeight != rt->height()) {
-        fProgramDataManager.set1f(fBuiltinUniformHandles.fRTHeightUni, SkIntToScalar(rt->height()));
-    }
-
-    // set RT adjustment
+    // Set RT adjustment and RT flip
     SkISize dimensions = rt->dimensions();
     if (fRenderTargetState.fRenderTargetOrigin != origin ||
         fRenderTargetState.fRenderTargetSize != dimensions) {
@@ -173,5 +167,9 @@ void GrGLProgram::setRenderTargetState(const GrRenderTarget* rt,
         bool flip = (origin == kBottomLeft_GrSurfaceOrigin);
         std::array<float, 4> v = SkSL::Compiler::GetRTAdjustVector(dimensions, flip);
         fProgramDataManager.set4fv(fBuiltinUniformHandles.fRTAdjustmentUni, 1, v.data());
+        if (fBuiltinUniformHandles.fRTFlipUni.isValid()) {
+            std::array<float, 2> d = SkSL::Compiler::GetRTFlipVector(dimensions.height(), flip);
+            fProgramDataManager.set2fv(fBuiltinUniformHandles.fRTFlipUni, 1, d.data());
+        }
     }
 }
