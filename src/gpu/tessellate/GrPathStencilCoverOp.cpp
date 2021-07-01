@@ -12,7 +12,6 @@
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrResourceProvider.h"
-#include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/tessellate/GrMiddleOutPolygonTriangulator.h"
 #include "src/gpu/tessellate/GrPathCurveTessellator.h"
@@ -50,9 +49,9 @@ private:
 
 GrGLSLGeometryProcessor* BoundingBoxShader::createGLSLInstance(const GrShaderCaps&) const {
     class Impl : public GrPathTessellationShader::Impl {
-        void emitVertexCode(const GrPathTessellationShader&, GrGLSLVertexBuilder* v,
-                            GrGPArgs* gpArgs) override {
-            if (v->getProgramBuilder()->caps()->shaderCaps()->vertexIDSupport()) {
+        void emitVertexCode(const GrShaderCaps& shaderCaps, const GrPathTessellationShader&,
+                            GrGLSLVertexBuilder* v, GrGPArgs* gpArgs) override {
+            if (shaderCaps.vertexIDSupport()) {
                 // If we don't have sk_VertexID support then "unitCoord" already came in as a vertex
                 // attrib.
                 v->codeAppendf(R"(
@@ -185,9 +184,8 @@ void GrPathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
         GrEagerDynamicVertexAllocator vertexAlloc(flushState, &fFanBuffer, &fFanBaseVertex);
         int maxFanTriangles = fPath.countVerbs() - 2;  // n - 2 triangles make an n-gon.
         GrVertexWriter triangleVertexWriter = vertexAlloc.lock<SkPoint>(maxFanTriangles * 3);
-        fFanVertexCount = GrMiddleOutPolygonTriangulator::WritePathInnerFan(
-                &triangleVertexWriter, GrMiddleOutPolygonTriangulator::OutputType::kTriangles,
-                fPath) * 3;
+        fFanVertexCount = 3 * GrMiddleOutPolygonTriangulator::WritePathInnerFan(
+                &triangleVertexWriter, 0, 0, fPath);
         SkASSERT(fFanVertexCount <= maxFanTriangles * 3);
         vertexAlloc.unlock(fFanVertexCount);
     }

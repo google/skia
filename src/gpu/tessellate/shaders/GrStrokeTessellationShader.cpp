@@ -13,11 +13,11 @@
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/tessellate/GrStrokeTessellator.h"
 
-GrStrokeTessellationShader::GrStrokeTessellationShader(Mode mode, ShaderFlags shaderFlags,
+GrStrokeTessellationShader::GrStrokeTessellationShader(const GrShaderCaps& shaderCaps, Mode mode,
+                                                       ShaderFlags shaderFlags,
                                                        const SkMatrix& viewMatrix,
                                                        const SkStrokeRec& stroke, SkPMColor4f color,
-                                                       int8_t maxParametricSegments_log2,
-                                                       const GrShaderCaps& shaderCaps)
+                                                       int8_t maxParametricSegments_log2)
         : GrTessellationShader(kTessellate_GrStrokeTessellationShader_ClassID,
                                (mode == Mode::kHardwareTessellation)
                                        ? GrPrimitiveType::kPatches

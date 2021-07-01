@@ -25,12 +25,12 @@ public:
         PathStrokeList* fNext = nullptr;
     };
 
-    GrStrokeTessellator(GrStrokeTessellationShader::Mode shaderMode, ShaderFlags shaderFlags,
-                        int8_t maxParametricSegments_log2, const SkMatrix& viewMatrix,
-                        PathStrokeList* pathStrokeList, std::array<float,2> matrixMinMaxScales,
-                        const SkRect& strokeCullBounds, const GrShaderCaps& shaderCaps)
-            : fShader(shaderMode, shaderFlags, viewMatrix, pathStrokeList->fStroke,
-                      pathStrokeList->fColor, maxParametricSegments_log2, shaderCaps)
+    GrStrokeTessellator(const GrShaderCaps& shaderCaps, GrStrokeTessellationShader::Mode shaderMode,
+                        ShaderFlags shaderFlags, int8_t maxParametricSegments_log2,
+                        const SkMatrix& viewMatrix, PathStrokeList* pathStrokeList,
+                        std::array<float, 2> matrixMinMaxScales, const SkRect& strokeCullBounds)
+            : fShader(shaderCaps, shaderMode, shaderFlags, viewMatrix, pathStrokeList->fStroke,
+                      pathStrokeList->fColor, maxParametricSegments_log2)
             , fPathStrokeList(pathStrokeList)
             , fMatrixMinMaxScales(matrixMinMaxScales)
             , fStrokeCullBounds(strokeCullBounds) {

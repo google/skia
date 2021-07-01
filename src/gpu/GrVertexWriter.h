@@ -23,8 +23,6 @@
  * thereof.
  */
 struct GrVertexWriter {
-    constexpr static uint32_t kIEEE_32_infinity = 0x7f800000;
-
     void* fPtr;
 
     GrVertexWriter() = default;

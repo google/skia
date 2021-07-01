@@ -43,15 +43,14 @@
 // recursion, we manipulate an O(log N) stack to determine the correct middle-out triangulation.
 class GrMiddleOutPolygonTriangulator {
 public:
-    enum class OutputType : bool {
-        kTriangles,  // Output 3-vertex triangles.
-        kConicsWithInfiniteWeight  // Output 4-vertex conics with w=Inf.
-    };
-
-    GrMiddleOutPolygonTriangulator(GrVertexWriter* vertexWriter, OutputType outputType,
-                                   int maxPushVertexCalls)
-            : fVertexWriter(vertexWriter)
-            , fOutputType(outputType) {
+    // Writes out 3 SkPoints per triangle to "vertexWriter". Additionally writes out "pad32Count"
+    // repetitions of "pad32Value" after each triangle. Set pad32Count to 0 if the triangles are
+    // to be tightly packed.
+    GrMiddleOutPolygonTriangulator(GrVertexWriter* vertexWriter, int pad32Count,
+                                   uint32_t pad32Value, int maxPushVertexCalls)
+            : fPad32Count(pad32Count)
+            , fPad32Value(pad32Value)
+            , fVertexWriter(vertexWriter) {
         // Determine the deepest our stack can ever go.
         int maxStackDepth = SkNextLog2(maxPushVertexCalls) + 1;
         if (maxStackDepth > kStackPreallocCount) {
@@ -123,9 +122,10 @@ public:
         SkASSERT(fTop->fVertexIdxDelta == 0);  // Ensure we are in the initial stack state.
     }
 
-    static int WritePathInnerFan(GrVertexWriter* vertexWriter, OutputType outputType,
+    static int WritePathInnerFan(GrVertexWriter* vertexWriter, int pad32Count, uint32_t pad32Value,
                                  const SkPath& path) {
-        GrMiddleOutPolygonTriangulator middleOut(vertexWriter, outputType, path.countVerbs());
+        GrMiddleOutPolygonTriangulator middleOut(vertexWriter, pad32Count, pad32Value,
+                                                 path.countVerbs());
         for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
             switch (verb) {
                 case SkPathVerb::kMove:
@@ -169,19 +169,20 @@ private:
         SkASSERT(fTop > fVertexStack);  // We should never pop the starting point.
         --fTop;
         fVertexWriter->write(fTop[0].fPoint, fTop[1].fPoint, lastPt);
-        if (fOutputType == OutputType::kConicsWithInfiniteWeight) {
+        if (fPad32Count) {
             // Output a 4-point conic with w=Inf.
-            fVertexWriter->fill(GrVertexWriter::kIEEE_32_infinity, 2);
+            fVertexWriter->fill(fPad32Value, fPad32Count);
         }
     }
 
     constexpr static int kStackPreallocCount = 32;
+    const int fPad32Count;
+    const uint32_t fPad32Value;
     SkAutoSTMalloc<kStackPreallocCount, StackVertex> fVertexStack;
     SkDEBUGCODE(int fStackAllocCount;)
     StackVertex* fTop;
     GrVertexWriter* fVertexWriter;
     int fTotalClosedTriangleCount = 0;
-    OutputType fOutputType;
 };
 
 #endif

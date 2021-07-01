@@ -31,8 +31,8 @@ private:
 
 GrGLSLGeometryProcessor* SimpleTriangleShader::createGLSLInstance(const GrShaderCaps&) const {
     class Impl : public GrPathTessellationShader::Impl {
-        void emitVertexCode(const GrPathTessellationShader&, GrGLSLVertexBuilder* v,
-                            GrGPArgs* gpArgs) override {
+        void emitVertexCode(const GrShaderCaps&, const GrPathTessellationShader&,
+                            GrGLSLVertexBuilder* v, GrGPArgs* gpArgs) override {
             v->codeAppend(R"(
             float2 localcoord = inputPoint;
             float2 vertexpos = AFFINE_MATRIX * localcoord + TRANSLATE;)");
@@ -49,19 +49,6 @@ GrPathTessellationShader* GrPathTessellationShader::MakeSimpleTriangleShader(
         SkArenaAlloc* arena, const SkMatrix& viewMatrix, const SkPMColor4f& color) {
     return arena->make<SimpleTriangleShader>(viewMatrix, color);
 }
-
-// Converts a 4-point input patch into the rational cubic it intended to represent.
-const char* GrPathTessellationShader::Impl::kUnpackRationalCubicFn = R"(
-float4x3 unpack_rational_cubic(float2 p0, float2 p1, float2 p2, float2 p3) {
-    float4x3 P = float4x3(p0,1, p1,1, p2,1, p3,1);
-    if (isinf(P[3].y)) {
-        // This patch is actually a conic. Convert to a rational cubic.
-        float w = P[3].x;
-        float3 c = P[1] * ((2.0/3.0) * w);
-        P = float4x3(P[0], fma(P[0], float3(1.0/3.0), c), fma(P[2], float3(1.0/3.0), c), P[2]);
-    }
-    return P;
-})";
 
 // Evaluate our point of interest using numerically stable linear interpolations. We add our own
 // "safe_mix" method to guarantee we get exactly "b" when T=1. The builtin mix() function seems
@@ -94,7 +81,7 @@ void GrPathTessellationShader::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs
                                                          kFloat2_GrSLType, "translate", &translate);
     args.fVertBuilder->codeAppendf("float2x2 AFFINE_MATRIX = float2x2(%s);", affineMatrix);
     args.fVertBuilder->codeAppendf("float2 TRANSLATE = %s;", translate);
-    this->emitVertexCode(shader, args.fVertBuilder, gpArgs);
+    this->emitVertexCode(*args.fShaderCaps, shader, args.fVertBuilder, gpArgs);
 
     // Fragment shader.
     const char* color;

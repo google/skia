@@ -187,11 +187,6 @@ protected:
                      const GrGeometryProcessor&) override;
 
     protected:
-        // float2 eval_rational_cubic(float4x3 P, float T) { ...
-        //
-        // Converts a 4-point input patch into the rational cubic it intended to represent.
-        static const char* kUnpackRationalCubicFn;
-
         // float4x3 unpack_rational_cubic(float2 p0, float2 p1, float2 p2, float2 p3) { ...
         //
         // Evaluate our point of interest using numerically stable linear interpolations. We add our
@@ -200,8 +195,8 @@ protected:
         // does not always.
         static const char* kEvalRationalCubicFn;
 
-        virtual void emitVertexCode(const GrPathTessellationShader&, GrGLSLVertexBuilder*,
-                                    GrGPArgs*) = 0;
+        virtual void emitVertexCode(const GrShaderCaps&, const GrPathTessellationShader&,
+                                    GrGLSLVertexBuilder*, GrGPArgs*) = 0;
 
         GrGLSLUniformHandler::UniformHandle fAffineMatrixUniform;
         GrGLSLUniformHandler::UniformHandle fTranslateUniform;

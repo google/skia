@@ -972,6 +972,13 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
     }
 
     if (GR_IS_GR_GL(standard)) {
+        shaderCaps->fInfinitySupport = true;
+    } else if (GR_IS_GR_GL_ES(standard) || GR_IS_GR_WEBGL(standard)) {
+        // Desktop GLSL 3.30 == ES GLSL 3.00.
+        shaderCaps->fInfinitySupport = ctxInfo.glslGeneration() >= k330_GrGLSLGeneration;
+    }
+
+    if (GR_IS_GR_GL(standard)) {
         shaderCaps->fBitManipulationSupport = ctxInfo.glslGeneration() >= k400_GrGLSLGeneration;
     } else if (GR_IS_GR_GL_ES(standard) || GR_IS_GR_WEBGL(standard)) {
         shaderCaps->fBitManipulationSupport = ctxInfo.glslGeneration() >= k310es_GrGLSLGeneration;

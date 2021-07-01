@@ -53,6 +53,7 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fSampleMaskSupport = false;
     fExternalTextureSupport = false;
     fVertexIDSupport = false;
+    fInfinitySupport = false;
     fBitManipulationSupport = false;
     fFloatIs32Bits = true;
     fHalfIs32Bits = false;
@@ -140,6 +141,7 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Sample mask support", fSampleMaskSupport);
     writer->appendBool("External texture support", fExternalTextureSupport);
     writer->appendBool("sk_VertexID support", fVertexIDSupport);
+    writer->appendBool("Infinity support", fInfinitySupport);
     writer->appendBool("Bit manipulation support", fBitManipulationSupport);
     writer->appendBool("float == fp32", fFloatIs32Bits);
     writer->appendBool("half == fp32", fHalfIs32Bits);
