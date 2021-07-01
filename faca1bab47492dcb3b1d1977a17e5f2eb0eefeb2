@@ -83,6 +83,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e0ada9dc_e5716e79",
+        "filename": "modules/sksg/src/SkSGGeometryEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-07-01T21:06:06Z",
+      "side": 1,
+      "message": "PS2 adds a method to query whether a path effect is CTM-invariant, and adds asserts in SkSG. This may be enough in the short term (at least it will help things building).",
+      "parentUuid": "1d02b5f8_60d71d16",
+      "range": {
+        "startLine": 67,
+        "startChar": 29,
+        "endLine": 67,
+        "endChar": 44
+      },
+      "revId": "faca1bab47492dcb3b1d1977a17e5f2eb0eefeb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6bff0548_ae22e9fd",
