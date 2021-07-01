@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "546cc70c_88a9300f",
+        "filename": "src/gpu/tessellate/shaders/GrTessellationShader.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-07-01T01:32:31Z",
+      "side": 1,
+      "message": "It should be noted that SkSL truncates this to \"1.7014118346046923e+38\", which is not exactly 2^127.\n\nI don\u0027t know if we can expect any guarantees from the driver about the exactness of this intrinsic, but in SkSL it definitely is approximate.",
+      "range": {
+        "startLine": 71,
+        "startChar": 33,
+        "endLine": 71,
+        "endChar": 42
+      },
+      "revId": "d0c6cb3c6bf212dc91736f2e569c34a891686990",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
