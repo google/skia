@@ -553,8 +553,8 @@ skia_null_gpu_sources = [ "$_src/gpu/gl/GrGLMakeNativeInterface_none.cpp" ]
 
 skia_skgpu_v2_sources = [
   # Sk files
-  "$_src/gpu/SkGpuDevice_nga.cpp",
-  "$_src/gpu/SkGpuDevice_nga.h",
+  "$_src/gpu/Device_v2.cpp",
+  "$_src/gpu/Device_v2.h",
 ]
 
 skia_skgpu_v1_sources = [
@@ -594,9 +594,9 @@ skia_skgpu_v1_sources = [
   "$_src/gpu/tessellate/GrTessellationPathRenderer.cpp",
 
   # Sk files
-  "$_src/gpu/SkGpuDevice.cpp",
-  "$_src/gpu/SkGpuDevice.h",
-  "$_src/gpu/SkGpuDevice_drawTexture.cpp",
+  "$_src/gpu/Device_v1.cpp",
+  "$_src/gpu/Device_v1.h",
+  "$_src/gpu/Device_v1_drawTexture.cpp",
 ]
 
 skia_gpu_sources += skia_skgpu_v1_sources
