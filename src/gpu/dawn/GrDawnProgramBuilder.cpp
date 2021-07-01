@@ -438,10 +438,12 @@ wgpu::ShaderModule GrDawnProgramBuilder::createShaderModule(const GrGLSLShaderBu
     printf("converting program:\n%s\n", sksl.c_str());
 #endif
 
-    SkSL::String spirvSource = fGpu->SkSLToSPIRV(source.c_str(), kind, flipY,
-                                                 fUniformHandler.getRTHeightOffset(), inputs);
-    if (inputs->fRTHeight) {
-        this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
+    SkSL::String spirvSource = fGpu->SkSLToSPIRV(source.c_str(),
+                                                 kind,
+                                                 fUniformHandler.getRTFlipOffset(),
+                                                 inputs);
+    if (inputs->fUseFlipRTUniform) {
+        this->addRTFlipUniform(SKSL_RTFLIP_NAME);
     }
 
     return fGpu->createShaderModule(spirvSource);
@@ -456,13 +458,7 @@ SkSL::Compiler* GrDawnProgramBuilder::shaderCompiler() const {
 }
 
 void GrDawnProgram::setRenderTargetState(const GrRenderTarget* rt, GrSurfaceOrigin origin) {
-    // Load the RT height uniform if it is needed to y-flip gl_FragCoord.
-    if (fBuiltinUniformHandles.fRTHeightUni.isValid() &&
-        fRenderTargetState.fRenderTargetSize.fHeight != rt->height()) {
-        fDataManager.set1f(fBuiltinUniformHandles.fRTHeightUni, SkIntToScalar(rt->height()));
-    }
-
-    // set RT adjustment
+    // Set RT adjustment and RT flip
     SkISize dimensions = rt->dimensions();
     SkASSERT(fBuiltinUniformHandles.fRTAdjustmentUni.isValid());
     if (fRenderTargetState.fRenderTargetOrigin != origin ||
@@ -476,6 +472,11 @@ void GrDawnProgram::setRenderTargetState(const GrRenderTarget* rt, GrSurfaceOrig
         bool flip = (origin == kTopLeft_GrSurfaceOrigin);
         std::array<float, 4> v = SkSL::Compiler::GetRTAdjustVector(dimensions, flip);
         fDataManager.set4fv(fBuiltinUniformHandles.fRTAdjustmentUni, 1, v.data());
+        if (fBuiltinUniformHandles.fRTFlipUni.isValid()) {
+            // Note above that framebuffer space has origin top left. So we need !flip here.
+            std::array<float, 2> d = SkSL::Compiler::GetRTFlipVector(rt->height(), !flip);
+            fDataManager.set2fv(fBuiltinUniformHandles.fRTFlipUni, 1, d.data());
+        }
     }
 }
 

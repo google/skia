@@ -483,11 +483,9 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
             }
             break;
         case k_dFdy_IntrinsicKind:
-            if (fProgram.fConfig->fSettings.fFlipY) {
-                // Flipping Y also negates the Y derivatives.
-                this->write("-dFdy");
-                nameWritten = true;
-            }
+            // Flipping Y also negates the Y derivatives.
+            this->write(SKSL_RTFLIP_NAME ".y * dFdy");
+            nameWritten = true;
             [[fallthrough]];
         case k_dFdx_IntrinsicKind:
         case k_fwidth_IntrinsicKind:
@@ -743,29 +741,16 @@ void GLSLCodeGenerator::writeFragCoord() {
         return;
     }
 
-    // We only declare "gl_FragCoord" when we're in the case where we want to use layout qualifiers
-    // to reverse y. Otherwise it isn't necessary and whether the "in" qualifier appears in the
-    // declaration varies in earlier GLSL specs. So it is simpler to omit it.
-    if (!fProgram.fConfig->fSettings.fFlipY) {
-        this->write("gl_FragCoord");
-    } else if (const char* extension = this->caps().fragCoordConventionsExtensionString()) {
-        if (!fSetupFragPositionGlobal) {
-            if (this->caps().generation() < k150_GrGLSLGeneration) {
-                this->writeExtension(extension);
-            }
-            fGlobals.writeText("layout(origin_upper_left) in vec4 gl_FragCoord;\n");
-            fSetupFragPositionGlobal = true;
-        }
-        this->write("gl_FragCoord");
-    } else {
-        if (!fSetupFragPositionLocal) {
-            fFunctionHeader += usesPrecisionModifiers() ? "highp " : "";
-            fFunctionHeader += "    vec4 sk_FragCoord = vec4(gl_FragCoord.x, " SKSL_RTHEIGHT_NAME
-                               " - gl_FragCoord.y, gl_FragCoord.z, gl_FragCoord.w);\n";
-            fSetupFragPositionLocal = true;
-        }
-        this->write("sk_FragCoord");
+    if (!fSetupFragPositionLocal) {
+        fFunctionHeader += usesPrecisionModifiers() ? "highp " : "";
+        fFunctionHeader += "    vec4 sk_FragCoord = vec4("
+                "gl_FragCoord.x, "
+                SKSL_RTFLIP_NAME ".x + " SKSL_RTFLIP_NAME ".y * gl_FragCoord.y, "
+                "gl_FragCoord.z, "
+                "gl_FragCoord.w);\n";
+        fSetupFragPositionLocal = true;
     }
+    this->write("sk_FragCoord");
 }
 
 void GLSLCodeGenerator::writeVariableReference(const VariableReference& ref) {
@@ -781,7 +766,7 @@ void GLSLCodeGenerator::writeVariableReference(const VariableReference& ref) {
             this->writeFragCoord();
             break;
         case SK_CLOCKWISE_BUILTIN:
-            this->write(fProgram.fConfig->fSettings.fFlipY ? "(!gl_FrontFacing)" : "gl_FrontFacing");
+            this->write("(" SKSL_RTFLIP_NAME ".y < 0.0 ? !gl_FrontFacing : gl_FrontFacing)");
             break;
         case SK_VERTEXID_BUILTIN:
             this->write("gl_VertexID");
@@ -1475,11 +1460,11 @@ void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
 }
 
 void GLSLCodeGenerator::writeInputVars() {
-    if (fProgram.fInputs.fRTHeight) {
+    if (fProgram.fInputs.fUseFlipRTUniform) {
         const char* precision = usesPrecisionModifiers() ? "highp " : "";
         fGlobals.writeText("uniform ");
         fGlobals.writeText(precision);
-        fGlobals.writeText("float " SKSL_RTHEIGHT_NAME ";\n");
+        fGlobals.writeText("vec2 " SKSL_RTFLIP_NAME ";\n");
     }
 }
 
