@@ -12,6 +12,7 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrSurfaceProxyView.h"
 
 #if GR_TEST_UTILS
 
