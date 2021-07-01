@@ -27,7 +27,6 @@ public:
         kGlobalVar,
         kInterfaceBlock,
         kModifiers,
-        kSection,
         kStructDefinition,
 
         kFirst = kEnum,

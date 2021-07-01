@@ -50,7 +50,6 @@ std::unique_ptr<Statement> VarDeclaration::Convert(const Context& context,
     }
     if (value) {
         if (var->storage() == Variable::Storage::kGlobal &&
-            context.fConfig->fKind != ProgramKind::kFragmentProcessor &&
             !Analysis::IsConstantExpression(*value)) {
             context.fErrors.error(value->fOffset,
                                   "global variable initializer must be a constant expression");
@@ -99,7 +98,6 @@ std::unique_ptr<Statement> VarDeclaration::Make(const Context& context,
              Analysis::IsConstantExpression(*value));
     // global variable initializer must be a constant expression
     SkASSERT(!(value && var->storage() == Variable::Storage::kGlobal &&
-               context.fConfig->fKind != ProgramKind::kFragmentProcessor &&
                !Analysis::IsConstantExpression(*value)));
     // opaque type cannot use initializer expressions
     SkASSERT(!(value && var->type().isOpaque()));
