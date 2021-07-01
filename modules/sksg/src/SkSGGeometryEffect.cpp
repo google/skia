@@ -64,7 +64,8 @@ SkPath TrimEffect::onRevalidateEffect(const sk_sp<GeometryNode>& child) {
 
     if (const auto trim = SkTrimPathEffect::Make(fStart, fStop, fMode)) {
         SkStrokeRec rec(SkStrokeRec::kHairline_InitStyle);
-        SkAssertResult(trim->filterPath(&path, path, &rec, nullptr));
+        SkASSERT(!trim->needsCTM());
+        SkAssertResult(trim->filterPath2(&path, path, &rec, nullptr, SkMatrix::I()));
     }
 
     return path;
@@ -121,7 +122,8 @@ SkPath DashEffect::onRevalidateEffect(const sk_sp<GeometryNode>& child) {
 
     if (const auto dash_patheffect = make_dash(fIntervals, fPhase)) {
         SkStrokeRec rec(SkStrokeRec::kHairline_InitStyle);
-        dash_patheffect->filterPath(&path, path, &rec, nullptr);
+        SkASSERT(!dash_patheffect->needsCTM());
+        dash_patheffect->filterPath2(&path, path, &rec, nullptr, SkMatrix::I());
     }
 
     return path;
@@ -132,7 +134,8 @@ SkPath RoundEffect::onRevalidateEffect(const sk_sp<GeometryNode>& child) {
 
     if (const auto round = SkCornerPathEffect::Make(fRadius)) {
         SkStrokeRec rec(SkStrokeRec::kHairline_InitStyle);
-        SkAssertResult(round->filterPath(&path, path, &rec, nullptr));
+        SkASSERT(!round->needsCTM());
+        SkAssertResult(round->filterPath2(&path, path, &rec, nullptr, SkMatrix::I()));
     }
 
     return path;
