@@ -7,7 +7,7 @@
 
 #include "src/gpu/GrBlurUtils.h"
 
-#if GR_OGA
+#if SK_GPU_V1
 
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
@@ -586,7 +586,7 @@ void GrBlurUtils::drawShapeWithMaskFilter(GrRecordingContext* context,
     }
 }
 
-#else // GR_OGA
+#else // SK_GPU_V1
 
 void GrBlurUtils::drawShapeWithMaskFilter(GrRecordingContext* context,
                                           GrSurfaceDrawContext* surfaceDrawContext,
@@ -605,4 +605,4 @@ void GrBlurUtils::drawShapeWithMaskFilter(GrRecordingContext* context,
                                           const GrStyledShape& shape) {
 }
 
-#endif // GR_OGA
+#endif // SK_GPU_V1

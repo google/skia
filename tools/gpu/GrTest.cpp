@@ -54,14 +54,14 @@ int GrResourceCache::countUniqueKeysWithTag(const char* tag) const {
                                     GrRecordingContext*, GrSurfaceDrawContext*, int)
 #define DRAW_OP_TEST_ENTRY(Op) Op##__Test
 
-#if GR_OGA
+#if SK_GPU_V1
 DRAW_OP_TEST_EXTERN(AAConvexPathOp);
 DRAW_OP_TEST_EXTERN(AAFlatteningConvexPathOp);
 DRAW_OP_TEST_EXTERN(AAHairlineOp);
 DRAW_OP_TEST_EXTERN(DefaultPathOp);
 DRAW_OP_TEST_EXTERN(SmallPathOp);
 DRAW_OP_TEST_EXTERN(TriangulatingPathOp);
-#endif // GR_OGA
+#endif // SK_GPU_V1
 
 DRAW_OP_TEST_EXTERN(AAStrokeRectOp);
 DRAW_OP_TEST_EXTERN(CircleOp);
@@ -84,14 +84,14 @@ void GrDrawRandomOp(SkRandom* random, GrSurfaceDrawContext* surfaceDrawContext, 
     using MakeDrawOpFn = GrOp::Owner (GrPaint&&, SkRandom*,
                                       GrRecordingContext*, GrSurfaceDrawContext*, int numSamples);
     static constexpr MakeDrawOpFn* gFactories[] = {
-#if GR_OGA
+#if SK_GPU_V1
             DRAW_OP_TEST_ENTRY(AAConvexPathOp),
             DRAW_OP_TEST_ENTRY(AAFlatteningConvexPathOp),
             DRAW_OP_TEST_ENTRY(AAHairlineOp),
             DRAW_OP_TEST_ENTRY(DefaultPathOp),
             DRAW_OP_TEST_ENTRY(SmallPathOp),
             DRAW_OP_TEST_ENTRY(TriangulatingPathOp),
-#endif // GR_OGA
+#endif // SK_GPU_V1
 
             DRAW_OP_TEST_ENTRY(AAStrokeRectOp),
             DRAW_OP_TEST_ENTRY(CircleOp),

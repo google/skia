@@ -396,12 +396,12 @@
 #  define GR_TEST_UTILS 0
 #endif
 
-#ifndef GR_NGA
-#  define GR_NGA 0
+#ifndef SK_GPU_V2
+#  define SK_GPU_V2 0
 #endif
 
-#ifndef GR_OGA
-#  define GR_OGA 1
+#ifndef SK_GPU_V1
+#  define SK_GPU_V1 1
 #endif
 
 #if defined(SK_HISTOGRAM_ENUMERATION)  || \

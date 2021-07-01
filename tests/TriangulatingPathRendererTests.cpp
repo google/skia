@@ -484,7 +484,7 @@ CreatePathFn kNonEdgeAAPaths[] = {
     },
 };
 
-#if GR_OGA
+#if SK_GPU_V1
 #include "src/gpu/ops/GrTriangulatingPathRenderer.h"
 
 // A simple concave path. Test this with a non-invertible matrix.
@@ -776,7 +776,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TriangulatingPathRendererTests, reporter, ctxInfo) 
     test_path(ctx, rtc.get(), create_path_46(), SkMatrix(), GrAAType::kCoverage);
 }
 
-#endif // GR_OGA
+#endif // SK_GPU_V1
 
 namespace {
 
