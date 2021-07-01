@@ -9,7 +9,6 @@
 
 #include "src/core/SkMathPriv.h"
 #include "src/gpu/geometry/GrWangsFormula.h"
-#include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
 namespace {
@@ -61,13 +60,14 @@ private:
 
 GrGLSLGeometryProcessor* MiddleOutShader::createGLSLInstance(const GrShaderCaps&) const {
     class Impl : public GrPathTessellationShader::Impl {
-        void emitVertexCode(const GrPathTessellationShader& shader, GrGLSLVertexBuilder* v,
-                            GrGPArgs* gpArgs) override {
+        void emitVertexCode(const GrShaderCaps& shaderCaps, const GrPathTessellationShader& shader,
+                            GrGLSLVertexBuilder* v, GrGPArgs* gpArgs) override {
             v->defineConstant("PRECISION", GrTessellationShader::kLinearizationPrecision);
             v->defineConstant("MAX_FIXED_RESOLVE_LEVEL", (float)kMaxFixedCountResolveLevel);
             v->defineConstant("MAX_FIXED_SEGMENTS", (float)kMaxFixedCountSegments);
             v->insertFunction(GrWangsFormula::as_sksl().c_str());
-            if (v->getProgramBuilder()->shaderCaps()->bitManipulationSupport()) {
+            v->insertFunction(SkSLPortable_isinf(shaderCaps));
+            if (shaderCaps.bitManipulationSupport()) {
                 v->insertFunction(R"(
                 float ldexp_portable(float x, float p) {
                     return ldexp(x, int(p));
@@ -90,7 +90,7 @@ GrGLSLGeometryProcessor* MiddleOutShader::createGLSLInstance(const GrShaderCaps&
                 } else)");  // Fall through to next if ().
             }
             v->codeAppend(R"(
-            if (isinf(inputPoints_2_3.z)) {
+            if (isinf_portable(inputPoints_2_3.z)) {
                 // A conic with w=Inf is an exact triangle.
                 localcoord = (resolveLevel != 0)      ? inputPoints_0_1.zw
                            : (idxInResolveLevel != 0) ? inputPoints_2_3.xy
@@ -99,7 +99,7 @@ GrGLSLGeometryProcessor* MiddleOutShader::createGLSLInstance(const GrShaderCaps&
                 float w = -1;  // w < 0 tells us to treat the instance as an integral cubic.
                 float4x2 P = float4x2(inputPoints_0_1, inputPoints_2_3);
                 float maxResolveLevel;
-                if (isinf(P[3].y)) {
+                if (isinf_portable(P[3].y)) {
                     // The patch is a conic.
                     w = P[3].x;
                     maxResolveLevel =

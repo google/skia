@@ -15,9 +15,9 @@
 // instance are emitted as degenerate triangles.
 class GrStrokeFixedCountTessellator : public GrStrokeTessellator {
 public:
-    GrStrokeFixedCountTessellator(ShaderFlags, const SkMatrix&, PathStrokeList*,
-                                  std::array<float,2> matrixMinMaxScales,
-                                  const SkRect& strokeCullBounds, const GrShaderCaps&);
+    GrStrokeFixedCountTessellator(const GrShaderCaps&, ShaderFlags, const SkMatrix&,
+                                  PathStrokeList*, std::array<float, 2> matrixMinMaxScales,
+                                  const SkRect& strokeCullBounds);
 
     void prepare(GrMeshDrawTarget*, int totalCombinedVerbCnt) override;
     void draw(GrOpFlushState*) const override;

@@ -77,15 +77,15 @@ public:
                                                fMaxParametricSegments_pow4);
     }
 
-    SK_ALWAYS_INLINE void conicTo(const SkPoint p[3], float w) {
+    SK_ALWAYS_INLINE void conicTo(const GrShaderCaps& shaderCaps, const SkPoint p[3], float w) {
         float n = GrWangsFormula::conic_pow2(fParametricPrecision, p, w);
         float numParametricSegments_pow4 = n*n;
         if (numParametricSegments_pow4 > kMaxParametricSegments_pow4) {
-            this->chopConicTo({p, w});
+            this->chopConicTo(shaderCaps, {p, w});
             return;
         }
         SkPoint conic[4];
-        GrTessellationShader::WriteConicPatch(p, w, conic);
+        GrTessellationShader::WriteConicPatch(shaderCaps, p, w, conic);
         SkPoint endControlPoint = conic[1];
         this->writeStroke(conic, endControlPoint);
         fMaxParametricSegments_pow4 = std::max(numParametricSegments_pow4,
@@ -147,14 +147,14 @@ private:
         }
     }
 
-    void chopConicTo(const SkConic& conic) {
+    void chopConicTo(const GrShaderCaps& shaderCaps, const SkConic& conic) {
         SkConic chops[2];
         if (!conic.chopAt(.5f, chops)) {
             return;
         }
         for (int i = 0; i < 2; ++i) {
             if (fCullTest.areVisible3(chops[i].fPts)) {
-                this->conicTo(chops[i].fPts, chops[i].fW);
+                this->conicTo(shaderCaps, chops[i].fPts, chops[i].fW);
             } else {
                 this->discardStroke(chops[i].fPts, 3);
             }
@@ -235,21 +235,22 @@ static int worst_case_edges_in_join(SkPaint::Join joinType, float numRadialSegme
 
 }  // namespace
 
-GrStrokeFixedCountTessellator::GrStrokeFixedCountTessellator(ShaderFlags shaderFlags,
+GrStrokeFixedCountTessellator::GrStrokeFixedCountTessellator(const GrShaderCaps& shaderCaps,
+                                                             ShaderFlags shaderFlags,
                                                              const SkMatrix& viewMatrix,
-                                                             PathStrokeList* pathStrokeList,
-                                                             std::array<float,2> matrixMinMaxScales,
-                                                             const SkRect& strokeCullBounds,
-                                                             const GrShaderCaps& shaderCaps)
-        : GrStrokeTessellator(GrStrokeTessellationShader::Mode::kFixedCount, shaderFlags,
-                              kMaxParametricSegments_log2, viewMatrix, pathStrokeList,
-                              matrixMinMaxScales, strokeCullBounds, shaderCaps) {
+                                                             PathStrokeList* pathStrokeList,std::array<float,
+                                                             2> matrixMinMaxScales,
+                                                             const SkRect& strokeCullBounds)
+        : GrStrokeTessellator(shaderCaps, GrStrokeTessellationShader::Mode::kFixedCount,
+                              shaderFlags, kMaxParametricSegments_log2, viewMatrix,
+                              pathStrokeList, matrixMinMaxScales, strokeCullBounds) {
 }
 
 GR_DECLARE_STATIC_UNIQUE_KEY(gVertexIDFallbackBufferKey);
 
 void GrStrokeFixedCountTessellator::prepare(GrMeshDrawTarget* target,
                                             int totalCombinedVerbCnt) {
+    const GrShaderCaps& shaderCaps = *target->caps().shaderCaps();
     int maxEdgesInJoin = 0;
     float maxRadialSegmentsPerRadian = 0;
 
@@ -335,7 +336,7 @@ void GrStrokeFixedCountTessellator::prepare(GrMeshDrawTarget* target,
                         instanceWriter.lineTo(p[0], cusp);
                         instanceWriter.lineTo(cusp, p[2]);
                     } else {
-                        instanceWriter.conicTo(p, strokeIter.w());
+                        instanceWriter.conicTo(shaderCaps, p, strokeIter.w());
                     }
                     break;
                 case Verb::kCubic:
