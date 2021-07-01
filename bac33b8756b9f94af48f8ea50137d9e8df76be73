@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5b451314_d801e94a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-07-01T16:21:26Z",
+      "side": 1,
+      "message": "I added one more value for the line so now we have:\n- text without spaces\n- text (with spaces)\n- text with spaces and newline\nWith all these 3 I can calculate line metrics correctly.\n\nThe change was small but I renamed all the parameters to avoid confusion. As a result we have a bigger change.",
+      "revId": "bac33b8756b9f94af48f8ea50137d9e8df76be73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
