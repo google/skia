@@ -10,7 +10,6 @@
 
 #include "include/gpu/GrContextOptions.h"
 #include "include/private/SkImageInfoPriv.h"
-#include "src/core/SkScalerContext.h"
 #include "src/gpu/GrGpuBuffer.h"
 #include "src/gpu/GrResourceCache.h"
 
@@ -312,13 +311,8 @@ public:
 
     std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned = true);
 
-    enum class SemaphoreWrapType {
-        kWillSignal,
-        kWillWait,
-    };
-
     std::unique_ptr<GrSemaphore> wrapBackendSemaphore(const GrBackendSemaphore&,
-                                                      SemaphoreWrapType wrapType,
+                                                      GrSemaphoreWrapType,
                                                       GrWrapOwnership = kBorrow_GrWrapOwnership);
 
     void abandon() {

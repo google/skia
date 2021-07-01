@@ -9,6 +9,7 @@
 
 #include "include/private/SkVx.h"
 #include "src/gpu/GrMeshDrawTarget.h"
+#include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/geometry/GrQuadUtils.h"
 #include "src/gpu/glsl/GrGLSLColorSpaceXformHelper.h"
