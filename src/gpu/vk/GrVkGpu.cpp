@@ -2555,10 +2555,9 @@ std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT GrVkGpu::makeSemaphore(bool i
     return GrVkSemaphore::Make(this, isOwned);
 }
 
-std::unique_ptr<GrSemaphore> GrVkGpu::wrapBackendSemaphore(
-        const GrBackendSemaphore& semaphore,
-        GrResourceProvider::SemaphoreWrapType wrapType,
-        GrWrapOwnership ownership) {
+std::unique_ptr<GrSemaphore> GrVkGpu::wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
+                                                           GrSemaphoreWrapType wrapType,
+                                                           GrWrapOwnership ownership) {
     return GrVkSemaphore::MakeWrapped(this, semaphore.vkSemaphore(), wrapType, ownership);
 }
 

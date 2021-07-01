@@ -23,11 +23,9 @@ class GrVkSemaphore : public GrSemaphore {
 public:
     static std::unique_ptr<GrVkSemaphore> Make(GrVkGpu* gpu, bool isOwned);
 
-    using WrapType = GrResourceProvider::SemaphoreWrapType;
-
-    static std::unique_ptr<GrVkSemaphore> MakeWrapped(GrVkGpu* gpu,
-                                                      VkSemaphore semaphore,
-                                                      WrapType wrapType,
+    static std::unique_ptr<GrVkSemaphore> MakeWrapped(GrVkGpu*,
+                                                      VkSemaphore,
+                                                      GrSemaphoreWrapType,
                                                       GrWrapOwnership);
 
     ~GrVkSemaphore() override;
