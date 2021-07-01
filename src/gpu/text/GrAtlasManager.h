@@ -14,6 +14,8 @@
 #include "src/gpu/GrProxyProvider.h"
 
 class GrGlyph;
+class GrResourceProvider;
+class SkGlyph;
 class GrTextStrike;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -48,11 +50,11 @@ public:
 
     // If bilerpPadding == true then addGlyphToAtlas adds a 1 pixel border to the glyph before
     // inserting it into the atlas.
-    GrDrawOpAtlas::ErrorCode addGlyphToAtlas(const SkGlyph& skGlyph,
-                                             GrGlyph* grGlyph,
+    GrDrawOpAtlas::ErrorCode addGlyphToAtlas(const SkGlyph&,
+                                             GrGlyph*,
                                              int srcPadding,
-                                             GrResourceProvider* resourceProvider,
-                                             GrDeferredUploadTarget* uploadTarget,
+                                             GrResourceProvider*,
+                                             GrDeferredUploadTarget*,
                                              bool bilerpPadding = false);
 
     // To ensure the GrDrawOpAtlas does not evict the Glyph Mask from its texture backing store,

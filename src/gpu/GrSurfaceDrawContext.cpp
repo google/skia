@@ -1495,8 +1495,9 @@ bool GrSurfaceDrawContext::waitOnSemaphores(int numSemaphores,
     std::unique_ptr<std::unique_ptr<GrSemaphore>[]> grSemaphores(
             new std::unique_ptr<GrSemaphore>[numSemaphores]);
     for (int i = 0; i < numSemaphores; ++i) {
-        grSemaphores[i] = resourceProvider->wrapBackendSemaphore(
-                waitSemaphores[i], GrResourceProvider::SemaphoreWrapType::kWillWait, ownership);
+        grSemaphores[i] = resourceProvider->wrapBackendSemaphore(waitSemaphores[i],
+                                                                 GrSemaphoreWrapType::kWillWait,
+                                                                 ownership);
     }
     this->drawingManager()->newWaitRenderTask(this->asSurfaceProxyRef(), std::move(grSemaphores),
                                               numSemaphores);
