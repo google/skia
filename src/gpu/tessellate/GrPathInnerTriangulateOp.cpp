@@ -30,8 +30,8 @@ public:
             : GrPathTessellationShader(kTessellate_HullShader_ClassID,
                                        GrPrimitiveType::kTriangleStrip, 0, viewMatrix, color) {
         constexpr static Attribute kPtsAttribs[] = {
-                {"input_points_0_1", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
-                {"input_points_2_3", kFloat4_GrVertexAttribType, kFloat4_GrSLType}};
+                {"p01", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
+                {"p23", kFloat4_GrVertexAttribType, kFloat4_GrSLType}};
         this->setInstanceAttributes(kPtsAttribs, SK_ARRAY_COUNT(kPtsAttribs));
         if (!shaderCaps.vertexIDSupport()) {
             constexpr static Attribute kVertexIdxAttrib("vertexidx", kFloat_GrVertexAttribType,
@@ -52,35 +52,36 @@ GrGLSLGeometryProcessor* HullShader::createGLSLInstance(const GrShaderCaps&) con
                             GrGLSLVertexBuilder* v, GrGPArgs* gpArgs) override {
             v->insertFunction(SkSLPortable_isinf(shaderCaps));
             v->codeAppend(R"(
-            float4x2 P = float4x2(input_points_0_1, input_points_2_3);
-            if (isinf_portable(P[3].y)) {  // Is the curve a conic?
-                float w = P[3].x;
-                if (isinf_portable(w)) {
-                    // A conic with w=Inf is an exact triangle.
-                    P = float4x2(P[0], P[1], P[2], P[2]);
-                } else {
+            float2 p0=p01.xy, p1=p01.zw, p2=p23.xy, p3=p23.zw;
+            if (isinf_portable(p3.y)) {  // Is the curve a conic?
+                float w = p3.x;
+                p3 = p2;
+                if (!isinf_portable(w)) {  // A conic with w=Inf is an exact triangle.
                     // Convert the points to a trapeziodal hull that circumcscribes the conic.
-                    float2 p1w = P[1] * w;
+                    float2 p1w = p1 * w;
                     float T = .51;  // Bias outward a bit to ensure we cover the outermost samples.
-                    float2 c1 = mix(P[0], p1w, T);
-                    float2 c2 = mix(P[2], p1w, T);
+                    float2 c1 = mix(p0, p1w, T);
+                    float2 c2 = mix(p2, p1w, T);
                     float iw = 1 / mix(1, w, T);
-                    P = float4x2(P[0], c1 * iw, c2 * iw, P[2]);
+                    p2 = c2 * iw;
+                    p1 = c1 * iw;
                 }
             }
 
             // Translate the points to v0..3 where v0=0.
-            float2 v1 = P[1] - P[0], v2 = P[2] - P[0], v3 = P[3] - P[0];
+            float2 v1 = p1 - p0;
+            float2 v2 = p2 - p0;
+            float2 v3 = p3 - p0;
 
             // Reorder the points so v2 bisects v1 and v3.
-            if (sign(determinant(float2x2(v2,v1))) == sign(determinant(float2x2(v2,v3)))) {
-                float2 tmp = P[2];
-                if (sign(determinant(float2x2(v1,v2))) != sign(determinant(float2x2(v1,v3)))) {
-                    P[2] = P[1];  // swap(P2, P1)
-                    P[1] = tmp;
+            if (sign(cross(v2, v1)) == sign(cross(v2, v3))) {
+                float2 tmp = p2;
+                if (sign(cross(v1, v2)) != sign(cross(v1, v3))) {
+                    p2 = p1;  // swap(p2, p1)
+                    p1 = tmp;
                 } else {
-                    P[2] = P[3];  // swap(P2, P3)
-                    P[3] = tmp;
+                    p2 = p3;  // swap(p2, p3)
+                    p3 = tmp;
                 }
             })");
 
@@ -104,15 +105,15 @@ GrGLSLGeometryProcessor* HullShader::createGLSLInstance(const GrShaderCaps&) con
 
             for (int i = 0; i < 4; ++i) {
                 v->codeAppendf(R"(
-                prev = P[%i] - P[%i];)", i, (i + 3) % 4);
+                prev = p%i - p%i;)", i, (i + 3) % 4);
                 v->codeAppendf(R"(
-                next = P[%i] - P[%i];)", (i + 1) % 4, i);
+                next = p%i - p%i;)", (i + 1) % 4, i);
                 v->codeAppendf(R"(
-                dir = sign(determinant(float2x2(prev, next)));
+                dir = sign(cross(prev, next));
                 if (vertexidx == %i) {
                     vertexdir = dir;
-                    localcoord = P[%i];
-                    nextcoord = P[%i];
+                    localcoord = p%i;
+                    nextcoord = p%i;
                 }
                 netdir += dir;)", i, i, (i + 1) % 4);
             }

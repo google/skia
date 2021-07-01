@@ -198,7 +198,7 @@ protected:
     //     float unchecked_mix(float, float, float);
     //
     //     // Values provided by either uniforms or attribs.
-    //     float4x2 P;
+    //     float2 p0, p1, p2, p3;
     //     float w;
     //     float STROKE_RADIUS;
     //     float 2x2 AFFINE_MATRIX;

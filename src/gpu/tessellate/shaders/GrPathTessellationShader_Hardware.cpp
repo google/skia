@@ -81,7 +81,7 @@ GrGLSLGeometryProcessor* HardwareWedgeShader::createGLSLInstance(const GrShaderC
                 if (isinf_portable(P[3].y)) {
                     // This is a conic.
                     float w = P[3].x;
-                    numSegments = wangs_formula_conic(PRECISION, mat3x2(P), w);
+                    numSegments = wangs_formula_conic(PRECISION, P[0], P[1], P[2], w);
                     // Convert to a rational cubic in projected form.
                     rationalCubicXY = mat4x2(P[0],
                                              mix(vec4(P[0], P[2]), (P[1] * w).xyxy, 2.0/3.0),
@@ -89,7 +89,7 @@ GrGLSLGeometryProcessor* HardwareWedgeShader::createGLSLInstance(const GrShaderC
                     rationalCubicW = fma(w, 2.0/3.0, 1.0/3.0);
                 } else {
                     // This is a cubic.
-                    numSegments = wangs_formula_cubic(PRECISION, P, mat2(1));
+                    numSegments = wangs_formula_cubic(PRECISION, P[0], P[1], P[2], P[3], mat2(1));
                     rationalCubicXY = P;
                     rationalCubicW = 1;
                 }
@@ -226,8 +226,8 @@ GrGLSLGeometryProcessor* HardwareCurveShader::createGLSLInstance(const GrShaderC
                     if (w < 0) {
                         // The patch is a cubic. Calculate how many segments are required to
                         // linearize each half of the curve.
-                        n0 = wangs_formula_cubic(PRECISION, mat4x2(P[0], ab, abc, abcd), mat2(1));
-                        n1 = wangs_formula_cubic(PRECISION, mat4x2(abcd, bcd, cd, P[3]), mat2(1));
+                        n0 = wangs_formula_cubic(PRECISION, P[0], ab, abc, abcd, mat2(1));
+                        n1 = wangs_formula_cubic(PRECISION, abcd, bcd, cd, P[3], mat2(1));
                         rationalCubicW = 1;
                     } else {
                         // The patch is a triangle (a conic with infinite weight).
@@ -243,8 +243,8 @@ GrGLSLGeometryProcessor* HardwareCurveShader::createGLSLInstance(const GrShaderC
                     // Put in "standard form" where w0 == w2 == w4 == 1.
                     float w_ = inversesqrt(r);  // Both halves have the same w' when chopping at .5.
                     // Calculate how many segments are needed to linearize each half of the curve.
-                    n0 = wangs_formula_conic(PRECISION, mat3x2(P[0], ab, abc), w_);
-                    n1 = wangs_formula_conic(PRECISION, mat3x2(abc, bc, P[2]), w_);
+                    n0 = wangs_formula_conic(PRECISION, P[0], ab, abc, w_);
+                    n1 = wangs_formula_conic(PRECISION, abc, bc, P[2], w_);
                     // Covert the conic to a rational cubic in projected form.
                     rationalCubicXY = mat4x2(P[0],
                                              mix(float4(P[0],P[2]), p1w.xyxy, 2.0/3.0),
