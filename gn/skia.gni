@@ -115,7 +115,6 @@ declare_args() {
   skia_use_sfntly = skia_use_icu
   skia_enable_vulkan_debug_layers = skia_enable_gpu_debug_layers
   skia_enable_direct3d_debug_layer = skia_enable_gpu_debug_layers
-  skia_enable_metal_debug_info = skia_enable_gpu_debug_layers
   skia_use_vma = skia_use_vulkan
 }
 
