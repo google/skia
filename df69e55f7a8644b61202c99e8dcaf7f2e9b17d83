@@ -16,6 +16,24 @@
       "message": "Is there a driver version we should be looking for? Just concerned this might still affect other devices that Skia runs on (e.g. Android phones) that don\u0027t have the fix.",
       "revId": "df69e55f7a8644b61202c99e8dcaf7f2e9b17d83",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dee5029c_04c239f0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 17950
+      },
+      "writtenOn": "2021-07-01T22:37:20Z",
+      "side": 1,
+      "message": "Yes thats a good point Brian. IMG fixed this on the chromebook driver here: https://crrev.com/i/3930839 (not sure if you can see that). I will ask IMG on the bug about other device drivers. I have not heard of any other devices being tickled by the bug, but I would assume that is just randomness at play. \n\nOn the other hand this workaround only works by happenstance, the bug is more general than derivatives and disabling these just got our devices working long enough to get the real patch deployed. So reverting this wont neccesarily increase OR decrease the bugginess of other devices if you see what I mean. I\u0027m happy either way, but from chromeos perspective we dont need this workaround anymore.\n\nThanks",
+      "parentUuid": "b66a3ca9_9960ca90",
+      "revId": "df69e55f7a8644b61202c99e8dcaf7f2e9b17d83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
