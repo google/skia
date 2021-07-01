@@ -1,8 +1,8 @@
 // Copyright 2021 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 
-#ifndef NGATypes_DEFINED
-#define NGATypes_DEFINED
+#ifndef SortTypes_DEFINED
+#define SortTypes_DEFINED
 
 #include "include/gpu/GrTypes.h"
 
