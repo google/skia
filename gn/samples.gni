@@ -83,6 +83,6 @@ samples_sources = [
   "$_samplecode/vertexdump.cpp",
 ]
 
-oga_samples_sources = [ "$_samplecode/SamplePathTessellators.cpp" ]
+skgpu_v1_samples_sources = [ "$_samplecode/SamplePathTessellators.cpp" ]
 
-samples_sources += oga_samples_sources
+samples_sources += skgpu_v1_samples_sources

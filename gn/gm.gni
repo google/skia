@@ -415,10 +415,10 @@ gm_sources = [
 
 gl_gm_sources = [ "$_gm/rectangletexture.cpp" ]
 
-oga_gm_sources = [
+skgpu_v1_gm_sources = [
   "$_gm/gpu_blur_utils.cpp",
   "$_gm/preservefillrule.cpp",
   "$_gm/widebuttcaps.cpp",
 ]
 
-gm_sources += oga_gm_sources
+gm_sources += skgpu_v1_gm_sources

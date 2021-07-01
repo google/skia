@@ -13,8 +13,8 @@ declare_args() {
   skia_compile_processors = false
   skia_enable_api_available_macro = true
   skia_enable_android_utils = is_skia_dev_build
-  skia_enable_nga = false
-  skia_enable_oga = true
+  skia_enable_skgpu_v2 = false
+  skia_enable_skgpu_v1 = true
   skia_enable_discrete_gpu = true
   skia_enable_flutter_defines = false
   skia_enable_fontmgr_empty = false

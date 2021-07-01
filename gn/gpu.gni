@@ -551,13 +551,13 @@ skia_gl_gpu_sources = [
 
 skia_null_gpu_sources = [ "$_src/gpu/gl/GrGLMakeNativeInterface_none.cpp" ]
 
-skia_nga_sources = [
+skia_skgpu_v2_sources = [
   # Sk files
   "$_src/gpu/SkGpuDevice_nga.cpp",
   "$_src/gpu/SkGpuDevice_nga.h",
 ]
 
-skia_oga_sources = [
+skia_skgpu_v1_sources = [
   "$_src/gpu/GrClipStack.cpp",
   "$_src/gpu/GrClipStack.h",
   "$_src/gpu/GrClipStackClip.cpp",
@@ -599,7 +599,7 @@ skia_oga_sources = [
   "$_src/gpu/SkGpuDevice_drawTexture.cpp",
 ]
 
-skia_gpu_sources += skia_oga_sources
+skia_gpu_sources += skia_skgpu_v1_sources
 
 skia_vk_sources = [
   "$_include/gpu/vk/GrVkBackendContext.h",
