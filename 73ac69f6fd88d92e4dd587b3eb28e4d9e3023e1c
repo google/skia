@@ -56,6 +56,30 @@
       },
       "revId": "73ac69f6fd88d92e4dd587b3eb28e4d9e3023e1c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1093abe5_40191985",
+        "filename": "BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 758,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-07-01T20:49:26Z",
+      "side": 1,
+      "message": "Yup. This was just a temporary hack, the next couple CLs remove all of the build stuff.",
+      "parentUuid": "817c6f71_f86110e3",
+      "range": {
+        "startLine": 742,
+        "startChar": 0,
+        "endLine": 758,
+        "endChar": 31
+      },
+      "revId": "73ac69f6fd88d92e4dd587b3eb28e4d9e3023e1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
