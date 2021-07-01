@@ -26,6 +26,15 @@ void GrMeshDrawOp::createProgramInfo(GrMeshDrawTarget* target) {
                             target->colorLoadOp());
 }
 
+bool GrMeshDrawOp::CombinedQuadCountWillOverflow(GrAAType aaType,
+                                                 bool willBeUpgradedToAA,
+                                                 int combinedQuadCount) {
+    bool willBeAA = (aaType == GrAAType::kCoverage) || willBeUpgradedToAA;
+
+    return combinedQuadCount > (willBeAA ? GrResourceProvider::MaxNumAAQuads()
+                                         : GrResourceProvider::MaxNumNonAAQuads());
+}
+
 // This onPrepareDraws implementation assumes the derived Op only has a single programInfo -
 // which is the majority of the cases.
 void GrMeshDrawOp::onPrePrepareDraws(GrRecordingContext* context,

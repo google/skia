@@ -35,14 +35,14 @@ std::unique_ptr<GrVkSemaphore> GrVkSemaphore::Make(GrVkGpu* gpu, bool isOwned) {
 
 std::unique_ptr<GrVkSemaphore> GrVkSemaphore::MakeWrapped(GrVkGpu* gpu,
                                                           VkSemaphore semaphore,
-                                                          WrapType wrapType,
+                                                          GrSemaphoreWrapType wrapType,
                                                           GrWrapOwnership ownership) {
     if (VK_NULL_HANDLE == semaphore) {
         SkDEBUGFAIL("Trying to wrap an invalid VkSemaphore");
         return nullptr;
     }
-    bool prohibitSignal = WrapType::kWillWait == wrapType;
-    bool prohibitWait = WrapType::kWillSignal == wrapType;
+    bool prohibitSignal = GrSemaphoreWrapType::kWillWait == wrapType;
+    bool prohibitWait = GrSemaphoreWrapType::kWillSignal == wrapType;
     return std::unique_ptr<GrVkSemaphore>(new GrVkSemaphore(gpu, semaphore, prohibitSignal,
                                                             prohibitWait,
                                                             kBorrow_GrWrapOwnership != ownership));

@@ -20,6 +20,7 @@
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrYUVATextureProxies.h"
@@ -297,10 +298,10 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
                 return {};
             }
 
-            sk_sp<GrTexture> tex= resourceProvider->wrapBackendTexture(backendTexture,
-                                                                       kBorrow_GrWrapOwnership,
-                                                                       GrWrapCacheable::kNo,
-                                                                       kRead_GrIOType);
+            sk_sp<GrTexture> tex = resourceProvider->wrapBackendTexture(backendTexture,
+                                                                        kBorrow_GrWrapOwnership,
+                                                                        GrWrapCacheable::kNo,
+                                                                        kRead_GrIOType);
             if (!tex) {
                 return {};
             }
