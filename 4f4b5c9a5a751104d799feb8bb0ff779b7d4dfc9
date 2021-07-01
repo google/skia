@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a57943b3_e762f274",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 17
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-07-01T15:23:27Z",
+      "side": 1,
+      "message": "Greg for gpu, Ethan for sksl.\n\nNote that we can now remove everything related to GL_ARB_fragment_coord_conventions, but this change is big enough.",
+      "revId": "4f4b5c9a5a751104d799feb8bb0ff779b7d4dfc9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
