@@ -14,8 +14,8 @@ class SortKey;
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 
-#include "experimental/ngatoy/Fake.h"
-#include "experimental/ngatoy/ngatypes.h"
+#include "experimental/sorttoy/Fake.h"
+#include "experimental/sorttoy/sorttypes.h"
 
 //------------------------------------------------------------------------------------------------
 class Cmd : public SkRefCnt {

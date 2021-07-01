@@ -4,7 +4,7 @@
 #ifndef Fake_DEFINED
 #define Fake_DEFINED
 
-#include "experimental/ngatoy/ngatypes.h"
+#include "experimental/sorttoy/sorttypes.h"
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColor.h"

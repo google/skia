@@ -1,10 +1,10 @@
 // Copyright 2021 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 
-#include "experimental/ngatoy/Fake.h"
+#include "experimental/sorttoy/Fake.h"
 
-#include "experimental/ngatoy/Cmds.h"
-#include "experimental/ngatoy/SortKey.h"
+#include "experimental/sorttoy/Cmds.h"
+#include "experimental/sorttoy/SortKey.h"
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"

@@ -2185,15 +2185,15 @@ if (skia_enable_tools) {
         "modules/svg",
       ]
     }
-    test_app("ngatoy") {
+    test_app("sorttoy") {
       sources = [
-        "experimental/ngatoy/Cmds.cpp",
-        "experimental/ngatoy/Cmds.h",
-        "experimental/ngatoy/Fake.cpp",
-        "experimental/ngatoy/Fake.h",
-        "experimental/ngatoy/SortKey.h",
-        "experimental/ngatoy/ngatoy.cpp",
-        "experimental/ngatoy/ngatypes.h",
+        "experimental/sorttoy/Cmds.cpp",
+        "experimental/sorttoy/Cmds.h",
+        "experimental/sorttoy/Fake.cpp",
+        "experimental/sorttoy/Fake.h",
+        "experimental/sorttoy/SortKey.h",
+        "experimental/sorttoy/sorttoy.cpp",
+        "experimental/sorttoy/sorttypes.h",
       ]
       deps = [
         ":flags",

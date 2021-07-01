@@ -1,9 +1,9 @@
 // Copyright 2021 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 
-#include "experimental/ngatoy/Cmds.h"
-#include "experimental/ngatoy/Fake.h"
-#include "experimental/ngatoy/SortKey.h"
+#include "experimental/sorttoy/Cmds.h"
+#include "experimental/sorttoy/Fake.h"
+#include "experimental/sorttoy/SortKey.h"
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkGraphics.h"
@@ -34,7 +34,7 @@
  * Futher Questions:
  *   How can we collect uniforms & not store the fps -- seems complicated
  *   Do all the blend modes (esp. advanced work front-to-back)?
- *   NGA perf vs. OGA perf
+ *   skgpu::v2 perf vs. skgpu::v1 perf
  *   Can we prepare any of the saveLayers or off-screen draw render passes in parallel?
  *
  * Small potatoes:
@@ -45,12 +45,12 @@
  * How does this all work:
  *
  * Each test is specified by a set of RectCmds (which have a unique ID and carry their material
- * and MC state info) along with the order they are expected to be drawn in with the NGA.
+ * and MC state info) along with the order they are expected to be drawn in with the skgpu::v2.
  *
  * To generate an expected image, the RectCmds are replayed into an SkCanvas in the order
  * provided.
  *
- * For the actual (NGA) image, the RectCmds are replayed into a FakeCanvas - preserving the
+ * For the actual (v2) image, the RectCmds are replayed into a FakeCanvas - preserving the
  * unique ID of the RectCmd. The FakeCanvas creates new RectCmd objects, sorts them using
  * the SortKey and then performs a kludgey z-buffered rasterization. The FakeCanvas also
  * preserves the RectCmd order it ultimately used for its rendering and this can be compared
@@ -63,11 +63,13 @@
  * Here are some of the simplifying assumptions of this simulation (and their justification):
  *
  * Only SkIRects are used for draws and clips - since MSAA should be taking care of AA for us in
- * the NGA we don't really need SkRects. This also greatly simplifies the z-buffered rasterization.
+ * the skgpu::v2 we don't really need SkRects. This also greatly simplifies the z-buffered
+ * rasterization.
  *
  **************************
  * Areas for improvement:
- *   We should add strokes since there are two distinct drawing methods in the NGA (fill v. stroke)
+ *   We should add strokes since there are two distinct drawing methods in the skgpu::v2 (fill v.
+ *   stroke)
  */
 
 using sk_gpu_test::GrContextFactory;
