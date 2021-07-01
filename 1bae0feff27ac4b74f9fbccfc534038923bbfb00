@@ -18,6 +18,23 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "87cee6ab_a8023200",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 12019
+      },
+      "writtenOn": "2021-07-01T15:09:16Z",
+      "side": 1,
+      "message": "Unions are hugely dangerous footguns. Would it be possible instead for each kind of type to be a subclass of SkSLType? SkSLArrayType, SkSLStructType, etc. We know the type from the beginning and it never changes. This would let us actually use the space we need and would also let us undo the unique_ptr wrapping on the vectors (since they\u0027d only exist when they\u0027re actually relevant). We wouldn\u0027t need to change the existing implementation other than casting to the known subclass type in spots where we need those fields (and we could add \"asArrayType\" helpers to make this cleaner). ",
+      "revId": "1bae0feff27ac4b74f9fbccfc534038923bbfb00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "92c21cc5_fb7393bb",
