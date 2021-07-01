@@ -51,7 +51,7 @@ public:
     bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix&,
                     SkIPoint* margin) const override;
 
-#if SK_SUPPORT_GPU && GR_OGA
+#if SK_SUPPORT_GPU && SK_GPU_V1
     bool canFilterMaskGPU(const GrStyledShape& shape,
                           const SkIRect& devSpaceShapeBounds,
                           const SkIRect& clipBounds,
@@ -574,7 +574,7 @@ void SkBlurMaskFilterImpl::flatten(SkWriteBuffer& buffer) const {
 }
 
 
-#if SK_SUPPORT_GPU && GR_OGA
+#if SK_SUPPORT_GPU && SK_GPU_V1
 
 ///////////////////////////////////////////////////////////////////////////////
 //  Circle Blur
@@ -1066,7 +1066,7 @@ static bool fillin_view_on_gpu(GrDirectContext* dContext,
                                const SkRRect& rrectToDraw,
                                const SkISize& dimensions,
                                float xformedSigma) {
-#if GR_OGA
+#if SK_GPU_V1
     SkASSERT(!SkGpuBlurUtils::IsEffectivelyZeroSigma(xformedSigma));
 
     // We cache blur masks. Use default surface props here so we can use the same cached mask
@@ -1654,7 +1654,7 @@ GrSurfaceProxyView SkBlurMaskFilterImpl::filterMaskGPU(GrRecordingContext* conte
     return surfaceDrawContext->readSurfaceView();
 }
 
-#endif // SK_SUPPORT_GPU && GR_OGA
+#endif // SK_SUPPORT_GPU && SK_GPU_V1
 
 void sk_register_blur_maskfilter_createproc() { SK_REGISTER_FLATTENABLE(SkBlurMaskFilterImpl); }
 
