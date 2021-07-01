@@ -373,8 +373,6 @@ skia_gpu_sources = [
   "$_src/gpu/gradients/GrGradientBitmapCache.h",
   "$_src/gpu/gradients/GrGradientShader.cpp",
   "$_src/gpu/gradients/GrGradientShader.h",
-  "$_src/gpu/gradients/generated/GrUnrolledBinaryGradientColorizer.cpp",
-  "$_src/gpu/gradients/generated/GrUnrolledBinaryGradientColorizer.h",
 
   # tessellate
   "$_src/gpu/tessellate/GrAtlasRenderTask.cpp",
