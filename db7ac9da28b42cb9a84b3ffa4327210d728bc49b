@@ -70,6 +70,30 @@
       },
       "revId": "db7ac9da28b42cb9a84b3ffa4327210d728bc49b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3c442dee_c19eef7f",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1169,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-07-01T16:17:00Z",
+      "side": 1,
+      "message": "Actually, it works just fine. \nClip rectangle starts at 0,0 (for this case) and shows the size of the text range (without spaces). This is a very clumsy way to correct the rectangle so it includes the spaces. I tried to do it the right way but there is too much code churn. \nWe use the corrected clip rectangle just to check if our position gets inside the run and it does not matter if it\u0027s RTL or LTR. \nOnce we found a run that includes our position we check everything taking in account the text direction.",
+      "parentUuid": "c6737627_1cbae25f",
+      "range": {
+        "startLine": 1169,
+        "startChar": 29,
+        "endLine": 1169,
+        "endChar": 35
+      },
+      "revId": "db7ac9da28b42cb9a84b3ffa4327210d728bc49b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
