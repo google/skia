@@ -821,24 +821,6 @@ if (skia_compile_sksl_tests) {
       }
     }
   }
-  compile_sksl("fp_tests") {
-    sources = sksl_fp_tests_sources
-    outExtensions = [
-      ".cpp",
-      ".h",
-    ]
-    lang = "--fp"
-    settings = "--settings"
-  }
-  compile_sksl("dsl_fp_tests") {
-    sources = sksl_dsl_fp_tests_sources
-    outExtensions = [
-      ".dsl.cpp",
-      ".h",
-    ]
-    lang = "--dslfp"
-    settings = "--settings"
-  }
   compile_sksl("glsl_tests") {
     sources = sksl_glsl_tests_sources + sksl_glsl_settings_tests_sources
     outExtensions = [ ".glsl" ]
@@ -876,8 +858,6 @@ if (skia_compile_sksl_tests) {
     settings = "--settings"
   }
 } else {
-  group("compile_sksl_fp_tests") {
-  }
   group("compile_sksl_glsl_tests") {
   }
   group("compile_sksl_glsl_nosettings_tests") {
@@ -894,7 +874,6 @@ optional("gpu") {
   enabled = skia_enable_gpu
   deps = [
     ":compile_processors",
-    ":compile_sksl_fp_tests",
     ":compile_sksl_glsl_nosettings_tests",
     ":compile_sksl_glsl_tests",
     ":compile_sksl_metal_tests",
