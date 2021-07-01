@@ -739,21 +739,23 @@ if (skia_compile_processors) {
     ]
   }
 
-  action("compile_processors") {
-    script = "gn/compile_processors.py"
-    deps = [
-      ":create_sksl_fp",
-      ":sksl_pre_includes",
-      ":skslc(//gn/toolchain:$host_toolchain)",
-    ]
-    sources = skia_gpu_processor_sources
-    outputs = skia_gpu_processor_outputs
-    args = [
-      rebase_path(skslc_path),
-      rebase_path("bin/clang-format"),
-      rebase_path("bin/fetch-clang-format"),
-    ]
-    args += rebase_path(skia_gpu_processor_sources)
+  #  action("compile_processors") {
+  #    script = "gn/compile_processors.py"
+  #    deps = [
+  #      ":create_sksl_fp",
+  #      ":sksl_pre_includes",
+  #      ":skslc(//gn/toolchain:$host_toolchain)",
+  #    ]
+  #    sources = skia_gpu_processor_sources
+  #    outputs = skia_gpu_processor_outputs
+  #    args = [
+  #      rebase_path(skslc_path),
+  #      rebase_path("bin/clang-format"),
+  #      rebase_path("bin/fetch-clang-format"),
+  #    ]
+  #    args += rebase_path(skia_gpu_processor_sources)
+  #  }
+  group("compile_processors") {
   }
 } else {
   group("compile_processors") {
