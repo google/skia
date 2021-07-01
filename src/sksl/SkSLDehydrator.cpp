@@ -100,8 +100,6 @@ void Dehydrator::write(Layout l) {
         this->writeS8(l.fPrimitive);
         this->writeS8(l.fMaxVertices);
         this->writeS8(l.fInvocations);
-        this->write(l.fWhen);
-        this->writeS8((int) l.fCType);
     }
 }
 
@@ -590,9 +588,6 @@ void Dehydrator::write(const ProgramElement& e) {
             break;
         }
         case ProgramElement::Kind::kModifiers:
-            SkASSERT(false);
-            break;
-        case ProgramElement::Kind::kSection:
             SkASSERT(false);
             break;
         case ProgramElement::Kind::kStructDefinition: {

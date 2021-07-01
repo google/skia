@@ -3,7 +3,6 @@ layout (
     push_constant,
     blend_support_all_equations,
     srgb_unpremul,
-    key,
     location = 1,
     offset = 1,
     binding = 1,
@@ -13,14 +12,11 @@ layout (
     input_attachment_index = 1,
     max_vertices = 1,
     invocations = 1,
-    when = one,
-    ctype = SkPMColor4f,
 
     origin_upper_left,
     push_constant,
     blend_support_all_equations,
     srgb_unpremul,
-    key,
     location = 2,
     offset = 2,
     binding = 2,
@@ -29,7 +25,5 @@ layout (
     builtin = 2,
     input_attachment_index = 2,
     max_vertices = 2,
-    invocations = 2,
-    when = two,
-    ctype = SkV4
+    invocations = 2
 ) float x;

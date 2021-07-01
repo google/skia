@@ -83,7 +83,6 @@ for file_path in to_rewrite():
       file_path.endswith('.m') or
       file_path.endswith('.mm') or
       file_path.endswith('.inc') or
-      file_path.endswith('.fp') or
       file_path.endswith('.cc') or
       file_path.endswith('.cpp')):
     # Read the whole file into memory.

@@ -77,7 +77,6 @@ public:
     enum class TypeKind : int8_t {
         kArray,
         kEnum,
-        kFragmentProcessor,
         kGeneric,
         kLiteral,
         kMatrix,
@@ -286,7 +285,6 @@ public:
     bool isOpaque() const {
         switch (fTypeKind) {
             case TypeKind::kColorFilter:
-            case TypeKind::kFragmentProcessor:
             case TypeKind::kOther:
             case TypeKind::kSampler:
             case TypeKind::kSeparateSampler:
@@ -381,7 +379,6 @@ public:
     size_t slotCount() const {
         switch (this->typeKind()) {
             case Type::TypeKind::kColorFilter:
-            case Type::TypeKind::kFragmentProcessor:
             case Type::TypeKind::kGeneric:
             case Type::TypeKind::kOther:
             case Type::TypeKind::kSampler:
@@ -476,10 +473,6 @@ public:
 
     virtual bool isEnum() const {
         return fTypeKind == TypeKind::kEnum;
-    }
-
-    virtual bool isFragmentProcessor() const {
-        return fTypeKind == TypeKind::kFragmentProcessor;
     }
 
     // Is this type something that can be bound & sampled from an SkRuntimeEffect?

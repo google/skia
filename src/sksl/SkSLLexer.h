@@ -51,7 +51,6 @@ struct Token {
         TK_CLASS,
         TK_IDENTIFIER,
         TK_DIRECTIVE,
-        TK_SECTION,
         TK_LPAREN,
         TK_RPAREN,
         TK_LBRACE,

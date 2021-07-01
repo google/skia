@@ -111,11 +111,9 @@ Layout Rehydrator::layout() {
             int primitive = this->readS8();
             int maxVertices = this->readS8();
             int invocations = this->readS8();
-            skstd::string_view when = this->readString();
-            int ctype = this->readS8();
             return Layout(flags, location, offset, binding, index, set, builtin,
                           inputAttachmentIndex, (Layout::Primitive)primitive, maxVertices,
-                          invocations, when, (Layout::CType)ctype);
+                          invocations);
         }
         default:
             SkASSERT(false);

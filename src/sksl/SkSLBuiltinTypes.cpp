@@ -178,8 +178,6 @@ BuiltinTypes::BuiltinTypes()
         , fBVec(Type::MakeGenericType("$bvec", {fInvalid.get(), fBool2.get(), fBool3.get(),
                                                 fBool4.get()}))
         , fSkCaps(Type::MakeSpecialType("$sk_Caps", "O", Type::TypeKind::kOther))
-        , fFragmentProcessor(Type::MakeSpecialType("fragmentProcessor", "fp",
-                                                   Type::TypeKind::kFragmentProcessor))
         , fColorFilter(Type::MakeSpecialType("colorFilter", "CF", Type::TypeKind::kColorFilter))
         , fShader(Type::MakeSpecialType("shader", "SH", Type::TypeKind::kShader)) {}
 

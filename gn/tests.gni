@@ -258,7 +258,6 @@ tests_sources = [
   "$_tests/SkSLDSLErrorLineNumbers.cpp",
   "$_tests/SkSLDSLOnlyTest.cpp",
   "$_tests/SkSLDSLTest.cpp",
-  "$_tests/SkSLFPTestbed.cpp",
   "$_tests/SkSLGLSLTestbed.cpp",
   "$_tests/SkSLInterpreterTest.cpp",
   "$_tests/SkSLMemoryLayoutTest.cpp",

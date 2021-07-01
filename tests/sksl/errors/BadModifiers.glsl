@@ -13,7 +13,7 @@ error: 4: 'noperspective' is not permitted here
 error: 4: 'sk_has_side_effects' is not permitted here
 error: 4: 'inline' is not permitted here
 error: 4: 'noinline' is not permitted here
-error: 6: 'in uniform' variables only permitted within fragment processors
+error: 6: 'in uniform' variables not permitted
 error: 6: 'sk_has_side_effects' is not permitted here
 error: 6: 'inline' is not permitted here
 error: 6: 'noinline' is not permitted here

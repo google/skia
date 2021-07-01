@@ -127,7 +127,6 @@ public:
     const std::unique_ptr<Type> fBVec;
 
     const std::unique_ptr<Type> fSkCaps;
-    const std::unique_ptr<Type> fFragmentProcessor;
 
     const std::unique_ptr<Type> fColorFilter;
     const std::unique_ptr<Type> fShader;

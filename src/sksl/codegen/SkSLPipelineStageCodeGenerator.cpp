@@ -361,7 +361,6 @@ void PipelineStageCodeGenerator::writeProgramElement(const ProgramElement& e) {
         case ProgramElement::Kind::kExtension:
         case ProgramElement::Kind::kInterfaceBlock:
         case ProgramElement::Kind::kModifiers:
-        case ProgramElement::Kind::kSection:
         default:
             SkDEBUGFAILF("unsupported program element %s\n", e.description().c_str());
             break;
