@@ -34,10 +34,9 @@ public:
     std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT makeSemaphore(bool isOwned) override {
         return nullptr;
     }
-    std::unique_ptr<GrSemaphore> wrapBackendSemaphore(
-            const GrBackendSemaphore& semaphore,
-            GrResourceProvider::SemaphoreWrapType wrapType,
-            GrWrapOwnership ownership) override {
+    std::unique_ptr<GrSemaphore> wrapBackendSemaphore(const GrBackendSemaphore& /* semaphore */,
+                                                      GrSemaphoreWrapType /* wraptype */,
+                                                      GrWrapOwnership /* ownership */) override {
         return nullptr;
     }
     void insertSemaphore(GrSemaphore* semaphore) override {}

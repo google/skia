@@ -7,6 +7,7 @@
 
 #include "src/gpu/tessellate/GrStrokeHardwareTessellator.h"
 
+#include "src/core/SkMathPriv.h"
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrVx.h"
@@ -701,6 +702,18 @@ SK_ALWAYS_INLINE static bool cubic_has_cusp(const SkPoint p[4]) {
 }
 
 }  // namespace
+
+GrStrokeHardwareTessellator::GrStrokeHardwareTessellator(ShaderFlags shaderFlags,
+                                                         const GrShaderCaps& shaderCaps,
+                                                         const SkMatrix& viewMatrix,
+                                                         PathStrokeList* pathStrokeList,
+                                                         std::array<float,2> matrixMinMaxScales,
+                                                         const SkRect& strokeCullBounds)
+        : GrStrokeTessellator(GrStrokeTessellationShader::Mode::kHardwareTessellation,
+                              shaderFlags, SkNextLog2(shaderCaps.maxTessellationSegments()),
+                              viewMatrix, pathStrokeList, matrixMinMaxScales,
+                              strokeCullBounds) {
+}
 
 void GrStrokeHardwareTessellator::prepare(GrMeshDrawTarget* target, int totalCombinedVerbCnt) {
     using JoinType = PatchWriter::JoinType;

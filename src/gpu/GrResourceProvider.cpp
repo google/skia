@@ -676,7 +676,7 @@ std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT GrResourceProvider::makeSemap
 
 std::unique_ptr<GrSemaphore> GrResourceProvider::wrapBackendSemaphore(
         const GrBackendSemaphore& semaphore,
-        SemaphoreWrapType wrapType,
+        GrSemaphoreWrapType wrapType,
         GrWrapOwnership ownership) {
     ASSERT_SINGLE_OWNER
     return this->isAbandoned() ? nullptr : fGpu->wrapBackendSemaphore(semaphore,

@@ -616,7 +616,7 @@ void GrGpu::executeFlushInfo(SkSpan<GrSurfaceProxy*> proxies,
             if (info.fSignalSemaphores[i].isInitialized()) {
                 semaphores[i] = resourceProvider->wrapBackendSemaphore(
                     info.fSignalSemaphores[i],
-                    GrResourceProvider::SemaphoreWrapType::kWillSignal,
+                    GrSemaphoreWrapType::kWillSignal,
                     kBorrow_GrWrapOwnership);
                 // If we failed to wrap the semaphore it means the client didn't give us a valid
                 // semaphore to begin with. Therefore, it is fine to not signal it.

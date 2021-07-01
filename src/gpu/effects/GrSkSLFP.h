@@ -11,7 +11,9 @@
 #include "include/core/SkRefCnt.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/GrContextOptions.h"
+#include "include/private/SkVx.h"
 #include "src/gpu/GrFragmentProcessor.h"
+
 
 #include <atomic>
 #include <utility>
