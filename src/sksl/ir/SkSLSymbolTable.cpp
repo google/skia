@@ -121,6 +121,10 @@ void SymbolTable::addWithoutOwnership(const Symbol* symbol) {
     }
 }
 
+void SymbolTable::remove(skstd::string_view name) {
+    fSymbols.remove(MakeSymbolKey(name));
+}
+
 const Type* SymbolTable::addArrayDimension(const Type* type, int arraySize) {
     if (arraySize != 0) {
         String baseName(type->name());

@@ -31,6 +31,11 @@ DSLType::DSLType(skstd::string_view name) {
     }
 }
 
+skstd::string_view DSLType::name() {
+    SkASSERT(fSkSLType);
+    return fSkSLType->name();
+}
+
 bool DSLType::isBoolean() const {
     return this->skslType().isBoolean();
 }

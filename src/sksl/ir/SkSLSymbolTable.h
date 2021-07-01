@@ -64,6 +64,11 @@ public:
      */
     void addAlias(skstd::string_view name, const Symbol* symbol);
 
+    /**
+     * Removes the name mapping for the specified symbol without affecting ownership.
+     */
+    void remove(skstd::string_view name);
+
     void addWithoutOwnership(const Symbol* symbol);
 
     template <typename T>

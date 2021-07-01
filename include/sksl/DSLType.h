@@ -85,6 +85,11 @@ public:
     DSLType(skstd::string_view name);
 
     /**
+     * Returns the name of this type.
+     */
+    skstd::string_view name();
+
+    /**
      * Returns true if this type is a bool.
      */
     bool isBoolean() const;
@@ -174,6 +179,7 @@ private:
 
     friend DSLType Array(const DSLType& base, int count);
     friend DSLType Struct(skstd::string_view name, SkTArray<DSLField> fields);
+    friend class DSLCore;
     friend class DSLFunction;
     friend class DSLVar;
     friend class DSLWriter;

@@ -1523,6 +1523,44 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLIf, r, ctxInfo) {
     }
 }
 
+DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLInterfaceBlock, r, ctxInfo) {
+    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
+    DSLType type1 = Struct("InterfaceBlock1",
+        Field(kFloat_Type, "a"),
+        Field(kInt_Type, "b")
+    );
+    DSLVar intf = InterfaceBlock(kUniform_Modifier, type1);
+    REPORTER_ASSERT(r, DSLWriter::ProgramElements().size() == 1);
+    EXPECT_EQUAL(*DSLWriter::ProgramElements().back(),
+                 "uniform InterfaceBlock1 { float a; int b; };");
+    EXPECT_EQUAL(intf.field("a"), "InterfaceBlock1.a");
+
+    DSLType type2 = Struct("InterfaceBlock2",
+        Field(kFloat2_Type, "x"),
+        Field(kHalf2x2_Type, "y")
+    );
+    DSLVar intf2 = InterfaceBlock(kUniform_Modifier, type2, "blockVar");
+    REPORTER_ASSERT(r, DSLWriter::ProgramElements().size() == 2);
+    EXPECT_EQUAL(*DSLWriter::ProgramElements().back(),
+                 "uniform InterfaceBlock2 { float2 x; half2x2 y; } blockVar;");
+    EXPECT_EQUAL(intf2.field("x"), "blockVar.x");
+
+    DSLType type3 = Struct("InterfaceBlock3",
+        Field(kFloat_Type, "z")
+    );
+    DSLVar intf3 = InterfaceBlock(kUniform_Modifier, type3, "arrayVar", 4);
+    REPORTER_ASSERT(r, DSLWriter::ProgramElements().size() == 3);
+    EXPECT_EQUAL(*DSLWriter::ProgramElements().back(),
+                 "uniform InterfaceBlock3 { float z; } arrayVar[4];");
+    EXPECT_EQUAL(intf3[1].field("z"), "arrayVar[1].z");
+
+    {
+        ExpectError error(r, "error: InterfaceBlock must be called immediately after struct "
+                             "declaration\n");
+        InterfaceBlock(kUniform_Modifier, kFloat_Type);
+    }
+}
+
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLReturn, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
 
