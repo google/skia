@@ -496,7 +496,7 @@ bool GrMtlGpu::clearTexture(GrMtlTexture* tex, size_t bpp, uint32_t levelMask) {
     GrStagingBufferManager::Slice slice = fStagingBufferManager.allocateStagingBufferSlice(
             combinedBufferSize, alignment);
     if (!slice.fBuffer) {
-        return nullptr;
+        return false;
     }
     GrMtlBuffer* mtlBuffer = static_cast<GrMtlBuffer*>(slice.fBuffer);
     id<MTLBuffer> transferBuffer = mtlBuffer->mtlBuffer();
