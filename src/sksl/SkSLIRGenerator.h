@@ -24,7 +24,6 @@
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
 #include "src/sksl/ir/SkSLModifiersDeclaration.h"
 #include "src/sksl/ir/SkSLProgram.h"
-#include "src/sksl/ir/SkSLSection.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLTypeReference.h"
@@ -212,7 +211,6 @@ private:
     std::unique_ptr<Expression> convertPrefixExpression(const ASTNode& expression);
     std::unique_ptr<Statement> convertReturn(int offset, std::unique_ptr<Expression> result);
     std::unique_ptr<Statement> convertReturn(const ASTNode& r);
-    std::unique_ptr<Section> convertSection(const ASTNode& e);
     std::unique_ptr<Expression> convertCallExpression(const ASTNode& expression);
     std::unique_ptr<Expression> convertFieldExpression(const ASTNode& expression);
     std::unique_ptr<Expression> convertIndexExpression(const ASTNode& expression);

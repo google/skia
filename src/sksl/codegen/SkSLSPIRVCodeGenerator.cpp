@@ -2063,7 +2063,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
                                          /*binding=*/-1, /*index=*/-1, /*set=*/-1, /*builtin=*/-1,
                                          /*inputAttachmentIndex=*/-1,
                                          Layout::kUnspecified_Primitive, /*maxVertices=*/1,
-                                         /*invocations=*/-1, /*when=*/"", Layout::CType::kDefault),
+                                         /*invocations=*/-1),
                                   /*flags=*/0),
                         SKSL_RTHEIGHT_NAME, fContext.fTypes.fFloat.get());
                 String name("sksl_synthetic_uniforms");
@@ -2083,8 +2083,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
                         Layout(flags, /*location=*/-1, /*offset=*/-1, binding, /*index=*/-1,
                                set, /*builtin=*/-1, /*inputAttachmentIndex=*/-1,
                                Layout::kUnspecified_Primitive,
-                               /*maxVertices=*/-1, /*invocations=*/-1, /*when=*/"",
-                               Layout::CType::kDefault),
+                               /*maxVertices=*/-1, /*invocations=*/-1),
                         Modifiers::kUniform_Flag);
                 const Variable* intfVar = fSynthetics.takeOwnershipOfSymbol(
                         std::make_unique<Variable>(/*offset=*/-1,

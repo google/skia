@@ -661,20 +661,6 @@ if (skia_compile_sksl_tests) {
     skslc_path += ".exe"
   }
 
-  action("create_sksl_fp") {
-    script = "gn/create_sksl_fp.py"
-    sources = [
-      "include/private/GrSharedEnums.h",
-      "src/sksl/sksl_fp_raw.sksl",
-    ]
-    outputs = [ "$root_out_dir/sksl_fp.sksl" ]
-    args = [
-      rebase_path(sources[0]),
-      rebase_path(sources[1]),
-      rebase_path(outputs[0]),
-    ]
-  }
-
   copy("sksl_pre_includes") {
     sources = [
       "src/sksl/sksl_frag.sksl",
@@ -690,7 +676,6 @@ if (skia_compile_sksl_tests) {
   }
 
   dehydrate_sksl_sources = get_target_outputs(":sksl_pre_includes")
-  dehydrate_sksl_sources += get_target_outputs(":create_sksl_fp")
 
   dehydrate_sksl_outputs = []
   foreach(src, dehydrate_sksl_sources) {
@@ -706,7 +691,6 @@ if (skia_compile_sksl_tests) {
   action("dehydrate_sksl") {
     script = "gn/dehydrate_sksl.py"
     deps = [
-      ":create_sksl_fp",
       ":sksl_pre_includes",
       ":skslc(//gn/toolchain:$host_toolchain)",
     ]
@@ -731,7 +715,6 @@ if (skia_compile_sksl_tests) {
     action("compile_sksl_${target_name}") {
       script = "gn/compile_sksl_tests.py"
       deps = [
-        ":create_sksl_fp",
         ":sksl_pre_includes",
         ":skslc(//gn/toolchain:$host_toolchain)",
       ]
