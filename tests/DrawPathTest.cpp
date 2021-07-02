@@ -317,7 +317,8 @@ static void test_crbug_165432(skiatest::Reporter* reporter) {
 
     SkPath filteredPath;
     SkStrokeRec rec(paint);
-    REPORTER_ASSERT(reporter, !dash->filterPath(&filteredPath, path, &rec, nullptr));
+    REPORTER_ASSERT(reporter, !dash->filterPath2(&filteredPath, path, &rec, nullptr,
+                                                 SkMatrix::I()));
     REPORTER_ASSERT(reporter, filteredPath.isEmpty());
 }
 
