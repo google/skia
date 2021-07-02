@@ -32,9 +32,11 @@ inline sk_sp<SkRuntimeEffect> SkMakeCachedRuntimeEffect(SkRuntimeEffect::Result 
 
 // Internal API that assumes (and asserts) that the shader code is valid, but does no internal
 // caching. Used when the caller will cache the result in a static variable.
-inline sk_sp<SkRuntimeEffect> SkMakeRuntimeEffect(SkRuntimeEffect::Result (*make)(SkString sksl),
-                                                  const char* sksl) {
-    auto result = make(SkString{sksl});
+inline sk_sp<SkRuntimeEffect> SkMakeRuntimeEffect(
+        SkRuntimeEffect::Result (*make)(SkString, const SkRuntimeEffect::Options&),
+        const char* sksl,
+        SkRuntimeEffect::Options options = SkRuntimeEffect::Options{}) {
+    auto result = make(SkString{sksl}, options);
     SkASSERTF(result.effect, "%s", result.errorText.c_str());
     return result.effect;
 }
@@ -125,6 +127,12 @@ public:
     // implement the constant output for constant input optimization flag.
     static bool SupportsConstantOutputForConstantInput(sk_sp<SkRuntimeEffect> effect) {
         return effect->getFilterColorProgram();
+    }
+
+    static SkRuntimeEffect::Options ES3Options() {
+        SkRuntimeEffect::Options options;
+        options.enforceES2Restrictions = false;
+        return options;
     }
 };
 

@@ -64,7 +64,6 @@ public:
         kGrDistanceFieldA8TextGeoProc_ClassID,
         kGrDistanceFieldLCDTextGeoProc_ClassID,
         kGrDistanceFieldPathGeoProc_ClassID,
-        kGrDitherEffect_ClassID,
         kGrDSLFPTest_DoStatement_ClassID,
         kGrDSLFPTest_ForStatement_ClassID,
         kGrDSLFPTest_IfStatement_ClassID,
