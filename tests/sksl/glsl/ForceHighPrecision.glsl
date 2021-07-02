@@ -1,6 +1,6 @@
 #version 400
-precision mediump float;
-precision mediump sampler2D;
+precision highp float;
+precision highp sampler2D;
 out mediump vec4 sk_FragColor;
 uniform highp float unknownInput;
 void main() {
