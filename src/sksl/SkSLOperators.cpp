@@ -9,6 +9,7 @@
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLOperators.h"
 #include "src/sksl/SkSLProgramSettings.h"
+#include "src/sksl/ir/SkSLScalarType.h"
 #include "src/sksl/ir/SkSLType.h"
 
 namespace SkSL {

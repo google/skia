@@ -52,6 +52,7 @@
 #include "src/sksl/ir/SkSLReturnStatement.h"
 #include "src/sksl/ir/SkSLSetting.h"
 #include "src/sksl/ir/SkSLStructDefinition.h"
+#include "src/sksl/ir/SkSLStructType.h"
 #include "src/sksl/ir/SkSLSwitchCase.h"
 #include "src/sksl/ir/SkSLSwitchStatement.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
@@ -1061,9 +1062,9 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
             }
         }
     }
-    const Type* type = old->takeOwnershipOfSymbol(Type::MakeStructType(intf.fOffset,
-                                                                       String(id.fTypeName),
-                                                                       fields));
+    const Type* type = old->takeOwnershipOfSymbol(std::make_unique<StructType>(intf.fOffset,
+                                                                               String(id.fTypeName),
+                                                                               fields));
     int arraySize = 0;
     if (id.fIsArray) {
         const ASTNode& size = *(iter++);
