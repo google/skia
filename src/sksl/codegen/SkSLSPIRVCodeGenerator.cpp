@@ -15,6 +15,7 @@
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLExtension.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
+#include "src/sksl/ir/SkSLStructType.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
 
 #ifdef SK_VULKAN
@@ -2067,8 +2068,8 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
                                   /*flags=*/0),
                         SKSL_RTHEIGHT_NAME, fContext.fTypes.fFloat.get());
                 String name("sksl_synthetic_uniforms");
-                std::unique_ptr<Type> intfStruct = Type::MakeStructType(/*offset=*/-1, name,
-                                                                        fields);
+                std::unique_ptr<Type> intfStruct = std::make_unique<StructType>(/*offset=*/-1, name,
+                                                                                fields);
                 int binding = fProgram.fConfig->fSettings.fRTHeightBinding;
                 if (binding == -1) {
                     fErrors.error(ref.fOffset, "layout(binding=...) is required in SPIR-V");
@@ -3067,8 +3068,8 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
         fRTHeightStorageClass = storageClass;
         fields.emplace_back(Modifiers(), skstd::string_view(SKSL_RTHEIGHT_NAME),
                             fContext.fTypes.fFloat.get());
-        rtHeightStructType = Type::MakeStructType(type->fOffset, String(type->name()),
-                                                  std::move(fields));
+        rtHeightStructType = std::make_unique<StructType>(type->fOffset, String(type->name()),
+                                                          std::move(fields));
         type = rtHeightStructType.get();
     }
     SpvId typeId;
@@ -3534,8 +3535,8 @@ void SPIRVCodeGenerator::writeUniformBuffer(std::shared_ptr<SymbolTable> topLeve
         fTopLevelUniformMap[var] = (int)fields.size();
         fields.emplace_back(var->modifiers(), var->name(), &var->type());
     }
-    fUniformBuffer.fStruct = Type::MakeStructType(/*offset=*/-1, kUniformBufferName,
-                                                 std::move(fields));
+    fUniformBuffer.fStruct = std::make_unique<StructType>(/*offset=*/-1, kUniformBufferName,
+                                                          std::move(fields));
 
     // Create a global variable to contain this struct.
     Layout layout;

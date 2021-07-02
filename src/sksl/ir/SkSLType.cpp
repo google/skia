@@ -9,15 +9,156 @@
 
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/ir/SkSLArrayType.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorCompoundCast.h"
 #include "src/sksl/ir/SkSLConstructorScalarCast.h"
 #include "src/sksl/ir/SkSLFunctionReference.h"
+#include "src/sksl/ir/SkSLGenericType.h"
+#include "src/sksl/ir/SkSLLiteralType.h"
+#include "src/sksl/ir/SkSLMatrixType.h"
+#include "src/sksl/ir/SkSLSamplerType.h"
+#include "src/sksl/ir/SkSLScalarType.h"
+#include "src/sksl/ir/SkSLStructType.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
+#include "src/sksl/ir/SkSLTextureType.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLTypeReference.h"
+#include "src/sksl/ir/SkSLVectorType.h"
 
 namespace SkSL {
+
+std::unique_ptr<Type> Type::MakeArrayType(String name, const Type& componentType, int columns) {
+    return std::make_unique<ArrayType>(std::move(name), componentType.abbreviatedName(),
+                                       componentType, columns);
+}
+
+int Type::columns() const {
+    switch (this->typeKind()) {
+        case TypeKind::kArray:
+            return this->as<ArrayType>().count();
+        case TypeKind::kMatrix:
+            return this->as<MatrixType>().columns();
+        case TypeKind::kScalar:
+        case TypeKind::kLiteral:
+            return 1;
+        case TypeKind::kVector:
+            return this->as<VectorType>().columns();
+        default:
+            SkASSERT(false);
+            return -1;
+    }
+}
+
+int Type::rows() const {
+    SkASSERT(this->isScalar() || this->isVector() || this->isMatrix());
+    if (this->is<MatrixType>()) {
+        return this->as<MatrixType>().rows();
+    }
+    return 1;
+}
+
+const Type& Type::componentType() const {
+    switch (fTypeKind) {
+        case TypeKind::kArray:
+            return this->as<ArrayType>().componentType();
+        case TypeKind::kMatrix:
+            return this->as<MatrixType>().componentType();
+        case TypeKind::kVector:
+            return this->as<VectorType>().componentType();
+        default:
+            return *this;
+    }
+}
+
+Type::NumberKind Type::numberKind() const {
+    switch (fTypeKind) {
+        case TypeKind::kScalar:
+            return this->as<ScalarType>().numberKind();
+        case TypeKind::kLiteral:
+            return this->as<LiteralType>().scalarType().numberKind();
+        default:
+            return NumberKind::kNonnumeric;
+    }
+}
+
+int Type::priority() const {
+    switch (fTypeKind) {
+        case TypeKind::kScalar:
+            return this->as<ScalarType>().priority();
+        case TypeKind::kLiteral:
+            return this->as<LiteralType>().priority();
+        default:
+            return -1;
+    }
+}
+
+int Type::bitWidth() const {
+    const Type& componentType = this->componentType();
+    if (&componentType != this) {
+        return componentType.bitWidth();
+    }
+    switch (fTypeKind) {
+        case TypeKind::kScalar:
+            return this->as<ScalarType>().bitWidth();
+        case TypeKind::kLiteral:
+            return this->as<LiteralType>().scalarType().bitWidth();
+        default:
+            return -1;
+    }
+}
+
+const std::vector<const Type*>& Type::coercibleTypes() const {
+    return this->as<GenericType>().coercibleTypes();
+}
+
+SpvDim_ Type::dimensions() const {
+    if (this->is<SamplerType>()) {
+        return this->as<SamplerType>().textureType().dimensions();
+    }
+    return this->as<TextureType>().dimensions();
+}
+
+bool Type::isDepth() const {
+    if (this->is<SamplerType>()) {
+        return this->as<SamplerType>().textureType().isDepth();
+    }
+    return this->as<TextureType>().isDepth();
+}
+
+bool Type::isArrayedTexture() const {
+    if (this->is<SamplerType>()) {
+        return this->as<SamplerType>().textureType().isArrayed();
+    }
+    return this->as<TextureType>().isArrayed();
+}
+
+bool Type::isMultisampled() const {
+    if (this->is<SamplerType>()) {
+        return this->as<SamplerType>().textureType().isMultisampled();
+    }
+    return this->as<TextureType>().isMultisampled();
+}
+
+bool Type::isSampled() const {
+    if (this->is<SamplerType>()) {
+        return this->as<SamplerType>().textureType().isSampled();
+    }
+    return this->as<TextureType>().isSampled();
+}
+
+
+const Type& Type::scalarTypeForLiteral() const {
+    return this->isLiteral() ? this->as<LiteralType>().scalarType() : *this;
+}
+
+const Type& Type::textureType() const {
+    return this->as<SamplerType>().textureType();
+}
+
+const std::vector<Type::Field>& Type::fields() const {
+    return this->as<StructType>().fields();
+}
 
 CoercionCost Type::coercionCost(const Type& other) const {
     if (*this == other) {
@@ -46,9 +187,10 @@ CoercionCost Type::coercionCost(const Type& other) const {
             return CoercionCost::Narrowing(this->priority() - other.priority());
         }
     }
-    if (fCoercibleTypes) {
-        for (size_t i = 0; i < fCoercibleTypes->size(); i++) {
-            if (*(*fCoercibleTypes)[i] == other) {
+    if (fTypeKind == TypeKind::kGeneric) {
+        std::vector<const Type*> types = this->coercibleTypes();
+        for (size_t i = 0; i < types.size(); i++) {
+            if (*types[i] == other) {
                 return CoercionCost::Normal((int) i + 1);
             }
         }
@@ -211,8 +353,9 @@ const Type* Type::clone(SymbolTable* symbolTable) const {
                                                                this->columns()));
 
         case TypeKind::kStruct:
-            return symbolTable->add(Type::MakeStructType(this->fOffset, String(this->name()),
-                                                         this->fields()));
+            return symbolTable->add(std::make_unique<StructType>(this->fOffset,
+                                                                 String(this->name()),
+                                                                 this->fields()));
 
         case TypeKind::kEnum:
             return symbolTable->add(Type::MakeEnumType(String(this->name())));
