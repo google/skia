@@ -33,6 +33,29 @@
       "message": "all src/gpu/* lgtm",
       "revId": "4f4b5c9a5a751104d799feb8bb0ff779b7d4dfc9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4ee58303_2e18f4e7",
+        "filename": "src/gpu/dawn/GrDawnGpu.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 711,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-07-02T20:45:24Z",
+      "side": 1,
+      "message": "Micro nit: /*rtFlipOffset\u003d*/ so the name gets checked by lint (here and below)",
+      "range": {
+        "startLine": 711,
+        "startChar": 47,
+        "endLine": 711,
+        "endChar": 60
+      },
+      "revId": "4f4b5c9a5a751104d799feb8bb0ff779b7d4dfc9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
