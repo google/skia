@@ -195,7 +195,7 @@ protected:
         for (int i = 0; i < loops; ++i) {
             SkStrokeRec rec(SkStrokeRec::kHairline_InitStyle);
 
-            fPE->filterPath(&dst, fPath, &rec, nullptr);
+            fPE->filterPath2(&dst, fPath, &rec, nullptr, SkMatrix::I());
             dst.rewind();
         }
     }

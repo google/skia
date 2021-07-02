@@ -948,8 +948,8 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
         if (this->computeConservativeLocalClipBounds(&cullRect)) {
             cullRectPtr = &cullRect;
         }
-        doFill = paint->getFillPath(*pathPtr, tmpPath, cullRectPtr,
-                                    ComputeResScaleForStroking(fMatrixProvider->localToDevice()));
+        doFill = paint->getFillPath2(*pathPtr, tmpPath, cullRectPtr,
+                                     fMatrixProvider->localToDevice());
         pathPtr = tmpPath;
     }
 

@@ -365,7 +365,52 @@ bool SkPaint::getFillPath(const SkPath& src, SkPath* dst, const SkRect* cullRect
     const SkPath* srcPtr = &src;
     SkPath tmpPath;
 
-    if (fPathEffect && fPathEffect->filterPath(&tmpPath, src, &rec, cullRect)) {
+    if (fPathEffect && fPathEffect->filterPath2(&tmpPath, src, &rec, cullRect,
+                                                SkMatrix::Scale(resScale, resScale))) {
+        srcPtr = &tmpPath;
+    }
+
+    if (!rec.applyToPath(dst, *srcPtr)) {
+        if (srcPtr == &tmpPath) {
+            // If path's were copy-on-write, this trick would not be needed.
+            // As it is, we want to save making a deep-copy from tmpPath -> dst
+            // since we know we're just going to delete tmpPath when we return,
+            // so the swap saves that copy.
+            dst->swap(tmpPath);
+        } else {
+            *dst = *srcPtr;
+        }
+    }
+
+    if (!dst->isFinite()) {
+        dst->reset();
+        return false;
+    }
+    return !rec.isHairlineStyle();
+}
+
+
+bool SkPaint::getFillPath2(const SkPath& src, SkPath* dst, const SkRect* cullRect,
+                           const SkMatrix& ctm) const {
+    if (!src.isFinite()) {
+        dst->reset();
+        return false;
+    }
+
+    const SkScalar resScale = SkDraw::ComputeResScaleForStroking(ctm);
+    SkStrokeRec rec(*this, resScale);
+
+#if defined(SK_BUILD_FOR_FUZZER)
+    // Prevent lines with small widths from timing out.
+    if (rec.getStyle() == SkStrokeRec::Style::kStroke_Style && rec.getWidth() < 0.001) {
+        return false;
+    }
+#endif
+
+    const SkPath* srcPtr = &src;
+    SkPath tmpPath;
+
+    if (fPathEffect && fPathEffect->filterPath2(&tmpPath, src, &rec, cullRect, ctm)) {
         srcPtr = &tmpPath;
     }
 

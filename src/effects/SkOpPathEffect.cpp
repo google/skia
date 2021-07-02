@@ -20,18 +20,18 @@ sk_sp<SkPathEffect> SkMergePathEffect::Make(sk_sp<SkPathEffect> one, sk_sp<SkPat
 SkOpPE::SkOpPE(sk_sp<SkPathEffect> one, sk_sp<SkPathEffect> two, SkPathOp op)
     : fOne(std::move(one)), fTwo(std::move(two)), fOp(op) {}
 
-bool SkOpPE::onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
-                          const SkRect* cull) const {
+bool SkOpPE::onFilterPath2(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
+                          const SkRect* cull, const SkMatrix& ctm) const {
     SkPath one, two;
     if (fOne) {
-        if (!fOne->filterPath(&one, src, rec, cull)) {
+        if (!fOne->filterPath2(&one, src, rec, cull, ctm)) {
             return false;
         }
     } else {
         one = src;
     }
     if (fTwo) {
-        if (!fTwo->filterPath(&two, src, rec, cull)) {
+        if (!fTwo->filterPath2(&two, src, rec, cull, ctm)) {
             return false;
         }
     } else {
