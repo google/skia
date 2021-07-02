@@ -12,6 +12,7 @@
 
 #include "include/private/SkSLModifiers.h"
 #include "src/sksl/SkSLASTNode.h"
+#include "src/sksl/ir/SkSLStructType.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLType.h"
 
@@ -625,8 +626,9 @@ ASTNode::ID Parser::structDeclaration() {
                     "struct '" + this->text(name) + "' must contain at least one field");
         return ASTNode::ID::Invalid();
     }
-    std::unique_ptr<Type> newType = Type::MakeStructType(name.fOffset, String(this->text(name)),
-                                                         fields);
+    std::unique_ptr<Type> newType = std::make_unique<StructType>(name.fOffset,
+                                                                 String(this->text(name)),
+                                                                 fields);
     if (struct_is_too_deeply_nested(*newType, kMaxStructDepth)) {
         this->error(name.fOffset, "struct '" + this->text(name) + "' is too deeply nested");
         return ASTNode::ID::Invalid();

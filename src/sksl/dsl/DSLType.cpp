@@ -10,6 +10,7 @@
 #include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLStructDefinition.h"
+#include "src/sksl/ir/SkSLStructType.h"
 
 namespace SkSL {
 
@@ -199,9 +200,10 @@ DSLType Struct(skstd::string_view name, SkTArray<DSLField> fields) {
     for (const DSLField& field : fields) {
         skslFields.emplace_back(field.fModifiers.fModifiers, field.fName, &field.fType.skslType());
     }
-    const SkSL::Type* result = DSLWriter::SymbolTable()->add(Type::MakeStructType(/*offset=*/-1,
-                                                                                  String(name),
-                                                                                  skslFields));
+    std::unique_ptr<StructType> structType = std::make_unique<StructType>(/*offset=*/-1,
+                                                                          String(name),
+                                                                          skslFields);
+    const SkSL::Type* result = DSLWriter::SymbolTable()->add(std::move(structType));
     DSLWriter::ProgramElements().push_back(std::make_unique<SkSL::StructDefinition>(/*offset=*/-1,
                                                                                     *result));
     return result;

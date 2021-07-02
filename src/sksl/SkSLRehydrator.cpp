@@ -47,6 +47,7 @@
 #include "src/sksl/ir/SkSLReturnStatement.h"
 #include "src/sksl/ir/SkSLSetting.h"
 #include "src/sksl/ir/SkSLStructDefinition.h"
+#include "src/sksl/ir/SkSLStructType.h"
 #include "src/sksl/ir/SkSLSwitchCase.h"
 #include "src/sksl/ir/SkSLSwitchStatement.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
@@ -211,7 +212,7 @@ const Symbol* Rehydrator::symbol() {
                 fields.emplace_back(m, fieldName, type);
             }
             const Type* result = fSymbolTable->takeOwnershipOfSymbol(
-                    Type::MakeStructType(/*offset=*/-1, name, std::move(fields)));
+                    std::make_unique<StructType>(/*offset=*/-1, name, std::move(fields)));
             this->addSymbol(id, result);
             return result;
         }
