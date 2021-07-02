@@ -214,6 +214,15 @@ bool GrSurfaceContext::readPixels(GrDirectContext* dContext, GrPixmap dst, SkIPo
 
     const GrCaps* caps = dContext->priv().caps();
     bool srcIsCompressed = caps->isFormatCompressed(srcSurface->backendFormat());
+
+    static bool first = true;
+    if (first) {
+        first = false;
+        bool valid = dContext->priv().validPMUPMConversionExists();
+        SkDebugf("Conversion exists: %s\n", valid ? "true" : "false");
+        SK_ABORT("Done");
+    }
+
     // This is the getImageData equivalent to the canvas2D putImageData fast path. We probably don't
     // care so much about getImageData performance. However, in order to ensure putImageData/
     // getImageData in "legacy" mode are round-trippable we use the GPU to do the complementary
