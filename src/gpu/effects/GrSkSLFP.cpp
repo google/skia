@@ -171,10 +171,18 @@ public:
         // we call child processors (particularly from helper functions, which can't "see" the
         // parameter to main). Even from within main, if the code mutates the parameter, calls to
         // sample should still be passing the original color (by default).
-        GrShaderVar inputColorCopy(args.fFragBuilder->getMangledFunctionName("inColor"),
-                                   kHalf4_GrSLType);
-        args.fFragBuilder->declareGlobal(inputColorCopy);
-        args.fFragBuilder->codeAppendf("%s = %s;\n", inputColorCopy.c_str(), args.fInputColor);
+        SkString inputColorName;
+        if (fp.fEffect->samplesOutsideMain()) {
+            GrShaderVar inputColorCopy(args.fFragBuilder->getMangledFunctionName("inColor"),
+                                       kHalf4_GrSLType);
+            args.fFragBuilder->declareGlobal(inputColorCopy);
+            inputColorName = inputColorCopy.getName();
+            args.fFragBuilder->codeAppendf("%s = %s;\n", inputColorName.c_str(), args.fInputColor);
+        } else {
+            inputColorName = args.fFragBuilder->newTmpVarName("inColor");
+            args.fFragBuilder->codeAppendf(
+                    "half4 %s = %s;\n", inputColorName.c_str(), args.fInputColor);
+        }
 
         // Copy the incoming coords to a local variable. Code in main might modify the coords
         // parameter. fSampleCoord could be a varying, so writes to it would be illegal.
@@ -198,7 +206,7 @@ public:
 
         FPCallbacks callbacks(this,
                               args,
-                              inputColorCopy.c_str(),
+                              inputColorName.c_str(),
                               *program.fContext,
                               fp.uniformData(),
                               fp.uniformFlags());
