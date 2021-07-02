@@ -208,6 +208,7 @@ skia_sksl_gpu_sources = [
 ]
 
 skia_gpu_processor_sources = [
+  "$_src/gpu/effects/GrConfigConversionEffect.fp",
   "$_src/gpu/effects/GrDitherEffect.fp",
   "$_src/gpu/gradients/GrUnrolledBinaryGradientColorizer.fp",
 ]

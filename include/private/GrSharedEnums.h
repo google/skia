@@ -26,4 +26,11 @@ enum class GrClipEdgeType {
     kLast = kInverseFillAA
 };
 
+enum class PMConversion {
+    kToPremul        = 0,
+    kToUnpremul      = 1,
+
+    kLast = kToUnpremul
+};
+
 #endif
