@@ -53,6 +53,42 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "127b01fa_6c36302e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-07-02T19:00:00Z",
+      "side": 1,
+      "message": "I hadn\u0027t really been looking to turn this into such a big project, but, well... if you\u0027re *suggesting* I turn it into a big project... how can I resist? :-)",
+      "parentUuid": "72d0034a_20e2f20d",
+      "revId": "1bae0feff27ac4b74f9fbccfc534038923bbfb00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0231f69e_406dee3e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-07-02T19:00:00Z",
+      "side": 1,
+      "message": "Going to clean this up further in a followup.",
+      "parentUuid": "e7ad47d5_63d448b4",
+      "revId": "1bae0feff27ac4b74f9fbccfc534038923bbfb00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "92c21cc5_fb7393bb",
@@ -66,6 +102,24 @@
       "writtenOn": "2021-07-01T13:17:22Z",
       "side": 1,
       "message": "If my math is right, this is the only union member that needs more than 128 bits (on a 64-bit build). fColumns used to be int - if we go back to that, I think we shave another 64 bits (thanks to padding)?",
+      "revId": "1bae0feff27ac4b74f9fbccfc534038923bbfb00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a265186f_f1130d85",
+        "filename": "src/sksl/ir/SkSLType.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 642,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-07-02T19:00:00Z",
+      "side": 1,
+      "message": "Damn, should have checked my assumptions - I was thinking SKSL_INT was 32 bits.",
+      "parentUuid": "92c21cc5_fb7393bb",
       "revId": "1bae0feff27ac4b74f9fbccfc534038923bbfb00",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }

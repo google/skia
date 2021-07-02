@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8f33e2d3_acc96156",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-07-02T19:00:00Z",
+      "side": 1,
+      "message": "Per John\u0027s suggestion, split Type up into subclasses. To keep this CL from getting any bigger, I\u0027m leaving Type\u0027s API (mostly) alone for now, but there\u0027s certainly plenty to improve in followups.",
+      "revId": "cc4d71591da8c362244572181bdd24327a52a35c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
