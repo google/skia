@@ -206,6 +206,10 @@ SkRuntimeEffect::Result SkRuntimeEffect::Make(std::unique_ptr<SkSL::Program> pro
         SkASSERT(!SkSL::Analysis::ReferencesFragCoords(*program));
     }
 
+    if (SkSL::Analysis::CallsSampleOutsideMain(*program)) {
+        flags |= kSamplesOutsideMain_Flag;
+    }
+
     size_t offset = 0;
     std::vector<Uniform> uniforms;
     std::vector<Child> children;

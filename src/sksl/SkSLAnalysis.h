@@ -50,6 +50,8 @@ struct Analysis {
     static bool ReferencesSampleCoords(const Program& program);
     static bool ReferencesFragCoords(const Program& program);
 
+    static bool CallsSampleOutsideMain(const Program& program);
+
     static int NodeCountUpToLimit(const FunctionDefinition& function, int limit);
 
     /**

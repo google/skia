@@ -151,6 +151,30 @@ public:
     using INHERITED = ProgramVisitor;
 };
 
+// Visitor that searches for calls to sample() from a function other than main()
+class SampleOutsideMainVisitor : public ProgramVisitor {
+public:
+    SampleOutsideMainVisitor() {}
+
+    bool visitExpression(const Expression& e) override {
+        if (e.is<FunctionCall>()) {
+            const FunctionDeclaration& f = e.as<FunctionCall>().function();
+            if (f.isBuiltin() && f.name() == "sample") {
+                return true;
+            }
+        }
+        return INHERITED::visitExpression(e);
+    }
+
+    bool visitProgramElement(const ProgramElement& p) override {
+        return p.is<FunctionDefinition>() &&
+               !p.as<FunctionDefinition>().declaration().isMain() &&
+               INHERITED::visitProgramElement(p);
+    }
+
+    using INHERITED = ProgramVisitor;
+};
+
 // Visitor that counts the number of nodes visited
 class NodeCountVisitor : public ProgramVisitor {
 public:
@@ -590,6 +614,11 @@ bool Analysis::ReferencesSampleCoords(const Program& program) {
 
 bool Analysis::ReferencesFragCoords(const Program& program) {
     return Analysis::ReferencesBuiltin(program, SK_FRAGCOORD_BUILTIN);
+}
+
+bool Analysis::CallsSampleOutsideMain(const Program& program) {
+    SampleOutsideMainVisitor visitor;
+    return visitor.visit(program);
 }
 
 int Analysis::NodeCountUpToLimit(const FunctionDefinition& function, int limit) {
