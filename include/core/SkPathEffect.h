@@ -84,7 +84,12 @@ public:
      *  If this method returns true, the caller will apply (as needed) the
      *  resulting stroke-rec to dst and then draw.
      */
-    bool filterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect* cullR) const;
+    bool filterPath2(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect* cullR,
+                     const SkMatrix& ctm) const;
+
+    bool filterPath_TODO(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect* cullR) const;
+
+    bool needsCTM() const;
 
     static sk_sp<SkPathEffect> Deserialize(const void* data, size_t size,
                                            const SkDeserialProcs* procs = nullptr);
