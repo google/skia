@@ -1533,14 +1533,15 @@ bool GLSLCodeGenerator::generateCode() {
     }
 
     if (this->usesPrecisionModifiers()) {
-        this->writeLine("precision mediump float;");
-        this->writeLine("precision mediump sampler2D;");
-        if (fFoundExternalSamplerDecl &&
-            !this->caps().noDefaultPrecisionForExternalSamplers()) {
-            this->writeLine("precision mediump samplerExternalOES;");
+        const char* precision =
+                fProgram.fConfig->fSettings.fForceHighPrecision ? "highp" : "mediump";
+        this->write(String::printf("precision %s float;\n", precision));
+        this->write(String::printf("precision %s sampler2D;\n", precision));
+        if (fFoundExternalSamplerDecl && !this->caps().noDefaultPrecisionForExternalSamplers()) {
+            this->write(String::printf("precision %s samplerExternalOES;\n", precision));
         }
         if (fFoundRectSamplerDecl) {
-            this->writeLine("precision mediump sampler2DRect;");
+            this->write(String::printf("precision %s sampler2DRect;\n", precision));
         }
     }
     write_stringstream(fExtraFunctions, *rawOut);
