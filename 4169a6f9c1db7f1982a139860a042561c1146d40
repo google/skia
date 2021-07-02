@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3e11b3db_c7568b59",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-07-02T19:48:27Z",
+      "side": 1,
+      "message": "@Mike et al the added gm seems to at least prove the concept, see e.g. https://gold.skia.org/img/images/91c0fe34dac3bfa4402c9deb2b123890.png. The green stroked line segment is drawn on top of a blue stroked line segment inflated by 0.5px, so you see the slight blue border at ~0.5px even in the presence of the non-uniform canvas scale.",
+      "revId": "4169a6f9c1db7f1982a139860a042561c1146d40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
