@@ -16,6 +16,23 @@
       "message": "Must wait for https://chromium-review.googlesource.com/c/chromium/src/+/3000003 to land before landing this.",
       "revId": "3ee092e1f066917fa8782d912154c2146338a21b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f18a9b45_691d115a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6395
+      },
+      "writtenOn": "2021-07-02T08:07:22Z",
+      "side": 1,
+      "message": "Thanks for the setScaleTranslate improvement over the code in https://skia-review.googlesource.com/c/skia/+/423396/1/src/ports/SkFontHost_FreeType_common.cpp - I\u0027m working on improving the tests and ideally merging the two test fonts.",
+      "revId": "3ee092e1f066917fa8782d912154c2146338a21b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
