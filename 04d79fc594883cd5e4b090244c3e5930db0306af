@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d63115ee_da0eccb6",
+        "filename": "src/sksl/SkSLAnalysis.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-03T01:37:31Z",
+      "side": 1,
+      "message": "f.intrinsicKind() \u003d\u003d k_sample_IntrinsicKind",
+      "range": {
+        "startLine": 162,
+        "startChar": 16,
+        "endLine": 162,
+        "endChar": 53
+      },
+      "revId": "04d79fc594883cd5e4b090244c3e5930db0306af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
