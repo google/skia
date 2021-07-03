@@ -17,23 +17,17 @@
  * result of our paint) and destination color (from the canvas) into a final color.
  */
 class SK_API SkBlender : public SkFlattenable {
+public:
+    /**
+     * Create a blender that implements the specified BlendMode.
+     */
+    static sk_sp<SkBlender> Mode(SkBlendMode mode);
+
 private:
     SkBlender() = default;
     friend class SkBlenderBase;
 
     using INHERITED = SkFlattenable;
-};
-
-/**
- * Factory functions for synthesizing an SkBlender.
- */
-class SK_API SkBlenders {
-public:
-    /** Returns a SkBlender for the requested SkBlendMode. */
-    static sk_sp<SkBlender> Mode(SkBlendMode mode);
-
-private:
-    SkBlenders() = delete;
 };
 
 #endif

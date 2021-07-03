@@ -565,7 +565,7 @@ namespace {
         // Add the blender.
         sk_sp<SkBlender> blender = paint.refBlender();
         if (!blender) {
-            blender = SkBlenders::Mode(SkBlendMode::kSrcOver);
+            blender = SkBlender::Mode(SkBlendMode::kSrcOver);
         }
 
         // The most common blend mode is SrcOver, and it can be strength-reduced
@@ -582,7 +582,7 @@ namespace {
         // not just a property of the uniforms.  The shader program hash includes
         // this information, making it safe to use anywhere in the blitter codegen.
         if (as_BB(blender)->asBlendMode() == SkBlendMode::kSrcOver && shader->isOpaque()) {
-            blender = SkBlenders::Mode(SkBlendMode::kSrc);
+            blender = SkBlender::Mode(SkBlendMode::kSrc);
         }
 
         SkColor4f paintColor = paint.getColor4f();
