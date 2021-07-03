@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0e63a8b5_62798e3f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-03T01:48:00Z",
+      "side": 1,
+      "message": "I have not read everything here yet, but I really like what I see. I wasn\u0027t expecting separate headers for each type subclass since they felt more like an implementation detail (users don\u0027t need to include these, do they?), but that\u0027s not a concern. I\u0027ll give this a more thorough read on Wednesday.",
+      "revId": "2329efae28ea0a3dc58002c9bc5458285c92cc43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2350baf1_e043f8d9",
+        "filename": "src/sksl/ir/SkSLType.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-03T01:48:00Z",
+      "side": 1,
+      "message": "Is there a reason to implement all the polymorphic behaviors in Type via switch or if statements? This code seems like a textbook example where virtual functions would typically be used. Base class returns -1, Literal and Scalar classes override it.",
+      "range": {
+        "startLine": 85,
+        "startChar": 0,
+        "endLine": 94,
+        "endChar": 1
+      },
+      "revId": "2329efae28ea0a3dc58002c9bc5458285c92cc43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6bb639f6_bdd8a875",
+        "filename": "src/sksl/ir/SkSLType.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 457,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-03T01:48:00Z",
+      "side": 1,
+      "message": "Just `{}`.",
+      "range": {
+        "startLine": 457,
+        "startChar": 50,
+        "endLine": 457,
+        "endChar": 53
+      },
+      "revId": "2329efae28ea0a3dc58002c9bc5458285c92cc43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
