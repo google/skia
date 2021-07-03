@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f95d5bab_5cc39901",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 17989
+      },
+      "writtenOn": "2021-07-03T02:23:13Z",
+      "side": 1,
+      "message": "Ping, anybody from Skia team can review this one?",
+      "revId": "37497f8ac7313d39d773a326207488127456baf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
