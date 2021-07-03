@@ -13,7 +13,7 @@
 #include "src/gpu/GrFragmentProcessor.h"
 #endif
 
-sk_sp<SkBlender> SkBlenders::Mode(SkBlendMode mode) {
+sk_sp<SkBlender> SkBlender::Mode(SkBlendMode mode) {
 #define RETURN_SINGLETON_BLENDER(m)                        \
     case m: {                                              \
         static auto* sBlender = new SkBlendModeBlender{m}; \
@@ -60,7 +60,7 @@ sk_sp<SkBlender> SkBlenders::Mode(SkBlendMode mode) {
 
 sk_sp<SkFlattenable> SkBlendModeBlender::CreateProc(SkReadBuffer& buffer) {
     SkBlendMode mode = buffer.read32LE(SkBlendMode::kLastMode);
-    return SkBlenders::Mode(mode);
+    return SkBlender::Mode(mode);
 }
 
 void SkBlendModeBlender::flatten(SkWriteBuffer& buffer) const {
