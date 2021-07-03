@@ -169,7 +169,7 @@ bool SkPaint::isSrcOver() const {
 
 void SkPaint::setBlendMode(SkBlendMode mode) {
     this->experimental_setBlender(mode == SkBlendMode::kSrcOver ? nullptr
-                                                                : SkBlenders::Mode(mode));
+                                                                : SkBlender::Mode(mode));
 }
 
 void SkPaint::experimental_setBlender(sk_sp<SkBlender> blend) {
