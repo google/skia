@@ -515,7 +515,7 @@ public:
     /** Sets the current blender, increasing its refcnt, and if a blender is already
      *  present, decreasing that object's refcnt.
      */
-    void experimental_setBlender(sk_sp<SkBlender> blend);
+    void setBlender(sk_sp<SkBlender> blend);
 
     /** Returns SkPathEffect if set, or nullptr.
         Does not alter SkPathEffect SkRefCnt.
