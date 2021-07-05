@@ -389,7 +389,7 @@ sk_sp<GrTexture> GrD3DGpu::onCreateCompressedTexture(SkISize dimensions,
     GrStagingBufferManager::Slice slice = fStagingBufferManager.allocateStagingBufferSlice(
             combinedBufferSize, D3D12_TEXTURE_DATA_PLACEMENT_ALIGNMENT);
     if (!slice.fBuffer) {
-        return false;
+        return nullptr;
     }
 
     char* bufferData = (char*)slice.fOffsetMapPtr;
