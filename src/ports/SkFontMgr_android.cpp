@@ -401,7 +401,7 @@ protected:
         // TODO: add 'is_elegant' and 'is_compact' bits to 'style' request.
 
         SkString familyNameString(familyName);
-        for (const SkString& currentFamilyName : { familyNameString, SkString() }) {
+        for (const SkString& currentFamilyName : {familyNameString /* , SkString() */}) {
             // The first time match anything elegant, second time anything not elegant.
             for (int elegant = 2; elegant --> 0;) {
                 for (int bcp47Index = bcp47Count; bcp47Index --> 0;) {
