@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "846e5c81_a2c95dc3",
+        "filename": "src/shaders/SkComposeShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-07-06T20:51:36Z",
+      "side": 1,
+      "message": "buffer.validate(mode \u003c\u003d last \u0026\u0026 dst \u0026\u0026 src) so validate sees the failure too",
+      "range": {
+        "startLine": 85,
+        "startChar": 24,
+        "endLine": 85,
+        "endChar": 79
+      },
+      "revId": "f3c7453bad4d8d365cb924baba0ef45fb1db343a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
