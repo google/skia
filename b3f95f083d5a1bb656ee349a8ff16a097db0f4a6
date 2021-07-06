@@ -22,6 +22,30 @@
       },
       "revId": "b3f95f083d5a1bb656ee349a8ff16a097db0f4a6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "10cbac50_0f2592f6",
+        "filename": "gn/gpu.gni",
+        "patchSetId": 7
+      },
+      "lineNbr": 600,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-07-06T15:25:20Z",
+      "side": 1,
+      "message": "I\u0027ve moved the v1 \u0026 v2 suffixed files to directories. I\u0027ve left moving all the other v1 files to a follow up CL so I can namespace them at the same time.\n\nThe Device_*.h files still have suffixes due to tooling issues.",
+      "parentUuid": "5a5b1ce3_f607189d",
+      "range": {
+        "startLine": 597,
+        "startChar": 0,
+        "endLine": 600,
+        "endChar": 1
+      },
+      "revId": "b3f95f083d5a1bb656ee349a8ff16a097db0f4a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
