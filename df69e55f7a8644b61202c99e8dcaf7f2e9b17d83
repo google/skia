@@ -34,6 +34,24 @@
       "parentUuid": "b66a3ca9_9960ca90",
       "revId": "df69e55f7a8644b61202c99e8dcaf7f2e9b17d83",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4f07c2c3_60454471",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-07-06T13:16:29Z",
+      "side": 1,
+      "message": "Got it. If IMG could provide any info about what we could look for to detect the bug and whether there is a real workaround we could deploy that\u0027d be great. But sounds like keeping this fragile workaround in isn\u0027t of real value.",
+      "parentUuid": "dee5029c_04c239f0",
+      "revId": "df69e55f7a8644b61202c99e8dcaf7f2e9b17d83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
