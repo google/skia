@@ -237,14 +237,14 @@ public:
     void dumpStatsKeyValuePairs(SkTArray<SkString>* keys, SkTArray<double>* value) const;
 #endif
 
-#endif
+#endif // GR_CACHE_STATS
 
-#ifdef SK_DEBUG
+#if GR_TEST_UTILS
     int countUniqueKeysWithTag(const char* tag) const;
-#endif
 
     // This function is for unit testing and is only defined in test tools.
     void changeTimestamp(uint32_t newTimestamp);
+#endif
 
     // Enumerates all cached resources and dumps their details to traceMemoryDump.
     void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const;

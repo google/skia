@@ -883,9 +883,8 @@ void GrResourceCache::dumpStatsKeyValuePairs(SkTArray<SkString>* keys,
 
     keys->push_back(SkString("gpu_cache_purgable_entries")); values->push_back(stats.fNumPurgeable);
 }
-#endif
-
-#endif
+#endif // GR_TEST_UTILS
+#endif // GR_CACHE_STATS
 
 #ifdef SK_DEBUG
 void GrResourceCache::validate() const {
@@ -1024,4 +1023,22 @@ bool GrResourceCache::isInCache(const GrGpuResource* resource) const {
     return false;
 }
 
-#endif
+#endif // SK_DEBUG
+
+#if GR_TEST_UTILS
+
+int GrResourceCache::countUniqueKeysWithTag(const char* tag) const {
+    int count = 0;
+    fUniqueHash.foreach([&](const GrGpuResource& resource){
+        if (0 == strcmp(tag, resource.getUniqueKey().tag())) {
+            ++count;
+        }
+    });
+    return count;
+}
+
+void GrResourceCache::changeTimestamp(uint32_t newTimestamp) {
+    fTimestamp = newTimestamp;
+}
+
+#endif // GR_TEST_UTILS

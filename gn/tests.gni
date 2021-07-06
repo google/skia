@@ -104,11 +104,9 @@ tests_sources = [
   "$_tests/GrDDLImageTest.cpp",
   "$_tests/GrFinishedFlushTest.cpp",
   "$_tests/GrMemoryPoolTest.cpp",
-  "$_tests/GrMeshTest.cpp",
   "$_tests/GrMipMappedTest.cpp",
   "$_tests/GrOpListFlushTest.cpp",
   "$_tests/GrPathUtilsTest.cpp",
-  "$_tests/GrPipelineDynamicStateTest.cpp",
   "$_tests/GrPorterDuffTest.cpp",
   "$_tests/GrQuadBufferTest.cpp",
   "$_tests/GrQuadCropTest.cpp",
@@ -166,7 +164,6 @@ tests_sources = [
   "$_tests/OffsetSimplePolyTest.cpp",
   "$_tests/OnFlushCallbackTest.cpp",
   "$_tests/OnceTest.cpp",
-  "$_tests/OpChainTest.cpp",
   "$_tests/OverAlignedTest.cpp",
   "$_tests/PDFDeflateWStreamTest.cpp",
   "$_tests/PDFDocumentTest.cpp",
@@ -198,7 +195,6 @@ tests_sources = [
   "$_tests/PremulAlphaRoundTripTest.cpp",
   "$_tests/PrimitiveProcessorTest.cpp",
   "$_tests/ProcessorTest.cpp",
-  "$_tests/ProgramsTest.cpp",
   "$_tests/PromiseImageTest.cpp",
   "$_tests/ProxyConversionTest.cpp",
   "$_tests/ProxyRefTest.cpp",
@@ -289,7 +285,6 @@ tests_sources = [
   "$_tests/StrokerTest.cpp",
   "$_tests/SubsetPath.cpp",
   "$_tests/SubsetPath.h",
-  "$_tests/SurfaceDrawContextTest.cpp",
   "$_tests/SurfaceSemaphoreTest.cpp",
   "$_tests/SurfaceTest.cpp",
   "$_tests/SwizzlerTest.cpp",
@@ -300,7 +295,6 @@ tests_sources = [
   "$_tests/TestTest.cpp",
   "$_tests/TextBlobCacheTest.cpp",
   "$_tests/TextBlobTest.cpp",
-  "$_tests/TextureOpTest.cpp",
   "$_tests/TextureProxyTest.cpp",
   "$_tests/TextureStripAtlasManagerTest.cpp",
   "$_tests/Time.cpp",
@@ -410,7 +404,13 @@ pathops_tests_sources = [
 
 skgpu_v1_tests_sources = [
   "$_tests/GrClipStackTest.cpp",
+  "$_tests/GrMeshTest.cpp",
+  "$_tests/GrPipelineDynamicStateTest.cpp",
+  "$_tests/OpChainTest.cpp",
   "$_tests/PathRendererCacheTests.cpp",
+  "$_tests/ProgramsTest.cpp",
+  "$_tests/SurfaceDrawContextTest.cpp",
+  "$_tests/TextureOpTest.cpp",
 ]
 
 tests_sources += skgpu_v1_tests_sources

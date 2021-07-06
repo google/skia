@@ -1772,6 +1772,11 @@ if (skia_enable_tools) {
         cflags_cc = [ "-Wno-microsoft-cast" ]
       }
     }
+    if (!skia_enable_skgpu_v1) {
+      sources -= [ "tools/gpu/GrTest.cpp" ]
+      sources -= [ "tools/gpu/TestOps.cpp" ]
+      sources -= [ "tools/gpu/TestOps.h" ]
+    }
 
     if (is_fuchsia && using_fuchsia_sdk) {
       libs +=
