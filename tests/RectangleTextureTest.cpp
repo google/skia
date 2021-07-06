@@ -14,6 +14,7 @@
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/effects/GrTextureEffect.h"
 #ifdef SK_GL
 #include "src/gpu/gl/GrGLGpu.h"
 #include "src/gpu/gl/GrGLUtil.h"

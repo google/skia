@@ -13,6 +13,7 @@
 #include "src/gpu/GrStencilSettings.h"
 #include "src/gpu/dawn/GrDawnGpu.h"
 #include "src/gpu/dawn/GrDawnTexture.h"
+#include "src/gpu/effects/GrTextureEffect.h"
 
 static wgpu::BlendFactor to_dawn_blend_factor(GrBlendCoeff coeff) {
     switch (coeff) {
