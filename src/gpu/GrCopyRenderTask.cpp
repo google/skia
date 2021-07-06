@@ -10,6 +10,7 @@
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrResourceAllocator.h"
+#include "src/gpu/geometry/GrRect.h"
 
 sk_sp<GrRenderTask> GrCopyRenderTask::Make(GrDrawingManager* drawingMgr,
                                            sk_sp<GrSurfaceProxy> src,

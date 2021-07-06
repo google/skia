@@ -12,6 +12,7 @@
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrXferProcessor.h"
+#include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/gl/GrGLBuffer.h"
 #include "src/gpu/gl/GrGLGpu.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
