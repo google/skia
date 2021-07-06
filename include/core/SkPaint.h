@@ -479,6 +479,7 @@ public:
     void setColorFilter(sk_sp<SkColorFilter> colorFilter);
 
     /** DEPRECATED
+     *  Use asBlendMode() instead.
      *
      *  This attempts to inspect the current blender, and if it claims to be equivalent to
      *  one of the predefiend SkBlendMode enums, returns that mode. If the blender does not,
@@ -486,10 +487,16 @@ public:
      */
     SkBlendMode getBlendMode() const;
 
+    /** If the current blender can be represented as a SkBlendMode enum, this returns that
+     *  enum in the optional's value(). If it cannot, then the returned optional does not
+     *  contain a value.
+     */
     skstd::optional<SkBlendMode> asBlendMode() const;
 
     /** Returns true iff the current blender claims to be equivalent to SkBlendMode::kSrcOver.
-    */
+     *
+     *  Also returns true of the current blender is nullptr.
+     */
     bool isSrcOver() const;
 
     /** Helper method for calling setBlender().
@@ -499,23 +506,32 @@ public:
     void setBlendMode(SkBlendMode mode);
 
     /** Returns the user-supplied blend function, if one has been set.
-        Does not alter SkBlender's SkRefCnt.
-
-        @return  the SkBlender assigned to this paint, otherwise nullptr
-    */
+     *  Does not alter SkBlender's SkRefCnt.
+     *
+     *  A nullptr blender signifies the default SrcOver behavior.
+     *
+     *  @return  the SkBlender assigned to this paint, otherwise nullptr
+     */
     SkBlender* getBlender() const { return fBlender.get(); }
 
     /** Returns the user-supplied blend function, if one has been set.
-        Increments the SkBlender's SkRefCnt by one.
-
-        @return  the SkBlender assigned to this paint, otherwise nullptr
-    */
+     *  Increments the SkBlender's SkRefCnt by one.
+     *
+     *  A nullptr blender signifies the default SrcOver behavior.
+     *
+     *  @return  the SkBlender assigned to this paint, otherwise nullptr
+     */
     sk_sp<SkBlender> refBlender() const;
 
     /** Sets the current blender, increasing its refcnt, and if a blender is already
      *  present, decreasing that object's refcnt.
+     *
+     *  A nullptr blender signifies the default SrcOver behavior.
+     *
+     *  For convenience, you can call setBlendMode() if the blend effect can be expressed
+     *  as one of those values.
      */
-    void experimental_setBlender(sk_sp<SkBlender> blend);
+    void setBlender(sk_sp<SkBlender> blender);
 
     /** Returns SkPathEffect if set, or nullptr.
         Does not alter SkPathEffect SkRefCnt.
