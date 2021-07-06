@@ -24,6 +24,7 @@
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrSkSLFP.h"
+#include "src/gpu/effects/GrTextureEffect.h"
 #endif
 
 namespace {

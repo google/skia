@@ -61,6 +61,7 @@ struct ARGB3DVertex {
     AtlasPt atlasPos;
 };
 
+#if GR_OGA
 GrAtlasTextOp::MaskType op_mask_type(GrMaskFormat grMaskFormat) {
     switch (grMaskFormat) {
         case kA8_GrMaskFormat:   return GrAtlasTextOp::MaskType::kGrayscaleCoverage;
@@ -69,6 +70,7 @@ GrAtlasTextOp::MaskType op_mask_type(GrMaskFormat grMaskFormat) {
     }
     SkUNREACHABLE;
 }
+#endif
 
 SkPMColor4f calculate_colors(GrSurfaceDrawContext* sdc,
                              const SkPaint& paint,
@@ -461,6 +463,7 @@ public:
 
     int glyphCount() const override;
 
+#if GR_OGA
     std::tuple<const GrClip*, GrOp::Owner>
     makeAtlasTextOp(const GrClip* clip,
                     const SkMatrixProvider& viewMatrix,
@@ -468,6 +471,7 @@ public:
                     const SkPaint& paint,
                     GrSurfaceDrawContext* sdc,
                     GrAtlasSubRunOwner) const override;
+#endif
 
     void testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) override;
 
@@ -629,6 +633,7 @@ calculate_clip(const GrClip* clip, SkRect deviceBounds, SkRect glyphBounds) {
 }
 }  // namespace
 
+#if GR_OGA
 std::tuple<const GrClip*, GrOp::Owner>
 DirectMaskSubRun::makeAtlasTextOp(const GrClip* clip, const SkMatrixProvider& viewMatrix,
                                   const SkGlyphRunList& glyphRunList,
@@ -687,6 +692,7 @@ DirectMaskSubRun::makeAtlasTextOp(const GrClip* clip, const SkMatrixProvider& vi
 
     return {clip, std::move(op)};
 }
+#endif
 
 void DirectMaskSubRun::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) {
     fGlyphs.packedGlyphIDToGrGlyph(cache);
@@ -945,6 +951,7 @@ bool TransformedMaskSubRun::canReuse(const SkPaint& paint, const SkMatrix& drawM
     return true;
 }
 
+#if GR_OGA
 std::tuple<const GrClip*, GrOp::Owner>
 TransformedMaskSubRun::makeAtlasTextOp(const GrClip* clip,
                                        const SkMatrixProvider& viewMatrix,
@@ -980,6 +987,7 @@ TransformedMaskSubRun::makeAtlasTextOp(const GrClip* clip,
             std::move(grPaint));
     return {clip, std::move(op)};
 }
+#endif
 
 void TransformedMaskSubRun::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) {
     fGlyphs.packedGlyphIDToGrGlyph(cache);
@@ -1223,6 +1231,7 @@ static std::tuple<GrAtlasTextOp::MaskType, uint32_t, bool> calculate_sdf_paramet
     return {maskType, DFGPFlags, useGammaCorrectDistanceTable};
 }
 
+#if GR_OGA
 std::tuple<const GrClip*, GrOp::Owner >
 SDFTSubRun::makeAtlasTextOp(const GrClip* clip,
                             const SkMatrixProvider& viewMatrix,
@@ -1266,6 +1275,7 @@ SDFTSubRun::makeAtlasTextOp(const GrClip* clip,
 
     return {clip, std::move(op)};
 }
+#endif
 
 void SDFTSubRun::draw(const GrClip* clip,
                       const SkMatrixProvider& viewMatrix,
@@ -1744,6 +1754,7 @@ int DirectMaskSubRunNoCache::glyphCount() const {
     return SkCount(fGlyphs.glyphs());
 }
 
+#if GR_OGA
 std::tuple<const GrClip*, GrOp::Owner>
 DirectMaskSubRunNoCache::makeAtlasTextOp(const GrClip* clip,
                                          const SkMatrixProvider& viewMatrix,
@@ -1804,6 +1815,7 @@ DirectMaskSubRunNoCache::makeAtlasTextOp(const GrClip* clip,
 
     return {clip, std::move(op)};
 }
+#endif
 
 void DirectMaskSubRunNoCache::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) {
     fGlyphs.packedGlyphIDToGrGlyph(cache);
@@ -1957,6 +1969,7 @@ GrAtlasSubRunOwner TransformedMaskSubRunNoCache::Make(
             GlyphVector::Make(strikeSpec, drawables.get<0>(), alloc));
 }
 
+#if GR_OGA
 std::tuple<const GrClip*, GrOp::Owner>
 TransformedMaskSubRunNoCache::makeAtlasTextOp(const GrClip* clip,
                                               const SkMatrixProvider& viewMatrix,
@@ -1995,6 +2008,7 @@ TransformedMaskSubRunNoCache::makeAtlasTextOp(const GrClip* clip,
             std::move(grPaint));
     return {clip, std::move(op)};
 }
+#endif
 
 void TransformedMaskSubRunNoCache::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) {
     fGlyphs.packedGlyphIDToGrGlyph(cache);

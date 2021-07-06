@@ -18,6 +18,8 @@ class GrMeshDrawTarget;
 class GrGpuBuffer;
 class GrOpFlushState;
 class GrPathTessellationShader;
+class GrMeshDrawTarget;
+class GrOpFlushState;
 
 // Prepares GPU data for, and then draws a path's tessellated geometry. Depending on the subclass,
 // the caller may or may not be required to draw the path's inner fan separately.

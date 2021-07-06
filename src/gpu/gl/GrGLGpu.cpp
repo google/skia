@@ -29,6 +29,7 @@
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/GrSimpleMesh.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/gl/GrGLAttachment.h"

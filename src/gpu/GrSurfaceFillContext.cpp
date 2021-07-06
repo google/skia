@@ -8,9 +8,11 @@
 #include "src/gpu/GrSurfaceFillContext.h"
 
 #include "include/private/GrImageContext.h"
+#include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrDstProxyView.h"
 #include "src/gpu/GrImageContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/ops/GrClearOp.h"
 #include "src/gpu/ops/GrFillRectOp.h"
