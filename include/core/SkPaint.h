@@ -25,9 +25,6 @@ class SkPath;
 class SkPathEffect;
 class SkShader;
 
-// Move to clients when they are ready -- aid in deprecating the enum
-#define SK_SUPPORT_LEGACY_SETFILTERQUALITY
-
 /** \class SkPaint
     SkPaint controls options applied when drawing. SkPaint collects all
     options outside of the SkCanvas clip and SkCanvas matrix.
