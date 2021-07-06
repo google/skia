@@ -14,6 +14,7 @@
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrSurfaceFillContext.h"
 #include "src/gpu/effects/GrBlendFragmentProcessor.h"
+#include "src/gpu/effects/GrTextureEffect.h"
 #include "src/image/SkImage_Base.h"
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
