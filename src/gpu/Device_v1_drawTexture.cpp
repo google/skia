@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/SkGpuDevice.h"
+#include "src/gpu/Device_v1.h"
 
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
@@ -666,10 +666,6 @@ void draw_tiled_bitmap(GrRecordingContext* context,
     }
 }
 
-} // anonymous namespace
-
-//////////////////////////////////////////////////////////////////////////////
-
 static SkFilterMode downgrade_to_filter(const SkSamplingOptions& sampling) {
     SkFilterMode filter = sampling.filter;
     if (sampling.useCubic || sampling.mipmap != SkMipmapMode::kNone) {
@@ -679,10 +675,34 @@ static SkFilterMode downgrade_to_filter(const SkSamplingOptions& sampling) {
     return filter;
 }
 
-void SkGpuDevice::drawSpecial(SkSpecialImage* special,
-                              const SkMatrix& localToDevice,
-                              const SkSamplingOptions& origSampling,
-                              const SkPaint& paint) {
+static bool can_disable_mipmap(const SkMatrix& viewM,
+                               const SkMatrix& localM,
+                               bool sharpenMipmappedTextures) {
+    SkMatrix matrix;
+    matrix.setConcat(viewM, localM);
+    // With sharp mips, we bias lookups by -0.5. That means our final LOD is >= 0 until
+    // the computed LOD is >= 0.5. At what scale factor does a texture get an LOD of
+    // 0.5?
+    //
+    // Want:  0       = log2(1/s) - 0.5
+    //        0.5     = log2(1/s)
+    //        2^0.5   = 1/s
+    //        1/2^0.5 = s
+    //        2^0.5/2 = s
+    SkScalar mipScale = sharpenMipmappedTextures ? SK_ScalarRoot2Over2 : SK_Scalar1;
+    return matrix.getMinScale() >= mipScale;
+}
+
+} // anonymous namespace
+
+//////////////////////////////////////////////////////////////////////////////
+
+namespace skgpu::v1 {
+
+void Device::drawSpecial(SkSpecialImage* special,
+                         const SkMatrix& localToDevice,
+                         const SkSamplingOptions& origSampling,
+                         const SkPaint& paint) {
     SkASSERT(!paint.getMaskFilter() && !paint.getImageFilter());
     SkASSERT(special->isTextureBacked());
 
@@ -722,34 +742,16 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special,
                sampling);
 }
 
-static bool can_disable_mipmap(const SkMatrix& viewM,
-                               const SkMatrix& localM,
-                               bool sharpenMipmappedTextures) {
-    SkMatrix matrix;
-    matrix.setConcat(viewM, localM);
-    // With sharp mips, we bias lookups by -0.5. That means our final LOD is >= 0 until
-    // the computed LOD is >= 0.5. At what scale factor does a texture get an LOD of
-    // 0.5?
-    //
-    // Want:  0       = log2(1/s) - 0.5
-    //        0.5     = log2(1/s)
-    //        2^0.5   = 1/s
-    //        1/2^0.5 = s
-    //        2^0.5/2 = s
-    SkScalar mipScale = sharpenMipmappedTextures ? SK_ScalarRoot2Over2 : SK_Scalar1;
-    return matrix.getMinScale() >= mipScale;
-}
-
-void SkGpuDevice::drawImageQuad(const SkImage* image,
-                                const SkRect* srcRect,
-                                const SkRect* dstRect,
-                                const SkPoint dstClip[4],
-                                GrAA aa,
-                                GrQuadAAFlags aaFlags,
-                                const SkMatrix* preViewMatrix,
-                                const SkSamplingOptions& origSampling,
-                                const SkPaint& paint,
-                                SkCanvas::SrcRectConstraint constraint) {
+void Device::drawImageQuad(const SkImage* image,
+                           const SkRect* srcRect,
+                           const SkRect* dstRect,
+                           const SkPoint dstClip[4],
+                           GrAA aa,
+                           GrQuadAAFlags aaFlags,
+                           const SkMatrix* preViewMatrix,
+                           const SkSamplingOptions& origSampling,
+                           const SkPaint& paint,
+                           SkCanvas::SrcRectConstraint constraint) {
     SkRect src;
     SkRect dst;
     SkMatrix srcToDst;
@@ -840,10 +842,10 @@ void SkGpuDevice::drawImageQuad(const SkImage* image,
     return;
 }
 
-void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
-                                     const SkPoint dstClips[], const SkMatrix preViewMatrices[],
-                                     const SkSamplingOptions& sampling, const SkPaint& paint,
-                                     SkCanvas::SrcRectConstraint constraint) {
+void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
+                                const SkPoint dstClips[], const SkMatrix preViewMatrices[],
+                                const SkSamplingOptions& sampling, const SkPaint& paint,
+                                SkCanvas::SrcRectConstraint constraint) {
     SkASSERT(count > 0);
     if (!can_use_draw_texture(paint, sampling.useCubic, sampling.mipmap)) {
         // Send every entry through drawImageQuad() to handle the more complicated paint
@@ -978,3 +980,5 @@ void SkGpuDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int co
     }
     draw(count);
 }
+
+} // namespace skgpu::v1
