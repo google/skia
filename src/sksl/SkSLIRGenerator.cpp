@@ -1268,14 +1268,14 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(int offset, skstd::st
             const Variable* var = &result->as<Variable>();
             const Modifiers& modifiers = var->modifiers();
             switch (modifiers.fLayout.fBuiltin) {
+#ifndef SKSL_STANDALONE
                 case SK_FRAGCOORD_BUILTIN:
-                    if (caps().canUseFragCoord()) {
-                        fInputs.fUseFlipRTUniform = true;
+                    fInputs.fFlipY = true;
+                    if (this->settings().fFlipY &&
+                        !this->caps().fragCoordConventionsExtensionString()) {
+                        fInputs.fRTHeight = true;
                     }
-                    break;
-                case SK_CLOCKWISE_BUILTIN:
-                    fInputs.fUseFlipRTUniform = true;
-                    break;
+#endif
             }
             if (this->programKind() == ProgramKind::kFragmentProcessor &&
                 (modifiers.fFlags & Modifiers::kIn_Flag) &&
@@ -1411,7 +1411,7 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
                                               ExpressionArray arguments) {
     if (function.isBuiltin()) {
         if (function.intrinsicKind() == k_dFdy_IntrinsicKind) {
-            fInputs.fUseFlipRTUniform = true;
+            fInputs.fUsesYDerivative = true;
         }
         if (function.definition()) {
             fReferencedIntrinsics.insert(&function);
@@ -1841,7 +1841,7 @@ void IRGenerator::start(const ParsedModule& base,
     }
     fIsBuiltinCode = isBuiltinCode;
 
-    fInputs = {};
+    fInputs.reset();
     fInvocations = -1;
     fRTAdjust = nullptr;
     fRTAdjustInterfaceBlock = nullptr;

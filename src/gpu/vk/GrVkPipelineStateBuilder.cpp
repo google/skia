@@ -82,8 +82,8 @@ bool GrVkPipelineStateBuilder::createVkShaderModule(VkShaderStageFlagBits stage,
                                  stageInfo, settings, outSPIRV, outInputs)) {
         return false;
     }
-    if (outInputs->fUseFlipRTUniform) {
-        this->addRTFlipUniform(SKSL_RTFLIP_NAME);
+    if (outInputs->fRTHeight) {
+        this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
     }
     return true;
 }
@@ -97,8 +97,8 @@ bool GrVkPipelineStateBuilder::installVkShaderModule(VkShaderStageFlagBits stage
     if (!GrInstallVkShaderModule(fGpu, spirv, stage, shaderModule, stageInfo)) {
         return false;
     }
-    if (inputs.fUseFlipRTUniform) {
-        this->addRTFlipUniform(SKSL_RTFLIP_NAME);
+    if (inputs.fRTHeight) {
+        this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
     }
     return true;
 }
@@ -204,11 +204,12 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
     bool usePushConstants = fUniformHandler.usePushConstants();
     VkPipelineShaderStageCreateInfo shaderStageInfo[3];
     SkSL::Program::Settings settings;
-    settings.fRTFlipBinding = this->gpu()->vkCaps().getFragmentUniformBinding();
-    settings.fRTFlipSet = this->gpu()->vkCaps().getFragmentUniformSet();
+    settings.fRTHeightBinding = this->gpu()->vkCaps().getFragmentUniformBinding();
+    settings.fRTHeightSet = this->gpu()->vkCaps().getFragmentUniformSet();
+    settings.fFlipY = fUniformHandler.getFlipY();
     settings.fSharpenTextures =
                         this->gpu()->getContext()->priv().options().fSharpenMipmappedTextures;
-    settings.fRTFlipOffset = fUniformHandler.getRTFlipOffset();
+    settings.fRTHeightOffset = fUniformHandler.getRTHeightOffset();
     settings.fUsePushConstants = usePushConstants;
     if (fFS.fForceHighPrecision) {
         settings.fForceHighPrecision = true;

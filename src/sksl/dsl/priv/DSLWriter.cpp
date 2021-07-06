@@ -42,7 +42,7 @@ DSLWriter::DSLWriter(SkSL::Compiler* compiler, SkSL::ProgramKind kind,
     fOldConfig = fCompiler->fContext->fConfig;
 
     if (!isModule) {
-        if (compiler->context().fCaps.useNodePools() && settings.fDSLUseMemoryPool) {
+        if (compiler->context().fCaps.useNodePools()) {
             fPool = Pool::Create();
             fPool->attachToThread();
         }
@@ -231,7 +231,7 @@ const SkSL::Variable* DSLWriter::Var(DSLVar& var) {
                                                                           var.fStorage);
         SkSL::Variable* varPtr = skslvar.get();
         // We can't call VarDeclaration::Convert directly here, because the IRGenerator has special
-        // treatment for sk_FragColor that we want to preserve in DSL.
+        // treatment for sk_FragColor and sk_RTHeight that we want to preserve in DSL.
         var.fDeclaration = DSLWriter::IRGenerator().convertVarDeclaration(
                                                                 std::move(skslvar),
                                                                 var.fInitialValue.releaseIfValid());

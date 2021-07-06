@@ -361,6 +361,20 @@ public:
         return result;
     }
 
+    static ShaderCapsPointer FragCoordsNew() {
+        ShaderCapsPointer result = MakeShaderCaps();
+        result->fVersionDeclString = "#version 400";
+        result->fFragCoordConventionsExtensionString = "GL_ARB_fragment_coord_conventions";
+        return result;
+    }
+    static ShaderCapsPointer FragCoordsOld() {
+        ShaderCapsPointer result = MakeShaderCaps();
+        result->fVersionDeclString = "#version 110";
+        result->fGLSLGeneration = GrGLSLGeneration::k110_GrGLSLGeneration;
+        result->fFragCoordConventionsExtensionString = "GL_ARB_fragment_coord_conventions";
+        return result;
+    }
+
     static ShaderCapsPointer GeometryShaderExtensionString() {
         ShaderCapsPointer result = MakeShaderCaps();
         result->fVersionDeclString = "#version 310es";

@@ -73,9 +73,9 @@ public:
     }
 
     /**
-     * Returns the offset that the RTFlip synthetic uniform should use if it needs to be created.
+     * Returns the offset that the RTHeight synthetic uniform should use if it needs to be created.
      */
-    uint32_t getRTFlipOffset() const;
+    uint32_t getRTHeightOffset() const;
 
     int numUniforms() const override {
         return fUniforms.count();
@@ -88,6 +88,8 @@ public:
         return fUniforms.item(idx);
     }
 
+    bool getFlipY() const { return fFlipY; }
+
     bool usePushConstants() const { return fUsePushConstants; }
     uint32_t currentOffset() const {
         return fUsePushConstants ? fCurrentOffsets[kStd430Layout] : fCurrentOffsets[kStd140Layout];
@@ -98,6 +100,7 @@ private:
         : INHERITED(program)
         , fUniforms(kUniformsPerBlock)
         , fSamplers(kUniformsPerBlock)
+        , fFlipY(program->origin() != kTopLeft_GrSurfaceOrigin)
         , fUsePushConstants(false)
         , fCurrentOffsets{0, 0} {
     }
@@ -158,6 +161,7 @@ private:
     SkTArray<GrSwizzle> fSamplerSwizzles;
     UniformInfo         fInputUniform;
     GrSwizzle           fInputSwizzle;
+    bool                fFlipY;
     mutable bool        fUsePushConstants;
 
     uint32_t            fCurrentOffsets[kLayoutCount];

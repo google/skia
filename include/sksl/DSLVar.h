@@ -15,7 +15,6 @@
 namespace SkSL {
 
 class IRGenerator;
-class SPIRVCodeGenerator;
 class Variable;
 enum class VariableStorage : int8_t;
 
@@ -166,7 +165,6 @@ private:
     friend class DSLFunction;
     friend class DSLWriter;
     friend class ::SkSL::IRGenerator;
-    friend class ::SkSL::SPIRVCodeGenerator;
 };
 
 } // namespace dsl
