@@ -23,6 +23,7 @@
 #include "src/gpu/GrSimpleMesh.h"
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/GrUtil.h"
+#include "src/gpu/effects/GrDisableColorXP.h"
 #include "src/gpu/geometry/GrPathUtils.h"
 #include "src/gpu/geometry/GrStyledShape.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"

@@ -7,6 +7,8 @@
 
 #include "src/gpu/tessellate/shaders/GrPathTessellationShader.h"
 
+#include "src/gpu/effects/GrDisableColorXP.h"
+#include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
@@ -48,6 +50,25 @@ GrGLSLGeometryProcessor* SimpleTriangleShader::createGLSLInstance(const GrShader
 GrPathTessellationShader* GrPathTessellationShader::MakeSimpleTriangleShader(
         SkArenaAlloc* arena, const SkMatrix& viewMatrix, const SkPMColor4f& color) {
     return arena->make<SimpleTriangleShader>(viewMatrix, color);
+}
+
+const GrPipeline* GrPathTessellationShader::MakeStencilOnlyPipeline(
+        const ProgramArgs& args,
+        GrAAType aaType,
+        GrTessellationPathRenderer::PathFlags pathFlags,
+        const GrAppliedHardClip& hardClip) {
+    using PathFlags = GrTessellationPathRenderer::PathFlags;
+    GrPipeline::InitArgs pipelineArgs;
+    if (aaType == GrAAType::kMSAA) {
+        pipelineArgs.fInputFlags |= GrPipeline::InputFlags::kHWAntialias;
+    }
+    if (args.fCaps->wireframeSupport() && (pathFlags & PathFlags::kWireframe)) {
+        pipelineArgs.fInputFlags |= GrPipeline::InputFlags::kWireframe;
+    }
+    pipelineArgs.fCaps = args.fCaps;
+    return args.fArena->make<GrPipeline>(pipelineArgs,
+                                            GrDisableColorXPFactory::MakeXferProcessor(),
+                                            hardClip);
 }
 
 // Evaluate our point of interest using numerically stable linear interpolations. We add our own

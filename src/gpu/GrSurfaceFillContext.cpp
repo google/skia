@@ -12,6 +12,8 @@
 #include "src/gpu/GrImageContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
+#include "src/gpu/effects/GrTextureEffect.h"
+#include "src/gpu/geometry/GrRect.h"
 #include "src/gpu/ops/GrClearOp.h"
 #include "src/gpu/ops/GrFillRectOp.h"
 

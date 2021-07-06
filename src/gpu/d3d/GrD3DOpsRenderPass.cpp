@@ -19,6 +19,7 @@
 #include "src/gpu/d3d/GrD3DPipelineStateBuilder.h"
 #include "src/gpu/d3d/GrD3DRenderTarget.h"
 #include "src/gpu/d3d/GrD3DTexture.h"
+#include "src/gpu/effects/GrTextureEffect.h"
 
 #ifdef SK_DEBUG
 #include "include/gpu/GrDirectContext.h"

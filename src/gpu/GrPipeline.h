@@ -8,7 +8,6 @@
 #ifndef GrPipeline_DEFINED
 #define GrPipeline_DEFINED
 
-#include "include/core/SkMatrix.h"
 #include "include/core/SkRefCnt.h"
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrDstProxyView.h"
@@ -18,11 +17,7 @@
 #include "src/gpu/GrSurfaceProxyView.h"
 #include "src/gpu/GrUserStencilSettings.h"
 #include "src/gpu/GrWindowRectsState.h"
-#include "src/gpu/effects/GrCoverageSetOpXP.h"
-#include "src/gpu/effects/GrDisableColorXP.h"
 #include "src/gpu/effects/GrPorterDuffXferProcessor.h"
-#include "src/gpu/effects/GrTextureEffect.h"
-#include "src/gpu/geometry/GrRect.h"
 
 class GrAppliedClip;
 class GrAppliedHardClip;
@@ -30,6 +25,7 @@ struct GrGLSLBuiltinUniformHandles;
 class GrGLSLProgramDataManager;
 class GrOp;
 class GrSurfaceDrawContext;
+class GrTextureEffect;
 
 /**
  * This immutable object contains information needed to build a shader program and set API
@@ -135,7 +131,7 @@ public:
     // input attachment.
     bool usesDstTexture() const { return this->dstProxyView() && !this->usesDstInputAttachment(); }
     bool usesDstInputAttachment() const {
-        return this->dstSampleFlags()& GrDstSampleFlags::kAsInputAttachment;
+        return this->dstSampleFlags() & GrDstSampleFlags::kAsInputAttachment;
     }
 
     /**

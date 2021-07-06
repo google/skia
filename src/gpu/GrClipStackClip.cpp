@@ -25,6 +25,7 @@
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/effects/GrBlendFragmentProcessor.h"
 #include "src/gpu/effects/GrRRectEffect.h"
+#include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/geometry/GrStyledShape.h"
 
 typedef SkClipStack::Element Element;

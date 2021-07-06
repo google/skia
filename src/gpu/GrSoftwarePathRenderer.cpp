@@ -23,6 +23,7 @@
 #include "src/gpu/GrSWMaskHelper.h"
 #include "src/gpu/GrUtil.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/geometry/GrStyledShape.h"
 #include "src/gpu/ops/GrDrawOp.h"
 
