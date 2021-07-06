@@ -17,6 +17,7 @@
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.h"
 #include "src/gpu/effects/GrMatrixConvolutionEffect.h"
+#include "src/gpu/effects/GrTextureEffect.h"
 
 #if SK_GPU_V1
 
