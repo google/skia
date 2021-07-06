@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2d406fff_b3c35ead",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-07-06T20:13:57Z",
+      "side": 1,
+      "message": "... can\u0027t tell for sure. Is flutter/engine off of setFilterQuality, so I can remove support for it in CanvasKit?",
+      "revId": "a0124dd1773c855d8925e522b75a285f1231ae9c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
