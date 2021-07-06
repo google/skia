@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5a5b1ce3_f607189d",
+        "filename": "gn/gpu.gni",
+        "patchSetId": 7
+      },
+      "lineNbr": 600,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-07-06T14:34:42Z",
+      "side": 1,
+      "message": "should we use dirs, e.g.\nsrc/gpu/v1/Device.cpp",
+      "range": {
+        "startLine": 597,
+        "startChar": 0,
+        "endLine": 600,
+        "endChar": 1
+      },
+      "revId": "b3f95f083d5a1bb656ee349a8ff16a097db0f4a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
