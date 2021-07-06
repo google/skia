@@ -30,6 +30,7 @@ platform_tools/android/apps/*/*/src/main/libs
 platform_tools/android/apps/*.hprof
 platform_tools/android/apps/*/.externalNativeBuild
 
+/mskps
 /skps
 /svgs
 tools/skp/page_sets/data/*.json
