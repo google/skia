@@ -5,15 +5,22 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/SkBaseGpuDevice.h"
+#include "src/gpu/BaseDevice.h"
 
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrSurfaceProxyView.h"
 
 #define ASSERT_SINGLE_OWNER GR_ASSERT_SINGLE_OWNER(fContext->priv().singleOwner())
 
-bool SkBaseGpuDevice::replaceBackingProxy(SkSurface::ContentChangeMode mode) {
+namespace skgpu {
+
+GrRenderTargetProxy* BaseDevice::targetProxy() {
+    return this->readSurfaceView().asRenderTargetProxy();
+}
+
+bool BaseDevice::replaceBackingProxy(SkSurface::ContentChangeMode mode) {
     ASSERT_SINGLE_OWNER
 
     const SkImageInfo& ii = this->imageInfo();
@@ -45,3 +52,5 @@ bool SkBaseGpuDevice::replaceBackingProxy(SkSurface::ContentChangeMode mode) {
                                      grColorType, ii.refColorSpace(), oldView.origin(),
                                      this->surfaceProps());
 }
+
+} // namespace skgpu

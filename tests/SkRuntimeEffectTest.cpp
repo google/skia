@@ -17,6 +17,7 @@
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkTLazy.h"
+#include "src/gpu/GrCaps.h"
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrFragmentProcessor.h"

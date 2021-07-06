@@ -15,6 +15,7 @@
 #ifdef SK_DIRECT3D
 #include "include/gpu/d3d/GrD3DTypes.h"
 #endif
+#include "src/gpu/BaseDevice.h"
 #include "src/gpu/GrBackendTextureImageGenerator.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrDrawingManager.h"
@@ -26,7 +27,6 @@
 #include "src/gpu/GrSurfaceProxyPriv.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxy.h"
-#include "src/gpu/SkBaseGpuDevice.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkSurface_Gpu.h"
 #include "tests/Test.h"
@@ -78,7 +78,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrWrappedMipMappedTest, reporter, ctxInfo) {
                         sk_gpu_test::ManagedBackendTexture::ReleaseProc,
                         mbet->releaseContext());
 
-                SkBaseGpuDevice* device = ((SkSurface_Gpu*)surface.get())->getDevice();
+                auto device = ((SkSurface_Gpu*)surface.get())->getDevice();
                 proxy = device->readSurfaceView().asTextureProxyRef();
             } else {
                 image = SkImage::MakeFromTexture(dContext,
@@ -310,7 +310,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrImageSnapshotMipMappedTest, reporter, ctxIn
                                                       willUseMips);
             }
             REPORTER_ASSERT(reporter, surface);
-            SkBaseGpuDevice* device = ((SkSurface_Gpu*)surface.get())->getDevice();
+            auto device = ((SkSurface_Gpu*)surface.get())->getDevice();
             GrTextureProxy* texProxy = device->readSurfaceView().asTextureProxy();
             REPORTER_ASSERT(reporter, mipmapped == texProxy->mipmapped());
 

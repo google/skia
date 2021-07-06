@@ -11,23 +11,23 @@
 #include "src/gpu/GrDrawingManager.h"
 
 #if SK_GPU_V1
-#include "src/gpu/SkGpuDevice.h"
+#include "src/gpu/v1/Device_v1.h"
 #endif
 #if SK_GPU_V2
-#include "src/gpu/SkGpuDevice_nga.h"
+#include "src/gpu/v2/Device_v2.h"
 #endif
 
-sk_sp<SkBaseGpuDevice> GrRecordingContextPriv::createDevice(GrColorType colorType,
-                                                            sk_sp<GrSurfaceProxy> proxy,
-                                                            sk_sp<SkColorSpace> colorSpace,
-                                                            GrSurfaceOrigin origin,
-                                                            const SkSurfaceProps& props,
-                                                            SkBaseGpuDevice::InitContents init) {
+sk_sp<skgpu::BaseDevice> GrRecordingContextPriv::createDevice(GrColorType colorType,
+                                                              sk_sp<GrSurfaceProxy> proxy,
+                                                              sk_sp<SkColorSpace> colorSpace,
+                                                              GrSurfaceOrigin origin,
+                                                              const SkSurfaceProps& props,
+                                                              skgpu::BaseDevice::InitContents init) {
 #if GR_TEST_UTILS
     if (this->options().fUseNGA == GrContextOptions::Enable::kYes) {
 #if SK_GPU_V2
-        return SkGpuDevice_nga::Make(fContext, colorType, std::move(proxy), std::move(colorSpace),
-                                     origin, props, init);
+        return skgpu::v2::Device::Make(fContext, colorType, std::move(proxy), std::move(colorSpace),
+                                       origin, props, init);
 #else
         return nullptr;
 #endif
@@ -35,28 +35,28 @@ sk_sp<SkBaseGpuDevice> GrRecordingContextPriv::createDevice(GrColorType colorTyp
 #endif
     {
 #if SK_GPU_V1
-        return SkGpuDevice::Make(fContext, colorType, std::move(proxy), std::move(colorSpace),
-                                 origin, props, init);
+        return skgpu::v1::Device::Make(fContext, colorType, std::move(proxy), std::move(colorSpace),
+                                       origin, props, init);
 #else
         return nullptr;
 #endif
     }
 }
 
-sk_sp<SkBaseGpuDevice> GrRecordingContextPriv::createDevice(SkBudgeted budgeted,
-                                                            const SkImageInfo& ii,
-                                                            SkBackingFit fit,
-                                                            int sampleCount,
-                                                            GrMipmapped mipmapped,
-                                                            GrProtected isProtected,
-                                                            GrSurfaceOrigin origin,
-                                                            const SkSurfaceProps& props,
-                                                            SkBaseGpuDevice::InitContents init) {
+sk_sp<skgpu::BaseDevice> GrRecordingContextPriv::createDevice(SkBudgeted budgeted,
+                                                              const SkImageInfo& ii,
+                                                              SkBackingFit fit,
+                                                              int sampleCount,
+                                                              GrMipmapped mipmapped,
+                                                              GrProtected isProtected,
+                                                              GrSurfaceOrigin origin,
+                                                              const SkSurfaceProps& props,
+                                                              skgpu::BaseDevice::InitContents init) {
 #if GR_TEST_UTILS
     if (this->options().fUseNGA == GrContextOptions::Enable::kYes) {
 #if SK_GPU_V2
-        return SkGpuDevice_nga::Make(fContext, budgeted, ii, fit, sampleCount,
-                                     mipmapped, isProtected, origin, props, init);
+        return skgpu::v2::Device::Make(fContext, budgeted, ii, fit, sampleCount,
+                                       mipmapped, isProtected, origin, props, init);
 #else
         return nullptr;
 #endif
@@ -64,8 +64,8 @@ sk_sp<SkBaseGpuDevice> GrRecordingContextPriv::createDevice(SkBudgeted budgeted,
 #endif
     {
 #if SK_GPU_V1
-        return SkGpuDevice::Make(fContext, budgeted, ii, fit, sampleCount,
-                                 mipmapped, isProtected, origin, props, init);
+        return skgpu::v1::Device::Make(fContext, budgeted, ii, fit, sampleCount,
+                                       mipmapped, isProtected, origin, props, init);
 #else
         return nullptr;
 #endif

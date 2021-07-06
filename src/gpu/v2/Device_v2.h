@@ -5,42 +5,44 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkGpuDevice_nga_DEFINED
-#define SkGpuDevice_nga_DEFINED
+#ifndef Device_v2_DEFINED
+#define Device_v2_DEFINED
 
-#include "src/gpu/SkBaseGpuDevice.h"
+#include "src/gpu/BaseDevice.h"
+
+namespace skgpu::v2 {
 
 /**
- *  Subclass of SkBaseGpuDevice, which directs all drawing to the GrGpu owned by the canvas.
+ *  Subclass of BaseDevice, which directs all drawing to the GrGpu owned by the canvas.
  */
-class SkGpuDevice_nga : public SkBaseGpuDevice  {
+class Device : public BaseDevice  {
 public:
-    static sk_sp<SkBaseGpuDevice> Make(GrRecordingContext*,
-                                       GrColorType,
-                                       sk_sp<GrSurfaceProxy>,
-                                       sk_sp<SkColorSpace>,
-                                       GrSurfaceOrigin,
-                                       const SkSurfaceProps&,
-                                       InitContents) {
+    static sk_sp<BaseDevice> Make(GrRecordingContext*,
+                                  GrColorType,
+                                  sk_sp<GrSurfaceProxy>,
+                                  sk_sp<SkColorSpace>,
+                                  GrSurfaceOrigin,
+                                  const SkSurfaceProps&,
+                                  InitContents) {
         return nullptr;
     }
 
-    static sk_sp<SkBaseGpuDevice> Make(GrRecordingContext*,
-                                       SkBudgeted,
-                                       const SkImageInfo&,
-                                       SkBackingFit,
-                                       int sampleCount,
-                                       GrMipmapped,
-                                       GrProtected,
-                                       GrSurfaceOrigin,
-                                       const SkSurfaceProps&,
-                                       InitContents) {
+    static sk_sp<BaseDevice> Make(GrRecordingContext*,
+                                  SkBudgeted,
+                                  const SkImageInfo&,
+                                  SkBackingFit,
+                                  int sampleCount,
+                                  GrMipmapped,
+                                  GrProtected,
+                                  GrSurfaceOrigin,
+                                  const SkSurfaceProps&,
+                                  InitContents) {
         return nullptr;
     }
 
-    ~SkGpuDevice_nga() override;
+    ~Device() override;
 
-    GrSurfaceProxyView readSurfaceView() override { return {}; }
+    GrSurfaceProxyView readSurfaceView() override;
 
     bool wait(int numSemaphores,
               const GrBackendSemaphore* waitSemaphores,
@@ -140,13 +142,15 @@ protected:
     /* isNoPixelsDevice */
 
 private:
-    SkGpuDevice_nga(sk_sp<GrRecordingContext>, const SkImageInfo&, const SkSurfaceProps&);
+    Device(sk_sp<GrRecordingContext>, const SkImageInfo&, const SkSurfaceProps&);
 
     /* replaceBitmapBackendForRasterSurface */
     bool forceConservativeRasterClip() const override;
     SkImageFilterCache* getImageFilterCache() override;
 
-    using INHERITED = SkBaseGpuDevice;
+    using INHERITED = BaseDevice;
 };
 
-#endif // SkGpuDevice_nga_DEFINED
+} // namespace skgpu::v2
+
+#endif // Device_v2_DEFINED
