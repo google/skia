@@ -152,22 +152,10 @@ public:
     }
 
     // Creates a pipeline that does not write to the color buffer.
-    static const GrPipeline* MakeStencilOnlyPipeline(
-            const ProgramArgs& args, GrAAType aaType,
-            GrTessellationPathRenderer::PathFlags pathFlags, const GrAppliedHardClip& hardClip) {
-        using PathFlags = GrTessellationPathRenderer::PathFlags;
-        GrPipeline::InitArgs pipelineArgs;
-        if (aaType == GrAAType::kMSAA) {
-            pipelineArgs.fInputFlags |= GrPipeline::InputFlags::kHWAntialias;
-        }
-        if (args.fCaps->wireframeSupport() && (pathFlags & PathFlags::kWireframe)) {
-            pipelineArgs.fInputFlags |= GrPipeline::InputFlags::kWireframe;
-        }
-        pipelineArgs.fCaps = args.fCaps;
-        return args.fArena->make<GrPipeline>(pipelineArgs,
-                                             GrDisableColorXPFactory::MakeXferProcessor(),
-                                             hardClip);
-    }
+    static const GrPipeline* MakeStencilOnlyPipeline(const ProgramArgs&,
+                                                     GrAAType,
+                                                     GrTessellationPathRenderer::PathFlags,
+                                                     const GrAppliedHardClip&);
 
 protected:
     constexpr static size_t kMiddleOutVertexStride = 2 * sizeof(float);

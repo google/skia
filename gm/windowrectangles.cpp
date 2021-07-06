@@ -36,6 +36,8 @@
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/GrUserStencilSettings.h"
+#include "src/gpu/effects/GrDisableColorXP.h"
+#include "src/gpu/effects/GrTextureEffect.h"
 #include "tools/ToolUtils.h"
 
 #include <utility>
