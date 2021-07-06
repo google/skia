@@ -42,6 +42,9 @@ private:
 } // namespace
 
 sk_sp<SkShader> SkShaders::Blend(SkBlendMode mode, sk_sp<SkShader> dst, sk_sp<SkShader> src) {
+    if (!src || !dst) {
+        return nullptr;
+    }
     switch (mode) {
         case SkBlendMode::kClear: return Color(0);
         case SkBlendMode::kDst:   return dst;
@@ -53,17 +56,6 @@ sk_sp<SkShader> SkShaders::Blend(SkBlendMode mode, sk_sp<SkShader> dst, sk_sp<Sk
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static bool append_shader_or_paint(const SkStageRec& rec, SkShader* shader) {
-    if (shader) {
-        if (!as_SB(shader)->appendStages(rec)) {
-            return false;
-        }
-    } else {
-        rec.fPipeline->append_constant_color(rec.fAlloc, rec.fPaint.getColor4f().premul().vec());
-    }
-    return true;
-}
-
 // Returns the output of e0, and leaves the output of e1 in r,g,b,a
 static float* append_two_shaders(const SkStageRec& rec, SkShader* s0, SkShader* s1) {
     struct Storage {
@@ -71,12 +63,12 @@ static float* append_two_shaders(const SkStageRec& rec, SkShader* s0, SkShader* 
     };
     auto storage = rec.fAlloc->make<Storage>();
 
-    if (!append_shader_or_paint(rec, s0)) {
+    if (!as_SB(s0)->appendStages(rec)) {
         return nullptr;
     }
     rec.fPipeline->append(SkRasterPipeline::store_src, storage->fRes0);
 
-    if (!append_shader_or_paint(rec, s1)) {
+    if (!as_SB(s1)->appendStages(rec)) {
         return nullptr;
     }
     return storage->fRes0;
@@ -89,8 +81,8 @@ sk_sp<SkFlattenable> SkShader_Blend::CreateProc(SkReadBuffer& buffer) {
     sk_sp<SkShader> src(buffer.readShader());
     unsigned        mode = buffer.read32();
 
-    // check for valid mode before we cast to the enum type
-    if (!buffer.validate(mode <= (unsigned)SkBlendMode::kLastMode)) {
+    // check for valid mode and children before we cast to the enum type and make the shader.
+    if (!buffer.validate(mode <= (unsigned)SkBlendMode::kLastMode && dst && src)) {
         return nullptr;
     }
     return SkShaders::Blend(static_cast<SkBlendMode>(mode), std::move(dst), std::move(src));
@@ -115,23 +107,14 @@ bool SkShader_Blend::onAppendStages(const SkStageRec& orig_rec) const {
     return true;
 }
 
-static skvm::Color program_or_paint(const sk_sp<SkShader>& sh, skvm::Builder* p,
-                                    skvm::Coord device, skvm::Coord local, skvm::Color paint,
-                                    const SkMatrixProvider& mats, const SkMatrix* localM,
-                                    const SkColorInfo& dst,
-                                    skvm::Uniforms* uniforms, SkArenaAlloc* alloc) {
-    return sh ? as_SB(sh)->program(p, device,local, paint, mats,localM, dst, uniforms,alloc)
-              : p->premul(paint);
-}
-
 skvm::Color SkShader_Blend::onProgram(skvm::Builder* p,
                                       skvm::Coord device, skvm::Coord local, skvm::Color paint,
                                       const SkMatrixProvider& mats, const SkMatrix* localM,
                                       const SkColorInfo& dst,
                                       skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
     skvm::Color d,s;
-    if ((d = program_or_paint(fDst, p, device,local, paint, mats,localM, dst, uniforms,alloc)) &&
-        (s = program_or_paint(fSrc, p, device,local, paint, mats,localM, dst, uniforms,alloc)))
+    if ((d = as_SB(fDst)->program(p, device,local, paint, mats,localM, dst, uniforms,alloc)) &&
+        (s = as_SB(fSrc)->program(p, device,local, paint, mats,localM, dst, uniforms,alloc)))
     {
         return p->blend(fMode, s,d);
     }
@@ -144,15 +127,15 @@ skvm::Color SkShader_Blend::onProgram(skvm::Builder* p,
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/effects/GrBlendFragmentProcessor.h"
 
-static std::unique_ptr<GrFragmentProcessor> as_fp(const GrFPArgs& args, SkShader* shader) {
-    return shader ? as_SB(shader)->asFragmentProcessor(args) : nullptr;
-}
-
 std::unique_ptr<GrFragmentProcessor> SkShader_Blend::asFragmentProcessor(
         const GrFPArgs& orig_args) const {
     const GrFPArgs::WithPreLocalMatrix args(orig_args, this->getLocalMatrix());
-    auto fpA = as_fp(args, fDst.get());
-    auto fpB = as_fp(args, fSrc.get());
+    auto fpA = as_SB(fDst)->asFragmentProcessor(args);
+    auto fpB = as_SB(fSrc)->asFragmentProcessor(args);
+    if (!fpA || !fpB) {
+        // This is unexpected. Both src and dst shaders should be valid. Just fail.
+        return nullptr;
+    }
     return GrBlendFragmentProcessor::Make(std::move(fpB), std::move(fpA), fMode);
 }
 #endif
