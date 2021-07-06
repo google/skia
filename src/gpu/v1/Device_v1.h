@@ -13,12 +13,13 @@
 #include "include/core/SkRegion.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrTypes.h"
+#include "src/gpu/BaseDevice.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
-#include "src/gpu/SkBaseGpuDevice.h"
 #include "src/gpu/SkGr.h"
 
 class SkSpecialImage;
 class SkSurface;
+class SkSurface_Gpu;
 class SkVertices;
 
 #if !defined(SK_DISABLE_NEW_GR_CLIP_STACK)
@@ -29,10 +30,12 @@ class SkVertices;
     #define GR_CLIP_STACK GrClipStackClip
 #endif
 
+namespace skgpu::v1 {
+
 /**
- *  Subclass of SkBaseGpuDevice, which directs all drawing to the GrGpu owned by the canvas.
+ *  Subclass of BaseDevice, which directs all drawing to the GrGpu owned by the canvas.
  */
-class SkGpuDevice : public SkBaseGpuDevice  {
+class Device : public BaseDevice  {
 public:
     GrSurfaceProxyView readSurfaceView() override {
         return fSurfaceDrawContext->readSurfaceView();
@@ -52,7 +55,7 @@ public:
                              sk_sp<SkColorSpace>,
                              GrSurfaceOrigin,
                              const SkSurfaceProps&) override;
-    using SkBaseGpuDevice::replaceBackingProxy;
+    using BaseDevice::replaceBackingProxy;
 
     void asyncRescaleAndReadPixels(const SkImageInfo& info,
                                    const SkIRect& srcRect,
@@ -74,13 +77,13 @@ public:
      * This factory uses the color space, origin, surface properties, and initialization
      * method along with the provided proxy to create the gpu device.
      */
-    static sk_sp<SkBaseGpuDevice> Make(GrRecordingContext*,
-                                       GrColorType,
-                                       sk_sp<GrSurfaceProxy>,
-                                       sk_sp<SkColorSpace>,
-                                       GrSurfaceOrigin,
-                                       const SkSurfaceProps&,
-                                       InitContents);
+    static sk_sp<BaseDevice> Make(GrRecordingContext*,
+                                  GrColorType,
+                                  sk_sp<GrSurfaceProxy>,
+                                  sk_sp<SkColorSpace>,
+                                  GrSurfaceOrigin,
+                                  const SkSurfaceProps&,
+                                  InitContents);
 
     /**
      * This factory uses the budgeted, imageInfo, fit, sampleCount, mipmapped, and isProtected
@@ -88,18 +91,18 @@ public:
      * origin, surface properties, and initialization method are then used (with the created proxy)
      * to create the device.
      */
-    static sk_sp<SkBaseGpuDevice> Make(GrRecordingContext*,
-                                       SkBudgeted,
-                                       const SkImageInfo&,
-                                       SkBackingFit,
-                                       int sampleCount,
-                                       GrMipmapped,
-                                       GrProtected,
-                                       GrSurfaceOrigin,
-                                       const SkSurfaceProps&,
-                                       InitContents);
+    static sk_sp<BaseDevice> Make(GrRecordingContext*,
+                                  SkBudgeted,
+                                  const SkImageInfo&,
+                                  SkBackingFit,
+                                  int sampleCount,
+                                  GrMipmapped,
+                                  GrProtected,
+                                  GrSurfaceOrigin,
+                                  const SkSurfaceProps&,
+                                  InitContents);
 
-    ~SkGpuDevice() override {}
+    ~Device() override {}
 
     GrSurfaceDrawContext* surfaceDrawContext() override;
     const GrSurfaceDrawContext* surfaceDrawContext() const;
@@ -203,11 +206,11 @@ private:
     static bool CheckAlphaTypeAndGetFlags(const SkImageInfo* info, InitContents init,
                                           unsigned* flags);
 
-    static sk_sp<SkBaseGpuDevice> Make(std::unique_ptr<GrSurfaceDrawContext>,
-                                       const SkImageInfo*,
-                                       InitContents);
+    static sk_sp<BaseDevice> Make(std::unique_ptr<GrSurfaceDrawContext>,
+                                  const SkImageInfo*,
+                                  InitContents);
 
-    SkGpuDevice(std::unique_ptr<GrSurfaceDrawContext>, unsigned flags);
+    Device(std::unique_ptr<GrSurfaceDrawContext>, unsigned flags);
 
     SkBaseDevice* onCreateDevice(const CreateInfo&, const SkPaint*) override;
 
@@ -245,9 +248,11 @@ private:
                                                                         GrSurfaceOrigin,
                                                                         const SkSurfaceProps&);
 
-    friend class SkSurface_Gpu;      // for access to surfaceProps
-    using INHERITED = SkBaseGpuDevice;
+    friend class ::SkSurface_Gpu;      // for access to surfaceProps
+    using INHERITED = BaseDevice;
 };
+
+} // namespace skgpu::v1
 
 #undef GR_CLIP_STACK
 
