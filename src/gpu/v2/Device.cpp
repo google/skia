@@ -1,0 +1,302 @@
+/*
+ * Copyright 2021 Google LLC
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#include "src/gpu/v2/Device_v2.h"
+
+#include "include/gpu/GrRecordingContext.h"
+#include "src/core/SkImageFilterCache.h"
+#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrTracing.h"
+
+#define ASSERT_SINGLE_OWNER GR_ASSERT_SINGLE_OWNER(fContext->priv().singleOwner())
+
+namespace skgpu::v2 {
+
+Device::Device(sk_sp<GrRecordingContext> rContext,
+               const SkImageInfo& ii,
+               const SkSurfaceProps& props)
+    : INHERITED(std::move(rContext), ii, props) {
+}
+
+Device::~Device() {}
+
+GrSurfaceProxyView Device::readSurfaceView() { return {}; }
+
+void Device::asyncRescaleAndReadPixels(const SkImageInfo& info,
+                                       const SkIRect& srcRect,
+                                       RescaleGamma rescaleGamma,
+                                       RescaleMode rescaleMode,
+                                       ReadPixelsCallback callback,
+                                       ReadPixelsContext context) {
+    // Context TODO: Elevate direct context requirement to public API.
+    auto dContext = this->recordingContext()->asDirectContext();
+    if (!dContext) {
+        return;
+    }
+}
+
+void Device::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
+                                             sk_sp<SkColorSpace> dstColorSpace,
+                                             const SkIRect& srcRect,
+                                             SkISize dstSize,
+                                             RescaleGamma rescaleGamma,
+                                             RescaleMode,
+                                             ReadPixelsCallback callback,
+                                             ReadPixelsContext context) {
+    // Context TODO: Elevate direct context requirement to public API.
+    auto dContext = this->recordingContext()->asDirectContext();
+    if (!dContext) {
+        return;
+    }
+}
+
+void Device::onSave() {
+}
+
+void Device::onRestore() {
+}
+
+void Device::onClipRect(const SkRect& rect, SkClipOp op, bool aa) {
+}
+
+void Device::onClipRRect(const SkRRect& rrect, SkClipOp op, bool aa) {
+}
+
+void Device::onClipPath(const SkPath& path, SkClipOp op, bool aa) {
+    SkASSERT(op == SkClipOp::kIntersect || op == SkClipOp::kDifference);
+}
+
+void Device::onClipShader(sk_sp<SkShader> shader) {
+}
+
+void Device::onClipRegion(const SkRegion& globalRgn, SkClipOp op) {
+    SkASSERT(op == SkClipOp::kIntersect || op == SkClipOp::kDifference);
+}
+
+void Device::onReplaceClip(const SkIRect& rect) {
+}
+
+void Device::onSetDeviceClipRestriction(SkIRect* mutableClipRestriction) {
+}
+
+bool Device::onClipIsAA() const {
+    return false;
+}
+
+bool Device::onClipIsWideOpen() const {
+    return false;
+}
+
+void Device::onAsRgnClip(SkRegion* region) const {
+}
+
+SkBaseDevice::ClipType Device::onGetClipType() const {
+    return ClipType::kEmpty;
+}
+
+SkIRect Device::onDevClipBounds() const {
+    return SkIRect::MakeEmpty();
+}
+
+void Device::drawPaint(const SkPaint& paint) {
+    ASSERT_SINGLE_OWNER
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice_nga", "drawPaint", fContext.get());
+}
+
+void Device::drawPoints(SkCanvas::PointMode mode,
+                                 size_t count,
+                                 const SkPoint points[],
+                                 const SkPaint& paint) {
+    ASSERT_SINGLE_OWNER
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice_nga", "drawPoints", fContext.get());
+
+}
+
+void Device::drawRect(const SkRect& rect, const SkPaint& paint) {
+    ASSERT_SINGLE_OWNER
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice_nga", "drawRect", fContext.get());
+}
+
+void Device::drawRegion(const SkRegion& r, const SkPaint& paint) {
+    ASSERT_SINGLE_OWNER
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice_nga", "drawRegion", fContext.get());
+}
+
+void Device::drawOval(const SkRect& oval, const SkPaint& paint) {
+    ASSERT_SINGLE_OWNER
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice_nga", "drawOval", fContext.get());
+}
+
+void Device::drawArc(const SkRect& oval,
+                     SkScalar startAngle,
+                     SkScalar sweepAngle,
+                     bool useCenter,
+                     const SkPaint& paint) {
+    ASSERT_SINGLE_OWNER
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice_nga", "drawArc", fContext.get());
+}
+
+void Device::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
+    ASSERT_SINGLE_OWNER
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice_nga", "drawRRect", fContext.get());
+}
+
+void Device::drawDRRect(const SkRRect& outer,
+                        const SkRRect& inner,
+                        const SkPaint& paint) {
+    ASSERT_SINGLE_OWNER
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice_nga", "drawDRRect", fContext.get());
+}
+
+void Device::drawPath(const SkPath& path, const SkPaint& paint, bool pathIsMutable) {
+    ASSERT_SINGLE_OWNER
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice_nga", "drawPath", fContext.get());
+}
+
+void Device::drawImageRect(const SkImage* image,
+                           const SkRect* src,
+                           const SkRect& dst,
+                           const SkSamplingOptions& sampling,
+                           const SkPaint& paint,
+                           SkCanvas::SrcRectConstraint constraint) {
+    ASSERT_SINGLE_OWNER
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice_nga", "drawImageRect", fContext.get());
+}
+
+void Device::drawImageLattice(const SkImage* image,
+                              const SkCanvas::Lattice& lattice,
+                              const SkRect& dst,
+                              SkFilterMode filter,
+                              const SkPaint& paint) {
+    ASSERT_SINGLE_OWNER
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice_nga", "drawImageLattice", fContext.get());
+}
+
+void Device::drawVertices(const SkVertices* vertices,
+                          SkBlendMode mode,
+                          const SkPaint& paint) {
+    ASSERT_SINGLE_OWNER
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice_nga", "drawVertices", fContext.get());
+}
+
+void Device::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
+    ASSERT_SINGLE_OWNER
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice_nga", "drawShadow", fContext.get());
+}
+
+void Device::drawAtlas(const SkImage* atlas,
+                       const SkRSXform xform[],
+                       const SkRect texRect[],
+                       const SkColor colors[],
+                       int count,
+                       SkBlendMode mode,
+                       const SkSamplingOptions& sampling,
+                       const SkPaint& paint) {
+    ASSERT_SINGLE_OWNER
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice_nga", "drawAtlas", fContext.get());
+}
+
+void Device::drawEdgeAAQuad(const SkRect& rect,
+                            const SkPoint clip[4],
+                            SkCanvas::QuadAAFlags aaFlags,
+                            const SkColor4f& color,
+                            SkBlendMode mode) {
+    ASSERT_SINGLE_OWNER
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice_nga", "drawEdgeAAQuad", fContext.get());
+}
+
+void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[],
+                                int count,
+                                const SkPoint dstClips[],
+                                const SkMatrix preViewMatrices[],
+                                const SkSamplingOptions& sampling,
+                                const SkPaint& paint,
+                                SkCanvas::SrcRectConstraint constraint) {
+    ASSERT_SINGLE_OWNER
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice_nga", "drawEdgeAAImageSet", fContext.get());
+}
+
+void Device::drawDrawable(SkDrawable* drawable,
+                          const SkMatrix* matrix,
+                          SkCanvas* canvas) {
+    ASSERT_SINGLE_OWNER
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice_nga", "drawDrawable", fContext.get());
+
+    this->INHERITED::drawDrawable(drawable, matrix, canvas);
+}
+
+void Device::onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) {
+    ASSERT_SINGLE_OWNER
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice_nga", "onDrawGlyphRunList", fContext.get());
+}
+
+void Device::drawDevice(SkBaseDevice* device,
+                        const SkSamplingOptions& sampling,
+                        const SkPaint& paint) {
+    ASSERT_SINGLE_OWNER
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice_nga", "drawDevice", fContext.get());
+}
+
+void Device::drawSpecial(SkSpecialImage* special,
+                         const SkMatrix& localToDevice,
+                         const SkSamplingOptions& sampling,
+                         const SkPaint& paint) {
+}
+
+sk_sp<SkSpecialImage> Device::makeSpecial(const SkBitmap& bitmap) {
+    ASSERT_SINGLE_OWNER
+    return nullptr;
+}
+
+sk_sp<SkSpecialImage> Device::makeSpecial(const SkImage* image) {
+    ASSERT_SINGLE_OWNER
+    return nullptr;
+}
+
+sk_sp<SkSpecialImage> Device::snapSpecial(const SkIRect& subset, bool forceCopy) {
+    ASSERT_SINGLE_OWNER
+    return nullptr;
+}
+
+sk_sp<SkSurface> Device::makeSurface(const SkImageInfo& ii,
+                                     const SkSurfaceProps& props) {
+    ASSERT_SINGLE_OWNER
+    return nullptr;
+}
+
+bool Device::onReadPixels(const SkPixmap& pm, int x, int y) {
+    ASSERT_SINGLE_OWNER
+    return false;
+}
+
+bool Device::onWritePixels(const SkPixmap& pm, int x, int y) {
+    ASSERT_SINGLE_OWNER
+    return false;
+}
+
+bool Device::onAccessPixels(SkPixmap*) {
+    ASSERT_SINGLE_OWNER
+    return false;
+}
+
+SkBaseDevice* Device::onCreateDevice(const CreateInfo& cinfo, const SkPaint*) {
+    ASSERT_SINGLE_OWNER
+    return nullptr;
+}
+
+bool Device::forceConservativeRasterClip() const {
+    return true;
+}
+
+SkImageFilterCache* Device::getImageFilterCache() {
+    ASSERT_SINGLE_OWNER
+
+    // We always return a transient cache, so it is freed after each filter traversal.
+    return SkImageFilterCache::Create(SkImageFilterCache::kDefaultTransientSize);
+}
+
+} // namespace skgpu::v2
