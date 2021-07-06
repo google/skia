@@ -16,6 +16,7 @@
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/GrRenderTarget.h"
+#include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/vk/GrVkAttachment.h"
 #include "src/gpu/vk/GrVkBuffer.h"
 #include "src/gpu/vk/GrVkCommandBuffer.h"

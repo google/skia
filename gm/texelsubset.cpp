@@ -22,6 +22,7 @@
 #include "src/gpu/GrSamplerState.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/effects/GrTextureEffect.h"
 #include "tools/Resources.h"
 #include "tools/gpu/TestOps.h"
 

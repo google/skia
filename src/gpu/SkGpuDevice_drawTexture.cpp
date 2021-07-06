@@ -24,6 +24,7 @@
 #include "src/gpu/effects/GrBicubicEffect.h"
 #include "src/gpu/effects/GrBlendFragmentProcessor.h"
 #include "src/gpu/effects/GrTextureEffect.h"
+#include "src/gpu/geometry/GrRect.h"
 #include "src/gpu/geometry/GrStyledShape.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_Gpu.h"
