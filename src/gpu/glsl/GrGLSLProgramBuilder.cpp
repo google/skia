@@ -381,17 +381,12 @@ void GrGLSLProgramBuilder::appendUniformDecls(GrShaderFlags visibility, SkString
     this->uniformHandler()->appendUniformDecls(visibility, out);
 }
 
-void GrGLSLProgramBuilder::addRTFlipUniform(const char* name) {
-    SkASSERT(!fUniformHandles.fRTFlipUni.isValid());
+void GrGLSLProgramBuilder::addRTHeightUniform(const char* name) {
+    SkASSERT(!fUniformHandles.fRTHeightUni.isValid());
     GrGLSLUniformHandler* uniformHandler = this->uniformHandler();
-    fUniformHandles.fRTFlipUni =
-            uniformHandler->internalAddUniformArray(nullptr,
-                                                    kFragment_GrShaderFlag,
-                                                    kHalf2_GrSLType,
-                                                    name,
-                                                    false,
-                                                    0,
-                                                    nullptr);
+    fUniformHandles.fRTHeightUni =
+            uniformHandler->internalAddUniformArray(nullptr, kFragment_GrShaderFlag, kHalf_GrSLType,
+                                                    name, false, 0, nullptr);
 }
 
 void GrGLSLProgramBuilder::finalizeShaders() {

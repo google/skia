@@ -27,7 +27,7 @@ struct GrMtlPrecompiledLibraries {
     // TODO: wrap these in sk_cfp<> or unique_ptr<> when we remove ARC
     id<MTLLibrary> fVertexLibrary;
     id<MTLLibrary> fFragmentLibrary;
-    bool fRTFlip = false;
+    bool fRTHeight = false;
 };
 
 class GrMtlPipelineStateBuilder : public GrGLSLProgramBuilder {

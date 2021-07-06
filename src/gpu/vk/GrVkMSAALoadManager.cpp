@@ -68,7 +68,7 @@ bool GrVkMSAALoadManager::createMSAALoadProgram(GrVkGpu* gpu) {
         this->destroyResources(gpu);
         return false;
     }
-    SkASSERT(inputs == SkSL::Program::Inputs());
+    SkASSERT(inputs.isEmpty());
 
     if (!GrCompileVkShaderModule(gpu, fragShaderText, VK_SHADER_STAGE_FRAGMENT_BIT,
                                  &fFragShaderModule, &fShaderStageInfo[1], settings, &spirv,
@@ -76,7 +76,7 @@ bool GrVkMSAALoadManager::createMSAALoadProgram(GrVkGpu* gpu) {
         this->destroyResources(gpu);
         return false;
     }
-    SkASSERT(inputs == SkSL::Program::Inputs());
+    SkASSERT(inputs.isEmpty());
 
     VkDescriptorSetLayout dsLayout[GrVkUniformHandler::kDescSetCount];
 

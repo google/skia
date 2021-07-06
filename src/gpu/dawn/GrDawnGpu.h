@@ -100,10 +100,8 @@ public:
     void appendCommandBuffer(wgpu::CommandBuffer commandBuffer);
 
     void waitOnAllBusyStagingBuffers();
-    SkSL::String SkSLToSPIRV(const char* shaderString,
-                             SkSL::ProgramKind,
-                             uint32_t rtFlipOffset,
-                             SkSL::Program::Inputs*);
+    SkSL::String SkSLToSPIRV(const char* shaderString, SkSL::ProgramKind, bool flipY,
+                             uint32_t rtHeightOffset, SkSL::Program::Inputs*);
     wgpu::ShaderModule createShaderModule(const SkSL::String& spirvSource);
 
 private:

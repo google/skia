@@ -92,6 +92,10 @@ public:
  */
 class GrGLSLFragmentShaderBuilder : public GrGLSLFPFragmentBuilder, public GrGLSLXPFragmentBuilder {
 public:
+   /** Returns a nonzero key for a surface's origin. This should only be called if a processor will
+       use the fragment position and/or sample locations. */
+    static uint8_t KeyForSurfaceOrigin(GrSurfaceOrigin);
+
     GrGLSLFragmentShaderBuilder(GrGLSLProgramBuilder* program);
 
     // Shared FP/XP interface.

@@ -91,8 +91,8 @@ id<MTLLibrary> GrMtlPipelineStateBuilder::compileMtlShaderLibrary(
         const SkSL::String& shader, SkSL::Program::Inputs inputs,
         GrContextOptions::ShaderErrorHandler* errorHandler) {
     id<MTLLibrary> shaderLibrary = GrCompileMtlShaderLibrary(fGpu, shader, errorHandler);
-    if (shaderLibrary != nil && inputs.fUseFlipRTUniform) {
-        this->addRTFlipUniform(SKSL_RTFLIP_NAME);
+    if (shaderLibrary != nil && inputs.fRTHeight) {
+        this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
     }
     return shaderLibrary;
 }
@@ -524,8 +524,8 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(
                 [precompiledLibs->fFragmentLibrary newFunctionWithName: @"fragmentMain"];
         SkASSERT(pipelineDescriptor.vertexFunction);
         SkASSERT(pipelineDescriptor.fragmentFunction);
-        if (precompiledLibs->fRTFlip) {
-            this->addRTFlipUniform(SKSL_RTFLIP_NAME);
+        if (precompiledLibs->fRTHeight) {
+            this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
         }
     } else {
         id<MTLLibrary> shaderLibraries[kGrShaderTypeCount];
@@ -538,6 +538,7 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(
         this->finalizeShaders();
 
         SkSL::Program::Settings settings;
+        settings.fFlipY = this->origin() != kTopLeft_GrSurfaceOrigin;
         settings.fSharpenTextures = fGpu->getContext()->priv().options().fSharpenMipmappedTextures;
         SkASSERT(!this->fragColorIsInOut());
 
@@ -831,7 +832,7 @@ bool GrMtlPipelineStateBuilder::PrecompileShaders(GrMtlGpu* gpu, const SkData& c
                                           completionHandler: completionHandler];
     }
 
-    precompiledLibs->fRTFlip = inputs[kFragment_GrShaderType].fUseFlipRTUniform;
+    precompiledLibs->fRTHeight = inputs[kFragment_GrShaderType].fRTHeight;
     return true;
 }
 

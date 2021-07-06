@@ -13,6 +13,14 @@
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
 
+uint8_t GrGLSLFragmentShaderBuilder::KeyForSurfaceOrigin(GrSurfaceOrigin origin) {
+    SkASSERT(kTopLeft_GrSurfaceOrigin == origin || kBottomLeft_GrSurfaceOrigin == origin);
+    return origin + 1;
+
+    static_assert(0 == kTopLeft_GrSurfaceOrigin);
+    static_assert(1 == kBottomLeft_GrSurfaceOrigin);
+}
+
 GrGLSLFragmentShaderBuilder::GrGLSLFragmentShaderBuilder(GrGLSLProgramBuilder* program)
         : GrGLSLShaderBuilder(program) {
     fSubstageIndices.push_back(0);

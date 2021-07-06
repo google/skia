@@ -245,7 +245,15 @@ bool GrVkPipelineState::setAndBindInputAttachment(GrVkGpu* gpu,
 
 void GrVkPipelineState::setRenderTargetState(SkISize colorAttachmentDimensions,
                                              GrSurfaceOrigin origin) {
-    // Set RT adjustment and RT flip
+
+    // Load the RT height uniform if it is needed to y-flip gl_FragCoord.
+    if (fBuiltinUniformHandles.fRTHeightUni.isValid() &&
+        fRenderTargetState.fRenderTargetSize.fHeight != colorAttachmentDimensions.height()) {
+        fDataManager.set1f(fBuiltinUniformHandles.fRTHeightUni,
+                           SkIntToScalar(colorAttachmentDimensions.height()));
+    }
+
+    // set RT adjustment
     SkASSERT(fBuiltinUniformHandles.fRTAdjustmentUni.isValid());
     if (fRenderTargetState.fRenderTargetOrigin != origin ||
         fRenderTargetState.fRenderTargetSize != colorAttachmentDimensions) {
@@ -259,11 +267,6 @@ void GrVkPipelineState::setRenderTargetState(SkISize colorAttachmentDimensions,
         bool flip = (origin == kBottomLeft_GrSurfaceOrigin);
         std::array<float, 4> v = SkSL::Compiler::GetRTAdjustVector(colorAttachmentDimensions, flip);
         fDataManager.set4fv(fBuiltinUniformHandles.fRTAdjustmentUni, 1, v.data());
-        if (fBuiltinUniformHandles.fRTFlipUni.isValid()) {
-            std::array<float, 2> d =
-                    SkSL::Compiler::GetRTFlipVector(colorAttachmentDimensions.height(), flip);
-            fDataManager.set2fv(fBuiltinUniformHandles.fRTFlipUni, 1, d.data());
-        }
     }
 }
 
