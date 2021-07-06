@@ -168,12 +168,11 @@ bool SkPaint::isSrcOver() const {
 }
 
 void SkPaint::setBlendMode(SkBlendMode mode) {
-    this->experimental_setBlender(mode == SkBlendMode::kSrcOver ? nullptr
-                                                                : SkBlender::Mode(mode));
+    this->setBlender(mode == SkBlendMode::kSrcOver ? nullptr : SkBlender::Mode(mode));
 }
 
-void SkPaint::experimental_setBlender(sk_sp<SkBlender> blend) {
-    fBlender = std::move(blend);
+void SkPaint::setBlender(sk_sp<SkBlender> blender) {
+    fBlender = std::move(blender);
 }
 
 void SkPaint::setStrokeWidth(SkScalar width) {
@@ -369,7 +368,7 @@ SkReadPaintResult SkPaintPriv::Unflatten(SkPaint* paint, SkReadBuffer& buffer, S
         paint->setMaskFilter(buffer.readMaskFilter());
         paint->setColorFilter(buffer.readColorFilter());
         paint->setImageFilter(buffer.readImageFilter());
-        paint->experimental_setBlender(buffer.readBlender());
+        paint->setBlender(buffer.readBlender());
     }
 
     if (!buffer.validate(safe)) {

@@ -415,7 +415,7 @@ public:
 
         SkCanvas* canvas = fSurface->getCanvas();
         SkPaint paint;
-        paint.experimental_setBlender(std::move(blender));
+        paint.setBlender(std::move(blender));
         paint.setColor(SK_ColorGRAY);
 
         paint_canvas(canvas, &paint, preTestCallback);
