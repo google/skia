@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ba2d7463_db9152e3",
+        "filename": "src/shaders/SkComposeShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-07-06T20:23:54Z",
+      "side": 1,
+      "message": "This change will break skps that had null children (since now our factory will return null).\n\nI\u0027m fine with that since I think it should be super rare. That said, we might go all the way, and detect here that a child is null (or that the Blend factory returned null) and invalidate the buffer.",
+      "range": {
+        "startLine": 86,
+        "startChar": 15,
+        "endLine": 86,
+        "endChar": 22
+      },
+      "revId": "debe02c74fcc88e43b1966c2fb724cbcc2c31c04",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
