@@ -74,6 +74,9 @@ private:
     MTLRenderPassDescriptor*    fRenderPassDesc;
     SkRect                      fBounds;
     size_t                      fCurrentVertexStride;
+#ifdef SK_ENABLE_MTL_DEBUG_INFO
+    bool                        fDebugGroupActive = false;
+#endif
 
     static constexpr size_t kNumBindings = GrMtlUniformHandler::kUniformBindingCount + 2;
     struct {
