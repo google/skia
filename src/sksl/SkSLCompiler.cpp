@@ -895,6 +895,10 @@ bool Compiler::optimize(Program& program) {
 bool Compiler::toSPIRV(Program& program, OutputStream& out) {
     TRACE_EVENT0("skia.shaders", "SkSL::Compiler::toSPIRV");
     AutoSource as(this, program.fSource.get());
+    ProgramSettings settings;
+    settings.fDSLUseMemoryPool = false;
+    dsl::Start(this, program.fConfig->fKind, settings);
+    dsl::DSLWriter::IRGenerator().fSymbolTable = program.fSymbols;
 #ifdef SK_ENABLE_SPIRV_VALIDATION
     StringStream buffer;
     SPIRVCodeGenerator cg(fContext.get(), &program, this, &buffer);
@@ -933,6 +937,7 @@ bool Compiler::toSPIRV(Program& program, OutputStream& out) {
     SPIRVCodeGenerator cg(fContext.get(), &program, this, &out);
     bool result = cg.generateCode();
 #endif
+    dsl::End();
     return result;
 }
 

@@ -706,8 +706,10 @@ bool GrDawnGpu::onRegenerateMipMapLevels(GrTexture* tex) {
         "    sk_Position = float4(positions[sk_VertexID], 0.0, 1.0);\n"
         "    texCoord = texCoords[sk_VertexID];\n"
         "}\n";
-    SkSL::String vsSPIRV =
-        this->SkSLToSPIRV(vs, SkSL::ProgramKind::kVertex, false, 0, nullptr);
+    SkSL::String vsSPIRV = this->SkSLToSPIRV(vs,
+                                             SkSL::ProgramKind::kVertex,
+                                             /*rtFlipOffset*/ 0,
+                                             nullptr);
 
     const char* fs =
         "layout(set = 0, binding = 0) uniform sampler samp;\n"
@@ -716,8 +718,10 @@ bool GrDawnGpu::onRegenerateMipMapLevels(GrTexture* tex) {
         "void main() {\n"
         "    sk_FragColor = sample(makeSampler2D(tex, samp), texCoord);\n"
         "}\n";
-    SkSL::String fsSPIRV =
-        this->SkSLToSPIRV(fs, SkSL::ProgramKind::kFragment, false, 0, nullptr);
+    SkSL::String fsSPIRV = this->SkSLToSPIRV(fs,
+                                             SkSL::ProgramKind::kFragment,
+                                             /*rtFlipOffset=*/ 0,
+                                             nullptr);
 
     wgpu::VertexState vertexState;
     vertexState.module = this->createShaderModule(vsSPIRV);
@@ -923,14 +927,15 @@ void GrDawnGpu::moveStagingBuffersToBusyAndMapAsync() {
     fSubmittedStagingBuffers.clear();
 }
 
-SkSL::String GrDawnGpu::SkSLToSPIRV(const char* shaderString, SkSL::ProgramKind kind, bool flipY,
-                                    uint32_t rtHeightOffset, SkSL::Program::Inputs* inputs) {
+SkSL::String GrDawnGpu::SkSLToSPIRV(const char* shaderString,
+                                    SkSL::ProgramKind kind,
+                                    uint32_t rtFlipOffset,
+                                    SkSL::Program::Inputs* inputs) {
     auto errorHandler = this->getContext()->priv().getShaderErrorHandler();
     SkSL::Program::Settings settings;
-    settings.fFlipY = flipY;
-    settings.fRTHeightOffset = rtHeightOffset;
-    settings.fRTHeightBinding = 0;
-    settings.fRTHeightSet = 0;
+    settings.fRTFlipOffset = rtFlipOffset;
+    settings.fRTFlipBinding = 0;
+    settings.fRTFlipSet = 0;
     std::unique_ptr<SkSL::Program> program = this->shaderCompiler()->convertProgram(
         kind,
         shaderString,

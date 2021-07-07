@@ -382,17 +382,18 @@ void GrVkUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* 
     }
 }
 
-uint32_t GrVkUniformHandler::getRTHeightOffset() const {
+uint32_t GrVkUniformHandler::getRTFlipOffset() const {
     Layout layout = fUsePushConstants ? kStd430Layout : kStd140Layout;
     uint32_t currentOffset = fCurrentOffsets[layout];
-    return get_aligned_offset(&currentOffset, kFloat_GrSLType, 0, layout);
+    return get_aligned_offset(&currentOffset, kFloat2_GrSLType, 0, layout);
 }
 
 void GrVkUniformHandler::determineIfUsePushConstants() const {
-    // If flipY is enabled we may be adding the RTHeight uniform during compilation.
+    // We may insert a uniform for flipping origin-sensitive language features (e.g. sk_FragCoord).
     // We won't know that for sure until then but we need to make this determination now,
     // so assume we will need it.
-    uint32_t pad = fFlipY ? sizeof(float) : 0;
-    fUsePushConstants = fCurrentOffsets[kStd430Layout] > 0 &&
-            fCurrentOffsets[kStd430Layout] + pad <= fProgramBuilder->caps()->maxPushConstantsSize();
+    static constexpr uint32_t kPad = 2*sizeof(float);
+    fUsePushConstants =
+            fCurrentOffsets[kStd430Layout] > 0 &&
+            fCurrentOffsets[kStd430Layout] + kPad <= fProgramBuilder->caps()->maxPushConstantsSize();
 }

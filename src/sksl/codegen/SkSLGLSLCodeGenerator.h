@@ -193,8 +193,8 @@ protected:
     bool fFoundExternalSamplerDecl = false;
     bool fFoundRectSamplerDecl = false;
     bool fFoundGSInvocations = false;
-    bool fSetupFragPositionGlobal = false;
-    bool fSetupFragPositionLocal = false;
+    bool fSetupClockwise = false;
+    bool fSetupFragPosition = false;
     bool fSetupFragCoordWorkaround = false;
     // if non-empty, replace all texture / texture2D / textureProj / etc. calls with this name
     String fTextureFunctionOverride;

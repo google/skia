@@ -286,7 +286,7 @@ protected:
     bool fSetupFragPositionLocal = false;
     std::unordered_set<String> fHelpers;
     int fUniformBuffer = -1;
-    String fRTHeightName;
+    String fRTFlipName;
     const FunctionDeclaration* fCurrentFunction = nullptr;
     int fSwizzleHelperCount = 0;
     bool fIgnoreVariableReferenceModifiers = false;

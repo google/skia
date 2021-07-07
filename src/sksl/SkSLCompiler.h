@@ -94,6 +94,17 @@ public:
         return result;
     }
 
+    /**
+     * Uniform values  by the compiler to implement origin-neutral dFdy, sk_Clockwise, and
+     * sk_FragCoord.
+     */
+    static std::array<float, 2> GetRTFlipVector(int rtHeight, bool flipY) {
+        std::array<float, 2> result;
+        result[0] = flipY ? rtHeight : 0.f;
+        result[1] = flipY ?     -1.f : 1.f;
+        return result;
+    }
+
     struct OptimizationContext {
         // nodes we have already reported errors for and should not error on again
         std::unordered_set<const IRNode*> fSilences;
