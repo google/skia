@@ -28,6 +28,8 @@ class SkShader;
 // Move to clients when they are ready -- aid in deprecating the enum
 #define SK_SUPPORT_LEGACY_SETFILTERQUALITY
 
+//#define SK_SUPPORT_LEGACY_GETBLENDMODE
+
 /** \class SkPaint
     SkPaint controls options applied when drawing. SkPaint collects all
     options outside of the SkCanvas clip and SkCanvas matrix.
@@ -478,6 +480,9 @@ public:
     */
     void setColorFilter(sk_sp<SkColorFilter> colorFilter);
 
+#ifndef SK_SUPPORT_LEGACY_GETBLENDMODE
+private:
+#endif
     /** DEPRECATED
      *  Use asBlendMode() instead.
      *
@@ -486,6 +491,8 @@ public:
      *  this returns kSrcOver.
      */
     SkBlendMode getBlendMode() const;
+public:
+    SkBlendMode deprecated_getBlendMode() const { return this->getBlendMode(); }
 
     /** If the current blender can be represented as a SkBlendMode enum, this returns that
      *  enum in the optional's value(). If it cannot, then the returned optional does not

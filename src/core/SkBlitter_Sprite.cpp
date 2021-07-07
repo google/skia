@@ -71,8 +71,8 @@ public:
         if (0xFF != paint.getAlpha()) {
             return false;
         }
-        SkBlendMode mode = paint.getBlendMode();
-        return SkBlendMode::kSrc == mode || (SkBlendMode::kSrcOver == mode && src.isOpaque());
+        const auto mode = paint.asBlendMode();
+        return mode == SkBlendMode::kSrc || (mode == SkBlendMode::kSrcOver && src.isOpaque());
     }
 
     SkSpriteBlitter_Memcpy(const SkPixmap& src)

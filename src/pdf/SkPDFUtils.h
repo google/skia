@@ -43,6 +43,9 @@ bool SkPackedArrayEqual(T* u, T* v, size_t n) {
 
 namespace SkPDFUtils {
 
+// Returns SrcOver if the blender is not recognized as a std mode enum
+SkBlendMode BlenderAsMode(const SkPaint&);
+
 const char* BlendModeName(SkBlendMode);
 
 std::unique_ptr<SkPDFArray> RectToArray(const SkRect& rect);
