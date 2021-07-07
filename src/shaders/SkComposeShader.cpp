@@ -137,11 +137,7 @@ std::unique_ptr<GrFragmentProcessor> SkShader_Blend::asFragmentProcessor(
         // This is unexpected. Both src and dst shaders should be valid. Just fail.
         return nullptr;
     }
-    auto blend = GrBlendFragmentProcessor::Make(
-            std::move(fpB),
-            std::move(fpA),
-            fMode,
-            GrBlendFragmentProcessor::BlendBehavior::kComposeOneBehavior);
+    auto blend = GrBlendFragmentProcessor::Make(std::move(fpB), std::move(fpA), fMode);
     return GrFragmentProcessor::MakeInputOpaqueAndPostApplyAlpha(std::move(blend));
 }
 #endif
