@@ -276,18 +276,17 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices, SkBlendMode blendMode
     const uint16_t* indices = info.indices();
     const SkColor* colors = info.colors();
 
-    // No need for texCoords without shader. If shader is present without explicit texCoords,
-    // use positions instead.
-    SkShader* shader = paint.getShader();
-    if (!shader) {
+    SkShader* paintShader = paint.getShader();
+    if (paintShader) {
+        if (!textures) {
+            textures = positions;
+        }
+    } else {
         textures = nullptr;
-    } else if (!textures) {
-        textures = positions;
     }
 
-    // We can simplify things for certain blendmodes. This is for speed, and SkComposeShader
+    // We can simplify things for certain blend modes. This is for speed, and SkComposeShader
     // itself insists we don't pass kSrc or kDst to it.
-    //
     if (colors && textures) {
         switch (blendMode) {
             case SkBlendMode::kSrc:
@@ -295,15 +294,14 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices, SkBlendMode blendMode
                 break;
             case SkBlendMode::kDst:
                 textures = nullptr;
+                paintShader = nullptr;
                 break;
             default: break;
         }
     }
 
-    // we don't use the shader if there are no textures
-    if (!textures) {
-        shader = nullptr;
-    }
+    // There is a paintShader iff there is texCoords.
+    SkASSERT((textures != nullptr) == (paintShader != nullptr));
 
     /*  We need to know if we have perspective or not, so we can know what stage(s) we will need,
         and how to prep our "uniforms" before each triangle in the tricolorshader.
@@ -322,6 +320,7 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices, SkBlendMode blendMode
     SkTriColorShader* triShader = nullptr;
     SkPMColor4f*  dstColors = nullptr;
 
+    SkShader* shader = paintShader;
     if (colors) {
         dstColors = convert_colors(colors, vertexCount, fDst.colorSpace(), outerAlloc);
         triShader = outerAlloc->make<SkTriColorShader>(compute_is_opaque(colors, vertexCount),
@@ -334,11 +333,11 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices, SkBlendMode blendMode
         }
     }
 
-    SkPaint p(paint);
-    p.setShader(sk_ref_sp(shader));
+    SkPaint shaderPaint(paint);
+    shaderPaint.setShader(sk_ref_sp(shader));
 
     if (!textures) {    // only tricolor shader
-        if (auto blitter = SkCreateRasterPipelineBlitter(fDst, p, *fMatrixProvider, outerAlloc,
+        if (auto blitter = SkCreateRasterPipelineBlitter(fDst, shaderPaint, *fMatrixProvider, outerAlloc,
                                                          this->fRC->clipShader())) {
             while (vertProc(&state)) {
                 if (triShader &&
@@ -354,13 +353,13 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices, SkBlendMode blendMode
 
     SkRasterPipeline pipeline(outerAlloc);
     SkStageRec rec = {
-        &pipeline, outerAlloc, fDst.colorType(), fDst.colorSpace(), p, nullptr, *fMatrixProvider
+            &pipeline, outerAlloc, fDst.colorType(), fDst.colorSpace(), shaderPaint, nullptr, *fMatrixProvider
     };
     if (auto updater = as_SB(shader)->appendUpdatableStages(rec)) {
         bool isOpaque = shader->isOpaque();
         if (triShader) {
             isOpaque = false;   // unless we want to walk all the colors, and see if they are
-                                // all opaque (and the blendmode will keep them that way
+                                // all opaque (and the blend mode will keep them that way
         }
 
         // Positions as texCoords? The local matrix is always identity, so update once
@@ -371,7 +370,7 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices, SkBlendMode blendMode
             }
         }
 
-        if (auto blitter = SkCreateRasterPipelineBlitter(fDst, p, pipeline, isOpaque, outerAlloc,
+        if (auto blitter = SkCreateRasterPipelineBlitter(fDst, shaderPaint, pipeline, isOpaque, outerAlloc,
                                                          fRC->clipShader())) {
             while (vertProc(&state)) {
                 if (triShader && !triShader->update(ctmInverse, positions, dstColors,
@@ -407,7 +406,7 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices, SkBlendMode blendMode
                 matrixProvider = preConcatMatrixProvider.init(*matrixProvider, localM);
             }
 
-            if (auto blitter = SkCreateRasterPipelineBlitter(fDst, p, *matrixProvider, &innerAlloc,
+            if (auto blitter = SkCreateRasterPipelineBlitter(fDst, shaderPaint, *matrixProvider, &innerAlloc,
                                                              this->fRC->clipShader())) {
                 fill_triangle(state, blitter, *fRC, dev2, dev3);
             }
