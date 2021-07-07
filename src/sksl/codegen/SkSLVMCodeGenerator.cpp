@@ -183,6 +183,7 @@ private:
     Value writeConstructorMatrixResize(const ConstructorMatrixResize& c);
     Value writeConstructorCast(const AnyConstructor& c);
     Value writeConstructorSplat(const ConstructorSplat& c);
+    Value writeConstructorVectorMatrixCast(const AnyConstructor& c);
     Value writeFunctionCall(const FunctionCall& c);
     Value writeExternalFunctionCall(const ExternalFunctionCall& c);
     Value writeFieldAccess(const FieldAccess& expr);
@@ -661,20 +662,6 @@ Value SkVMGenerator::writeConstructorCast(const AnyConstructor& c) {
     return this->writeTypeConversion(src, srcKind, dstKind);
 }
 
-Value SkVMGenerator::writeConstructorSplat(const ConstructorSplat& c) {
-    SkASSERT(c.type().isVector());
-    SkASSERT(c.argument()->type().isScalar());
-    int columns = c.type().columns();
-
-    // Splat the argument across all components of a vector.
-    Value src = this->writeExpression(*c.argument());
-    Value dst(columns);
-    for (int i = 0; i < columns; ++i) {
-        dst[i] = src[0];
-    }
-    return dst;
-}
-
 Value SkVMGenerator::writeConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& c) {
     const Type& dstType = c.type();
     SkASSERT(dstType.isMatrix());
@@ -715,6 +702,29 @@ Value SkVMGenerator::writeConstructorMatrixResize(const ConstructorMatrixResize&
 
     SkASSERT(dstIndex == dst.slots());
     return dst;
+}
+
+Value SkVMGenerator::writeConstructorSplat(const ConstructorSplat& c) {
+    SkASSERT(c.type().isVector());
+    SkASSERT(c.argument()->type().isScalar());
+    int columns = c.type().columns();
+
+    // Splat the argument across all components of a vector.
+    Value src = this->writeExpression(*c.argument());
+    Value dst(columns);
+    for (int i = 0; i < columns; ++i) {
+        dst[i] = src[0];
+    }
+    return dst;
+}
+
+Value SkVMGenerator::writeConstructorVectorMatrixCast(const AnyConstructor& c) {
+    auto arguments = c.argumentSpan();
+    SkASSERT(arguments.size() == 1);
+    const Expression& argument = *arguments.front();
+
+    SkASSERT(base_number_kind(argument.type()) == base_number_kind(c.type()));
+    return this->writeExpression(argument);
 }
 
 size_t SkVMGenerator::fieldSlotOffset(const FieldAccess& expr) {
@@ -1317,6 +1327,8 @@ Value SkVMGenerator::writeExpression(const Expression& e) {
             return this->writeConstructorCast(e.asAnyConstructor());
         case Expression::Kind::kConstructorSplat:
             return this->writeConstructorSplat(e.as<ConstructorSplat>());
+        case Expression::Kind::kConstructorVectorMatrixCast:
+            return this->writeConstructorVectorMatrixCast(e.asAnyConstructor());
         case Expression::Kind::kFieldAccess:
             return this->writeFieldAccess(e.as<FieldAccess>());
         case Expression::Kind::kIndex:

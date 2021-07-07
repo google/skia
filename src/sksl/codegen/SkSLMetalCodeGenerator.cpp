@@ -139,6 +139,10 @@ void MetalCodeGenerator::writeExpression(const Expression& expr, Precedence pare
             this->writeConstructorMatrixResize(expr.as<ConstructorMatrixResize>(),
                                                parentPrecedence);
             break;
+        case Expression::Kind::kConstructorVectorMatrixCast:
+            this->writeConstructorVectorMatrixCast(expr.as<ConstructorVectorMatrixCast>(),
+                                                   parentPrecedence);
+            break;
         case Expression::Kind::kConstructorScalarCast:
         case Expression::Kind::kConstructorCompoundCast:
             this->writeCastConstructor(expr.asAnyConstructor(), "(", ")", parentPrecedence);
@@ -1011,6 +1015,13 @@ void MetalCodeGenerator::writeConstructorMatrixResize(const ConstructorMatrixRes
     this->write("(");
     this->writeExpression(*c.argument(), Precedence::kSequence);
     this->write(")");
+}
+
+void MetalCodeGenerator::writeConstructorVectorMatrixCast(const ConstructorVectorMatrixCast& c,
+                                                          Precedence parentPrecedence) {
+    // Casts between vector and matrix types doesn't natively exist in Metal at all, so we always
+    // need to use a helper function here.
+    this->write("/* TODO: convert between vector/matrix */");
 }
 
 void MetalCodeGenerator::writeConstructorCompound(const ConstructorCompound& c,
@@ -2358,7 +2369,8 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Expressi
         case Expression::Kind::kConstructorDiagonalMatrix:
         case Expression::Kind::kConstructorScalarCast:
         case Expression::Kind::kConstructorSplat:
-        case Expression::Kind::kConstructorStruct: {
+        case Expression::Kind::kConstructorStruct:
+        case Expression::Kind::kConstructorVectorMatrixCast: {
             const AnyConstructor& c = e->asAnyConstructor();
             Requirements result = kNo_Requirements;
             for (const auto& arg : c.argumentSpan()) {

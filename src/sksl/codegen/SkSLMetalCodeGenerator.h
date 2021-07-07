@@ -24,6 +24,7 @@
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorCompound.h"
 #include "src/sksl/ir/SkSLConstructorMatrixResize.h"
+#include "src/sksl/ir/SkSLConstructorVectorMatrixCast.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
 #include "src/sksl/ir/SkSLExtension.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
@@ -200,6 +201,9 @@ protected:
 
     void writeConstructorMatrixResize(const ConstructorMatrixResize& c,
                                       Precedence parentPrecedence);
+
+    void writeConstructorVectorMatrixCast(const ConstructorVectorMatrixCast& c,
+                                          Precedence parentPrecedence);
 
     void writeAnyConstructor(const AnyConstructor& c,
                              const char* leftBracket,
