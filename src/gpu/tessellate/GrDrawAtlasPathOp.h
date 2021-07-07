@@ -11,27 +11,31 @@
 #include "src/core/SkIPoint16.h"
 #include "src/gpu/ops/GrDrawOp.h"
 
+// Fills a rectangle of pixels with a clip against coverage values from an atlas.
 class GrDrawAtlasPathOp : public GrDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    GrDrawAtlasPathOp(int numRenderTargetSamples, sk_sp<GrTextureProxy> atlasProxy,
-                      const SkIRect& devIBounds, const SkIPoint16& locationInAtlas,
-                      bool transposedInAtlas, const SkMatrix& viewMatrix,
-                      GrPaint&& paint, const SkRect& drawBounds, bool isInverseFill)
+    GrDrawAtlasPathOp(SkArenaAlloc* arena, const SkIRect& fillIBounds,
+                      const SkIRect& pathDevIBounds, SkIPoint16 locationInAtlas,
+                      bool transposedInAtlas, const SkMatrix& localToDevice, GrPaint&& paint,
+                      sk_sp<GrTextureProxy> atlasProxy, bool isInverseFill,
+                      int numRenderTargetSamples)
             : GrDrawOp(ClassID())
-            , fEnableHWAA(numRenderTargetSamples > 1)
-            , fIsInverseFill(isInverseFill)
+            , fHeadInstance(arena->make<Instance>(fillIBounds, pathDevIBounds, locationInAtlas,
+                                                  transposedInAtlas, localToDevice,
+                                                  paint.getColor4f()))
+            , fTailInstance(&fHeadInstance->fNext)
             , fAtlasProxy(std::move(atlasProxy))
-            , fHeadInstance(devIBounds, locationInAtlas, transposedInAtlas, paint.getColor4f(),
-                            drawBounds, viewMatrix)
+            , fIsInverseFill(isInverseFill)
+            , fEnableHWAA(numRenderTargetSamples > 1)
             , fProcessors(std::move(paint)) {
-        this->setBounds(drawBounds, HasAABloat::kYes, IsHairline::kNo);
+        this->setBounds(SkRect::Make(fillIBounds), HasAABloat::kYes, IsHairline::kNo);
     }
 
     const char* name() const override { return "GrDrawAtlasPathOp"; }
     FixedFunctionFlags fixedFunctionFlags() const override {
-        return (fEnableHWAA) ? FixedFunctionFlags::kUsesHWAA : FixedFunctionFlags::kNone;
+        return fEnableHWAA ? FixedFunctionFlags::kUsesHWAA : FixedFunctionFlags::kNone;
     }
     void visitProxies(const GrVisitProxyFunc& func) const override {
         func(fAtlasProxy.get(), GrMipmapped::kNo);
@@ -39,46 +43,47 @@ public:
     }
     GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*, GrClampType) override;
     CombineResult onCombineIfPossible(GrOp*, SkArenaAlloc*, const GrCaps&) override;
+
+    void onPrePrepare(GrRecordingContext*, const GrSurfaceProxyView& writeView, GrAppliedClip*,
+                      const GrDstProxyView&, GrXferBarrierFlags, GrLoadOp colorLoadOp) override;
     void onPrepare(GrOpFlushState*) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
 private:
-    void onPrePrepare(GrRecordingContext*,
-                      const GrSurfaceProxyView& writeView,
-                      GrAppliedClip*,
-                      const GrDstProxyView&,
-                      GrXferBarrierFlags renderPassXferBarriers,
-                      GrLoadOp colorLoadOp) override;
+    void prepareProgram(const GrCaps&, SkArenaAlloc*, const GrSurfaceProxyView& writeView,
+                        GrAppliedClip&&, const GrDstProxyView&, GrXferBarrierFlags,
+                        GrLoadOp colorLoadOp);
 
     struct Instance {
-        Instance(const SkIRect& devIBounds, const SkIPoint16& locationInAtlas,
-                 bool transposedInAtlas, const SkPMColor4f& color, const SkRect& drawBounds,
-                 const SkMatrix& m)
-                : fDevXYWH{devIBounds.left(), devIBounds.top(), devIBounds.width(),
-                           // We use negative height to indicate that the path is transposed.
-                           (transposedInAtlas) ? -devIBounds.height() : devIBounds.height()}
-                , fAtlasXY(locationInAtlas)
-                , fColor(color)
-                , fDrawBoundsIfInverseFilled(drawBounds)
-                , fViewMatrixIfUsingLocalCoords{m.getScaleX(), m.getSkewY(),
-                                                m.getSkewX(), m.getScaleY(),
-                                                m.getTranslateX(), m.getTranslateY()} {
+        Instance(const SkIRect& fillIBounds, const SkIRect& pathDevIBounds,
+                 SkIPoint16 locationInAtlas, bool transposedInAtlas, const SkMatrix& m,
+                 const SkPMColor4f& color)
+                : fFillXYWH{fillIBounds.left(), fillIBounds.top(), fillIBounds.width(),
+                            // We use negative height to indicate that the path is transposed.
+                            transposedInAtlas ? -fillIBounds.height() : fillIBounds.height()}
+                , fPathDevIBounds(pathDevIBounds)
+                , fLocationInAtlas(locationInAtlas)
+                , fLocalToDeviceIfUsingLocalCoords{m.getScaleX(), m.getSkewY(),
+                                                   m.getSkewX(), m.getScaleY(),
+                                                   m.getTranslateX(), m.getTranslateY()}
+                , fColor(color) {
         }
-        std::array<int, 4> fDevXYWH;
-        SkIPoint16 fAtlasXY;
+        std::array<int, 4> fFillXYWH;
+        SkIRect fPathDevIBounds;
+        SkIPoint16 fLocationInAtlas;
+        std::array<float, 6> fLocalToDeviceIfUsingLocalCoords;
         SkPMColor4f fColor;
-        SkRect fDrawBoundsIfInverseFilled;
-        std::array<float, 6> fViewMatrixIfUsingLocalCoords;
         Instance* fNext = nullptr;
     };
 
-    const bool fEnableHWAA;
-    const bool fIsInverseFill;
+    Instance* fHeadInstance;
+    Instance** fTailInstance;
+
     const sk_sp<GrTextureProxy> fAtlasProxy;
+    const bool fIsInverseFill;
+    const bool fEnableHWAA;
     bool fUsesLocalCoords = false;
 
-    Instance fHeadInstance;
-    Instance** fTailInstance = &fHeadInstance.fNext;
     int fInstanceCount = 1;
 
     GrProgramInfo* fProgram = nullptr;
