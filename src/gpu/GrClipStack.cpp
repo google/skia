@@ -1610,6 +1610,6 @@ GrFPResult GrClipStack::GetSWMaskFP(GrRecordingContext* context, Mask::Stack* ma
             std::move(fp),
             std::move(clipFP),
             SkBlendMode::kDstIn,
-            GrBlendFragmentProcessor::BlendBehavior::kComposeTwoBehavior);
+            GrBlendFragmentProcessor::BlendBehavior::kComposeOneBehavior);
     return GrFPSuccess(std::move(fp));
 }

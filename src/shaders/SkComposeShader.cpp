@@ -129,17 +129,19 @@ skvm::Color SkShader_Blend::onProgram(skvm::Builder* p,
 
 std::unique_ptr<GrFragmentProcessor> SkShader_Blend::asFragmentProcessor(
         const GrFPArgs& orig_args) const {
-    const GrFPArgs::WithPreLocalMatrix args(orig_args, this->getLocalMatrix());
+    GrFPArgs::WithPreLocalMatrix args(orig_args, this->getLocalMatrix());
+    args.fInputColorIsOpaque = true;  // See use of MakeInputOpaqueAndPostApplyAlpha below
     auto fpA = as_SB(fDst)->asFragmentProcessor(args);
     auto fpB = as_SB(fSrc)->asFragmentProcessor(args);
     if (!fpA || !fpB) {
         // This is unexpected. Both src and dst shaders should be valid. Just fail.
         return nullptr;
     }
-    return GrBlendFragmentProcessor::Make(
+    auto blend = GrBlendFragmentProcessor::Make(
             std::move(fpB),
             std::move(fpA),
             fMode,
-            GrBlendFragmentProcessor::BlendBehavior::kComposeTwoBehavior);
+            GrBlendFragmentProcessor::BlendBehavior::kComposeOneBehavior);
+    return GrFragmentProcessor::MakeInputOpaqueAndPostApplyAlpha(std::move(blend));
 }
 #endif

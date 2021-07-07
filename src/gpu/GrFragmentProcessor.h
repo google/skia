@@ -92,6 +92,14 @@ public:
                                                               bool useUniform = true);
 
     /**
+     *  Returns a parent fragment processor that adopts the passed fragment processor as a child.
+     *  The parent will unpremul its input color, make it opaque, and pass that as the input to
+     *  the child. Then the original input alpha is applied to the result of the child.
+     */
+    static std::unique_ptr<GrFragmentProcessor> MakeInputOpaqueAndPostApplyAlpha(
+            std::unique_ptr<GrFragmentProcessor>);
+
+    /**
      *  Returns a fragment processor that calls the passed in fragment processor, and then swizzles
      *  the output.
      */

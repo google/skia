@@ -29,7 +29,6 @@ static const char* BlendBehavior_Name(BlendBehavior behavior) {
     SkASSERT(unsigned(behavior) <= unsigned(BlendBehavior::kLastBlendBehavior));
     static constexpr const char* gStrings[] = {
         "Compose-One",
-        "Compose-Two",
         "SkMode",
     };
     static_assert(SK_ARRAY_COUNT(gStrings) == size_t(BlendBehavior::kLastBlendBehavior) + 1);
@@ -178,14 +177,6 @@ private:
                 return SkBlendMode_Apply(fMode, srcColor, dstColor);
             }
 
-            case BlendBehavior::kComposeTwoBehavior: {
-                SkPMColor4f opaqueInput = { input.fR, input.fG, input.fB, 1 };
-                SkPMColor4f srcColor = ConstantOutputForConstantInput(src, opaqueInput);
-                SkPMColor4f dstColor = ConstantOutputForConstantInput(dst, opaqueInput);
-                SkPMColor4f result = SkBlendMode_Apply(fMode, srcColor, dstColor);
-                return result * input.fA;
-            }
-
             case BlendBehavior::kSkModeBehavior: {
                 SkPMColor4f srcColor = src ? ConstantOutputForConstantInput(src, SK_PMColor4fWHITE)
                                            : input;
@@ -272,15 +263,6 @@ void GLBlendFragmentProcessor::emitCode(EmitArgs& args) {
             dstColor = this->invokeChild(1, args.fInputColor, args);
             break;
 
-        case BlendBehavior::kComposeTwoBehavior:
-            // Compose-two operations historically have forced the input color to opaque.
-            // We're going to re-apply the input color's alpha below, so feed the *unpremul* RGB
-            // to the children, to avoid double-applying alpha.
-            fragBuilder->codeAppendf("half4 inputOpaque = unpremul(%s).rgb1;\n", args.fInputColor);
-            srcColor = this->invokeChild(0, "inputOpaque", args);
-            dstColor = this->invokeChild(1, "inputOpaque", args);
-            break;
-
         case BlendBehavior::kSkModeBehavior:
             // SkModeColorFilter operations act like ComposeOne, but pass the input color to dst.
             srcColor = cs.childProcessor(0) ? this->invokeChild(0, "half4(1)", args)
@@ -297,11 +279,6 @@ void GLBlendFragmentProcessor::emitCode(EmitArgs& args) {
     // Blend src and dst colors together.
     fragBuilder->codeAppendf("return %s(%s, %s)", GrGLSLBlend::BlendFuncName(mode),
                              srcColor.c_str(), dstColor.c_str());
-
-    // Reapply alpha from input color if we are doing a compose-two.
-    if (behavior == BlendBehavior::kComposeTwoBehavior) {
-        fragBuilder->codeAppendf(" * %s.a", args.fInputColor);
-    }
 
     fragBuilder->codeAppendf(";\n");
 }
