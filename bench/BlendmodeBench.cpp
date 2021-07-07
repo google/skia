@@ -13,17 +13,36 @@
 #include "include/core/SkTextBlob.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkBlendModePriv.h"
+#include "tools/Resources.h"
+
+namespace {
+enum Type {
+    kText,
+    kRect,
+    kSprite,
+};
+}
+
+const char* gTypeNames[] = {
+    "mask", "rect", "sprite",
+};
 
 // Benchmark that draws non-AA rects or AA text with an SkXfermode::Mode.
 class XfermodeBench : public Benchmark {
 public:
-    XfermodeBench(SkBlendMode mode, bool aa) : fBlendMode(mode) {
-        fAA = aa;
-        fName.printf("blendmicro_%s_%s", aa ? "mask" : "rect", SkBlendMode_Name(mode));
+    XfermodeBench(SkBlendMode mode, Type t) : fBlendMode(mode) {
+        fType = t;
+        fName.printf("blendmicro_%s_%s", gTypeNames[t], SkBlendMode_Name(mode));
     }
 
 protected:
     const char* onGetName() override { return fName.c_str(); }
+
+    void onDelayedSetup() override {
+        if (fType == kSprite) {
+            fImage = GetResourceAsImage("images/color_wheel.png");
+        }
+    }
 
     void onDraw(int loops, SkCanvas* canvas) override {
         const char* text = "Hamburgefons";
@@ -34,50 +53,66 @@ protected:
             SkPaint paint;
             paint.setBlendMode(fBlendMode);
             paint.setColor(random.nextU());
-            if (fAA) {
-                // Draw text to exercise AA code paths.
-                SkFont font;
-                font.setSize(random.nextRangeScalar(12, 96));
-                SkScalar x = random.nextRangeScalar(0, (SkScalar)size.fWidth),
-                         y = random.nextRangeScalar(0, (SkScalar)size.fHeight);
-                auto blob = SkTextBlob::MakeFromText(text, len, font, SkTextEncoding::kUTF8);
-                int iterations = std::min(1000, loops);
-                for (int j = 0; j < iterations; ++j) {
-                    canvas->drawTextBlob(blob, x, y, paint);
-                }
-                loops -= iterations;
-            } else {
-                // Draw rects to exercise non-AA code paths.
-                SkScalar w = random.nextRangeScalar(50, 100);
-                SkScalar h = random.nextRangeScalar(50, 100);
-                SkRect rect = SkRect::MakeXYWH(
-                    random.nextUScalar1() * (size.fWidth - w),
-                    random.nextUScalar1() * (size.fHeight - h),
-                    w,
-                    h
-                );
-                int iterations = std::min(1000, loops);
-                for (int j = 0; j < iterations; ++j) {
-                    canvas->drawRect(rect, paint);
-                }
-                loops -= iterations;
+            switch (fType) {
+                case kText: {
+                    // Draw text to exercise AA code paths.
+                    SkFont font;
+                    font.setSize(random.nextRangeScalar(12, 96));
+                    SkScalar x = random.nextRangeScalar(0, (SkScalar)size.fWidth),
+                             y = random.nextRangeScalar(0, (SkScalar)size.fHeight);
+                    auto blob = SkTextBlob::MakeFromText(text, len, font, SkTextEncoding::kUTF8);
+                    int iterations = std::min(1000, loops);
+                    for (int j = 0; j < iterations; ++j) {
+                        canvas->drawTextBlob(blob, x, y, paint);
+                    }
+                    loops -= iterations;
+                } break;
+                case kRect: {
+                    // Draw rects to exercise non-AA code paths.
+                    SkScalar w = random.nextRangeScalar(50, 100);
+                    SkScalar h = random.nextRangeScalar(50, 100);
+                    SkRect rect = SkRect::MakeXYWH(
+                        random.nextUScalar1() * (size.fWidth - w),
+                        random.nextUScalar1() * (size.fHeight - h),
+                        w,
+                        h
+                    );
+                    int iterations = std::min(1000, loops);
+                    for (int j = 0; j < iterations; ++j) {
+                        canvas->drawRect(rect, paint);
+                    }
+                    loops -= iterations;
+                } break;
+                case kSprite:
+                    paint.setAlphaf(1.0f);
+                    for (int i = 0; i < 10; ++i) {
+                        canvas->drawImage(fImage, 0, 0, SkSamplingOptions(), &paint);
+                    }
+                    loops -= 1;
+                    break;
             }
         }
+    }
+
+    bool isSuitableFor(Backend backend) override {
+        return backend == kRaster_Backend;
     }
 
 private:
     SkBlendMode fBlendMode;
     SkString    fName;
-    bool        fAA;
+    sk_sp<SkImage> fImage;
+    Type        fType;
 
     using INHERITED = Benchmark;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-#define BENCH(...)                                             \
-    DEF_BENCH( return new XfermodeBench(__VA_ARGS__, true); )  \
-    DEF_BENCH( return new XfermodeBench(__VA_ARGS__, false); )
+#define BENCH(mode)                                      \
+    DEF_BENCH( return new XfermodeBench(mode, kText); )  \
+    DEF_BENCH( return new XfermodeBench(mode, kRect); )  \
+    DEF_BENCH( return new XfermodeBench(mode, kSprite); )
 
 BENCH(SkBlendMode::kClear)
 BENCH(SkBlendMode::kSrc)
