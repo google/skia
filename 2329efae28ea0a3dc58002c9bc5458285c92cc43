@@ -82,6 +82,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "35ce238f_b3263a20",
+        "filename": "src/sksl/ir/SkSLType.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-07T20:59:58Z",
+      "side": 1,
+      "message": "Actually, an interesting middle ground might be to mark the Type subclasses as final, and expose them in SkSLType.h. Most callers can just say `type.priority()` and incur a virtual call. Callers who know the type subclass can say `type.as\u003cScalarType\u003e().priority()` instead and the compiler could potentially inline the call (since ScalarType is final, the compiler can know which `priority` function we mean).\n\nIn practice I doubt any of this is measurable, though. One virtual call is pretty cheap, unless we\u0027re doing an analysis pass or something and hitting every IRNode in a program in a tight loop. We can land the current CL as-is and poke around with it later (if we actually need to).",
+      "parentUuid": "bf8e5d03_69c8a564",
+      "range": {
+        "startLine": 85,
+        "startChar": 0,
+        "endLine": 94,
+        "endChar": 1
+      },
+      "revId": "2329efae28ea0a3dc58002c9bc5458285c92cc43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2f24c466_266d878b",

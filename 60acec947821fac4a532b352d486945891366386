@@ -1,0 +1,188 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2f0ae71b_088c0913",
+        "filename": "src/sksl/ir/SkSLType.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-07T20:59:58Z",
+      "side": 1,
+      "message": "Let\u0027s mark all these Type subclasses final? They\u0027re not extensible (buried in a .cpp).\n\n  class ArrayType final : public Type {",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 15
+      },
+      "revId": "60acec947821fac4a532b352d486945891366386",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c95ceb11_cb3cd635",
+        "filename": "src/sksl/ir/SkSLType.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-07T20:59:58Z",
+      "side": 1,
+      "message": "This comment can be removed--none of the other type classes are documented here, and this is a duplicate of a matching comment in the header on `MakeGenericType`.",
+      "range": {
+        "startLine": 59,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 3
+      },
+      "revId": "60acec947821fac4a532b352d486945891366386",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ac9b31c7_739edbc9",
+        "filename": "src/sksl/ir/SkSLType.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-07T20:59:58Z",
+      "side": 1,
+      "message": "Do you think the bitfields here are still useful? I\u0027d have guessed that paying the cost of 1 byte versus 4 bytes probably doesn\u0027t matter; the allocation size will probably round up regardless.",
+      "range": {
+        "startLine": 252,
+        "startChar": 0,
+        "endLine": 255,
+        "endChar": 24
+      },
+      "revId": "60acec947821fac4a532b352d486945891366386",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0ab83cf6_68dc5c82",
+        "filename": "src/sksl/ir/SkSLType.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-07T20:59:58Z",
+      "side": 1,
+      "message": "This is making a copy.\n\n    const std::vector\u003cconst Type*\u003e\u0026",
+      "range": {
+        "startLine": 439,
+        "startChar": 8,
+        "endLine": 439,
+        "endChar": 33
+      },
+      "revId": "60acec947821fac4a532b352d486945891366386",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ec30aa21_f0635043",
+        "filename": "src/sksl/ir/SkSLType.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-07T20:59:58Z",
+      "side": 1,
+      "message": "`SkDEBUGFAIL(\"unsupported type\")` or something as a hint to the unlucky recipient of the error? \n\n(At any rate, this didn\u0027t fail before, and it seems harmless, so honestly I\u0027m OK just leaving the assertion out.)",
+      "range": {
+        "startLine": 307,
+        "startChar": 8,
+        "endLine": 307,
+        "endChar": 23
+      },
+      "revId": "60acec947821fac4a532b352d486945891366386",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "31c9d904_97e7c9a4",
+        "filename": "src/sksl/ir/SkSLType.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-07T20:59:58Z",
+      "side": 1,
+      "message": "`SkDEBUGFAIL(\"explanatory message to the programmer\")` here and below?",
+      "range": {
+        "startLine": 340,
+        "startChar": 8,
+        "endLine": 340,
+        "endChar": 24
+      },
+      "revId": "60acec947821fac4a532b352d486945891366386",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "568d409c_c10f52be",
+        "filename": "src/sksl/ir/SkSLType.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 478,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-07T20:59:58Z",
+      "side": 1,
+      "message": "Just curious: can this actually return true on anything besides scalars? Maybe we could simplify the base class? Not important though.",
+      "range": {
+        "startLine": 478,
+        "startChar": 0,
+        "endLine": 478,
+        "endChar": 44
+      },
+      "revId": "60acec947821fac4a532b352d486945891366386",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0f504d6a_5bd9e3d0",
+        "filename": "src/sksl/ir/SkSLType.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 482,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-07T20:59:58Z",
+      "side": 1,
+      "message": "Similarly, not important, but I bet this only actually applies to one subclass type (here and below)?",
+      "range": {
+        "startLine": 482,
+        "startChar": 15,
+        "endLine": 482,
+        "endChar": 56
+      },
+      "revId": "60acec947821fac4a532b352d486945891366386",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
