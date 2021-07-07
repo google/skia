@@ -170,16 +170,16 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
         if (this->tryAddPathToAtlas(args.fContext, *args.fViewMatrix, path, pathDevBounds,
                                     args.fAAType != GrAAType::kNone, &devIBounds, &locationInAtlas,
                                     &transposedInAtlas, visitProxiesUsedByDraw)) {
-            const SkRect& drawBounds = path.isInverseFillType()
+            const SkIRect& fillBounds = path.isInverseFillType()
                     ? (args.fClip
-                            ? SkRect::Make(args.fClip->getConservativeBounds())
-                            : args.fSurfaceDrawContext->asSurfaceProxy()->backingStoreBoundsRect())
-                    : pathDevBounds;
+                            ? args.fClip->getConservativeBounds()
+                            : args.fSurfaceDrawContext->asSurfaceProxy()->backingStoreBoundsIRect())
+                    : devIBounds;
             auto op = GrOp::Make<GrDrawAtlasPathOp>(
-                    args.fContext, surfaceDrawContext->numSamples(),
-                    sk_ref_sp(fAtlasRenderTasks.back()->atlasProxy()), devIBounds, locationInAtlas,
-                    transposedInAtlas, *args.fViewMatrix, std::move(args.fPaint), drawBounds,
-                    path.isInverseFillType());
+                    args.fContext, args.fSurfaceDrawContext->arenaAlloc(), fillBounds,
+                    *args.fViewMatrix, std::move(args.fPaint), locationInAtlas, devIBounds,
+                    transposedInAtlas, sk_ref_sp(fAtlasRenderTasks.back()->atlasProxy()),
+                    path.isInverseFillType(), surfaceDrawContext->numSamples());
             surfaceDrawContext->addDrawOp(args.fClip, std::move(op));
             return true;
         }

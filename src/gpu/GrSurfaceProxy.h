@@ -147,6 +147,10 @@ public:
         return SkRect::Make(this->backingStoreDimensions());
     }
 
+    SkIRect backingStoreBoundsIRect() const {
+        return SkIRect::MakeSize(this->backingStoreDimensions());
+    }
+
     const GrBackendFormat& backendFormat() const { return fFormat; }
 
     bool isFormatCompressed(const GrCaps*) const;
