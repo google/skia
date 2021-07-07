@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e0a4ae3b_64e7d28b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-07-07T13:43:57Z",
+      "side": 1,
+      "message": "PTAL at delta from PS1 to PS2 to see what\u0027s different in reland:\nhttps://skia-review.googlesource.com/c/skia/+/425178/1..2",
+      "revId": "9e5d2fd7328bf1daac00636c6bf4fd161c9df99a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
