@@ -66,7 +66,7 @@ namespace {
 
 static bool is_sample_call_to_fp(const FunctionCall& fc, const Variable& fp) {
     const FunctionDeclaration& f = fc.function();
-    return f.isBuiltin() && f.name() == "sample" && fc.arguments().size() >= 1 &&
+    return f.intrinsicKind() == k_sample_IntrinsicKind && fc.arguments().size() >= 1 &&
            fc.arguments()[0]->is<VariableReference>() &&
            fc.arguments()[0]->as<VariableReference>().variable() == &fp;
 }
@@ -159,7 +159,7 @@ public:
     bool visitExpression(const Expression& e) override {
         if (e.is<FunctionCall>()) {
             const FunctionDeclaration& f = e.as<FunctionCall>().function();
-            if (f.isBuiltin() && f.name() == "sample") {
+            if (f.intrinsicKind() == k_sample_IntrinsicKind) {
                 return true;
             }
         }
