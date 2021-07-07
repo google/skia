@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "33fd7b66_03cdfcb0",
+        "filename": "src/core/SkBlitter_ARGB32.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 970,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-07-07T19:54:34Z",
+      "side": 1,
+      "message": "Can we ever get here with a non-standard blender?  If not, maybe use asBlendMode() and assert.",
+      "revId": "207139609b67b3c6a204521b50eb53e344efe72e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f61f814a_22efbfcc",
+        "filename": "src/core/SkSpriteBlitter_ARGB32.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-07-07T19:54:34Z",
+      "side": 1,
+      "message": "Ditto.",
+      "revId": "207139609b67b3c6a204521b50eb53e344efe72e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a7b5be3b_cb0bba73",
+        "filename": "src/pdf/SkPDFUtils.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-07-07T19:54:34Z",
+      "side": 1,
+      "message": "leftover?",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 28,
+        "endChar": 1
+      },
+      "revId": "207139609b67b3c6a204521b50eb53e344efe72e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
