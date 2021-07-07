@@ -58,6 +58,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bf8e5d03_69c8a564",
+        "filename": "src/sksl/ir/SkSLType.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-07-07T20:16:58Z",
+      "side": 1,
+      "message": "My original plan had been to simply not have these accessors in Type at all, requiring you to cast Type to the subclass, as we do with Expression et al., so you\u0027d use type.as\u003cScalarType\u003e().priority().\n\nFor the time being I had simply left these accessors in place to reduce churn in this patch, intending to address the API changes in a followup. But upon further reflection, it\u0027s probably best to just stick with the existing API.",
+      "parentUuid": "2350baf1_e043f8d9",
+      "range": {
+        "startLine": 85,
+        "startChar": 0,
+        "endLine": 94,
+        "endChar": 1
+      },
+      "revId": "2329efae28ea0a3dc58002c9bc5458285c92cc43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2f24c466_266d878b",
@@ -71,6 +95,30 @@
       "writtenOn": "2021-07-07T13:55:51Z",
       "side": 1,
       "message": "What do you think about splitting out the introduction of a new enum kLiteral type into a separate CL? It seems easily separable and logically unrelated to the rest of the changes here, other than being motivated by the removal of fields on Type. It\u0027s probably fine but literals and coercion have always been fiddly so it seems wise to do it in a separately-revertable CL.",
+      "range": {
+        "startLine": 82,
+        "startChar": 8,
+        "endLine": 82,
+        "endChar": 16
+      },
+      "revId": "2329efae28ea0a3dc58002c9bc5458285c92cc43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e9f56fcb_e30927c8",
+        "filename": "src/sksl/ir/SkSLType.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-07-07T20:16:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2f24c466_266d878b",
       "range": {
         "startLine": 82,
         "startChar": 8,
@@ -104,6 +152,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f9a777cf_73ff14a3",
+        "filename": "src/sksl/ir/SkSLType.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-07-07T20:16:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8e3d0cfa_e88731fa",
+      "range": {
+        "startLine": 198,
+        "startChar": 15,
+        "endLine": 198,
+        "endChar": 51
+      },
+      "revId": "2329efae28ea0a3dc58002c9bc5458285c92cc43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fac4c8e4_bd01a9a2",
@@ -127,6 +199,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1364cccf_2d4ae018",
+        "filename": "src/sksl/ir/SkSLType.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-07-07T20:16:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fac4c8e4_bd01a9a2",
+      "range": {
+        "startLine": 226,
+        "startChar": 15,
+        "endLine": 226,
+        "endChar": 53
+      },
+      "revId": "2329efae28ea0a3dc58002c9bc5458285c92cc43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6bb639f6_bdd8a875",
@@ -140,6 +236,30 @@
       "writtenOn": "2021-07-03T01:48:00Z",
       "side": 1,
       "message": "Just `{}`.",
+      "range": {
+        "startLine": 457,
+        "startChar": 50,
+        "endLine": 457,
+        "endChar": 53
+      },
+      "revId": "2329efae28ea0a3dc58002c9bc5458285c92cc43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1875558b_edb3aef4",
+        "filename": "src/sksl/ir/SkSLType.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 457,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-07-07T20:16:58Z",
+      "side": 1,
+      "message": "Ah, I had assumed unspecified elements were undefined rather than zero-initialized. Fixed.",
+      "parentUuid": "6bb639f6_bdd8a875",
       "range": {
         "startLine": 457,
         "startChar": 50,

@@ -50,6 +50,30 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "3051c48e_0599ade3",
+        "filename": "src/sksl/ir/SkSLType.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-07-07T20:16:58Z",
+      "side": 0,
+      "message": "I had originally intended to use the various Type subclasses directly, but I think you guys are right that it wasn\u0027t a great plan.",
+      "parentUuid": "e2c5420b_4f13d2b6",
+      "range": {
+        "startLine": 110,
+        "startChar": 0,
+        "endLine": 116,
+        "endChar": 0
+      },
+      "revId": "1700f865c5ea4a2c0c167cb08a7e6a08d28cea63",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "f031f50d_3ac70e6b",
         "filename": "src/sksl/ir/SkSLType.h",
         "patchSetId": 4
