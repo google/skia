@@ -19,7 +19,7 @@
 ** DO NOT MODIFY **
 *******************
 
-This is a copy of https://chromium.googlesource.com/infra/luci/recipes-py/+/master/recipes.py.
+This is a copy of https://chromium.googlesource.com/infra/luci/recipes-py/+/main/recipes.py.
 To fix bugs, fix in the googlesource repo then run the autoroller.
 """
 
@@ -44,7 +44,7 @@ except ImportError:
 # url (str) - the url to the engine repo we want to use.
 # revision (str) - the git revision for the engine to get.
 # branch (str) - the branch to fetch for the engine as an absolute ref (e.g.
-#   refs/heads/master)
+#   refs/heads/main)
 EngineDep = namedtuple('EngineDep', 'url revision branch')
 
 
@@ -94,7 +94,7 @@ def parse(repo_root, recipes_cfg_path):
           recipes_cfg_path)
 
     engine.setdefault('revision', '')
-    engine.setdefault('branch', 'refs/heads/master')
+    engine.setdefault('branch', 'refs/heads/main')
     recipes_path = pb.get('recipes_path', '')
 
     # TODO(iannucci): only support absolute refs
@@ -112,7 +112,9 @@ IS_WIN = sys.platform.startswith(('win', 'cygwin'))
 
 _BAT = '.bat' if IS_WIN else ''
 GIT = 'git' + _BAT
-VPYTHON = 'vpython' + _BAT
+VPYTHON = ('vpython' +
+           ('3' if os.getenv('RECIPES_USE_PY3') == 'true' else '') +
+           _BAT)
 CIPD = 'cipd' + _BAT
 REQUIRED_BINARIES = {GIT, VPYTHON, CIPD}
 
@@ -241,7 +243,6 @@ def main():
     repo_root = os.path.abspath(repo_root).decode()
     recipes_cfg_path = os.path.join(repo_root, 'infra', 'config', 'recipes.cfg')
     args = ['--package', recipes_cfg_path] + args
-
   engine_path = checkout_engine(engine_override, repo_root, recipes_cfg_path)
 
   argv = (
