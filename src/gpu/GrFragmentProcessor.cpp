@@ -227,7 +227,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MulChildByInputAlpha(
     }
     return GrBlendFragmentProcessor::Make(
             /*src=*/nullptr,
-            std::move(fp),
+            OverrideInput(std::move(fp), SK_PMColor4fWHITE),
             SkBlendMode::kDstIn,
             GrBlendFragmentProcessor::BlendBehavior::kComposeOneBehavior);
 }
@@ -239,7 +239,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MulInputByChildAlpha(
     }
     return GrBlendFragmentProcessor::Make(
             /*src=*/nullptr,
-            std::move(fp),
+            OverrideInput(std::move(fp), SK_PMColor4fWHITE),
             SkBlendMode::kSrcIn,
             GrBlendFragmentProcessor::BlendBehavior::kComposeOneBehavior);
 }
