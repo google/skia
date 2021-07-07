@@ -16,6 +16,24 @@
       "message": "For Skottie, we do.  IIUC SkRuntimeEffect also caches internally, but it doesn\u0027t cost much to do so explicitly, to avoid hashing etc.",
       "revId": "bb8cf3fbb91094b33a0516454a315e2b24057eae",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "48ba8d1d_f9e0ccb4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-07-07T13:51:18Z",
+      "side": 1,
+      "message": "There are two different strategies in use right now:\n- Most code that knows it\u0027s making a long-lived effect will cache it after creation. All of the internal effects used by the GPU backend, for example, use function-static variables to hold the effect. Chrome\u0027s color conversion code in the compositor uses a map to hold the effects, keyed by the source and dest color spaces, etc.\n- In some situations, the caller *can\u0027t* do this. The big one is deserialization. For that, there\u0027s a private factory \"SkMakeCachedRuntimeEffect\". That uses the SkSL as a key, and stores the parsed effects in an LRU cache.\n- If you simply call SkRuntimeEffect::Make, however, it will be just as slow the second time as it was the first...",
+      "parentUuid": "75d583d8_59263389",
+      "revId": "bb8cf3fbb91094b33a0516454a315e2b24057eae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
