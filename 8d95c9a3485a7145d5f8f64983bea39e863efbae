@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c86584b0_cbeb8079",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-07-07T15:18:15Z",
+      "side": 1,
+      "message": "Can we just keep the original shader named \u0027shader\u0027? Now we\u0027ve got two names for the same thing, and we\u0027ve got both shaderPaint and paintShader.",
+      "range": {
+        "startLine": 323,
+        "startChar": 0,
+        "endLine": 323,
+        "endChar": 35
+      },
+      "revId": "8d95c9a3485a7145d5f8f64983bea39e863efbae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f75f7c45_f998ac60",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-07-07T15:18:15Z",
+      "side": 1,
+      "message": "nit: All of these need line wrapping now",
+      "range": {
+        "startLine": 340,
+        "startChar": 0,
+        "endLine": 340,
+        "endChar": 105
+      },
+      "revId": "8d95c9a3485a7145d5f8f64983bea39e863efbae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
