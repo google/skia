@@ -445,6 +445,26 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(
 
 //////////////////////////////////////////////////////////////////////////////
 
+std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MakeInputOpaqueAndPostApplyAlpha(
+        std::unique_ptr<GrFragmentProcessor> fp) {
+    if (!fp) {
+        return nullptr;
+    }
+    static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter, R"(
+        uniform colorFilter fp;  // Declared as colorFilter so we can use sample(..., color)
+        half4 main(half4 inColor) {
+            return inColor.a * sample(fp, unpremul(inColor).rgb1);
+        }
+    )");
+    return GrSkSLFP::Make(effect,
+                          "MakeInputOpaque",
+                          /*inputFP=*/nullptr,
+                          GrSkSLFP::OptFlags::kPreservesOpaqueInput,
+                          "fp", std::move(fp));
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::Compose(
         std::unique_ptr<GrFragmentProcessor> f, std::unique_ptr<GrFragmentProcessor> g) {
     class ComposeProcessor : public GrFragmentProcessor {

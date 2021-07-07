@@ -284,7 +284,7 @@ sk_sp<SkSpecialImage> SkBlendImageFilter::filterImageGPU(const Context& ctx,
                 std::move(fgFP),
                 std::move(fp),
                 fMode,
-                GrBlendFragmentProcessor::BlendBehavior::kComposeTwoBehavior);
+                GrBlendFragmentProcessor::BlendBehavior::kComposeOneBehavior);
     }
 
     GrImageInfo info(ctx.grColorType(), kPremul_SkAlphaType, ctx.refColorSpace(), bounds.size());

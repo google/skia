@@ -208,14 +208,14 @@ static std::unique_ptr<GrFragmentProcessor> create_random_proc_tree(GrProcessorT
                 std::move(minLevelsChild),
                 std::move(otherChild),
                 mode,
-                GrBlendFragmentProcessor::BlendBehavior::kComposeTwoBehavior);
+                GrBlendFragmentProcessor::BlendBehavior::kComposeOneBehavior);
         SkASSERT(fp);
     } else {
         fp = GrBlendFragmentProcessor::Make(
                 std::move(otherChild),
                 std::move(minLevelsChild),
                 mode,
-                GrBlendFragmentProcessor::BlendBehavior::kComposeTwoBehavior);
+                GrBlendFragmentProcessor::BlendBehavior::kComposeOneBehavior);
         SkASSERT(fp);
     }
     return fp;
