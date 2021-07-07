@@ -1,0 +1,9 @@
+uniform half4 colorGreen, colorRed;
+uniform float4 testInputs;
+
+half4 main(float2 coords) {
+    return (half2x2(colorRed) == half2x2(1) &&
+            float2x2(testInputs) == float2x2(-1.25, 0, 0.75, 2.25))
+                   ? colorGreen
+                   : colorRed;
+}

@@ -68,11 +68,6 @@ static void test_one_permutation(skiatest::Reporter* r,
                                                                   4, 5, 6,
                                                                   7, 8, 9});
     set_uniform(&builder, "unknownInput",     1.0f);
-    set_uniform(&builder, "testMatrix2x2",    std::array<float,4>{1, 2,
-                                                                  3, 4});
-    set_uniform(&builder, "testMatrix3x3",    std::array<float,9>{1, 2, 3,
-                                                                  4, 5, 6,
-                                                                  7, 8, 9});
 
     sk_sp<SkShader> shader = builder.makeShader(/*localMatrix=*/nullptr, /*isOpaque=*/true);
     if (!shader) {
@@ -252,6 +247,7 @@ SKSL_TEST(SkSLMatrices,                        "shared/Matrices.sksl")
 SKSL_TEST_ES3(SkSLMatricesNonsquare,           "shared/MatricesNonsquare.sksl")
 SKSL_TEST(SkSLMatrixEquality,                  "shared/MatrixEquality.sksl")
 SKSL_TEST(SkSLMatrixScalarSplat,               "shared/MatrixScalarSplat.sksl")
+SKSL_TEST(SkSLMatrixToVectorCast,              "shared/MatrixToVectorCast.sksl")
 SKSL_TEST(SkSLMultipleAssignments,             "shared/MultipleAssignments.sksl")
 SKSL_TEST(SkSLNegatedVectorLiteral,            "shared/NegatedVectorLiteral.sksl")
 SKSL_TEST(SkSLNumberCasts,                     "shared/NumberCasts.sksl")
@@ -285,6 +281,7 @@ SKSL_TEST(SkSLUnusedVariables,                 "shared/UnusedVariables.sksl")
 SKSL_TEST(SkSLVectorConstructors,              "shared/VectorConstructors.sksl")
 // skbug.com/11919: Fails on Nexus5/7, and Intel GPUs
 SKSL_TEST_CPU(SkSLVectorScalarMath,            "shared/VectorScalarMath.sksl")
+SKSL_TEST(SkSLVectorToMatrixCast,              "shared/VectorToMatrixCast.sksl")
 SKSL_TEST_ES3(SkSLWhileLoopControlFlow,        "shared/WhileLoopControlFlow.sksl")
 
 /*

@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef SKSL_CONSTRUCTOR_COMPOUND_CAST
-#define SKSL_CONSTRUCTOR_COMPOUND_CAST
+#ifndef SKSL_CONSTRUCTOR_VECTOR_MATRIX_CAST
+#define SKSL_CONSTRUCTOR_VECTOR_MATRIX_CAST
 
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/ir/SkSLConstructor.h"
@@ -17,16 +17,15 @@
 namespace SkSL {
 
 /**
- * Represents the construction of a vector/matrix typecast, such as `half3(myInt3)` or
- * `float4x4(myHalf4x4)`. Matrix resizes are done in ConstructorMatrixResize, not here.
+ * Represents a cast from a 4-element vector to a 2x2 matrix, or vice-versa.
  *
- * These always contain exactly 1 vector or matrix of matching size, and are never constant.
+ * These always contain exactly one four-slot vector or matrix, and are never constant.
  */
-class ConstructorCompoundCast final : public SingleArgumentConstructor {
+class ConstructorVectorMatrixCast final : public SingleArgumentConstructor {
 public:
-    static constexpr Kind kExpressionKind = Kind::kConstructorCompoundCast;
+    static constexpr Kind kExpressionKind = Kind::kConstructorVectorMatrixCast;
 
-    ConstructorCompoundCast(int offset, const Type& type, std::unique_ptr<Expression> arg)
+    ConstructorVectorMatrixCast(int offset, const Type& type, std::unique_ptr<Expression> arg)
         : INHERITED(offset, kExpressionKind, &type, std::move(arg)) {}
 
     static std::unique_ptr<Expression> Make(const Context& context,
@@ -40,8 +39,8 @@ public:
     }
 
     std::unique_ptr<Expression> clone() const override {
-        return std::make_unique<ConstructorCompoundCast>(fOffset, this->type(),
-                                                          argument()->clone());
+        return std::make_unique<ConstructorVectorMatrixCast>(fOffset, this->type(),
+                                                             argument()->clone());
     }
 
 private:

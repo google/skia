@@ -16,6 +16,7 @@
 #include "src/sksl/ir/SkSLConstructorScalarCast.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
 #include "src/sksl/ir/SkSLConstructorStruct.h"
+#include "src/sksl/ir/SkSLConstructorVectorMatrixCast.h"
 #include "src/sksl/ir/SkSLFloatLiteral.h"
 #include "src/sksl/ir/SkSLIntLiteral.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
@@ -45,12 +46,36 @@ static std::unique_ptr<Expression> convert_compound_constructor(const Context& c
                        ? ConstructorDiagonalMatrix::Make(context, offset, type, std::move(typecast))
                        : ConstructorSplat::Make(context, offset, type, std::move(typecast));
         } else if (argument->type().isVector()) {
+            // A 2x2 matrix constructor taking a vec4 is a vector/matrix cast.
+            if (type.isMatrix() && type.slotCount() == 4 && argument->type().slotCount() == 4) {
+                // Do type conversion if needed. This will be a no-op if the component types match.
+                const Type& typecastType = type.componentType().toCompound(context,
+                                                                           /*columns=*/4,
+                                                                           /*rows=*/1);
+                std::unique_ptr<Expression> typecast = ConstructorCompoundCast::Make(
+                        context, offset, typecastType, std::move(argument));
+
+                // Create a vector/matrix cast op.
+                return ConstructorVectorMatrixCast::Make(context,offset, type, std::move(typecast));
+            }
             // A vector constructor containing a single vector with the same number of columns is a
-            // cast (e.g. float3 -> int3).
+            // typecast (e.g. float3 -> int3).
             if (type.isVector() && argument->type().columns() == type.columns()) {
                 return ConstructorCompoundCast::Make(context, offset, type, std::move(argument));
             }
         } else if (argument->type().isMatrix()) {
+            // A vec4 constructor taking a 2x2 matrix is a vector/matrix cast.
+            if (type.isVector() && type.slotCount() == 4 && argument->type().slotCount() == 4) {
+                // Do type conversion if needed. This will be a no-op if the component types match.
+                const Type& typecastType = type.componentType().toCompound(context,
+                                                                           /*columns=*/2,
+                                                                           /*rows=*/2);
+                std::unique_ptr<Expression> typecast = ConstructorCompoundCast::Make(
+                        context, offset, typecastType, std::move(argument));
+
+                // Create a vector/matrix cast op.
+                return ConstructorVectorMatrixCast::Make(context,offset, type, std::move(typecast));
+            }
             // A matrix constructor containing a single matrix can be a resize, typecast, or both.
             // GLSL lumps these into one category, but internally SkSL keeps them distinct.
             if (type.isMatrix()) {
