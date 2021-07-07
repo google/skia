@@ -60,6 +60,14 @@ public:
     }
     void callFinishedCallbacks() { fFinishedCallbacks.reset(); }
 
+    void pushDebugGroup(NSString* string) {
+        [fCmdBuffer pushDebugGroup:string];
+    }
+
+    void popDebugGroup() {
+        [fCmdBuffer popDebugGroup];
+    }
+
 private:
     static const int kInitialTrackedResourcesCount = 32;
 
