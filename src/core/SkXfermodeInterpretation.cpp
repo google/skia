@@ -13,10 +13,11 @@ static bool just_solid_color(const SkPaint& p) {
 }
 
 SkXfermodeInterpretation SkInterpretXfermode(const SkPaint& paint, bool dstIsOpaque) {
-    if (!paint.asBlendMode()) {
+    const auto bm = paint.asBlendMode();
+    if (!bm) {
         return kNormal_SkXfermodeInterpretation;
     }
-    switch (paint.getBlendMode()) {
+    switch (bm.value()) {
         case SkBlendMode::kSrcOver:
             return kSrcOver_SkXfermodeInterpretation;
         case SkBlendMode::kSrc:
