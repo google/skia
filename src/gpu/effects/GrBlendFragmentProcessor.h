@@ -17,7 +17,7 @@ namespace GrBlendFragmentProcessor {
 
 // TODO(skbug.com/10457): Standardize on a single blend behavior
 enum class BlendBehavior {
-    // half(1) is passed as the input color to child FPs. No alpha channel trickery.
+    // fInputColor is passed as the input color to child FPs. No alpha channel trickery.
     kComposeOneBehavior,
 
     // fInputColor.rgb1 is passed as the input color to child FPs. Alpha is manually blended.

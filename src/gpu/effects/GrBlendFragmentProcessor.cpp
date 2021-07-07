@@ -173,10 +173,8 @@ private:
 
         switch (fBlendBehavior) {
             case BlendBehavior::kComposeOneBehavior: {
-                SkPMColor4f srcColor = src ? ConstantOutputForConstantInput(src, SK_PMColor4fWHITE)
-                                           : input;
-                SkPMColor4f dstColor = dst ? ConstantOutputForConstantInput(dst, SK_PMColor4fWHITE)
-                                           : input;
+                SkPMColor4f srcColor = ConstantOutputForConstantInput(src, input);
+                SkPMColor4f dstColor = ConstantOutputForConstantInput(dst, input);
                 return SkBlendMode_Apply(fMode, srcColor, dstColor);
             }
 
@@ -270,11 +268,8 @@ void GLBlendFragmentProcessor::emitCode(EmitArgs& args) {
     SkString srcColor, dstColor;
     switch (behavior) {
         case BlendBehavior::kComposeOneBehavior:
-            // Compose-one operations historically leave the alpha on the input color.
-            srcColor = cs.childProcessor(0) ? this->invokeChild(0, "half4(1)", args)
-                                            : SkString(args.fInputColor);
-            dstColor = cs.childProcessor(1) ? this->invokeChild(1, "half4(1)", args)
-                                            : SkString(args.fInputColor);
+            srcColor = this->invokeChild(0, args.fInputColor, args);
+            dstColor = this->invokeChild(1, args.fInputColor, args);
             break;
 
         case BlendBehavior::kComposeTwoBehavior:
