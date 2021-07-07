@@ -127,7 +127,17 @@ public:
         return fPayload.fValue;
     }
 
-    T& operator*() {
+    template<typename U>
+    T value_or(U&& default_value) const& {
+        return bool(*this) ? **this : static_cast<T>(std::forward<U>(default_value));
+    }
+
+    template<typename U >
+    T value_or(U&& default_value) && {
+        return bool(*this) ? std::move(**this) : static_cast<T>(std::forward<U>(default_value));
+    }
+
+    T& operator*() & {
         SkASSERT(fHasValue);
         return this->value();
     }
@@ -137,13 +147,23 @@ public:
         return &this->value();
     }
 
-    const T& operator*() const {
+    const T& operator*() const& {
         return this->value();
     }
 
     const T* operator->() const {
         SkASSERT(fHasValue);
         return &this->value();
+    }
+
+    T&& operator*() && {
+        SkASSERT(fHasValue);
+        return std::move(fPayload.fValue);
+    }
+
+    const T&& operator*() const&& {
+        SkASSERT(fHasValue);
+        return std::move(fPayload.fValue);
     }
 
     bool has_value() const {
