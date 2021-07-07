@@ -20,10 +20,7 @@ enum class BlendBehavior {
     // fInputColor is passed as the input color to child FPs. No alpha channel trickery.
     kComposeOneBehavior,
 
-    // half(1) is passed to src; fInputColor is passed to dst. No alpha channel trickery.
-    kSkModeBehavior,
-
-    kLastBlendBehavior = kSkModeBehavior,
+    kLastBlendBehavior = kComposeOneBehavior,
 };
 
 /** Blends src and dst inputs according to the blend mode.

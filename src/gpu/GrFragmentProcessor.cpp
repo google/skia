@@ -248,16 +248,20 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::ModulateAlpha(
         std::unique_ptr<GrFragmentProcessor> inputFP, const SkPMColor4f& color) {
     auto colorFP = MakeColor(color);
     return GrBlendFragmentProcessor::Make(
-            std::move(colorFP), std::move(inputFP), SkBlendMode::kSrcIn,
-            GrBlendFragmentProcessor::BlendBehavior::kSkModeBehavior);
+            std::move(colorFP),
+            std::move(inputFP),
+            SkBlendMode::kSrcIn,
+            GrBlendFragmentProcessor::BlendBehavior::kComposeOneBehavior);
 }
 
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::ModulateRGBA(
         std::unique_ptr<GrFragmentProcessor> inputFP, const SkPMColor4f& color) {
     auto colorFP = MakeColor(color);
     return GrBlendFragmentProcessor::Make(
-            std::move(colorFP), std::move(inputFP), SkBlendMode::kModulate,
-            GrBlendFragmentProcessor::BlendBehavior::kSkModeBehavior);
+            std::move(colorFP),
+            std::move(inputFP),
+            SkBlendMode::kModulate,
+            GrBlendFragmentProcessor::BlendBehavior::kComposeOneBehavior);
 }
 
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::ClampOutput(
