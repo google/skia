@@ -29,7 +29,6 @@ static const char* BlendBehavior_Name(BlendBehavior behavior) {
     SkASSERT(unsigned(behavior) <= unsigned(BlendBehavior::kLastBlendBehavior));
     static constexpr const char* gStrings[] = {
         "Compose-One",
-        "SkMode",
     };
     static_assert(SK_ARRAY_COUNT(gStrings) == size_t(BlendBehavior::kLastBlendBehavior) + 1);
     return gStrings[int(behavior)];
@@ -177,14 +176,6 @@ private:
                 return SkBlendMode_Apply(fMode, srcColor, dstColor);
             }
 
-            case BlendBehavior::kSkModeBehavior: {
-                SkPMColor4f srcColor = src ? ConstantOutputForConstantInput(src, SK_PMColor4fWHITE)
-                                           : input;
-                SkPMColor4f dstColor = dst ? ConstantOutputForConstantInput(dst, input)
-                                           : input;
-                return SkBlendMode_Apply(fMode, srcColor, dstColor);
-            }
-
             default:
                 SK_ABORT("unrecognized blend behavior");
                 return input;
@@ -261,14 +252,6 @@ void GLBlendFragmentProcessor::emitCode(EmitArgs& args) {
         case BlendBehavior::kComposeOneBehavior:
             srcColor = this->invokeChild(0, args.fInputColor, args);
             dstColor = this->invokeChild(1, args.fInputColor, args);
-            break;
-
-        case BlendBehavior::kSkModeBehavior:
-            // SkModeColorFilter operations act like ComposeOne, but pass the input color to dst.
-            srcColor = cs.childProcessor(0) ? this->invokeChild(0, "half4(1)", args)
-                                            : SkString(args.fInputColor);
-            dstColor = cs.childProcessor(1) ? this->invokeChild(1, args.fInputColor, args)
-                                            : SkString(args.fInputColor);
             break;
 
         default:
