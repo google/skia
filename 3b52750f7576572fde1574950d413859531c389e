@@ -16,6 +16,42 @@
       "message": "I don\u0027t know for sure if it\u0027s possible for this to fail (keeping track of what might not work in skvm vs. RP is tough), but I\u0027d suggest moving the return up one line, so that if it *does* fail, we still fall back?",
       "revId": "3b52750f7576572fde1574950d413859531c389e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d3ff3c43_37df8b45",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-07-07T20:10:16Z",
+      "side": 1,
+      "message": "Nice catch. Done.",
+      "parentUuid": "8c833a12_e5e35718",
+      "revId": "3b52750f7576572fde1574950d413859531c389e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1ab4f9d3_8ea152bf",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-07-07T20:10:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8c833a12_e5e35718",
+      "revId": "3b52750f7576572fde1574950d413859531c389e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
