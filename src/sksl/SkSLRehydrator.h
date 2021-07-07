@@ -59,6 +59,7 @@ public:
         kConstructorScalarCast_Command,
         kConstructorSplat_Command,
         kConstructorStruct_Command,
+        kConstructorVectorMatrixCast_Command,
         kContinue_Command,
         kDefaultLayout_Command,
         kDefaultModifiers_Command,

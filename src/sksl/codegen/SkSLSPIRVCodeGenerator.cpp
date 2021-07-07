@@ -736,6 +736,9 @@ SpvId SPIRVCodeGenerator::writeExpression(const Expression& expr, OutputStream& 
             return this->writeConstructorScalarCast(expr.as<ConstructorScalarCast>(), out);
         case Expression::Kind::kConstructorSplat:
             return this->writeConstructorSplat(expr.as<ConstructorSplat>(), out);
+        case Expression::Kind::kConstructorVectorMatrixCast:
+            return this->writeConstructorVectorMatrixCast(expr.as<ConstructorVectorMatrixCast>(),
+                                                          out);
         case Expression::Kind::kConstructorCompound:
             return this->writeConstructorCompound(expr.as<ConstructorCompound>(), out);
         case Expression::Kind::kConstructorCompoundCast:
@@ -1763,6 +1766,15 @@ SpvId SPIRVCodeGenerator::writeConstructorMatrixResize(const ConstructorMatrixRe
 
     // Use matrix-copy to resize the input matrix to its new size.
     return this->writeMatrixCopy(argument, c.argument()->type(), c.type(), out);
+}
+
+SpvId SPIRVCodeGenerator::writeConstructorVectorMatrixCast(const ConstructorVectorMatrixCast& c,
+                                                           OutputStream& out) {
+    // Write the input expression.
+    SpvId argument = this->writeExpression(*c.argument(), out);
+
+    // TODO: fix me
+    return (SpvId)-1;
 }
 
 static SpvStorageClass_ get_storage_class(const Variable& var,
