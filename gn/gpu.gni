@@ -309,8 +309,6 @@ skia_gpu_sources = [
   "$_src/gpu/effects/GrTextureEffect.h",
   "$_src/gpu/effects/GrYUVtoRGBEffect.cpp",
   "$_src/gpu/effects/GrYUVtoRGBEffect.h",
-  "$_src/gpu/effects/generated/GrConfigConversionEffect.cpp",
-  "$_src/gpu/effects/generated/GrConfigConversionEffect.h",
   "$_src/gpu/geometry/GrPathUtils.cpp",
   "$_src/gpu/geometry/GrPathUtils.h",
   "$_src/gpu/geometry/GrQuad.cpp",

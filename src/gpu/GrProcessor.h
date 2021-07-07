@@ -56,7 +56,6 @@ public:
         kGrBicubicEffect_ClassID,
         kGrBitmapTextGeoProc_ClassID,
         kGrColorSpaceXformEffect_ClassID,
-        kGrConfigConversionEffect_ClassID,
         kGrConicEffect_ClassID,
         kGrConvexPolyEffect_ClassID,
         kGrDiffuseLightingEffect_ClassID,

@@ -105,8 +105,7 @@ public:
     bool validPMUPMConversionExists();
 
     /**
-     * These functions create premul <-> unpremul effects, using the specialized round-trip effects
-     * from GrConfigConversionEffect.
+     * These functions create premul <-> unpremul effects, using specialized round-trip effects.
      */
     std::unique_ptr<GrFragmentProcessor> createPMToUPMEffect(std::unique_ptr<GrFragmentProcessor>);
     std::unique_ptr<GrFragmentProcessor> createUPMToPMEffect(std::unique_ptr<GrFragmentProcessor>);
