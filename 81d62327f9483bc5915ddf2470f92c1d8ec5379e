@@ -16,6 +16,75 @@
       "message": "Do we ever need the DSLType for the struct again, after making the InterfaceBlock instance? Wondering if we could remove the sharp edge (and the repetition) by just having InterfaceBlock take the parameters that would be passed to Struct?",
       "revId": "81d62327f9483bc5915ddf2470f92c1d8ec5379e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1d0a2ee4_d6d7ce73",
+        "filename": "src/sksl/dsl/DSLCore.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-07T17:49:48Z",
+      "side": 1,
+      "message": "This is basically exposed API, right? We should probably do proper error reporting here instead of failing/UB if the call is misused.",
+      "range": {
+        "startLine": 178,
+        "startChar": 8,
+        "endLine": 178,
+        "endChar": 56
+      },
+      "revId": "81d62327f9483bc5915ddf2470f92c1d8ec5379e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2036b47a_e87783ee",
+        "filename": "src/sksl/dsl/DSLCore.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-07T17:49:48Z",
+      "side": 1,
+      "message": "This is super tricky: we\u0027re taking a struct definition out of the ProgramElements, creating a variable with that struct\u0027s type and name, REMOVING that struct from the symbol table, and then creating a new InterfaceBlock that reuses that same struct and name. It all seems to work, but a few comments explaining what\u0027s going on (and why the ownership works) would certainly help. It took me probably 10 minutes to dissect what\u0027s going on here.\n\nAlso, if we could do this in the DSL parser in a way that didn\u0027t require a sacrificial StructDefinition to be added to the symbol table then immediately removed, it would probably be for the best. Needing to add a SymbolTable::remove feels kinda weird!",
+      "range": {
+        "startLine": 197,
+        "startChar": 4,
+        "endLine": 197,
+        "endChar": 5
+      },
+      "revId": "81d62327f9483bc5915ddf2470f92c1d8ec5379e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ad0745b3_68559663",
+        "filename": "src/sksl/dsl/DSLType.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-07T17:49:48Z",
+      "side": 1,
+      "message": "Is there a reason to avoid `this-\u003eskslType()` here? It looks like types like `float` might not have a name if we don\u0027t use it.",
+      "range": {
+        "startLine": 36,
+        "startChar": 11,
+        "endLine": 36,
+        "endChar": 20
+      },
+      "revId": "81d62327f9483bc5915ddf2470f92c1d8ec5379e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
