@@ -13,6 +13,7 @@ flutter_defines = [
   "SK_PARAGRAPH_LIBTXT_SPACES_RESOLUTION",
 
   # Staging
+  "SK_LEGACY_INNER_JOINS",
 
   # Fast low-precision software rendering isn't a priority for Flutter.
   "SK_DISABLE_LEGACY_SHADERCONTEXT",
