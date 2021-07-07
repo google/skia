@@ -61,14 +61,16 @@ public:
 
     /**
      *  Returns a fragment processor that generates the passed-in color, modulated by the child's
-     *  alpha channel. (Pass a null FP to use the alpha from fInputColor instead of a child FP.)
+     *  alpha channel. The child's input color will be the parent's fInputColor. (Pass a null FP to
+     *  use the alpha from fInputColor instead of a child FP.)
      */
     static std::unique_ptr<GrFragmentProcessor> ModulateAlpha(
             std::unique_ptr<GrFragmentProcessor> child, const SkPMColor4f& color);
 
     /**
      *  Returns a fragment processor that generates the passed-in color, modulated by the child's
-     *  RGBA color. (Pass a null FP to use the color from fInputColor instead of a child FP.)
+     *  RGBA color. The child's input color will be the parent's fInputColor. (Pass a null FP to use
+     *  the color from fInputColor instead of a child FP.)
      */
     static std::unique_ptr<GrFragmentProcessor> ModulateRGBA(
             std::unique_ptr<GrFragmentProcessor> child, const SkPMColor4f& color);
