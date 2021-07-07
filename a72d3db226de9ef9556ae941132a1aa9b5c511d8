@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "36eef32b_e7727350",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-07-07T14:28:29Z",
+      "side": 1,
+      "message": "Should speed up canvas 2D benchmarks on TecnoSpark3",
+      "revId": "a72d3db226de9ef9556ae941132a1aa9b5c511d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
