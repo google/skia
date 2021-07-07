@@ -380,7 +380,7 @@ void draw_texture(GrSurfaceDrawContext* rtc,
                              srcColorInfo.alphaType(),
                              filter,
                              GrSamplerState::MipmapMode::kNone,
-                             paint.getBlendMode(),
+                             paint.deprecated_getBlendMode(),
                              color,
                              srcQuad,
                              dstClip,
@@ -395,7 +395,7 @@ void draw_texture(GrSurfaceDrawContext* rtc,
                          srcColorInfo.alphaType(),
                          filter,
                          GrSamplerState::MipmapMode::kNone,
-                         paint.getBlendMode(),
+                         paint.deprecated_getBlendMode(),
                          color,
                          srcRect,
                          dstRect,
@@ -875,7 +875,7 @@ void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
     GrSamplerState::Filter filter = sampling.filter == SkFilterMode::kNearest
                                             ? GrSamplerState::Filter::kNearest
                                             : GrSamplerState::Filter::kLinear;
-    SkBlendMode mode = paint.getBlendMode();
+    SkBlendMode mode = paint.deprecated_getBlendMode();
 
     SkAutoTArray<GrSurfaceDrawContext::TextureSetEntry> textures(count);
     // We accumulate compatible proxies until we find an an incompatible one or reach the end and
