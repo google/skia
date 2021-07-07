@@ -310,13 +310,17 @@ private:
             if (paint->getImageFilter() || paint->getColorFilter()) {
                 return true;
             }
+            const auto bm = paint->asBlendMode();
+            if (!bm) {
+                return true;    // can we query other blenders for this?
+            }
 
             // Unusual blendmodes require us to process a saved layer
             // even with operations outisde the clip.
             // For example, DstIn is used by masking layers.
             // https://code.google.com/p/skia/issues/detail?id=1291
             // https://crbug.com/401593
-            switch (paint->getBlendMode()) {
+            switch (bm.value()) {
                 // For each of the following transfer modes, if the source
                 // alpha is zero (our transparent black), the resulting
                 // blended alpha is not necessarily equal to the original
