@@ -303,6 +303,20 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices, SkBlendMode blendMode
     // There is a paintShader iff there is texCoords.
     SkASSERT((textures != nullptr) == (shader != nullptr));
 
+    VertState       state(vertexCount, indices, indexCount);
+    VertState::Proc vertProc = state.chooseProc(info.mode());
+    // No colors are changing and no texture coordinates are changing, so no updates between
+    // triangles are needed. Use SkVM to blit the triangles.
+    if (!colors && (!textures || textures == positions)) {
+        if (auto blitter = SkCreateSkVMBlitter(
+                fDst, paint, *fMatrixProvider, outerAlloc, this->fRC->clipShader())) {
+            while (vertProc(&state)) {
+                fill_triangle(state, blitter, *fRC, dev2, dev3);
+            }
+            return;
+        }
+    }
+
     /*  We need to know if we have perspective or not, so we can know what stage(s) we will need,
         and how to prep our "uniforms" before each triangle in the tricolorshader.
 
@@ -313,9 +327,6 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices, SkBlendMode blendMode
      */
     SkMatrix ctm = fMatrixProvider->localToDevice();
     const bool usePerspective = ctm.hasPerspective();
-
-    VertState       state(vertexCount, indices, indexCount);
-    VertState::Proc vertProc = state.chooseProc(info.mode());
 
     SkTriColorShader* triShader = nullptr;
     SkPMColor4f*  dstColors = nullptr;
