@@ -4037,7 +4037,8 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         ctxInfo.renderer() == GrGLRenderer::kMaliT     ||  // Some curves appear flat on GalaxyS6.
         ctxInfo.renderer() == GrGLRenderer::kAdreno3xx ||
         ctxInfo.renderer() == GrGLRenderer::kAdreno430 ||
-        ctxInfo.renderer() == GrGLRenderer::kAdreno4xx_other) {  // We get garbage on Adreno405.
+        ctxInfo.renderer() == GrGLRenderer::kAdreno4xx_other ||  // We get garbage on Adreno405.
+        ctxInfo.angleBackend() == GrGLANGLEBackend::kD3D9) {  // D3D9 conic strokes fail.
         fDisableTessellationPathRenderer = true;
     }
 
