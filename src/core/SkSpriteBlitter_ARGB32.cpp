@@ -61,7 +61,7 @@ private:
 class Sprite_D32_S32A_Xfer: public SkSpriteBlitter {
 public:
     Sprite_D32_S32A_Xfer(const SkPixmap& source, const SkPaint& paint) : SkSpriteBlitter(source) {
-        fXfermode = SkXfermode::Peek(paint.getBlendMode());
+        fXfermode = SkXfermode::Peek(paint.getBlendMode_or(SkBlendMode::kSrcOver));
         SkASSERT(fXfermode);
     }
 

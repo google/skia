@@ -27,6 +27,7 @@ class SkShader;
 
 // Move to clients when they are ready -- aid in deprecating the enum
 #define SK_SUPPORT_LEGACY_SETFILTERQUALITY
+#define SK_SUPPORT_LEGACY_GETBLENDMODE
 
 /** \class SkPaint
     SkPaint controls options applied when drawing. SkPaint collects all
@@ -490,6 +491,9 @@ public:
      */
     SkBlendMode getBlendMode_or(SkBlendMode defaultMode) const;
 
+#ifndef SK_SUPPORT_LEGACY_GETBLENDMODE
+private:
+#endif
     /** DEPRECATED
      *  Use asBlendMode() or getBlendMode_or() instead.
      *
@@ -498,6 +502,7 @@ public:
      *  this returns kSrcOver.
      */
     SkBlendMode getBlendMode() const { return this->getBlendMode_or(SkBlendMode::kSrcOver); }
+public:
 
     /** Returns true iff the current blender claims to be equivalent to SkBlendMode::kSrcOver.
      *
