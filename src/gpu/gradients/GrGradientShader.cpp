@@ -324,11 +324,12 @@ static std::unique_ptr<GrFragmentProcessor> make_tiled_gradient(
 
                 // Always sample from (x, 0), discarding y, since the layout FP can use y as a
                 // side-channel.
-                half4 outColor = sample(colorizer, t.x0);
-                if (bool(makePremul)) {
-                    outColor.rgb *= outColor.a;
+                if (!bool(makePremul)) {
+                    return sample(colorizer, t.x0);
+                } else {
+                    half4 outColor = sample(colorizer, t.x0);
+                    return outColor * outColor.aaa1;
                 }
-                return outColor;
             }
         }
     )");
