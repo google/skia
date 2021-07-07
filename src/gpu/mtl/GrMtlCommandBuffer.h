@@ -60,6 +60,18 @@ public:
     }
     void callFinishedCallbacks() { fFinishedCallbacks.reset(); }
 
+    void pushDebugGroup(NSString* string) {
+        if (@available(macOS 10.13, iOS 11.0, *)) {
+            [fCmdBuffer pushDebugGroup:string];
+        }
+    }
+
+    void popDebugGroup() {
+        if (@available(macOS 10.13, iOS 11.0, *)) {
+            [fCmdBuffer popDebugGroup];
+        }
+    }
+
 private:
     static const int kInitialTrackedResourcesCount = 32;
 

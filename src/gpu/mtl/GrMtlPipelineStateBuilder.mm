@@ -400,6 +400,15 @@ static uint32_t buffer_size(uint32_t offset, uint32_t maxAlignment) {
 static MTLRenderPipelineDescriptor* read_pipeline_data(SkReadBuffer* reader) {
     auto pipelineDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
 
+#ifdef SK_ENABLE_MTL_DEBUG_INFO
+    // set label
+    {
+        SkString description;
+        reader->readString(&description);
+        pipelineDescriptor.label = @(description.c_str());
+    }
+#endif
+
     // set up vertex descriptor
     {
         auto vertexDescriptor = [[MTLVertexDescriptor alloc] init];
@@ -495,6 +504,16 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(
 
     // Ordering in how we set these matters. If it changes adjust read_pipeline_data, above.
     auto pipelineDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
+#ifdef SK_ENABLE_MTL_DEBUG_INFO
+    SkString description = GrProgramDesc::Describe(programInfo, *fGpu->caps());
+    int split = description.find("\n");
+    description.resize(split);
+    pipelineDescriptor.label = @(description.c_str());
+    if (writer) {
+        writer->writeString(description.c_str());
+    }
+#endif
+
     pipelineDescriptor.vertexDescriptor = create_vertex_descriptor(programInfo.geomProc(),
                                                                    writer.get());
 
@@ -684,6 +703,7 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(
         }
     }
 #endif
+
     id<MTLRenderPipelineState> pipelineState;
     {
         TRACE_EVENT0("skia.shaders", "newRenderPipelineStateWithDescriptor");
