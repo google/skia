@@ -20,6 +20,13 @@
 
 #include <cmath>
 
+SkBlendMode BlenderAsMode(const SkPaint& paint) {
+    if (auto bm = paint.asBlendMode()) {
+        return bm.value();
+    }
+    return SkBlendMode::kSrcOver;
+}
+
 const char* SkPDFUtils::BlendModeName(SkBlendMode mode) {
     // PDF32000.book section 11.3.5 "Blend Mode"
     switch (mode) {

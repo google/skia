@@ -967,7 +967,7 @@ SkARGB32_Shader_Blitter::SkARGB32_Shader_Blitter(const SkPixmap& device,
 {
     fBuffer = (SkPMColor*)sk_malloc_throw(device.width() * (sizeof(SkPMColor)));
 
-    fXfermode = SkXfermode::Peek(paint.getBlendMode());
+    fXfermode = SkXfermode::Peek(paint.getBlendMode_or(SkBlendMode::kSrcOver));
 
     int flags = 0;
     if (!(shaderContext->getFlags() & SkShaderBase::kOpaqueAlpha_Flag)) {
@@ -984,7 +984,7 @@ SkARGB32_Shader_Blitter::SkARGB32_Shader_Blitter(const SkPixmap& device,
             fShadeDirectlyIntoDevice = true;
         }
     } else {
-        if (SkBlendMode::kSrc == paint.getBlendMode()) {
+        if (SkBlendMode::kSrc == paint.asBlendMode()) {
             fShadeDirectlyIntoDevice = true;
             fProc32Blend = blend_srcmode;
         }
