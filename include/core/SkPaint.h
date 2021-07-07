@@ -478,20 +478,26 @@ public:
     */
     void setColorFilter(sk_sp<SkColorFilter> colorFilter);
 
-    /** DEPRECATED
-     *  Use asBlendMode() instead.
-     *
-     *  This attempts to inspect the current blender, and if it claims to be equivalent to
-     *  one of the predefiend SkBlendMode enums, returns that mode. If the blender does not,
-     *  this returns kSrcOver.
-     */
-    SkBlendMode getBlendMode() const;
-
     /** If the current blender can be represented as a SkBlendMode enum, this returns that
      *  enum in the optional's value(). If it cannot, then the returned optional does not
      *  contain a value.
      */
     skstd::optional<SkBlendMode> asBlendMode() const;
+
+    /**
+     *  Queries the blender, and if it can be represented as a SkBendMode, return that mode,
+     *  else return the defaultMode provided.
+     */
+    SkBlendMode getBlendMode_or(SkBlendMode defaultMode) const;
+
+    /** DEPRECATED
+     *  Use asBlendMode() or getBlendMode_or() instead.
+     *
+     *  This attempts to inspect the current blender, and if it claims to be equivalent to
+     *  one of the predefiend SkBlendMode enums, returns that mode. If the blender does not,
+     *  this returns kSrcOver.
+     */
+    SkBlendMode getBlendMode() const { return this->getBlendMode_or(SkBlendMode::kSrcOver); }
 
     /** Returns true iff the current blender claims to be equivalent to SkBlendMode::kSrcOver.
      *

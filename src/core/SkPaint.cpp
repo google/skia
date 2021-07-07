@@ -146,21 +146,15 @@ void SkPaint::setARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
     this->setColor(SkColorSetARGB(a, r, g, b));
 }
 
-// DEPRECATED
-SkBlendMode SkPaint::getBlendMode() const {
-    if (!fBlender) {
-        return SkBlendMode::kSrcOver;
-    }
-    if (auto bm = as_BB(fBlender)->asBlendMode()) {
-        return bm.value();
-    }
-    // Eeeek, this will not make sense to them, as the blender is not any enum
-    return SkBlendMode::kSrcOver;
-}
-
 skstd::optional<SkBlendMode> SkPaint::asBlendMode() const {
     return fBlender ? as_BB(fBlender)->asBlendMode()
                     : SkBlendMode::kSrcOver;
+}
+
+SkBlendMode SkPaint::getBlendMode_or(SkBlendMode defaultMode) const {
+    // todo: add value_or() to skstd::optional?
+    const auto bm = this->asBlendMode();
+    return bm ? bm.value() : defaultMode;
 }
 
 bool SkPaint::isSrcOver() const {
