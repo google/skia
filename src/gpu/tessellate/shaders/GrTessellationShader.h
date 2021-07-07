@@ -49,11 +49,11 @@ public:
         // Tessellation shaders use infinity to flag conics, and also as a weight that turns conics
         // into triangles.
         constexpr static uint32_t kIEEE_32_infinity = 0xff << 23;
-        // On hardware that doesn't support infinity, we pretend that inputs >= 2^126 are infinity.
+        // On hardware that doesn't support infinity, we pretend that inputs >= 2^63 are infinity.
         // The rationale for doing this is that these number are so large, they will overflow if we
         // try to do any bezier math with them anyway.
         constexpr static uint32_t kIEEE_32_pseudo_infinity =
-                (0xfd << 23) | (1 << 22);  // 1.5 * 2^126.
+                ((63 + 127) << 23) | (1 << 22);  // 1.5 * 2^63.
         return shaderCaps.infinitySupport() ? kIEEE_32_infinity : kIEEE_32_pseudo_infinity;
     }
 
@@ -68,7 +68,7 @@ public:
             SkASSERT(shaderCaps.floatIs32Bits());
             return R"(
             bool isinf_portable(float x) {
-                return abs(x) >= exp2(126);
+                return abs(x) >= exp2(63);
             })";
         }
     }
