@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "96e9b80f_20c5a986",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-07-07T20:00:01Z",
+      "side": 1,
+      "message": "Relanding this. The previous CL should now trigger the canvas2D fast-path regression, so this CL won\u0027t be blamed.",
+      "revId": "8997eea0b52064484dd8e22ec4d12e1c426b2cc7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
