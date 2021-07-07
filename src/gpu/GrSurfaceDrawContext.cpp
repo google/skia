@@ -643,7 +643,11 @@ void GrSurfaceDrawContext::drawTexture(const GrClip* clip,
         if (colorSpaceXform) {
             fp = GrColorSpaceXformEffect::Make(std::move(fp), std::move(colorSpaceXform));
         }
-        fp = GrBlendFragmentProcessor::Make(std::move(fp), nullptr, SkBlendMode::kModulate);
+        fp = GrBlendFragmentProcessor::Make(
+                std::move(fp),
+                nullptr,
+                SkBlendMode::kModulate,
+                GrBlendFragmentProcessor::BlendBehavior::kComposeOneBehavior);
         paint.setColorFragmentProcessor(std::move(fp));
         if (blendMode != SkBlendMode::kSrcOver) {
             paint.setXPFactory(SkBlendMode_AsXPFactory(blendMode));

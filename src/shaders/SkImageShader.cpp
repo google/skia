@@ -340,7 +340,11 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
                                        args.fDstColorInfo->colorSpace(),
                                        kPremul_SkAlphaType);
     if (fImage->isAlphaOnly()) {
-        return GrBlendFragmentProcessor::Make(std::move(fp), nullptr, SkBlendMode::kDstIn);
+        return GrBlendFragmentProcessor::Make(
+                std::move(fp),
+                nullptr,
+                SkBlendMode::kDstIn,
+                GrBlendFragmentProcessor::BlendBehavior::kComposeOneBehavior);
     } else if (args.fInputColorIsOpaque) {
         // If the input alpha is known to be 1, we don't need to take the kSrcIn path. This is
         // just an optimization. However, we can't just return 'fp' here. We need to actually
@@ -349,7 +353,11 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
         // doesn't actually use the input color at all, so the overridden input is irrelevant.
         return GrFragmentProcessor::OverrideInput(std::move(fp), SK_PMColor4fWHITE, false);
     }
-    return GrBlendFragmentProcessor::Make(std::move(fp), nullptr, SkBlendMode::kSrcIn);
+    return GrBlendFragmentProcessor::Make(
+            std::move(fp),
+            nullptr,
+            SkBlendMode::kSrcIn,
+            GrBlendFragmentProcessor::BlendBehavior::kComposeOneBehavior);
 }
 
 #endif
