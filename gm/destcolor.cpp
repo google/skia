@@ -19,7 +19,6 @@
 #include "src/gpu/SkGr.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
-#include "src/gpu/ops/GrFillRectOp.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
@@ -69,7 +68,7 @@ private:
 
 }  // namespace
 
-DEF_SIMPLE_GPU_GM(destcolor, ctx, rtCtx, canvas, 640, 640) {
+DEF_SIMPLE_GPU_GM(destcolor, rContext, sdc, canvas, 640, 640) {
     SkRect bounds = SkRect::MakeIWH(512, 512);
 
     // Draw the mandrill.
@@ -83,6 +82,6 @@ DEF_SIMPLE_GPU_GM(destcolor, ctx, rtCtx, canvas, 640, 640) {
     invertPaint.setColor4f(SK_PMColor4fWHITE);
     invertPaint.setPorterDuffXPFactory(SkBlendMode::kSrcOver);
     invertPaint.setColorFragmentProcessor(DestColorTestFP::Make(GrFragmentProcessor::DestColor()));
-    rtCtx->drawOval(/*clip*/ nullptr, std::move(invertPaint), GrAA::kYes, SkMatrix::I(),
-                    SkRect::MakeLTRB(128, 128, 640, 640), GrStyle::SimpleFill());
+    sdc->drawOval(/*clip*/ nullptr, std::move(invertPaint), GrAA::kYes, SkMatrix::I(),
+                  SkRect::MakeLTRB(128, 128, 640, 640), GrStyle::SimpleFill());
 }

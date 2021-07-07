@@ -11,21 +11,16 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkTypes.h"
-#include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrTextureEffect.h"
-#include "src/gpu/ops/GrFillRectOp.h"
 #include "tools/Resources.h"
-#include "tools/ToolUtils.h"
 
-DEF_SIMPLE_GPU_GM(swizzle, ctx, sdCtx, canvas, 512, 512) {
-    SkRect bounds = SkRect::MakeIWH(512, 512);
-
+DEF_SIMPLE_GPU_GM(swizzle, rContext, sdc, canvas, 512, 512) {
     SkBitmap bmp;
     GetResourceAsBitmap("images/mandrill_512_q075.jpg", &bmp);
-    auto view = std::get<0>(GrMakeCachedBitmapProxyView(ctx, bmp, GrMipmapped::kNo));
+    auto view = std::get<0>(GrMakeCachedBitmapProxyView(rContext, bmp, GrMipmapped::kNo));
     if (!view) {
         return;
     }
@@ -33,8 +28,5 @@ DEF_SIMPLE_GPU_GM(swizzle, ctx, sdCtx, canvas, 512, 512) {
         GrTextureEffect::Make(std::move(view), bmp.alphaType(), SkMatrix());
     auto fp = GrFragmentProcessor::SwizzleOutput(std::move(imgFP), GrSwizzle("grb1"));
 
-    GrPaint grPaint;
-    grPaint.setColorFragmentProcessor(std::move(fp));
-
-    sdCtx->addDrawOp(GrFillRectOp::MakeNonAARect(ctx, std::move(grPaint), SkMatrix(), bounds));
+    sdc->fillWithFP(std::move(fp));
 }

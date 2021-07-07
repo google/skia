@@ -26,7 +26,6 @@
 #include "src/gpu/effects/GrSkSLFP.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
-#include "src/gpu/ops/GrFillRectOp.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
@@ -72,13 +71,11 @@ std::unique_ptr<GrGLSLFragmentProcessor> SampleCoordEffect::onMakeProgramImpl() 
     return std::make_unique<GLSLSampleCoordEffect>();
 }
 
-DEF_SIMPLE_GPU_GM_BG(fpcoordinateoverride, ctx, sdCtx, canvas, 512, 512,
+DEF_SIMPLE_GPU_GM_BG(fpcoordinateoverride, rContext, sdc, canvas, 512, 512,
                      ToolUtils::color_to_565(0xFF66AA99)) {
-    SkRect bounds = SkRect::MakeIWH(512, 512);
-
     SkBitmap bmp;
     GetResourceAsBitmap("images/mandrill_512_q075.jpg", &bmp);
-    auto view = std::get<0>(GrMakeCachedBitmapProxyView(ctx, bmp, GrMipmapped::kNo));
+    auto view = std::get<0>(GrMakeCachedBitmapProxyView(rContext, bmp, GrMipmapped::kNo));
     if (!view) {
         return;
     }
@@ -86,8 +83,5 @@ DEF_SIMPLE_GPU_GM_BG(fpcoordinateoverride, ctx, sdCtx, canvas, 512, 512,
             GrTextureEffect::Make(std::move(view), bmp.alphaType(), SkMatrix());
     auto fp = std::unique_ptr<GrFragmentProcessor>(new SampleCoordEffect(std::move(imgFP)));
 
-    GrPaint grPaint;
-    grPaint.setCoverageFragmentProcessor(std::move(fp));
-
-    sdCtx->addDrawOp(GrFillRectOp::MakeNonAARect(ctx, std::move(grPaint), SkMatrix::I(), bounds));
+    sdc->fillWithFP(std::move(fp));
 }

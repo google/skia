@@ -34,8 +34,7 @@
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/SkGr.h"
-#include "src/gpu/ops/GrDrawOp.h"
-#include "src/gpu/ops/GrFillRectOp.h"
+#include "src/gpu/ops/GrOp.h"
 #include "tools/ToolUtils.h"
 #include "tools/gpu/TestOps.h"
 
