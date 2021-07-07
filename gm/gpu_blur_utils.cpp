@@ -281,14 +281,19 @@ static void run(GrRecordingContext* rContext, GrSurfaceDrawContext* sdc, bool su
                                                     sampler,
                                                     caps);
                     // Compose against white (default paint color)
-                    fp = GrBlendFragmentProcessor::Make(std::move(fp),
-                                                        /*dst=*/nullptr,
-                                                        SkBlendMode::kSrcOver);
+                    fp = GrBlendFragmentProcessor::Make(
+                            std::move(fp),
+                            /*dst=*/nullptr,
+                            SkBlendMode::kSrcOver,
+                            GrBlendFragmentProcessor::BlendBehavior::kComposeOneBehavior);
                     GrPaint paint;
                     // Compose against white (default paint color) and then replace the dst
                     // (SkBlendMode::kSrc).
-                    fp = GrBlendFragmentProcessor::Make(std::move(fp), /*dst=*/nullptr,
-                                                        SkBlendMode::kSrcOver);
+                    fp = GrBlendFragmentProcessor::Make(
+                            std::move(fp),
+                            /*dst=*/nullptr,
+                            SkBlendMode::kSrcOver,
+                            GrBlendFragmentProcessor::BlendBehavior::kComposeOneBehavior);
                     paint.setColorFragmentProcessor(std::move(fp));
                     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
                     sdc->fillRectToRect(nullptr,
@@ -385,9 +390,11 @@ static void do_very_large_blur_gm(GrSurfaceDrawContext* sdc,
                     if (result) {
                         std::unique_ptr<GrFragmentProcessor> fp =
                                 GrTextureEffect::Make(std::move(result), kPremul_SkAlphaType);
-                        fp = GrBlendFragmentProcessor::Make(std::move(fp),
-                                                            /*dst=*/nullptr,
-                                                            SkBlendMode::kSrcOver);
+                        fp = GrBlendFragmentProcessor::Make(
+                                std::move(fp),
+                                /*dst=*/nullptr,
+                                SkBlendMode::kSrcOver,
+                                GrBlendFragmentProcessor::BlendBehavior::kComposeOneBehavior);
                         sdc->fillRectToRectWithFP(SkIRect::MakeSize(dstB.size()),
                                                   dstRect,
                                                   std::move(fp));

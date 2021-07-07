@@ -28,7 +28,6 @@ static inline bool does_cpu_blend_impl_match_gpu(SkBlendMode mode) {
 static const char* BlendBehavior_Name(BlendBehavior behavior) {
     SkASSERT(unsigned(behavior) <= unsigned(BlendBehavior::kLastBlendBehavior));
     static constexpr const char* gStrings[] = {
-        "Default",
         "Compose-One",
         "Compose-Two",
         "SkMode",
@@ -62,10 +61,6 @@ private:
             : INHERITED(kBlendFragmentProcessor_ClassID, OptFlags(src.get(), dst.get(), mode))
             , fMode(mode)
             , fBlendBehavior(behavior) {
-        if (fBlendBehavior == BlendBehavior::kDefault) {
-            fBlendBehavior = (src && dst) ? BlendBehavior::kComposeTwoBehavior
-                                          : BlendBehavior::kComposeOneBehavior;
-        }
         this->registerChild(std::move(src));
         this->registerChild(std::move(dst));
     }

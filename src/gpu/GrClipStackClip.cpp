@@ -82,7 +82,11 @@ static std::unique_ptr<GrFragmentProcessor> create_fp_for_mask(GrSurfaceProxyVie
     auto domain = subset.makeInset(0.5, 0.5);
     auto fp = GrTextureEffect::MakeSubset(std::move(mask), kPremul_SkAlphaType, m, samplerState,
                                           subset, domain, caps);
-    fp = GrBlendFragmentProcessor::Make(std::move(fp), nullptr, SkBlendMode::kDstIn);
+    fp = GrBlendFragmentProcessor::Make(
+            std::move(fp),
+            nullptr,
+            SkBlendMode::kDstIn,
+            GrBlendFragmentProcessor::BlendBehavior::kComposeOneBehavior);
     return GrFragmentProcessor::DeviceSpace(std::move(fp));
 }
 

@@ -225,7 +225,11 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MulChildByInputAlpha(
     if (!fp) {
         return nullptr;
     }
-    return GrBlendFragmentProcessor::Make(/*src=*/nullptr, std::move(fp), SkBlendMode::kDstIn);
+    return GrBlendFragmentProcessor::Make(
+            /*src=*/nullptr,
+            std::move(fp),
+            SkBlendMode::kDstIn,
+            GrBlendFragmentProcessor::BlendBehavior::kComposeOneBehavior);
 }
 
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MulInputByChildAlpha(
@@ -233,7 +237,11 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MulInputByChildAlpha(
     if (!fp) {
         return nullptr;
     }
-    return GrBlendFragmentProcessor::Make(/*src=*/nullptr, std::move(fp), SkBlendMode::kSrcIn);
+    return GrBlendFragmentProcessor::Make(
+            /*src=*/nullptr,
+            std::move(fp),
+            SkBlendMode::kSrcIn,
+            GrBlendFragmentProcessor::BlendBehavior::kComposeOneBehavior);
 }
 
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::ModulateAlpha(
