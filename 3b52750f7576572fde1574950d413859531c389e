@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8c833a12_e5e35718",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-07-07T17:12:26Z",
+      "side": 1,
+      "message": "I don\u0027t know for sure if it\u0027s possible for this to fail (keeping track of what might not work in skvm vs. RP is tough), but I\u0027d suggest moving the return up one line, so that if it *does* fail, we still fall back?",
+      "revId": "3b52750f7576572fde1574950d413859531c389e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
