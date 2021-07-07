@@ -78,6 +78,7 @@ public:
         kEnum,
         kFragmentProcessor,
         kGeneric,
+        kLiteral,
         kMatrix,
         kOther,
         kSampler,
@@ -328,6 +329,7 @@ public:
             case Type::TypeKind::kVoid:
                 return 0;
 
+            case Type::TypeKind::kLiteral:
             case Type::TypeKind::kScalar:
             case Type::TypeKind::kEnum:
                 return 1;
@@ -385,11 +387,11 @@ public:
     }
 
     bool isScalar() const {
-        return fTypeKind == TypeKind::kScalar;
+        return fTypeKind == TypeKind::kScalar || fTypeKind == TypeKind::kLiteral;
     }
 
     bool isLiteral() const {
-        return fScalarTypeForLiteral != nullptr;
+        return fTypeKind == TypeKind::kLiteral;
     }
 
     const Type& scalarTypeForLiteral() const {
@@ -531,7 +533,7 @@ private:
     Type(const char* name, const Type& scalarType, int8_t priority)
             : INHERITED(/*offset=*/-1, kSymbolKind, name)
             , fAbbreviatedName("L")
-            , fTypeKind(TypeKind::kScalar)
+            , fTypeKind(TypeKind::kLiteral)
             , fNumberKind(scalarType.numberKind())
             , fColumns(1)
             , fRows(1)
