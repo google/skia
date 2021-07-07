@@ -172,7 +172,7 @@ void SkPaintFilterCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix
             if (   newPaint->getAlphaf()      == 1.0f
                 && newPaint->getColorFilter() == nullptr
                 && newPaint->getImageFilter() == nullptr
-                && newPaint->getBlendMode()   == SkBlendMode::kSrcOver) {
+                && newPaint->asBlendMode()    == SkBlendMode::kSrcOver) {
                 // restore the original nullptr
                 newPaint = nullptr;
             }
@@ -233,7 +233,7 @@ void SkPaintFilterCanvas::onDrawEdgeAAQuad(const SkRect& rect, const SkPoint cli
     AutoPaintFilter apf(this, paint);
     if (apf.shouldDraw()) {
         this->SkNWayCanvas::onDrawEdgeAAQuad(rect, clip, aa, apf.paint().getColor4f(),
-                                             apf.paint().getBlendMode());
+                                             apf.paint().getBlendMode_or(SkBlendMode::kSrcOver));
     }
 }
 

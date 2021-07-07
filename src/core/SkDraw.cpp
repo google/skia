@@ -921,9 +921,10 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
     {
         SkScalar coverage;
         if (SkDrawTreatAsHairline(origPaint, matrixProvider->localToDevice(), &coverage)) {
+            const auto bm = origPaint.asBlendMode();
             if (SK_Scalar1 == coverage) {
                 paint.writable()->setStrokeWidth(0);
-            } else if (SkBlendMode_SupportsCoverageAsAlpha(origPaint.getBlendMode())) {
+            } else if (bm && SkBlendMode_SupportsCoverageAsAlpha(bm.value())) {
                 U8CPU newAlpha;
 #if 0
                 newAlpha = SkToU8(SkScalarRoundToInt(coverage *

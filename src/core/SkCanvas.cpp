@@ -368,7 +368,7 @@ public:
             // color filter, so we have to inject an automatic saveLayer().
             SkPaint restorePaint;
             restorePaint.setImageFilter(fPaint.refImageFilter());
-            restorePaint.setBlendMode(fPaint.getBlendMode());
+            restorePaint.setBlender(fPaint.refBlender());
 
             // Remove the restorePaint fields from our "working" paint
             fPaint.setImageFilter(nullptr);

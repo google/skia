@@ -384,7 +384,7 @@ static_assert(SK_ARRAY_COUNT(gBlendModeMap) == static_cast<size_t>(SkBlendMode::
               "blendMode mismatch");
 
 void apply_paint_blend_mode(const SkPaint& paint, SkJSONWriter& writer) {
-    const auto mode = paint.getBlendMode();
+    const auto mode = paint.getBlendMode_or(SkBlendMode::kSrcOver);
     if (mode != SkBlendMode::kSrcOver) {
         SkASSERT(static_cast<size_t>(mode) < SK_ARRAY_COUNT(gBlendModeMap));
         writer.appendString(DEBUGCANVAS_ATTRIBUTE_BLENDMODE,

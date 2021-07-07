@@ -151,10 +151,10 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
                                            bool is_opaque,
                                            bool is_constant,
                                            sk_sp<SkShader> clipShader) {
-    auto blitter = alloc->make<SkRasterPipelineBlitter>(dst,
-                                                        paint.getBlendMode(),
-                                                        alloc);
+    const auto bm = paint.asBlendMode();
+    SkASSERT(bm);
 
+    auto blitter = alloc->make<SkRasterPipelineBlitter>(dst, bm.value(), alloc);
 
     // Our job in this factory is to fill out the blitter's color pipeline.
     // This is the common front of the full blit pipelines, each constructed lazily on first use.

@@ -779,7 +779,7 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
              device.colorType() == kRGB_565_SkColorType);
 
     // And we should either have a shader, be blending with SrcOver, or both.
-    SkASSERT(paint->getShader() || paint->getBlendMode() == SkBlendMode::kSrcOver);
+    SkASSERT(paint->getShader() || paint->asBlendMode() == SkBlendMode::kSrcOver);
 
     // Legacy blitters keep their shader state on a shader context.
     SkShaderBase::Context* shaderContext = nullptr;
