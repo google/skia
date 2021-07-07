@@ -22,6 +22,27 @@ DEF_TEST(SkTOptionalNulloptCtor, r) {
     REPORTER_ASSERT(r, !o.has_value());
 }
 
+DEF_TEST(SkTOptionalValueOr, r) {
+    {
+        skstd::optional<const char*> o;
+        REPORTER_ASSERT(r, !strcmp(o.value_or("Hello"), "Hello"));
+    }
+    {
+        skstd::optional<const char*> o("Bye");
+        REPORTER_ASSERT(r, !strcmp(o.value_or("Hello"), "Bye"));
+    }
+    {
+        skstd::optional<std::unique_ptr<int>> o;
+        std::unique_ptr<int> a = std::move(o).value_or(std::make_unique<int>(5));
+        REPORTER_ASSERT(r, *a == 5);
+    }
+    {
+        skstd::optional<std::unique_ptr<int>> o(std::make_unique<int>(3));
+        std::unique_ptr<int> a = std::move(o).value_or(std::make_unique<int>(5));
+        REPORTER_ASSERT(r, *a == 3);
+    }
+}
+
 DEF_TEST(SkTOptionalValue, r) {
     skstd::optional<const char*> o("test");
     REPORTER_ASSERT(r, o);
