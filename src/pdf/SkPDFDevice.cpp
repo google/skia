@@ -181,7 +181,7 @@ static SkTCopyOnFirstWrite<SkPaint> clean_paint(const SkPaint& srcPaint) {
     SkTCopyOnFirstWrite<SkPaint> paint(srcPaint);
     // If the paint will definitely draw opaquely, replace kSrc with
     // kSrcOver.  http://crbug.com/473572
-    if (SkBlendMode::kSrcOver != paint->getBlendMode() &&
+    if (!paint->isSrcOver() &&
         kSrcOver_SkXfermodeInterpretation == SkInterpretXfermode(*paint, false))
     {
         paint.writable()->setBlendMode(SkBlendMode::kSrcOver);
@@ -241,7 +241,7 @@ public:
             NOT_IMPLEMENTED(!matrix.hasPerspective(), false);
             return;
         }
-        fBlendMode = paint.getBlendMode();
+        fBlendMode = paint.getBlendMode_or(SkBlendMode::kSrcOver);
         fContentStream =
             fDevice->setUpContentEntry(clipStack, matrix, paint, textScale, &fDstFormXObject);
     }
@@ -1214,7 +1214,7 @@ SkDynamicMemoryWStream* SkPDFDevice::setUpContentEntry(const SkClipStack* clipSt
                                                        SkScalar textScale,
                                                        SkPDFIndirectReference* dst) {
     SkASSERT(!*dst);
-    SkBlendMode blendMode = paint.getBlendMode();
+    SkBlendMode blendMode = paint.getBlendMode_or(SkBlendMode::kSrcOver);
 
     // Dst xfer mode doesn't draw source at all.
     if (blendMode == SkBlendMode::kDst) {
@@ -1475,7 +1475,7 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
     // If the image is opaque and the paint's alpha is too, replace
     // kSrc blendmode with kSrcOver.  http://crbug.com/473572
     SkTCopyOnFirstWrite<SkPaint> paint(srcPaint);
-    if (SkBlendMode::kSrcOver != paint->getBlendMode() &&
+    if (!paint->isSrcOver() &&
         imageSubset.image()->isOpaque() &&
         kSrcOver_SkXfermodeInterpretation == SkInterpretXfermode(*paint, false))
     {
