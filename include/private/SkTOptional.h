@@ -118,32 +118,62 @@ public:
         return *this;
     }
 
-    const T& value() const {
+    T& operator*() & {
         SkASSERT(fHasValue);
         return fPayload.fValue;
     }
 
-    T& value() {
+    const T& operator*() const& {
+        SkASSERT(fHasValue);
         return fPayload.fValue;
     }
 
-    T& operator*() {
+    T&& operator*() && {
         SkASSERT(fHasValue);
-        return this->value();
+        return std::move(fPayload.fValue);
+    }
+
+    const T&& operator*() const&& {
+        SkASSERT(fHasValue);
+        return std::move(fPayload.fValue);
+    }
+
+    const T& value() const& {
+        SkASSERT_RELEASE(fHasValue);
+        return **this;
+    }
+
+    T& value() & {
+        SkASSERT_RELEASE(fHasValue);
+        return **this;
+    }
+
+    const T&& value() const&& {
+        SkASSERT_RELEASE(fHasValue);
+        return std::move(**this);
+    }
+
+    T&& value() && {
+        SkASSERT_RELEASE(fHasValue);
+        return std::move(**this);
     }
 
     T* operator->() {
-        SkASSERT(fHasValue);
-        return &this->value();
-    }
-
-    const T& operator*() const {
-        return this->value();
+        return &**this;
     }
 
     const T* operator->() const {
-        SkASSERT(fHasValue);
-        return &this->value();
+        return &**this;
+    }
+
+    template<typename U>
+    T value_or(U&& value) const& {
+        return this->has_value() ? **this : static_cast<T>(std::forward<U>(value));
+    }
+
+    template<typename U>
+    T value_or(U&& value) && {
+        return this->has_value() ? std::move(**this) : static_cast<T>(std::forward<U>(value));
     }
 
     bool has_value() const {
