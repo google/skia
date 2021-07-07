@@ -18,6 +18,23 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ceed084b_5ca2530e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-07T13:55:51Z",
+      "side": 1,
+      "message": "Thanks for putting this together, feels like a huge improvement!",
+      "revId": "2329efae28ea0a3dc58002c9bc5458285c92cc43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2350baf1_e043f8d9",
@@ -36,6 +53,75 @@
         "startChar": 0,
         "endLine": 94,
         "endChar": 1
+      },
+      "revId": "2329efae28ea0a3dc58002c9bc5458285c92cc43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2f24c466_266d878b",
+        "filename": "src/sksl/ir/SkSLType.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-07T13:55:51Z",
+      "side": 1,
+      "message": "What do you think about splitting out the introduction of a new enum kLiteral type into a separate CL? It seems easily separable and logically unrelated to the rest of the changes here, other than being motivated by the removal of fields on Type. It\u0027s probably fine but literals and coercion have always been fiddly so it seems wise to do it in a separately-revertable CL.",
+      "range": {
+        "startLine": 82,
+        "startChar": 8,
+        "endLine": 82,
+        "endChar": 16
+      },
+      "revId": "2329efae28ea0a3dc58002c9bc5458285c92cc43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8e3d0cfa_e88731fa",
+        "filename": "src/sksl/ir/SkSLType.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-07T13:55:51Z",
+      "side": 1,
+      "message": "tiny nit: this ends up calling `numberKind` three times, and it\u0027s not a trivial accessor anymore. It would be more efficient to call it directly and check the result against kFloat/kSigned/kUnsigned directly.",
+      "range": {
+        "startLine": 198,
+        "startChar": 15,
+        "endLine": 198,
+        "endChar": 51
+      },
+      "revId": "2329efae28ea0a3dc58002c9bc5458285c92cc43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fac4c8e4_bd01a9a2",
+        "filename": "src/sksl/ir/SkSLType.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-07T13:55:51Z",
+      "side": 1,
+      "message": "tiny nit: this ends up calling `numberKind` twice",
+      "range": {
+        "startLine": 226,
+        "startChar": 15,
+        "endLine": 226,
+        "endChar": 53
       },
       "revId": "2329efae28ea0a3dc58002c9bc5458285c92cc43",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"

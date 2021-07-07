@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "e2c5420b_4f13d2b6",
+        "filename": "src/sksl/ir/SkSLType.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-07T13:55:51Z",
+      "side": 0,
+      "message": "+1, the helper function is unobjectionable and the StructType type is otherwise an implementation detail that callers don\u0027t need to know about.",
+      "parentUuid": "1ac9c08a_0b81ae83",
+      "range": {
+        "startLine": 110,
+        "startChar": 0,
+        "endLine": 116,
+        "endChar": 0
+      },
+      "revId": "1700f865c5ea4a2c0c167cb08a7e6a08d28cea63",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "f031f50d_3ac70e6b",
