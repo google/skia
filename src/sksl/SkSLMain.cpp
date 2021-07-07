@@ -140,14 +140,6 @@ static bool detect_shader_settings(const SkSL::String& text,
                     static auto s_emulateAbsIntCaps = Factory::EmulateAbsIntFunction();
                     *caps = s_emulateAbsIntCaps.get();
                 }
-                if (settingsText.consumeSuffix(" FragCoordsOld")) {
-                    static auto s_fragCoordsOld = Factory::FragCoordsOld();
-                    *caps = s_fragCoordsOld.get();
-                }
-                if (settingsText.consumeSuffix(" FragCoordsNew")) {
-                    static auto s_fragCoordsNew = Factory::FragCoordsNew();
-                    *caps = s_fragCoordsNew.get();
-                }
                 if (settingsText.consumeSuffix(" GeometryShaderExtensionString")) {
                     static auto s_geometryExtCaps = Factory::GeometryShaderExtensionString();
                     *caps = s_geometryExtCaps.get();
@@ -216,9 +208,6 @@ static bool detect_shader_settings(const SkSL::String& text,
                 if (settingsText.consumeSuffix(" Version450Core")) {
                     static auto s_version450CoreCaps = Factory::Version450Core();
                     *caps = s_version450CoreCaps.get();
-                }
-                if (settingsText.consumeSuffix(" FlipY")) {
-                    settings->fFlipY = true;
                 }
                 if (settingsText.consumeSuffix(" ForceHighPrecision")) {
                     settings->fForceHighPrecision = true;
@@ -318,6 +307,13 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
             return ResultCode::kInputError;
         }
     }
+
+    // This tells the compiler where the rt-flip uniform will live should it be required. For
+    // testing purposes we don't care where that is, but the compiler will report an error if we
+    // leave them at their default invalid values.
+    settings.fRTFlipOffset  = 32;
+    settings.fRTFlipSet     = 0;
+    settings.fRTFlipBinding = 0;
 
     const SkSL::String& outputPath = args[2];
     auto emitCompileError = [&](SkSL::FileOutputStream& out, const char* errorText) {
