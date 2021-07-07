@@ -20,7 +20,6 @@
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
-#include "src/gpu/ops/GrFillRectOp.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "tests/TestUtils.h"
 
@@ -228,15 +227,10 @@ static GrColor input_texel_color(int i, int j, SkScalar delta) {
 }
 
 void test_draw_op(GrRecordingContext* rContext,
-                  GrSurfaceDrawContext* rtc,
+                  GrSurfaceDrawContext* sdc,
                   std::unique_ptr<GrFragmentProcessor> fp) {
-    GrPaint paint;
-    paint.setColorFragmentProcessor(std::move(fp));
-    paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-
-    auto op = GrFillRectOp::MakeNonAARect(rContext, std::move(paint), SkMatrix::I(),
-                                          SkRect::MakeWH(rtc->width(), rtc->height()));
-    rtc->addDrawOp(std::move(op));
+    sdc->fillRectWithFP(SkIRect::MakeSize(sdc->dimensions()),
+                        std::move(fp));
 }
 
 // The output buffer must be the same size as the render-target context.
