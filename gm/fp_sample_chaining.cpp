@@ -9,10 +9,11 @@
 #include "include/core/SkFont.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "src/gpu/GrDirectContextPriv.h"
+#include "src/gpu/GrPaint.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
-#include "src/gpu/ops/GrFillRectOp.h"
 #include "tools/ToolUtils.h"
 
 // Samples child with a uniform matrix (functionally identical to GrMatrixEffect)
