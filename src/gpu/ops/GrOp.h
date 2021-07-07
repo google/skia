@@ -69,7 +69,7 @@ class GrPaint;
 
 class GrOp : private SkNoncopyable {
 public:
-        using Owner = std::unique_ptr<GrOp>;
+    using Owner = std::unique_ptr<GrOp>;
 
     template<typename Op, typename... Args>
     static Owner Make(GrRecordingContext* context, Args&&... args) {

@@ -9,10 +9,11 @@
 #include "include/core/SkFont.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "src/gpu/GrDirectContextPriv.h"
+#include "src/gpu/GrPaint.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
-#include "src/gpu/ops/GrFillRectOp.h"
 #include "tools/ToolUtils.h"
 
 // Samples child with a uniform matrix (functionally identical to GrMatrixEffect)
@@ -149,7 +150,7 @@ static std::unique_ptr<GrFragmentProcessor> wrap(std::unique_ptr<GrFragmentProce
     SkUNREACHABLE;
 }
 
-DEF_SIMPLE_GPU_GM(fp_sample_chaining, ctx, sdCtx, canvas, 232, 232) {
+DEF_SIMPLE_GPU_GM(fp_sample_chaining, rContext, sdc, canvas, 232, 232) {
     SkBitmap bmp = make_test_bitmap();
 
     int x = 10, y = 10;
@@ -164,7 +165,7 @@ DEF_SIMPLE_GPU_GM(fp_sample_chaining, ctx, sdCtx, canvas, 232, 232) {
 #if 0
         auto fp = std::unique_ptr<GrFragmentProcessor>(new TestPatternEffect());
 #else
-        auto view = std::get<0>(GrMakeCachedBitmapProxyView(ctx, bmp, GrMipmapped::kNo));
+        auto view = std::get<0>(GrMakeCachedBitmapProxyView(rContext, bmp, GrMipmapped::kNo));
         auto fp = GrTextureEffect::Make(std::move(view), bmp.alphaType());
 #endif
         for (EffectType effectType : effects) {
@@ -172,8 +173,8 @@ DEF_SIMPLE_GPU_GM(fp_sample_chaining, ctx, sdCtx, canvas, 232, 232) {
         }
         GrPaint paint;
         paint.setColorFragmentProcessor(std::move(fp));
-        sdCtx->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::Translate(x, y),
-                        SkRect::MakeIWH(64, 64));
+        sdc->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::Translate(x, y),
+                      SkRect::MakeIWH(64, 64));
         nextCol();
     };
 
