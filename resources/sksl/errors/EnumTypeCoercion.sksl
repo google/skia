@@ -1,5 +1,0 @@
-enum class E {
-    kZero = 0
-};
-
-E e=0;

@@ -354,10 +354,6 @@ std::unique_ptr<Type> Type::MakeArrayType(String name, const Type& componentType
                                        componentType, columns);
 }
 
-std::unique_ptr<Type> Type::MakeEnumType(String name) {
-    return std::unique_ptr<Type>(new Type(std::move(name), "e", TypeKind::kEnum));
-}
-
 std::unique_ptr<Type> Type::MakeGenericType(const char* name, std::vector<const Type*> types) {
     return std::make_unique<GenericType>(name, std::move(types));
 }
@@ -600,9 +596,6 @@ const Type* Type::clone(SymbolTable* symbolTable) const {
             return symbolTable->add(std::make_unique<StructType>(this->fOffset,
                                                                  String(this->name()),
                                                                  this->fields()));
-
-        case TypeKind::kEnum:
-            return symbolTable->add(Type::MakeEnumType(String(this->name())));
 
         default:
             SkDEBUGFAILF("don't know how to clone type '%s'", this->description().c_str());

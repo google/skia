@@ -25,7 +25,6 @@
 #include "src/sksl/codegen/SkSLSPIRVtoHLSL.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/dsl/priv/DSL_priv.h"
-#include "src/sksl/ir/SkSLEnum.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLFunctionCall.h"
@@ -389,12 +388,6 @@ ParsedModule Compiler::parseModule(ProgramKind kind, ModuleData data, const Pars
             }
             case ProgramElement::Kind::kFunctionPrototype: {
                 // These are already in the symbol table.
-                break;
-            }
-            case ProgramElement::Kind::kEnum: {
-                const Enum& e = element->as<Enum>();
-                SkASSERT(e.isBuiltin());
-                intrinsics->insertOrDie(String(e.typeName()), std::move(element));
                 break;
             }
             case ProgramElement::Kind::kGlobalVar: {

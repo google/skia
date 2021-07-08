@@ -298,76 +298,11 @@ ASTNode::ID Parser::directive() {
     }
 }
 
-/* ENUM CLASS IDENTIFIER LBRACE (IDENTIFIER (EQ expression)? (COMMA IDENTIFIER (EQ expression))*)?
-   RBRACE */
-ASTNode::ID Parser::enumDeclaration() {
-    Token start;
-    if (!this->expect(Token::Kind::TK_ENUM, "'enum'", &start)) {
-        return ASTNode::ID::Invalid();
-    }
-    if (!this->expect(Token::Kind::TK_CLASS, "'class'")) {
-        return ASTNode::ID::Invalid();
-    }
-    Token name;
-    if (!this->expectIdentifier(&name)) {
-        return ASTNode::ID::Invalid();
-    }
-    if (!this->expect(Token::Kind::TK_LBRACE, "'{'")) {
-        return ASTNode::ID::Invalid();
-    }
-    fSymbols.add(Type::MakeEnumType(String(this->text(name))));
-    ASTNode::ID result = this->createNode(name.fOffset, ASTNode::Kind::kEnum, this->text(name));
-    if (!this->checkNext(Token::Kind::TK_RBRACE)) {
-        Token id;
-        if (!this->expectIdentifier(&id)) {
-            return ASTNode::ID::Invalid();
-        }
-        if (this->checkNext(Token::Kind::TK_EQ)) {
-            ASTNode::ID value = this->assignmentExpression();
-            if (!value) {
-                return ASTNode::ID::Invalid();
-            }
-            ASTNode::ID child = this->addChild(
-                    result, this->createNode(id.fOffset, ASTNode::Kind::kEnumCase, this->text(id)));
-            getNode(child).addChild(value);
-        } else {
-            this->addChild(result,
-                           this->createNode(id.fOffset, ASTNode::Kind::kEnumCase, this->text(id)));
-        }
-        while (!this->checkNext(Token::Kind::TK_RBRACE)) {
-            if (!this->expect(Token::Kind::TK_COMMA, "','")) {
-                return ASTNode::ID::Invalid();
-            }
-            if (!this->expectIdentifier(&id)) {
-                return ASTNode::ID::Invalid();
-            }
-            if (this->checkNext(Token::Kind::TK_EQ)) {
-                ASTNode::ID value = this->assignmentExpression();
-                if (!value) {
-                    return ASTNode::ID::Invalid();
-                }
-                ASTNode::ID child = this->addChild(
-                        result,
-                        this->createNode(id.fOffset, ASTNode::Kind::kEnumCase, this->text(id)));
-                getNode(child).addChild(value);
-            } else {
-                this->addChild(
-                        result,
-                        this->createNode(id.fOffset, ASTNode::Kind::kEnumCase, this->text(id)));
-            }
-        }
-    }
-    this->expect(Token::Kind::TK_SEMICOLON, "';'");
-    return result;
-}
-
-/* enumDeclaration | modifiers (interfaceBlock | structVarDeclaration | SEMICOLON |
+/* modifiers (interfaceBlock | structVarDeclaration | SEMICOLON |
    type IDENTIFIER (varDeclarationEnd | LPAREN functionDeclarationEnd))) */
 ASTNode::ID Parser::declaration() {
     Token lookahead = this->peek();
     switch (lookahead.fKind) {
-        case Token::Kind::TK_ENUM:
-            return this->enumDeclaration();
         case Token::Kind::TK_SEMICOLON:
             this->error(lookahead.fOffset, "expected a declaration, but found ';'");
             return ASTNode::ID::Invalid();
@@ -1809,7 +1744,6 @@ ASTNode::ID Parser::postfixExpression() {
             case Token::Kind::TK_LPAREN:
             case Token::Kind::TK_PLUSPLUS:
             case Token::Kind::TK_MINUSMINUS:
-            case Token::Kind::TK_COLONCOLON:
                 if (!depth.increase()) {
                     return ASTNode::ID::Invalid();
                 }
@@ -1825,7 +1759,7 @@ ASTNode::ID Parser::postfixExpression() {
 }
 
 /* LBRACKET expression? RBRACKET | DOT IDENTIFIER | LPAREN parameters RPAREN |
-   PLUSPLUS | MINUSMINUS | COLONCOLON IDENTIFIER | FLOAT_LITERAL [IDENTIFIER] */
+   PLUSPLUS | MINUSMINUS | FLOAT_LITERAL [IDENTIFIER] */
 ASTNode::ID Parser::suffix(ASTNode::ID base) {
     SkASSERT(base);
     Token next = this->nextToken();
@@ -1849,17 +1783,6 @@ ASTNode::ID Parser::suffix(ASTNode::ID base) {
             getNode(result).addChild(base);
             getNode(result).addChild(e);
             return result;
-        }
-        case Token::Kind::TK_COLONCOLON: {
-            int offset = this->peek().fOffset;
-            skstd::string_view text;
-            if (this->identifier(&text)) {
-                ASTNode::ID result = this->createNode(offset, ASTNode::Kind::kScope,
-                                                      std::move(text));
-                getNode(result).addChild(base);
-                return result;
-            }
-            return ASTNode::ID::Invalid();
         }
         case Token::Kind::TK_DOT: {
             int offset = this->peek().fOffset;

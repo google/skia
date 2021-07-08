@@ -38,7 +38,7 @@ public:
 
     // Makes a literal of the specified integer type.
     static std::unique_ptr<IntLiteral> Make(int offset, SKSL_INT value, const Type* type) {
-        SkASSERT(type->isInteger() || type->isEnum());
+        SkASSERT(type->isInteger());
         return std::make_unique<IntLiteral>(offset, value, type);
     }
 
@@ -67,7 +67,7 @@ public:
     }
 
     CoercionCost coercionCost(const Type& target) const override {
-        if (target.isSigned() || target.isUnsigned() || target.isFloat() || target.isEnum()) {
+        if (target.isNumber()) {
             return CoercionCost::Free();
         }
         return INHERITED::coercionCost(target);

@@ -50,7 +50,6 @@ public:
         // See OpenGL Spec 7.6.2.2 Standard Uniform Block Layout
         switch (type.typeKind()) {
             case Type::TypeKind::kScalar:
-            case Type::TypeKind::kEnum:
                 return this->size(type);
             case Type::TypeKind::kVector:
                 return vector_alignment(this->size(type.componentType()), type.columns());
@@ -111,8 +110,6 @@ public:
                 // FIXME need to take precision into account, once we figure out how we want to
                 // handle it...
                 return 4;
-            case Type::TypeKind::kEnum:
-                return 4;
             case Type::TypeKind::kVector:
                 if (fStd == kMetal_Standard && type.columns() == 3) {
                     return 4 * this->size(type.componentType());
@@ -147,7 +144,6 @@ public:
     static size_t LayoutIsSupported(const Type& type) {
         switch (type.typeKind()) {
             case Type::TypeKind::kScalar:
-            case Type::TypeKind::kEnum:
             case Type::TypeKind::kVector:
             case Type::TypeKind::kMatrix:
                 return true;

@@ -67,10 +67,6 @@ struct ASTNode {
         kDiscard,
         // children: statement, test
         kDo,
-        // data: name(string_view), children: enumCases
-        kEnum,
-        // data: name(string_view), children: value?
-        kEnumCase,
         // data: name(string_view)
         kExtension,
         // data: field(string_view), children: base
@@ -104,8 +100,6 @@ struct ASTNode {
         kPrefix,
         // children: value
         kReturn,
-        // data: field(string_view), children: base
-        kScope,
         // children: value, statement 1, statement 2...
         kSwitchCase,
         // children: value, case 1, case 2...
@@ -338,12 +332,9 @@ struct ASTNode {
                 fData.fKind = NodeData::Kind::kBool;
                 break;
 
-            case Kind::kEnum:
-            case Kind::kEnumCase:
             case Kind::kExtension:
             case Kind::kField:
             case Kind::kIdentifier:
-            case Kind::kScope:
             case Kind::kType:
                 fData.fKind = NodeData::Kind::kStringView;
                 break;

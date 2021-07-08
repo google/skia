@@ -52,22 +52,6 @@ String ASTNode::description() const {
         case Kind::kDo:
             return "do " + this->begin()->description() + " while (" +
                    (this->begin() + 1)->description() + ")";
-        case Kind::kEnum: {
-            String result = "enum ";
-            result += getStringView();
-            result += " {\n";
-            for (const auto& c : *this) {
-                result += c.description();
-                result += "\n";
-            }
-            result += "};";
-            return result;
-        }
-        case Kind::kEnumCase:
-            if (this->begin() != this->end()) {
-                return String(getStringView()) + " = " + this->begin()->description();
-            }
-            return String(getStringView());
         case Kind::kExtension:
             return "#extension " + getStringView();
         case Kind::kField:
@@ -170,8 +154,6 @@ String ASTNode::description() const {
                 return "return " + this->begin()->description() + ";";
             }
             return "return;";
-        case Kind::kScope:
-            return this->begin()->description() + "::" + getStringView();
         case Kind::kSwitchCase: {
             auto iter = this->begin();
             String result;

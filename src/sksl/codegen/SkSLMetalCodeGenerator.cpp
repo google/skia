@@ -90,9 +90,6 @@ String MetalCodeGenerator::typeName(const Type& type) {
         case Type::TypeKind::kSampler:
             return "texture2d<float>"; // FIXME - support other texture types
 
-        case Type::TypeKind::kEnum:
-            return "int";
-
         default:
             if (type == *fContext.fTypes.fHalf) {
                 // FIXME - Currently only supporting floats in MSL to avoid type coercion issues.
@@ -2330,8 +2327,6 @@ void MetalCodeGenerator::writeProgramElement(const ProgramElement& e) {
         case ProgramElement::Kind::kModifiers:
             this->writeModifiers(e.as<ModifiersDeclaration>().modifiers());
             this->writeLine(";");
-            break;
-        case ProgramElement::Kind::kEnum:
             break;
         default:
             SkDEBUGFAILF("unsupported program element: %s\n", e.description().c_str());

@@ -27,7 +27,6 @@
 #include "src/sksl/ir/SkSLContinueStatement.h"
 #include "src/sksl/ir/SkSLDiscardStatement.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
-#include "src/sksl/ir/SkSLEnum.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLField.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
@@ -186,11 +185,6 @@ void Dehydrator::write(const Symbol& s) {
                     this->writeId(&t);
                     this->write(t.componentType());
                     this->writeS8(t.columns());
-                    break;
-                case Type::TypeKind::kEnum:
-                    this->writeCommand(Rehydrator::kEnumType_Command);
-                    this->writeId(&t);
-                    this->write(t.name());
                     break;
                 case Type::TypeKind::kStruct:
                     this->writeCommand(Rehydrator::kStructType_Command);
@@ -541,19 +535,6 @@ void Dehydrator::write(const Statement* s) {
 
 void Dehydrator::write(const ProgramElement& e) {
     switch (e.kind()) {
-        case ProgramElement::Kind::kEnum: {
-            const Enum& en = e.as<Enum>();
-            this->writeCommand(Rehydrator::kEnum_Command);
-            this->write(en.typeName());
-            AutoDehydratorSymbolTable symbols(this, en.symbols());
-            for (const std::unique_ptr<const Symbol>& s : en.symbols()->fOwnedSymbols) {
-                const Variable& v = s->as<Variable>();
-                SkASSERT(v.initialValue());
-                const IntLiteral& i = v.initialValue()->as<IntLiteral>();
-                this->writeS32(i.value());
-            }
-            break;
-        }
         case ProgramElement::Kind::kExtension:
             SkASSERT(false);
             break;

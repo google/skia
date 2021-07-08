@@ -185,8 +185,7 @@ static bool is_float(const Context& context, const Type& type) {
 }
 
 static bool is_signed(const Context& context, const Type& type) {
-    return type.isEnum() ||
-           ((type.isScalar() || type.isVector()) && type.componentType().isSigned());
+    return (type.isScalar() || type.isVector()) && type.componentType().isSigned();
 }
 
 static bool is_unsigned(const Context& context, const Type& type) {
@@ -491,7 +490,7 @@ const Type& SPIRVCodeGenerator::getActualType(const Type& type) {
     if (type.isFloat()) {
         return *fContext.fTypes.fFloat;
     }
-    if (type.isSigned() || type.isEnum()) {
+    if (type.isSigned()) {
         return *fContext.fTypes.fInt;
     }
     if (type.isUnsigned()) {
@@ -548,9 +547,6 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
                 } else {
                     SkASSERT(false);
                 }
-                break;
-            case Type::TypeKind::kEnum:
-                this->writeInstruction(SpvOpTypeInt, result, 32, 1, fConstantBuffer);
                 break;
             case Type::TypeKind::kVector:
                 this->writeInstruction(SpvOpTypeVector, result,

@@ -69,10 +69,6 @@ public:
         kElements_Command,
         // no arguments--indicates end of Elements list
         kElementsComplete_Command,
-        // String typeName, SymbolTable symbols, int32[] values
-        kEnum_Command,
-        // uint16 id, String name
-        kEnumType_Command,
         // Expression expression
         kExpressionStatement_Command,
         // uint16 ownerId, uint8 index
