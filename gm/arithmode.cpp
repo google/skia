@@ -30,15 +30,12 @@
 
 #include <utility>
 
-#define WW  100
-#define HH  32
-
-static sk_sp<SkImage> make_src() {
-    sk_sp<SkSurface> surface(SkSurface::MakeRasterN32Premul(WW, HH));
+static sk_sp<SkImage> make_src(int w, int h) {
+    sk_sp<SkSurface> surface(SkSurface::MakeRasterN32Premul(w, h));
     SkCanvas* canvas = surface->getCanvas();
 
     SkPaint paint;
-    SkPoint pts[] = { {0, 0}, {SkIntToScalar(WW), SkIntToScalar(HH)} };
+    SkPoint pts[] = { {0, 0}, {SkIntToScalar(w), SkIntToScalar(h)} };
     SkColor colors[] = {
         SK_ColorTRANSPARENT, SK_ColorGREEN, SK_ColorCYAN,
         SK_ColorRED, SK_ColorMAGENTA, SK_ColorWHITE,
@@ -49,12 +46,12 @@ static sk_sp<SkImage> make_src() {
     return surface->makeImageSnapshot();
 }
 
-static sk_sp<SkImage> make_dst() {
-    sk_sp<SkSurface> surface(SkSurface::MakeRasterN32Premul(WW, HH));
+static sk_sp<SkImage> make_dst(int w, int h) {
+    sk_sp<SkSurface> surface(SkSurface::MakeRasterN32Premul(w, h));
     SkCanvas* canvas = surface->getCanvas();
 
     SkPaint paint;
-    SkPoint pts[] = { {0, SkIntToScalar(HH)}, {SkIntToScalar(WW), 0} };
+    SkPoint pts[] = { {0, SkIntToScalar(h)}, {SkIntToScalar(w), 0} };
     SkColor colors[] = {
         SK_ColorBLUE, SK_ColorYELLOW, SK_ColorBLACK, SK_ColorGREEN,
         SK_ColorGRAY,
@@ -85,8 +82,11 @@ class ArithmodeGM : public skiagm::GM {
     SkISize onISize() override { return {640, 572}; }
 
     void onDraw(SkCanvas* canvas) override {
-        sk_sp<SkImage> src = make_src();
-        sk_sp<SkImage> dst = make_dst();
+        constexpr int WW = 100,
+                      HH = 32;
+
+        sk_sp<SkImage> src = make_src(WW, HH);
+        sk_sp<SkImage> dst = make_dst(WW, HH);
         sk_sp<SkImageFilter> srcFilter = SkImageFilters::Image(src);
         sk_sp<SkImageFilter> dstFilter = SkImageFilters::Image(dst);
 
@@ -166,7 +166,66 @@ class ArithmodeGM : public skiagm::GM {
 private:
     using INHERITED = GM;
 };
+DEF_GM( return new ArithmodeGM; )
 
 ///////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return new ArithmodeGM; )
+#include "include/effects/SkBlenders.h"
+
+class Arithmode2GM : public skiagm::GM {
+    float           fK1, fK2, fK3, fK4;
+    sk_sp<SkImage>  fSrc, fDst, fChecker;
+
+    SkString onShortName() override { return SkString("arithmode_blender"); }
+
+    SkISize onISize() override { return {430, 430}; }
+
+    enum {
+        W = 200,
+        H = 200,
+    };
+
+    void onOnceBeforeDraw() override {
+        // need something interesting, in case we're drawn w/o calling animate()
+        fK1 = -0.25f;
+        fK2 =  0.25f;
+        fK3 =  0.25f;
+        fK4 =  0;
+
+        fSrc = make_src(W, H);
+        fDst = make_dst(W, H);
+
+        fChecker = ToolUtils::create_checkerboard_image(W, H, 0xFF999999, 0xFFCCCCCC, 8);
+    }
+
+    bool onAnimate(double nanos) override {
+        double theta = nanos * 1e-6 * 0.001;
+        fK1 = sin(theta + 0) * 0.25;
+        fK2 = cos(theta + 1) * 0.25;
+        fK3 = sin(theta + 2) * 0.25;
+        fK4 = 0.5;
+        return true;
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        const SkRect rect = SkRect::MakeWH(W, H);
+
+        canvas->drawImage(fSrc, 10, 10);
+        canvas->drawImage(fDst, 10, 10 + fSrc->height() + 10);
+
+        canvas->translate(10 + fSrc->width() + 10, 10);
+        canvas->drawImage(fChecker, 0, 0);
+
+        SkPaint paint;
+        paint.setBlender(SkBlenders::Arithmetic(fK1, fK2, fK3, fK4, true));
+
+        canvas->saveLayer(&rect, nullptr);
+        canvas->drawImage(fDst, 0, 0);
+        canvas->drawImage(fSrc, 0, 0, SkSamplingOptions(), &paint);
+        canvas->restore();
+    }
+
+private:
+    using INHERITED = GM;
+};
+DEF_GM( return new Arithmode2GM; )
