@@ -18,7 +18,6 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
-#include "include/private/GrSharedEnums.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/core/SkTLList.h"
 #include "src/gpu/GrFragmentProcessor.h"
