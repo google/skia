@@ -16,6 +16,23 @@
       "message": "Behavior question: Does a custom blender need to saturate its output (at least alpha), or do we always post-saturate it afterwards?",
       "revId": "e2c9a09252e0ce7315d66ce729c68a770d3b9c41",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "058855a2_6a1b5cc4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-07-08T14:01:50Z",
+      "side": 1,
+      "message": "I think it would be very nice cleanup to have the arithmetic image filter and blend mode filters just be backed by a Blender.\n\nThe current filter bounds code for arithmetic image filters follows similar logic to the bounds choices for the blend mode filter. If k[3] is non-zero, or both k[1] and k[2] are non-zero, then the bounds are the same as the kCustom blend mode. If k[1] !\u003d 0 \u0026 k[2] \u003d\u003d 0 then it\u0027s like kSrc, if it\u0027s k[1] \u003d\u003d 0 \u0026 k[2] !\u003d 0 then it\u0027s like kDst. If all coeffs are 0 then it\u0027s like kClear.\n\nIf blender had a private API to report the blend mode its bounds behave like, we could keep the bounds optimizations that arithmetic image filter has. Alternatively, maybe SkBlender has a private API that computes bounds based on src and dst bounds, and we have functions for both the legacy modes and arithmetic, simplifying the onFilterBounds() function inside SkBlendImageFilter.\n\nHowever, if we just used the default bounds of joining the src and dst rects, like the custom blend modes, the results should be correct, we\u0027d just be using larger than necessary images for the filtering.",
+      "revId": "e2c9a09252e0ce7315d66ce729c68a770d3b9c41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
