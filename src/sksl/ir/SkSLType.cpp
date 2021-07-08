@@ -19,6 +19,391 @@
 
 namespace SkSL {
 
+class ArrayType final : public Type {
+public:
+    static constexpr TypeKind kTypeKind = TypeKind::kArray;
+
+    ArrayType(String name, const char* abbrev, const Type& componentType, int count)
+        : INHERITED(std::move(name), abbrev, kTypeKind)
+        , fComponentType(componentType)
+        , fCount(count) {
+        // Allow either explicitly-sized or unsized arrays.
+        SkASSERT(count > 0 || count == kUnsizedArray);
+        // Disallow multi-dimensional arrays.
+        SkASSERT(!componentType.is<ArrayType>());
+    }
+
+    bool isArray() const override {
+        return true;
+    }
+
+    const Type& componentType() const override {
+        return fComponentType;
+    }
+
+    int columns() const override {
+        return fCount;
+    }
+
+    int bitWidth() const override {
+        return this->componentType().bitWidth();
+    }
+
+private:
+    using INHERITED = Type;
+
+    const Type& fComponentType;
+    int fCount;
+};
+
+class GenericType final : public Type {
+public:
+    static constexpr TypeKind kTypeKind = TypeKind::kGeneric;
+
+    GenericType(const char* name, std::vector<const Type*> coercibleTypes)
+        : INHERITED(name, "G", kTypeKind)
+        , fCoercibleTypes(std::move(coercibleTypes)) {}
+
+    const std::vector<const Type*>& coercibleTypes() const override {
+        return fCoercibleTypes;
+    }
+
+private:
+    using INHERITED = Type;
+
+    std::vector<const Type*> fCoercibleTypes;
+};
+
+class LiteralType : public Type {
+public:
+    static constexpr TypeKind kTypeKind = TypeKind::kLiteral;
+
+    LiteralType(const char* name, const Type& scalarType, int8_t priority)
+        : INHERITED(name, "L", kTypeKind)
+        , fScalarType(scalarType)
+        , fPriority(priority) {}
+
+    const Type& scalarTypeForLiteral() const override {
+        return fScalarType;
+    }
+
+    int priority() const override {
+        return fPriority;
+    }
+
+    int columns() const override {
+        return 1;
+    }
+
+    int rows() const override {
+        return 1;
+    }
+
+    NumberKind numberKind() const override {
+        return fScalarType.numberKind();
+    }
+
+    int bitWidth() const override {
+        return fScalarType.bitWidth();
+    }
+
+    bool isScalar() const override {
+        return true;
+    }
+
+    bool isLiteral() const override {
+        return true;
+    }
+
+private:
+    using INHERITED = Type;
+
+    const Type& fScalarType;
+    int8_t fPriority;
+};
+
+
+class ScalarType final : public Type {
+public:
+    static constexpr TypeKind kTypeKind = TypeKind::kScalar;
+
+    ScalarType(const char* name, const char* abbrev, NumberKind numberKind, int8_t priority,
+               int8_t bitWidth)
+        : INHERITED(name, abbrev, kTypeKind)
+        , fNumberKind(numberKind)
+        , fPriority(priority)
+        , fBitWidth(bitWidth) {}
+
+    NumberKind numberKind() const override {
+        return fNumberKind;
+    }
+
+    int priority() const override {
+        return fPriority;
+    }
+
+    int bitWidth() const override {
+        return fBitWidth;
+    }
+
+    int columns() const override {
+        return 1;
+    }
+
+    int rows() const override {
+        return 1;
+    }
+
+    bool isScalar() const override {
+        return true;
+    }
+
+private:
+    using INHERITED = Type;
+
+    NumberKind fNumberKind;
+    int8_t fPriority;
+    int8_t fBitWidth;
+};
+
+class MatrixType final : public Type {
+public:
+    static constexpr TypeKind kTypeKind = TypeKind::kMatrix;
+
+    MatrixType(String name, const char* abbrev, const Type& componentType, int8_t columns,
+               int8_t rows)
+        : INHERITED(std::move(name), abbrev, kTypeKind)
+        , fComponentType(componentType.as<ScalarType>())
+        , fColumns(columns)
+        , fRows(rows) {
+        SkASSERT(columns >= 2 && columns <= 4);
+        SkASSERT(rows >= 2 && rows <= 4);
+    }
+
+    const ScalarType& componentType() const override {
+        return fComponentType;
+    }
+
+    int columns() const override {
+        return fColumns;
+    }
+
+    int rows() const override {
+        return fRows;
+    }
+
+    int bitWidth() const override {
+        return this->componentType().bitWidth();
+    }
+
+    bool isMatrix() const override {
+        return true;
+    }
+
+private:
+    using INHERITED = Type;
+
+    const ScalarType& fComponentType;
+    int8_t fColumns;
+    int8_t fRows;
+};
+
+class TextureType final : public Type {
+public:
+    static constexpr TypeKind kTypeKind = TypeKind::kTexture;
+
+    TextureType(const char* name, SpvDim_ dimensions, bool isDepth, bool isArrayed,
+                bool isMultisampled, bool isSampled)
+        : INHERITED(name, "T", kTypeKind)
+        , fDimensions(dimensions)
+        , fIsDepth(isDepth)
+        , fIsArrayed(isArrayed)
+        , fIsMultisampled(isMultisampled)
+        , fIsSampled(isSampled) {}
+
+    SpvDim_ dimensions() const override {
+        return fDimensions;
+    }
+
+    bool isDepth() const override {
+        return fIsDepth;
+    }
+
+    bool isArrayedTexture() const override {
+        return fIsArrayed;
+    }
+
+    bool isMultisampled() const override {
+        return fIsMultisampled;
+    }
+
+    bool isSampled() const override {
+        return fIsSampled;
+    }
+
+private:
+    using INHERITED = Type;
+
+    SpvDim_ fDimensions;
+    bool fIsDepth;
+    bool fIsArrayed;
+    bool fIsMultisampled;
+    bool fIsSampled;
+};
+
+class SamplerType final : public Type {
+public:
+    static constexpr TypeKind kTypeKind = TypeKind::kSampler;
+
+    SamplerType(const char* name, const Type& textureType)
+        : INHERITED(name, "Z", kTypeKind)
+        , fTextureType(textureType.as<TextureType>()) {}
+
+    const TextureType& textureType() const override {
+        return fTextureType;
+    }
+
+    SpvDim_ dimensions() const override {
+        return fTextureType.dimensions();
+    }
+
+    bool isDepth() const override {
+        return fTextureType.isDepth();
+    }
+
+    bool isArrayedTexture() const override {
+        return fTextureType.isArrayedTexture();
+    }
+
+    bool isMultisampled() const override {
+        return fTextureType.isMultisampled();
+    }
+
+    bool isSampled() const override {
+        return fTextureType.isSampled();
+    }
+
+private:
+    using INHERITED = Type;
+
+    const TextureType& fTextureType;
+};
+
+class StructType final : public Type {
+public:
+    static constexpr TypeKind kTypeKind = TypeKind::kStruct;
+
+    StructType(int offset, String name, std::vector<Field> fields)
+        : INHERITED(std::move(name), "S", kTypeKind, offset)
+        , fFields(std::move(fields)) {}
+
+    const std::vector<Field>& fields() const override {
+        return fFields;
+    }
+
+    bool isStruct() const override {
+        return true;
+    }
+
+private:
+    using INHERITED = Type;
+
+    std::vector<Field> fFields;
+};
+
+class VectorType final : public Type {
+public:
+    static constexpr TypeKind kTypeKind = TypeKind::kVector;
+
+    VectorType(String name, const char* abbrev, const Type& componentType, int8_t columns)
+        : INHERITED(std::move(name), abbrev, kTypeKind)
+        , fComponentType(componentType.as<ScalarType>())
+        , fColumns(columns) {
+        SkASSERT(columns >= 2 && columns <= 4);
+    }
+
+    const ScalarType& componentType() const override {
+        return fComponentType;
+    }
+
+    int columns() const override {
+        return fColumns;
+    }
+
+    int rows() const override {
+        return 1;
+    }
+
+    int bitWidth() const override {
+        return this->componentType().bitWidth();
+    }
+
+    bool isVector() const override {
+        return true;
+    }
+
+private:
+    using INHERITED = Type;
+
+    const ScalarType& fComponentType;
+    int8_t fColumns;
+};
+
+std::unique_ptr<Type> Type::MakeArrayType(String name, const Type& componentType, int columns) {
+    return std::make_unique<ArrayType>(std::move(name), componentType.abbreviatedName(),
+                                       componentType, columns);
+}
+
+std::unique_ptr<Type> Type::MakeEnumType(String name) {
+    return std::unique_ptr<Type>(new Type(std::move(name), "e", TypeKind::kEnum));
+}
+
+std::unique_ptr<Type> Type::MakeGenericType(const char* name, std::vector<const Type*> types) {
+    return std::make_unique<GenericType>(name, std::move(types));
+}
+
+std::unique_ptr<Type> Type::MakeLiteralType(const char* name, const Type& scalarType,
+                                            int8_t priority) {
+    return std::make_unique<LiteralType>(name, scalarType, priority);
+}
+
+std::unique_ptr<Type> Type::MakeMatrixType(const char* name, const char* abbrev,
+                                           const Type& componentType, int columns, int8_t rows) {
+    return std::make_unique<MatrixType>(name, abbrev, componentType, columns, rows);
+}
+
+std::unique_ptr<Type> Type::MakeSamplerType(const char* name, const Type& textureType) {
+    return std::make_unique<SamplerType>(name, textureType);
+}
+
+std::unique_ptr<Type> Type::MakeSpecialType(const char* name, const char* abbrev,
+                                            Type::TypeKind typeKind) {
+    return std::unique_ptr<Type>(new Type(name, abbrev, typeKind));
+}
+
+std::unique_ptr<Type> Type::MakeScalarType(const char* name, const char* abbrev,
+                                           Type::NumberKind numberKind, int8_t priority,
+                                           int8_t bitWidth) {
+    return std::make_unique<ScalarType>(name, abbrev, numberKind, priority, bitWidth);
+
+}
+
+std::unique_ptr<Type> Type::MakeStructType(int offset, String name, std::vector<Field> fields) {
+    return std::make_unique<StructType>(offset, std::move(name), std::move(fields));
+}
+
+std::unique_ptr<Type> Type::MakeTextureType(const char* name, SpvDim_ dimensions, bool isDepth,
+                                            bool isArrayedTexture, bool isMultisampled,
+                                            bool isSampled) {
+    return std::make_unique<TextureType>(name, dimensions, isDepth, isArrayedTexture,
+                                         isMultisampled, isSampled);
+}
+
+std::unique_ptr<Type> Type::MakeVectorType(const char* name, const char* abbrev,
+                                           const Type& componentType, int columns) {
+    return std::make_unique<VectorType>(name, abbrev, componentType, columns);
+}
+
 CoercionCost Type::coercionCost(const Type& other) const {
     if (*this == other) {
         return CoercionCost::Free();
@@ -46,9 +431,10 @@ CoercionCost Type::coercionCost(const Type& other) const {
             return CoercionCost::Narrowing(this->priority() - other.priority());
         }
     }
-    if (fCoercibleTypes) {
-        for (size_t i = 0; i < fCoercibleTypes->size(); i++) {
-            if (*(*fCoercibleTypes)[i] == other) {
+    if (fTypeKind == TypeKind::kGeneric) {
+        const std::vector<const Type*>& types = this->coercibleTypes();
+        for (size_t i = 0; i < types.size(); i++) {
+            if (*types[i] == other) {
                 return CoercionCost::Normal((int) i + 1);
             }
         }
@@ -211,8 +597,9 @@ const Type* Type::clone(SymbolTable* symbolTable) const {
                                                                this->columns()));
 
         case TypeKind::kStruct:
-            return symbolTable->add(Type::MakeStructType(this->fOffset, String(this->name()),
-                                                         this->fields()));
+            return symbolTable->add(std::make_unique<StructType>(this->fOffset,
+                                                                 String(this->name()),
+                                                                 this->fields()));
 
         case TypeKind::kEnum:
             return symbolTable->add(Type::MakeEnumType(String(this->name())));
