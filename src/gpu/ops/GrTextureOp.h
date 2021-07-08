@@ -7,6 +7,7 @@
 #ifndef GrTextureOp_DEFINED
 #define GrTextureOp_DEFINED
 
+#if 0
 #include "include/core/SkCanvas.h"
 #include "include/core/SkRefCnt.h"
 #include "include/private/GrTypesPriv.h"
@@ -78,5 +79,6 @@ public:
 private:
     class BatchSizeLimiter;
 };
+#endif
 
 #endif  // GrTextureOp_DEFINED

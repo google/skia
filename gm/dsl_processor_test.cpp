@@ -9,6 +9,8 @@
 #include "include/core/SkFont.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "src/gpu/GrDirectContextPriv.h"
+#include "src/gpu/GrPaint.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/ops/GrFillRectOp.h"
 #include "src/sksl/dsl/priv/DSLFPs.h"
@@ -59,10 +61,10 @@ public:
     }
 };
 
-DEF_SIMPLE_GPU_GM(simple_dsl_test, ctx, sdCtx, canvas, 100, 100) {
+DEF_SIMPLE_GPU_GM(simple_dsl_test, ctx, sdc, canvas, 100, 100) {
     auto fp = std::make_unique<SimpleDSLEffect>();
     GrPaint paint;
     paint.setColorFragmentProcessor(std::move(fp));
-    sdCtx->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
-                    SkRect::MakeIWH(100, 100));
+    sdc->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
+                  SkRect::MakeIWH(100, 100));
 }

@@ -15,6 +15,7 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrGpuResourcePriv.h"
+#include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrOpsTask.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"

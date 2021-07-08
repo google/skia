@@ -13,6 +13,7 @@
 #include "include/core/SkTypes.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/GrPaint.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrTextureEffect.h"

@@ -275,6 +275,7 @@ public:
         return true;
     }
 
+#if SK_GPU_V1
     void addVertAccess(SkCanvas* canvas,
                        int wh,
                        int id,
@@ -290,6 +291,7 @@ public:
                        bool failFillingIn = false) {
         this->addVertAccess(canvas, wh, id, failLookup, failFillingIn, nullptr);
     }
+#endif
 
     bool checkVert(SkCanvas* canvas, int wh,
                    int expectedHits, int expectedMisses, int expectedNumRefs, int expectedID) {
@@ -411,6 +413,8 @@ private:
     std::unique_ptr<SkDeferredDisplayListRecorder> fRecorder1;
     std::unique_ptr<SkDeferredDisplayListRecorder> fRecorder2;
 };
+
+#if SK_GPU_V1
 
 class GrThreadSafeVertexTestOp : public GrDrawOp {
 public:
@@ -618,6 +622,8 @@ void TestHelper::addVertAccess(SkCanvas* canvas,
 
     sdc->addDrawOp(std::move(op));
 }
+
+#endif
 
 GrSurfaceProxyView TestHelper::CreateViewOnCpu(GrRecordingContext* rContext,
                                                int wh,

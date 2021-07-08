@@ -8,6 +8,7 @@
 #include "src/gpu/gl/GrGLTexture.h"
 
 #include "include/core/SkTraceMemoryDump.h"
+#include "src/core/SkTraceEvent.h"
 #include "src/gpu/GrSemaphore.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrTexture.h"
