@@ -1551,9 +1551,7 @@ SpvId SPIRVCodeGenerator::writeMatrixConstructor(const ConstructorCompound& c, O
     for (const std::unique_ptr<Expression>& arg : c.arguments()) {
         arguments.push_back(this->writeExpression(*arg, out));
     }
-    SpvId result = this->nextId(&type);
-    int rows = type.rows();
-    int columns = type.columns();
+
     if (arguments.size() == 1 && arg0Type.isVector()) {
         // Special-case handling of float4 -> mat2x2.
         SkASSERT(type.rows() == 2 && type.columns() == 2);
@@ -1565,50 +1563,50 @@ SpvId SPIRVCodeGenerator::writeMatrixConstructor(const ConstructorCompound& c, O
             this->writeInstruction(SpvOpCompositeExtract, componentType, v[i], arguments[0], i,
                                    out);
         }
-        SpvId columnType = this->getType(type.componentType().toCompound(fContext, 2, 1));
-        SpvId column1 = this->nextId(&type);
-        this->writeInstruction(SpvOpCompositeConstruct, columnType, column1, v[0], v[1], out);
-        SpvId column2 = this->nextId(&type);
-        this->writeInstruction(SpvOpCompositeConstruct, columnType, column2, v[2], v[3], out);
-        this->writeInstruction(SpvOpCompositeConstruct, this->getType(type), result, column1,
-                               column2, out);
-    } else {
-        SpvId columnType = this->getType(type.componentType().toCompound(fContext, rows, 1));
-        std::vector<SpvId> columnIds;
-        // ids of vectors and scalars we have written to the current column so far
-        std::vector<SpvId> currentColumn;
-        // the total number of scalars represented by currentColumn's entries
-        int currentCount = 0;
-        Precision precision = type.highPrecision() ? Precision::kDefault : Precision::kRelaxed;
-        for (size_t i = 0; i < arguments.size(); i++) {
-            const Type& argType = c.arguments()[i]->type();
-            if (currentCount == 0 && argType.isVector() &&
-                argType.columns() == type.rows()) {
-                // this is a complete column by itself
-                columnIds.push_back(arguments[i]);
+        const Type& vecType = type.componentType().toCompound(fContext, /*columns=*/2, /*rows=*/1);
+        SpvId v0v1 = this->writeComposite({v[0], v[1]}, vecType, out);
+        SpvId v2v3 = this->writeComposite({v[2], v[3]}, vecType, out);
+        return this->writeComposite({v0v1, v2v3}, type, out);
+    }
+
+    int rows = type.rows();
+    int columns = type.columns();
+    SpvId result = this->nextId(&type);
+    SpvId columnType = this->getType(type.componentType().toCompound(fContext, rows, 1));
+    std::vector<SpvId> columnIds;
+    // ids of vectors and scalars we have written to the current column so far
+    std::vector<SpvId> currentColumn;
+    // the total number of scalars represented by currentColumn's entries
+    int currentCount = 0;
+    Precision precision = type.highPrecision() ? Precision::kDefault : Precision::kRelaxed;
+    for (size_t i = 0; i < arguments.size(); i++) {
+        const Type& argType = c.arguments()[i]->type();
+        if (currentCount == 0 && argType.isVector() &&
+            argType.columns() == type.rows()) {
+            // this is a complete column by itself
+            columnIds.push_back(arguments[i]);
+        } else {
+            if (argType.columns() == 1) {
+                this->addColumnEntry(columnType, precision, &currentColumn, &columnIds,
+                                     &currentCount, rows, arguments[i], out);
             } else {
-                if (argType.columns() == 1) {
+                SpvId componentType = this->getType(argType.componentType());
+                for (int j = 0; j < argType.columns(); ++j) {
+                    SpvId swizzle = this->nextId(&argType);
+                    this->writeInstruction(SpvOpCompositeExtract, componentType, swizzle,
+                                           arguments[i], j, out);
                     this->addColumnEntry(columnType, precision, &currentColumn, &columnIds,
-                                         &currentCount, rows, arguments[i], out);
-                } else {
-                    SpvId componentType = this->getType(argType.componentType());
-                    for (int j = 0; j < argType.columns(); ++j) {
-                        SpvId swizzle = this->nextId(&argType);
-                        this->writeInstruction(SpvOpCompositeExtract, componentType, swizzle,
-                                               arguments[i], j, out);
-                        this->addColumnEntry(columnType, precision, &currentColumn, &columnIds,
-                                             &currentCount, rows, swizzle, out);
-                    }
+                                         &currentCount, rows, swizzle, out);
                 }
             }
         }
-        SkASSERT(columnIds.size() == (size_t) columns);
-        this->writeOpCode(SpvOpCompositeConstruct, 3 + columns, out);
-        this->writeWord(this->getType(type), out);
-        this->writeWord(result, out);
-        for (SpvId id : columnIds) {
-            this->writeWord(id, out);
-        }
+    }
+    SkASSERT(columnIds.size() == (size_t) columns);
+    this->writeOpCode(SpvOpCompositeConstruct, 3 + columns, out);
+    this->writeWord(this->getType(type), out);
+    this->writeWord(result, out);
+    for (SpvId id : columnIds) {
+        this->writeWord(id, out);
     }
     return result;
 }
@@ -1629,23 +1627,35 @@ SpvId SPIRVCodeGenerator::writeVectorConstructor(const ConstructorCompound& c, O
     }
 
     std::vector<SpvId> arguments;
+    arguments.reserve(c.arguments().size());
     for (size_t i = 0; i < c.arguments().size(); i++) {
         const Type& argType = c.arguments()[i]->type();
         SkASSERT(componentType == argType.componentType());
 
-        if (argType.isVector()) {
+        SpvId arg = this->writeExpression(*c.arguments()[i], out);
+        if (argType.isMatrix()) {
+            // CompositeConstruct cannot take a 2x2 matrix as an input, so we need to extract out
+            // each scalar separately.
+            SkASSERT(argType.rows() == 2);
+            SkASSERT(argType.columns() == 2);
+            for (int j = 0; j < 4; ++j) {
+                SpvId componentId = this->nextId(&componentType);
+                this->writeInstruction(SpvOpCompositeExtract, this->getType(componentType),
+                                       componentId, arg, j / 2, j % 2, out);
+                arguments.push_back(componentId);
+            }
+        } else if (argType.isVector()) {
             // There's a bug in the Intel Vulkan driver where OpCompositeConstruct doesn't handle
             // vector arguments at all, so we always extract each vector component and pass them
             // into OpCompositeConstruct individually.
-            SpvId vec = this->writeExpression(*c.arguments()[i], out);
             for (int j = 0; j < argType.columns(); j++) {
                 SpvId componentId = this->nextId(&componentType);
                 this->writeInstruction(SpvOpCompositeExtract, this->getType(componentType),
-                                       componentId, vec, j, out);
+                                       componentId, arg, j, out);
                 arguments.push_back(componentId);
             }
         } else {
-            arguments.push_back(this->writeExpression(*c.arguments()[i], out));
+            arguments.push_back(arg);
         }
     }
 
