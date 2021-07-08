@@ -14,7 +14,6 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/GrTypes.h"
-#include "include/private/GrSharedEnums.h"
 #include "include/private/SkImageInfoPriv.h"
 
 class GrBackendFormat;
@@ -695,6 +694,19 @@ static const int kGrVertexAttribTypeCount = kLast_GrVertexAttribType + 1;
 
 //////////////////////////////////////////////////////////////////////////////
 
+/**
+ * We have coverage effects that clip rendering to the edge of some geometric primitive.
+ * This enum specifies how that clipping is performed. Not all factories that take a
+ * GrProcessorEdgeType will succeed with all values and it is up to the caller to verify success.
+ */
+enum class GrClipEdgeType {
+    kFillBW,
+    kFillAA,
+    kInverseFillBW,
+    kInverseFillAA,
+
+    kLast = kInverseFillAA
+};
 static const int kGrClipEdgeTypeCnt = (int) GrClipEdgeType::kLast + 1;
 
 static constexpr bool GrProcessorEdgeTypeIsFill(const GrClipEdgeType edgeType) {
