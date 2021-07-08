@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8537de6a_edaa1294",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-07-08T14:44:49Z",
+      "side": 1,
+      "message": "Time to edicate flutter about blendmodes (and filterquality w.r.t. a diff CL)",
+      "revId": "9d0bfe5f6048dde59798547b0e414e640f67badc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
