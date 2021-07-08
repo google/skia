@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "82ca7f94_96127022",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-07-08T15:55:38Z",
+      "side": 1,
+      "message": "Things that are known to still exist, but can be chopped in follow-up CLs:\n\n1) enum support\n2) The CheckGeneratedFiles bot (it currently serves one other purpose, so want to see if we should just trim it back, or remove it entirely)\n\nThere\u0027s probably more, but I tried to be pretty aggressive.",
+      "revId": "585dcd143e1f526087515f9dafebb09270dedbe7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
