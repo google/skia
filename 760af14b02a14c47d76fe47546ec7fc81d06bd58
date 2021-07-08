@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2d8d574e_c8ca148d",
+        "filename": "src/effects/SkBlenders.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-07-08T13:49:45Z",
+      "side": 1,
+      "message": "Is there an advantage to SkOnce over something like\n\n  static const auto effect \u003d SkRuntimeEffect::MakeForBlender(...);\n  \n?",
+      "revId": "760af14b02a14c47d76fe47546ec7fc81d06bd58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "15351724_caeba3ce",
+        "filename": "src/effects/SkBlenders.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-07-08T13:49:45Z",
+      "side": 1,
+      "message": "SkASSERT(effect) ?",
+      "revId": "760af14b02a14c47d76fe47546ec7fc81d06bd58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
