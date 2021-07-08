@@ -225,11 +225,9 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MulChildByInputAlpha(
     if (!fp) {
         return nullptr;
     }
-    return GrBlendFragmentProcessor::Make(
-            /*src=*/nullptr,
-            OverrideInput(std::move(fp), SK_PMColor4fWHITE),
-            SkBlendMode::kDstIn,
-            GrBlendFragmentProcessor::BlendBehavior::kComposeOneBehavior);
+    return GrBlendFragmentProcessor::Make(/*src=*/nullptr,
+                                          OverrideInput(std::move(fp), SK_PMColor4fWHITE),
+                                          SkBlendMode::kDstIn);
 }
 
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MulInputByChildAlpha(
@@ -237,31 +235,25 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MulInputByChildAlpha(
     if (!fp) {
         return nullptr;
     }
-    return GrBlendFragmentProcessor::Make(
-            /*src=*/nullptr,
-            OverrideInput(std::move(fp), SK_PMColor4fWHITE),
-            SkBlendMode::kSrcIn,
-            GrBlendFragmentProcessor::BlendBehavior::kComposeOneBehavior);
+    return GrBlendFragmentProcessor::Make(/*src=*/nullptr,
+                                          OverrideInput(std::move(fp), SK_PMColor4fWHITE),
+                                          SkBlendMode::kSrcIn);
 }
 
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::ModulateAlpha(
         std::unique_ptr<GrFragmentProcessor> inputFP, const SkPMColor4f& color) {
     auto colorFP = MakeColor(color);
-    return GrBlendFragmentProcessor::Make(
-            std::move(colorFP),
-            std::move(inputFP),
-            SkBlendMode::kSrcIn,
-            GrBlendFragmentProcessor::BlendBehavior::kComposeOneBehavior);
+    return GrBlendFragmentProcessor::Make(std::move(colorFP),
+                                          std::move(inputFP),
+                                          SkBlendMode::kSrcIn);
 }
 
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::ModulateRGBA(
         std::unique_ptr<GrFragmentProcessor> inputFP, const SkPMColor4f& color) {
     auto colorFP = MakeColor(color);
-    return GrBlendFragmentProcessor::Make(
-            std::move(colorFP),
-            std::move(inputFP),
-            SkBlendMode::kModulate,
-            GrBlendFragmentProcessor::BlendBehavior::kComposeOneBehavior);
+    return GrBlendFragmentProcessor::Make(std::move(colorFP),
+                                          std::move(inputFP),
+                                          SkBlendMode::kModulate);
 }
 
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::ClampOutput(

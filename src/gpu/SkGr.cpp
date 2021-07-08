@@ -430,11 +430,9 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
 
             SkPMColor4f shaderInput = origColor.makeOpaque().premul();
             paintFP = GrFragmentProcessor::OverrideInput(std::move(paintFP), shaderInput);
-            paintFP = GrBlendFragmentProcessor::Make(
-                    std::move(paintFP),
-                    /*dst=*/nullptr,
-                    *primColorMode,
-                    GrBlendFragmentProcessor::BlendBehavior::kComposeOneBehavior);
+            paintFP = GrBlendFragmentProcessor::Make(std::move(paintFP),
+                                                     /*dst=*/nullptr,
+                                                     *primColorMode);
 
             // We can ignore origColor here - alpha is unchanged by gamma
             float paintAlpha = skPaint.getColor4f().fA;
@@ -453,11 +451,9 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
             // the opaque paint color. The paint's alpha is applied to the post-blended color.
             SkPMColor4f opaqueColor = origColor.makeOpaque().premul();
             paintFP = GrFragmentProcessor::MakeColor(opaqueColor);
-            paintFP = GrBlendFragmentProcessor::Make(
-                    std::move(paintFP),
-                    /*dst=*/nullptr,
-                    *primColorMode,
-                    GrBlendFragmentProcessor::BlendBehavior::kComposeOneBehavior);
+            paintFP = GrBlendFragmentProcessor::Make(std::move(paintFP),
+                                                     /*dst=*/nullptr,
+                                                     *primColorMode);
             grPaint->setColor4f(opaqueColor);
 
             // We can ignore origColor here - alpha is unchanged by gamma

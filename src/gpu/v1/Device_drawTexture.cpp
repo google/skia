@@ -510,17 +510,9 @@ void draw_image(GrRecordingContext* context,
                                        image.imageInfo().colorInfo(),
                                        rtc->colorInfo());
     if (image.isAlphaOnly()) {
-        fp = GrBlendFragmentProcessor::Make(
-                std::move(fp),
-                nullptr,
-                SkBlendMode::kDstIn,
-                GrBlendFragmentProcessor::BlendBehavior::kComposeOneBehavior);
+        fp = GrBlendFragmentProcessor::Make(std::move(fp), nullptr, SkBlendMode::kDstIn);
     } else {
-        fp = GrBlendFragmentProcessor::Make(
-                std::move(fp),
-                nullptr,
-                SkBlendMode::kSrcIn,
-                GrBlendFragmentProcessor::BlendBehavior::kComposeOneBehavior);
+        fp = GrBlendFragmentProcessor::Make(std::move(fp), nullptr, SkBlendMode::kSrcIn);
     }
 
     GrPaint grPaint;

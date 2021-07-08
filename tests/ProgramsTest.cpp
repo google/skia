@@ -204,18 +204,10 @@ static std::unique_ptr<GrFragmentProcessor> create_random_proc_tree(GrProcessorT
                                                                (int)SkBlendMode::kLastMode));
     std::unique_ptr<GrFragmentProcessor> fp;
     if (d->fRandom->nextF() < 0.5f) {
-        fp = GrBlendFragmentProcessor::Make(
-                std::move(minLevelsChild),
-                std::move(otherChild),
-                mode,
-                GrBlendFragmentProcessor::BlendBehavior::kComposeOneBehavior);
+        fp = GrBlendFragmentProcessor::Make(std::move(minLevelsChild), std::move(otherChild), mode);
         SkASSERT(fp);
     } else {
-        fp = GrBlendFragmentProcessor::Make(
-                std::move(otherChild),
-                std::move(minLevelsChild),
-                mode,
-                GrBlendFragmentProcessor::BlendBehavior::kComposeOneBehavior);
+        fp = GrBlendFragmentProcessor::Make(std::move(otherChild), std::move(minLevelsChild), mode);
         SkASSERT(fp);
     }
     return fp;

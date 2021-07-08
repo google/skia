@@ -100,11 +100,7 @@ GrFPResult SkModeColorFilter::asFragmentProcessor(std::unique_ptr<GrFragmentProc
     SkDEBUGCODE(const bool fpHasConstIO = !inputFP || inputFP->hasConstantOutputForConstantInput();)
 
     auto colorFP = GrFragmentProcessor::MakeColor(SkColorToPMColor4f(fColor, dstColorInfo));
-    auto xferFP = GrBlendFragmentProcessor::Make(
-            std::move(colorFP),
-            std::move(inputFP),
-            fMode,
-            GrBlendFragmentProcessor::BlendBehavior::kComposeOneBehavior);
+    auto xferFP = GrBlendFragmentProcessor::Make(std::move(colorFP), std::move(inputFP), fMode);
 
     if (xferFP == nullptr) {
         // This is only expected to happen if the blend mode is "dest" and the input FP is null.
