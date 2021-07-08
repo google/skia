@@ -2002,10 +2002,6 @@ int countText(const void* text, size_t byteLength) const;
 SkPaint
 uint8_t getAlpha() const;
 
-[Paint_getBlendMode]
-SkPaint
-SkBlendMode getBlendMode() const;
-
 [Paint_getColor]
 SkPaint
 SkColor getColor() const;

@@ -42,7 +42,11 @@ bool SkPaintPriv::Overwrites(const SkPaint* paint, ShaderOverrideOpacity overrid
         }
     }
 
-    return SkXfermode::IsOpaque(paint->getBlendMode(), opacityType);
+    const auto bm = paint->asBlendMode();
+    if (!bm) {
+        return false;   // don't know for sure, so we play it safe and return false.
+    }
+    return SkXfermode::IsOpaque(bm.value(), opacityType);
 }
 
 bool SkPaintPriv::ShouldDither(const SkPaint& p, SkColorType dstCT) {
