@@ -95,6 +95,7 @@ static const struct {
     { "angle_gl_es3_msaa4",    "gpu", "api=angle_gl_es3,samples=4" },
     { "angle_gl_es3_msaa8",    "gpu", "api=angle_gl_es3,samples=8" },
     { "cmdbuffer_es2",         "gpu", "api=cmdbuffer_es2" },
+    { "cmdbuffer_es2_dmsaa",   "gpu", "api=cmdbuffer_es2,dmsaa=true" },
     { "cmdbuffer_es3",         "gpu", "api=cmdbuffer_es3" },
     { "mock",                  "gpu", "api=mock" },
 #ifdef SK_DAWN
