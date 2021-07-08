@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f0cef053_c9cc24e9",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-07-08T20:27:39Z",
+      "side": 1,
+      "message": "I think this CL is correct, but it does regress performance if we would have made it here, right? I also suspect that even when there isn\u0027t an updatable shader, it\u0027s going to be slower - (just because skvm takes longer to set up than RP). Have you run any of the verts_* benches to see what happens?",
+      "revId": "0b87c56b9cd2ed8ff7f8c18a0f6ec832e22d6771",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
