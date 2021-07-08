@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c8c0f5cc_daeb05fa",
+        "filename": "src/sksl/ir/SkSLType.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-07-08T13:37:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2f0ae71b_088c0913",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 15
+      },
+      "revId": "60acec947821fac4a532b352d486945891366386",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c95ceb11_cb3cd635",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-07-07T20:59:58Z",
       "side": 1,
       "message": "This comment can be removed--none of the other type classes are documented here, and this is a duplicate of a matching comment in the header on `MakeGenericType`.",
+      "range": {
+        "startLine": 59,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 3
+      },
+      "revId": "60acec947821fac4a532b352d486945891366386",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c04f69bc_8b822c7b",
+        "filename": "src/sksl/ir/SkSLType.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-07-08T13:37:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c95ceb11_cb3cd635",
       "range": {
         "startLine": 59,
         "startChar": 0,
@@ -70,6 +118,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d0b5aaf5_de25ee54",
+        "filename": "src/sksl/ir/SkSLType.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-07-08T13:37:21Z",
+      "side": 1,
+      "message": "Removed.",
+      "parentUuid": "ac9b31c7_739edbc9",
+      "range": {
+        "startLine": 252,
+        "startChar": 0,
+        "endLine": 255,
+        "endChar": 24
+      },
+      "revId": "60acec947821fac4a532b352d486945891366386",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0ab83cf6_68dc5c82",
@@ -83,6 +155,30 @@
       "writtenOn": "2021-07-07T20:59:58Z",
       "side": 1,
       "message": "This is making a copy.\n\n    const std::vector\u003cconst Type*\u003e\u0026",
+      "range": {
+        "startLine": 439,
+        "startChar": 8,
+        "endLine": 439,
+        "endChar": 33
+      },
+      "revId": "60acec947821fac4a532b352d486945891366386",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "70c1191e_b458ed3c",
+        "filename": "src/sksl/ir/SkSLType.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-07-08T13:37:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0ab83cf6_68dc5c82",
       "range": {
         "startLine": 439,
         "startChar": 8,
@@ -116,6 +212,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "141a39f3_9277b76c",
+        "filename": "src/sksl/ir/SkSLType.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-07-08T13:37:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ec30aa21_f0635043",
+      "range": {
+        "startLine": 307,
+        "startChar": 8,
+        "endLine": 307,
+        "endChar": 23
+      },
+      "revId": "60acec947821fac4a532b352d486945891366386",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "31c9d904_97e7c9a4",
@@ -129,6 +249,30 @@
       "writtenOn": "2021-07-07T20:59:58Z",
       "side": 1,
       "message": "`SkDEBUGFAIL(\"explanatory message to the programmer\")` here and below?",
+      "range": {
+        "startLine": 340,
+        "startChar": 8,
+        "endLine": 340,
+        "endChar": 24
+      },
+      "revId": "60acec947821fac4a532b352d486945891366386",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "daba051c_94d08102",
+        "filename": "src/sksl/ir/SkSLType.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-07-08T13:37:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "31c9d904_97e7c9a4",
       "range": {
         "startLine": 340,
         "startChar": 8,
@@ -162,6 +306,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "91827773_47ce5012",
+        "filename": "src/sksl/ir/SkSLType.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 478,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-07-08T13:37:21Z",
+      "side": 1,
+      "message": "MakeEnumType currently returns Type(), as opposed to one of its subclasses. Obviously we could introduce a new class for \"special\" types if we wanted to, but we don\u0027t currently have one.",
+      "parentUuid": "568d409c_c10f52be",
+      "range": {
+        "startLine": 478,
+        "startChar": 0,
+        "endLine": 478,
+        "endChar": 44
+      },
+      "revId": "60acec947821fac4a532b352d486945891366386",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0f504d6a_5bd9e3d0",
@@ -175,6 +343,30 @@
       "writtenOn": "2021-07-07T20:59:58Z",
       "side": 1,
       "message": "Similarly, not important, but I bet this only actually applies to one subclass type (here and below)?",
+      "range": {
+        "startLine": 482,
+        "startChar": 15,
+        "endLine": 482,
+        "endChar": 56
+      },
+      "revId": "60acec947821fac4a532b352d486945891366386",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "433b2747_51ad9ed9",
+        "filename": "src/sksl/ir/SkSLType.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 482,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-07-08T13:37:21Z",
+      "side": 1,
+      "message": "Same here, the fragmentProcessor type is an instance of Type itself.",
+      "parentUuid": "0f504d6a_5bd9e3d0",
       "range": {
         "startLine": 482,
         "startChar": 15,

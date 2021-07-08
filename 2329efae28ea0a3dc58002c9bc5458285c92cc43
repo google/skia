@@ -106,6 +106,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "422fbb25_4ae255ee",
+        "filename": "src/sksl/ir/SkSLType.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-07-08T13:37:21Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "35ce238f_b3263a20",
+      "range": {
+        "startLine": 85,
+        "startChar": 0,
+        "endLine": 94,
+        "endChar": 1
+      },
+      "revId": "2329efae28ea0a3dc58002c9bc5458285c92cc43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2f24c466_266d878b",
