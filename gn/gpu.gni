@@ -763,6 +763,7 @@ skia_dawn_sources = [
 
 skia_metal_sources = [
   "$_include/gpu/mtl/GrMtlBackendContext.h",
+  "$_include/gpu/mtl/GrMtlMemoryAllocator.h",
   "$_include/gpu/mtl/GrMtlTypes.h",
   "$_src/gpu/mtl/GrMtlAttachment.h",
   "$_src/gpu/mtl/GrMtlAttachment.mm",
@@ -777,6 +778,8 @@ skia_metal_sources = [
   "$_src/gpu/mtl/GrMtlDepthStencil.mm",
   "$_src/gpu/mtl/GrMtlGpu.h",
   "$_src/gpu/mtl/GrMtlGpu.mm",
+  "$_src/gpu/mtl/GrMtlMemoryAllocatorImpl.h",
+  "$_src/gpu/mtl/GrMtlMemoryAllocatorImpl.mm",
   "$_src/gpu/mtl/GrMtlOpsRenderPass.h",
   "$_src/gpu/mtl/GrMtlOpsRenderPass.mm",
   "$_src/gpu/mtl/GrMtlPipelineState.h",
