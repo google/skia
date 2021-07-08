@@ -795,8 +795,8 @@ void GrSurfaceDrawContext::fillRectToRect(const GrClip* clip,
             croppedLocal = localRect;
         }
 
-        if (auto op = GrFillRRectOp::Make(fContext, std::move(paint), viewMatrix,
-                                          SkRRect::MakeRect(croppedRect), croppedLocal,
+        if (auto op = GrFillRRectOp::Make(fContext, this->arenaAlloc(), std::move(paint),
+                                          viewMatrix, SkRRect::MakeRect(croppedRect), croppedLocal,
                                           GrAA::kYes)) {
             this->addDrawOp(optimizedClip, std::move(op));
             return;
@@ -1073,8 +1073,8 @@ void GrSurfaceDrawContext::drawRRect(const GrClip* origClip,
     }
     if (!op && style.isSimpleFill()) {
         assert_alive(paint);
-        op = GrFillRRectOp::Make(fContext, std::move(paint), viewMatrix, rrect, rrect.rect(),
-                                 GrAA(aaType != GrAAType::kNone));
+        op = GrFillRRectOp::Make(fContext, this->arenaAlloc(), std::move(paint), viewMatrix, rrect,
+                                 rrect.rect(), GrAA(aaType != GrAAType::kNone));
     }
     if (!op && aaType == GrAAType::kCoverage) {
         assert_alive(paint);
@@ -1387,8 +1387,8 @@ void GrSurfaceDrawContext::drawOval(const GrClip* clip,
         // inside the oval's inner diamond). Given these optimizations, it's a clear win to draw
         // ovals the exact same way we do round rects.
         assert_alive(paint);
-        op = GrFillRRectOp::Make(fContext, std::move(paint), viewMatrix, SkRRect::MakeOval(oval),
-                                 oval, GrAA(aaType != GrAAType::kNone));
+        op = GrFillRRectOp::Make(fContext, this->arenaAlloc(), std::move(paint), viewMatrix,
+                                 SkRRect::MakeOval(oval), oval, GrAA(aaType != GrAAType::kNone));
     }
     if (!op && aaType == GrAAType::kCoverage) {
         assert_alive(paint);
