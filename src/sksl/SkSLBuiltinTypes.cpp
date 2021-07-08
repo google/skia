@@ -15,240 +15,172 @@
 
 namespace SkSL {
 
-/** Create a scalar type. */
-std::unique_ptr<Type> BuiltinTypes::MakeScalarType(const char* name,
-                                                   const char* abbrev,
-                                                   Type::NumberKind numberKind,
-                                                   int8_t priority,
-                                                   int8_t bitWidth) {
-    return std::unique_ptr<Type>(new Type(name, abbrev, numberKind, priority, bitWidth));
-}
-
-/** Create a type for literal scalars. */
-std::unique_ptr<Type> BuiltinTypes::MakeLiteralType(const char* name,
-                                                    const Type& scalarType,
-                                                    int8_t priority) {
-    return std::unique_ptr<Type>(new Type(name, scalarType, priority));
-}
-
-/** Create a vector type. */
-std::unique_ptr<Type> BuiltinTypes::MakeVectorType(const char* name,
-                                                   const char* abbrev,
-                                                   const Type& componentType,
-                                                   int columns) {
-    return std::unique_ptr<Type>(new Type(name, abbrev, Type::TypeKind::kVector,
-                                          componentType, columns));
-}
-
-/**
- * Create a generic type which maps to the listed types--e.g. $genType is a generic type which
- * can match float, float2, float3 or float4.
- */
-std::unique_ptr<Type> BuiltinTypes::MakeGenericType(const char* name,
-                                                    std::vector<const Type*> types) {
-    return std::unique_ptr<Type>(new Type(name, std::move(types)));
-}
-
-/** Create a matrix type. */
-std::unique_ptr<Type> BuiltinTypes::MakeMatrixType(const char* name,
-                                                   const char* abbrev,
-                                                   const Type& componentType,
-                                                   int columns,
-                                                   int8_t rows) {
-    return std::unique_ptr<Type>(new Type(name, abbrev, componentType, columns, rows));
-}
-
-/** Create a texture type. */
-std::unique_ptr<Type> BuiltinTypes::MakeTextureType(const char* name,
-                                                    SpvDim_ dimensions,
-                                                    bool isDepth,
-                                                    bool isArrayedTexture,
-                                                    bool isMultisampled,
-                                                    bool isSampled) {
-    return std::unique_ptr<Type>(
-            new Type(name, dimensions, isDepth, isArrayedTexture, isMultisampled, isSampled));
-}
-
-/** Create a sampler type. */
-std::unique_ptr<Type> BuiltinTypes::MakeSamplerType(const char* name, const Type& textureType) {
-    return std::unique_ptr<Type>(new Type(name, textureType));
-}
-
-/**
- * Create a "special" type with the given name, abbreviation, and TypeKind.
- */
-std::unique_ptr<Type> BuiltinTypes::MakeSpecialType(const char* name,
-                                                    const char* abbrev,
-                                                    Type::TypeKind typeKind) {
-    return std::unique_ptr<Type>(new Type(name, abbrev, typeKind));
-}
-
 /**
  * Initializes the core SkSL types.
  */
 BuiltinTypes::BuiltinTypes()
-        : fFloat(MakeScalarType(
+        : fFloat(Type::MakeScalarType(
                   "float", "f", Type::NumberKind::kFloat, /*priority=*/10, /*bitWidth=*/32))
-        , fFloat2(MakeVectorType("float2", "f2", *fFloat, /*columns=*/2))
-        , fFloat3(MakeVectorType("float3", "f3", *fFloat, /*columns=*/3))
-        , fFloat4(MakeVectorType("float4", "f4", *fFloat, /*columns=*/4))
-        , fHalf(MakeScalarType(
+        , fFloat2(Type::MakeVectorType("float2", "f2", *fFloat, /*columns=*/2))
+        , fFloat3(Type::MakeVectorType("float3", "f3", *fFloat, /*columns=*/3))
+        , fFloat4(Type::MakeVectorType("float4", "f4", *fFloat, /*columns=*/4))
+        , fHalf(Type::MakeScalarType(
                   "half", "h", Type::NumberKind::kFloat, /*priority=*/9, /*bitWidth=*/16))
-        , fHalf2(MakeVectorType("half2", "h2", *fHalf, /*columns=*/2))
-        , fHalf3(MakeVectorType("half3", "h3", *fHalf, /*columns=*/3))
-        , fHalf4(MakeVectorType("half4", "h4", *fHalf, /*columns=*/4))
-        , fInt(MakeScalarType(
+        , fHalf2(Type::MakeVectorType("half2", "h2", *fHalf, /*columns=*/2))
+        , fHalf3(Type::MakeVectorType("half3", "h3", *fHalf, /*columns=*/3))
+        , fHalf4(Type::MakeVectorType("half4", "h4", *fHalf, /*columns=*/4))
+        , fInt(Type::MakeScalarType(
                   "int", "i", Type::NumberKind::kSigned, /*priority=*/7, /*bitWidth=*/32))
-        , fInt2(MakeVectorType("int2", "i2", *fInt, /*columns=*/2))
-        , fInt3(MakeVectorType("int3", "i3", *fInt, /*columns=*/3))
-        , fInt4(MakeVectorType("int4", "i4", *fInt, /*columns=*/4))
-        , fUInt(MakeScalarType(
+        , fInt2(Type::MakeVectorType("int2", "i2", *fInt, /*columns=*/2))
+        , fInt3(Type::MakeVectorType("int3", "i3", *fInt, /*columns=*/3))
+        , fInt4(Type::MakeVectorType("int4", "i4", *fInt, /*columns=*/4))
+        , fUInt(Type::MakeScalarType(
                   "uint", "I", Type::NumberKind::kUnsigned, /*priority=*/6, /*bitWidth=*/32))
-        , fUInt2(MakeVectorType("uint2", "I2", *fUInt, /*columns=*/2))
-        , fUInt3(MakeVectorType("uint3", "I3", *fUInt, /*columns=*/3))
-        , fUInt4(MakeVectorType("uint4", "I4", *fUInt, /*columns=*/4))
-        , fShort(MakeScalarType(
+        , fUInt2(Type::MakeVectorType("uint2", "I2", *fUInt, /*columns=*/2))
+        , fUInt3(Type::MakeVectorType("uint3", "I3", *fUInt, /*columns=*/3))
+        , fUInt4(Type::MakeVectorType("uint4", "I4", *fUInt, /*columns=*/4))
+        , fShort(Type::MakeScalarType(
                   "short", "s", Type::NumberKind::kSigned, /*priority=*/4, /*bitWidth=*/16))
-        , fShort2(MakeVectorType("short2", "s2", *fShort, /*columns=*/2))
-        , fShort3(MakeVectorType("short3", "s3", *fShort, /*columns=*/3))
-        , fShort4(MakeVectorType("short4", "s4", *fShort, /*columns=*/4))
-        , fUShort(MakeScalarType(
+        , fShort2(Type::MakeVectorType("short2", "s2", *fShort, /*columns=*/2))
+        , fShort3(Type::MakeVectorType("short3", "s3", *fShort, /*columns=*/3))
+        , fShort4(Type::MakeVectorType("short4", "s4", *fShort, /*columns=*/4))
+        , fUShort(Type::MakeScalarType(
                   "ushort", "S", Type::NumberKind::kUnsigned, /*priority=*/3, /*bitWidth=*/16))
-        , fUShort2(MakeVectorType("ushort2", "S2", *fUShort, /*columns=*/2))
-        , fUShort3(MakeVectorType("ushort3", "S3", *fUShort, /*columns=*/3))
-        , fUShort4(MakeVectorType("ushort4", "S4", *fUShort, /*columns=*/4))
-        , fBool(MakeScalarType(
+        , fUShort2(Type::MakeVectorType("ushort2", "S2", *fUShort, /*columns=*/2))
+        , fUShort3(Type::MakeVectorType("ushort3", "S3", *fUShort, /*columns=*/3))
+        , fUShort4(Type::MakeVectorType("ushort4", "S4", *fUShort, /*columns=*/4))
+        , fBool(Type::MakeScalarType(
                   "bool", "b", Type::NumberKind::kBoolean, /*priority=*/0, /*bitWidth=*/1))
-        , fBool2(MakeVectorType("bool2", "b2", *fBool, /*columns=*/2))
-        , fBool3(MakeVectorType("bool3", "b3", *fBool, /*columns=*/3))
-        , fBool4(MakeVectorType("bool4", "b4", *fBool, /*columns=*/4))
-        , fInvalid(MakeSpecialType("<INVALID>", "O", Type::TypeKind::kOther))
-        , fPoison(MakeSpecialType(Compiler::POISON_TAG, "P", Type::TypeKind::kOther))
-        , fVoid(MakeSpecialType("void", "v", Type::TypeKind::kVoid))
-        , fFloatLiteral(MakeLiteralType("$floatLiteral", *fFloat, /*priority=*/8))
-        , fIntLiteral(MakeLiteralType("$intLiteral", *fInt, /*priority=*/5))
-        , fFloat2x2(MakeMatrixType("float2x2", "f22", *fFloat, /*columns=*/2, /*rows=*/2))
-        , fFloat2x3(MakeMatrixType("float2x3", "f23", *fFloat, /*columns=*/2, /*rows=*/3))
-        , fFloat2x4(MakeMatrixType("float2x4", "f24", *fFloat, /*columns=*/2, /*rows=*/4))
-        , fFloat3x2(MakeMatrixType("float3x2", "f32", *fFloat, /*columns=*/3, /*rows=*/2))
-        , fFloat3x3(MakeMatrixType("float3x3", "f33", *fFloat, /*columns=*/3, /*rows=*/3))
-        , fFloat3x4(MakeMatrixType("float3x4", "f34", *fFloat, /*columns=*/3, /*rows=*/4))
-        , fFloat4x2(MakeMatrixType("float4x2", "f42", *fFloat, /*columns=*/4, /*rows=*/2))
-        , fFloat4x3(MakeMatrixType("float4x3", "f43", *fFloat, /*columns=*/4, /*rows=*/3))
-        , fFloat4x4(MakeMatrixType("float4x4", "f44", *fFloat, /*columns=*/4, /*rows=*/4))
-        , fHalf2x2(MakeMatrixType("half2x2", "h22", *fHalf, /*columns=*/2, /*rows=*/2))
-        , fHalf2x3(MakeMatrixType("half2x3", "h23", *fHalf, /*columns=*/2, /*rows=*/3))
-        , fHalf2x4(MakeMatrixType("half2x4", "h24", *fHalf, /*columns=*/2, /*rows=*/4))
-        , fHalf3x2(MakeMatrixType("half3x2", "h32", *fHalf, /*columns=*/3, /*rows=*/2))
-        , fHalf3x3(MakeMatrixType("half3x3", "h33", *fHalf, /*columns=*/3, /*rows=*/3))
-        , fHalf3x4(MakeMatrixType("half3x4", "h34", *fHalf, /*columns=*/3, /*rows=*/4))
-        , fHalf4x2(MakeMatrixType("half4x2", "h42", *fHalf, /*columns=*/4, /*rows=*/2))
-        , fHalf4x3(MakeMatrixType("half4x3", "h43", *fHalf, /*columns=*/4, /*rows=*/3))
-        , fHalf4x4(MakeMatrixType("half4x4", "h44", *fHalf, /*columns=*/4, /*rows=*/4))
-        , fTexture1D(MakeTextureType("texture1D",
-                                     SpvDim1D,
-                                     /*isDepth=*/false,
-                                     /*isArrayedTexture=*/false,
-                                     /*isMultisampled=*/false,
-                                     /*isSampled=*/true))
-        , fTexture2D(MakeTextureType("texture2D",
-                                     SpvDim2D,
-                                     /*isDepth=*/false,
-                                     /*isArrayedTexture=*/false,
-                                     /*isMultisampled=*/false,
-                                     /*isSampled=*/true))
-        , fTexture3D(MakeTextureType("texture3D",
-                                     SpvDim3D,
-                                     /*isDepth=*/false,
-                                     /*isArrayedTexture=*/false,
-                                     /*isMultisampled=*/false,
-                                     /*isSampled=*/true))
-        , fTextureExternalOES(MakeTextureType("textureExternalOES",
-                                              SpvDim2D,
+        , fBool2(Type::MakeVectorType("bool2", "b2", *fBool, /*columns=*/2))
+        , fBool3(Type::MakeVectorType("bool3", "b3", *fBool, /*columns=*/3))
+        , fBool4(Type::MakeVectorType("bool4", "b4", *fBool, /*columns=*/4))
+        , fInvalid(Type::MakeSpecialType("<INVALID>", "O", Type::TypeKind::kOther))
+        , fPoison(Type::MakeSpecialType(Compiler::POISON_TAG, "P", Type::TypeKind::kOther))
+        , fVoid(Type::MakeSpecialType("void", "v", Type::TypeKind::kVoid))
+        , fFloatLiteral(Type::MakeLiteralType("$floatLiteral", *fFloat, /*priority=*/8))
+        , fIntLiteral(Type::MakeLiteralType("$intLiteral", *fInt, /*priority=*/5))
+        , fFloat2x2(Type::MakeMatrixType("float2x2", "f22", *fFloat, /*columns=*/2, /*rows=*/2))
+        , fFloat2x3(Type::MakeMatrixType("float2x3", "f23", *fFloat, /*columns=*/2, /*rows=*/3))
+        , fFloat2x4(Type::MakeMatrixType("float2x4", "f24", *fFloat, /*columns=*/2, /*rows=*/4))
+        , fFloat3x2(Type::MakeMatrixType("float3x2", "f32", *fFloat, /*columns=*/3, /*rows=*/2))
+        , fFloat3x3(Type::MakeMatrixType("float3x3", "f33", *fFloat, /*columns=*/3, /*rows=*/3))
+        , fFloat3x4(Type::MakeMatrixType("float3x4", "f34", *fFloat, /*columns=*/3, /*rows=*/4))
+        , fFloat4x2(Type::MakeMatrixType("float4x2", "f42", *fFloat, /*columns=*/4, /*rows=*/2))
+        , fFloat4x3(Type::MakeMatrixType("float4x3", "f43", *fFloat, /*columns=*/4, /*rows=*/3))
+        , fFloat4x4(Type::MakeMatrixType("float4x4", "f44", *fFloat, /*columns=*/4, /*rows=*/4))
+        , fHalf2x2(Type::MakeMatrixType("half2x2", "h22", *fHalf, /*columns=*/2, /*rows=*/2))
+        , fHalf2x3(Type::MakeMatrixType("half2x3", "h23", *fHalf, /*columns=*/2, /*rows=*/3))
+        , fHalf2x4(Type::MakeMatrixType("half2x4", "h24", *fHalf, /*columns=*/2, /*rows=*/4))
+        , fHalf3x2(Type::MakeMatrixType("half3x2", "h32", *fHalf, /*columns=*/3, /*rows=*/2))
+        , fHalf3x3(Type::MakeMatrixType("half3x3", "h33", *fHalf, /*columns=*/3, /*rows=*/3))
+        , fHalf3x4(Type::MakeMatrixType("half3x4", "h34", *fHalf, /*columns=*/3, /*rows=*/4))
+        , fHalf4x2(Type::MakeMatrixType("half4x2", "h42", *fHalf, /*columns=*/4, /*rows=*/2))
+        , fHalf4x3(Type::MakeMatrixType("half4x3", "h43", *fHalf, /*columns=*/4, /*rows=*/3))
+        , fHalf4x4(Type::MakeMatrixType("half4x4", "h44", *fHalf, /*columns=*/4, /*rows=*/4))
+        , fTexture1D(Type::MakeTextureType("texture1D",
+                                           SpvDim1D,
+                                           /*isDepth=*/false,
+                                           /*isArrayedTexture=*/false,
+                                           /*isMultisampled=*/false,
+                                           /*isSampled=*/true))
+        , fTexture2D(Type::MakeTextureType("texture2D",
+                                           SpvDim2D,
+                                           /*isDepth=*/false,
+                                           /*isArrayedTexture=*/false,
+                                           /*isMultisampled=*/false,
+                                           /*isSampled=*/true))
+        , fTexture3D(Type::MakeTextureType("texture3D",
+                                           SpvDim3D,
+                                           /*isDepth=*/false,
+                                           /*isArrayedTexture=*/false,
+                                           /*isMultisampled=*/false,
+                                           /*isSampled=*/true))
+        , fTextureExternalOES(Type::MakeTextureType("textureExternalOES",
+                                                    SpvDim2D,
+                                                    /*isDepth=*/false,
+                                                    /*isArrayedTexture=*/false,
+                                                    /*isMultisampled=*/false,
+                                                    /*isSampled=*/true))
+        , fTextureCube(Type::MakeTextureType("textureCube",
+                                             SpvDimCube,
+                                             /*isDepth=*/false,
+                                             /*isArrayedTexture=*/false,
+                                             /*isMultisampled=*/false,
+                                             /*isSampled=*/true))
+        , fTexture2DRect(Type::MakeTextureType("texture2DRect",
+                                               SpvDimRect,
+                                               /*isDepth=*/false,
+                                               /*isArrayedTexture=*/false,
+                                               /*isMultisampled=*/false,
+                                               /*isSampled=*/true))
+        , fITexture2D(Type::MakeTextureType("itexture2D",
+                                            SpvDim2D,
+                                            /*isDepth=*/false,
+                                            /*isArrayedTexture=*/false,
+                                            /*isMultisampled=*/false,
+                                            /*isSampled=*/true))
+        , fSampler1D(Type::MakeSamplerType("sampler1D", *fTexture1D))
+        , fSampler2D(Type::MakeSamplerType("sampler2D", *fTexture2D))
+        , fSampler3D(Type::MakeSamplerType("sampler3D", *fTexture3D))
+        , fSamplerExternalOES(Type::MakeSamplerType("samplerExternalOES", *fTextureExternalOES))
+        , fSampler2DRect(Type::MakeSamplerType("sampler2DRect", *fTexture2DRect))
+
+        , fISampler2D(Type::MakeSamplerType("isampler2D", *fITexture2D))
+
+        , fSampler(Type::MakeSpecialType("sampler", "ss", Type::TypeKind::kSeparateSampler))
+
+        , fSubpassInput(Type::MakeTextureType("subpassInput",
+                                              SpvDimSubpassData,
                                               /*isDepth=*/false,
                                               /*isArrayedTexture=*/false,
                                               /*isMultisampled=*/false,
-                                              /*isSampled=*/true))
-        , fTextureCube(MakeTextureType("textureCube",
-                                       SpvDimCube,
-                                       /*isDepth=*/false,
-                                       /*isArrayedTexture=*/false,
-                                       /*isMultisampled=*/false,
-                                       /*isSampled=*/true))
-        , fTexture2DRect(MakeTextureType("texture2DRect",
-                                         SpvDimRect,
-                                         /*isDepth=*/false,
-                                         /*isArrayedTexture=*/false,
-                                         /*isMultisampled=*/false,
-                                         /*isSampled=*/true))
-        , fITexture2D(MakeTextureType("itexture2D",
-                                      SpvDim2D,
-                                      /*isDepth=*/false,
-                                      /*isArrayedTexture=*/false,
-                                      /*isMultisampled=*/false,
-                                      /*isSampled=*/true))
-        , fSampler1D(MakeSamplerType("sampler1D", *fTexture1D))
-        , fSampler2D(MakeSamplerType("sampler2D", *fTexture2D))
-        , fSampler3D(MakeSamplerType("sampler3D", *fTexture3D))
-        , fSamplerExternalOES(MakeSamplerType("samplerExternalOES", *fTextureExternalOES))
-        , fSampler2DRect(MakeSamplerType("sampler2DRect", *fTexture2DRect))
+                                              /*isSampled=*/false))
+        , fSubpassInputMS(Type::MakeTextureType("subpassInputMS",
+                                                SpvDimSubpassData,
+                                                /*isDepth=*/false,
+                                                /*isArrayedTexture=*/false,
+                                                /*isMultisampled=*/true,
+                                                /*isSampled=*/false))
 
-        , fISampler2D(MakeSamplerType("isampler2D", *fITexture2D))
-
-        , fSampler(MakeSpecialType("sampler", "ss", Type::TypeKind::kSeparateSampler))
-
-        , fSubpassInput(MakeTextureType("subpassInput",
-                                        SpvDimSubpassData,
-                                        /*isDepth=*/false,
-                                        /*isArrayedTexture=*/false,
-                                        /*isMultisampled=*/false,
-                                        /*isSampled=*/false))
-        , fSubpassInputMS(MakeTextureType("subpassInputMS",
-                                          SpvDimSubpassData,
-                                          /*isDepth=*/false,
-                                          /*isArrayedTexture=*/false,
-                                          /*isMultisampled=*/true,
-                                          /*isSampled=*/false))
-
-        , fGenType(MakeGenericType("$genType",
-                                   {fFloat.get(), fFloat2.get(), fFloat3.get(), fFloat4.get()}))
-        , fGenHType(MakeGenericType("$genHType",
-                                    {fHalf.get(), fHalf2.get(), fHalf3.get(), fHalf4.get()}))
-        , fGenIType(
-                  MakeGenericType("$genIType", {fInt.get(), fInt2.get(), fInt3.get(), fInt4.get()}))
-        , fGenUType(MakeGenericType("$genUType",
-                                    {fUInt.get(), fUInt2.get(), fUInt3.get(), fUInt4.get()}))
-        , fGenBType(MakeGenericType("$genBType",
-                                    {fBool.get(), fBool2.get(), fBool3.get(), fBool4.get()}))
-        , fMat(MakeGenericType("$mat",
-                               {fFloat2x2.get(), fFloat2x3.get(), fFloat2x4.get(), fFloat3x2.get(),
-                                fFloat3x3.get(), fFloat3x4.get(), fFloat4x2.get(), fFloat4x3.get(),
-                                fFloat4x4.get()}))
-        , fHMat(MakeGenericType(
+        , fGenType(Type::MakeGenericType("$genType", {fFloat.get(), fFloat2.get(), fFloat3.get(),
+                                                      fFloat4.get()}))
+        , fGenHType(Type::MakeGenericType("$genHType", {fHalf.get(), fHalf2.get(), fHalf3.get(),
+                                                        fHalf4.get()}))
+        , fGenIType(Type::MakeGenericType("$genIType", {fInt.get(), fInt2.get(), fInt3.get(),
+                                                        fInt4.get()}))
+        , fGenUType(Type::MakeGenericType("$genUType", {fUInt.get(), fUInt2.get(), fUInt3.get(),
+                                                        fUInt4.get()}))
+        , fGenBType(Type::MakeGenericType("$genBType", {fBool.get(), fBool2.get(), fBool3.get(),
+                                                        fBool4.get()}))
+        , fMat(Type::MakeGenericType("$mat", {fFloat2x2.get(), fFloat2x3.get(), fFloat2x4.get(),
+                                              fFloat3x2.get(), fFloat3x3.get(), fFloat3x4.get(),
+                                              fFloat4x2.get(), fFloat4x3.get(), fFloat4x4.get()}))
+        , fHMat(Type::MakeGenericType(
                   "$hmat",
                   {fHalf2x2.get(), fHalf2x3.get(), fHalf2x4.get(), fHalf3x2.get(), fHalf3x3.get(),
                    fHalf3x4.get(), fHalf4x2.get(), fHalf4x3.get(), fHalf4x4.get()}))
-        , fSquareMat(MakeGenericType("$squareMat",
-                                     {fFloat2x2.get(), fFloat3x3.get(), fFloat4x4.get()}))
-        , fSquareHMat(
-                  MakeGenericType("$squareHMat", {fHalf2x2.get(), fHalf3x3.get(), fHalf4x4.get()}))
-        , fVec(MakeGenericType("$vec",
-                               {fInvalid.get(), fFloat2.get(), fFloat3.get(), fFloat4.get()}))
-        , fHVec(MakeGenericType("$hvec",
-                                {fInvalid.get(), fHalf2.get(), fHalf3.get(), fHalf4.get()}))
-        , fIVec(MakeGenericType("$ivec", {fInvalid.get(), fInt2.get(), fInt3.get(), fInt4.get()}))
-        , fUVec(MakeGenericType("$uvec",
-                                {fInvalid.get(), fUInt2.get(), fUInt3.get(), fUInt4.get()}))
-        , fSVec(MakeGenericType("$svec",
-                                {fInvalid.get(), fShort2.get(), fShort3.get(), fShort4.get()}))
-        , fUSVec(MakeGenericType("$usvec",
-                                 {fInvalid.get(), fUShort2.get(), fUShort3.get(), fUShort4.get()}))
-        , fBVec(MakeGenericType("$bvec",
-                                {fInvalid.get(), fBool2.get(), fBool3.get(), fBool4.get()}))
-        , fSkCaps(MakeSpecialType("$sk_Caps", "O", Type::TypeKind::kOther))
-        , fFragmentProcessor(MakeSpecialType("fragmentProcessor", "fp",
-                                             Type::TypeKind::kFragmentProcessor))
-        , fColorFilter(MakeSpecialType("colorFilter", "CF", Type::TypeKind::kColorFilter))
-        , fShader(MakeSpecialType("shader", "SH", Type::TypeKind::kShader)) {}
+        , fSquareMat(Type::MakeGenericType("$squareMat", {fFloat2x2.get(), fFloat3x3.get(),
+                                                          fFloat4x4.get()}))
+        , fSquareHMat(Type::MakeGenericType("$squareHMat", {fHalf2x2.get(), fHalf3x3.get(),
+                                                            fHalf4x4.get()}))
+        , fVec(Type::MakeGenericType("$vec", {fInvalid.get(), fFloat2.get(), fFloat3.get(),
+                                              fFloat4.get()}))
+        , fHVec(Type::MakeGenericType("$hvec", {fInvalid.get(), fHalf2.get(), fHalf3.get(),
+                                                fHalf4.get()}))
+        , fIVec(Type::MakeGenericType("$ivec", {fInvalid.get(), fInt2.get(), fInt3.get(),
+                                                fInt4.get()}))
+        , fUVec(Type::MakeGenericType("$uvec", {fInvalid.get(), fUInt2.get(), fUInt3.get(),
+                                                fUInt4.get()}))
+        , fSVec(Type::MakeGenericType("$svec", {fInvalid.get(), fShort2.get(), fShort3.get(),
+                                                fShort4.get()}))
+        , fUSVec(Type::MakeGenericType("$usvec", {fInvalid.get(), fUShort2.get(), fUShort3.get(),
+                                                  fUShort4.get()}))
+        , fBVec(Type::MakeGenericType("$bvec", {fInvalid.get(), fBool2.get(), fBool3.get(),
+                                                fBool4.get()}))
+        , fSkCaps(Type::MakeSpecialType("$sk_Caps", "O", Type::TypeKind::kOther))
+        , fFragmentProcessor(Type::MakeSpecialType("fragmentProcessor", "fp",
+                                                   Type::TypeKind::kFragmentProcessor))
+        , fColorFilter(Type::MakeSpecialType("colorFilter", "CF", Type::TypeKind::kColorFilter))
+        , fShader(Type::MakeSpecialType("shader", "SH", Type::TypeKind::kShader)) {}
 
 }  // namespace SkSL
