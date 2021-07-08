@@ -94,6 +94,30 @@
       },
       "revId": "db7ac9da28b42cb9a84b3ffa4327210d728bc49b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4c3a879f_821f9cb6",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1169,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-07-08T15:00:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3c442dee_c19eef7f",
+      "range": {
+        "startLine": 1169,
+        "startChar": 29,
+        "endLine": 1169,
+        "endChar": 35
+      },
+      "revId": "db7ac9da28b42cb9a84b3ffa4327210d728bc49b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
