@@ -108,6 +108,6 @@ DEF_BENCH(return new SkottiePictureDecodeBench("skottiepic_medium",
 DEF_BENCH(return new SkottiePictureDecodeBench("skottiepic_small",
                                                "skottie/skottie_sample_multiframe.json"));
 
-//DEF_BENCH(return new BitmapDecodeBench("png_large" , "images/img_0.png"));        // 2000x1047
+DEF_BENCH(return new BitmapDecodeBench("png_large" , "images/mandrill_1600.png"));// 1600x1600
 DEF_BENCH(return new BitmapDecodeBench("png_medium", "images/mandrill_512.png")); //  512x 512
 DEF_BENCH(return new BitmapDecodeBench("png_small" , "images/mandrill_32.png"));  //   32x  32
