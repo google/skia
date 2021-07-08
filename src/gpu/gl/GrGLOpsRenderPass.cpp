@@ -9,6 +9,7 @@
 
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRenderTarget.h"
+#include "src/gpu/GrSimpleMesh.h"
 
 #ifdef SK_DEBUG
 #include "include/gpu/GrDirectContext.h"

@@ -8,6 +8,7 @@
 #ifndef GrOpsTask_DEFINED
 #define GrOpsTask_DEFINED
 
+#if 0
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
@@ -282,5 +283,5 @@ private:
     SkRect fTotalBounds = SkRect::MakeEmpty();
     SkIRect fClippedContentBounds = SkIRect::MakeEmpty();
 };
-
+#endif
 #endif

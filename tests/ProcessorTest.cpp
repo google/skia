@@ -27,6 +27,9 @@
 #include <random>
 
 namespace {
+
+#if SK_GPU_V1
+
 class TestOp : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
@@ -140,7 +143,12 @@ private:
 
     using INHERITED = GrFragmentProcessor;
 };
+
+#endif // SK_GPU_V1
+
 }  // namespace
+
+#if SK_GPU_V1
 
 DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
     auto context = ctxInfo.directContext();
@@ -195,6 +203,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
         }
     }
 }
+#endif // SK_GPU_V1
 
 #include "tools/flags/CommandLineFlags.h"
 static DEFINE_bool(randomProcessorTest, false,

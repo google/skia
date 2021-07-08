@@ -26,7 +26,6 @@ tests_sources = [
   "$_tests/BlendTest.cpp",
   "$_tests/BlitMaskClip.cpp",
   "$_tests/BlurTest.cpp",
-  "$_tests/BulkRectTest.cpp",
   "$_tests/CTest.cpp",
   "$_tests/CachedDataTest.cpp",
   "$_tests/CachedDecodingPixelRefTest.cpp",
@@ -162,7 +161,6 @@ tests_sources = [
   "$_tests/NonlinearBlendingTest.cpp",
   "$_tests/OSPathTest.cpp",
   "$_tests/OffsetSimplePolyTest.cpp",
-  "$_tests/OnFlushCallbackTest.cpp",
   "$_tests/OnceTest.cpp",
   "$_tests/OverAlignedTest.cpp",
   "$_tests/PDFDeflateWStreamTest.cpp",
@@ -193,7 +191,6 @@ tests_sources = [
   "$_tests/PointTest.cpp",
   "$_tests/PolyUtilsTest.cpp",
   "$_tests/PremulAlphaRoundTripTest.cpp",
-  "$_tests/PrimitiveProcessorTest.cpp",
   "$_tests/ProcessorTest.cpp",
   "$_tests/PromiseImageTest.cpp",
   "$_tests/ProxyConversionTest.cpp",
@@ -403,11 +400,14 @@ pathops_tests_sources = [
 ]
 
 skgpu_v1_tests_sources = [
+  "$_tests/BulkRectTest.cpp",
   "$_tests/GrClipStackTest.cpp",
   "$_tests/GrMeshTest.cpp",
   "$_tests/GrPipelineDynamicStateTest.cpp",
+  "$_tests/OnFlushCallbackTest.cpp",
   "$_tests/OpChainTest.cpp",
   "$_tests/PathRendererCacheTests.cpp",
+  "$_tests/PrimitiveProcessorTest.cpp",
   "$_tests/ProgramsTest.cpp",
   "$_tests/SurfaceDrawContextTest.cpp",
   "$_tests/TextureOpTest.cpp",
