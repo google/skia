@@ -387,7 +387,6 @@ function paintTests(CK: CanvasKit, colorFilter?: ColorFilter, imageFilter?: Imag
     }
     const paint = new CK.Paint(); // $ExpectType Paint
     const newPaint = paint.copy(); // $ExpectType Paint
-    const bm = paint.getBlendMode();
     const color = paint.getColor(); // $ExpectType Float32Array
     const sc = paint.getStrokeCap();
     const sj = paint.getStrokeJoin();
@@ -395,7 +394,7 @@ function paintTests(CK: CanvasKit, colorFilter?: ColorFilter, imageFilter?: Imag
     const width = paint.getStrokeWidth(); // $ExpectType number
     paint.setAlphaf(0.8);
     paint.setAntiAlias(true);
-    paint.setBlendMode(bm);
+    paint.setBlendMode(CK.BlendMode.DstOut);
     paint.setColor(CK.RED);
     paint.setColor([0, 0, 1.2, 0.5], CK.ColorSpace.DISPLAY_P3);
     paint.setColorComponents(0, 0, 0.9, 1.0);

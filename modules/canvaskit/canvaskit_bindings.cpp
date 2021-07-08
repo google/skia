@@ -1374,7 +1374,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
             SkPaint p(self);
             return p;
         }))
-        .function("getBlendMode", &SkPaint::getBlendMode)
         // provide an allocated place to put the returned color
         .function("_getColor", optional_override([](SkPaint& self, WASMPointerF32 cPtr)->void {
             const SkColor4f& c = self.getColor4f();
