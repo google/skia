@@ -295,9 +295,8 @@ private:
      */
     SpvId writeMatrixCopy(SpvId src, const Type& srcType, const Type& dstType, OutputStream& out);
 
-    void addColumnEntry(SpvId columnType, Precision precision, std::vector<SpvId>* currentColumn,
-                        std::vector<SpvId>* columnIds, int* currentCount, int rows, SpvId entry,
-                        OutputStream& out);
+    void addColumnEntry(const Type& columnType, std::vector<SpvId>* currentColumn,
+                        std::vector<SpvId>* columnIds, int rows, SpvId entry, OutputStream& out);
 
     SpvId writeConstructorCompound(const ConstructorCompound& c, OutputStream& out);
 
