@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bc54402a_fede8bef",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 459,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-07-08T14:24:11Z",
+      "side": 1,
+      "message": "Surprisingly this assert fails here:\n    SkASSERT(SkRuntimeEffectPriv::SupportsConstantOutputForConstantInput(effect));",
+      "revId": "1c6c7e27d5b518d883a4b111059d00b10395a088",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
