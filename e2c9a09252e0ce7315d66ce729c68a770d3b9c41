@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c2f9163a_6403d239",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-07-08T13:58:01Z",
+      "side": 1,
+      "message": "Behavior question: Does a custom blender need to saturate its output (at least alpha), or do we always post-saturate it afterwards?",
+      "revId": "e2c9a09252e0ce7315d66ce729c68a770d3b9c41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
