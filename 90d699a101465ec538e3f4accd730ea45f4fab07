@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ff1a42d7_ac794312",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-07-08T20:41:28Z",
+      "side": 1,
+      "message": "Plus, as discussed offline, adding more to the CL description about the clipToShape plans.",
+      "revId": "90d699a101465ec538e3f4accd730ea45f4fab07",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "95569bd9_cc840025",
