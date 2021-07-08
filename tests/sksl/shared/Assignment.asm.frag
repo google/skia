@@ -160,11 +160,11 @@ OpFunctionEnd
 %l = OpVariable %_ptr_Function_float Function
 OpStore %i %int_0
 OpStore %i4 %45
-%60 = OpCompositeConstruct %v3float %float_1 %float_2 %float_3
-%61 = OpCompositeConstruct %v3float %float_4 %float_5 %float_6
-%62 = OpCompositeConstruct %v3float %float_7 %float_8 %float_9
-%59 = OpCompositeConstruct %mat3v3float %60 %61 %62
-OpStore %f3x3 %59
+%59 = OpCompositeConstruct %v3float %float_1 %float_2 %float_3
+%60 = OpCompositeConstruct %v3float %float_4 %float_5 %float_6
+%61 = OpCompositeConstruct %v3float %float_7 %float_8 %float_9
+%62 = OpCompositeConstruct %mat3v3float %59 %60 %61
+OpStore %f3x3 %62
 %65 = OpAccessChain %_ptr_Function_float %x %int_3
 OpStore %65 %float_0
 %67 = OpLoad %v4float %x
@@ -174,12 +174,12 @@ OpStore %x %68
 OpStore %72 %int_0
 %76 = OpAccessChain %_ptr_Function_v4int %ai4 %int_0
 OpStore %76 %45
-%81 = OpCompositeConstruct %v3float %float_1 %float_2 %float_3
-%82 = OpCompositeConstruct %v3float %float_4 %float_5 %float_6
-%83 = OpCompositeConstruct %v3float %float_7 %float_8 %float_9
-%80 = OpCompositeConstruct %mat3v3float %81 %82 %83
+%80 = OpCompositeConstruct %v3float %float_1 %float_2 %float_3
+%81 = OpCompositeConstruct %v3float %float_4 %float_5 %float_6
+%82 = OpCompositeConstruct %v3float %float_7 %float_8 %float_9
+%83 = OpCompositeConstruct %mat3v3float %80 %81 %82
 %84 = OpAccessChain %_ptr_Function_mat3v3float %ah2x4 %int_0
-OpStore %84 %80
+OpStore %84 %83
 %88 = OpAccessChain %_ptr_Function_v4float %af4 %int_0
 %89 = OpAccessChain %_ptr_Function_float %88 %int_0
 OpStore %89 %float_0
