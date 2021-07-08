@@ -375,6 +375,8 @@ skia_gpu_sources = [
   "$_src/gpu/gradients/GrGradientShader.h",
 
   # tessellate
+  "$_src/gpu/tessellate/GrAtlasInstancedHelper.cpp",
+  "$_src/gpu/tessellate/GrAtlasInstancedHelper.h",
   "$_src/gpu/tessellate/GrAtlasRenderTask.cpp",
   "$_src/gpu/tessellate/GrAtlasRenderTask.h",
   "$_src/gpu/tessellate/GrCullTest.h",
