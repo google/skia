@@ -227,14 +227,6 @@ public:
         return fGSInvocationsExtensionString;
     }
 
-    // Returns the string of an extension that will do all necessary coord transfomations needed
-    // when reading the fragment position. If such an extension does not exisits, this function
-    // returns a nullptr, and all transforms of the frag position must be done manually in the
-    // shader.
-    const char* fragCoordConventionsExtensionString() const {
-        return fFragCoordConventionsExtensionString;
-    }
-
     // This returns the name of an extension that must be enabled in the shader, if such a thing is
     // required in order to use a secondary output in the shader. This returns a nullptr if no such
     // extension is required. However, the return value of this function does not say whether dual
@@ -347,7 +339,6 @@ private:
     const char* fShaderDerivativeExtensionString;
     const char* fGeometryShaderExtensionString;
     const char* fGSInvocationsExtensionString;
-    const char* fFragCoordConventionsExtensionString;
     const char* fSecondaryOutputExtensionString;
     const char* fExternalTextureExtensionString;
     const char* fSecondExternalTextureExtensionString;

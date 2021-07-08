@@ -937,13 +937,6 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
         }
     } // WebGL might have to check for OES_standard_derivatives
 
-    // Frag Coords Convention support is not part of ES
-    if (GR_IS_GR_GL(standard) &&
-        (ctxInfo.glslGeneration() >= k150_GrGLSLGeneration ||
-         ctxInfo.hasExtension("GL_ARB_fragment_coord_conventions"))) {
-        shaderCaps->fFragCoordConventionsExtensionString = "GL_ARB_fragment_coord_conventions";
-    }
-
     if (GR_IS_GR_GL_ES(standard)) {
         shaderCaps->fSecondaryOutputExtensionString = "GL_EXT_blend_func_extended";
     }
@@ -3813,12 +3806,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // undefined results". This appears to be an issue with the 'any' call since even the simple
     // "result=black; if (any()) result=white;" code fails to compile.
     shaderCaps->fCanUseAnyFunctionInShader = (ctxInfo.vendor() != GrGLVendor::kImagination);
-
-    // Known issue on at least some Intel platforms:
-    // http://code.google.com/p/skia/issues/detail?id=946
-    if (ctxInfo.vendor() == GrGLVendor::kIntel) {
-        shaderCaps->fFragCoordConventionsExtensionString = nullptr;
-    }
 
     if (ctxInfo.renderer() == GrGLRenderer::kTegra_PreK1) {
         // The Tegra3 compiler will sometimes never return if we have min(abs(x), 1.0),

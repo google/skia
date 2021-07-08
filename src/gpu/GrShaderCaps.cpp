@@ -71,7 +71,6 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fShaderDerivativeExtensionString = nullptr;
     fGeometryShaderExtensionString = nullptr;
     fGSInvocationsExtensionString = nullptr;
-    fFragCoordConventionsExtensionString = nullptr;
     fSecondaryOutputExtensionString = nullptr;
     fExternalTextureExtensionString = nullptr;
     fSecondExternalTextureExtensionString = nullptr;
