@@ -16,6 +16,23 @@
       "message": "Friendly ping",
       "revId": "b21961192935b899b83546a95bbecc83365a3b44",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0c733b08_299038a7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 44
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-07-08T15:39:23Z",
+      "side": 1,
+      "message": "Given the code-size impact (looks like 28k on the flutter bot), I\u0027d like to make this all-or-nothing (#define controlled, at least), rather than via settings.",
+      "revId": "b21961192935b899b83546a95bbecc83365a3b44",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
