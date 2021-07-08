@@ -152,7 +152,9 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
                                            bool is_constant,
                                            sk_sp<SkShader> clipShader) {
     const auto bm = paint.asBlendMode();
-    SkASSERT(bm);
+    if (!bm) {
+        return nullptr;
+    }
 
     auto blitter = alloc->make<SkRasterPipelineBlitter>(dst, bm.value(), alloc);
 
