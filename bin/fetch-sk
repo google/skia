@@ -85,6 +85,8 @@ with open(skzip, 'wb') as f:
       platform, desired_version)
   f.write(urlopen(url).read())
 
+print(os.stat('bin'))
+print(os.listdir('bin'))
 with zipfile.ZipFile(skzip, 'r') as f:
   f.extract(sk, 'bin')
 
