@@ -16,6 +16,24 @@
       "message": "Surprisingly this assert fails here:\n    SkASSERT(SkRuntimeEffectPriv::SupportsConstantOutputForConstantInput(effect));",
       "revId": "1c6c7e27d5b518d883a4b111059d00b10395a088",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6615c520_f0ade1a9",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 459,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-07-08T14:41:23Z",
+      "side": 1,
+      "message": "Ah, yeah. This actually trips up for two different reasons. (One of which I had a plan to resolve, but not the other). The unpremul() call is the really tricky part here - we\u0027d have to extract that call from the skvm, which isn\u0027t easy to do with the current design. (The other issue is replacing just one channel with a literal. That one has a straightforward solution, but we\u0027d still fail on the unpremul thing)...\n\nAnd I notice that our old implementation of COFCI was wrong - it didn\u0027t unpremul.",
+      "parentUuid": "bc54402a_fede8bef",
+      "revId": "1c6c7e27d5b518d883a4b111059d00b10395a088",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
