@@ -255,6 +255,8 @@
   "Perf-Mac10.15.1-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All-CommandBuffer",
   "Perf-Mac10.15.1-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All-Metal",
   "Perf-Mac10.15.7-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-Metal",
+  "Perf-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All",
+  "Perf-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All_Skpbench",
   "Perf-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-AllPathsVolatile_Skpbench",
   "Perf-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Metal_AllPathsVolatile_Skpbench",
   "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ASAN",
