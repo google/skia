@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f1c0dc6c_203234c6",
+        "filename": "src/sksl/ir/SkSLIntLiteral.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-08T22:28:38Z",
+      "side": 1,
+      "message": "You know, this could just be `target.isNumber()` now.",
+      "range": {
+        "startLine": 70,
+        "startChar": 12,
+        "endLine": 70,
+        "endChar": 70
+      },
+      "revId": "8a7cb488c33b2c5bc7509612ae071508902dea7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
