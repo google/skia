@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5b8e9c76_3094ff9d",
+        "filename": "modules/canvaskit/npm_build/types/canvaskit-wasm-tests.ts",
+        "patchSetId": 4
+      },
+      "lineNbr": 398,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-07-08T17:19:09Z",
+      "side": 0,
+      "message": "Keep this, but pass in an arbitrary constant blendmode.\n\nCanvasKit.BlendMode.DstOut for example.",
+      "range": {
+        "startLine": 398,
+        "startChar": 10,
+        "endLine": 398,
+        "endChar": 22
+      },
+      "revId": "624018a49b34df1243f62c1874321930a389822c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
