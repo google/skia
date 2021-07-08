@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "78636043_0e036827",
+        "filename": "src/gpu/gradients/GrGradientShader.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-07-08T13:30:09Z",
+      "side": 1,
+      "message": "out of curiosity, what is the main benefits of this approach vs. using Specialize(intervalCount) and keeping the effect as one R\"\"?\n\nDoes something I\u0027m not noticing preclude the use of specialize here?",
+      "range": {
+        "startLine": 142,
+        "startChar": 4,
+        "endLine": 145,
+        "endChar": 45
+      },
+      "revId": "2c4b4de706fe13cb17d960aadc5c5ba833d7da7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
