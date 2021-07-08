@@ -90,6 +90,9 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 
 		if sampleCount > 0 {
 			configs = append(configs, fmt.Sprintf("%smsaa%d", glPrefix, sampleCount))
+			if b.gpu("QuadroP400", "MaliG77", "AppleM1") {
+				configs = append(configs, fmt.Sprintf("%sdmsaa", glPrefix))
+			}
 		}
 
 		// We want to test both the OpenGL config and the GLES config on Linux Intel:
@@ -100,6 +103,9 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 
 		if b.extraConfig("CommandBuffer") {
 			configs = []string{"cmdbuffer_es2"}
+			if !b.matchGpu("Intel") {
+				configs = append(configs, "cmdbuffer_es2_dmsaa")
+			}
 		}
 
 		if b.extraConfig("Vulkan") {
