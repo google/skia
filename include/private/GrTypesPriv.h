@@ -14,7 +14,6 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/GrTypes.h"
-#include "include/private/GrSharedEnums.h"
 #include "include/private/SkImageInfoPriv.h"
 
 class GrBackendFormat;
@@ -695,23 +694,36 @@ static const int kGrVertexAttribTypeCount = kLast_GrVertexAttribType + 1;
 
 //////////////////////////////////////////////////////////////////////////////
 
+/**
+ * We have coverage effects that clip rendering to the edge of some geometric primitive.
+ * This enum specifies how that clipping is performed. Not all factories that take a
+ * GrClipEdgeType will succeed with all values and it is up to the caller to verify success.
+ */
+enum class GrClipEdgeType {
+    kFillBW,
+    kFillAA,
+    kInverseFillBW,
+    kInverseFillAA,
+
+    kLast = kInverseFillAA
+};
 static const int kGrClipEdgeTypeCnt = (int) GrClipEdgeType::kLast + 1;
 
-static constexpr bool GrProcessorEdgeTypeIsFill(const GrClipEdgeType edgeType) {
+static constexpr bool GrClipEdgeTypeIsFill(const GrClipEdgeType edgeType) {
     return (GrClipEdgeType::kFillAA == edgeType || GrClipEdgeType::kFillBW == edgeType);
 }
 
-static constexpr bool GrProcessorEdgeTypeIsInverseFill(const GrClipEdgeType edgeType) {
+static constexpr bool GrClipEdgeTypeIsInverseFill(const GrClipEdgeType edgeType) {
     return (GrClipEdgeType::kInverseFillAA == edgeType ||
             GrClipEdgeType::kInverseFillBW == edgeType);
 }
 
-static constexpr bool GrProcessorEdgeTypeIsAA(const GrClipEdgeType edgeType) {
+static constexpr bool GrClipEdgeTypeIsAA(const GrClipEdgeType edgeType) {
     return (GrClipEdgeType::kFillBW != edgeType &&
             GrClipEdgeType::kInverseFillBW != edgeType);
 }
 
-static inline GrClipEdgeType GrInvertProcessorEdgeType(const GrClipEdgeType edgeType) {
+static inline GrClipEdgeType GrInvertClipEdgeType(const GrClipEdgeType edgeType) {
     switch (edgeType) {
         case GrClipEdgeType::kFillBW:
             return GrClipEdgeType::kInverseFillBW;

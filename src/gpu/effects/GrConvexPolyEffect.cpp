@@ -50,7 +50,7 @@ void GrGLConvexPolyEffect::emitCode(EmitArgs& args) {
     Declare(edge);
     for (int i = 0; i < cpe.getEdgeCount(); ++i) {
         edge = Dot(edgeArray[i], Half3(Swizzle(sk_FragCoord(), X, Y, ONE)));
-        if (GrProcessorEdgeTypeIsAA(cpe.getEdgeType())) {
+        if (GrClipEdgeTypeIsAA(cpe.getEdgeType())) {
             edge = Saturate(edge);
         } else {
             edge = Select(edge >= 0.5, 1.0, 0.0);
@@ -58,7 +58,7 @@ void GrGLConvexPolyEffect::emitCode(EmitArgs& args) {
         alpha *= edge;
     }
 
-    if (GrProcessorEdgeTypeIsInverseFill(cpe.getEdgeType())) {
+    if (GrClipEdgeTypeIsInverseFill(cpe.getEdgeType())) {
         alpha = 1.0 - alpha;
     }
 
@@ -97,7 +97,7 @@ GrFPResult GrConvexPolyEffect::Make(std::unique_ptr<GrFragmentProcessor> inputFP
     // case nothing is inside the clip. It'd be nice to detect this at a higher level and either
     // skip the draw or omit the clip element.
     if (dir == SkPathFirstDirection::kUnknown) {
-        if (GrProcessorEdgeTypeIsInverseFill(type)) {
+        if (GrClipEdgeTypeIsInverseFill(type)) {
             return GrFPSuccess(
                     GrFragmentProcessor::ModulateRGBA(std::move(inputFP), SK_PMColor4fWHITE));
         }
@@ -150,7 +150,7 @@ GrFPResult GrConvexPolyEffect::Make(std::unique_ptr<GrFragmentProcessor> inputFP
     }
 
     if (path.isInverseFillType()) {
-        type = GrInvertProcessorEdgeType(type);
+        type = GrInvertClipEdgeType(type);
     }
     return GrConvexPolyEffect::Make(std::move(inputFP), type, n, edges);
 }
