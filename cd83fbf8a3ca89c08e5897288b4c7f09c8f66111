@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0ca9e3fc_b97b85f3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-07-08T12:51:26Z",
+      "side": 1,
+      "message": "First in a series of changes that incrementally remove the various Behaviors until there is only one and any necessary special input handling is moved into call sites.",
+      "revId": "cd83fbf8a3ca89c08e5897288b4c7f09c8f66111",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
