@@ -22,6 +22,30 @@
       },
       "revId": "68034c84d76804c4b7cfffb1b2cc9d3fb59efa79",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "eb2e12d9_4867f93c",
+        "filename": "src/gpu/tessellate/GrAtlasInstancedHelper.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-07-08T21:02:31Z",
+      "side": 1,
+      "message": "Done\n\nYes you\u0027re right. I just copy it and never think about what it says ¯\\_(ツ)_/¯",
+      "parentUuid": "ff2a8912_d0645444",
+      "range": {
+        "startLine": 2,
+        "startChar": 25,
+        "endLine": 2,
+        "endChar": 28
+      },
+      "revId": "68034c84d76804c4b7cfffb1b2cc9d3fb59efa79",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
