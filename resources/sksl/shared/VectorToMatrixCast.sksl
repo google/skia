@@ -1,0 +1,18 @@
+uniform half4 colorGreen, colorRed;
+uniform half4 testInputs;
+
+half4 main(float2 coords) {
+    bool ok = true;
+
+    const half4 vec1234 = half4(1, 2, 3, 4);
+
+    ok = ok && half2x2(testInputs)         == half2x2(-1.25, 0, 0.75, 2.25);
+    ok = ok && half2x2(half4(1, 2, 3, 4))  == half2x2(1, 2, 3, 4);
+    ok = ok && half2x2(vec1234)            == half2x2(1, 2, 3, 4);
+
+    ok = ok && float2x2(testInputs)        == float2x2(-1.25, 0, 0.75, 2.25);
+    ok = ok && float2x2(half4(1, 2, 3, 4)) == float2x2(1, 2, 3, 4);
+    ok = ok && float2x2(vec1234)           == float2x2(1, 2, 3, 4);
+
+    return ok ? colorGreen : colorRed;
+}
