@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b17b1035_366fb69d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-07-08T18:28:37Z",
+      "side": 1,
+      "message": "Will take work on several fronts:\n\n- flutter-web to stop calling setFilterQuality\n- canvaskit to remove set/get filterquality\n- display_list_canvas.cc to stop using set/get\n\n(I will work on Android)",
+      "revId": "2d6cb8747186eafa8eb34c62fd521d13f4ab55b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
