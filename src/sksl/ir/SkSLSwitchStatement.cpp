@@ -177,11 +177,9 @@ std::unique_ptr<Statement> SwitchStatement::Convert(const Context& context,
         return nullptr;
     }
 
-    if (!value->type().isEnum()) {
-        value = context.fTypes.fInt->coerceExpression(std::move(value), context);
-        if (!value) {
-            return nullptr;
-        }
+    value = context.fTypes.fInt->coerceExpression(std::move(value), context);
+    if (!value) {
+        return nullptr;
     }
 
     StatementArray cases;

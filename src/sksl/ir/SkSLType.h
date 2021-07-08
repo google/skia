@@ -76,7 +76,6 @@ public:
 
     enum class TypeKind : int8_t {
         kArray,
-        kEnum,
         kGeneric,
         kLiteral,
         kMatrix,
@@ -107,9 +106,6 @@ public:
     /** Creates an array type. */
     static constexpr int kUnsizedArray = -1;
     static std::unique_ptr<Type> MakeArrayType(String name, const Type& componentType, int columns);
-
-    /** Creates an enum type. */
-    static std::unique_ptr<Type> MakeEnumType(String name);
 
     /**
      * Create a generic type which maps to the listed types--e.g. $genType is a generic type which
@@ -179,7 +175,7 @@ public:
      * separate SymbolTable and you'll need to consider copying it.
      */
     bool isInBuiltinTypes() const {
-        return !(this->isArray() || this->isStruct() || this->isEnum());
+        return !(this->isArray() || this->isStruct());
     }
 
     String displayName() const {
@@ -390,7 +386,6 @@ public:
 
             case Type::TypeKind::kLiteral:
             case Type::TypeKind::kScalar:
-            case Type::TypeKind::kEnum:
                 return 1;
 
             case Type::TypeKind::kVector:
@@ -469,10 +464,6 @@ public:
 
     virtual bool isStruct() const {
         return false;
-    }
-
-    virtual bool isEnum() const {
-        return fTypeKind == TypeKind::kEnum;
     }
 
     // Is this type something that can be bound & sampled from an SkRuntimeEffect?

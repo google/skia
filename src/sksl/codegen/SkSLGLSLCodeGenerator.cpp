@@ -120,8 +120,6 @@ String GLSLCodeGenerator::getTypeName(const Type& type) {
             }
             break;
         }
-        case Type::TypeKind::kEnum:
-            return "int";
         default:
             return String(type.name());
     }
@@ -1456,8 +1454,6 @@ void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
             this->writeLine(";");
             break;
         }
-        case ProgramElement::Kind::kEnum:
-            break;
         case ProgramElement::Kind::kStructDefinition:
             this->writeStructDefinition(e.as<StructDefinition>());
             break;

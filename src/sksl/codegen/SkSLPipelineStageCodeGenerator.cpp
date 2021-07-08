@@ -354,9 +354,6 @@ void PipelineStageCodeGenerator::writeProgramElement(const ProgramElement& e) {
         case ProgramElement::Kind::kStructDefinition:
             this->writeStructDefinition(e.as<StructDefinition>());
             break;
-        // Enums are ignored (so they don't yet work in runtime effects).
-        // We need to emit their declarations (via callback), with name mangling support.
-        case ProgramElement::Kind::kEnum:              // skbug.com/11296
 
         case ProgramElement::Kind::kExtension:
         case ProgramElement::Kind::kInterfaceBlock:
