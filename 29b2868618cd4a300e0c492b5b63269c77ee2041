@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "22cb65f3_a751bb42",
+        "filename": "src/sksl/dsl/DSLCore.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-08T16:37:09Z",
+      "side": 1,
+      "message": "😂\n\nGood comment, and much less scary implementation too.",
+      "range": {
+        "startLine": 182,
+        "startChar": 11,
+        "endLine": 182,
+        "endChar": 32
+      },
+      "revId": "29b2868618cd4a300e0c492b5b63269c77ee2041",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
