@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "cde39933_35d2e83f",
+        "filename": "src/effects/SkBlenders.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-07-08T13:52:58Z",
+      "side": 1,
+      "message": "+1. Our usual pattern inside the GPU code is to do:\n\nstatic auto effect \u003d SkMakeRuntimeEffect(SkRuntimeEffect::MakeForBlender, R\"(...)\");\n\nSkMakeRuntimeEffect takes a factory function as the first arg, handles the SkString wrapping of the SkSL, and also asserts that it succeeds with the compiler error message if it doesn\u0027t.",
+      "parentUuid": "2d8d574e_c8ca148d",
+      "revId": "760af14b02a14c47d76fe47546ec7fc81d06bd58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "15351724_caeba3ce",
         "filename": "src/effects/SkBlenders.cpp",
         "patchSetId": 9
