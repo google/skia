@@ -170,6 +170,7 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
         if (this->tryAddPathToAtlas(args.fContext, *args.fViewMatrix, path, pathDevBounds,
                                     args.fAAType != GrAAType::kNone, &devIBounds, &locationInAtlas,
                                     &transposedInAtlas, visitProxiesUsedByDraw)) {
+            const GrCaps& caps = *args.fSurfaceDrawContext->caps();
             const SkIRect& fillBounds = path.isInverseFillType()
                     ? (args.fClip
                             ? args.fClip->getConservativeBounds()
@@ -178,7 +179,7 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
             auto op = GrOp::Make<GrDrawAtlasPathOp>(
                     args.fContext, args.fSurfaceDrawContext->arenaAlloc(), fillBounds,
                     *args.fViewMatrix, std::move(args.fPaint), locationInAtlas, devIBounds,
-                    transposedInAtlas, sk_ref_sp(fAtlasRenderTasks.back()->atlasProxy()),
+                    transposedInAtlas, fAtlasRenderTasks.back()->readView(caps),
                     path.isInverseFillType(), surfaceDrawContext->numSamples());
             surfaceDrawContext->addDrawOp(args.fClip, std::move(op));
             return true;
