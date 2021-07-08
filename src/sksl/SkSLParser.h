@@ -141,8 +141,6 @@ private:
 
     ASTNode::ID directive();
 
-    ASTNode::ID enumDeclaration();
-
     ASTNode::ID declaration();
 
     ASTNode::ID functionDeclarationEnd(Modifiers modifiers, ASTNode::ID type, const Token& name);
