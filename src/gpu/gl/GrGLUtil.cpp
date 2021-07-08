@@ -432,6 +432,19 @@ static std::tuple<GrGLDriver, GrGLDriverVersion> get_driver_and_version(GrGLStan
             if (n == 4) {
                 driverVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor, 0);
             }
+        } else if (vendor == GrGLVendor::kImagination) {
+            int revision;
+            int n = sscanf(versionString,
+                           "OpenGL ES %d.%d build %d.%d@%d",
+                           &major,
+                           &minor,
+                           &driverMajor,
+                           &driverMinor,
+                           &revision);
+            if (n == 5) {
+                driver = GrGLDriver::kImagination;
+                driverVersion = GR_GL_DRIVER_VER(driverMajor, driverMinor, 0);
+            }
         } else {
             int n = sscanf(versionString,
                            "OpenGL ES %d.%d Mesa %d.%d",
