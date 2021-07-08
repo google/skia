@@ -18,6 +18,7 @@
 #include "src/sksl/ir/SkSLForStatement.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
+#include "src/sksl/ir/SkSLStructDefinition.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
 #include "src/sksl/ir/SkSLTernaryExpression.h"
 
@@ -173,6 +174,28 @@ public:
                                     ifTrue.release(), ifFalse.releaseIfValid());
     }
 
+    static DSLVar InterfaceBlock(DSLModifiers modifiers, skstd::string_view typeName,
+                                 SkTArray<DSLField> fields, skstd::string_view varName,
+                                 int arraySize, PositionInfo pos) {
+        // We need to create a new struct type for the interface block, but we don't want it in the
+        // symbol table. Since dsl::Struct automatically sticks it in the symbol table, we create it
+        // the old fashioned way with MakeStructType.
+        std::vector<SkSL::Type::Field> skslFields;
+        skslFields.reserve(fields.count());
+        for (const DSLField& field : fields) {
+            skslFields.push_back(SkSL::Type::Field(SkSL::Modifiers(), field.fName,
+                                                   &field.fType.skslType()));
+        }
+        const SkSL::Type* structType = DSLWriter::SymbolTable()->takeOwnershipOfSymbol(
+                SkSL::Type::MakeStructType(/*offset=*/-1, String(typeName), std::move(skslFields)));
+        DSLType varType = arraySize > 0 ? Array(structType, arraySize) : DSLType(structType);
+        DSLVar var(modifiers, varType, !varName.empty() ? varName : typeName);
+        DSLWriter::ProgramElements().push_back(std::make_unique<SkSL::InterfaceBlock>(/*offset=*/-1,
+                DSLWriter::Var(var), String(typeName), String(varName), arraySize,
+                DSLWriter::SymbolTable()));
+        return var;
+    }
+
     static DSLPossibleStatement Return(DSLExpression value, PositionInfo pos) {
         // Note that because Return is called before the function in which it resides exists, at
         // this point we do not know the function's return type. We therefore do not check for
@@ -302,6 +325,12 @@ DSLStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse, P
     return DSLStatement(DSLCore::If(std::move(test), std::move(ifTrue), std::move(ifFalse),
                                     /*isStatic=*/false),
                         pos);
+}
+
+DSLVar InterfaceBlock(DSLModifiers modifiers,  skstd::string_view typeName,
+                      SkTArray<DSLField> fields, skstd::string_view varName, int arraySize,
+                      PositionInfo pos) {
+    return DSLCore::InterfaceBlock(modifiers, typeName, std::move(fields), varName, arraySize, pos);
 }
 
 DSLStatement Return(DSLExpression expr, PositionInfo pos) {

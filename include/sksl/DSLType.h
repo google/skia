@@ -174,6 +174,7 @@ private:
 
     friend DSLType Array(const DSLType& base, int count);
     friend DSLType Struct(skstd::string_view name, SkTArray<DSLField> fields);
+    friend class DSLCore;
     friend class DSLFunction;
     friend class DSLVar;
     friend class DSLWriter;
@@ -234,6 +235,7 @@ private:
     const DSLType fType;
     skstd::string_view fName;
 
+    friend class DSLCore;
     friend DSLType Struct(skstd::string_view name, SkTArray<DSLField> fields);
 };
 

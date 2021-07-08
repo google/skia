@@ -113,6 +113,10 @@ DSLStatement For(DSLStatement initializer, DSLExpression test, DSLExpression nex
 DSLStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse = DSLStatement(),
                 PositionInfo pos = PositionInfo());
 
+DSLVar InterfaceBlock(DSLModifiers modifiers,  skstd::string_view typeName,
+                      SkTArray<DSLField> fields, skstd::string_view varName = "", int arraySize = 0,
+                      PositionInfo pos = PositionInfo());
+
 /**
  * return [value];
  */

@@ -686,8 +686,8 @@ std::unique_ptr<Statement> IRGenerator::getNormalizeSkPositionCode() {
 
     const Variable* skPerVertex = nullptr;
     if (const ProgramElement* perVertexDecl = fIntrinsics->find(Compiler::PERVERTEX_NAME)) {
-        SkASSERT(perVertexDecl->is<InterfaceBlock>());
-        skPerVertex = &perVertexDecl->as<InterfaceBlock>().variable();
+        SkASSERT(perVertexDecl->is<SkSL::InterfaceBlock>());
+        skPerVertex = &perVertexDecl->as<SkSL::InterfaceBlock>().variable();
     }
 
     SkASSERT(skPerVertex && fRTAdjust);
@@ -990,7 +990,7 @@ std::unique_ptr<StructDefinition> IRGenerator::convertStructDefinition(const AST
     return std::make_unique<StructDefinition>(node.fOffset, *type);
 }
 
-std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode& intf) {
+std::unique_ptr<SkSL::InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode& intf) {
     if (this->programKind() != ProgramKind::kFragment &&
         this->programKind() != ProgramKind::kVertex &&
         this->programKind() != ProgramKind::kGeometry) {
@@ -1072,12 +1072,12 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
             old->add(std::make_unique<Field>(intf.fOffset, var, (int)i));
         }
     }
-    return std::make_unique<InterfaceBlock>(intf.fOffset,
-                                            var,
-                                            String(id.fTypeName),
-                                            String(id.fInstanceName),
-                                            arraySize,
-                                            symbols);
+    return std::make_unique<SkSL::InterfaceBlock>(intf.fOffset,
+                                                  var,
+                                                  String(id.fTypeName),
+                                                  String(id.fInstanceName),
+                                                  arraySize,
+                                                  symbols);
 }
 
 void IRGenerator::convertGlobalVarDeclarations(const ASTNode& decl) {
@@ -1710,7 +1710,7 @@ void IRGenerator::findAndDeclareBuiltinVariables() {
             // If this is the *first* time we've seen this builtin, findAndInclude will return
             // the corresponding ProgramElement.
             if (const ProgramElement* decl = fGenerator->fIntrinsics->findAndInclude(name)) {
-                SkASSERT(decl->is<GlobalVarDeclaration>() || decl->is<InterfaceBlock>());
+                SkASSERT(decl->is<GlobalVarDeclaration>() || decl->is<SkSL::InterfaceBlock>());
                 fNewElements.push_back(decl);
             }
         }
@@ -1920,7 +1920,7 @@ IRGenerator::IRBundle IRGenerator::convertProgram(
                     break;
                 }
                 case ASTNode::Kind::kInterfaceBlock: {
-                    std::unique_ptr<InterfaceBlock> i = this->convertInterfaceBlock(decl);
+                    std::unique_ptr<SkSL::InterfaceBlock> i = this->convertInterfaceBlock(decl);
                     if (i) {
                         fProgramElements->push_back(std::move(i));
                     }
