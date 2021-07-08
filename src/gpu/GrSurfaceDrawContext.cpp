@@ -557,6 +557,14 @@ GrSurfaceDrawContext::QuadOptimization GrSurfaceDrawContext::attemptQuadOptimiza
             // use GrResolveAATypeForQuad() to turn off coverage AA when all flags are off.
             // deviceQuad is exactly the intersection of original quad and clip, so it can be
             // drawn with no clip (submitted by caller)
+            auto quadBounds = quad->fDevice.bounds();
+            if (quad->fDevice.quadType() == GrQuad::Type::kAxisAligned &&
+                (quadBounds.width() <= 1 || quadBounds.height() <= 1)) {
+                // We will draw this as a hairline quad which we "fuzz" so that animations look
+                // correct. Therefore, we can't just use the combined rect and clip draw because we
+                // will no longer respect the clip and may draw outside of it.
+                return QuadOptimization::kCropped;
+            }
             return QuadOptimization::kClipApplied;
         }
     } else {
