@@ -151,7 +151,7 @@ void DebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
     }
 
     for (int i = 0; i <= index; i++) {
-        GrAuditTrail::AutoCollectOps* acb = nullptr;
+    //    GrAuditTrail::AutoCollectOps* acb = nullptr;
         if (at) {
             // We need to flush any pending operations, or they might combine with commands below.
             // Previous operations were not registered with the audit trail when they were
@@ -159,14 +159,14 @@ void DebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
             if (dContext) {
                 dContext->flush();
             }
-            acb = new GrAuditTrail::AutoCollectOps(at, i);
+//            acb = new GrAuditTrail::AutoCollectOps(at, i);
         }
         if (fCommandVector[i]->isVisible()) {
             fCommandVector[i]->execute(finalCanvas);
         }
-        if (at && acb) {
-            delete acb;
-        }
+  //      if (at && acb) {
+//            delete acb;
+//        }
     }
 
     if (SkColorGetA(fClipVizColor) != 0) {

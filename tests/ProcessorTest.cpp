@@ -27,6 +27,9 @@
 #include <random>
 
 namespace {
+
+#if SK_GPU_V1
+
 class TestOp : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
@@ -81,6 +84,8 @@ private:
 
     using INHERITED = GrMeshDrawOp;
 };
+
+#endif
 
 /**
  * FP used to test ref counts on owned GrGpuResources. Can also be a parent FP to test counts

@@ -8,6 +8,8 @@
 #ifndef GrOp_DEFINED
 #define GrOp_DEFINED
 
+#if 0
+
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkString.h"
@@ -358,5 +360,6 @@ private:
     static std::atomic<uint32_t> gCurrOpUniqueID;
     static std::atomic<uint32_t> gCurrOpClassID;
 };
+#endif
 
 #endif

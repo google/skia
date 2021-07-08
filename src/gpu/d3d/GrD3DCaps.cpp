@@ -6,6 +6,7 @@
  */
 
 #include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrContextOptions.h"
 #include "include/gpu/d3d/GrD3DBackendContext.h"
 #include "include/gpu/d3d/GrD3DTypes.h"
 

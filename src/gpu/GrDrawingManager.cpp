@@ -371,7 +371,7 @@ void GrDrawingManager::sortTasks() {
         return;
     }
 
-#ifdef SK_DEBUG
+#if SK_GPU_V1 && defined(SK_DEBUG)
     // This block checks for any unnecessary splits in the opsTasks. If two sequential opsTasks
     // could have merged it means the opsTask was artificially split.
     if (!fDAG.empty()) {
@@ -428,6 +428,7 @@ bool GrDrawingManager::reorderTasks(GrResourceAllocator* resourceAllocator) {
     int newCount = 0;
     for (int i = 0; i < fDAG.count(); i++) {
         sk_sp<GrRenderTask>& task = fDAG[i];
+#if SK_GPU_V1
         if (auto opsTask = task->asOpsTask()) {
             size_t remaining = fDAG.size() - i - 1;
             SkSpan<sk_sp<GrRenderTask>> nextTasks{fDAG.end() - remaining, remaining};
@@ -437,6 +438,7 @@ bool GrDrawingManager::reorderTasks(GrResourceAllocator* resourceAllocator) {
             }
             i += removeCount;
         }
+#endif
         fDAG[newCount++] = std::move(task);
     }
     fDAG.resize_back(newCount);
