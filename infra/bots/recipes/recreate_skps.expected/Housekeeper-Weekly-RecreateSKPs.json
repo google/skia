@@ -192,43 +192,25 @@
   },
   {
     "cmd": [
-      "vpython",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "rmtree",
-      "[START_DIR]/skp_output"
+      "python3",
+      "[START_DIR]/cache/work/skia/bin/fetch-sk"
     ],
-    "infra_step": true,
-    "name": "rmtree skp_output"
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "Fetch SK"
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "ensure-directory",
-      "--mode",
-      "0777",
-      "[START_DIR]/skp_output"
-    ],
-    "infra_step": true,
-    "name": "makedirs skp_output"
-  },
-  {
-    "cmd": [
-      "python",
-      "[START_DIR]/cache/work/skia/infra/bots/assets/skp/create.py",
+      "[START_DIR]/cache/work/skia/infra/bots/assets/skp/create_and_upload.py",
       "--chrome_src_path",
       "[START_DIR]/cache/work/src",
       "--browser_executable",
-      "[START_DIR]/cache/work/src/out/Release/chrome",
-      "--target_dir",
-      "[START_DIR]/skp_output",
-      "--upload_to_partner_bucket"
+      "[START_DIR]/cache/work/src/out/Release/chrome"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
@@ -239,23 +221,47 @@
   },
   {
     "cmd": [
-      "python",
-      "[START_DIR]/cache/work/skia/infra/bots/upload_skps.py",
-      "--target_dir",
-      "[START_DIR]/skp_output",
-      "--chromium_path",
-      "[START_DIR]/cache/work/src"
+      "go",
+      "run",
+      "./infra/bots/gen_tasks.go"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "GCLIENT_PY3": "0",
-      "GOCACHE": "[START_DIR]/cache/go_cache",
-      "GOPATH": "[START_DIR]/cache/gopath",
-      "GOROOT": "[START_DIR]/go/go",
-      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/cache/gopath/bin:<PATH>:RECIPE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
-    "name": "Upload SKPs"
+    "name": "Regenerate tasks.json"
+  },
+  {
+    "cmd": [
+      "git",
+      "commit",
+      "-a",
+      "-m",
+      "Update SKP version\n\nAutomatic commit by the RecreateSKPs bot.\n"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "git commit"
+  },
+  {
+    "cmd": [
+      "git",
+      "cl",
+      "upload",
+      "--bypass-hooks",
+      "--use-commit-queue",
+      "--tbrs=rmistry@google.com"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "git cl upload"
   },
   {
     "name": "$result"
