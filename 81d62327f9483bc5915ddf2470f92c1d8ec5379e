@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7b975574_f7b8948e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-07-08T14:43:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1e20266e_d28ee16a",
+      "revId": "81d62327f9483bc5915ddf2470f92c1d8ec5379e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1d0a2ee4_d6d7ce73",
@@ -31,6 +49,30 @@
       "writtenOn": "2021-07-07T17:49:48Z",
       "side": 1,
       "message": "This is basically exposed API, right? We should probably do proper error reporting here instead of failing/UB if the call is misused.",
+      "range": {
+        "startLine": 178,
+        "startChar": 8,
+        "endLine": 178,
+        "endChar": 56
+      },
+      "revId": "81d62327f9483bc5915ddf2470f92c1d8ec5379e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c733f766_d7d98cbf",
+        "filename": "src/sksl/dsl/DSLCore.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-07-08T14:43:19Z",
+      "side": 1,
+      "message": "Obviated",
+      "parentUuid": "1d0a2ee4_d6d7ce73",
       "range": {
         "startLine": 178,
         "startChar": 8,
@@ -64,6 +106,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e6a23c8f_575d4392",
+        "filename": "src/sksl/dsl/DSLCore.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-07-08T14:43:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2036b47a_e87783ee",
+      "range": {
+        "startLine": 197,
+        "startChar": 4,
+        "endLine": 197,
+        "endChar": 5
+      },
+      "revId": "81d62327f9483bc5915ddf2470f92c1d8ec5379e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ad0745b3_68559663",
@@ -77,6 +143,30 @@
       "writtenOn": "2021-07-07T17:49:48Z",
       "side": 1,
       "message": "Is there a reason to avoid `this-\u003eskslType()` here? It looks like types like `float` might not have a name if we don\u0027t use it.",
+      "range": {
+        "startLine": 36,
+        "startChar": 11,
+        "endLine": 36,
+        "endChar": 20
+      },
+      "revId": "81d62327f9483bc5915ddf2470f92c1d8ec5379e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "48d502cb_eee30e6f",
+        "filename": "src/sksl/dsl/DSLType.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-07-08T14:43:19Z",
+      "side": 1,
+      "message": "Obviated",
+      "parentUuid": "ad0745b3_68559663",
       "range": {
         "startLine": 36,
         "startChar": 11,
