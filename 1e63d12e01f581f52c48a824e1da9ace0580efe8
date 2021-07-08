@@ -16,6 +16,23 @@
       "message": "fin",
       "revId": "1e63d12e01f581f52c48a824e1da9ace0580efe8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "79360fbe_b1d77318",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-08T18:10:08Z",
+      "side": 1,
+      "message": "At long last! :) Thanks for putting this bug to rest.",
+      "revId": "1e63d12e01f581f52c48a824e1da9ace0580efe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
