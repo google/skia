@@ -10,15 +10,15 @@
 
 #include "src/core/SkIPoint16.h"
 #include "src/gpu/ops/GrDrawOp.h"
+#include "src/gpu/tessellate/GrAtlasInstancedHelper.h"
 
 // Fills a rectangle of pixels with a clip against coverage values from an atlas.
 class GrDrawAtlasPathOp : public GrDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    GrDrawAtlasPathOp(SkArenaAlloc* arena, const SkIRect& fillBounds,
-                      const SkMatrix& localToDevice, GrPaint&& paint,
-                      SkIPoint16 locationInAtlas, const SkIRect& pathDevIBounds,
+    GrDrawAtlasPathOp(SkArenaAlloc* arena, const SkIRect& fillBounds, const SkMatrix& localToDevice,
+                      GrPaint&& paint, SkIPoint16 locationInAtlas, const SkIRect& pathDevIBounds,
                       bool transposedInAtlas, sk_sp<GrTextureProxy> atlasProxy, bool isInverseFill,
                       int numRenderTargetSamples)
             : GrDrawOp(ClassID())
@@ -26,8 +26,10 @@ public:
                                                   locationInAtlas, pathDevIBounds,
                                                   transposedInAtlas))
             , fTailInstance(&fHeadInstance->fNext)
-            , fAtlasProxy(std::move(atlasProxy))
-            , fIsInverseFill(isInverseFill)
+            , fAtlasHelper(std::move(atlasProxy),
+                           isInverseFill ? GrAtlasInstancedHelper::ShaderFlags::kCheckBounds |
+                                           GrAtlasInstancedHelper::ShaderFlags::kInvertCoverage
+                                         : GrAtlasInstancedHelper::ShaderFlags::kNone)
             , fEnableHWAA(numRenderTargetSamples > 1)
             , fProcessors(std::move(paint)) {
         this->setBounds(SkRect::Make(fillBounds), HasAABloat::kYes, IsHairline::kNo);
@@ -38,7 +40,7 @@ public:
         return fEnableHWAA ? FixedFunctionFlags::kUsesHWAA : FixedFunctionFlags::kNone;
     }
     void visitProxies(const GrVisitProxyFunc& func) const override {
-        func(fAtlasProxy.get(), GrMipmapped::kNo);
+        func(fAtlasHelper.proxy(), GrMipmapped::kNo);
         fProcessors.visitProxies(func);
     }
     GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*, GrClampType) override;
@@ -63,26 +65,19 @@ private:
                                                    m.getSkewX(), m.getScaleY(),
                                                    m.getTranslateX(), m.getTranslateY()}
                 , fColor(color)
-                , fLocationInAtlas(locationInAtlas)
-                , fPathDevIBounds(pathDevIBounds)
-                , fTransposedInAtlas(transposedInAtlas) {
-            SkASSERT(fLocationInAtlas.x() >= 0);
-            SkASSERT(fLocationInAtlas.y() >= 0);
+                , fAtlasInstance(locationInAtlas, pathDevIBounds, transposedInAtlas) {
         }
         SkIRect fFillBounds;
         std::array<float, 6> fLocalToDeviceIfUsingLocalCoords;
         SkPMColor4f fColor;
-        SkIPoint16 fLocationInAtlas;
-        SkIRect fPathDevIBounds;
-        bool fTransposedInAtlas;
+        GrAtlasInstancedHelper::Instance fAtlasInstance;
         Instance* fNext = nullptr;
     };
 
     Instance* fHeadInstance;
     Instance** fTailInstance;
 
-    const sk_sp<GrTextureProxy> fAtlasProxy;
-    const bool fIsInverseFill;
+    GrAtlasInstancedHelper fAtlasHelper;
     const bool fEnableHWAA;
     bool fUsesLocalCoords = false;
 
