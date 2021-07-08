@@ -282,10 +282,9 @@ struct SK_API GrContextOptions {
      */
 
     /**
-     * Experimental: Should the Ganesh' Next Generation Architecture be used instead of the
-     * old architecture?
+     * Experimental: Should the new version of the GPU backend be used?
      */
-    Enable fUseNGA = Enable::kDefault;
+    Enable fUseSkGpuV2 = Enable::kDefault;
 
     /**
      * Prevents use of dual source blending, to test that all xfer modes work correctly without it.
