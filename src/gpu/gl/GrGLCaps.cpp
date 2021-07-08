@@ -4209,11 +4209,14 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     }
 
     // http://crbug.com/1197152
-#ifndef SK_BUILD_FOR_IOS
-    if (ctxInfo.renderer() == GrGLRenderer::kPowerVRRogue) {
+    // http://b/187364475
+    // We could limit this < 1.13 on ChromeOS but we don't really have a good way to detect
+    // ChromeOS from here.
+    if (ctxInfo.renderer()      == GrGLRenderer::kPowerVRRogue &&
+        ctxInfo.driver()        == GrGLDriver::kImagination    &&
+        ctxInfo.driverVersion() <  GR_GL_DRIVER_VER(1, 16, 0)) {
         fShaderCaps->fShaderDerivativeSupport = false;
     }
-#endif
 
     if (ctxInfo.driver() == GrGLDriver::kFreedreno) {
         formatWorkarounds->fDisallowUnorm16Transfers = true;

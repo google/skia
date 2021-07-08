@@ -213,6 +213,7 @@ enum class GrGLDriver {
     kQualcomm,
     kFreedreno,
     kAndroidEmulator,
+    kImagination,
     kUnknown
 };
 
