@@ -16,6 +16,8 @@
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/GrVertexWriter.h"
+#include "src/gpu/GrVx.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
@@ -33,6 +35,7 @@ public:
     DEFINE_OP_CLASS_ID
 
     static GrOp::Owner Make(GrRecordingContext*,
+                            SkArenaAlloc*,
                             GrPaint&&,
                             const SkMatrix& viewMatrix,
                             const SkRRect&,
@@ -78,27 +81,11 @@ private:
 
     FillRRectOp(GrProcessorSet*,
                 const SkPMColor4f& paintColor,
-                const SkMatrix& totalShapeMatrix,
+                SkArenaAlloc*,
+                const SkMatrix& viewMatrix,
                 const SkRRect&,
                 const SkRect& localRect,
-                ProcessorFlags,
-                const SkRect& devBounds);
-
-    // These methods are used to append data of various POD types to our internal array of instance
-    // data. The actual layout of the instance buffer can vary from Op to Op.
-    template <typename T> inline T* appendInstanceData(int count) {
-        static_assert(std::is_pod<T>::value, "");
-        static_assert(4 == alignof(T), "");
-        return reinterpret_cast<T*>(fInstanceData.push_back_n(sizeof(T) * count));
-    }
-
-    template <typename T, typename... Args>
-    inline void writeInstanceData(const T& val, const Args&... remainder) {
-        memcpy(this->appendInstanceData<T>(1), &val, sizeof(T));
-        this->writeInstanceData(remainder...);
-    }
-
-    void writeInstanceData() {}  // Halt condition.
+                ProcessorFlags);
 
     GrProgramInfo* programInfo() final { return fProgramInfo; }
 
@@ -112,13 +99,22 @@ private:
                              GrLoadOp colorLoadOp) final;
 
     Helper         fHelper;
-    SkPMColor4f    fColor;
-    const SkRect   fLocalRect;
     ProcessorFlags fProcessorFlags;
 
-    SkSTArray<sizeof(float) * 16 * 4, char, /*MEM_MOVE=*/ true> fInstanceData;
+    struct Instance {
+        Instance(const SkMatrix& viewMatrix, const SkRRect& rrect, const SkRect& localRect,
+                 const SkPMColor4f& color)
+                : fViewMatrix(viewMatrix), fRRect(rrect), fLocalRect(localRect), fColor(color) {}
+        SkMatrix fViewMatrix;
+        SkRRect fRRect;
+        SkRect fLocalRect;
+        SkPMColor4f fColor;
+        Instance* fNext = nullptr;
+    };
+
+    Instance* fHeadInstance;
+    Instance** fTailInstance;
     int fInstanceCount = 1;
-    int fInstanceStride = 0;
 
     sk_sp<const GrBuffer> fInstanceBuffer;
     sk_sp<const GrBuffer> fVertexBuffer;
@@ -141,6 +137,7 @@ static bool can_use_hw_derivatives_with_coverage(const GrShaderCaps&,
                                                  const SkRRect&);
 
 GrOp::Owner FillRRectOp::Make(GrRecordingContext* ctx,
+                              SkArenaAlloc* arena,
                               GrPaint&& paint,
                               const SkMatrix& viewMatrix,
                               const SkRRect& rrect,
@@ -176,104 +173,62 @@ GrOp::Owner FillRRectOp::Make(GrRecordingContext* ctx,
         flags |= ProcessorFlags::kFakeNonAA;
     }
 
-    // Produce a matrix that draws the round rect from normalized [-1, -1, +1, +1] space.
-    float l = rrect.rect().left(), r = rrect.rect().right(),
-          t = rrect.rect().top(), b = rrect.rect().bottom();
-    SkMatrix m;
-    // Unmap the normalized rect [-1, -1, +1, +1] back to [l, t, r, b].
-    m.setScaleTranslate((r - l)/2, (b - t)/2, (l + r)/2, (t + b)/2);
-    // Map to device space.
-    m.postConcat(viewMatrix);
-
-    SkRect devBounds;
-    // Since m is an affine matrix that maps the rect [-1, -1, +1, +1] into the shape's
-    // device-space quad, it's quite simple to find the bounding rectangle:
-    devBounds = SkRect::MakeXYWH(m.getTranslateX(), m.getTranslateY(), 0, 0);
-    devBounds.outset(SkScalarAbs(m.getScaleX()) + SkScalarAbs(m.getSkewX()),
-                     SkScalarAbs(m.getSkewY()) + SkScalarAbs(m.getScaleY()));
-
-    return Helper::FactoryHelper<FillRRectOp>(ctx, std::move(paint), m, rrect, localRect, flags,
-                                              devBounds);
+    return Helper::FactoryHelper<FillRRectOp>(ctx, std::move(paint), arena, viewMatrix, rrect,
+                                              localRect, flags);
 }
 
 FillRRectOp::FillRRectOp(GrProcessorSet* processorSet,
                          const SkPMColor4f& paintColor,
-                         const SkMatrix& totalShapeMatrix,
+                         SkArenaAlloc* arena,
+                         const SkMatrix& viewMatrix,
                          const SkRRect& rrect,
                          const SkRect& localRect,
-                         ProcessorFlags processorFlags,
-                         const SkRect& devBounds)
+                         ProcessorFlags processorFlags)
         : INHERITED(ClassID())
         , fHelper(processorSet,
                   (processorFlags & ProcessorFlags::kFakeNonAA)
                           ? GrAAType::kNone
                           : GrAAType::kCoverage)  // Use analytic AA even if the RT is MSAA.
-        , fColor(paintColor)
-        , fLocalRect(localRect)
         , fProcessorFlags(processorFlags & ~(ProcessorFlags::kHasLocalCoords |
                                              ProcessorFlags::kWideColor |
-                                             ProcessorFlags::kMSAAEnabled)) {
+                                             ProcessorFlags::kMSAAEnabled))
+        , fHeadInstance(arena->make<Instance>(viewMatrix, rrect, localRect, paintColor))
+        , fTailInstance(&fHeadInstance->fNext) {
     // FillRRectOp::Make fails if there is perspective.
-    SkASSERT(!totalShapeMatrix.hasPerspective());
-    this->setBounds(devBounds, GrOp::HasAABloat(!(processorFlags & ProcessorFlags::kFakeNonAA)),
+    SkASSERT(!viewMatrix.hasPerspective());
+    this->setBounds(viewMatrix.mapRect(rrect.getBounds()),
+                    GrOp::HasAABloat(!(processorFlags & ProcessorFlags::kFakeNonAA)),
                     GrOp::IsHairline::kNo);
-
-    // Write the matrix attribs.
-    const SkMatrix& m = totalShapeMatrix;
-    // Affine 2D transformation (float2x2 plus float2 translate).
-    SkASSERT(!m.hasPerspective());
-    this->writeInstanceData(m.getScaleX(), m.getSkewX(), m.getSkewY(), m.getScaleY());
-    this->writeInstanceData(m.getTranslateX(), m.getTranslateY());
-
-    // Convert the radii to [-1, -1, +1, +1] space and write their attribs.
-    Sk4f radiiX, radiiY;
-    Sk4f::Load2(SkRRectPriv::GetRadiiArray(rrect), &radiiX, &radiiY);
-    (radiiX * (2/rrect.width())).store(this->appendInstanceData<float>(4));
-    (radiiY * (2/rrect.height())).store(this->appendInstanceData<float>(4));
-
-    // We will write the color and local rect attribs during finalize().
 }
 
 GrProcessorSet::Analysis FillRRectOp::finalize(const GrCaps& caps, const GrAppliedClip* clip,
                                                GrClampType clampType) {
-    SkASSERT(1 == fInstanceCount);
+    SkASSERT(fInstanceCount == 1);
+    SkASSERT(fHeadInstance->fNext == nullptr);
 
     bool isWideColor;
     auto analysis = fHelper.finalizeProcessors(caps, clip, clampType,
-                                               GrProcessorAnalysisCoverage::kSingleChannel, &fColor,
-                                               &isWideColor);
-
-    // Finish writing the instance attribs.
+                                               GrProcessorAnalysisCoverage::kSingleChannel,
+                                               &fHeadInstance->fColor, &isWideColor);
     if (isWideColor) {
         fProcessorFlags |= ProcessorFlags::kWideColor;
-        this->writeInstanceData(fColor);
-    } else {
-        this->writeInstanceData(fColor.toBytes_RGBA());
     }
-
     if (analysis.usesLocalCoords()) {
         fProcessorFlags |= ProcessorFlags::kHasLocalCoords;
-        this->writeInstanceData(fLocalRect);
     }
-    fInstanceStride = fInstanceData.count();
-
     return analysis;
 }
 
 GrOp::CombineResult FillRRectOp::onCombineIfPossible(GrOp* op, SkArenaAlloc*, const GrCaps& caps) {
     const auto& that = *op->cast<FillRRectOp>();
-    if (!fHelper.isCompatible(that.fHelper, caps, this->bounds(), that.bounds())) {
+    if (!fHelper.isCompatible(that.fHelper, caps, this->bounds(), that.bounds()) ||
+        fProcessorFlags != that.fProcessorFlags) {
         return CombineResult::kCannotCombine;
     }
 
-    if (fProcessorFlags != that.fProcessorFlags ||
-        fInstanceData.count() > std::numeric_limits<int>::max() - that.fInstanceData.count()) {
-        return CombineResult::kCannotCombine;
-    }
-
-    fInstanceData.push_back_n(that.fInstanceData.count(), that.fInstanceData.begin());
+    *fTailInstance = that.fHeadInstance;
+    fTailInstance = that.fTailInstance;
     fInstanceCount += that.fInstanceCount;
-    SkASSERT(fInstanceStride == that.fInstanceStride);
     return CombineResult::kMerged;
 }
 
@@ -309,6 +264,7 @@ private:
             fInstanceAttribs.emplace_back(
                     "local_rect", kFloat4_GrVertexAttribType, kFloat4_GrSLType);
         }
+        SkASSERT(fInstanceAttribs.count() <= kMaxInstanceAttribs);
         this->setInstanceAttributes(fInstanceAttribs.begin(), fInstanceAttribs.count());
     }
 
@@ -320,7 +276,8 @@ private:
 
     const ProcessorFlags fFlags;
 
-    SkSTArray<6, Attribute> fInstanceAttribs;
+    constexpr static int kMaxInstanceAttribs = 6;
+    SkSTArray<kMaxInstanceAttribs, Attribute> fInstanceAttribs;
     const Attribute* fColorAttrib;
 
     class Impl;
@@ -464,10 +421,41 @@ void FillRRectOp::onPrepareDraws(GrMeshDrawTarget* target) {
         fProcessorFlags |= ProcessorFlags::kMSAAEnabled;
     }
 
-    if (void* instanceData = target->makeVertexSpace(fInstanceStride, fInstanceCount,
-                                                     &fInstanceBuffer, &fBaseInstance)) {
-        SkASSERT(fInstanceStride * fInstanceCount == fInstanceData.count());
-        memcpy(instanceData, fInstanceData.begin(), fInstanceData.count());
+    if (!fProgramInfo) {
+        this->createProgramInfo(target);
+    }
+
+    size_t instanceStride = fProgramInfo->geomProc().instanceStride();
+
+    if (GrVertexWriter instanceWrter = target->makeVertexSpace(instanceStride, fInstanceCount,
+                                                               &fInstanceBuffer, &fBaseInstance)) {
+        SkDEBUGCODE(auto end = instanceWrter.makeOffset(instanceStride * fInstanceCount));
+        for (Instance* i = fHeadInstance; i; i = i->fNext) {
+            auto [l, t, r, b] = i->fRRect.rect();
+
+            // Produce a matrix that draws the round rect from normalized [-1, -1, +1, +1] space.
+            SkMatrix m;
+            // Unmap the normalized rect [-1, -1, +1, +1] back to [l, t, r, b].
+            m.setScaleTranslate((r - l)/2, (b - t)/2, (l + r)/2, (t + b)/2);
+            // Map to device space.
+            m.postConcat(i->fViewMatrix);
+
+            // Convert the radii to [-1, -1, +1, +1] space and write their attribs.
+            grvx::float4 radiiX, radiiY;
+            grvx::strided_load2(&SkRRectPriv::GetRadiiArray(i->fRRect)->fX, radiiX, radiiY);
+            radiiX *= 2 / (r - l);
+            radiiY *= 2 / (b - t);
+
+            instanceWrter.write(
+                    m.getScaleX(), m.getSkewX(), m.getSkewY(), m.getScaleY(),
+                    m.getTranslateX(), m.getTranslateY(),
+                    radiiX,
+                    radiiY,
+                    GrVertexColor(i->fColor, fProcessorFlags & ProcessorFlags::kWideColor),
+                    GrVertexWriter::If(fProcessorFlags & ProcessorFlags::kHasLocalCoords,
+                                       i->fLocalRect));
+        }
+        SkASSERT(instanceWrter == end);
     }
 
     GR_DEFINE_STATIC_UNIQUE_KEY(gIndexBufferKey);
@@ -688,8 +676,6 @@ void FillRRectOp::onCreateProgramInfo(const GrCaps* caps,
                                       GrXferBarrierFlags renderPassXferBarriers,
                                       GrLoadOp colorLoadOp) {
     GrGeometryProcessor* gp = Processor::Make(arena, fHelper.aaType(), fProcessorFlags);
-    SkASSERT(gp->instanceStride() == (size_t)fInstanceStride);
-
     fProgramInfo = fHelper.createProgramInfo(caps, arena, writeView, std::move(appliedClip),
                                              dstProxyView, gp, GrPrimitiveType::kTriangles,
                                              renderPassXferBarriers, colorLoadOp);
@@ -698,10 +684,6 @@ void FillRRectOp::onCreateProgramInfo(const GrCaps* caps,
 void FillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
     if (!fInstanceBuffer || !fIndexBuffer || !fVertexBuffer) {
         return;  // Setup failed.
-    }
-
-    if (!fProgramInfo) {
-        this->createProgramInfo(flushState);
     }
 
     flushState->bindPipelineAndScissorClip(*fProgramInfo, this->bounds());
@@ -774,12 +756,13 @@ static bool can_use_hw_derivatives_with_coverage(
 
 
 GrOp::Owner GrFillRRectOp::Make(GrRecordingContext* ctx,
+                                SkArenaAlloc* arena,
                                 GrPaint&& paint,
                                 const SkMatrix& viewMatrix,
                                 const SkRRect& rrect,
                                 const SkRect& localRect,
                                 GrAA aa) {
-    return FillRRectOp::Make(ctx, std::move(paint), viewMatrix, rrect, localRect, aa);
+    return FillRRectOp::Make(ctx, arena, std::move(paint), viewMatrix, rrect, localRect, aa);
 }
 
 
@@ -788,6 +771,7 @@ GrOp::Owner GrFillRRectOp::Make(GrRecordingContext* ctx,
 #include "src/gpu/GrDrawOpTest.h"
 
 GR_DRAW_OP_TEST_DEFINE(FillRRectOp) {
+    SkArenaAlloc arena(64 * sizeof(float));
     SkMatrix viewMatrix = GrTest::TestMatrix(random);
     GrAA aa = GrAA(random->nextBool());
 
@@ -800,6 +784,7 @@ GR_DRAW_OP_TEST_DEFINE(FillRRectOp) {
     rrect.setNinePatch(rect, w / 3.0f, h / 4.0f, w / 5.0f, h / 6.0);
 
     return GrFillRRectOp::Make(context,
+                               &arena,
                                std::move(paint),
                                viewMatrix,
                                rrect,
