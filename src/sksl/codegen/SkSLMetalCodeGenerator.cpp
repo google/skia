@@ -839,23 +839,23 @@ void MetalCodeGenerator::assembleMatrixFromMatrix(const Type& sourceMatrix, int 
     fExtraFunctions.writeText(")");
 }
 
-// Assembles a matrix of type floatRxC by concatenating an arbitrary mix of values, named `x0`,
-// `x1`, etc. An error is written if the expression list don't contain exactly R*C scalars.
+// Assembles a matrix of type floatCxR by concatenating an arbitrary mix of values, named `x0`,
+// `x1`, etc. An error is written if the expression list don't contain exactly C*R scalars.
 void MetalCodeGenerator::assembleMatrixFromExpressions(const AnyConstructor& ctor,
-                                                       int rows, int columns) {
+                                                       int columns, int rows) {
     size_t argIndex = 0;
     int argPosition = 0;
     auto args = ctor.argumentSpan();
 
-    const char* columnSeparator = "";
-    for (int c = 0; c < columns; ++c) {
-        fExtraFunctions.printf("%sfloat%d(", columnSeparator, rows);
-        columnSeparator = "), ";
+    const char* rowSeparator = "";
+    for (int r = 0; r < rows; ++r) {
+        fExtraFunctions.printf("%sfloat%d(", rowSeparator, rows);
+        rowSeparator = "), ";
 
-        const char* rowSeparator = "";
-        for (int r = 0; r < rows; ++r) {
-            fExtraFunctions.writeText(rowSeparator);
-            rowSeparator = ", ";
+        const char* columnSeparator = "";
+        for (int c = 0; c < columns; ++c) {
+            fExtraFunctions.writeText(columnSeparator);
+            columnSeparator = ", ";
 
             if (argIndex < args.size()) {
                 const Type& argType = args[argIndex]->type();
@@ -942,7 +942,7 @@ String MetalCodeGenerator::getMatrixConstructHelper(const AnyConstructor& c) {
     if (args.size() == 1 && args.front()->type().isMatrix()) {
         this->assembleMatrixFromMatrix(args.front()->type(), rows, columns);
     } else {
-        this->assembleMatrixFromExpressions(c, rows, columns);
+        this->assembleMatrixFromExpressions(c, columns, rows);
     }
 
     fExtraFunctions.writeText(");\n}\n");
