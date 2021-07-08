@@ -73,8 +73,8 @@ SkGlyphRunListPainter::SkGlyphRunListPainter(const SkSurfaceProps& props, const 
                                 compute_scaler_context_flags(csi.colorSpace()),
                                 SkStrikeCache::GlobalStrikeCache()) {}
 
-SkGlyphRunListPainter::SkGlyphRunListPainter(const GrSurfaceDrawContext& rtc)
-        : SkGlyphRunListPainter{rtc.surfaceProps(), rtc.colorInfo()} {}
+SkGlyphRunListPainter::SkGlyphRunListPainter(const GrSurfaceDrawContext& sdc)
+        : SkGlyphRunListPainter{sdc.surfaceProps(), sdc.colorInfo()} {}
 
 #endif
 
