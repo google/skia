@@ -22,6 +22,30 @@
       },
       "revId": "2c4b4de706fe13cb17d960aadc5c5ba833d7da7d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6c8f9be4_add9dff2",
+        "filename": "src/gpu/gradients/GrGradientShader.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-07-08T13:45:11Z",
+      "side": 1,
+      "message": "It\u0027s the uniforms - once they\u0027re present in the SkSL, we have to supply their values to the FP factory. We could do that, but then every instance of this would have the full set of uniforms defined/uploaded (even though many would be unused based on the specialization).",
+      "parentUuid": "78636043_0e036827",
+      "range": {
+        "startLine": 142,
+        "startChar": 4,
+        "endLine": 145,
+        "endChar": 45
+      },
+      "revId": "2c4b4de706fe13cb17d960aadc5c5ba833d7da7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
