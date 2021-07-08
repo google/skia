@@ -16,6 +16,52 @@
       "message": "This (unfiltered input goes to src and dst) eventually becomes the last remaining behavior.",
       "revId": "607723abc3d47525902f30bc9a55f1d2d1dfc1e9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "35f78ad0_a9ea745d",
+        "filename": "src/gpu/effects/GrBlendFragmentProcessor.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-07-08T13:03:10Z",
+      "side": 1,
+      "message": "This can just be written as \"ConstantOutputForConstantInput(src, input)\" now. (That helper returns input when the FP is null).",
+      "range": {
+        "startLine": 176,
+        "startChar": 39,
+        "endLine": 176,
+        "endChar": 96
+      },
+      "revId": "607723abc3d47525902f30bc9a55f1d2d1dfc1e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e1d6300d_943ee1ee",
+        "filename": "src/gpu/effects/GrBlendFragmentProcessor.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-07-08T13:03:10Z",
+      "side": 1,
+      "message": "Similarly, this doesn\u0027t need the ?: either. invokeChild returns the passed-in input color if the specified child is null.",
+      "range": {
+        "startLine": 271,
+        "startChar": 12,
+        "endLine": 271,
+        "endChar": 90
+      },
+      "revId": "607723abc3d47525902f30bc9a55f1d2d1dfc1e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
