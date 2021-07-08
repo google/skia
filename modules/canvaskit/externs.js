@@ -455,7 +455,6 @@ var CanvasKit = {
     // public API (from C++ bindings)
     /** @return {CanvasKit.Paint} */
     copy: function() {},
-    getBlendMode: function() {},
     getFilterQuality: function() {},
     getStrokeCap: function() {},
     getStrokeJoin: function() {},
