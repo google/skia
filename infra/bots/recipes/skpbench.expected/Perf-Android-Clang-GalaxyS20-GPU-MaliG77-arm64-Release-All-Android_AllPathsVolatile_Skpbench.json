@@ -309,7 +309,7 @@
       "--resultsfile",
       "[START_DIR]/[SWARM_OUT_DIR]/table",
       "--config",
-      "glesmsaa4",
+      "glesdmsaa,glesmsaa4",
       "--internalSamples",
       "4",
       "-v5",
