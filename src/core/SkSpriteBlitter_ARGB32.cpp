@@ -100,6 +100,9 @@ SkSpriteBlitter* SkSpriteBlitter::ChooseL32(const SkPixmap& source, const SkPain
     if (paint.getMaskFilter() != nullptr) {
         return nullptr;
     }
+    if (!paint.asBlendMode()) {
+        return nullptr;
+    }
 
     U8CPU alpha = paint.getAlpha();
 
