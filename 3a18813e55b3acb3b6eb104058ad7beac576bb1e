@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a5785330_f6e4bd1d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-07-08T16:49:45Z",
+      "side": 1,
+      "message": "Flutter Web doesn\u0027t call getBlendMode, so this LGTM",
+      "revId": "3a18813e55b3acb3b6eb104058ad7beac576bb1e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
