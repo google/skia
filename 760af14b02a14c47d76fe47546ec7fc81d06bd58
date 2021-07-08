@@ -38,6 +38,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "fe925483_d9c19964",
+        "filename": "src/effects/SkBlenders.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-07-08T13:55:31Z",
+      "side": 1,
+      "message": "Hmmm, was hoping to keep this using public headers, so it can be trivially moved into chrome.",
+      "parentUuid": "cde39933_35d2e83f",
+      "revId": "760af14b02a14c47d76fe47546ec7fc81d06bd58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "15351724_caeba3ce",
         "filename": "src/effects/SkBlenders.cpp",
         "patchSetId": 9
@@ -49,6 +67,24 @@
       "writtenOn": "2021-07-08T13:49:45Z",
       "side": 1,
       "message": "SkASSERT(effect) ?",
+      "revId": "760af14b02a14c47d76fe47546ec7fc81d06bd58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3aed3d87_3cb3a31e",
+        "filename": "src/effects/SkBlenders.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-07-08T13:55:31Z",
+      "side": 1,
+      "message": "Sure, guess we don\u0027t really need the error string for this one.",
+      "parentUuid": "15351724_caeba3ce",
       "revId": "760af14b02a14c47d76fe47546ec7fc81d06bd58",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
