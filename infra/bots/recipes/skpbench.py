@@ -65,8 +65,12 @@ def skpbench_steps(api):
     config = 'mtl'
   elif is_android:
     config = 'gles'
+    if "MaliG77" in api.vars.builder_name:
+      config = 'glesdmsaa,' + config
   else:
     config = 'gl'
+    if "QuadroP400" in api.vars.builder_name or is_apple_m1:
+      config = 'gldmsaa,' + config
 
   internal_samples = 4 if is_android or is_apple_m1 else 8
 
