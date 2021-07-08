@@ -276,11 +276,9 @@ std::unique_ptr<GrFragmentProcessor> GrBlendFragmentProcessor::Make(
         case SkBlendMode::kClear:
             return GrFragmentProcessor::MakeColor(SK_PMColor4fTRANSPARENT);
         case SkBlendMode::kSrc:
-            return GrFragmentProcessor::OverrideInput(std::move(src), SK_PMColor4fWHITE,
-                                                      /*useUniform=*/false);
+            return src;
         case SkBlendMode::kDst:
-            return GrFragmentProcessor::OverrideInput(std::move(dst), SK_PMColor4fWHITE,
-                                                      /*useUniform=*/false);
+            return dst;
         default:
             return BlendFragmentProcessor::Make(std::move(src), std::move(dst), mode, behavior);
     }
