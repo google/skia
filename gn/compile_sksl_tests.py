@@ -77,6 +77,10 @@ for input, targetDir in pairwise(inputs):
         worklist.write(input + "\n")
         worklist.write(target + ".glsl\n")
         worklist.write(settings + "\n\n")
+    elif lang == "--dsl":
+        worklist.write(input + "\n")
+        worklist.write(target + ".dsl.glsl\n")
+        worklist.write(settings + "\n\n")
     elif lang == "--metal":
         worklist.write(input + "\n")
         worklist.write(target + ".metal\n")
@@ -94,7 +98,7 @@ for input, targetDir in pairwise(inputs):
         worklist.write(target + ".stage\n")
         worklist.write(settings + "\n\n")
     else:
-        sys.exit("### Expected one of: --glsl --metal --spirv --skvm --stage, got " + lang)
+        sys.exit("### Expected one of: --glsl --metal --spirv --skvm --stage --dsl, got " + lang)
 
     # Compile items one at a time.
     if not batchCompile:
