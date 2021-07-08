@@ -1928,12 +1928,6 @@ export interface Paint extends EmbindObject<Paint> {
     copy(): Paint;
 
     /**
-     * Returns the blend mode, that is, the mode used to combine source color
-     * with destination color.
-     */
-    getBlendMode(): BlendMode;
-
-    /**
      * Retrieves the alpha and RGB unpremultiplied. RGB are extended sRGB values
      * (sRGB gamut, and encoded with the sRGB transfer function).
      */
