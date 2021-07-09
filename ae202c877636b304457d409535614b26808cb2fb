@@ -16,6 +16,24 @@
       "message": "Do we have a bug filed for the one remaining constructor form - scalar from vector/matrix? (which will interfere with some of these tests?). As long as we\u0027re entertaining all of the other GLSL oddities, we may as well:\n\n\"Scalar constructors with non-scalar parameters can be used to take the first element from a non-scalar.\nFor example, the constructor float(vec3) will select the first component of the vec3 parameter.\"",
       "revId": "ae202c877636b304457d409535614b26808cb2fb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5ebf424e_46e86fe9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-09T17:51:32Z",
+      "side": 1,
+      "message": "I thought we had categorized the truncating constructors as \"GLSL design flaw\" since they\u0027re mostly just surprising and can be replaced with swizzles with no loss in functionality. We could add them if we want to go the extra mile, but in practice it seems hard to justify.",
+      "parentUuid": "b61b9dc2_c4fedcf6",
+      "revId": "ae202c877636b304457d409535614b26808cb2fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
