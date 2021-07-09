@@ -9,7 +9,6 @@
 
 #include "include/gpu/GrContextThreadSafeProxy.h"
 #include "src/core/SkArenaAlloc.h"
-#include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrContextThreadSafeProxyPriv.h"
 #include "src/gpu/GrDrawingManager.h"
@@ -40,8 +39,10 @@ GrRecordingContext::ProgramData::~ProgramData() = default;
 
 GrRecordingContext::GrRecordingContext(sk_sp<GrContextThreadSafeProxy> proxy, bool ddlRecording)
         : INHERITED(std::move(proxy))
-        , fAuditTrail(new GrAuditTrail())
         , fArenas(ddlRecording) {
+#if SK_GPU_V1
+    fAuditTrail = std::make_unique<GrAuditTrail>();
+#endif
     fProxyProvider = std::make_unique<GrProxyProvider>(this);
 }
 
