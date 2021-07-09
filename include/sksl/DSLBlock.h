@@ -16,8 +16,8 @@
 
 namespace SkSL {
 
+class Block;
 class SymbolTable;
-class Statement;
 
 namespace dsl {
 
@@ -50,7 +50,7 @@ public:
 
     void append(DSLStatement stmt);
 
-    std::unique_ptr<SkSL::Statement> release();
+    std::unique_ptr<SkSL::Block> release();
 
 private:
     SkSL::StatementArray fStatements;

@@ -771,7 +771,8 @@ void IRGenerator::CheckModifiers(const Context& context,
     SkASSERT(layoutFlags == 0);
 }
 
-void IRGenerator::finalizeFunction(const FunctionDeclaration& funcDecl, Statement* body) {
+std::unique_ptr<Block> IRGenerator::finalizeFunction(const FunctionDeclaration& funcDecl,
+                                                     std::unique_ptr<Block> body) {
     class Finalizer : public ProgramWriter {
     public:
         Finalizer(IRGenerator* irGenerator, const FunctionDeclaration* function)
@@ -869,6 +870,16 @@ void IRGenerator::finalizeFunction(const FunctionDeclaration& funcDecl, Statemen
         using INHERITED = ProgramWriter;
     };
 
+    bool isMain = funcDecl.isMain();
+    bool needInvocationIDWorkaround = fInvocations != -1 && isMain &&
+                                      !this->caps().gsInvocationsSupport();
+    if (needInvocationIDWorkaround) {
+        body = this->applyInvocationIDWorkaround(std::move(body));
+    }
+    if (ProgramKind::kVertex == this->programKind() && isMain && fRTAdjust) {
+        body->children().push_back(this->getNormalizeSkPositionCode());
+    }
+
     Finalizer finalizer{this, &funcDecl};
     finalizer.visitStatement(*body);
 
@@ -876,6 +887,7 @@ void IRGenerator::finalizeFunction(const FunctionDeclaration& funcDecl, Statemen
         this->errorReporter().error(funcDecl.fOffset, "function '" + funcDecl.name() +
                                                       "' can exit without returning a value");
     }
+    return body;
 }
 
 void IRGenerator::convertFunction(const ASTNode& f) {
@@ -888,8 +900,6 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         return;
     }
     const ASTNode::FunctionData& funcData = f.getFunctionData();
-    bool isMain = (funcData.fName == "main");
-
     std::vector<std::unique_ptr<Variable>> parameters;
     parameters.reserve(funcData.fParameterCount);
     for (size_t i = 0; i < funcData.fParameterCount; ++i) {
@@ -952,19 +962,11 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         for (const Variable* param : decl->parameters()) {
             fSymbolTable->addWithoutOwnership(param);
         }
-        bool needInvocationIDWorkaround = fInvocations != -1 && isMain &&
-                                          !this->caps().gsInvocationsSupport();
         std::unique_ptr<Block> body = this->convertBlock(*iter);
         if (!body) {
             return;
         }
-        if (needInvocationIDWorkaround) {
-            body = this->applyInvocationIDWorkaround(std::move(body));
-        }
-        if (ProgramKind::kVertex == this->programKind() && isMain && fRTAdjust) {
-            body->children().push_back(this->getNormalizeSkPositionCode());
-        }
-        this->finalizeFunction(*decl, body.get());
+        body = this->finalizeFunction(*decl, std::move(body));
         auto result = std::make_unique<FunctionDefinition>(
                 f.fOffset, decl, fIsBuiltinCode, std::move(body), std::move(fReferencedIntrinsics));
         decl->setDefinition(result.get());

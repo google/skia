@@ -232,8 +232,10 @@ private:
     void copyIntrinsicIfNeeded(const FunctionDeclaration& function);
     void findAndDeclareBuiltinVariables();
     bool detectVarDeclarationWithoutScope(const Statement& stmt);
-    // Coerces returns to correct type and detects invalid break / continue placement
-    void finalizeFunction(const FunctionDeclaration& funcDecl, Statement* body);
+    // Coerces returns to correct type, detects invalid break / continue placement, and otherwise
+    // massages the function into its final form
+    std::unique_ptr<Block> finalizeFunction(const FunctionDeclaration& funcDecl,
+                                            std::unique_ptr<Block> body);
 
     // Runtime effects (and the interpreter, which uses the same CPU runtime) require adherence to
     // the strict rules from The OpenGL ES Shading Language Version 1.00. (Including Appendix A).

@@ -31,11 +31,11 @@ DSLBlock::~DSLBlock() {
         // This will convert our Block into a DSLStatement, which is then immediately freed.
         // If an FP is being generated, this will naturally incorporate the Block's Statement into
         // our FP. If not, this will assert that unused code wasn't incorporated into the program.
-        DSLStatement(this->release());
+        DSLStatement(std::move(*this));
     }
 }
 
-std::unique_ptr<SkSL::Statement> DSLBlock::release() {
+std::unique_ptr<SkSL::Block> DSLBlock::release() {
     return std::make_unique<SkSL::Block>(/*offset=*/-1, std::move(fStatements),
                                          std::move(fSymbols));
 }
