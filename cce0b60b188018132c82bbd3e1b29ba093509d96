@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "02a5fd3e_edd18bbe",
+        "filename": "src/core/SkPaintPriv.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-07-09T02:20:00Z",
+      "side": 1,
+      "message": "µ-nit: you could inline the declaration if you invert the conditional.",
+      "revId": "cce0b60b188018132c82bbd3e1b29ba093509d96",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
