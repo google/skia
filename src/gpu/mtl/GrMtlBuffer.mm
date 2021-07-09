@@ -66,8 +66,7 @@ GrMtlBuffer::GrMtlBuffer(GrMtlGpu* gpu, size_t size, GrGpuBufferType intendedTyp
     size = SkAlign4(size);
 #endif
     fMtlBuffer = size == 0 ? nil :
-            [gpu->device() newBufferWithLength: size
-                                       options: options];
+            gpu->memoryAllocator()->createBuffer(size, options, &fAlloc);
 #ifdef SK_ENABLE_MTL_DEBUG_INFO
     fMtlBuffer.label = kBufferTypeNames[(int)intendedType];
 #endif
@@ -77,6 +76,7 @@ GrMtlBuffer::GrMtlBuffer(GrMtlGpu* gpu, size_t size, GrGpuBufferType intendedTyp
 
 GrMtlBuffer::~GrMtlBuffer() {
     SkASSERT(fMtlBuffer == nil);
+    SkASSERT(!fAlloc);
     SkASSERT(fMappedBuffer == nil);
     SkASSERT(fMapPtr == nullptr);
 }
@@ -114,6 +114,7 @@ inline GrMtlGpu* GrMtlBuffer::mtlGpu() const {
 
 void GrMtlBuffer::onAbandon() {
     fMtlBuffer = nil;
+    fAlloc.reset();
     fMappedBuffer = nil;
     fMapPtr = nullptr;
     VALIDATE();
@@ -124,6 +125,7 @@ void GrMtlBuffer::onRelease() {
     if (!this->wasDestroyed()) {
         VALIDATE();
         fMtlBuffer = nil;
+        fAlloc.reset();
         fMappedBuffer = nil;
         fMapPtr = nullptr;
         VALIDATE();
@@ -152,8 +154,7 @@ void GrMtlBuffer::internalMap(size_t sizeInBytes) {
         sizeInBytes = SkAlign4(sizeInBytes);
 #endif
         fMappedBuffer =
-                [this->mtlGpu()->device() newBufferWithLength: sizeInBytes
-                                                      options: options];
+                this->mtlGpu()->memoryAllocator()->createBuffer(sizeInBytes, options, &fAlloc);
         fMapPtr = fMappedBuffer.contents;
     }
     VALIDATE();

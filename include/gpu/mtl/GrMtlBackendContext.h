@@ -16,6 +16,7 @@ struct SK_API GrMtlBackendContext {
     sk_cfp<GrMTLHandle> fDevice;
     sk_cfp<GrMTLHandle> fQueue;
     sk_cfp<GrMTLHandle> fBinaryArchive;
+    sk_sp<GrMtlMemoryAllocator> fMemoryAllocator;
 };
 
 #endif

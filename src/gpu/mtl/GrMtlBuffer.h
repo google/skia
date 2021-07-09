@@ -8,6 +8,8 @@
 #ifndef GrMtlBuffer_DEFINED
 #define GrMtlBuffer_DEFINED
 
+#include "include/gpu/mtl/GrMtlTypes.h"
+
 #include "src/gpu/GrGpuBuffer.h"
 #include "src/gpu/mtl/GrMtlUniformHandler.h"
 
@@ -48,6 +50,7 @@ private:
 
     bool fIsDynamic;
     id<MTLBuffer> fMtlBuffer;
+    sk_sp<GrMtlAlloc> fAlloc;
     size_t        fOffset;       // offset into shared buffer for dynamic buffers
     id<MTLBuffer> fMappedBuffer; // buffer used by static buffers for uploads
 

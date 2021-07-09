@@ -21,6 +21,7 @@
 #include "src/gpu/GrThreadSafePipelineBuilder.h"
 #include "src/gpu/mtl/GrMtlBuffer.h"
 #include "src/gpu/mtl/GrMtlCommandBuffer.h"
+#include "src/gpu/mtl/GrMtlMemoryAllocatorImpl.h"
 #include "src/gpu/mtl/GrMtlOpsRenderPass.h"
 #include "src/gpu/mtl/GrMtlPipelineStateBuilder.h"
 #include "src/gpu/mtl/GrMtlRenderCommandEncoder.h"
@@ -132,8 +133,19 @@ sk_sp<GrGpu> GrMtlGpu::Make(const GrMtlBackendContext& context, const GrContextO
     if (!get_feature_set(device, &featureSet)) {
         return nullptr;
     }
+
+    sk_sp<GrMtlMemoryAllocator> memoryAllocator = context.fMemoryAllocator;
+    if (!memoryAllocator) {
+        // We were not given a memory allocator at creation
+        memoryAllocator = GrMtlMemoryAllocatorImpl::Make(device);
+    }
+    if (!memoryAllocator) {
+        SkDEBUGFAIL("No supplied Metal memory allocator and unable to create one internally.");
+        return nullptr;
+    }
+
     return sk_sp<GrGpu>(new GrMtlGpu(direct, options, device, queue, context.fBinaryArchive.get(),
-                                     featureSet));
+                                     featureSet, memoryAllocator));
 }
 
 // This constant determines how many OutstandingCommandBuffers are allocated together as a block in
@@ -144,10 +156,11 @@ static const int kDefaultOutstandingAllocCnt = 8;
 
 GrMtlGpu::GrMtlGpu(GrDirectContext* direct, const GrContextOptions& options,
                    id<MTLDevice> device, id<MTLCommandQueue> queue, GrMTLHandle binaryArchive,
-                   MTLFeatureSet featureSet)
+                   MTLFeatureSet featureSet, sk_sp<GrMtlMemoryAllocator> memoryAllocator)
         : INHERITED(direct)
         , fDevice(device)
         , fQueue(queue)
+        , fMemoryAllocator(memoryAllocator)
         , fOutstandingCommandBuffers(sizeof(OutstandingCommandBuffer), kDefaultOutstandingAllocCnt)
         , fResourceProvider(this)
         , fStagingBufferManager(this)

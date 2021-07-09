@@ -8,6 +8,7 @@
 #ifndef GrMtlTypes_DEFINED
 #define GrMtlTypes_DEFINED
 
+#include "include/core/SkRefCnt.h"
 #include "include/gpu/GrTypes.h"
 #include "include/ports/SkCFObject.h"
 
@@ -20,6 +21,26 @@ typedef const void*  GrMTLHandle;
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifdef __APPLE__
+
+#ifdef __OBJC__
+#import <Metal/Metal.h>
+#endif
+
+// interface classes for the GPU memory allocator
+class GrMtlAlloc : public SkRefCnt {
+public:
+    ~GrMtlAlloc() override = default;
+};
+
+class GrMtlMemoryAllocator : public SkRefCnt {
+public:
+#ifdef __OBJC__
+    virtual id<MTLBuffer> createBuffer(NSUInteger length, MTLResourceOptions options,
+                                       sk_sp<GrMtlAlloc>* allocation) = 0;
+    virtual id<MTLTexture> createTexture(MTLTextureDescriptor* texDesc,
+                                         sk_sp<GrMtlAlloc>* allocation) = 0;
+#endif
+};
 
 #include <TargetConditionals.h>
 
