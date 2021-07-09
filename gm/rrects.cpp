@@ -17,6 +17,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#include "include/effects/SkGradientShader.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/gpu/GrCaps.h"
@@ -92,8 +93,14 @@ protected:
             paint.setAntiAlias(true);
         }
 
-        const SkRect kMaxTileBound = SkRect::MakeWH(SkIntToScalar(kTileX),
-                                                     SkIntToScalar(kTileY));
+        if (fType == kBW_Clip_Type || fType == kAA_Clip_Type) {
+            // Add a gradient to the paint to ensure local coords are respected.
+            SkPoint pts[3] = {{0, 0}, {1.5f, 1}};
+            SkColor colors[3] = {SK_ColorBLACK, SK_ColorYELLOW};
+            paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, 2,
+                                                         SkTileMode::kClamp));
+        }
+
 #ifdef SK_DEBUG
         const SkRect kMaxImageBound = SkRect::MakeWH(SkIntToScalar(kImageWidth),
                                                      SkIntToScalar(kImageHeight));
@@ -107,7 +114,6 @@ protected:
             for (int curRRect = 0; curRRect < kNumRRects; ++curRRect) {
                 bool drew = true;
 #ifdef SK_DEBUG
-                SkASSERT(kMaxTileBound.contains(fRRects[curRRect].getBounds()));
                 SkRect imageSpaceBounds = fRRects[curRRect].getBounds();
                 imageSpaceBounds.offset(SkIntToScalar(x), SkIntToScalar(y));
                 SkASSERT(kMaxImageBound.contains(imageSpaceBounds));
@@ -135,10 +141,11 @@ protected:
                         } else {
                             drew = false;
                         }
-                    } else if (kBW_Clip_Type == fType || kAA_Clip_Type == fType) {
+                    } else if (fType == kBW_Clip_Type || fType == kAA_Clip_Type) {
                         bool aaClip = (kAA_Clip_Type == fType);
                         canvas->clipRRect(fRRects[curRRect], aaClip);
-                        canvas->drawRect(kMaxTileBound, paint);
+                        canvas->setMatrix(SkMatrix::Scale(kImageWidth, kImageHeight));
+                        canvas->drawRect(SkRect::MakeWH(1, 1), paint);
                     } else {
                         canvas->drawRRect(fRRects[curRRect], paint);
                     }
