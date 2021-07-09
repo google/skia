@@ -197,7 +197,9 @@ protected:
      */
     void addOnFlushCallbackObject(GrOnFlushCallbackObject*);
 
+#if SK_GPU_V1
     GrAuditTrail* auditTrail() { return fAuditTrail.get(); }
+#endif
 
     GrRecordingContext* asRecordingContext() override { return this; }
 
@@ -252,8 +254,10 @@ protected:
     void dumpJSON(SkJSONWriter*) const;
 
 private:
+#if SK_GPU_V1
     // Delete last in case other objects call it during destruction.
     std::unique_ptr<GrAuditTrail>     fAuditTrail;
+#endif
 
     OwnedArenas                       fArenas;
 

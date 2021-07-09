@@ -73,7 +73,9 @@ public:
      */
     void addOnFlushCallbackObject(GrOnFlushCallbackObject*);
 
+#if SK_GPU_V1
     GrAuditTrail* auditTrail() { return fContext->auditTrail(); }
+#endif
 
 #if GR_TEST_UTILS
     // Used by tests that intentionally exercise codepaths that print warning messages, in order to

@@ -352,10 +352,14 @@ inline void GrOpsTask::OpChain::validate() const {
 
 GrOpsTask::GrOpsTask(GrDrawingManager* drawingMgr,
                      GrSurfaceProxyView view,
+#if SK_GPU_V1
                      GrAuditTrail* auditTrail,
+#endif
                      sk_sp<GrArenas> arenas)
         : GrRenderTask()
+#if SK_GPU_V1
         , fAuditTrail(auditTrail)
+#endif
         , fUsesMSAASurface(view.asRenderTargetProxy()->numSamples() > 1)
         , fTargetSwizzle(view.swizzle())
         , fTargetOrigin(view.origin())

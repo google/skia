@@ -40,7 +40,9 @@ GrRecordingContext::ProgramData::~ProgramData() = default;
 
 GrRecordingContext::GrRecordingContext(sk_sp<GrContextThreadSafeProxy> proxy, bool ddlRecording)
         : INHERITED(std::move(proxy))
+#if SK_GPU_V1
         , fAuditTrail(new GrAuditTrail())
+#endif
         , fArenas(ddlRecording) {
     fProxyProvider = std::make_unique<GrProxyProvider>(this);
 }

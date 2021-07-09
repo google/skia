@@ -70,7 +70,9 @@ public:
      */
     void addOnFlushCallbackObject(GrOnFlushCallbackObject*);
 
+#if SK_GPU_V1
     GrAuditTrail* auditTrail() { return fContext->auditTrail(); }
+#endif
 
     /**
      * Finalizes all pending reads and writes to the surfaces and also performs an MSAA resolves
