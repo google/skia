@@ -16,7 +16,6 @@
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
-#include "src/sksl/SkSLCPP.h"
 #include "src/sksl/SkSLUtil.h"
 
 static void border_colors(const GrYUVATextureProxies& yuvaProxies, float planeBorders[4][4]) {
