@@ -1012,15 +1012,55 @@ void MetalCodeGenerator::writeConstructorMatrixResize(const ConstructorMatrixRes
 
 void MetalCodeGenerator::writeConstructorCompound(const ConstructorCompound& c,
                                                   Precedence parentPrecedence) {
-    if (c.type().isMatrix()) {
+    if (c.type().isVector()) {
+        this->writeConstructorCompoundVector(c, parentPrecedence);
+    } else if (c.type().isMatrix()) {
         this->writeConstructorCompoundMatrix(c, parentPrecedence);
     } else {
-        this->writeAnyConstructor(c, "(", ")", parentPrecedence);
+        fErrors.error(c.fOffset, "unsupported compound constructor");
     }
+}
+
+void MetalCodeGenerator::writeVectorFromMat2x2ConstructorHelper() {
+    static constexpr char kCode[] =
+R"(float4 float4_from_float2x2(float2x2 x) {
+    return float4(x[0].xy, x[1].xy);
+}
+)";
+
+    String name = "matrixCompMult";
+    if (fHelpers.find("float4_from_float2x2") == fHelpers.end()) {
+        fHelpers.insert("float4_from_float2x2");
+        fExtraFunctions.writeText(kCode);
+    }
+}
+
+void MetalCodeGenerator::writeConstructorCompoundVector(const ConstructorCompound& c,
+                                                        Precedence parentPrecedence) {
+    SkASSERT(c.type().isVector());
+
+    // Metal supports constructing vectors from a mix of scalars and vectors, but not matrices.
+    // GLSL supports vec4(mat2x2), so we detect that case here and emit a helper function.
+    if (c.type().columns() == 4 && c.argumentSpan().size() == 1) {
+        const Expression& expr = *c.argumentSpan().front();
+        if (expr.type().isMatrix()) {
+            SkASSERT(expr.type().rows() == 2);
+            SkASSERT(expr.type().columns() == 2);
+            this->writeVectorFromMat2x2ConstructorHelper();
+            this->write("float4_from_float2x2(");
+            this->writeExpression(expr, Precedence::kSequence);
+            this->write(")");
+            return;
+        }
+    }
+
+    this->writeAnyConstructor(c, "(", ")", parentPrecedence);
 }
 
 void MetalCodeGenerator::writeConstructorCompoundMatrix(const ConstructorCompound& c,
                                                         Precedence parentPrecedence) {
+    SkASSERT(c.type().isMatrix());
+
     // Emit and invoke a matrix-constructor helper method if one is necessary.
     if (this->matrixConstructHelperIsNeeded(c)) {
         this->write(this->getMatrixConstructHelper(c));
