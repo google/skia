@@ -1,0 +1,25 @@
+// Expect 16 errors
+
+float4 v;
+
+float4 xyra() { return v.xyra; }
+float4 zxtq() { return v.zxtq; }
+float4 wwRB() { return v.wwRB; }
+
+float4 rgxy() { return v.rgxy; }
+float4 bast() { return v.bast; }
+float4 gbLT() { return v.gbLT; }
+
+float4 sxyz() { return v.sxyz; }
+float4 tpbb() { return v.tpbb; }
+float4 qsTR() { return v.qsTR; }
+
+float4 LTxy() { return v.LTxy; }
+float4 TRba() { return v.TRba; }
+float4 RBst() { return v.RBst; }
+
+float4 xrsL() { return v.xrsL; }
+float4 ygtT() { return v.ygtT; }
+float4 zbpR() { return v.zbpR; }
+float4 waqB() { return v.waqB; }
+
