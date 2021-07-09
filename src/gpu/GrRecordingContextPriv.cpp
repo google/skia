@@ -9,6 +9,7 @@
 
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDrawingManager.h"
+#include "src/gpu/GrRenderTargetProxy.h"
 
 #if SK_GPU_V1
 #include "src/gpu/v1/Device_v1.h"
@@ -24,7 +25,7 @@ sk_sp<skgpu::BaseDevice> GrRecordingContextPriv::createDevice(GrColorType colorT
                                                               const SkSurfaceProps& props,
                                                               skgpu::BaseDevice::InitContents init) {
 #if GR_TEST_UTILS
-    if (this->options().fUseNGA == GrContextOptions::Enable::kYes) {
+    if (this->options().fUseSkGpuV2 == GrContextOptions::Enable::kYes) {
 #if SK_GPU_V2
         return skgpu::v2::Device::Make(fContext, colorType, std::move(proxy), std::move(colorSpace),
                                        origin, props, init);
@@ -53,7 +54,7 @@ sk_sp<skgpu::BaseDevice> GrRecordingContextPriv::createDevice(SkBudgeted budgete
                                                               const SkSurfaceProps& props,
                                                               skgpu::BaseDevice::InitContents init) {
 #if GR_TEST_UTILS
-    if (this->options().fUseNGA == GrContextOptions::Enable::kYes) {
+    if (this->options().fUseSkGpuV2 == GrContextOptions::Enable::kYes) {
 #if SK_GPU_V2
         return skgpu::v2::Device::Make(fContext, budgeted, ii, fit, sampleCount,
                                        mipmapped, isProtected, origin, props, init);
