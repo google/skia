@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3344a95c_b393bf0d",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 876,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-09T20:26:55Z",
+      "side": 1,
+      "message": "Please add a test that exercises the `applyInvocationIDWorkaround` path?",
+      "range": {
+        "startLine": 876,
+        "startChar": 21,
+        "endLine": 876,
+        "endChar": 48
+      },
+      "revId": "5aa79592977dffa37a9a9f3e480397fcf6515725",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
