@@ -17,7 +17,6 @@
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkClipOpPriv.h"
 #include "src/core/SkRectPriv.h"
-#include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/utils/SkJSONWriter.h"
@@ -25,6 +24,10 @@
 #include "tools/debugger/DrawCommand.h"
 
 #include <string>
+
+#if SK_GPU_V1
+#include "src/gpu/GrAuditTrail.h"
+#endif
 
 #define SKDEBUGCANVAS_VERSION 1
 #define SKDEBUGCANVAS_ATTRIBUTE_VERSION "version"
@@ -143,14 +146,17 @@ void DebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
 
     auto dContext = GrAsDirectContext(finalCanvas->recordingContext());
 
+#if SK_GPU_V1
     // If we have a GPU backend we can also visualize the op information
     GrAuditTrail* at = nullptr;
     if (fDrawGpuOpBounds || m != -1) {
         // The audit trail must be obtained from the original canvas.
         at = this->getAuditTrail(originalCanvas);
     }
+#endif
 
     for (int i = 0; i <= index; i++) {
+#if SK_GPU_V1
         GrAuditTrail::AutoCollectOps* acb = nullptr;
         if (at) {
             // We need to flush any pending operations, or they might combine with commands below.
@@ -161,12 +167,15 @@ void DebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
             }
             acb = new GrAuditTrail::AutoCollectOps(at, i);
         }
+#endif
         if (fCommandVector[i]->isVisible()) {
             fCommandVector[i]->execute(finalCanvas);
         }
+#if SK_GPU_V1
         if (at && acb) {
             delete acb;
         }
+#endif
     }
 
     if (SkColorGetA(fClipVizColor) != 0) {
@@ -196,6 +205,7 @@ void DebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
         finalCanvas->drawRect(fAndroidClip, androidClipPaint);
     }
 
+#if SK_GPU_V1
     // draw any ops if required and issue a full reset onto GrAuditTrail
     if (at) {
         // just in case there is global reordering, we flush the canvas before querying
@@ -249,6 +259,7 @@ void DebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
         finalCanvas->restore();
     }
     this->cleanupAuditTrail(originalCanvas);
+#endif
 }
 
 void DebugCanvas::deleteDrawCommandAt(int index) {
@@ -262,6 +273,7 @@ DrawCommand* DebugCanvas::getDrawCommandAt(int index) const {
     return fCommandVector[index];
 }
 
+#if SK_GPU_V1
 GrAuditTrail* DebugCanvas::getAuditTrail(SkCanvas* canvas) {
     GrAuditTrail* at  = nullptr;
     auto ctx = canvas->recordingContext();
@@ -300,14 +312,17 @@ void DebugCanvas::cleanupAuditTrail(SkCanvas* canvas) {
         at->fullReset();
     }
 }
+#endif
 
 void DebugCanvas::toJSON(SkJSONWriter&   writer,
                          UrlDataManager& urlDataManager,
                          SkCanvas*       canvas) {
+#if SK_GPU_V1
     this->drawAndCollectOps(canvas);
 
     // now collect json
     GrAuditTrail* at = this->getAuditTrail(canvas);
+#endif
     writer.appendS32(SKDEBUGCANVAS_ATTRIBUTE_VERSION, SKDEBUGCANVAS_VERSION);
     writer.beginArray(SKDEBUGCANVAS_ATTRIBUTE_COMMANDS);
 
@@ -315,29 +330,40 @@ void DebugCanvas::toJSON(SkJSONWriter&   writer,
         writer.beginObject();  // command
         this->getDrawCommandAt(i)->toJSON(writer, urlDataManager);
 
+#if SK_GPU_V1
         if (at) {
             writer.appendName(SKDEBUGCANVAS_ATTRIBUTE_AUDITTRAIL);
             at->toJson(writer, i);
         }
+#endif
         writer.endObject();  // command
     }
 
     writer.endArray();  // commands
+#if SK_GPU_V1
     this->cleanupAuditTrail(canvas);
+#endif
 }
 
 void DebugCanvas::toJSONOpsTask(SkJSONWriter& writer, SkCanvas* canvas) {
+#if SK_GPU_V1
     this->drawAndCollectOps(canvas);
 
     GrAuditTrail* at = this->getAuditTrail(canvas);
     if (at) {
         GrAuditTrail::AutoManageOpsTask enable(at);
         at->toJson(writer);
-    } else {
+    } else
+#endif
+
+    {
         writer.beginObject();
         writer.endObject();
     }
+
+#if SK_GPU_V1
     this->cleanupAuditTrail(canvas);
+#endif
 }
 
 void DebugCanvas::setOverdrawViz(bool overdrawViz) { fOverdrawViz = overdrawViz; }

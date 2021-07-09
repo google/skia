@@ -16,7 +16,6 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkDeferredDisplayListPriv.h"
 #include "src/core/SkTInternalLList.h"
-#include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrClientMappedBufferManager.h"
 #include "src/gpu/GrCopyRenderTask.h"
 #include "src/gpu/GrDDLTask.h"
@@ -701,7 +700,9 @@ sk_sp<GrOpsTask> GrDrawingManager::newOpsTask(GrSurfaceProxyView surfaceView,
 
     sk_sp<GrOpsTask> opsTask(new GrOpsTask(this,
                                            std::move(surfaceView),
+#if SK_GPU_V1
                                            fContext->priv().auditTrail(),
+#endif
                                            std::move(arenas)));
     SkASSERT(this->getLastRenderTask(opsTask->target(0)) == opsTask.get());
 

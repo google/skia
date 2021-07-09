@@ -12,7 +12,6 @@
 #include "src/core/SkScopeExit.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/GrAttachment.h"
-#include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrMemoryPool.h"
@@ -26,6 +25,14 @@
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/geometry/GrRect.h"
 #include "src/gpu/ops/GrClearOp.h"
+
+// TODO: the following handling of audit trail can be removed once GrOpsTask is make V1-only
+#if SK_GPU_V1
+#include "src/gpu/GrAuditTrail.h"
+#else
+#define GR_AUDIT_TRAIL_ADD_OP(audit_trail, op, proxy_id)
+#define GR_AUDIT_TRAIL_OPS_RESULT_COMBINED(audit_trail, combineWith, op)
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -352,10 +359,14 @@ inline void GrOpsTask::OpChain::validate() const {
 
 GrOpsTask::GrOpsTask(GrDrawingManager* drawingMgr,
                      GrSurfaceProxyView view,
+#if SK_GPU_V1
                      GrAuditTrail* auditTrail,
+#endif
                      sk_sp<GrArenas> arenas)
         : GrRenderTask()
+#if SK_GPU_V1
         , fAuditTrail(auditTrail)
+#endif
         , fUsesMSAASurface(view.asRenderTargetProxy()->numSamples() > 1)
         , fTargetSwizzle(view.swizzle())
         , fTargetOrigin(view.origin())
