@@ -22,6 +22,30 @@
       },
       "revId": "b5bf96a74ca49fc40c8193ce2f8a192d94f7b922",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0f33f8b5_4772ef70",
+        "filename": "modules/skparagraph/src/ParagraphImpl.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-07-09T19:24:20Z",
+      "side": 1,
+      "message": "I probably should have selected better names... I picked ones from line metrics for Flutter.\nExample: \"abc   \\n\"\ntextExcludingSpaces: \"abc\" \ntext: \"abc   \"\ntextIncludingNewlines: \"abc   \\n\"",
+      "parentUuid": "635f0999_f3494341",
+      "range": {
+        "startLine": 129,
+        "startChar": 32,
+        "endLine": 129,
+        "endChar": 51
+      },
+      "revId": "b5bf96a74ca49fc40c8193ce2f8a192d94f7b922",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
