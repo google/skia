@@ -14,6 +14,7 @@
 
 #include "include/private/SkSLLayout.h"
 #include "include/private/SkTArray.h"
+#include "include/private/SkTOptional.h"
 #include "include/sksl/DSLCore.h"
 #include "src/core/SkScopeExit.h"
 #include "src/sksl/SkSLAnalysis.h"
@@ -1407,6 +1408,60 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(const ASTNode& 
     return PrefixExpression::Convert(fContext, expression.getOperator(), std::move(base));
 }
 
+static bool validate_swizzle_domain(skstd::string_view fields) {
+    enum SwizzleDomain {
+        kCoordinate,
+        kColor,
+        kUV,
+        kRectangle,
+    };
+
+    skstd::optional<SwizzleDomain> domain;
+
+    for (char field : fields) {
+        SwizzleDomain fieldDomain;
+        switch (field) {
+            case 'x':
+            case 'y':
+            case 'z':
+            case 'w':
+                fieldDomain = kCoordinate;
+                break;
+            case 'r':
+            case 'g':
+            case 'b':
+            case 'a':
+                fieldDomain = kColor;
+                break;
+            case 's':
+            case 't':
+            case 'p':
+            case 'q':
+                fieldDomain = kUV;
+                break;
+            case 'L':
+            case 'T':
+            case 'R':
+            case 'B':
+                fieldDomain = kRectangle;
+                break;
+            case '0':
+            case '1':
+                continue;
+            default:
+                return false;
+        }
+
+        if (!domain.has_value()) {
+            domain = fieldDomain;
+        } else if (domain != fieldDomain) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 // Swizzles are complicated due to constant components. The most difficult case is a mask like
 // '.x1w0'. A naive approach might turn that into 'float4(base.x, 1, base.w, 0)', but that evaluates
 // 'base' twice. We instead group the swizzle mask ('xw') and constants ('1, 0') together and use a
@@ -1424,6 +1479,11 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
 
     if (fields.length() > 4) {
         this->errorReporter().error(offset, "too many components in swizzle mask '" + fields + "'");
+        return nullptr;
+    }
+
+    if (!validate_swizzle_domain(fields)) {
+        this->errorReporter().error(offset, "invalid swizzle mask '" + fields + "'");
         return nullptr;
     }
 
@@ -1473,10 +1533,12 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
                     foundXYZW = true;
                     break;
                 }
-                [[fallthrough]];
-            default:
+                // The swizzle component references a field that doesn't exist in the base type.
                 this->errorReporter().error(
                         offset, String::printf("invalid swizzle component '%c'", field));
+                return nullptr;
+            default:
+                SkDEBUGFAIL("unexpected swizzle component");
                 return nullptr;
         }
     }
