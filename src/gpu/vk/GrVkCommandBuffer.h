@@ -110,7 +110,6 @@ public:
     // execution
     void addResource(sk_sp<const GrManagedResource> resource) {
         SkASSERT(resource);
-        resource->notifyQueuedForWorkOnGpu();
         fTrackedResources.push_back(std::move(resource));
     }
     void addResource(const GrManagedResource* resource) {
@@ -121,7 +120,6 @@ public:
     // execution. When it is released, it will signal that the resource can be recycled for reuse.
     void addRecycledResource(gr_rp<const GrRecycledResource> resource) {
         SkASSERT(resource);
-        resource->notifyQueuedForWorkOnGpu();
         fTrackedRecycledResources.push_back(std::move(resource));
     }
 
