@@ -1961,3 +1961,20 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLWrapper, r, ctxInfo) {
     vars.emplace_back(DSLVar(kInt_Type, "x"));
     REPORTER_ASSERT(r, DSLWriter::Var(*vars[0])->name() == "x");
 }
+
+DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLRTAdjust, r, ctxInfo) {
+    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), no_mark_vars_declared(),
+                           SkSL::ProgramKind::kVertex);
+    DSLVar rtAdjust(kUniform_Modifier, kFloat4_Type, "sk_RTAdjust");
+    DeclareGlobal(rtAdjust);
+    DSLFunction(kVoid_Type, "main").define(
+        sk_Position() = Half4(0)
+    );
+    REPORTER_ASSERT(r, DSLWriter::ProgramElements().size() == 2);
+    EXPECT_EQUAL(*DSLWriter::ProgramElements()[1],
+        "void main() {"
+        "(sk_PerVertex.sk_Position = float4(0.0));"
+        "(sk_PerVertex.sk_Position = float4(((sk_PerVertex.sk_Position.xy * sk_RTAdjust.xz) + "
+        "(sk_PerVertex.sk_Position.ww * sk_RTAdjust.yw)), 0.0, sk_PerVertex.sk_Position.w));"
+        "}");
+}
