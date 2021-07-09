@@ -52,7 +52,7 @@ if settings != "--settings" and settings != "--nosettings":
     sys.exit("### Expected --settings or --nosettings, got " + settings)
 
 targets = []
-worklist = tempfile.NamedTemporaryFile(suffix='.worklist', delete=False)
+worklist = tempfile.NamedTemporaryFile(suffix='.worklist', delete=False, mode='w')
 
 # The `inputs` array pairs off input files with their matching output directory, e.g.:
 #     //skia/tests/sksl/shared/test.sksl
@@ -99,7 +99,7 @@ for input, targetDir in pairwise(inputs):
     # Compile items one at a time.
     if not batchCompile:
         executeWorklist(input, worklist)
-        worklist = tempfile.NamedTemporaryFile(suffix='.worklist', delete=False)
+        worklist = tempfile.NamedTemporaryFile(suffix='.worklist', delete=False, mode='w')
 
 # Compile everything all in one go.
 if batchCompile:
