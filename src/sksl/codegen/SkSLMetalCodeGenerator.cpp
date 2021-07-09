@@ -759,6 +759,32 @@ bool MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c, IntrinsicKind
             this->writeSimpleIntrinsic(c);
             return true;
         }
+        case k_mix_IntrinsicKind: {
+            SkASSERT(c.arguments().size() == 3);
+            if (arguments[2]->type().componentType().isBoolean()) {
+                // The Boolean forms of GLSL mix() use the select() intrinsic in Metal.
+                this->write("select");
+                this->writeArgumentList(c.arguments());
+                return true;
+            }
+            if (arguments[2]->type().isScalar() && arguments[0]->type().isVector()) {
+                // GLSL mix() will automatically splat the last argument if needed; Metal needs to
+                // be told to splat it.
+                this->write("mix(");
+                this->writeExpression(*c.arguments()[0], Precedence::kSequence);
+                this->write(", ");
+                this->writeExpression(*c.arguments()[1], Precedence::kSequence);
+                this->write(", ");
+                this->writeType(arguments[0]->type());
+                this->write("(");
+                this->writeExpression(*c.arguments()[2], Precedence::kTopLevel);
+                this->write("))");
+                return true;
+            }
+            // The basic form of mix() is supported by Metal as-is.
+            this->writeSimpleIntrinsic(c);
+            return true;
+        }
         case k_equal_IntrinsicKind:
         case k_greaterThan_IntrinsicKind:
         case k_greaterThanEqual_IntrinsicKind:
