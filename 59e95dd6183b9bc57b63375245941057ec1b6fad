@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f3ef6abe_cfef7742",
+        "filename": "modules/skparagraph/src/TextLine.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-07-09T19:04:38Z",
+      "side": 1,
+      "message": "is this related to alignment (left/center/right)?",
+      "range": {
+        "startLine": 34,
+        "startChar": 15,
+        "endLine": 34,
+        "endChar": 25
+      },
+      "revId": "59e95dd6183b9bc57b63375245941057ec1b6fad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f965d806_ddde7a1d",
+        "filename": "modules/skparagraph/src/TextLine.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-07-09T19:04:38Z",
+      "side": 1,
+      "message": "naming question: is this clipping the drawing, or affecting where line-breaks occur?",
+      "range": {
+        "startLine": 35,
+        "startChar": 13,
+        "endLine": 35,
+        "endChar": 17
+      },
+      "revId": "59e95dd6183b9bc57b63375245941057ec1b6fad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cd71adfb_ea5cc7ab",
+        "filename": "modules/skparagraph/src/TextLine.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-07-09T19:04:38Z",
+      "side": 1,
+      "message": "Does this mean width() \u003d\u003d widthWithTrailingSpaces() ?\n\nIf we\u0027re going to have more than one getter related to widths, we may need to name each one very explicitly.",
+      "range": {
+        "startLine": 68,
+        "startChar": 13,
+        "endLine": 68,
+        "endChar": 18
+      },
+      "revId": "59e95dd6183b9bc57b63375245941057ec1b6fad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
