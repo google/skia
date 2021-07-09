@@ -1,0 +1,7 @@
+// Expect 3 errors
+
+const half2x2 testMatrix2x2 = half2x2(1, 2, 3, 4);
+half    testScalar    = half (testMatrix2x2);
+half2   testVec2      = half2(testMatrix2x2);
+half3   testVec3      = half3(testMatrix2x2);
+half4   testVec4      = half4(testMatrix2x2);  // not an error
