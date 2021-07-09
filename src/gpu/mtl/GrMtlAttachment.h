@@ -8,11 +8,11 @@
 #ifndef GrMtlAttachment_DEFINED
 #define GrMtlAttachment_DEFINED
 
+#include "include/gpu/mtl/GrMtlTypes.h"
 #include "src/gpu/GrAttachment.h"
 
 #import <Metal/Metal.h>
 
-class GrMtlImageView;
 class GrMtlGpu;
 
 class GrMtlAttachment : public GrAttachment {
@@ -25,26 +25,37 @@ public:
     ~GrMtlAttachment() override;
 
     GrBackendFormat backendFormat() const override {
-        return GrBackendFormat::MakeMtl(fView.pixelFormat);
+        return GrBackendFormat::MakeMtl(fTexture.pixelFormat);
     }
 
-    MTLPixelFormat mtlFormat() const { return fView.pixelFormat; }
+    MTLPixelFormat mtlFormat() const { return fTexture.pixelFormat; }
 
-    id<MTLTexture> view() const { return fView; }
+    id<MTLTexture> mtlTexture() const { return fTexture; }
 
 protected:
     void onRelease() override;
     void onAbandon() override;
 
 private:
+    static sk_sp<GrMtlAttachment> Make(GrMtlGpu* gpu,
+                                       SkISize dimensions,
+                                       UsageFlags attachmentUsages,
+                                       int sampleCnt,
+                                       MTLPixelFormat format,
+                                       uint32_t mipLevels,
+                                       int mtlTextureUsage,
+                                       int mtlStorageMode,
+                                       GrProtected isProtected,
+                                       SkBudgeted);
     GrMtlAttachment(GrMtlGpu* gpu,
                     SkISize dimensions,
                     UsageFlags supportedUsages,
-                    id<MTLTexture> view);
+                    id<MTLTexture> texture,
+                    SkBudgeted);
 
     GrMtlGpu* getMtlGpu() const;
 
-    id<MTLTexture> fView;
+    id<MTLTexture> fTexture;
 };
 
 #endif
