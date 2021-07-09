@@ -54,3 +54,15 @@ constant("bad_constant", 0x2);
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), `Line 6: constant "bad_constant" must be preceded by a @type annotation.`)
 }
+
+func TestGenerateTypeDefinitions_ValidInput_Success(t *testing.T) {
+	interfaceContents := testutils.ReadFile(t, "interface1.ts")
+	aliasContents := testutils.ReadFile(t, "alias1.ts")
+	bindingContents := testutils.ReadFile(t, "bindings1.cpp")
+	expectedIndexd := testutils.ReadFile(t, "expectedindex1.d.ts")
+	expectedPublicAPI := testutils.ReadFile(t, "expectedpublicapi1.d.ts")
+	indexd, publicapi, err := generateTypeDefinitions("ExampleKit", []string{interfaceContents, aliasContents}, []string{bindingContents})
+	require.NoError(t, err)
+	assert.Equal(t, indexd, expectedIndexd)
+	assert.Equal(t, publicapi, expectedPublicAPI)
+}

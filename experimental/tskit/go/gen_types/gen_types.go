@@ -19,11 +19,15 @@ import (
 
 func main() {
 	inputCPPDir := flag.String("input_cpp_dir", "", "A folder containing .cpp binding files that make use of the TS_* macros")
+	outputDefinitionsDir := flag.String("output_definitions_dir", "", "The folder where the type definitions (index.d.ts) files that correspond to the public API should be written")
 	outputNamespaceDir := flag.String("output_namespace_dir", "", "The folder where the ambient namespace (.d.ts) files that correspond to the C++ API should be written")
 
 	flag.Parse()
 	if *inputCPPDir == "" || *outputNamespaceDir == "" {
-		sklog.Fatalf("--input_cpp_dir and --output_namespace_dir must be specified")
+		sklog.Fatalf("--input_cpp_dir --output_definitions_dir and --output_namespace_dir must be specified")
+	}
+	if *outputDefinitionsDir != "" {
+		sklog.Fatalf("Not implemented yet")
 	}
 
 	cppInputs, err := ioutil.ReadDir(*inputCPPDir)
@@ -245,4 +249,8 @@ type wasmObject struct {
 type valueObject struct {
 	name   string
 	fields []string
+}
+
+func generateTypeDefinitions(moduleName string, tsFiles, cppFiles []string) (string, string, error) {
+	return "", "", fmt.Errorf("Not impl")
 }

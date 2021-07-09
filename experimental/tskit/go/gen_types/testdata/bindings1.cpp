@@ -47,10 +47,13 @@ EMSCRIPTEN_BINDINGS(Core) {
      * The AnotherClass class is another class.
      */
     class_<AnotherClass>("AnotherClass")
+        /**
+         * Initializes AnotherClass with default values.
+         */
         TS_EXPORT("new(): AnotherClass")
         .constructor<>()
         /**
-         * Returns a Something with the provided name.
+         * Initializes AnotherClass with the name and Something.
          * @param name
          * @param thing - will be used, I promise.
          */
