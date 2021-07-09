@@ -36,7 +36,11 @@ class GrRenderTargetProxy;
 class GrOpsTask : public GrRenderTask {
 public:
     // Manage the arenas life time by maintaining are reference to it.
-    GrOpsTask(GrDrawingManager*, GrSurfaceProxyView, GrAuditTrail*, sk_sp<GrArenas>);
+    GrOpsTask(GrDrawingManager*, GrSurfaceProxyView,
+#if SK_GPU_V1
+        GrAuditTrail*,
+#endif
+             sk_sp<GrArenas>);
     ~GrOpsTask() override;
 
     GrOpsTask* asOpsTask() override { return this; }

@@ -147,9 +147,11 @@ GrSurfaceContext::GrSurfaceContext(GrRecordingContext* context,
 
 const GrCaps* GrSurfaceContext::caps() const { return fContext->priv().caps(); }
 
+#if SK_GPU_V1
 GrAuditTrail* GrSurfaceContext::auditTrail() {
     return fContext->priv().auditTrail();
 }
+#endif
 
 GrDrawingManager* GrSurfaceContext::drawingManager() {
     return fContext->priv().drawingManager();
@@ -172,7 +174,8 @@ bool GrSurfaceContext::readPixels(GrDirectContext* dContext, GrPixmap dst, SkIPo
     ASSERT_SINGLE_OWNER
     RETURN_FALSE_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
-    GR_AUDIT_TRAIL_AUTO_FRAME(this->auditTrail(), "GrSurfaceContext::readPixels");
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrSurfaceContext", "readPixels", fContext);
+
     if (!fContext->priv().matches(dContext)) {
         return false;
     }
@@ -421,7 +424,7 @@ bool GrSurfaceContext::internalWritePixels(GrDirectContext* dContext,
                                            const GrCPixmap src[],
                                            int numLevels,
                                            SkIPoint pt) {
-    GR_AUDIT_TRAIL_AUTO_FRAME(this->auditTrail(), "GrSurfaceContext::internalWritePixels");
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrSurfaceContext", "internalWritePixels", fContext);
 
     SkASSERT(numLevels >= 1);
     SkASSERT(src);
@@ -1132,7 +1135,7 @@ sk_sp<GrRenderTask> GrSurfaceContext::copy(sk_sp<GrSurfaceProxy> src,
     ASSERT_SINGLE_OWNER
     RETURN_NULLPTR_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
-    GR_AUDIT_TRAIL_AUTO_FRAME(this->auditTrail(), "GrSurfaceContextPriv::copy");
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrSurfaceContext", "copy", fContext);
 
     const GrCaps* caps = fContext->priv().caps();
 
