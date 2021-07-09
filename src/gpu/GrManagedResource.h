@@ -133,13 +133,6 @@ public:
         }
     }
 
-    // Called every time this resource is queued for use on the GPU (typically because
-    // it was added to a command buffer).
-    virtual void notifyQueuedForWorkOnGpu() const {}
-    // Called every time this resource has finished its use on the GPU (typically because
-    // the command buffer finished execution on the GPU.)
-    virtual void notifyFinishedWithWorkOnGpu() const {}
-
 #ifdef SK_DEBUG
     // This is used for validating in the vulkan backend when using a main command buffer and temp
     // command buffer at the same time. We need to validate that no images in the temp command

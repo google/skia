@@ -117,14 +117,12 @@ protected:
     // execution
     void addResource(sk_sp<GrManagedResource> resource) {
         SkASSERT(resource);
-        resource->notifyQueuedForWorkOnGpu();
         fTrackedResources.push_back(std::move(resource));
     }
 
     // Add ref-counted resource that will be tracked and released when this command buffer finishes
     // execution. When it is released, it will signal that the resource can be recycled for reuse.
     void addRecycledResource(sk_sp<GrRecycledResource> resource) {
-        resource->notifyQueuedForWorkOnGpu();
         fTrackedRecycledResources.push_back(std::move(resource));
     }
 

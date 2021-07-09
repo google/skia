@@ -67,11 +67,7 @@ void GrD3DCommandList::releaseResources() {
         return;
     }
     SkASSERT(!fIsActive);
-    for (int i = 0; i < fTrackedResources.count(); ++i) {
-        fTrackedResources[i]->notifyFinishedWithWorkOnGpu();
-    }
     for (int i = 0; i < fTrackedRecycledResources.count(); ++i) {
-        fTrackedRecycledResources[i]->notifyFinishedWithWorkOnGpu();
         auto resource = fTrackedRecycledResources[i].release();
         resource->recycle();
     }
