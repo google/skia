@@ -1090,8 +1090,17 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
         case kMix_SpecialIntrinsic: {
             std::vector<SpvId> args = this->vectorize(arguments, out);
             SkASSERT(args.size() == 3);
-            this->writeGLSLExtendedInstruction(callType, result, GLSLstd450FMix, SpvOpUndef,
-                                               SpvOpUndef, args, out);
+            if (arguments[2]->type().componentType().isBoolean()) {
+                // Use OpSelect to implement Boolean mix().
+                SpvId falseId     = this->writeExpression(*arguments[0], out);
+                SpvId trueId      = this->writeExpression(*arguments[1], out);
+                SpvId conditionId = this->writeExpression(*arguments[2], out);
+                this->writeInstruction(SpvOpSelect, this->getType(arguments[0]->type()), result,
+                                       conditionId, trueId, falseId, out);
+            } else {
+                this->writeGLSLExtendedInstruction(callType, result, GLSLstd450FMix, SpvOpUndef,
+                                                   SpvOpUndef, args, out);
+            }
             break;
         }
         case kSaturate_SpecialIntrinsic: {
