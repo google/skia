@@ -1240,7 +1240,7 @@ GrClip::PreClipResult GrClipStack::preApply(const SkRect& bounds, GrAA aa) const
 }
 
 GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrSurfaceDrawContext* rtc,
-                                  const GrDrawOp* opBeingClipped, GrAAType aa, GrAppliedClip* out,
+                                  GrDrawOp* op, GrAAType aa, GrAppliedClip* out,
                                   SkRect* bounds) const {
     // TODO: Once we no longer store SW masks, we don't need to sneak the provider in like this
     if (!fProxyProvider) {
@@ -1324,6 +1324,7 @@ GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrSurfaceDrawCont
     // draw bounds. In that case, the scissor is sufficient for clipping and we can skip the
     // element but definitely cannot then drop the scissor.
     bool scissorIsNeeded = SkToBool(cs.shader());
+    SkDEBUGCODE(bool opClippedInternally = false;)
 
     int remainingAnalyticFPs = kMaxAnalyticFPs;
 
@@ -1370,17 +1371,37 @@ GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrSurfaceDrawCont
                 // First apply using HW methods (scissor and window rects). When the inner and outer
                 // bounds match, nothing else needs to be done.
                 bool fullyApplied = false;
-                if (e.op() == SkClipOp::kIntersect) {
-                    // The second test allows clipped draws that are scissored by multiple elements
-                    // to remain scissor-only.
-                    fullyApplied = e.innerBounds() == e.outerBounds() ||
-                                   e.innerBounds().contains(scissorBounds);
-                } else {
-                    if (!e.innerBounds().isEmpty() && windowRects.count() < maxWindowRectangles) {
-                        // TODO: If we have more difference ops than available window rects, we
-                        // should prioritize those with the largest inner bounds.
-                        windowRects.addWindow(e.innerBounds());
-                        fullyApplied = e.innerBounds() == e.outerBounds();
+
+                // First check if the op knows how to apply this clip internally.
+                SkASSERT(!e.shape().inverted());
+                auto result = op->clipToShape(rtc, e.op(), e.localToDevice(), e.shape(),
+                                              GrAA(e.aa() == GrAA::kYes || fForceAA));
+                if (result != GrDrawOp::ClipResult::kFail) {
+                    if (result == GrDrawOp::ClipResult::kClippedOut) {
+                        return Effect::kClippedOut;
+                    }
+                    if (result == GrDrawOp::ClipResult::kClippedGeometrically) {
+                        // The op clipped its own geometry. Tighten the draw bounds.
+                        bounds->intersect(SkRect::Make(e.outerBounds()));
+                    }
+                    fullyApplied = true;
+                    SkDEBUGCODE(opClippedInternally = true;)
+                }
+
+                if (!fullyApplied) {
+                    if (e.op() == SkClipOp::kIntersect) {
+                        // The second test allows clipped draws that are scissored by multiple
+                        // elements to remain scissor-only.
+                        fullyApplied = e.innerBounds() == e.outerBounds() ||
+                                       e.innerBounds().contains(scissorBounds);
+                    } else {
+                        if (!e.innerBounds().isEmpty() &&
+                            windowRects.count() < maxWindowRectangles) {
+                            // TODO: If we have more difference ops than available window rects, we
+                            // should prioritize those with the largest inner bounds.
+                            windowRects.addWindow(e.innerBounds());
+                            fullyApplied = e.innerBounds() == e.outerBounds();
+                        }
                     }
                 }
 
@@ -1389,9 +1410,8 @@ GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrSurfaceDrawCont
                                                                       *caps->shaderCaps(),
                                                                       std::move(clipFP));
                     if (!fullyApplied && tessellator) {
-                        std::tie(fullyApplied, clipFP) = clip_atlas_fp(context, opBeingClipped ,
-                                                                       tessellator, scissorBounds,
-                                                                       e.asElement(),
+                        std::tie(fullyApplied, clipFP) = clip_atlas_fp(context, op, tessellator,
+                                                                       scissorBounds, e.asElement(),
                                                                        std::move(clipFP));
                     }
                     if (fullyApplied) {
@@ -1459,7 +1479,7 @@ GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrSurfaceDrawCont
         out->addCoverageFP(std::move(clipFP));
     }
 
-    SkASSERT(out->doesClip());
+    SkASSERT(out->doesClip() || opClippedInternally);
     return Effect::kClipped;
 }
 
