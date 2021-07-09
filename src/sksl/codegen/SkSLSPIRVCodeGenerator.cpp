@@ -1605,23 +1605,35 @@ SpvId SPIRVCodeGenerator::writeVectorConstructor(const ConstructorCompound& c, O
     }
 
     std::vector<SpvId> arguments;
+    arguments.reserve(c.arguments().size());
     for (size_t i = 0; i < c.arguments().size(); i++) {
         const Type& argType = c.arguments()[i]->type();
         SkASSERT(componentType == argType.componentType());
 
-        if (argType.isVector()) {
+        SpvId arg = this->writeExpression(*c.arguments()[i], out);
+        if (argType.isMatrix()) {
+            // CompositeConstruct cannot take a 2x2 matrix as an input, so we need to extract out
+            // each scalar separately.
+            SkASSERT(argType.rows() == 2);
+            SkASSERT(argType.columns() == 2);
+            for (int j = 0; j < 4; ++j) {
+                SpvId componentId = this->nextId(&componentType);
+                this->writeInstruction(SpvOpCompositeExtract, this->getType(componentType),
+                                       componentId, arg, j / 2, j % 2, out);
+                arguments.push_back(componentId);
+            }
+        } else if (argType.isVector()) {
             // There's a bug in the Intel Vulkan driver where OpCompositeConstruct doesn't handle
             // vector arguments at all, so we always extract each vector component and pass them
             // into OpCompositeConstruct individually.
-            SpvId vec = this->writeExpression(*c.arguments()[i], out);
             for (int j = 0; j < argType.columns(); j++) {
                 SpvId componentId = this->nextId(&componentType);
                 this->writeInstruction(SpvOpCompositeExtract, this->getType(componentType),
-                                       componentId, vec, j, out);
+                                       componentId, arg, j, out);
                 arguments.push_back(componentId);
             }
         } else {
-            arguments.push_back(this->writeExpression(*c.arguments()[i], out));
+            arguments.push_back(arg);
         }
     }
 

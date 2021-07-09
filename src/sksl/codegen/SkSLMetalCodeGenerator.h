@@ -180,6 +180,8 @@ protected:
 
     void writeMatrixEqualityHelpers(const Type& left, const Type& right);
 
+    void writeVectorFromMat2x2ConstructorHelper();
+
     void writeArrayEqualityHelpers(const Type& type);
 
     void writeStructEqualityHelpers(const Type& type);
@@ -195,6 +197,8 @@ protected:
     bool canCoerce(const Type& t1, const Type& t2);
 
     void writeConstructorCompound(const ConstructorCompound& c, Precedence parentPrecedence);
+
+    void writeConstructorCompoundVector(const ConstructorCompound& c, Precedence parentPrecedence);
 
     void writeConstructorCompoundMatrix(const ConstructorCompound& c, Precedence parentPrecedence);
 
