@@ -63,6 +63,8 @@ DSLVar sk_FragColor();
 
 DSLVar sk_FragCoord();
 
+DSLExpression sk_Position();
+
 /**
  * break;
  */

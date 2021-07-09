@@ -8,6 +8,7 @@
 #include "include/sksl/DSLCore.h"
 
 #include "include/private/SkSLDefines.h"
+#include "include/sksl/DSLSymbols.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
@@ -97,6 +98,10 @@ public:
         return DSLVar("sk_FragCoord");
     }
 
+    static DSLExpression sk_Position() {
+        return DSLExpression(Symbol("sk_Position"));
+    }
+
     template <typename... Args>
     static DSLPossibleExpression Call(const char* name, Args... args) {
         SkSL::IRGenerator& ir = DSLWriter::IRGenerator();
@@ -145,7 +150,7 @@ public:
             // sk_FragColor can end up with a null declaration despite no error occurring due to
             // specific treatment in the compiler. Ignore the null and just grab the existing
             // variable from the symbol table.
-            const Symbol* alreadyDeclared = (*DSLWriter::SymbolTable())[var.fName];
+            const SkSL::Symbol* alreadyDeclared = (*DSLWriter::SymbolTable())[var.fName];
             if (alreadyDeclared && alreadyDeclared->is<Variable>()) {
                 var.fVar = &alreadyDeclared->as<Variable>();
             }
@@ -277,6 +282,10 @@ DSLVar sk_FragColor() {
 
 DSLVar sk_FragCoord() {
     return DSLCore::sk_FragCoord();
+}
+
+DSLExpression sk_Position() {
+    return DSLCore::sk_Position();
 }
 
 DSLStatement Break() {
