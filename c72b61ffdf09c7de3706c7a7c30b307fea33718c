@@ -39,6 +39,30 @@
       },
       "revId": "c72b61ffdf09c7de3706c7a7c30b307fea33718c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b9c9dc45_926c3731",
+        "filename": "gm/lumafilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-09T19:29:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "849334de_37afc924",
+      "range": {
+        "startLine": 187,
+        "startChar": 21,
+        "endLine": 187,
+        "endChar": 37
+      },
+      "revId": "c72b61ffdf09c7de3706c7a7c30b307fea33718c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
