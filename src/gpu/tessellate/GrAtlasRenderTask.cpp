@@ -14,12 +14,20 @@
 #include "src/gpu/ops/GrFillRectOp.h"
 #include "src/gpu/tessellate/GrPathStencilCoverOp.h"
 
-GrAtlasRenderTask::GrAtlasRenderTask(GrRecordingContext* rContext, GrAuditTrail* auditTrail,
+GrAtlasRenderTask::GrAtlasRenderTask(GrRecordingContext* rContext,
                                      sk_sp<GrArenas> arenas,
                                      std::unique_ptr<GrDynamicAtlas> dynamicAtlas)
+#if SK_GPU_V1
         : GrOpsTask(rContext->priv().drawingManager(),
-                    dynamicAtlas->writeView(*rContext->priv().caps()), auditTrail,
+                    dynamicAtlas->writeView(*rContext->priv().caps()),
+                    rContext->priv().auditTrail(),
                     std::move(arenas))
+#else
+        // TODO: this code path can be removed once the GrAtlasRenderTask has been made V1-only
+        : GrOpsTask(rContext->priv().drawingManager(),
+                    dynamicAtlas->writeView(*rContext->priv().caps()),
+                    std::move(arenas))
+#endif
         , fDynamicAtlas(std::move(dynamicAtlas)) {
 }
 
