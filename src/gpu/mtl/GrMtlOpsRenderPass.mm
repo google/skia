@@ -246,7 +246,7 @@ void GrMtlOpsRenderPass::setupRenderPass(
     auto* stencil = static_cast<GrMtlAttachment*>(fRenderTarget->getStencilAttachment());
     auto mtlStencil = fRenderPassDesc.stencilAttachment;
     if (stencil) {
-        mtlStencil.texture = stencil->view();
+        mtlStencil.texture = stencil->mtlTexture();
     }
     mtlStencil.clearStencil = 0;
     mtlStencil.loadAction = mtlLoadAction[static_cast<int>(stencilInfo.fLoadOp)];

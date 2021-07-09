@@ -19,50 +19,74 @@ GR_NORETAIN_BEGIN
 GrMtlAttachment::GrMtlAttachment(GrMtlGpu* gpu,
                                  SkISize dimensions,
                                  UsageFlags supportedUsages,
-                                 id<MTLTexture> view)
-        : GrAttachment(gpu, dimensions, supportedUsages, view.sampleCount, GrMipmapped::kNo,
+                                 id<MTLTexture> texture,
+                                 SkBudgeted budgeted)
+        : GrAttachment(gpu, dimensions, supportedUsages, texture.sampleCount, GrMipmapped::kNo,
                        GrProtected::kNo)
-        , fView(view) {
-    this->registerWithCache(SkBudgeted::kYes);
+        , fTexture(texture) {
+    this->registerWithCache(budgeted);
 }
 
 sk_sp<GrMtlAttachment> GrMtlAttachment::MakeStencil(GrMtlGpu* gpu,
                                                     SkISize dimensions,
                                                     int sampleCnt,
                                                     MTLPixelFormat format) {
+    int textureUsage = 0;
+    int storageMode = 0;
+    if (@available(macOS 10.11, iOS 9.0, *)) {
+        textureUsage = MTLTextureUsageRenderTarget;
+        storageMode = MTLStorageModePrivate;
+    }
+    return GrMtlAttachment::Make(gpu, dimensions, UsageFlags::kStencilAttachment, sampleCnt, format,
+                                 /*mipLevels=*/1, textureUsage, storageMode, GrProtected::kNo,
+                                 SkBudgeted::kYes);
+}
+
+sk_sp<GrMtlAttachment> GrMtlAttachment::Make(GrMtlGpu* gpu,
+                                             SkISize dimensions,
+                                             UsageFlags attachmentUsages,
+                                             int sampleCnt,
+                                             MTLPixelFormat format,
+                                             uint32_t mipLevels,
+                                             int mtlTextureUsage,
+                                             int mtlStorageMode,
+                                             GrProtected isProtected,
+                                             SkBudgeted budgeted) {
     auto desc = [[MTLTextureDescriptor alloc] init];
     desc.pixelFormat = format;
     desc.width = dimensions.width();
     desc.height = dimensions.height();
     if (@available(macOS 10.11, iOS 9.0, *)) {
-        desc.storageMode = MTLStorageModePrivate;
-        desc.usage = MTLTextureUsageRenderTarget;
+        desc.usage = mtlTextureUsage;
+        desc.storageMode = (MTLStorageMode)mtlStorageMode;
     }
     desc.sampleCount = sampleCnt;
     if (sampleCnt > 1) {
         desc.textureType = MTLTextureType2DMultisample;
     }
-    id<MTLTexture> stencilTexture = [gpu->device() newTextureWithDescriptor:desc];
+    id<MTLTexture> texture = [gpu->device() newTextureWithDescriptor:desc];
 #ifdef SK_ENABLE_MTL_DEBUG_INFO
-    stencilTexture.label = @"Stencil";
+    if (attachmentUsages == UsageFlags::kStencilAttachment) {
+        texture.label = @"Stencil";
+    }
 #endif
-    return sk_sp<GrMtlAttachment>(
-            new GrMtlAttachment(gpu, dimensions, UsageFlags::kStencilAttachment,
-                                stencilTexture));
+
+    return sk_sp<GrMtlAttachment>(new GrMtlAttachment(gpu, dimensions, attachmentUsages,
+                                                      texture, budgeted));
 }
 
 GrMtlAttachment::~GrMtlAttachment() {
     // should have been released or abandoned first
-    SkASSERT(!fView);
+    SkASSERT(!fTexture);
 }
 
 void GrMtlAttachment::onRelease() {
-    fView = nullptr;
+    fTexture = nil;
     GrAttachment::onRelease();
 }
 
 void GrMtlAttachment::onAbandon() {
-    fView = nullptr;
+    fTexture = nil;
     GrAttachment::onAbandon();
 }
 
