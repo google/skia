@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "635f0999_f3494341",
+        "filename": "modules/skparagraph/src/ParagraphImpl.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-07-09T19:06:38Z",
+      "side": 1,
+      "message": "How are these 3 parameters related?\n\n\" A \"\n\nDo all 3 contain \u0027A\u0027?",
+      "range": {
+        "startLine": 129,
+        "startChar": 32,
+        "endLine": 129,
+        "endChar": 51
+      },
+      "revId": "b5bf96a74ca49fc40c8193ce2f8a192d94f7b922",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
