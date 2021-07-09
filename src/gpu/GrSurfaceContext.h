@@ -21,7 +21,6 @@
 #include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/GrSurfaceProxyView.h"
 
-class GrAuditTrail;
 class GrDrawingManager;
 class GrRecordingContext;
 class GrRenderTargetProxy;
@@ -190,8 +189,6 @@ public:
                      SkIRect srcRect,
                      SkImage::RescaleGamma,
                      SkImage::RescaleMode);
-
-    GrAuditTrail* auditTrail();
 
 #if GR_TEST_UTILS
     bool testCopy(sk_sp<GrSurfaceProxy> src, const SkIRect& srcRect, const SkIPoint& dstPoint) {

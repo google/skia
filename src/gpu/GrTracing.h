@@ -10,7 +10,11 @@
 
 #include "src/core/SkTraceEvent.h"
 
+#if SK_GPU_V1
 #include "src/gpu/GrAuditTrail.h"
+#else
+#define GR_AUDIT_TRAIL_AUTO_FRAME(audit_trail, framename)
+#endif
 
 /**
  * Context level GrTracing macros, classname and op are const char*, context is GrContext
@@ -18,4 +22,5 @@
 #define GR_CREATE_TRACE_MARKER_CONTEXT(classname, op, context)                            \
     GR_AUDIT_TRAIL_AUTO_FRAME(context->priv().auditTrail(), classname "::" op); \
     TRACE_EVENT0("skia.gpu", classname "::" op)
+
 #endif
