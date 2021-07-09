@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b61b9dc2_c4fedcf6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-07-09T17:34:24Z",
+      "side": 1,
+      "message": "Do we have a bug filed for the one remaining constructor form - scalar from vector/matrix? (which will interfere with some of these tests?). As long as we\u0027re entertaining all of the other GLSL oddities, we may as well:\n\n\"Scalar constructors with non-scalar parameters can be used to take the first element from a non-scalar.\nFor example, the constructor float(vec3) will select the first component of the vec3 parameter.\"",
+      "revId": "ae202c877636b304457d409535614b26808cb2fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
