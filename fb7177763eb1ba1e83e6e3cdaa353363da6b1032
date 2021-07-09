@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "800aee7b_7475df07",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 700,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-09T13:54:36Z",
+      "side": 1,
+      "message": "GrClipEdgeType",
+      "range": {
+        "startLine": 700,
+        "startChar": 3,
+        "endLine": 700,
+        "endChar": 22
+      },
+      "revId": "fb7177763eb1ba1e83e6e3cdaa353363da6b1032",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b1573240_09e9c740",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 712,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-09T13:54:36Z",
+      "side": 1,
+      "message": "Should we fix these helper functions to say ClipEdge here as well?",
+      "range": {
+        "startLine": 712,
+        "startChar": 24,
+        "endLine": 712,
+        "endChar": 33
+      },
+      "revId": "fb7177763eb1ba1e83e6e3cdaa353363da6b1032",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
