@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9bed5e68_04bd9619",
+        "filename": "gm/rrects.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-07-09T14:53:08Z",
+      "side": 1,
+      "message": "reverse the left and right sides of these equalities?",
+      "range": {
+        "startLine": 97,
+        "startChar": 12,
+        "endLine": 97,
+        "endChar": 60
+      },
+      "revId": "2e9160d67923ca7ddab78531cbd44d42d56f22c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
