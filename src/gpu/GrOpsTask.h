@@ -36,7 +36,12 @@ class GrRenderTargetProxy;
 class GrOpsTask : public GrRenderTask {
 public:
     // Manage the arenas life time by maintaining are reference to it.
+#if SK_GPU_V1
     GrOpsTask(GrDrawingManager*, GrSurfaceProxyView, GrAuditTrail*, sk_sp<GrArenas>);
+#else
+    // TODO: this ctor can be removed when GrOpsTask is made V1-only
+    GrOpsTask(GrDrawingManager*, GrSurfaceProxyView, sk_sp<GrArenas>);
+#endif
     ~GrOpsTask() override;
 
     GrOpsTask* asOpsTask() override { return this; }
@@ -251,7 +256,7 @@ private:
     // however, requires that the RTC be able to coordinate with the op list to achieve similar ends
     friend class GrSurfaceDrawContext;
 
-    GrAuditTrail* fAuditTrail;
+    GrAuditTrail* fAuditTrail = nullptr;
 
     bool fUsesMSAASurface;
     GrSwizzle fTargetSwizzle;

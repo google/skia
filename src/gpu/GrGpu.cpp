@@ -15,7 +15,6 @@
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkMipmap.h"
 #include "src/gpu/GrAttachment.h"
-#include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDataUtils.h"
