@@ -1375,7 +1375,7 @@ GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrSurfaceDrawCont
                 // First check if the op knows how to apply this clip internally.
                 SkASSERT(!e.shape().inverted());
                 auto result = op->clipToShape(rtc, e.op(), e.localToDevice(), e.shape(),
-                                              GrAA(e.aa() == GrAA::kYes || fForceAA));
+                                              GrAA(e.aa() == GrAA::kYes || fForceAA), clipFP.get());
                 if (result != GrDrawOp::ClipResult::kFail) {
                     if (result == GrDrawOp::ClipResult::kClippedOut) {
                         return Effect::kClippedOut;
