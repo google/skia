@@ -13,7 +13,6 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkSurface.h"
-#include "src/gpu/GrClientMappedBufferManager.h"
 #include "src/gpu/GrColorInfo.h"
 #include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrImageInfo.h"

@@ -104,7 +104,7 @@ SkIRect Device::onDevClipBounds() const {
 
 void Device::drawPaint(const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice_nga", "drawPaint", fContext.get());
+    GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v2::Device", "drawPaint", fContext.get());
 }
 
 void Device::drawPoints(SkCanvas::PointMode mode,
@@ -112,23 +112,23 @@ void Device::drawPoints(SkCanvas::PointMode mode,
                                  const SkPoint points[],
                                  const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice_nga", "drawPoints", fContext.get());
+    GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v2::Device", "drawPoints", fContext.get());
 
 }
 
 void Device::drawRect(const SkRect& rect, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice_nga", "drawRect", fContext.get());
+    GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v2::Device", "drawRect", fContext.get());
 }
 
 void Device::drawRegion(const SkRegion& r, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice_nga", "drawRegion", fContext.get());
+    GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v2::Device", "drawRegion", fContext.get());
 }
 
 void Device::drawOval(const SkRect& oval, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice_nga", "drawOval", fContext.get());
+    GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v2::Device", "drawOval", fContext.get());
 }
 
 void Device::drawArc(const SkRect& oval,
@@ -137,24 +137,24 @@ void Device::drawArc(const SkRect& oval,
                      bool useCenter,
                      const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice_nga", "drawArc", fContext.get());
+    GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v2::Device", "drawArc", fContext.get());
 }
 
 void Device::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice_nga", "drawRRect", fContext.get());
+    GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v2::Device", "drawRRect", fContext.get());
 }
 
 void Device::drawDRRect(const SkRRect& outer,
                         const SkRRect& inner,
                         const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice_nga", "drawDRRect", fContext.get());
+    GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v2::Device", "drawDRRect", fContext.get());
 }
 
 void Device::drawPath(const SkPath& path, const SkPaint& paint, bool pathIsMutable) {
     ASSERT_SINGLE_OWNER
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice_nga", "drawPath", fContext.get());
+    GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v2::Device", "drawPath", fContext.get());
 }
 
 void Device::drawImageRect(const SkImage* image,
@@ -164,7 +164,7 @@ void Device::drawImageRect(const SkImage* image,
                            const SkPaint& paint,
                            SkCanvas::SrcRectConstraint constraint) {
     ASSERT_SINGLE_OWNER
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice_nga", "drawImageRect", fContext.get());
+    GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v2::Device", "drawImageRect", fContext.get());
 }
 
 void Device::drawImageLattice(const SkImage* image,
@@ -173,19 +173,19 @@ void Device::drawImageLattice(const SkImage* image,
                               SkFilterMode filter,
                               const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice_nga", "drawImageLattice", fContext.get());
+    GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v2::Device", "drawImageLattice", fContext.get());
 }
 
 void Device::drawVertices(const SkVertices* vertices,
                           SkBlendMode mode,
                           const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice_nga", "drawVertices", fContext.get());
+    GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v2::Device", "drawVertices", fContext.get());
 }
 
 void Device::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
     ASSERT_SINGLE_OWNER
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice_nga", "drawShadow", fContext.get());
+    GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v2::Device", "drawShadow", fContext.get());
 }
 
 void Device::drawAtlas(const SkImage* atlas,
@@ -197,7 +197,7 @@ void Device::drawAtlas(const SkImage* atlas,
                        const SkSamplingOptions& sampling,
                        const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice_nga", "drawAtlas", fContext.get());
+    GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v2::Device", "drawAtlas", fContext.get());
 }
 
 void Device::drawEdgeAAQuad(const SkRect& rect,
@@ -206,7 +206,7 @@ void Device::drawEdgeAAQuad(const SkRect& rect,
                             const SkColor4f& color,
                             SkBlendMode mode) {
     ASSERT_SINGLE_OWNER
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice_nga", "drawEdgeAAQuad", fContext.get());
+    GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v2::Device", "drawEdgeAAQuad", fContext.get());
 }
 
 void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[],
@@ -217,28 +217,28 @@ void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[],
                                 const SkPaint& paint,
                                 SkCanvas::SrcRectConstraint constraint) {
     ASSERT_SINGLE_OWNER
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice_nga", "drawEdgeAAImageSet", fContext.get());
+    GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v2::Device", "drawEdgeAAImageSet", fContext.get());
 }
 
 void Device::drawDrawable(SkDrawable* drawable,
                           const SkMatrix* matrix,
                           SkCanvas* canvas) {
     ASSERT_SINGLE_OWNER
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice_nga", "drawDrawable", fContext.get());
+    GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v2::Device", "drawDrawable", fContext.get());
 
     this->INHERITED::drawDrawable(drawable, matrix, canvas);
 }
 
 void Device::onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice_nga", "onDrawGlyphRunList", fContext.get());
+    GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v2::Device", "onDrawGlyphRunList", fContext.get());
 }
 
 void Device::drawDevice(SkBaseDevice* device,
                         const SkSamplingOptions& sampling,
                         const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice_nga", "drawDevice", fContext.get());
+    GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v2::Device", "drawDevice", fContext.get());
 }
 
 void Device::drawSpecial(SkSpecialImage* special,

@@ -293,7 +293,7 @@ const GrSurfaceDrawContext* Device::surfaceDrawContext() const {
 
 void Device::clearAll() {
     ASSERT_SINGLE_OWNER
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "clearAll", fContext.get());
+    GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v1::Device", "clearAll", fContext.get());
 
     SkIRect rect = SkIRect::MakeWH(this->width(), this->height());
     fSurfaceDrawContext->clearAtLeast(rect, SK_PMColor4fTRANSPARENT);
@@ -376,7 +376,7 @@ SkBaseDevice::ClipType Device::onGetClipType() const {
 
 void Device::drawPaint(const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawPaint", fContext.get());
+    GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v1::Device", "drawPaint", fContext.get());
 
     GrPaint grPaint;
     if (!SkPaintToGrPaint(this->recordingContext(), fSurfaceDrawContext->colorInfo(), paint,
@@ -392,7 +392,7 @@ void Device::drawPoints(SkCanvas::PointMode mode,
                         const SkPoint pts[],
                         const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawPoints", fContext.get());
+    GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v1::Device", "drawPoints", fContext.get());
     SkScalar width = paint.getStrokeWidth();
     if (width < 0) {
         return;
@@ -463,7 +463,7 @@ void Device::drawPoints(SkCanvas::PointMode mode,
 
 void Device::drawRect(const SkRect& rect, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawRect", fContext.get());
+    GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v1::Device", "drawRect", fContext.get());
 
     GrStyle style(paint);
 
@@ -493,7 +493,7 @@ void Device::drawEdgeAAQuad(const SkRect& rect,
                             const SkColor4f& color,
                             SkBlendMode mode) {
     ASSERT_SINGLE_OWNER
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawEdgeAAQuad", fContext.get());
+    GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v1::Device", "drawEdgeAAQuad", fContext.get());
 
     SkPMColor4f dstColor = SkColor4fPrepForDst(color, fSurfaceDrawContext->colorInfo()).premul();
 
@@ -520,7 +520,7 @@ void Device::drawEdgeAAQuad(const SkRect& rect,
 
 void Device::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawRRect", fContext.get());
+    GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v1::Device", "drawRRect", fContext.get());
 
     SkMaskFilterBase* mf = as_MFB(paint.getMaskFilter());
     if (mf) {
@@ -555,7 +555,7 @@ void Device::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
 
 void Device::drawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawDRRect", fContext.get());
+    GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v1::Device", "drawDRRect", fContext.get());
     if (outer.isEmpty()) {
        return;
     }
@@ -625,7 +625,7 @@ void Device::drawRegion(const SkRegion& region, const SkPaint& paint) {
 
 void Device::drawOval(const SkRect& oval, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawOval", fContext.get());
+    GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v1::Device", "drawOval", fContext.get());
 
     if (paint.getMaskFilter()) {
         // The RRect path can handle special case blurring
@@ -650,7 +650,7 @@ void Device::drawArc(const SkRect& oval,
                      bool useCenter,
                      const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawArc", fContext.get());
+    GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v1::Device", "drawArc", fContext.get());
     if (paint.getMaskFilter()) {
         this->INHERITED::drawArc(oval, startAngle, sweepAngle, useCenter, paint);
         return;
@@ -676,7 +676,7 @@ void Device::drawPath(const SkPath& origSrcPath, const SkPaint& paint, bool path
     }
 #endif
     ASSERT_SINGLE_OWNER
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawPath", fContext.get());
+    GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v1::Device", "drawPath", fContext.get());
     if (!paint.getMaskFilter()) {
         GrPaint grPaint;
         if (!SkPaintToGrPaint(this->recordingContext(), fSurfaceDrawContext->colorInfo(), paint,
@@ -794,7 +794,7 @@ void Device::drawDevice(SkBaseDevice* device,
                         const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
     // clear of the source device must occur before CHECK_SHOULD_DRAW
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawDevice", fContext.get());
+    GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v1::Device", "drawDevice", fContext.get());
     this->INHERITED::drawDevice(device, sampling, paint);
 }
 
@@ -817,7 +817,7 @@ void Device::drawViewLattice(GrSurfaceProxyView view,
                              const SkRect& dst,
                              SkFilterMode filter,
                              const SkPaint& origPaint) {
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawViewLattice", fContext.get());
+    GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v1::Device", "drawViewLattice", fContext.get());
     SkASSERT(view);
 
     SkTCopyOnFirstWrite<SkPaint> paint(&origPaint);
@@ -864,7 +864,7 @@ void Device::drawImageLattice(const SkImage* image,
 
 void Device::drawVertices(const SkVertices* vertices, SkBlendMode mode, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawVertices", fContext.get());
+    GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v1::Device", "drawVertices", fContext.get());
     SkASSERT(vertices);
 
     SkVerticesPriv info(vertices->priv());
@@ -892,7 +892,7 @@ void Device::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
     }
 #endif
     ASSERT_SINGLE_OWNER
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawShadow", fContext.get());
+    GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v1::Device", "drawShadow", fContext.get());
 
     if (!fSurfaceDrawContext->drawFastShadow(this->clip(), this->localToDevice(), path, rec)) {
         // failed to find an accelerated case
@@ -907,7 +907,7 @@ void Device::drawAtlas(const SkImage* atlas, const SkRSXform xform[],
                        SkBlendMode mode, const SkSamplingOptions& sampling,
                        const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawAtlas", fContext.get());
+    GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v1::Device", "drawAtlas", fContext.get());
 
     // Convert atlas to an image shader.
     sk_sp<SkShader> shader = atlas->makeShader(sampling);
@@ -946,7 +946,7 @@ void Device::drawAtlas(const SkImage* atlas, const SkRSXform xform[],
 
 void Device::onDrawGlyphRunList(const SkGlyphRunList& glyphRunList, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawGlyphRunList", fContext.get());
+    GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v1::Device", "drawGlyphRunList", fContext.get());
     SkASSERT(!glyphRunList.hasRSXForm());
 
     fSurfaceDrawContext->drawGlyphRunList(
