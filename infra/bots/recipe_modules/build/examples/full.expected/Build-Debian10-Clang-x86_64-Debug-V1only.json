@@ -1,0 +1,142 @@
+[
+  {
+    "cmd": [
+      "vpython",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[START_DIR]/cache/work/skia/infra/bots/assets/clang_linux/VERSION",
+      "/path/to/tmp/"
+    ],
+    "infra_step": true,
+    "name": "Get clang_linux VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@VERSION@42@@@",
+      "@@@STEP_LOG_END@VERSION@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "[START_DIR]/cache/work/skia/bin/fetch-gn"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "fetch-gn"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/ccache_linux/bin/ccache",
+      "-s"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CCACHE_COMPILERCHECK": "content",
+      "CCACHE_DIR": "[START_DIR]/cache/ccache",
+      "CCACHE_MAXFILES": "0",
+      "CCACHE_MAXSIZE": "75G",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "ccache stats-start"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cache/work/skia/bin/gn",
+      "gen",
+      "[START_DIR]/cache/work/skia/out/Build-Debian10-Clang-x86_64-Debug-V1only/Debug",
+      "--args=cc=\"[START_DIR]/clang_linux/bin/clang\" cc_wrapper=\"[START_DIR]/ccache_linux/bin/ccache\" cxx=\"[START_DIR]/clang_linux/bin/clang++\" extra_cflags=[\"-B[START_DIR]/clang_linux/bin\", \"-DPLACEHOLDER_clang_linux_version=42\", \"-O1\"] extra_ldflags=[\"-B[START_DIR]/clang_linux/bin\", \"-fuse-ld=lld\", \"-L[START_DIR]/clang_linux/lib\"] skia_enable_skgpu_v1=true skia_enable_skgpu_v2=false target_cpu=\"x86_64\" werror=true"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CCACHE_COMPILERCHECK": "content",
+      "CCACHE_DIR": "[START_DIR]/cache/ccache",
+      "CCACHE_MAXFILES": "0",
+      "CCACHE_MAXSIZE": "75G",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "gn gen"
+  },
+  {
+    "cmd": [
+      "ninja",
+      "-C",
+      "[START_DIR]/cache/work/skia/out/Build-Debian10-Clang-x86_64-Debug-V1only/Debug"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CCACHE_COMPILERCHECK": "content",
+      "CCACHE_DIR": "[START_DIR]/cache/ccache",
+      "CCACHE_MAXFILES": "0",
+      "CCACHE_MAXSIZE": "75G",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "ninja"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/ccache_linux/bin/ccache",
+      "-s"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CCACHE_COMPILERCHECK": "content",
+      "CCACHE_DIR": "[START_DIR]/cache/ccache",
+      "CCACHE_MAXFILES": "0",
+      "CCACHE_MAXSIZE": "75G",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "ccache stats-end"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "import errno\nimport glob\nimport os\nimport shutil\nimport sys\n\nsrc = sys.argv[1]\ndst = sys.argv[2]\nbuild_products = ['dm', 'dm.exe', 'dm.app', 'fm', 'fm.exe', 'nanobench.app', 'get_images_from_skps', 'get_images_from_skps.exe', 'nanobench', 'nanobench.exe', 'skpbench', 'skpbench.exe', '*.so', '*.dll', '*.dylib', 'skia_launcher', 'skottie_tool', 'lib/*.so', 'run_testlab']\n\ntry:\n  os.makedirs(dst)\nexcept OSError as e:\n  if e.errno != errno.EEXIST:\n    raise\n\nfor pattern in build_products:\n  path = os.path.join(src, pattern)\n  for f in glob.glob(path):\n    dst_path = os.path.join(dst, os.path.relpath(f, src))\n    if not os.path.isdir(os.path.dirname(dst_path)):\n      os.makedirs(os.path.dirname(dst_path))\n    print 'Copying build product %s to %s' % (f, dst_path)\n    shutil.move(f, dst_path)\n",
+      "[START_DIR]/cache/work/skia/out/Build-Debian10-Clang-x86_64-Debug-V1only/Debug",
+      "[START_DIR]/[SWARM_OUT_DIR]/out/Debug"
+    ],
+    "infra_step": true,
+    "name": "copy build products",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@import errno@@@",
+      "@@@STEP_LOG_LINE@python.inline@import glob@@@",
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@import shutil@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@src = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@dst = sys.argv[2]@@@",
+      "@@@STEP_LOG_LINE@python.inline@build_products = ['dm', 'dm.exe', 'dm.app', 'fm', 'fm.exe', 'nanobench.app', 'get_images_from_skps', 'get_images_from_skps.exe', 'nanobench', 'nanobench.exe', 'skpbench', 'skpbench.exe', '*.so', '*.dll', '*.dylib', 'skia_launcher', 'skottie_tool', 'lib/*.so', 'run_testlab']@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  os.makedirs(dst)@@@",
+      "@@@STEP_LOG_LINE@python.inline@except OSError as e:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  if e.errno != errno.EEXIST:@@@",
+      "@@@STEP_LOG_LINE@python.inline@    raise@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@for pattern in build_products:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  path = os.path.join(src, pattern)@@@",
+      "@@@STEP_LOG_LINE@python.inline@  for f in glob.glob(path):@@@",
+      "@@@STEP_LOG_LINE@python.inline@    dst_path = os.path.join(dst, os.path.relpath(f, src))@@@",
+      "@@@STEP_LOG_LINE@python.inline@    if not os.path.isdir(os.path.dirname(dst_path)):@@@",
+      "@@@STEP_LOG_LINE@python.inline@      os.makedirs(os.path.dirname(dst_path))@@@",
+      "@@@STEP_LOG_LINE@python.inline@    print 'Copying build product %s to %s' % (f, dst_path)@@@",
+      "@@@STEP_LOG_LINE@python.inline@    shutil.move(f, dst_path)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "name": "$result"
+  }
+]
