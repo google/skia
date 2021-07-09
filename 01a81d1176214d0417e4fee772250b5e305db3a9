@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "96c3181f_48131f21",
+        "filename": "tests/sksl/shared/ArrayComparison.dsl.glsl",
+        "patchSetId": 45
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-09T18:25:25Z",
+      "side": 1,
+      "message": "Can\u0027t parse structs with comma-delimited variables.",
+      "range": {
+        "startLine": 2,
+        "startChar": 0,
+        "endLine": 3,
+        "endChar": 37
+      },
+      "revId": "01a81d1176214d0417e4fee772250b5e305db3a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "549368d9_de719cda",
+        "filename": "tests/sksl/shared/ArrayConstructors.dsl.glsl",
+        "patchSetId": 45
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-09T18:25:25Z",
+      "side": 1,
+      "message": "Can\u0027t parse array ctors (affects multiple tests below as well)",
+      "range": {
+        "startLine": 2,
+        "startChar": 0,
+        "endLine": 3,
+        "endChar": 44
+      },
+      "revId": "01a81d1176214d0417e4fee772250b5e305db3a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f548b0b7_40effe7c",
+        "filename": "tests/sksl/shared/CastsRoundTowardZero.dsl.glsl",
+        "patchSetId": 45
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-09T18:25:25Z",
+      "side": 1,
+      "message": "Should have been eliminated.",
+      "range": {
+        "startLine": 7,
+        "startChar": 4,
+        "endLine": 8,
+        "endChar": 7
+      },
+      "revId": "01a81d1176214d0417e4fee772250b5e305db3a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "34cdd0a5_14db0289",
+        "filename": "tests/sksl/shared/CommaSideEffects.dsl.glsl",
+        "patchSetId": 45
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-09T18:25:25Z",
+      "side": 1,
+      "message": "Comma separated variables will generate a scopeless Block but somehow it\u0027s coming out scoped with the DSL parser.",
+      "range": {
+        "startLine": 8,
+        "startChar": 4,
+        "endLine": 13,
+        "endChar": 5
+      },
+      "revId": "01a81d1176214d0417e4fee772250b5e305db3a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "67e6f187_2209fd74",
+        "filename": "tests/sksl/shared/Control.dsl.glsl",
+        "patchSetId": 45
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-09T18:25:25Z",
+      "side": 1,
+      "message": "A for loop init-stmt should be in an inner SymbolTable (this code has an outer-scope `int i` followed by a for-loop `for (int i\u003d...`)",
+      "range": {
+        "startLine": 2,
+        "startChar": 0,
+        "endLine": 3,
+        "endChar": 37
+      },
+      "revId": "01a81d1176214d0417e4fee772250b5e305db3a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "776988af_dacd5005",
+        "filename": "tests/sksl/shared/DependentInitializers.dsl.glsl",
+        "patchSetId": 45
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-09T18:25:25Z",
+      "side": 1,
+      "message": "DSL variable init exprs need to honor variables that were previously-declared in the same statement: \n\n    float x \u003d 0.5, y \u003d x * 2;",
+      "range": {
+        "startLine": 2,
+        "startChar": 0,
+        "endLine": 6,
+        "endChar": 0
+      },
+      "revId": "01a81d1176214d0417e4fee772250b5e305db3a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
