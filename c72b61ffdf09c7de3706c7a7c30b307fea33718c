@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2cde9313_669637a0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-07-09T19:21:58Z",
+      "side": 1,
+      "message": "lgtm, % subtle comment nit",
+      "revId": "c72b61ffdf09c7de3706c7a7c30b307fea33718c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "849334de_37afc924",
+        "filename": "gm/lumafilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-07-09T19:21:58Z",
+      "side": 1,
+      "message": "Here, the \"XYZ\" actually referred to the CIE XYZ colorspace. So I\u0027d keep the change you made to the SkSL below, but write something like:\n\n// Here, RGB holds XYZ. Splatting the G (Y) channel should result ...",
+      "range": {
+        "startLine": 187,
+        "startChar": 21,
+        "endLine": 187,
+        "endChar": 37
+      },
+      "revId": "c72b61ffdf09c7de3706c7a7c30b307fea33718c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
