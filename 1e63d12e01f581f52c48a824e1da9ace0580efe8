@@ -56,6 +56,30 @@
       },
       "revId": "1e63d12e01f581f52c48a824e1da9ace0580efe8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b48e8ee9_3d01aa19",
+        "filename": "gm/gpu_blur_utils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-07-09T19:27:19Z",
+      "side": 1,
+      "message": "Yep... I think it has to do with input color. It used to be the case that most effects would compute a color and per-channel multiply it by the input color. The GrPaint\u0027s color was the first (in the old linear chain) effect\u0027s input color. When going from SkPaint to GrPaint we always set GrPaint\u0027s color explicitly. In other use cases we typically just want the the result of the FPs and defaulting the paint color to black would zero out RGB after the first FP.",
+      "parentUuid": "762b404a_20d63fc0",
+      "range": {
+        "startLine": 288,
+        "startChar": 23,
+        "endLine": 288,
+        "endChar": 66
+      },
+      "revId": "1e63d12e01f581f52c48a824e1da9ace0580efe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
