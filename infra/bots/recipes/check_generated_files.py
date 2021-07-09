@@ -43,21 +43,6 @@ def RunSteps(api):
       api.step('generate gl interfaces',
                cmd=['make', '-C', 'tools/gpu/gl/interface', 'generate'])
 
-    # Touch all .fp files so that the generated files are rebuilt.
-    api.run(
-        api.python.inline,
-        'touch fp files',
-        program="""import os
-import subprocess
-
-for r, d, files in os.walk(os.path.join('%s', 'src')):
-  for f in files:
-    if f.endswith('.fp'):
-      path = os.path.join(r, f)
-      print 'touch %%s' %% path
-      subprocess.check_call(['touch', path])
-""" % cwd)
-
     # Run GN, regenerate the SKSL files, and make sure rewritten #includes work.
     api.build(checkout_root=checkout_root,
               out_dir=api.vars.build_dir.join('out', 'Release'))
