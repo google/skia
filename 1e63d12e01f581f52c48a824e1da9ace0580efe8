@@ -33,6 +33,29 @@
       "message": "At long last! :) Thanks for putting this bug to rest.",
       "revId": "1e63d12e01f581f52c48a824e1da9ace0580efe8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "762b404a_20d63fc0",
+        "filename": "gm/gpu_blur_utils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-07-09T13:27:05Z",
+      "side": 1,
+      "message": "TIL (or re-learned?) that SkPaint and GrPaint have different default colors. Whee!",
+      "range": {
+        "startLine": 288,
+        "startChar": 23,
+        "endLine": 288,
+        "endChar": 66
+      },
+      "revId": "1e63d12e01f581f52c48a824e1da9ace0580efe8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
