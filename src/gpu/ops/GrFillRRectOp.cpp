@@ -16,6 +16,7 @@
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrVertexWriter.h"
 #include "src/gpu/GrVx.h"
 #include "src/gpu/geometry/GrShape.h"
@@ -25,6 +26,8 @@
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
+#include "src/gpu/tessellate/GrAtlasInstancedHelper.h"
+#include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 
 namespace {
 
@@ -48,7 +51,7 @@ public:
     FixedFunctionFlags fixedFunctionFlags() const final { return fHelper.fixedFunctionFlags(); }
 
     ClipResult clipToShape(GrSurfaceDrawContext*, SkClipOp, const SkMatrix& clipMatrix,
-                           const GrShape&, GrAA) override;
+                           const GrShape&, GrAA, const GrFragmentProcessor* currentClipFP) override;
 
     GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*, GrClampType) final;
     CombineResult onCombineIfPossible(GrOp*, SkArenaAlloc*, const GrCaps&) final;
@@ -58,6 +61,9 @@ public:
             fProgramInfo->visitFPProxies(func);
         } else {
             fHelper.visitProxies(func);
+        }
+        if (fAtlasHelper) {
+            func(fAtlasHelper->proxy(), GrMipmapped::kNo);
         }
     }
 
@@ -105,6 +111,9 @@ private:
     Helper         fHelper;
     ProcessorFlags fProcessorFlags;
 
+    // Handles clips against an atlas.
+    GrAtlasInstancedHelper* fAtlasHelper = nullptr;
+
     struct Instance {
         Instance(const SkMatrix& viewMatrix, const SkRRect& rrect, const SkRect& localRect,
                  const SkPMColor4f& color)
@@ -113,6 +122,7 @@ private:
         SkRRect fRRect;
         SkRect fLocalRect;
         SkPMColor4f fColor;
+        GrAtlasInstancedHelper::Instance* fAtlasInstance = nullptr;
         Instance* fNext = nullptr;
     };
 
@@ -207,9 +217,48 @@ FillRRectOp::FillRRectOp(GrProcessorSet* processorSet,
 
 GrDrawOp::ClipResult FillRRectOp::clipToShape(GrSurfaceDrawContext* sdc, SkClipOp clipOp,
                                               const SkMatrix& clipMatrix, const GrShape& shape,
-                                              GrAA aa) {
+                                              GrAA aa, const GrFragmentProcessor* currentClipFP) {
     SkASSERT(fInstanceCount == 1);  // This needs to be called before combining.
     SkASSERT(fHeadInstance->fNext == nullptr);
+
+    if (!fAtlasHelper && shape.isPath() &&
+        sdc->recordingContext()->priv().drawingManager()->getTessellationPathRenderer()) {
+        GrTessellationPathRenderer::AtlasPathView result;
+        auto visitProxiesUsedByDraw = [this, currentClipFP](GrVisitProxyFunc visitor) {
+            this->visitProxies(visitor);
+            if (currentClipFP) {
+                currentClipFP->visitProxies(visitor);
+            }
+        };
+        GrTessellationPathRenderer* tessellator =
+                sdc->recordingContext()->priv().drawingManager()->getTessellationPathRenderer();
+        if (tessellator->tryAddPathToAtlas(sdc->recordingContext(), clipMatrix, shape.path(),
+                                           clipMatrix.mapRect(shape.bounds()), aa == GrAA::kYes,
+                                           visitProxiesUsedByDraw, &result)) {
+            SkArenaAlloc* arena = sdc->arenaAlloc();
+            auto flags = GrAtlasInstancedHelper::ShaderFlags::kCheckBounds;
+            if (clipOp == SkClipOp::kDifference) {
+                flags |= GrAtlasInstancedHelper::ShaderFlags::kInvertCoverage;
+            }
+            fAtlasHelper = arena->make<GrAtlasInstancedHelper>(std::move(result.fAtlasView), flags);
+            fHeadInstance->fAtlasInstance = arena->make<GrAtlasInstancedHelper::Instance>(
+                    result.fLocationInAtlas, result.fPathDevIBounds, result.fTransposedInAtlas);
+            SkRect boundsRect;
+            if (clipOp == SkClipOp::kIntersect &&
+                SkMatrixPriv::InverseMapRect(fHeadInstance->fViewMatrix, &boundsRect,
+                                             SkRect::Make(result.fPathDevIBounds))) {
+                // Attempt to also clip geometrically to the path device bounds. This will allow the
+                // clip stack to disable scissor.
+                if (this->clipToShape(sdc, SkClipOp::kIntersect, fHeadInstance->fViewMatrix,
+                                      GrShape(boundsRect), aa,
+                                      currentClipFP) == ClipResult::kClippedGeometrically) {
+                    return ClipResult::kClippedGeometrically;
+                }
+            }
+            return ClipResult::kClippedInShader;
+        }
+        return ClipResult::kFail;
+    }
 
     if ((shape.isRect() || shape.isRRect()) && clipOp == SkClipOp::kIntersect) {
         // The clip shape is a round rect. Attempt to map it to a round rect in "viewMatrix" space.
@@ -301,7 +350,9 @@ GrProcessorSet::Analysis FillRRectOp::finalize(const GrCaps& caps, const GrAppli
 GrOp::CombineResult FillRRectOp::onCombineIfPossible(GrOp* op, SkArenaAlloc*, const GrCaps& caps) {
     const auto& that = *op->cast<FillRRectOp>();
     if (!fHelper.isCompatible(that.fHelper, caps, this->bounds(), that.bounds()) ||
-        fProcessorFlags != that.fProcessorFlags) {
+        fProcessorFlags != that.fProcessorFlags ||
+        SkToBool(fAtlasHelper) != SkToBool(that.fAtlasHelper) ||
+        (fAtlasHelper && !fAtlasHelper->isCompatible(*that.fAtlasHelper))) {
         return CombineResult::kCannotCombine;
     }
 
@@ -313,24 +364,35 @@ GrOp::CombineResult FillRRectOp::onCombineIfPossible(GrOp* op, SkArenaAlloc*, co
 
 class FillRRectOp::Processor : public GrGeometryProcessor {
 public:
-    static GrGeometryProcessor* Make(SkArenaAlloc* arena, GrAAType aaType, ProcessorFlags flags) {
+    static GrGeometryProcessor* Make(SkArenaAlloc* arena, GrAAType aaType, ProcessorFlags flags,
+                                     const GrAtlasInstancedHelper* atlasHelper,
+                                     const GrCaps& caps) {
         return arena->make([&](void* ptr) {
-            return new (ptr) Processor(aaType, flags);
+            return new (ptr) Processor(aaType, flags, atlasHelper, caps);
         });
     }
 
     const char* name() const final { return "GrFillRRectOp::Processor"; }
+    const TextureSampler& onTextureSampler(int) const override {
+        SkASSERT(fAtlasHelper);
+        return fAtlasAccess;
+    }
 
     void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const final {
         b->addBits(kNumProcessorFlags, (uint32_t)fFlags,  "flags");
+        if (fAtlasHelper) {
+            fAtlasHelper->getKeyBits(b);
+        }
     }
 
     GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const final;
 
 private:
-    Processor(GrAAType aaType, ProcessorFlags flags)
+    Processor(GrAAType aaType, ProcessorFlags flags, const GrAtlasInstancedHelper* atlasHelper,
+              const GrCaps& caps)
             : INHERITED(kGrFillRRectOp_Processor_ClassID)
-            , fFlags(flags) {
+            , fFlags(flags)
+            , fAtlasHelper(atlasHelper) {
         this->setVertexAttributes(kVertexAttribs, SK_ARRAY_COUNT(kVertexAttribs));
 
         fInstanceAttribs.emplace_back("skew", kFloat4_GrVertexAttribType, kFloat4_GrSLType);
@@ -343,8 +405,16 @@ private:
             fInstanceAttribs.emplace_back(
                     "local_rect", kFloat4_GrVertexAttribType, kFloat4_GrSLType);
         }
+        if (fAtlasHelper) {
+            fAtlasHelper->appendInstanceAttribs(&fInstanceAttribs);
+            GrSwizzle swizzle = caps.getReadSwizzle(fAtlasHelper->proxy()->backendFormat(),
+                                                    GrColorType::kAlpha_8);
+            fAtlasAccess.reset(GrSamplerState::Filter::kNearest,
+                               fAtlasHelper->proxy()->backendFormat(), swizzle);
+            this->setTextureSamplerCnt(1);
+        }
         SkASSERT(fInstanceAttribs.count() <= kMaxInstanceAttribs);
-        this->setInstanceAttributes(fInstanceAttribs.begin(), fInstanceAttribs.count());
+        this->setInstanceAttributes(fInstanceAttribs.data(), fInstanceAttribs.count());
     }
 
     static constexpr Attribute kVertexAttribs[] = {
@@ -354,8 +424,10 @@ private:
             {"aa_bloat_and_coverage", kFloat4_GrVertexAttribType, kFloat4_GrSLType}};
 
     const ProcessorFlags fFlags;
+    const GrAtlasInstancedHelper* const fAtlasHelper;
+    TextureSampler fAtlasAccess;
 
-    constexpr static int kMaxInstanceAttribs = 6;
+    constexpr static int kMaxInstanceAttribs = 8;
     SkSTArray<kMaxInstanceAttribs, Attribute> fInstanceAttribs;
     const Attribute* fColorAttrib;
 
@@ -533,6 +605,10 @@ void FillRRectOp::onPrepareDraws(GrMeshDrawTarget* target) {
                     GrVertexColor(i->fColor, fProcessorFlags & ProcessorFlags::kWideColor),
                     GrVertexWriter::If(fProcessorFlags & ProcessorFlags::kHasLocalCoords,
                                        i->fLocalRect));
+
+            if (fAtlasHelper) {
+                fAtlasHelper->writeInstanceData(&instanceWrter, i->fAtlasInstance);
+            }
         }
         SkASSERT(instanceWrter == end);
     }
@@ -735,11 +811,22 @@ class FillRRectOp::Processor::Impl : public GrGLSLGeometryProcessor {
             f->codeAppendf("coverage = (coverage >= .5) ? 1 : 0;");
         }
         f->codeAppendf("half4 %s = half4(coverage);", args.fOutputCoverage);
+
+        if (proc.fAtlasHelper) {
+            proc.fAtlasHelper->injectShaderCode(args, gpArgs->fPositionVar, &fAtlasAdjustUniform);
+        }
     }
 
-    void setData(const GrGLSLProgramDataManager&,
+    void setData(const GrGLSLProgramDataManager& pdman,
                  const GrShaderCaps&,
-                 const GrGeometryProcessor&) override {}
+                 const GrGeometryProcessor& gp) override {
+        const auto& atlasHelper = gp.cast<Processor>().fAtlasHelper;
+        if (atlasHelper) {
+            atlasHelper->setUniformData(pdman, fAtlasAdjustUniform);
+        }
+    }
+
+    GrGLSLUniformHandler::UniformHandle fAtlasAdjustUniform;
 };
 
 
@@ -754,7 +841,8 @@ void FillRRectOp::onCreateProgramInfo(const GrCaps* caps,
                                       const GrDstProxyView& dstProxyView,
                                       GrXferBarrierFlags renderPassXferBarriers,
                                       GrLoadOp colorLoadOp) {
-    GrGeometryProcessor* gp = Processor::Make(arena, fHelper.aaType(), fProcessorFlags);
+    GrGeometryProcessor* gp = Processor::Make(arena, fHelper.aaType(), fProcessorFlags,
+                                              fAtlasHelper, *caps);
     fProgramInfo = fHelper.createProgramInfo(caps, arena, writeView, std::move(appliedClip),
                                              dstProxyView, gp, GrPrimitiveType::kTriangles,
                                              renderPassXferBarriers, colorLoadOp);
@@ -766,7 +854,12 @@ void FillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBound
     }
 
     flushState->bindPipelineAndScissorClip(*fProgramInfo, this->bounds());
-    flushState->bindTextures(fProgramInfo->geomProc(), nullptr, fProgramInfo->pipeline());
+    if (fAtlasHelper) {
+        flushState->bindTextures(fProgramInfo->geomProc(), *fAtlasHelper->proxy(),
+                                 fProgramInfo->pipeline());
+    } else {
+        flushState->bindTextures(fProgramInfo->geomProc(), nullptr, fProgramInfo->pipeline());
+    }
     flushState->bindBuffers(std::move(fIndexBuffer), std::move(fInstanceBuffer),
                             std::move(fVertexBuffer));
     flushState->drawIndexedInstanced(SK_ARRAY_COUNT(kIndexData), 0, fInstanceCount, fBaseInstance,
