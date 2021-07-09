@@ -16,6 +16,23 @@
       "message": "Adding all 3 since this is pretty big and affects all of your areas",
       "revId": "4a806185d0881a6c846c0c030b6f26ba862fadda",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f2ff18cf_98873354",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-07-09T12:57:33Z",
+      "side": 1,
+      "message": "I haven\u0027t done a full review yet, but this seems pretty complex. Have you tried using GrClip::preApply() for this use case in more places in GrSDC? \n\nRight now attemptQuadOptimization() will turn a fully-covered rrect clip into a rrect draw, and drawRRect() will look for the draw being identical to the clip. But we could certainly extend these cases to try and compute the intersection of the drawn rrect with the device rrect that\u0027s reported by preApply(), and that would be done before any op was made.",
+      "revId": "4a806185d0881a6c846c0c030b6f26ba862fadda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
