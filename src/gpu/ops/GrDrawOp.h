@@ -9,11 +9,14 @@
 #define GrDrawOp_DEFINED
 
 #include <functional>
+#include "src/core/SkIPoint16.h"
 #include "src/gpu/GrDeferredUpload.h"
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/ops/GrOp.h"
 
 class GrAppliedClip;
+class GrSurfaceDrawContext;
+class GrShape;
 
 /**
  * Base class for GrOps that draw. These ops can draw into an op list's GrRenderTarget.
@@ -28,6 +31,32 @@ public:
      */
     virtual bool usesMSAA() const {
         return this->fixedFunctionFlags() & FixedFunctionFlags::kUsesHWAA;
+    }
+
+    /**
+     * Specifies the effect of clipToShape().
+     */
+    enum class ClipResult {
+        // No clip was applied.
+        kFail,
+        // The clip was applied to the op's actual geometry. The clip stack is free to disable the
+        // scissor test.
+        kClippedGeometrically,
+        // The clip was applied via shader coverage. The clip stack will still use a scissor test
+        // in order to reduce overdraw of transparent pixels.
+        kClippedInShader,
+        // The op can be thrown out entirely.
+        kClippedOut
+    };
+
+    /**
+     * This is called while the clip is being computed, before finalize(), and before any attempts
+     * to combine with other ops. If the op knows how to clip its own geometry then it will
+     * generally be much faster than a generalized clip method.
+     */
+    virtual ClipResult clipToShape(GrSurfaceDrawContext*, SkClipOp, const SkMatrix& clipMatrix,
+                                   const GrShape&, GrAA) {
+        return ClipResult::kFail;
     }
 
     /**
