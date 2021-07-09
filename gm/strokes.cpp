@@ -618,3 +618,32 @@ DEF_SIMPLE_GM(inner_join_geometry, canvas, 1000, 700) {
         }
     }
 }
+
+DEF_SIMPLE_GM(closedpath_new_inner_join, canvas, 500, 500) {
+    SkPath path;
+    path.setFillType(SkPathFillType::kWinding);
+    path.moveTo(2.78543f, -6.96358f);
+    path.lineTo(120.194f, 40);
+    path.lineTo(-7.5f, 91.0778f);
+    path.lineTo(-7.5f, -11.0777f);
+    path.lineTo(2.78543f, -6.96358f);
+    path.close();
+    path.moveTo(-2.78543f, 6.96358f);
+    path.lineTo(0, 0);
+    path.lineTo(7.5f, 0);
+    path.lineTo(7.5f, 68.9222f);
+    path.lineTo(79.8056f, 40);
+    path.lineTo(-2.78543f, 6.96358f);
+    path.close();
+
+    SkPaint paint;
+    paint.setAntiAlias(true);
+
+    canvas->translate(50, 50);
+    canvas->drawPath(path, paint);
+
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStrokeWidth(2);
+    paint.setColor(SK_ColorRED);
+    canvas->drawPath(path, paint);
+}
