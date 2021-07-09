@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4f621177_71abdc62",
+        "filename": "modules/skparagraph/src/TextLine.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-07-09T19:29:33Z",
+      "side": 1,
+      "message": "Yes. It\u0027s my attempt not to shift EVERY glyph for left/center/right",
+      "parentUuid": "f3ef6abe_cfef7742",
+      "range": {
+        "startLine": 34,
+        "startChar": 15,
+        "endLine": 34,
+        "endChar": 25
+      },
+      "revId": "59e95dd6183b9bc57b63375245941057ec1b6fad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f965d806_ddde7a1d",
@@ -47,6 +71,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2daf5525_994f0d40",
+        "filename": "modules/skparagraph/src/TextLine.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-07-09T19:29:33Z",
+      "side": 1,
+      "message": "It\u0027s measuring drawing text and in one rare case (ellipsis) clips it. Has nothing to do with line breaks.",
+      "parentUuid": "f965d806_ddde7a1d",
+      "range": {
+        "startLine": 35,
+        "startChar": 13,
+        "endLine": 35,
+        "endChar": 17
+      },
+      "revId": "59e95dd6183b9bc57b63375245941057ec1b6fad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cd71adfb_ea5cc7ab",
@@ -60,6 +108,30 @@
       "writtenOn": "2021-07-09T19:04:38Z",
       "side": 1,
       "message": "Does this mean width() \u003d\u003d widthWithTrailingSpaces() ?\n\nIf we\u0027re going to have more than one getter related to widths, we may need to name each one very explicitly.",
+      "range": {
+        "startLine": 68,
+        "startChar": 13,
+        "endLine": 68,
+        "endChar": 18
+      },
+      "revId": "59e95dd6183b9bc57b63375245941057ec1b6fad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "84900021_a5bb9b66",
+        "filename": "modules/skparagraph/src/TextLine.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2021-07-09T19:29:33Z",
+      "side": 1,
+      "message": "Yes but I am trying to change as little as possible. \nI am lucky that getGlyphPosition is used by Flutter for text editing and text editing does not use ellipsis.",
+      "parentUuid": "cd71adfb_ea5cc7ab",
       "range": {
         "startLine": 68,
         "startChar": 13,
