@@ -629,6 +629,21 @@ bool CropToRect(const SkRect& cropRect, GrAA cropAA, DrawQuad* quad, bool comput
     return false;
 }
 
+bool IsSubpixel(const GrQuad& quad) {
+    if (quad.quadType() == GrQuad::Type::kAxisAligned) {
+        // Fast path that avoids computing edge properties via TessellationHelper.
+        // Taking max of the absolute value of the x and y values for an edge computes either the
+        // width or height, regardless of 90 degree rotations or axis flips.
+        float d = std::min(std::max(std::abs(quad.x(2) - quad.x(0)), std::abs(quad.y(2) - quad.y(0))),
+                           std::max(std::abs(quad.x(1) - quad.x(0)), std::abs(quad.y(1) - quad.y(0))));
+        return d < 1.f;
+    } else {
+        TessellationHelper helper;
+        helper.reset(quad, nullptr);
+        return helper.isSubpixel();
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // TessellationHelper implementation and helper struct implementations
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -708,6 +723,15 @@ V4f TessellationHelper::EdgeEquations::estimateCoverage(const V4f& x2d, const V4
     V4f w = max(0.f, min(1.f, d0 + d3));
     V4f h = max(0.f, min(1.f, d1 + d2));
     return w * h;
+}
+
+bool TessellationHelper::EdgeEquations::isSubpixel(const V4f& x2d, const V4f& y2d) const {
+    // Compute the minimum distances from vertices to opposite edges. If all 4 minimum distances
+    // are less than 1px, then the inset geometry would be a point or line and quad rendering
+    // will switch to hairline mode.
+    V4f d = min(x2d * skvx::shuffle<1,2,1,2>(fA) + y2d * skvx::shuffle<1,2,1,2>(fB) + skvx::shuffle<1,2,1,2>(fC),
+                x2d * skvx::shuffle<3,3,0,0>(fA) + y2d * skvx::shuffle<3,3,0,0>(fB) + skvx::shuffle<3,3,0,0>(fC));
+    return all(d < 1.f);
 }
 
 int TessellationHelper::EdgeEquations::computeDegenerateQuad(const V4f& signedEdgeDistances,
@@ -1162,6 +1186,18 @@ const TessellationHelper::OutsetRequest& TessellationHelper::getOutsetRequest(
         fOutsetRequestValid = true;
     }
     return fOutsetRequest;
+}
+
+bool TessellationHelper::isSubpixel() {
+    SkASSERT(fVerticesValid);
+    if (fDeviceType <= GrQuad::Type::kRectilinear) {
+        // Check the edge lengths, if the shortest is less than 1px it's degenerate, which is the
+        // same as if the max 1/length is greater than 1px.
+        return any(fEdgeVectors.fInvLengths > 1.f);
+    } else {
+        // Compute edge equations and then distance from each vertex to the opposite edges.
+        return this->getEdgeEquations().isSubpixel(fEdgeVectors.fX2D, fEdgeVectors.fY2D);
+    }
 }
 
 const TessellationHelper::EdgeEquations& TessellationHelper::getEdgeEquations() {
