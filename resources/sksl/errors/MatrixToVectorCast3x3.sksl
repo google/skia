@@ -4,4 +4,4 @@ const half3x3 testMatrix3x3 = half3x3(1, 2, 3, 4, 5, 6, 7, 8, 9);
 half    testScalar    = half (testMatrix3x3);
 half2   testVec2      = half2(testMatrix3x3);
 half3   testVec3      = half3(testMatrix3x3);
-half3   testVec4      = half4(testMatrix3x3);
+half4   testVec4      = half4(testMatrix3x3);
