@@ -70,6 +70,7 @@ sksl_error_tests = [
   "/sksl/errors/LayoutMultiplePrimitiveTypes.sksl",
   "/sksl/errors/LayoutRepeatedQualifiers.sksl",
   "/sksl/errors/MatrixToVectorCast3x3.sksl",
+  "/sksl/errors/MatrixToVectorCastBoolean.sksl",
   "/sksl/errors/MatrixToVectorCastInteger.sksl",
   "/sksl/errors/MatrixToVectorCastTooSmall.sksl",
   "/sksl/errors/MismatchedNumbers.sksl",

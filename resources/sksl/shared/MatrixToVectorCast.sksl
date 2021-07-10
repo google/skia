@@ -3,6 +3,7 @@ uniform half2x2 testMatrix2x2;
 
 half4 main(float2 coords) {
     const half2x2 mat1234 = half2x2(1, 2, 3, 4);
+    const half2x2 bmat1234 = half2x2(1, 0, 1, 0);
 
     bool ok = true;
 
@@ -17,6 +18,10 @@ half4 main(float2 coords) {
     ok = ok && int4(testMatrix2x2)         == int4(1, 2, 3, 4);
     ok = ok && int4(half2x2(1, 2, 3, 4))   == int4(1, 2, 3, 4);
     ok = ok && int4(mat1234)               == int4(1, 2, 3, 4);
+
+    ok = ok && bool4(testMatrix2x2)        == bool4(true, true, true, true);
+    ok = ok && bool4(half2x2(0, 1, 0, 1))  == bool4(false, true, false, true);
+    ok = ok && bool4(bmat1234)             == bool4(true, false, true, false);
 
     return ok ? colorGreen : colorRed;
 }

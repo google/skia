@@ -27,6 +27,12 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     bool ok = true;
     ok = ok && float2x2_from_float4(_uniforms.testInputs) == float2x2(float2(-1.25, 0.0), float2(0.75, 2.25));
     ok = ok && float2x2_from_float4(_uniforms.testInputs) == float2x2(float2(-1.25, 0.0), float2(0.75, 2.25));
+    ok = ok && float2x2_from_float4(_uniforms.colorGreen) == float2x2(float2(0.0, 1.0), float2(0.0, 1.0));
+    ok = ok && float2x2_from_float4(_uniforms.colorGreen) == float2x2(float2(0.0, 1.0), float2(0.0, 1.0));
+    ok = ok && float2x2_from_float4(float4(int4(_uniforms.colorGreen))) == float2x2(float2(0.0, 1.0), float2(0.0, 1.0));
+    ok = ok && float2x2_from_float4(_uniforms.colorGreen) == float2x2(float2(0.0, 1.0), float2(0.0, 1.0));
+    ok = ok && float2x2_from_float4(_uniforms.colorGreen) == float2x2(float2(0.0, 1.0), float2(0.0, 1.0));
+    ok = ok && float2x2_from_float4(float4(bool4(_uniforms.colorGreen))) == float2x2(float2(0.0, 1.0), float2(0.0, 1.0));
     _out.sk_FragColor = ok ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }
