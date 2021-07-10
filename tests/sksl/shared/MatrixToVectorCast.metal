@@ -20,6 +20,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     bool ok = true;
     ok = ok && all(float4_from_float2x2(_uniforms.testMatrix2x2) == float4(1.0, 2.0, 3.0, 4.0));
     ok = ok && all(float4_from_float2x2(_uniforms.testMatrix2x2) == float4(1.0, 2.0, 3.0, 4.0));
+    ok = ok && all(int4(float4_from_float2x2(_uniforms.testMatrix2x2)) == int4(1, 2, 3, 4));
     _out.sk_FragColor = ok ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }
