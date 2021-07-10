@@ -51,9 +51,9 @@ static std::unique_ptr<Expression> convert_compound_constructor(const Context& c
                 return ConstructorCompoundCast::Make(context, offset, type, std::move(argument));
             }
         } else if (argument->type().isMatrix()) {
-            // A vector or matrix constructor containing a single matrix can be a resize, typecast,
-            // or both. GLSL lumps these into one category, but internally SkSL keeps them distinct.
-            if (type.isVector() || type.isMatrix()) {
+            // A matrix constructor containing a single matrix can be a resize, typecast, or both.
+            // GLSL lumps these into one category, but internally SkSL keeps them distinct.
+            if (type.isMatrix()) {
                 // First, handle type conversion. If the component types differ, synthesize the
                 // destination type with the argument's rows/columns. (This will be a no-op if it's
                 // already the right type.)
@@ -64,17 +64,25 @@ static std::unique_ptr<Expression> convert_compound_constructor(const Context& c
                 argument = ConstructorCompoundCast::Make(context, offset, typecastType,
                                                          std::move(argument));
 
-                // Next, wrap the typecasted expression in another constructor depending on its
-                // type.
-                if (type.isMatrix()) {
-                    // Casting a matrix type into another matrix type is a resize.
-                    return ConstructorMatrixResize::Make(context, offset, type,
-                                                         std::move(argument));
-                }
-                if (type.isVector() && type.columns() == 4 && argument->type().slotCount() == 4) {
-                    // Casting a 2x2 matrix into a 4-slot vector is compound construction.
-                    return ConstructorCompound::Make(context, offset, type, std::move(args));
-                }
+                // Casting a matrix type into another matrix type is a resize.
+                return ConstructorMatrixResize::Make(context, offset, type,
+                                                     std::move(argument));
+            }
+
+            // A vector constructor containing a single matrix can be compound construction if the
+            // matrix is 2x2 and the vector is 4-slot.
+            if (type.isVector() && type.columns() == 4 && argument->type().slotCount() == 4) {
+                // Casting a 2x2 matrix to a vector is a form of compound construction.
+                // First, reshape the matrix into a 4-slot vector of the same type.
+                const Type& vectorType = argument->type().componentType().toCompound(context,
+                                                                                     /*columns=*/4,
+                                                                                     /*rows=*/1);
+                std::unique_ptr<Expression> vecCtor =
+                        ConstructorCompound::Make(context, offset, vectorType, std::move(args));
+
+                // Then, add a typecast to the result expression to ensure the types match.
+                // This will be a no-op if no typecasting is needed.
+                return ConstructorCompoundCast::Make(context, offset, type, std::move(vecCtor));
             }
         }
     }

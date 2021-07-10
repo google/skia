@@ -52,10 +52,10 @@ static std::unique_ptr<Expression> cast_constant_composite(const Context& contex
                                                                std::move(arg)));
         } else {
             // Convert inner constant-composites recursively.
-            SkASSERT(argType.isVector());
+            SkASSERT(argType.isVector() || (argType.isMatrix() && argType.slotCount() == 4));
             typecastArgs.push_back(cast_constant_composite(
                     context,
-                    scalarType.toCompound(context, /*columns=*/argType.columns(), /*rows=*/1),
+                    scalarType.toCompound(context, /*columns=*/argType.slotCount(), /*rows=*/1),
                     std::move(arg)));
         }
     }

@@ -14,5 +14,9 @@ half4 main(float2 coords) {
     ok = ok && float4(half2x2(1, 2, 3, 4)) == float4(1, 2, 3, 4);
     ok = ok && float4(mat1234)             == float4(1, 2, 3, 4);
 
+    ok = ok && int4(testMatrix2x2)         == int4(1, 2, 3, 4);
+    ok = ok && int4(half2x2(1, 2, 3, 4))   == int4(1, 2, 3, 4);
+    ok = ok && int4(mat1234)               == int4(1, 2, 3, 4);
+
     return ok ? colorGreen : colorRed;
 }
