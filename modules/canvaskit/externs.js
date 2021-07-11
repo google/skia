@@ -456,7 +456,6 @@ var CanvasKit = {
     /** @return {CanvasKit.Paint} */
     copy: function() {},
     getBlendMode: function() {},
-    getFilterQuality: function() {},
     getStrokeCap: function() {},
     getStrokeJoin: function() {},
     getStrokeMiter: function() {},
@@ -464,7 +463,6 @@ var CanvasKit = {
     setAntiAlias: function() {},
     setBlendMode: function() {},
     setColorInt: function() {},
-    setFilterQuality: function() {},
     setImageFilter: function() {},
     setMaskFilter: function() {},
     setPathEffect: function() {},
