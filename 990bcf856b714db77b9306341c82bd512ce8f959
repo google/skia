@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d1a28ad9_c74d98b2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-07-11T17:34:20Z",
+      "side": 1,
+      "message": "rm filterquality from paint (already claimed in the CHANGELOG)\n\nPTAL\n\n(is flutter-web ready for this?)",
+      "revId": "990bcf856b714db77b9306341c82bd512ce8f959",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
