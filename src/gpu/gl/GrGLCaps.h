@@ -438,6 +438,9 @@ public:
     /** Skip checks for GL errors, shader compilation success, program link success. */
     bool skipErrorChecks() const { return fSkipErrorChecks; }
 
+    /** Do we need to glEnable(GL_MULTISAMPLE) on reset? */
+    bool clientCanDisableMultisample() const { return fClientCanDisableMultisample; }
+
     GrBackendFormat getBackendFormatFromCompressionType(SkImage::CompressionType) const override;
 
     GrSwizzle getWriteSwizzle(const GrBackendFormat&, GrColorType) const override;
@@ -548,6 +551,7 @@ private:
     bool fFBFetchRequiresEnablePerSample : 1;
     bool fSRGBWriteControl : 1;
     bool fSkipErrorChecks : 1;
+    bool fClientCanDisableMultisample : 1;
 
     // Driver workarounds
     bool fDoManualMipmapping : 1;

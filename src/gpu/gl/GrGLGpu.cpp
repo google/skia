@@ -545,7 +545,9 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
     }
 
     if (resetBits & kMSAAEnable_GrGLBackendState) {
-        fMSAAEnabled = kUnknown_TriState;
+        if (this->glCaps().clientCanDisableMultisample()) {
+            GL_CALL(Enable(GR_GL_MULTISAMPLE));
+        }
         fHWConservativeRasterEnabled = kUnknown_TriState;
     }
 
@@ -1873,7 +1875,6 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget, bool useMultisampleFBO,
     this->flushScissorTest(GrScissorTest(programInfo.pipeline().isScissorTestEnabled()));
     this->flushWindowRectangles(programInfo.pipeline().getWindowRectsState(),
                                 glRT, programInfo.origin());
-    this->flushHWAAState(glRT, programInfo.pipeline().isHWAntialiasState());
     this->flushConservativeRasterState(programInfo.pipeline().usesConservativeRaster());
     this->flushWireframeState(programInfo.pipeline().isWireframe());
 
@@ -2495,27 +2496,6 @@ void GrGLGpu::disableStencil() {
 
         fHWStencilTestEnabled = kNo_TriState;
         fHWStencilSettings.invalidate();
-    }
-}
-
-void GrGLGpu::flushHWAAState(GrRenderTarget* rt, bool useHWAA) {
-    // rt is only optional if useHWAA is false.
-    SkASSERT(rt || !useHWAA);
-    SkASSERT(!useHWAA || rt->numSamples() > 1 ||
-             static_cast<GrGLRenderTarget*>(rt)->multisampleFBOID());
-
-    if (this->caps()->multisampleDisableSupport()) {
-        if (useHWAA) {
-            if (kYes_TriState != fMSAAEnabled) {
-                GL_CALL(Enable(GR_GL_MULTISAMPLE));
-                fMSAAEnabled = kYes_TriState;
-            }
-        } else {
-            if (kNo_TriState != fMSAAEnabled) {
-                GL_CALL(Disable(GR_GL_MULTISAMPLE));
-                fMSAAEnabled = kNo_TriState;
-            }
-        }
     }
 }
 
@@ -3390,7 +3370,6 @@ bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst, bool drawToMultisampleFBO, GrSur
                       sx1 - sx0, sy1 - sy0, sx0, sy0));
     GL_CALL(Uniform1i(fCopyPrograms[progIdx].fTextureUniform, 0));
     this->flushBlendAndColorWrite(GrXferProcessor::BlendInfo(), GrSwizzle::RGBA());
-    this->flushHWAAState(nullptr, false);
     this->flushConservativeRasterState(false);
     this->flushWireframeState(false);
     this->flushScissorTest(GrScissorTest::kDisabled);
@@ -3525,7 +3504,6 @@ bool GrGLGpu::onRegenerateMipMapLevels(GrTexture* texture) {
 
     // Set "simple" state once:
     this->flushBlendAndColorWrite(GrXferProcessor::BlendInfo(), GrSwizzle::RGBA());
-    this->flushHWAAState(nullptr, false);
     this->flushScissorTest(GrScissorTest::kDisabled);
     this->disableWindowRectangles();
     this->disableStencil();
