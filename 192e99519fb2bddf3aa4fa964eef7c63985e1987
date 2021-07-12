@@ -46,6 +46,30 @@
       },
       "revId": "192e99519fb2bddf3aa4fa964eef7c63985e1987",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "36e05a4d_9fa0cc50",
+        "filename": "modules/canvaskit/CHANGELOG.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-12T16:00:20Z",
+      "side": 1,
+      "message": "Isn\u0027t `asBlendMode` considered the replacement API?\n(No problem with this CL per se, just in response to \"there isn\u0027t a replacement\", and it might be useful to mention it in the change log.)",
+      "parentUuid": "b17af118_1080bab7",
+      "range": {
+        "startLine": 9,
+        "startChar": 4,
+        "endLine": 9,
+        "endChar": 11
+      },
+      "revId": "192e99519fb2bddf3aa4fa964eef7c63985e1987",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
