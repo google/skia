@@ -356,6 +356,8 @@ bool GrVkOpsRenderPass::set(GrRenderTarget* rt,
     if (!fGpu->currentCommandBuffer()) {
         return false;
     }
+    SkDebugf("vk ops render pass bounds:\n");
+    SkRect::Make(bounds).dump();
 
     this->INHERITED::set(rt, origin);
 
@@ -628,6 +630,9 @@ bool GrVkOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo, const S
     } else {
         fCurrentPipelineBounds.setEmpty();
     }
+    SkDebugf("bind vk pipeline with bounds\n");
+    rtRect.dump();
+    SkRect::Make(fCurrentPipelineBounds).dump();
 
     GrVkCommandBuffer* currentCB = this->currentCommandBuffer();
     SkASSERT(fCurrentRenderPass);
@@ -671,6 +676,12 @@ void GrVkOpsRenderPass::onSetScissorRect(const SkIRect& scissor) {
     if (!combinedScissorRect.intersect(fCurrentPipelineBounds, scissor)) {
         combinedScissorRect = SkIRect::MakeEmpty();
     }
+    SkDebugf("setting vk init scissor to\n");
+    SkRect::Make(scissor).dump();
+    SkDebugf("with pipeline bounds\n");
+    SkRect::Make(fCurrentPipelineBounds).dump();
+    SkDebugf("so actual scissor is:\n");
+    SkRect::Make(combinedScissorRect).dump();
     GrVkPipeline::SetDynamicScissorRectState(fGpu, this->currentCommandBuffer(),
                                              fFramebuffer->colorAttachment()->dimensions(),
                                              fOrigin, combinedScissorRect);
