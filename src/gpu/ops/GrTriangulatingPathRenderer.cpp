@@ -583,7 +583,7 @@ private:
 }  // anonymous namespace
 
 bool GrTriangulatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
-    GR_AUDIT_TRAIL_AUTO_FRAME(args.fSurfaceDrawContext->auditTrail(),
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fContext->priv().auditTrail(),
                               "GrTriangulatingPathRenderer::onDrawPath");
 
     GrOp::Owner op = TriangulatingPathOp::Make(

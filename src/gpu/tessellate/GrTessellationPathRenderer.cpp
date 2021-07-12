@@ -403,7 +403,7 @@ bool GrTessellationPathRenderer::tryAddPathToAtlas(GrRecordingContext* rContext,
                 kAtlasAlpha8Type, GrDynamicAtlas::InternalMultisample::kYes,
                 SkISize{fAtlasInitialSize, fAtlasInitialSize}, fAtlasMaxSize,
                 *rContext->priv().caps(), kAtlasAlgorithm);
-        auto newAtlasTask = sk_make_sp<GrAtlasRenderTask>(rContext, rContext->priv().auditTrail(),
+        auto newAtlasTask = sk_make_sp<GrAtlasRenderTask>(rContext,
                                                           sk_make_sp<GrArenas>(),
                                                           std::move(dynamicAtlas));
         rContext->priv().drawingManager()->addAtlasTask(newAtlasTask, currentAtlasTask);

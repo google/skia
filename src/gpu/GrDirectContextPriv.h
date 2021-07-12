@@ -70,7 +70,7 @@ public:
      */
     void addOnFlushCallbackObject(GrOnFlushCallbackObject*);
 
-    GrAuditTrail* auditTrail() { return fContext->auditTrail(); }
+    GrAuditTrail* auditTrail() { return fContext->fAuditTrail.get(); }
 
     /**
      * Finalizes all pending reads and writes to the surfaces and also performs an MSAA resolves

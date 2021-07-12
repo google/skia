@@ -14,11 +14,12 @@
 #include "src/gpu/ops/GrFillRectOp.h"
 #include "src/gpu/tessellate/GrPathStencilCoverOp.h"
 
-GrAtlasRenderTask::GrAtlasRenderTask(GrRecordingContext* rContext, GrAuditTrail* auditTrail,
+GrAtlasRenderTask::GrAtlasRenderTask(GrRecordingContext* rContext,
                                      sk_sp<GrArenas> arenas,
                                      std::unique_ptr<GrDynamicAtlas> dynamicAtlas)
         : GrOpsTask(rContext->priv().drawingManager(),
-                    dynamicAtlas->writeView(*rContext->priv().caps()), auditTrail,
+                    dynamicAtlas->writeView(*rContext->priv().caps()),
+                    rContext->priv().auditTrail(),
                     std::move(arenas))
         , fDynamicAtlas(std::move(dynamicAtlas)) {
 }

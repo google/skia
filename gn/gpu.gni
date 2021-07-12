@@ -38,7 +38,6 @@ skia_gpu_sources = [
   "$_src/gpu/GrAppliedClip.h",
   "$_src/gpu/GrAttachment.cpp",
   "$_src/gpu/GrAttachment.h",
-  "$_src/gpu/GrAuditTrail.cpp",
   "$_src/gpu/GrAuditTrail.h",
   "$_src/gpu/GrAutoLocaleSetter.h",
   "$_src/gpu/GrBackendSemaphore.cpp",
@@ -556,6 +555,7 @@ skia_skgpu_v2_sources = [
 ]
 
 skia_skgpu_v1_sources = [
+  "$_src/gpu/GrAuditTrail.cpp",
   "$_src/gpu/GrClipStack.cpp",
   "$_src/gpu/GrClipStack.h",
   "$_src/gpu/GrClipStackClip.cpp",

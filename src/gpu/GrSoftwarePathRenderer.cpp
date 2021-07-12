@@ -225,8 +225,9 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 // return true on success; false on failure
 bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
-    GR_AUDIT_TRAIL_AUTO_FRAME(args.fSurfaceDrawContext->auditTrail(),
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fContext->priv().auditTrail(),
                               "GrSoftwarePathRenderer::onDrawPath");
+
     if (!fProxyProvider) {
         return false;
     }
