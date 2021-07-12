@@ -138,7 +138,7 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
     const int offset = base->fOffset;
     const Type& baseType = base->type();
 
-    if (!baseType.isVector() && !baseType.isNumber()) {
+    if (!baseType.isVector() && !baseType.isScalar()) {
         context.fErrors.error(
                 offset, "cannot swizzle value of type '" + baseType.displayName() + "'");
         return nullptr;
@@ -229,7 +229,7 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
     //   scalar.x0x0 -> type4(type2(x), 0).xyxy
     //   vector.y111 -> type4(vector.y, 1).xyyy
     //   vector.z10x -> type4(vector.zx, 1, 0).xzwy
-    const Type* numberType = &baseType.componentType();
+    const Type* scalarType = &baseType.componentType();
     ComponentArray swizzleComponents;
     int maskFieldIdx = 0;
     int constantFieldIdx = maskComponents.size();
@@ -241,7 +241,7 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
                 if (constantZeroIdx == -1) {
                     // Synthesize a 'type(0)' argument at the end of the constructor.
                     constructorArgs.push_back(ConstructorScalarCast::Make(
-                            context, offset, *numberType,
+                            context, offset, *scalarType,
                             IntLiteral::Make(context, offset, /*value=*/0)));
                     constantZeroIdx = constantFieldIdx++;
                 }
@@ -251,7 +251,7 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
                 if (constantOneIdx == -1) {
                     // Synthesize a 'type(1)' argument at the end of the constructor.
                     constructorArgs.push_back(ConstructorScalarCast::Make(
-                            context, offset, *numberType,
+                            context, offset, *scalarType,
                             IntLiteral::Make(context, offset, /*value=*/1)));
                     constantOneIdx = constantFieldIdx++;
                 }
@@ -265,7 +265,7 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
     }
 
     expr = Constructor::Convert(context, offset,
-                                numberType->toCompound(context, constantFieldIdx, /*rows=*/1),
+                                scalarType->toCompound(context, constantFieldIdx, /*rows=*/1),
                                 std::move(constructorArgs));
     if (!expr) {
         return nullptr;
