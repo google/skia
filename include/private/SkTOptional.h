@@ -24,7 +24,7 @@ struct nullopt_t {
     explicit constexpr nullopt_t(tag) {}
 };
 
-constexpr nullopt_t nullopt{nullopt_t::tag{}};
+static constexpr nullopt_t nullopt{nullopt_t::tag{}};
 
 /**
  * Simple drop-in replacement for std::optional until we move to C++17. This does not have all of
