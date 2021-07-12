@@ -485,7 +485,7 @@ public:
     skstd::optional<SkBlendMode> asBlendMode() const;
 
     /**
-     *  Queries the blender, and if it can be represented as a SkBendMode, return that mode,
+     *  Queries the blender, and if it can be represented as a SkBlendMode, return that mode,
      *  else return the defaultMode provided.
      */
     SkBlendMode getBlendMode_or(SkBlendMode defaultMode) const;

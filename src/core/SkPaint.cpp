@@ -152,9 +152,7 @@ skstd::optional<SkBlendMode> SkPaint::asBlendMode() const {
 }
 
 SkBlendMode SkPaint::getBlendMode_or(SkBlendMode defaultMode) const {
-    // todo: add value_or() to skstd::optional?
-    const auto bm = this->asBlendMode();
-    return bm ? bm.value() : defaultMode;
+    return this->asBlendMode().value_or(defaultMode);
 }
 
 bool SkPaint::isSrcOver() const {
