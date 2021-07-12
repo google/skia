@@ -173,23 +173,27 @@ describe('Core canvas behavior', () => {
         expect(aImg.height()).toEqual(240);
         expect(aImg.getFrameCount()).toEqual(60);
 
-        let img = aImg.makeImageAtCurrentFrame();
-        canvas.drawImage(img, 0, 0, null);
-        img.delete(); // This is annoying, so we added drawImageAtCurrentFrame
+        const drawCurrentFrame = function(x, y) {
+            let img = aImg.makeImageAtCurrentFrame();
+            canvas.drawImage(img, x, y, null);
+            img.delete();
+        }
+
+        drawCurrentFrame(0, 0);
 
         let c = aImg.decodeNextFrame();
         expect(c).not.toEqual(-1);
-        canvas.drawImageAtCurrentFrame(aImg, 300, 0, null);
+        drawCurrentFrame(300, 0);
         for(let i = 0; i < 10; i++) {
             c = aImg.decodeNextFrame();
             expect(c).not.toEqual(-1);
         }
-        canvas.drawImageAtCurrentFrame(aImg, 0, 300, null);
+        drawCurrentFrame(0, 300);
         for(let i = 0; i < 10; i++) {
             c = aImg.decodeNextFrame();
             expect(c).not.toEqual(-1);
         }
-        canvas.drawImageAtCurrentFrame(aImg, 300, 300, null);
+        drawCurrentFrame(300, 300);
 
         aImg.delete();
     }, '/assets/flightAnim.gif');
