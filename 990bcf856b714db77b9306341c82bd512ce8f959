@@ -16,6 +16,29 @@
       "message": "rm filterquality from paint (already claimed in the CHANGELOG)\n\nPTAL\n\n(is flutter-web ready for this?)",
       "revId": "990bcf856b714db77b9306341c82bd512ce8f959",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "67cacc76_77a5d300",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 914,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-07-12T11:43:01Z",
+      "side": 1,
+      "message": "Is this and drawImageRect un-deprecated? We had previously deprecated drawImageRect, Canvas.drawImage, Canvas.drawAtlas and removed Canvas.drawAtlas. If so, we should make a note in the CHANGELOG about the reversal.",
+      "range": {
+        "startLine": 914,
+        "startChar": 19,
+        "endLine": 914,
+        "endChar": 28
+      },
+      "revId": "990bcf856b714db77b9306341c82bd512ce8f959",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
