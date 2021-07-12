@@ -167,7 +167,9 @@ public:
                                      GrGeometryProcessor*,
                                      GrPrimitiveType,
                                      GrXferBarrierFlags renderPassXferBarriers,
-                                     GrLoadOp colorLoadOp);
+                                     GrLoadOp colorLoadOp,
+                                     GrPipeline::InputFlags extraPipelineFlags
+                                             = GrPipeline::InputFlags::kNone);
 
     GrProcessorSet detachProcessorSet() {
         return fProcessors ? std::move(*fProcessors) : GrProcessorSet::MakeEmptySet();

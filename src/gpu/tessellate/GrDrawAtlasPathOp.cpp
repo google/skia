@@ -124,7 +124,6 @@ GrProcessorSet::Analysis GrDrawAtlasPathOp::finalize(const GrCaps& caps, const G
 
 GrOp::CombineResult GrDrawAtlasPathOp::onCombineIfPossible(GrOp* op, SkArenaAlloc*, const GrCaps&) {
     auto* that = op->cast<GrDrawAtlasPathOp>();
-    SkASSERT(fEnableHWAA == that->fEnableHWAA);
 
     if (!fAtlasHelper.isCompatible(that->fAtlasHelper) ||
         fProcessors != that->fProcessors) {
@@ -139,14 +138,14 @@ GrOp::CombineResult GrDrawAtlasPathOp::onCombineIfPossible(GrOp* op, SkArenaAllo
 }
 
 void GrDrawAtlasPathOp::prepareProgram(const GrCaps& caps, SkArenaAlloc* arena,
-                                       const GrSurfaceProxyView& writeView,
+                                       const GrSurfaceProxyView& writeView, bool usesMSAASurface,
                                        GrAppliedClip&& appliedClip,
                                        const GrDstProxyView& dstProxyView,
                                        GrXferBarrierFlags renderPassXferBarriers,
                                        GrLoadOp colorLoadOp) {
     SkASSERT(!fProgram);
     GrPipeline::InitArgs initArgs;
-    if (fEnableHWAA) {
+    if (usesMSAASurface) {
         initArgs.fInputFlags |= GrPipeline::InputFlags::kHWAntialias;
     }
     initArgs.fCaps = &caps;
@@ -167,7 +166,8 @@ void GrDrawAtlasPathOp::onPrePrepare(GrRecordingContext* rContext,
                                      GrXferBarrierFlags renderPassXferBarriers,
                                      GrLoadOp colorLoadOp) {
     this->prepareProgram(*rContext->priv().caps(), rContext->priv().recordTimeAllocator(),
-                         writeView, std::move(*appliedClip), dstProxyView, renderPassXferBarriers,
+                         writeView, writeView.asRenderTargetProxy()->numSamples() > 1,
+                         std::move(*appliedClip), dstProxyView, renderPassXferBarriers,
                          colorLoadOp);
     SkASSERT(fProgram);
     rContext->priv().recordProgramInfo(fProgram);
@@ -178,10 +178,15 @@ GR_DECLARE_STATIC_UNIQUE_KEY(gUnitQuadBufferKey);
 void GrDrawAtlasPathOp::onPrepare(GrOpFlushState* flushState) {
     if (!fProgram) {
         this->prepareProgram(flushState->caps(), flushState->allocator(), flushState->writeView(),
-                             flushState->detachAppliedClip(), flushState->dstProxyView(),
-                             flushState->renderPassBarriers(), flushState->colorLoadOp());
+                             flushState->usesMSAASurface(), flushState->detachAppliedClip(),
+                             flushState->dstProxyView(), flushState->renderPassBarriers(),
+                             flushState->colorLoadOp());
         SkASSERT(fProgram);
     }
+
+    // FIXME(skbug.com/12201): Our draw's MSAA state should match the render target, but DDL doesn't
+    // yet communicate DMSAA state to onPrePrepare.
+    SkASSERT(fProgram->pipeline().isHWAntialiasState() == flushState->usesMSAASurface());
 
     if (GrVertexWriter instanceWriter = flushState->makeVertexSpace(
                 fProgram->geomProc().instanceStride(), fInstanceCount, &fInstanceBuffer,

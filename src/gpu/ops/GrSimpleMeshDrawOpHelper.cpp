@@ -217,7 +217,8 @@ GrProgramInfo* GrSimpleMeshDrawOpHelper::createProgramInfo(
                                             GrGeometryProcessor* gp,
                                             GrPrimitiveType primType,
                                             GrXferBarrierFlags renderPassXferBarriers,
-                                            GrLoadOp colorLoadOp) {
+                                            GrLoadOp colorLoadOp,
+                                            GrPipeline::InputFlags extraPipelineFlags) {
     return CreateProgramInfo(caps,
                              arena,
                              writeView,
@@ -228,7 +229,7 @@ GrProgramInfo* GrSimpleMeshDrawOpHelper::createProgramInfo(
                              primType,
                              renderPassXferBarriers,
                              colorLoadOp,
-                             this->pipelineFlags());
+                             this->pipelineFlags() | extraPipelineFlags);
 }
 
 #if GR_TEST_UTILS
