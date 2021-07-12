@@ -73,7 +73,7 @@ public:
      */
     void addOnFlushCallbackObject(GrOnFlushCallbackObject*);
 
-    GrAuditTrail* auditTrail() { return fContext->auditTrail(); }
+    GrAuditTrail* auditTrail() { return fContext->fAuditTrail.get(); }
 
 #if GR_TEST_UTILS
     // Used by tests that intentionally exercise codepaths that print warning messages, in order to

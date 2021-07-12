@@ -11,7 +11,6 @@
 #include "include/private/SkSemaphore.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/core/SkTraceEvent.h"
-#include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrDeferredProxyUploader.h"
@@ -225,8 +224,8 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 // return true on success; false on failure
 bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
-    GR_AUDIT_TRAIL_AUTO_FRAME(args.fSurfaceDrawContext->auditTrail(),
-                              "GrSoftwarePathRenderer::onDrawPath");
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrSoftwarePathRenderer", "onDrawPath", args.fContext);
+
     if (!fProxyProvider) {
         return false;
     }
