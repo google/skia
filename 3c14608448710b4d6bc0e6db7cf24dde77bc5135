@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "795fbee5_48d2b6e3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-07-12T20:14:13Z",
+      "side": 1,
+      "message": "still +1, lots cleaner now, just one spot around use of the audit trail macros in path renderers (vs. ops)",
+      "revId": "3c14608448710b4d6bc0e6db7cf24dde77bc5135",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "418d9d6b_7b964896",
+        "filename": "src/gpu/GrSoftwarePathRenderer.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-07-12T20:14:13Z",
+      "side": 1,
+      "message": "should this stay with audit-trail macro like the other path renderers? or should they be updated to use the trace marker macro?",
+      "range": {
+        "startLine": 227,
+        "startChar": 4,
+        "endLine": 227,
+        "endChar": 34
+      },
+      "revId": "3c14608448710b4d6bc0e6db7cf24dde77bc5135",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
