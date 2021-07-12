@@ -70,6 +70,30 @@
       },
       "revId": "df6ffc59dc058c8470b114ad75ba57027b21aed5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "180d9351_2fff1a9f",
+        "filename": "src/sksl/ir/SkSLSwizzle.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-07-12T17:37:29Z",
+      "side": 1,
+      "message": "Change it \"back\" to isScalar? I copied-and-pasted this code; it was isNumber to begin with.\n\nWhile I certainly don\u0027t have an issue with fixing bool swizzles, it seems like we should go ahead and land this as-is and worry about bool swizzles as a followup.",
+      "parentUuid": "8df97828_ca932a73",
+      "range": {
+        "startLine": 135,
+        "startChar": 42,
+        "endLine": 135,
+        "endChar": 50
+      },
+      "revId": "df6ffc59dc058c8470b114ad75ba57027b21aed5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
