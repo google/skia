@@ -378,6 +378,8 @@ sksl_shared_tests = [
   "/sksl/shared/SwizzleLTRB.sksl",
   "/sksl/shared/SwizzleOpt.sksl",
   "/sksl/shared/SwizzleScalar.sksl",
+  "/sksl/shared/SwizzleScalarBool.sksl",
+  "/sksl/shared/SwizzleScalarInt.sksl",
   "/sksl/shared/TernaryAsLValueEntirelyFoldable.sksl",
   "/sksl/shared/TernaryAsLValueFoldableTest.sksl",
   "/sksl/shared/TernaryExpression.sksl",
