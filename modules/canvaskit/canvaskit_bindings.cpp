@@ -914,9 +914,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         // TODO: deprecate this version, and require sampling
         .function("drawImage", optional_override([](SkCanvas& self, const sk_sp<SkImage>& image,
                                                     SkScalar x, SkScalar y, const SkPaint* paint) {
-            SkSamplingOptions sampling(paint ? paint->getFilterQuality()
-                                             : kNone_SkFilterQuality);
-            self.drawImage(image.get(), x, y, sampling, paint);
+            self.drawImage(image.get(), x, y, SkSamplingOptions(), paint);
         }), allow_raw_pointers())
         .function("drawImageCubic",  optional_override([](SkCanvas& self, const sk_sp<SkImage>& img,
                                                           SkScalar left, SkScalar top,
@@ -945,9 +943,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
                                                          const SkPaint* paint, bool fastSample)->void {
             const SkRect* src = reinterpret_cast<const SkRect*>(srcPtr);
             const SkRect* dst = reinterpret_cast<const SkRect*>(dstPtr);
-            SkSamplingOptions sampling(paint ? paint->getFilterQuality()
-                                             : kNone_SkFilterQuality);
-            self.drawImageRect(image, *src, *dst, sampling, paint,
+            self.drawImageRect(image, *src, *dst, SkSamplingOptions(), paint,
                                fastSample ? SkCanvas::kFast_SrcRectConstraint:
                                             SkCanvas::kStrict_SrcRectConstraint);
         }), allow_raw_pointers())
@@ -1373,7 +1369,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
             float* fourFloats = reinterpret_cast<float*>(cPtr);
             memcpy(fourFloats, c.vec(), 4 * sizeof(SkScalar));
         }))
-        .function("getFilterQuality", &SkPaint::getFilterQuality)
         .function("getStrokeCap", &SkPaint::getStrokeCap)
         .function("getStrokeJoin", &SkPaint::getStrokeJoin)
         .function("getStrokeMiter", &SkPaint::getStrokeMiter)
@@ -1393,7 +1388,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
             self.setColor(SkColor4f::FromColor(color), colorSpace.get());
         }))
         .function("setColorFilter", &SkPaint::setColorFilter)
-        .function("setFilterQuality", &SkPaint::setFilterQuality)
         .function("setImageFilter", &SkPaint::setImageFilter)
         .function("setMaskFilter", &SkPaint::setMaskFilter)
         .function("setPathEffect", &SkPaint::setPathEffect)
