@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "17f99733_e1a07672",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-07-12T13:05:50Z",
+      "side": 1,
+      "message": "I guess I\u0027m wondering if it\u0027s really worth all the ifdef\u0027ing to remove this from the context for non-v1 builds. I\u0027m also questioning the value of v2-only builds at this point.",
+      "revId": "8f4056a9b24bda277651771b20ec6a65db4272b7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
