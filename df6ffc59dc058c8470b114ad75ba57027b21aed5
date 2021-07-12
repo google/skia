@@ -46,6 +46,30 @@
       },
       "revId": "df6ffc59dc058c8470b114ad75ba57027b21aed5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8df97828_ca932a73",
+        "filename": "src/sksl/ir/SkSLSwizzle.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-12T17:00:38Z",
+      "side": 1,
+      "message": "Existing non-workage filed as skia:12195\n\nI\u0027ll make bools work with swizzles, please change this back to `isScalar`.",
+      "parentUuid": "3e57e6cd_7cc8353f",
+      "range": {
+        "startLine": 135,
+        "startChar": 42,
+        "endLine": 135,
+        "endChar": 50
+      },
+      "revId": "df6ffc59dc058c8470b114ad75ba57027b21aed5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
