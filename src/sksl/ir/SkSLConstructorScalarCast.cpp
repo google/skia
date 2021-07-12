@@ -69,9 +69,15 @@ std::unique_ptr<Expression> ConstructorScalarCast::Convert(const Context& contex
 
     const Type& argType = args[0]->type();
     if (!argType.isScalar()) {
-        context.fErrors.error(offset, "invalid argument to '" + type.displayName() +
-                                      "' constructor (expected a number or bool, but found '" +
-                                      argType.displayName() + "')");
+        // Casting a vector-type into its scalar component type is treated as a slice in GLSL.
+        // We don't allow those casts in SkSL; recommend a .x swizzle instead.
+        const char* swizzleHint = (argType.isVector() && argType.componentType() == type)
+                ? "; use '.x' instead"
+                : "";
+
+        context.fErrors.error(offset,
+                              "'" + argType.displayName() + "' is not a valid parameter to '" +
+                              type.displayName() + "' constructor" + swizzleHint);
         return nullptr;
     }
 
