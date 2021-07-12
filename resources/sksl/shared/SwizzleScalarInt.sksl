@@ -1,0 +1,11 @@
+uniform half unknownInput; // 1
+
+half4 main(float2 coords) {
+    int i = int(unknownInput);
+    int4 i4 = i.xxxx;
+    i4 = i.xx01;
+    i4 = i.0x10;
+    i4 = i.0x0x;
+
+    return half4(i4);
+}
