@@ -16,6 +16,24 @@
       "message": "Tangential question: Were the other forms of mix() previously just returning false here, then going through the normal (non-intrinsic) call path? That\u0027s what it looks like. That does some extra work around requirements, etc... Should we have:\n\n  default: this-\u003ewriteSimpleIntrinsic(c);\n  \n???",
       "revId": "9ec2038b1de95094ae6874859f8f660a455e0e44",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cbd8b1e0_5fff27e7",
+        "filename": "src/sksl/codegen/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 762,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-12T13:46:41Z",
+      "side": 1,
+      "message": "Yes, it goes through the regular function-call path for intrinsics that don\u0027t have a case in this switch.\n\nThe workarounds in writeFunctionCall are meaningful/valid for intrinsics too. They allow swizzled out-params to work (and are otherwise harmless). In practice this is meaningful for `modf` and `frexp`; without the workaround code, passing a swizzle to modf would generate invalid Metal.\n\nWe do have a test for this: http://osscs/skia/skia/+/main:tests/sksl/intrinsics/Modf.metal?q\u003dModf.metal",
+      "parentUuid": "3cc73925_e7926761",
+      "revId": "9ec2038b1de95094ae6874859f8f660a455e0e44",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
