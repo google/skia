@@ -22,6 +22,30 @@
       },
       "revId": "25a29e815d7bd77fb2f73c8a2129a09c63e82435",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e88af634_3584293c",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 4652,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-07-12T18:42:05Z",
+      "side": 0,
+      "message": "Yes, because otherwise we would lose DMSAA support completely on desktop. My plan is to keep using dmsaa on desktop (and let it trigger more often since we are removing multisampleDisableSupport), and then follow up with CLs to fix the AA outsetting in the common AA stroke ops.",
+      "parentUuid": "2227b758_67220c96",
+      "range": {
+        "startLine": 4652,
+        "startChar": 11,
+        "endLine": 4652,
+        "endChar": 69
+      },
+      "revId": "25a29e815d7bd77fb2f73c8a2129a09c63e82435",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
