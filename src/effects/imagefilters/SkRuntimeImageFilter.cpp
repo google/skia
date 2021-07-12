@@ -17,6 +17,8 @@
 #include "src/core/SkWriteBuffer.h"
 #include "src/effects/imagefilters/SkRuntimeImageFilter.h"
 
+#ifdef SK_ENABLE_SKSL
+
 namespace {
 
 class SkRuntimeImageFilter final : public SkImageFilter_Base {
@@ -137,3 +139,5 @@ sk_sp<SkSpecialImage> SkRuntimeImageFilter::onFilterImage(const Context& ctx,
     *offset = outputBounds.topLeft();
     return surf->makeImageSnapshot();
 }
+
+#endif  // SK_ENABLE_SKSL

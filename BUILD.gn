@@ -41,6 +41,9 @@ config("skia_public") {
   if (!skia_enable_gpu) {
     defines += [ "SK_SUPPORT_GPU=0" ]
   }
+  if (skia_enable_sksl) {
+    defines += [ "SK_ENABLE_SKSL" ]
+  }
   if (is_fuchsia) {
     defines += fuchsia_defines
   }
@@ -1217,7 +1220,6 @@ skia_component("skia") {
     ":armv7",
     ":avx",
     ":crc32",
-    ":dehydrate_sksl",
     ":fontmgr_factory",
     ":gif",
     ":heif",
@@ -1251,7 +1253,6 @@ skia_component("skia") {
   sources += skia_utils_sources
   sources += skia_effects_sources
   sources += skia_effects_imagefilter_sources
-  sources += skia_sksl_sources
   sources += [
     "src/android/SkAndroidFrameworkUtils.cpp",
     "src/android/SkAnimatedImage.cpp",
@@ -1286,6 +1287,11 @@ skia_component("skia") {
 
   defines = [ "SK_HAS_ANDROID_CODEC" ]
   libs = []
+
+  if (skia_enable_sksl) {
+    deps += [ ":dehydrate_sksl" ]
+    sources += skia_sksl_sources
+  }
 
   if (is_win) {
     sources += [
