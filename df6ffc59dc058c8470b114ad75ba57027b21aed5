@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "155a84be_b5b1fd09",
+        "filename": "src/sksl/ir/SkSLSwizzle.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-12T16:34:34Z",
+      "side": 1,
+      "message": "Can\u0027t you swizzle any scalar, not just numbers? I would have expected this to work (but I guess we don\u0027t have a test?):\n\n  bool b \u003d true;\n  b.xxxx \u003d\u003d bool4(true, true, true, true)",
+      "range": {
+        "startLine": 135,
+        "startChar": 42,
+        "endLine": 135,
+        "endChar": 50
+      },
+      "revId": "df6ffc59dc058c8470b114ad75ba57027b21aed5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
