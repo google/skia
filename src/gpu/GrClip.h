@@ -62,8 +62,8 @@ public:
      * clips). If kNoDraw is returned, 'bounds' and the applied clip are in an undetermined state
      * and should be ignored (and the draw should be skipped).
      */
-    virtual Effect apply(GrRecordingContext*, GrSurfaceDrawContext*, const GrDrawOp* opBeingClipped,
-                         GrAAType, GrAppliedClip*, SkRect* bounds) const = 0;
+    virtual Effect apply(GrRecordingContext*, GrSurfaceDrawContext*, GrDrawOp*, GrAAType,
+                         GrAppliedClip*, SkRect* bounds) const = 0;
 
     /**
      * Perform preliminary, conservative analysis on the draw bounds as if it were provided to
@@ -243,8 +243,8 @@ public:
     virtual Effect apply(GrAppliedHardClip* out, SkIRect* bounds) const = 0;
 
 private:
-    Effect apply(GrRecordingContext*, GrSurfaceDrawContext* rtc, const GrDrawOp* opBeingClipped,
-                 GrAAType aa, GrAppliedClip* out, SkRect* bounds) const final {
+    Effect apply(GrRecordingContext*, GrSurfaceDrawContext* rtc, GrDrawOp*, GrAAType aa,
+                 GrAppliedClip* out, SkRect* bounds) const final {
         SkIRect pixelBounds = GetPixelIBounds(*bounds, GrAA(aa != GrAAType::kNone));
         Effect effect = this->apply(&out->hardClip(), &pixelBounds);
         bounds->intersect(SkRect::Make(pixelBounds));

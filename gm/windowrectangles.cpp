@@ -175,7 +175,7 @@ private:
     SkIRect getConservativeBounds() const final {
         return SkIRect::MakeXYWH(fX, fY, fMask.width(), fMask.height());
     }
-    Effect apply(GrRecordingContext* ctx, GrSurfaceDrawContext*, const GrDrawOp*, GrAAType,
+    Effect apply(GrRecordingContext* ctx, GrSurfaceDrawContext*, GrDrawOp*, GrAAType,
                  GrAppliedClip* out, SkRect* bounds) const override {
         GrSamplerState samplerState(GrSamplerState::WrapMode::kClampToBorder,
                                     GrSamplerState::Filter::kNearest);
