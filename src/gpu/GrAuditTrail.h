@@ -8,6 +8,8 @@
 #ifndef GrAuditTrail_DEFINED
 #define GrAuditTrail_DEFINED
 
+#if SK_GPU_V1
+
 #include "include/core/SkRect.h"
 #include "include/core/SkString.h"
 #include "include/gpu/GrConfig.h"
@@ -171,5 +173,15 @@ private:
 
 #define GR_AUDIT_TRAIL_OPS_RESULT_COMBINED(audit_trail, combineWith, op) \
     GR_AUDIT_TRAIL_INVOKE_GUARD(audit_trail, opsCombined, combineWith, op)
+
+#else // SK_GPU_V1
+
+class GrAuditTrail {
+public:
+};
+
+#define GR_AUDIT_TRAIL_AUTO_FRAME(audit_trail, framename)
+
+#endif // SK_GPU_V1
 
 #endif

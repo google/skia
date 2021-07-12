@@ -112,7 +112,7 @@ bool GrDrawingManager::flush(
         return false;
     }
 
-    SkDEBUGCODE(this->validate());
+//    SkDEBUGCODE(this->validate());
 
     // As of now we only short-circuit if we got an explicit list of surfaces to flush.
     if (!proxies.empty() && !info.fNumSemaphores && !info.fFinishedProc &&
@@ -371,7 +371,7 @@ void GrDrawingManager::sortTasks() {
         return;
     }
 
-#ifdef SK_DEBUG
+#if SK_GPU_V1 && defined(SK_DEBUG)
     // This block checks for any unnecessary splits in the opsTasks. If two sequential opsTasks
     // could have merged it means the opsTask was artificially split.
     if (!fDAG.empty()) {
@@ -428,6 +428,7 @@ bool GrDrawingManager::reorderTasks(GrResourceAllocator* resourceAllocator) {
     int newCount = 0;
     for (int i = 0; i < fDAG.count(); i++) {
         sk_sp<GrRenderTask>& task = fDAG[i];
+#if SK_GPU_V1
         if (auto opsTask = task->asOpsTask()) {
             size_t remaining = fDAG.size() - i - 1;
             SkSpan<sk_sp<GrRenderTask>> nextTasks{fDAG.end() - remaining, remaining};
@@ -437,6 +438,7 @@ bool GrDrawingManager::reorderTasks(GrResourceAllocator* resourceAllocator) {
             }
             i += removeCount;
         }
+#endif
         fDAG[newCount++] = std::move(task);
     }
     fDAG.resize_back(newCount);
@@ -518,7 +520,7 @@ GrSemaphoresSubmitted GrDrawingManager::flushSurfaces(
         }
         return GrSemaphoresSubmitted::kNo;
     }
-    SkDEBUGCODE(this->validate());
+//    SkDEBUGCODE(this->validate());
 
     auto direct = fContext->asDirectContext();
     SkASSERT(direct);
@@ -534,7 +536,7 @@ GrSemaphoresSubmitted GrDrawingManager::flushSurfaces(
         resolve_and_mipmap(gpu, proxy);
     }
 
-    SkDEBUGCODE(this->validate());
+//    SkDEBUGCODE(this->validate());
 
     if (!didFlush || (!direct->priv().caps()->semaphoreSupport() && info.fNumSemaphores)) {
         return GrSemaphoresSubmitted::kNo;
@@ -581,7 +583,7 @@ GrOpsTask* GrDrawingManager::getLastOpsTask(const GrSurfaceProxy* proxy) const {
 
 
 void GrDrawingManager::moveRenderTasksToDDL(SkDeferredDisplayList* ddl) {
-    SkDEBUGCODE(this->validate());
+//    SkDEBUGCODE(this->validate());
 
     // no renderTask should receive a new command after this
     this->closeAllTasks();
@@ -601,14 +603,15 @@ void GrDrawingManager::moveRenderTasksToDDL(SkDeferredDisplayList* ddl) {
 
     fContext->priv().detachProgramData(&ddl->fProgramData);
 
-    SkDEBUGCODE(this->validate());
+//    SkDEBUGCODE(this->validate());
 }
 
 void GrDrawingManager::createDDLTask(sk_sp<const SkDeferredDisplayList> ddl,
                                      sk_sp<GrRenderTargetProxy> newDest,
                                      SkIPoint offset) {
-    SkDEBUGCODE(this->validate());
+//    SkDEBUGCODE(this->validate());
 
+#if SK_GPU_V1
     if (fActiveOpsTask) {
         // This is a temporary fix for the partial-MDB world. In that world we're not
         // reordering so ops that (in the single opsTask world) would've just glommed onto the
@@ -617,6 +620,7 @@ void GrDrawingManager::createDDLTask(sk_sp<const SkDeferredDisplayList> ddl,
         fActiveOpsTask->makeClosed(fContext);
         fActiveOpsTask = nullptr;
     }
+#endif
 
     // Propagate the DDL proxy's state information to the replay target.
     if (ddl->priv().targetProxy()->isMSAADirty()) {
@@ -642,10 +646,10 @@ void GrDrawingManager::createDDLTask(sk_sp<const SkDeferredDisplayList> ddl,
                                                                        offset));
     SkASSERT(ddlTask->isClosed());
 
-    SkDEBUGCODE(this->validate());
+//    SkDEBUGCODE(this->validate());
 }
 
-#ifdef SK_DEBUG
+#if SK_GPU_V1 && defined(SK_DEBUG)
 void GrDrawingManager::validate() const {
     if (fActiveOpsTask) {
         SkASSERT(!fDAG.empty());
@@ -681,6 +685,7 @@ void GrDrawingManager::validate() const {
 #endif
 
 void GrDrawingManager::closeActiveOpsTask() {
+#if SK_GPU_V1
     if (fActiveOpsTask) {
         // This is a temporary fix for the partial-MDB world. In that world we're not
         // reordering so ops that (in the single opsTask world) would've just glommed onto the
@@ -689,12 +694,14 @@ void GrDrawingManager::closeActiveOpsTask() {
         fActiveOpsTask->makeClosed(fContext);
         fActiveOpsTask = nullptr;
     }
+#endif
 }
 
+#if SK_GPU_V1
 sk_sp<GrOpsTask> GrDrawingManager::newOpsTask(GrSurfaceProxyView surfaceView,
                                               sk_sp<GrArenas> arenas,
                                               bool flushTimeOpsTask) {
-    SkDEBUGCODE(this->validate());
+//    SkDEBUGCODE(this->validate());
     SkASSERT(fContext);
 
     this->closeActiveOpsTask();
@@ -713,13 +720,13 @@ sk_sp<GrOpsTask> GrDrawingManager::newOpsTask(GrSurfaceProxyView surfaceView,
         fActiveOpsTask = opsTask.get();
     }
 
-    SkDEBUGCODE(this->validate());
+//    SkDEBUGCODE(this->validate());
     return opsTask;
 }
 
 void GrDrawingManager::addAtlasTask(sk_sp<GrRenderTask> atlasTask,
                                     GrRenderTask* previousAtlasTask) {
-    SkDEBUGCODE(this->validate());
+    //SkDEBUGCODE(this->validate());
     SkASSERT(fContext);
 
     if (previousAtlasTask) {
@@ -740,8 +747,9 @@ void GrDrawingManager::addAtlasTask(sk_sp<GrRenderTask> atlasTask,
     atlasTask->setFlag(GrRenderTask::kAtlas_Flag);
     this->insertTaskBeforeLast(std::move(atlasTask));
 
-    SkDEBUGCODE(this->validate());
+//    SkDEBUGCODE(this->validate());
 }
+#endif
 
 GrTextureResolveRenderTask* GrDrawingManager::newTextureResolveRenderTask(const GrCaps& caps) {
     // Unlike in the "new opsTask" case, we do not want to close the active opsTask, nor (if we are
@@ -760,13 +768,14 @@ GrTextureResolveRenderTask* GrDrawingManager::newTextureResolveRenderTask(const 
 void GrDrawingManager::newWaitRenderTask(sk_sp<GrSurfaceProxy> proxy,
                                          std::unique_ptr<std::unique_ptr<GrSemaphore>[]> semaphores,
                                          int numSemaphores) {
-    SkDEBUGCODE(this->validate());
+//    SkDEBUGCODE(this->validate());
     SkASSERT(fContext);
 
     sk_sp<GrWaitRenderTask> waitTask = sk_make_sp<GrWaitRenderTask>(GrSurfaceProxyView(proxy),
                                                                     std::move(semaphores),
                                                                     numSemaphores);
 
+#if SK_GPU_V1
     if (fActiveOpsTask && (fActiveOpsTask->target(0) == proxy.get())) {
         SkASSERT(this->getLastRenderTask(proxy.get()) == fActiveOpsTask);
         this->insertTaskBeforeLast(waitTask);
@@ -784,7 +793,9 @@ void GrDrawingManager::newWaitRenderTask(sk_sp<GrSurfaceProxy> proxy,
         // get a circular self dependency of waitTask on waitTask.
         waitTask->addDependenciesFromOtherTask(fActiveOpsTask);
         fActiveOpsTask->addDependency(waitTask.get());
-    } else {
+    } else
+#endif
+    {
         // In this case we just close the previous RenderTask and start and append the waitTask
         // to the DAG. Since it is the last task now we call setLastRenderTask on the proxy. If
         // there is a lastTask on the proxy we make waitTask depend on that task. This
@@ -799,7 +810,7 @@ void GrDrawingManager::newWaitRenderTask(sk_sp<GrSurfaceProxy> proxy,
     }
     waitTask->makeClosed(fContext);
 
-    SkDEBUGCODE(this->validate());
+//    SkDEBUGCODE(this->validate());
 }
 
 void GrDrawingManager::newTransferFromRenderTask(sk_sp<GrSurfaceProxy> srcProxy,
@@ -808,7 +819,7 @@ void GrDrawingManager::newTransferFromRenderTask(sk_sp<GrSurfaceProxy> srcProxy,
                                                  GrColorType dstColorType,
                                                  sk_sp<GrGpuBuffer> dstBuffer,
                                                  size_t dstOffset) {
-    SkDEBUGCODE(this->validate());
+//    SkDEBUGCODE(this->validate());
     SkASSERT(fContext);
     this->closeActiveOpsTask();
 
@@ -827,7 +838,7 @@ void GrDrawingManager::newTransferFromRenderTask(sk_sp<GrSurfaceProxy> srcProxy,
     // We have closed the previous active oplist but since a new oplist isn't being added there
     // shouldn't be an active one.
     SkASSERT(!fActiveOpsTask);
-    SkDEBUGCODE(this->validate());
+//    SkDEBUGCODE(this->validate());
 }
 
 sk_sp<GrRenderTask> GrDrawingManager::newCopyRenderTask(sk_sp<GrSurfaceProxy> src,
@@ -835,7 +846,7 @@ sk_sp<GrRenderTask> GrDrawingManager::newCopyRenderTask(sk_sp<GrSurfaceProxy> sr
                                                         sk_sp<GrSurfaceProxy> dst,
                                                         SkIPoint dstPoint,
                                                         GrSurfaceOrigin origin) {
-    SkDEBUGCODE(this->validate());
+//    SkDEBUGCODE(this->validate());
     SkASSERT(fContext);
 
     // It'd be nicer to check this in GrCopyRenderTask::Make. This gets complicated because of
@@ -871,7 +882,7 @@ sk_sp<GrRenderTask> GrDrawingManager::newCopyRenderTask(sk_sp<GrSurfaceProxy> sr
     // We have closed the previous active oplist but since a new oplist isn't being added there
     // shouldn't be an active one.
     SkASSERT(!fActiveOpsTask);
-    SkDEBUGCODE(this->validate());
+//    SkDEBUGCODE(this->validate());
     return task;
 }
 
@@ -881,7 +892,7 @@ bool GrDrawingManager::newWritePixelsTask(sk_sp<GrSurfaceProxy> dst,
                                           GrColorType dstColorType,
                                           const GrMipLevel levels[],
                                           int levelCount) {
-    SkDEBUGCODE(this->validate());
+//    SkDEBUGCODE(this->validate());
     SkASSERT(fContext);
 
     this->closeActiveOpsTask();
@@ -912,7 +923,7 @@ bool GrDrawingManager::newWritePixelsTask(sk_sp<GrSurfaceProxy> dst,
     // We have closed the previous active oplist but since a new oplist isn't being added there
     // shouldn't be an active one.
     SkASSERT(!fActiveOpsTask);
-    SkDEBUGCODE(this->validate());
+//    SkDEBUGCODE(this->validate());
     return true;
 }
 

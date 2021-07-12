@@ -8,6 +8,10 @@
 #ifndef GrSurfaceDrawContext_DEFINED
 #define GrSurfaceDrawContext_DEFINED
 
+#include "include/gpu/GrTypes.h"
+
+#if SK_GPU_V1
+
 #include "include/core/SkCanvas.h"
 #include "include/core/SkDrawable.h"
 #include "include/core/SkRefCnt.h"
@@ -602,6 +606,8 @@ public:
 
     // Allows caller of addDrawOp to know which op list an op will be added to.
     using WillAddOpFn = void(GrOp*, uint32_t opsTaskID);
+
+#if SK_GPU_V1
     // These perform processing specific to GrDrawOp-derived ops before recording them into an
     // op list. Before adding the op to an op list the WillAddOpFn is called. Note that it
     // will not be called in the event that the op is discarded. Moreover, the op may merge into
@@ -612,6 +618,7 @@ public:
                    GrOp::Owner,
                    const std::function<WillAddOpFn>& = std::function<WillAddOpFn>());
     void addDrawOp(GrOp::Owner op) { this->addDrawOp(nullptr, std::move(op)); }
+#endif
 
     bool refsWrappedObjects() const { return this->asRenderTargetProxy()->refsWrappedObjects(); }
 
@@ -652,7 +659,10 @@ private:
 
     GrAAType chooseAAType(GrAA);
 
+#if SK_GPU_V1
     GrOpsTask::CanDiscardPreviousOps canDiscardPreviousOpsOnFullClear() const override;
+#endif
+
     void setNeedsStencil();
 
     void internalStencilClear(const SkIRect* scissor, bool insideStencilMask);
@@ -731,5 +741,128 @@ private:
     SkGlyphRunListPainter fGlyphPainter;
     using INHERITED = GrSurfaceFillContext;
 };
+
+#else
+
+#include "include/core/SkCanvas.h"
+
+#include "src/gpu/GrSurfaceFillContext.h"
+
+class GrClip;
+class SkSurfaceProps;
+
+class GrSurfaceDrawContext : public GrSurfaceFillContext {
+public:
+    GrSurfaceDrawContext(GrRecordingContext* rContext,
+                         GrSurfaceProxyView readView,
+                         GrSurfaceProxyView writeView,
+                         GrColorType colorType,
+                         sk_sp<SkColorSpace> colorSpace,
+                         const SkSurfaceProps& surfaceProps,
+                         bool flushTimeOpsTask = false)
+        : INHERITED(rContext,
+                    std::move(readView),
+                    std::move(writeView),
+                    {colorType, kPremul_SkAlphaType, std::move(colorSpace)},
+                    flushTimeOpsTask)
+        , fSurfaceProps(surfaceProps) {
+    }
+
+    static std::unique_ptr<GrSurfaceDrawContext> Make(GrRecordingContext*,
+                                                      GrColorType,
+                                                      sk_sp<GrSurfaceProxy>,
+                                                      sk_sp<SkColorSpace>,
+                                                      GrSurfaceOrigin,
+                                                      const SkSurfaceProps&,
+                                                      bool flushTimeOpsTask = false) {
+        return nullptr;
+    }
+
+    static std::unique_ptr<GrSurfaceDrawContext> Make(GrRecordingContext*,
+                                                      GrColorType,
+                                                      sk_sp<SkColorSpace>,
+                                                      SkBackingFit,
+                                                      SkISize dimensions,
+                                                      const SkSurfaceProps&,
+                                                      int sampleCnt = 1,
+                                                      GrMipmapped = GrMipmapped::kNo,
+                                                      GrProtected = GrProtected::kNo,
+                                                      GrSurfaceOrigin = kBottomLeft_GrSurfaceOrigin,
+                                                      SkBudgeted = SkBudgeted::kYes) {
+        return nullptr;
+    }
+
+    static std::unique_ptr<GrSurfaceDrawContext> MakeWithFallback(
+            GrRecordingContext*,
+            GrColorType,
+            sk_sp<SkColorSpace>,
+            SkBackingFit,
+            SkISize dimensions,
+            const SkSurfaceProps&,
+            int sampleCnt = 1,
+            GrMipmapped = GrMipmapped::kNo,
+            GrProtected = GrProtected::kNo,
+            GrSurfaceOrigin = kBottomLeft_GrSurfaceOrigin,
+            SkBudgeted = SkBudgeted::kYes) {
+        return nullptr;
+    }
+
+    const SkSurfaceProps& surfaceProps() const { return fSurfaceProps; }
+
+    GrRecordingContext* recordingContext() { return nullptr; }
+    GrColorInfo colorInfo() const { return {}; }  // WRONG
+
+    void drawTexture(const GrClip*,
+                     GrSurfaceProxyView,
+                     SkAlphaType,
+                     GrSamplerState::Filter,
+                     GrSamplerState::MipmapMode,
+                     SkBlendMode,
+                     const SkPMColor4f&,
+                     const SkRect& srcRect,
+                     const SkRect& dstRect,
+                     GrAA,
+                     GrQuadAAFlags,
+                     SkCanvas::SrcRectConstraint,
+                     const SkMatrix&,
+                     sk_sp<GrColorSpaceXform>) {}
+
+    void drawRect(const GrClip*,
+                  GrPaint&& paint,
+                  GrAA,
+                  const SkMatrix& viewMatrix,
+                  const SkRect&,
+                  const GrStyle* style = nullptr) {}
+
+    void drawPath(const GrClip*,
+                  GrPaint&&,
+                  GrAA,
+                  const SkMatrix& viewMatrix,
+                  const SkPath&,
+                  const GrStyle&) {}
+
+    void drawVertices(const GrClip*,
+                      GrPaint&& paint,
+                      const SkMatrixProvider& matrixProvider,
+                      sk_sp<SkVertices> vertices,
+                      GrPrimitiveType* overridePrimType = nullptr,
+                      const SkRuntimeEffect* effect = nullptr);
+
+    void drawOval(const GrClip*,
+                  GrPaint&& paint,
+                  GrAA,
+                  const SkMatrix& viewMatrix,
+                  const SkRect& oval,
+                  const GrStyle& style) {}
+
+    void clearStencilClip(const SkIRect& scissor, bool insideStencilMask) {}
+
+private:
+    const SkSurfaceProps fSurfaceProps;
+
+    using INHERITED = GrSurfaceFillContext;
+};
+
+#endif // SK_GPU_V1
 
 #endif

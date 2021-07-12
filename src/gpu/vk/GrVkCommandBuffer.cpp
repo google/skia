@@ -8,6 +8,7 @@
 #include "src/gpu/vk/GrVkCommandBuffer.h"
 
 #include "include/core/SkRect.h"
+#include "src/core/SkTraceEvent.h"
 #include "src/gpu/vk/GrVkBuffer.h"
 #include "src/gpu/vk/GrVkCommandPool.h"
 #include "src/gpu/vk/GrVkFramebuffer.h"

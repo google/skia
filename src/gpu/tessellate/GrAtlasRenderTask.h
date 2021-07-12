@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#if 0
 #ifndef GrGrAtlasRenderTask_DEFINED
 #define GrGrAtlasRenderTask_DEFINED
 
@@ -64,4 +65,5 @@ private:
     SkPath fUberPaths[4];  // 2 fillTypes * 2 antialias modes.
 };
 
+#endif
 #endif

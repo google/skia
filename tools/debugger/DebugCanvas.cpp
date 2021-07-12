@@ -151,7 +151,7 @@ void DebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
     }
 
     for (int i = 0; i <= index; i++) {
-        GrAuditTrail::AutoCollectOps* acb = nullptr;
+    //    GrAuditTrail::AutoCollectOps* acb = nullptr;
         if (at) {
             // We need to flush any pending operations, or they might combine with commands below.
             // Previous operations were not registered with the audit trail when they were
@@ -159,14 +159,14 @@ void DebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
             if (dContext) {
                 dContext->flush();
             }
-            acb = new GrAuditTrail::AutoCollectOps(at, i);
+//            acb = new GrAuditTrail::AutoCollectOps(at, i);
         }
         if (fCommandVector[i]->isVisible()) {
             fCommandVector[i]->execute(finalCanvas);
         }
-        if (at && acb) {
-            delete acb;
-        }
+  //      if (at && acb) {
+//            delete acb;
+//        }
     }
 
     if (SkColorGetA(fClipVizColor) != 0) {
@@ -196,6 +196,7 @@ void DebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
         finalCanvas->drawRect(fAndroidClip, androidClipPaint);
     }
 
+#if 0
     // draw any ops if required and issue a full reset onto GrAuditTrail
     if (at) {
         // just in case there is global reordering, we flush the canvas before querying
@@ -248,6 +249,8 @@ void DebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
         }
         finalCanvas->restore();
     }
+#endif
+
     this->cleanupAuditTrail(originalCanvas);
 }
 
@@ -277,13 +280,13 @@ void DebugCanvas::drawAndCollectOps(SkCanvas* canvas) {
         // loop over all of the commands and draw them, this is to collect reordering
         // information
         for (int i = 0; i < this->getSize(); i++) {
-            GrAuditTrail::AutoCollectOps enable(at, i);
+//            GrAuditTrail::AutoCollectOps enable(at, i);
             fCommandVector[i]->execute(canvas);
         }
 
         // in case there is some kind of global reordering
         {
-            GrAuditTrail::AutoEnable ae(at);
+//            GrAuditTrail::AutoEnable ae(at);
 
             auto dContext = GrAsDirectContext(canvas->recordingContext());
             if (dContext) {
@@ -294,11 +297,13 @@ void DebugCanvas::drawAndCollectOps(SkCanvas* canvas) {
 }
 
 void DebugCanvas::cleanupAuditTrail(SkCanvas* canvas) {
+#if 0
     GrAuditTrail* at = this->getAuditTrail(canvas);
     if (at) {
         GrAuditTrail::AutoEnable ae(at);
         at->fullReset();
     }
+#endif
 }
 
 void DebugCanvas::toJSON(SkJSONWriter&   writer,
@@ -307,7 +312,9 @@ void DebugCanvas::toJSON(SkJSONWriter&   writer,
     this->drawAndCollectOps(canvas);
 
     // now collect json
+#if 0
     GrAuditTrail* at = this->getAuditTrail(canvas);
+#endif
     writer.appendS32(SKDEBUGCANVAS_ATTRIBUTE_VERSION, SKDEBUGCANVAS_VERSION);
     writer.beginArray(SKDEBUGCANVAS_ATTRIBUTE_COMMANDS);
 
@@ -315,10 +322,12 @@ void DebugCanvas::toJSON(SkJSONWriter&   writer,
         writer.beginObject();  // command
         this->getDrawCommandAt(i)->toJSON(writer, urlDataManager);
 
+#if 0
         if (at) {
             writer.appendName(SKDEBUGCANVAS_ATTRIBUTE_AUDITTRAIL);
             at->toJson(writer, i);
         }
+#endif
         writer.endObject();  // command
     }
 
@@ -329,11 +338,14 @@ void DebugCanvas::toJSON(SkJSONWriter&   writer,
 void DebugCanvas::toJSONOpsTask(SkJSONWriter& writer, SkCanvas* canvas) {
     this->drawAndCollectOps(canvas);
 
+#if 0
     GrAuditTrail* at = this->getAuditTrail(canvas);
     if (at) {
         GrAuditTrail::AutoManageOpsTask enable(at);
         at->toJson(writer);
-    } else {
+    } else
+#endif
+    {
         writer.beginObject();
         writer.endObject();
     }

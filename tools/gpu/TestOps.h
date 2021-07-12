@@ -8,6 +8,7 @@
 #ifndef TestRectOp_DEFINED
 #define TestRectOp_DEFINED
 
+#if 0
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrRecordingContextPriv.h"
@@ -46,5 +47,6 @@ GrOp::Owner MakeRect(GrRecordingContext*,
 GrOp::Owner MakeRect(GrRecordingContext*, GrPaint&&, const SkRect& rect);
 
 }  // namespace sk_gpu_test::test_ops
+#endif
 
 #endif
