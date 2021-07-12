@@ -22,6 +22,30 @@
       },
       "revId": "5aa79592977dffa37a9a9f3e480397fcf6515725",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "06de4ebd_f7e9485a",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 876,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-07-12T13:36:08Z",
+      "side": 1,
+      "message": "It\u0027s only for geometry processors, which we don\u0027t support from DSL at the moment. We have existing tests which verify that this path continues to work for non-DSL code, and I\u0027ll of course add appropriate DSL tests when it has geometry processor support.",
+      "parentUuid": "3344a95c_b393bf0d",
+      "range": {
+        "startLine": 876,
+        "startChar": 21,
+        "endLine": 876,
+        "endChar": 48
+      },
+      "revId": "5aa79592977dffa37a9a9f3e480397fcf6515725",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
