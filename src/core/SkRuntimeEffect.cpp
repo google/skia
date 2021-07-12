@@ -44,6 +44,8 @@
 
 #include <algorithm>
 
+#ifdef SK_ENABLE_SKSL
+
 namespace SkSL {
 class SharedCompiler {
 public:
@@ -1327,3 +1329,5 @@ SkRuntimeBlendBuilder::~SkRuntimeBlendBuilder() = default;
 sk_sp<SkBlender> SkRuntimeBlendBuilder::makeBlender() {
     return this->effect()->makeBlender(this->uniforms());
 }
+
+#endif  // SK_ENABLE_SKSL
