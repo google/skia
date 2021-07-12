@@ -12,6 +12,7 @@
 #include "src/core/SkRuntimeEffectPriv.h"
 
 sk_sp<SkColorFilter> SkHighContrastFilter::Make(const SkHighContrastConfig& config) {
+#ifdef SK_ENABLE_SKSL
     if (!config.isValid()) {
         return nullptr;
     }
@@ -62,5 +63,9 @@ sk_sp<SkColorFilter> SkHighContrastFilter::Make(const SkHighContrastConfig& conf
     return SkColorFilters::WithWorkingFormat(
             effect->makeColorFilter(SkData::MakeWithCopy(&uniforms,sizeof(uniforms))),
             &linear, nullptr/*use dst gamut*/, &unpremul);
+#else
+    // TODO(skia:12197)
+    return nullptr;
+#endif
 }
 
