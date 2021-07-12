@@ -376,7 +376,12 @@ void Tessellator::append(GrQuad* deviceQuad, GrQuad* localQuad,
             // Then outer vertices, which use 0.f for their coverage. If the inset was degenerate
             // to a line (had all coverages < 1), tweak the outset distance so the outer frame's
             // narrow axis reaches out to 2px, which gives better animation under translation.
-            if (coverage[0] < 1.f && coverage[1] < 1.f && coverage[2] < 1.f && coverage[3] < 1.f) {
+            const bool hairline = aaFlags == GrQuadAAFlags::kAll &&
+                                  coverage[0] < 1.f &&
+                                  coverage[1] < 1.f &&
+                                  coverage[2] < 1.f &&
+                                  coverage[3] < 1.f;
+            if (hairline) {
                 skvx::Vec<4, float> len = fAAHelper.getEdgeLengths();
                 // Using max guards us against trying to scale a degenerate triangle edge of 0 len
                 // up to 2px. The shuffles are so that edge 0's adjustment is based on the lengths
