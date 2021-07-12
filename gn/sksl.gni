@@ -8,6 +8,7 @@ _src = get_path_info("../src", "abspath")
 _include = get_path_info("../include", "abspath")
 
 skia_sksl_sources = [
+  "$_include/effects/SkRuntimeEffect.h",
   "$_include/private/SkSLDefines.h",
   "$_include/private/SkSLIRNode.h",
   "$_include/private/SkSLLayout.h",
@@ -32,6 +33,8 @@ skia_sksl_sources = [
   "$_include/sksl/DSLSymbols.h",
   "$_include/sksl/DSLType.h",
   "$_include/sksl/DSLVar.h",
+  "$_src/core/SkRuntimeEffect.cpp",
+  "$_src/effects/imagefilters/SkRuntimeImageFilter.cpp",
   "$_src/sksl/SkSLASTFile.h",
   "$_src/sksl/SkSLASTNode.cpp",
   "$_src/sksl/SkSLASTNode.h",
