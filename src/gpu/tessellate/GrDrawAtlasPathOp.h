@@ -19,8 +19,7 @@ public:
 
     GrDrawAtlasPathOp(SkArenaAlloc* arena, const SkIRect& fillBounds, const SkMatrix& localToDevice,
                       GrPaint&& paint, SkIPoint16 locationInAtlas, const SkIRect& pathDevIBounds,
-                      bool transposedInAtlas, GrSurfaceProxyView atlasView, bool isInverseFill,
-                      int numRenderTargetSamples)
+                      bool transposedInAtlas, GrSurfaceProxyView atlasView, bool isInverseFill)
             : GrDrawOp(ClassID())
             , fHeadInstance(arena->make<Instance>(fillBounds, localToDevice, paint.getColor4f(),
                                                   locationInAtlas, pathDevIBounds,
@@ -30,15 +29,12 @@ public:
                            isInverseFill ? GrAtlasInstancedHelper::ShaderFlags::kCheckBounds |
                                            GrAtlasInstancedHelper::ShaderFlags::kInvertCoverage
                                          : GrAtlasInstancedHelper::ShaderFlags::kNone)
-            , fEnableHWAA(numRenderTargetSamples > 1)
             , fProcessors(std::move(paint)) {
         this->setBounds(SkRect::Make(fillBounds), HasAABloat::kYes, IsHairline::kNo);
     }
 
     const char* name() const override { return "GrDrawAtlasPathOp"; }
-    FixedFunctionFlags fixedFunctionFlags() const override {
-        return fEnableHWAA ? FixedFunctionFlags::kUsesHWAA : FixedFunctionFlags::kNone;
-    }
+    FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
     void visitProxies(const GrVisitProxyFunc& func) const override {
         func(fAtlasHelper.proxy(), GrMipmapped::kNo);
         fProcessors.visitProxies(func);
@@ -53,8 +49,8 @@ public:
 
 private:
     void prepareProgram(const GrCaps&, SkArenaAlloc*, const GrSurfaceProxyView& writeView,
-                        GrAppliedClip&&, const GrDstProxyView&, GrXferBarrierFlags,
-                        GrLoadOp colorLoadOp);
+                        bool usesMSAASurface, GrAppliedClip&&, const GrDstProxyView&,
+                        GrXferBarrierFlags, GrLoadOp colorLoadOp);
 
     struct Instance {
         Instance(const SkIRect& fillIBounds, const SkMatrix& m,
@@ -78,7 +74,6 @@ private:
     Instance** fTailInstance;
 
     GrAtlasInstancedHelper fAtlasHelper;
-    const bool fEnableHWAA;
     bool fUsesLocalCoords = false;
 
     int fInstanceCount = 1;

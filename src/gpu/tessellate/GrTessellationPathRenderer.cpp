@@ -176,11 +176,13 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
                             ? args.fClip->getConservativeBounds()
                             : args.fSurfaceDrawContext->asSurfaceProxy()->backingStoreBoundsIRect())
                     : devIBounds;
-            auto op = GrOp::Make<GrDrawAtlasPathOp>(
-                    args.fContext, args.fSurfaceDrawContext->arenaAlloc(), fillBounds,
-                    *args.fViewMatrix, std::move(args.fPaint), locationInAtlas, devIBounds,
-                    transposedInAtlas, fAtlasRenderTasks.back()->readView(caps),
-                    path.isInverseFillType(), surfaceDrawContext->numSamples());
+            auto op = GrOp::Make<GrDrawAtlasPathOp>(args.fContext,
+                                                    args.fSurfaceDrawContext->arenaAlloc(),
+                                                    fillBounds, *args.fViewMatrix,
+                                                    std::move(args.fPaint), locationInAtlas,
+                                                    devIBounds, transposedInAtlas,
+                                                    fAtlasRenderTasks.back()->readView(caps),
+                                                    path.isInverseFillType());
             surfaceDrawContext->addDrawOp(args.fClip, std::move(op));
             return true;
         }
