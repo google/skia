@@ -7,6 +7,7 @@
 
 #include "include/core/SkCanvas.h"
 
+#include "include/core/SkBlender.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageFilter.h"

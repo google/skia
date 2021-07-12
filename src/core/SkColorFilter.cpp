@@ -452,6 +452,7 @@ sk_sp<SkColorFilter> SkColorFilters::WithWorkingFormat(sk_sp<SkColorFilter>     
 
 sk_sp<SkColorFilter> SkColorFilters::Lerp(float weight, sk_sp<SkColorFilter> cf0,
                                                         sk_sp<SkColorFilter> cf1) {
+#ifdef SK_ENABLE_SKSL
     if (!cf0 && !cf1) {
         return nullptr;
     }
@@ -484,6 +485,10 @@ sk_sp<SkColorFilter> SkColorFilters::Lerp(float weight, sk_sp<SkColorFilter> cf0
     sk_sp<SkColorFilter> inputs[] = {cf0,cf1};
     return effect->makeColorFilter(SkData::MakeWithCopy(&weight, sizeof(weight)),
                                    inputs, SK_ARRAY_COUNT(inputs));
+#else
+    // TODO(skia:12197)
+    return nullptr;
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

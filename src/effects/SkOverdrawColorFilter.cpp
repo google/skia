@@ -12,6 +12,7 @@
 #include "src/core/SkRuntimeEffectPriv.h"
 
 sk_sp<SkColorFilter> SkOverdrawColorFilter::MakeWithSkColors(const SkColor colors[kNumColors]) {
+#ifdef SK_ENABLE_SKSL
     sk_sp<SkRuntimeEffect> effect = SkMakeCachedRuntimeEffect(
             SkRuntimeEffect::MakeForColorFilter,
             R"(uniform half4 color0;
@@ -40,4 +41,8 @@ sk_sp<SkColorFilter> SkOverdrawColorFilter::MakeWithSkColors(const SkColor color
         return effect->makeColorFilter(std::move(data));
     }
     return nullptr;
+#else
+    // TODO(skia:12197)
+    return nullptr;
+#endif
 }

@@ -72,7 +72,7 @@ if [[ $@ == *cpu* ]]; then
   echo "Using the CPU backend instead of the GPU backend"
   GN_GPU="skia_enable_gpu=false"
   GN_GPU_FLAGS=""
-  WASM_GPU="-DSK_SUPPORT_GPU=0 --pre-js $BASE_DIR/cpu.js -s USE_WEBGL2=0"
+  WASM_GPU="-DSK_SUPPORT_GPU=0 -DSK_ENABLE_SKSL --pre-js $BASE_DIR/cpu.js -s USE_WEBGL2=0"
 fi
 
 SKP_JS="--pre-js $BASE_DIR/skp.js"

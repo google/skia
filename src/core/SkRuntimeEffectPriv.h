@@ -14,6 +14,8 @@
 
 #include <functional>
 
+#ifdef SK_ENABLE_SKSL
+
 // These internal APIs for creating runtime effects vary from the public API in two ways:
 //
 //     1) they're used in contexts where it's not useful to receive an error message;
@@ -136,4 +138,6 @@ public:
     }
 };
 
-#endif
+#endif  // SK_ENABLE_SKSL
+
+#endif  // SkRuntimeEffectPriv_DEFINED

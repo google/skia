@@ -236,7 +236,11 @@
 #  define SK_SUPPORT_GPU 1
 #endif
 
-#if !SK_SUPPORT_GPU
+#if SK_SUPPORT_GPU
+#  if !defined(SK_ENABLE_SKSL)
+#    define SK_ENABLE_SKSL
+#  endif
+#else
 #  undef SK_GL
 #  undef SK_VULKAN
 #  undef SK_METAL
