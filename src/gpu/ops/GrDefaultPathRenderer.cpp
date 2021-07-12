@@ -757,7 +757,7 @@ GrDefaultPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
 }
 
 bool GrDefaultPathRenderer::onDrawPath(const DrawPathArgs& args) {
-    GR_AUDIT_TRAIL_AUTO_FRAME(args.fSurfaceDrawContext->auditTrail(),
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fContext->priv().auditTrail(),
                               "GrDefaultPathRenderer::onDrawPath");
     GrAAType aaType = (GrAAType::kNone != args.fAAType) ? GrAAType::kMSAA : GrAAType::kNone;
 
@@ -767,7 +767,7 @@ bool GrDefaultPathRenderer::onDrawPath(const DrawPathArgs& args) {
 }
 
 void GrDefaultPathRenderer::onStencilPath(const StencilPathArgs& args) {
-    GR_AUDIT_TRAIL_AUTO_FRAME(args.fSurfaceDrawContext->auditTrail(),
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fContext->priv().auditTrail(),
                               "GrDefaultPathRenderer::onStencilPath");
     SkASSERT(!args.fShape->inverseFilled());
 

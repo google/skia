@@ -1310,7 +1310,7 @@ void AAHairlineOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBoun
 }
 
 bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
-    GR_AUDIT_TRAIL_AUTO_FRAME(args.fSurfaceDrawContext->auditTrail(),
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fContext->priv().auditTrail(),
                               "GrAAHairlinePathRenderer::onDrawPath");
     SkASSERT(args.fSurfaceDrawContext->numSamples() <= 1);
 

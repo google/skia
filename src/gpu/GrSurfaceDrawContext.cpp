@@ -28,7 +28,6 @@
 #include "src/core/SkSurfacePriv.h"
 #include "src/gpu/GrAppliedClip.h"
 #include "src/gpu/GrAttachment.h"
-#include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrBlurUtils.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrClip.h"

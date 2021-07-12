@@ -231,10 +231,11 @@ private:
      */
     void addDrawCommand(DrawCommand* command);
 
+#if SK_GPU_V1
     GrAuditTrail* getAuditTrail(SkCanvas*);
-
     void drawAndCollectOps(SkCanvas*);
-    void cleanupAuditTrail(SkCanvas*);
+    void cleanupAuditTrail(GrAuditTrail*);
+#endif
 
     using INHERITED = SkCanvasVirtualEnforcer<SkCanvas>;
 };

@@ -920,7 +920,7 @@ private:
 }  // anonymous namespace
 
 bool GrAAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
-    GR_AUDIT_TRAIL_AUTO_FRAME(args.fSurfaceDrawContext->auditTrail(),
+    GR_AUDIT_TRAIL_AUTO_FRAME(args.fContext->priv().auditTrail(),
                               "GrAAConvexPathRenderer::onDrawPath");
     SkASSERT(args.fSurfaceDrawContext->numSamples() <= 1);
     SkASSERT(!args.fShape->isEmpty());

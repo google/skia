@@ -22,7 +22,8 @@ struct SkIPoint16;
 // call instantiate() at flush time.
 class GrAtlasRenderTask : public GrOpsTask {
 public:
-    GrAtlasRenderTask(GrRecordingContext*, GrAuditTrail*, sk_sp<GrArenas>,
+    GrAtlasRenderTask(GrRecordingContext*,
+                      sk_sp<GrArenas>,
                       std::unique_ptr<GrDynamicAtlas>);
 
     const GrTextureProxy* atlasProxy() const { return fDynamicAtlas->textureProxy(); }
