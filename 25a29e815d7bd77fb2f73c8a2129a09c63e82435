@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2227b758_67220c96",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 4652,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-07-12T18:16:15Z",
+      "side": 0,
+      "message": "didn\u0027t you lose this check here?",
+      "range": {
+        "startLine": 4652,
+        "startChar": 11,
+        "endLine": 4652,
+        "endChar": 69
+      },
+      "revId": "25a29e815d7bd77fb2f73c8a2129a09c63e82435",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
