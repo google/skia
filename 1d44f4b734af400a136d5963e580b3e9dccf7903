@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ca584de5_adf66715",
+        "filename": "src/sksl/ir/SkSLSwizzle.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-12T15:52:18Z",
+      "side": 1,
+      "message": "I don\u0027t like APIs that ask you to pass in the same data two different ways. It\u0027s fundamentally asking for trouble. I\u0027m guessing DSL\u0027s Convert doesn\u0027t have a mask string, though.\n\nTwo possible alternative ideas:\n- Implement mask string handling as separate static methods on Swizzle which the DSL path can ignore, but DSLParser and IRGenerator can share? (Basically, move my helper function into Swizzle.cpp?)\n- Two Convert functions, one that takes a maskString and another that takes inComponents? (Obviously they both converge into one place)",
+      "range": {
+        "startLine": 40,
+        "startChar": 47,
+        "endLine": 41,
+        "endChar": 81
+      },
+      "revId": "1d44f4b734af400a136d5963e580b3e9dccf7903",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
