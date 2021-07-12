@@ -94,6 +94,30 @@
       },
       "revId": "df6ffc59dc058c8470b114ad75ba57027b21aed5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2f9bc704_46228f7f",
+        "filename": "src/sksl/ir/SkSLSwizzle.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-12T17:42:45Z",
+      "side": 1,
+      "message": "Yes, totally agree, I will take care of skia:12195 in a separate CL, and it\u0027s not your breakage. When I said \"change it back\" I mean:\n\nold:\n    SkASSERTF(baseType.isVector() || baseType.isScalar(),\nnew:\n    if (!baseType.isVector() \u0026\u0026 !baseType.isNumber()) {\n    \nThe left-right diff actually highlights the change from \"isScalar\" to \"isNumber\" as a mid-line diff.\nWe can land this as-is; it\u0027s not any worse than before.",
+      "parentUuid": "180d9351_2fff1a9f",
+      "range": {
+        "startLine": 135,
+        "startChar": 42,
+        "endLine": 135,
+        "endChar": 50
+      },
+      "revId": "df6ffc59dc058c8470b114ad75ba57027b21aed5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
