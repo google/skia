@@ -27,6 +27,17 @@ GrMtlAttachment::GrMtlAttachment(GrMtlGpu* gpu,
     this->registerWithCache(budgeted);
 }
 
+GrMtlAttachment::GrMtlAttachment(GrMtlGpu* gpu,
+                                 SkISize dimensions,
+                                 UsageFlags supportedUsages,
+                                 id<MTLTexture> texture,
+                                 GrWrapCacheable cacheable)
+        : GrAttachment(gpu, dimensions, supportedUsages, texture.sampleCount, GrMipmapped::kNo,
+                       GrProtected::kNo)
+        , fTexture(texture) {
+    this->registerWithCacheWrapped(cacheable);
+}
+
 sk_sp<GrMtlAttachment> GrMtlAttachment::MakeStencil(GrMtlGpu* gpu,
                                                     SkISize dimensions,
                                                     int sampleCnt,
@@ -38,8 +49,32 @@ sk_sp<GrMtlAttachment> GrMtlAttachment::MakeStencil(GrMtlGpu* gpu,
         storageMode = MTLStorageModePrivate;
     }
     return GrMtlAttachment::Make(gpu, dimensions, UsageFlags::kStencilAttachment, sampleCnt, format,
-                                 /*mipLevels=*/1, textureUsage, storageMode, GrProtected::kNo,
-                                 SkBudgeted::kYes);
+                                 /*mipLevels=*/1, textureUsage, storageMode, SkBudgeted::kYes);
+}
+
+sk_sp<GrMtlAttachment> GrMtlAttachment::MakeTexture(GrMtlGpu* gpu,
+                                                    SkISize dimensions,
+                                                    MTLPixelFormat format,
+                                                    uint32_t mipLevels,
+                                                    GrRenderable renderable,
+                                                    int numSamples,
+                                                    SkBudgeted budgeted) {
+    int textureUsage = 0;
+    int storageMode = 0;
+    if (@available(macOS 10.11, iOS 9.0, *)) {
+        textureUsage = MTLTextureUsageShaderRead;
+        storageMode = MTLStorageModePrivate;
+    }
+    UsageFlags usageFlags = UsageFlags::kTexture;
+    if (renderable == GrRenderable::kYes) {
+        usageFlags |= UsageFlags::kColorAttachment;
+        if (@available(macOS 10.11, iOS 9.0, *)) {
+            textureUsage |= MTLTextureUsageRenderTarget;
+        }
+    }
+
+    return GrMtlAttachment::Make(gpu, dimensions, usageFlags, numSamples, format, mipLevels,
+                                 textureUsage, storageMode, budgeted);
 }
 
 sk_sp<GrMtlAttachment> GrMtlAttachment::Make(GrMtlGpu* gpu,
@@ -50,19 +85,19 @@ sk_sp<GrMtlAttachment> GrMtlAttachment::Make(GrMtlGpu* gpu,
                                              uint32_t mipLevels,
                                              int mtlTextureUsage,
                                              int mtlStorageMode,
-                                             GrProtected isProtected,
                                              SkBudgeted budgeted) {
     auto desc = [[MTLTextureDescriptor alloc] init];
+    desc.textureType = (sampleCnt > 1) ? MTLTextureType2DMultisample : MTLTextureType2D;
     desc.pixelFormat = format;
     desc.width = dimensions.width();
     desc.height = dimensions.height();
+    desc.depth = 1;
+    desc.mipmapLevelCount = mipLevels;
+    desc.sampleCount = sampleCnt;
+    desc.arrayLength = 1;
     if (@available(macOS 10.11, iOS 9.0, *)) {
         desc.usage = mtlTextureUsage;
         desc.storageMode = (MTLStorageMode)mtlStorageMode;
-    }
-    desc.sampleCount = sampleCnt;
-    if (sampleCnt > 1) {
-        desc.textureType = MTLTextureType2DMultisample;
     }
     id<MTLTexture> texture = [gpu->device() newTextureWithDescriptor:desc];
 #ifdef SK_ENABLE_MTL_DEBUG_INFO
@@ -73,6 +108,17 @@ sk_sp<GrMtlAttachment> GrMtlAttachment::Make(GrMtlGpu* gpu,
 
     return sk_sp<GrMtlAttachment>(new GrMtlAttachment(gpu, dimensions, attachmentUsages,
                                                       texture, budgeted));
+}
+
+sk_sp<GrMtlAttachment> GrMtlAttachment::MakeWrapped(
+        GrMtlGpu* gpu,
+        SkISize dimensions,
+        id<MTLTexture> texture,
+        UsageFlags attachmentUsages,
+        GrWrapCacheable cacheable) {
+
+    return sk_sp<GrMtlAttachment>(new GrMtlAttachment(gpu, dimensions, attachmentUsages, texture,
+                                                      cacheable));
 }
 
 GrMtlAttachment::~GrMtlAttachment() {
