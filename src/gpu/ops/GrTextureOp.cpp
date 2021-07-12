@@ -471,9 +471,9 @@ private:
 
         // Set bounds before clipping so we don't have to worry about unioning the bounds of
         // the two potential quads (GrQuad::bounds() is perspective-safe).
+        bool hairline = GrQuadUtils::WillUseHairline(quad->fDevice, aaType, quad->fEdgeFlags);
         this->setBounds(quad->fDevice.bounds(), HasAABloat(aaType == GrAAType::kCoverage),
-                        IsHairline::kNo);
-
+                        hairline ? IsHairline::kYes : IsHairline::kNo);
         int quadCount = this->appendQuad(quad, color, subset);
         fViewCountPairs[0] = {proxyView.detachProxy(), quadCount};
     }
@@ -507,6 +507,7 @@ private:
         Subset netSubset = Subset::kNo;
         GrSamplerState::Filter netFilter = GrSamplerState::Filter::kNearest;
         GrSamplerState::MipmapMode netMM = GrSamplerState::MipmapMode::kNone;
+        bool hasSubpixel = false;
 
         const GrSurfaceProxy* curProxy = nullptr;
 
@@ -572,6 +573,7 @@ private:
 
             // Update overall bounds of the op as the union of all quads
             bounds.joinPossiblyEmptyRect(quad.fDevice.bounds());
+            hasSubpixel |= GrQuadUtils::WillUseHairline(quad.fDevice, aaType, quad.fEdgeFlags);
 
             // Determine the AA type for the quad, then merge with net AA type
             GrAAType aaForQuad;
@@ -620,7 +622,8 @@ private:
         fMetadata.fFilter = static_cast<uint16_t>(netFilter);
         fMetadata.fSubset = static_cast<uint16_t>(netSubset);
 
-        this->setBounds(bounds, HasAABloat(netAAType == GrAAType::kCoverage), IsHairline::kNo);
+        this->setBounds(bounds, HasAABloat(netAAType == GrAAType::kCoverage),
+                        hasSubpixel ? IsHairline::kYes : IsHairline::kNo);
     }
 
     int appendQuad(DrawQuad* quad, const SkPMColor4f& color, const SkRect& subset) {

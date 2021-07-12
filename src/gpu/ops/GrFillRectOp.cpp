@@ -84,9 +84,9 @@ public:
             , fQuads(1, !fHelper.isTrivial()) {
         // Set bounds before clipping so we don't have to worry about unioning the bounds of
         // the two potential quads (GrQuad::bounds() is perspective-safe).
+        bool hairline = GrQuadUtils::WillUseHairline(quad->fDevice, aaType, quad->fEdgeFlags);
         this->setBounds(quad->fDevice.bounds(), HasAABloat(aaType == GrAAType::kCoverage),
-                        IsHairline::kNo);
-
+                        hairline ? IsHairline::kYes : IsHairline::kNo);
         DrawQuad extra;
         // Always crop to W>0 to remain consistent with GrQuad::bounds()
         int count = GrQuadUtils::ClipToW0(quad, &extra);
