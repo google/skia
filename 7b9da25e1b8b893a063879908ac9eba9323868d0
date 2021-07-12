@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d5314ed0_68c98e3b",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 2795,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-12T17:55:51Z",
+      "side": 1,
+      "message": "Introduction of number limitation",
+      "range": {
+        "startLine": 2795,
+        "startChar": 65,
+        "endLine": 2795,
+        "endChar": 73
+      },
+      "revId": "7b9da25e1b8b893a063879908ac9eba9323868d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
