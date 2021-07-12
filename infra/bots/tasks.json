@@ -17935,7 +17935,7 @@
           "path": "cache/work"
         }
       ],
-      "casSpec": "run-recipe",
+      "casSpec": "recreate-skps",
       "cipd_packages": [
         {
           "name": "infra/3pp/tools/cpython/linux-amd64",
@@ -17968,11 +17968,6 @@
           "version": "git_revision:7a347df991c1064ac1a2a61e6d0488e17fd74170"
         },
         {
-          "name": "infra/tools/luci/kitchen/${platform}",
-          "path": ".",
-          "version": "git_revision:7a347df991c1064ac1a2a61e6d0488e17fd74170"
-        },
-        {
           "name": "infra/tools/luci/vpython-native/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:7a347df991c1064ac1a2a61e6d0488e17fd74170"
@@ -17989,16 +17984,22 @@
         }
       ],
       "command": [
-        "cipd_bin_packages/vpython3${EXECUTABLE_SUFFIX}",
-        "-u",
-        "skia/infra/bots/run_recipe.py",
-        "${ISOLATED_OUTDIR}",
-        "recreate_skps",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Housekeeper-Nightly-RecreateSKPs_DryRun\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
-        "skia"
+        "./recreate_skps",
+        "--local=false",
+        "--project_id",
+        "skia-swarming-bots",
+        "--task_id",
+        "<(TASK_ID)",
+        "--task_name",
+        "Housekeeper-Nightly-RecreateSKPs_DryRun",
+        "--skia_revision",
+        "<(REVISION)",
+        "--patch_ref",
+        "<(PATCH_REF)",
+        "--alsologtostderr"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
       ],
       "dimensions": [
         "pool:SkiaCT",
@@ -18006,25 +18007,19 @@
       ],
       "env_prefixes": {
         "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin",
           "cipd_bin_packages/cpython",
           "cipd_bin_packages/cpython/bin",
           "cipd_bin_packages/cpython3",
-          "cipd_bin_packages/cpython3/bin",
-          "cipd_bin_packages",
-          "cipd_bin_packages/bin"
-        ],
-        "VPYTHON_LOG_TRACE": [
-          "1"
+          "cipd_bin_packages/cpython3/bin"
         ],
         "VPYTHON_VIRTUALENV_ROOT": [
           "cache/vpython"
         ]
       },
-      "execution_timeout_ns": 14400000000000,
-      "extra_tags": {
-        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
-      },
-      "io_timeout_ns": 14400000000000,
+      "execution_timeout_ns": 21600000000000,
+      "io_timeout_ns": 21600000000000,
       "max_attempts": 2,
       "service_account": "skia-recreate-skps@skia-swarming-bots.iam.gserviceaccount.com"
     },
@@ -19547,7 +19542,7 @@
           "path": "cache/work"
         }
       ],
-      "casSpec": "run-recipe",
+      "casSpec": "recreate-skps",
       "cipd_packages": [
         {
           "name": "infra/3pp/tools/cpython/linux-amd64",
@@ -19580,11 +19575,6 @@
           "version": "git_revision:7a347df991c1064ac1a2a61e6d0488e17fd74170"
         },
         {
-          "name": "infra/tools/luci/kitchen/${platform}",
-          "path": ".",
-          "version": "git_revision:7a347df991c1064ac1a2a61e6d0488e17fd74170"
-        },
-        {
           "name": "infra/tools/luci/vpython-native/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:7a347df991c1064ac1a2a61e6d0488e17fd74170"
@@ -19601,16 +19591,22 @@
         }
       ],
       "command": [
-        "cipd_bin_packages/vpython3${EXECUTABLE_SUFFIX}",
-        "-u",
-        "skia/infra/bots/run_recipe.py",
-        "${ISOLATED_OUTDIR}",
-        "recreate_skps",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Housekeeper-Weekly-RecreateSKPs\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
-        "skia"
+        "./recreate_skps",
+        "--local=false",
+        "--project_id",
+        "skia-swarming-bots",
+        "--task_id",
+        "<(TASK_ID)",
+        "--task_name",
+        "Housekeeper-Weekly-RecreateSKPs",
+        "--skia_revision",
+        "<(REVISION)",
+        "--patch_ref",
+        "<(PATCH_REF)",
+        "--alsologtostderr"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
       ],
       "dimensions": [
         "pool:SkiaCT",
@@ -19618,25 +19614,19 @@
       ],
       "env_prefixes": {
         "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin",
           "cipd_bin_packages/cpython",
           "cipd_bin_packages/cpython/bin",
           "cipd_bin_packages/cpython3",
-          "cipd_bin_packages/cpython3/bin",
-          "cipd_bin_packages",
-          "cipd_bin_packages/bin"
-        ],
-        "VPYTHON_LOG_TRACE": [
-          "1"
+          "cipd_bin_packages/cpython3/bin"
         ],
         "VPYTHON_VIRTUALENV_ROOT": [
           "cache/vpython"
         ]
       },
-      "execution_timeout_ns": 14400000000000,
-      "extra_tags": {
-        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
-      },
-      "io_timeout_ns": 14400000000000,
+      "execution_timeout_ns": 21600000000000,
+      "io_timeout_ns": 21600000000000,
       "max_attempts": 2,
       "service_account": "skia-recreate-skps@skia-swarming-bots.iam.gserviceaccount.com"
     },
@@ -82609,6 +82599,20 @@
         "skia/infra/bots/recipe_modules",
         "skia/infra/bots/recipes",
         "skia/infra/bots/recipes.py"
+      ],
+      "excludes": [
+        "^(.*\\/)*\\.git(\\/.*)*$"
+      ]
+    },
+    "recreate-skps": {
+      "root": "..",
+      "paths": [
+        "skia/DEPS",
+        "skia/bin/fetch-sk",
+        "skia/infra/bots/assets/skp",
+        "skia/infra/bots/utils.py",
+        "skia/infra/config/recipes.cfg",
+        "skia/tools/skp"
       ],
       "excludes": [
         "^(.*\\/)*\\.git(\\/.*)*$"
