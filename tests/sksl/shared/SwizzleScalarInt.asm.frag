@@ -9,7 +9,8 @@ OpName %_UniformBuffer "_UniformBuffer"
 OpMemberName %_UniformBuffer 0 "unknownInput"
 OpName %_entrypoint_v "_entrypoint_v"
 OpName %main "main"
-OpName %h4 "h4"
+OpName %i "i"
+OpName %i4 "i4"
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
@@ -19,20 +20,12 @@ OpMemberDecorate %_UniformBuffer 0 RelaxedPrecision
 OpDecorate %_UniformBuffer Block
 OpDecorate %10 Binding 0
 OpDecorate %10 DescriptorSet 0
-OpDecorate %h4 RelaxedPrecision
 OpDecorate %32 RelaxedPrecision
-OpDecorate %33 RelaxedPrecision
-OpDecorate %35 RelaxedPrecision
-OpDecorate %36 RelaxedPrecision
-OpDecorate %37 RelaxedPrecision
-OpDecorate %38 RelaxedPrecision
-OpDecorate %40 RelaxedPrecision
-OpDecorate %42 RelaxedPrecision
-OpDecorate %43 RelaxedPrecision
-OpDecorate %45 RelaxedPrecision
-OpDecorate %47 RelaxedPrecision
-OpDecorate %48 RelaxedPrecision
-OpDecorate %49 RelaxedPrecision
+OpDecorate %53 RelaxedPrecision
+OpDecorate %55 RelaxedPrecision
+OpDecorate %57 RelaxedPrecision
+OpDecorate %59 RelaxedPrecision
+OpDecorate %60 RelaxedPrecision
 %float = OpTypeFloat 32
 %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -50,11 +43,14 @@ OpDecorate %49 RelaxedPrecision
 %19 = OpConstantComposite %v2float %float_0 %float_0
 %_ptr_Function_v2float = OpTypePointer Function %v2float
 %23 = OpTypeFunction %v4float %_ptr_Function_v2float
-%_ptr_Function_v4float = OpTypePointer Function %v4float
-%_ptr_Uniform_float = OpTypePointer Uniform %float
 %int = OpTypeInt 32 1
+%_ptr_Function_int = OpTypePointer Function %int
+%_ptr_Uniform_float = OpTypePointer Uniform %float
 %int_0 = OpConstant %int 0
-%float_1 = OpConstant %float 1
+%v4int = OpTypeVector %int 4
+%_ptr_Function_v4int = OpTypePointer Function %v4int
+%v2int = OpTypeVector %int 2
+%int_1 = OpConstant %int 1
 %_entrypoint_v = OpFunction %void None %15
 %16 = OpLabel
 %20 = OpVariable %_ptr_Function_v2float Function
@@ -66,28 +62,37 @@ OpFunctionEnd
 %main = OpFunction %v4float None %23
 %24 = OpFunctionParameter %_ptr_Function_v2float
 %25 = OpLabel
-%h4 = OpVariable %_ptr_Function_v4float Function
-%28 = OpAccessChain %_ptr_Uniform_float %10 %int_0
-%32 = OpLoad %float %28
-%33 = OpCompositeConstruct %v4float %32 %32 %32 %32
-OpStore %h4 %33
-%34 = OpAccessChain %_ptr_Uniform_float %10 %int_0
-%35 = OpLoad %float %34
-%36 = OpCompositeConstruct %v2float %35 %35
-%37 = OpCompositeExtract %float %36 0
-%38 = OpCompositeExtract %float %36 1
-%40 = OpCompositeConstruct %v4float %37 %38 %float_0 %float_1
-OpStore %h4 %40
-%41 = OpAccessChain %_ptr_Uniform_float %10 %int_0
-%42 = OpLoad %float %41
-%43 = OpCompositeConstruct %v4float %float_0 %42 %float_1 %float_0
-OpStore %h4 %43
-%44 = OpAccessChain %_ptr_Uniform_float %10 %int_0
-%45 = OpLoad %float %44
-%46 = OpAccessChain %_ptr_Uniform_float %10 %int_0
-%47 = OpLoad %float %46
-%48 = OpCompositeConstruct %v4float %float_0 %45 %float_0 %47
-OpStore %h4 %48
-%49 = OpLoad %v4float %h4
-OpReturnValue %49
+%i = OpVariable %_ptr_Function_int Function
+%i4 = OpVariable %_ptr_Function_v4int Function
+%29 = OpAccessChain %_ptr_Uniform_float %10 %int_0
+%32 = OpLoad %float %29
+%33 = OpConvertFToS %int %32
+OpStore %i %33
+%37 = OpLoad %int %i
+%38 = OpCompositeConstruct %v4int %37 %37 %37 %37
+OpStore %i4 %38
+%39 = OpLoad %int %i
+%40 = OpCompositeConstruct %v2int %39 %39
+%42 = OpCompositeExtract %int %40 0
+%43 = OpCompositeExtract %int %40 1
+%45 = OpCompositeConstruct %v4int %42 %43 %int_0 %int_1
+OpStore %i4 %45
+%46 = OpLoad %int %i
+%47 = OpCompositeConstruct %v4int %int_0 %46 %int_1 %int_0
+OpStore %i4 %47
+%48 = OpLoad %int %i
+%49 = OpLoad %int %i
+%50 = OpCompositeConstruct %v4int %int_0 %48 %int_0 %49
+OpStore %i4 %50
+%51 = OpLoad %v4int %i4
+%52 = OpCompositeExtract %int %51 0
+%53 = OpConvertSToF %float %52
+%54 = OpCompositeExtract %int %51 1
+%55 = OpConvertSToF %float %54
+%56 = OpCompositeExtract %int %51 2
+%57 = OpConvertSToF %float %56
+%58 = OpCompositeExtract %int %51 3
+%59 = OpConvertSToF %float %58
+%60 = OpCompositeConstruct %v4float %53 %55 %57 %59
+OpReturnValue %60
 OpFunctionEnd
