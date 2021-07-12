@@ -93,8 +93,7 @@ void GrGLSLGeometryProcessor::collectTransforms(GrGLSLVertexBuilder* vb,
             vb->codeAppendf("%s = %s;\n", baseLocalCoord.vsOut(),
                             localCoordsVar.getName().c_str());
         }
-        return GrShaderVar(SkString(baseLocalCoord.fsIn()), baseLocalCoord.type(),
-                           GrShaderVar::TypeModifier::In);
+        return baseLocalCoord.fsInVar();
     };
 
     for (int i = 0; *handler; ++*handler, ++i) {
@@ -144,10 +143,8 @@ void GrGLSLGeometryProcessor::collectTransforms(GrGLSLVertexBuilder* vb,
                 strVaryingName.printf("TransformedCoords_%d", i);
                 varyingHandler->addVarying(strVaryingName.c_str(), &v);
 
-                fTransformInfos.push_back(
-                        {GrShaderVar(v.vsOut(), v.type()), localCoordsVar, coordOwner});
-                transformedLocalCoord =
-                        GrShaderVar(SkString(v.fsIn()), v.type(), GrShaderVar::TypeModifier::In);
+                fTransformInfos.push_back({v.vsOutVar(), localCoordsVar, coordOwner});
+                transformedLocalCoord = v.fsInVar();
                 localCoordsMap[coordOwner] = transformedLocalCoord;
             }
 

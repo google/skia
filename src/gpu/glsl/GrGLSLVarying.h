@@ -66,6 +66,16 @@ public:
     const char* gsOut() const { return fGsOut; }
     const char* fsIn() const { SkASSERT(this->isInFragmentShader()); return fFsIn; }
 
+    GrShaderVar vsOutVar() const {
+        SkASSERT(this->isInVertexShader());
+        return GrShaderVar(this->vsOut(), fType, GrShaderVar::TypeModifier::Out);
+    }
+
+    GrShaderVar fsInVar() const {
+        SkASSERT(this->isInFragmentShader());
+        return GrShaderVar(this->fsIn(), fType, GrShaderVar::TypeModifier::In);
+    }
+
 private:
     GrSLType fType = kVoid_GrSLType;
     Scope fScope = Scope::kVertToFrag;
