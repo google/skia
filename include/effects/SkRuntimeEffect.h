@@ -22,6 +22,8 @@
 #include <string>
 #include <vector>
 
+#ifdef SK_ENABLE_SKSL
+
 class GrRecordingContext;
 class SkFilterColorProgram;
 class SkImage;
@@ -446,4 +448,6 @@ private:
     using INHERITED = SkRuntimeEffectBuilder<sk_sp<SkBlender>>;
 };
 
-#endif
+#endif  // SK_ENABLE_SKSL
+
+#endif  // SkRuntimeEffect_DEFINED
