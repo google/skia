@@ -15,47 +15,74 @@ namespace SkSL {
 
 std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
                                              std::unique_ptr<Expression> base,
-                                             ComponentArray inComponents) {
+                                             ComponentArray inComponents,
+                                             skstd::string_view maskString) {
+    SkASSERT(maskString.empty() || (int) maskString.length() == inComponents.count());
+
     const int offset = base->fOffset;
     const Type& baseType = base->type();
 
-    // The IRGenerator is responsible for enforcing these invariants.
-    SkASSERTF(baseType.isVector() || baseType.isScalar(),
-              "cannot swizzle type '%s'", baseType.description().c_str());
-    SkASSERT(inComponents.count() >= 1 && inComponents.count() <= 4);
+    if (!baseType.isVector() && !baseType.isNumber()) {
+        context.fErrors.error(
+                offset, "cannot swizzle value of type '" + baseType.displayName() + "'");
+        return nullptr;
+    }
+
+    if (inComponents.count() > 4) {
+        String error = "too many components in swizzle mask";
+        if (!maskString.empty()) {
+            error += " '" + maskString + "'";
+        }
+        context.fErrors.error(offset, error.c_str());
+        return nullptr;
+    }
 
     ComponentArray maskComponents;
-    for (int8_t component : inComponents) {
-        switch (component) {
+    bool foundXYZW = false;
+    for (int i = 0; i < inComponents.count(); ++i) {
+        switch (inComponents[i]) {
             case SwizzleComponent::ZERO:
             case SwizzleComponent::ONE:
                 // Skip over constant fields for now.
                 break;
             case SwizzleComponent::X:
+                foundXYZW = true;
                 maskComponents.push_back(SwizzleComponent::X);
                 break;
             case SwizzleComponent::Y:
+                foundXYZW = true;
                 if (baseType.columns() >= 2) {
                     maskComponents.push_back(SwizzleComponent::Y);
                     break;
                 }
                 [[fallthrough]];
             case SwizzleComponent::Z:
+                foundXYZW = true;
                 if (baseType.columns() >= 3) {
                     maskComponents.push_back(SwizzleComponent::Z);
                     break;
                 }
                 [[fallthrough]];
             case SwizzleComponent::W:
+                foundXYZW = true;
                 if (baseType.columns() >= 4) {
                     maskComponents.push_back(SwizzleComponent::W);
                     break;
                 }
                 [[fallthrough]];
             default:
-                SkDEBUGFAILF("invalid swizzle component %d", component);
+                // The swizzle component references a field that doesn't exist in the base type.
+                context.fErrors.error(offset,
+                        maskString.empty() ? "invalid swizzle component"
+                                           : String::printf("invalid swizzle component '%c'",
+                                                            maskString[i]));
                 return nullptr;
         }
+    }
+
+    if (!foundXYZW) {
+        context.fErrors.error(offset, "swizzle must refer to base expression");
+        return nullptr;
     }
 
     // First, we need a vector expression that is the non-constant portion of the swizzle, packed:

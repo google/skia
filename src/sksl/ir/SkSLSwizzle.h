@@ -37,7 +37,8 @@ struct Swizzle final : public Expression {
     // swizzles (comprised solely of X/Y/W/Z).
     static std::unique_ptr<Expression> Convert(const Context& context,
                                                std::unique_ptr<Expression> base,
-                                               ComponentArray inComponents);
+                                               ComponentArray inComponents,
+                                               skstd::string_view maskString = "");
 
     // Swizzle::Make does not permit ZERO or ONE in the component array, just X/Y/Z/W; errors are
     // reported via ASSERT.

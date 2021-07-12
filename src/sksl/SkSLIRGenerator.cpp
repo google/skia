@@ -1469,26 +1469,12 @@ static bool validate_swizzle_domain(skstd::string_view fields) {
 // 'float4(base.xw, 1, 0).xzyw'.
 std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expression> base,
                                                         skstd::string_view fields) {
-    const int offset = base->fOffset;
-    const Type& baseType = base->type();
-    if (!baseType.isVector() && !baseType.isNumber()) {
-        this->errorReporter().error(
-                offset, "cannot swizzle value of type '" + baseType.displayName() + "'");
-        return nullptr;
-    }
-
-    if (fields.length() > 4) {
-        this->errorReporter().error(offset, "too many components in swizzle mask '" + fields + "'");
-        return nullptr;
-    }
-
     if (!validate_swizzle_domain(fields)) {
-        this->errorReporter().error(offset, "invalid swizzle mask '" + fields + "'");
+        this->errorReporter().error(base->fOffset, "invalid swizzle mask '" + fields + "'");
         return nullptr;
     }
 
     ComponentArray components;
-    bool foundXYZW = false;
     for (char field : fields) {
         switch (field) {
             case '0':
@@ -1502,53 +1488,32 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
             case 's':
             case 'L':
                 components.push_back(SwizzleComponent::X);
-                foundXYZW = true;
                 break;
             case 'y':
             case 'g':
             case 't':
             case 'T':
-                if (baseType.columns() >= 2) {
-                    components.push_back(SwizzleComponent::Y);
-                    foundXYZW = true;
-                    break;
-                }
-                [[fallthrough]];
+                components.push_back(SwizzleComponent::Y);
+                break;
             case 'z':
             case 'b':
             case 'p':
             case 'R':
-                if (baseType.columns() >= 3) {
-                    components.push_back(SwizzleComponent::Z);
-                    foundXYZW = true;
-                    break;
-                }
-                [[fallthrough]];
+                components.push_back(SwizzleComponent::Z);
+                break;
             case 'w':
             case 'a':
             case 'q':
             case 'B':
-                if (baseType.columns() >= 4) {
-                    components.push_back(SwizzleComponent::W);
-                    foundXYZW = true;
-                    break;
-                }
-                // The swizzle component references a field that doesn't exist in the base type.
-                this->errorReporter().error(
-                        offset, String::printf("invalid swizzle component '%c'", field));
-                return nullptr;
+                components.push_back(SwizzleComponent::W);
+                break;
             default:
                 SkDEBUGFAIL("unexpected swizzle component");
                 return nullptr;
         }
     }
 
-    if (!foundXYZW) {
-        this->errorReporter().error(offset, "swizzle must refer to base expression");
-        return nullptr;
-    }
-
-    return Swizzle::Convert(fContext, std::move(base), components);
+    return Swizzle::Convert(fContext, std::move(base), components, fields);
 }
 
 std::unique_ptr<Expression> IRGenerator::convertIndexExpression(const ASTNode& index) {
