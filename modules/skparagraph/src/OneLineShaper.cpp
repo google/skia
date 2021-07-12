@@ -601,11 +601,11 @@ bool OneLineShaper::iterateThroughShapingRegions(const ShapeVisitor& shape) {
             (uint8_t)2,
             SkPoint::Make(placeholder.fStyle.fWidth, placeholder.fStyle.fHeight),
             1,
-            SkShaper::RunHandler::Range(placeholder.fRange.start, placeholder.fRange.width())
+            SkShaper::RunHandler::Range(0, placeholder.fRange.width())
         };
         auto& run = fParagraph->fRuns.emplace_back(this->fParagraph,
                                        runInfo,
-                                       0,
+                                       placeholder.fRange.start,
                                        0.0f,
                                        false,
                                        fParagraph->fRuns.count(),
