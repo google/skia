@@ -6443,3 +6443,35 @@ DEF_TEST(SkParagraph_RTLLineMetricsDoesNotIncludeNewLine, reporter) {
         REPORTER_ASSERT(reporter, metric.fEndIncludingNewline == SkToU32(3 + std::get<3>(result)));
     }
 }
+
+DEF_TEST(SkParagraph_PlaceholderPosition, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    if (!fontCollection->fontsFound()) return;
+
+    TestCanvas canvas("SkParagraph_PlaceholderPosition");
+    canvas.get()->translate(100, 100);
+
+    TextStyle text_style;
+    text_style.setColor(SK_ColorBLACK);
+    text_style.setFontFamilies({SkString("Ahem")});
+    text_style.setFontSize(10.0f);
+    ParagraphStyle paragraph_style;
+    paragraph_style.setTextStyle(text_style);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    builder.pushStyle(text_style);
+    builder.addText("abcd");
+
+    PlaceholderStyle placeholder_style;
+    placeholder_style.fHeight = 10;
+    placeholder_style.fWidth = 10;
+    placeholder_style.fBaseline = TextBaseline::kAlphabetic;
+    placeholder_style.fAlignment = PlaceholderAlignment::kBottom;
+    builder.addPlaceholder(placeholder_style);
+
+    auto paragraph = builder.Build();
+    paragraph->layout(500);
+
+    auto result = paragraph->getGlyphPositionAtCoordinate(41.0f, 0.0f);
+    REPORTER_ASSERT(reporter, result.position == 4 && result.affinity == Affinity::kDownstream);
+}
+
