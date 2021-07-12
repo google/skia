@@ -16,6 +16,52 @@
       "message": "I\u0027ve reviewed the gold diffs and believe everything is okay.\nThe new clipped_thinrect GM is based off this fiddle https://fiddle.skia.org/c/37cbfd8bb43d119b45fda2e142a17c5d and shows that the GPU is now drawing just a single pixel line.\n\nThe diffs in \u0027bigrect\u0027 are misleading since it\u0027s comparing to a non-dmsaa sample and a diff with the prior trace is benign.\n\nThe diffs in crbug_1167277 are just because we\u0027ve turned off hairline mode for subpixel rects, which that GM exercised. It was testing for actual inset/outset errors, so the new images are correct given the change in policy.\n\nThe diffs in strict_constraint_batch_no_red_allowed and related are bringing the images more in line with what should be the case if they weren\u0027t artificially being tiled by changing the max texture size. Basically, the bottom/right edges of the original geometry were turned into subpixel rects as the remainder, and then they\u0027d be outset too much using hairline mode. On vulkan backends, the render pipeline would still clip them to 1/2px outset because the rect ops were not reporting the hairline outset in their bounds.\n - If we didn\u0027t disable mixed edge flags in hairline mode, but just fixed the op bounds, we\u0027d see a different change to these GMs on vulkan backends where the right/bottom edges got increased coverage than expected.",
       "revId": "92794c98e7356253bf99099c2054a721061713e4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2e3a7e56_ef76ceb0",
+        "filename": "gm/thinrects.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-07-12T19:47:05Z",
+      "side": 1,
+      "message": "needed?",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 34
+      },
+      "revId": "92794c98e7356253bf99099c2054a721061713e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "413c078e_5ab25af8",
+        "filename": "src/gpu/geometry/GrQuadUtils.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 650,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-07-12T19:47:05Z",
+      "side": 1,
+      "message": "rm?",
+      "range": {
+        "startLine": 650,
+        "startChar": 0,
+        "endLine": 650,
+        "endChar": 24
+      },
+      "revId": "92794c98e7356253bf99099c2054a721061713e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
