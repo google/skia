@@ -930,13 +930,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
                                                           const SkPaint* paint)->void {
             self.drawImage(img.get(), left, top, {filter, mipmap}, paint);
         }), allow_raw_pointers())
-        .function("drawImageAtCurrentFrame", optional_override([](SkCanvas& self, sk_sp<SkAnimatedImage> aImg,
-                                                                  SkScalar left, SkScalar top, const SkPaint* paint)->void {
-            auto img = aImg->getCurrentFrame();
-            SkSamplingOptions sampling(paint ? paint->getFilterQuality()
-                                             : kNone_SkFilterQuality);
-            self.drawImage(img, left, top, sampling, paint);
-        }), allow_raw_pointers())
 
         .function("_drawImageNine", optional_override([](SkCanvas& self, const sk_sp<SkImage>& image,
                                                          WASMPointerU32 centerPtr, WASMPointerF32 dstPtr,

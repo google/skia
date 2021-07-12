@@ -205,7 +205,6 @@ var CanvasKit = {
     drawImage: function() {},
     drawImageCubic: function() {},
     drawImageOptions: function() {},
-    drawImageAtCurrentFrame: function() {},
     drawLine: function() {},
     drawPaint: function() {},
     drawParagraph: function() {},

@@ -1214,17 +1214,6 @@ export interface Canvas extends EmbindObject<Canvas> {
                      mm: MipmapMode, paint: Paint | null): void;
 
     /**
-     * Draws the current frame of the given animated image with its top-left corner at
-     * (left, top) using the current clip, the current matrix, and optionally-provided paint.
-     * @param aImg
-     * @param left
-     * @param top
-     * @param paint
-     */
-    drawImageAtCurrentFrame(aImg: AnimatedImage, left: number, top: number,
-                            paint?: Paint): void;
-
-    /**
      *  Draws the provided image stretched proportionally to fit into dst rectangle.
      *  The center rectangle divides the image into nine sections: four sides, four corners, and
      *  the center.
