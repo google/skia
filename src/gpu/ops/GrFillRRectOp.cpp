@@ -502,14 +502,17 @@ static constexpr uint16_t kIndexData[] = {
 GR_DECLARE_STATIC_UNIQUE_KEY(gIndexBufferKey);
 
 void FillRRectOp::onPrepareDraws(GrMeshDrawTarget* target) {
-    // We request no multisample, but some platforms don't support disabling it on MSAA targets.
-    if (target->usesMSAASurface() && !target->caps().multisampleDisableSupport()) {
+    if (target->usesMSAASurface()) {
         fProcessorFlags |= ProcessorFlags::kMSAAEnabled;
     }
 
     if (!fProgramInfo) {
         this->createProgramInfo(target);
     }
+
+    // FIXME(skbug.com/12201): Our draw's MSAA state should match the render target, but DDL doesn't
+    // yet communicate DMSAA state to onPrePrepare.
+    SkASSERT(fProgramInfo->pipeline().isHWAntialiasState() == target->usesMSAASurface());
 
     size_t instanceStride = fProgramInfo->geomProc().instanceStride();
 
@@ -761,10 +764,17 @@ void FillRRectOp::onCreateProgramInfo(const GrCaps* caps,
                                       const GrDstProxyView& dstProxyView,
                                       GrXferBarrierFlags renderPassXferBarriers,
                                       GrLoadOp colorLoadOp) {
+    if (writeView.asRenderTargetProxy()->numSamples() > 1) {
+        fProcessorFlags |= ProcessorFlags::kMSAAEnabled;
+    }
+    auto extraPipelineFlags = (fProcessorFlags & ProcessorFlags::kMSAAEnabled)
+            ? GrPipeline::InputFlags::kHWAntialias
+            : GrPipeline::InputFlags::kNone;
     GrGeometryProcessor* gp = Processor::Make(arena, fHelper.aaType(), fProcessorFlags);
-    fProgramInfo = fHelper.createProgramInfo(caps, arena, writeView, std::move(appliedClip),
-                                             dstProxyView, gp, GrPrimitiveType::kTriangles,
-                                             renderPassXferBarriers, colorLoadOp);
+    fProgramInfo = GrSimpleMeshDrawOpHelper::CreateProgramInfo(
+            caps, arena, writeView, std::move(appliedClip), dstProxyView, gp,
+            fHelper.detachProcessorSet(), GrPrimitiveType::kTriangles, renderPassXferBarriers,
+            colorLoadOp, fHelper.pipelineFlags() | extraPipelineFlags);
 }
 
 void FillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
