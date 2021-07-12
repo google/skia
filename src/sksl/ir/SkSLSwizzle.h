@@ -39,6 +39,10 @@ struct Swizzle final : public Expression {
                                                std::unique_ptr<Expression> base,
                                                ComponentArray inComponents);
 
+    static std::unique_ptr<Expression> Convert(const Context& context,
+                                               std::unique_ptr<Expression> base,
+                                               skstd::string_view maskString);
+
     // Swizzle::Make does not permit ZERO or ONE in the component array, just X/Y/Z/W; errors are
     // reported via ASSERT.
     static std::unique_ptr<Expression> Make(const Context& context,
@@ -75,6 +79,11 @@ struct Swizzle final : public Expression {
     }
 
 private:
+    static std::unique_ptr<Expression> Convert(const Context& context,
+                                               std::unique_ptr<Expression> base,
+                                               ComponentArray inComponents,
+                                               skstd::string_view maskString);
+
     Swizzle(const Type* type, std::unique_ptr<Expression> base, const ComponentArray& components)
         : INHERITED(base->fOffset, kExpressionKind, type)
         , fBase(std::move(base))
