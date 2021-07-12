@@ -16,6 +16,23 @@
       "message": "ptal",
       "revId": "4255db5d6054fb4a5a5fe8e9f81d66d3815d4c02",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7d7ed0c3_e618d958",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2021-07-12T23:15:47Z",
+      "side": 1,
+      "message": "Maybe remove drawImage and _drawImageRect too?",
+      "revId": "4255db5d6054fb4a5a5fe8e9f81d66d3815d4c02",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
