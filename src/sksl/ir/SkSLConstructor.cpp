@@ -33,6 +33,26 @@ static std::unique_ptr<Expression> convert_compound_constructor(const Context& c
     // GLSL/SkSL, depending on the argument type.
     if (args.size() == 1) {
         std::unique_ptr<Expression>& argument = args.front();
+        if (type.isVector() && argument->type().isVector() &&
+            argument->type().componentType() == type.componentType() &&
+            argument->type().slotCount() > type.slotCount()) {
+            // Casting a vector-type into a smaller matching vector-type is a slice in GLSL.
+            // We don't allow those casts in SkSL; recommend a swizzle instead.
+            // Only `.xy` and `.xyz` are valid recommendations here, because `.x` would imply a
+            // scalar(vector) cast, and nothing has more slots than `.xyzw`.
+            const char* swizzleHint;
+            switch (type.slotCount()) {
+                case 2:  swizzleHint = "; use '.xy' instead"; break;
+                case 3:  swizzleHint = "; use '.xyz' instead"; break;
+                default: swizzleHint = ""; SkDEBUGFAIL("unexpected slicing cast"); break;
+            }
+
+            context.fErrors.error(offset, "'" + argument->type().displayName() +
+                                          "' is not a valid parameter to '" + type.displayName() +
+                                          "' constructor" + swizzleHint);
+            return nullptr;
+        }
+
         if (argument->type().isScalar()) {
             // A constructor containing a single scalar is a splat (for vectors) or diagonal matrix
             // (for matrices). It's legal regardless of the scalar's type, so synthesize an explicit
