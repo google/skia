@@ -251,7 +251,7 @@ private:
     // however, requires that the RTC be able to coordinate with the op list to achieve similar ends
     friend class GrSurfaceDrawContext;
 
-    GrAuditTrail* fAuditTrail;
+    GrAuditTrail* fAuditTrail = nullptr;
 
     bool fUsesMSAASurface;
     GrSwizzle fTargetSwizzle;
