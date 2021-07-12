@@ -181,7 +181,7 @@ public:
         SkIRect getConservativeBounds() const final {
             return SkIRect::MakeSize(fAtlas->dimensions());
         }
-        Effect apply(GrRecordingContext* context, GrSurfaceDrawContext*, const GrDrawOp*, GrAAType,
+        Effect apply(GrRecordingContext* context, GrSurfaceDrawContext*, GrDrawOp*, GrAAType,
                      GrAppliedClip* out, SkRect* bounds) const override {
             GrProxyProvider* proxyProvider = context->priv().proxyProvider();
             out->addCoverageFP(std::make_unique<ClipFP>(context, proxyProvider, fTest, fAtlas));

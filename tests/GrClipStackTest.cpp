@@ -465,8 +465,8 @@ static constexpr SkIRect kDeviceBounds = {0, 0, 100, 100};
 
 class NoOp : public GrDrawOp {
 public:
-    static const NoOp* Get() {
-        static const NoOp gNoOp;
+    static NoOp* Get() {
+        static NoOp gNoOp;
         return &gNoOp;
     }
 private:

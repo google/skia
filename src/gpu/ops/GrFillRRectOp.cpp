@@ -18,6 +18,7 @@
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrVertexWriter.h"
 #include "src/gpu/GrVx.h"
+#include "src/gpu/geometry/GrShape.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
@@ -45,6 +46,9 @@ public:
     const char* name() const final { return "GrFillRRectOp"; }
 
     FixedFunctionFlags fixedFunctionFlags() const final { return fHelper.fixedFunctionFlags(); }
+
+    ClipResult clipToShape(GrSurfaceDrawContext*, SkClipOp, const SkMatrix& clipMatrix,
+                           const GrShape&, GrAA) override;
 
     GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*, GrClampType) final;
     CombineResult onCombineIfPossible(GrOp*, SkArenaAlloc*, const GrCaps&) final;
@@ -199,6 +203,88 @@ FillRRectOp::FillRRectOp(GrProcessorSet* processorSet,
     this->setBounds(viewMatrix.mapRect(rrect.getBounds()),
                     GrOp::HasAABloat(!(processorFlags & ProcessorFlags::kFakeNonAA)),
                     GrOp::IsHairline::kNo);
+}
+
+GrDrawOp::ClipResult FillRRectOp::clipToShape(GrSurfaceDrawContext* sdc, SkClipOp clipOp,
+                                              const SkMatrix& clipMatrix, const GrShape& shape,
+                                              GrAA aa) {
+    SkASSERT(fInstanceCount == 1);  // This needs to be called before combining.
+    SkASSERT(fHeadInstance->fNext == nullptr);
+
+    if ((shape.isRect() || shape.isRRect()) &&
+        clipOp == SkClipOp::kIntersect &&
+        (aa == GrAA::kNo) == (fProcessorFlags & ProcessorFlags::kFakeNonAA)) {
+        // The clip shape is a round rect. Attempt to map it to a round rect in "viewMatrix" space.
+        SkRRect clipRRect;
+        if (clipMatrix == fHeadInstance->fViewMatrix) {
+            if (shape.isRect()) {
+                clipRRect.setRect(shape.rect());
+            } else {
+                clipRRect = shape.rrect();
+            }
+        } else {
+            // Find a matrix that maps from "clipMatrix" space to "viewMatrix" space.
+            SkASSERT(!fHeadInstance->fViewMatrix.hasPerspective());
+            if (clipMatrix.hasPerspective()) {
+                return ClipResult::kFail;
+            }
+            SkMatrix clipToView;
+            if (!fHeadInstance->fViewMatrix.invert(&clipToView)) {
+                return ClipResult::kClippedOut;
+            }
+            clipToView.preConcat(clipMatrix);
+            SkASSERT(!clipToView.hasPerspective());
+            if (!SkScalarNearlyZero(clipToView.getSkewX()) ||
+                !SkScalarNearlyZero(clipToView.getSkewY())) {
+                // A rect in "clipMatrix" space is not a rect in "viewMatrix" space.
+                return ClipResult::kFail;
+            }
+            clipToView.setSkewX(0);
+            clipToView.setSkewY(0);
+            SkASSERT(clipToView.rectStaysRect());
+
+            if (shape.isRect()) {
+                clipRRect.setRect(clipToView.mapRect(shape.rect()));
+            } else {
+                if (!shape.rrect().transform(clipToView, &clipRRect)) {
+                    // Transforming the rrect failed. This shouldn't generally happen except in
+                    // cases of fp32 overflow.
+                    return ClipResult::kFail;
+                }
+            }
+        }
+
+        // Intersect our round rect with the clip shape.
+        SkRRect isectRRect;
+        if (fHeadInstance->fRRect.isRect() && clipRRect.isRect()) {
+            SkRect isectRect;
+            if (!isectRect.intersect(fHeadInstance->fRRect.rect(), clipRRect.rect())) {
+                return ClipResult::kClippedOut;
+            }
+            isectRRect.setRect(isectRect);
+        } else {
+            isectRRect = SkRRectPriv::ConservativeIntersect(fHeadInstance->fRRect, clipRRect);
+            if (isectRRect.isEmpty()) {
+                // The round rects did not intersect at all or the intersection was too complicated
+                // to compute quickly.
+                return ClipResult::kFail;
+            }
+        }
+
+        // Update the local rect.
+        auto rect = skvx::bit_pun<grvx::float4>(fHeadInstance->fRRect.rect());
+        auto local = skvx::bit_pun<grvx::float4>(fHeadInstance->fLocalRect);
+        auto isect = skvx::bit_pun<grvx::float4>(isectRRect.rect());
+        auto rectToLocalSize = (local - skvx::shuffle<2,3,0,1>(local)) /
+                               (rect - skvx::shuffle<2,3,0,1>(rect));
+        fHeadInstance->fLocalRect = skvx::bit_pun<SkRect>((isect - rect) * rectToLocalSize + local);
+
+        // Update the round rect.
+        fHeadInstance->fRRect = isectRRect;
+        return ClipResult::kClippedGeometrically;
+    }
+
+    return ClipResult::kFail;
 }
 
 GrProcessorSet::Analysis FillRRectOp::finalize(const GrCaps& caps, const GrAppliedClip* clip,
