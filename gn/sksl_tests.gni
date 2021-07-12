@@ -143,6 +143,7 @@ sksl_error_tests = [
   "/sksl/errors/UnscopedVariableInIf.sksl",
   "/sksl/errors/UnscopedVariableInWhile.sksl",
   "/sksl/errors/UsingInvalidValue.sksl",
+  "/sksl/errors/VectorSlice.sksl",
   "/sksl/errors/WhileTypeMismatch.sksl",
 ]
 
