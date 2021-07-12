@@ -1314,9 +1314,9 @@
         "Upload-Perf-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Metal_AllPathsVolatile_Skpbench"
       ]
     },
-    "Perf-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All_Skpbench": {
+    "Perf-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Skpbench": {
       "tasks": [
-        "Upload-Perf-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All_Skpbench"
+        "Upload-Perf-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Skpbench"
       ]
     },
     "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ASAN": {
@@ -27339,14 +27339,14 @@
         "perf"
       ]
     },
-    "Perf-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All_Skpbench": {
+    "Perf-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Skpbench": {
       "caches": [
         {
           "name": "vpython",
           "path": "cache/vpython"
         }
       ],
-      "casSpec": "perf",
+      "casSpec": "skpbench",
       "cipd_packages": [
         {
           "name": "infra/3pp/tools/cpython/mac-amd64",
@@ -27379,19 +27379,14 @@
           "version": "git_revision:7a347df991c1064ac1a2a61e6d0488e17fd74170"
         },
         {
-          "name": "skia/bots/skimage",
-          "path": "skimage",
-          "version": "version:46"
+          "name": "skia/bots/mskp",
+          "path": "mskp",
+          "version": "version:5"
         },
         {
           "name": "skia/bots/skp",
           "path": "skp",
           "version": "version:321"
-        },
-        {
-          "name": "skia/bots/svg",
-          "path": "svg",
-          "version": "version:14"
         }
       ],
       "command": [
@@ -27399,8 +27394,8 @@
         "-u",
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
-        "perf",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All_Skpbench\",\"do_upload\":\"true\",\"nanobench_flags\":\"[\\\"nanobench\\\",\\\"--pre_log\\\",\\\"--gpuStatsDump\\\",\\\"true\\\",\\\"--scales\\\",\\\"1.0\\\",\\\"1.1\\\",\\\"--nocpu\\\",\\\"--config\\\",\\\"gl\\\",\\\"glsrgb\\\",\\\"glnarrow\\\",\\\"glmsaa4\\\",\\\"gldmsaa\\\",\\\"--match\\\",\\\"~inc0.gif\\\",\\\"~inc1.gif\\\",\\\"~incInterlaced.gif\\\",\\\"~inc0.jpg\\\",\\\"~incGray.jpg\\\",\\\"~inc0.wbmp\\\",\\\"~inc1.wbmp\\\",\\\"~inc0.webp\\\",\\\"~inc1.webp\\\",\\\"~inc0.ico\\\",\\\"~inc1.ico\\\",\\\"~inc0.png\\\",\\\"~inc1.png\\\",\\\"~inc2.png\\\",\\\"~inc12.png\\\",\\\"~inc13.png\\\",\\\"~inc14.png\\\",\\\"~inc0.webp\\\",\\\"~inc1.webp\\\",\\\"--key\\\",\\\"arch\\\",\\\"arm64\\\",\\\"compiler\\\",\\\"Clang\\\",\\\"cpu_or_gpu\\\",\\\"GPU\\\",\\\"cpu_or_gpu_value\\\",\\\"AppleM1\\\",\\\"model\\\",\\\"MacMini9.1\\\",\\\"os\\\",\\\"Mac11\\\"]\",\"nanobench_properties\":\"{\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\"}\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"perf\",\"task_id\":\"<(TASK_ID)\"}",
+        "skpbench",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Skpbench\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
@@ -70139,7 +70134,7 @@
       "max_attempts": 2,
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Perf-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All_Skpbench": {
+    "Upload-Perf-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Skpbench": {
       "caches": [
         {
           "name": "vpython",
@@ -70190,12 +70185,12 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "upload_nano_results",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All_Skpbench\",\"gs_bucket\":\"skia-perf\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Skpbench\",\"gs_bucket\":\"skia-perf\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Perf-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All_Skpbench"
+        "Perf-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Skpbench"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
