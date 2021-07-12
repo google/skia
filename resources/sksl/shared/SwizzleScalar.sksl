@@ -1,12 +1,10 @@
 uniform half unknownInput; // 1
 
 half4 main(float2 coords) {
-    half x = unknownInput;
+    half4 h4 = unknownInput.xxxx;
+    h4 = unknownInput.xx01;
+    h4 = unknownInput.0x10;
+    h4 = unknownInput.0x0x;
 
-    half4 v = x.xx01;
-    v = unknownInput.xx01;
-    v = unknownInput.0x10;
-    v = unknownInput.0x0x;
-
-    return v;
+    return h4;
 }
