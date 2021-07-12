@@ -8,6 +8,8 @@
 #ifndef SkRuntimeEffect_DEFINED
 #define SkRuntimeEffect_DEFINED
 
+#ifdef SK_ENABLE_SKSL
+
 #include "include/core/SkBlender.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkData.h"
@@ -446,4 +448,6 @@ private:
     using INHERITED = SkRuntimeEffectBuilder<sk_sp<SkBlender>>;
 };
 
-#endif
+#endif  // SK_ENABLE_SKSL
+
+#endif  // SkRuntimeEffect_DEFINED

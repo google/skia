@@ -8,6 +8,8 @@
 #ifndef SkRuntimeEffectPriv_DEFINED
 #define SkRuntimeEffectPriv_DEFINED
 
+#ifdef SK_ENABLE_SKSL
+
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkColorData.h"
 #include "src/core/SkVM.h"
@@ -136,4 +138,6 @@ public:
     }
 };
 
-#endif
+#endif  // SK_ENABLE_SKSL
+
+#endif  // SkRuntimeEffectPriv_DEFINED
