@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4fc5c10c_4fb4582b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2021-07-12T18:17:33Z",
+      "side": 1,
+      "message": "Also since we\u0027re not turning this on conditionally, why leave any of the disable msaa support in the code? Just delete it all here. If this change doesn\u0027t stick then it is just a revert right?",
+      "revId": "cde7047513fd8fd261d0343ca2cdadf7633f4c59",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
