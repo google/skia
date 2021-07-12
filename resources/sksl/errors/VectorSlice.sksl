@@ -1,0 +1,19 @@
+// Expect 9 errors
+
+// SkSL does not support shrinking a vector via casting.
+// A vector-slice can be performed in SkSL (or GLSL) by using a swizzle instead.
+
+const half4 h4 = half4(0);
+const half3 h3 = half3(h4);
+const half2 h2 = half2(h4);
+const half  h  = half (h4);
+
+const int4  i4 = int4(0);
+const int3  i3 = int3(i4);
+const int2  i2 = int2(i4);
+const int   i  = int (i4);
+
+const bool4 b4 = bool4(false);
+const bool3 b3 = bool3(b4);
+const bool2 b2 = bool2(b4);
+const bool  b  = bool (b4);
