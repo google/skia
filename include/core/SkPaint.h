@@ -26,7 +26,9 @@ class SkPathEffect;
 class SkShader;
 
 // Move to clients when they are ready -- aid in deprecating the enum
+#ifndef SK_SUPPORT_LEGACY_SETFILTERQUALITY
 #define SK_SUPPORT_LEGACY_SETFILTERQUALITY
+#endif
 
 /** \class SkPaint
     SkPaint controls options applied when drawing. SkPaint collects all
