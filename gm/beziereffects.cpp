@@ -89,6 +89,7 @@ protected:
     void onCreateProgramInfo(const GrCaps* caps,
                              SkArenaAlloc* arena,
                              const GrSurfaceProxyView& writeView,
+                             bool usesMSAASurface,
                              GrAppliedClip&& appliedClip,
                              const GrDstProxyView& dstProxyView,
                              GrXferBarrierFlags renderPassXferBarriers,
