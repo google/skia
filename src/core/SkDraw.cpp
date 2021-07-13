@@ -949,7 +949,7 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
             cullRectPtr = &cullRect;
         }
         doFill = paint->getFillPath(*pathPtr, tmpPath, cullRectPtr,
-                                    ComputeResScaleForStroking(fMatrixProvider->localToDevice()));
+                                    fMatrixProvider->localToDevice());
         pathPtr = tmpPath;
     }
 

@@ -90,7 +90,9 @@ public:
                                   kSkPathEffect_Type, data, size, procs).release()));
     }
 
-    virtual bool onFilterPath(SkPath*, const SkPath&, SkStrokeRec*, const SkRect*) const = 0;
+    virtual bool onFilterPath(SkPath*, const SkPath&, SkStrokeRec*, const SkRect*,
+                              const SkMatrix& /* ctm */) const = 0;
+
     virtual bool onAsPoints(PointData*, const SkPath&, const SkStrokeRec&, const SkMatrix&,
                             const SkRect*) const {
         return false;
