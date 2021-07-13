@@ -74,6 +74,8 @@ struct ProgramSettings {
     bool fDSLMarkVarsDeclared = false;
     // If true, the DSL should install a memory pool when possible.
     bool fDSLUseMemoryPool = true;
+    // If true, DSL objects assert that they were used prior to destruction
+    bool fAssertDSLObjectsReleased = true;
     // External functions available for use in runtime effects. These values are registered in the
     // symbol table of the Program, but ownership is *not* transferred. It is up to the caller to
     // keep them alive.

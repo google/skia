@@ -511,6 +511,7 @@ ResultCode processWorklist(const char* worklistPath) {
         }
 
         if (!line.empty()) {
+        printf("%s\n", line.c_str());
             // We found an argument. Remember it.
             args.push_back(std::move(line));
         } else {

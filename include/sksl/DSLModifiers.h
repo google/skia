@@ -42,7 +42,11 @@ public:
         return fModifiers.fFlags;
     }
 
-private:
+    DSLLayout layout() const {
+        return DSLLayout(fModifiers.fLayout);
+    }
+
+//private:
     SkSL::Modifiers fModifiers;
 
     friend DSLType Struct(skstd::string_view name, SkTArray<DSLField> fields);

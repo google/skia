@@ -8,6 +8,7 @@
 #ifndef SKSL_DSLWRITER
 #define SKSL_DSLWRITER
 
+#include "include/core/SkStringView.h"
 #include "include/private/SkSLModifiers.h"
 #include "include/private/SkSLStatement.h"
 #include "include/sksl/DSLExpression.h"
@@ -68,6 +69,11 @@ public:
     static const SkSL::Context& Context();
 
     /**
+     * Returns the Settings used by DSL operations in the current thread.
+     */
+    static SkSL::ProgramSettings& Settings();
+
+    /**
      * Returns the collection to which DSL program elements in this thread should be appended.
      */
     static std::vector<std::unique_ptr<SkSL::ProgramElement>>& ProgramElements() {
@@ -97,6 +103,8 @@ public:
      * Returns the current ProgramConfig.
      */
     static std::unique_ptr<ProgramConfig>& GetProgramConfig() { return Instance().fConfig; }
+
+    static bool IsModule() { return Instance().fIsModule; }
 
     static void Reset();
 
@@ -272,6 +280,7 @@ private:
     ErrorHandler* fErrorHandler = nullptr;
     ProgramSettings fSettings;
     Mangler fMangler;
+    bool fIsModule;
     bool fEncounteredErrors = false;
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
     struct StackFrame {
