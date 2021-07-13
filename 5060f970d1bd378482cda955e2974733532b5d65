@@ -46,6 +46,30 @@
       },
       "revId": "5060f970d1bd378482cda955e2974733532b5d65",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f784fd07_1e0c24e3",
+        "filename": "src/gpu/ops/GrOvalOpFactory.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 3350,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-07-13T21:02:00Z",
+      "side": 0,
+      "message": "Ah, you\u0027re right. It is redundant. The two conditions are slightly different, though. The one in SDC uses exact width \u003d\u003d height while this uses SkScalarNearlyEqual. Perhaps we should make SDC use SkScalarNearlyEqual?",
+      "parentUuid": "435ee6d0_76ae299c",
+      "range": {
+        "startLine": 3345,
+        "startChar": 0,
+        "endLine": 3350,
+        "endChar": 5
+      },
+      "revId": "5060f970d1bd378482cda955e2974733532b5d65",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
