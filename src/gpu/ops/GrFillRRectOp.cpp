@@ -271,6 +271,13 @@ GrDrawOp::ClipResult FillRRectOp::clipToShape(GrSurfaceDrawContext* sdc, SkClipO
             }
         }
 
+        // Don't apply the clip geometrically if it becomes subpixel, since then the hairline
+        // rendering may outset beyond the original clip.
+        SkRect devISectBounds = fHeadInstance->fViewMatrix.mapRect(isectRRect.rect());
+        if (devISectBounds.width() < 1.f || devISectBounds.height() < 1.f) {
+            return ClipResult::kFail;
+        }
+
         // Update the local rect.
         auto rect = skvx::bit_pun<grvx::float4>(fHeadInstance->fRRect.rect());
         auto local = skvx::bit_pun<grvx::float4>(fHeadInstance->fLocalRect);

@@ -479,7 +479,12 @@ GrSurfaceDrawContext::QuadOptimization GrSurfaceDrawContext::attemptQuadOptimiza
     if (!quad->fDevice.isFinite() || drawBounds.isEmpty() ||
         GrClip::IsOutsideClip(rtRect, drawBounds)) {
         return QuadOptimization::kDiscarded;
+    } else if (GrQuadUtils::WillUseHairline(quad->fDevice, GrAAType::kCoverage, quad->fEdgeFlags)) {
+        // Don't try to apply the clip early if we know rendering will use hairline methods, as this
+        // has an effect on the op bounds not otherwise taken into account in this function.
+        return QuadOptimization::kCropped;
     }
+
     auto conservativeCrop = [&]() {
         static constexpr int kLargeDrawLimit = 15000;
         // Crop the quad to the render target. This doesn't change the visual results of drawing but
@@ -522,6 +527,12 @@ GrSurfaceDrawContext::QuadOptimization GrSurfaceDrawContext::attemptQuadOptimiza
     SkASSERT(result.fEffect == GrClip::Effect::kClipped && result.fIsRRect);
     SkRect clippedBounds = result.fRRect.getBounds();
     clippedBounds.intersect(rtRect);
+    // Guard against the clipped draw turning into a hairline draw after intersection
+    SkAssertResult(drawBounds.intersect(clippedBounds));
+    if (drawBounds.width() < 1.f || drawBounds.height() < 1.f) {
+        return QuadOptimization::kCropped;
+    }
+
     if (result.fRRect.isRect()) {
         // No rounded corners, so we might be able to become a native clear or we might be able to
         // modify geometry and edge flags to represent intersected shape of clip and draw.
@@ -2078,4 +2089,3 @@ GrOpsTask* GrSurfaceDrawContext::replaceOpsTaskIfModifiesColor() {
     }
     return this->getOpsTask();
 }
-
