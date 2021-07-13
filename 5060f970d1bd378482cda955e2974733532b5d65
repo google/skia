@@ -94,6 +94,30 @@
       },
       "revId": "5060f970d1bd378482cda955e2974733532b5d65",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "58d15e95_7187ed10",
+        "filename": "src/gpu/ops/GrOvalOpFactory.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 3350,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-07-13T21:21:21Z",
+      "side": 0,
+      "message": "I\u0027m fine with that. My main motivation was to avoid triggering any incidental perf/image changes. I leave it up to you.",
+      "parentUuid": "e42ddb5e_f42003c2",
+      "range": {
+        "startLine": 3345,
+        "startChar": 0,
+        "endLine": 3350,
+        "endChar": 5
+      },
+      "revId": "5060f970d1bd378482cda955e2974733532b5d65",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
