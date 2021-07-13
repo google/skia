@@ -20,6 +20,7 @@ void GrMeshDrawOp::createProgramInfo(GrMeshDrawTarget* target) {
     this->createProgramInfo(&target->caps(),
                             target->allocator(),
                             target->writeView(),
+                            target->usesMSAASurface(),
                             target->detachAppliedClip(),
                             target->dstProxyView(),
                             target->renderPassBarriers(),
@@ -45,10 +46,13 @@ void GrMeshDrawOp::onPrePrepareDraws(GrRecordingContext* context,
                                      GrLoadOp colorLoadOp) {
     SkArenaAlloc* arena = context->priv().recordTimeAllocator();
 
+    // http://skbug.com/12201 -- DDL does not yet support DMSAA.
+    bool usesMSAASurface = writeView.asRenderTargetProxy()->numSamples() > 1;
+
     // This is equivalent to a GrOpFlushState::detachAppliedClip
     GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip::Disabled();
 
-    this->createProgramInfo(context->priv().caps(), arena, writeView,
+    this->createProgramInfo(context->priv().caps(), arena, writeView, usesMSAASurface,
                             std::move(appliedClip), dstProxyView, renderPassXferBarriers,
                             colorLoadOp);
 

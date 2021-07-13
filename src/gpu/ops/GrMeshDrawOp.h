@@ -38,12 +38,13 @@ protected:
     void createProgramInfo(const GrCaps* caps,
                            SkArenaAlloc* arena,
                            const GrSurfaceProxyView& writeView,
+                           bool usesMSAASurface,
                            GrAppliedClip&& appliedClip,
                            const GrDstProxyView& dstProxyView,
                            GrXferBarrierFlags renderPassXferBarriers,
                            GrLoadOp colorLoadOp) {
-        this->onCreateProgramInfo(caps, arena, writeView, std::move(appliedClip), dstProxyView,
-                                  renderPassXferBarriers, colorLoadOp);
+        this->onCreateProgramInfo(caps, arena, writeView, usesMSAASurface, std::move(appliedClip),
+                                  dstProxyView, renderPassXferBarriers, colorLoadOp);
     }
 
     void createProgramInfo(GrMeshDrawTarget*);
@@ -110,6 +111,7 @@ private:
     virtual void onCreateProgramInfo(const GrCaps*,
                                      SkArenaAlloc*,
                                      const GrSurfaceProxyView& writeView,
+                                     bool usesMSAASurface,
                                      GrAppliedClip&&,
                                      const GrDstProxyView&,
                                      GrXferBarrierFlags renderPassXferBarriers,

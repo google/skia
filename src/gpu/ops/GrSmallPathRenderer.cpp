@@ -168,6 +168,7 @@ private:
     void onCreateProgramInfo(const GrCaps*,
                              SkArenaAlloc*,
                              const GrSurfaceProxyView& writeView,
+                             bool usesMSAASurface,
                              GrAppliedClip&&,
                              const GrDstProxyView&,
                              GrXferBarrierFlags renderPassXferBarriers,

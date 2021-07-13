@@ -907,6 +907,7 @@ private:
     void onCreateProgramInfo(const GrCaps*,
                              SkArenaAlloc*,
                              const GrSurfaceProxyView& writeView,
+                             bool usesMSAASurface,
                              GrAppliedClip&&,
                              const GrDstProxyView&,
                              GrXferBarrierFlags renderPassXferBarriers,
@@ -1108,6 +1109,7 @@ AAHairlineOp::Program AAHairlineOp::predictPrograms(const GrCaps* caps) const {
 void AAHairlineOp::onCreateProgramInfo(const GrCaps* caps,
                                        SkArenaAlloc* arena,
                                        const GrSurfaceProxyView& writeView,
+                                       bool usesMSAASurface,
                                        GrAppliedClip&& appliedClip,
                                        const GrDstProxyView& dstProxyView,
                                        GrXferBarrierFlags renderPassXferBarriers,
@@ -1157,14 +1159,17 @@ void AAHairlineOp::onPrePrepareDraws(GrRecordingContext* context,
     SkArenaAlloc* arena = context->priv().recordTimeAllocator();
     const GrCaps* caps = context->priv().caps();
 
+    // http://skbug.com/12201 -- DDL does not yet support DMSAA.
+    bool usesMSAASurface = writeView.asRenderTargetProxy()->numSamples() > 1;
+
     // This is equivalent to a GrOpFlushState::detachAppliedClip
     GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip::Disabled();
 
     // Conservatively predict which programs will be required
     fCharacterization = this->predictPrograms(caps);
 
-    this->createProgramInfo(caps, arena, writeView, std::move(appliedClip), dstProxyView,
-                            renderPassXferBarriers, colorLoadOp);
+    this->createProgramInfo(caps, arena, writeView, usesMSAASurface, std::move(appliedClip),
+                            dstProxyView, renderPassXferBarriers, colorLoadOp);
 
     context->priv().recordProgramInfo(fProgramInfos[0]);
     context->priv().recordProgramInfo(fProgramInfos[1]);
