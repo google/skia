@@ -8,6 +8,7 @@
 #include "gm/gm.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkBlendMode.h"
+#include "include/core/SkBlender.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkFont.h"
@@ -18,13 +19,14 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/utils/SkTextUtils.h"
+#include "tools/RuntimeBlendUtils.h"
 #include "tools/ToolUtils.h"
 
 #include <initializer_list>
 
 namespace skiagm {
 
-// This GM recreates the blend mode images from the Android documentation
+// This GM recreates the blend mode images from the Android documentation.
 class AndroidBlendModesGM : public GM {
 public:
     AndroidBlendModesGM() {
@@ -32,9 +34,7 @@ public:
     }
 
 protected:
-    SkString onShortName() override {
-        return SkString("androidblendmodes");
-    }
+    virtual void onSetBlend(SkPaint* paint, SkBlendMode blend) = 0;
 
     SkISize onISize() override {
         return SkISize::Make(kNumCols * kBitmapSize, kNumRows * kBitmapSize);
@@ -72,7 +72,9 @@ protected:
 
         SkPaint p;
         canvas->drawImage(fCompositeDst.asImage(), 0, 0, SkSamplingOptions(), &p);
-        p.setBlendMode(mode);
+
+        this->onSetBlend(&p, mode);
+
         canvas->drawImage(fCompositeSrc.asImage(), 0, 0, SkSamplingOptions(), &p);
     }
 
@@ -132,5 +134,32 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new AndroidBlendModesGM;)
+// This GM recreates the blend mode images from the Android documentation using SkBlendMode.
+class NativeAndroidBlendModesGM : public AndroidBlendModesGM {
+public:
+    SkString onShortName() override {
+        return SkString("androidblendmodes");
+    }
+
+    void onSetBlend(SkPaint* paint, SkBlendMode blend) override {
+        paint->setBlendMode(blend);
+    }
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+// This GM recreates the blend mode images from the Android documentation using a Runtime Blender.
+class RuntimeAndroidBlendModesGM : public AndroidBlendModesGM {
+public:
+    SkString onShortName() override {
+        return SkString("runtime_androidblendmodes");
+    }
+
+    void onSetBlend(SkPaint* paint, SkBlendMode blend) override {
+        paint->setBlender(GetRuntimeBlendForBlendMode(blend));
+    }
+};
+
+DEF_GM(return new NativeAndroidBlendModesGM;)
+DEF_GM(return new RuntimeAndroidBlendModesGM;)
 }  // namespace skiagm
