@@ -130,10 +130,15 @@ bool GrStyle::applyPathEffect(SkPath* dst, SkStrokeRec* strokeRec, const SkPath&
     if (!fPathEffect) {
         return false;
     }
+
+    // TODO: [skbug.com/11957] Plumb CTM callers and pass it to filterPath().
+    SkASSERT(!fPathEffect->needsCTM());
+
     if (SkPathEffect::kDash_DashType == fDashInfo.fType) {
         // We apply the dash ourselves here rather than using the path effect. This is so that
         // we can control whether the dasher applies the strokeRec for special cases. Our keying
         // depends on the strokeRec being applied separately.
+        SkASSERT(!fPathEffect->needsCTM());  // Make sure specified PE doesn't need CTM
         SkScalar phase = fDashInfo.fPhase;
         const SkScalar* intervals = fDashInfo.fIntervals.get();
         int intervalCnt = fDashInfo.fIntervals.count();

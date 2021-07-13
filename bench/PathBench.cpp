@@ -994,7 +994,7 @@ protected:
                                                6222222.5f, 28333.334f, 0.0f, 0.0f, 1.0f);
         for (int i = 0; i < loops; ++i) {
             SkPath dst;
-            paint.getFillPath(path, &dst, nullptr, SkDraw::ComputeResScaleForStroking(mtx));
+            paint.getFillPath(path, &dst, nullptr, SkPaintPriv::ComputeResScaleForStroking(mtx));
         }
     }
 

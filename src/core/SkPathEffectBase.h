@@ -90,7 +90,19 @@ public:
                                   kSkPathEffect_Type, data, size, procs).release()));
     }
 
-    virtual bool onFilterPath(SkPath*, const SkPath&, SkStrokeRec*, const SkRect*) const = 0;
+    /**
+     * Filter the input path.
+     *
+     * The CTM parameter is provided for path effects that can use the information.
+     * The output of path effects must always be in the original (input) coordinate system,
+     * regardless of whether the path effect uses the CTM or not.
+     */
+    virtual bool onFilterPath(SkPath*, const SkPath&, SkStrokeRec*, const SkRect*,
+                              const SkMatrix& /* ctm */) const = 0;
+
+    /** Path effects *requiring* a valid CTM should override to return true. */
+    virtual bool onNeedsCTM() const { return false; }
+
     virtual bool onAsPoints(PointData*, const SkPath&, const SkStrokeRec&, const SkMatrix&,
                             const SkRect*) const {
         return false;
