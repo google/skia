@@ -11,6 +11,7 @@
 #include "src/core/SkAutoMalloc.h"
 #include "src/gpu/GrGlyph.h"
 #include "src/gpu/GrImageInfo.h"
+#include "src/gpu/GrSimpleMesh.h"
 #include "src/gpu/text/GrStrikeCache.h"
 
 GrAtlasManager::GrAtlasManager(GrProxyProvider* proxyProvider,

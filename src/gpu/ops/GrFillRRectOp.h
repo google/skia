@@ -8,6 +8,7 @@
 #ifndef GrFillRRectOp_DEFINED
 #define GrFillRRectOp_DEFINED
 
+#if 0
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/ops/GrOp.h"
 
@@ -27,5 +28,7 @@ namespace GrFillRRectOp {
                      const SkRect& localRect,
                      GrAA);
 }  // namespace GrFillRRectOp
+
+#endif
 
 #endif

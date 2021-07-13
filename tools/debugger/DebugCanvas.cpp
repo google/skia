@@ -165,7 +165,7 @@ void DebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
             if (dContext) {
                 dContext->flush();
             }
-            acb = new GrAuditTrail::AutoCollectOps(at, i);
+//            acb = new GrAuditTrail::AutoCollectOps(at, i);
         }
 #endif
         if (fCommandVector[i]->isVisible()) {
@@ -289,13 +289,13 @@ void DebugCanvas::drawAndCollectOps(SkCanvas* canvas) {
         // loop over all of the commands and draw them, this is to collect reordering
         // information
         for (int i = 0; i < this->getSize(); i++) {
-            GrAuditTrail::AutoCollectOps enable(at, i);
+//            GrAuditTrail::AutoCollectOps enable(at, i);
             fCommandVector[i]->execute(canvas);
         }
 
         // in case there is some kind of global reordering
         {
-            GrAuditTrail::AutoEnable ae(at);
+//            GrAuditTrail::AutoEnable ae(at);
 
             auto dContext = GrAsDirectContext(canvas->recordingContext());
             if (dContext) {
@@ -321,7 +321,7 @@ void DebugCanvas::toJSON(SkJSONWriter&   writer,
 
     // now collect json
     GrAuditTrail* at = this->getAuditTrail(canvas);
-#endif
+
     writer.appendS32(SKDEBUGCANVAS_ATTRIBUTE_VERSION, SKDEBUGCANVAS_VERSION);
     writer.beginArray(SKDEBUGCANVAS_ATTRIBUTE_COMMANDS);
 
@@ -354,7 +354,7 @@ void DebugCanvas::toJSONOpsTask(SkJSONWriter& writer, SkCanvas* canvas) {
         at->toJson(writer);
         this->cleanupAuditTrail(at);
         return;
-    }
+    } else
 #endif
 
     writer.beginObject();
@@ -651,3 +651,4 @@ std::map<int, std::vector<int>> DebugCanvas::getImageIdToCommandMap(UrlDataManag
     }
     return m;
 }
+#endif

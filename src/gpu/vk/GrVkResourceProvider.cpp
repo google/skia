@@ -9,6 +9,7 @@
 
 #include "include/gpu/GrDirectContext.h"
 #include "src/core/SkTaskGroup.h"
+#include "src/core/SkTraceEvent.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrSamplerState.h"
 #include "src/gpu/GrStencilSettings.h"

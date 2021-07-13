@@ -88,6 +88,8 @@ GrSurfaceProxyView MakeTextureProxyViewFromData(GrDirectContext* dContext,
     return sContext->readSurfaceView();
 }
 
+#if SK_GPU_V1
+
 GrProgramInfo* CreateProgramInfo(const GrCaps* caps,
                                  SkArenaAlloc* arena,
                                  const GrSurfaceProxyView& writeView,
@@ -118,5 +120,6 @@ GrProgramInfo* CreateProgramInfo(const GrCaps* caps,
                                                        colorLoadOp, flags, stencilSettings);
 }
 
+#endif
 
 }  // namespace sk_gpu_test

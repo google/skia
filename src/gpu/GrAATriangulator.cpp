@@ -8,6 +8,7 @@
 #include "src/gpu/GrAATriangulator.h"
 
 #include "src/gpu/GrEagerVertexAllocator.h"
+#include "src/gpu/GrGpuBuffer.h"
 #include <queue>
 #include <vector>
 #include <unordered_map>

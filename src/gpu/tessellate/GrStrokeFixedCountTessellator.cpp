@@ -8,6 +8,7 @@
 #include "src/gpu/tessellate/GrStrokeFixedCountTessellator.h"
 
 #include "src/core/SkGeometry.h"
+#include "src/gpu/GrMeshDrawTarget.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/geometry/GrPathUtils.h"
 #include "src/gpu/geometry/GrWangsFormula.h"
@@ -433,6 +434,7 @@ void GrStrokeFixedCountTessellator::prepare(GrMeshDrawTarget* target,
     fFixedVertexCount = fixedEdgeCount * 2;
 }
 
+#if SK_GPU_V1
 void GrStrokeFixedCountTessellator::draw(GrOpFlushState* flushState) const {
     if (fInstanceChunks.empty() || fFixedVertexCount <= 0) {
         return;
@@ -442,3 +444,4 @@ void GrStrokeFixedCountTessellator::draw(GrOpFlushState* flushState) const {
         flushState->drawInstanced(instanceChunk.fCount, instanceChunk.fBase, fFixedVertexCount, 0);
     }
 }
+#endif

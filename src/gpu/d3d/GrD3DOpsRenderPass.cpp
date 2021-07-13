@@ -11,6 +11,7 @@
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrRenderTarget.h"
+#include "src/gpu/GrSimpleMesh.h"
 #include "src/gpu/GrStencilSettings.h"
 #include "src/gpu/d3d/GrD3DBuffer.h"
 #include "src/gpu/d3d/GrD3DCommandSignature.h"

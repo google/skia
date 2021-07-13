@@ -7,10 +7,14 @@
 
 #include "src/gpu/GrSurfaceFillContext.h"
 
+#if SK_GPU_V1
+
 #include "include/private/GrImageContext.h"
+#include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrDstProxyView.h"
 #include "src/gpu/GrImageContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/geometry/GrRect.h"
@@ -429,3 +433,7 @@ bool GrSurfaceFillContext::blitTexture(GrSurfaceProxyView view,
     this->fillRectToRectWithFP(srcRectF, dstRect, std::move(fp));
     return true;
 }
+
+#else
+
+#endif

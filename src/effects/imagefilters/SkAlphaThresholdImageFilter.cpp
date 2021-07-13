@@ -19,6 +19,7 @@
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrColorSpaceXform.h"
+#include "src/gpu/GrPaint.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTextureProxy.h"
@@ -102,15 +103,15 @@ void SkAlphaThresholdImageFilter::flatten(SkWriteBuffer& buffer) const {
 GrSurfaceProxyView SkAlphaThresholdImageFilter::createMaskTexture(
         GrRecordingContext* context, const SkMatrix& inMatrix, const SkIRect& bounds,
         const SkSurfaceProps& surfaceProps) const {
-    auto rtContext = GrSurfaceDrawContext::MakeWithFallback(
+    auto sdc = GrSurfaceDrawContext::MakeWithFallback(
             context, GrColorType::kAlpha_8, nullptr, SkBackingFit::kApprox, bounds.size(),
             surfaceProps);
-    if (!rtContext) {
+    if (!sdc) {
         return {};
     }
 
     SkRegion::Iterator iter(fRegion);
-    rtContext->clear(SK_PMColor4fTRANSPARENT);
+    sdc->clear(SK_PMColor4fTRANSPARENT);
 
     while (!iter.done()) {
         GrPaint paint;
@@ -118,12 +119,12 @@ GrSurfaceProxyView SkAlphaThresholdImageFilter::createMaskTexture(
 
         SkRect rect = SkRect::Make(iter.rect());
 
-        rtContext->drawRect(nullptr, std::move(paint), GrAA::kNo, inMatrix, rect);
+        sdc->drawRect(nullptr, std::move(paint), GrAA::kNo, inMatrix, rect);
 
         iter.next();
     }
 
-    return rtContext->readSurfaceView();
+    return sdc->readSurfaceView();
 }
 
 static std::unique_ptr<GrFragmentProcessor> make_alpha_threshold_fp(
