@@ -16,6 +16,23 @@
       "message": "After a brief hiatus, this CL is ready for review.",
       "revId": "b9d6b498a8d0b1fc8b7c4076252341823018ef5e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b86c3c1d_e790ceca",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 17
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-07-13T21:29:31Z",
+      "side": 1,
+      "message": "Where is GetRuntimeBlendForBlendMode?",
+      "revId": "b9d6b498a8d0b1fc8b7c4076252341823018ef5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
