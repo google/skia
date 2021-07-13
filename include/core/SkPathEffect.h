@@ -86,6 +86,10 @@ public:
      */
     bool filterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect* cullR) const;
 
+    /** Version of filterPath that can be called when the CTM is known. */
+    bool filterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect* cullR,
+                    const SkMatrix& ctm) const;
+
     static sk_sp<SkPathEffect> Deserialize(const void* data, size_t size,
                                            const SkDeserialProcs* procs = nullptr);
 
