@@ -1065,6 +1065,8 @@ GrRenderTask::ExpectedOutcome GrOpsTask::onMakeClosed(GrRecordingContext* rConte
                     fTargetOrigin,
                     this->target(0)->backingStoreDimensions().height(),
                     fClippedContentBounds);
+            SkDebugf("task target update bounds:\n");
+            SkRect::Make(*targetUpdateBounds).dump();
             return ExpectedOutcome::kTargetDirty;
         }
     }

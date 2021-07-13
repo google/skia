@@ -480,7 +480,12 @@ GrSurfaceDrawContext::QuadOptimization GrSurfaceDrawContext::attemptQuadOptimiza
     if (!quad->fDevice.isFinite() || drawBounds.isEmpty() ||
         GrClip::IsOutsideClip(rtRect, drawBounds)) {
         return QuadOptimization::kDiscarded;
+    } else if (GrQuadUtils::WillUseHairline(quad->fDevice, GrAAType::kCoverage, quad->fEdgeFlags)) {
+        // Don't try to apply the clip early if we know rendering will use hairline methods, as this
+        // has an effect on the op bounds not otherwise taken into account in this function.
+        return QuadOptimization::kCropped;
     }
+
     auto conservativeCrop = [&]() {
         static constexpr int kLargeDrawLimit = 15000;
         // Crop the quad to the render target. This doesn't change the visual results of drawing but
@@ -523,6 +528,13 @@ GrSurfaceDrawContext::QuadOptimization GrSurfaceDrawContext::attemptQuadOptimiza
     SkASSERT(result.fEffect == GrClip::Effect::kClipped && result.fIsRRect);
     SkRect clippedBounds = result.fRRect.getBounds();
     clippedBounds.intersect(rtRect);
+    // Guard against the clipped draw turning into a hairline draw after intersection
+    SkAssertResult(drawBounds.intersect(clippedBounds));
+    if (drawBounds.width() < 1.f || drawBounds.height() < 1.f) {
+        SkDebugf("not doing quad optimization v2\n");
+        return QuadOptimization::kCropped;
+    }
+
     if (result.fRRect.isRect()) {
         // No rounded corners, so we might be able to become a native clear or we might be able to
         // modify geometry and edge flags to represent intersected shape of clip and draw.
@@ -1864,7 +1876,7 @@ static void op_bounds(SkRect* bounds, const GrOp* op) {
     *bounds = op->bounds();
     if (op->hasZeroArea()) {
         if (op->hasAABloat()) {
-            bounds->outset(0.5f, 0.5f);
+           bounds->outset(0.5f, 0.5f);
         } else {
             // We don't know which way the particular GPU will snap lines or points at integer
             // coords. So we ensure that the bounds is large enough for either snap.
@@ -1885,6 +1897,8 @@ static void op_bounds(SkRect* bounds, const GrOp* op) {
         }
     }
 }
+
+#include "src/gpu/GrScissorState.h"
 
 void GrSurfaceDrawContext::addDrawOp(const GrClip* clip,
                                      GrOp::Owner op,
@@ -1938,6 +1952,10 @@ void GrSurfaceDrawContext::addDrawOp(const GrClip* clip,
     }
 
     // Must be called before setDstProxyView so that it sees the final bounds of the op.
+    SkDebugf("draw op bounds:\n");
+    bounds.dump();
+    SkDebugf("scissor rect for op:\n");
+    SkRect::Make(appliedClip.scissorState().rect()).dump();
     op->setClippedBounds(bounds);
 
     // Determine if the Op will trigger the use of a separate DMSAA attachment that requires manual
@@ -2112,4 +2130,3 @@ GrOpsTask* GrSurfaceDrawContext::replaceOpsTaskIfModifiesColor() {
     }
     return this->getOpsTask();
 }
-
