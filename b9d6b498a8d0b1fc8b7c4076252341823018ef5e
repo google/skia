@@ -51,6 +51,23 @@
       "parentUuid": "b86c3c1d_e790ceca",
       "revId": "b9d6b498a8d0b1fc8b7c4076252341823018ef5e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0fad22ed_019f3699",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 17
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-07-13T21:45:50Z",
+      "side": 1,
+      "message": "Maybe a unittest, that confirms the results match (between built-in and sksl) would be just as complete -- and not require a manual triage.",
+      "revId": "b9d6b498a8d0b1fc8b7c4076252341823018ef5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
