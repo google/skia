@@ -582,33 +582,15 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(SkISize dimensions,
     SkASSERT(!this->caps()->isFormatCompressed(format));
 
     sk_sp<GrMtlTexture> tex;
-    // This TexDesc refers to the texture that will be read by the client. Thus even if msaa is
-    // requested, this TexDesc describes the resolved texture. Therefore we always have samples
-    // set to 1.
-    MTLTextureDescriptor* texDesc = [[MTLTextureDescriptor alloc] init];
-    texDesc.textureType = MTLTextureType2D;
-    texDesc.pixelFormat = mtlPixelFormat;
-    texDesc.width = dimensions.fWidth;
-    texDesc.height = dimensions.fHeight;
-    texDesc.depth = 1;
-    texDesc.mipmapLevelCount = mipLevelCount;
-    texDesc.sampleCount = 1;
-    texDesc.arrayLength = 1;
-    // Make all textures have private gpu only access. We can use transfer buffers or textures
-    // to copy to them.
-    if (@available(macOS 10.11, iOS 9.0, *)) {
-        texDesc.storageMode = MTLStorageModePrivate;
-        texDesc.usage = MTLTextureUsageShaderRead;
-        texDesc.usage |= (renderable == GrRenderable::kYes) ? MTLTextureUsageRenderTarget : 0;
-    }
-
     GrMipmapStatus mipmapStatus =
             mipLevelCount > 1 ? GrMipmapStatus::kDirty : GrMipmapStatus::kNotAllocated;
     if (renderable == GrRenderable::kYes) {
         tex = GrMtlTextureRenderTarget::MakeNewTextureRenderTarget(
-                this, budgeted, dimensions, renderTargetSampleCnt, texDesc, mipmapStatus);
+                this, budgeted, dimensions, renderTargetSampleCnt, mtlPixelFormat, mipLevelCount,
+                mipmapStatus);
     } else {
-        tex = GrMtlTexture::MakeNewTexture(this, budgeted, dimensions, texDesc, mipmapStatus);
+        tex = GrMtlTexture::MakeNewTexture(this, budgeted, dimensions, mtlPixelFormat,
+                                           mipLevelCount, mipmapStatus);
     }
 
     if (!tex) {
@@ -648,31 +630,12 @@ sk_sp<GrTexture> GrMtlGpu::onCreateCompressedTexture(SkISize dimensions,
         numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
     }
 
-    // This TexDesc refers to the texture that will be read by the client. Thus even if msaa is
-    // requested, this TexDesc describes the resolved texture. Therefore we always have samples
-    // set to 1.
-    // Compressed textures with MIP levels or multiple samples are not supported as of now.
-    MTLTextureDescriptor* texDesc = [[MTLTextureDescriptor alloc] init];
-    texDesc.textureType = MTLTextureType2D;
-    texDesc.pixelFormat = mtlPixelFormat;
-    texDesc.width = dimensions.width();
-    texDesc.height = dimensions.height();
-    texDesc.depth = 1;
-    texDesc.mipmapLevelCount = numMipLevels;
-    texDesc.sampleCount = 1;
-    texDesc.arrayLength = 1;
-    // Make all textures have private gpu only access. We can use transfer buffers or textures
-    // to copy to them.
-    if (@available(macOS 10.11, iOS 9.0, *)) {
-        texDesc.storageMode = MTLStorageModePrivate;
-        texDesc.usage = MTLTextureUsageShaderRead;
-    }
-
     GrMipmapStatus mipmapStatus = (mipMapped == GrMipmapped::kYes)
                                                                 ? GrMipmapStatus::kValid
                                                                 : GrMipmapStatus::kNotAllocated;
 
-    auto tex = GrMtlTexture::MakeNewTexture(this, budgeted, dimensions, texDesc, mipmapStatus);
+    auto tex = GrMtlTexture::MakeNewTexture(this, budgeted, dimensions, mtlPixelFormat,
+                                            numMipLevels, mipmapStatus);
     if (!tex) {
         return nullptr;
     }

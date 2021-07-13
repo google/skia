@@ -22,6 +22,20 @@ public:
                                               int sampleCnt,
                                               MTLPixelFormat format);
 
+    static sk_sp<GrMtlAttachment> MakeTexture(GrMtlGpu* gpu,
+                                              SkISize dimensions,
+                                              MTLPixelFormat format,
+                                              uint32_t mipLevels,
+                                              GrRenderable renderable,
+                                              int numSamples,
+                                              SkBudgeted budgeted);
+
+    static sk_sp<GrMtlAttachment> MakeWrapped(GrMtlGpu* gpu,
+                                              SkISize dimensions,
+                                              id<MTLTexture>,
+                                              UsageFlags attachmentUsages,
+                                              GrWrapCacheable);
+
     ~GrMtlAttachment() override;
 
     GrBackendFormat backendFormat() const override {
@@ -45,13 +59,19 @@ private:
                                        uint32_t mipLevels,
                                        int mtlTextureUsage,
                                        int mtlStorageMode,
-                                       GrProtected isProtected,
                                        SkBudgeted);
+
     GrMtlAttachment(GrMtlGpu* gpu,
                     SkISize dimensions,
                     UsageFlags supportedUsages,
                     id<MTLTexture> texture,
                     SkBudgeted);
+
+    GrMtlAttachment(GrMtlGpu* gpu,
+                    SkISize dimensions,
+                    UsageFlags supportedUsages,
+                    id<MTLTexture> texture,
+                    GrWrapCacheable);
 
     GrMtlGpu* getMtlGpu() const;
 
