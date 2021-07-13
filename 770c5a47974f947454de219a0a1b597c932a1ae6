@@ -18,6 +18,41 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1289c7aa_9400ad18",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-07-13T15:25:03Z",
+      "side": 1,
+      "message": "I easily can - what do you think? It would enable me to add asserts in GPU and scene graph code, which may be desirable.",
+      "parentUuid": "522f63a4_68d8f859",
+      "revId": "770c5a47974f947454de219a0a1b597c932a1ae6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "217c5e7c_888769e0",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-07-13T15:25:03Z",
+      "side": 1,
+      "message": "@Mike is this the right thing to do here for the old signature?",
+      "revId": "770c5a47974f947454de219a0a1b597c932a1ae6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "28b75677_26ee5195",
