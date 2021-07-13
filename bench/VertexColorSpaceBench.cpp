@@ -278,6 +278,7 @@ private:
 
     using INHERITED = GrMeshDrawOp;
 };
+
 }  // namespace
 
 class VertexColorSpaceBench : public Benchmark {

@@ -36,6 +36,7 @@
 #include "src/core/SkOSFile.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/core/SkTraceEvent.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrShaderUtils.h"
 #include "src/utils/SkJSONWriter.h"
 #include "src/utils/SkOSPath.h"

@@ -8,6 +8,8 @@
 #ifndef GrSurfaceFillContext_DEFINED
 #define GrSurfaceFillContext_DEFINED
 
+#if 0
+
 #include "include/core/SkSize.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrImageInfo.h"
@@ -198,7 +200,9 @@ protected:
      */
     static void ClearToGrPaint(std::array<float, 4> color, GrPaint* paint);
 
+#if SK_GPU_V1
     void addOp(GrOp::Owner);
+#endif
 
     GrOpsTask* replaceOpsTask();
 
@@ -214,6 +218,7 @@ private:
     /** Override to be notified in subclass before the current ops task is replaced. */
     virtual void willReplaceOpsTask(GrOpsTask* prevTask, GrOpsTask* nextTask) {}
 
+#if SK_GPU_V1
     /**
      * Override to be called to participate in the decision to discard all previous ops if a
      * fullscreen clear occurs.
@@ -221,12 +226,15 @@ private:
     virtual GrOpsTask::CanDiscardPreviousOps canDiscardPreviousOpsOnFullClear() const {
         return GrOpsTask::CanDiscardPreviousOps::kYes;
     }
+#endif
 
     void internalClear(const SkIRect* scissor,
                        std::array<float, 4> color,
                        bool upgradePartialToFull = false);
 
+#if SK_GPU_V1
     void addDrawOp(GrOp::Owner);
+#endif
 
     SkDEBUGCODE(void onValidate() const override;)
 
@@ -261,5 +269,104 @@ std::array<float, 4> GrSurfaceFillContext::adjustColorAlphaType(SkRGBA4f<AlphaTy
     }
     return (AlphaType == this->colorInfo().alphaType()) ? color.array() : ConvertColor(color);
 }
+
+#else
+
+#include "src/gpu/GrSurfaceContext.h"
+
+class GrSurfaceFillContext : public GrSurfaceContext {
+public:
+    GrSurfaceFillContext(GrRecordingContext* rContext,
+                         GrSurfaceProxyView readView,
+                         GrSurfaceProxyView writeView,
+                         const GrColorInfo& colorInfo,
+                         bool flushTimeOpsTask = false)
+        : INHERITED(rContext, std::move(readView), std::move(colorInfo)) {
+    }
+
+    static std::unique_ptr<GrSurfaceFillContext> Make(GrRecordingContext*,
+                                                      GrImageInfo,
+                                                      SkBackingFit = SkBackingFit::kExact,
+                                                      int sampleCount = 1,
+                                                      GrMipmapped = GrMipmapped::kNo,
+                                                      GrProtected = GrProtected::kNo,
+                                                      GrSurfaceOrigin = kTopLeft_GrSurfaceOrigin,
+                                                      SkBudgeted = SkBudgeted::kYes) {
+        return nullptr;
+    }
+
+    static std::unique_ptr<GrSurfaceFillContext> MakeWithFallback(
+            GrRecordingContext*,
+            GrImageInfo,
+            SkBackingFit = SkBackingFit::kExact,
+            int sampleCount = 1,
+            GrMipmapped = GrMipmapped::kNo,
+            GrProtected = GrProtected::kNo,
+            GrSurfaceOrigin = kTopLeft_GrSurfaceOrigin,
+            SkBudgeted = SkBudgeted::kYes) {
+        return nullptr;
+    }
+
+    static std::unique_ptr<GrSurfaceFillContext> Make(GrRecordingContext*,
+                                                      SkAlphaType,
+                                                      sk_sp<SkColorSpace>,
+                                                      SkISize dimensions,
+                                                      SkBackingFit,
+                                                      const GrBackendFormat&,
+                                                      int sampleCount,
+                                                      GrMipmapped,
+                                                      GrProtected,
+                                                      GrSwizzle readSwizzle,
+                                                      GrSwizzle writeSwizzle,
+                                                      GrSurfaceOrigin,
+                                                      SkBudgeted) {
+        return nullptr;
+    }
+
+    static std::unique_ptr<GrSurfaceFillContext> MakeFromBackendTexture(
+            GrRecordingContext*,
+            GrColorInfo,
+            const GrBackendTexture&,
+            int sampleCount,
+            GrSurfaceOrigin,
+            sk_sp<GrRefCntedCallback> releaseHelper) {
+        return nullptr;
+    }
+
+    void discard() {}
+
+    template <SkAlphaType AlphaType>
+    void clear(const SkIRect& rect, const SkRGBA4f<AlphaType>& color) {}
+
+    template <SkAlphaType AlphaType> void clear(const SkRGBA4f<AlphaType>& color) {}
+
+    template <SkAlphaType AlphaType>
+    void clearAtLeast(const SkIRect& scissor, const SkRGBA4f<AlphaType>& color) {}
+
+    bool blitTexture(GrSurfaceProxyView view, const SkIRect& srcRect, const SkIPoint& dstPoint) {
+        return false;
+    }
+
+    void fillRectWithFP(const SkIRect& dstRect, std::unique_ptr<GrFragmentProcessor> fp) {}
+
+    void fillWithFP(std::unique_ptr<GrFragmentProcessor> fp) {}
+
+    void fillWithFP(const SkMatrix& localMatrix, std::unique_ptr<GrFragmentProcessor> fp) {}
+
+    void fillRectToRectWithFP(const SkRect& srcRect,
+                              const SkIRect& dstRect,
+                              std::unique_ptr<GrFragmentProcessor> fp) {}
+
+    void fillRectToRectWithFP(const SkIRect& srcRect,
+                              const SkIRect& dstRect,
+                              std::unique_ptr<GrFragmentProcessor> fp) {}
+
+    sk_sp<GrRenderTask> refTask() { return nullptr; }
+
+private:
+    using INHERITED = GrSurfaceContext;
+};
+
+#endif
 
 #endif

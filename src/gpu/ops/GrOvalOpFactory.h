@@ -8,6 +8,7 @@
 #ifndef GrOvalOpFactory_DEFINED
 #define GrOvalOpFactory_DEFINED
 
+#if 0
 #include "include/core/SkRefCnt.h"
 #include "src/gpu/GrColor.h"
 
@@ -64,5 +65,6 @@ public:
                                  const GrStyle&,
                                  const GrShaderCaps*);
 };
+#endif
 
 #endif  // GrOvalOpFactory_DEFINED

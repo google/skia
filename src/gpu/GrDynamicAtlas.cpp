@@ -7,6 +7,7 @@
 
 #include "src/gpu/GrDynamicAtlas.h"
 
+#include "include/core/SkVertices.h"
 #include "src/core/SkIPoint16.h"
 #include "src/gpu/GrOnFlushResourceProvider.h"
 #include "src/gpu/GrProxyProvider.h"

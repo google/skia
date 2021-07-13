@@ -15,6 +15,7 @@
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkMipmap.h"
+#include "src/core/SkTraceEvent.h"
 #include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrDirectContextPriv.h"
