@@ -142,6 +142,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "76b8d516_fedca38f",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-07-13T15:44:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3d25b3f4_896cfb79",
+      "revId": "faca1bab47492dcb3b1d1977a17e5f2eb0eefeb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b6f91fae_4a4ec3fb",

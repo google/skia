@@ -53,6 +53,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "43884d1d_308c9b89",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-07-13T15:44:33Z",
+      "side": 1,
+      "message": "yes",
+      "parentUuid": "217c5e7c_888769e0",
+      "revId": "770c5a47974f947454de219a0a1b597c932a1ae6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "28b75677_26ee5195",
@@ -66,6 +84,30 @@
       "writtenOn": "2021-07-13T15:22:22Z",
       "side": 1,
       "message": "Let\u0027s add dox that explicitly describe that the output must (still) be in local coordinates, w/ or w/o respecting the matrix.",
+      "range": {
+        "startLine": 93,
+        "startChar": 17,
+        "endLine": 93,
+        "endChar": 29
+      },
+      "revId": "770c5a47974f947454de219a0a1b597c932a1ae6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d44695c8_a8e73ef4",
+        "filename": "src/core/SkPathEffectBase.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-07-13T15:44:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "28b75677_26ee5195",
       "range": {
         "startLine": 93,
         "startChar": 17,
