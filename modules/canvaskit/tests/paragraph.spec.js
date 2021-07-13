@@ -111,8 +111,8 @@ describe('Paragraph Behavior', function() {
         expect(lineMetrics.length).toEqual(8); // 8 lines worth of metrics
         const flm = lineMetrics[0]; // First Line Metric
         expect(flm.startIndex).toEqual(0);
-        expect(flm.endIndex).toEqual(15);
-        expect(flm.endExcludingWhitespaces).toEqual(14);
+        expect(flm.endExcludingWhitespaces).toEqual(14)
+        expect(flm.endIndex).toEqual(14); // Including whitespaces but excluding newlines
         expect(flm.endIncludingNewline).toEqual(15);
         expect(flm.lineNumber).toEqual(0);
         expect(flm.isHardBreak).toEqual(true);
