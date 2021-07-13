@@ -474,6 +474,7 @@ private:
     void onCreateProgramInfo(const GrCaps* caps,
                              SkArenaAlloc* arena,
                              const GrSurfaceProxyView& writeView,
+                             bool usesMSAASurface,
                              GrAppliedClip&& appliedClip,
                              const GrDstProxyView& dstProxyView,
                              GrXferBarrierFlags renderPassXferBarriers,
@@ -495,8 +496,8 @@ private:
         SkASSERT(gp->vertexStride() == sizeof(SkPoint));
 
         fProgramInfo =  fHelper.createProgramInfoWithStencil(caps, arena, writeView,
-                                                             std::move(appliedClip),
-                                                             dstProxyView, gp, this->primType(),
+                                                             std::move(appliedClip), dstProxyView,
+                                                             gp, this->primType(),
                                                              renderPassXferBarriers, colorLoadOp);
 
     }

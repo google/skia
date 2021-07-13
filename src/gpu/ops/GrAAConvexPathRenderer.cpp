@@ -755,6 +755,7 @@ private:
     void onCreateProgramInfo(const GrCaps* caps,
                              SkArenaAlloc* arena,
                              const GrSurfaceProxyView& writeView,
+                             bool usesMSAASurface,
                              GrAppliedClip&& appliedClip,
                              const GrDstProxyView& dstProxyView,
                              GrXferBarrierFlags renderPassXferBarriers,
@@ -769,8 +770,8 @@ private:
                                                                   fWideColor);
 
         fProgramInfo = fHelper.createProgramInfoWithStencil(caps, arena, writeView,
-                                                            std::move(appliedClip),
-                                                            dstProxyView, quadProcessor,
+                                                            std::move(appliedClip), dstProxyView,
+                                                            quadProcessor,
                                                             GrPrimitiveType::kTriangles,
                                                             renderPassXferBarriers, colorLoadOp);
     }

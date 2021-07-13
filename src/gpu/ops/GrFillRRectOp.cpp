@@ -97,6 +97,7 @@ private:
     void onCreateProgramInfo(const GrCaps*,
                              SkArenaAlloc*,
                              const GrSurfaceProxyView& writeView,
+                             bool usesMSAASurface,
                              GrAppliedClip&&,
                              const GrDstProxyView&,
                              GrXferBarrierFlags renderPassXferBarriers,
@@ -509,10 +510,6 @@ static constexpr uint16_t kIndexData[] = {
 GR_DECLARE_STATIC_UNIQUE_KEY(gIndexBufferKey);
 
 void FillRRectOp::onPrepareDraws(GrMeshDrawTarget* target) {
-    if (target->usesMSAASurface()) {
-        fProcessorFlags |= ProcessorFlags::kMSAAEnabled;
-    }
-
     if (!fProgramInfo) {
         this->createProgramInfo(target);
     }
@@ -767,21 +764,21 @@ GrGLSLGeometryProcessor* FillRRectOp::Processor::createGLSLInstance(const GrShad
 void FillRRectOp::onCreateProgramInfo(const GrCaps* caps,
                                       SkArenaAlloc* arena,
                                       const GrSurfaceProxyView& writeView,
+                                      bool usesMSAASurface,
                                       GrAppliedClip&& appliedClip,
                                       const GrDstProxyView& dstProxyView,
                                       GrXferBarrierFlags renderPassXferBarriers,
                                       GrLoadOp colorLoadOp) {
-    if (writeView.asRenderTargetProxy()->numSamples() > 1) {
+    GrPipeline::InputFlags pipelineFlags = fHelper.pipelineFlags();
+    if (usesMSAASurface) {
+        pipelineFlags |= GrPipeline::InputFlags::kHWAntialias;
         fProcessorFlags |= ProcessorFlags::kMSAAEnabled;
     }
-    auto extraPipelineFlags = (fProcessorFlags & ProcessorFlags::kMSAAEnabled)
-            ? GrPipeline::InputFlags::kHWAntialias
-            : GrPipeline::InputFlags::kNone;
     GrGeometryProcessor* gp = Processor::Make(arena, fHelper.aaType(), fProcessorFlags);
     fProgramInfo = GrSimpleMeshDrawOpHelper::CreateProgramInfo(
             caps, arena, writeView, std::move(appliedClip), dstProxyView, gp,
             fHelper.detachProcessorSet(), GrPrimitiveType::kTriangles, renderPassXferBarriers,
-            colorLoadOp, fHelper.pipelineFlags() | extraPipelineFlags);
+            colorLoadOp, pipelineFlags);
 }
 
 void FillRRectOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
