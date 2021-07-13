@@ -16,6 +16,24 @@
       "message": "... argType.isMatrix() ... \"use \u0027[0][0]\u0027 instead\" ?",
       "revId": "eae3b3f4278a96f2663c58066898d9f864ad7914",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bde6b34b_c4ba19a8",
+        "filename": "src/sksl/ir/SkSLConstructorScalarCast.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-13T13:01:42Z",
+      "side": 1,
+      "message": "Sure, why not. :)",
+      "parentUuid": "5593574f_d2ae725e",
+      "revId": "eae3b3f4278a96f2663c58066898d9f864ad7914",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
