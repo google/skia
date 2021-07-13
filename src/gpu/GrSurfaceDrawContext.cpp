@@ -298,10 +298,9 @@ void GrSurfaceDrawContext::willReplaceOpsTask(GrOpsTask* prevTask, GrOpsTask* ne
 
 inline GrAAType GrSurfaceDrawContext::chooseAAType(GrAA aa) {
     if (fCanUseDynamicMSAA) {
-        // Use coverage AA if we can disable multisample. Otherwise always trigger dmsaa. The few
-        // coverage ops we have that know how to handle both single and multisample targets without
-        // popping will do so without calling chooseAAType.
-        return this->caps()->multisampleDisableSupport() ? GrAAType::kCoverage : GrAAType::kMSAA;
+        // Always trigger DMSAA when it's available. The coverage ops that know how to handle both
+        // single and multisample targets without popping will do so without calling chooseAAType.
+        return GrAAType::kMSAA;
     }
     if (GrAA::kNo == aa) {
         // On some devices we cannot disable MSAA if it is enabled so we make the AA type reflect
