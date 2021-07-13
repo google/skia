@@ -337,8 +337,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextureProxyTest, reporter, ctxInfo) {
     // proxy instansiations may add multiple things to the cache. There would be an entry for the
     // GrTexture/GrRenderTarget and entries for one or more attachments.
     int cacheEntriesPerProxy = 1;
-    // We currently only have attachments on the vulkan backend
-    if (direct->backend() == GrBackend::kVulkan) {
+    // We currently only have attachments on the vulkan and metal backends
+    if (direct->backend() == GrBackend::kVulkan || direct->backend() == GrBackend::kMetal) {
         cacheEntriesPerProxy++;
         // If we ever have a test with multisamples this would have an additional attachment as
         // well.
