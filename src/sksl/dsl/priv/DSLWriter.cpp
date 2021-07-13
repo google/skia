@@ -36,7 +36,8 @@ DSLWriter::DSLWriter(SkSL::Compiler* compiler, SkSL::ProgramKind kind,
                      const SkSL::ProgramSettings& settings, SkSL::ParsedModule module,
                      bool isModule)
     : fCompiler(compiler)
-    , fSettings(settings) {
+    , fSettings(settings)
+    , fIsModule(isModule) {
     fOldModifiersPool = fCompiler->fContext->fModifiersPool;
 
     fOldConfig = fCompiler->fContext->fConfig;
@@ -79,6 +80,10 @@ SkSL::IRGenerator& DSLWriter::IRGenerator() {
 
 const SkSL::Context& DSLWriter::Context() {
     return IRGenerator().fContext;
+}
+
+SkSL::ProgramSettings& DSLWriter::Settings() {
+    return IRGenerator().fContext.fConfig->fSettings;
 }
 
 const std::shared_ptr<SkSL::SymbolTable>& DSLWriter::SymbolTable() {
@@ -231,10 +236,16 @@ const SkSL::Variable* DSLWriter::Var(DSLVar& var) {
                                                                           var.fStorage);
         SkSL::Variable* varPtr = skslvar.get();
         // We can't call VarDeclaration::Convert directly here, because the IRGenerator has special
-        // treatment for sk_FragColor that we want to preserve in DSL.
+        // treatment for sk_FragColor that we want to preserve in DSL. We also do not want the
+        // variable added to the symbol table for several reasons - DSLParser handles the symbol
+        // table itself, parameters don't go into the symbol table until after the
+        // FunctionDeclaration is created which makes this the wrong spot for them, and outside of
+        // DSLParser we don't even need DSL variables to show up in the symbol table in the first
+        // place.
         var.fDeclaration = DSLWriter::IRGenerator().convertVarDeclaration(
-                                                                std::move(skslvar),
-                                                                var.fInitialValue.releaseIfValid());
+                                                                 std::move(skslvar),
+                                                                 var.fInitialValue.releaseIfValid(),
+                                                                 /*addToSymbolTable=*/false);
         if (var.fDeclaration) {
             var.fVar = varPtr;
         }

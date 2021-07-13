@@ -164,7 +164,8 @@ private:
                                          bool isArray, std::unique_ptr<Expression> arraySize,
                                          Variable::Storage storage);
     std::unique_ptr<Statement> convertVarDeclaration(std::unique_ptr<Variable> var,
-                                                     std::unique_ptr<Expression> value);
+                                                     std::unique_ptr<Expression> value,
+                                                     bool addToSymbolTable = true);
     std::unique_ptr<Statement> convertVarDeclaration(int offset, const Modifiers& modifiers,
                                                      const Type* baseType, skstd::string_view name,
                                                      bool isArray,
@@ -274,6 +275,7 @@ private:
     friend class AutoSwitchLevel;
     friend class AutoDisableInline;
     friend class Compiler;
+    friend class DSLParser;
     friend class dsl::DSLCore;
     friend class dsl::DSLFunction;
     friend class dsl::DSLVar;
