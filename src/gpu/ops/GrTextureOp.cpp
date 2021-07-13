@@ -571,14 +571,13 @@ private:
                 }
             }
 
-            // Update overall bounds of the op as the union of all quads
-            bounds.joinPossiblyEmptyRect(quad.fDevice.bounds());
-            hasSubpixel |= GrQuadUtils::WillUseHairline(quad.fDevice, aaType, quad.fEdgeFlags);
-
             // Determine the AA type for the quad, then merge with net AA type
             GrAAType aaForQuad;
             GrQuadUtils::ResolveAAType(aaType, set[q].fAAFlags, quad.fDevice,
                                        &aaForQuad, &quad.fEdgeFlags);
+            // Update overall bounds of the op as the union of all quads
+            bounds.joinPossiblyEmptyRect(quad.fDevice.bounds());
+            hasSubpixel |= GrQuadUtils::WillUseHairline(quad.fDevice, aaForQuad, quad.fEdgeFlags);
 
             // Resolve sets aaForQuad to aaType or None, there is never a change between aa methods
             SkASSERT(aaForQuad == GrAAType::kNone || aaForQuad == aaType);
