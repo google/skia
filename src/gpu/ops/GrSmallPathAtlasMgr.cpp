@@ -7,6 +7,7 @@
 
 #include "src/gpu/ops/GrSmallPathAtlasMgr.h"
 
+#include "src/gpu/GrSimpleMesh.h"
 #include "src/gpu/geometry/GrStyledShape.h"
 #include "src/gpu/ops/GrSmallPathShapeData.h"
 

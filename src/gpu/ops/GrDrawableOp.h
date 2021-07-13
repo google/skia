@@ -8,6 +8,7 @@
 #ifndef GrDrawableOp_DEFINED
 #define GrDrawableOp_DEFINED
 
+#if 0
 #include "src/gpu/ops/GrOp.h"
 
 #include "include/core/SkDrawable.h"
@@ -53,3 +54,4 @@ private:
 
 #endif
 
+#endif

@@ -16,6 +16,7 @@
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/GrSimpleMesh.h"
 #include "src/gpu/GrTexture.h"
 
 //////////////////////////////////////////////////////////////////////////////

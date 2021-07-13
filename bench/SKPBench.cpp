@@ -9,6 +9,7 @@
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrDirectContextPriv.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 #include "tools/flags/CommandLineFlags.h"
 
 
@@ -172,11 +173,14 @@ bool SKPBench::getDMSAAStats(GrRecordingContext* rContext) {
     if (!rContext || !rContext->asDirectContext()) {
         return false;
     }
+
+    auto dContext = rContext->asDirectContext();
+
     // Clear the current DMSAA stats then do a single tiled draw that resets them to the specific
     // values for our SKP.
-    rContext->asDirectContext()->flushAndSubmit();
+    dContext->flushAndSubmit();
     rContext->priv().dmsaaStats() = {};
     this->drawPicture();  // Draw tiled for DMSAA stats.
-    rContext->asDirectContext()->flush();
+    dContext->flush();
     return true;
 }

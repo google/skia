@@ -127,6 +127,8 @@ private:
     using INHERITED = GrGeometryProcessor;
 };
 
+#if SK_GPU_V1
+
 class Op : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
@@ -278,7 +280,12 @@ private:
 
     using INHERITED = GrMeshDrawOp;
 };
+
+#endif
+
 }  // namespace
+
+#if SK_GPU_V1
 
 class VertexColorSpaceBench : public Benchmark {
 public:
@@ -349,3 +356,4 @@ DEF_BENCH(return new VertexColorSpaceBench(kBaseline_Mode, "baseline"));
 DEF_BENCH(return new VertexColorSpaceBench(kFloat_Mode,    "float"));
 DEF_BENCH(return new VertexColorSpaceBench(kHalf_Mode,     "half"));
 DEF_BENCH(return new VertexColorSpaceBench(kShader_Mode,   "shader"));
+#endif

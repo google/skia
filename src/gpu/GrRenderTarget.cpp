@@ -8,6 +8,7 @@
 
 #include "src/gpu/GrRenderTarget.h"
 
+#include "include/core/SkVertices.h"
 #include "src/core/SkRectPriv.h"
 #include "src/gpu/GrAttachment.h"
 #include "src/gpu/GrBackendUtils.h"

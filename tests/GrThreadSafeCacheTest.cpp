@@ -275,6 +275,7 @@ public:
         return true;
     }
 
+#if SK_GPU_V1
     void addVertAccess(SkCanvas* canvas,
                        int wh,
                        int id,
@@ -290,6 +291,7 @@ public:
                        bool failFillingIn = false) {
         this->addVertAccess(canvas, wh, id, failLookup, failFillingIn, nullptr);
     }
+#endif
 
     bool checkVert(SkCanvas* canvas, int wh,
                    int expectedHits, int expectedMisses, int expectedNumRefs, int expectedID) {
@@ -411,6 +413,8 @@ private:
     std::unique_ptr<SkDeferredDisplayListRecorder> fRecorder1;
     std::unique_ptr<SkDeferredDisplayListRecorder> fRecorder2;
 };
+
+#if SK_GPU_V1
 
 class GrThreadSafeVertexTestOp : public GrDrawOp {
 public:
@@ -619,6 +623,8 @@ void TestHelper::addVertAccess(SkCanvas* canvas,
     sdc->addDrawOp(std::move(op));
 }
 
+#endif
+
 GrSurfaceProxyView TestHelper::CreateViewOnCpu(GrRecordingContext* rContext,
                                                int wh,
                                                Stats* stats) {
@@ -756,9 +762,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache1View, reporter, ctxInfo) {
     test_1(ctxInfo.directContext(), reporter, &TestHelper::addViewAccess, &TestHelper::checkView);
 }
 
+#if SK_GPU_V1
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache1Verts, reporter, ctxInfo) {
     test_1(ctxInfo.directContext(), reporter, &TestHelper::addVertAccess, &TestHelper::checkVert);
 }
+#endif
 
 // Case 2: ensure that, if the direct context version wins, its result is reused by the
 //         DDL recorders
@@ -794,9 +802,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache2View, reporter, ctxInfo) {
     test_2(ctxInfo.directContext(), reporter, &TestHelper::addViewAccess, &TestHelper::checkView);
 }
 
+#if SK_GPU_V1
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache2Verts, reporter, ctxInfo) {
     test_2(ctxInfo.directContext(), reporter, &TestHelper::addVertAccess, &TestHelper::checkVert);
 }
+#endif
 
 // Case 3: ensure that, if the cpu-version wins, its result is reused by the direct context
 static void test_3(GrDirectContext* dContext, skiatest::Reporter* reporter,
@@ -826,9 +836,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache3View, reporter, ctxInfo) {
     test_3(ctxInfo.directContext(), reporter, &TestHelper::addViewAccess, &TestHelper::checkView);
 }
 
+#if SK_GPU_V1
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache3Verts, reporter, ctxInfo) {
     test_3(ctxInfo.directContext(), reporter, &TestHelper::addVertAccess, &TestHelper::checkVert);
 }
+#endif
 
 // Case 4: ensure that, if two DDL recorders get in a race, they still end up sharing a single
 //         view/vertexData
@@ -860,9 +872,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache4View, reporter, ctxInfo) {
     test_4(ctxInfo.directContext(), reporter, &TestHelper::addViewAccess, &TestHelper::checkView);
 }
 
+#if SK_GPU_V1
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache4Verts, reporter, ctxInfo) {
     test_4(ctxInfo.directContext(), reporter, &TestHelper::addVertAccess, &TestHelper::checkVert);
 }
+#endif
 
 // Case 4.5: check that, if a live rendering and a DDL recording get into a race, the live
 //           rendering takes precedence.
@@ -900,10 +914,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache4_5View, reporter, ctxInfo) 
              &TestHelper::addViewAccess, &TestHelper::checkView);
 }
 
+#if SK_GPU_V1
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache4_5Verts, reporter, ctxInfo) {
     test_4_5(ctxInfo.directContext(), reporter,
              &TestHelper::addVertAccess, &TestHelper::checkVert);
 }
+#endif
 
 // Case 4.75: check that, if a live rendering fails to generate the content needed to instantiate
 //            its lazy proxy, life goes on
@@ -940,10 +956,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache4_75View, reporter, ctxInfo)
               &TestHelper::addViewAccess, &TestHelper::checkView);
 }
 
+#if SK_GPU_V1
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache4_75Verts, reporter, ctxInfo) {
     test_4_75(ctxInfo.directContext(), reporter,
               &TestHelper::addVertAccess, &TestHelper::checkVert);
 }
+#endif
 
 // Case 5: ensure that expanding the map works (esp. wrt custom data)
 static void test_5(GrDirectContext* dContext, skiatest::Reporter* reporter,
@@ -978,9 +996,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache5View, reporter, ctxInfo) {
     test_5(ctxInfo.directContext(), reporter, &TestHelper::addViewAccess, &TestHelper::checkView);
 }
 
+#if SK_GPU_V1
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache5Verts, reporter, ctxInfo) {
     test_5(ctxInfo.directContext(), reporter, &TestHelper::addVertAccess, &TestHelper::checkVert);
 }
+#endif
 
 // Case 6: Check on dropping refs. In particular, that the cache has its own ref to keep
 //         the backing resource alive and locked.
@@ -1021,9 +1041,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache6View, reporter, ctxInfo) {
     test_6(ctxInfo.directContext(), reporter, &TestHelper::addViewAccess, &TestHelper::checkView);
 }
 
+#if SK_GPU_V1
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache6Verts, reporter, ctxInfo) {
     test_6(ctxInfo.directContext(), reporter, &TestHelper::addVertAccess, &TestHelper::checkVert);
 }
+#endif
 
 // Case 7: Check that invoking dropAllRefs and dropUniqueRefs directly works as expected; i.e.,
 //         dropAllRefs removes everything while dropUniqueRefs is more measured.
@@ -1065,9 +1087,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache7View, reporter, ctxInfo) {
     test_7(ctxInfo.directContext(), reporter, &TestHelper::addViewAccess, &TestHelper::checkView);
 }
 
+#if SK_GPU_V1
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache7Verts, reporter, ctxInfo) {
     test_7(ctxInfo.directContext(), reporter, &TestHelper::addVertAccess, &TestHelper::checkVert);
 }
+#endif
 
 // Case 8: This checks that GrContext::abandonContext works as expected wrt the thread
 //         safe cache. This simulates the case where we have one DDL that has finished
@@ -1110,9 +1134,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache8View, reporter, ctxInfo) {
     test_8(ctxInfo.directContext(), reporter, &TestHelper::addViewAccess, &TestHelper::checkView);
 }
 
+#if SK_GPU_V1
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache8Verts, reporter, ctxInfo) {
     test_8(ctxInfo.directContext(), reporter, &TestHelper::addVertAccess, &TestHelper::checkVert);
 }
+#endif
 
 // Case 9: This checks that GrContext::releaseResourcesAndAbandonContext works as expected wrt
 //         the thread safe cache. This simulates the case where we have one DDL that has finished
@@ -1155,9 +1181,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache9View, reporter, ctxInfo) {
     test_9(ctxInfo.directContext(), reporter, &TestHelper::addViewAccess, &TestHelper::checkView);
 }
 
+#if SK_GPU_V1
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache9Verts, reporter, ctxInfo) {
     test_9(ctxInfo.directContext(), reporter, &TestHelper::addVertAccess, &TestHelper::checkVert);
 }
+#endif
 
 // Case 10: This checks that the GrContext::purgeUnlockedResources(size_t) variant works as
 //          expected wrt the thread safe cache. It, in particular, tests out the MRU behavior
@@ -1276,9 +1304,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache11View, reporter, ctxInfo) {
     test_11(ctxInfo.directContext(), reporter, &TestHelper::addViewAccess, &TestHelper::checkView);
 }
 
+#if SK_GPU_V1
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache11Verts, reporter, ctxInfo) {
     test_11(ctxInfo.directContext(), reporter, &TestHelper::addVertAccess, &TestHelper::checkVert);
 }
+#endif
 
 // Case 12: Test out purges caused by resetting the cache budget to 0. Note that, due to
 //          the how the cache operates (i.e., not directly driven by ref/unrefs) there
@@ -1326,9 +1356,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache12View, reporter, ctxInfo) {
     test_12(ctxInfo.directContext(), reporter, &TestHelper::addViewAccess, &TestHelper::checkView);
 }
 
+#if SK_GPU_V1
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache12Verts, reporter, ctxInfo) {
     test_12(ctxInfo.directContext(), reporter, &TestHelper::addVertAccess, &TestHelper::checkVert);
 }
+#endif
 
 // Case 13: Test out the 'msNotUsed' parameter to GrContext::performDeferredCleanup.
 static void test_13(GrDirectContext* dContext, skiatest::Reporter* reporter,
@@ -1371,10 +1403,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache13View, reporter, ctxInfo) {
     test_13(ctxInfo.directContext(), reporter, &TestHelper::addViewAccess, &TestHelper::checkView);
 }
 
+#if SK_GPU_V1
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache13Verts, reporter, ctxInfo) {
     test_13(ctxInfo.directContext(), reporter, &TestHelper::addVertAccess, &TestHelper::checkVert);
 }
+#endif
 
+#if SK_GPU_V1
 // Case 14: Test out mixing & matching view & vertex data w/ recycling of the cache entries to
 //          wring out the anonymous union code. This is mainly for the MSAN bot's consumption.
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache14, reporter, ctxInfo) {
@@ -1410,6 +1445,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache14, reporter, ctxInfo) {
         }
     }
 }
+#endif
 
 // Case 15: Test out posting invalidation messages that involve the thread safe cache
 static void test_15(GrDirectContext* dContext, skiatest::Reporter* reporter,
@@ -1455,6 +1491,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache15View, reporter, ctxInfo) {
             create_view_key);
 }
 
+#if SK_GPU_V1
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache15Verts, reporter, ctxInfo) {
     test_15(ctxInfo.directContext(), reporter, &TestHelper::addVertAccess, &TestHelper::checkVert,
             create_vert_key);
@@ -1505,3 +1542,4 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache16Verts, reporter, ctxInfo) 
     helper.checkImage(reporter, std::move(ddl1));
     helper.checkImage(reporter, std::move(ddl2));
 }
+#endif

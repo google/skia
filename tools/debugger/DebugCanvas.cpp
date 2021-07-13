@@ -165,7 +165,7 @@ void DebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
             if (dContext) {
                 dContext->flush();
             }
-            acb = new GrAuditTrail::AutoCollectOps(at, i);
+//            acb = new GrAuditTrail::AutoCollectOps(at, i);
         }
 #endif
         if (fCommandVector[i]->isVisible()) {
@@ -311,7 +311,7 @@ void DebugCanvas::cleanupAuditTrail(GrAuditTrail* at) {
         at->fullReset();
     }
 }
-#endif
+#endif // SK_GPU_V1
 
 void DebugCanvas::toJSON(SkJSONWriter&   writer,
                          UrlDataManager& urlDataManager,
@@ -322,6 +322,7 @@ void DebugCanvas::toJSON(SkJSONWriter&   writer,
     // now collect json
     GrAuditTrail* at = this->getAuditTrail(canvas);
 #endif
+
     writer.appendS32(SKDEBUGCANVAS_ATTRIBUTE_VERSION, SKDEBUGCANVAS_VERSION);
     writer.beginArray(SKDEBUGCANVAS_ATTRIBUTE_COMMANDS);
 
@@ -354,7 +355,7 @@ void DebugCanvas::toJSONOpsTask(SkJSONWriter& writer, SkCanvas* canvas) {
         at->toJson(writer);
         this->cleanupAuditTrail(at);
         return;
-    }
+    } else
 #endif
 
     writer.beginObject();

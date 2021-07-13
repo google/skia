@@ -242,7 +242,6 @@ public:
 #if GR_TEST_UTILS
     int countUniqueKeysWithTag(const char* tag) const;
 
-    // This function is for unit testing and is only defined in test tools.
     void changeTimestamp(uint32_t newTimestamp);
 #endif
 
