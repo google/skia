@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "74d8cc83_f9c74313",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-13T13:59:52Z",
+      "side": 1,
+      "message": "BTW, I got curious and here\u0027s the Abseil solution to the problem.\nhttp://google3/third_party/absl/base/internal/inline_variable.h",
+      "revId": "646b38712cc490cca0452df266fb07cd219149bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
