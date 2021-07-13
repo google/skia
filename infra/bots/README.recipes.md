@@ -38,7 +38,6 @@
   * [perf_pathkit](#recipes-perf_pathkit)
   * [perf_skottietrace](#recipes-perf_skottietrace)
   * [perf_skottiewasm_lottieweb](#recipes-perf_skottiewasm_lottieweb)
-  * [recreate_skps](#recipes-recreate_skps) &mdash; Recipe for the Skia RecreateSKPs Bot.
   * [run:examples/full](#recipes-run_examples_full)
   * [skpbench](#recipes-skpbench)
   * [sync_and_compile](#recipes-sync_and_compile)
@@ -438,13 +437,6 @@ A dictionary is returned that has the following structure:
   'frame_min_us': 90,
   'frame_avg_us': 95,
 }
-### *recipes* / [recreate\_skps](/infra/bots/recipes/recreate_skps.py)
-
-[DEPS](/infra/bots/recipes/recreate_skps.py#9): [depot\_tools/gclient][depot_tools/recipe_modules/gclient], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [checkout](#recipe_modules-checkout), [infra](#recipe_modules-infra), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
-
-Recipe for the Skia RecreateSKPs Bot.
-
-&mdash; **def [RunSteps](/infra/bots/recipes/recreate_skps.py#35)(api):**
 ### *recipes* / [run:examples/full](/infra/bots/recipe_modules/run/examples/full.py)
 
 [DEPS](/infra/bots/recipe_modules/run/examples/full.py#6): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/step][recipe_engine/recipe_modules/step], [run](#recipe_modules-run), [vars](#recipe_modules-vars)
