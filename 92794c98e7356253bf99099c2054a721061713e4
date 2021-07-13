@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2eb7efbd_5c3847f0",
+        "filename": "gm/thinrects.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-07-13T01:09:45Z",
+      "side": 1,
+      "message": "Not anymore, an old version of the new GM did, thanks :)",
+      "parentUuid": "2e3a7e56_ef76ceb0",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 34
+      },
+      "revId": "92794c98e7356253bf99099c2054a721061713e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "413c078e_5ab25af8",
@@ -54,6 +78,30 @@
       "writtenOn": "2021-07-12T19:47:05Z",
       "side": 1,
       "message": "rm?",
+      "range": {
+        "startLine": 650,
+        "startChar": 0,
+        "endLine": 650,
+        "endChar": 24
+      },
+      "revId": "92794c98e7356253bf99099c2054a721061713e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "158318b0_2d8b771c",
+        "filename": "src/gpu/geometry/GrQuadUtils.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 650,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-07-13T01:09:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "413c078e_5ab25af8",
       "range": {
         "startLine": 650,
         "startChar": 0,

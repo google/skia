@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e69161a4_4bc0dd22",
+        "filename": "src/gpu/geometry/GrQuadUtils.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 644,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-07-13T01:09:45Z",
+      "side": 1,
+      "message": "Greg pointed out offline that we can use the x/y magnitudes of the diagonal vertices to get at the width and height for an axis-aligned quad, so this is even simpler than the first round.",
+      "range": {
+        "startLine": 641,
+        "startChar": 8,
+        "endLine": 644,
+        "endChar": 93
+      },
+      "revId": "24998c36f9aa6102cdccf90439ec8058252891e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
