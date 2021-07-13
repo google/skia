@@ -14,7 +14,7 @@
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 
-static SkSurfaceProps kDMSAAProps(kDMSAA_SkSurfacePropsPrivateFlag, kUnknown_SkPixelGeometry);
+static SkSurfaceProps kDMSAAProps(SkSurfaceProps::kDynamicMSAA_Flag, kUnknown_SkPixelGeometry);
 constexpr static SkPMColor4f kTransYellow = {.5f,.5f,.0f,.5f};
 constexpr static SkPMColor4f kTransCyan = {.0f,.5f,.5f,.5f};
 constexpr static int w=10, h=10;

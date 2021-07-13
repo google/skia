@@ -575,7 +575,7 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString&           
         surfaceFlags |= SkSurfaceProps::kUseDeviceIndependentFonts_Flag;
     }
     if (useDMSAA) {
-        surfaceFlags |= kDMSAA_SkSurfacePropsPrivateFlag;
+        surfaceFlags |= SkSurfaceProps::kDynamicMSAA_Flag;
     }
 
     return new SkCommandLineConfigGpu(tag,

@@ -379,7 +379,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     displayParams.fGrContextOptions.fSuppressPrints = true;
     if (FLAGS_dmsaa) {
         displayParams.fSurfaceProps = SkSurfaceProps(
-                displayParams.fSurfaceProps.flags() | kDMSAA_SkSurfacePropsPrivateFlag,
+                displayParams.fSurfaceProps.flags() | SkSurfaceProps::kDynamicMSAA_Flag,
                 displayParams.fSurfaceProps.pixelGeometry());
     }
     fWindow->setRequestedDisplayParams(displayParams);
