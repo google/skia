@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b991f0a7_8e4442f2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-07-13T21:45:14Z",
+      "side": 1,
+      "message": "Hard to know what motivate this ... but a little bird tells me you might augment dm/fm to force all paints to replace their modes with this .. now *that* would be cool!",
+      "revId": "84eaaae2fc4499260700fb70b291bd0be8fd215f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
