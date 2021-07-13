@@ -511,10 +511,10 @@ Run the DM test.
 
 &mdash; **def [RunSteps](/infra/bots/recipe_modules/vars/examples/full.py#15)(api):**
 
-[depot_tools/recipe_modules/bot_update]: https://chromium.googlesource.com/chromium/tools/depot_tools.git/+/0d0763fdeb5fe25056a4e46961d343987b43b348/recipes/README.recipes.md#recipe_modules-bot_update
-[depot_tools/recipe_modules/gclient]: https://chromium.googlesource.com/chromium/tools/depot_tools.git/+/0d0763fdeb5fe25056a4e46961d343987b43b348/recipes/README.recipes.md#recipe_modules-gclient
-[depot_tools/recipe_modules/git]: https://chromium.googlesource.com/chromium/tools/depot_tools.git/+/0d0763fdeb5fe25056a4e46961d343987b43b348/recipes/README.recipes.md#recipe_modules-git
-[depot_tools/recipe_modules/tryserver]: https://chromium.googlesource.com/chromium/tools/depot_tools.git/+/0d0763fdeb5fe25056a4e46961d343987b43b348/recipes/README.recipes.md#recipe_modules-tryserver
+[depot_tools/recipe_modules/bot_update]: https://chromium.googlesource.com/chromium/tools/depot_tools.git/+/9eee47a8e9bcd031ab2cf045dc82ef01a010619a/recipes/README.recipes.md#recipe_modules-bot_update
+[depot_tools/recipe_modules/gclient]: https://chromium.googlesource.com/chromium/tools/depot_tools.git/+/9eee47a8e9bcd031ab2cf045dc82ef01a010619a/recipes/README.recipes.md#recipe_modules-gclient
+[depot_tools/recipe_modules/git]: https://chromium.googlesource.com/chromium/tools/depot_tools.git/+/9eee47a8e9bcd031ab2cf045dc82ef01a010619a/recipes/README.recipes.md#recipe_modules-git
+[depot_tools/recipe_modules/tryserver]: https://chromium.googlesource.com/chromium/tools/depot_tools.git/+/9eee47a8e9bcd031ab2cf045dc82ef01a010619a/recipes/README.recipes.md#recipe_modules-tryserver
 [recipe_engine/recipe_modules/context]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/3ae44290a509900273ee57c809b784373b425056/README.recipes.md#recipe_modules-context
 [recipe_engine/recipe_modules/file]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/3ae44290a509900273ee57c809b784373b425056/README.recipes.md#recipe_modules-file
 [recipe_engine/recipe_modules/json]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/3ae44290a509900273ee57c809b784373b425056/README.recipes.md#recipe_modules-json
