@@ -175,8 +175,7 @@ The Swarming task is generated based on several parameters of the TaskSpec:
   run it, it will remain pending for this long before being canceled.
 
 If you need to do something more complicated, or if you are not sure how to add
-and configure the new jobs, please ask for help from borenet, benjaminwagner, or
-mtklein.
+and configure the new jobs, please ask for help from borenet@, rmistry@ or jcgregorio@.
 
 [gen_tasks]:
 	https://skia.googlesource.com/skia/+/main/infra/bots/gen_tasks.go
