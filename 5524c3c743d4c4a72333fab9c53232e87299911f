@@ -16,6 +16,24 @@
       "message": "looks like a circle op is still slipping into dmsaa somehow.",
       "revId": "5524c3c743d4c4a72333fab9c53232e87299911f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8654c5a5_ef27a09f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-07-13T20:55:37Z",
+      "side": 1,
+      "message": "Addressed in https://skia-review.googlesource.com/c/skia/+/427657\n\nFor a while we tried using all our coverage ops with DMSAA and just disabling GL_MULTISAMPLE. Turns out that\u0027s really slow and the asserts here were to make sure we don\u0027t do that.",
+      "parentUuid": "c666f202_d2e4ead7",
+      "revId": "5524c3c743d4c4a72333fab9c53232e87299911f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

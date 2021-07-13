@@ -22,6 +22,30 @@
       },
       "revId": "5060f970d1bd378482cda955e2974733532b5d65",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "435ee6d0_76ae299c",
+        "filename": "src/gpu/ops/GrOvalOpFactory.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 3350,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-07-13T20:55:37Z",
+      "side": 0,
+      "message": "I think that would be a problem for reduced shader mode as well. GrSurfaceDrawContext already calls MakeCircleOp directly in the cases where it decides it\u0027s best to have a specialized shader, and I think it wasn\u0027t expecting MakeOvalOp to turn around and make a circle op.",
+      "parentUuid": "faf0006d_9d6d941e",
+      "range": {
+        "startLine": 3345,
+        "startChar": 0,
+        "endLine": 3350,
+        "endChar": 5
+      },
+      "revId": "5060f970d1bd378482cda955e2974733532b5d65",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
