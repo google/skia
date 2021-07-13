@@ -15,11 +15,16 @@
 
 bool SkPathEffect::filterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
                               const SkRect* bounds) const {
+    return this->filterPath(dst, src, rec, bounds, SkMatrix::I());
+}
+
+bool SkPathEffect::filterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
+                              const SkRect* bounds, const SkMatrix& ctm) const {
     SkPath tmp, *tmpDst = dst;
     if (dst == &src) {
         tmpDst = &tmp;
     }
-    if (as_PEB(this)->onFilterPath(tmpDst, src, rec, bounds)) {
+    if (as_PEB(this)->onFilterPath(tmpDst, src, rec, bounds, ctm)) {
         if (dst == &src) {
             *dst = tmp;
         }
@@ -35,6 +40,10 @@ bool SkPathEffectBase::asPoints(PointData* results, const SkPath& src,
 
 SkPathEffect::DashType SkPathEffect::asADash(DashInfo* info) const {
     return as_PEB(this)->onAsADash(info);
+}
+
+bool SkPathEffect::needsCTM() const {
+    return as_PEB(this)->onNeedsCTM();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -90,14 +99,14 @@ public:
         : INHERITED(outer, inner) {}
 
     bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
-                      const SkRect* cullRect) const override {
+                       const SkRect* cullRect, const SkMatrix& ctm) const override {
         SkPath          tmp;
         const SkPath*   ptr = &src;
 
-        if (fPE1->filterPath(&tmp, src, rec, cullRect)) {
+        if (fPE1->filterPath(&tmp, src, rec, cullRect, ctm)) {
             ptr = &tmp;
         }
-        return fPE0->filterPath(dst, *ptr, rec, cullRect);
+        return fPE0->filterPath(dst, *ptr, rec, cullRect, ctm);
     }
 
     SK_FLATTENABLE_HOOKS(SkComposePathEffect)
@@ -151,10 +160,10 @@ public:
         : INHERITED(first, second) {}
 
     bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
-                      const SkRect* cullRect) const override {
+                      const SkRect* cullRect, const SkMatrix& ctm) const override {
         // use bit-or so that we always call both, even if the first one succeeds
-        return fPE0->filterPath(dst, src, rec, cullRect) |
-               fPE1->filterPath(dst, src, rec, cullRect);
+        return fPE0->filterPath(dst, src, rec, cullRect, ctm) |
+               fPE1->filterPath(dst, src, rec, cullRect, ctm);
     }
 
     SK_FLATTENABLE_HOOKS(SkSumPathEffect)

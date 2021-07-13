@@ -1169,7 +1169,7 @@ void test_path_effect_makes_rrect(skiatest::Reporter* reporter, const Geo& geo) 
 
     protected:
         bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*,
-                          const SkRect* cullR) const override {
+                          const SkRect* cullR, const SkMatrix&) const override {
             dst->reset();
             dst->addRRect(RRect());
             return true;
@@ -1254,7 +1254,7 @@ void test_unknown_path_effect(skiatest::Reporter* reporter, const Geo& geo) {
 
     protected:
         bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*,
-                          const SkRect* cullR) const override {
+                          const SkRect* cullR, const SkMatrix&) const override {
             *dst = src;
             // To avoid triggering data-based keying of paths with few verbs we add many segments.
             for (int i = 0; i < 100; ++i) {
@@ -1302,7 +1302,7 @@ void test_make_hairline_path_effect(skiatest::Reporter* reporter, const Geo& geo
 
     protected:
         bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec* strokeRec,
-                          const SkRect* cullR) const override {
+                          const SkRect* cullR, const SkMatrix&) const override {
             *dst = src;
             strokeRec->setHairlineStyle();
             return true;
@@ -1386,7 +1386,7 @@ void test_path_effect_makes_empty_shape(skiatest::Reporter* reporter, const Geo&
         const char* getTypeName() const override { return nullptr; }
     protected:
         bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*,
-                          const SkRect* cullR) const override {
+                          const SkRect* cullR, const SkMatrix&) const override {
             dst->reset();
             if (fInvert) {
                 dst->toggleInverseFillType();
@@ -1475,7 +1475,7 @@ void test_path_effect_fails(skiatest::Reporter* reporter, const Geo& geo) {
         const char* getTypeName() const override { return nullptr; }
     protected:
         bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*,
-                          const SkRect* cullR) const override {
+                          const SkRect* cullR, const SkMatrix&) const override {
             return false;
         }
     private:

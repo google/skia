@@ -17,7 +17,8 @@ public:
 
 protected:
     void flatten(SkWriteBuffer&) const override;
-    bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*) const override;
+    bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*,
+                      const SkMatrix&) const override;
 
 private:
     SK_FLATTENABLE_HOOKS(SkTrimPE)

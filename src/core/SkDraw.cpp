@@ -804,19 +804,6 @@ DRAW_PATH:
     this->drawPath(path, paint, nullptr, true);
 }
 
-SkScalar SkDraw::ComputeResScaleForStroking(const SkMatrix& matrix) {
-    // Not sure how to handle perspective differently, so we just don't try (yet)
-    SkScalar sx = SkPoint::Length(matrix[SkMatrix::kMScaleX], matrix[SkMatrix::kMSkewY]);
-    SkScalar sy = SkPoint::Length(matrix[SkMatrix::kMSkewX],  matrix[SkMatrix::kMScaleY]);
-    if (SkScalarsAreFinite(sx, sy)) {
-        SkScalar scale = std::max(sx, sy);
-        if (scale > 0) {
-            return scale;
-        }
-    }
-    return 1;
-}
-
 void SkDraw::drawDevPath(const SkPath& devPath, const SkPaint& paint, bool drawCoverage,
                          SkBlitter* customBlitter, bool doFill) const {
     if (SkPathPriv::TooBigForMath(devPath)) {
@@ -950,7 +937,7 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
             cullRectPtr = &cullRect;
         }
         doFill = paint->getFillPath(*pathPtr, tmpPath, cullRectPtr,
-                                    ComputeResScaleForStroking(fMatrixProvider->localToDevice()));
+                                    fMatrixProvider->localToDevice());
         pathPtr = tmpPath;
     }
 

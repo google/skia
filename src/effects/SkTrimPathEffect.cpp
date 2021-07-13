@@ -48,7 +48,8 @@ static size_t add_segments(const SkPath& src, SkScalar start, SkScalar stop, SkP
 SkTrimPE::SkTrimPE(SkScalar startT, SkScalar stopT, SkTrimPathEffect::Mode mode)
     : fStartT(startT), fStopT(stopT), fMode(mode) {}
 
-bool SkTrimPE::onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*) const {
+bool SkTrimPE::onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*,
+                            const SkMatrix&) const {
     if (fStartT >= fStopT) {
         SkASSERT(fMode == SkTrimPathEffect::Mode::kNormal);
         return true;

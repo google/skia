@@ -374,11 +374,17 @@ SkReadPaintResult SkPaintPriv::Unflatten(SkPaint* paint, SkReadBuffer& buffer, S
 
 bool SkPaint::getFillPath(const SkPath& src, SkPath* dst, const SkRect* cullRect,
                           SkScalar resScale) const {
+    return this->getFillPath(src, dst, cullRect, SkMatrix::Scale(resScale, resScale));
+}
+
+bool SkPaint::getFillPath(const SkPath& src, SkPath* dst, const SkRect* cullRect,
+                          const SkMatrix& ctm) const {
     if (!src.isFinite()) {
         dst->reset();
         return false;
     }
 
+    const SkScalar resScale = SkPaintPriv::ComputeResScaleForStroking(ctm);
     SkStrokeRec rec(*this, resScale);
 
 #if defined(SK_BUILD_FOR_FUZZER)
@@ -391,7 +397,7 @@ bool SkPaint::getFillPath(const SkPath& src, SkPath* dst, const SkRect* cullRect
     const SkPath* srcPtr = &src;
     SkPath tmpPath;
 
-    if (fPathEffect && fPathEffect->filterPath(&tmpPath, src, &rec, cullRect)) {
+    if (fPathEffect && fPathEffect->filterPath(&tmpPath, src, &rec, cullRect, ctm)) {
         srcPtr = &tmpPath;
     }
 

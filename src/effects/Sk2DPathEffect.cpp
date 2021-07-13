@@ -64,7 +64,7 @@ protected:
     }
 
     bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
-                      const SkRect* cullRect) const override {
+                      const SkRect* cullRect, const SkMatrix&) const override {
         if (!fMatrixIsInvertible) {
             return false;
         }
@@ -115,8 +115,8 @@ public:
     }
 
     bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
-                      const SkRect* cullRect) const override {
-        if (this->INHERITED::onFilterPath(dst, src, rec, cullRect)) {
+                      const SkRect* cullRect, const SkMatrix& ctm) const override {
+        if (this->INHERITED::onFilterPath(dst, src, rec, cullRect, ctm)) {
             rec->setStrokeStyle(fWidth);
             return true;
         }

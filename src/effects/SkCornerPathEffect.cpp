@@ -33,7 +33,8 @@ public:
         SkASSERT(radius > 0);
     }
 
-    bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*) const override {
+    bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*,
+                      const SkMatrix&) const override {
         if (fRadius <= 0) {
             return false;
         }

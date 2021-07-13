@@ -1428,6 +1428,7 @@ skia_static_library("pathkit") {
     "src/core/SkMatrix.cpp",
     "src/core/SkOpts.cpp",
     "src/core/SkPaint.cpp",
+    "src/core/SkPaintPriv.cpp",
     "src/core/SkPath.cpp",
     "src/core/SkPathBuilder.cpp",
     "src/core/SkPathEffect.cpp",

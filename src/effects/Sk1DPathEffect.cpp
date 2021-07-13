@@ -20,7 +20,8 @@
 class Sk1DPathEffect : public SkPathEffectBase {
 public:
 protected:
-    bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*) const override {
+    bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*,
+                      const SkMatrix&) const override {
         SkPathMeasure   meas(src, false);
         do {
             int governor = MAX_REASONABLE_ITERATIONS;
@@ -92,9 +93,9 @@ public:
     }
 
     bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
-                      const SkRect* cullRect) const override {
+                      const SkRect* cullRect, const SkMatrix& ctm) const override {
         rec->setFillStyle();
-        return this->INHERITED::onFilterPath(dst, src, rec, cullRect);
+        return this->INHERITED::onFilterPath(dst, src, rec, cullRect, ctm);
     }
 
     SkScalar begin(SkScalar contourLength) const override {

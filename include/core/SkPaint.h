@@ -21,6 +21,7 @@ class SkColorSpace;
 struct SkRect;
 class SkImageFilter;
 class SkMaskFilter;
+class SkMatrix;
 class SkPath;
 class SkPathEffect;
 class SkShader;
@@ -403,6 +404,9 @@ public:
     */
     bool getFillPath(const SkPath& src, SkPath* dst, const SkRect* cullRect,
                      SkScalar resScale = 1) const;
+
+    bool getFillPath(const SkPath& src, SkPath* dst, const SkRect* cullRect,
+                     const SkMatrix& ctm) const;
 
     /** Returns the filled equivalent of the stroked path.
 

@@ -74,7 +74,7 @@ public:
     }
 
     bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
-                      const SkRect*) const override {
+                      const SkRect*, const SkMatrix&) const override {
         bool doFill = rec->isFillStyle();
 
         SkPathMeasure   meas(src, doFill);
