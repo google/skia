@@ -67,7 +67,11 @@ using U8  = V<uint8_t>;
 // You'd see warnings like, "using AVX even though AVX is not enabled".
 // We stifle these warnings; our helpers that return U64 are always inlined.
 #if defined(__SSE__) && defined(__GNUC__)
-    #pragma GCC diagnostic ignored "-Wpsabi"
+    #if !defined(__has_warning)
+        #pragma GCC diagnostic ignored "-Wpsabi"
+    #elif __has_warning("-Wpsabi")
+        #pragma GCC diagnostic ignored "-Wpsabi"
+    #endif
 #endif
 
 #if defined(__clang__)
