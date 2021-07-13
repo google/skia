@@ -17,7 +17,8 @@ public:
                                                                       SkBudgeted,
                                                                       SkISize,
                                                                       int sampleCnt,
-                                                                      MTLTextureDescriptor*,
+                                                                      MTLPixelFormat,
+                                                                      uint32_t mipLevels,
                                                                       GrMipmapStatus);
 
     static sk_sp<GrMtlTextureRenderTarget> MakeWrappedTextureRenderTarget(GrMtlGpu*,
@@ -45,26 +46,32 @@ private:
                              SkBudgeted budgeted,
                              SkISize,
                              int sampleCnt,
+                             sk_sp<GrMtlAttachment> texture,
                              id<MTLTexture> colorTexture,
                              id<MTLTexture> resolveTexture,
                              GrMipmapStatus);
 
+    // TODO: remove
     GrMtlTextureRenderTarget(GrMtlGpu* gpu,
                              SkBudgeted budgeted,
                              SkISize,
+                             sk_sp<GrMtlAttachment> texture,
                              id<MTLTexture> colorTexture,
                              GrMipmapStatus);
 
     GrMtlTextureRenderTarget(GrMtlGpu* gpu,
                              SkISize,
                              int sampleCnt,
+                             sk_sp<GrMtlAttachment> texture,
                              id<MTLTexture> colorTexture,
                              id<MTLTexture> resolveTexture,
                              GrMipmapStatus,
                              GrWrapCacheable cacheable);
 
+    // TODO: remove
     GrMtlTextureRenderTarget(GrMtlGpu* gpu,
                              SkISize,
+                             sk_sp<GrMtlAttachment> texture,
                              id<MTLTexture> colorTexture,
                              GrMipmapStatus,
                              GrWrapCacheable cacheable);

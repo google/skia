@@ -71,8 +71,8 @@ void test_wrapping(GrDirectContext* dContext,
     // proxy instansiations may add multiple things to the cache. There would be an entry for the
     // GrTexture/GrRenderTarget and entries for one or more attachments.
     int cacheEntriesPerProxy = 1;
-    // We currently only have attachments on the vulkan backend
-    if (dContext->backend() == GrBackend::kVulkan) {
+    // We currently only have attachments on the vulkan and metal backends
+    if (dContext->backend() == GrBackend::kVulkan || dContext->backend() == GrBackend::kMetal) {
         // If we ever make a rt with multisamples this would have an additional
         // attachment as well.
         cacheEntriesPerProxy++;
