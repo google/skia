@@ -628,7 +628,7 @@ public:
     bool wrapsVkSecondaryCB() const { return this->asRenderTargetProxy()->wrapsVkSecondaryCB(); }
 
     bool alwaysAntialias() const {
-        return fSurfaceProps.flags() & kDMSAA_SkSurfacePropsPrivateFlag;
+        return fSurfaceProps.flags() & SkSurfaceProps::kDynamicMSAA_Flag;
     }
 
     GrAA chooseAA(const SkPaint& paint) {

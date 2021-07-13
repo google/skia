@@ -168,7 +168,7 @@ GrTriangulatingPathRenderer::GrTriangulatingPathRenderer()
 GrPathRenderer::CanDrawPath
 GrTriangulatingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     // Don't use this path renderer with dynamic MSAA. DMSAA tries to not rely on caching.
-    if (args.fSurfaceProps->flags() & kDMSAA_SkSurfacePropsPrivateFlag) {
+    if (args.fSurfaceProps->flags() & SkSurfaceProps::kDynamicMSAA_Flag) {
         return CanDrawPath::kNo;
     }
     // This path renderer can draw fill styles, and can do screenspace antialiasing via a

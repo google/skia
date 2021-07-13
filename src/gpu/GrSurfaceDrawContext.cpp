@@ -25,7 +25,6 @@
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkRRectPriv.h"
-#include "src/core/SkSurfacePriv.h"
 #include "src/gpu/GrAppliedClip.h"
 #include "src/gpu/GrAttachment.h"
 #include "src/gpu/GrBlurUtils.h"
@@ -271,7 +270,7 @@ GrSurfaceDrawContext::GrSurfaceDrawContext(GrRecordingContext* context,
                                flushTimeOpsTask)
         , fSurfaceProps(surfaceProps)
         , fCanUseDynamicMSAA(
-                (fSurfaceProps.flags() & kDMSAA_SkSurfacePropsPrivateFlag) &&
+                (fSurfaceProps.flags() & SkSurfaceProps::kDynamicMSAA_Flag) &&
                 context->priv().caps()->supportsDynamicMSAA(this->asRenderTargetProxy()))
         , fGlyphPainter(*this) {
     SkDEBUGCODE(this->validate();)
