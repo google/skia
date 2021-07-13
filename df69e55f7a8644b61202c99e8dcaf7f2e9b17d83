@@ -52,6 +52,23 @@
       "parentUuid": "dee5029c_04c239f0",
       "revId": "df69e55f7a8644b61202c99e8dcaf7f2e9b17d83",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "02d1c531_0f577d86",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-07-13T13:02:29Z",
+      "side": 1,
+      "message": "After the discussion on the buganizer issue, I was thinking of landing this CL instead.\nhttps://skia-review.googlesource.com/c/skia/+/425838\nPlease let me know if you think otherwise.",
+      "revId": "df69e55f7a8644b61202c99e8dcaf7f2e9b17d83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
