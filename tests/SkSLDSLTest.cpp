@@ -126,7 +126,8 @@ static SkSL::String stringize(DSLPossibleStatement& stmt)  { return stmt.release
 static SkSL::String stringize(DSLExpression& expr)         { return expr.release()->description(); }
 static SkSL::String stringize(DSLPossibleExpression& expr) { return expr.release()->description(); }
 static SkSL::String stringize(DSLBlock& blck)              { return blck.release()->description(); }
-static SkSL::String stringize(SkSL::IRNode& node)  { return node.description(); }
+static SkSL::String stringize(SkSL::IRNode& node)          { return node.description(); }
+static SkSL::String stringize(SkSL::Program& program)      { return program.description(); }
 
 template <typename T>
 static void expect_equal(skiatest::Reporter* r, int lineNumber, T& input, const char* expected) {
@@ -1977,4 +1978,25 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLRTAdjust, r, ctxInfo) {
         "(sk_PerVertex.sk_Position = float4(((sk_PerVertex.sk_Position.xy * sk_RTAdjust.xz) + "
         "(sk_PerVertex.sk_Position.ww * sk_RTAdjust.yw)), 0.0, sk_PerVertex.sk_Position.w));"
         "}");
+}
+
+DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLInlining, r, ctxInfo) {
+    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), no_mark_vars_declared());
+    DSLVar x(kFloat_Type, "x");
+    DSLFunction sqr(kFloat_Type, "sqr", x);
+    sqr.define(
+        Return(x * x)
+    );
+    DSLFunction(kVoid_Type, "main").define(
+        sk_FragColor() = (sqr(2), Half4(sqr(3)))
+    );
+    std::unique_ptr<SkSL::Program> program = ReleaseProgram();
+    EXPECT_EQUAL(*program,
+                 "layout(location = 0, index = 0, builtin = 10001) out half4 sk_FragColor;"
+                 "layout(builtin = 17)in bool sk_Clockwise;"
+                 "void main() {"
+                 "/* inlined: sqr */;"
+                 "/* inlined: sqr */;"
+                 "(sk_FragColor = (4.0 , half4(half(9.0))));"
+                 "}");
 }
