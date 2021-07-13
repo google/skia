@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "522f63a4_68d8f859",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-07-13T15:22:22Z",
+      "side": 1,
+      "message": "Is your plan to add back-in the needsCTM() virtual?",
+      "revId": "770c5a47974f947454de219a0a1b597c932a1ae6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "28b75677_26ee5195",
+        "filename": "src/core/SkPathEffectBase.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-07-13T15:22:22Z",
+      "side": 1,
+      "message": "Let\u0027s add dox that explicitly describe that the output must (still) be in local coordinates, w/ or w/o respecting the matrix.",
+      "range": {
+        "startLine": 93,
+        "startChar": 17,
+        "endLine": 93,
+        "endChar": 29
+      },
+      "revId": "770c5a47974f947454de219a0a1b597c932a1ae6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
