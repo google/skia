@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "33e3fe54_0b40b234",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-07-13T13:46:36Z",
+      "side": 1,
+      "message": "This is very rough (probably not worth landing in this state), but I\u0027m able to compile/link the skia_c_api_example in the non-SkSL configuration. You can see all the things that we lose today.",
+      "revId": "a9a25f9c913e2c4a6546acae8abae8e581197c93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
