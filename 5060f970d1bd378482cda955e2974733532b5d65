@@ -118,6 +118,30 @@
       },
       "revId": "5060f970d1bd378482cda955e2974733532b5d65",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "833fe163_04fa7bc1",
+        "filename": "src/gpu/ops/GrOvalOpFactory.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 3350,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-07-13T21:25:48Z",
+      "side": 0,
+      "message": "Makes sense. I\u0027ll just keep that in mind when watching perf and gm. Worst case I\u0027ll revert.",
+      "parentUuid": "58d15e95_7187ed10",
+      "range": {
+        "startLine": 3345,
+        "startChar": 0,
+        "endLine": 3350,
+        "endChar": 5
+      },
+      "revId": "5060f970d1bd378482cda955e2974733532b5d65",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
