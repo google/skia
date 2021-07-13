@@ -70,6 +70,30 @@
       },
       "revId": "5060f970d1bd378482cda955e2974733532b5d65",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e42ddb5e_f42003c2",
+        "filename": "src/gpu/ops/GrOvalOpFactory.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 3350,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-07-13T21:09:18Z",
+      "side": 0,
+      "message": "I don\u0027t like SkScalarNearlyEqual here because it\u0027s a fixed cutoff that doesn\u0027t consider the view matrix. A very small oval with a view matrix that blows it up to screen size would draw wrong.\n\nI\u0027d just as soon use \u003d\u003d, but if not, I think we\u0027d have to check if the device width and height are nearly equal, not the oval-space width and height.\n\nThoughts?",
+      "parentUuid": "f784fd07_1e0c24e3",
+      "range": {
+        "startLine": 3345,
+        "startChar": 0,
+        "endLine": 3350,
+        "endChar": 5
+      },
+      "revId": "5060f970d1bd378482cda955e2974733532b5d65",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
