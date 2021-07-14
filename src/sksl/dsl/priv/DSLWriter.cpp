@@ -36,7 +36,8 @@ DSLWriter::DSLWriter(SkSL::Compiler* compiler, SkSL::ProgramKind kind,
                      const SkSL::ProgramSettings& settings, SkSL::ParsedModule module,
                      bool isModule)
     : fCompiler(compiler)
-    , fSettings(settings) {
+    , fSettings(settings)
+    , fIsModule(isModule) {
     fOldModifiersPool = fCompiler->fContext->fModifiersPool;
 
     fOldConfig = fCompiler->fContext->fConfig;
@@ -151,6 +152,9 @@ DSLPossibleExpression DSLWriter::Construct(const SkSL::Type& type,
     args.reserve_back(rawArgs.size());
 
     for (DSLExpression& arg : rawArgs) {
+        if (!arg.valid()) {
+            return DSLPossibleExpression(nullptr);
+        }
         args.push_back(arg.release());
     }
     return SkSL::Constructor::Convert(Context(), /*offset=*/-1, type, std::move(args));

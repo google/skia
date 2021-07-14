@@ -18,8 +18,20 @@ namespace SkSL {
 
 namespace dsl {
 
-void DSLFunction::init(const DSLType& returnType, skstd::string_view name,
+void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, skstd::string_view name,
                        SkTArray<DSLVar*> params) {
+    // Conservatively assume all user-defined functions have side effects.
+    if (!DSLWriter::IsModule()) {
+        modifiers.fModifiers.fFlags |= Modifiers::kHasSideEffects_Flag;
+    }
+
+    if (DSLWriter::Context().fConfig->fSettings.fForceNoInline) {
+        // Apply the `noinline` modifier to every function. This allows us to test Runtime
+        // Effects without any inlining, even when the code is later added to a paint.
+        modifiers.fModifiers.fFlags &= ~Modifiers::kInline_Flag;
+        modifiers.fModifiers.fFlags |= Modifiers::kNoInline_Flag;
+    }
+
     std::vector<std::unique_ptr<Variable>> paramVars;
     paramVars.reserve(params.size());
     bool isMain = name == "main";
@@ -66,20 +78,26 @@ void DSLFunction::init(const DSLType& returnType, skstd::string_view name,
         param->fDeclaration = nullptr;
     }
     SkASSERT(paramVars.size() == params.size());
-    for (size_t i = 0; i < params.size(); ++i) {
-        params[i]->fVar = paramVars[i].get();
-    }
     fDecl = SkSL::FunctionDeclaration::Convert(DSLWriter::Context(),
                                                *DSLWriter::SymbolTable(),
                                                /*offset=*/-1,
-                                               DSLWriter::Modifiers(SkSL::Modifiers()),
+                                               DSLWriter::Modifiers(modifiers.fModifiers),
                                                isMain ? name : DSLWriter::Name(name),
                                                std::move(paramVars), &returnType.skslType(),
-                                               /*isBuiltin=*/false);
+                                               DSLWriter::IsModule());
+    DSLWriter::ReportErrors();
+    if (fDecl) {
+        for (size_t i = 0; i < params.size(); ++i) {
+            params[i]->fVar = fDecl->parameters()[i];
+        }
+    }
 }
 
 void DSLFunction::define(DSLBlock block) {
     if (!fDecl) {
+        // Evidently we failed to create the declaration; error should already have been reported.
+        // Release the block so we don't fail its destructor assert.
+        block.release();
         return;
     }
     SkASSERTF(!fDecl->definition(), "function '%s' already defined", fDecl->description().c_str());
@@ -98,7 +116,8 @@ DSLExpression DSLFunction::call(SkTArray<DSLWrapper<DSLExpression>> args) {
     for (DSLWrapper<DSLExpression>& arg : args) {
         released.push_back(arg->release());
     }
-    return DSLExpression(DSLWriter::Call(*fDecl, std::move(released)));
+    std::unique_ptr<SkSL::Expression> result = DSLWriter::Call(*fDecl, std::move(released));
+    return result ? DSLExpression(std::move(result)) : DSLExpression();
 }
 
 } // namespace dsl
