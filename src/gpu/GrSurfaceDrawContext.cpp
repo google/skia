@@ -525,8 +525,12 @@ GrSurfaceDrawContext::QuadOptimization GrSurfaceDrawContext::attemptQuadOptimiza
     SkASSERT(result.fEffect == GrClip::Effect::kClipped && result.fIsRRect);
     SkRect clippedBounds = result.fRRect.getBounds();
     clippedBounds.intersect(rtRect);
+    if (!drawBounds.intersect(clippedBounds)) {
+        // Our fractional bounds aren't actually inside the clip. GrClip::preApply() can sometimes
+        // think in terms of rounded-out bounds. Discard the draw.
+        return QuadOptimization::kDiscarded;
+    }
     // Guard against the clipped draw turning into a hairline draw after intersection
-    SkAssertResult(drawBounds.intersect(clippedBounds));
     if (drawBounds.width() < 1.f || drawBounds.height() < 1.f) {
         return QuadOptimization::kCropped;
     }
