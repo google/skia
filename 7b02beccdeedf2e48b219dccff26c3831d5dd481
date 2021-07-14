@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d544c53a_ab7fba95",
+        "filename": "src/gpu/ops/GrStrokeRectOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-07-14T20:33:38Z",
+      "side": 1,
+      "message": "Can we un bin-pack this, and the callsite? I find it b\u003dvery hard to read.",
+      "range": {
+        "startLine": 292,
+        "startChar": 30,
+        "endLine": 295,
+        "endChar": 56
+      },
+      "revId": "7b02beccdeedf2e48b219dccff26c3831d5dd481",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
