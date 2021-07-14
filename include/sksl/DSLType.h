@@ -21,6 +21,7 @@ namespace dsl {
 
 class DSLExpression;
 class DSLField;
+class DSLVarBase;
 
 enum TypeConstant : uint8_t {
     kBool_Type,
@@ -157,7 +158,7 @@ private:
     static void CollectArgs(SkTArray<DSLExpression>& args) {}
 
     template<class... RemainingArgs>
-    static void CollectArgs(SkTArray<DSLExpression>& args, DSLVar& var,
+    static void CollectArgs(SkTArray<DSLExpression>& args, DSLVarBase& var,
                             RemainingArgs&&... remaining) {
         args.push_back(var);
         CollectArgs(args, std::forward<RemainingArgs>(remaining)...);
@@ -176,7 +177,7 @@ private:
     friend DSLType Struct(skstd::string_view name, SkTArray<DSLField> fields);
     friend class DSLCore;
     friend class DSLFunction;
-    friend class DSLVar;
+    friend class DSLVarBase;
     friend class DSLWriter;
 };
 
