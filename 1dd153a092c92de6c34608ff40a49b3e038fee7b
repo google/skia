@@ -16,6 +16,115 @@
       "message": "Just the first step, removing the handler.",
       "revId": "1dd153a092c92de6c34608ff40a49b3e038fee7b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "143d5364_556db97d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-07-14T19:31:52Z",
+      "side": 1,
+      "message": "I\u0027m liking this simplification a lot, but I think we can take it even further.",
+      "revId": "1dd153a092c92de6c34608ff40a49b3e038fee7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a0909331_6e2f46b3",
+        "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-07-14T19:31:52Z",
+      "side": 1,
+      "message": "I don\u0027t think this class is used at all anymore",
+      "range": {
+        "startLine": 39,
+        "startChar": 10,
+        "endLine": 39,
+        "endChar": 31
+      },
+      "revId": "1dd153a092c92de6c34608ff40a49b3e038fee7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dbeef691_98c4244c",
+        "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-07-14T19:31:52Z",
+      "side": 1,
+      "message": "Unused right?",
+      "range": {
+        "startLine": 70,
+        "startChar": 10,
+        "endLine": 70,
+        "endChar": 31
+      },
+      "revId": "1dd153a092c92de6c34608ff40a49b3e038fee7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "48f34e48_f3a44c4d",
+        "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-07-14T19:31:52Z",
+      "side": 1,
+      "message": "since we\u0027re here, maybe rename to \u0027sampleCoord\u0027 to match code?",
+      "range": {
+        "startLine": 90,
+        "startChar": 15,
+        "endLine": 90,
+        "endChar": 33
+      },
+      "revId": "1dd153a092c92de6c34608ff40a49b3e038fee7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f5a117bd_3731e142",
+        "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2021-07-14T19:31:52Z",
+      "side": 1,
+      "message": "remove?",
+      "range": {
+        "startLine": 91,
+        "startChar": 8,
+        "endLine": 92,
+        "endChar": 85
+      },
+      "revId": "1dd153a092c92de6c34608ff40a49b3e038fee7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
