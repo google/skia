@@ -50,6 +50,24 @@
       "message": "Ah\n\nIf you\u0027re not exercising the new functionality, let\u0027s not add it (yet).",
       "revId": "1eea386363cf4b6583f495b8e2cb169ee88d6a26",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3723143e_917f4b42",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-14T21:01:44Z",
+      "side": 1,
+      "message": "I\u0027d be worried about slowing down existing tests if we did that unilaterally. We really want to hit the memcmp path for speed if the caller just wants a Yes/No. Maybe a new `pixel_max_delta` API or something.",
+      "parentUuid": "8dcd3853_c6727424",
+      "revId": "1eea386363cf4b6583f495b8e2cb169ee88d6a26",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
