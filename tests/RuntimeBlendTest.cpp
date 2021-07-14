@@ -19,14 +19,6 @@
 #include "tools/RuntimeBlendUtils.h"
 #include "tools/ToolUtils.h"
 
-static bool nearly_equal(const SkColor& x, const SkColor& y) {
-    const int kTolerance = 1;
-    return abs((int)SkColorGetA(x) - (int)SkColorGetA(y)) <= kTolerance &&
-           abs((int)SkColorGetR(x) - (int)SkColorGetR(y)) <= kTolerance &&
-           abs((int)SkColorGetG(x) - (int)SkColorGetG(y)) <= kTolerance &&
-           abs((int)SkColorGetB(x) - (int)SkColorGetB(y)) <= kTolerance;
-}
-
 static void test_blend(skiatest::Reporter* r, SkSurface* surface) {
     SkBitmap bitmap;
     REPORTER_ASSERT(r, bitmap.tryAllocPixels(surface->imageInfo()));
@@ -57,7 +49,7 @@ static void test_blend(skiatest::Reporter* r, SkSurface* surface) {
                 colors.push_back(bitmap.getColor(/*x=*/0, /*y=*/0));
             }
 
-            REPORTER_ASSERT(r, nearly_equal(colors[0], colors[1]),
+            REPORTER_ASSERT(r, ToolUtils::color_difference(colors[0], colors[1]) <= 1,
                             "Expected: %s %s blend matches. Actual: Built-in "
                             "A=%02X R=%02X G=%02X B=%02X, Runtime A=%02X R=%02X G=%02X B=%02X",
                             SkBlendMode_Name(mode),
