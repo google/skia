@@ -48,6 +48,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1cde43fa_bb9a9b1f",
+        "filename": "src/sksl/dsl/DSLFunction.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-14T13:46:20Z",
+      "side": 1,
+      "message": "Yeah, I\u0027m not too concerned about it. As long as we don\u0027t end up with two parsers coexisting long-term, the duplication will go away naturally.",
+      "parentUuid": "ef21fbe5_02cb87be",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 0
+      },
+      "revId": "7d498ee7506ba511e7fd44a8ba8f7bb522844b32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "aa12695a_d4788c1c",
@@ -85,6 +109,30 @@
       "side": 1,
       "message": "isBuiltin is the current name of this parameter. I\u0027ll put together a followup CL which renames it.",
       "parentUuid": "aa12695a_d4788c1c",
+      "range": {
+        "startLine": 87,
+        "startChar": 47,
+        "endLine": 87,
+        "endChar": 66
+      },
+      "revId": "7d498ee7506ba511e7fd44a8ba8f7bb522844b32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ede4d8e3_7d3d6def",
+        "filename": "src/sksl/dsl/DSLFunction.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-14T13:46:20Z",
+      "side": 1,
+      "message": "I know, I meant should we be passing the value of IsModule() here instead of always false?",
+      "parentUuid": "8e2e23da_6a8c1a53",
       "range": {
         "startLine": 87,
         "startChar": 47,
