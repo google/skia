@@ -81,6 +81,13 @@ public:
     // other types of symbols where unique names are important.
     SkString nameVariable(char prefix, const char* name, bool mangle = true);
 
+    /**
+     * If computation of a FP's input coords have been lifted to the vertex shader, this method
+     * retrieves the name of the coords varying in the FS. The FP code should read this directly
+     * rather than writing a function that takes a float2 coord.
+     */
+    GrShaderVar varyingCoordsForFragmentProcessor(const GrFragmentProcessor*);
+
     virtual GrGLSLUniformHandler* uniformHandler() = 0;
     virtual const GrGLSLUniformHandler* uniformHandler() const = 0;
     virtual GrGLSLVaryingHandler* varyingHandler() = 0;
@@ -153,7 +160,6 @@ private:
     bool emitAndInstallFragProcs(SkString* colorInOut, SkString* coverageInOut);
     SkString emitFragProc(const GrFragmentProcessor&,
                           GrGLSLFragmentProcessor&,
-                          int transformedCoordVarsIdx,
                           const SkString& input,
                           SkString output);
     bool emitAndInstallXferProc(const SkString& colorIn, const SkString& coverageIn);
@@ -170,7 +176,7 @@ private:
 
     // These are used to check that we don't excede the allowable number of resources in a shader.
     int fNumFragmentSamplers;
-    SkSTArray<4, GrShaderVar> fTransformedCoordVars;
+    GrGLSLGeometryProcessor::FPToVaryingCoordsMap fFPCoordVaryings;
 };
 
 #endif

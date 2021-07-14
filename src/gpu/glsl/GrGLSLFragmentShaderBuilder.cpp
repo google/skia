@@ -42,7 +42,7 @@ SkString GrGLSLFPFragmentBuilder::writeProcessorFunction(GrGLSLFragmentProcessor
         paramCount = 1;
 
         if (args.fFp.referencesSampleCoords()) {
-            const GrShaderVar& varying = args.fTransformedCoords[0];
+            GrShaderVar varying = fProgramBuilder->varyingCoordsForFragmentProcessor(&args.fFp);
             switch(varying.getType()) {
                 case kFloat2_GrSLType:
                     // Just point the local coords to the varying

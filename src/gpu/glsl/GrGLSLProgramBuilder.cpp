@@ -117,8 +117,6 @@ bool GrGLSLProgramBuilder::emitAndInstallPrimProc(SkString* outputColor, SkStrin
         }
     }
 
-    GrGLSLGeometryProcessor::FPCoordTransformHandler transformHandler(this->pipeline(),
-                                                                      &fTransformedCoordVars);
     GrGLSLGeometryProcessor::EmitArgs args(&fVS,
                                            geomProc.willUseGeoShader() ? &fGS : nullptr,
                                            &fFS,
@@ -128,9 +126,9 @@ bool GrGLSLProgramBuilder::emitAndInstallPrimProc(SkString* outputColor, SkStrin
                                            geomProc,
                                            outputColor->c_str(),
                                            outputCoverage->c_str(),
-                                           texSamplers.get(),
-                                           &transformHandler);
-    fGeometryProcessor->emitCode(args);
+                                           texSamplers.get());
+    GrFragmentProcessor::CIter fpIter(this->pipeline());
+    fFPCoordVaryings = fGeometryProcessor->emitCode(args, std::move(fpIter));
 
     // We have to check that effects and the code they emit are consistent, ie if an effect
     // asks for dst color, then the emit code needs to follow suit
@@ -140,7 +138,6 @@ bool GrGLSLProgramBuilder::emitAndInstallPrimProc(SkString* outputColor, SkStrin
 }
 
 bool GrGLSLProgramBuilder::emitAndInstallFragProcs(SkString* color, SkString* coverage) {
-    int transformedCoordVarsIdx = 0;
     int fpCount = this->pipeline().numFragmentProcessors();
     SkASSERT(fFPImpls.empty());
     fFPImpls.reserve(fpCount);
@@ -149,16 +146,9 @@ bool GrGLSLProgramBuilder::emitAndInstallFragProcs(SkString* color, SkString* co
         SkString output;
         const GrFragmentProcessor& fp = this->pipeline().getFragmentProcessor(i);
         fFPImpls.push_back(fp.makeProgramImpl());
-        output = this->emitFragProc(fp,
-                                    *fFPImpls.back(),
-                                    transformedCoordVarsIdx,
-                                    *inOut,
-                                    output);
+        output = this->emitFragProc(fp, *fFPImpls.back(), *inOut, output);
         if (output.isEmpty()) {
             return false;
-        }
-        for (const auto& subFP : GrFragmentProcessor::FPRange(fp)) {
-            transformedCoordVarsIdx += subFP.numVaryingCoordsUsed();
         }
         *inOut = std::move(output);
     }
@@ -167,7 +157,6 @@ bool GrGLSLProgramBuilder::emitAndInstallFragProcs(SkString* color, SkString* co
 
 SkString GrGLSLProgramBuilder::emitFragProc(const GrFragmentProcessor& fp,
                                             GrGLSLFragmentProcessor& glslFP,
-                                            int transformedCoordVarsIdx,
                                             const SkString& input,
                                             SkString output) {
     SkASSERT(input.size());
@@ -192,15 +181,12 @@ SkString GrGLSLProgramBuilder::emitFragProc(const GrFragmentProcessor& fp,
             static_cast<GrTextureEffect::Impl&>(subGLSLFP).setSamplerHandle(handle);
         }
     }
-    const GrShaderVar* coordVars = fTransformedCoordVars.begin() + transformedCoordVarsIdx;
-    GrGLSLFragmentProcessor::TransformedCoordVars coords(&fp, coordVars);
     GrGLSLFragmentProcessor::EmitArgs args(&fFS,
                                            this->uniformHandler(),
                                            this->shaderCaps(),
                                            fp,
                                            "_input",
-                                           "_coords",
-                                           coords);
+                                           "_coords");
     auto name = fFS.writeProcessorFunction(&glslFP, args);
     fFS.codeAppendf("%s = %s(%s);", output.c_str(), name.c_str(), input.c_str());
 
@@ -393,6 +379,11 @@ void GrGLSLProgramBuilder::addRTFlipUniform(const char* name) {
                                                     false,
                                                     0,
                                                     nullptr);
+}
+
+GrShaderVar GrGLSLProgramBuilder::varyingCoordsForFragmentProcessor(const GrFragmentProcessor* fp) {
+    auto iter = fFPCoordVaryings.find(fp);
+    return iter == fFPCoordVaryings.end() ? GrShaderVar() : iter->second;
 }
 
 void GrGLSLProgramBuilder::finalizeShaders() {

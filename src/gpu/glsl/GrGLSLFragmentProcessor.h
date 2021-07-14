@@ -28,48 +28,6 @@ public:
     using UniformHandle      = GrGLSLUniformHandler::UniformHandle;
     using SamplerHandle      = GrGLSLUniformHandler::SamplerHandle;
 
-private:
-    /**
-     * This class allows the shader builder to provide each GrGLSLFragmentProcessor with an array of
-     * generated variables where each generated variable corresponds to an element of an array on
-     * the GrFragmentProcessor that generated the GLSLFP. For example, this is used to provide a
-     * variable holding transformed coords for each GrCoordTransform owned by the FP.
-     */
-    template <typename T, int (GrFragmentProcessor::*COUNT)() const>
-    class BuilderInputProvider {
-    public:
-        BuilderInputProvider(const GrFragmentProcessor* fp, const T* ts) : fFP(fp) , fTs(ts) {}
-
-        const T& operator[] (int i) const {
-            SkASSERT(i >= 0 && i < (fFP->*COUNT)());
-            return fTs[i];
-        }
-
-        int count() const { return (fFP->*COUNT)(); }
-
-        BuilderInputProvider childInputs(int childIdx) const {
-            const GrFragmentProcessor* child = fFP->childProcessor(childIdx);
-            SkASSERT(child);
-            int numToSkip = 0;
-            for (const auto& fp : GrFragmentProcessor::FPRange(*fFP)) {
-                if (&fp == child) {
-                    return BuilderInputProvider(child, fTs + numToSkip);
-                }
-                numToSkip += (fp.*COUNT)();
-            }
-            SK_ABORT("Didn't find the child.");
-            return {nullptr, nullptr};
-        }
-
-    private:
-        const GrFragmentProcessor* fFP;
-        const T*                   fTs;
-    };
-
-public:
-    using TransformedCoordVars =
-            BuilderInputProvider<GrShaderVar, &GrFragmentProcessor::numVaryingCoordsUsed>;
-
     /** Called when the program stage should insert its code into the shaders. The code in each
         shader will be in its own block ({}) and so locally scoped names will not collide across
         stages.
@@ -87,9 +45,7 @@ public:
                                  (e.g. input color is solid white, trans black, known to be opaque,
                                  etc.) that allows the processor to communicate back similar known
                                  info about its output.
-        @param localCoord        The name of a local coord reference to a float2 variable.
-        @param transformedCoords Fragment shader variables containing the coords computed using
-                                 each of the GrFragmentProcessor's GrCoordTransforms.
+        @param sampleCoord       The name of a local coord reference to a float2 variable.
      */
     struct EmitArgs {
         EmitArgs(GrGLSLFPFragmentBuilder* fragBuilder,
@@ -97,22 +53,19 @@ public:
                  const GrShaderCaps* caps,
                  const GrFragmentProcessor& fp,
                  const char* inputColor,
-                 const char* sampleCoord,
-                 const TransformedCoordVars& transformedCoordVars)
+                 const char* sampleCoord)
                 : fFragBuilder(fragBuilder)
                 , fUniformHandler(uniformHandler)
                 , fShaderCaps(caps)
                 , fFp(fp)
                 , fInputColor(inputColor ? inputColor : "half4(1.0)")
-                , fSampleCoord(sampleCoord)
-                , fTransformedCoords(transformedCoordVars) {}
+                , fSampleCoord(sampleCoord) {}
         GrGLSLFPFragmentBuilder* fFragBuilder;
         GrGLSLUniformHandler* fUniformHandler;
         const GrShaderCaps* fShaderCaps;
         const GrFragmentProcessor& fFp;
         const char* fInputColor;
         const char* fSampleCoord;
-        const TransformedCoordVars& fTransformedCoords;
     };
 
     virtual void emitCode(EmitArgs&) = 0;
