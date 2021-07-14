@@ -30,7 +30,7 @@
  *  sa : source alpha
  *  da : destination alpha
  *
- *  Results are appreviated
+ *  Results are abbreviated
  *  r  : if all 4 components are computed in the same manner
  *  ra : result alpha component
  *  rc : result "color": red, green, blue components
