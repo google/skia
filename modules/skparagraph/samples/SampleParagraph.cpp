@@ -3549,7 +3549,7 @@ protected:
         std::vector<LineMetrics> metrics;
         paragraph->getLineMetrics(metrics);
         for (auto& metric : metrics) {
-            SkDebugf("Line[%d:%d <= %d <=%d)\n", metric.fStartIndex, metric.fEndExcludingWhitespaces, metric.fEndIndex, metric.fEndIncludingNewline);
+            SkDebugf("Line[%zu:%zu <= %zu <= %zu)\n", metric.fStartIndex, metric.fEndExcludingWhitespaces, metric.fEndIndex, metric.fEndIncludingNewline);
         }
     }
 
