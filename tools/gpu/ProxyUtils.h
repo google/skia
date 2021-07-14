@@ -28,6 +28,8 @@ GrSurfaceProxyView MakeTextureProxyViewFromData(GrDirectContext*,
                                                 GrSurfaceOrigin,
                                                 GrCPixmap pixmap);
 
+#if SK_GPU_V1
+
 GrProgramInfo* CreateProgramInfo(const GrCaps*,
                                  SkArenaAlloc*,
                                  const GrSurfaceProxyView& writeView,
@@ -42,6 +44,7 @@ GrProgramInfo* CreateProgramInfo(const GrCaps*,
                                  const GrUserStencilSettings* stencil =
                                                                 &GrUserStencilSettings::kUnused);
 
+#endif
 
 }  // namespace sk_gpu_test
 

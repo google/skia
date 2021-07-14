@@ -26,6 +26,15 @@ Device::~Device() {}
 
 GrSurfaceProxyView Device::readSurfaceView() { return {}; }
 
+bool Device::replaceBackingProxy(SkSurface::ContentChangeMode,
+                                 sk_sp<GrRenderTargetProxy>,
+                                 GrColorType,
+                                 sk_sp<SkColorSpace>,
+                                 GrSurfaceOrigin,
+                                 const SkSurfaceProps&) {
+    return false;
+}
+
 void Device::asyncRescaleAndReadPixels(const SkImageInfo& info,
                                        const SkIRect& srcRect,
                                        RescaleGamma rescaleGamma,

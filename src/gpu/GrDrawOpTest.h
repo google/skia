@@ -29,9 +29,6 @@ void GrDrawRandomOp(SkRandom*, GrSurfaceDrawContext*, GrPaint&&);
     GrOp::Owner Op##__Test(GrPaint&& paint, SkRandom* random,                                   \
                              GrRecordingContext* context,                                       \
                              GrSurfaceDrawContext* sdc, int numSamples)
-#define GR_DRAW_OP_TEST_FRIEND(Op)                                                              \
-    friend GrOp::OpOwner Op##__Test(GrPaint&&, SkRandom*,                                       \
-                                    GrRecordingContext*, GrSurfaceDrawContext*, int)
 
 /** Helper for op test factories to pick a random stencil state. */
 const GrUserStencilSettings* GrGetRandomStencil(SkRandom* random, GrContext_Base*);

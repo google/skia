@@ -11,6 +11,7 @@
 #include "src/core/SkBlendModePriv.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkSurfacePriv.h"
+#include "src/gpu/GrPaint.h"
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 

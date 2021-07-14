@@ -34,12 +34,15 @@ public:
 
     void prepare(GrMeshDrawTarget*, const SkRect& cullBounds, const SkPath&,
                  const BreadcrumbTriangleList*) override;
+
+#if SK_GPU_V1
     void draw(GrOpFlushState*) const override;
 
     // Draws a 4-point instance for each curve. This method is used for drawing convex hulls over
     // each cubic with GrFillCubicHullShader. The caller is responsible for binding its desired
     // pipeline ahead of time.
     void drawHullInstances(GrOpFlushState*, sk_sp<const GrGpuBuffer> vertexBufferIfNeeded) const;
+#endif
 
 private:
     GrPathCurveTessellator(GrPathTessellationShader* shader, DrawInnerFan drawInnerFan)

@@ -29,7 +29,6 @@ samples_sources = [
   "$_samplecode/SampleComplexClip.cpp",
   "$_samplecode/SampleCowboy.cpp",
   "$_samplecode/SampleCusp.cpp",
-  "$_samplecode/SampleDegenerateQuads.cpp",
   "$_samplecode/SampleDegenerateTwoPtRadials.cpp",
   "$_samplecode/SampleEffects.cpp",
   "$_samplecode/SampleEmboss.cpp",
@@ -83,6 +82,9 @@ samples_sources = [
   "$_samplecode/vertexdump.cpp",
 ]
 
-skgpu_v1_samples_sources = [ "$_samplecode/SamplePathTessellators.cpp" ]
+skgpu_v1_samples_sources = [
+  "$_samplecode/SampleDegenerateQuads.cpp",
+  "$_samplecode/SamplePathTessellators.cpp",
+]
 
 samples_sources += skgpu_v1_samples_sources

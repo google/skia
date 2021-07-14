@@ -6,6 +6,8 @@
  */
 
 #include "bench/Benchmark.h"
+
+#if 0
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkPaint.h"
@@ -92,3 +94,4 @@ private:
 };
 
 DEF_BENCH( return new ParagraphBench; )
+#endif

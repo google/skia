@@ -29,6 +29,7 @@
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
 namespace {
+
 class Op : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
@@ -167,6 +168,7 @@ private:
 
     using INHERITED = GrMeshDrawOp;
 };
+
 }  // namespace
 
 DEF_GPUTEST_FOR_ALL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {

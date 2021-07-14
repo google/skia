@@ -27,7 +27,10 @@ public:
 
     void prepare(GrMeshDrawTarget*, const SkRect& cullBounds, const SkPath&,
                  const BreadcrumbTriangleList*) override;
+
+#if SK_GPU_V1
     void draw(GrOpFlushState*) const override;
+#endif
 
 private:
     GrPathWedgeTessellator(GrPathTessellationShader* shader)

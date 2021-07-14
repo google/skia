@@ -18,6 +18,8 @@ class GrMeshDrawTarget;
 class GrGpuBuffer;
 class GrOpFlushState;
 class GrPathTessellationShader;
+class GrMeshDrawTarget;
+class GrOpFlushState;
 
 // Prepares GPU data for, and then draws a path's tessellated geometry. Depending on the subclass,
 // the caller may or may not be required to draw the path's inner fan separately.
@@ -33,9 +35,11 @@ public:
     virtual void prepare(GrMeshDrawTarget*, const SkRect& cullBounds, const SkPath&,
                          const BreadcrumbTriangleList* = nullptr) = 0;
 
+#if SK_GPU_V1
     // Issues draw calls for the tessellated geometry. The caller is responsible for binding its
     // desired pipeline ahead of time.
     virtual void draw(GrOpFlushState*) const = 0;
+#endif
 
     virtual ~GrPathTessellator() {}
 

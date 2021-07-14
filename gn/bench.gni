@@ -125,7 +125,10 @@ bench_sources = [
   "$_bench/TriangulatorBench.cpp",
   "$_bench/TypefaceBench.cpp",
   "$_bench/VertBench.cpp",
-  "$_bench/VertexColorSpaceBench.cpp",
   "$_bench/WritePixelsBench.cpp",
   "$_bench/WriterBench.cpp",
 ]
+
+skgpu_v1_bench_sources = [ "$_bench/VertexColorSpaceBench.cpp" ]
+
+bench_sources += skgpu_v1_bench_sources
