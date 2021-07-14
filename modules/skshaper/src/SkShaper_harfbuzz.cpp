@@ -271,13 +271,16 @@ HBFace create_hb_face(const SkTypeface& typeface) {
     HBFace face;
     if (typefaceAsset && typefaceAsset->getMemoryBase()) {
         HBBlob blob(stream_to_blob(std::move(typefaceAsset)));
-        face.reset(hb_face_create(blob.get(), (unsigned)index));
-        // hb_face_create always succeeds. Check number of glyphs to force a minimal
-        // sanitization step. hb_face_get_upem doesn't work as it defaults to 1000.
+        // hb_face_create always succeeds. Check that the format is minimally recognized first.
         // hb_face_create_for_tables may still create a working hb_face.
         // See https://github.com/harfbuzz/harfbuzz/issues/248 .
-        if (face && hb_face_get_glyph_count(face.get()) == 0) {
-            face.reset();
+        unsigned int num_hb_faces = hb_face_count(blob.get());
+        if (0 < num_hb_faces && (unsigned)index < num_hb_faces) {
+            face.reset(hb_face_create(blob.get(), (unsigned)index));
+            // Check the number of glyphs as a basic sanitization step.
+            if (face && hb_face_get_glyph_count(face.get()) == 0) {
+                face.reset();
+            }
         }
     }
     if (!face) {
