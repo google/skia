@@ -19,7 +19,7 @@ namespace SkSL {
 namespace dsl {
 
 void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, skstd::string_view name,
-                       SkTArray<DSLVar*> params) {
+                       SkTArray<DSLParameter*> params) {
     // Conservatively assume all user-defined functions have side effects.
     if (!DSLWriter::IsModule()) {
         modifiers.fModifiers.fFlags |= Modifiers::kHasSideEffects_Flag;
@@ -39,7 +39,7 @@ void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, skstd:
         return type == *DSLWriter::Context().fTypes.fHalf4 ||
                type == *DSLWriter::Context().fTypes.fFloat4;
     };
-    for (DSLVar* param : params) {
+    for (DSLParameter* param : params) {
         // This counts as declaring the variable; make sure it hasn't been previously declared and
         // then kill its pending declaration statement. Otherwise the statement will hang around
         // until after the Var is destroyed, which is probably after the End() call and therefore
@@ -55,7 +55,6 @@ void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, skstd:
             param->fInitialValue.release();
         }
         param->fDeclared = true;
-        param->fStorage = SkSL::VariableStorage::kParameter;
         SkSL::ProgramKind kind = DSLWriter::Context().fConfig->fKind;
         if (isMain && (kind == ProgramKind::kRuntimeColorFilter ||
                        kind == ProgramKind::kRuntimeShader ||
