@@ -33,6 +33,23 @@
       "message": "afterthought...\n\nWe could change equal_pixels() to return its max_diff, so the caller can compare against their tolerance themselves.\n\nhalf a dozen of one...",
       "revId": "1eea386363cf4b6583f495b8e2cb169ee88d6a26",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8fb0d24c_904d1a56",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-07-14T21:01:04Z",
+      "side": 1,
+      "message": "Ah\n\nIf you\u0027re not exercising the new functionality, let\u0027s not add it (yet).",
+      "revId": "1eea386363cf4b6583f495b8e2cb169ee88d6a26",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
