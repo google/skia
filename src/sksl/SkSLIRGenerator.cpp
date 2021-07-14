@@ -250,9 +250,10 @@ int IRGenerator::convertArraySize(const Type& type, std::unique_ptr<Expression> 
 
 void IRGenerator::checkVarDeclaration(int offset, const Modifiers& modifiers, const Type* baseType,
                                       Variable::Storage storage) {
+/*  FIXME figure out how to deal with this
     if (this->strictES2Mode() && baseType->isArray()) {
         this->errorReporter().error(offset, "array size must appear after variable name");
-    }
+    } */
 
     if (baseType->componentType().isOpaque() && storage != Variable::Storage::kGlobal) {
         this->errorReporter().error(
@@ -331,7 +332,8 @@ std::unique_ptr<Variable> IRGenerator::convertVar(int offset, const Modifiers& m
 }
 
 std::unique_ptr<Statement> IRGenerator::convertVarDeclaration(std::unique_ptr<Variable> var,
-                                                              std::unique_ptr<Expression> value) {
+                                                              std::unique_ptr<Expression> value,
+                                                              bool addToSymbolTable) {
     std::unique_ptr<Statement> varDecl = VarDeclaration::Convert(fContext, var.get(),
                                                                  std::move(value));
     if (!varDecl) {
@@ -360,7 +362,11 @@ std::unique_ptr<Statement> IRGenerator::convertVarDeclaration(std::unique_ptr<Va
         fRTAdjust = var.get();
     }
 
-    fSymbolTable->add(std::move(var));
+    if (addToSymbolTable) {
+        fSymbolTable->add(std::move(var));
+    } else {
+        fSymbolTable->takeOwnershipOfSymbol(std::move(var));
+    }
     return varDecl;
 }
 
