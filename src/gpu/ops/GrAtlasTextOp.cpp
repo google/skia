@@ -325,9 +325,11 @@ void GrAtlasTextOp::onPrepareDraws(GrMeshDrawTarget* target) {
 }
 
 void GrAtlasTextOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
+    auto pipelineFlags = flushState->usesMSAASurface() ? GrPipeline::InputFlags::kHWAntialias
+                                                       : GrPipeline::InputFlags::kNone;
     auto pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(flushState,
                                                              std::move(fProcessors),
-                                                             GrPipeline::InputFlags::kNone);
+                                                             pipelineFlags);
 
     flushState->executeDrawsAndUploadsForMeshDrawOp(this, chainBounds, pipeline,
                                                     &GrUserStencilSettings::kUnused);
