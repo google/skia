@@ -40,6 +40,8 @@ namespace GrDefaultGeoProcFactory {
             kUniform_Type,
             kAttribute_Type,
             kAttributeTweakAlpha_Type,
+            kAttributeUnclamped_Type,  // Fragment shader will call saturate(coverage) before using.
+                                       // (Not compatible with kAttributeTweakAlpha_Type.)
         };
         explicit Coverage(uint8_t coverage) : fType(kUniform_Type), fCoverage(coverage) {}
         Coverage(Type type) : fType(type), fCoverage(0xff) {
