@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "30acbffe_a7f49546",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-07-14T08:32:21Z",
+      "side": 1,
+      "message": "Michael -- this is the stencil CL I mentioned earlier. I though I had added you as reviewer, but guess not.",
+      "revId": "7b3b91d95e7f0a3bada13f65205fcc5d4d47afbb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
