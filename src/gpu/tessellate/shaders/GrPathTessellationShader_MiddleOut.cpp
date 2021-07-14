@@ -64,7 +64,6 @@ GrGLSLGeometryProcessor* MiddleOutShader::createGLSLInstance(const GrShaderCaps&
             v->defineConstant("MAX_FIXED_RESOLVE_LEVEL", (float)kMaxFixedCountResolveLevel);
             v->defineConstant("MAX_FIXED_SEGMENTS", (float)kMaxFixedCountSegments);
             v->insertFunction(GrWangsFormula::as_sksl().c_str());
-            v->insertFunction(SkSLPortable_isinf(shaderCaps));
             if (shaderCaps.bitManipulationSupport()) {
                 v->insertFunction(R"(
                 float ldexp_portable(float x, float p) {
@@ -88,7 +87,7 @@ GrGLSLGeometryProcessor* MiddleOutShader::createGLSLInstance(const GrShaderCaps&
                 } else)");  // Fall through to next if ().
             }
             v->codeAppend(R"(
-            if (isinf_portable(p23.z)) {
+            if (isinf(p23.z)) {
                 // A conic with w=Inf is an exact triangle.
                 localcoord = (resolveLevel != 0)      ? p01.zw
                            : (idxInResolveLevel != 0) ? p23.xy
@@ -97,7 +96,7 @@ GrGLSLGeometryProcessor* MiddleOutShader::createGLSLInstance(const GrShaderCaps&
                 float2 p0=p01.xy, p1=p01.zw, p2=p23.xy, p3=p23.zw;
                 float w = -1;  // w < 0 tells us to treat the instance as an integral cubic.
                 float maxResolveLevel;
-                if (isinf_portable(p3.y)) {
+                if (isinf(p3.y)) {
                     // The patch is a conic.
                     w = p3.x;
                     maxResolveLevel = wangs_formula_conic_log2(PRECISION, AFFINE_MATRIX * p0,

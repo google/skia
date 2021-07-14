@@ -28,7 +28,6 @@ void GrStrokeTessellationShader::InstancedImpl::onEmitCode(EmitArgs& args, GrGPA
     args.fVertBuilder->insertFunction(kMiterExtentFn);
     args.fVertBuilder->insertFunction(kUncheckedMixFn);
     args.fVertBuilder->insertFunction(GrWangsFormula::as_sksl().c_str());
-    args.fVertBuilder->insertFunction(SkSLPortable_isinf(*args.fShaderCaps));
 
     // Tessellation control uniforms and/or dynamic attributes.
     if (!shader.hasDynamicStroke()) {
@@ -91,7 +90,7 @@ void GrStrokeTessellationShader::InstancedImpl::onEmitCode(EmitArgs& args, GrGPA
     float2 p0=pts01Attr.xy, p1=pts01Attr.zw, p2=pts23Attr.xy, p3=pts23Attr.zw;
     float2 lastControlPoint = argsAttr.xy;
     float w = -1;  // w<0 means the curve is an integral cubic.
-    if (isinf_portable(p3.y)) {
+    if (isinf(p3.y)) {
         w = p3.x;  // The curve is actually a conic.
         p3 = p2;  // Setting p3 equal to p2 works for the remaining rotational logic.
     })");
