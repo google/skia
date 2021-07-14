@@ -50,13 +50,12 @@ GrGLSLGeometryProcessor* HullShader::createGLSLInstance(const GrShaderCaps&) con
     class Impl : public GrPathTessellationShader::Impl {
         void emitVertexCode(const GrShaderCaps& shaderCaps, const GrPathTessellationShader&,
                             GrGLSLVertexBuilder* v, GrGPArgs* gpArgs) override {
-            v->insertFunction(SkSLPortable_isinf(shaderCaps));
             v->codeAppend(R"(
             float2 p0=p01.xy, p1=p01.zw, p2=p23.xy, p3=p23.zw;
-            if (isinf_portable(p3.y)) {  // Is the curve a conic?
+            if (isinf(p3.y)) {  // Is the curve a conic?
                 float w = p3.x;
                 p3 = p2;
-                if (!isinf_portable(w)) {  // A conic with w=Inf is an exact triangle.
+                if (!isinf(w)) {  // A conic with w=Inf is an exact triangle.
                     // Convert the points to a trapeziodal hull that circumcscribes the conic.
                     float2 p1w = p1 * w;
                     float T = .51;  // Bias outward a bit to ensure we cover the outermost samples.

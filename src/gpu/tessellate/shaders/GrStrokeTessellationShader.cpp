@@ -16,7 +16,8 @@
 GrStrokeTessellationShader::GrStrokeTessellationShader(const GrShaderCaps& shaderCaps, Mode mode,
                                                        ShaderFlags shaderFlags,
                                                        const SkMatrix& viewMatrix,
-                                                       const SkStrokeRec& stroke, SkPMColor4f color,
+                                                       const SkStrokeRec& stroke,
+                                                       SkPMColor4f color,
                                                        int8_t maxParametricSegments_log2)
         : GrTessellationShader(kTessellate_GrStrokeTessellationShader_ClassID,
                                (mode == Mode::kHardwareTessellation)
