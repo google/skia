@@ -141,6 +141,30 @@
       },
       "revId": "7d498ee7506ba511e7fd44a8ba8f7bb522844b32",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3aed148a_78fb7d4a",
+        "filename": "src/sksl/dsl/DSLFunction.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-07-14T13:55:32Z",
+      "side": 1,
+      "message": "Derp. Yep, we absolutely should.\n\nWe *are* really indecisive about whether these things should be called \"builtin\" or \"module\", though :-).",
+      "parentUuid": "ede4d8e3_7d3d6def",
+      "range": {
+        "startLine": 87,
+        "startChar": 47,
+        "endLine": 87,
+        "endChar": 66
+      },
+      "revId": "7d498ee7506ba511e7fd44a8ba8f7bb522844b32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
