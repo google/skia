@@ -289,12 +289,16 @@ static bool stroke_dev_half_size_supported(SkVector devHalfStrokeSize) {
            std::min(devHalfStrokeSize.fX, devHalfStrokeSize.fY) >= .5f;
 }
 
-static void compute_aa_rects(SkRect* devOutside, SkRect* devOutsideAssist, SkRect* devInside,
-                             bool* isDegenerate, const SkMatrix& viewMatrix, const SkRect& rect,
-                             SkScalar strokeWidth, bool miterStroke, SkVector* devHalfStrokeSize) {
-    SkRect devRect;
-    viewMatrix.mapRect(&devRect, rect);
-
+static bool compute_aa_rects(const GrCaps& caps,
+                             SkRect* devOutside,
+                             SkRect* devOutsideAssist,
+                             SkRect* devInside,
+                             bool* isDegenerate,
+                             const SkMatrix& viewMatrix,
+                             const SkRect& rect,
+                             SkScalar strokeWidth,
+                             bool miterStroke,
+                             SkVector* devHalfStrokeSize) {
     SkVector devStrokeSize;
     if (strokeWidth > 0) {
         devStrokeSize.set(strokeWidth, strokeWidth);
@@ -311,6 +315,17 @@ static void compute_aa_rects(SkRect* devOutside, SkRect* devOutsideAssist, SkRec
 
     devHalfStrokeSize->fX = rx;
     devHalfStrokeSize->fY = ry;
+
+    SkRect devRect;
+    viewMatrix.mapRect(&devRect, rect);
+
+    // Clip our draw rect 1 full stroke width plus bloat outside the viewport. This avoids
+    // interpolation precision issues with very large coordinates.
+    const int m = caps.maxRenderTargetSize();
+    const SkRect visibilityBounds = SkRect::MakeWH(m, m).makeOutset(dx + 1, dy + 1);
+    if (!devRect.intersect(visibilityBounds)) {
+        return false;
+    }
 
     *devOutside = devRect;
     *devOutsideAssist = devRect;
@@ -342,6 +357,8 @@ static void compute_aa_rects(SkRect* devOutside, SkRect* devOutsideAssist, SkRec
         devOutside->inset(0, ry);
         devOutsideAssist->outset(0, ry);
     }
+
+    return true;
 }
 
 static GrGeometryProcessor* create_aa_stroke_rect_gp(SkArenaAlloc* arena,
@@ -423,9 +440,18 @@ public:
             return nullptr;
         }
         RectInfo info;
-        compute_aa_rects(&info.fDevOutside, &info.fDevOutsideAssist, &info.fDevInside,
-                         &info.fDegenerate, viewMatrix, rect, stroke.getWidth(), isMiter,
-                         &info.fDevHalfStrokeSize);
+        if (!compute_aa_rects(*context->priv().caps(),
+                              &info.fDevOutside,
+                              &info.fDevOutsideAssist,
+                              &info.fDevInside,
+                              &info.fDegenerate,
+                              viewMatrix,
+                              rect,
+                              stroke.getWidth(),
+                              isMiter,
+                              &info.fDevHalfStrokeSize)) {
+            return nullptr;
+        }
         if (!stroke_dev_half_size_supported(info.fDevHalfStrokeSize)) {
             return nullptr;
         }
@@ -888,10 +914,20 @@ GrOp::Owner MakeNested(GrRecordingContext* context,
     SkASSERT(viewMatrix.rectStaysRect());
     SkASSERT(!rects[0].isEmpty() && !rects[1].isEmpty());
 
-    SkRect devOutside, devInside;
+    // Clips our draw rects 1 full pixel outside the viewport. This avoids interpolation precision
+    // issues with very large coordinates.
+    const int m = context->priv().caps()->maxRenderTargetSize();
+    const SkRect visibilityBounds = SkRect::MakeWH(m, m).makeOutset(1, 1);
+
+    SkRect devOutside;
     viewMatrix.mapRect(&devOutside, rects[0]);
+    if (!devOutside.intersect(visibilityBounds)) {
+        return nullptr;
+    }
+
+    SkRect devInside;
     viewMatrix.mapRect(&devInside, rects[1]);
-    if (devInside.isEmpty()) {
+    if (devInside.isEmpty() || !devInside.intersect(visibilityBounds)) {
         if (devOutside.isEmpty()) {
             return nullptr;
         }
