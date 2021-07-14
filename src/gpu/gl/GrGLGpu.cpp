@@ -545,7 +545,13 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
     }
 
     if (resetBits & kMSAAEnable_GrGLBackendState) {
-        fMSAAEnabled = kUnknown_TriState;
+        if (this->caps()->multisampleDisableSupport()) {
+            fMSAAEnabled = kUnknown_TriState;
+        } else if (this->glCaps().clientCanDisableMultisample()) {
+            // Restore GL_MULTISAMPLE to its initial state. It being enabled has no effect on draws
+            // to non-MSAA targets.
+            GL_CALL(Enable(GR_GL_MULTISAMPLE));
+        }
         fHWConservativeRasterEnabled = kUnknown_TriState;
     }
 
