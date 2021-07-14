@@ -14,6 +14,8 @@
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
+#include <unordered_map>
+
 class GrGeometryProcessor;
 class GrGLSLFPFragmentBuilder;
 class GrGLSLGeometryBuilder;
@@ -34,37 +36,7 @@ public:
 
     virtual ~GrGLSLGeometryProcessor() {}
 
-    /**
-     * This class provides access to each GrFragmentProcessor in a GrPipeline that requires varying
-     * local coords to be produced by the primitive processor. It is also used by the primitive
-     * processor to specify the fragment shader variable that will hold the transformed coords for
-     * each of those GrFragmentProcessors. It is required that the primitive processor iterate over
-     * each fragment processor and insert a shader var result for each. The GrGLSLFragmentProcessors
-     * will reference these variables in their fragment code.
-     */
-    class FPCoordTransformHandler : public SkNoncopyable {
-    public:
-        FPCoordTransformHandler(const GrPipeline&, SkTArray<GrShaderVar>*);
-        ~FPCoordTransformHandler() { SkASSERT(!fIter); }
-
-        operator bool() const { return (bool)fIter; }
-
-        // Gets the current GrFragmentProcessor
-        const GrFragmentProcessor& get() const;
-
-        FPCoordTransformHandler& operator++();
-
-        void specifyCoordsForCurrCoordTransform(GrShaderVar varyingVar) {
-            SkASSERT(!fAddedCoord);
-            fTransformedCoordVars->push_back(varyingVar);
-            SkDEBUGCODE(fAddedCoord = true;)
-        }
-
-    private:
-        GrFragmentProcessor::CIter fIter;
-        SkDEBUGCODE(bool           fAddedCoord = false;)
-        SkTArray<GrShaderVar>*     fTransformedCoordVars;
-    };
+    using FPToVaryingCoordsMap = std::unordered_map<const GrFragmentProcessor*, GrShaderVar>;
 
     struct EmitArgs {
         EmitArgs(GrGLSLVertexBuilder* vertBuilder,
@@ -76,19 +48,17 @@ public:
                  const GrGeometryProcessor& geomProc,
                  const char* outputColor,
                  const char* outputCoverage,
-                 const SamplerHandle* texSamplers,
-                 FPCoordTransformHandler* transformHandler)
-            : fVertBuilder(vertBuilder)
-            , fGeomBuilder(geomBuilder)
-            , fFragBuilder(fragBuilder)
-            , fVaryingHandler(varyingHandler)
-            , fUniformHandler(uniformHandler)
-            , fShaderCaps(caps)
-            , fGeomProc(geomProc)
-            , fOutputColor(outputColor)
-            , fOutputCoverage(outputCoverage)
-            , fTexSamplers(texSamplers)
-            , fFPCoordTransformHandler(transformHandler) {}
+                 const SamplerHandle* texSamplers)
+                : fVertBuilder(vertBuilder)
+                , fGeomBuilder(geomBuilder)
+                , fFragBuilder(fragBuilder)
+                , fVaryingHandler(varyingHandler)
+                , fUniformHandler(uniformHandler)
+                , fShaderCaps(caps)
+                , fGeomProc(geomProc)
+                , fOutputColor(outputColor)
+                , fOutputCoverage(outputCoverage)
+                , fTexSamplers(texSamplers) {}
         GrGLSLVertexBuilder* fVertBuilder;
         GrGLSLGeometryBuilder* fGeomBuilder;
         GrGLSLFPFragmentBuilder* fFragBuilder;
@@ -99,11 +69,10 @@ public:
         const char* fOutputColor;
         const char* fOutputCoverage;
         const SamplerHandle* fTexSamplers;
-        FPCoordTransformHandler* fFPCoordTransformHandler;
     };
 
     /* Any general emit code goes in the base class emitCode.  Subclasses override onEmitCode */
-    void emitCode(EmitArgs&);
+    FPToVaryingCoordsMap emitCode(EmitArgs&, GrFragmentProcessor::CIter);
 
     /**
      * Called after all effect emitCode() functions, to give the processor a chance to write out
@@ -243,11 +212,11 @@ private:
     // This must happen before FP code emission so that the FPs can find the appropriate varying
     // handles they use in place of explicit coord sampling; it is automatically called after
     // onEmitCode() returns using the value stored in GpArgs::fLocalCoordVar.
-    void collectTransforms(GrGLSLVertexBuilder* vb,
-                           GrGLSLVaryingHandler* varyingHandler,
-                           GrGLSLUniformHandler* uniformHandler,
-                           const GrShaderVar& localCoordsVar,
-                           FPCoordTransformHandler* handler);
+    FPToVaryingCoordsMap collectTransforms(GrGLSLVertexBuilder* vb,
+                                           GrGLSLVaryingHandler* varyingHandler,
+                                           GrGLSLUniformHandler* uniformHandler,
+                                           const GrShaderVar& localCoordsVar,
+                                           GrFragmentProcessor::CIter);
 
     struct TransformInfo {
         // The vertex-shader output variable to assign the transformed coordinates to
