@@ -22,6 +22,11 @@ public:
                                               int sampleCnt,
                                               MTLPixelFormat format);
 
+    static sk_sp<GrMtlAttachment> MakeMSAA(GrMtlGpu* gpu,
+                                           SkISize dimensions,
+                                           int sampleCnt,
+                                           MTLPixelFormat format);
+
     static sk_sp<GrMtlAttachment> MakeTexture(GrMtlGpu* gpu,
                                               SkISize dimensions,
                                               MTLPixelFormat format,
