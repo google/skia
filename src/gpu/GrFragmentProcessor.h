@@ -540,8 +540,12 @@ public:
     // Hopefully this does not actually get called because of RVO.
     CIter(const CIter&) = default;
 
+    CIter(CIter&&) = default;
+
     // Because each iterator carries a stack we want to avoid copies.
     CIter& operator=(const CIter&) = delete;
+
+    CIter& operator=(CIter&&) = default;
 
 protected:
     CIter() = delete;

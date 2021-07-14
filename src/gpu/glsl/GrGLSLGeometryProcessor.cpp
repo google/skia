@@ -15,24 +15,25 @@
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
-#include <unordered_map>
-
-void GrGLSLGeometryProcessor::emitCode(EmitArgs& args) {
+GrGLSLGeometryProcessor::FPToVaryingCoordsMap GrGLSLGeometryProcessor::emitCode(
+        EmitArgs& args,
+        GrFragmentProcessor::CIter fpIter) {
     GrGPArgs gpArgs;
     this->onEmitCode(args, &gpArgs);
 
+    FPToVaryingCoordsMap transformMap;
     if (gpArgs.fLocalCoordVar.getType() != kVoid_GrSLType) {
-        this->collectTransforms(args.fVertBuilder, args.fVaryingHandler, args.fUniformHandler,
-                                gpArgs.fLocalCoordVar, args.fFPCoordTransformHandler);
-    } else {
-        // Make sure no FPs needed the local coord variable.
-        SkASSERT(!*args.fFPCoordTransformHandler);
+        transformMap = this->collectTransforms(args.fVertBuilder,
+                                               args.fVaryingHandler,
+                                               args.fUniformHandler,
+                                               gpArgs.fLocalCoordVar,
+                                               fpIter);
     }
 
     if (args.fGeomProc.willUseTessellationShaders()) {
         // Tessellation shaders are temporarily responsible for integrating their own code strings
         // while we work out full support.
-        return;
+        return transformMap;
     }
 
     GrGLSLVertexBuilder* vBuilder = args.fVertBuilder;
@@ -69,13 +70,15 @@ void GrGLSLGeometryProcessor::emitCode(EmitArgs& args) {
                 break;
         }
     }
+    return transformMap;
 }
 
-void GrGLSLGeometryProcessor::collectTransforms(GrGLSLVertexBuilder* vb,
-                                                GrGLSLVaryingHandler* varyingHandler,
-                                                GrGLSLUniformHandler* uniformHandler,
-                                                const GrShaderVar& localCoordsVar,
-                                                FPCoordTransformHandler* handler) {
+GrGLSLGeometryProcessor::FPToVaryingCoordsMap GrGLSLGeometryProcessor::collectTransforms(
+        GrGLSLVertexBuilder* vb,
+        GrGLSLVaryingHandler* varyingHandler,
+        GrGLSLUniformHandler* uniformHandler,
+        const GrShaderVar& localCoordsVar,
+        GrFragmentProcessor::CIter fpIter) {
     SkASSERT(localCoordsVar.getType() == kFloat2_GrSLType ||
              localCoordsVar.getType() == kFloat3_GrSLType);
     // Cached varyings produced by parent FPs. If parent FPs introduce transformations, but all
@@ -96,11 +99,13 @@ void GrGLSLGeometryProcessor::collectTransforms(GrGLSLVertexBuilder* vb,
         return baseLocalCoord.fsInVar();
     };
 
-    for (int i = 0; *handler; ++*handler, ++i) {
-        const auto& fp = handler->get();
+    FPToVaryingCoordsMap result;
+    for (int i = 0; fpIter; ++fpIter, ++i) {
+        const auto& fp = *fpIter;
 
-        SkASSERT(fp.referencesSampleCoords());
-        SkASSERT(!fp.isSampledWithExplicitCoords());
+        if (!fp.usesVaryingCoordsDirectly()) {
+            continue;
+        }
 
         // FPs that use local coordinates need a varying to convey the coordinate. This may be the
         // base GP's local coord if transforms have to be computed in the FS, or it may be a unique
@@ -155,8 +160,9 @@ void GrGLSLGeometryProcessor::collectTransforms(GrGLSLVertexBuilder* vb,
         }
 
         SkASSERT(varyingVar.getType() != kVoid_GrSLType);
-        handler->specifyCoordsForCurrCoordTransform(varyingVar);
+        result[&fp] = varyingVar;
     }
+    return result;
 }
 
 void GrGLSLGeometryProcessor::emitTransformCode(GrGLSLVertexBuilder* vb,
@@ -402,29 +408,4 @@ void GrGLSLGeometryProcessor::WriteLocalCoord(GrGLSLVertexBuilder* vertBuilder,
                           "localMatrix",
                           &gpArgs->fLocalCoordVar,
                           localMatrixUniform);
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-GrGLSLGeometryProcessor::FPCoordTransformHandler::FPCoordTransformHandler(
-            const GrPipeline& pipeline,
-            SkTArray<GrShaderVar>* transformedCoordVars)
-        : fIter(pipeline), fTransformedCoordVars(transformedCoordVars) {
-    while (fIter && !fIter->usesVaryingCoordsDirectly()) {
-        ++fIter;
-    }
-}
-
-const GrFragmentProcessor& GrGLSLGeometryProcessor::FPCoordTransformHandler::get() const {
-    return *fIter;
-}
-
-GrGLSLGeometryProcessor::FPCoordTransformHandler&
-GrGLSLGeometryProcessor::FPCoordTransformHandler::operator++() {
-    SkASSERT(fAddedCoord);
-    do {
-        ++fIter;
-    } while (fIter && !fIter->usesVaryingCoordsDirectly());
-    SkDEBUGCODE(fAddedCoord = false;)
-    return *this;
 }
