@@ -98,8 +98,8 @@ public:
     };
 
     // 'viewMatrix' is applied to the geometry post tessellation. It cannot have perspective.
-    GrStrokeTessellationShader(const GrShaderCaps&, Mode, ShaderFlags, const SkMatrix& viewMatrix,
-                               const SkStrokeRec&, SkPMColor4f, int8_t maxParametricSegments_log2);
+    GrStrokeTessellationShader(Mode, ShaderFlags, const SkMatrix& viewMatrix, const SkStrokeRec&,
+                               SkPMColor4f, int8_t maxParametricSegments_log2, const GrShaderCaps&);
 
     Mode mode() const { return fMode; }
     ShaderFlags flags() const { return fShaderFlags; }

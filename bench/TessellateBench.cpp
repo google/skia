@@ -202,7 +202,8 @@ DEF_PATH_TESS_BENCH(middle_out_triangulation,
     int baseVertex;
     GrVertexWriter vertexWriter = static_cast<SkPoint*>(fTarget->makeVertexSpace(
             sizeof(SkPoint), kNumCubicsInChalkboard, &buffer, &baseVertex));
-    GrMiddleOutPolygonTriangulator::WritePathInnerFan(&vertexWriter, 0, 0, fPath);
+    GrMiddleOutPolygonTriangulator::WritePathInnerFan(
+            &vertexWriter, GrMiddleOutPolygonTriangulator::OutputType::kTriangles, fPath);
 }
 
 using PathStrokeList = GrStrokeTessellator::PathStrokeList;
@@ -215,7 +216,7 @@ static std::unique_ptr<GrStrokeTessellator> make_hw_tessellator(
         ShaderFlags shaderFlags, const GrShaderCaps& shaderCaps, const SkMatrix& viewMatrix,
         PathStrokeList* pathStrokeList, std::array<float, 2> matrixMinMaxScales,
         const SkRect& strokeCullBounds) {
-    return std::make_unique<GrStrokeHardwareTessellator>(shaderCaps, shaderFlags, viewMatrix,
+    return std::make_unique<GrStrokeHardwareTessellator>(shaderFlags, shaderCaps, viewMatrix,
                                                          pathStrokeList, matrixMinMaxScales,
                                                          strokeCullBounds);
 }
@@ -224,9 +225,9 @@ static std::unique_ptr<GrStrokeTessellator> make_fixed_count_tessellator(
         ShaderFlags shaderFlags, const GrShaderCaps& shaderCaps, const SkMatrix& viewMatrix,
         PathStrokeList* pathStrokeList, std::array<float, 2> matrixMinMaxScales,
         const SkRect& strokeCullBounds) {
-    return std::make_unique<GrStrokeFixedCountTessellator>(shaderCaps, shaderFlags, viewMatrix,
-                                                           pathStrokeList, matrixMinMaxScales,
-                                                           strokeCullBounds);
+    return std::make_unique<GrStrokeFixedCountTessellator>(shaderFlags, viewMatrix, pathStrokeList,
+                                                           matrixMinMaxScales, strokeCullBounds,
+                                                           shaderCaps);
 }
 
 using MakePathStrokesFn = std::vector<PathStrokeList>(*)();
