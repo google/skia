@@ -116,11 +116,11 @@ protected:
             m.setScale(scale, scale);
         }
         paint.setShader(getBitmap().makeShader(fMode, fMode,
-                                               SkSamplingOptions(fDoFilter ? kLow_SkFilterQuality
-                                                                           : kNone_SkFilterQuality),
+                                              SkSamplingOptions(fDoFilter ? SkFilterMode::kLinear
+                                                                          : SkFilterMode::kNearest),
                                                m));
 
-        canvas->translate(SkIntToScalar(50), SkIntToScalar(50));
+        canvas->translate(50, 50);
 
 //        SkRect r = SkRect::MakeXYWH(-50, -50, 32, 16);
 //        canvas->drawRect(r, paint); return;

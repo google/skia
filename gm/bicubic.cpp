@@ -24,9 +24,15 @@ DEF_SIMPLE_GM(bicubic, canvas, 300, 320) {
 
     auto img = make_img();
 
+    const SkSamplingOptions samplings[] = {
+        SkSamplingOptions(SkFilterMode::kNearest),
+        SkSamplingOptions(SkFilterMode::kLinear),
+        SkSamplingOptions(SkCubicResampler::Mitchell()),
+    };
+
     canvas->scale(40, 8);
-    for (auto q : {kNone_SkFilterQuality, kLow_SkFilterQuality, kHigh_SkFilterQuality}) {
-        canvas->drawImage(img, 0, 0, SkSamplingOptions(q), nullptr);
+    for (auto s : samplings) {
+        canvas->drawImage(img, 0, 0, s, nullptr);
         canvas->translate(0, img->height() + 1.0f);
     }
 
