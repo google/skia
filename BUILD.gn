@@ -1835,6 +1835,8 @@ if (skia_enable_tools) {
       "tools/ProcStats.h",
       "tools/Resources.cpp",
       "tools/Resources.h",
+      "tools/RuntimeBlendUtils.cpp",
+      "tools/RuntimeBlendUtils.h",
       "tools/SkMetaData.cpp",
       "tools/SkMetaData.h",
       "tools/SkSharingProc.cpp",
