@@ -16,6 +16,23 @@
       "message": "I took a look at this and found that for my use case, what I really wanted was a `equal_pixel` just comparing two colors with a tolerance. (I only have one Bitmap, and changing the test to require a second Bitmap just so I could call `equal_pixels` felt like the cart leading the horse.)\n\nI did update `equal_pixels` to support a tolerance value (using repeated calls to `equal_pixel`), but we don\u0027t actually use that functionality anywhere. I can land that part of it or not, your call. It won\u0027t be very fast since it decodes each pixel individually, but I couldn\u0027t justify optimizing a path we don\u0027t use :) ",
       "revId": "1eea386363cf4b6583f495b8e2cb169ee88d6a26",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8dcd3853_c6727424",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-07-14T20:59:59Z",
+      "side": 1,
+      "message": "afterthought...\n\nWe could change equal_pixels() to return its max_diff, so the caller can compare against their tolerance themselves.\n\nhalf a dozen of one...",
+      "revId": "1eea386363cf4b6583f495b8e2cb169ee88d6a26",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
