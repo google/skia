@@ -442,6 +442,13 @@ void copy_to_g8(SkBitmap* dst, const SkBitmap& src) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
+int color_difference(SkColor c1, SkColor c2) {
+    return std::max({abs((int)SkColorGetA(c1) - (int)SkColorGetA(c2)),
+                     abs((int)SkColorGetR(c1) - (int)SkColorGetR(c2)),
+                     abs((int)SkColorGetG(c1) - (int)SkColorGetG(c2)),
+                     abs((int)SkColorGetB(c1) - (int)SkColorGetB(c2))});
+}
+
 bool equal_pixels(const SkPixmap& a, const SkPixmap& b) {
     if (a.width() != b.width() || a.height() != b.height() || a.colorType() != b.colorType()) {
         return false;
