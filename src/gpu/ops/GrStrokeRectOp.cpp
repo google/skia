@@ -823,9 +823,31 @@ void AAStrokeRectOp::generateAAStrokeRectGeometry(GrVertexWriter& vertices,
                            maybe_coverage(innerCoverage));
 
         // Interior outset rect (away from stroke, toward center of rect).
-        vertices.writeQuad(inset_fan(devInside, outset, outset),
-                           outerColor,
-                           maybe_coverage(outerCoverage));
+        SkRect interiorAABoundary = devInside.makeInset(outset, outset);
+        float interiorCoverage = outerCoverage;
+        float coverageBackset = 0;  // Adds back coverage when the interior AA edges cross.
+        if (interiorAABoundary.fLeft > interiorAABoundary.fRight) {
+            coverageBackset = (interiorAABoundary.fLeft - interiorAABoundary.fRight) / (outset * 2);
+            interiorAABoundary.fLeft = interiorAABoundary.fRight = interiorAABoundary.centerX();
+        }
+        if (interiorAABoundary.fTop > interiorAABoundary.fBottom) {
+            coverageBackset = std::max(
+                    (interiorAABoundary.fTop - interiorAABoundary.fBottom) / (outset * 2),
+                    coverageBackset);
+            interiorAABoundary.fTop = interiorAABoundary.fBottom = interiorAABoundary.centerY();
+        }
+        if (coverageBackset > 0) {
+            // The interior edges crossed. Lerp back toward innerCoverage, which is what this op
+            // will draw in the degenerate case. This gives a smooth transition into the degenerate
+            // case.
+            interiorCoverage += interiorCoverage * (1 - coverageBackset) +
+                                innerCoverage * coverageBackset;
+        }
+        GrVertexColor interiorColor(tweakAlphaForCoverage ? color * interiorCoverage : color,
+                                    wideColor);
+        vertices.writeQuad(GrVertexWriter::TriFanFromRect(interiorAABoundary),
+                           interiorColor,
+                           maybe_coverage(interiorCoverage));
     } else {
         // When the interior rect has become degenerate we smoosh to a single point
         SkASSERT(devInside.fLeft == devInside.fRight && devInside.fTop == devInside.fBottom);
