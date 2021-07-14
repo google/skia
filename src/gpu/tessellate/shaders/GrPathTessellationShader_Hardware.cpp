@@ -46,14 +46,12 @@ private:
 
 GrGLSLGeometryProcessor* HardwareWedgeShader::createGLSLInstance(const GrShaderCaps&) const {
     class Impl : public GrPathTessellationShader::Impl {
-        void emitVertexCode(const GrShaderCaps& shaderCaps, const GrPathTessellationShader&,
+        void emitVertexCode(const GrShaderCaps&, const GrPathTessellationShader&,
                             GrGLSLVertexBuilder* v, GrGPArgs*) override {
             v->declareGlobal(GrShaderVar("vsPt", kFloat2_GrSLType, GrShaderVar::TypeModifier::Out));
-            v->insertFunction(SkSLPortable_isinf(shaderCaps));
             v->codeAppend(R"(
             // If y is infinity then x is a conic weight. Don't transform.
-            vsPt = (isinf_portable(inputPoint.y)) ? inputPoint
-                                                  : AFFINE_MATRIX * inputPoint + TRANSLATE;)");
+            vsPt = (isinf(inputPoint.y)) ? inputPoint : AFFINE_MATRIX * inputPoint + TRANSLATE;)");
         }
         SkString getTessControlShaderGLSL(const GrGeometryProcessor&,
                                           const char* versionAndExtensionDecls,
@@ -66,7 +64,6 @@ GrGLSLGeometryProcessor* HardwareWedgeShader::createGLSLInstance(const GrShaderC
             #define PRECISION %f)", GrTessellationShader::kLinearizationPrecision);
             code.append(kSkSLTypeDefs);
             code.append(GrWangsFormula::as_sksl());
-            code.append(SkSLPortable_isinf(shaderCaps));
             code.append(R"(
             layout(vertices = 1) out;
 
@@ -78,7 +75,7 @@ GrGLSLGeometryProcessor* HardwareWedgeShader::createGLSLInstance(const GrShaderC
             void main() {
                 mat4x2 P = mat4x2(vsPt[0], vsPt[1], vsPt[2], vsPt[3]);
                 float numSegments;
-                if (isinf_portable(P[3].y)) {
+                if (isinf(P[3].y)) {
                     // This is a conic.
                     float w = P[3].x;
                     numSegments = wangs_formula_conic(PRECISION, P[0], P[1], P[2], w);
@@ -176,14 +173,12 @@ private:
 
 GrGLSLGeometryProcessor* HardwareCurveShader::createGLSLInstance(const GrShaderCaps&) const {
     class Impl : public GrPathTessellationShader::Impl {
-        void emitVertexCode(const GrShaderCaps& shaderCaps, const GrPathTessellationShader&,
+        void emitVertexCode(const GrShaderCaps&, const GrPathTessellationShader&,
                             GrGLSLVertexBuilder* v, GrGPArgs*) override {
             v->declareGlobal(GrShaderVar("P", kFloat2_GrSLType, GrShaderVar::TypeModifier::Out));
-            v->insertFunction(SkSLPortable_isinf(shaderCaps));
             v->codeAppend(R"(
             // If y is infinity then x is a conic weight. Don't transform.
-            P = (isinf_portable(inputPoint.y)) ? inputPoint
-                                               : AFFINE_MATRIX * inputPoint + TRANSLATE;)");
+            P = (isinf(inputPoint.y)) ? inputPoint : AFFINE_MATRIX * inputPoint + TRANSLATE;)");
         }
         SkString getTessControlShaderGLSL(const GrGeometryProcessor&,
                                           const char* versionAndExtensionDecls,
@@ -196,7 +191,6 @@ GrGLSLGeometryProcessor* HardwareCurveShader::createGLSLInstance(const GrShaderC
             #define PRECISION %f)", GrTessellationShader::kLinearizationPrecision);
             code.append(kSkSLTypeDefs);
             code.append(GrWangsFormula::as_sksl());
-            code.append(SkSLPortable_isinf(shaderCaps));
             code.append(R"(
             layout(vertices = 1) out;
 
@@ -207,7 +201,7 @@ GrGLSLGeometryProcessor* HardwareCurveShader::createGLSLInstance(const GrShaderC
             void main() {
                 float w = -1;  // w<0 means a cubic.
                 vec2 p1w = P[1];
-                if (isinf_portable(P[3].y)) {
+                if (isinf(P[3].y)) {
                     // This patch is actually a conic. Project to homogeneous space.
                     w = P[3].x;
                     p1w *= w;
@@ -222,7 +216,7 @@ GrGLSLGeometryProcessor* HardwareCurveShader::createGLSLInstance(const GrShaderC
                 vec2 abcd = (abc + bcd) * .5;
 
                 float n0, n1;
-                if (w < 0 || isinf_portable(w)) {
+                if (w < 0 || isinf(w)) {
                     if (w < 0) {
                         // The patch is a cubic. Calculate how many segments are required to
                         // linearize each half of the curve.

@@ -39,10 +39,7 @@ constexpr static int kAtlasMaxPathHeight = 128;
 bool GrTessellationPathRenderer::IsSupported(const GrCaps& caps) {
     return !caps.avoidStencilBuffers() &&
            caps.drawInstancedSupport() &&
-#ifdef GR_DISABLE_TESSELLATION_ON_ES2
-           caps.shaderCaps()->integerSupport() &&
-#endif
-           GrTessellationShader::SupportsPortableInfinity(*caps.shaderCaps()) &&
+           caps.shaderCaps()->infinitySupport() &&
            !caps.disableTessellationPathRenderer();
 }
 

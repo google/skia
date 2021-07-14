@@ -184,8 +184,9 @@ void GrPathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
         GrEagerDynamicVertexAllocator vertexAlloc(flushState, &fFanBuffer, &fFanBaseVertex);
         int maxFanTriangles = fPath.countVerbs() - 2;  // n - 2 triangles make an n-gon.
         GrVertexWriter triangleVertexWriter = vertexAlloc.lock<SkPoint>(maxFanTriangles * 3);
-        fFanVertexCount = 3 * GrMiddleOutPolygonTriangulator::WritePathInnerFan(
-                &triangleVertexWriter, 0, 0, fPath);
+        fFanVertexCount = GrMiddleOutPolygonTriangulator::WritePathInnerFan(
+                &triangleVertexWriter, GrMiddleOutPolygonTriangulator::OutputType::kTriangles,
+                fPath) * 3;
         SkASSERT(fFanVertexCount <= maxFanTriangles * 3);
         vertexAlloc.unlock(fFanVertexCount);
     }
