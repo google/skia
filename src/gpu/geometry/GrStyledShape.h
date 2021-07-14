@@ -137,11 +137,11 @@ public:
 
     /**
      * Returns a shape that has either applied the path effect or path effect and stroking
-     * information from this shape's style to its geometry. Scale is used when approximating the
-     * output geometry and typically is computed from the view matrix
+     * information from this shape's style to its geometry. CTM is used when approximating the
+     * output geometry.
      */
-    GrStyledShape applyStyle(GrStyle::Apply apply, SkScalar scale) const {
-        return GrStyledShape(*this, apply, scale);
+    GrStyledShape applyStyle(GrStyle::Apply apply, const SkMatrix& ctm) const {
+        return GrStyledShape(*this, apply, ctm);
     }
 
     bool isRect() const {
@@ -283,13 +283,13 @@ public:
 
 private:
     /** Constructor used by the applyStyle() function */
-    GrStyledShape(const GrStyledShape& parentShape, GrStyle::Apply, SkScalar scale);
+    GrStyledShape(const GrStyledShape& parentShape, GrStyle::Apply, const SkMatrix& ctm);
 
     /**
      * Determines the key we should inherit from the input shape's geometry and style when
      * we are applying the style to create a new shape.
      */
-    void setInheritedKey(const GrStyledShape& parentShape, GrStyle::Apply, SkScalar scale);
+    void setInheritedKey(const GrStyledShape& parentShape, GrStyle::Apply, const SkMatrix& ctm);
 
     /**
      * As part of the simplification process, some shapes can have stroking trivially evaluated

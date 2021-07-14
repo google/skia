@@ -1784,7 +1784,7 @@ void GrSurfaceDrawContext::drawShapeUsingPathRenderer(const GrClip* clip,
 
     if (!pr && shape.style().pathEffect()) {
         // It didn't work above, so try again with the path effect applied.
-        shape = shape.applyStyle(GrStyle::Apply::kPathEffectOnly, styleScale);
+        shape = shape.applyStyle(GrStyle::Apply::kPathEffectOnly, viewMatrix);
         if (shape.isEmpty()) {
             return;
         }
@@ -1793,7 +1793,7 @@ void GrSurfaceDrawContext::drawShapeUsingPathRenderer(const GrClip* clip,
     }
     if (!pr) {
         if (shape.style().applies()) {
-            shape = shape.applyStyle(GrStyle::Apply::kPathEffectAndStrokeRec, styleScale);
+            shape = shape.applyStyle(GrStyle::Apply::kPathEffectAndStrokeRec, viewMatrix);
             if (shape.isEmpty()) {
                 return;
             }

@@ -365,11 +365,6 @@ protected:
 
     SkISize onISize() override { return SkISize::Make(800, 600); }
 
-    // TODO: ctm-aware path effects are currently CPU only
-    DrawResult onGpuSetup(GrDirectContext* dctx, SkString*) override {
-        return dctx == nullptr ? DrawResult::kOk : DrawResult::kSkip;
-    }
-
     void onDraw(SkCanvas* canvas) override {
         const float strokeWidth = 16;
         const float pxInflate = 0.5f;
