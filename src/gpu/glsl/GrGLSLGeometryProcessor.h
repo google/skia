@@ -14,6 +14,8 @@
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
+#include <unordered_map>
+
 class GrGeometryProcessor;
 class GrGLSLFPFragmentBuilder;
 class GrGLSLGeometryBuilder;
@@ -31,40 +33,10 @@ class GrGLSLGeometryProcessor {
 public:
     using UniformHandle         = GrGLSLProgramDataManager::UniformHandle;
     using SamplerHandle         = GrGLSLUniformHandler::SamplerHandle;
+    using FPToVaryingCoordsMap  = std::unordered_map<const GrFragmentProcessor*, GrShaderVar>;
 
     virtual ~GrGLSLGeometryProcessor() {}
 
-    /**
-     * This class provides access to each GrFragmentProcessor in a GrPipeline that requires varying
-     * local coords to be produced by the primitive processor. It is also used by the primitive
-     * processor to specify the fragment shader variable that will hold the transformed coords for
-     * each of those GrFragmentProcessors. It is required that the primitive processor iterate over
-     * each fragment processor and insert a shader var result for each. The GrGLSLFragmentProcessors
-     * will reference these variables in their fragment code.
-     */
-    class FPCoordTransformHandler : public SkNoncopyable {
-    public:
-        FPCoordTransformHandler(const GrPipeline&, SkTArray<GrShaderVar>*);
-        ~FPCoordTransformHandler() { SkASSERT(!fIter); }
-
-        operator bool() const { return (bool)fIter; }
-
-        // Gets the current GrFragmentProcessor
-        const GrFragmentProcessor& get() const;
-
-        FPCoordTransformHandler& operator++();
-
-        void specifyCoordsForCurrCoordTransform(GrShaderVar varyingVar) {
-            SkASSERT(!fAddedCoord);
-            fTransformedCoordVars->push_back(varyingVar);
-            SkDEBUGCODE(fAddedCoord = true;)
-        }
-
-    private:
-        GrFragmentProcessor::CIter fIter;
-        SkDEBUGCODE(bool           fAddedCoord = false;)
-        SkTArray<GrShaderVar>*     fTransformedCoordVars;
-    };
 
     struct EmitArgs {
         EmitArgs(GrGLSLVertexBuilder* vertBuilder,
@@ -76,19 +48,17 @@ public:
                  const GrGeometryProcessor& geomProc,
                  const char* outputColor,
                  const char* outputCoverage,
-                 const SamplerHandle* texSamplers,
-                 FPCoordTransformHandler* transformHandler)
-            : fVertBuilder(vertBuilder)
-            , fGeomBuilder(geomBuilder)
-            , fFragBuilder(fragBuilder)
-            , fVaryingHandler(varyingHandler)
-            , fUniformHandler(uniformHandler)
-            , fShaderCaps(caps)
-            , fGeomProc(geomProc)
-            , fOutputColor(outputColor)
-            , fOutputCoverage(outputCoverage)
-            , fTexSamplers(texSamplers)
-            , fFPCoordTransformHandler(transformHandler) {}
+                 const SamplerHandle* texSamplers)
+                : fVertBuilder(vertBuilder)
+                , fGeomBuilder(geomBuilder)
+                , fFragBuilder(fragBuilder)
+                , fVaryingHandler(varyingHandler)
+                , fUniformHandler(uniformHandler)
+                , fShaderCaps(caps)
+                , fGeomProc(geomProc)
+                , fOutputColor(outputColor)
+                , fOutputCoverage(outputCoverage)
+                , fTexSamplers(texSamplers) {}
         GrGLSLVertexBuilder* fVertBuilder;
         GrGLSLGeometryBuilder* fGeomBuilder;
         GrGLSLFPFragmentBuilder* fFragBuilder;
@@ -99,11 +69,14 @@ public:
         const char* fOutputColor;
         const char* fOutputCoverage;
         const SamplerHandle* fTexSamplers;
-        FPCoordTransformHandler* fFPCoordTransformHandler;
     };
 
-    /* Any general emit code goes in the base class emitCode.  Subclasses override onEmitCode */
-    void emitCode(EmitArgs&);
+    /**
+     * Emits the code from this geometry processor into the shaders. For any FP that has its input
+     * coords implemented by the GP as a varying, the varying will be accessible in the returned
+     * map and should be used when the FP code is emitted.
+     **/
+    FPToVaryingCoordsMap emitCode(EmitArgs&, GrFragmentProcessor::CIter);
 
     /**
      * Called after all effect emitCode() functions, to give the processor a chance to write out
@@ -122,10 +95,6 @@ public:
      * GrGeometryProcessor parameter is guaranteed to be of the same type and to have an
      * identical processor key as the GrGeometryProcessor that created this
      * GrGLSLGeometryProcessor.
-     * The subclass should use the transform range to perform any setup required for the coord
-     * transforms of the FPs that are part of the same program, such as updating matrix uniforms.
-     * The range will iterate over the transforms in the same order as the TransformHandler passed
-     * to emitCode.
      */
     virtual void setData(const GrGLSLProgramDataManager&,
                          const GrShaderCaps&,
@@ -235,19 +204,17 @@ protected:
 private:
     virtual void onEmitCode(EmitArgs&, GrGPArgs*) = 0;
 
-    // Iterates over the FPs in 'handler' to register additional varyings and uniforms to support
-    // VS-promoted local coord evaluation for the FPs. Subclasses must call this with
-    // 'localCoordsVar' set to an SkSL variable expression of type 'float2' or 'float3' representing
-    // the original local coordinates of the draw.
+    // Iterates over the FPs beginning with the passed iter to register additional varyings and
+    // uniforms to support VS-promoted local coord evaluation for the FPs.
     //
     // This must happen before FP code emission so that the FPs can find the appropriate varying
     // handles they use in place of explicit coord sampling; it is automatically called after
     // onEmitCode() returns using the value stored in GpArgs::fLocalCoordVar.
-    void collectTransforms(GrGLSLVertexBuilder* vb,
-                           GrGLSLVaryingHandler* varyingHandler,
-                           GrGLSLUniformHandler* uniformHandler,
-                           const GrShaderVar& localCoordsVar,
-                           FPCoordTransformHandler* handler);
+    FPToVaryingCoordsMap collectTransforms(GrGLSLVertexBuilder* vb,
+                                           GrGLSLVaryingHandler* varyingHandler,
+                                           GrGLSLUniformHandler* uniformHandler,
+                                           const GrShaderVar& localCoordsVar,
+                                           GrFragmentProcessor::CIter);
 
     struct TransformInfo {
         // The vertex-shader output variable to assign the transformed coordinates to

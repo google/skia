@@ -97,22 +97,19 @@ public:
                  const GrShaderCaps* caps,
                  const GrFragmentProcessor& fp,
                  const char* inputColor,
-                 const char* sampleCoord,
-                 const TransformedCoordVars& transformedCoordVars)
+                 const char* sampleCoord)
                 : fFragBuilder(fragBuilder)
                 , fUniformHandler(uniformHandler)
                 , fShaderCaps(caps)
                 , fFp(fp)
                 , fInputColor(inputColor ? inputColor : "half4(1.0)")
-                , fSampleCoord(sampleCoord)
-                , fTransformedCoords(transformedCoordVars) {}
+                , fSampleCoord(sampleCoord) {}
         GrGLSLFPFragmentBuilder* fFragBuilder;
         GrGLSLUniformHandler* fUniformHandler;
         const GrShaderCaps* fShaderCaps;
         const GrFragmentProcessor& fFp;
         const char* fInputColor;
         const char* fSampleCoord;
-        const TransformedCoordVars& fTransformedCoords;
     };
 
     virtual void emitCode(EmitArgs&) = 0;
