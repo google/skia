@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1b360de4_eb96196b",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 549,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-07-14T18:59:48Z",
+      "side": 1,
+      "message": "This isn\u0027t strictly necessary, just thought it was better to be explicit.",
+      "range": {
+        "startLine": 543,
+        "startChar": 0,
+        "endLine": 549,
+        "endChar": 0
+      },
+      "revId": "96c755ee3f3b7a555d687f7d1c18c8a2e366583c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
