@@ -98,6 +98,8 @@ public:
      */
     static std::unique_ptr<ProgramConfig>& GetProgramConfig() { return Instance().fConfig; }
 
+    static bool IsModule() { return Instance().fIsModule; }
+
     static void Reset();
 
     /**
@@ -272,6 +274,7 @@ private:
     ErrorHandler* fErrorHandler = nullptr;
     ProgramSettings fSettings;
     Mangler fMangler;
+    bool fIsModule;
     bool fEncounteredErrors = false;
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
     struct StackFrame {
