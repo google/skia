@@ -89,13 +89,20 @@ void get_text_path(const SkFont&,
                    const SkPoint* positions = nullptr);
 
 /**
- *  Returns true iff all of the pixels between the two images are identical.
+ *  Returns true iff the passed-in pixel colors are similar, within a threshold.
+ *  `tolerance` can range from 0 (truly identical) to 255 (any color is considered a match).
+ */
+bool equal_pixel(SkColor, SkColor, int tolerance = 0);
+
+/**
+ *  Returns true iff all of the pixels between the two images are similar, within a threshold.
+ *  `tolerance` can range from 0 (truly identical) to 255 (any color is considered a match).
  *
  *  If the configs differ, return false.
  */
-bool equal_pixels(const SkPixmap&, const SkPixmap&);
-bool equal_pixels(const SkBitmap&, const SkBitmap&);
-bool equal_pixels(const SkImage* a, const SkImage* b);
+bool equal_pixels(const SkPixmap&, const SkPixmap&, int tolerance = 0);
+bool equal_pixels(const SkBitmap&, const SkBitmap&, int tolerance = 0);
+bool equal_pixels(const SkImage* a, const SkImage* b, int tolerance = 0);
 
 /** Returns a newly created CheckerboardShader. */
 sk_sp<SkShader> create_checkerboard_shader(SkColor c1, SkColor c2, int size);

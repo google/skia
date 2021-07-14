@@ -442,33 +442,53 @@ void copy_to_g8(SkBitmap* dst, const SkBitmap& src) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool equal_pixels(const SkPixmap& a, const SkPixmap& b) {
+bool equal_pixel(SkColor c1, SkColor c2, int tolerance) {
+    return abs((int)SkColorGetA(c1) - (int)SkColorGetA(c2)) <= tolerance &&
+           abs((int)SkColorGetR(c1) - (int)SkColorGetR(c2)) <= tolerance &&
+           abs((int)SkColorGetG(c1) - (int)SkColorGetG(c2)) <= tolerance &&
+           abs((int)SkColorGetB(c1) - (int)SkColorGetB(c2)) <= tolerance;
+}
+
+bool equal_pixels(const SkPixmap& a, const SkPixmap& b, int tolerance) {
     if (a.width() != b.width() || a.height() != b.height() || a.colorType() != b.colorType()) {
         return false;
     }
 
-    for (int y = 0; y < a.height(); ++y) {
-        const char* aptr = (const char*)a.addr(0, y);
-        const char* bptr = (const char*)b.addr(0, y);
-        if (0 != memcmp(aptr, bptr, a.width() * a.info().bytesPerPixel())) {
-            return false;
+    if (tolerance > 0) {
+        // Compare individual pixels, one at a time.
+        for (int y = 0; y < a.height(); ++y) {
+            for (int x = 0; y < a.width(); ++x) {
+                if (!equal_pixel(a.getColor(x, y), b.getColor(x, y), tolerance)) {
+                    return false;
+                }
+            }
+        }
+    } else {
+        // Fast-path for exact equality--compare entire rows of pixels at a time.
+        for (int y = 0; y < a.height(); ++y) {
+            const char* aptr = (const char*)a.addr(0, y);
+            const char* bptr = (const char*)b.addr(0, y);
+            if (0 != memcmp(aptr, bptr, a.width() * a.info().bytesPerPixel())) {
+                return false;
+            }
         }
     }
+
     return true;
 }
 
-bool equal_pixels(const SkBitmap& bm0, const SkBitmap& bm1) {
+bool equal_pixels(const SkBitmap& bm0, const SkBitmap& bm1, int tolerance) {
     SkPixmap pm0, pm1;
-    return bm0.peekPixels(&pm0) && bm1.peekPixels(&pm1) && equal_pixels(pm0, pm1);
+    return bm0.peekPixels(&pm0) && bm1.peekPixels(&pm1) && equal_pixels(pm0, pm1, tolerance);
 }
 
-bool equal_pixels(const SkImage* a, const SkImage* b) {
+bool equal_pixels(const SkImage* a, const SkImage* b, int tolerance) {
     // ensure that peekPixels will succeed
     auto imga = a->makeRasterImage();
     auto imgb = b->makeRasterImage();
 
     SkPixmap pm0, pm1;
-    return imga->peekPixels(&pm0) && imgb->peekPixels(&pm1) && equal_pixels(pm0, pm1);
+    return imga->peekPixels(&pm0) && imgb->peekPixels(&pm1) && equal_pixels(pm0, pm1, tolerance);
 }
 
 sk_sp<SkSurface> makeSurface(SkCanvas*             canvas,
