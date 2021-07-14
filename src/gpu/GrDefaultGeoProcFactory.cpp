@@ -23,11 +23,12 @@
  */
 
 enum GPFlag {
-    kColorAttribute_GPFlag          = 0x1,
-    kColorAttributeIsWide_GPFlag    = 0x2,
-    kLocalCoordAttribute_GPFlag     = 0x4,
-    kCoverageAttribute_GPFlag       = 0x8,
-    kCoverageAttributeTweak_GPFlag  = 0x10,
+    kColorAttribute_GPFlag              = 0x1,
+    kColorAttributeIsWide_GPFlag        = 0x2,
+    kLocalCoordAttribute_GPFlag         = 0x4,
+    kCoverageAttribute_GPFlag           = 0x8,
+    kCoverageAttributeTweak_GPFlag      = 0x10,
+    kCoverageAttributeUnclamped_GPFlag  = 0x20,
 };
 
 class DefaultGeoProc : public GrGeometryProcessor {
@@ -74,7 +75,9 @@ public:
             varyingHandler->emitAttributes(gp);
 
             bool tweakAlpha = SkToBool(gp.fFlags & kCoverageAttributeTweak_GPFlag);
+            bool coverageNeedsSaturate = SkToBool(gp.fFlags & kCoverageAttributeUnclamped_GPFlag);
             SkASSERT(!tweakAlpha || gp.hasVertexCoverage());
+            SkASSERT(!tweakAlpha || !coverageNeedsSaturate);
 
             // Setup pass through color
             fragBuilder->codeAppendf("half4 %s;", args.fOutputColor);
@@ -133,7 +136,12 @@ public:
             if (gp.hasVertexCoverage() && !tweakAlpha) {
                 fragBuilder->codeAppendf("half alpha = 1.0;");
                 varyingHandler->addPassThroughAttribute(gp.fInCoverage, "alpha");
-                fragBuilder->codeAppendf("half4 %s = half4(alpha);", args.fOutputCoverage);
+                if (coverageNeedsSaturate) {
+                    fragBuilder->codeAppendf("half4 %s = half4(saturate(alpha));",
+                                             args.fOutputCoverage);
+                } else {
+                    fragBuilder->codeAppendf("half4 %s = half4(alpha);", args.fOutputCoverage);
+                }
             } else if (gp.coverage() == 0xff) {
                 fragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputCoverage);
             } else {
@@ -268,7 +276,8 @@ GrGeometryProcessor* DefaultGeoProc::TestCreate(GrProcessorTestData* d) {
     if (d->fRandom->nextBool()) {
         flags |= kCoverageAttribute_GPFlag;
         if (d->fRandom->nextBool()) {
-            flags |= kCoverageAttributeTweak_GPFlag;
+            flags |= (d->fRandom->nextBool()) ? kCoverageAttributeTweak_GPFlag
+                                              : kCoverageAttributeUnclamped_GPFlag;
         }
     }
     if (d->fRandom->nextBool()) {
@@ -305,6 +314,8 @@ GrGeometryProcessor* GrDefaultGeoProcFactory::Make(SkArenaAlloc* arena,
         flags |= kCoverageAttribute_GPFlag;
     } else if (Coverage::kAttributeTweakAlpha_Type == coverage.fType) {
         flags |= kCoverageAttribute_GPFlag | kCoverageAttributeTweak_GPFlag;
+    } else if (Coverage::kAttributeUnclamped_Type == coverage.fType) {
+        flags |= kCoverageAttribute_GPFlag | kCoverageAttributeUnclamped_GPFlag;
     }
     flags |= localCoords.fType == LocalCoords::kHasExplicit_Type ? kLocalCoordAttribute_GPFlag : 0;
 
