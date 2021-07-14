@@ -216,10 +216,16 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     }
 
     if (GR_IS_GR_GL(standard)) {
-        fMultisampleDisableSupport = true;
+        fClientCanDisableMultisample = true;
     } else if (GR_IS_GR_GL_ES(standard)) {
-        fMultisampleDisableSupport = ctxInfo.hasExtension("GL_EXT_multisample_compatibility");
+        fClientCanDisableMultisample = ctxInfo.hasExtension("GL_EXT_multisample_compatibility");
     } // no WebGL support
+
+#ifdef SK_BUILD_FOR_MAC
+    fMultisampleDisableSupport = false;
+#else
+    fMultisampleDisableSupport = fClientCanDisableMultisample;
+#endif
 
     if (GR_IS_GR_GL(standard)) {
         // 3.1 has draw_instanced but not instanced_arrays, for the time being we only care about
