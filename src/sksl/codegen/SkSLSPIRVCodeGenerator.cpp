@@ -2049,14 +2049,14 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
         // Down below, we rewrite raw references to sk_FragCoord with expressions that reference
         // DEVICE_FRAGCOORDS_BUILTIN. This is a fake variable that means we need to directly access
         // the fragcoord; do so now.
-        dsl::DSLVar fragCoord("sk_FragCoord");
+        dsl::DSLGlobalVar fragCoord("sk_FragCoord");
         return this->getLValue(*dsl::DSLExpression(fragCoord).release(), out)->load(out);
     }
     if (ref.variable()->modifiers().fLayout.fBuiltin == DEVICE_CLOCKWISE_BUILTIN) {
         // Down below, we rewrite raw references to sk_Clockwise with expressions that reference
         // DEVICE_CLOCKWISE_BUILTIN. This is a fake variable that means we need to directly
         // access front facing; do so now.
-        dsl::DSLVar clockwise("sk_Clockwise");
+        dsl::DSLGlobalVar clockwise("sk_Clockwise");
         return this->getLValue(*dsl::DSLExpression(clockwise).release(), out)->load(out);
     }
 
@@ -2089,7 +2089,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
                 fProgram.fPool->detachFromThread();
             }
         }
-        DSLVar deviceCoord(DEVICE_COORDS_NAME);
+        DSLGlobalVar deviceCoord(DEVICE_COORDS_NAME);
         std::unique_ptr<Expression> rtFlipSkSLExpr = rtFlip.release();
         DSLExpression x = DSLExpression(rtFlipSkSLExpr->clone()).x();
         DSLExpression y = DSLExpression(std::move(rtFlipSkSLExpr)).y();
@@ -2127,7 +2127,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
                 fProgram.fPool->detachFromThread();
             }
         }
-        DSLVar deviceClockwise(DEVICE_CLOCKWISE_NAME);
+        DSLGlobalVar deviceClockwise(DEVICE_CLOCKWISE_NAME);
         // FrontFacing in Vulkan is defined in terms of a top-down render target. In skia,
         // we use the default convention of "counter-clockwise face is front".
         return this->writeExpression(*dsl::Bool(Select(rtFlip.y() > 0,
