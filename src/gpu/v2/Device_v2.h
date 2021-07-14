@@ -57,9 +57,7 @@ public:
                              GrColorType,
                              sk_sp<SkColorSpace>,
                              GrSurfaceOrigin,
-                             const SkSurfaceProps&) override {
-        return false;
-    }
+                             const SkSurfaceProps&) override;
 
     void asyncRescaleAndReadPixels(const SkImageInfo&,
                                    const SkIRect& srcRect,

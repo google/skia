@@ -98,14 +98,22 @@ public:
 
     static const GrPipeline* MakePipeline(const ProgramArgs& args, GrAAType aaType,
                                           GrAppliedClip&& appliedClip,
-                                          GrProcessorSet&& processors) {
+                                          GrProcessorSet&& processorSet) {
         auto pipelineFlags = GrPipeline::InputFlags::kNone;
         if (aaType == GrAAType::kMSAA) {
             pipelineFlags |= GrPipeline::InputFlags::kHWAntialias;
         }
-        return GrSimpleMeshDrawOpHelper::CreatePipeline(
-                args.fCaps, args.fArena, args.fWriteView.swizzle(), std::move(appliedClip),
-                *args.fDstProxyView, std::move(processors), pipelineFlags);
+
+        GrPipeline::InitArgs pipelineArgs;
+
+        pipelineArgs.fInputFlags = pipelineFlags;
+        pipelineArgs.fCaps = args.fCaps;
+        pipelineArgs.fDstProxyView = *args.fDstProxyView;
+        pipelineArgs.fWriteSwizzle = args.fWriteView.swizzle();
+
+        return args.fArena->make<GrPipeline>(pipelineArgs,
+                                             std::move(processorSet),
+                                             std::move(appliedClip));
     }
 
     static GrProgramInfo* MakeProgram(const ProgramArgs& args, const GrTessellationShader* shader,

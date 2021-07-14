@@ -7,6 +7,7 @@
 
 #include "src/gpu/GrOnFlushResourceProvider.h"
 
+#include "include/core/SkVertices.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrDirectContextPriv.h"

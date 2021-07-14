@@ -8,6 +8,8 @@
 #ifndef GrAtlasTextOp_DEFINED
 #define GrAtlasTextOp_DEFINED
 
+#if 0
+
 #include "src/gpu/GrTBlockList.h"
 #include "src/gpu/effects/GrDistanceFieldGeoProc.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
@@ -263,4 +265,5 @@ private:
     using INHERITED = GrMeshDrawOp;
 };
 
+#endif
 #endif

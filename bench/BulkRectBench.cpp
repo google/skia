@@ -126,6 +126,8 @@ protected:
         }
     }
 
+#if SK_GPU_V1
+
     void drawSolidColorsBatch(SkCanvas* canvas) const {
         SkASSERT(kImageMode == ImageMode::kNone);
         SkASSERT(kDrawMode == DrawMode::kBatch);
@@ -152,6 +154,7 @@ protected:
         SkPaintToGrPaint(context, sdc->colorInfo(), paint, matrixProvider, &grPaint);
         sdc->drawQuadSet(nullptr, std::move(grPaint), GrAA::kYes, view, batch, kRectCount);
     }
+#endif
 
     void drawSolidColorsRef(SkCanvas* canvas) const {
         SkASSERT(kImageMode == ImageMode::kNone);
@@ -240,7 +243,9 @@ protected:
         for (int i = 0; i < loops; i++) {
             if (kImageMode == ImageMode::kNone) {
                 if (kDrawMode == DrawMode::kBatch) {
+#if SK_GPU_V1
                     this->drawSolidColorsBatch(canvas);
+#endif
                 } else {
                     this->drawSolidColorsRef(canvas);
                 }

@@ -7,6 +7,8 @@
 
 #include "src/gpu/GrSurfaceDrawContext.h"
 
+#if SK_GPU_V1
+
 #include "include/core/SkDrawable.h"
 #include "include/core/SkVertices.h"
 #include "include/gpu/GrBackendSemaphore.h"
@@ -39,6 +41,7 @@
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrStencilSettings.h"
@@ -2081,3 +2084,17 @@ GrOpsTask* GrSurfaceDrawContext::replaceOpsTaskIfModifiesColor() {
     }
     return this->getOpsTask();
 }
+
+#else
+
+#include "include/core/SkVertices.h"
+
+void GrSurfaceDrawContext::drawVertices(const GrClip*,
+                                        GrPaint&& paint,
+                                        const SkMatrixProvider& matrixProvider,
+                                        sk_sp<SkVertices> vertices,
+                                        GrPrimitiveType* overridePrimType,
+                                        const SkRuntimeEffect* effect) {
+}
+
+#endif

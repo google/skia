@@ -261,6 +261,7 @@ static void clear_op_test(skiatest::Reporter* reporter, GrDirectContext* dContex
             // This should combine w/ the prior combined clear and overwrite the color
             rtContext->clear(kScissorRect, SK_PMColor4fBLACK);
 
+#if SK_GPU_V1
             GrOpsTask* ops = rtContext->getOpsTask();
             REPORTER_ASSERT(reporter, ops->numOpChains() == 1);
 
@@ -269,6 +270,7 @@ static void clear_op_test(skiatest::Reporter* reporter, GrDirectContext* dContex
             constexpr std::array<float, 4> kExpected { 0, 0, 0, 1 };
             REPORTER_ASSERT(reporter, clearOp.color() == kExpected);
             REPORTER_ASSERT(reporter, clearOp.stencilInsideMask());
+#endif
 
             dContext->flushAndSubmit();
         }
@@ -287,6 +289,7 @@ static void clear_op_test(skiatest::Reporter* reporter, GrDirectContext* dContex
             // field
             rtContext->clearStencilClip(kScissorRect, false);
 
+#if SK_GPU_V1
             GrOpsTask* ops = rtContext->getOpsTask();
             REPORTER_ASSERT(reporter, ops->numOpChains() == 1);
 
@@ -295,6 +298,7 @@ static void clear_op_test(skiatest::Reporter* reporter, GrDirectContext* dContex
             constexpr std::array<float, 4> kExpected { 1, 1, 1, 1 };
             REPORTER_ASSERT(reporter, clearOp.color() == kExpected);
             REPORTER_ASSERT(reporter, !clearOp.stencilInsideMask());
+#endif
 
             dContext->flushAndSubmit();
         }

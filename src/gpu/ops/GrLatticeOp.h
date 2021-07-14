@@ -8,6 +8,7 @@
 #ifndef GLatticeOp_DEFINED
 #define GLatticeOp_DEFINED
 
+#if 0
 #include <memory>
 #include "include/core/SkRefCnt.h"
 #include "src/gpu/GrSamplerState.h"
@@ -32,5 +33,6 @@ GrOp::Owner MakeNonAA(GrRecordingContext*,
                       std::unique_ptr<SkLatticeIter>,
                       const SkRect& dst);
 }  // namespace GrLatticeOp
+#endif
 
 #endif

@@ -12,6 +12,9 @@
 
 class GrMeshDrawTarget;
 
+class GrBuffer;
+class GrMeshDrawTarget;
+
 // This interface is used to allocate and map GPU vertex data before the exact number of required
 // vertices is known. Usage pattern:
 //

@@ -62,6 +62,7 @@ protected:
         SkPaint interruptPaint;
         interruptPaint.setShader(make_shader());
 
+#if 0
         GrSurfaceDrawContext* sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
         if (sdc) {
             // Tell the GrSurfaceDrawContext to not reset its draw op list on a fullscreen clear.
@@ -70,6 +71,7 @@ protected:
             // (not what we want to measure).
             sdc->testingOnly_SetPreserveOpsOnFullClear();
         }
+#endif
 
         for (int i = 0; i < loops; i++) {
             canvas->save();

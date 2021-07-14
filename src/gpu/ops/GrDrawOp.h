@@ -8,6 +8,8 @@
 #ifndef GrDrawOp_DEFINED
 #define GrDrawOp_DEFINED
 
+#if 0
+
 #include <functional>
 #include "src/core/SkIPoint16.h"
 #include "src/gpu/GrDeferredUpload.h"
@@ -114,5 +116,5 @@ private:
 };
 
 GR_MAKE_BITFIELD_CLASS_OPS(GrDrawOp::FixedFunctionFlags)
-
+#endif
 #endif

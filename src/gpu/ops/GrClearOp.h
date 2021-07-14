@@ -8,6 +8,8 @@
 #ifndef GrClearOp_DEFINED
 #define GrClearOp_DEFINED
 
+#if 0
+
 #include "include/gpu/GrTypes.h"
 #include "src/gpu/GrScissorState.h"
 #include "src/gpu/ops/GrOp.h"
@@ -80,5 +82,7 @@ private:
 };
 
 GR_MAKE_BITFIELD_CLASS_OPS(GrClearOp::Buffer)
+
+#endif
 
 #endif
