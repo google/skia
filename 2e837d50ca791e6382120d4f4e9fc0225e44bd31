@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a5d5b37c_933bff95",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-07-14T15:57:46Z",
+      "side": 1,
+      "message": "The new image on gold is missing the blue pixel border because (I think) it\u0027s a DDL config and the gm patheffect is not being serialized. Not sure what to do about that.",
+      "revId": "2e837d50ca791e6382120d4f4e9fc0225e44bd31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "53975c47_50b94097",
+        "filename": "src/gpu/geometry/GrStyledShape.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2021-07-14T15:57:46Z",
+      "side": 1,
+      "message": "Should I be writing the full matrix instead here (I\u0027m presuming this is some sort of cache key)?",
+      "revId": "2e837d50ca791e6382120d4f4e9fc0225e44bd31",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
