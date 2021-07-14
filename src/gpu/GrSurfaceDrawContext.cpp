@@ -740,7 +740,14 @@ void GrSurfaceDrawContext::drawRect(const GrClip* clip,
                !this->caps()->reducedShaderMode()) {
         // Only use the StrokeRectOp for non-empty rectangles. Empty rectangles will be processed by
         // GrStyledShape to handle stroke caps and dashing properly.
-        GrAAType aaType = this->chooseAAType(aa);
+        //
+        // http://skbug.com/12206 -- there is a double-blend issue with the bevel version of
+        // AAStrokeRectOp, and if we increase the AA bloat for MSAA it becomes more pronounced.
+        // Don't use the bevel version with DMSAA.
+        GrAAType aaType = (fCanUseDynamicMSAA &&
+                           stroke.getJoin() == SkPaint::kMiter_Join &&
+                           stroke.getMiter() >= SK_ScalarSqrt2) ? GrAAType::kCoverage
+                                                                : this->chooseAAType(aa);
         GrOp::Owner op = GrStrokeRectOp::Make(
                 fContext, std::move(paint), aaType, viewMatrix, rect, stroke);
         // op may be null if the stroke is not supported or if using coverage aa and the view matrix
