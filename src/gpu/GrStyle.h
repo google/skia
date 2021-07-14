@@ -152,22 +152,21 @@ public:
     }
     /**
      * Applies just the path effect and returns remaining stroke information. This will fail if
-     * there is no path effect. dst may or may not have been overwritten on failure. Scale controls
-     * geometric approximations made by the path effect. It is typically computed from the view
-     * matrix.
+     * there is no path effect. dst may or may not have been overwritten on failure. CTM controls
+     * geometric approximations made by the path effect.
      */
     bool SK_WARN_UNUSED_RESULT applyPathEffectToPath(SkPath* dst, SkStrokeRec* remainingStoke,
-                                                     const SkPath& src, SkScalar scale) const;
+                                                     const SkPath& src, const SkMatrix& ctm) const;
 
     /**
      * If this succeeds then the result path should be filled or hairlined as indicated by the
      * returned SkStrokeRec::InitStyle value. Will fail if there is no path effect and the
      * strokerec doesn't change the geometry. When this fails the outputs may or may not have
-     * been overwritten. Scale controls geometric approximations made by the path effect and
-     * stroker. It is typically computed from the view matrix.
+     * been overwritten. CTM controls geometric approximations made by the path effect and
+     * stroker.
      */
     bool SK_WARN_UNUSED_RESULT applyToPath(SkPath* dst, SkStrokeRec::InitStyle* fillOrHairline,
-                                           const SkPath& src, SkScalar scale) const;
+                                           const SkPath& src, const SkMatrix& ctm) const;
 
     /** Given bounds of a path compute the bounds of path with the style applied. */
     void adjustBounds(SkRect* dst, const SkRect& src) const {
@@ -207,7 +206,8 @@ private:
         SkAutoSTArray<4, SkScalar>  fIntervals;
     };
 
-    bool applyPathEffect(SkPath* dst, SkStrokeRec* strokeRec, const SkPath& src) const;
+    bool applyPathEffect(SkPath* dst, SkStrokeRec* strokeRec, const SkPath& src,
+                         const SkMatrix& ctm) const;
 
     SkStrokeRec         fStrokeRec;
     sk_sp<SkPathEffect> fPathEffect;

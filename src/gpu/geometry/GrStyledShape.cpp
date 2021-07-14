@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "src/core/SkPaintPriv.h"
 #include "src/gpu/geometry/GrStyledShape.h"
 
 #include "include/private/SkIDChangeListener.h"
@@ -239,7 +240,7 @@ void GrStyledShape::writeUnstyledKey(uint32_t* key) const {
 }
 
 void GrStyledShape::setInheritedKey(const GrStyledShape &parent, GrStyle::Apply apply,
-                                    SkScalar scale) {
+                                    const SkMatrix& ctm) {
     SkASSERT(!fInheritedKey.count());
     // If the output shape turns out to be simple, then we will just use its geometric key
     if (fShape.isPath()) {
@@ -283,8 +284,8 @@ void GrStyledShape::setInheritedKey(const GrStyledShape &parent, GrStyle::Apply 
                    parentCnt * sizeof(uint32_t));
         }
         // Now turn (geo,path_effect) or (geo) into (geo,path_effect,stroke)
-        GrStyle::WriteKey(fInheritedKey.get() + parentCnt, parent.fStyle, apply, scale,
-                          styleKeyFlags);
+        GrStyle::WriteKey(fInheritedKey.get() + parentCnt, parent.fStyle, apply,
+                          SkPaintPriv::ComputeResScaleForStroking(ctm), styleKeyFlags);
     }
 }
 
@@ -328,7 +329,8 @@ GrStyledShape::GrStyledShape(const GrStyledShape& that)
     }
 }
 
-GrStyledShape::GrStyledShape(const GrStyledShape& parent, GrStyle::Apply apply, SkScalar scale) {
+GrStyledShape::GrStyledShape(const GrStyledShape& parent, GrStyle::Apply apply,
+                             const SkMatrix& ctm) {
     // TODO: Add some quantization of scale for better cache performance here or leave that up
     // to caller?
     // TODO: For certain shapes and stroke params we could ignore the scale. (e.g. miter or bevel
@@ -359,14 +361,14 @@ GrStyledShape::GrStyledShape(const GrStyledShape& parent, GrStyle::Apply apply, 
         // if the bounds actually modified anything before including in key.
         SkStrokeRec strokeRec = parent.fStyle.strokeRec();
         if (!parent.fStyle.applyPathEffectToPath(&fShape.path(), &strokeRec, *srcForPathEffect,
-                                                 scale)) {
+                                                 ctm)) {
             tmpParent.init(*srcForPathEffect, GrStyle(strokeRec, nullptr));
-            *this = tmpParent->applyStyle(apply, scale);
+            *this = tmpParent->applyStyle(apply, ctm);
             return;
         }
         // A path effect has access to change the res scale but we aren't expecting it to and it
         // would mess up our key computation.
-        SkASSERT(scale == strokeRec.getResScale());
+        SkASSERT(SkPaintPriv::ComputeResScaleForStroking(ctm) == strokeRec.getResScale());
         if (GrStyle::Apply::kPathEffectAndStrokeRec == apply && strokeRec.needToApply()) {
             // The intermediate shape may not be a general path. If we we're just applying
             // the path effect then attemptToReduceFromPath would catch it. This means that
@@ -376,7 +378,7 @@ GrStyledShape::GrStyledShape(const GrStyledShape& parent, GrStyle::Apply apply, 
             // the simpler shape so that applying both path effect and the strokerec all at
             // once produces the same key.
             tmpParent.init(fShape.path(), GrStyle(strokeRec, nullptr));
-            tmpParent->setInheritedKey(parent, GrStyle::Apply::kPathEffectOnly, scale);
+            tmpParent->setInheritedKey(parent, GrStyle::Apply::kPathEffectOnly, ctm);
             if (!tmpPath.isValid()) {
                 tmpPath.init();
             }
@@ -385,7 +387,7 @@ GrStyledShape::GrStyledShape(const GrStyledShape& parent, GrStyle::Apply apply, 
             // The parent shape may have simplified away the strokeRec, check for that here.
             if (tmpParent->style().applies()) {
                 SkAssertResult(tmpParent.get()->style().applyToPath(&fShape.path(), &fillOrHairline,
-                                                                    *tmpPath.get(), scale));
+                                                                    *tmpPath.get(), ctm));
             } else if (tmpParent->style().isSimpleFill()) {
                 fillOrHairline = SkStrokeRec::kFill_InitStyle;
             } else {
@@ -409,7 +411,7 @@ GrStyledShape::GrStyledShape(const GrStyledShape& parent, GrStyle::Apply apply, 
         SkASSERT(parent.fStyle.applies());
         SkASSERT(!parent.fStyle.pathEffect());
         SkAssertResult(parent.fStyle.applyToPath(&fShape.path(), &fillOrHairline,
-                                                 *srcForParentStyle, scale));
+                                                 *srcForParentStyle, ctm));
         fStyle.resetToInitStyle(fillOrHairline);
     }
 
@@ -419,7 +421,7 @@ GrStyledShape::GrStyledShape(const GrStyledShape& parent, GrStyle::Apply apply, 
         fInheritedPathForListeners.set(parent.fShape.path());
     }
     this->simplify();
-    this->setInheritedKey(*parentForKey, apply, scale);
+    this->setInheritedKey(*parentForKey, apply, ctm);
 }
 
 bool GrStyledShape::asRRect(SkRRect* rrect, SkPathDirection* dir, unsigned* start,

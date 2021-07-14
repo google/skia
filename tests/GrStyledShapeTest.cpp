@@ -587,14 +587,16 @@ private:
     }
 
     void init(skiatest::Reporter* r, SkScalar scale) {
+        const SkMatrix viewMatrix = SkMatrix::Scale(scale, scale);
+
         fAppliedPE = std::make_unique<GrStyledShape>();
         fAppliedPEThenStroke = std::make_unique<GrStyledShape>();
         fAppliedFull = std::make_unique<GrStyledShape>();
 
-        *fAppliedPE = fBase->applyStyle(GrStyle::Apply::kPathEffectOnly, scale);
+        *fAppliedPE = fBase->applyStyle(GrStyle::Apply::kPathEffectOnly, viewMatrix);
         *fAppliedPEThenStroke =
-                fAppliedPE->applyStyle(GrStyle::Apply::kPathEffectAndStrokeRec, scale);
-        *fAppliedFull = fBase->applyStyle(GrStyle::Apply::kPathEffectAndStrokeRec, scale);
+                fAppliedPE->applyStyle(GrStyle::Apply::kPathEffectAndStrokeRec, viewMatrix);
+        *fAppliedFull = fBase->applyStyle(GrStyle::Apply::kPathEffectAndStrokeRec, viewMatrix);
 
         make_key(&fBaseKey, *fBase);
         make_key(&fAppliedPEKey, *fAppliedPE);
@@ -652,7 +654,7 @@ private:
         fBase->asPath(&preStyle);
         SkStrokeRec postPEStrokeRec(SkStrokeRec::kFill_InitStyle);
         if (fBase->style().applyPathEffectToPath(&postPathEffect, &postPEStrokeRec, preStyle,
-                                                 scale)) {
+                                                 viewMatrix)) {
             // run postPathEffect through GrStyledShape to get any geometry reductions that would
             // have occurred to fAppliedPE.
             GrStyledShape(postPathEffect, GrStyle(postPEStrokeRec, nullptr))
@@ -664,7 +666,7 @@ private:
             REPORTER_ASSERT(r, postPEStrokeRec.hasEqualEffect(fAppliedPE->style().strokeRec()));
         }
         SkStrokeRec::InitStyle fillOrHairline;
-        if (fBase->style().applyToPath(&postAllStyle, &fillOrHairline, preStyle, scale)) {
+        if (fBase->style().applyToPath(&postAllStyle, &fillOrHairline, preStyle, viewMatrix)) {
             SkPath testPath;
             fAppliedFull->asPath(&testPath);
             if (fBase->style().hasPathEffect()) {

@@ -44,7 +44,7 @@ static void draw_path(GrRecordingContext* rContext,
                                                      surfaceDrawContext->height());
     GrStyledShape shape(path, style);
     if (shape.style().applies()) {
-        shape = shape.applyStyle(GrStyle::Apply::kPathEffectAndStrokeRec, 1.0f);
+        shape = shape.applyStyle(GrStyle::Apply::kPathEffectAndStrokeRec, SkMatrix::I());
     }
     SkMatrix matrix = SkMatrix::I();
     matrix.setScaleX(scaleX);
