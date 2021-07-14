@@ -9,6 +9,7 @@
 
 #include "include/private/SkSLDefines.h"
 #include "include/sksl/DSLSymbols.h"
+#include "include/sksl/DSLVar.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
@@ -90,12 +91,12 @@ public:
         return success ? std::move(result) : nullptr;
     }
 
-    static DSLVar sk_FragColor() {
-        return DSLVar("sk_FragColor");
+    static DSLGlobalVar sk_FragColor() {
+        return DSLGlobalVar("sk_FragColor");
     }
 
-    static DSLVar sk_FragCoord() {
-        return DSLVar("sk_FragCoord");
+    static DSLGlobalVar sk_FragCoord() {
+        return DSLGlobalVar("sk_FragCoord");
     }
 
     static DSLExpression sk_Position() {
@@ -128,20 +129,15 @@ public:
         if (var.fDeclared) {
             DSLWriter::ReportError("error: variable has already been declared\n", &pos);
         }
-        if (var.fStorage == SkSL::Variable::Storage::kGlobal) {
-            DSLWriter::ReportError("error: this variable must be declared with DeclareGlobal\n",
-                                   &pos);
-        }
         var.fDeclared = true;
         return DSLWriter::Declaration(var);
     }
 
-    static void DeclareGlobal(DSLVar& var, PositionInfo pos) {
+    static void Declare(DSLGlobalVar& var, PositionInfo pos) {
         if (var.fDeclared) {
             DSLWriter::ReportError("error: variable has already been declared\n", &pos);
         }
         var.fDeclared = true;
-        var.fStorage = SkSL::Variable::Storage::kGlobal;
         std::unique_ptr<SkSL::Statement> stmt = DSLWriter::Declaration(var);
         if (stmt) {
             DSLWriter::ProgramElements().push_back(std::make_unique<SkSL::GlobalVarDeclaration>(
@@ -179,7 +175,7 @@ public:
                                     ifTrue.release(), ifFalse.releaseIfValid());
     }
 
-    static DSLVar InterfaceBlock(DSLModifiers modifiers, skstd::string_view typeName,
+    static DSLGlobalVar InterfaceBlock(DSLModifiers modifiers, skstd::string_view typeName,
                                  SkTArray<DSLField> fields, skstd::string_view varName,
                                  int arraySize, PositionInfo pos) {
         // We need to create a new struct type for the interface block, but we don't want it in the
@@ -194,7 +190,7 @@ public:
         const SkSL::Type* structType = DSLWriter::SymbolTable()->takeOwnershipOfSymbol(
                 SkSL::Type::MakeStructType(/*offset=*/-1, String(typeName), std::move(skslFields)));
         DSLType varType = arraySize > 0 ? Array(structType, arraySize) : DSLType(structType);
-        DSLVar var(modifiers, varType, !varName.empty() ? varName : typeName);
+        DSLGlobalVar var(modifiers, varType, !varName.empty() ? varName : typeName);
         DSLWriter::ProgramElements().push_back(std::make_unique<SkSL::InterfaceBlock>(/*offset=*/-1,
                 DSLWriter::Var(var), String(typeName), String(varName), arraySize,
                 DSLWriter::SymbolTable()));
@@ -276,11 +272,11 @@ std::unique_ptr<SkSL::Program> ReleaseProgram() {
     return DSLCore::ReleaseProgram();
 }
 
-DSLVar sk_FragColor() {
+DSLGlobalVar sk_FragColor() {
     return DSLCore::sk_FragColor();
 }
 
-DSLVar sk_FragCoord() {
+DSLGlobalVar sk_FragCoord() {
     return DSLCore::sk_FragCoord();
 }
 
@@ -312,8 +308,8 @@ DSLStatement Declare(DSLVar& var, PositionInfo pos) {
     return DSLCore::Declare(var, pos);
 }
 
-void DeclareGlobal(DSLVar& var, PositionInfo pos) {
-    return DSLCore::DeclareGlobal(var, pos);
+void Declare(DSLGlobalVar& var, PositionInfo pos) {
+    return DSLCore::Declare(var, pos);
 }
 
 DSLStatement Discard() {
@@ -336,9 +332,9 @@ DSLStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse, P
                         pos);
 }
 
-DSLVar InterfaceBlock(DSLModifiers modifiers,  skstd::string_view typeName,
-                      SkTArray<DSLField> fields, skstd::string_view varName, int arraySize,
-                      PositionInfo pos) {
+DSLGlobalVar InterfaceBlock(DSLModifiers modifiers,  skstd::string_view typeName,
+                            SkTArray<DSLField> fields, skstd::string_view varName, int arraySize,
+                            PositionInfo pos) {
     return DSLCore::InterfaceBlock(modifiers, typeName, std::move(fields), varName, arraySize, pos);
 }
 
