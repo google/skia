@@ -22,6 +22,30 @@
       },
       "revId": "0894bda0407a743297bd57b5a0334f2dd0b8ef3e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "484c1665_48c94677",
+        "filename": "tests/RuntimeBlendTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-07-14T18:39:32Z",
+      "side": 1,
+      "message": "Might could modify ToolUtils::equal_pixels() -- just an idea",
+      "parentUuid": "2d6681e8_5c61e31b",
+      "range": {
+        "startLine": 23,
+        "startChar": 4,
+        "endLine": 27,
+        "endChar": 72
+      },
+      "revId": "0894bda0407a743297bd57b5a0334f2dd0b8ef3e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

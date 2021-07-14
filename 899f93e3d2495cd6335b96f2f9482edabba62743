@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dfb73d7f_fec359cf",
+        "filename": "tests/RuntimeBlendTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-07-14T18:39:32Z",
+      "side": 1,
+      "message": "pretty common for us to just write a loop through all the modes (with a cast).",
+      "range": {
+        "startLine": 84,
+        "startChar": 33,
+        "endLine": 84,
+        "endChar": 37
+      },
+      "revId": "899f93e3d2495cd6335b96f2f9482edabba62743",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
