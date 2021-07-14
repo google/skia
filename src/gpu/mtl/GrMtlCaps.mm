@@ -145,7 +145,7 @@ static int get_surface_sample_cnt(GrSurface* surf) {
 
 static bool is_resolving_msaa(GrSurface* surf) {
     auto rt = static_cast<GrMtlRenderTarget*>(surf->asRenderTarget());
-    if (rt && rt->mtlResolveTexture()) {
+    if (rt && rt->resolveAttachment()) {
         SkASSERT(rt->numSamples() > 1);
         return true;
     }
@@ -931,7 +931,7 @@ bool GrMtlCaps::onSurfaceSupportsWritePixels(const GrSurface* surface) const {
 GrCaps::SurfaceReadPixelsSupport GrMtlCaps::surfaceSupportsReadPixels(
         const GrSurface* surface) const {
     if (auto mtlRT = static_cast<const GrMtlRenderTarget*>(surface->asRenderTarget())) {
-        if (mtlRT->numSamples() > 1 && !mtlRT->mtlResolveTexture()) {
+        if (mtlRT->numSamples() > 1 && !mtlRT->resolveAttachment()) {
             return SurfaceReadPixelsSupport::kCopyToTexture2D;
         }
     }

@@ -236,7 +236,7 @@ void GrMtlOpsRenderPass::setupRenderPass(
     fRenderPassDesc = [MTLRenderPassDescriptor new];
     auto colorAttachment = fRenderPassDesc.colorAttachments[0];
     colorAttachment.texture =
-            static_cast<GrMtlRenderTarget*>(fRenderTarget)->mtlColorTexture();
+            static_cast<GrMtlRenderTarget*>(fRenderTarget)->colorMTLTexture();
     const std::array<float, 4>& clearColor = colorInfo.fClearColor;
     colorAttachment.clearColor =
             MTLClearColorMake(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
