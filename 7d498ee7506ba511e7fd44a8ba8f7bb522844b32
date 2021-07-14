@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "ef21fbe5_02cb87be",
+        "filename": "src/sksl/dsl/DSLFunction.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-07-14T13:43:21Z",
+      "side": 1,
+      "message": "Unfortunately by the time we get to FunctionDeclaration::Convert, the modifiers have already been added into the pool and are therefore const.\n\nI\u0027m not a fan of the duplication of logic, but it\u0027s temporary - the copy of the logic in IRGenerator will go away when we flip the switch over to DSLParser.\n\nSound reasonable?",
+      "parentUuid": "e00e2a15_b8848dc4",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 0
+      },
+      "revId": "7d498ee7506ba511e7fd44a8ba8f7bb522844b32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "aa12695a_d4788c1c",
         "filename": "src/sksl/dsl/DSLFunction.cpp",
         "patchSetId": 1
@@ -37,6 +61,30 @@
       "writtenOn": "2021-07-14T13:35:44Z",
       "side": 1,
       "message": "IsModule?",
+      "range": {
+        "startLine": 87,
+        "startChar": 47,
+        "endLine": 87,
+        "endChar": 66
+      },
+      "revId": "7d498ee7506ba511e7fd44a8ba8f7bb522844b32",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8e2e23da_6a8c1a53",
+        "filename": "src/sksl/dsl/DSLFunction.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-07-14T13:43:21Z",
+      "side": 1,
+      "message": "isBuiltin is the current name of this parameter. I\u0027ll put together a followup CL which renames it.",
+      "parentUuid": "aa12695a_d4788c1c",
       "range": {
         "startLine": 87,
         "startChar": 47,
