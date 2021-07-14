@@ -13,6 +13,7 @@
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/tessellate/GrPathCurveTessellator.h"
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
@@ -48,14 +49,13 @@ private:
 
 GrGLSLGeometryProcessor* HullShader::createGLSLInstance(const GrShaderCaps&) const {
     class Impl : public GrPathTessellationShader::Impl {
-        void emitVertexCode(const GrShaderCaps& shaderCaps, const GrPathTessellationShader&,
-                            GrGLSLVertexBuilder* v, GrGPArgs* gpArgs) override {
-            v->insertFunction(SkSLPortable_isinf(shaderCaps));
+        void emitVertexCode(const GrPathTessellationShader&, GrGLSLVertexBuilder* v,
+                            GrGPArgs* gpArgs) override {
             v->codeAppend(R"(
             float4x2 P = float4x2(input_points_0_1, input_points_2_3);
-            if (isinf_portable(P[3].y)) {  // Is the curve a conic?
+            if (isinf(P[3].y)) {  // Is the curve a conic?
                 float w = P[3].x;
-                if (isinf_portable(w)) {
+                if (isinf(w)) {
                     // A conic with w=Inf is an exact triangle.
                     P = float4x2(P[0], P[1], P[2], P[2]);
                 } else {
@@ -84,7 +84,7 @@ GrGLSLGeometryProcessor* HullShader::createGLSLInstance(const GrShaderCaps&) con
                 }
             })");
 
-            if (shaderCaps.vertexIDSupport()) {
+            if (v->getProgramBuilder()->caps()->shaderCaps()->vertexIDSupport()) {
                 // If we don't have sk_VertexID support then "vertexidx" already came in as a
                 // vertex attrib.
                 v->codeAppend(R"(

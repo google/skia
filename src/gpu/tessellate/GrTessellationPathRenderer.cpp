@@ -39,7 +39,6 @@ bool GrTessellationPathRenderer::IsSupported(const GrCaps& caps) {
     return !caps.avoidStencilBuffers() &&
            caps.drawInstancedSupport() &&
            caps.shaderCaps()->integerSupport() &&
-           GrTessellationShader::SupportsPortableInfinity(*caps.shaderCaps()) &&
            !caps.disableTessellationPathRenderer();
 }
 

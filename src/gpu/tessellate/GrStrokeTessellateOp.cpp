@@ -190,15 +190,16 @@ void GrStrokeTessellateOp::prePrepareTessellator(GrTessellationShader::ProgramAr
     if (can_use_hardware_tessellation(fTotalCombinedVerbCnt, *pipeline, caps)) {
         // Only use hardware tessellation if we're drawing a somewhat large number of verbs.
         // Otherwise we seem to be better off using instanced draws.
-        fTessellator = arena->make<GrStrokeHardwareTessellator>(*caps.shaderCaps(), fShaderFlags,
+        fTessellator = arena->make<GrStrokeHardwareTessellator>(fShaderFlags, *caps.shaderCaps(),
                                                                 fViewMatrix, &fPathStrokeList,
                                                                 matrixMinMaxScales,
                                                                 strokeCullBounds);
     } else {
-        fTessellator = arena->make<GrStrokeFixedCountTessellator>(*caps.shaderCaps(), fShaderFlags,
-                                                                  fViewMatrix, &fPathStrokeList,
+        fTessellator = arena->make<GrStrokeFixedCountTessellator>(fShaderFlags, fViewMatrix,
+                                                                  &fPathStrokeList,
                                                                   matrixMinMaxScales,
-                                                                  strokeCullBounds);
+                                                                  strokeCullBounds,
+                                                                  *caps.shaderCaps());
     }
 
     auto fillStencil = &GrUserStencilSettings::kUnused;
