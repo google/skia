@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "73298e09_ec8896f7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-14T18:12:04Z",
+      "side": 1,
+      "message": "I\u0027ve just augmented this to include every blend mode, not just the modes used the the Android Blend Modes slide.",
+      "revId": "8fad0201049c171a6acddd6dfbb3379ac5d63826",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

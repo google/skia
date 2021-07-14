@@ -16,6 +16,24 @@
       "message": "Hard to know what motivate this ... but a little bird tells me you might augment dm/fm to force all paints to replace their modes with this .. now *that* would be cool!",
       "revId": "84eaaae2fc4499260700fb70b291bd0be8fd215f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1a560e81_942818ce",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-14T18:12:04Z",
+      "side": 1,
+      "message": "Yes, that\u0027s exactly the idea--include a testing mode which would force Runtime Blenders onto every GM slide, and make sure nothing breaks or renders incorrectly. If we can pass that test, it\u0027s pretty strong evidence that Runtime Blends are working as we expect them to.",
+      "parentUuid": "b991f0a7_8e4442f2",
+      "revId": "84eaaae2fc4499260700fb70b291bd0be8fd215f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
