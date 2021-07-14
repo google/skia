@@ -52,6 +52,20 @@ sk_sp<GrMtlAttachment> GrMtlAttachment::MakeStencil(GrMtlGpu* gpu,
                                  /*mipLevels=*/1, textureUsage, storageMode, SkBudgeted::kYes);
 }
 
+sk_sp<GrMtlAttachment> GrMtlAttachment::MakeMSAA(GrMtlGpu* gpu,
+                                                 SkISize dimensions,
+                                                 int sampleCnt,
+                                                 MTLPixelFormat format) {
+    int textureUsage = 0;
+    int storageMode = 0;
+    if (@available(macOS 10.11, iOS 9.0, *)) {
+        textureUsage = MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget;
+        storageMode = MTLStorageModePrivate;
+    }
+    return GrMtlAttachment::Make(gpu, dimensions, UsageFlags::kColorAttachment, sampleCnt, format,
+                                 /*mipLevels=*/1, textureUsage, storageMode, SkBudgeted::kYes);
+}
+
 sk_sp<GrMtlAttachment> GrMtlAttachment::MakeTexture(GrMtlGpu* gpu,
                                                     SkISize dimensions,
                                                     MTLPixelFormat format,
@@ -103,6 +117,23 @@ sk_sp<GrMtlAttachment> GrMtlAttachment::Make(GrMtlGpu* gpu,
 #ifdef SK_ENABLE_MTL_DEBUG_INFO
     if (attachmentUsages == UsageFlags::kStencilAttachment) {
         texture.label = @"Stencil";
+    } else if (SkToBool(attachmentUsages & UsageFlags::kColorAttachment)) {
+        if (sampleCnt > 1) {
+            if (SkToBool(attachmentUsages & UsageFlags::kTexture)) {
+                texture.label = @"MSAA TextureRenderTarget";
+            } else {
+                texture.label = @"MSAA RenderTarget";
+            }
+        } else {
+            if (SkToBool(attachmentUsages & UsageFlags::kTexture)) {
+                texture.label = @"TextureRenderTarget";
+            } else {
+                texture.label = @"RenderTarget";
+            }
+        }
+    } else {
+        SkASSERT(attachmentUsages == UsageFlags::kTexture);
+        texture.label = @"Texture";
     }
 #endif
 
