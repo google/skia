@@ -68,6 +68,24 @@
       "message": "Maybe a unittest, that confirms the results match (between built-in and sksl) would be just as complete -- and not require a manual triage.",
       "revId": "b9d6b498a8d0b1fc8b7c4076252341823018ef5e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0d0e7c14_047a4ef4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 17
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-07-14T12:25:16Z",
+      "side": 1,
+      "message": "My gut says that for the porter-duff blend modes, we could add a tolerance and get away with that. (Even for those, I expect the precision of the shader-based vs. fixed-function blending to be different). Once we get to the wackier modes, things are pretty inconsistent among devices. Still, a unit test for all of the common ones would be nice. (We have some other unit tests that check things with a tolerance - and some of those even use a larger tolerance on low-end GPUs where the shader precision is bad).",
+      "parentUuid": "0fad22ed_019f3699",
+      "revId": "b9d6b498a8d0b1fc8b7c4076252341823018ef5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
