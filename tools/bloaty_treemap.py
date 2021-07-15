@@ -1,0 +1,119 @@
+#!/usr/bin/env python
+
+# Copyright 2021 Google LLC
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+
+# Generate the input to this script by running:
+#   bloaty <path_to_binary> -d compileunits,symbols -n 0 --tsv
+# -or-
+#   bloaty <path_to_binary> -d compileunits,fullsymbols -n 0 --tsv
+
+# TODO: Deal with symbols vs. fullsymbols, even both?
+# TODO: Support aggregation by scope, rather than file (split C++ identifiers on '::')
+# TODO: Deal with duplicate symbols better. These are actually good targets for optimization.
+#       They are sometimes static functions in headers (so they appear in multiple .o files),
+#       There are also symbols that appear multiple times due to inlining (eg, kNoCropRect).
+# TODO: Figure out why some symbols are misattributed. Eg, Swizzle::Convert and ::Make are tied
+#       to the header by nm, and then to one caller (at random) by bloaty. They're not inlined,
+#       though. Unless LTO is doing something wacky here? Scope-aggregation may be the answer?
+#       Ultimately, this seems like an issue with bloaty and/or debug information itself.
+
+import os
+import sys
+
+if len(sys.argv) != 2:
+    print(sys.argv, ' <infile>')
+    sys.exit(1)
+
+parentMap = {}
+
+def addPath(path):
+    if not path in parentMap:
+        head = os.path.split(path)[0]
+        if not head:
+            parentMap[path] = "ROOT"
+        else:
+            addPath(head)
+            parentMap[path] = head
+        print("['" + path + "', '" + parentMap[path] + "', 0],")
+
+# HTML/script header, plus the first two (fixed) rows of the data table
+print("""
+<html>
+    <head>
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+        <script type="text/javascript">
+            google.charts.load("current", {"packages":["treemap"]});
+            google.charts.setOnLoadCallback(drawChart);
+            function drawChart() {
+                var data = google.visualization.arrayToDataTable([
+                    ['Name', 'Parent', 'Size'],
+                    ['ROOT', null, 0],""")
+
+with open(sys.argv[1]) as infile:
+    allSymbols = {}
+    # Skip header row
+    # TODO: In the future, we could use this to automatically detect the source columns
+    next(infile)
+
+    for line in infile:
+        vals = line.rstrip().split('\t')
+        if len(vals) != 4:
+            print("ERROR: Failed to match line\n" + line)
+            sys.exit(1)
+        (filepath, symbol, vmsize, filesize) = vals
+
+        # Skip any entry where the filepath or symbol starts with '['
+        # These tend to be section meta-data and debug information
+        if filepath.startswith('[') or symbol.startswith('['):
+            continue
+        
+        # Strip the leading ../../ from paths
+        filepath = filepath.removeprefix('../../')
+
+        # Files in third_party sometimes have absolute paths. Strip those:
+        if filepath.startswith('/'):
+            relPathStart = filepath.find('third_party')
+            if relPathStart >= 0:
+                filepath = filepath[relPathStart:]
+            else:
+                print("ERROR: Unexpected absolute path:\n" + filepath)
+                sys.exit(1)
+
+        # It's rare, but symbols can contain double-quotes (it's a valid C++ operator)
+        symbol = symbol.replace('"', '\\"')
+
+        # Ensure that we've added intermediate nodes for all portions of this file path
+        addPath(filepath)
+
+        # Ensure that our final symbol name is unique
+        while symbol in allSymbols:
+            symbol += '_x'
+        allSymbols[symbol] = True
+
+        # Append another row for our sanitized data
+        print('["' + symbol + '", "' + filepath + '", ' + filesize + '],')
+
+# HTML/script footer
+print("""       ]);
+                tree = new google.visualization.TreeMap(document.getElementById("chart_div"));
+                tree.draw(data, {
+                    generateTooltip: showTooltip
+                });
+
+                function showTooltip(row, size, value) {
+                    var escapedLabel = data.getValue(row, 0).replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+                    return '<div style="background:#fd9; padding:10px; border-style:solid">' +
+                           '<span style="font-family:Courier">' + escapedLabel + '<br>' +
+                           'Size: ' + size + '</div>';
+                }
+            }
+        </script>
+    </head>
+    <body>
+        <div id="chart_div" style="width: 100%; height: 100%;"></div>
+    </body>
+</html>""")
