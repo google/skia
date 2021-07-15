@@ -57,7 +57,7 @@ bool IsType(skstd::string_view name);
 /**
  * Adds a variable to the current symbol table.
  */
-void AddToSymbolTable(DSLVar& var);
+void AddToSymbolTable(DSLVarBase& var);
 
 /**
  * Attaches a String to the current symbol table. The String will persist as long as the symbol

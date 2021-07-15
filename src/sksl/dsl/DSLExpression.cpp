@@ -67,17 +67,13 @@ DSLExpression::DSLExpression(bool value)
                                           /*offset=*/-1,
                                           value)) {}
 
-DSLExpression::DSLExpression(DSLVar& var)
-    : fExpression(std::make_unique<SkSL::VariableReference>(
-                                                        /*offset=*/-1,
-                                                        DSLWriter::Var(var),
-                                                        SkSL::VariableReference::RefKind::kRead)) {}
+DSLExpression::DSLExpression(DSLVarBase& var) {
+    fExpression = std::make_unique<SkSL::VariableReference>(/*offset=*/-1, DSLWriter::Var(var),
+            SkSL::VariableReference::RefKind::kRead);
+}
 
-DSLExpression::DSLExpression(DSLVar&& var)
-    : fExpression(std::make_unique<SkSL::VariableReference>(
-                                                        /*offset=*/-1,
-                                                        DSLWriter::Var(var),
-                                                        SkSL::VariableReference::RefKind::kRead)) {}
+DSLExpression::DSLExpression(DSLVarBase&& var)
+    : DSLExpression(var) {}
 
 DSLExpression::DSLExpression(DSLPossibleExpression expr, PositionInfo pos) {
     DSLWriter::ReportErrors(pos);

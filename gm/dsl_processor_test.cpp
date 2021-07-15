@@ -36,8 +36,8 @@ public:
                 Declare(x);
                 SkASSERT(DSLWriter::Var(x)->initialValue()->description() == "1");
 
-                Var blueAlpha(kUniform_Modifier, kHalf2_Type, "blueAlpha");
-                DeclareGlobal(blueAlpha);
+                GlobalVar blueAlpha(kUniform_Modifier, kHalf2_Type, "blueAlpha");
+                Declare(blueAlpha);
                 fBlueAlphaUniform = VarUniformHandle(blueAlpha);
                 Var coords(kFloat4_Type, sk_FragCoord());
                 Declare(coords);

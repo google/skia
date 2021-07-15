@@ -27,7 +27,7 @@ namespace dsl {
 class DSLPossibleExpression;
 class DSLStatement;
 class DSLType;
-class DSLVar;
+class DSLVarBase;
 
 /**
  * Represents an expression such as 'cos(x)' or 'a + b'.
@@ -69,9 +69,9 @@ public:
     /**
      * Creates an expression representing a variable reference.
      */
-    DSLExpression(DSLVar& var);
+    DSLExpression(DSLVarBase& var);
 
-    DSLExpression(DSLVar&& var);
+    DSLExpression(DSLVarBase&& var);
 
     DSLExpression(DSLPossibleExpression expr, PositionInfo pos = PositionInfo());
 
@@ -150,7 +150,7 @@ private:
     friend class DSLCore;
     friend class DSLFunction;
     friend class DSLPossibleExpression;
-    friend class DSLVar;
+    friend class DSLVarBase;
     friend class DSLWriter;
     template<typename T> friend class DSLWrapper;
 };

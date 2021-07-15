@@ -47,7 +47,7 @@ private:
 
     friend DSLType Struct(skstd::string_view name, SkTArray<DSLField> fields);
     friend class DSLFunction;
-    friend class DSLVar;
+    friend class DSLVarBase;
     friend class DSLWriter;
 };
 

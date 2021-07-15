@@ -59,9 +59,9 @@ std::unique_ptr<SkSL::Program> ReleaseProgram();
  */
 void SetErrorHandler(ErrorHandler* errorHandler);
 
-DSLVar sk_FragColor();
+DSLGlobalVar sk_FragColor();
 
-DSLVar sk_FragCoord();
+DSLGlobalVar sk_FragCoord();
 
 DSLExpression sk_Position();
 
@@ -83,7 +83,7 @@ DSLStatement Declare(DSLVar& var, PositionInfo pos = PositionInfo());
 /**
  * Declares a global variable.
  */
-void DeclareGlobal(DSLVar& var, PositionInfo pos = PositionInfo());
+void Declare(DSLGlobalVar& var, PositionInfo pos = PositionInfo());
 
 /**
  * default: statements
@@ -115,9 +115,9 @@ DSLStatement For(DSLStatement initializer, DSLExpression test, DSLExpression nex
 DSLStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse = DSLStatement(),
                 PositionInfo pos = PositionInfo());
 
-DSLVar InterfaceBlock(DSLModifiers modifiers,  skstd::string_view typeName,
-                      SkTArray<DSLField> fields, skstd::string_view varName = "", int arraySize = 0,
-                      PositionInfo pos = PositionInfo());
+DSLGlobalVar InterfaceBlock(DSLModifiers modifiers,  skstd::string_view typeName,
+                            SkTArray<DSLField> fields, skstd::string_view varName = "",
+                            int arraySize = 0, PositionInfo pos = PositionInfo());
 
 /**
  * return [value];

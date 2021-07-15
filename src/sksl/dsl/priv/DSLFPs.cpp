@@ -25,8 +25,8 @@ void EndFragmentProcessor() {
     DSLWriter::EndFragmentProcessor();
 }
 
-DSLVar sk_SampleCoord() {
-    return DSLVar("sk_SampleCoord");
+DSLGlobalVar sk_SampleCoord() {
+    return DSLGlobalVar("sk_SampleCoord");
 }
 
 DSLExpression SampleChild(int index, DSLExpression sampleExpr) {
@@ -58,7 +58,7 @@ DSLExpression SampleChild(int index, DSLExpression sampleExpr) {
             code.c_str(), DSLWriter::Context().fTypes.fHalf4.get()));
 }
 
-GrGLSLUniformHandler::UniformHandle VarUniformHandle(const DSLVar& var) {
+GrGLSLUniformHandler::UniformHandle VarUniformHandle(const DSLGlobalVar& var) {
     return DSLWriter::VarUniformHandle(var);
 }
 

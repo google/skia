@@ -118,7 +118,7 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
     // Local coords
     {
         effect.start();
-        Var p(kFloat2_Type, "p");
+        Parameter p(kFloat2_Type, "p");
         Function(kHalf4_Type, "main", p).define(
             Return(Half4(Half2(p - 0.5), 0, 1))
         );
@@ -129,9 +129,9 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
     // Use of a simple uniform. (Draw twice with two values to ensure it's updated).
     {
         effect.start();
-        Var gColor(kUniform_Modifier, kFloat4_Type);
-        DeclareGlobal(gColor);
-        Var p(kFloat2_Type, "p");
+        GlobalVar gColor(kUniform_Modifier, kFloat4_Type);
+        Declare(gColor);
+        Parameter p(kFloat2_Type, "p");
         Function(kHalf4_Type, "main", p).define(
             Return(Half4(gColor))
         );
@@ -145,9 +145,9 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
     // Same, with integer uniforms
     {
         effect.start();
-        Var gColor(kUniform_Modifier, kInt4_Type);
-        DeclareGlobal(gColor);
-        Var p(kFloat2_Type, "p");
+        GlobalVar gColor(kUniform_Modifier, kInt4_Type);
+        Declare(gColor);
+        Parameter p(kFloat2_Type, "p");
         Function(kHalf4_Type, "main", p).define(
             Return(Half4(gColor) / 255)
         );
@@ -163,7 +163,7 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
     // make sure we're not saturating unexpectedly.
     {
         effect.start();
-        Var p(kFloat2_Type, "p");
+        Parameter p(kFloat2_Type, "p");
         Function(kHalf4_Type, "main", p).define(
             Return(Half4(0.498 * (Half2(Swizzle(sk_FragCoord(), X, Y)) - 0.5), 0, 1))
         );
@@ -175,7 +175,7 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
     // Runtime effects should use relaxed precision rules by default
     {
         effect.start();
-        Var p(kFloat2_Type, "p");
+        Parameter p(kFloat2_Type, "p");
         Function(kHalf4_Type, "main", p).define(
             Return(Float4(p - 0.5, 0, 1))
         );
@@ -186,7 +186,7 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
     // ... and support *returning* float4, not just half4
     {
         effect.start();
-        Var p(kFloat2_Type, "p");
+        Parameter p(kFloat2_Type, "p");
         Function(kFloat4_Type, "main", p).define(
             Return(Float4(p - 0.5, 0, 1))
         );
@@ -207,7 +207,7 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
         } errorHandler;
         effect.start();
         SetErrorHandler(&errorHandler);
-        Var p(kFloat2_Type, "p");
+        Parameter p(kFloat2_Type, "p");
         Function(kHalf4_Type, "main", p).define(
             Return(1) // Error, type mismatch
         );
@@ -218,7 +218,7 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
     // Mutating coords should work. (skbug.com/10918)
     {
         effect.start();
-        Var p(kFloat2_Type, "p");
+        Parameter p(kFloat2_Type, "p");
         Function(kFloat4_Type, "main", p).define(
             p -= 0.5,
             Return(Float4(p, 0, 1))
@@ -228,12 +228,12 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
     }
     {
         effect.start();
-        Var p1(kInOut_Modifier, kFloat2_Type, "p");
+        Parameter p1(kInOut_Modifier, kFloat2_Type, "p");
         Function moveCoords(kVoid_Type, "moveCoords", p1);
         moveCoords.define(
             p1 -= 0.5
         );
-        Var p2(kFloat2_Type, "p");
+        Parameter p2(kFloat2_Type, "p");
         Function(kFloat4_Type, "main", p2).define(
             moveCoords(p2),
             Return(Float4(p2, 0, 1))
@@ -249,9 +249,9 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
     // Sampling a null child should return the paint color
     {
         effect.start();
-        Var child(kUniform_Modifier, kShader_Type, "child");
-        DeclareGlobal(child);
-        Var p2(kFloat2_Type, "p");
+        GlobalVar child(kUniform_Modifier, kShader_Type, "child");
+        Declare(child);
+        Parameter p2(kFloat2_Type, "p");
         Function(kFloat4_Type, "main", p2).define(
             Return(Sample(child, p2))
         );
