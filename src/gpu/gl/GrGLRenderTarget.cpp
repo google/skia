@@ -26,9 +26,9 @@ GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu,
                                    GrGLFormat format,
                                    int sampleCount,
                                    const IDs& ids,
-                                   GrGLAttachment* stencil)
+                                   sk_sp<GrGLAttachment> stencil)
         : GrSurface(gpu, dimensions, GrProtected::kNo)
-        , INHERITED(gpu, dimensions, sampleCount, GrProtected::kNo, stencil) {
+        , INHERITED(gpu, dimensions, sampleCount, GrProtected::kNo, std::move(stencil)) {
     this->init(format, ids);
     this->setFlags(gpu->glCaps(), ids);
     this->registerWithCacheWrapped(GrWrapCacheable::kNo);
@@ -82,9 +82,8 @@ sk_sp<GrGLRenderTarget> GrGLRenderTarget::MakeWrapped(GrGLGpu* gpu,
                                                       int sampleCount,
                                                       const IDs& idDesc,
                                                       int stencilBits) {
-    GrGLAttachment* sb = nullptr;
+    sk_sp<GrGLAttachment> sb;
     if (stencilBits) {
-        GrGLAttachment::IDDesc sbDesc;
         // We pick a "fake" actual format that matches the number of stencil bits. When wrapping
         // an FBO with some number of stencil bits all we care about in the future is that we have
         // a format with the same number of stencil bits. We don't even directly use the format or
@@ -92,12 +91,18 @@ sk_sp<GrGLRenderTarget> GrGLRenderTarget::MakeWrapped(GrGLGpu* gpu,
         // matches the stencil bit count.
         GrGLFormat sFmt = stencil_bits_to_format(stencilBits);
 
-        // Ownership of sb is passed to the GrRenderTarget so doesn't need to be deleted
-        sb = new GrGLAttachment(gpu, sbDesc, dimensions,
-                                GrAttachment::UsageFlags::kStencilAttachment, sampleCount, sFmt);
+        // We don't have the actual renderbufferID but we need to make an attachment for the stencil
+        // so we just set it to an invalid value of 0 to make sure we don't explicitly use it or try
+        // and delete it.
+        sb = GrGLAttachment::MakeWrappedRenderBuffer(gpu,
+                                                     /*renderbufferID=*/0,
+                                                     dimensions,
+                                                     GrAttachment::UsageFlags::kStencilAttachment,
+                                                     sampleCount,
+                                                     sFmt);
     }
     return sk_sp<GrGLRenderTarget>(
-            new GrGLRenderTarget(gpu, dimensions, format, sampleCount, idDesc, sb));
+            new GrGLRenderTarget(gpu, dimensions, format, sampleCount, idDesc, std::move(sb)));
 }
 
 GrBackendRenderTarget GrGLRenderTarget::getBackendRenderTarget() const {
