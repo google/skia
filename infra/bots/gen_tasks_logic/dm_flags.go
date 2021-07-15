@@ -234,7 +234,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			if sampleCount > 0 {
 				configs = append(configs, fmt.Sprintf("%smsaa%d", glPrefix, sampleCount))
 				// Temporarily limit the bots we test dynamic MSAA on.
-				if b.gpu("QuadroP400", "MaliG77", "AppleM1") {
+				if b.gpu("QuadroP400", "MaliG77", "SwiftShader") || b.matchOs("Mac") {
 					configs = append(configs, fmt.Sprintf("%sdmsaa", glPrefix))
 				}
 			}
