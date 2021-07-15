@@ -77,7 +77,8 @@ protected:
 private:
     // Constructor for instances wrapping backend objects.
     GrGLRenderTarget(
-            GrGLGpu*, const SkISize&, GrGLFormat, int sampleCount, const IDs&, GrGLAttachment*);
+            GrGLGpu*, const SkISize&, GrGLFormat, int sampleCount, const IDs&,
+            sk_sp<GrGLAttachment> stencil);
 
     void setFlags(const GrGLCaps&, const IDs&);
 

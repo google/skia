@@ -1704,63 +1704,22 @@ GrGLuint GrGLGpu::createTexture(SkISize dimensions,
 
 sk_sp<GrAttachment> GrGLGpu::makeStencilAttachment(const GrBackendFormat& colorFormat,
                                                    SkISize dimensions, int numStencilSamples) {
-    GrGLAttachment::IDDesc sbDesc;
-
     int sIdx = this->getCompatibleStencilIndex(colorFormat.asGLFormat());
     if (sIdx < 0) {
         return nullptr;
     }
-
-    if (!sbDesc.fRenderbufferID) {
-        GL_CALL(GenRenderbuffers(1, &sbDesc.fRenderbufferID));
-    }
-    if (!sbDesc.fRenderbufferID) {
-        return nullptr;
-    }
-    GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER, sbDesc.fRenderbufferID));
     GrGLFormat sFmt = this->glCaps().stencilFormats()[sIdx];
-    GrGLenum glFmt = GrGLFormatToEnum(sFmt);
-    // we do this "if" so that we don't call the multisample
-    // version on a GL that doesn't have an MSAA extension.
-    if (numStencilSamples > 1) {
-        if (!this->renderbufferStorageMSAA(*fGLContext, numStencilSamples, glFmt,
-                                           dimensions.width(), dimensions.height())) {
-            GL_CALL(DeleteRenderbuffers(1, &sbDesc.fRenderbufferID));
-            return nullptr;
-        }
-    } else {
-        GrGLenum error = GL_ALLOC_CALL(RenderbufferStorage(GR_GL_RENDERBUFFER, glFmt,
-                                                           dimensions.width(),
-                                                           dimensions.height()));
-        if (error != GR_GL_NO_ERROR) {
-            GL_CALL(DeleteRenderbuffers(1, &sbDesc.fRenderbufferID));
-            return nullptr;
-        }
-    }
-    fStats.incStencilAttachmentCreates();
 
-    return sk_sp<GrAttachment>(new GrGLAttachment(
-            this, sbDesc, dimensions, GrAttachment::UsageFlags::kStencilAttachment,
-            numStencilSamples, sFmt));
+    auto stencil = GrGLAttachment::MakeStencil(this, dimensions, numStencilSamples, sFmt);
+    if (stencil) {
+        fStats.incStencilAttachmentCreates();
+    }
+    return std::move(stencil);
 }
 
 sk_sp<GrAttachment> GrGLGpu::makeMSAAAttachment(SkISize dimensions, const GrBackendFormat& format,
                                                 int numSamples, GrProtected isProtected) {
-    GrGLAttachment::IDDesc desc;
-    GL_CALL(GenRenderbuffers(1, &desc.fRenderbufferID));
-    if (!desc.fRenderbufferID) {
-        return nullptr;
-    }
-    GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER, desc.fRenderbufferID));
-    GrGLenum glFormat = this->glCaps().getRenderbufferInternalFormat(format.asGLFormat());
-    if (!this->renderbufferStorageMSAA(*fGLContext, numSamples, glFormat, dimensions.width(),
-                                       dimensions.height())) {
-        GL_CALL(DeleteRenderbuffers(1, &desc.fRenderbufferID));
-        return nullptr;
-    }
-    return sk_sp<GrAttachment>(new GrGLAttachment(this, desc, dimensions,
-                                                  GrAttachment::UsageFlags::kColorAttachment,
-                                                  numSamples, format.asGLFormat()));
+    return GrGLAttachment::MakeMSAA(this, dimensions, numSamples, format.asGLFormat());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
