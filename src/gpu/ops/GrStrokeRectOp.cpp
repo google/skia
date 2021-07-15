@@ -321,7 +321,7 @@ static bool compute_aa_rects(const GrCaps& caps,
 
     // Clip our draw rect 1 full stroke width plus bloat outside the viewport. This avoids
     // interpolation precision issues with very large coordinates.
-    const int m = caps.maxRenderTargetSize();
+    const float m = caps.maxRenderTargetSize();
     const SkRect visibilityBounds = SkRect::MakeWH(m, m).makeOutset(dx + 1, dy + 1);
     if (!devRect.intersect(visibilityBounds)) {
         return false;
@@ -961,19 +961,20 @@ GrOp::Owner MakeNested(GrRecordingContext* context,
     SkASSERT(viewMatrix.rectStaysRect());
     SkASSERT(!rects[0].isEmpty() && !rects[1].isEmpty());
 
+    SkRect devOutside = viewMatrix.mapRect(rects[0]);
+    SkRect devInside = viewMatrix.mapRect(rects[1]);
+    float dx = devOutside.fRight - devInside.fRight;
+    float dy = devOutside.fBottom - devInside.fBottom;
+
     // Clips our draw rects 1 full pixel outside the viewport. This avoids interpolation precision
     // issues with very large coordinates.
-    const int m = context->priv().caps()->maxRenderTargetSize();
+    const float m = context->priv().caps()->maxRenderTargetSize();
     const SkRect visibilityBounds = SkRect::MakeWH(m, m).makeOutset(1, 1);
 
-    SkRect devOutside;
-    viewMatrix.mapRect(&devOutside, rects[0]);
-    if (!devOutside.intersect(visibilityBounds)) {
+    if (!devOutside.intersect(visibilityBounds.makeOutset(dx, dy))) {
         return nullptr;
     }
 
-    SkRect devInside;
-    viewMatrix.mapRect(&devInside, rects[1]);
     if (devInside.isEmpty() || !devInside.intersect(visibilityBounds)) {
         if (devOutside.isEmpty()) {
             return nullptr;
@@ -983,10 +984,8 @@ GrOp::Owner MakeNested(GrRecordingContext* context,
         return GrFillRectOp::Make(context, std::move(paint), GrAAType::kCoverage, &quad);
     }
 
-    SkVector devHalfStrokeSize{ SkScalarHalf(devOutside.fRight - devInside.fRight),
-                                SkScalarHalf(devOutside.fBottom - devInside.fBottom) };
     return AAStrokeRectOp::Make(context, std::move(paint), viewMatrix, devOutside,
-                                devInside, devHalfStrokeSize);
+                                devInside, SkVector{dx, dy} * .5f);
 }
 
 }  // namespace GrStrokeRectOp
