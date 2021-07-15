@@ -48,6 +48,7 @@ static std::vector<DecoderProc>* decoders() {
     #endif
     #ifdef SK_HAS_WUFFS_LIBRARY
         { SkWuffsCodec_IsFormat, SkWuffsCodec_MakeFromStream },
+        { SkBmpCodec::IsBmp, SkWuffsCodec_MakeFromStream },
     #elif defined(SK_USE_LIBGIFCODEC)
         { SkGifCodec::IsGif, SkGifCodec::MakeFromStream },
     #endif
