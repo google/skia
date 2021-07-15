@@ -19,7 +19,7 @@ namespace SkSL {
 namespace dsl {
 
 void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, skstd::string_view name,
-                       SkTArray<DSLVar*> params) {
+                       SkTArray<DSLParameter*> params) {
     // Conservatively assume all user-defined functions have side effects.
     if (!DSLWriter::IsModule()) {
         modifiers.fModifiers.fFlags |= Modifiers::kHasSideEffects_Flag;
@@ -39,23 +39,13 @@ void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, skstd:
         return type == *DSLWriter::Context().fTypes.fHalf4 ||
                type == *DSLWriter::Context().fTypes.fFloat4;
     };
-    for (DSLVar* param : params) {
-        // This counts as declaring the variable; make sure it hasn't been previously declared and
-        // then kill its pending declaration statement. Otherwise the statement will hang around
-        // until after the Var is destroyed, which is probably after the End() call and therefore
-        // after the Pool's destruction. Freeing a pooled object after the Pool's destruction is a
-        // Bad Thing.
+    for (DSLParameter* param : params) {
         if (param->fDeclared) {
-            DSLWriter::ReportError("error: using an already-declared variable as a function "
-                                   "parameter\n");
+            DSLWriter::ReportError("error: parameter has already been used in another function\n");
         }
-        if (param->fInitialValue.valid()) {
-            DSLWriter::ReportError("error: variables used as function parameters cannot have "
-                                   "initial values\n");
-            param->fInitialValue.release();
-        }
+        SkASSERT(!param->fInitialValue.valid());
+        SkASSERT(!param->fDeclaration);
         param->fDeclared = true;
-        param->fStorage = SkSL::VariableStorage::kParameter;
         SkSL::ProgramKind kind = DSLWriter::Context().fConfig->fKind;
         if (isMain && (kind == ProgramKind::kRuntimeColorFilter ||
                        kind == ProgramKind::kRuntimeShader ||
@@ -75,7 +65,6 @@ void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, skstd:
             return;
         }
         paramVars.push_back(std::move(paramVar));
-        param->fDeclaration = nullptr;
     }
     SkASSERT(paramVars.size() == params.size());
     fDecl = SkSL::FunctionDeclaration::Convert(DSLWriter::Context(),

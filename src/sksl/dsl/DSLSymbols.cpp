@@ -35,7 +35,7 @@ bool IsType(skstd::string_view name) {
     return s && s->is<Type>();
 }
 
-void AddToSymbolTable(DSLVar& var) {
+void AddToSymbolTable(DSLVarBase& var) {
     CurrentSymbolTable()->addWithoutOwnership(DSLWriter::Var(var));
 }
 
