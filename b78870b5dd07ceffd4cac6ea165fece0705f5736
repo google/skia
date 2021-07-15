@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4c80a57f_39b8e7be",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-07-15T14:23:27Z",
+      "side": 1,
+      "message": "❤️",
+      "revId": "b78870b5dd07ceffd4cac6ea165fece0705f5736",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eb6b04fa_1e539e16",
+        "filename": "src/sksl/dsl/priv/DSLWriter.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-07-15T14:23:27Z",
+      "side": 1,
+      "message": "With this taking DSLVarBase, it can still be called with a DSLParameter, right? Would it be better to restrict this to DSLVar and DSLGlobalVar? (If we do that, we could use overloads to rename ParameterVar to Var as well?)\n\nOr are these used in different circumstances?",
+      "range": {
+        "startLine": 115,
+        "startChar": 0,
+        "endLine": 117,
+        "endChar": 54
+      },
+      "revId": "b78870b5dd07ceffd4cac6ea165fece0705f5736",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
