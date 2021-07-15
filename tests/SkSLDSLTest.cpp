@@ -1318,17 +1318,17 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDeclare, r, ctxInfo) {
 
     {
         Var e(kUniform_Modifier, kInt_Type, "e");
-        ExpectError error(r, "error: this variable must be declared with DeclareGlobal\n");
+        ExpectError error(r, "error: 'uniform' is not permitted here\n");
         Declare(e).release();
     }
 }
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDeclareGlobal, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), no_mark_vars_declared());
-    Var x(kInt_Type, "x", 0);
-    DeclareGlobal(x);
-    Var y(kUniform_Modifier, kFloat2_Type, "y");
-    DeclareGlobal(y);
+    DSLGlobalVar x(kInt_Type, "x", 0);
+    Declare(x);
+    DSLGlobalVar y(kUniform_Modifier, kFloat2_Type, "y");
+    Declare(y);
     REPORTER_ASSERT(r, DSLWriter::ProgramElements().size() == 2);
     EXPECT_EQUAL(*DSLWriter::ProgramElements()[0], "int x = 0;");
     EXPECT_EQUAL(*DSLWriter::ProgramElements()[1], "uniform float2 y;");
@@ -1387,7 +1387,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFor, r, ctxInfo) {
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFunction, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), no_mark_vars_declared());
-    Var coords(kFloat2_Type, "coords");
+    Parameter coords(kFloat2_Type, "coords");
     DSLFunction(kVoid_Type, "main", coords).define(
         sk_FragColor() = Half4(coords, 0, 1)
     );
@@ -1397,7 +1397,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFunction, r, ctxInfo) {
 
     {
         DSLWriter::Reset();
-        Var x(kFloat_Type, "x");
+        DSLParameter x(kFloat_Type, "x");
         DSLFunction sqr(kFloat_Type, "sqr", x);
         sqr.define(
             Return(x * x)
@@ -1409,8 +1409,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFunction, r, ctxInfo) {
 
     {
         DSLWriter::Reset();
-        Var x(kFloat2_Type, "x");
-        Var y(kFloat2_Type, "y");
+        DSLParameter x(kFloat2_Type, "x");
+        DSLParameter y(kFloat2_Type, "y");
         DSLFunction dot(kFloat2_Type, "dot", x, y);
         dot.define(
             Return(x * x + y * y)
@@ -1424,8 +1424,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFunction, r, ctxInfo) {
 
     {
         DSLWriter::Reset();
-        Var x(kFloat_Type, "x");
-        Var y(kFloat_Type, "y");
+        DSLParameter x(kFloat_Type, "x");
+        DSLParameter y(kFloat_Type, "y");
         DSLFunction pair(kFloat2_Type, "pair", x, y);
         pair.define(
             Return(Float2(x, y))
@@ -1479,28 +1479,11 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFunction, r, ctxInfo) {
     }
 
     {
-        ExpectError error(r, "error: using an already-declared variable as a function parameter\n");
+        ExpectError error(r, "error: parameter has already been used in another function\n");
         DSLWriter::Reset();
-        DSLVar p(kFloat_Type);
-        Declare(p).release();
-        DSLFunction(kVoid_Type, "broken", p).define(
+        DSLParameter p(kFloat_Type);
+        DSLFunction(kVoid_Type, "ok", p).define(
         );
-    }
-
-    {
-        ExpectError error(r, "error: variable has already been declared\n");
-        DSLWriter::Reset();
-        DSLVar p(kFloat_Type);
-        DSLFunction(kVoid_Type, "broken", p).define(
-        );
-        Declare(p).release();
-    }
-
-    {
-        ExpectError error(r, "error: variables used as function parameters cannot have initial "
-                             "values\n");
-        DSLWriter::Reset();
-        DSLVar p(kFloat_Type, 1);
         DSLFunction(kVoid_Type, "broken", p).define(
         );
     }
@@ -1526,23 +1509,23 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLIf, r, ctxInfo) {
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLInterfaceBlock, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
-    DSLVar intf = InterfaceBlock(kUniform_Modifier, "InterfaceBlock1",
-                                 { Field(kFloat_Type, "a"), Field(kInt_Type, "b") });
+    DSLGlobalVar intf = InterfaceBlock(kUniform_Modifier, "InterfaceBlock1",
+                                       { Field(kFloat_Type, "a"), Field(kInt_Type, "b") });
     REPORTER_ASSERT(r, DSLWriter::ProgramElements().size() == 1);
     EXPECT_EQUAL(*DSLWriter::ProgramElements().back(),
                  "uniform InterfaceBlock1 { float a; int b; };");
     EXPECT_EQUAL(intf.field("a"), "InterfaceBlock1.a");
 
-    DSLVar intf2 = InterfaceBlock(kUniform_Modifier, "InterfaceBlock2",
-                                  { Field(kFloat2_Type, "x"), Field(kHalf2x2_Type, "y") },
+    DSLGlobalVar intf2 = InterfaceBlock(kUniform_Modifier, "InterfaceBlock2",
+                                        { Field(kFloat2_Type, "x"), Field(kHalf2x2_Type, "y") },
                                   "blockVar");
     REPORTER_ASSERT(r, DSLWriter::ProgramElements().size() == 2);
     EXPECT_EQUAL(*DSLWriter::ProgramElements().back(),
                  "uniform InterfaceBlock2 { float2 x; half2x2 y; } blockVar;");
     EXPECT_EQUAL(intf2.field("x"), "blockVar.x");
 
-    DSLVar intf3 = InterfaceBlock(kUniform_Modifier, "InterfaceBlock3", { Field(kFloat_Type, "z") },
-                                  "arrayVar", 4);
+    DSLGlobalVar intf3 = InterfaceBlock(kUniform_Modifier, "InterfaceBlock3",
+                                        { Field(kFloat_Type, "z") },"arrayVar", 4);
     REPORTER_ASSERT(r, DSLWriter::ProgramElements().size() == 3);
     EXPECT_EQUAL(*DSLWriter::ProgramElements().back(),
                  "uniform InterfaceBlock3 { float z; } arrayVar[4];");
@@ -1843,8 +1826,9 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLLayout, r, ctxInfo) {
 
     {
         ExpectError error(r, "error: 'srgb_unpremul' is only permitted in runtime effects\n");
-        Var v(DSLModifiers(DSLLayout().srgbUnpremul(), kUniform_Modifier), kHalf4_Type, "v");
-        DeclareGlobal(v);
+        DSLGlobalVar v(DSLModifiers(DSLLayout().srgbUnpremul(), kUniform_Modifier), kHalf4_Type,
+                       "v");
+        Declare(v);
     }
 
     {
@@ -1909,7 +1893,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLLayout, r, ctxInfo) {
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSampleShader, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), default_settings(),
                            SkSL::ProgramKind::kRuntimeShader);
-    DSLVar shader(kUniform_Modifier, kShader_Type, "shader");
+    DSLGlobalVar shader(kUniform_Modifier, kShader_Type, "shader");
     EXPECT_EQUAL(Sample(shader, Float2(0, 0)), "sample(shader, float2(0.0, 0.0))");
 
     {
@@ -1966,8 +1950,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLWrapper, r, ctxInfo) {
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLRTAdjust, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), no_mark_vars_declared(),
                            SkSL::ProgramKind::kVertex);
-    DSLVar rtAdjust(kUniform_Modifier, kFloat4_Type, "sk_RTAdjust");
-    DeclareGlobal(rtAdjust);
+    DSLGlobalVar rtAdjust(kUniform_Modifier, kFloat4_Type, "sk_RTAdjust");
+    Declare(rtAdjust);
     DSLFunction(kVoid_Type, "main").define(
         sk_Position() = Half4(0)
     );
@@ -1982,7 +1966,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLRTAdjust, r, ctxInfo) {
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLInlining, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), no_mark_vars_declared());
-    DSLVar x(kFloat_Type, "x");
+    DSLParameter x(kFloat_Type, "x");
     DSLFunction sqr(kFloat_Type, "sqr", x);
     sqr.define(
         Return(x * x)

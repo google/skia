@@ -37,6 +37,9 @@ class Variable;
 
 namespace dsl {
 
+class DSLGlobalVar;
+class DSLParameter;
+class DSLVar;
 class ErrorHandler;
 
 /**
@@ -109,25 +112,26 @@ public:
     static const SkSL::Modifiers* Modifiers(const SkSL::Modifiers& modifiers);
 
     /**
-     * Returns the SkSL variable corresponding to a (non-parameter) DSLVar.
+     * Returns the SkSL variable corresponding to a DSL var.
      */
-    static const SkSL::Variable* Var(DSLVar& var);
+    static const SkSL::Variable* Var(DSLVarBase& var);
 
     /**
-     * Creates an SkSL variable corresponding to a parameter DSLVar.
+     * Creates an SkSL variable corresponding to a DSLParameter.
      */
-    static std::unique_ptr<SkSL::Variable> ParameterVar(DSLVar& var);
+    static std::unique_ptr<SkSL::Variable> CreateParameterVar(DSLParameter& var);
+
 
     /**
      * Returns the SkSL declaration corresponding to a DSLVar.
      */
-    static std::unique_ptr<SkSL::Statement> Declaration(DSLVar& var);
+    static std::unique_ptr<SkSL::Statement> Declaration(DSLVarBase& var);
 
     /**
      * For use in testing only: marks the variable as having been declared, so that it can be
      * destroyed without generating errors.
      */
-    static void MarkDeclared(DSLVar& var);
+    static void MarkDeclared(DSLVarBase& var);
 
     /**
      * Returns the (possibly mangled) final name that should be used for an entity with the given
@@ -168,7 +172,7 @@ public:
      */
     static void EndFragmentProcessor();
 
-    static GrGLSLUniformHandler::UniformHandle VarUniformHandle(const DSLVar& var);
+    static GrGLSLUniformHandler::UniformHandle VarUniformHandle(const DSLGlobalVar& var);
 #else
     static bool InFragmentProcessor() {
         return false;

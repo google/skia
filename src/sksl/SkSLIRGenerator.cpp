@@ -665,7 +665,7 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
     fProgramElements->push_back(std::move(invokeDef));
 
     using namespace SkSL::dsl;
-    DSLVar loopIdx = DSLVar("sk_InvocationID");
+    DSLGlobalVar loopIdx("sk_InvocationID");
     std::unique_ptr<Expression> endPrimitive = this->convertIdentifier(/*offset=*/-1,
                                                                        "EndPrimitive");
     SkASSERT(endPrimitive);
