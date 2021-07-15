@@ -606,6 +606,8 @@ DM_SRCS_ALL = struct(
         "tools/ResourceFactory.h",
         "tools/Resources.cpp",
         "tools/Resources.h",
+        "tools/RuntimeBlendUtils.cpp",
+        "tools/RuntimeBlendUtils.h",
         "tools/SkMetaData.cpp",
         "tools/SkMetaData.h",
         "tools/SkSharingProc.cpp",
