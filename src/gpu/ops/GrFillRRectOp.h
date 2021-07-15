@@ -10,6 +10,7 @@
 
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/ops/GrOp.h"
+#include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 
 class GrCaps;
 class GrDrawOp;
@@ -19,6 +20,7 @@ class SkMatrix;
 class SkRRect;
 
 namespace GrFillRRectOp {
+
     GrOp::Owner Make(GrRecordingContext*,
                      SkArenaAlloc*,
                      GrPaint&&,
@@ -26,6 +28,14 @@ namespace GrFillRRectOp {
                      const SkRRect&,
                      const SkRect& localRect,
                      GrAA);
+
+    GrOp::Owner Make(GrRecordingContext*,
+                     SkArenaAlloc*,
+                     GrPaint&&,
+                     const SkIRect& drawBounds,
+                     const GrTessellationPathRenderer::AtlasPathView&,
+                     bool inverseFill);
+
 }  // namespace GrFillRRectOp
 
 #endif

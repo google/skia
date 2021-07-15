@@ -121,7 +121,7 @@ GrOpsTask::OpChain::OpChain(GrOp::Owner op, GrProcessorSet::Analysis processorAn
                             GrAppliedClip* appliedClip, const GrDstProxyView* dstProxyView)
         : fList{std::move(op)}
         , fProcessorAnalysis(processorAnalysis)
-        , fAppliedClip(appliedClip) {
+        , fAppliedClip(appliedClip && appliedClip->doesClip() ? appliedClip : nullptr) {
     if (fProcessorAnalysis.requiresDstTexture()) {
         SkASSERT(dstProxyView && dstProxyView->proxy());
         fDstProxyView = *dstProxyView;
@@ -235,6 +235,8 @@ bool GrOpsTask::OpChain::tryConcat(
         List* list, GrProcessorSet::Analysis processorAnalysis, const GrDstProxyView& dstProxyView,
         const GrAppliedClip* appliedClip, const SkRect& bounds, const GrCaps& caps,
         SkArenaAlloc* opsTaskArena, GrAuditTrail* auditTrail) {
+    SkASSERT(!fAppliedClip || fAppliedClip->doesClip());
+    SkASSERT(!appliedClip || appliedClip->doesClip());
     SkASSERT(!fList.empty());
     SkASSERT(!list->empty());
     SkASSERT(fProcessorAnalysis.requiresDstTexture() == SkToBool(fDstProxyView.proxy()));
@@ -325,7 +327,7 @@ GrOp::Owner GrOpsTask::OpChain::appendOp(
     SkASSERT(op->isChainHead() && op->isChainTail());
     SkRect opBounds = op->bounds();
     List chain(std::move(op));
-    if (!this->tryConcat(&chain, processorAnalysis, *dstProxyView, appliedClip, opBounds, caps,
+    if (!this->tryConcat(&chain, processorAnalysis, *dstProxyView, appliedClip && appliedClip->doesClip() ? appliedClip : nullptr, opBounds, caps,
                          opsTaskArena, auditTrail)) {
         // append failed, give the op back to the caller.
         this->validate();

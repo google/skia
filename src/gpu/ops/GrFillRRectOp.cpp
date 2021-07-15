@@ -46,6 +46,13 @@ public:
                             const SkRect& localRect,
                             GrAA);
 
+    static GrOp::Owner Make(GrRecordingContext*,
+                            SkArenaAlloc*,
+                            GrPaint&&,
+                            const SkIRect& drawBounds,
+                            const GrTessellationPathRenderer::AtlasPathView&,
+                            bool inverseFill);
+
     const char* name() const final { return "GrFillRRectOp"; }
 
     FixedFunctionFlags fixedFunctionFlags() const final { return fHelper.fixedFunctionFlags(); }
@@ -96,6 +103,14 @@ private:
                 const SkRRect&,
                 const SkRect& localRect,
                 ProcessorFlags);
+
+    FillRRectOp(GrProcessorSet*,
+                const SkPMColor4f& paintColor,
+                SkArenaAlloc*,
+                const SkRect& drawBounds,
+                const GrTessellationPathRenderer::AtlasPathView&,
+                bool inverseFill);
+
 
     GrProgramInfo* programInfo() final { return fProgramInfo; }
 
@@ -216,6 +231,47 @@ FillRRectOp::FillRRectOp(GrProcessorSet* processorSet,
                     GrOp::IsHairline::kNo);
 }
 
+GrOp::Owner FillRRectOp::Make(GrRecordingContext* ctx,
+                              SkArenaAlloc* arena,
+                              GrPaint&& paint,
+                              const SkIRect& drawBounds,
+                              const GrTessellationPathRenderer::AtlasPathView& pathView,
+                              bool inverseFill) {
+    using Helper = GrSimpleMeshDrawOpHelper;
+
+    const GrCaps* caps = ctx->priv().caps();
+
+    if (!caps->drawInstancedSupport()) {
+        return nullptr;
+    }
+
+    return Helper::FactoryHelper<FillRRectOp>(ctx, std::move(paint), arena,
+                                              SkRect::Make(drawBounds), pathView, inverseFill);
+}
+
+FillRRectOp::FillRRectOp(GrProcessorSet* processorSet,
+                         const SkPMColor4f& paintColor,
+                         SkArenaAlloc* arena,
+                         const SkRect& drawBounds,
+                         const GrTessellationPathRenderer::AtlasPathView& pathView,
+                         bool inverseFill)
+        : INHERITED(ClassID())
+        , fHelper(processorSet, GrAAType::kCoverage)
+        , fProcessorFlags(ProcessorFlags::kUseHWDerivatives)
+        , fHeadInstance(arena->make<Instance>(SkMatrix::I(),
+                                              SkRRect::MakeRect(drawBounds),
+                                              SkRect::MakeEmpty(), paintColor))
+        , fTailInstance(&fHeadInstance->fNext) {
+    this->setBounds(drawBounds, GrOp::HasAABloat::kYes, GrOp::IsHairline::kNo);
+    auto flags = GrAtlasInstancedHelper::ShaderFlags::kCheckBounds;
+    if (inverseFill) {
+        flags |= GrAtlasInstancedHelper::ShaderFlags::kInvertCoverage;
+    }
+    fAtlasHelper = arena->make<GrAtlasInstancedHelper>(std::move(pathView.fAtlasView), flags);
+    fHeadInstance->fAtlasInstance = arena->make<GrAtlasInstancedHelper::Instance>(
+            pathView.fLocationInAtlas, pathView.fPathDevIBounds, pathView.fTransposedInAtlas);
+}
+
 GrDrawOp::ClipResult FillRRectOp::clipToShape(GrSurfaceDrawContext* sdc, SkClipOp clipOp,
                                               const SkMatrix& clipMatrix, const GrShape& shape,
                                               GrAA aa, const GrFragmentProcessor* currentClipFP) {
@@ -254,10 +310,6 @@ GrDrawOp::ClipResult FillRRectOp::clipToShape(GrSurfaceDrawContext* sdc, SkClipO
                               GrShape(boundsInViewSpace),
                               GrAA(!(fProcessorFlags & ProcessorFlags::kFakeNonAA)),
                               currentClipFP) == ClipResult::kClippedGeometrically) {
-            if (fHeadInstance->fViewMatrix.rectStaysRect()) {
-                // We clipped geometrically to the path. No need to check bounds anymore.
-                flags &= ~GrAtlasInstancedHelper::ShaderFlags::kCheckBounds;
-            }
             clipResult = ClipResult::kClippedGeometrically;
         }
         fAtlasHelper = arena->make<GrAtlasInstancedHelper>(std::move(result.fAtlasView), flags);
@@ -960,6 +1012,14 @@ GrOp::Owner GrFillRRectOp::Make(GrRecordingContext* ctx,
     return FillRRectOp::Make(ctx, arena, std::move(paint), viewMatrix, rrect, localRect, aa);
 }
 
+GrOp::Owner GrFillRRectOp::Make(GrRecordingContext* ctx,
+                                SkArenaAlloc* arena,
+                                GrPaint&& paint,
+                                const SkIRect& drawBounds,
+                                const GrTessellationPathRenderer::AtlasPathView& pathView,
+                                bool inverseFill) {
+    return FillRRectOp::Make(ctx, arena, std::move(paint), drawBounds, pathView, inverseFill);
+}
 
 #if GR_TEST_UTILS
 

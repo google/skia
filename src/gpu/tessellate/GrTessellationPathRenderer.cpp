@@ -17,6 +17,7 @@
 #include "src/gpu/GrVx.h"
 #include "src/gpu/effects/GrDisableColorXP.h"
 #include "src/gpu/geometry/GrStyledShape.h"
+#include "src/gpu/ops/GrFillRRectOp.h"
 #include "src/gpu/tessellate/GrAtlasRenderTask.h"
 #include "src/gpu/tessellate/GrDrawAtlasPathOp.h"
 #include "src/gpu/tessellate/GrPathInnerTriangulateOp.h"
@@ -169,14 +170,12 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
                             ? args.fClip->getConservativeBounds()
                             : args.fSurfaceDrawContext->asSurfaceProxy()->backingStoreBoundsIRect())
                     : result.fPathDevIBounds;
-            auto op = GrOp::Make<GrDrawAtlasPathOp>(args.fContext,
-                                                    args.fSurfaceDrawContext->arenaAlloc(),
-                                                    fillBounds, *args.fViewMatrix,
-                                                    std::move(args.fPaint), result.fLocationInAtlas,
-                                                    result.fPathDevIBounds,
-                                                    result.fTransposedInAtlas,
-                                                    std::move(result.fAtlasView),
-                                                    path.isInverseFillType());
+            auto op = GrFillRRectOp::Make(args.fContext,
+                                          args.fSurfaceDrawContext->arenaAlloc(),
+                                          std::move(args.fPaint),
+                                          fillBounds,
+                                          result,
+                                          path.isInverseFillType());
             surfaceDrawContext->addDrawOp(args.fClip, std::move(op));
             return true;
         }
