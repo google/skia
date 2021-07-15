@@ -1391,7 +1391,10 @@ static void test_invalid_images(skiatest::Reporter* r, const char* path,
     }
 
     std::unique_ptr<SkCodec> codec(SkCodec::MakeFromStream(std::move(stream)));
-    REPORTER_ASSERT(r, codec);
+    if (!codec) {
+        ERRORF(r, "Failed to create a codec for %s", path);
+        return;
+    }
 
     test_info(r, codec.get(), codec->getInfo().makeColorType(kN32_SkColorType), expectedResult,
               nullptr);
