@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "68a166ba_1ee444b7",
+        "filename": "src/image/SkSurface_Gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-15T23:46:02Z",
+      "side": 1,
+      "message": "nit: please brace the return statement",
+      "range": {
+        "startLine": 279,
+        "startChar": 35,
+        "endLine": 279,
+        "endChar": 36
+      },
+      "revId": "afc83859b8581e267b0b9d22e4adfafabbe87604",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
