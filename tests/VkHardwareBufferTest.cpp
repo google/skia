@@ -9,7 +9,7 @@
 
 #include "include/core/SkTypes.h"
 
-#if SK_SUPPORT_GPU && defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26 && defined(SK_VULKAN)
+#if SK_SUPPORT_GPU && defined(SK_BUILD_FOR_ANDROID) && defined(SK_VULKAN)
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
@@ -20,6 +20,7 @@
 #include "include/gpu/vk/GrVkBackendContext.h"
 #include "include/gpu/vk/GrVkExtensions.h"
 #include "src/core/SkAutoMalloc.h"
+#include "src/gpu/GrAHardwareBufferUtils.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrProxyProvider.h"
@@ -1063,7 +1064,7 @@ static void cleanup_resources(BaseTestHelper* srcHelper, BaseTestHelper* dstHelp
         dstHelper->cleanup();
     }
     if (buffer) {
-        AHardwareBuffer_release(buffer);
+        GrAHardwareBufferUtils::Release(buffer);
     }
 }
 
@@ -1080,6 +1081,13 @@ enum class DstType {
 
 void run_test(skiatest::Reporter* reporter, const GrContextOptions& options,
               SrcType srcType, DstType dstType, bool shareSyncs) {
+    if (!GrAHardwareBufferUtils::Init()) {
+#if __ANDROID_API__ >= 26
+        ERRORF(reporter, "A device with NDK level >= 26 should be able to access AHardwareBuffer!");
+        return;
+#endif
+    }
+
     if (SrcType::kCPU == srcType && shareSyncs) {
         // We don't currently test this since we don't do any syncs in this case.
         return;
@@ -1154,7 +1162,7 @@ void run_test(skiatest::Reporter* reporter, const GrContextOptions& options,
     hwbDesc.rfu0= 0;
     hwbDesc.rfu1= 0;
 
-    if (int error = AHardwareBuffer_allocate(&hwbDesc, &buffer)) {
+    if (int error = GrAHardwareBufferUtils::Allocate(&hwbDesc, &buffer)) {
         ERRORF(reporter, "Failed to allocated hardware buffer, error: %d", error);
         cleanup_resources(srcHelper.get(), dstHelper.get(), buffer);
         return;
@@ -1162,10 +1170,10 @@ void run_test(skiatest::Reporter* reporter, const GrContextOptions& options,
 
     if (SrcType::kCPU == srcType) {
         // Get actual desc for allocated buffer so we know the stride for uploading cpu data.
-        AHardwareBuffer_describe(buffer, &hwbDesc);
+        GrAHardwareBufferUtils::Describe(buffer, &hwbDesc);
 
         uint32_t* bufferAddr;
-        if (AHardwareBuffer_lock(buffer, AHARDWAREBUFFER_USAGE_CPU_WRITE_OFTEN, -1, nullptr,
+        if (GrAHardwareBufferUtils::Lock(buffer, AHARDWAREBUFFER_USAGE_CPU_WRITE_OFTEN, -1, nullptr,
                                  reinterpret_cast<void**>(&bufferAddr))) {
             ERRORF(reporter, "Failed to lock hardware buffer");
             cleanup_resources(srcHelper.get(), dstHelper.get(), buffer);
@@ -1192,7 +1200,7 @@ void run_test(skiatest::Reporter* reporter, const GrContextOptions& options,
             }
         }
 
-        AHardwareBuffer_unlock(buffer, nullptr);
+        GrAHardwareBufferUtils::Unlock(buffer, nullptr);
 
     } else {
         srcHelper->makeCurrent();
@@ -1334,5 +1342,5 @@ DEF_GPUTEST(VulkanHardwareBuffer_EGL_Vulkan_Syncs, reporter, options) {
 #endif
 
 #endif  // SK_SUPPORT_GPU && defined(SK_BUILD_FOR_ANDROID) &&
-        // __ANDROID_API__ >= 26 && defined(SK_VULKAN)
+        // defined(SK_VULKAN)
 

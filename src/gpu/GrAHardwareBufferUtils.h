@@ -9,7 +9,7 @@
 
 #include "include/core/SkTypes.h"
 
-#if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
+#if defined(SK_BUILD_FOR_ANDROID)
 
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrTypes.h"
@@ -18,6 +18,8 @@ class GrDirectContext;
 
 extern "C" {
     typedef struct AHardwareBuffer AHardwareBuffer;
+    typedef struct AHardwareBuffer_Desc AHardwareBuffer_Desc;
+    typedef struct ARect ARect;
 }
 
 namespace GrAHardwareBufferUtils {
@@ -61,6 +63,24 @@ GrBackendTexture MakeBackendTexture(GrDirectContext* context, AHardwareBuffer* h
                                     bool isProtectedContent,
                                     const GrBackendFormat& backendFormat,
                                     bool isRenderable);
+
+/**
+ * Initialize AHardwareBuffer_ methods
+ */
+bool Init();
+
+void Describe(const AHardwareBuffer*, AHardwareBuffer_Desc* desc);
+
+void Acquire(AHardwareBuffer*);
+
+void Release(AHardwareBuffer*);
+
+int Allocate(const AHardwareBuffer_Desc*, AHardwareBuffer**);
+
+int Lock(AHardwareBuffer* buffer, uint64_t usage, int32_t fence,
+         const ARect* rect, void** outVirtualAddress);
+
+int Unlock(AHardwareBuffer* buffer, int32_t* fence);
 
 } // GrAHardwareBufferUtils
 

@@ -168,7 +168,7 @@ DEF_TEST(SkMultiPictureDocument_Serialize_and_deserialize, reporter) {
 }
 
 
-#if SK_SUPPORT_GPU && defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
+#if SK_SUPPORT_GPU && defined(SK_BUILD_FOR_ANDROID)
 
 #include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrAHardwareBufferUtils.h"
@@ -226,7 +226,7 @@ static SkBitmap make_src_bitmap() {
 
 static void cleanup_resources(AHardwareBuffer* buffer) {
     if (buffer) {
-        AHardwareBuffer_release(buffer);
+        GrAHardwareBufferUtils::Release(buffer);
     }
 }
 
@@ -248,17 +248,17 @@ static sk_sp<SkImage> makeAHardwareBufferTestImage(
     hwbDesc.rfu0= 0;
     hwbDesc.rfu1= 0;
 
-    if (int error = AHardwareBuffer_allocate(&hwbDesc, &buffer)) {
+    if (int error = GrAHardwareBufferUtils::Allocate(&hwbDesc, &buffer)) {
         ERRORF(reporter, "Failed to allocated hardware buffer, error: %d", error);
         cleanup_resources(buffer);
         return nullptr;
     }
 
     // Get actual desc for allocated buffer so we know the stride for uploading cpu data.
-    AHardwareBuffer_describe(buffer, &hwbDesc);
+    GrAHardwareBufferUtils::Describe(buffer, &hwbDesc);
 
     void* bufferAddr;
-    if (AHardwareBuffer_lock(buffer, AHARDWAREBUFFER_USAGE_CPU_WRITE_OFTEN, -1, nullptr,
+    if (GrAHardwareBufferUtils::Lock(buffer, AHARDWAREBUFFER_USAGE_CPU_WRITE_OFTEN, -1, nullptr,
                              &bufferAddr)) {
         ERRORF(reporter, "Failed to lock hardware buffer");
         cleanup_resources(buffer);
@@ -275,7 +275,7 @@ static sk_sp<SkImage> makeAHardwareBufferTestImage(
         src += nextLineStep;
         dst += hwbDesc.stride;
     }
-    AHardwareBuffer_unlock(buffer, nullptr);
+    GrAHardwareBufferUtils::Unlock(buffer, nullptr);
 
     // Make SkImage from buffer in a way that mimics libs/hwui/AutoBackendTextureRelease
     GrBackendFormat backendFormat =

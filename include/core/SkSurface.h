@@ -15,8 +15,10 @@
 
 #include "include/gpu/GrTypes.h"
 
-#if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
-#include <android/hardware_buffer.h>
+#if defined(SK_BUILD_FOR_ANDROID)
+extern "C" {
+    typedef struct AHardwareBuffer AHardwareBuffer;
+}
 #endif
 
 #ifdef SK_METAL
@@ -249,14 +251,15 @@ public:
                                                 RenderTargetReleaseProc releaseProc = nullptr,
                                                 ReleaseContext releaseContext = nullptr);
 
-#if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
+#if defined(SK_BUILD_FOR_ANDROID)
     /** Private.
         Creates SkSurface from Android hardware buffer.
         Returned SkSurface takes a reference on the buffer. The ref on the buffer will be released
         when the SkSurface is destroyed and there is no pending work on the GPU involving the
         buffer.
 
-        Only available on Android, when __ANDROID_API__ is defined to be 26 or greater.
+        Only available on Android. Only succeeds when __ANDROID_API__ is defined to be 26 or
+        greater.
 
         Currently this is only supported for buffers that can be textured as well as rendered to.
         In other words that must have both AHARDWAREBUFFER_USAGE_GPU_COLOR_OUTPUT and

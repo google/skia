@@ -9,12 +9,13 @@
 
 #include "include/core/SkTypes.h"
 
-#if SK_SUPPORT_GPU && defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
+#if SK_SUPPORT_GPU && defined(SK_BUILD_FOR_ANDROID)
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrDirectContext.h"
+#include "src/gpu/GrAHardwareBufferUtils.h"
 #include "src/gpu/GrAHardwareBufferImageGenerator.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrGpu.h"
@@ -94,7 +95,7 @@ static bool check_read(skiatest::Reporter* reporter, const SkBitmap& expectedBit
 
 static void cleanup_resources(AHardwareBuffer* buffer) {
     if (buffer) {
-        AHardwareBuffer_release(buffer);
+        GrAHardwareBufferUtils::Release(buffer);
     }
 }
 
@@ -132,17 +133,17 @@ static void basic_draw_test_helper(skiatest::Reporter* reporter,
     hwbDesc.rfu0= 0;
     hwbDesc.rfu1= 0;
 
-    if (int error = AHardwareBuffer_allocate(&hwbDesc, &buffer)) {
+    if (int error = GrAHardwareBufferUtils::Allocate(&hwbDesc, &buffer)) {
         ERRORF(reporter, "Failed to allocated hardware buffer, error: %d", error);
         cleanup_resources(buffer);
         return;
     }
 
     // Get actual desc for allocated buffer so we know the stride for uploading cpu data.
-    AHardwareBuffer_describe(buffer, &hwbDesc);
+    GrAHardwareBufferUtils::Describe(buffer, &hwbDesc);
 
     uint32_t* bufferAddr;
-    if (AHardwareBuffer_lock(buffer, AHARDWAREBUFFER_USAGE_CPU_WRITE_OFTEN, -1, nullptr,
+    if (GrAHardwareBufferUtils::Lock(buffer, AHARDWAREBUFFER_USAGE_CPU_WRITE_OFTEN, -1, nullptr,
                              reinterpret_cast<void**>(&bufferAddr))) {
         ERRORF(reporter, "Failed to lock hardware buffer");
         cleanup_resources(buffer);
@@ -162,7 +163,7 @@ static void basic_draw_test_helper(skiatest::Reporter* reporter,
         src += nextLineStep;
         dst += hwbDesc.stride;
     }
-    AHardwareBuffer_unlock(buffer, nullptr);
+    GrAHardwareBufferUtils::Unlock(buffer, nullptr);
 
     ///////////////////////////////////////////////////////////////////////////
     // Wrap AHardwareBuffer in SkImage
@@ -204,6 +205,13 @@ static void basic_draw_test_helper(skiatest::Reporter* reporter,
 // surface.
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAHardwareBuffer_BasicDrawTest,
                                    reporter, context_info) {
+    if (!GrAHardwareBufferUtils::Init()) {
+#if __ANDROID_API__ >= 26
+        ERRORF(reporter, "A device with NDK level >= 26 should be able to access AHardwareBuffer!");
+#endif
+        return;
+    }
+
     basic_draw_test_helper(reporter, context_info, kTopLeft_GrSurfaceOrigin);
     basic_draw_test_helper(reporter, context_info, kBottomLeft_GrSurfaceOrigin);
 }
@@ -244,7 +252,7 @@ static void surface_draw_test_helper(skiatest::Reporter* reporter,
     hwbDesc.rfu0= 0;
     hwbDesc.rfu1= 0;
 
-    if (int error = AHardwareBuffer_allocate(&hwbDesc, &buffer)) {
+    if (int error = GrAHardwareBufferUtils::Allocate(&hwbDesc, &buffer)) {
         ERRORF(reporter, "Failed to allocated hardware buffer, error: %d", error);
         cleanup_resources(buffer);
         return;
@@ -272,6 +280,13 @@ static void surface_draw_test_helper(skiatest::Reporter* reporter,
 // Test to make sure we can import an AHardwareBuffer into an SkSurface and draw into it.
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAHardwareBuffer_ImportAsSurface,
                                    reporter, context_info) {
+    if (!GrAHardwareBufferUtils::Init()) {
+#if __ANDROID_API__ >= 26
+        ERRORF(reporter, "A device with NDK level >= 26 should be able to access AHardwareBuffer!");
+#endif
+        return;
+    }
+
     surface_draw_test_helper(reporter, context_info, kTopLeft_GrSurfaceOrigin);
     surface_draw_test_helper(reporter, context_info, kBottomLeft_GrSurfaceOrigin);
 }

@@ -19,8 +19,10 @@
 #include "include/gpu/GrTypes.h"
 #include <functional>  // std::function
 
-#if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
-#include <android/hardware_buffer.h>
+#if defined(SK_BUILD_FOR_ANDROID)
+extern "C" {
+    typedef struct AHardwareBuffer AHardwareBuffer;
+}
 #endif
 
 class SkData;
@@ -442,12 +444,13 @@ public:
                                           BitDepth bitDepth,
                                           sk_sp<SkColorSpace> colorSpace);
 
-#if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
+#if defined(SK_BUILD_FOR_ANDROID)
     /** (See Skia bug 7447)
         Creates SkImage from Android hardware buffer.
         Returned SkImage takes a reference on the buffer.
 
-        Only available on Android, when __ANDROID_API__ is defined to be 26 or greater.
+        Only available on Android. Only succeeds when __ANDROID_API__ is defined to be 26 or
+        greater. Otherwise, this will return nullptr.
 
         @param hardwareBuffer  AHardwareBuffer Android hardware buffer
         @param colorSpace      range of colors; may be nullptr
@@ -462,7 +465,8 @@ public:
     /** Creates SkImage from Android hardware buffer and uploads the data from the SkPixmap to it.
         Returned SkImage takes a reference on the buffer.
 
-        Only available on Android, when __ANDROID_API__ is defined to be 26 or greater.
+        Only available on Android. Only succeeds when __ANDROID_API__ is defined to be 26 or
+        greater. Otherwise, this will return nullptr.
 
         @param context         GPU context
         @param pixmap          SkPixmap that contains data to be uploaded to the AHardwareBuffer

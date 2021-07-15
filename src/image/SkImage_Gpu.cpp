@@ -41,6 +41,10 @@
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/gl/GrGLTexture.h"
 
+#if defined(SK_BUILD_FOR_ANDROID)
+    #include <android/hardware_buffer.h>
+#endif
+
 #include <cstddef>
 #include <cstring>
 #include <type_traits>
@@ -686,7 +690,7 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromPixmap(GrDirectContext* dContext,
     return SkImage::MakeFromGenerator(std::move(gen));
 }
 
-#if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
+#if defined(SK_BUILD_FOR_ANDROID)
 sk_sp<SkImage> SkImage::MakeFromAHardwareBuffer(AHardwareBuffer* graphicBuffer, SkAlphaType at,
                                                 sk_sp<SkColorSpace> cs,
                                                 GrSurfaceOrigin surfaceOrigin) {
@@ -698,8 +702,10 @@ sk_sp<SkImage> SkImage::MakeFromAHardwareBufferWithData(GrDirectContext* dContex
                                                         const SkPixmap& pixmap,
                                                         AHardwareBuffer* hardwareBuffer,
                                                         GrSurfaceOrigin surfaceOrigin) {
+    if (!GrAHardwareBufferUtils::Init()) return nullptr;
+
     AHardwareBuffer_Desc bufferDesc;
-    AHardwareBuffer_describe(hardwareBuffer, &bufferDesc);
+    GrAHardwareBufferUtils::Describe(hardwareBuffer, &bufferDesc);
 
     if (!SkToBool(bufferDesc.usage & AHARDWAREBUFFER_USAGE_GPU_SAMPLED_IMAGE)) {
         return nullptr;

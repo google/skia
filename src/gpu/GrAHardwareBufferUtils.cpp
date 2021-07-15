@@ -7,7 +7,7 @@
 
 #include "include/core/SkTypes.h"
 
-#if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
+#if defined(SK_BUILD_FOR_ANDROID)
 #define GL_GLEXT_PROTOTYPES
 #define EGL_EGLEXT_PROTOTYPES
 
@@ -21,6 +21,7 @@
 
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/gl/GrGLTypes.h"
+#include "include/private/SkOnce.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/gl/GrGLDefines.h"
 #include "src/gpu/gl/GrGLUtil.h"
@@ -29,6 +30,8 @@
 #include "src/gpu/vk/GrVkCaps.h"
 #include "src/gpu/vk/GrVkGpu.h"
 #endif
+
+#include <dlfcn.h>
 
 #define PROT_CONTENT_EXT_STR "EGL_EXT_protected_content"
 #define EGL_PROTECTED_CONTENT_EXT 0x32C0
@@ -204,6 +207,9 @@ void update_gl_texture(void* context, GrDirectContext* dContext) {
     cleanupHelper->rebind(dContext);
 }
 
+typedef EGLClientBuffer (*eglGetNativeClientBufferANDROID_type)(const AHardwareBuffer*);
+eglGetNativeClientBufferANDROID_type eglGetNativeClientBufferANDROID;
+
 static GrBackendTexture make_gl_backend_texture(
         GrDirectContext* dContext, AHardwareBuffer* hardwareBuffer,
         int width, int height,
@@ -213,6 +219,8 @@ static GrBackendTexture make_gl_backend_texture(
         bool isProtectedContent,
         const GrBackendFormat& backendFormat,
         bool isRenderable) {
+    if (!Init()) return GrBackendTexture();
+
     while (GL_NO_ERROR != glGetError()) {} //clear GL errors
 
     EGLClientBuffer clientBuffer = eglGetNativeClientBufferANDROID(hardwareBuffer);
@@ -562,6 +570,132 @@ GrBackendTexture MakeBackendTexture(GrDirectContext* dContext, AHardwareBuffer* 
         return GrBackendTexture();
 #endif
     }
+}
+
+typedef void (*AHardwareBuffer_describe_type)(const AHardwareBuffer*, AHardwareBuffer_Desc* desc);
+AHardwareBuffer_describe_type AHardwareBuffer_describe;
+
+typedef void (*AHardwareBuffer_acquire_type)(AHardwareBuffer*);
+AHardwareBuffer_acquire_type AHardwareBuffer_acquire;
+
+typedef void (*AHardwareBuffer_release_type)(AHardwareBuffer*);
+AHardwareBuffer_release_type AHardwareBuffer_release;
+
+typedef int (*AHardwareBuffer_allocate_type)(const AHardwareBuffer_Desc*, AHardwareBuffer**);
+AHardwareBuffer_allocate_type AHardwareBuffer_allocate;
+
+typedef int (*AHardwareBuffer_lock_type)(AHardwareBuffer* buffer, uint64_t usage, int32_t fence,
+         const ARect* rect, void** outVirtualAddress);
+AHardwareBuffer_lock_type AHardwareBuffer_lock;
+
+typedef int (*AHardwareBuffer_unlock_type)(AHardwareBuffer* buffer, int32_t* fence);
+AHardwareBuffer_unlock_type AHardwareBuffer_unlock;
+
+/**
+ * Initialize AHardwareBuffer_ methods
+ */
+bool Init() {
+    static bool successfullyInitialized;
+    static SkOnce initAHardwareBufferMethods;
+
+    initAHardwareBufferMethods([]{
+        const char* lib = "libandroid.so";
+        void* handle_ = dlopen(lib, RTLD_NOW | RTLD_NODELETE | RTLD_LOCAL);           
+        if (!handle_) {                                                                                
+            SkDebugf("Failed to open %s for AHardwareBuffer!", lib);
+            return;
+        }
+
+        AHardwareBuffer_describe = (AHardwareBuffer_describe_type)dlsym(handle_, "AHardwareBuffer_describe");
+        if (!AHardwareBuffer_describe) {
+            SkDebugf("failed to find AHardwareBuffer_describe!");
+            return;
+        }
+
+        AHardwareBuffer_acquire = (AHardwareBuffer_acquire_type)dlsym(handle_, "AHardwareBuffer_acquire");
+        if (!AHardwareBuffer_acquire) {
+            SkDebugf("failed to find AHardwareBuffer_acquire");
+            return;
+        }
+
+        AHardwareBuffer_release = (AHardwareBuffer_release_type)dlsym(handle_, "AHardwareBuffer_release");
+        if (!AHardwareBuffer_release) {
+            SkDebugf("failed to find AHardwareBuffer_release");
+            return;
+        }
+
+        AHardwareBuffer_allocate = (AHardwareBuffer_allocate_type)dlsym(handle_, "AHardwareBuffer_allocate");
+        if (!AHardwareBuffer_allocate) {
+            SkDebugf("failed to find AHardwareBuffer_allocate");
+            return;
+        }
+
+        AHardwareBuffer_lock = (AHardwareBuffer_lock_type)dlsym(handle_, "AHardwareBuffer_lock");
+        if (!AHardwareBuffer_lock) {
+            SkDebugf("Failed to find AHardwareBuffer_lock");
+            return;
+        }
+
+        AHardwareBuffer_unlock = (AHardwareBuffer_unlock_type)dlsym(handle_, "AHardwareBuffer_unlock");
+        if (!AHardwareBuffer_unlock) {
+            SkDebugf("failed to find AHardwareBuffer_unlock");   
+            return;
+        }
+
+        handle_ = dlopen("libEGL.so", RTLD_NOW | RTLD_NODELETE | RTLD_LOCAL);
+        if (!handle_) {
+            SkDebugf("failed to open libEGL!");
+            return;
+        }
+
+        eglGetNativeClientBufferANDROID = (eglGetNativeClientBufferANDROID_type)dlsym(handle_, "eglGetNativeClientBufferANDROID");
+        if (!eglGetNativeClientBufferANDROID) {
+            SkDebugf("Failed to find eglGetNativeClientBufferANDROID!");
+            return;
+        }
+        successfullyInitialized = true;
+    });
+    return successfullyInitialized;
+}                                                                                                      
+
+void Describe(const AHardwareBuffer* buffer, AHardwareBuffer_Desc* desc) {
+    if (!Init()) return;
+
+    AHardwareBuffer_describe(buffer, desc);
+}
+                                                                                                       
+void Acquire(AHardwareBuffer* buffer) {
+    if (!Init()) return;
+
+    AHardwareBuffer_acquire(buffer);
+}
+                                                                                                       
+void Release(AHardwareBuffer* buffer) {
+    if (!Init()) return;
+
+    AHardwareBuffer_release(buffer);
+}
+                                                                                                       
+int Allocate(const AHardwareBuffer_Desc* desc, AHardwareBuffer** buffer) {
+    // This matches Android's INVALID_OPERATION.
+    if (!Init()) return -ENOSYS;
+
+    return AHardwareBuffer_allocate(desc, buffer);
+}
+                                                                                                       
+int Lock(AHardwareBuffer* buffer, uint64_t usage, int32_t fence,                                       
+         const ARect* rect, void** outVirtualAddress) {
+    // This matches Android's INVALID_OPERATION.
+    if (!Init()) return -ENOSYS;
+
+    return AHardwareBuffer_lock(buffer, usage, fence, rect, outVirtualAddress);
+}
+                                                                                                       
+int Unlock(AHardwareBuffer* buffer, int32_t* fence) {
+    // This matches Android's INVALID_OPERATION.
+    if (!Init()) return -ENOSYS;
+
+    return AHardwareBuffer_unlock(buffer, fence);
 }
 
 } // GrAHardwareBufferUtils

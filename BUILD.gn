@@ -850,11 +850,6 @@ optional("gpu") {
         "src/gpu/gl/egl/GrGLMakeEGLInterface.cpp",
         "src/gpu/gl/egl/GrGLMakeNativeInterface_egl.cpp",
       ]
-
-      # this lib is required to link against AHardwareBuffer
-      if (defined(ndk_api) && ndk_api >= 26) {
-        libs += [ "android" ]
-      }
     } else if (skia_use_egl) {
       sources += [
         "src/gpu/gl/egl/GrGLMakeEGLInterface.cpp",
@@ -899,13 +894,6 @@ optional("gpu") {
       } else {
         public_deps += [ "//src/graphics/lib/vulkan" ]
       }
-    }
-  }
-
-  if (is_android && (skia_use_gl || skia_use_vulkan)) {
-    # this lib is required to link against AHardwareBuffer
-    if (defined(ndk_api) && ndk_api >= 26) {
-      libs += [ "android" ]
     }
   }
 

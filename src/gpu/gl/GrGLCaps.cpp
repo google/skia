@@ -13,6 +13,7 @@
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkTSearch.h"
+#include "src/gpu/GrAHardwareBufferUtils.h"
 #include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrShaderCaps.h"
@@ -310,8 +311,8 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fClearTextureSupport = ctxInfo.hasExtension("GL_EXT_clear_texture");
     }  // no WebGL support
 
-#if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
-    fSupportsAHardwareBufferImages = true;
+#if defined(SK_BUILD_FOR_ANDROID)
+    fSupportsAHardwareBufferImages = GrAHardwareBufferUtils::Init();
 #endif
 
     if (GR_IS_GR_GL(standard)) {

@@ -30,6 +30,10 @@
 
 #if SK_SUPPORT_GPU
 
+#if defined(SK_BUILD_FOR_ANDROID)
+    #include <android/hardware_buffer.h>
+#endif
+
 SkSurface_Gpu::SkSurface_Gpu(sk_sp<skgpu::BaseDevice> device)
     : INHERITED(device->width(), device->height(), &device->surfaceProps())
     , fDevice(std::move(device)) {
@@ -634,14 +638,16 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrRecordingContext* rCon
     return sk_make_sp<SkSurface_Gpu>(std::move(device));
 }
 
-#if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
+#if defined(SK_BUILD_FOR_ANDROID)
 sk_sp<SkSurface> SkSurface::MakeFromAHardwareBuffer(GrDirectContext* dContext,
                                                     AHardwareBuffer* hardwareBuffer,
                                                     GrSurfaceOrigin origin,
                                                     sk_sp<SkColorSpace> colorSpace,
                                                     const SkSurfaceProps* surfaceProps) {
+    if (!GrAHardwareBufferUtils::Init()) return nullptr;
+
     AHardwareBuffer_Desc bufferDesc;
-    AHardwareBuffer_describe(hardwareBuffer, &bufferDesc);
+    GrAHardwareBufferUtils::Describe(hardwareBuffer, &bufferDesc);
 
     if (!SkToBool(bufferDesc.usage & AHARDWAREBUFFER_USAGE_GPU_COLOR_OUTPUT)) {
         return nullptr;

@@ -7,7 +7,7 @@
 
 #include "include/core/SkTypes.h"
 
-#if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
+#if defined(SK_BUILD_FOR_ANDROID)
 #define GL_GLEXT_PROTOTYPES
 #define EGL_EGLEXT_PROTOTYPES
 
@@ -49,8 +49,12 @@
 std::unique_ptr<SkImageGenerator> GrAHardwareBufferImageGenerator::Make(
         AHardwareBuffer* graphicBuffer, SkAlphaType alphaType, sk_sp<SkColorSpace> colorSpace,
         GrSurfaceOrigin surfaceOrigin) {
+    if (!GrAHardwareBufferUtils::Init()) {
+        return nullptr;
+    }
+
     AHardwareBuffer_Desc bufferDesc;
-    AHardwareBuffer_describe(graphicBuffer, &bufferDesc);
+    GrAHardwareBufferUtils::Describe(graphicBuffer, &bufferDesc);
 
     SkColorType colorType =
             GrAHardwareBufferUtils::GetSkColorTypeFromBufferFormat(bufferDesc.format);
@@ -71,11 +75,11 @@ GrAHardwareBufferImageGenerator::GrAHardwareBufferImageGenerator(const SkImageIn
     , fBufferFormat(bufferFormat)
     , fIsProtectedContent(isProtectedContent)
     , fSurfaceOrigin(surfaceOrigin) {
-    AHardwareBuffer_acquire(fHardwareBuffer);
+    GrAHardwareBufferUtils::Acquire(fHardwareBuffer);
 }
 
 GrAHardwareBufferImageGenerator::~GrAHardwareBufferImageGenerator() {
-    AHardwareBuffer_release(fHardwareBuffer);
+    GrAHardwareBufferUtils::Release(fHardwareBuffer);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -114,7 +118,7 @@ GrSurfaceProxyView GrAHardwareBufferImageGenerator::makeView(GrRecordingContext*
     auto proxyProvider = context->priv().proxyProvider();
 
     AHardwareBuffer* hardwareBuffer = fHardwareBuffer;
-    AHardwareBuffer_acquire(hardwareBuffer);
+    GrAHardwareBufferUtils::Acquire(hardwareBuffer);
 
     class AutoAHBRelease {
     public:
@@ -122,7 +126,7 @@ GrSurfaceProxyView GrAHardwareBufferImageGenerator::makeView(GrRecordingContext*
         // std::function() must be CopyConstructible, but ours should never actually be copied.
         AutoAHBRelease(const AutoAHBRelease&) { SkASSERT(0); }
         AutoAHBRelease(AutoAHBRelease&& that) : fAhb(that.fAhb) { that.fAhb = nullptr; }
-        ~AutoAHBRelease() { fAhb ? AHardwareBuffer_release(fAhb) : void(); }
+        ~AutoAHBRelease() { fAhb ? GrAHardwareBufferUtils::Release(fAhb) : void(); }
 
         AutoAHBRelease& operator=(AutoAHBRelease&& that) {
             fAhb = std::exchange(that.fAhb, nullptr);
