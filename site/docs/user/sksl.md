@@ -27,17 +27,17 @@ object that you bind (in C++) and sample (in SkSL) is an `SkShader`. Skia has
 simple methods for creating an `SkShader` from an `SkImage`, so it's easy to use
 images in your runtime effects:
 
-<fiddle-embed name='194aa388494b7cdfa57a01968b5cf1ee'></fiddle-embed>
+<fiddle-embed name='f2885d3af66e5589fab19017953ac59e'></fiddle-embed>
 
 Because the object you bind and sample is an `SkShader`, you can directly use
 any Skia shader, without necessarily turning it into an image (texture) first.
 For example, you can sample a linear gradient:
 
-<fiddle-embed name='381b785f1ca50a0335be1bfe74c2f421'></fiddle-embed>
+<fiddle-embed name='5fa8d1ec3af346e7c16872d138598f87'></fiddle-embed>
 
 You can even sample another runtime effect:
 
-<fiddle-embed name='13b446d926326481b340842f05014a9c'></fiddle-embed>
+<fiddle-embed name='08745d5050b250c2d8a826a739ea0ee1'></fiddle-embed>
 
 ---
 
@@ -75,7 +75,7 @@ alpha decreases. Unpremultipled colors cause the gradient to display
 incorrectly, with a shift in hue as the alpha changes. This hue shift is caused
 by Skia clamping the color's RGB values to its alpha.
 
-<fiddle-embed name='e97da657941673896ea6b55703463d8a'></fiddle-embed>
+<fiddle-embed name='ceeb91dcae2274c5c0e8f76a45af0678'></fiddle-embed>
 
 ---
 
@@ -95,4 +95,4 @@ coordinates based on the ones passed to you, the scale is correct. However, if y
 those coordinates (to do some kind of re-mapping of the image), remember that the coordinates are
 scaled up to the dimensions of the image:
 
-<fiddle-embed name='492ddaa829dd1ff3f1358659cd58557b'></fiddle-embed>
+<fiddle-embed name='7ae4fd94835aa957aa6beb15f1774b6a'></fiddle-embed>
