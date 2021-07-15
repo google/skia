@@ -92,10 +92,10 @@ protected:
         return true;
     }
 
-    skvm::Color onProgram(skvm::Builder*,
-                          skvm::Coord, skvm::Coord, skvm::Color,
-                          const SkMatrixProvider&, const SkMatrix*, const SkColorInfo&,
-                          skvm::Uniforms*, SkArenaAlloc*) const override {
+    skvm::Color
+    onProgram(skvm::Builder*, skvm::Coord, skvm::Coord, skvm::Color, const SkMatrixProvider&,
+              const SkMatrix*, const SkColorInfo&, skvm::Uniforms*, SkVMStageUpdater* updater,
+              SkArenaAlloc*) const override {
         // TODO?
         return {};
     }
@@ -307,25 +307,40 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices, SkBlendMode blendMode
     VertState::Proc vertProc = state.chooseProc(info.mode());
     // No colors are changing and no texture coordinates are changing, so no updates between
     // triangles are needed. Use SkVM to blit the triangles.
-    if (!colors && (!texCoords || texCoords == positions)) {
-        if (auto blitter = SkCreateSkVMBlitter(
-                fDst, paint, *fMatrixProvider, outerAlloc, this->fRC->clipShader())) {
-            while (vertProc(&state)) {
-                fill_triangle(state, blitter, *fRC, dev2, dev3);
+    SkMatrix ctm = fMatrixProvider->localToDevice();
+    if (!colors) {
+        if (!texCoords || texCoords == positions) {
+            if (auto blitter = SkCreateSkVMBlitter(fDst, paint, *fMatrixProvider, outerAlloc,
+                                                       this->fRC->clipShader())) {
+                while (vertProc(&state)) {
+                    fill_triangle(state, blitter, *fRC, dev2, dev3);
+                }
+                return;
             }
-            return;
+        } else {
+            if (auto blitter = SkCreateSkVMBlitter(
+                    fDst, paint, *fMatrixProvider, outerAlloc, this->fRC->clipShader(), true)) {
+                if (blitter->isUpdatable()) {
+                    while (vertProc(&state)) {
+                        SkMatrix localM;
+                        if (texture_to_matrix(state, positions, texCoords, &localM) &&
+                                blitter->update(ctm, &localM)) {
+                            fill_triangle(state, blitter, *fRC, dev2, dev3);
+                        }
+                    }
+                    return;
+                }
+            }
         }
     }
 
-    /*  We need to know if we have perspective or not, so we can know what stage(s) we will need,
-        and how to prep our "uniforms" before each triangle in the tricolorshader.
-
-        We could just check the matrix on each triangle to decide, but we have to be sure to always
-        make the same decision, since we create 1 or 2 stages only once for the entire patch.
-
-        To be safe, we just make that determination here, and pass it into the tricolorshader.
-     */
-    SkMatrix ctm = fMatrixProvider->localToDevice();
+    // We need to know if we have perspective or not, so we can know what stage(s) we will need,
+    // and how to prep our "uniforms" before each triangle in the tricolorshader.
+    //
+    // We could just check the matrix on each triangle to decide, but we have to be sure to always
+    // make the same decision, since we create 1 or 2 stages only once for the entire patch.
+    //
+    // To be safe, we just make that determination here, and pass it into the tricolorshader.
     const bool usePerspective = ctm.hasPerspective();
 
     SkTriColorShader* triShader = nullptr;
@@ -336,8 +351,8 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices, SkBlendMode blendMode
         triShader = outerAlloc->make<SkTriColorShader>(compute_is_opaque(colors, vertexCount),
                                                       usePerspective);
         if (shader) {
-            shader = outerAlloc->make<SkShader_Blend>(blendMode,
-                                                      sk_ref_sp(triShader), sk_ref_sp(shader));
+            shader = outerAlloc->make<SkShader_Blend>(
+                    blendMode, sk_ref_sp(triShader), sk_ref_sp(shader));
         } else {
             shader = triShader;
         }
