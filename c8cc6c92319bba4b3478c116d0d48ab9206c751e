@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f18ec8a8_1817460e",
+        "filename": "include/sksl/DSLCore.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-15T23:34:01Z",
+      "side": 1,
+      "message": "We used to use nullptr when the program had no source; seems like we could pass a unique_ptr\u003cString\u003e here and continue that behavior if we want. Saves us allocating a string when we don\u0027t care, and it lets us easily identify nullptr to detect that we don\u0027t have source.",
+      "range": {
+        "startLine": 57,
+        "startChar": 46,
+        "endLine": 57,
+        "endChar": 81
+      },
+      "revId": "c8cc6c92319bba4b3478c116d0d48ab9206c751e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e263d0a0_1dd97d4c",
+        "filename": "src/sksl/dsl/DSLCore.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-15T23:34:01Z",
+      "side": 1,
+      "message": "This will only do anything if Compiler().errorCount() is non-zero, so can we put it inside the `if` instead of up here?",
+      "range": {
+        "startLine": 74,
+        "startChar": 0,
+        "endLine": 74,
+        "endChar": 34
+      },
+      "revId": "c8cc6c92319bba4b3478c116d0d48ab9206c751e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c7c06a3c_22828ad1",
+        "filename": "src/sksl/dsl/DSLCore.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-15T23:34:01Z",
+      "side": 1,
+      "message": "This allows errorCount\u003d\u003d0 but fEncounteredErrors\u003d\u003dtrue, which doesn\u0027t seem like the intent. How about\n\n    SkASSERT(DSLWriter::Instance().fEncounteredErrors \u003d\u003d DSLWriter::Compiler().errorCount() \u003e 0));\n\nAlso, consider moving this line directly above the `if` check on L75. At first I was trying to understand if it was meaningful for fEncounteredErrors to be set when errorCount was zero, and seeing this line answered the question for me 15 lines later. :)",
+      "range": {
+        "startLine": 91,
+        "startChar": 0,
+        "endLine": 91,
+        "endChar": 98
+      },
+      "revId": "c8cc6c92319bba4b3478c116d0d48ab9206c751e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
