@@ -88,6 +88,9 @@ with open(skzip, 'wb') as f:
 with zipfile.ZipFile(skzip, 'r') as f:
   f.extract(sk, 'bin')
 
+uid = os.getuid()
+gid = os.getgid()
+os.chown(sk_path, uid, gid)
 os.chmod(sk_path, stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR |
                   stat.S_IRGRP                | stat.S_IXGRP |
                   stat.S_IROTH                | stat.S_IXOTH )
