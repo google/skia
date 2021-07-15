@@ -89,6 +89,13 @@ void get_text_path(const SkFont&,
                    const SkPoint* positions = nullptr);
 
 /**
+ * Compares each channel of the passed-in colors and returns the largest difference.
+ * A return value of zero means the colors are a perfect match; a result of 255 indicates that at
+ * least one channel is completely different.
+ */
+int color_difference(SkColor, SkColor);
+
+/**
  *  Returns true iff all of the pixels between the two images are identical.
  *
  *  If the configs differ, return false.
