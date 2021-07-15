@@ -137,9 +137,8 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
         return true;
     }
 
-    SkRect pathDevBounds = args.fViewMatrix->mapRect(args.fShape->bounds());
+    const SkRect pathDevBounds = args.fViewMatrix->mapRect(args.fShape->bounds());
     if (pathDevBounds.isEmpty()) {
-        // tryAddPathToAtlas() doesn't accept empty bounds.
         if (path.isInverseFillType()) {
             args.fSurfaceDrawContext->drawPaint(args.fClip, std::move(args.fPaint),
                                                 *args.fViewMatrix);
@@ -251,9 +250,8 @@ GrFPResult GrTessellationPathRenderer::makeAtlasClipFP(GrRecordingContext* rCont
     if (viewMatrix.hasPerspective()) {
         return GrFPFailure(std::move(inputFP));
     }
-    SkRect pathDevBounds = viewMatrix.mapRect(path.getBounds());
+    const SkRect pathDevBounds = viewMatrix.mapRect(path.getBounds());
     if (pathDevBounds.isEmpty()) {
-        // tryAddPathToAtlas() doesn't accept empty bounds.
         return path.isInverseFillType() ? GrFPSuccess(std::move(inputFP))
                                         : GrFPFailure(std::move(inputFP));
     }
@@ -324,7 +322,9 @@ bool GrTessellationPathRenderer::tryAddPathToAtlas(GrRecordingContext* rContext,
                                                    const VisitProxiesFn& visitProxiesUsedByDraw) {
     SkASSERT(!viewMatrix.hasPerspective());  // See onCanDrawPath().
 
-    if (!fAtlasMaxSize) {
+    // Write as the NOT of positive logic, so we will return false if any values are NaN.
+    if (!(pathDevBounds.width() > 0 && pathDevBounds.width() <= fAtlasMaxSize) ||
+        !(pathDevBounds.height() > 0 && pathDevBounds.height() <= fAtlasMaxSize)) {
         return false;
     }
 
@@ -339,6 +339,10 @@ bool GrTessellationPathRenderer::tryAddPathToAtlas(GrRecordingContext* rContext,
     pathDevBounds.roundOut(devIBounds);
     int widthInAtlas = devIBounds->width();
     int heightInAtlas = devIBounds->height();
+    if (widthInAtlas <= 0 || heightInAtlas <= 0) {
+        return false;
+    }
+
     if (SkNextPow2(widthInAtlas) == SkNextPow2(heightInAtlas)) {
         // Both dimensions go to the same pow2 band in the atlas. Use the larger dimension as height
         // for more efficient packing.
