@@ -37,7 +37,8 @@ protected:
     bool onAppendStages(const SkStageRec&) const override;
     skvm::Color onProgram(skvm::Builder*, skvm::Coord device, skvm::Coord local, skvm::Color paint,
                           const SkMatrixProvider&, const SkMatrix* localM, const SkColorInfo& dst,
-                          skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override;
+                          skvm::Uniforms* uniforms, SkVMStageUpdater* updater,
+                          SkArenaAlloc* alloc) const override;
 
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
     Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;

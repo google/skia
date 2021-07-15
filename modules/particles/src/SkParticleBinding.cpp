@@ -189,7 +189,7 @@ public:
 
         skvm::Color result = as_SB(fShader)->program(
                 builder, /*device=*/coord, /*local=*/coord, /*paint=*/{zero, zero, zero, zero},
-                matrixProvider, /*localM=*/nullptr, colorInfo, fUniforms,
+                matrixProvider, /*localM=*/nullptr, colorInfo, fUniforms, nullptr,
                 fAlloc);
         SkASSERT(result);
         outResult[0] = result.r;

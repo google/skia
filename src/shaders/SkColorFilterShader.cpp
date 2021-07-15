@@ -62,15 +62,16 @@ bool SkColorFilterShader::onAppendStages(const SkStageRec& rec) const {
     return true;
 }
 
-skvm::Color SkColorFilterShader::onProgram(skvm::Builder* p,
-                                           skvm::Coord device, skvm::Coord local, skvm::Color paint,
+skvm::Color SkColorFilterShader::onProgram(skvm::Builder* p, skvm::Coord device, skvm::Coord local,
+                                           skvm::Color paint,
                                            const SkMatrixProvider& matrices, const SkMatrix* localM,
-                                           const SkColorInfo& dst,
-                                           skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
+                                           const SkColorInfo& dst, skvm::Uniforms* uniforms,
+                                           SkVMStageUpdater* updater,
+                                           SkArenaAlloc* alloc) const {
     // Run the shader.
-    skvm::Color c = as_SB(fShader)->program(p, device,local, paint,
-                                            matrices,localM, dst,
-                                            uniforms,alloc);
+    skvm::Color c = as_SB(fShader)->program(p, device, local, paint,
+                                            matrices, localM, dst,
+                                            uniforms, nullptr, alloc);
     if (!c) {
         return {};
     }
