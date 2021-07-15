@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a98462dc_6f52977f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-07-15T15:30:35Z",
+      "side": 1,
+      "message": "lgtm if the flutter and chrome bots can pass successfully.",
+      "revId": "36e0e54a496f034704e4bb2ecc0d4c6fefa37968",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
