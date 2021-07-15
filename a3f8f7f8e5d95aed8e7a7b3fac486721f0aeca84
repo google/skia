@@ -89,6 +89,46 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c92156dd_343eca32",
+        "filename": "src/sksl/SkSLDSLParser.cpp",
+        "patchSetId": 49
+      },
+      "lineNbr": 361,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-15T20:02:13Z",
+      "side": 1,
+      "message": "I notice this function no longer works correctly if the parser is pointing at a TK_CONST. Callers now check for TK_CONST and just call varDeclarations() directly if they see it.\n\nUnfortunately, this change makes the name \"varDeclarationsOrExpressionStatement\" kind of untrue. It works for expression-statements and for a SUBSET of var-declarations, but varDeclarations() can now handle some decls that varDeclarationsOrExpressionStatement() will not handle.\n\nThis seems brittle. Based on the function\u0027s name it should really be able to support everything that `varDeclarations()` can support.\n\nWe could assert that the next token isn\u0027t a TK_CONST and add a comment saying the caller needs to handle that case, but is that better than just actually handling it here? And if we actually handle TK_CONST here, that\u0027s just bringing it back to how it was in the original Parser...\n\nI\u0027m open to other ideas as well.",
+      "range": {
+        "startLine": 361,
+        "startChar": 0,
+        "endLine": 361,
+        "endChar": 4
+      },
+      "revId": "a3f8f7f8e5d95aed8e7a7b3fac486721f0aeca84",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "94a6e949_b3562690",
+        "filename": "src/sksl/SkSLDSLParser.cpp",
+        "patchSetId": 49
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-15T20:02:13Z",
+      "side": 1,
+      "message": "nit: double blank line",
+      "revId": "a3f8f7f8e5d95aed8e7a7b3fac486721f0aeca84",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "55959f28_1e000bdb",
         "filename": "src/sksl/SkSLDSLParser.cpp",
         "patchSetId": 49
