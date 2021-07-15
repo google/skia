@@ -1911,12 +1911,12 @@ void GrSurfaceDrawContext::addDrawOp(const GrClip* clip,
     SkRect bounds;
     op_bounds(&bounds, op.get());
     GrAppliedClip appliedClip(this->dimensions(), this->asSurfaceProxy()->backingStoreDimensions());
-    bool usesMSAA = drawOp->usesMSAA();
+    const bool opUsesMSAA = drawOp->usesMSAA();
     bool skipDraw = false;
     if (clip) {
         // Have a complex clip, so defer to its early clip culling
         GrAAType aaType;
-        if (usesMSAA) {
+        if (opUsesMSAA) {
             aaType = GrAAType::kMSAA;
         } else {
             aaType = op->hasAABloat() ? GrAAType::kCoverage : GrAAType::kNone;
@@ -1935,16 +1935,11 @@ void GrSurfaceDrawContext::addDrawOp(const GrClip* clip,
     GrClampType clampType = GrColorTypeClampType(this->colorInfo().colorType());
     GrProcessorSet::Analysis analysis = drawOp->finalize(*this->caps(), &appliedClip, clampType);
 
-    // Note if the op needs stencil. Stencil clipping already called setNeedsStencil for itself, if
-    // needed.
-    if (drawOp->usesStencil()) {
-        this->setNeedsStencil();
-        if (fCanUseDynamicMSAA) {
-            // Always trigger DMSAA when there is stencil. This ensures stencil contents get
-            // properly preserved between render passes, if needed.
-            usesMSAA = true;
-        }
-    }
+    const bool opUsesStencil = drawOp->usesStencil();
+
+    // Always trigger DMSAA when there is stencil. This ensures stencil contents get properly
+    // preserved between render passes, if needed.
+    const bool drawNeedsMSAA = opUsesMSAA || (fCanUseDynamicMSAA && opUsesStencil);
 
     // Must be called before setDstProxyView so that it sees the final bounds of the op.
     op->setClippedBounds(bounds);
@@ -1960,7 +1955,7 @@ void GrSurfaceDrawContext::addDrawOp(const GrClip* clip,
     bool usesAttachmentIfDMSAA =
             fCanUseDynamicMSAA &&
             (!this->caps()->msaaResolvesAutomatically() || !this->asTextureProxy());
-    bool opRequiresDMSAAAttachment = usesAttachmentIfDMSAA && usesMSAA;
+    bool opRequiresDMSAAAttachment = usesAttachmentIfDMSAA && drawNeedsMSAA;
     bool opTriggersDMSAAAttachment =
             opRequiresDMSAAAttachment && !this->getOpsTask()->usesMSAASurface();
     if (opTriggersDMSAAAttachment) {
@@ -1975,11 +1970,11 @@ void GrSurfaceDrawContext::addDrawOp(const GrClip* clip,
 
     GrDstProxyView dstProxyView;
     if (analysis.requiresDstTexture()) {
-        if (!this->setupDstProxyView(drawOp->bounds(), usesMSAA, &dstProxyView)) {
+        if (!this->setupDstProxyView(drawOp->bounds(), drawNeedsMSAA, &dstProxyView)) {
             return;
         }
 #ifdef SK_DEBUG
-        if (fCanUseDynamicMSAA && usesMSAA && !this->caps()->msaaResolvesAutomatically()) {
+        if (fCanUseDynamicMSAA && drawNeedsMSAA && !this->caps()->msaaResolvesAutomatically()) {
             // Since we aren't literally writing to the render target texture while using a DMSAA
             // attachment, we need to resolve that texture before sampling it. Ensure the current
             // opsTask got closed off in order to initiate an implicit resolve.
@@ -1993,8 +1988,14 @@ void GrSurfaceDrawContext::addDrawOp(const GrClip* clip,
         willAddFn(op.get(), opsTask->uniqueID());
     }
 
+    // Note if the op needs stencil. Stencil clipping already called setNeedsStencil for itself, if
+    // needed.
+    if (opUsesStencil) {
+        this->setNeedsStencil();
+    }
+
 #if GR_GPU_STATS && GR_TEST_UTILS
-    if (fCanUseDynamicMSAA && usesMSAA) {
+    if (fCanUseDynamicMSAA && drawNeedsMSAA) {
         if (!opsTask->usesMSAASurface()) {
             fContext->priv().dmsaaStats().fNumMultisampleRenderPasses++;
         }
@@ -2002,12 +2003,12 @@ void GrSurfaceDrawContext::addDrawOp(const GrClip* clip,
     }
 #endif
 
-    opsTask->addDrawOp(this->drawingManager(), std::move(op), usesMSAA, analysis,
+    opsTask->addDrawOp(this->drawingManager(), std::move(op), drawNeedsMSAA, analysis,
                        std::move(appliedClip), dstProxyView,
                        GrTextureResolveManager(this->drawingManager()), *this->caps());
 
 #ifdef SK_DEBUG
-    if (fCanUseDynamicMSAA && usesMSAA) {
+    if (fCanUseDynamicMSAA && drawNeedsMSAA) {
         SkASSERT(opsTask->usesMSAASurface());
     }
 #endif
