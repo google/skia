@@ -8,6 +8,7 @@
 #ifndef SKSL_DSL_TYPE
 #define SKSL_DSL_TYPE
 
+#include "include/private/SkSLString.h"
 #include "include/sksl/DSLExpression.h"
 #include "include/sksl/DSLModifiers.h"
 
@@ -226,12 +227,12 @@ public:
     DSLField(const DSLType type, skstd::string_view name)
         : DSLField(DSLModifiers(), type, name) {}
 
-private:
     DSLField(DSLModifiers modifiers, const DSLType type, skstd::string_view name)
         : fModifiers(modifiers)
         , fType(type)
         , fName(name) {}
 
+private:
     DSLModifiers fModifiers;
     const DSLType fType;
     skstd::string_view fName;

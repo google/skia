@@ -59,12 +59,6 @@ bool IsType(skstd::string_view name);
  */
 void AddToSymbolTable(DSLVarBase& var);
 
-/**
- * Attaches a String to the current symbol table. The String will persist as long as the symbol
- * table remains in memory.
- */
-const String* Retain(String s);
-
 } // namespace dsl
 
 } // namespace SkSL
