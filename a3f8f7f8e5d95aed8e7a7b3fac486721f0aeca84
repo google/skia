@@ -129,6 +129,52 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "389c9c0c_9604f24a",
+        "filename": "src/sksl/SkSLDSLParser.cpp",
+        "patchSetId": 49
+      },
+      "lineNbr": 1173,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-15T20:33:26Z",
+      "side": 1,
+      "message": "typo",
+      "range": {
+        "startLine": 1173,
+        "startChar": 62,
+        "endLine": 1173,
+        "endChar": 75
+      },
+      "revId": "a3f8f7f8e5d95aed8e7a7b3fac486721f0aeca84",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e9104732_fc701373",
+        "filename": "src/sksl/SkSLDSLParser.cpp",
+        "patchSetId": 49
+      },
+      "lineNbr": 1257,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-15T20:33:26Z",
+      "side": 1,
+      "message": "Can this use OPERATOR_RIGHT?",
+      "range": {
+        "startLine": 1248,
+        "startChar": 0,
+        "endLine": 1257,
+        "endChar": 5
+      },
+      "revId": "a3f8f7f8e5d95aed8e7a7b3fac486721f0aeca84",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "55959f28_1e000bdb",
         "filename": "src/sksl/SkSLDSLParser.cpp",
         "patchSetId": 49
