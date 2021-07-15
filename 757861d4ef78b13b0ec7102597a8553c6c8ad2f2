@@ -35,6 +35,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "80f914f2_040b1829",
+        "filename": "tools/bloaty_treemap.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-07-15T18:38:14Z",
+      "side": 1,
+      "message": "I started explaining that users should dump the output of bloaty, then feed that file to this. Instead, I made it read from stdin, so it can be executed as a pipe, and updated the comment to show the entire thing as one step. Hopeful that we can get bloaty binaries available in the repo at a standard location, and the script can then just run bloaty directly with the necessary args.",
+      "parentUuid": "d3f5a666_59cee2e3",
+      "revId": "757861d4ef78b13b0ec7102597a8553c6c8ad2f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b837ae6f_518d5aed",
@@ -49,6 +67,30 @@
       "side": 1,
       "message": "\u003e Please remove the trailing whitespace.\n\nPlease fix.",
       "parentUuid": "d8adf66e_bf392c25",
+      "range": {
+        "startLine": 73,
+        "startChar": 0,
+        "endLine": 73,
+        "endChar": 8
+      },
+      "revId": "757861d4ef78b13b0ec7102597a8553c6c8ad2f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f26b99a5_fbc40f44",
+        "filename": "tools/bloaty_treemap.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-07-15T18:38:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b837ae6f_518d5aed",
       "range": {
         "startLine": 73,
         "startChar": 0,
