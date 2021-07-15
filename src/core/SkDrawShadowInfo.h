@@ -66,10 +66,10 @@ inline void GetSpotParams(SkScalar occluderZ, SkScalar lightX, SkScalar lightY, 
 inline void GetDirectionalParams(SkScalar occluderZ, SkScalar lightX, SkScalar lightY,
                                  SkScalar lightZ, SkScalar lightRadius,
                                  SkScalar* blurRadius, SkScalar* scale, SkVector* translate) {
+    SkASSERT(lightZ > 0);
     *blurRadius = lightRadius*occluderZ;
     *scale = 1;
-    // assumption here is that light direction is normalized
-    *translate = SkVector::Make(-occluderZ * lightX, -occluderZ * lightY);
+    *translate = SkVector::Make(-occluderZ * lightX/lightZ, -occluderZ * lightY/lightZ);
 }
 
 // Create the transformation to apply to a path to get its base shadow outline, given the light
