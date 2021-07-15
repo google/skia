@@ -664,9 +664,7 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
 
     SkPoint3 zPlaneParams = rec.fZPlaneParams;
     SkPoint3 devLightPos = rec.fLightPos;
-    if (directional) {
-        devLightPos.normalize();
-    } else {
+    if (!directional) {
         viewMatrix.mapPoints((SkPoint*)&devLightPos.fX, 1);
     }
     float lightRadius = rec.fLightRadius;
