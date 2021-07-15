@@ -151,8 +151,10 @@ void GetLocalBounds(const SkPath& path, const SkDrawShadowRec& rec, const SkMatr
 
         // get spot params (in device space)
         if (SkToBool(rec.fFlags & SkShadowFlags::kDirectionalLight_ShadowFlag)) {
-            SkDrawShadowMetrics::GetDirectionalParams(occluderZ, rec.fLightPos.fX, rec.fLightPos.fY,
-                                                      rec.fLightPos.fZ, rec.fLightRadius,
+            SkPoint3 lightDir = rec.fLightPos;
+            lightDir.normalize();
+            SkDrawShadowMetrics::GetDirectionalParams(occluderZ, lightDir.fX, lightDir.fY,
+                                                      lightDir.fZ, rec.fLightRadius,
                                                       &spotBlur, &spotScale, &spotOffset);
         } else {
             SkPoint devLightPos = SkPoint::Make(rec.fLightPos.fX, rec.fLightPos.fY);
@@ -170,8 +172,10 @@ void GetLocalBounds(const SkPath& path, const SkDrawShadowRec& rec, const SkMatr
 
         // get spot params (in local space)
         if (SkToBool(rec.fFlags & SkShadowFlags::kDirectionalLight_ShadowFlag)) {
-            SkDrawShadowMetrics::GetDirectionalParams(occluderZ, rec.fLightPos.fX, rec.fLightPos.fY,
-                                                      rec.fLightPos.fZ, rec.fLightRadius,
+            SkPoint3 lightDir = rec.fLightPos;
+            lightDir.normalize();
+            SkDrawShadowMetrics::GetDirectionalParams(occluderZ, lightDir.fX, lightDir.fY,
+                                                      lightDir.fZ, rec.fLightRadius,
                                                       &spotBlur, &spotScale, &spotOffset);
             // light dir is in device space, so need to map spot offset back into local space
             SkMatrix inverse;
