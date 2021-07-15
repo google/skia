@@ -68,10 +68,8 @@ inline void GetDirectionalParams(SkScalar occluderZ, SkScalar lightX, SkScalar l
                                  SkScalar* blurRadius, SkScalar* scale, SkVector* translate) {
     *blurRadius = lightRadius*occluderZ;
     *scale = 1;
-    // Max z-ratio is "max expected elevation"/"min allowable z"
-    constexpr SkScalar kMaxZRatio = 64/SK_ScalarNearlyZero;
-    SkScalar zRatio = divide_and_pin(occluderZ, lightZ, 0.0f, kMaxZRatio);
-    *translate = SkVector::Make(-zRatio * lightX, -zRatio * lightY);
+    // assumption here is that light direction is normalized
+    *translate = SkVector::Make(-occluderZ * lightX, -occluderZ * lightY);
 }
 
 // Create the transformation to apply to a path to get its base shadow outline, given the light
