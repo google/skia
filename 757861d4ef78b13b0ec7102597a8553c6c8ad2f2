@@ -16,6 +16,47 @@
       "message": "Doc link for the journey that led here: https://docs.google.com/document/d/15Hprs4_N4W5dB2vTYaQuDofks7v1XtWtgiK-pDHJ9gY/edit?usp\u003dsharing\u0026resourcekey\u003d0-3kSu9G7mfj_bvTd0pJ-a-A",
       "revId": "757861d4ef78b13b0ec7102597a8553c6c8ad2f2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d3f5a666_59cee2e3",
+        "filename": "tools/bloaty_treemap.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2021-07-15T18:24:06Z",
+      "side": 1,
+      "message": "How do you run this script over the output of bloaty? How do you view the output of this script?",
+      "revId": "757861d4ef78b13b0ec7102597a8553c6c8ad2f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b837ae6f_518d5aed",
+        "filename": "tools/bloaty_treemap.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2021-07-15T18:24:06Z",
+      "side": 1,
+      "message": "\u003e Please remove the trailing whitespace.\n\nPlease fix.",
+      "parentUuid": "d8adf66e_bf392c25",
+      "range": {
+        "startLine": 73,
+        "startChar": 0,
+        "endLine": 73,
+        "endChar": 8
+      },
+      "revId": "757861d4ef78b13b0ec7102597a8553c6c8ad2f2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
