@@ -744,7 +744,8 @@ public:
             if (fChildren[ix].shader) {
                 SkSimpleMatrixProvider mats{SkMatrix::I()};
                 return as_SB(fChildren[ix].shader)
-                        ->program(p, coord, coord, color, mats, nullptr, dst, uniforms, alloc);
+                        ->program(p, coord, coord, color, mats, nullptr, dst, uniforms, nullptr,
+                                  alloc);
             } else if (fChildren[ix].colorFilter) {
                 return as_CFB(fChildren[ix].colorFilter)->program(p, color, dst, uniforms, alloc);
             } else {
@@ -912,11 +913,11 @@ public:
         return false;
     }
 
-    skvm::Color onProgram(skvm::Builder* p,
-                          skvm::Coord device, skvm::Coord local, skvm::Color paint,
-                          const SkMatrixProvider& matrices, const SkMatrix* localM,
-                          const SkColorInfo& dst,
-                          skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
+    skvm::Color
+    onProgram(skvm::Builder* p, skvm::Coord device, skvm::Coord local, skvm::Color paint,
+              const SkMatrixProvider& matrices, const SkMatrix* localM,
+              const SkColorInfo& dst, skvm::Uniforms* uniforms, SkVMStageUpdater* updater,
+              SkArenaAlloc* alloc) const override {
         sk_sp<SkData> inputs = get_xformed_uniforms(fEffect.get(), fUniforms, dst.colorSpace());
         SkASSERT(inputs);
 
@@ -930,7 +931,8 @@ public:
             if (fChildren[ix].shader) {
                 SkOverrideDeviceMatrixProvider mats{matrices, SkMatrix::I()};
                 return as_SB(fChildren[ix].shader)
-                        ->program(p, device, coord, color, mats, nullptr, dst, uniforms, alloc);
+                        ->program(p, device, coord, color, mats, nullptr, dst, uniforms, nullptr,
+                                  alloc);
             } else if (fChildren[ix].colorFilter) {
                 return as_CFB(fChildren[ix].colorFilter)->program(p, color, dst, uniforms, alloc);
             } else {

@@ -46,7 +46,7 @@ private:
 
     skvm::Color onProgram(skvm::Builder*, skvm::Coord device, skvm::Coord local, skvm::Color paint,
                           const SkMatrixProvider&, const SkMatrix* localM, const SkColorInfo& dst,
-                          skvm::Uniforms* uniforms, SkArenaAlloc*) const override;
+                          skvm::Uniforms* uniforms, SkVMStageUpdater* updater, SkArenaAlloc*) const override;
 
     SkColor fColor;
 };
@@ -70,7 +70,7 @@ private:
 
     skvm::Color onProgram(skvm::Builder*, skvm::Coord device, skvm::Coord local, skvm::Color paint,
                           const SkMatrixProvider&, const SkMatrix* localM, const SkColorInfo& dst,
-                          skvm::Uniforms* uniforms, SkArenaAlloc*) const override;
+                          skvm::Uniforms* uniforms, SkVMStageUpdater* updater, SkArenaAlloc*) const override;
 
     sk_sp<SkColorSpace> fColorSpace;
     const SkColor4f     fColor;

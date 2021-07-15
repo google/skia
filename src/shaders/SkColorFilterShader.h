@@ -28,7 +28,7 @@ private:
 
     skvm::Color onProgram(skvm::Builder*, skvm::Coord device, skvm::Coord local, skvm::Color paint,
                           const SkMatrixProvider&, const SkMatrix* localM, const SkColorInfo& dst,
-                          skvm::Uniforms* uniforms, SkArenaAlloc*) const override;
+                          skvm::Uniforms* uniforms, SkVMStageUpdater* updater, SkArenaAlloc*) const override;
 
     SK_FLATTENABLE_HOOKS(SkColorFilterShader)
 
