@@ -6475,3 +6475,29 @@ DEF_TEST(SkParagraph_PlaceholderPosition, reporter) {
     REPORTER_ASSERT(reporter, result.position == 4 && result.affinity == Affinity::kDownstream);
 }
 
+DEF_TEST(SkParagraph_Diacritics, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    if (!fontCollection->fontsFound()) return;
+
+    TestCanvas canvas("SkParagraph_Diacritics");
+
+    TextStyle text_style;
+    text_style.setColor(SK_ColorBLACK);
+    text_style.setFontFamilies({SkString("Roboto")});
+    ParagraphStyle paragraph_style;
+    paragraph_style.setTextStyle(text_style);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+
+    // a letter followed by a diacritic
+    builder.addText(u"\u0E1F\u0E49");
+
+    auto paragraph = builder.Build();
+    paragraph->layout(1000);
+    paragraph->paint(canvas.get(), 0, 0);
+
+    auto boxes = paragraph->getRectsForRange(0, 1, RectHeightStyle::kStrut, RectWidthStyle::kTight);
+    REPORTER_ASSERT(reporter, !boxes.empty());
+
+    boxes = paragraph->getRectsForRange(1, 2, RectHeightStyle::kStrut, RectWidthStyle::kTight);
+    REPORTER_ASSERT(reporter, !boxes.empty());
+}
