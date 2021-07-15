@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "06f3457e_156ba9a8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-07-15T16:56:55Z",
+      "side": 1,
+      "message": "One quick comment:",
+      "revId": "96faa1b8f23784f645251041d6cfb5354c32a1b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3978e923_f0e781ee",
+        "filename": "src/gpu/gl/GrGLAttachment.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2021-07-15T16:56:55Z",
+      "side": 1,
+      "message": "Needs a forward decl.",
+      "range": {
+        "startLine": 16,
+        "startChar": 45,
+        "endLine": 16,
+        "endChar": 52
+      },
+      "revId": "96faa1b8f23784f645251041d6cfb5354c32a1b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
