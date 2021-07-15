@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cc21364d_8925ca64",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2021-07-15T13:35:22Z",
+      "side": 1,
+      "message": "The window rectangles GM is asserting on this",
+      "revId": "cdcfb9f4f760b1bb32c83fda1b752d6885cf1b77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
