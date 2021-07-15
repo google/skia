@@ -219,6 +219,7 @@ tests_sources = [
   "$_tests/ResourceAllocatorTest.cpp",
   "$_tests/ResourceCacheTest.cpp",
   "$_tests/RoundRectTest.cpp",
+  "$_tests/RuntimeBlendTest.cpp",
   "$_tests/SRGBReadWritePixelsTest.cpp",
   "$_tests/SRGBTest.cpp",
   "$_tests/SVGDeviceTest.cpp",
