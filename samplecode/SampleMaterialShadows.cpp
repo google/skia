@@ -34,7 +34,7 @@ class MaterialShadowsView : public Sample {
         fLargeRRPath.addRRect(SkRRect::MakeRectXY(SkRect::MakeXYWH(-64, -64, 128, 128), 4, 4));
         fSmallRRPath.addRRect(SkRRect::MakeRectXY(SkRect::MakeXYWH(-40, -40, 80, 80), 4, 4));
 
-        fLightPos = SkPoint3::Make(0, -700, 600);
+        fLightPos = SkPoint3::Make(0, -700, 700);
     }
 
     SkString name() override { return SkString("MaterialShadows"); }
