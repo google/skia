@@ -131,6 +131,25 @@ public:
         return fBlitMemory.reset(sz, SkAutoMalloc::kReuse_OnShrink);
     }
 
+    /**
+     * Indicate that this blitter can be used by drawVertices using fast triangle updates.
+     * @return true - if you can update this blitter to render complex triangles with out
+     * rebuilding the blitter.
+     */
+    virtual bool isUpdatable() const {
+        return false;
+    }
+
+    /**
+     * Use a fast update method to change the localM to accommodate fast triangle drawing.
+     * @param ctm
+     * @param localM - The mapping from texCoords or colors to source space.
+     * @return true if ctm * localM is invertible.
+     */
+    virtual bool update(const SkMatrix& ctm, const SkMatrix* localM) {
+        return false;
+    }
+
     ///@name non-virtual helpers
     void blitMaskRegion(const SkMask& mask, const SkRegion& clip);
     void blitRectRegion(const SkIRect& rect, const SkRegion& clip);

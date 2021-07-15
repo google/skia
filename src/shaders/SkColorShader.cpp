@@ -91,21 +91,21 @@ bool SkColor4Shader::onAppendStages(const SkStageRec& rec) const {
     return true;
 }
 
-skvm::Color SkColorShader::onProgram(skvm::Builder* p,
-                                     skvm::Coord /*device*/, skvm::Coord /*local*/,
-                                     skvm::Color /*paint*/, const SkMatrixProvider&,
-                                     const SkMatrix* /*localM*/, const SkColorInfo& dst,
-                                     skvm::Uniforms* uniforms, SkArenaAlloc*) const {
+skvm::Color SkColorShader::onProgram(skvm::Builder* p, skvm::Coord, skvm::Coord, skvm::Color,
+                                     const SkMatrixProvider&,
+                                     const SkMatrix*, const SkColorInfo& dst,
+                                     skvm::Uniforms* uniforms,
+                                     SkVMStageUpdater* updater, SkArenaAlloc*) const {
     SkColor4f color = SkColor4f::FromColor(fColor);
     SkColorSpaceXformSteps(sk_srgb_singleton(), kUnpremul_SkAlphaType,
                               dst.colorSpace(),   kPremul_SkAlphaType).apply(color.vec());
     return p->uniformColor(color, uniforms);
 }
-skvm::Color SkColor4Shader::onProgram(skvm::Builder* p,
-                                      skvm::Coord /*device*/, skvm::Coord /*local*/,
-                                      skvm::Color /*paint*/, const SkMatrixProvider&,
-                                      const SkMatrix* /*localM*/, const SkColorInfo& dst,
-                                      skvm::Uniforms* uniforms, SkArenaAlloc*) const {
+skvm::Color SkColor4Shader::onProgram(skvm::Builder* p, skvm::Coord, skvm::Coord, skvm::Color,
+                                      const SkMatrixProvider&,
+                                      const SkMatrix*, const SkColorInfo& dst,
+                                      skvm::Uniforms* uniforms,
+                                      SkVMStageUpdater* updater, SkArenaAlloc*) const {
     SkColor4f color = fColor;
     SkColorSpaceXformSteps(fColorSpace.get(), kUnpremul_SkAlphaType,
                             dst.colorSpace(),   kPremul_SkAlphaType).apply(color.vec());

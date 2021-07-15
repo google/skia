@@ -895,4 +895,5 @@ void SkRectClipCheckBlitter::blitAntiV2(int x, int y, U8CPU a0, U8CPU a1) {
     fBlitter->blitAntiV2(x, y, a0, a1);
 }
 
+
 #endif
