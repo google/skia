@@ -11,6 +11,7 @@
 .recipe_deps/
 .settings/
 .win_toolchain/
+.vs/
 TAGS
 bower_components
 imgui.ini
