@@ -178,7 +178,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	sampleCount := 0
 	glPrefix := ""
 	if b.extraConfig("SwiftShader") {
-		configs = append(configs, "gles", "glesdft")
+		configs = append(configs, "gles", "glesdft", "glesdmsaa")
 	} else if b.cpu() {
 		args = append(args, "--nogpu")
 
@@ -234,7 +234,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			if sampleCount > 0 {
 				configs = append(configs, fmt.Sprintf("%smsaa%d", glPrefix, sampleCount))
 				// Temporarily limit the bots we test dynamic MSAA on.
-				if b.gpu("QuadroP400", "MaliG77", "AppleM1") {
+				if b.gpu("QuadroP400", "MaliG77") || b.matchOs("Mac") {
 					configs = append(configs, fmt.Sprintf("%sdmsaa", glPrefix))
 				}
 			}
