@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6dc940e8_0b17bef1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-15T23:46:13Z",
+      "side": 1,
+      "message": "This change LGTM modulo one style fix",
+      "revId": "afc83859b8581e267b0b9d22e4adfafabbe87604",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "68a166ba_1ee444b7",
