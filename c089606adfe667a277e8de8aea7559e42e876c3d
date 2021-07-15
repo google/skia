@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7fb2fe6d_dff17b2d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-07-15T20:55:00Z",
+      "side": 1,
+      "message": "This allows fast triangle update for texCoord. I would like to talk about the approach, and explore other implementation ideas.",
+      "revId": "c089606adfe667a277e8de8aea7559e42e876c3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
