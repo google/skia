@@ -1030,7 +1030,7 @@ describe('Core canvas behavior', () => {
             path, mZPlane, mLight, lightRadius,
             CanvasKit.ShadowTransparentOccluder | CanvasKit.ShadowGeometricOnly | CanvasKit.ShadowDirectionalLight,
             outBounds);
-        expectTypedArraysToEqual(outBounds, Float32Array.of(1.52207, -6.35035, 264.03445, 261.83294));
+        expectTypedArraysToEqual(outBounds, Float32Array.of(-31.6630249, -15.24227, 245.5, 252.94101));
 
         CanvasKit.Free(mZPlane);
         CanvasKit.Free(mLight);

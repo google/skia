@@ -1152,9 +1152,7 @@ bool GrSurfaceDrawContext::drawFastShadow(const GrClip* clip,
 
     SkPoint3 devLightPos = rec.fLightPos;
     bool directional = SkToBool(rec.fFlags & kDirectionalLight_ShadowFlag);
-    if (directional) {
-        devLightPos.normalize();
-    } else {
+    if (!directional) {
         // transform light
         viewMatrix.mapPoints((SkPoint*)&devLightPos.fX, 1);
     }
