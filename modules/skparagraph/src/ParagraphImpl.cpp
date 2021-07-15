@@ -698,6 +698,9 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
     }
     if (end < fUTF8IndexForUTF16Index.size()) {
         auto utf8 = findPreviousGraphemeBoundary(fUTF8IndexForUTF16Index[end]);
+        if (fUTF8IndexForUTF16Index[start] == utf8) {
+            utf8 = fUTF8IndexForUTF16Index[start + 1];
+        }
         text.end = utf8;
     }
     //SkDebugf("getRectsForRange(%d,%d) -> (%d:%d)\n", start, end, text.start, text.end);
