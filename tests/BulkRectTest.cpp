@@ -10,7 +10,7 @@
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrResourceProvider.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
+#include "src/gpu/SurfaceContext.h"
 #include "src/gpu/ops/GrFillRectOp.h"
 #include "src/gpu/ops/GrTextureOp.h"
 #include "tests/Test.h"

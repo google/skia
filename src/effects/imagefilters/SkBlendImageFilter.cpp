@@ -19,9 +19,9 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrColorSpaceXform.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/SurfaceContext.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #endif
 #include "src/core/SkClipOpPriv.h"

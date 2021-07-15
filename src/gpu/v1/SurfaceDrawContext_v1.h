@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrSurfaceDrawContext_DEFINED
-#define GrSurfaceDrawContext_DEFINED
+#ifndef SurfaceDrawContext_v1_DEFINED
+#define SurfaceDrawContext_v1_DEFINED
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkDrawable.h"
@@ -18,9 +18,9 @@
 #include "src/gpu/GrOpsTask.h"
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrRenderTargetProxy.h"
-#include "src/gpu/GrSurfaceFillContext.h"
 #include "src/gpu/GrSurfaceProxyView.h"
 #include "src/gpu/GrXferProcessor.h"
+#include "src/gpu/SurfaceFillContext.h"
 #include "src/gpu/geometry/GrQuad.h"
 
 class GrBackendSemaphore;
@@ -53,10 +53,12 @@ class SkRuntimeEffect;
 class SkTextBlob;
 class SkVertices;
 
+namespace skgpu::v1 {
+
 /**
  * A helper object to orchestrate commands (draws, etc...) for GrSurfaces that are GrRenderTargets.
  */
-class GrSurfaceDrawContext : public GrSurfaceFillContext {
+class GrSurfaceDrawContext : public SurfaceFillContext {
 public:
     static std::unique_ptr<GrSurfaceDrawContext> Make(GrRecordingContext*,
                                                       GrColorType,
@@ -729,7 +731,9 @@ private:
     bool fPreserveOpsOnFullClear_TestingOnly = false;
 #endif
     SkGlyphRunListPainter fGlyphPainter;
-    using INHERITED = GrSurfaceFillContext;
+    using INHERITED = SurfaceFillContext;
 };
 
-#endif
+} // namespace skgpu::v1
+
+#endif // SurfaceDrawContext_v1_DEFINED

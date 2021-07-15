@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrSurfaceFillContext_DEFINED
-#define GrSurfaceFillContext_DEFINED
+#ifndef SurfaceFillContext_v1_DEFINED
+#define SurfaceFillContext_v1_DEFINED
 
 #include "include/core/SkSize.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrOpsTask.h"
-#include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/GrSwizzle.h"
+#include "src/gpu/SurfaceContext.h"
 #include "src/gpu/effects/GrMatrixEffect.h"
 
 #include <array>
@@ -27,7 +27,9 @@ class GrRecordingContext;
 class GrSurfaceProxyView;
 class SkColorSpace;
 
-class GrSurfaceFillContext : public GrSurfaceContext {
+namespace skgpu::v1 {
+
+class GrSurfaceFillContext : public SurfaceFillContext_Base {
 public:
     GrSurfaceFillContext(GrRecordingContext*,
                          GrSurfaceProxyView readView,
@@ -128,55 +130,13 @@ public:
                             /* upgrade to full */ true);
     }
 
-    /** Fills 'dstRect' with 'fp' */
-    void fillRectWithFP(const SkIRect& dstRect, std::unique_ptr<GrFragmentProcessor> fp);
+    /**/
+    void fillRectWithFP(const SkIRect& dstRect, std::unique_ptr<GrFragmentProcessor> fp) override;
 
-    /**
-     * A convenience version of fillRectWithFP that applies a coordinate transformation via
-     * GrMatrixEffect.
-     */
-    void fillRectWithFP(const SkIRect& dstRect,
-                        const SkMatrix& localMatrix,
-                        std::unique_ptr<GrFragmentProcessor> fp) {
-        fp = GrMatrixEffect::Make(localMatrix, std::move(fp));
-        this->fillRectWithFP(dstRect, std::move(fp));
-    }
-
-    /** Fills 'dstRect' with 'fp' using a local matrix that maps 'srcRect' to 'dstRect' */
-    void fillRectToRectWithFP(const SkRect& srcRect,
-                              const SkIRect& dstRect,
-                              std::unique_ptr<GrFragmentProcessor> fp) {
-        SkMatrix lm = SkMatrix::RectToRect(SkRect::Make(dstRect), srcRect);
-        this->fillRectWithFP(dstRect, lm, std::move(fp));
-    }
-
-    /** Fills 'dstRect' with 'fp' using a local matrix that maps 'srcRect' to 'dstRect' */
-    void fillRectToRectWithFP(const SkIRect& srcRect,
-                              const SkIRect& dstRect,
-                              std::unique_ptr<GrFragmentProcessor> fp) {
-        this->fillRectToRectWithFP(SkRect::Make(srcRect), dstRect, std::move(fp));
-    }
-
-    /** Fills the entire render target with the passed FP. */
-    void fillWithFP(std::unique_ptr<GrFragmentProcessor> fp) {
-        this->fillRectWithFP(SkIRect::MakeSize(fWriteView.proxy()->dimensions()), std::move(fp));
-    }
-
-    /**
-     * A convenience version of fillWithFP that applies a coordinate transformation via
-     * GrMatrixEffect and fills the entire render target.
-     */
-    void fillWithFP(const SkMatrix& localMatrix, std::unique_ptr<GrFragmentProcessor> fp) {
-        this->fillRectWithFP(
-                SkIRect::MakeSize(fWriteView.proxy()->dimensions()), localMatrix, std::move(fp));
-    }
-
-    /**
-     * Draws the src texture with no matrix. The dstRect is the dstPoint with the width and height
-     * of the srcRect. The srcRect and dstRect are clipped to the bounds of the src and dst surfaces
-     * respectively.
-     */
-    bool blitTexture(GrSurfaceProxyView view, const SkIRect& srcRect, const SkIPoint& dstPoint);
+    bool blitTexture(GrSurfaceProxyView view,
+                     const SkIRect& srcRect,
+                     const SkIPoint& dstPoint) override;
+    /**/
 
     GrOpsTask* getOpsTask();
 
@@ -230,7 +190,7 @@ private:
 
     SkDEBUGCODE(void onValidate() const override;)
 
-    GrSurfaceProxyView fWriteView;
+//    GrSurfaceProxyView fWriteView;
 
     // The GrOpsTask can be closed by some other surface context that has picked it up. For this
     // reason, the GrOpsTask should only ever be accessed via 'getOpsTask'.
@@ -240,6 +200,8 @@ private:
 
     using INHERITED = GrSurfaceContext;
 };
+
+} // namespace skgpu::v1
 
 template<>
 inline std::array<float, 4> GrSurfaceFillContext::ConvertColor<kPremul_SkAlphaType>(
@@ -262,4 +224,4 @@ std::array<float, 4> GrSurfaceFillContext::adjustColorAlphaType(SkRGBA4f<AlphaTy
     return (AlphaType == this->colorInfo().alphaType()) ? color.array() : ConvertColor(color);
 }
 
-#endif
+#endif // SurfaceFillContext_v1_DEFINED

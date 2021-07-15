@@ -9,9 +9,11 @@
 #define GrFillRectOp_DEFINED
 
 #include "include/private/GrTypesPriv.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
+#include "src/gpu/SurfaceContext.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
+struct DrawQuad;
+class GrClip;
 class GrDrawOp;
 class GrPaint;
 class GrQuad;
@@ -54,7 +56,7 @@ public:
                                GrPaint&&,
                                GrAAType,
                                const SkMatrix& viewMatrix,
-                               const GrSurfaceDrawContext::QuadSetEntry quads[],
+//                               const GrSurfaceDrawContext::QuadSetEntry quads[],
                                int quadCount,
                                const GrUserStencilSettings* = nullptr);
 
@@ -69,7 +71,7 @@ private:
                               GrPaint&&,
                               GrAAType,
                               const SkMatrix& viewMatrix,
-                              const GrSurfaceDrawContext::QuadSetEntry quads[],
+//                              const GrSurfaceDrawContext::QuadSetEntry quads[],
                               int quadCount,
                               const GrUserStencilSettings*,
                               int* numConsumed);

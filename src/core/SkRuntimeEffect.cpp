@@ -36,7 +36,7 @@
 #include "src/gpu/GrColorInfo.h"
 #include "src/gpu/GrFPArgs.h"
 #include "src/gpu/GrImageInfo.h"
-#include "src/gpu/GrSurfaceFillContext.h"
+#include "src/gpu/SurfaceContext.h"
 #include "src/gpu/effects/GrMatrixEffect.h"
 #include "src/gpu/effects/GrSkSLFP.h"
 #include "src/image/SkImage_Gpu.h"

@@ -208,9 +208,9 @@ void GrAtlasManager::addGlyphToBulkAndSetUseToken(GrDrawOpAtlas::BulkUseTokenUpd
 #ifdef SK_DEBUG
 #include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrDirectContextPriv.h"
-#include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/GrTextureProxy.h"
+#include "src/gpu/SurfaceContext.h"
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkImageEncoder.h"
@@ -234,9 +234,9 @@ static bool save_pixels(GrDirectContext* dContext, GrSurfaceProxyView view, GrCo
         return false;
     }
 
-    auto sContext = GrSurfaceContext::Make(dContext,
-                                           std::move(view),
-                                           {colorType, kUnknown_SkAlphaType, nullptr});
+    auto sContext = skgpu::SurfaceContext::Make(dContext,
+                                                std::move(view),
+                                                {colorType, kUnknown_SkAlphaType, nullptr});
     if (!sContext || !sContext->asTextureProxy()) {
         return false;
     }

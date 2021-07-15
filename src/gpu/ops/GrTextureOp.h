@@ -12,7 +12,7 @@
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrSamplerState.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
+#include "src/gpu/SurfaceContext.h"
 
 class GrColorSpaceXform;
 class GrDrawOp;
