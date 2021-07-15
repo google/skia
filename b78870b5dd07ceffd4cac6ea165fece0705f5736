@@ -39,6 +39,30 @@
       },
       "revId": "b78870b5dd07ceffd4cac6ea165fece0705f5736",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "115e7d63_51004e01",
+        "filename": "src/sksl/dsl/priv/DSLWriter.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-07-15T14:36:29Z",
+      "side": 1,
+      "message": "It works fine for DSLParameter - there\u0027s still an SkSL Variable backing those.\n\nThe issue is that the next method (ParameterVar) is badly named and implies that Var is only for non-parameters.\n\nI\u0027ve renamed ParameterVar to CreateParameterVar to better match its actual function and to hopefully make things more clear.",
+      "parentUuid": "eb6b04fa_1e539e16",
+      "range": {
+        "startLine": 115,
+        "startChar": 0,
+        "endLine": 117,
+        "endChar": 54
+      },
+      "revId": "b78870b5dd07ceffd4cac6ea165fece0705f5736",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
