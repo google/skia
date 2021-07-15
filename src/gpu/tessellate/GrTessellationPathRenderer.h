@@ -55,10 +55,14 @@ public:
                                std::unique_ptr<GrFragmentProcessor> inputFP,
                                const SkIRect& drawBounds, const SkMatrix&, const SkPath&, GrAA);
 
-    void preFlush(GrOnFlushResourceProvider*, SkSpan<const uint32_t> taskIDs) override;
-
-private:
     using VisitProxiesFn = std::function<void(const GrVisitProxyFunc&)>;
+
+    struct AtlasPathView {
+        SkIPoint16 fLocationInAtlas;
+        SkIRect fPathDevIBounds;
+        bool fTransposedInAtlas;
+        GrSurfaceProxyView fAtlasView;
+    };
 
     // Adds the filled path to an atlas.
     //
@@ -66,10 +70,12 @@ private:
     // in use according to 'visitProxiesUsedByDraw'. (Currently, "too large" means more than 128*128
     // total pixels, or larger than the atlas size in either dimension.)
     bool tryAddPathToAtlas(GrRecordingContext*, const SkMatrix&, const SkPath&,
-                           const SkRect& pathDevBounds, bool antialias, SkIRect* devIBounds,
-                           SkIPoint16* locationInAtlas, bool* transposedInAtlas,
-                           const VisitProxiesFn& visitProxiesUsedByDraw);
+                           const SkRect& pathDevBounds, bool antialias,
+                           const VisitProxiesFn& visitProxiesUsedByDraw, AtlasPathView* out);
 
+    void preFlush(GrOnFlushResourceProvider*, SkSpan<const uint32_t> taskIDs) override;
+
+private:
     int fAtlasMaxSize = 0;
     int fAtlasInitialSize = 0;
 

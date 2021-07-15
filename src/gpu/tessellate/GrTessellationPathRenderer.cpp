@@ -139,7 +139,6 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
     SkRect pathDevBounds = args.fViewMatrix->mapRect(args.fShape->bounds());
     if (pathDevBounds.isEmpty()) {
-        // tryAddPathToAtlas() doesn't accept empty bounds.
         if (path.isInverseFillType()) {
             args.fSurfaceDrawContext->drawPaint(args.fClip, std::move(args.fPaint),
                                                 *args.fViewMatrix);
@@ -153,9 +152,6 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
         // NOTE: The atlas uses alpha8 coverage even for msaa render targets. We could theoretically
         // render the sample mask to an integer texture, but such a scheme would probably require
         // GL_EXT_post_depth_coverage, which appears to have low adoption.
-        SkIRect devIBounds;
-        SkIPoint16 locationInAtlas;
-        bool transposedInAtlas;
         auto visitProxiesUsedByDraw = [&args](GrVisitProxyFunc visitor) {
             if (args.fPaint.hasColorFragmentProcessor()) {
                 args.fPaint.getColorFragmentProcessor()->visitProxies(visitor);
@@ -164,21 +160,22 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
                 args.fPaint.getCoverageFragmentProcessor()->visitProxies(visitor);
             }
         };
+        AtlasPathView result;
         if (this->tryAddPathToAtlas(args.fContext, *args.fViewMatrix, path, pathDevBounds,
-                                    args.fAAType != GrAAType::kNone, &devIBounds, &locationInAtlas,
-                                    &transposedInAtlas, visitProxiesUsedByDraw)) {
-            const GrCaps& caps = *args.fSurfaceDrawContext->caps();
+                                    args.fAAType != GrAAType::kNone, visitProxiesUsedByDraw,
+                                    &result)) {
             const SkIRect& fillBounds = path.isInverseFillType()
                     ? (args.fClip
                             ? args.fClip->getConservativeBounds()
                             : args.fSurfaceDrawContext->asSurfaceProxy()->backingStoreBoundsIRect())
-                    : devIBounds;
+                    : result.fPathDevIBounds;
             auto op = GrOp::Make<GrDrawAtlasPathOp>(args.fContext,
                                                     args.fSurfaceDrawContext->arenaAlloc(),
                                                     fillBounds, *args.fViewMatrix,
-                                                    std::move(args.fPaint), locationInAtlas,
-                                                    devIBounds, transposedInAtlas,
-                                                    fAtlasRenderTasks.back()->readView(caps),
+                                                    std::move(args.fPaint), result.fLocationInAtlas,
+                                                    result.fPathDevIBounds,
+                                                    result.fTransposedInAtlas,
+                                                    std::move(result.fAtlasView),
                                                     path.isInverseFillType());
             surfaceDrawContext->addDrawOp(args.fClip, std::move(op));
             return true;
@@ -253,13 +250,9 @@ GrFPResult GrTessellationPathRenderer::makeAtlasClipFP(GrRecordingContext* rCont
     }
     SkRect pathDevBounds = viewMatrix.mapRect(path.getBounds());
     if (pathDevBounds.isEmpty()) {
-        // tryAddPathToAtlas() doesn't accept empty bounds.
         return path.isInverseFillType() ? GrFPSuccess(std::move(inputFP))
                                         : GrFPFailure(std::move(inputFP));
     }
-    SkIRect devIBounds;
-    SkIPoint16 locationInAtlas;
-    bool transposedInAtlas;
     auto visitProxiesUsedByDraw = [&opBeingClipped, &inputFP](GrVisitProxyFunc visitor) {
         opBeingClipped->visitProxies(visitor);
         if (inputFP) {
@@ -267,36 +260,37 @@ GrFPResult GrTessellationPathRenderer::makeAtlasClipFP(GrRecordingContext* rCont
         }
     };
     // tryAddPathToAtlas() ignores inverseness of the fill. See getAtlasUberPath().
+    AtlasPathView result;
     if (!this->tryAddPathToAtlas(rContext, viewMatrix, path, pathDevBounds, aa != GrAA::kNo,
-                                 &devIBounds, &locationInAtlas, &transposedInAtlas,
-                                 visitProxiesUsedByDraw)) {
+                                 visitProxiesUsedByDraw, &result)) {
         // The path is too big, or the atlas ran out of room.
         return GrFPFailure(std::move(inputFP));
     }
     SkMatrix atlasMatrix;
-    auto [atlasX, atlasY] = locationInAtlas;
-    if (!transposedInAtlas) {
-        atlasMatrix = SkMatrix::Translate(atlasX - devIBounds.left(), atlasY - devIBounds.top());
+    auto [atlasX, atlasY] = result.fLocationInAtlas;
+    if (!result.fTransposedInAtlas) {
+        atlasMatrix = SkMatrix::Translate(atlasX - result.fPathDevIBounds.left(),
+                                          atlasY - result.fPathDevIBounds.top());
     } else {
-        atlasMatrix.setAll(0, 1, atlasX - devIBounds.top(),
-                           1, 0, atlasY - devIBounds.left(),
+        atlasMatrix.setAll(0, 1, atlasX - result.fPathDevIBounds.top(),
+                           1, 0, atlasY - result.fPathDevIBounds.left(),
                            0, 0, 1);
     }
     auto flags = GrModulateAtlasCoverageFP::Flags::kNone;
     if (path.isInverseFillType()) {
         flags |= GrModulateAtlasCoverageFP::Flags::kInvertCoverage;
     }
-    if (!devIBounds.contains(drawBounds)) {
+    if (!result.fPathDevIBounds.contains(drawBounds)) {
         flags |= GrModulateAtlasCoverageFP::Flags::kCheckBounds;
         // At this point in time we expect callers to tighten the scissor for "kIntersect" clips, as
         // opposed to us having to check the path bounds. Feel free to remove this assert if that
         // ever changes.
         SkASSERT(path.isInverseFillType());
     }
-    GrSurfaceProxyView atlasView = fAtlasRenderTasks.back()->readView(*rContext->priv().caps());
     return GrFPSuccess(std::make_unique<GrModulateAtlasCoverageFP>(flags, std::move(inputFP),
-                                                                   std::move(atlasView),
-                                                                   atlasMatrix, devIBounds));
+                                                                   std::move(result.fAtlasView),
+                                                                   atlasMatrix,
+                                                                   result.fPathDevIBounds));
 }
 
 void GrTessellationPathRenderer::AtlasPathKey::set(const SkMatrix& m, bool antialias,
@@ -319,10 +313,13 @@ void GrTessellationPathRenderer::AtlasPathKey::set(const SkMatrix& m, bool antia
 bool GrTessellationPathRenderer::tryAddPathToAtlas(GrRecordingContext* rContext,
                                                    const SkMatrix& viewMatrix, const SkPath& path,
                                                    const SkRect& pathDevBounds, bool antialias,
-                                                   SkIRect* devIBounds, SkIPoint16* locationInAtlas,
-                                                   bool* transposedInAtlas,
-                                                   const VisitProxiesFn& visitProxiesUsedByDraw) {
+                                                   const VisitProxiesFn& visitProxiesUsedByDraw,
+                                                   AtlasPathView* out) {
     SkASSERT(!viewMatrix.hasPerspective());  // See onCanDrawPath().
+
+    if (pathDevBounds.isEmpty()) {
+        return false;
+    }
 
     if (!fAtlasMaxSize) {
         return false;
@@ -336,19 +333,19 @@ bool GrTessellationPathRenderer::tryAddPathToAtlas(GrRecordingContext* rContext,
         return false;
     }
 
-    pathDevBounds.roundOut(devIBounds);
-    int widthInAtlas = devIBounds->width();
-    int heightInAtlas = devIBounds->height();
+    pathDevBounds.roundOut(&out->fPathDevIBounds);
+    int widthInAtlas = out->fPathDevIBounds.width();
+    int heightInAtlas = out->fPathDevIBounds.height();
     if (SkNextPow2(widthInAtlas) == SkNextPow2(heightInAtlas)) {
         // Both dimensions go to the same pow2 band in the atlas. Use the larger dimension as height
         // for more efficient packing.
-        *transposedInAtlas = widthInAtlas > heightInAtlas;
+        out->fTransposedInAtlas = widthInAtlas > heightInAtlas;
     } else {
         // Both dimensions go to different pow2 bands in the atlas. Use the smaller pow2 band for
         // most efficient packing.
-        *transposedInAtlas = heightInAtlas > widthInAtlas;
+        out->fTransposedInAtlas = heightInAtlas > widthInAtlas;
     }
-    if (*transposedInAtlas) {
+    if (out->fTransposedInAtlas) {
         std::swap(heightInAtlas, widthInAtlas);
     }
 
@@ -366,15 +363,17 @@ bool GrTessellationPathRenderer::tryAddPathToAtlas(GrRecordingContext* rContext,
     if (!path.isVolatile()) {
         atlasPathKey.set(viewMatrix, antialias, path);
         if (const SkIPoint16* existingLocation = fAtlasPathCache.find(atlasPathKey)) {
-            *locationInAtlas = *existingLocation;
+            out->fLocationInAtlas = *existingLocation;
+            out->fAtlasView = fAtlasRenderTasks.back()->readView(caps);
             return true;
         }
     }
 
     if (fAtlasRenderTasks.empty() ||
-        !fAtlasRenderTasks.back()->addPath(viewMatrix, path, antialias, devIBounds->topLeft(),
-                                           widthInAtlas, heightInAtlas, *transposedInAtlas,
-                                           locationInAtlas)) {
+        !fAtlasRenderTasks.back()->addPath(viewMatrix, path, antialias,
+                                           out->fPathDevIBounds.topLeft(), widthInAtlas,
+                                           heightInAtlas, out->fTransposedInAtlas,
+                                           &out->fLocationInAtlas)) {
         // We either don't have an atlas yet or the current one is full. Try to replace it.
         GrAtlasRenderTask* currentAtlasTask = (!fAtlasRenderTasks.empty())
                 ? fAtlasRenderTasks.back().get() : nullptr;
@@ -404,17 +403,20 @@ bool GrTessellationPathRenderer::tryAddPathToAtlas(GrRecordingContext* rContext,
                                                           sk_make_sp<GrArenas>(),
                                                           std::move(dynamicAtlas));
         rContext->priv().drawingManager()->addAtlasTask(newAtlasTask, currentAtlasTask);
-        SkAssertResult(newAtlasTask->addPath(viewMatrix, path, antialias, devIBounds->topLeft(),
-                                             widthInAtlas, heightInAtlas, *transposedInAtlas,
-                                             locationInAtlas));
+        SkAssertResult(newAtlasTask->addPath(viewMatrix, path, antialias,
+                                             out->fPathDevIBounds.topLeft(), widthInAtlas,
+                                             heightInAtlas, out->fTransposedInAtlas,
+                                             &out->fLocationInAtlas));
         fAtlasRenderTasks.push_back(std::move(newAtlasTask));
         fAtlasPathCache.reset();
     }
 
     // Remember this path's location in the atlas, in case it gets drawn again.
     if (!path.isVolatile()) {
-        fAtlasPathCache.set(atlasPathKey, *locationInAtlas);
+        fAtlasPathCache.set(atlasPathKey, out->fLocationInAtlas);
     }
+
+    out->fAtlasView = fAtlasRenderTasks.back()->readView(caps);
     return true;
 }
 

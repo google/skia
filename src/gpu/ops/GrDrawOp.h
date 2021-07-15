@@ -55,7 +55,7 @@ public:
      * generally be much faster than a generalized clip method.
      */
     virtual ClipResult clipToShape(GrSurfaceDrawContext*, SkClipOp, const SkMatrix& clipMatrix,
-                                   const GrShape&, GrAA) {
+                                   const GrShape&, GrAA, const GrFragmentProcessor* currentClipFP) {
         return ClipResult::kFail;
     }
 
