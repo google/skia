@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fde5cd14_a71ae659",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 49
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-07-15T18:53:10Z",
+      "side": 1,
+      "message": "At this point it\u0027s hidden behind a #define and therefore disabled, but it\u0027s pretty close to 100% working. The two big remaining issues are a lack of geometry shader support and that errors don\u0027t include line numbers. I\u0027d like to go ahead and land this disabled before fixing the remaining issues and flipping the switch to turn it on.",
+      "revId": "a3f8f7f8e5d95aed8e7a7b3fac486721f0aeca84",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

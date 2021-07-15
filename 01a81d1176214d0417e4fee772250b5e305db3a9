@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "62421a53_4a02a627",
+        "filename": "tests/sksl/shared/ArrayComparison.dsl.glsl",
+        "patchSetId": 45
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-07-15T18:53:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "96c3181f_48131f21",
+      "range": {
+        "startLine": 2,
+        "startChar": 0,
+        "endLine": 3,
+        "endChar": 37
+      },
+      "revId": "01a81d1176214d0417e4fee772250b5e305db3a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "549368d9_de719cda",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-07-09T18:25:25Z",
       "side": 1,
       "message": "Can\u0027t parse array ctors (affects multiple tests below as well)",
+      "range": {
+        "startLine": 2,
+        "startChar": 0,
+        "endLine": 3,
+        "endChar": 44
+      },
+      "revId": "01a81d1176214d0417e4fee772250b5e305db3a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e4702c29_d70e0abb",
+        "filename": "tests/sksl/shared/ArrayConstructors.dsl.glsl",
+        "patchSetId": 45
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-07-15T18:53:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "549368d9_de719cda",
       "range": {
         "startLine": 2,
         "startChar": 0,
@@ -70,6 +118,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0b557a92_f07865ca",
+        "filename": "tests/sksl/shared/CastsRoundTowardZero.dsl.glsl",
+        "patchSetId": 45
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-07-15T18:53:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f548b0b7_40effe7c",
+      "range": {
+        "startLine": 7,
+        "startChar": 4,
+        "endLine": 8,
+        "endChar": 7
+      },
+      "revId": "01a81d1176214d0417e4fee772250b5e305db3a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "34cdd0a5_14db0289",
@@ -83,6 +155,30 @@
       "writtenOn": "2021-07-09T18:25:25Z",
       "side": 1,
       "message": "Comma separated variables will generate a scopeless Block but somehow it\u0027s coming out scoped with the DSL parser.",
+      "range": {
+        "startLine": 8,
+        "startChar": 4,
+        "endLine": 13,
+        "endChar": 5
+      },
+      "revId": "01a81d1176214d0417e4fee772250b5e305db3a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "597fd5a5_d7ab718e",
+        "filename": "tests/sksl/shared/CommaSideEffects.dsl.glsl",
+        "patchSetId": 45
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-07-15T18:53:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "34cdd0a5_14db0289",
       "range": {
         "startLine": 8,
         "startChar": 4,
@@ -116,6 +212,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a12c6c23_92da702e",
+        "filename": "tests/sksl/shared/Control.dsl.glsl",
+        "patchSetId": 45
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-07-15T18:53:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "67e6f187_2209fd74",
+      "range": {
+        "startLine": 2,
+        "startChar": 0,
+        "endLine": 3,
+        "endChar": 37
+      },
+      "revId": "01a81d1176214d0417e4fee772250b5e305db3a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "776988af_dacd5005",
@@ -129,6 +249,30 @@
       "writtenOn": "2021-07-09T18:25:25Z",
       "side": 1,
       "message": "DSL variable init exprs need to honor variables that were previously-declared in the same statement: \n\n    float x \u003d 0.5, y \u003d x * 2;",
+      "range": {
+        "startLine": 2,
+        "startChar": 0,
+        "endLine": 6,
+        "endChar": 0
+      },
+      "revId": "01a81d1176214d0417e4fee772250b5e305db3a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8cf6092f_a2189278",
+        "filename": "tests/sksl/shared/DependentInitializers.dsl.glsl",
+        "patchSetId": 45
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-07-15T18:53:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "776988af_dacd5005",
       "range": {
         "startLine": 2,
         "startChar": 0,
