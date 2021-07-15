@@ -77,18 +77,19 @@ bool SkLocalMatrixShader::onAppendStages(const SkStageRec& rec) const {
 }
 
 
-skvm::Color SkLocalMatrixShader::onProgram(skvm::Builder* p,
-                                           skvm::Coord device, skvm::Coord local, skvm::Color paint,
+skvm::Color SkLocalMatrixShader::onProgram(skvm::Builder* p, skvm::Coord device, skvm::Coord local,
+                                           skvm::Color paint,
                                            const SkMatrixProvider& matrices, const SkMatrix* localM,
-                                           const SkColorInfo& dst,
-                                           skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
+                                           const SkColorInfo& dst, skvm::Uniforms* uniforms,
+                                           SkVMStageUpdater* updater,
+                                           SkArenaAlloc* alloc) const {
     SkTCopyOnFirstWrite<SkMatrix> lm(this->getLocalMatrix());
     if (localM) {
         lm.writable()->preConcat(*localM);
     }
-    return as_SB(fProxyShader)->program(p, device,local, paint,
-                                        matrices,lm.get(), dst,
-                                        uniforms,alloc);
+    return as_SB(fProxyShader)->program(p, device, local, paint,
+                                        matrices, lm.get(), dst,
+                                        uniforms, nullptr, alloc);
 }
 
 sk_sp<SkShader> SkShader::makeWithLocalMatrix(const SkMatrix& localMatrix) const {
@@ -155,15 +156,15 @@ protected:
         return as_SB(fProxyShader)->appendStages(newRec);
     }
 
-    skvm::Color onProgram(skvm::Builder* p,
-                          skvm::Coord device, skvm::Coord local, skvm::Color paint,
-                          const SkMatrixProvider& matrices, const SkMatrix* localM,
-                          const SkColorInfo& dst,
-                          skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
+    skvm::Color
+    onProgram(skvm::Builder* p, skvm::Coord device, skvm::Coord local, skvm::Color paint,
+              const SkMatrixProvider& matrices, const SkMatrix* localM,
+              const SkColorInfo& dst, skvm::Uniforms* uniforms, SkVMStageUpdater* updater,
+              SkArenaAlloc* alloc) const override {
         SkOverrideDeviceMatrixProvider matrixProvider(matrices, fCTM);
-        return as_SB(fProxyShader)->program(p, device,local, paint,
-                                            matrixProvider,localM, dst,
-                                            uniforms,alloc);
+        return as_SB(fProxyShader)->program(p, device, local, paint,
+                                            matrixProvider, localM, dst,
+                                            uniforms, nullptr, alloc);
     }
 
 private:

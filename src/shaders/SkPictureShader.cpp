@@ -293,11 +293,12 @@ bool SkPictureShader::onAppendStages(const SkStageRec& rec) const {
     return as_SB(bitmapShader)->appendStages(localRec);
 }
 
-skvm::Color SkPictureShader::onProgram(skvm::Builder* p,
-                                       skvm::Coord device, skvm::Coord local, skvm::Color paint,
+skvm::Color SkPictureShader::onProgram(skvm::Builder* p, skvm::Coord device, skvm::Coord local,
+                                       skvm::Color paint,
                                        const SkMatrixProvider& matrices, const SkMatrix* localM,
-                                       const SkColorInfo& dst,
-                                       skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
+                                       const SkColorInfo& dst, skvm::Uniforms* uniforms,
+                                       SkVMStageUpdater* updater,
+                                       SkArenaAlloc* alloc) const {
     auto lm = this->totalLocalMatrix(localM);
 
     // Keep bitmapShader alive by using alloc instead of stack memory
@@ -308,9 +309,9 @@ skvm::Color SkPictureShader::onProgram(skvm::Builder* p,
         return {};
     }
 
-    return as_SB(bitmapShader)->program(p, device,local, paint,
-                                        matrices,lm, dst,
-                                        uniforms,alloc);
+    return as_SB(bitmapShader)->program(p, device, local, paint,
+                                        matrices, lm, dst,
+                                        uniforms, nullptr, alloc);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

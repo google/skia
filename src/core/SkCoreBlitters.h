@@ -177,7 +177,8 @@ SkBlitter* SkCreateSkVMBlitter(const SkPixmap& dst,
                                const SkPaint&,
                                const SkMatrixProvider&,
                                SkArenaAlloc*,
-                               sk_sp<SkShader> clipShader);
+                               sk_sp<SkShader> clipShader,
+                               bool addUpdater = false);
 
 SkBlitter* SkCreateSkVMSpriteBlitter(const SkPixmap& dst,
                                      const SkPaint&,

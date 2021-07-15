@@ -43,9 +43,20 @@ class SkRuntimeEffect;
  */
 class SkStageUpdater {
 public:
-    virtual ~SkStageUpdater() {}
+    virtual ~SkStageUpdater() = default;
 
     virtual bool SK_WARN_UNUSED_RESULT update(const SkMatrix& ctm, const SkMatrix* localM) = 0;
+};
+
+
+/**
+ * Because SkVM creates an Updater on behalf of the Shader, the updater needs an applyMatrix call
+ * so it can have its own matrix manipulation code while executing onProgram.
+ */
+class SkVMStageUpdater : public SkStageUpdater {
+public:
+    virtual skvm::Coord applyMatrix(
+            skvm::Builder* b, const SkMatrix& inv, skvm::Coord input, skvm::Uniforms* uniforms) = 0;
 };
 
 class SkShaderBase : public SkShader {
@@ -215,10 +226,15 @@ public:
         return this->onAppendUpdatableStages(rec);
     }
 
+    SkVMStageUpdater* VMUpdater(skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
+        return this->onVMUpdater(uniforms, alloc);
+    }
+
     SK_WARN_UNUSED_RESULT
-    skvm::Color program(skvm::Builder*, skvm::Coord device, skvm::Coord local, skvm::Color paint,
-                        const SkMatrixProvider&, const SkMatrix* localM, const SkColorInfo& dst,
-                        skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const;
+    skvm::Color
+    program(skvm::Builder* builder, skvm::Coord device, skvm::Coord local, skvm::Color paint,
+            const SkMatrixProvider& matrix, const SkMatrix* localM, const SkColorInfo& dst,
+            skvm::Uniforms* uniforms, SkVMStageUpdater* updater, SkArenaAlloc* alloc) const;
 
 protected:
     SkShaderBase(const SkMatrix* localMatrix = nullptr);
@@ -239,10 +255,13 @@ protected:
         return false;
     }
 
-    // Default impl creates shadercontext and calls that (not very efficient)
+    // Default impl creates shader context and calls that (not very efficient)
     virtual bool onAppendStages(const SkStageRec&) const;
 
     virtual SkStageUpdater* onAppendUpdatableStages(const SkStageRec&) const { return nullptr; }
+    virtual SkVMStageUpdater* onVMUpdater(skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
+        return nullptr;
+    }
 
 protected:
     static skvm::Coord ApplyMatrix(skvm::Builder*, const SkMatrix&, skvm::Coord, skvm::Uniforms*);
@@ -251,13 +270,14 @@ private:
     // This is essentially const, but not officially so it can be modified in constructors.
     SkMatrix fLocalMatrix;
 
-    virtual skvm::Color onProgram(skvm::Builder*,
-                                  skvm::Coord device, skvm::Coord local, skvm::Color paint,
-                                  const SkMatrixProvider&, const SkMatrix* localM,
-                                  const SkColorInfo& dst, skvm::Uniforms*, SkArenaAlloc*) const = 0;
+    virtual skvm::Color
+    onProgram(skvm::Builder* builder, skvm::Coord device, skvm::Coord local, skvm::Color paint,
+              const SkMatrixProvider& matrix, const SkMatrix* localM, const SkColorInfo& dst,
+              skvm::Uniforms* uniforms, SkVMStageUpdater* updater, SkArenaAlloc* alloc) const = 0;
 
     using INHERITED = SkShader;
 };
+
 
 inline SkShaderBase* as_SB(SkShader* shader) {
     return static_cast<SkShaderBase*>(shader);

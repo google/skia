@@ -377,6 +377,57 @@ sk_sp<SkShader> SkMakeBitmapShaderForPaint(const SkPaint& paint, const SkBitmap&
 
 void SkShaderBase::RegisterFlattenables() { SK_REGISTER_FLATTENABLE(SkImageShader); }
 
+class SkImageStageVMUpdater : public SkVMStageUpdater {
+public:
+    SkImageStageVMUpdater(
+            const SkImageShader* shader, skvm::Uniforms* uniforms)
+            : fShader(shader)
+            , fUniforms(uniforms) {}
+
+    skvm::Coord applyMatrix(
+            skvm::Builder* p, const SkMatrix& inv, skvm::Coord input,
+            skvm::Uniforms* uniforms) override {
+        skvm::F32 x = input.x,
+                  y = input.y;
+        SkMatrix m = SkMatrix::I();
+        for (int i = 0; i < 9; ++i) {
+            fMatrixUniforms[i] = uniforms->pushF(m[i]);
+        }
+        auto dot = [&,x,y](int row) {
+            return p->mad(x, p->uniformF(fMatrixUniforms[3*row+0]),
+                          p->mad(y, p->uniformF(fMatrixUniforms[3*row+1]),
+                                 p->uniformF(fMatrixUniforms[3*row+2])));
+        };
+        x = dot(0);
+        y = dot(1);
+        if (inv.hasPerspective()) {
+            SkDEBUGCODE(fHasPerspective = true;)
+            x = x * (1.0f / dot(2));
+            y = y * (1.0f / dot(2));
+        }
+        return {x, y};
+    }
+
+    bool update(const SkMatrix& ctm, const SkMatrix* localM) override {
+        SkMatrix matrix;
+        if (fShader->computeTotalInverse(ctm, localM, &matrix)) {
+            SkASSERT(fHasPerspective == matrix.hasPerspective());
+            for (int i = 0; i < 9; ++i) {
+                memcpy(&fUniforms->buf[fMatrixUniforms[i].offset / 4], &matrix[i], sizeof
+                (SkScalar));
+            }
+            return true;
+        }
+        return false;
+    }
+
+private:
+    const SkImageShader* const fShader;
+    skvm::Uniforms*      const fUniforms;
+    skvm::Uniform              fMatrixUniforms[9];
+    SkDEBUGCODE(bool           fHasPerspective = false;)
+};
+
 class SkImageStageUpdater : public SkStageUpdater {
 public:
     SkImageStageUpdater(const SkImageShader* shader, bool usePersp)
@@ -736,11 +787,17 @@ SkStageUpdater* SkImageShader::onAppendUpdatableStages(const SkStageRec& rec) co
     return this->doStages(rec, updater) ? updater : nullptr;
 }
 
-skvm::Color SkImageShader::onProgram(skvm::Builder* p,
-                                     skvm::Coord device, skvm::Coord origLocal, skvm::Color paint,
+SkVMStageUpdater* SkImageShader::onVMUpdater(skvm::Uniforms* uniforms,
+                                              SkArenaAlloc* alloc) const {
+    return alloc->make<SkImageStageVMUpdater>(this, uniforms);
+}
+
+skvm::Color SkImageShader::onProgram(skvm::Builder* p, skvm::Coord device, skvm::Coord origLocal,
+                                     skvm::Color paint,
                                      const SkMatrixProvider& matrices, const SkMatrix* localM,
                                      const SkColorInfo& dst,
-                                     skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
+                                     skvm::Uniforms* uniforms, SkVMStageUpdater* updater,
+                                     SkArenaAlloc* alloc) const {
     SkMatrix baseInv;
     if (!this->computeTotalInverse(matrices.localToDevice(), localM, &baseInv)) {
         return {};
@@ -770,7 +827,12 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p,
         lower = &lowerPixmap;
     }
 
-    skvm::Coord upperLocal = SkShaderBase::ApplyMatrix(p, upperInv, origLocal, uniforms);
+    skvm::Coord upperLocal;
+    if (updater != nullptr) {
+        upperLocal = updater->applyMatrix(p, upperInv, origLocal, uniforms);
+    } else {
+        upperLocal = SkShaderBase::ApplyMatrix(p, upperInv, origLocal, uniforms);
+    }
 
     // We can exploit image opacity to skip work unpacking alpha channels.
     const bool input_is_opaque = SkAlphaTypeIsOpaque(upper.alphaType())

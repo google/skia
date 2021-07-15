@@ -195,11 +195,12 @@ bool SkShaderBase::onAppendStages(const SkStageRec& rec) const {
     return false;
 }
 
-skvm::Color SkShaderBase::program(skvm::Builder* p,
-                                  skvm::Coord device, skvm::Coord local, skvm::Color paint,
-                                  const SkMatrixProvider& matrices, const SkMatrix* localM,
+skvm::Color SkShaderBase::program(skvm::Builder* builder, skvm::Coord device, skvm::Coord local,
+                                  skvm::Color paint,
+                                  const SkMatrixProvider& matrix, const SkMatrix* localM,
                                   const SkColorInfo& dst,
-                                  skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
+                                  skvm::Uniforms* uniforms, SkVMStageUpdater* updater,
+                                  SkArenaAlloc* alloc) const {
     // Shader subclasses should always act as if the destination were premul or opaque.
     // SkVMBlitter handles all the coordination of unpremul itself, via premul.
     SkColorInfo tweaked = dst.alphaType() == kUnpremul_SkAlphaType
@@ -218,10 +219,10 @@ skvm::Color SkShaderBase::program(skvm::Builder* p,
     // shader program hash and blitter Key.  This makes it safe for us to use
     // that bit to make decisions when constructing an SkVMBlitter, like doing
     // SrcOver -> Src strength reduction.
-    if (auto color = this->onProgram(p, device,local, paint, matrices,localM, tweaked,
-                                     uniforms,alloc)) {
+    if (auto color = this->onProgram(builder, device, local, paint, matrix, localM, tweaked,
+                                     uniforms, updater, alloc)) {
         if (this->isOpaque()) {
-            color.a = p->splat(1.0f);
+            color.a = builder->splat(1.0f);
         }
         return color;
     }
@@ -265,8 +266,10 @@ skvm::Coord SkShaderBase::ApplyMatrix(skvm::Builder* p, const SkMatrix& m,
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 skvm::Color SkEmptyShader::onProgram(skvm::Builder*, skvm::Coord, skvm::Coord, skvm::Color,
-                                     const SkMatrixProvider&, const SkMatrix*, const SkColorInfo&,
-                                     skvm::Uniforms*, SkArenaAlloc*) const {
+                                     const SkMatrixProvider&,
+                                     const SkMatrix*, const SkColorInfo&, skvm::Uniforms*,
+                                     SkVMStageUpdater* updater,
+                                     SkArenaAlloc*) const {
     return {};  // signal failure
 }
 
