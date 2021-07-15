@@ -39,6 +39,167 @@
       },
       "revId": "a3f8f7f8e5d95aed8e7a7b3fac486721f0aeca84",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "505ec0a3_330df52a",
+        "filename": "src/sksl/SkSLDSLParser.cpp",
+        "patchSetId": 49
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-15T19:41:40Z",
+      "side": 1,
+      "message": "Can this ever be null? Would that mean a null Compiler was passed in during construction?",
+      "range": {
+        "startLine": 201,
+        "startChar": 4,
+        "endLine": 201,
+        "endChar": 23
+      },
+      "revId": "a3f8f7f8e5d95aed8e7a7b3fac486721f0aeca84",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8216fbb4_467c5d79",
+        "filename": "src/sksl/SkSLDSLParser.cpp",
+        "patchSetId": 49
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-15T19:41:40Z",
+      "side": 1,
+      "message": "Please replace with `return nullopt;` throughout?",
+      "range": {
+        "startLine": 354,
+        "startChar": 8,
+        "endLine": 354,
+        "endChar": 18
+      },
+      "revId": "a3f8f7f8e5d95aed8e7a7b3fac486721f0aeca84",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "55959f28_1e000bdb",
+        "filename": "src/sksl/SkSLDSLParser.cpp",
+        "patchSetId": 49
+      },
+      "lineNbr": 1696,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-15T19:41:40Z",
+      "side": 1,
+      "message": "nit: double blank line",
+      "range": {
+        "startLine": 1696,
+        "startChar": 0,
+        "endLine": 1696,
+        "endChar": 0
+      },
+      "revId": "a3f8f7f8e5d95aed8e7a7b3fac486721f0aeca84",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e3b48142_eb7972ae",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 49
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-15T19:41:40Z",
+      "side": 1,
+      "message": "Can\u0027t land this in shared code",
+      "range": {
+        "startLine": 253,
+        "startChar": 4,
+        "endLine": 253,
+        "endChar": 9
+      },
+      "revId": "a3f8f7f8e5d95aed8e7a7b3fac486721f0aeca84",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bf999c40_179b70ed",
+        "filename": "src/sksl/SkSLProgramSettings.h",
+        "patchSetId": 49
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-15T19:41:40Z",
+      "side": 1,
+      "message": "This looks like a nice uncomplicated new setting, let\u0027s land it on its own. No need to tangle it up in a 2300-line CL. Also, probably worth adding a test to SkSLDSLTest.cpp that it works.",
+      "range": {
+        "startLine": 77,
+        "startChar": 0,
+        "endLine": 78,
+        "endChar": 42
+      },
+      "revId": "a3f8f7f8e5d95aed8e7a7b3fac486721f0aeca84",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "22d3ee13_e3cc4ddf",
+        "filename": "src/sksl/dsl/DSLCore.cpp",
+        "patchSetId": 49
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-15T19:41:40Z",
+      "side": 1,
+      "message": "Changes in this function could be landed separately, right?",
+      "range": {
+        "startLine": 61,
+        "startChar": 6,
+        "endLine": 61,
+        "endChar": 9
+      },
+      "revId": "a3f8f7f8e5d95aed8e7a7b3fac486721f0aeca84",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ae929ba5_fb743bf6",
+        "filename": "src/sksl/dsl/DSLCore.cpp",
+        "patchSetId": 49
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-15T19:41:40Z",
+      "side": 1,
+      "message": "isEmpty",
+      "range": {
+        "startLine": 154,
+        "startChar": 23,
+        "endLine": 154,
+        "endChar": 36
+      },
+      "revId": "a3f8f7f8e5d95aed8e7a7b3fac486721f0aeca84",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
