@@ -11,23 +11,29 @@
 #include "include/gpu/gl/GrGLInterface.h"
 #include "src/gpu/GrAttachment.h"
 
+class GrGLGpu;
+
 class GrGLAttachment : public GrAttachment {
 public:
-    struct IDDesc {
-        IDDesc() : fRenderbufferID(0) {}
-        GrGLuint fRenderbufferID;
-    };
+    static sk_sp<GrGLAttachment> MakeStencil(GrGLGpu* gpu,
+                                             SkISize dimensions,
+                                             int sampleCnt,
+                                             GrGLFormat format);
 
-    GrGLAttachment(
-            GrGpu* gpu, const IDDesc& idDesc, SkISize dimensions, UsageFlags supportedUsages,
-            int sampleCnt, GrGLFormat format)
-            : GrAttachment(gpu, dimensions, supportedUsages, sampleCnt, GrMipmapped::kNo,
-                           GrProtected::kNo)
-            , fFormat(format)
-            , fRenderbufferID(idDesc.fRenderbufferID) {
-        SkASSERT(supportedUsages == UsageFlags::kStencilAttachment ||
-                 supportedUsages == UsageFlags::kColorAttachment);
-        this->registerWithCache(SkBudgeted::kYes);
+    static sk_sp<GrGLAttachment> MakeMSAA(GrGLGpu* gpu,
+                                          SkISize dimensions,
+                                          int sampleCnt,
+                                          GrGLFormat format);
+
+    static sk_sp<GrGLAttachment> MakeWrappedRenderBuffer(GrGpu* gpu,
+                                                         GrGLuint renderbufferID,
+                                                         SkISize dimensions,
+                                                         UsageFlags supportedUsages,
+                                                         int sampleCnt,
+                                                         GrGLFormat format) {
+        return sk_sp<GrGLAttachment>(
+                new GrGLAttachment(gpu, renderbufferID, dimensions, supportedUsages, sampleCnt,
+                                   format));
     }
 
     GrBackendFormat backendFormat() const override;
@@ -44,6 +50,21 @@ protected:
                           const SkString& dumpName) const override;
 
 private:
+    GrGLAttachment(GrGpu* gpu,
+                   GrGLuint renderbufferID,
+                   SkISize dimensions,
+                   UsageFlags supportedUsages,
+                   int sampleCnt,
+                   GrGLFormat format)
+            : GrAttachment(gpu, dimensions, supportedUsages, sampleCnt, GrMipmapped::kNo,
+                           GrProtected::kNo)
+            , fFormat(format)
+            , fRenderbufferID(renderbufferID) {
+        SkASSERT(supportedUsages == UsageFlags::kStencilAttachment ||
+                 supportedUsages == UsageFlags::kColorAttachment);
+        this->registerWithCache(SkBudgeted::kYes);
+    }
+
     GrGLFormat fFormat;
 
     // may be zero for external SBs associated with external RTs
