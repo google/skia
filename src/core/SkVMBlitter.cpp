@@ -44,6 +44,7 @@ namespace {
         Coverage                coverage;
         SkColor4f               paint;
         const SkMatrixProvider& matrices;
+        bool                    addUpdater;
 
         Params withCoverage(Coverage c) const {
             Params p = *this;
@@ -129,7 +130,8 @@ namespace {
 
     // If build_program() can't build this program, cache_key() sets *ok to false.
     static Key cache_key(const Params& params,
-                         skvm::Uniforms* uniforms, SkArenaAlloc* alloc, bool* ok) {
+                         skvm::Uniforms* uniforms, SkArenaAlloc* alloc,
+                         SkVMStageUpdater** updater, bool* ok) {
         // Take care to match build_program()'s reuse of the paint color uniforms.
         skvm::Uniform r = uniforms->pushF(params.paint.fR),
                       g = uniforms->pushF(params.paint.fG),
@@ -149,8 +151,11 @@ namespace {
             };
 
             uint64_t hash = 0;
+            if (params.addUpdater && !params.matrices.localToDevice().hasPerspective()) {
+                *updater = sb->VMUpdater(uniforms, alloc);
+            }
             *outColor = sb->program(&p, device, /*local=*/device, paint, params.matrices,
-                                    /*localM=*/nullptr, params.dst, uniforms, alloc);
+                    /*localM=*/nullptr, params.dst, uniforms, *updater, alloc);
             if (*outColor) {
                 hash = p.hash();
                 // p.hash() folds in all instructions to produce r,g,b,a but does not know
@@ -233,7 +238,8 @@ namespace {
     }
 
     static void build_program(skvm::Builder* p, const Params& params,
-                              skvm::Uniforms* uniforms, SkArenaAlloc* alloc) {
+                              skvm::Uniforms* uniforms, SkVMStageUpdater* updater,
+                              SkArenaAlloc* alloc) {
         // First two arguments are always uniforms and the destination buffer.
         uniforms->base    = p->uniform();
         skvm::Ptr dst_ptr = p->arg(SkColorTypeBytesPerPixel(params.dst.colorType()));
@@ -251,7 +257,7 @@ namespace {
         // See note about arguments above: a SpriteShader will call p->arg() once during program().
         skvm::Color src = as_SB(params.shader)->program(p, device, /*local=*/device, paint,
                                                         params.matrices, /*localM=*/nullptr,
-                                                        params.dst, uniforms, alloc);
+                                                        params.dst, uniforms, updater, alloc);
         SkASSERT(src);
         if (params.coverage == Coverage::Mask3D) {
             skvm::F32 M = from_unorm(8, p->load8(p->varying<uint8_t>())),
@@ -321,7 +327,7 @@ namespace {
         if (params.clip) {
             skvm::Color clip = as_SB(params.clip)->program(p, device, /*local=*/device, paint,
                                                            params.matrices, /*localM=*/nullptr,
-                                                           params.dst, uniforms, alloc);
+                                                           params.dst, uniforms, nullptr, alloc);
             SkAssertResult(clip);
             cov.r *= clip.a;  // We use the alpha channel of clip for all four.
             cov.g *= clip.a;
@@ -406,11 +412,10 @@ namespace {
 
         bool isOpaque() const override { return fSprite.isOpaque(); }
 
-        skvm::Color onProgram(skvm::Builder* p,
-                              skvm::Coord /*device*/, skvm::Coord /*local*/, skvm::Color /*paint*/,
-                              const SkMatrixProvider&, const SkMatrix* /*localM*/,
-                              const SkColorInfo& dst,
-                              skvm::Uniforms* uniforms, SkArenaAlloc*) const override {
+        skvm::Color
+        onProgram(skvm::Builder* p, skvm::Coord, skvm::Coord, skvm::Color, const SkMatrixProvider&,
+                  const SkMatrix*, const SkColorInfo& dst, skvm::Uniforms* uniforms,
+                  SkVMStageUpdater* updater, SkArenaAlloc*) const override {
             const SkColorType ct = fSprite.colorType();
 
             skvm::PixelFormat fmt = skvm::SkColorType_to_PixelFormat(ct);
@@ -432,14 +437,15 @@ namespace {
 
         bool isOpaque() const override { return fShader->isOpaque(); }
 
-        skvm::Color onProgram(skvm::Builder* p,
-                              skvm::Coord device, skvm::Coord local, skvm::Color paint,
-                              const SkMatrixProvider& matrices, const SkMatrix* localM,
-                              const SkColorInfo& dst,
-                              skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
+        skvm::Color
+        onProgram(skvm::Builder* p, skvm::Coord device, skvm::Coord local, skvm::Color paint,
+                  const SkMatrixProvider& matrices, const SkMatrix* localM,
+                  const SkColorInfo& dst, skvm::Uniforms* uniforms, SkVMStageUpdater* updater,
+                  SkArenaAlloc* alloc) const override {
             // Run our wrapped shader.
-            skvm::Color c = as_SB(fShader)->program(p, device,local, paint,
-                                                    matrices,localM, dst, uniforms,alloc);
+            skvm::Color c = as_SB(fShader)->program(p, device, local, paint,
+                                                    matrices, localM, dst, uniforms, nullptr,
+                                                    alloc);
             if (!c) {
                 return {};
             }
@@ -519,10 +525,11 @@ namespace {
 
         bool isOpaque() const override { return fIsOpaque; }
 
-        skvm::Color onProgram(skvm::Builder*,
-                              skvm::Coord, skvm::Coord, skvm::Color paint,
-                              const SkMatrixProvider&, const SkMatrix*, const SkColorInfo&,
-                              skvm::Uniforms*, SkArenaAlloc*) const override {
+        skvm::Color onProgram(skvm::Builder*, skvm::Coord, skvm::Coord, skvm::Color paint,
+                              const SkMatrixProvider&,
+                              const SkMatrix*, const SkColorInfo&, skvm::Uniforms*,
+                              SkVMStageUpdater* updater,
+                              SkArenaAlloc*) const override {
             // Incoming `paint` is unpremul in the destination color space,
             // so we just need to premul it.
             return premul(paint);
@@ -533,7 +540,8 @@ namespace {
                                    const SkPixmap* sprite,
                                    SkPaint paint,
                                    const SkMatrixProvider& matrices,
-                                   sk_sp<SkShader> clip) {
+                                   sk_sp<SkShader> clip,
+                                   bool addUpdater) {
         // Sprites take priority over any shader.  (There's rarely one set, and it's meaningless.)
         if (sprite) {
             paint.setShader(sk_make_sp<SpriteShader>(*sprite));
@@ -598,6 +606,7 @@ namespace {
             Coverage::Full,  // Placeholder... withCoverage() will change as needed.
             paintColor,
             matrices,
+            addUpdater
         };
     }
 
@@ -609,13 +618,15 @@ namespace {
                 SkIPoint                spriteOffset,
                 const SkMatrixProvider& matrices,
                 sk_sp<SkShader>         clip,
-                bool* ok)
+                bool                    addUpdater,
+                bool*                   ok)
             : fDevice(device)
             , fSprite(sprite ? *sprite : SkPixmap{})
             , fSpriteOffset(spriteOffset)
             , fUniforms(skvm::Ptr{0}, kBlitterUniformsCount)
-            , fParams(effective_params(device, sprite, paint, matrices, std::move(clip)))
-            , fKey(cache_key(fParams, &fUniforms, &fAlloc, ok))
+            , fParams(effective_params(device, sprite, paint, matrices, std::move(clip), addUpdater))
+            , fUpdater(nullptr)
+            , fKey(cache_key(fParams, &fUniforms, &fAlloc, &fUpdater, ok))
         {}
 
         ~Blitter() override {
@@ -635,6 +646,12 @@ namespace {
             }
         }
 
+        bool isUpdatable() const override { return fUpdater != nullptr; }
+        bool update(const SkMatrix& ctm, const SkMatrix* localM) override {
+            SkASSERT(fUpdater);
+            return fUpdater->update(ctm, localM);
+        }
+
     private:
         SkPixmap        fDevice;
         const SkPixmap  fSprite;                  // See isSprite().
@@ -642,6 +659,7 @@ namespace {
         skvm::Uniforms  fUniforms;                // Most data is copied directly into fUniforms,
         SkArenaAlloc    fAlloc{2*sizeof(void*)};  // but a few effects need to ref large content.
         const Params    fParams;
+        SkVMStageUpdater* fUpdater;
         const Key       fKey;
         skvm::Program   fBlitH,
                         fBlitAntiH,
@@ -667,12 +685,13 @@ namespace {
             // It's just more natural to have effects unconditionally emit them,
             // and more natural to rebuild fUniforms than to emit them into a temporary buffer.
             // fUniforms should reuse the exact same memory, so this is very cheap.
-            SkDEBUGCODE(size_t prev = fUniforms.buf.size();)
-            fUniforms.buf.resize(kBlitterUniformsCount);
+            //SkDEBUGCODE(size_t prev = fUniforms.buf.size();)
+            skvm::Uniforms uniforms{skvm::Ptr{0}, kBlitterUniformsCount};
+            //fUniforms.buf.resize(kBlitterUniformsCount);
             skvm::Builder builder;
-            build_program(&builder, fParams.withCoverage(coverage), &fUniforms, &fAlloc);
-            SkASSERTF(fUniforms.buf.size() == prev,
-                      "%zu, prev was %zu", fUniforms.buf.size(), prev);
+            build_program(&builder, fParams.withCoverage(coverage), &uniforms, fUpdater, &fAlloc);
+            SkASSERTF(fUniforms.buf.size() == uniforms.buf.size(),
+                      "%zu, prev was %zu", fUniforms.buf.size(), uniforms.buf.size());
 
             skvm::Program program = builder.done(debug_name(key).c_str());
             if (false) {
@@ -805,10 +824,11 @@ SkBlitter* SkCreateSkVMBlitter(const SkPixmap& device,
                                const SkPaint& paint,
                                const SkMatrixProvider& matrices,
                                SkArenaAlloc* alloc,
-                               sk_sp<SkShader> clip) {
+                               sk_sp<SkShader> clip,
+                               bool addUpdater) {
     bool ok = true;
     auto blitter = alloc->make<Blitter>(device, paint, /*sprite=*/nullptr, SkIPoint{0,0},
-                                        matrices, std::move(clip), &ok);
+                                        matrices, std::move(clip), addUpdater, &ok);
     return ok ? blitter : nullptr;
 }
 
@@ -824,6 +844,7 @@ SkBlitter* SkCreateSkVMSpriteBlitter(const SkPixmap& device,
     }
     bool ok = true;
     auto blitter = alloc->make<Blitter>(device, paint, &sprite, SkIPoint{left,top},
-                                        SkSimpleMatrixProvider{SkMatrix{}}, std::move(clip), &ok);
+                                        SkSimpleMatrixProvider{SkMatrix{}}, std::move(clip),
+                                        false, &ok);
     return ok ? blitter : nullptr;
 }

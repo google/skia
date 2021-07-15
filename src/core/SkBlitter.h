@@ -131,6 +131,14 @@ public:
         return fBlitMemory.reset(sz, SkAutoMalloc::kReuse_OnShrink);
     }
 
+    virtual bool isUpdatable() const {
+        return false;
+    }
+
+    virtual bool update(const SkMatrix& ctm, const SkMatrix* localM) {
+        return false;
+    }
+
     ///@name non-virtual helpers
     void blitMaskRegion(const SkMask& mask, const SkRegion& clip);
     void blitRectRegion(const SkIRect& rect, const SkRegion& clip);
@@ -261,6 +269,16 @@ public:
     const SkPixmap* justAnOpaqueColor(uint32_t* value) override;
     void blitAntiH2(int x, int y, U8CPU a0, U8CPU a1) override;
     void blitAntiV2(int x, int y, U8CPU a0, U8CPU a1) override;
+
+    /*
+    bool isUpdatable() const override {
+        return fBlitter->isUpdatable();
+    }
+
+    bool update(const SkMatrix& ctm, const SkMatrix* localM) override {
+        return fBlitter->update(ctm, localM);
+    }
+     */
 
     int requestRowsPreserved() const override {
         return fBlitter->requestRowsPreserved();
