@@ -3,6 +3,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "0b6abf96_967e3363",
+        "filename": "src/image/SkSurface_Gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-07-16T13:36:41Z",
+      "side": 1,
+      "message": "We could also use GrAsDirectContext here - which is what this code probably intended to do",
+      "revId": "baa3335cf002e73921c10e1b1621e37821ab9d2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "256d8933_e4b0a7bc",
         "filename": "tests/Skbug12214.cpp",
         "patchSetId": 1
