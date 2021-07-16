@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b530099b_8a440f2f",
+        "filename": "modules/androidkit/src/ImageFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-07-16T13:57:09Z",
+      "side": 1,
+      "message": "nit:\n\n  auto color \u003d SkColor4f{r, g, b, 1}.toSkColor();",
+      "range": {
+        "startLine": 47,
+        "startChar": 0,
+        "endLine": 49,
+        "endChar": 69
+      },
+      "revId": "abb6141cd244422ab0bfdd2e05ce36d048053ed2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "be9f0799_8c168cce",
+        "filename": "modules/androidkit/src/Utils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-07-16T13:57:09Z",
+      "side": 1,
+      "message": "👍",
+      "range": {
+        "startLine": 37,
+        "startChar": 0,
+        "endLine": 68,
+        "endChar": 68
+      },
+      "revId": "abb6141cd244422ab0bfdd2e05ce36d048053ed2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
