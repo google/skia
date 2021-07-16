@@ -10,6 +10,21 @@ This page includes a list of high level updates for each milestone release.
 
 * * *
 
+Milestone 93
+------------
+  * Removed SkPaint::getHash
+    https://review.skia.org/419336
+
+  * Removed SkShaders::Lerp. It was unused (and easy to replicate with SkRuntimeEffect).
+    https://review.skia.org/419796
+
+  * The default value of GrContextOptions::fReduceOpsTaskSplitting is now enabled.
+    https://review.skia.org/419836
+
+  * Removed SkMatrix44
+
+* * *
+
 Milestone 92
 ------------
   * Hides SkPathEffect::computeFastBounds() from public API; external subclasses of SkPathEffect
