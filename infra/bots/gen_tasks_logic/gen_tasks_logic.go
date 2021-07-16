@@ -1271,6 +1271,7 @@ func (b *jobBuilder) recreateSKPs() {
 		b.dimension(
 			"pool:SkiaCT",
 			fmt.Sprintf("os:%s", DEFAULT_OS_LINUX_GCE),
+			"python:3",
 		)
 		b.usesGo()
 		b.cache(CACHES_WORKDIR...)

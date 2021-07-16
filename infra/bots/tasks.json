@@ -18336,7 +18336,8 @@
       ],
       "dimensions": [
         "pool:SkiaCT",
-        "os:Debian-10.3"
+        "os:Debian-10.3",
+        "python:3"
       ],
       "env_prefixes": {
         "GOROOT": [
@@ -19978,7 +19979,8 @@
       ],
       "dimensions": [
         "pool:SkiaCT",
-        "os:Debian-10.3"
+        "os:Debian-10.3",
+        "python:3"
       ],
       "env_prefixes": {
         "GOROOT": [
