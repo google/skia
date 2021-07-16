@@ -58,6 +58,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a9904649_d737ca32",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-07-16T18:26:11Z",
+      "side": 1,
+      "message": "This is debugging code. Removed.",
+      "parentUuid": "6941a0fd_62d82bb2",
+      "range": {
+        "startLine": 154,
+        "startChar": 37,
+        "endLine": 154,
+        "endChar": 86
+      },
+      "revId": "c089606adfe667a277e8de8aea7559e42e876c3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "508d932b_22ca5768",
@@ -71,6 +95,30 @@
       "writtenOn": "2021-07-16T14:56:10Z",
       "side": 1,
       "message": "Aha. I see how it all ties together now. This second pass is emitting them into the temp buffer, so the original buffer *is* the correct places for the updaters to be poking. Hmm.",
+      "range": {
+        "startLine": 688,
+        "startChar": 0,
+        "endLine": 695,
+        "endChar": 0
+      },
+      "revId": "c089606adfe667a277e8de8aea7559e42e876c3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "18e90fa4_af04c203",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 695,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-07-16T18:26:11Z",
+      "side": 1,
+      "message": "Added a comment explaining what is going on.",
+      "parentUuid": "508d932b_22ca5768",
       "range": {
         "startLine": 688,
         "startChar": 0,
@@ -104,6 +152,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3e4d2487_d37c4263",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-07-16T18:26:11Z",
+      "side": 1,
+      "message": "Digging into this further. This does need to be virtual. The updater is created in SkVM build program, and is handled as an SkVMStageUpdater thus losing the specific type information. Since the Shader\u0027s onProgram is going to be passed an SkVMStageUpdater* it needs to communicate through a virtual.",
+      "parentUuid": "5324ae0b_1464a3cb",
+      "range": {
+        "startLine": 387,
+        "startChar": 4,
+        "endLine": 387,
+        "endChar": 27
+      },
+      "revId": "c089606adfe667a277e8de8aea7559e42e876c3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "97a85ff7_59229ee8",
@@ -117,6 +189,30 @@
       "writtenOn": "2021-07-16T14:56:10Z",
       "side": 1,
       "message": "Aha. Answering my previous question about perspective. Seems like we could be defensive and always assume perspective here? Actually - still not clear on the previous opt-out.",
+      "range": {
+        "startLine": 403,
+        "startChar": 8,
+        "endLine": 403,
+        "endChar": 35
+      },
+      "revId": "c089606adfe667a277e8de8aea7559e42e876c3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c80c5d81_795b7f1f",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-07-16T18:26:11Z",
+      "side": 1,
+      "message": "The other perspective handling is removed. This check is needed to reduce computation cost.",
+      "parentUuid": "97a85ff7_59229ee8",
       "range": {
         "startLine": 403,
         "startChar": 8,
@@ -150,6 +246,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "da6ac3b0_c56a8ac1",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 416,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-07-16T18:26:11Z",
+      "side": 1,
+      "message": "The subtly of this problem is in the ordering of update, and buildProgram. Since update will be called by update, and the values are stored at that time, then those values must persist through the call to buildProgram. Therefore, buildProgram must take a different set of uniforms to not harm the data set by update.",
+      "parentUuid": "55eee740_0065e2cb",
+      "range": {
+        "startLine": 416,
+        "startChar": 24,
+        "endLine": 416,
+        "endChar": 33
+      },
+      "revId": "c089606adfe667a277e8de8aea7559e42e876c3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1162e581_179d0dc6",
@@ -163,6 +283,30 @@
       "writtenOn": "2021-07-16T14:56:10Z",
       "side": 1,
       "message": "Not real important, but these don\u0027t need to be related - probably makes more sense structurally for them to be independent interfaces (that happen to each have the same update method declared).",
+      "range": {
+        "startLine": 51,
+        "startChar": 25,
+        "endLine": 51,
+        "endChar": 46
+      },
+      "revId": "c089606adfe667a277e8de8aea7559e42e876c3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e8030986_665ecbc3",
+        "filename": "src/shaders/SkShaderBase.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-07-16T18:26:11Z",
+      "side": 1,
+      "message": "The problem with doing that is the VMUpdater call must return a single type. So, the class must be structured this way otherwise you would need a cast.",
+      "parentUuid": "1162e581_179d0dc6",
       "range": {
         "startLine": 51,
         "startChar": 25,
