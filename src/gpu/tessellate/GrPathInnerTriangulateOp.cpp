@@ -55,7 +55,9 @@ GrGLSLGeometryProcessor* HullShader::createGLSLInstance(const GrShaderCaps&) con
             if (isinf(p3.y)) {  // Is the curve a conic?
                 float w = p3.x;
                 p3 = p2;
-                if (!isinf(w)) {  // A conic with w=Inf is an exact triangle.
+                // A conic with w=Inf is an exact triangle.
+                // NOTE: "isinf == false" works on Mac Radeon GLSL. "!isinf" gets the wrong answer.
+                if (isinf(w) == false) {
                     // Convert the points to a trapeziodal hull that circumcscribes the conic.
                     float2 p1w = p1 * w;
                     float T = .51;  // Bias outward a bit to ensure we cover the outermost samples.
