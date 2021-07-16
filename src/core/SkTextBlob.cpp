@@ -895,16 +895,10 @@ int get_glyph_run_intercepts(const SkGlyphRun& glyphRun,
     SkStrikeSpec strikeSpec = SkStrikeSpec::MakeWithNoDevice(interceptFont, &interceptPaint);
     SkBulkGlyphMetricsAndPaths metricsAndPaths{strikeSpec};
 
-    SkScalar xOffset = 0;
-    SkScalar xPos = xOffset;
-    SkScalar prevAdvance = 0;
-
     const SkPoint* posCursor = glyphRun.positions().begin();
     for (const SkGlyph* glyph : metricsAndPaths.glyphs(glyphRun.glyphsIDs())) {
         SkPoint pos = *posCursor++;
 
-        xPos += prevAdvance * scale;
-        prevAdvance = glyph->advanceX();
         if (glyph->path() != nullptr) {
             // The typeface is scaled, so un-scale the bounds to be in the space of the typeface.
             // Also ensure the bounds are properly offset by the vertical positioning of the glyph.
