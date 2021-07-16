@@ -177,6 +177,11 @@ std::unique_ptr<SkSL::Expression> DSLWriter::ConvertField(std::unique_ptr<Expres
 
 std::unique_ptr<SkSL::Expression> DSLWriter::ConvertIndex(std::unique_ptr<Expression> base,
                                                           std::unique_ptr<Expression> index) {
+    if (base->is<TypeReference>() && index->is<IntLiteral>()) {
+        return std::make_unique<TypeReference>(Context(), /*offset=*/-1,
+                                               &Array(&base->as<TypeReference>().value(),
+                                                      index->as<IntLiteral>().value()).skslType());
+    }
     return IndexExpression::Convert(Context(), std::move(base), std::move(index));
 }
 
@@ -239,10 +244,16 @@ const SkSL::Variable* DSLWriter::Var(DSLVarBase& var) {
                                                                           var.storage());
         SkSL::Variable* varPtr = skslvar.get();
         // We can't call VarDeclaration::Convert directly here, because the IRGenerator has special
-        // treatment for sk_FragColor that we want to preserve in DSL.
+        // treatment for sk_FragColor that we want to preserve in DSL. We also do not want the
+        // variable added to the symbol table for several reasons - DSLParser handles the symbol
+        // table itself, parameters don't go into the symbol table until after the
+        // FunctionDeclaration is created which makes this the wrong spot for them, and outside of
+        // DSLParser we don't even need DSL variables to show up in the symbol table in the first
+        // place.
         var.fDeclaration = DSLWriter::IRGenerator().convertVarDeclaration(
-                                                                std::move(skslvar),
-                                                                var.fInitialValue.releaseIfValid());
+                                                                 std::move(skslvar),
+                                                                 var.fInitialValue.releaseIfValid(),
+                                                                 /*addToSymbolTable=*/false);
         if (var.fDeclaration) {
             var.fVar = varPtr;
         }
