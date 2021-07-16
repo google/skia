@@ -39,6 +39,16 @@ public:
     GrMtlAttachment* resolveAttachment() const { return fResolveAttachment.get(); }
     id<MTLTexture> resolveMTLTexture() const { return fResolveAttachment->mtlTexture(); }
 
+    // Returns the GrMtlAttachment of the non-msaa attachment. If the color attachment has 1 sample,
+    // then the color attachment will be returned. Otherwise, the resolve attachment is returned.
+    GrMtlAttachment* nonMSAAAttachment() const {
+        if (fColorAttachment->numSamples() == 1) {
+            return fColorAttachment.get();
+        } else {
+            return fResolveAttachment.get();
+        }
+    }
+
     GrBackendRenderTarget getBackendRenderTarget() const override;
 
     GrBackendFormat backendFormat() const override;
@@ -54,18 +64,8 @@ protected:
     void onAbandon() override;
     void onRelease() override;
 
-    // This accounts for the texture's memory and any MSAA renderbuffer's memory.
-    size_t onGpuMemorySize() const override {
-        int numColorSamples = this->numSamples();
-        // TODO: When used as render targets certain formats may actually have a larger size than
-        // the base format size. Check to make sure we are reporting the correct value here.
-        // The plus 1 is to account for the resolve texture or if not using msaa the RT itself
-        if (numColorSamples > 1) {
-            ++numColorSamples;
-        }
-        return GrSurface::ComputeSize(this->backendFormat(), this->dimensions(),
-                                      numColorSamples, GrMipmapped::kNo);
-    }
+    // This returns zero since the memory should all be handled by the attachments
+    size_t onGpuMemorySize() const override { return 0; }
 
     sk_sp<GrMtlAttachment> fColorAttachment;
     sk_sp<GrMtlAttachment> fResolveAttachment;

@@ -58,18 +58,7 @@ private:
                              GrMipmapStatus,
                              GrWrapCacheable cacheable);
 
-
-    size_t onGpuMemorySize() const override {
-        // TODO: When used as render targets certain formats may actually have a larger size than
-        // the base format size. Check to make sure we are reporting the correct value here.
-        // The plus 1 is to account for the resolve texture or if not using msaa the RT itself
-        int numColorSamples = this->numSamples();
-        if (numColorSamples > 1) {
-            ++numColorSamples;
-        }
-        return GrSurface::ComputeSize(this->backendFormat(), this->dimensions(),
-                                      numColorSamples, GrMipmapped::kNo);
-    }
+    size_t onGpuMemorySize() const override;
 };
 
 #endif

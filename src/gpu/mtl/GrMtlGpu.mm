@@ -563,6 +563,19 @@ sk_sp<GrAttachment> GrMtlGpu::makeStencilAttachment(const GrBackendFormat& /*col
     return GrMtlAttachment::GrMtlAttachment::MakeStencil(this, dimensions, numStencilSamples, sFmt);
 }
 
+sk_sp<GrAttachment> GrMtlGpu::makeMSAAAttachment(SkISize dimensions,
+                                                 const GrBackendFormat& format,
+                                                 int numSamples,
+                                                 GrProtected /*isProtected*/) {
+    MTLPixelFormat pixelFormat = (MTLPixelFormat) format.asMtlFormat();
+    SkASSERT(pixelFormat != MTLPixelFormatInvalid);
+    SkASSERT(!GrMtlFormatIsCompressed(pixelFormat));
+    SkASSERT(this->mtlCaps().isFormatRenderable(pixelFormat, numSamples));
+
+    fStats.incMSAAAttachmentCreates();
+    return GrMtlAttachment::MakeMSAA(this, dimensions, numSamples, pixelFormat);
+}
+
 sk_sp<GrTexture> GrMtlGpu::onCreateTexture(SkISize dimensions,
                                            const GrBackendFormat& format,
                                            GrRenderable renderable,
