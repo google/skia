@@ -275,7 +275,7 @@ void SkSurface_Gpu::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y,
     // onDraw) since that may not always perform the copy-on-write optimization.
     auto tryDraw = [&] {
         auto surfaceContext = fDevice->recordingContext();
-        auto canvasContext = canvas->recordingContext()->asDirectContext();
+        auto canvasContext = GrAsDirectContext(canvas->recordingContext());
         if (!canvasContext) {
             return false;
         }
