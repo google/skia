@@ -510,6 +510,8 @@ skia_gl_gpu_sources = [
   "$_src/gpu/gl/GrGLContext.h",
   "$_src/gpu/gl/GrGLDefines.h",
   "$_src/gpu/gl/GrGLExtensions.cpp",
+  "$_src/gpu/gl/GrGLFramebuffer.cpp",
+  "$_src/gpu/gl/GrGLFramebuffer.h",
   "$_src/gpu/gl/GrGLGLSL.cpp",
   "$_src/gpu/gl/GrGLGLSL.h",
   "$_src/gpu/gl/GrGLGpu.cpp",
