@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "2a4b8ff5_f7161cf0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-16T12:50:51Z",
+      "side": 1,
+      "message": "Sure, I\u0027ll whip something up.",
+      "parentUuid": "8321192c_36ea5b58",
+      "revId": "35c7a7648bd29caff04d74fa3d5ac8f19e82b468",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "eb660bac_22063de9",
         "filename": "src/utils/SkDashPath.cpp",
         "patchSetId": 1
@@ -31,6 +49,30 @@
       "writtenOn": "2021-07-16T12:05:05Z",
       "side": 1,
       "message": "we can still under/over flow when computing n (if ptCount is larger than int_max \u003e\u003e 2",
+      "range": {
+        "startLine": 251,
+        "startChar": 12,
+        "endLine": 251,
+        "endChar": 25
+      },
+      "revId": "35c7a7648bd29caff04d74fa3d5ac8f19e82b468",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ab00bce6_4370cd3e",
+        "filename": "src/utils/SkDashPath.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-16T12:50:51Z",
+      "side": 1,
+      "message": "The previous line sets an upper bound on ptCount to 1000000. The fuzzer also tried to slip some INFs past and the min check successfully defended against it.",
+      "parentUuid": "eb660bac_22063de9",
       "range": {
         "startLine": 251,
         "startChar": 12,
