@@ -7,6 +7,7 @@
 
 #include <jni.h>
 
+#include "include/core/SkBlendMode.h"
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkTileMode.h"
 
@@ -69,6 +70,7 @@ private:
 
 SkSamplingOptions SamplingOptions(jint, jfloat, jfloat);
 SkTileMode TileMode(jint);
+SkBlendMode BlendMode(jint);
 
 } // namespace utils
 } // namespace androidkit
