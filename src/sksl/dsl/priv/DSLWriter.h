@@ -71,6 +71,11 @@ public:
     static const SkSL::Context& Context();
 
     /**
+     * Returns the Settings used by DSL operations in the current thread.
+     */
+    static SkSL::ProgramSettings& Settings();
+
+    /**
      * Returns the collection to which DSL program elements in this thread should be appended.
      */
     static std::vector<std::unique_ptr<SkSL::ProgramElement>>& ProgramElements() {
