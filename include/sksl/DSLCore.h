@@ -49,9 +49,12 @@ void Start(SkSL::Compiler* compiler, SkSL::ProgramKind kind, const SkSL::Program
 void End();
 
 /**
- * Returns all global elements (functions and global variables) as a self-contained Program.
+ * Returns all global elements (functions and global variables) as a self-contained Program. The
+ * optional source string is retained as the program's source. DSL programs do not normally have
+ * sources, but when a DSL program is produced from parsed program text (as in DSLParser), it may be
+ * important to retain it so that any skstd::string_views derived from it remain valid.
  */
-std::unique_ptr<SkSL::Program> ReleaseProgram();
+std::unique_ptr<SkSL::Program> ReleaseProgram(std::unique_ptr<SkSL::String> source = nullptr);
 
 /**
  * Installs an ErrorHandler which will be notified of any errors that occur during DSL calls. If

@@ -56,12 +56,12 @@ void SetErrorHandler(ErrorHandler* errorHandler) {
 
 class DSLCore {
 public:
-    static std::unique_ptr<SkSL::Program> ReleaseProgram() {
+    static std::unique_ptr<SkSL::Program> ReleaseProgram(std::unique_ptr<String> source) {
         DSLWriter& instance = DSLWriter::Instance();
         SkSL::IRGenerator& ir = DSLWriter::IRGenerator();
         IRGenerator::IRBundle bundle = ir.finish();
         Pool* pool = DSLWriter::Instance().fPool.get();
-        auto result = std::make_unique<SkSL::Program>(/*source=*/nullptr,
+        auto result = std::make_unique<SkSL::Program>(std::move(source),
                                                       std::move(instance.fConfig),
                                                       DSLWriter::Instance().fCompiler->fContext,
                                                       std::move(bundle.fElements),
@@ -71,13 +71,16 @@ public:
                                                       std::move(instance.fPool),
                                                       bundle.fInputs);
         bool success = false;
+        // Make sure that if we encountered any compiler errors, we reported them through the
+        // DSL error handling side of things. (The converse is not a problem - it is ok to detect
+        // errors in the DSL layer, and thus have fEncounteredErrors be true, while not having the
+        // compiler see any errors because we caught them before they got there.)
+        SkASSERT(!DSLWriter::Compiler().errorCount() || DSLWriter::Instance().fEncounteredErrors);
         if (DSLWriter::Compiler().errorCount() || DSLWriter::Instance().fEncounteredErrors) {
-            // Make sure that if we encountered any compiler errors, we reported them through the
-            // DSL error handling side of things.
-            SkASSERT(!DSLWriter::Compiler().errorCount() ||
-                     DSLWriter::Instance().fEncounteredErrors);
+            DSLWriter::ReportErrors();
             // Do not return programs that failed to compile.
         } else if (!DSLWriter::Compiler().optimize(*result)) {
+            DSLWriter::ReportErrors();
             // Do not return programs that failed to optimize.
         } else {
             // We have a successful program!
@@ -268,8 +271,8 @@ public:
     }
 };
 
-std::unique_ptr<SkSL::Program> ReleaseProgram() {
-    return DSLCore::ReleaseProgram();
+std::unique_ptr<SkSL::Program> ReleaseProgram(std::unique_ptr<String> source) {
+    return DSLCore::ReleaseProgram(std::move(source));
 }
 
 DSLGlobalVar sk_FragColor() {
