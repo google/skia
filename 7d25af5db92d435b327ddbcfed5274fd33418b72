@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "84c336f4_567a8efb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-07-16T23:22:52Z",
+      "side": 1,
+      "message": "Any gotchas in d3d I should be aware of? GL had one I addressed in an earlier CL, where we needed to re-enable GL_MULTISAMPLE during onResetContext if we knew the client might be able to disable it.",
+      "revId": "7d25af5db92d435b327ddbcfed5274fd33418b72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
