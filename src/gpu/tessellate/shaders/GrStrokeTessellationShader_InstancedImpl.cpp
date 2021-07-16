@@ -23,7 +23,6 @@ void GrStrokeTessellationShader::InstancedImpl::onEmitCode(EmitArgs& args, GrGPA
     if (shader.hasDynamicStroke()) {
         args.fVertBuilder->insertFunction(kNumRadialSegmentsPerRadianFn);
     }
-    args.fVertBuilder->insertFunction(kAtan2Fn);
     args.fVertBuilder->insertFunction(kCosineBetweenVectorsFn);
     args.fVertBuilder->insertFunction(kMiterExtentFn);
     args.fVertBuilder->insertFunction(kUncheckedMixFn);
@@ -237,7 +236,6 @@ void GrStrokeTessellationShader::InstancedImpl::onEmitCode(EmitArgs& args, GrGPA
     }
 
     // Additional parameters for emitTessellationCode().
-    float angle0 = atan2(tan0);
     float radsPerSegment = rotation / numRadialSegments;
     float numCombinedSegments = numParametricSegments + numRadialSegments - 1;
     bool isFinalEdge = (combinedEdgeID >= numCombinedSegments);
