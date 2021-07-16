@@ -296,6 +296,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			if sampleCount > 0 {
 				configs = append(configs, fmt.Sprintf("angle_d3d11_es2_msaa%d", sampleCount))
 				configs = append(configs, fmt.Sprintf("angle_d3d11_es3_msaa%d", sampleCount))
+				configs = append(configs, fmt.Sprintf("angle_d3d11_es3_dmsaa"))
+				configs = append(configs, fmt.Sprintf("angle_gl_es3_dmsaa"))
 			}
 			if b.matchGpu("GTX", "Quadro") {
 				// See skia:7823 and chromium:693090.
@@ -303,6 +305,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 				if sampleCount > 0 {
 					configs = append(configs, fmt.Sprintf("angle_gl_es2_msaa%d", sampleCount))
 					configs = append(configs, fmt.Sprintf("angle_gl_es3_msaa%d", sampleCount))
+					configs = append(configs, fmt.Sprintf("angle_gl_es3_dmsaa"))
 				}
 			}
 			if !b.matchGpu("GTX", "Quadro", "GT610") {
