@@ -16,6 +16,161 @@
       "message": "This allows fast triangle update for texCoord. I would like to talk about the approach, and explore other implementation ideas.",
       "revId": "c089606adfe667a277e8de8aea7559e42e876c3d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e090091f_e28b345c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-07-16T14:56:10Z",
+      "side": 1,
+      "message": "I reviewed this CL in a strange order, and left comments as I went. Some of them are invalidated by later comments. We can talk about this all later - just wanted to capture my thought process reading everything.",
+      "revId": "c089606adfe667a277e8de8aea7559e42e876c3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6941a0fd_62d82bb2",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-07-16T14:56:10Z",
+      "side": 1,
+      "message": "Why are we ignoring the request to add an updater when there\u0027s perspective?",
+      "range": {
+        "startLine": 154,
+        "startChar": 37,
+        "endLine": 154,
+        "endChar": 86
+      },
+      "revId": "c089606adfe667a277e8de8aea7559e42e876c3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "508d932b_22ca5768",
+        "filename": "src/core/SkVMBlitter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 695,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-07-16T14:56:10Z",
+      "side": 1,
+      "message": "Aha. I see how it all ties together now. This second pass is emitting them into the temp buffer, so the original buffer *is* the correct places for the updaters to be poking. Hmm.",
+      "range": {
+        "startLine": 688,
+        "startChar": 0,
+        "endLine": 695,
+        "endChar": 0
+      },
+      "revId": "c089606adfe667a277e8de8aea7559e42e876c3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5324ae0b_1464a3cb",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-07-16T14:56:10Z",
+      "side": 1,
+      "message": "Seems like this doesn\u0027t need to be virtual - it\u0027s a detail of the image stage updater, rather than a concept universal to all updaters?",
+      "range": {
+        "startLine": 387,
+        "startChar": 4,
+        "endLine": 387,
+        "endChar": 27
+      },
+      "revId": "c089606adfe667a277e8de8aea7559e42e876c3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "97a85ff7_59229ee8",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-07-16T14:56:10Z",
+      "side": 1,
+      "message": "Aha. Answering my previous question about perspective. Seems like we could be defensive and always assume perspective here? Actually - still not clear on the previous opt-out.",
+      "range": {
+        "startLine": 403,
+        "startChar": 8,
+        "endLine": 403,
+        "endChar": 35
+      },
+      "revId": "c089606adfe667a277e8de8aea7559e42e876c3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "55eee740_0065e2cb",
+        "filename": "src/shaders/SkImageShader.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 416,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-07-16T14:56:10Z",
+      "side": 1,
+      "message": "Oh wait - is this interacting with the changes in SkVMBlitter? How? We\u0027re updating the buffer held by the Uniforms object that was present when we were created, but the blitter code is now allocating a separate buffer. Are we even updating the right one? Wondering if this pattern would be safer/better if we didn\u0027t take the Uniforms object in the constructor, and it was instead passed to the update() - so the updater object is told: \"Here\u0027s the uniform block, do any patching you need.\"",
+      "range": {
+        "startLine": 416,
+        "startChar": 24,
+        "endLine": 416,
+        "endChar": 33
+      },
+      "revId": "c089606adfe667a277e8de8aea7559e42e876c3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1162e581_179d0dc6",
+        "filename": "src/shaders/SkShaderBase.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2021-07-16T14:56:10Z",
+      "side": 1,
+      "message": "Not real important, but these don\u0027t need to be related - probably makes more sense structurally for them to be independent interfaces (that happen to each have the same update method declared).",
+      "range": {
+        "startLine": 51,
+        "startChar": 25,
+        "endLine": 51,
+        "endChar": 46
+      },
+      "revId": "c089606adfe667a277e8de8aea7559e42e876c3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
