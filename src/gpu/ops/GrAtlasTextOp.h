@@ -115,11 +115,11 @@ public:
     };
     static constexpr int kMaskTypeCount = static_cast<int>(MaskType::kLast) + 1;
 
-#if GR_TEST_UTILS
-    static GrOp::Owner CreateOpTestingOnly(GrSurfaceDrawContext* rtc,
-                                           const SkPaint& skPaint,
-                                           const SkFont& font,
-                                           const SkMatrixProvider& mtxProvider,
+#if GR_TEST_UTILS && SK_GPU_V1
+    static GrOp::Owner CreateOpTestingOnly(skgpu::v1::SurfaceDrawContext*,
+                                           const SkPaint&,
+                                           const SkFont&,
+                                           const SkMatrixProvider&,
                                            const char* text,
                                            int x,
                                            int y);

@@ -77,7 +77,7 @@ public:
                                          ReadPixelsCallback,
                                          ReadPixelsContext) override;
 
-    GrSurfaceDrawContext* surfaceDrawContext() override { return nullptr; }
+    skgpu::SurfaceContext* surfaceDrawContext() override { return nullptr; }
 
 protected:
     void onSave() override;

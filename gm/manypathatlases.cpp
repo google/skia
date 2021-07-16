@@ -13,7 +13,7 @@
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
+#include "src/gpu/SurfaceContext.h"
 #include "tools/ToolUtils.h"
 
 namespace skiagm {
@@ -34,7 +34,7 @@ private:
         ctxOptions->fMaxTextureAtlasSize = fMaxAtlasSize;
     }
 
-    DrawResult onDraw(GrRecordingContext* rContext, GrSurfaceDrawContext*, SkCanvas* canvas,
+    DrawResult onDraw(GrRecordingContext* rContext, skgpu::SurfaceContext*, SkCanvas* canvas,
                       SkString* errorMsg) override {
         canvas->clear({1,1,0,1});
 

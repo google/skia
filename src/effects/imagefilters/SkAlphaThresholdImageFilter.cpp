@@ -20,8 +20,8 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrColorSpaceXform.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTextureProxy.h"
+#include "src/gpu/SurfaceFillContext.h"
 #include "src/gpu/effects/GrSkSLFP.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #endif
@@ -102,7 +102,7 @@ void SkAlphaThresholdImageFilter::flatten(SkWriteBuffer& buffer) const {
 GrSurfaceProxyView SkAlphaThresholdImageFilter::createMaskTexture(
         GrRecordingContext* context, const SkMatrix& inMatrix, const SkIRect& bounds,
         const SkSurfaceProps& surfaceProps) const {
-    auto rtContext = GrSurfaceDrawContext::MakeWithFallback(
+    auto rtContext = skgpu::SurfaceFillContext_Base::MakeWithFallback(
             context, GrColorType::kAlpha_8, nullptr, SkBackingFit::kApprox, bounds.size(),
             surfaceProps);
     if (!rtContext) {

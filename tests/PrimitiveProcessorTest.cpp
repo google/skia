@@ -21,12 +21,12 @@
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrProgramInfo.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
+#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
 namespace {
 class Op : public GrMeshDrawOp {
@@ -175,9 +175,9 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
     GrGpu* gpu = context->priv().getGpu();
 #endif
 
-    auto surfaceDrawContext = GrSurfaceDrawContext::Make(context, GrColorType::kRGBA_8888, nullptr,
-                                                         SkBackingFit::kApprox, {1, 1},
-                                                         SkSurfaceProps());
+    auto surfaceDrawContext = skgpu::v1::SurfaceDrawContext::Make(context, GrColorType::kRGBA_8888, nullptr,
+                                                                  SkBackingFit::kApprox, {1, 1},
+                                                                  SkSurfaceProps());
     if (!surfaceDrawContext) {
         ERRORF(reporter, "Could not create render target context.");
         return;

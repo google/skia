@@ -9,29 +9,29 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/private/SkColorData.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrSwizzle.h"
+#include "src/gpu/SurfaceFillContext.h"
 
 // Size of each clear
 static constexpr int kSize = 64;
 
-DEF_SIMPLE_GPU_GM(clear_swizzle, ctx, sdCtx, canvas, 6*kSize, 2*kSize) {
+DEF_SIMPLE_GPU_GM(clear_swizzle, ctx, sc, canvas, 6*kSize, 2*kSize) {
     if (ctx->abandoned()) {
         return;
     }
 
     auto make_offscreen = [&](const SkISize dimensions) {
-        GrSwizzle readSwizzle  = GrSwizzle::Concat(sdCtx->readSwizzle(), GrSwizzle{"bgra"});
-        GrSwizzle writeSwizzle = GrSwizzle::Concat(sdCtx->readSwizzle(), GrSwizzle{"bgra"});
-        return GrSurfaceFillContext::Make(ctx,
+        GrSwizzle readSwizzle  = GrSwizzle::Concat(sc->readSwizzle(), GrSwizzle{"bgra"});
+        GrSwizzle writeSwizzle = GrSwizzle::Concat(sc->readSwizzle(), GrSwizzle{"bgra"});
+        return skgpu::SurfaceFillContext_Base::Make(ctx,
                                           kPremul_SkAlphaType,
-                                          sdCtx->colorInfo().refColorSpace(),
+                                          sc->colorInfo().refColorSpace(),
                                           dimensions,
                                           SkBackingFit::kExact,
-                                          sdCtx->asSurfaceProxy()->backendFormat(),
+                                          sc->asSurfaceProxy()->backendFormat(),
                                           /* sample count*/ 1,
                                           GrMipmapped::kNo,
-                                          sdCtx->asSurfaceProxy()->isProtected(),
+                                          sc->asSurfaceProxy()->isProtected(),
                                           readSwizzle,
                                           writeSwizzle,
                                           kTopLeft_GrSurfaceOrigin,
@@ -50,7 +50,7 @@ DEF_SIMPLE_GPU_GM(clear_swizzle, ctx, sdCtx, canvas, 6*kSize, 2*kSize) {
 
     // onscreen for reference
     for (const auto& c : clears) {
-        sdCtx->clear(c.rect, c.color);
+        sc->asFillContext()->clear(c.rect, c.color);
     }
 
     // partial clear offscreen
@@ -58,16 +58,16 @@ DEF_SIMPLE_GPU_GM(clear_swizzle, ctx, sdCtx, canvas, 6*kSize, 2*kSize) {
     for (const auto& c : clears) {
         offscreen->clear(c.rect, c.color);
     }
-    sdCtx->blitTexture(offscreen->readSurfaceView(),
-                       SkIRect::MakeSize({2*kSize, 2*kSize}),
-                       SkIPoint{2*kSize, 0});
+    sc->asFillContext()->blitTexture(offscreen->readSurfaceView(),
+                                     SkIRect::MakeSize({2*kSize, 2*kSize}),
+                                     SkIPoint{2*kSize, 0});
 
     // full offscreen clears
     for (const auto& c : clears) {
         offscreen = make_offscreen(c.rect.size());
         offscreen->clear(SkIRect::MakeSize(c.rect.size()), c.color);
-        sdCtx->blitTexture(offscreen->readSurfaceView(),
-                           SkIRect::MakeSize(offscreen->dimensions()),
-                           c.rect.topLeft() + SkIPoint{4*kSize, 0});
+        sc->asFillContext()->blitTexture(offscreen->readSurfaceView(),
+                                         SkIRect::MakeSize(offscreen->dimensions()),
+                                         c.rect.topLeft() + SkIPoint{4*kSize, 0});
     }
 }

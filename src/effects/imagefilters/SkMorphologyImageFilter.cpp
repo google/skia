@@ -18,10 +18,10 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/SurfaceFillContext.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -363,7 +363,7 @@ std::unique_ptr<GrFragmentProcessor> GrMorphologyEffect::TestCreate(GrProcessorT
 }
 #endif
 
-static void apply_morphology_rect(GrSurfaceFillContext* surfaceFillContext,
+static void apply_morphology_rect(skgpu::SurfaceFillContext_Base* sfc,
                                   GrSurfaceProxyView view,
                                   SkAlphaType srcAlphaType,
                                   const SkIRect& srcRect,
@@ -379,10 +379,10 @@ static void apply_morphology_rect(GrSurfaceFillContext* surfaceFillContext,
                                        radius,
                                        morphType,
                                        range);
-    surfaceFillContext->fillRectToRectWithFP(srcRect, dstRect, std::move(fp));
+    sfc->fillRectToRectWithFP(srcRect, dstRect, std::move(fp));
 }
 
-static void apply_morphology_rect_no_bounds(GrSurfaceFillContext* surfaceFillContext,
+static void apply_morphology_rect_no_bounds(skgpu::SurfaceFillContext_Base* sfc,
                                             GrSurfaceProxyView view,
                                             SkAlphaType srcAlphaType,
                                             const SkIRect& srcRect,
@@ -392,10 +392,10 @@ static void apply_morphology_rect_no_bounds(GrSurfaceFillContext* surfaceFillCon
                                             MorphDirection direction) {
     auto fp = GrMorphologyEffect::Make(
             /*inputFP=*/nullptr, std::move(view), srcAlphaType, direction, radius, morphType);
-    surfaceFillContext->fillRectToRectWithFP(srcRect, dstRect, std::move(fp));
+    sfc->fillRectToRectWithFP(srcRect, dstRect, std::move(fp));
 }
 
-static void apply_morphology_pass(GrSurfaceFillContext* surfaceFillContext,
+static void apply_morphology_pass(skgpu::SurfaceFillContext_Base* sfc,
                                   GrSurfaceProxyView view,
                                   SkAlphaType srcAlphaType,
                                   const SkIRect& srcRect,
@@ -428,15 +428,15 @@ static void apply_morphology_pass(GrSurfaceFillContext* surfaceFillContext,
     }
     if (middleSrcRect.width() <= 0) {
         // radius covers srcRect; use bounds over entire draw
-        apply_morphology_rect(surfaceFillContext, std::move(view), srcAlphaType, srcRect,
+        apply_morphology_rect(sfc, std::move(view), srcAlphaType, srcRect,
                               dstRect, radius, morphType, bounds, direction);
     } else {
         // Draw upper and lower margins with bounds; middle without.
-        apply_morphology_rect(surfaceFillContext, view, srcAlphaType, lowerSrcRect,
+        apply_morphology_rect(sfc, view, srcAlphaType, lowerSrcRect,
                               lowerDstRect, radius, morphType, bounds, direction);
-        apply_morphology_rect(surfaceFillContext, view, srcAlphaType, upperSrcRect,
+        apply_morphology_rect(sfc, view, srcAlphaType, upperSrcRect,
                               upperDstRect, radius, morphType, bounds, direction);
-        apply_morphology_rect_no_bounds(surfaceFillContext, std::move(view), srcAlphaType,
+        apply_morphology_rect_no_bounds(sfc, std::move(view), srcAlphaType,
                                         middleSrcRect, middleDstRect, radius, morphType, direction);
     }
 }
@@ -460,13 +460,13 @@ static sk_sp<SkSpecialImage> apply_morphology(
 
     if (radius.fWidth > 0) {
         GrImageInfo info(colorType, kPremul_SkAlphaType, colorSpace, rect.size());
-        auto dstFillContext = GrSurfaceFillContext::Make(context,
-                                                         info,
-                                                         SkBackingFit::kApprox,
-                                                         1,
-                                                         GrMipmapped::kNo,
-                                                         proxy->isProtected(),
-                                                         kBottomLeft_GrSurfaceOrigin);
+        auto dstFillContext = skgpu::SurfaceFillContext_Base::Make(context,
+                                                              info,
+                                                              SkBackingFit::kApprox,
+                                                              1,
+                                                              GrMipmapped::kNo,
+                                                              proxy->isProtected(),
+                                                              kBottomLeft_GrSurfaceOrigin);
         if (!dstFillContext) {
             return nullptr;
         }
@@ -485,13 +485,13 @@ static sk_sp<SkSpecialImage> apply_morphology(
     }
     if (radius.fHeight > 0) {
         GrImageInfo info(colorType, kPremul_SkAlphaType, colorSpace, rect.size());
-        auto dstFillContext = GrSurfaceFillContext::Make(context,
-                                                         info,
-                                                         SkBackingFit::kApprox,
-                                                         1,
-                                                         GrMipmapped::kNo,
-                                                         srcView.proxy()->isProtected(),
-                                                         kBottomLeft_GrSurfaceOrigin);
+        auto dstFillContext = skgpu::SurfaceFillContext_Base::Make(context,
+                                                              info,
+                                                              SkBackingFit::kApprox,
+                                                              1,
+                                                              GrMipmapped::kNo,
+                                                              srcView.proxy()->isProtected(),
+                                                              kBottomLeft_GrSurfaceOrigin);
         if (!dstFillContext) {
             return nullptr;
         }

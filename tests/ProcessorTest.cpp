@@ -15,12 +15,12 @@
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrResourceProvider.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
+#include "src/gpu/v1/SurfaceContext_v1.h"
 #include "tests/TestUtils.h"
 
 #include <atomic>
@@ -156,7 +156,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
 
     for (bool makeClone : {false, true}) {
         for (int parentCnt = 0; parentCnt < 2; parentCnt++) {
-            auto surfaceDrawContext = GrSurfaceDrawContext::Make(
+            auto sdc = skgpu::v1::SurfaceDrawContext::Make(
                     context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox, {1, 1},
                     SkSurfaceProps());
             {
@@ -176,10 +176,10 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
                         clone = fp->clone();
                     }
                     GrOp::Owner op = TestOp::Make(context, std::move(fp));
-                    surfaceDrawContext->addDrawOp(std::move(op));
+                    sdc->addDrawOp(std::move(op));
                     if (clone) {
                         op = TestOp::Make(context, std::move(clone));
-                        surfaceDrawContext->addDrawOp(std::move(op));
+                        sdc->addDrawOp(std::move(op));
                     }
                 }
 

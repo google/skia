@@ -314,6 +314,11 @@ GrOpsTask* GrSurfaceFillContext::getOpsTask() {
     return fOpsTask.get();
 }
 
+sk_sp<GrRenderTask> GrSurfaceFillContext::refRenderTask() {
+    return sk_ref_sp(this->getOpsTask());
+}
+
+
 GrOpsTask* GrSurfaceFillContext::replaceOpsTask() {
     sk_sp<GrOpsTask> newOpsTask = this->drawingManager()->newOpsTask(
             this->writeSurfaceView(), this->arenas(), fFlushTimeOpsTask);

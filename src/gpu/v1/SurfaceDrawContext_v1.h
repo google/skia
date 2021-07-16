@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrSurfaceDrawContext_DEFINED
-#define GrSurfaceDrawContext_DEFINED
+#ifndef SurfaceDrawContext_v1_DEFINED
+#define SurfaceDrawContext_v1_DEFINED
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkDrawable.h"
@@ -18,10 +18,10 @@
 #include "src/gpu/GrOpsTask.h"
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrRenderTargetProxy.h"
-#include "src/gpu/GrSurfaceFillContext.h"
 #include "src/gpu/GrSurfaceProxyView.h"
 #include "src/gpu/GrXferProcessor.h"
 #include "src/gpu/geometry/GrQuad.h"
+#include "src/gpu/v1/SurfaceFillContext_v1.h"
 
 class GrBackendSemaphore;
 class GrClip;
@@ -53,10 +53,12 @@ class SkRuntimeEffect;
 class SkTextBlob;
 class SkVertices;
 
+namespace skgpu::v1 {
+
 /**
  * A helper object to orchestrate commands (draws, etc...) for GrSurfaces that are GrRenderTargets.
  */
-class GrSurfaceDrawContext : public GrSurfaceFillContext {
+class SurfaceDrawContext : public SurfaceFillContext {
 public:
     static std::unique_ptr<GrSurfaceDrawContext> Make(GrRecordingContext*,
                                                       GrColorType,
@@ -124,15 +126,15 @@ public:
             int sampleCnt, GrSurfaceOrigin, const SkSurfaceProps&,
             sk_sp<GrRefCntedCallback> releaseHelper);
 
-    GrSurfaceDrawContext(GrRecordingContext*,
-                         GrSurfaceProxyView readView,
-                         GrSurfaceProxyView writeView,
-                         GrColorType,
-                         sk_sp<SkColorSpace>,
-                         const SkSurfaceProps&,
-                         bool flushTimeOpsTask = false);
+    SurfaceDrawContext(GrRecordingContext*,
+                       GrSurfaceProxyView readView,
+                       GrSurfaceProxyView writeView,
+                       GrColorType,
+                       sk_sp<SkColorSpace>,
+                       const SkSurfaceProps&,
+                       bool flushTimeOpsTask = false);
 
-    ~GrSurfaceDrawContext() override;
+    ~SurfaceDrawContext() override;
 
     /**
      *  Draw everywhere (respecting the clip) with the paint.
@@ -224,17 +226,9 @@ public:
         this->drawFilledQuad(clip, std::move(paint), aa, &quad);
     }
 
-    /** Used with drawQuadSet */
-    struct QuadSetEntry {
-        SkRect fRect;
-        SkPMColor4f fColor; // Overrides any color on the GrPaint
-        SkMatrix fLocalMatrix;
-        GrQuadAAFlags fAAFlags;
-    };
-
     // TODO(michaelludwig) - remove if the bulk API is not useful for SkiaRenderer
     void drawQuadSet(const GrClip* clip, GrPaint&& paint, GrAA aa, const SkMatrix& viewMatrix,
-                     const QuadSetEntry[], int cnt);
+                     const GrFillRectOp::QuadSetEntry[], int cnt);
 
     /**
      * Creates an op that draws a subrectangle of a texture. The passed color is modulated by the
@@ -284,17 +278,6 @@ public:
                                color, mode, aa, &quad, subset);
     }
 
-    /** Used with drawTextureSet */
-    struct TextureSetEntry {
-        GrSurfaceProxyView fProxyView;
-        SkAlphaType fSrcAlphaType;
-        SkRect fSrcRect;
-        SkRect fDstRect;
-        const SkPoint* fDstClipQuad; // Must be null, or point to an array of 4 points
-        const SkMatrix* fPreViewMatrix; // If not null, entry's CTM is 'viewMatrix' * fPreViewMatrix
-        SkPMColor4f   fColor; // {a,a,a,a} for rgb textures, {r,g,b,a} for alpha-only textures
-        GrQuadAAFlags fAAFlags;
-    };
     /**
      * Draws a set of textures with a shared filter, color, view matrix, color xform, and
      * texture color xform. The textures must all have the same GrTextureType and GrConfig.
@@ -307,7 +290,7 @@ public:
      * by SkGpuDevice, so no need to incur another iteration over the array.
      */
     void drawTextureSet(const GrClip*,
-                        TextureSetEntry[],
+                        GrTextureOp::TextureSetEntry[],
                         int cnt,
                         int proxyRunCnt,
                         GrSamplerState::Filter,
@@ -528,23 +511,13 @@ public:
     // TODO: remove after clipping overhaul.
     void setLastClip(uint32_t clipStackGenID,
                      const SkIRect& devClipBounds,
-                     int numClipAnalyticElements) {
-        GrOpsTask* opsTask = this->getOpsTask();
-        opsTask->fLastClipStackGenID = clipStackGenID;
-        opsTask->fLastDevClipBounds = devClipBounds;
-        opsTask->fLastClipNumAnalyticElements = numClipAnalyticElements;
-    }
+                     int numClipAnalyticElements);
 
     // called to determine if we have to render the clip into SB.
     // TODO: remove after clipping overhaul.
     bool mustRenderClip(uint32_t clipStackGenID,
                         const SkIRect& devClipBounds,
-                        int numClipAnalyticElements) {
-        GrOpsTask* opsTask = this->getOpsTask();
-        return opsTask->fLastClipStackGenID != clipStackGenID ||
-               !opsTask->fLastDevClipBounds.contains(devClipBounds) ||
-               opsTask->fLastClipNumAnalyticElements != numClipAnalyticElements;
-    }
+                        int numClipAnalyticElements);
 
     void clearStencilClip(const SkIRect& scissor, bool insideStencilMask) {
         this->internalStencilClear(&scissor, insideStencilMask);
@@ -639,7 +612,7 @@ public:
     // instantiated.
     GrRenderTarget* accessRenderTarget() { return this->asSurfaceProxy()->peekRenderTarget(); }
 
-    GrSurfaceDrawContext* asSurfaceDrawContext() override { return this; }
+//    GrSurfaceDrawContext* asSurfaceDrawContext() override { return this; }
 
 #if GR_TEST_UTILS
     void testingOnly_SetPreserveOpsOnFullClear() { fPreserveOpsOnFullClear_TestingOnly = true; }
@@ -729,7 +702,9 @@ private:
     bool fPreserveOpsOnFullClear_TestingOnly = false;
 #endif
     SkGlyphRunListPainter fGlyphPainter;
-    using INHERITED = GrSurfaceFillContext;
+    using INHERITED = SurfaceFillContext;
 };
 
-#endif
+} // namespace skgpu::v1
+
+#endif // SurfaceDrawContext_v1_DEFINED

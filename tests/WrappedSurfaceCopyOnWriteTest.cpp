@@ -13,8 +13,8 @@
 #include "src/core/SkCanvasPriv.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrSurfaceProxy.h"
+#include "src/gpu/SurfaceContext.h"
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
 #include "tools/gpu/BackendSurfaceFactory.h"
@@ -82,7 +82,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(WrappedSurfaceCopyOnWrite, reporter, ctxInfo) {
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkipCopyTaskTest, reporter, ctxInfo) {
     GrDirectContext* dContext = ctxInfo.directContext();
 
-    auto dst = GrSurfaceDrawContext::Make(dContext,
+    auto dst = skgpu::SurfaceFillContext_Base::Make(dContext,
                                           GrColorType::kRGBA_8888,
                                           /*color space*/ nullptr,
                                           SkBackingFit::kExact,
@@ -90,7 +90,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkipCopyTaskTest, reporter, ctxInfo) {
                                           SkSurfaceProps());
     dst->clear(SkPMColor4f{1, 0, 0, 1});
 
-    auto src = GrSurfaceDrawContext::Make(dContext,
+    auto src = skgpu::SurfaceFillContext_Base::Make(dContext,
                                           GrColorType::kRGBA_8888,
                                           /*color space*/ nullptr,
                                           SkBackingFit::kExact,
@@ -128,7 +128,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkipCopyTaskTest, reporter, ctxInfo) {
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkipOpsTaskTest, reporter, ctxInfo) {
     GrDirectContext* dContext = ctxInfo.directContext();
 
-    auto dst = GrSurfaceDrawContext::Make(dContext,
+    auto dst = skgpu::SurfaceFillContext_Base::Make(dContext,
                                           GrColorType::kRGBA_8888,
                                           /*color space*/ nullptr,
                                           SkBackingFit::kExact,
@@ -142,7 +142,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkipOpsTaskTest, reporter, ctxInfo) {
 
     // GrDrawingManager maintains an "active ops task" and doesn't like having it closed behind
     // its back. temp exists just to replace dst's ops task as the active one.
-    auto temp = GrSurfaceDrawContext::Make(dContext,
+    auto temp = skgpu::SurfaceFillContext_Base::Make(dContext,
                                            GrColorType::kRGBA_8888,
                                            /*color space*/ nullptr,
                                            SkBackingFit::kExact,

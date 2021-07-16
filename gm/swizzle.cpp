@@ -12,12 +12,12 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkTypes.h"
 #include "src/gpu/GrFragmentProcessor.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/SurfaceFillContext.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "tools/Resources.h"
 
-DEF_SIMPLE_GPU_GM(swizzle, rContext, sdc, canvas, 512, 512) {
+DEF_SIMPLE_GPU_GM(swizzle, rContext, sc, canvas, 512, 512) {
     SkBitmap bmp;
     GetResourceAsBitmap("images/mandrill_512_q075.jpg", &bmp);
     auto view = std::get<0>(GrMakeCachedBitmapProxyView(rContext, bmp, GrMipmapped::kNo));
@@ -28,5 +28,5 @@ DEF_SIMPLE_GPU_GM(swizzle, rContext, sdc, canvas, 512, 512) {
         GrTextureEffect::Make(std::move(view), bmp.alphaType(), SkMatrix());
     auto fp = GrFragmentProcessor::SwizzleOutput(std::move(imgFP), GrSwizzle("grb1"));
 
-    sdc->fillWithFP(std::move(fp));
+    sc->asFillContext()->fillWithFP(std::move(fp));
 }

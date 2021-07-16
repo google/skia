@@ -16,14 +16,14 @@
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/SurfaceContext.h"
 
 void TestReadPixels(skiatest::Reporter* reporter,
                     GrDirectContext* dContext,
-                    GrSurfaceContext* srcContext,
+                    skgpu::SurfaceContext* srcContext,
                     uint32_t expectedPixelValues[],
                     const char* testName) {
     int pixelCnt = srcContext->width() * srcContext->height();
@@ -50,7 +50,7 @@ void TestReadPixels(skiatest::Reporter* reporter,
 
 void TestWritePixels(skiatest::Reporter* reporter,
                      GrDirectContext* dContext,
-                     GrSurfaceContext* dstContext,
+                     skgpu::SurfaceContext* dstContext,
                      bool expectedToWork,
                      const char* testName) {
     SkImageInfo ii = SkImageInfo::Make(dstContext->dimensions(),
@@ -92,9 +92,9 @@ void TestCopyFromSurface(skiatest::Reporter* reporter,
     SkASSERT(copy && copy->asTextureProxy());
     auto swizzle = dContext->priv().caps()->getReadSwizzle(copy->backendFormat(), colorType);
     GrSurfaceProxyView view(std::move(copy), origin, swizzle);
-    auto dstContext = GrSurfaceContext::Make(dContext,
-                                             std::move(view),
-                                             {colorType, kPremul_SkAlphaType, nullptr});
+    auto dstContext = skgpu::SurfaceContext::Make(dContext,
+                                                  std::move(view),
+                                                  {colorType, kPremul_SkAlphaType, nullptr});
     SkASSERT(dstContext);
 
     TestReadPixels(reporter, dContext, dstContext.get(), expectedPixelValues, testName);

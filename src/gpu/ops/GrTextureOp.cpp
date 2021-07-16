@@ -41,6 +41,7 @@
 #include "src/gpu/ops/GrQuadPerEdgeAA.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 #include "src/gpu/ops/GrTextureOp.h"
+#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
 namespace {
 
@@ -178,7 +179,7 @@ static void normalize_src_quad(const NormalizationParams& params,
 // Count the number of proxy runs in the entry set. This usually is already computed by
 // SkGpuDevice, but when the BatchLengthLimiter chops the set up it must determine a new proxy count
 // for each split.
-static int proxy_run_count(const GrSurfaceDrawContext::TextureSetEntry set[], int count) {
+static int proxy_run_count(const GrTextureOp::TextureSetEntry set[], int count) {
     int actualProxyRunCount = 0;
     const GrSurfaceProxy* lastProxy = nullptr;
     for (int i = 0; i < count; ++i) {
@@ -238,7 +239,7 @@ public:
     }
 
     static GrOp::Owner Make(GrRecordingContext* context,
-                            GrSurfaceDrawContext::TextureSetEntry set[],
+                            GrTextureOp::TextureSetEntry set[],
                             int cnt,
                             int proxyRunCnt,
                             GrSamplerState::Filter filter,
@@ -478,7 +479,7 @@ private:
         fViewCountPairs[0] = {proxyView.detachProxy(), quadCount};
     }
 
-    TextureOp(GrSurfaceDrawContext::TextureSetEntry set[],
+    TextureOp(GrTextureOp::TextureSetEntry set[],
               int cnt,
               int proxyRunCnt,
               GrSamplerState::Filter filter,
@@ -1182,7 +1183,7 @@ GrOp::Owner GrTextureOp::Make(GrRecordingContext* context,
 // A helper class that assists in breaking up bulk API quad draws into manageable chunks.
 class GrTextureOp::BatchSizeLimiter {
 public:
-    BatchSizeLimiter(GrSurfaceDrawContext* sdc,
+    BatchSizeLimiter(skgpu::v1::SurfaceDrawContext* sdc,
                      const GrClip* clip,
                      GrRecordingContext* context,
                      int numEntries,
@@ -1203,7 +1204,7 @@ public:
             , fTextureColorSpaceXform(textureColorSpaceXform)
             , fNumLeft(numEntries) {}
 
-    void createOp(GrSurfaceDrawContext::TextureSetEntry set[],
+    void createOp(TextureSetEntry set[],
                   int clumpSize,
                   GrAAType aaType) {
         int clumpProxyCount = proxy_run_count(&set[fNumClumped], clumpSize);
@@ -1228,7 +1229,7 @@ public:
     int baseIndex() const { return fNumClumped; }
 
 private:
-    GrSurfaceDrawContext*       fSDC;
+    skgpu::v1::SurfaceDrawContext* fSDC;
     const GrClip*               fClip;
     GrRecordingContext*         fContext;
     GrSamplerState::Filter      fFilter;
@@ -1243,10 +1244,10 @@ private:
 };
 
 // Greedily clump quad draws together until the index buffer limit is exceeded.
-void GrTextureOp::AddTextureSetOps(GrSurfaceDrawContext* rtc,
+void GrTextureOp::AddTextureSetOps(skgpu::v1::SurfaceDrawContext* sdc,
                                    const GrClip* clip,
                                    GrRecordingContext* context,
-                                   GrSurfaceDrawContext::TextureSetEntry set[],
+                                   TextureSetEntry set[],
                                    int cnt,
                                    int proxyRunCnt,
                                    GrSamplerState::Filter filter,
@@ -1293,7 +1294,7 @@ void GrTextureOp::AddTextureSetOps(GrSurfaceDrawContext* rtc,
 
             auto op = Make(context, set[i].fProxyView, set[i].fSrcAlphaType, textureColorSpaceXform,
                            filter, mm, set[i].fColor, saturate, blendMode, aaType, &quad, subset);
-            rtc->addDrawOp(clip, std::move(op));
+            sdc->addDrawOp(clip, std::move(op));
         }
         return;
     }
@@ -1304,11 +1305,11 @@ void GrTextureOp::AddTextureSetOps(GrSurfaceDrawContext* rtc,
                       GrResourceProvider::MaxNumAAQuads())) {
         auto op = TextureOp::Make(context, set, cnt, proxyRunCnt, filter, mm, saturate, aaType,
                                   constraint, viewMatrix, std::move(textureColorSpaceXform));
-        rtc->addDrawOp(clip, std::move(op));
+        sdc->addDrawOp(clip, std::move(op));
         return;
     }
 
-    BatchSizeLimiter state(rtc, clip, context, cnt, filter, mm, saturate, constraint, viewMatrix,
+    BatchSizeLimiter state(sdc, clip, context, cnt, filter, mm, saturate, constraint, viewMatrix,
                            std::move(textureColorSpaceXform));
 
     // kNone and kMSAA never get altered

@@ -83,6 +83,8 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
+namespace skgpu::v1 {
+
 using DoSimplify = GrStyledShape::DoSimplify;
 
 class AutoCheckFlush {
@@ -96,7 +98,7 @@ private:
     GrDrawingManager* fDrawingManager;
 };
 
-std::unique_ptr<GrSurfaceDrawContext> GrSurfaceDrawContext::Make(GrRecordingContext* rContext,
+std::unique_ptr<GrSurfaceDrawContext> SurfaceDrawContext::Make(GrRecordingContext* rContext,
                                                                  GrColorType colorType,
                                                                  sk_sp<GrSurfaceProxy> proxy,
                                                                  sk_sp<SkColorSpace> colorSpace,
@@ -126,7 +128,7 @@ std::unique_ptr<GrSurfaceDrawContext> GrSurfaceDrawContext::Make(GrRecordingCont
                                                   flushTimeOpsTask);
 }
 
-std::unique_ptr<GrSurfaceDrawContext> GrSurfaceDrawContext::Make(
+std::unique_ptr<GrSurfaceDrawContext> SurfaceDrawContext::Make(
         GrRecordingContext* context,
         sk_sp<SkColorSpace> colorSpace,
         SkBackingFit fit,
@@ -174,7 +176,7 @@ std::unique_ptr<GrSurfaceDrawContext> GrSurfaceDrawContext::Make(
     return rtc;
 }
 
-std::unique_ptr<GrSurfaceDrawContext> GrSurfaceDrawContext::Make(
+std::unique_ptr<GrSurfaceDrawContext> SurfaceDrawContext::Make(
         GrRecordingContext* rContext,
         GrColorType colorType,
         sk_sp<SkColorSpace> colorSpace,
@@ -210,7 +212,7 @@ std::unique_ptr<GrSurfaceDrawContext> GrSurfaceDrawContext::Make(
                                       surfaceProps);
 }
 
-std::unique_ptr<GrSurfaceDrawContext> GrSurfaceDrawContext::MakeWithFallback(
+std::unique_ptr<GrSurfaceDrawContext> SurfaceDrawContext::MakeWithFallback(
         GrRecordingContext* rContext,
         GrColorType colorType,
         sk_sp<SkColorSpace> colorSpace,
@@ -231,7 +233,7 @@ std::unique_ptr<GrSurfaceDrawContext> GrSurfaceDrawContext::MakeWithFallback(
                                       sampleCnt, mipMapped, isProtected, origin, budgeted);
 }
 
-std::unique_ptr<GrSurfaceDrawContext> GrSurfaceDrawContext::MakeFromBackendTexture(
+std::unique_ptr<GrSurfaceDrawContext> SurfaceDrawContext::MakeFromBackendTexture(
         GrRecordingContext* context,
         GrColorType colorType,
         sk_sp<SkColorSpace> colorSpace,
@@ -256,7 +258,7 @@ std::unique_ptr<GrSurfaceDrawContext> GrSurfaceDrawContext::MakeFromBackendTextu
 // GrOpsTask to be picked up and added to by SurfaceDrawContexts lower in the call
 // stack. When this occurs with a closed GrOpsTask, a new one will be allocated
 // when the surfaceDrawContext attempts to use it (via getOpsTask).
-GrSurfaceDrawContext::GrSurfaceDrawContext(GrRecordingContext* context,
+SurfaceDrawContext::SurfaceDrawContext(GrRecordingContext* context,
                                            GrSurfaceProxyView readView,
                                            GrSurfaceProxyView writeView,
                                            GrColorType colorType,
@@ -276,11 +278,11 @@ GrSurfaceDrawContext::GrSurfaceDrawContext(GrRecordingContext* context,
     SkDEBUGCODE(this->validate();)
 }
 
-GrSurfaceDrawContext::~GrSurfaceDrawContext() {
+SurfaceDrawContext::~SurfaceDrawContext() {
     ASSERT_SINGLE_OWNER
 }
 
-void GrSurfaceDrawContext::willReplaceOpsTask(GrOpsTask* prevTask, GrOpsTask* nextTask) {
+void SurfaceDrawContext::willReplaceOpsTask(GrOpsTask* prevTask, GrOpsTask* nextTask) {
     if (prevTask && fNeedsStencil) {
         // Store the stencil values in memory upon completion of fOpsTask.
         prevTask->setMustPreserveStencil();
@@ -296,7 +298,7 @@ void GrSurfaceDrawContext::willReplaceOpsTask(GrOpsTask* prevTask, GrOpsTask* ne
 #endif
 }
 
-inline GrAAType GrSurfaceDrawContext::chooseAAType(GrAA aa) {
+inline GrAAType SurfaceDrawContext::chooseAAType(GrAA aa) {
     if (fCanUseDynamicMSAA) {
         // Always trigger DMSAA when it's available. The coverage ops that know how to handle both
         // single and multisample targets without popping will do so without calling chooseAAType.
@@ -313,10 +315,10 @@ inline GrAAType GrSurfaceDrawContext::chooseAAType(GrAA aa) {
     return (this->numSamples() > 1) ? GrAAType::kMSAA : GrAAType::kCoverage;
 }
 
-void GrSurfaceDrawContext::drawGlyphRunListNoCache(const GrClip* clip,
-                                                   const SkMatrixProvider& viewMatrix,
-                                                   const SkGlyphRunList& glyphRunList,
-                                                   const SkPaint& paint) {
+void SurfaceDrawContext::drawGlyphRunListNoCache(const GrClip* clip,
+                                                 const SkMatrixProvider& viewMatrix,
+                                                 const SkGlyphRunList& glyphRunList,
+                                                 const SkPaint& paint) {
     GrSDFTControl control =
             fContext->priv().getSDFTControl(fSurfaceProps.isUseDeviceIndependentFonts());
     const SkPoint drawOrigin = glyphRunList.origin();
@@ -336,10 +338,10 @@ void GrSurfaceDrawContext::drawGlyphRunListNoCache(const GrClip* clip,
     }
 }
 
-void GrSurfaceDrawContext::drawGlyphRunListWithCache(const GrClip* clip,
-                                                     const SkMatrixProvider& viewMatrix,
-                                                     const SkGlyphRunList& glyphRunList,
-                                                     const SkPaint& paint) {
+void SurfaceDrawContext::drawGlyphRunListWithCache(const GrClip* clip,
+                                                   const SkMatrixProvider& viewMatrix,
+                                                   const SkGlyphRunList& glyphRunList,
+                                                   const SkPaint& paint) {
     SkMatrix drawMatrix(viewMatrix.localToDevice());
     drawMatrix.preTranslate(glyphRunList.origin().x(), glyphRunList.origin().y());
 
@@ -385,10 +387,10 @@ void GrSurfaceDrawContext::drawGlyphRunListWithCache(const GrClip* clip,
 
 // choose to use the GrTextBlob cache or not.
 bool gGrDrawTextNoCache = false;
-void GrSurfaceDrawContext::drawGlyphRunList(const GrClip* clip,
-                                            const SkMatrixProvider& viewMatrix,
-                                            const SkGlyphRunList& glyphRunList,
-                                            const SkPaint& paint) {
+void SurfaceDrawContext::drawGlyphRunList(const GrClip* clip,
+                                          const SkMatrixProvider& viewMatrix,
+                                          const SkGlyphRunList& glyphRunList,
+                                          const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -411,9 +413,9 @@ void GrSurfaceDrawContext::drawGlyphRunList(const GrClip* clip,
     }
 }
 
-void GrSurfaceDrawContext::drawPaint(const GrClip* clip,
-                                     GrPaint&& paint,
-                                     const SkMatrix& viewMatrix) {
+void SurfaceDrawContext::drawPaint(const GrClip* clip,
+                                   GrPaint&& paint,
+                                   const SkMatrix& viewMatrix) {
     // Start with the render target, since that is the maximum content we could possibly fill.
     // drawFilledQuad() will automatically restrict it to clip bounds for us if possible.
     if (!paint.numTotalFragmentProcessors()) {
@@ -447,7 +449,7 @@ enum class GrSurfaceDrawContext::QuadOptimization {
     kCropped
 };
 
-GrSurfaceDrawContext::QuadOptimization GrSurfaceDrawContext::attemptQuadOptimization(
+GrSurfaceDrawContext::QuadOptimization SurfaceDrawContext::attemptQuadOptimization(
         const GrClip* clip, const GrUserStencilSettings* stencilSettings, GrAA* aa, DrawQuad* quad,
         GrPaint* paint) {
     // Optimization requirements:
@@ -593,11 +595,11 @@ GrSurfaceDrawContext::QuadOptimization GrSurfaceDrawContext::attemptQuadOptimiza
     return QuadOptimization::kCropped;
 }
 
-void GrSurfaceDrawContext::drawFilledQuad(const GrClip* clip,
-                                          GrPaint&& paint,
-                                          GrAA aa,
-                                          DrawQuad* quad,
-                                          const GrUserStencilSettings* ss) {
+void SurfaceDrawContext::drawFilledQuad(const GrClip* clip,
+                                        GrPaint&& paint,
+                                        GrAA aa,
+                                        DrawQuad* quad,
+                                        const GrUserStencilSettings* ss) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -626,20 +628,20 @@ void GrSurfaceDrawContext::drawFilledQuad(const GrClip* clip,
     // All other optimization levels were completely handled inside attempt(), so no extra op needed
 }
 
-void GrSurfaceDrawContext::drawTexture(const GrClip* clip,
-                                       GrSurfaceProxyView view,
-                                       SkAlphaType srcAlphaType,
-                                       GrSamplerState::Filter filter,
-                                       GrSamplerState::MipmapMode mm,
-                                       SkBlendMode blendMode,
-                                       const SkPMColor4f& color,
-                                       const SkRect& srcRect,
-                                       const SkRect& dstRect,
-                                       GrAA aa,
-                                       GrQuadAAFlags edgeAA,
-                                       SkCanvas::SrcRectConstraint constraint,
-                                       const SkMatrix& viewMatrix,
-                                       sk_sp<GrColorSpaceXform> colorSpaceXform) {
+void SurfaceDrawContext::drawTexture(const GrClip* clip,
+                                     GrSurfaceProxyView view,
+                                     SkAlphaType srcAlphaType,
+                                     GrSamplerState::Filter filter,
+                                     GrSamplerState::MipmapMode mm,
+                                     SkBlendMode blendMode,
+                                     const SkPMColor4f& color,
+                                     const SkRect& srcRect,
+                                     const SkRect& dstRect,
+                                     GrAA aa,
+                                     GrQuadAAFlags edgeAA,
+                                     SkCanvas::SrcRectConstraint constraint,
+                                     const SkMatrix& viewMatrix,
+                                     sk_sp<GrColorSpaceXform> colorSpaceXform) {
     // If we are using dmsaa then go through GrFillRRectOp (via fillRectToRect).
     if ((this->alwaysAntialias() || this->caps()->reducedShaderMode()) && aa == GrAA::kYes) {
         GrPaint paint;
@@ -672,17 +674,17 @@ void GrSurfaceDrawContext::drawTexture(const GrClip* clip,
                            mm, color, blendMode, aa, &quad, subset);
 }
 
-void GrSurfaceDrawContext::drawTexturedQuad(const GrClip* clip,
-                                            GrSurfaceProxyView proxyView,
-                                            SkAlphaType srcAlphaType,
-                                            sk_sp<GrColorSpaceXform> textureXform,
-                                            GrSamplerState::Filter filter,
-                                            GrSamplerState::MipmapMode mm,
-                                            const SkPMColor4f& color,
-                                            SkBlendMode blendMode,
-                                            GrAA aa,
-                                            DrawQuad* quad,
-                                            const SkRect* subset) {
+void SurfaceDrawContext::drawTexturedQuad(const GrClip* clip,
+                                          GrSurfaceProxyView proxyView,
+                                          SkAlphaType srcAlphaType,
+                                          sk_sp<GrColorSpaceXform> textureXform,
+                                          GrSamplerState::Filter filter,
+                                          GrSamplerState::MipmapMode mm,
+                                          const SkPMColor4f& color,
+                                          SkBlendMode blendMode,
+                                          GrAA aa,
+                                          DrawQuad* quad,
+                                          const SkRect* subset) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -713,12 +715,12 @@ void GrSurfaceDrawContext::drawTexturedQuad(const GrClip* clip,
     }
 }
 
-void GrSurfaceDrawContext::drawRect(const GrClip* clip,
-                                    GrPaint&& paint,
-                                    GrAA aa,
-                                    const SkMatrix& viewMatrix,
-                                    const SkRect& rect,
-                                    const GrStyle* style) {
+void SurfaceDrawContext::drawRect(const GrClip* clip,
+                                  GrPaint&& paint,
+                                  GrAA aa,
+                                  const SkMatrix& viewMatrix,
+                                  const SkRect& rect,
+                                  const GrStyle* style) {
     if (!style) {
         style = &GrStyle::SimpleFill();
     }
@@ -766,12 +768,12 @@ void GrSurfaceDrawContext::drawRect(const GrClip* clip,
                                      GrStyledShape(rect, *style, DoSimplify::kNo));
 }
 
-void GrSurfaceDrawContext::fillRectToRect(const GrClip* clip,
-                                          GrPaint&& paint,
-                                          GrAA aa,
-                                          const SkMatrix& viewMatrix,
-                                          const SkRect& rectToDraw,
-                                          const SkRect& localRect) {
+void SurfaceDrawContext::fillRectToRect(const GrClip* clip,
+                                        GrPaint&& paint,
+                                        GrAA aa,
+                                        const SkMatrix& viewMatrix,
+                                        const SkRect& rectToDraw,
+                                        const SkRect& localRect) {
     DrawQuad quad{GrQuad::MakeFromRect(rectToDraw, viewMatrix), GrQuad(localRect),
                   aa == GrAA::kYes ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone};
 
@@ -822,23 +824,23 @@ void GrSurfaceDrawContext::fillRectToRect(const GrClip* clip,
     this->drawFilledQuad(clip, std::move(paint), aa, &quad);
 }
 
-void GrSurfaceDrawContext::drawQuadSet(const GrClip* clip,
-                                       GrPaint&& paint,
-                                       GrAA aa,
-                                       const SkMatrix& viewMatrix,
-                                       const QuadSetEntry quads[],
-                                       int cnt) {
+void SurfaceDrawContext::drawQuadSet(const GrClip* clip,
+                                     GrPaint&& paint,
+                                     GrAA aa,
+                                     const SkMatrix& viewMatrix,
+                                     const GrFillRectOp::QuadSetEntry quads[],
+                                     int cnt) {
     GrAAType aaType = this->chooseAAType(aa);
 
     GrFillRectOp::AddFillRectOps(this, clip, fContext, std::move(paint), aaType, viewMatrix,
                                  quads, cnt);
 }
 
-int GrSurfaceDrawContext::maxWindowRectangles() const {
+int SurfaceDrawContext::maxWindowRectangles() const {
     return this->asRenderTargetProxy()->maxWindowRectangles(*this->caps());
 }
 
-GrOpsTask::CanDiscardPreviousOps GrSurfaceDrawContext::canDiscardPreviousOpsOnFullClear() const {
+GrOpsTask::CanDiscardPreviousOps SurfaceDrawContext::canDiscardPreviousOpsOnFullClear() const {
 #if GR_TEST_UTILS
     if (fPreserveOpsOnFullClear_TestingOnly) {
         return GrOpsTask::CanDiscardPreviousOps::kNo;
@@ -853,7 +855,7 @@ GrOpsTask::CanDiscardPreviousOps GrSurfaceDrawContext::canDiscardPreviousOpsOnFu
     return GrOpsTask::CanDiscardPreviousOps(!fNeedsStencil);
 }
 
-void GrSurfaceDrawContext::setNeedsStencil() {
+void SurfaceDrawContext::setNeedsStencil() {
     // Don't clear stencil until after we've set fNeedsStencil. This ensures we don't loop forever
     // in the event that there are driver bugs and we need to clear as a draw.
     bool hasInitializedStencil = fNeedsStencil;
@@ -871,7 +873,7 @@ void GrSurfaceDrawContext::setNeedsStencil() {
     }
 }
 
-void GrSurfaceDrawContext::internalStencilClear(const SkIRect* scissor, bool insideStencilMask) {
+void SurfaceDrawContext::internalStencilClear(const SkIRect* scissor, bool insideStencilMask) {
     this->setNeedsStencil();
 
     GrScissorState scissorState(this->asSurfaceProxy()->backingStoreDimensions());
@@ -896,10 +898,10 @@ void GrSurfaceDrawContext::internalStencilClear(const SkIRect* scissor, bool ins
     }
 }
 
-bool GrSurfaceDrawContext::stencilPath(const GrHardClip* clip,
-                                       GrAA doStencilMSAA,
-                                       const SkMatrix& viewMatrix,
-                                       const SkPath& path) {
+bool SurfaceDrawContext::stencilPath(const GrHardClip* clip,
+                                     GrAA doStencilMSAA,
+                                     const SkMatrix& viewMatrix,
+                                     const SkPath& path) {
 #if SK_GPU_V1
     SkIRect clipBounds = clip ? clip->getConservativeBounds()
                               : SkIRect::MakeSize(this->dimensions());
@@ -937,17 +939,17 @@ bool GrSurfaceDrawContext::stencilPath(const GrHardClip* clip,
 #endif // SK_GPU_V1
 }
 
-void GrSurfaceDrawContext::drawTextureSet(const GrClip* clip,
-                                          TextureSetEntry set[],
-                                          int cnt,
-                                          int proxyRunCnt,
-                                          GrSamplerState::Filter filter,
-                                          GrSamplerState::MipmapMode mm,
-                                          SkBlendMode mode,
-                                          GrAA aa,
-                                          SkCanvas::SrcRectConstraint constraint,
-                                          const SkMatrix& viewMatrix,
-                                          sk_sp<GrColorSpaceXform> texXform) {
+void SurfaceDrawContext::drawTextureSet(const GrClip* clip,
+                                        GrTextureOp::TextureSetEntry set[],
+                                        int cnt,
+                                        int proxyRunCnt,
+                                        GrSamplerState::Filter filter,
+                                        GrSamplerState::MipmapMode mm,
+                                        SkBlendMode mode,
+                                        GrAA aa,
+                                        SkCanvas::SrcRectConstraint constraint,
+                                        const SkMatrix& viewMatrix,
+                                        sk_sp<GrColorSpaceXform> texXform) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -964,12 +966,12 @@ void GrSurfaceDrawContext::drawTextureSet(const GrClip* clip,
                                   mode, aaType, constraint, viewMatrix, std::move(texXform));
 }
 
-void GrSurfaceDrawContext::drawVertices(const GrClip* clip,
-                                        GrPaint&& paint,
-                                        const SkMatrixProvider& matrixProvider,
-                                        sk_sp<SkVertices> vertices,
-                                        GrPrimitiveType* overridePrimType,
-                                        const SkRuntimeEffect* effect) {
+void SurfaceDrawContext::drawVertices(const GrClip* clip,
+                                      GrPaint&& paint,
+                                      const SkMatrixProvider& matrixProvider,
+                                      sk_sp<SkVertices> vertices,
+                                      GrPrimitiveType* overridePrimType,
+                                      const SkRuntimeEffect* effect) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -988,13 +990,13 @@ void GrSurfaceDrawContext::drawVertices(const GrClip* clip,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrSurfaceDrawContext::drawAtlas(const GrClip* clip,
-                                     GrPaint&& paint,
-                                     const SkMatrix& viewMatrix,
-                                     int spriteCount,
-                                     const SkRSXform xform[],
-                                     const SkRect texRect[],
-                                     const SkColor colors[]) {
+void SurfaceDrawContext::drawAtlas(const GrClip* clip,
+                                   GrPaint&& paint,
+                                   const SkMatrix& viewMatrix,
+                                   int spriteCount,
+                                   const SkRSXform xform[],
+                                   const SkRect texRect[],
+                                   const SkColor colors[]) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -1010,12 +1012,12 @@ void GrSurfaceDrawContext::drawAtlas(const GrClip* clip,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrSurfaceDrawContext::drawRRect(const GrClip* origClip,
-                                     GrPaint&& paint,
-                                     GrAA aa,
-                                     const SkMatrix& viewMatrix,
-                                     const SkRRect& rrect,
-                                     const GrStyle& style) {
+void SurfaceDrawContext::drawRRect(const GrClip* origClip,
+                                   GrPaint&& paint,
+                                   GrAA aa,
+                                   const SkMatrix& viewMatrix,
+                                   const SkRRect& rrect,
+                                   const GrStyle& style) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -1105,10 +1107,10 @@ void GrSurfaceDrawContext::drawRRect(const GrClip* origClip,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool GrSurfaceDrawContext::drawFastShadow(const GrClip* clip,
-                                          const SkMatrix& viewMatrix,
-                                          const SkPath& path,
-                                          const SkDrawShadowRec& rec) {
+bool SurfaceDrawContext::drawFastShadow(const GrClip* clip,
+                                        const SkMatrix& viewMatrix,
+                                        const SkPath& path,
+                                        const SkDrawShadowRec& rec) {
     ASSERT_SINGLE_OWNER
     if (fContext->abandoned()) {
         return true;
@@ -1313,13 +1315,13 @@ bool GrSurfaceDrawContext::drawFastShadow(const GrClip* clip,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrSurfaceDrawContext::drawRegion(const GrClip* clip,
-                                      GrPaint&& paint,
-                                      GrAA aa,
-                                      const SkMatrix& viewMatrix,
-                                      const SkRegion& region,
-                                      const GrStyle& style,
-                                      const GrUserStencilSettings* ss) {
+void SurfaceDrawContext::drawRegion(const GrClip* clip,
+                                    GrPaint&& paint,
+                                    GrAA aa,
+                                    const SkMatrix& viewMatrix,
+                                    const SkRegion& region,
+                                    const GrStyle& style,
+                                    const GrUserStencilSettings* ss) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -1351,12 +1353,12 @@ void GrSurfaceDrawContext::drawRegion(const GrClip* clip,
     this->addDrawOp(clip, std::move(op));
 }
 
-void GrSurfaceDrawContext::drawOval(const GrClip* clip,
-                                    GrPaint&& paint,
-                                    GrAA aa,
-                                    const SkMatrix& viewMatrix,
-                                    const SkRect& oval,
-                                    const GrStyle& style) {
+void SurfaceDrawContext::drawOval(const GrClip* clip,
+                                  GrPaint&& paint,
+                                  GrAA aa,
+                                  const SkMatrix& viewMatrix,
+                                  const SkRect& oval,
+                                  const GrStyle& style) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -1415,15 +1417,15 @@ void GrSurfaceDrawContext::drawOval(const GrClip* clip,
                                                    false, style, DoSimplify::kNo));
 }
 
-void GrSurfaceDrawContext::drawArc(const GrClip* clip,
-                                   GrPaint&& paint,
-                                   GrAA aa,
-                                   const SkMatrix& viewMatrix,
-                                   const SkRect& oval,
-                                   SkScalar startAngle,
-                                   SkScalar sweepAngle,
-                                   bool useCenter,
-                                   const GrStyle& style) {
+void SurfaceDrawContext::drawArc(const GrClip* clip,
+                                 GrPaint&& paint,
+                                 GrAA aa,
+                                 const SkMatrix& viewMatrix,
+                                 const SkRect& oval,
+                                 SkScalar startAngle,
+                                 SkScalar sweepAngle,
+                                 bool useCenter,
+                                 const GrStyle& style) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -1454,15 +1456,15 @@ void GrSurfaceDrawContext::drawArc(const GrClip* clip,
                                                             style, DoSimplify::kNo));
 }
 
-void GrSurfaceDrawContext::drawImageLattice(const GrClip* clip,
-                                            GrPaint&& paint,
-                                            const SkMatrix& viewMatrix,
-                                            GrSurfaceProxyView view,
-                                            SkAlphaType alphaType,
-                                            sk_sp<GrColorSpaceXform> csxf,
-                                            GrSamplerState::Filter filter,
-                                            std::unique_ptr<SkLatticeIter> iter,
-                                            const SkRect& dst) {
+void SurfaceDrawContext::drawImageLattice(const GrClip* clip,
+                                          GrPaint&& paint,
+                                          const SkMatrix& viewMatrix,
+                                          GrSurfaceProxyView view,
+                                          SkAlphaType alphaType,
+                                          sk_sp<GrColorSpaceXform> csxf,
+                                          GrSamplerState::Filter filter,
+                                          std::unique_ptr<SkLatticeIter> iter,
+                                          const SkRect& dst) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -1476,16 +1478,34 @@ void GrSurfaceDrawContext::drawImageLattice(const GrClip* clip,
     this->addDrawOp(clip, std::move(op));
 }
 
-void GrSurfaceDrawContext::drawDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler> drawable,
-                                         const SkRect& bounds) {
+void SurfaceDrawContext::drawDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler> drawable,
+                                      const SkRect& bounds) {
     GrOp::Owner op(GrDrawableOp::Make(fContext, std::move(drawable), bounds));
     SkASSERT(op);
     this->addOp(std::move(op));
 }
 
-bool GrSurfaceDrawContext::waitOnSemaphores(int numSemaphores,
-                                            const GrBackendSemaphore waitSemaphores[],
-                                            bool deleteSemaphoresAfterWait) {
+void SurfaceDrawContext::setLastClip(uint32_t clipStackGenID,
+                                     const SkIRect& devClipBounds,
+                                     int numClipAnalyticElements) {
+    GrOpsTask* opsTask = this->getOpsTask();
+    opsTask->fLastClipStackGenID = clipStackGenID;
+    opsTask->fLastDevClipBounds = devClipBounds;
+    opsTask->fLastClipNumAnalyticElements = numClipAnalyticElements;
+}
+
+bool SurfaceDrawContext::mustRenderClip(uint32_t clipStackGenID,
+                                        const SkIRect& devClipBounds,
+                                        int numClipAnalyticElements) {
+    GrOpsTask* opsTask = this->getOpsTask();
+    return opsTask->fLastClipStackGenID != clipStackGenID ||
+           !opsTask->fLastDevClipBounds.contains(devClipBounds) ||
+           opsTask->fLastClipNumAnalyticElements != numClipAnalyticElements;
+}
+
+bool SurfaceDrawContext::waitOnSemaphores(int numSemaphores,
+                                          const GrBackendSemaphore waitSemaphores[],
+                                          bool deleteSemaphoresAfterWait) {
     ASSERT_SINGLE_OWNER
     RETURN_FALSE_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -1519,12 +1539,12 @@ bool GrSurfaceDrawContext::waitOnSemaphores(int numSemaphores,
     return true;
 }
 
-void GrSurfaceDrawContext::drawPath(const GrClip* clip,
-                                    GrPaint&& paint,
-                                    GrAA aa,
-                                    const SkMatrix& viewMatrix,
-                                    const SkPath& path,
-                                    const GrStyle& style) {
+void SurfaceDrawContext::drawPath(const GrClip* clip,
+                                  GrPaint&& paint,
+                                  GrAA aa,
+                                  const SkMatrix& viewMatrix,
+                                  const SkPath& path,
+                                  const GrStyle& style) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -1534,11 +1554,11 @@ void GrSurfaceDrawContext::drawPath(const GrClip* clip,
     this->drawShape(clip, std::move(paint), aa, viewMatrix, std::move(shape));
 }
 
-void GrSurfaceDrawContext::drawShape(const GrClip* clip,
-                                     GrPaint&& paint,
-                                     GrAA aa,
-                                     const SkMatrix& viewMatrix,
-                                     GrStyledShape&& shape) {
+void SurfaceDrawContext::drawShape(const GrClip* clip,
+                                   GrPaint&& paint,
+                                   GrAA aa,
+                                   const SkMatrix& viewMatrix,
+                                   GrStyledShape&& shape) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -1564,13 +1584,13 @@ static SkIRect get_clip_bounds(const GrSurfaceDrawContext* rtc, const GrClip* cl
 }
 #endif // SK_GPU_V1
 
-bool GrSurfaceDrawContext::drawAndStencilPath(const GrHardClip* clip,
-                                              const GrUserStencilSettings* ss,
-                                              SkRegion::Op op,
-                                              bool invert,
-                                              GrAA aa,
-                                              const SkMatrix& viewMatrix,
-                                              const SkPath& path) {
+bool SurfaceDrawContext::drawAndStencilPath(const GrHardClip* clip,
+                                            const GrUserStencilSettings* ss,
+                                            SkRegion::Op op,
+                                            bool invert,
+                                            GrAA aa,
+                                            const SkMatrix& viewMatrix,
+                                            const SkPath& path) {
 #if SK_GPU_V1
     ASSERT_SINGLE_OWNER
     RETURN_FALSE_IF_ABANDONED
@@ -1635,7 +1655,7 @@ bool GrSurfaceDrawContext::drawAndStencilPath(const GrHardClip* clip,
 #endif
 }
 
-SkBudgeted GrSurfaceDrawContext::isBudgeted() const {
+SkBudgeted SurfaceDrawContext::isBudgeted() const {
     ASSERT_SINGLE_OWNER
 
     if (fContext->abandoned()) {
@@ -1647,9 +1667,12 @@ SkBudgeted GrSurfaceDrawContext::isBudgeted() const {
     return this->asSurfaceProxy()->isBudgeted();
 }
 
-void GrSurfaceDrawContext::drawStrokedLine(const GrClip* clip, GrPaint&& paint,
-                                           GrAA aa, const SkMatrix& viewMatrix,
-                                           const SkPoint points[2], const SkStrokeRec& stroke) {
+void SurfaceDrawContext::drawStrokedLine(const GrClip* clip,
+                                         GrPaint&& paint,
+                                         GrAA aa,
+                                         const SkMatrix& viewMatrix,
+                                         const SkPoint points[2],
+                                         const SkStrokeRec& stroke) {
     ASSERT_SINGLE_OWNER
 
     SkASSERT(stroke.getStyle() == SkStrokeRec::kStroke_Style);
@@ -1691,8 +1714,11 @@ void GrSurfaceDrawContext::drawStrokedLine(const GrClip* clip, GrPaint&& paint,
     this->fillQuadWithEdgeAA(clip, std::move(paint), aa, edgeAA, viewMatrix, corners, nullptr);
 }
 
-bool GrSurfaceDrawContext::drawSimpleShape(const GrClip* clip, GrPaint* paint, GrAA aa,
-                                           const SkMatrix& viewMatrix, const GrStyledShape& shape) {
+bool SurfaceDrawContext::drawSimpleShape(const GrClip* clip,
+                                         GrPaint* paint,
+                                         GrAA aa,
+                                         const SkMatrix& viewMatrix,
+                                         const GrStyledShape& shape) {
     if (!shape.style().hasPathEffect()) {
         GrAAType aaType = this->chooseAAType(aa);
         SkPoint linePts[2];
@@ -1750,12 +1776,12 @@ bool GrSurfaceDrawContext::drawSimpleShape(const GrClip* clip, GrPaint* paint, G
     return false;
 }
 
-void GrSurfaceDrawContext::drawShapeUsingPathRenderer(const GrClip* clip,
-                                                      GrPaint&& paint,
-                                                      GrAA aa,
-                                                      const SkMatrix& viewMatrix,
-                                                      GrStyledShape&& shape,
-                                                      bool attemptDrawSimple) {
+void SurfaceDrawContext::drawShapeUsingPathRenderer(const GrClip* clip,
+                                                    GrPaint&& paint,
+                                                    GrAA aa,
+                                                    const SkMatrix& viewMatrix,
+                                                    GrStyledShape&& shape,
+                                                    bool attemptDrawSimple) {
 #if SK_GPU_V1
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
@@ -1869,6 +1895,7 @@ void GrSurfaceDrawContext::drawShapeUsingPathRenderer(const GrClip* clip,
 #endif
 }
 
+/**/
 static void op_bounds(SkRect* bounds, const GrOp* op) {
     *bounds = op->bounds();
     if (op->hasZeroArea()) {
@@ -1895,9 +1922,9 @@ static void op_bounds(SkRect* bounds, const GrOp* op) {
     }
 }
 
-void GrSurfaceDrawContext::addDrawOp(const GrClip* clip,
-                                     GrOp::Owner op,
-                                     const std::function<WillAddOpFn>& willAddFn) {
+void SurfaceDrawContext::addDrawOp(const GrClip* clip,
+                                   GrOp::Owner op,
+                                   const std::function<WillAddOpFn>& willAddFn) {
     ASSERT_SINGLE_OWNER
     if (fContext->abandoned()) {
         return;
@@ -2013,9 +2040,9 @@ void GrSurfaceDrawContext::addDrawOp(const GrClip* clip,
 #endif
 }
 
-bool GrSurfaceDrawContext::setupDstProxyView(const SkRect& opBounds,
-                                             bool opRequiresMSAA,
-                                             GrDstProxyView* dstProxyView) {
+bool SurfaceDrawContext::setupDstProxyView(const SkRect& opBounds,
+                                           bool opRequiresMSAA,
+                                           GrDstProxyView* dstProxyView) {
     // If we are wrapping a vulkan secondary command buffer, we can't make a dst copy because we
     // don't actually have a VkImage to make a copy of. Additionally we don't have the power to
     // start and stop the render pass in order to make the copy.
@@ -2115,9 +2142,11 @@ bool GrSurfaceDrawContext::setupDstProxyView(const SkRect& opBounds,
     return true;
 }
 
-GrOpsTask* GrSurfaceDrawContext::replaceOpsTaskIfModifiesColor() {
+GrOpsTask* SurfaceDrawContext::replaceOpsTaskIfModifiesColor() {
     if (!this->getOpsTask()->isColorNoOp()) {
         this->replaceOpsTask();
     }
     return this->getOpsTask();
 }
+
+} // namespace skgpu::v1

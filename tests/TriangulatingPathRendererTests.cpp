@@ -14,7 +14,7 @@
 #include "src/gpu/GrEagerVertexAllocator.h"
 #include "src/gpu/GrInnerFanTriangulator.h"
 #include "src/gpu/GrStyle.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
+#include "src/gpu/SurfaceContext.h"
 #include "src/gpu/effects/GrPorterDuffXferProcessor.h"
 #include "src/gpu/geometry/GrStyledShape.h"
 #include "src/shaders/SkShaderBase.h"

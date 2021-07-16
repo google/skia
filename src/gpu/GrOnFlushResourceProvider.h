@@ -61,7 +61,7 @@ public:
 
     explicit GrOnFlushResourceProvider(GrDrawingManager* drawingMgr) : fDrawingMgr(drawingMgr) {}
 
-    std::unique_ptr<GrSurfaceDrawContext> makeSurfaceDrawContext(sk_sp<GrSurfaceProxy>,
+    std::unique_ptr<skgpu::SurfaceFillContext_Base> makeSurfaceDrawContext1(sk_sp<GrSurfaceProxy>,
                                                                  GrSurfaceOrigin, GrColorType,
                                                                  sk_sp<SkColorSpace>,
                                                                  const SkSurfaceProps&);

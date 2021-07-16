@@ -37,7 +37,6 @@ gm_sources = [
   "$_gm/bigblurs.cpp",
   "$_gm/bigmatrix.cpp",
   "$_gm/bigrect.cpp",
-  "$_gm/bigrrectaaeffect.cpp",
   "$_gm/bigtext.cpp",
   "$_gm/bigtileimagefilter.cpp",
   "$_gm/bitmapcopy.cpp",
@@ -409,6 +408,7 @@ gl_gm_sources = [ "$_gm/rectangletexture.cpp" ]
 skgpu_v1_gm_sources = [
   "$_gm/aarecteffect.cpp",
   "$_gm/beziereffects.cpp",
+  "$_gm/bigrrectaaeffect.cpp",
   "$_gm/clockwise.cpp",
   "$_gm/constcolorprocessor.cpp",
   "$_gm/convexpolyeffect.cpp",

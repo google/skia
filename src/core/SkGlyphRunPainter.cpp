@@ -13,8 +13,8 @@
 #include "src/gpu/GrColorInfo.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/SurfaceContext.h"
 #include "src/gpu/ops/GrAtlasTextOp.h"
 #include "src/gpu/text/GrSDFTControl.h"
 #include "src/gpu/text/GrTextBlobCache.h"
@@ -73,8 +73,8 @@ SkGlyphRunListPainter::SkGlyphRunListPainter(const SkSurfaceProps& props, const 
                                 compute_scaler_context_flags(csi.colorSpace()),
                                 SkStrikeCache::GlobalStrikeCache()) {}
 
-SkGlyphRunListPainter::SkGlyphRunListPainter(const GrSurfaceDrawContext& rtc)
-        : SkGlyphRunListPainter{rtc.surfaceProps(), rtc.colorInfo()} {}
+SkGlyphRunListPainter::SkGlyphRunListPainter(const skgpu::SurfaceContext& sc)
+        : SkGlyphRunListPainter{sc.surfaceProps(), sc.colorInfo()} {}
 
 #endif
 
