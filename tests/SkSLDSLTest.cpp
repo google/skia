@@ -1974,7 +1974,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLInlining, r, ctxInfo) {
     DSLFunction(kVoid_Type, "main").define(
         sk_FragColor() = (sqr(2), Half4(sqr(3)))
     );
-    std::unique_ptr<SkSL::Program> program = ReleaseProgram();
+    const char* source = "source test";
+    std::unique_ptr<SkSL::Program> program = ReleaseProgram(std::make_unique<SkSL::String>(source));
     EXPECT_EQUAL(*program,
                  "layout(location = 0, index = 0, builtin = 10001) out half4 sk_FragColor;"
                  "layout(builtin = 17)in bool sk_Clockwise;"
@@ -1983,4 +1984,5 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLInlining, r, ctxInfo) {
                  "/* inlined: sqr */;"
                  "(sk_FragColor = (4.0 , half4(half(9.0))));"
                  "}");
+    REPORTER_ASSERT(r, *program->fSource == source);
 }
