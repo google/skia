@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "44fe1215_ed148c95",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-07-16T20:31:49Z",
+      "side": 1,
+      "message": "do we",
+      "revId": "28dcb7dc1b2755beefaedfc35f6eec6e70d4ae68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "378e5d7d_7e1a151f",
+        "filename": "src/shaders/SkShaderBase.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-07-16T20:31:49Z",
+      "side": 1,
+      "message": "will we keep this as a new virtual, or can we just rely on the one in SkStageUpdater?",
+      "range": {
+        "startLine": 59,
+        "startChar": 0,
+        "endLine": 59,
+        "endChar": 12
+      },
+      "revId": "28dcb7dc1b2755beefaedfc35f6eec6e70d4ae68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
