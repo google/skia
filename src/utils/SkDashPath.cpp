@@ -248,6 +248,9 @@ public:
 
         SkScalar ptCount = pathLength * intervalCount / (float)intervalLength;
         ptCount = std::min(ptCount, SkDashPath::kMaxDashCount);
+        if (SkScalarIsNaN(ptCount)) {
+            return false;
+        }
         int n = SkScalarCeilToInt(ptCount) << 2;
         dst->incReserve(n);
 
