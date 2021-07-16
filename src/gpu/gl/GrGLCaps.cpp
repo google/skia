@@ -221,10 +221,12 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fClientCanDisableMultisample = ctxInfo.hasExtension("GL_EXT_multisample_compatibility");
     } // no WebGL support
 
+#if 0
 #ifdef SK_BUILD_FOR_MAC
     fMultisampleDisableSupport = false;
 #else
     fMultisampleDisableSupport = fClientCanDisableMultisample;
+#endif
 #endif
 
     if (GR_IS_GR_GL(standard)) {
