@@ -140,6 +140,30 @@
       },
       "revId": "c8cc6c92319bba4b3478c116d0d48ab9206c751e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dcf50647_f0dd48ea",
+        "filename": "src/sksl/dsl/DSLCore.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-16T14:14:09Z",
+      "side": 1,
+      "message": "Thanks for the great explanation and the beefed-up comment. That makes it super clear.",
+      "parentUuid": "dcabb355_86c904c5",
+      "range": {
+        "startLine": 91,
+        "startChar": 0,
+        "endLine": 91,
+        "endChar": 98
+      },
+      "revId": "c8cc6c92319bba4b3478c116d0d48ab9206c751e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
