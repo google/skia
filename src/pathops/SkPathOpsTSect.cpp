@@ -2045,9 +2045,8 @@ void SkTSect::BinarySearch(SkTSect* sect1,
             break;
         }
         SkTSpan* result2 = sect2->fHead;
-        bool found = false;
         while (result2) {
-            found |= closest.find(result1, result2  SkDEBUGPARAMS(intersections));
+            closest.find(result1, result2  SkDEBUGPARAMS(intersections));
             result2 = result2->fNext;
         }
     } while ((result1 = result1->fNext));
