@@ -13,7 +13,6 @@
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkColorPriv.h"
 #include "include/core/SkColorSpace.h"
-#include "include/core/SkFilterQuality.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkFontStyle.h"
 #include "include/core/SkFontTypes.h"
