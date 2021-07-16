@@ -82,4 +82,4 @@ users.
 - macOS 10.10.5 or later
 - iOS 8 or later
 - Android 4.1 (JellyBean) or later
-- Ubuntu 14.04+, Debian 8+, openSUSE 13.3+, or Fedora Linux 24+
+- Ubuntu 18.04+, Debian 10+, openSUSE 15.2+, or Fedora Linux 32+
