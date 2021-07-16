@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "256d8933_e4b0a7bc",
+        "filename": "tests/Skbug12214.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-07-16T13:32:32Z",
+      "side": 1,
+      "message": "LLC ?",
+      "range": {
+        "startLine": 2,
+        "startChar": 25,
+        "endLine": 2,
+        "endChar": 28
+      },
+      "revId": "baa3335cf002e73921c10e1b1621e37821ab9d2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4fa0a463_e8e757ed",
+        "filename": "tests/Skbug12214.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2021-07-16T13:32:32Z",
+      "side": 1,
+      "message": "Line this up w/ above ?",
+      "range": {
+        "startLine": 18,
+        "startChar": 59,
+        "endLine": 18,
+        "endChar": 69
+      },
+      "revId": "baa3335cf002e73921c10e1b1621e37821ab9d2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
