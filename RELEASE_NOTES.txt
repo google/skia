@@ -2,7 +2,11 @@ Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
-  * Removed SkMatrix44
+* * *
+
+Milestone 94
+------------
+  *
 
 * * *
 
@@ -16,6 +20,8 @@ Milestone 93
 
   * The default value of GrContextOptions::fReduceOpsTaskSplitting is now enabled.
     https://review.skia.org/419836
+
+  * Removed SkMatrix44
 
 * * *
 
