@@ -38,6 +38,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "1932d6ee_f89d324d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-16T14:08:29Z",
+      "side": 1,
+      "message": "This turns out to be very hard to reproduce in practice, as we already have a lot of guards which are meant to detect a NaN input and reject it before we get this far. All the simplified repro cases I\u0027ve tried to assemble have been caught and rejected earlier by our existing NaN checks.\n\nThe fuzz test makes an extremely complicated, deeply-composed PathEffect on the paint, which somehow dodges all the existing NaN checks. \n\nAre you interested in a very weird/convoluted looking test which assembles a bonkers SkPaint, and \"passing the test\" means that we don\u0027t trigger a UBSAN error on the tree? I\u0027m not sure how meaningful such a test is, but I can write a test which exactly matches the fuzzer\u0027s behavior if that\u0027s what we want.",
+      "parentUuid": "2a4b8ff5_f7161cf0",
+      "revId": "35c7a7648bd29caff04d74fa3d5ac8f19e82b468",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "eb660bac_22063de9",
         "filename": "src/utils/SkDashPath.cpp",
         "patchSetId": 1
