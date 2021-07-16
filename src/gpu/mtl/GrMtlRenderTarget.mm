@@ -7,6 +7,8 @@
 
 #include "src/gpu/mtl/GrMtlRenderTarget.h"
 
+#include "src/gpu/GrDirectContextPriv.h"
+#include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/mtl/GrMtlGpu.h"
 #include "src/gpu/mtl/GrMtlUtil.h"
 
@@ -62,13 +64,14 @@ sk_sp<GrMtlRenderTarget> GrMtlRenderTarget::MakeWrappedRenderTarget(GrMtlGpu* gp
             if (!gpu->mtlCaps().isFormatRenderable(format, sampleCnt)) {
                 return nullptr;
             }
-            sk_sp<GrMtlAttachment> colorAttachment = GrMtlAttachment::MakeMSAA(gpu,
-                                                                               dimensions,
-                                                                               sampleCnt,
-                                                                               format);
-            if (!colorAttachment) {
+            auto rp = gpu->getContext()->priv().resourceProvider();
+            sk_sp<GrAttachment> msaaAttachment = rp->makeMSAAAttachment(
+                    dimensions, GrBackendFormat::MakeMtl(format), sampleCnt, GrProtected::kNo);
+            if (!msaaAttachment) {
                 return nullptr;
             }
+            sk_sp<GrMtlAttachment> colorAttachment =
+                    sk_sp<GrMtlAttachment>(static_cast<GrMtlAttachment*>(msaaAttachment.release()));
             mtlRT = new GrMtlRenderTarget(
                     gpu, dimensions, std::move(colorAttachment), std::move(textureAttachment),
                     kWrapped);
