@@ -160,12 +160,6 @@ GR_MAKE_BITFIELD_CLASS_OPS(GrStrokeTessellationShader::ShaderFlags)
 // emitTessellationCode and emitFragment code.
 class GrStrokeTessellationShader::Impl : public GrGLSLGeometryProcessor {
 protected:
-    // float atan2(float2 v) { ...
-    //
-    // The built-in atan() is undefined when x==0. This method relieves that restriction, but also
-    // can return values larger than 2*PI. This shouldn't matter for our purposes.
-    static const char* kAtan2Fn;
-
     // float cosine_between_vectors(float2 a, float2 b) { ...
     //
     // Returns dot(a, b) / (length(a) * length(b)).
@@ -211,7 +205,6 @@ protected:
     //     float radsPerSegment;
     //     float2 tan0;
     //     float2 tan1;
-    //     float angle0;
     //     float strokeOutset;
     //
     void emitTessellationCode(const GrStrokeTessellationShader& shader, SkString* code,
