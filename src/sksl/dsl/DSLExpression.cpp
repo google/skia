@@ -92,8 +92,9 @@ DSLExpression::~DSLExpression() {
         return;
     }
 #endif
-    SkASSERTF(fExpression == nullptr,
-              "Expression destroyed without being incorporated into program");
+    SkASSERTF(!fExpression || !DSLWriter::Settings().fAssertDSLObjectsReleased,
+              "Expression destroyed without being incorporated into program (see "
+              "ProgramSettings::fAssertDSLObjectsReleased)");
 }
 
 void DSLExpression::swap(DSLExpression& other) {
