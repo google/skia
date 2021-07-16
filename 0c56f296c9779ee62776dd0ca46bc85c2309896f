@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2a9ed6fd_518f9c64",
+        "filename": "src/sksl/dsl/priv/DSLWriter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-07-16T15:18:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ef795fe1_0d18ac53",
+      "range": {
+        "startLine": 82,
+        "startChar": 11,
+        "endLine": 82,
+        "endChar": 33
+      },
+      "revId": "0c56f296c9779ee62776dd0ca46bc85c2309896f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "679cd456_aedfb5b9",
@@ -47,6 +71,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5426f2a7_54e8d224",
+        "filename": "src/sksl/dsl/priv/DSLWriter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-07-16T15:18:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "679cd456_aedfb5b9",
+      "range": {
+        "startLine": 86,
+        "startChar": 11,
+        "endLine": 86,
+        "endChar": 33
+      },
+      "revId": "0c56f296c9779ee62776dd0ca46bc85c2309896f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cd9f9c2e_97408ef7",
@@ -60,6 +108,30 @@
       "writtenOn": "2021-07-16T14:59:03Z",
       "side": 1,
       "message": "Optional bonus fix: there\u0027s one spot in DSLFunction where we could replace `DSLWriter::Context().fConfig-\u003efSettings` with `DSLWriter::Settings()`.",
+      "range": {
+        "startLine": 76,
+        "startChar": 34,
+        "endLine": 76,
+        "endChar": 42
+      },
+      "revId": "0c56f296c9779ee62776dd0ca46bc85c2309896f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a2782c89_d3aaff4f",
+        "filename": "src/sksl/dsl/priv/DSLWriter.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2021-07-16T15:18:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cd9f9c2e_97408ef7",
       "range": {
         "startLine": 76,
         "startChar": 34,
