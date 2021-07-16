@@ -305,14 +305,12 @@ private:
             // Only the first block is allowed to have all its nodes in the free list.
             SkASSERT(block->fNodesInUse > 0 || block == &fFirstBlock);
             SkASSERT((unsigned)block->fNodesInUse < N);
-            int activeCnt = 0;
-            int freeCnt = 0;
+            SkDEBUGCODE(int activeCnt = 0;)
             for (unsigned int i = 0; i < N; ++i) {
                 bool free = fFreeList.isInList(block->fNodes + i);
                 bool active = fList.isInList(block->fNodes + i);
                 SkASSERT(free != active);
-                activeCnt += active;
-                freeCnt += free;
+                SkDEBUGCODE(activeCnt += active;)
             }
             SkASSERT(activeCnt == block->fNodesInUse);
             freeNode = iter.next();
@@ -326,14 +324,12 @@ private:
             Block* block = activeNode->fBlock;
             SkASSERT(block->fNodesInUse > 0 && (unsigned)block->fNodesInUse <= N);
 
-            int activeCnt = 0;
-            int freeCnt = 0;
+            SkDEBUGCODE(int activeCnt = 0;)
             for (unsigned int i = 0; i < N; ++i) {
                 bool free = fFreeList.isInList(block->fNodes + i);
                 bool active = fList.isInList(block->fNodes + i);
                 SkASSERT(free != active);
-                activeCnt += active;
-                freeCnt += free;
+                SkDEBUGCODE(activeCnt += active;)
             }
             SkASSERT(activeCnt == block->fNodesInUse);
             activeNode = iter.next();

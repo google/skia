@@ -228,13 +228,8 @@ private:
                                const RunDef out[], unsigned outCount) {
         SkFont font;
 
-        unsigned glyphCount = 0;
-        unsigned posCount = 0;
-
         for (unsigned i = 0; i < inCount; ++i) {
             AddRun(font, in[i].count, in[i].pos, SkPoint::Make(in[i].x, in[i].y), builder);
-            glyphCount += in[i].count;
-            posCount += in[i].count * in[i].pos;
         }
 
         sk_sp<SkTextBlob> blob(builder.make());
