@@ -187,7 +187,13 @@ DSLExpression DSLType::Construct(DSLType type, SkTArray<DSLExpression> argArray)
 }
 
 DSLType Array(const DSLType& base, int count) {
-    SkASSERT(count >= 1);
+    if (count <= 0) {
+        DSLWriter::ReportError("array size must be positive\n");
+    }
+    if (base.isArray()) {
+        DSLWriter::ReportError("multidimensional arrays are not permitted\n");
+        return base;
+    }
     return DSLWriter::SymbolTable()->addArrayDimension(&base.skslType(), count);
 }
 

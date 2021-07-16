@@ -57,6 +57,11 @@ DSLExpression::DSLExpression(int value)
                                          /*offset=*/-1,
                                          value)) {}
 
+DSLExpression::DSLExpression(int64_t value)
+    : fExpression(SkSL::IntLiteral::Make(DSLWriter::Context(),
+                                         /*offset=*/-1,
+                                         value)) {}
+
 DSLExpression::DSLExpression(unsigned int value)
     : fExpression(SkSL::IntLiteral::Make(DSLWriter::Context(),
                                          /*offset=*/-1,
@@ -206,6 +211,10 @@ OP(&=, TK_BITWISEANDEQ)
 OP(|, TK_BITWISEOR)
 OP(|=, TK_BITWISEOREQ)
 OP(^, TK_BITWISEXOR)
+DSLPossibleExpression LogicalXor(DSLExpression left, DSLExpression right) {
+    return DSLWriter::ConvertBinary(left.release(), SkSL::Token::Kind::TK_LOGICALXOR,
+                                    right.release());
+}
 OP(^=, TK_BITWISEXOREQ)
 OP(==, TK_EQEQ)
 OP(!=, TK_NEQ)
@@ -263,6 +272,11 @@ DSLPossibleExpression::~DSLPossibleExpression() {
         // this handles incorporating the expression into the output tree
         DSLExpression(std::move(fExpression));
     }
+}
+
+void DSLPossibleExpression::reportErrors(PositionInfo pos) {
+    SkASSERT(!this->valid());
+    DSLWriter::ReportErrors(pos);
 }
 
 DSLType DSLPossibleExpression::type() {
