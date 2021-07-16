@@ -39,6 +39,30 @@
       },
       "revId": "28dcb7dc1b2755beefaedfc35f6eec6e70d4ae68",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f40c8fb8_e13bdad0",
+        "filename": "src/shaders/SkShaderBase.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-07-16T20:43:26Z",
+      "side": 1,
+      "message": "Digging into this further. This does need to be virtual. The updater is created in SkVM build program, and is handled as an SkVMStageUpdater thus losing the specific type information. Since the Shader\u0027s onProgram is going to be passed an SkVMStageUpdater* it needs to communicate through a virtual.",
+      "parentUuid": "378e5d7d_7e1a151f",
+      "range": {
+        "startLine": 59,
+        "startChar": 0,
+        "endLine": 59,
+        "endChar": 12
+      },
+      "revId": "28dcb7dc1b2755beefaedfc35f6eec6e70d4ae68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

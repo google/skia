@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0c2e962f_1086cf72",
+        "filename": "src/core/SkBlitter.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-07-16T20:43:26Z",
+      "side": 1,
+      "message": "This is needed because the jitting of the code is all contained in SkCreateSkVMBlitter. These allow the blitter client to update the matrix.",
+      "parentUuid": "1f27bcc9_d06246fc",
+      "range": {
+        "startLine": 138,
+        "startChar": 17,
+        "endLine": 138,
+        "endChar": 23
+      },
+      "revId": "d3d5b1d363708ce4501157280143d700ec497657",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0c9a2aae_e3b43f32",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-07-16T19:42:34Z",
       "side": 1,
       "message": "nit: this rename makes parsing the diff a bit harder.",
+      "range": {
+        "startLine": 275,
+        "startChar": 19,
+        "endLine": 275,
+        "endChar": 28
+      },
+      "revId": "d3d5b1d363708ce4501157280143d700ec497657",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "845ec73f_bb1839bb",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 275,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-07-16T20:43:26Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "0c9a2aae_e3b43f32",
       "range": {
         "startLine": 275,
         "startChar": 19,
