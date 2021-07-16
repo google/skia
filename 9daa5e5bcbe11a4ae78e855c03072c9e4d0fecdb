@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5198ee6b_4e3eda75",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-07-16T14:19:28Z",
+      "side": 1,
+      "message": "Looks like CK also needs guarding.",
+      "revId": "9daa5e5bcbe11a4ae78e855c03072c9e4d0fecdb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "344e6fb2_6533deb1",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2021-07-16T14:19:28Z",
+      "side": 1,
+      "message": "If skia_enable_sksl adds the define, and we always set skia_enable_sksl \u003d true for gpu builds, is this still needed?",
+      "range": {
+        "startLine": 239,
+        "startChar": 0,
+        "endLine": 243,
+        "endChar": 5
+      },
+      "revId": "9daa5e5bcbe11a4ae78e855c03072c9e4d0fecdb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
