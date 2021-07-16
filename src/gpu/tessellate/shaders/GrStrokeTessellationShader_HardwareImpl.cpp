@@ -34,8 +34,8 @@ void GrStrokeTessellationShader::HardwareImpl::onEmitCode(EmitArgs& args, GrGPAr
     // [numSegmentsInJoin, innerJoinRadiusMultiplier, prevJoinTangent.xy]
     v->declareGlobal(GrShaderVar("vsJoinArgs0", kFloat4_GrSLType, TypeModifier::Out));
 
-    // [joinAngle0, radsPerJoinSegment, joinOutsetClamp.xy]
-    v->declareGlobal(GrShaderVar("vsJoinArgs1", kFloat4_GrSLType, TypeModifier::Out));
+    // [radsPerJoinSegment, joinOutsetClamp.xy]
+    v->declareGlobal(GrShaderVar("vsJoinArgs1", kFloat3_GrSLType, TypeModifier::Out));
 
     // Curve args.
     v->declareGlobal(GrShaderVar("vsPts01", kFloat4_GrSLType, TypeModifier::Out));
@@ -53,7 +53,6 @@ void GrStrokeTessellationShader::HardwareImpl::onEmitCode(EmitArgs& args, GrGPAr
         v->declareGlobal(GrShaderVar("vsColor", kHalf4_GrSLType, TypeModifier::Out));
     }
 
-    v->insertFunction(kAtan2Fn);
     v->insertFunction(kCosineBetweenVectorsFn);
     v->insertFunction(kMiterExtentFn);
     v->insertFunction(kUncheckedMixFn);
@@ -176,8 +175,7 @@ void GrStrokeTessellationShader::HardwareImpl::onEmitCode(EmitArgs& args, GrGPAr
 
     // Pack join args for the tessellation control stage.
     vsJoinArgs0 = float4(numSegmentsInJoin, innerJoinRadiusMultiplier, prevJoinTangent);
-    vsJoinArgs1 = float4(atan2(prevJoinTangent), joinRotation / numSegmentsInJoin,
-                         joinOutsetClamp);
+    vsJoinArgs1 = float3(joinRotation / numSegmentsInJoin, joinOutsetClamp);
 
     // Now find where to chop the curve so the resulting sub-curves are convex and do not rotate
     // more than 180 degrees. We don't need to worry about cusps because the caller chops those out
@@ -350,7 +348,6 @@ SkString GrStrokeTessellationShader::HardwareImpl::getTessControlShaderGLSL(
     }
 
     code.append(GrWangsFormula::as_sksl());
-    code.append(kAtan2Fn);
     code.append(kCosineBetweenVectorsFn);
     code.append(kMiterExtentFn);
     code.append(R"(
@@ -360,7 +357,7 @@ SkString GrStrokeTessellationShader::HardwareImpl::getTessControlShaderGLSL(
 
     code.append(R"(
     in vec4 vsJoinArgs0[];
-    in vec4 vsJoinArgs1[];
+    in vec3 vsJoinArgs1[];
     in vec4 vsPts01[];
     in vec4 vsPts23[];
     in vec4 vsPts45[];
@@ -380,10 +377,10 @@ SkString GrStrokeTessellationShader::HardwareImpl::getTessControlShaderGLSL(
     code.append(R"(
     out vec4 tcsPts01[];
     out vec4 tcsPt2Tan0[];
-    out vec4 tcsTessArgs[];  // [numCombinedSegments, numParametricSegments, angle0, radsPerSegment]
+    out vec3 tcsTessArgs[];  // [numCombinedSegments, numParametricSegments, radsPerSegment]
     patch out vec4 tcsJoinArgs0; // [numSegmentsInJoin, innerJoinRadiusMultiplier,
                                  //  prevJoinTangent.xy]
-    patch out vec4 tcsJoinArgs1;  // [joinAngle0, radsPerJoinSegment, joinOutsetClamp.xy]
+    patch out vec3 tcsJoinArgs1;  // [radsPerJoinSegment, joinOutsetClamp.xy]
     patch out vec4 tcsEndPtEndTan;)");
     if (shader.hasDynamicStroke()) {
         code.append(R"(
@@ -442,9 +439,6 @@ SkString GrStrokeTessellationShader::HardwareImpl::getTessControlShaderGLSL(
             numParametricSegments = 1.0;
         }
 
-        // Determine the curve's start angle.
-        float angle0 = atan2(tangents[0]);
-
         // Determine the curve's total rotation. The vertex shader ensures our curve does not rotate
         // more than 180 degrees or inflect, so the inverse cosine has enough range.
         float cosTheta = cosine_between_vectors(tangents[0], tangents[1]);
@@ -493,7 +487,7 @@ SkString GrStrokeTessellationShader::HardwareImpl::getTessControlShaderGLSL(
         // Pack the args for the evaluation stage.
         tcsPts01[gl_InvocationID] = vec4(P[0], P[1]);
         tcsPt2Tan0[gl_InvocationID] = vec4(P[2], tangents[0]);
-        tcsTessArgs[gl_InvocationID] = vec4(numCombinedSegments, numParametricSegments, angle0,
+        tcsTessArgs[gl_InvocationID] = vec3(numCombinedSegments, numParametricSegments,
                                             rotation / numRadialSegments);
         if (gl_InvocationID == 2) {
             tcsEndPtEndTan = vec4(P[3], tangents[1]);
@@ -565,10 +559,10 @@ SkString GrStrokeTessellationShader::HardwareImpl::getTessEvaluationShaderGLSL(
     code.append(R"(
     in vec4 tcsPts01[];
     in vec4 tcsPt2Tan0[];
-    in vec4 tcsTessArgs[];  // [numCombinedSegments, numParametricSegments, angle0, radsPerSegment]
+    in vec3 tcsTessArgs[];  // [numCombinedSegments, numParametricSegments, radsPerSegment]
     patch in vec4 tcsJoinArgs0;  // [numSegmentsInJoin, innerJoinRadiusMultiplier,
                                  //  prevJoinTangent.xy]
-    patch in vec4 tcsJoinArgs1;  // [joinAngle0, radsPerJoinSegment, joinOutsetClamp.xy]
+    patch in vec3 tcsJoinArgs1;  // [radsPerJoinSegment, joinOutsetClamp.xy]
     patch in vec4 tcsEndPtEndTan;)");
     if (shader.hasDynamicStroke()) {
         code.append(R"(
@@ -602,34 +596,35 @@ SkString GrStrokeTessellationShader::HardwareImpl::getTessEvaluationShaderGLSL(
         // Determine which section we belong to, and where we fall relative to its first edge.
         float2 p0, p1, p2, p3;
         vec2 tan0;
-        vec3 tessellationArgs;
+        float numParametricSegments, radsPerSegment;
         if (combinedEdgeID < numSegmentsInJoin || numSegmentsInJoin == numTotalCombinedSegments) {
             // Our edge belongs to the join preceding the curve.
             p3 = p2 = p1 = p0 = tcsPts01[0].xy;
             tan0 = tcsJoinArgs0.zw;
-            tessellationArgs = vec3(1, tcsJoinArgs1.xy);
-            strokeOutset = clamp(strokeOutset, tcsJoinArgs1.z, tcsJoinArgs1.w);
+            numParametricSegments = 1;
+            radsPerSegment = tcsJoinArgs1.x;
+            strokeOutset = clamp(strokeOutset, tcsJoinArgs1.y, tcsJoinArgs1.z);
             strokeOutset *= (combinedEdgeID == 1.0) ? tcsJoinArgs0.y : 1.0;
         } else if ((combinedEdgeID -= numSegmentsInJoin) < tcsTessArgs[0].x) {
             // Our edge belongs to the first curve section.
             p0=tcsPts01[0].xy, p1=tcsPts01[0].zw, p2=tcsPt2Tan0[0].xy, p3=tcsPts01[1].xy;
             tan0 = tcsPt2Tan0[0].zw;
-            tessellationArgs = tcsTessArgs[0].yzw;
+            numParametricSegments = tcsTessArgs[0].y;
+            radsPerSegment = tcsTessArgs[0].z;
         } else if ((combinedEdgeID -= tcsTessArgs[0].x) < tcsTessArgs[1].x) {
             // Our edge belongs to the second curve section.
             p0=tcsPts01[1].xy, p1=tcsPts01[1].zw, p2=tcsPt2Tan0[1].xy, p3=tcsPts01[2].xy;
             tan0 = tcsPt2Tan0[1].zw;
-            tessellationArgs = tcsTessArgs[1].yzw;
+            numParametricSegments = tcsTessArgs[1].y;
+            radsPerSegment = tcsTessArgs[1].z;
         } else {
             // Our edge belongs to the third curve section.
             combinedEdgeID -= tcsTessArgs[1].x;
             p0=tcsPts01[2].xy, p1=tcsPts01[2].zw, p2=tcsPt2Tan0[2].xy, p3=tcsEndPtEndTan.xy;
             tan0 = tcsPt2Tan0[2].zw;
-            tessellationArgs = tcsTessArgs[2].yzw;
+            numParametricSegments = tcsTessArgs[2].y;
+            radsPerSegment = tcsTessArgs[2].z;
         }
-        float numParametricSegments = tessellationArgs.x;
-        float angle0 = tessellationArgs.y;
-        float radsPerSegment = tessellationArgs.z;
         float2 tan1 = tcsEndPtEndTan.zw;
         bool isFinalEdge = (gl_TessCoord.x == 1);
         float w = -1.0;  // w<0 means the curve is an integral cubic.

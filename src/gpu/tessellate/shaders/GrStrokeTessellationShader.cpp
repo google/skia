@@ -89,19 +89,6 @@ GrStrokeTessellationShader::GrStrokeTessellationShader(const GrShaderCaps& shade
     SkASSERT(fAttribs.count() <= kMaxAttribCount);
 }
 
-
-// The built-in atan() is undefined when x==0. This method relieves that restriction, but also can
-// return values larger than 2*PI. This shouldn't matter for our purposes.
-const char* GrStrokeTessellationShader::Impl::kAtan2Fn = R"(
-float atan2(float2 v) {
-    float bias = 0.0;
-    if (abs(v.y) > abs(v.x)) {
-        v = float2(v.y, -v.x);
-        bias = PI/2.0;
-    }
-    return atan(v.y, v.x) + bias;
-})";
-
 const char* GrStrokeTessellationShader::Impl::kCosineBetweenVectorsFn = R"(
 float cosine_between_vectors(float2 a, float2 b) {
     // FIXME(crbug.com/800804,skbug.com/11268): This can overflow if we don't normalize exponents.
@@ -162,7 +149,6 @@ void GrStrokeTessellationShader::Impl::emitTessellationCode(
     //     float radsPerSegment;
     //     float2 tan0;
     //     float2 tan1;
-    //     float angle0;
     //     float strokeOutset;
     //
     code->appendf(R"(
@@ -241,6 +227,10 @@ void GrStrokeTessellationShader::Impl::emitTessellationCode(
         // Now that we've identified the highest parametric edge on or before the
         // combinedEdgeID, the highest radial edge is easy:
         float lastRadialEdgeID = combinedEdgeID - lastParametricEdgeID;
+
+        // Find the angle of tan0, or the angle between tan0norm and the positive x axis.
+        float angle0 = acos(clamp(tan0norm.x, -1.0, 1.0));
+        angle0 = tan0norm.y >= 0.0 ? angle0 : -angle0;
 
         // Find the tangent vector on the edge at lastRadialEdgeID.
         float radialAngle = fma(lastRadialEdgeID, radsPerSegment, angle0);
