@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a8408c30_406c0ea3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-07-16T22:51:54Z",
+      "side": 1,
+      "message": "The perf regressions got fixed with fixed count shaders.\n\nMetal bots are using tessellation now anyway because we have a workaround for when vertexID isn\u0027t supported. We might as well keep this feature now.",
+      "revId": "011d32848112ee3a1fc5c811442b7cf715a32549",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
