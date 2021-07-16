@@ -33,6 +33,69 @@
       "message": "Adding current gardener as reviewer",
       "revId": "5ac83eeaf8798aa1f95c45e47d9d66c2c4b717e3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1d8e3fe6_cf976f4a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-16T23:03:36Z",
+      "side": 1,
+      "message": "I don\u0027t think I agree with this change philosophically. Passing null + a nonzero length is an error in the calling code, full stop. We shouldn\u0027t need to defend against it; memcpy-from-null is going to crash too, as it should. An SkASSERT might be warranted, but I\u0027m not sure it actually adds much value (the crash report will have the same info).",
+      "revId": "5ac83eeaf8798aa1f95c45e47d9d66c2c4b717e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "80a310dc_167d85a1",
+        "filename": "src/utils/SkUTF.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-16T23:03:36Z",
+      "side": 1,
+      "message": "nit: unnecessary `else` after `return`",
+      "range": {
+        "startLine": 258,
+        "startChar": 6,
+        "endLine": 258,
+        "endChar": 10
+      },
+      "revId": "5ac83eeaf8798aa1f95c45e47d9d66c2c4b717e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ad5d0638_b5e0cc48",
+        "filename": "src/utils/SkUTF.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-16T23:03:36Z",
+      "side": 1,
+      "message": "nit: unnecessary `else` after `return`",
+      "range": {
+        "startLine": 292,
+        "startChar": 6,
+        "endLine": 292,
+        "endChar": 10
+      },
+      "revId": "5ac83eeaf8798aa1f95c45e47d9d66c2c4b717e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
