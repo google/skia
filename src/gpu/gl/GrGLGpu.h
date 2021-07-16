@@ -26,6 +26,7 @@
 #include "src/gpu/gl/GrGLVertexArray.h"
 
 class GrGLBuffer;
+class GrGLFramebuffer;
 class GrGLOpsRenderPass;
 class GrPipeline;
 class GrSwizzle;
@@ -71,7 +72,7 @@ public:
     GrGLenum bindBuffer(GrGpuBufferType type, const GrBuffer*);
 
     // Flushes state from GrProgramInfo to GL. Returns false if the state couldn't be set.
-    bool flushGLState(GrRenderTarget*, bool useMultisampleFBO, const GrProgramInfo&);
+    bool flushGLState(GrGLFramebuffer*, GrRenderTarget*, const GrProgramInfo&);
     void flushScissorRect(const SkIRect& scissor, int rtHeight, GrSurfaceOrigin);
 
     // The flushRenderTarget methods will all set the initial viewport to the full extent of the
@@ -114,26 +115,26 @@ public:
     // The GrGLOpsRenderPass does not buffer up draws before submitting them to the gpu.
     // Thus this is the implementation of the clear call for the corresponding passthrough function
     // on GrGLOpsRenderPass.
-    void clear(const GrScissorState&, std::array<float, 4> color, GrRenderTarget*,
+    void clear(const GrScissorState&, std::array<float, 4> color, GrGLFramebuffer*, GrRenderTarget*,
                bool useMultisampleFBO, GrSurfaceOrigin);
 
     // The GrGLOpsRenderPass does not buffer up draws before submitting them to the gpu.
     // Thus this is the implementation of the clearStencil call for the corresponding passthrough
     // function on GrGLOpsrenderPass.
     void clearStencilClip(const GrScissorState&, bool insideStencilMask,
-                          GrRenderTarget*, bool useMultisampleFBO, GrSurfaceOrigin);
+                          GrGLFramebuffer*, GrSurfaceOrigin);
 
-    void beginCommandBuffer(GrGLRenderTarget*, bool useMultisampleFBO,
+    void beginCommandBuffer(GrGLFramebuffer*, GrRenderTarget*,
                             const SkIRect& bounds, GrSurfaceOrigin,
                             const GrOpsRenderPass::LoadAndStoreInfo& colorLoadStore,
                             const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilLoadStore);
 
-    void endCommandBuffer(GrGLRenderTarget*, bool useMultisampleFBO,
+    void endCommandBuffer(GrGLFramebuffer*,
                           const GrOpsRenderPass::LoadAndStoreInfo& colorLoadStore,
                           const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilLoadStore);
 
-    void invalidateBoundRenderTarget() {
-        fHWBoundRenderTargetUniqueID.makeInvalid();
+    void invalidateBoundFramebuffer() {
+        fHWBoundFramebufferUniqueID = SK_InvalidUniqueID;
     }
 
     sk_sp<GrAttachment> makeStencilAttachment(const GrBackendFormat& colorFormat,
@@ -421,7 +422,7 @@ private:
     }
     void flushScissorTest(GrScissorTest);
 
-    void flushWindowRectangles(const GrWindowRectsState&, const GrGLRenderTarget*, GrSurfaceOrigin);
+    void flushWindowRectangles(const GrWindowRectsState&, const GrGLFramebuffer*, GrSurfaceOrigin);
     void disableWindowRectangles();
 
     int numTextureUnits() const { return this->caps()->shaderCaps()->maxFragmentSamplers(); }
@@ -434,18 +435,22 @@ private:
 
     // The passed bounds contains the render target's color values that will subsequently be
     // written.
-    void flushRenderTarget(GrGLRenderTarget*, bool useMultisampleFBO, GrSurfaceOrigin,
+    // TODO: The GrGLRenderTarget is passed in only to call didWriteToSurface on. Once more backends
+    // have been updated to not using GrRenderTarget internally, we should move the dirty tracking
+    // off of it. The dirty tracking should get moved to GrAttachment (and later GrSurface once they
+    // are merged), and then we can set the dirty region from the framebuffer.
+    void flushRenderTarget(GrGLFramebuffer*, GrRenderTarget*, GrSurfaceOrigin,
                            const SkIRect& bounds);
-    // This version has an implicit bounds of the entire render target.
-    void flushRenderTarget(GrGLRenderTarget*, bool useMultisampleFBO);
-    // This version can be used when the render target's colors will not be written.
-    void flushRenderTargetNoColorWrites(GrGLRenderTarget*, bool useMultisampleFBO);
+    // This version has an implicit bounds of the entire framebuffer.
+    void flushRenderTarget(GrGLFramebuffer*, GrRenderTarget*);
+    // This version can be used when the framebuffers's colors will not be written.
+    void flushRenderTargetNoColorWrites(GrGLFramebuffer*);
 
     void flushStencil(const GrStencilSettings&, GrSurfaceOrigin);
     void disableStencil();
 
-    // rt is used only if useHWAA is true.
-    void flushHWAAState(GrRenderTarget* rt, bool useHWAA);
+    // framebuffer is used only if useHWAA is true.
+    void flushHWAAState(GrGLFramebuffer*, bool useHWAA);
 
     void flushConservativeRasterState(bool enable);
 
@@ -569,21 +574,21 @@ private:
             fWindowState.setDisabled();
         }
 
-        void set(GrSurfaceOrigin rtOrigin, int width, int height,
+        void set(GrSurfaceOrigin rtOrigin, SkISize dimensions,
                  const GrWindowRectsState& windowState) {
             fRTOrigin = rtOrigin;
-            fWidth = width;
-            fHeight = height;
+            fDimensions = dimensions;
             fWindowState = windowState;
         }
 
-        bool knownEqualTo(GrSurfaceOrigin rtOrigin, int width, int height,
+        bool knownEqualTo(GrSurfaceOrigin rtOrigin, SkISize dimensions,
                           const GrWindowRectsState& windowState) const {
             if (!this->valid()) {
                 return false;
             }
             if (fWindowState.numWindows() &&
-                (fRTOrigin != rtOrigin || fWidth != width || fHeight != height)) {
+                (fRTOrigin != rtOrigin ||
+                 fDimensions != dimensions)) {
                 return false;
             }
             return fWindowState == windowState;
@@ -593,8 +598,7 @@ private:
         enum { kInvalidSurfaceOrigin = -1 };
 
         int                  fRTOrigin;
-        int                  fWidth;
-        int                  fHeight;
+        SkISize              fDimensions;
         GrWindowRectsState   fWindowState;
     } fHWWindowRectsState;
 
@@ -718,8 +722,7 @@ private:
     TriState                                fHWStencilTestEnabled;
 
     TriState                                fHWWriteToColor;
-    GrGpuResource::UniqueID                 fHWBoundRenderTargetUniqueID;
-    bool                                    fHWBoundFramebufferIsMSAA;
+    uint32_t                                fHWBoundFramebufferUniqueID = SK_InvalidUniqueID;
     TriState                                fHWSRGBFramebuffer;
 
     class TextureUnitBindings {

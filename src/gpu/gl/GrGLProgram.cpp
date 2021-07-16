@@ -98,9 +98,10 @@ void GrGLProgram::abandon() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrGLProgram::updateUniforms(const GrRenderTarget* renderTarget,
+void GrGLProgram::updateUniforms(SkISize colorAttachmentDimensions,
                                  const GrProgramInfo& programInfo) {
-    this->setRenderTargetState(renderTarget, programInfo.origin(), programInfo.geomProc());
+    this->setRenderTargetState(
+            colorAttachmentDimensions, programInfo.origin(), programInfo.geomProc());
 
     // we set the uniforms for installed processors in a generic way, but subclasses of GLProgram
     // determine how to set coord transforms
@@ -151,11 +152,9 @@ void GrGLProgram::bindTextures(const GrGeometryProcessor& geomProc,
     SkASSERT(nextTexSamplerIdx == fNumTextureSamplers);
 }
 
-void GrGLProgram::setRenderTargetState(const GrRenderTarget* rt,
+void GrGLProgram::setRenderTargetState(SkISize dimensions,
                                        GrSurfaceOrigin origin,
                                        const GrGeometryProcessor& geomProc) {
-    // Set RT adjustment and RT flip
-    SkISize dimensions = rt->dimensions();
     if (fRenderTargetState.fRenderTargetOrigin != origin ||
         fRenderTargetState.fRenderTargetSize != dimensions) {
         fRenderTargetState.fRenderTargetSize = dimensions;

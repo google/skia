@@ -33,6 +33,7 @@
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/gl/GrGLAttachment.h"
 #include "src/gpu/gl/GrGLBuffer.h"
+#include "src/gpu/gl/GrGLFramebuffer.h"
 #include "src/gpu/gl/GrGLOpsRenderPass.h"
 #include "src/gpu/gl/GrGLSemaphore.h"
 #include "src/gpu/gl/GrGLTextureRenderTarget.h"
@@ -592,7 +593,7 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
     }
 
     if (resetBits & kRenderTarget_GrGLBackendState) {
-        fHWBoundRenderTargetUniqueID.makeInvalid();
+        this->invalidateBoundFramebuffer();
         fHWSRGBFramebuffer = kUnknown_TriState;
         fBoundDrawFramebuffer = 0;
     }
@@ -1229,7 +1230,7 @@ bool GrGLGpu::createRenderTargetObjects(const GrGLTexture::Desc& desc,
     }
 
     // below here we may bind the FBO
-    fHWBoundRenderTargetUniqueID.makeInvalid();
+    this->invalidateBoundFramebuffer();
     if (rtIDs->fMSColorRenderbufferID) {
         SkASSERT(sampleCount > 1);
         GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER, rtIDs->fMSColorRenderbufferID));
@@ -1392,7 +1393,7 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(SkISize dimensions,
                     this->unbindSurfaceFBOForPixelOps(tex.get(), i, GR_GL_FRAMEBUFFER);
                 }
             }
-            fHWBoundRenderTargetUniqueID.makeInvalid();
+            this->invalidateBoundFramebuffer();
         } else {
             this->bindTextureToScratchUnit(texDesc.fTarget, tex->textureID());
             std::array<float, 4> zeros = {};
@@ -1562,7 +1563,7 @@ int GrGLGpu::getCompatibleStencilIndex(GrGLFormat format) {
         GrGLuint fb = 0;
         GL_CALL(GenFramebuffers(1, &fb));
         this->bindFramebuffer(GR_GL_FRAMEBUFFER, fb);
-        fHWBoundRenderTargetUniqueID.makeInvalid();
+        this->invalidateBoundFramebuffer();
         GL_CALL(FramebufferTexture2D(GR_GL_FRAMEBUFFER,
                                      GR_GL_COLOR_ATTACHMENT0,
                                      GR_GL_TEXTURE_2D,
@@ -1763,15 +1764,16 @@ void GrGLGpu::flushViewport(const SkIRect& viewport, int rtHeight, GrSurfaceOrig
 }
 
 void GrGLGpu::flushWindowRectangles(const GrWindowRectsState& windowState,
-                                    const GrGLRenderTarget* rt, GrSurfaceOrigin origin) {
+                                    const GrGLFramebuffer* framebuffer,
+                                    GrSurfaceOrigin origin) {
 #ifndef USE_NSIGHT
     typedef GrWindowRectsState::Mode Mode;
     // Window rects can't be used on-screen.
-    SkASSERT(!windowState.enabled() || !rt->glRTFBOIDis0());
+    SkASSERT(!windowState.enabled() || !framebuffer->glFBOIDis0());
     SkASSERT(windowState.numWindows() <= this->caps()->maxWindowRectangles());
 
     if (!this->caps()->maxWindowRectangles() ||
-        fHWWindowRectsState.knownEqualTo(origin, rt->width(), rt->height(), windowState)) {
+        fHWWindowRectsState.knownEqualTo(origin, framebuffer->dimensions(), windowState)) {
         return;
     }
 
@@ -1783,13 +1785,13 @@ void GrGLGpu::flushWindowRectangles(const GrWindowRectsState& windowState,
     GrNativeRect glwindows[GrWindowRectangles::kMaxWindows];
     const SkIRect* skwindows = windowState.windows().data();
     for (int i = 0; i < numWindows; ++i) {
-        glwindows[i].setRelativeTo(origin, rt->height(), skwindows[i]);
+        glwindows[i].setRelativeTo(origin, framebuffer->height(), skwindows[i]);
     }
 
     GrGLenum glmode = (Mode::kExclusive == windowState.mode()) ? GR_GL_EXCLUSIVE : GR_GL_INCLUSIVE;
     GL_CALL(WindowRectangles(glmode, numWindows, glwindows->asInts()));
 
-    fHWWindowRectsState.set(origin, rt->width(), rt->height(), windowState);
+    fHWWindowRectsState.set(origin, framebuffer->dimensions(), windowState);
 #endif
 }
 
@@ -1803,7 +1805,8 @@ void GrGLGpu::disableWindowRectangles() {
 #endif
 }
 
-bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget, bool useMultisampleFBO,
+bool GrGLGpu::flushGLState(GrGLFramebuffer* framebuffer,
+                           GrRenderTarget* renderTarget,
                            const GrProgramInfo& programInfo) {
     this->handleDirtyContext();
 
@@ -1824,27 +1827,25 @@ bool GrGLGpu::flushGLState(GrRenderTarget* renderTarget, bool useMultisampleFBO,
     this->flushBlendAndColorWrite(programInfo.pipeline().getXferProcessor().getBlendInfo(),
                                   programInfo.pipeline().writeSwizzle());
 
-    fHWProgram->updateUniforms(renderTarget, programInfo);
+    fHWProgram->updateUniforms(framebuffer->dimensions(), programInfo);
 
-    GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(renderTarget);
     GrStencilSettings stencil;
     if (programInfo.isStencilEnabled()) {
-        SkASSERT(glRT->getStencilAttachment(useMultisampleFBO));
         stencil.reset(*programInfo.userStencilSettings(),
                       programInfo.pipeline().hasStencilClip(),
-                      glRT->numStencilBits(useMultisampleFBO));
+                      framebuffer->numStencilBits());
     }
     this->flushStencil(stencil, programInfo.origin());
     this->flushScissorTest(GrScissorTest(programInfo.pipeline().isScissorTestEnabled()));
     this->flushWindowRectangles(programInfo.pipeline().getWindowRectsState(),
-                                glRT, programInfo.origin());
-    this->flushHWAAState(glRT, programInfo.pipeline().isHWAntialiasState());
+                                framebuffer, programInfo.origin());
+    this->flushHWAAState(framebuffer, programInfo.pipeline().isHWAntialiasState());
     this->flushConservativeRasterState(programInfo.pipeline().usesConservativeRaster());
     this->flushWireframeState(programInfo.pipeline().isWireframe());
 
     // This must come after textures are flushed because a texture may need
     // to be msaa-resolved (which will modify bound FBO state).
-    this->flushRenderTarget(glRT, useMultisampleFBO);
+    this->flushRenderTarget(framebuffer, renderTarget);
 
     return true;
 }
@@ -1905,6 +1906,7 @@ GrGLenum GrGLGpu::bindBuffer(GrGpuBufferType type, const GrBuffer* buffer) {
 
 void GrGLGpu::clear(const GrScissorState& scissor,
                     std::array<float, 4> color,
+                    GrGLFramebuffer* framebuffer,
                     GrRenderTarget* target,
                     bool useMultisampleFBO,
                     GrSurfaceOrigin origin) {
@@ -1915,14 +1917,12 @@ void GrGLGpu::clear(const GrScissorState& scissor,
 
     this->handleDirtyContext();
 
-    GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(target);
-
     if (scissor.enabled()) {
-        this->flushRenderTarget(glRT, useMultisampleFBO, origin, scissor.rect());
+        this->flushRenderTarget(framebuffer, target, origin, scissor.rect());
     } else {
-        this->flushRenderTarget(glRT, useMultisampleFBO);
+        this->flushRenderTarget(framebuffer, target);
     }
-    this->flushScissor(scissor, glRT->height(), origin);
+    this->flushScissor(scissor, framebuffer->height(), origin);
     this->disableWindowRectangles();
     this->flushColorWrite(true);
     this->flushClearColor(color);
@@ -1937,7 +1937,7 @@ static bool use_tiled_rendering(const GrGLCaps& glCaps,
            GrStoreOp::kDiscard == stencilLoadStore.fStoreOp;
 }
 
-void GrGLGpu::beginCommandBuffer(GrGLRenderTarget* rt, bool useMultisampleFBO,
+void GrGLGpu::beginCommandBuffer(GrGLFramebuffer* framebuffer, GrRenderTarget* renderTarget,
                                  const SkIRect& bounds, GrSurfaceOrigin origin,
                                  const GrOpsRenderPass::LoadAndStoreInfo& colorLoadStore,
                                  const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilLoadStore) {
@@ -1945,11 +1945,11 @@ void GrGLGpu::beginCommandBuffer(GrGLRenderTarget* rt, bool useMultisampleFBO,
 
     this->handleDirtyContext();
 
-    this->flushRenderTarget(rt, useMultisampleFBO);
+    this->flushRenderTarget(framebuffer, renderTarget);
     SkDEBUGCODE(fIsExecutingCommandBuffer_DebugOnly = true);
 
     if (use_tiled_rendering(this->glCaps(), stencilLoadStore)) {
-        auto nativeBounds = GrNativeRect::MakeRelativeTo(origin, rt->height(), bounds);
+        auto nativeBounds = GrNativeRect::MakeRelativeTo(origin, framebuffer->height(), bounds);
         GrGLbitfield preserveMask = (GrLoadOp::kLoad == colorLoadStore.fLoadOp)
                 ? GR_GL_COLOR_BUFFER_BIT0 : GR_GL_NONE;
         SkASSERT(GrLoadOp::kLoad != stencilLoadStore.fLoadOp);  // Handled by use_tiled_rendering().
@@ -1977,15 +1977,14 @@ void GrGLGpu::beginCommandBuffer(GrGLRenderTarget* rt, bool useMultisampleFBO,
     }
 }
 
-void GrGLGpu::endCommandBuffer(GrGLRenderTarget* rt, bool useMultisampleFBO,
+void GrGLGpu::endCommandBuffer(GrGLFramebuffer* framebuffer,
                                const GrOpsRenderPass::LoadAndStoreInfo& colorLoadStore,
                                const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilLoadStore) {
     SkASSERT(fIsExecutingCommandBuffer_DebugOnly);
 
     this->handleDirtyContext();
 
-    if (rt->uniqueID() != fHWBoundRenderTargetUniqueID ||
-        useMultisampleFBO != fHWBoundFramebufferIsMSAA) {
+    if (framebuffer->uniqueID() != fHWBoundFramebufferUniqueID) {
         // The framebuffer binding changed in the middle of a command buffer. We should have already
         // printed a warning during onFBOChanged.
         return;
@@ -1994,13 +1993,11 @@ void GrGLGpu::endCommandBuffer(GrGLRenderTarget* rt, bool useMultisampleFBO,
     if (GrGLCaps::kNone_InvalidateFBType != this->glCaps().invalidateFBType()) {
         SkSTArray<2, GrGLenum> discardAttachments;
         if (GrStoreOp::kDiscard == colorLoadStore.fStoreOp) {
-            GrGLuint renderFBOID = (useMultisampleFBO) ? rt->multisampleFBOID()
-                                                       : rt->singleSampleFBOID();
+            GrGLuint renderFBOID = framebuffer->fboID();
             discardAttachments.push_back((!renderFBOID) ? GR_GL_COLOR : GR_GL_COLOR_ATTACHMENT0);
         }
         if (GrStoreOp::kDiscard == stencilLoadStore.fStoreOp) {
-            GrGLuint renderFBOID = (useMultisampleFBO) ? rt->multisampleFBOID()
-                                                       : rt->singleSampleFBOID();
+            GrGLuint renderFBOID = framebuffer->fboID();
             discardAttachments.push_back((!renderFBOID) ? GR_GL_STENCIL : GR_GL_STENCIL_ATTACHMENT);
 
         }
@@ -2029,21 +2026,19 @@ void GrGLGpu::endCommandBuffer(GrGLRenderTarget* rt, bool useMultisampleFBO,
 }
 
 void GrGLGpu::clearStencilClip(const GrScissorState& scissor, bool insideStencilMask,
-                               GrRenderTarget* target, bool useMultisampleFBO,
-                               GrSurfaceOrigin origin) {
-    SkASSERT(target);
+                               GrGLFramebuffer* framebuffer, GrSurfaceOrigin origin) {
+    SkASSERT(framebuffer);
     SkASSERT(!this->caps()->performStencilClearsAsDraws());
     SkASSERT(!scissor.enabled() || !this->caps()->performPartialClearsAsDraws());
     this->handleDirtyContext();
 
-    GrAttachment* sb = target->getStencilAttachment(useMultisampleFBO);
-    if (!sb) {
+    if (!framebuffer->hasStencilAttachment()) {
         // We should only get here if we marked a proxy as requiring a SB. However,
         // the SB creation could later fail. Likely clipping is going to go awry now.
         return;
     }
 
-    GrGLint stencilBitCount =  GrBackendFormatStencilBits(sb->backendFormat());
+    GrGLint stencilBitCount = framebuffer->numStencilBits();
 #if 0
     SkASSERT(stencilBitCount > 0);
     GrGLint clipStencilMask  = (1 << (stencilBitCount - 1));
@@ -2061,10 +2056,9 @@ void GrGLGpu::clearStencilClip(const GrScissorState& scissor, bool insideStencil
     } else {
         value = 0;
     }
-    GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(target);
-    this->flushRenderTargetNoColorWrites(glRT, useMultisampleFBO);
+    this->flushRenderTargetNoColorWrites(framebuffer);
 
-    this->flushScissor(scissor, glRT->height(), origin);
+    this->flushScissor(scissor, framebuffer->height(), origin);
     this->disableWindowRectangles();
 
     GL_CALL(StencilMask((uint32_t) clipStencilMask));
@@ -2107,7 +2101,7 @@ bool GrGLGpu::readOrTransferPixelsFrom(GrSurface* surface,
     } else {
         // Use a temporary FBO.
         this->bindSurfaceFBOForPixelOps(surface, 0, GR_GL_FRAMEBUFFER, kSrc_TempFBOTarget);
-        fHWBoundRenderTargetUniqueID.makeInvalid();
+        this->invalidateBoundFramebuffer();
     }
 
     // determine if GL can read using the passed rowBytes or if we need a scratch buffer.
@@ -2189,23 +2183,22 @@ GrOpsRenderPass* GrGLGpu::onGetOpsRenderPass(
     return fCachedOpsRenderPass.get();
 }
 
-void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target, bool useMultisampleFBO,
+void GrGLGpu::flushRenderTarget(GrGLFramebuffer* framebuffer, GrRenderTarget* target,
                                 GrSurfaceOrigin origin, const SkIRect& bounds) {
-    this->flushRenderTargetNoColorWrites(target, useMultisampleFBO);
+    this->flushRenderTargetNoColorWrites(framebuffer);
     this->didWriteToSurface(target, origin, &bounds);
 }
 
-void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target, bool useMultisampleFBO) {
-    this->flushRenderTargetNoColorWrites(target, useMultisampleFBO);
+void GrGLGpu::flushRenderTarget(GrGLFramebuffer* framebuffer, GrRenderTarget* target) {
+    this->flushRenderTargetNoColorWrites(framebuffer);
     this->didWriteToSurface(target, kTopLeft_GrSurfaceOrigin, nullptr);
 }
 
-void GrGLGpu::flushRenderTargetNoColorWrites(GrGLRenderTarget* target, bool useMultisampleFBO) {
-    SkASSERT(target);
-    GrGpuResource::UniqueID rtID = target->uniqueID();
-    if (fHWBoundRenderTargetUniqueID != rtID || fHWBoundFramebufferIsMSAA != useMultisampleFBO) {
-        this->bindFramebuffer(GR_GL_FRAMEBUFFER, (useMultisampleFBO) ? target->multisampleFBOID()
-                                                                     : target->singleSampleFBOID());
+void GrGLGpu::flushRenderTargetNoColorWrites(GrGLFramebuffer* framebuffer) {
+    SkASSERT(framebuffer);
+    uint32_t fbID = framebuffer->uniqueID();
+    if (fHWBoundFramebufferUniqueID != fbID) {
+        this->bindFramebuffer(GR_GL_FRAMEBUFFER, framebuffer->fboID());
 #ifdef SK_DEBUG
         // don't do this check in Chromium -- this is causing
         // lots of repeated command buffer flushes when the compositor is
@@ -2220,10 +2213,9 @@ void GrGLGpu::flushRenderTargetNoColorWrites(GrGLRenderTarget* target, bool useM
             }
         }
 #endif
-        fHWBoundRenderTargetUniqueID = rtID;
-        fHWBoundFramebufferIsMSAA = useMultisampleFBO;
-        this->flushViewport(SkIRect::MakeSize(target->dimensions()),
-                            target->height(),
+        fHWBoundFramebufferUniqueID = fbID;
+        this->flushViewport(SkIRect::MakeSize(framebuffer->dimensions()),
+                            framebuffer->height(),
                             kTopLeft_GrSurfaceOrigin); // the origin is irrelevant in this case
     }
     if (this->caps()->workarounds().force_update_scissor_state_when_binding_fbo0) {
@@ -2241,16 +2233,18 @@ void GrGLGpu::flushRenderTargetNoColorWrites(GrGLRenderTarget* target, bool useM
         }
     }
 
+    const GrGLAttachment* colorAttachment = framebuffer->colorAttachment();
+
     if (this->glCaps().srgbWriteControl()) {
-        this->flushFramebufferSRGB(this->caps()->isFormatSRGB(target->backendFormat()));
+        this->flushFramebufferSRGB(this->caps()->isFormatSRGB(colorAttachment->backendFormat()));
     }
 
-    if (this->glCaps().shouldQueryImplementationReadSupport(target->format())) {
+    if (this->glCaps().shouldQueryImplementationReadSupport(colorAttachment->format())) {
         GrGLint format;
         GrGLint type;
         GR_GL_GetIntegerv(this->glInterface(), GR_GL_IMPLEMENTATION_COLOR_READ_FORMAT, &format);
         GR_GL_GetIntegerv(this->glInterface(), GR_GL_IMPLEMENTATION_COLOR_READ_TYPE, &type);
-        this->glCaps().didQueryImplementationReadSupport(target->format(), format, type);
+        this->glCaps().didQueryImplementationReadSupport(colorAttachment->format(), format, type);
     }
 }
 
@@ -2328,7 +2322,7 @@ void GrGLGpu::resolveRenderFBOs(GrGLRenderTarget* rt, const SkIRect& resolveRect
 
     // make sure we go through flushRenderTarget() since we've modified
     // the bound DRAW FBO ID.
-    fHWBoundRenderTargetUniqueID.makeInvalid();
+    this->invalidateBoundFramebuffer();
     if (GrGLCaps::kES_Apple_MSFBOType == caps.msFBOType()) {
         // The Apple extension doesn't support blitting from single to multisample.
         SkASSERT(resolveDirection != ResolveDirection::kSingleToMSAA);
@@ -2463,11 +2457,10 @@ void GrGLGpu::disableStencil() {
     }
 }
 
-void GrGLGpu::flushHWAAState(GrRenderTarget* rt, bool useHWAA) {
-    // rt is only optional if useHWAA is false.
-    SkASSERT(rt || !useHWAA);
-    SkASSERT(!useHWAA || rt->numSamples() > 1 ||
-             static_cast<GrGLRenderTarget*>(rt)->multisampleFBOID());
+void GrGLGpu::flushHWAAState(GrGLFramebuffer* framebuffer, bool useHWAA) {
+    // framebuffer is only optional if useHWAA is false.
+    SkASSERT(framebuffer || !useHWAA);
+    SkASSERT(!useHWAA || framebuffer->numColorSamples() > 1);
 
     if (this->caps()->multisampleDisableSupport()) {
         if (useHWAA) {
@@ -3309,7 +3302,7 @@ bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst, bool drawToMultisampleFBO, GrSur
             return false;
         }
         this->bindSurfaceFBOForPixelOps(dst, 0, GR_GL_FRAMEBUFFER, kDst_TempFBOTarget);
-        fHWBoundRenderTargetUniqueID.makeInvalid();
+        this->invalidateBoundFramebuffer();
     }
     int progIdx = TextureToCopyProgramIdx(srcTex);
     if (!fCopyPrograms[progIdx].fProgram) {
@@ -3378,7 +3371,7 @@ void GrGLGpu::copySurfaceAsCopyTexSubImage(GrSurface* dst, GrSurface* src, const
     GrGLTexture* dstTex = static_cast<GrGLTexture *>(dst->asTexture());
     SkASSERT(dstTex);
     // We modified the bound FBO
-    fHWBoundRenderTargetUniqueID.makeInvalid();
+    this->invalidateBoundFramebuffer();
 
     this->bindTextureToScratchUnit(dstTex->target(), dstTex->textureID());
     GL_CALL(CopyTexSubImage2D(dstTex->target(), 0,
@@ -3406,7 +3399,7 @@ bool GrGLGpu::copySurfaceAsBlitFramebuffer(GrSurface* dst, GrSurface* src, const
     this->bindSurfaceFBOForPixelOps(dst, 0, GR_GL_DRAW_FRAMEBUFFER, kDst_TempFBOTarget);
     this->bindSurfaceFBOForPixelOps(src, 0, GR_GL_READ_FRAMEBUFFER, kSrc_TempFBOTarget);
     // We modified the bound FBO
-    fHWBoundRenderTargetUniqueID.makeInvalid();
+    this->invalidateBoundFramebuffer();
 
     // BlitFrameBuffer respects the scissor, so disable it.
     this->flushScissorTest(GrScissorTest::kDisabled);
@@ -3458,7 +3451,7 @@ bool GrGLGpu::onRegenerateMipMapLevels(GrTexture* texture) {
         GL_CALL(GenFramebuffers(1, &fTempDstFBOID));
     }
     this->bindFramebuffer(GR_GL_FRAMEBUFFER, fTempDstFBOID);
-    fHWBoundRenderTargetUniqueID.makeInvalid();
+    this->invalidateBoundFramebuffer();
 
     // Bind the texture, to get things configured for filtering.
     // We'll be changing our base level further below:
@@ -3801,7 +3794,7 @@ GrBackendRenderTarget GrGLGpu::createTestingOnlyBackendRenderTarget(SkISize dime
         return {};
     }
 
-    this->invalidateBoundRenderTarget();
+    this->invalidateBoundFramebuffer();
 
     this->bindFramebuffer(GR_GL_FRAMEBUFFER, info.fFBOID);
     if (useTexture) {

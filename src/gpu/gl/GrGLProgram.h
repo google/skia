@@ -98,7 +98,7 @@ public:
      *
      * It is the caller's responsibility to ensure the program is bound before calling.
      */
-    void updateUniforms(const GrRenderTarget*, const GrProgramInfo&);
+    void updateUniforms(SkISize colorAttachmentDimensions, const GrProgramInfo&);
 
     /**
      * Binds all geometry processor and fragment processor textures.
@@ -138,7 +138,9 @@ private:
                 int instanceStride);
 
     // Helper for setData() that sets the view matrix and loads the render target height uniform
-    void setRenderTargetState(const GrRenderTarget*, GrSurfaceOrigin, const GrGeometryProcessor&);
+    void setRenderTargetState(SkISize dimensions,
+                              GrSurfaceOrigin,
+                              const GrGeometryProcessor&);
 
     // these reflect the current values of uniforms (GL uniform values travel with program)
     RenderTargetState fRenderTargetState;
