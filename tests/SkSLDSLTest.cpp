@@ -1984,3 +1984,12 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLInlining, r, ctxInfo) {
                  "(sk_FragColor = (4.0 , half4(half(9.0))));"
                  "}");
 }
+
+DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLReleaseUnused, r, ctxInfo) {
+    SkSL::ProgramSettings settings = default_settings();
+    settings.fAssertDSLObjectsReleased = false;
+    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), settings);
+    If(Sqrt(1) > 0, Discard());
+    // Ensure that we can safely destroy statements and expressions despite being unused while
+    // settings.fAssertDSLObjectsReleased is disabled.
+}

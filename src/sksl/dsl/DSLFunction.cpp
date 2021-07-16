@@ -25,7 +25,7 @@ void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, skstd:
         modifiers.fModifiers.fFlags |= Modifiers::kHasSideEffects_Flag;
     }
 
-    if (DSLWriter::Context().fConfig->fSettings.fForceNoInline) {
+    if (DSLWriter::Settings().fForceNoInline) {
         // Apply the `noinline` modifier to every function. This allows us to test Runtime
         // Effects without any inlining, even when the code is later added to a paint.
         modifiers.fModifiers.fFlags &= ~Modifiers::kInline_Flag;

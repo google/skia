@@ -79,7 +79,11 @@ SkSL::IRGenerator& DSLWriter::IRGenerator() {
 }
 
 const SkSL::Context& DSLWriter::Context() {
-    return IRGenerator().fContext;
+    return Compiler().context();
+}
+
+SkSL::ProgramSettings& DSLWriter::Settings() {
+    return Context().fConfig->fSettings;
 }
 
 const std::shared_ptr<SkSL::SymbolTable>& DSLWriter::SymbolTable() {
