@@ -220,14 +220,15 @@ public:
             blit.setColorFilter(SkColorFilters::Matrix(kFilter));
         }
 
+        auto sampling = scale > 1 ? SkSamplingOptions(SkFilterMode::kNearest)
+                                  : SkSamplingOptions(SkFilterMode::kLinear,
+                                                      SkMipmapMode::kLinear);
+
         canvas->scale(scale, scale);
         canvas->drawImageRect(fLastRendered.get(),
                               SkRect::MakeWH(kTileWidth, kTileHeight),
                               SkRect::MakeWH(kTileWidth, kTileHeight),
-                              SkSamplingOptions(scale > 1.f ? kNone_SkFilterQuality
-                                                            : kMedium_SkFilterQuality),
-                              &blit,
-                              SkCanvas::kFast_SrcRectConstraint);
+                              sampling, &blit, SkCanvas::kFast_SrcRectConstraint);
     }
 
 private:

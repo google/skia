@@ -13,7 +13,6 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
-#include "include/core/SkFilterQuality.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPaint.h"
@@ -204,8 +203,15 @@ private:
         canvas->translate(kOutset, kOutset);
         auto dstRect = SkRect::Make(fSmallImg->dimensions()).makeOutset(kOutset, kOutset);
 
-        for (int fq = kNone_SkFilterQuality; fq <= kLast_SkFilterQuality; ++fq) {
-            if (fq == kMedium_SkFilterQuality) {
+        const SkSamplingOptions gSamplings[] = {
+            SkSamplingOptions(SkFilterMode::kNearest),
+            SkSamplingOptions(SkFilterMode::kLinear),
+            SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kLinear),
+            SkSamplingOptions(SkCubicResampler::Mitchell()),
+        };
+
+        for (const auto& sampling : gSamplings) {
+            if (!sampling.useCubic && sampling.mipmap != SkMipmapMode::kNone) {
                 // Medium is the same as Low for upscaling.
                 continue;
             }
@@ -219,7 +225,7 @@ private:
                     SkPaint paint;
                     paint.setShader(fSmallImg->makeShader(static_cast<SkTileMode>(tx),
                                                           static_cast<SkTileMode>(ty),
-                                                          SkSamplingOptions((SkFilterQuality)fq),
+                                                          sampling,
                                                           lm));
                     canvas->drawRect(dstRect, paint);
                     canvas->translate(dstRect.width() + kPad, 0);
