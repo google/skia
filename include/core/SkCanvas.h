@@ -39,7 +39,7 @@
 
 class GrBackendRenderTarget;
 class GrRecordingContext;
-class GrSurfaceDrawContext;
+namespace skgpu { class SurfaceContext; }
 class SkBaseDevice;
 class SkBitmap;
 class SkData;
@@ -2294,7 +2294,7 @@ private:
     // The top-most device in the stack, will change within saveLayer()'s. All drawing and clipping
     // operations should route to this device.
     SkBaseDevice* topDevice() const;
-    virtual GrSurfaceDrawContext* topDeviceSurfaceDrawContext();
+    virtual skgpu::SurfaceContext* topDeviceSurfaceDrawContext();
     virtual GrRenderTargetProxy* topDeviceTargetProxy();
 
     class MCRec;

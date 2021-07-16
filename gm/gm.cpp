@@ -144,7 +144,7 @@ DrawResult SimpleGM::onDraw(SkCanvas* canvas, SkString* errorMsg) {
 
 SkISize SimpleGpuGM::onISize() { return fSize; }
 SkString SimpleGpuGM::onShortName() { return fName; }
-DrawResult SimpleGpuGM::onDraw(GrRecordingContext* rContext, GrSurfaceDrawContext* sdc,
+DrawResult SimpleGpuGM::onDraw(GrRecordingContext* rContext, skgpu::SurfaceContext* sdc,
                                SkCanvas* canvas, SkString* errorMsg) {
     return fDrawProc(rContext, sdc, canvas, errorMsg);
 }

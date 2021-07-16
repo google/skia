@@ -11,7 +11,7 @@
 #include "include/core/SkTypes.h"
 
 #if SK_SUPPORT_GPU
-#include "src/gpu/GrSurfaceDrawContext.h"
+#include "src/gpu/SurfaceContext.h"
 
 class GrRecordingContext;
 class GrTexture;

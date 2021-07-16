@@ -28,13 +28,13 @@
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOnFlushResourceProvider.h"
 #include "src/gpu/GrOpFlushState.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/GrXferProcessor.h"
 #include "src/gpu/ops/GrAtlasTextOp.h"
 #include "src/gpu/ops/GrDrawOp.h"
 #include "src/gpu/ops/GrOp.h"
 #include "src/gpu/text/GrAtlasManager.h"
+#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 #include "tests/Test.h"
 #include "tools/gpu/GrContextFactory.h"
 
@@ -187,6 +187,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BasicDrawOpAtlas, reporter, ctxInfo) {
     check(reporter, atlas.get(), 1, 4, 1);
 }
 
+#if SK_GPU_V1
+
 // This test verifies that the GrAtlasTextOp::onPrepare method correctly handles a failure
 // when allocating an atlas page.
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) {
@@ -196,8 +198,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
     auto gpu = context->priv().getGpu();
     auto resourceProvider = context->priv().resourceProvider();
 
-    auto rtc = GrSurfaceDrawContext::Make(context, GrColorType::kRGBA_8888, nullptr,
-                                          SkBackingFit::kApprox, {32, 32}, SkSurfaceProps());
+    auto sdc = skgpu::v1::SurfaceDrawContext::Make(context, GrColorType::kRGBA_8888, nullptr,
+                                                   SkBackingFit::kApprox, {32, 32}, SkSurfaceProps());
 
     SkPaint paint;
     paint.setColor(SK_ColorRED);
@@ -210,7 +212,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
 
     GrOp::Owner op =
             GrAtlasTextOp::CreateOpTestingOnly(
-                    rtc.get(), paint, font, matrixProvider, text, 16, 16);
+                    sdc.get(), paint, font, matrixProvider, text, 16, 16);
     if (!op) {
         return;
     }
@@ -222,7 +224,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
 
     GrOpFlushState flushState(gpu, resourceProvider, uploadTarget.writeableTokenTracker());
 
-    GrSurfaceProxyView surfaceView = rtc->writeSurfaceView();
+    GrSurfaceProxyView surfaceView = sdc->writeSurfaceView();
     GrOpFlushState::OpArgs opArgs(op.get(),
                                   surfaceView,
                                   false /*usesMSAASurface*/,
@@ -242,6 +244,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
     op->prepare(&flushState);
     flushState.setOpArgs(nullptr);
 }
+
+#endif // SK_GPU_V1
 
 void test_atlas_config(skiatest::Reporter* reporter, int maxTextureSize, size_t maxBytes,
                        GrMaskFormat maskFormat, SkISize expectedDimensions,

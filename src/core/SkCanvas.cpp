@@ -557,7 +557,7 @@ SkBaseDevice* SkCanvas::topDevice() const {
     return fMCRec->fDevice;
 }
 
-GrSurfaceDrawContext* SkCanvas::topDeviceSurfaceDrawContext() {
+skgpu::SurfaceContext* SkCanvas::topDeviceSurfaceDrawContext() {
     return this->topDevice()->surfaceDrawContext();
 }
 

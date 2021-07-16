@@ -212,12 +212,6 @@ skia_gpu_sources = [
   "$_src/gpu/GrSubRunAllocator.h",
   "$_src/gpu/GrSurface.cpp",
   "$_src/gpu/GrSurface.h",
-  "$_src/gpu/GrSurfaceContext.cpp",
-  "$_src/gpu/GrSurfaceContext.h",
-  "$_src/gpu/GrSurfaceDrawContext.cpp",
-  "$_src/gpu/GrSurfaceDrawContext.h",
-  "$_src/gpu/GrSurfaceFillContext.cpp",
-  "$_src/gpu/GrSurfaceFillContext.h",
   "$_src/gpu/GrSurfaceProxy.cpp",
   "$_src/gpu/GrSurfaceProxy.h",
   "$_src/gpu/GrSurfaceProxyPriv.h",
@@ -268,6 +262,10 @@ skia_gpu_sources = [
   "$_src/gpu/GrYUVABackendTextures.cpp",
   "$_src/gpu/GrYUVATextureProxies.cpp",
   "$_src/gpu/GrYUVATextureProxies.h",
+  "$_src/gpu/SurfaceContext.cpp",
+  "$_src/gpu/SurfaceContext.h",
+  "$_src/gpu/SurfaceFillContext.cpp",
+  "$_src/gpu/SurfaceFillContext.h",
 
   # Ops
   "$_src/gpu/effects/GrBezierEffect.cpp",
@@ -552,6 +550,10 @@ skia_skgpu_v2_sources = [
   # Sk files
   "$_src/gpu/v2/Device.cpp",
   "$_src/gpu/v2/Device_v2.h",
+  "$_src/gpu/v2/SurfaceDrawContext.cpp",
+  "$_src/gpu/v2/SurfaceDrawContext_v2.h",
+  "$_src/gpu/v2/SurfaceFillContext.cpp",
+  "$_src/gpu/v2/SurfaceFillContext_v2.h",
 ]
 
 skia_skgpu_v1_sources = [
@@ -595,6 +597,10 @@ skia_skgpu_v1_sources = [
   "$_src/gpu/v1/Device.cpp",
   "$_src/gpu/v1/Device_drawTexture.cpp",
   "$_src/gpu/v1/Device_v1.h",
+  "$_src/gpu/v1/SurfaceDrawContext.cpp",
+  "$_src/gpu/v1/SurfaceDrawContext_v1.h",
+  "$_src/gpu/v1/SurfaceFillContext.cpp",
+  "$_src/gpu/v1/SurfaceFillContext_v1.h",
 ]
 
 skia_gpu_sources += skia_skgpu_v1_sources

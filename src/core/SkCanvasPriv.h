@@ -47,7 +47,7 @@ public:
         canvas->androidFramework_replaceClip(rect);
     }
 
-    static GrSurfaceDrawContext* TopDeviceSurfaceDrawContext(SkCanvas* canvas) {
+    static skgpu::SurfaceContext* TopDeviceSurfaceDrawContext(SkCanvas* canvas) {
         return canvas->topDeviceSurfaceDrawContext();
     }
 

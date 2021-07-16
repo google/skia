@@ -36,7 +36,8 @@
 #include "src/gpu/GrColorInfo.h"
 #include "src/gpu/GrFPArgs.h"
 #include "src/gpu/GrImageInfo.h"
-#include "src/gpu/GrSurfaceFillContext.h"
+#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/SurfaceFillContext.h"
 #include "src/gpu/effects/GrMatrixEffect.h"
 #include "src/gpu/effects/GrSkSLFP.h"
 #include "src/image/SkImage_Gpu.h"
@@ -1159,7 +1160,7 @@ sk_sp<SkImage> SkRuntimeEffect::makeImage(GrRecordingContext* recordingContext,
         if (!recordingContext->priv().caps()->mipmapSupport()) {
             mipmapped = false;
         }
-        auto fillContext = GrSurfaceFillContext::Make(recordingContext,
+        auto fillContext = skgpu::SurfaceFillContext_Base::Make(recordingContext,
                                                       resultInfo,
                                                       SkBackingFit::kExact,
                                                       /*sample count*/ 1,

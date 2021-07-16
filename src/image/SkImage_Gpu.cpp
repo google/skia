@@ -33,11 +33,11 @@
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrSemaphore.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/GrTextureProxyPriv.h"
 #include "src/gpu/GrYUVATextureProxies.h"
+#include "src/gpu/SurfaceFillContext.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/gl/GrGLTexture.h"
 
@@ -293,7 +293,7 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorTypeAndColorSpace(SkColorType targetCT,
         return nullptr;
     }
 
-    auto surfaceFillContext = GrSurfaceFillContext::MakeWithFallback(
+    auto surfaceFillContext = skgpu::SurfaceFillContext_Base::MakeWithFallback(
             direct,
             GrImageInfo(info, this->dimensions()),
             SkBackingFit::kExact);
@@ -340,9 +340,9 @@ void SkImage_Gpu::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
         callback(context, nullptr);
         return;
     }
-    auto ctx = GrSurfaceContext::Make(dContext,
-                                      this->makeView(dContext),
-                                      this->imageInfo().colorInfo());
+    auto ctx = skgpu::SurfaceContext::Make(dContext,
+                                           this->makeView(dContext),
+                                           this->imageInfo().colorInfo());
     if (!ctx) {
         callback(context, nullptr);
         return;
@@ -365,9 +365,9 @@ void SkImage_Gpu::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpac
         callback(context, nullptr);
         return;
     }
-    auto ctx = GrSurfaceContext::Make(dContext,
-                                      this->makeView(dContext),
-                                      this->imageInfo().colorInfo());
+    auto ctx = skgpu::SurfaceContext::Make(dContext,
+                                           this->makeView(dContext),
+                                           this->imageInfo().colorInfo());
     if (!ctx) {
         callback(context, nullptr);
         return;

@@ -9,9 +9,10 @@
 #define GrFillRectOp_DEFINED
 
 #include "include/private/GrTypesPriv.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
+struct DrawQuad;
+class GrClip;
 class GrDrawOp;
 class GrPaint;
 class GrQuad;
@@ -20,6 +21,7 @@ struct GrUserStencilSettings;
 class SkMatrix;
 struct SkRect;
 
+namespace skgpu { namespace v1 { class SurfaceDrawContext; }}
 /**
  * A set of factory functions for drawing filled rectangles either coverage-antialiased, or
  * non-antialiased. The non-antialiased ops can be used with MSAA. As with other GrDrawOp factories,
@@ -28,33 +30,41 @@ struct SkRect;
  */
 class GrFillRectOp {
 public:
+    /** Used with drawQuadSet */
+    struct QuadSetEntry {
+        SkRect fRect;
+        SkPMColor4f fColor; // Overrides any color on the GrPaint
+        SkMatrix fLocalMatrix;
+        GrQuadAAFlags fAAFlags;
+    };
+
     using InputFlags = GrSimpleMeshDrawOpHelper::InputFlags;
 
-    static GrOp::Owner Make(GrRecordingContext* context,
-                            GrPaint&& paint,
-                            GrAAType aaType,
-                            DrawQuad* quad,
-                            const GrUserStencilSettings* stencil = nullptr,
+    static GrOp::Owner Make(GrRecordingContext*,
+                            GrPaint&&,
+                            GrAAType,
+                            DrawQuad*,
+                            const GrUserStencilSettings* = nullptr,
                             InputFlags = InputFlags::kNone);
 
     // Utility function to create a non-AA rect transformed by view. This is used commonly enough
     // in testing and GMs that manage ops without going through GrRTC that it's worth the
     // convenience.
-    static GrOp::Owner MakeNonAARect(GrRecordingContext* context,
-                                     GrPaint&& paint,
-                                     const SkMatrix& view,
-                                     const SkRect& rect,
-                                     const GrUserStencilSettings* stencil = nullptr);
+    static GrOp::Owner MakeNonAARect(GrRecordingContext*,
+                                     GrPaint&&,
+                                     const SkMatrix&,
+                                     const SkRect&,
+                                     const GrUserStencilSettings* = nullptr);
 
     // Bulk API for drawing quads with a single op
     // TODO(michaelludwig) - remove if the bulk API is not useful for SkiaRenderer
-    static void AddFillRectOps(GrSurfaceDrawContext*,
+    static void AddFillRectOps(skgpu::v1::SurfaceDrawContext*,
                                const GrClip* clip,
                                GrRecordingContext*,
                                GrPaint&&,
                                GrAAType,
                                const SkMatrix& viewMatrix,
-                               const GrSurfaceDrawContext::QuadSetEntry quads[],
+                               const QuadSetEntry quads[],
                                int quadCount,
                                const GrUserStencilSettings* = nullptr);
 
@@ -69,7 +79,7 @@ private:
                               GrPaint&&,
                               GrAAType,
                               const SkMatrix& viewMatrix,
-                              const GrSurfaceDrawContext::QuadSetEntry quads[],
+                              const QuadSetEntry quads[],
                               int quadCount,
                               const GrUserStencilSettings*,
                               int* numConsumed);

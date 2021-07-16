@@ -18,8 +18,8 @@
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrResourceProvider.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTexture.h"
+#include "src/gpu/SurfaceContext.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/geometry/GrQuad.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
@@ -389,7 +389,7 @@ public:
         //    9 refs from the 9 AtlasedRectOps
         // The backing GrSurface should have only 1 though bc there is only one proxy
         CheckSingleThreadedProxyRefs(fReporter, fAtlasView.proxy(), 10, 1);
-        auto rtc = resourceProvider->makeSurfaceDrawContext(
+        auto rtc = resourceProvider->makeSurfaceDrawContext1(
                 fAtlasView.refProxy(), fAtlasView.origin(), GrColorType::kRGBA_8888, nullptr,
                 SkSurfaceProps());
 

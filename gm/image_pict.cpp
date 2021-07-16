@@ -31,8 +31,8 @@
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrSamplerState.h"
-#include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/GrTextureProxy.h"
+#include "src/gpu/SurfaceContext.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_Gpu.h"
 

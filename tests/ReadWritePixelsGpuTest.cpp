@@ -14,8 +14,8 @@
 #include "src/core/SkConvertPixels.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrImageInfo.h"
-#include "src/gpu/GrSurfaceContext.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
+#include "src/gpu/SurfaceContext.h"
+//#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
@@ -477,7 +477,7 @@ static void gpu_read_pixels_test_driver(skiatest::Reporter* reporter,
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextReadPixels, reporter, ctxInfo) {
-    using Surface = std::unique_ptr<GrSurfaceContext>;
+    using Surface = std::unique_ptr<skgpu::SurfaceContext>;
     GrDirectContext* direct = ctxInfo.directContext();
     auto reader = std::function<GpuReadSrcFn<Surface>>(
             [direct](const Surface& surface, const SkIPoint& offset, const SkPixmap& pixels) {
@@ -502,12 +502,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextReadPixels, reporter, ctxInfo) 
         for (GrSurfaceOrigin origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
             auto factory = std::function<GpuSrcFactory<Surface>>(
                     [direct, origin, renderable](const SkPixmap& src) {
-                        auto surfContext = GrSurfaceContext::Make(
+                        auto sc = skgpu::SurfaceContext::Make(
                                 direct, src.info(), SkBackingFit::kExact, origin, renderable);
-                        if (surfContext) {
-                            surfContext->writePixels(direct, src, {0, 0});
+                        if (sc) {
+                            sc->writePixels(direct, src, {0, 0});
                         }
-                        return surfContext;
+                        return sc;
                     });
             auto label = SkStringPrintf("Renderable: %d, Origin: %d", (int)renderable, origin);
             gpu_read_pixels_test_driver(reporter, rules, factory, reader, label);

@@ -18,8 +18,8 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrImageInfo.h"
-#include "src/gpu/GrSurfaceContext.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
+#include "src/gpu/SurfaceFillContext.h"
+//#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/SkGr.h"
@@ -105,9 +105,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                                     }
                                 }
 
-                                auto dstContext = GrSurfaceContext::Make(dContext,
-                                                                         std::move(dstView),
-                                                                         ii.colorInfo());
+                                auto dstContext = skgpu::SurfaceContext::Make(dContext,
+                                                                              std::move(dstView),
+                                                                              ii.colorInfo());
 
                                 bool result = false;
                                 if (sOrigin == dOrigin) {

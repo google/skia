@@ -20,8 +20,8 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrFragmentProcessor.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/SurfaceFillContext.h"
 #include "src/gpu/effects/GrRRectEffect.h"
 #include "src/gpu/effects/GrSkSLFP.h"
 #include "src/gpu/effects/GrTextureEffect.h"
@@ -71,7 +71,7 @@ std::unique_ptr<GrGLSLFragmentProcessor> SampleCoordEffect::onMakeProgramImpl() 
     return std::make_unique<GLSLSampleCoordEffect>();
 }
 
-DEF_SIMPLE_GPU_GM_BG(fpcoordinateoverride, rContext, sdc, canvas, 512, 512,
+DEF_SIMPLE_GPU_GM_BG(fpcoordinateoverride, rContext, sc, canvas, 512, 512,
                      ToolUtils::color_to_565(0xFF66AA99)) {
     SkBitmap bmp;
     GetResourceAsBitmap("images/mandrill_512_q075.jpg", &bmp);
@@ -83,5 +83,6 @@ DEF_SIMPLE_GPU_GM_BG(fpcoordinateoverride, rContext, sdc, canvas, 512, 512,
             GrTextureEffect::Make(std::move(view), bmp.alphaType(), SkMatrix());
     auto fp = std::unique_ptr<GrFragmentProcessor>(new SampleCoordEffect(std::move(imgFP)));
 
-    sdc->fillWithFP(std::move(fp));
+    auto sfc = sc->asFillContext();
+    sfc->fillWithFP(std::move(fp));
 }

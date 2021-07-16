@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrSurfaceContext_DEFINED
-#define GrSurfaceContext_DEFINED
+#ifndef SurfaceContext_DEFINED
+#define SurfaceContext_DEFINED
 
 #include "include/core/SkImage.h"
 #include "include/core/SkRect.h"
@@ -26,53 +26,66 @@ class GrRecordingContext;
 class GrRenderTargetProxy;
 class GrSingleOwner;
 class GrSurface;
-class GrSurfaceDrawContext;
-class GrSurfaceFillContext;
 class GrSurfaceProxy;
 class GrTextureProxy;
 struct SkIPoint;
 struct SkIRect;
 
+namespace skgpu {
+
+class SurfaceFillContext_Base;
+
 /**
  * A helper object to orchestrate commands for a particular surface
+ *
+ *            SurfaceContext
+ *                   |
+ *          SurfaceFillContext
+ *           /               \
+ *     v1::SFC               v2::SFC
+ *        |                     |
+ *        |                     |
+ *        |                     |
+ *     v1::SDC               v2::SDC
+ *
  */
-class GrSurfaceContext {
+class SurfaceContext {
 public:
     // If the passed in GrSurfaceProxy is renderable this will return a GrSurfaceDrawContext,
     // otherwise it will return a GrSurfaceContext.
-    static std::unique_ptr<GrSurfaceContext> Make(GrRecordingContext*,
-                                                  GrSurfaceProxyView readView,
-                                                  const GrColorInfo&);
+    static std::unique_ptr<SurfaceContext> Make(GrRecordingContext*,
+                                                GrSurfaceProxyView readView,
+                                                const GrColorInfo&);
 
     // Makes either a GrSurfaceContext, GrFillDrawContext, or a GrSurfaceDrawContext, depending on
     // GrRenderable and the GrImageInfo.
-    static std::unique_ptr<GrSurfaceContext> Make(GrRecordingContext*,
-                                                  const GrImageInfo&,
-                                                  const GrBackendFormat&,
-                                                  SkBackingFit = SkBackingFit::kExact,
-                                                  GrSurfaceOrigin = kTopLeft_GrSurfaceOrigin,
-                                                  GrRenderable = GrRenderable::kNo,
-                                                  int renderTargetSampleCnt = 1,
-                                                  GrMipmapped = GrMipmapped::kNo,
-                                                  GrProtected = GrProtected::kNo,
-                                                  SkBudgeted = SkBudgeted::kYes);
+    static std::unique_ptr<SurfaceContext> Make(GrRecordingContext*,
+                                                const GrImageInfo&,
+                                                const GrBackendFormat&,
+                                                SkBackingFit = SkBackingFit::kExact,
+                                                GrSurfaceOrigin = kTopLeft_GrSurfaceOrigin,
+                                                GrRenderable = GrRenderable::kNo,
+                                                int renderTargetSampleCnt = 1,
+                                                GrMipmapped = GrMipmapped::kNo,
+                                                GrProtected = GrProtected::kNo,
+                                                SkBudgeted = SkBudgeted::kYes);
 
     // Same as the above but chooses the texture format using the default format for the color type.
-    static std::unique_ptr<GrSurfaceContext> Make(GrRecordingContext*,
-                                                  const GrImageInfo&,
-                                                  SkBackingFit = SkBackingFit::kExact,
-                                                  GrSurfaceOrigin = kTopLeft_GrSurfaceOrigin,
-                                                  GrRenderable = GrRenderable::kNo,
-                                                  int renderTargetSampleCnt = 1,
-                                                  GrMipmapped = GrMipmapped::kNo,
-                                                  GrProtected = GrProtected::kNo,
-                                                  SkBudgeted = SkBudgeted::kYes);
+    static std::unique_ptr<SurfaceContext> Make(GrRecordingContext*,
+                                                const GrImageInfo&,
+                                                SkBackingFit = SkBackingFit::kExact,
+                                                GrSurfaceOrigin = kTopLeft_GrSurfaceOrigin,
+                                                GrRenderable = GrRenderable::kNo,
+                                                int renderTargetSampleCnt = 1,
+                                                GrMipmapped = GrMipmapped::kNo,
+                                                GrProtected = GrProtected::kNo,
+                                                SkBudgeted = SkBudgeted::kYes);
 
-    // If it is known that the GrSurfaceProxy is not renderable, you can directly call the the ctor
+    // If it is known that the GrSurfaceProxy is not renderable, you can directly call the ctor
     // here to make a GrSurfaceContext on the stack.
-    GrSurfaceContext(GrRecordingContext*, GrSurfaceProxyView readView, const GrColorInfo&);
+    SurfaceContext(GrRecordingContext*, GrSurfaceProxyView readView, const GrColorInfo&);
 
-    virtual ~GrSurfaceContext() = default;
+    virtual ~SurfaceContext() = default;
 
     GrRecordingContext* recordingContext() { return fContext; }
 
@@ -164,8 +177,8 @@ public:
         return fReadView.asRenderTargetProxyRef();
     }
 
-    virtual GrSurfaceDrawContext* asSurfaceDrawContext() { return nullptr; }
-    virtual GrSurfaceFillContext* asFillContext() { return nullptr; }
+//    virtual GrSurfaceDrawContext* asSurfaceDrawContext() { return nullptr; }
+    virtual SurfaceFillContext_Base* asFillContext() { return nullptr; }
 
     /**
      * Rescales the contents of srcRect. The gamma in which the rescaling occurs is controlled by
@@ -174,17 +187,17 @@ public:
      * different size than srcRect. Though, it could be relaxed to allow non-scaling color
      * conversions.
      */
-    std::unique_ptr<GrSurfaceFillContext> rescale(const GrImageInfo& info,
-                                                  GrSurfaceOrigin,
-                                                  SkIRect srcRect,
-                                                  SkImage::RescaleGamma,
-                                                  SkImage::RescaleMode);
+    std::unique_ptr<SurfaceFillContext_Base> rescale(const GrImageInfo& info,
+                                                GrSurfaceOrigin,
+                                                SkIRect srcRect,
+                                                SkImage::RescaleGamma,
+                                                SkImage::RescaleMode);
 
     /**
      * Like the above but allows the caller ot specify a destination fill context and
      * rect within that context. The dst rect must be contained by the dst or this will fail.
      */
-    bool rescaleInto(GrSurfaceFillContext* dst,
+    bool rescaleInto(SurfaceFillContext_Base* dst,
                      SkIRect dstRect,
                      SkIRect srcRect,
                      SkImage::RescaleGamma,
@@ -268,4 +281,6 @@ private:
     using INHERITED = SkRefCnt;
 };
 
-#endif
+} // namespace skgpu
+
+#endif // SurfaceContext_DEFINED
