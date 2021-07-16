@@ -30,6 +30,7 @@
 #include "include/private/SkTLogic.h"
 #include "include/third_party/skcms/skcms.h"
 #include "include/utils/SkNullCanvas.h"
+#include "include/utils/SkPaintFilterCanvas.h"
 #include "include/utils/SkRandom.h"
 #include "modules/skottie/utils/SkottieUtils.h"
 #include "src/codec/SkCodecImageGenerator.h"
@@ -50,6 +51,7 @@
 #include "tools/DDLPromiseImageHelper.h"
 #include "tools/DDLTileHelper.h"
 #include "tools/Resources.h"
+#include "tools/RuntimeBlendUtils.h"
 #include "tools/debugger/DebugCanvas.h"
 #include "tools/gpu/BackendSurfaceFactory.h"
 #include "tools/gpu/MemoryCache.h"
@@ -87,6 +89,8 @@
 static DEFINE_bool(multiPage, false,
                    "For document-type backends, render the source into multiple pages");
 static DEFINE_bool(RAW_threading, true, "Allow RAW decodes to run on multiple threads?");
+static DEFINE_bool(forceRuntimeBlend, false,
+                   "Always use Runtime Blends instead of native blending");
 
 DECLARE_int(gpuThreads);
 
@@ -94,6 +98,28 @@ using sk_gpu_test::GrContextFactory;
 using sk_gpu_test::ContextInfo;
 
 namespace DM {
+
+class DMFilterCanvas : public SkPaintFilterCanvas {
+public:
+    DMFilterCanvas(SkCanvas* canvas) : INHERITED(canvas) { }
+
+protected:
+    bool onFilter(SkPaint& paint) const override {
+        if (FLAGS_forceRuntimeBlend) {
+            if (skstd::optional<SkBlendMode> mode = paint.asBlendMode()) {
+                paint.setBlender(GetRuntimeBlendForBlendMode(*mode));
+            }
+        }
+        return true;
+    }
+
+private:
+    using INHERITED = SkPaintFilterCanvas;
+};
+
+static bool use_canvas_filter() {
+    return FLAGS_forceRuntimeBlend;
+}
 
 GMSrc::GMSrc(skiagm::GMFactory factory) : fFactory(factory) {}
 
@@ -1560,7 +1586,11 @@ Result GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
     if (FLAGS_preAbandonGpuContext) {
         factory.abandonContexts();
     }
-    SkCanvas* canvas = surface->getCanvas();
+
+    SkCanvas* rawCanvas = surface->getCanvas();
+    DMFilterCanvas filteredCanvas{rawCanvas};
+    SkCanvas* canvas = use_canvas_filter() ? &filteredCanvas : rawCanvas;
+
     Result result = src.draw(direct, canvas);
     if (!result.isOk()) {
         return result;
@@ -2103,8 +2133,11 @@ Result RasterSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString*) co
     dst->allocPixelsFlags(SkImageInfo::Make(size, fColorType, alphaType, fColorSpace),
                           SkBitmap::kZeroPixels_AllocFlag);
 
-    SkCanvas canvas(*dst, SkSurfaceProps(0, kRGB_H_SkPixelGeometry));
-    return src.draw(nullptr, &canvas);
+    SkCanvas rawCanvas(*dst, SkSurfaceProps(0, kRGB_H_SkPixelGeometry));
+    DMFilterCanvas filteredCanvas{&rawCanvas};
+    SkCanvas* canvas = use_canvas_filter() ? &filteredCanvas : &rawCanvas;
+
+    return src.draw(nullptr, canvas);
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
