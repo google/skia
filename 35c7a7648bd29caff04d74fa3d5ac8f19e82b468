@@ -54,6 +54,23 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e81a867a_fdf328e4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-07-16T19:37:14Z",
+      "side": 1,
+      "message": "Pointing out the std::min() call removed my real issues.",
+      "revId": "35c7a7648bd29caff04d74fa3d5ac8f19e82b468",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "eb660bac_22063de9",
@@ -91,6 +108,30 @@
       "side": 1,
       "message": "The previous line sets an upper bound on ptCount to 1000000. The fuzzer also tried to slip some INFs past and the min check successfully defended against it.",
       "parentUuid": "eb660bac_22063de9",
+      "range": {
+        "startLine": 251,
+        "startChar": 12,
+        "endLine": 251,
+        "endChar": 25
+      },
+      "revId": "35c7a7648bd29caff04d74fa3d5ac8f19e82b468",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6fd9ca56_9d8477cc",
+        "filename": "src/utils/SkDashPath.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2021-07-16T19:37:14Z",
+      "side": 1,
+      "message": "Ah! -- I didn\u0027t even pay attention to that, thanks.",
+      "parentUuid": "ab00bce6_4370cd3e",
       "range": {
         "startLine": 251,
         "startChar": 12,
