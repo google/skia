@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4d48a7bc_4f06a4ac",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2021-07-16T18:04:29Z",
+      "side": 1,
+      "message": "We need this in M93 or else layout tests will fail",
+      "revId": "4cb3205d0c63c4dd5e0277c5ab057935c30385ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
