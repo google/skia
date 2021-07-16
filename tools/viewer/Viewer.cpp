@@ -37,6 +37,7 @@
 #include "src/utils/SkJSONWriter.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/Resources.h"
+#include "tools/RuntimeBlendUtils.h"
 #include "tools/ToolUtils.h"
 #include "tools/flags/CommandLineFlags.h"
 #include "tools/flags/CommonFlags.h"
@@ -1396,6 +1397,11 @@ public:
         if (fPaintOverrides->fJoinType) {
             paint.setStrokeJoin(fPaint->getStrokeJoin());
         }
+        if (fPaintOverrides->fForceRuntimeBlend) {
+            if (skstd::optional<SkBlendMode> mode = paint.asBlendMode()) {
+                paint.setBlender(GetRuntimeBlendForBlendMode(*mode));
+            }
+        }
         return true;
     }
     SkPaint* fPaint;
@@ -1516,7 +1522,8 @@ void Viewer::drawSlide(SkSurface* surface) {
         if (kPerspective_Real == fPerspectiveMode) {
             slideCanvas->clipRect(SkRect::MakeWH(fWindow->width(), fWindow->height()));
         }
-        OveridePaintFilterCanvas filterCanvas(slideCanvas, &fPaint, &fPaintOverrides, &fFont, &fFontOverrides);
+        OveridePaintFilterCanvas filterCanvas(slideCanvas, &fPaint, &fPaintOverrides,
+                                              &fFont, &fFontOverrides);
         fSlides[fCurrentSlide]->draw(&filterCanvas);
     }
     fStatsLayer.endTiming(fPaintTimer);
@@ -2068,6 +2075,8 @@ void Viewer::drawImGui() {
                     }
                     paramsChanged = true;
                 }
+
+                ImGui::Checkbox("Force Runtime Blends", &fPaintOverrides.fForceRuntimeBlend);
 
                 ImGui::Checkbox("Override Stroke Width", &fPaintOverrides.fWidth);
                 if (fPaintOverrides.fWidth) {

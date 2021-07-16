@@ -78,6 +78,7 @@ public:
 
         bool fAntiAlias = false;
         bool fDither = false;
+        bool fForceRuntimeBlend = false;
         enum class AntiAliasState {
             Alias,
             Normal,
