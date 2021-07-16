@@ -88,7 +88,16 @@ const char* GrGLSLFragmentShaderBuilder::dstColor() {
             fCustomColorOutput->setTypeModifier(GrShaderVar::TypeModifier::InOut);
             fbFetchColorName = DeclaredColorOutputName();
             // Set the dstColor to an intermediate variable so we don't override it with the output
-            this->codeAppendf("half4 %s = %s;", kDstColorName, fbFetchColorName);
+            this->codeAppendf("half4 %s = %s", kDstColorName, fbFetchColorName);
+            // The destination texture may need a read swizzle applied.
+            // (e.g. Alpha_8 readback requires a swizzle of .000r)
+            GrSwizzle dstTexSwizzle =
+                    fProgramBuilder->samplerSwizzle(fProgramBuilder->fDstTextureSamplerHandle);
+            if (dstTexSwizzle != GrSwizzle::RGBA()) {
+                this->codeAppendf(".%s;", dstTexSwizzle.asString().c_str());
+            } else {
+                this->codeAppend(";");
+            }
         } else {
             return fbFetchColorName;
         }
