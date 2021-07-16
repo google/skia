@@ -22,10 +22,10 @@
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/SurfaceContext.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -438,7 +438,7 @@ protected:
 
 private:
 #if SK_SUPPORT_GPU
-    void drawRect(GrSurfaceFillContext*,
+    void drawRect(skgpu::SurfaceFillContext)Base*,
                   GrSurfaceProxyView srcView,
                   const SkMatrix& matrix,
                   const SkIRect& dstRect,
@@ -454,7 +454,7 @@ private:
 };
 
 #if SK_SUPPORT_GPU
-void SkLightingImageFilterInternal::drawRect(GrSurfaceFillContext* surfaceFillContext,
+void SkLightingImageFilterInternal::drawRect(skgpu::SurfaceFillContext_Base* surfaceFillContext,
                                              GrSurfaceProxyView srcView,
                                              const SkMatrix& matrix,
                                              const SkIRect& dstRect,
@@ -483,7 +483,7 @@ sk_sp<SkSpecialImage> SkLightingImageFilterInternal::filterImageGPU(
                      kPremul_SkAlphaType,
                      ctx.refColorSpace(),
                      offsetBounds.size());
-    auto surfaceFillContext = GrSurfaceFillContext::Make(context,
+    auto surfaceFillContext = skgpu::SurfaceFillContext_Base::Make(context,
                                                          info,
                                                          SkBackingFit::kApprox,
                                                          1,

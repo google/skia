@@ -23,7 +23,6 @@
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrSemaphore.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrSurfaceProxyPriv.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxy.h"
@@ -35,6 +34,7 @@
 #include "tools/gpu/BackendTextureImageFactory.h"
 #include "tools/gpu/ManagedBackendTexture.h"
 #include "tools/gpu/ProxyUtils.h"
+//#include "src/gpu/SurfaceContext.h"
 
 static constexpr int kSize = 8;
 
@@ -365,6 +365,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(Gr1x1TextureMipMappedTest, reporter, ctxInfo)
     surface->flushAndSubmit();
 }
 
+#if SK_GPU_V1
+
+#include "src/gpu/v1/SurfaceDrawContext_v1.h"
+
 // Create a new render target and draw 'mipmapView' into it using the provided 'filter'.
 static std::unique_ptr<GrSurfaceDrawContext> draw_mipmap_into_new_render_target(
         GrRecordingContext* rContext,
@@ -383,15 +387,15 @@ static std::unique_ptr<GrSurfaceDrawContext> draw_mipmap_into_new_render_target(
                                        SkBudgeted::kYes,
                                        GrProtected::kNo);
 
-    auto rtc = GrSurfaceDrawContext::Make(rContext,
-                                          colorType,
-                                          std::move(renderTarget),
-                                          nullptr,
-                                          kTopLeft_GrSurfaceOrigin,
-                                          SkSurfaceProps(),
-                                          false);
+    auto sdc = skgpu::v1::SurfaceDrawContext::Make(rContext,
+                                                   colorType,
+                                                   std::move(renderTarget),
+                                                   nullptr,
+                                                   kTopLeft_GrSurfaceOrigin,
+                                                   SkSurfaceProps(),
+                                                   false);
 
-    rtc->drawTexture(nullptr,
+    sdc->drawTexture(nullptr,
                      std::move(mipmapView),
                      alphaType,
                      GrSamplerState::Filter::kLinear,
@@ -536,3 +540,5 @@ DEF_GPUTEST(GrManyDependentsMipMappedTest, reporter, /* options */) {
         REPORTER_ASSERT(reporter, rtc2Task->dependsOn(mipRegenTask2));
     }
 }
+
+#endif // SK_GPU_V1

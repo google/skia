@@ -21,11 +21,11 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrPaint.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/effects/GrPorterDuffXferProcessor.h"
 #include "src/gpu/effects/GrRRectEffect.h"
 #include "src/gpu/ops/GrDrawOp.h"
 #include "src/gpu/ops/GrFillRectOp.h"
+#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 #include "tools/ToolUtils.h"
 
 #include <memory>
@@ -64,7 +64,8 @@ protected:
 
     SkISize onISize() override { return SkISize::Make(fWidth, fHeight); }
 
-    void onDraw(GrRecordingContext* context, GrSurfaceDrawContext* surfaceDrawContext,
+    void onDraw(GrRecordingContext* rContext,
+                skgpu::v1::SurfaceDrawContext* sdc,
                 SkCanvas* canvas) override {
         SkPaint paint;
 
@@ -87,7 +88,7 @@ protected:
 
                 SkRRect rrect = fRRect;
                 rrect.offset(SkIntToScalar(x + kGap), SkIntToScalar(y + kGap));
-                const auto& caps = *surfaceDrawContext->caps()->shaderCaps();
+                const auto& caps = *rContext->priv().caps()->shaderCaps();
                 auto [success, fp] = GrRRectEffect::Make(/*inputFP=*/nullptr, edgeType, rrect,
                                                          caps);
                 SkASSERT(success);
@@ -101,8 +102,8 @@ protected:
                     SkRect bounds = testBounds;
                     bounds.offset(SkIntToScalar(x), SkIntToScalar(y));
 
-                    surfaceDrawContext->addDrawOp(GrFillRectOp::MakeNonAARect(
-                            context, std::move(grPaint), SkMatrix::I(), bounds));
+                    sdc->addDrawOp(GrFillRectOp::MakeNonAARect(
+                            rContext, std::move(grPaint), SkMatrix::I(), bounds));
                 }
             canvas->restore();
             x = x + fTestOffsetX;

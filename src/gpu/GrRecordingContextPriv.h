@@ -15,6 +15,11 @@
 
 class SkDeferredDisplayList;
 
+namespace skgpu {
+    class SurfaceDrawContext;
+    class SurfaceFillContext_Base;
+}
+
 /** Class that exposes methods to GrRecordingContext that are only intended for use internal to
     Skia. This class is purely a privileged window into GrRecordingContext. It should never have
     additional data members or virtual methods. */
@@ -133,6 +138,20 @@ public:
                                           GrSurfaceOrigin,
                                           const SkSurfaceProps&,
                                           skgpu::BaseDevice::InitContents);
+
+    std::unique_ptr<skgpu::SurfaceContext> createDrawContext(GrRecordingContext*,
+                                                             GrSurfaceProxyView readView,
+                                                             GrSurfaceProxyView writeView,
+                                                             GrColorType,
+                                                             sk_sp<SkColorSpace>,
+                                                             const SkSurfaceProps&,
+                                                             bool flushTimeOpsTask = false);
+
+    std::unique_ptr<skgpu::SurfaceFillContext_Base> createFillContext(GrRecordingContext*,
+                                                                 GrSurfaceProxyView readView,
+                                                                 GrSurfaceProxyView writeView,
+                                                                 const GrColorInfo&,
+                                                                 bool flushTimeOpsTask = false);
 
 private:
     explicit GrRecordingContextPriv(GrRecordingContext* context) : fContext(context) {}

@@ -21,9 +21,9 @@
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrResourceProvider.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrYUVATextureProxies.h"
+#include "src/gpu/SurfaceContext.h"
 #include "src/gpu/effects/GrYUVtoRGBEffect.h"
 #include "src/image/SkImage_Gpu.h"
 #include "src/image/SkReadPixelsRec.h"
@@ -114,7 +114,7 @@ bool SkImage_GpuBase::getROPixels(GrDirectContext* dContext,
     }
 
     GrColorInfo colorInfo(ct, this->alphaType(), this->refColorSpace());
-    auto sContext = GrSurfaceContext::Make(dContext, std::move(view), std::move(colorInfo));
+    auto sContext = skgpu::SurfaceContext::Make(dContext, std::move(view), std::move(colorInfo));
     if (!sContext) {
         return false;
     }
@@ -174,7 +174,7 @@ bool SkImage_GpuBase::onReadPixels(GrDirectContext* dContext,
     SkASSERT(view);
 
     GrColorInfo colorInfo(ct, this->alphaType(), this->refColorSpace());
-    auto sContext = GrSurfaceContext::Make(dContext, std::move(view), colorInfo);
+    auto sContext = skgpu::SurfaceContext::Make(dContext, std::move(view), colorInfo);
     if (!sContext) {
         return false;
     }

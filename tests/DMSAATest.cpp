@@ -11,15 +11,16 @@
 #include "src/core/SkBlendModePriv.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkSurfacePriv.h"
+#include "src/gpu/GrPaint.h"
 #include "src/gpu/GrStyle.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
+#include "src/gpu/v1/SurfaceDrawContext.h"
 
 static SkSurfaceProps kDMSAAProps(SkSurfaceProps::kDynamicMSAA_Flag, kUnknown_SkPixelGeometry);
 constexpr static SkPMColor4f kTransYellow = {.5f,.5f,.0f,.5f};
 constexpr static SkPMColor4f kTransCyan = {.0f,.5f,.5f,.5f};
 constexpr static int w=10, h=10;
 
-static void draw_paint_with_aa(GrSurfaceDrawContext* sdc, const SkPMColor4f& color,
+static void draw_paint_with_aa(skgpu::v1:SurfaceDrawContext* sdc, const SkPMColor4f& color,
                                SkBlendMode blendMode) {
     GrPaint paint;
     paint.setColor4f(color);
@@ -28,7 +29,7 @@ static void draw_paint_with_aa(GrSurfaceDrawContext* sdc, const SkPMColor4f& col
                   nullptr);
 }
 
-static void draw_paint_with_dmsaa(GrSurfaceDrawContext* sdc, const SkPMColor4f& color,
+static void draw_paint_with_dmsaa(skgpu::v1::SurfaceDrawContext* sdc, const SkPMColor4f& color,
                                   SkBlendMode blendMode) {
     // drawVertices should always trigger dmsaa, but draw something non-rectangular just to be 100%
     // certain.
@@ -53,11 +54,11 @@ static bool fuzzy_equals(const float a[4], const SkPMColor4f& b) {
     return true;
 }
 
-static void check_sdc_color(skiatest::Reporter* reporter, GrSurfaceDrawContext* sdc,
+static void check_sdc_color(skiatest::Reporter* reporter, skgpu::SurfaceContext* sc,
                             GrDirectContext* ctx, const SkPMColor4f& color) {
     auto info = SkImageInfo::Make(w, h, kRGBA_F32_SkColorType, kPremul_SkAlphaType);
     GrPixmap pixmap = GrPixmap::Allocate(info);
-    sdc->readPixels(ctx, pixmap, {0, 0});
+    sc->readPixels(ctx, pixmap, {0, 0});
     auto pix = static_cast<const float*>(pixmap.addr());
     for (int y = 0; y < h; ++y) {
         for (int x = 0; x < w; ++x) {
@@ -77,8 +78,8 @@ DEF_GPUTEST_FOR_CONTEXTS(DMSAA_preserve_contents,
                          &sk_gpu_test::GrContextFactory::IsRenderingContext, reporter, ctxInfo,
                          nullptr) {
     auto ctx = ctxInfo.directContext();
-    auto sdc = GrSurfaceDrawContext::Make(ctx, GrColorType::kRGBA_8888, nullptr,
-                                          SkBackingFit::kApprox, {w, h}, kDMSAAProps);
+    auto sdc = skgpu::v2::SurfaceDrawContext::Make(ctx, GrColorType::kRGBA_8888, nullptr,
+                                                   SkBackingFit::kApprox, {w, h}, kDMSAAProps);
 
     // Initialize the texture and dmsaa attachment with transparent.
     draw_paint_with_dmsaa(sdc.get(), SK_PMColor4fTRANSPARENT, SkBlendMode::kSrc);

@@ -18,8 +18,8 @@
 #include "src/gpu/GrPixmap.h"
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrProxyProvider.h"
-#include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/SurfaceContext.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 #include "src/image/SkImage_Base.h"
 
@@ -78,7 +78,7 @@ GrSurfaceProxyView MakeTextureProxyViewFromData(GrDirectContext* dContext,
         return {};
     }
     GrSurfaceProxyView view(proxy, origin, swizzle);
-    auto sContext = GrSurfaceContext::Make(dContext, std::move(view), pixmap.colorInfo());
+    auto sContext = skgpu::SurfaceContext::Make(dContext, std::move(view), pixmap.colorInfo());
     if (!sContext) {
         return {};
     }

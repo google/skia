@@ -20,10 +20,10 @@
 #include "include/core/SkYUVAPixmaps.h"
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrSamplerState.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/GrYUVATextureProxies.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/SurfaceContext.h"
 #include "src/gpu/effects/GrYUVtoRGBEffect.h"
 
 #include <memory>
@@ -112,7 +112,7 @@ protected:
 
     void onGpuTeardown() override { fProxies = {}; }
 
-    DrawResult onDraw(GrRecordingContext* context,
+    DrawResult onDraw(GrRecordingContext* rContext,
                       GrSurfaceDrawContext* surfaceDrawContext,
                       SkCanvas* canvas,
                       SkString* errorMsg) override {
@@ -142,7 +142,7 @@ protected:
                     samplerState.setWrapModeX(wm);
                     samplerState.setWrapModeY(wm);
                 }
-                const auto& caps = *context->priv().caps();
+                const auto& caps = *rContext->priv().caps();
                 std::unique_ptr<GrFragmentProcessor> fp =
                         GrYUVtoRGBEffect::Make(fProxies, samplerState, caps, SkMatrix::I(), subset);
                 if (fp) {

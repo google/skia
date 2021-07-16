@@ -826,7 +826,7 @@ void GrSurfaceDrawContext::drawQuadSet(const GrClip* clip,
                                        GrPaint&& paint,
                                        GrAA aa,
                                        const SkMatrix& viewMatrix,
-                                       const QuadSetEntry quads[],
+                                       const GrFillRectOp::QuadSetEntry quads[],
                                        int cnt) {
     GrAAType aaType = this->chooseAAType(aa);
 
@@ -938,7 +938,7 @@ bool GrSurfaceDrawContext::stencilPath(const GrHardClip* clip,
 }
 
 void GrSurfaceDrawContext::drawTextureSet(const GrClip* clip,
-                                          TextureSetEntry set[],
+                                          GrTextureOp::TextureSetEntry set[],
                                           int cnt,
                                           int proxyRunCnt,
                                           GrSamplerState::Filter filter,

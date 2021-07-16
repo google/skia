@@ -12,8 +12,10 @@
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrSamplerState.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
+#include "src/gpu/SurfaceContext.h"
+#include "src/gpu/ops/GrOp.h"
 
+class GrClip;
 class GrColorSpaceXform;
 class GrDrawOp;
 class GrTextureProxy;
@@ -22,6 +24,17 @@ class SkMatrix;
 
 class GrTextureOp {
 public:
+    /** Used with drawTextureSet */
+    struct TextureSetEntry {
+        GrSurfaceProxyView fProxyView;
+        SkAlphaType fSrcAlphaType;
+        SkRect fSrcRect;
+        SkRect fDstRect;
+        const SkPoint* fDstClipQuad; // Must be null, or point to an array of 4 points
+        const SkMatrix* fPreViewMatrix; // If not null, entry's CTM is 'viewMatrix' * fPreViewMatrix
+        SkPMColor4f   fColor; // {a,a,a,a} for rgb textures, {r,g,b,a} for alpha-only textures
+        GrQuadAAFlags fAAFlags;
+    };
 
     /**
      * Controls whether saturate() is called after the texture is color-converted to ensure all
@@ -59,7 +72,7 @@ public:
     static void AddTextureSetOps(GrSurfaceDrawContext*,
                                  const GrClip* clip,
                                  GrRecordingContext*,
-                                 GrSurfaceDrawContext::TextureSetEntry[],
+                                 TextureSetEntry[],
                                  int cnt,
                                  int proxyRunCnt,
                                  GrSamplerState::Filter,

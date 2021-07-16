@@ -14,11 +14,11 @@
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrResourceProvider.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/GrTextureResolveRenderTask.h"
+#include "src/gpu/SurfaceContext.h"
 
-std::unique_ptr<GrSurfaceDrawContext> GrOnFlushResourceProvider::makeSurfaceDrawContext(
+std::unique_ptr<GrSurfaceDrawContext> GrOnFlushResourceProvider::makeSurfaceDrawContext1(
         sk_sp<GrSurfaceProxy> proxy, GrSurfaceOrigin origin, GrColorType colorType,
         sk_sp<SkColorSpace> colorSpace, const SkSurfaceProps& props) {
     // Since this is at flush time and these won't be allocated for us by the GrResourceAllocator
@@ -33,14 +33,14 @@ std::unique_ptr<GrSurfaceDrawContext> GrOnFlushResourceProvider::makeSurfaceDraw
         return nullptr;
     }
 
-    auto sdc = GrSurfaceDrawContext::Make(context, colorType, std::move(proxy),
-                                          std::move(colorSpace), origin, props, true);
+    auto sdc = nullptr; //GrSurfaceDrawContext::Make(context, colorType, std::move(proxy),
+                                          //std::move(colorSpace), origin, props, true);
 
     if (!sdc) {
         return nullptr;
     }
 
-    sdc->discard();
+    //sdc->discard();
 
     return sdc;
 }
