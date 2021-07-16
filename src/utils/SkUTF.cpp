@@ -253,7 +253,9 @@ size_t SkUTF::ToUTF16(SkUnichar uni, uint16_t utf16[2]) {
 }
 
 int SkUTF::UTF8ToUTF16(uint16_t dst[], int dstCapacity, const char src[], size_t srcByteLength) {
-    if (!dst) {
+    if (!src) {
+        return -1;
+    } else if (!dst) {
         dstCapacity = 0;
     }
 
@@ -285,7 +287,9 @@ int SkUTF::UTF8ToUTF16(uint16_t dst[], int dstCapacity, const char src[], size_t
 }
 
 int SkUTF::UTF16ToUTF8(char dst[], int dstCapacity, const uint16_t src[], size_t srcLength) {
-    if (!dst) {
+    if (!src) {
+        return -1;
+    } else if (!dst) {
         dstCapacity = 0;
     }
 
