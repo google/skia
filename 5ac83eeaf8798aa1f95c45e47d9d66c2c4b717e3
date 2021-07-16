@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3aeeab76_485bc040",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 18064
+      },
+      "writtenOn": "2021-07-16T22:32:55Z",
+      "side": 1,
+      "message": "Relating to issue #12223 ( https://bugs.chromium.org/p/skia/issues/detail?id\u003d12223 )",
+      "revId": "5ac83eeaf8798aa1f95c45e47d9d66c2c4b717e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
