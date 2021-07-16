@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrSurfaceFillContext_DEFINED
-#define GrSurfaceFillContext_DEFINED
+#ifndef SurfaceFillContext_v1_DEFINED
+#define SurfaceFillContext_v1_DEFINED
 
 #include "include/core/SkSize.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrOpsTask.h"
-#include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/GrSwizzle.h"
+#include "src/gpu/SurfaceFillContext.h"
 #include "src/gpu/effects/GrMatrixEffect.h"
 
 #include <array>
@@ -27,32 +27,34 @@ class GrRecordingContext;
 class GrSurfaceProxyView;
 class SkColorSpace;
 
-class GrSurfaceFillContext : public GrSurfaceContext {
+namespace skgpu::v1 {
+
+class SurfaceFillContext : public skgpu::SurfaceFillContext_Base {
 public:
-    GrSurfaceFillContext(GrRecordingContext*,
-                         GrSurfaceProxyView readView,
-                         GrSurfaceProxyView writeView,
-                         const GrColorInfo&,
-                         bool flushTimeOpsTask = false);
+    SurfaceFillContext(GrRecordingContext*,
+                       GrSurfaceProxyView readView,
+                       GrSurfaceProxyView writeView,
+                       const GrColorInfo&,
+                       bool flushTimeOpsTask = false);
 
     /**
      * Uses GrImageInfo's color type to pick the default texture format. Will return a
      * GrSurfaceDrawContext if possible.
      */
-    static std::unique_ptr<GrSurfaceFillContext> Make(GrRecordingContext*,
-                                                      GrImageInfo,
-                                                      SkBackingFit = SkBackingFit::kExact,
-                                                      int sampleCount = 1,
-                                                      GrMipmapped = GrMipmapped::kNo,
-                                                      GrProtected = GrProtected::kNo,
-                                                      GrSurfaceOrigin = kTopLeft_GrSurfaceOrigin,
-                                                      SkBudgeted = SkBudgeted::kYes);
+    static std::unique_ptr<SurfaceFillContext> Make(GrRecordingContext*,
+                                                    GrImageInfo,
+                                                    SkBackingFit = SkBackingFit::kExact,
+                                                    int sampleCount = 1,
+                                                    GrMipmapped = GrMipmapped::kNo,
+                                                    GrProtected = GrProtected::kNo,
+                                                    GrSurfaceOrigin = kTopLeft_GrSurfaceOrigin,
+                                                    SkBudgeted = SkBudgeted::kYes);
 
     /**
      * Like the above but uses GetFallbackColorTypeAndFormat to find a fallback color type (and
      * compatible format) if the passed GrImageInfo's color type is not renderable.
      */
-    static std::unique_ptr<GrSurfaceFillContext> MakeWithFallback(
+    static std::unique_ptr<SurfaceFillContext> MakeWithFallback(
             GrRecordingContext*,
             GrImageInfo,
             SkBackingFit = SkBackingFit::kExact,
@@ -67,26 +69,26 @@ public:
      * texture format and swizzles. The color type will be kUnknown. Returns a GrSurfaceDrawContext
      * if possible.
      */
-    static std::unique_ptr<GrSurfaceFillContext> Make(GrRecordingContext*,
-                                                      SkAlphaType,
-                                                      sk_sp<SkColorSpace>,
-                                                      SkISize dimensions,
-                                                      SkBackingFit,
-                                                      const GrBackendFormat&,
-                                                      int sampleCount,
-                                                      GrMipmapped,
-                                                      GrProtected,
-                                                      GrSwizzle readSwizzle,
-                                                      GrSwizzle writeSwizzle,
-                                                      GrSurfaceOrigin,
-                                                      SkBudgeted);
+    static std::unique_ptr<SurfaceFillContext> Make(GrRecordingContext*,
+                                                    SkAlphaType,
+                                                    sk_sp<SkColorSpace>,
+                                                    SkISize dimensions,
+                                                    SkBackingFit,
+                                                    const GrBackendFormat&,
+                                                    int sampleCount,
+                                                    GrMipmapped,
+                                                    GrProtected,
+                                                    GrSwizzle readSwizzle,
+                                                    GrSwizzle writeSwizzle,
+                                                    GrSurfaceOrigin,
+                                                    SkBudgeted);
 
     /**
      * Creates a GrSurfaceFillContext from an existing GrBackendTexture. The GrColorInfo's color
      * type must be compatible with backend texture's format or this will fail. All formats are
      * considered compatible with kUnknown. Returns a GrSurfaceDrawContext if possible.
      */
-    static std::unique_ptr<GrSurfaceFillContext> MakeFromBackendTexture(
+    static std::unique_ptr<SurfaceFillContext> MakeFromBackendTexture(
             GrRecordingContext*,
             GrColorInfo,
             const GrBackendTexture&,
@@ -94,7 +96,7 @@ public:
             GrSurfaceOrigin,
             sk_sp<GrRefCntedCallback> releaseHelper);
 
-    GrSurfaceFillContext* asFillContext() override { return this; }
+    SurfaceFillContext* asFillContext() override { return this; }
 
     /**
      * Provides a performance hint that the render target's contents are allowed
@@ -128,55 +130,13 @@ public:
                             /* upgrade to full */ true);
     }
 
-    /** Fills 'dstRect' with 'fp' */
-    void fillRectWithFP(const SkIRect& dstRect, std::unique_ptr<GrFragmentProcessor> fp);
+    /**/
+    void fillRectWithFP(const SkIRect& dstRect, std::unique_ptr<GrFragmentProcessor> fp) override;
 
-    /**
-     * A convenience version of fillRectWithFP that applies a coordinate transformation via
-     * GrMatrixEffect.
-     */
-    void fillRectWithFP(const SkIRect& dstRect,
-                        const SkMatrix& localMatrix,
-                        std::unique_ptr<GrFragmentProcessor> fp) {
-        fp = GrMatrixEffect::Make(localMatrix, std::move(fp));
-        this->fillRectWithFP(dstRect, std::move(fp));
-    }
-
-    /** Fills 'dstRect' with 'fp' using a local matrix that maps 'srcRect' to 'dstRect' */
-    void fillRectToRectWithFP(const SkRect& srcRect,
-                              const SkIRect& dstRect,
-                              std::unique_ptr<GrFragmentProcessor> fp) {
-        SkMatrix lm = SkMatrix::RectToRect(SkRect::Make(dstRect), srcRect);
-        this->fillRectWithFP(dstRect, lm, std::move(fp));
-    }
-
-    /** Fills 'dstRect' with 'fp' using a local matrix that maps 'srcRect' to 'dstRect' */
-    void fillRectToRectWithFP(const SkIRect& srcRect,
-                              const SkIRect& dstRect,
-                              std::unique_ptr<GrFragmentProcessor> fp) {
-        this->fillRectToRectWithFP(SkRect::Make(srcRect), dstRect, std::move(fp));
-    }
-
-    /** Fills the entire render target with the passed FP. */
-    void fillWithFP(std::unique_ptr<GrFragmentProcessor> fp) {
-        this->fillRectWithFP(SkIRect::MakeSize(fWriteView.proxy()->dimensions()), std::move(fp));
-    }
-
-    /**
-     * A convenience version of fillWithFP that applies a coordinate transformation via
-     * GrMatrixEffect and fills the entire render target.
-     */
-    void fillWithFP(const SkMatrix& localMatrix, std::unique_ptr<GrFragmentProcessor> fp) {
-        this->fillRectWithFP(
-                SkIRect::MakeSize(fWriteView.proxy()->dimensions()), localMatrix, std::move(fp));
-    }
-
-    /**
-     * Draws the src texture with no matrix. The dstRect is the dstPoint with the width and height
-     * of the srcRect. The srcRect and dstRect are clipped to the bounds of the src and dst surfaces
-     * respectively.
-     */
-    bool blitTexture(GrSurfaceProxyView view, const SkIRect& srcRect, const SkIPoint& dstPoint);
+    bool blitTexture(GrSurfaceProxyView view,
+                     const SkIRect& srcRect,
+                     const SkIPoint& dstPoint) override;
+    /**/
 
     GrOpsTask* getOpsTask();
 
@@ -230,7 +190,7 @@ private:
 
     SkDEBUGCODE(void onValidate() const override;)
 
-    GrSurfaceProxyView fWriteView;
+//    GrSurfaceProxyView fWriteView;
 
     // The GrOpsTask can be closed by some other surface context that has picked it up. For this
     // reason, the GrOpsTask should only ever be accessed via 'getOpsTask'.
@@ -240,6 +200,8 @@ private:
 
     using INHERITED = GrSurfaceContext;
 };
+
+} // namespace skgpu::v1
 
 template<>
 inline std::array<float, 4> GrSurfaceFillContext::ConvertColor<kPremul_SkAlphaType>(
@@ -262,4 +224,4 @@ std::array<float, 4> GrSurfaceFillContext::adjustColorAlphaType(SkRGBA4f<AlphaTy
     return (AlphaType == this->colorInfo().alphaType()) ? color.array() : ConvertColor(color);
 }
 
-#endif
+#endif // SurfaceFillContext_v1_DEFINED

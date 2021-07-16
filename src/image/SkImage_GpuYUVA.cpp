@@ -22,8 +22,8 @@
 #include "src/gpu/GrImageContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/SurfaceFillContext.h"
 #include "src/gpu/effects/GrBicubicEffect.h"
 #include "src/gpu/effects/GrYUVtoRGBEffect.h"
 #include "src/image/SkImage_Gpu.h"
@@ -156,7 +156,7 @@ std::tuple<GrSurfaceProxyView, GrColorType> SkImage_GpuYUVA::onAsView(
     if (!fContext->priv().matches(context)) {
         return {};
     }
-    auto sfc = GrSurfaceFillContext::Make(context,
+    auto sfc = skgpu::SurfaceFillContext_Base::Make(context,
                                           this->imageInfo(),
                                           SkBackingFit::kExact,
                                           /*sample count*/ 1,

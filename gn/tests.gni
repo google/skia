@@ -55,11 +55,9 @@ tests_sources = [
   "$_tests/CopySurfaceTest.cpp",
   "$_tests/CubicMapTest.cpp",
   "$_tests/CullTestTest.cpp",
-  "$_tests/DMSAATest.cpp",
   "$_tests/DashPathEffectTest.cpp",
   "$_tests/DataRefTest.cpp",
   "$_tests/DebugLayerManagerTest.cpp",
-  "$_tests/DefaultPathRendererTest.cpp",
   "$_tests/DeferredDisplayListTest.cpp",
   "$_tests/DequeTest.cpp",
   "$_tests/DescriptorTest.cpp",
@@ -403,6 +401,8 @@ pathops_tests_sources = [
 ]
 
 skgpu_v1_tests_sources = [
+  "$_tests/DMSAATest.cpp",
+  "$_tests/DefaultPathRendererTest.cpp",
   "$_tests/GrClipStackTest.cpp",
   "$_tests/GrMeshTest.cpp",
   "$_tests/GrPipelineDynamicStateTest.cpp",

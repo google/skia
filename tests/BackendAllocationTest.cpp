@@ -12,7 +12,7 @@
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
-#include "src/gpu/GrSurfaceFillContext.h"
+#include "src/gpu/SurfaceFillContext.h"
 #include "src/gpu/effects/GrBlendFragmentProcessor.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "src/image/SkImage_Base.h"
@@ -283,7 +283,7 @@ static void check_base_readbacks(GrDirectContext* dContext,
                                                                colorType);
         GrSurfaceProxyView readView(proxy, kTopLeft_GrSurfaceOrigin, swizzle);
         GrColorInfo info(colorType, kUnpremul_SkAlphaType, nullptr);
-        auto surfaceContext = GrSurfaceContext::Make(dContext, readView, info);
+        auto surfaceContext = skgpu::SurfaceFillContext_Base::Make(dContext, readView, info);
         if (!surfaceContext) {
             ERRORF(reporter, "Could not create surface context for colorType: %d\n", colorType);
         }

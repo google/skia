@@ -12,8 +12,8 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkTypes.h"
 #include "src/gpu/GrFragmentProcessor.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/SurfaceContext.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "tools/Resources.h"
 

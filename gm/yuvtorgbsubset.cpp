@@ -20,10 +20,10 @@
 #include "include/core/SkYUVAPixmaps.h"
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrSamplerState.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/GrYUVATextureProxies.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/SurfaceContext.h"
 #include "src/gpu/effects/GrYUVtoRGBEffect.h"
 
 #include <memory>

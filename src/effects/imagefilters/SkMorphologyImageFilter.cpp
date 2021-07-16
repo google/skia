@@ -18,10 +18,10 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/SurfaceFillContext.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -363,7 +363,7 @@ std::unique_ptr<GrFragmentProcessor> GrMorphologyEffect::TestCreate(GrProcessorT
 }
 #endif
 
-static void apply_morphology_rect(GrSurfaceFillContext* surfaceFillContext,
+static void apply_morphology_rect(skgpu::SurfaceFillContext* sfc,
                                   GrSurfaceProxyView view,
                                   SkAlphaType srcAlphaType,
                                   const SkIRect& srcRect,
@@ -379,7 +379,7 @@ static void apply_morphology_rect(GrSurfaceFillContext* surfaceFillContext,
                                        radius,
                                        morphType,
                                        range);
-    surfaceFillContext->fillRectToRectWithFP(srcRect, dstRect, std::move(fp));
+    sfc->fillRectToRectWithFP(srcRect, dstRect, std::move(fp));
 }
 
 static void apply_morphology_rect_no_bounds(GrSurfaceFillContext* surfaceFillContext,

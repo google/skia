@@ -9,8 +9,8 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/private/SkColorData.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrSwizzle.h"
+#include "src/gpu/SurfaceContext.h"
 
 // Size of each clear
 static constexpr int kSize = 64;
