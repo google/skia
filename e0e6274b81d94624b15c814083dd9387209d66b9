@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d7b548e1_69291f37",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2021-07-17T22:25:21Z",
+      "side": 1,
+      "message": "I switched to using a small shader which does the inverse localM for the triangle. It is much simpler code, but perspective seems to introduce some changes.",
+      "revId": "e0e6274b81d94624b15c814083dd9387209d66b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
