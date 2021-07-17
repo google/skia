@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8411b2fe_1f184576",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2021-07-17T01:56:37Z",
+      "side": 1,
+      "message": "I don\u0027t think this patch adds value, see https://github.com/google/skia/pull/83#issuecomment-881796650\n\nThere was a bit of a concern about UB with pointer arithmetic on nullptr, but null plus zero is defined behavior in C++. An early out isn\u0027t needed.",
+      "revId": "b04859158d9ee16d0f5f6d6cdfe24025d213f79d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
