@@ -11,6 +11,7 @@
 #include "include/core/SkPaint.h"
 #include "src/core/SkBlitRow.h"
 #include "src/core/SkBlitter.h"
+#include "src/core/SkVM.h"
 #include "src/core/SkXfermodePriv.h"
 #include "src/shaders/SkBitmapProcShader.h"
 #include "src/shaders/SkShaderBase.h"
@@ -164,6 +165,8 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+skvm::Uniforms SkVMBlitterUniforms();
+
 SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap&, const SkPaint&,
                                          const SkMatrixProvider& matrixProvider, SkArenaAlloc*,
                                          sk_sp<SkShader> clipShader);
@@ -177,7 +180,8 @@ SkBlitter* SkCreateSkVMBlitter(const SkPixmap& dst,
                                const SkPaint&,
                                const SkMatrixProvider&,
                                SkArenaAlloc*,
-                               sk_sp<SkShader> clipShader);
+                               sk_sp<SkShader> clipShader,
+                               skvm::Uniforms* uniforms = nullptr);
 
 SkBlitter* SkCreateSkVMSpriteBlitter(const SkPixmap& dst,
                                      const SkPaint&,

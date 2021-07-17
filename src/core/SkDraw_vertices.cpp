@@ -263,6 +263,82 @@ static void fill_triangle(const VertState& state, SkBlitter* blitter, const SkRa
     }
 }
 
+namespace {
+class TexCoordShader : public SkShaderBase {
+public:
+    TexCoordShader(SkShaderBase* shader, skvm::Uniforms* uniforms)
+            : fShader{shader}
+            , fUniforms{uniforms} {}
+
+    skvm::Color onProgram(skvm::Builder* b,
+                          skvm::Coord device, skvm::Coord local, skvm::Color color,
+                          const SkMatrixProvider& matrices, const SkMatrix* localM,
+                          const SkColorInfo& dst,
+                          skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
+
+        // The Uniforms that is passed in to make the blitter is the shared uniforms; all
+        // others are place holder Uniforms for jitting the various blitting routines.
+        SkMatrix m = SkMatrix::I();
+        if (uniforms == fUniforms) {
+            for (int i = 0; i < 9; ++i) {
+                fMatrix[i] = uniforms->pushF(m[i]);
+            }
+        } else {
+            for (int i = 0; i < 9; ++i) {
+                uniforms->pushF(m[i]);
+            }
+        }
+
+        skvm::F32 x = local.x,
+                  y = local.y;
+
+        auto dot = [&,x,y](int row) {
+            return b->mad(x, b->uniformF(fMatrix[3*row+0]),
+                             b->mad(y, b->uniformF(fMatrix[3*row+1]),
+                                       b->uniformF(fMatrix[3*row+2])));
+        };
+
+        x = dot(0);
+        y = dot(1);
+        if (matrices.localToDevice().hasPerspective()) {
+            x = x * (1.0f / dot(2));
+            y = y * (1.0f / dot(2));
+        }
+
+        // @Brian: I'm doing evil to the provider here. Is there a better way to do this?
+        SkSimpleMatrixProvider matrixProvider{SkMatrix::I()};
+        skvm::Coord newLocal = {x, y};
+        return fShader->program(b, device, newLocal, color, matrixProvider, localM, dst, uniforms,
+                                alloc);
+    }
+
+    bool update(const SkMatrix& ctm, const SkMatrix& localM) {
+        SkMatrix matrix;
+        if (this->computeTotalInverse(ctm, &localM, &matrix)) {
+            for (int i = 0; i < 9; ++i) {
+                fUniforms->setF(fMatrix[i], matrix[i]);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    bool onAppendStages(const SkStageRec& rec) const override {
+        // TODO
+        return false;
+    }
+
+private:
+    // For serialization.  This will never be called.
+    Factory getFactory() const override { return nullptr; }
+    const char* getTypeName() const override { return nullptr; }
+
+    SkShaderBase* const fShader;
+    skvm::Uniforms* const fUniforms;
+    mutable skvm::Uniform fMatrix[9];
+};
+}  // namespace
+
 void SkDraw::drawFixedVertices(const SkVertices* vertices, SkBlendMode blendMode,
                                const SkPaint& paint, const SkMatrix& ctmInverse,
                                const SkPoint* dev2, const SkPoint3* dev3,
@@ -307,13 +383,35 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices, SkBlendMode blendMode
     VertState::Proc vertProc = state.chooseProc(info.mode());
     // No colors are changing and no texture coordinates are changing, so no updates between
     // triangles are needed. Use SkVM to blit the triangles.
-    if (!colors && (!texCoords || texCoords == positions)) {
-        if (auto blitter = SkCreateSkVMBlitter(
-                fDst, paint, *fMatrixProvider, outerAlloc, this->fRC->clipShader())) {
-            while (vertProc(&state)) {
-                fill_triangle(state, blitter, *fRC, dev2, dev3);
+    SkMatrix ctm = fMatrixProvider->localToDevice();
+    if (!colors) {
+        if (!texCoords || texCoords == positions) {
+            if (auto blitter = SkCreateSkVMBlitter(
+                    fDst, paint, *fMatrixProvider, outerAlloc, this->fRC->clipShader())) {
+                while (vertProc(&state)) {
+                    fill_triangle(state, blitter, *fRC, dev2, dev3);
+                }
+                return;
             }
-            return;
+        } else {
+            skvm::Uniforms uniforms = SkVMBlitterUniforms();
+
+            TexCoordShader* texCoordShader =
+                    outerAlloc->make<TexCoordShader>(as_SB(shader), &uniforms);
+            SkPaint shaderPaint{paint};
+            shaderPaint.setShader(sk_ref_sp(texCoordShader));
+            if (auto blitter = SkCreateSkVMBlitter(
+                    fDst, shaderPaint, *fMatrixProvider, outerAlloc, this->fRC->clipShader(),
+                    &uniforms)) {
+                while (vertProc(&state)) {
+                    SkMatrix localM;
+                    if (texture_to_matrix(state, positions, texCoords, &localM) &&
+                            texCoordShader->update(ctm, localM)) {
+                        fill_triangle(state, blitter, *fRC, dev2, dev3);
+                    }
+                }
+                return;
+            }
         }
     }
 
@@ -325,7 +423,6 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices, SkBlendMode blendMode
 
         To be safe, we just make that determination here, and pass it into the tricolorshader.
      */
-    SkMatrix ctm = fMatrixProvider->localToDevice();
     const bool usePerspective = ctm.hasPerspective();
 
     SkTriColorShader* triShader = nullptr;
