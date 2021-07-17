@@ -48,6 +48,8 @@ public:
     virtual bool SK_WARN_UNUSED_RESULT update(const SkMatrix& ctm) = 0;
 };
 
+class SkUpdatableShader;
+
 class SkShaderBase : public SkShader {
 public:
     ~SkShaderBase() override;
@@ -211,6 +213,9 @@ public:
      */
     virtual sk_sp<SkShader> makeAsALocalMatrixShader(SkMatrix* localMatrix) const;
 
+    SkUpdatableShader* updatableShader(SkArenaAlloc* alloc) const;
+    virtual SkUpdatableShader* onUpdatableShader(SkArenaAlloc* alloc) const;
+
     SkStageUpdater* appendUpdatableStages(const SkStageRec& rec) const {
         return this->onAppendUpdatableStages(rec);
     }
@@ -257,6 +262,11 @@ private:
                                   const SkColorInfo& dst, skvm::Uniforms*, SkArenaAlloc*) const = 0;
 
     using INHERITED = SkShader;
+};
+
+class SkUpdatableShader : public SkShaderBase {
+public:
+    virtual bool update(const SkMatrix& ctm, skvm::Uniforms* u) const = 0;
 };
 
 inline SkShaderBase* as_SB(SkShader* shader) {

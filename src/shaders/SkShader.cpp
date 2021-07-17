@@ -24,6 +24,7 @@
 #include "src/shaders/SkImageShader.h"
 #include "src/shaders/SkPictureShader.h"
 #include "src/shaders/SkShaderBase.h"
+#include "src/shaders/SkTransformShader.h"
 
 #if SK_SUPPORT_GPU
 #include "src/gpu/GrFragmentProcessor.h"
@@ -132,6 +133,18 @@ std::unique_ptr<GrFragmentProcessor> SkShaderBase::asFragmentProcessor(const GrF
 #endif
 
 sk_sp<SkShader> SkShaderBase::makeAsALocalMatrixShader(SkMatrix*) const {
+    return nullptr;
+}
+
+SkUpdatableShader* SkShaderBase::updatableShader(SkArenaAlloc* alloc) const {
+    if (auto updatable = this->onUpdatableShader(alloc)) {
+        return updatable;
+    }
+
+    return alloc->make<SkTransformShader>(*as_SB(this));
+}
+
+SkUpdatableShader* SkShaderBase::onUpdatableShader(SkArenaAlloc* alloc) const {
     return nullptr;
 }
 

@@ -255,6 +255,7 @@ static void fill_triangle_3(const VertState& state, SkBlitter* blitter, const Sk
         }
     }
 }
+
 static void fill_triangle(const VertState& state, SkBlitter* blitter, const SkRasterClip& rc,
                           const SkPoint dev2[], const SkPoint3 dev3[]) {
     if (dev3) {
@@ -308,27 +309,39 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices, SkBlendMode blendMode
 
     VertState       state(vertexCount, indices, indexCount);
     VertState::Proc vertProc = state.chooseProc(info.mode());
+    SkMatrix ctm = fMatrixProvider->localToDevice();
     // No colors are changing and no texture coordinates are changing, so no updates between
     // triangles are needed. Use SkVM to blit the triangles.
-    if (gUseSkVMBlitter && !colors && (!texCoords || texCoords == positions)) {
-        if (auto blitter = SkVMBlitter::Make(
-                fDst, paint, *fMatrixProvider, outerAlloc, this->fRC->clipShader())) {
-            while (vertProc(&state)) {
-                fill_triangle(state, blitter, *fRC, dev2, dev3);
+    if (gUseSkVMBlitter && !colors) {
+        if (!texCoords || texCoords == positions) {
+            if (auto blitter = SkVMBlitter::Make(
+                    fDst, paint, *fMatrixProvider, outerAlloc, this->fRC->clipShader())) {
+                while (vertProc(&state)) {
+                    fill_triangle(state, blitter, *fRC, dev2, dev3);
+                }
+                return;
             }
-            return;
+        } else {
+            auto texCoordShader = as_SB(shader)->updatableShader(outerAlloc);
+            SkPaint shaderPaint{paint};
+            shaderPaint.setShader(sk_ref_sp(texCoordShader));
+            if (auto blitter = SkVMBlitter::Make(
+                    fDst, shaderPaint, *fMatrixProvider, outerAlloc, this->fRC->clipShader())) {
+                auto updater = [&](skvm::Uniforms* uniforms) {
+                    SkMatrix localM;
+                    return texture_to_matrix(state, positions, texCoords, &localM) &&
+                           texCoordShader->update(SkMatrix::Concat(ctm, localM), uniforms);
+                };
+                while (vertProc(&state)) {
+                    if (blitter->updateUniforms(updater)) {
+                        fill_triangle(state, blitter, *fRC, dev2, dev3);
+                    }
+                }
+                return;
+            }
         }
     }
 
-    /*  We need to know if we have perspective or not, so we can know what stage(s) we will need,
-        and how to prep our "uniforms" before each triangle in the tricolorshader.
-
-        We could just check the matrix on each triangle to decide, but we have to be sure to always
-        make the same decision, since we create 1 or 2 stages only once for the entire patch.
-
-        To be safe, we just make that determination here, and pass it into the tricolorshader.
-     */
-    SkMatrix ctm = fMatrixProvider->localToDevice();
     const bool usePerspective = ctm.hasPerspective();
 
     SkTriColorShader* triShader = nullptr;

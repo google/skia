@@ -458,6 +458,8 @@ skia_core_sources = [
   "$_src/shaders/SkLocalMatrixShader.h",
   "$_src/shaders/SkShader.cpp",
   "$_src/shaders/SkShaderBase.h",
+  "$_src/shaders/SkTransformShader.cpp",
+  "$_src/shaders/SkTransformShader.h",
 
   # private
   "$_include/private/SkChecksum.h",
