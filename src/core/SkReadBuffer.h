@@ -22,6 +22,7 @@
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkPicturePriv.h"
+#include "src/core/SkSamplingPriv.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/shaders/SkShaderBase.h"
 
@@ -203,7 +204,7 @@ public:
                                              static_cast<int32_t>(max)));
     }
 
-    SkFilterQuality checkFilterQuality();
+    SkLegacyFQ checkFilterQuality();
 
     SkSamplingOptions readSampling();
 
