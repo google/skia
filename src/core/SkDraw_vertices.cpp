@@ -272,28 +272,28 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices, SkBlendMode blendMode
     const int vertexCount = info.vertexCount();
     const int indexCount = info.indexCount();
     const SkPoint* positions = info.positions();
-    const SkPoint* textures = info.texCoords();
+    const SkPoint* texCoords = info.texCoords();
     const uint16_t* indices = info.indices();
     const SkColor* colors = info.colors();
 
     SkShader* shader = paint.getShader();
     if (shader) {
-        if (!textures) {
-            textures = positions;
+        if (!texCoords) {
+            texCoords = positions;
         }
     } else {
-        textures = nullptr;
+        texCoords = nullptr;
     }
 
     // We can simplify things for certain blend modes. This is for speed, and SkComposeShader
     // itself insists we don't pass kSrc or kDst to it.
-    if (colors && textures) {
+    if (colors && texCoords) {
         switch (blendMode) {
             case SkBlendMode::kSrc:
                 colors = nullptr;
                 break;
             case SkBlendMode::kDst:
-                textures = nullptr;
+                texCoords = nullptr;
                 shader = nullptr;
                 break;
             default: break;
@@ -301,13 +301,13 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices, SkBlendMode blendMode
     }
 
     // There is a paintShader iff there is texCoords.
-    SkASSERT((textures != nullptr) == (shader != nullptr));
+    SkASSERT((texCoords != nullptr) == (shader != nullptr));
 
     VertState       state(vertexCount, indices, indexCount);
     VertState::Proc vertProc = state.chooseProc(info.mode());
     // No colors are changing and no texture coordinates are changing, so no updates between
     // triangles are needed. Use SkVM to blit the triangles.
-    if (!colors && (!textures || textures == positions)) {
+    if (!colors && (!texCoords || texCoords == positions)) {
         if (auto blitter = SkCreateSkVMBlitter(
                 fDst, paint, *fMatrixProvider, outerAlloc, this->fRC->clipShader())) {
             while (vertProc(&state)) {
@@ -346,7 +346,7 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices, SkBlendMode blendMode
     SkPaint shaderPaint(paint);
     shaderPaint.setShader(sk_ref_sp(shader));
 
-    if (!textures) {    // only tricolor shader
+    if (!texCoords) {    // only tricolor shader
         if (auto blitter = SkCreateRasterPipelineBlitter(
                 fDst, shaderPaint, *fMatrixProvider, outerAlloc, this->fRC->clipShader())) {
             while (vertProc(&state)) {
@@ -379,7 +379,7 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices, SkBlendMode blendMode
         }
 
         // Positions as texCoords? The local matrix is always identity, so update once
-        if (textures == positions) {
+        if (texCoords == positions) {
             SkMatrix localM;
             if (!updater->update(ctm, &localM)) {
                 return;
@@ -395,8 +395,8 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices, SkBlendMode blendMode
                 }
 
                 SkMatrix localM;
-                if ((textures == positions) ||
-                    (texture_to_matrix(state, positions, textures, &localM) &&
+                if ((texCoords == positions) ||
+                    (texture_to_matrix(state, positions, texCoords, &localM) &&
                      updater->update(ctm, &localM))) {
                     fill_triangle(state, blitter, *fRC, dev2, dev3);
                 }
@@ -414,9 +414,9 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices, SkBlendMode blendMode
 
             const SkMatrixProvider* matrixProvider = fMatrixProvider;
             SkTLazy<SkPreConcatMatrixProvider> preConcatMatrixProvider;
-            if (textures && (textures != positions)) {
+            if (texCoords && (texCoords != positions)) {
                 SkMatrix localM;
-                if (!texture_to_matrix(state, positions, textures, &localM)) {
+                if (!texture_to_matrix(state, positions, texCoords, &localM)) {
                     continue;
                 }
                 matrixProvider = preConcatMatrixProvider.init(*matrixProvider, localM);
