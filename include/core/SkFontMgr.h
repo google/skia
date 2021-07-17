@@ -105,13 +105,6 @@ public:
     sk_sp<SkTypeface> makeFromStream(std::unique_ptr<SkStreamAsset>, const SkFontArguments&) const;
 
     /**
-     *  Create a typeface from the specified font data.
-     *  Will return NULL if the typeface could not be created.
-     *  The caller must call unref() on the returned object if it is not null.
-     */
-    sk_sp<SkTypeface> makeFromFontData(std::unique_ptr<SkFontData>) const;
-
-    /**
      *  Create a typeface for the specified fileName and TTC index
      *  (pass 0 for none) or NULL if the file is not found, or its contents are
      *  not recognized. The caller must call unref() on the returned object
@@ -143,7 +136,6 @@ protected:
                                                     int ttcIndex) const = 0;
     virtual sk_sp<SkTypeface> onMakeFromStreamArgs(std::unique_ptr<SkStreamAsset>,
                                                    const SkFontArguments&) const = 0;
-    virtual sk_sp<SkTypeface> onMakeFromFontData(std::unique_ptr<SkFontData>) const;
     virtual sk_sp<SkTypeface> onMakeFromFile(const char path[], int ttcIndex) const = 0;
 
     virtual sk_sp<SkTypeface> onLegacyMakeTypeface(const char familyName[], SkFontStyle) const = 0;

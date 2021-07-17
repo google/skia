@@ -476,18 +476,6 @@ protected:
                                                               style, isFixedPitch, name));
     }
 
-    sk_sp<SkTypeface> onMakeFromFontData(std::unique_ptr<SkFontData> data) const override {
-        SkStreamAsset* stream(data->getStream());
-        bool isFixedPitch;
-        SkFontStyle style;
-        SkString name;
-        if (!fScanner.scanFont(stream, data->getIndex(), &name, &style, &isFixedPitch, nullptr)) {
-            return nullptr;
-        }
-        return sk_sp<SkTypeface>(new SkTypeface_AndroidStream(std::move(data),
-                                                              style, isFixedPitch, name));
-    }
-
     sk_sp<SkTypeface> onLegacyMakeTypeface(const char familyName[], SkFontStyle style) const override {
         if (familyName) {
             // On Android, we must return nullptr when we can't find the requested

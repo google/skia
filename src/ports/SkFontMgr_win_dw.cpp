@@ -296,7 +296,6 @@ protected:
     sk_sp<SkTypeface> onMakeFromStreamArgs(std::unique_ptr<SkStreamAsset>, const SkFontArguments&) const override;
     sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData>, int ttcIndex) const override;
     sk_sp<SkTypeface> onMakeFromFile(const char path[], int ttcIndex) const override;
-    sk_sp<SkTypeface> onMakeFromFontData(std::unique_ptr<SkFontData>) const override;
     sk_sp<SkTypeface> onLegacyMakeTypeface(const char familyName[], SkFontStyle) const override;
 
 private:
@@ -1074,65 +1073,6 @@ static HRESULT apply_fontdata_variation(SkTScopedComPtr<IDWriteFontFace>& fontFa
     HR(fontFace5_Out->QueryInterface(&fontFace));
 #endif
     return S_OK;
-}
-sk_sp<SkTypeface> SkFontMgr_DirectWrite::onMakeFromFontData(std::unique_ptr<SkFontData> data) const{
-    if (!data->hasStream()) {
-        return nullptr;
-    }
-
-    SkTScopedComPtr<StreamFontFileLoader> fontFileLoader;
-    HRN(StreamFontFileLoader::Create(data->detachStream(), &fontFileLoader));
-    HRN(fFactory->RegisterFontFileLoader(fontFileLoader.get()));
-    SkAutoIDWriteUnregister<StreamFontFileLoader> autoUnregisterFontFileLoader(
-        fFactory.get(), fontFileLoader.get());
-
-    SkTScopedComPtr<StreamFontCollectionLoader> fontCollectionLoader;
-    HRN(StreamFontCollectionLoader::Create(fontFileLoader.get(), &fontCollectionLoader));
-    HRN(fFactory->RegisterFontCollectionLoader(fontCollectionLoader.get()));
-    SkAutoIDWriteUnregister<StreamFontCollectionLoader> autoUnregisterFontCollectionLoader(
-        fFactory.get(), fontCollectionLoader.get());
-
-    SkTScopedComPtr<IDWriteFontCollection> fontCollection;
-    HRN(fFactory->CreateCustomFontCollection(fontCollectionLoader.get(), nullptr, 0,
-        &fontCollection));
-
-    // Find the first non-simulated font which has the given ttc index.
-    UINT32 familyCount = fontCollection->GetFontFamilyCount();
-    for (UINT32 familyIndex = 0; familyIndex < familyCount; ++familyIndex) {
-        SkTScopedComPtr<IDWriteFontFamily> fontFamily;
-        HRN(fontCollection->GetFontFamily(familyIndex, &fontFamily));
-
-        UINT32 fontCount = fontFamily->GetFontCount();
-        for (UINT32 fontIndex = 0; fontIndex < fontCount; ++fontIndex) {
-            SkTScopedComPtr<IDWriteFont> font;
-            HRN(fontFamily->GetFont(fontIndex, &font));
-
-            // Skip if the current font is simulated
-            if (font->GetSimulations() != DWRITE_FONT_SIMULATIONS_NONE) {
-                continue;
-            }
-            SkTScopedComPtr<IDWriteFontFace> fontFace;
-            HRN(font->CreateFontFace(&fontFace));
-            int faceIndex = fontFace->GetIndex();
-            int ttcIndex = data->getIndex();
-
-            // Skip if the current face index does not match the ttcIndex
-            if (faceIndex != ttcIndex) {
-                continue;
-            }
-
-            HRN(apply_fontdata_variation(fontFace, data));
-
-            return DWriteFontTypeface::Make(
-                fFactory.get(), fontFace.get(), font.get(), fontFamily.get(),
-                sk_make_sp<DWriteFontTypeface::Loaders>(
-                    fFactory.get(),
-                    autoUnregisterFontFileLoader.detatch(),
-                    autoUnregisterFontCollectionLoader.detatch()));
-        }
-    }
-
-    return nullptr;
 }
 
 HRESULT SkFontMgr_DirectWrite::getByFamilyName(const WCHAR wideFamilyName[],
