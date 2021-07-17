@@ -24,10 +24,6 @@ SkFontStyleSet* TypefaceFontProvider::onMatchFamily(const char familyName[]) con
     return nullptr;
 }
 
-sk_sp<SkTypeface> TypefaceFontProvider::onMakeFromFontData(std::unique_ptr<SkFontData>) const {
-    return nullptr;
-}
-
 size_t TypefaceFontProvider::registerTypeface(sk_sp<SkTypeface> typeface) {
     if (typeface == nullptr) {
         return 0;

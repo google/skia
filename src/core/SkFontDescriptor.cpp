@@ -55,16 +55,6 @@ static size_t SK_WARN_UNUSED_RESULT read_id(SkStream* stream) {
     return i;
 }
 
-std::unique_ptr<SkFontData> SkFontDescriptor::maybeAsSkFontData() {
-    if (!fVariationDataIsOldAndBad || !this->hasStream()) {
-        return nullptr;
-    }
-    SkFontArguments args;
-    args.setCollectionIndex(this->getCollectionIndex());
-    args.setVariationDesignPosition({this->getVariation(), this->getVariationCoordinateCount()});
-    return std::make_unique<SkFontData>(this->dupStream(), args);
-}
-
 bool SkFontDescriptor::Deserialize(SkStream* stream, SkFontDescriptor* result) {
     size_t styleBits;
     if (!stream->readPackedUInt(&styleBits)) { return false; }

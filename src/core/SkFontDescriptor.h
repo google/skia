@@ -94,8 +94,6 @@ public:
         return fVariation.reset(coordinateCount);
     }
 
-    std::unique_ptr<SkFontData> maybeAsSkFontData();
-
 private:
     SkString fFamilyName;
     SkString fFullName;

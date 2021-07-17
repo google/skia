@@ -99,15 +99,6 @@ public:
     // V87: SkPaint now holds a user-defined blend function (SkBlender), no longer has DrawLooper
 
     enum Version {
-        kEdgeAAQuadColor4f_Version          = 73,
-        kMorphologyTakesScalar_Version      = 74,
-        kVerticesUseReadBuffer_Version      = 75,
-        kFilterEnumInImageShader_Version    = 76,
-        kFilterOptionsInImageShader_Version = 77,
-        kSerializeMipmaps_Version           = 78,
-        kCubicResamplerImageShader_Version  = 79,
-        kSamplingInImageShader_Version      = 80,
-        kSamplingInDrawImage_Version        = 81,
         kPictureShaderFilterParam_Version   = 82,
         kMatrixImageFilterSampling_Version  = 83,
         kImageFilterImageSampling_Version   = 84,
@@ -116,12 +107,9 @@ public:
         kSkBlenderInSkPaint                 = 87,
 
         // Only SKPs within the min/current picture version range (inclusive) can be read.
-        kMin_Version     = kEdgeAAQuadColor4f_Version,
+        kMin_Version     = kPictureShaderFilterParam_Version,
         kCurrent_Version = kSkBlenderInSkPaint
     };
-
-    static_assert(SkPicturePriv::kMin_Version <= SkPicturePriv::kCubicResamplerImageShader_Version,
-        "Remove SkFontDescriptor::maybeAsSkFontData, SkFontMgr::makeFromFontData, kFontAxes");
 };
 
 #endif
