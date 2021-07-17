@@ -10,6 +10,10 @@
 
 #include "include/core/SkTypes.h"
 
+//#define SK_SUPPORT_LEGACY_FILTERQUALITY
+
+#ifdef SK_SUPPORT_LEGACY_FILTERQUALITY
+
 /**
  *  Controls how much filtering to be done when scaling/transforming complex colors
  *  e.g. images.
@@ -24,5 +28,7 @@ enum SkFilterQuality {
 
     kLast_SkFilterQuality = kHigh_SkFilterQuality,
 };
+
+#endif
 
 #endif

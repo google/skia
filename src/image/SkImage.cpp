@@ -804,23 +804,20 @@ sk_sp<SkImage> SkMipmapBuilder::attachTo(const SkImage* src) {
 #include "src/core/SkSamplingPriv.h"
 #include "src/core/SkWriteBuffer.h"
 
-SkSamplingOptions::SkSamplingOptions(SkFilterQuality fq, MediumBehavior behavior) {
+SkSamplingOptions SkSamplingPriv::FromFQ(SkLegacyFQ fq, SkMediumAs behavior) {
     switch (fq) {
-        case SkFilterQuality::kHigh_SkFilterQuality:
-            *this = SkSamplingOptions(SkCubicResampler{1/3.0f, 1/3.0f});
-            break;
-        case SkFilterQuality::kMedium_SkFilterQuality:
-            *this = SkSamplingOptions(SkFilterMode::kLinear,
-                                      behavior == kMedium_asMipmapNearest ? SkMipmapMode::kNearest
-                                                                          : SkMipmapMode::kLinear);
-            break;
-        case SkFilterQuality::kLow_SkFilterQuality:
-            *this = SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNone);
-            break;
-        case SkFilterQuality::kNone_SkFilterQuality:
-            *this = SkSamplingOptions(SkFilterMode::kNearest, SkMipmapMode::kNone);
+        case kHigh_SkLegacyFQ:
+            return SkSamplingOptions(SkCubicResampler{1/3.0f, 1/3.0f});
+        case kMedium_SkLegacyFQ:
+            return SkSamplingOptions(SkFilterMode::kLinear,
+                                      behavior == kNearest_SkMediumAs ? SkMipmapMode::kNearest
+                                                                      : SkMipmapMode::kLinear);
+        case kLow_SkLegacyFQ:
+            return SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNone);
+        case kNone_SkLegacyFQ:
             break;
     }
+    return SkSamplingOptions(SkFilterMode::kNearest, SkMipmapMode::kNone);
 }
 
 SkSamplingOptions SkSamplingPriv::Read(SkReadBuffer& buffer) {
@@ -845,3 +842,9 @@ void SkSamplingPriv::Write(SkWriteBuffer& buffer, const SkSamplingOptions& sampl
         buffer.writeUInt((unsigned)sampling.mipmap);
     }
 }
+
+#ifdef SK_SUPPORT_LEGACY_FILTERQUALITY
+SkSamplingOptions::SkSamplingOptions(SkFilterQuality fq, MediumBehavior behavior) {
+    *this = SkSamplingPriv::FromFQ((SkLegacyFQ)fq, (SkMediumAs)behavior);
+}
+#endif
