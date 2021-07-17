@@ -517,6 +517,7 @@ namespace skvm {
         Ptr ptr;
         int offset;
     };
+
     struct Uniforms {
         Ptr              base;
         std::vector<int> buf;
@@ -526,6 +527,14 @@ namespace skvm {
         Uniform push(int val) {
             buf.push_back(val);
             return {base, (int)( sizeof(int)*(buf.size() - 1) )};
+        }
+
+        void setF(Uniform uniform, float val) {
+            size_t index = SkTo<size_t>(uniform.offset) / sizeof(int);
+            SkASSERT(index < buf.size());
+            int bits;
+            memcpy(&bits, &val, sizeof(int));
+            buf[index] = bits;
         }
 
         Uniform pushF(float val) {
