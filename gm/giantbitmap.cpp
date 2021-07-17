@@ -118,7 +118,7 @@ protected:
                                                                        : SkFilterMode::kNearest),
                                            m));
 
-        canvas->translate(SkIntToScalar(50), SkIntToScalar(50));
+        canvas->translate(50, 50);
 
         canvas->drawPaint(paint);
     }

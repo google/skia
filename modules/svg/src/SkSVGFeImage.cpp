@@ -33,8 +33,8 @@ sk_sp<SkImageFilter> SkSVGFeImage::onMakeImageFilter(const SkSVGRenderContext& c
     const SkRect srcRect = SkRect::Make(imgInfo.fImage->bounds());
     const SkRect& dstRect = imgInfo.fDst;
     // TODO: image-rendering property
-    const SkFilterQuality fq = SkFilterQuality::kMedium_SkFilterQuality;
-    auto imgfilt = SkImageFilters::Image(imgInfo.fImage, srcRect, dstRect, SkSamplingOptions(fq));
+    auto imgfilt = SkImageFilters::Image(imgInfo.fImage, srcRect, dstRect,
+                                 SkSamplingOptions(SkCubicResampler::SkCubicResampler::Mitchell));
 
     // Aspect ratio mapping may end up drawing content outside of the filter effects region,
     // so perform an explicit crop.

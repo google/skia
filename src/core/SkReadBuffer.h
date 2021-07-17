@@ -203,7 +203,9 @@ public:
                                              static_cast<int32_t>(max)));
     }
 
+#ifdef SK_SUPPORT_LEGACY_FILTERQUALITY
     SkFilterQuality checkFilterQuality();
+#endif
 
     SkSamplingOptions readSampling();
 
