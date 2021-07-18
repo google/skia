@@ -77,6 +77,12 @@ public:
     void next(bool* b);
     void next(SkRegion* region);
 
+    bool nextBool() {
+        bool b;
+        this->next(&b);
+        return b;
+    }
+
     void nextRange(float* f, float min, float max);
 
 private:

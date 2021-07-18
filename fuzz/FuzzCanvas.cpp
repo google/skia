@@ -512,6 +512,20 @@ static sk_sp<SkImageFilter> make_fuzz_lighting_imagefilter(Fuzz* fuzz, int depth
 
 static void fuzz_paint(Fuzz* fuzz, SkPaint* paint, int depth);
 
+static SkSamplingOptions next_sampling(Fuzz* fuzz) {
+    if (fuzz->nextBool()) {
+        float B, C;
+        fuzz->next(&B, &C);
+        return SkSamplingOptions({B, C});
+    } else {
+        SkFilterMode fm;
+        SkMipmapMode mm;
+        fuzz->nextEnum(&fm, SkFilterMode::kLast);
+        fuzz->nextEnum(&mm, SkMipmapMode::kLast);
+        return SkSamplingOptions(fm, mm);
+    }
+}
+
 static sk_sp<SkImageFilter> make_fuzz_imageFilter(Fuzz* fuzz, int depth) {
     if (depth <= 0) {
         return nullptr;
@@ -536,9 +550,7 @@ static sk_sp<SkImageFilter> make_fuzz_imageFilter(Fuzz* fuzz, int depth) {
         case 2: {
             SkMatrix matrix;
             FuzzNiceMatrix(fuzz, &matrix);
-            SkFilterQuality quality;
-            fuzz->nextEnum(&quality, SkFilterQuality::kLast_SkFilterQuality);
-            auto sampling = SkSamplingOptions(quality);
+            const auto sampling = next_sampling(fuzz);
             sk_sp<SkImageFilter> input = make_fuzz_imageFilter(fuzz, depth - 1);
             return SkImageFilters::MatrixTransform(matrix, sampling, std::move(input));
         }
@@ -628,11 +640,8 @@ static sk_sp<SkImageFilter> make_fuzz_imageFilter(Fuzz* fuzz, int depth) {
         case 10: {
             sk_sp<SkImage> image = make_fuzz_image(fuzz);
             SkRect srcRect, dstRect;
-            SkFilterQuality filterQuality;
             fuzz->next(&srcRect, &dstRect);
-            fuzz->nextEnum(&filterQuality, SkFilterQuality::kLast_SkFilterQuality);
-            return SkImageFilters::Image(std::move(image), srcRect, dstRect,
-                                         SkSamplingOptions(filterQuality));
+            return SkImageFilters::Image(std::move(image), srcRect, dstRect, next_sampling(fuzz));
         }
         case 11:
             return make_fuzz_lighting_imagefilter(fuzz, depth - 1);
