@@ -295,6 +295,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 				"angle_d3d11_es3"}
 			if sampleCount > 0 {
 				configs = append(configs, fmt.Sprintf("angle_d3d11_es2_msaa%d", sampleCount))
+				configs = append(configs, fmt.Sprintf("angle_d3d11_es2_dmsaa"))
+				configs = append(configs, fmt.Sprintf("angle_gl_es2_dmsaa"))
 				configs = append(configs, fmt.Sprintf("angle_d3d11_es3_msaa%d", sampleCount))
 				configs = append(configs, fmt.Sprintf("angle_d3d11_es3_dmsaa"))
 				configs = append(configs, fmt.Sprintf("angle_gl_es3_dmsaa"))
@@ -304,6 +306,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 				configs = append(configs, "angle_gl_es3")
 				if sampleCount > 0 {
 					configs = append(configs, fmt.Sprintf("angle_gl_es2_msaa%d", sampleCount))
+					configs = append(configs, fmt.Sprintf("angle_gl_es2_dmsaa"))
 					configs = append(configs, fmt.Sprintf("angle_gl_es3_msaa%d", sampleCount))
 					configs = append(configs, fmt.Sprintf("angle_gl_es3_dmsaa"))
 				}
