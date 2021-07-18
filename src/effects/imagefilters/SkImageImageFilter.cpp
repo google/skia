@@ -74,8 +74,7 @@ void SkRegisterImageImageFilterFlattenable() {
 sk_sp<SkFlattenable> SkImageImageFilter::CreateProc(SkReadBuffer& buffer) {
     SkSamplingOptions sampling;
     if (buffer.isVersionLT(SkPicturePriv::kImageFilterImageSampling_Version)) {
-        sampling = SkSamplingOptions(buffer.checkFilterQuality(),
-                                     SkSamplingOptions::kMedium_asMipmapLinear);
+        sampling = SkSamplingPriv::FromFQ(buffer.checkFilterQuality(), kLinear_SkMediumAs);
     } else {
         sampling = buffer.readSampling();
     }

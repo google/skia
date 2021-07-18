@@ -13,6 +13,23 @@
 class SkReadBuffer;
 class SkWriteBuffer;
 
+// Private copy of SkFilterQuality, just for legacy deserialization
+// Matches values in SkFilterQuality
+enum SkLegacyFQ {
+    kNone_SkLegacyFQ   = 0,    //!< nearest-neighbor; fastest but lowest quality
+    kLow_SkLegacyFQ    = 1,    //!< bilerp
+    kMedium_SkLegacyFQ = 2,    //!< bilerp + mipmaps; good for down-scaling
+    kHigh_SkLegacyFQ   = 3,    //!< bicubic resampling; slowest but good quality
+
+    kLast_SkLegacyFQ = kHigh_SkLegacyFQ,
+};
+
+// Matches values in SkSamplingOptions::MediumBehavior
+enum SkMediumAs {
+    kNearest_SkMediumAs,
+    kLinear_SkMediumAs,
+};
+
 class SkSamplingPriv {
 public:
     enum {
@@ -28,6 +45,8 @@ public:
 
     static SkSamplingOptions Read(SkReadBuffer&);
     static void Write(SkWriteBuffer&, const SkSamplingOptions&);
+
+    static SkSamplingOptions FromFQ(SkLegacyFQ, SkMediumAs = kNearest_SkMediumAs);
 };
 
 #endif

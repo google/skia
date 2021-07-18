@@ -540,6 +540,6 @@ int32_t SkReadBuffer::checkInt(int32_t min, int32_t max) {
     return value;
 }
 
-SkFilterQuality SkReadBuffer::checkFilterQuality() {
-    return this->checkRange<SkFilterQuality>(kNone_SkFilterQuality, kLast_SkFilterQuality);
+SkLegacyFQ SkReadBuffer::checkFilterQuality() {
+    return this->checkRange<SkLegacyFQ>(kNone_SkLegacyFQ, kLast_SkLegacyFQ);
 }
