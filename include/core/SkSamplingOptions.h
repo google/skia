@@ -79,11 +79,13 @@ struct SK_API SkSamplingOptions {
         : useCubic(true)
         , cubic(c) {}
 
+#ifdef SK_SUPPORT_LEGACY_FILTERQUALITY
     enum MediumBehavior {
         kMedium_asMipmapNearest,    // historic cpu behavior
         kMedium_asMipmapLinear,     // historic gpu behavior
     };
     explicit SkSamplingOptions(SkFilterQuality, MediumBehavior = kMedium_asMipmapNearest);
+#endif
 
     bool operator==(const SkSamplingOptions& other) const {
         return useCubic == other.useCubic
