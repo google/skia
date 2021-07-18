@@ -436,7 +436,6 @@ export interface CanvasKit {
     readonly ColorType: ColorTypeEnumValues;
     readonly FillType: FillTypeEnumValues;
     readonly FilterMode: FilterModeEnumValues;
-    readonly FilterQuality: FilterQualityEnumValues;
     readonly FontEdging: FontEdgingEnumValues;
     readonly FontHinting: FontHintingEnumValues;
     readonly GlyphRunFlags: GlyphRunFlagValues;
@@ -3219,10 +3218,10 @@ export interface ImageFilterFactory {
      * local space, which means it effectively happens prior to any transformation coming from the
      * Canvas initiating the filtering.
      * @param matr
-     * @param fq
+     * @param sampling
      * @param input - if null, it will use the dynamic source image (e.g. a saved layer)
      */
-    MakeMatrixTransform(matr: InputMatrix, fq: FilterQuality,
+    MakeMatrixTransform(matr: InputMatrix, sampling: FilterOptions | CubicResampler,
                         input: ImageFilter | null): ImageFilter;
 }
 
@@ -3777,7 +3776,6 @@ export type ColorType = EmbindEnumEntity;
 export type EncodedImageFormat = EmbindEnumEntity;
 export type FillType = EmbindEnumEntity;
 export type FilterMode = EmbindEnumEntity;
-export type FilterQuality = EmbindEnumEntity;
 export type FontEdging = EmbindEnumEntity;
 export type FontHinting = EmbindEnumEntity;
 export type MipmapMode = EmbindEnumEntity;
@@ -3902,13 +3900,6 @@ export interface FillTypeEnumValues extends EmbindEnum {
 export interface FilterModeEnumValues extends EmbindEnum {
     Linear: FilterMode;
     Nearest: FilterMode;
-}
-
-export interface FilterQualityEnumValues extends EmbindEnum {
-    None: FilterQuality;
-    Low: FilterQuality;
-    Medium: FilterQuality;
-    High: FilterQuality;
 }
 
 export interface FontEdgingEnumValues extends EmbindEnum {

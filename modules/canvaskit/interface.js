@@ -775,9 +775,23 @@ CanvasKit.onRuntimeInitialized = function() {
     return ta.slice();
   };
 
-  CanvasKit.ImageFilter.MakeMatrixTransform = function(matr, filterQuality, input) {
+  CanvasKit.ImageFilter.MakeMatrixTransform = function(matr, sampling, input) {
     var matrPtr = copy3x3MatrixToWasm(matr);
-    return CanvasKit.ImageFilter._MakeMatrixTransform(matrPtr, filterQuality, input);
+
+    let B, C;
+    if ('B' in sampling && 'C' in sampling) {
+      B = Math.min(sampling.B, 1);
+      C = Math.min(sampling.C, 1);
+    } else if ('filter' in sampling) {
+      B = sampling.filter + 2;
+      C = 2;
+      if ('mipmap' in sampling) {
+        C = sampling.mipmap + 2;
+      }
+    } else {
+      return null;
+    }
+    return CanvasKit.ImageFilter._MakeMatrixTransform(matrPtr, B, C, input);
   };
 
   CanvasKit.Paint.prototype.getColor = function() {

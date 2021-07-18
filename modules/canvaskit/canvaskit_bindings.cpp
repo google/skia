@@ -15,7 +15,6 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
 #include "include/core/SkEncodedImageFormat.h"
-#include "include/core/SkFilterQuality.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkImageInfo.h"
@@ -1966,12 +1965,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
     enum_<SkFilterMode>("FilterMode")
         .value("Nearest",   SkFilterMode::kNearest)
         .value("Linear",    SkFilterMode::kLinear);
-
-    enum_<SkFilterQuality>("FilterQuality")
-        .value("None",   SkFilterQuality::kNone_SkFilterQuality)
-        .value("Low",    SkFilterQuality::kLow_SkFilterQuality)
-        .value("Medium", SkFilterQuality::kMedium_SkFilterQuality)
-        .value("High",   SkFilterQuality::kHigh_SkFilterQuality);
 
     // Only used to control the encode function.
     // TODO(kjlubick): compile these out when the appropriate encoder is disabled.
