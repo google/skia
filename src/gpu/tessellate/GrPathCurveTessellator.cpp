@@ -7,6 +7,7 @@
 
 #include "src/gpu/tessellate/GrPathCurveTessellator.h"
 
+#include "src/core/SkUtils.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/geometry/GrPathUtils.h"
 #include "src/gpu/geometry/GrWangsFormula.h"
@@ -29,44 +30,53 @@ public:
             , fMaxSegments_pow4(fMaxSegments_pow2 * fMaxSegments_pow2) {
     }
 
-    SK_ALWAYS_INLINE void writeQuadratic(GrVertexChunkBuilder* chunker, const SkPoint p[3]) {
+    SK_ALWAYS_INLINE void writeQuadratic(const GrShaderCaps& shaderCaps,
+                                         GrVertexChunkBuilder* chunker, const SkPoint p[3]) {
         float numSegments_pow4 = GrWangsFormula::quadratic_pow4(kPrecision, p, fVectorXform);
         if (numSegments_pow4 > fMaxSegments_pow4) {
-            this->chopAndWriteQuadratic(chunker, p);
+            this->chopAndWriteQuadratic(shaderCaps, chunker, p);
             return;
         }
         if (numSegments_pow4 > 1) {
             if (GrVertexWriter vertexWriter = chunker->appendVertex()) {
                 GrPathUtils::writeQuadAsCubic(p, &vertexWriter);
+                vertexWriter.write(GrVertexWriter::If(!shaderCaps.infinitySupport(),
+                                                      GrTessellationShader::kCubicCurveType));
             }
             fNumFixedSegments_pow4 = std::max(numSegments_pow4, fNumFixedSegments_pow4);
         }
     }
 
-    SK_ALWAYS_INLINE void writeConic(GrVertexChunkBuilder* chunker, const SkPoint p[3], float w) {
+    SK_ALWAYS_INLINE void writeConic(const GrShaderCaps& shaderCaps, GrVertexChunkBuilder* chunker,
+                                     const SkPoint p[3], float w) {
         float numSegments_pow2 = GrWangsFormula::conic_pow2(kPrecision, p, w, fVectorXform);
         if (numSegments_pow2 > fMaxSegments_pow2) {
-            this->chopAndWriteConic(chunker, {p, w});
+            this->chopAndWriteConic(shaderCaps, chunker, {p, w});
             return;
         }
         if (numSegments_pow2 > 1) {
             if (GrVertexWriter vertexWriter = chunker->appendVertex()) {
                 GrTessellationShader::WriteConicPatch(p, w, &vertexWriter);
+                vertexWriter.write(GrVertexWriter::If(!shaderCaps.infinitySupport(),
+                                                      GrTessellationShader::kConicCurveType));
             }
             fNumFixedSegments_pow4 = std::max(numSegments_pow2 * numSegments_pow2,
                                               fNumFixedSegments_pow4);
         }
     }
 
-    SK_ALWAYS_INLINE void writeCubic(GrVertexChunkBuilder* chunker, const SkPoint p[4]) {
+    SK_ALWAYS_INLINE void writeCubic(const GrShaderCaps& shaderCaps, GrVertexChunkBuilder* chunker,
+                                     const SkPoint p[4]) {
         float numSegments_pow4 = GrWangsFormula::cubic_pow4(kPrecision, p, fVectorXform);
         if (numSegments_pow4 > fMaxSegments_pow4) {
-            this->chopAndWriteCubic(chunker, p);
+            this->chopAndWriteCubic(shaderCaps, chunker, p);
             return;
         }
         if (numSegments_pow4 > 1) {
             if (GrVertexWriter vertexWriter = chunker->appendVertex()) {
                 vertexWriter.writeArray(p, 4);
+                vertexWriter.write(GrVertexWriter::If(!shaderCaps.infinitySupport(),
+                                                      GrTessellationShader::kCubicCurveType));
             }
             fNumFixedSegments_pow4 = std::max(numSegments_pow4, fNumFixedSegments_pow4);
         }
@@ -75,51 +85,57 @@ public:
     int numFixedSegments_pow4() const { return fNumFixedSegments_pow4; }
 
 private:
-    void chopAndWriteQuadratic(GrVertexChunkBuilder* chunker, const SkPoint p[3]) {
+    void chopAndWriteQuadratic(const GrShaderCaps& shaderCaps, GrVertexChunkBuilder* chunker,
+                               const SkPoint p[3]) {
         SkPoint chops[5];
         SkChopQuadAtHalf(p, chops);
         for (int i = 0; i < 2; ++i) {
             const SkPoint* q = chops + i*2;
             if (fCullTest.areVisible3(q)) {
-                this->writeQuadratic(chunker, q);
+                this->writeQuadratic(shaderCaps, chunker, q);
             }
         }
         // Connect the two halves.
-        this->writeTriangle(chunker, chops[0], chops[2], chops[4]);
+        this->writeTriangle(shaderCaps, chunker, chops[0], chops[2], chops[4]);
     }
 
-    void chopAndWriteConic(GrVertexChunkBuilder* chunker, const SkConic& conic) {
+    void chopAndWriteConic(const GrShaderCaps& shaderCaps, GrVertexChunkBuilder* chunker,
+                           const SkConic& conic) {
         SkConic chops[2];
         if (!conic.chopAt(.5, chops)) {
             return;
         }
         for (int i = 0; i < 2; ++i) {
             if (fCullTest.areVisible3(chops[i].fPts)) {
-                this->writeConic(chunker, chops[i].fPts, chops[i].fW);
+                this->writeConic(shaderCaps, chunker, chops[i].fPts, chops[i].fW);
             }
         }
         // Connect the two halves.
-        this->writeTriangle(chunker, conic.fPts[0], chops[0].fPts[2], chops[1].fPts[2]);
+        this->writeTriangle(shaderCaps, chunker, conic.fPts[0], chops[0].fPts[2], chops[1].fPts[2]);
     }
 
-    void chopAndWriteCubic(GrVertexChunkBuilder* chunker, const SkPoint p[4]) {
+    void chopAndWriteCubic(const GrShaderCaps& shaderCaps, GrVertexChunkBuilder* chunker,
+                           const SkPoint p[4]) {
         SkPoint chops[7];
         SkChopCubicAtHalf(p, chops);
         for (int i = 0; i < 2; ++i) {
             const SkPoint* c = chops + i*3;
             if (fCullTest.areVisible4(c)) {
-                this->writeCubic(chunker, c);
+                this->writeCubic(shaderCaps, chunker, c);
             }
         }
         // Connect the two halves.
-        this->writeTriangle(chunker, chops[0], chops[3], chops[6]);
+        this->writeTriangle(shaderCaps, chunker, chops[0], chops[3], chops[6]);
     }
 
-    void writeTriangle(GrVertexChunkBuilder* chunker, SkPoint p0, SkPoint p1, SkPoint p2) {
+    void writeTriangle(const GrShaderCaps& shaderCaps, GrVertexChunkBuilder* chunker, SkPoint p0,
+                       SkPoint p1, SkPoint p2) {
         if (GrVertexWriter vertexWriter = chunker->appendVertex()) {
             vertexWriter.write(p0, p1, p2);
             // Mark this instance as a triangle by setting it to a conic with w=Inf.
             vertexWriter.fill(GrVertexWriter::kIEEE_32_infinity, 2);
+            vertexWriter.write(GrVertexWriter::If(!shaderCaps.infinitySupport(),
+                                                  GrTessellationShader::kTriangularConicCurveType));
         }
     }
 
@@ -145,12 +161,14 @@ GrPathCurveTessellator* GrPathCurveTessellator::Make(SkArenaAlloc* arena,
     using PatchType = GrPathTessellationShader::PatchType;
     GrPathTessellationShader* shader;
     if (caps.shaderCaps()->tessellationSupport() &&
+        caps.shaderCaps()->infinitySupport() &&  // The hw tessellation shaders use infinity.
         !pipeline.usesVaryingCoords() &&  // Our tessellation back door doesn't handle varyings.
         numPathVerbs >= caps.minPathVerbsForHwTessellation()) {
         shader = GrPathTessellationShader::MakeHardwareTessellationShader(arena, viewMatrix, color,
                                                                           PatchType::kCurves);
     } else {
-        shader = GrPathTessellationShader::MakeMiddleOutFixedCountShader(arena, viewMatrix, color,
+        shader = GrPathTessellationShader::MakeMiddleOutFixedCountShader(*caps.shaderCaps(), arena,
+                                                                         viewMatrix, color,
                                                                          PatchType::kCurves);
     }
     return arena->make([=](void* objStart) {
@@ -165,6 +183,8 @@ void GrPathCurveTessellator::prepare(GrMeshDrawTarget* target, const SkRect& cul
                                      const SkPath& path,
                                      const BreadcrumbTriangleList* breadcrumbTriangleList) {
     SkASSERT(fVertexChunkArray.empty());
+
+    const GrShaderCaps& shaderCaps = *target->caps().shaderCaps();
 
     // Determine how many triangles to allocate.
     int maxTriangles = 0;
@@ -183,7 +203,9 @@ void GrPathCurveTessellator::prepare(GrMeshDrawTarget* target, const SkRect& cul
     if (!patchAllocCount) {
         return;
     }
-    GrVertexChunkBuilder chunker(target, &fVertexChunkArray, sizeof(SkPoint) * 4, patchAllocCount);
+    size_t patchStride = fShader->willUseTessellationShaders() ? fShader->vertexStride() * 4
+                                                               : fShader->instanceStride();
+    GrVertexChunkBuilder chunker(target, &fVertexChunkArray, patchStride, patchAllocCount);
 
     // Write out the triangles.
     if (maxTriangles) {
@@ -193,9 +215,16 @@ void GrPathCurveTessellator::prepare(GrMeshDrawTarget* target, const SkRect& cul
         }
         int numRemainingTriangles = maxTriangles;
         if (fDrawInnerFan) {
-            int numWritten = GrMiddleOutPolygonTriangulator::WritePathInnerFan(
-                    &vertexWriter,
-                    GrMiddleOutPolygonTriangulator::OutputType::kConicsWithInfiniteWeight, path);
+            // Pad the triangles with 2 infinities. This produces conic patches with w=Infinity. In
+            // the case where infinity is not supported, we also write out a 3rd float that
+            // explicitly tells the shader to interpret these patches as triangles.
+            int pad32Count = shaderCaps.infinitySupport() ? 2 : 3;
+            uint32_t pad32Value = shaderCaps.infinitySupport()
+                    ? GrVertexWriter::kIEEE_32_infinity
+                    : sk_bit_cast<uint32_t>(GrTessellationShader::kTriangularConicCurveType);
+            int numWritten = GrMiddleOutPolygonTriangulator::WritePathInnerFan(&vertexWriter,
+                                                                               pad32Count,
+                                                                               pad32Value, path);
             numRemainingTriangles -= numWritten;
         }
         if (breadcrumbTriangleList) {
@@ -217,6 +246,9 @@ void GrPathCurveTessellator::prepare(GrMeshDrawTarget* target, const SkRect& cul
                 vertexWriter.writeArray(tri->fPts, 3);
                 // Mark this instance as a triangle by setting it to a conic with w=Inf.
                 vertexWriter.fill(GrVertexWriter::kIEEE_32_infinity, 2);
+                vertexWriter.write(
+                        GrVertexWriter::If(!shaderCaps.infinitySupport(),
+                                           GrTessellationShader::kTriangularConicCurveType));
                 ++numWritten;
             }
             SkASSERT(count == breadcrumbTriangleList->count());
@@ -230,7 +262,7 @@ void GrPathCurveTessellator::prepare(GrMeshDrawTarget* target, const SkRect& cul
         // The curve shader tessellates T=0..(1/2) on the first side of the canonical triangle and
         // T=(1/2)..1 on the second side. This means we get double the max tessellation segments
         // for the range T=0..1.
-        maxSegments = target->caps().shaderCaps()->maxTessellationSegments() * 2;
+        maxSegments = shaderCaps.maxTessellationSegments() * 2;
     } else {
         maxSegments = GrPathTessellationShader::kMaxFixedCountSegments;
     }
@@ -239,13 +271,13 @@ void GrPathCurveTessellator::prepare(GrMeshDrawTarget* target, const SkRect& cul
     for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
         switch (verb) {
             case SkPathVerb::kQuad:
-                curveWriter.writeQuadratic(&chunker, pts);
+                curveWriter.writeQuadratic(shaderCaps, &chunker, pts);
                 break;
             case SkPathVerb::kConic:
-                curveWriter.writeConic(&chunker, pts, *w);
+                curveWriter.writeConic(shaderCaps, &chunker, pts, *w);
                 break;
             case SkPathVerb::kCubic:
-                curveWriter.writeCubic(&chunker, pts);
+                curveWriter.writeCubic(shaderCaps, &chunker, pts);
                 break;
             default:
                 break;

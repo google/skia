@@ -50,7 +50,8 @@ public:
     // smoothly, and emits empty triangles at any vertices whose sk_VertexIDs are higher than
     // necessary. It is the caller's responsibility to draw enough vertices per instance for the
     // most complex curve in the batch to render smoothly (i.e., NumTrianglesAtResolveLevel() * 3).
-    static GrPathTessellationShader* MakeMiddleOutFixedCountShader(SkArenaAlloc*,
+    static GrPathTessellationShader* MakeMiddleOutFixedCountShader(const GrShaderCaps&,
+                                                                   SkArenaAlloc*,
                                                                    const SkMatrix& viewMatrix,
                                                                    const SkPMColor4f&, PatchType);
 

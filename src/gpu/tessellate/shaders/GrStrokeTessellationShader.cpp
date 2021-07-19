@@ -64,6 +64,12 @@ GrStrokeTessellationShader::GrStrokeTessellationShader(const GrShaderCaps& shade
             // argsAttr contains the lastControlPoint for setting up the join.
             fAttribs.emplace_back("argsAttr", kFloat2_GrVertexAttribType, kFloat2_GrSLType);
         }
+        if (!shaderCaps.infinitySupport()) {
+            // A conic curve is written out with p3=[w,Infinity], but GPUs that don't support
+            // infinity can't detect this. On these platforms we write out an extra float with each
+            // patch that explicitly tells the shader what type of curve it is.
+            fAttribs.emplace_back("curveTypeAttr", kFloat_GrVertexAttribType, kFloat_GrSLType);
+        }
     }
     if (fShaderFlags & ShaderFlags::kDynamicStroke) {
         fAttribs.emplace_back("dynamicStrokeAttr", kFloat2_GrVertexAttribType,

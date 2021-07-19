@@ -27,7 +27,8 @@ namespace {
 // batch to render smoothly (i.e., NumTrianglesAtResolveLevel() * 3).
 class MiddleOutShader : public GrPathTessellationShader {
 public:
-    MiddleOutShader(const SkMatrix& viewMatrix, const SkPMColor4f& color, PatchType patchType)
+    MiddleOutShader(const GrShaderCaps& shaderCaps, const SkMatrix& viewMatrix,
+                    const SkPMColor4f& color, PatchType patchType)
             : GrPathTessellationShader(kTessellate_MiddleOutShader_ClassID,
                                        GrPrimitiveType::kTriangles, 0, viewMatrix, color)
             , fPatchType(patchType) {
@@ -35,6 +36,12 @@ public:
         fInstanceAttribs.emplace_back("p23", kFloat4_GrVertexAttribType, kFloat4_GrSLType);
         if (fPatchType == PatchType::kWedges) {
             fInstanceAttribs.emplace_back("fanPoint", kFloat2_GrVertexAttribType, kFloat2_GrSLType);
+        }
+        if (!shaderCaps.infinitySupport()) {
+            // A conic curve is written out with p3=[w,Infinity], but GPUs that don't support
+            // infinity can't detect this. On these platforms we also write out an extra float with
+            // each patch that explicitly tells the shader what type of curve it is.
+            fInstanceAttribs.emplace_back("curveType", kFloat_GrVertexAttribType, kFloat_GrSLType);
         }
         this->setInstanceAttributes(fInstanceAttribs.data(), fInstanceAttribs.count());
         SkASSERT(fInstanceAttribs.count() <= kMaxInstanceAttribCount);
@@ -52,7 +59,7 @@ private:
     GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const final;
     const PatchType fPatchType;
 
-    constexpr static int kMaxInstanceAttribCount = 3;
+    constexpr static int kMaxInstanceAttribCount = 4;
     SkSTArray<kMaxInstanceAttribCount, Attribute> fInstanceAttribs;
 };
 
@@ -64,6 +71,18 @@ GrGLSLGeometryProcessor* MiddleOutShader::createGLSLInstance(const GrShaderCaps&
             v->defineConstant("MAX_FIXED_RESOLVE_LEVEL", (float)kMaxFixedCountResolveLevel);
             v->defineConstant("MAX_FIXED_SEGMENTS", (float)kMaxFixedCountSegments);
             v->insertFunction(GrWangsFormula::as_sksl().c_str());
+            if (shaderCaps.infinitySupport()) {
+                v->insertFunction(R"(
+                bool is_conic_curve() { return isinf(p23.w); }
+                bool is_triangular_conic_curve() { return isinf(p23.z); })");
+            } else {
+                v->insertFunction(SkStringPrintf(R"(
+                bool is_conic_curve() { return curveType != %g; })", kCubicCurveType).c_str());
+                v->insertFunction(SkStringPrintf(R"(
+                bool is_triangular_conic_curve() {
+                    return curveType == %g;
+                })", kTriangularConicCurveType).c_str());
+            }
             if (shaderCaps.bitManipulationSupport()) {
                 v->insertFunction(R"(
                 float ldexp_portable(float x, float p) {
@@ -87,8 +106,8 @@ GrGLSLGeometryProcessor* MiddleOutShader::createGLSLInstance(const GrShaderCaps&
                 } else)");  // Fall through to next if ().
             }
             v->codeAppend(R"(
-            if (isinf(p23.z)) {
-                // A conic with w=Inf is an exact triangle.
+            if (is_triangular_conic_curve()) {
+                // This patch is an exact triangle.
                 localcoord = (resolveLevel != 0)      ? p01.zw
                            : (idxInResolveLevel != 0) ? p23.xy
                                                       : p01.xy;
@@ -96,14 +115,14 @@ GrGLSLGeometryProcessor* MiddleOutShader::createGLSLInstance(const GrShaderCaps&
                 float2 p0=p01.xy, p1=p01.zw, p2=p23.xy, p3=p23.zw;
                 float w = -1;  // w < 0 tells us to treat the instance as an integral cubic.
                 float maxResolveLevel;
-                if (isinf(p3.y)) {
-                    // The patch is a conic.
+                if (is_conic_curve()) {
+                    // Conics are 3 points, with the weight in p3.
                     w = p3.x;
                     maxResolveLevel = wangs_formula_conic_log2(PRECISION, AFFINE_MATRIX * p0,
                                                                           AFFINE_MATRIX * p1,
                                                                           AFFINE_MATRIX * p2, w);
                     p1 *= w;  // Unproject p1.
-                    p3 = p2;  // Duplicate the endpoint.
+                    p3 = p2;  // Duplicate the endpoint for shared code that also runs on cubics.
                 } else {
                     // The patch is an integral cubic.
                     maxResolveLevel = wangs_formula_cubic_log2(PRECISION, p0, p1, p2, p3,
@@ -154,9 +173,9 @@ GrGLSLGeometryProcessor* MiddleOutShader::createGLSLInstance(const GrShaderCaps&
 }  // namespace
 
 GrPathTessellationShader* GrPathTessellationShader::MakeMiddleOutFixedCountShader(
-        SkArenaAlloc* arena, const SkMatrix& viewMatrix, const SkPMColor4f& color,
-        PatchType patchType) {
-    return arena->make<MiddleOutShader>(viewMatrix, color, patchType);
+        const GrShaderCaps& shaderCaps, SkArenaAlloc* arena, const SkMatrix& viewMatrix,
+        const SkPMColor4f& color, PatchType patchType) {
+    return arena->make<MiddleOutShader>(shaderCaps, viewMatrix, color, patchType);
 }
 
 void GrPathTessellationShader::InitializeVertexBufferForMiddleOutCurves(GrVertexWriter vertexWriter,

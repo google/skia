@@ -245,6 +245,20 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fDrawInstancedSupport = version >= GR_GL_VER(2, 0);
     }
 
+#ifdef GR_DISABLE_TESSELLATION_ON_ES2
+    if (GR_IS_GR_GL_ES(standard) && version < GR_GL_VER(3, 0)) {
+        // Temporarily disable the tessellation path renderer on Chrome ES2 while we roll the
+        // necessary Skia changes.
+        fDisableTessellationPathRenderer = true;
+    }
+#else
+    if (GR_IS_GR_GL_ES(standard) && ctxInfo.isOverCommandBuffer() && version < GR_GL_VER(3, 0)) {
+        // Temporarily disable the tessellation path renderer over the ES2 command buffer. This is
+        // an attempt to lower impact while we roll out tessellation in Chrome.
+        fDisableTessellationPathRenderer = true;
+    }
+#endif
+
     if (GR_IS_GR_GL(standard)) {
         if (version >= GR_GL_VER(3, 0)) {
             fBindFragDataLocationSupport = true;

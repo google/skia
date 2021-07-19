@@ -39,6 +39,13 @@ public:
     const SkMatrix& viewMatrix() const { return fViewMatrix; }
     const SkPMColor4f& color() const { return fColor;}
 
+    // A conic curve is written out with p3=[w,Infinity], but GPUs that don't support infinity can't
+    // detect this. On these platforms we also write out an extra float with each patch that
+    // explicitly tells the shader what type of curve it is.
+    constexpr static float kCubicCurveType = 0;
+    constexpr static float kConicCurveType = 1;
+    constexpr static float kTriangularConicCurveType = 2;  // Conic curve with w=Infinity.
+
     // Fills in a 4-point patch in such a way that the shader will recognize it as a conic.
     static void WriteConicPatch(const SkPoint pts[3], float w, GrVertexWriter* writer) {
         // Write out the 3 conic points to patch[0..2], the weight to patch[3].x, and then set
