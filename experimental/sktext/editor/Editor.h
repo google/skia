@@ -17,6 +17,8 @@ namespace text {
 class Cursor {
 public:
     static std::unique_ptr<Cursor> Make();
+    Cursor();
+    virtual ~Cursor() = default;
     void place(SkPoint xy, SkSize size) {
         fXY = xy;
         fSize = size;
@@ -34,7 +36,6 @@ public:
     void paint(SkCanvas* canvas, SkPoint xy);
 
 private:
-    Cursor();
     SkPaint fLinePaint;
     SkPaint fRectPaint;
     SkPoint fXY;
@@ -43,7 +44,42 @@ private:
 };
 
 class Mouse {
+    const SkMSec MAX_DBL_TAP_INTERVAL = 300;
+    const float MAX_DBL_TAP_DISTANCE = 100;
+public:
+    Mouse() : fMouseDown(false), fLastTouchPoint(), fLastTouchTime() { }
 
+    void down();
+    void up();
+    void clearTouchInfo() {
+        fLastTouchPoint = SkPoint::Make(0, 0);
+        fLastTouchTime = 0.0;
+    }
+    bool isDown() { return fMouseDown; }
+    bool isDoubleClick(SkPoint touch);
+
+private:
+    bool fMouseDown;
+    SkPoint fLastTouchPoint;
+    double fLastTouchTime;
+};
+
+class Selection {
+public:
+    Selection(SkColor color) : fGlyphBoxes(), fTextRanges() {
+        fPaint.setColor(color);
+        fPaint.setAlphaf(0.3f);
+    }
+    void select(TextRange range, SkRect rect);
+    void clear() {
+        fGlyphBoxes.clear();
+        fTextRanges.clear();
+    }
+    void paint(SkCanvas* canvas, SkPoint xy);
+private:
+    SkPaint fPaint;
+    std::vector<SkRect> fGlyphBoxes;
+    std::vector<TextRange> fTextRanges;
 };
 
 struct Style {
@@ -81,6 +117,7 @@ private:
     void onAttach(sk_app::Window* w) override { fParent = w; }
     void onPaint(SkSurface* surface) override;
 
+    bool onMouse(int x, int y, skui::InputState state, skui::ModifierKey modifiers) override;
     bool onKey(skui::Key, skui::InputState, skui::ModifierKey) override;
     bool onChar(SkUnichar c, skui::ModifierKey modifier) override;
     void invalidate() { if (fParent) { fParent->inval(); } }
@@ -99,6 +136,7 @@ private:
 
     std::unique_ptr<Cursor> fCursor;
     std::unique_ptr<Mouse> fMouse;
+    std::unique_ptr<Selection> fSelection;
     std::u16string fText;
     std::unique_ptr<UnicodeText> fUnicodeText;
     std::unique_ptr<ShapedText> fShapedText;

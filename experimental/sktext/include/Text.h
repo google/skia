@@ -114,6 +114,7 @@ private:
     SkTArray<TextRun, false> fRuns;
     SkTArray<GlyphUnitFlags, true> fGlyphUnitProperties;
 };
+
 class FormattedText;
 class WrappedText {
 public:
@@ -129,6 +130,7 @@ private:
     SkTArray<GlyphUnitFlags, true> fGlyphUnitProperties;
     SkSize fSize;
 };
+
 class FormattedText : public SkRefCnt {
 public:
     SkSize  size() const { return fSize; }

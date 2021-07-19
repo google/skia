@@ -361,6 +361,7 @@ void FormattedText::visit(Visitor* visitor, SkSpan<size_t> chunks) const {
     }
 }
 
+// TODO: The selection is not just a rectangle but a list of rectangles (for instance, over few lines or when we have ltr/rtl combo)
 std::tuple<const Line*, const TextRun*, GlyphIndex, SkRect> FormattedText::indexToAdjustedGraphemePosition(TextIndex textIndex) const {
 
     SkRect rect = SkRect::MakeEmpty();

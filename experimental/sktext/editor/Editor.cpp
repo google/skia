@@ -10,8 +10,9 @@ const TextAlign TEXT_ALIGN = TextAlign::kLeft;
 const SkColor DEFAULT_FOREGROUND = SK_ColorBLACK;
 const SkScalar DEFAULT_CURSOR_WIDTH = 2;
 const SkColor DEFAULT_CURSOR_COLOR = SK_ColorGRAY;
+const SkColor DEFAULT_SELECTION_COLOR = SK_ColorCYAN;
 
-std::unique_ptr<Cursor> Cursor::Make() { return std::unique_ptr<Cursor>(new Cursor()); }
+std::unique_ptr<Cursor> Cursor::Make() { return std::make_unique<Cursor>(); }
 
 Cursor::Cursor() {
     fLinePaint.setColor(SK_ColorGRAY);
@@ -33,7 +34,48 @@ void Cursor::paint(SkCanvas* canvas, SkPoint xy) {
        canvas->drawRect(SkRect::MakeXYWH(fXY.fX + xy.fX, fXY.fY + xy.fY, DEFAULT_CURSOR_WIDTH, fSize.fHeight),
                 fRectPaint);
     } else {
-        canvas->drawLine(fXY + xy, fXY + xy + SkPoint::Make(1, fSize.fHeight), fLinePaint);
+        //canvas->drawLine(fXY + xy, fXY + xy + SkPoint::Make(1, fSize.fHeight), fLinePaint);
+    }
+}
+
+void Mouse::down() {
+    fMouseDown = true;
+}
+
+void Mouse::up() {
+    fMouseDown = false;
+}
+
+bool Mouse::isDoubleClick(SkPoint touch) {
+    if ((touch - fLastTouchPoint).length() > MAX_DBL_TAP_DISTANCE) {
+        fLastTouchPoint = touch;
+        fLastTouchTime = SkTime::GetMSecs();
+        return false;
+    }
+    double now = SkTime::GetMSecs();
+    if (now - fLastTouchTime > MAX_DBL_TAP_INTERVAL) {
+        fLastTouchPoint = touch;
+        fLastTouchTime = SkTime::GetMSecs();
+        return false;
+    }
+
+    clearTouchInfo();
+    return true;
+}
+
+void Selection::select(TextRange range, SkRect rect) {
+    fGlyphBoxes.clear();
+    fTextRanges.clear();
+
+    fGlyphBoxes.emplace_back(rect);
+    fTextRanges.emplace_back(range);
+}
+
+void Selection::paint(SkCanvas* canvas, SkPoint xy) {
+    for (auto& box : fGlyphBoxes) {
+        canvas->drawRect(
+                SkRect::MakeXYWH(box.fLeft + xy.fX, box.fTop + xy.fY, box.width(), box.height()),
+                fPaint);
     }
 }
 
@@ -46,6 +88,7 @@ Editor::Editor(std::u16string text, SkSize size, SkSpan<Block> fontBlocks) {
     fText = std::move(text);
     fCursor = Cursor::Make();
     fMouse = std::make_unique<Mouse>();
+    fSelection = std::make_unique<Selection>(DEFAULT_SELECTION_COLOR);
     fUnicodeText = Text::parse(SkSpan<uint16_t>((uint16_t*)fText.data(), fText.size()));
     fShapedText = fUnicodeText->shape(fontBlocks, TEXT_DIRECTION);
     fWrappedText = fShapedText->wrap(size.width(), size.height(), fUnicodeText->getUnicode());
@@ -100,6 +143,7 @@ bool Editor::moveCursor(skui::Key key) {
     auto nextPosition = fFormattedText->indexToAdjustedGraphemePosition(textIndex);
     auto rect = std::get<3>(nextPosition);
     fCursor->place(SkPoint::Make(rect.fLeft, rect.fTop), SkSize::Make(rect.width(), rect.height()));
+    this->invalidate();
 
     return true;
 }
@@ -124,6 +168,9 @@ void Editor::onResize(int width, int height) {
 
 bool Editor::onChar(SkUnichar c, skui::ModifierKey modi) {
     using sknonstd::Any;
+
+    fSelection->clear();
+
     modi &= ~skui::ModifierKey::kFirstPress;
     if (!Any(modi & (skui::ModifierKey::kControl | skui::ModifierKey::kOption |
                      skui::ModifierKey::kCommand))) {
@@ -147,6 +194,9 @@ bool Editor::onChar(SkUnichar c, skui::ModifierKey modi) {
 }
 
 bool Editor::onKey(skui::Key key, skui::InputState state, skui::ModifierKey modifiers) {
+
+    fSelection->clear();
+
     if (state != skui::InputState::kDown) {
         return false;
     }
@@ -195,6 +245,33 @@ bool Editor::onKey(skui::Key key, skui::InputState state, skui::ModifierKey modi
     return false;
 }
 
+bool Editor::onMouse(int x, int y, skui::InputState state, skui::ModifierKey modifiers) {
+
+    //bool shiftOrDrag = sknonstd::Any(modifiers & skui::ModifierKey::kShift) || (skui::InputState::kDown != state);
+    if (skui::InputState::kDown == state) {
+        SkRect cursorRect;
+        if (fMouse->isDoubleClick(SkPoint::Make(x, y))) {
+            auto textIndex = fFormattedText->positionToAdjustedGraphemeIndex(SkPoint::Make(x, y));
+            auto nextPosition = fFormattedText->indexToAdjustedGraphemePosition(textIndex);
+            cursorRect = std::get<3>(nextPosition);
+            fSelection->select(TextRange(textIndex, textIndex + 1), cursorRect);
+            cursorRect.fLeft = cursorRect.fRight - DEFAULT_CURSOR_WIDTH;
+        } else {
+            fMouse->down();
+            fSelection->clear();
+            auto textIndex = fFormattedText->positionToAdjustedGraphemeIndex(SkPoint::Make(x, y));
+            auto nextPosition = fFormattedText->indexToAdjustedGraphemePosition(textIndex);
+            cursorRect = std::get<3>(nextPosition);
+        }
+
+        fCursor->place(SkPoint::Make(cursorRect.fLeft, cursorRect.fTop), SkSize::Make(cursorRect.width(), cursorRect.height()));
+        this->invalidate();
+        return true;
+    }
+    fMouse->up();
+    return false;
+}
+
 void Editor::onBeginLine(TextRange, float baselineY) {}
 void Editor::onEndLine(TextRange, float baselineY) {}
 void Editor::onPlaceholder(TextRange, const SkRect& bounds) {}
@@ -218,6 +295,7 @@ void Editor::paint(SkCanvas* canvas, SkPoint xy) {
     fXY = xy;
     this->fFormattedText->visit(this);
 
+    fSelection->paint(canvas, xy);
     fCursor->paint(canvas, xy);
 }
 

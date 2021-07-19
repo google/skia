@@ -25,6 +25,15 @@ enum class TextDirection {
     kLtr,
 };
 
+// This enum lists all possible ways to query output positioning
+enum class PositionType {
+    kGraphemeCluster,
+    kGrapheme,
+    kGlyphCluster,
+    kGlyph,
+    kGlyphPart
+};
+
 enum class LineBreakType {
   kSortLineBreakBefore,
   kHardLineBreakBefore,
