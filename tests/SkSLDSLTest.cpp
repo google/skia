@@ -556,6 +556,16 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLType, r, ctxInfo) {
     DSLExpression e = x + 1;
     REPORTER_ASSERT(r, e.type().isFloat());
     e.release();
+
+    {
+        ExpectError error(r, "error: array size must be positive\n");
+        Array(kFloat_Type, -1);
+    }
+
+    {
+        ExpectError error(r, "error: multidimensional arrays are not permitted\n");
+        Array(Array(kFloat_Type, 2), 2);
+    }
 }
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLMatrices, r, ctxInfo) {
