@@ -141,7 +141,7 @@ private:
     const SkStrokeRec fStroke;
     const int8_t fMaxParametricSegments_log2;
 
-    constexpr static int kMaxAttribCount = 5;
+    constexpr static int kMaxAttribCount = 6;
     SkSTArray<kMaxAttribCount, Attribute> fAttribs;
 
     // This is a uniform value used when fMode is kFixedCount that tells the shader how many total

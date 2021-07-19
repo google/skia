@@ -84,13 +84,22 @@ void GrStrokeTessellationShader::InstancedImpl::onEmitCode(EmitArgs& args, GrGPA
     args.fVertBuilder->codeAppendf("float2x2 AFFINE_MATRIX = float2x2(%s);\n", affineMatrixName);
     args.fVertBuilder->codeAppendf("float2 TRANSLATE = %s;\n", translateName);
 
+    if (args.fShaderCaps->infinitySupport()) {
+        args.fVertBuilder->insertFunction(R"(
+        bool is_conic_curve() { return isinf(pts23Attr.w); })");
+    } else {
+        args.fVertBuilder->insertFunction(SkStringPrintf(R"(
+        bool is_conic_curve() { return curveTypeAttr != %g; })", kCubicCurveType).c_str());
+    }
+
     // Tessellation code.
     args.fVertBuilder->codeAppend(R"(
     float2 p0=pts01Attr.xy, p1=pts01Attr.zw, p2=pts23Attr.xy, p3=pts23Attr.zw;
     float2 lastControlPoint = argsAttr.xy;
     float w = -1;  // w<0 means the curve is an integral cubic.
-    if (isinf(p3.y)) {
-        w = p3.x;  // The curve is actually a conic.
+    if (is_conic_curve()) {
+        // Conics are 3 points, with the weight in p3.
+        w = p3.x;
         p3 = p2;  // Setting p3 equal to p2 works for the remaining rotational logic.
     })");
     if (shader.stroke().isHairlineStyle()) {

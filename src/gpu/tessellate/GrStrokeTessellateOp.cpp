@@ -147,7 +147,8 @@ constexpr static GrUserStencilSettings kTestAndResetStencil(
         0xffff>());
 
 bool can_use_hardware_tessellation(int numVerbs, const GrPipeline& pipeline, const GrCaps& caps) {
-    if (!caps.shaderCaps()->tessellationSupport()) {
+    if (!caps.shaderCaps()->tessellationSupport() ||
+        !caps.shaderCaps()->infinitySupport() /* The hw tessellation shaders use infinity. */) {
         return false;
     }
     if (pipeline.usesVaryingCoords()) {
