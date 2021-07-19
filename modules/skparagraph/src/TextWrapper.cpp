@@ -361,6 +361,9 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
             clusters.end = clusters.start;
         }
 
+        // In case of a force wrapping we don't have a break cluster and have to use the end cluster
+        text.end = std::max(text.end, textExcludingSpaces.end);
+
         addLine(textExcludingSpaces,
                 text,
                 textIncludingNewlines, clusters, clustersWithGhosts, widthWithSpaces,

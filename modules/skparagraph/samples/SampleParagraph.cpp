@@ -3538,14 +3538,15 @@ protected:
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
         text_style.setFontFamilies({SkString("Ahem")});
-        text_style.setFontSize(10.0f);
+        text_style.setFontSize(12.0f);
         ParagraphStyle paragraph_style;
         paragraph_style.setTextStyle(text_style);
         ParagraphBuilderImpl builder(paragraph_style, fontCollection);
         builder.pushStyle(text_style);
-        builder.addText("one two\n\nthree four\nwith spaces     \n    ");
+        builder.addText("______________________");
         auto paragraph = builder.Build();
-        paragraph->layout(width());
+        paragraph->layout(132.0f);
+        paragraph->paint(canvas, 0, 0);
         std::vector<LineMetrics> metrics;
         paragraph->getLineMetrics(metrics);
         for (auto& metric : metrics) {
