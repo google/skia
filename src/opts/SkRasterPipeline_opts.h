@@ -4034,7 +4034,6 @@ STAGE_PP(swizzle, void* ctx) {
 // If a pipeline uses these stages, it'll boot it out of lowp into highp.
 #define NOT_IMPLEMENTED(st) static void (*st)(void) = nullptr;
     NOT_IMPLEMENTED(callback)
-    NOT_IMPLEMENTED(interpreter)
     NOT_IMPLEMENTED(unbounded_set_rgb)
     NOT_IMPLEMENTED(unbounded_uniform_color)
     NOT_IMPLEMENTED(unpremul)
