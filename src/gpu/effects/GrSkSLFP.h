@@ -100,6 +100,7 @@ public:
             sk_sp<SkRuntimeEffect> effect,
             const char* name,
             std::unique_ptr<GrFragmentProcessor> inputFP,
+            std::unique_ptr<GrFragmentProcessor> destColorFP,
             sk_sp<SkData> uniforms,
             SkSpan<std::unique_ptr<GrFragmentProcessor>> childFPs);
 
@@ -164,6 +165,7 @@ private:
 
     void addChild(std::unique_ptr<GrFragmentProcessor> child, bool mergeOptFlags);
     void setInput(std::unique_ptr<GrFragmentProcessor> input);
+    void setDestColorFP(std::unique_ptr<GrFragmentProcessor> destColorFP);
 
     std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
 
@@ -365,6 +367,7 @@ private:
     const char*            fName;
     uint32_t               fUniformSize;
     int                    fInputChildIndex = -1;
+    int                    fDestColorChildIndex = -1;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 

@@ -194,14 +194,15 @@ public:
             args.fFragBuilder->codeAppendf("float2 %s = %s;\n", coords, args.fSampleCoord);
         }
 
-        // For blend effects, we need to copy the dest-color to a local variable as well.
+        // For runtime blends, the destination color is stored as a child FP.
+        // Invoke that FP here and store it in a local variable.
         const char* destColor = "half4(1)";
         SkString destColorVarName;
-        if (fp.willReadDstColor()) {
+        if (fp.fDestColorChildIndex >= 0) {
             destColorVarName = args.fFragBuilder->newTmpVarName("destColor");
             destColor = destColorVarName.c_str();
-            args.fFragBuilder->codeAppendf(
-                    "half4 %s = %s;\n", destColor, args.fFragBuilder->dstColor());
+            SkString childFP = this->invokeChild(fp.fDestColorChildIndex, args);
+            args.fFragBuilder->codeAppendf("half4 %s = %s;", destColor, childFP.c_str());
         }
 
         FPCallbacks callbacks(this,
@@ -257,6 +258,7 @@ std::unique_ptr<GrSkSLFP> GrSkSLFP::MakeWithData(
         sk_sp<SkRuntimeEffect> effect,
         const char* name,
         std::unique_ptr<GrFragmentProcessor> inputFP,
+        std::unique_ptr<GrFragmentProcessor> destColorFP,
         sk_sp<SkData> uniforms,
         SkSpan<std::unique_ptr<GrFragmentProcessor>> childFPs) {
     if (uniforms->size() != effect->uniformSize()) {
@@ -273,6 +275,9 @@ std::unique_ptr<GrSkSLFP> GrSkSLFP::MakeWithData(
     if (inputFP) {
         fp->setInput(std::move(inputFP));
     }
+    if (destColorFP) {
+        fp->setDestColorFP(std::move(destColorFP));
+    }
     return fp;
 }
 
@@ -288,10 +293,6 @@ GrSkSLFP::GrSkSLFP(sk_sp<SkRuntimeEffect> effect, const char* name, OptFlags opt
     memset(this->uniformFlags(), 0, fEffect->uniforms().count() * sizeof(UniformFlags));
     if (fEffect->usesSampleCoords()) {
         this->setUsesSampleCoordsDirectly();
-    }
-
-    if (fEffect->allowBlender()) {
-        this->setWillReadDstColor();
     }
 }
 
@@ -310,15 +311,12 @@ GrSkSLFP::GrSkSLFP(const GrSkSLFP& other)
         this->setUsesSampleCoordsDirectly();
     }
 
-    if (fEffect->allowBlender()) {
-        this->setWillReadDstColor();
-    }
-
     this->cloneAndRegisterAllChildProcessors(other);
 }
 
 void GrSkSLFP::addChild(std::unique_ptr<GrFragmentProcessor> child, bool mergeOptFlags) {
     SkASSERTF(fInputChildIndex == -1, "all addChild calls must happen before setInput");
+    SkASSERTF(fDestColorChildIndex == -1, "all addChild calls must happen before setDestColorFP");
     int childIndex = this->numChildProcessors();
     SkASSERT((size_t)childIndex < fEffect->fSampleUsages.size());
     if (mergeOptFlags) {
@@ -330,9 +328,18 @@ void GrSkSLFP::addChild(std::unique_ptr<GrFragmentProcessor> child, bool mergeOp
 void GrSkSLFP::setInput(std::unique_ptr<GrFragmentProcessor> input) {
     SkASSERTF(fInputChildIndex == -1, "setInput should not be called more than once");
     fInputChildIndex = this->numChildProcessors();
-    SkASSERT((size_t)fInputChildIndex == fEffect->fSampleUsages.size());
+    SkASSERT((size_t)fInputChildIndex >= fEffect->fSampleUsages.size());
     this->mergeOptimizationFlags(ProcessorOptimizationFlags(input.get()));
     this->registerChild(std::move(input), SkSL::SampleUsage::PassThrough());
+}
+
+void GrSkSLFP::setDestColorFP(std::unique_ptr<GrFragmentProcessor> destColorFP) {
+    SkASSERTF(fEffect->allowBlender(), "dest colors are only used by blend effects");
+    SkASSERTF(fDestColorChildIndex == -1, "setDestColorFP should not be called more than once");
+    fDestColorChildIndex = this->numChildProcessors();
+    SkASSERT((size_t)fDestColorChildIndex >= fEffect->fSampleUsages.size());
+    this->mergeOptimizationFlags(ProcessorOptimizationFlags(destColorFP.get()));
+    this->registerChild(std::move(destColorFP), SkSL::SampleUsage::PassThrough());
 }
 
 std::unique_ptr<GrGLSLFragmentProcessor> GrSkSLFP::onMakeProgramImpl() const {

@@ -18,7 +18,9 @@ public:
 
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
-            std::unique_ptr<GrFragmentProcessor> inputFP, const GrFPArgs& fpArgs) const override;
+            std::unique_ptr<GrFragmentProcessor> srcFP,
+            std::unique_ptr<GrFragmentProcessor> dstFP,
+            const GrFPArgs& fpArgs) const override;
 #endif
 
     SK_FLATTENABLE_HOOKS(SkBlendModeBlender)

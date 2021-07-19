@@ -42,10 +42,12 @@ public:
 #if SK_SUPPORT_GPU
     /**
      * Returns a GrFragmentProcessor that implements this blend for the GPU backend.
-     * The GrFragmentProcessor expects a premultiplied input and returns a premultiplied output.
+     * The GrFragmentProcessor expects premultiplied inputs and returns a premultiplied output.
      */
     virtual std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
-            std::unique_ptr<GrFragmentProcessor> inputFP, const GrFPArgs& fpArgs) const = 0;
+            std::unique_ptr<GrFragmentProcessor> srcFP,
+            std::unique_ptr<GrFragmentProcessor> dstFP,
+            const GrFPArgs& fpArgs) const = 0;
 #endif
 
     virtual SkRuntimeEffect* asRuntimeEffect() const { return nullptr; }
