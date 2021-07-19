@@ -93,11 +93,12 @@ bool SkPicture::StreamIsSKP(SkStream* stream, SkPictInfo* pInfo) {
     if (!stream->readScalar(&info.fCullRect.fRight )) { return false; }
     if (!stream->readScalar(&info.fCullRect.fBottom)) { return false; }
 
-    if (!IsValidPictInfo(info)) { return false; }
-
-    if (pInfo) { *pInfo = info; }
-    return true;
+    if (pInfo) {
+        *pInfo = info;
+    }
+    return IsValidPictInfo(info);
 }
+
 bool SkPicture_StreamIsSKP(SkStream* stream, SkPictInfo* pInfo) {
     return SkPicture::StreamIsSKP(stream, pInfo);
 }
