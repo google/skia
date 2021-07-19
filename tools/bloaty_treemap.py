@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Copyright 2021 Google LLC
 #
@@ -26,101 +26,106 @@
 import os
 import sys
 
-parentMap = {}
+parent_map = {}
 
-# For a given filepath "foo/bar/baz.cpp", `addPath` outputs rows to the data table
+# For a given filepath "foo/bar/baz.cpp", `add_path` outputs rows to the data table
 # establishing the node hierarchy, and ensures that each line is emitted exactly once:
 #
 #   ['foo/bar/baz.cpp', 'foo/bar', 0],
 #   ['foo/bar',         'foo',     0],
 #   ['foo',             'ROOT',    0],
-def addPath(path):
-    if not path in parentMap:
+def add_path(path):
+    if not path in parent_map:
         head = os.path.split(path)[0]
         if not head:
-            parentMap[path] = "ROOT"
+            parent_map[path] = "ROOT"
         else:
-            addPath(head)
-            parentMap[path] = head
-        print("['" + path + "', '" + parentMap[path] + "', 0],")
+            add_path(head)
+            parent_map[path] = head
+        print("['" + path + "', '" + parent_map[path] + "', 0],")
 
-# HTML/script header, plus the first two (fixed) rows of the data table
-print("""
-<html>
-    <head>
-        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-        <script type="text/javascript">
-            google.charts.load("current", {"packages":["treemap"]});
-            google.charts.setOnLoadCallback(drawChart);
-            function drawChart() {
-                var data = google.visualization.arrayToDataTable([
-                    ['Name', 'Parent', 'Size'],
-                    ['ROOT', null, 0],""")
+def main():
+    # HTML/script header, plus the first two (fixed) rows of the data table
+    print("""
+    <html>
+        <head>
+            <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+            <script type="text/javascript">
+                google.charts.load('current', {'packages':['treemap']});
+                google.charts.setOnLoadCallback(drawChart);
+                function drawChart() {
+                    const data = google.visualization.arrayToDataTable([
+                        ['Name', 'Parent', 'Size'],
+                        ['ROOT', null, 0],""")
 
-allSymbols = {}
+    all_symbols = {}
 
-# Skip header row
-# TODO: In the future, we could use this to automatically detect the source columns
-next(sys.stdin)
+    # Skip header row
+    # TODO: In the future, we could use this to automatically detect the source columns
+    next(sys.stdin)
 
-for line in sys.stdin:
-    vals = line.rstrip().split('\t')
-    if len(vals) != 4:
-        print("ERROR: Failed to match line\n" + line)
-        sys.exit(1)
-    (filepath, symbol, vmsize, filesize) = vals
-
-    # Skip any entry where the filepath or symbol starts with '['
-    # These tend to be section meta-data and debug information
-    if filepath.startswith('[') or symbol.startswith('['):
-        continue
-
-    # Strip the leading ../../ from paths
-    filepath = filepath.removeprefix('../../')
-
-    # Files in third_party sometimes have absolute paths. Strip those:
-    if filepath.startswith('/'):
-        relPathStart = filepath.find('third_party')
-        if relPathStart >= 0:
-            filepath = filepath[relPathStart:]
-        else:
-            print("ERROR: Unexpected absolute path:\n" + filepath)
+    for line in sys.stdin:
+        vals = line.rstrip().split("\t")
+        if len(vals) != 4:
+            print("ERROR: Failed to match line\n" + line)
             sys.exit(1)
+        (filepath, symbol, vmsize, filesize) = vals
 
-    # It's rare, but symbols can contain double-quotes (it's a valid C++ operator)
-    symbol = symbol.replace('"', '\\"')
+        # Skip any entry where the filepath or symbol starts with '['
+        # These tend to be section meta-data and debug information
+        if filepath.startswith("[") or symbol.startswith("["):
+            continue
 
-    # Ensure that we've added intermediate nodes for all portions of this file path
-    addPath(filepath)
+        # Strip the leading ../../ from paths
+        while filepath.startswith("../"):
+            filepath = filepath.removeprefix("../")
 
-    # Ensure that our final symbol name is unique
-    while symbol in allSymbols:
-        symbol += '_x'
-    allSymbols[symbol] = True
+        # Files in third_party sometimes have absolute paths. Strip those:
+        if filepath.startswith("/"):
+            rel_path_start = filepath.find("third_party")
+            if rel_path_start >= 0:
+                filepath = filepath[rel_path_start:]
+            else:
+                print("ERROR: Unexpected absolute path:\n" + filepath)
+                sys.exit(1)
 
-    # Append another row for our sanitized data
-    print('["' + symbol + '", "' + filepath + '", ' + filesize + '],')
+        # It's rare, but symbols can contain double-quotes (it's a valid C++ operator)
+        symbol = symbol.replace('"', '\\"')
 
-# HTML/script footer
-print("""       ]);
-                tree = new google.visualization.TreeMap(document.getElementById("chart_div"));
-                tree.draw(data, {
-                    generateTooltip: showTooltip
-                });
+        # Ensure that we've added intermediate nodes for all portions of this file path
+        add_path(filepath)
 
-                function showTooltip(row, size, value) {
-                    var escapedLabel = data.getValue(row, 0)
-                        .replace('&', '&amp;')
-                        .replace('<', '&lt;')
-                        .replace('>', '&gt;')
-                    return '<div style="background:#fd9; padding:10px; border-style:solid">' +
-                           '<span style="font-family:Courier">' + escapedLabel + '<br>' +
-                           'Size: ' + size + '</div>';
+        # Ensure that our final symbol name is unique
+        while symbol in all_symbols:
+            symbol += "_x"
+        all_symbols[symbol] = True
+
+        # Append another row for our sanitized data
+        print("['" + symbol + "', '" + filepath + "', " + filesize + "],")
+
+    # HTML/script footer
+    print("""       ]);
+                    tree = new google.visualization.TreeMap(document.getElementById('chart_div'));
+                    tree.draw(data, {
+                        generateTooltip: showTooltip
+                    });
+
+                    function showTooltip(row, size, value) {
+                        const escapedLabel = data.getValue(row, 0)
+                            .replace('&', '&amp;')
+                            .replace('<', '&lt;')
+                            .replace('>', '&gt;')
+                        return `<div style="background:#fd9; padding:10px; border-style:solid">
+                                <span style="font-family:Courier"> ${escapedLabel} <br>
+                                Size: ${size} </div>`;
+                    }
                 }
-            }
-        </script>
-    </head>
-    <body>
-        <div id="chart_div" style="width: 100%; height: 100%;"></div>
-    </body>
-</html>""")
+            </script>
+        </head>
+        <body>
+            <div id="chart_div" style="width: 100%; height: 100%;"></div>
+        </body>
+    </html>""")
+
+if __name__ == "__main__":
+    main()
