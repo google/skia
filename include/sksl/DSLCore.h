@@ -84,9 +84,19 @@ DSLStatement Continue();
 DSLStatement Declare(DSLVar& var, PositionInfo pos = PositionInfo());
 
 /**
+ * Creates a local variable declaration statement containing multiple variables.
+ */
+DSLStatement Declare(SkTArray<DSLVar>& vars, PositionInfo pos = PositionInfo());
+
+/**
  * Declares a global variable.
  */
 void Declare(DSLGlobalVar& var, PositionInfo pos = PositionInfo());
+
+/**
+ * Declares a set of global variables.
+ */
+void Declare(SkTArray<DSLGlobalVar>& vars, PositionInfo pos = PositionInfo());
 
 /**
  * default: statements

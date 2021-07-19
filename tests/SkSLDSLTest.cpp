@@ -1319,29 +1319,63 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLContinue, r, ctxInfo) {
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDeclare, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), no_mark_vars_declared());
-    Var a(kHalf4_Type, "a"), b(kHalf4_Type, "b", Half4(1));
-    Statement x = Declare(a);
-    EXPECT_EQUAL(x, "half4 a;");
-    Statement y = Declare(b);
-    EXPECT_EQUAL(y, "half4 b = half4(1.0);");
+    {
+        Var a(kHalf4_Type, "a"), b(kHalf4_Type, "b", Half4(1));
+        EXPECT_EQUAL(Declare(a), "half4 a;");
+        EXPECT_EQUAL(Declare(b), "half4 b = half4(1.0);");
+    }
 
     {
-        Var c(kHalf4_Type, "c", 1);
+        DSLWriter::Reset();
+        SkTArray<Var> vars;
+        vars.push_back(Var(kBool_Type, "a", true));
+        vars.push_back(Var(kFloat_Type, "b"));
+        EXPECT_EQUAL(Declare(vars), "bool a = true; float b;");
+    }
+
+    {
+        DSLWriter::Reset();
+        REPORTER_ASSERT(r, DSLWriter::ProgramElements().empty());
+        GlobalVar a(kHalf4_Type, "a"), b(kHalf4_Type, "b", Half4(1));
+        Declare(a);
+        Declare(b);
+        REPORTER_ASSERT(r, DSLWriter::ProgramElements().size() == 2);
+        EXPECT_EQUAL(*DSLWriter::ProgramElements()[0], "half4 a;");
+        EXPECT_EQUAL(*DSLWriter::ProgramElements()[1], "half4 b = half4(1.0);");
+    }
+
+    {
+        DSLWriter::Reset();
+        REPORTER_ASSERT(r, DSLWriter::ProgramElements().empty());
+        SkTArray<GlobalVar> vars;
+        vars.push_back(GlobalVar(kHalf4_Type, "a"));
+        vars.push_back(GlobalVar(kHalf4_Type, "b", Half4(1)));
+        Declare(vars);
+        REPORTER_ASSERT(r, DSLWriter::ProgramElements().size() == 2);
+        EXPECT_EQUAL(*DSLWriter::ProgramElements()[0], "half4 a;");
+        EXPECT_EQUAL(*DSLWriter::ProgramElements()[1], "half4 b = half4(1.0);");
+    }
+
+    {
+        DSLWriter::Reset();
+        Var a(kHalf4_Type, "a", 1);
         ExpectError error(r, "error: expected 'half4', but found 'int'\n");
-        Declare(c).release();
+        Declare(a).release();
     }
 
     {
-        Var d(kInt_Type, "d");
-        Declare(d).release();
+        DSLWriter::Reset();
+        Var a(kInt_Type, "a");
+        Declare(a).release();
         ExpectError error(r, "error: variable has already been declared\n");
-        Declare(d).release();
+        Declare(a).release();
     }
 
     {
-        Var e(kUniform_Modifier, kInt_Type, "e");
+        DSLWriter::Reset();
+        Var a(kUniform_Modifier, kInt_Type, "a");
         ExpectError error(r, "error: 'uniform' is not permitted here\n");
-        Declare(e).release();
+        Declare(a).release();
     }
 }
 

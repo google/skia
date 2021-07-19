@@ -136,6 +136,15 @@ public:
         return DSLWriter::Declaration(var);
     }
 
+
+    static DSLStatement Declare(SkTArray<DSLVar>& vars, PositionInfo pos) {
+        StatementArray statements;
+        for (DSLVar& v : vars) {
+            statements.push_back(Declare(v, pos).release());
+        }
+        return SkSL::Block::MakeUnscoped(/*offset=*/-1, std::move(statements));
+    }
+
     static void Declare(DSLGlobalVar& var, PositionInfo pos) {
         if (var.fDeclared) {
             DSLWriter::ReportError("error: variable has already been declared\n", &pos);
@@ -153,6 +162,12 @@ public:
             if (alreadyDeclared && alreadyDeclared->is<Variable>()) {
                 var.fVar = &alreadyDeclared->as<Variable>();
             }
+        }
+    }
+
+    static void Declare(SkTArray<DSLGlobalVar>& vars, PositionInfo pos) {
+        for (DSLGlobalVar& v : vars) {
+            Declare(v, pos);
         }
     }
 
@@ -311,8 +326,16 @@ DSLStatement Declare(DSLVar& var, PositionInfo pos) {
     return DSLCore::Declare(var, pos);
 }
 
+DSLStatement Declare(SkTArray<DSLVar>& vars, PositionInfo pos) {
+    return DSLCore::Declare(vars, pos);
+}
+
 void Declare(DSLGlobalVar& var, PositionInfo pos) {
-    return DSLCore::Declare(var, pos);
+    DSLCore::Declare(var, pos);
+}
+
+void Declare(SkTArray<DSLGlobalVar>& vars, PositionInfo pos) {
+    DSLCore::Declare(vars, pos);
 }
 
 DSLStatement Discard() {
