@@ -23,18 +23,6 @@
 #include "src/core/SkVerticesPriv.h"
 #include "src/utils/SkPatchUtils.h"
 
-static SkLegacyFQ get_filter_quality(const SkPaint& paint) {
-#ifdef SK_SUPPORT_LEGACY_SETFILTERQUALITY
-    return (SkLegacyFQ)paint.getFilterQuality();
-#else
-    return kNone_SkLegacyFQ;
-#endif
-}
-
-static SkLegacyFQ get_filter_quality(const SkPaint* paint) {
-    return paint ? get_filter_quality(*paint) : kNone_SkLegacyFQ;
-}
-
 static const SkRect* get_rect_ptr(SkReadBuffer* reader, SkRect* storage) {
     if (reader->readBool()) {
         reader->readRect(storage);
@@ -301,7 +289,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             if (op == DRAW_EDGEAA_IMAGE_SET2) {
                 sampling = reader->readSampling();
             } else {
-                sampling = SkSamplingPriv::FromFQ(get_filter_quality(paint));
+                sampling = SkSamplingOptions(SkFilterMode::kNearest);
             }
 
             SkCanvas::SrcRectConstraint constraint =
@@ -369,7 +357,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             BREAK_ON_READ_ERROR(reader);
 
             canvas->drawImage(image, loc.fX, loc.fY,
-                              SkSamplingPriv::FromFQ(get_filter_quality(paint)),
+                              SkSamplingOptions(SkFilterMode::kNearest),
                               paint);
         } break;
         case DRAW_IMAGE2: {
@@ -390,11 +378,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             const SkRect* dst = reader->skipT<SkRect>();
             BREAK_ON_READ_ERROR(reader);
 
-            SkFilterMode filter = SkFilterMode::kNearest;
-            if (paint && get_filter_quality(*paint) != kNone_SkLegacyFQ) {
-                filter = SkFilterMode::kLinear;
-            }
-            canvas->drawImageLattice(image, lattice, *dst, filter, paint);
+            canvas->drawImageLattice(image, lattice, *dst, SkFilterMode::kNearest, paint);
         } break;
         case DRAW_IMAGE_LATTICE2: {
             const SkPaint* paint = fPictureData->optionalPaint(reader);
@@ -416,11 +400,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             reader->readRect(&dst);
             BREAK_ON_READ_ERROR(reader);
 
-            SkFilterMode filter = SkFilterMode::kNearest;
-            if (paint && get_filter_quality(*paint) != kNone_SkLegacyFQ) {
-                filter = SkFilterMode::kLinear;
-            }
-            canvas->drawImageNine(image, center, dst, filter, paint);
+            canvas->drawImageNine(image, center, dst, SkFilterMode::kNearest, paint);
         } break;
         case DRAW_IMAGE_RECT: {
             const SkPaint* paint = fPictureData->optionalPaint(reader);
@@ -438,7 +418,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             }
             BREAK_ON_READ_ERROR(reader);
 
-            auto sampling = SkSamplingPriv::FromFQ(get_filter_quality(paint));
+            auto sampling = SkSamplingOptions(SkFilterMode::kNearest);
             if (src) {
                 canvas->drawImageRect(image, *src, dst, sampling, paint, constraint);
             } else {

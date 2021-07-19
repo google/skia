@@ -51,9 +51,6 @@ SkPaint::SkPaint()
                  (unsigned)SkPaint::kDefault_Cap,   // fCapType
                  (unsigned)SkPaint::kDefault_Join,  // fJoinType
                  (unsigned)SkPaint::kFill_Style,    // fStyle
-#ifdef SK_SUPPORT_LEGACY_FILTERQUALITY
-                 (unsigned)kNone_SkFilterQuality,   // fFilterQuality
-#endif
                  0}                                 // fPadding
 {
     static_assert(sizeof(fBitfields) == sizeof(fBitfieldsUInt), "");
@@ -265,9 +262,7 @@ static uint32_t pack_v68(const SkPaint& paint, unsigned flatFlags) {
     packed |= shift_bits(paint.getStrokeCap(),     16, 2);
     packed |= shift_bits(paint.getStrokeJoin(),    18, 2);
     packed |= shift_bits(paint.getStyle(),         20, 2);
-#ifdef SK_SUPPORT_LEGACY_SETFILTERQUALITY
-    packed |= shift_bits(paint.getFilterQuality(), 22, 2);
-#endif
+    packed |= shift_bits(0,                        22, 2); // was filterquality
     packed |= shift_bits(flatFlags,                24, 8);
     return packed;
 }
@@ -290,10 +285,9 @@ static uint32_t unpack_v68(SkPaint* paint, uint32_t packed, SkSafeRange& safe) {
     packed >>= 2;
     paint->setStyle(safe.checkLE(packed & 0x3, SkPaint::kStrokeAndFill_Style));
     packed >>= 2;
-#ifdef SK_SUPPORT_LEGACY_SETFILTERQUALITY
-    paint->setFilterQuality(safe.checkLE(packed & 0x3, kLast_SkFilterQuality));
-#endif
+    // skip the (now ignored) filterquality bits
     packed >>= 2;
+
     return packed;
 }
 

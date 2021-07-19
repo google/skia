@@ -176,18 +176,6 @@ public:
     */
     void setDither(bool dither) { fBitfields.fDither = static_cast<unsigned>(dither); }
 
-#ifdef SK_SUPPORT_LEGACY_SETFILTERQUALITY
-    // DEPRECATED -- this field is unused.
-    SkFilterQuality getFilterQuality() const {
-        return (SkFilterQuality)fBitfields.fFilterQuality;
-    }
-
-    // DEPRECATED -- this field is unused.
-    void setFilterQuality(SkFilterQuality fq) {
-        fBitfields.fFilterQuality = fq;
-    }
-#endif
-
     /** \enum SkPaint::Style
         Set Style to fill, stroke, or both fill and stroke geometry.
         The stroke and fill
@@ -733,12 +721,7 @@ private:
             unsigned    fCapType : 2;
             unsigned    fJoinType : 2;
             unsigned    fStyle : 2;
-#ifdef SK_SUPPORT_LEGACY_FILTERQUALITY
-            unsigned    fFilterQuality : 2;
-            unsigned    fPadding : 22;  // 22 == 32 -1-1-2-2-2-2
-#else
             unsigned    fPadding : 24;  // 24 == 32 -1-1-2-2-2
-#endif
         } fBitfields;
         uint32_t fBitfieldsUInt;
     };
