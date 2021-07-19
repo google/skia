@@ -179,6 +179,7 @@ DSLPossibleExpression operator|(DSLExpression left, DSLExpression right);
 DSLPossibleExpression operator|=(DSLExpression left, DSLExpression right);
 DSLPossibleExpression operator^(DSLExpression left, DSLExpression right);
 DSLPossibleExpression operator^=(DSLExpression left, DSLExpression right);
+DSLPossibleExpression LogicalXor(DSLExpression left, DSLExpression right);
 DSLPossibleExpression operator,(DSLExpression left, DSLExpression right);
 DSLPossibleExpression operator,(DSLPossibleExpression left, DSLExpression right);
 DSLPossibleExpression operator,(DSLExpression left, DSLPossibleExpression right);

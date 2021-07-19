@@ -207,6 +207,10 @@ OP(|, TK_BITWISEOR)
 OP(|=, TK_BITWISEOREQ)
 OP(^, TK_BITWISEXOR)
 OP(^=, TK_BITWISEXOREQ)
+DSLPossibleExpression LogicalXor(DSLExpression left, DSLExpression right) {
+    return DSLWriter::ConvertBinary(left.release(), SkSL::Token::Kind::TK_LOGICALXOR,
+                                    right.release());
+}
 OP(==, TK_EQEQ)
 OP(!=, TK_NEQ)
 OP(>, TK_GT)

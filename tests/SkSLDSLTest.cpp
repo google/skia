@@ -1037,6 +1037,18 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLLogicalOr, r, ctxInfo) {
     }
 }
 
+DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLLogicalXor, r, ctxInfo) {
+    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
+    Var a(kBool_Type, "a"), b(kBool_Type, "b");
+    Expression e1 = LogicalXor(a, b);
+    EXPECT_EQUAL(e1, "(a ^^ b)");
+
+    {
+        ExpectError error(r, "error: type mismatch: '^^' cannot operate on 'bool', 'int'\n");
+        DSLExpression(LogicalXor(a, 5)).release();
+    }
+}
+
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLComma, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kInt_Type, "a"), b(kInt_Type, "b");
