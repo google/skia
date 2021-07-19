@@ -47,9 +47,10 @@ private:
     GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*, GrClampType) override;
 
     // These calls set up the stencil & fill programs we will use prior to preparing and executing.
-    void pushFanStencilProgram(const GrTessellationShader::ProgramArgs&,
-                               const GrPipeline* pipelineForStencils, const GrUserStencilSettings*);
-    void pushFanFillProgram(const GrTessellationShader::ProgramArgs&, const GrUserStencilSettings*);
+    void pushFanProgram(const GrTessellationShader::ProgramArgs&,
+                        const GrPipeline* pipeline,
+                        const SkPMColor4f& color,
+                        const GrUserStencilSettings*);
     void prePreparePrograms(const GrTessellationShader::ProgramArgs&, GrAppliedClip&&);
 
     void onPrePrepare(GrRecordingContext*, const GrSurfaceProxyView&, GrAppliedClip*,

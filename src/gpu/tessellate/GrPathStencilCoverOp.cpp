@@ -7,6 +7,7 @@
 
 #include "src/gpu/tessellate/GrPathStencilCoverOp.h"
 
+#include "src/gpu/GrDefaultGeoProcFactory.h"
 #include "src/gpu/GrEagerVertexAllocator.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrOpFlushState.h"
@@ -114,10 +115,21 @@ void GrPathStencilCoverOp::prePreparePrograms(const GrTessellationShader::Progra
         // Large complex paths do better with a dedicated triangle shader for the inner fan.
         // This takes less PCI bus bandwidth (6 floats per triangle instead of 8) and allows us
         // to make sure it has an efficient middle-out topology.
-        auto shader = GrPathTessellationShader::MakeSimpleTriangleShader(
-                args.fArena, fViewMatrix, SK_PMColor4fTRANSPARENT);
-        fStencilFanProgram = GrTessellationShader::MakeProgram(args, shader, stencilPipeline,
-                                                               stencilPathSettings);
+        auto triangleGP = GrDefaultGeoProcFactory::Make(
+                args.fArena,
+                GrDefaultGeoProcFactory::Color(SK_PMColor4fTRANSPARENT),
+                GrDefaultGeoProcFactory::Coverage::kSolid_Type,
+                GrDefaultGeoProcFactory::LocalCoords::kUnused_Type,
+                fViewMatrix);
+        fStencilFanProgram = GrSimpleMeshDrawOpHelper::CreateProgramInfo(
+                args.fArena,
+                stencilPipeline,
+                args.fWriteView,
+                triangleGP,
+                GrPrimitiveType::kTriangles,
+                args.fXferBarrierFlags,
+                args.fColorLoadOp,
+                stencilPathSettings);
         fTessellator = GrPathCurveTessellator::Make(args.fArena, fViewMatrix,
                                                     SK_PMColor4fTRANSPARENT,
                                                     GrPathCurveTessellator::DrawInnerFan::kNo,
