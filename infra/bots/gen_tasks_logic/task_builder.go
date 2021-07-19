@@ -217,6 +217,8 @@ func (b *taskBuilder) usesGo() {
 		pkg.Path = "go"
 	}
 	b.cipd(pkg)
+	b.addToPATH(pkg.Path + "/go/bin")
+	b.env("GOROOT", pkg.Path+"/go")
 }
 
 // usesDocker adds attributes to tasks which use docker.

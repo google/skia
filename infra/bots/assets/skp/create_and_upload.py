@@ -26,6 +26,8 @@ def main():
   parser.add_argument('--chrome_src_path', '-c', required=True)
   parser.add_argument('--browser_executable', '-e', required=True)
   parser.add_argument('--upload_to_partner_bucket', action='store_true')
+  parser.add_argument('--dry_run', action='store_true')
+  parser.add_argument('--local', action='store_true')
   args = parser.parse_args()
   # Pass the flags to the creation script via environment variables, since
   # we're calling the script via `sk` and not directly.
@@ -41,8 +43,21 @@ def main():
   if not os.path.isfile(sk):
     raise Exception('`sk` not found at %s; maybe you need to run bin/fetch-sk?')
 
+  # Find the Chromium revision and supply it as a tag.
+  chromium_revision = subprocess.check_output(
+      ['git', 'rev-parse', 'HEAD'], cwd=args.chrome_src_path).decode().rstrip()
+
   # Upload the asset.
-  subprocess.check_call([sk, 'asset', 'upload', ASSET], cwd=FILE_DIR)
+  cmd = [
+    sk, 'asset', 'upload',
+    '--tags', 'chromium_revision:%s' % chromium_revision,
+  ]
+  if args.dry_run:
+    cmd.append('--dry-run')
+  if not args.local:
+    cmd.append('--ci')
+  cmd.append('skp')
+  subprocess.check_call(cmd, cwd=FILE_DIR)
 
 
 if __name__ == '__main__':
