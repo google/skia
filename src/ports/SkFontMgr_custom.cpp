@@ -254,17 +254,6 @@ sk_sp<SkTypeface> SkFontMgr_Custom::onMakeFromStreamArgs(std::unique_ptr<SkStrea
     return sk_sp<SkTypeface>(new SkTypeface_Stream(std::move(data), style, isFixedPitch, false, name));
 }
 
-sk_sp<SkTypeface> SkFontMgr_Custom::onMakeFromFontData(std::unique_ptr<SkFontData> data) const {
-    bool isFixedPitch;
-    SkFontStyle style;
-    SkString name;
-    if (!fScanner.scanFont(data->getStream(), data->getIndex(),
-                            &name, &style, &isFixedPitch, nullptr)) {
-        return nullptr;
-    }
-    return sk_sp<SkTypeface>(new SkTypeface_Stream(std::move(data), style, isFixedPitch, false, name));
-}
-
 sk_sp<SkTypeface> SkFontMgr_Custom::onMakeFromFile(const char path[], int ttcIndex) const {
     std::unique_ptr<SkStreamAsset> stream = SkStream::MakeFromFile(path);
     return stream ? this->makeFromStream(std::move(stream), ttcIndex) : nullptr;

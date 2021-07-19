@@ -215,8 +215,6 @@ private:
     bool readArray(void* value, size_t size, size_t elementSize);
     bool isAvailable(size_t size) const { return size <= this->available(); }
 
-    sk_sp<SkImage> readImage_preV78();
-
     // These are always 4-byte aligned
     const char* fCurr = nullptr;  // current position within buffer
     const char* fStop = nullptr;  // end of buffer

@@ -20,7 +20,6 @@ enum {
     // These count backwards from 0xFF, so as not to collide with the SFNT
     // defines for names in its 'name' table.
     kFontVariation  = 0xFA,
-    kFontAxes       = 0xFB, // Only picture version 79 and eariler.
     kFontIndex      = 0xFD,
     kSentinel       = 0xFF,
 };
@@ -55,25 +54,12 @@ static size_t SK_WARN_UNUSED_RESULT read_id(SkStream* stream) {
     return i;
 }
 
-std::unique_ptr<SkFontData> SkFontDescriptor::maybeAsSkFontData() {
-    if (!fVariationDataIsOldAndBad || !this->hasStream()) {
-        return nullptr;
-    }
-    SkFontArguments args;
-    args.setCollectionIndex(this->getCollectionIndex());
-    args.setVariationDesignPosition({this->getVariation(), this->getVariationCoordinateCount()});
-    return std::make_unique<SkFontData>(this->dupStream(), args);
-}
-
 bool SkFontDescriptor::Deserialize(SkStream* stream, SkFontDescriptor* result) {
     size_t styleBits;
     if (!stream->readPackedUInt(&styleBits)) { return false; }
     result->fStyle = SkFontStyle((styleBits >> 16) & 0xFFFF,
                                  (styleBits >> 8 ) & 0xFF,
                                  static_cast<SkFontStyle::Slant>(styleBits & 0xFF));
-    bool variationDataIsNewAndGood = false;
-    result->fVariationDataIsOldAndBad = false;
-    SkFixed oldBadVariationValue;
 
     size_t coordinateCount;
     using CoordinateCountType = decltype(result->fCoordinateCount);
@@ -92,26 +78,6 @@ bool SkFontDescriptor::Deserialize(SkStream* stream, SkFontDescriptor* result) {
             case kPostscriptName:
                 if (!read_string(stream, &result->fPostscriptName)) { return false; }
                 break;
-            case kFontAxes:
-                if (variationDataIsNewAndGood) {
-                    if (!stream->readPackedUInt(&coordinateCount)) { return false; }
-                    for (size_t i = 0; i < coordinateCount; ++i) {
-                        if (!stream->readS32(&oldBadVariationValue)) { return false; }
-                    }
-                } else {
-                    if (!stream->readPackedUInt(&coordinateCount)) { return false; }
-                    if (!SkTFitsIn<CoordinateCountType>(coordinateCount)) { return false; }
-                    result->fCoordinateCount = SkTo<CoordinateCountType>(coordinateCount);
-
-                    result->fVariation.reset(coordinateCount);
-                    for (size_t i = 0; i < coordinateCount; ++i) {
-                        if (!stream->readS32(&oldBadVariationValue)) { return false; }
-                        result->fVariation[i].axis = 0;
-                        result->fVariation[i].value = SkFixedToScalar(oldBadVariationValue);
-                    }
-                    result->fVariationDataIsOldAndBad = true;
-                }
-                break;
             case kFontVariation:
                 if (!stream->readPackedUInt(&coordinateCount)) { return false; }
                 if (!SkTFitsIn<CoordinateCountType>(coordinateCount)) { return false; }
@@ -122,8 +88,6 @@ bool SkFontDescriptor::Deserialize(SkStream* stream, SkFontDescriptor* result) {
                     if (!stream->readU32(&result->fVariation[i].axis)) { return false; }
                     if (!stream->readScalar(&result->fVariation[i].value)) { return false; }
                 }
-                variationDataIsNewAndGood = true;
-                result->fVariationDataIsOldAndBad = false;
                 break;
             case kFontIndex:
                 if (!stream->readPackedUInt(&index)) { return false; }

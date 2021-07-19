@@ -215,17 +215,6 @@ sk_sp<SkTypeface> SkTypeface::MakeDeserialize(SkStream* stream) {
         }
     }
 
-    // Have to check for old data format first.
-    std::unique_ptr<SkFontData> data = desc.maybeAsSkFontData();
-    if (data) {
-        // Should only get here with old skps.
-        sk_sp<SkFontMgr> defaultFm = SkFontMgr::RefDefault();
-        sk_sp<SkTypeface> typeface(defaultFm->makeFromFontData(std::move(data)));
-        if (typeface) {
-            return typeface;
-        }
-    }
-
     if (desc.hasStream()) {
         SkFontArguments args;
         args.setCollectionIndex(desc.getCollectionIndex());

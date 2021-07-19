@@ -92,56 +92,10 @@ enum class LegacyFilterEnum {
     kLast = kUseCubicResampler,
 };
 
-sk_sp<SkFlattenable> SkImageShader::PreSamplingCreate(SkReadBuffer& buffer) {
-    SkASSERT(buffer.isVersionLT(SkPicturePriv::kSamplingInImageShader_Version));
-
-    auto tmx = buffer.read32LE<SkTileMode>(SkTileMode::kLastTileMode);
-    auto tmy = buffer.read32LE<SkTileMode>(SkTileMode::kLastTileMode);
-
-    LegacyFilterEnum fe = LegacyFilterEnum::kInheritFromPaint;
-    if (!buffer.isVersionLT(SkPicturePriv::kFilterEnumInImageShader_Version)) {
-        fe = buffer.read32LE<LegacyFilterEnum>(LegacyFilterEnum::kLast);
-    }
-
-    SkSamplingOptions op;
-
-    if (buffer.isVersionLT(SkPicturePriv::kCubicResamplerImageShader_Version)) {
-        if (!buffer.isVersionLT(SkPicturePriv::kFilterOptionsInImageShader_Version)) {
-            auto filter = buffer.read32LE<SkFilterMode>(SkFilterMode::kLinear);
-            auto mipmap = buffer.read32LE<SkMipmapMode>(SkMipmapMode::kLinear);
-            op = SkSamplingOptions(filter, mipmap);
-        }
-    } else {
-        switch (fe) {
-            case LegacyFilterEnum::kUseFilterOptions: {
-                auto filter = buffer.read32LE<SkFilterMode>(SkFilterMode::kLinear);
-                auto mipmap = buffer.read32LE<SkMipmapMode>(SkMipmapMode::kLinear);
-                op = SkSamplingOptions(filter, mipmap);
-            } break;
-            case LegacyFilterEnum::kUseCubicResampler: {
-                SkScalar B = buffer.readScalar(),
-                         C = buffer.readScalar();
-                op = SkSamplingOptions({B,C});
-            } break;
-            default:
-                break;
-        }
-    }
-
-    SkMatrix localMatrix;
-    buffer.readMatrix(&localMatrix);
-    sk_sp<SkImage> img = buffer.readImage();
-    return img ? SkImageShader::Make(std::move(img), tmx, tmy, op, &localMatrix) : nullptr;
-}
-
 // fClampAsIfUnpremul is always false when constructed through public APIs,
 // so there's no need to read or write it here.
 
 sk_sp<SkFlattenable> SkImageShader::CreateProc(SkReadBuffer& buffer) {
-    if (buffer.isVersionLT(SkPicturePriv::kSamplingInImageShader_Version)) {
-        return PreSamplingCreate(buffer);
-    }
-
     auto tmx = buffer.read32LE<SkTileMode>(SkTileMode::kLastTileMode);
     auto tmy = buffer.read32LE<SkTileMode>(SkTileMode::kLastTileMode);
 

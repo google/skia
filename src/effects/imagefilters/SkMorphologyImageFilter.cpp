@@ -113,16 +113,9 @@ void SkRegisterMorphologyImageFilterFlattenables() {
 
 sk_sp<SkFlattenable> SkMorphologyImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
-    SkScalar width;
-    SkScalar height;
-    if (buffer.isVersionLT(SkPicturePriv::kMorphologyTakesScalar_Version)) {
-        width = buffer.readInt();
-        height = buffer.readInt();
-    } else {
-        width = buffer.readScalar();
-        height = buffer.readScalar();
-    }
 
+    SkScalar width = buffer.readScalar();
+    SkScalar height = buffer.readScalar();
     MorphType filterType = buffer.read32LE(MorphType::kLastType);
 
     if (filterType == MorphType::kDilate) {

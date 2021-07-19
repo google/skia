@@ -264,14 +264,6 @@ void SkVerticesPriv::encode(SkWriteBuffer& buffer) const {
 }
 
 sk_sp<SkVertices> SkVerticesPriv::Decode(SkReadBuffer& buffer) {
-    if (buffer.isVersionLT(SkPicturePriv::kVerticesUseReadBuffer_Version)) {
-        // Old versions used an embedded blob that was serialized with SkWriter32/SkReader32.
-        // We don't support loading those, but skip over the vertices to keep the buffer valid.
-        auto data = buffer.readByteArrayAsData();
-        (void)data;
-        return nullptr;
-    }
-
     auto decode = [](SkReadBuffer& buffer) -> sk_sp<SkVertices> {
         SkSafeRange safe;
         bool hasCustomData = buffer.isVersionLT(SkPicturePriv::kVerticesRemoveCustomData_Version);
