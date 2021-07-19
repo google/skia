@@ -89,8 +89,8 @@ def main():
                 print("ERROR: Unexpected absolute path:\n" + filepath)
                 sys.exit(1)
 
-        # It's rare, but symbols can contain double-quotes (it's a valid C++ operator)
-        symbol = symbol.replace('"', '\\"')
+        # Symbols involving C++ lambdas can contain single quotes
+        symbol = symbol.replace("'", "\\'")
 
         # Ensure that we've added intermediate nodes for all portions of this file path
         add_path(filepath)
