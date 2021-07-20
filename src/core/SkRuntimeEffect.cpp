@@ -136,6 +136,31 @@ static SkRuntimeEffect::Child::Type child_type(const SkSL::Type& type) {
     }
 }
 
+static bool verify_child_effects(const std::vector<SkRuntimeEffect::Child>& reflected,
+                                 SkSpan<SkRuntimeEffect::ChildPtr> effectPtrs) {
+    // Verify that the number of passed-in child-effect pointers matches the SkSL code.
+    if (reflected.size() != effectPtrs.size()) {
+        return false;
+    }
+    // Verify that each child object's type matches its declared type in the SkSL.
+    for (size_t i = 0; i < effectPtrs.size(); ++i) {
+        switch (reflected[i].type) {
+            case SkRuntimeEffect::Child::Type::kShader:
+                if (effectPtrs[i].colorFilter) {
+                    return false;
+                }
+                continue;
+            case SkRuntimeEffect::Child::Type::kColorFilter:
+                if (effectPtrs[i].shader) {
+                    return false;
+                }
+                continue;
+        }
+        SkDEBUGFAILF("unrecognized SkSL child type %d", (int)reflected[i].type);
+    }
+    return true;
+}
+
 // TODO: Many errors aren't caught until we process the generated Program here. Catching those
 // in the IR generator would provide better errors messages (with locations).
 #define RETURN_FAILURE(...) return Result{nullptr, SkStringPrintf(__VA_ARGS__)}
@@ -1134,29 +1159,17 @@ sk_sp<SkShader> SkRuntimeEffect::makeShader(sk_sp<SkData> uniforms,
     if (!this->allowShader()) {
         return nullptr;
     }
-    if (children.size() != fChildren.size()) {
+    if (!verify_child_effects(fChildren, children)) {
         return nullptr;
-    }
-    // Verify that all child objects match the declared type in the SkSL
-    for (size_t i = 0; i < children.size(); ++i) {
-        if (fChildren[i].type == Child::Type::kShader) {
-            if (children[i].colorFilter) {
-                return nullptr;
-            }
-        } else {
-            SkASSERT(fChildren[i].type == Child::Type::kColorFilter);
-            if (children[i].shader) {
-                return nullptr;
-            }
-        }
     }
     if (!uniforms) {
         uniforms = SkData::MakeEmpty();
     }
-    return uniforms->size() == this->uniformSize()
-                   ? sk_sp<SkShader>(new SkRTShader(
-                             sk_ref_sp(this), std::move(uniforms), localMatrix, children, isOpaque))
-                   : nullptr;
+    if (uniforms->size() != this->uniformSize()) {
+        return nullptr;
+    }
+    return sk_sp<SkShader>(new SkRTShader(sk_ref_sp(this), std::move(uniforms), localMatrix,
+                                          children, isOpaque));
 }
 
 sk_sp<SkImage> SkRuntimeEffect::makeImage(GrRecordingContext* recordingContext,
@@ -1256,29 +1269,17 @@ sk_sp<SkColorFilter> SkRuntimeEffect::makeColorFilter(sk_sp<SkData> uniforms,
     if (!this->allowColorFilter()) {
         return nullptr;
     }
-    if (children.size() != fChildren.size()) {
+    if (!verify_child_effects(fChildren, children)) {
         return nullptr;
-    }
-    // Verify that all child objects match the declared type in the SkSL
-    for (size_t i = 0; i < children.size(); ++i) {
-        if (fChildren[i].type == Child::Type::kShader) {
-            if (children[i].colorFilter) {
-                return nullptr;
-            }
-        } else {
-            SkASSERT(fChildren[i].type == Child::Type::kColorFilter);
-            if (children[i].shader) {
-                return nullptr;
-            }
-        }
     }
     if (!uniforms) {
         uniforms = SkData::MakeEmpty();
     }
-    return uniforms->size() == this->uniformSize()
-                   ? sk_sp<SkColorFilter>(new SkRuntimeColorFilter(
-                             sk_ref_sp(this), std::move(uniforms), children))
-                   : nullptr;
+    if (uniforms->size() != this->uniformSize()) {
+        return nullptr;
+    }
+    return sk_sp<SkColorFilter>(new SkRuntimeColorFilter(sk_ref_sp(this), std::move(uniforms),
+                                                         children));
 }
 
 sk_sp<SkColorFilter> SkRuntimeEffect::makeColorFilter(sk_sp<SkData> uniforms) const {
