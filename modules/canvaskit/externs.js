@@ -409,7 +409,8 @@ var CanvasKit = {
     MakeMatrixTransform: function() {},
 
     // private API
-    _MakeMatrixTransform: function() {},
+    _MakeMatrixTransformCubic: function() {},
+    _MakeMatrixTransformOptions: function() {},
   },
 
   // These are defined in interface.js
@@ -837,13 +838,6 @@ var CanvasKit = {
   FilterMode: {
     Linear: {},
     Nearest: {},
-  },
-
-  FilterQuality: {
-    None: {},
-    Low: {},
-    Medium: {},
-    High: {},
   },
 
   FontSlant: {

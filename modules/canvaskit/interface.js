@@ -775,9 +775,23 @@ CanvasKit.onRuntimeInitialized = function() {
     return ta.slice();
   };
 
-  CanvasKit.ImageFilter.MakeMatrixTransform = function(matr, filterQuality, input) {
-    var matrPtr = copy3x3MatrixToWasm(matr);
-    return CanvasKit.ImageFilter._MakeMatrixTransform(matrPtr, filterQuality, input);
+  CanvasKit.ImageFilter.MakeMatrixTransform = function(matrix, sampling, input) {
+    var matrPtr = copy3x3MatrixToWasm(matrix);
+
+    if ('B' in sampling && 'C' in sampling) {
+        return CanvasKit.ImageFilter._MakeMatrixTransformCubic(matrPtr,
+                                                               sampling.B, sampling.C,
+                                                               input);
+    } else {
+        const filter = sampling['filter'];  // 'filter' is a required field
+        let mipmap = CanvasKit.MipmapMode.None;
+        if ('mipmap' in sampling) {         // 'mipmap' is optional
+            mipmap = sampling['mipmap'];
+        }
+        return CanvasKit.ImageFilter._MakeMatrixTransformOptions(matrPtr,
+                                                                 filter, mipmap,
+                                                                 input);
+    }
   };
 
   CanvasKit.Paint.prototype.getColor = function() {

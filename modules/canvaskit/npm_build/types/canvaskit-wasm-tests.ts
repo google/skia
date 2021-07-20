@@ -112,8 +112,6 @@ function canvasTests(CK: CanvasKit, canvas?: Canvas, paint?: Paint, path?: Path,
     canvas.drawDRRect(someRRect, CK.RRectXY(someRect, 10, 20), paint);
     canvas.drawImage(img, 0, -43);
     canvas.drawImage(img, 0, -43, paint);
-    canvas.drawImageAtCurrentFrame(aImg, 0, -43);
-    canvas.drawImageAtCurrentFrame(aImg, 0, -43, paint);
     canvas.drawImageCubic(img, 0, -43, 1 / 3, 1 / 4, null);
     canvas.drawImageOptions(img, 0, -43, CK.FilterMode.Nearest, CK.MipmapMode.Nearest, paint);
     canvas.drawImageNine(img, someRect, someRect, CK.FilterMode.Nearest);
@@ -304,9 +302,13 @@ function imageFilterTests(CK: CanvasKit, colorFilter?: ColorFilter) {
     const filter5 = imgf.MakeCompose(filter3, null); // $ExpectType ImageFilter
     const filter6 = imgf.MakeCompose(filter4, filter2); // $ExpectType ImageFilter
     const filter7 = imgf.MakeMatrixTransform(CK.Matrix.scaled(2, 3, 10, 10),
-                                             CK.FilterQuality.High, null);
+                                             { B: 0, C: 0.5 }, null);
     const filter8 = imgf.MakeMatrixTransform(CK.M44.identity(),
-                                             CK.FilterQuality.None, filter6);
+                                             { filter: CK.FilterMode.Linear, mipmap: CK.MipmapMode.Nearest },
+                                             filter6);
+    const filter9 = imgf.MakeMatrixTransform(CK.M44.identity(),
+                                             { filter: CK.FilterMode.Nearest },
+                                             filter6);
 }
 
 function fontTests(CK: CanvasKit, face?: Typeface, paint?: Paint) {
