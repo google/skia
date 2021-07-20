@@ -98,7 +98,31 @@ Editor::Editor(std::u16string text, SkSize size, SkSpan<Block> fontBlocks) {
     auto rect = std::get<3>(endOfText);
     fCursor->place(SkPoint::Make(rect.fLeft, rect.fTop),
                    SkSize::Make(std::max(DEFAULT_CURSOR_WIDTH, rect.width()), rect.height()));
-                   //SkSize::Make(DEFAULT_CURSOR_WIDTH, rect.height()));
+}
+
+void Editor::updateText(std::u16string text) {
+    // TODO: Update text styles
+    sk_sp<TrivialFontChain> fontChain = sk_make_sp<TrivialFontChain>("Roboto", 40);
+    Block block(fText.size(), fontChain);
+    auto fontBlocks = SkSpan<Block>(&block, 1);
+
+    // TODO: update all objects rather than recreate them
+    fText = std::move(text);
+    fUnicodeText = Text::parse(SkSpan<uint16_t>((uint16_t*)fText.data(), fText.size()));
+    fShapedText = fUnicodeText->shape(fontBlocks, TEXT_DIRECTION);
+    fWrappedText = fShapedText->wrap(fWidth, fHeight, fUnicodeText->getUnicode());
+    fFormattedText = fWrappedText->format(TEXT_ALIGN, TEXT_DIRECTION);
+
+    // Update the cursor
+    auto endOfText = fFormattedText->indexToAdjustedGraphemePosition(fText.size());
+    auto rect = std::get<3>(endOfText);
+    fCursor->place(SkPoint::Make(rect.fLeft, rect.fTop),
+                   SkSize::Make(std::max(DEFAULT_CURSOR_WIDTH, rect.width()), rect.height()));
+    // TODO: Update the mouse
+    fMouse->clearTouchInfo();
+
+    // TODO: Update the text selection
+    fSelection->clear();
 }
 
 bool Editor::moveCursor(skui::Key key) {
@@ -174,16 +198,10 @@ bool Editor::onChar(SkUnichar c, skui::ModifierKey modi) {
     modi &= ~skui::ModifierKey::kFirstPress;
     if (!Any(modi & (skui::ModifierKey::kControl | skui::ModifierKey::kOption |
                      skui::ModifierKey::kCommand))) {
-        /*
         if (((unsigned)c < 0x7F && (unsigned)c >= 0x20) || c == '\n') {
-            char ch = (char)c;
-            fEditor.insert(fTextPos, &ch, 1);
-            #ifdef SK_EDITOR_DEBUG_OUT
-            SkDebugf("insert: %X'%c'\n", (unsigned)c, ch);
-            #endif  // SK_EDITOR_DEBUG_OUT
-            return this->moveCursor(Editor::Movement::kRight);
+            insertCodepoint(c);
+            return true;
         }
-        */
     }
     static constexpr skui::ModifierKey kCommandOrControl =
             skui::ModifierKey::kCommand | skui::ModifierKey::kControl;
@@ -191,6 +209,51 @@ bool Editor::onChar(SkUnichar c, skui::ModifierKey modi) {
         return false;
     }
     return false;
+}
+
+bool Editor::deleteGrapheme(skui::Key key) {
+    auto cursorPosition = fCursor->getCenterPosition();
+    TextIndex startIndex = fFormattedText->positionToAdjustedGraphemeIndex(cursorPosition);
+    TextIndex endIndex = startIndex;
+    if (key == skui::Key::kBack) {
+        --startIndex;
+        fShapedText->adjustLeft(&startIndex);
+    } else {
+        ++endIndex;
+        fShapedText->adjustRight(&endIndex);
+    }
+
+    std::u16string text;
+    text.append(fText.substr(0, startIndex));
+    text.append(fText.substr(endIndex, std::u16string::npos));
+    updateText(text);
+
+    auto position = fFormattedText->indexToAdjustedGraphemePosition(startIndex);
+    SkRect cursorRect = std::get<3>(position);
+    fCursor->place(SkPoint::Make(cursorRect.fLeft, cursorRect.fTop), SkSize::Make(cursorRect.width(), cursorRect.height()));
+
+    this->invalidate();
+
+    return true;
+}
+
+bool Editor::insertCodepoint(SkUnichar unichar) {
+    auto cursorPosition = fCursor->getCenterPosition();
+    auto textIndex = fFormattedText->positionToAdjustedGraphemeIndex(cursorPosition);
+
+    std::u16string text;
+    text.append(fText.substr(0, textIndex));
+    text.append(1, (unsigned)unichar);
+    text.append(fText.substr(textIndex, std::u16string::npos));
+    updateText(text);
+
+    auto nextPosition = fFormattedText->indexToAdjustedGraphemePosition(textIndex);
+    SkRect cursorRect = std::get<3>(nextPosition);
+    fCursor->place(SkPoint::Make(cursorRect.fLeft, cursorRect.fTop), SkSize::Make(cursorRect.width(), cursorRect.height()));
+
+    this->invalidate();
+
+    return true;
 }
 
 bool Editor::onKey(skui::Key key, skui::InputState state, skui::ModifierKey modifiers) {
@@ -216,28 +279,12 @@ bool Editor::onKey(skui::Key key, skui::InputState state, skui::ModifierKey modi
             case skui::Key::kEnd:
                 this->moveCursor(key);
                 break;
-            /*
             case skui::Key::kDelete:
-                if (fMarkPos != Editor::TextPosition()) {
-                    (void)this->move(fEditor.remove(fMarkPos, fTextPos), false);
-                } else {
-                    auto pos = fEditor.move(Editor::Movement::kRight, fTextPos);
-                    (void)this->move(fEditor.remove(fTextPos, pos), false);
-                }
-                this->inval();
-                return true;
             case skui::Key::kBack:
-                if (fMarkPos != Editor::TextPosition()) {
-                    (void)this->move(fEditor.remove(fMarkPos, fTextPos), false);
-                } else {
-                    auto pos = fEditor.move(Editor::Movement::kLeft, fTextPos);
-                    (void)this->move(fEditor.remove(fTextPos, pos), false);
-                }
-                this->inval();
+                this->deleteGrapheme(key);
                 return true;
             case skui::Key::kOK:
                 return this->onChar('\n', modifiers);
-            */
             default:
                 break;
         }

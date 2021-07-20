@@ -114,6 +114,8 @@ private:
 
     Editor(std::u16string text, SkSize size, SkSpan<Block> fontBlocks);
 
+    void updateText(std::u16string text);
+
     void onAttach(sk_app::Window* w) override { fParent = w; }
     void onPaint(SkSurface* surface) override;
 
@@ -133,6 +135,8 @@ private:
     void onPlaceholder(TextRange, const SkRect& bounds) override;
 
     bool moveCursor(skui::Key key);
+    bool insertCodepoint(SkUnichar unichar);
+    bool deleteGrapheme(skui::Key key);
 
     std::unique_ptr<Cursor> fCursor;
     std::unique_ptr<Mouse> fMouse;

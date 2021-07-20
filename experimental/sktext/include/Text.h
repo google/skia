@@ -82,6 +82,15 @@ public:
             --index;
         }
     }
+    void adjustRight(size_t* index) const {
+        SkASSERT(index != nullptr);
+        while (*index < this->fGlyphUnitProperties.size()) {
+            if (isClusterEdge(*index)) {
+                return;
+            }
+            ++index;
+        }
+    }
     bool hasProperty(size_t index, GlyphUnitFlags flag) {
         return (fGlyphUnitProperties[index] & flag) == flag;
     }

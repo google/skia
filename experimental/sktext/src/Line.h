@@ -170,6 +170,11 @@ public:
     ~Line() = default;
 
     TextMetrics getMetrics() const { return fTextMetrics; }
+    GlyphPos glyphStart() const { return fTextStart; }
+    GlyphPos glyphEnd() const { return fTextEnd; }
+    GlyphPos glyphTrailingEnd() const { return fWhitespacesEnd; }
+    SkScalar width() const { return fTextWidth; }
+    SkScalar withWithTrailingSpaces() const { return fTextWidth + fSpacesWidth; }
 
 private:
     friend class WrappedText;
