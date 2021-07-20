@@ -464,7 +464,8 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
             fBlitFramebufferFlags = 0;
         }
     } else if (GR_IS_GR_GL_ES(standard)) {
-        if (version >= GR_GL_VER(3, 0)) {
+        if (version >= GR_GL_VER(3, 0) ||
+            ctxInfo.hasExtension("GL_NV_framebuffer_blit")) {
             fBlitFramebufferFlags = kNoFormatConversionForMSAASrc_BlitFramebufferFlag |
                                     kNoMSAADst_BlitFramebufferFlag |
                                     kRectsMustMatchForMSAASrc_BlitFramebufferFlag;
