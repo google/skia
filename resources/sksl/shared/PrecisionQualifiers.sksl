@@ -1,0 +1,9 @@
+uniform half4 colorGreen;
+
+half4 main(float2 coords) {
+    highp vec4 zero = 0;
+    mediump vec4 green = colorGreen;
+    lowp vec4 one = 1;
+
+    return green * one + zero;
+}
