@@ -17,6 +17,7 @@
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkScan.h"
 #include "src/core/SkVM.h"
+#include "src/core/SkVMBlitter.h"
 #include "src/core/SkVertState.h"
 #include "src/core/SkVerticesPriv.h"
 #include "src/shaders/SkComposeShader.h"
@@ -308,7 +309,7 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices, SkBlendMode blendMode
     // No colors are changing and no texture coordinates are changing, so no updates between
     // triangles are needed. Use SkVM to blit the triangles.
     if (!colors && (!texCoords || texCoords == positions)) {
-        if (auto blitter = SkCreateSkVMBlitter(
+        if (auto blitter = SkVMBlitter::Make(
                 fDst, paint, *fMatrixProvider, outerAlloc, this->fRC->clipShader())) {
             while (vertProc(&state)) {
                 fill_triangle(state, blitter, *fRC, dev2, dev3);

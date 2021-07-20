@@ -13,6 +13,7 @@
 #include "src/core/SkOpts.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkSpriteBlitter.h"
+#include "src/core/SkVMBlitter.h"
 
 extern bool gUseSkVMBlitter;
 
@@ -187,7 +188,7 @@ SkBlitter* SkBlitter::ChooseSprite(const SkPixmap& dst, const SkPaint& paint,
     SkASSERT(alloc != nullptr);
 
     if (gUseSkVMBlitter) {
-        return SkCreateSkVMSpriteBlitter(dst, paint, source,left,top, alloc, std::move(clipShader));
+        return SkVMBlitter::Make(dst, paint, source,left,top, alloc, std::move(clipShader));
     }
 
     // TODO: in principle SkRasterPipelineSpriteBlitter could be made to handle this.
@@ -225,5 +226,5 @@ SkBlitter* SkBlitter::ChooseSprite(const SkPixmap& dst, const SkPaint& paint,
         return blitter;
     }
 
-    return SkCreateSkVMSpriteBlitter(dst, paint, source,left,top, alloc, std::move(clipShader));
+    return SkVMBlitter::Make(dst, paint, source,left,top, alloc, std::move(clipShader));
 }

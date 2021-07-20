@@ -22,6 +22,7 @@
 #include "src/core/SkRegionPriv.h"
 #include "src/core/SkTLazy.h"
 #include "src/core/SkUtils.h"
+#include "src/core/SkVMBlitter.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/core/SkXfermodeInterpretation.h"
 #include "src/shaders/SkShaderBase.h"
@@ -748,8 +749,8 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
     }
 
     if (gUseSkVMBlitter) {
-        if (auto blitter = SkCreateSkVMBlitter(device, *paint, matrixProvider,
-                                               alloc, clipShader)) {
+        if (auto blitter = SkVMBlitter::Make(device, *paint, matrixProvider,
+                                             alloc, clipShader)) {
             return blitter;
         }
     }
@@ -761,8 +762,8 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
                                                          alloc, clipShader)) {
             return blitter;
         }
-        if (auto blitter = SkCreateSkVMBlitter(device, *paint, matrixProvider,
-                                               alloc, clipShader)) {
+        if (auto blitter = SkVMBlitter::Make(device, *paint, matrixProvider,
+                                             alloc, clipShader)) {
             return blitter;
         }
         return alloc->make<SkNullBlitter>();
