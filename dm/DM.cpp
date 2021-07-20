@@ -1032,6 +1032,7 @@ static Sink* create_via(const SkString& tag, Sink* wrapped) {
 #endif
     VIA("serialize", ViaSerialization,     wrapped);
     VIA("pic",       ViaPicture,           wrapped);
+    VIA("rtblend",   ViaRuntimeBlend,      wrapped);
 
     if (FLAGS_matrix.count() == 4) {
         SkMatrix m;

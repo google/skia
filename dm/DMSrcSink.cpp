@@ -30,6 +30,7 @@
 #include "include/private/SkTLogic.h"
 #include "include/third_party/skcms/skcms.h"
 #include "include/utils/SkNullCanvas.h"
+#include "include/utils/SkPaintFilterCanvas.h"
 #include "include/utils/SkRandom.h"
 #include "modules/skottie/utils/SkottieUtils.h"
 #include "src/codec/SkCodecImageGenerator.h"
@@ -50,6 +51,7 @@
 #include "tools/DDLPromiseImageHelper.h"
 #include "tools/DDLTileHelper.h"
 #include "tools/Resources.h"
+#include "tools/RuntimeBlendUtils.h"
 #include "tools/debugger/DebugCanvas.h"
 #include "tools/gpu/BackendSurfaceFactory.h"
 #include "tools/gpu/MemoryCache.h"
@@ -1560,8 +1562,8 @@ Result GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
     if (FLAGS_preAbandonGpuContext) {
         factory.abandonContexts();
     }
-    SkCanvas* canvas = surface->getCanvas();
-    Result result = src.draw(direct, canvas);
+
+    Result result = src.draw(direct, surface->getCanvas());
     if (!result.isOk()) {
         return result;
     }
@@ -2261,6 +2263,35 @@ Result ViaPicture::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkS
     }
 
     return check_against_reference(bitmap, src, fSink.get());
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+Result ViaRuntimeBlend::draw(const Src& src,
+                             SkBitmap* bitmap,
+                             SkWStream* stream,
+                             SkString* log) const {
+    class RuntimeBlendFilterCanvas : public SkPaintFilterCanvas {
+    public:
+        RuntimeBlendFilterCanvas(SkCanvas* canvas) : INHERITED(canvas) { }
+
+    protected:
+        bool onFilter(SkPaint& paint) const override {
+            if (skstd::optional<SkBlendMode> mode = paint.asBlendMode()) {
+                paint.setBlender(GetRuntimeBlendForBlendMode(*mode));
+            }
+            return true;
+        }
+
+    private:
+        using INHERITED = SkPaintFilterCanvas;
+    };
+
+    return draw_to_canvas(fSink.get(), bitmap, stream, log, src.size(),
+                          [&](GrDirectContext* context, SkCanvas* canvas) {
+        RuntimeBlendFilterCanvas runtimeBlendCanvas{canvas};
+        return src.draw(context, &runtimeBlendCanvas);
+    });
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/

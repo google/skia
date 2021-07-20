@@ -2104,7 +2104,9 @@ if (skia_enable_tools) {
         "dm/DM.cpp",
         "dm/DMGpuTestProcs.cpp",
         "dm/DMJsonWriter.cpp",
+        "dm/DMJsonWriter.h",
         "dm/DMSrcSink.cpp",
+        "dm/DMSrcSink.h",
       ]
       deps = [
         ":common_flags_aa",

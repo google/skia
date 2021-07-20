@@ -625,6 +625,12 @@ public:
     Result draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 };
 
+class ViaRuntimeBlend : public Via {
+public:
+    explicit ViaRuntimeBlend(Sink* sink) : Via(sink) {}
+    Result draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+};
+
 class ViaSVG : public Via {
 public:
     explicit ViaSVG(Sink* sink) : Via(sink) {}
