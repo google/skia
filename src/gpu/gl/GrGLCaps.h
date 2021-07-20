@@ -266,9 +266,22 @@ public:
     }
 
     /**
-     * What functionality is supported by glBlitFramebuffer.
+     * Is it unsupported to only resolve a sub-rectangle of a framebuffer?
      */
-    uint32_t blitFramebufferSupportFlags() const { return fBlitFramebufferFlags; }
+    bool framebufferResolvesMustBeFullSize() const {
+        SkASSERT(fMSFBOType != kNone_MSFBOType);
+        return fMSFBOType == kES_Apple_MSFBOType ||
+               (fBlitFramebufferFlags & kResolveMustBeFull_BlitFrambufferFlag);
+    }
+
+    /**
+     * Can we resolve a single-sample framebuffer into an MSAA framebuffer?
+     */
+    bool canResolveSingleToMSAA() const {
+        SkASSERT(fMSFBOType != kNone_MSFBOType);
+        return fMSFBOType != kES_Apple_MSFBOType &&
+               !(fBlitFramebufferFlags & GrGLCaps::kNoMSAADst_BlitFramebufferFlag);
+    }
 
     /**
      * Is the MSAA FBO extension one where the texture is multisampled when bound to an FBO and

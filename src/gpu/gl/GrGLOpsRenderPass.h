@@ -51,6 +51,12 @@ private:
         return fIndexPointer + baseIndex;
     }
 
+    // Ideally we load and store DMSAA only within the content bounds of our render pass, but if
+    // the caps don't allow for partial framebuffer blits, we resolve the full target.
+    // We resolve the same bounds during load and store both because if we have to do a full size
+    // resolve at the end, the full DMSAA attachment needs to have valid content.
+    GrNativeRect dmsaaLoadStoreBounds() const;
+
     void onBegin() override;
     void onEnd() override;
     bool onBindPipeline(const GrProgramInfo& programInfo, const SkRect& drawBounds) override;

@@ -3339,7 +3339,7 @@ bool GrGLCaps::canCopyAsBlit(GrGLFormat dstFormat, int dstSampleCnt,
                              const GrTextureType* srcTypeIfTexture,
                              const SkRect& srcBounds, bool srcBoundsExact,
                              const SkIRect& srcRect, const SkIPoint& dstPoint) const {
-    auto blitFramebufferFlags = this->blitFramebufferSupportFlags();
+    auto blitFramebufferFlags = fBlitFramebufferFlags;
     if (!this->canFormatBeFBOColorAttachment(dstFormat) ||
         !this->canFormatBeFBOColorAttachment(srcFormat)) {
         return false;
@@ -3473,11 +3473,11 @@ GrCaps::DstCopyRestrictions GrGLCaps::getDstCopyRestrictions(const GrRenderTarge
     // creation. It isn't clear that avoiding temporary fbo creation is actually optimal.
     DstCopyRestrictions blitFramebufferRestrictions = {};
     if (src->numSamples() > 1 &&
-        (this->blitFramebufferSupportFlags() & kResolveMustBeFull_BlitFrambufferFlag)) {
+        (fBlitFramebufferFlags & kResolveMustBeFull_BlitFrambufferFlag)) {
         blitFramebufferRestrictions.fRectsMustMatch = GrSurfaceProxy::RectsMustMatch::kYes;
         blitFramebufferRestrictions.fMustCopyWholeSrc = true;
         // Mirroring causes rects to mismatch later, don't allow it.
-    } else if (src->numSamples() > 1 && (this->blitFramebufferSupportFlags() &
+    } else if (src->numSamples() > 1 && (fBlitFramebufferFlags &
                                          kRectsMustMatchForMSAASrc_BlitFramebufferFlag)) {
         blitFramebufferRestrictions.fRectsMustMatch = GrSurfaceProxy::RectsMustMatch::kYes;
     }
