@@ -776,6 +776,8 @@ skia_metal_sources = [
   "$_src/gpu/mtl/GrMtlCppUtil.h",
   "$_src/gpu/mtl/GrMtlDepthStencil.h",
   "$_src/gpu/mtl/GrMtlDepthStencil.mm",
+  "$_src/gpu/mtl/GrMtlFramebuffer.h",
+  "$_src/gpu/mtl/GrMtlFramebuffer.mm",
   "$_src/gpu/mtl/GrMtlGpu.h",
   "$_src/gpu/mtl/GrMtlGpu.mm",
   "$_src/gpu/mtl/GrMtlOpsRenderPass.h",

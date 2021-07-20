@@ -208,13 +208,30 @@ void GrMtlGpu::destroyResources() {
 }
 
 GrOpsRenderPass* GrMtlGpu::onGetOpsRenderPass(
-            GrRenderTarget* renderTarget, bool /*useMSAASurface*/, GrAttachment*,
+            GrRenderTarget* renderTarget, bool useMSAASurface, GrAttachment* stencil,
             GrSurfaceOrigin origin, const SkIRect& bounds,
             const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
             const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
             const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
             GrXferBarrierFlags renderPassXferBarriers) {
-    return new GrMtlOpsRenderPass(this, renderTarget, origin, colorInfo, stencilInfo);
+    // For the given render target and requested render pass features we need to find a compatible
+    // framebuffer to use.
+    GrMtlRenderTarget* mtlRT = static_cast<GrMtlRenderTarget*>(renderTarget);
+
+    SkASSERT(!useMSAASurface ||
+             (renderTarget->numSamples() > 1));
+
+    // TODO: Make use of discardable MSAA
+    bool withResolve = false;
+
+    sk_sp<GrMtlFramebuffer> framebuffer =
+            sk_ref_sp(mtlRT->getFramebuffer(withResolve, SkToBool(stencil)));
+    if (!framebuffer) {
+        return nullptr;
+    }
+
+    return new GrMtlOpsRenderPass(this, renderTarget, std::move(framebuffer), origin, colorInfo,
+                                  stencilInfo);
 }
 
 GrMtlCommandBuffer* GrMtlGpu::commandBuffer() {

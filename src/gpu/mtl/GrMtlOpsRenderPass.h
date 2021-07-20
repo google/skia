@@ -16,14 +16,15 @@
 
 typedef uint32_t GrColor;
 class GrMtlBuffer;
+class GrMtlFramebuffer;
 class GrMtlPipelineState;
 class GrMtlRenderCommandEncoder;
 class GrMtlRenderTarget;
 
 class GrMtlOpsRenderPass : public GrOpsRenderPass {
 public:
-    GrMtlOpsRenderPass(GrMtlGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin,
-                       const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
+    GrMtlOpsRenderPass(GrMtlGpu* gpu, GrRenderTarget* rt, sk_sp<GrMtlFramebuffer>,
+                       GrSurfaceOrigin origin, const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
                        const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo);
 
     ~GrMtlOpsRenderPass() override;
@@ -68,6 +69,7 @@ private:
 
     GrMtlGpu*                   fGpu;
 
+    sk_sp<GrMtlFramebuffer>     fFramebuffer;
     GrMtlRenderCommandEncoder*  fActiveRenderCmdEncoder;
     GrMtlPipelineState*         fActivePipelineState = nullptr;
     MTLPrimitiveType            fActivePrimitiveType;

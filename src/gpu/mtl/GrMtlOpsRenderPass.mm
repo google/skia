@@ -23,11 +23,13 @@
 
 GR_NORETAIN_BEGIN
 
-GrMtlOpsRenderPass::GrMtlOpsRenderPass(GrMtlGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin,
+GrMtlOpsRenderPass::GrMtlOpsRenderPass(GrMtlGpu* gpu, GrRenderTarget* rt,
+                                       sk_sp<GrMtlFramebuffer> framebuffer, GrSurfaceOrigin origin,
                                        const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
                                        const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo)
         : INHERITED(rt, origin)
-        , fGpu(gpu) {
+        , fGpu(gpu)
+        , fFramebuffer(std::move(framebuffer)) {
     this->setupRenderPass(colorInfo, stencilInfo);
 }
 
