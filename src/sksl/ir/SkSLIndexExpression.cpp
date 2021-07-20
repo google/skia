@@ -33,10 +33,21 @@ const Type& IndexExpression::IndexType(const Context& context, const Type& type)
 }
 
 std::unique_ptr<Expression> IndexExpression::Convert(const Context& context,
+                                                     SymbolTable& symbolTable,
                                                      std::unique_ptr<Expression> base,
                                                      std::unique_ptr<Expression> index) {
     // Convert an index expression with an expression inside of it: `arr[a * 3]`.
     const Type& baseType = base->type();
+    if (base->is<TypeReference>() && index->is<IntLiteral>()) {
+        const Type& baseType = base->as<TypeReference>().value();
+        if (baseType.isArray()) {
+            context.fErrors.error(base->fOffset, "multi-dimensional arrays are not supported");
+            return nullptr;
+        }
+        return std::make_unique<TypeReference>(context, /*offset=*/-1,
+                symbolTable.addArrayDimension(&baseType,
+                                              index->as<IntLiteral>().value()));
+    }
     if (!baseType.isArray() && !baseType.isMatrix() && !baseType.isVector()) {
         context.fErrors.error(base->fOffset,
                               "expected array, but found '" + baseType.displayName() + "'");

@@ -177,7 +177,7 @@ std::unique_ptr<SkSL::Expression> DSLWriter::ConvertField(std::unique_ptr<Expres
 
 std::unique_ptr<SkSL::Expression> DSLWriter::ConvertIndex(std::unique_ptr<Expression> base,
                                                           std::unique_ptr<Expression> index) {
-    return IndexExpression::Convert(Context(), std::move(base), std::move(index));
+    return IndexExpression::Convert(Context(), *SymbolTable(), std::move(base), std::move(index));
 }
 
 std::unique_ptr<SkSL::Expression> DSLWriter::ConvertPostfix(std::unique_ptr<Expression> expr,

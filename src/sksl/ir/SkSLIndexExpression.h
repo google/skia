@@ -28,6 +28,7 @@ struct IndexExpression final : public Expression {
 
     // Returns a simplified index-expression; reports errors via the ErrorReporter.
     static std::unique_ptr<Expression> Convert(const Context& context,
+                                               SymbolTable& symbolTable,
                                                std::unique_ptr<Expression> base,
                                                std::unique_ptr<Expression> index);
 
