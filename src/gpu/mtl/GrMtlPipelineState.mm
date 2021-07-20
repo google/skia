@@ -7,6 +7,7 @@
 
 #include "src/gpu/mtl/GrMtlPipelineState.h"
 
+#include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrTexture.h"
@@ -15,6 +16,7 @@
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
 #include "src/gpu/glsl/GrGLSLXferProcessor.h"
 #include "src/gpu/mtl/GrMtlBuffer.h"
+#include "src/gpu/mtl/GrMtlFramebuffer.h"
 #include "src/gpu/mtl/GrMtlGpu.h"
 #include "src/gpu/mtl/GrMtlRenderCommandEncoder.h"
 #include "src/gpu/mtl/GrMtlTexture.h"
@@ -55,9 +57,11 @@ GrMtlPipelineState::GrMtlPipelineState(
     (void) fPixelFormat; // Suppress unused-var warning.
 }
 
-void GrMtlPipelineState::setData(const GrRenderTarget* renderTarget,
+void GrMtlPipelineState::setData(GrMtlFramebuffer* framebuffer,
                                  const GrProgramInfo& programInfo) {
-    this->setRenderTargetState(renderTarget, programInfo.origin());
+    SkISize colorAttachmentDimensions = framebuffer->colorAttachment()->dimensions();
+
+    this->setRenderTargetState(colorAttachmentDimensions, programInfo.origin());
     fGeometryProcessor->setData(fDataManager, *fGpu->caps()->shaderCaps(), programInfo.geomProc());
 
     for (int i = 0; i < programInfo.pipeline().numFragmentProcessors(); ++i) {
@@ -74,8 +78,9 @@ void GrMtlPipelineState::setData(const GrRenderTarget* renderTarget,
 
 #ifdef SK_DEBUG
     if (programInfo.isStencilEnabled()) {
-        SkASSERT(renderTarget->getStencilAttachment());
-        SkASSERT(renderTarget->numStencilBits(renderTarget->numSamples() > 1) == 8);
+        SkDEBUGCODE(const GrAttachment* stencil = framebuffer->stencilAttachment());
+        SkASSERT(stencil);
+        SkASSERT(GrBackendFormatStencilBits(stencil->backendFormat()) == 8);
     }
 #endif
 
@@ -125,24 +130,24 @@ void GrMtlPipelineState::bindTextures(GrMtlRenderCommandEncoder* renderCmdEncode
     }
 }
 
-void GrMtlPipelineState::setRenderTargetState(const GrRenderTarget* rt, GrSurfaceOrigin origin) {
-    // Set RT adjustment and RT flip
-    SkISize dimensions = rt->dimensions();
+void GrMtlPipelineState::setRenderTargetState(SkISize colorAttachmentDimensions,
+                                              GrSurfaceOrigin origin) {
     SkASSERT(fBuiltinUniformHandles.fRTAdjustmentUni.isValid());
     if (fRenderTargetState.fRenderTargetOrigin != origin ||
-        fRenderTargetState.fRenderTargetSize != dimensions) {
-        fRenderTargetState.fRenderTargetSize = dimensions;
+        fRenderTargetState.fRenderTargetSize != colorAttachmentDimensions) {
+        fRenderTargetState.fRenderTargetSize = colorAttachmentDimensions;
         fRenderTargetState.fRenderTargetOrigin = origin;
 
         // The client will mark a swap buffer as kTopLeft when making a SkSurface because
         // Metal's framebuffer space has (0, 0) at the top left. This agrees with Skia's device
         // coords. However, in NDC (-1, -1) is the bottom left. So we flip when origin is kTopLeft.
         bool flip = (origin == kTopLeft_GrSurfaceOrigin);
-        std::array<float, 4> v = SkSL::Compiler::GetRTAdjustVector(dimensions, flip);
+        std::array<float, 4> v = SkSL::Compiler::GetRTAdjustVector(colorAttachmentDimensions, flip);
         fDataManager.set4fv(fBuiltinUniformHandles.fRTAdjustmentUni, 1, v.data());
         if (fBuiltinUniformHandles.fRTFlipUni.isValid()) {
             // Note above that framebuffer space has origin top left. So we need !flip here.
-            std::array<float, 2> d = SkSL::Compiler::GetRTFlipVector(rt->height(), !flip);
+            std::array<float, 2> d =
+                    SkSL::Compiler::GetRTFlipVector(colorAttachmentDimensions.height(), !flip);
             fDataManager.set2fv(fBuiltinUniformHandles.fRTFlipUni, 1, d.data());
         }
     }
@@ -189,10 +194,11 @@ void GrMtlPipelineState::setDepthStencilState(GrMtlRenderCommandEncoder* renderC
 }
 
 void GrMtlPipelineState::SetDynamicScissorRectState(GrMtlRenderCommandEncoder* renderCmdEncoder,
-                                                    const GrRenderTarget* renderTarget,
+                                                    SkISize colorAttachmentDimensions,
                                                     GrSurfaceOrigin rtOrigin,
                                                     SkIRect scissorRect) {
-    if (!scissorRect.intersect(SkIRect::MakeWH(renderTarget->width(), renderTarget->height()))) {
+    if (!scissorRect.intersect(SkIRect::MakeWH(colorAttachmentDimensions.width(),
+                                               colorAttachmentDimensions.height()))) {
         scissorRect.setEmpty();
     }
 
@@ -203,7 +209,7 @@ void GrMtlPipelineState::SetDynamicScissorRectState(GrMtlRenderCommandEncoder* r
         scissor.y = scissorRect.fTop;
     } else {
         SkASSERT(kBottomLeft_GrSurfaceOrigin == rtOrigin);
-        scissor.y = renderTarget->height() - scissorRect.fBottom;
+        scissor.y = colorAttachmentDimensions.height() - scissorRect.fBottom;
     }
     scissor.height = scissorRect.height();
 

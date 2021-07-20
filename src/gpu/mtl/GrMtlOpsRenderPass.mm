@@ -45,7 +45,7 @@ void GrMtlOpsRenderPass::precreateCmdEncoder() {
 }
 
 void GrMtlOpsRenderPass::submit() {
-    if (!fRenderTarget) {
+    if (!fFramebuffer) {
         return;
     }
     SkIRect iBounds;
@@ -87,7 +87,7 @@ bool GrMtlOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo,
         return false;
     }
 
-    fActivePipelineState->setData(fRenderTarget, programInfo);
+    fActivePipelineState->setData(fFramebuffer.get(), programInfo);
     fCurrentVertexStride = programInfo.geomProc().vertexStride();
 
     if (!fActiveRenderCmdEncoder) {
@@ -113,10 +113,11 @@ bool GrMtlOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo,
 
     if (!programInfo.pipeline().isScissorTestEnabled()) {
         // "Disable" scissor by setting it to the full pipeline bounds.
+        SkISize dimensions = fFramebuffer->colorAttachment()->dimensions();
         GrMtlPipelineState::SetDynamicScissorRectState(fActiveRenderCmdEncoder,
-                                                       fRenderTarget, fOrigin,
-                                                       SkIRect::MakeWH(fRenderTarget->width(),
-                                                                       fRenderTarget->height()));
+                                                       dimensions, fOrigin,
+                                                       SkIRect::MakeWH(dimensions.width(),
+                                                                       dimensions.height()));
     }
 
     fActivePrimitiveType = gr_to_mtl_primitive(programInfo.primitiveType());
@@ -127,7 +128,8 @@ bool GrMtlOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo,
 void GrMtlOpsRenderPass::onSetScissorRect(const SkIRect& scissor) {
     SkASSERT(fActivePipelineState);
     SkASSERT(fActiveRenderCmdEncoder);
-    GrMtlPipelineState::SetDynamicScissorRectState(fActiveRenderCmdEncoder, fRenderTarget,
+    GrMtlPipelineState::SetDynamicScissorRectState(fActiveRenderCmdEncoder,
+                                                   fFramebuffer->colorAttachment()->dimensions(),
                                                    fOrigin, scissor);
 }
 
@@ -166,7 +168,7 @@ void GrMtlOpsRenderPass::onClearStencilClip(const GrScissorState& scissor, bool 
     // Partial clears are not supported
     SkASSERT(!scissor.enabled());
 
-    GrAttachment* sb = fRenderTarget->getStencilAttachment();
+    GrAttachment* sb = fFramebuffer->stencilAttachment();
     // this should only be called internally when we know we have a
     // stencil buffer.
     SkASSERT(sb);
@@ -201,10 +203,12 @@ void GrMtlOpsRenderPass::initRenderState(GrMtlRenderCommandEncoder* encoder) {
     encoder->pushDebugGroup(@"initRenderState");
 #endif
     encoder->setFrontFacingWinding(MTLWindingCounterClockwise);
+    SkISize colorAttachmentDimensions = fFramebuffer->colorAttachment()->dimensions();
     // Strictly speaking we shouldn't have to set this, as the default viewport is the size of
     // the drawable used to generate the renderCommandEncoder -- but just in case.
     MTLViewport viewport = { 0.0, 0.0,
-                             (double) fRenderTarget->width(), (double) fRenderTarget->height(),
+                             (double) colorAttachmentDimensions.width(),
+                             (double) colorAttachmentDimensions.height(),
                              0.0, 1.0 };
     encoder->setViewport(viewport);
 #ifdef SK_ENABLE_MTL_DEBUG_INFO
@@ -237,15 +241,15 @@ void GrMtlOpsRenderPass::setupRenderPass(
 
     fRenderPassDesc = [MTLRenderPassDescriptor new];
     auto colorAttachment = fRenderPassDesc.colorAttachments[0];
-    colorAttachment.texture =
-            static_cast<GrMtlRenderTarget*>(fRenderTarget)->colorMTLTexture();
+    auto* color = fFramebuffer->colorAttachment();
+    colorAttachment.texture = color->mtlTexture();
     const std::array<float, 4>& clearColor = colorInfo.fClearColor;
     colorAttachment.clearColor =
             MTLClearColorMake(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
     colorAttachment.loadAction = mtlLoadAction[static_cast<int>(colorInfo.fLoadOp)];
     colorAttachment.storeAction = mtlStoreAction[static_cast<int>(colorInfo.fStoreOp)];
 
-    auto* stencil = static_cast<GrMtlAttachment*>(fRenderTarget->getStencilAttachment());
+    auto* stencil = fFramebuffer->stencilAttachment();
     auto mtlStencil = fRenderPassDesc.stencilAttachment;
     if (stencil) {
         mtlStencil.texture = stencil->mtlTexture();
@@ -256,8 +260,8 @@ void GrMtlOpsRenderPass::setupRenderPass(
 
     // Manage initial clears
     if (colorInfo.fLoadOp == GrLoadOp::kClear || stencilInfo.fLoadOp == GrLoadOp::kClear)  {
-        fBounds = SkRect::MakeWH(fRenderTarget->width(),
-                                 fRenderTarget->height());
+        fBounds = SkRect::MakeWH(color->dimensions().width(),
+                                 color->dimensions().height());
         this->precreateCmdEncoder();
         if (colorInfo.fLoadOp == GrLoadOp::kClear) {
             colorAttachment.loadAction = MTLLoadActionLoad;

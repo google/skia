@@ -16,6 +16,7 @@
 
 #import <Metal/Metal.h>
 
+class GrMtlFramebuffer;
 class GrMtlGpu;
 class GrMtlPipelineStateDataManager;
 class GrMtlRenderCommandEncoder;
@@ -46,7 +47,7 @@ public:
 
     id<MTLRenderPipelineState> mtlPipelineState() { return fPipelineState; }
 
-    void setData(const GrRenderTarget*, const GrProgramInfo&);
+    void setData(GrMtlFramebuffer*, const GrProgramInfo&);
 
     void setTextures(const GrGeometryProcessor&,
                      const GrPipeline&,
@@ -58,7 +59,7 @@ public:
                       const GrXferProcessor&);
 
     static void SetDynamicScissorRectState(GrMtlRenderCommandEncoder* renderCmdEncoder,
-                                           const GrRenderTarget* renderTarget,
+                                           SkISize colorAttachmentDimensions,
                                            GrSurfaceOrigin rtOrigin,
                                            SkIRect scissorRect);
 
@@ -82,7 +83,7 @@ private:
         }
     };
 
-    void setRenderTargetState(const GrRenderTarget*, GrSurfaceOrigin);
+    void setRenderTargetState(SkISize colorAttachmentDimensions, GrSurfaceOrigin);
 
     void bindUniforms(GrMtlRenderCommandEncoder*);
 
