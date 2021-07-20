@@ -8,9 +8,8 @@
 #ifndef SKSL_DSL_RUNTIME_EFFECTS
 #define SKSL_DSL_RUNTIME_EFFECTS
 
+#include "include/effects/SkRuntimeEffect.h"
 #include "include/sksl/DSL.h"
-
-class SkRuntimeEffect;
 
 namespace SkSL {
 
@@ -22,7 +21,7 @@ namespace dsl {
 
 void StartRuntimeShader(SkSL::Compiler* compiler);
 
-sk_sp<SkRuntimeEffect> EndRuntimeShader();
+sk_sp<SkRuntimeEffect> EndRuntimeShader(SkRuntimeEffect::Options options = {});
 
 #endif
 

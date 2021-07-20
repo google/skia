@@ -14,6 +14,7 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/sksl/DSLRuntimeEffects.h"
+#include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkTLazy.h"
 #include "src/gpu/GrColor.h"
 #include "src/sksl/SkSLCompiler.h"
@@ -37,7 +38,9 @@ public:
     }
 
     void end(bool expectSuccess = true) {
-        sk_sp<SkRuntimeEffect> effect = EndRuntimeShader();
+        SkRuntimeEffect::Options options;
+        SkRuntimeEffectPriv::EnableFragCoord(&options);
+        sk_sp<SkRuntimeEffect> effect = EndRuntimeShader(options);
         REPORTER_ASSERT(fReporter, effect ? expectSuccess : !expectSuccess);
         if (effect) {
             fBuilder.init(std::move(effect));

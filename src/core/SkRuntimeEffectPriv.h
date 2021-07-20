@@ -16,6 +16,25 @@
 
 #ifdef SK_ENABLE_SKSL
 
+class SkRuntimeEffectPriv {
+public:
+    // Helper function when creating an effect for a GrSkSLFP that verifies an effect will
+    // implement the constant output for constant input optimization flag.
+    static bool SupportsConstantOutputForConstantInput(sk_sp<SkRuntimeEffect> effect) {
+        return effect->getFilterColorProgram();
+    }
+
+    static SkRuntimeEffect::Options ES3Options() {
+        SkRuntimeEffect::Options options;
+        options.enforceES2Restrictions = false;
+        return options;
+    }
+
+    static void EnableFragCoord(SkRuntimeEffect::Options* options) {
+        options->allowFragCoord = true;
+    }
+};
+
 // These internal APIs for creating runtime effects vary from the public API in two ways:
 //
 //     1) they're used in contexts where it's not useful to receive an error message;
@@ -38,6 +57,7 @@ inline sk_sp<SkRuntimeEffect> SkMakeRuntimeEffect(
         SkRuntimeEffect::Result (*make)(SkString, const SkRuntimeEffect::Options&),
         const char* sksl,
         SkRuntimeEffect::Options options = SkRuntimeEffect::Options{}) {
+    SkRuntimeEffectPriv::EnableFragCoord(&options);
     auto result = make(SkString{sksl}, options);
     SkASSERTF(result.effect, "%s", result.errorText.c_str());
     return result.effect;
@@ -121,21 +141,6 @@ private:
     skvm::Program           fProgram;
     std::vector<SampleCall> fSampleCalls;
     bool                    fAlphaUnchanged;
-};
-
-class SkRuntimeEffectPriv {
-public:
-    // Helper function when creating an effect for a GrSkSLFP that verifies an effect will
-    // implement the constant output for constant input optimization flag.
-    static bool SupportsConstantOutputForConstantInput(sk_sp<SkRuntimeEffect> effect) {
-        return effect->getFilterColorProgram();
-    }
-
-    static SkRuntimeEffect::Options ES3Options() {
-        SkRuntimeEffect::Options options;
-        options.enforceES2Restrictions = false;
-        return options;
-    }
 };
 
 #endif  // SK_ENABLE_SKSL

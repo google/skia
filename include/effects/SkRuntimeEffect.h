@@ -104,6 +104,11 @@ public:
         // still largely ES3-unaware and can still fail or crash if post-ES2 features are used.
         // This is only intended for use by tests and certain internally created effects.
         bool enforceES2Restrictions = true;
+
+        // Similarly: Public SkSL does not allow access to sk_FragCoord. The semantics of that
+        // variable are confusing, and expose clients to implementation details of saveLayer and
+        // image filters.
+        bool allowFragCoord = false;
     };
 
     // If the effect is compiled successfully, `effect` will be non-null.
@@ -118,9 +123,15 @@ public:
     // values are flexible. They are listed as being 'vec4', but they can also be 'half4' or
     // 'float4'. ('vec4' is an alias for 'float4').
 
+    // We can't use a default argument for `options` due to a bug in Clang.
+    // https://bugs.llvm.org/show_bug.cgi?id=36684
+
     // Color filter SkSL requires an entry point that looks like:
     //     vec4 main(vec4 inColor) { ... }
     static Result MakeForColorFilter(SkString sksl, const Options&);
+    static Result MakeForColorFilter(SkString sksl) {
+        return MakeForColorFilter(std::move(sksl), Options{});
+    }
 
     // Shader SkSL requires an entry point that looks like:
     //     vec4 main(vec2 inCoords) { ... }
@@ -129,27 +140,25 @@ public:
     //
     // Most shaders don't use the input color, so that parameter is optional.
     static Result MakeForShader(SkString sksl, const Options&);
+    static Result MakeForShader(SkString sksl) {
+        return MakeForShader(std::move(sksl), Options{});
+    }
 
     // Blend SkSL requires an entry point that looks like:
     //     vec4 main(vec4 srcColor, vec4 dstColor) { ... }
     static Result MakeForBlender(SkString sksl, const Options&);
-
-    // We can't use a default argument for `options` due to a bug in Clang.
-    // https://bugs.llvm.org/show_bug.cgi?id=36684
-    static Result MakeForColorFilter(SkString sksl) {
-        return MakeForColorFilter(std::move(sksl), Options{});
-    }
-    static Result MakeForShader(SkString sksl) {
-        return MakeForShader(std::move(sksl), Options{});
-    }
     static Result MakeForBlender(SkString sksl) {
         return MakeForBlender(std::move(sksl), Options{});
     }
 
+    // DSL entry points
+    static Result MakeForColorFilter(std::unique_ptr<SkSL::Program> program, const Options&);
     static Result MakeForColorFilter(std::unique_ptr<SkSL::Program> program);
 
+    static Result MakeForShader(std::unique_ptr<SkSL::Program> program, const Options&);
     static Result MakeForShader(std::unique_ptr<SkSL::Program> program);
 
+    static Result MakeForBlender(std::unique_ptr<SkSL::Program> program, const Options&);
     static Result MakeForBlender(std::unique_ptr<SkSL::Program> program);
 
     // Object that allows passing either an SkShader or SkColorFilter as a child
@@ -237,13 +246,15 @@ private:
                     std::vector<SkSL::SampleUsage>&& sampleUsages,
                     uint32_t flags);
 
-    static Result Make(std::unique_ptr<SkSL::Program> program, SkSL::ProgramKind kind);
+    static Result MakeFromSource(SkString sksl, const Options& options, SkSL::ProgramKind kind);
 
-    static Result Make(SkString sksl, const Options& options, SkSL::ProgramKind kind);
+    static Result MakeFromDSL(std::unique_ptr<SkSL::Program> program,
+                              const Options& options,
+                              SkSL::ProgramKind kind);
 
-    static Result Make(std::unique_ptr<SkSL::Program> program,
-                       const Options& options,
-                       SkSL::ProgramKind kind);
+    static Result MakeInternal(std::unique_ptr<SkSL::Program> program,
+                               const Options& options,
+                               SkSL::ProgramKind kind);
 
     uint32_t hash() const { return fHash; }
     bool usesSampleCoords()   const { return (fFlags & kUsesSampleCoords_Flag); }

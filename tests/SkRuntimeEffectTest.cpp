@@ -221,12 +221,14 @@ DEF_TEST(SkRuntimeEffectForBlender, r) {
 
 DEF_TEST(SkRuntimeEffectForShader, r) {
     // Tests that the shader factory rejects or accepts certain SkSL constructs
-    auto test_valid = [r](const char* sksl) {
-        auto [effect, errorText] = SkRuntimeEffect::MakeForShader(SkString(sksl));
+    auto test_valid = [r](const char* sksl, SkRuntimeEffect::Options options = {}) {
+        auto [effect, errorText] = SkRuntimeEffect::MakeForShader(SkString(sksl), options);
         REPORTER_ASSERT(r, effect, "%s", errorText.c_str());
     };
 
-    auto test_invalid = [r](const char* sksl, const char* expected) {
+    auto test_invalid = [r](const char* sksl,
+                            const char* expected,
+                            SkRuntimeEffect::Options options = {}) {
         auto [effect, errorText] = SkRuntimeEffect::MakeForShader(SkString(sksl));
         REPORTER_ASSERT(r, !effect);
         REPORTER_ASSERT(r,
@@ -258,8 +260,13 @@ DEF_TEST(SkRuntimeEffectForShader, r) {
     test_invalid("half4 main() { return half4(1); }", "'main' parameter");
     test_invalid("half4 main(half4 c) { return c; }", "'main' parameter");
 
-    // sk_FragCoord should be available
-    test_valid("half4 main(float2 p) { return sk_FragCoord.xy01; }");
+    // sk_FragCoord should be available, but only if we've enabled it via Options
+    test_invalid("half4 main(float2 p) { return sk_FragCoord.xy01; }",
+                 "unknown identifier 'sk_FragCoord'");
+
+    SkRuntimeEffect::Options optionsWithFragCoord;
+    SkRuntimeEffectPriv::EnableFragCoord(&optionsWithFragCoord);
+    test_valid("half4 main(float2 p) { return sk_FragCoord.xy01; }", optionsWithFragCoord);
 
     // Sampling a child shader requires that we pass explicit coords
     test_valid("uniform shader child;"
@@ -344,7 +351,9 @@ public:
             : fReporter(r), fSurface(std::move(surface)) {}
 
     void build(const char* src) {
-        auto [effect, errorText] = SkRuntimeEffect::MakeForShader(SkString(src));
+        SkRuntimeEffect::Options options;
+        SkRuntimeEffectPriv::EnableFragCoord(&options);
+        auto [effect, errorText] = SkRuntimeEffect::MakeForShader(SkString(src), options);
         if (!effect) {
             REPORT_FAILURE(fReporter, "effect",
                            SkStringPrintf("Effect didn't compile: %s", errorText.c_str()));
@@ -684,7 +693,9 @@ DEF_TEST(SkRuntimeEffectThreaded, r) {
     std::thread threads[16];
     for (auto& thread : threads) {
         thread = std::thread([r]() {
-            auto [effect, error] = SkRuntimeEffect::MakeForShader(SkString(kSource));
+            SkRuntimeEffect::Options options;
+            SkRuntimeEffectPriv::EnableFragCoord(&options);
+            auto [effect, error] = SkRuntimeEffect::MakeForShader(SkString(kSource), options);
             REPORTER_ASSERT(r, effect);
         });
     }
