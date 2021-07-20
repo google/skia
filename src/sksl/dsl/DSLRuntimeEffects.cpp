@@ -21,7 +21,7 @@ namespace dsl {
 
 void StartRuntimeShader(SkSL::Compiler* compiler) {
     Start(compiler, SkSL::ProgramKind::kRuntimeShader);
-    SkSL::ProgramSettings& settings = DSLWriter::IRGenerator().fContext.fConfig->fSettings;
+    SkSL::ProgramSettings& settings = DSLWriter::Settings();
     SkASSERT(settings.fInlineThreshold == SkSL::kDefaultInlineThreshold);
     settings.fInlineThreshold = 0;
     SkASSERT(!settings.fAllowNarrowingConversions);

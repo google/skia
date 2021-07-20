@@ -42,10 +42,15 @@ public:
         return fModifiers.fFlags;
     }
 
+    DSLLayout layout() const {
+        return DSLLayout(fModifiers.fLayout);
+    }
+
 private:
     SkSL::Modifiers fModifiers;
 
     friend DSLType Struct(skstd::string_view name, SkTArray<DSLField> fields);
+    friend class DSLCore;
     friend class DSLFunction;
     friend class DSLVarBase;
     friend class DSLWriter;

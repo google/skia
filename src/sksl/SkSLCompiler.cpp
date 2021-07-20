@@ -15,6 +15,7 @@
 #include "src/core/SkTraceEvent.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLConstantFolder.h"
+#include "src/sksl/SkSLDSLParser.h"
 #include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/SkSLOperators.h"
 #include "src/sksl/SkSLProgramSettings.h"
@@ -421,9 +422,11 @@ std::unique_ptr<Program> Compiler::convertProgram(
 
     SkASSERT(!settings.fExternalFunctions || (kind == ProgramKind::kGeneric));
 
+#if !SKSL_DSL_PARSER
     // Loading and optimizing our base module might reset the inliner, so do that first,
     // *then* configure the inliner with the settings for this program.
     const ParsedModule& baseModule = this->moduleForProgramKind(kind);
+#endif
 
     // Honor our optimization-override flags.
     switch (sOptimizer) {
@@ -459,6 +462,10 @@ std::unique_ptr<Program> Compiler::convertProgram(
     fErrorCount = 0;
     fInliner.reset();
 
+#if SKSL_DSL_PARSER
+    settings.fDSLMangling = false;
+    return DSLParser(this, settings, kind, text).program();
+#else
     auto textPtr = std::make_unique<String>(std::move(text));
     AutoSource as(this, textPtr.get());
 
@@ -491,6 +498,7 @@ std::unique_ptr<Program> Compiler::convertProgram(
         memoryPool->detachFromThread();
     }
     return success ? std::move(program) : nullptr;
+#endif // SKSL_DSL_PARSER
 }
 
 void Compiler::verifyStaticTests(const Program& program) {
@@ -998,7 +1006,10 @@ void Compiler::error(int offset, String msg) {
     fErrorCount++;
     Position pos = this->position(offset);
     fErrorTextLength.push_back(fErrorText.length());
-    fErrorText += "error: " + (pos.fLine >= 1 ? to_string(pos.fLine) + ": " : "") + msg + "\n";
+    if (!msg.starts_with("error: ")) {
+        fErrorText += "error: ";
+    }
+    fErrorText += (pos.fLine >= 1 ? to_string(pos.fLine) + ": " : "") + msg + "\n";
 }
 
 void Compiler::setErrorCount(int c) {

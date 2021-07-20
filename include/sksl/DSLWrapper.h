@@ -35,11 +35,27 @@ public:
         fValue.swap(other.fValue);
     }
 
+    T& get() {
+        return fValue;
+    }
+
     T& operator*() {
         return fValue;
     }
 
     T* operator->() {
+        return &fValue;
+    }
+
+    const T& get() const {
+        return fValue;
+    }
+
+    const T& operator*() const {
+        return fValue;
+    }
+
+    const T* operator->() const {
         return &fValue;
     }
 

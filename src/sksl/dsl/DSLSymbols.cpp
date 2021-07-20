@@ -36,7 +36,10 @@ bool IsType(skstd::string_view name) {
 }
 
 void AddToSymbolTable(DSLVarBase& var) {
-    CurrentSymbolTable()->addWithoutOwnership(DSLWriter::Var(var));
+    const SkSL::Variable* skslVar = DSLWriter::Var(var);
+    if (skslVar) {
+        CurrentSymbolTable()->addWithoutOwnership(skslVar);
+    }
 }
 
 const String* Retain(String string) {

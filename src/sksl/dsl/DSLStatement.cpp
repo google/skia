@@ -31,18 +31,18 @@ DSLStatement::DSLStatement(DSLBlock block)
 DSLStatement::DSLStatement(DSLExpression expr) {
     std::unique_ptr<SkSL::Expression> skslExpr = expr.release();
     if (skslExpr) {
-        fStatement = std::make_unique<SkSL::ExpressionStatement>(std::move(skslExpr));
+        fStatement = SkSL::ExpressionStatement::Make(DSLWriter::Context(), std::move(skslExpr));
     }
 }
 
 DSLStatement::DSLStatement(std::unique_ptr<SkSL::Expression> expr)
-    : fStatement(std::make_unique<SkSL::ExpressionStatement>(std::move(expr))) {
+    : fStatement(SkSL::ExpressionStatement::Make(DSLWriter::Context(), std::move(expr))) {
     SkASSERT(this->valid());
 }
 
 DSLStatement::DSLStatement(std::unique_ptr<SkSL::Statement> stmt)
     : fStatement(std::move(stmt)) {
-    DSLWriter::ReportErrors();
+    SkASSERT(this->valid());
 }
 
 DSLStatement::DSLStatement(DSLPossibleExpression expr, PositionInfo pos)

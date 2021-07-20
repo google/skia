@@ -17,6 +17,7 @@
 #include "src/sksl/ir/SkSLContinueStatement.h"
 #include "src/sksl/ir/SkSLDiscardStatement.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
+#include "src/sksl/ir/SkSLField.h"
 #include "src/sksl/ir/SkSLForStatement.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
@@ -71,11 +72,6 @@ public:
                                                       std::move(instance.fPool),
                                                       bundle.fInputs);
         bool success = false;
-        // Make sure that if we encountered any compiler errors, we reported them through the
-        // DSL error handling side of things. (The converse is not a problem - it is ok to detect
-        // errors in the DSL layer, and thus have fEncounteredErrors be true, while not having the
-        // compiler see any errors because we caught them before they got there.)
-        SkASSERT(!DSLWriter::Compiler().errorCount() || DSLWriter::Instance().fEncounteredErrors);
         if (DSLWriter::Compiler().errorCount() || DSLWriter::Instance().fEncounteredErrors) {
             DSLWriter::ReportErrors();
             // Do not return programs that failed to compile.
@@ -86,6 +82,11 @@ public:
             // We have a successful program!
             success = true;
         }
+        // Make sure that if we encountered any compiler errors, we reported them through the
+        // DSL error handling side of things. (The converse is not a problem - it is ok to detect
+        // errors in the DSL layer, and thus have fEncounteredErrors be true, while not having the
+        // compiler see any errors because we caught them before they got there.)
+        SkASSERT(!DSLWriter::Compiler().errorCount() || DSLWriter::Instance().fEncounteredErrors);
         if (pool) {
             pool->detachFromThread();
         }
@@ -136,7 +137,6 @@ public:
         return DSLWriter::Declaration(var);
     }
 
-
     static DSLStatement Declare(SkTArray<DSLVar>& vars, PositionInfo pos) {
         StatementArray statements;
         for (DSLVar& v : vars) {
@@ -152,8 +152,10 @@ public:
         var.fDeclared = true;
         std::unique_ptr<SkSL::Statement> stmt = DSLWriter::Declaration(var);
         if (stmt) {
-            DSLWriter::ProgramElements().push_back(std::make_unique<SkSL::GlobalVarDeclaration>(
-                    std::move(stmt)));
+            if (!stmt->isEmpty()) {
+                DSLWriter::ProgramElements().push_back(std::make_unique<SkSL::GlobalVarDeclaration>(
+                        std::move(stmt)));
+            }
         } else if (var.fName == SkSL::Compiler::FRAGCOLOR_NAME) {
             // sk_FragColor can end up with a null declaration despite no error occurring due to
             // specific treatment in the compiler. Ignore the null and just grab the existing
@@ -202,16 +204,32 @@ public:
         std::vector<SkSL::Type::Field> skslFields;
         skslFields.reserve(fields.count());
         for (const DSLField& field : fields) {
-            skslFields.push_back(SkSL::Type::Field(SkSL::Modifiers(), field.fName,
+            skslFields.push_back(SkSL::Type::Field(field.fModifiers.fModifiers, field.fName,
                                                    &field.fType.skslType()));
         }
         const SkSL::Type* structType = DSLWriter::SymbolTable()->takeOwnershipOfSymbol(
                 SkSL::Type::MakeStructType(/*offset=*/-1, String(typeName), std::move(skslFields)));
         DSLType varType = arraySize > 0 ? Array(structType, arraySize) : DSLType(structType);
         DSLGlobalVar var(modifiers, varType, !varName.empty() ? varName : typeName);
+        // Interface blocks can't be declared, so we always need to mark the var declared ourselves.
+        // We do this only when fDSLMarkVarDeclared is false, so we don't double-declare it.
+        if (!DSLWriter::Settings().fDSLMarkVarsDeclared) {
+            DSLWriter::MarkDeclared(var);
+        }
         DSLWriter::ProgramElements().push_back(std::make_unique<SkSL::InterfaceBlock>(/*offset=*/-1,
                 DSLWriter::Var(var), String(typeName), String(varName), arraySize,
                 DSLWriter::SymbolTable()));
+        if (varName.empty()) {
+            const std::vector<SkSL::Type::Field>& fields = structType->fields();
+            const SkSL::Variable* skslVar = DSLWriter::Var(var);
+            for (size_t i = 0; i < fields.size(); ++i) {
+                DSLWriter::SymbolTable()->add(std::make_unique<SkSL::Field>(/*offset=*/-1,
+                                                                            skslVar,
+                                                                            i));
+            }
+        } else {
+            AddToSymbolTable(var);
+        }
         return var;
     }
 

@@ -57,6 +57,11 @@ DSLExpression::DSLExpression(int value)
                                          /*offset=*/-1,
                                          value)) {}
 
+DSLExpression::DSLExpression(int64_t value)
+    : fExpression(SkSL::IntLiteral::Make(DSLWriter::Context(),
+                                         /*offset=*/-1,
+                                         value)) {}
+
 DSLExpression::DSLExpression(unsigned int value)
     : fExpression(SkSL::IntLiteral::Make(DSLWriter::Context(),
                                          /*offset=*/-1,
@@ -267,6 +272,11 @@ DSLPossibleExpression::~DSLPossibleExpression() {
         // this handles incorporating the expression into the output tree
         DSLExpression(std::move(fExpression));
     }
+}
+
+void DSLPossibleExpression::reportErrors(PositionInfo pos) {
+    SkASSERT(!this->valid());
+    DSLWriter::ReportErrors(pos);
 }
 
 DSLType DSLPossibleExpression::type() {

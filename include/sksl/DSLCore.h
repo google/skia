@@ -20,6 +20,8 @@
 #include "include/sksl/DSLVar.h"
 #include "include/sksl/DSLWrapper.h"
 
+#define SKSL_DSL_PARSER 0
+
 namespace SkSL {
 
 class Compiler;
