@@ -39,7 +39,7 @@ deps = {
   "third_party/externals/spirv-cross"     : "https://chromium.googlesource.com/external/github.com/KhronosGroup/SPIRV-Cross@bdbef7b1f3982fe99a62d076043036abe6dd6d80",
   "third_party/externals/spirv-headers"   : "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Headers.git@bcf55210f13a4fa3c3d0963b509ff1070e434c79",
   "third_party/externals/spirv-tools"     : "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Tools.git@dc72924cb31cd9f3dbc3eb47e9d926cf641e3a07",
-  "third_party/externals/swiftshader"     : "https://swiftshader.googlesource.com/SwiftShader@ba18c78e46968726769813b68adb19466e092812",
+  "third_party/externals/swiftshader"     : "https://swiftshader.googlesource.com/SwiftShader@7a7993b54e62b85ddabe8dfcf7788174bf36b80f",
   #"third_party/externals/v8"              : "https://chromium.googlesource.com/v8/v8.git@5f1ae66d5634e43563b2d25ea652dfb94c31a3b4",
   "third_party/externals/wuffs"           : "https://skia.googlesource.com/external/github.com/google/wuffs.git@f49c38202914c289621f547ff016e5f02c994dda",
   "third_party/externals/zlib"            : "https://chromium.googlesource.com/chromium/src/third_party/zlib@c876c8f87101c5a75f6014b0f832499afeb65b73",
