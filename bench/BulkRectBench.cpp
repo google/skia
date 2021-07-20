@@ -13,6 +13,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkCanvasPriv.h"
+#include "src/gpu/GrOpsTypes.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/SkGr.h"
 
@@ -133,7 +134,7 @@ protected:
         auto context = canvas->recordingContext();
         SkASSERT(context);
 
-        GrSurfaceDrawContext::QuadSetEntry batch[kRectCount];
+        GrQuadSetEntry batch[kRectCount];
         for (int i = 0; i < kRectCount; ++i) {
             batch[i].fRect = fRects[i];
             batch[i].fColor = fColors[i].premul();

@@ -7,10 +7,12 @@
 
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
+#include "src/gpu/GrColorSpaceXform.h"
 #include "src/gpu/GrDirectContextPriv.h"
+#include "src/gpu/GrOpsTask.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/ops/GrTextureOp.h"
+#include "src/gpu/geometry/GrQuad.h"
 #include "src/gpu/ops/GrTextureOp.h"
 #include "tests/Test.h"
 

@@ -138,6 +138,7 @@ skia_gpu_sources = [
   "$_src/gpu/GrOpsRenderPass.h",
   "$_src/gpu/GrOpsTask.cpp",
   "$_src/gpu/GrOpsTask.h",
+  "$_src/gpu/GrOpsTypes.h",
   "$_src/gpu/GrPaint.cpp",
   "$_src/gpu/GrPaint.h",
   "$_src/gpu/GrPersistentCacheUtils.cpp",

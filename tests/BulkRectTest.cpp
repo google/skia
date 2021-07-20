@@ -8,6 +8,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "src/core/SkBlendModePriv.h"
 #include "src/gpu/GrDirectContextPriv.h"
+#include "src/gpu/GrOpsTypes.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
@@ -57,7 +58,7 @@ static void fillrectop_creation_test(skiatest::Reporter* reporter, GrDirectConte
 
     std::unique_ptr<GrSurfaceDrawContext> rtc = new_RTC(dContext);
 
-    auto quads = new GrSurfaceDrawContext::QuadSetEntry[requestedTotNumQuads];
+    auto quads = new GrQuadSetEntry[requestedTotNumQuads];
 
     for (int i = 0; i < requestedTotNumQuads; ++i) {
         quads[i].fRect = SkRect::MakeWH(100.5f, 100.5f); // prevent the int non-AA optimization
@@ -114,7 +115,7 @@ static void textureop_creation_test(skiatest::Reporter* reporter, GrDirectContex
                                         GrSwizzle::RGBA());
     }
 
-    auto set = new GrSurfaceDrawContext::TextureSetEntry[requestedTotNumQuads];
+    auto set = new GrTextureSetEntry[requestedTotNumQuads];
 
     for (int i = 0; i < requestedTotNumQuads; ++i) {
         if (!allUniqueProxies) {

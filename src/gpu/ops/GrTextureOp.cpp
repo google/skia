@@ -22,10 +22,12 @@
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrOpsTypes.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrResourceProviderPriv.h"
 #include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/SkGr.h"
@@ -178,7 +180,7 @@ static void normalize_src_quad(const NormalizationParams& params,
 // Count the number of proxy runs in the entry set. This usually is already computed by
 // SkGpuDevice, but when the BatchLengthLimiter chops the set up it must determine a new proxy count
 // for each split.
-static int proxy_run_count(const GrSurfaceDrawContext::TextureSetEntry set[], int count) {
+static int proxy_run_count(const GrTextureSetEntry set[], int count) {
     int actualProxyRunCount = 0;
     const GrSurfaceProxy* lastProxy = nullptr;
     for (int i = 0; i < count; ++i) {
@@ -238,7 +240,7 @@ public:
     }
 
     static GrOp::Owner Make(GrRecordingContext* context,
-                            GrSurfaceDrawContext::TextureSetEntry set[],
+                            GrTextureSetEntry set[],
                             int cnt,
                             int proxyRunCnt,
                             GrSamplerState::Filter filter,
@@ -478,7 +480,7 @@ private:
         fViewCountPairs[0] = {proxyView.detachProxy(), quadCount};
     }
 
-    TextureOp(GrSurfaceDrawContext::TextureSetEntry set[],
+    TextureOp(GrTextureSetEntry set[],
               int cnt,
               int proxyRunCnt,
               GrSamplerState::Filter filter,
@@ -1203,9 +1205,8 @@ public:
             , fTextureColorSpaceXform(textureColorSpaceXform)
             , fNumLeft(numEntries) {}
 
-    void createOp(GrSurfaceDrawContext::TextureSetEntry set[],
-                  int clumpSize,
-                  GrAAType aaType) {
+    void createOp(GrTextureSetEntry set[], int clumpSize, GrAAType aaType) {
+
         int clumpProxyCount = proxy_run_count(&set[fNumClumped], clumpSize);
         GrOp::Owner op = TextureOp::Make(fContext,
                                          &set[fNumClumped],
@@ -1246,7 +1247,7 @@ private:
 void GrTextureOp::AddTextureSetOps(GrSurfaceDrawContext* rtc,
                                    const GrClip* clip,
                                    GrRecordingContext* context,
-                                   GrSurfaceDrawContext::TextureSetEntry set[],
+                                   GrTextureSetEntry set[],
                                    int cnt,
                                    int proxyRunCnt,
                                    GrSamplerState::Filter filter,

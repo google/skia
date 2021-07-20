@@ -17,6 +17,7 @@
 #include "src/gpu/GrBlurUtils.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrColorSpaceXform.h"
+#include "src/gpu/GrOpsTypes.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
@@ -878,7 +879,7 @@ void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
                                             : GrSamplerState::Filter::kLinear;
     SkBlendMode mode = paint.getBlendMode_or(SkBlendMode::kSrcOver);
 
-    SkAutoTArray<GrSurfaceDrawContext::TextureSetEntry> textures(count);
+    SkAutoTArray<GrTextureSetEntry> textures(count);
     // We accumulate compatible proxies until we find an an incompatible one or reach the end and
     // issue the accumulated 'n' draws starting at 'base'. 'p' represents the number of proxy
     // switches that occur within the 'n' entries.

@@ -11,6 +11,7 @@
 #include "src/core/SkIPoint16.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrOpFlushState.h"
+#include "src/gpu/GrOpsTypes.h"
 #include "src/gpu/ops/GrFillRectOp.h"
 #include "src/gpu/tessellate/GrPathStencilCoverOp.h"
 

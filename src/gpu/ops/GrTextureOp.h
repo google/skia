@@ -12,11 +12,15 @@
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrSamplerState.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
+#include "src/gpu/ops/GrOp.h"
 
+struct DrawQuad;
+class GrClip;
 class GrColorSpaceXform;
 class GrDrawOp;
+class GrSurfaceDrawContext;
 class GrTextureProxy;
+struct GrTextureSetEntry;
 struct SkRect;
 class SkMatrix;
 
@@ -59,7 +63,7 @@ public:
     static void AddTextureSetOps(GrSurfaceDrawContext*,
                                  const GrClip* clip,
                                  GrRecordingContext*,
-                                 GrSurfaceDrawContext::TextureSetEntry[],
+                                 GrTextureSetEntry[],
                                  int cnt,
                                  int proxyRunCnt,
                                  GrSamplerState::Filter,

@@ -30,10 +30,12 @@ class GrDrawOp;
 class GrDstProxyView;
 class GrHardClip;
 class GrOp;
+struct GrQuadSetEntry;
 class GrRenderTarget;
 class GrStyledShape;
 class GrStyle;
 class GrTextureProxy;
+struct GrTextureSetEntry;
 struct GrUserStencilSettings;
 struct SkDrawShadowRec;
 class SkGlyphRunList;
@@ -224,17 +226,9 @@ public:
         this->drawFilledQuad(clip, std::move(paint), aa, &quad);
     }
 
-    /** Used with drawQuadSet */
-    struct QuadSetEntry {
-        SkRect fRect;
-        SkPMColor4f fColor; // Overrides any color on the GrPaint
-        SkMatrix fLocalMatrix;
-        GrQuadAAFlags fAAFlags;
-    };
-
     // TODO(michaelludwig) - remove if the bulk API is not useful for SkiaRenderer
     void drawQuadSet(const GrClip* clip, GrPaint&& paint, GrAA aa, const SkMatrix& viewMatrix,
-                     const QuadSetEntry[], int cnt);
+                     const GrQuadSetEntry[], int cnt);
 
     /**
      * Creates an op that draws a subrectangle of a texture. The passed color is modulated by the
@@ -284,17 +278,6 @@ public:
                                color, mode, aa, &quad, subset);
     }
 
-    /** Used with drawTextureSet */
-    struct TextureSetEntry {
-        GrSurfaceProxyView fProxyView;
-        SkAlphaType fSrcAlphaType;
-        SkRect fSrcRect;
-        SkRect fDstRect;
-        const SkPoint* fDstClipQuad; // Must be null, or point to an array of 4 points
-        const SkMatrix* fPreViewMatrix; // If not null, entry's CTM is 'viewMatrix' * fPreViewMatrix
-        SkPMColor4f   fColor; // {a,a,a,a} for rgb textures, {r,g,b,a} for alpha-only textures
-        GrQuadAAFlags fAAFlags;
-    };
     /**
      * Draws a set of textures with a shared filter, color, view matrix, color xform, and
      * texture color xform. The textures must all have the same GrTextureType and GrConfig.
@@ -307,7 +290,7 @@ public:
      * by SkGpuDevice, so no need to incur another iteration over the array.
      */
     void drawTextureSet(const GrClip*,
-                        TextureSetEntry[],
+                        GrTextureSetEntry[],
                         int cnt,
                         int proxyRunCnt,
                         GrSamplerState::Filter,

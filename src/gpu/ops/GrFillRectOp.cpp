@@ -11,8 +11,10 @@
 #include "include/core/SkRect.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrGeometryProcessor.h"
+#include "src/gpu/GrOpsTypes.h"
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrProgramInfo.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/geometry/GrQuad.h"
 #include "src/gpu/geometry/GrQuadBuffer.h"
@@ -479,7 +481,7 @@ GrOp::Owner GrFillRectOp::MakeOp(GrRecordingContext* context,
                                  GrPaint&& paint,
                                  GrAAType aaType,
                                  const SkMatrix& viewMatrix,
-                                 const GrSurfaceDrawContext::QuadSetEntry quads[],
+                                 const GrQuadSetEntry quads[],
                                  int cnt,
                                  const GrUserStencilSettings* stencilSettings,
                                  int* numConsumed) {
@@ -521,7 +523,7 @@ void GrFillRectOp::AddFillRectOps(GrSurfaceDrawContext* rtc,
                                   GrPaint&& paint,
                                   GrAAType aaType,
                                   const SkMatrix& viewMatrix,
-                                  const GrSurfaceDrawContext::QuadSetEntry quads[],
+                                  const GrQuadSetEntry quads[],
                                   int cnt,
                                   const GrUserStencilSettings* stencilSettings) {
 
