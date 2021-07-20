@@ -11,8 +11,10 @@
 #include "include/core/SkPoint.h"
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
+#include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrDrawingManager.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 
 static constexpr float kStrokeWidth = 100;

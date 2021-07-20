@@ -162,7 +162,6 @@ tests_sources = [
   "$_tests/NonlinearBlendingTest.cpp",
   "$_tests/OSPathTest.cpp",
   "$_tests/OffsetSimplePolyTest.cpp",
-  "$_tests/OnFlushCallbackTest.cpp",
   "$_tests/OnceTest.cpp",
   "$_tests/OverAlignedTest.cpp",
   "$_tests/PDFDeflateWStreamTest.cpp",

@@ -8,18 +8,13 @@
 #ifndef GrOnFlushResourceProvider_DEFINED
 #define GrOnFlushResourceProvider_DEFINED
 
-#include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
-#include "include/private/SkTArray.h"
 #include "src/gpu/GrDeferredUpload.h"
-#include "src/gpu/GrOpFlushState.h"
 
+class GrCaps;
 class GrDrawingManager;
 class GrOnFlushResourceProvider;
-class GrSurfaceDrawContext;
 class GrSurfaceProxy;
-class SkColorSpace;
-class SkSurfaceProps;
 
 /*
  * This is the base class from which all pre-flush callback objects must be derived. It
@@ -57,37 +52,11 @@ public:
  */
 class GrOnFlushResourceProvider {
 public:
-    using UseAllocator = GrSurfaceProxy::UseAllocator;
-
     explicit GrOnFlushResourceProvider(GrDrawingManager* drawingMgr) : fDrawingMgr(drawingMgr) {}
-
-    std::unique_ptr<GrSurfaceDrawContext> makeSurfaceDrawContext(sk_sp<GrSurfaceProxy>,
-                                                                 GrSurfaceOrigin, GrColorType,
-                                                                 sk_sp<SkColorSpace>,
-                                                                 const SkSurfaceProps&);
-
-    void addTextureResolveTask(sk_sp<GrTextureProxy>, GrSurfaceProxy::ResolveFlags);
-
-    // Proxy unique key management. See GrProxyProvider.h.
-    bool assignUniqueKeyToProxy(const GrUniqueKey&, GrTextureProxy*);
-    void removeUniqueKeyFromProxy(GrTextureProxy*);
-    void processInvalidUniqueKey(const GrUniqueKey&);
-    sk_sp<GrTextureProxy> findOrCreateProxyByUniqueKey(const GrUniqueKey&, UseAllocator);
 
     bool instatiateProxy(GrSurfaceProxy*);
 
-    // Creates a GPU buffer with a "dynamic" access pattern.
-    sk_sp<GrGpuBuffer> makeBuffer(GrGpuBufferType, size_t, const void* data = nullptr);
-
-    // Either finds and refs, or creates a static GPU buffer with the given data.
-    sk_sp<const GrGpuBuffer> findOrMakeStaticBuffer(GrGpuBufferType, size_t, const void* data,
-                                                    const GrUniqueKey&);
-
-    uint32_t contextID() const;
     const GrCaps* caps() const;
-    GrRecordingContext* recordingContext() const;
-
-    void printWarningMessage(const char* msg) const;
 
 private:
     GrOnFlushResourceProvider(const GrOnFlushResourceProvider&) = delete;

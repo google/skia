@@ -16,6 +16,7 @@
 #include "src/gpu/GrBlurUtils.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/GrMeshDrawTarget.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/GrSurfaceDrawContext.h"

@@ -12,12 +12,16 @@
 
 #if SK_GPU_V1
 
+#include "include/private/SkTHash.h"
 #include "src/core/SkIPoint16.h"
 #include "src/gpu/GrDynamicAtlas.h"
+#include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrOnFlushResourceProvider.h"
 #include "src/gpu/GrPathRenderer.h"
 
 class GrAtlasRenderTask;
+class GrOp;
+class GrRecordingContext;
 
 // This is the tie-in point for path rendering via GrPathTessellateOp. This path renderer draws
 // paths using a hybrid Red Book "stencil, then cover" method. Curves get linearized by GPU
