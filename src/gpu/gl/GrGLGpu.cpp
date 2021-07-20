@@ -2336,8 +2336,13 @@ GrGLenum GrGLGpu::prepareToDraw(GrPrimitiveType primitiveType) {
 }
 
 void GrGLGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resolveRect) {
-    this->resolveRenderFBOs(static_cast<GrGLRenderTarget*>(target), resolveRect,
-                            ResolveDirection::kMSAAToSingle);
+    auto glRT = static_cast<GrGLRenderTarget*>(target);
+    if (this->glCaps().framebufferResolvesMustBeFullSize()) {
+        this->resolveRenderFBOs(glRT, SkIRect::MakeSize(glRT->dimensions()),
+                                ResolveDirection::kMSAAToSingle);
+    } else {
+        this->resolveRenderFBOs(glRT, resolveRect, ResolveDirection::kMSAAToSingle);
+    }
 }
 
 void GrGLGpu::resolveRenderFBOs(GrGLRenderTarget* rt, const SkIRect& resolveRect,
@@ -2356,13 +2361,7 @@ void GrGLGpu::resolveRenderFBOs(GrGLRenderTarget* rt, const SkIRect& resolveRect
         this->bindFramebuffer(GR_GL_DRAW_FRAMEBUFFER, rt->singleSampleFBOID());
     } else {
         SkASSERT(resolveDirection == ResolveDirection::kSingleToMSAA);
-        if (caps.msFBOType() == GrGLCaps::kES_Apple_MSFBOType ||
-            (caps.blitFramebufferSupportFlags() & GrGLCaps::kNoMSAADst_BlitFramebufferFlag)) {
-            // Blitting from single to multisample is not supported. Make a draw instead.
-            this->copySurfaceAsDraw(rt, true/*drawToMultisampleFBO*/, rt, resolveRect,
-                                    resolveRect.topLeft());
-            return;
-        }
+        SkASSERT(this->glCaps().canResolveSingleToMSAA());
         this->bindFramebuffer(GR_GL_READ_FRAMEBUFFER, rt->singleSampleFBOID());
         this->bindFramebuffer(GR_GL_DRAW_FRAMEBUFFER, rt->multisampleFBOID());
     }
@@ -2373,6 +2372,7 @@ void GrGLGpu::resolveRenderFBOs(GrGLRenderTarget* rt, const SkIRect& resolveRect
     if (GrGLCaps::kES_Apple_MSFBOType == caps.msFBOType()) {
         // The Apple extension doesn't support blitting from single to multisample.
         SkASSERT(resolveDirection != ResolveDirection::kSingleToMSAA);
+        SkASSERT(resolveRect == SkIRect::MakeSize(rt->dimensions()));
         // Apple's extension uses the scissor as the blit bounds.
         // Passing in kTopLeft_GrSurfaceOrigin will make sure no transformation of the rect
         // happens inside flushScissor since resolveRect is already in native device coordinates.
@@ -2382,18 +2382,12 @@ void GrGLGpu::resolveRenderFBOs(GrGLRenderTarget* rt, const SkIRect& resolveRect
         this->disableWindowRectangles();
         GL_CALL(ResolveMultisampleFramebuffer());
     } else {
-        int l, b, r, t;
-        if (caps.blitFramebufferSupportFlags() & GrGLCaps::kResolveMustBeFull_BlitFrambufferFlag) {
-            l = 0;
-            b = 0;
-            r = rt->width();
-            t = rt->height();
-        } else {
-            l = resolveRect.x();
-            b = resolveRect.y();
-            r = resolveRect.x() + resolveRect.width();
-            t = resolveRect.y() + resolveRect.height();
-        }
+        SkASSERT(!caps.framebufferResolvesMustBeFullSize() ||
+                 resolveRect == SkIRect::MakeSize(rt->dimensions()));
+        int l = resolveRect.x();
+        int b = resolveRect.y();
+        int r = resolveRect.x() + resolveRect.width();
+        int t = resolveRect.y() + resolveRect.height();
 
         // BlitFrameBuffer respects the scissor, so disable it.
         this->flushScissorTest(GrScissorTest::kDisabled);
