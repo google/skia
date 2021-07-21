@@ -34,7 +34,7 @@ class SkWriteBuffer;
     value is the original RGB multiplied by alpha. Premultiplied color
     components improve performance.
 */
-enum SkAlphaType {
+enum SkAlphaType : int {
     kUnknown_SkAlphaType,                          //!< uninitialized
     kOpaque_SkAlphaType,                           //!< pixel is opaque
     kPremul_SkAlphaType,                           //!< pixel components are premultiplied by alpha
@@ -61,7 +61,7 @@ static inline bool SkAlphaTypeIsOpaque(SkAlphaType at) {
     kN32_SkColorType selects the native 32-bit ARGB format for the current configuration. This can
     lead to inconsistent results across platforms, so use with caution.
 */
-enum SkColorType {
+enum SkColorType : int {
     kUnknown_SkColorType,      //!< uninitialized
     kAlpha_8_SkColorType,      //!< pixel with alpha in 8-bit byte
     kRGB_565_SkColorType,      //!< pixel with 5 bits red, 6 bits green, 5 bits blue, in 16-bit word
@@ -145,7 +145,7 @@ SK_API bool SkColorTypeValidateAlphaType(SkColorType colorType, SkAlphaType alph
     The identity colorspace exists to provide a utility mapping from Y to R, U to G and V to B.
     It can be used to visualize the YUV planes or to explicitly post process the YUV channels.
 */
-enum SkYUVColorSpace {
+enum SkYUVColorSpace : int {
     kJPEG_Full_SkYUVColorSpace,                 //!< describes full range
     kRec601_Limited_SkYUVColorSpace,            //!< describes SDTV range
     kRec709_Full_SkYUVColorSpace,               //!< describes HDTV range
