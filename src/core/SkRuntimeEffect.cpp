@@ -1200,8 +1200,7 @@ sk_sp<SkShader> SkRuntimeEffect::makeShader(sk_sp<SkData> uniforms,
 
 sk_sp<SkImage> SkRuntimeEffect::makeImage(GrRecordingContext* recordingContext,
                                           sk_sp<SkData> uniforms,
-                                          sk_sp<SkShader> children[],
-                                          size_t childCount,
+                                          SkSpan<ChildPtr> children,
                                           const SkMatrix* localMatrix,
                                           SkImageInfo resultInfo,
                                           bool mipmapped) const {
@@ -1225,11 +1224,12 @@ sk_sp<SkImage> SkRuntimeEffect::makeImage(GrRecordingContext* recordingContext,
         GrColorInfo colorInfo(resultInfo.colorInfo());
         GrFPArgs args(recordingContext, matrixProvider, &colorInfo);
         SkSTArray<8, std::unique_ptr<GrFragmentProcessor>> childFPs;
-        for (size_t i = 0; i < childCount; ++i) {
-            if (!children[i]) {
+        for (size_t i = 0; i < children.size(); ++i) {
+            // TODO: add support for other types of child effects
+            if (!children[i].shader) {
                 return nullptr;
             }
-            childFPs.push_back(as_SB(children[i])->asFragmentProcessor(args));
+            childFPs.push_back(as_SB(children[i].shader)->asFragmentProcessor(args));
         }
         auto fp = GrSkSLFP::MakeWithData(sk_ref_sp(this),
                                          "runtime_image",
@@ -1268,7 +1268,7 @@ sk_sp<SkImage> SkRuntimeEffect::makeImage(GrRecordingContext* recordingContext,
     }
     SkCanvas* canvas = surf->getCanvas();
     SkTLazy<SkCanvas> tempCanvas;
-    auto shader = this->makeShader(std::move(uniforms), children, childCount, localMatrix, false);
+    auto shader = this->makeShader(std::move(uniforms), children, localMatrix, false);
     if (!shader) {
         return nullptr;
     }
@@ -1344,8 +1344,7 @@ sk_sp<SkImage> SkRuntimeShaderBuilder::makeImage(GrRecordingContext* recordingCo
                                                  bool mipmapped) {
     return this->effect()->makeImage(recordingContext,
                                      this->uniforms(),
-                                     this->children(),
-                                     this->numChildren(),
+                                     SkMakeSpan(this->children(), this->numChildren()),
                                      localMatrix,
                                      resultInfo,
                                      mipmapped);
@@ -1353,8 +1352,7 @@ sk_sp<SkImage> SkRuntimeShaderBuilder::makeImage(GrRecordingContext* recordingCo
 
 sk_sp<SkShader> SkRuntimeShaderBuilder::makeShader(const SkMatrix* localMatrix, bool isOpaque) {
     return this->effect()->makeShader(this->uniforms(),
-                                      this->children(),
-                                      this->numChildren(),
+                                      SkMakeSpan(this->children(), this->numChildren()),
                                       localMatrix,
                                       isOpaque);
 }

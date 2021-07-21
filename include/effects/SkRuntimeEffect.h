@@ -163,6 +163,7 @@ public:
 
     // Object that allows passing either an SkShader or SkColorFilter as a child
     struct ChildPtr {
+        ChildPtr() = default;
         ChildPtr(sk_sp<SkShader> s) : shader(std::move(s)) {}
         ChildPtr(sk_sp<SkColorFilter> cf) : colorFilter(std::move(cf)) {}
         sk_sp<SkShader> shader;
@@ -181,8 +182,7 @@ public:
 
     sk_sp<SkImage> makeImage(GrRecordingContext*,
                              sk_sp<SkData> uniforms,
-                             sk_sp<SkShader> children[],
-                             size_t childCount,
+                             SkSpan<ChildPtr> children,
                              const SkMatrix* localMatrix,
                              SkImageInfo resultInfo,
                              bool mipmapped) const;
@@ -291,7 +291,7 @@ private:
 };
 
 /** Base class for SkRuntimeShaderBuilder, defined below. */
-template <typename Child> class SkRuntimeEffectBuilder {
+class SkRuntimeEffectBuilder {
 public:
     struct BuilderUniform {
         // Copy 'val' to this variable. No type conversion is performed - 'val' must be same
@@ -319,7 +319,8 @@ public:
             } else if (fVar->sizeInBytes() != 9 * sizeof(float)) {
                 SkDEBUGFAIL("Incorrect value size");
             } else {
-                float* data = SkTAddOffset<float>(fOwner->writableUniformData(), fVar->offset);
+                float* data = SkTAddOffset<float>(fOwner->writableUniformData(),
+                                                  (ptrdiff_t)fVar->offset);
                 data[0] = val.get(0); data[1] = val.get(3); data[2] = val.get(6);
                 data[3] = val.get(1); data[4] = val.get(4); data[5] = val.get(7);
                 data[6] = val.get(2); data[7] = val.get(5); data[8] = val.get(8);
@@ -348,13 +349,20 @@ public:
     };
 
     struct BuilderChild {
-        template <typename C> BuilderChild& operator=(C&& val) {
-            // TODO(skbug:11813): Validate that the type of val lines up with the type of the child
-            // (SkShader vs. SkColorFilter).
+        template <typename T> BuilderChild& operator=(sk_sp<T> val) {
             if (!fChild) {
                 SkDEBUGFAIL("Assigning to missing child");
             } else {
-                fOwner->fChildren[fChild->index] = std::forward<C>(val);
+                fOwner->fChildren[(size_t)fChild->index] = std::move(val);
+            }
+            return *this;
+        }
+
+        BuilderChild& operator=(std::nullptr_t) {
+            if (!fChild) {
+                SkDEBUGFAIL("Assigning to missing child");
+            } else {
+                fOwner->fChildren[(size_t)fChild->index] = SkRuntimeEffect::ChildPtr{};
             }
             return *this;
         }
@@ -388,7 +396,7 @@ protected:
     SkRuntimeEffectBuilder& operator=(const SkRuntimeEffectBuilder&) = delete;
 
     sk_sp<SkData> uniforms() { return fUniforms; }
-    Child* children() { return fChildren.data(); }
+    SkRuntimeEffect::ChildPtr* children() { return fChildren.data(); }
     size_t numChildren() { return fChildren.size(); }
 
 private:
@@ -399,9 +407,9 @@ private:
         return fUniforms->writable_data();
     }
 
-    sk_sp<SkRuntimeEffect> fEffect;
-    sk_sp<SkData>          fUniforms;
-    std::vector<Child>     fChildren;
+    sk_sp<SkRuntimeEffect>                 fEffect;
+    sk_sp<SkData>                          fUniforms;
+    std::vector<SkRuntimeEffect::ChildPtr> fChildren;
 };
 
 /**
@@ -424,7 +432,7 @@ private:
  * Note that SkRuntimeShaderBuilder is built entirely on the public API of SkRuntimeEffect,
  * so can be used as-is or serve as inspiration for other interfaces or binding techniques.
  */
-class SK_API SkRuntimeShaderBuilder : public SkRuntimeEffectBuilder<sk_sp<SkShader>> {
+class SK_API SkRuntimeShaderBuilder : public SkRuntimeEffectBuilder {
 public:
     explicit SkRuntimeShaderBuilder(sk_sp<SkRuntimeEffect>);
     // This is currently required by Android Framework but may go away if that dependency
@@ -439,13 +447,13 @@ public:
                              bool mipmapped);
 
 private:
-    using INHERITED = SkRuntimeEffectBuilder<sk_sp<SkShader>>;
+    using INHERITED = SkRuntimeEffectBuilder;
 };
 
 /**
  * SkRuntimeBlendBuilder is a utility to simplify creation and uniform setup of runtime blenders.
  */
-class SK_API SkRuntimeBlendBuilder : public SkRuntimeEffectBuilder<sk_sp<SkBlender>> {
+class SK_API SkRuntimeBlendBuilder : public SkRuntimeEffectBuilder {
 public:
     explicit SkRuntimeBlendBuilder(sk_sp<SkRuntimeEffect>);
     ~SkRuntimeBlendBuilder();
@@ -456,7 +464,7 @@ public:
     sk_sp<SkBlender> makeBlender();
 
 private:
-    using INHERITED = SkRuntimeEffectBuilder<sk_sp<SkBlender>>;
+    using INHERITED = SkRuntimeEffectBuilder;
 };
 
 #endif  // SK_ENABLE_SKSL
