@@ -637,14 +637,6 @@ DEF_TEST(SkSLInterpreterRestrictLoops, r) {
     expect_failure(r, "void main(inout float x) { do { x++; } while (x < 1); }");
 }
 
-DEF_TEST(SkSLInterpreterRestrictFunctionCalls, r) {
-    // Ensure that simple recursion is not allowed
-    expect_failure(r, "float main() { return main() + 1; }");
-
-    // Ensure that calls to undefined functions are not allowed (to prevent mutual recursion)
-    expect_failure(r, "float foo(); float bar() { return foo(); } float foo() { return bar(); }");
-}
-
 DEF_TEST(SkSLInterpreterReturnThenCall, r) {
     // Test that early returns disable execution in subsequently called functions
     const char* src = R"(
