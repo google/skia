@@ -529,6 +529,7 @@ var CanvasKit = {
     getFillType: function() {},
     isEmpty: function() {},
     isVolatile: function() {},
+    makeAsWinding: function() {},
     reset: function() {},
     rewind: function() {},
     setFillType: function() {},

@@ -2318,7 +2318,15 @@ export interface Path extends EmbindObject<Path> {
     lineTo(x: number, y: number): Path;
 
     /**
-     * Adds begininning of contour at the given point.
+     * Returns a new path that covers the same area as the original path, but with the
+     * Winding FillType. This may re-draw some contours in the path as counter-clockwise
+     * instead of clockwise to achieve that effect. If such a transformation cannot
+     * be done, null is returned.
+     */
+    makeAsWinding(): Path | null;
+
+    /**
+     * Adds beginning of contour at the given point.
      * Returns the modified path for easier chaining.
      * @param x
      * @param y

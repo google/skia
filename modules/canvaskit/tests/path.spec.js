@@ -488,4 +488,93 @@ describe('Path Behavior', () => {
         path.delete();
         paint.delete();
     });
+
+    gm('winding_example', (canvas) => {
+        // Inspired by https://fiddle.skia.org/c/@Path_FillType_a
+        const path = new CanvasKit.Path();
+        // Draw overlapping rects on top
+        path.addRect(CanvasKit.LTRBRect(10, 10, 30, 30), false);
+        path.addRect(CanvasKit.LTRBRect(20, 20, 40, 40), false);
+        // Draw overlapping rects on bottom, with different direction lines.
+        path.addRect(CanvasKit.LTRBRect(10, 60, 30, 80), false);
+        path.addRect(CanvasKit.LTRBRect(20, 70, 40, 90), true);
+
+        expect(path.getFillType()).toEqual(CanvasKit.FillType.Winding);
+
+        // Draw the two rectangles on the left side.
+        const paint = new CanvasKit.Paint();
+        paint.setStyle(CanvasKit.PaintStyle.Stroke);
+        canvas.drawPath(path, paint);
+
+        const clipRect = CanvasKit.LTRBRect(0, 0, 51, 100);
+        paint.setStyle(CanvasKit.PaintStyle.Fill);
+
+        for (const fillType of [CanvasKit.FillType.Winding, CanvasKit.FillType.EvenOdd]) {
+            canvas.translate(51, 0);
+            canvas.save();
+            canvas.clipRect(clipRect, CanvasKit.ClipOp.Intersect, false);
+            path.setFillType(fillType);
+            canvas.drawPath(path, paint);
+            canvas.restore();
+        }
+
+        path.delete();
+        paint.delete();
+    });
+
+    gm('as_winding', (canvas) => {
+        const evenOddPath = new CanvasKit.Path();
+        // Draw overlapping rects
+        evenOddPath.addRect(CanvasKit.LTRBRect(10, 10, 70, 70), false);
+        evenOddPath.addRect(CanvasKit.LTRBRect(30, 30, 50, 50), false);
+        evenOddPath.setFillType(CanvasKit.FillType.EvenOdd);
+
+        const evenOddCmds = evenOddPath.toCmds();
+        expect(evenOddCmds).toEqual(Float32Array.of(
+          CanvasKit.MOVE_VERB, 10, 10,
+          CanvasKit.LINE_VERB, 70, 10,
+          CanvasKit.LINE_VERB, 70, 70,
+          CanvasKit.LINE_VERB, 10, 70,
+          CanvasKit.CLOSE_VERB,
+          CanvasKit.MOVE_VERB, 30, 30, // This contour is drawn
+          CanvasKit.LINE_VERB, 50, 30, // clockwise, as specified.
+          CanvasKit.LINE_VERB, 50, 50,
+          CanvasKit.LINE_VERB, 30, 50,
+          CanvasKit.CLOSE_VERB
+        ));
+
+        const windingPath = evenOddPath.makeAsWinding();
+
+        expect(windingPath.getFillType()).toBe(CanvasKit.FillType.Winding);
+        const windingCmds = windingPath.toCmds();
+        expect(windingCmds).toEqual(Float32Array.of(
+          CanvasKit.MOVE_VERB, 10, 10,
+          CanvasKit.LINE_VERB, 70, 10,
+          CanvasKit.LINE_VERB, 70, 70,
+          CanvasKit.LINE_VERB, 10, 70,
+          CanvasKit.CLOSE_VERB,
+          CanvasKit.MOVE_VERB, 30, 50, // This contour has been
+          CanvasKit.LINE_VERB, 50, 50, // re-drawn counter-clockwise
+          CanvasKit.LINE_VERB, 50, 30, // so that it covers the same
+          CanvasKit.LINE_VERB, 30, 30, // area, but with the winding fill type.
+          CanvasKit.CLOSE_VERB
+        ));
+
+        const paint = new CanvasKit.Paint();
+        paint.setStyle(CanvasKit.PaintStyle.Fill);
+        const font = new CanvasKit.Font(null, 20);
+
+        canvas.drawText('Original path (even odd)', 5, 20, paint, font);
+        canvas.translate(0, 50);
+        canvas.drawPath(evenOddPath, paint);
+
+        canvas.translate(300, 0);
+        canvas.drawPath(windingPath, paint);
+
+        canvas.translate(0, -50);
+        canvas.drawText('makeAsWinding path', 5, 20, paint, font);
+
+        evenOddPath.delete();
+        windingPath.delete();
+    });
 });

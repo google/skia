@@ -329,6 +329,14 @@ SkPathOrNull MakePathFromOp(const SkPath& pathOne, const SkPath& pathTwo, SkPath
     }
     return emscripten::val::null();
 }
+
+SkPathOrNull MakeAsWinding(const SkPath& self) {
+    SkPath out;
+    if (AsWinding(self, &out)) {
+        return emscripten::val(out);
+    }
+    return emscripten::val::null();
+}
 #endif
 
 JSString ToSVGString(const SkPath& path) {
@@ -1511,6 +1519,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         // PathOps
         .function("_simplify", &ApplySimplify)
         .function("_op", &ApplyPathOp)
+        .function("makeAsWinding", &MakeAsWinding)
 #endif
         // Exporting
         .function("toSVGString", &ToSVGString)
