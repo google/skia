@@ -7,7 +7,8 @@
 
 #include "gm/gm.h"
 #include "include/effects/SkRuntimeEffect.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
+#include "src/core/SkCanvasPriv.h"
+#include "src/gpu/GrSurfaceFillContext.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/sksl/dsl/priv/DSLFPs.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
@@ -56,6 +57,8 @@ public:
     }
 };
 
-DEF_SIMPLE_GPU_GM(simple_dsl_test, rContext, sdc, canvas, 100, 100) {
-    sdc->fillWithFP(std::make_unique<SimpleDSLEffect>());
+DEF_SIMPLE_GPU_GM(simple_dsl_test, rContext, canvas, 100, 100) {
+    auto sfc = SkCanvasPriv::TopDeviceSurfaceFillContext(canvas);
+
+    sfc->fillWithFP(std::make_unique<SimpleDSLEffect>());
 }

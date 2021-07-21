@@ -9,6 +9,7 @@
 
 #include "include/effects/SkGradientShader.h"
 #include "include/gpu/GrRecordingContext.h"
+#include "src/core/SkCanvasPriv.h"
 #include "src/core/SkGpuBlurUtils.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrStyle.h"
@@ -16,6 +17,8 @@
 #include "src/gpu/effects/GrBlendFragmentProcessor.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "src/image/SkImage_Base.h"
+
+namespace {
 
 static GrSurfaceProxyView blur(GrRecordingContext* ctx,
                                GrSurfaceProxyView src,
@@ -174,10 +177,22 @@ GrSurfaceProxyView make_src_image(GrRecordingContext* rContext,
     return src;
 }
 
-static void run(GrRecordingContext* rContext, GrSurfaceDrawContext* sdc, bool subsetSrc, bool ref) {
+} // namespace
+
+namespace skiagm {
+
+static GM::DrawResult run(GrRecordingContext* rContext, SkCanvas* canvas,  SkString* errorMsg,
+                          bool subsetSrc, bool ref) {
     GrSurfaceProxyView src = make_src_image(rContext, {60, 60});
     if (!src) {
-        return;
+        *errorMsg = "Failed to create source image";
+        return DrawResult::kSkip;
+    }
+
+    auto sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
+    if (!sdc) {
+        *errorMsg = GM::kErrorMsg_DrawSkippedGpuOnly;
+        return DrawResult::kSkip;
     }
 
     SkIRect srcRect = SkIRect::MakeSize(src.dimensions());
@@ -330,18 +345,24 @@ static void run(GrRecordingContext* rContext, GrSurfaceDrawContext* sdc, bool su
         trans.fX = kPad;
         trans.fY += testArea.height() + kPad;
     }
+
+    return DrawResult::kOk;
 }
 
-DEF_SIMPLE_GPU_GM(gpu_blur_utils, ctx, sdc, canvas, 765, 955) { run(ctx, sdc, false, false); }
-
-DEF_SIMPLE_GPU_GM(gpu_blur_utils_ref, ctx, sdc, canvas, 765, 955) { run(ctx, sdc, false, true); }
-
-DEF_SIMPLE_GPU_GM(gpu_blur_utils_subset_rect, ctx, sdc, canvas, 485, 730) {
-    run(ctx, sdc, true, false);
+DEF_SIMPLE_GPU_GM_CAN_FAIL(gpu_blur_utils, rContext, canvas, errorMsg, 765, 955) {
+    return run(rContext, canvas, errorMsg, false, false);
 }
 
-DEF_SIMPLE_GPU_GM(gpu_blur_utils_subset_ref, ctx, sdc, canvas, 485, 730) {
-    run(ctx, sdc, true, true);
+DEF_SIMPLE_GPU_GM_CAN_FAIL(gpu_blur_utils_ref, rContext, canvas, errorMsg, 765, 955) {
+    return run(rContext, canvas, errorMsg, false, true);
+}
+
+DEF_SIMPLE_GPU_GM_CAN_FAIL(gpu_blur_utils_subset_rect, rContext, canvas, errorMsg, 485, 730) {
+    return run(rContext, canvas, errorMsg, true, false);
+}
+
+DEF_SIMPLE_GPU_GM_CAN_FAIL(gpu_blur_utils_subset_ref, rContext, canvas, errorMsg, 485, 730) {
+    return run(rContext, canvas, errorMsg, true, true);
 }
 
 // Because of the way blur sigmas concat (sigTotal = sqrt(sig1^2 + sig2^2) generating these images
@@ -349,10 +370,17 @@ DEF_SIMPLE_GPU_GM(gpu_blur_utils_subset_ref, ctx, sdc, canvas, 485, 730) {
 // check results.
 static bool constexpr kShowSlowRefImages = false;
 
-static void do_very_large_blur_gm(GrSurfaceDrawContext* sdc,
-                                  GrRecordingContext* rContext,
-                                  GrSurfaceProxyView src,
-                                  SkIRect srcB) {
+static DrawResult do_very_large_blur_gm(GrRecordingContext* rContext,
+                                        SkCanvas* canvas,
+                                        SkString* errorMsg,
+                                        GrSurfaceProxyView src,
+                                        SkIRect srcB) {
+    auto sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
+    if (!sdc) {
+        *errorMsg = GM::kErrorMsg_DrawSkippedGpuOnly;
+        return DrawResult::kSkip;
+    }
+
     // Clear to a color other than gray to contrast with test image.
     sdc->clear(SkColor4f{0.3f, 0.4f, 0.2f, 1});
 
@@ -400,28 +428,36 @@ static void do_very_large_blur_gm(GrSurfaceDrawContext* sdc,
             y += dstB.height() + 10;
         }
     }
+
+    return DrawResult::kOk;
 }
 
-DEF_SIMPLE_GPU_GM(very_large_sigma_gpu_blur, ctx, sdc, canvas, 350, 1030) {
-    auto src = make_src_image(ctx, {15, 15});
+DEF_SIMPLE_GPU_GM_CAN_FAIL(very_large_sigma_gpu_blur, rContext, canvas, errorMsg, 350, 1030) {
+    auto src = make_src_image(rContext, {15, 15});
     auto srcB = SkIRect::MakeSize(src.dimensions());
-    do_very_large_blur_gm(sdc, ctx, std::move(src), srcB);
+    return do_very_large_blur_gm(rContext, canvas, errorMsg, std::move(src), srcB);
 }
 
-DEF_SIMPLE_GPU_GM(very_large_sigma_gpu_blur_subset, ctx, sdc, canvas, 350, 1030) {
+DEF_SIMPLE_GPU_GM_CAN_FAIL(very_large_sigma_gpu_blur_subset,
+                           rContext,
+                           canvas,
+                           errorMsg,
+                           350, 1030) {
     auto srcB = SkIRect::MakeXYWH(2, 2, 15, 15);
     SkISize imageSize = SkISize{srcB.width() + 4, srcB.height() + 4};
-    auto src = make_src_image(ctx, imageSize, &srcB);
-    do_very_large_blur_gm(sdc, ctx, std::move(src), srcB);
+    auto src = make_src_image(rContext, imageSize, &srcB);
+    return do_very_large_blur_gm(rContext, canvas, errorMsg, std::move(src), srcB);
 }
 
-DEF_SIMPLE_GPU_GM(very_large_sigma_gpu_blur_subset_transparent_border,
-                  ctx,
-                  sdc,
-                  canvas,
-                  355, 1055) {
+DEF_SIMPLE_GPU_GM_CAN_FAIL(very_large_sigma_gpu_blur_subset_transparent_border,
+                           rContext,
+                           canvas,
+                           errorMsg,
+                           355, 1055) {
     auto srcB = SkIRect::MakeXYWH(3, 3, 15, 15);
     SkISize imageSize = SkISize{srcB.width() + 4, srcB.height() + 4};
-    auto src = make_src_image(ctx, imageSize, &srcB);
-    do_very_large_blur_gm(sdc, ctx, std::move(src), srcB.makeOutset(1, 1));
+    auto src = make_src_image(rContext, imageSize, &srcB);
+    return do_very_large_blur_gm(rContext, canvas, errorMsg, std::move(src), srcB.makeOutset(1, 1));
 }
+
+} // namespace skiagm

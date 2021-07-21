@@ -8,6 +8,7 @@
 #include "gm/gm.h"
 #include "include/core/SkFont.h"
 #include "include/effects/SkRuntimeEffect.h"
+#include "src/core/SkCanvasPriv.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrSurfaceDrawContext.h"
@@ -15,6 +16,8 @@
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "tools/ToolUtils.h"
+
+namespace {
 
 // Samples child with a uniform matrix (functionally identical to GrMatrixEffect)
 // Scales along Y
@@ -150,7 +153,17 @@ static std::unique_ptr<GrFragmentProcessor> wrap(std::unique_ptr<GrFragmentProce
     SkUNREACHABLE;
 }
 
-DEF_SIMPLE_GPU_GM(fp_sample_chaining, rContext, sdc, canvas, 232, 232) {
+} // namespace
+
+namespace skiagm {
+
+DEF_SIMPLE_GPU_GM_CAN_FAIL(fp_sample_chaining, rContext, canvas, errorMsg, 232, 232) {
+    auto sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
+    if (!sdc) {
+        *errorMsg = GM::kErrorMsg_DrawSkippedGpuOnly;
+        return DrawResult::kSkip;
+    }
+
     SkBitmap bmp = make_test_bitmap();
 
     int x = 10, y = 10;
@@ -196,4 +209,8 @@ DEF_SIMPLE_GPU_GM(fp_sample_chaining, rContext, sdc, canvas, 232, 232) {
     // Remember, these are applied inside out:
     draw({ kUniform,  kExplicit }); // Scale Y by 2x and translate up by 8px
     draw({ kExplicit, kUniform });  // Scale Y by 2x and translate up by 16px
+
+    return DrawResult::kOk;
 }
+
+} // namespace skiagm

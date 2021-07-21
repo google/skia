@@ -13,6 +13,7 @@
 #include "include/core/SkString.h"
 #include "include/gpu/GrDirectContext.h"
 
+#include "src/core/SkCanvasPriv.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrPaint.h"
@@ -198,10 +199,15 @@ protected:
         return DrawResult::kOk;
     }
 
-    void onDraw(GrRecordingContext* rContext, GrSurfaceDrawContext* sdc,
-                SkCanvas* canvas) override {
+    DrawResult onDraw(GrRecordingContext* rContext, SkCanvas* canvas, SkString* errorMsg) override {
         SkSamplingOptions sampling(SkFilterMode::kNearest, SkMipmapMode::kNone);
         SkPaint p;
+
+        auto sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
+        if (!sdc) {
+            *errorMsg = kErrorMsg_DrawSkippedGpuOnly;
+            return DrawResult::kSkip;
+        }
 
         int y = kPad;
         for (auto yMode : { SkTileMode::kClamp, SkTileMode::kRepeat,
@@ -230,6 +236,7 @@ protected:
             y += 2*kContentSize+kPad;
         }
 
+        return DrawResult::kOk;
     }
 
 private:

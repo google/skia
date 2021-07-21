@@ -200,12 +200,13 @@ static GrStencilClip make_stencil_only_clip(GrSurfaceDrawContext* rtc) {
     return GrStencilClip(rtc->dimensions(), SkClipStack::kEmptyGenID);
 };
 
-DrawResult WindowRectanglesMaskGM::onCoverClipStack(const SkClipStack& stack, SkCanvas* canvas,
+DrawResult WindowRectanglesMaskGM::onCoverClipStack(const SkClipStack& stack,
+                                                    SkCanvas* canvas,
                                                     SkString* errorMsg) {
-    auto ctx = canvas->recordingContext();
+    auto rContext = canvas->recordingContext();
     GrSurfaceDrawContext* sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
 
-    if (!ctx || !sdc) {
+    if (!rContext || !sdc) {
         *errorMsg = kErrorMsg_DrawSkippedGpuOnly;
         return DrawResult::kSkip;
     }
@@ -220,10 +221,10 @@ DrawResult WindowRectanglesMaskGM::onCoverClipStack(const SkClipStack& stack, Sk
     GrPaint paint;
     if (sdc->numSamples() <= 1) {
         paint.setColor4f({ 0, 0.25f, 1, 1 });
-        this->visualizeAlphaMask(ctx, sdc, reducedClip, std::move(paint));
+        this->visualizeAlphaMask(rContext, sdc, reducedClip, std::move(paint));
     } else {
         paint.setColor4f({ 1, 0.25f, 0.25f, 1 });
-        this->visualizeStencilMask(ctx, sdc, reducedClip, std::move(paint));
+        this->visualizeStencilMask(rContext, sdc, reducedClip, std::move(paint));
     }
     return DrawResult::kOk;
 }

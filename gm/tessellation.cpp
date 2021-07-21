@@ -7,6 +7,7 @@
 
 #include "gm/gm.h"
 
+#include "src/core/SkCanvasPriv.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrGeometryProcessor.h"
@@ -47,7 +48,7 @@ constexpr static int kHeight = (int)kRect.fBottom + 21;
 class TessellationGM : public GpuGM {
     SkString onShortName() override { return SkString("tessellation"); }
     SkISize onISize() override { return {kWidth, kHeight}; }
-    DrawResult onDraw(GrRecordingContext*, GrSurfaceDrawContext*, SkCanvas*, SkString*) override;
+    DrawResult onDraw(GrRecordingContext*, SkCanvas*, SkString*) override;
 };
 
 
@@ -357,8 +358,15 @@ static SkPath build_outset_triangle(const std::array<float, 3>* tri) {
     return outset;
 }
 
-DrawResult TessellationGM::onDraw(GrRecordingContext* rContext, GrSurfaceDrawContext* sdc,
-                                  SkCanvas* canvas, SkString* errorMsg) {
+DrawResult TessellationGM::onDraw(GrRecordingContext* rContext,
+                                  SkCanvas* canvas,
+                                  SkString* errorMsg) {
+    auto sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
+    if (!sdc) {
+        *errorMsg = kErrorMsg_DrawSkippedGpuOnly;
+        return DrawResult::kSkip;
+    }
+
     if (!rContext->priv().caps()->shaderCaps()->tessellationSupport()) {
         *errorMsg = "Requires GPU tessellation support.";
         return DrawResult::kSkip;

@@ -16,9 +16,8 @@
 
 SkAutoCanvasMatrixPaint::SkAutoCanvasMatrixPaint(SkCanvas* canvas, const SkMatrix* matrix,
                                                  const SkPaint* paint, const SkRect& bounds)
-: fCanvas(canvas)
-, fSaveCount(canvas->getSaveCount())
-{
+        : fCanvas(canvas)
+        , fSaveCount(canvas->getSaveCount()) {
     if (paint) {
         SkRect newBounds = bounds;
         if (matrix) {
@@ -118,3 +117,34 @@ bool SkCanvasPriv::ValidateMarker(const char* name) {
     }
     return true;
 }
+
+#if SK_SUPPORT_GPU
+#include "src/gpu/GrSurfaceDrawContext.h"
+
+GrSurfaceDrawContext* SkCanvasPriv::TopDeviceSurfaceDrawContext(SkCanvas* canvas) {
+    return canvas->topDeviceSurfaceDrawContext();
+}
+
+GrSurfaceFillContext* SkCanvasPriv::TopDeviceSurfaceFillContext(SkCanvas* canvas) {
+    return canvas->topDeviceSurfaceDrawContext();
+}
+
+GrRenderTargetProxy* SkCanvasPriv::TopDeviceTargetProxy(SkCanvas* canvas) {
+    return canvas->topDeviceTargetProxy();
+}
+
+#else
+
+GrSurfaceDrawContext* SkCanvasPriv::TopDeviceSurfaceDrawContext(SkCanvas* canvas) {
+    return nullptr;
+}
+
+GrSurfaceFillContext* SkCanvasPriv::TopDeviceSurfaceFillContext(SkCanvas* canvas) {
+    return nullptr;
+}
+
+GrRenderTargetProxy* SkCanvasPriv::TopDeviceTargetProxy(SkCanvas* canvas) {
+    return nullptr;
+}
+
+#endif

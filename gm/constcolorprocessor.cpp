@@ -28,6 +28,7 @@
 #include "include/gpu/GrConfig.h"
 #include "include/private/GrTypesPriv.h"
 #include "include/private/SkColorData.h"
+#include "src/core/SkCanvasPriv.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrFragmentProcessor.h"
@@ -77,8 +78,13 @@ protected:
                                                SkTileMode::kClamp);
     }
 
-    void onDraw(GrRecordingContext* context, GrSurfaceDrawContext* surfaceDrawContext,
-                SkCanvas* canvas) override {
+    DrawResult onDraw(GrRecordingContext* rContext, SkCanvas* canvas, SkString* errorMsg) override {
+        auto sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
+        if (!sdc) {
+            *errorMsg = kErrorMsg_DrawSkippedGpuOnly;
+            return DrawResult::kSkip;
+        }
+
         constexpr GrColor kColors[] = {
             0xFFFFFFFF,
             0xFFFF00FF,
@@ -109,7 +115,7 @@ protected:
                 std::unique_ptr<GrFragmentProcessor> baseFP;
                 if (paintType >= SK_ARRAY_COUNT(kPaintColors)) {
                     GrColorInfo colorInfo;
-                    GrFPArgs args(context, SkSimpleMatrixProvider(SkMatrix::I()), &colorInfo);
+                    GrFPArgs args(rContext, SkSimpleMatrixProvider(SkMatrix::I()), &colorInfo);
                     baseFP = as_SB(fShader)->asFragmentProcessor(args);
                 } else {
                     baseFP = GrFragmentProcessor::MakeColor(
@@ -136,12 +142,12 @@ protected:
                 }
 
                 // Render the FP tree.
-                if (auto op = sk_gpu_test::test_ops::MakeRect(context,
+                if (auto op = sk_gpu_test::test_ops::MakeRect(rContext,
                                                               std::move(colorFP),
                                                               renderRect.makeOffset(x, y),
                                                               renderRect,
                                                               SkMatrix::I())) {
-                    surfaceDrawContext->addDrawOp(std::move(op));
+                    sdc->addDrawOp(std::move(op));
                 }
 
                 // Draw labels for the input to the processor and the processor to the right of
@@ -197,6 +203,8 @@ protected:
                 }
             }
         }
+
+        return DrawResult::kOk;
     }
 
 private:

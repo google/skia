@@ -37,7 +37,6 @@ gm_sources = [
   "$_gm/bigblurs.cpp",
   "$_gm/bigmatrix.cpp",
   "$_gm/bigrect.cpp",
-  "$_gm/bigrrectaaeffect.cpp",
   "$_gm/bigtext.cpp",
   "$_gm/bigtileimagefilter.cpp",
   "$_gm/bitmapcopy.cpp",
@@ -73,7 +72,6 @@ gm_sources = [
   "$_gm/circle_sizes.cpp",
   "$_gm/circulararcs.cpp",
   "$_gm/circularclips.cpp",
-  "$_gm/clear_swizzle.cpp",
   "$_gm/clip_error.cpp",
   "$_gm/clip_sierpinski_region.cpp",
   "$_gm/clip_strokerect.cpp",
@@ -140,7 +138,6 @@ gm_sources = [
   "$_gm/dashcubics.cpp",
   "$_gm/dashing.cpp",
   "$_gm/degeneratesegments.cpp",
-  "$_gm/destcolor.cpp",
   "$_gm/dftext.cpp",
   "$_gm/dftext_blob_persp.cpp",
   "$_gm/discard.cpp",
@@ -183,7 +180,6 @@ gm_sources = [
   "$_gm/fontregen.cpp",
   "$_gm/fontscaler.cpp",
   "$_gm/fontscalerdistortable.cpp",
-  "$_gm/fp_sample_chaining.cpp",
   "$_gm/fpcoordinateoverride.cpp",
   "$_gm/gammatext.cpp",
   "$_gm/getpostextpath.cpp",
@@ -240,7 +236,6 @@ gm_sources = [
   "$_gm/largeclippedpath.cpp",
   "$_gm/largeglyphblur.cpp",
   "$_gm/lattice.cpp",
-  "$_gm/lazytiling.cpp",
   "$_gm/lcdblendmodes.cpp",
   "$_gm/lcdoverlap.cpp",
   "$_gm/lcdtext.cpp",
@@ -401,7 +396,6 @@ gm_sources = [
   "$_gm/xfermodes3.cpp",
   "$_gm/ycbcrimage.cpp",
   "$_gm/yuv420_odd_dim.cpp",
-  "$_gm/yuvtorgbsubset.cpp",
 ]
 
 gl_gm_sources = [ "$_gm/rectangletexture.cpp" ]
@@ -409,16 +403,22 @@ gl_gm_sources = [ "$_gm/rectangletexture.cpp" ]
 skgpu_v1_gm_sources = [
   "$_gm/aarecteffect.cpp",
   "$_gm/beziereffects.cpp",
+  "$_gm/bigrrectaaeffect.cpp",
+  "$_gm/clear_swizzle.cpp",
   "$_gm/clockwise.cpp",
   "$_gm/constcolorprocessor.cpp",
   "$_gm/convexpolyeffect.cpp",
+  "$_gm/destcolor.cpp",
   "$_gm/drawquadset.cpp",
+  "$_gm/fp_sample_chaining.cpp",
   "$_gm/fwidth_squircle.cpp",
   "$_gm/gpu_blur_utils.cpp",
+  "$_gm/lazytiling.cpp",
   "$_gm/preservefillrule.cpp",
   "$_gm/tessellation.cpp",
   "$_gm/texelsubset.cpp",
   "$_gm/widebuttcaps.cpp",
+  "$_gm/yuvtorgbsubset.cpp",
 ]
 
 gm_sources += skgpu_v1_gm_sources

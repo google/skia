@@ -12,6 +12,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkImageFilters.h"
+#include "src/core/SkCanvasPriv.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrStyle.h"
@@ -68,8 +69,16 @@ private:
 
 }  // namespace
 
-DEF_SIMPLE_GPU_GM(destcolor, rContext, sdc, canvas, 640, 640) {
+namespace skiagm {
+
+DEF_SIMPLE_GPU_GM_CAN_FAIL(destcolor, rContext, canvas, errorMsg, 640, 640) {
     SkRect bounds = SkRect::MakeIWH(512, 512);
+
+    auto sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
+    if (!sdc) {
+        *errorMsg = GM::kErrorMsg_DrawSkippedGpuOnly;
+        return DrawResult::kSkip;
+    }
 
     // Draw the mandrill.
     SkPaint p;
@@ -84,4 +93,8 @@ DEF_SIMPLE_GPU_GM(destcolor, rContext, sdc, canvas, 640, 640) {
     invertPaint.setColorFragmentProcessor(DestColorTestFP::Make(GrFragmentProcessor::DestColor()));
     sdc->drawOval(/*clip*/ nullptr, std::move(invertPaint), GrAA::kYes, SkMatrix::I(),
                   SkRect::MakeLTRB(128, 128, 640, 640), GrStyle::SimpleFill());
+
+    return DrawResult::kOk;
 }
+
+} // namespace skiagm

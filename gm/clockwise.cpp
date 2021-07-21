@@ -20,6 +20,7 @@
 #include "include/gpu/GrTypes.h"
 #include "include/private/GrTypesPriv.h"
 #include "include/private/SkColorData.h"
+#include "src/core/SkCanvasPriv.h"
 #include "src/gpu/GrBuffer.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrColorSpaceXform.h"
@@ -58,17 +59,6 @@ namespace {
 
 static constexpr GrGeometryProcessor::Attribute gVertex =
         {"position", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
-
-/**
- * This is a GPU-backend specific test. It ensures that SkSL properly identifies clockwise-winding
- * triangles (sk_Clockwise), in terms of to Skia device space, in all backends and with all render
- * target origins. We draw clockwise triangles green and counter-clockwise red.
- */
-class ClockwiseGM : public skiagm::GpuGM {
-    SkString onShortName() override { return SkString("clockwise"); }
-    SkISize onISize() override { return {300, 200}; }
-    void onDraw(GrRecordingContext*, GrSurfaceDrawContext*, SkCanvas*) override;
-};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // SkSL code.
@@ -240,25 +230,46 @@ private:
     using INHERITED = GrDrawOp;
 };
 
+}  // namespace
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Test.
 
-void ClockwiseGM::onDraw(GrRecordingContext* ctx, GrSurfaceDrawContext* sdc, SkCanvas* canvas) {
+namespace skiagm {
+
+/**
+ * This is a GPU-backend specific test. It ensures that SkSL properly identifies clockwise-winding
+ * triangles (sk_Clockwise), in terms of to Skia device space, in all backends and with all render
+ * target origins. We draw clockwise triangles green and counter-clockwise red.
+ */
+class ClockwiseGM : public GpuGM {
+    SkString onShortName() override { return SkString("clockwise"); }
+    SkISize onISize() override { return {300, 200}; }
+    DrawResult onDraw(GrRecordingContext*, SkCanvas*, SkString* errorMsg) override;
+};
+
+DrawResult ClockwiseGM::onDraw(GrRecordingContext* rContext, SkCanvas* canvas, SkString* errorMsg) {
+    auto sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
+    if (!sdc) {
+        *errorMsg = kErrorMsg_DrawSkippedGpuOnly;
+        return DrawResult::kSkip;
+    }
+
     sdc->clear(SK_PMColor4fBLACK);
 
     // Draw the test directly to the frame buffer.
-    sdc->addDrawOp(ClockwiseTestOp::Make(ctx, false, 0));
-    sdc->addDrawOp(ClockwiseTestOp::Make(ctx, true, 100));
+    sdc->addDrawOp(ClockwiseTestOp::Make(rContext, false, 0));
+    sdc->addDrawOp(ClockwiseTestOp::Make(rContext, true, 100));
 
     // Draw the test to an off-screen, top-down render target.
     GrColorType rtcColorType = sdc->colorInfo().colorType();
     if (auto topLeftRTC = GrSurfaceDrawContext::Make(
-                ctx, rtcColorType, nullptr, SkBackingFit::kExact, {100, 200}, SkSurfaceProps(),
+                rContext, rtcColorType, nullptr, SkBackingFit::kExact, {100, 200}, SkSurfaceProps(),
                 1, GrMipmapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin,
                 SkBudgeted::kYes)) {
         topLeftRTC->clear(SK_PMColor4fTRANSPARENT);
-        topLeftRTC->addDrawOp(ClockwiseTestOp::Make(ctx, false, 0));
-        topLeftRTC->addDrawOp(ClockwiseTestOp::Make(ctx, true, 100));
+        topLeftRTC->addDrawOp(ClockwiseTestOp::Make(rContext, false, 0));
+        topLeftRTC->addDrawOp(ClockwiseTestOp::Make(rContext, true, 100));
         sdc->drawTexture(nullptr,
                          topLeftRTC->readSurfaceView(),
                          sdc->colorInfo().alphaType(),
@@ -277,12 +288,12 @@ void ClockwiseGM::onDraw(GrRecordingContext* ctx, GrSurfaceDrawContext* sdc, SkC
 
     // Draw the test to an off-screen, bottom-up render target.
     if (auto topLeftRTC = GrSurfaceDrawContext::Make(
-                ctx, rtcColorType, nullptr, SkBackingFit::kExact, {100, 200}, SkSurfaceProps(),
+                rContext, rtcColorType, nullptr, SkBackingFit::kExact, {100, 200}, SkSurfaceProps(),
                 1, GrMipmapped::kNo, GrProtected::kNo, kBottomLeft_GrSurfaceOrigin,
                 SkBudgeted::kYes)) {
         topLeftRTC->clear(SK_PMColor4fTRANSPARENT);
-        topLeftRTC->addDrawOp(ClockwiseTestOp::Make(ctx, false, 0));
-        topLeftRTC->addDrawOp(ClockwiseTestOp::Make(ctx, true, 100));
+        topLeftRTC->addDrawOp(ClockwiseTestOp::Make(rContext, false, 0));
+        topLeftRTC->addDrawOp(ClockwiseTestOp::Make(rContext, true, 100));
         sdc->drawTexture(nullptr,
                          topLeftRTC->readSurfaceView(),
                          sdc->colorInfo().alphaType(),
@@ -298,10 +309,12 @@ void ClockwiseGM::onDraw(GrRecordingContext* ctx, GrSurfaceDrawContext* sdc, SkC
                          SkMatrix::I(),
                          nullptr);
     }
+
+    return DrawResult::kOk;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 DEF_GM( return new ClockwiseGM(); )
 
-}  // namespace
+}  // namespace skiagm

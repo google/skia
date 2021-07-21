@@ -10,6 +10,7 @@
 #include "include/core/SkPath.h"
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrRecordingContext.h"
+#include "src/core/SkCanvasPriv.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrRecordingContextPriv.h"
@@ -48,13 +49,14 @@ private:
         ctxOptions->fAllowPathMaskCaching = true;
     }
 
-    DrawResult onDraw(GrRecordingContext* rContext, GrSurfaceDrawContext* rtc, SkCanvas* canvas,
-                      SkString* errorMsg) override {
+    DrawResult onDraw(GrRecordingContext* rContext, SkCanvas* canvas, SkString* errorMsg) override {
         auto dContext = GrAsDirectContext(rContext);
         if (!dContext) {
             *errorMsg = "Requires a direct context.";
             return skiagm::DrawResult::kSkip;
         }
+
+        auto sfc = SkCanvasPriv::TopDeviceSurfaceFillContext(canvas);
 
         auto starRect = SkRect::MakeWH(fStarSize, fStarSize);
         SkPath star7_winding = ToolUtils::make_star(starRect, 7);
@@ -81,7 +83,7 @@ private:
         canvas->drawPath(star7_evenOdd, paint);
         canvas->drawPath(star5_winding, paint);
         canvas->drawPath(star5_evenOdd, paint);
-        dContext->priv().flushSurface(rtc->asSurfaceProxy());
+        dContext->priv().flushSurface(sfc->asSurfaceProxy());
 
         return DrawResult::kOk;
     }

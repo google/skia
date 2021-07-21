@@ -79,11 +79,10 @@ protected:
     SkISize onISize() override { return SkISize::Make(kImageWidth, kImageHeight); }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
-        GrSurfaceDrawContext* surfaceDrawContext =
-                SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
+        auto sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
 
-        auto context = canvas->recordingContext();
-        if (kEffect_Type == fType && (!surfaceDrawContext || !context)) {
+        auto rContext = canvas->recordingContext();
+        if (kEffect_Type == fType && (!sdc || !rContext)) {
             *errorMsg = kErrorMsg_DrawSkippedGpuOnly;
             return DrawResult::kSkip;
         }
@@ -124,7 +123,7 @@ protected:
                         SkRRect rrect = fRRects[curRRect];
                         rrect.offset(SkIntToScalar(x), SkIntToScalar(y));
                         GrClipEdgeType edgeType = (GrClipEdgeType) et;
-                        const auto& caps = *surfaceDrawContext->caps()->shaderCaps();
+                        const auto& caps = *rContext->priv().caps()->shaderCaps();
                         auto [success, fp] = GrRRectEffect::Make(/*inputFP=*/nullptr,
                                                                  edgeType, rrect, caps);
                         if (success) {
@@ -136,8 +135,8 @@ protected:
                             SkRect bounds = rrect.getBounds();
                             bounds.outset(2.f, 2.f);
 
-                            surfaceDrawContext->addDrawOp(GrFillRectOp::MakeNonAARect(
-                                    context, std::move(grPaint), SkMatrix::I(), bounds));
+                            sdc->addDrawOp(GrFillRectOp::MakeNonAARect(
+                                    rContext, std::move(grPaint), SkMatrix::I(), bounds));
                         } else {
                             drew = false;
                         }

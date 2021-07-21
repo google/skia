@@ -22,7 +22,7 @@
 
 class GrSurfaceDrawContext;
 
-DEF_SIMPLE_GPU_GM_CAN_FAIL(cross_context_image, context, rtc, canvas, errorMsg,
+DEF_SIMPLE_GPU_GM_CAN_FAIL(cross_context_image, rContext, canvas, errorMsg,
                            3 * 256 + 40, 256 + 128 + 30) {
     sk_sp<SkData> encodedData = GetResourceAsData("images/mandrill_256.png");
     if (!encodedData) {
@@ -30,7 +30,7 @@ DEF_SIMPLE_GPU_GM_CAN_FAIL(cross_context_image, context, rtc, canvas, errorMsg,
         return skiagm::DrawResult::kFail;
     }
 
-    auto dContext = context->asDirectContext();
+    auto dContext = rContext->asDirectContext();
     if (!dContext) {
         *errorMsg = "CrossContext image creation requires a direct context.";
         return skiagm::DrawResult::kSkip;
