@@ -36,7 +36,7 @@ GrMtlPipelineState::SamplerBindings::SamplerBindings(GrSamplerState state,
 
 GrMtlPipelineState::GrMtlPipelineState(
             GrMtlGpu* gpu,
-            id<MTLRenderPipelineState> pipelineState,
+            sk_sp<GrMtlRenderPipeline> pipeline,
             MTLPixelFormat pixelFormat,
             const GrGLSLBuiltinUniformHandles& builtinUniformHandles,
             const UniformInfoArray& uniforms,
@@ -46,7 +46,7 @@ GrMtlPipelineState::GrMtlPipelineState(
             std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
             std::vector<std::unique_ptr<GrGLSLFragmentProcessor>> fpImpls)
         : fGpu(gpu)
-        , fPipelineState(pipelineState)
+        , fPipeline(pipeline)
         , fPixelFormat(pixelFormat)
         , fBuiltinUniformHandles(builtinUniformHandles)
         , fNumSamplers(numSamplers)

@@ -98,7 +98,8 @@ bool GrMtlOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo,
                 sk_ref_sp<GrMtlAttachment>(fFramebuffer->colorAttachment()));
     }
 
-    fActiveRenderCmdEncoder->setRenderPipelineState(fActivePipelineState->mtlPipelineState());
+    fActiveRenderCmdEncoder->setRenderPipelineState(
+            fActivePipelineState->pipeline()->mtlPipelineState());
 #ifdef SK_ENABLE_MTL_DEBUG_INFO
     if (!fDebugGroupActive) {
         fActiveRenderCmdEncoder->pushDebugGroup(@"bindAndDraw");
