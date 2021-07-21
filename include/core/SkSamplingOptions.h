@@ -8,7 +8,7 @@
 #ifndef SkImageSampling_DEFINED
 #define SkImageSampling_DEFINED
 
-#include "include/core/SkFilterQuality.h"
+#include "include/core/SkTypes.h"
 #include <new>
 
 enum class SkFilterMode {
@@ -78,14 +78,6 @@ struct SK_API SkSamplingOptions {
     explicit SkSamplingOptions(const SkCubicResampler& c)
         : useCubic(true)
         , cubic(c) {}
-
-#ifdef SK_SUPPORT_LEGACY_FILTERQUALITY
-    enum MediumBehavior {
-        kMedium_asMipmapNearest,    // historic cpu behavior
-        kMedium_asMipmapLinear,     // historic gpu behavior
-    };
-    explicit SkSamplingOptions(SkFilterQuality, MediumBehavior = kMedium_asMipmapNearest);
-#endif
 
     bool operator==(const SkSamplingOptions& other) const {
         return useCubic == other.useCubic

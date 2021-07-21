@@ -842,9 +842,3 @@ void SkSamplingPriv::Write(SkWriteBuffer& buffer, const SkSamplingOptions& sampl
         buffer.writeUInt((unsigned)sampling.mipmap);
     }
 }
-
-#ifdef SK_SUPPORT_LEGACY_FILTERQUALITY
-SkSamplingOptions::SkSamplingOptions(SkFilterQuality fq, MediumBehavior behavior) {
-    *this = SkSamplingPriv::FromFQ((SkLegacyFQ)fq, (SkMediumAs)behavior);
-}
-#endif

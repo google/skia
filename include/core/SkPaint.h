@@ -10,7 +10,6 @@
 
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkColor.h"
-#include "include/core/SkFilterQuality.h"
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkTOptional.h"
 #include "include/private/SkTo.h"
