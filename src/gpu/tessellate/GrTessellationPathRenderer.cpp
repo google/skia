@@ -145,7 +145,7 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
         return true;
     }
 
-    if (args.fUserStencilSettings->isUnused()) {
+    if (args.fUserStencilSettings->isUnused() && args.fAAType == GrAAType::kMSAA) {
         // See if the path is small and simple enough to atlas instead of drawing directly.
         //
         // NOTE: The atlas uses alpha8 coverage even for msaa render targets. We could theoretically
@@ -163,8 +163,8 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
             }
         };
         if (this->tryAddPathToAtlas(args.fContext, *args.fViewMatrix, path, pathDevBounds,
-                                    args.fAAType != GrAAType::kNone, &devIBounds, &locationInAtlas,
-                                    &transposedInAtlas, visitProxiesUsedByDraw)) {
+                                    &devIBounds, &locationInAtlas, &transposedInAtlas,
+                                    visitProxiesUsedByDraw)) {
             const GrCaps& caps = *args.fSurfaceDrawContext->caps();
             const SkIRect& fillBounds = path.isInverseFillType()
                     ? (args.fClip
@@ -245,7 +245,7 @@ GrFPResult GrTessellationPathRenderer::makeAtlasClipFP(GrRecordingContext* rCont
                                                        std::unique_ptr<GrFragmentProcessor> inputFP,
                                                        const SkIRect& drawBounds,
                                                        const SkMatrix& viewMatrix,
-                                                       const SkPath& path, GrAA aa) {
+                                                       const SkPath& path) {
     if (viewMatrix.hasPerspective()) {
         return GrFPFailure(std::move(inputFP));
     }
@@ -264,9 +264,8 @@ GrFPResult GrTessellationPathRenderer::makeAtlasClipFP(GrRecordingContext* rCont
         }
     };
     // tryAddPathToAtlas() ignores inverseness of the fill. See getAtlasUberPath().
-    if (!this->tryAddPathToAtlas(rContext, viewMatrix, path, pathDevBounds, aa != GrAA::kNo,
-                                 &devIBounds, &locationInAtlas, &transposedInAtlas,
-                                 visitProxiesUsedByDraw)) {
+    if (!this->tryAddPathToAtlas(rContext, viewMatrix, path, pathDevBounds, &devIBounds,
+                                 &locationInAtlas, &transposedInAtlas, visitProxiesUsedByDraw)) {
         // The path is too big, or the atlas ran out of room.
         return GrFPFailure(std::move(inputFP));
     }
@@ -296,9 +295,9 @@ GrFPResult GrTessellationPathRenderer::makeAtlasClipFP(GrRecordingContext* rCont
                                                                    atlasMatrix, devIBounds));
 }
 
-void GrTessellationPathRenderer::AtlasPathKey::set(const SkMatrix& m, bool antialias,
-                                                   const SkPath& path) {
+void GrTessellationPathRenderer::AtlasPathKey::set(const SkMatrix& m, const SkPath& path) {
     using grvx::float2;
+    fPathGenID = path.getGenerationID();
     fAffineMatrix[0] = m.getScaleX();
     fAffineMatrix[1] = m.getSkewX();
     fAffineMatrix[2] = m.getSkewY();
@@ -308,14 +307,12 @@ void GrTessellationPathRenderer::AtlasPathKey::set(const SkMatrix& m, bool antia
     float2 subpixelPositionKey = skvx::trunc(subpixelPosition *
                                              GrTessellationShader::kLinearizationPrecision);
     skvx::cast<uint8_t>(subpixelPositionKey).store(fSubpixelPositionKey);
-    fAntialias = antialias;
-    fFillRule = (uint8_t)GrFillRuleForSkPath(path);  // Fill rule doesn't affect the path's genID.
-    fPathGenID = path.getGenerationID();
+    fFillRule = (uint16_t)GrFillRuleForSkPath(path);  // Fill rule doesn't affect the path's genID.
 }
 
 bool GrTessellationPathRenderer::tryAddPathToAtlas(GrRecordingContext* rContext,
                                                    const SkMatrix& viewMatrix, const SkPath& path,
-                                                   const SkRect& pathDevBounds, bool antialias,
+                                                   const SkRect& pathDevBounds,
                                                    SkIRect* devIBounds, SkIPoint16* locationInAtlas,
                                                    bool* transposedInAtlas,
                                                    const VisitProxiesFn& visitProxiesUsedByDraw) {
@@ -329,11 +326,6 @@ bool GrTessellationPathRenderer::tryAddPathToAtlas(GrRecordingContext* rContext,
 
     // The atlas is not compatible with DDL. We should only be using it on direct contexts.
     SkASSERT(rContext->asDirectContext());
-
-    const GrCaps& caps = *rContext->priv().caps();
-    if (!caps.multisampleDisableSupport() && !antialias) {
-        return false;
-    }
 
     pathDevBounds.roundOut(devIBounds);
     int widthInAtlas = devIBounds->width();
@@ -367,7 +359,7 @@ bool GrTessellationPathRenderer::tryAddPathToAtlas(GrRecordingContext* rContext,
     // Check if this path is already in the atlas. This is mainly for clip paths.
     AtlasPathKey atlasPathKey;
     if (!path.isVolatile()) {
-        atlasPathKey.set(viewMatrix, antialias, path);
+        atlasPathKey.set(viewMatrix, path);
         if (const SkIPoint16* existingLocation = fAtlasPathCache.find(atlasPathKey)) {
             *locationInAtlas = *existingLocation;
             return true;
@@ -375,9 +367,8 @@ bool GrTessellationPathRenderer::tryAddPathToAtlas(GrRecordingContext* rContext,
     }
 
     if (fAtlasRenderTasks.empty() ||
-        !fAtlasRenderTasks.back()->addPath(viewMatrix, path, antialias, devIBounds->topLeft(),
-                                           widthInAtlas, heightInAtlas, *transposedInAtlas,
-                                           locationInAtlas)) {
+        !fAtlasRenderTasks.back()->addPath(viewMatrix, path, devIBounds->topLeft(), widthInAtlas,
+                                           heightInAtlas, *transposedInAtlas, locationInAtlas)) {
         // We either don't have an atlas yet or the current one is full. Try to replace it.
         GrAtlasRenderTask* currentAtlasTask = (!fAtlasRenderTasks.empty())
                 ? fAtlasRenderTasks.back().get() : nullptr;
@@ -407,9 +398,8 @@ bool GrTessellationPathRenderer::tryAddPathToAtlas(GrRecordingContext* rContext,
                                                           sk_make_sp<GrArenas>(),
                                                           std::move(dynamicAtlas));
         rContext->priv().drawingManager()->addAtlasTask(newAtlasTask, currentAtlasTask);
-        SkAssertResult(newAtlasTask->addPath(viewMatrix, path, antialias, devIBounds->topLeft(),
-                                             widthInAtlas, heightInAtlas, *transposedInAtlas,
-                                             locationInAtlas));
+        SkAssertResult(newAtlasTask->addPath(viewMatrix, path, devIBounds->topLeft(), widthInAtlas,
+                                             heightInAtlas, *transposedInAtlas, locationInAtlas));
         fAtlasRenderTasks.push_back(std::move(newAtlasTask));
         fAtlasPathCache.reset();
     }

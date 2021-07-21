@@ -32,9 +32,8 @@ public:
     // Allocates a rectangle for, and stages the given path to be rendered into the atlas. Returns
     // false if there was not room in the atlas. On success, writes out the location of the path's
     // upper-left corner to 'locationInAtlas'.
-    bool addPath(const SkMatrix&, const SkPath&, bool antialias, SkIPoint pathDevTopLeft,
-                 int widthInAtlas, int heightInAtlas, bool transposedInAtlas,
-                 SkIPoint16* locationInAtlas);
+    bool addPath(const SkMatrix&, const SkPath&, SkIPoint pathDevTopLeft, int widthInAtlas,
+                 int heightInAtlas, bool transposedInAtlas, SkIPoint16* locationInAtlas);
 
     // Must be called at flush time. The texture proxy is instantiated with 'backingTexture', if
     // provided. See GrDynamicAtlas.
@@ -50,19 +49,17 @@ private:
 
     void stencilAtlasRect(GrRecordingContext*, const SkRect&, const SkPMColor4f&,
                           const GrUserStencilSettings*);
-    void addAtlasDrawOp(GrOp::Owner, bool usesMSAA, const GrCaps&);
+    void addAtlasDrawOp(GrOp::Owner, const GrCaps&);
 
     // Executes the GrOpsTask and resolves msaa if needed.
     bool onExecute(GrOpFlushState* flushState) override;
 
-    SkPath* getUberPath(SkPathFillType fillType, bool antialias) {
-        int idx = (int)antialias << 1;
-        idx |= (int)fillType & 1;
-        return &fUberPaths[idx];
+    SkPath* getUberPath(GrFillRule fillRule) {
+        return &fUberPaths[fillRule == GrFillRule::kEvenOdd];
     }
 
     const std::unique_ptr<GrDynamicAtlas> fDynamicAtlas;
-    SkPath fUberPaths[4];  // 2 fillTypes * 2 antialias modes.
+    SkPath fUberPaths[2];  // 2 fill rules: "nonzero" and "even/odd".
 };
 
 #endif

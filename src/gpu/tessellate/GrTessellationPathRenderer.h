@@ -47,8 +47,8 @@ public:
     bool onDrawPath(const DrawPathArgs&) override;
     void onStencilPath(const StencilPathArgs&) override;
 
-    // Returns a fragment processor that modulates inputFP by the given deviceSpacePath's coverage,
-    // implemented using an internal atlas.
+    // Returns an antialiased fragment processor that modulates inputFP by the given
+    // deviceSpacePath's coverage, implemented using an internal atlas. Non-aa is not supported.
     //
     // Returns 'inputFP' wrapped in GrFPFailure() if the path was too large, or if the current atlas
     // is full and already used by either opBeingClipped or inputFP. (Currently, "too large" means
@@ -57,7 +57,7 @@ public:
     // Also returns GrFPFailure() if the view matrix has perspective.
     GrFPResult makeAtlasClipFP(GrRecordingContext*, const GrOp* opBeingClipped,
                                std::unique_ptr<GrFragmentProcessor> inputFP,
-                               const SkIRect& drawBounds, const SkMatrix&, const SkPath&, GrAA);
+                               const SkIRect& drawBounds, const SkMatrix&, const SkPath&);
 
     void preFlush(GrOnFlushResourceProvider*, SkSpan<const uint32_t> taskIDs) override;
 
@@ -70,7 +70,7 @@ private:
     // in use according to 'visitProxiesUsedByDraw'. (Currently, "too large" means more than 128*128
     // total pixels, or larger than the atlas size in either dimension.)
     bool tryAddPathToAtlas(GrRecordingContext*, const SkMatrix&, const SkPath&,
-                           const SkRect& pathDevBounds, bool antialias, SkIRect* devIBounds,
+                           const SkRect& pathDevBounds, SkIRect* devIBounds,
                            SkIPoint16* locationInAtlas, bool* transposedInAtlas,
                            const VisitProxiesFn& visitProxiesUsedByDraw);
 
@@ -84,16 +84,15 @@ private:
     // This simple cache remembers the locations of cacheable path masks in the most recent atlas.
     // Its main motivation is for clip paths.
     struct AtlasPathKey {
-        void set(const SkMatrix&, bool antialias, const SkPath&);
+        void set(const SkMatrix&, const SkPath&);
         bool operator==(const AtlasPathKey& k) const {
             static_assert(sizeof(*this) == sizeof(uint32_t) * 6);
             return !memcmp(this, &k, sizeof(*this));
         }
+        uint32_t fPathGenID;
         float fAffineMatrix[4];
         uint8_t fSubpixelPositionKey[2];
-        uint8_t fAntialias;
-        uint8_t fFillRule;
-        uint32_t fPathGenID;
+        uint16_t fFillRule;
     };
     SkTHashMap<AtlasPathKey, SkIPoint16> fAtlasPathCache;
 };

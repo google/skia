@@ -240,6 +240,9 @@ static GrFPResult clip_atlas_fp(GrRecordingContext* rContext,
                                 const SkIRect& scissorBounds,
                                 const GrClipStack::Element& e,
                                 std::unique_ptr<GrFragmentProcessor> inputFP) {
+    if (e.fAA != GrAA::kYes) {
+        return GrFPFailure(std::move(inputFP));
+    }
     SkPath path;
     e.fShape.asPath(&path);
     SkASSERT(!path.isInverseFillType());
@@ -248,7 +251,7 @@ static GrFPResult clip_atlas_fp(GrRecordingContext* rContext,
         path.toggleInverseFillType();
     }
     return tessellator->makeAtlasClipFP(rContext, opBeingClipped, std::move(inputFP), scissorBounds,
-                                        e.fLocalToDevice, path, e.fAA);
+                                        e.fLocalToDevice, path);
 }
 
 static void draw_to_sw_mask(GrSWMaskHelper* helper, const GrClipStack::Element& e, bool clearMask) {
