@@ -168,7 +168,7 @@ private:
 
 class Line {
 public:
-    Line(const Stretch& stretch, const Stretch& spaces, SkSTArray<1, size_t, true> visualOrder);
+    Line(const Stretch& stretch, const Stretch& spaces, SkSTArray<1, size_t, true> visualOrder, SkScalar verticalOffset, bool hardLineBreak);
     ~Line() = default;
 
     TextMetrics getMetrics() const { return fTextMetrics; }
@@ -177,10 +177,18 @@ public:
     GlyphPos glyphTrailingEnd() const { return fWhitespacesEnd; }
     SkScalar width() const { return fTextWidth; }
     SkScalar withWithTrailingSpaces() const { return fTextWidth + fSpacesWidth; }
+    SkScalar horizontalOffset() const { return fHorizontalOffset; }
+    SkScalar verticalOffset() const { return fVerticalOffset; }
+    size_t runsNumber() const { return fRunsInVisualOrder.size(); }
+    size_t visualRun(size_t index) const { return fRunsInVisualOrder[index]; }
+    SkScalar height() const { return fTextMetrics.height(); }
+    SkScalar baseline() const { return fTextMetrics.baseline(); }
+    TextRange text() const { return fText; }
+    TextRange whitespaces() const { return fWhitespaces; }
+    bool isHardLineBreak() const { return fHardLineBreak; }
 
 private:
     friend class WrappedText;
-    friend class FormattedText;
 
     GlyphPos fTextStart;
     GlyphPos fTextEnd;
@@ -189,7 +197,10 @@ private:
     TextRange fWhitespaces;
     SkScalar fTextWidth;
     SkScalar fSpacesWidth;
+    SkScalar fHorizontalOffset;
+    SkScalar fVerticalOffset;
     TextMetrics fTextMetrics;
+    bool fHardLineBreak;
     SkSTArray<1, size_t, true> fRunsInVisualOrder;
 };
 

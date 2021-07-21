@@ -190,13 +190,11 @@ class SKUNICODE_API SkUnicode {
         void forEachBreak(const char16_t utf16[], int utf16Units, SkUnicode::BreakType type, Callback&& callback) {
             auto iter = makeBreakIterator(type);
             iter->setText(utf16, utf16Units);
-            while (true) {
-                auto pos = iter->next();
-                if (iter->isDone()) {
-                    break;
-                }
+            auto pos = iter->first();
+            do {
                 callback(pos, iter->status());
-            }
+                pos = iter->next();
+            } while (!iter->isDone());
         }
 
         virtual void reorderVisual(const BidiLevel runLevels[], int levelsCount, int32_t logicalFromVisual[]) = 0;

@@ -4,17 +4,19 @@
 #include "experimental/sktext/include/Text.h"
 #include "experimental/sktext/include/Types.h"
 #include "include/core/SkCanvas.h"
+
+
 namespace skia {
 namespace text {
 
 struct DecoratedBlock {
     DecoratedBlock(uint32_t count, SkPaint fg, SkPaint bg)
         : charCount(count)
-        , foregroundColor(fg)
-        , backgroundColor(bg) { }
+        , foregroundPaint(std::move(fg))
+        , backgroundPaint(std::move(bg)) { }
     uint32_t    charCount;
-    SkPaint     foregroundColor;
-    SkPaint     backgroundColor;
+    SkPaint foregroundPaint;
+    SkPaint backgroundPaint;
 };
 
 class TrivialFontChain : public FontChain {
@@ -39,8 +41,8 @@ public:
     static sk_sp<FormattedText> layout(std::u16string text,
                                 TextDirection textDirection, TextAlign textAlign,
                                 SkSize reqSize,
-                                SkSpan<Block> fontBlocks);
-    void paint(SkCanvas* canvas, SkPoint xy, sk_sp<FormattedText> formattedText, SkSpan<DecoratedBlock> decoratedBlocks);
+                                SkSpan<FontBlock> fontBlocks);
+    void paint(SkCanvas* canvas, SkPoint xy, FormattedText* formattedText, SkSpan<DecoratedBlock> decoratedBlocks);
     // Simplification (using default font manager, default font family and default everything possible)
     static bool drawText(std::u16string text, SkCanvas* canvas, SkScalar x, SkScalar y);
     static bool drawText(std::u16string text, SkCanvas* canvas, SkScalar width);
@@ -54,12 +56,14 @@ public:
                          SkColor foreground, SkColor background,
                          const SkString& fontFamily, SkScalar fontSize, SkFontStyle fontStyle,
                          SkSize reqSize, SkScalar x, SkScalar y);
+
 private:
     friend class Processor;
-    void onBeginLine(TextRange, float baselineY) override;
+    void onBeginLine(TextRange lineText, float baselineY, float horizontalOffset) override;
     void onEndLine(TextRange, float baselineY) override;
     void onGlyphRun(SkFont font,
                     TextRange textRange,
+                    SkRect boundingRect,
                     int glyphCount,
                     const uint16_t glyphs[],
                     const SkPoint  positions[],
@@ -71,8 +75,10 @@ private:
 
     SkCanvas* fCanvas;
     SkPoint fXY;
-    SkTArray<Block> fFontBlocks;
-    SkTArray<DecoratedBlock> fDecoratedBlocks;
+    SkScalar fHorizontalOffset;
+    SkScalar fBaselineY;
+    SkSpan<FontBlock> fFontBlocks;
+    SkSpan<DecoratedBlock> fDecoratedBlocks;
 };
 } // namespace text
 } // namespace skia

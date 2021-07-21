@@ -2,171 +2,105 @@
 #include "experimental/sktext/editor/Editor.h"
 #include "experimental/sktext/src/Paint.h"
 
+using namespace skia::text;
+
 namespace skia {
-namespace text {
+namespace editor {
 
-const TextDirection TEXT_DIRECTION = TextDirection::kLtr;
-const TextAlign TEXT_ALIGN = TextAlign::kLeft;
-const SkColor DEFAULT_FOREGROUND = SK_ColorBLACK;
-const SkScalar DEFAULT_CURSOR_WIDTH = 2;
-const SkColor DEFAULT_CURSOR_COLOR = SK_ColorGRAY;
-const SkColor DEFAULT_SELECTION_COLOR = SK_ColorCYAN;
-
-std::unique_ptr<Cursor> Cursor::Make() { return std::make_unique<Cursor>(); }
-
-Cursor::Cursor() {
-    fLinePaint.setColor(SK_ColorGRAY);
-    fLinePaint.setAntiAlias(true);
-
-    fRectPaint.setColor(DEFAULT_CURSOR_COLOR);
-    fRectPaint.setStyle(SkPaint::kStroke_Style);
-    fRectPaint.setStrokeWidth(2);
-    fRectPaint.setAntiAlias(true);
-
-    fXY = SkPoint::Make(0, 0);
-    fSize = SkSize::Make(0, 0);
-    fBlink = true;
+std::unique_ptr<Editor> Editor::Make(std::u16string text, SkSize size) {
+    return std::make_unique<Editor>(text, size);
 }
 
-void Cursor::paint(SkCanvas* canvas, SkPoint xy) {
+Editor::Editor(std::u16string text, SkSize size)
+        : fDefaultPositionType(PositionType::kGraphemeCluster)
+        , fInsertMode(true) {
 
-    if (fBlink) {
-       canvas->drawRect(SkRect::MakeXYWH(fXY.fX + xy.fX, fXY.fY + xy.fY, DEFAULT_CURSOR_WIDTH, fSize.fHeight),
-                fRectPaint);
-    } else {
-        //canvas->drawLine(fXY + xy, fXY + xy + SkPoint::Make(1, fSize.fHeight), fLinePaint);
-    }
-}
-
-void Mouse::down() {
-    fMouseDown = true;
-}
-
-void Mouse::up() {
-    fMouseDown = false;
-}
-
-bool Mouse::isDoubleClick(SkPoint touch) {
-    if ((touch - fLastTouchPoint).length() > MAX_DBL_TAP_DISTANCE) {
-        fLastTouchPoint = touch;
-        fLastTouchTime = SkTime::GetMSecs();
-        return false;
-    }
-    double now = SkTime::GetMSecs();
-    if (now - fLastTouchTime > MAX_DBL_TAP_INTERVAL) {
-        fLastTouchPoint = touch;
-        fLastTouchTime = SkTime::GetMSecs();
-        return false;
-    }
-
-    clearTouchInfo();
-    return true;
-}
-
-void Selection::select(TextRange range, SkRect rect) {
-    fGlyphBoxes.clear();
-    fTextRanges.clear();
-
-    fGlyphBoxes.emplace_back(rect);
-    fTextRanges.emplace_back(range);
-}
-
-void Selection::paint(SkCanvas* canvas, SkPoint xy) {
-    for (auto& box : fGlyphBoxes) {
-        canvas->drawRect(
-                SkRect::MakeXYWH(box.fLeft + xy.fX, box.fTop + xy.fY, box.width(), box.height()),
-                fPaint);
-    }
-}
-
-std::unique_ptr<Editor> Editor::Make(std::u16string text, SkSize size, SkSpan<Block> fontBlocks) {
-    return std::unique_ptr<Editor>(new Editor(text, size, fontBlocks));
-}
-
-Editor::Editor(std::u16string text, SkSize size, SkSpan<Block> fontBlocks) {
     fParent = nullptr;
-    fText = std::move(text);
     fCursor = Cursor::Make();
     fMouse = std::make_unique<Mouse>();
-    fSelection = std::make_unique<Selection>(DEFAULT_SELECTION_COLOR);
-    fUnicodeText = Text::parse(SkSpan<uint16_t>((uint16_t*)fText.data(), fText.size()));
-    fShapedText = fUnicodeText->shape(fontBlocks, TEXT_DIRECTION);
-    fWrappedText = fShapedText->wrap(size.width(), size.height(), fUnicodeText->getUnicode());
-    fFormattedText = fWrappedText->format(TEXT_ALIGN, TEXT_DIRECTION);
-
-    auto endOfText = fFormattedText->indexToAdjustedGraphemePosition(fText.size());
-    auto rect = std::get<3>(endOfText);
-    fCursor->place(SkPoint::Make(rect.fLeft, rect.fTop),
-                   SkSize::Make(std::max(DEFAULT_CURSOR_WIDTH, rect.width()), rect.height()));
+    {
+        SkPaint foreground; foreground.setColor(DEFAULT_TEXT_FOREGROUND);
+        SkPaint background; background.setColor(DEFAULT_TEXT_BACKGROUND);
+        static FontBlock textBlock(text.size(), sk_make_sp<TrivialFontChain>("Roboto", 40));
+        static DecoratedBlock textDecor(text.size(), foreground, background);
+        auto textSize = SkSize::Make(size.width(), size.height() - DEFAULT_STATUS_HEIGHT);
+        fEditableText = std::make_unique<EditableText>(
+                text, SkPoint::Make(0, 0), textSize,
+                SkSpan<FontBlock>(&textBlock, 1), SkSpan<DecoratedBlock>(&textDecor, 1),
+                DEFAULT_TEXT_DIRECTION, DEFAULT_TEXT_ALIGN);
+    }
+    {
+        SkPaint foreground; foreground.setColor(DEFAULT_STATUS_FOREGROUND);
+        SkPaint background; background.setColor(DEFAULT_STATUS_BACKGROUND);
+        std::u16string status = u"This is the status line";
+        static FontBlock statusBlock(status.size(), sk_make_sp<TrivialFontChain>("Roboto", 20));
+        static DecoratedBlock statusDecor(status.size(), foreground, background);
+        auto statusPoint = SkPoint::Make(0, size.height() - DEFAULT_STATUS_HEIGHT);
+        fStatus = std::make_unique<DynamicText>(
+                status, statusPoint, SkSize::Make(size.width(), SK_ScalarInfinity),
+                SkSpan<FontBlock>(&statusBlock, 1), SkSpan<DecoratedBlock>(&statusDecor, 1),
+                        DEFAULT_TEXT_DIRECTION, TextAlign::kCenter);
+    }
+    // Place the cursor at the end of the output text
+    // (which is the end of the text for LTR and the beginning of the text for RTL
+    // or possibly something in the middle for a combination of LTR & RTL)
+    // In order to get that position we look for a position outside of the text
+    // and that will give us the last glyph on the line
+    auto endOfText = fEditableText->lastElement(fDefaultPositionType);
+    fEditableText->recalculateBoundaries(endOfText);
+    fCursor->place(endOfText.fBoundaries);
 }
 
-void Editor::updateText(std::u16string text) {
-    // TODO: Update text styles
-    sk_sp<TrivialFontChain> fontChain = sk_make_sp<TrivialFontChain>("Roboto", 40);
-    Block block(fText.size(), fontChain);
-    auto fontBlocks = SkSpan<Block>(&block, 1);
+void Editor::update() {
 
-    // TODO: update all objects rather than recreate them
-    fText = std::move(text);
-    fUnicodeText = Text::parse(SkSpan<uint16_t>((uint16_t*)fText.data(), fText.size()));
-    fShapedText = fUnicodeText->shape(fontBlocks, TEXT_DIRECTION);
-    fWrappedText = fShapedText->wrap(fWidth, fHeight, fUnicodeText->getUnicode());
-    fFormattedText = fWrappedText->format(TEXT_ALIGN, TEXT_DIRECTION);
+    if (!fEditableText->isInvalidated()) {
+        return;
+    }
 
-    // Update the cursor
-    auto endOfText = fFormattedText->indexToAdjustedGraphemePosition(fText.size());
-    auto rect = std::get<3>(endOfText);
-    fCursor->place(SkPoint::Make(rect.fLeft, rect.fTop),
-                   SkSize::Make(std::max(DEFAULT_CURSOR_WIDTH, rect.width()), rect.height()));
+    // Update the (shift it to point at the grapheme edge)
+    auto position = fEditableText->adjustedPosition(fDefaultPositionType, fCursor->getCenterPosition());
+    fEditableText->recalculateBoundaries(position);
+    fCursor->place(position.fBoundaries);
+
     // TODO: Update the mouse
     fMouse->clearTouchInfo();
-
-    // TODO: Update the text selection
-    fSelection->clear();
 }
 
+// Moving the cursor by the output grapheme clusters (shifting to another line if necessary)
+// We don't want to move by the input text indexes because then we will have to take in account LTR/RTL
 bool Editor::moveCursor(skui::Key key) {
     auto cursorPosition = fCursor->getCenterPosition();
-    auto textIndex = fFormattedText->positionToAdjustedGraphemeIndex(cursorPosition);
-
-    if (key == skui::Key::kLeft) {
-        if (textIndex == 0) {
-            return false;
-        } else {
-            --textIndex;
-        }
-    } else if (key == skui::Key::kRight) {
-        if (textIndex >= fText.size()) {
-            return false;
-        } else {
-            ++textIndex;
-        }
-    } else if (key == skui::Key::kHome) {
-        textIndex = 0;
-    } else if (key == skui::Key::kEnd) {
-        textIndex = fText.size();
-    } else if (key == skui::Key::kUp) {
-        auto currentPosition = fFormattedText->indexToAdjustedGraphemePosition(textIndex);
-        auto line = std::get<0>(currentPosition);
-        auto lineIndex = fFormattedText->lineIndex(line);
-        if (lineIndex == 0) {
-            return false;
-        }
-        cursorPosition.offset(0, - line->getMetrics().height());
-        textIndex = fFormattedText->positionToAdjustedGraphemeIndex(cursorPosition);
-    } else if (key == skui::Key::kDown) {
-        auto currentPosition = fFormattedText->indexToAdjustedGraphemePosition(textIndex);
-        auto line = std::get<0>(currentPosition);
-        auto lineIndex = fFormattedText->lineIndex(line);
-        if (lineIndex == fFormattedText->countLines()) {
-            return false;
-        }
-        cursorPosition.offset(0, line->getMetrics().height());
-        textIndex = fFormattedText->positionToAdjustedGraphemeIndex(cursorPosition);
+    auto position = fEditableText->adjustedPosition(PositionType::kGraphemeCluster, cursorPosition);
+    if (position.fRun == nullptr) {
+        return false;
     }
-    auto nextPosition = fFormattedText->indexToAdjustedGraphemePosition(textIndex);
-    auto rect = std::get<3>(nextPosition);
-    fCursor->place(SkPoint::Make(rect.fLeft, rect.fTop), SkSize::Make(rect.width(), rect.height()));
+    if (key == skui::Key::kLeft) {
+        position = fEditableText->previousElement(position);
+    } else if (key == skui::Key::kRight) {
+        position = fEditableText->nextElement(position);
+    } else if (key == skui::Key::kHome) {
+        position = fEditableText->firstElement(PositionType::kGraphemeCluster);
+    } else if (key == skui::Key::kEnd) {
+        position = fEditableText->lastElement(PositionType::kGraphemeCluster);
+    } else if (key == skui::Key::kUp) {
+        // Move one line up (if possible)
+        if (position.fLineIndex == 0) {
+            return false;
+        }
+        cursorPosition.offset(0, - fEditableText->lineHeight(position.fLineIndex));
+        position = fEditableText->adjustedPosition(PositionType::kGraphemeCluster, cursorPosition);
+    } else if (key == skui::Key::kDown) {
+        // Move one line down (if possible)
+        if (position.fLineIndex == fEditableText->lineCount() - 1) {
+            return false;
+        }
+        cursorPosition.offset(0, fEditableText->lineHeight(position.fLineIndex));
+        position = fEditableText->adjustedPosition(PositionType::kGraphemeCluster, cursorPosition);
+     }
+
+    // Place the cursor at the new position
+    fEditableText->recalculateBoundaries(position);
+    fCursor->place(position.fBoundaries);
     this->invalidate();
 
     return true;
@@ -177,7 +111,7 @@ void Editor::onPaint(SkSurface* surface) {
     SkAutoCanvasRestore acr(canvas, true);
     canvas->clipRect({0, 0, (float)fWidth, (float)fHeight});
     canvas->drawColor(SK_ColorWHITE);
-    this->paint(canvas, SkPoint::Make(0, 0));
+    this->paint(canvas);
 }
 
 void Editor::onResize(int width, int height) {
@@ -193,12 +127,10 @@ void Editor::onResize(int width, int height) {
 bool Editor::onChar(SkUnichar c, skui::ModifierKey modi) {
     using sknonstd::Any;
 
-    fSelection->clear();
-
     modi &= ~skui::ModifierKey::kFirstPress;
     if (!Any(modi & (skui::ModifierKey::kControl | skui::ModifierKey::kOption |
                      skui::ModifierKey::kCommand))) {
-        if (((unsigned)c < 0x7F && (unsigned)c >= 0x20) || c == '\n') {
+        if (((unsigned)c < 0x7F && (unsigned)c >= 0x20) || c == 0x000A) {
             insertCodepoint(c);
             return true;
         }
@@ -211,27 +143,42 @@ bool Editor::onChar(SkUnichar c, skui::ModifierKey modi) {
     return false;
 }
 
-bool Editor::deleteGrapheme(skui::Key key) {
-    auto cursorPosition = fCursor->getCenterPosition();
-    TextIndex startIndex = fFormattedText->positionToAdjustedGraphemeIndex(cursorPosition);
-    TextIndex endIndex = startIndex;
-    if (key == skui::Key::kBack) {
-        --startIndex;
-        fShapedText->adjustLeft(&startIndex);
-    } else {
-        ++endIndex;
-        fShapedText->adjustRight(&endIndex);
+bool Editor::deleteElement(skui::Key key) {
+
+    if (fEditableText->isEmpty()) {
+        return false;
     }
 
-    std::u16string text;
-    text.append(fText.substr(0, startIndex));
-    text.append(fText.substr(endIndex, std::u16string::npos));
-    updateText(text);
+    auto cursorPosition = fCursor->getCenterPosition();
+    auto position = fEditableText->adjustedPosition(fDefaultPositionType, cursorPosition);
+    TextRange textRange = position.fTextRange;
 
-    auto position = fFormattedText->indexToAdjustedGraphemePosition(startIndex);
-    SkRect cursorRect = std::get<3>(position);
-    fCursor->place(SkPoint::Make(cursorRect.fLeft, cursorRect.fTop), SkSize::Make(cursorRect.width(), cursorRect.height()));
+    // IMPORTANT: We assume that a single element (grapheme cluster) does not cross the run boundaries;
+    // It's not exactly true but we are going to enforce in by breaking the grapheme by the run boundaries
+    if (key == skui::Key::kBack) {
+        // Move to the previous element (could be another run and/or line)
+        if (position.fLineIndex > 0 && fEditableText->isFirstOnTheLine(position)) {
+            auto line = fEditableText->line(position.fLineIndex - 1);
+            if (line->isHardLineBreak()) {
+                // We remove invisible hard line break from the previous line
+                textRange = line->whitespaces();
+            } else {
+                // We remove the last non-whitespace element on the previous line (ignoring trailing whitespaces)
+                position = fEditableText->previousElement(position);
+                textRange = position.fTextRange;
+            }
+        } else {
+            // We remove the previous element on the current line
+            position = fEditableText->previousElement(position);
+            textRange = position.fTextRange;
+        }
+    }
 
+    fEditableText->removeElement(textRange);
+
+    // Find the grapheme the cursor points to
+    position = fEditableText->adjustedPosition(fDefaultPositionType, textRange.fStart);
+    fCursor->place(position.fBoundaries);
     this->invalidate();
 
     return true;
@@ -239,17 +186,23 @@ bool Editor::deleteGrapheme(skui::Key key) {
 
 bool Editor::insertCodepoint(SkUnichar unichar) {
     auto cursorPosition = fCursor->getCenterPosition();
-    auto textIndex = fFormattedText->positionToAdjustedGraphemeIndex(cursorPosition);
+    auto position = fEditableText->adjustedPosition(fDefaultPositionType, cursorPosition);
 
-    std::u16string text;
-    text.append(fText.substr(0, textIndex));
-    text.append(1, (unsigned)unichar);
-    text.append(fText.substr(textIndex, std::u16string::npos));
-    updateText(text);
+    if (fInsertMode) {
+        fEditableText->insertElement(unichar, position.fTextRange.fStart);
+    } else {
+        fEditableText->replaceElement(unichar, position.fTextRange);
+    }
 
-    auto nextPosition = fFormattedText->indexToAdjustedGraphemePosition(textIndex);
-    SkRect cursorRect = std::get<3>(nextPosition);
-    fCursor->place(SkPoint::Make(cursorRect.fLeft, cursorRect.fTop), SkSize::Make(cursorRect.width(), cursorRect.height()));
+    this->update();
+
+    // Find the element the cursor points to
+    position = fEditableText->adjustedPosition(fDefaultPositionType, cursorPosition);
+
+    // Move the cursor to the next element
+    position = fEditableText->nextElement(position);
+    fEditableText->recalculateBoundaries(position);
+    fCursor->place(position.fBoundaries);
 
     this->invalidate();
 
@@ -257,8 +210,6 @@ bool Editor::insertCodepoint(SkUnichar unichar) {
 }
 
 bool Editor::onKey(skui::Key key, skui::InputState state, skui::ModifierKey modifiers) {
-
-    fSelection->clear();
 
     if (state != skui::InputState::kDown) {
         return false;
@@ -281,10 +232,10 @@ bool Editor::onKey(skui::Key key, skui::InputState state, skui::ModifierKey modi
                 break;
             case skui::Key::kDelete:
             case skui::Key::kBack:
-                this->deleteGrapheme(key);
+                this->deleteElement(key);
                 return true;
             case skui::Key::kOK:
-                return this->onChar('\n', modifiers);
+                return this->onChar(0x000A, modifiers);
             default:
                 break;
         }
@@ -294,24 +245,22 @@ bool Editor::onKey(skui::Key key, skui::InputState state, skui::ModifierKey modi
 
 bool Editor::onMouse(int x, int y, skui::InputState state, skui::ModifierKey modifiers) {
 
-    //bool shiftOrDrag = sknonstd::Any(modifiers & skui::ModifierKey::kShift) || (skui::InputState::kDown != state);
+    if (!fEditableText->contains(x, y)) {
+        // We only support mouse on an editable area
+    }
     if (skui::InputState::kDown == state) {
-        SkRect cursorRect;
+        auto position = fEditableText->adjustedPosition(fDefaultPositionType, SkPoint::Make(x, y));
         if (fMouse->isDoubleClick(SkPoint::Make(x, y))) {
-            auto textIndex = fFormattedText->positionToAdjustedGraphemeIndex(SkPoint::Make(x, y));
-            auto nextPosition = fFormattedText->indexToAdjustedGraphemePosition(textIndex);
-            cursorRect = std::get<3>(nextPosition);
-            fSelection->select(TextRange(textIndex, textIndex + 1), cursorRect);
-            cursorRect.fLeft = cursorRect.fRight - DEFAULT_CURSOR_WIDTH;
+            // Select the element
+            fEditableText->select(position.fTextRange, position.fBoundaries);
+            position.fBoundaries.fLeft = position.fBoundaries.fRight - DEFAULT_CURSOR_WIDTH;
         } else {
+            // Clear selection
             fMouse->down();
-            fSelection->clear();
-            auto textIndex = fFormattedText->positionToAdjustedGraphemeIndex(SkPoint::Make(x, y));
-            auto nextPosition = fFormattedText->indexToAdjustedGraphemePosition(textIndex);
-            cursorRect = std::get<3>(nextPosition);
+            fEditableText->clearSelection();
         }
 
-        fCursor->place(SkPoint::Make(cursorRect.fLeft, cursorRect.fTop), SkSize::Make(cursorRect.width(), cursorRect.height()));
+        fCursor->place(position.fBoundaries);
         this->invalidate();
         return true;
     }
@@ -319,42 +268,23 @@ bool Editor::onMouse(int x, int y, skui::InputState state, skui::ModifierKey mod
     return false;
 }
 
-void Editor::onBeginLine(TextRange, float baselineY) {}
-void Editor::onEndLine(TextRange, float baselineY) {}
-void Editor::onPlaceholder(TextRange, const SkRect& bounds) {}
-void Editor::onGlyphRun(SkFont font,
-                        TextRange textRange,
-                        int glyphCount,
-                        const uint16_t glyphs[],
-                        const SkPoint positions[],
-                        const SkPoint offsets[]) {
-    SkTextBlobBuilder builder;
-    const auto& blobBuffer = builder.allocRunPos(font, SkToInt(glyphCount));
-    sk_careful_memcpy(blobBuffer.glyphs, glyphs, glyphCount * sizeof(uint16_t));
-    sk_careful_memcpy(blobBuffer.points(), positions, glyphCount * sizeof(SkPoint));
-    SkPaint foreground;
-    foreground.setColor(DEFAULT_FOREGROUND);
-    fCanvas->drawTextBlob(builder.make(), fXY.fX, fXY.fY, foreground);
+void Editor::paint(SkCanvas* canvas) {
+
+    fEditableText->paint(canvas);
+    fCursor->paint(canvas);
+
+    SkPaint background; background.setColor(DEFAULT_STATUS_BACKGROUND);
+    canvas->drawRect(SkRect::MakeXYWH(0, fHeight - DEFAULT_STATUS_HEIGHT, fWidth, DEFAULT_STATUS_HEIGHT), background);
+    fStatus->paint(canvas);
 }
 
-void Editor::paint(SkCanvas* canvas, SkPoint xy) {
-    fCanvas = canvas;
-    fXY = xy;
-    this->fFormattedText->visit(this);
-
-    fSelection->paint(canvas, xy);
-    fCursor->paint(canvas, xy);
-}
-
-std::unique_ptr<Editor> Editor::MakeDemo(SkScalar width) {
+std::unique_ptr<Editor> Editor::MakeDemo(SkScalar width, SkScalar height) {
 
     std::u16string text0 = u"In a hole in the ground there lived a hobbit. Not a nasty, dirty, "
-                            "wet hole full of worms and oozy smells. This was a hobbit-hole and "
+                            "wet hole full of worms and oozy smells.\nThis was a hobbit-hole and "
                             "that means good food, a warm hearth, and all the comforts of home.";
 
-    sk_sp<TrivialFontChain> fontChain = sk_make_sp<TrivialFontChain>("Roboto", 40);
-    Block block(text0.size(), fontChain);
-    return Editor::Make(text0, SkSize::Make(width, SK_ScalarInfinity), SkSpan<Block>(&block, 1));
+    return Editor::Make(text0, SkSize::Make(width, height));
 }
-} // namespace text
+} // namespace editor
 } // namespace skia

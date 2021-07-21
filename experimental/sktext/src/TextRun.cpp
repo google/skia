@@ -7,11 +7,14 @@ namespace text {
 
 class Processor;
 
-TextRun::TextRun(const SkShaper::RunHandler::RunInfo& info)
+TextRun::TextRun(const SkShaper::RunHandler::RunInfo& info, TextIndex textStart, SkScalar glyphOffset)
     : fFont(info.fFont)
     , fBidiLevel(info.fBidiLevel)
     , fAdvance(info.fAdvance)
-    , fUtf8Range(info.utf8Range) {
+    , fUtf8Range(info.utf8Range)
+    , fTextMetrics(info.fFont)
+    , fRunStart(textStart)
+    , fRunOffset(glyphOffset) {
     fGlyphs.push_back_n(info.glyphCount);
     fBounds.push_back_n(info.glyphCount);
     fPositions.push_back_n(info.glyphCount + 1);
@@ -50,5 +53,6 @@ GlyphIndex TextRun::findGlyph(TextIndex textIndex) const {
     }
     return glyphIndex;
 }
+
 } // namespace text
 } // namespace skia

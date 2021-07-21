@@ -76,7 +76,11 @@ if (skia_enable_sktext && skia_enable_skshaper && skia_use_icu &&
     source_set("samples") {
       testonly = true
       sources = [
+        "editor/Cursor.cpp",
         "editor/Editor.cpp",
+        "editor/Mouse.cpp",
+        "editor/Selection.cpp",
+        "editor/Texts.cpp",
         "samples/Text.cpp",
       ]
       deps = [
@@ -90,7 +94,11 @@ if (skia_enable_sktext && skia_enable_skshaper && skia_use_icu &&
       testonly = true
       sources = [
         "editor/App.cpp",
+        "editor/Cursor.cpp",
         "editor/Editor.cpp",
+        "editor/Mouse.cpp",
+        "editor/Selection.cpp",
+        "editor/Texts.cpp",
       ]
       public_deps = [ "../..:sk_app" ]
       deps = [ ":sktext" ]

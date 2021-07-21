@@ -31,10 +31,9 @@ bool Paint::drawText(std::u16string text, SkCanvas* canvas,
 
     size_t textSize = text.size();
     sk_sp<TrivialFontChain> fontChain = sk_make_sp<TrivialFontChain>(fontFamily.c_str(), fontSize);
-    Block fontBlock(text.size(), fontChain);
+    FontBlock fontBlock(text.size(), fontChain);
 
-
-    auto formattedText = Paint::layout(std::move(text), textDirection, textAlign, reqSize, SkSpan<Block>(&fontBlock, 1));
+    auto formattedText = Paint::layout(std::move(text), textDirection, textAlign, reqSize, SkSpan<FontBlock>(&fontBlock, 1));
     if (formattedText == nullptr) {
         return false;
     }
@@ -43,16 +42,20 @@ bool Paint::drawText(std::u16string text, SkCanvas* canvas,
     SkPaint foregroundPaint; foregroundPaint.setColor(foreground);
     DecoratedBlock decoratedBlock(textSize, foregroundPaint, backgroundPaint);
     Paint paint;
-    paint.paint(canvas, SkPoint::Make(x, y), formattedText, SkSpan<DecoratedBlock>(&decoratedBlock, 1));
+    paint.paint(canvas, SkPoint::Make(x, y), formattedText.get(), SkSpan<DecoratedBlock>(&decoratedBlock, 1));
 
     return true;
 }
 
-void Paint::onBeginLine(TextRange, float baselineY) { }
+void Paint::onBeginLine(TextRange lineText, float baselineY, float horizontalOffset) {
+    fHorizontalOffset = horizontalOffset;
+    fBaselineY = baselineY;
+}
 void Paint::onEndLine(TextRange, float baselineY) { }
 void Paint::onPlaceholder(TextRange, const SkRect& bounds) { }
 void Paint::onGlyphRun(SkFont font,
                        TextRange textRange,
+                       SkRect boundingRect,
                        int glyphCount,
                        const uint16_t glyphs[],
                        const SkPoint  positions[],
@@ -64,13 +67,16 @@ void Paint::onGlyphRun(SkFont font,
     const auto& blobBuffer = builder.allocRunPos(font , SkToInt(glyphCount));
     sk_careful_memcpy(blobBuffer.glyphs, glyphs, glyphCount * sizeof(uint16_t));
     sk_careful_memcpy(blobBuffer.points(), positions, glyphCount * sizeof(SkPoint));
-    fCanvas->drawTextBlob(builder.make(), fXY.fX, fXY.fY, decoratedBlock.foregroundColor);
+    auto blob = builder.make();
+    boundingRect.offset(fXY.fX + fHorizontalOffset, fXY.fY);
+    fCanvas->drawRect(boundingRect, decoratedBlock.backgroundPaint);
+    fCanvas->drawTextBlob(blob, fXY.fX + fHorizontalOffset, fXY.fY, decoratedBlock.foregroundPaint);
 }
 
 sk_sp<FormattedText> Paint::layout(std::u16string text,
                             TextDirection textDirection, TextAlign textAlign,
                             SkSize reqSize,
-                            SkSpan<Block> fontBlocks) {
+                            SkSpan<FontBlock> fontBlocks) {
     auto unicodeText = Text::parse(SkSpan<uint16_t>((uint16_t*)text.data(), text.size()));
     auto shapedText = unicodeText->shape(fontBlocks, textDirection);
     auto wrappedText = shapedText->wrap(reqSize.width(), reqSize.height(), unicodeText->getUnicode());
@@ -93,9 +99,10 @@ DecoratedBlock Paint::findDecoratedBlock(TextRange textRange) {
     return DecoratedBlock(0, SkPaint(), SkPaint());
 }
 
-void Paint::paint(SkCanvas* canvas, SkPoint xy, sk_sp<FormattedText> formattedText, SkSpan<DecoratedBlock> decoratedBlocks) {
+void Paint::paint(SkCanvas* canvas, SkPoint xy, FormattedText* formattedText, SkSpan<DecoratedBlock> decoratedBlocks) {
     fCanvas = canvas;
     fXY = xy;
+    fDecoratedBlocks = decoratedBlocks;
 
     SkTArray<size_t> chunks;
     chunks.resize(decoratedBlocks.size());

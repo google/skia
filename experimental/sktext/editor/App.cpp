@@ -19,8 +19,10 @@
 #include <fstream>
 #include <memory>
 
+using namespace skia::text;
 namespace skia {
-namespace text {
+namespace editor {
+
 struct EditorApplication : public sk_app::Application {
     std::unique_ptr<sk_app::Window> fWindow;
     std::unique_ptr<Editor> fLayer;
@@ -31,7 +33,7 @@ struct EditorApplication : public sk_app::Application {
     bool init(const char* path) {
         fWindow->attach(sk_app::Window::kRaster_BackendType);
 
-        fLayer = Editor::MakeDemo(fWindow->width());
+        fLayer = Editor::MakeDemo(fWindow->width(), fWindow->height());
 
         fWindow->pushLayer(fLayer.get());
         fWindow->setTitle("Editor");
@@ -63,7 +65,7 @@ sk_app::Application* sk_app::Application::Create(int argc, char** argv, void* da
     if (!win) {
         SK_ABORT("CreateNativeWindow failed.");
     }
-    std::unique_ptr<skia::text::EditorApplication> app(new skia::text::EditorApplication(std::move(win)));
+    std::unique_ptr<skia::editor::EditorApplication> app(new skia::editor::EditorApplication(std::move(win)));
     (void)app->init(argc > 1 ? argv[1] : nullptr);
     return app.release();
 }

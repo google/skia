@@ -20,6 +20,7 @@
 #include "tools/flags/CommandLineFlags.h"
 
 using namespace skia::text;
+using namespace skia::editor;
 
 namespace {
 class TextSample_HelloWorld : public Sample {
@@ -28,7 +29,7 @@ protected:
 
     void onDrawContent(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
-        Paint::drawText(u"Hello word", canvas, 0, 0);
+        skia::text::Paint::drawText(u"Hello word", canvas, 0, 0);
     }
 
 private:

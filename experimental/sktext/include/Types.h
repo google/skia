@@ -2,10 +2,10 @@
 #ifndef Types_DEFINED
 #define Types_DEFINED
 
-#include "include/core/SkFont.h"
-#include "include/core/SkSize.h"
 #include <algorithm>
 #include <cstddef>
+#include "include/core/SkFont.h"
+#include "include/core/SkSize.h"
 #include "include/private/SkBitmaskEnum.h"
 #include "include/private/SkTo.h"
 
@@ -27,8 +27,7 @@ enum class TextDirection {
 
 // This enum lists all possible ways to query output positioning
 enum class PositionType {
-    kGraphemeCluster,
-    kGrapheme,
+    kGraphemeCluster, // Both the edge of the glyph cluster and the text grapheme
     kGlyphCluster,
     kGlyph,
     kGlyphPart
@@ -40,20 +39,21 @@ enum class LineBreakType {
 };
 
 enum class CodeUnitFlags : uint8_t {
-    kNoCodeUnitFlag = 0x000,
-    kPartOfWhiteSpace = 0x001,
-    kGraphemeStart = 0x002,
-    kSoftLineBreakBefore = 0x004,
-    kHardLineBreakBefore = 0x008,
+    kNoCodeUnitFlag = (1 << 0),
+    kPartOfWhiteSpace = (1 << 1),
+    kGraphemeStart = (1 << 2),
+    kSoftLineBreakBefore = (1 << 3),
+    kHardLineBreakBefore = (1 << 4),
 };
 
 enum class GlyphUnitFlags : uint8_t {
-    kNoGlyphUnitFlag = 0x000,
-    kPartOfWhiteSpace = 0x001,
-    kGraphemeStart = 0x002,
-    kSoftLineBreakBefore = 0x004,
-    kHardLineBreakBefore = 0x008,
-    kGlyphClusterStart = 0x0016,
+    kNoGlyphUnitFlag = (1 << 0),
+    kPartOfWhiteSpace = (1 << 1),
+    kGraphemeStart = (1 << 2),
+    kSoftLineBreakBefore = (1 << 3),
+    kHardLineBreakBefore = (1 << 4),
+    kGlyphClusterStart = (1 << 5),
+    kGraphemeClusterStart = (1 << 6),
 };
 
 typedef size_t TextIndex;
@@ -169,12 +169,28 @@ public:
 
 };
 
-struct Block {
-    Block(uint32_t count, sk_sp<FontChain> fontChain)
+struct FontBlock {
+    FontBlock(uint32_t count, sk_sp<FontChain> fontChain)
         : type(BlockType::kFont)
         , charCount(count)
         , chain(fontChain) { }
-    ~Block(){ }
+    FontBlock() : FontBlock(0, nullptr) { }
+    ~FontBlock() { }
+
+    SkFont createFont() const {
+
+        if (this->chain->count() == 0) {
+            return SkFont();
+        }
+        sk_sp<SkTypeface> typeface = this->chain->operator[](0);
+
+        SkFont font(std::move(typeface), this->chain->size());
+        font.setEdging(SkFont::Edging::kAntiAlias);
+        font.setHinting(SkFontHinting::kSlight);
+        font.setSubpixel(true);
+
+        return font;
+    }
     BlockType  type;
     uint32_t   charCount;
     union {
