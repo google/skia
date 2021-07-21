@@ -678,14 +678,6 @@ std::unique_ptr<Expression> FunctionCall::Convert(const Context& context,
         return nullptr;
     }
 
-    // GLSL ES 1.0 requires static recursion be rejected by the compiler. Also, our CPU back-end
-    // cannot handle recursion (and is tied to strictES2Mode front-ends). The safest way to reject
-    // all (potentially) recursive code is to disallow calls to functions before they're defined.
-    if (context.fConfig->strictES2Mode() && !function.definition() && !function.isBuiltin()) {
-        context.fErrors.error(offset, "call to undefined function '" + function.name() + "'");
-        return nullptr;
-    }
-
     // Resolve generic types.
     FunctionDeclaration::ParamTypes types;
     const Type* returnType;
@@ -729,7 +721,6 @@ std::unique_ptr<Expression> FunctionCall::Make(const Context& context,
                                                const FunctionDeclaration& function,
                                                ExpressionArray arguments) {
     SkASSERT(function.parameters().size() == arguments.size());
-    SkASSERT(function.definition() || function.isBuiltin() || !context.fConfig->strictES2Mode());
 
     if (context.fConfig->fSettings.fOptimize) {
         // We might be able to optimize built-in intrinsics.

@@ -245,6 +245,7 @@ SKSL_TEST(SkSLForLoopControlFlow,              "shared/ForLoopControlFlow.sksl")
 SKSL_TEST(SkSLFunctionArgTypeMatch,            "shared/FunctionArgTypeMatch.sksl")
 SKSL_TEST(SkSLFunctionReturnTypeMatch,         "shared/FunctionReturnTypeMatch.sksl")
 SKSL_TEST(SkSLFunctions,                       "shared/Functions.sksl")
+SKSL_TEST(SkSLFunctionPrototype,               "shared/FunctionPrototype.sksl")
 SKSL_TEST(SkSLGeometricIntrinsics,             "shared/GeometricIntrinsics.sksl")
 SKSL_TEST(SkSLHelloWorld,                      "shared/HelloWorld.sksl")
 SKSL_TEST(SkSLHex,                             "shared/Hex.sksl")
@@ -290,14 +291,6 @@ SKSL_TEST(SkSLVectorToMatrixCast,              "shared/VectorToMatrixCast.sksl")
 // skbug.com/11919: Fails on Nexus5/7, and Intel GPUs
 SKSL_TEST_CPU(SkSLVectorScalarMath,            "shared/VectorScalarMath.sksl")
 SKSL_TEST_ES3(SkSLWhileLoopControlFlow,        "shared/WhileLoopControlFlow.sksl")
-
-/*
-// Incompatible with Runtime Effects because calling a function before its definition is disallowed.
-// (This was done to prevent recursion, as required by ES2.)
-// TODO(skia:12137) Enable this test once we specifically detect recursion, rather than just
-// calling functions before definition.
-SKSL_TEST(SkSLFunctionPrototype,               "shared/FunctionPrototype.sksl")
-*/
 
 /*
 TODO(skia:11209): enable these tests when Runtime Effects have support for ES3

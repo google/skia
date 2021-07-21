@@ -1,6 +1,0 @@
-### Compilation failed:
-
-error: 9: call to undefined function 'fibonacci'
-error: 13: call to undefined function 'is_even'
-error: 14: call to undefined function 'is_odd'
-3 errors

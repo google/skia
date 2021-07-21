@@ -1687,6 +1687,10 @@ IRGenerator::IRBundle IRGenerator::finish() {
         }
     }
 
+    if (this->strictES2Mode()) {
+        Analysis::DetectStaticRecursion(SkMakeSpan(*fProgramElements), this->errorReporter());
+    }
+
     return IRBundle{std::move(*fProgramElements),
                     std::move(*fSharedElements),
                     std::move(fSymbolTable),

@@ -1,0 +1,7 @@
+### Compilation failed:
+
+error: 4: potential recursion (function call cycle) not allowed:
+	bool is_even(int n)
+	bool is_odd(int n)
+	bool is_even(int n)
+1 error

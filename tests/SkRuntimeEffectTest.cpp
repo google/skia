@@ -52,7 +52,7 @@ DEF_TEST(SkRuntimeEffectInvalid_NoInVariables, r) {
 
 DEF_TEST(SkRuntimeEffectInvalid_UndefinedFunction, r) {
     test_invalid_effect(r, "half4 missing(); half4 main(float2 p) { return missing(); }",
-                           "undefined function");
+                           "function 'half4 missing()' is not defined");
 }
 
 DEF_TEST(SkRuntimeEffectInvalid_UndefinedMain, r) {

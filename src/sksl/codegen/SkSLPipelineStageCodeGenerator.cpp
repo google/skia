@@ -21,6 +21,7 @@
 #include "src/sksl/ir/SkSLFunctionCall.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
+#include "src/sksl/ir/SkSLFunctionPrototype.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
 #include "src/sksl/ir/SkSLPostfixExpression.h"
@@ -63,7 +64,9 @@ private:
     String typeName(const Type& type);
     void writeType(const Type& type);
 
+    String functionName(const FunctionDeclaration& decl);
     void writeFunction(const FunctionDefinition& f);
+    void writeFunctionPrototype(const FunctionPrototype& f);
 
     String modifierString(const Modifiers& modifiers);
 
@@ -251,6 +254,21 @@ void PipelineStageCodeGenerator::writeReturnStatement(const ReturnStatement& r) 
     this->write(";");
 }
 
+String PipelineStageCodeGenerator::functionName(const FunctionDeclaration& decl) {
+    if (decl.isMain()) {
+        return String(decl.name());
+    }
+
+    auto it = fFunctionNames.find(&decl);
+    if (it != fFunctionNames.end()) {
+        return it->second;
+    }
+
+    String mangledName = fCallbacks->getMangledName(String(decl.name()).c_str());
+    fFunctionNames.insert({&decl, mangledName});
+    return mangledName;
+}
+
 void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
     AutoOutputBuffer body(this);
 
@@ -273,8 +291,7 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
         fCastReturnsToHalf = false;
     }
 
-    String fnName = decl.isMain() ? String(decl.name())
-                                  : fCallbacks->getMangledName(String(decl.name()).c_str());
+    String fnName = this->functionName(decl);
 
     // This is similar to decl.description(), but substitutes a mangled name, and handles modifiers
     // on the function (e.g. `inline`) and its parameters (e.g. `inout`).
@@ -296,8 +313,12 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
     }
     declString.append(")");
 
-    fFunctionNames.insert({&decl, std::move(fnName)});
     fCallbacks->defineFunction(declString.c_str(), body.fBuffer.str().c_str(), decl.isMain());
+}
+
+void PipelineStageCodeGenerator::writeFunctionPrototype(const FunctionPrototype& f) {
+    const FunctionDeclaration& decl = f.declaration();
+    (void)this->functionName(decl);
 }
 
 void PipelineStageCodeGenerator::writeGlobalVarDeclaration(const GlobalVarDeclaration& g) {
@@ -347,8 +368,7 @@ void PipelineStageCodeGenerator::writeProgramElement(const ProgramElement& e) {
             this->writeFunction(e.as<FunctionDefinition>());
             break;
         case ProgramElement::Kind::kFunctionPrototype:
-            // Runtime effects don't allow calls to undefined functions, so prototypes are never
-            // necessary. If we do support them, they should emit calls to emitFunctionPrototype.
+            this->writeFunctionPrototype(e.as<FunctionPrototype>());
             break;
         case ProgramElement::Kind::kStructDefinition:
             this->writeStructDefinition(e.as<StructDefinition>());

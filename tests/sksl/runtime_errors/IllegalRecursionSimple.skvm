@@ -1,0 +1,6 @@
+### Compilation failed:
+
+error: 4: potential recursion (function call cycle) not allowed:
+	int fibonacci(int n)
+	int fibonacci(int n)
+1 error

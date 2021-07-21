@@ -8,6 +8,7 @@
 #ifndef SkSLAnalysis_DEFINED
 #define SkSLAnalysis_DEFINED
 
+#include "include/core/SkSpan.h"
 #include "include/private/SkSLDefines.h"
 #include "include/private/SkSLSampleUsage.h"
 
@@ -51,6 +52,12 @@ struct Analysis {
     static bool ReferencesFragCoords(const Program& program);
 
     static bool CallsSampleOutsideMain(const Program& program);
+
+    /*
+     * Does the function call graph of the program include any cycles? If so, emits an error.
+     */
+    static bool DetectStaticRecursion(SkSpan<std::unique_ptr<ProgramElement>> programElements,
+                                      ErrorReporter& errors);
 
     static int NodeCountUpToLimit(const FunctionDefinition& function, int limit);
 

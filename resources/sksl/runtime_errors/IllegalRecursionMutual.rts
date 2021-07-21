@@ -1,0 +1,6 @@
+// Expect 1 error
+
+// Straightforward mutual recursion (not allowed)
+bool is_even(int n);
+bool is_odd (int n) { return n == 0 ? false : is_even(n - 1); }
+bool is_even(int n) { return n == 0 ? true  : is_odd (n - 1); }

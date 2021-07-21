@@ -1,0 +1,34 @@
+// Expect 1 errors (with f_one(int), f_two, f_three in cycle)
+
+// Complex recursion spanning several functions with overloads, etc.
+
+void f_one(bool b);
+void f_one(int n);
+void f_two(int n);
+void f_three(int n);
+void f_four(int n);
+
+void f_one(bool b) {
+    int n = b ? 1 : 0;
+    f_one(n);
+}
+
+void f_one(int n) {
+    if (n > 0) {
+        f_four(n);
+    } else {
+        f_two(n);
+    }
+}
+
+void f_two(int n) {
+    for (int i = 0; i < 4; ++i) {
+        f_three(n);
+    }
+}
+
+void f_three(int n) {
+    f_one(n);
+}
+
+void f_four(int n) {}
