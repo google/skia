@@ -26,6 +26,10 @@ Device::~Device() {}
 
 GrSurfaceProxyView Device::readSurfaceView() { return {}; }
 
+GrSurfaceFillContext* Device::surfaceFillContext() {
+    return nullptr;
+}
+
 void Device::asyncRescaleAndReadPixels(const SkImageInfo& info,
                                        const SkIRect& srcRect,
                                        RescaleGamma rescaleGamma,

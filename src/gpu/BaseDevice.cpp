@@ -16,6 +16,13 @@
 
 namespace skgpu {
 
+BaseDevice::BaseDevice(sk_sp<GrRecordingContext> rContext,
+                       const SkImageInfo& ii,
+                       const SkSurfaceProps& props)
+    : INHERITED(ii, props)
+    , fContext(std::move(rContext)) {
+}
+
 GrRenderTargetProxy* BaseDevice::targetProxy() {
     return this->readSurfaceView().asRenderTargetProxy();
 }

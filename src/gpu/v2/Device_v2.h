@@ -44,6 +44,8 @@ public:
 
     GrSurfaceProxyView readSurfaceView() override;
 
+    GrSurfaceFillContext* surfaceFillContext() override;
+
     bool wait(int numSemaphores,
               const GrBackendSemaphore* waitSemaphores,
               bool deleteSemaphoresAfterWait) override {
@@ -76,8 +78,6 @@ public:
                                          RescaleMode,
                                          ReadPixelsCallback,
                                          ReadPixelsContext) override;
-
-    GrSurfaceDrawContext* surfaceDrawContext() override { return nullptr; }
 
 protected:
     void onSave() override;
