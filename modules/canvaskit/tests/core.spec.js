@@ -866,11 +866,10 @@ describe('Core canvas behavior', () => {
 
     gm('drawImage_skp', (canvas, fetchedByteBuffers) => {
         const pic = CanvasKit.MakePicture(fetchedByteBuffers[0]);
-        if (false) {    // need to update this skp, since it was > 6 months old
-            expect(pic).toBeTruthy();
-        }
         canvas.clear(CanvasKit.TRANSPARENT);
         canvas.drawPicture(pic);
+        // The asset below can be re-downloaded from
+        // https://fiddle.skia.org/c/cbb8dee39e9f1576cd97c2d504db8eee
     }, '/assets/red_line.skp');
 
     it('can draw once using drawOnce utility method', (done) => {
