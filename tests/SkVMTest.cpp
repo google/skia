@@ -769,6 +769,46 @@ DEF_TEST(SkVM_NewOps, r) {
     });
 }
 
+DEF_TEST(SKVM_array32, r) {
+    skvm::Builder b;
+    {
+        skvm::Ptr buf0     = b.varying<int32_t>(),
+                  buf1     = b.varying<int32_t>(),
+                  uniforms = b.uniform();
+
+        skvm::I32 x = b.array32(uniforms, 0, 0);
+        b.store32(buf0, x);
+        skvm::I32 y = b.array32(uniforms, 0, 4);
+        b.store32(buf1, y);
+    }
+
+    test_jit_and_interpreter(b, [&](const skvm::Program& program) {
+        const int K = 20;
+        int i[2] = {3, 7};
+        struct {
+            int* g;
+        } uniforms{i};
+        int32_t buf0[K];
+        int32_t buf1[K];
+
+        program.eval(K, buf0, buf1, &uniforms);
+        for (auto v : buf0) {
+            REPORTER_ASSERT(r, v == 3);
+        }
+        for (auto v : buf1) {
+            REPORTER_ASSERT(r, v == 7);
+        }
+        i[0] = 4;
+        program.eval(K, buf0, buf1, &uniforms);
+        for (auto v : buf0) {
+            REPORTER_ASSERT(r, v == 4);
+        }
+        for (auto v : buf1) {
+            REPORTER_ASSERT(r, v == 7);
+        }
+    });
+}
+
 DEF_TEST(SkVM_sqrt, r) {
     skvm::Builder b;
     auto buf = b.varying<int>();
