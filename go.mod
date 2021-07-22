@@ -47,7 +47,7 @@ require (
 	github.com/yosuke-furukawa/json5 v0.1.1 // indirect
 	go.chromium.org/gae v0.0.0-20190826183307-50a499513efa // indirect
 	go.chromium.org/luci v0.0.0-20201121231857-b9ab316d7198 // indirect
-	go.skia.org/infra v0.0.0-20210625193141-b3e5ef879196
+	go.skia.org/infra v0.0.0-20210722131314-83d167c8dec8
 	go.starlark.net v0.0.0-20201118183435-e55f603d8c79 // indirect
 	golang.org/x/crypto v0.0.0-20210220033148-5ea612d1eb83
 	golang.org/x/exp v0.0.0-20200228211341-fcea875c7e85 // indirect
