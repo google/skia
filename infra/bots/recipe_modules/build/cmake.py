@@ -4,7 +4,7 @@
 
 from . import util
 
-DOCKER_IMAGE = 'gcr.io/skia-public/cmake-release:3.13.1_v2'
+DOCKER_IMAGE = 'gcr.io/skia-public/cmake-release:3.13.4_v4'
 INNER_BUILD_SCRIPT = '/SRC/skia/infra/cmake/build_skia.sh'
 
 

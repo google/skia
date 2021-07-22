@@ -23,7 +23,7 @@
       "[START_DIR]/cache/work:/SRC",
       "--volume",
       "[START_DIR]/cache/docker/cmake:/OUT",
-      "gcr.io/skia-public/cmake-release:3.13.1_v2",
+      "gcr.io/skia-public/cmake-release:3.13.4_v4",
       "/SRC/skia/infra/cmake/build_skia.sh"
     ],
     "env": {
