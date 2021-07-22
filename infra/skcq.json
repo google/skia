@@ -1,0 +1,7 @@
+{
+  "visibility_type": "public",
+  "tasks_json_path": "infra/bots/tasks.json",
+  "committer_list": "project-skia-committers",
+  "dry_run_access_list": "project-skia-tryjob-access",
+  "tree_status_url": "https://tree-status.skia.org/current"
+}
