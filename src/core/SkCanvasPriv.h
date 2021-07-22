@@ -14,8 +14,17 @@
 class SkReadBuffer;
 class SkWriteBuffer;
 
+#if GR_TEST_UTILS
 class GrSurfaceDrawContext;
 class GrSurfaceFillContext;
+#endif // GR_TEST_UTILS
+
+// This declaration must match the one in SkDeferredDisplayList.h
+#if SK_SUPPORT_GPU
+class GrRenderTargetProxy;
+#else
+using GrRenderTargetProxy = SkRefCnt;
+#endif // SK_SUPPORT_GPU
 
 class SkAutoCanvasMatrixPaint : SkNoncopyable {
 public:
@@ -50,8 +59,12 @@ public:
         canvas->internal_private_resetClip();
     }
 
+#if GR_TEST_UTILS
+#if SK_GPU_V1
     static GrSurfaceDrawContext* TopDeviceSurfaceDrawContext(SkCanvas*);
+#endif
     static GrSurfaceFillContext* TopDeviceSurfaceFillContext(SkCanvas*);
+#endif // GR_TEST_UTILS
     static GrRenderTargetProxy* TopDeviceTargetProxy(SkCanvas*);
 
     // The experimental_DrawEdgeAAImageSet API accepts separate dstClips and preViewMatrices arrays,

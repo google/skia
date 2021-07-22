@@ -97,8 +97,6 @@ private:
 
     SkCanvas* proxy() const { SkASSERT(fList.count() == 1); return fList[0]; }
 
-    GrSurfaceDrawContext* topDeviceSurfaceDrawContext() override;
-    GrRenderTargetProxy* topDeviceTargetProxy() override;
     SkPaintFilterCanvas* internal_private_asPaintFilterCanvas() const override {
         return const_cast<SkPaintFilterCanvas*>(this);
     }
