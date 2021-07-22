@@ -486,7 +486,6 @@ bool GrGLInterface::validate() const {
           fExtensions.has("GL_EXT_framebuffer_blit"))) ||
        (GR_IS_GR_GL_ES(fStandard) && (
           (glVer >= GR_GL_VER(3,0)) ||
-          fExtensions.has("GL_NV_framebuffer_blit") ||
           fExtensions.has("GL_CHROMIUM_framebuffer_multisample") ||
           fExtensions.has("GL_ANGLE_framebuffer_blit"))) ||
        (GR_IS_GR_WEBGL(fStandard) && (

@@ -373,7 +373,6 @@
               {/*    else if      */  "ext": "GL_ARB_framebuffer_object"},
               {/*    else if      */  "ext": "GL_EXT_framebuffer_blit"}],
     "GLES":  [{"min_version": [3, 0], "ext": "<core>"},
-              {/*    else if      */  "ext": "GL_NV_framebuffer_blit"},
               {/*    else if      */  "ext": "GL_CHROMIUM_framebuffer_multisample"},
               {/*    else if      */  "ext": "GL_ANGLE_framebuffer_blit"}],
     "WebGL": [{"min_version": [2, 0], "ext": "<core>"}],
