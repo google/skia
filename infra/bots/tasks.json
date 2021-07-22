@@ -84661,5 +84661,51 @@
         "^(.*\\/)*\\.git(\\/.*)*$"
       ]
     }
+  },
+  "commit_queue": {
+    "Build-Debian10-Clang-arm-Debug-Android": {},
+    "Build-Debian10-Clang-arm-Release-Android_API26": {},
+    "Build-Debian10-Clang-arm64-Debug-Android": {},
+    "Build-Debian10-Clang-x86_64-Debug": {},
+    "Build-Debian10-Clang-x86_64-Debug-Tidy": {},
+    "Build-Debian10-Clang-x86_64-Debug-Wuffs": {
+      "location_regexes": [
+        "DEPS",
+        "src/codec/SkWuffs.*"
+      ]
+    },
+    "Build-Debian10-GCC-x86_64-Debug-NoGPU_Docker": {},
+    "Build-Debian10-GCC-x86_64-Release-Docker": {},
+    "Build-Mac-Clang-x86_64-Release": {},
+    "Build-Win-Clang-x86-Debug": {},
+    "Build-Win-Clang-x86_64-Release-Dawn": {},
+    "Build-Win-Clang-x86_64-Release-Direct3D": {},
+    "Build-Win-Clang-x86_64-Release-Vulkan": {},
+    "Build-Win-MSVC-arm64-Release-ANGLE": {},
+    "Build-Win-MSVC-x86_64-Release-Vulkan": {},
+    "Housekeeper-OnDemand-Presubmit": {},
+    "Housekeeper-PerCommit-CheckGeneratedFiles": {
+      "location_regexes": [
+        "src/gpu/effects/generated/.*",
+        "src/sksl/.*"
+      ]
+    },
+    "Housekeeper-PerCommit-InfraTests_Linux": {},
+    "Housekeeper-PerCommit-RunGnToBp": {},
+    "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ASAN": {},
+    "Test-Android-Clang-GalaxyS20-GPU-MaliG77-arm64-Release-All-Android_Vulkan": {},
+    "Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Release-All-Android": {},
+    "Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All": {},
+    "Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All-BonusConfigs": {},
+    "Test-Debian10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All": {},
+    "Test-Mac10.15.1-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All-Metal": {},
+    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ASAN": {},
+    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_Vulkan": {},
+    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan": {},
+    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All": {},
+    "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Dawn": {},
+    "Test-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-All": {},
+    "Test-Win10-Clang-ShuttleA-GPU-RadeonHD7770-x86_64-Release-All-Direct3D": {},
+    "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All": {}
   }
 }

@@ -285,6 +285,16 @@ type Config struct {
 	SwarmDimensions func(parts map[string]string) []string `json:"-"`
 }
 
+// JobInfo is the type of each entry in the jobs.json file.
+type JobInfo struct {
+	// The name of the job.
+	Name string `json:"name"`
+
+	// The optinal CQ config of this job. If the CQ config is missing then the
+	// job will not be added to the CQ of this branch.
+	CQConfig *specs.CommitQueueJobConfig `json:"cq_config,omitempty"`
+}
+
 // LoadConfig loads the Config from a cfg.json file which is the sibling of the
 // calling gen_tasks.go file.
 func LoadConfig() *Config {
@@ -340,8 +350,14 @@ func GenTasks(cfg *Config) {
 	relpathTargetDir := getThisDirName()
 	relpathBaseDir := getCallingDirName()
 
-	var jobs []string
-	LoadJson(filepath.Join(relpathBaseDir, "jobs.json"), &jobs)
+	// Parse jobs.json.
+	var jobsWithInfo []*JobInfo
+	LoadJson(filepath.Join(relpathBaseDir, "jobs.json"), &jobsWithInfo)
+	// Create a slice with only job names.
+	jobs := []string{}
+	for _, j := range jobsWithInfo {
+		jobs = append(jobs, j.Name)
+	}
 
 	if cfg == nil {
 		cfg = new(Config)
@@ -372,10 +388,15 @@ func GenTasks(cfg *Config) {
 		jobNameSchema:   schema,
 		jobs:            jobs,
 	}
-	for _, name := range jobs {
-		jb := newJobBuilder(builder, name)
+	for _, j := range jobsWithInfo {
+		jb := newJobBuilder(builder, j.Name)
 		jb.genTasksForJob()
 		jb.finish()
+
+		// Add the CQ spec if it is a CQ job.
+		if j.CQConfig != nil {
+			b.MustAddCQJob(j.Name, j.CQConfig)
+		}
 	}
 
 	// Create CasSpecs.
