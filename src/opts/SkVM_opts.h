@@ -93,7 +93,8 @@ namespace SK_OPTS_NS {
                       z = inst.z,
                       w = inst.w;
                 int immA = inst.immA,
-                    immB = inst.immB;
+                    immB = inst.immB,
+                    immC = inst.immC;
 
                 // Ops that interact with memory need to know whether we're stride=1 or K,
                 // but all non-memory ops can run the same code no matter the stride.
@@ -214,6 +215,12 @@ namespace SK_OPTS_NS {
 
                     CASE(Op::uniform32):
                         r[d].i32 = *(const int*)( (const char*)args[immA] + immB );
+                        break;
+
+                    CASE(Op::array32):
+                        const int* ptr;
+                        memcpy(&ptr, (const uint8_t*)args[immA] + immB, sizeof(ptr));
+                        r[d].i32 = ptr[immC/sizeof(int)];
                         break;
 
                     CASE(Op::splat): r[d].i32 = immA; break;
