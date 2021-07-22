@@ -479,17 +479,6 @@ public:
      */
     SkBlendMode getBlendMode_or(SkBlendMode defaultMode) const;
 
-#ifdef SK_SUPPORT_LEGACY_GETBLENDMODE
-    /** DEPRECATED
-     *  Use asBlendMode() or getBlendMode_or() instead.
-     *
-     *  This attempts to inspect the current blender, and if it claims to be equivalent to
-     *  one of the predefiend SkBlendMode enums, returns that mode. If the blender does not,
-     *  this returns kSrcOver.
-     */
-    SkBlendMode getBlendMode() const { return this->getBlendMode_or(SkBlendMode::kSrcOver); }
-#endif
-
     /** Returns true iff the current blender claims to be equivalent to SkBlendMode::kSrcOver.
      *
      *  Also returns true of the current blender is nullptr.
