@@ -20,9 +20,11 @@ bench_sources = [
   "$_bench/BlurImageFilterBench.cpp",
   "$_bench/BlurRectBench.cpp",
   "$_bench/BlurRectsBench.cpp",
+  "$_bench/BulkRectBench.cpp",
   "$_bench/ChartBench.cpp",
   "$_bench/ChecksumBench.cpp",
   "$_bench/ChromeBench.cpp",
+  "$_bench/ClearBench.cpp",
   "$_bench/ClipMaskBench.cpp",
   "$_bench/ClipStrategyBench.cpp",
   "$_bench/CmapBench.cpp",
@@ -127,10 +129,3 @@ bench_sources = [
   "$_bench/WritePixelsBench.cpp",
   "$_bench/WriterBench.cpp",
 ]
-
-skgpu_v1_bench_sources = [
-  "$_bench/BulkRectBench.cpp",
-  "$_bench/ClearBench.cpp",
-]
-
-bench_sources += skgpu_v1_bench_sources

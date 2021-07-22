@@ -291,11 +291,6 @@ const GrSurfaceDrawContext* Device::surfaceDrawContext() const {
     return fSurfaceDrawContext.get();
 }
 
-GrSurfaceFillContext* Device::surfaceFillContext() {
-    ASSERT_SINGLE_OWNER
-    return fSurfaceDrawContext.get();
-}
-
 void Device::clearAll() {
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v1::Device", "clearAll", fContext.get());

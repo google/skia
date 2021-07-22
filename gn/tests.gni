@@ -26,6 +26,7 @@ tests_sources = [
   "$_tests/BlendTest.cpp",
   "$_tests/BlitMaskClip.cpp",
   "$_tests/BlurTest.cpp",
+  "$_tests/BulkRectTest.cpp",
   "$_tests/CTest.cpp",
   "$_tests/CachedDataTest.cpp",
   "$_tests/CachedDecodingPixelRefTest.cpp",
@@ -116,6 +117,7 @@ tests_sources = [
   "$_tests/GrTBlockListTest.cpp",
   "$_tests/GrTextBlobTest.cpp",
   "$_tests/GrTextureMipMapInvalidationTest.cpp",
+  "$_tests/GrThreadSafeCacheTest.cpp",
   "$_tests/GrVxTest.cpp",
   "$_tests/GradientTest.cpp",
   "$_tests/HSVRoundTripTest.cpp",
@@ -402,11 +404,9 @@ pathops_tests_sources = [
 ]
 
 skgpu_v1_tests_sources = [
-  "$_tests/BulkRectTest.cpp",
   "$_tests/GrClipStackTest.cpp",
   "$_tests/GrMeshTest.cpp",
   "$_tests/GrPipelineDynamicStateTest.cpp",
-  "$_tests/GrThreadSafeCacheTest.cpp",
   "$_tests/OpChainTest.cpp",
   "$_tests/PathRendererCacheTests.cpp",
   "$_tests/ProgramsTest.cpp",

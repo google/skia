@@ -53,7 +53,6 @@
 
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrDirectContext.h"
-#include "src/gpu/BaseDevice.h"
 #include "src/gpu/SkGr.h"
 #if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
 #   include "src/gpu/GrRenderTarget.h"
@@ -557,6 +556,14 @@ SkISize SkCanvas::getBaseLayerSize() const {
 SkBaseDevice* SkCanvas::topDevice() const {
     SkASSERT(fMCRec->fDevice);
     return fMCRec->fDevice;
+}
+
+GrSurfaceDrawContext* SkCanvas::topDeviceSurfaceDrawContext() {
+    return this->topDevice()->surfaceDrawContext();
+}
+
+GrRenderTargetProxy* SkCanvas::topDeviceTargetProxy() {
+    return this->topDevice()->targetProxy();
 }
 
 bool SkCanvas::readPixels(const SkPixmap& pm, int x, int y) {
@@ -1664,13 +1671,7 @@ GrBackendRenderTarget SkCanvas::topLayerBackendRenderTarget() const {
 #endif
 
 GrRecordingContext* SkCanvas::recordingContext() {
-#if SK_SUPPORT_GPU
-    if (auto gpuDevice = this->topDevice()->asGpuDevice()) {
-        return gpuDevice->recordingContext();
-    }
-#endif
-
-    return nullptr;
+    return this->topDevice()->recordingContext();
 }
 
 void SkCanvas::drawDRRect(const SkRRect& outer, const SkRRect& inner,

@@ -39,6 +39,7 @@
 
 class GrBackendRenderTarget;
 class GrRecordingContext;
+class GrSurfaceDrawContext;
 class SkBaseDevice;
 class SkBitmap;
 class SkData;
@@ -61,6 +62,13 @@ class SkSurface;
 class SkSurface_Base;
 class SkTextBlob;
 class SkVertices;
+
+// This declaration must match the one in SkDeferredDisplayList.h
+#if SK_SUPPORT_GPU
+class GrRenderTargetProxy;
+#else
+using GrRenderTargetProxy = SkRefCnt;
+#endif
 
 /** \class SkCanvas
     SkCanvas provides an interface for drawing, and how the drawing is clipped and transformed.
@@ -2286,6 +2294,8 @@ private:
     // The top-most device in the stack, will change within saveLayer()'s. All drawing and clipping
     // operations should route to this device.
     SkBaseDevice* topDevice() const;
+    virtual GrSurfaceDrawContext* topDeviceSurfaceDrawContext();
+    virtual GrRenderTargetProxy* topDeviceTargetProxy();
 
     class MCRec;
 

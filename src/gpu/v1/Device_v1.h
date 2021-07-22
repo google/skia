@@ -106,7 +106,6 @@ public:
 
     GrSurfaceDrawContext* surfaceDrawContext() override;
     const GrSurfaceDrawContext* surfaceDrawContext() const;
-    GrSurfaceFillContext* surfaceFillContext() override;
 
     // set all pixels to 0
     void clearAll();

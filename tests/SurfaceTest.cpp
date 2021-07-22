@@ -755,8 +755,7 @@ static sk_sp<SkSurface> create_gpu_surface_backend_render_target(GrDirectContext
 
 static void test_surface_context_clear(skiatest::Reporter* reporter,
                                        GrDirectContext* dContext,
-                                       GrSurfaceContext* surfaceContext,
-                                       uint32_t expectedValue) {
+                                       GrSurfaceContext* surfaceContext, uint32_t expectedValue) {
     int w = surfaceContext->width();
     int h = surfaceContext->height();
 
@@ -804,12 +803,12 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceClear_Gpu, reporter, ctxInfo) {
             ERRORF(reporter, "Could not create GPU SkSurface.");
             return;
         }
-        auto sfc = SkCanvasPriv::TopDeviceSurfaceFillContext(surface->getCanvas());
-        if (!sfc) {
+        auto sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(surface->getCanvas());
+        if (!sdc) {
             ERRORF(reporter, "Could access surface context of GPU SkSurface.");
             return;
         }
-        test_surface_context_clear(reporter, dContext, sfc, 0x0);
+        test_surface_context_clear(reporter, dContext, sdc, 0x0);
         auto imageSurfaceCtx = makeImageSurfaceContext(surface.get());
         test_surface_context_clear(reporter, dContext, imageSurfaceCtx.get(), 0x0);
     }
@@ -823,12 +822,12 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceClear_Gpu, reporter, ctxInfo) {
             ERRORF(reporter, "Could not create GPU SkSurface.");
             return;
         }
-        auto sfc = SkCanvasPriv::TopDeviceSurfaceFillContext(surface->getCanvas());
-        if (!sfc) {
+        auto sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(surface->getCanvas());
+        if (!sdc) {
             ERRORF(reporter, "Could access surface context of GPU SkSurface.");
             return;
         }
-        test_surface_context_clear(reporter, dContext, sfc, kOrigColor.toSkColor());
+        test_surface_context_clear(reporter, dContext, sdc, kOrigColor.toSkColor());
         auto imageSurfaceCtx = makeImageSurfaceContext(surface.get());
         test_surface_context_clear(reporter, dContext, imageSurfaceCtx.get(),
                                    kOrigColor.toSkColor());
