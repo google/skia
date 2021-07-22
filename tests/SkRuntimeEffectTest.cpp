@@ -176,8 +176,8 @@ DEF_TEST(SkRuntimeEffectForBlender, r) {
                         errorText.c_str());
     };
 
-    // Color filters must use the 'half4 main(half4, half4)' signature. Any mixture of
-    // float4/vec4/half4 is allowed.
+    // Blenders must use the 'half4 main(half4, half4)' signature. Any mixture of float4/vec4/half4
+    // is allowed.
     test_valid("half4  main(half4  s, half4  d) { return s; }");
     test_valid("float4 main(float4 s, float4 d) { return d; }");
     test_valid("float4 main(half4  s, float4 d) { return s; }");
@@ -202,11 +202,44 @@ DEF_TEST(SkRuntimeEffectForBlender, r) {
     test_invalid("half4 main(half4 s, half4 d) { return sk_FragCoord.xy01; }",
                  "unknown identifier");
 
-    // Child shaders are currently unsupported in blends
-    test_invalid("uniform shader sh; half4 main(half4 s, half4 d) { return s; }",
-                 "'shader' is not allowed in runtime blend");
-    test_invalid("uniform shader sh; half4 main(half4 s, half4 d) { return sample(sh, s.rg); }",
-                 "unknown identifier 'sample'");
+    // Sampling a child shader requires that we pass explicit coords
+    test_valid("uniform shader child;"
+               "half4 main(half4 s, half4 d) { return sample(child, s.rg); }");
+    // Trying to pass a color as well. (Works internally with FPs, but not in runtime effects).
+    test_invalid("uniform shader child;"
+                 "half4 main(half4 s, half4 d) { return sample(child, s.rg, d); }",
+                 "no match for sample(shader, half2, half4)");
+
+    // Shader with just a color
+    test_invalid("uniform shader child;"
+                 "half4 main(half4 s, half4 d) { return sample(child, s); }",
+                 "no match for sample(shader, half4)");
+    // Coords and color in a different order
+    test_invalid("uniform shader child;"
+                 "half4 main(half4 s, half4 d) { return sample(child, s, d.rg); }",
+                 "no match for sample(shader, half4, half2)");
+
+    // Older variants that are no longer allowed
+    test_invalid("uniform shader child;"
+                 "half4 main(half4 s, half4 d) { return sample(child); }",
+                 "no match for sample(shader)");
+    test_invalid("uniform shader child;"
+                 "half4 main(half4 s, half4 d) { return sample(child, float3x3(1)); }",
+                 "no match for sample(shader, float3x3)");
+
+    // Sampling a colorFilter requires a color. No other signatures are valid.
+    test_valid("uniform colorFilter child;"
+               "half4 main(half4 s, half4 d) { return sample(child, d); }");
+
+    test_invalid("uniform colorFilter child;"
+                 "half4 main(half4 s, half4 d) { return sample(child); }",
+                 "sample(colorFilter)");
+    test_invalid("uniform colorFilter child;"
+                 "half4 main(half4 s, half4 d) { return sample(child, d.rg); }",
+                 "sample(colorFilter, half2)");
+    test_invalid("uniform colorFilter child;"
+                 "half4 main(half4 s, half4 d) { return sample(child, d.rg, s); }",
+                 "sample(colorFilter, half2, half4)");
 }
 
 DEF_TEST(SkRuntimeEffectForShader, r) {
@@ -406,6 +439,10 @@ public:
         return fBuilder->uniform(name);
     }
 
+    SkRuntimeBlendBuilder::BuilderChild child(const char* name) {
+        return fBuilder->child(name);
+    }
+
     void test(std::array<GrColor, 4> expected, PreTestFn preTestCallback = nullptr) {
         auto blender = fBuilder->makeBlender();
         if (!blender) {
@@ -552,6 +589,7 @@ static void test_RuntimeEffect_Blenders(skiatest::Reporter* r, GrRecordingContex
     REPORTER_ASSERT(r, surface);
     TestBlend effect(r, surface);
 
+    using float2 = std::array<float, 2>;
     using float4 = std::array<float, 4>;
     using int4 = std::array<int, 4>;
 
@@ -600,6 +638,40 @@ static void test_RuntimeEffect_Blenders(skiatest::Reporter* r, GrRecordingContex
     effect.test(0x00000000);
     effect.build("half4 main(half4 s, half4 d) { return half4(2); }");
     effect.test(0xFFFFFFFF);
+
+    //
+    // Sampling children
+    //
+
+    // Sampling a null child should return the paint color
+    effect.build("uniform shader child;"
+                 "half4 main(half4 s, half4 d) { return sample(child, s.rg); }");
+    effect.child("child") = nullptr;
+    effect.test(0xFF00FFFF,
+                [](SkCanvas*, SkPaint* paint) { paint->setColor4f({1.0f, 1.0f, 0.0f, 1.0f}); });
+
+    // Sampling a shader at various coordinates
+    effect.build("uniform shader child;"
+                 "uniform half2 pos;"
+                 "half4 main(half4 s, half4 d) { return sample(child, pos); }");
+    effect.child("child") = make_RGBW_shader();
+    effect.uniform("pos") = float2{0, 0};
+    effect.test(0xFF0000FF);
+
+    effect.uniform("pos") = float2{1, 0};
+    effect.test(0xFF00FF00);
+
+    effect.uniform("pos") = float2{0, 1};
+    effect.test(0xFFFF0000);
+
+    effect.uniform("pos") = float2{1, 1};
+    effect.test(0xFFFFFFFF);
+
+    // Sampling a color filter
+    effect.build("uniform colorFilter child;"
+                 "half4 main(half4 s, half4 d) { return sample(child, half4(1)); }");
+    effect.child("child") = SkColorFilters::Blend(0xFF012345, SkBlendMode::kSrc);
+    effect.test(0xFF452301);
 }
 
 DEF_TEST(SkRuntimeEffect_Blender_CPU, r) {

@@ -1,1 +1,2 @@
-// TODO(skia:12080): if any blend-specific program elements are needed, add them here.
+half4 sample(shader s, float2 coords);
+half4 sample(colorFilter f, half4 color);
