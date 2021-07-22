@@ -215,7 +215,7 @@ private:
 
     void onResolveRenderTarget(GrRenderTarget* target, const SkIRect& resolveRect) override;
 
-    void resolveTexture(id<MTLTexture> colorTexture, id<MTLTexture> resolveTexture);
+    void resolve(GrMtlAttachment* resolveAttachment, GrMtlAttachment* msaaAttachment);
 
     void addFinishedProc(GrGpuFinishedProc finishedProc,
                          GrGpuFinishedContext finishedContext) override;

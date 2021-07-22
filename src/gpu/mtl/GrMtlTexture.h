@@ -31,6 +31,7 @@ public:
 
     ~GrMtlTexture() override;
 
+    GrMtlAttachment* attachment() const { return fTexture.get(); }
     id<MTLTexture> mtlTexture() const { return fTexture->mtlTexture(); }
 
     GrBackendTexture getBackendTexture() const override;

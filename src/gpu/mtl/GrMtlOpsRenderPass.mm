@@ -92,7 +92,10 @@ bool GrMtlOpsRenderPass::onBindPipeline(const GrProgramInfo& programInfo,
 
     if (!fActiveRenderCmdEncoder) {
         fActiveRenderCmdEncoder =
-                fGpu->commandBuffer()->getRenderCommandEncoder(fRenderPassDesc, nullptr, this);
+                fGpu->commandBuffer()->getRenderCommandEncoder(fRenderPassDesc,
+                                                               fActivePipelineState, this);
+        fGpu->commandBuffer()->addGrSurface(
+                sk_ref_sp<GrMtlAttachment>(fFramebuffer->colorAttachment()));
     }
 
     fActiveRenderCmdEncoder->setRenderPipelineState(fActivePipelineState->mtlPipelineState());

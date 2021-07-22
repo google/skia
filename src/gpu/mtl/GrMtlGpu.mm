@@ -1237,16 +1237,16 @@ void GrMtlGpu::copySurfaceAsResolve(GrSurface* dst, GrSurface* src) {
     // TODO: Add support for subrectangles
     GrMtlRenderTarget* srcRT = static_cast<GrMtlRenderTarget*>(src->asRenderTarget());
     GrRenderTarget* dstRT = dst->asRenderTarget();
-    id<MTLTexture> dstTexture;
+    GrMtlAttachment* dstAttachment;
     if (dstRT) {
         GrMtlRenderTarget* mtlRT = static_cast<GrMtlRenderTarget*>(dstRT);
-        dstTexture = mtlRT->colorMTLTexture();
+        dstAttachment = mtlRT->colorAttachment();
     } else {
         SkASSERT(dst->asTexture());
-        dstTexture = static_cast<GrMtlTexture*>(dst->asTexture())->mtlTexture();
+        dstAttachment = static_cast<GrMtlTexture*>(dst->asTexture())->attachment();
     }
 
-    this->resolveTexture(dstTexture, srcRT->colorMTLTexture());
+    this->resolve(dstAttachment, srcRT->colorAttachment());
 }
 
 void GrMtlGpu::copySurfaceAsBlit(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
@@ -1274,6 +1274,8 @@ void GrMtlGpu::copySurfaceAsBlit(GrSurface* dst, GrSurface* src, const SkIRect& 
 #ifdef SK_ENABLE_MTL_DEBUG_INFO
     [blitCmdEncoder popDebugGroup];
 #endif
+    cmdBuffer->addGrSurface(sk_ref_sp<const GrSurface>(dst));
+    cmdBuffer->addGrSurface(sk_ref_sp<const GrSurface>(src));
 }
 
 bool GrMtlGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
@@ -1579,15 +1581,16 @@ void GrMtlGpu::waitSemaphore(GrSemaphore* semaphore) {
 }
 
 void GrMtlGpu::onResolveRenderTarget(GrRenderTarget* target, const SkIRect&) {
-    this->resolveTexture(static_cast<GrMtlRenderTarget*>(target)->resolveMTLTexture(),
-                         static_cast<GrMtlRenderTarget*>(target)->colorMTLTexture());
+    this->resolve(static_cast<GrMtlRenderTarget*>(target)->resolveAttachment(),
+                  static_cast<GrMtlRenderTarget*>(target)->colorAttachment());
 }
 
-void GrMtlGpu::resolveTexture(id<MTLTexture> resolveTexture, id<MTLTexture> colorTexture) {
+void GrMtlGpu::resolve(GrMtlAttachment* resolveAttachment,
+                       GrMtlAttachment* msaaAttachment) {
     auto renderPassDesc = [[MTLRenderPassDescriptor alloc] init];
     auto colorAttachment = renderPassDesc.colorAttachments[0];
-    colorAttachment.texture = colorTexture;
-    colorAttachment.resolveTexture = resolveTexture;
+    colorAttachment.texture = msaaAttachment->mtlTexture();
+    colorAttachment.resolveTexture = resolveAttachment->mtlTexture();
     colorAttachment.loadAction = MTLLoadActionLoad;
     colorAttachment.storeAction = MTLStoreActionMultisampleResolve;
 
@@ -1595,6 +1598,8 @@ void GrMtlGpu::resolveTexture(id<MTLTexture> resolveTexture, id<MTLTexture> colo
             this->commandBuffer()->getRenderCommandEncoder(renderPassDesc, nullptr, nullptr);
     SkASSERT(nil != cmdEncoder);
     cmdEncoder->setLabel(@"resolveTexture");
+    this->commandBuffer()->addGrSurface(sk_ref_sp<const GrSurface>(resolveAttachment));
+    this->commandBuffer()->addGrSurface(sk_ref_sp<const GrSurface>(msaaAttachment));
 }
 
 #if GR_TEST_UTILS

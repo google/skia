@@ -34,10 +34,17 @@ sk_sp<GrMtlCommandBuffer> GrMtlCommandBuffer::Make(id<MTLCommandQueue> queue) {
 
 GrMtlCommandBuffer::~GrMtlCommandBuffer() {
     this->endAllEncoding();
-    fTrackedGrBuffers.reset();
+    this->releaseResources();
     this->callFinishedCallbacks();
 
     fCmdBuffer = nil;
+}
+
+void GrMtlCommandBuffer::releaseResources() {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+
+    fTrackedGrBuffers.reset();
+    fTrackedGrSurfaces.reset();
 }
 
 id<MTLBlitCommandEncoder> GrMtlCommandBuffer::getBlitCommandEncoder() {
