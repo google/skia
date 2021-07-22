@@ -161,6 +161,25 @@ static bool verify_child_effects(const std::vector<SkRuntimeEffect::Child>& refl
     return true;
 }
 
+static std::vector<skvm::Val> make_skvm_uniforms(skvm::Builder* p,
+                                                 skvm::Uniforms* uniforms,
+                                                 size_t inputSize,
+                                                 const SkData& inputs) {
+    SkASSERTF(!(inputSize & 3), "inputSize was %zu, expected a multiple of 4", inputSize);
+
+    const int32_t* data = reinterpret_cast<const int32_t*>(inputs.data());
+    const size_t uniformCount = inputSize / sizeof(int32_t);
+    std::vector<skvm::Val> uniform;
+    uniform.reserve(uniformCount);
+    for (size_t index = 0; index < uniformCount; ++index) {
+        int32_t bits;
+        memcpy(&bits, data + index, sizeof(int32_t));
+        uniform.push_back(p->uniform32(uniforms->push(bits)).id);
+    }
+
+    return uniform;
+}
+
 // TODO: Many errors aren't caught until we process the generated Program here. Catching those
 // in the IR generator would provide better errors messages (with locations).
 #define RETURN_FAILURE(...) return Result{nullptr, SkStringPrintf(__VA_ARGS__)}
@@ -805,14 +824,8 @@ public:
             }
         };
 
-        const size_t uniformCount = fEffect->uniformSize() / 4;
-        std::vector<skvm::Val> uniform;
-        uniform.reserve(uniformCount);
-        for (size_t i = 0; i < uniformCount; i++) {
-            int bits;
-            memcpy(&bits, (const char*)inputs->data() + 4*i, 4);
-            uniform.push_back(p->uniform32(uniforms->push(bits)).id);
-        }
+        std::vector<skvm::Val> uniform = make_skvm_uniforms(p, uniforms, fEffect->uniformSize(),
+                                                            *inputs);
 
         return SkSL::ProgramToSkVM(*fEffect->fBaseProgram, fEffect->fMain, p, SkMakeSpan(uniform),
                                    /*device=*/zeroCoord, /*local=*/zeroCoord, c, c, sampleChild);
@@ -992,14 +1005,8 @@ public:
             }
         };
 
-        const size_t uniformCount = fEffect->uniformSize() / 4;
-        std::vector<skvm::Val> uniform;
-        uniform.reserve(uniformCount);
-        for (size_t i = 0; i < uniformCount; i++) {
-            int bits;
-            memcpy(&bits, (const char*)inputs->data() + 4*i, 4);
-            uniform.push_back(p->uniform32(uniforms->push(bits)).id);
-        }
+        std::vector<skvm::Val> uniform = make_skvm_uniforms(p, uniforms, fEffect->uniformSize(),
+                                                            *inputs);
 
         return SkSL::ProgramToSkVM(*fEffect->fBaseProgram, fEffect->fMain, p, SkMakeSpan(uniform),
                                    device, local, paint, paint, sampleChild);
@@ -1116,14 +1123,8 @@ public:
             return color;
         };
 
-        const size_t uniformCount = fEffect->uniformSize() / 4;
-        std::vector<skvm::Val> uniform;
-        uniform.reserve(uniformCount);
-        for (size_t i = 0; i < uniformCount; i++) {
-            int bits;
-            memcpy(&bits, (const char*)inputs->data() + 4*i, 4);
-            uniform.push_back(p->uniform32(uniforms->push(bits)).id);
-        }
+        std::vector<skvm::Val> uniform = make_skvm_uniforms(p, uniforms, fEffect->uniformSize(),
+                                                            *inputs);
 
         // Emit the blend function as an SkVM program.
         skvm::Coord zeroCoord = {p->splat(0.0f), p->splat(0.0f)};
