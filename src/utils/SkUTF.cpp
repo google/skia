@@ -253,15 +253,13 @@ size_t SkUTF::ToUTF16(SkUnichar uni, uint16_t utf16[2]) {
 }
 
 int SkUTF::UTF8ToUTF16(uint16_t dst[], int dstCapacity, const char src[], size_t srcByteLength) {
-    if (!src) {
-        return -1;
-    } else if (!dst) {
+    if (!dst) {
         dstCapacity = 0;
     }
 
     int dstLength = 0;
     uint16_t* endDst = dst + dstCapacity;
-    const char* endSrc = src + srcByteLength;
+    const char* endSrc = src + (!src ? 0 : srcByteLength);
     while (src < endSrc) {
         SkUnichar uni = NextUTF8(&src, endSrc);
         if (uni < 0) {
@@ -287,15 +285,13 @@ int SkUTF::UTF8ToUTF16(uint16_t dst[], int dstCapacity, const char src[], size_t
 }
 
 int SkUTF::UTF16ToUTF8(char dst[], int dstCapacity, const uint16_t src[], size_t srcLength) {
-    if (!src) {
-        return -1;
-    } else if (!dst) {
+    if (!dst) {
         dstCapacity = 0;
     }
 
     int dstLength = 0;
     const char* endDst = dst + dstCapacity;
-    const uint16_t* endSrc = src + srcLength;
+    const uint16_t* endSrc = src + (!src ? 0 : srcLength);
     while (src < endSrc) {
         SkUnichar uni = NextUTF16(&src, endSrc);
         if (uni < 0) {
