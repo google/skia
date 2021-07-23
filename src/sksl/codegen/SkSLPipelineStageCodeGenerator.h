@@ -30,6 +30,7 @@ namespace PipelineStage {
         virtual String declareUniform(const VarDeclaration*) = 0;
         virtual String sampleShader(int index, String coords) = 0;
         virtual String sampleColorFilter(int index, String color) = 0;
+        virtual String sampleBlender(int index, String src, String dst) = 0;
     };
 
     /*

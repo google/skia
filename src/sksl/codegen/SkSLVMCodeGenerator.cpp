@@ -117,7 +117,8 @@ public:
                   skvm::Coord device,
                   skvm::Coord local,
                   SampleShaderFn sampleShader,
-                  SampleColorFilterFn sampleColorFilter);
+                  SampleColorFilterFn sampleColorFilter,
+                  SampleBlenderFn sampleBlender);
 
     void writeFunction(const FunctionDefinition& function,
                        SkSpan<skvm::Val> arguments,
@@ -220,6 +221,7 @@ private:
     const skvm::Coord fLocalCoord;
     const SampleShaderFn fSampleShader;
     const SampleColorFilterFn fSampleColorFilter;
+    const SampleBlenderFn fSampleBlender;
 
     // [Variable, first slot in fSlots]
     std::unordered_map<const Variable*, size_t> fVariableMap;
@@ -277,12 +279,14 @@ SkVMGenerator::SkVMGenerator(const Program& program,
                              skvm::Coord device,
                              skvm::Coord local,
                              SampleShaderFn sampleShader,
-                             SampleColorFilterFn sampleColorFilter)
+                             SampleColorFilterFn sampleColorFilter,
+                             SampleBlenderFn sampleBlender)
         : fProgram(program)
         , fBuilder(builder)
         , fLocalCoord(local)
         , fSampleShader(std::move(sampleShader))
-        , fSampleColorFilter(std::move(sampleColorFilter)) {
+        , fSampleColorFilter(std::move(sampleColorFilter))
+        , fSampleBlender(std::move(sampleBlender)) {
     fConditionMask = fLoopMask = fBuilder->splat(0xffff'ffff);
 
     // Now, add storage for each global variable (including uniforms) to fSlots, and entries in
@@ -297,7 +301,7 @@ SkVMGenerator::SkVMGenerator(const Program& program,
             SkASSERT(fVariableMap.find(&var) == fVariableMap.end());
 
             // For most variables, fVariableMap stores an index into fSlots, but for children,
-            // fVariableMap stores the index to pass to fSample(Shader|ColorFilter)
+            // fVariableMap stores the index to pass to fSample(Shader|ColorFilter|Blender)
             if (var.type().isEffectChild()) {
                 fVariableMap[&var] = fpCount++;
                 continue;
@@ -1548,7 +1552,8 @@ skvm::Color ProgramToSkVM(const Program& program,
                           skvm::Color inputColor,
                           skvm::Color destColor,
                           SampleShaderFn sampleShader,
-                          SampleColorFilterFn sampleColorFilter) {
+                          SampleColorFilterFn sampleColorFilter,
+                          SampleBlenderFn sampleBlender) {
     skvm::Val zero = builder->splat(0.0f).id;
     skvm::Val result[4] = {zero,zero,zero,zero};
 
@@ -1586,7 +1591,7 @@ skvm::Color ProgramToSkVM(const Program& program,
     SkASSERT(argSlots <= SK_ARRAY_COUNT(args));
 
     SkVMGenerator generator(program, builder, uniforms, device, local, std::move(sampleShader),
-                            std::move(sampleColorFilter));
+                            std::move(sampleColorFilter), std::move(sampleBlender));
     generator.writeFunction(function, {args, argSlots}, SkMakeSpan(result));
 
     return skvm::Color{{builder, result[0]},
@@ -1627,7 +1632,8 @@ bool ProgramToSkVM(const Program& program,
     skvm::F32 zero = b->splat(0.0f);
     skvm::Coord zeroCoord = {zero, zero};
     SkVMGenerator generator(program, b, uniforms, /*device=*/zeroCoord, /*local=*/zeroCoord,
-                            /*sampleShader=*/nullptr, /*sampleColorFilter=*/nullptr);
+                            /*sampleShader=*/nullptr, /*sampleColorFilter=*/nullptr,
+                            /*sampleBlender=*/nullptr);
     generator.writeFunction(function, SkMakeSpan(argVals), SkMakeSpan(returnVals));
 
     // generateCode has updated the contents of 'argVals' for any 'out' or 'inout' parameters.
@@ -1761,7 +1767,8 @@ bool testingOnly_ProgramToSkVMShader(const Program& program, skvm::Builder* buil
 
     skvm::Color result = SkSL::ProgramToSkVM(program, *main, builder, SkMakeSpan(uniformVals),
                                              device, local, inColor, destColor, sampleShader,
-                                             /*sampleColorFilter=*/nullptr);
+                                             /*sampleColorFilter=*/nullptr,
+                                             /*sampleBlender=*/nullptr);
 
     storeF(builder->varying<float>(), result.r);
     storeF(builder->varying<float>(), result.g);

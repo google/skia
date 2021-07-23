@@ -49,6 +49,10 @@ bool FuzzSKSL2Pipeline(sk_sp<SkData> bytes) {
             result += ")";
             return result;
         }
+
+        String sampleBlender(int index, String src, String dst) override {
+            return "sample(" + SkSL::to_string(index) + ", " + src + ", " + dst + ")";
+        }
     };
 
     Callbacks callbacks;

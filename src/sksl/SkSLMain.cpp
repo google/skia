@@ -434,6 +434,11 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
                             return result;
                         }
 
+                        String sampleBlender(int index, String src, String dst) override {
+                            return "sample(child_" + SkSL::to_string(index) + ", " + src + ", " +
+                                   dst + ")";
+                        }
+
                         String fOutput;
                     };
                     // The .stage output looks almost like valid SkSL, but not quite.

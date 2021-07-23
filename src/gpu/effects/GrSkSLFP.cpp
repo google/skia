@@ -153,6 +153,11 @@ public:
                                       .c_str());
             }
 
+            String sampleBlender(int index, String src, String dst) override {
+                // TODO(skia:12257): invokeChild does not yet allow sampling from a blender
+                return "half4(1)";
+            }
+
             GrGLSLSkSLFP*                 fSelf;
             EmitArgs&                     fArgs;
             const char*                   fInputColor;

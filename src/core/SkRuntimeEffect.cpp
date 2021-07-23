@@ -624,7 +624,8 @@ std::unique_ptr<SkFilterColorProgram> SkFilterColorProgram::Make(const SkRuntime
                                              inputColor,
                                              inputColor,
                                              /*sampleShader=*/nullptr,
-                                             sampleColorFilter);
+                                             sampleColorFilter,
+                                             /*sampleBlender=*/nullptr);
 
     // Then store the result to the *third* arg ptr
     p.store({skvm::PixelFormat::FLOAT, 32, 32, 32, 32, 0, 32, 64, 96}, p.arg(16), result);
@@ -823,6 +824,10 @@ public:
             }
             return color;
         };
+        auto sampleBlender = [&](int ix, skvm::Color src, skvm::Color dst) {
+            // TODO(skia:12257): implement sample(blender, src, dst)
+            return src;
+        };
 
         std::vector<skvm::Val> uniform = make_skvm_uniforms(p, uniforms, fEffect->uniformSize(),
                                                             *inputs);
@@ -832,7 +837,7 @@ public:
         skvm::Coord zeroCoord = { p->splat(0.0f), p->splat(0.0f) };
         return SkSL::ProgramToSkVM(*fEffect->fBaseProgram, fEffect->fMain, p, SkMakeSpan(uniform),
                                    /*device=*/zeroCoord, /*local=*/zeroCoord, c, c, sampleShader,
-                                   sampleColorFilter);
+                                   sampleColorFilter, sampleBlender);
     }
 
     SkPMColor4f onFilterColor4f(const SkPMColor4f& color, SkColorSpace* dstCS) const override {
@@ -1011,12 +1016,17 @@ public:
             }
             return color;
         };
+        auto sampleBlender = [&](int ix, skvm::Color src, skvm::Color dst) {
+            // TODO(skia:12257): implement sample(blender, src, dst)
+            return src;
+        };
 
         std::vector<skvm::Val> uniform = make_skvm_uniforms(p, uniforms, fEffect->uniformSize(),
                                                             *inputs);
 
         return SkSL::ProgramToSkVM(*fEffect->fBaseProgram, fEffect->fMain, p, SkMakeSpan(uniform),
-                                   device, local, paint, paint, sampleShader, sampleColorFilter);
+                                   device, local, paint, paint, sampleShader, sampleColorFilter,
+                                   sampleBlender);
     }
 
     void flatten(SkWriteBuffer& buffer) const override {
@@ -1131,6 +1141,10 @@ public:
             }
             return color;
         };
+        auto sampleBlender = [&](int ix, skvm::Color src, skvm::Color dst) {
+            // TODO(skia:12257): implement sample(blender, src, dst)
+            return src;
+        };
 
         std::vector<skvm::Val> uniform = make_skvm_uniforms(p, uniforms, fEffect->uniformSize(),
                                                             *inputs);
@@ -1139,7 +1153,7 @@ public:
         skvm::Coord zeroCoord = {p->splat(0.0f), p->splat(0.0f)};
         return SkSL::ProgramToSkVM(*fEffect->fBaseProgram, fEffect->fMain, p, SkMakeSpan(uniform),
                                   /*device=*/zeroCoord, /*local=*/zeroCoord, src, dst,
-                                  sampleShader, sampleColorFilter);
+                                  sampleShader, sampleColorFilter, sampleBlender);
     }
 
 #if SK_SUPPORT_GPU
