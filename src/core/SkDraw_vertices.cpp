@@ -381,8 +381,7 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices, SkBlendMode blendMode
 
         // Positions as texCoords? The local matrix is always identity, so update once
         if (texCoords == positions) {
-            SkMatrix localM;
-            if (!updater->update(ctm, &localM)) {
+            if (!updater->update(ctm)) {
                 return;
             }
         }
@@ -398,7 +397,7 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices, SkBlendMode blendMode
                 SkMatrix localM;
                 if ((texCoords == positions) ||
                     (texture_to_matrix(state, positions, texCoords, &localM) &&
-                     updater->update(ctm, &localM))) {
+                     updater->update(SkMatrix::Concat(ctm, localM)))) {
                     fill_triangle(state, blitter, *fRC, dev2, dev3);
                 }
             }

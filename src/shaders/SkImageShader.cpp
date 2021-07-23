@@ -359,9 +359,10 @@ public:
         }
     }
 
-    bool update(const SkMatrix& ctm, const SkMatrix* localM) override {
+    bool update(const SkMatrix& ctm) override {
         SkMatrix matrix;
-        if (fShader->computeTotalInverse(ctm, localM, &matrix)) {
+        // TODO: We may have lost the original local matrix?
+        if (fShader->computeTotalInverse(ctm, nullptr, &matrix)) {
             if (fUsePersp) {
                 matrix.get9(fMatrixStorage);
             } else {
