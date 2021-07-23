@@ -38,9 +38,9 @@ static wgpu::BlendFactor to_dawn_blend_factor(GrBlendCoeff coeff) {
         case kIDA_GrBlendCoeff:
             return wgpu::BlendFactor::OneMinusDstAlpha;
         case kConstC_GrBlendCoeff:
-            return wgpu::BlendFactor::BlendColor;
+            return wgpu::BlendFactor::Constant;
         case kIConstC_GrBlendCoeff:
-            return wgpu::BlendFactor::OneMinusBlendColor;
+            return wgpu::BlendFactor::OneMinusConstant;
         case kS2C_GrBlendCoeff:
         case kIS2C_GrBlendCoeff:
         case kS2A_GrBlendCoeff:
@@ -414,7 +414,7 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
         rpDesc.depthStencil = &depthStencilState;
     }
     rpDesc.fragment = &fragmentState;
-    result->fRenderPipeline = gpu->device().CreateRenderPipeline2(&rpDesc);
+    result->fRenderPipeline = gpu->device().CreateRenderPipeline(&rpDesc);
     return result;
 }
 

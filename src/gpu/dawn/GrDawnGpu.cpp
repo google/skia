@@ -742,7 +742,7 @@ bool GrDawnGpu::onRegenerateMipMapLevels(GrTexture* tex) {
     renderPipelineDesc.primitive.topology = wgpu::PrimitiveTopology::TriangleStrip;
     renderPipelineDesc.primitive.stripIndexFormat = wgpu::IndexFormat::Uint16;
     renderPipelineDesc.fragment = &fragmentState;
-    wgpu::RenderPipeline pipeline = fDevice.CreateRenderPipeline2(&renderPipelineDesc);
+    wgpu::RenderPipeline pipeline = fDevice.CreateRenderPipeline(&renderPipelineDesc);
 
     wgpu::BindGroupLayout bgl = pipeline.GetBindGroupLayout(0);
     wgpu::TextureViewDescriptor srcViewDesc;
@@ -772,7 +772,7 @@ bool GrDawnGpu::onRegenerateMipMapLevels(GrTexture* tex) {
         bgDesc.entries = bge;
         wgpu::BindGroup bindGroup = fDevice.CreateBindGroup(&bgDesc);
         wgpu::RenderPassColorAttachmentDescriptor colorAttachment;
-        colorAttachment.attachment = dstView;
+        colorAttachment.view = dstView;
         colorAttachment.clearColor = { 0.0f, 0.0f, 0.0f, 0.0f };
         colorAttachment.loadOp = wgpu::LoadOp::Load;
         colorAttachment.storeOp = wgpu::StoreOp::Store;

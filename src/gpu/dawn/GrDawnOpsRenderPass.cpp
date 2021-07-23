@@ -62,7 +62,7 @@ wgpu::RenderPassEncoder GrDawnOpsRenderPass::beginRenderPass(wgpu::LoadOp colorO
     const float* c = fColorInfo.fClearColor.data();
 
     wgpu::RenderPassColorAttachmentDescriptor colorAttachment;
-    colorAttachment.attachment = static_cast<GrDawnRenderTarget*>(fRenderTarget)->textureView();
+    colorAttachment.view = static_cast<GrDawnRenderTarget*>(fRenderTarget)->textureView();
     colorAttachment.resolveTarget = nullptr;
     colorAttachment.clearColor = { c[0], c[1], c[2], c[3] };
     colorAttachment.loadOp = colorOp;
@@ -73,7 +73,7 @@ wgpu::RenderPassEncoder GrDawnOpsRenderPass::beginRenderPass(wgpu::LoadOp colorO
     renderPassDescriptor.colorAttachments = colorAttachments;
     if (stencilAttachment) {
         wgpu::RenderPassDepthStencilAttachmentDescriptor depthStencilAttachment;
-        depthStencilAttachment.attachment = stencilAttachment->view();
+        depthStencilAttachment.view = stencilAttachment->view();
         depthStencilAttachment.depthLoadOp = stencilOp;
         depthStencilAttachment.stencilLoadOp = stencilOp;
         depthStencilAttachment.clearDepth = 1.0f;
@@ -130,7 +130,7 @@ void GrDawnOpsRenderPass::applyState(GrDawnProgram* program, const GrProgramInfo
     GrXferProcessor::BlendInfo blendInfo = pipeline.getXferProcessor().getBlendInfo();
     const float* c = blendInfo.fBlendConstant.vec();
     wgpu::Color color{c[0], c[1], c[2], c[3]};
-    fPassEncoder.SetBlendColor(&color);
+    fPassEncoder.SetBlendConstant(&color);
     if (!programInfo.pipeline().isScissorTestEnabled()) {
         // "Disable" scissor by setting it to the full pipeline bounds.
         SkIRect rect = SkIRect::MakeWH(fRenderTarget->width(), fRenderTarget->height());

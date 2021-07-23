@@ -285,6 +285,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 		// Dawn bot *only* runs the dawn config
 		if b.extraConfig("Dawn") {
+			// tint:1045: Tint doesn't implement MatrixInverse yet.
+			skip("_", "gm", "_", "runtime_intrinsics_matrix")
 			configs = []string{"dawn"}
 		}
 
