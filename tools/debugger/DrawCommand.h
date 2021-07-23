@@ -35,6 +35,7 @@ public:
         kClipRect_OpType,
         kClipRRect_OpType,
         kClipShader_OpType,
+        kResetClip_OpType,
         kConcat_OpType,
         kConcat44_OpType,
         kDrawAnnotation_OpType,
@@ -209,6 +210,15 @@ private:
     sk_sp<SkShader> fShader;
     SkClipOp fOp;
 
+    using INHERITED = DrawCommand;
+};
+
+class ResetClipCommand : public DrawCommand {
+public:
+    ResetClipCommand();
+    void execute(SkCanvas* canvas) const override;
+
+private:
     using INHERITED = DrawCommand;
 };
 

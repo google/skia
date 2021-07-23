@@ -218,6 +218,7 @@ const char* DrawCommand::GetCommandString(OpType type) {
         case kClipRegion_OpType: return "ClipRegion";
         case kClipRect_OpType: return "ClipRect";
         case kClipRRect_OpType: return "ClipRRect";
+        case kResetClip_OpType: return "ResetClip";
         case kConcat_OpType: return "Concat";
         case kConcat44_OpType: return "Concat44";
         case kDrawAnnotation_OpType: return "DrawAnnotation";
@@ -1093,6 +1094,10 @@ void ClipShaderCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataMana
     apply_flattenable(DEBUGCANVAS_ATTRIBUTE_SHADER, fShader.get(), writer, urlDataManager);
     writer.appendString(DEBUGCANVAS_ATTRIBUTE_REGIONOP, regionop_name(fOp));
 }
+
+ResetClipCommand::ResetClipCommand() : INHERITED(kResetClip_OpType) {}
+
+void ResetClipCommand::execute(SkCanvas* canvas) const { SkCanvasPriv::ResetClip(canvas); }
 
 ConcatCommand::ConcatCommand(const SkMatrix& matrix) : INHERITED(kConcat_OpType) {
     fMatrix = matrix;

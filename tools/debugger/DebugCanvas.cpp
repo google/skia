@@ -133,13 +133,8 @@ void DebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
 
     int saveCount = originalCanvas->save();
 
-    SkRect windowRect = SkRect::MakeWH(SkIntToScalar(originalCanvas->getBaseLayerSize().width()),
-                                       SkIntToScalar(originalCanvas->getBaseLayerSize().height()));
-
     originalCanvas->resetMatrix();
-    if (!windowRect.isEmpty()) {
-        SkCanvasPriv::ReplaceClip(originalCanvas, windowRect.roundOut());
-    }
+    SkCanvasPriv::ResetClip(originalCanvas);
 
     DebugPaintFilterCanvas filterCanvas(originalCanvas);
     SkCanvas* finalCanvas = fOverdrawViz ? &filterCanvas : originalCanvas;
@@ -381,6 +376,10 @@ void DebugCanvas::onClipRegion(const SkRegion& region, SkClipOp op) {
 
 void DebugCanvas::onClipShader(sk_sp<SkShader> cs, SkClipOp op) {
     this->addDrawCommand(new ClipShaderCommand(std::move(cs), op));
+}
+
+void DebugCanvas::onResetClip() {
+    this->addDrawCommand(new ResetClipCommand());
 }
 
 void DebugCanvas::didConcat44(const SkM44& m) {

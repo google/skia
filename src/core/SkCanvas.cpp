@@ -1445,11 +1445,22 @@ void SkCanvas::androidFramework_setDeviceClipRestriction(const SkIRect& rect) {
     this->topDevice()->androidFramework_setDeviceClipRestriction(&fClipRestrictionRect);
 }
 
-void SkCanvas::androidFramework_replaceClip(const SkIRect& rect) {
+void SkCanvas::internal_private_resetClip() {
     this->checkForDeferredSave();
+    this->onResetClip();
+}
+
+void SkCanvas::onResetClip() {
+    SkIRect deviceRestriction = this->imageInfo().bounds();
+    if (!fClipRestrictionRect.isEmpty()) {
+        // Always respect the device clip restriction, particularly when expanding the clip.
+        if (!deviceRestriction.intersect(fClipRestrictionRect)) {
+            deviceRestriction = SkIRect::MakeEmpty();
+        }
+    }
 
     AutoUpdateQRBounds aqr(this);
-    this->topDevice()->replaceClip(rect);
+    this->topDevice()->replaceClip(deviceRestriction);
 }
 
 void SkCanvas::clipRRect(const SkRRect& rrect, SkClipOp op, bool doAA) {

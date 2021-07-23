@@ -434,6 +434,13 @@ size_t SkPictureRecord::recordClipRegion(const SkRegion& region, SkClipOp op) {
     return offset;
 }
 
+void SkPictureRecord::onResetClip() {
+    size_t size = sizeof(kUInt32Size);
+    size_t initialOffset = this->addDraw(RESET_CLIP, &size);
+    this->validate(initialOffset, size);
+    this->INHERITED::onResetClip();
+}
+
 void SkPictureRecord::onDrawPaint(const SkPaint& paint) {
     // op + paint index
     size_t size = 2 * kUInt32Size;

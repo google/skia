@@ -57,6 +57,7 @@ namespace SkRecords {
     M(ClipRect)                                                     \
     M(ClipRegion)                                                   \
     M(ClipShader)                                                   \
+    M(ResetClip)                                                    \
     M(DrawArc)                                                      \
     M(DrawDrawable)                                                 \
     M(DrawImage)                                                    \
@@ -218,6 +219,7 @@ RECORD(ClipRegion, 0,
 RECORD(ClipShader, 0,
         sk_sp<SkShader> shader;
         SkClipOp op);
+RECORD(ResetClip, 0);
 
 // While not strictly required, if you have an SkPaint, it's fastest to put it first.
 RECORD(DrawArc, kDraw_Tag|kHasPaint_Tag,

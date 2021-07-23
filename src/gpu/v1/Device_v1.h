@@ -185,7 +185,12 @@ protected:
     bool onClipIsAA() const override;
 
     void onSetDeviceClipRestriction(SkIRect* mutableClipRestriction) override {
-        SkASSERT(mutableClipRestriction->isEmpty());
+        if (!mutableClipRestriction->isEmpty()) {
+            // Just apply the clip restriction as a device-space intersection. No need to
+            // remember it for expanding clip ops since those shouldn't be used with GrClipStack.
+            fClip.clipRect(this->globalToDevice().asM33(), SkRect::Make(*mutableClipRestriction),
+                           GrAA::kNo, SkClipOp::kIntersect);
+        }
     }
     bool onClipIsWideOpen() const override {
         return fClip.clipState() == GrClipStack::ClipState::kWideOpen;

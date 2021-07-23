@@ -40,32 +40,31 @@ protected:
 
     // Android Framework will still support the legacy kReplace SkClipOp on older devices, so
     // this represents how to do so while also respecting the device restriction using the newer
-    // androidFramework_replaceClip() API.
+    // androidFramework_resetClip() API.
     void emulateDeviceRestriction(SkCanvas* canvas, const SkIRect& deviceRestriction) {
-        // or any other device-space rect intersection
-        SkCanvasPriv::ReplaceClip(canvas, deviceRestriction);
-        // save for later replace clip ops
-        fDeviceRestriction = deviceRestriction;
+        // TODO(michaelludwig): It may make more sense for device clip restriction to move on to
+        // the SkSurface (which would let this GM draw correctly in viewer).
+        canvas->androidFramework_setDeviceClipRestriction(deviceRestriction);
     }
 
     void emulateClipRectReplace(SkCanvas* canvas,
                                 const SkRect& clipRect,
                                 bool aa) {
-        SkCanvasPriv::ReplaceClip(canvas, fDeviceRestriction);
+        SkCanvasPriv::ResetClip(canvas);
         canvas->clipRect(clipRect, SkClipOp::kIntersect, aa);
     }
 
     void emulateClipRRectReplace(SkCanvas* canvas,
                                  const SkRRect& clipRRect,
                                  bool aa) {
-        SkCanvasPriv::ReplaceClip(canvas, fDeviceRestriction);
+        SkCanvasPriv::ResetClip(canvas);
         canvas->clipRRect(clipRRect, SkClipOp::kIntersect, aa);
     }
 
     void emulateClipPathReplace(SkCanvas* canvas,
                                 const SkPath& path,
                                 bool aa) {
-        SkCanvasPriv::ReplaceClip(canvas, fDeviceRestriction);
+        SkCanvasPriv::ResetClip(canvas);
         canvas->clipPath(path, SkClipOp::kIntersect, aa);
     }
 
@@ -124,7 +123,6 @@ protected:
         canvas->restore();
     }
 private:
-    SkIRect fDeviceRestriction;
     bool    fDoAAClip;
 
     using INHERITED = GM;

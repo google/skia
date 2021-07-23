@@ -159,6 +159,9 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
 
             canvas->clipShader(paint.refShader(), clipOp);
         } break;
+        case RESET_CLIP:
+            SkCanvasPriv::ResetClip(canvas);
+            break;
         case PUSH_CULL: break;  // Deprecated, safe to ignore both push and pop.
         case POP_CULL:  break;
         case CONCAT: {
