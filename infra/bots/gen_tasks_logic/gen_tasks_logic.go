@@ -549,7 +549,12 @@ func (b *taskBuilder) kitchenTaskNoBundle(recipe string, outputDir string) {
 	if outputDir != OUTPUT_NONE {
 		b.output(outputDir)
 	}
-	python := "cipd_bin_packages/vpython${EXECUTABLE_SUFFIX}"
+	python := "cipd_bin_packages/vpython3${EXECUTABLE_SUFFIX}"
+	if b.role("Test", "Perf") && b.matchOs("Win7") && b.matchModel("Golo") {
+		// TODO(borenet): Win7 machines in the Golo seem to be missing a
+		// necessary DLL to make python3 work.
+		python = "cipd_bin_packages/vpython"
+	}
 	b.cmd(python, "-u", "skia/infra/bots/run_recipe.py", "${ISOLATED_OUTDIR}", recipe, b.getRecipeProps(), b.cfg.Project)
 	// Most recipes want this isolate; they can override if necessary.
 	b.cas(CAS_RUN_RECIPE)
@@ -1530,12 +1535,7 @@ func (b *jobBuilder) dm() {
 		b.addTask(uploadName, func(b *taskBuilder) {
 			b.recipeProp("gs_bucket", b.cfg.GsBucketGm)
 			b.recipeProps(EXTRA_PROPS)
-			// TODO(borenet): I'm not sure why the upload task is
-			// using the Test task name, but I've done this
-			// to maintain existing behavior.
-			b.Name = depName
 			b.kitchenTask("upload_dm_results", OUTPUT_NONE)
-			b.Name = uploadName
 			b.serviceAccount(b.cfg.ServiceAccountUploadGM)
 			b.linuxGceDimensions(MACHINE_TYPE_SMALL)
 			b.cipd(specs.CIPD_PKGS_GSUTIL...)

@@ -15,10 +15,13 @@ Updates all copyright headers within our code:
 @author: epoger@google.com
 '''
 
+
+from __future__ import print_function
 import os
 import sys
 
 import fileparser
+
 
 # Only modify copyright stanzas if the copyright holder is one of these.
 ALLOWED_COPYRIGHT_HOLDERS = [
@@ -61,6 +64,7 @@ def Main(root_directory):
             new_file_contents = new_copyright_block + old_file_contents
         WriteStringToFile(new_file_contents, filepath)
 
+
 def GetAllFilepaths(root_directory):
     """Return a list of all files (absolute path for each one) within a tree.
 
@@ -72,15 +76,18 @@ def GetAllFilepaths(root_directory):
             path_list.append(os.path.abspath(os.path.join(dirpath, filename)))
     return path_list
 
+
 def ReportWarning(text):
     """Report a warning, but continue.
     """
-    print 'warning: %s' % text
+    print('warning: %s' % text)
+
 
 def ReportError(text):
     """Report an error and raise an exception.
     """
     raise IOError(text)
+
 
 def ReadFileIntoString(filepath):
     """Returns the full contents of this file as a string.
@@ -89,12 +96,14 @@ def ReadFileIntoString(filepath):
         contents = file_handle.read()
     return contents
 
+
 def WriteStringToFile(string, filepath):
     """Writes this string out to filepath, replacing the file if it already
     exists.
     """
     with open(filepath, 'w') as file_handle:
         file_handle.write(string)
+
 
 def ConfirmAllowedCopyrightHolder(holder):
     """Returns True if this is one of our allowed copyright holders.

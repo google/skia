@@ -29,7 +29,7 @@ def RunSteps(api):
   out_dir = api.vars.swarming_out_dir
 
   # Make sure this exists, otherwise Docker will make it with root permissions.
-  api.file.ensure_directory('mkdirs out_dir', out_dir, mode=0777)
+  api.file.ensure_directory('mkdirs out_dir', out_dir, mode=0o777)
 
   # The karma script is configured to look in ./npm-(asmjs|wasm)/bin/ for
   # the test files to load, so we must copy them there (see Set up for docker).

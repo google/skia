@@ -45,7 +45,7 @@ print '%d:%d' % (os.getuid(), os.getgid())
       # Make sure out_dir exists, otherwise mounting will fail.
       # (Note that the docker --mount option, unlike the --volume option, does
       # not create this dir as root if it doesn't exist.)
-      self.m.file.ensure_directory('mkdirs out_dir', out_dir, mode=0777)
+      self.m.file.ensure_directory('mkdirs out_dir', out_dir, mode=0o777)
       # ensure_directory won't change the permissions if the dir already exists,
       # so we need to do that explicitly.
       self._chmod(out_dir, '777')
@@ -62,7 +62,7 @@ print '%d:%d' % (os.getuid(), os.getgid())
         for src, dest in copies.iteritems():
           dirname = self.m.path.dirname(dest)
           self.m.file.ensure_directory(
-              'mkdirs %s' % dirname, dirname, mode=0777)
+              'mkdirs %s' % dirname, dirname, mode=0o777)
           self.m.file.copy('cp %s %s' % (src, dest), src, dest)
           self._chmod(dest, '644')
 

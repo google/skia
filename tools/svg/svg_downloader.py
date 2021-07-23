@@ -6,6 +6,7 @@
 """Downloads SVGs into a specified directory."""
 
 
+from __future__ import print_function
 import optparse
 import os
 import urllib
@@ -34,7 +35,7 @@ def download_files(input_file, output_dir, prefix, keep_common_prefix):
       if not os.path.exists(dest_dir):
         os.makedirs(dest_dir)
 
-      print 'Downloading %s to %s' % (file_url, dest_file)
+      print('Downloading %s to %s' % (file_url, dest_file))
       urllib.urlretrieve(file_url, dest_file)
 
 

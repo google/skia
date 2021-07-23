@@ -6,6 +6,7 @@
 """Writes a Perf-formated json file with stats about Skia's size in flutter."""
 
 
+from __future__ import print_function
 import json
 import os
 import subprocess
@@ -40,37 +41,37 @@ def main():
   magic_seperator = '#$%^&*'
 
   # Human "readable" reports as an FYI.
-  print magic_seperator
-  print 'Report by file, then by symbol with ellided/combined templates'
+  print(magic_seperator)
+  print('Report by file, then by symbol with ellided/combined templates')
   lines = subprocess.check_output([bloaty_path, stripped_file,
                                  '-d', 'compileunits,symbols', '-s', 'file',
                                  '-n', '0', '--tsv', '--demangle=short',
                                  '--debug-file=%s' % symbols_file])
   grand_total = print_skia_lines_file_symbol(lines)
-  print magic_seperator
-  print 'Report by file, then by symbol with full templates'
+  print(magic_seperator)
+  print('Report by file, then by symbol with full templates')
   lines = subprocess.check_output([bloaty_path, stripped_file,
                                  '-d', 'compileunits,symbols', '-s', 'file',
                                  '-n', '0', '--tsv', '--demangle=full',
                                  '--debug-file=%s' % symbols_file])
   print_skia_lines_file_symbol(lines)
-  print magic_seperator
+  print(magic_seperator)
 
-  print 'Report by symbol, then by file with ellided/combined templates'
+  print('Report by symbol, then by file with ellided/combined templates')
   lines = subprocess.check_output([bloaty_path, stripped_file,
                                  '-d', 'symbols,compileunits', '-s', 'file',
                                  '-n', '0', '--tsv', '--demangle=short',
                                  '--debug-file=%s' % symbols_file])
   print_skia_lines_symbol_file(lines)
-  print magic_seperator
+  print(magic_seperator)
 
-  print 'Report by symbol, then by file with full templates'
+  print('Report by symbol, then by file with full templates')
   lines = subprocess.check_output([bloaty_path, stripped_file,
                                  '-d', 'symbols,compileunits', '-s', 'file',
                                  '-n', '0', '--tsv', '--demangle=full',
                                  '--debug-file=%s' % symbols_file])
   print_skia_lines_symbol_file(lines)
-  print magic_seperator
+  print(magic_seperator)
 
   r = {
     # Use the default config as stats about the whole binary
@@ -83,7 +84,7 @@ def main():
   results['results'][name] = r
 
   # Make debugging easier
-  print json.dumps(results, indent=2)
+  print(json.dumps(results, indent=2))
 
   with open(os.path.join(out_dir, name+'.json'), 'w') as output:
     output.write(json.dumps(results, indent=2))
@@ -119,18 +120,18 @@ def print_skia_lines_file_symbol(lines):
 
     if this_file != cur_file:
       if cur_file != '':
-        print '\t%-100s: %s' % ('Total File Size', bytes_or_kb(sub_total))
+        print('\t%-100s: %s' % ('Total File Size', bytes_or_kb(sub_total)))
       sub_total = 0
       cur_file = this_file
-      print this_file.replace('../../third_party/skia', 'skia')
+      print(this_file.replace('../../third_party/skia', 'skia'))
 
-    print '\t%-100s: %s' % (symbol, bytes_or_kb(filesize))
+    print('\t%-100s: %s' % (symbol, bytes_or_kb(filesize)))
     sub_total += filesize
     grand_total += filesize
 
-  print '\t%-100s: %s' % ('Total File Size', bytes_or_kb(sub_total))
-  print '======================================='
-  print 'Grand Total File Size: %s' % bytes_or_kb(grand_total)
+  print('\t%-100s: %s' % ('Total File Size', bytes_or_kb(sub_total)))
+  print('=======================================')
+  print('Grand Total File Size: %s' % bytes_or_kb(grand_total))
   return grand_total
 
 
@@ -153,7 +154,7 @@ def print_skia_lines_symbol_file(lines):
     # vmsize    = parts[2] Not needed
     filesize  = int(parts[3])
 
-    print '%-10s: %-80s in %s' % (bytes_or_kb(filesize), symbol, this_file)
+    print('%-10s: %-80s in %s' % (bytes_or_kb(filesize), symbol, this_file))
 
 
 if __name__ == '__main__':

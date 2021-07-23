@@ -28,7 +28,7 @@ def RunSteps(api):
   # Any binaries to scan should be here.
   bin_dir = api.vars.build_dir
 
-  api.file.ensure_directory('mkdirs out_dir', out_dir, mode=0777)
+  api.file.ensure_directory('mkdirs out_dir', out_dir, mode=0o777)
 
   analyzed = 0
   with api.context(cwd=bin_dir):

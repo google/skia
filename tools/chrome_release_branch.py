@@ -6,6 +6,7 @@
 # found in the LICENSE file.
 
 
+from __future__ import print_function
 import os
 import re
 import subprocess
@@ -98,8 +99,8 @@ def main():
   m = get_current_milestone()
   new_branch = '%s%d' % (CHROME_REF_PREFIX, m)
   old_branch = '%s%d' % (CHROME_REF_PREFIX, m-SUPPORTED_CHROME_BRANCHES)
-  print 'Creating branch %s and removing support (eg. CQ) for %s' % (
-      new_branch, old_branch)
+  print('Creating branch %s and removing support (eg. CQ) for %s' % (
+      new_branch, old_branch))
   create_new_branch(new_branch, branch_at)
   update_milestone(m+1)
   update_infra_config(old_branch, new_branch)

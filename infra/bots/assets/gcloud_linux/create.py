@@ -19,7 +19,7 @@ import subprocess
 # scripting gcloud and also for updates.
 BASE_URL = 'https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/%s'
 GCLOUD_BASE_NAME='google-cloud-sdk'
-GCLOUD_ARCHIVE = '%s-250.0.0-linux-x86_64.tar.gz' % GCLOUD_BASE_NAME
+GCLOUD_ARCHIVE = '%s-343.0.0-linux-x86_64.tar.gz' % GCLOUD_BASE_NAME
 GCLOUD_URL = BASE_URL % GCLOUD_ARCHIVE
 
 def create_asset(target_dir):

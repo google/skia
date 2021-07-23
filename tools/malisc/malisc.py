@@ -2,13 +2,16 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+
+from __future__ import print_function
 import json
 import os
 import subprocess
 import sys
 
+
 if len(sys.argv) != 3:
-    print sys.argv[0], ' <compiler> <folder>'
+    print(sys.argv[0], ' <compiler> <folder>')
     sys.exit(1)
 
 compiler = sys.argv[1]
@@ -37,4 +40,5 @@ for filename in os.listdir(folder):
 for k, v in stats.iteritems():
     gl = v.get('.frag', ['', '', ''])
     vk = v.get('.spv', ['', '', ''])
-    print '{0},{1},{2},{3},{4},{5},{6}'.format(k, gl[0], gl[1], gl[2], vk[0], vk[1], vk[2])
+    print('{0},{1},{2},{3},{4},{5},{6}'.format(
+        k, gl[0], gl[1], gl[2], vk[0], vk[1], vk[2]))

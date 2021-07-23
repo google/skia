@@ -9,6 +9,7 @@
 """Create the asset."""
 
 
+from __future__ import print_function
 import argparse
 import common
 import grp
@@ -81,7 +82,7 @@ def copy_files(target_dir):
 def create_asset(target_dir):
   """Create the asset."""
   if os.name == 'nt':
-    print 'This script does not run on Windows.'
+    print('This script does not run on Windows.')
     sys.exit(1)
 
   create_install_dir()

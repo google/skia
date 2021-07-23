@@ -34,7 +34,7 @@ func TestSetupCIFuzzRepoAndDocker_Success(t *testing.T) {
 	require.Empty(t, res.Exceptions)
 	require.Len(t, res.Steps, 1)
 	step := res.Steps[0]
-	assert.Equal(t, td.STEP_RESULT_SUCCESS, step.Result)
+	assert.Equal(t, td.StepResultSuccess, step.Result)
 	assert.Empty(t, step.Errors)
 	assert.Empty(t, step.Exceptions)
 	// Make sure the output directory is created
@@ -65,7 +65,7 @@ func TestExtractOutput_OnlyCopyFuzzOutputs(t *testing.T) {
 	require.Empty(t, res.Exceptions)
 	require.Len(t, res.Steps, 1)
 	step := res.Steps[0]
-	assert.Equal(t, td.STEP_RESULT_SUCCESS, step.Result)
+	assert.Equal(t, td.StepResultSuccess, step.Result)
 	assert.Empty(t, step.Errors)
 	assert.Empty(t, step.Exceptions)
 

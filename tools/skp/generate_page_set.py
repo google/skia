@@ -3,8 +3,11 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+
 """Script that generates a page_set for the webpages_playback.py script."""
 
+
+from __future__ import print_function
 import jinja2
 import os
 
@@ -35,15 +38,15 @@ def main():
     with open(page_set_path, 'w') as f:
       f.write(t.render(**subs))
     created_page_sets.append(page_set_path)
-    print '\nPage set has been created in %s\n\n' % page_set_path
+    print('\nPage set has been created in %s\n\n' % page_set_path)
 
     keep_going = raw_input('Do you have more page sets to create? (y/n)')
     if keep_going != 'y':
       break
 
-  print '\n\nSummarizing all created page sets:'
+  print('\n\nSummarizing all created page sets:')
   for page_set_path in created_page_sets:
-    print '* %s' % page_set_path
+    print('* %s' % page_set_path)
 
 
 if __name__ == '__main__':

@@ -6,6 +6,7 @@
 """Writes a Perf-formated json file with stats about the given web file."""
 
 
+from __future__ import print_function
 import json
 import os
 import subprocess
@@ -24,20 +25,19 @@ def main():
     'results': { }
   }
 
-  magic_seperator = '#$%^&*'
-  print magic_seperator
-  print 'If you see lots of func[19] and such, go check out the debug build'
-  print ('Note that template instantiations are grouped together, '
-         'thus the elided types.')
-  print ('If you notice an unsymbolized "duplicate" entry, it is simply how '
-         'many bytes the function name itself takes up')
-  print subprocess.check_output([bloaty_path, input_file,
-                                 '-d', 'shortsymbols', '-n', '0'])
+  print(magic_seperator)
+  print('If you see lots of func[19] and such, go check out the debug build')
+  print('Note that template instantiations are grouped together, '
+        'thus the elided types.')
+  print('If you notice an unsymbolized "duplicate" entry, it is simply how '
+        'many bytes the function name itself takes up')
+  print(subprocess.check_output([bloaty_path, input_file,
+                                 '-d', 'shortsymbols', '-n', '0']))
 
-  print magic_seperator
-  print 'If you see lots of func[19] and such, go check out the debug build'
-  print subprocess.check_output([bloaty_path, input_file,
-                                 '-d', 'fullsymbols', '-n', '0'])
+  print(magic_seperator)
+  print('If you see lots of func[19] and such, go check out the debug build')
+  print(subprocess.check_output([bloaty_path, input_file,
+                                 '-d', 'fullsymbols', '-n', '0']))
 
   props = propstr.split(' ')
   for i in range(0, len(props), 2):
@@ -68,8 +68,8 @@ def main():
     'default' : r,
   }
 
-  print magic_seperator
-  print json.dumps(results, indent=2)
+  print(magic_seperator)
+  print(json.dumps(results, indent=2))
 
   with open(os.path.join(out_dir, name+'.json'), 'w') as output:
     output.write(json.dumps(results, indent=2))

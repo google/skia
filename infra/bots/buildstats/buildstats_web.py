@@ -6,6 +6,7 @@
 """Writes a Perf-formated json file with stats about the given web file."""
 
 
+from __future__ import print_function
 import json
 import os
 import subprocess
@@ -45,6 +46,7 @@ def main():
 
   name = os.path.basename(input_file)
 
+  print(magic_seperator)
   results['results'][name] = {
     # We need this top level layer 'config'/slice
     # Other analysis methods (e.g. libskia) might have
@@ -53,7 +55,7 @@ def main():
   }
 
   # Make debugging easier
-  print json.dumps(results, indent=2)
+  print(json.dumps(results, indent=2))
 
   with open(os.path.join(out_dir, name+'.json'), 'w') as output:
     output.write(json.dumps(results, indent=2))

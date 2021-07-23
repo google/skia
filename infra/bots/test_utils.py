@@ -21,13 +21,13 @@ class FileWriter(object):
     if not os.path.exists(self._cwd):
       os.makedirs(self._cwd)
 
-  def mkdir(self, dname, mode=0755):
+  def mkdir(self, dname, mode=0o755):
     """Create the given directory with the given mode."""
     dname = os.path.join(self._cwd, dname)
     os.mkdir(dname)
     os.chmod(dname, mode)
 
-  def write(self, fname, mode=0640):
+  def write(self, fname, mode=0o640):
     """Write the file with the given mode and random contents."""
     fname = os.path.join(self._cwd, fname)
     with open(fname, 'w') as f:

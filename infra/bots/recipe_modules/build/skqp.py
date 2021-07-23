@@ -13,7 +13,7 @@ def compile_fn(api, checkout_root, _ignore):
   # owned by root, which causes mysterious failures. To mitigate this risk
   # further, we don't use the same out_dir as everyone else (thus the _ignore)
   # param. Instead, we use a "skqp" subdirectory in the "docker" named_cache.
-  api.file.ensure_directory('mkdirs out_dir', out_dir, mode=0777)
+  api.file.ensure_directory('mkdirs out_dir', out_dir, mode=0o777)
 
   # Ensure gn is available.
   skia_dir = checkout_root.join('skia')

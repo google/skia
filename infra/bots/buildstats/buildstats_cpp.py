@@ -6,6 +6,7 @@
 """Writes a Perf-formated json file with stats about the given cpp file."""
 
 
+from __future__ import print_function
 import csv
 import json
 import os
@@ -35,11 +36,12 @@ def main():
     results['key'][keys[i]] = keys[i+1]
 
   # Human "readable" overview as an FYI.
-  print ('Note that template instantiations are grouped together, '
-         'thus the elided types.')
-  print subprocess.check_output([bloaty_path, input_file,
-                                 '-d', 'sections,shortsymbols', '-n', '200'])
-  print ' '
+  print(magic_seperator)
+  print('Note that template instantiations are grouped together, '
+        'thus the elided types.')
+  print(subprocess.check_output([bloaty_path, input_file,
+                                 '-d', 'sections,shortsymbols', '-n', '200']))
+  print(' ')
 
   sections = subprocess.check_output([bloaty_path, input_file, '-d',
                                       'sections', '-n', '0', '--csv'])
@@ -73,11 +75,11 @@ def main():
       'vm_size_bytes': int(vmsize),
     }
 
-
+  print(magic_seperator)
   results['results'][name] = r
 
   # Make debugging easier
-  print json.dumps(results, indent=2)
+  print(json.dumps(results, indent=2))
 
   with open(os.path.join(out_dir, name+'.json'), 'w') as output:
     output.write(json.dumps(results, indent=2))

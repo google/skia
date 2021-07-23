@@ -24,13 +24,13 @@ class ZipUtilsTest(unittest.TestCase):
       fw = test_utils.FileWriter(os.path.join(os.getcwd(), 'input'))
       # Create input files and directories.
       fw.mkdir('mydir')
-      fw.mkdir('anotherdir', 0666)
-      fw.mkdir('dir3', 0600)
+      fw.mkdir('anotherdir', 0o666)
+      fw.mkdir('dir3', 0o600)
       fw.mkdir('subdir')
-      fw.write('a.txt', 0777)
-      fw.write('b.txt', 0751)
-      fw.write('c.txt', 0640)
-      fw.write(os.path.join('subdir', 'd.txt'), 0640)
+      fw.write('a.txt', 0o777)
+      fw.write('b.txt', 0o751)
+      fw.write('c.txt', 0o640)
+      fw.write(os.path.join('subdir', 'd.txt'), 0o640)
 
       # Zip, unzip.
       zip_utils.zip('input', 'test.zip')

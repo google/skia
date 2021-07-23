@@ -3,15 +3,19 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+
+from __future__ import print_function
 import os
 import shutil
 import subprocess
 import sys
 import tempfile
 
+
 def _Usage():
-  print 'Usage: merge_static_libs OUTPUT_LIB INPUT_LIB [INPUT_LIB]*'
+  print('Usage: merge_static_libs OUTPUT_LIB INPUT_LIB [INPUT_LIB]*')
   sys.exit(1)
+
 
 def MergeLibs(in_libs, out_lib):
   """ Merges multiple static libraries into one.
@@ -55,12 +59,14 @@ def MergeLibs(in_libs, out_lib):
   else:
     raise Exception('Error: Your platform is not supported')
 
+
 def Main():
   if len(sys.argv) < 3:
     _Usage()
   out_lib = sys.argv[1]
   in_libs = sys.argv[2:]
   MergeLibs(in_libs, out_lib)
+
 
 if '__main__' == __name__:
   sys.exit(Main())
