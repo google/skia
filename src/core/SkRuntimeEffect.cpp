@@ -586,7 +586,7 @@ std::unique_ptr<SkFilterColorProgram> SkFilterColorProgram::Make(const SkRuntime
         return x.r.id == y.r.id && x.g.id == y.g.id && x.b.id == y.b.id && x.a.id == y.a.id;
     };
     bool allSampleCallsSupported = true;
-    auto sampleChild = [&](int ix, skvm::Coord, skvm::Color c) {
+    auto sampleColorFilter = [&](int ix, skvm::Color c) {
         skvm::Color result = p.uniformColor(/*placeholder*/ SkColors::kWhite, &childColorUniforms);
         SkFilterColorProgram::SampleCall call;
         call.fChild = ix;
@@ -623,7 +623,8 @@ std::unique_ptr<SkFilterColorProgram> SkFilterColorProgram::Make(const SkRuntime
                                              /*local=*/zeroCoord,
                                              inputColor,
                                              inputColor,
-                                             sampleChild);
+                                             /*sampleShader=*/nullptr,
+                                             sampleColorFilter);
 
     // Then store the result to the *third* arg ptr
     p.store({skvm::PixelFormat::FLOAT, 32, 32, 32, 32, 0, 32, 64, 96}, p.arg(16), result);
@@ -808,27 +809,30 @@ public:
         sk_sp<SkData> inputs = get_xformed_uniforms(fEffect.get(), fUniforms, dst.colorSpace());
         SkASSERT(inputs);
 
-        // There should be no way for the color filter to use device coords, but we need to supply
-        // something. (Uninitialized values can trigger asserts in skvm::Builder).
-        skvm::Coord zeroCoord = { p->splat(0.0f), p->splat(0.0f) };
-
-        auto sampleChild = [&](int ix, skvm::Coord coord, skvm::Color color) {
-            if (fChildren[ix].shader) {
+        auto sampleShader = [&](int ix, skvm::Coord coord, skvm::Color color) {
+            if (SkShader* shader = fChildren[ix].shader.get()) {
                 SkSimpleMatrixProvider mats{SkMatrix::I()};
-                return as_SB(fChildren[ix].shader)
-                        ->program(p, coord, coord, color, mats, nullptr, dst, uniforms, alloc);
-            } else if (fChildren[ix].colorFilter) {
-                return as_CFB(fChildren[ix].colorFilter)->program(p, color, dst, uniforms, alloc);
-            } else {
-                return color;
+                return as_SB(shader)->program(p, coord, coord, color, mats, /*localM=*/nullptr,
+                                              dst, uniforms, alloc);
             }
+            return color;
+        };
+        auto sampleColorFilter = [&](int ix, skvm::Color color) {
+            if (SkColorFilter* colorFilter = fChildren[ix].colorFilter.get()) {
+                return as_CFB(colorFilter)->program(p, color, dst, uniforms, alloc);
+            }
+            return color;
         };
 
         std::vector<skvm::Val> uniform = make_skvm_uniforms(p, uniforms, fEffect->uniformSize(),
                                                             *inputs);
 
+        // There should be no way for the color filter to use device coords, but we need to supply
+        // something. (Uninitialized values can trigger asserts in skvm::Builder).
+        skvm::Coord zeroCoord = { p->splat(0.0f), p->splat(0.0f) };
         return SkSL::ProgramToSkVM(*fEffect->fBaseProgram, fEffect->fMain, p, SkMakeSpan(uniform),
-                                   /*device=*/zeroCoord, /*local=*/zeroCoord, c, c, sampleChild);
+                                   /*device=*/zeroCoord, /*local=*/zeroCoord, c, c, sampleShader,
+                                   sampleColorFilter);
     }
 
     SkPMColor4f onFilterColor4f(const SkPMColor4f& color, SkColorSpace* dstCS) const override {
@@ -993,23 +997,26 @@ public:
         }
         local = SkShaderBase::ApplyMatrix(p,inv,local,uniforms);
 
-        auto sampleChild = [&](int ix, skvm::Coord coord, skvm::Color color) {
-            if (fChildren[ix].shader) {
+        auto sampleShader = [&](int ix, skvm::Coord coord, skvm::Color color) {
+            if (SkShader* shader = fChildren[ix].shader.get()) {
                 SkOverrideDeviceMatrixProvider mats{matrices, SkMatrix::I()};
-                return as_SB(fChildren[ix].shader)
-                        ->program(p, device, coord, color, mats, nullptr, dst, uniforms, alloc);
-            } else if (fChildren[ix].colorFilter) {
-                return as_CFB(fChildren[ix].colorFilter)->program(p, color, dst, uniforms, alloc);
-            } else {
-                return color;
+                return as_SB(shader)->program(p, device, coord, color, mats, /*localM=*/nullptr,
+                                              dst, uniforms, alloc);
             }
+            return color;
+        };
+        auto sampleColorFilter = [&](int ix, skvm::Color color) {
+            if (SkColorFilter* colorFilter = fChildren[ix].colorFilter.get()) {
+                return as_CFB(colorFilter)->program(p, color, dst, uniforms, alloc);
+            }
+            return color;
         };
 
         std::vector<skvm::Val> uniform = make_skvm_uniforms(p, uniforms, fEffect->uniformSize(),
                                                             *inputs);
 
         return SkSL::ProgramToSkVM(*fEffect->fBaseProgram, fEffect->fMain, p, SkMakeSpan(uniform),
-                                   device, local, paint, paint, sampleChild);
+                                   device, local, paint, paint, sampleShader, sampleColorFilter);
     }
 
     void flatten(SkWriteBuffer& buffer) const override {
@@ -1110,15 +1117,17 @@ public:
                                                     colorInfo.colorSpace());
         SkASSERT(inputs);
 
-        auto sampleChild = [&](int index, skvm::Coord coord, skvm::Color color) {
-            const SkRuntimeEffect::ChildPtr& effect = fChildren[index];
-            if (effect.shader) {
+        auto sampleShader = [&](int ix, skvm::Coord coord, skvm::Color color) {
+            if (SkShader* shader = fChildren[ix].shader.get()) {
                 SkSimpleMatrixProvider mats{SkMatrix::I()};
-                return as_SB(effect.shader)->program(p, coord, coord, color, mats,
-                                                    /*localM=*/nullptr, colorInfo, uniforms, alloc);
+                return as_SB(shader)->program(p, coord, coord, color, mats, /*localM=*/nullptr,
+                                              colorInfo, uniforms, alloc);
             }
-            if (effect.colorFilter) {
-                return as_CFB(effect.colorFilter)->program(p, color, colorInfo, uniforms, alloc);
+            return color;
+        };
+        auto sampleColorFilter = [&](int ix, skvm::Color color) {
+            if (SkColorFilter* colorFilter = fChildren[ix].colorFilter.get()) {
+                return as_CFB(colorFilter)->program(p, color, colorInfo, uniforms, alloc);
             }
             return color;
         };
@@ -1129,7 +1138,8 @@ public:
         // Emit the blend function as an SkVM program.
         skvm::Coord zeroCoord = {p->splat(0.0f), p->splat(0.0f)};
         return SkSL::ProgramToSkVM(*fEffect->fBaseProgram, fEffect->fMain, p, SkMakeSpan(uniform),
-                                  /*device=*/zeroCoord, /*local=*/zeroCoord, src, dst, sampleChild);
+                                  /*device=*/zeroCoord, /*local=*/zeroCoord, src, dst,
+                                  sampleShader, sampleColorFilter);
     }
 
 #if SK_SUPPORT_GPU
