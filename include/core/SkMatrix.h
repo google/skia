@@ -34,10 +34,8 @@ enum class SkApplyPerspectiveClip {
     SkPoint and vectors with translation, scaling, skewing, rotation, and
     perspective.
 
-    SkMatrix elements are in row major order. SkMatrix does not have a constructor,
-    so it must be explicitly initialized. setIdentity() initializes SkMatrix
-    so it has no effect. setTranslate(), setScale(), setSkew(), setRotate(), set9 and setAll()
-    initializes all SkMatrix elements with the corresponding mapping.
+    SkMatrix elements are in row major order.
+    SkMatrix constexpr default constructs to identity.
 
     SkMatrix includes a hidden variable that classifies the type of matrix to
     improve performance. SkMatrix is not thread safe unless getType() is called first.
