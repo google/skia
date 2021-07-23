@@ -53,11 +53,13 @@ class VertBench : public Benchmark {
     }
 
     void onDelayedSetup() override {
-        auto img = GetResourceAsImage("images/mandrill_256.png");
-        if (img) {
-            SkFilterMode fm = (fFlags & kBilerp_VertFlag) ? SkFilterMode::kLinear
-                                                          : SkFilterMode::kNearest;
-            fShader = img->makeShader(SkSamplingOptions(fm));
+        if (fFlags & kTexture_VertFlag) {
+            auto img = GetResourceAsImage("images/mandrill_256.png");
+            if (img) {
+                SkFilterMode fm = (fFlags & kBilerp_VertFlag) ? SkFilterMode::kLinear
+                                                              : SkFilterMode::kNearest;
+                fShader = img->makeShader(SkSamplingOptions(fm));
+            }
         }
     }
 
