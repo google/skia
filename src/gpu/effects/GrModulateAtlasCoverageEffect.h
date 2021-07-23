@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrGrModulateAtlasCoverageFP_DEFINED
-#define GrGrModulateAtlasCoverageFP_DEFINED
+#ifndef GrGrModulateAtlasCoverageEffect_DEFINED
+#define GrGrModulateAtlasCoverageEffect_DEFINED
 
 #include "src/gpu/GrFragmentProcessor.h"
 
 // Multiplies 'inputFP' by the coverage value in an atlas, optionally inverting or clamping to 0.
-class GrModulateAtlasCoverageFP : public GrFragmentProcessor {
+class GrModulateAtlasCoverageEffect : public GrFragmentProcessor {
 public:
     enum class Flags {
         kNone = 0,
@@ -21,11 +21,11 @@ public:
 
     GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(Flags);
 
-    GrModulateAtlasCoverageFP(Flags flags, std::unique_ptr<GrFragmentProcessor> inputFP,
-                              GrSurfaceProxyView atlasView, const SkMatrix& devToAtlasMatrix,
-                              const SkIRect& devIBounds);
+    GrModulateAtlasCoverageEffect(Flags flags, std::unique_ptr<GrFragmentProcessor> inputFP,
+                                  GrSurfaceProxyView atlasView, const SkMatrix& devToAtlasMatrix,
+                                  const SkIRect& devIBounds);
 
-    GrModulateAtlasCoverageFP(const GrModulateAtlasCoverageFP& that);
+    GrModulateAtlasCoverageEffect(const GrModulateAtlasCoverageEffect& that);
 
     const char* name() const override {
         return "GrModulateAtlasCoverageFP";
@@ -34,10 +34,10 @@ public:
         b->add32(fFlags & Flags::kCheckBounds);
     }
     std::unique_ptr<GrFragmentProcessor> clone() const override {
-        return std::make_unique<GrModulateAtlasCoverageFP>(*this);
+        return std::make_unique<GrModulateAtlasCoverageEffect>(*this);
     }
     bool onIsEqual(const GrFragmentProcessor& that) const override {
-        auto fp = that.cast<GrModulateAtlasCoverageFP>();
+        auto fp = that.cast<GrModulateAtlasCoverageEffect>();
         return fFlags == fp.fFlags && fBounds == fp.fBounds;
     }
     std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
@@ -47,6 +47,6 @@ private:
     const SkIRect fBounds;
 };
 
-GR_MAKE_BITFIELD_CLASS_OPS(GrModulateAtlasCoverageFP::Flags)
+GR_MAKE_BITFIELD_CLASS_OPS(GrModulateAtlasCoverageEffect::Flags)
 
 #endif

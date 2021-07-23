@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/tessellate/GrDrawAtlasPathOp.h"
+#include "src/gpu/ops/GrDrawAtlasPathOp.h"
 
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrOpsRenderPass.h"

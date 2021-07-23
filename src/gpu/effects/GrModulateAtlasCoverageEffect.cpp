@@ -5,17 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/tessellate/shaders/GrModulateAtlasCoverageFP.h"
+#include "src/gpu/effects/GrModulateAtlasCoverageEffect.h"
 
 #include "src/gpu/GrDynamicAtlas.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 
-GrModulateAtlasCoverageFP::GrModulateAtlasCoverageFP(Flags flags,
-                                                     std::unique_ptr<GrFragmentProcessor> inputFP,
-                                                     GrSurfaceProxyView atlasView,
-                                                     const SkMatrix& devToAtlasMatrix,
-                                                     const SkIRect& devIBounds)
-        : GrFragmentProcessor(kTessellate_GrModulateAtlasCoverageFP_ClassID,
+GrModulateAtlasCoverageEffect::GrModulateAtlasCoverageEffect(
+        Flags flags,
+        std::unique_ptr<GrFragmentProcessor> inputFP,
+        GrSurfaceProxyView atlasView,
+        const SkMatrix& devToAtlasMatrix,
+        const SkIRect& devIBounds)
+        : GrFragmentProcessor(kTessellate_GrModulateAtlasCoverageEffect_ClassID,
                               kCompatibleWithCoverageAsAlpha_OptimizationFlag)
         , fFlags(flags)
         , fBounds((fFlags & Flags::kCheckBounds) ? devIBounds : SkIRect{0,0,0,0}) {
@@ -25,18 +26,19 @@ GrModulateAtlasCoverageFP::GrModulateAtlasCoverageFP(Flags flags,
                         SkSL::SampleUsage::Explicit());
 }
 
-GrModulateAtlasCoverageFP::GrModulateAtlasCoverageFP(const GrModulateAtlasCoverageFP& that)
-        : GrFragmentProcessor(kTessellate_GrModulateAtlasCoverageFP_ClassID,
+GrModulateAtlasCoverageEffect::GrModulateAtlasCoverageEffect(
+        const GrModulateAtlasCoverageEffect& that)
+        : GrFragmentProcessor(kTessellate_GrModulateAtlasCoverageEffect_ClassID,
                               kCompatibleWithCoverageAsAlpha_OptimizationFlag)
         , fFlags(that.fFlags)
         , fBounds(that.fBounds) {
     this->cloneAndRegisterAllChildProcessors(that);
 }
 
-std::unique_ptr<GrGLSLFragmentProcessor> GrModulateAtlasCoverageFP::onMakeProgramImpl() const {
+std::unique_ptr<GrGLSLFragmentProcessor> GrModulateAtlasCoverageEffect::onMakeProgramImpl() const {
     class Impl : public GrGLSLFragmentProcessor {
         void emitCode(EmitArgs& args) override {
-            auto fp = args.fFp.cast<GrModulateAtlasCoverageFP>();
+            auto fp = args.fFp.cast<GrModulateAtlasCoverageEffect>();
             auto f = args.fFragBuilder;
             auto uniHandler = args.fUniformHandler;
             SkString inputColor = this->invokeChild(0, args);
@@ -65,7 +67,7 @@ std::unique_ptr<GrGLSLFragmentProcessor> GrModulateAtlasCoverageFP::onMakeProgra
         }
         void onSetData(const GrGLSLProgramDataManager& pdman,
                        const GrFragmentProcessor& processor) override {
-            auto fp = processor.cast<GrModulateAtlasCoverageFP>();
+            auto fp = processor.cast<GrModulateAtlasCoverageEffect>();
             if (fp.fFlags & Flags::kCheckBounds) {
                 pdman.set4fv(fBoundsUniform, 1, SkRect::Make(fp.fBounds).asScalars());
             }

@@ -31,7 +31,7 @@ static DEFINE_bool(alwaysHwTess, false,
 static DEFINE_string(pr, "",
               "Set of enabled gpu path renderers. Defined as a list of: "
               "[~]none [~]dashline [~]aahairline [~]aaconvex [~]aalinearizing [~]small [~]tri "
-              "[~]tess [~]all");
+              "[~]atlas [~]tess [~]all");
 
 static DEFINE_int(internalSamples, -1,
         "Number of samples for internal draws that use MSAA, or default value if negative.");
@@ -66,6 +66,8 @@ static GpuPathRenderers get_named_pathrenderers_flags(const char* name) {
         return GpuPathRenderers::kSmall;
     } else if (!strcmp(name, "tri")) {
         return GpuPathRenderers::kTriangulating;
+    } else if (!strcmp(name, "atlas")) {
+        return GpuPathRenderers::kAtlas;
     } else if (!strcmp(name, "tess")) {
         return GpuPathRenderers::kTessellation;
     } else if (!strcmp(name, "default")) {

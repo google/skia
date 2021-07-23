@@ -15,6 +15,7 @@
 #include "include/private/SkNoncopyable.h"
 #include "include/private/SkTArray.h"
 
+class GrAtlasPathRenderer;
 class GrTessellationPathRenderer;
 
 /**
@@ -47,6 +48,12 @@ public:
                                     DrawType drawType,
                                     GrPathRenderer::StencilSupport* stencilSupport);
 
+    /** Returns a direct pointer to the atlas path renderer, or null if it is not in the
+        chain. */
+    GrAtlasPathRenderer* getAtlasPathRenderer() {
+        return fAtlasPathRenderer;
+    }
+
     /** Returns a direct pointer to the tessellation path renderer, or null if it is not in the
         chain. */
     GrTessellationPathRenderer* getTessellationPathRenderer() {
@@ -58,6 +65,7 @@ private:
         kPreAllocCount = 8,
     };
     SkSTArray<kPreAllocCount, sk_sp<GrPathRenderer>>    fChain;
+    GrAtlasPathRenderer*                                fAtlasPathRenderer = nullptr;
     GrTessellationPathRenderer*                         fTessellationPathRenderer = nullptr;
 };
 

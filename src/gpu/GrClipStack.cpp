@@ -25,7 +25,7 @@
 #include "src/gpu/effects/GrRRectEffect.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/geometry/GrQuadUtils.h"
-#include "src/gpu/tessellate/GrTessellationPathRenderer.h"
+#include "src/gpu/ops/GrAtlasPathRenderer.h"
 
 namespace {
 
@@ -236,7 +236,7 @@ static GrFPResult analytic_clip_fp(const GrClipStack::Element& e,
 // into a shared atlas.
 static GrFPResult clip_atlas_fp(GrRecordingContext* rContext,
                                 const GrOp* opBeingClipped,
-                                GrTessellationPathRenderer* tessellator,
+                                GrAtlasPathRenderer* atlasPathRenderer,
                                 const SkIRect& scissorBounds,
                                 const GrClipStack::Element& e,
                                 std::unique_ptr<GrFragmentProcessor> inputFP) {
@@ -250,8 +250,8 @@ static GrFPResult clip_atlas_fp(GrRecordingContext* rContext,
         // Toggling fill type does not affect the path's "generationID" key.
         path.toggleInverseFillType();
     }
-    return tessellator->makeAtlasClipFP(rContext, opBeingClipped, std::move(inputFP), scissorBounds,
-                                        e.fLocalToDevice, path);
+    return atlasPathRenderer->makeAtlasClipEffect(rContext, opBeingClipped, std::move(inputFP),
+                                                  scissorBounds, e.fLocalToDevice, path);
 }
 
 static void draw_to_sw_mask(GrSWMaskHelper* helper, const GrClipStack::Element& e, bool clearMask) {
@@ -1340,7 +1340,7 @@ GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrSurfaceDrawCont
     SkSTArray<kNumStackMasks, const Element*> elementsForMask;
 
     bool maskRequiresAA = false;
-    auto* tessellator = context->priv().drawingManager()->getTessellationPathRenderer();
+    auto* atlasPathRenderer = context->priv().drawingManager()->getAtlasPathRenderer();
 
     int i = fElements.count();
     for (const RawElement& e : fElements.ritems()) {
@@ -1412,8 +1412,9 @@ GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrSurfaceDrawCont
                     std::tie(fullyApplied, clipFP) = analytic_clip_fp(e.asElement(),
                                                                       *caps->shaderCaps(),
                                                                       std::move(clipFP));
-                    if (!fullyApplied && tessellator) {
-                        std::tie(fullyApplied, clipFP) = clip_atlas_fp(context, op, tessellator,
+                    if (!fullyApplied && atlasPathRenderer) {
+                        std::tie(fullyApplied, clipFP) = clip_atlas_fp(context, op,
+                                                                       atlasPathRenderer,
                                                                        scissorBounds, e.asElement(),
                                                                        std::move(clipFP));
                     }

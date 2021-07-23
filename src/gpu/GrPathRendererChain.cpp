@@ -19,6 +19,7 @@
 #include "src/gpu/ops/GrAAConvexPathRenderer.h"
 #include "src/gpu/ops/GrAAHairLinePathRenderer.h"
 #include "src/gpu/ops/GrAALinearizingConvexPathRenderer.h"
+#include "src/gpu/ops/GrAtlasPathRenderer.h"
 #include "src/gpu/ops/GrDashLinePathRenderer.h"
 #include "src/gpu/ops/GrDefaultPathRenderer.h"
 #include "src/gpu/ops/GrSmallPathRenderer.h"
@@ -45,11 +46,17 @@ GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Opti
     if (options.fGpuPathRenderers & GpuPathRenderers::kTriangulating) {
         fChain.push_back(sk_make_sp<GrTriangulatingPathRenderer>());
     }
+    if (options.fGpuPathRenderers & GpuPathRenderers::kAtlas) {
+        if (auto atlasPathRenderer = GrAtlasPathRenderer::Make(context)) {
+            fAtlasPathRenderer = atlasPathRenderer.get();
+            context->priv().addOnFlushCallbackObject(atlasPathRenderer.get());
+            fChain.push_back(std::move(atlasPathRenderer));
+        }
+    }
     if (options.fGpuPathRenderers & GpuPathRenderers::kTessellation) {
         if (GrTessellationPathRenderer::IsSupported(caps)) {
-            auto tess = sk_make_sp<GrTessellationPathRenderer>(context);
+            auto tess = sk_make_sp<GrTessellationPathRenderer>();
             fTessellationPathRenderer = tess.get();
-            context->priv().addOnFlushCallbackObject(tess.get());
             fChain.push_back(std::move(tess));
         }
     }

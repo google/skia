@@ -960,6 +960,14 @@ GrPathRenderer* GrDrawingManager::getSoftwarePathRenderer() {
     return fSoftwarePathRenderer.get();
 }
 
+GrAtlasPathRenderer* GrDrawingManager::getAtlasPathRenderer() {
+    if (!fPathRendererChain) {
+        fPathRendererChain = std::make_unique<GrPathRendererChain>(fContext,
+                                                                   fOptionsForPathRendererChain);
+    }
+    return fPathRendererChain->getAtlasPathRenderer();
+}
+
 GrTessellationPathRenderer* GrDrawingManager::getTessellationPathRenderer() {
     if (!fPathRendererChain) {
         fPathRendererChain = std::make_unique<GrPathRendererChain>(fContext,

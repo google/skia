@@ -31,6 +31,7 @@
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrPersistentCacheUtils.h"
 #include "src/gpu/GrShaderUtils.h"
+#include "src/gpu/ops/GrAtlasPathRenderer.h"
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 #include "src/image/SkImage_Base.h"
 #include "src/sksl/SkSLCompiler.h"
@@ -341,6 +342,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     SkGraphics::Init();
 
     gPathRendererNames[GpuPathRenderers::kDefault] = "Default Path Renderers";
+    gPathRendererNames[GpuPathRenderers::kAtlas] = "Atlas (tessellation)";
     gPathRendererNames[GpuPathRenderers::kTessellation] = "Tessellation";
     gPathRendererNames[GpuPathRenderers::kSmall] = "Small paths (cached sdf or alpha masks)";
     gPathRendererNames[GpuPathRenderers::kTriangulating] = "Triangulating";
@@ -1938,6 +1940,9 @@ void Viewer::drawImGui() {
                         const auto* caps = ctx->priv().caps();
                         prButton(GpuPathRenderers::kDefault);
                         if (fWindow->sampleCount() > 1 || FLAGS_dmsaa) {
+                            if (GrAtlasPathRenderer::IsSupported(ctx)) {
+                                prButton(GpuPathRenderers::kAtlas);
+                            }
                             if (GrTessellationPathRenderer::IsSupported(*caps)) {
                                 prButton(GpuPathRenderers::kTessellation);
                             }
@@ -2770,6 +2775,10 @@ void Viewer::updateUIState() {
                 const auto* caps = ctx->priv().caps();
                 writer.appendString(gPathRendererNames[GpuPathRenderers::kDefault].c_str());
                 if (fWindow->sampleCount() > 1 || FLAGS_dmsaa) {
+                    if (GrAtlasPathRenderer::IsSupported(ctx)) {
+                        writer.appendString(
+                                gPathRendererNames[GpuPathRenderers::kAtlas].c_str());
+                    }
                     if (GrTessellationPathRenderer::IsSupported(*caps)) {
                         writer.appendString(
                                 gPathRendererNames[GpuPathRenderers::kTessellation].c_str());

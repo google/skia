@@ -9,8 +9,8 @@
 #define GrDrawAtlasPathOp_DEFINED
 
 #include "src/core/SkIPoint16.h"
+#include "src/gpu/ops/GrAtlasInstancedHelper.h"
 #include "src/gpu/ops/GrDrawOp.h"
-#include "src/gpu/tessellate/GrAtlasInstancedHelper.h"
 
 // Fills a rectangle of pixels with a clip against coverage values from an atlas.
 class GrDrawAtlasPathOp : public GrDrawOp {

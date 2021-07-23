@@ -471,7 +471,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			// Use hardware tessellation as much as possible for testing. Use 16 segments max to
 			// verify the chopping logic.
 			args = append(args,
-				"--pr", "tess", "--hwtess", "--alwaysHwTess", "--maxTessellationSegments", "16")
+				"--pr", "atlas", "tess", "--hwtess", "--alwaysHwTess",
+				"--maxTessellationSegments", "16")
 		}
 
 		// DDL is a GPU-only feature
