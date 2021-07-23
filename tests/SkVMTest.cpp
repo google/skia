@@ -770,41 +770,62 @@ DEF_TEST(SkVM_NewOps, r) {
 }
 
 DEF_TEST(SKVM_array32, r) {
+
+
+
     skvm::Builder b;
+    skvm::Uniforms uniforms(b.uniform(), 0);
+    // Take up the first slot, so other uniforms are not at 0 offset.
+    uniforms.push(0);
+    int i[] = {3, 7};
+    skvm::Uniform array = uniforms.pushArray(i);
+    float f[] = {5, 9};
+    skvm::Uniform arrayF = uniforms.pushArrayF(f);
     {
         skvm::Ptr buf0     = b.varying<int32_t>(),
                   buf1     = b.varying<int32_t>(),
-                  uniforms = b.uniform();
+                  buf2     = b.varying<int32_t>();
 
-        skvm::I32 x = b.array32(uniforms, 0, 0);
-        b.store32(buf0, x);
-        skvm::I32 y = b.array32(uniforms, 0, 4);
-        b.store32(buf1, y);
+        skvm::I32 j = b.array32(array, 0);
+        b.store32(buf0, j);
+        skvm::I32 k = b.array32(array, 1);
+        b.store32(buf1, k);
+
+        skvm::F32 x = b.arrayF(arrayF, 0);
+        skvm::F32 y = b.arrayF(arrayF, 1);
+        b.store32(buf2, b.trunc(b.add(x, y)));
     }
 
     test_jit_and_interpreter(b, [&](const skvm::Program& program) {
-        const int K = 20;
-        int i[2] = {3, 7};
-        struct {
-            int* g;
-        } uniforms{i};
-        int32_t buf0[K];
-        int32_t buf1[K];
+        const int K = 10;
+        int32_t buf0[K],
+                buf1[K],
+                buf2[K];
 
-        program.eval(K, buf0, buf1, &uniforms);
+        // reset the i[0] for the two tests.
+        i[0] = 3;
+        f[1] = 9;
+        program.eval(K, uniforms.buf.data(), buf0, buf1, buf2);
         for (auto v : buf0) {
             REPORTER_ASSERT(r, v == 3);
         }
         for (auto v : buf1) {
             REPORTER_ASSERT(r, v == 7);
         }
+        for (auto v : buf2) {
+            REPORTER_ASSERT(r, v == 14);
+        }
         i[0] = 4;
-        program.eval(K, buf0, buf1, &uniforms);
+        f[1] = 10;
+        program.eval(K, uniforms.buf.data(), buf0, buf1, buf2);
         for (auto v : buf0) {
             REPORTER_ASSERT(r, v == 4);
         }
         for (auto v : buf1) {
             REPORTER_ASSERT(r, v == 7);
+        }
+        for (auto v : buf2) {
+            REPORTER_ASSERT(r, v == 15);
         }
     });
 }

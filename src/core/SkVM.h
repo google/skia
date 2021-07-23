@@ -544,6 +544,14 @@ namespace skvm {
             }
             return {base, (int)( sizeof(int)*(buf.size() - SK_ARRAY_COUNT(ints)) )};
         }
+
+        Uniform pushArray(int32_t a[]) {
+            return this->pushPtr(a);
+        }
+
+        Uniform pushArrayF(float a[]) {
+            return this->pushPtr(a);
+        }
     };
 
     struct PixelFormat {
@@ -633,8 +641,12 @@ namespace skvm {
         I32 uniform32(Ptr ptr, int offset);
         F32 uniformF (Ptr ptr, int offset) { return pun_to_F32(uniform32(ptr,offset)); }
 
-        // Load i32/f32 uniform with byte-count offset and index.
+        // Load i32/f32 uniform with byte-count offset and an c-style array index. The address of
+        // the element is (*(ptr + byte-count offset))[index].
         I32 array32  (Ptr ptr, int offset, int index);
+        F32 arrayF   (Ptr ptr, int offset, int index) {
+            return pun_to_F32(array32(ptr, offset, index));
+        }
 
         // Push and load this color as a uniform.
         Color uniformColor(SkColor4f, Uniforms*);
@@ -654,6 +666,11 @@ namespace skvm {
         I32 gather16 (Uniform u, I32 index) { return this->gather16 (u.ptr, u.offset, index); }
         I32 gather32 (Uniform u, I32 index) { return this->gather32 (u.ptr, u.offset, index); }
         F32 gatherF  (Uniform u, I32 index) { return this->gatherF  (u.ptr, u.offset, index); }
+
+        // Convenience methods for working with array pointers in skvm::Uniforms. Index is an
+        // array index and not a byte offset. The array pointer is stored at u.
+        I32 array32  (Uniform a, int index) { return this->array32  (a.ptr, a.offset, index); }
+        F32 arrayF   (Uniform a, int index) { return this->arrayF   (a.ptr, a.offset, index); }
 
         // Load an immediate constant.
         I32 splat(int      n);

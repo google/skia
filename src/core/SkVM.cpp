@@ -624,8 +624,9 @@ namespace skvm {
         return {this, push(Op::uniform32, NA,NA,NA,NA, ptr.ix, offset)};
     }
 
+    // Note: this converts the array index into a byte offset for the op.
     I32 Builder::array32  (Ptr ptr, int offset, int index) {
-        return {this, push(Op::array32, NA,NA,NA,NA, ptr.ix, offset, index)};
+        return {this, push(Op::array32, NA,NA,NA,NA, ptr.ix, offset, index * sizeof(int))};
     }
 
     I32 Builder::splat(int n) { return {this, push(Op::splat, NA,NA,NA,NA, n) }; }
