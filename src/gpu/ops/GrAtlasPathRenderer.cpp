@@ -31,8 +31,12 @@ constexpr static int kAtlasInitialSize = 512;
 // height, which lends very well to efficient pow2 atlas packing.
 constexpr static auto kAtlasAlgorithm = GrDynamicAtlas::RectanizerAlgorithm::kPow2;
 
-// Ensure every path in the atlas falls in or below the 128px high rectanizer band.
-constexpr static int kAtlasMaxPathHeight = 128;
+// Ensure every path in the atlas falls in or below the 256px high rectanizer band.
+constexpr static int kAtlasMaxPathHeight = 256;
+
+// If we have MSAA to fall back on, paths are already fast enough that we really only benefit from
+// atlasing when they are very small.
+constexpr static int kAtlasMaxPathHeightWithMSAAFallback = 128;
 
 bool GrAtlasPathRenderer::IsSupported(GrRecordingContext* rContext) {
     const GrCaps& caps = *rContext->priv().caps();
@@ -68,15 +72,20 @@ static std::tuple<float2,float2> round_out(const SkRect& r) {
     return {skvx::floor(float2::Load(&r.fLeft)), skvx::ceil(float2::Load(&r.fRight))};
 }
 
-bool GrAtlasPathRenderer::pathFitsInAtlas(const SkRect& pathDevBounds) const {
+bool GrAtlasPathRenderer::pathFitsInAtlas(const SkRect& pathDevBounds,
+                                          GrAAType fallbackAAType) const {
+    SkASSERT(fallbackAAType != GrAAType::kNone);  // The atlas doesn't support non-AA.
+    float atlasMaxPathHeight_pow2 = (fallbackAAType == GrAAType::kMSAA)
+            ? kAtlasMaxPathHeightWithMSAAFallback * kAtlasMaxPathHeightWithMSAAFallback
+            : kAtlasMaxPathHeight * kAtlasMaxPathHeight;
     auto [topLeftFloor, botRightCeil] = round_out(pathDevBounds);
     float2 size = botRightCeil - topLeftFloor;
     return // Ensure the path's largest dimension fits in the atlas.
            skvx::all(size <= fAtlasMaxSize) &&
-           // Since we will transpose tall skinny paths, limiting to kAtlasMaxPathHeight^2 pixels
-           // guarantees heightInAtlas <= kAtlasMaxPathHeight, while also allowing paths that are
+           // Since we will transpose tall skinny paths, limiting to atlasMaxPathHeight^2 pixels
+           // guarantees heightInAtlas <= atlasMaxPathHeight, while also allowing paths that are
            // very wide and short.
-           size[0] * size[1] <= kAtlasMaxPathHeight * kAtlasMaxPathHeight;
+           size[0] * size[1] <= atlasMaxPathHeight_pow2;
 }
 
 void GrAtlasPathRenderer::AtlasPathKey::set(const SkMatrix& m, const SkPath& path) {
@@ -130,6 +139,7 @@ bool GrAtlasPathRenderer::addPathToAtlas(GrRecordingContext* rContext,
     if (*transposedInAtlas) {
         std::swap(heightInAtlas, widthInAtlas);
     }
+    // pathFitsInAtlas() should have guaranteed these constraints on the path size.
     SkASSERT(widthInAtlas <= (int)fAtlasMaxSize);
     SkASSERT(heightInAtlas <= kAtlasMaxPathHeight);
 
@@ -209,7 +219,8 @@ GrPathRenderer::CanDrawPath GrAtlasPathRenderer::onCanDrawPath(const CanDrawPath
                        args.fAAType == GrAAType::kMSAA &&
                        !args.fShape->style().hasPathEffect() &&
                        !args.fViewMatrix->hasPerspective() &&
-                       this->pathFitsInAtlas(args.fViewMatrix->mapRect(args.fShape->bounds()));
+                       this->pathFitsInAtlas(args.fViewMatrix->mapRect(args.fShape->bounds()),
+                                             args.fAAType);
     return canDrawPath ? CanDrawPath::kYes : CanDrawPath::kNo;
 }
 
@@ -232,7 +243,7 @@ bool GrAtlasPathRenderer::onDrawPath(const DrawPathArgs& args) {
     args.fShape->asPath(&path);
 
     const SkRect pathDevBounds = args.fViewMatrix->mapRect(args.fShape->bounds());
-    SkASSERT(this->pathFitsInAtlas(pathDevBounds));
+    SkASSERT(this->pathFitsInAtlas(pathDevBounds, args.fAAType));
 
     if (!is_visible(pathDevBounds, args.fClip->getConservativeBounds())) {
         // The path is empty or outside the clip. No mask is needed.
@@ -267,7 +278,7 @@ bool GrAtlasPathRenderer::onDrawPath(const DrawPathArgs& args) {
     return true;
 }
 
-GrFPResult GrAtlasPathRenderer::makeAtlasClipEffect(GrRecordingContext* rContext,
+GrFPResult GrAtlasPathRenderer::makeAtlasClipEffect(const GrSurfaceDrawContext* sdc,
                                                     const GrOp* opBeingClipped,
                                                     std::unique_ptr<GrFragmentProcessor> inputFP,
                                                     const SkIRect& drawBounds,
@@ -284,7 +295,9 @@ GrFPResult GrAtlasPathRenderer::makeAtlasClipEffect(GrRecordingContext* rContext
                                         : GrFPFailure(std::move(inputFP));
     }
 
-    if (!this->pathFitsInAtlas(pathDevBounds)) {
+    auto fallbackAAType = (sdc->numSamples() > 1 || sdc->canUseDynamicMSAA()) ? GrAAType::kMSAA
+                                                                              : GrAAType::kCoverage;
+    if (!this->pathFitsInAtlas(pathDevBounds, fallbackAAType)) {
         // The path is too big.
         return GrFPFailure(std::move(inputFP));
     }
@@ -299,7 +312,7 @@ GrFPResult GrAtlasPathRenderer::makeAtlasClipEffect(GrRecordingContext* rContext
                refs_atlas(inputFP.get(), atlasProxy);
     };
     // addPathToAtlas() ignores inverseness of the fill. See GrAtlasRenderTask::getAtlasUberPath().
-    if (!this->addPathToAtlas(rContext, viewMatrix, path, pathDevBounds, &devIBounds,
+    if (!this->addPathToAtlas(sdc->recordingContext(), viewMatrix, path, pathDevBounds, &devIBounds,
                               &locationInAtlas, &transposedInAtlas, drawRefsAtlasCallback)) {
         // The atlas ran out of room and we were unable to start a new one.
         return GrFPFailure(std::move(inputFP));
@@ -325,7 +338,7 @@ GrFPResult GrAtlasPathRenderer::makeAtlasClipEffect(GrRecordingContext* rContext
         // ever changes.
         SkASSERT(path.isInverseFillType());
     }
-    GrSurfaceProxyView atlasView = fAtlasRenderTasks.back()->readView(*rContext->priv().caps());
+    GrSurfaceProxyView atlasView = fAtlasRenderTasks.back()->readView(*sdc->caps());
     return GrFPSuccess(std::make_unique<GrModulateAtlasCoverageEffect>(flags, std::move(inputFP),
                                                                        std::move(atlasView),
                                                                        atlasMatrix, devIBounds));

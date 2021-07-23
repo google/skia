@@ -236,7 +236,7 @@ static GrFPResult analytic_clip_fp(const GrClipStack::Element& e,
 // TODO: Currently this only works with tessellation because the tessellation path renderer owns and
 // manages the atlas. The high-level concept could be generalized to support any path renderer going
 // into a shared atlas.
-static GrFPResult clip_atlas_fp(GrRecordingContext* rContext,
+static GrFPResult clip_atlas_fp(const GrSurfaceDrawContext* sdc,
                                 const GrOp* opBeingClipped,
                                 GrAtlasPathRenderer* atlasPathRenderer,
                                 const SkIRect& scissorBounds,
@@ -252,7 +252,7 @@ static GrFPResult clip_atlas_fp(GrRecordingContext* rContext,
         // Toggling fill type does not affect the path's "generationID" key.
         path.toggleInverseFillType();
     }
-    return atlasPathRenderer->makeAtlasClipEffect(rContext, opBeingClipped, std::move(inputFP),
+    return atlasPathRenderer->makeAtlasClipEffect(sdc, opBeingClipped, std::move(inputFP),
                                                   scissorBounds, e.fLocalToDevice, path);
 }
 
@@ -1244,7 +1244,7 @@ GrClip::PreClipResult GrClipStack::preApply(const SkRect& bounds, GrAA aa) const
     SkUNREACHABLE;
 }
 
-GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrSurfaceDrawContext* rtc,
+GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrSurfaceDrawContext* sdc,
                                   GrDrawOp* op, GrAAType aa, GrAppliedClip* out,
                                   SkRect* bounds) const {
     // TODO: Once we no longer store SW masks, we don't need to sneak the provider in like this
@@ -1334,7 +1334,7 @@ GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrSurfaceDrawCont
     int remainingAnalyticFPs = kMaxAnalyticFPs;
 
     // If window rectangles are supported, we can use them to exclude inner bounds of difference ops
-    int maxWindowRectangles = rtc->maxWindowRectangles();
+    int maxWindowRectangles = sdc->maxWindowRectangles();
     GrWindowRectangles windowRects;
 
     // Elements not represented as an analytic FP or skipped will be collected here and later
@@ -1379,7 +1379,7 @@ GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrSurfaceDrawCont
 
                 // First check if the op knows how to apply this clip internally.
                 SkASSERT(!e.shape().inverted());
-                auto result = op->clipToShape(rtc, e.op(), e.localToDevice(), e.shape(),
+                auto result = op->clipToShape(sdc, e.op(), e.localToDevice(), e.shape(),
                                               GrAA(e.aa() == GrAA::kYes || fForceAA));
                 if (result != GrDrawOp::ClipResult::kFail) {
                     if (result == GrDrawOp::ClipResult::kClippedOut) {
@@ -1415,8 +1415,7 @@ GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrSurfaceDrawCont
                                                                       *caps->shaderCaps(),
                                                                       std::move(clipFP));
                     if (!fullyApplied && atlasPathRenderer) {
-                        std::tie(fullyApplied, clipFP) = clip_atlas_fp(context, op,
-                                                                       atlasPathRenderer,
+                        std::tie(fullyApplied, clipFP) = clip_atlas_fp(sdc, op, atlasPathRenderer,
                                                                        scissorBounds, e.asElement(),
                                                                        std::move(clipFP));
                     }
@@ -1456,10 +1455,10 @@ GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrSurfaceDrawCont
     // flattened into a single mask.
     if (!elementsForMask.empty()) {
         bool stencilUnavailable =
-                !rtc->asRenderTargetProxy()->canUseStencil(*context->priv().caps());
+                !sdc->asRenderTargetProxy()->canUseStencil(*context->priv().caps());
 
         bool hasSWMask = false;
-        if ((rtc->numSamples() <= 1 && !rtc->canUseDynamicMSAA() && maskRequiresAA) ||
+        if ((sdc->numSamples() <= 1 && !sdc->canUseDynamicMSAA() && maskRequiresAA) ||
             stencilUnavailable) {
             // Must use a texture mask to represent the combined clip elements since the stencil
             // cannot be used, or cannot handle smooth clips.
@@ -1475,7 +1474,7 @@ GrClip::Effect GrClipStack::apply(GrRecordingContext* context, GrSurfaceDrawCont
                 return Effect::kClippedOut;
             } else {
                 // Rasterize the remaining elements to the stencil buffer
-                render_stencil_mask(context, rtc, cs.genID(), scissorBounds,
+                render_stencil_mask(context, sdc, cs.genID(), scissorBounds,
                                     elementsForMask.begin(), elementsForMask.count(), out);
             }
         }

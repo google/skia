@@ -74,7 +74,7 @@ public:
 
     virtual ~GrSurfaceContext() = default;
 
-    GrRecordingContext* recordingContext() { return fContext; }
+    GrRecordingContext* recordingContext() const { return fContext; }
 
     const GrColorInfo& colorInfo() const { return fColorInfo; }
     GrImageInfo imageInfo() const { return {fColorInfo, fReadView.proxy()->dimensions()}; }
