@@ -37,11 +37,17 @@ bool FuzzSKSL2Pipeline(sk_sp<SkData> bytes) {
         void defineStruct(const char* /*definition*/) override {}
         void declareGlobal(const char* /*declaration*/) override {}
 
-        String sampleChild(int index, String coords, String color) override {
-            String result = "sample(" + SkSL::to_string(index);
-            if (!coords.empty()) {
-                result += ", " + coords;
+        String sampleShader(int index, String coords, String color) override {
+            String result = "sample(" + SkSL::to_string(index) + ", " + coords;
+            if (!color.empty()) {
+                result += ", " + color;
             }
+            result += ")";
+            return result;
+        }
+
+        String sampleColorFilter(int index, String color) override {
+            String result = "sample(" + SkSL::to_string(index);
             if (!color.empty()) {
                 result += ", " + color;
             }

@@ -28,7 +28,8 @@ namespace PipelineStage {
         virtual void   declareGlobal(const char* declaration) = 0;
 
         virtual String declareUniform(const VarDeclaration*) = 0;
-        virtual String sampleChild(int index, String coords, String color) = 0;
+        virtual String sampleShader(int index, String coords, String color) = 0;
+        virtual String sampleColorFilter(int index, String color) = 0;
     };
 
     /*

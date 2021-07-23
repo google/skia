@@ -126,7 +126,7 @@ public:
                 fArgs.fFragBuilder->definitionAppend(declaration);
             }
 
-            String sampleChild(int index, String coords, String color) override {
+            String sampleShader(int index, String coords, String color) override {
                 // If the child was sampled using the coords passed to main (and they are never
                 // modified), then we will have marked the child as PassThrough. The code generator
                 // doesn't know that, and still supplies coords. Inside invokeChild, we assert that
@@ -147,6 +147,13 @@ public:
                                                  color.empty() ? fInputColor : color.c_str(),
                                                  fArgs,
                                                  coords)
+                                      .c_str());
+            }
+
+            String sampleColorFilter(int index, String color) override {
+                return String(fSelf->invokeChild(index,
+                                                 color.empty() ? fInputColor : color.c_str(),
+                                                 fArgs)
                                       .c_str());
             }
 

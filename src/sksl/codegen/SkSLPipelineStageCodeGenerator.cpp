@@ -162,23 +162,23 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
 
         // Shaders require a coordinate argument. Color filters require a color argument.
         // When we call sampleChild, the other value remains empty.
-        String color;
-        String coords;
+        String sampleOutput;
         {
             AutoOutputBuffer outputToBuffer(this);
             this->writeExpression(*arguments.back(), Precedence::kSequence);
             if (child->type().typeKind() == Type::TypeKind::kShader) {
                 SkASSERT(arguments[1]->type() == *fProgram.fContext->fTypes.fFloat2);
-                coords = outputToBuffer.fBuffer.str();
+                sampleOutput = fCallbacks->sampleShader(index, outputToBuffer.fBuffer.str(),
+                                                        /*color=*/"");
+
             } else {
                 SkASSERT(child->type().typeKind() == Type::TypeKind::kColorFilter);
                 SkASSERT(arguments[1]->type() == *fProgram.fContext->fTypes.fHalf4 ||
                          arguments[1]->type() == *fProgram.fContext->fTypes.fFloat4);
-                color = outputToBuffer.fBuffer.str();
+                sampleOutput = fCallbacks->sampleColorFilter(index, outputToBuffer.fBuffer.str());
             }
         }
-
-        this->write(fCallbacks->sampleChild(index, std::move(coords), std::move(color)));
+        this->write(sampleOutput);
         return;
     }
 
