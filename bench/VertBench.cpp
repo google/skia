@@ -40,7 +40,7 @@ class VertBench : public Benchmark {
     };
 
     sk_sp<SkShader> fShader;
-    SkPoint fPts[PTS];
+    SkPoint fPts[PTS], fTex[PTS];
     SkColor fColors[PTS];
     uint16_t fIdx[IDX];
     unsigned fFlags;
@@ -87,6 +87,11 @@ public:
         SkASSERT(PTS == pts - fPts);
         SkASSERT(IDX == idx - fIdx);
 
+        // We want to store texs in a separate array, so the blitters don't "cheat" and
+        // skip the (normal) step of computing the new local-matrix. This is the common case
+        // we think in the wild (where the texture coordinates are different from the positions.
+        memcpy(fTex, fPts, sizeof(fPts));
+
         SkRandom rand;
         for (int i = 0; i < PTS; ++i) {
             fColors[i] = rand.nextU() | (0xFF << 24);
@@ -115,7 +120,7 @@ protected:
             tiny_persp_effect(canvas);
         }
 
-        const SkPoint* texs = (fFlags & kTexture_VertFlag) ? fPts    : nullptr;
+        const SkPoint* texs = (fFlags & kTexture_VertFlag) ? fTex    : nullptr;
         const SkColor* cols = (fFlags & kColors_VertFlag)  ? fColors : nullptr;
         auto verts = SkVertices::MakeCopy(SkVertices::kTriangles_VertexMode, PTS,
                                           fPts, texs, cols, IDX, fIdx);
