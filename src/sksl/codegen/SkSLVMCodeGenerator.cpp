@@ -116,7 +116,6 @@ public:
                   SkSpan<skvm::Val> uniforms,
                   skvm::Coord device,
                   skvm::Coord local,
-                  skvm::Color inputColor,
                   SampleShaderFn sampleShader,
                   SampleColorFilterFn sampleColorFilter);
 
@@ -219,7 +218,6 @@ private:
     skvm::Builder* fBuilder;
 
     const skvm::Coord fLocalCoord;
-    const skvm::Color fInputColor;
     const SampleShaderFn fSampleShader;
     const SampleColorFilterFn fSampleColorFilter;
 
@@ -278,13 +276,11 @@ SkVMGenerator::SkVMGenerator(const Program& program,
                              SkSpan<skvm::Val> uniforms,
                              skvm::Coord device,
                              skvm::Coord local,
-                             skvm::Color inputColor,
                              SampleShaderFn sampleShader,
                              SampleColorFilterFn sampleColorFilter)
         : fProgram(program)
         , fBuilder(builder)
         , fLocalCoord(local)
-        , fInputColor(inputColor)
         , fSampleShader(std::move(sampleShader))
         , fSampleColorFilter(std::move(sampleColorFilter)) {
     fConditionMask = fLoopMask = fBuilder->splat(0xffff'ffff);
@@ -890,7 +886,7 @@ Value SkVMGenerator::writeIntrinsicCall(const FunctionCall& c) {
         if (child->type().typeKind() == Type::TypeKind::kShader) {
             SkASSERT(arg->type() == *fProgram.fContext->fTypes.fFloat2);
             skvm::Coord coord = {f32(argVal[0]), f32(argVal[1])};
-            color = fSampleShader(fp_it->second, coord, fInputColor);
+            color = fSampleShader(fp_it->second, coord);
         } else {
             SkASSERT(child->type().typeKind() == Type::TypeKind::kColorFilter);
             SkASSERT(arg->type() == *fProgram.fContext->fTypes.fHalf4 ||
@@ -1589,8 +1585,8 @@ skvm::Color ProgramToSkVM(const Program& program,
     }
     SkASSERT(argSlots <= SK_ARRAY_COUNT(args));
 
-    SkVMGenerator generator(program, builder, uniforms, device, local, inputColor,
-                            std::move(sampleShader), std::move(sampleColorFilter));
+    SkVMGenerator generator(program, builder, uniforms, device, local, std::move(sampleShader),
+                            std::move(sampleColorFilter));
     generator.writeFunction(function, {args, argSlots}, SkMakeSpan(result));
 
     return skvm::Color{{builder, result[0]},
@@ -1630,10 +1626,8 @@ bool ProgramToSkVM(const Program& program,
 
     skvm::F32 zero = b->splat(0.0f);
     skvm::Coord zeroCoord = {zero, zero};
-    skvm::Color zeroColor = {zero, zero, zero, zero};
     SkVMGenerator generator(program, b, uniforms, /*device=*/zeroCoord, /*local=*/zeroCoord,
-                            /*inputColor=*/zeroColor, /*sampleShader=*/nullptr,
-                            /*sampleColorFilter=*/nullptr);
+                            /*sampleShader=*/nullptr, /*sampleColorFilter=*/nullptr);
     generator.writeFunction(function, SkMakeSpan(argVals), SkMakeSpan(returnVals));
 
     // generateCode has updated the contents of 'argVals' for any 'out' or 'inout' parameters.
@@ -1750,7 +1744,7 @@ bool testingOnly_ProgramToSkVMShader(const Program& program, skvm::Builder* buil
         children.push_back({uniforms.pushPtr(nullptr), builder->uniform32(uniforms.push(0))});
     }
 
-    auto sampleShader = [&](int i, skvm::Coord coord, skvm::Color) {
+    auto sampleShader = [&](int i, skvm::Coord coord) {
         skvm::PixelFormat pixelFormat = skvm::SkColorType_to_PixelFormat(kRGBA_F32_SkColorType);
         skvm::I32 index  = trunc(coord.x);
                   index += trunc(coord.y) * children[i].rowBytesAsPixels;

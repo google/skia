@@ -421,14 +421,8 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
                             fOutput += declaration;
                         }
 
-                        String sampleShader(int index, String coords, String color) override {
-                            String result =
-                                    "sample(child_" + SkSL::to_string(index) + ", " + coords;
-                            if (!color.empty()) {
-                                result += ", " + color;
-                            }
-                            result += ")";
-                            return result;
+                        String sampleShader(int index, String coords) override {
+                            return "sample(child_" + SkSL::to_string(index) + ", " + coords + ")";
                         }
 
                         String sampleColorFilter(int index, String color) override {

@@ -168,8 +168,7 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
             this->writeExpression(*arguments.back(), Precedence::kSequence);
             if (child->type().typeKind() == Type::TypeKind::kShader) {
                 SkASSERT(arguments[1]->type() == *fProgram.fContext->fTypes.fFloat2);
-                sampleOutput = fCallbacks->sampleShader(index, outputToBuffer.fBuffer.str(),
-                                                        /*color=*/"");
+                sampleOutput = fCallbacks->sampleShader(index, outputToBuffer.fBuffer.str());
 
             } else {
                 SkASSERT(child->type().typeKind() == Type::TypeKind::kColorFilter);

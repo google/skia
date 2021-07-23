@@ -809,13 +809,13 @@ public:
         sk_sp<SkData> inputs = get_xformed_uniforms(fEffect.get(), fUniforms, dst.colorSpace());
         SkASSERT(inputs);
 
-        auto sampleShader = [&](int ix, skvm::Coord coord, skvm::Color color) {
+        auto sampleShader = [&](int ix, skvm::Coord coord) {
             if (SkShader* shader = fChildren[ix].shader.get()) {
                 SkSimpleMatrixProvider mats{SkMatrix::I()};
-                return as_SB(shader)->program(p, coord, coord, color, mats, /*localM=*/nullptr,
+                return as_SB(shader)->program(p, coord, coord, c, mats, /*localM=*/nullptr,
                                               dst, uniforms, alloc);
             }
-            return color;
+            return c;
         };
         auto sampleColorFilter = [&](int ix, skvm::Color color) {
             if (SkColorFilter* colorFilter = fChildren[ix].colorFilter.get()) {
@@ -997,13 +997,13 @@ public:
         }
         local = SkShaderBase::ApplyMatrix(p,inv,local,uniforms);
 
-        auto sampleShader = [&](int ix, skvm::Coord coord, skvm::Color color) {
+        auto sampleShader = [&](int ix, skvm::Coord coord) {
             if (SkShader* shader = fChildren[ix].shader.get()) {
                 SkOverrideDeviceMatrixProvider mats{matrices, SkMatrix::I()};
-                return as_SB(shader)->program(p, device, coord, color, mats, /*localM=*/nullptr,
+                return as_SB(shader)->program(p, device, coord, paint, mats, /*localM=*/nullptr,
                                               dst, uniforms, alloc);
             }
-            return color;
+            return paint;
         };
         auto sampleColorFilter = [&](int ix, skvm::Color color) {
             if (SkColorFilter* colorFilter = fChildren[ix].colorFilter.get()) {
@@ -1117,13 +1117,13 @@ public:
                                                     colorInfo.colorSpace());
         SkASSERT(inputs);
 
-        auto sampleShader = [&](int ix, skvm::Coord coord, skvm::Color color) {
+        auto sampleShader = [&](int ix, skvm::Coord coord) {
             if (SkShader* shader = fChildren[ix].shader.get()) {
                 SkSimpleMatrixProvider mats{SkMatrix::I()};
-                return as_SB(shader)->program(p, coord, coord, color, mats, /*localM=*/nullptr,
+                return as_SB(shader)->program(p, coord, coord, src, mats, /*localM=*/nullptr,
                                               colorInfo, uniforms, alloc);
             }
-            return color;
+            return src;
         };
         auto sampleColorFilter = [&](int ix, skvm::Color color) {
             if (SkColorFilter* colorFilter = fChildren[ix].colorFilter.get()) {
