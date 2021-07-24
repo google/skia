@@ -233,8 +233,7 @@ namespace skvm {
              z = inst.z,
              w = inst.w;
         int immA = inst.immA,
-            immB = inst.immB,
-            immC = inst.immC;
+            immB = inst.immB;
         switch (op) {
             case Op::assert_true: write(o, op, V{x}, V{y}); break;
 
@@ -257,7 +256,6 @@ namespace skvm {
             case Op::gather32: write(o, V{id}, "=", op, Ptr{immA}, Hex{immB}, V{x}); break;
 
             case Op::uniform32: write(o, V{id}, "=", op, Ptr{immA}, Hex{immB}); break;
-            case Op::array32:   write(o, V{id}, "=", op, Ptr{immA}, Hex{immB}, Hex{immC}); break;
 
             case Op::splat: write(o, V{id}, "=", op, Splat{immA}); break;
 
@@ -348,8 +346,7 @@ namespace skvm {
                   z = inst.z,
                   w = inst.w;
             int immA = inst.immA,
-                immB = inst.immB,
-                immC = inst.immC;
+                immB = inst.immB;
             switch (op) {
                 case Op::assert_true: write(o, op, R{x}, R{y}); break;
 
@@ -372,7 +369,6 @@ namespace skvm {
                 case Op::gather32: write(o, R{d}, "=", op, Ptr{immA}, Hex{immB}, R{x}); break;
 
                 case Op::uniform32: write(o, R{d}, "=", op, Ptr{immA}, Hex{immB}); break;
-                case Op::array32:   write(o, R{d}, "=", op, Ptr{immA}, Hex{immB}, Hex{immC}); break;
 
                 case Op::splat:     write(o, R{d}, "=", op, Splat{immA}); break;
 
@@ -471,8 +467,7 @@ namespace skvm {
         std::vector<OptimizedInstruction> optimized(program.size());
         for (Val id = 0; id < (Val)program.size(); id++) {
             Instruction inst = program[id];
-            optimized[id] = {inst.op, inst.x,inst.y,inst.z,inst.w,
-                             inst.immA,inst.immB,inst.immC,
+            optimized[id] = {inst.op, inst.x,inst.y,inst.z,inst.w, inst.immA,inst.immB,
                              /*death=*/id, /*can_hoist=*/true};
         }
 
@@ -621,10 +616,6 @@ namespace skvm {
 
     I32 Builder::uniform32(Ptr ptr, int offset) {
         return {this, push(Op::uniform32, NA,NA,NA,NA, ptr.ix, offset)};
-    }
-
-    I32 Builder::array32  (Ptr ptr, int offset, int index) {
-        return {this, push(Op::array32, NA,NA,NA,NA, ptr.ix, offset, index)};
     }
 
     I32 Builder::splat(int n) { return {this, push(Op::splat, NA,NA,NA,NA, n) }; }
@@ -2372,6 +2363,7 @@ namespace skvm {
                     // Put it all back together, preserving the high 8 bits and low 5.
                     inst = ((disp << 5) &  (19_mask << 5))
                          | ((inst     ) & ~(19_mask << 5));
+
                     memcpy(fCode + ref, &inst, 4);
                 }
             }
@@ -2993,7 +2985,6 @@ namespace skvm {
                 lookup_register(inst.w),
                 inst.immA,
                 inst.immB,
-                inst.immC,
             };
             fImpl->instructions.push_back(pinst);
         };
@@ -3218,8 +3209,7 @@ namespace skvm {
                       z = inst.z,
                       w = inst.w;
             const int immA = inst.immA,
-                      immB = inst.immB,
-                      immC = inst.immC;
+                      immB = inst.immB;
 
             // alloc_tmp() returns the first of N adjacent temporary registers,
             // each freed manually with free_tmp() or noted as our result with mark_tmp_as_dst().
@@ -3623,10 +3613,6 @@ namespace skvm {
                 case Op::uniform32: a->vbroadcastss(dst(), A::Mem{arg[immA], immB});
                                     break;
 
-                case Op::array32: a->mov(GP0, A::Mem{arg[immA], immB});
-                                  a->vbroadcastss(dst(), A::Mem{GP0, immC});
-                                  break;
-
                 case Op::index: a->vmovd((A::Xmm)dst(), N);
                                 a->vbroadcastss(dst(), dst());
                                 a->vpsubd(dst(), dst(), &iota);
@@ -3898,11 +3884,6 @@ namespace skvm {
                 case Op::uniform32: a->add(GP0, arg[immA], immB);
                                     a->ld1r4s(dst(), GP0);
                                     break;
-
-                case Op::array32: a->add(GP0, arg[immA], immB);
-                                  a->add(GP0, GP0, immC);
-                                  a->ld1r4s(dst(), GP0);
-                                  break;
 
                 case Op::gather8: {
                     // As usual, the gather base pointer is immB bytes off of uniform immA.
