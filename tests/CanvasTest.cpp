@@ -760,3 +760,50 @@ DEF_TEST(canvas_markctm, reporter) {
     // found the previous one
     REPORTER_ASSERT(reporter, canvas.findMarkedCTM(id_a, &m) && m == a1);
 }
+
+DEF_TEST(canvas_savelayer_destructor, reporter) {
+    // What should happen in our destructor if we have unbalanced saveLayers?
+
+    SkPMColor pixels[16];
+    const SkImageInfo info = SkImageInfo::MakeN32Premul(4, 4);
+    SkPixmap pm(info, pixels, 4 * sizeof(SkPMColor));
+
+    // check all of the pixel values in pm
+    auto check_pixels = [&](SkColor expected) {
+        const SkPMColor pmc = SkPreMultiplyColor(expected);
+        for (int y = 0; y < pm.info().height(); ++y) {
+            for (int x = 0; x < pm.info().width(); ++x) {
+                REPORTER_ASSERT(reporter, *pm.addr32(x, y) == pmc);
+            }
+        }
+    };
+
+    auto do_test = [&](bool doRestore) {
+        auto surf = SkSurface::MakeRasterDirect(pm);
+        auto canvas = surf->getCanvas();
+
+        canvas->clear(SK_ColorRED);
+        check_pixels(SK_ColorRED);
+
+        canvas->saveLayer(nullptr, nullptr);
+        canvas->clear(SK_ColorBLUE);
+        // so far, we still expect to see the red
+        check_pixels(SK_ColorRED);
+
+        if (doRestore) {
+            canvas->restore();
+        }
+        // by returning, we are implicitly deleting the surface, and its associated canvas
+    };
+
+    do_test(true);
+    // since we called restore, we expect to see now see blue
+    check_pixels(SK_ColorBLUE);
+
+    // Now we're repeat that, but delete the canvas before we restore it
+    do_test(false);
+    // *if* we restore the layers in the destructor, we expect to see blue, even though
+    // we didn't call restore() as a client.
+    check_pixels(SK_ColorBLUE);
+}
+
