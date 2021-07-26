@@ -23,8 +23,8 @@ class ArrayType final : public Type {
 public:
     static constexpr TypeKind kTypeKind = TypeKind::kArray;
 
-    ArrayType(skstd::string_view name, const char* abbrev, const Type& componentType, int count)
-        : INHERITED(name, abbrev, kTypeKind)
+    ArrayType(String name, const char* abbrev, const Type& componentType, int count)
+        : INHERITED(std::move(name), abbrev, kTypeKind)
         , fComponentType(componentType)
         , fCount(count) {
         // Allow either explicitly-sized or unsized arrays.
@@ -170,9 +170,9 @@ class MatrixType final : public Type {
 public:
     static constexpr TypeKind kTypeKind = TypeKind::kMatrix;
 
-    MatrixType(skstd::string_view name, const char* abbrev, const Type& componentType,
-               int8_t columns, int8_t rows)
-        : INHERITED(name, abbrev, kTypeKind)
+    MatrixType(String name, const char* abbrev, const Type& componentType, int8_t columns,
+               int8_t rows)
+        : INHERITED(std::move(name), abbrev, kTypeKind)
         , fComponentType(componentType.as<ScalarType>())
         , fColumns(columns)
         , fRows(rows) {
@@ -293,7 +293,7 @@ class StructType final : public Type {
 public:
     static constexpr TypeKind kTypeKind = TypeKind::kStruct;
 
-    StructType(int offset, skstd::string_view name, std::vector<Field> fields)
+    StructType(int offset, String name, std::vector<Field> fields)
         : INHERITED(std::move(name), "S", kTypeKind, offset)
         , fFields(std::move(fields)) {}
 
@@ -315,9 +315,8 @@ class VectorType final : public Type {
 public:
     static constexpr TypeKind kTypeKind = TypeKind::kVector;
 
-    VectorType(skstd::string_view name, const char* abbrev, const Type& componentType,
-               int8_t columns)
-        : INHERITED(name, abbrev, kTypeKind)
+    VectorType(String name, const char* abbrev, const Type& componentType, int8_t columns)
+        : INHERITED(std::move(name), abbrev, kTypeKind)
         , fComponentType(componentType.as<ScalarType>())
         , fColumns(columns) {
         SkASSERT(columns >= 2 && columns <= 4);
@@ -350,8 +349,7 @@ private:
     int8_t fColumns;
 };
 
-std::unique_ptr<Type> Type::MakeArrayType(skstd::string_view name, const Type& componentType,
-                                          int columns) {
+std::unique_ptr<Type> Type::MakeArrayType(String name, const Type& componentType, int columns) {
     return std::make_unique<ArrayType>(std::move(name), componentType.abbreviatedName(),
                                        componentType, columns);
 }
@@ -386,8 +384,7 @@ std::unique_ptr<Type> Type::MakeScalarType(const char* name, const char* abbrev,
 
 }
 
-std::unique_ptr<Type> Type::MakeStructType(int offset, skstd::string_view name,
-                                           std::vector<Field> fields) {
+std::unique_ptr<Type> Type::MakeStructType(int offset, String name, std::vector<Field> fields) {
     return std::make_unique<StructType>(offset, std::move(name), std::move(fields));
 }
 
@@ -592,12 +589,12 @@ const Type* Type::clone(SymbolTable* symbolTable) const {
     // This type actually needs to be cloned into the destination SymbolTable.
     switch (this->typeKind()) {
         case TypeKind::kArray:
-            return symbolTable->add(Type::MakeArrayType(this->name(), this->componentType(),
-                                                        this->columns()));
+            return symbolTable->add(Type::MakeArrayType(String(this->name()), this->componentType(),
+                                                               this->columns()));
 
         case TypeKind::kStruct:
             return symbolTable->add(std::make_unique<StructType>(this->fOffset,
-                                                                 this->name(),
+                                                                 String(this->name()),
                                                                  this->fields()));
 
         default:

@@ -8,7 +8,6 @@
 #ifndef SKSL_TYPE
 #define SKSL_TYPE
 
-#include "include/core/SkStringView.h"
 #include "include/private/SkSLModifiers.h"
 #include "include/private/SkSLSymbol.h"
 #include "src/sksl/SkSLPosition.h"
@@ -107,8 +106,7 @@ public:
 
     /** Creates an array type. */
     static constexpr int kUnsizedArray = -1;
-    static std::unique_ptr<Type> MakeArrayType(skstd::string_view name, const Type& componentType,
-                                               int columns);
+    static std::unique_ptr<Type> MakeArrayType(String name, const Type& componentType, int columns);
 
     /**
      * Create a generic type which maps to the listed types--e.g. $genType is a generic type which
@@ -140,8 +138,7 @@ public:
                                                  Type::TypeKind typeKind);
 
     /** Creates a struct type with the given fields. */
-    static std::unique_ptr<Type> MakeStructType(int offset, skstd::string_view name,
-                                                std::vector<Field> fields);
+    static std::unique_ptr<Type> MakeStructType(int offset, String name, std::vector<Field> fields);
 
     /** Create a texture type. */
     static std::unique_ptr<Type> MakeTextureType(const char* name, SpvDim_ dimensions,
@@ -521,9 +518,11 @@ public:
     bool checkForOutOfRangeLiteral(const Context& context, const Expression& expr) const;
 
 protected:
-    Type(skstd::string_view name, const char* abbrev, TypeKind kind, int offset = -1)
-        : INHERITED(offset, kSymbolKind, name)
+    Type(String name, const char* abbrev, TypeKind kind, int offset = -1)
+        : INHERITED(offset, kSymbolKind, /*name=*/"")
+        , fNameString(std::move(name))
         , fTypeKind(kind) {
+        fName = fNameString;
         SkASSERT(strlen(abbrev) <= kMaxAbbrevLength);
         strcpy(fAbbreviatedName, abbrev);
     }
@@ -533,6 +532,7 @@ private:
 
     using INHERITED = Symbol;
 
+    String fNameString;
     char fAbbreviatedName[kMaxAbbrevLength + 1] = {};
     TypeKind fTypeKind;
 };

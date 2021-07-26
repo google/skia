@@ -3056,7 +3056,7 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
             fProgram.fPool->attachToThread();
         }
         const Type* rtFlipStructType = fProgram.fSymbols->takeOwnershipOfSymbol(
-                Type::MakeStructType(type.fOffset, type.name(), std::move(fields)));
+                Type::MakeStructType(type.fOffset, String(type.name()), std::move(fields)));
         const Variable* modifiedVar = fProgram.fSymbols->takeOwnershipOfSymbol(
                 std::make_unique<Variable>(intfVar.fOffset,
                                            &intfVar.modifiers(),
@@ -3589,7 +3589,7 @@ void SPIRVCodeGenerator::addRTFlipUniform(int offset) {
                                   /*flags=*/0),
                         SKSL_RTFLIP_NAME,
                         fContext.fTypes.fFloat2.get());
-    skstd::string_view name = "sksl_synthetic_uniforms";
+    String name("sksl_synthetic_uniforms");
     const Type* intfStruct =
             fSynthetics.takeOwnershipOfSymbol(Type::MakeStructType(/*offset=*/-1, name, fields));
     int binding = fProgram.fConfig->fSettings.fRTFlipBinding;
@@ -3637,7 +3637,7 @@ void SPIRVCodeGenerator::addRTFlipUniform(int offset) {
     }
     InterfaceBlock intf(/*offset=*/-1,
                         intfVar,
-                        String(name),
+                        name,
                         /*instanceName=*/"",
                         /*arraySize=*/0,
                         std::make_shared<SymbolTable>(&fErrors, /*builtin=*/false));

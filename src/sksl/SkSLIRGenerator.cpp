@@ -1041,7 +1041,7 @@ std::unique_ptr<SkSL::InterfaceBlock> IRGenerator::convertInterfaceBlock(const A
         }
     }
     const Type* type = old->takeOwnershipOfSymbol(Type::MakeStructType(intf.fOffset,
-                                                                       id.fTypeName,
+                                                                       String(id.fTypeName),
                                                                        fields));
     int arraySize = 0;
     if (id.fIsArray) {
