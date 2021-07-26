@@ -153,8 +153,9 @@ const Symbol* Rehydrator::symbol() {
             } else {
                 name += "[" + to_string(count) + "]";
             }
+            skstd::string_view nameChars(*fSymbolTable->takeOwnershipOfString(std::move(name)));
             const Type* result = fSymbolTable->takeOwnershipOfSymbol(
-                    Type::MakeArrayType(name, *componentType, count));
+                    Type::MakeArrayType(nameChars, *componentType, count));
             this->addSymbol(id, result);
             return result;
         }
@@ -199,8 +200,9 @@ const Symbol* Rehydrator::symbol() {
                 const Type* type = this->type();
                 fields.emplace_back(m, fieldName, type);
             }
+            skstd::string_view nameChars(*fSymbolTable->takeOwnershipOfString(std::move(name)));
             const Type* result = fSymbolTable->takeOwnershipOfSymbol(
-                    Type::MakeStructType(/*offset=*/-1, name, std::move(fields)));
+                    Type::MakeStructType(/*offset=*/-1, nameChars, std::move(fields)));
             this->addSymbol(id, result);
             return result;
         }
