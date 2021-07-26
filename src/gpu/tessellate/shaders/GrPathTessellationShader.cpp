@@ -12,6 +12,46 @@
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
+namespace {
+
+// Draws a simple array of triangles.
+class SimpleTriangleShader : public GrPathTessellationShader {
+public:
+    SimpleTriangleShader(const SkMatrix& viewMatrix, SkPMColor4f color)
+            : GrPathTessellationShader(kTessellate_SimpleTriangleShader_ClassID,
+                                       GrPrimitiveType::kTriangles, 0, viewMatrix, color) {
+        constexpr static Attribute kInputPointAttrib{"inputPoint", kFloat2_GrVertexAttribType,
+                                                     kFloat2_GrSLType};
+        this->setVertexAttributes(&kInputPointAttrib, 1);
+    }
+
+private:
+    const char* name() const final { return "tessellate_SimpleTriangleShader"; }
+    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const final {}
+    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const final;
+};
+
+GrGLSLGeometryProcessor* SimpleTriangleShader::createGLSLInstance(const GrShaderCaps&) const {
+    class Impl : public GrPathTessellationShader::Impl {
+        void emitVertexCode(const GrShaderCaps&, const GrPathTessellationShader&,
+                            GrGLSLVertexBuilder* v, GrGPArgs* gpArgs) override {
+            v->codeAppend(R"(
+            float2 localcoord = inputPoint;
+            float2 vertexpos = AFFINE_MATRIX * localcoord + TRANSLATE;)");
+            gpArgs->fLocalCoordVar.set(kFloat2_GrSLType, "localcoord");
+            gpArgs->fPositionVar.set(kFloat2_GrSLType, "vertexpos");
+        }
+    };
+    return new Impl;
+}
+
+}  // namespace
+
+GrPathTessellationShader* GrPathTessellationShader::MakeSimpleTriangleShader(
+        SkArenaAlloc* arena, const SkMatrix& viewMatrix, const SkPMColor4f& color) {
+    return arena->make<SimpleTriangleShader>(viewMatrix, color);
+}
+
 const GrPipeline* GrPathTessellationShader::MakeStencilOnlyPipeline(
         const ProgramArgs& args,
         GrAAType aaType,

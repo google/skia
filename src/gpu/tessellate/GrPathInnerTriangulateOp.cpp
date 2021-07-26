@@ -7,7 +7,6 @@
 
 #include "src/gpu/tessellate/GrPathInnerTriangulateOp.h"
 
-#include "src/gpu/GrDefaultGeoProcFactory.h"
 #include "src/gpu/GrEagerVertexAllocator.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrInnerFanTriangulator.h"
@@ -185,24 +184,22 @@ GrProcessorSet::Analysis GrPathInnerTriangulateOp::finalize(const GrCaps& caps,
                                 clampType, &fColor);
 }
 
-void GrPathInnerTriangulateOp::pushFanProgram(const GrTessellationShader::ProgramArgs& args,
-                                              const GrPipeline* pipeline,
-                                              const SkPMColor4f& color,
-                                              const GrUserStencilSettings* stencil) {
-    auto triangleGP = GrDefaultGeoProcFactory::Make(
-            args.fArena,
-            GrDefaultGeoProcFactory::Color(color),
-            GrDefaultGeoProcFactory::Coverage::kSolid_Type,
-            GrDefaultGeoProcFactory::LocalCoords::kUsePosition_Type,
-            fViewMatrix);
-    fFanPrograms.push_back(GrSimpleMeshDrawOpHelper::CreateProgramInfo(args.fArena,
-                                                                       pipeline,
-                                                                       args.fWriteView,
-                                                                       triangleGP,
-                                                                       GrPrimitiveType::kTriangles,
-                                                                       args.fXferBarrierFlags,
-                                                                       args.fColorLoadOp,
-                                                                       stencil));
+void GrPathInnerTriangulateOp::pushFanStencilProgram(const GrTessellationShader::ProgramArgs& args,
+                                                     const GrPipeline* pipelineForStencils,
+                                                     const GrUserStencilSettings* stencil) {
+    SkASSERT(pipelineForStencils);
+    auto shader = GrPathTessellationShader::MakeSimpleTriangleShader(args.fArena, fViewMatrix,
+                                                                     SK_PMColor4fTRANSPARENT);
+    fFanPrograms.push_back(GrTessellationShader::MakeProgram(args, shader, pipelineForStencils,
+                                                             stencil)); }
+
+void GrPathInnerTriangulateOp::pushFanFillProgram(const GrTessellationShader::ProgramArgs& args,
+                                                  const GrUserStencilSettings* stencil) {
+    SkASSERT(fPipelineForFills);
+    auto shader = GrPathTessellationShader::MakeSimpleTriangleShader(args.fArena, fViewMatrix,
+                                                                     fColor);
+    fFanPrograms.push_back(GrTessellationShader::MakeProgram(args, shader, fPipelineForFills,
+                                                             stencil));
 }
 
 void GrPathInnerTriangulateOp::prePreparePrograms(const GrTessellationShader::ProgramArgs& args,
@@ -263,16 +260,15 @@ void GrPathInnerTriangulateOp::prePreparePrograms(const GrTessellationShader::Pr
             // stencil buffer to fill the fan directly.
             const GrUserStencilSettings* stencilPathSettings =
                     GrPathTessellationShader::StencilPathSettings(GrFillRuleForSkPath(fPath));
-            this->pushFanProgram(args, pipelineForStencils, SK_PMColor4fTRANSPARENT,
-                                 stencilPathSettings);
+            this->pushFanStencilProgram(args, pipelineForStencils, stencilPathSettings);
             if (doFill) {
-                this->pushFanProgram(args, fPipelineForFills, fColor,
-                                     GrPathTessellationShader::TestAndResetStencilSettings());
+                this->pushFanFillProgram(args,
+                                         GrPathTessellationShader::TestAndResetStencilSettings());
             }
         } else if (isLinear) {
             // There are no outer curves! Ignore stencil and fill the path directly.
             SkASSERT(!pipelineForStencils);
-            this->pushFanProgram(args, fPipelineForFills, fColor, &GrUserStencilSettings::kUnused);
+            this->pushFanFillProgram(args, &GrUserStencilSettings::kUnused);
         } else if (!fPipelineForFills->hasStencilClip()) {
             // These are a twist on the standard Redbook stencil settings that allow us to fill the
             // inner polygon directly to the final render target. By the time these programs
@@ -302,7 +298,7 @@ void GrPathInnerTriangulateOp::prePreparePrograms(const GrTessellationShader::Pr
             auto* stencil = (fPath.getFillType() == SkPathFillType::kWinding)
                     ? &kFillOrIncrDecrStencil
                     : &kFillOrInvertStencil;
-            this->pushFanProgram(args, fPipelineForFills, fColor, stencil);
+            this->pushFanFillProgram(args, stencil);
         } else {
             // This is the same idea as above, but we use two passes instead of one because there is
             // a stencil clip. The stencil test isn't expressive enough to do the above tests and
@@ -340,13 +336,13 @@ void GrPathInnerTriangulateOp::prePreparePrograms(const GrTessellationShader::Pr
                     0xffff>());
 
             // Pass 2a: Directly fill fan samples whose stencil values (from curves) are zero.
-            this->pushFanProgram(args, fPipelineForFills, fColor, &kFillIfZeroAndInClip);
+            this->pushFanFillProgram(args, &kFillIfZeroAndInClip);
 
             // Pass 2b: Redbook counting on fan samples whose stencil values (from curves) != 0.
             auto* stencil = (fPath.getFillType() == SkPathFillType::kWinding)
                     ? &kIncrDecrStencilIfNonzero
                     : &kInvertStencilIfNonZero;
-            this->pushFanProgram(args, pipelineForStencils, SK_PMColor4fTRANSPARENT, stencil);
+            this->pushFanStencilProgram(args, pipelineForStencils, stencil);
         }
     }
 

@@ -103,6 +103,7 @@ public:
         kTessellate_HardwareWedgeShader_ClassID,
         kTessellate_HullShader_ClassID,
         kTessellate_MiddleOutShader_ClassID,
+        kTessellate_SimpleTriangleShader_ClassID,
         kTessellationTestTriShader_ClassID,
         kTestFP_ClassID,
         kTestRectOp_ClassID,
