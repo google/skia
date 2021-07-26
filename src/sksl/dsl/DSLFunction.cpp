@@ -34,11 +34,6 @@ void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, skstd:
 
     std::vector<std::unique_ptr<Variable>> paramVars;
     paramVars.reserve(params.size());
-    bool isMain = name == "main";
-    auto typeIsValidForColor = [&](const SkSL::Type& type) {
-        return type == *DSLWriter::Context().fTypes.fHalf4 ||
-               type == *DSLWriter::Context().fTypes.fFloat4;
-    };
     for (DSLParameter* param : params) {
         if (param->fDeclared) {
             DSLWriter::ReportError("error: parameter has already been used in another function\n");
@@ -46,18 +41,6 @@ void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, skstd:
         SkASSERT(!param->fInitialValue.valid());
         SkASSERT(!param->fDeclaration);
         param->fDeclared = true;
-        if (isMain && DSLWriter::Context().fConfig->isRuntimeEffect()) {
-            const SkSL::Type& type = param->fType.skslType();
-            // We verify that the signature is fully correct later. For now, if this is a runtime
-            // effect of any flavor, a float2 param is supposed to be the coords, and a half4/float
-            // parameter is supposed to be the input or destination color.
-            if (type == *DSLWriter::Context().fTypes.fFloat2) {
-                param->fModifiers.fModifiers.fLayout.fBuiltin = SK_MAIN_COORDS_BUILTIN;
-            } else if (typeIsValidForColor(type)) {
-                // TODO(skia:12257): add support for blender destination color
-                param->fModifiers.fModifiers.fLayout.fBuiltin = SK_INPUT_COLOR_BUILTIN;
-            }
-        }
         std::unique_ptr<SkSL::Variable> paramVar = DSLWriter::CreateParameterVar(*param);
         if (!paramVar) {
             return;
@@ -69,7 +52,7 @@ void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, skstd:
                                                *DSLWriter::SymbolTable(),
                                                /*offset=*/-1,
                                                DSLWriter::Modifiers(modifiers.fModifiers),
-                                               isMain ? name : DSLWriter::Name(name),
+                                               name == "main" ? name : DSLWriter::Name(name),
                                                std::move(paramVars), &returnType.skslType(),
                                                DSLWriter::IsModule());
     DSLWriter::ReportErrors();
