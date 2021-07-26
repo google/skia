@@ -796,13 +796,13 @@ GrFPResult GrRRectEffect::Make(std::unique_ptr<GrFragmentProcessor> inputFP,
                 return GrFPSuccess(std::move(fp));
             }
             default: {
-                if (squashedRadii) {
-                    // If we got here then we squashed some but not all the radii to zero. (If all
-                    // had been squashed cornerFlags would be 0.) The elliptical effect doesn't
-                    // support some rounded and some square corners.
-                    return GrFPFailure(std::move(inputFP));
-                }
-                if (rrect.isNinePatch()) {
+                const SkVector ul = rrect.radii(SkRRect::kUpperLeft_Corner);
+                const SkVector lr = rrect.radii(SkRRect::kLowerRight_Corner);
+                if (rrect.isNinePatch()  &&
+                    ul.fX >= kRadiusMin  &&
+                    ul.fY >= kRadiusMin  &&
+                    lr.fX >= kRadiusMin  &&
+                    lr.fY >= kRadiusMin) {
                     return EllipticalRRectEffect::Make(std::move(inputFP), edgeType, rrect);
                 }
                 return GrFPFailure(std::move(inputFP));
