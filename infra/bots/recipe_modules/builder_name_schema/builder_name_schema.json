@@ -88,15 +88,6 @@
         "extra_config"
       ]
     },
-    "Fuzz": {
-      "keys": [
-        "os",
-        "compiler"
-      ],
-      "optional_keys": [
-        "extra_config"
-      ]
-    },
     "Upload": {
       "recurse_roles": [
         "Build",

@@ -798,11 +798,6 @@
         "FM-Win-MSVC-GCE-CPU-AVX2-x86_64-Debug-All"
       ]
     },
-    "Fuzz-Debian10-Clang": {
-      "tasks": [
-        "Fuzz-Debian10-Clang"
-      ]
-    },
     "Housekeeper-Nightly-RecreateSKPs_DryRun": {
       "tasks": [
         "Housekeeper-Nightly-RecreateSKPs_DryRun"
@@ -18169,67 +18164,6 @@
       ],
       "max_attempts": 1,
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
-    },
-    "Fuzz-Debian10-Clang": {
-      "casSpec": "whole-repo",
-      "cipd_packages": [
-        {
-          "name": "infra/3pp/tools/git/linux-amd64",
-          "path": "cipd_bin_packages",
-          "version": "version:2@2.32.0.chromium.6"
-        },
-        {
-          "name": "infra/tools/git/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:cadd7dad6e9466c9988ec9eaed70210f2aa1ca86"
-        },
-        {
-          "name": "infra/tools/luci-auth/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:cadd7dad6e9466c9988ec9eaed70210f2aa1ca86"
-        },
-        {
-          "name": "infra/tools/luci/git-credential-luci/${platform}",
-          "path": "cipd_bin_packages",
-          "version": "git_revision:cadd7dad6e9466c9988ec9eaed70210f2aa1ca86"
-        }
-      ],
-      "command": [
-        "./cifuzz",
-        "--project_id",
-        "skia-swarming-bots",
-        "--task_id",
-        "<(TASK_ID)",
-        "--task_name",
-        "Fuzz-Debian10-Clang",
-        "--git_exe_path",
-        "./cipd_bin_packages/git",
-        "--out_path",
-        "./cifuzz_out",
-        "--skia_path",
-        "./skia",
-        "--work_path",
-        "./cifuzz_work",
-        "--alsologtostderr"
-      ],
-      "dependencies": [
-        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
-      ],
-      "dimensions": [
-        "docker_installed:true",
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "machine_type:n1-standard-16",
-        "os:Debian-10.3",
-        "pool:Skia"
-      ],
-      "execution_timeout_ns": 3600000000000,
-      "io_timeout_ns": 3600000000000,
-      "max_attempts": 1,
-      "outputs": [
-        "cifuzz_out"
-      ],
-      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
     "Housekeeper-Nightly-RecreateSKPs_DryRun": {
       "caches": [

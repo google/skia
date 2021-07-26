@@ -1784,32 +1784,6 @@ func (b *jobBuilder) puppeteer() {
 	})
 }
 
-func (b *jobBuilder) cifuzz() {
-	b.addTask(b.Name, func(b *taskBuilder) {
-		b.attempts(1)
-		b.usesDocker()
-		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
-		b.cipd(CIPD_PKG_LUCI_AUTH)
-		b.cipd(specs.CIPD_PKGS_GIT_LINUX_AMD64...)
-		b.dep(b.buildTaskDrivers("linux", "amd64"))
-		b.output("cifuzz_out")
-		b.timeout(60 * time.Minute)
-		b.cas(CAS_WHOLE_REPO)
-		b.serviceAccount(b.cfg.ServiceAccountCompile)
-		b.cmd(
-			"./cifuzz",
-			"--project_id", "skia-swarming-bots",
-			"--task_id", specs.PLACEHOLDER_TASK_ID,
-			"--task_name", b.Name,
-			"--git_exe_path", "./cipd_bin_packages/git",
-			"--out_path", "./cifuzz_out",
-			"--skia_path", "./skia",
-			"--work_path", "./cifuzz_work",
-			"--alsologtostderr",
-		)
-	})
-}
-
 // perf generates a Perf task.
 func (b *jobBuilder) perf() {
 	compileTaskName := ""

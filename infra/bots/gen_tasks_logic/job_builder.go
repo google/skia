@@ -214,13 +214,6 @@ func (b *jobBuilder) genTasksForJob() {
 		return
 	}
 
-	// Fuzz bots (aka CIFuzz). See
-	// https://google.github.io/oss-fuzz/getting-started/continuous-integration/ for more.
-	if b.role("Fuzz") {
-		b.cifuzz()
-		return
-	}
-
 	log.Fatalf("Don't know how to handle job %q", b.Name)
 }
 
