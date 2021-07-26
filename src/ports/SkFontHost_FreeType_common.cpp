@@ -771,11 +771,10 @@ void colrv1_transform(SkCanvas* canvas, FT_Face face, FT_COLR_Paint colrv1_paint
             break;
         }
         case FT_COLR_PAINTFORMAT_SCALE: {
-            transform.setScaleTranslate(
-                SkFixedToScalar(colrv1_paint.u.scale.scale_x),
-                SkFixedToScalar(colrv1_paint.u.scale.scale_y),
-                SkFixedToScalar(colrv1_paint.u.scale.center_x),
-                -SkFixedToScalar(colrv1_paint.u.scale.center_y));
+            transform.setScale(SkFixedToScalar(colrv1_paint.u.scale.scale_x),
+                               SkFixedToScalar(colrv1_paint.u.scale.scale_y),
+                               SkFixedToScalar(colrv1_paint.u.scale.center_x),
+                               -SkFixedToScalar(colrv1_paint.u.scale.center_y));
             break;
         }
         case FT_COLR_PAINTFORMAT_ROTATE: {
