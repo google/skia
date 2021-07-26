@@ -111,9 +111,8 @@ SkDWriteFontFileStream* SkDWriteFontFileStream::onFork() const {
 }
 
 size_t SkDWriteFontFileStream::getLength() const {
-    HRESULT hr = S_OK;
     UINT64 realFileSize = 0;
-    hr = fFontFileStream->GetFileSize(&realFileSize);
+    fFontFileStream->GetFileSize(&realFileSize);
     if (!SkTFitsIn<size_t>(realFileSize)) {
         return 0;
     }
