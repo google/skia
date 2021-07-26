@@ -83,8 +83,15 @@
                     app:layout_constraintTop_toTopOf="parent"
                     android:text="Runtime effect drawn on a AndroidKit's\nutil thread. GL on Surface View.">
                 </TextView>
-
             </android.support.constraint.ConstraintLayout>
+
+            <org.skia.androidkit.util.SkottieView
+                android:layout_width="400px"
+                android:layout_height="400px"
+                app:background_color="#fefefe"
+                app:src="@raw/permission">
+            </org.skia.androidkit.util.SkottieView>
+
         </LinearLayout>
     </ScrollView>
     <org.skia.androidkitdemo1.NavigationSpinner

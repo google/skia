@@ -21,6 +21,17 @@ public class Color {
         this(0, 0, 0, 1);
     }
 
+    /*
+     * Converts int given by android.graphics.Color
+     * to AndroidKit Color
+     */
+    public Color(int color) {
+        mA = ((color >> 24) & 0xff) / 255.f;
+        mR = ((color >> 16) & 0xff) / 255.f;
+        mG = ((color >>  8) & 0xff) / 255.f;
+        mB = ((color)       & 0xff) / 255.f;
+    }
+
     public float r() { return mR; }
     public float g() { return mG; }
     public float b() { return mB; }

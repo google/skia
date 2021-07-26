@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <declare-styleable name="SkottieView">
+    <attr name="background_color" format="color"/>
+    <attr name="src" format="reference"/>
+    <attr name="android:repeatCount" format="integer"/>
+  </declare-styleable>
+</resources>

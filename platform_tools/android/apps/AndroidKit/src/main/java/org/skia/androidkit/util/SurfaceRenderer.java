@@ -92,4 +92,8 @@ public abstract class SurfaceRenderer implements SurfaceHolder.Callback, Runnabl
             } catch (InterruptedException e) {}
         }
     }
+
+    public void release() {
+        stopRenderThread();
+    }
 }
