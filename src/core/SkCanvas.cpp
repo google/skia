@@ -194,7 +194,10 @@ enum class CheckForOverwrite : bool {
 SkCanvas::Layer::Layer(sk_sp<SkBaseDevice> device,
                        sk_sp<SkImageFilter> imageFilter,
                        const SkPaint& paint)
-        : fDevice(std::move(device)), fImageFilter(std::move(imageFilter)), fPaint(paint) {
+        : fDevice(std::move(device))
+        , fImageFilter(std::move(imageFilter))
+        , fPaint(paint)
+        , fDiscard(false) {
     SkASSERT(fDevice);
     // Any image filter should have been pulled out and stored in 'imageFilter' so that 'paint'
     // can be used as-is to draw the result of the filter to the dst device.
@@ -461,6 +464,19 @@ SkCanvas::SkCanvas(const SkBitmap& bitmap, ColorBehavior)
 #endif
 
 SkCanvas::~SkCanvas() {
+    // Mark all pending layers to be discarded during restore (rather than drawn)
+    SkDeque::Iter iter(fMCStack, SkDeque::Iter::kFront_IterStart);
+    for (;;) {
+        MCRec* rec = (MCRec*)iter.next();
+        if (!rec) {
+            break;
+        }
+        if (rec->fLayer) {
+            rec->fLayer->fDiscard = true;
+        }
+    }
+
+    // free up the contents of our deque
     this->restoreToCount(1);    // restore everything but the last
     this->internalRestore();    // restore the last, since we're going away
 
@@ -1153,7 +1169,7 @@ void SkCanvas::internalRestore() {
 
     // Draw the layer's device contents into the now-current older device. We can't call public
     // draw functions since we don't want to record them.
-    if (layer && !layer->fDevice->isNoPixelsDevice()) {
+    if (layer && !layer->fDevice->isNoPixelsDevice() && !layer->fDiscard) {
         layer->fDevice->setImmutable();
 
         // Don't go through AutoLayerForImageFilter since device draws are so closely tied to

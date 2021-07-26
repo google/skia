@@ -2296,6 +2296,7 @@ private:
         sk_sp<SkBaseDevice>  fDevice;
         sk_sp<SkImageFilter> fImageFilter; // applied to layer *before* being drawn by paint
         SkPaint              fPaint;
+        bool                 fDiscard;
 
         Layer(sk_sp<SkBaseDevice> device, sk_sp<SkImageFilter> imageFilter, const SkPaint& paint);
     };
