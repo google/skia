@@ -208,7 +208,7 @@ public:
                                                    &field.fType.skslType()));
         }
         const SkSL::Type* structType = DSLWriter::SymbolTable()->takeOwnershipOfSymbol(
-                SkSL::Type::MakeStructType(/*offset=*/-1, String(typeName), std::move(skslFields)));
+                SkSL::Type::MakeStructType(/*offset=*/-1, typeName, std::move(skslFields)));
         DSLType varType = arraySize > 0 ? Array(structType, arraySize) : DSLType(structType);
         DSLGlobalVar var(modifiers, varType, !varName.empty() ? varName : typeName);
         // Interface blocks can't be declared, so we always need to mark the var declared ourselves.
