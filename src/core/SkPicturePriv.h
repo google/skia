@@ -97,6 +97,7 @@ public:
     // V85: Remove legacy support for inheriting sampling from the paint.
     // V86: Remove support for custom data inside SkVertices
     // V87: SkPaint now holds a user-defined blend function (SkBlender), no longer has DrawLooper
+    // V88: Add blender to ComposeShader and BlendImageFilter
 
     enum Version {
         kPictureShaderFilterParam_Version   = 82,
@@ -105,10 +106,11 @@ public:
         kNoFilterQualityShaders_Version     = 85,
         kVerticesRemoveCustomData_Version   = 86,
         kSkBlenderInSkPaint                 = 87,
+        kBlenderInEffects                   = 88,
 
         // Only SKPs within the min/current picture version range (inclusive) can be read.
         kMin_Version     = kPictureShaderFilterParam_Version,
-        kCurrent_Version = kSkBlenderInSkPaint
+        kCurrent_Version = kBlenderInEffects
     };
 };
 

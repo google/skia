@@ -14,6 +14,13 @@
 
 class SkRasterPipeline;
 
+/**
+ *  Sentinel value for SkBlendMode enum.
+ *
+ *  Will never be a valid enum value, but will be storable in a byte.
+ */
+constexpr uint8_t kCustom_SkBlendMode = 0xFF;
+
 bool SkBlendMode_SupportsCoverageAsAlpha(SkBlendMode);
 
 static inline bool SkBlendMode_CaresAboutRBOrder(SkBlendMode mode) {

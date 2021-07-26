@@ -195,7 +195,7 @@ class Arithmode2GM : public skiagm::GM {
         fSrc = make_src(W, H);
         fDst = make_dst(W, H);
 
-        fChecker = ToolUtils::create_checkerboard_image(W, H, 0xFF999999, 0xFFCCCCCC, 8);
+        fChecker = ToolUtils::create_checkerboard_image(W, H, 0xFFBBBBBB, 0xFFEEEEEE, 8);
     }
 
     bool onAnimate(double nanos) override {
@@ -213,16 +213,30 @@ class Arithmode2GM : public skiagm::GM {
         canvas->drawImage(fSrc, 10, 10);
         canvas->drawImage(fDst, 10, 10 + fSrc->height() + 10);
 
+        auto sampling = SkSamplingOptions();
+        auto blender = SkBlenders::Arithmetic(fK1, fK2, fK3, fK4, true);
+
+        SkPaint paint;
+
         canvas->translate(10 + fSrc->width() + 10, 10);
         canvas->drawImage(fChecker, 0, 0);
 
-        SkPaint paint;
-        paint.setBlender(SkBlenders::Arithmetic(fK1, fK2, fK3, fK4, true));
-
+        // Draw via blend step
         canvas->saveLayer(&rect, nullptr);
         canvas->drawImage(fDst, 0, 0);
-        canvas->drawImage(fSrc, 0, 0, SkSamplingOptions(), &paint);
+        paint.setBlender(blender);
+        canvas->drawImage(fSrc, 0, 0, sampling, &paint);
         canvas->restore();
+
+        canvas->translate(0, 10 + fSrc->height());
+        canvas->drawImage(fChecker, 0, 0);
+
+        // Draw via imagefilter (should appear the same as above)
+        paint.setBlender(nullptr);
+        paint.setImageFilter(SkImageFilters::Blend(blender,
+                                                   /* dst imagefilter */nullptr,
+                                                   SkImageFilters::Image(fSrc, sampling)));
+        canvas->drawImage(fDst, 0, 0, sampling, &paint);
     }
 
 private:

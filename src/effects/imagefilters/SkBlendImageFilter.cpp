@@ -8,7 +8,10 @@
 #include "include/core/SkCanvas.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/private/SkColorData.h"
+#include "src/core/SkBlendModePriv.h"
+#include "src/core/SkBlenderBase.h"
 #include "src/core/SkImageFilter_Base.h"
+#include "src/core/SkMatrixProvider.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSpecialSurface.h"
@@ -30,10 +33,13 @@ namespace {
 
 class SkBlendImageFilter : public SkImageFilter_Base {
 public:
-    SkBlendImageFilter(SkBlendMode mode, sk_sp<SkImageFilter> inputs[2],
+    SkBlendImageFilter(sk_sp<SkBlender> blender, sk_sp<SkImageFilter> inputs[2],
                        const SkRect* cropRect)
           : INHERITED(inputs, 2, cropRect)
-          , fMode(mode) {}
+          , fBlender(std::move(blender))
+    {
+        SkASSERT(fBlender);
+    }
 
 protected:
     sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override;
@@ -58,7 +64,7 @@ private:
     friend void ::SkRegisterBlendImageFilterFlattenable();
     SK_FLATTENABLE_HOOKS(SkBlendImageFilter)
 
-    SkBlendMode fMode;
+    sk_sp<SkBlender> fBlender;
 
     using INHERITED = SkImageFilter_Base;
 };
@@ -70,7 +76,18 @@ sk_sp<SkImageFilter> SkImageFilters::Blend(SkBlendMode mode,
                                            sk_sp<SkImageFilter> foreground,
                                            const CropRect& cropRect) {
     sk_sp<SkImageFilter> inputs[2] = { std::move(background), std::move(foreground) };
-    return sk_sp<SkImageFilter>(new SkBlendImageFilter(mode, inputs, cropRect));
+    return sk_sp<SkImageFilter>(new SkBlendImageFilter(SkBlender::Mode(mode), inputs, cropRect));
+}
+
+sk_sp<SkImageFilter> SkImageFilters::Blend(sk_sp<SkBlender> blender,
+                                           sk_sp<SkImageFilter> background,
+                                           sk_sp<SkImageFilter> foreground,
+                                           const CropRect& cropRect) {
+    if (!blender) {
+        blender = SkBlender::Mode(SkBlendMode::kSrcOver);
+    }
+    sk_sp<SkImageFilter> inputs[2] = { std::move(background), std::move(foreground) };
+    return sk_sp<SkImageFilter>(new SkBlendImageFilter(blender, inputs, cropRect));
 }
 
 void SkRegisterBlendImageFilterFlattenable() {
@@ -80,25 +97,32 @@ void SkRegisterBlendImageFilterFlattenable() {
     SkFlattenable::Register("SkXfermodeImageFilterImpl", SkBlendImageFilter::CreateProc);
 }
 
-static unsigned unflatten_blendmode(SkReadBuffer& buffer) {
-    unsigned mode = buffer.read32();
-    (void)buffer.validate(mode <= (unsigned)SkBlendMode::kLastMode);
-    return mode;
-}
-
 sk_sp<SkFlattenable> SkBlendImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 2);
-    unsigned mode = unflatten_blendmode(buffer);
-    if (!buffer.isValid()) {
-        return nullptr;
+
+    sk_sp<SkBlender> blender;
+    const uint32_t mode = buffer.read32();
+    if (mode == kCustom_SkBlendMode) {
+        blender = buffer.readBlender();
+    } else {
+        if (mode > (unsigned)SkBlendMode::kLastMode) {
+            buffer.validate(false);
+            return nullptr;
+        }
+        blender = SkBlender::Mode((SkBlendMode)mode);
     }
-    return SkImageFilters::Blend((SkBlendMode)mode, common.getInput(0), common.getInput(1),
+    return SkImageFilters::Blend(std::move(blender), common.getInput(0), common.getInput(1),
                                  common.cropRect());
 }
 
 void SkBlendImageFilter::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
-    buffer.write32((unsigned)fMode);
+    if (auto bm = as_BB(fBlender)->asBlendMode()) {
+        buffer.write32((unsigned)bm.value());
+    } else {
+        buffer.write32(kCustom_SkBlendMode);
+        buffer.writeFlattenable(fBlender.get());
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -183,39 +207,39 @@ SkIRect SkBlendImageFilter::onFilterBounds(const SkIRect& src,
     auto getForeground = [&]() {
         return this->getInput(1) ? this->getInput(1)->filterBounds(src, ctm, dir, inputRect) : src;
     };
-    switch (fMode) {
-        case SkBlendMode::kClear:
-            return SkIRect::MakeEmpty();
-
-        case SkBlendMode::kSrc:
-        case SkBlendMode::kDstATop:
-            return getForeground();
-
-        case SkBlendMode::kDst:
-        case SkBlendMode::kSrcATop:
-            return getBackground();
-
-        case SkBlendMode::kSrcIn:
-        case SkBlendMode::kDstIn: {
-            auto result = getBackground();
-            if (!result.intersect(getForeground())) {
+    if (auto bm = as_BB(fBlender)->asBlendMode()) {
+        switch (bm.value()) {
+            case SkBlendMode::kClear:
                 return SkIRect::MakeEmpty();
-            }
-            return result;
-        }
 
-        default: {
-            auto result = getBackground();
-            result.join(getForeground());
-            return result;
+            case SkBlendMode::kSrc:
+            case SkBlendMode::kDstATop:
+                return getForeground();
+
+            case SkBlendMode::kDst:
+            case SkBlendMode::kSrcATop:
+                return getBackground();
+
+            case SkBlendMode::kSrcIn:
+            case SkBlendMode::kDstIn: {
+                auto result = getBackground();
+                if (!result.intersect(getForeground())) {
+                    return SkIRect::MakeEmpty();
+                }
+                return result;
+            }
+            default: break;
         }
     }
+    auto result = getBackground();
+    result.join(getForeground());
+    return result;
 }
 
 void SkBlendImageFilter::drawForeground(SkCanvas* canvas, SkSpecialImage* img,
                                         const SkIRect& fgBounds) const {
     SkPaint paint;
-    paint.setBlendMode(fMode);
+    paint.setBlender(fBlender);
     if (img) {
         img->draw(canvas, SkIntToScalar(fgBounds.fLeft), SkIntToScalar(fgBounds.fTop),
                   SkSamplingOptions(), &paint);
@@ -270,6 +294,8 @@ sk_sp<SkSpecialImage> SkBlendImageFilter::filterImageGPU(const Context& ctx,
         fp = GrFragmentProcessor::MakeColor(SK_PMColor4fTRANSPARENT);
     }
 
+    GrImageInfo info(ctx.grColorType(), kPremul_SkAlphaType, ctx.refColorSpace(), bounds.size());
+
     if (foregroundView.asTextureProxy()) {
         SkRect fgSubset = SkRect::Make(foreground->subset());
         SkMatrix fgMatrix = SkMatrix::Translate(
@@ -280,10 +306,12 @@ sk_sp<SkSpecialImage> SkBlendImageFilter::filterImageGPU(const Context& ctx,
         fgFP = GrColorSpaceXformEffect::Make(std::move(fgFP), foreground->getColorSpace(),
                                              foreground->alphaType(), ctx.colorSpace(),
                                              kPremul_SkAlphaType);
-        fp = GrBlendFragmentProcessor::Make(std::move(fgFP), std::move(fp), fMode);
+
+        GrFPArgs args(rContext, SkSimpleMatrixProvider(SkMatrix::I()), &info.colorInfo());
+
+        fp = as_BB(fBlender)->asFragmentProcessor(std::move(fgFP), std::move(fp), args);
     }
 
-    GrImageInfo info(ctx.grColorType(), kPremul_SkAlphaType, ctx.refColorSpace(), bounds.size());
     auto sfc = GrSurfaceFillContext::Make(rContext, info, SkBackingFit::kApprox);
     if (!sfc) {
         return nullptr;
