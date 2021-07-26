@@ -8,13 +8,15 @@
 #include "src/gpu/GrDynamicAtlas.h"
 
 #include "src/core/SkIPoint16.h"
+#include "src/gpu/GrCaps.h"
 #include "src/gpu/GrOnFlushResourceProvider.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRectanizerPow2.h"
 #include "src/gpu/GrRectanizerSkyline.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrResourceProvider.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
+#include "src/gpu/GrSurfaceProxyPriv.h"
+#include "src/gpu/GrSurfaceProxyView.h"
 
 // Each Node covers a sub-rectangle of the final atlas. When a GrDynamicAtlas runs out of room, we
 // create a new Node the same size as all combined nodes in the atlas as-is, and then place the new

@@ -15,6 +15,7 @@
 
 class GrRecordingContext;
 class GrSurfaceDrawContext;
+class SkMatrixProvider;
 
 /**
  * This class takes a clip stack and produces a reduced set of elements that are equivalent to

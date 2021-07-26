@@ -13,6 +13,7 @@
 #include "src/core/SkGpuBlurUtils.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrStyle.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrBlendFragmentProcessor.h"
 #include "src/gpu/effects/GrTextureEffect.h"
@@ -58,8 +59,8 @@ static GrSurfaceProxyView slow_blur(GrRecordingContext* ctx,
                           SkIPoint offset,
                           SkTileMode mode) {
         GrImageInfo info(GrColorType::kRGBA_8888, kPremul_SkAlphaType, nullptr, resultSize);
-        auto fc = GrSurfaceFillContext::Make(ctx, info);
-        if (!fc) {
+        auto sfc = GrSurfaceFillContext::Make(ctx, info);
+        if (!sfc) {
             return GrSurfaceProxyView{};
         }
         GrSamplerState sampler(SkTileModeToWrapMode(mode), SkFilterMode::kNearest);
@@ -69,8 +70,8 @@ static GrSurfaceProxyView slow_blur(GrRecordingContext* ctx,
                                               sampler,
                                               SkRect::Make(srcTileRect),
                                               *ctx->priv().caps());
-        fc->fillWithFP(std::move(fp));
-        return fc->readSurfaceView();
+        sfc->fillWithFP(std::move(fp));
+        return sfc->readSurfaceView();
     };
 
     SkIPoint outset = {SkGpuBlurUtils::SigmaRadius(sigmaX), SkGpuBlurUtils::SigmaRadius(sigmaY)};

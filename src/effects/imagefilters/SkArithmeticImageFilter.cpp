@@ -20,7 +20,7 @@
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/gpu/GrColorSpaceXform.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
+#include "src/gpu/GrSurfaceFillContext.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrSkSLFP.h"
@@ -341,19 +341,19 @@ sk_sp<SkSpecialImage> SkArithmeticImageFilter::filterImageGPU(
         const SkIRect& bounds) const {
     SkASSERT(ctx.gpuBacked());
 
-    auto context = ctx.getContext();
+    auto rContext = ctx.getContext();
 
     GrSurfaceProxyView backgroundView, foregroundView;
 
     GrProtected isProtected = GrProtected::kNo;
     if (background) {
-        backgroundView = background->view(context);
+        backgroundView = background->view(rContext);
         SkASSERT(backgroundView.proxy());
         isProtected = backgroundView.proxy()->isProtected();
     }
 
     if (foreground) {
-        foregroundView = foreground->view(context);
+        foregroundView = foreground->view(rContext);
         SkASSERT(foregroundView.proxy());
         isProtected = foregroundView.proxy()->isProtected();
     }
@@ -403,26 +403,25 @@ sk_sp<SkSpecialImage> SkArithmeticImageFilter::filterImageGPU(
     }
 
     GrImageInfo info(ctx.grColorType(), kPremul_SkAlphaType, ctx.refColorSpace(), bounds.size());
-    auto surfaceFillContext = GrSurfaceFillContext::Make(context,
-                                                         info,
-                                                         SkBackingFit::kApprox,
-                                                         1,
-                                                         GrMipmapped::kNo,
-                                                         isProtected,
-                                                         kBottomLeft_GrSurfaceOrigin);
-    if (!surfaceFillContext) {
+    auto sfc = GrSurfaceFillContext::Make(rContext,
+                                          info,
+                                          SkBackingFit::kApprox,
+                                          1,
+                                          GrMipmapped::kNo,
+                                          isProtected,
+                                          kBottomLeft_GrSurfaceOrigin);
+    if (!sfc) {
         return nullptr;
     }
 
-    surfaceFillContext->fillRectToRectWithFP(bounds, SkIRect::MakeSize(bounds.size()),
-                                             std::move(fp));
+    sfc->fillRectToRectWithFP(bounds, SkIRect::MakeSize(bounds.size()), std::move(fp));
 
-    return SkSpecialImage::MakeDeferredFromGpu(context,
+    return SkSpecialImage::MakeDeferredFromGpu(rContext,
                                                SkIRect::MakeWH(bounds.width(), bounds.height()),
                                                kNeedNewImageUniqueID_SpecialImage,
-                                               surfaceFillContext->readSurfaceView(),
-                                               surfaceFillContext->colorInfo().colorType(),
-                                               surfaceFillContext->colorInfo().refColorSpace(),
+                                               sfc->readSurfaceView(),
+                                               sfc->colorInfo().colorType(),
+                                               sfc->colorInfo().refColorSpace(),
                                                ctx.surfaceProps());
 }
 #endif

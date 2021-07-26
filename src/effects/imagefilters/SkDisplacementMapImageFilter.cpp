@@ -19,7 +19,7 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrColorSpaceXform.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
+#include "src/gpu/GrSurfaceFillContext.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/SkGr.h"
@@ -315,29 +315,29 @@ sk_sp<SkSpecialImage> SkDisplacementMapImageFilter::onFilterImage(const Context&
                          kPremul_SkAlphaType,
                          ctx.refColorSpace(),
                          bounds.size());
-        auto surfaceFillContext = GrSurfaceFillContext::Make(context,
-                                                             info,
-                                                             SkBackingFit::kApprox,
-                                                             1,
-                                                             GrMipmapped::kNo,
-                                                             isProtected,
-                                                             kBottomLeft_GrSurfaceOrigin);
-        if (!surfaceFillContext) {
+        auto sfc = GrSurfaceFillContext::Make(context,
+                                              info,
+                                              SkBackingFit::kApprox,
+                                              1,
+                                              GrMipmapped::kNo,
+                                              isProtected,
+                                              kBottomLeft_GrSurfaceOrigin);
+        if (!sfc) {
             return nullptr;
         }
 
-        surfaceFillContext->fillRectToRectWithFP(colorBounds,
-                                                 SkIRect::MakeSize(colorBounds.size()),
-                                                 std::move(fp));
+        sfc->fillRectToRectWithFP(colorBounds,
+                                  SkIRect::MakeSize(colorBounds.size()),
+                                  std::move(fp));
 
         offset->fX = bounds.left();
         offset->fY = bounds.top();
         return SkSpecialImage::MakeDeferredFromGpu(context,
                                                    SkIRect::MakeWH(bounds.width(), bounds.height()),
                                                    kNeedNewImageUniqueID_SpecialImage,
-                                                   surfaceFillContext->readSurfaceView(),
-                                                   surfaceFillContext->colorInfo().colorType(),
-                                                   surfaceFillContext->colorInfo().refColorSpace(),
+                                                   sfc->readSurfaceView(),
+                                                   sfc->colorInfo().colorType(),
+                                                   sfc->colorInfo().refColorSpace(),
                                                    ctx.surfaceProps());
     }
 #endif

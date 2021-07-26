@@ -8,6 +8,10 @@
 #ifndef GrAtlasPathRenderer_DEFINED
 #define GrAtlasPathRenderer_DEFINED
 
+#include "include/gpu/GrTypes.h"
+
+#if SK_GPU_V1
+
 #include "include/private/SkTHash.h"
 #include "src/core/SkIPoint16.h"
 #include "src/gpu/GrDynamicAtlas.h"
@@ -105,4 +109,13 @@ private:
     SkTHashMap<AtlasPathKey, SkIPoint16> fAtlasPathCache;
 };
 
-#endif
+#else // SK_GPU_V1
+
+class GrAtlasPathRenderer {
+public:
+    static bool IsSupported(GrRecordingContext*) { return false; }
+};
+
+#endif // SK_GPU_V1
+
+#endif // GrAtlasPathRenderer_DEFINED

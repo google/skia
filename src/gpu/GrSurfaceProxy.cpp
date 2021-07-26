@@ -20,7 +20,7 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrSurface.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
+#include "src/gpu/GrSurfaceFillContext.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureRenderTargetProxy.h"
 

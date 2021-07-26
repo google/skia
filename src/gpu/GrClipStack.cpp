@@ -8,6 +8,7 @@
 #include "src/gpu/GrClipStack.h"
 
 #include "include/core/SkMatrix.h"
+#include "src/core/SkMatrixProvider.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkRRectPriv.h"
 #include "src/core/SkRectPriv.h"
@@ -20,6 +21,7 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrSWMaskHelper.h"
 #include "src/gpu/GrStencilMaskHelper.h"
+#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/effects/GrBlendFragmentProcessor.h"
 #include "src/gpu/effects/GrConvexPolyEffect.h"
 #include "src/gpu/effects/GrRRectEffect.h"

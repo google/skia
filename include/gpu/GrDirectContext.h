@@ -29,7 +29,6 @@ struct GrMockOptions;
 class GrPath;
 class GrResourceCache;
 class GrSmallPathAtlasMgr;
-class GrSurfaceDrawContext;
 class GrResourceProvider;
 class GrStrikeCache;
 class GrSurfaceProxy;
