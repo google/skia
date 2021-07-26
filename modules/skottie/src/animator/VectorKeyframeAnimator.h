@@ -14,14 +14,14 @@
 
 namespace skottie::internal {
 
-class VectorKeyframeAnimatorBuilder final : public KeyframeAnimatorBuilder {
+class VectorAnimatorBuilder final : public AnimatorBuilder {
 public:
     using VectorLenParser  = bool(*)(const skjson::Value&, size_t*);
     using VectorDataParser = bool(*)(const skjson::Value&, size_t, float*);
 
-    VectorKeyframeAnimatorBuilder(std::vector<float>*, VectorLenParser, VectorDataParser);
+    VectorAnimatorBuilder(std::vector<float>*, VectorLenParser, VectorDataParser);
 
-    sk_sp<KeyframeAnimator> make(const AnimationBuilder&, const skjson::ArrayValue&) override;
+    sk_sp<KeyframeAnimator> makeFromKeyframes(const AnimationBuilder&, const skjson::ArrayValue&) override;
 
 private:
     bool parseValue(const AnimationBuilder&, const skjson::Value&) const override;

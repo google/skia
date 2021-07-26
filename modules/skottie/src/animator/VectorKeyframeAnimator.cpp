@@ -142,14 +142,14 @@ private:
 
 } // namespace
 
-VectorKeyframeAnimatorBuilder::VectorKeyframeAnimatorBuilder(std::vector<float>* target,
+VectorAnimatorBuilder::VectorAnimatorBuilder(std::vector<float>* target,
                                                              VectorLenParser  parse_len,
                                                              VectorDataParser parse_data)
     : fParseLen(parse_len)
     , fParseData(parse_data)
     , fTarget(target) {}
 
-sk_sp<KeyframeAnimator> VectorKeyframeAnimatorBuilder::make(const AnimationBuilder& abuilder,
+sk_sp<KeyframeAnimator> VectorAnimatorBuilder::makeFromKeyframes(const AnimationBuilder& abuilder,
                                                             const skjson::ArrayValue& jkfs) {
     SkASSERT(jkfs.size() > 0);
 
@@ -186,7 +186,7 @@ sk_sp<KeyframeAnimator> VectorKeyframeAnimatorBuilder::make(const AnimationBuild
                                            fTarget));
 }
 
-bool VectorKeyframeAnimatorBuilder::parseValue(const AnimationBuilder&,
+bool VectorAnimatorBuilder::parseValue(const AnimationBuilder&,
                                                const skjson::Value& jv) const {
     size_t vec_len;
     if (!this->fParseLen(jv, &vec_len)) {
@@ -197,7 +197,7 @@ bool VectorKeyframeAnimatorBuilder::parseValue(const AnimationBuilder&,
     return fParseData(jv, vec_len, fTarget->data());
 }
 
-bool VectorKeyframeAnimatorBuilder::parseKFValue(const AnimationBuilder&,
+bool VectorAnimatorBuilder::parseKFValue(const AnimationBuilder&,
                                                  const skjson::ObjectValue&,
                                                  const skjson::Value& jv,
                                                  Keyframe::Value* kfv) {
@@ -236,7 +236,7 @@ bool AnimatablePropertyContainer::bind<VectorValue>(const AnimationBuilder& abui
 
     if (!ParseDefault<bool>((*jprop)["s"], false)) {
         // Regular (static or keyframed) vector value.
-        VectorKeyframeAnimatorBuilder builder(
+        VectorAnimatorBuilder builder(
                     v,
                     // Len parser.
                     [](const skjson::Value& jv, size_t* len) -> bool {

@@ -49,7 +49,7 @@ void AnimatablePropertyContainer::shrink_to_fit() {
 
 bool AnimatablePropertyContainer::bindImpl(const AnimationBuilder& abuilder,
                                            const skjson::ObjectValue* jprop,
-                                           KeyframeAnimatorBuilder& builder) {
+                                           AnimatorBuilder& builder) {
     if (!jprop) {
         return false;
     }
@@ -80,7 +80,7 @@ bool AnimatablePropertyContainer::bindImpl(const AnimationBuilder& abuilder,
     sk_sp<KeyframeAnimator> animator;
     const skjson::ArrayValue* jkfs = jpropK;
     if (jkfs && jkfs->size() > 0) {
-        animator = builder.make(abuilder, *jkfs);
+        animator = builder.makeFromKeyframes(abuilder, *jkfs);
     }
 
     if (!animator) {
