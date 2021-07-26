@@ -506,8 +506,6 @@ static sk_sp<SkSpecialImage> apply_morphology(
 namespace {
 
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
-    #include <emmintrin.h>
-
     template<MorphType type, MorphDirection direction>
     static void morph(const SkPMColor* src, SkPMColor* dst,
                       int radius, int width, int height, int srcStride, int dstStride) {
