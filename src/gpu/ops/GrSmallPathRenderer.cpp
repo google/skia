@@ -72,7 +72,7 @@ GrPathRenderer::CanDrawPath GrSmallPathRenderer::onCanDrawPath(const CanDrawPath
         return CanDrawPath::kNo;
     }
     // For affine transformations, too much shear can produce artifacts.
-    if (scaleFactors[1]/scaleFactors[0] > 4) {
+    if (!scaleFactors[0] || scaleFactors[1]/scaleFactors[0] > 4) {
         return CanDrawPath::kNo;
     }
     // Only support paths with bounds within kMaxDim by kMaxDim,
