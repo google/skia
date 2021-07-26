@@ -202,7 +202,9 @@ DEF_PATH_TESS_BENCH(middle_out_triangulation,
     int baseVertex;
     GrVertexWriter vertexWriter = static_cast<SkPoint*>(fTarget->makeVertexSpace(
             sizeof(SkPoint), kNumCubicsInChalkboard, &buffer, &baseVertex));
-    GrMiddleOutPolygonTriangulator::WritePathInnerFan(&vertexWriter, 0, 0, fPath);
+    int numTrianglesWritten;
+    GrMiddleOutPolygonTriangulator::WritePathInnerFan(std::move(vertexWriter), 0, 0, fPath,
+                                                      &numTrianglesWritten);
 }
 
 using PathStrokeList = GrStrokeTessellator::PathStrokeList;

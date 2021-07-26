@@ -222,10 +222,10 @@ void GrPathCurveTessellator::prepare(GrMeshDrawTarget* target, const SkRect& cul
             uint32_t pad32Value = shaderCaps.infinitySupport()
                     ? GrVertexWriter::kIEEE_32_infinity
                     : sk_bit_cast<uint32_t>(GrTessellationShader::kTriangularConicCurveType);
-            int numWritten = GrMiddleOutPolygonTriangulator::WritePathInnerFan(&vertexWriter,
-                                                                               pad32Count,
-                                                                               pad32Value, path);
-            numRemainingTriangles -= numWritten;
+            int numTrianglesWritten;
+            vertexWriter = GrMiddleOutPolygonTriangulator::WritePathInnerFan(
+                    std::move(vertexWriter), pad32Count, pad32Value, path, &numTrianglesWritten);
+            numRemainingTriangles -= numTrianglesWritten;
         }
         if (breadcrumbTriangleList) {
             int numWritten = 0;
