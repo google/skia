@@ -11,6 +11,7 @@
 
 #if SK_SUPPORT_GPU
 #include "src/gpu/GrFragmentProcessor.h"
+#include "src/gpu/effects/GrBlendFragmentProcessor.h"
 #endif
 
 sk_sp<SkBlender> SkBlender::Mode(SkBlendMode mode) {
@@ -75,11 +76,7 @@ std::unique_ptr<GrFragmentProcessor> SkBlendModeBlender::asFragmentProcessor(
     // Note that for the final blend onto the canvas, we should prefer to use the GrXferProcessor
     // instead of a SkBlendModeBlender to perform the blend. The Xfer processor is able to perform
     // coefficient-based blends directly, without readback. This will be much more efficient.
-
-    // TODO(skia:12085, skia:12205): We will be able to use Blenders in other contexts, such as
-    // in a SkBlendImageFilter; in that case we will need to supply a blend function.
-    SkDEBUGFAIL("SkBlendModeBlender::asFragmentProcessor is not yet implemented");
-    return nullptr;
+    return GrBlendFragmentProcessor::Make(std::move(srcFP), std::move(dstFP), fMode);
 }
 #endif
 
