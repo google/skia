@@ -66,7 +66,7 @@ def RunSteps(api):
 def GenTests(api):
   yield (
       api.test('infra_tests') +
-      api.properties(buildername='Housekeeper-PerCommit-InfraTests_Win',
+      api.properties(buildername='Housekeeper-PerCommit-InfraTests_Linux',
                      repository='https://skia.googlesource.com/skia.git',
                      path_config='kitchen',
                      swarm_out_dir='[SWARM_OUT_DIR]')

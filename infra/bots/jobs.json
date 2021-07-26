@@ -214,7 +214,6 @@
   {"name": "Housekeeper-PerCommit-InfraTests_Linux",
    "cq_config": {}
    },
-  {"name": "Housekeeper-PerCommit-InfraTests_Win"},
   {"name": "Housekeeper-PerCommit-IsolateMSKP"},
   {"name": "Housekeeper-PerCommit-IsolateSKP"},
   {"name": "Housekeeper-PerCommit-IsolateSVG"},
