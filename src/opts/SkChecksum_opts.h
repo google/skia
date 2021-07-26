@@ -19,6 +19,7 @@
 #if 1 && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE42
     #include <immintrin.h>
     static uint32_t crc32c_1(uint32_t seed, uint8_t  v) { return _mm_crc32_u8(seed, v); }
+    static uint32_t crc32c_4(uint32_t seed, uint32_t v) { return _mm_crc32_u32(seed, v); }
     static uint32_t crc32c_8(uint32_t seed, uint64_t v) {
     #if 1 && (defined(__x86_64__) || defined(_M_X64))
         return _mm_crc32_u64(seed, v);
@@ -30,6 +31,7 @@
 #elif 1 && defined(SK_ARM_HAS_CRC32)
     #include <arm_acle.h>
     static uint32_t crc32c_1(uint32_t seed, uint8_t  v) { return __crc32cb(seed, v); }
+    static uint32_t crc32c_4(uint32_t seed, uint32_t v) { return __crc32cw(seed, v); }
     static uint32_t crc32c_8(uint32_t seed, uint64_t v) { return __crc32cd(seed, v); }
 #else
     // See https://www.w3.org/TR/PNG/#D-CRCAppendix,
@@ -87,6 +89,14 @@
         return crc32c_table[(seed ^ v) & 0xff]
              ^ (seed >> 8);
     }
+    static uint32_t crc32c_4(uint32_t seed, uint32_t v) {
+        // Nothing special... just crc32c_1() each byte.
+        for (int i = 0; i < 4; i++) {
+            seed = crc32c_1(seed, (uint8_t)v);
+            v >>= 8;
+        }
+        return seed;
+    }
     static uint32_t crc32c_8(uint32_t seed, uint64_t v) {
         // Nothing special... just crc32c_1() each byte.
         for (int i = 0; i < 8; i++) {
@@ -115,7 +125,7 @@ namespace SK_OPTS_NS {
                 ptr += 24;
                 len -= 24;
             }
-            seed = crc32c_8(a, crc32c_8(b,c));
+            seed = crc32c_4(a, crc32c_4(b,c));
         }
         while (len >= 8) {
             seed = crc32c_8(seed, sk_unaligned_load<uint64_t>(ptr));

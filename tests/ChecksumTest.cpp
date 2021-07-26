@@ -82,9 +82,9 @@ DEF_TEST(ChecksumConsistent, r) {
     REPORTER_ASSERT(r, SkOpts::hash(bytes,  1) == 0x00000000, "%08x", SkOpts::hash(bytes,  1));
     REPORTER_ASSERT(r, SkOpts::hash(bytes,  2) == 0xf26b8303, "%08x", SkOpts::hash(bytes,  2));
     REPORTER_ASSERT(r, SkOpts::hash(bytes,  7) == 0x18678721, "%08x", SkOpts::hash(bytes,  7));
-    REPORTER_ASSERT(r, SkOpts::hash(bytes, 32) == 0x2d3617af, "%08x", SkOpts::hash(bytes, 32));
-    REPORTER_ASSERT(r, SkOpts::hash(bytes, 63) == 0xd482f6b1, "%08x", SkOpts::hash(bytes, 63));
-    REPORTER_ASSERT(r, SkOpts::hash(bytes, 64) == 0x2e5a06a9, "%08x", SkOpts::hash(bytes, 64));
-    REPORTER_ASSERT(r, SkOpts::hash(bytes, 99) == 0x5214485b, "%08x", SkOpts::hash(bytes, 99));
-    REPORTER_ASSERT(r, SkOpts::hash(bytes,255) == 0xce206bd3, "%08x", SkOpts::hash(bytes,255));
+    REPORTER_ASSERT(r, SkOpts::hash(bytes, 32) == 0x9d1ef96b, "%08x", SkOpts::hash(bytes, 32));
+    REPORTER_ASSERT(r, SkOpts::hash(bytes, 63) == 0xc4b07d3a, "%08x", SkOpts::hash(bytes, 63));
+    REPORTER_ASSERT(r, SkOpts::hash(bytes, 64) == 0x3535a461, "%08x", SkOpts::hash(bytes, 64));
+    REPORTER_ASSERT(r, SkOpts::hash(bytes, 99) == 0x3f98a130, "%08x", SkOpts::hash(bytes, 99));
+    REPORTER_ASSERT(r, SkOpts::hash(bytes,255) == 0x3b9ceab2, "%08x", SkOpts::hash(bytes,255));
 }
