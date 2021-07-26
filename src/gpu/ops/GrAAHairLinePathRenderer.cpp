@@ -1266,6 +1266,9 @@ void AAHairlineOp::onPrepareDraws(GrMeshDrawTarget* target) {
         int unsubdivQuadCnt = quads.count() / 3;
         for (int i = 0; i < unsubdivQuadCnt; ++i) {
             SkASSERT(qSubdivs[i] >= 0);
+            if (!quads[3*i].isFinite() || !quads[3*i+1].isFinite() || !quads[3*i+2].isFinite()) {
+                return;
+            }
             add_quads(&quads[3*i], qSubdivs[i], toDevice, toSrc, &bezVerts);
         }
 
