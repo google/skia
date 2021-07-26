@@ -871,8 +871,8 @@ Value SkVMGenerator::writeIntrinsicCall(const FunctionCall& c) {
     const size_t nargs = c.arguments().size();
 
     if (intrinsicKind == k_sample_IntrinsicKind) {
-        // Sample is very special, the first argument is a child (shader/colorFilter), which can't
-        // be evaluated
+        // Sample is very special. The first argument is a child (shader/colorFilter/blender),
+        // which is opaque and can't be evaluated.
         SkASSERT(nargs == 2);
         const Expression* child = c.arguments()[0].get();
         SkASSERT(child->type().isEffectChild());

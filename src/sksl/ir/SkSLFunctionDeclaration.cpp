@@ -89,30 +89,28 @@ static bool check_parameters(const Context& context,
         }
 
         Modifiers m = param->modifiers();
-        ProgramKind kind = context.fConfig->fKind;
-        if (isMain && (kind == ProgramKind::kRuntimeColorFilter ||
-                       kind == ProgramKind::kRuntimeShader ||
-                       kind == ProgramKind::kRuntimeBlender)) {
-            // We verify that the signature is fully correct later. For now, if this is a runtime
-            // effect of any flavor, a float2 param is supposed to be the coords, and a half4/float
-            // parameter is supposed to be the input or destination color:
-            if (type == *context.fTypes.fFloat2) {
-                m.fLayout.fBuiltin = SK_MAIN_COORDS_BUILTIN;
-            } else if (typeIsValidForColor(type) &&
-                       builtinColorIndex < SK_ARRAY_COUNT(kBuiltinColorIDs)) {
-                m.fLayout.fBuiltin = kBuiltinColorIDs[builtinColorIndex++];
-            }
-            if (m.fLayout.fBuiltin) {
-                param->setModifiers(context.fModifiersPool->add(m));
-            }
-        }
-        if (isMain && (kind == ProgramKind::kFragment)) {
-            // For testing purposes, we have .sksl inputs that are treated as both runtime effects
-            // and fragment shaders. To make that work, fragment shaders are allowed to have a
-            // coords parameter. We turn it into sk_FragCoord.
-            if (type == *context.fTypes.fFloat2) {
-                m.fLayout.fBuiltin = SK_FRAGCOORD_BUILTIN;
-                param->setModifiers(context.fModifiersPool->add(m));
+        if (isMain) {
+            if (context.fConfig->isRuntimeEffect()) {
+                // We verify that the signature is fully correct later. For now, if this is a
+                // runtime effect of any flavor, a float2 param is supposed to be the coords, and a
+                // half4/float parameter is supposed to be the input or destination color:
+                if (type == *context.fTypes.fFloat2) {
+                    m.fLayout.fBuiltin = SK_MAIN_COORDS_BUILTIN;
+                } else if (typeIsValidForColor(type) &&
+                           builtinColorIndex < SK_ARRAY_COUNT(kBuiltinColorIDs)) {
+                    m.fLayout.fBuiltin = kBuiltinColorIDs[builtinColorIndex++];
+                }
+                if (m.fLayout.fBuiltin) {
+                    param->setModifiers(context.fModifiersPool->add(m));
+                }
+            } else if (context.fConfig->fKind == ProgramKind::kFragment) {
+                // For testing purposes, we have .sksl inputs that are treated as both runtime
+                // effects and fragment shaders. To make that work, fragment shaders are allowed to
+                // have a coords parameter. We turn it into sk_FragCoord.
+                if (type == *context.fTypes.fFloat2) {
+                    m.fLayout.fBuiltin = SK_FRAGCOORD_BUILTIN;
+                    param->setModifiers(context.fModifiersPool->add(m));
+                }
             }
         }
     }

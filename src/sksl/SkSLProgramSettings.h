@@ -91,9 +91,13 @@ struct ProgramConfig {
 
     bool strictES2Mode() const {
         return fSettings.fEnforceES2Restrictions &&
-               (fKind == ProgramKind::kRuntimeColorFilter ||
+               (this->isRuntimeEffect() || fKind == ProgramKind::kGeneric);
+    }
+
+    bool isRuntimeEffect() const {
+        return (fKind == ProgramKind::kRuntimeColorFilter ||
                 fKind == ProgramKind::kRuntimeShader ||
-                fKind == ProgramKind::kGeneric);
+                fKind == ProgramKind::kRuntimeBlender);
     }
 };
 

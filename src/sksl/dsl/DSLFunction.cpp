@@ -46,17 +46,15 @@ void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, skstd:
         SkASSERT(!param->fInitialValue.valid());
         SkASSERT(!param->fDeclaration);
         param->fDeclared = true;
-        SkSL::ProgramKind kind = DSLWriter::Context().fConfig->fKind;
-        if (isMain && (kind == ProgramKind::kRuntimeColorFilter ||
-                       kind == ProgramKind::kRuntimeShader ||
-                       kind == ProgramKind::kRuntimeBlender)) {
+        if (isMain && DSLWriter::Context().fConfig->isRuntimeEffect()) {
             const SkSL::Type& type = param->fType.skslType();
             // We verify that the signature is fully correct later. For now, if this is a runtime
             // effect of any flavor, a float2 param is supposed to be the coords, and a half4/float
-            // parameter is supposed to be the input or destination color:
+            // parameter is supposed to be the input or destination color.
             if (type == *DSLWriter::Context().fTypes.fFloat2) {
                 param->fModifiers.fModifiers.fLayout.fBuiltin = SK_MAIN_COORDS_BUILTIN;
             } else if (typeIsValidForColor(type)) {
+                // TODO(skia:12257): add support for blender destination color
                 param->fModifiers.fModifiers.fLayout.fBuiltin = SK_INPUT_COLOR_BUILTIN;
             }
         }

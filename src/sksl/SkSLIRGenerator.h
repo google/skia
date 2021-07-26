@@ -244,6 +244,10 @@ private:
         return fContext.fConfig->strictES2Mode();
     }
 
+    bool isRuntimeEffect() const {
+        return fContext.fConfig->isRuntimeEffect();
+    }
+
     const ShaderCapsClass& caps() const {
         return fContext.fCaps;
     }

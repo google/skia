@@ -153,6 +153,7 @@ Compiler::Compiler(const ShaderCapsClass* caps)
 
         TYPE(ColorFilter),
         TYPE(Shader),
+        TYPE(Blender),
     };
 
     const SkSL::Symbol* privateTypes[] = {

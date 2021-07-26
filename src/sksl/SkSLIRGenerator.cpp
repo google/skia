@@ -265,8 +265,7 @@ void IRGenerator::checkVarDeclaration(int offset, const Modifiers& modifiers, co
     if ((modifiers.fFlags & Modifiers::kIn_Flag) && (modifiers.fFlags & Modifiers::kUniform_Flag)) {
         this->errorReporter().error(offset, "'in uniform' variables not permitted");
     }
-    if (this->programKind() == ProgramKind::kRuntimeColorFilter ||
-        this->programKind() == ProgramKind::kRuntimeShader) {
+    if (this->isRuntimeEffect()) {
         if (modifiers.fFlags & Modifiers::kIn_Flag) {
             this->errorReporter().error(offset, "'in' variables not permitted in runtime effects");
         }
@@ -276,8 +275,7 @@ void IRGenerator::checkVarDeclaration(int offset, const Modifiers& modifiers, co
                 offset, "variables of type '" + baseType->displayName() + "' must be uniform");
     }
     if (modifiers.fLayout.fFlags & Layout::kSRGBUnpremul_Flag) {
-        if (this->programKind() != ProgramKind::kRuntimeColorFilter &&
-            this->programKind() != ProgramKind::kRuntimeShader) {
+        if (!this->isRuntimeEffect()) {
             this->errorReporter().error(offset,
                                         "'srgb_unpremul' is only permitted in runtime effects");
         }
@@ -1618,9 +1616,7 @@ void IRGenerator::start(const ParsedModule& base,
         }
     }
 
-    if (!fContext.fConfig->fSettings.fEnforceES2Restrictions &&
-        (this->programKind() == ProgramKind::kRuntimeColorFilter ||
-         this->programKind() == ProgramKind::kRuntimeShader)) {
+    if (this->isRuntimeEffect() && !fContext.fConfig->fSettings.fEnforceES2Restrictions) {
         // We're compiling a runtime effect, but we're not enforcing ES2 restrictions. Add various
         // non-ES2 types to our symbol table to allow them to be tested.
         fSymbolTable->addAlias("mat2x2", fContext.fTypes.fFloat2x2.get());

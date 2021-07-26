@@ -130,6 +130,7 @@ static bool init_uniform_type(const SkSL::Context& ctx,
 
 static SkRuntimeEffect::Child::Type child_type(const SkSL::Type& type) {
     switch (type.typeKind()) {
+        // TODO(skia:12257): add support for kBlender
         case SkSL::Type::TypeKind::kColorFilter: return SkRuntimeEffect::Child::Type::kColorFilter;
         case SkSL::Type::TypeKind::kShader:      return SkRuntimeEffect::Child::Type::kShader;
         default: SkUNREACHABLE;
@@ -281,7 +282,7 @@ SkRuntimeEffect::Result SkRuntimeEffect::MakeInternal(std::unique_ptr<SkSL::Prog
             const SkSL::Variable& var = varDecl.var();
             const SkSL::Type& varType = var.type();
 
-            // Child effects that can be sampled ('shader' or 'colorFilter')
+            // Child effects that can be sampled ('shader', 'colorFilter', 'blender')
             if (varType.isEffectChild()) {
                 Child c;
                 c.name  = SkString(var.name());

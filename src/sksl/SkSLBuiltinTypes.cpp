@@ -179,6 +179,7 @@ BuiltinTypes::BuiltinTypes()
                                                 fBool4.get()}))
         , fSkCaps(Type::MakeSpecialType("$sk_Caps", "O", Type::TypeKind::kOther))
         , fColorFilter(Type::MakeSpecialType("colorFilter", "CF", Type::TypeKind::kColorFilter))
-        , fShader(Type::MakeSpecialType("shader", "SH", Type::TypeKind::kShader)) {}
+        , fShader(Type::MakeSpecialType("shader", "SH", Type::TypeKind::kShader))
+        , fBlender(Type::MakeSpecialType("$blender", "B", Type::TypeKind::kBlender)) {}
 
 }  // namespace SkSL

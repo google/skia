@@ -130,6 +130,7 @@ public:
 
     const std::unique_ptr<Type> fColorFilter;
     const std::unique_ptr<Type> fShader;
+    const std::unique_ptr<Type> fBlender;
 
 private:
     static std::unique_ptr<Type> MakeScalarType(const char* name, const char* abbrev,
