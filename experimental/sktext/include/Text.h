@@ -14,7 +14,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTextBlob.h"
 #include "modules/skshaper/include/SkShaper.h"
-#include "modules/skshaper/src/SkUnicode.h"
+#include "modules/skunicode/include/SkUnicode.h"
 
 namespace skia {
 namespace text {

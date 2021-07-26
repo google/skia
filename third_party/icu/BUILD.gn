@@ -60,6 +60,18 @@ if (skia_use_system_icu) {
     }
   }
 
+  third_party("headers") {
+    public_include_dirs = [
+      "../externals/icu/source/common",
+      "../externals/icu/source/i18n",
+      ".",
+    ]
+    public_defines = [
+      "U_USING_ICU_NAMESPACE=0",
+      "U_DISABLE_RENAMING",
+    ]
+  }
+
   third_party("icu") {
     public_include_dirs = [
       "../externals/icu/source/common",

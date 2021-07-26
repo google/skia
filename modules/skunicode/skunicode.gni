@@ -1,0 +1,18 @@
+# Copyright 2021 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Things are easiest for everyone if these source paths are absolute.
+_src = get_path_info("src", "abspath")
+_include = get_path_info("include", "abspath")
+
+skia_unicode_public = [ "$_include/SkUnicode.h" ]
+
+skia_unicode_sources = [
+  "$_src/SkUnicode_icu.cpp",
+  "$_src/SkUnicode_icu.h",
+]
+
+skia_unicode_builtin_icu_sources = [ "$_src/SkUnicode_icu_builtin.cpp" ]
+skia_unicode_runtime_icu_sources = [ "$_src/SkUnicode_icu_runtime.cpp" ]
