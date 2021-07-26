@@ -34,7 +34,6 @@
 
 #include <hb.h>
 #include <hb-ot.h>
-#include <unicode/uscript.h>
 #include <cstring>
 #include <memory>
 #include <type_traits>
