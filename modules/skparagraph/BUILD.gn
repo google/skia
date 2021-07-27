@@ -27,6 +27,7 @@ if (skia_enable_skparagraph && skia_enable_skshaper && skia_use_icu &&
     deps = [
       "../..:skia",
       "../skshaper",
+      "../skunicode",
     ]
   }
 

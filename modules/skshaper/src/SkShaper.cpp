@@ -15,7 +15,7 @@
 #include "modules/skshaper/include/SkShaper.h"
 
 #ifdef SK_UNICODE_AVAILABLE
-#include "modules/skshaper/src/SkUnicode.h"
+#include "modules/skunicode/include/SkUnicode.h"
 #endif
 #include "src/core/SkTextBlobPriv.h"
 #include "src/utils/SkUTF.h"

@@ -19,7 +19,6 @@
 #include "modules/skparagraph/src/ParagraphImpl.h"
 #include "modules/skparagraph/src/TextLine.h"
 #include "modules/skparagraph/utils/TestFontCollection.h"
-#include "modules/skshaper/src/SkUnicode.h"
 #include "samplecode/Sample.h"
 #include "src/core/SkOSFile.h"
 #include "src/shaders/SkColorShader.h"

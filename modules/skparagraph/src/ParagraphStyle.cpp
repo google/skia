@@ -2,7 +2,6 @@
 
 #include "modules/skparagraph/include/DartTypes.h"
 #include "modules/skparagraph/include/ParagraphStyle.h"
-#include "modules/skshaper/src/SkUnicode.h"
 #include "src/core/SkStringUtils.h"
 #include "src/utils/SkUTF.h"
 

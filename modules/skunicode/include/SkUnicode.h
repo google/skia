@@ -17,7 +17,7 @@
 #endif
 
 #if !defined(SKUNICODE_API)
-    #if defined(SKSHAPER_DLL)
+    #if defined(SKUNICODE_DLL)
         #if defined(_MSC_VER)
             #if SKUNICODE_IMPLEMENTATION
                 #define SKUNICODE_API __declspec(dllexport)

@@ -18,7 +18,6 @@ if (skia_enable_skshaper) {
     }
     if (skia_use_icu && skia_use_harfbuzz) {
       defines += [ "SK_SHAPER_HARFBUZZ_AVAILABLE" ]
-      defines += [ "SK_UNICODE_AVAILABLE" ]
     }
   }
 
@@ -27,10 +26,7 @@ if (skia_enable_skshaper) {
     public_configs = [ ":public_config" ]
     public = skia_shaper_public
     deps = [ "../..:skia" ]
-    defines = [
-      "SKSHAPER_IMPLEMENTATION=1",
-      "SKUNICODE_IMPLEMENTATION=1",
-    ]
+    defines = [ "SKSHAPER_IMPLEMENTATION=1" ]
     sources = skia_shaper_primitive_sources
     if (skia_use_fonthost_mac) {
       sources += skia_shaper_coretext_sources
@@ -46,11 +42,10 @@ if (skia_enable_skshaper) {
       }
     }
     if (skia_use_icu && skia_use_harfbuzz) {
-      sources += skia_shaper_icu_sources
       sources += skia_shaper_harfbuzz_sources
       deps += [
+        "../skunicode",
         "//third_party/harfbuzz",
-        "//third_party/icu",
       ]
     }
     configs += [

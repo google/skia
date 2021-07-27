@@ -1,0 +1,46 @@
+# Copyright 2021 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("../../gn/skia.gni")
+import("skunicode.gni")
+
+declare_args() {
+  skia_use_runtime_icu = false
+}
+
+if (skia_use_icu) {
+  config("public_config") {
+    include_dirs = [ "include" ]
+    defines = [ "SK_UNICODE_AVAILABLE" ]
+    if (is_component_build) {
+      defines += [ "SKUNICODE_DLL" ]
+    }
+  }
+
+  component("skunicode") {
+    check_includes = false
+    public_configs = [ ":public_config" ]
+    public = skia_unicode_public
+    deps = [ "../..:skia" ]
+    defines = [ "SKUNICODE_IMPLEMENTATION=1" ]
+    sources = skia_unicode_sources
+
+    # only available for Android at the moment
+    if (skia_use_runtime_icu && (is_android || is_linux)) {
+      sources += skia_unicode_runtime_icu_sources
+      deps += [ "//third_party/icu:headers" ]
+    } else {
+      sources += skia_unicode_builtin_icu_sources
+      deps += [ "//third_party/icu" ]
+    }
+    configs += [
+      "../../:skia_private",
+      "../../third_party/icu/config:no_cxx",
+    ]
+  }
+} else {
+  group("skunicode") {
+  }
+}
