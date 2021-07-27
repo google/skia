@@ -1270,11 +1270,18 @@ void Viewer::setColorMode(ColorMode colorMode) {
 
 class OveridePaintFilterCanvas : public SkPaintFilterCanvas {
 public:
-    OveridePaintFilterCanvas(SkCanvas* canvas, SkPaint* paint, Viewer::SkPaintFields* pfields,
-            SkFont* font, Viewer::SkFontFields* ffields)
-        : SkPaintFilterCanvas(canvas), fPaint(paint), fPaintOverrides(pfields), fFont(font), fFontOverrides(ffields)
-    { }
-    const SkTextBlob* filterTextBlob(const SkPaint& paint, const SkTextBlob* blob,
+    OveridePaintFilterCanvas(SkCanvas* canvas,
+                             SkPaint* paint, Viewer::SkPaintFields* pfields,
+                             SkFont* font, Viewer::SkFontFields* ffields)
+        : SkPaintFilterCanvas(canvas)
+        , fPaint(paint)
+        , fPaintOverrides(pfields)
+        , fFont(font)
+        , fFontOverrides(ffields) {
+    }
+
+    const SkTextBlob* filterTextBlob(const SkPaint& paint,
+                                     const SkTextBlob* blob,
                                      sk_sp<SkTextBlob>* cache) {
         bool blobWillChange = false;
         for (SkTextBlobRunIterator it(blob); !it.done(); it.next()) {
@@ -1341,6 +1348,9 @@ public:
             this->filterTextBlob(paint, blob, &cache), x, y, paint);
     }
     bool filterFont(SkTCopyOnFirstWrite<SkFont>* font) const {
+        if (fFontOverrides->fTypeface) {
+            font->writable()->setTypeface(fFont->refTypeface());
+        }
         if (fFontOverrides->fSize) {
             font->writable()->setSize(fFont->getSize());
         }
@@ -1356,42 +1366,66 @@ public:
         if (fFontOverrides->fEdging) {
             font->writable()->setEdging(fFont->getEdging());
         }
+        if (fFontOverrides->fSubpixel) {
+            font->writable()->setSubpixel(fFont->isSubpixel());
+        }
+        if (fFontOverrides->fForceAutoHinting) {
+            font->writable()->setForceAutoHinting(fFont->isForceAutoHinting());
+        }
+        if (fFontOverrides->fEmbeddedBitmaps) {
+            font->writable()->setEmbeddedBitmaps(fFont->isEmbeddedBitmaps());
+        }
+        if (fFontOverrides->fLinearMetrics) {
+            font->writable()->setLinearMetrics(fFont->isLinearMetrics());
+        }
         if (fFontOverrides->fEmbolden) {
             font->writable()->setEmbolden(fFont->isEmbolden());
         }
         if (fFontOverrides->fBaselineSnap) {
             font->writable()->setBaselineSnap(fFont->isBaselineSnap());
         }
-        if (fFontOverrides->fLinearMetrics) {
-            font->writable()->setLinearMetrics(fFont->isLinearMetrics());
-        }
-        if (fFontOverrides->fSubpixel) {
-            font->writable()->setSubpixel(fFont->isSubpixel());
-        }
-        if (fFontOverrides->fEmbeddedBitmaps) {
-            font->writable()->setEmbeddedBitmaps(fFont->isEmbeddedBitmaps());
-        }
-        if (fFontOverrides->fForceAutoHinting) {
-            font->writable()->setForceAutoHinting(fFont->isForceAutoHinting());
-        }
 
-        return true;
+        return true; // we, currently, never elide a draw
     }
+
     bool onFilter(SkPaint& paint) const override {
+        if (fPaintOverrides->fPathEffect) {
+            paint.setPathEffect(fPaint->refPathEffect());
+        }
+        if (fPaintOverrides->fShader) {
+            paint.setShader(fPaint->refShader());
+        }
+        if (fPaintOverrides->fMaskFilter) {
+            paint.setMaskFilter(fPaint->refMaskFilter());
+        }
+        if (fPaintOverrides->fColorFilter) {
+            paint.setColorFilter(fPaint->refColorFilter());
+        }
+        if (fPaintOverrides->fImageFilter) {
+            paint.setImageFilter(fPaint->refImageFilter());
+        }
+        if (fPaintOverrides->fColor) {
+            paint.setColor4f(fPaint->getColor4f());
+        }
+        if (fPaintOverrides->fStrokeWidth) {
+            paint.setStrokeWidth(fPaint->getStrokeWidth());
+        }
+        if (fPaintOverrides->fMiterLimit) {
+            paint.setStrokeMiter(fPaint->getStrokeMiter());
+        }
+        if (fPaintOverrides->fBlendMode) {
+            paint.setBlendMode(fPaint->getBlendMode_or(SkBlendMode::kSrc));
+        }
         if (fPaintOverrides->fAntiAlias) {
             paint.setAntiAlias(fPaint->isAntiAlias());
         }
         if (fPaintOverrides->fDither) {
             paint.setDither(fPaint->isDither());
         }
-        if (fPaintOverrides->fStyle) {
-            paint.setStyle(fPaint->getStyle());
-        }
-        if (fPaintOverrides->fWidth) {
-            paint.setStrokeWidth(fPaint->getStrokeWidth());
-        }
-        if (fPaintOverrides->fMiterLimit) {
-            paint.setStrokeMiter(fPaint->getStrokeMiter());
+        if (fPaintOverrides->fForceRuntimeBlend) {
+            if (skstd::optional<SkBlendMode> mode = paint.asBlendMode()) {
+                paint.setBlender(GetRuntimeBlendForBlendMode(*mode));
+            }
         }
         if (fPaintOverrides->fCapType) {
             paint.setStrokeCap(fPaint->getStrokeCap());
@@ -1399,12 +1433,10 @@ public:
         if (fPaintOverrides->fJoinType) {
             paint.setStrokeJoin(fPaint->getStrokeJoin());
         }
-        if (fPaintOverrides->fForceRuntimeBlend) {
-            if (skstd::optional<SkBlendMode> mode = paint.asBlendMode()) {
-                paint.setBlender(GetRuntimeBlendForBlendMode(*mode));
-            }
+        if (fPaintOverrides->fStyle) {
+            paint.setStyle(fPaint->getStyle());
         }
-        return true;
+        return true; // we, currently, never elide a draw
     }
     SkPaint* fPaint;
     Viewer::SkPaintFields* fPaintOverrides;
@@ -1524,9 +1556,14 @@ void Viewer::drawSlide(SkSurface* surface) {
         if (kPerspective_Real == fPerspectiveMode) {
             slideCanvas->clipRect(SkRect::MakeWH(fWindow->width(), fWindow->height()));
         }
-        OveridePaintFilterCanvas filterCanvas(slideCanvas, &fPaint, &fPaintOverrides,
-                                              &fFont, &fFontOverrides);
-        fSlides[fCurrentSlide]->draw(&filterCanvas);
+        if (fPaintOverrides.overridesSomething() || fFontOverrides.overridesSomething()) {
+            OveridePaintFilterCanvas filterCanvas(slideCanvas,
+                                                  &fPaint, &fPaintOverrides,
+                                                  &fFont, &fFontOverrides);
+            fSlides[fCurrentSlide]->draw(&filterCanvas);
+        } else {
+            fSlides[fCurrentSlide]->draw(slideCanvas);
+        }
     }
     fStatsLayer.endTiming(fPaintTimer);
     slideCanvas->restoreToCount(count);
@@ -2083,8 +2120,8 @@ void Viewer::drawImGui() {
 
                 ImGui::Checkbox("Force Runtime Blends", &fPaintOverrides.fForceRuntimeBlend);
 
-                ImGui::Checkbox("Override Stroke Width", &fPaintOverrides.fWidth);
-                if (fPaintOverrides.fWidth) {
+                ImGui::Checkbox("Override Stroke Width", &fPaintOverrides.fStrokeWidth);
+                if (fPaintOverrides.fStrokeWidth) {
                     float width = fPaint.getStrokeWidth();
                     if (ImGui::SliderFloat("Stroke Width", &width, 0, 20)) {
                         fPaint.setStrokeWidth(width);

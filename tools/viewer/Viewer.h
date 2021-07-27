@@ -49,6 +49,21 @@ public:
     static GrContextOptions::ShaderErrorHandler* ShaderErrorHandler();
 
     struct SkFontFields {
+        bool overridesSomething() const {
+            return fTypeface ||
+                   fSize ||
+                   fScaleX ||
+                   fSkewX ||
+                   fHinting ||
+                   fEdging ||
+                   fSubpixel ||
+                   fForceAutoHinting ||
+                   fEmbeddedBitmaps ||
+                   fLinearMetrics ||
+                   fEmbolden ||
+                   fBaselineSnap;
+        }
+
         bool fTypeface = false;
         bool fSize = false;
         SkScalar fSizeRange[2] = { 0, 20 };
@@ -64,15 +79,32 @@ public:
         bool fBaselineSnap = false;
     };
     struct SkPaintFields {
+        bool overridesSomething() const {
+            return fPathEffect ||
+                   fShader ||
+                   fMaskFilter ||
+                   fColorFilter ||
+                   fImageFilter ||
+                   fColor ||
+                   fStrokeWidth ||
+                   fMiterLimit ||
+                   fBlendMode ||
+                   fAntiAlias ||
+                   fDither ||
+                   fForceRuntimeBlend ||
+                   fCapType ||
+                   fJoinType ||
+                   fStyle;
+        }
+
         bool fPathEffect = false;
         bool fShader = false;
         bool fMaskFilter = false;
         bool fColorFilter = false;
-        bool fDrawLooper = false;
         bool fImageFilter = false;
 
         bool fColor = false;
-        bool fWidth = false;
+        bool fStrokeWidth = false;
         bool fMiterLimit = false;
         bool fBlendMode = false;
 
