@@ -25,8 +25,12 @@ public:
     static GrPathTessellator* Make(SkArenaAlloc*, const SkMatrix& viewMatrix, const SkPMColor4f&,
                                    int numPathVerbs, const GrPipeline&, const GrCaps&);
 
-    void prepare(GrMeshDrawTarget*, const SkRect& cullBounds, const SkPath&,
+    void prepare(GrMeshDrawTarget*,
+                 const SkRect& cullBounds,
+                 const SkMatrix& pathMatrix,
+                 const SkPath&,
                  const BreadcrumbTriangleList*) override;
+
     void draw(GrOpFlushState*) const override;
 
 private:

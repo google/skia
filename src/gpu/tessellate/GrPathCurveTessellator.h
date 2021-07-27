@@ -32,8 +32,13 @@ public:
                                         const SkPMColor4f&, DrawInnerFan, int numPathVerbs,
                                         const GrPipeline&, const GrCaps&);
 
-    void prepare(GrMeshDrawTarget*, const SkRect& cullBounds, const SkPath&,
+
+    void prepare(GrMeshDrawTarget*,
+                 const SkRect& cullBounds,
+                 const SkMatrix& pathMatrix,
+                 const SkPath&,
                  const BreadcrumbTriangleList*) override;
+
     void draw(GrOpFlushState*) const override;
 
     // Draws a 4-point instance for each curve. This method is used for drawing convex hulls over

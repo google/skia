@@ -71,6 +71,8 @@ private:
     void onPrepare(GrOpFlushState* flushState) override {
         constexpr static SkPMColor4f kCyan = {0,1,1,1};
         auto alloc = flushState->allocator();
+        const SkMatrix& shaderMatrix = SkMatrix::I();
+        const SkMatrix& pathMatrix = fMatrix;
         const GrCaps& caps = flushState->caps();
         int numVerbsToGetMiddleOut = 0;
         int numVerbsToGetTessellation = caps.minPathVerbsForHwTessellation();
@@ -79,29 +81,29 @@ private:
         switch (fMode) {
             using DrawInnerFan = GrPathCurveTessellator::DrawInnerFan;
             case Mode::kWedgeMiddleOut:
-                fTessellator = GrPathWedgeTessellator::Make(alloc, fMatrix, kCyan,
+                fTessellator = GrPathWedgeTessellator::Make(alloc, shaderMatrix, kCyan,
                                                             numVerbsToGetMiddleOut, *pipeline,
                                                             caps);
                 break;
             case Mode::kCurveMiddleOut:
-                fTessellator = GrPathCurveTessellator::Make(alloc, fMatrix, kCyan,
+                fTessellator = GrPathCurveTessellator::Make(alloc, shaderMatrix, kCyan,
                                                             DrawInnerFan::kYes,
                                                             numVerbsToGetMiddleOut, *pipeline,
                                                             caps);
                 break;
             case Mode::kWedgeTessellate:
-                fTessellator = GrPathWedgeTessellator::Make(alloc, fMatrix, kCyan,
+                fTessellator = GrPathWedgeTessellator::Make(alloc, shaderMatrix, kCyan,
                                                             numVerbsToGetTessellation, *pipeline,
                                                             caps);
                 break;
             case Mode::kCurveTessellate:
-                fTessellator = GrPathCurveTessellator::Make(alloc, fMatrix, kCyan,
+                fTessellator = GrPathCurveTessellator::Make(alloc, shaderMatrix, kCyan,
                                                             DrawInnerFan::kYes,
                                                             numVerbsToGetTessellation, *pipeline,
                                                             caps);
                 break;
         }
-        fTessellator->prepare(flushState, this->bounds(), fPath);
+        fTessellator->prepare(flushState, this->bounds(), pathMatrix, fPath);
         fProgram = GrTessellationShader::MakeProgram({alloc, flushState->writeView(),
                                                      &flushState->dstProxyView(),
                                                      flushState->renderPassBarriers(),

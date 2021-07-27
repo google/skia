@@ -139,6 +139,8 @@ void GrPathStencilCoverOp::prePreparePrograms(const GrTessellationShader::Progra
     SkASSERT(!fStencilPathProgram);
     SkASSERT(!fCoverBBoxProgram);
 
+    // We transform paths on the CPU. This allows for better batching.
+    const SkMatrix& shaderMatrix = SkMatrix::I();
     const GrPipeline* stencilPipeline = GrPathTessellationShader::MakeStencilOnlyPipeline(
             args, fAAType, fPathFlags, appliedClip.hardClip());
     const GrUserStencilSettings* stencilPathSettings =
@@ -148,19 +150,27 @@ void GrPathStencilCoverOp::prePreparePrograms(const GrTessellationShader::Progra
         // Large complex paths do better with a dedicated triangle shader for the inner fan.
         // This takes less PCI bus bandwidth (6 floats per triangle instead of 8) and allows us
         // to make sure it has an efficient middle-out topology.
-        auto shader = GrPathTessellationShader::MakeSimpleTriangleShader(
-                args.fArena, fViewMatrix, SK_PMColor4fTRANSPARENT);
-        fStencilFanProgram = GrTessellationShader::MakeProgram(args, shader, stencilPipeline,
+        auto shader = GrPathTessellationShader::MakeSimpleTriangleShader(args.fArena,
+                                                                         shaderMatrix,
+                                                                         SK_PMColor4fTRANSPARENT);
+        fStencilFanProgram = GrTessellationShader::MakeProgram(args,
+                                                               shader,
+                                                               stencilPipeline,
                                                                stencilPathSettings);
-        fTessellator = GrPathCurveTessellator::Make(args.fArena, fViewMatrix,
+        fTessellator = GrPathCurveTessellator::Make(args.fArena,
+                                                    shaderMatrix,
                                                     SK_PMColor4fTRANSPARENT,
                                                     GrPathCurveTessellator::DrawInnerFan::kNo,
-                                                    fPath.countVerbs(), *stencilPipeline,
+                                                    fPath.countVerbs(),
+                                                    *stencilPipeline,
                                                     *args.fCaps);
     } else {
-        fTessellator = GrPathWedgeTessellator::Make(args.fArena, fViewMatrix,
-                                                    SK_PMColor4fTRANSPARENT, fPath.countVerbs(),
-                                                    *stencilPipeline, *args.fCaps);
+        fTessellator = GrPathWedgeTessellator::Make(args.fArena,
+                                                    shaderMatrix,
+                                                    SK_PMColor4fTRANSPARENT,
+                                                    fPath.countVerbs(),
+                                                    *stencilPipeline,
+                                                    *args.fCaps);
     }
     fStencilPathProgram = GrTessellationShader::MakeProgram(args, fTessellator->shader(),
                                                             stencilPipeline, stencilPathSettings);
@@ -219,6 +229,9 @@ void GrPathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
         }
     }
 
+    // We transform paths on the CPU. This allows for better batching.
+    const SkMatrix& pathMatrix = fViewMatrix;
+
     if (fStencilFanProgram) {
         // The inner fan isn't built into the tessellator. Generate a standard Redbook fan with a
         // middle-out topology.
@@ -226,14 +239,18 @@ void GrPathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
         int maxFanTriangles = fPath.countVerbs() - 2;  // n - 2 triangles make an n-gon.
         GrVertexWriter triangleVertexWriter = vertexAlloc.lock<SkPoint>(maxFanTriangles * 3);
         int numTrianglesWritten;
-        GrMiddleOutPolygonTriangulator::WritePathInnerFan(std::move(triangleVertexWriter), 0, 0,
-                                                          fPath, &numTrianglesWritten);
+        GrMiddleOutPolygonTriangulator::WritePathInnerFan(std::move(triangleVertexWriter),
+                                                          0,
+                                                          0,
+                                                          pathMatrix,
+                                                          fPath,
+                                                          &numTrianglesWritten);
         fFanVertexCount = 3 * numTrianglesWritten;
         SkASSERT(fFanVertexCount <= maxFanTriangles * 3);
         vertexAlloc.unlock(fFanVertexCount);
     }
 
-    fTessellator->prepare(flushState, this->bounds(), fPath);
+    fTessellator->prepare(flushState, this->bounds(), pathMatrix, fPath);
 
     if (fCoverBBoxProgram) {
         GrVertexWriter vertexWriter = flushState->makeVertexSpace(sizeof(SkRect), 1, &fBBoxBuffer,

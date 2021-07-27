@@ -11,6 +11,7 @@
 #include "src/gpu/geometry/GrPathUtils.h"
 #include "src/gpu/geometry/GrWangsFormula.h"
 #include "src/gpu/tessellate/GrCullTest.h"
+#include "src/gpu/tessellate/GrPathXform.h"
 #include "src/gpu/tessellate/shaders/GrPathTessellationShader.h"
 
 namespace {
@@ -110,18 +111,24 @@ private:
 // by the hardware.
 class WedgeWriter {
 public:
-    WedgeWriter(const SkRect& cullBounds, const SkMatrix& viewMatrix, int maxSegments)
-            : fCullTest(cullBounds, viewMatrix)
-            , fVectorXform(viewMatrix)
+    WedgeWriter(const SkRect& cullBounds,
+                const SkMatrix& totalMatrix,  // shaderMatrix * pathMatrix
+                const SkMatrix& pathMatrix,
+                int maxSegments)
+            : fCullTest(cullBounds, totalMatrix)
+            , fTotalVectorXform(totalMatrix)
+            , fPathXform(pathMatrix)
             , fMaxSegments_pow2(maxSegments * maxSegments)
             , fMaxSegments_pow4(fMaxSegments_pow2 * fMaxSegments_pow2) {
     }
+
+    const GrPathXform& pathXform() const { return fPathXform; }
 
     SK_ALWAYS_INLINE void writeFlatWedge(const GrShaderCaps& shaderCaps,
                                          GrVertexChunkBuilder* chunker, SkPoint p0, SkPoint p1,
                                          SkPoint midpoint) {
         if (GrVertexWriter vertexWriter = chunker->appendVertex()) {
-            GrPathUtils::writeLineAsCubic(p0, p1, &vertexWriter);
+            fPathXform.mapLineToCubic(&vertexWriter, p0, p1);
             vertexWriter.write(midpoint);
             vertexWriter.write(GrVertexWriter::If(!shaderCaps.infinitySupport(),
                                                   GrTessellationShader::kCubicCurveType));
@@ -131,13 +138,13 @@ public:
     SK_ALWAYS_INLINE void writeQuadraticWedge(const GrShaderCaps& shaderCaps,
                                               GrVertexChunkBuilder* chunker, const SkPoint p[3],
                                               SkPoint midpoint) {
-        float numSegments_pow4 = GrWangsFormula::quadratic_pow4(kPrecision, p, fVectorXform);
+        float numSegments_pow4 = GrWangsFormula::quadratic_pow4(kPrecision, p, fTotalVectorXform);
         if (numSegments_pow4 > fMaxSegments_pow4) {
             this->chopAndWriteQuadraticWedges(shaderCaps, chunker, p, midpoint);
             return;
         }
         if (GrVertexWriter vertexWriter = chunker->appendVertex()) {
-            GrPathUtils::writeQuadAsCubic(p, &vertexWriter);
+            fPathXform.mapQuadToCubic(&vertexWriter, p);
             vertexWriter.write(midpoint);
             vertexWriter.write(GrVertexWriter::If(!shaderCaps.infinitySupport(),
                                                   GrTessellationShader::kCubicCurveType));
@@ -148,13 +155,13 @@ public:
     SK_ALWAYS_INLINE void writeConicWedge(const GrShaderCaps& shaderCaps,
                                           GrVertexChunkBuilder* chunker, const SkPoint p[3],
                                           float w, SkPoint midpoint) {
-        float numSegments_pow2 = GrWangsFormula::conic_pow2(kPrecision, p, w, fVectorXform);
-        if (GrWangsFormula::conic_pow2(kPrecision, p, w, fVectorXform) > fMaxSegments_pow2) {
+        float numSegments_pow2 = GrWangsFormula::conic_pow2(kPrecision, p, w, fTotalVectorXform);
+        if (numSegments_pow2 > fMaxSegments_pow2) {
             this->chopAndWriteConicWedges(shaderCaps, chunker, {p, w}, midpoint);
             return;
         }
         if (GrVertexWriter vertexWriter = chunker->appendVertex()) {
-            GrTessellationShader::WriteConicPatch(p, w, &vertexWriter);
+            fPathXform.mapConicToPatch(&vertexWriter, p, w);
             vertexWriter.write(midpoint);
             vertexWriter.write(GrVertexWriter::If(!shaderCaps.infinitySupport(),
                                                   GrTessellationShader::kConicCurveType));
@@ -166,13 +173,13 @@ public:
     SK_ALWAYS_INLINE void writeCubicWedge(const GrShaderCaps& shaderCaps,
                                           GrVertexChunkBuilder* chunker, const SkPoint p[4],
                                           SkPoint midpoint) {
-        float numSegments_pow4 = GrWangsFormula::cubic_pow4(kPrecision, p, fVectorXform);
+        float numSegments_pow4 = GrWangsFormula::cubic_pow4(kPrecision, p, fTotalVectorXform);
         if (numSegments_pow4 > fMaxSegments_pow4) {
             this->chopAndWriteCubicWedges(shaderCaps, chunker, p, midpoint);
             return;
         }
         if (GrVertexWriter vertexWriter = chunker->appendVertex()) {
-            vertexWriter.writeArray(p, 4);
+            fPathXform.map4Points(&vertexWriter, p);
             vertexWriter.write(midpoint);
             vertexWriter.write(GrVertexWriter::If(!shaderCaps.infinitySupport(),
                                                   GrTessellationShader::kCubicCurveType));
@@ -228,7 +235,8 @@ private:
     }
 
     GrCullTest fCullTest;
-    GrVectorXform fVectorXform;
+    GrVectorXform fTotalVectorXform;
+    GrPathXform fPathXform;
     const float fMaxSegments_pow2;
     const float fMaxSegments_pow4;
 
@@ -263,7 +271,9 @@ GrPathTessellator* GrPathWedgeTessellator::Make(SkArenaAlloc* arena, const SkMat
 GR_DECLARE_STATIC_UNIQUE_KEY(gFixedCountVertexBufferKey);
 GR_DECLARE_STATIC_UNIQUE_KEY(gFixedCountIndexBufferKey);
 
-void GrPathWedgeTessellator::prepare(GrMeshDrawTarget* target, const SkRect& cullBounds,
+void GrPathWedgeTessellator::prepare(GrMeshDrawTarget* target,
+                                     const SkRect& cullBounds,
+                                     const SkMatrix& pathMatrix,
                                      const SkPath& path,
                                      const BreadcrumbTriangleList* breadcrumbTriangleList) {
     SkASSERT(!breadcrumbTriangleList);
@@ -288,10 +298,14 @@ void GrPathWedgeTessellator::prepare(GrMeshDrawTarget* target, const SkRect& cul
         maxSegments = GrPathTessellationShader::kMaxFixedCountSegments;
     }
 
-    WedgeWriter wedgeWriter(cullBounds, fShader->viewMatrix(), maxSegments);
+    WedgeWriter wedgeWriter(cullBounds,
+                            SkMatrix::Concat(fShader->viewMatrix(), pathMatrix),
+                            pathMatrix,
+                            maxSegments);
+
     MidpointContourParser parser(path);
     while (parser.parseNextContour()) {
-        SkPoint midpoint = parser.currentMidpoint();
+        SkPoint midpoint = wedgeWriter.pathXform().mapPoint(parser.currentMidpoint());
         SkPoint startPoint = {0, 0};
         SkPoint lastPoint = startPoint;
         for (auto [verb, pts, w] : parser.currentContour()) {

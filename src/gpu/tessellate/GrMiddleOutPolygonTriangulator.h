@@ -14,6 +14,7 @@
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/GrVertexWriter.h"
+#include "src/gpu/tessellate/GrPathXform.h"
 
 // This class emits a polygon triangulation with a "middle-out" topology. Conceptually, middle-out
 // emits one large triangle with vertices on both endpoints and a middle point, then recurses on
@@ -127,20 +128,25 @@ public:
     static GrVertexWriter WritePathInnerFan(GrVertexWriter&& vertexWriter,
                                             int pad32Count,
                                             uint32_t pad32Value,
+                                            const GrPathXform& pathXform,
                                             const SkPath& path,
                                             int* numTrianglesWritten) {
-        GrMiddleOutPolygonTriangulator middleOut(std::move(vertexWriter), pad32Count, pad32Value,
+        GrMiddleOutPolygonTriangulator middleOut(std::move(vertexWriter),
+                                                 pad32Count,
+                                                 pad32Value,
                                                  path.countVerbs());
         for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
             switch (verb) {
+                SkPoint pt;
                 case SkPathVerb::kMove:
-                    middleOut.closeAndMove(pts[0]);
+                    middleOut.closeAndMove(pathXform.mapPoint(pts[0]));
                     break;
                 case SkPathVerb::kLine:
                 case SkPathVerb::kQuad:
                 case SkPathVerb::kConic:
                 case SkPathVerb::kCubic:
-                    middleOut.pushVertex(pts[SkPathPriv::PtsInIter((unsigned)verb) - 1]);
+                    pt = pts[SkPathPriv::PtsInIter((unsigned)verb) - 1];
+                    middleOut.pushVertex(pathXform.mapPoint(pt));
                     break;
                 case SkPathVerb::kClose:
                     break;
