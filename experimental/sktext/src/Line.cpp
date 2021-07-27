@@ -2,6 +2,7 @@
 #include "experimental/sktext/include/Text.h"
 #include "experimental/sktext/src/Line.h"
 #include "experimental/sktext/src/TextRun.h"
+#include "modules/skshaper/src/SkUnicode.h"
 
 namespace skia {
 namespace text {

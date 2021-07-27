@@ -25,7 +25,7 @@
 #include "modules/skparagraph/include/TextStyle.h"
 #include "modules/skparagraph/src/Run.h"
 #include "modules/skparagraph/src/TextLine.h"
-#include "modules/skunicode/include/SkUnicode.h"
+#include "modules/skshaper/src/SkUnicode.h"
 
 #include <memory>
 #include <string>

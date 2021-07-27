@@ -11,7 +11,7 @@
 #include "modules/skparagraph/include/ParagraphBuilder.h"
 #include "modules/skparagraph/include/ParagraphStyle.h"
 #include "modules/skparagraph/include/TextStyle.h"
-#include "modules/skunicode/include/SkUnicode.h"
+#include "modules/skshaper/src/SkUnicode.h"
 
 namespace skia {
 namespace textlayout {

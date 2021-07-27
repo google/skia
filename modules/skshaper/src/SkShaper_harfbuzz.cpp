@@ -27,7 +27,7 @@
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
 #include "modules/skshaper/include/SkShaper.h"
-#include "modules/skunicode/include/SkUnicode.h"
+#include "modules/skshaper/src/SkUnicode.h"
 #include "src/core/SkLRUCache.h"
 #include "src/core/SkTDPQueue.h"
 #include "src/utils/SkUTF.h"

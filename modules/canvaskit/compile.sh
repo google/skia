@@ -212,8 +212,7 @@ FONT_CFLAGS+=" -DCANVASKIT_NO_ALIAS_FONT"
 fi
 
 GN_SHAPER="skia_use_icu=true skia_use_system_icu=false skia_use_harfbuzz=true skia_use_system_harfbuzz=false"
-SHAPER_LIB="$BUILD_DIR/libskunicode.a \
-            $BUILD_DIR/libharfbuzz.a \
+SHAPER_LIB="$BUILD_DIR/libharfbuzz.a \
             $BUILD_DIR/libicu.a"
 if [[ $@ == *primitive_shaper* ]] || [[ $@ == *no_font* ]]; then
   echo "Using the primitive shaper instead of the harfbuzz/icu one"

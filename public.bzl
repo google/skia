@@ -940,21 +940,13 @@ SKOTTIE_TOOL_SRCS = [
 ## SkShaper
 ################################################################################
 
-# Stubs, pending SkUnicode fission
-SKUNICODE_ICU_BUILTIN_SRCS = []
-SKUNICODE_ICU_RUNTIME_SRCS = []
-
 SKSHAPER_HARFBUZZ_SRCS = [
     "modules/skshaper/include/SkShaper.h",
     "modules/skshaper/src/SkShaper.cpp",
     "modules/skshaper/src/SkShaper_harfbuzz.cpp",
     "modules/skshaper/src/SkShaper_primitive.cpp",
-
-    # TODO: move over to SkUnicode source sets
-    "modules/skunicode/include/SkUnicode.h",
-    "modules/skunicode/src/SkUnicode_icu.cpp",
-    "modules/skunicode/src/SkUnicode_icu.h",
-    "modules/skunicode/src/SkUnicode_icu_builtin.cpp",
+    "modules/skshaper/src/SkUnicode.h",
+    "modules/skshaper/src/SkUnicode_icu.cpp",
 ]
 
 SKSHAPER_PRIMITIVE_SRCS = [
