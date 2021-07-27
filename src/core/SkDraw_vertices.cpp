@@ -23,6 +23,8 @@
 #include "src/shaders/SkComposeShader.h"
 #include "src/shaders/SkShaderBase.h"
 
+extern bool gUseSkVMBlitter;
+
 struct Matrix43 {
     float fMat[12];    // column major
 
@@ -306,27 +308,16 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices, SkBlendMode blendMode
 
     VertState       state(vertexCount, indices, indexCount);
     VertState::Proc vertProc = state.chooseProc(info.mode());
-    // No colors are changing and no texture coordinates are changing, so no updates between
-    // triangles are needed. Use SkVM to blit the triangles.
-    if (!colors && (!texCoords || texCoords == positions)) {
-        if (auto blitter = SkVMBlitter::Make(
-                fDst, paint, *fMatrixProvider, outerAlloc, this->fRC->clipShader())) {
-            while (vertProc(&state)) {
-                fill_triangle(state, blitter, *fRC, dev2, dev3);
-            }
-            return;
-        }
-    }
-
-    /*  We need to know if we have perspective or not, so we can know what stage(s) we will need,
-        and how to prep our "uniforms" before each triangle in the tricolorshader.
-
-        We could just check the matrix on each triangle to decide, but we have to be sure to always
-        make the same decision, since we create 1 or 2 stages only once for the entire patch.
-
-        To be safe, we just make that determination here, and pass it into the tricolorshader.
-     */
     SkMatrix ctm = fMatrixProvider->localToDevice();
+    if (!gUseSkVMBlitter) {
+    // We need to know if we have perspective or not, so we can know what stage(s) we will need,
+    // and how to prep our "uniforms" before each triangle in the tricolorshader.
+    //
+    // We could just check the matrix on each triangle to decide, but we have to be sure to
+    // always make the same decision, since we create 1 or 2 stages only once for the entire
+    // patch.
+    //
+    // To be safe, we just make that determination here, and pass it into the tricolorshader.
     const bool usePerspective = ctm.hasPerspective();
 
     SkTriColorShader* triShader = nullptr;
@@ -402,6 +393,7 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices, SkBlendMode blendMode
                 }
             }
         }
+        return;
     } else {
         // must rebuild pipeline for each triangle, to pass in the computed ctm
         while (vertProc(&state)) {
@@ -422,9 +414,29 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices, SkBlendMode blendMode
                 matrixProvider = preConcatMatrixProvider.init(*matrixProvider, localM);
             }
 
+            // TODO: we should make it so that if this fails, then it falls through to SkVM
+            //  drawing.
             if (auto blitter = SkCreateRasterPipelineBlitter(
                     fDst, shaderPaint, *matrixProvider, &innerAlloc, this->fRC->clipShader())) {
                 fill_triangle(state, blitter, *fRC, dev2, dev3);
+            }
+        }
+        return;
+    }
+    }
+
+    {
+        // No colors are changing and no texture coordinates are changing, so no updates between
+        // triangles are needed. Use SkVM to blit the triangles.
+        if (!colors) {
+            if (!texCoords || texCoords == positions) {
+                if (auto blitter = SkVMBlitter::Make(
+                        fDst, paint, *fMatrixProvider, outerAlloc, this->fRC->clipShader())) {
+                    while (vertProc(&state)) {
+                        fill_triangle(state, blitter, *fRC, dev2, dev3);
+                    }
+                    return;
+                }
             }
         }
     }
