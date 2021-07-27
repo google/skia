@@ -264,6 +264,8 @@ static void fill_triangle(const VertState& state, SkBlitter* blitter, const SkRa
     }
 }
 
+extern bool gUseSkVMBlitter;
+
 void SkDraw::drawFixedVertices(const SkVertices* vertices, SkBlendMode blendMode,
                                const SkPaint& paint, const SkMatrix& ctmInverse,
                                const SkPoint* dev2, const SkPoint3* dev3,
@@ -308,7 +310,7 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices, SkBlendMode blendMode
     VertState::Proc vertProc = state.chooseProc(info.mode());
     // No colors are changing and no texture coordinates are changing, so no updates between
     // triangles are needed. Use SkVM to blit the triangles.
-    if (!colors && (!texCoords || texCoords == positions)) {
+    if (gUseSkVMBlitter && !colors && (!texCoords || texCoords == positions)) {
         if (auto blitter = SkVMBlitter::Make(
                 fDst, paint, *fMatrixProvider, outerAlloc, this->fRC->clipShader())) {
             while (vertProc(&state)) {
