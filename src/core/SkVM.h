@@ -439,7 +439,6 @@ namespace skvm {
         M(index)                                                     \
         M(gather8)  M(gather16)  M(gather32)                         \
                                  M(uniform32)                        \
-                                 M(array32)                          \
         M(splat)                                                     \
         M(add_f32) M(add_i32)                                        \
         M(sub_f32) M(sub_i32)                                        \
@@ -555,9 +554,9 @@ namespace skvm {
 
     SK_BEGIN_REQUIRE_DENSE
     struct Instruction {
-        Op  op;              // v* = op(x,y,z,w,immA,immB), where * == index of this Instruction.
-        Val x,y,z,w;         // Enough arguments for Op::store128.
-        int immA,immB,immC;  // Immediate bit pattern, shift count, pointer index, byte offset, etc.
+        Op  op;         // v* = op(x,y,z,w,immA,immB), where * == index of this Instruction.
+        Val x,y,z,w;    // Enough arguments for Op::store128.
+        int immA,immB;  // Immediate bit pattern, shift count, pointer index, byte offset, etc.
     };
     SK_END_REQUIRE_DENSE
 
@@ -569,7 +568,7 @@ namespace skvm {
     struct OptimizedInstruction {
         Op op;
         Val x,y,z,w;
-        int immA,immB,immC;
+        int immA,immB;
 
         Val  death;
         bool can_hoist;
@@ -632,9 +631,6 @@ namespace skvm {
         // Load i32/f32 uniform with byte-count offset.
         I32 uniform32(Ptr ptr, int offset);
         F32 uniformF (Ptr ptr, int offset) { return pun_to_F32(uniform32(ptr,offset)); }
-
-        // Load i32/f32 uniform with byte-count offset and index.
-        I32 array32  (Ptr ptr, int offset, int index);
 
         // Push and load this color as a uniform.
         Color uniformColor(SkColor4f, Uniforms*);
@@ -940,9 +936,8 @@ namespace skvm {
         }
 
     private:
-        Val push(
-                Op op, Val x=NA, Val y=NA, Val z=NA, Val w=NA, int immA=0, int immB=0, int immC=0) {
-            return this->push(Instruction{op, x,y,z,w, immA,immB,immC});
+        Val push(Op op, Val x=NA, Val y=NA, Val z=NA, Val w=NA, int immA=0, int immB=0) {
+            return this->push(Instruction{op, x,y,z,w, immA,immB});
         }
 
         template <typename T>
@@ -968,7 +963,7 @@ namespace skvm {
     struct InterpreterInstruction {
         Op  op;
         Reg d,x,y,z,w;
-        int immA,immB,immC;
+        int immA,immB;
     };
 
     class Program {
