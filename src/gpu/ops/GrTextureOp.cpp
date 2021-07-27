@@ -712,7 +712,7 @@ private:
     static void FillInVertices(const GrCaps& caps, TextureOp* texOp, Desc* desc, char* vertexData) {
         SkASSERT(vertexData);
 
-        int totQuadsSeen = 0;
+        SkDEBUGCODE(int totQuadsSeen = 0;)
         SkDEBUGCODE(int totVerticesSeen = 0;)
         SkDEBUGCODE(const size_t vertexSize = desc->fVertexSpec.vertexSize());
 
@@ -734,7 +734,7 @@ private:
                 SkASSERT((totVerticesSeen + meshVertexCnt) * vertexSize
                          == (size_t)(tessellator.vertices() - vertexData));
 
-                totQuadsSeen += quadCnt;
+                SkDEBUGCODE(totQuadsSeen += quadCnt;)
                 SkDEBUGCODE(totVerticesSeen += meshVertexCnt);
                 SkASSERT(totQuadsSeen * desc->fVertexSpec.verticesPerQuad() == totVerticesSeen);
             }
