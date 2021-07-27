@@ -30,20 +30,20 @@ namespace {
 // NOTE: The emitted geometry may not be axis-aligned, depending on the view matrix.
 class BoundingBoxShader : public GrGeometryProcessor {
 public:
-    BoundingBoxShader(const SkMatrix& viewMatrix, SkPMColor4f color, const GrShaderCaps& shaderCaps)
+    BoundingBoxShader(SkPMColor4f color, const GrShaderCaps& shaderCaps)
             : GrGeometryProcessor(kTessellate_BoundingBoxShader_ClassID)
-            , fViewMatrix(viewMatrix)
             , fColor(color) {
-        // The 1/4px outset logic does not work with perspective yet.
-        SkASSERT(!fViewMatrix.hasPerspective());
         if (!shaderCaps.vertexIDSupport()) {
             constexpr static Attribute kUnitCoordAttrib("unitCoord", kFloat2_GrVertexAttribType,
                                                         kFloat2_GrSLType);
             this->setVertexAttributes(&kUnitCoordAttrib, 1);
         }
-        constexpr static Attribute kPathBoundsAttrib("pathBounds", kFloat4_GrVertexAttribType,
-                                                     kFloat4_GrSLType);
-        this->setInstanceAttributes(&kPathBoundsAttrib, 1);
+        constexpr static Attribute kInstanceAttribs[] = {
+            {"matrix2d", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
+            {"translate", kFloat2_GrVertexAttribType, kFloat2_GrSLType},
+            {"pathBounds", kFloat4_GrVertexAttribType, kFloat4_GrSLType}
+        };
+        this->setInstanceAttributes(kInstanceAttribs, SK_ARRAY_COUNT(kInstanceAttribs));
     }
 
 private:
@@ -51,7 +51,6 @@ private:
     void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const final {}
     GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const final;
 
-    const SkMatrix fViewMatrix;
     const SkPMColor4f fColor;
 };
 
@@ -61,26 +60,20 @@ GrGLSLGeometryProcessor* BoundingBoxShader::createGLSLInstance(const GrShaderCap
             args.fVaryingHandler->emitAttributes(args.fGeomProc);
 
             // Vertex shader.
-            const char* viewMatrix;
-            fViewMatrixUniform = args.fUniformHandler->addUniform(nullptr, kVertex_GrShaderFlag,
-                                                                  kFloat3x3_GrSLType, "viewMatrix",
-                                                                  &viewMatrix);
             if (args.fShaderCaps->vertexIDSupport()) {
                 // If we don't have sk_VertexID support then "unitCoord" already came in as a vertex
                 // attrib.
-                args.fVertBuilder->codeAppendf(R"(
+                args.fVertBuilder->codeAppend(R"(
                 float2 unitCoord = float2(sk_VertexID & 1, sk_VertexID >> 1);)");
             }
-            args.fVertBuilder->codeAppendf(R"(
-            float3x3 VIEW_MATRIX = %s;
-
+            args.fVertBuilder->codeAppend(R"(
             // Bloat the bounding box by 1/4px to be certain we will reset every stencil value.
-            float2x2 M_ = inverse(float2x2(VIEW_MATRIX));
+            float2x2 M_ = inverse(float2x2(matrix2d));
             float2 bloat = float2(abs(M_[0]) + abs(M_[1])) * .25;
 
             // Find the vertex position.
             float2 localcoord = mix(pathBounds.xy - bloat, pathBounds.zw + bloat, unitCoord);
-            float2 vertexpos = (VIEW_MATRIX * float3(localcoord, 1)).xy;)", viewMatrix);
+            float2 vertexpos = float2x2(matrix2d) * localcoord + translate;)");
             gpArgs->fLocalCoordVar.set(kFloat2_GrSLType, "localcoord");
             gpArgs->fPositionVar.set(kFloat2_GrSLType, "vertexpos");
 
@@ -94,13 +87,10 @@ GrGLSLGeometryProcessor* BoundingBoxShader::createGLSLInstance(const GrShaderCap
 
         void setData(const GrGLSLProgramDataManager& pdman, const GrShaderCaps&,
                      const GrGeometryProcessor& gp) override {
-            const auto& bboxShader = gp.cast<BoundingBoxShader>();
-            pdman.setSkMatrix(fViewMatrixUniform, bboxShader.fViewMatrix);
-            const SkPMColor4f& color = bboxShader.fColor;
+            const SkPMColor4f& color = gp.cast<BoundingBoxShader>().fColor;
             pdman.set4f(fColorUniform, color.fR, color.fG, color.fB, color.fA);
         }
 
-        GrGLSLUniformHandler::UniformHandle fViewMatrixUniform;
         GrGLSLUniformHandler::UniformHandle fColorUniform;
     };
 
@@ -178,8 +168,7 @@ void GrPathStencilCoverOp::prePreparePrograms(const GrTessellationShader::Progra
     if (!(fPathFlags & PathFlags::kStencilOnly)) {
         // Create a program that draws a bounding box over the path and fills its stencil coverage
         // into the color buffer.
-        auto* bboxShader = args.fArena->make<BoundingBoxShader>(fViewMatrix, fColor,
-                                                                *args.fCaps->shaderCaps());
+        auto* bboxShader = args.fArena->make<BoundingBoxShader>(fColor, *args.fCaps->shaderCaps());
         auto* bboxPipeline = GrTessellationShader::MakePipeline(args, fAAType,
                                                                 std::move(appliedClip),
                                                                 std::move(fProcessors));
@@ -253,8 +242,19 @@ void GrPathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
     fTessellator->prepare(flushState, this->bounds(), pathMatrix, fPath);
 
     if (fCoverBBoxProgram) {
-        GrVertexWriter vertexWriter = flushState->makeVertexSpace(sizeof(SkRect), 1, &fBBoxBuffer,
-                                                                  &fBBoxBaseInstance);
+        size_t instanceStride = fCoverBBoxProgram->geomProc().instanceStride();
+        GrVertexWriter vertexWriter = flushState->makeVertexSpace(
+                instanceStride,
+                1,
+                &fBBoxBuffer,
+                &fBBoxBaseInstance);
+        SkDEBUGCODE(auto end = vertexWriter.makeOffset(instanceStride));
+        vertexWriter.write(fViewMatrix.getScaleX(),
+                           fViewMatrix.getSkewY(),
+                           fViewMatrix.getSkewX(),
+                           fViewMatrix.getScaleY(),
+                           fViewMatrix.getTranslateX(),
+                           fViewMatrix.getTranslateY());
         if (fPath.isInverseFillType()) {
             // Fill the entire backing store to make sure we clear every stencil value back to 0. If
             // there is a scissor it will have already clipped the stencil draw.
@@ -269,6 +269,7 @@ void GrPathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
         } else {
             vertexWriter.write(fPath.getBounds());
         }
+        SkASSERT(vertexWriter == end);
     }
 
     if (!flushState->caps().shaderCaps()->vertexIDSupport()) {
