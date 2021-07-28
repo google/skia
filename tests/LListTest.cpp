@@ -214,6 +214,21 @@ template <unsigned int N> static void test_tllist(skiatest::Reporter* reporter) 
     list2.reset();
     REPORTER_ASSERT(reporter, list1.isEmpty() && list2.isEmpty());
 
+    list1.addToTail(ListElement(1));
+    list1.addToTail(ListElement(2));
+    list1.addToTail(ListElement(4));
+    list1.addToTail(ListElement(8));
+    list1.popHead();
+    REPORTER_ASSERT(reporter, list1.count() == 3);
+    REPORTER_ASSERT(reporter, *list1.head() == ListElement(2));
+    REPORTER_ASSERT(reporter, *list1.tail() == ListElement(8));
+    list1.popTail();
+    REPORTER_ASSERT(reporter, list1.count() == 2);
+    REPORTER_ASSERT(reporter, *list1.head() == ListElement(2));
+    REPORTER_ASSERT(reporter, *list1.tail() == ListElement(4));
+
+    list1.reset();
+
     // randomly perform insertions and deletions on a list and perform tests
     int count = 0;
     for (int j = 0; j < 100; ++j) {

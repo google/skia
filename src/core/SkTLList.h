@@ -123,7 +123,7 @@ public:
 
     void popTail() {
         this->validate();
-        Node* node = fList.head();
+        Node* node = fList.tail();
         if (node) {
             this->removeNode(node);
         }
