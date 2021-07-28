@@ -36,10 +36,6 @@ public:
     bool onAppendStages(const SkStageRec& rec) const override;
 
 private:
-    // For serialization.  This will never be called.
-    Factory getFactory() const override { return nullptr; }
-    const char* getTypeName() const override { return nullptr; }
-
     const SkShaderBase& fShader;
     mutable SkScalar fMatrixStorage[9];
     mutable skvm::Uniform fMatrix;
