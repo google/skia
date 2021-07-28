@@ -40,15 +40,15 @@ GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Opti
     if (options.fGpuPathRenderers & GpuPathRenderers::kAALinearizing) {
         fChain.push_back(sk_make_sp<GrAALinearizingConvexPathRenderer>());
     }
-    if (options.fGpuPathRenderers & GpuPathRenderers::kSmall) {
-        fChain.push_back(sk_make_sp<GrSmallPathRenderer>());
-    }
     if (options.fGpuPathRenderers & GpuPathRenderers::kAtlas) {
         if (auto atlasPathRenderer = GrAtlasPathRenderer::Make(context)) {
             fAtlasPathRenderer = atlasPathRenderer.get();
             context->priv().addOnFlushCallbackObject(atlasPathRenderer.get());
             fChain.push_back(std::move(atlasPathRenderer));
         }
+    }
+    if (options.fGpuPathRenderers & GpuPathRenderers::kSmall) {
+        fChain.push_back(sk_make_sp<GrSmallPathRenderer>());
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kTriangulating) {
         fChain.push_back(sk_make_sp<GrTriangulatingPathRenderer>());
