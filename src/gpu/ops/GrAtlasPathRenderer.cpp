@@ -38,6 +38,11 @@ constexpr static int kAtlasMaxPathHeight = 256;
 // atlasing when they are very small.
 constexpr static int kAtlasMaxPathHeightWithMSAAFallback = 128;
 
+// http://skbug.com/12291 -- The way GrDynamicAtlas works, a single 2048x1 path is given an entire
+// 2048x2048 atlas with draw bounds of 2048x1025. Limit the max width to 1024 to avoid this landmine
+// until it's resolved.
+constexpr static int kAtlasMaxPathWidth = 1024;
+
 bool GrAtlasPathRenderer::IsSupported(GrRecordingContext* rContext) {
     const GrCaps& caps = *rContext->priv().caps();
     auto atlasFormat = caps.getDefaultBackendFormat(kAtlasAlpha8Type, GrRenderable::kYes);
@@ -63,6 +68,7 @@ GrAtlasPathRenderer::GrAtlasPathRenderer(GrDirectContext* dContext) {
     fAtlasMaxSize = 2048;
 #endif
     fAtlasMaxSize = SkPrevPow2(std::min(fAtlasMaxSize, (float)caps.maxPreferredRenderTargetSize()));
+    fAtlasMaxPathWidth = std::min((float)kAtlasMaxPathWidth, fAtlasMaxSize);
     fAtlasInitialSize = SkNextPow2(std::min(kAtlasInitialSize, (int)fAtlasMaxSize));
 }
 
@@ -81,7 +87,7 @@ bool GrAtlasPathRenderer::pathFitsInAtlas(const SkRect& pathDevBounds,
     auto [topLeftFloor, botRightCeil] = round_out(pathDevBounds);
     float2 size = botRightCeil - topLeftFloor;
     return // Ensure the path's largest dimension fits in the atlas.
-           skvx::all(size <= fAtlasMaxSize) &&
+           skvx::all(size <= fAtlasMaxPathWidth) &&
            // Since we will transpose tall skinny paths, limiting to atlasMaxPathHeight^2 pixels
            // guarantees heightInAtlas <= atlasMaxPathHeight, while also allowing paths that are
            // very wide and short.
@@ -140,7 +146,7 @@ bool GrAtlasPathRenderer::addPathToAtlas(GrRecordingContext* rContext,
         std::swap(heightInAtlas, widthInAtlas);
     }
     // pathFitsInAtlas() should have guaranteed these constraints on the path size.
-    SkASSERT(widthInAtlas <= (int)fAtlasMaxSize);
+    SkASSERT(widthInAtlas <= (int)fAtlasMaxPathWidth);
     SkASSERT(heightInAtlas <= kAtlasMaxPathHeight);
 
     // Check if this path is already in the atlas. This is mainly for clip paths.

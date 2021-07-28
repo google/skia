@@ -90,6 +90,7 @@ private:
     void preFlush(GrOnFlushResourceProvider*, SkSpan<const uint32_t> taskIDs) override;
 
     float fAtlasMaxSize = 0;
+    float fAtlasMaxPathWidth = 0;
     int fAtlasInitialSize = 0;
 
     // A collection of all atlases we've created and used since the last flush. We instantiate these
