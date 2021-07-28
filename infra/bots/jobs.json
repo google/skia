@@ -184,7 +184,6 @@
   {"name": "FM-Win-Clang-GCE-CPU-AVX2-x86_64-Debug-All"},
   {"name": "FM-Win-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN"},
   {"name": "FM-Win-MSVC-GCE-CPU-AVX2-x86_64-Debug-All"},
-  {"name": "Fuzz-Debian10-Clang"},
   {"name": "Housekeeper-Nightly-RecreateSKPs_DryRun"},
   {"name": "Housekeeper-Nightly-UpdateGoDeps"},
   {"name": "Housekeeper-OnDemand-Presubmit",
