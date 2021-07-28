@@ -133,10 +133,11 @@ void GrPathStencilCoverOp::prePreparePrograms(const GrTessellationShader::Progra
     const SkMatrix& shaderMatrix = SkMatrix::I();
     const GrPipeline* stencilPipeline = GrPathTessellationShader::MakeStencilOnlyPipeline(
             args, fAAType, fPathFlags, appliedClip.hardClip());
-    const GrUserStencilSettings* stencilPathSettings =
-            GrPathTessellationShader::StencilPathSettings(GrFillRuleForSkPath(fPath));
+    const GrUserStencilSettings* stencilSettings = GrPathTessellationShader::StencilPathSettings(
+                    GrFillRuleForPathFillType(this->pathFillType()));
 
-    if (fPath.countVerbs() > 50 && this->bounds().height() * this->bounds().width() > 256 * 256) {
+    if (fTotalCombinedPathVerbCnt > 50 &&
+        this->bounds().height() * this->bounds().width() > 256 * 256) {
         // Large complex paths do better with a dedicated triangle shader for the inner fan.
         // This takes less PCI bus bandwidth (6 floats per triangle instead of 8) and allows us
         // to make sure it has an efficient middle-out topology.
@@ -146,24 +147,26 @@ void GrPathStencilCoverOp::prePreparePrograms(const GrTessellationShader::Progra
         fStencilFanProgram = GrTessellationShader::MakeProgram(args,
                                                                shader,
                                                                stencilPipeline,
-                                                               stencilPathSettings);
+                                                               stencilSettings);
         fTessellator = GrPathCurveTessellator::Make(args.fArena,
                                                     shaderMatrix,
                                                     SK_PMColor4fTRANSPARENT,
                                                     GrPathCurveTessellator::DrawInnerFan::kNo,
-                                                    fPath.countVerbs(),
+                                                    fTotalCombinedPathVerbCnt,
                                                     *stencilPipeline,
                                                     *args.fCaps);
     } else {
         fTessellator = GrPathWedgeTessellator::Make(args.fArena,
                                                     shaderMatrix,
                                                     SK_PMColor4fTRANSPARENT,
-                                                    fPath.countVerbs(),
+                                                    fTotalCombinedPathVerbCnt,
                                                     *stencilPipeline,
                                                     *args.fCaps);
     }
-    fStencilPathProgram = GrTessellationShader::MakeProgram(args, fTessellator->shader(),
-                                                            stencilPipeline, stencilPathSettings);
+    fStencilPathProgram = GrTessellationShader::MakeProgram(args,
+                                                            fTessellator->shader(),
+                                                            stencilPipeline,
+                                                            stencilSettings);
 
     if (!(fPathFlags & PathFlags::kStencilOnly)) {
         // Create a program that draws a bounding box over the path and fills its stencil coverage
@@ -172,8 +175,8 @@ void GrPathStencilCoverOp::prePreparePrograms(const GrTessellationShader::Progra
         auto* bboxPipeline = GrTessellationShader::MakePipeline(args, fAAType,
                                                                 std::move(appliedClip),
                                                                 std::move(fProcessors));
-        auto* bboxStencil =
-                GrPathTessellationShader::TestAndResetStencilSettings(fPath.isInverseFillType());
+        auto* bboxStencil = GrPathTessellationShader::TestAndResetStencilSettings(
+                SkPathFillType_IsInverse(this->pathFillType()));
         fCoverBBoxProgram = GrSimpleMeshDrawOpHelper::CreateProgramInfo(
                 args.fArena,
                 bboxPipeline,
@@ -218,58 +221,70 @@ void GrPathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
         }
     }
 
-    // We transform paths on the CPU. This allows for better batching.
-    const SkMatrix& pathMatrix = fViewMatrix;
-
     if (fStencilFanProgram) {
         // The inner fan isn't built into the tessellator. Generate a standard Redbook fan with a
         // middle-out topology.
         GrEagerDynamicVertexAllocator vertexAlloc(flushState, &fFanBuffer, &fFanBaseVertex);
-        int maxFanTriangles = fPath.countVerbs() - 2;  // n - 2 triangles make an n-gon.
-        GrVertexWriter triangleVertexWriter = vertexAlloc.lock<SkPoint>(maxFanTriangles * 3);
-        int numTrianglesWritten;
-        GrMiddleOutPolygonTriangulator::WritePathInnerFan(std::move(triangleVertexWriter),
-                                                          0,
-                                                          0,
-                                                          pathMatrix,
-                                                          fPath,
-                                                          &numTrianglesWritten);
-        fFanVertexCount = 3 * numTrianglesWritten;
-        SkASSERT(fFanVertexCount <= maxFanTriangles * 3);
+        int maxCombinedFanEdges =
+                GrPathTessellator::MaxCombinedFanEdgesInPathDrawList(fTotalCombinedPathVerbCnt);
+        // A single n-sided polygon is fanned by n-2 triangles. Multiple polygons with a combined
+        // edge count of n are fanned by strictly fewer triangles.
+        int maxTrianglesInFans = std::max(maxCombinedFanEdges - 2, 0);
+        GrVertexWriter triangleVertexWriter = vertexAlloc.lock<SkPoint>(maxTrianglesInFans * 3);
+        int fanTriangleCount = 0;
+        for (auto [pathMatrix, path] : *fPathDrawList) {
+            int numTrianglesWritten;
+            triangleVertexWriter = GrMiddleOutPolygonTriangulator::WritePathInnerFan(
+                    std::move(triangleVertexWriter),
+                    0,
+                    0,
+                    pathMatrix,
+                    path,
+                    &numTrianglesWritten);
+            fanTriangleCount += numTrianglesWritten;
+        }
+        SkASSERT(fanTriangleCount <= maxTrianglesInFans);
+        fFanVertexCount = fanTriangleCount * 3;
         vertexAlloc.unlock(fFanVertexCount);
     }
 
-    fTessellator->prepare(flushState, this->bounds(), {pathMatrix, fPath}, fPath.countVerbs());
+    fTessellator->prepare(flushState, this->bounds(), *fPathDrawList, fTotalCombinedPathVerbCnt);
 
     if (fCoverBBoxProgram) {
         size_t instanceStride = fCoverBBoxProgram->geomProc().instanceStride();
         GrVertexWriter vertexWriter = flushState->makeVertexSpace(
                 instanceStride,
-                1,
+                fPathCount,
                 &fBBoxBuffer,
                 &fBBoxBaseInstance);
-        SkDEBUGCODE(auto end = vertexWriter.makeOffset(instanceStride));
-        vertexWriter.write(fViewMatrix.getScaleX(),
-                           fViewMatrix.getSkewY(),
-                           fViewMatrix.getSkewX(),
-                           fViewMatrix.getScaleY(),
-                           fViewMatrix.getTranslateX(),
-                           fViewMatrix.getTranslateY());
-        if (fPath.isInverseFillType()) {
-            // Fill the entire backing store to make sure we clear every stencil value back to 0. If
-            // there is a scissor it will have already clipped the stencil draw.
-            auto rtBounds = flushState->writeView().asRenderTargetProxy()->backingStoreBoundsRect();
-            SkASSERT(rtBounds == fOriginalDrawBounds);
-            SkRect pathSpaceRTBounds;
-            if (SkMatrixPriv::InverseMapRect(fViewMatrix, &pathSpaceRTBounds, rtBounds)) {
-                vertexWriter.write(pathSpaceRTBounds);
+        SkDEBUGCODE(int pathCount = 0;)
+        for (auto [pathMatrix, path] : *fPathDrawList) {
+            SkDEBUGCODE(auto end = vertexWriter.makeOffset(instanceStride));
+            vertexWriter.write(pathMatrix.getScaleX(),
+                               pathMatrix.getSkewY(),
+                               pathMatrix.getSkewX(),
+                               pathMatrix.getScaleY(),
+                               pathMatrix.getTranslateX(),
+                               pathMatrix.getTranslateY());
+            if (path.isInverseFillType()) {
+                // Fill the entire backing store to make sure we clear every stencil value back to
+                // 0. If there is a scissor it will have already clipped the stencil draw.
+                auto rtBounds =
+                        flushState->writeView().asRenderTargetProxy()->backingStoreBoundsRect();
+                SkASSERT(rtBounds == fOriginalDrawBounds);
+                SkRect pathSpaceRTBounds;
+                if (SkMatrixPriv::InverseMapRect(pathMatrix, &pathSpaceRTBounds, rtBounds)) {
+                    vertexWriter.write(pathSpaceRTBounds);
+                } else {
+                    vertexWriter.write(path.getBounds());
+                }
             } else {
-                vertexWriter.write(fPath.getBounds());
+                vertexWriter.write(path.getBounds());
             }
-        } else {
-            vertexWriter.write(fPath.getBounds());
+            SkASSERT(vertexWriter == end);
+            SkDEBUGCODE(++pathCount;)
         }
-        SkASSERT(vertexWriter == end);
+        SkASSERT(pathCount == fPathCount);
     }
 
     if (!flushState->caps().shaderCaps()->vertexIDSupport()) {
@@ -310,6 +325,6 @@ void GrPathStencilCoverOp::onExecute(GrOpFlushState* flushState, const SkRect& c
         flushState->bindTextures(fCoverBBoxProgram->geomProc(), nullptr,
                                  fCoverBBoxProgram->pipeline());
         flushState->bindBuffers(nullptr, fBBoxBuffer, fBBoxVertexBufferIfNoIDSupport);
-        flushState->drawInstanced(1, fBBoxBaseInstance, 4, 0);
+        flushState->drawInstanced(fPathCount, fBBoxBaseInstance, 4, 0);
     }
 }

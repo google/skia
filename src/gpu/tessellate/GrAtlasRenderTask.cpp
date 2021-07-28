@@ -48,10 +48,11 @@ bool GrAtlasRenderTask::addPath(const SkMatrix& viewMatrix, const SkPath& path,
                                         locationInAtlas->y() - pathDevTopLeft.y());
     }
 
-    // Concatenate this path onto our uber path that matches its fill rule.
-    SkPath* uberPath = this->getUberPath(GrFillRuleForSkPath(path));
-    uberPath->moveTo(locationInAtlas->x(), locationInAtlas->y());  // Implicit moveTo(0,0).
-    uberPath->addPath(path, pathToAtlasMatrix);
+    if (GrFillRuleForSkPath(path) == GrFillRule::kNonzero) {
+        fWindingPathList.add(&fPathDrawAllocator, pathToAtlasMatrix, path);
+    } else {
+        fEvenOddPathList.add(&fPathDrawAllocator, pathToAtlasMatrix, path);
+    }
     return true;
 }
 
@@ -89,17 +90,19 @@ GrRenderTask::ExpectedOutcome GrAtlasRenderTask::onMakeClosed(GrRecordingContext
     }
 
     // Add ops to stencil the atlas paths.
-    for (auto fillRule : {GrFillRule::kNonzero, GrFillRule::kEvenOdd}) {
-        SkPath* uberPath = this->getUberPath(fillRule);
-        if (uberPath->isEmpty()) {
-            continue;
+    for (const auto* pathList : {&fWindingPathList, &fEvenOddPathList}) {
+        if (pathList->pathCount() > 0) {
+            auto op = GrOp::Make<GrPathStencilCoverOp>(
+                    rContext,
+                    pathList->pathDrawList(),
+                    pathList->totalCombinedPathVerbCnt(),
+                    pathList->pathCount(),
+                    GrPaint(),
+                    GrAAType::kMSAA,
+                    GrTessellationPathRenderer::PathFlags::kStencilOnly,
+                    drawRect);
+            this->addAtlasDrawOp(std::move(op), caps);
         }
-        uberPath->setFillType(fillRule == GrFillRule::kNonzero ? SkPathFillType::kWinding
-                                                               : SkPathFillType::kEvenOdd);
-        auto op = GrOp::Make<GrPathStencilCoverOp>(
-                rContext, SkMatrix::I(), *uberPath, GrPaint(), GrAAType::kMSAA,
-                GrTessellationPathRenderer::PathFlags::kStencilOnly, drawRect);
-        this->addAtlasDrawOp(std::move(op), caps);
     }
 
     // Finally, draw a fullscreen rect to cover our stencilled paths.

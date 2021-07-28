@@ -11,6 +11,8 @@
 #include "include/core/SkPath.h"
 #include "src/gpu/GrDynamicAtlas.h"
 #include "src/gpu/GrOpsTask.h"
+#include "src/gpu/GrTBlockList.h"
+#include "src/gpu/tessellate/GrPathTessellator.h"
 
 struct SkIPoint16;
 
@@ -54,12 +56,35 @@ private:
     // Executes the GrOpsTask and resolves msaa if needed.
     bool onExecute(GrOpFlushState* flushState) override;
 
-    SkPath* getUberPath(GrFillRule fillRule) {
-        return &fUberPaths[fillRule == GrFillRule::kEvenOdd];
-    }
-
     const std::unique_ptr<GrDynamicAtlas> fDynamicAtlas;
-    SkPath fUberPaths[2];  // 2 fill rules: "nonzero" and "even/odd".
+
+    // Allocate enough inline entries for 16 atlas path draws, then spill to the heap.
+    using PathDrawAllocator = GrTBlockList<GrPathTessellator::PathDrawList, 16>;
+    PathDrawAllocator fPathDrawAllocator{64, GrBlockAllocator::GrowthPolicy::kFibonacci};
+
+    class AtlasPathList : SkNoncopyable {
+    public:
+        void add(PathDrawAllocator* alloc, const SkMatrix& pathMatrix, const SkPath& path) {
+            fPathDrawList = &alloc->emplace_back(pathMatrix, path, fPathDrawList);
+            if (path.isInverseFillType()) {
+                // The atlas never has inverse paths. The inversion happens later.
+                fPathDrawList->fPath.toggleInverseFillType();
+            }
+            fTotalCombinedPathVerbCnt += path.countVerbs();
+            ++fPathCount;
+        }
+        const GrPathTessellator::PathDrawList* pathDrawList() const { return fPathDrawList; }
+        int totalCombinedPathVerbCnt() const { return fTotalCombinedPathVerbCnt; }
+        int pathCount() const { return fPathCount; }
+
+    private:
+        GrPathTessellator::PathDrawList* fPathDrawList = nullptr;
+        int fTotalCombinedPathVerbCnt = 0;
+        int fPathCount = 0;
+    };
+
+    AtlasPathList fWindingPathList;
+    AtlasPathList fEvenOddPathList;
 };
 
 #endif

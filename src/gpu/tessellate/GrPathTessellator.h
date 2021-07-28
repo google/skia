@@ -26,12 +26,12 @@ public:
     using BreadcrumbTriangleList = GrInnerFanTriangulator::BreadcrumbTriangleList;
 
     struct PathDrawList {
-        PathDrawList(const SkMatrix& pathMatrix, const SkPath& path)
-                : fPathMatrix(pathMatrix), fPath(path) {}
+        PathDrawList(const SkMatrix& pathMatrix, const SkPath& path, PathDrawList* next = nullptr)
+                : fPathMatrix(pathMatrix), fPath(path), fNext(next) {}
 
         SkMatrix fPathMatrix;
         SkPath fPath;
-        PathDrawList* fNext = nullptr;
+        PathDrawList* fNext;
 
         struct Iter {
             void operator++() { fHead = fHead->fNext; }

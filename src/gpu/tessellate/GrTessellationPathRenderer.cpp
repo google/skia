@@ -63,9 +63,12 @@ GrPathRenderer::CanDrawPath GrTessellationPathRenderer::onCanDrawPath(
 }
 
 static GrOp::Owner make_non_convex_fill_op(GrRecordingContext* rContext,
+                                           SkArenaAlloc* arena,
                                            GrTessellationPathRenderer::PathFlags pathFlags,
-                                           GrAAType aaType, const SkRect& drawBounds,
-                                           const SkMatrix& viewMatrix, const SkPath& path,
+                                           GrAAType aaType,
+                                           const SkRect& drawBounds,
+                                           const SkMatrix& viewMatrix,
+                                           const SkPath& path,
                                            GrPaint&& paint) {
     SkASSERT(!path.isConvex() || path.isInverseFillType());
     int numVerbs = path.countVerbs();
@@ -79,13 +82,23 @@ static GrOp::Owner make_non_convex_fill_op(GrRecordingContext* rContext,
         constexpr static float kCpuWeight = 512;
         constexpr static float kMinNumPixelsToTriangulate = 256 * 256;
         if (cpuTessellationWork * kCpuWeight + kMinNumPixelsToTriangulate < gpuFragmentWork) {
-            return GrOp::Make<GrPathInnerTriangulateOp>(rContext, viewMatrix, path,
-                                                        std::move(paint), aaType, pathFlags,
+            return GrOp::Make<GrPathInnerTriangulateOp>(rContext,
+                                                        viewMatrix,
+                                                        path,
+                                                        std::move(paint),
+                                                        aaType,
+                                                        pathFlags,
                                                         drawBounds);
         }
     }
-    return GrOp::Make<GrPathStencilCoverOp>(rContext, viewMatrix, path, std::move(paint), aaType,
-                                            pathFlags, drawBounds);
+    return GrOp::Make<GrPathStencilCoverOp>(rContext,
+                                            arena,
+                                            viewMatrix,
+                                            path,
+                                            std::move(paint),
+                                            aaType,
+                                            pathFlags,
+                                            drawBounds);
 }
 
 bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
@@ -129,8 +142,14 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
     const SkRect& drawBounds = path.isInverseFillType()
             ? args.fSurfaceDrawContext->asSurfaceProxy()->backingStoreBoundsRect()
             : pathDevBounds;
-    auto op = make_non_convex_fill_op(args.fContext, PathFlags::kNone, args.fAAType, drawBounds,
-                                      *args.fViewMatrix, path, std::move(args.fPaint));
+    auto op = make_non_convex_fill_op(args.fContext,
+                                      args.fSurfaceDrawContext->arenaAlloc(),
+                                      PathFlags::kNone,
+                                      args.fAAType,
+                                      drawBounds,
+                                      *args.fViewMatrix,
+                                      path,
+                                      std::move(args.fPaint));
     sdc->addDrawOp(args.fClip, std::move(op));
     return true;
 }
@@ -167,7 +186,13 @@ void GrTessellationPathRenderer::onStencilPath(const StencilPathArgs& args) {
         return;
     }
 
-    auto op = make_non_convex_fill_op(args.fContext, PathFlags::kStencilOnly, aaType, pathDevBounds,
-                                      *args.fViewMatrix, path, GrPaint());
+    auto op = make_non_convex_fill_op(args.fContext,
+                                      args.fSurfaceDrawContext->arenaAlloc(),
+                                      PathFlags::kStencilOnly,
+                                      aaType,
+                                      pathDevBounds,
+                                      *args.fViewMatrix,
+                                      path,
+                                      GrPaint());
     sdc->addDrawOp(args.fClip, std::move(op));
 }

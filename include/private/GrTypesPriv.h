@@ -196,8 +196,8 @@ enum class GrFillRule : bool {
     kEvenOdd
 };
 
-inline GrFillRule GrFillRuleForSkPath(const SkPath& path) {
-    switch (path.getFillType()) {
+inline GrFillRule GrFillRuleForPathFillType(SkPathFillType fillType) {
+    switch (fillType) {
         case SkPathFillType::kWinding:
         case SkPathFillType::kInverseWinding:
             return GrFillRule::kNonzero;
@@ -206,6 +206,10 @@ inline GrFillRule GrFillRuleForSkPath(const SkPath& path) {
             return GrFillRule::kEvenOdd;
     }
     SkUNREACHABLE;
+}
+
+inline GrFillRule GrFillRuleForSkPath(const SkPath& path) {
+    return GrFillRuleForPathFillType(path.getFillType());
 }
 
 /** This enum indicates the type of antialiasing to be performed. */
