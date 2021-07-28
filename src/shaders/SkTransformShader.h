@@ -32,7 +32,7 @@ public:
             skvm::Uniforms* uniforms) const;
 
     // Change the values represented by the uniforms in fMatrix.
-    bool update(const SkMatrix& ctm, skvm::Uniforms* u) const override;
+    bool update(const SkMatrix& ctm) const override;
     bool onAppendStages(const SkStageRec& rec) const override;
 
 private:

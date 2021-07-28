@@ -36,11 +36,6 @@ public:
 
     ~SkVMBlitter() override;
 
-    template<typename Updater>
-    bool updateUniforms(Updater updater) {
-        return updater(&fUniforms);
-    }
-
 private:
     enum class Coverage { Full, UniformF, MaskA8, MaskLCD16, Mask3D };
     struct Key {

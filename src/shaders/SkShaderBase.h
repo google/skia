@@ -266,7 +266,7 @@ private:
 
 class SkUpdatableShader : public SkShaderBase {
 public:
-    virtual bool update(const SkMatrix& ctm, skvm::Uniforms* u) const = 0;
+    virtual bool update(const SkMatrix& ctm) const = 0;
 };
 
 inline SkShaderBase* as_SB(SkShader* shader) {

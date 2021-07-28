@@ -327,13 +327,10 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices, SkBlendMode blendMode
             shaderPaint.setShader(sk_ref_sp(texCoordShader));
             if (auto blitter = SkVMBlitter::Make(
                     fDst, shaderPaint, *fMatrixProvider, outerAlloc, this->fRC->clipShader())) {
-                auto updater = [&](skvm::Uniforms* uniforms) {
-                    SkMatrix localM;
-                    return texture_to_matrix(state, positions, texCoords, &localM) &&
-                           texCoordShader->update(SkMatrix::Concat(ctm, localM), uniforms);
-                };
+                SkMatrix localM;
                 while (vertProc(&state)) {
-                    if (blitter->updateUniforms(updater)) {
+                    if (texture_to_matrix(state, positions, texCoords, &localM) &&
+                        texCoordShader->update(SkMatrix::Concat(ctm, localM))) {
                         fill_triangle(state, blitter, *fRC, dev2, dev3);
                     }
                 }

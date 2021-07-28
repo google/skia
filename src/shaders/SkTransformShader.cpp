@@ -46,7 +46,7 @@ skvm::Coord SkTransformShader::applyMatrix(
     return {x, y};
 }
 
-bool SkTransformShader::update(const SkMatrix& ctm, skvm::Uniforms* u) const {
+bool SkTransformShader::update(const SkMatrix& ctm) const {
     SkMatrix matrix;
     if (this->computeTotalInverse(ctm, nullptr, &matrix)) {
         for (int i = 0; i < 9; ++i) {
