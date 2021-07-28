@@ -1419,7 +1419,7 @@ bool GrMtlGpu::onTransferPixelsTo(GrTexture* texture,
     [blitCmdEncoder pushDebugGroup:@"onTransferPixelsTo"];
 #endif
     [blitCmdEncoder copyFromBuffer: mtlBuffer
-                      sourceOffset: offset + grMtlBuffer->offset()
+                      sourceOffset: offset
                  sourceBytesPerRow: rowBytes
                sourceBytesPerImage: rowBytes*rect.height()
                         sourceSize: MTLSizeMake(rect.width(), rect.height(), 1)
@@ -1465,7 +1465,7 @@ bool GrMtlGpu::onTransferPixelsFrom(GrSurface* surface,
                                       rect,
                                       bufferColorType,
                                       grMtlBuffer->mtlBuffer(),
-                                      offset + grMtlBuffer->offset(),
+                                      offset,
                                       transBufferImageBytes,
                                       transBufferRowBytes);
 }

@@ -24,7 +24,6 @@ public:
     ~GrMtlBuffer() override;
 
     id<MTLBuffer> mtlBuffer() const { return fMtlBuffer; }
-    size_t offset() const { return fOffset; }
 
 protected:
     GrMtlBuffer(GrMtlGpu*, size_t size, GrGpuBufferType intendedType, GrAccessPattern);
@@ -48,8 +47,6 @@ private:
 
     bool fIsDynamic;
     id<MTLBuffer> fMtlBuffer;
-    size_t        fOffset;       // offset into shared buffer for dynamic buffers
-    id<MTLBuffer> fMappedBuffer; // buffer used by static buffers for uploads
 
     using INHERITED = GrGpuBuffer;
 };

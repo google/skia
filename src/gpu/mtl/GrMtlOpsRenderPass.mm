@@ -353,7 +353,7 @@ void GrMtlOpsRenderPass::onDrawIndexed(int indexCount, int baseIndex, uint16_t m
                           fCurrentVertexStride * baseVertex, 0);
 
     auto mtlIndexBuffer = static_cast<const GrMtlBuffer*>(fActiveIndexBuffer.get());
-    size_t indexOffset = mtlIndexBuffer->offset() + sizeof(uint16_t) * baseIndex;
+    size_t indexOffset = sizeof(uint16_t) * baseIndex;
     id<MTLBuffer> indexBuffer = mtlIndexBuffer->mtlBuffer();
     fActiveRenderCmdEncoder->drawIndexedPrimitives(fActivePrimitiveType, indexCount,
                                                    MTLIndexTypeUInt16, indexBuffer, indexOffset);
@@ -405,7 +405,7 @@ void GrMtlOpsRenderPass::onDrawIndexedInstanced(
     this->setVertexBuffer(fActiveRenderCmdEncoder, fActiveVertexBuffer.get(), 0, 0);
 
     auto mtlIndexBuffer = static_cast<const GrMtlBuffer*>(fActiveIndexBuffer.get());
-    size_t indexOffset = mtlIndexBuffer->offset() + sizeof(uint16_t) * baseIndex;
+    size_t indexOffset = sizeof(uint16_t) * baseIndex;
     if (@available(macOS 10.11, iOS 9.0, *)) {
         fActiveRenderCmdEncoder->drawIndexedPrimitives(fActivePrimitiveType, indexCount,
                                                        MTLIndexTypeUInt16,
@@ -473,7 +473,7 @@ void GrMtlOpsRenderPass::onDrawIndexedIndirect(const GrBuffer* drawIndirectBuffe
 
     auto mtlIndexBuffer = static_cast<const GrMtlBuffer*>(fActiveIndexBuffer.get());
     auto mtlIndirectBuffer = static_cast<const GrMtlBuffer*>(drawIndirectBuffer);
-    size_t indexOffset = mtlIndexBuffer->offset();
+    size_t indexOffset = 0;
 
     const size_t stride = sizeof(GrDrawIndexedIndirectCommand);
     while (drawCount >= 1) {
@@ -512,7 +512,7 @@ void GrMtlOpsRenderPass::setVertexBuffer(GrMtlRenderCommandEncoder* encoder,
     auto mtlBuffer = static_cast<const GrMtlBuffer*>(buffer);
     id<MTLBuffer> mtlVertexBuffer = mtlBuffer->mtlBuffer();
     SkASSERT(mtlVertexBuffer);
-    size_t offset = mtlBuffer->offset() + vertexOffset;
+    size_t offset = vertexOffset;
     encoder->setVertexBuffer(mtlVertexBuffer, offset, index);
 }
 

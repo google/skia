@@ -48,6 +48,8 @@ public:
 
     GrMtlResourceProvider& resourceProvider() { return fResourceProvider; }
 
+    GrStagingBufferManager* stagingBufferManager() override { return &fStagingBufferManager; }
+
     GrMtlCommandBuffer* commandBuffer();
 
     enum SyncQueue {
@@ -124,7 +126,6 @@ private:
 
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}
 
-    GrStagingBufferManager* stagingBufferManager() override { return &fStagingBufferManager; }
     void takeOwnershipOfBuffer(sk_sp<GrGpuBuffer>) override;
 
     GrBackendTexture onCreateBackendTexture(SkISize dimensions,
