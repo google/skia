@@ -352,50 +352,45 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices, SkBlendMode blendMode
     // No colors are changing and no texture coordinates are changing, so no updates between
     // triangles are needed. Use SkVM to blit the triangles.
     if (gUseSkVMBlitter) {
-        if (!colors) {
-            if (!texCoords || texCoords == positions) {
-                if (auto blitter = SkVMBlitter::Make(
-                        fDst, paint, *fMatrixProvider, outerAlloc, this->fRC->clipShader())) {
-                    while (vertProc(&state)) {
-                        fill_triangle(state, blitter, *fRC, dev2, dev3);
-                    }
-                    return;
-                }
-            } else {
-                auto texCoordShader = as_SB(shader)->updatableShader(outerAlloc);
-                SkPaint shaderPaint{paint};
-                shaderPaint.setShader(sk_ref_sp(texCoordShader));
-                if (auto blitter = SkVMBlitter::Make(
-                    fDst, shaderPaint, *fMatrixProvider, outerAlloc, this->fRC->clipShader())) {
+        SkUpdatableShader* texCoordShader = nullptr;
+        if (texCoords && texCoords != positions) {
+            texCoordShader = as_SB(shader)->updatableShader(outerAlloc);
+            shader = texCoordShader;
+        }
 
-                    SkMatrix localM;
-                    while (vertProc(&state)) {
-                        if (texture_to_matrix(state, positions, texCoords, &localM) &&
-                            texCoordShader->update(SkMatrix::Concat(ctm, localM))) {
-                                fill_triangle(state, blitter, *fRC, dev2, dev3);
-                        }
-                    }
-                    return;
-                }
+        SkTriColorShader* colorShader = nullptr;
+        SkPMColor4f* dstColors = nullptr;
+        if (colors) {
+            colorShader = outerAlloc->make<SkTriColorShader>(
+                    compute_is_opaque(colors, vertexCount), usePerspective);
+            dstColors = convert_colors(colors, vertexCount, fDst.colorSpace(), outerAlloc);
+            if (shader) {
+                shader = outerAlloc->make<SkShader_Blend>(
+                        blendMode, sk_ref_sp(colorShader), sk_ref_sp(shader));
+            } else {
+                shader = colorShader;
             }
-        } else if(!texCoords) {
-            auto triangleShader =
-                outerAlloc->make<SkTriColorShader>(
-                        compute_is_opaque(colors,vertexCount), usePerspective);
-            SkPaint shaderPaint{paint};
-            shaderPaint.setShader(sk_ref_sp(triangleShader));
-            if (auto blitter = SkVMBlitter::Make(
-                    fDst, shaderPaint, *fMatrixProvider, outerAlloc, this->fRC->clipShader())) {
-                SkPMColor4f* dstColors =
-                    convert_colors(colors, vertexCount, fDst.colorSpace(), outerAlloc);
-                while (vertProc(&state)) {
-                    if (triangleShader->update(ctmInverse, positions, dstColors,
-                                               state.f0, state.f1, state.f2)) {
-                        fill_triangle(state, blitter, *fRC, dev2, dev3);
-                    }
+        }
+
+        SkPaint shaderPaint{paint};
+        shaderPaint.setShader(sk_ref_sp(shader));
+        if (auto blitter = SkVMBlitter::Make(
+                fDst, shaderPaint, *fMatrixProvider, outerAlloc, this->fRC->clipShader())) {
+            while (vertProc(&state)) {
+                SkMatrix localM;
+                if (texCoordShader && !(texture_to_matrix(state, positions, texCoords, &localM)
+                                        && texCoordShader->update(SkMatrix::Concat(ctm, localM)))) {
+                    continue;
                 }
-                return;
+
+                if (colorShader && !colorShader->update(ctmInverse, positions, dstColors,state.f0,
+                                                        state.f1, state.f2)) {
+                    continue;
+                }
+
+                fill_triangle(state, blitter, *fRC, dev2, dev3);
             }
+            return;
         }
     }
 
