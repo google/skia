@@ -33,8 +33,6 @@
 #include "third_party/etc1/etc1.h"
 #include "tools/gpu/ProxyUtils.h"
 
-class GrSurfaceDrawContext;
-
 static SkPoint gen_pt(float angle, const SkVector& scale) {
     SkScalar s = SkScalarSin(angle);
     SkScalar c = SkScalarCos(angle);

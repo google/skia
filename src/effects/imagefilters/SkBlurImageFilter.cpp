@@ -24,9 +24,9 @@
 #include "src/core/SkWriteBuffer.h"
 
 #if SK_SUPPORT_GPU
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 #endif
 
 namespace {
@@ -625,7 +625,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilter::gpuFilter(
     // TODO (michaelludwig) - The color space choice is odd, should it just be ctx.refColorSpace()?
     dstBounds.offset(input->subset().topLeft());
     inputBounds.offset(input->subset().topLeft());
-    auto surfaceDrawContext = SkGpuBlurUtils::GaussianBlur(
+    auto sdc = SkGpuBlurUtils::GaussianBlur(
             context,
             std::move(inputView),
             SkColorTypeToGrColorType(input->colorType()),
@@ -636,15 +636,15 @@ sk_sp<SkSpecialImage> SkBlurImageFilter::gpuFilter(
             sigma.x(),
             sigma.y(),
             fTileMode);
-    if (!surfaceDrawContext) {
+    if (!sdc) {
         return nullptr;
     }
 
     return SkSpecialImage::MakeDeferredFromGpu(context,
                                                SkIRect::MakeSize(dstBounds.size()),
                                                kNeedNewImageUniqueID_SpecialImage,
-                                               surfaceDrawContext->readSurfaceView(),
-                                               surfaceDrawContext->colorInfo().colorType(),
+                                               sdc->readSurfaceView(),
+                                               sdc->colorInfo().colorType(),
                                                sk_ref_sp(input->getColorSpace()),
                                                ctx.surfaceProps());
 #else // SK_GPU_V1

@@ -15,8 +15,8 @@
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrSurfaceContext.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/effects/GrTextureEffect.h"
+#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
 #include "tools/ToolUtils.h"
@@ -1178,12 +1178,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixelsMipped, reporter, ct
 
                     // TODO: Update this when read pixels supports reading back levels to read
                     // directly rather than using minimizing draws.
-                    auto dst = GrSurfaceDrawContext::Make(direct,
-                                                          info.colorType(),
-                                                          info.refColorSpace(),
-                                                          SkBackingFit::kExact,
-                                                          info.dimensions(),
-                                                          SkSurfaceProps());
+                    auto dst = skgpu::v1::SurfaceDrawContext::Make(direct,
+                                                                   info.colorType(),
+                                                                   info.refColorSpace(),
+                                                                   SkBackingFit::kExact,
+                                                                   info.dimensions(),
+                                                                   SkSurfaceProps());
                     SkASSERT(dst);
                     GrSamplerState sampler(SkFilterMode::kNearest, SkMipmapMode::kNearest);
                     for (int i = 1; i <= 1; ++i) {

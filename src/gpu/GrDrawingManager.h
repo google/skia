@@ -38,7 +38,6 @@ class GrResourceAllocator;
 class GrSemaphore;
 class GrSoftwarePathRenderer;
 class GrSurfaceContext;
-class GrSurfaceDrawContext;
 class GrSurfaceProxyView;
 class GrTessellationPathRenderer;
 class GrTextureResolveRenderTask;

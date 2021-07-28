@@ -12,7 +12,7 @@
 #include "include/private/GrTypesPriv.h"
 
 class GrRenderTargetProxy;
-class GrSurfaceDrawContext;
+namespace skgpu { namespace v1 { class SurfaceDrawContext; }}
 class GrSurfaceFillContext;
 class GrSurfaceProxyView;
 
@@ -50,8 +50,7 @@ public:
     BaseDevice* asGpuDevice() override { return this; }
 
 #if SK_GPU_V1
-    // TODO: make this return a skgpu::v1:SurfaceDrawContext
-    virtual GrSurfaceDrawContext* surfaceDrawContext() { return nullptr; }
+    virtual skgpu::v1::SurfaceDrawContext* surfaceDrawContext() { return nullptr; }
 #endif
 
     virtual GrSurfaceFillContext* surfaceFillContext() = 0;

@@ -11,7 +11,6 @@
 #include "src/core/SkIPoint16.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrDirectContextPriv.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrVx.h"
 #include "src/gpu/effects/GrModulateAtlasCoverageEffect.h"
 #include "src/gpu/geometry/GrStyledShape.h"
@@ -19,6 +18,7 @@
 #include "src/gpu/tessellate/GrAtlasRenderTask.h"
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 #include "src/gpu/tessellate/shaders/GrTessellationShader.h"
+#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
 using grvx::float2;
 using grvx::int2;
@@ -278,7 +278,7 @@ bool GrAtlasPathRenderer::onDrawPath(const DrawPathArgs& args) {
     return true;
 }
 
-GrFPResult GrAtlasPathRenderer::makeAtlasClipEffect(const GrSurfaceDrawContext* sdc,
+GrFPResult GrAtlasPathRenderer::makeAtlasClipEffect(const skgpu::v1::SurfaceDrawContext* sdc,
                                                     const GrOp* opBeingClipped,
                                                     std::unique_ptr<GrFragmentProcessor> inputFP,
                                                     const SkIRect& drawBounds,

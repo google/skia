@@ -17,8 +17,8 @@
 #include "include/core/SkTileMode.h"
 #include "include/effects/SkGradientShader.h"
 
-// Exercises code in GrSurfaceDrawContext that attempts to replace a rrect clip/draw paint with
-// draw rrect.
+// Exercises code in skgpu::V1::SurfaceDrawContext that attempts to replace a rrect clip/draw
+// paint with draw rrect.
 DEF_SIMPLE_GM(rrect_clip_draw_paint, canvas, 256, 256) {
     SkRRect rrect = SkRRect::MakeRectXY(SkRect::MakeXYWH(10.f, 10.f, 236.f, 236.f), 30.f, 40.f);
 

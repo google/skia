@@ -124,7 +124,7 @@ bool SkCanvasPriv::ValidateMarker(const char* name) {
 #include "src/gpu/BaseDevice.h"
 
 #if SK_GPU_V1
-GrSurfaceDrawContext* SkCanvasPriv::TopDeviceSurfaceDrawContext(SkCanvas* canvas) {
+skgpu::v1::SurfaceDrawContext* SkCanvasPriv::TopDeviceSurfaceDrawContext(SkCanvas* canvas) {
     if (auto gpuDevice = canvas->topDevice()->asGpuDevice()) {
         return gpuDevice->surfaceDrawContext();
     }
@@ -144,7 +144,7 @@ GrSurfaceFillContext* SkCanvasPriv::TopDeviceSurfaceFillContext(SkCanvas* canvas
 #else // SK_SUPPORT_GPU
 
 #if SK_GPU_V1
-GrSurfaceDrawContext* SkCanvasPriv::TopDeviceSurfaceDrawContext(SkCanvas* canvas) {
+skgpu::v1::SurfaceDrawContext* SkCanvasPriv::TopDeviceSurfaceDrawContext(SkCanvas* canvas) {
     return nullptr;
 }
 #endif // SK_GPU_V1

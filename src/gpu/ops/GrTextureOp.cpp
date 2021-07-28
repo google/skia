@@ -27,7 +27,6 @@
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrResourceProviderPriv.h"
 #include "src/gpu/GrShaderCaps.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/SkGr.h"
@@ -43,6 +42,7 @@
 #include "src/gpu/ops/GrQuadPerEdgeAA.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 #include "src/gpu/ops/GrTextureOp.h"
+#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
 namespace {
 
@@ -1184,9 +1184,9 @@ GrOp::Owner GrTextureOp::Make(GrRecordingContext* context,
 // A helper class that assists in breaking up bulk API quad draws into manageable chunks.
 class GrTextureOp::BatchSizeLimiter {
 public:
-    BatchSizeLimiter(GrSurfaceDrawContext* sdc,
+    BatchSizeLimiter(skgpu::v1::SurfaceDrawContext* sdc,
                      const GrClip* clip,
-                     GrRecordingContext* context,
+                     GrRecordingContext* rContext,
                      int numEntries,
                      GrSamplerState::Filter filter,
                      GrSamplerState::MipmapMode mm,
@@ -1196,7 +1196,7 @@ public:
                      sk_sp<GrColorSpaceXform> textureColorSpaceXform)
             : fSDC(sdc)
             , fClip(clip)
-            , fContext(context)
+            , fContext(rContext)
             , fFilter(filter)
             , fMipmapMode(mm)
             , fSaturate(saturate)
@@ -1229,22 +1229,22 @@ public:
     int baseIndex() const { return fNumClumped; }
 
 private:
-    GrSurfaceDrawContext*       fSDC;
-    const GrClip*               fClip;
-    GrRecordingContext*         fContext;
-    GrSamplerState::Filter      fFilter;
-    GrSamplerState::MipmapMode  fMipmapMode;
-    GrTextureOp::Saturate       fSaturate;
-    SkCanvas::SrcRectConstraint fConstraint;
-    const SkMatrix&             fViewMatrix;
-    sk_sp<GrColorSpaceXform>    fTextureColorSpaceXform;
+    skgpu::v1::SurfaceDrawContext* fSDC;
+    const GrClip*                  fClip;
+    GrRecordingContext*            fContext;
+    GrSamplerState::Filter         fFilter;
+    GrSamplerState::MipmapMode     fMipmapMode;
+    GrTextureOp::Saturate          fSaturate;
+    SkCanvas::SrcRectConstraint    fConstraint;
+    const SkMatrix&                fViewMatrix;
+    sk_sp<GrColorSpaceXform>       fTextureColorSpaceXform;
 
-    int                         fNumLeft;
-    int                         fNumClumped = 0; // also the offset for the start of the next clump
+    int                            fNumLeft;
+    int                            fNumClumped = 0; // also the offset for the start of the next clump
 };
 
 // Greedily clump quad draws together until the index buffer limit is exceeded.
-void GrTextureOp::AddTextureSetOps(GrSurfaceDrawContext* rtc,
+void GrTextureOp::AddTextureSetOps(skgpu::v1::SurfaceDrawContext* sdc,
                                    const GrClip* clip,
                                    GrRecordingContext* context,
                                    GrTextureSetEntry set[],
@@ -1294,7 +1294,7 @@ void GrTextureOp::AddTextureSetOps(GrSurfaceDrawContext* rtc,
 
             auto op = Make(context, set[i].fProxyView, set[i].fSrcAlphaType, textureColorSpaceXform,
                            filter, mm, set[i].fColor, saturate, blendMode, aaType, &quad, subset);
-            rtc->addDrawOp(clip, std::move(op));
+            sdc->addDrawOp(clip, std::move(op));
         }
         return;
     }
@@ -1305,11 +1305,11 @@ void GrTextureOp::AddTextureSetOps(GrSurfaceDrawContext* rtc,
                       GrResourceProvider::MaxNumAAQuads())) {
         auto op = TextureOp::Make(context, set, cnt, proxyRunCnt, filter, mm, saturate, aaType,
                                   constraint, viewMatrix, std::move(textureColorSpaceXform));
-        rtc->addDrawOp(clip, std::move(op));
+        sdc->addDrawOp(clip, std::move(op));
         return;
     }
 
-    BatchSizeLimiter state(rtc, clip, context, cnt, filter, mm, saturate, constraint, viewMatrix,
+    BatchSizeLimiter state(sdc, clip, context, cnt, filter, mm, saturate, constraint, viewMatrix,
                            std::move(textureColorSpaceXform));
 
     // kNone and kMSAA never get altered

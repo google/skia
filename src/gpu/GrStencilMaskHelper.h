@@ -15,7 +15,7 @@
 
 class GrShape;
 class GrRecordingContext;
-class GrSurfaceDrawContext;
+namespace skgpu { namespace v1 { class SurfaceDrawContext; }}
 class SkMatrix;
 class SkRRect;
 
@@ -37,7 +37,7 @@ public:
     // Configure the helper to update the stencil mask within the given rectangle, respecting the
     // set window rectangles. It will use the provided context and render target to draw into, both
     // of which must outlive the helper.
-    GrStencilMaskHelper(GrRecordingContext*, GrSurfaceDrawContext*);
+    GrStencilMaskHelper(GrRecordingContext*, skgpu::v1::SurfaceDrawContext*);
 
     // Returns true if the stencil mask must be redrawn
     bool init(const SkIRect& maskBounds, uint32_t genID,
@@ -59,10 +59,10 @@ public:
     void finish();
 
 private:
-    GrRecordingContext*    fContext;
-    GrSurfaceDrawContext*  fSDC;
-    GrStencilClip          fClip;
-    int                    fNumFPs;
+    GrRecordingContext*            fContext;
+    skgpu::v1::SurfaceDrawContext* fSDC;
+    GrStencilClip                  fClip;
+    int                            fNumFPs;
 
     using INHERITED = SkNoncopyable;
 };

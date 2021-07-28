@@ -12,8 +12,8 @@
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrSurfaceContext.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 #include "tests/Test.h"
 
 // using anonymous namespace because these functions are used as template params.
@@ -191,7 +191,7 @@ static std::unique_ptr<uint32_t[]> make_data() {
 static std::unique_ptr<GrSurfaceContext> make_surface_context(Encoding contextEncoding,
                                                               GrRecordingContext* rContext,
                                                               skiatest::Reporter* reporter) {
-    auto surfaceContext = GrSurfaceDrawContext::Make(
+    auto surfaceContext = skgpu::v1::SurfaceDrawContext::Make(
             rContext, GrColorType::kRGBA_8888, encoding_as_color_space(contextEncoding),
             SkBackingFit::kExact, {kW, kH}, SkSurfaceProps(), 1, GrMipmapped::kNo, GrProtected::kNo,
             kBottomLeft_GrSurfaceOrigin, SkBudgeted::kNo);

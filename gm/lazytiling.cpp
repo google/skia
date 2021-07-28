@@ -19,9 +19,9 @@
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrResourceProvider.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrTextureEffect.h"
+#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
 #include "tools/gpu/ProxyUtils.h"
 
@@ -139,7 +139,7 @@ static SkBitmap create_bitmap(SkIRect contentRect, SkISize fullSize, GrSurfaceOr
 }
 
 static void draw_texture(const GrCaps* caps,
-                         GrSurfaceDrawContext* sdc,
+                         skgpu::v1::SurfaceDrawContext* sdc,
                          const GrSurfaceProxyView& src,
                          const SkIRect& srcRect,
                          const SkIRect& drawRect,

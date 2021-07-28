@@ -47,8 +47,11 @@ public:
 
     FixedFunctionFlags fixedFunctionFlags() const final { return fHelper.fixedFunctionFlags(); }
 
-    ClipResult clipToShape(GrSurfaceDrawContext*, SkClipOp, const SkMatrix& clipMatrix,
-                           const GrShape&, GrAA) override;
+    ClipResult clipToShape(skgpu::v1::SurfaceDrawContext*,
+                           SkClipOp,
+                           const SkMatrix& clipMatrix,
+                           const GrShape&,
+                           GrAA) override;
 
     GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*, GrClampType) final;
     CombineResult onCombineIfPossible(GrOp*, SkArenaAlloc*, const GrCaps&) final;
@@ -206,7 +209,7 @@ FillRRectOp::FillRRectOp(GrProcessorSet* processorSet,
                     GrOp::IsHairline::kNo);
 }
 
-GrDrawOp::ClipResult FillRRectOp::clipToShape(GrSurfaceDrawContext* sdc, SkClipOp clipOp,
+GrDrawOp::ClipResult FillRRectOp::clipToShape(skgpu::v1::SurfaceDrawContext* sdc, SkClipOp clipOp,
                                               const SkMatrix& clipMatrix, const GrShape& shape,
                                               GrAA aa) {
     SkASSERT(fInstanceCount == 1);  // This needs to be called before combining.

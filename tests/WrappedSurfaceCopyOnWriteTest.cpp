@@ -13,8 +13,8 @@
 #include "src/core/SkCanvasPriv.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrSurfaceProxy.h"
+#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
 #include "tools/gpu/BackendSurfaceFactory.h"
@@ -82,20 +82,20 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(WrappedSurfaceCopyOnWrite, reporter, ctxInfo) {
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkipCopyTaskTest, reporter, ctxInfo) {
     GrDirectContext* dContext = ctxInfo.directContext();
 
-    auto dst = GrSurfaceDrawContext::Make(dContext,
-                                          GrColorType::kRGBA_8888,
-                                          /*color space*/ nullptr,
-                                          SkBackingFit::kExact,
-                                          {10, 10},
-                                          SkSurfaceProps());
+    auto dst = skgpu::v1::SurfaceDrawContext::Make(dContext,
+                                                   GrColorType::kRGBA_8888,
+                                                   /*color space*/ nullptr,
+                                                   SkBackingFit::kExact,
+                                                   {10, 10},
+                                                   SkSurfaceProps());
     dst->clear(SkPMColor4f{1, 0, 0, 1});
 
-    auto src = GrSurfaceDrawContext::Make(dContext,
-                                          GrColorType::kRGBA_8888,
-                                          /*color space*/ nullptr,
-                                          SkBackingFit::kExact,
-                                          {10, 10},
-                                          SkSurfaceProps());
+    auto src = skgpu::v1::SurfaceDrawContext::Make(dContext,
+                                                   GrColorType::kRGBA_8888,
+                                                   /*color space*/ nullptr,
+                                                   SkBackingFit::kExact,
+                                                   {10, 10},
+                                                   SkSurfaceProps());
     src->clear(SkPMColor4f{0, 0, 1, 1});
 
     sk_sp<GrRenderTask> task =
@@ -128,12 +128,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkipCopyTaskTest, reporter, ctxInfo) {
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkipOpsTaskTest, reporter, ctxInfo) {
     GrDirectContext* dContext = ctxInfo.directContext();
 
-    auto dst = GrSurfaceDrawContext::Make(dContext,
-                                          GrColorType::kRGBA_8888,
-                                          /*color space*/ nullptr,
-                                          SkBackingFit::kExact,
-                                          {10, 10},
-                                          SkSurfaceProps());
+    auto dst = skgpu::v1::SurfaceDrawContext::Make(dContext,
+                                                   GrColorType::kRGBA_8888,
+                                                   /*color space*/ nullptr,
+                                                   SkBackingFit::kExact,
+                                                   {10, 10},
+                                                   SkSurfaceProps());
     dst->clear(SkPMColor4f{1, 0, 0, 1});
     dContext->flush();
 
@@ -142,12 +142,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkipOpsTaskTest, reporter, ctxInfo) {
 
     // GrDrawingManager maintains an "active ops task" and doesn't like having it closed behind
     // its back. temp exists just to replace dst's ops task as the active one.
-    auto temp = GrSurfaceDrawContext::Make(dContext,
-                                           GrColorType::kRGBA_8888,
-                                           /*color space*/ nullptr,
-                                           SkBackingFit::kExact,
-                                           {10, 10},
-                                           SkSurfaceProps());
+    auto temp = skgpu::v1::SurfaceDrawContext::Make(dContext,
+                                                    GrColorType::kRGBA_8888,
+                                                    /*color space*/ nullptr,
+                                                    SkBackingFit::kExact,
+                                                    {10, 10},
+                                                    SkSurfaceProps());
     temp->clear(SkPMColor4f{0, 0, 0, 0});
 
     GrSurfaceProxyView readView = dst->readSurfaceView();

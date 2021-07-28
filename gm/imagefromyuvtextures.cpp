@@ -31,8 +31,6 @@
 #include "tools/Resources.h"
 #include "tools/gpu/YUVUtils.h"
 
-class GrSurfaceDrawContext;
-
 namespace skiagm {
 class ImageFromYUVTextures : public GM {
 public:

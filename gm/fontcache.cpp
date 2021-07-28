@@ -26,8 +26,6 @@
 #include "src/gpu/GrDirectContextPriv.h"
 #include "tools/ToolUtils.h"
 
-class GrSurfaceDrawContext;
-
 static SkScalar draw_string(SkCanvas* canvas, const SkString& text, SkScalar x,
                            SkScalar y, const SkFont& font) {
     SkPaint paint;

@@ -20,8 +20,6 @@
 
 #include <string.h>
 
-class GrSurfaceDrawContext;
-
 // This tests that we correctly regenerate textblobs after freeing all gpu resources crbug/491350
 namespace skiagm {
 class TextBlobUseAfterGpuFree : public GM {

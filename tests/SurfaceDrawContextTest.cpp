@@ -12,22 +12,23 @@
 #include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrImageInfo.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTextureProxy.h"
+#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
 static const int kSize = 64;
 
-static std::unique_ptr<GrSurfaceDrawContext> get_sdc(GrRecordingContext* rContext) {
-    return GrSurfaceDrawContext::Make(rContext, GrColorType::kRGBA_8888, nullptr,
-                                      SkBackingFit::kExact, {kSize, kSize}, SkSurfaceProps());
+static std::unique_ptr<skgpu::v1::SurfaceDrawContext> get_sdc(GrRecordingContext* rContext) {
+    return skgpu::v1::SurfaceDrawContext::Make(rContext, GrColorType::kRGBA_8888, nullptr,
+                                               SkBackingFit::kExact, {kSize, kSize},
+                                               SkSurfaceProps());
 }
 
 static void check_instantiation_status(skiatest::Reporter* reporter,
-                                       GrSurfaceDrawContext* sdCtx,
+                                       skgpu::v1::SurfaceDrawContext* sdc,
                                        bool wrappedExpectation) {
-    REPORTER_ASSERT(reporter, sdCtx->asRenderTargetProxy()->isInstantiated() == wrappedExpectation);
+    REPORTER_ASSERT(reporter, sdc->asRenderTargetProxy()->isInstantiated() == wrappedExpectation);
 
-    GrTextureProxy* tProxy = sdCtx->asTextureProxy();
+    GrTextureProxy* tProxy = sdc->asTextureProxy();
     REPORTER_ASSERT(reporter, tProxy);
 
     REPORTER_ASSERT(reporter, tProxy->isInstantiated() == wrappedExpectation);
@@ -36,37 +37,37 @@ static void check_instantiation_status(skiatest::Reporter* reporter,
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceDrawContextTest, reporter, ctxInfo) {
     auto dContext = ctxInfo.directContext();
 
-    // Calling instantiate on a GrSurfaceDrawContext's textureProxy also instantiates the
-    // GrSurfaceDrawContext
+    // Calling instantiate on a SurfaceDrawContext's textureProxy also instantiates the
+    // SurfaceDrawContext
     {
-        auto sdCtx = get_sdc(dContext);
+        auto sdc = get_sdc(dContext);
 
-        check_instantiation_status(reporter, sdCtx.get(), false);
+        check_instantiation_status(reporter, sdc.get(), false);
 
-        GrTextureProxy* tProxy = sdCtx->asTextureProxy();
+        GrTextureProxy* tProxy = sdc->asTextureProxy();
         REPORTER_ASSERT(reporter, tProxy);
 
         REPORTER_ASSERT(reporter, tProxy->instantiate(dContext->priv().resourceProvider()));
 
-        check_instantiation_status(reporter, sdCtx.get(), true);
+        check_instantiation_status(reporter, sdc.get(), true);
     }
 
     // readPixels switches a deferred sdCtx to wrapped
     {
-        auto sdCtx = get_sdc(dContext);
+        auto sdc = get_sdc(dContext);
 
-        check_instantiation_status(reporter, sdCtx.get(), false);
+        check_instantiation_status(reporter, sdc.get(), false);
 
         SkImageInfo dstInfo = SkImageInfo::MakeN32Premul(kSize, kSize);
         GrPixmap dstPM = GrPixmap::Allocate(dstInfo);
 
-        bool result = sdCtx->readPixels(dContext, dstPM, {0, 0});
+        bool result = sdc->readPixels(dContext, dstPM, {0, 0});
         REPORTER_ASSERT(reporter, result);
 
-        check_instantiation_status(reporter, sdCtx.get(), true);
+        check_instantiation_status(reporter, sdc.get(), true);
     }
 
     // TODO: in a future world we should be able to add a test that the majority of
-    // GrSurfaceDrawContext calls do not force the instantiation of a deferred
-    // GrSurfaceDrawContext
+    // SurfaceDrawContext calls do not force the instantiation of a deferred
+    // SurfaceDrawContext
 }

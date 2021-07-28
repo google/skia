@@ -21,12 +21,12 @@
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrProgramInfo.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
+#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
 namespace {
 class Op : public GrMeshDrawOp {
@@ -170,43 +170,46 @@ private:
 }  // namespace
 
 DEF_GPUTEST_FOR_ALL_CONTEXTS(VertexAttributeCount, reporter, ctxInfo) {
-    auto context = ctxInfo.directContext();
+    auto dContext = ctxInfo.directContext();
 #if GR_GPU_STATS
-    GrGpu* gpu = context->priv().getGpu();
+    GrGpu* gpu = dContext->priv().getGpu();
 #endif
 
-    auto surfaceDrawContext = GrSurfaceDrawContext::Make(context, GrColorType::kRGBA_8888, nullptr,
-                                                         SkBackingFit::kApprox, {1, 1},
-                                                         SkSurfaceProps());
-    if (!surfaceDrawContext) {
+    auto sdc = skgpu::v1::SurfaceDrawContext::Make(dContext,
+                                                   GrColorType::kRGBA_8888,
+                                                   nullptr,
+                                                   SkBackingFit::kApprox,
+                                                   {1, 1},
+                                                   SkSurfaceProps());
+    if (!sdc) {
         ERRORF(reporter, "Could not create render target context.");
         return;
     }
-    int attribCnt = context->priv().caps()->maxVertexAttributes();
+    int attribCnt = dContext->priv().caps()->maxVertexAttributes();
     if (!attribCnt) {
         ERRORF(reporter, "No attributes allowed?!");
         return;
     }
-    context->flushAndSubmit();
-    context->priv().resetGpuStats();
+    dContext->flushAndSubmit();
+    dContext->priv().resetGpuStats();
 #if GR_GPU_STATS
     REPORTER_ASSERT(reporter, gpu->stats()->numDraws() == 0);
     REPORTER_ASSERT(reporter, gpu->stats()->numFailedDraws() == 0);
 #endif
     // Adding discard to appease vulkan validation warning about loading uninitialized data on draw
-    surfaceDrawContext->discard();
+    sdc->discard();
 
     GrPaint grPaint;
     // This one should succeed.
-    surfaceDrawContext->addDrawOp(Op::Make(context, attribCnt));
-    context->flushAndSubmit();
+    sdc->addDrawOp(Op::Make(dContext, attribCnt));
+    dContext->flushAndSubmit();
 #if GR_GPU_STATS
     REPORTER_ASSERT(reporter, gpu->stats()->numDraws() == 1);
     REPORTER_ASSERT(reporter, gpu->stats()->numFailedDraws() == 0);
 #endif
-    context->priv().resetGpuStats();
-    surfaceDrawContext->addDrawOp(Op::Make(context, attribCnt + 1));
-    context->flushAndSubmit();
+    dContext->priv().resetGpuStats();
+    sdc->addDrawOp(Op::Make(dContext, attribCnt + 1));
+    dContext->flushAndSubmit();
 #if GR_GPU_STATS
     REPORTER_ASSERT(reporter, gpu->stats()->numDraws() == 0);
     REPORTER_ASSERT(reporter, gpu->stats()->numFailedDraws() == 1);

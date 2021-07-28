@@ -21,7 +21,7 @@
 #include "src/core/SkTLList.h"
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrPaint.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
+#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 #include "tools/gpu/TestOps.h"
 
 #include <memory>

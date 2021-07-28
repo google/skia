@@ -12,7 +12,6 @@
 #include "src/gpu/GrTextureProxy.h"
 
 class GrOnFlushResourceProvider;
-class GrSurfaceDrawContext;
 class GrResourceProvider;
 struct SkIPoint16;
 struct SkIRect;

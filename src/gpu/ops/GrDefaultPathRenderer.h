@@ -31,7 +31,7 @@ private:
 
     void onStencilPath(const StencilPathArgs&) override;
 
-    bool internalDrawPath(GrSurfaceDrawContext*,
+    bool internalDrawPath(skgpu::v1::SurfaceDrawContext*,
                           GrPaint&&,
                           GrAAType,
                           const GrUserStencilSettings&,

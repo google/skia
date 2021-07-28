@@ -18,7 +18,6 @@
 #include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/GrProxyProvider.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrXferProcessor.h"
 #include "src/gpu/effects/GrBlendFragmentProcessor.h"
 #include "src/gpu/effects/GrPorterDuffXferProcessor.h"
@@ -26,6 +25,7 @@
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 #include "src/gpu/ops/GrDrawOp.h"
+#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 #include "tests/Test.h"
 #include "tools/gpu/GrContextFactory.h"
 
@@ -139,7 +139,7 @@ private:
 static const int kRenderTargetHeight = 1;
 static const int kRenderTargetWidth = 1;
 
-static std::unique_ptr<GrSurfaceDrawContext> random_surface_draw_context(
+static std::unique_ptr<skgpu::v1::SurfaceDrawContext> random_surface_draw_context(
         GrRecordingContext* rContext,
         SkRandom* random,
         const GrCaps* caps) {
@@ -153,7 +153,7 @@ static std::unique_ptr<GrSurfaceDrawContext> random_surface_draw_context(
     // Above could be 0 if msaa isn't supported.
     sampleCnt = std::max(1, sampleCnt);
 
-    return GrSurfaceDrawContext::Make(
+    return skgpu::v1::SurfaceDrawContext::Make(
             rContext, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,
             {kRenderTargetWidth, kRenderTargetHeight}, SkSurfaceProps(), sampleCnt,
             GrMipmapped::kNo, GrProtected::kNo, origin);
@@ -300,10 +300,10 @@ bool GrDrawingManager::ProgramUnitTest(GrDirectContext* direct, int maxStages, i
     direct->submit(false);
 
     // Validate that GrFPs work correctly without an input.
-    auto surfaceDrawContext = GrSurfaceDrawContext::Make(
+    auto sdc = skgpu::v1::SurfaceDrawContext::Make(
             direct, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,
             {kRenderTargetWidth, kRenderTargetHeight}, SkSurfaceProps());
-    if (!surfaceDrawContext) {
+    if (!sdc) {
         SkDebugf("Could not allocate a surfaceDrawContext");
         return false;
     }
@@ -320,7 +320,7 @@ bool GrDrawingManager::ProgramUnitTest(GrDirectContext* direct, int maxStages, i
             auto fp = GrFragmentProcessorTestFactory::MakeIdx(i, &ptd);
             auto blockFP = BlockInputFragmentProcessor::Make(std::move(fp));
             paint.setColorFragmentProcessor(std::move(blockFP));
-            GrDrawRandomOp(&random, surfaceDrawContext.get(), std::move(paint));
+            GrDrawRandomOp(&random, sdc.get(), std::move(paint));
 
             direct->flush(GrFlushInfo());
             direct->submit(false);

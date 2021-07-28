@@ -19,11 +19,11 @@
 #include "src/gpu/GrStencilMaskHelper.h"
 #include "src/gpu/GrStencilSettings.h"
 #include "src/gpu/GrStyle.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrUserStencilSettings.h"
 #include "src/gpu/effects/GrConvexPolyEffect.h"
 #include "src/gpu/effects/GrRRectEffect.h"
 #include "src/gpu/geometry/GrStyledShape.h"
+#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 #include "src/shaders/SkShaderBase.h"
 
 /**
@@ -708,7 +708,7 @@ void GrReducedClip::makeEmpty() {
 ////////////////////////////////////////////////////////////////////////////////
 // Create a 8-bit clip mask in alpha
 
-static bool stencil_element(GrSurfaceDrawContext* rtc,
+static bool stencil_element(skgpu::v1::SurfaceDrawContext* sdc,
                             const GrFixedClip& clip,
                             const GrUserStencilSettings* ss,
                             const SkMatrix& viewMatrix,
@@ -722,7 +722,7 @@ static bool stencil_element(GrSurfaceDrawContext* rtc,
             GrPaint paint;
             paint.setCoverageSetOpXPFactory((SkRegion::Op)element->getOp(),
                                             element->isInverseFilled());
-            rtc->stencilRect(&clip, ss, std::move(paint), aa, viewMatrix,
+            sdc->stencilRect(&clip, ss, std::move(paint), aa, viewMatrix,
                              element->getDeviceSpaceRect());
             return true;
         }
@@ -733,7 +733,7 @@ static bool stencil_element(GrSurfaceDrawContext* rtc,
                 path.toggleInverseFillType();
             }
 
-            return rtc->drawAndStencilPath(&clip, ss, (SkRegion::Op)element->getOp(),
+            return sdc->drawAndStencilPath(&clip, ss, (SkRegion::Op)element->getOp(),
                                            element->isInverseFilled(), aa, viewMatrix, path);
         }
     }
@@ -741,7 +741,7 @@ static bool stencil_element(GrSurfaceDrawContext* rtc,
     return false;
 }
 
-static void draw_element(GrSurfaceDrawContext* rtc,
+static void draw_element(skgpu::v1::SurfaceDrawContext* sdc,
                          const GrClip& clip,  // TODO: can this just always be WideOpen?
                          GrPaint&& paint,
                          GrAA aa,
@@ -753,7 +753,7 @@ static void draw_element(GrSurfaceDrawContext* rtc,
             SkDEBUGFAIL("Should never get here with an empty element.");
             break;
         case SkClipStack::Element::DeviceSpaceType::kRect:
-            rtc->drawRect(&clip, std::move(paint), aa, viewMatrix, element->getDeviceSpaceRect());
+            sdc->drawRect(&clip, std::move(paint), aa, viewMatrix, element->getDeviceSpaceRect());
             break;
         default: {
             SkPath path;
@@ -762,16 +762,16 @@ static void draw_element(GrSurfaceDrawContext* rtc,
                 path.toggleInverseFillType();
             }
 
-            rtc->drawPath(&clip, std::move(paint), aa, viewMatrix, path, GrStyle::SimpleFill());
+            sdc->drawPath(&clip, std::move(paint), aa, viewMatrix, path, GrStyle::SimpleFill());
             break;
         }
     }
 }
 
-bool GrReducedClip::drawAlphaClipMask(GrSurfaceDrawContext* rtc) const {
+bool GrReducedClip::drawAlphaClipMask(skgpu::v1::SurfaceDrawContext* sdc) const {
     // The texture may be larger than necessary, this rect represents the part of the texture
     // we populate with a rasterization of the clip.
-    GrFixedClip clip(rtc->dimensions(), SkIRect::MakeWH(fScissor.width(), fScissor.height()));
+    GrFixedClip clip(sdc->dimensions(), SkIRect::MakeWH(fScissor.width(), fScissor.height()));
 
     if (!fWindowRects.empty()) {
         clip.setWindowRectangles(fWindowRects.makeOffset(-fScissor.left(), -fScissor.top()),
@@ -786,10 +786,10 @@ bool GrReducedClip::drawAlphaClipMask(GrSurfaceDrawContext* rtc) const {
         GrPaint paint;
         paint.setColor4f(initialCoverage);
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-        rtc->drawRect(&clip, std::move(paint), GrAA::kNo, SkMatrix::I(),
+        sdc->drawRect(&clip, std::move(paint), GrAA::kNo, SkMatrix::I(),
                       SkRect::Make(clip.scissorRect()));
     } else {
-        rtc->clearAtLeast(clip.scissorRect(), initialCoverage);
+        sdc->clearAtLeast(clip.scissorRect(), initialCoverage);
     }
 
     // Set the matrix so that rendered clip elements are transformed to mask space from clip space.
@@ -814,7 +814,7 @@ bool GrReducedClip::drawAlphaClipMask(GrSurfaceDrawContext* rtc) const {
                      GrUserStencilOp::kReplace,
                      0xffff>()
             );
-            if (!stencil_element(rtc, clip, &kStencilInElement, translate, element)) {
+            if (!stencil_element(sdc, clip, &kStencilInElement, translate, element)) {
                 return false;
             }
 
@@ -831,14 +831,14 @@ bool GrReducedClip::drawAlphaClipMask(GrSurfaceDrawContext* rtc) const {
 
             GrPaint paint;
             paint.setCoverageSetOpXPFactory(op, !invert);
-            rtc->stencilRect(&clip, &kDrawOutsideElement, std::move(paint), GrAA::kNo, translate,
+            sdc->stencilRect(&clip, &kDrawOutsideElement, std::move(paint), GrAA::kNo, translate,
                              SkRect::Make(fScissor));
         } else {
             // all the remaining ops can just be directly draw into the accumulation buffer
             GrPaint paint;
             paint.setCoverageSetOpXPFactory(op, false);
 
-            draw_element(rtc, clip, std::move(paint), aa, translate, element);
+            draw_element(sdc, clip, std::move(paint), aa, translate, element);
         }
     }
 
@@ -848,9 +848,9 @@ bool GrReducedClip::drawAlphaClipMask(GrSurfaceDrawContext* rtc) const {
 ////////////////////////////////////////////////////////////////////////////////
 // Create a 1-bit clip mask in the stencil buffer.
 
-bool GrReducedClip::drawStencilClipMask(GrRecordingContext* context,
-                                        GrSurfaceDrawContext* surfaceDrawContext) const {
-    GrStencilMaskHelper helper(context, surfaceDrawContext);
+bool GrReducedClip::drawStencilClipMask(GrRecordingContext* rContext,
+                                        skgpu::v1::SurfaceDrawContext* sdc) const {
+    GrStencilMaskHelper helper(rContext, sdc);
     if (!helper.init(fScissor, this->maskGenID(), fWindowRects, this->numAnalyticElements())) {
         // The stencil mask doesn't need updating
         return true;

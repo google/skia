@@ -55,8 +55,6 @@
 #include <memory>
 #include <utility>
 
-class GrSurfaceDrawContext;
-
 static const int kTileWidthHeight = 128;
 static const int kLabelWidth = 64;
 static const int kLabelHeight = 32;

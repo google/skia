@@ -20,8 +20,6 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "tools/Resources.h"
 
-class GrSurfaceDrawContext;
-
 DEF_SIMPLE_GPU_GM_CAN_FAIL(cross_context_image, rContext, canvas, errorMsg,
                            3 * 256 + 40, 256 + 128 + 30) {
     sk_sp<SkData> encodedData = GetResourceAsData("images/mandrill_256.png");

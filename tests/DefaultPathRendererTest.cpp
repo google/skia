@@ -28,7 +28,7 @@
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrStyle.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
+#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 #include "tests/Test.h"
 #include "tools/gpu/GrContextFactory.h"
 
@@ -38,7 +38,8 @@ static void only_allow_default(GrContextOptions* options) {
     options->fGpuPathRenderers = GpuPathRenderers::kNone;
 }
 
-static SkBitmap read_back(GrDirectContext* dContext, GrSurfaceDrawContext* rtc,
+static SkBitmap read_back(GrDirectContext* dContext,
+                          skgpu::v1::SurfaceDrawContext* sdc,
                           int width, int height) {
 
     SkImageInfo dstII = SkImageInfo::MakeN32Premul(width, height);
@@ -46,7 +47,7 @@ static SkBitmap read_back(GrDirectContext* dContext, GrSurfaceDrawContext* rtc,
     SkBitmap bm;
     bm.allocPixels(dstII);
 
-    rtc->readPixels(dContext, bm.pixmap(), {0, 0});
+    sdc->readPixels(dContext, bm.pixmap(), {0, 0});
 
     return bm;
 }
@@ -83,11 +84,12 @@ static void run_test(GrDirectContext* dContext, skiatest::Reporter* reporter) {
     GrStyle style(SkStrokeRec::kFill_InitStyle);
 
     {
-        auto rtc = GrSurfaceDrawContext::Make(dContext, GrColorType::kRGBA_8888, nullptr,
-                                              SkBackingFit::kApprox,
-                                              {kBigSize/2 + 1, kBigSize/2 + 1}, SkSurfaceProps());
+        auto sdc = skgpu::v1::SurfaceDrawContext::Make(dContext, GrColorType::kRGBA_8888, nullptr,
+                                                       SkBackingFit::kApprox,
+                                                       {kBigSize/2 + 1, kBigSize/2 + 1},
+                                                       SkSurfaceProps());
 
-        rtc->clear(SK_PMColor4fBLACK);
+        sdc->clear(SK_PMColor4fBLACK);
 
         GrPaint paint;
 
@@ -95,17 +97,17 @@ static void run_test(GrDirectContext* dContext, skiatest::Reporter* reporter) {
         auto fp = GrFragmentProcessor::MakeColor(color);
         paint.setColorFragmentProcessor(std::move(fp));
 
-        rtc->drawPath(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(), invPath, style);
+        sdc->drawPath(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(), invPath, style);
 
-        dContext->priv().flushSurface(rtc->asSurfaceProxy());
+        dContext->priv().flushSurface(sdc->asSurfaceProxy());
     }
 
     {
-        auto rtc = GrSurfaceDrawContext::Make(dContext, GrColorType::kRGBA_8888, nullptr,
-                                              SkBackingFit::kExact, {kBigSize, kBigSize},
-                                              SkSurfaceProps());
+        auto sdc = skgpu::v1::SurfaceDrawContext::Make(dContext, GrColorType::kRGBA_8888, nullptr,
+                                                       SkBackingFit::kExact, {kBigSize, kBigSize},
+                                                       SkSurfaceProps());
 
-        rtc->clear(SK_PMColor4fBLACK);
+        sdc->clear(SK_PMColor4fBLACK);
 
         GrPaint paint;
 
@@ -113,10 +115,10 @@ static void run_test(GrDirectContext* dContext, skiatest::Reporter* reporter) {
         auto fp = GrFragmentProcessor::MakeColor(color);
         paint.setColorFragmentProcessor(std::move(fp));
 
-        rtc->drawPath(nullptr, std::move(paint), GrAA::kNo,
+        sdc->drawPath(nullptr, std::move(paint), GrAA::kNo,
                       SkMatrix::I(), path, style);
 
-        SkBitmap bm = read_back(dContext, rtc.get(), kBigSize, kBigSize);
+        SkBitmap bm = read_back(dContext, sdc.get(), kBigSize, kBigSize);
 
         bool correct = true;
         for (int y = kBigSize/2+1; y < kBigSize-kPad-1 && correct; ++y) {

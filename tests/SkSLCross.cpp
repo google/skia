@@ -7,28 +7,28 @@
 
 #include "tests/Test.h"
 
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
 static void run_test(skiatest::Reporter*, GrDirectContext*,
-                     GrSurfaceDrawContext*, SkVector a,
+                     skgpu::v1::SurfaceDrawContext*, SkVector a,
                      SkVector b, float expectedCrossProduct);
 
 // This is a GPU test that ensures the SkSL 2d cross() intrinsic returns the correct sign (negative,
 // positive, or zero).
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkSLCross, reporter, ctxInfo) {
-    GrDirectContext* directContext = ctxInfo.directContext();
-    auto rtc = GrSurfaceDrawContext::Make(directContext, GrColorType::kRGBA_8888, nullptr,
-                                          SkBackingFit::kExact, {1, 1}, SkSurfaceProps());
-    if (!rtc) {
+    GrDirectContext* dContext = ctxInfo.directContext();
+    auto sdc = skgpu::v1::SurfaceDrawContext::Make(dContext, GrColorType::kRGBA_8888, nullptr,
+                                                   SkBackingFit::kExact, {1, 1}, SkSurfaceProps());
+    if (!sdc) {
         ERRORF(reporter, "could not create render target context.");
         return;
     }
-    run_test(reporter, directContext, rtc.get(), {3,4}, {5,6}, -2);  // Negative.
-    run_test(reporter, directContext, rtc.get(), {3,4}, {-5,-6}, 2);  // Positive.
-    run_test(reporter, directContext, rtc.get(), {0, 2.287f}, {0, -7.741f}, 0);  // Zero.
-    run_test(reporter, directContext, rtc.get(), {62.17f, 0}, {-43.49f, 0}, 0);  // Zero.
+    run_test(reporter, dContext, sdc.get(), {3,4}, {5,6}, -2);  // Negative.
+    run_test(reporter, dContext, sdc.get(), {3,4}, {-5,-6}, 2);  // Positive.
+    run_test(reporter, dContext, sdc.get(), {0, 2.287f}, {0, -7.741f}, 0);  // Zero.
+    run_test(reporter, dContext, sdc.get(), {62.17f, 0}, {-43.49f, 0}, 0);  // Zero.
 }
 
 namespace {
@@ -85,25 +85,25 @@ private:
 }  // namespace
 
 static void run_test(skiatest::Reporter* reporter, GrDirectContext* directContext,
-                     GrSurfaceDrawContext* rtc, SkVector a, SkVector b,
+                     skgpu::v1::SurfaceDrawContext* sdc, SkVector a, SkVector b,
                      float expectedCrossProduct) {
-    SkASSERT(rtc->width() == 1);
-    SkASSERT(rtc->height() == 1);
+    SkASSERT(sdc->width() == 1);
+    SkASSERT(sdc->height() == 1);
 
-    rtc->clear(SkPMColor4f::FromBytes_RGBA(0xbaaaaaad));
+    sdc->clear(SkPMColor4f::FromBytes_RGBA(0xbaaaaaad));
 
     GrPaint crossPaint;
     crossPaint.setColor4f(SK_PMColor4fWHITE);
     crossPaint.setPorterDuffXPFactory(SkBlendMode::kSrcOver);
     crossPaint.setColorFragmentProcessor(std::make_unique<VisualizeCrossProductSignFP>(a, b));
-    rtc->drawRect(/*clip=*/nullptr, std::move(crossPaint), GrAA::kNo, SkMatrix::I(),
+    sdc->drawRect(/*clip=*/nullptr, std::move(crossPaint), GrAA::kNo, SkMatrix::I(),
                   SkRect::MakeWH(1,1));
 
     GrColor result;
     GrPixmap resultPM(SkImageInfo::Make(1, 1, kRGBA_8888_SkColorType, kPremul_SkAlphaType),
                       &result,
                       sizeof(GrColor));
-    rtc->readPixels(directContext, resultPM, {0, 0});
+    sdc->readPixels(directContext, resultPM, {0, 0});
 
     SkASSERT(expectedCrossProduct == a.cross(b));
     if (expectedCrossProduct > 0) {

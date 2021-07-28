@@ -24,24 +24,24 @@
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrResourceProvider.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrSurfaceFillContext.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrBicubicEffect.h"
 #include "src/gpu/effects/GrTextureEffect.h"
+#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
 #define ASSERT_SINGLE_OWNER         GR_ASSERT_SINGLE_OWNER(this->singleOwner())
 #define RETURN_FALSE_IF_ABANDONED   if (this->fContext->abandoned()) { return false;   }
 #define RETURN_NULLPTR_IF_ABANDONED if (this->fContext->abandoned()) { return nullptr; }
 
-std::unique_ptr<GrSurfaceContext> GrSurfaceContext::Make(GrRecordingContext* context,
+std::unique_ptr<GrSurfaceContext> GrSurfaceContext::Make(GrRecordingContext* rContext,
                                                          GrSurfaceProxyView readView,
                                                          const GrColorInfo& info) {
     // It is probably not necessary to check if the context is abandoned here since uses of the
     // GrSurfaceContext which need the context will mostly likely fail later on without an issue.
     // However having this hear adds some reassurance in case there is a path doesn't handle an
     // abandoned context correctly. It also lets us early out of some extra work.
-    if (context->abandoned()) {
+    if (rContext->abandoned()) {
         return nullptr;
     }
     GrSurfaceProxy* proxy = readView.proxy();
@@ -53,25 +53,25 @@ std::unique_ptr<GrSurfaceContext> GrSurfaceContext::Make(GrRecordingContext* con
         // colorType here? If so we will need to manually pass that in.
         GrSwizzle writeSwizzle;
         if (info.colorType() != GrColorType::kUnknown) {
-            writeSwizzle = context->priv().caps()->getWriteSwizzle(proxy->backendFormat(),
+            writeSwizzle = rContext->priv().caps()->getWriteSwizzle(proxy->backendFormat(),
                                                                    info.colorType());
         }
         GrSurfaceProxyView writeView(readView.refProxy(), readView.origin(), writeSwizzle);
         if (info.alphaType() == kPremul_SkAlphaType || info.alphaType() == kOpaque_SkAlphaType) {
-            surfaceContext = std::make_unique<GrSurfaceDrawContext>(context,
-                                                                    std::move(readView),
-                                                                    std::move(writeView),
-                                                                    info.colorType(),
-                                                                    info.refColorSpace(),
-                                                                    SkSurfaceProps());
+            surfaceContext = std::make_unique<skgpu::v1::SurfaceDrawContext>(rContext,
+                                                                             std::move(readView),
+                                                                             std::move(writeView),
+                                                                             info.colorType(),
+                                                                             info.refColorSpace(),
+                                                                             SkSurfaceProps());
         } else {
-            surfaceContext = std::make_unique<GrSurfaceFillContext>(context,
+            surfaceContext = std::make_unique<GrSurfaceFillContext>(rContext,
                                                                     std::move(readView),
                                                                     std::move(writeView),
                                                                     info);
         }
     } else {
-        surfaceContext = std::make_unique<GrSurfaceContext>(context, std::move(readView), info);
+        surfaceContext = std::make_unique<GrSurfaceContext>(rContext, std::move(readView), info);
     }
     SkDEBUGCODE(surfaceContext->validate();)
     return surfaceContext;

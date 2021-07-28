@@ -25,8 +25,6 @@
 
 #include <stdarg.h>
 
-class GrSurfaceDrawContext;
-
 using namespace skiagm;
 
 constexpr char GM::kErrorMsg_DrawSkippedGpuOnly[];

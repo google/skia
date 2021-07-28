@@ -15,7 +15,7 @@
 #include "src/gpu/ops/GrOp.h"
 
 class GrAppliedClip;
-class GrSurfaceDrawContext;
+namespace skgpu { namespace v1 { class SurfaceDrawContext; }}
 class GrShape;
 
 /**
@@ -54,8 +54,11 @@ public:
      * to combine with other ops. If the op knows how to clip its own geometry then it will
      * generally be much faster than a generalized clip method.
      */
-    virtual ClipResult clipToShape(GrSurfaceDrawContext*, SkClipOp, const SkMatrix& clipMatrix,
-                                   const GrShape&, GrAA) {
+    virtual ClipResult clipToShape(skgpu::v1::SurfaceDrawContext*,
+                                   SkClipOp,
+                                   const SkMatrix& /* clipMatrix */,
+                                   const GrShape&,
+                                   GrAA) {
         return ClipResult::kFail;
     }
 

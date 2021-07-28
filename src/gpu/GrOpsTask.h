@@ -245,11 +245,11 @@ private:
 
     friend class OpsTaskTestingAccess;
 
-    // The RTC and OpsTask have to work together to handle buffer clears. In most cases, buffer
+    // The SDC and OpsTask have to work together to handle buffer clears. In most cases, buffer
     // clearing can be done natively, in which case the op list's load ops are sufficient. In other
-    // cases, draw ops must be used, which makes the RTC the best place for those decisions. This,
-    // however, requires that the RTC be able to coordinate with the op list to achieve similar ends
-    friend class GrSurfaceDrawContext;
+    // cases, draw ops must be used, which makes the SDC the best place for those decisions. This,
+    // however, requires that the SDC be able to coordinate with the op list to achieve similar ends
+    friend class skgpu::v1::SurfaceDrawContext;
 
     GrAuditTrail* fAuditTrail;
 

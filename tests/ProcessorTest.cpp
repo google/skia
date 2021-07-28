@@ -15,12 +15,12 @@
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrResourceProvider.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
+#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 #include "tests/TestUtils.h"
 
 #include <atomic>
@@ -144,20 +144,20 @@ private:
 }  // namespace
 
 DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
-    auto context = ctxInfo.directContext();
-    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
+    auto dContext = ctxInfo.directContext();
+    GrProxyProvider* proxyProvider = dContext->priv().proxyProvider();
 
     static constexpr SkISize kDims = {10, 10};
 
     const GrBackendFormat format =
-        context->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
-                                                        GrRenderable::kNo);
-    GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(format, GrColorType::kRGBA_8888);
+        dContext->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
+                                                         GrRenderable::kNo);
+    GrSwizzle swizzle = dContext->priv().caps()->getReadSwizzle(format, GrColorType::kRGBA_8888);
 
     for (bool makeClone : {false, true}) {
         for (int parentCnt = 0; parentCnt < 2; parentCnt++) {
-            auto surfaceDrawContext = GrSurfaceDrawContext::Make(
-                    context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox, {1, 1},
+            auto sdc = skgpu::v1::SurfaceDrawContext::Make(
+                    dContext, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox, {1, 1},
                     SkSurfaceProps());
             {
                 sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
@@ -175,11 +175,11 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
                     if (makeClone) {
                         clone = fp->clone();
                     }
-                    GrOp::Owner op = TestOp::Make(context, std::move(fp));
-                    surfaceDrawContext->addDrawOp(std::move(op));
+                    GrOp::Owner op = TestOp::Make(dContext, std::move(fp));
+                    sdc->addDrawOp(std::move(op));
                     if (clone) {
-                        op = TestOp::Make(context, std::move(clone));
-                        surfaceDrawContext->addDrawOp(std::move(op));
+                        op = TestOp::Make(dContext, std::move(clone));
+                        sdc->addDrawOp(std::move(op));
                     }
                 }
 
@@ -188,7 +188,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
 
                 CheckSingleThreadedProxyRefs(reporter, proxy.get(), expectedProxyRefs, -1);
 
-                context->flushAndSubmit();
+                dContext->flushAndSubmit();
 
                 // just one from the 'proxy' sk_sp
                 CheckSingleThreadedProxyRefs(reporter, proxy.get(), 1, 1);
@@ -229,7 +229,7 @@ static GrColor input_texel_color(int i, int j, SkScalar delta) {
 
 // The output buffer must be the same size as the render-target context.
 void render_fp(GrDirectContext* dContext,
-               GrSurfaceDrawContext* sdc,
+               skgpu::v1::SurfaceDrawContext* sdc,
                std::unique_ptr<GrFragmentProcessor> fp,
                GrColor* outBuffer) {
     sdc->fillWithFP(std::move(fp));
@@ -376,7 +376,7 @@ GrSurfaceProxyView make_input_texture(GrRecordingContext* context,
 
 // We tag logged data as unpremul to avoid conversion when encoding as PNG. The input texture
 // actually contains unpremul data. Also, even though we made the result data by rendering into
-// a "unpremul" GrSurfaceDrawContext, our input texture is unpremul and outside of the random
+// a "unpremul" SurfaceDrawContext, our input texture is unpremul and outside of the random
 // effect configuration, we didn't do anything to ensure the output is actually premul. We just
 // don't currently allow kUnpremul GrSurfaceDrawContexts.
 static constexpr auto kLogAlphaType = kUnpremul_SkAlphaType;
@@ -528,7 +528,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
 
     // Make the destination context for the test.
     static constexpr int kRenderSize = 256;
-    auto rtc = GrSurfaceDrawContext::Make(
+    auto sdc = skgpu::v1::SurfaceDrawContext::Make(
             context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,
             {kRenderSize, kRenderSize}, SkSurfaceProps());
 
@@ -618,10 +618,10 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
                 // Create and render two identical versions of this FP, but using different input
                 // textures, to check coverage optimization. We don't need to do this step for
                 // constant-output or preserving-opacity tests.
-                render_fp(context, rtc.get(),
+                render_fp(context, sdc.get(),
                           fpGenerator.make(i, /*randomTreeDepth=*/1, inputTexture2),
                           readData2.data());
-                render_fp(context, rtc.get(),
+                render_fp(context, sdc.get(),
                           fpGenerator.make(i, /*randomTreeDepth=*/1, inputTexture3),
                           readData3.data());
                 ++optimizedForCoverageAsAlpha;
@@ -637,7 +637,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
 
             // Draw base frame last so that rtc holds the original FP behavior if we need to dump
             // the image to the log.
-            render_fp(context, rtc.get(), fpGenerator.make(i, /*randomTreeDepth=*/1, inputTexture1),
+            render_fp(context, sdc.get(), fpGenerator.make(i, /*randomTreeDepth=*/1, inputTexture1),
                       readData1.data());
 
             // This test has a history of being flaky on a number of devices. If an FP is logically
@@ -893,7 +893,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
 
     // Make the destination context for the test.
     static constexpr int kRenderSize = 1024;
-    auto rtc = GrSurfaceDrawContext::Make(
+    auto sdc = skgpu::v1::SurfaceDrawContext::Make(
             context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,
             {kRenderSize, kRenderSize}, SkSurfaceProps());
 
@@ -927,10 +927,10 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
             assert_processor_equality(reporter, *fp, *clone);
 
             // Draw with original and read back the results.
-            render_fp(context, rtc.get(), std::move(fp), readDataFP.data());
+            render_fp(context, sdc.get(), std::move(fp), readDataFP.data());
 
             // Draw with clone and read back the results.
-            render_fp(context, rtc.get(), std::move(clone), readDataClone.data());
+            render_fp(context, sdc.get(), std::move(clone), readDataClone.data());
 
             // Check that the results are the same.
             if (!verify_identical_render(reporter, kRenderSize, "Processor clone",
@@ -945,7 +945,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
                 // - the FP's Make() does not always generate the same FP when given the same inputs
                 // - the FP itself generates inconsistent pixels (shader UB?)
                 // - the driver has a bug
-                render_fp(context, rtc.get(), std::move(regen), readDataRegen.data());
+                render_fp(context, sdc.get(), std::move(regen), readDataRegen.data());
 
                 if (!verify_identical_render(reporter, kRenderSize, "Regenerated processor",
                                              readDataFP.data(), readDataRegen.data())) {

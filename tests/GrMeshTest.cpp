@@ -22,12 +22,12 @@
 #include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrResourceProvider.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
+#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
 #if 0
 #include "tools/ToolUtils.h"
@@ -96,7 +96,7 @@ struct Box {
  */
 
 static void run_test(GrDirectContext*, const char* testName, skiatest::Reporter*,
-                     const std::unique_ptr<GrSurfaceDrawContext>&, const SkBitmap& gold,
+                     const std::unique_ptr<skgpu::v1::SurfaceDrawContext>&, const SkBitmap& gold,
                      std::function<void(DrawMeshHelper*)> prepareFn,
                      std::function<void(DrawMeshHelper*)> executeFn);
 
@@ -110,10 +110,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
 #endif
     auto dContext = ctxInfo.directContext();
 
-    auto rtc = GrSurfaceDrawContext::Make(
+    auto sdc = skgpu::v1::SurfaceDrawContext::Make(
             dContext, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,
             {kImageWidth, kImageHeight}, SkSurfaceProps());
-    if (!rtc) {
+    if (!sdc) {
         ERRORF(reporter, "could not create render target context.");
         return;
     }
@@ -165,7 +165,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
         }                                        \
     } while (0)
 
-    run_test(dContext, "draw", reporter, rtc, gold,
+    run_test(dContext, "draw", reporter, sdc, gold,
              [&](DrawMeshHelper* helper) {
                  SkTArray<Box> expandedVertexData;
                  for (int i = 0; i < kBoxCount; ++i) {
@@ -186,7 +186,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
                  }
              });
 
-    run_test(dContext, "drawIndexed", reporter, rtc, gold,
+    run_test(dContext, "drawIndexed", reporter, sdc, gold,
              [&](DrawMeshHelper* helper) {
                 helper->fIndexBuffer = helper->getIndexBuffer();
                 VALIDATE(helper->fIndexBuffer);
@@ -213,7 +213,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
                 }
             });
 
-    run_test(dContext, "drawIndexPattern", reporter, rtc, gold,
+    run_test(dContext, "drawIndexPattern", reporter, sdc, gold,
              [&](DrawMeshHelper* helper) {
                  helper->fIndexBuffer = helper->getIndexBuffer();
                  VALIDATE(helper->fIndexBuffer);
@@ -238,7 +238,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
         }
 
         run_test(dContext, indexed ? "drawIndexedInstanced" : "drawInstanced",
-                 reporter, rtc, gold,
+                 reporter, sdc, gold,
                  [&](DrawMeshHelper* helper) {
                      helper->fIndexBuffer = indexed ? helper->getIndexBuffer() : nullptr;
                      SkTArray<uint16_t> baseIndexData;
@@ -306,7 +306,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo) {
         }
 
         run_test(dContext, (indexed) ? "drawIndexedIndirect" : "drawIndirect",
-                 reporter, rtc, gold,
+                 reporter, sdc, gold,
                  [&](DrawMeshHelper* helper) {
                      SkTArray<uint16_t> baseIndexData;
                      baseIndexData.push_back(kBoxCountX/2 * 6); // for testing base index.
@@ -576,14 +576,16 @@ GrOpsRenderPass* DrawMeshHelper::bindPipeline(GrPrimitiveType primitiveType, boo
     return fState->opsRenderPass();
 }
 
-static void run_test(GrDirectContext* dContext, const char* testName,
+static void run_test(GrDirectContext* dContext,
+                     const char* testName,
                      skiatest::Reporter* reporter,
-                     const std::unique_ptr<GrSurfaceDrawContext>& rtc, const SkBitmap& gold,
+                     const std::unique_ptr<skgpu::v1::SurfaceDrawContext>& sdc,
+                     const SkBitmap& gold,
                      std::function<void(DrawMeshHelper*)> prepareFn,
                      std::function<void(DrawMeshHelper*)> executeFn) {
     const int w = gold.width(), h = gold.height();
     const uint32_t* goldPx = reinterpret_cast<const uint32_t*>(gold.getPixels());
-    if (h != rtc->height() || w != rtc->width()) {
+    if (h != sdc->height() || w != sdc->width()) {
         ERRORF(reporter, "[%s] expectation and rtc not compatible (?).", testName);
         return;
     }
@@ -593,10 +595,10 @@ static void run_test(GrDirectContext* dContext, const char* testName,
     }
 
     GrPixmap resultPM = GrPixmap::Allocate(gold.info());
-    rtc->clear(SkPMColor4f::FromBytes_RGBA(0xbaaaaaad));
-    rtc->addDrawOp(GrMeshTestOp::Make(dContext, prepareFn, executeFn));
+    sdc->clear(SkPMColor4f::FromBytes_RGBA(0xbaaaaaad));
+    sdc->addDrawOp(GrMeshTestOp::Make(dContext, prepareFn, executeFn));
 
-    rtc->readPixels(dContext, resultPM, {0, 0});
+    sdc->readPixels(dContext, resultPM, {0, 0});
 
 #ifdef WRITE_PNG_CONTEXT_TYPE
 #define STRINGIFY(X) #X

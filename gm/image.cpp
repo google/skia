@@ -39,8 +39,6 @@
 #include <functional>
 #include <utility>
 
-class GrSurfaceDrawContext;
-
 const SkSamplingOptions gSamplings[] = {
     SkSamplingOptions(SkFilterMode::kNearest),
     SkSamplingOptions(SkFilterMode::kLinear),

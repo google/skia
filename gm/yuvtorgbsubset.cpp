@@ -20,11 +20,11 @@
 #include "include/core/SkYUVAPixmaps.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/gpu/GrSamplerState.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/GrYUVATextureProxies.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrYUVtoRGBEffect.h"
+#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
 #include <memory>
 #include <utility>

@@ -31,8 +31,6 @@
 #include <string.h>
 #include <utility>
 
-class GrSurfaceDrawContext;
-
 namespace skiagm {
 class TextBlobRandomFont : public GM {
 public:

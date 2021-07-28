@@ -36,8 +36,6 @@
 #include "src/gpu/GrDirectContextPriv.h"
 #include "tools/ToolUtils.h"
 
-class GrSurfaceDrawContext;
-
 static sk_sp<SkTextBlob> make_blob(const SkString& text, const SkFont& font) {
     size_t len = text.size();
     SkAutoTArray<SkScalar>  pos(len);

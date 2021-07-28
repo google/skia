@@ -15,7 +15,7 @@
 #include "include/private/GrTypesPriv.h"
 
 class GrRecordingContext;
-class GrSurfaceDrawContext;
+namespace skgpu { namespace v1 { class SurfaceDrawContext; }}
 class GrSurfaceProxyView;
 class GrTexture;
 
@@ -48,17 +48,18 @@ static constexpr float kMaxSigma = 4.f;
  * @param fit             backing fit for the returned render target context
  * @return                The surfaceDrawContext containing the blurred result.
  */
-std::unique_ptr<GrSurfaceDrawContext> GaussianBlur(GrRecordingContext*,
-                                                   GrSurfaceProxyView srcView,
-                                                   GrColorType srcColorType,
-                                                   SkAlphaType srcAlphaType,
-                                                   sk_sp<SkColorSpace> srcColorSpace,
-                                                   SkIRect dstBounds,
-                                                   SkIRect srcBounds,
-                                                   float sigmaX,
-                                                   float sigmaY,
-                                                   SkTileMode mode,
-                                                   SkBackingFit fit = SkBackingFit::kApprox);
+std::unique_ptr<skgpu::v1::SurfaceDrawContext> GaussianBlur(
+        GrRecordingContext*,
+        GrSurfaceProxyView srcView,
+        GrColorType srcColorType,
+        SkAlphaType srcAlphaType,
+        sk_sp<SkColorSpace> srcColorSpace,
+        SkIRect dstBounds,
+        SkIRect srcBounds,
+        float sigmaX,
+        float sigmaY,
+        SkTileMode mode,
+        SkBackingFit fit = SkBackingFit::kApprox);
 #endif
 
 static const int kBlurRRectMaxDivisions = 6;

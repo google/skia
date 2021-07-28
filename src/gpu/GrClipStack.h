@@ -20,7 +20,7 @@
 class GrAppliedClip;
 class GrProxyProvider;
 class GrRecordingContext;
-class GrSurfaceDrawContext;
+namespace skgpu { namespace v1 { class SurfaceDrawContext; }}
 class GrSWMaskHelper;
 class SkMatrixProvider;
 
@@ -72,7 +72,7 @@ public:
     void replaceClip(const SkIRect& rect);
 
     // GrClip implementation
-    GrClip::Effect apply(GrRecordingContext*, GrSurfaceDrawContext*, GrDrawOp*, GrAAType aa,
+    GrClip::Effect apply(GrRecordingContext*, skgpu::v1::SurfaceDrawContext*, GrDrawOp*, GrAAType,
                          GrAppliedClip*, SkRect* bounds) const override;
     GrClip::PreClipResult preApply(const SkRect& drawBounds, GrAA aa) const override;
     SkIRect getConservativeBounds() const override;

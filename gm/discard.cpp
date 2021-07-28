@@ -21,8 +21,6 @@
 #include "include/utils/SkRandom.h"
 #include "tools/ToolUtils.h"
 
-class GrSurfaceDrawContext;
-
 namespace skiagm {
 
 /*

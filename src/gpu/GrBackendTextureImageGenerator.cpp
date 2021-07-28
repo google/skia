@@ -17,11 +17,11 @@
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrResourceProviderPriv.h"
 #include "src/gpu/GrSemaphore.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxyPriv.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/gl/GrGLTexture.h"
+#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
 GrBackendTextureImageGenerator::RefHelper::RefHelper(
                     GrTexture* texture,

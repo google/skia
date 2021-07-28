@@ -13,7 +13,7 @@
 #include "src/gpu/GrAppliedClip.h"
 
 class GrDrawOp;
-class GrSurfaceDrawContext;
+namespace skgpu { namespace v1 { class SurfaceDrawContext; }}
 
 /**
  * GrClip is an abstract base class for applying a clip. It constructs a clip mask if necessary, and
@@ -64,7 +64,7 @@ public:
      * clips). If kNoDraw is returned, 'bounds' and the applied clip are in an undetermined state
      * and should be ignored (and the draw should be skipped).
      */
-    virtual Effect apply(GrRecordingContext*, GrSurfaceDrawContext*, GrDrawOp*, GrAAType,
+    virtual Effect apply(GrRecordingContext*, skgpu::v1::SurfaceDrawContext*, GrDrawOp*, GrAAType,
                          GrAppliedClip*, SkRect* bounds) const = 0;
 
     /**
@@ -245,8 +245,12 @@ public:
     virtual Effect apply(GrAppliedHardClip* out, SkIRect* bounds) const = 0;
 
 private:
-    Effect apply(GrRecordingContext*, GrSurfaceDrawContext* rtc, GrDrawOp*, GrAAType aa,
-                 GrAppliedClip* out, SkRect* bounds) const final {
+    Effect apply(GrRecordingContext*,
+                 skgpu::v1::SurfaceDrawContext*,
+                 GrDrawOp*,
+                 GrAAType aa,
+                 GrAppliedClip* out,
+                 SkRect* bounds) const final {
         SkIRect pixelBounds = GetPixelIBounds(*bounds, GrAA(aa != GrAAType::kNone));
         Effect effect = this->apply(&out->hardClip(), &pixelBounds);
         bounds->intersect(SkRect::Make(pixelBounds));

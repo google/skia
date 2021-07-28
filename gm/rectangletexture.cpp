@@ -39,8 +39,6 @@
 #include <cstdint>
 #include <memory>
 
-class GrSurfaceDrawContext;
-
 namespace skiagm {
 class RectangleTexture : public GM {
 public:

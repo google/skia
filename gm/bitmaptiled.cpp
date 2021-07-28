@@ -14,8 +14,6 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 
-class GrSurfaceDrawContext;
-
 // This test exercises Ganesh's drawing of tiled bitmaps. In particular, that the offsets and the
 // extents of the tiles don't causes gaps between tiles.
 static void draw_tile_bitmap_with_fractional_offset(GrRecordingContext* rContext,

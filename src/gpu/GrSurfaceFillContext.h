@@ -37,7 +37,7 @@ public:
 
     /**
      * Uses GrImageInfo's color type to pick the default texture format. Will return a
-     * GrSurfaceDrawContext if possible.
+     * SurfaceDrawContext if possible.
      */
     static std::unique_ptr<GrSurfaceFillContext> Make(GrRecordingContext*,
                                                       GrImageInfo,
@@ -64,7 +64,7 @@ public:
 
     /**
      * Makes a custom configured GrSurfaceFillContext where the caller specifies the specific
-     * texture format and swizzles. The color type will be kUnknown. Returns a GrSurfaceDrawContext
+     * texture format and swizzles. The color type will be kUnknown. Returns a SurfaceDrawContext
      * if possible.
      */
     static std::unique_ptr<GrSurfaceFillContext> Make(GrRecordingContext*,
@@ -84,7 +84,7 @@ public:
     /**
      * Creates a GrSurfaceFillContext from an existing GrBackendTexture. The GrColorInfo's color
      * type must be compatible with backend texture's format or this will fail. All formats are
-     * considered compatible with kUnknown. Returns a GrSurfaceDrawContext if possible.
+     * considered compatible with kUnknown. Returns a SurfaceDrawContext if possible.
      */
     static std::unique_ptr<GrSurfaceFillContext> MakeFromBackendTexture(
             GrRecordingContext*,

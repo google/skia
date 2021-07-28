@@ -28,7 +28,7 @@ public:
             , fMatrixProvider(matrixProvider) {}
 
     SkIRect getConservativeBounds() const final;
-    Effect apply(GrRecordingContext*, GrSurfaceDrawContext*, GrDrawOp*, GrAAType aaType,
+    Effect apply(GrRecordingContext*, skgpu::v1::SurfaceDrawContext*, GrDrawOp*, GrAAType aaType,
                  GrAppliedClip* out, SkRect* bounds) const final;
     PreClipResult preApply(const SkRect& drawBounds, GrAA aa) const final;
 
@@ -36,7 +36,9 @@ public:
     static const char kMaskTestTag[];
 
 private:
-    bool applyClipMask(GrRecordingContext*, GrSurfaceDrawContext*, const GrReducedClip&,
+    bool applyClipMask(GrRecordingContext*,
+                       skgpu::v1::SurfaceDrawContext*,
+                       const GrReducedClip&,
                        GrAppliedClip*) const;
 
     // Creates an alpha mask of the clip. The mask is a rasterization of elements through the
@@ -45,10 +47,10 @@ private:
 
     // Similar to createAlphaClipMask but it rasterizes in SW and uploads to the result texture.
     GrSurfaceProxyView createSoftwareClipMask(GrRecordingContext*, const GrReducedClip&,
-                                              GrSurfaceDrawContext*) const;
+                                              skgpu::v1::SurfaceDrawContext*) const;
 
     static bool UseSWOnlyPath(GrRecordingContext*,
-                              const GrSurfaceDrawContext*,
+                              const skgpu::v1::SurfaceDrawContext*,
                               const GrReducedClip&);
 
     // SkClipStack does not track device bounds explicitly, but it will refine these device bounds

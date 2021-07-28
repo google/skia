@@ -32,9 +32,9 @@
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrResourceCache.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxy.h"
+#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 #include "tests/Test.h"
 #include "tools/gpu/GrContextFactory.h"
 

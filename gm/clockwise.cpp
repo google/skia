@@ -39,7 +39,6 @@
 #include "src/gpu/GrSamplerState.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrShaderVar.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -47,6 +46,7 @@
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/ops/GrDrawOp.h"
 #include "src/gpu/ops/GrOp.h"
+#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 #include "tools/gpu/ProxyUtils.h"
 
 #include <memory>
@@ -262,16 +262,16 @@ DrawResult ClockwiseGM::onDraw(GrRecordingContext* rContext, SkCanvas* canvas, S
     sdc->addDrawOp(ClockwiseTestOp::Make(rContext, true, 100));
 
     // Draw the test to an off-screen, top-down render target.
-    GrColorType rtcColorType = sdc->colorInfo().colorType();
-    if (auto topLeftRTC = GrSurfaceDrawContext::Make(
-                rContext, rtcColorType, nullptr, SkBackingFit::kExact, {100, 200}, SkSurfaceProps(),
+    GrColorType sdcColorType = sdc->colorInfo().colorType();
+    if (auto topLeftSDC = skgpu::v1::SurfaceDrawContext::Make(
+                rContext, sdcColorType, nullptr, SkBackingFit::kExact, {100, 200}, SkSurfaceProps(),
                 1, GrMipmapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin,
                 SkBudgeted::kYes)) {
-        topLeftRTC->clear(SK_PMColor4fTRANSPARENT);
-        topLeftRTC->addDrawOp(ClockwiseTestOp::Make(rContext, false, 0));
-        topLeftRTC->addDrawOp(ClockwiseTestOp::Make(rContext, true, 100));
+        topLeftSDC->clear(SK_PMColor4fTRANSPARENT);
+        topLeftSDC->addDrawOp(ClockwiseTestOp::Make(rContext, false, 0));
+        topLeftSDC->addDrawOp(ClockwiseTestOp::Make(rContext, true, 100));
         sdc->drawTexture(nullptr,
-                         topLeftRTC->readSurfaceView(),
+                         topLeftSDC->readSurfaceView(),
                          sdc->colorInfo().alphaType(),
                          GrSamplerState::Filter::kNearest,
                          GrSamplerState::MipmapMode::kNone,
@@ -287,15 +287,15 @@ DrawResult ClockwiseGM::onDraw(GrRecordingContext* rContext, SkCanvas* canvas, S
     }
 
     // Draw the test to an off-screen, bottom-up render target.
-    if (auto topLeftRTC = GrSurfaceDrawContext::Make(
-                rContext, rtcColorType, nullptr, SkBackingFit::kExact, {100, 200}, SkSurfaceProps(),
+    if (auto topLeftSDC = skgpu::v1::SurfaceDrawContext::Make(
+                rContext, sdcColorType, nullptr, SkBackingFit::kExact, {100, 200}, SkSurfaceProps(),
                 1, GrMipmapped::kNo, GrProtected::kNo, kBottomLeft_GrSurfaceOrigin,
                 SkBudgeted::kYes)) {
-        topLeftRTC->clear(SK_PMColor4fTRANSPARENT);
-        topLeftRTC->addDrawOp(ClockwiseTestOp::Make(rContext, false, 0));
-        topLeftRTC->addDrawOp(ClockwiseTestOp::Make(rContext, true, 100));
+        topLeftSDC->clear(SK_PMColor4fTRANSPARENT);
+        topLeftSDC->addDrawOp(ClockwiseTestOp::Make(rContext, false, 0));
+        topLeftSDC->addDrawOp(ClockwiseTestOp::Make(rContext, true, 100));
         sdc->drawTexture(nullptr,
-                         topLeftRTC->readSurfaceView(),
+                         topLeftSDC->readSurfaceView(),
                          sdc->colorInfo().alphaType(),
                          GrSamplerState::Filter::kNearest,
                          GrSamplerState::MipmapMode::kNone,

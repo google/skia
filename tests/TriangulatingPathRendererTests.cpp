@@ -14,9 +14,9 @@
 #include "src/gpu/GrEagerVertexAllocator.h"
 #include "src/gpu/GrInnerFanTriangulator.h"
 #include "src/gpu/GrStyle.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/effects/GrPorterDuffXferProcessor.h"
 #include "src/gpu/geometry/GrStyledShape.h"
+#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 #include "src/shaders/SkShaderBase.h"
 #include "tools/ToolUtils.h"
 #include <map>
@@ -710,7 +710,7 @@ static std::unique_ptr<GrFragmentProcessor> create_linear_gradient_processor(
 }
 
 static void test_path(GrRecordingContext* rContext,
-                      GrSurfaceDrawContext* surfaceDrawContext,
+                      skgpu::v1::SurfaceDrawContext* sdc,
                       const SkPath& path,
                       const SkMatrix& matrix = SkMatrix::I(),
                       GrAAType aaType = GrAAType::kNone,
@@ -724,14 +724,13 @@ static void test_path(GrRecordingContext* rContext,
         paint.setColorFragmentProcessor(std::move(fp));
     }
 
-    SkIRect clipConservativeBounds = SkIRect::MakeWH(surfaceDrawContext->width(),
-                                                     surfaceDrawContext->height());
+    SkIRect clipConservativeBounds = SkIRect::MakeWH(sdc->width(), sdc->height());
     GrStyle style(SkStrokeRec::kFill_InitStyle);
     GrStyledShape shape(path, style);
     GrPathRenderer::DrawPathArgs args{rContext,
                                       std::move(paint),
                                       &GrUserStencilSettings::kUnused,
-                                      surfaceDrawContext,
+                                      sdc,
                                       nullptr,
                                       &clipConservativeBounds,
                                       &matrix,
@@ -743,37 +742,37 @@ static void test_path(GrRecordingContext* rContext,
 
 DEF_GPUTEST_FOR_ALL_CONTEXTS(TriangulatingPathRendererTests, reporter, ctxInfo) {
     auto ctx = ctxInfo.directContext();
-    auto rtc = GrSurfaceDrawContext::Make(
+    auto sdc = skgpu::v1::SurfaceDrawContext::Make(
             ctx, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox, {800, 800},
             SkSurfaceProps(), 1, GrMipmapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
-    if (!rtc) {
+    if (!sdc) {
         return;
     }
 
     ctx->flushAndSubmit();
     // Adding discard to appease vulkan validation warning about loading uninitialized data on draw
-    rtc->discard();
+    sdc->discard();
 
     for (CreatePathFn createPath : kNonEdgeAAPaths) {
-        test_path(ctx, rtc.get(), createPath());
+        test_path(ctx, sdc.get(), createPath());
     }
     SkMatrix nonInvertibleMatrix = SkMatrix::Scale(0, 0);
     std::unique_ptr<GrFragmentProcessor> fp(create_linear_gradient_processor(ctx));
-    test_path(ctx, rtc.get(), create_path_17(), nonInvertibleMatrix, GrAAType::kCoverage,
+    test_path(ctx, sdc.get(), create_path_17(), nonInvertibleMatrix, GrAAType::kCoverage,
               std::move(fp));
-    test_path(ctx, rtc.get(), create_path_20(), SkMatrix(), GrAAType::kCoverage);
-    test_path(ctx, rtc.get(), create_path_21(), SkMatrix(), GrAAType::kCoverage);
-    test_path(ctx, rtc.get(), create_path_25(), SkMatrix(), GrAAType::kCoverage);
-    test_path(ctx, rtc.get(), create_path_26(), SkMatrix(), GrAAType::kCoverage);
-    test_path(ctx, rtc.get(), create_path_27(), SkMatrix(), GrAAType::kCoverage);
-    test_path(ctx, rtc.get(), create_path_28(), SkMatrix(), GrAAType::kCoverage);
-    test_path(ctx, rtc.get(), create_path_31(), SkMatrix(), GrAAType::kCoverage);
-    test_path(ctx, rtc.get(), create_path_38(), SkMatrix(), GrAAType::kCoverage);
-    test_path(ctx, rtc.get(), create_path_41(), SkMatrix(), GrAAType::kCoverage);
-    test_path(ctx, rtc.get(), create_path_43(), SkMatrix(), GrAAType::kCoverage);
-    test_path(ctx, rtc.get(), create_path_44(), SkMatrix(), GrAAType::kCoverage);
-    test_path(ctx, rtc.get(), create_path_45(), SkMatrix(), GrAAType::kCoverage);
-    test_path(ctx, rtc.get(), create_path_46(), SkMatrix(), GrAAType::kCoverage);
+    test_path(ctx, sdc.get(), create_path_20(), SkMatrix(), GrAAType::kCoverage);
+    test_path(ctx, sdc.get(), create_path_21(), SkMatrix(), GrAAType::kCoverage);
+    test_path(ctx, sdc.get(), create_path_25(), SkMatrix(), GrAAType::kCoverage);
+    test_path(ctx, sdc.get(), create_path_26(), SkMatrix(), GrAAType::kCoverage);
+    test_path(ctx, sdc.get(), create_path_27(), SkMatrix(), GrAAType::kCoverage);
+    test_path(ctx, sdc.get(), create_path_28(), SkMatrix(), GrAAType::kCoverage);
+    test_path(ctx, sdc.get(), create_path_31(), SkMatrix(), GrAAType::kCoverage);
+    test_path(ctx, sdc.get(), create_path_38(), SkMatrix(), GrAAType::kCoverage);
+    test_path(ctx, sdc.get(), create_path_41(), SkMatrix(), GrAAType::kCoverage);
+    test_path(ctx, sdc.get(), create_path_43(), SkMatrix(), GrAAType::kCoverage);
+    test_path(ctx, sdc.get(), create_path_44(), SkMatrix(), GrAAType::kCoverage);
+    test_path(ctx, sdc.get(), create_path_45(), SkMatrix(), GrAAType::kCoverage);
+    test_path(ctx, sdc.get(), create_path_46(), SkMatrix(), GrAAType::kCoverage);
 }
 
 #endif // SK_GPU_V1

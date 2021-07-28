@@ -26,7 +26,7 @@ class GrRecordingContext;
 class GrRenderTargetProxy;
 class GrSingleOwner;
 class GrSurface;
-class GrSurfaceDrawContext;
+namespace skgpu { namespace v1 { class SurfaceDrawContext; }}
 class GrSurfaceFillContext;
 class GrSurfaceProxy;
 class GrTextureProxy;
@@ -38,13 +38,13 @@ struct SkIRect;
  */
 class GrSurfaceContext {
 public:
-    // If the passed in GrSurfaceProxy is renderable this will return a GrSurfaceDrawContext,
+    // If the passed in GrSurfaceProxy is renderable this will return a SurfaceDrawContext,
     // otherwise it will return a GrSurfaceContext.
     static std::unique_ptr<GrSurfaceContext> Make(GrRecordingContext*,
                                                   GrSurfaceProxyView readView,
                                                   const GrColorInfo&);
 
-    // Makes either a GrSurfaceContext, GrFillDrawContext, or a GrSurfaceDrawContext, depending on
+    // Makes either a GrSurfaceContext, GrFillDrawContext, or a SurfaceDrawContext, depending on
     // GrRenderable and the GrImageInfo.
     static std::unique_ptr<GrSurfaceContext> Make(GrRecordingContext*,
                                                   const GrImageInfo&,
@@ -164,7 +164,6 @@ public:
         return fReadView.asRenderTargetProxyRef();
     }
 
-    virtual GrSurfaceDrawContext* asSurfaceDrawContext() { return nullptr; }
     virtual GrSurfaceFillContext* asFillContext() { return nullptr; }
 
     /**

@@ -37,8 +37,6 @@
 #include <string.h>
 #include <utility>
 
-class GrSurfaceDrawContext;
-
 static const int kNumMatrices = 6;
 static const int kImageSize = 128;
 static const int kLabelSize = 32;

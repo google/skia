@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrSurfaceDrawContext_DEFINED
-#define GrSurfaceDrawContext_DEFINED
+#ifndef SurfaceDrawContext_v1_DEFINED
+#define SurfaceDrawContext_v1_DEFINED
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkDrawable.h"
@@ -55,55 +55,57 @@ class SkRuntimeEffect;
 class SkTextBlob;
 class SkVertices;
 
+namespace skgpu::v1 {
+
 /**
  * A helper object to orchestrate commands (draws, etc...) for GrSurfaces that are GrRenderTargets.
  */
-class GrSurfaceDrawContext : public GrSurfaceFillContext {
+class SurfaceDrawContext : public GrSurfaceFillContext {
 public:
-    static std::unique_ptr<GrSurfaceDrawContext> Make(GrRecordingContext*,
-                                                      GrColorType,
-                                                      sk_sp<GrSurfaceProxy>,
-                                                      sk_sp<SkColorSpace>,
-                                                      GrSurfaceOrigin,
-                                                      const SkSurfaceProps&,
-                                                      bool flushTimeOpsTask = false);
+    static std::unique_ptr<SurfaceDrawContext> Make(GrRecordingContext*,
+                                                    GrColorType,
+                                                    sk_sp<GrSurfaceProxy>,
+                                                    sk_sp<SkColorSpace>,
+                                                    GrSurfaceOrigin,
+                                                    const SkSurfaceProps&,
+                                                    bool flushTimeOpsTask = false);
 
     /* Uses the default texture format for the color type */
-    static std::unique_ptr<GrSurfaceDrawContext> Make(GrRecordingContext*,
-                                                      GrColorType,
-                                                      sk_sp<SkColorSpace>,
-                                                      SkBackingFit,
-                                                      SkISize dimensions,
-                                                      const SkSurfaceProps&,
-                                                      int sampleCnt = 1,
-                                                      GrMipmapped = GrMipmapped::kNo,
-                                                      GrProtected = GrProtected::kNo,
-                                                      GrSurfaceOrigin = kBottomLeft_GrSurfaceOrigin,
-                                                      SkBudgeted = SkBudgeted::kYes);
+    static std::unique_ptr<SurfaceDrawContext> Make(GrRecordingContext*,
+                                                    GrColorType,
+                                                    sk_sp<SkColorSpace>,
+                                                    SkBackingFit,
+                                                    SkISize dimensions,
+                                                    const SkSurfaceProps&,
+                                                    int sampleCnt = 1,
+                                                    GrMipmapped = GrMipmapped::kNo,
+                                                    GrProtected = GrProtected::kNo,
+                                                    GrSurfaceOrigin = kBottomLeft_GrSurfaceOrigin,
+                                                    SkBudgeted = SkBudgeted::kYes);
 
     /**
      * Takes custom swizzles rather than determining swizzles from color type and format.
      * It will have color type kUnknown.
      */
-    static std::unique_ptr<GrSurfaceDrawContext> Make(GrRecordingContext*,
-                                                      sk_sp<SkColorSpace>,
-                                                      SkBackingFit,
-                                                      SkISize dimensions,
-                                                      const GrBackendFormat&,
-                                                      int sampleCnt,
-                                                      GrMipmapped,
-                                                      GrProtected,
-                                                      GrSwizzle readSwizzle,
-                                                      GrSwizzle writeSwizzle,
-                                                      GrSurfaceOrigin,
-                                                      SkBudgeted,
-                                                      const SkSurfaceProps&);
+    static std::unique_ptr<SurfaceDrawContext> Make(GrRecordingContext*,
+                                                    sk_sp<SkColorSpace>,
+                                                    SkBackingFit,
+                                                    SkISize dimensions,
+                                                    const GrBackendFormat&,
+                                                    int sampleCnt,
+                                                    GrMipmapped,
+                                                    GrProtected,
+                                                    GrSwizzle readSwizzle,
+                                                    GrSwizzle writeSwizzle,
+                                                    GrSurfaceOrigin,
+                                                    SkBudgeted,
+                                                    const SkSurfaceProps&);
 
     // Same as previous factory but will try to use fallback GrColorTypes if the one passed in
     // fails. The fallback GrColorType will have at least the number of channels and precision per
     // channel as the passed in GrColorType. It may also swizzle the changes (e.g., BGRA -> RGBA).
     // SRGB-ness will be preserved.
-    static std::unique_ptr<GrSurfaceDrawContext> MakeWithFallback(
+    static std::unique_ptr<SurfaceDrawContext> MakeWithFallback(
             GrRecordingContext*,
             GrColorType,
             sk_sp<SkColorSpace>,
@@ -120,21 +122,26 @@ public:
     typedef void* ReleaseContext;
     typedef void (*ReleaseProc)(ReleaseContext);
 
-    // Creates a GrSurfaceDrawContext that wraps the passed in GrBackendTexture.
-    static std::unique_ptr<GrSurfaceDrawContext> MakeFromBackendTexture(
-            GrRecordingContext*, GrColorType, sk_sp<SkColorSpace>, const GrBackendTexture&,
-            int sampleCnt, GrSurfaceOrigin, const SkSurfaceProps&,
+    // Creates a SurfaceDrawContext that wraps the passed in GrBackendTexture.
+    static std::unique_ptr<SurfaceDrawContext> MakeFromBackendTexture(
+            GrRecordingContext*,
+            GrColorType,
+            sk_sp<SkColorSpace>,
+            const GrBackendTexture&,
+            int sampleCnt,
+            GrSurfaceOrigin,
+            const SkSurfaceProps&,
             sk_sp<GrRefCntedCallback> releaseHelper);
 
-    GrSurfaceDrawContext(GrRecordingContext*,
-                         GrSurfaceProxyView readView,
-                         GrSurfaceProxyView writeView,
-                         GrColorType,
-                         sk_sp<SkColorSpace>,
-                         const SkSurfaceProps&,
-                         bool flushTimeOpsTask = false);
+    SurfaceDrawContext(GrRecordingContext*,
+                       GrSurfaceProxyView readView,
+                       GrSurfaceProxyView writeView,
+                       GrColorType,
+                       sk_sp<SkColorSpace>,
+                       const SkSurfaceProps&,
+                       bool flushTimeOpsTask = false);
 
-    ~GrSurfaceDrawContext() override;
+    ~SurfaceDrawContext() override;
 
     /**
      *  Draw everywhere (respecting the clip) with the paint.
@@ -511,23 +518,13 @@ public:
     // TODO: remove after clipping overhaul.
     void setLastClip(uint32_t clipStackGenID,
                      const SkIRect& devClipBounds,
-                     int numClipAnalyticElements) {
-        GrOpsTask* opsTask = this->getOpsTask();
-        opsTask->fLastClipStackGenID = clipStackGenID;
-        opsTask->fLastDevClipBounds = devClipBounds;
-        opsTask->fLastClipNumAnalyticElements = numClipAnalyticElements;
-    }
+                     int numClipAnalyticElements);
 
     // called to determine if we have to render the clip into SB.
     // TODO: remove after clipping overhaul.
     bool mustRenderClip(uint32_t clipStackGenID,
                         const SkIRect& devClipBounds,
-                        int numClipAnalyticElements) {
-        GrOpsTask* opsTask = this->getOpsTask();
-        return opsTask->fLastClipStackGenID != clipStackGenID ||
-               !opsTask->fLastDevClipBounds.contains(devClipBounds) ||
-               opsTask->fLastClipNumAnalyticElements != numClipAnalyticElements;
-    }
+                        int numClipAnalyticElements);
 
     void clearStencilClip(const SkIRect& scissor, bool insideStencilMask) {
         this->internalStencilClear(&scissor, insideStencilMask);
@@ -599,7 +596,7 @@ public:
     bool refsWrappedObjects() const { return this->asRenderTargetProxy()->refsWrappedObjects(); }
 
     /**
-     *  The next time this GrSurfaceDrawContext is flushed, the gpu will wait on the passed in
+     *  The next time this SurfaceDrawContext is flushed, the gpu will wait on the passed in
      *  semaphores before executing any commands.
      */
     bool waitOnSemaphores(int numSemaphores, const GrBackendSemaphore waitSemaphores[],
@@ -621,8 +618,6 @@ public:
     // This entry point should only be called if the backing GPU object is known to be
     // instantiated.
     GrRenderTarget* accessRenderTarget() { return this->asSurfaceProxy()->peekRenderTarget(); }
-
-    GrSurfaceDrawContext* asSurfaceDrawContext() override { return this; }
 
 #if GR_TEST_UTILS
     void testingOnly_SetPreserveOpsOnFullClear() { fPreserveOpsOnFullClear_TestingOnly = true; }
@@ -715,4 +710,6 @@ private:
     using INHERITED = GrSurfaceFillContext;
 };
 
-#endif
+} // namespace skgpu::v1
+
+#endif // SurfaceDrawContext_v1_DEFINED

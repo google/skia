@@ -15,10 +15,10 @@
 #include "src/gpu/GrResourceCache.h"
 #include "src/gpu/GrSoftwarePathRenderer.h"
 #include "src/gpu/GrStyle.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/effects/GrPorterDuffXferProcessor.h"
 #include "src/gpu/geometry/GrStyledShape.h"
 #include "src/gpu/ops/GrTriangulatingPathRenderer.h"
+#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
 static SkPath create_concave_path() {
     SkPath path;
@@ -31,7 +31,7 @@ static SkPath create_concave_path() {
 }
 
 static void draw_path(GrRecordingContext* rContext,
-                      GrSurfaceDrawContext* surfaceDrawContext,
+                      skgpu::v1::SurfaceDrawContext* sdc,
                       const SkPath& path,
                       GrPathRenderer* pr,
                       GrAAType aaType,
@@ -40,8 +40,8 @@ static void draw_path(GrRecordingContext* rContext,
     GrPaint paint;
     paint.setXPFactory(GrPorterDuffXPFactory::Get(SkBlendMode::kSrc));
 
-    SkIRect clipConservativeBounds = SkIRect::MakeWH(surfaceDrawContext->width(),
-                                                     surfaceDrawContext->height());
+    SkIRect clipConservativeBounds = SkIRect::MakeWH(sdc->width(),
+                                                     sdc->height());
     GrStyledShape shape(path, style);
     if (shape.style().applies()) {
         shape = shape.applyStyle(GrStyle::Apply::kPathEffectAndStrokeRec, 1.0f);
@@ -51,7 +51,7 @@ static void draw_path(GrRecordingContext* rContext,
     GrPathRenderer::DrawPathArgs args{rContext,
                                       std::move(paint),
                                       &GrUserStencilSettings::kUnused,
-                                      surfaceDrawContext,
+                                      sdc,
                                       nullptr,
                                       &clipConservativeBounds,
                                       &matrix,
@@ -83,7 +83,7 @@ static void test_path(skiatest::Reporter* reporter,
     dContext->setResourceCacheLimit(8000000);
     GrResourceCache* cache = dContext->priv().getResourceCache();
 
-    auto sdc = GrSurfaceDrawContext::Make(
+    auto sdc = skgpu::v1::SurfaceDrawContext::Make(
             dContext.get(), GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox, {800, 800},
             SkSurfaceProps(), 1, GrMipmapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
     if (!sdc) {

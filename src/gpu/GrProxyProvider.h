@@ -60,10 +60,10 @@ public:
                                                        UseAllocator = UseAllocator::kYes);
 
     /**
-     * A helper that uses findOrCreateProxyByUniqueKey() to find a proxy and if found creates a view
+     * A helper that uses findOrCreateProxyByUniqueKey() to find a proxy and, if found, creates
      * a view for the found proxy using the passed in origin and color type. It is assumed that if
-     * the proxy is renderable then it was created by GrSurfaceDrawContext::MakeWithFallback and
-     * the fallback color type will be used to create the view.
+     * the proxy is renderable then it was created via a fallback code path so the fallback
+     * color type will be used to create the view.
      */
     GrSurfaceProxyView findCachedProxyWithColorTypeFallback(const GrUniqueKey&,
                                                             GrSurfaceOrigin,

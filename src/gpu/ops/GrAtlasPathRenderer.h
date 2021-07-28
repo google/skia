@@ -50,7 +50,7 @@ public:
     // 128^2 total pixels if the surfaceDrawContext supports MSAA or DMSAA.)
     //
     // Also returns GrFPFailure() if the view matrix has perspective.
-    GrFPResult makeAtlasClipEffect(const GrSurfaceDrawContext*,
+    GrFPResult makeAtlasClipEffect(const skgpu::v1::SurfaceDrawContext*,
                                    const GrOp* opBeingClipped,
                                    std::unique_ptr<GrFragmentProcessor> inputFP,
                                    const SkIRect& drawBounds,

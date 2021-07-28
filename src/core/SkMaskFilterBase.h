@@ -26,7 +26,7 @@ class GrFragmentProcessor;
 class GrPaint;
 class GrRecordingContext;
 class GrRenderTarget;
-class GrSurfaceDrawContext;
+namespace skgpu { namespace v1 { class SurfaceDrawContext; }}
 class GrResourceProvider;
 class GrStyledShape;
 class GrSurfaceProxyView;
@@ -114,7 +114,7 @@ public:
      *  successful. If false is returned then paint is unmodified.
      */
     virtual bool directFilterMaskGPU(GrRecordingContext*,
-                                     GrSurfaceDrawContext*,
+                                     skgpu::v1::SurfaceDrawContext*,
                                      GrPaint&& paint,
                                      const GrClip*,
                                      const SkMatrix& viewMatrix,

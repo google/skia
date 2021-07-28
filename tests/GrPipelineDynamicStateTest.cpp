@@ -20,11 +20,11 @@
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrResourceProvider.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
+#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
 /**
  * This is a GPU-backend specific test for dynamic pipeline state. It draws boxes using dynamic
@@ -187,10 +187,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrPipelineDynamicStateTest, reporter, ctxInfo
     auto dContext = ctxInfo.directContext();
     GrResourceProvider* rp = dContext->priv().resourceProvider();
 
-    auto rtc = GrSurfaceDrawContext::Make(
+    auto sdc = skgpu::v1::SurfaceDrawContext::Make(
             dContext, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,
             {kScreenSize, kScreenSize}, SkSurfaceProps());
-    if (!rtc) {
+    if (!sdc) {
         ERRORF(reporter, "could not create render target context.");
         return;
     }
@@ -228,12 +228,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrPipelineDynamicStateTest, reporter, ctxInfo
     uint32_t resultPx[kScreenSize * kScreenSize];
 
     for (GrScissorTest scissorTest : {GrScissorTest::kEnabled, GrScissorTest::kDisabled}) {
-        rtc->clear(SkPMColor4f::FromBytes_RGBA(0xbaaaaaad));
-        rtc->addDrawOp(GrPipelineDynamicStateTestOp::Make(dContext, scissorTest, vbuff));
+        sdc->clear(SkPMColor4f::FromBytes_RGBA(0xbaaaaaad));
+        sdc->addDrawOp(GrPipelineDynamicStateTestOp::Make(dContext, scissorTest, vbuff));
         auto ii = SkImageInfo::Make(kScreenSize, kScreenSize,
                                     kRGBA_8888_SkColorType, kPremul_SkAlphaType);
         GrPixmap resultPM(ii, resultPx, kScreenSize*sizeof(uint32_t));
-        rtc->readPixels(dContext, resultPM, {0, 0});
+        sdc->readPixels(dContext, resultPM, {0, 0});
         for (int y = 0; y < kScreenSize; ++y) {
             for (int x = 0; x < kScreenSize; ++x) {
                 int expectedColorIdx;

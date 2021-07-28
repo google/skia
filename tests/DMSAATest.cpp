@@ -12,14 +12,15 @@
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkSurfacePriv.h"
 #include "src/gpu/GrStyle.h"
-#include "src/gpu/GrSurfaceDrawContext.h"
+#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
 static SkSurfaceProps kDMSAAProps(SkSurfaceProps::kDynamicMSAA_Flag, kUnknown_SkPixelGeometry);
 constexpr static SkPMColor4f kTransYellow = {.5f,.5f,.0f,.5f};
 constexpr static SkPMColor4f kTransCyan = {.0f,.5f,.5f,.5f};
 constexpr static int w=10, h=10;
 
-static void draw_paint_with_aa(GrSurfaceDrawContext* sdc, const SkPMColor4f& color,
+static void draw_paint_with_aa(skgpu::v1::SurfaceDrawContext* sdc,
+                               const SkPMColor4f& color,
                                SkBlendMode blendMode) {
     GrPaint paint;
     paint.setColor4f(color);
@@ -28,7 +29,8 @@ static void draw_paint_with_aa(GrSurfaceDrawContext* sdc, const SkPMColor4f& col
                   nullptr);
 }
 
-static void draw_paint_with_dmsaa(GrSurfaceDrawContext* sdc, const SkPMColor4f& color,
+static void draw_paint_with_dmsaa(skgpu::v1::SurfaceDrawContext* sdc,
+                                  const SkPMColor4f& color,
                                   SkBlendMode blendMode) {
     // drawVertices should always trigger dmsaa, but draw something non-rectangular just to be 100%
     // certain.
@@ -53,8 +55,10 @@ static bool fuzzy_equals(const float a[4], const SkPMColor4f& b) {
     return true;
 }
 
-static void check_sdc_color(skiatest::Reporter* reporter, GrSurfaceDrawContext* sdc,
-                            GrDirectContext* ctx, const SkPMColor4f& color) {
+static void check_sdc_color(skiatest::Reporter* reporter,
+                            skgpu::v1::SurfaceDrawContext* sdc,
+                            GrDirectContext* ctx,
+                            const SkPMColor4f& color) {
     auto info = SkImageInfo::Make(w, h, kRGBA_F32_SkColorType, kPremul_SkAlphaType);
     GrPixmap pixmap = GrPixmap::Allocate(info);
     sdc->readPixels(ctx, pixmap, {0, 0});
@@ -76,19 +80,19 @@ static void check_sdc_color(skiatest::Reporter* reporter, GrSurfaceDrawContext* 
 DEF_GPUTEST_FOR_CONTEXTS(DMSAA_preserve_contents,
                          &sk_gpu_test::GrContextFactory::IsRenderingContext, reporter, ctxInfo,
                          nullptr) {
-    auto ctx = ctxInfo.directContext();
-    auto sdc = GrSurfaceDrawContext::Make(ctx, GrColorType::kRGBA_8888, nullptr,
-                                          SkBackingFit::kApprox, {w, h}, kDMSAAProps);
+    auto dContext = ctxInfo.directContext();
+    auto sdc = skgpu::v1::SurfaceDrawContext::Make(dContext, GrColorType::kRGBA_8888, nullptr,
+                                                   SkBackingFit::kApprox, {w, h}, kDMSAAProps);
 
     // Initialize the texture and dmsaa attachment with transparent.
     draw_paint_with_dmsaa(sdc.get(), SK_PMColor4fTRANSPARENT, SkBlendMode::kSrc);
-    check_sdc_color(reporter, sdc.get(), ctx, SK_PMColor4fTRANSPARENT);
+    check_sdc_color(reporter, sdc.get(), dContext, SK_PMColor4fTRANSPARENT);
 
     // Clear the main texture to yellow.
     sdc->clear(kTransYellow);
 
     // Close the opsTask by doing a readback.
-    check_sdc_color(reporter, sdc.get(), ctx, kTransYellow);
+    check_sdc_color(reporter, sdc.get(), dContext, kTransYellow);
 
     // Now the DMSAA attachment is clear and the texture is yellow. Blend cyan into the DMSAA
     // attachment. This will fail if the yellow from the main texture doesn't get copied into the
@@ -96,7 +100,7 @@ DEF_GPUTEST_FOR_CONTEXTS(DMSAA_preserve_contents,
     draw_paint_with_dmsaa(sdc.get(), kTransCyan, SkBlendMode::kSrcOver);
     SkPMColor4f dstColor = SkBlendMode_Apply(SkBlendMode::kSrcOver, kTransCyan, kTransYellow);
 
-    check_sdc_color(reporter, sdc.get(), ctx, dstColor);
+    check_sdc_color(reporter, sdc.get(), dContext, dstColor);
 }
 
 static void require_dst_reads(GrContextOptions* options) {
@@ -106,13 +110,13 @@ static void require_dst_reads(GrContextOptions* options) {
 
 DEF_GPUTEST_FOR_CONTEXTS(DMSAA_dst_read, &sk_gpu_test::GrContextFactory::IsRenderingContext,
                          reporter, ctxInfo, require_dst_reads) {
-    auto ctx = ctxInfo.directContext();
-    auto sdc = GrSurfaceDrawContext::Make(ctx, GrColorType::kRGBA_8888, nullptr,
-                                          SkBackingFit::kApprox, {w, h}, kDMSAAProps);
+    auto dContext = ctxInfo.directContext();
+    auto sdc = skgpu::v1::SurfaceDrawContext::Make(dContext, GrColorType::kRGBA_8888, nullptr,
+                                                   SkBackingFit::kApprox, {w, h}, kDMSAAProps);
 
     // Initialize the texture and dmsaa attachment with transparent.
     draw_paint_with_dmsaa(sdc.get(), SK_PMColor4fTRANSPARENT, SkBlendMode::kSrc);
-    check_sdc_color(reporter, sdc.get(), ctx, SK_PMColor4fTRANSPARENT);
+    check_sdc_color(reporter, sdc.get(), dContext, SK_PMColor4fTRANSPARENT);
 
     sdc->clear(SK_PMColor4fWHITE);
     SkPMColor4f dstColor = SK_PMColor4fWHITE;
@@ -123,19 +127,19 @@ DEF_GPUTEST_FOR_CONTEXTS(DMSAA_dst_read, &sk_gpu_test::GrContextFactory::IsRende
     draw_paint_with_dmsaa(sdc.get(), kTransCyan, SkBlendMode::kDarken);
     dstColor = SkBlendMode_Apply(SkBlendMode::kDarken, kTransCyan, dstColor);
 
-    check_sdc_color(reporter, sdc.get(), ctx, dstColor);
+    check_sdc_color(reporter, sdc.get(), dContext, dstColor);
 }
 
 DEF_GPUTEST_FOR_CONTEXTS(DMSAA_aa_dst_read_after_dmsaa,
                          &sk_gpu_test::GrContextFactory::IsRenderingContext, reporter, ctxInfo,
                          require_dst_reads) {
-    auto ctx = ctxInfo.directContext();
-    auto sdc = GrSurfaceDrawContext::Make(ctx, GrColorType::kRGBA_8888, nullptr,
-                                          SkBackingFit::kApprox, {w, h}, kDMSAAProps);
+    auto dContext = ctxInfo.directContext();
+    auto sdc = skgpu::v1::SurfaceDrawContext::Make(dContext, GrColorType::kRGBA_8888, nullptr,
+                                                   SkBackingFit::kApprox, {w, h}, kDMSAAProps);
 
     // Initialize the texture and dmsaa attachment with transparent.
     draw_paint_with_dmsaa(sdc.get(), SK_PMColor4fTRANSPARENT, SkBlendMode::kSrc);
-    check_sdc_color(reporter, sdc.get(), ctx, SK_PMColor4fTRANSPARENT);
+    check_sdc_color(reporter, sdc.get(), dContext, SK_PMColor4fTRANSPARENT);
 
     sdc->clear(SK_PMColor4fWHITE);
     SkPMColor4f dstColor = SK_PMColor4fWHITE;
@@ -147,19 +151,19 @@ DEF_GPUTEST_FOR_CONTEXTS(DMSAA_aa_dst_read_after_dmsaa,
     draw_paint_with_aa(sdc.get(), kTransCyan, SkBlendMode::kDarken);
     dstColor = SkBlendMode_Apply(SkBlendMode::kDarken, kTransCyan, dstColor);
 
-    check_sdc_color(reporter, sdc.get(), ctx, dstColor);
+    check_sdc_color(reporter, sdc.get(), dContext, dstColor);
 }
 
 DEF_GPUTEST_FOR_CONTEXTS(DMSAA_dst_read_with_existing_barrier,
                          &sk_gpu_test::GrContextFactory::IsRenderingContext, reporter, ctxInfo,
                          require_dst_reads) {
-    auto ctx = ctxInfo.directContext();
-    auto sdc = GrSurfaceDrawContext::Make(ctx, GrColorType::kRGBA_8888, nullptr,
-                                          SkBackingFit::kApprox, {w, h}, kDMSAAProps);
+    auto dContext = ctxInfo.directContext();
+    auto sdc = skgpu::v1::SurfaceDrawContext::Make(dContext, GrColorType::kRGBA_8888, nullptr,
+                                                   SkBackingFit::kApprox, {w, h}, kDMSAAProps);
 
     // Initialize the texture and dmsaa attachment with transparent.
     draw_paint_with_dmsaa(sdc.get(), SK_PMColor4fTRANSPARENT, SkBlendMode::kSrc);
-    check_sdc_color(reporter, sdc.get(), ctx, SK_PMColor4fTRANSPARENT);
+    check_sdc_color(reporter, sdc.get(), dContext, SK_PMColor4fTRANSPARENT);
 
     sdc->clear(SK_PMColor4fWHITE);
     SkPMColor4f dstColor = SK_PMColor4fWHITE;
@@ -174,5 +178,5 @@ DEF_GPUTEST_FOR_CONTEXTS(DMSAA_dst_read_with_existing_barrier,
     draw_paint_with_dmsaa(sdc.get(), kTransCyan, SkBlendMode::kSrcOver);
     dstColor = SkBlendMode_Apply(SkBlendMode::kSrcOver, kTransCyan, dstColor);
 
-    check_sdc_color(reporter, sdc.get(), ctx, dstColor);
+    check_sdc_color(reporter, sdc.get(), dContext, dstColor);
 }
