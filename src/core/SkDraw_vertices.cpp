@@ -96,10 +96,7 @@ protected:
     skvm::Color onProgram(skvm::Builder*,
                           skvm::Coord, skvm::Coord, skvm::Color,
                           const SkMatrixProvider&, const SkMatrix*, const SkColorInfo&,
-                          skvm::Uniforms*, SkArenaAlloc*) const override {
-        // TODO?
-        return {};
-    }
+                          skvm::Uniforms*, SkArenaAlloc*) const override;
 
 private:
     bool isOpaque() const override { return fIsOpaque; }
@@ -114,9 +111,50 @@ private:
     SkMatrix fM33;
     const bool fIsOpaque;
     const bool fUsePersp;   // controls our stages, and what we do in update()
+    mutable skvm::Uniform fColorMatrix;
+    mutable skvm::Uniform fCoordMatrix;
 
     using INHERITED = SkShaderBase;
 };
+
+skvm::Color SkTriColorShader::onProgram(skvm::Builder* b,
+                                        skvm::Coord device, skvm::Coord local, skvm::Color,
+                                        const SkMatrixProvider& matrices, const SkMatrix* localM,
+                                        const SkColorInfo&, skvm::Uniforms* uniforms,
+                                        SkArenaAlloc* alloc) const {
+
+    fColorMatrix = uniforms->pushPtr(&fM43);
+
+    skvm::F32 x = local.x,
+              y = local.y;
+
+    if (fUsePersp) {
+        fCoordMatrix = uniforms->pushPtr(&fM33);
+        auto dot = [&, x, y](int row) {
+            return b->mad(x, b->arrayF(fCoordMatrix, row),
+                             b->mad(y, b->arrayF(fCoordMatrix, row + 3),
+                                       b->arrayF(fCoordMatrix, row + 6)));
+        };
+
+        x = dot(0);
+        y = dot(1);
+        x = x * (1.0f / dot(2));
+        y = y * (1.0f / dot(2));
+    }
+
+    auto colorDot = [&, x, y](int row) {
+        return b->mad(x, b->arrayF(fColorMatrix, row),
+                         b->mad(y, b->arrayF(fColorMatrix, row + 4),
+                                   b->arrayF(fColorMatrix, row + 8)));
+    };
+
+    skvm::Color color;
+    color.r = colorDot(0);
+    color.g = colorDot(1);
+    color.b = colorDot(2);
+    color.a = colorDot(3);
+    return color;
+}
 
 bool SkTriColorShader::update(const SkMatrix& ctmInv, const SkPoint pts[],
                               const SkPMColor4f colors[], int index0, int index1, int index2) {
@@ -310,27 +348,49 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices, SkBlendMode blendMode
     VertState       state(vertexCount, indices, indexCount);
     VertState::Proc vertProc = state.chooseProc(info.mode());
     SkMatrix ctm = fMatrixProvider->localToDevice();
+    const bool usePerspective = ctm.hasPerspective();
     // No colors are changing and no texture coordinates are changing, so no updates between
     // triangles are needed. Use SkVM to blit the triangles.
-    if (gUseSkVMBlitter && !colors) {
-        if (!texCoords || texCoords == positions) {
-            if (auto blitter = SkVMBlitter::Make(
-                    fDst, paint, *fMatrixProvider, outerAlloc, this->fRC->clipShader())) {
-                while (vertProc(&state)) {
-                    fill_triangle(state, blitter, *fRC, dev2, dev3);
+    if (gUseSkVMBlitter) {
+        if (!colors) {
+            if (!texCoords || texCoords == positions) {
+                if (auto blitter = SkVMBlitter::Make(
+                        fDst, paint, *fMatrixProvider, outerAlloc, this->fRC->clipShader())) {
+                    while (vertProc(&state)) {
+                        fill_triangle(state, blitter, *fRC, dev2, dev3);
+                    }
+                    return;
                 }
-                return;
+            } else {
+                auto texCoordShader = as_SB(shader)->updatableShader(outerAlloc);
+                SkPaint shaderPaint{paint};
+                shaderPaint.setShader(sk_ref_sp(texCoordShader));
+                if (auto blitter = SkVMBlitter::Make(
+                    fDst, shaderPaint, *fMatrixProvider, outerAlloc, this->fRC->clipShader())) {
+
+                    SkMatrix localM;
+                    while (vertProc(&state)) {
+                        if (texture_to_matrix(state, positions, texCoords, &localM) &&
+                            texCoordShader->update(SkMatrix::Concat(ctm, localM))) {
+                                fill_triangle(state, blitter, *fRC, dev2, dev3);
+                        }
+                    }
+                    return;
+                }
             }
-        } else {
-            auto texCoordShader = as_SB(shader)->updatableShader(outerAlloc);
+        } else if(!texCoords) {
+            auto triangleShader =
+                outerAlloc->make<SkTriColorShader>(
+                        compute_is_opaque(colors,vertexCount), usePerspective);
             SkPaint shaderPaint{paint};
-            shaderPaint.setShader(sk_ref_sp(texCoordShader));
+            shaderPaint.setShader(sk_ref_sp(triangleShader));
             if (auto blitter = SkVMBlitter::Make(
                     fDst, shaderPaint, *fMatrixProvider, outerAlloc, this->fRC->clipShader())) {
-                SkMatrix localM;
+                SkPMColor4f* dstColors =
+                    convert_colors(colors, vertexCount, fDst.colorSpace(), outerAlloc);
                 while (vertProc(&state)) {
-                    if (texture_to_matrix(state, positions, texCoords, &localM) &&
-                        texCoordShader->update(SkMatrix::Concat(ctm, localM))) {
+                    if (triangleShader->update(ctmInverse, positions, dstColors,
+                                               state.f0, state.f1, state.f2)) {
                         fill_triangle(state, blitter, *fRC, dev2, dev3);
                     }
                 }
@@ -338,8 +398,6 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices, SkBlendMode blendMode
             }
         }
     }
-
-    const bool usePerspective = ctm.hasPerspective();
 
     SkTriColorShader* triShader = nullptr;
     SkPMColor4f*  dstColors = nullptr;
