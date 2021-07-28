@@ -27,9 +27,8 @@ public:
 
     void prepare(GrMeshDrawTarget*,
                  const SkRect& cullBounds,
-                 const SkMatrix& pathMatrix,
-                 const SkPath&,
-                 const BreadcrumbTriangleList*) override;
+                 const PathDrawList&,
+                 int totalCombinedPathVerbCnt) override;
 
     void draw(GrOpFlushState*) const override;
 

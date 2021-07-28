@@ -21,18 +21,24 @@
 // translation element. Instead we unapply the translation to the cull bounds ahead of time.
 class GrCullTest {
 public:
-    GrCullTest(const SkRect& devCullBounds, const SkMatrix& m)
-            // [fMatX, fMatY] maps path coordinates to the float4 [x, y, -x, -y] in device space.
-            : fMatX{m.getScaleX(), m.getSkewY(), -m.getScaleX(), -m.getSkewY()}
-            , fMatY{m.getSkewX(), m.getScaleY(), -m.getSkewX(), -m.getScaleY()}
-            // Store the cull bounds as [l, t, -r, -b] for faster math.
-            // Also subtract the matrix translate from the cull bounds ahead of time, rather than
-            // adding it to every point every time we test.
-            , fCullBounds{devCullBounds.fLeft - m.getTranslateX(),
-                          devCullBounds.fTop - m.getTranslateY(),
-                          m.getTranslateX() - devCullBounds.fRight,
-                          m.getTranslateY() - devCullBounds.fBottom} {
+    GrCullTest() = default;
+
+    GrCullTest(const SkRect& devCullBounds, const SkMatrix& m) {
+        this->set(devCullBounds, m);
+    }
+
+    void set(const SkRect& devCullBounds, const SkMatrix& m) {
         SkASSERT(!m.hasPerspective());
+        // [fMatX, fMatY] maps path coordinates to the float4 [x, y, -x, -y] in device space.
+        fMatX = {m.getScaleX(), m.getSkewY(), -m.getScaleX(), -m.getSkewY()};
+        fMatY = {m.getSkewX(), m.getScaleY(), -m.getSkewX(), -m.getScaleY()};
+        // Store the cull bounds as [l, t, -r, -b] for faster math.
+        // Also subtract the matrix translate from the cull bounds ahead of time, rather than adding
+        // it to every point every time we test.
+        fCullBounds = {devCullBounds.fLeft - m.getTranslateX(),
+                       devCullBounds.fTop - m.getTranslateY(),
+                       m.getTranslateX() - devCullBounds.fRight,
+                       m.getTranslateY() - devCullBounds.fBottom};
     }
 
     // Returns whether M*p will be in the viewport.

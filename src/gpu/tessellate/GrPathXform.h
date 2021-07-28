@@ -23,11 +23,16 @@ class GrPathXform {
     using float4 = grvx::float4;
 
 public:
-    GrPathXform(const SkMatrix& m)
-            : fScale{m.getScaleX(), m.getScaleY(), m.getScaleX(), m.getScaleY()}
-            , fSkew{m.getSkewX(), m.getSkewY(), m.getSkewX(), m.getSkewY()}
-            , fTrans{m.getTranslateX(), m.getTranslateY(), m.getTranslateX(), m.getTranslateY()} {
+    GrPathXform() = default;
+    GrPathXform(const SkMatrix& m) { *this = m; }
+
+    GrPathXform& operator=(const SkMatrix& m) {
         SkASSERT(!m.hasPerspective());
+        // Duplicate the matrix in float4.lo and float4.hi so we can map two points at once.
+        fScale = {m.getScaleX(), m.getScaleY(), m.getScaleX(), m.getScaleY()};
+        fSkew = {m.getSkewX(), m.getSkewY(), m.getSkewX(), m.getSkewY()};
+        fTrans = {m.getTranslateX(), m.getTranslateY(), m.getTranslateX(), m.getTranslateY()};
+        return *this;
     }
 
     SK_ALWAYS_INLINE float2 mapPoint(float2 p) const {

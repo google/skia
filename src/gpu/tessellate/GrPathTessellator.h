@@ -25,34 +25,51 @@ class GrPathTessellator {
 public:
     using BreadcrumbTriangleList = GrInnerFanTriangulator::BreadcrumbTriangleList;
 
+    struct PathDrawList {
+        PathDrawList(const SkMatrix& pathMatrix, const SkPath& path)
+                : fPathMatrix(pathMatrix), fPath(path) {}
+
+        SkMatrix fPathMatrix;
+        SkPath fPath;
+        PathDrawList* fNext = nullptr;
+
+        struct Iter {
+            void operator++() { fHead = fHead->fNext; }
+            bool operator!=(const Iter& b) const { return fHead != b.fHead; }
+            std::tuple<const SkMatrix&, const SkPath&> operator*() const {
+                return {fHead->fPathMatrix, fHead->fPath};
+            }
+            const PathDrawList* fHead;
+        };
+        Iter begin() const { return {this}; }
+        Iter end() const { return {nullptr}; }
+    };
+
+    virtual ~GrPathTessellator() {}
+
     const GrPathTessellationShader* shader() const { return fShader; }
 
     // Called before draw(). Prepares GPU buffers containing the geometry to tessellate.
     //
-    // 'pathMatrix' is applied on the CPU while the geometry is being written out. This is a tool
-    // for batching, and is applied in addition to the shader's on-GPU matrix.
-    //
-    // If the given BreadcrumbTriangleList is non-null, then we also emit geometry for the
-    // breadcrumb triangles.
+    // Each path's fPathMatrix in the list is applied on the CPU while the geometry is being written
+    // out. This is a tool for batching, and is applied in addition to the shader's on-GPU matrix.
     virtual void prepare(GrMeshDrawTarget*,
                          const SkRect& cullBounds,
-                         const SkMatrix& pathMatrix,
-                         const SkPath&,
-                         const BreadcrumbTriangleList* = nullptr) = 0;
+                         const PathDrawList&,
+                         int totalCombinedPathVerbCnt) = 0;
 
     // Issues draw calls for the tessellated geometry. The caller is responsible for binding its
     // desired pipeline ahead of time.
     virtual void draw(GrOpFlushState*) const = 0;
 
-    virtual ~GrPathTessellator() {}
-
-    // Returns an upper bound on the number of segments (lineTo, quadTo, conicTo, cubicTo) in a
-    // path, also accounting for any implicit lineTos from closing contours.
-    static int MaxSegmentsInPath(const SkPath& path) {
-        // There might be an implicit kClose at the end, but the path always begins with kMove. So
-        // the max number of segments in the path is equal to the number of verbs.
-        SkASSERT(path.countVerbs() == 0 || SkPathPriv::VerbData(path)[0] == SkPath::kMove_Verb);
-        return path.countVerbs();
+    // Returns an upper bound on the number of combined edges there might be from all inner fans in
+    // a PathDrawList.
+    static int MaxCombinedFanEdgesInPathDrawList(int totalCombinedPathVerbCnt) {
+        // Path fans might have an extra edge from an implicit kClose at the end, but they also
+        // always begin with kMove. So the max possible number of edges in a single path is equal to
+        // the number of verbs. Therefore, the max number of combined fan edges in a PathDrawList is
+        // the number of combined path verbs in that PathDrawList.
+        return totalCombinedPathVerbCnt;
     }
 
 protected:

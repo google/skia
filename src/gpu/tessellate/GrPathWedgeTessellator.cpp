@@ -111,23 +111,33 @@ private:
 // by the hardware.
 class WedgeWriter {
 public:
-    WedgeWriter(const SkRect& cullBounds,
-                const SkMatrix& totalMatrix,  // shaderMatrix * pathMatrix
-                const SkMatrix& pathMatrix,
+    WedgeWriter(GrMeshDrawTarget* target,
+                GrVertexChunkArray* vertexChunkArray,
+                size_t patchStride,
+                int initialPatchAllocCount,
                 int maxSegments)
-            : fCullTest(cullBounds, totalMatrix)
-            , fTotalVectorXform(totalMatrix)
-            , fPathXform(pathMatrix)
+            : fChunker(target, vertexChunkArray, patchStride, initialPatchAllocCount)
             , fMaxSegments_pow2(maxSegments * maxSegments)
             , fMaxSegments_pow4(fMaxSegments_pow2 * fMaxSegments_pow2) {
+    }
+
+    void setMatrices(const SkRect& cullBounds,
+                     const SkMatrix& shaderMatrix,
+                     const SkMatrix& pathMatrix) {
+        SkMatrix totalMatrix;
+        totalMatrix.setConcat(shaderMatrix, pathMatrix);
+        fCullTest.set(cullBounds, totalMatrix);
+        fTotalVectorXform = totalMatrix;
+        fPathXform = pathMatrix;
     }
 
     const GrPathXform& pathXform() const { return fPathXform; }
 
     SK_ALWAYS_INLINE void writeFlatWedge(const GrShaderCaps& shaderCaps,
-                                         GrVertexChunkBuilder* chunker, SkPoint p0, SkPoint p1,
+                                         SkPoint p0,
+                                         SkPoint p1,
                                          SkPoint midpoint) {
-        if (GrVertexWriter vertexWriter = chunker->appendVertex()) {
+        if (GrVertexWriter vertexWriter = fChunker.appendVertex()) {
             fPathXform.mapLineToCubic(&vertexWriter, p0, p1);
             vertexWriter.write(midpoint);
             vertexWriter.write(GrVertexWriter::If(!shaderCaps.infinitySupport(),
@@ -136,14 +146,14 @@ public:
     }
 
     SK_ALWAYS_INLINE void writeQuadraticWedge(const GrShaderCaps& shaderCaps,
-                                              GrVertexChunkBuilder* chunker, const SkPoint p[3],
+                                              const SkPoint p[3],
                                               SkPoint midpoint) {
         float numSegments_pow4 = GrWangsFormula::quadratic_pow4(kPrecision, p, fTotalVectorXform);
         if (numSegments_pow4 > fMaxSegments_pow4) {
-            this->chopAndWriteQuadraticWedges(shaderCaps, chunker, p, midpoint);
+            this->chopAndWriteQuadraticWedges(shaderCaps, p, midpoint);
             return;
         }
-        if (GrVertexWriter vertexWriter = chunker->appendVertex()) {
+        if (GrVertexWriter vertexWriter = fChunker.appendVertex()) {
             fPathXform.mapQuadToCubic(&vertexWriter, p);
             vertexWriter.write(midpoint);
             vertexWriter.write(GrVertexWriter::If(!shaderCaps.infinitySupport(),
@@ -153,14 +163,15 @@ public:
     }
 
     SK_ALWAYS_INLINE void writeConicWedge(const GrShaderCaps& shaderCaps,
-                                          GrVertexChunkBuilder* chunker, const SkPoint p[3],
-                                          float w, SkPoint midpoint) {
+                                          const SkPoint p[3],
+                                          float w,
+                                          SkPoint midpoint) {
         float numSegments_pow2 = GrWangsFormula::conic_pow2(kPrecision, p, w, fTotalVectorXform);
         if (numSegments_pow2 > fMaxSegments_pow2) {
-            this->chopAndWriteConicWedges(shaderCaps, chunker, {p, w}, midpoint);
+            this->chopAndWriteConicWedges(shaderCaps, {p, w}, midpoint);
             return;
         }
-        if (GrVertexWriter vertexWriter = chunker->appendVertex()) {
+        if (GrVertexWriter vertexWriter = fChunker.appendVertex()) {
             fPathXform.mapConicToPatch(&vertexWriter, p, w);
             vertexWriter.write(midpoint);
             vertexWriter.write(GrVertexWriter::If(!shaderCaps.infinitySupport(),
@@ -171,14 +182,14 @@ public:
     }
 
     SK_ALWAYS_INLINE void writeCubicWedge(const GrShaderCaps& shaderCaps,
-                                          GrVertexChunkBuilder* chunker, const SkPoint p[4],
+                                          const SkPoint p[4],
                                           SkPoint midpoint) {
         float numSegments_pow4 = GrWangsFormula::cubic_pow4(kPrecision, p, fTotalVectorXform);
         if (numSegments_pow4 > fMaxSegments_pow4) {
-            this->chopAndWriteCubicWedges(shaderCaps, chunker, p, midpoint);
+            this->chopAndWriteCubicWedges(shaderCaps, p, midpoint);
             return;
         }
-        if (GrVertexWriter vertexWriter = chunker->appendVertex()) {
+        if (GrVertexWriter vertexWriter = fChunker.appendVertex()) {
             fPathXform.map4Points(&vertexWriter, p);
             vertexWriter.write(midpoint);
             vertexWriter.write(GrVertexWriter::If(!shaderCaps.infinitySupport(),
@@ -190,50 +201,53 @@ public:
     int numFixedSegments_pow4() const { return fNumFixedSegments_pow4; }
 
 private:
-    void chopAndWriteQuadraticWedges(const GrShaderCaps& shaderCaps, GrVertexChunkBuilder* chunker,
-                                     const SkPoint p[3], SkPoint midpoint) {
+    void chopAndWriteQuadraticWedges(const GrShaderCaps& shaderCaps,
+                                     const SkPoint p[3],
+                                     SkPoint midpoint) {
         SkPoint chops[5];
         SkChopQuadAtHalf(p, chops);
         for (int i = 0; i < 2; ++i) {
             const SkPoint* q = chops + i*2;
             if (fCullTest.areVisible3(q)) {
-                this->writeQuadraticWedge(shaderCaps, chunker, q, midpoint);
+                this->writeQuadraticWedge(shaderCaps, q, midpoint);
             } else {
-                this->writeFlatWedge(shaderCaps, chunker, q[0], q[2], midpoint);
+                this->writeFlatWedge(shaderCaps, q[0], q[2], midpoint);
             }
         }
     }
 
-    void chopAndWriteConicWedges(const GrShaderCaps& shaderCaps, GrVertexChunkBuilder* chunker,
-                                 const SkConic& conic, SkPoint midpoint) {
+    void chopAndWriteConicWedges(const GrShaderCaps& shaderCaps,
+                                 const SkConic& conic,
+                                 SkPoint midpoint) {
         SkConic chops[2];
         if (!conic.chopAt(.5, chops)) {
             return;
         }
         for (int i = 0; i < 2; ++i) {
             if (fCullTest.areVisible3(chops[i].fPts)) {
-                this->writeConicWedge(shaderCaps, chunker, chops[i].fPts, chops[i].fW, midpoint);
+                this->writeConicWedge(shaderCaps, chops[i].fPts, chops[i].fW, midpoint);
             } else {
-                this->writeFlatWedge(shaderCaps, chunker, chops[i].fPts[0], chops[i].fPts[2],
-                                     midpoint);
+                this->writeFlatWedge(shaderCaps, chops[i].fPts[0], chops[i].fPts[2], midpoint);
             }
         }
     }
 
-    void chopAndWriteCubicWedges(const GrShaderCaps& shaderCaps, GrVertexChunkBuilder* chunker,
-                                 const SkPoint p[4], SkPoint midpoint) {
+    void chopAndWriteCubicWedges(const GrShaderCaps& shaderCaps,
+                                 const SkPoint p[4],
+                                 SkPoint midpoint) {
         SkPoint chops[7];
         SkChopCubicAtHalf(p, chops);
         for (int i = 0; i < 2; ++i) {
             const SkPoint* c = chops + i*3;
             if (fCullTest.areVisible4(c)) {
-                this->writeCubicWedge(shaderCaps, chunker, c, midpoint);
+                this->writeCubicWedge(shaderCaps, c, midpoint);
             } else {
-                this->writeFlatWedge(shaderCaps, chunker, c[0], c[3], midpoint);
+                this->writeFlatWedge(shaderCaps, c[0], c[3], midpoint);
             }
         }
     }
 
+    GrVertexChunkBuilder fChunker;
     GrCullTest fCullTest;
     GrVectorXform fTotalVectorXform;
     GrPathXform fPathXform;
@@ -273,23 +287,20 @@ GR_DECLARE_STATIC_UNIQUE_KEY(gFixedCountIndexBufferKey);
 
 void GrPathWedgeTessellator::prepare(GrMeshDrawTarget* target,
                                      const SkRect& cullBounds,
-                                     const SkMatrix& pathMatrix,
-                                     const SkPath& path,
-                                     const BreadcrumbTriangleList* breadcrumbTriangleList) {
-    SkASSERT(!breadcrumbTriangleList);
+                                     const PathDrawList& pathDrawList,
+                                     int totalCombinedPathVerbCnt) {
     SkASSERT(fVertexChunkArray.empty());
 
     const GrShaderCaps& shaderCaps = *target->caps().shaderCaps();
 
     // Over-allocate enough wedges for 1 in 4 to chop.
-    int maxWedges = GrPathTessellator::MaxSegmentsInPath(path);
+    int maxWedges = MaxCombinedFanEdgesInPathDrawList(totalCombinedPathVerbCnt);
     int wedgeAllocCount = (maxWedges * 5 + 3) / 4;  // i.e., ceil(maxWedges * 5/4)
     if (!wedgeAllocCount) {
         return;
     }
     size_t patchStride = fShader->willUseTessellationShaders() ? fShader->vertexStride() * 5
                                                                : fShader->instanceStride();
-    GrVertexChunkBuilder chunker(target, &fVertexChunkArray, patchStride, wedgeAllocCount);
 
     int maxSegments;
     if (fShader->willUseTessellationShaders()) {
@@ -298,43 +309,42 @@ void GrPathWedgeTessellator::prepare(GrMeshDrawTarget* target,
         maxSegments = GrPathTessellationShader::kMaxFixedCountSegments;
     }
 
-    WedgeWriter wedgeWriter(cullBounds,
-                            SkMatrix::Concat(fShader->viewMatrix(), pathMatrix),
-                            pathMatrix,
-                            maxSegments);
-
-    MidpointContourParser parser(path);
-    while (parser.parseNextContour()) {
-        SkPoint midpoint = wedgeWriter.pathXform().mapPoint(parser.currentMidpoint());
-        SkPoint startPoint = {0, 0};
-        SkPoint lastPoint = startPoint;
-        for (auto [verb, pts, w] : parser.currentContour()) {
-            switch (verb) {
-                case SkPathVerb::kMove:
-                    startPoint = lastPoint = pts[0];
-                    break;
-                case SkPathVerb::kClose:
-                    break;  // Ignore. We can assume an implicit close at the end.
-                case SkPathVerb::kLine:
-                    wedgeWriter.writeFlatWedge(shaderCaps, &chunker, pts[0], pts[1], midpoint);
-                    lastPoint = pts[1];
-                    break;
-                case SkPathVerb::kQuad:
-                    wedgeWriter.writeQuadraticWedge(shaderCaps, &chunker, pts, midpoint);
-                    lastPoint = pts[2];
-                    break;
-                case SkPathVerb::kConic:
-                    wedgeWriter.writeConicWedge(shaderCaps, &chunker, pts, *w, midpoint);
-                    lastPoint = pts[2];
-                    break;
-                case SkPathVerb::kCubic:
-                    wedgeWriter.writeCubicWedge(shaderCaps, &chunker, pts, midpoint);
-                    lastPoint = pts[3];
-                    break;
+    WedgeWriter wedgeWriter(target, &fVertexChunkArray, patchStride, wedgeAllocCount, maxSegments);
+    for (auto [pathMatrix, path] : pathDrawList) {
+        wedgeWriter.setMatrices(cullBounds, fShader->viewMatrix(), pathMatrix);
+        MidpointContourParser parser(path);
+        while (parser.parseNextContour()) {
+            SkPoint midpoint = wedgeWriter.pathXform().mapPoint(parser.currentMidpoint());
+            SkPoint startPoint = {0, 0};
+            SkPoint lastPoint = startPoint;
+            for (auto [verb, pts, w] : parser.currentContour()) {
+                switch (verb) {
+                    case SkPathVerb::kMove:
+                        startPoint = lastPoint = pts[0];
+                        break;
+                    case SkPathVerb::kClose:
+                        break;  // Ignore. We can assume an implicit close at the end.
+                    case SkPathVerb::kLine:
+                        wedgeWriter.writeFlatWedge(shaderCaps, pts[0], pts[1], midpoint);
+                        lastPoint = pts[1];
+                        break;
+                    case SkPathVerb::kQuad:
+                        wedgeWriter.writeQuadraticWedge(shaderCaps, pts, midpoint);
+                        lastPoint = pts[2];
+                        break;
+                    case SkPathVerb::kConic:
+                        wedgeWriter.writeConicWedge(shaderCaps, pts, *w, midpoint);
+                        lastPoint = pts[2];
+                        break;
+                    case SkPathVerb::kCubic:
+                        wedgeWriter.writeCubicWedge(shaderCaps, pts, midpoint);
+                        lastPoint = pts[3];
+                        break;
+                }
             }
-        }
-        if (lastPoint != startPoint) {
-            wedgeWriter.writeFlatWedge(shaderCaps, &chunker, lastPoint, startPoint, midpoint);
+            if (lastPoint != startPoint) {
+                wedgeWriter.writeFlatWedge(shaderCaps, lastPoint, startPoint, midpoint);
+            }
         }
     }
 

@@ -239,7 +239,7 @@ void GrPathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
         vertexAlloc.unlock(fFanVertexCount);
     }
 
-    fTessellator->prepare(flushState, this->bounds(), pathMatrix, fPath);
+    fTessellator->prepare(flushState, this->bounds(), {pathMatrix, fPath}, fPath.countVerbs());
 
     if (fCoverBBoxProgram) {
         size_t instanceStride = fCoverBBoxProgram->geomProc().instanceStride();

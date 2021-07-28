@@ -20,7 +20,8 @@ public:
     using float2 = skvx::Vec<2, float>;
     using float4 = skvx::Vec<4, float>;
     explicit GrVectorXform() : fType(Type::kIdentity) {}
-    explicit GrVectorXform(const SkMatrix& m) {
+    explicit GrVectorXform(const SkMatrix& m) { *this = m; }
+    GrVectorXform& operator=(const SkMatrix& m) {
         SkASSERT(!m.hasPerspective());
         if (m.getType() & SkMatrix::kAffine_Mask) {
             fType = Type::kAffine;
@@ -36,6 +37,7 @@ public:
             SkASSERT(!(m.getType() & ~SkMatrix::kTranslate_Mask));
             fType = Type::kIdentity;
         }
+        return *this;
     }
     float2 operator()(float2 vector) const {
         switch (fType) {

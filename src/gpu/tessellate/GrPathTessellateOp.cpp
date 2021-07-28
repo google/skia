@@ -57,7 +57,7 @@ void GrPathTessellateOp::onPrepare(GrOpFlushState* flushState) {
                                   flushState->detachAppliedClip());
         SkASSERT(fTessellator);
     }
-    fTessellator->prepare(flushState, this->bounds(), SkMatrix::I(), fPath);
+    fTessellator->prepare(flushState, this->bounds(), {SkMatrix::I(), fPath}, fPath.countVerbs());
 }
 
 void GrPathTessellateOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {

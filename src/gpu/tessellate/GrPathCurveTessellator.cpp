@@ -24,18 +24,20 @@ constexpr static float kPrecision = GrTessellationShader::kLinearizationPrecisio
 // supported by the hardware.
 class CurveWriter {
 public:
-    CurveWriter(const SkRect& cullBounds,
-                const SkMatrix& totalMatrix,  // shaderMatrix * pathMatrix
-                const SkMatrix& pathMatrix,
-                int maxSegments)
-            : fCullTest(cullBounds, totalMatrix)
-            , fTotalVectorXform(totalMatrix)
-            , fPathXform(pathMatrix)
-            , fMaxSegments_pow2(maxSegments * maxSegments)
+    CurveWriter(int maxSegments)
+            : fMaxSegments_pow2(maxSegments * maxSegments)
             , fMaxSegments_pow4(fMaxSegments_pow2 * fMaxSegments_pow2) {
     }
 
-    const GrPathXform& pathXform() const { return fPathXform; }
+    void setMatrices(const SkRect& cullBounds,
+                     const SkMatrix& shaderMatrix,
+                     const SkMatrix& pathMatrix) {
+        SkMatrix totalMatrix;
+        totalMatrix.setConcat(shaderMatrix, pathMatrix);
+        fCullTest.set(cullBounds, totalMatrix);
+        fTotalVectorXform = totalMatrix;
+        fPathXform = pathMatrix;
+    }
 
     SK_ALWAYS_INLINE void writeQuadratic(const GrShaderCaps& shaderCaps,
                                          GrVertexChunkBuilder* chunker, const SkPoint p[3]) {
@@ -191,8 +193,8 @@ GR_DECLARE_STATIC_UNIQUE_KEY(gFixedCountIndexBufferKey);
 
 void GrPathCurveTessellator::prepare(GrMeshDrawTarget* target,
                                      const SkRect& cullBounds,
-                                     const SkMatrix& pathMatrix,
-                                     const SkPath& path,
+                                     const PathDrawList& pathDrawList,
+                                     int totalCombinedPathVerbCnt,
                                      const BreadcrumbTriangleList* breadcrumbTriangleList) {
     SkASSERT(fVertexChunkArray.empty());
 
@@ -201,16 +203,17 @@ void GrPathCurveTessellator::prepare(GrMeshDrawTarget* target,
     // Determine how many triangles to allocate.
     int maxTriangles = 0;
     if (fDrawInnerFan) {
-        // An n-sided polygon is fanned by n-2 triangles.
-        int maxEdgesInFan = GrPathTessellator::MaxSegmentsInPath(path);
-        int maxTrianglesInFan = std::max(maxEdgesInFan - 2, 0);
-        maxTriangles += maxTrianglesInFan;
+        int maxCombinedFanEdges = MaxCombinedFanEdgesInPathDrawList(totalCombinedPathVerbCnt);
+        // A single n-sided polygon is fanned by n-2 triangles. Multiple polygons with a combined
+        // edge count of n are fanned by strictly fewer triangles.
+        int maxTrianglesInFans = std::max(maxCombinedFanEdges - 2, 0);
+        maxTriangles += maxTrianglesInFans;
     }
     if (breadcrumbTriangleList) {
         maxTriangles += breadcrumbTriangleList->count();
     }
     // Over-allocate enough curves for 1 in 4 to chop.
-    int curveAllocCount = (path.countVerbs() * 5 + 3) / 4;  // i.e., ceil(numVerbs * 5/4)
+    int curveAllocCount = (totalCombinedPathVerbCnt * 5 + 3) / 4;  // i.e., ceil(numVerbs * 5/4)
     int patchAllocCount = maxTriangles + curveAllocCount;
     if (!patchAllocCount) {
         return;
@@ -218,21 +221,6 @@ void GrPathCurveTessellator::prepare(GrMeshDrawTarget* target,
     size_t patchStride = fShader->willUseTessellationShaders() ? fShader->vertexStride() * 4
                                                                : fShader->instanceStride();
     GrVertexChunkBuilder chunker(target, &fVertexChunkArray, patchStride, patchAllocCount);
-
-    int maxSegments;
-    if (fShader->willUseTessellationShaders()) {
-        // The curve shader tessellates T=0..(1/2) on the first side of the canonical triangle and
-        // T=(1/2)..1 on the second side. This means we get double the max tessellation segments
-        // for the range T=0..1.
-        maxSegments = shaderCaps.maxTessellationSegments() * 2;
-    } else {
-        maxSegments = GrPathTessellationShader::kMaxFixedCountSegments;
-    }
-
-    CurveWriter curveWriter(cullBounds,
-                            SkMatrix::Concat(fShader->viewMatrix(), pathMatrix),
-                            pathMatrix,
-                            maxSegments);
 
     // Write out the triangles.
     if (maxTriangles) {
@@ -249,19 +237,30 @@ void GrPathCurveTessellator::prepare(GrMeshDrawTarget* target,
             uint32_t pad32Value = shaderCaps.infinitySupport()
                     ? GrVertexWriter::kIEEE_32_infinity
                     : sk_bit_cast<uint32_t>(GrTessellationShader::kTriangularConicCurveType);
-            int numTrianglesWritten;
-            vertexWriter = GrMiddleOutPolygonTriangulator::WritePathInnerFan(
-                    std::move(vertexWriter),
-                    pad32Count,
-                    pad32Value,
-                    curveWriter.pathXform(),
-                    path,
-                    &numTrianglesWritten);
-            numRemainingTriangles -= numTrianglesWritten;
+            for (auto [pathMatrix, path] : pathDrawList) {
+                int numTrianglesWritten;
+                vertexWriter = GrMiddleOutPolygonTriangulator::WritePathInnerFan(
+                        std::move(vertexWriter),
+                        pad32Count,
+                        pad32Value,
+                        pathMatrix,
+                        path,
+                        &numTrianglesWritten);
+                numRemainingTriangles -= numTrianglesWritten;
+            }
         }
         if (breadcrumbTriangleList) {
             int numWritten = 0;
             SkDEBUGCODE(int count = 0;)
+#ifdef SK_DEBUG
+            for (auto [pathMatrix, path] : pathDrawList) {
+                // This assert isn't actually necessary, but we currently only use breadcrumb
+                // triangles with an identity pathMatrix. If that ever changes, this assert will
+                // serve as a gentle reminder to make sure the breadcrumb triangles are also
+                // transformed on the CPU.
+                SkASSERT(pathMatrix.isIdentity());
+            }
+#endif
             for (const auto* tri = breadcrumbTriangleList->head(); tri; tri = tri->fNext) {
                 SkDEBUGCODE(++count;)
                 auto p0 = grvx::float2::Load(tri->fPts);
@@ -275,7 +274,7 @@ void GrPathCurveTessellator::prepare(GrMeshDrawTarget* target,
                     // introduce T-junctions.
                     continue;
                 }
-                curveWriter.pathXform().map3Points(&vertexWriter, tri->fPts);
+                vertexWriter.writeArray(tri->fPts, 3);
                 // Mark this instance as a triangle by setting it to a conic with w=Inf.
                 vertexWriter.fill(GrVertexWriter::kIEEE_32_infinity, 2);
                 vertexWriter.write(
@@ -289,19 +288,33 @@ void GrPathCurveTessellator::prepare(GrMeshDrawTarget* target,
         chunker.popVertices(numRemainingTriangles);
     }
 
-    for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
-        switch (verb) {
-            case SkPathVerb::kQuad:
-                curveWriter.writeQuadratic(shaderCaps, &chunker, pts);
-                break;
-            case SkPathVerb::kConic:
-                curveWriter.writeConic(shaderCaps, &chunker, pts, *w);
-                break;
-            case SkPathVerb::kCubic:
-                curveWriter.writeCubic(shaderCaps, &chunker, pts);
-                break;
-            default:
-                break;
+    int maxSegments;
+    if (fShader->willUseTessellationShaders()) {
+        // The curve shader tessellates T=0..(1/2) on the first side of the canonical triangle and
+        // T=(1/2)..1 on the second side. This means we get double the max tessellation segments
+        // for the range T=0..1.
+        maxSegments = shaderCaps.maxTessellationSegments() * 2;
+    } else {
+        maxSegments = GrPathTessellationShader::kMaxFixedCountSegments;
+    }
+
+    CurveWriter curveWriter(maxSegments);
+    for (auto [pathMatrix, path] : pathDrawList) {
+        curveWriter.setMatrices(cullBounds, fShader->viewMatrix(), pathMatrix);
+        for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
+            switch (verb) {
+                case SkPathVerb::kQuad:
+                    curveWriter.writeQuadratic(shaderCaps, &chunker, pts);
+                    break;
+                case SkPathVerb::kConic:
+                    curveWriter.writeConic(shaderCaps, &chunker, pts, *w);
+                    break;
+                case SkPathVerb::kCubic:
+                    curveWriter.writeCubic(shaderCaps, &chunker, pts);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
