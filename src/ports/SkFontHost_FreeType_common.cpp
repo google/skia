@@ -635,8 +635,8 @@ void colrv1_configure_skpaint(FT_Face face, const FT_Color* palette,
         case FT_COLR_PAINTFORMAT_SWEEP_GRADIENT: {
             FT_PaintSweepGradient& sweep_gradient = colrv1_paint.u.sweep_gradient;
             SkPoint center = SkPoint::Make(sweep_gradient.center.x, -sweep_gradient.center.y);
-            SkScalar startAngle = SkFixedToScalar(sweep_gradient.start_angle);
-            SkScalar endAngle = SkFixedToScalar(sweep_gradient.end_angle);
+            SkScalar startAngle = SkFixedToScalar(sweep_gradient.start_angle * 180.0f);
+            SkScalar endAngle = SkFixedToScalar(sweep_gradient.end_angle * 180.0f);
 
             std::vector<SkScalar> stops;
             std::vector<SkColor> colors;
@@ -779,7 +779,7 @@ void colrv1_transform(SkCanvas* canvas, FT_Face face, FT_COLR_Paint colrv1_paint
         }
         case FT_COLR_PAINTFORMAT_ROTATE: {
             transform = SkMatrix::RotateDeg(
-                    SkFixedToScalar(colrv1_paint.u.rotate.angle),
+                    SkFixedToScalar(colrv1_paint.u.rotate.angle) * 180.0f,
                     SkPoint::Make(SkFixedToScalar(colrv1_paint.u.rotate.center_x),
                                   -SkFixedToScalar(colrv1_paint.u.rotate.center_y)));
             break;
@@ -788,32 +788,20 @@ void colrv1_transform(SkCanvas* canvas, FT_Face face, FT_COLR_Paint colrv1_paint
             // In the PAINTFORMAT_ROTATE implementation, SkMatrix setRotate
             // snaps to 0 for values very close to 0. Do the same here.
 
-            SkScalar rad_x = SkDegreesToRadians(-SkFixedToFloat(colrv1_paint.u.skew.x_skew_angle));
+            SkScalar rad_x =
+                    SkDegreesToRadians(-SkFixedToFloat(colrv1_paint.u.skew.x_skew_angle) * 180.0f);
             float tan_x = SkScalarTan(rad_x);
             tan_x = SkScalarNearlyZero(tan_x) ? 0.0f : tan_x;
 
-            SkScalar rad_y = SkDegreesToRadians(-SkFixedToFloat(colrv1_paint.u.skew.y_skew_angle));
+            SkScalar rad_y =
+                    SkDegreesToRadians(-SkFixedToFloat(colrv1_paint.u.skew.y_skew_angle) * 180.0f);
             float tan_y = SkScalarTan(rad_y);
             tan_y = SkScalarNearlyZero(tan_y) ? 0.0f : tan_y;
 
-            SkMatrix translate_to_origin = SkMatrix::Translate(
-                    SkFixedToScalar(SkFixedToFloat(colrv1_paint.u.skew.center_x)),
-                    SkFixedToScalar(-SkFixedToFloat(colrv1_paint.u.skew.center_y)));
-
-            SkMatrix translate_from_origin;
-            SkASSERT(translate_to_origin.invert(&translate_from_origin));
-
-            SkMatrix skew_x = SkMatrix::MakeAll(
-                1, tan_x, 0,
-                0, 1, 0,
-                0, 0, 1);
-
-            SkMatrix skew_y = SkMatrix::MakeAll(
-                1, 0, 0,
-                tan_y, 1, 0,
-                0, 0, 1);
-
-            transform = translate_from_origin.postConcat(skew_x).postConcat(skew_y).postConcat(translate_to_origin);
+            transform.setSkew(tan_x,
+                              tan_y,
+                              SkFixedToScalar(colrv1_paint.u.skew.center_x),
+                              -SkFixedToFloat(colrv1_paint.u.skew.center_y));
             break;
         }
         default: {

@@ -33,6 +33,9 @@ public:
     kColorFontsRepoGradients,
     kColorFontsRepoScaling,
     kColorFontsRepoExtendMode,
+    kColorFontsRepoRotate,
+    kColorFontsRepoSkew,
+    kColorFontsRepoTransform
   };
 
   ColrV1GM(ColrV1TestType testType, SkScalar skewX, SkScalar rotateDeg)
@@ -49,6 +52,12 @@ protected:
                 return SkString("scaling");
             case kColorFontsRepoExtendMode:
                 return SkString("extend_mode");
+            case kColorFontsRepoRotate:
+                return SkString("rotate");
+            case kColorFontsRepoSkew:
+                return SkString("skew");
+            case kColorFontsRepoTransform:
+                return SkString("transform");
         }
         SkASSERT(false); /* not reached */
         return SkString();
@@ -64,15 +73,33 @@ protected:
         if (fTestType == kSkiaSampleFont) {
             fEmojiFont.fTypeface = MakeResourceAsTypeface("fonts/colrv1_samples.ttf");
             fEmojiFont.fGlyphs = {19, 33, 34, 35, 20, 21, 22, 23, 24, 25};
-        } else if (fTestType == kColorFontsRepoGradients) {
-            fEmojiFont.fTypeface = MakeResourceAsTypeface("fonts/more_samples-glyf_colr_1.ttf");
-            fEmojiFont.fGlyphs = {5, 6, 7, 8};
-        } else if (fTestType == kColorFontsRepoScaling) {
-            fEmojiFont.fTypeface = MakeResourceAsTypeface("fonts/more_samples-glyf_colr_1.ttf");
-            fEmojiFont.fGlyphs = {9, 10, 11, 12, 13, 14};
-        } else if (fTestType == kColorFontsRepoExtendMode) {
-            fEmojiFont.fTypeface = MakeResourceAsTypeface("fonts/more_samples-glyf_colr_1.ttf");
-            fEmojiFont.fGlyphs = {15, 16, 17, 18, 19, 20};
+            return;
+        }
+
+        fEmojiFont.fTypeface = MakeResourceAsTypeface("fonts/more_samples-glyf_colr_1.ttf");
+
+        switch (fTestType) {
+            case kSkiaSampleFont:
+                SkASSERT(false);
+                break;
+            case kColorFontsRepoGradients:
+                fEmojiFont.fGlyphs = {2, 5, 6, 7, 8};
+                break;
+            case kColorFontsRepoScaling:
+                fEmojiFont.fGlyphs = {9, 10, 11, 12, 13, 14};
+                break;
+            case kColorFontsRepoExtendMode:
+                fEmojiFont.fGlyphs = {15, 16, 17, 18, 19, 20};
+                break;
+            case kColorFontsRepoRotate:
+                fEmojiFont.fGlyphs = {21, 22, 23, 24};
+                break;
+            case kColorFontsRepoSkew:
+                fEmojiFont.fGlyphs = {25, 26, 27, 28, 29, 30};
+                break;
+            case kColorFontsRepoTransform:
+                fEmojiFont.fGlyphs = {31, 32, 33, 34};
+                break;
         }
     }
 
@@ -136,5 +163,8 @@ DEF_GM(return new ColrV1GM(ColrV1GM::kSkiaSampleFont, -0.5f, 20.f);)
 DEF_GM(return new ColrV1GM(ColrV1GM::kColorFontsRepoGradients, 0.f, 0.f);)
 DEF_GM(return new ColrV1GM(ColrV1GM::kColorFontsRepoScaling, 0.f, 0.f);)
 DEF_GM(return new ColrV1GM(ColrV1GM::kColorFontsRepoExtendMode, 0.f, 0.f);)
+DEF_GM(return new ColrV1GM(ColrV1GM::kColorFontsRepoRotate, 0.f, 0.f);)
+DEF_GM(return new ColrV1GM(ColrV1GM::kColorFontsRepoSkew, 0.f, 0.f);)
+DEF_GM(return new ColrV1GM(ColrV1GM::kColorFontsRepoTransform, 0.f, 0.f);)
 
 }  // namespace skiagm
