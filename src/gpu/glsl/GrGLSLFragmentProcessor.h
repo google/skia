@@ -86,14 +86,29 @@ public:
 
     void emitChildFunction(int childIndex, EmitArgs& parentArgs);
 
-    // Invoke the child with the default input color (solid white)
+    // Invoke the child with the default input and destination colors (solid white)
     inline SkString invokeChild(int childIndex, EmitArgs& parentArgs,
                                 SkSL::String skslCoords = "") {
-        return this->invokeChild(childIndex, nullptr, parentArgs, skslCoords);
+        return this->invokeChild(childIndex, /*inputColor=*/nullptr, /*destColor=*/nullptr,
+                                 parentArgs, skslCoords);
     }
 
     inline SkString invokeChildWithMatrix(int childIndex, EmitArgs& parentArgs) {
-        return this->invokeChildWithMatrix(childIndex, nullptr, parentArgs);
+        return this->invokeChildWithMatrix(childIndex, /*inputColor=*/nullptr,
+                                           /*destColor=*/nullptr, parentArgs);
+    }
+
+    // Invoke the child with the default destination color (solid white)
+    inline SkString invokeChild(int childIndex, const char* inputColor, EmitArgs& parentArgs,
+                                SkSL::String skslCoords = "") {
+        return this->invokeChild(childIndex, inputColor, /*destColor=*/nullptr, parentArgs,
+                                 skslCoords);
+    }
+
+    inline SkString invokeChildWithMatrix(int childIndex, const char* inputColor,
+                                          EmitArgs& parentArgs) {
+        return this->invokeChildWithMatrix(childIndex, inputColor, /*destColor=*/nullptr,
+                                           parentArgs);
     }
 
     /** Invokes a child proc in its own scope. Pass in the parent's EmitArgs and invokeChild will
@@ -108,15 +123,16 @@ public:
      *  "sample(child, color, float2)", where skslCoords is an SkSL expression that evaluates to a
      *  float2 and is passed in as the 3rd argument.
      */
-    SkString invokeChild(int childIndex, const char* inputColor, EmitArgs& parentArgs,
-                         SkSL::String skslCoords = "");
+    SkString invokeChild(int childIndex, const char* inputColor, const char* destColor,
+                         EmitArgs& parentArgs, SkSL::String skslCoords = "");
 
     /**
      * As invokeChild, but transforms the coordinates according to the matrix expression attached
      * to the child's SampleUsage object. This is only valid if the child is sampled with a
      * const-uniform matrix.
      */
-    SkString invokeChildWithMatrix(int childIndex, const char* inputColor, EmitArgs& parentArgs);
+    SkString invokeChildWithMatrix(int childIndex, const char* inputColor, const char* destColor,
+                                   EmitArgs& parentArgs);
 
     /**
      * Pre-order traversal of a GLSLFP hierarchy, or of multiple trees with roots in an array of

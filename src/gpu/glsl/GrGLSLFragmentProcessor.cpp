@@ -40,47 +40,60 @@ void GrGLSLFragmentProcessor::emitChildFunction(int childIndex, EmitArgs& args) 
     }
 }
 
-SkString GrGLSLFragmentProcessor::invokeChild(int childIndex, const char* inputColor,
+SkString GrGLSLFragmentProcessor::invokeChild(int childIndex,
+                                              const char* inputColor, const char* destColor,
                                               EmitArgs& args, SkSL::String skslCoords) {
+    SkASSERT(childIndex >= 0);
+
     if (!inputColor) {
         inputColor = args.fInputColor;
     }
+    if (!destColor) {
+        destColor = "half4(1)";
+    }
 
-    SkASSERT(childIndex >= 0);
     const GrFragmentProcessor* childProc = args.fFp.childProcessor(childIndex);
     if (!childProc) {
+        // If no child processor is provided, return the input color as-is.
         return SkString(inputColor);
     }
 
     this->emitChildFunction(childIndex, args);
 
-    if (skslCoords.empty()) {
+    if (childProc->isSampledWithExplicitCoords()) {
+        SkASSERT(!childProc->isBlendFunction());
+
         // Empty coords means passing through the coords of the parent
-        skslCoords = args.fSampleCoord;
+        const char* coords = (!skslCoords.empty()) ? skslCoords.c_str() : args.fSampleCoord;
+
+        // The child's function takes a half4 color and a float2 coordinate
+        return SkStringPrintf("%s(%s, %s)", fFunctionNames[childIndex].c_str(), inputColor, coords);
     }
 
-    if (childProc->isSampledWithExplicitCoords()) {
-        // The child's function takes a half4 color and a float2 coordinate
-        return SkStringPrintf("%s(%s, %s)", fFunctionNames[childIndex].c_str(),
-                                            inputColor, skslCoords.c_str());
-    } else {
-        // The child's function just takes a color. We should only get here for a call to sample
-        // without explicit coordinates. Assert that the child has no sample matrix and skslCoords
-        // is _coords (a uniform matrix sample call would go through invokeChildWithMatrix).
-        SkASSERT(skslCoords == args.fSampleCoord && childProc->sampleUsage().isPassThrough());
-        return SkStringPrintf("%s(%s)", fFunctionNames[childIndex].c_str(), inputColor);
-    }
+    // Assert that the child has no sample matrix and skslCoords matches the default. (A uniform
+    // matrix sample call would go through invokeChildWithMatrix, not here.)
+    SkASSERT(skslCoords.empty() || skslCoords == args.fSampleCoord);
+    SkASSERT(childProc->sampleUsage().isPassThrough());
+
+    return childProc->isBlendFunction()
+          ? SkStringPrintf("%s(%s, %s)", fFunctionNames[childIndex].c_str(), inputColor, destColor)
+          : SkStringPrintf("%s(%s)", fFunctionNames[childIndex].c_str(), inputColor);
 }
 
 SkString GrGLSLFragmentProcessor::invokeChildWithMatrix(int childIndex, const char* inputColor,
-                                                        EmitArgs& args) {
+                                                        const char* destColor, EmitArgs& args) {
+    SkASSERT(childIndex >= 0);
+
     if (!inputColor) {
         inputColor = args.fInputColor;
     }
+    if (!destColor) {
+        destColor = "half4(1)";
+    }
 
-    SkASSERT(childIndex >= 0);
     const GrFragmentProcessor* childProc = args.fFp.childProcessor(childIndex);
     if (!childProc) {
+        // If no child processor is provided, return the input color as-is.
         return SkString(inputColor);
     }
 
@@ -103,6 +116,8 @@ SkString GrGLSLFragmentProcessor::invokeChildWithMatrix(int childIndex, const ch
     // In all other cases, we need to insert sksl to compute matrix * parent coords and then invoke
     // the function.
     if (childProc->isSampledWithExplicitCoords()) {
+        SkASSERT(!childProc->isBlendFunction());
+
         // Only check perspective for this specific matrix transform, not the aggregate FP property.
         // Any parent perspective will have already been applied when evaluated in the FS.
         if (childProc->sampleUsage().fHasPerspective) {
@@ -116,11 +131,13 @@ SkString GrGLSLFragmentProcessor::invokeChildWithMatrix(int childIndex, const ch
             return SkStringPrintf("%s(%s, ((%s) * %s.xy1).xy)", fFunctionNames[childIndex].c_str(),
                                   inputColor, matrixName.c_str(), args.fSampleCoord);
         }
-    } else {
-        // Since this is uniform and not explicitly sampled, it's transform has been promoted to
-        // the vertex shader and the signature doesn't take a float2 coord.
-        return SkStringPrintf("%s(%s)", fFunctionNames[childIndex].c_str(), inputColor);
     }
+
+    // Since this is uniform and not explicitly sampled, its transform has been promoted to
+    // the vertex shader and the signature doesn't take a float2 coord.
+    return childProc->isBlendFunction()
+          ? SkStringPrintf("%s(%s, %s)", fFunctionNames[childIndex].c_str(), inputColor, destColor)
+          : SkStringPrintf("%s(%s)", fFunctionNames[childIndex].c_str(), inputColor);
 }
 
 //////////////////////////////////////////////////////////////////////////////
