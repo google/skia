@@ -26,10 +26,10 @@
 #include "include/core/SkString.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkDeque.h"
 #include "include/private/SkMacros.h"
 
 #include <cstring>
+#include <deque>
 #include <memory>
 #include <vector>
 
@@ -57,6 +57,7 @@ class SkPixmap;
 class SkRegion;
 class SkRRect;
 struct SkRSXform;
+class SkSpecialImage;
 class SkSurface;
 class SkSurface_Base;
 class SkTextBlob;
@@ -2288,19 +2289,54 @@ private:
     // operations should route to this device.
     SkBaseDevice* topDevice() const;
 
-    class MCRec;
+    // Canvases maintain a sparse stack of layers, where the top-most layer receives the drawing,
+    // clip, and matrix commands. There is a layer per call to saveLayer() using the
+    // kFullLayer_SaveLayerStrategy.
+    struct Layer {
+        sk_sp<SkBaseDevice>  fDevice;
+        sk_sp<SkImageFilter> fImageFilter; // applied to layer *before* being drawn by paint
+        SkPaint              fPaint;
 
-    SkDeque     fMCStack;
+        Layer(sk_sp<SkBaseDevice> device, sk_sp<SkImageFilter> imageFilter, const SkPaint& paint);
+    };
+
+    // Encapsulate state needed to restore from saveBehind()
+    struct BackImage {
+        sk_sp<SkSpecialImage> fImage;
+        SkIPoint              fLoc;
+    };
+
+    class MCRec {
+    public:
+        // If not null, this MCRec corresponds with the saveLayer() record that made the layer.
+        // The base "layer" is not stored here, since it is stored inline in SkCanvas and has no
+        // restoration behavior.
+        std::unique_ptr<Layer> fLayer;
+
+        // This points to the device of the top-most layer (which may be lower in the stack), or
+        // to the canvas's fBaseDevice. The MCRec does not own the device.
+        SkBaseDevice* fDevice;
+
+        std::unique_ptr<BackImage> fBackImage;
+        SkM44 fMatrix;
+        int fDeferredSaveCount = 0;
+
+        MCRec(SkBaseDevice* device);
+        MCRec(const MCRec* prev);
+        ~MCRec();
+
+        void newLayer(sk_sp<SkBaseDevice> layerDevice,
+                      sk_sp<SkImageFilter> filter,
+                      const SkPaint& restorePaint);
+
+        void reset(SkBaseDevice* device);
+    };
+
+    std::deque<MCRec> fMCStack;
     // points to top of stack
-    MCRec*      fMCRec;
+    MCRec* fMCRec;
 
     sk_sp<SkMarkerStack> fMarkerStack;
-
-    // the first N recs that can fit here mean we won't call malloc
-    static constexpr int kMCRecSize      = 96; // most recent measurement
-    static constexpr int kMCRecCount     = 32; // common depth for save/restores
-
-    intptr_t fMCRecStorage[kMCRecSize * kMCRecCount / sizeof(intptr_t)];
 
     // Installed via init()
     sk_sp<SkBaseDevice> fBaseDevice;

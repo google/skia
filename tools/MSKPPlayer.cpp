@@ -75,7 +75,7 @@ struct MSKPPlayer::DrawLayerCmd : Cmd {
 void MSKPPlayer::DrawLayerCmd::draw(SkCanvas* canvas,
                                     const LayerMap& layerMap,
                                     LayerStateMap* layerStateMap) const {
-    const Layer& layer = layerMap.at(fLayerId);
+    const LayerCmds& layer = layerMap.at(fLayerId);
     LayerState* layerState = &(*layerStateMap)[fLayerId];
     if (!layerState->fSurface) {
         layerState->fCurrCmd = 0;
@@ -119,7 +119,7 @@ void MSKPPlayer::DrawLayerCmd::draw(SkCanvas* canvas,
 
 class MSKPPlayer::CmdRecordCanvas : public SkCanvasVirtualEnforcer<SkCanvas> {
 public:
-    CmdRecordCanvas(Layer* dst, LayerMap* offscreenLayers, const SkIRect* clipRect = nullptr)
+    CmdRecordCanvas(LayerCmds* dst, LayerMap* offscreenLayers, const SkIRect* clipRect = nullptr)
             : fDst(dst), fOffscreenLayers(offscreenLayers) {
         if (clipRect) {
             fClipRect = *clipRect;
@@ -332,7 +332,7 @@ protected:
         if (fNextDrawPictureToLayerID != -1) {
             SkASSERT(!matrix);
             SkASSERT(!paint);
-            Layer* layer = &fOffscreenLayers->at(fNextDrawPictureToLayerID);
+            LayerCmds* layer = &fOffscreenLayers->at(fNextDrawPictureToLayerID);
             CmdRecordCanvas sc(layer, fOffscreenLayers, &fNextDrawPictureToLayerClipRect);
             picture->playback(&sc);
             fNextDrawPictureToLayerID = -1;
@@ -371,7 +371,7 @@ private:
     }
 
     SkPictureRecorder fRecorder; // accumulates draws until we draw an offscreen into this layer.
-    Layer*            fDst                            = nullptr;
+    LayerCmds*        fDst                            = nullptr;
     SkIRect           fClipRect                       = SkIRect::MakeEmpty();
     int               fNextDrawPictureToLayerID       = -1;
     SkIRect           fNextDrawPictureToLayerClipRect = SkIRect::MakeEmpty();
@@ -438,14 +438,14 @@ bool MSKPPlayer::playFrame(SkCanvas* canvas, int i) {
     }
 
     // Replay all the commands for this frame to the caller's canvas.
-    const Layer& layer = fRootLayers[i];
+    const LayerCmds& layer = fRootLayers[i];
     for (const auto& cmd : layer.fCmds) {
         cmd->draw(canvas, fOffscreenLayers, &fOffscreenLayerStates);
     }
     return true;
 }
 
-sk_sp<SkSurface> MSKPPlayer::MakeSurfaceForLayer(const Layer& layer, SkCanvas* rootCanvas) {
+sk_sp<SkSurface> MSKPPlayer::MakeSurfaceForLayer(const LayerCmds& layer, SkCanvas* rootCanvas) {
     // Assume layer has same surface props and info as this (mskp doesn't currently record this
     // data).
     SkSurfaceProps props;
@@ -497,7 +497,7 @@ sk_sp<SkImage> MSKPPlayer::layerSnapshot(int layerID) const {
     return iter->second.fSurface->makeImageSnapshot();
 }
 
-void MSKPPlayer::collectReferencedLayers(const Layer& layer, std::vector<int>* out) const {
+void MSKPPlayer::collectReferencedLayers(const LayerCmds& layer, std::vector<int>* out) const {
     for (const auto& cmd : layer.fCmds) {
         if (int id = cmd->layerID(); id >= 0) {
             // Linear, but we'd need to have a lot of layers to actually care.
