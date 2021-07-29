@@ -23,7 +23,8 @@ GrVkAttachment::GrVkAttachment(GrVkGpu* gpu,
                                sk_sp<const GrVkImageView> framebufferView,
                                sk_sp<const GrVkImageView> textureView,
                                SkBudgeted budgeted)
-        : GrAttachment(gpu, dimensions, supportedUsages, info.fSampleCount, GrMipmapped::kNo,
+        : GrAttachment(gpu, dimensions, supportedUsages, info.fSampleCount,
+                       info.fLevelCount > 1 ? GrMipmapped::kYes : GrMipmapped::kNo,
                        info.fProtected)
         , GrVkImage(gpu, info, std::move(mutableState), GrBackendObjectOwnership::kOwned)
         , fFramebufferView(std::move(framebufferView))
@@ -41,7 +42,8 @@ GrVkAttachment::GrVkAttachment(GrVkGpu* gpu,
                                GrBackendObjectOwnership ownership,
                                GrWrapCacheable cacheable,
                                bool forSecondaryCB)
-        : GrAttachment(gpu, dimensions, supportedUsages, info.fSampleCount, GrMipmapped::kNo,
+        : GrAttachment(gpu, dimensions, supportedUsages, info.fSampleCount,
+                       info.fLevelCount > 1 ? GrMipmapped::kYes : GrMipmapped::kNo,
                        info.fProtected)
         , GrVkImage(gpu, info, std::move(mutableState), ownership, forSecondaryCB)
         , fFramebufferView(std::move(framebufferView))
