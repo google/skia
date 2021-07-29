@@ -13,12 +13,12 @@
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 
-// Some of the cpu implementations of blend modes differ too much from the GPU enough that
-// we can't use the cpu implementation to implement constantOutputForConstantInput.
+// Some of the CPU implementations of blend modes differ from the GPU enough that
+// we can't use the CPU implementation to implement constantOutputForConstantInput.
 static inline bool does_cpu_blend_impl_match_gpu(SkBlendMode mode) {
-    // The non-seperable modes differ too much. So does SoftLight. ColorBurn differs too much on our
-    // test iOS device (but we just disable it across the aboard since it may happen on untested
-    // GPUs).
+    // The non-separable modes differ too much. So does SoftLight. ColorBurn differs too much on our
+    // test iOS device, but we just disable it across the board since it might differ on untested
+    // GPUs.
     return mode <= SkBlendMode::kLastSeparableMode && mode != SkBlendMode::kSoftLight &&
            mode != SkBlendMode::kColorBurn;
 }
@@ -46,6 +46,7 @@ private:
                            SkBlendMode mode)
             : INHERITED(kBlendFragmentProcessor_ClassID, OptFlags(src.get(), dst.get(), mode))
             , fMode(mode) {
+        this->setIsBlendFunction();
         this->registerChild(std::move(src));
         this->registerChild(std::move(dst));
     }
@@ -53,6 +54,7 @@ private:
     BlendFragmentProcessor(const BlendFragmentProcessor& that)
             : INHERITED(kBlendFragmentProcessor_ClassID, ProcessorOptimizationFlags(&that))
             , fMode(that.fMode) {
+        this->setIsBlendFunction();
         this->cloneAndRegisterAllChildProcessors(that);
     }
 
@@ -69,7 +71,7 @@ private:
             case SkBlendMode::kClear:
             case SkBlendMode::kSrc:
             case SkBlendMode::kDst:
-                SK_ABORT("Shouldn't have created a Blend FP as 'clear', 'src', or 'dst'.");
+                SkDEBUGFAIL("Shouldn't have created a Blend FP as 'clear', 'src', or 'dst'.");
                 flags = kNone_OptimizationFlags;
                 break;
 
@@ -135,8 +137,8 @@ private:
                 break;
         }
         if (does_cpu_blend_impl_match_gpu(mode) &&
-            (src ? src->hasConstantOutputForConstantInput() : true) &&
-            (dst ? dst->hasConstantOutputForConstantInput() : true)) {
+            (!src || src->hasConstantOutputForConstantInput()) &&
+            (!dst || dst->hasConstantOutputForConstantInput())) {
             flags |= kConstantOutputForConstantInput_OptimizationFlag;
         }
         return flags;
@@ -217,18 +219,15 @@ void GLBlendFragmentProcessor::emitCode(EmitArgs& args) {
     const BlendFragmentProcessor& cs = args.fFp.cast<BlendFragmentProcessor>();
     SkBlendMode mode = cs.getMode();
 
-    // Load the input color and make an opaque copy if needed.
     fragBuilder->codeAppendf("// Blend mode: %s\n", SkBlendMode_Name(mode));
 
     // Invoke src/dst with our input color (or substitute input color if no child FP)
-    SkString srcColor = this->invokeChild(0, args.fInputColor, args);
-    SkString dstColor = this->invokeChild(1, args.fInputColor, args);
+    SkString srcColor = this->invokeChild(0, args);
+    SkString dstColor = this->invokeChild(1, args);
 
     // Blend src and dst colors together.
-    fragBuilder->codeAppendf("return %s(%s, %s)", GrGLSLBlend::BlendFuncName(mode),
+    fragBuilder->codeAppendf("return %s(%s, %s);", GrGLSLBlend::BlendFuncName(mode),
                              srcColor.c_str(), dstColor.c_str());
-
-    fragBuilder->codeAppendf(";\n");
 }
 
 //////////////////////////////////////////////////////////////////////////////
