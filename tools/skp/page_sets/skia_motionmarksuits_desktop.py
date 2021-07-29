@@ -17,24 +17,24 @@ class SkiaBuildbotDesktopPage(page_module.Page):
         name=url,
         page_set=page_set,
         shared_page_state_class=shared_page_state.SharedDesktopPageState)
-    self.archive_data_file = 'data/skia_motionmarksuitsclipshaperot_desktop.json'
+    self.archive_data_file = 'data/skia_motionmarksuits_desktop.json'
 
   def RunNavigateSteps(self, action_runner):
     action_runner.Navigate(self.url, timeout_in_seconds=120)
 
 
-class SkiaMotionmarksuitsclipshaperotDesktopPageSet(story.StorySet):
+class SkiaMotionmarksuitsDesktopPageSet(story.StorySet):
 
   """ Pages designed to represent the median, not highly optimized web """
 
   def __init__(self):
-    super(SkiaMotionmarksuitsclipshaperotDesktopPageSet, self).__init__(
-      archive_data_file='data/skia_motionmarksuitsclipshaperot_desktop.json')
+    super(SkiaMotionmarksuitsDesktopPageSet, self).__init__(
+      archive_data_file='data/skia_motionmarksuits_desktop.json')
 
     urls_list = [
-      # Why: from skbug.com/11817
+      # Why: from skbug.com/12292
       ('https://storage.googleapis.com/skia-recreateskps-bot-hosted-pages/'
-       'desk_motionmark_suits_clip_shape_rot.svg'),
+       'desk_motionmarksuits.svg'),
     ]
 
     for url in urls_list:
