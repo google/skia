@@ -141,10 +141,10 @@ public:
             bool premulOutput);
 
     /**
-     * Returns a fragment processor that reads back the destination color; that is, sampling will
-     * return the color of the sample that is currently being painted over.
+     * Returns a fragment processor that reads back the color on the surface being painted; that is,
+     * sampling this will return the color of the pixel that is currently being painted over.
      */
-    static std::unique_ptr<GrFragmentProcessor> DestColor();
+    static std::unique_ptr<GrFragmentProcessor> SurfaceColor();
 
     /**
      * Returns a fragment processor that calls the passed in fragment processor, but evaluates it

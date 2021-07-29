@@ -512,11 +512,11 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
             grPaint->setXPFactory(SkBlendMode_AsXPFactory(bm.value()));
         }
     } else {
-        // Apply a custom blend against the destination color, and force the XP to kSrc so that the
+        // Apply a custom blend against the surface color, and force the XP to kSrc so that the
         // computed result is applied directly to the canvas while still honoring the alpha.
         paintFP = as_BB(skPaint.getBlender())->asFragmentProcessor(
                 std::move(paintFP),
-                GrFragmentProcessor::DestColor(),
+                GrFragmentProcessor::SurfaceColor(),
                 fpArgs);
         grPaint->setXPFactory(SkBlendMode_AsXPFactory(SkBlendMode::kSrc));
     }

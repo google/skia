@@ -90,7 +90,8 @@ DEF_SIMPLE_GPU_GM_CAN_FAIL(destcolor, rContext, canvas, errorMsg, 640, 640) {
     GrPaint invertPaint;
     invertPaint.setColor4f(SK_PMColor4fWHITE);
     invertPaint.setPorterDuffXPFactory(SkBlendMode::kSrcOver);
-    invertPaint.setColorFragmentProcessor(DestColorTestFP::Make(GrFragmentProcessor::DestColor()));
+    invertPaint.setColorFragmentProcessor(
+            DestColorTestFP::Make(GrFragmentProcessor::SurfaceColor()));
     sdc->drawOval(/*clip*/ nullptr, std::move(invertPaint), GrAA::kYes, SkMatrix::I(),
                   SkRect::MakeLTRB(128, 128, 640, 640), GrStyle::SimpleFill());
 

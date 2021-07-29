@@ -599,30 +599,31 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::ColorMatrix(
 
 //////////////////////////////////////////////////////////////////////////////
 
-std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::DestColor() {
-    class DestColorProcessor : public GrFragmentProcessor {
+std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::SurfaceColor() {
+    class SurfaceColorProcessor : public GrFragmentProcessor {
     public:
         static std::unique_ptr<GrFragmentProcessor> Make() {
-            return std::unique_ptr<GrFragmentProcessor>(new DestColorProcessor());
+            return std::unique_ptr<GrFragmentProcessor>(new SurfaceColorProcessor());
         }
 
         std::unique_ptr<GrFragmentProcessor> clone() const override { return Make(); }
 
-        const char* name() const override { return "DestColor"; }
+        const char* name() const override { return "SurfaceColor"; }
 
     private:
         std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override {
             class GLFP : public GrGLSLFragmentProcessor {
             public:
                 void emitCode(EmitArgs& args) override {
-                    const char* destColor = args.fFragBuilder->dstColor();
-                    args.fFragBuilder->codeAppendf("return %s;", destColor);
+                    const char* dstColor = args.fFragBuilder->dstColor();
+                    args.fFragBuilder->codeAppendf("return %s;", dstColor);
                 }
             };
             return std::make_unique<GLFP>();
         }
 
-        DestColorProcessor() : INHERITED(kDestColorProcessor_ClassID, kNone_OptimizationFlags) {
+        SurfaceColorProcessor()
+                : INHERITED(kSurfaceColorProcessor_ClassID, kNone_OptimizationFlags) {
             this->setWillReadDstColor();
         }
 
@@ -633,7 +634,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::DestColor() {
         using INHERITED = GrFragmentProcessor;
     };
 
-    return DestColorProcessor::Make();
+    return SurfaceColorProcessor::Make();
 }
 
 //////////////////////////////////////////////////////////////////////////////
