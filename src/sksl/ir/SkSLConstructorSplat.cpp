@@ -14,7 +14,7 @@ std::unique_ptr<Expression> ConstructorSplat::Make(const Context& context,
                                                    int offset,
                                                    const Type& type,
                                                    std::unique_ptr<Expression> arg) {
-    SkASSERT(arg->type() == type.componentType());
+    SkASSERT(arg->type().scalarTypeForLiteral() == type.componentType().scalarTypeForLiteral());
     SkASSERT(arg->type().isScalar());
 
     // A "splat" to a scalar type is a no-op and can be eliminated.

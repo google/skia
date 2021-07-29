@@ -382,8 +382,7 @@ std::unique_ptr<Expression> Swizzle::Make(const Context& context,
             }
             SkASSERT(writeIdx == numConstructorArgs);
 
-            // Count up the number of times each constructor argument is used by the
-            // swizzle.
+            // Count up the number of times each constructor argument is used by the swizzle.
             //    `half4(bar.yz, half2(foo)).xwxy` -> { 3, 1 }
             // - bar.yz    is referenced 3 times, by `.x_xy`
             // - half(foo) is referenced 1 time,  by `._w__`
