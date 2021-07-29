@@ -21,6 +21,7 @@ public abstract class SurfaceRenderer implements SurfaceHolder.Callback, Runnabl
     private android.view.Surface mAndroidSurface;
     private Thread               mRenderThread;
     private boolean              mThreadRunning;
+    private long                 mTimeBase;
 
     /**
       * Initialization callback.
@@ -44,10 +45,10 @@ public abstract class SurfaceRenderer implements SurfaceHolder.Callback, Runnabl
         Surface surface = Surface.CreateGL(mAndroidSurface);
         onSurfaceInitialized(surface);
 
-        long time_base = java.lang.System.currentTimeMillis();
+        mTimeBase = java.lang.System.currentTimeMillis();
 
         while (mThreadRunning) {
-            long timestamp = java.lang.System.currentTimeMillis() - time_base;
+            long timestamp = java.lang.System.currentTimeMillis() - mTimeBase;
             onRenderFrame(surface.getCanvas(), timestamp);
             surface.flushAndSubmit();
         }
@@ -91,6 +92,10 @@ public abstract class SurfaceRenderer implements SurfaceHolder.Callback, Runnabl
                 mRenderThread.join();
             } catch (InterruptedException e) {}
         }
+    }
+
+    public void setBaseTime(long millis) {
+        mTimeBase = millis;
     }
 
     public void release() {

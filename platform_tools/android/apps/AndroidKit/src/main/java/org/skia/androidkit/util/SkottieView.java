@@ -11,10 +11,8 @@ import android.content.Context;
 
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.SurfaceView;
 
-import android.view.TextureView;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import java.io.InputStream;
@@ -76,9 +74,8 @@ class SkottieRenderer extends SurfaceRenderer {
         }
     }
 
-    // TODO: adjust the super time base (otherwise onRenderFrame will overwrite via seekTime).
-    void seekFrame(double f) {
-        mAnimation.seekFrame(f);
+    SkottieAnimation getAnimation() {
+        return mAnimation;
     }
 
     @Override
@@ -179,8 +176,14 @@ public class SkottieView extends FrameLayout {
         mRenderer.pause();
     }
 
-    // TODO: track the time base locally
-    public void seekFrame(float frame) {
-        mRenderer.seekFrame(frame);
+    public void seekTime(double t) {
+        mRenderer.setBaseTime(java.lang.System.currentTimeMillis() - ((long)t * 1000));
+    }
+
+    public void seekFrame(double f) {
+        double totalFrames = mRenderer.getAnimation().getFrameCount();
+        double totalTime = mRenderer.getAnimation().getDuration();
+        double targetTime = (f % totalFrames) / totalFrames * totalTime;
+        seekTime(targetTime);
     }
 }
