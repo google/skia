@@ -19,22 +19,24 @@ void GrGLSLFragmentProcessor::setData(const GrGLSLProgramDataManager& pdman,
 
 void GrGLSLFragmentProcessor::emitChildFunction(int childIndex, EmitArgs& args) {
     SkASSERT(childIndex >= 0);
-    SkASSERT(args.fFp.childProcessor(childIndex));
+    const GrFragmentProcessor* childFP = args.fFp.childProcessor(childIndex);
+    SkASSERT(childFP);
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
     while (childIndex >= (int) fFunctionNames.size()) {
         fFunctionNames.emplace_back();
     }
 
     // Emit the child's helper function if this is the first time we've seen a call
-    if (fFunctionNames[childIndex].size() == 0) {
+    if (fFunctionNames[childIndex].isEmpty()) {
         EmitArgs childArgs(fragBuilder,
                            args.fUniformHandler,
                            args.fShaderCaps,
-                           *args.fFp.childProcessor(childIndex),
-                           "_input",
+                           *childFP,
+                           childFP->isBlendFunction() ? "_src" : "_input",
+                           "_dst",
                            "_coords");
-        fFunctionNames[childIndex] =
-                fragBuilder->writeProcessorFunction(this->childProcessor(childIndex), childArgs);
+        GrGLSLFragmentProcessor* childGLSLFP = this->childProcessor(childIndex);
+        fFunctionNames[childIndex] = fragBuilder->writeProcessorFunction(childGLSLFP, childArgs);
     }
 }
 

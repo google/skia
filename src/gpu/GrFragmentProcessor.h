@@ -241,6 +241,11 @@ public:
         return SkToBool(fFlags & kWillReadDstColor_Flag);
     }
 
+    /** Does the SkSL for this FP take two colors as its input arguments? */
+    bool isBlendFunction() const {
+        return SkToBool(fFlags & kIsBlendFunction_Flag);
+    }
+
    /**
      * True if this FP refers directly to the sample coordinate parameter of its function
      * (e.g. uses EmitArgs::fSampleCoord in emitCode()). This also returns true if the
@@ -465,6 +470,12 @@ protected:
         fFlags |= kWillReadDstColor_Flag;
     }
 
+    // FP implementations must set this flag if their GrGLSLFragmentProcessor's emitCode() function
+    // emits a blend function (taking two color inputs instead of just one).
+    void setIsBlendFunction() {
+        fFlags |= kIsBlendFunction_Flag;
+    }
+
     void mergeOptimizationFlags(OptimizationFlags flags) {
         SkASSERT((flags & ~kAll_OptimizationFlags) == 0);
         fFlags &= (flags | ~kAll_OptimizationFlags);
@@ -498,13 +509,14 @@ private:
 
         // Does not propagate at all
         kUsesSampleCoordsDirectly_Flag = kFirstPrivateFlag << 1,
+        kIsBlendFunction_Flag = kFirstPrivateFlag << 2,
 
         // Propagates down the FP to all its leaves
-        kSampledWithExplicitCoords_Flag = kFirstPrivateFlag << 2,
-        kNetTransformHasPerspective_Flag = kFirstPrivateFlag << 3,
+        kSampledWithExplicitCoords_Flag = kFirstPrivateFlag << 3,
+        kNetTransformHasPerspective_Flag = kFirstPrivateFlag << 4,
 
         // Propagates up the FP tree to the root
-        kWillReadDstColor_Flag = kFirstPrivateFlag << 4,
+        kWillReadDstColor_Flag = kFirstPrivateFlag << 5,
     };
     void addAndPushFlagToChildren(PrivateFlags flag);
 
