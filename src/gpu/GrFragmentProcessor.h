@@ -94,6 +94,14 @@ public:
                                                               bool useUniform = true);
 
     /**
+     *  Returns a fragment processor which samples the passed-in fragment processor using
+     *  `args.fDestColor` as its input color. Pass a null FP to access `args.fDestColor` directly.
+     *  (This is only meaningful in contexts like blenders, which use a source and dest color.)
+     */
+    static std::unique_ptr<GrFragmentProcessor> UseDestColorAsInput(
+            std::unique_ptr<GrFragmentProcessor>);
+
+    /**
      *  Returns a parent fragment processor that adopts the passed fragment processor as a child.
      *  The parent will unpremul its input color, make it opaque, and pass that as the input to
      *  the child. Then the original input alpha is applied to the result of the child.

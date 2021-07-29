@@ -270,17 +270,19 @@ std::unique_ptr<GrSkSLFP> GrSkSLFP::MakeWithData(
     size_t uniformSize = uniforms->size();
     size_t uniformFlagSize = effect->uniforms().count() * sizeof(UniformFlags);
     std::unique_ptr<GrSkSLFP> fp(new (uniformSize + uniformFlagSize)
-                                         GrSkSLFP(std::move(effect), name, OptFlags::kNone));
+                                         GrSkSLFP(effect, name, OptFlags::kNone));
     sk_careful_memcpy(fp->uniformData(), uniforms->data(), uniformSize);
     for (auto& childFP : childFPs) {
         fp->addChild(std::move(childFP), /*mergeOptFlags=*/true);
+    }
+    if (effect->allowBlender()) {
+        fp->setIsBlendFunction();
     }
     if (inputFP) {
         fp->setInput(std::move(inputFP));
     }
     if (destColorFP) {
         fp->setDestColorFP(std::move(destColorFP));
-        fp->setIsBlendFunction();
     }
     return fp;
 }

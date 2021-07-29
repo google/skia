@@ -441,6 +441,20 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::OverrideInput(
 
 //////////////////////////////////////////////////////////////////////////////
 
+std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::UseDestColorAsInput(
+        std::unique_ptr<GrFragmentProcessor> fp) {
+    static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForBlender, R"(
+        uniform colorFilter fp;  // Declared as colorFilter so we can use sample(..., color)
+        half4 main(half4 src, half4 dst) {
+            return sample(fp, dst);
+        }
+    )");
+    return GrSkSLFP::Make(effect, "UseDestColorAsInput", /*inputFP=*/nullptr,
+                          GrSkSLFP::OptFlags::kNone, "fp", std::move(fp));
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MakeInputOpaqueAndPostApplyAlpha(
         std::unique_ptr<GrFragmentProcessor> fp) {
     if (!fp) {

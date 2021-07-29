@@ -57,7 +57,10 @@ SkString GrGLSLFragmentProcessor::invokeChild(int childIndex,
                                               inputColor);
 
     if (childProc->isBlendFunction()) {
-        invocation.appendf(", %s", destColor ? destColor : "half4(1)");
+        if (!destColor) {
+            destColor = args.fFp.isBlendFunction() ? args.fDestColor : "half4(1)";
+        }
+        invocation.appendf(", %s", destColor);
     }
 
     if (childProc->isSampledWithExplicitCoords()) {
@@ -100,7 +103,10 @@ SkString GrGLSLFragmentProcessor::invokeChildWithMatrix(int childIndex, const ch
                                               inputColor);
 
     if (childProc->isBlendFunction()) {
-        invocation.appendf(", %s", destColor ? destColor : "half4(1)");
+        if (!destColor) {
+            destColor = args.fFp.isBlendFunction() ? args.fDestColor : "half4(1)";
+        }
+        invocation.appendf(", %s", destColor);
     }
 
     // Produce a string containing the call to the helper function. We have a uniform variable
