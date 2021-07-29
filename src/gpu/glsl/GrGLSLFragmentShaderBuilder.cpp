@@ -27,44 +27,46 @@ void GrGLSLFPFragmentBuilder::writeProcessorFunction(GrGLSLFragmentProcessor* fp
     // sampled by a chain of uniform matrix expressions (or legacy coord transforms), the value that
     // would have been passed to _coords is lifted to the vertex shader and stored in a unique
     // varying. In that case it uses that variable and we do not pass a second argument for _coords.
-    GrShaderVar params[] = { GrShaderVar(args.fInputColor, kHalf4_GrSLType),
-                             GrShaderVar(args.fSampleCoord, kFloat2_GrSLType) };
-    SkSpan<GrShaderVar> paramSpan = SkMakeSpan(params, SK_ARRAY_COUNT(params));
+    GrShaderVar params[3];
+    int numParams = 0;
+
+    params[numParams++] = GrShaderVar(args.fInputColor, kHalf4_GrSLType);
 
     if (args.fFp.isBlendFunction()) {
-        // Blend functions take two colors as input, and never take coordinates.
-        // Replace the sampleCoord parameter with destination color.
-        params[1] = GrShaderVar(args.fDestColor, kHalf4_GrSLType);
-    } else if (args.fFp.isSampledWithExplicitCoords()) {
-        // We are passing explicit coords; the function keeps its two arguments as-is.
-    } else {
+        // Blend functions take a dest color as input.
+        params[numParams++] = GrShaderVar(args.fDestColor, kHalf4_GrSLType);
+    }
+
+    if (args.fFp.isSampledWithExplicitCoords()) {
+        // Functions sampled with explicit coordinates take a float2 coordinate as input.
+        params[numParams++] = GrShaderVar(args.fSampleCoord, kFloat2_GrSLType);
+
+    } else if (args.fFp.referencesSampleCoords()) {
         // Sampled with a uniform matrix expression and/or a legacy coord transform. The actual
         // transformation code is emitted in the vertex shader, so this only has to access it.
         // Add a float2 _coords variable that maps to the associated varying and replaces the
         // absent 2nd argument to the fp's function.
-        paramSpan = paramSpan.first(1);
-
-        if (args.fFp.referencesSampleCoords()) {
-            GrShaderVar varying = fProgramBuilder->varyingCoordsForFragmentProcessor(&args.fFp);
-            switch(varying.getType()) {
-                case kFloat2_GrSLType:
-                    // Just point the local coords to the varying
-                    args.fSampleCoord = varying.getName().c_str();
-                    break;
-                case kFloat3_GrSLType:
-                    // Must perform the perspective divide in the frag shader based on the varying,
-                    // and since we won't actually have a function parameter for local coords, add
-                    // it as a local variable.
-                    this->codeAppendf("float2 %s = %s.xy / %s.z;\n", args.fSampleCoord,
-                                      varying.getName().c_str(), varying.getName().c_str());
-                    break;
-                default:
-                    SkDEBUGFAILF("Unexpected varying type for coord: %s %d\n",
-                                 varying.getName().c_str(), (int) varying.getType());
-                    break;
-            }
+        GrShaderVar varying = fProgramBuilder->varyingCoordsForFragmentProcessor(&args.fFp);
+        switch(varying.getType()) {
+            case kFloat2_GrSLType:
+                // Just point the local coords to the varying
+                args.fSampleCoord = varying.getName().c_str();
+                break;
+            case kFloat3_GrSLType:
+                // Must perform the perspective divide in the frag shader based on the varying, and
+                // since we won't actually have a function parameter for local coords, add it as a
+                // local variable.
+                this->codeAppendf("float2 %s = %s.xy / %s.z;\n", args.fSampleCoord,
+                                  varying.getName().c_str(), varying.getName().c_str());
+                break;
+            default:
+                SkDEBUGFAILF("Unexpected varying type for coord: %s %d\n",
+                             varying.getName().c_str(), (int) varying.getType());
+                break;
         }
     }
+
+    SkASSERT(numParams <= (int)SK_ARRAY_COUNT(params));
 
     // First, emit every child's function. This needs to happen (even for children that aren't
     // sampled), so that all of the expected uniforms are registered.
@@ -72,7 +74,8 @@ void GrGLSLFPFragmentBuilder::writeProcessorFunction(GrGLSLFragmentProcessor* fp
     fp->emitCode(args);
     fp->setFunctionName(this->getMangledFunctionName(args.fFp.name()));
 
-    this->emitFunction(kHalf4_GrSLType, fp->functionName(), paramSpan, this->code().c_str());
+    this->emitFunction(kHalf4_GrSLType, fp->functionName(), SkMakeSpan(params, numParams),
+                       this->code().c_str());
     this->deleteStage();
     this->onAfterChildProcEmitCode();
 }
