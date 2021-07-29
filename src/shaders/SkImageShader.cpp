@@ -741,7 +741,8 @@ skvm::Color SkImageShader::makeProgram(
         return {};
     }
     auto [upper, upperInv] = access->level();
-    if (!sampling.useCubic) {
+    // If we are using a coordShader, then we can't make guesses about the state of the matrix.
+    if (!sampling.useCubic && !coordShader) {
         // TODO: can tweak_sampling sometimes for cubic too when B=0
         if (matrices.localToDeviceHitsPixelCenters()) {
             sampling = tweak_sampling(sampling, upperInv);
