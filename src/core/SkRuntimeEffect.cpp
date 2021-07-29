@@ -162,6 +162,39 @@ static bool verify_child_effects(const std::vector<SkRuntimeEffect::Child>& refl
     return true;
 }
 
+static bool read_child_effects(SkReadBuffer& buffer,
+                               const SkRuntimeEffect* effect,
+                               SkTArray<SkRuntimeEffect::ChildPtr>* children) {
+    size_t childCount = buffer.read32();
+    if (!buffer.validate(childCount == effect->children().count())) {
+        return false;
+    }
+
+    children->reset();
+    children->reserve_back(childCount);
+
+    for (const auto& child : effect->children()) {
+        if (child.type == SkRuntimeEffect::Child::Type::kShader) {
+            children->emplace_back(buffer.readShader());
+        } else if (child.type == SkRuntimeEffect::Child::Type::kColorFilter) {
+            children->emplace_back(buffer.readColorFilter());
+        } else {
+            return false;
+        }
+    }
+
+    return buffer.isValid();
+}
+
+static void write_child_effects(SkWriteBuffer& buffer,
+                                const std::vector<SkRuntimeEffect::ChildPtr>& children) {
+    buffer.write32(children.size());
+    for (const auto& child : children) {
+        buffer.writeFlattenable(child.shader ? (const SkFlattenable*)child.shader.get()
+                                             : child.colorFilter.get());
+    }
+}
+
 static std::vector<skvm::Val> make_skvm_uniforms(skvm::Builder* p,
                                                  skvm::Uniforms* uniforms,
                                                  size_t inputSize,
@@ -875,11 +908,7 @@ public:
     void flatten(SkWriteBuffer& buffer) const override {
         buffer.writeString(fEffect->source().c_str());
         buffer.writeDataAsByteArray(fUniforms.get());
-        buffer.write32(fChildren.size());
-        for (const auto& child : fChildren) {
-            buffer.writeFlattenable(child.shader ? (const SkFlattenable*)child.shader.get()
-                                                 : child.colorFilter.get());
-        }
+        write_child_effects(buffer, fChildren);
     }
 
     SK_FLATTENABLE_HOOKS(SkRuntimeColorFilter)
@@ -900,21 +929,8 @@ sk_sp<SkFlattenable> SkRuntimeColorFilter::CreateProc(SkReadBuffer& buffer) {
         return nullptr;
     }
 
-    size_t childCount = buffer.read32();
-    if (!buffer.validate(childCount == effect->children().count())) {
-        return nullptr;
-    }
-
-    SkSTArray<4, SkRuntimeEffect::ChildPtr> children(childCount);
-    for (const auto& child : effect->children()) {
-        if (child.type == SkRuntimeEffect::Child::Type::kShader) {
-            children.emplace_back(buffer.readShader());
-        } else {
-            SkASSERT(child.type == SkRuntimeEffect::Child::Type::kColorFilter);
-            children.emplace_back(buffer.readColorFilter());
-        }
-    }
-    if (!buffer.isValid()) {
+    SkSTArray<4, SkRuntimeEffect::ChildPtr> children;
+    if (!read_child_effects(buffer, effect.get(), &children)) {
         return nullptr;
     }
 
@@ -1047,11 +1063,7 @@ public:
         if (flags & kHasLocalMatrix_Flag) {
             buffer.writeMatrix(this->getLocalMatrix());
         }
-        buffer.write32(fChildren.size());
-        for (const auto& child : fChildren) {
-            buffer.writeFlattenable(child.shader ? (const SkFlattenable*)child.shader.get()
-                                                 : child.colorFilter.get());
-        }
+        write_child_effects(buffer, fChildren);
     }
 
     SkRuntimeEffect* asRuntimeEffect() const override { return fEffect.get(); }
@@ -1089,21 +1101,8 @@ sk_sp<SkFlattenable> SkRTShader::CreateProc(SkReadBuffer& buffer) {
         return nullptr;
     }
 
-    size_t childCount = buffer.read32();
-    if (!buffer.validate(childCount == effect->children().count())) {
-        return nullptr;
-    }
-
-    SkSTArray<4, SkRuntimeEffect::ChildPtr> children(childCount);
-    for (const auto& child : effect->children()) {
-        if (child.type == SkRuntimeEffect::Child::Type::kShader) {
-            children.emplace_back(buffer.readShader());
-        } else {
-            SkASSERT(child.type == SkRuntimeEffect::Child::Type::kColorFilter);
-            children.emplace_back(buffer.readColorFilter());
-        }
-    }
-    if (!buffer.isValid()) {
+    SkSTArray<4, SkRuntimeEffect::ChildPtr> children;
+    if (!read_child_effects(buffer, effect.get(), &children)) {
         return nullptr;
     }
 
@@ -1182,6 +1181,7 @@ public:
     void flatten(SkWriteBuffer& buffer) const override {
         buffer.writeString(fEffect->source().c_str());
         buffer.writeDataAsByteArray(fUniforms.get());
+        write_child_effects(buffer, fChildren);
     }
 
     SK_FLATTENABLE_HOOKS(SkRuntimeBlender)
@@ -1204,7 +1204,12 @@ sk_sp<SkFlattenable> SkRuntimeBlender::CreateProc(SkReadBuffer& buffer) {
         return nullptr;
     }
 
-    return effect->makeBlender(std::move(uniforms));
+    SkSTArray<4, SkRuntimeEffect::ChildPtr> children;
+    if (!read_child_effects(buffer, effect.get(), &children)) {
+        return nullptr;
+    }
+
+    return effect->makeBlender(std::move(uniforms), SkMakeSpan(children));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
