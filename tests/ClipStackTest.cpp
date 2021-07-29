@@ -34,7 +34,6 @@
 #include "src/gpu/GrResourceCache.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxy.h"
-#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 #include "tests/Test.h"
 #include "tools/gpu/GrContextFactory.h"
 
@@ -877,6 +876,7 @@ static void test_invfill_diff_bug(skiatest::Reporter* reporter) {
 #if SK_GPU_V1
 #include "src/gpu/GrClipStackClip.h"
 #include "src/gpu/GrReducedClip.h"
+#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
 typedef GrReducedClip::ElementList ElementList;
 typedef GrReducedClip::InitialState InitialState;

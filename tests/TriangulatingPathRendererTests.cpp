@@ -16,7 +16,6 @@
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/effects/GrPorterDuffXferProcessor.h"
 #include "src/gpu/geometry/GrStyledShape.h"
-#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 #include "src/shaders/SkShaderBase.h"
 #include "tools/ToolUtils.h"
 #include <map>
@@ -486,6 +485,7 @@ CreatePathFn kNonEdgeAAPaths[] = {
 
 #if SK_GPU_V1
 #include "src/gpu/ops/GrTriangulatingPathRenderer.h"
+#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
 // A simple concave path. Test this with a non-invertible matrix.
 static SkPath create_path_17() {

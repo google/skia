@@ -18,9 +18,9 @@
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/SkGr.h"
-#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
 #include "tools/gpu/BackendTextureImageFactory.h"
@@ -286,25 +286,25 @@ DEF_GPUTEST(InitialTextureClear, reporter, baseOptions) {
 
                     // Try creating the texture as a deferred proxy.
                     {
-                        std::unique_ptr<GrSurfaceContext> sdc;
-                        if (renderable == GrRenderable::kYes) {
-                            sdc = skgpu::v1::SurfaceDrawContext::Make(
-                                    dContext, combo.fColorType, nullptr, fit,
-                                    {desc.fWidth, desc.fHeight}, SkSurfaceProps(), 1,
-                                    GrMipmapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
-                        } else {
-                            GrImageInfo info(combo.fColorType,
-                                             kUnknown_SkAlphaType,
-                                             nullptr,
-                                             {desc.fHeight, desc.fHeight});
-                            sdc = GrSurfaceContext::Make(dContext, info, combo.fFormat, fit);
-                        }
-                        if (!sdc) {
+                        GrImageInfo info(combo.fColorType,
+                                         GrColorTypeHasAlpha(combo.fColorType)
+                                                                            ? kPremul_SkAlphaType
+                                                                            : kOpaque_SkAlphaType,
+                                         nullptr,
+                                         {desc.fHeight, desc.fHeight});
+
+                        auto sc = GrSurfaceContext::Make(dContext,
+                                                         info,
+                                                         combo.fFormat,
+                                                         fit,
+                                                         kTopLeft_GrSurfaceOrigin,
+                                                         renderable);
+                        if (!sc) {
                             continue;
                         }
 
                         readback.erase(kClearColor);
-                        if (sdc->readPixels(dContext, readback, {0, 0})) {
+                        if (sc->readPixels(dContext, readback, {0, 0})) {
                             for (int i = 0; i < kSize * kSize; ++i) {
                                 if (!checkColor(combo, readback.addr32()[i])) {
                                     break;

@@ -13,7 +13,6 @@
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/SkGr.h"
-#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 #include "tests/Test.h"
 
 // using anonymous namespace because these functions are used as template params.
@@ -191,14 +190,19 @@ static std::unique_ptr<uint32_t[]> make_data() {
 static std::unique_ptr<GrSurfaceContext> make_surface_context(Encoding contextEncoding,
                                                               GrRecordingContext* rContext,
                                                               skiatest::Reporter* reporter) {
-    auto surfaceContext = skgpu::v1::SurfaceDrawContext::Make(
-            rContext, GrColorType::kRGBA_8888, encoding_as_color_space(contextEncoding),
-            SkBackingFit::kExact, {kW, kH}, SkSurfaceProps(), 1, GrMipmapped::kNo, GrProtected::kNo,
-            kBottomLeft_GrSurfaceOrigin, SkBudgeted::kNo);
-    if (!surfaceContext) {
+    GrImageInfo info(GrColorType::kRGBA_8888,
+                     kPremul_SkAlphaType,
+                     encoding_as_color_space(contextEncoding),
+                     kW, kH);
+
+    auto sc = GrSurfaceContext::Make(rContext, info,
+                                     SkBackingFit::kExact,
+                                     kBottomLeft_GrSurfaceOrigin,
+                                     GrRenderable::kYes);
+    if (!sc) {
         ERRORF(reporter, "Could not create %s surface context.", encoding_as_str(contextEncoding));
     }
-    return std::move(surfaceContext);
+    return sc;
 }
 
 static void test_write_read(Encoding contextEncoding, Encoding writeEncoding, Encoding readEncoding,

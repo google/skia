@@ -15,8 +15,8 @@
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrSurfaceContext.h"
+#include "src/gpu/GrSurfaceFillContext.h"
 #include "src/gpu/effects/GrTextureEffect.h"
-#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
 #include "tools/ToolUtils.h"
@@ -1178,13 +1178,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixelsMipped, reporter, ct
 
                     // TODO: Update this when read pixels supports reading back levels to read
                     // directly rather than using minimizing draws.
-                    auto dst = skgpu::v1::SurfaceDrawContext::Make(direct,
-                                                                   info.colorType(),
-                                                                   info.refColorSpace(),
-                                                                   SkBackingFit::kExact,
-                                                                   info.dimensions(),
-                                                                   SkSurfaceProps());
-                    SkASSERT(dst);
+                    auto dstSC = GrSurfaceContext::Make(direct, info,
+                                                        SkBackingFit::kExact,
+                                                        kBottomLeft_GrSurfaceOrigin,
+                                                        GrRenderable::kYes);
+                    SkASSERT(dstSC);
                     GrSamplerState sampler(SkFilterMode::kNearest, SkMipmapMode::kNearest);
                     for (int i = 1; i <= 1; ++i) {
                         auto te = GrTextureEffect::Make(sc->readSurfaceView(),
@@ -1192,13 +1190,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixelsMipped, reporter, ct
                                                         SkMatrix::I(),
                                                         sampler,
                                                         *direct->priv().caps());
-                        dst->fillRectToRectWithFP(SkIRect::MakeSize(sc->dimensions()),
-                                                  SkIRect::MakeSize(levels[i].dimensions()),
-                                                  std::move(te));
+                        dstSC->asFillContext()->fillRectToRectWithFP(
+                                SkIRect::MakeSize(sc->dimensions()),
+                                SkIRect::MakeSize(levels[i].dimensions()),
+                                std::move(te));
                         GrImageInfo readInfo =
-                                dst->imageInfo().makeDimensions(levels[i].dimensions());
+                                dstSC->imageInfo().makeDimensions(levels[i].dimensions());
                         GrPixmap read = GrPixmap::Allocate(readInfo);
-                        if (!dst->readPixels(direct, read, {0, 0})) {
+                        if (!dstSC->readPixels(direct, read, {0, 0})) {
                             continue;
                         }
 
