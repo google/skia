@@ -18,8 +18,8 @@ GrGLSLFragmentShaderBuilder::GrGLSLFragmentShaderBuilder(GrGLSLProgramBuilder* p
     fSubstageIndices.push_back(0);
 }
 
-SkString GrGLSLFPFragmentBuilder::writeProcessorFunction(GrGLSLFragmentProcessor* fp,
-                                                         GrGLSLFragmentProcessor::EmitArgs& args) {
+void GrGLSLFPFragmentBuilder::writeProcessorFunction(GrGLSLFragmentProcessor* fp,
+                                                     GrGLSLFragmentProcessor::EmitArgs& args) {
     this->onBeforeChildProcEmitCode();
     this->nextStage();
 
@@ -66,13 +66,15 @@ SkString GrGLSLFPFragmentBuilder::writeProcessorFunction(GrGLSLFragmentProcessor
         }
     }
 
+    // First, emit every child's function. This needs to happen (even for children that aren't
+    // sampled), so that all of the expected uniforms are registered.
+    fp->emitChildFunctions(args);
     fp->emitCode(args);
+    fp->setFunctionName(this->getMangledFunctionName(args.fFp.name()));
 
-    SkString funcName = this->getMangledFunctionName(args.fFp.name());
-    this->emitFunction(kHalf4_GrSLType, funcName.c_str(), paramSpan, this->code().c_str());
+    this->emitFunction(kHalf4_GrSLType, fp->functionName(), paramSpan, this->code().c_str());
     this->deleteStage();
     this->onAfterChildProcEmitCode();
-    return funcName;
 }
 
 const char* GrGLSLFragmentShaderBuilder::dstColor() {

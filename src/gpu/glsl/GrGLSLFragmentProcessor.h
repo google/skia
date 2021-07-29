@@ -84,7 +84,17 @@ public:
         return fChildProcessors[index].get();
     }
 
-    void emitChildFunction(int childIndex, EmitArgs& parentArgs);
+    void setFunctionName(SkString name) {
+        SkASSERT(fFunctionName.isEmpty());
+        fFunctionName = std::move(name);
+    }
+
+    const char* functionName() const {
+        SkASSERT(!fFunctionName.isEmpty());
+        return fFunctionName.c_str();
+    }
+
+    void emitChildFunctions(EmitArgs& parentArgs);
 
     // Invoke the child with the default input and destination colors (solid white)
     inline SkString invokeChild(int childIndex, EmitArgs& parentArgs,
@@ -204,8 +214,8 @@ protected:
     virtual void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) {}
 
 private:
-    // one per child; either not present or empty string if not yet emitted
-    SkTArray<SkString> fFunctionNames;
+    // The (mangled) name of our entry-point function
+    SkString fFunctionName;
 
     SkTArray<std::unique_ptr<GrGLSLFragmentProcessor>, true> fChildProcessors;
 

@@ -29,14 +29,6 @@ public:
         const GrSkSLFP& fp            = args.fFp.cast<GrSkSLFP>();
         const SkSL::Program& program  = *fp.fEffect->fBaseProgram;
 
-        // We need to ensure that we emit each child's helper function at least once.
-        // Any child FP that isn't sampled won't trigger a call otherwise, leading to asserts later.
-        for (int i = 0; i < this->numChildProcessors(); ++i) {
-            if (this->childProcessor(i)) {
-                this->emitChildFunction(i, args);
-            }
-        }
-
         class FPCallbacks : public SkSL::PipelineStage::Callbacks {
         public:
             FPCallbacks(GrGLSLSkSLFP* self,

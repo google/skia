@@ -38,7 +38,7 @@ public:
         kInsideLoop = (1 << 2)
     };
 
-    SkString writeProcessorFunction(GrGLSLFragmentProcessor*, GrGLSLFragmentProcessor::EmitArgs&);
+    void writeProcessorFunction(GrGLSLFragmentProcessor*, GrGLSLFragmentProcessor::EmitArgs&);
 
     virtual void forceHighPrecision() = 0;
 
