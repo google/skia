@@ -18,6 +18,7 @@
 #include "include/core/SkString.h"
 #include "include/private/SkOnce.h"
 #include "include/private/SkSLSampleUsage.h"
+#include "include/private/SkTOptional.h"
 
 #include <string>
 #include <vector>
@@ -78,16 +79,16 @@ public:
     };
 
     // Reflected description of a uniform child (shader or colorFilter) in the effect's SkSL
-    struct Child {
-        enum class Type {
-            kShader,
-            kColorFilter,
-            kBlender,
-        };
+    enum class ChildType {
+        kShader,
+        kColorFilter,
+        kBlender,
+    };
 
-        SkString name;
-        Type     type;
-        int      index;
+    struct Child {
+        SkString  name;
+        ChildType type;
+        int       index;
     };
 
     class Options {
@@ -163,14 +164,22 @@ public:
     static Result MakeForBlender(std::unique_ptr<SkSL::Program> program);
 
     // Object that allows passing a SkShader, SkColorFilter or SkBlender as a child
-    struct ChildPtr {
+    class ChildPtr {
+    public:
         ChildPtr() = default;
-        ChildPtr(sk_sp<SkShader> s) : shader(std::move(s)) {}
-        ChildPtr(sk_sp<SkColorFilter> cf) : colorFilter(std::move(cf)) {}
-        ChildPtr(sk_sp<SkBlender> b) : blender(std::move(b)) {}
-        sk_sp<SkShader> shader;
-        sk_sp<SkColorFilter> colorFilter;
-        sk_sp<SkBlender> blender;
+        ChildPtr(sk_sp<SkShader> s) : fChild(std::move(s)) {}
+        ChildPtr(sk_sp<SkColorFilter> cf) : fChild(std::move(cf)) {}
+        ChildPtr(sk_sp<SkBlender> b) : fChild(std::move(b)) {}
+
+        skstd::optional<ChildType> type() const;
+
+        SkShader* shader() const;
+        SkColorFilter* colorFilter() const;
+        SkBlender* blender() const;
+        SkFlattenable* flattenable() const { return fChild.get(); }
+
+    private:
+        sk_sp<SkFlattenable> fChild;
     };
 
     sk_sp<SkShader> makeShader(sk_sp<SkData> uniforms,
