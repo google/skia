@@ -82,6 +82,7 @@ public:
         enum class Type {
             kShader,
             kColorFilter,
+            kBlender,
         };
 
         SkString name;
@@ -161,13 +162,15 @@ public:
     static Result MakeForBlender(std::unique_ptr<SkSL::Program> program, const Options&);
     static Result MakeForBlender(std::unique_ptr<SkSL::Program> program);
 
-    // Object that allows passing either an SkShader or SkColorFilter as a child
+    // Object that allows passing a SkShader, SkColorFilter or SkBlender as a child
     struct ChildPtr {
         ChildPtr() = default;
         ChildPtr(sk_sp<SkShader> s) : shader(std::move(s)) {}
         ChildPtr(sk_sp<SkColorFilter> cf) : colorFilter(std::move(cf)) {}
+        ChildPtr(sk_sp<SkBlender> b) : blender(std::move(b)) {}
         sk_sp<SkShader> shader;
         sk_sp<SkColorFilter> colorFilter;
+        sk_sp<SkBlender> blender;
     };
 
     sk_sp<SkShader> makeShader(sk_sp<SkData> uniforms,

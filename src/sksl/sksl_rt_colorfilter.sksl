@@ -1,2 +1,3 @@
 half4 sample(shader s, float2 coords);
 half4 sample(colorFilter f, half4 color);
+half4 sample(blender b, half4 src, half4 dst);

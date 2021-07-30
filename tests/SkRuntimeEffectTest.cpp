@@ -12,6 +12,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkSurface.h"
+#include "include/effects/SkBlenders.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/core/SkColorSpacePriv.h"
@@ -618,10 +619,10 @@ static void test_RuntimeEffect_Blenders(skiatest::Reporter* r, GrRecordingContex
     effect.test(0xFF888888);
 
     // Fill the destination with a variety of colors (using the RGBW shader)
-    SkPaint paint;
-    paint.setShader(make_RGBW_shader());
-    paint.setBlendMode(SkBlendMode::kSrc);
-    surface->getCanvas()->drawPaint(paint);
+    SkPaint rgbwPaint;
+    rgbwPaint.setShader(make_RGBW_shader());
+    rgbwPaint.setBlendMode(SkBlendMode::kSrc);
+    surface->getCanvas()->drawPaint(rgbwPaint);
 
     // Verify that we can read back the dest color exactly as-is (ignoring the source color)
     // This is equivalent to the kDst blend mode.
@@ -643,12 +644,26 @@ static void test_RuntimeEffect_Blenders(skiatest::Reporter* r, GrRecordingContex
     // Sampling children
     //
 
-    // Sampling a null child should return the paint color
+    // Sampling a null shader/color filter should return the paint color.
     effect.build("uniform shader child;"
                  "half4 main(half4 s, half4 d) { return sample(child, s.rg); }");
     effect.child("child") = nullptr;
     effect.test(0xFF00FFFF,
                 [](SkCanvas*, SkPaint* paint) { paint->setColor4f({1.0f, 1.0f, 0.0f, 1.0f}); });
+
+    effect.build("uniform colorFilter child;"
+                 "half4 main(half4 s, half4 d) { return sample(child, s); }");
+    effect.child("child") = nullptr;
+    effect.test(0xFF00FFFF,
+                [](SkCanvas*, SkPaint* paint) { paint->setColor4f({1.0f, 1.0f, 0.0f, 1.0f}); });
+
+    // Sampling a null blender should do a src-over blend. Draw 50% black over RGBW to verify this.
+    surface->getCanvas()->drawPaint(rgbwPaint);
+    effect.build("uniform blender child;"
+                 "half4 main(half4 s, half4 d) { return sample(child, s, d); }");
+    effect.child("child") = nullptr;
+    effect.test({0xFF000080, 0xFF008000, 0xFF800000, 0xFF808080},
+                [](SkCanvas*, SkPaint* paint) { paint->setColor4f({0.0f, 0.0f, 0.0f, 0.497f}); });
 
     // Sampling a shader at various coordinates
     effect.build("uniform shader child;"
@@ -672,6 +687,22 @@ static void test_RuntimeEffect_Blenders(skiatest::Reporter* r, GrRecordingContex
                  "half4 main(half4 s, half4 d) { return sample(child, half4(1)); }");
     effect.child("child") = SkColorFilters::Blend(0xFF012345, SkBlendMode::kSrc);
     effect.test(0xFF452301);
+
+    // Sampling a built-in blender
+    surface->getCanvas()->drawPaint(rgbwPaint);
+    effect.build("uniform blender child;"
+                 "half4 main(half4 s, half4 d) { return sample(child, s, d); }");
+    effect.child("child") = SkBlender::Mode(SkBlendMode::kPlus);
+    effect.test({0xFF4523FF, 0xFF45FF01, 0xFFFF2301, 0xFFFFFFFF},
+                [](SkCanvas*, SkPaint* paint) { paint->setColor(0xFF012345); });
+
+    // Sampling a runtime-effect blender
+    surface->getCanvas()->drawPaint(rgbwPaint);
+    effect.build("uniform blender child;"
+                 "half4 main(half4 s, half4 d) { return sample(child, s, d); }");
+    effect.child("child") = SkBlenders::Arithmetic(0, 1, 1, 0, /*enforcePremul=*/false);
+    effect.test({0xFF4523FF, 0xFF45FF01, 0xFFFF2301, 0xFFFFFFFF},
+                [](SkCanvas*, SkPaint* paint) { paint->setColor(0xFF012345); });
 }
 
 DEF_TEST(SkRuntimeEffect_Blender_CPU, r) {

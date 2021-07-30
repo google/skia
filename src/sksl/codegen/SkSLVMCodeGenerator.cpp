@@ -873,7 +873,7 @@ Value SkVMGenerator::writeIntrinsicCall(const FunctionCall& c) {
     if (intrinsicKind == k_sample_IntrinsicKind) {
         // Sample is very special. The first argument is a child (shader/colorFilter/blender),
         // which is opaque and can't be evaluated.
-        SkASSERT(nargs == 2);
+        SkASSERT(nargs >= 2);
         const Expression* child = c.arguments()[0].get();
         SkASSERT(child->type().isEffectChild());
         SkASSERT(child->is<VariableReference>());
@@ -887,16 +887,43 @@ Value SkVMGenerator::writeIntrinsicCall(const FunctionCall& c) {
         Value argVal = this->writeExpression(*arg);
         skvm::Color color;
 
-        if (child->type().typeKind() == Type::TypeKind::kShader) {
-            SkASSERT(arg->type() == *fProgram.fContext->fTypes.fFloat2);
-            skvm::Coord coord = {f32(argVal[0]), f32(argVal[1])};
-            color = fSampleShader(fp_it->second, coord);
-        } else {
-            SkASSERT(child->type().typeKind() == Type::TypeKind::kColorFilter);
-            SkASSERT(arg->type() == *fProgram.fContext->fTypes.fHalf4 ||
-                     arg->type() == *fProgram.fContext->fTypes.fFloat4);
-            skvm::Color inColor = {f32(argVal[0]), f32(argVal[1]), f32(argVal[2]), f32(argVal[3])};
-            color = fSampleColorFilter(fp_it->second, inColor);
+        switch (child->type().typeKind()) {
+            case Type::TypeKind::kShader: {
+                SkASSERT(nargs == 2);
+                SkASSERT(arg->type() == *fProgram.fContext->fTypes.fFloat2);
+                skvm::Coord coord = {f32(argVal[0]), f32(argVal[1])};
+                color = fSampleShader(fp_it->second, coord);
+                break;
+            }
+            case Type::TypeKind::kColorFilter: {
+                SkASSERT(nargs == 2);
+                SkASSERT(arg->type() == *fProgram.fContext->fTypes.fHalf4 ||
+                         arg->type() == *fProgram.fContext->fTypes.fFloat4);
+                skvm::Color inColor = {f32(argVal[0]), f32(argVal[1]),
+                                       f32(argVal[2]), f32(argVal[3])};
+                color = fSampleColorFilter(fp_it->second, inColor);
+                break;
+            }
+            case Type::TypeKind::kBlender: {
+                SkASSERT(nargs == 3);
+                SkASSERT(arg->type() == *fProgram.fContext->fTypes.fHalf4 ||
+                         arg->type() == *fProgram.fContext->fTypes.fFloat4);
+                skvm::Color srcColor = {f32(argVal[0]), f32(argVal[1]),
+                                        f32(argVal[2]), f32(argVal[3])};
+
+                arg = c.arguments()[2].get();
+                argVal = this->writeExpression(*arg);
+                SkASSERT(arg->type() == *fProgram.fContext->fTypes.fHalf4 ||
+                         arg->type() == *fProgram.fContext->fTypes.fFloat4);
+                skvm::Color dstColor = {f32(argVal[0]), f32(argVal[1]),
+                                        f32(argVal[2]), f32(argVal[3])};
+
+                color = fSampleBlender(fp_it->second, srcColor, dstColor);
+                break;
+            }
+            default: {
+                SkDEBUGFAILF("cannot sample from type '%s'", child->type().description().c_str());
+            }
         }
 
         Value result(4);

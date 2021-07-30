@@ -141,7 +141,7 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     const FunctionDeclaration& function = c.function();
     const ExpressionArray& arguments = c.arguments();
     if (function.isBuiltin() && function.name() == "sample") {
-        SkASSERT(arguments.size() == 2);
+        SkASSERT(arguments.size() >= 2);
         const Expression* child = arguments[0].get();
         SkASSERT(child->type().isEffectChild());
         SkASSERT(child->is<VariableReference>());
@@ -164,20 +164,44 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         SkASSERT(found);
 
         // Shaders require a coordinate argument. Color filters require a color argument.
-        // When we call sampleChild, the other value remains empty.
+        // Blenders require two color arguments.
         String sampleOutput;
         {
-            AutoOutputBuffer outputToBuffer(this);
-            this->writeExpression(*arguments.back(), Precedence::kSequence);
-            if (child->type().typeKind() == Type::TypeKind::kShader) {
-                SkASSERT(arguments[1]->type() == *fProgram.fContext->fTypes.fFloat2);
-                sampleOutput = fCallbacks->sampleShader(index, outputToBuffer.fBuffer.str());
+            AutoOutputBuffer exprBuffer(this);
+            this->writeExpression(*arguments[1], Precedence::kSequence);
 
-            } else {
-                SkASSERT(child->type().typeKind() == Type::TypeKind::kColorFilter);
-                SkASSERT(arguments[1]->type() == *fProgram.fContext->fTypes.fHalf4 ||
-                         arguments[1]->type() == *fProgram.fContext->fTypes.fFloat4);
-                sampleOutput = fCallbacks->sampleColorFilter(index, outputToBuffer.fBuffer.str());
+            switch (child->type().typeKind()) {
+                case Type::TypeKind::kShader: {
+                    SkASSERT(arguments.size() == 2);
+                    SkASSERT(arguments[1]->type() == *fProgram.fContext->fTypes.fFloat2);
+                    sampleOutput = fCallbacks->sampleShader(index, exprBuffer.fBuffer.str());
+                    break;
+                }
+                case Type::TypeKind::kColorFilter: {
+                    SkASSERT(arguments.size() == 2);
+                    SkASSERT(arguments[1]->type() == *fProgram.fContext->fTypes.fHalf4 ||
+                             arguments[1]->type() == *fProgram.fContext->fTypes.fFloat4);
+                    sampleOutput = fCallbacks->sampleColorFilter(index, exprBuffer.fBuffer.str());
+                    break;
+                }
+                case Type::TypeKind::kBlender: {
+                    SkASSERT(arguments.size() == 3);
+                    SkASSERT(arguments[1]->type() == *fProgram.fContext->fTypes.fHalf4 ||
+                             arguments[1]->type() == *fProgram.fContext->fTypes.fFloat4);
+                    SkASSERT(arguments[2]->type() == *fProgram.fContext->fTypes.fHalf4 ||
+                             arguments[2]->type() == *fProgram.fContext->fTypes.fFloat4);
+
+                    AutoOutputBuffer exprBuffer2(this);
+                    this->writeExpression(*arguments[2], Precedence::kSequence);
+
+                    sampleOutput = fCallbacks->sampleBlender(index, exprBuffer.fBuffer.str(),
+                                                                    exprBuffer2.fBuffer.str());
+                    break;
+                }
+                default: {
+                    SkDEBUGFAILF("cannot sample from type '%s'",
+                                 child->type().description().c_str());
+                }
             }
         }
         this->write(sampleOutput);
