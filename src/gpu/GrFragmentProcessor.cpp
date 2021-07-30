@@ -655,14 +655,51 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::SurfaceColor() {
 
 std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::DeviceSpace(
         std::unique_ptr<GrFragmentProcessor> fp) {
-    static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
-        uniform shader fp;
-        half4 main(float2 xy) {
-            return sample(fp, sk_FragCoord.xy);
+    if (!fp) {
+        return nullptr;
+    }
+
+    class DeviceSpace : GrFragmentProcessor {
+    public:
+        static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> fp) {
+            return std::unique_ptr<GrFragmentProcessor>(new DeviceSpace(std::move(fp)));
         }
-    )");
-    return GrSkSLFP::Make(effect, "DeviceSpace", /*inputFP=*/nullptr, GrSkSLFP::OptFlags::kAll,
-                          "fp", std::move(fp));
+
+    private:
+        DeviceSpace(std::unique_ptr<GrFragmentProcessor> fp)
+                : GrFragmentProcessor(kDeviceSpace_ClassID, fp->optimizationFlags()) {
+            this->registerChild(std::move(fp), SkSL::SampleUsage::Explicit());
+        }
+
+        std::unique_ptr<GrFragmentProcessor> clone() const override {
+            auto child = this->childProcessor(0)->clone();
+            return std::unique_ptr<GrFragmentProcessor>(new DeviceSpace(std::move(child)));
+        }
+
+        SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& f) const override {
+            return this->childProcessor(0)->constantOutputForConstantInput(f);
+        }
+
+        std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override {
+            class Impl : public GrGLSLFragmentProcessor {
+            public:
+                Impl() = default;
+                void emitCode(GrGLSLFragmentProcessor::EmitArgs& args) override {
+                    auto child = this->invokeChild(0, args.fInputColor, args, "sk_FragCoord.xy");
+                    args.fFragBuilder->codeAppendf("return %s;", child.c_str());
+                }
+            };
+            return std::make_unique<Impl>();
+        }
+
+        void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
+
+        bool onIsEqual(const GrFragmentProcessor& processor) const override { return true; }
+
+        const char* name() const override { return "DeviceSpace"; }
+    };
+
+    return DeviceSpace::Make(std::move(fp));
 }
 
 //////////////////////////////////////////////////////////////////////////////
