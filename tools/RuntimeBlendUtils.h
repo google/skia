@@ -13,7 +13,12 @@
 
 class SkBlender;
 
-/** Returns a Runtime Effect-based blender which is equivalent to the passed-in SkBlendMode. */
+/**
+ * Returns a Runtime Effect-based blender which is equivalent to the passed-in SkBlendMode.
+ * This should generate the same output as the equivalent SkBlendMode operation, but always uses
+ * SkSL to perform the blend operation instead of relying on specialized/fixed-function code.
+ * This is useful for verifying that Runtime Blends are working as expected throughout the pipeline.
+ */
 sk_sp<SkBlender> GetRuntimeBlendForBlendMode(SkBlendMode mode);
 
 #endif
