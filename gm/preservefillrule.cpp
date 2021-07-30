@@ -51,12 +51,11 @@ private:
 
     DrawResult onDraw(GrRecordingContext* rContext, SkCanvas* canvas, SkString* errorMsg) override {
         auto dContext = GrAsDirectContext(rContext);
-        if (!dContext) {
+        auto sfc = SkCanvasPriv::TopDeviceSurfaceFillContext(canvas);
+        if (!dContext || !sfc) {
             *errorMsg = "Requires a direct context.";
             return skiagm::DrawResult::kSkip;
         }
-
-        auto sfc = SkCanvasPriv::TopDeviceSurfaceFillContext(canvas);
 
         auto starRect = SkRect::MakeWH(fStarSize, fStarSize);
         SkPath star7_winding = ToolUtils::make_star(starRect, 7);

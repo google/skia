@@ -20,6 +20,9 @@
 
 DEF_SIMPLE_GPU_GM(swizzle, rContext, canvas, 512, 512) {
     auto sfc = SkCanvasPriv::TopDeviceSurfaceFillContext(canvas);
+    if (!sfc) {
+        return;
+    }
 
     SkBitmap bmp;
     GetResourceAsBitmap("images/mandrill_512_q075.jpg", &bmp);

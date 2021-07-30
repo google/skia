@@ -76,6 +76,9 @@ DEF_SIMPLE_GPU_GM_BG(fpcoordinateoverride, rContext, canvas, 512, 512,
                      ToolUtils::color_to_565(0xFF66AA99)) {
 
     auto sfc = SkCanvasPriv::TopDeviceSurfaceFillContext(canvas);
+    if (!sfc) {
+        return;
+    }
 
     SkBitmap bmp;
     GetResourceAsBitmap("images/mandrill_512_q075.jpg", &bmp);

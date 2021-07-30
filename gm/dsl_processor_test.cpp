@@ -59,6 +59,9 @@ public:
 
 DEF_SIMPLE_GPU_GM(simple_dsl_test, rContext, canvas, 100, 100) {
     auto sfc = SkCanvasPriv::TopDeviceSurfaceFillContext(canvas);
+    if (!sfc) {
+        return;
+    }
 
     sfc->fillWithFP(std::make_unique<SimpleDSLEffect>());
 }
