@@ -33,7 +33,7 @@ public:
         kSkImageFilter_Type,
         kSkMaskFilter_Type,
         kSkPathEffect_Type,
-        kSkShaderBase_Type,
+        kSkShader_Type,
     };
 
     typedef sk_sp<SkFlattenable> (*Factory)(SkReadBuffer&);
