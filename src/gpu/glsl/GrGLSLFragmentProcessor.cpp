@@ -70,6 +70,7 @@ SkString GrGLSLFragmentProcessor::invokeChild(int childIndex,
     SkASSERT(!childProc->sampleUsage().isUniformMatrix());
 
     if (args.fFragBuilder->getProgramBuilder()->fragmentProcessorHasCoordsParam(childProc)) {
+        SkASSERT(!childProc->sampleUsage().isFragCoord() || skslCoords == "sk_FragCoord.xy");
         // The child's function takes a half4 color and a float2 coordinate
         invocation.appendf(", %s", skslCoords.empty() ? args.fSampleCoord : skslCoords.c_str());
     }

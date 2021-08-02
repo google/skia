@@ -26,6 +26,8 @@ public:
         kPassThrough,
         // Child is sampled with a matrix whose value is uniform
         kUniformMatrix,
+        // Child is sampled with sk_FragCoord.xy
+        kFragCoord,
         // Child is sampled using explicit coordinates
         kExplicit,
     };
@@ -52,6 +54,8 @@ public:
         return SampleUsage(Kind::kPassThrough, false);
     }
 
+    static SampleUsage FragCoord() { return SampleUsage(Kind::kFragCoord, false); }
+
     bool operator==(const SampleUsage& that) const {
         return fKind == that.fKind && fHasPerspective == that.fHasPerspective;
     }
@@ -71,6 +75,7 @@ public:
     bool isPassThrough()   const { return fKind == Kind::kPassThrough; }
     bool isExplicit()      const { return fKind == Kind::kExplicit; }
     bool isUniformMatrix() const { return fKind == Kind::kUniformMatrix; }
+    bool isFragCoord()     const { return fKind == Kind::kFragCoord; }
 
     std::string constructor() const;
 

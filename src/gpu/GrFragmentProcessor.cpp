@@ -652,7 +652,8 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::DeviceSpace(
     private:
         DeviceSpace(std::unique_ptr<GrFragmentProcessor> fp)
                 : GrFragmentProcessor(kDeviceSpace_ClassID, fp->optimizationFlags()) {
-            this->registerChild(std::move(fp), SkSL::SampleUsage::Explicit());
+            // Passing FragCoord here is the reason this is a subclass and not a runtime-FP.
+            this->registerChild(std::move(fp), SkSL::SampleUsage::FragCoord());
         }
 
         std::unique_ptr<GrFragmentProcessor> clone() const override {

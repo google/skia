@@ -216,18 +216,19 @@ private:
     //
     // This must happen before FP code emission so that the FPs can find the appropriate varying
     // handles they use in place of explicit coord sampling; it is automatically called after
-    // onEmitCode() returns using the value stored in GpArgs::fLocalCoordVar.
+    // onEmitCode() returns using the value stored in GpArgs::fLocalCoordVar and
+    // GpArgs::fPositionVar.
     FPCoordsMap collectTransforms(GrGLSLVertexBuilder* vb,
                                   GrGLSLVaryingHandler* varyingHandler,
                                   GrGLSLUniformHandler* uniformHandler,
                                   const GrShaderVar& localCoordsVar,
+                                  const GrShaderVar& positionVar,
                                   const GrPipeline& pipeline);
-
     struct TransformInfo {
         // The varying that conveys the coordinates to one or more FPs in the FS.
         GrGLSLVarying varying;
         // The coordinate to be transformed. varying is computed from this.
-        GrShaderVar   localCoords;
+        GrShaderVar   inputCoords;
         // Used to sort so that ancestor FP varyings are initialized before descendant FP varyings.
         int           traversalOrder;
     };

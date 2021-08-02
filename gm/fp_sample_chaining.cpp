@@ -140,15 +140,21 @@ SkBitmap make_test_bitmap() {
 enum EffectType {
     kUniform,
     kExplicit,
+    kDevice,
 };
 
 static std::unique_ptr<GrFragmentProcessor> wrap(std::unique_ptr<GrFragmentProcessor> fp,
-                                                 EffectType effectType) {
+                                                 EffectType effectType,
+                                                 int drawX, int drawY) {
     switch (effectType) {
         case kUniform:
             return std::make_unique<UniformMatrixEffect>(std::move(fp));
         case kExplicit:
             return std::make_unique<ExplicitCoordEffect>(std::move(fp));
+        case kDevice:
+            // Subtract out upper-left corner of draw so that device is effectively identity.
+            fp = GrMatrixEffect::Make(SkMatrix::Translate(-drawX, -drawY), std::move(fp));
+            return GrFragmentProcessor::DeviceSpace(std::move(fp));
     }
     SkUNREACHABLE;
 }
@@ -157,7 +163,7 @@ static std::unique_ptr<GrFragmentProcessor> wrap(std::unique_ptr<GrFragmentProce
 
 namespace skiagm {
 
-DEF_SIMPLE_GPU_GM_CAN_FAIL(fp_sample_chaining, rContext, canvas, errorMsg, 232, 232) {
+DEF_SIMPLE_GPU_GM_CAN_FAIL(fp_sample_chaining, rContext, canvas, errorMsg, 232, 306) {
     auto sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
     if (!sdc) {
         *errorMsg = GM::kErrorMsg_DrawSkippedGpuOnly;
@@ -182,7 +188,7 @@ DEF_SIMPLE_GPU_GM_CAN_FAIL(fp_sample_chaining, rContext, canvas, errorMsg, 232, 
         auto fp = GrTextureEffect::Make(std::move(view), bmp.alphaType());
 #endif
         for (EffectType effectType : effects) {
-            fp = wrap(std::move(fp), effectType);
+            fp = wrap(std::move(fp), effectType, x, y);
         }
         GrPaint paint;
         paint.setColorFragmentProcessor(std::move(fp));
@@ -206,9 +212,16 @@ DEF_SIMPLE_GPU_GM_CAN_FAIL(fp_sample_chaining, rContext, canvas, errorMsg, 232, 
     draw({ kExplicit, kExplicit });  // Translate up by 16px
     nextRow();
 
-    // Remember, these are applied inside out:
+    // Third row: Remember, these are applied inside out:
     draw({ kUniform,  kExplicit }); // Scale Y by 2x and translate up by 8px
     draw({ kExplicit, kUniform });  // Scale Y by 2x and translate up by 16px
+    nextRow();
+
+    // Fourth row: device space.
+    draw({ kDevice, kUniform });                     // Same as identity (uniform applied *before*
+                                                     // device so ignored).
+    draw({ kExplicit, kUniform, kDevice });          // Scale Y by 2x and translate up by 16px
+    draw({ kDevice, kExplicit, kUniform, kDevice }); // Identity, again.
 
     return DrawResult::kOk;
 }
