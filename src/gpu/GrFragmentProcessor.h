@@ -206,8 +206,6 @@ public:
         }
     }
 
-    int numVaryingCoordsUsed() const { return this->usesVaryingCoordsDirectly() ? 1 : 0; }
-
     int numChildProcessors() const { return fChildProcessors.count(); }
     int numNonNullChildProcessors() const;
 
@@ -267,15 +265,9 @@ public:
         return SkToBool(fFlags & kUsesSampleCoordsDirectly_Flag);
     }
 
-    // True if this FP's parent invokes it with 'sample(float2)' or a variable 'sample(matrix)'
+    // True if this FP's parent invokes it with 'sample(float2)'
     bool isSampledWithExplicitCoords() const {
         return SkToBool(fFlags & kSampledWithExplicitCoords_Flag);
-    }
-
-    // True if the transform chain from root to this FP introduces perspective into the local
-    // coordinate expression.
-    bool hasPerspectiveTransform() const {
-        return SkToBool(fFlags & kNetTransformHasPerspective_Flag);
     }
 
     // The SampleUsage describing how this FP is invoked by its parent using 'sample(matrix)'
@@ -521,7 +513,6 @@ private:
 
         // Propagates down the FP to all its leaves
         kSampledWithExplicitCoords_Flag = kFirstPrivateFlag << 3,
-        kNetTransformHasPerspective_Flag = kFirstPrivateFlag << 4,
 
         // Propagates up the FP tree to the root
         kWillReadDstColor_Flag = kFirstPrivateFlag << 5,

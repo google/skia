@@ -42,10 +42,10 @@ void GrGLSLFPFragmentBuilder::writeProcessorFunction(GrGLSLFragmentProcessor* fp
         params[numParams++] = GrShaderVar(args.fSampleCoord, kFloat2_GrSLType);
 
     } else if (args.fFp.referencesSampleCoords()) {
-        // Sampled with a uniform matrix expression and/or a legacy coord transform. The actual
-        // transformation code is emitted in the vertex shader, so this only has to access it.
-        // Add a float2 _coords variable that maps to the associated varying and replaces the
-        // absent 2nd argument to the fp's function.
+        // Sampled through a chain of passthrough/matrix samples usages. The actual transformation
+        // code is emitted in the vertex shader, so this only has to access it. Add a float2 _coords
+        // variable that maps to the associated varying and replaces the absent 2nd argument to the
+        // fp's function.
         GrShaderVar varying = fProgramBuilder->varyingCoordsForFragmentProcessor(&args.fFp);
         switch(varying.getType()) {
             case kFloat2_GrSLType:

@@ -154,18 +154,13 @@ void GrFragmentProcessor::registerChild(std::unique_ptr<GrFragmentProcessor> chi
     // The child should not have been attached to another FP already and not had any sampling
     // strategy set on it.
     SkASSERT(!child->fParent && !child->sampleUsage().isSampled() &&
-             !child->isSampledWithExplicitCoords() && !child->hasPerspectiveTransform());
+             !child->isSampledWithExplicitCoords());
 
     // Configure child's sampling state first
     child->fUsage = sampleUsage;
 
     if (sampleUsage.isExplicit()) {
         child->addAndPushFlagToChildren(kSampledWithExplicitCoords_Flag);
-    }
-
-    // Push perspective matrix type to children
-    if (sampleUsage.fHasPerspective) {
-        child->addAndPushFlagToChildren(kNetTransformHasPerspective_Flag);
     }
 
     // Propagate the "will read dest-color" flag up to parent FPs.
@@ -193,8 +188,7 @@ void GrFragmentProcessor::registerChild(std::unique_ptr<GrFragmentProcessor> chi
     fChildProcessors.push_back(std::move(child));
 
     // Validate: our sample strategy comes from a parent we shouldn't have yet.
-    SkASSERT(!this->isSampledWithExplicitCoords() && !this->hasPerspectiveTransform() &&
-             !fUsage.isSampled() && !fParent);
+    SkASSERT(!this->isSampledWithExplicitCoords() && !fUsage.isSampled() && !fParent);
 }
 
 void GrFragmentProcessor::cloneAndRegisterAllChildProcessors(const GrFragmentProcessor& src) {

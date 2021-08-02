@@ -127,8 +127,7 @@ bool GrGLSLProgramBuilder::emitAndInstallPrimProc(SkString* outputColor, SkStrin
                                            outputColor->c_str(),
                                            outputCoverage->c_str(),
                                            texSamplers.get());
-    GrFragmentProcessor::CIter fpIter(this->pipeline());
-    fFPCoordVaryings = fGeometryProcessor->emitCode(args, std::move(fpIter));
+    fFPCoordVaryings = fGeometryProcessor->emitCode(args, this->pipeline());
 
     // We have to check that effects and the code they emit are consistent, ie if an effect
     // asks for dst color, then the emit code needs to follow suit
