@@ -28,17 +28,9 @@
 #include "src/image/SkImage_Gpu.h"
 
 #define ASSERT_OWNED_PROXY(P) \
-    SkASSERT(!(P) || !((P)->peekTexture()) || (P)->peekTexture()->getContext() == fContext)
-#define ASSERT_SINGLE_OWNER GR_ASSERT_SINGLE_OWNER(fContext->singleOwner())
-#define RETURN_VALUE_IF_ABANDONED(value) if (fContext->abandoned()) { return (value); }
-
-sk_sp<const GrCaps> GrDirectContextPriv::refCaps() const {
-    return fContext->refCaps();
-}
-
-void GrDirectContextPriv::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlushCBObject) {
-    fContext->addOnFlushCallbackObject(onFlushCBObject);
-}
+    SkASSERT(!(P) || !((P)->peekTexture()) || (P)->peekTexture()->getContext() == this->context())
+#define ASSERT_SINGLE_OWNER GR_ASSERT_SINGLE_OWNER(this->context()->singleOwner())
+#define RETURN_VALUE_IF_ABANDONED(value) if (this->context()->abandoned()) { return (value); }
 
 GrSemaphoresSubmitted GrDirectContextPriv::flushSurfaces(
                                                     SkSpan<GrSurfaceProxy*> proxies,
@@ -46,9 +38,9 @@ GrSemaphoresSubmitted GrDirectContextPriv::flushSurfaces(
                                                     const GrFlushInfo& info,
                                                     const GrBackendSurfaceMutableState* newState) {
     ASSERT_SINGLE_OWNER
-    GR_CREATE_TRACE_MARKER_CONTEXT("GrDirectContextPriv", "flushSurfaces", fContext);
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrDirectContextPriv", "flushSurfaces", this->context());
 
-    if (fContext->abandoned()) {
+    if (this->context()->abandoned()) {
         if (info.fSubmittedProc) {
             info.fSubmittedProc(info.fSubmittedContext, false);
         }
@@ -64,13 +56,13 @@ GrSemaphoresSubmitted GrDirectContextPriv::flushSurfaces(
         ASSERT_OWNED_PROXY(proxy);
     }
 #endif
-    return fContext->drawingManager()->flushSurfaces(proxies, access, info, newState);
+    return this->context()->drawingManager()->flushSurfaces(proxies, access, info, newState);
 }
 
 void GrDirectContextPriv::createDDLTask(sk_sp<const SkDeferredDisplayList> ddl,
                                         sk_sp<GrRenderTargetProxy> newDest,
                                         SkIPoint offset) {
-    fContext->drawingManager()->createDDLTask(std::move(ddl), std::move(newDest), offset);
+    this->context()->drawingManager()->createDDLTask(std::move(ddl), std::move(newDest), offset);
 }
 
 bool GrDirectContextPriv::compile(const GrProgramDesc& desc, const GrProgramInfo& info) {
@@ -88,14 +80,14 @@ bool GrDirectContextPriv::compile(const GrProgramDesc& desc, const GrProgramInfo
 
 void GrDirectContextPriv::dumpCacheStats(SkString* out) const {
 #if GR_CACHE_STATS
-    fContext->fResourceCache->dumpStats(out);
+    this->context()->fResourceCache->dumpStats(out);
 #endif
 }
 
 void GrDirectContextPriv::dumpCacheStatsKeyValuePairs(SkTArray<SkString>* keys,
                                                       SkTArray<double>* values) const {
 #if GR_CACHE_STATS
-    fContext->fResourceCache->dumpStatsKeyValuePairs(keys, values);
+    this->context()->fResourceCache->dumpStatsKeyValuePairs(keys, values);
 #endif
 }
 
@@ -108,14 +100,14 @@ void GrDirectContextPriv::printCacheStats() const {
 /////////////////////////////////////////////////
 void GrDirectContextPriv::resetGpuStats() const {
 #if GR_GPU_STATS
-    fContext->fGpu->stats()->reset();
+    this->context()->fGpu->stats()->reset();
 #endif
 }
 
 void GrDirectContextPriv::dumpGpuStats(SkString* out) const {
 #if GR_GPU_STATS
-    fContext->fGpu->stats()->dump(out);
-    if (auto builder = fContext->fGpu->pipelineBuilder()) {
+    this->context()->fGpu->stats()->dump(out);
+    if (auto builder = this->context()->fGpu->pipelineBuilder()) {
         builder->stats()->dump(out);
     }
 #endif
@@ -124,8 +116,8 @@ void GrDirectContextPriv::dumpGpuStats(SkString* out) const {
 void GrDirectContextPriv::dumpGpuStatsKeyValuePairs(SkTArray<SkString>* keys,
                                                     SkTArray<double>* values) const {
 #if GR_GPU_STATS
-    fContext->fGpu->stats()->dumpKeyValuePairs(keys, values);
-    if (auto builder = fContext->fGpu->pipelineBuilder()) {
+    this->context()->fGpu->stats()->dumpKeyValuePairs(keys, values);
+    if (auto builder = this->context()->fGpu->pipelineBuilder()) {
         builder->stats()->dumpKeyValuePairs(keys, values);
     }
 #endif
@@ -138,22 +130,22 @@ void GrDirectContextPriv::printGpuStats() const {
 }
 
 /////////////////////////////////////////////////
-void GrDirectContextPriv::resetContextStats() const {
+void GrDirectContextPriv::resetContextStats() {
 #if GR_GPU_STATS
-    fContext->stats()->reset();
+    this->context()->stats()->reset();
 #endif
 }
 
 void GrDirectContextPriv::dumpContextStats(SkString* out) const {
 #if GR_GPU_STATS
-    return fContext->stats()->dump(out);
+    this->context()->stats()->dump(out);
 #endif
 }
 
 void GrDirectContextPriv::dumpContextStatsKeyValuePairs(SkTArray<SkString>* keys,
                                                         SkTArray<double>* values) const {
 #if GR_GPU_STATS
-    return fContext->stats()->dumpKeyValuePairs(keys, values);
+    this->context()->stats()->dumpKeyValuePairs(keys, values);
 #endif
 }
 
@@ -179,7 +171,7 @@ sk_sp<SkImage> GrDirectContextPriv::testingOnly_getFontAtlasImage(GrMaskFormat f
 
     SkColorType colorType = GrColorTypeToSkColorType(GrMaskFormatToColorType(format));
     SkASSERT(views[index].proxy()->priv().isExact());
-    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(fContext),
+    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(this->context()),
                                    kNeedNewImageUniqueID,
                                    views[index],
                                    SkColorInfo(colorType, kPremul_SkAlphaType, nullptr));
@@ -187,8 +179,8 @@ sk_sp<SkImage> GrDirectContextPriv::testingOnly_getFontAtlasImage(GrMaskFormat f
 
 void GrDirectContextPriv::testingOnly_flushAndRemoveOnFlushCallbackObject(
         GrOnFlushCallbackObject* cb) {
-    fContext->flushAndSubmit();
-    fContext->drawingManager()->testingOnly_removeOnFlushCallbackObject(cb);
+    this->context()->flushAndSubmit();
+    this->context()->drawingManager()->testingOnly_removeOnFlushCallbackObject(cb);
 }
 #endif
 
@@ -313,20 +305,22 @@ static bool test_for_preserving_PM_conversions(GrDirectContext* dContext) {
 bool GrDirectContextPriv::validPMUPMConversionExists() {
     ASSERT_SINGLE_OWNER
 
-    if (!fContext->fDidTestPMConversions) {
-        fContext->fPMUPMConversionsRoundTrip = test_for_preserving_PM_conversions(fContext);
-        fContext->fDidTestPMConversions = true;
+    auto dContext = this->context();
+
+    if (!dContext->fDidTestPMConversions) {
+        dContext->fPMUPMConversionsRoundTrip = test_for_preserving_PM_conversions(dContext);
+        dContext->fDidTestPMConversions = true;
     }
 
     // The PM<->UPM tests fail or succeed together so we only need to check one.
-    return fContext->fPMUPMConversionsRoundTrip;
+    return dContext->fPMUPMConversionsRoundTrip;
 }
 
 std::unique_ptr<GrFragmentProcessor> GrDirectContextPriv::createPMToUPMEffect(
         std::unique_ptr<GrFragmentProcessor> fp) {
     ASSERT_SINGLE_OWNER
     // We should have already called this->priv().validPMUPMConversionExists() in this case
-    SkASSERT(fContext->fDidTestPMConversions);
+    SkASSERT(this->context()->fDidTestPMConversions);
     // ...and it should have succeeded
     SkASSERT(this->validPMUPMConversionExists());
 
@@ -337,75 +331,9 @@ std::unique_ptr<GrFragmentProcessor> GrDirectContextPriv::createUPMToPMEffect(
         std::unique_ptr<GrFragmentProcessor> fp) {
     ASSERT_SINGLE_OWNER
     // We should have already called this->priv().validPMUPMConversionExists() in this case
-    SkASSERT(fContext->fDidTestPMConversions);
+    SkASSERT(this->context()->fDidTestPMConversions);
     // ...and it should have succeeded
     SkASSERT(this->validPMUPMConversionExists());
 
     return make_premul_effect(std::move(fp));
-}
-
-sk_sp<skgpu::BaseDevice> GrDirectContextPriv::createDevice(GrColorType colorType,
-                                                           sk_sp<GrSurfaceProxy> proxy,
-                                                           sk_sp<SkColorSpace> colorSpace,
-                                                           GrSurfaceOrigin origin,
-                                                           const SkSurfaceProps& props,
-                                                           skgpu::BaseDevice::InitContents init) {
-    return fContext->GrRecordingContext::priv().createDevice(colorType, std::move(proxy),
-                                                             std::move(colorSpace),
-                                                             origin, props, init);
-}
-
-sk_sp<skgpu::BaseDevice> GrDirectContextPriv::createDevice(SkBudgeted budgeted,
-                                                           const SkImageInfo& ii,
-                                                           SkBackingFit fit,
-                                                           int sampleCount,
-                                                           GrMipmapped mipmapped,
-                                                           GrProtected isProtected,
-                                                           GrSurfaceOrigin origin,
-                                                           const SkSurfaceProps& props,
-                                                           skgpu::BaseDevice::InitContents init) {
-    return fContext->GrRecordingContext::priv().createDevice(budgeted, ii, fit, sampleCount,
-                                                             mipmapped, isProtected,
-                                                             origin, props, init);
-}
-
-std::unique_ptr<GrSurfaceContext> GrDirectContextPriv::makeSC(GrSurfaceProxyView readView,
-                                                              const GrColorInfo& info) {
-    return fContext->GrRecordingContext::priv().makeSC(readView, info);
-}
-
-std::unique_ptr<GrSurfaceFillContext> GrDirectContextPriv::makeSFC(GrImageInfo info,
-                                                                   SkBackingFit fit,
-                                                                   int sampleCount,
-                                                                   GrMipmapped mipmapped,
-                                                                   GrProtected isProtected,
-                                                                   GrSurfaceOrigin origin,
-                                                                   SkBudgeted budgeted) {
-    return fContext->GrRecordingContext::priv().makeSFC(info, fit, sampleCount, mipmapped,
-                                                        isProtected, origin, budgeted);
-}
-
-std::unique_ptr<GrSurfaceFillContext> GrDirectContextPriv::makeSFCWithFallback(
-        GrImageInfo info,
-        SkBackingFit fit,
-        int sampleCount,
-        GrMipmapped mipmapped,
-        GrProtected isProtected,
-        GrSurfaceOrigin origin,
-        SkBudgeted budgeted) {
-    return fContext->GrRecordingContext::priv().makeSFCWithFallback(info, fit, sampleCount,
-                                                                    mipmapped, isProtected,
-                                                                    origin, budgeted);
-}
-
-std::unique_ptr<GrSurfaceFillContext> GrDirectContextPriv::makeSFCFromBackendTexture(
-        GrColorInfo info,
-        const GrBackendTexture& tex,
-        int sampleCount,
-        GrSurfaceOrigin origin,
-        sk_sp<GrRefCntedCallback> releaseHelper) {
-    return fContext->GrRecordingContext::priv().makeSFCFromBackendTexture(info, tex, sampleCount,
-                                                                          origin,
-                                                                          std::move(releaseHelper));
-
 }

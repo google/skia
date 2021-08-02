@@ -22,6 +22,10 @@
 #include "src/gpu/v2/Device_v2.h"
 #endif
 
+void GrRecordingContextPriv::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlushCBObject) {
+    this->context()->addOnFlushCallbackObject(onFlushCBObject);
+}
+
 sk_sp<skgpu::BaseDevice> GrRecordingContextPriv::createDevice(GrColorType colorType,
                                                               sk_sp<GrSurfaceProxy> proxy,
                                                               sk_sp<SkColorSpace> colorSpace,
@@ -31,8 +35,8 @@ sk_sp<skgpu::BaseDevice> GrRecordingContextPriv::createDevice(GrColorType colorT
 #if GR_TEST_UTILS
     if (this->options().fUseSkGpuV2 == GrContextOptions::Enable::kYes) {
 #if SK_GPU_V2
-        return skgpu::v2::Device::Make(fContext, colorType, std::move(proxy), std::move(colorSpace),
-                                       origin, props, init);
+        return skgpu::v2::Device::Make(this->context(), colorType, std::move(proxy),
+                                       std::move(colorSpace), origin, props, init);
 #else
         return nullptr;
 #endif // GR_TEST_UTILS
@@ -40,8 +44,8 @@ sk_sp<skgpu::BaseDevice> GrRecordingContextPriv::createDevice(GrColorType colorT
 #endif
     {
 #if SK_GPU_V1
-        return skgpu::v1::Device::Make(fContext, colorType, std::move(proxy), std::move(colorSpace),
-                                       origin, props, init);
+        return skgpu::v1::Device::Make(this->context(), colorType, std::move(proxy),
+                                       std::move(colorSpace), origin, props, init);
 #else
         return nullptr;
 #endif
@@ -60,7 +64,7 @@ sk_sp<skgpu::BaseDevice> GrRecordingContextPriv::createDevice(SkBudgeted budgete
 #if GR_TEST_UTILS
     if (this->options().fUseSkGpuV2 == GrContextOptions::Enable::kYes) {
 #if SK_GPU_V2
-        return skgpu::v2::Device::Make(fContext, budgeted, ii, fit, sampleCount,
+        return skgpu::v2::Device::Make(this->context(), budgeted, ii, fit, sampleCount,
                                        mipmapped, isProtected, origin, props, init);
 #else
         return nullptr;
@@ -69,7 +73,7 @@ sk_sp<skgpu::BaseDevice> GrRecordingContextPriv::createDevice(SkBudgeted budgete
 #endif // GR_TEST_UTILS
     {
 #if SK_GPU_V1
-        return skgpu::v1::Device::Make(fContext, budgeted, ii, fit, sampleCount,
+        return skgpu::v1::Device::Make(this->context(), budgeted, ii, fit, sampleCount,
                                        mipmapped, isProtected, origin, props, init);
 #else
         return nullptr;
@@ -78,7 +82,7 @@ sk_sp<skgpu::BaseDevice> GrRecordingContextPriv::createDevice(SkBudgeted budgete
 }
 
 void GrRecordingContextPriv::moveRenderTasksToDDL(SkDeferredDisplayList* ddl) {
-    fContext->drawingManager()->moveRenderTasksToDDL(ddl);
+    this->context()->drawingManager()->moveRenderTasksToDDL(ddl);
 }
 
 GrSDFTControl GrRecordingContextPriv::getSDFTControl(bool useSDFTForSmallText) const {
@@ -104,7 +108,7 @@ std::unique_ptr<GrSurfaceContext> GrRecordingContextPriv::makeSC(GrSurfaceProxyV
         // GrSurfaceContext which need the context will mostly likely fail later on w/o an issue.
         // However having this hear adds some reassurance in case there is a path doesn't handle an
         // abandoned context correctly. It also lets us early out of some extra work.
-        if (fContext->abandoned()) {
+        if (this->context()->abandoned()) {
             return nullptr;
         }
         GrSurfaceProxy* proxy = readView.proxy();
@@ -122,20 +126,20 @@ std::unique_ptr<GrSurfaceContext> GrRecordingContextPriv::makeSC(GrSurfaceProxyV
             GrSurfaceProxyView writeView(readView.refProxy(), readView.origin(), writeSwizzle);
             if (info.alphaType() == kPremul_SkAlphaType ||
                 info.alphaType() == kOpaque_SkAlphaType) {
-                sc = std::make_unique<skgpu::v1::SurfaceDrawContext>(fContext,
+                sc = std::make_unique<skgpu::v1::SurfaceDrawContext>(this->context(),
                                                                      std::move(readView),
                                                                      std::move(writeView),
                                                                      info.colorType(),
                                                                      info.refColorSpace(),
                                                                      SkSurfaceProps());
             } else {
-                sc = std::make_unique<GrSurfaceFillContext>(fContext,
+                sc = std::make_unique<GrSurfaceFillContext>(this->context(),
                                                             std::move(readView),
                                                             std::move(writeView),
                                                             info);
             }
         } else {
-            sc = std::make_unique<GrSurfaceContext>(fContext, std::move(readView), info);
+            sc = std::make_unique<GrSurfaceContext>(this->context(), std::move(readView), info);
         }
         SkDEBUGCODE(sc->validate();)
         return sc;
@@ -163,7 +167,7 @@ std::unique_ptr<GrSurfaceFillContext> GrRecordingContextPriv::makeSFC(GrImageInf
     {
 #if SK_GPU_V1
         if (info.alphaType() == kPremul_SkAlphaType || info.alphaType() == kOpaque_SkAlphaType) {
-            return skgpu::v1::SurfaceDrawContext::Make(fContext,
+            return skgpu::v1::SurfaceDrawContext::Make(this->context(),
                                                        info.colorType(),
                                                        info.refColorSpace(),
                                                        fit,
@@ -193,7 +197,7 @@ std::unique_ptr<GrSurfaceFillContext> GrRecordingContextPriv::makeSFC(GrImageInf
 
         GrSurfaceProxyView readView(            proxy, origin,  readSwizzle);
         GrSurfaceProxyView writeView(std::move(proxy), origin, writeSwizzle);
-        auto fillContext = std::make_unique<GrSurfaceFillContext>(fContext,
+        auto fillContext = std::make_unique<GrSurfaceFillContext>(this->context(),
                                                                   std::move(readView),
                                                                   std::move(writeView),
                                                                   info.colorInfo());
@@ -219,7 +223,7 @@ std::unique_ptr<GrSurfaceFillContext> GrRecordingContextPriv::makeSFC(SkAlphaTyp
                                                                       SkBudgeted budgeted) {
 
 #if GR_TEST_UTILS
-    if (fContext->options().fUseSkGpuV2 == GrContextOptions::Enable::kYes) {
+    if (this->context()->options().fUseSkGpuV2 == GrContextOptions::Enable::kYes) {
 #if SK_GPU_V2
         return nullptr;
 #endif
@@ -231,7 +235,7 @@ std::unique_ptr<GrSurfaceFillContext> GrRecordingContextPriv::makeSFC(SkAlphaTyp
         SkASSERT(sampleCount >= 1);
         SkASSERT(format.isValid() && format.backend() == fContext->backend());
         if (alphaType == kPremul_SkAlphaType || alphaType == kOpaque_SkAlphaType) {
-            return skgpu::v1::SurfaceDrawContext::Make(fContext,
+            return skgpu::v1::SurfaceDrawContext::Make(this->context(),
                                                        std::move(cs),
                                                        fit,
                                                        dimensions,
@@ -260,7 +264,7 @@ std::unique_ptr<GrSurfaceFillContext> GrRecordingContextPriv::makeSFC(SkAlphaTyp
         GrImageInfo info(GrColorType::kUnknown, alphaType, std::move(cs), dimensions);
         GrSurfaceProxyView readView(            proxy, origin,  readSwizzle);
         GrSurfaceProxyView writeView(std::move(proxy), origin, writeSwizzle);
-        auto fillContext = std::make_unique<GrSurfaceFillContext>(fContext,
+        auto fillContext = std::make_unique<GrSurfaceFillContext>(this->context(),
                                                                   std::move(readView),
                                                                   std::move(writeView),
                                                                   info.colorInfo());
@@ -291,7 +295,7 @@ std::unique_ptr<GrSurfaceFillContext> GrRecordingContextPriv::makeSFCWithFallbac
     {
 #if SK_GPU_V1
         if (info.alphaType() == kPremul_SkAlphaType || info.alphaType() == kOpaque_SkAlphaType) {
-            return skgpu::v1::SurfaceDrawContext::MakeWithFallback(fContext,
+            return skgpu::v1::SurfaceDrawContext::MakeWithFallback(this->context(),
                                                                    info.colorType(),
                                                                    info.refColorSpace(),
                                                                    fit,
@@ -342,7 +346,7 @@ std::unique_ptr<GrSurfaceFillContext> GrRecordingContextPriv::makeSFCFromBackend
         SkASSERT(sampleCount > 0);
 
         if (info.alphaType() == kPremul_SkAlphaType || info.alphaType() == kOpaque_SkAlphaType) {
-            return skgpu::v1::SurfaceDrawContext::MakeFromBackendTexture(fContext,
+            return skgpu::v1::SurfaceDrawContext::MakeFromBackendTexture(this->context(),
                                                                          info.colorType(),
                                                                          info.refColorSpace(),
                                                                          tex,
@@ -371,7 +375,7 @@ std::unique_ptr<GrSurfaceFillContext> GrRecordingContextPriv::makeSFCFromBackend
         GrSurfaceProxyView readView(            proxy, origin,  readSwizzle);
         GrSurfaceProxyView writeView(std::move(proxy), origin, writeSwizzle);
 
-        return std::make_unique<GrSurfaceFillContext>(fContext,
+        return std::make_unique<GrSurfaceFillContext>(this->context(),
                                                       std::move(readView),
                                                       std::move(writeView),
                                                       std::move(info));

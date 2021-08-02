@@ -233,10 +233,6 @@ bool GrDirectContext::init() {
     }
 
     fPersistentCache = this->options().fPersistentCache;
-    fShaderErrorHandler = this->options().fShaderErrorHandler;
-    if (!fShaderErrorHandler) {
-        fShaderErrorHandler = GrShaderUtils::DefaultShaderErrorHandler();
-    }
 
     GrDrawOpAtlas::AllowMultitexturing allowMultitexturing;
     if (GrContextOptions::Enable::kNo == this->options().fAllowMultipleGlyphCacheTextures ||

@@ -11,36 +11,29 @@
 #include "include/private/GrImageContext.h"
 
 #include "include/gpu/GrContextThreadSafeProxy.h"
+#include "src/gpu/GrBaseContextPriv.h"
 
 /** Class that exposes methods on GrImageContext that are only intended for use internal to Skia.
     This class is purely a privileged window into GrImageContext. It should never have
     additional data members or virtual methods. */
-class GrImageContextPriv {
+class GrImageContextPriv : public GrBaseContextPriv {
 public:
-    // from GrContext_Base
-    uint32_t contextID() const { return fContext->contextID(); }
+    GrImageContext* context() { return static_cast<GrImageContext*>(fContext); }
+    const GrImageContext* context() const { return static_cast<const GrImageContext*>(fContext); }
 
-    bool matches(GrContext_Base* candidate) const { return fContext->matches(candidate); }
-
-    const GrContextOptions& options() const { return fContext->options(); }
-
-    const GrCaps* caps() const { return fContext->caps(); }
-    sk_sp<const GrCaps> refCaps() const;
-
-    GrImageContext* asImageContext() { return fContext->asImageContext(); }
-    GrRecordingContext* asRecordingContext() { return fContext->asRecordingContext(); }
-
-    bool abandoned() const { return fContext->abandoned(); }
+    bool abandoned() { return this->context()->abandoned(); }
 
     static sk_sp<GrImageContext> MakeForPromiseImage(sk_sp<GrContextThreadSafeProxy> tsp) {
         return GrImageContext::MakeForPromiseImage(std::move(tsp));
     }
 
     /** This is only useful for debug purposes */
-    SkDEBUGCODE(GrSingleOwner* singleOwner() const { return fContext->singleOwner(); } )
+    SkDEBUGCODE(GrSingleOwner* singleOwner() const { return this->context()->singleOwner(); } )
+
+protected:
+    explicit GrImageContextPriv(GrImageContext* iContext) : GrBaseContextPriv(iContext) {}
 
 private:
-    explicit GrImageContextPriv(GrImageContext* context) : fContext(context) {}
     GrImageContextPriv(const GrImageContextPriv&) = delete;
     GrImageContextPriv& operator=(const GrImageContextPriv&) = delete;
 
@@ -48,9 +41,9 @@ private:
     const GrImageContextPriv* operator&() const;
     GrImageContextPriv* operator&();
 
-    GrImageContext* fContext;
-
     friend class GrImageContext; // to construct/copy this type.
+
+    using INHERITED = GrBaseContextPriv;
 };
 
 inline GrImageContextPriv GrImageContext::priv() { return GrImageContextPriv(this); }

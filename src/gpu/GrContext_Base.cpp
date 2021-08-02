@@ -53,7 +53,7 @@ sk_sp<GrContextThreadSafeProxy> GrContext_Base::threadSafeProxy() { return fThre
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 sk_sp<const GrCaps> GrBaseContextPriv::refCaps() const {
-    return fContext->refCaps();
+    return this->context()->refCaps();
 }
 
 GrContextOptions::ShaderErrorHandler* GrBaseContextPriv::getShaderErrorHandler() const {
