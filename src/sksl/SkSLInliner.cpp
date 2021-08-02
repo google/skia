@@ -1173,7 +1173,8 @@ bool Inliner::analyze(const std::vector<std::unique_ptr<ProgramElement>>& elemen
         *enclosingStmt = std::move(inlinedCall.fInlinedBody);
 
         // Replace the candidate function call with our replacement expression.
-        usage->replace(candidate.fCandidateExpr->get(), inlinedCall.fReplacementExpr.get());
+        usage->remove(candidate.fCandidateExpr->get());
+        usage->add(inlinedCall.fReplacementExpr.get());
         *candidate.fCandidateExpr = std::move(inlinedCall.fReplacementExpr);
         madeChanges = true;
 

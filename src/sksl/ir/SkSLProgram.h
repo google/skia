@@ -50,8 +50,9 @@ public:
 
     int get(const FunctionDeclaration&) const;
 
-    void replace(const Expression* oldExpr, const Expression* newExpr);
+    void add(const Expression* expr);
     void add(const Statement* stmt);
+    void add(const ProgramElement& element);
     void remove(const Expression* expr);
     void remove(const Statement* stmt);
     void remove(const ProgramElement& element);

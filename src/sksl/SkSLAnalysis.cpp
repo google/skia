@@ -786,20 +786,19 @@ int ProgramUsage::get(const FunctionDeclaration& f) const {
     return count ? *count : 0;
 }
 
-void ProgramUsage::replace(const Expression* oldExpr, const Expression* newExpr) {
-    if (oldExpr) {
-        ProgramUsageVisitor subRefs(this, /*delta=*/-1);
-        subRefs.visitExpression(*oldExpr);
-    }
-    if (newExpr) {
-        ProgramUsageVisitor addRefs(this, /*delta=*/+1);
-        addRefs.visitExpression(*newExpr);
-    }
+void ProgramUsage::add(const Expression* expr) {
+    ProgramUsageVisitor addRefs(this, /*delta=*/+1);
+    addRefs.visitExpression(*expr);
 }
 
 void ProgramUsage::add(const Statement* stmt) {
     ProgramUsageVisitor addRefs(this, /*delta=*/+1);
     addRefs.visitStatement(*stmt);
+}
+
+void ProgramUsage::add(const ProgramElement& element) {
+    ProgramUsageVisitor addRefs(this, /*delta=*/+1);
+    addRefs.visitProgramElement(element);
 }
 
 void ProgramUsage::remove(const Expression* expr) {
