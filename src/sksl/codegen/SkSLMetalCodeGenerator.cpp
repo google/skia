@@ -1847,7 +1847,8 @@ void MetalCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
         }
         fInterfaceBlockNameMap[&intf] = intf.instanceName();
     } else {
-        fInterfaceBlockNameMap[&intf] = "_anonInterface" +  to_string(fAnonInterfaceCount++);
+        fInterfaceBlockNameMap[&intf] = *fProgram.fSymbols->takeOwnershipOfString("_anonInterface" +
+                to_string(fAnonInterfaceCount++));
     }
     this->writeLine(";");
 }

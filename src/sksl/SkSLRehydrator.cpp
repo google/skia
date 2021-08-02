@@ -299,12 +299,11 @@ std::unique_ptr<ProgramElement> Rehydrator::element() {
         case Rehydrator::kInterfaceBlock_Command: {
             const Symbol* var = this->symbol();
             SkASSERT(var && var->is<Variable>());
-            String typeName(this->readString());
-            String instanceName(this->readString());
+            skstd::string_view typeName = this->readString();
+            skstd::string_view instanceName = this->readString();
             int arraySize = this->readS8();
-            return std::make_unique<InterfaceBlock>(/*offset=*/-1, &var->as<Variable>(),
-                                                    std::move(typeName), std::move(instanceName),
-                                                    arraySize, nullptr);
+            return std::make_unique<InterfaceBlock>(/*offset=*/-1, &var->as<Variable>(), typeName,
+                                                    instanceName, arraySize, nullptr);
         }
         case Rehydrator::kVarDeclarations_Command: {
             std::unique_ptr<Statement> decl = this->statement();

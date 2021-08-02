@@ -217,8 +217,7 @@ public:
             DSLWriter::MarkDeclared(var);
         }
         DSLWriter::ProgramElements().push_back(std::make_unique<SkSL::InterfaceBlock>(/*offset=*/-1,
-                DSLWriter::Var(var), String(typeName), String(varName), arraySize,
-                DSLWriter::SymbolTable()));
+                DSLWriter::Var(var), typeName, varName, arraySize, DSLWriter::SymbolTable()));
         if (varName.empty()) {
             const std::vector<SkSL::Type::Field>& fields = structType->fields();
             const SkSL::Variable* skslVar = DSLWriter::Var(var);
