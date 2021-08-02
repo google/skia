@@ -952,10 +952,9 @@ bool GrGLGpu::onTransferPixelsFrom(GrSurface* surface,
 void GrGLGpu::unbindXferBuffer(GrGpuBufferType type) {
     SkASSERT(type == GrGpuBufferType::kXferCpuToGpu || type == GrGpuBufferType::kXferGpuToCpu);
     auto* xferBufferState = this->hwBufferState(type);
-    if (!xferBufferState->fBufferZeroKnownBound) {
+    if (!xferBufferState->fBoundBufferUniqueID.isInvalid()) {
         GL_CALL(BindBuffer(xferBufferState->fGLTarget, 0));
-        xferBufferState->fBoundBufferUniqueID.makeInvalid();
-        xferBufferState->fBufferZeroKnownBound = true;
+        xferBufferState->invalidate();
     }
 }
 
