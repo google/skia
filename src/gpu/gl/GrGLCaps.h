@@ -93,7 +93,7 @@ public:
 
     enum class TransferBufferType {
         kNone,
-        kNV_PBO,    // NV__pixel_buffer_object
+        kNV_PBO,    // NV_pixel_buffer_object
         kARB_PBO,   // ARB_pixel_buffer_object
         kChromium,  // CHROMIUM_pixel_transfer_buffer_object
     };
