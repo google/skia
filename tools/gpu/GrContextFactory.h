@@ -172,6 +172,7 @@ private:
 class ContextInfo {
 public:
     ContextInfo() = default;
+    ContextInfo(const ContextInfo&) = default;
     ContextInfo& operator=(const ContextInfo&) = default;
 
     GrContextFactory::ContextType type() const { return fType; }

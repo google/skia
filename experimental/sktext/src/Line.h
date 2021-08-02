@@ -27,6 +27,8 @@ public:
 
   TextMetrics(const TextMetrics&) = default;
 
+  TextMetrics& operator=(const TextMetrics&) = default;
+
   void merge(TextMetrics tail) {
       this->fAscent = std::min(this->fAscent, tail.fAscent);
       this->fDescent = std::max(this->fDescent, tail.fDescent);
