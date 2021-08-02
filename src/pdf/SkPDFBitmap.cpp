@@ -255,17 +255,19 @@ void serialize_image(const SkImage* img,
     SkASSERT(doc);
     SkASSERT(encodingQuality >= 0);
     SkISize dimensions = img->dimensions();
-    sk_sp<SkData> data = img->refEncodedData();
-    if (data && do_jpeg(std::move(data), doc, dimensions, ref)) {
-        return;
+    if (sk_sp<SkData> data = img->refEncodedData()) {
+        if (do_jpeg(std::move(data), doc, dimensions, ref)) {
+            return;
+        }
     }
     SkBitmap bm = to_pixels(img);
     const SkPixmap& pm = bm.pixmap();
     bool isOpaque = pm.isOpaque() || pm.computeIsOpaque();
     if (encodingQuality <= 100 && isOpaque) {
-        sk_sp<SkData> data = img->encodeToData(SkEncodedImageFormat::kJPEG, encodingQuality);
-        if (data && do_jpeg(std::move(data), doc, dimensions, ref)) {
-            return;
+        if (sk_sp<SkData> data = img->encodeToData(SkEncodedImageFormat::kJPEG, encodingQuality)) {
+            if (do_jpeg(std::move(data), doc, dimensions, ref)) {
+                return;
+            }
         }
     }
     do_deflated_image(pm, doc, isOpaque, ref);

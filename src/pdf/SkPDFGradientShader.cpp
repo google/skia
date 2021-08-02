@@ -256,10 +256,10 @@ static std::unique_ptr<SkPDFDict> gradientStitchCode(const SkShader::GradientInf
 
     SkAutoSTMalloc<4, ColorTuple> colorDataAlloc(colorCount);
     ColorTuple *colorData = colorDataAlloc.get();
-    for (int i = 0; i < colorCount; i++) {
-        colorData[i][0] = SkColorGetR(colors[i]);
-        colorData[i][1] = SkColorGetG(colors[i]);
-        colorData[i][2] = SkColorGetB(colors[i]);
+    for (int idx = 0; idx < colorCount; idx++) {
+        colorData[idx][0] = SkColorGetR(colors[idx]);
+        colorData[idx][1] = SkColorGetG(colors[idx]);
+        colorData[idx][2] = SkColorGetB(colors[idx]);
     }
 
     // no need for a stitch function if there are only 2 stops.
@@ -273,15 +273,15 @@ static std::unique_ptr<SkPDFDict> gradientStitchCode(const SkShader::GradientInf
     retval->insertObject("Domain", SkPDFMakeArray(0, 1));
     retval->insertInt("FunctionType", 3);
 
-    for (int i = 1; i < colorCount; i++) {
-        if (i > 1) {
-            bounds->appendScalar(colorOffsets[i-1]);
+    for (int idx = 1; idx < colorCount; idx++) {
+        if (idx > 1) {
+            bounds->appendScalar(colorOffsets[idx-1]);
         }
 
         encode->appendScalar(0);
         encode->appendScalar(1.0f);
 
-        functions->appendObject(createInterpolationFunction(colorData[i-1], colorData[i]));
+        functions->appendObject(createInterpolationFunction(colorData[idx-1], colorData[idx]));
     }
 
     retval->insertObject("Encode", std::move(encode));

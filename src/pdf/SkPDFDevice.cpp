@@ -1577,15 +1577,15 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
         SkPath perspectiveOutline = SkPath::Rect(imageBounds).makeTransform(transform);
 
         // Retrieve the bounds of the new shape.
-        SkRect bounds = perspectiveOutline.getBounds();
-        if (!bounds.intersect(SkRect::Make(this->devClipBounds()))) {
+        SkRect outlineBounds = perspectiveOutline.getBounds();
+        if (!outlineBounds.intersect(SkRect::Make(this->devClipBounds()))) {
             return;
         }
 
         // Transform the bitmap in the new space to the final space, to account for DPI
-        SkRect physicalBounds = fInitialTransform.mapRect(bounds);
-        SkScalar scaleX = physicalBounds.width() / bounds.width();
-        SkScalar scaleY = physicalBounds.height() / bounds.height();
+        SkRect physicalBounds = fInitialTransform.mapRect(outlineBounds);
+        SkScalar scaleX = physicalBounds.width() / outlineBounds.width();
+        SkScalar scaleY = physicalBounds.height() / outlineBounds.height();
 
         // TODO(edisonn): A better approach would be to use a bitmap shader
         // (in clamp mode) and draw a rect over the entire bounding box. Then
@@ -1603,8 +1603,8 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
         SkCanvas* canvas = surface->getCanvas();
         canvas->clear(SK_ColorTRANSPARENT);
 
-        SkScalar deltaX = bounds.left();
-        SkScalar deltaY = bounds.top();
+        SkScalar deltaX = outlineBounds.left();
+        SkScalar deltaY = outlineBounds.top();
 
         SkMatrix offsetMatrix = transform;
         offsetMatrix.postTranslate(-deltaX, -deltaY);
