@@ -202,7 +202,6 @@ GrGLAttribArrayState* GrGLVertexArray::bindWithIndexBuffer(GrGLGpu* gpu, const G
     } else {
         const GrGLBuffer* glBuffer = static_cast<const GrGLBuffer*>(ibuff);
         if (fIndexBufferUniqueID != glBuffer->uniqueID()) {
-            const GrGLBuffer* glBuffer = static_cast<const GrGLBuffer*>(ibuff);
             GR_GL_CALL(gpu->glInterface(),
                        BindBuffer(GR_GL_ELEMENT_ARRAY_BUFFER, glBuffer->bufferID()));
             fIndexBufferUniqueID = glBuffer->uniqueID();

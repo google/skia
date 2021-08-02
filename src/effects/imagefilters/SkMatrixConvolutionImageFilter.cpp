@@ -76,7 +76,7 @@ private:
     void filterPixels(const SkBitmap& src,
                       SkBitmap* result,
                       SkIVector& offset,
-                      const SkIRect& rect,
+                      SkIRect rect,
                       const SkIRect& bounds) const;
     template <class PixelFetcher>
     void filterPixels(const SkBitmap& src,
@@ -235,9 +235,8 @@ template<class PixelFetcher, bool convolveAlpha>
 void SkMatrixConvolutionImageFilter::filterPixels(const SkBitmap& src,
                                                   SkBitmap* result,
                                                   SkIVector& offset,
-                                                  const SkIRect& r,
+                                                  SkIRect rect,
                                                   const SkIRect& bounds) const {
-    SkIRect rect(r);
     if (!rect.intersect(bounds)) {
         return;
     }

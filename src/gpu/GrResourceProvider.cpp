@@ -566,23 +566,24 @@ bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt, bool useMSA
                 *this->caps(), stencilFormat, rt->dimensions(),
                 GrAttachment::UsageFlags::kStencilAttachment, numStencilSamples, GrMipmapped::kNo,
                 isProtected, &sbKey);
-        auto stencil = this->findByUniqueKey<GrAttachment>(sbKey);
-        if (!stencil) {
+        auto keyedStencil = this->findByUniqueKey<GrAttachment>(sbKey);
+        if (!keyedStencil) {
             // Need to try and create a new stencil
-            stencil = this->gpu()->makeStencilAttachment(rt->backendFormat(), rt->dimensions(),
-                                                         numStencilSamples);
-            if (!stencil) {
+            keyedStencil = this->gpu()->makeStencilAttachment(rt->backendFormat(), rt->dimensions(),
+                                                              numStencilSamples);
+            if (!keyedStencil) {
                 return false;
             }
-            this->assignUniqueKeyToResource(sbKey, stencil.get());
+            this->assignUniqueKeyToResource(sbKey, keyedStencil.get());
         }
-        rt->attachStencilAttachment(std::move(stencil), useMSAASurface);
+        rt->attachStencilAttachment(std::move(keyedStencil), useMSAASurface);
     }
     stencil = rt->getStencilAttachment(useMSAASurface);
     SkASSERT(!stencil ||
              stencil->numSamples() == num_stencil_samples(rt, useMSAASurface, *this->caps()));
     return stencil != nullptr;
 }
+
 sk_sp<GrAttachment> GrResourceProvider::getDiscardableMSAAAttachment(SkISize dimensions,
                                                                      const GrBackendFormat& format,
                                                                      int sampleCnt,

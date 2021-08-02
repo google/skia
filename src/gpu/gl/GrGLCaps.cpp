@@ -4493,13 +4493,12 @@ int GrGLCaps::getRenderTargetSampleCount(int requestedCount, GrGLFormat format) 
         return info.fColorSampleCounts[0] == 1 ? 1 : 0;
     }
 
-    for (int i = 0; i < count; ++i) {
-        if (info.fColorSampleCounts[i] >= requestedCount) {
-            int count = info.fColorSampleCounts[i];
+    for (int sampleCount : info.fColorSampleCounts) {
+        if (sampleCount >= requestedCount) {
             if (fDriverBugWorkarounds.max_msaa_sample_count_4) {
-                count = std::min(count, 4);
+                sampleCount = std::min(sampleCount, 4);
             }
-            return count;
+            return sampleCount;
         }
     }
     return 0;
