@@ -17,7 +17,8 @@ namespace SkSL {
 /**
  * Represents all of the ways that a fragment processor is sampled by its parent.
  */
-struct SampleUsage {
+class SampleUsage {
+public:
     enum class Kind {
         // Child is never sampled
         kNone,
@@ -32,13 +33,16 @@ struct SampleUsage {
     // Make a SampleUsage that corresponds to no sampling of the child at all
     SampleUsage() = default;
 
+    SampleUsage(Kind kind, bool hasPerspective) : fKind(kind), fHasPerspective(hasPerspective) {
+        if (kind != Kind::kUniformMatrix) {
+            SkASSERT(!fHasPerspective);
+        }
+    }
+
     // Child is sampled with a matrix whose value is uniform. The name is fixed.
     static SampleUsage UniformMatrix(bool hasPerspective) {
         return SampleUsage(Kind::kUniformMatrix, hasPerspective);
     }
-
-    // Arbitrary name used by all uniform sampling matrices
-    static const char* MatrixUniformName() { return "matrix"; }
 
     static SampleUsage Explicit() {
         return SampleUsage(Kind::kExplicit, false);
@@ -48,23 +52,31 @@ struct SampleUsage {
         return SampleUsage(Kind::kPassThrough, false);
     }
 
+    bool operator==(const SampleUsage& that) const {
+        return fKind == that.fKind && fHasPerspective == that.fHasPerspective;
+    }
+
+    bool operator!=(const SampleUsage& that) const { return !(*this == that); }
+
+    // Arbitrary name used by all uniform sampling matrices
+    static const char* MatrixUniformName() { return "matrix"; }
+
     SampleUsage merge(const SampleUsage& other);
+
+    Kind kind() const { return fKind; }
+
+    bool hasPerspective() const { return fHasPerspective; }
 
     bool isSampled()       const { return fKind != Kind::kNone; }
     bool isPassThrough()   const { return fKind == Kind::kPassThrough; }
     bool isExplicit()      const { return fKind == Kind::kExplicit; }
     bool isUniformMatrix() const { return fKind == Kind::kUniformMatrix; }
 
+    std::string constructor() const;
+
+private:
     Kind fKind = Kind::kNone;
     bool fHasPerspective = false;  // Only valid if fKind is kUniformMatrix
-
-    SampleUsage(Kind kind, bool hasPerspective) : fKind(kind), fHasPerspective(hasPerspective) {
-        if (kind != Kind::kUniformMatrix) {
-            SkASSERT(!fHasPerspective);
-        }
-    }
-
-    std::string constructor() const;
 };
 
 }  // namespace SkSL

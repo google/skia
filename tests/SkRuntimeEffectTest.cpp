@@ -893,8 +893,8 @@ DEF_TEST(SkRuntimeShaderSampleCoords, r) {
                                  "child", std::move(child));
         REPORTER_ASSERT(r, fp);
 
-        REPORTER_ASSERT(r, fp->childProcessor(0)->isSampledWithExplicitCoords() == expectExplicit);
-        REPORTER_ASSERT(r, fp->referencesSampleCoords() == expectReferencesSampleCoords);
+        REPORTER_ASSERT(r, fp->childProcessor(0)->sampleUsage().isExplicit() == expectExplicit);
+        REPORTER_ASSERT(r, fp->usesSampleCoords() == expectReferencesSampleCoords);
     };
 
     // Cases where our optimization is valid, and works:

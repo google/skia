@@ -9,18 +9,6 @@
 
 #include "src/gpu/GrFragmentProcessor.h"
 
-/**
- * We specialize the vertex or fragment coord transform code for these matrix types, and where
- * the transform code is applied.
- */
-enum SampleFlag {
-    kExplicitlySampled_Flag      = 0b0001,  // GrFP::isSampledWithExplicitCoords()
-    kUniform_SampleMatrix_Flag   = 0b0010, // GrFP::sampleUsage()::isUniformMatrix()
-
-    // Currently, sample(matrix) only specializes on no-perspective or general.
-    // FIXME add new flags as more matrix types are supported.
-    kPersp_Matrix_Flag           = 0b0100, // GrFP::sampleUsage()::fHasPerspective
-};
 
 GrGeometryProcessor::GrGeometryProcessor(ClassID classID) : GrProcessor(classID) {}
 
@@ -31,18 +19,11 @@ const GrGeometryProcessor::TextureSampler& GrGeometryProcessor::textureSampler(i
 
 uint32_t GrGeometryProcessor::ComputeCoordTransformsKey(const GrFragmentProcessor& fp) {
     // This is highly coupled with the code in GrGLSLGeometryProcessor::collectTransforms().
-
-    uint32_t key = 0;
-    if (fp.isSampledWithExplicitCoords()) {
-        key |= kExplicitlySampled_Flag;
+    uint32_t key = static_cast<uint32_t>(fp.sampleUsage().kind()) << 1;
+    // This needs to be updated if GP starts specializing varyings on additional matrix types.
+    if (fp.sampleUsage().hasPerspective()) {
+        key |= 0b1;
     }
-    if (fp.sampleUsage().isUniformMatrix()) {
-        key |= kUniform_SampleMatrix_Flag;
-    }
-    if (fp.sampleUsage().fHasPerspective) {
-        key |= kPersp_Matrix_Flag;
-    }
-
     return key;
 }
 

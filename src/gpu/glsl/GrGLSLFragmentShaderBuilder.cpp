@@ -37,17 +37,18 @@ void GrGLSLFPFragmentBuilder::writeProcessorFunction(GrGLSLFragmentProcessor* fp
         params[numParams++] = GrShaderVar(args.fDestColor, kHalf4_GrSLType);
     }
 
-    if (args.fFp.isSampledWithExplicitCoords()) {
-        // Functions sampled with explicit coordinates take a float2 coordinate as input.
+    if (fProgramBuilder->fragmentProcessorHasCoordsParam(&args.fFp)) {
         params[numParams++] = GrShaderVar(args.fSampleCoord, kFloat2_GrSLType);
-
-    } else if (args.fFp.referencesSampleCoords()) {
-        // Sampled through a chain of passthrough/matrix samples usages. The actual transformation
-        // code is emitted in the vertex shader, so this only has to access it. Add a float2 _coords
-        // variable that maps to the associated varying and replaces the absent 2nd argument to the
-        // fp's function.
+    } else {
+        // Either doesn't use coords at all or sampled through a chain of passthrough/matrix
+        // samples usages. In the latter case the coords are emitted in the vertex shader as a
+        // varying, so this only has to access it. Add a float2 _coords variable that maps to the
+        // associated varying and replaces the absent 2nd argument to the fp's function.
         GrShaderVar varying = fProgramBuilder->varyingCoordsForFragmentProcessor(&args.fFp);
         switch(varying.getType()) {
+            case kVoid_GrSLType:
+                SkASSERT(!args.fFp.usesSampleCoordsDirectly());
+                break;
             case kFloat2_GrSLType:
                 // Just point the local coords to the varying
                 args.fSampleCoord = varying.getName().c_str();

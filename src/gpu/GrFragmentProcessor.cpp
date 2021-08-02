@@ -21,7 +21,7 @@ bool GrFragmentProcessor::isEqual(const GrFragmentProcessor& that) const {
     if (this->classID() != that.classID()) {
         return false;
     }
-    if (this->usesVaryingCoordsDirectly() != that.usesVaryingCoordsDirectly()) {
+    if (this->sampleUsage() != that.sampleUsage()) {
         return false;
     }
     if (!this->onIsEqual(that)) {
@@ -153,31 +153,21 @@ void GrFragmentProcessor::registerChild(std::unique_ptr<GrFragmentProcessor> chi
 
     // The child should not have been attached to another FP already and not had any sampling
     // strategy set on it.
-    SkASSERT(!child->fParent && !child->sampleUsage().isSampled() &&
-             !child->isSampledWithExplicitCoords());
+    SkASSERT(!child->fParent && !child->sampleUsage().isSampled());
 
     // Configure child's sampling state first
     child->fUsage = sampleUsage;
-
-    if (sampleUsage.isExplicit()) {
-        child->addAndPushFlagToChildren(kSampledWithExplicitCoords_Flag);
-    }
 
     // Propagate the "will read dest-color" flag up to parent FPs.
     if (child->willReadDstColor()) {
         this->setWillReadDstColor();
     }
 
-    // If the child is not sampled explicitly and not already accessing sample coords directly
-    // (through reference or variable matrix expansion), then mark that this FP tree relies on
-    // coordinates at a lower level. If the child is sampled with explicit coordinates and
-    // there isn't any other direct reference to the sample coords, we halt the upwards propagation
-    // because it means this FP is determining coordinates on its own.
-    if (!child->isSampledWithExplicitCoords()) {
-        if ((child->fFlags & kUsesSampleCoordsDirectly_Flag ||
-             child->fFlags & kUsesSampleCoordsIndirectly_Flag)) {
-            fFlags |= kUsesSampleCoordsIndirectly_Flag;
-        }
+    // If this child receives passthrough or matrix transformed coords from its parent then note
+    // that the parent's coords are used indirectly to ensure that they aren't omitted.
+    if ((sampleUsage.isPassThrough() || sampleUsage.isUniformMatrix()) &&
+        child->usesSampleCoords()) {
+        fFlags |= kUsesSampleCoordsIndirectly_Flag;
     }
 
     fRequestedFeatures |= child->fRequestedFeatures;
@@ -188,7 +178,7 @@ void GrFragmentProcessor::registerChild(std::unique_ptr<GrFragmentProcessor> chi
     fChildProcessors.push_back(std::move(child));
 
     // Validate: our sample strategy comes from a parent we shouldn't have yet.
-    SkASSERT(!this->isSampledWithExplicitCoords() && !fUsage.isSampled() && !fParent);
+    SkASSERT(!fUsage.isSampled() && !fParent);
 }
 
 void GrFragmentProcessor::cloneAndRegisterAllChildProcessors(const GrFragmentProcessor& src) {

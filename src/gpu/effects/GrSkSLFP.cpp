@@ -204,7 +204,7 @@ public:
         // parameter. fSampleCoord could be a varying, so writes to it would be illegal.
         const char* coords = "float2(0)";
         SkString coordsVarName;
-        if (fp.referencesSampleCoords()) {
+        if (fp.usesSampleCoordsDirectly()) {
             coordsVarName = args.fFragBuilder->newTmpVarName("coords");
             coords = coordsVarName.c_str();
             args.fFragBuilder->codeAppendf("float2 %s = %s;\n", coords, args.fSampleCoord);

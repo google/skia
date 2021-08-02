@@ -174,7 +174,7 @@ GrPathCurveTessellator* GrPathCurveTessellator::Make(SkArenaAlloc* arena,
     GrPathTessellationShader* shader;
     if (caps.shaderCaps()->tessellationSupport() &&
         caps.shaderCaps()->infinitySupport() &&  // The hw tessellation shaders use infinity.
-        !pipeline.usesVaryingCoords() &&  // Our tessellation back door doesn't handle varyings.
+        !pipeline.usesLocalCoords() &&  // Our tessellation back door doesn't handle varyings.
         numPathVerbs >= caps.minPathVerbsForHwTessellation()) {
         shader = GrPathTessellationShader::MakeHardwareTessellationShader(arena, viewMatrix, color,
                                                                           PatchType::kCurves);

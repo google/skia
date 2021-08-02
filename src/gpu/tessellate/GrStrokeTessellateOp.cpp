@@ -151,7 +151,7 @@ bool can_use_hardware_tessellation(int numVerbs, const GrPipeline& pipeline, con
         !caps.shaderCaps()->infinitySupport() /* The hw tessellation shaders use infinity. */) {
         return false;
     }
-    if (pipeline.usesVaryingCoords()) {
+    if (pipeline.usesLocalCoords()) {
         // Our back door for HW tessellation shaders isn't currently capable of passing varyings to
         // the fragment shader, so if the processors have varyings, we need to use instanced draws
         // instead.

@@ -806,9 +806,9 @@ static void assert_processor_equality(skiatest::Reporter* reporter,
                               "\n%s", fp.dumpTreeInfo().c_str());
     REPORTER_ASSERT(reporter, fp.numChildProcessors() == clone.numChildProcessors(),
                               "\n%s", fp.dumpTreeInfo().c_str());
-    REPORTER_ASSERT(reporter, fp.usesVaryingCoords() == clone.usesVaryingCoords(),
+    REPORTER_ASSERT(reporter, fp.sampleUsage() == clone.sampleUsage(),
                               "\n%s", fp.dumpTreeInfo().c_str());
-    REPORTER_ASSERT(reporter, fp.referencesSampleCoords() == clone.referencesSampleCoords(),
+    REPORTER_ASSERT(reporter, fp.usesSampleCoords() == clone.usesSampleCoords(),
                               "\n%s", fp.dumpTreeInfo().c_str());
 }
 

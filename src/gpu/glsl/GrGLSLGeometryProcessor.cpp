@@ -17,20 +17,16 @@
 
 #include <queue>
 
-GrGLSLGeometryProcessor::FPToVaryingCoordsMap GrGLSLGeometryProcessor::emitCode(
-        EmitArgs& args,
-        const GrPipeline& pipeline) {
+GrGLSLGeometryProcessor::FPCoordsMap GrGLSLGeometryProcessor::emitCode(EmitArgs& args,
+                                                                       const GrPipeline& pipeline) {
     GrGPArgs gpArgs;
     this->onEmitCode(args, &gpArgs);
 
-    FPToVaryingCoordsMap transformMap;
-    if (gpArgs.fLocalCoordVar.getType() != kVoid_GrSLType) {
-        transformMap = this->collectTransforms(args.fVertBuilder,
-                                               args.fVaryingHandler,
-                                               args.fUniformHandler,
-                                               gpArgs.fLocalCoordVar,
-                                               pipeline);
-    }
+    FPCoordsMap transformMap = this->collectTransforms(args.fVertBuilder,
+                                                       args.fVaryingHandler,
+                                                       args.fUniformHandler,
+                                                       gpArgs.fLocalCoordVar,
+                                                       pipeline);
 
     if (args.fGeomProc.willUseTessellationShaders()) {
         // Tessellation shaders are temporarily responsible for integrating their own code strings
@@ -75,16 +71,17 @@ GrGLSLGeometryProcessor::FPToVaryingCoordsMap GrGLSLGeometryProcessor::emitCode(
     return transformMap;
 }
 
-GrGLSLGeometryProcessor::FPToVaryingCoordsMap GrGLSLGeometryProcessor::collectTransforms(
+GrGLSLGeometryProcessor::FPCoordsMap GrGLSLGeometryProcessor::collectTransforms(
         GrGLSLVertexBuilder* vb,
         GrGLSLVaryingHandler* varyingHandler,
         GrGLSLUniformHandler* uniformHandler,
         const GrShaderVar& localCoordsVar,
         const GrPipeline& pipeline) {
     SkASSERT(localCoordsVar.getType() == kFloat2_GrSLType ||
-             localCoordsVar.getType() == kFloat3_GrSLType);
+             localCoordsVar.getType() == kFloat3_GrSLType ||
+             localCoordsVar.getType() == kVoid_GrSLType);
 
-    auto baseLocalCoordVarying = [&, baseLocalCoord = GrGLSLVarying()]() mutable {
+    auto baseLocalCoordFSVar = [&, baseLocalCoord = GrGLSLVarying()]() mutable {
         SkASSERT(GrSLTypeIsFloatType(localCoordsVar.getType()));
         if (baseLocalCoord.type() == kVoid_GrSLType) {
             // Initialize to the GP provided coordinate
@@ -96,7 +93,7 @@ GrGLSLGeometryProcessor::FPToVaryingCoordsMap GrGLSLGeometryProcessor::collectTr
         return baseLocalCoord.fsInVar();
     };
 
-    FPToVaryingCoordsMap result;
+    FPCoordsMap result;
     // Performs a pre-order traversal of FP hierarchy rooted at fp and identifies FPs that are
     // sampled with a series of matrices applied to local coords. For each such FP a varying is
     // added to the varying handler and added to 'result'.
@@ -104,9 +101,10 @@ GrGLSLGeometryProcessor::FPToVaryingCoordsMap GrGLSLGeometryProcessor::collectTr
                                                   const GrFragmentProcessor& fp,
                                                   bool hasPerspective,
                                                   const GrFragmentProcessor* lastMatrixFP = nullptr,
-                                                  int lastMatrixTraversalIndex = -1) mutable {
+                                                  int lastMatrixTraversalIndex = -1,
+                                                  bool inExplicitSubtree = false) mutable -> void {
         ++traversalIndex;
-        switch (fp.sampleUsage().fKind) {
+        switch (fp.sampleUsage().kind()) {
             case SkSL::SampleUsage::Kind::kNone:
                 // This should only happen at the root. Otherwise how did this FP get added?
                 SkASSERT(!fp.parent());
@@ -115,20 +113,24 @@ GrGLSLGeometryProcessor::FPToVaryingCoordsMap GrGLSLGeometryProcessor::collectTr
                 break;
             case SkSL::SampleUsage::Kind::kUniformMatrix:
                 // Update tracking of last matrix and matrix props.
-                hasPerspective |= fp.sampleUsage().fHasPerspective;
+                hasPerspective |= fp.sampleUsage().hasPerspective();
                 lastMatrixFP = &fp;
                 lastMatrixTraversalIndex = traversalIndex;
                 break;
             case SkSL::SampleUsage::Kind::kExplicit:
-                // Nothing in this subtree can be lifted.
-                return;
+                inExplicitSubtree = true;
+                break;
         }
-        if (fp.usesVaryingCoordsDirectly()) {
+
+        auto& [varyingFSVar, hasCoordsParam] = result[&fp];
+        hasCoordsParam = fp.usesSampleCoordsDirectly();
+
+        if (fp.usesSampleCoordsDirectly() && !inExplicitSubtree) {
             // Associate the varying with the highest possible node in the FP tree that shares the
             // same coordinates so that multiple FPs in a subtree can share. If there are no matrix
             // sample nodes on the way up the tree then directly use the local coord.
             if (!lastMatrixFP) {
-                result[&fp] = baseLocalCoordVarying();
+                varyingFSVar = baseLocalCoordFSVar();
             } else {
                 // If there is an already a varying that incorporates all matrices from the root to
                 // lastMatrixFP just use it. Otherwise, we add it.
@@ -143,16 +145,24 @@ GrGLSLGeometryProcessor::FPToVaryingCoordsMap GrGLSLGeometryProcessor::collectTr
                 }
                 SkASSERT(varyingIdx == lastMatrixTraversalIndex);
                 // The FP will use the varying in the fragment shader as its coords.
-                result[&fp] = varying.fsInVar();
+                varyingFSVar = varying.fsInVar();
             }
-        } else if (!fp.usesVaryingCoords()) {
-            // Early-out. No point in continuing to traversal down from here.
-            return;
+            hasCoordsParam = false;
         }
 
         for (int c = 0; c < fp.numChildProcessors(); ++c) {
-            if (auto child = fp.childProcessor(c)) {
-                self(self, *child, hasPerspective, lastMatrixFP, lastMatrixTraversalIndex);
+            if (auto* child = fp.childProcessor(c)) {
+                self(self,
+                     *child,
+                     hasPerspective,
+                     lastMatrixFP,
+                     lastMatrixTraversalIndex,
+                     inExplicitSubtree);
+                // If we have a varying then we never need a param. Otherwise, if one of our
+                // children takes a non-explicit coord then we'll need our coord.
+                hasCoordsParam |= varyingFSVar.getType() == kVoid_GrSLType &&
+                                  !child->sampleUsage().isExplicit()       &&
+                                  result[child].hasCoordsParam;
             }
         }
     };

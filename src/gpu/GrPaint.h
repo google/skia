@@ -94,9 +94,10 @@ public:
     GrFragmentProcessor* getCoverageFragmentProcessor() const {
         return fCoverageFragmentProcessor.get();
     }
-    bool usesVaryingCoords() const {
-        return (fColorFragmentProcessor && fColorFragmentProcessor->usesVaryingCoords()) ||
-               (fCoverageFragmentProcessor && fCoverageFragmentProcessor->usesVaryingCoords());
+    bool usesLocalCoords() const {
+        // The sample coords for the top level FPs are implicitly the GP's local coords.
+        return (fColorFragmentProcessor && fColorFragmentProcessor->usesSampleCoords()) ||
+               (fCoverageFragmentProcessor && fCoverageFragmentProcessor->usesSampleCoords());
     }
 
     /**

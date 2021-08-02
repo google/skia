@@ -5,11 +5,13 @@
  * found in the LICENSE file.
  */
 
+#include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
+
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrProcessor.h"
 #include "src/gpu/GrShaderCaps.h"
-#include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
 void GrGLSLFragmentProcessor::setData(const GrGLSLProgramDataManager& pdman,
@@ -63,14 +65,13 @@ SkString GrGLSLFragmentProcessor::invokeChild(int childIndex,
         invocation.appendf(", %s", destColor);
     }
 
-    if (childProc->isSampledWithExplicitCoords()) {
+    // Assert that the child has no sample matrix. A uniform matrix sample call would go through
+    // invokeChildWithMatrix, not here.
+    SkASSERT(!childProc->sampleUsage().isUniformMatrix());
+
+    if (args.fFragBuilder->getProgramBuilder()->fragmentProcessorHasCoordsParam(childProc)) {
         // The child's function takes a half4 color and a float2 coordinate
         invocation.appendf(", %s", skslCoords.empty() ? args.fSampleCoord : skslCoords.c_str());
-    } else {
-        // Assert that the child has no sample matrix and skslCoords matches the default. (A uniform
-        // matrix sample call would go through invokeChildWithMatrix, not here.)
-        SkASSERT(skslCoords.empty() || skslCoords == args.fSampleCoord);
-        SkASSERT(childProc->sampleUsage().isPassThrough());
     }
 
     invocation.append(")");
@@ -117,10 +118,10 @@ SkString GrGLSLFragmentProcessor::invokeChildWithMatrix(int childIndex, const ch
     //
     // In all other cases, we need to insert sksl to compute matrix * parent coords and then invoke
     // the function.
-    if (childProc->isSampledWithExplicitCoords()) {
+    if (args.fFragBuilder->getProgramBuilder()->fragmentProcessorHasCoordsParam(childProc)) {
         // Only check perspective for this specific matrix transform, not the aggregate FP property.
         // Any parent perspective will have already been applied when evaluated in the FS.
-        if (childProc->sampleUsage().fHasPerspective) {
+        if (childProc->sampleUsage().hasPerspective()) {
             invocation.appendf(", proj((%s) * %s.xy1)", matrixName.c_str(), args.fSampleCoord);
         } else if (args.fShaderCaps->nonsquareMatrixSupport()) {
             invocation.appendf(", float3x2(%s) * %s.xy1", matrixName.c_str(), args.fSampleCoord);

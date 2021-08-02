@@ -88,6 +88,12 @@ public:
      */
     GrShaderVar varyingCoordsForFragmentProcessor(const GrFragmentProcessor*);
 
+    /**
+     * If the FP's coords are unused or all uses have been lifted to interpolated varyings then
+     * don't put coords in the FP's function signature or call sites.
+     */
+    bool fragmentProcessorHasCoordsParam(const GrFragmentProcessor*);
+
     virtual GrGLSLUniformHandler* uniformHandler() = 0;
     virtual const GrGLSLUniformHandler* uniformHandler() const = 0;
     virtual GrGLSLVaryingHandler* varyingHandler() = 0;
@@ -176,7 +182,7 @@ private:
 
     // These are used to check that we don't excede the allowable number of resources in a shader.
     int fNumFragmentSamplers;
-    GrGLSLGeometryProcessor::FPToVaryingCoordsMap fFPCoordVaryings;
+    GrGLSLGeometryProcessor::FPCoordsMap fFPCoordsMap;
 };
 
 #endif

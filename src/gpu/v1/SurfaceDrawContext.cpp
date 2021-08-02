@@ -822,7 +822,7 @@ void SurfaceDrawContext::fillRectToRect(const GrClip* clip,
         SkRect croppedRect, croppedLocal{};
         const GrClip* optimizedClip = clip;
         if (clip && viewMatrix.isScaleTranslate() && quad.fDevice.asRect(&croppedRect) &&
-            (!paint.usesVaryingCoords() || quad.fLocal.asRect(&croppedLocal))) {
+            (!paint.usesLocalCoords() || quad.fLocal.asRect(&croppedLocal))) {
             // The cropped quad is still a rect, and our view matrix preserves rects. Map it back
             // to pre-matrix space.
             SkMatrix inverse;

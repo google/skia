@@ -40,7 +40,7 @@ GrColorFragmentProcessorAnalysis::GrColorFragmentProcessorAnalysis(
         if (fCompatibleWithCoverageAsAlpha && !fp->compatibleWithCoverageAsAlpha()) {
             fCompatibleWithCoverageAsAlpha = false;
         }
-        if (fp->usesVaryingCoords()) {
+        if (fp->usesSampleCoords()) {
             fUsesLocalCoords = true;
         }
         if (fp->willReadDstColor()) {
