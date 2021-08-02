@@ -8,7 +8,6 @@
 #include "src/gpu/GrFixedClip.h"
 
 #include "src/gpu/GrAppliedClip.h"
-#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
 SkIRect GrFixedClip::getConservativeBounds() const {
     return fScissorState.rect();

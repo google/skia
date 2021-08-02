@@ -20,6 +20,12 @@
 #include "tools/gpu/BackendSurfaceFactory.h"
 #include "tools/gpu/ProxyUtils.h"
 
+#if SK_GPU_V1
+#include "src/gpu/v1/SurfaceDrawContext_v1.h"
+#else
+#include "src/gpu/GrSurfaceFillContext.h"
+#endif
+
 DEF_GPUTEST_FOR_ALL_CONTEXTS(WrappedSurfaceCopyOnWrite, reporter, ctxInfo) {
     GrDirectContext* dContext = ctxInfo.directContext();
 

@@ -28,8 +28,8 @@
 #include "src/gpu/SkGr.h"
 #if SK_GPU_V1
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
-#endif
-#endif
+#endif // SK_GPU_V1
+#endif // SK_SUPPORT_GPU
 
 namespace {
 

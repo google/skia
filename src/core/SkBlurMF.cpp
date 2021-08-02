@@ -39,8 +39,10 @@
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
+#if SK_GPU_V1
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
-#endif
+#endif // SK_GPU_V1
+#endif // SK_SUPPORT_GPU
 
 class SkBlurMaskFilterImpl : public SkMaskFilterBase {
 public:

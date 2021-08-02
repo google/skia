@@ -58,7 +58,6 @@
 #if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
 #   include "src/gpu/GrRenderTarget.h"
 #   include "src/gpu/GrRenderTargetProxy.h"
-#   include "src/gpu/v1/SurfaceDrawContext_v1.h"
 #endif
 #endif
 

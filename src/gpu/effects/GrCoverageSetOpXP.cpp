@@ -14,7 +14,6 @@
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 #include "src/gpu/glsl/GrGLSLXferProcessor.h"
-#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
 class CoverageSetOpXP : public GrXferProcessor {
 public:

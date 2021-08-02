@@ -25,7 +25,9 @@
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 #include "src/gpu/text/GrAtlasManager.h"
 #include "src/gpu/text/GrDistanceFieldAdjustTable.h"
+#if SK_GPU_V1
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
+#endif
 
 #if GR_TEST_UTILS
 #include "src/gpu/GrDrawOpTest.h"
@@ -486,7 +488,7 @@ GrGeometryProcessor* GrAtlasTextOp::setupDfProcessor(SkArenaAlloc* arena,
     }
 }
 
-#if GR_TEST_UTILS
+#if GR_TEST_UTILS && SK_GPU_V1
 
 GrOp::Owner GrAtlasTextOp::CreateOpTestingOnly(skgpu::v1::SurfaceDrawContext* sdc,
                                                const SkPaint& skPaint,

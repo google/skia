@@ -254,7 +254,7 @@ std::unique_ptr<SurfaceDrawContext> SurfaceDrawContext::MakeWithFallback(
         GrSurfaceOrigin origin,
         SkBudgeted budgeted) {
     const GrCaps* caps = rContext->priv().caps();
-    auto [ct, format] = caps->getFallbackColorTypeAndFormat(colorType, sampleCnt);
+    auto [ct, _] = caps->getFallbackColorTypeAndFormat(colorType, sampleCnt);
     if (ct == GrColorType::kUnknown) {
         return nullptr;
     }

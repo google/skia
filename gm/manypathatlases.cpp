@@ -13,7 +13,6 @@
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 #include "tools/ToolUtils.h"
 
 namespace skiagm {

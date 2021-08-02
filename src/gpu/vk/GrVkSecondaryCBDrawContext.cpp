@@ -18,7 +18,6 @@
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
 sk_sp<GrVkSecondaryCBDrawContext> GrVkSecondaryCBDrawContext::Make(GrRecordingContext* rContext,
                                                                    const SkImageInfo& imageInfo,

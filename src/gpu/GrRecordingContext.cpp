@@ -22,7 +22,6 @@
 #include "src/gpu/effects/GrSkSLFP.h"
 #include "src/gpu/text/GrTextBlob.h"
 #include "src/gpu/text/GrTextBlobCache.h"
-#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
 #if SK_GPU_V1
 #include "src/gpu/ops/GrAtlasTextOp.h"

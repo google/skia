@@ -13,7 +13,6 @@
 #include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrStencilSettings.h"
-#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
 GrRenderTarget::GrRenderTarget(GrGpu* gpu,
                                const SkISize& dimensions,
