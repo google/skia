@@ -1290,7 +1290,8 @@ protected:
                { 15, 19}, {16, 20}, {17, 19}, { 18, 20},
                { 20, 22}, };
 
-        auto rects = paragraph->getRectsForRange(7, 9, RectHeightStyle::kTight, RectWidthStyle::kTight);
+        auto rects = paragraph->getRectsForRange(7, 9, RectHeightStyle::kTight,
+                                                 RectWidthStyle::kTight);
         SkPaint paint;
         paint.setColor(SK_ColorRED);
         paint.setStyle(SkPaint::kStroke_Style);
@@ -1301,8 +1302,9 @@ protected:
         }
 
         for (auto& query : hit1) {
-            auto rects = paragraph->getRectsForRange(query.fX, query.fY, RectHeightStyle::kTight, RectWidthStyle::kTight);
-            if (rects.size() >= 1 && rects[0].rect.width() > 0) {
+            auto hitRects = paragraph->getRectsForRange(query.fX, query.fY, RectHeightStyle::kTight,
+                                                        RectWidthStyle::kTight);
+            if (hitRects.size() >= 1 && hitRects[0].rect.width() > 0) {
             } else {
                 if (this->isVerbose()) {
                     SkDebugf("+[%d:%d): Bad\n", query.fX, query.fY);
@@ -1311,7 +1313,8 @@ protected:
         }
 
         for (auto& query : miss) {
-            auto miss = paragraph->getRectsForRange(query.fX, query.fY, RectHeightStyle::kTight, RectWidthStyle::kTight);
+            auto miss = paragraph->getRectsForRange(query.fX, query.fY, RectHeightStyle::kTight,
+                                                    RectWidthStyle::kTight);
             if (miss.empty()) {
             } else {
                 if (this->isVerbose()) {
@@ -2179,42 +2182,43 @@ protected:
         paragraph->paint(canvas, 0, 0);
         auto width = paragraph->getLongestLine();
         auto height = paragraph->getHeight();
-
-        auto f1 = paragraph->getGlyphPositionAtCoordinate(width/6, height/2);
-        auto f2 = paragraph->getGlyphPositionAtCoordinate(width/2, height/2);
-        auto i = paragraph->getGlyphPositionAtCoordinate(width*5/6, height/2);
-
         if (this->isVerbose()) {
+            auto f1Pos = paragraph->getGlyphPositionAtCoordinate(width/6, height/2);
+            auto f2Pos = paragraph->getGlyphPositionAtCoordinate(width/2, height/2);
+            auto iPos = paragraph->getGlyphPositionAtCoordinate(width*5/6, height/2);
             SkDebugf("%d(%s) %d(%s) %d(%s)\n",
-                     f1.position, f1.affinity == Affinity::kUpstream ? "up" : "down",
-                     f2.position, f2.affinity == Affinity::kUpstream ? "up" : "down",
-                     i.position, i.affinity == Affinity::kUpstream ? "up" : "down");
+                     f1Pos.position, f1Pos.affinity == Affinity::kUpstream ? "up" : "down",
+                     f2Pos.position, f2Pos.affinity == Affinity::kUpstream ? "up" : "down",
+                     iPos.position, iPos.affinity == Affinity::kUpstream ? "up" : "down");
 
-            auto f1 = paragraph->getRectsForRange(0, 1, RectHeightStyle::kTight, RectWidthStyle::kTight);
+            auto f1 = paragraph->getRectsForRange(0, 1, RectHeightStyle::kTight,
+                                                  RectWidthStyle::kTight);
             if (f1.empty()) {
                 SkDebugf("F1 is empty\n");
             } else {
                 auto rf1 = f1[0];
-                SkDebugf("f1: [%f:%f] %s\n",
-                         rf1.rect.fLeft, rf1.rect.fRight, rf1.direction == TextDirection::kRtl ? "rtl" : "ltr");
+                SkDebugf("f1: [%f:%f] %s\n", rf1.rect.fLeft, rf1.rect.fRight,
+                                             rf1.direction == TextDirection::kRtl ? "rtl" : "ltr");
             }
 
-            auto f2 = paragraph->getRectsForRange(1, 2, RectHeightStyle::kTight, RectWidthStyle::kTight);
+            auto f2 = paragraph->getRectsForRange(1, 2, RectHeightStyle::kTight,
+                                                  RectWidthStyle::kTight);
             if (f2.empty()) {
                 SkDebugf("F2 is empty\n");
             } else {
                 auto rf2 = f2[0];
-                SkDebugf("f2: [%f:%f] %s\n",
-                         rf2.rect.fLeft, rf2.rect.fRight, rf2.direction == TextDirection::kRtl ? "rtl" : "ltr");
+                SkDebugf("f2: [%f:%f] %s\n", rf2.rect.fLeft, rf2.rect.fRight,
+                                             rf2.direction == TextDirection::kRtl ? "rtl" : "ltr");
             }
 
-            auto fi = paragraph->getRectsForRange(2, 3, RectHeightStyle::kTight, RectWidthStyle::kTight);
+            auto fi = paragraph->getRectsForRange(2, 3, RectHeightStyle::kTight,
+                                                  RectWidthStyle::kTight);
             if (fi.empty()) {
                 SkDebugf("FI is empty\n");
             } else {
                 auto rfi = fi[0];
-                SkDebugf("i:  [%f:%f] %s\n",
-                         rfi.rect.fLeft, rfi.rect.fRight, rfi.direction == TextDirection::kRtl ? "rtl" : "ltr");
+                SkDebugf("i:  [%f:%f] %s\n", rfi.rect.fLeft, rfi.rect.fRight,
+                                             rfi.direction == TextDirection::kRtl ? "rtl" : "ltr");
             }
         }
     }

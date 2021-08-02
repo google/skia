@@ -537,8 +537,7 @@ void OneLineShaper::matchResolvedFonts(const TextStyle& textStyle,
                 // We can stop here or we can switch to another DIFFERENT codepoint
                 while (ch != unresolvedText.end()) {
                     unicode = nextUtf8Unit(&ch, unresolvedText.end());
-                    auto found = alreadyTried.find(unicode);
-                    if (found == nullptr) {
+                    if (alreadyTried.find(unicode) == nullptr) {
                         alreadyTried.add(unicode);
                         break;
                     }

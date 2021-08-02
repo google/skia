@@ -31,8 +31,6 @@ SkRect ComputeBlobBounds(const sk_sp<SkTextBlob>& blob) {
 
     SkAutoSTArray<16, SkRect> glyphBounds;
 
-    SkTextBlobRunIterator it(blob.get());
-
     for (SkTextBlobRunIterator it(blob.get()); !it.done(); it.next()) {
         glyphBounds.reset(SkToInt(it.glyphCount()));
         it.font().getBounds(it.glyphs(), it.glyphCount(), glyphBounds.get(), nullptr);
