@@ -9,7 +9,6 @@
 
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrGpuResourcePriv.h"
-#include "src/gpu/GrOpsTask.h"
 #include "src/gpu/GrRenderTargetProxy.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrSurfaceProxy.h"

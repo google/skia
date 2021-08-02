@@ -10,10 +10,10 @@
 #include "src/core/SkMathPriv.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrGpuResourcePriv.h"
-#include "src/gpu/GrOpsTask.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrSurface.h"
+#include "src/gpu/GrSurfaceProxyPriv.h"
 #include "src/gpu/GrTextureRenderTargetProxy.h"
 
 #ifdef SK_DEBUG

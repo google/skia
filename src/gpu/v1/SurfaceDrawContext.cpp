@@ -53,7 +53,6 @@
 #include "src/gpu/geometry/GrQuad.h"
 #include "src/gpu/geometry/GrQuadUtils.h"
 #include "src/gpu/geometry/GrStyledShape.h"
-#include "src/gpu/ops/GrAtlasTextOp.h"
 #include "src/gpu/ops/GrClearOp.h"
 #include "src/gpu/ops/GrDrawAtlasOp.h"
 #include "src/gpu/ops/GrDrawOp.h"

@@ -20,10 +20,13 @@
 #include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrSkSLFP.h"
-#include "src/gpu/ops/GrAtlasTextOp.h"
 #include "src/gpu/text/GrTextBlob.h"
 #include "src/gpu/text/GrTextBlobCache.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
+
+#if SK_GPU_V1
+#include "src/gpu/ops/GrAtlasTextOp.h"
+#endif
 
 GrRecordingContext::ProgramData::ProgramData(std::unique_ptr<const GrProgramDesc> desc,
                                              const GrProgramInfo* info)
@@ -46,7 +49,9 @@ GrRecordingContext::GrRecordingContext(sk_sp<GrContextThreadSafeProxy> proxy, bo
 }
 
 GrRecordingContext::~GrRecordingContext() {
+#if SK_GPU_V1
     GrAtlasTextOp::ClearCache();
+#endif
 }
 
 int GrRecordingContext::maxSurfaceSampleCountForColorType(SkColorType colorType) const {
