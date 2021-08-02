@@ -2079,12 +2079,14 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
             if (fProgram.fPool) {
                 fProgram.fPool->attachToThread();
             }
-            symbols.add(std::make_unique<Variable>(/*offset=*/-1,
-                                                   fContext.fModifiersPool->add(modifiers),
-                                                   DEVICE_COORDS_NAME,
-                                                   fContext.fTypes.fFloat4.get(),
-                                                   true,
-                                                   Variable::Storage::kGlobal));
+            auto coordsVar = std::make_unique<Variable>(/*offset=*/-1,
+                                                        fContext.fModifiersPool->add(modifiers),
+                                                        DEVICE_COORDS_NAME,
+                                                        fContext.fTypes.fFloat4.get(),
+                                                        true,
+                                                        Variable::Storage::kGlobal);
+            fSPIRVBonusVariables.insert(coordsVar.get());
+            symbols.add(std::move(coordsVar));
             if (fProgram.fPool) {
                 fProgram.fPool->detachFromThread();
             }
@@ -2117,12 +2119,14 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
             if (fProgram.fPool) {
                 fProgram.fPool->attachToThread();
             }
-            symbols.add(std::make_unique<Variable>(/*offset=*/-1,
-                                                   fContext.fModifiersPool->add(modifiers),
-                                                   DEVICE_CLOCKWISE_NAME,
-                                                   fContext.fTypes.fBool.get(),
-                                                   true,
-                                                   Variable::Storage::kGlobal));
+            auto clockwiseVar = std::make_unique<Variable>(/*offset=*/-1,
+                                                           fContext.fModifiersPool->add(modifiers),
+                                                           DEVICE_CLOCKWISE_NAME,
+                                                           fContext.fTypes.fBool.get(),
+                                                           true,
+                                                           Variable::Storage::kGlobal);
+            fSPIRVBonusVariables.insert(clockwiseVar.get());
+            symbols.add(std::move(clockwiseVar));
             if (fProgram.fPool) {
                 fProgram.fPool->detachFromThread();
             }
@@ -3064,6 +3068,7 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
                                            rtFlipStructType,
                                            intfVar.isBuiltin(),
                                            intfVar.storage()));
+        fSPIRVBonusVariables.insert(modifiedVar);
         InterfaceBlock modifiedCopy(intf.fOffset,
                                     modifiedVar,
                                     intf.typeName(),
@@ -3109,8 +3114,13 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
     return result;
 }
 
-static bool is_dead(const Variable& var, const ProgramUsage* usage) {
-    ProgramUsage::VariableCounts counts = usage->get(var);
+bool SPIRVCodeGenerator::isDead(const Variable& var) const {
+    // During SPIR-V code generation, we synthesize some extra bonus variables that don't actually
+    // exist in the Program at all and aren't tracked by the ProgramUsage. They aren't dead, though.
+    if (fSPIRVBonusVariables.count(&var)) {
+        return false;
+    }
+    ProgramUsage::VariableCounts counts = fProgram.usage()->get(var);
     if (counts.fRead || counts.fWrite) {
         return false;
     }
@@ -3133,7 +3143,7 @@ void SPIRVCodeGenerator::writeGlobalVar(ProgramKind kind, const VarDeclaration& 
         SkASSERT(!fProgram.fConfig->fSettings.fFragColorIsInOut);
         return;
     }
-    if (is_dead(var, fProgram.fUsage.get())) {
+    if (this->isDead(var)) {
         return;
     }
     SpvStorageClass_ storageClass = get_storage_class(var, SpvStorageClassPrivate);
@@ -3628,6 +3638,7 @@ void SPIRVCodeGenerator::addRTFlipUniform(int offset) {
                                        intfStruct,
                                        /*builtin=*/false,
                                        Variable::Storage::kGlobal));
+    fSPIRVBonusVariables.insert(intfVar);
     if (fProgram.fPool) {
         fProgram.fPool->attachToThread();
     }
@@ -3674,8 +3685,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
 
             const Modifiers& modifiers = intf.variable().modifiers();
             if ((modifiers.fFlags & (Modifiers::kIn_Flag | Modifiers::kOut_Flag)) &&
-                modifiers.fLayout.fBuiltin == -1 &&
-                !is_dead(intf.variable(), fProgram.fUsage.get())) {
+                modifiers.fLayout.fBuiltin == -1 && !this->isDead(intf.variable())) {
                 interfaceVars.insert(id);
             }
         }
@@ -3713,7 +3723,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
         const Variable* var = entry.first;
         if (var->storage() == Variable::Storage::kGlobal &&
             (var->modifiers().fFlags & (Modifiers::kIn_Flag | Modifiers::kOut_Flag)) &&
-            !is_dead(*var, fProgram.fUsage.get())) {
+            !this->isDead(*var)) {
             interfaceVars.insert(entry.second);
         }
     }

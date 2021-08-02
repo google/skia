@@ -11,6 +11,7 @@
 #include <stack>
 #include <tuple>
 #include <unordered_map>
+#include <unordered_set>
 
 #include "include/private/SkSLModifiers.h"
 #include "include/private/SkSLProgramElement.h"
@@ -443,6 +444,8 @@ private:
 
     void writeGeometryShaderExecutionMode(SpvId entryPoint, OutputStream& out);
 
+    bool isDead(const Variable& var) const;
+
     MemoryLayout memoryLayoutForVariable(const Variable&) const;
 
     struct EntrypointAdapter {
@@ -503,6 +506,7 @@ private:
     UniformBuffer fUniformBuffer;
     std::vector<const VarDeclaration*> fTopLevelUniforms;
     std::unordered_map<const Variable*, int> fTopLevelUniformMap; //<var, UniformBuffer field index>
+    std::unordered_set<const Variable*> fSPIRVBonusVariables;
     SpvId fUniformBufferId = -1;
 
     friend class PointerLValue;
