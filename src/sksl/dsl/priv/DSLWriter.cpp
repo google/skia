@@ -237,7 +237,7 @@ const SkSL::Variable* DSLWriter::Var(DSLVarBase& var) {
                                                                           /*isArray=*/false,
                                                                           /*arraySize=*/nullptr,
                                                                           var.storage());
-        SkSL::Variable* varPtr = skslvar.get();
+        var.fVar = skslvar.get();
         // We can't call VarDeclaration::Convert directly here, because the IRGenerator has special
         // treatment for sk_FragColor that we want to preserve in DSL. We also do not want the
         // variable added to the symbol table for several reasons - DSLParser handles the symbol
@@ -249,9 +249,6 @@ const SkSL::Variable* DSLWriter::Var(DSLVarBase& var) {
                                                                  std::move(skslvar),
                                                                  var.fInitialValue.releaseIfValid(),
                                                                  /*addToSymbolTable=*/false);
-        if (var.fDeclaration) {
-            var.fVar = varPtr;
-        }
         ReportErrors();
     }
     return var.fVar;
