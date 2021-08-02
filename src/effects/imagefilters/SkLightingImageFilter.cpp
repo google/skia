@@ -483,13 +483,12 @@ sk_sp<SkSpecialImage> SkLightingImageFilterInternal::filterImageGPU(
                      kPremul_SkAlphaType,
                      ctx.refColorSpace(),
                      offsetBounds.size());
-    auto sfc = GrSurfaceFillContext::Make(rContext,
-                                          info,
-                                          SkBackingFit::kApprox,
-                                          1,
-                                          GrMipmapped::kNo,
-                                          inputView.proxy()->isProtected(),
-                                          kBottomLeft_GrSurfaceOrigin);
+    auto sfc = rContext->priv().makeSFC(info,
+                                        SkBackingFit::kApprox,
+                                        1,
+                                        GrMipmapped::kNo,
+                                        inputView.proxy()->isProtected(),
+                                        kBottomLeft_GrSurfaceOrigin);
     if (!sfc) {
         return nullptr;
     }

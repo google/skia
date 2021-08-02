@@ -327,14 +327,13 @@ GrSurfaceProxyView SkImage_Lazy::textureProxyViewFromPlanes(GrRecordingContext* 
                      kPremul_SkAlphaType,
                      /*color space*/ nullptr,
                      this->dimensions());
-    auto surfaceFillContext = GrSurfaceFillContext::Make(ctx,
-                                                         info,
-                                                         SkBackingFit::kExact,
-                                                         1,
-                                                         GrMipmapped::kNo,
-                                                         GrProtected::kNo,
-                                                         kTopLeft_GrSurfaceOrigin,
-                                                         budgeted);
+    auto surfaceFillContext = ctx->priv().makeSFC(info,
+                                                  SkBackingFit::kExact,
+                                                  1,
+                                                  GrMipmapped::kNo,
+                                                  GrProtected::kNo,
+                                                  kTopLeft_GrSurfaceOrigin,
+                                                  budgeted);
     if (!surfaceFillContext) {
         return {};
     }

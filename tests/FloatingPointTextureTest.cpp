@@ -60,7 +60,7 @@ void runFPTest(skiatest::Reporter* reporter, GrDirectContext* dContext,
             continue;
         }
 
-        auto sContext = GrSurfaceContext::Make(dContext, std::move(fpView), info.colorInfo());
+        auto sContext = dContext->priv().makeSC(std::move(fpView), info.colorInfo());
         REPORTER_ASSERT(reporter, sContext);
 
         GrPixmap readPixmap(info, readBuffer.begin(), info.minRowBytes());

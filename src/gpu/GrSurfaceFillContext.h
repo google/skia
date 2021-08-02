@@ -35,65 +35,6 @@ public:
                          const GrColorInfo&,
                          bool flushTimeOpsTask = false);
 
-    /**
-     * Uses GrImageInfo's color type to pick the default texture format. Will return a
-     * SurfaceDrawContext if possible.
-     */
-    static std::unique_ptr<GrSurfaceFillContext> Make(GrRecordingContext*,
-                                                      GrImageInfo,
-                                                      SkBackingFit = SkBackingFit::kExact,
-                                                      int sampleCount = 1,
-                                                      GrMipmapped = GrMipmapped::kNo,
-                                                      GrProtected = GrProtected::kNo,
-                                                      GrSurfaceOrigin = kTopLeft_GrSurfaceOrigin,
-                                                      SkBudgeted = SkBudgeted::kYes);
-
-    /**
-     * Like the above but uses GetFallbackColorTypeAndFormat to find a fallback color type (and
-     * compatible format) if the passed GrImageInfo's color type is not renderable.
-     */
-    static std::unique_ptr<GrSurfaceFillContext> MakeWithFallback(
-            GrRecordingContext*,
-            GrImageInfo,
-            SkBackingFit = SkBackingFit::kExact,
-            int sampleCount = 1,
-            GrMipmapped = GrMipmapped::kNo,
-            GrProtected = GrProtected::kNo,
-            GrSurfaceOrigin = kTopLeft_GrSurfaceOrigin,
-            SkBudgeted = SkBudgeted::kYes);
-
-    /**
-     * Makes a custom configured GrSurfaceFillContext where the caller specifies the specific
-     * texture format and swizzles. The color type will be kUnknown. Returns a SurfaceDrawContext
-     * if possible.
-     */
-    static std::unique_ptr<GrSurfaceFillContext> Make(GrRecordingContext*,
-                                                      SkAlphaType,
-                                                      sk_sp<SkColorSpace>,
-                                                      SkISize dimensions,
-                                                      SkBackingFit,
-                                                      const GrBackendFormat&,
-                                                      int sampleCount,
-                                                      GrMipmapped,
-                                                      GrProtected,
-                                                      GrSwizzle readSwizzle,
-                                                      GrSwizzle writeSwizzle,
-                                                      GrSurfaceOrigin,
-                                                      SkBudgeted);
-
-    /**
-     * Creates a GrSurfaceFillContext from an existing GrBackendTexture. The GrColorInfo's color
-     * type must be compatible with backend texture's format or this will fail. All formats are
-     * considered compatible with kUnknown. Returns a SurfaceDrawContext if possible.
-     */
-    static std::unique_ptr<GrSurfaceFillContext> MakeFromBackendTexture(
-            GrRecordingContext*,
-            GrColorInfo,
-            const GrBackendTexture&,
-            int sampleCount,
-            GrSurfaceOrigin,
-            sk_sp<GrRefCntedCallback> releaseHelper);
-
     GrSurfaceFillContext* asFillContext() override { return this; }
 
     /**

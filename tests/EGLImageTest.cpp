@@ -165,7 +165,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
     GrSwizzle swizzle = context0->priv().caps()->getReadSwizzle(texProxy->backendFormat(),
                                                                 colorInfo.colorType());
     GrSurfaceProxyView view(std::move(texProxy), origin, swizzle);
-    auto surfaceContext = GrSurfaceContext::Make(context0, std::move(view), colorInfo);
+    auto surfaceContext = context0->priv().makeSC(std::move(view), colorInfo);
 
     if (!surfaceContext) {
         ERRORF(reporter, "Error wrapping external texture in GrSurfaceContext.");
@@ -184,12 +184,11 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
 
     // Should not be able to wrap as a RT
     {
-        auto temp = GrSurfaceFillContext::MakeFromBackendTexture(context0,
-                                                                 colorInfo,
-                                                                 backendTex,
-                                                                 1,
-                                                                 origin,
-                                                                 /*release helper*/ nullptr);
+        auto temp = context0->priv().makeSFCFromBackendTexture(colorInfo,
+                                                               backendTex,
+                                                               1,
+                                                               origin,
+                                                               /*release helper*/ nullptr);
         if (temp) {
             ERRORF(reporter, "Should not be able to wrap an EXTERNAL texture as a RT.");
         }

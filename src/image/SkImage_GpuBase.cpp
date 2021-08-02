@@ -114,7 +114,7 @@ bool SkImage_GpuBase::getROPixels(GrDirectContext* dContext,
     }
 
     GrColorInfo colorInfo(ct, this->alphaType(), this->refColorSpace());
-    auto sContext = GrSurfaceContext::Make(dContext, std::move(view), std::move(colorInfo));
+    auto sContext = dContext->priv().makeSC(std::move(view), std::move(colorInfo));
     if (!sContext) {
         return false;
     }
@@ -174,7 +174,7 @@ bool SkImage_GpuBase::onReadPixels(GrDirectContext* dContext,
     SkASSERT(view);
 
     GrColorInfo colorInfo(ct, this->alphaType(), this->refColorSpace());
-    auto sContext = GrSurfaceContext::Make(dContext, std::move(view), colorInfo);
+    auto sContext = dContext->priv().makeSC(std::move(view), colorInfo);
     if (!sContext) {
         return false;
     }

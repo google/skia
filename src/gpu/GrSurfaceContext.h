@@ -38,12 +38,6 @@ struct SkIRect;
  */
 class GrSurfaceContext {
 public:
-    // If the passed in GrSurfaceProxy is renderable this will return a SurfaceDrawContext,
-    // otherwise it will return a GrSurfaceContext.
-    static std::unique_ptr<GrSurfaceContext> Make(GrRecordingContext*,
-                                                  GrSurfaceProxyView readView,
-                                                  const GrColorInfo&);
-
     // Makes either a GrSurfaceContext, GrFillDrawContext, or a SurfaceDrawContext, depending on
     // GrRenderable and the GrImageInfo.
     static std::unique_ptr<GrSurfaceContext> Make(GrRecordingContext*,
@@ -234,6 +228,7 @@ protected:
                          ReadPixelsContext);
 
 private:
+    friend class GrRecordingContextPriv; // for validate
     friend class GrSurfaceProxy; // for copy
 
     SkDEBUGCODE(virtual void onValidate() const {})

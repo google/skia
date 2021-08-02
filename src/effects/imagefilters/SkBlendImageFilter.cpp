@@ -312,7 +312,7 @@ sk_sp<SkSpecialImage> SkBlendImageFilter::filterImageGPU(const Context& ctx,
         fp = as_BB(fBlender)->asFragmentProcessor(std::move(fgFP), std::move(fp), args);
     }
 
-    auto sfc = GrSurfaceFillContext::Make(rContext, info, SkBackingFit::kApprox);
+    auto sfc = rContext->priv().makeSFC(info, SkBackingFit::kApprox);
     if (!sfc) {
         return nullptr;
     }

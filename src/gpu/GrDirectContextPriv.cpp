@@ -251,8 +251,8 @@ static bool test_for_preserving_PM_conversions(GrDirectContext* dContext) {
             SkImageInfo::Make(kSize, kSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
     const SkImageInfo upmII = pmII.makeAlphaType(kUnpremul_SkAlphaType);
 
-    auto readSFC = GrSurfaceFillContext::Make(dContext, upmII, SkBackingFit::kExact);
-    auto tempSFC = GrSurfaceFillContext::Make(dContext,  pmII, SkBackingFit::kExact);
+    auto readSFC = dContext->priv().makeSFC(upmII, SkBackingFit::kExact);
+    auto tempSFC = dContext->priv().makeSFC(pmII,  SkBackingFit::kExact);
     if (!readSFC || !tempSFC) {
         return false;
     }
@@ -367,4 +367,45 @@ sk_sp<skgpu::BaseDevice> GrDirectContextPriv::createDevice(SkBudgeted budgeted,
     return fContext->GrRecordingContext::priv().createDevice(budgeted, ii, fit, sampleCount,
                                                              mipmapped, isProtected,
                                                              origin, props, init);
+}
+
+std::unique_ptr<GrSurfaceContext> GrDirectContextPriv::makeSC(GrSurfaceProxyView readView,
+                                                              const GrColorInfo& info) {
+    return fContext->GrRecordingContext::priv().makeSC(readView, info);
+}
+
+std::unique_ptr<GrSurfaceFillContext> GrDirectContextPriv::makeSFC(GrImageInfo info,
+                                                                   SkBackingFit fit,
+                                                                   int sampleCount,
+                                                                   GrMipmapped mipmapped,
+                                                                   GrProtected isProtected,
+                                                                   GrSurfaceOrigin origin,
+                                                                   SkBudgeted budgeted) {
+    return fContext->GrRecordingContext::priv().makeSFC(info, fit, sampleCount, mipmapped,
+                                                        isProtected, origin, budgeted);
+}
+
+std::unique_ptr<GrSurfaceFillContext> GrDirectContextPriv::makeSFCWithFallback(
+        GrImageInfo info,
+        SkBackingFit fit,
+        int sampleCount,
+        GrMipmapped mipmapped,
+        GrProtected isProtected,
+        GrSurfaceOrigin origin,
+        SkBudgeted budgeted) {
+    return fContext->GrRecordingContext::priv().makeSFCWithFallback(info, fit, sampleCount,
+                                                                    mipmapped, isProtected,
+                                                                    origin, budgeted);
+}
+
+std::unique_ptr<GrSurfaceFillContext> GrDirectContextPriv::makeSFCFromBackendTexture(
+        GrColorInfo info,
+        const GrBackendTexture& tex,
+        int sampleCount,
+        GrSurfaceOrigin origin,
+        sk_sp<GrRefCntedCallback> releaseHelper) {
+    return fContext->GrRecordingContext::priv().makeSFCFromBackendTexture(info, tex, sampleCount,
+                                                                          origin,
+                                                                          std::move(releaseHelper));
+
 }

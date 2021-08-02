@@ -283,7 +283,7 @@ static void check_base_readbacks(GrDirectContext* dContext,
                                                                colorType);
         GrSurfaceProxyView readView(proxy, kTopLeft_GrSurfaceOrigin, swizzle);
         GrColorInfo info(colorType, kUnpremul_SkAlphaType, nullptr);
-        auto surfaceContext = GrSurfaceContext::Make(dContext, readView, info);
+        auto surfaceContext = dContext->priv().makeSC(readView, info);
         if (!surfaceContext) {
             ERRORF(reporter, "Could not create surface context for colorType: %d\n", colorType);
         }
@@ -378,7 +378,7 @@ static void check_mipmaps(GrDirectContext* dContext,
     }
 
     GrImageInfo info(GrColorType::kRGBA_8888, kUnpremul_SkAlphaType, nullptr, {32, 32});
-    auto dstFillContext = GrSurfaceFillContext::Make(dContext, info);
+    auto dstFillContext = dContext->priv().makeSFC(info);
     if (!dstFillContext) {
         ERRORF(reporter, "Could not make dst fill context.");
         return;

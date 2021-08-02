@@ -403,13 +403,12 @@ sk_sp<SkSpecialImage> SkArithmeticImageFilter::filterImageGPU(
     }
 
     GrImageInfo info(ctx.grColorType(), kPremul_SkAlphaType, ctx.refColorSpace(), bounds.size());
-    auto sfc = GrSurfaceFillContext::Make(rContext,
-                                          info,
-                                          SkBackingFit::kApprox,
-                                          1,
-                                          GrMipmapped::kNo,
-                                          isProtected,
-                                          kBottomLeft_GrSurfaceOrigin);
+    auto sfc = rContext->priv().makeSFC(info,
+                                        SkBackingFit::kApprox,
+                                        1,
+                                        GrMipmapped::kNo,
+                                        isProtected,
+                                        kBottomLeft_GrSurfaceOrigin);
     if (!sfc) {
         return nullptr;
     }

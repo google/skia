@@ -33,19 +33,18 @@ DEF_SIMPLE_GPU_GM_CAN_FAIL(clear_swizzle, rContext, canvas, errorMsg, 6*kSize, 2
     auto make_offscreen = [&](const SkISize dimensions) {
         GrSwizzle readSwizzle  = GrSwizzle::Concat(sfc->readSwizzle(), GrSwizzle{"bgra"});
         GrSwizzle writeSwizzle = GrSwizzle::Concat(sfc->readSwizzle(), GrSwizzle{"bgra"});
-        return GrSurfaceFillContext::Make(rContext,
-                                          kPremul_SkAlphaType,
-                                          sfc->colorInfo().refColorSpace(),
-                                          dimensions,
-                                          SkBackingFit::kExact,
-                                          sfc->asSurfaceProxy()->backendFormat(),
-                                          /* sample count*/ 1,
-                                          GrMipmapped::kNo,
-                                          sfc->asSurfaceProxy()->isProtected(),
-                                          readSwizzle,
-                                          writeSwizzle,
-                                          kTopLeft_GrSurfaceOrigin,
-                                          SkBudgeted::kYes);
+        return rContext->priv().makeSFC(kPremul_SkAlphaType,
+                                        sfc->colorInfo().refColorSpace(),
+                                        dimensions,
+                                        SkBackingFit::kExact,
+                                        sfc->asSurfaceProxy()->backendFormat(),
+                                        /* sample count*/ 1,
+                                        GrMipmapped::kNo,
+                                        sfc->asSurfaceProxy()->isProtected(),
+                                        readSwizzle,
+                                        writeSwizzle,
+                                        kTopLeft_GrSurfaceOrigin,
+                                        SkBudgeted::kYes);
     };
 
     struct {

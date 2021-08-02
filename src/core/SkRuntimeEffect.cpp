@@ -1264,22 +1264,21 @@ sk_sp<SkShader> SkRuntimeEffect::makeShader(sk_sp<SkData> uniforms,
                                           children, isOpaque));
 }
 
-sk_sp<SkImage> SkRuntimeEffect::makeImage(GrRecordingContext* recordingContext,
+sk_sp<SkImage> SkRuntimeEffect::makeImage(GrRecordingContext* rContext,
                                           sk_sp<SkData> uniforms,
                                           SkSpan<ChildPtr> children,
                                           const SkMatrix* localMatrix,
                                           SkImageInfo resultInfo,
                                           bool mipmapped) const {
-    if (recordingContext) {
+    if (rContext) {
 #if SK_SUPPORT_GPU
-        if (!recordingContext->priv().caps()->mipmapSupport()) {
+        if (!rContext->priv().caps()->mipmapSupport()) {
             mipmapped = false;
         }
-        auto fillContext = GrSurfaceFillContext::Make(recordingContext,
-                                                      resultInfo,
-                                                      SkBackingFit::kExact,
-                                                      /*sample count*/ 1,
-                                                      GrMipmapped(mipmapped));
+        auto fillContext = rContext->priv().makeSFC(resultInfo,
+                                                    SkBackingFit::kExact,
+                                                    /*sample count*/ 1,
+                                                    GrMipmapped(mipmapped));
         if (!fillContext) {
             return nullptr;
         }
@@ -1288,7 +1287,7 @@ sk_sp<SkImage> SkRuntimeEffect::makeImage(GrRecordingContext* recordingContext,
 
         SkSimpleMatrixProvider matrixProvider(SkMatrix::I());
         GrColorInfo colorInfo(resultInfo.colorInfo());
-        GrFPArgs args(recordingContext, matrixProvider, &colorInfo);
+        GrFPArgs args(rContext, matrixProvider, &colorInfo);
         SkSTArray<8, std::unique_ptr<GrFragmentProcessor>> childFPs;
         for (size_t i = 0; i < children.size(); ++i) {
             // TODO: add support for other types of child effects
@@ -1314,7 +1313,7 @@ sk_sp<SkImage> SkRuntimeEffect::makeImage(GrRecordingContext* recordingContext,
         } else {
             fillContext->fillWithFP(std::move(fp));
         }
-        return sk_sp<SkImage>(new SkImage_Gpu(sk_ref_sp(recordingContext),
+        return sk_sp<SkImage>(new SkImage_Gpu(sk_ref_sp(rContext),
                                               kNeedNewImageUniqueID,
                                               fillContext->readSurfaceView(),
                                               resultInfo.colorInfo()));

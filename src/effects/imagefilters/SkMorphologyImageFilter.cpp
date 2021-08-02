@@ -454,13 +454,12 @@ static sk_sp<SkSpecialImage> apply_morphology(
 
     if (radius.fWidth > 0) {
         GrImageInfo info(colorType, kPremul_SkAlphaType, colorSpace, rect.size());
-        auto dstFillContext = GrSurfaceFillContext::Make(rContext,
-                                                         info,
-                                                         SkBackingFit::kApprox,
-                                                         1,
-                                                         GrMipmapped::kNo,
-                                                         proxy->isProtected(),
-                                                         kBottomLeft_GrSurfaceOrigin);
+        auto dstFillContext = rContext->priv().makeSFC(info,
+                                                       SkBackingFit::kApprox,
+                                                       1,
+                                                       GrMipmapped::kNo,
+                                                       proxy->isProtected(),
+                                                       kBottomLeft_GrSurfaceOrigin);
         if (!dstFillContext) {
             return nullptr;
         }
@@ -479,13 +478,12 @@ static sk_sp<SkSpecialImage> apply_morphology(
     }
     if (radius.fHeight > 0) {
         GrImageInfo info(colorType, kPremul_SkAlphaType, colorSpace, rect.size());
-        auto dstFillContext = GrSurfaceFillContext::Make(rContext,
-                                                         info,
-                                                         SkBackingFit::kApprox,
-                                                         1,
-                                                         GrMipmapped::kNo,
-                                                         srcView.proxy()->isProtected(),
-                                                         kBottomLeft_GrSurfaceOrigin);
+        auto dstFillContext = rContext->priv().makeSFC(info,
+                                                       SkBackingFit::kApprox,
+                                                       1,
+                                                       GrMipmapped::kNo,
+                                                       srcView.proxy()->isProtected(),
+                                                       kBottomLeft_GrSurfaceOrigin);
         if (!dstFillContext) {
             return nullptr;
         }

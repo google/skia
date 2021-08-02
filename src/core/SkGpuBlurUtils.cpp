@@ -9,6 +9,7 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkRect.h"
+#include "src/core/SkMathPriv.h"
 
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrRecordingContext.h"
@@ -18,9 +19,9 @@
 #include "src/gpu/effects/GrGaussianConvolutionFragmentProcessor.h"
 #include "src/gpu/effects/GrMatrixConvolutionEffect.h"
 #include "src/gpu/effects/GrTextureEffect.h"
-#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
 #if SK_GPU_V1
+#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
 using Direction = GrGaussianConvolutionFragmentProcessor::Direction;
 
@@ -567,7 +568,7 @@ std::unique_ptr<skgpu::v1::SurfaceDrawContext> GaussianBlur(GrRecordingContext* 
     }
 
     GrColorInfo colorInfo(srcColorType, srcAlphaType, colorSpace);
-    auto srcCtx = GrSurfaceContext::Make(rContext, srcView, colorInfo);
+    auto srcCtx = rContext->priv().makeSC(srcView, colorInfo);
     SkASSERT(srcCtx);
 
     float scaleX = sigmaX > kMaxSigma ? kMaxSigma/sigmaX : 1.f;

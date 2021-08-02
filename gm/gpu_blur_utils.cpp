@@ -46,20 +46,20 @@ static GrSurfaceProxyView blur(GrRecordingContext* ctx,
 
 // Performs tiling first of the src into dst bounds with a surrounding skirt so the blur can use
 // clamp. Does repeated blurs rather than invoking downsampling.
-static GrSurfaceProxyView slow_blur(GrRecordingContext* ctx,
+static GrSurfaceProxyView slow_blur(GrRecordingContext* rContext,
                                     GrSurfaceProxyView src,
                                     SkIRect dstB,
                                     SkIRect srcB,
                                     float sigmaX,
                                     float sigmaY,
                                     SkTileMode mode) {
-    auto tileInto = [ctx](GrSurfaceProxyView src,
-                          SkIRect srcTileRect,
-                          SkISize resultSize,
-                          SkIPoint offset,
-                          SkTileMode mode) {
+    auto tileInto = [rContext](GrSurfaceProxyView src,
+                               SkIRect srcTileRect,
+                               SkISize resultSize,
+                               SkIPoint offset,
+                               SkTileMode mode) {
         GrImageInfo info(GrColorType::kRGBA_8888, kPremul_SkAlphaType, nullptr, resultSize);
-        auto sfc = GrSurfaceFillContext::Make(ctx, info);
+        auto sfc = rContext->priv().makeSFC(info);
         if (!sfc) {
             return GrSurfaceProxyView{};
         }
@@ -69,7 +69,7 @@ static GrSurfaceProxyView slow_blur(GrRecordingContext* ctx,
                                               SkMatrix::Translate(-offset.x(), -offset.y()),
                                               sampler,
                                               SkRect::Make(srcTileRect),
-                                              *ctx->priv().caps());
+                                              *rContext->priv().caps());
         sfc->fillWithFP(std::move(fp));
         return sfc->readSurfaceView();
     };
@@ -100,7 +100,7 @@ static GrSurfaceProxyView slow_blur(GrRecordingContext* ctx,
             sigmaY = 0.f;
         }
         auto bounds = SkIRect::MakeSize(src.dimensions());
-        auto sdc = SkGpuBlurUtils::GaussianBlur(ctx,
+        auto sdc = SkGpuBlurUtils::GaussianBlur(rContext,
                                                 std::move(src),
                                                 GrColorType::kRGBA_8888,
                                                 kPremul_SkAlphaType,

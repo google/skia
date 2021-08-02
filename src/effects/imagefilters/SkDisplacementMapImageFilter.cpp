@@ -315,13 +315,12 @@ sk_sp<SkSpecialImage> SkDisplacementMapImageFilter::onFilterImage(const Context&
                          kPremul_SkAlphaType,
                          ctx.refColorSpace(),
                          bounds.size());
-        auto sfc = GrSurfaceFillContext::Make(context,
-                                              info,
-                                              SkBackingFit::kApprox,
-                                              1,
-                                              GrMipmapped::kNo,
-                                              isProtected,
-                                              kBottomLeft_GrSurfaceOrigin);
+        auto sfc = context->priv().makeSFC(info,
+                                           SkBackingFit::kApprox,
+                                           1,
+                                           GrMipmapped::kNo,
+                                           isProtected,
+                                           kBottomLeft_GrSurfaceOrigin);
         if (!sfc) {
             return nullptr;
         }

@@ -794,7 +794,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceClear_Gpu, reporter, ctxInfo) {
         auto gpuImage = static_cast<SkImage_Gpu*>(as_IB(i));
         auto [view, ct] = gpuImage->asView(dContext, GrMipmapped::kNo);
         GrColorInfo colorInfo(ct, i->alphaType(), i->refColorSpace());
-        return GrSurfaceContext::Make(dContext, view, std::move(colorInfo));
+        return dContext->priv().makeSC(view, std::move(colorInfo));
     };
 
     // Test that non-wrapped RTs are created clear.

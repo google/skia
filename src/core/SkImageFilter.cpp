@@ -593,13 +593,12 @@ sk_sp<SkSpecialImage> SkImageFilter_Base::DrawWithFP(GrRecordingContext* rContex
                      sk_ref_sp(colorSpace),
                      bounds.size());
 
-    auto sfc = GrSurfaceFillContext::Make(rContext,
-                                          info,
-                                          SkBackingFit::kApprox,
-                                          1,
-                                          GrMipmapped::kNo,
-                                          isProtected,
-                                          kBottomLeft_GrSurfaceOrigin);
+    auto sfc = rContext->priv().makeSFC(info,
+                                        SkBackingFit::kApprox,
+                                        1,
+                                        GrMipmapped::kNo,
+                                        isProtected,
+                                        kBottomLeft_GrSurfaceOrigin);
     if (!sfc) {
         return nullptr;
     }
