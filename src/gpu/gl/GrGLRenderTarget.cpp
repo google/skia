@@ -170,11 +170,12 @@ bool GrGLRenderTarget::completeStencilAttachment(GrAttachment* stencil, bool use
 
 #ifdef SK_DEBUG
     if (!gpu->glCaps().skipErrorChecks()) {
-        // This check can cause problems in Chromium if the context has been asynchronously
-        // abandoned (see skbug.com/5200)
         GrGLenum status;
         GR_GL_CALL_RET(interface, status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
-        SkASSERT(GR_GL_FRAMEBUFFER_COMPLETE == status);
+        if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
+            // This can fail if the context has been asynchronously abandoned (see skbug.com/5200).
+            return false;
+        }
     }
 #endif
 
