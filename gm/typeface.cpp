@@ -224,7 +224,7 @@ static void draw_typeface_rendering_gm(SkCanvas* canvas, sk_sp<SkTypeface> face,
 
             for (const AliasType& alias : aliasTypes) {
                 font.setEdging(alias.edging);
-                SkAutoCanvasRestore acr(canvas, false);
+                SkAutoCanvasRestore acr1(canvas, false);
                 if (alias.inLayer) {
                     canvas->saveLayer(nullptr, &paint);
                 }
@@ -239,7 +239,7 @@ static void draw_typeface_rendering_gm(SkCanvas* canvas, sk_sp<SkTypeface> face,
                         font.setHinting(hinting);
 
                         for (const bool& rotateABit : rotateABitTypes) {
-                            SkAutoCanvasRestore acr(canvas, true);
+                            SkAutoCanvasRestore acr2(canvas, true);
                             if (rotateABit) {
                                 canvas->rotate(2, x + subpixel.offset.x(),
                                                   y + subpixel.offset.y());

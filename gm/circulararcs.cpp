@@ -247,8 +247,7 @@ DEF_SIMPLE_GM(onebadarc, canvas, 100, 100) {
     canvas->translate(20, 0);
     canvas->drawPath(path.detach(), p0);
 
-    SkRect kRect = { 60, 0, 100, 40};
-    canvas->drawArc(kRect, 45, 90, true, p0);
+    canvas->drawArc(SkRect{60, 0, 100, 40}, 45, 90, true, p0);
 }
 
 DEF_SIMPLE_GM(crbug_888453, canvas, 480, 150) {

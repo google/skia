@@ -66,8 +66,6 @@ protected:
     SkISize onISize() override { return SkISize::Make(fWidth, fHeight); }
 
     DrawResult onDraw(GrRecordingContext* rContext, SkCanvas* canvas, SkString* errorMsg) override {
-        SkPaint paint;
-
         auto sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
         if (!sdc) {
             *errorMsg = kErrorMsg_DrawSkippedGpuOnly;
