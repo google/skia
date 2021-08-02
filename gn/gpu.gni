@@ -482,10 +482,6 @@ skia_gpu_sources = [
   "$_src/image/SkImage_GpuYUVA.h",
   "$_src/image/SkSurface_Gpu.cpp",
   "$_src/image/SkSurface_Gpu.h",
-
-  # V1 files temporarily here
-  "$_src/gpu/v1/SurfaceDrawContext.cpp",
-  "$_src/gpu/v1/SurfaceDrawContext_v1.h",
 ]
 
 skia_gl_gpu_sources = [
@@ -601,6 +597,8 @@ skia_skgpu_v1_sources = [
   "$_src/gpu/v1/Device.cpp",
   "$_src/gpu/v1/Device_drawTexture.cpp",
   "$_src/gpu/v1/Device_v1.h",
+  "$_src/gpu/v1/SurfaceDrawContext.cpp",
+  "$_src/gpu/v1/SurfaceDrawContext_v1.h",
 ]
 
 skia_gpu_sources += skia_skgpu_v1_sources

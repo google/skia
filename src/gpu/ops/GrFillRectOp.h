@@ -49,6 +49,8 @@ public:
                                      const SkRect&,
                                      const GrUserStencilSettings* = nullptr);
 
+    // TODO: remove this guard once GrFillRectOp is made V1-only
+#if SK_GPU_V1
     // Bulk API for drawing quads with a single op
     // TODO(michaelludwig) - remove if the bulk API is not useful for SkiaRenderer
     static void AddFillRectOps(skgpu::v1::SurfaceDrawContext*,
@@ -60,6 +62,7 @@ public:
                                const GrQuadSetEntry quads[],
                                int quadCount,
                                const GrUserStencilSettings* = nullptr);
+#endif
 
 #if GR_TEST_UTILS
     static uint32_t ClassID();
