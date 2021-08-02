@@ -459,6 +459,11 @@ std::unique_ptr<Program> Compiler::convertProgram(
     settings.fRemoveDeadFunctions &= settings.fOptimize;
     settings.fRemoveDeadVariables &= settings.fOptimize;
 
+    // Runtime effects always allow narrowing conversions.
+    if (ProgramConfig::IsRuntimeEffect(kind)) {
+        settings.fAllowNarrowingConversions = true;
+    }
+
     fErrorText = "";
     fErrorCount = 0;
     fInliner.reset();

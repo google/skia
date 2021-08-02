@@ -226,7 +226,6 @@ SkRuntimeEffect::Result SkRuntimeEffect::MakeFromSource(SkString sksl,
         settings.fInlineThreshold = 0;
         settings.fForceNoInline = options.forceNoInline;
         settings.fEnforceES2Restrictions = options.enforceES2Restrictions;
-        settings.fAllowNarrowingConversions = true;
         program = compiler->convertProgram(kind, SkSL::String(sksl.c_str(), sksl.size()), settings);
 
         if (!program) {

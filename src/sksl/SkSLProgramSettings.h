@@ -30,11 +30,10 @@ struct ProgramSettings {
     bool fForceHighPrecision = false;
     // if true, add -0.5 bias to LOD of all texture lookups
     bool fSharpenTextures = false;
-    // if the program needs to create an RTFlip uniform, this is its offset in the uniform
-    // buffer
+    // if the program needs to create an RTFlip uniform, this is its offset in the uniform buffer
     int fRTFlipOffset = -1;
-    // if the program needs to create an RTFlip uniform and is creating spriv, this is the
-    // binding and set number of the uniform buffer.
+    // if the program needs to create an RTFlip uniform and is creating SPIR-V, this is the binding
+    // and set number of the uniform buffer.
     int fRTFlipBinding = -1;
     int fRTFlipSet = -1;
     // If layout(set=S, binding=B) is not specified for a uniform, these values will be used.
@@ -53,8 +52,8 @@ struct ProgramSettings {
     int fInlineThreshold = SkSL::kDefaultInlineThreshold;
     // If true, every function in the generated program will be given the `noinline` modifier.
     bool fForceNoInline = false;
-    // If true, implicit conversions to lower precision numeric types are allowed
-    // (eg, float to half)
+    // If true, implicit conversions to lower precision numeric types are allowed (e.g., float to
+    // half). These are always allowed when compiling Runtime Effects.
     bool fAllowNarrowingConversions = false;
     // If true, then Debug code will run SPIR-V output through the validator to ensure its
     // correctness
@@ -91,13 +90,13 @@ struct ProgramConfig {
 
     bool strictES2Mode() const {
         return fSettings.fEnforceES2Restrictions &&
-               (this->isRuntimeEffect() || fKind == ProgramKind::kGeneric);
+               (IsRuntimeEffect(fKind) || fKind == ProgramKind::kGeneric);
     }
 
-    bool isRuntimeEffect() const {
-        return (fKind == ProgramKind::kRuntimeColorFilter ||
-                fKind == ProgramKind::kRuntimeShader ||
-                fKind == ProgramKind::kRuntimeBlender);
+    static bool IsRuntimeEffect(ProgramKind kind) {
+        return (kind == ProgramKind::kRuntimeColorFilter ||
+                kind == ProgramKind::kRuntimeShader ||
+                kind == ProgramKind::kRuntimeBlender);
     }
 };
 

@@ -245,7 +245,7 @@ private:
     }
 
     bool isRuntimeEffect() const {
-        return fContext.fConfig->isRuntimeEffect();
+        return ProgramConfig::IsRuntimeEffect(fContext.fConfig->fKind);
     }
 
     const ShaderCapsClass& caps() const {

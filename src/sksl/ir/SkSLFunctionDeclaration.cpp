@@ -90,7 +90,7 @@ static bool check_parameters(const Context& context,
 
         Modifiers m = param->modifiers();
         if (isMain) {
-            if (context.fConfig->isRuntimeEffect()) {
+            if (ProgramConfig::IsRuntimeEffect(context.fConfig->fKind)) {
                 // We verify that the signature is fully correct later. For now, if this is a
                 // runtime effect of any flavor, a float2 param is supposed to be the coords, and a
                 // half4/float parameter is supposed to be the input or destination color:
