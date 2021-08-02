@@ -484,8 +484,7 @@ private:
         SkFont font(nullptr, 12);
 
         if (gridX == 0) {
-            SkString name = shape->name();
-            SkScalar centering = name.size() * 4.f; // ad-hoc
+            SkScalar centering = shape->name().size() * 4.f; // ad-hoc
 
             canvas->save();
             canvas->translate(-10.f, 4 * ShapeRenderer::kTileHeight + centering);

@@ -604,7 +604,6 @@ protected:
         SkPoint storage[3 + 2 + 1];
         SkPoint* tmp = storage;
         const SkPoint* prev = pts;
-        int n = count;
         for (int n = count; n > 0; --n) {
             for (int i = 0; i < n; ++i) {
                 canvas->drawLine(prev[i], prev[i+1], paint);
@@ -616,7 +615,7 @@ protected:
 
         paint.setColor(SK_ColorBLUE);
         paint.setStyle(SkPaint::kFill_Style);
-        n = tmp - storage;
+        int n = tmp - storage;
         for (int i = 0; i < n; ++i) {
             Dot(canvas, storage[i], 4, SK_ColorBLUE);
         }
