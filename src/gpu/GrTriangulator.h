@@ -413,9 +413,15 @@ struct GrTriangulator::Edge {
     bool     fUsedInLeftPoly;
     bool     fUsedInRightPoly;
     Line     fLine;
-    double dist(const SkPoint& p) const { return fLine.dist(p); }
-    bool isRightOf(Vertex* v) const { return fLine.dist(v->fPoint) < 0.0; }
-    bool isLeftOf(Vertex* v) const { return fLine.dist(v->fPoint) > 0.0; }
+
+    double dist(const SkPoint& p) const {
+        // Coerce points coincident with the vertices to have dist = 0, since converting from
+        // a double intersection point back to float storage might construct a point that's no
+        // longer on the ideal line.
+        return (p == fTop->fPoint || p == fBottom->fPoint) ? 0.0 : fLine.dist(p);
+    }
+    bool isRightOf(Vertex* v) const { return this->dist(v->fPoint) < 0.0; }
+    bool isLeftOf(Vertex* v) const { return this->dist(v->fPoint) > 0.0; }
     void recompute() { fLine = Line(fTop, fBottom); }
     void insertAbove(Vertex*, const Comparator&);
     void insertBelow(Vertex*, const Comparator&);

@@ -145,34 +145,127 @@ bool GrTriangulator::Line::intersect(const Line& other, SkPoint* point) const {
     double scale = 1.0 / denom;
     point->fX = double_to_clamped_scalar((fB * other.fC - other.fB * fC) * scale);
     point->fY = double_to_clamped_scalar((other.fA * fC - fA * other.fC) * scale);
-    round(point);
+     round(point);
     return point->isFinite();
 }
 
-bool GrTriangulator::Edge::intersect(const Edge& other, SkPoint* p, uint8_t* alpha) const {
-    TESS_LOG("intersecting %g -> %g with %g -> %g\n",
-             fTop->fID, fBottom->fID, other.fTop->fID, other.fBottom->fID);
-    if (fTop == other.fTop || fBottom == other.fBottom) {
+// If the edge's vertices differ by many orders of magnitude, the computed line equation can have
+// significant error in its distance and intersection tests. To avoid this, we recursively subdivide
+// long edges and effectively perform a binary search to perform a more accurate intersection test.
+static bool edge_line_needs_recursion(const SkPoint& p0, const SkPoint& p1) {
+    // ilogbf(0) returns an implementation-defined constant, but we are choosing to saturate
+    // negative exponents to 0 for comparisons sake. We're only trying to recurse on lines with
+    // very large coordinates.
+    int expDiffX = std::abs((std::abs(p0.fX) < 1.f ? 0 : std::ilogbf(p0.fX)) -
+                            (std::abs(p1.fX) < 1.f ? 0 : std::ilogbf(p1.fX)));
+    int expDiffY = std::abs((std::abs(p0.fY) < 1.f ? 0 : std::ilogbf(p0.fY)) -
+                            (std::abs(p1.fY) < 1.f ? 0 : std::ilogbf(p1.fY)));
+    // Differ by more than 2^20, or roughly a factor of one million.
+    return expDiffX > 20 || expDiffY > 20;
+}
+
+static bool recursive_edge_intersect(const Line& u, SkPoint u0, SkPoint u1,
+                                     const Line& v, SkPoint v0, SkPoint v1,
+                                     SkPoint* p, double* s, double* t) {
+    // First check if the bounding boxes of [u0,u1] intersects [v0,v1]. If they do not, then the
+    // two line segments cannot intersect in their domain (even if the lines themselves might).
+    // - don't use SkRect::intersect since the vertices aren't sorted and horiz/vertical lines
+    //   appear as empty rects, which then never "intersect" according to SkRect.
+    if (std::min(u0.fX, u1.fX) > std::max(v0.fX, v1.fX) ||
+        std::max(u0.fX, u1.fX) < std::min(v0.fX, v1.fX) ||
+        std::min(u0.fY, u1.fY) > std::max(v0.fY, v1.fY) ||
+        std::max(u0.fY, u1.fY) < std::min(v0.fY, v1.fY)) {
         return false;
     }
-    double denom = fLine.fA * other.fLine.fB - fLine.fB * other.fLine.fA;
+
+    // Compute intersection based on current segment vertices; if an intersection is found but the
+    // vertices differ too much in magnitude, we recurse using the midpoint of the segment to
+    // reject false positives. We don't currently try to avoid false negatives (e.g. large magnitude
+    // line reports no intersection but there is one).
+    double denom = u.fA * v.fB - u.fB * v.fA;
     if (denom == 0.0) {
         return false;
     }
-    double dx = static_cast<double>(other.fTop->fPoint.fX) - fTop->fPoint.fX;
-    double dy = static_cast<double>(other.fTop->fPoint.fY) - fTop->fPoint.fY;
-    double sNumer = dy * other.fLine.fB + dx * other.fLine.fA;
-    double tNumer = dy * fLine.fB + dx * fLine.fA;
+    double dx = static_cast<double>(v0.fX) - u0.fX;
+    double dy = static_cast<double>(v0.fY) - u0.fY;
+    double sNumer = dy * v.fB + dx * v.fA;
+    double tNumer = dy * u.fB + dx * u.fA;
     // If (sNumer / denom) or (tNumer / denom) is not in [0..1], exit early.
     // This saves us doing the divide below unless absolutely necessary.
     if (denom > 0.0 ? (sNumer < 0.0 || sNumer > denom || tNumer < 0.0 || tNumer > denom)
                     : (sNumer > 0.0 || sNumer < denom || tNumer > 0.0 || tNumer < denom)) {
         return false;
     }
-    double s = sNumer / denom;
-    SkASSERT(s >= 0.0 && s <= 1.0);
-    p->fX = double_to_clamped_scalar(fTop->fPoint.fX - s * fLine.fB);
-    p->fY = double_to_clamped_scalar(fTop->fPoint.fY + s * fLine.fA);
+
+    *s = sNumer / denom;
+    *t = tNumer / denom;
+    SkASSERT(*s >= 0.0 && *s <= 1.0 && *t >= 0.0 && *t <= 1.0);
+
+    const bool uNeedsSplit = edge_line_needs_recursion(u0, u1);
+    const bool vNeedsSplit = edge_line_needs_recursion(v0, v1);
+    if (!uNeedsSplit && !vNeedsSplit) {
+        p->fX = double_to_clamped_scalar(u0.fX - (*s) * u.fB);
+        p->fY = double_to_clamped_scalar(u0.fY + (*s) * u.fA);
+        return true;
+    } else {
+        double sScale = 1.0, sShift = 0.0;
+        double tScale = 1.0, tShift = 0.0;
+
+        if (uNeedsSplit) {
+            SkPoint uM = {(float) (0.5 * u0.fX + 0.5 * u1.fX),
+                          (float) (0.5 * u0.fY + 0.5 * u1.fY)};
+            sScale = 0.5;
+            if (*s >= 0.5) {
+                u1 = uM;
+                sShift = 0.5;
+            } else {
+                u0 = uM;
+            }
+        }
+        if (vNeedsSplit) {
+            SkPoint vM = {(float) (0.5 * v0.fX + 0.5 * v1.fX),
+                          (float) (0.5 * v0.fY + 0.5 * v1.fY)};
+            tScale = 0.5;
+            if (*t >= 0.5) {
+                v1 = vM;
+                tShift = 0.5;
+            } else {
+                v0 = vM;
+            }
+        }
+
+        // Just recompute both lines, even if only one was split; we're already in a slow path.
+        if (recursive_edge_intersect(Line(u0, u1), u0, u1, Line(v0, v1), v0, v1, p, s, t)) {
+            // Adjust s and t back to full range
+            *s = sScale * (*s) + sShift;
+            *t = tScale * (*t) + tShift;
+            return true;
+        } else {
+            // False positive
+            return false;
+        }
+    }
+}
+
+bool GrTriangulator::Edge::intersect(const Edge& other, SkPoint* p, uint8_t* alpha) const {
+    TESS_LOG("intersecting %g -> %g with %g -> %g\n",
+             fTop->fID, fBottom->fID, other.fTop->fID, other.fBottom->fID);
+    if (fTop == other.fTop || fBottom == other.fBottom ||
+        fTop == other.fBottom || fBottom == other.fTop) {
+        // If the two edges share a vertex by construction, they have already been split and
+        // shouldn't be considered "intersecting" anymore.
+        return false;
+    }
+
+    double s, t; // needed to interpolate vertex alpha
+    const bool intersects = recursive_edge_intersect(
+            fLine, fTop->fPoint, fBottom->fPoint,
+            other.fLine, other.fTop->fPoint, other.fBottom->fPoint,
+            p, &s, &t);
+    if (!intersects) {
+        return false;
+    }
+
     if (alpha) {
         if (fType == EdgeType::kInner || other.fType == EdgeType::kInner) {
             // If the intersection is on any interior edge, it needs to stay fully opaque or later
@@ -186,7 +279,6 @@ bool GrTriangulator::Edge::intersect(const Edge& other, SkPoint* p, uint8_t* alp
             // Could be two connectors crossing, or a connector crossing an outer edge.
             // Take the max interpolated alpha
             SkASSERT(fType == EdgeType::kConnector || other.fType == EdgeType::kConnector);
-            double t = tNumer / denom;
             *alpha = std::max((1.0 - s) * fTop->fAlpha + s * fBottom->fAlpha,
                               (1.0 - t) * other.fTop->fAlpha + t * other.fBottom->fAlpha);
         }
@@ -912,22 +1004,21 @@ Vertex* GrTriangulator::makeSortedVertex(const SkPoint& p, uint8_t alpha, Vertex
     return v;
 }
 
-// If an edge's top and bottom points differ only by 1/2 machine epsilon in the primary
-// sort criterion, it may not be possible to split correctly, since there is no point which is
-// below the top and above the bottom. This function detects that case.
-static bool nearly_flat(const Comparator& c, Edge* edge) {
-    SkPoint diff = edge->fBottom->fPoint - edge->fTop->fPoint;
-    float primaryDiff = c.fDirection == Comparator::Direction::kHorizontal ? diff.fX : diff.fY;
-    return fabs(primaryDiff) <= std::numeric_limits<float>::epsilon() && primaryDiff != 0.0f;
-}
-
+// Clamps x and y coordinates independently, so the returned point will lie within the bounding
+// box formed by the corners of 'min' and 'max' (although min/max here refer to the ordering
+// imposed by 'c').
 static SkPoint clamp(SkPoint p, SkPoint min, SkPoint max, const Comparator& c) {
-    if (c.sweep_lt(p, min)) {
-        return min;
-    } else if (c.sweep_lt(max, p)) {
-        return max;
+    if (c.fDirection == Comparator::Direction::kHorizontal) {
+        // With horizontal sorting, we know min.x <= max.x, but there's no relation between
+        // Y components unless min.x == max.x.
+        return {SkTPin(p.fX, min.fX, max.fX),
+                min.fY < max.fY ? SkTPin(p.fY, min.fY, max.fY)
+                                : SkTPin(p.fY, max.fY, min.fY)};
     } else {
-        return p;
+        // And with vertical sorting, we know Y's relation but not necessarily X's.
+        return {min.fX < max.fX ? SkTPin(p.fX, min.fX, max.fX)
+                                : SkTPin(p.fX, max.fX, min.fX),
+                SkTPin(p.fY, min.fY, max.fY)};
     }
 }
 
@@ -968,17 +1059,13 @@ bool GrTriangulator::checkForIntersection(Edge* left, Edge* right, EdgeList* act
         while (top && c.sweep_lt(p, top->fPoint)) {
             top = top->fPrev;
         }
-        bool leftFlat = nearly_flat(c, left);
-        bool rightFlat = nearly_flat(c, right);
-        if (leftFlat && rightFlat) {
-            return false;
-        }
-        if (!leftFlat) {
-            p = clamp(p, left->fTop->fPoint, left->fBottom->fPoint, c);
-        }
-        if (!rightFlat) {
-            p = clamp(p, right->fTop->fPoint, right->fBottom->fPoint, c);
-        }
+
+        // Always clamp the intersection to lie between the vertices of each segment, since
+        // in theory that's where the intersection is, but in reality, floating point error may
+        // have computed an intersection beyond a vertex's component(s).
+        p = clamp(p, left->fTop->fPoint, left->fBottom->fPoint, c);
+        p = clamp(p, right->fTop->fPoint, right->fBottom->fPoint, c);
+
         if (coincident(p, left->fTop->fPoint)) {
             v = left->fTop;
         } else if (coincident(p, left->fBottom->fPoint)) {
