@@ -527,7 +527,7 @@ DEF_TEST(SkSLInterpreterCompound, r) {
 
     auto build = [&](const SkSL::FunctionDefinition* fn) {
         skvm::Builder b;
-        skvm::Ptr uniformPtr = b.uniform();
+        skvm::UPtr uniformPtr = b.uniform();
         skvm::Val uniforms[16];
         for (int i = 0; i < 16; ++i) {
             uniforms[i] = b.uniform32(uniformPtr, i * sizeof(int)).id;
