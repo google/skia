@@ -679,12 +679,12 @@ Value SkVMGenerator::writeConstructorSplat(const ConstructorSplat& c) {
     return dst;
 }
 
-Value SkVMGenerator::writeConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& c) {
-    const Type& dstType = c.type();
+Value SkVMGenerator::writeConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& ctor) {
+    const Type& dstType = ctor.type();
     SkASSERT(dstType.isMatrix());
-    SkASSERT(c.argument()->type() == dstType.componentType());
+    SkASSERT(ctor.argument()->type() == dstType.componentType());
 
-    Value src = this->writeExpression(*c.argument());
+    Value src = this->writeExpression(*ctor.argument());
     Value dst(dstType.rows() * dstType.columns());
     size_t dstIndex = 0;
 
@@ -699,10 +699,10 @@ Value SkVMGenerator::writeConstructorDiagonalMatrix(const ConstructorDiagonalMat
     return dst;
 }
 
-Value SkVMGenerator::writeConstructorMatrixResize(const ConstructorMatrixResize& c) {
-    const Type& srcType = c.argument()->type();
-    const Type& dstType = c.type();
-    Value src = this->writeExpression(*c.argument());
+Value SkVMGenerator::writeConstructorMatrixResize(const ConstructorMatrixResize& ctor) {
+    const Type& srcType = ctor.argument()->type();
+    const Type& dstType = ctor.type();
+    Value src = this->writeExpression(*ctor.argument());
     Value dst(dstType.rows() * dstType.columns());
 
     // Matrix-from-matrix uses src where it overlaps, and fills in missing fields with identity.
@@ -1186,7 +1186,7 @@ Value SkVMGenerator::writeFunctionCall(const FunctionCall& f) {
     const std::unique_ptr<Expression>* argIter = f.arguments().begin();
     size_t valIdx = 0;
     for (const Variable* p : decl.parameters()) {
-        size_t nslots = p->type().slotCount();
+        nslots = p->type().slotCount();
         if (p->modifiers().fFlags & Modifiers::kOut_Flag) {
             Value v(nslots);
             for (size_t i = 0; i < nslots; ++i) {

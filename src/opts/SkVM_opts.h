@@ -83,8 +83,8 @@ namespace SK_OPTS_NS {
         for ( ; n > 0; start = loop, n -= stride, step_args(stride)) {
             stride = n >= K ? K : 1;
 
-            for (int i = start; i < ninsts; i++) {
-                InterpreterInstruction inst = insts[i];
+            for (int instIdx = start; instIdx < ninsts; instIdx++) {
+                InterpreterInstruction inst = insts[instIdx];
 
                 // d = op(x,y,z,w, immA,immB)
                 Reg   d = inst.d,
@@ -194,9 +194,10 @@ namespace SK_OPTS_NS {
                     CASE(Op::assert_true):
                     #ifdef SK_DEBUG
                         if (!all(r[x].i32)) {
-                            SkDebugf("inst %d, register %d\n", i, y);
+                            SkDebugf("inst %d, register %d\n", instIdx, y);
                             for (int i = 0; i < K; i++) {
-                                SkDebugf("\t%2d: %08x (%g)\n", i, r[y].i32[i], r[y].f32[i]);
+                                SkDebugf("\t%2d: %08x (%g)\n",
+                                         instIdx, r[y].i32[instIdx], r[y].f32[instIdx]);
                             }
                             SkASSERT(false);
                         }

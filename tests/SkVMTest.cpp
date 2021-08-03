@@ -2283,11 +2283,11 @@ DEF_TEST(SkVM_64bit, r) {
     {
         skvm::Builder b;
         {
-            skvm::Ptr wide = b.varying<uint64_t>(),
-                        lo = b.varying<int>(),
-                        hi = b.varying<int>();
-            b.store32(lo, b.load64(wide, 0));
-            b.store32(hi, b.load64(wide, 1));
+            skvm::Ptr widePtr = b.varying<uint64_t>(),
+                        loPtr = b.varying<int>(),
+                        hiPtr = b.varying<int>();
+            b.store32(loPtr, b.load64(widePtr, 0));
+            b.store32(hiPtr, b.load64(widePtr, 1));
         }
         test_jit_and_interpreter(b, [&](const skvm::Program& program){
             uint32_t l[65], h[65];
@@ -2302,10 +2302,10 @@ DEF_TEST(SkVM_64bit, r) {
     {
         skvm::Builder b;
         {
-            skvm::Ptr wide = b.varying<uint64_t>(),
-                        lo = b.varying<int>(),
-                        hi = b.varying<int>();
-            b.store64(wide, b.load32(lo), b.load32(hi));
+            skvm::Ptr widePtr = b.varying<uint64_t>(),
+                        loPtr = b.varying<int>(),
+                        hiPtr = b.varying<int>();
+            b.store64(widePtr, b.load32(loPtr), b.load32(hiPtr));
         }
         test_jit_and_interpreter(b, [&](const skvm::Program& program){
             uint64_t w[65];
@@ -2420,7 +2420,7 @@ DEF_TEST(SkVM_args, r) {
     });
 }
 
-DEF_TEST(SkVM_badpack, r) {
+DEF_TEST(SkVM_badpack, reporter) {
     // Test case distilled from actual failing draw,
     // originally with a bad arm64 implementation of pack().
     skvm::Builder p;
@@ -2444,7 +2444,7 @@ DEF_TEST(SkVM_badpack, r) {
         uint16_t dst[17] = {0};
         program.eval(17, uniforms,dst);
         for (int i = 0; i < 17; i++) {
-            REPORTER_ASSERT(r, dst[i] == 0xf00f, "got %04x, want %04x\n", dst[i], 0xf00f);
+            REPORTER_ASSERT(reporter, dst[i] == 0xf00f, "got %04x, want %04x\n", dst[i], 0xf00f);
         }
     });
 }
