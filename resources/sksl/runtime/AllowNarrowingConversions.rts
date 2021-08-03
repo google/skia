@@ -1,0 +1,9 @@
+uniform half4 colorGreen;
+
+half4 main(float2 coords) {
+    half4 one = float4(1);
+    half4 zero = one * float4(0);
+    float4 green = colorGreen;
+
+    return green * one + zero;
+}
