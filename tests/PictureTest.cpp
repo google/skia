@@ -27,7 +27,6 @@
 #include "include/core/SkTypes.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkBigPicture.h"
-#include "src/core/SkClipOpPriv.h"
 #include "src/core/SkMiniRecorder.h"
 #include "src/core/SkPicturePriv.h"
 #include "src/core/SkRectPriv.h"
@@ -179,7 +178,7 @@ static void create_imbalance(SkCanvas* canvas) {
     SkRect clipRect = SkRect::MakeWH(2, 2);
     SkRect drawRect = SkRect::MakeWH(10, 10);
     canvas->save();
-        canvas->clipRect(clipRect, kReplace_SkClipOp);
+        canvas->clipRect(clipRect, SkClipOp::kIntersect);
         canvas->translate(1.0f, 1.0f);
         SkPaint p;
         p.setColor(SK_ColorGREEN);
@@ -407,8 +406,7 @@ static void test_clip_bound_opt(skiatest::Reporter* reporter) {
     }
     {
         SkCanvas* canvas = recorder.beginRecording(10, 10);
-        canvas->clipPath(path);
-        canvas->clipPath(invPath, kUnion_SkClipOp);
+        canvas->clipPath(path, SkClipOp::kDifference);
         clipBounds = canvas->getDeviceClipBounds();
         REPORTER_ASSERT(reporter, 0 == clipBounds.fLeft);
         REPORTER_ASSERT(reporter, 0 == clipBounds.fTop);
@@ -417,32 +415,11 @@ static void test_clip_bound_opt(skiatest::Reporter* reporter) {
     }
     {
         SkCanvas* canvas = recorder.beginRecording(10, 10);
-        canvas->clipPath(path, kDifference_SkClipOp);
+        canvas->clipPath(path, SkClipOp::kIntersect);
+        canvas->clipPath(path2, SkClipOp::kDifference);
         clipBounds = canvas->getDeviceClipBounds();
-        REPORTER_ASSERT(reporter, 0 == clipBounds.fLeft);
-        REPORTER_ASSERT(reporter, 0 == clipBounds.fTop);
-        REPORTER_ASSERT(reporter, 10 == clipBounds.fBottom);
-        REPORTER_ASSERT(reporter, 10 == clipBounds.fRight);
-    }
-    {
-        SkCanvas* canvas = recorder.beginRecording(10, 10);
-        canvas->clipPath(path, kReverseDifference_SkClipOp);
-        clipBounds = canvas->getDeviceClipBounds();
-        // True clip is actually empty in this case, but the best
-        // determination we can make using only bounds as input is that the
-        // clip is included in the bounds of 'path'.
         REPORTER_ASSERT(reporter, 7 == clipBounds.fLeft);
         REPORTER_ASSERT(reporter, 7 == clipBounds.fTop);
-        REPORTER_ASSERT(reporter, 8 == clipBounds.fBottom);
-        REPORTER_ASSERT(reporter, 8 == clipBounds.fRight);
-    }
-    {
-        SkCanvas* canvas = recorder.beginRecording(10, 10);
-        canvas->clipPath(path, kIntersect_SkClipOp);
-        canvas->clipPath(path2, kXOR_SkClipOp);
-        clipBounds = canvas->getDeviceClipBounds();
-        REPORTER_ASSERT(reporter, 6 == clipBounds.fLeft);
-        REPORTER_ASSERT(reporter, 6 == clipBounds.fTop);
         REPORTER_ASSERT(reporter, 8 == clipBounds.fBottom);
         REPORTER_ASSERT(reporter, 8 == clipBounds.fRight);
     }
@@ -507,26 +484,6 @@ private:
     using INHERITED = SkCanvas;
 };
 
-static void test_clip_expansion(skiatest::Reporter* reporter) {
-    SkPictureRecorder recorder;
-    SkCanvas* canvas = recorder.beginRecording(10, 10);
-
-    canvas->clipRect(SkRect::MakeEmpty(), kReplace_SkClipOp);
-    // The following expanding clip should not be skipped.
-    canvas->clipRect(SkRect::MakeXYWH(4, 4, 3, 3), kUnion_SkClipOp);
-    // Draw something so the optimizer doesn't just fold the world.
-    SkPaint p;
-    p.setColor(SK_ColorBLUE);
-    canvas->drawPaint(p);
-    sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
-
-    ClipCountingCanvas testCanvas(10, 10);
-    picture->playback(&testCanvas);
-
-    // Both clips should be present on playback.
-    REPORTER_ASSERT(reporter, testCanvas.getClipCount() == 2);
-}
-
 static void test_gen_id(skiatest::Reporter* reporter) {
 
     SkPictureRecorder recorder;
@@ -566,7 +523,6 @@ DEF_TEST(Picture, reporter) {
     test_unbalanced_save_restores(reporter);
     test_peephole();
     test_clip_bound_opt(reporter);
-    test_clip_expansion(reporter);
     test_gen_id(reporter);
     test_cull_rect_reset(reporter);
 }

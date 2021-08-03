@@ -21,7 +21,6 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "src/core/SkAAClip.h"
-#include "src/core/SkClipOpPriv.h"
 #include "src/core/SkMask.h"
 #include "tools/ToolUtils.h"
 
@@ -162,8 +161,8 @@ protected:
             const char*     fName;
             SkClipOp        fOp;
         } gOps[] = {
-                {SK_ColorBLACK, "Difference", kDifference_SkClipOp},
-                {SK_ColorRED, "Intersect", kIntersect_SkClipOp},
+                {SK_ColorBLACK, "Difference", SkClipOp::kDifference},
+                {SK_ColorRED, "Intersect", SkClipOp::kIntersect},
         };
 
         SkPaint textPaint;

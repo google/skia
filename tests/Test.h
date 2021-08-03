@@ -9,7 +9,6 @@
 
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "src/core/SkClipOpPriv.h"
 #include "src/core/SkTraceEvent.h"
 #include "tools/Registry.h"
 #include "tools/gpu/GrContextFactory.h"

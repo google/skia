@@ -18,7 +18,6 @@
 #include "include/effects/SkGradientShader.h"
 #include "include/utils/SkCamera.h"
 #include "samplecode/Sample.h"
-#include "src/core/SkClipOpPriv.h"
 #include "src/utils/SkUTF.h"
 
 static void make_paint(SkPaint* paint, const SkMatrix& localMatrix) {
@@ -197,7 +196,7 @@ protected:
         m.postTranslate(fCenter.x(), fCenter.y());
         path.transform(m);
 
-        canvas->clipPath(path, kIntersect_SkClipOp, true);
+        canvas->clipPath(path, SkClipOp::kIntersect, true);
         const SkRect bounds = path.getBounds();
 
         SkPaint paint;

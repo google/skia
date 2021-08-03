@@ -10,7 +10,6 @@
 #include "include/core/SkSurface.h"
 #include "include/effects/SkDashPathEffect.h"
 #include "include/pathops/SkPathOps.h"
-#include "src/core/SkClipOpPriv.h"
 #include "src/core/SkPathEffectBase.h"
 #include "src/core/SkRectPriv.h"
 #include "src/gpu/geometry/GrStyledShape.h"
@@ -71,7 +70,7 @@ static bool test_bounds_by_rasterizing(const SkPath& path, const SkRect& bounds)
     SkRect clip = SkRect::MakeXYWH(kRes/4, kRes/4, kRes/2, kRes/2);
     SkMatrix matrix = SkMatrix::RectToRect(bounds, clip);
     clip.outset(SkIntToScalar(kTol), SkIntToScalar(kTol));
-    surface->getCanvas()->clipRect(clip, kDifference_SkClipOp);
+    surface->getCanvas()->clipRect(clip, SkClipOp::kDifference);
     surface->getCanvas()->concat(matrix);
     SkPaint whitePaint;
     whitePaint.setColor(SK_ColorWHITE);

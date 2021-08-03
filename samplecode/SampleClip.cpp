@@ -12,7 +12,6 @@
 #include "include/core/SkPathBuilder.h"
 #include "include/utils/SkRandom.h"
 #include "samplecode/Sample.h"
-#include "src/core/SkClipOpPriv.h"
 #include "src/core/SkPathPriv.h"
 #include "tools/Resources.h"
 
@@ -119,7 +118,7 @@ class ClipView : public Sample {
             canvas->save();
             for (size_t i = 0; i < SK_ARRAY_COUNT(gProc); ++i) {
                 canvas->save();
-                canvas->clipPath(clipPath, kIntersect_SkClipOp, SkToBool(aa));
+                canvas->clipPath(clipPath, SkClipOp::kIntersect, SkToBool(aa));
 //                canvas->drawColor(SK_ColorWHITE);
                 gProc[i](canvas, SkToBool(aa));
                 canvas->restore();

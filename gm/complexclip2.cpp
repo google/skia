@@ -18,7 +18,6 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/utils/SkRandom.h"
-#include "src/core/SkClipOpPriv.h"
 
 namespace skiagm {
 
@@ -91,8 +90,8 @@ protected:
         fRectColors[4] = SK_ColorCYAN;
 
         const SkClipOp ops[] = {
-            kDifference_SkClipOp,
-            kIntersect_SkClipOp,
+            SkClipOp::kDifference,
+            SkClipOp::kIntersect,
         };
 
         SkRandom r;

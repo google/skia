@@ -28,7 +28,6 @@
 #include "include/utils/SkBase64.h"
 #include "src/codec/SkJpegCodec.h"
 #include "src/core/SkAnnotationKeys.h"
-#include "src/core/SkClipOpPriv.h"
 #include "src/core/SkClipStack.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkFontPriv.h"
@@ -805,7 +804,7 @@ void SkSVGDevice::drawAnnotation(const SkRect& rect, const char key[], SkData* v
     if (!strcmp(SkAnnotationKeys::URL_Key(), key) ||
         !strcmp(SkAnnotationKeys::Link_Named_Dest_Key(), key)) {
         this->cs().save();
-        this->cs().clipRect(rect, this->localToDevice(), kIntersect_SkClipOp, true);
+        this->cs().clipRect(rect, this->localToDevice(), SkClipOp::kIntersect, true);
         SkRect transformedRect = this->cs().bounds(this->getGlobalBounds());
         this->cs().restore();
         if (transformedRect.isEmpty()) {
@@ -968,7 +967,7 @@ void SkSVGDevice::drawImageRect(const SkImage* image, const SkRect* src, const S
     SkClipStack::AutoRestore ar(cs, false);
     if (src && *src != SkRect::Make(bm.bounds())) {
         cs->save();
-        cs->clipRect(dst, this->localToDevice(), kIntersect_SkClipOp, paint.isAntiAlias());
+        cs->clipRect(dst, this->localToDevice(), SkClipOp::kIntersect, paint.isAntiAlias());
     }
 
     SkMatrix adjustedMatrix = this->localToDevice()

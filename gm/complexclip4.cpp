@@ -16,7 +16,6 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "src/core/SkCanvasPriv.h"
-#include "src/core/SkClipOpPriv.h"
 
 namespace skiagm {
 
@@ -111,7 +110,7 @@ protected:
             // in device space
             canvas->save();
                 canvas->clipRect(SkRect::MakeLTRB(100, 400, 300, 750),
-                                 kIntersect_SkClipOp, fDoAAClip);
+                                 SkClipOp::kIntersect, fDoAAClip);
                 canvas->drawColor(SK_ColorGREEN);
                 // should not affect the device-space clip
                 canvas->rotate(20.f);

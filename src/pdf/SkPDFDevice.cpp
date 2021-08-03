@@ -24,7 +24,6 @@
 #include "src/core/SkAdvancedTypefaceMetrics.h"
 #include "src/core/SkAnnotationKeys.h"
 #include "src/core/SkBitmapDevice.h"
-#include "src/core/SkClipOpPriv.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkGlyphRun.h"

@@ -19,7 +19,6 @@
 #include "include/private/SkTDArray.h"
 #include "include/utils/SkCanvasStateUtils.h"
 #include "src/core/SkCanvasPriv.h"
-#include "src/core/SkClipOpPriv.h"
 #include "src/core/SkTLazy.h"
 #include "tests/Test.h"
 #include "tools/flags/CommandLineFlags.h"
@@ -298,7 +297,7 @@ DEF_TEST(CanvasState_test_soft_clips, reporter) {
     SkRRect roundRect;
     roundRect.setOval(SkRect::MakeWH(5, 5));
 
-    canvas.clipRRect(roundRect, kIntersect_SkClipOp, true);
+    canvas.clipRRect(roundRect, SkClipOp::kIntersect, true);
 
     SkCanvasState* state = SkCanvasStateUtils::CaptureCanvasState(&canvas);
     REPORTER_ASSERT(reporter, !state);

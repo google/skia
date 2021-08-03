@@ -25,7 +25,6 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
-#include "src/core/SkClipOpPriv.h"
 #include "src/core/SkTLList.h"
 #include "tools/ToolUtils.h"
 
@@ -184,7 +183,7 @@ protected:
                         canvas->save();
                     }
                     canvas->translate(x, y);
-                    clip->setOnCanvas(canvas, kIntersect_SkClipOp, SkToBool(aa));
+                    clip->setOnCanvas(canvas, SkClipOp::kIntersect, SkToBool(aa));
                     canvas->drawImage(fImg, 0, 0);
                     canvas->restore();
                     x += fImg->width() + kMargin;
@@ -209,7 +208,7 @@ protected:
                     canvas->translate(x, y);
                     SkPath closedClipPath = clip->asClosedPath();
                     canvas->drawPath(closedClipPath, clipOutlinePaint);
-                    clip->setOnCanvas(canvas, kIntersect_SkClipOp, SkToBool(aa));
+                    clip->setOnCanvas(canvas, SkClipOp::kIntersect, SkToBool(aa));
                     canvas->scale(1.f, 1.8f);
                     canvas->drawSimpleText(kTxt, SK_ARRAY_COUNT(kTxt)-1, SkTextEncoding::kUTF8,
                                      0, 1.5f * font.getSize(), font, txtPaint);

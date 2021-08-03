@@ -21,7 +21,6 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
-#include "src/core/SkClipOpPriv.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
@@ -90,8 +89,8 @@ protected:
             SkClipOp fOp;
             const char*      fName;
         } gOps[] = { //extra spaces in names for measureText
-            {kIntersect_SkClipOp,         "Isect "},
-            {kDifference_SkClipOp,        "Diff " },
+            {SkClipOp::kIntersect,         "Isect "},
+            {SkClipOp::kDifference,        "Diff " },
         };
 
         canvas->translate(20, 20);

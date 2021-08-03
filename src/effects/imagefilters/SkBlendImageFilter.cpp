@@ -27,7 +27,6 @@
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #endif
-#include "src/core/SkClipOpPriv.h"
 
 namespace {
 
@@ -246,7 +245,7 @@ void SkBlendImageFilter::drawForeground(SkCanvas* canvas, SkSpecialImage* img,
     }
 
     SkAutoCanvasRestore acr(canvas, true);
-    canvas->clipRect(SkRect::Make(fgBounds), kDifference_SkClipOp);
+    canvas->clipRect(SkRect::Make(fgBounds), SkClipOp::kDifference);
     paint.setColor(0);
     canvas->drawPaint(paint);
 }

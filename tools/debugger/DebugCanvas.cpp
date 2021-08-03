@@ -15,7 +15,6 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/utils/SkPaintFilterCanvas.h"
 #include "src/core/SkCanvasPriv.h"
-#include "src/core/SkClipOpPriv.h"
 #include "src/core/SkRectPriv.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/utils/SkJSONWriter.h"

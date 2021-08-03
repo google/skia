@@ -18,7 +18,6 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "src/core/SkClipOpPriv.h"
 #include "tools/ToolUtils.h"
 
 #include <utility>
@@ -68,8 +67,8 @@ protected:
             SkClipOp    fOp;
             const char* fName;
         } gOps[] = {
-            {kIntersect_SkClipOp,         "I"},
-            {kDifference_SkClipOp,        "D" },
+            {SkClipOp::kIntersect,         "I"},
+            {SkClipOp::kDifference,        "D" },
         };
 
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));

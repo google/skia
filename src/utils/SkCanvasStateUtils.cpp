@@ -9,7 +9,6 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
-#include "src/core/SkClipOpPriv.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkWriter32.h"
