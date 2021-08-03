@@ -71,11 +71,21 @@ static sk_sp<SkData> subset_harfbuzz(sk_sp<SkData> fontData,
     hb_set_t* glyphs = hb_subset_input_glyph_set(input.get());
     glyphUsage.getSetValues([&glyphs](unsigned gid) { hb_set_add(glyphs, gid);});
 
+#if defined(SK_HARFBUZZ_SUBSET_NEW_API)
+    // TODO: When possible, check if a font is 'tricky' with FT_IS_TRICKY.
+    // If it isn't known if a font is 'tricky', retain the hints.
+    hb_subset_input_set_flags(input.get(), HB_SUBSET_FLAGS_RETAIN_GIDS);
+    HBFace subset(hb_subset_or_fail(face.get(), input.get()));
+#else
     hb_subset_input_set_retain_gids(input.get(), true);
     // TODO: When possible, check if a font is 'tricky' with FT_IS_TRICKY.
     // If it isn't known if a font is 'tricky', retain the hints.
     hb_subset_input_set_drop_hints(input.get(), false);
     HBFace subset(hb_subset(face.get(), input.get()));
+#endif
+    if (!subset) {
+      return nullptr;
+    }
     HBBlob result(hb_face_reference_blob(subset.get()));
     return to_data(std::move(result));
 }
@@ -178,4 +188,3 @@ sk_sp<SkData> SkPDFSubsetFont(sk_sp<SkData>, const SkPDFGlyphUse&, SkPDF::Metada
     return nullptr;
 }
 #endif  // defined(SK_PDF_USE_SFNTLY)
-

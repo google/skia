@@ -402,6 +402,9 @@ def generate_args(target_os, enable_gpu, renderengine = False):
     # files.
     'target_cpu':                           '"none"',
 
+    # disable harfbuzz new subsetting api until android picks up harfbuzz 3.0.0
+    'skia_subset_harfbuzz_new_api':         'false',
+
     # Use the custom FontMgr, as the framework will handle fonts.
     'skia_enable_fontmgr_custom_directory': 'false',
     'skia_enable_fontmgr_custom_embedded':  'false',

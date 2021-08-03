@@ -34,8 +34,6 @@ declare_args() {
   skia_include_multiframe_procs = false
   skia_lex = false
   skia_libgifcodec_path = "third_party/externals/libgifcodec"
-  skia_pdf_subset_harfbuzz =
-      false  # TODO: set skia_pdf_subset_harfbuzz to skia_use_harfbuzz.
   skia_qt_path = getenv("QT_PATH")
   skia_skqp_global_error_tolerance = 0
   skia_tools_require_resources = false
@@ -97,6 +95,11 @@ declare_args() {
 
   skia_build_fuzzers = is_clang && is_linux && target_cpu == "x64"
   skia_use_libfuzzer_defaults = true
+}
+
+declare_args() {
+  skia_pdf_subset_harfbuzz = skia_use_harfbuzz
+  skia_subset_harfbuzz_new_api = !is_fuchsia
 }
 
 declare_args() {

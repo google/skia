@@ -14,6 +14,9 @@ if (skia_use_system_harfbuzz) {
   system("harfbuzz") {
     include_dirs = [ "/usr/include/harfbuzz" ]
     libs = [ "harfbuzz" ]
+    if (skia_pdf_subset_harfbuzz) {
+      libs += [ "harfbuzz-subset" ]
+    }
   }
 } else {
   third_party("harfbuzz") {
@@ -25,8 +28,8 @@ if (skia_use_system_harfbuzz) {
     defines = [
       #"HAVE_ICU",
       #"HAVE_ICU_BUILTIN",
-      "HAVE_INTEL_ATOMIC_PRIMITIVES",
       "HAVE_OT",
+      "HAVE_CONFIG_OVERRIDE_H",
     ]
     public = [
       "$_src/hb-blob.h",
@@ -181,9 +184,10 @@ if (skia_use_system_harfbuzz) {
       "$_src/hb-ot-shape-complex-myanmar-machine.hh",
       "$_src/hb-ot-shape-complex-myanmar.cc",
       "$_src/hb-ot-shape-complex-myanmar.hh",
+      "$_src/hb-ot-shape-complex-syllabic.cc",
+      "$_src/hb-ot-shape-complex-syllabic.hh",
       "$_src/hb-ot-shape-complex-thai.cc",
       "$_src/hb-ot-shape-complex-use-machine.hh",
-      "$_src/hb-ot-shape-complex-use-table.cc",
       "$_src/hb-ot-shape-complex-use.cc",
       "$_src/hb-ot-shape-complex-use.hh",
       "$_src/hb-ot-shape-complex-vowel-constraints.cc",
@@ -241,6 +245,7 @@ if (skia_use_system_harfbuzz) {
       "$_src/hb-utf.hh",
       "$_src/hb-vector.hh",
       "$_src/hb.hh",
+      "config-override.h",
     ]
   }
 }
