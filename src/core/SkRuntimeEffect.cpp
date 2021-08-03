@@ -658,7 +658,8 @@ std::unique_ptr<SkFilterColorProgram> SkFilterColorProgram::Make(const SkRuntime
                                              /*sampleBlender=*/nullptr);
 
     // Then store the result to the *third* arg ptr
-    p.store({skvm::PixelFormat::FLOAT, 32, 32, 32, 32, 0, 32, 64, 96}, p.arg(16), result);
+    p.store({skvm::PixelFormat::FLOAT, 32, 32, 32, 32, 0, 32, 64, 96},
+            p.varying<skvm::F32>(), result);
 
     if (!allSampleCallsSupported) {
         return nullptr;
