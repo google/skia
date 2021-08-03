@@ -141,21 +141,21 @@ void SkPictureData::WriteTypefaces(SkWStream* stream, const SkRefCntSet& rec,
 }
 
 void SkPictureData::flattenToBuffer(SkWriteBuffer& buffer, bool textBlobsOnly) const {
-    int i, n;
-
     if (!textBlobsOnly) {
-        if ((n = fPaints.count()) > 0) {
-            write_tag_size(buffer, SK_PICT_PAINT_BUFFER_TAG, n);
-            for (i = 0; i < n; i++) {
-                buffer.writePaint(fPaints[i]);
+        int numPaints = fPaints.count();
+        if (numPaints > 0) {
+            write_tag_size(buffer, SK_PICT_PAINT_BUFFER_TAG, numPaints);
+            for (const SkPaint& paint : fPaints) {
+                buffer.writePaint(paint);
             }
         }
 
-        if ((n = fPaths.count()) > 0) {
-            write_tag_size(buffer, SK_PICT_PATH_BUFFER_TAG, n);
-            buffer.writeInt(n);
-            for (int i = 0; i < n; i++) {
-                buffer.writePath(fPaths[i]);
+        int numPaths = fPaths.count();
+        if (numPaths > 0) {
+            write_tag_size(buffer, SK_PICT_PATH_BUFFER_TAG, numPaths);
+            buffer.writeInt(numPaths);
+            for (const SkPath& path : fPaths) {
+                buffer.writePath(path);
             }
         }
     }

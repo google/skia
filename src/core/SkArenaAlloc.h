@@ -258,7 +258,7 @@ private:
             // Can never be UB because max value is alignof(T).
             uint32_t padding = ToU32(objStart - fCursor);
 
-            // Advance to end of array to install footer.?
+            // Advance to end of array to install footer.
             fCursor = objStart + arraySize;
             this->installRaw(ToU32(count));
             this->installFooter(
