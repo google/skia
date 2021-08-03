@@ -39,6 +39,28 @@ private:
     using INHERITED = KeyframeAnimator;
 };
 
+    // Scalar specialization: stores scalar values (floats).
+class ScalarExpressionAnimator final : public Animator {
+public:
+    ScalarExpressionAnimator(sk_sp<ExpressionEvaluator<ScalarValue>> expression_evaluator,
+        ScalarValue* target_value)
+        : fExpressionEvaluator(std::move(expression_evaluator))
+        , fTarget(target_value) {}
+
+private:
+
+    StateChanged onSeek(float t) override {
+        auto old_value = *fTarget;
+
+        *fTarget = fExpressionEvaluator->evaluate(t);
+
+        return *fTarget != old_value;
+    }
+
+    sk_sp<ExpressionEvaluator<ScalarValue>> fExpressionEvaluator;
+    ScalarValue* fTarget;
+};
+
 class ScalarAnimatorBuilder final : public AnimatorBuilder {
     public:
         explicit ScalarAnimatorBuilder(ScalarValue* target) : fTarget(target) {}
@@ -53,6 +75,13 @@ class ScalarAnimatorBuilder final : public AnimatorBuilder {
             return sk_sp<ScalarKeyframeAnimator>(
                         new ScalarKeyframeAnimator(std::move(fKFs), std::move(fCMs), fTarget));
         }
+
+        sk_sp<Animator> makeFromExpression(ExpressionManager& em, const char* expr) override {
+            sk_sp<ExpressionEvaluator<ScalarValue>> expression_evaluator =
+                em.createNumberExpressionEvaluator(expr);
+            return sk_make_sp<ScalarExpressionAnimator>(expression_evaluator, fTarget);
+        }
+
 
         bool parseValue(const AnimationBuilder&, const skjson::Value& jv) const override {
             return Parse(jv, fTarget);

@@ -186,6 +186,10 @@ sk_sp<KeyframeAnimator> VectorAnimatorBuilder::makeFromKeyframes(const Animation
                                            fTarget));
 }
 
+sk_sp<Animator> VectorAnimatorBuilder::makeFromExpression(ExpressionManager&, const char*) {
+    return nullptr;
+}
+
 bool VectorAnimatorBuilder::parseValue(const AnimationBuilder&,
                                                const skjson::Value& jv) const {
     size_t vec_len;

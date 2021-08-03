@@ -53,6 +53,7 @@ class AnimationBuilder final : public SkNoncopyable {
 public:
     AnimationBuilder(sk_sp<ResourceProvider>, sk_sp<SkFontMgr>, sk_sp<PropertyObserver>,
                      sk_sp<Logger>, sk_sp<MarkerObserver>, sk_sp<PrecompInterceptor>,
+                     sk_sp<ExpressionManager>,
                      Animation::Builder::Stats*, const SkSize& comp_size,
                      float duration, float framerate, uint32_t flags);
 
@@ -175,6 +176,8 @@ public:
     bool dispatchTextProperty(const sk_sp<TextAdapter>&) const;
     bool dispatchTransformProperty(const sk_sp<TransformAdapter2D>&) const;
 
+    sk_sp<ExpressionManager> expression_manager() const;
+
 private:
     friend class CompositionBuilder;
     friend class LayerBuilder;
@@ -237,6 +240,7 @@ private:
     sk_sp<Logger>              fLogger;
     sk_sp<MarkerObserver>      fMarkerObserver;
     sk_sp<PrecompInterceptor>  fPrecompInterceptor;
+    sk_sp<ExpressionManager>   fExpressionManager;
     Animation::Builder::Stats* fStats;
     const SkSize               fCompSize;
     const float                fDuration,

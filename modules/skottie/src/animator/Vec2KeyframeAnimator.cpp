@@ -125,6 +125,10 @@ class Vec2AnimatorBuilder final : public AnimatorBuilder {
                                                  fRotTarget));
         }
 
+        sk_sp<Animator> makeFromExpression(ExpressionManager&, const char*) override {
+            return nullptr;
+        }
+
         bool parseValue(const AnimationBuilder&, const skjson::Value& jv) const override {
             return Parse(jv, fVecTarget);
         }

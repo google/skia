@@ -23,7 +23,7 @@ template <typename T>
 class MockProperty final : public AnimatablePropertyContainer {
 public:
     explicit MockProperty(const char* jprop) {
-        AnimationBuilder abuilder(nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+        AnimationBuilder abuilder(nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
                                   {100, 100}, 10, 1, 0);
         skjson::DOM json_dom(jprop, strlen(jprop));
 
