@@ -19,9 +19,9 @@
 class GrResourceProvider;
 
 // GrArenas matches the lifetime of a single frame. It is created and held on the
-// GrSurfaceFillContext's RenderTargetProxy with the first call to get an arena. Each GrOpsTask
+// SurfaceFillContext's RenderTargetProxy with the first call to get an arena. Each GrOpsTask
 // takes a ref on it to keep the arenas alive. When the first GrOpsTask's onExecute() is
-// completed, the arena ref on the GrSurfaceFillContext's RenderTargetProxy is nulled out so that
+// completed, the arena ref on the SurfaceFillContext's RenderTargetProxy is nulled out so that
 // any new GrOpsTasks will create and ref a new set of arenas.
 class GrArenas : public SkNVRefCnt<GrArenas> {
 public:

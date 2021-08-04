@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/GrSurfaceFillContext.h"
+#include "src/gpu/v1/SurfaceFillContext_v1.h"
 
 #include "include/private/GrImageContext.h"
 #include "src/gpu/GrDstProxyView.h"
@@ -15,6 +15,7 @@
 #include "src/gpu/geometry/GrRect.h"
 #include "src/gpu/ops/GrClearOp.h"
 #include "src/gpu/ops/GrFillRectOp.h"
+#include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
 #define ASSERT_SINGLE_OWNER        GR_ASSERT_SINGLE_OWNER(this->singleOwner())
 #define RETURN_IF_ABANDONED        if (fContext->abandoned()) { return; }
@@ -30,31 +31,33 @@ private:
     GrDrawingManager* fDrawingManager;
 };
 
+namespace skgpu::v1 {
+
 // In MDB mode the reffing of the 'getLastOpsTask' call's result allows in-progress
-// GrOpsTask to be picked up and added to by GrSurfaceFillContext lower in the call
+// GrOpsTask to be picked up and added to by SurfaceFillContext lower in the call
 // stack. When this occurs with a closed GrOpsTask, a new one will be allocated
-// when the GrSurfaceFillContext attempts to use it (via getOpsTask).
-GrSurfaceFillContext::GrSurfaceFillContext(GrRecordingContext* context,
-                                           GrSurfaceProxyView readView,
-                                           GrSurfaceProxyView writeView,
-                                           const GrColorInfo& colorInfo,
-                                           bool flushTimeOpsTask)
-        : GrSurfaceContext(context, std::move(readView), std::move(colorInfo))
-        , fWriteView(std::move(writeView))
+// when the SurfaceFillContext attempts to use it (via getOpsTask).
+SurfaceFillContext::SurfaceFillContext(GrRecordingContext* rContext,
+                                       GrSurfaceProxyView readView,
+                                       GrSurfaceProxyView writeView,
+                                       const GrColorInfo& colorInfo,
+                                       bool flushTimeOpsTask)
+        : skgpu::SurfaceFillContext(rContext,
+                                    std::move(readView),
+                                    std::move(writeView),
+                                    std::move(colorInfo))
         , fFlushTimeOpsTask(flushTimeOpsTask) {
-    fOpsTask = sk_ref_sp(context->priv().drawingManager()->getLastOpsTask(this->asSurfaceProxy()));
-    SkASSERT(this->asSurfaceProxy() == fWriteView.proxy());
-    SkASSERT(this->origin() == fWriteView.origin());
+    fOpsTask = sk_ref_sp(rContext->priv().drawingManager()->getLastOpsTask(this->asSurfaceProxy()));
 
     SkDEBUGCODE(this->validate();)
 }
 
-void GrSurfaceFillContext::fillRectWithFP(const SkIRect& dstRect,
-                                          std::unique_ptr<GrFragmentProcessor> fp) {
+void SurfaceFillContext::fillRectWithFP(const SkIRect& dstRect,
+                                        std::unique_ptr<GrFragmentProcessor> fp) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
-    GR_CREATE_TRACE_MARKER_CONTEXT("GrSurfaceFillContext", "fillRectWithFP", fContext);
+    GR_CREATE_TRACE_MARKER_CONTEXT("v1::SurfaceFillContext", "fillRectWithFP", fContext);
 
     AutoCheckFlush acf(this->drawingManager());
 
@@ -66,7 +69,7 @@ void GrSurfaceFillContext::fillRectWithFP(const SkIRect& dstRect,
     this->addDrawOp(std::move(op));
 }
 
-void GrSurfaceFillContext::addDrawOp(GrOp::Owner owner) {
+void SurfaceFillContext::addDrawOp(GrOp::Owner owner) {
     GrDrawOp* op = static_cast<GrDrawOp*>(owner.get());
     GrClampType clampType = GrColorTypeClampType(this->colorInfo().colorType());
     auto clip = GrAppliedClip::Disabled();
@@ -94,7 +97,7 @@ void GrSurfaceFillContext::addDrawOp(GrOp::Owner owner) {
                                   caps);
 }
 
-void GrSurfaceFillContext::ClearToGrPaint(std::array<float, 4> color, GrPaint* paint) {
+void SurfaceFillContext::ClearToGrPaint(std::array<float, 4> color, GrPaint* paint) {
     paint->setColor4f({color[0], color[1], color[2], color[3]});
     if (color[3] == 1.f) {
         // Can just rely on the src-over blend mode to do the right thing.
@@ -107,7 +110,7 @@ void GrSurfaceFillContext::ClearToGrPaint(std::array<float, 4> color, GrPaint* p
     }
 }
 
-void GrSurfaceFillContext::addOp(GrOp::Owner op) {
+void SurfaceFillContext::addOp(GrOp::Owner op) {
     GrDrawingManager* drawingMgr = this->drawingManager();
     this->getOpsTask()->addOp(drawingMgr,
                               std::move(op),
@@ -115,7 +118,7 @@ void GrSurfaceFillContext::addOp(GrOp::Owner op) {
                               *this->caps());
 }
 
-GrOpsTask* GrSurfaceFillContext::getOpsTask() {
+GrOpsTask* SurfaceFillContext::getOpsTask() {
     ASSERT_SINGLE_OWNER
     SkDEBUGCODE(this->validate();)
 
@@ -126,7 +129,11 @@ GrOpsTask* GrSurfaceFillContext::getOpsTask() {
     return fOpsTask.get();
 }
 
-GrOpsTask* GrSurfaceFillContext::replaceOpsTask() {
+sk_sp<GrRenderTask> SurfaceFillContext::refRenderTask() {
+    return sk_ref_sp(this->getOpsTask());
+}
+
+GrOpsTask* SurfaceFillContext::replaceOpsTask() {
     sk_sp<GrOpsTask> newOpsTask = this->drawingManager()->newOpsTask(
             this->writeSurfaceView(), this->arenas(), fFlushTimeOpsTask);
     this->willReplaceOpsTask(fOpsTask.get(), newOpsTask.get());
@@ -135,31 +142,31 @@ GrOpsTask* GrSurfaceFillContext::replaceOpsTask() {
 }
 
 #ifdef SK_DEBUG
-void GrSurfaceFillContext::onValidate() const {
+void SurfaceFillContext::onValidate() const {
     if (fOpsTask && !fOpsTask->isClosed()) {
         SkASSERT(this->drawingManager()->getLastRenderTask(fWriteView.proxy()) == fOpsTask.get());
     }
 }
 #endif
 
-void GrSurfaceFillContext::discard() {
+void SurfaceFillContext::discard() {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
-    GR_CREATE_TRACE_MARKER_CONTEXT("GrSurfaceFillContext", "discard", fContext);
+    GR_CREATE_TRACE_MARKER_CONTEXT("v1::SurfaceFillContext", "discard", fContext);
 
     AutoCheckFlush acf(this->drawingManager());
 
     this->getOpsTask()->discard();
 }
 
-void GrSurfaceFillContext::internalClear(const SkIRect* scissor,
-                                         std::array<float, 4> color,
-                                         bool upgradePartialToFull) {
+void SurfaceFillContext::internalClear(const SkIRect* scissor,
+                                       std::array<float, 4> color,
+                                       bool upgradePartialToFull) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
-    GR_CREATE_TRACE_MARKER_CONTEXT("GrSurfaceFillContext", "clear", fContext);
+    GR_CREATE_TRACE_MARKER_CONTEXT("v1::SurfaceFillContext", "clear", fContext);
 
     // There are three ways clears are handled: load ops, native clears, and draws. Load ops are
     // only for fullscreen clears; native clears can be fullscreen or with scissors if the backend
@@ -220,9 +227,9 @@ void GrSurfaceFillContext::internalClear(const SkIRect* scissor,
     }
 }
 
-bool GrSurfaceFillContext::blitTexture(GrSurfaceProxyView view,
-                                       const SkIRect& srcRect,
-                                       const SkIPoint& dstPoint) {
+bool SurfaceFillContext::blitTexture(GrSurfaceProxyView view,
+                                     const SkIRect& srcRect,
+                                     const SkIPoint& dstPoint) {
     SkASSERT(view.asTextureProxy());
     SkIRect clippedSrcRect;
     SkIPoint clippedDstPoint;
@@ -241,3 +248,5 @@ bool GrSurfaceFillContext::blitTexture(GrSurfaceProxyView view,
     this->fillRectToRectWithFP(srcRectF, dstRect, std::move(fp));
     return true;
 }
+
+} // namespace skgpu::v1

@@ -12,8 +12,12 @@
 #include "include/private/GrTypesPriv.h"
 
 class GrRenderTargetProxy;
-namespace skgpu { namespace v1 { class SurfaceDrawContext; }}
-class GrSurfaceFillContext;
+namespace skgpu {
+    class SurfaceFillContext;
+#if SK_GPU_V1
+    namespace v1 { class SurfaceDrawContext; }
+#endif // SK_GPU_V1
+}
 class GrSurfaceProxyView;
 
 // NOTE: when not defined, SkGpuDevice extends SkBaseDevice directly and manages its clip stack
@@ -53,7 +57,7 @@ public:
     virtual skgpu::v1::SurfaceDrawContext* surfaceDrawContext() { return nullptr; }
 #endif
 
-    virtual GrSurfaceFillContext* surfaceFillContext() = 0;
+    virtual skgpu::SurfaceFillContext* surfaceFillContext() = 0;
     GrRenderTargetProxy* targetProxy();
     GrRecordingContext* recordingContext() const { return fContext.get(); }
 

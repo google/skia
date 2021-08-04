@@ -13,8 +13,8 @@
 #include "include/core/SkTypes.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/gpu/GrFragmentProcessor.h"
-#include "src/gpu/GrSurfaceFillContext.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/SurfaceFillContext.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "tools/Resources.h"
 

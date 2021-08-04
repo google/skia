@@ -24,8 +24,8 @@
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrResourceProvider.h"
-#include "src/gpu/GrSurfaceFillContext.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/SurfaceFillContext.h"
 #include "src/gpu/effects/GrBicubicEffect.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 
@@ -640,7 +640,7 @@ void GrSurfaceContext::asyncRescaleAndReadPixels(GrDirectContext* dContext,
         return;
     }
 
-    std::unique_ptr<GrSurfaceFillContext> tempFC;
+    std::unique_ptr<skgpu::SurfaceFillContext> tempFC;
     int x = srcRect.fLeft;
     int y = srcRect.fTop;
     if (needsRescale) {
@@ -1106,11 +1106,11 @@ sk_sp<GrRenderTask> GrSurfaceContext::copy(sk_sp<GrSurfaceProxy> src,
                                                      this->origin());
 }
 
-std::unique_ptr<GrSurfaceFillContext> GrSurfaceContext::rescale(const GrImageInfo& info,
-                                                                GrSurfaceOrigin origin,
-                                                                SkIRect srcRect,
-                                                                RescaleGamma rescaleGamma,
-                                                                RescaleMode rescaleMode) {
+std::unique_ptr<skgpu::SurfaceFillContext> GrSurfaceContext::rescale(const GrImageInfo& info,
+                                                                     GrSurfaceOrigin origin,
+                                                                     SkIRect srcRect,
+                                                                     RescaleGamma rescaleGamma,
+                                                                     RescaleMode rescaleMode) {
     auto sfc = fContext->priv().makeSFCWithFallback(info,
                                                     SkBackingFit::kExact,
                                                     1,
@@ -1127,7 +1127,7 @@ std::unique_ptr<GrSurfaceFillContext> GrSurfaceContext::rescale(const GrImageInf
     return sfc;
 }
 
-bool GrSurfaceContext::rescaleInto(GrSurfaceFillContext* dst,
+bool GrSurfaceContext::rescaleInto(skgpu::SurfaceFillContext* dst,
                                    SkIRect dstRect,
                                    SkIRect srcRect,
                                    RescaleGamma rescaleGamma,
@@ -1167,8 +1167,8 @@ bool GrSurfaceContext::rescaleInto(GrSurfaceFillContext* dst,
 
     // Within a rescaling pass A is the input (if not null) and B is the output. At the end of the
     // pass B is moved to A. If 'this' is the input on the first pass then tempA is null.
-    std::unique_ptr<GrSurfaceFillContext> tempA;
-    std::unique_ptr<GrSurfaceFillContext> tempB;
+    std::unique_ptr<skgpu::SurfaceFillContext> tempA;
+    std::unique_ptr<skgpu::SurfaceFillContext> tempB;
 
     // Assume we should ignore the rescale linear request if the surface has no color space since
     // it's unclear how we'd linearize from an unknown color space.
@@ -1220,7 +1220,7 @@ bool GrSurfaceContext::rescaleInto(GrSurfaceFillContext* dst,
         }
         auto input = tempA ? tempA.get() : this;
         sk_sp<GrColorSpaceXform> xform;
-        GrSurfaceFillContext* stepDst;
+        skgpu::SurfaceFillContext* stepDst;
         SkIRect stepDstRect;
         if (nextDims == finalSize) {
             stepDst = dst;

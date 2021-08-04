@@ -291,7 +291,7 @@ const SurfaceDrawContext* Device::surfaceDrawContext() const {
     return fSurfaceDrawContext.get();
 }
 
-GrSurfaceFillContext* Device::surfaceFillContext() {
+skgpu::SurfaceFillContext* Device::surfaceFillContext() {
     ASSERT_SINGLE_OWNER
     return fSurfaceDrawContext.get();
 }

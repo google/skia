@@ -294,11 +294,11 @@ SurfaceDrawContext::SurfaceDrawContext(GrRecordingContext* rContext,
                                        sk_sp<SkColorSpace> colorSpace,
                                        const SkSurfaceProps& surfaceProps,
                                        bool flushTimeOpsTask)
-        : GrSurfaceFillContext(rContext,
-                               std::move(readView),
-                               std::move(writeView),
-                               {colorType, kPremul_SkAlphaType, std::move(colorSpace)},
-                               flushTimeOpsTask)
+        : SurfaceFillContext(rContext,
+                             std::move(readView),
+                             std::move(writeView),
+                             {colorType, kPremul_SkAlphaType, std::move(colorSpace)},
+                             flushTimeOpsTask)
         , fSurfaceProps(surfaceProps)
         , fCanUseDynamicMSAA(
                 (fSurfaceProps.flags() & SkSurfaceProps::kDynamicMSAA_Flag) &&
