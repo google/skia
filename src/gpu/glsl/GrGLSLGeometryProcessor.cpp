@@ -22,11 +22,16 @@ GrGLSLGeometryProcessor::FPCoordsMap GrGLSLGeometryProcessor::emitCode(EmitArgs&
     GrGPArgs gpArgs;
     this->onEmitCode(args, &gpArgs);
 
+    GrShaderVar positionVar = gpArgs.fPositionVar;
+    // skia:12198
+    if (args.fGeomProc.willUseGeoShader() || args.fGeomProc.willUseTessellationShaders()) {
+        positionVar = {};
+    }
     FPCoordsMap transformMap = this->collectTransforms(args.fVertBuilder,
                                                        args.fVaryingHandler,
                                                        args.fUniformHandler,
                                                        gpArgs.fLocalCoordVar,
-                                                       gpArgs.fPositionVar,
+                                                       positionVar,
                                                        pipeline);
 
     if (args.fGeomProc.willUseTessellationShaders()) {
@@ -83,7 +88,8 @@ GrGLSLGeometryProcessor::FPCoordsMap GrGLSLGeometryProcessor::collectTransforms(
              localCoordsVar.getType() == kFloat3_GrSLType ||
              localCoordsVar.getType() == kVoid_GrSLType);
     SkASSERT(positionVar.getType() == kFloat2_GrSLType ||
-             positionVar.getType() == kFloat3_GrSLType);
+             positionVar.getType() == kFloat3_GrSLType ||
+             positionVar.getType() == kVoid_GrSLType);
 
     enum class BaseCoord { kNone, kLocal, kPosition };
 
@@ -97,6 +103,8 @@ GrGLSLGeometryProcessor::FPCoordsMap GrGLSLGeometryProcessor::collectTransforms(
         }
         return baseLocalCoord.fsInVar();
     };
+
+    bool canUsePosition = positionVar.getType() != kVoid_GrSLType;
 
     FPCoordsMap result;
     // Performs a pre-order traversal of FP hierarchy rooted at fp and identifies FPs that are
@@ -143,7 +151,7 @@ GrGLSLGeometryProcessor::FPCoordsMap GrGLSLGeometryProcessor::collectTransforms(
         // course, if the FP doesn't directly use its coords then we don't add a varying.
         if (fp.usesSampleCoordsDirectly() &&
             (baseCoord == BaseCoord::kLocal ||
-             (baseCoord == BaseCoord::kPosition && lastMatrixFP))) {
+             (baseCoord == BaseCoord::kPosition && lastMatrixFP && canUsePosition))) {
             // Associate the varying with the highest possible node in the FP tree that shares the
             // same coordinates so that multiple FPs in a subtree can share. If there are no matrix
             // sample nodes on the way up the tree then directly use the local coord.
