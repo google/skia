@@ -18,10 +18,10 @@
 #include "src/gpu/GrOpsTask.h"
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrRenderTargetProxy.h"
+#include "src/gpu/GrSurfaceFillContext.h"
 #include "src/gpu/GrSurfaceProxyView.h"
 #include "src/gpu/GrXferProcessor.h"
 #include "src/gpu/geometry/GrQuad.h"
-#include "src/gpu/v1/SurfaceFillContext_v1.h"
 
 class GrBackendSemaphore;
 class GrClip;
@@ -60,7 +60,7 @@ namespace skgpu::v1 {
 /**
  * A helper object to orchestrate commands (draws, etc...) for GrSurfaces that are GrRenderTargets.
  */
-class SurfaceDrawContext : public SurfaceFillContext {
+class SurfaceDrawContext : public GrSurfaceFillContext {
 public:
     static std::unique_ptr<SurfaceDrawContext> Make(GrRecordingContext*,
                                                     GrColorType,
@@ -707,7 +707,7 @@ private:
     bool fPreserveOpsOnFullClear_TestingOnly = false;
 #endif
     SkGlyphRunListPainter fGlyphPainter;
-    using INHERITED = SurfaceFillContext;
+    using INHERITED = GrSurfaceFillContext;
 };
 
 } // namespace skgpu::v1

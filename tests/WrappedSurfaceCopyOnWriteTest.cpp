@@ -13,8 +13,8 @@
 #include "src/core/SkCanvasPriv.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrSurfaceFillContext.h"
 #include "src/gpu/GrSurfaceProxy.h"
-#include "src/gpu/SurfaceFillContext.h"
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
 #include "tools/gpu/BackendSurfaceFactory.h"
@@ -22,6 +22,8 @@
 
 #if SK_GPU_V1
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
+#else
+#include "src/gpu/GrSurfaceFillContext.h"
 #endif
 
 DEF_GPUTEST_FOR_ALL_CONTEXTS(WrappedSurfaceCopyOnWrite, reporter, ctxInfo) {

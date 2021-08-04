@@ -26,7 +26,8 @@ class GrRecordingContext;
 class GrRenderTargetProxy;
 class GrSingleOwner;
 class GrSurface;
-namespace skgpu { class SurfaceFillContext; }
+namespace skgpu { namespace v1 { class SurfaceDrawContext; }}
+class GrSurfaceFillContext;
 class GrSurfaceProxy;
 class GrTextureProxy;
 struct SkIPoint;
@@ -157,7 +158,7 @@ public:
         return fReadView.asRenderTargetProxyRef();
     }
 
-    virtual skgpu::SurfaceFillContext* asFillContext() { return nullptr; }
+    virtual GrSurfaceFillContext* asFillContext() { return nullptr; }
 
     /**
      * Rescales the contents of srcRect. The gamma in which the rescaling occurs is controlled by
@@ -166,17 +167,17 @@ public:
      * different size than srcRect. Though, it could be relaxed to allow non-scaling color
      * conversions.
      */
-    std::unique_ptr<skgpu::SurfaceFillContext> rescale(const GrImageInfo& info,
-                                                       GrSurfaceOrigin,
-                                                       SkIRect srcRect,
-                                                       SkImage::RescaleGamma,
-                                                       SkImage::RescaleMode);
+    std::unique_ptr<GrSurfaceFillContext> rescale(const GrImageInfo& info,
+                                                  GrSurfaceOrigin,
+                                                  SkIRect srcRect,
+                                                  SkImage::RescaleGamma,
+                                                  SkImage::RescaleMode);
 
     /**
      * Like the above but allows the caller ot specify a destination fill context and
      * rect within that context. The dst rect must be contained by the dst or this will fail.
      */
-    bool rescaleInto(skgpu::SurfaceFillContext* dst,
+    bool rescaleInto(GrSurfaceFillContext* dst,
                      SkIRect dstRect,
                      SkIRect srcRect,
                      SkImage::RescaleGamma,

@@ -12,7 +12,7 @@
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
-#include "src/gpu/SurfaceFillContext.h"
+#include "src/gpu/GrSurfaceFillContext.h"
 #include "src/gpu/effects/GrBlendFragmentProcessor.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "src/image/SkImage_Base.h"
@@ -297,7 +297,7 @@ static void check_base_readbacks(GrDirectContext* dContext,
 #endif
         } else {
             auto name = SkStringPrintf("%s::readPixels",
-                                       (renderableCtx == GrRenderable::kYes ? "SurfaceFillContext"
+                                       (renderableCtx == GrRenderable::kYes ? "GrSurfaceFillContext"
                                                                             : "GrSurfaceContext"));
             check_solid_pixmap(reporter, expectedColor, actual, colorType, label, name.c_str());
         }

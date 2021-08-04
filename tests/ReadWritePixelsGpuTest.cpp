@@ -15,7 +15,7 @@
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrSurfaceContext.h"
-#include "src/gpu/SurfaceFillContext.h"
+#include "src/gpu/GrSurfaceFillContext.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "tests/Test.h"
 #include "tests/TestUtils.h"

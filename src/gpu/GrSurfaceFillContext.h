@@ -1,27 +1,47 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
 
-#ifndef SurfaceFillContext_DEFINED
-#define SurfaceFillContext_DEFINED
+#ifndef GrSurfaceFillContext_DEFINED
+#define GrSurfaceFillContext_DEFINED
 
+#include "include/core/SkSize.h"
+#include "include/private/GrTypesPriv.h"
+#include "src/gpu/GrImageInfo.h"
+#include "src/gpu/GrOpsTask.h"
 #include "src/gpu/GrSurfaceContext.h"
+#include "src/gpu/GrSwizzle.h"
+#include "src/gpu/effects/GrMatrixEffect.h"
 
-namespace skgpu {
+#include <array>
+#include <tuple>
 
-class SurfaceFillContext : public GrSurfaceContext {
+class GrFragmentProcessor;
+class GrImageContext;
+class GrOp;
+class GrBackendFormat;
+class GrRecordingContext;
+class GrSurfaceProxyView;
+class SkColorSpace;
+
+class GrSurfaceFillContext : public GrSurfaceContext {
 public:
+    GrSurfaceFillContext(GrRecordingContext*,
+                         GrSurfaceProxyView readView,
+                         GrSurfaceProxyView writeView,
+                         const GrColorInfo&,
+                         bool flushTimeOpsTask = false);
 
-    SurfaceFillContext* asFillContext() override { return this; }
+    GrSurfaceFillContext* asFillContext() override { return this; }
 
     /**
      * Provides a performance hint that the render target's contents are allowed
      * to become undefined.
      */
-    virtual void discard() = 0;
+    void discard();
 
     /**
      * Clear the rect of the render target to the given color.
@@ -50,7 +70,7 @@ public:
     }
 
     /** Fills 'dstRect' with 'fp' */
-    virtual void fillRectWithFP(const SkIRect& dstRect, std::unique_ptr<GrFragmentProcessor>) = 0;
+    void fillRectWithFP(const SkIRect& dstRect, std::unique_ptr<GrFragmentProcessor> fp);
 
     /**
      * A convenience version of fillRectWithFP that applies a coordinate transformation via
@@ -58,7 +78,10 @@ public:
      */
     void fillRectWithFP(const SkIRect& dstRect,
                         const SkMatrix& localMatrix,
-                        std::unique_ptr<GrFragmentProcessor>);
+                        std::unique_ptr<GrFragmentProcessor> fp) {
+        fp = GrMatrixEffect::Make(localMatrix, std::move(fp));
+        this->fillRectWithFP(dstRect, std::move(fp));
+    }
 
     /** Fills 'dstRect' with 'fp' using a local matrix that maps 'srcRect' to 'dstRect' */
     void fillRectToRectWithFP(const SkRect& srcRect,
@@ -85,9 +108,8 @@ public:
      * GrMatrixEffect and fills the entire render target.
      */
     void fillWithFP(const SkMatrix& localMatrix, std::unique_ptr<GrFragmentProcessor> fp) {
-        this->fillRectWithFP(SkIRect::MakeSize(fWriteView.proxy()->dimensions()),
-                             localMatrix,
-                             std::move(fp));
+        this->fillRectWithFP(
+                SkIRect::MakeSize(fWriteView.proxy()->dimensions()), localMatrix, std::move(fp));
     }
 
     /**
@@ -95,22 +117,34 @@ public:
      * of the srcRect. The srcRect and dstRect are clipped to the bounds of the src and dst surfaces
      * respectively.
      */
-    virtual bool blitTexture(GrSurfaceProxyView,
-                             const SkIRect& srcRect,
-                             const SkIPoint& dstPoint) = 0;
+    bool blitTexture(GrSurfaceProxyView view, const SkIRect& srcRect, const SkIPoint& dstPoint);
 
-    virtual sk_sp<GrRenderTask> refRenderTask() = 0;
+    GrOpsTask* getOpsTask();
+
+    int numSamples() const { return this->asRenderTargetProxy()->numSamples(); }
+    bool wrapsVkSecondaryCB() const { return this->asRenderTargetProxy()->wrapsVkSecondaryCB(); }
+
+    SkArenaAlloc* arenaAlloc() { return this->arenas()->arenaAlloc(); }
+    GrSubRunAllocator* subRunAlloc() { return this->arenas()->subRunAlloc(); }
+
+#if GR_TEST_UTILS
+    GrOpsTask* testingOnly_PeekLastOpsTask() { return fOpsTask.get(); }
+#endif
+
+    const GrSurfaceProxyView& writeSurfaceView() const { return fWriteView; }
 
 protected:
-    SurfaceFillContext(GrRecordingContext* rContext,
-                            GrSurfaceProxyView readView,
-                            GrSurfaceProxyView writeView,
-                            const GrColorInfo& colorInfo)
-            : GrSurfaceContext(rContext, std::move(readView), colorInfo)
-            , fWriteView(std::move(writeView)) {
-        SkASSERT(this->asSurfaceProxy() == fWriteView.proxy());
-        SkASSERT(this->origin() == fWriteView.origin());
-    }
+    /**
+     * Creates a constant color paint for a clear, using src-over if possible to improve batching.
+     */
+    static void ClearToGrPaint(std::array<float, 4> color, GrPaint* paint);
+
+    void addOp(GrOp::Owner);
+
+    GrOpsTask* replaceOpsTask();
+
+private:
+    sk_sp<GrArenas> arenas() { return fWriteView.proxy()->asRenderTargetProxy()->arenas(); }
 
     template <SkAlphaType AlphaType>
     static std::array<float, 4> ConvertColor(SkRGBA4f<AlphaType> color);
@@ -118,30 +152,50 @@ protected:
     template <SkAlphaType AlphaType>
     std::array<float, 4> adjustColorAlphaType(SkRGBA4f<AlphaType> color) const;
 
+    /** Override to be notified in subclass before the current ops task is replaced. */
+    virtual void willReplaceOpsTask(GrOpsTask* prevTask, GrOpsTask* nextTask) {}
+
+    /**
+     * Override to be called to participate in the decision to discard all previous ops if a
+     * fullscreen clear occurs.
+     */
+    virtual GrOpsTask::CanDiscardPreviousOps canDiscardPreviousOpsOnFullClear() const {
+        return GrOpsTask::CanDiscardPreviousOps::kYes;
+    }
+
+    void internalClear(const SkIRect* scissor,
+                       std::array<float, 4> color,
+                       bool upgradePartialToFull = false);
+
+    void addDrawOp(GrOp::Owner);
+
+    SkDEBUGCODE(void onValidate() const override;)
+
     GrSurfaceProxyView fWriteView;
 
-private:
-    virtual void internalClear(const SkIRect* scissor,
-                               std::array<float, 4> color,
-                               bool upgradePartialToFull = false) = 0;
+    // The GrOpsTask can be closed by some other surface context that has picked it up. For this
+    // reason, the GrOpsTask should only ever be accessed via 'getOpsTask'.
+    sk_sp<GrOpsTask> fOpsTask;
+
+    bool fFlushTimeOpsTask;
 
     using INHERITED = GrSurfaceContext;
 };
 
 template<>
-inline std::array<float, 4> SurfaceFillContext::ConvertColor<kPremul_SkAlphaType>(
+inline std::array<float, 4> GrSurfaceFillContext::ConvertColor<kPremul_SkAlphaType>(
         SkPMColor4f color) {
     return color.unpremul().array();
 }
 
 template<>
-inline std::array<float, 4> SurfaceFillContext::ConvertColor<kUnpremul_SkAlphaType>(
+inline std::array<float, 4> GrSurfaceFillContext::ConvertColor<kUnpremul_SkAlphaType>(
         SkColor4f color) {
     return color.premul().array();
 }
 
 template <SkAlphaType AlphaType>
-std::array<float, 4> SurfaceFillContext::adjustColorAlphaType(SkRGBA4f<AlphaType> color) const {
+std::array<float, 4> GrSurfaceFillContext::adjustColorAlphaType(SkRGBA4f<AlphaType> color) const {
     if (AlphaType == kUnknown_SkAlphaType ||
         this->colorInfo().alphaType() == kUnknown_SkAlphaType) {
         return color.array();
@@ -149,6 +203,4 @@ std::array<float, 4> SurfaceFillContext::adjustColorAlphaType(SkRGBA4f<AlphaType
     return (AlphaType == this->colorInfo().alphaType()) ? color.array() : ConvertColor(color);
 }
 
-} // namespace skgpu
-
-#endif // SurfaceFillContext_DEFINED
+#endif

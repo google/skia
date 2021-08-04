@@ -133,7 +133,7 @@ skgpu::v1::SurfaceDrawContext* SkCanvasPriv::TopDeviceSurfaceDrawContext(SkCanva
 }
 #endif // SK_GPU_V1
 
-skgpu::SurfaceFillContext* SkCanvasPriv::TopDeviceSurfaceFillContext(SkCanvas* canvas) {
+GrSurfaceFillContext* SkCanvasPriv::TopDeviceSurfaceFillContext(SkCanvas* canvas) {
     if (auto gpuDevice = canvas->topDevice()->asGpuDevice()) {
         return gpuDevice->surfaceFillContext();
     }
@@ -149,7 +149,7 @@ skgpu::v1::SurfaceDrawContext* SkCanvasPriv::TopDeviceSurfaceDrawContext(SkCanva
 }
 #endif // SK_GPU_V1
 
-skgpu::SurfaceFillContext* SkCanvasPriv::TopDeviceSurfaceFillContext(SkCanvas* canvas) {
+GrSurfaceFillContext* SkCanvasPriv::TopDeviceSurfaceFillContext(SkCanvas* canvas) {
     return nullptr;
 }
 

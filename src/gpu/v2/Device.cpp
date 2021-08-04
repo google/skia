@@ -26,7 +26,7 @@ Device::~Device() {}
 
 GrSurfaceProxyView Device::readSurfaceView() { return {}; }
 
-skgpu::SurfaceFillContext* Device::surfaceFillContext() {
+GrSurfaceFillContext* Device::surfaceFillContext() {
     return nullptr;
 }
 
