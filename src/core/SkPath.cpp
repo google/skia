@@ -1397,8 +1397,7 @@ SkPath& SkPath::addPath(const SkPath& srcPath, const SkMatrix& matrix, AddPathMo
             SkPoint mappedPts[3];
             case SkPathVerb::kMove:
                 mapPtsProc(matrix, mappedPts, &pts[0], 1);
-                if (firstVerb && !isEmpty()) {
-                    SkASSERT(mode == kExtend_AddPathMode);
+                if (firstVerb && mode == kExtend_AddPathMode && !isEmpty()) {
                     injectMoveToIfNeeded(); // In case last contour is closed
                     SkPoint lastPt;
                     // don't add lineTo if it is degenerate

@@ -67,7 +67,7 @@ static SkPath new_school_polygon(const SkPoint pts[], size_t count, bool isClose
     return SkPath::Polygon(pts, count, isClosed);
 }
 
-DEF_SIMPLE_GM(path_append_extend, canvas, 250, 400) {
+DEF_SIMPLE_GM(path_append_extend, canvas, 400, 400) {
     const SkPoint p0[] = {
         { 10, 30 }, {30, 10}, {50, 30},
     };
@@ -81,6 +81,12 @@ DEF_SIMPLE_GM(path_append_extend, canvas, 250, 400) {
     paint.setStroke(true);
     paint.setStrokeWidth(9);
     paint.setAntiAlias(true);
+
+    // addPath() sometimes checks for perspective, so we want to test that
+    const SkScalar x = 0.0001f; // tiny amount of perspective
+    const SkMatrix perspective = SkMatrix::MakeAll(1, 0, 0,
+                                                   0, 1, 0,
+                                                   x, 0, 1);
 
     for (bool isClosed : {false, true}) {
         for (auto proc : {old_school_polygon, new_school_polygon}) {
@@ -101,9 +107,24 @@ DEF_SIMPLE_GM(path_append_extend, canvas, 250, 400) {
             canvas->translate(80, 0);
             {
                 SkPath path = path0;
+                path.addPath(path1, perspective, SkPath::kAppend_AddPathMode);
+                canvas->drawPath(path, paint);
+            }
+
+            canvas->translate(80, 0);
+            {
+                SkPath path = path0;
                 path.addPath(path1, SkPath::kExtend_AddPathMode);
                 canvas->drawPath(path, paint);
             }
+
+            canvas->translate(80, 0);
+            {
+                SkPath path = path0;
+                path.addPath(path1, perspective, SkPath::kExtend_AddPathMode);
+                canvas->drawPath(path, paint);
+            }
+
             canvas->restore();
             canvas->translate(0, 100);
         }
