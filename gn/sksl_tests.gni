@@ -273,6 +273,7 @@ sksl_shared_tests = [
   "/sksl/shared/ArrayComparison.sksl",
   "/sksl/shared/ArrayConstructors.sksl",
   "/sksl/shared/ArrayIndexTypes.sksl",
+  "/sksl/shared/ArrayNarrowingConversions.sksl",
   "/sksl/shared/ArrayTypes.sksl",
   "/sksl/shared/Assignment.sksl",
   "/sksl/shared/Caps.sksl",
