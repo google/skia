@@ -56,3 +56,57 @@ DEF_SIMPLE_GM(arcto_skbug_9272, canvas, 150, 150) {
     canvas->drawPath(path, paint);
     canvas->drawPath(path2, paint);
 }
+
+static SkPath old_school_polygon(const SkPoint pts[], size_t count, bool isClosed) {
+    SkPath path;
+    path.addPoly(pts, count, isClosed);
+    return path;
+}
+
+static SkPath new_school_polygon(const SkPoint pts[], size_t count, bool isClosed) {
+    return SkPath::Polygon(pts, count, isClosed);
+}
+
+DEF_SIMPLE_GM(path_append_extend, canvas, 250, 400) {
+    const SkPoint p0[] = {
+        { 10, 30 }, {30, 10}, {50, 30},
+    };
+    const SkPoint p1[] = {
+        { 10, 50 }, {30, 70}, {50, 50},
+    };
+
+    const SkPath path1 = SkPath::Polygon(p1, SK_ARRAY_COUNT(p1), false);
+
+    SkPaint paint;
+    paint.setStroke(true);
+    paint.setStrokeWidth(9);
+    paint.setAntiAlias(true);
+
+    for (bool isClosed : {false, true}) {
+        for (auto proc : {old_school_polygon, new_school_polygon}) {
+            canvas->save();
+
+            SkPath path0 = proc(p0, SK_ARRAY_COUNT(p0), isClosed);
+
+            canvas->drawPath(path0, paint);
+            canvas->drawPath(path1, paint);
+
+            canvas->translate(80, 0);
+            {
+                SkPath path = path0;
+                path.addPath(path1, SkPath::kAppend_AddPathMode);
+                canvas->drawPath(path, paint);
+            }
+
+            canvas->translate(80, 0);
+            {
+                SkPath path = path0;
+                path.addPath(path1, SkPath::kExtend_AddPathMode);
+                canvas->drawPath(path, paint);
+            }
+            canvas->restore();
+            canvas->translate(0, 100);
+        }
+    }
+
+}
