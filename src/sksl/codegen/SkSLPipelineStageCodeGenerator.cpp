@@ -13,6 +13,7 @@
 #include "src/sksl/SkSLOperators.h"
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
+#include "src/sksl/ir/SkSLChildCall.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorArrayCast.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
@@ -79,6 +80,7 @@ private:
     void writeStructDefinition(const StructDefinition& s);
 
     void writeExpression(const Expression& expr, Precedence parentPrecedence);
+    void writeChildCall(const ChildCall& c);
     void writeFunctionCall(const FunctionCall& c);
     void writeAnyConstructor(const AnyConstructor& c, Precedence parentPrecedence);
     void writeFieldAccess(const FieldAccess& f);
@@ -138,76 +140,74 @@ void PipelineStageCodeGenerator::writeLine(skstd::string_view s) {
     fBuffer->writeText("\n");
 }
 
-void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
-    const FunctionDeclaration& function = c.function();
+void PipelineStageCodeGenerator::writeChildCall(const ChildCall& c) {
     const ExpressionArray& arguments = c.arguments();
-    if (function.isBuiltin() && function.name() == "sample") {
-        SkASSERT(arguments.size() >= 2);
-        const Expression* child = arguments[0].get();
-        SkASSERT(child->type().isEffectChild());
-        SkASSERT(child->is<VariableReference>());
-        int index = 0;
-        bool found = false;
-        for (const ProgramElement* p : fProgram.elements()) {
-            if (p->is<GlobalVarDeclaration>()) {
-                const GlobalVarDeclaration& global = p->as<GlobalVarDeclaration>();
-                const VarDeclaration& decl = global.declaration()->as<VarDeclaration>();
-                if (&decl.var() == child->as<VariableReference>().variable()) {
-                    found = true;
-                } else if (decl.var().type().isEffectChild()) {
-                    ++index;
-                }
+    SkASSERT(arguments.size() >= 1);
+    int index = 0;
+    bool found = false;
+    for (const ProgramElement* p : fProgram.elements()) {
+        if (p->is<GlobalVarDeclaration>()) {
+            const GlobalVarDeclaration& global = p->as<GlobalVarDeclaration>();
+            const VarDeclaration& decl = global.declaration()->as<VarDeclaration>();
+            if (&decl.var() == &c.child()) {
+                found = true;
+            } else if (decl.var().type().isEffectChild()) {
+                ++index;
             }
-            if (found) {
+        }
+        if (found) {
+            break;
+        }
+    }
+    SkASSERT(found);
+
+    // Shaders require a coordinate argument. Color filters require a color argument.
+    // Blenders require two color arguments.
+    String sampleOutput;
+    {
+        AutoOutputBuffer exprBuffer(this);
+        this->writeExpression(*arguments[0], Precedence::kSequence);
+
+        switch (c.child().type().typeKind()) {
+            case Type::TypeKind::kShader: {
+                SkASSERT(arguments.size() == 1);
+                SkASSERT(arguments[0]->type() == *fProgram.fContext->fTypes.fFloat2);
+                sampleOutput = fCallbacks->sampleShader(index, exprBuffer.fBuffer.str());
                 break;
             }
-        }
-        SkASSERT(found);
+            case Type::TypeKind::kColorFilter: {
+                SkASSERT(arguments.size() == 1);
+                SkASSERT(arguments[0]->type() == *fProgram.fContext->fTypes.fHalf4 ||
+                         arguments[0]->type() == *fProgram.fContext->fTypes.fFloat4);
+                sampleOutput = fCallbacks->sampleColorFilter(index, exprBuffer.fBuffer.str());
+                break;
+            }
+            case Type::TypeKind::kBlender: {
+                SkASSERT(arguments.size() == 2);
+                SkASSERT(arguments[0]->type() == *fProgram.fContext->fTypes.fHalf4 ||
+                         arguments[0]->type() == *fProgram.fContext->fTypes.fFloat4);
+                SkASSERT(arguments[1]->type() == *fProgram.fContext->fTypes.fHalf4 ||
+                         arguments[1]->type() == *fProgram.fContext->fTypes.fFloat4);
 
-        // Shaders require a coordinate argument. Color filters require a color argument.
-        // Blenders require two color arguments.
-        String sampleOutput;
-        {
-            AutoOutputBuffer exprBuffer(this);
-            this->writeExpression(*arguments[1], Precedence::kSequence);
+                AutoOutputBuffer exprBuffer2(this);
+                this->writeExpression(*arguments[1], Precedence::kSequence);
 
-            switch (child->type().typeKind()) {
-                case Type::TypeKind::kShader: {
-                    SkASSERT(arguments.size() == 2);
-                    SkASSERT(arguments[1]->type() == *fProgram.fContext->fTypes.fFloat2);
-                    sampleOutput = fCallbacks->sampleShader(index, exprBuffer.fBuffer.str());
-                    break;
-                }
-                case Type::TypeKind::kColorFilter: {
-                    SkASSERT(arguments.size() == 2);
-                    SkASSERT(arguments[1]->type() == *fProgram.fContext->fTypes.fHalf4 ||
-                             arguments[1]->type() == *fProgram.fContext->fTypes.fFloat4);
-                    sampleOutput = fCallbacks->sampleColorFilter(index, exprBuffer.fBuffer.str());
-                    break;
-                }
-                case Type::TypeKind::kBlender: {
-                    SkASSERT(arguments.size() == 3);
-                    SkASSERT(arguments[1]->type() == *fProgram.fContext->fTypes.fHalf4 ||
-                             arguments[1]->type() == *fProgram.fContext->fTypes.fFloat4);
-                    SkASSERT(arguments[2]->type() == *fProgram.fContext->fTypes.fHalf4 ||
-                             arguments[2]->type() == *fProgram.fContext->fTypes.fFloat4);
-
-                    AutoOutputBuffer exprBuffer2(this);
-                    this->writeExpression(*arguments[2], Precedence::kSequence);
-
-                    sampleOutput = fCallbacks->sampleBlender(index, exprBuffer.fBuffer.str(),
-                                                                    exprBuffer2.fBuffer.str());
-                    break;
-                }
-                default: {
-                    SkDEBUGFAILF("cannot sample from type '%s'",
-                                 child->type().description().c_str());
-                }
+                sampleOutput = fCallbacks->sampleBlender(index, exprBuffer.fBuffer.str(),
+                                                                exprBuffer2.fBuffer.str());
+                break;
+            }
+            default: {
+                SkDEBUGFAILF("cannot sample from type '%s'",
+                             c.child().type().description().c_str());
             }
         }
-        this->write(sampleOutput);
-        return;
     }
+    this->write(sampleOutput);
+    return;
+}
+
+void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
+    const FunctionDeclaration& function = c.function();
 
     if (function.isBuiltin()) {
         this->write(function.name());
@@ -217,7 +217,7 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
 
     this->write("(");
     const char* separator = "";
-    for (const auto& arg : arguments) {
+    for (const auto& arg : c.arguments()) {
         this->write(separator);
         separator = ", ";
         this->writeExpression(*arg, Precedence::kSequence);
@@ -434,6 +434,9 @@ void PipelineStageCodeGenerator::writeExpression(const Expression& expr,
         case Expression::Kind::kFloatLiteral:
         case Expression::Kind::kIntLiteral:
             this->write(expr.description());
+            break;
+        case Expression::Kind::kChildCall:
+            this->writeChildCall(expr.as<ChildCall>());
             break;
         case Expression::Kind::kConstructorArray:
         case Expression::Kind::kConstructorArrayCast:

@@ -17,6 +17,13 @@ Milestone 94
   * Removed SK_SUPPORT_DEPRECATED_CLIPOPS build flag. Clips can only be intersect and difference.
     https://review.skia.org/436565
 
+  * There is a new syntax for invoking (sampling) child effects in SkSL. Previously, children
+    (shaders, colorFilters, blenders) were invoked using different overloads of `sample`. That
+    syntax is deprecated (but still supported). Now, the child object can be invoked directly,
+    like a function. The arguments to these invocations are the same as the arguments that followed
+    the child in calls to `sample`.
+    https://review.skia.org/436517
+
 * * *
 
 Milestone 93
