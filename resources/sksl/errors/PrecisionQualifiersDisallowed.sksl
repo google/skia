@@ -1,0 +1,4 @@
+// Precision qualifiers are only allowed in a Runtime Effect.
+void h() { highp int x; }
+void m() { mediump int x; }
+void l() { lowp int x; }

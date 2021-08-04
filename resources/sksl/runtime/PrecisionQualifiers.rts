@@ -1,9 +1,61 @@
-uniform half4 colorGreen;
+uniform half4 colorGreen, colorRed;
+
+bool test_scalar() {
+    mediump float mp  = 0.5;
+    highp   float hp  = mp;
+    highp   int   ihp = 2;
+    mediump int   imp = ihp;
+
+    return mp == hp && ihp == imp;
+}
+
+bool test_vector() {
+    mediump vec2 mp2 = vec2(2);
+    highp   vec2 hp2 = mp2;
+    mediump vec3 mp3 = vec3(3);
+    highp   vec3 hp3 = mp3;
+    mediump vec4 mp4 = vec4(4);
+    highp   vec4 hp4 = mp4;
+
+    highp   ivec2 ihp2 = ivec2(2);
+    mediump ivec2 imp2 = ihp2;
+    highp   ivec3 ihp3 = ivec3(3);
+    mediump ivec3 imp3 = ihp3;
+    highp   ivec4 ihp4 = ivec4(4);
+    mediump ivec4 imp4 = ihp4;
+
+    return mp2 == hp2   && hp3 == mp3   && mp4 == hp4 &&
+           imp2 == ihp2 && ihp3 == imp3 && imp4 == ihp4;
+}
+
+bool test_matrix() {
+    mediump mat2 mp2 = mat2(2);
+    highp   mat2 hp2 = mp2;
+    mediump mat3 mp3 = mat3(3);
+    highp   mat3 hp3 = mp3;
+    mediump mat4 mp4 = mat4(4);
+    highp   mat4 hp4 = mp4;
+
+    return mp2 == hp2 && hp3 == mp3 && mp4 == hp4;
+}
+
+bool test_array() {
+    mediump float  mf[1]; mf[0] = 1;
+    highp   float  hf[1]; hf[0] = 1;
+    mediump vec2   mv[2]; mv[0] = vec2(0, 1); mv[1] = vec2(2, 3);
+    highp   vec2   hv[2]; hv[0] = vec2(0, 1); hv[1] = vec2(2, 3);
+
+    return mf[0] == hf[0] && hv[0] == mv[0] && mv[1] == hv[1];
+}
 
 vec4 main(vec2 coords) {
-    highp vec4 zero = vec4(0);
-    mediump vec4 green = colorGreen;
-    lowp vec4 one = vec4(1);
+    highp   vec4 zero = vec4(0);
+    mediump vec4 one = vec4(1);
+    lowp vec4 green = colorGreen;
+    green = green * one + zero;
 
-    return green * one + zero;
+    highp vec4 red = colorRed;
+    red = (red + zero) * one;
+
+    return (test_scalar() && test_vector() && test_matrix() && test_array()) ? green : red;
 }

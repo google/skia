@@ -1,0 +1,13 @@
+### Compilation failed:
+
+error: 5: only one precision qualifier can be used
+error: 6: only one precision qualifier can be used
+error: 7: only one precision qualifier can be used
+error: 8: only one precision qualifier can be used
+error: 9: type 'S' does not support precision qualifiers
+error: 10: type 'bool' does not support precision qualifiers
+error: 11: type 'colorFilter' does not support precision qualifiers
+error: 12: type 'half' does not support precision qualifiers
+error: 13: type 'half' does not support precision qualifiers
+error: 14: type 'half' does not support precision qualifiers
+10 errors

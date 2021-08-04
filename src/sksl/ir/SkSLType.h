@@ -23,6 +23,7 @@ namespace SkSL {
 
 class BuiltinTypes;
 class Context;
+class SymbolTable;
 
 struct CoercionCost {
     static CoercionCost Free()              { return {    0,    0, false }; }
@@ -509,6 +510,16 @@ public:
      * rows.
      */
     const Type& toCompound(const Context& context, int columns, int rows) const;
+
+    /**
+     * Returns a type which honors the precision qualifiers set in Modifiers. e.g., kMediump_Flag
+     * when applied to `float2` will return `half2`. Generates an error if the precision qualifiers
+     * don't make sense, e.g. `highp bool` or `mediump MyStruct`.
+     */
+    const Type* applyPrecisionQualifiers(const Context& context,
+                                         const Modifiers& modifiers,
+                                         SymbolTable* symbols,
+                                         int offset) const;
 
     /**
      * Coerces the passed-in expression to this type. If the types are incompatible, reports an

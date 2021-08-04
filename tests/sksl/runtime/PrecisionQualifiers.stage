@@ -1,6 +1,56 @@
-### Compilation failed:
-
-error: 4: 'highp' is not permitted here
-error: 5: 'mediump' is not permitted here
-error: 6: 'lowp' is not permitted here
-3 errors
+uniform half4 colorGreen;
+uniform half4 colorRed;
+bool test_vector_0()
+{
+	half2 mp2 = half2(2.0);
+	float2 hp2 = float2(mp2);
+	half3 mp3 = half3(3.0);
+	float3 hp3 = float3(mp3);
+	half4 mp4 = half4(4.0);
+	float4 hp4 = float4(mp4);
+	int2 ihp2 = int2(2);
+	short2 imp2 = short2(ihp2);
+	int3 ihp3 = int3(3);
+	short3 imp3 = short3(ihp3);
+	int4 ihp4 = int4(4);
+	short4 imp4 = short4(ihp4);
+	return ((((float2(mp2) == hp2 && hp3 == float3(mp3)) && float4(mp4) == hp4) && int2(imp2) == ihp2) && ihp3 == int3(imp3)) && int4(imp4) == ihp4;
+}
+bool test_matrix_0()
+{
+	half2x2 mp2 = half2x2(2.0);
+	float2x2 hp2 = float2x2(mp2);
+	half3x3 mp3 = half3x3(3.0);
+	float3x3 hp3 = float3x3(mp3);
+	half4x4 mp4 = half4x4(4.0);
+	float4x4 hp4 = float4x4(mp4);
+	return (float2x2(mp2) == hp2 && hp3 == float3x3(mp3)) && float4x4(mp4) == hp4;
+}
+bool test_array_0()
+{
+	half mf[1];
+	mf[0] = 1.0;
+	float hf[1];
+	hf[0] = 1.0;
+	half2 mv[2];
+	mv[0] = half2(0.0, 1.0);
+	mv[1] = half2(2.0, 3.0);
+	float2 hv[2];
+	hv[0] = float2(0.0, 1.0);
+	hv[1] = float2(2.0, 3.0);
+	return (float(mf[0]) == hf[0] && hv[0] == float2(mv[0])) && float2(mv[1]) == hv[1];
+}
+float4 main(float2 coords)
+{
+	float4 zero = float4(0.0);
+	half4 one = half4(1.0);
+	half4 green = colorGreen;
+	green = half4(float4(green * one) + zero);
+	float4 red = float4(colorRed);
+	red = (red + zero) * float4(one);
+	half _0_mp = 0.5;
+	float _1_hp = float(_0_mp);
+	int _2_ihp = 2;
+	short _3_imp = short(_2_ihp);
+	return half4((((float(_0_mp) == _1_hp && _2_ihp == int(_3_imp)) && test_vector_0()) && test_matrix_0()) && test_array_0() ? float4(green) : red);
+}

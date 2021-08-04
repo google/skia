@@ -441,6 +441,72 @@ CoercionCost Type::coercionCost(const Type& other) const {
     return CoercionCost::Impossible();
 }
 
+const Type* Type::applyPrecisionQualifiers(const Context& context,
+                                           const Modifiers& modifiers,
+                                           SymbolTable* symbols,
+                                           int offset) const {
+    // SkSL doesn't support low precision, so `lowp` is interpreted as medium precision.
+    bool highp   = modifiers.fFlags & Modifiers::kHighp_Flag;
+    bool mediump = modifiers.fFlags & Modifiers::kMediump_Flag;
+    bool lowp    = modifiers.fFlags & Modifiers::kLowp_Flag;
+
+    if (!lowp && !mediump && !highp) {
+        // No precision qualifiers here. Return the type as-is.
+        return this;
+    }
+
+    if (!ProgramConfig::IsRuntimeEffect(context.fConfig->fKind)) {
+        // We want to discourage precision modifiers internally. Instead, use the type that
+        // corresponds to the precision you need. (e.g. half vs float, short vs int)
+        context.fErrors.error(offset, "precision qualifiers are not allowed");
+        return nullptr;
+    }
+
+    if ((int(lowp) + int(mediump) + int(highp)) != 1) {
+        context.fErrors.error(offset, "only one precision qualifier can be used");
+        return nullptr;
+    }
+
+    const Type& component = this->componentType();
+    if (component.highPrecision()) {
+        if (highp) {
+            // Type is already high precision, and we are requesting high precision. Return as-is.
+            return this;
+        }
+
+        // Ascertain the mediump equivalent type for this type, if any.
+        const Type* mediumpType;
+        switch (component.numberKind()) {
+            case Type::NumberKind::kFloat:
+                mediumpType = context.fTypes.fHalf.get();
+                break;
+
+            case Type::NumberKind::kSigned:
+                mediumpType = context.fTypes.fShort.get();
+                break;
+
+            case Type::NumberKind::kUnsigned:
+                mediumpType = context.fTypes.fUShort.get();
+                break;
+
+            default:
+                mediumpType = nullptr;
+                break;
+        }
+
+        if (mediumpType) {
+            // Convert the mediump component type into the final vector/matrix/array type as needed.
+            return this->isArray()
+                           ? symbols->addArrayDimension(mediumpType, this->columns())
+                           : &mediumpType->toCompound(context, this->columns(), this->rows());
+        }
+    }
+
+    context.fErrors.error(offset, "type '" + this->displayName() +
+                                  "' does not support precision qualifiers");
+    return nullptr;
+}
+
 const Type& Type::toCompound(const Context& context, int columns, int rows) const {
     SkASSERT(this->isScalar());
     if (columns == 1 && rows == 1) {

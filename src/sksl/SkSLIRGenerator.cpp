@@ -294,7 +294,8 @@ void IRGenerator::checkVarDeclaration(int offset, const Modifiers& modifiers, co
                                         "float3, or float4 variables");
         }
     }
-    int permitted = Modifiers::kConst_Flag;
+    int permitted = Modifiers::kConst_Flag | Modifiers::kHighp_Flag | Modifiers::kMediump_Flag |
+                    Modifiers::kLowp_Flag;
     if (storage == Variable::Storage::kGlobal) {
         permitted |= Modifiers::kIn_Flag | Modifiers::kOut_Flag | Modifiers::kUniform_Flag |
                      Modifiers::kFlat_Flag | Modifiers::kNoPerspective_Flag;
@@ -390,6 +391,11 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
     const Modifiers& modifiers = declarationsIter++->getModifiers();
     const ASTNode& rawType = *(declarationsIter++);
     const Type* baseType = this->convertType(rawType);
+    if (!baseType) {
+        return {};
+    }
+    baseType = baseType->applyPrecisionQualifiers(fContext, modifiers, fSymbolTable.get(),
+                                                  decls.fOffset);
     if (!baseType) {
         return {};
     }

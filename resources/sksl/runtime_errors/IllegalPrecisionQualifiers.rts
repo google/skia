@@ -1,0 +1,14 @@
+// Expect 10 errors
+
+struct S { int i; };
+
+mediump highp int no_multiple_qualifiers;
+mediump lowp int no_multiple_qualifiers_2;
+highp lowp int no_multiple_qualifiers_3;
+highp mediump lowp int no_multiple_qualifiers_4;
+highp S no_structs;
+mediump bool no_bools;
+uniform lowp colorFilter no_opaque;
+uniform highp half no_half_highp;
+uniform mediump half no_half_mediump;
+uniform lowp half no_lowp_mediump;
