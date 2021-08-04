@@ -60,7 +60,7 @@ private:
     friend void ::SkRegisterArithmeticImageFilterFlattenable();
     SK_FLATTENABLE_HOOKS(SkArithmeticImageFilter)
 
-    bool affectsTransparentBlack() const override { return !SkScalarNearlyZero(fK[3]); }
+    bool onAffectsTransparentBlack() const override { return !SkScalarNearlyZero(fK[3]); }
 
     SkV4 fK;
     bool fEnforcePMColor;

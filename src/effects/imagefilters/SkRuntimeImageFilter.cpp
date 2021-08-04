@@ -30,7 +30,7 @@ public:
             , fEffect(std::move(effect))
             , fUniforms(std::move(uniforms)) {}
 
-    bool affectsTransparentBlack() const override { return true; }
+    bool onAffectsTransparentBlack() const override { return true; }
     MatrixCapability onGetCTMCapability() const override { return MatrixCapability::kTranslate; }
 
 protected:

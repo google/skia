@@ -58,7 +58,7 @@ protected:
     sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override;
     SkIRect onFilterNodeBounds(const SkIRect&, const SkMatrix& ctm,
                                MapDirection, const SkIRect* inputRect) const override;
-    bool affectsTransparentBlack() const override;
+    bool onAffectsTransparentBlack() const override;
 
 private:
     friend void ::SkRegisterMatrixConvolutionImageFilterFlattenable();
@@ -493,7 +493,7 @@ SkIRect SkMatrixConvolutionImageFilter::onFilterNodeBounds(
     return dst;
 }
 
-bool SkMatrixConvolutionImageFilter::affectsTransparentBlack() const {
+bool SkMatrixConvolutionImageFilter::onAffectsTransparentBlack() const {
     // It seems that the only rational way for repeat sample mode to work is if the caller
     // explicitly restricts the input in which case the input range is explicitly known and
     // specified.

@@ -9,6 +9,7 @@
 #include "include/core/SkImage.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkColorFilterBase.h"
+#include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkRecordDraw.h"
 #include "src/utils/SkPatchUtils.h"
 
@@ -313,7 +314,8 @@ private:
     static bool PaintMayAffectTransparentBlack(const SkPaint* paint) {
         if (paint) {
             // FIXME: this is very conservative
-            if (paint->getImageFilter() ||
+            if ((paint->getImageFilter() &&
+                 as_IFB(paint->getImageFilter())->affectsTransparentBlack()) ||
                 (paint->getColorFilter() &&
                  as_CFB(paint->getColorFilter())->affectsTransparentBlack())) {
                 return true;

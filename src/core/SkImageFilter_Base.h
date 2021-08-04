@@ -101,11 +101,9 @@ public:
     skif::DeviceSpace<SkIRect> getOutputBounds(
             const skif::Mapping& mapping, const skif::ParameterSpace<SkRect>& contentBounds) const;
 
-    // Expose isolated node bounds behavior for SampleImageFilterDAG and debugging
-    SkIRect filterNodeBounds(const SkIRect& srcRect, const SkMatrix& ctm,
-                             MapDirection dir, const SkIRect* inputRect) const {
-        return this->onFilterNodeBounds(srcRect, ctm, dir, inputRect);
-    }
+    // Returns true if this image filter graph transforms a source transparent black pixel to a
+    // color other than transparent black.
+    bool affectsTransparentBlack() const;
 
     /**
      *  Most ImageFilters can natively handle scaling and translate components in the CTM. Only
@@ -377,7 +375,7 @@ private:
      *  transparent black. When false, optimizations can be taken to discard regions known to be
      *  transparent black and thus process fewer pixels.
      */
-    virtual bool affectsTransparentBlack() const { return false; }
+    virtual bool onAffectsTransparentBlack() const { return false; }
 
     /**
      *  This is the virtual which should be overridden by the derived class to perform image

@@ -29,7 +29,7 @@ protected:
     sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override;
     bool onIsColorFilterNode(SkColorFilter**) const override;
     MatrixCapability onGetCTMCapability() const override { return MatrixCapability::kComplex; }
-    bool affectsTransparentBlack() const override;
+    bool onAffectsTransparentBlack() const override;
 
 private:
     friend void ::SkRegisterColorFilterImageFilterFlattenable();
@@ -152,6 +152,6 @@ bool SkColorFilterImageFilter::onIsColorFilterNode(SkColorFilter** filter) const
     return false;
 }
 
-bool SkColorFilterImageFilter::affectsTransparentBlack() const {
+bool SkColorFilterImageFilter::onAffectsTransparentBlack() const {
     return as_CFB(fColorFilter)->affectsTransparentBlack();
 }

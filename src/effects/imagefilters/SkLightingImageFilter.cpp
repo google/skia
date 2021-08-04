@@ -418,7 +418,7 @@ protected:
         buffer.writeScalar(fSurfaceScale * 255);
     }
 
-    bool affectsTransparentBlack() const override { return true; }
+    bool onAffectsTransparentBlack() const override { return true; }
 
     const SkImageFilterLight* light() const { return fLight.get(); }
     inline sk_sp<const SkImageFilterLight> refLight() const { return fLight; }

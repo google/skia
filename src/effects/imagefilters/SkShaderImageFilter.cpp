@@ -26,8 +26,6 @@ public:
         return sk_sp<SkImageFilter>(new SkShaderImageFilter(paint, rect));
     }
 
-    bool affectsTransparentBlack() const override;
-
 protected:
     void flatten(SkWriteBuffer&) const override;
     sk_sp<SkSpecialImage> onFilterImage(const Context&, SkIPoint* offset) const override;
@@ -35,6 +33,8 @@ protected:
 private:
     friend void ::SkRegisterShaderImageFilterFlattenable();
     SK_FLATTENABLE_HOOKS(SkShaderImageFilter)
+
+    bool onAffectsTransparentBlack() const override { return true; }
 
     // This filter only applies the shader and dithering policy of the paint.
     SkPaint fPaint;
@@ -112,8 +112,4 @@ sk_sp<SkSpecialImage> SkShaderImageFilter::onFilterImage(const Context& ctx,
     offset->fX = bounds.fLeft;
     offset->fY = bounds.fTop;
     return surf->makeImageSnapshot();
-}
-
-bool SkShaderImageFilter::affectsTransparentBlack() const {
-    return true;
 }
