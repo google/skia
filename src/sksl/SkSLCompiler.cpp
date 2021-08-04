@@ -82,7 +82,7 @@ using RefKind = VariableReference::RefKind;
 
 class AutoSource {
 public:
-    AutoSource(Compiler* compiler, const String* source)
+    AutoSource(Compiler* compiler, const char* source)
             : fCompiler(compiler) {
         SkASSERT(!fCompiler->fSource);
         fCompiler->fSource = source;
@@ -343,7 +343,7 @@ LoadedModule Compiler::loadModule(ProgramKind kind,
     std::vector<std::unique_ptr<ProgramElement>> elements;
     std::vector<const ProgramElement*> sharedElements;
     dsl::StartModule(this, kind, settings, baseModule);
-    AutoSource as(this, source);
+    AutoSource as(this, source->c_str());
     IRGenerator::IRBundle ir = fIRGenerator->convertProgram(baseModule, /*isBuiltinCode=*/true,
                                                             *source);
     SkASSERT(ir.fSharedElements.empty());
@@ -473,9 +473,10 @@ std::unique_ptr<Program> Compiler::convertProgram(
     return DSLParser(this, settings, kind, text).program();
 #else
     auto textPtr = std::make_unique<String>(std::move(text));
-    AutoSource as(this, textPtr.get());
+    AutoSource as(this, textPtr->c_str());
 
     dsl::Start(this, kind, settings);
+    dsl::SetErrorHandler(this);
     IRGenerator::IRBundle ir = fIRGenerator->convertProgram(baseModule, /*isBuiltinCode=*/false,
                                                             *textPtr);
     // Ideally, we would just use dsl::ReleaseProgram and not have to do any manual mucking about
@@ -884,7 +885,7 @@ bool Compiler::optimize(Program& program) {
 
 bool Compiler::toSPIRV(Program& program, OutputStream& out) {
     TRACE_EVENT0("skia.shaders", "SkSL::Compiler::toSPIRV");
-    AutoSource as(this, program.fSource.get());
+    AutoSource as(this, program.fSource->c_str());
     ProgramSettings settings;
     settings.fDSLUseMemoryPool = false;
     dsl::Start(this, program.fConfig->fKind, settings);
@@ -942,7 +943,7 @@ bool Compiler::toSPIRV(Program& program, String* out) {
 
 bool Compiler::toGLSL(Program& program, OutputStream& out) {
     TRACE_EVENT0("skia.shaders", "SkSL::Compiler::toGLSL");
-    AutoSource as(this, program.fSource.get());
+    AutoSource as(this, program.fSource->c_str());
     GLSLCodeGenerator cg(fContext.get(), &program, this, &out);
     bool result = cg.generateCode();
     return result;
@@ -968,7 +969,7 @@ bool Compiler::toHLSL(Program& program, String* out) {
 
 bool Compiler::toMetal(Program& program, OutputStream& out) {
     TRACE_EVENT0("skia.shaders", "SkSL::Compiler::toMetal");
-    AutoSource as(this, program.fSource.get());
+    AutoSource as(this, program.fSource->c_str());
     MetalCodeGenerator cg(fContext.get(), &program, this, &out);
     bool result = cg.generateCode();
     return result;
@@ -985,37 +986,15 @@ bool Compiler::toMetal(Program& program, String* out) {
 
 #endif // defined(SKSL_STANDALONE) || SK_SUPPORT_GPU
 
-Position Compiler::position(int offset) {
-    if (fSource && offset >= 0) {
-        int line = 1;
-        int column = 1;
-        for (int i = 0; i < offset; i++) {
-            if ((*fSource)[i] == '\n') {
-                ++line;
-                column = 1;
-            }
-            else {
-                ++column;
-            }
-        }
-        return Position(line, column);
-    } else {
-        return Position(-1, -1);
-    }
-}
-
-void Compiler::error(int offset, String msg) {
-    if (strstr(msg.c_str(), POISON_TAG)) {
+void Compiler::handleError(const char* msg, dsl::PositionInfo* pos) {
+    if (strstr(msg, POISON_TAG)) {
         // don't report errors on poison values
         return;
     }
     fErrorCount++;
-    Position pos = this->position(offset);
     fErrorTextLength.push_back(fErrorText.length());
-    if (!msg.starts_with("error: ")) {
-        fErrorText += "error: ";
-    }
-    fErrorText += (pos.fLine >= 1 ? to_string(pos.fLine) + ": " : "") + msg + "\n";
+    fErrorText += "error: " + (pos && pos->line() >= 1 ? to_string(pos->line()) + ": " : "") + msg +
+                  "\n";
 }
 
 void Compiler::setErrorCount(int c) {

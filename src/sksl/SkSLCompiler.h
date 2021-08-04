@@ -161,7 +161,7 @@ public:
 
     bool toMetal(Program& program, String* out);
 
-    void error(int offset, String msg) override;
+    void handleError(const char* msg, dsl::PositionInfo* pos) override;
 
     String errorText(bool showCount = true);
 
@@ -258,7 +258,6 @@ private:
     Inliner fInliner;
     std::unique_ptr<IRGenerator> fIRGenerator;
 
-    const String* fSource = nullptr;
     int fErrorCount = 0;
     String fErrorText;
     std::vector<size_t> fErrorTextLength;

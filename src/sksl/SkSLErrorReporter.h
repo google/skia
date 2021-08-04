@@ -8,22 +8,32 @@
 #ifndef SKSL_ERRORREPORTER
 #define SKSL_ERRORREPORTER
 
+#include "include/sksl/DSLErrorHandling.h"
+#include "src/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLPosition.h"
 
 namespace SkSL {
 
 /**
- * Interface for the compiler to report errors.
+ * Extends dsl::ErrorHandler to add offset-based error reporting for usage by Compiler.
  */
-class ErrorReporter {
+class ErrorReporter : public dsl::ErrorHandler {
 public:
-    virtual ~ErrorReporter() {}
+    ErrorReporter() {}
+
+    ErrorReporter(const char* filename, const char* source)
+        : fFilename(filename)
+        , fSource(source) {}
 
     /** Reports an error message at the given character offset of the source text. */
-    virtual void error(int offset, String msg) = 0;
+    void error(int offset, String msg) {
+        dsl::PositionInfo pos = this->position(offset);
+        this->handleError(msg.c_str(), &pos);
+    }
 
     void error(int offset, const char* msg) {
-        this->error(offset, String(msg));
+        dsl::PositionInfo pos = this->position(offset);
+        this->handleError(msg, &pos);
     }
 
     /** Returns the number of errors that have been reported. */
@@ -34,6 +44,24 @@ public:
      * try another approach if a problem is encountered while speculatively parsing code.
      */
     virtual void setErrorCount(int numErrors) = 0;
+
+    const char* fFilename = nullptr;
+    const char* fSource = nullptr;
+
+private:
+    dsl::PositionInfo position(int offset) const {
+        if (fSource && offset >= 0) {
+            int line = 1;
+            for (int i = 0; i < offset; i++) {
+                if (fSource[i] == '\n') {
+                    ++line;
+                }
+            }
+            return dsl::PositionInfo(fFilename, line);
+        } else {
+            return dsl::PositionInfo(fFilename, -1);
+        }
+    }
 };
 
 /**
@@ -41,7 +69,7 @@ public:
  */
 class TestingOnly_AbortErrorReporter : public ErrorReporter {
 public:
-    void error(int offset, String msg) override { SK_ABORT("%s", msg.c_str()); }
+    void handleError(const char* msg, dsl::PositionInfo* pos) override { SK_ABORT("%s", msg); }
     int errorCount() override { return 0; }
     void setErrorCount(int) override {}
 };
