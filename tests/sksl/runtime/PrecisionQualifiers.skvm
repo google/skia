@@ -1,0 +1,6 @@
+### Compilation failed:
+
+error: 4: 'highp' is not permitted here
+error: 5: 'mediump' is not permitted here
+error: 6: 'lowp' is not permitted here
+3 errors

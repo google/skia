@@ -346,7 +346,6 @@ sksl_shared_tests = [
   "/sksl/shared/OutParamsNoInline.sksl",
   "/sksl/shared/OutParamsTricky.sksl",
   "/sksl/shared/Overflow.sksl",
-  "/sksl/shared/PrecisionQualifiers.sksl",
   "/sksl/shared/RectangleTexture.sksl",
   "/sksl/shared/ResizeMatrix.sksl",
   "/sksl/shared/ResizeMatrixNonsquare.sksl",
@@ -524,6 +523,7 @@ sksl_rte_tests = [
   "/sksl/runtime/GlobalVariables.rts",
   "/sksl/runtime/LoopInt.rts",
   "/sksl/runtime/LoopFloat.rts",
+  "/sksl/runtime/PrecisionQualifiers.rts",
   "/sksl/runtime/SampleWithExplicitCoord.rts",
   "/sksl/runtime/VectorIndexing.rts",
 ]

@@ -743,6 +743,9 @@ void IRGenerator::CheckModifiers(const Context& context,
     checkModifier(Modifiers::kHasSideEffects_Flag, "sk_has_side_effects");
     checkModifier(Modifiers::kInline_Flag,         "inline");
     checkModifier(Modifiers::kNoInline_Flag,       "noinline");
+    checkModifier(Modifiers::kHighp_Flag,          "highp");
+    checkModifier(Modifiers::kMediump_Flag,        "mediump");
+    checkModifier(Modifiers::kLowp_Flag,           "lowp");
     SkASSERT(flags == 0);
 
     int layoutFlags = modifiers.fLayout.fFlags;

@@ -27,9 +27,11 @@ struct Modifiers {
         kFlat_Flag           = 1 <<  4,
         kNoPerspective_Flag  = 1 <<  5,
         kHasSideEffects_Flag = 1 <<  6,
-
-        kInline_Flag         = 1 <<  8,
-        kNoInline_Flag       = 1 <<  9,
+        kHighp_Flag          = 1 <<  7,
+        kMediump_Flag        = 1 <<  8,
+        kLowp_Flag           = 1 <<  9,
+        kInline_Flag         = 1 <<  10,
+        kNoInline_Flag       = 1 <<  11,
     };
 
     Modifiers()
@@ -59,6 +61,15 @@ struct Modifiers {
         }
         if (fFlags & kNoInline_Flag) {
             result += "noinline ";
+        }
+        if (fFlags & kHighp_Flag) {
+            result += "highp ";
+        }
+        if (fFlags & kMediump_Flag) {
+            result += "mediump ";
+        }
+        if (fFlags & kLowp_Flag) {
+            result += "lowp ";
         }
         if ((fFlags & kIn_Flag) && (fFlags & kOut_Flag)) {
             result += "inout ";
