@@ -12,7 +12,6 @@
 
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRect.h"
-#include "src/core/SkClipOpPriv.h"
 #include "src/core/SkClipStack.h"
 #include "src/gpu/GrClipStackClip.h"
 #include "tests/Test.h"
@@ -32,7 +31,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrClipBounds, reporter, ctxInfo) {
     // create a clip stack that will (trivially) reduce to a single rect that
     // is larger than the screen
     SkClipStack stack;
-    stack.clipRect(clipRect, SkMatrix::I(), kReplace_SkClipOp, false);
+    stack.replaceRect(clipRect);
 
     bool isIntersectionOfRects = true;
     SkRect devStackBounds;

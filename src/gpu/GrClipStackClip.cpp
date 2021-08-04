@@ -338,7 +338,7 @@ static void draw_clip_elements_to_mask_helper(GrSWMaskHelper& helper, const Elem
         SkClipOp op = element->getOp();
         GrAA aa = GrAA(element->isAA());
 
-        if (kIntersect_SkClipOp == op || kReverseDifference_SkClipOp == op) {
+        if (SkClipOp::kIntersect == op || kReverseDifference_SkClipOp == op) {
             // Intersect and reverse difference require modifying pixels outside of the geometry
             // that is being "drawn". In both cases we erase all the pixels outside of the geometry
             // but leave the pixels inside the geometry alone. For reverse difference we invert all

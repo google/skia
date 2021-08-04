@@ -122,10 +122,11 @@ GrReducedClip::GrReducedClip(const SkClipStack& stack, const SkRect& queryBounds
         ClipResult::kNotClipped == this->addAnalyticRect(fAAClipRect, Invert::kNo, GrAA::kYes)) {
         if (fMaskElements.isEmpty()) {
             // Use a replace since it is faster than intersect.
-            fMaskElements.addToHead(fAAClipRect, SkMatrix::I(), kReplace_SkClipOp, true /*doAA*/);
+            fMaskElements.addToHead(fAAClipRect, true /*doAA*/);
             fInitialState = InitialState::kAllOut;
         } else {
-            fMaskElements.addToTail(fAAClipRect, SkMatrix::I(), kIntersect_SkClipOp, true /*doAA*/);
+            fMaskElements.addToTail(fAAClipRect, SkMatrix::I(), SkClipOp::kIntersect,
+                                    true /*doAA*/);
         }
         fMaskRequiresAA = true;
         fMaskGenID = fAAClipRectGenID;
@@ -189,194 +190,193 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
         bool skippable = false;
         bool isFlip = false; // does this op just flip the in/out state of every point in the bounds
 
-        switch (element->getOp()) {
-            case kDifference_SkClipOp:
-                // check if the shape subtracted either contains the entire bounds (and makes
-                // the clip empty) or is outside the bounds and therefore can be skipped.
-                if (element->isInverseFilled()) {
-                    if (element->contains(relaxedQueryBounds)) {
-                        skippable = true;
-                    } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
-                        initialTriState = InitialTriState::kAllOut;
-                        skippable = true;
-                    } else if (!embiggens) {
-                        ClipResult result = this->clipInsideElement(element);
-                        if (ClipResult::kMadeEmpty == result) {
-                            return;
-                        }
-                        skippable = (ClipResult::kClipped == result);
-                    }
-                } else {
-                    if (element->contains(relaxedQueryBounds)) {
-                        initialTriState = InitialTriState::kAllOut;
-                        skippable = true;
-                    } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
-                        skippable = true;
-                    } else if (!embiggens) {
-                        ClipResult result = this->clipOutsideElement(element);
-                        if (ClipResult::kMadeEmpty == result) {
-                            return;
-                        }
-                        skippable = (ClipResult::kClipped == result);
-                    }
-                }
-                if (!skippable) {
-                    emsmallens = true;
-                }
-                break;
-            case kIntersect_SkClipOp:
-                // check if the shape intersected contains the entire bounds and therefore can
-                // be skipped or it is outside the entire bounds and therefore makes the clip
-                // empty.
-                if (element->isInverseFilled()) {
-                    if (element->contains(relaxedQueryBounds)) {
-                        initialTriState = InitialTriState::kAllOut;
-                        skippable = true;
-                    } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
-                        skippable = true;
-                    } else if (!embiggens) {
-                        ClipResult result = this->clipOutsideElement(element);
-                        if (ClipResult::kMadeEmpty == result) {
-                            return;
-                        }
-                        skippable = (ClipResult::kClipped == result);
-                    }
-                } else {
-                    if (element->contains(relaxedQueryBounds)) {
-                        skippable = true;
-                    } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
-                        initialTriState = InitialTriState::kAllOut;
-                        skippable = true;
-                    } else if (!embiggens) {
-                        ClipResult result = this->clipInsideElement(element);
-                        if (ClipResult::kMadeEmpty == result) {
-                            return;
-                        }
-                        skippable = (ClipResult::kClipped == result);
-                    }
-                }
-                if (!skippable) {
-                    emsmallens = true;
-                }
-                break;
-            case kUnion_SkClipOp:
-                // If the union-ed shape contains the entire bounds then after this element
-                // the bounds is entirely inside the clip. If the union-ed shape is outside the
-                // bounds then this op can be skipped.
-                if (element->isInverseFilled()) {
-                    if (element->contains(relaxedQueryBounds)) {
-                        skippable = true;
-                    } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
-                        initialTriState = InitialTriState::kAllIn;
-                        skippable = true;
-                    }
-                } else {
-                    if (element->contains(relaxedQueryBounds)) {
-                        initialTriState = InitialTriState::kAllIn;
-                        skippable = true;
-                    } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
-                        skippable = true;
-                    }
-                }
-                if (!skippable) {
-                    embiggens = true;
-                }
-                break;
-            case kXOR_SkClipOp:
-                // If the bounds is entirely inside the shape being xor-ed then the effect is
-                // to flip the inside/outside state of every point in the bounds. We may be
-                // able to take advantage of this in the forward pass. If the xor-ed shape
-                // doesn't intersect the bounds then it can be skipped.
-                if (element->isInverseFilled()) {
-                    if (element->contains(relaxedQueryBounds)) {
-                        skippable = true;
-                    } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
-                        isFlip = true;
-                    }
-                } else {
-                    if (element->contains(relaxedQueryBounds)) {
-                        isFlip = true;
-                    } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
-                        skippable = true;
-                    }
-                }
-                if (!skippable) {
-                    emsmallens = embiggens = true;
-                }
-                break;
-            case kReverseDifference_SkClipOp:
-                // When the bounds is entirely within the rev-diff shape then this behaves like xor
-                // and reverses every point inside the bounds. If the shape is completely outside
-                // the bounds then we know after this element is applied that the bounds will be
-                // all outside the current clip.B
-                if (element->isInverseFilled()) {
-                    if (element->contains(relaxedQueryBounds)) {
-                        initialTriState = InitialTriState::kAllOut;
-                        skippable = true;
-                    } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
-                        isFlip = true;
-                    }
-                } else {
-                    if (element->contains(relaxedQueryBounds)) {
-                        isFlip = true;
-                    } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
-                        initialTriState = InitialTriState::kAllOut;
-                        skippable = true;
-                    }
-                }
-                if (!skippable) {
-                    emsmallens = embiggens = true;
-                }
-                break;
-
-            case kReplace_SkClipOp:
-                // Replace will always terminate our walk. We will either begin the forward walk
-                // at the replace op or detect here than the shape is either completely inside
-                // or completely outside the bounds. In this latter case it can be skipped by
-                // setting the correct value for initialTriState.
-                if (element->isInverseFilled()) {
-                    if (element->contains(relaxedQueryBounds)) {
-                        initialTriState = InitialTriState::kAllOut;
-                        skippable = true;
-                    } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
-                        initialTriState = InitialTriState::kAllIn;
-                        skippable = true;
-                    } else if (!embiggens) {
-                        ClipResult result = this->clipOutsideElement(element);
-                        if (ClipResult::kMadeEmpty == result) {
-                            return;
-                        }
-                        if (ClipResult::kClipped == result) {
-                            initialTriState = InitialTriState::kAllIn;
-                            skippable = true;
-                        }
-                    }
-                } else {
-                    if (element->contains(relaxedQueryBounds)) {
-                        initialTriState = InitialTriState::kAllIn;
-                        skippable = true;
-                    } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
-                        initialTriState = InitialTriState::kAllOut;
-                        skippable = true;
-                    } else if (!embiggens) {
-                        ClipResult result = this->clipInsideElement(element);
-                        if (ClipResult::kMadeEmpty == result) {
-                            return;
-                        }
-                        if (ClipResult::kClipped == result) {
-                            initialTriState = InitialTriState::kAllIn;
-                            skippable = true;
-                        }
-                    }
-                }
-                if (!skippable) {
+        if (element->isReplaceOp()) {
+            // Replace will always terminate our walk. We will either begin the forward walk
+            // at the replace op or detect here than the shape is either completely inside
+            // or completely outside the bounds. In this latter case it can be skipped by
+            // setting the correct value for initialTriState.
+            if (element->isInverseFilled()) {
+                if (element->contains(relaxedQueryBounds)) {
                     initialTriState = InitialTriState::kAllOut;
-                    embiggens = emsmallens = true;
+                    skippable = true;
+                } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
+                    initialTriState = InitialTriState::kAllIn;
+                    skippable = true;
+                } else if (!embiggens) {
+                    ClipResult result = this->clipOutsideElement(element);
+                    if (ClipResult::kMadeEmpty == result) {
+                        return;
+                    }
+                    if (ClipResult::kClipped == result) {
+                        initialTriState = InitialTriState::kAllIn;
+                        skippable = true;
+                    }
                 }
-                break;
-            default:
-                SkDEBUGFAIL("Unexpected op.");
-                break;
+            } else {
+                if (element->contains(relaxedQueryBounds)) {
+                    initialTriState = InitialTriState::kAllIn;
+                    skippable = true;
+                } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
+                    initialTriState = InitialTriState::kAllOut;
+                    skippable = true;
+                } else if (!embiggens) {
+                    ClipResult result = this->clipInsideElement(element);
+                    if (ClipResult::kMadeEmpty == result) {
+                        return;
+                    }
+                    if (ClipResult::kClipped == result) {
+                        initialTriState = InitialTriState::kAllIn;
+                        skippable = true;
+                    }
+                }
+            }
+            if (!skippable) {
+                initialTriState = InitialTriState::kAllOut;
+                embiggens = emsmallens = true;
+            }
+        } else if (element->getOp() == SkClipOp::kDifference) {
+            // check if the shape subtracted either contains the entire bounds (and makes
+            // the clip empty) or is outside the bounds and therefore can be skipped.
+            if (element->isInverseFilled()) {
+                if (element->contains(relaxedQueryBounds)) {
+                    skippable = true;
+                } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
+                    initialTriState = InitialTriState::kAllOut;
+                    skippable = true;
+                } else if (!embiggens) {
+                    ClipResult result = this->clipInsideElement(element);
+                    if (ClipResult::kMadeEmpty == result) {
+                        return;
+                    }
+                    skippable = (ClipResult::kClipped == result);
+                }
+            } else {
+                if (element->contains(relaxedQueryBounds)) {
+                    initialTriState = InitialTriState::kAllOut;
+                    skippable = true;
+                } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
+                    skippable = true;
+                } else if (!embiggens) {
+                    ClipResult result = this->clipOutsideElement(element);
+                    if (ClipResult::kMadeEmpty == result) {
+                        return;
+                    }
+                    skippable = (ClipResult::kClipped == result);
+                }
+            }
+            if (!skippable) {
+                emsmallens = true;
+            }
+        } else if (element->getOp() == SkClipOp::kIntersect) {
+            // check if the shape intersected contains the entire bounds and therefore can
+            // be skipped or it is outside the entire bounds and therefore makes the clip
+            // empty.
+            if (element->isInverseFilled()) {
+                if (element->contains(relaxedQueryBounds)) {
+                    initialTriState = InitialTriState::kAllOut;
+                    skippable = true;
+                } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
+                    skippable = true;
+                } else if (!embiggens) {
+                    ClipResult result = this->clipOutsideElement(element);
+                    if (ClipResult::kMadeEmpty == result) {
+                        return;
+                    }
+                    skippable = (ClipResult::kClipped == result);
+                }
+            } else {
+                if (element->contains(relaxedQueryBounds)) {
+                    skippable = true;
+                } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
+                    initialTriState = InitialTriState::kAllOut;
+                    skippable = true;
+                } else if (!embiggens) {
+                    ClipResult result = this->clipInsideElement(element);
+                    if (ClipResult::kMadeEmpty == result) {
+                        return;
+                    }
+                    skippable = (ClipResult::kClipped == result);
+                }
+            }
+            if (!skippable) {
+                emsmallens = true;
+            }
+        } else {
+            // TODO: These are just expanding clip ops and are slated for imminent removal.
+            switch (element->getOp()) {
+                case kUnion_SkClipOp:
+                    // If the union-ed shape contains the entire bounds then after this element
+                    // the bounds is entirely inside the clip. If the union-ed shape is outside the
+                    // bounds then this op can be skipped.
+                    if (element->isInverseFilled()) {
+                        if (element->contains(relaxedQueryBounds)) {
+                            skippable = true;
+                        } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
+                            initialTriState = InitialTriState::kAllIn;
+                            skippable = true;
+                        }
+                    } else {
+                        if (element->contains(relaxedQueryBounds)) {
+                            initialTriState = InitialTriState::kAllIn;
+                            skippable = true;
+                        } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
+                            skippable = true;
+                        }
+                    }
+                    if (!skippable) {
+                        embiggens = true;
+                    }
+                    break;
+                case kXOR_SkClipOp:
+                    // If the bounds is entirely inside the shape being xor-ed then the effect is
+                    // to flip the inside/outside state of every point in the bounds. We may be
+                    // able to take advantage of this in the forward pass. If the xor-ed shape
+                    // doesn't intersect the bounds then it can be skipped.
+                    if (element->isInverseFilled()) {
+                        if (element->contains(relaxedQueryBounds)) {
+                            skippable = true;
+                        } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
+                            isFlip = true;
+                        }
+                    } else {
+                        if (element->contains(relaxedQueryBounds)) {
+                            isFlip = true;
+                        } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
+                            skippable = true;
+                        }
+                    }
+                    if (!skippable) {
+                        emsmallens = embiggens = true;
+                    }
+                    break;
+                case kReverseDifference_SkClipOp:
+                    // When the bounds is entirely within the rev-diff shape then this behaves like
+                    // xor and reverses every point inside the bounds. If the shape is completely
+                    // outside the bounds then we know after this element is applied that the bounds
+                    // will be all outside the current clip.B
+                    if (element->isInverseFilled()) {
+                        if (element->contains(relaxedQueryBounds)) {
+                            initialTriState = InitialTriState::kAllOut;
+                            skippable = true;
+                        } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
+                            isFlip = true;
+                        }
+                    } else {
+                        if (element->contains(relaxedQueryBounds)) {
+                            isFlip = true;
+                        } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
+                            initialTriState = InitialTriState::kAllOut;
+                            skippable = true;
+                        }
+                    }
+                    if (!skippable) {
+                        emsmallens = embiggens = true;
+                    }
+                    break;
+                default:
+                    SkDEBUGFAIL("Unexpected op.");
+                    break;
+            }
         }
         if (!skippable) {
             if (fMaskElements.isEmpty()) {
@@ -398,11 +398,11 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
                 // Intersecting an inverse shape is the same as differencing the non-inverse shape.
                 // Replacing with an inverse shape is the same as setting initialState=kAllIn and
                 // differencing the non-inverse shape.
-                bool isReplace = kReplace_SkClipOp == newElement->getOp();
+                bool isReplace = newElement->isReplaceOp();
                 if (newElement->isInverseFilled() &&
-                    (kIntersect_SkClipOp == newElement->getOp() || isReplace)) {
+                    (SkClipOp::kIntersect == newElement->getOp() || isReplace)) {
                     newElement->invertShapeFillType();
-                    newElement->setOp(kDifference_SkClipOp);
+                    newElement->setOp(SkClipOp::kDifference);
                     if (isReplace) {
                         SkASSERT(InitialTriState::kAllOut == initialTriState);
                         initialTriState = InitialTriState::kAllIn;
@@ -420,60 +420,60 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
         Element* element = fMaskElements.headIter().get();
         while (element) {
             bool skippable = false;
-            switch (element->getOp()) {
-                case kDifference_SkClipOp:
-                    // subtracting from the empty set yields the empty set.
-                    skippable = InitialTriState::kAllOut == initialTriState;
-                    break;
-                case kIntersect_SkClipOp:
-                    // intersecting with the empty set yields the empty set
-                    if (InitialTriState::kAllOut == initialTriState) {
-                        skippable = true;
-                    } else {
-                        // We can clear to zero and then simply draw the clip element.
-                        initialTriState = InitialTriState::kAllOut;
-                        element->setOp(kReplace_SkClipOp);
-                    }
-                    break;
-                case kUnion_SkClipOp:
-                    if (InitialTriState::kAllIn == initialTriState) {
-                        // unioning the infinite plane with anything is a no-op.
-                        skippable = true;
-                    } else {
-                        // unioning the empty set with a shape is the shape.
-                        element->setOp(kReplace_SkClipOp);
-                    }
-                    break;
-                case kXOR_SkClipOp:
-                    if (InitialTriState::kAllOut == initialTriState) {
-                        // xor could be changed to diff in the kAllIn case, not sure it's a win.
-                        element->setOp(kReplace_SkClipOp);
-                    }
-                    break;
-                case kReverseDifference_SkClipOp:
-                    if (InitialTriState::kAllIn == initialTriState) {
-                        // subtracting the whole plane will yield the empty set.
-                        skippable = true;
-                        initialTriState = InitialTriState::kAllOut;
-                    } else {
-                        // this picks up flips inserted in the backwards pass.
-                        skippable = element->isInverseFilled() ?
-                            GrClip::IsOutsideClip(element->getBounds(), queryBounds) :
-                            element->contains(relaxedQueryBounds);
-                        if (skippable) {
-                            initialTriState = InitialTriState::kAllIn;
+            // Only check non-replace ops since we would have skipped the replace on backwards walk
+            // if we could have.
+            if (!element->isReplaceOp()) {
+                switch (element->getOp()) {
+                    case SkClipOp::kDifference:
+                        // subtracting from the empty set yields the empty set.
+                        skippable = InitialTriState::kAllOut == initialTriState;
+                        break;
+                    case SkClipOp::kIntersect:
+                        // intersecting with the empty set yields the empty set
+                        if (InitialTriState::kAllOut == initialTriState) {
+                            skippable = true;
                         } else {
-                            element->setOp(kReplace_SkClipOp);
+                            // We can clear to zero and then simply draw the clip element.
+                            initialTriState = InitialTriState::kAllOut;
+                            element->setReplaceOp();
                         }
-                    }
-                    break;
-                case kReplace_SkClipOp:
-                    skippable = false; // we would have skipped it in the backwards walk if we
-                                       // could've.
-                    break;
-                default:
-                    SkDEBUGFAIL("Unexpected op.");
-                    break;
+                        break;
+                    case kUnion_SkClipOp:
+                        if (InitialTriState::kAllIn == initialTriState) {
+                            // unioning the infinite plane with anything is a no-op.
+                            skippable = true;
+                        } else {
+                            // unioning the empty set with a shape is the shape.
+                            element->setReplaceOp();
+                        }
+                        break;
+                    case kXOR_SkClipOp:
+                        if (InitialTriState::kAllOut == initialTriState) {
+                            // xor could be changed to diff in the kAllIn case, not sure it's a win.
+                            element->setReplaceOp();
+                        }
+                        break;
+                    case kReverseDifference_SkClipOp:
+                        if (InitialTriState::kAllIn == initialTriState) {
+                            // subtracting the whole plane will yield the empty set.
+                            skippable = true;
+                            initialTriState = InitialTriState::kAllOut;
+                        } else {
+                            // this picks up flips inserted in the backwards pass.
+                            skippable = element->isInverseFilled() ?
+                                GrClip::IsOutsideClip(element->getBounds(), queryBounds) :
+                                element->contains(relaxedQueryBounds);
+                            if (skippable) {
+                                initialTriState = InitialTriState::kAllIn;
+                            } else {
+                                element->setReplaceOp();
+                            }
+                        }
+                        break;
+                    default:
+                        SkDEBUGFAIL("Unexpected op.");
+                        break;
+                }
             }
             if (!skippable) {
                 break;
@@ -720,7 +720,7 @@ static bool stencil_element(skgpu::v1::SurfaceDrawContext* sdc,
             break;
         case SkClipStack::Element::DeviceSpaceType::kRect: {
             GrPaint paint;
-            paint.setCoverageSetOpXPFactory((SkRegion::Op)element->getOp(),
+            paint.setCoverageSetOpXPFactory(element->getRegionOp(),
                                             element->isInverseFilled());
             sdc->stencilRect(&clip, ss, std::move(paint), aa, viewMatrix,
                              element->getDeviceSpaceRect());
@@ -733,7 +733,7 @@ static bool stencil_element(skgpu::v1::SurfaceDrawContext* sdc,
                 path.toggleInverseFillType();
             }
 
-            return sdc->drawAndStencilPath(&clip, ss, (SkRegion::Op)element->getOp(),
+            return sdc->drawAndStencilPath(&clip, ss, element->getRegionOp(),
                                            element->isInverseFilled(), aa, viewMatrix, path);
         }
     }
@@ -799,7 +799,7 @@ bool GrReducedClip::drawAlphaClipMask(skgpu::v1::SurfaceDrawContext* sdc) const 
     // walk through each clip element and perform its set op
     for (ElementList::Iter iter(fMaskElements); iter.get(); iter.next()) {
         const Element* element = iter.get();
-        SkRegion::Op op = (SkRegion::Op)element->getOp();
+        SkRegion::Op op = element->getRegionOp();
         GrAA aa = GrAA(element->isAA());
         bool invert = element->isInverseFilled();
         if (invert || SkRegion::kIntersect_Op == op || SkRegion::kReverseDifference_Op == op) {
@@ -861,7 +861,7 @@ bool GrReducedClip::drawStencilClipMask(GrRecordingContext* rContext,
     // walk through each clip element and perform its set op with the existing clip.
     for (ElementList::Iter iter(fMaskElements); iter.get(); iter.next()) {
         const Element* element = iter.get();
-        SkRegion::Op op = (SkRegion::Op)element->getOp();
+        SkRegion::Op op = element->getRegionOp();
         GrAA aa = element->isAA() ? GrAA::kYes : GrAA::kNo;
 
         if (Element::DeviceSpaceType::kRect == element->getDeviceSpaceType()) {
