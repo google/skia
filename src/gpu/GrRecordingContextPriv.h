@@ -17,6 +17,7 @@
 class GrImageInfo;
 class GrSwizzle;
 class SkDeferredDisplayList;
+namespace skgpu { class SurfaceFillContext; }
 
 /** Class that exposes methods on GrRecordingContext that are only intended for use internal to
     Skia. This class is purely a privileged window into GrRecordingContext. It should never have
@@ -133,37 +134,38 @@ public:
      * Uses GrImageInfo's color type to pick the default texture format. Will return a
      * SurfaceDrawContext if possible.
      */
-    std::unique_ptr<GrSurfaceFillContext> makeSFC(GrImageInfo,
-                                                  SkBackingFit = SkBackingFit::kExact,
-                                                  int sampleCount = 1,
-                                                  GrMipmapped = GrMipmapped::kNo,
-                                                  GrProtected = GrProtected::kNo,
-                                                  GrSurfaceOrigin = kTopLeft_GrSurfaceOrigin,
-                                                  SkBudgeted = SkBudgeted::kYes);
+    std::unique_ptr<skgpu::SurfaceFillContext> makeSFC(
+        GrImageInfo,
+        SkBackingFit = SkBackingFit::kExact,
+        int sampleCount = 1,
+        GrMipmapped = GrMipmapped::kNo,
+        GrProtected = GrProtected::kNo,
+        GrSurfaceOrigin = kTopLeft_GrSurfaceOrigin,
+        SkBudgeted = SkBudgeted::kYes);
 
     /**
-     * Makes a custom configured GrSurfaceFillContext where the caller specifies the specific
+     * Makes a custom configured SurfaceFillContext where the caller specifies the specific
      * texture format and swizzles. The color type will be kUnknown. Returns a SurfaceDrawContext
      * if possible.
      */
-    std::unique_ptr<GrSurfaceFillContext> makeSFC(SkAlphaType,
-                                                  sk_sp<SkColorSpace>,
-                                                  SkISize dimensions,
-                                                  SkBackingFit,
-                                                  const GrBackendFormat&,
-                                                  int sampleCount,
-                                                  GrMipmapped,
-                                                  GrProtected,
-                                                  GrSwizzle readSwizzle,
-                                                  GrSwizzle writeSwizzle,
-                                                  GrSurfaceOrigin,
-                                                  SkBudgeted);
+    std::unique_ptr<skgpu::SurfaceFillContext> makeSFC(SkAlphaType,
+                                                       sk_sp<SkColorSpace>,
+                                                       SkISize dimensions,
+                                                       SkBackingFit,
+                                                       const GrBackendFormat&,
+                                                       int sampleCount,
+                                                       GrMipmapped,
+                                                       GrProtected,
+                                                       GrSwizzle readSwizzle,
+                                                       GrSwizzle writeSwizzle,
+                                                       GrSurfaceOrigin,
+                                                       SkBudgeted);
 
     /**
      * Like the above but uses GetFallbackColorTypeAndFormat to find a fallback color type (and
      * compatible format) if the passed GrImageInfo's color type is not renderable.
      */
-    std::unique_ptr<GrSurfaceFillContext> makeSFCWithFallback(
+    std::unique_ptr<skgpu::SurfaceFillContext> makeSFCWithFallback(
             GrImageInfo,
             SkBackingFit = SkBackingFit::kExact,
             int sampleCount = 1,
@@ -173,11 +175,11 @@ public:
             SkBudgeted = SkBudgeted::kYes);
 
     /**
-     * Creates a GrSurfaceFillContext from an existing GrBackendTexture. The GrColorInfo's color
+     * Creates a SurfaceFillContext from an existing GrBackendTexture. The GrColorInfo's color
      * type must be compatible with backend texture's format or this will fail. All formats are
      * considered compatible with kUnknown. Returns a SurfaceDrawContext if possible.
      */
-    std::unique_ptr<GrSurfaceFillContext> makeSFCFromBackendTexture(
+    std::unique_ptr<skgpu::SurfaceFillContext> makeSFCFromBackendTexture(
             GrColorInfo,
             const GrBackendTexture&,
             int sampleCount,

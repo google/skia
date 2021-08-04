@@ -106,7 +106,7 @@ public:
 
     SurfaceDrawContext* surfaceDrawContext() override;
     const SurfaceDrawContext* surfaceDrawContext() const;
-    GrSurfaceFillContext* surfaceFillContext() override;
+    skgpu::SurfaceFillContext* surfaceFillContext() override;
 
     // set all pixels to 0
     void clearAll();

@@ -22,10 +22,10 @@
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrSurfaceFillContext.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/SurfaceFillContext.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
@@ -438,7 +438,7 @@ protected:
 
 private:
 #if SK_SUPPORT_GPU
-    void drawRect(GrSurfaceFillContext*,
+    void drawRect(skgpu::SurfaceFillContext*,
                   GrSurfaceProxyView srcView,
                   const SkMatrix& matrix,
                   const SkIRect& dstRect,
@@ -454,7 +454,7 @@ private:
 };
 
 #if SK_SUPPORT_GPU
-void SkLightingImageFilterInternal::drawRect(GrSurfaceFillContext* sfc,
+void SkLightingImageFilterInternal::drawRect(skgpu::SurfaceFillContext* sfc,
                                              GrSurfaceProxyView srcView,
                                              const SkMatrix& matrix,
                                              const SkIRect& dstRect,

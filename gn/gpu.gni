@@ -215,8 +215,6 @@ skia_gpu_sources = [
   "$_src/gpu/GrSurface.h",
   "$_src/gpu/GrSurfaceContext.cpp",
   "$_src/gpu/GrSurfaceContext.h",
-  "$_src/gpu/GrSurfaceFillContext.cpp",
-  "$_src/gpu/GrSurfaceFillContext.h",
   "$_src/gpu/GrSurfaceProxy.cpp",
   "$_src/gpu/GrSurfaceProxy.h",
   "$_src/gpu/GrSurfaceProxyPriv.h",
@@ -474,6 +472,8 @@ skia_gpu_sources = [
   "$_src/gpu/BaseDevice.h",
   "$_src/gpu/SkGr.cpp",
   "$_src/gpu/SkGr.h",
+  "$_src/gpu/SurfaceFillContext.cpp",
+  "$_src/gpu/SurfaceFillContext.h",
   "$_src/image/SkImage_Gpu.cpp",
   "$_src/image/SkImage_Gpu.h",
   "$_src/image/SkImage_GpuBase.cpp",
@@ -599,6 +599,8 @@ skia_skgpu_v1_sources = [
   "$_src/gpu/v1/Device_v1.h",
   "$_src/gpu/v1/SurfaceDrawContext.cpp",
   "$_src/gpu/v1/SurfaceDrawContext_v1.h",
+  "$_src/gpu/v1/SurfaceFillContext_v1.cpp",
+  "$_src/gpu/v1/SurfaceFillContext_v1.h",
 ]
 
 skia_gpu_sources += skia_skgpu_v1_sources
