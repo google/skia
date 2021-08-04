@@ -337,7 +337,10 @@ void Device::onClipRegion(const SkRegion& globalRgn, SkClipOp op) {
 }
 
 void Device::onAsRgnClip(SkRegion* region) const {
-    SkRegion deviceBounds(fClip.getConservativeBounds());
+    SkIRect bounds = fClip.getConservativeBounds();
+    // Assume wide open and then perform intersect/difference operations reducing the region
+    region->setRect(bounds);
+    const SkRegion deviceBounds(bounds);
     for (const GrClipStack::Element& e : fClip) {
         SkRegion tmp;
         if (e.fShape.isRect() && e.fLocalToDevice.isIdentity()) {
