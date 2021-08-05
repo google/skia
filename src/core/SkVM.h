@@ -478,12 +478,7 @@ namespace skvm {
     // NA meaning none, n/a, null, nil, etc.
     static const Val NA = -1;
 
-    // Ptr and UPtr are an index into the registers args[]. The two styles of using args are
-    // varyings and uniforms. Varyings use Ptr, have a stride associated with them, and are
-    // evaluated everytime through the loop. Uniforms use UPtr, don't have a stride, and are
-    // usually hoisted above the loop.
     struct Ptr { int ix; };
-    struct UPtr : public Ptr {};
 
     bool operator!=(Ptr a, Ptr b);
 
@@ -520,14 +515,14 @@ namespace skvm {
     };
 
     struct Uniform {
-        UPtr ptr;
+        Ptr ptr;
         int offset;
     };
     struct Uniforms {
-        UPtr             base;
+        Ptr              base;
         std::vector<int> buf;
 
-        Uniforms(UPtr ptr, int init) : base(ptr), buf(init) {}
+        Uniforms(Ptr ptr, int init) : base(ptr), buf(init) {}
 
         Uniform push(int val) {
             buf.push_back(val);
@@ -605,11 +600,14 @@ namespace skvm {
         std::vector<Instruction> program() const { return fProgram; }
         std::vector<OptimizedInstruction> optimize() const;
 
+        // Declare an argument with given stride (use stride=0 for uniforms).
+        // TODO: different types for varying and uniforms?
+        Ptr arg(int stride);
+
         // Convenience arg() wrappers for most common strides, sizeof(T) and 0.
         template <typename T>
         Ptr varying() { return this->arg(sizeof(T)); }
-        Ptr varying(int stride) { SkASSERT(stride > 0); return this->arg(stride); }
-        UPtr uniform() { Ptr p = this->arg(0); return UPtr{{p.ix}}; }
+        Ptr uniform() { return this->arg(0); }
 
         // TODO: allow uniform (i.e. Ptr) offsets to store* and load*?
         // TODO: sign extension (signed types) for <32-bit loads?
@@ -640,13 +638,13 @@ namespace skvm {
         I32 load128(Ptr ptr, int lane);  // Load 32-bit lane 0-3 of 128-bit value.
 
         // Load i32/f32 uniform with byte-count offset.
-        I32 uniform32(UPtr ptr, int offset);
-        F32 uniformF (UPtr ptr, int offset) { return pun_to_F32(uniform32(ptr,offset)); }
+        I32 uniform32(Ptr ptr, int offset);
+        F32 uniformF (Ptr ptr, int offset) { return pun_to_F32(uniform32(ptr,offset)); }
 
         // Load i32/f32 uniform with byte-count offset and an c-style array index. The address of
         // the element is (*(ptr + byte-count offset))[index].
-        I32 array32  (UPtr ptr, int offset, int index);
-        F32 arrayF   (UPtr ptr, int offset, int index) {
+        I32 array32  (Ptr ptr, int offset, int index);
+        F32 arrayF   (Ptr ptr, int offset, int index) {
             return pun_to_F32(array32(ptr, offset, index));
         }
 
@@ -654,10 +652,10 @@ namespace skvm {
         Color uniformColor(SkColor4f, Uniforms*);
 
         // Gather u8,u16,i32 with varying element-count index from *(ptr + byte-count offset).
-        I32 gather8 (UPtr ptr, int offset, I32 index);
-        I32 gather16(UPtr ptr, int offset, I32 index);
-        I32 gather32(UPtr ptr, int offset, I32 index);
-        F32 gatherF (UPtr ptr, int offset, I32 index) {
+        I32 gather8 (Ptr ptr, int offset, I32 index);
+        I32 gather16(Ptr ptr, int offset, I32 index);
+        I32 gather32(Ptr ptr, int offset, I32 index);
+        F32 gatherF (Ptr ptr, int offset, I32 index) {
             return pun_to_F32(gather32(ptr, offset, index));
         }
 
@@ -907,7 +905,7 @@ namespace skvm {
 
         Color   load(PixelFormat, Ptr ptr);
         void   store(PixelFormat, Ptr ptr, Color);
-        Color gather(PixelFormat, UPtr ptr, int offset, I32 index);
+        Color gather(PixelFormat, Ptr ptr, int offset, I32 index);
         Color gather(PixelFormat f, Uniform u, I32 index) {
             return gather(f, u.ptr, u.offset, index);
         }
@@ -959,9 +957,6 @@ namespace skvm {
         }
 
     private:
-        // Declare an argument with given stride (use stride=0 for uniforms).
-        Ptr arg(int stride);
-
         Val push(
                 Op op, Val x=NA, Val y=NA, Val z=NA, Val w=NA, int immA=0, int immB=0, int immC=0) {
             return this->push(Instruction{op, x,y,z,w, immA,immB,immC});
@@ -1176,10 +1171,10 @@ namespace skvm {
     SI void store64 (Ptr ptr, I32 lo, I32 hi)             { lo ->store64 (ptr, lo,hi); }
     SI void store128(Ptr ptr, I32 x, I32 y, I32 z, I32 w) { x  ->store128(ptr, x,y,z,w); }
 
-    SI I32 gather8 (UPtr ptr, int off, I32 ix) { return ix->gather8 (ptr, off, ix); }
-    SI I32 gather16(UPtr ptr, int off, I32 ix) { return ix->gather16(ptr, off, ix); }
-    SI I32 gather32(UPtr ptr, int off, I32 ix) { return ix->gather32(ptr, off, ix); }
-    SI F32 gatherF (UPtr ptr, int off, I32 ix) { return ix->gatherF (ptr, off, ix); }
+    SI I32 gather8 (Ptr ptr, int off, I32 ix) { return ix->gather8 (ptr, off, ix); }
+    SI I32 gather16(Ptr ptr, int off, I32 ix) { return ix->gather16(ptr, off, ix); }
+    SI I32 gather32(Ptr ptr, int off, I32 ix) { return ix->gather32(ptr, off, ix); }
+    SI F32 gatherF (Ptr ptr, int off, I32 ix) { return ix->gatherF (ptr, off, ix); }
 
     SI I32 gather8 (Uniform u, I32 ix) { return ix->gather8 (u, ix); }
     SI I32 gather16(Uniform u, I32 ix) { return ix->gather16(u, ix); }
@@ -1292,8 +1287,8 @@ namespace skvm {
 
     SI void store(PixelFormat f, Ptr p, Color c) { return c->store(f,p,c); }
 
-    SI Color gather(PixelFormat f, UPtr p, int off, I32 ix) { return ix->gather(f,p,off,ix); }
-    SI Color gather(PixelFormat f, Uniform u     , I32 ix)  { return ix->gather(f,u,ix); }
+    SI Color gather(PixelFormat f, Ptr p, int off, I32 ix) { return ix->gather(f,p,off,ix); }
+    SI Color gather(PixelFormat f, Uniform u     , I32 ix) { return ix->gather(f,u,ix); }
 
     SI void   premul(F32* r, F32* g, F32* b, F32 a) { a->  premul(r,g,b,a); }
     SI void unpremul(F32* r, F32* g, F32* b, F32 a) { a->unpremul(r,g,b,a); }

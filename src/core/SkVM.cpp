@@ -610,22 +610,22 @@ namespace skvm {
         return {this, push(Op::load128, NA,NA,NA,NA, ptr.ix,lane) };
     }
 
-    I32 Builder::gather8 (UPtr ptr, int offset, I32 index) {
+    I32 Builder::gather8 (Ptr ptr, int offset, I32 index) {
         return {this, push(Op::gather8 , index.id,NA,NA,NA, ptr.ix,offset)};
     }
-    I32 Builder::gather16(UPtr ptr, int offset, I32 index) {
+    I32 Builder::gather16(Ptr ptr, int offset, I32 index) {
         return {this, push(Op::gather16, index.id,NA,NA,NA, ptr.ix,offset)};
     }
-    I32 Builder::gather32(UPtr ptr, int offset, I32 index) {
+    I32 Builder::gather32(Ptr ptr, int offset, I32 index) {
         return {this, push(Op::gather32, index.id,NA,NA,NA, ptr.ix,offset)};
     }
 
-    I32 Builder::uniform32(UPtr ptr, int offset) {
+    I32 Builder::uniform32(Ptr ptr, int offset) {
         return {this, push(Op::uniform32, NA,NA,NA,NA, ptr.ix, offset)};
     }
 
     // Note: this converts the array index into a byte offset for the op.
-    I32 Builder::array32  (UPtr ptr, int offset, int index) {
+    I32 Builder::array32  (Ptr ptr, int offset, int index) {
         return {this, push(Op::array32, NA,NA,NA,NA, ptr.ix, offset, index * sizeof(int))};
     }
 
@@ -1178,7 +1178,7 @@ namespace skvm {
         return {};
     }
 
-    Color Builder::gather(PixelFormat f, UPtr ptr, int offset, I32 index) {
+    Color Builder::gather(PixelFormat f, Ptr ptr, int offset, I32 index) {
         switch (byte_size(f)) {
             case 1: return unpack(f, gather8 (ptr, offset, index));
             case 2: return unpack(f, gather16(ptr, offset, index));

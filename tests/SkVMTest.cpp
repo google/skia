@@ -138,8 +138,8 @@ DEF_TEST(SkVM_LoopCounts, r) {
 DEF_TEST(SkVM_gather32, r) {
     skvm::Builder b;
     {
-        skvm::UPtr uniforms = b.uniform();
-        skvm::Ptr buf = b.varying<int>();
+        skvm::Ptr uniforms = b.uniform(),
+                  buf      = b.varying<int>();
         skvm::I32 x = b.load32(buf);
         b.store32(buf, b.gather32(uniforms,0, b.bit_and(x, b.splat(7))));
     }
@@ -186,8 +186,8 @@ DEF_TEST(SkVM_gather32, r) {
 DEF_TEST(SkVM_gathers, r) {
     skvm::Builder b;
     {
-        skvm::UPtr uniforms = b.uniform();
-        skvm::Ptr buf32    = b.varying<int>(),
+        skvm::Ptr uniforms = b.uniform(),
+                  buf32    = b.varying<int>(),
                   buf16    = b.varying<uint16_t>(),
                   buf8     = b.varying<uint8_t>();
 
@@ -244,8 +244,8 @@ DEF_TEST(SkVM_gathers, r) {
 DEF_TEST(SkVM_gathers2, r) {
     skvm::Builder b;
     {
-        skvm::UPtr uniforms = b.uniform();
-        skvm::Ptr buf32    = b.varying<int>(),
+        skvm::Ptr uniforms = b.uniform(),
+                  buf32    = b.varying<int>(),
                   buf16    = b.varying<uint16_t>(),
                   buf8     = b.varying<uint8_t>();
 
@@ -714,8 +714,8 @@ DEF_TEST(SkVM_NewOps, r) {
     // Exercise a somewhat arbitrary set of new ops.
     skvm::Builder b;
     {
-        skvm::Ptr buf = b.varying<int16_t>();
-        skvm::UPtr uniforms = b.uniform();
+        skvm::Ptr buf      = b.varying<int16_t>(),
+                  uniforms = b.uniform();
 
         skvm::I32 x = b.load16(buf);
 
@@ -2331,8 +2331,8 @@ DEF_TEST(SkVM_128bit, r) {
     {  // Convert RGBA F32 to RGBA 8888, testing 128-bit loads.
         skvm::Builder b;
         {
-            skvm::Ptr dst = b.varying(4),
-                      src = b.varying(16);
+            skvm::Ptr dst = b.arg( 4),
+                      src = b.arg(16);
 
             skvm::Color c = b.load(rgba_ffff, src);
             b.store(rgba_8888, dst, c);
@@ -2350,8 +2350,8 @@ DEF_TEST(SkVM_128bit, r) {
     {  // Convert RGBA 8888 to RGBA F32, testing 128-bit stores.
         skvm::Builder b;
         {
-            skvm::Ptr dst = b.varying(16),
-                      src = b.varying(4);
+            skvm::Ptr dst = b.arg(16),
+                      src = b.arg( 4);
 
             skvm::Color c = b.load(rgba_8888, src);
             b.store(rgba_ffff, dst, c);
@@ -2425,8 +2425,8 @@ DEF_TEST(SkVM_badpack, reporter) {
     // originally with a bad arm64 implementation of pack().
     skvm::Builder p;
     {
-        skvm::UPtr uniforms = p.uniform();
-        skvm::Ptr dst = p.varying<uint16_t>();
+        skvm::Ptr uniforms = p.uniform(),
+                  dst      = p.varying<uint16_t>();
 
         skvm::I32 r = round(p.uniformF(uniforms, 8) * 15),
                   a = p.splat(0xf);
@@ -2484,8 +2484,8 @@ DEF_TEST(SkVM_gather_can_hoist, r) {
     // First a typical gather scenario with varying index.
     {
         skvm::Builder b;
-        skvm::UPtr uniforms = b.uniform();
-        skvm::Ptr buf = b.varying<int>();
+        skvm::Ptr uniforms = b.uniform(),
+                  buf      = b.varying<int>();
         skvm::I32 ix = b.load32(buf);
         b.store32(buf, b.gather32(uniforms,0, ix));
 
@@ -2504,8 +2504,8 @@ DEF_TEST(SkVM_gather_can_hoist, r) {
     // Now the same but with a uniform index instead.
     {
         skvm::Builder b;
-        skvm::UPtr uniforms = b.uniform();
-        skvm::Ptr buf = b.varying<int>();
+        skvm::Ptr uniforms = b.uniform(),
+                  buf      = b.varying<int>();
         skvm::I32 ix = b.uniform32(uniforms,8);
         b.store32(buf, b.gather32(uniforms,0, ix));
 
