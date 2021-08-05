@@ -230,3 +230,12 @@ DEF_TEST(Font_getpos, r) {
         }
     }
 }
+
+DEF_TEST(Paint_dither, reporter) {
+    SkPaint p;
+    p.setDither(true);
+
+    bool shouldDither = SkPaintPriv::ShouldDither(p, kBGRA_8888_SkColorType);
+
+    REPORTER_ASSERT(reporter, !shouldDither);
+}

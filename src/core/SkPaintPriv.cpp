@@ -61,8 +61,8 @@ bool SkPaintPriv::ShouldDither(const SkPaint& p, SkColorType dstCT) {
     }
 
     // Otherwise, dither is only needed for non-const paints.
-    return p.getImageFilter() || p.getMaskFilter()
-        || !p.getShader() || !as_SB(p.getShader())->isConstant();
+    return p.getImageFilter() || p.getMaskFilter() ||
+           (p.getShader() && !as_SB(p.getShader())->isConstant());
 }
 
 // return true if the paint is just a single color (i.e. not a shader). If its
