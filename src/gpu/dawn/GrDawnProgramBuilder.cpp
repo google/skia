@@ -401,7 +401,7 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
     fragmentState.targetCount = 1;
     fragmentState.targets = &colorTargetState;
 
-    wgpu::RenderPipelineDescriptor2 rpDesc;
+    wgpu::RenderPipelineDescriptor rpDesc;
     rpDesc.layout = pipelineLayout;
     rpDesc.vertex = vertexState;
     rpDesc.primitive.topology = to_dawn_primitive_topology(programInfo.primitiveType());

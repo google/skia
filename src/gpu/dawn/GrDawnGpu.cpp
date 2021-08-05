@@ -737,7 +737,7 @@ bool GrDawnGpu::onRegenerateMipMapLevels(GrTexture* tex) {
     fragmentState.targetCount = 1;
     fragmentState.targets = &colorTargetState;
 
-    wgpu::RenderPipelineDescriptor2 renderPipelineDesc;
+    wgpu::RenderPipelineDescriptor renderPipelineDesc;
     renderPipelineDesc.vertex = vertexState;
     renderPipelineDesc.primitive.topology = wgpu::PrimitiveTopology::TriangleStrip;
     renderPipelineDesc.primitive.stripIndexFormat = wgpu::IndexFormat::Uint16;
