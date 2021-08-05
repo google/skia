@@ -18,3 +18,5 @@ cd /SRC/skia
 ./bin/fetch-gn
 ./bin/gn gen /OUT "--args=$1"
 ninja -C /OUT
+
+chmod -R 0777 /OUT/*

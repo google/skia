@@ -25,3 +25,4 @@ PATHKIT_DIR=$BASE_DIR/../../modules/pathkit
 
 BUILD_DIR=/OUT $PATHKIT_DIR/compile.sh $@
 
+chmod -R 0777 /OUT/*

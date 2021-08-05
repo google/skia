@@ -25,3 +25,4 @@ CANVASKIT_DIR=$BASE_DIR/../../modules/canvaskit
 
 BUILD_DIR=/OUT $CANVASKIT_DIR/compile.sh $@
 
+chmod -R 0777 /OUT/*

@@ -22,5 +22,5 @@ CANVASKIT_DIR=$BASE_DIR/../../modules/canvaskit
 BUILD_DIR=/OUT $CANVASKIT_DIR/compile_gm.sh $@
 
 # Make sure everybody can read and write the contents of /OUT
-chmod -R a+rw /OUT/*
+chmod -R 0777 /OUT/*
 
