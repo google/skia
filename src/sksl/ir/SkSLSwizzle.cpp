@@ -68,6 +68,134 @@ static bool validate_swizzle_domain(skstd::string_view fields) {
     return true;
 }
 
+static std::unique_ptr<Expression> optimize_constructor_swizzle(const Context& context,
+                                                                const AnyConstructor& base,
+                                                                ComponentArray components) {
+    auto baseArguments = base.argumentSpan();
+    std::unique_ptr<Expression> replacement;
+    const Type& exprType = base.type();
+    const Type& componentType = exprType.componentType();
+    int swizzleSize = components.size();
+
+    // Swizzles can duplicate some elements and discard others, e.g.
+    // `half4(1, 2, 3, 4).xxz` --> `half3(1, 1, 3)`. However, there are constraints:
+    // - Expressions with side effects need to occur exactly once, even if they would otherwise be
+    //   swizzle-eliminated
+    // - Non-trivial expressions should not be repeated, but elimination is OK.
+    //
+    // Look up the argument for the constructor at each index. This is typically simple but for
+    // weird cases like `half4(bar.yz, half2(foo))`, it can be harder than it seems. This example
+    // would result in:
+    //     argMap[0] = {.fArgIndex = 0, .fComponent = 0}   (bar.yz     .x)
+    //     argMap[1] = {.fArgIndex = 0, .fComponent = 1}   (bar.yz     .y)
+    //     argMap[2] = {.fArgIndex = 1, .fComponent = 0}   (half2(foo) .x)
+    //     argMap[3] = {.fArgIndex = 1, .fComponent = 1}   (half2(foo) .y)
+    struct ConstructorArgMap {
+        int8_t fArgIndex;
+        int8_t fComponent;
+    };
+
+    int numConstructorArgs = base.type().columns();
+    ConstructorArgMap argMap[4] = {};
+    int writeIdx = 0;
+    for (int argIdx = 0; argIdx < (int)baseArguments.size(); ++argIdx) {
+        const Expression& arg = *baseArguments[argIdx];
+        const Type& argType = arg.type();
+
+        if (!argType.isScalar() && !argType.isVector()) {
+            return nullptr;
+        }
+
+        int argSlots = argType.slotCount();
+        for (int componentIdx = 0; componentIdx < argSlots; ++componentIdx) {
+            argMap[writeIdx].fArgIndex = argIdx;
+            argMap[writeIdx].fComponent = componentIdx;
+            ++writeIdx;
+        }
+    }
+    SkASSERT(writeIdx == numConstructorArgs);
+
+    // Count up the number of times each constructor argument is used by the swizzle.
+    //    `half4(bar.yz, half2(foo)).xwxy` -> { 3, 1 }
+    // - bar.yz    is referenced 3 times, by `.x_xy`
+    // - half(foo) is referenced 1 time,  by `._w__`
+    int8_t exprUsed[4] = {};
+    for (int8_t c : components) {
+        exprUsed[argMap[c].fArgIndex]++;
+    }
+
+    for (int index = 0; index < numConstructorArgs; ++index) {
+        int8_t constructorArgIndex = argMap[index].fArgIndex;
+        const Expression& baseArg = *baseArguments[constructorArgIndex];
+
+        // Check that non-trivial expressions are not swizzled in more than once.
+        if (exprUsed[constructorArgIndex] > 1 && !Analysis::IsTrivialExpression(baseArg)) {
+            return nullptr;
+        }
+        // Check that side-effect-bearing expressions are swizzled in exactly once.
+        if (exprUsed[constructorArgIndex] != 1 && baseArg.hasSideEffects()) {
+            return nullptr;
+        }
+    }
+
+    struct ReorderedArgument {
+        int8_t fArgIndex;
+        ComponentArray fComponents;
+    };
+    SkSTArray<4, ReorderedArgument> reorderedArgs;
+    for (int8_t c : components) {
+        const ConstructorArgMap& argument = argMap[c];
+        const Expression& baseArg = *baseArguments[argument.fArgIndex];
+
+        if (baseArg.type().isScalar()) {
+            // This argument is a scalar; add it to the list as-is.
+            SkASSERT(argument.fComponent == 0);
+            reorderedArgs.push_back({argument.fArgIndex,
+                                     ComponentArray{}});
+        } else {
+            // This argument is a component from a vector.
+            SkASSERT(baseArg.type().isVector());
+            SkASSERT(argument.fComponent < baseArg.type().columns());
+            if (reorderedArgs.empty() ||
+                reorderedArgs.back().fArgIndex != argument.fArgIndex) {
+                // This can't be combined with the previous argument. Add a new one.
+                reorderedArgs.push_back({argument.fArgIndex,
+                                         ComponentArray{argument.fComponent}});
+            } else {
+                // Since we know this argument uses components, it should already have at least one
+                // component set.
+                SkASSERT(!reorderedArgs.back().fComponents.empty());
+                // Build up the current argument with one more component.
+                reorderedArgs.back().fComponents.push_back(argument.fComponent);
+            }
+        }
+    }
+
+    // Convert our reordered argument list to an actual array of expressions, with the new order and
+    // any new inner swizzles that need to be applied.
+    ExpressionArray newArgs;
+    newArgs.reserve_back(swizzleSize);
+    for (const ReorderedArgument& reorderedArg : reorderedArgs) {
+        std::unique_ptr<Expression> newArg =
+                baseArguments[reorderedArg.fArgIndex]->clone();
+
+        if (reorderedArg.fComponents.empty()) {
+            newArgs.push_back(std::move(newArg));
+        } else {
+            newArgs.push_back(Swizzle::Make(context, std::move(newArg),
+                                            reorderedArg.fComponents));
+        }
+    }
+
+    // Wrap the new argument list in a constructor.
+    auto ctor = Constructor::Convert(context,
+                                     base.fOffset,
+                                     componentType.toCompound(context, swizzleSize, /*rows=*/1),
+                                     std::move(newArgs));
+    SkASSERT(ctor);
+    return ctor;
+}
+
 std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
                                              std::unique_ptr<Expression> base,
                                              skstd::string_view maskString) {
@@ -344,126 +472,9 @@ std::unique_ptr<Expression> Swizzle::Make(const Context& context,
 
         // Optimize swizzles of constructors.
         if (value->isAnyConstructor()) {
-            const AnyConstructor& base = value->asAnyConstructor();
-            auto baseArguments = base.argumentSpan();
-            std::unique_ptr<Expression> replacement;
-            const Type& componentType = exprType.componentType();
-            int swizzleSize = components.size();
-
-            // Swizzles can duplicate some elements and discard others, e.g.
-            // `half4(1, 2, 3, 4).xxz` --> `half3(1, 1, 3)`. However, there are constraints:
-            // - Expressions with side effects need to occur exactly once, even if they
-            //   would otherwise be swizzle-eliminated
-            // - Non-trivial expressions should not be repeated, but elimination is OK.
-            //
-            // Look up the argument for the constructor at each index. This is typically simple
-            // but for weird cases like `half4(bar.yz, half2(foo))`, it can be harder than it
-            // seems. This example would result in:
-            //     argMap[0] = {.fArgIndex = 0, .fComponent = 0}   (bar.yz     .x)
-            //     argMap[1] = {.fArgIndex = 0, .fComponent = 1}   (bar.yz     .y)
-            //     argMap[2] = {.fArgIndex = 1, .fComponent = 0}   (half2(foo) .x)
-            //     argMap[3] = {.fArgIndex = 1, .fComponent = 1}   (half2(foo) .y)
-            struct ConstructorArgMap {
-                int8_t fArgIndex;
-                int8_t fComponent;
-            };
-
-            int numConstructorArgs = base.type().columns();
-            ConstructorArgMap argMap[4] = {};
-            int writeIdx = 0;
-            for (int argIdx = 0; argIdx < (int)baseArguments.size(); ++argIdx) {
-                const Expression& arg = *baseArguments[argIdx];
-                int argWidth = arg.type().columns();
-                for (int componentIdx = 0; componentIdx < argWidth; ++componentIdx) {
-                    argMap[writeIdx].fArgIndex = argIdx;
-                    argMap[writeIdx].fComponent = componentIdx;
-                    ++writeIdx;
-                }
-            }
-            SkASSERT(writeIdx == numConstructorArgs);
-
-            // Count up the number of times each constructor argument is used by the swizzle.
-            //    `half4(bar.yz, half2(foo)).xwxy` -> { 3, 1 }
-            // - bar.yz    is referenced 3 times, by `.x_xy`
-            // - half(foo) is referenced 1 time,  by `._w__`
-            int8_t exprUsed[4] = {};
-            for (int8_t c : components) {
-                exprUsed[argMap[c].fArgIndex]++;
-            }
-
-            bool safeToOptimize = true;
-            for (int index = 0; index < numConstructorArgs; ++index) {
-                int8_t constructorArgIndex = argMap[index].fArgIndex;
-                const Expression& baseArg = *baseArguments[constructorArgIndex];
-
-                // Check that non-trivial expressions are not swizzled in more than once.
-                if (exprUsed[constructorArgIndex] > 1 && !Analysis::IsTrivialExpression(baseArg)) {
-                    safeToOptimize = false;
-                    break;
-                }
-                // Check that side-effect-bearing expressions are swizzled in exactly once.
-                if (exprUsed[constructorArgIndex] != 1 && baseArg.hasSideEffects()) {
-                    safeToOptimize = false;
-                    break;
-                }
-            }
-
-            if (safeToOptimize) {
-                struct ReorderedArgument {
-                    int8_t fArgIndex;
-                    ComponentArray fComponents;
-                };
-                SkSTArray<4, ReorderedArgument> reorderedArgs;
-                for (int8_t c : components) {
-                    const ConstructorArgMap& argument = argMap[c];
-                    const Expression& baseArg = *baseArguments[argument.fArgIndex];
-
-                    if (baseArg.type().isScalar()) {
-                        // This argument is a scalar; add it to the list as-is.
-                        SkASSERT(argument.fComponent == 0);
-                        reorderedArgs.push_back({argument.fArgIndex,
-                                                 ComponentArray{}});
-                    } else {
-                        // This argument is a component from a vector.
-                        SkASSERT(argument.fComponent < baseArg.type().columns());
-                        if (reorderedArgs.empty() ||
-                            reorderedArgs.back().fArgIndex != argument.fArgIndex) {
-                            // This can't be combined with the previous argument. Add a new one.
-                            reorderedArgs.push_back({argument.fArgIndex,
-                                                     ComponentArray{argument.fComponent}});
-                        } else {
-                            // Since we know this argument uses components, it should already
-                            // have at least one component set.
-                            SkASSERT(!reorderedArgs.back().fComponents.empty());
-                            // Build up the current argument with one more component.
-                            reorderedArgs.back().fComponents.push_back(argument.fComponent);
-                        }
-                    }
-                }
-
-                // Convert our reordered argument list to an actual array of expressions, with
-                // the new order and any new inner swizzles that need to be applied.
-                ExpressionArray newArgs;
-                newArgs.reserve_back(swizzleSize);
-                for (const ReorderedArgument& reorderedArg : reorderedArgs) {
-                    std::unique_ptr<Expression> newArg =
-                            baseArguments[reorderedArg.fArgIndex]->clone();
-
-                    if (reorderedArg.fComponents.empty()) {
-                        newArgs.push_back(std::move(newArg));
-                    } else {
-                        newArgs.push_back(Swizzle::Make(context, std::move(newArg),
-                                                        reorderedArg.fComponents));
-                    }
-                }
-
-                // Wrap the new argument list in a constructor.
-                auto ctor = Constructor::Convert(
-                        context, base.fOffset,
-                        componentType.toCompound(context, swizzleSize, /*rows=*/1),
-                        std::move(newArgs));
-                SkASSERT(ctor);
-                return ctor;
+            const AnyConstructor& ctor = value->asAnyConstructor();
+            if (auto replacement = optimize_constructor_swizzle(context, ctor, components)) {
+                return replacement;
             }
         }
     }

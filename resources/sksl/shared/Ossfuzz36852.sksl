@@ -1,0 +1,5 @@
+half4 main(float2 coords) {
+    half2x2 x = half2x2(0, 1, 2, 3);
+    float2 y = float4(x).xy;
+    return half4(y.xyxy);
+}
