@@ -22,9 +22,10 @@ public:
     void deleteQuery(sk_gpu_test::PlatformTimerQuery) override;
 
 private:
+#ifdef SK_GL
     GLGpuTimer(bool disjointSupport, const sk_gpu_test::GLTestContext*, const char* ext = "");
-
     bool validate() const;
+#endif
 
     sk_gpu_test::PlatformTimerQuery onQueueTimerStart() const override;
     void onQueueTimerStop(sk_gpu_test::PlatformTimerQuery) const override;
@@ -75,6 +76,7 @@ std::unique_ptr<GLGpuTimer> GLGpuTimer::MakeIfSupported(const sk_gpu_test::GLTes
 #endif
 }
 
+#ifdef SK_GL
 GLGpuTimer::GLGpuTimer(bool disjointSupport, const sk_gpu_test::GLTestContext* ctx, const char* ext)
     : INHERITED(disjointSupport) {
     ctx->getGLProcAddress(&fGLGetIntegerv, "glGetIntegerv");
@@ -90,6 +92,7 @@ bool GLGpuTimer::validate() const {
     return fGLGetIntegerv && fGLGenQueries && fGLDeleteQueries && fGLBeginQuery && fGLEndQuery &&
            fGLGetQueryObjectuiv && fGLGetQueryObjectui64v;
 }
+#endif
 
 sk_gpu_test::PlatformTimerQuery GLGpuTimer::onQueueTimerStart() const {
     GrGLuint queryID;
