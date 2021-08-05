@@ -86,6 +86,8 @@ public:
 
     DSLType(skstd::string_view name);
 
+    DSLType(skstd::string_view name, DSLModifiers modifiers);
+
     /**
      * Returns true if this type is a bool.
      */

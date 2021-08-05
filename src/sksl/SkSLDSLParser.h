@@ -189,7 +189,7 @@ private:
 
     skstd::optional<dsl::DSLStatement> statement();
 
-    skstd::optional<dsl::DSLType> type();
+    skstd::optional<dsl::DSLType> type(dsl::DSLModifiers modifiers);
 
     bool interfaceBlock(dsl::DSLModifiers mods);
 

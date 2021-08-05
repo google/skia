@@ -15,21 +15,37 @@ namespace SkSL {
 
 namespace dsl {
 
-DSLType::DSLType(skstd::string_view name) {
-    const SkSL::Symbol* symbol = (*DSLWriter::SymbolTable())[name];
-    if (symbol) {
-        if (symbol->is<SkSL::Type>()) {
-            fSkSLType = &symbol->as<SkSL::Type>();
-        } else {
-            DSLWriter::ReportError(String::printf("symbol '%.*s' is not a type",
-                                                  (int) name.length(),
-                                                  name.data()).c_str());
-        }
-    } else {
-        DSLWriter::ReportError(String::printf("no symbol named '%.*s'", (int) name.length(),
-                                              name.data()).c_str());
+static const Type* find_type(skstd::string_view name) {
+    const Symbol* symbol = (*DSLWriter::SymbolTable())[name];
+    if (!symbol) {
+        DSLWriter::ReportError(String::printf("no symbol named '%.*s'",
+                                              (int)name.length(), name.data()).c_str());
+        return nullptr;
     }
+    if (!symbol->is<Type>()) {
+        DSLWriter::ReportError(String::printf("symbol '%.*s' is not a type",
+                                              (int)name.length(), name.data()).c_str());
+        return nullptr;
+    }
+    return &symbol->as<Type>();
 }
+
+static const Type* find_type(skstd::string_view name, const Modifiers& modifiers) {
+    const Type* type = find_type(name);
+    if (!type) {
+        return nullptr;
+    }
+    return type->applyPrecisionQualifiers(DSLWriter::Context(),
+                                          modifiers,
+                                          DSLWriter::SymbolTable().get(),
+                                          /*offset=*/-1);
+}
+
+DSLType::DSLType(skstd::string_view name)
+        : fSkSLType(find_type(name)) {}
+
+DSLType::DSLType(skstd::string_view name, DSLModifiers modifiers)
+        : fSkSLType(find_type(name, modifiers.fModifiers)) {}
 
 bool DSLType::isBoolean() const {
     return this->skslType().isBoolean();
