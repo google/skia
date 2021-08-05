@@ -44,13 +44,6 @@ constexpr static int kAtlasMaxPathHeightWithMSAAFallback = 128;
 constexpr static int kAtlasMaxPathWidth = 1024;
 
 bool GrAtlasPathRenderer::IsSupported(GrRecordingContext* rContext) {
-#ifdef SK_BUILD_FOR_IOS
-    // b/195095846: There is a bug with the atlas path renderer on OpenGL iOS. Disable until we can
-    // investigate.
-    if (rContext->backend() == GrBackendApi::kOpenGL) {
-        return false;
-    }
-#endif
     const GrCaps& caps = *rContext->priv().caps();
     auto atlasFormat = caps.getDefaultBackendFormat(kAtlasAlpha8Type, GrRenderable::kYes);
     return rContext->asDirectContext() &&  // The atlas doesn't support DDL yet.
@@ -227,13 +220,9 @@ GrPathRenderer::CanDrawPath GrAtlasPathRenderer::onCanDrawPath(const CanDrawPath
     SkASSERT(!args.fHasUserStencilSettings);  // See onGetStencilSupport().
 #endif
     bool canDrawPath = args.fShape->style().isSimpleFill() &&
-#ifdef SK_DISABLE_ATLAS_PATH_RENDERER_WITH_COVERAGE_AA
                        // The MSAA requirement is a temporary limitation in order to preserve
                        // functionality for refactoring. TODO: Allow kCoverage AA types.
                        args.fAAType == GrAAType::kMSAA &&
-#else
-                       args.fAAType != GrAAType::kNone &&
-#endif
                        !args.fShape->style().hasPathEffect() &&
                        !args.fViewMatrix->hasPerspective() &&
                        this->pathFitsInAtlas(args.fViewMatrix->mapRect(args.fShape->bounds()),
