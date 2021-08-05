@@ -1,0 +1,2 @@
+T { int x; } f[];
+void main() { sk_FragCoord; }

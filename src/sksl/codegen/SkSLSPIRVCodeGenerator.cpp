@@ -3036,7 +3036,7 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
         return this->nextId(nullptr);
     }
     SpvStorageClass_ storageClass = get_storage_class(intf.variable(), SpvStorageClassFunction);
-    if (fProgram.fInputs.fUseFlipRTUniform && appendRTFlip) {
+    if (fProgram.fInputs.fUseFlipRTUniform && appendRTFlip && type.isStruct()) {
         // We can only have one interface block (because we use push_constant and that is limited
         // to one per program), so we need to append rtflip to this one rather than synthesize an
         // entirely new block when the variable is referenced. And we can't modify the existing
