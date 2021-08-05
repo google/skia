@@ -335,15 +335,15 @@ static void draw_clip_elements_to_mask_helper(GrSWMaskHelper& helper, const Elem
 
     for (ElementList::Iter iter(elements); iter.get(); iter.next()) {
         const Element* element = iter.get();
-        SkClipOp op = element->getOp();
+        SkRegion::Op op = element->getRegionOp();
         GrAA aa = GrAA(element->isAA());
 
-        if (kIntersect_SkClipOp == op || kReverseDifference_SkClipOp == op) {
+        if (SkRegion::kIntersect_Op == op || SkRegion::kReverseDifference_Op == op) {
             // Intersect and reverse difference require modifying pixels outside of the geometry
             // that is being "drawn". In both cases we erase all the pixels outside of the geometry
             // but leave the pixels inside the geometry alone. For reverse difference we invert all
             // the pixels before clearing the ones outside the geometry.
-            if (kReverseDifference_SkClipOp == op) {
+            if (SkRegion::kReverseDifference_Op == op) {
                 SkRect temp = SkRect::Make(scissor);
                 // invert the entire scene
                 helper.drawRect(temp, translate, SkRegion::kXOR_Op, GrAA::kNo, 0xFF);
@@ -358,13 +358,13 @@ static void draw_clip_elements_to_mask_helper(GrSWMaskHelper& helper, const Elem
         // The other ops (union, xor, diff) only affect pixels inside
         // the geometry so they can just be drawn normally
         if (Element::DeviceSpaceType::kRect == element->getDeviceSpaceType()) {
-            helper.drawRect(element->getDeviceSpaceRect(), translate, (SkRegion::Op)op, aa, 0xFF);
+            helper.drawRect(element->getDeviceSpaceRect(), translate, op, aa, 0xFF);
         } else if (Element::DeviceSpaceType::kRRect == element->getDeviceSpaceType()) {
-            helper.drawRRect(element->getDeviceSpaceRRect(), translate, (SkRegion::Op)op, aa, 0xFF);
+            helper.drawRRect(element->getDeviceSpaceRRect(), translate, op, aa, 0xFF);
         } else {
             SkPath path;
             element->asDeviceSpacePath(&path);
-            helper.drawShape(GrShape(path), translate, (SkRegion::Op)op, aa, 0xFF);
+            helper.drawShape(GrShape(path), translate, op, aa, 0xFF);
         }
     }
 }

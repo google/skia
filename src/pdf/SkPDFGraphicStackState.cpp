@@ -39,30 +39,26 @@ static bool is_rect(const SkClipStack& clipStack, const SkRect& bounds, SkRect* 
             default:
                 return false;
         }
-        switch (element->getOp()) {
-            case kReplace_SkClipOp:
-                currentClip = rect_intersect(bounds, elementRect);
-                break;
-            case SkClipOp::kIntersect:
-                currentClip = rect_intersect(currentClip, elementRect);
-                break;
-            default:
-                return false;
+        if (element->isReplaceOp()) {
+            currentClip = rect_intersect(bounds, elementRect);
+        } else if (element->getOp() == SkClipOp::kIntersect) {
+            currentClip = rect_intersect(currentClip, elementRect);
+        } else {
+            return false;
         }
     }
     *dst = currentClip;
     return true;
 }
 
+// TODO: When there's no expanding clip ops, this function may not be necessary anymore.
 static bool is_complex_clip(const SkClipStack& stack) {
     SkClipStack::Iter iter(stack, SkClipStack::Iter::kBottom_IterStart);
     while (const SkClipStack::Element* element = iter.next()) {
-        switch (element->getOp()) {
-            case SkClipOp::kDifference:
-            case SkClipOp::kIntersect:
-                break;
-            default:
-                return true;
+        if (element->isReplaceOp() ||
+            (element->getOp() != SkClipOp::kDifference &&
+             element->getOp() != SkClipOp::kIntersect)) {
+            return true;
         }
     }
     return false;
@@ -242,4 +238,3 @@ void SkPDFGraphicStackState::drainStack() {
     }
     SkASSERT(fStackDepth == 0);
 }
-
