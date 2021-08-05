@@ -63,16 +63,16 @@ static void test_assign_and_comparison(skiatest::Reporter* reporter) {
     s.save();
     REPORTER_ASSERT(reporter, 2 == s.getSaveCount());
 
-    SkRect r = SkRect::MakeLTRB(1, 2, 103, 104);
+    SkRect r = SkRect::MakeLTRB(1, 2, 3, 4);
     s.clipRect(r, SkMatrix::I(), SkClipOp::kIntersect, doAA);
-    r = SkRect::MakeLTRB(4, 5, 56, 57);
+    r = SkRect::MakeLTRB(10, 11, 12, 13);
     s.clipRect(r, SkMatrix::I(), SkClipOp::kIntersect, doAA);
 
     s.save();
     REPORTER_ASSERT(reporter, 3 == s.getSaveCount());
 
     r = SkRect::MakeLTRB(14, 15, 16, 17);
-    s.clipRect(r, SkMatrix::I(), SkClipOp::kDifference, doAA);
+    s.clipRect(r, SkMatrix::I(), kUnion_SkClipOp, doAA);
 
     // Test that assignment works.
     SkClipStack copy = s;
@@ -87,7 +87,7 @@ static void test_assign_and_comparison(skiatest::Reporter* reporter) {
     s.save();
     REPORTER_ASSERT(reporter, 3 == s.getSaveCount());
     r = SkRect::MakeLTRB(14, 15, 16, 17);
-    s.clipRect(r, SkMatrix::I(), SkClipOp::kDifference, doAA);
+    s.clipRect(r, SkMatrix::I(), kUnion_SkClipOp, doAA);
     REPORTER_ASSERT(reporter, s == copy);
 
     // Test that a different op on one level triggers not equal.
@@ -104,7 +104,7 @@ static void test_assign_and_comparison(skiatest::Reporter* reporter) {
     s.save();
     SkPath rp;
     rp.addRect(r);
-    s.clipPath(rp, SkMatrix::I(), SkClipOp::kDifference, doAA);
+    s.clipPath(rp, SkMatrix::I(), kUnion_SkClipOp, doAA);
     REPORTER_ASSERT(reporter, s == copy);
 
     // Test that different rects triggers not equal.
@@ -114,7 +114,7 @@ static void test_assign_and_comparison(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 3 == s.getSaveCount());
 
     r = SkRect::MakeLTRB(24, 25, 26, 27);
-    s.clipRect(r, SkMatrix::I(), SkClipOp::kDifference, doAA);
+    s.clipRect(r, SkMatrix::I(), kUnion_SkClipOp, doAA);
     REPORTER_ASSERT(reporter, s != copy);
 
     s.restore();
@@ -163,8 +163,8 @@ static void test_iterators(skiatest::Reporter* reporter) {
     };
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(gRects); i++) {
-        // the difference op will prevent these from being fused together
-        stack.clipRect(gRects[i], SkMatrix::I(), SkClipOp::kDifference, false);
+        // the union op will prevent these from being fused together
+        stack.clipRect(gRects[i], SkMatrix::I(), kUnion_SkClipOp, false);
     }
 
     assert_count(reporter, stack, 4);
@@ -207,7 +207,7 @@ static void test_iterators(skiatest::Reporter* reporter) {
 
         SkClipStack::Iter iter(stack, SkClipStack::Iter::kBottom_IterStart);
 
-        element = iter.skipToTopmost(SkClipOp::kDifference);
+        element = iter.skipToTopmost(kUnion_SkClipOp);
         REPORTER_ASSERT(reporter, SkClipStack::Element::DeviceSpaceType::kRect ==
                                           element->getDeviceSpaceType());
         REPORTER_ASSERT(reporter, element->getDeviceSpaceRect() == gRects[3]);
@@ -1368,7 +1368,7 @@ static void test_reduced_clip_stack_aa(skiatest::Reporter* reporter) {
         name.printf("Complex clip test, iter %i", i);
         stack.reset();
         stack.clipRect(rect, SkMatrix::I(), SkClipOp::kIntersect, true);
-        stack.clipRect(innerRect, SkMatrix::I(), SkClipOp::kDifference, true);
+        stack.clipRect(innerRect, SkMatrix::I(), kXOR_SkClipOp, true);
         test_aa_query(reporter, name, stack, m, {l, t, r, b}, ClipMethod::kSkipDraw);
         test_aa_query(reporter, name, stack, m, {r-.1f, t, R, b}, ClipMethod::kAAElements, 1);
         test_aa_query(reporter, name, stack, m, {r-.1f, t, R+.1f, b}, ClipMethod::kAAElements, 2);
@@ -1380,7 +1380,7 @@ static void test_reduced_clip_stack_aa(skiatest::Reporter* reporter) {
         name.printf("Aligned Complex clip test, iter %i", i);
         stack.reset();
         stack.clipRect(alignedRect, SkMatrix::I(), SkClipOp::kIntersect, true);
-        stack.clipRect(innerRect, SkMatrix::I(), SkClipOp::kDifference, true);
+        stack.clipRect(innerRect, SkMatrix::I(), kXOR_SkClipOp, true);
         test_aa_query(reporter, name, stack, m, {l, t, r, b}, ClipMethod::kSkipDraw);
         test_aa_query(reporter, name, stack, m, {l, b-.1f, r, IB}, ClipMethod::kAAElements, 1);
         test_aa_query(reporter, name, stack, m, {l, b-.1f, r, IB+.1f}, ClipMethod::kAAElements, 1);
