@@ -61,6 +61,18 @@ void GrFragmentProcessor::visitTextureEffects(
     }
 }
 
+void GrFragmentProcessor::visitWithImpls(
+        const std::function<void(const GrFragmentProcessor&, GrGLSLFragmentProcessor&)>& f,
+        GrGLSLFragmentProcessor& impl) const {
+    f(*this, impl);
+    SkASSERT(impl.numChildProcessors() == this->numChildProcessors());
+    for (int i = 0; i < this->numChildProcessors(); ++i) {
+        if (const auto* child = this->childProcessor(i)) {
+            child->visitWithImpls(f, *impl.childProcessor(i));
+        }
+    }
+}
+
 GrTextureEffect* GrFragmentProcessor::asTextureEffect() {
     if (this->classID() == kGrTextureEffect_ClassID) {
         return static_cast<GrTextureEffect*>(this);
@@ -935,33 +947,3 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::HighPrecision(
 
     return HighPrecisionFragmentProcessor::Make(std::move(fp));
 }
-
-//////////////////////////////////////////////////////////////////////////////
-
-GrFragmentProcessor::CIter::CIter(const GrPaint& paint) {
-    if (paint.hasCoverageFragmentProcessor()) {
-        fFPStack.push_back(paint.getCoverageFragmentProcessor());
-    }
-    if (paint.hasColorFragmentProcessor()) {
-        fFPStack.push_back(paint.getColorFragmentProcessor());
-    }
-}
-
-GrFragmentProcessor::CIter::CIter(const GrPipeline& pipeline) {
-    for (int i = pipeline.numFragmentProcessors() - 1; i >= 0; --i) {
-        fFPStack.push_back(&pipeline.getFragmentProcessor(i));
-    }
-}
-
-GrFragmentProcessor::CIter& GrFragmentProcessor::CIter::operator++() {
-    SkASSERT(!fFPStack.empty());
-    const GrFragmentProcessor* back = fFPStack.back();
-    fFPStack.pop_back();
-    for (int i = back->numChildProcessors() - 1; i >= 0; --i) {
-        if (auto child = back->childProcessor(i)) {
-            fFPStack.push_back(child);
-        }
-    }
-    return *this;
-}
-

@@ -303,6 +303,10 @@ public:
 
     void visitTextureEffects(const std::function<void(const GrTextureEffect&)>&) const;
 
+    void visitWithImpls(
+            const std::function<void(const GrFragmentProcessor&, GrGLSLFragmentProcessor&)>&,
+            GrGLSLFragmentProcessor&) const;
+
     GrTextureEffect* asTextureEffect();
     const GrTextureEffect* asTextureEffect() const;
 
@@ -506,51 +510,6 @@ private:
 //////////////////////////////////////////////////////////////////////////////
 
 GR_MAKE_BITFIELD_OPS(GrFragmentProcessor::OptimizationFlags)
-
-//////////////////////////////////////////////////////////////////////////////
-
-class GrFragmentProcessor::CIter {
-public:
-    explicit CIter(const GrFragmentProcessor& fp) { fFPStack.push_back(&fp); }
-    explicit CIter(const GrPaint&);
-    explicit CIter(const GrPipeline&);
-
-    const GrFragmentProcessor& operator*() const  { return *fFPStack.back(); }
-    const GrFragmentProcessor* operator->() const { return fFPStack.back(); }
-
-    CIter& operator++();
-
-    operator bool() const { return !fFPStack.empty(); }
-
-    bool operator!=(const EndCIter&) { return (bool)*this; }
-
-    // Hopefully this does not actually get called because of RVO.
-    CIter(const CIter&) = default;
-
-    CIter(CIter&&) = default;
-
-    // Because each iterator carries a stack we want to avoid copies.
-    CIter& operator=(const CIter&) = delete;
-
-    CIter& operator=(CIter&&) = default;
-
-protected:
-    CIter() = delete;
-
-    SkSTArray<4, const GrFragmentProcessor*, true> fFPStack;
-};
-
-//////////////////////////////////////////////////////////////////////////////
-
-template <typename Src> class GrFragmentProcessor::CIterRange {
-public:
-    explicit CIterRange(const Src& t) : fT(t) {}
-    CIter begin() const { return CIter(fT); }
-    EndCIter end() const { return EndCIter(); }
-
-private:
-    const Src& fT;
-};
 
 static inline GrFPResult GrFPFailure(std::unique_ptr<GrFragmentProcessor> fp) {
     return {false, std::move(fp)};

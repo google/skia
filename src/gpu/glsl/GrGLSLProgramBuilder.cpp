@@ -155,7 +155,7 @@ bool GrGLSLProgramBuilder::emitAndInstallFragProcs(SkString* color, SkString* co
 }
 
 SkString GrGLSLProgramBuilder::emitFragProc(const GrFragmentProcessor& fp,
-                                            GrGLSLFragmentProcessor& glslFP,
+                                            GrGLSLFragmentProcessor& impl,
                                             const SkString& input,
                                             SkString output) {
     SkASSERT(input.size());
@@ -164,10 +164,10 @@ SkString GrGLSLProgramBuilder::emitFragProc(const GrFragmentProcessor& fp,
     AutoStageAdvance adv(this);
     this->nameExpression(&output, "output");
     fFS.codeAppendf("half4 %s;", output.c_str());
-
-    int samplerIdx = 0;
-    for (auto [subFP, subGLSLFP] : GrGLSLFragmentProcessor::ParallelRange(fp, glslFP)) {
-        if (auto* te = subFP.asTextureEffect()) {
+    bool ok = true;
+    fp.visitWithImpls([&, samplerIdx = 0](const GrFragmentProcessor& fp,
+                                          GrGLSLFragmentProcessor& impl) mutable {
+        if (auto* te = fp.asTextureEffect()) {
             SkString name;
             name.printf("TextureSampler_%d", samplerIdx++);
 
@@ -176,11 +176,16 @@ SkString GrGLSLProgramBuilder::emitFragProc(const GrFragmentProcessor& fp,
             GrSwizzle swizzle = te->view().swizzle();
             SamplerHandle handle = this->emitSampler(format, samplerState, swizzle, name.c_str());
             if (!handle.isValid()) {
-                return {};
+                ok = false;
+                return;
             }
-            static_cast<GrTextureEffect::Impl&>(subGLSLFP).setSamplerHandle(handle);
+            static_cast<GrTextureEffect::Impl&>(impl).setSamplerHandle(handle);
         }
+    }, impl);
+    if (!ok) {
+        return {};
     }
+
     GrGLSLFragmentProcessor::EmitArgs args(&fFS,
                                            this->uniformHandler(),
                                            this->shaderCaps(),
@@ -188,12 +193,12 @@ SkString GrGLSLProgramBuilder::emitFragProc(const GrFragmentProcessor& fp,
                                            fp.isBlendFunction() ? "_src" : "_input",
                                            "_dst",
                                            "_coords");
-    fFS.writeProcessorFunction(&glslFP, args);
+    fFS.writeProcessorFunction(&impl, args);
     if (fp.isBlendFunction()) {
         fFS.codeAppendf(
-                "%s = %s(%s, half4(1));", output.c_str(), glslFP.functionName(), input.c_str());
+                "%s = %s(%s, half4(1));", output.c_str(), impl.functionName(), input.c_str());
     } else {
-        fFS.codeAppendf("%s = %s(%s);", output.c_str(), glslFP.functionName(), input.c_str());
+        fFS.codeAppendf("%s = %s(%s);", output.c_str(), impl.functionName(), input.c_str());
     }
 
     // We have to check that effects and the code they emit are consistent, ie if an effect asks

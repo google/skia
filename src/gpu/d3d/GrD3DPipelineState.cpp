@@ -48,11 +48,12 @@ void GrD3DPipelineState::setAndBindConstants(GrD3DGpu* gpu,
     this->setRenderTargetState(renderTarget, programInfo.origin());
 
     fGeometryProcessor->setData(fDataManager, *gpu->caps()->shaderCaps(), programInfo.geomProc());
+
     for (int i = 0; i < programInfo.pipeline().numFragmentProcessors(); ++i) {
-        auto& fp = programInfo.pipeline().getFragmentProcessor(i);
-        for (auto [fp, impl] : GrGLSLFragmentProcessor::ParallelRange(fp, *fFPImpls[i])) {
+        const auto& fp = programInfo.pipeline().getFragmentProcessor(i);
+        fp.visitWithImpls([&](const GrFragmentProcessor& fp, GrGLSLFragmentProcessor& impl) {
             impl.setData(fDataManager, fp);
-        }
+        }, *fFPImpls[i]);
     }
 
     programInfo.pipeline().setDstTextureUniforms(fDataManager, &fBuiltinUniformHandles);

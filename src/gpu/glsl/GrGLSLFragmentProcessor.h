@@ -168,43 +168,6 @@ public:
         SkSTArray<4, GrGLSLFragmentProcessor*, true> fFPStack;
     };
 
-    class ParallelIterEnd {};
-
-    /**
-     * Walks parallel trees of GrFragmentProcessor and associated GrGLSLFragmentProcessors. The
-     * GrGLSLFragmentProcessor used to initialize the iterator must have been created by calling
-     * GrFragmentProcessor::createGLSLInstance() on the passed GrFragmentProcessor.
-     */
-    class ParallelIter {
-    public:
-        ParallelIter(const GrFragmentProcessor& fp, GrGLSLFragmentProcessor& glslFP);
-
-        ParallelIter& operator++();
-
-        std::tuple<const GrFragmentProcessor&, GrGLSLFragmentProcessor&> operator*() const;
-
-        bool operator==(const ParallelIterEnd& end) const;
-
-        bool operator!=(const ParallelIterEnd& end) const { return !(*this == end); }
-
-    private:
-        GrFragmentProcessor::CIter fpIter;
-        GrGLSLFragmentProcessor::Iter glslIter;
-    };
-
-    class ParallelRange {
-    public:
-        ParallelRange(const GrFragmentProcessor& fp, GrGLSLFragmentProcessor& glslFP);
-
-        ParallelIter begin() { return {fInitialFP, fInitialGLSLFP}; }
-
-        ParallelIterEnd end() { return {}; }
-
-    private:
-        const GrFragmentProcessor& fInitialFP;
-        GrGLSLFragmentProcessor& fInitialGLSLFP;
-    };
-
 protected:
     /** A GrGLSLFragmentProcessor instance can be reused with any GrFragmentProcessor that produces
     the same stage key; this function reads data from a GrFragmentProcessor and uploads any
