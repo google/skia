@@ -153,6 +153,15 @@ GrBackendFormat GrContextThreadSafeProxy::defaultBackendFormat(SkColorType skCol
     return format;
 }
 
+GrBackendFormat GrContextThreadSafeProxy::compressedBackendFormat(SkImage::CompressionType c) const {
+    SkASSERT(fCaps);
+
+    GrBackendFormat format = fCaps->getBackendFormatFromCompressionType(c);
+
+    SkASSERT(!format.isValid() || fCaps->isFormatTexturable(format));
+    return format;
+}
+
 void GrContextThreadSafeProxy::abandonContext() {
     if (!fAbandoned.exchange(true)) {
         fTextBlobCache->freeAll();

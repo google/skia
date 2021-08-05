@@ -105,6 +105,15 @@ public:
      */
     GrBackendFormat defaultBackendFormat(SkColorType ct, GrRenderable renderable) const;
 
+    /**
+     * Retrieve the GrBackendFormat for a given SkImage::CompressionType. This is
+     * guaranteed to match the backend format used by the following
+     * createCompressedBackendTexture methods that take a CompressionType.
+     *
+     * The caller should check that the returned format is valid.
+     */
+    GrBackendFormat compressedBackendFormat(SkImage::CompressionType c) const;
+
     bool isValid() const { return nullptr != fCaps; }
 
     bool operator==(const GrContextThreadSafeProxy& that) const {
