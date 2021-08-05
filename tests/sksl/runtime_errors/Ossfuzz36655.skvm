@@ -1,0 +1,6 @@
+### Compilation failed:
+
+error: 13: potential recursion (function call cycle) not allowed:
+	void X()
+	void X()
+1 error
