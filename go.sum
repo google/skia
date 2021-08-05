@@ -837,6 +837,8 @@ github.com/google/go-licenses v0.0.0-20210623184300-9376cf9847a0 h1:jEUknfQnsQ2/
 github.com/google/go-licenses v0.0.0-20210623184300-9376cf9847a0/go.mod h1:yrUa7XR4KpFKeb+/N8/NokREkP3p25uqXDSfIFMO4fA=
 github.com/google/go-licenses v0.0.0-20210715153004-8751804a5b80 h1:LFxfYF9RntrK2cRV7vr+xpNle/lNmeQ4+XOr1iWUL1o=
 github.com/google/go-licenses v0.0.0-20210715153004-8751804a5b80/go.mod h1:yrUa7XR4KpFKeb+/N8/NokREkP3p25uqXDSfIFMO4fA=
+github.com/google/go-licenses v0.0.0-20210727195037-24e2421190d8 h1:witO2HVN17VLN3zqEkHqvgzUyz/G9nGDMGJccZBXPhA=
+github.com/google/go-licenses v0.0.0-20210727195037-24e2421190d8/go.mod h1:WkPB6PtjnM1pF4qeK8RcFmk7z+TIsrPYOng7OPlFDiw=
 github.com/google/go-querystring v1.0.0 h1:Xkwi/a1rcvNg1PPYe5vI8GbeBY/jrVuDX5ASuANWTrk=
 github.com/google/go-querystring v1.0.0/go.mod h1:odCYkC5MyYFN7vkCjXpyrEuKhc/BUO6wN/zVPAxq5ck=
 github.com/google/gofuzz v1.0.0/go.mod h1:dBl0BpW6vV/+mYPU4Po3pmUjxk6FQPldtuIdl/M65Eg=
@@ -853,6 +855,8 @@ github.com/google/licenseclassifier v0.0.0-20201113175434-78a70215ca36 h1:YGB3wN
 github.com/google/licenseclassifier v0.0.0-20201113175434-78a70215ca36/go.mod h1:qsqn2hxC+vURpyBRygGUuinTO42MFRLcsmQ/P8v94+M=
 github.com/google/licenseclassifier v0.0.0-20210325184830-bb04aff29e72 h1:EfzlPF5MRmoWsCGvSkPZ1Nh9uVzHf4FfGnDQ6CXd2NA=
 github.com/google/licenseclassifier v0.0.0-20210325184830-bb04aff29e72/go.mod h1:qsqn2hxC+vURpyBRygGUuinTO42MFRLcsmQ/P8v94+M=
+github.com/google/licenseclassifier v0.0.0-20210722185704-3043a050f148 h1:TJsAqW6zLRMDTyGmc9TPosfn9OyVlHs8Hrn3pY6ONSY=
+github.com/google/licenseclassifier v0.0.0-20210722185704-3043a050f148/go.mod h1:rq9F0RSpNKlrefnf6ZYMHKUnEJBCNzf6AcCXMYBeYvE=
 github.com/google/martian v2.1.0+incompatible h1:/CP5g8u/VJHijgedC/Legn3BAbAaWPgecwXBIDzw5no=
 github.com/google/martian v2.1.0+incompatible/go.mod h1:9I4somxYTbIHy5NJKHRl3wXiIaQGbYVAs8BPL6v8lEs=
 github.com/google/martian/v3 v3.0.0 h1:pMen7vLs8nvgEYhywH3KDWJIJTeEr2ULsVWHWYHQyBs=
@@ -1545,6 +1549,8 @@ github.com/sean-/seed v0.0.0-20170313163322-e2103e2c3529/go.mod h1:DxrIzT+xaE7yg
 github.com/sergi/go-diff v1.0.0/go.mod h1:0CfEIISq7TuYL3j771MWULgwwjU+GofnZX9QAmXWZgo=
 github.com/sergi/go-diff v1.1.0 h1:we8PVUC3FE2uYfodKH/nBHMSetSfHDR6scGdBi+erh0=
 github.com/sergi/go-diff v1.1.0/go.mod h1:STckp+ISIX8hZLjrqAeVduY0gWCT9IjLuqbuNXdaHfM=
+github.com/sergi/go-diff v1.2.0 h1:XU+rvMAioB0UC3q1MFrIQy4Vo5/4VsRDQQXHsEya6xQ=
+github.com/sergi/go-diff v1.2.0/go.mod h1:STckp+ISIX8hZLjrqAeVduY0gWCT9IjLuqbuNXdaHfM=
 github.com/shopspring/decimal v0.0.0-20180709203117-cd690d0c9e24/go.mod h1:M+9NzErvs504Cn4c5DxATwIqPbtswREoFCre64PpcG4=
 github.com/shopspring/decimal v0.0.0-20200227202807-02e2044944cc/go.mod h1:DKyhrW/HYNuLGql+MJL6WCR6knT2jwCFRcu2hWCYk4o=
 github.com/shopspring/decimal v0.0.0-20200419222939-1884f454f8ea/go.mod h1:DKyhrW/HYNuLGql+MJL6WCR6knT2jwCFRcu2hWCYk4o=
@@ -2065,6 +2071,12 @@ go.skia.org/infra v0.0.0-20210721141210-b49462a62808 h1:GWWz6hPS9UHkll+X0eREPurc
 go.skia.org/infra v0.0.0-20210721141210-b49462a62808/go.mod h1:DFXhiY1makX+YrEr0lV0OE7E2yF3L67KsLKzE9e0r5A=
 go.skia.org/infra v0.0.0-20210722131314-83d167c8dec8 h1:xLjgibhP4Mo+q0CnEKPX3WH9cHhZm7xohaaHjxP7xZk=
 go.skia.org/infra v0.0.0-20210722131314-83d167c8dec8/go.mod h1:DFXhiY1makX+YrEr0lV0OE7E2yF3L67KsLKzE9e0r5A=
+go.skia.org/infra v0.0.0-20210805120035-d7adf64fa8ce h1:LfY/AAheMFAeucBc4KQeV8qu+643PPhn9sQS+Q34c0s=
+go.skia.org/infra v0.0.0-20210805120035-d7adf64fa8ce/go.mod h1:GyZrul70Cfa4weHZsZewKFguAq/o2UzvrVxnU35Z+Yo=
+go.skia.org/infra v0.0.0-20210805134743-b82de02ca21f h1:HFpFtcGMI3zt3r/FUTGtNngULZY95KCUcx/jhadtSmQ=
+go.skia.org/infra v0.0.0-20210805134743-b82de02ca21f/go.mod h1:GyZrul70Cfa4weHZsZewKFguAq/o2UzvrVxnU35Z+Yo=
+go.skia.org/infra v0.0.0-20210805161050-852830eb10cf h1:6Wl/2EAmBMbFCx5iVi1OejEXgd1gX6C/hVJUKGYaYjI=
+go.skia.org/infra v0.0.0-20210805161050-852830eb10cf/go.mod h1:GyZrul70Cfa4weHZsZewKFguAq/o2UzvrVxnU35Z+Yo=
 go.starlark.net v0.0.0-20200306205701-8dd3e2ee1dd5/go.mod h1:nmDLcffg48OtT/PSW0Hg7FvpRQsQh5OSqIylirxKC7o=
 go.starlark.net v0.0.0-20201118183435-e55f603d8c79 h1:JPjLPz44y2N9mkzh2N344kTk1Y4/V4yJAjTrXGmzv8I=
 go.starlark.net v0.0.0-20201118183435-e55f603d8c79/go.mod h1:5YFcFnRptTN+41758c2bMPiqpGg4zBfYji1IQz8wNFk=
