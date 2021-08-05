@@ -325,12 +325,16 @@ static inline float dither_range_for_config(GrColorType dstColorType) {
 }
 
 static std::unique_ptr<GrFragmentProcessor> make_dither_effect(
-        std::unique_ptr<GrFragmentProcessor> inputFP, float range, const GrShaderCaps* caps) {
+        std::unique_ptr<GrFragmentProcessor> inputFP, float range, const GrCaps* caps) {
     if (range == 0 || inputFP == nullptr) {
         return inputFP;
     }
 
-    if (caps->integerSupport()) {
+    if (caps->avoidDithering()) {
+        return inputFP;
+    }
+
+    if (caps->shaderCaps()->integerSupport()) {
         // This ordered-dither code is lifted from the cpu backend.
         static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
             uniform half range;
@@ -500,7 +504,7 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
     if (SkPaintPriv::ShouldDither(skPaint, GrColorTypeToSkColorType(ct)) && paintFP != nullptr) {
         float ditherRange = dither_range_for_config(ct);
         paintFP = make_dither_effect(
-                std::move(paintFP), ditherRange, context->priv().caps()->shaderCaps());
+                std::move(paintFP), ditherRange, context->priv().caps());
     }
 #endif
 

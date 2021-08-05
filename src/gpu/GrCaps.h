@@ -493,6 +493,10 @@ public:
         return fAvoidReorderingRenderTasks;
     }
 
+    bool avoidDithering() const {
+        return fAvoidDithering;
+    }
+
     /**
      * Checks whether the passed color type is renderable. If so, the same color type is passed
      * back along with the default format used for the color type. If not, provides an alternative
@@ -565,6 +569,7 @@ protected:
     bool fRequiresManualFBBarrierAfterTessellatedStencilDraw : 1;
     bool fNativeDrawIndexedIndirectIsBroken          : 1;
     bool fAvoidReorderingRenderTasks                 : 1;
+    bool fAvoidDithering                             : 1;
 
     // ANGLE performance workaround
     bool fPreferVRAMUseOverFlushes                   : 1;
