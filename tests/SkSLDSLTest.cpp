@@ -1671,8 +1671,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSwitch, r, ctxInfo) {
 
     {
         ExpectError error(r, "error: case value must be a constant integer\n");
-        Var b(kInt_Type);
-        DSLStatement(Switch(0, Case(b))).release();
+        Var c(kInt_Type);
+        DSLStatement(Switch(0, Case(c))).release();
     }
 }
 

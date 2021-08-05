@@ -522,10 +522,10 @@ public:
                 const SwitchStatement& s = stmt.as<SwitchStatement>();
                 bool foundDefault = false;
                 bool fellThrough = false;
-                for (const std::unique_ptr<Statement>& stmt : s.cases()) {
+                for (const std::unique_ptr<Statement>& switchStmt : s.cases()) {
                     // The default case is indicated by a null value. A switch without a default
                     // case cannot definitively return, as its value might not be in the cases list.
-                    const SwitchCase& sc = stmt->as<SwitchCase>();
+                    const SwitchCase& sc = switchStmt->as<SwitchCase>();
                     if (!sc.value()) {
                         foundDefault = true;
                     }

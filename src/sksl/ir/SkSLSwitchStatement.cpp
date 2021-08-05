@@ -89,8 +89,8 @@ static void move_all_but_break(std::unique_ptr<Statement>& stmt, StatementArray*
 
             StatementArray blockStmts;
             blockStmts.reserve_back(block.children().size());
-            for (std::unique_ptr<Statement>& stmt : block.children()) {
-                move_all_but_break(stmt, &blockStmts);
+            for (std::unique_ptr<Statement>& blockStmt : block.children()) {
+                move_all_but_break(blockStmt, &blockStmts);
             }
 
             target->push_back(Block::Make(block.fOffset, std::move(blockStmts),

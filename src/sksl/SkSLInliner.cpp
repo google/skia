@@ -523,8 +523,8 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
             const SwitchStatement& ss = statement.as<SwitchStatement>();
             StatementArray cases;
             cases.reserve_back(ss.cases().size());
-            for (const std::unique_ptr<Statement>& statement : ss.cases()) {
-                const SwitchCase& sc = statement->as<SwitchCase>();
+            for (const std::unique_ptr<Statement>& switchCaseStmt : ss.cases()) {
+                const SwitchCase& sc = switchCaseStmt->as<SwitchCase>();
                 cases.push_back(std::make_unique<SwitchCase>(offset, expr(sc.value()),
                                                              stmt(sc.statement())));
             }
@@ -821,8 +821,8 @@ public:
                     fSymbolTableStack.push_back(block.symbolTable());
                 }
 
-                for (std::unique_ptr<Statement>& stmt : block.children()) {
-                    this->visitStatement(&stmt);
+                for (std::unique_ptr<Statement>& blockStmt : block.children()) {
+                    this->visitStatement(&blockStmt);
                 }
                 break;
             }

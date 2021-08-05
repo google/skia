@@ -219,9 +219,9 @@ public:
         DSLWriter::ProgramElements().push_back(std::make_unique<SkSL::InterfaceBlock>(/*offset=*/-1,
                 DSLWriter::Var(var), typeName, varName, arraySize, DSLWriter::SymbolTable()));
         if (varName.empty()) {
-            const std::vector<SkSL::Type::Field>& fields = structType->fields();
+            const std::vector<SkSL::Type::Field>& structFields = structType->fields();
             const SkSL::Variable* skslVar = DSLWriter::Var(var);
-            for (size_t i = 0; i < fields.size(); ++i) {
+            for (size_t i = 0; i < structFields.size(); ++i) {
                 DSLWriter::SymbolTable()->add(std::make_unique<SkSL::Field>(/*offset=*/-1,
                                                                             skslVar,
                                                                             i));

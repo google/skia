@@ -55,7 +55,7 @@ DSLVarBase::DSLVarBase(const DSLModifiers& modifiers, DSLType type, skstd::strin
                                                       &grslType));
                 count = 0;
             }
-            const char* name;
+            const char* uniformName;
             SkASSERT(DSLWriter::CurrentEmitArgs());
             fUniformHandle = DSLWriter::CurrentEmitArgs()->fUniformHandler->addUniformArray(
                                                                  &DSLWriter::CurrentEmitArgs()->fFp,
@@ -63,8 +63,8 @@ DSLVarBase::DSLVarBase(const DSLModifiers& modifiers, DSLType type, skstd::strin
                                                                  grslType,
                                                                  String(this->name()).c_str(),
                                                                  count,
-                                                                 &name).toIndex();
-            fName = name;
+                                                                 &uniformName).toIndex();
+            fName = uniformName;
         }
 #endif // SK_SUPPORT_GPU && !defined(SKSL_STANDALONE)
     }

@@ -1751,14 +1751,14 @@ static bool is_block_ending_with_return(const Statement* stmt) {
     }
     const StatementArray& block = stmt->as<Block>().children();
     for (int index = block.count(); index--; ) {
-        const Statement& stmt = *block[index];
-        if (stmt.is<ReturnStatement>()) {
+        stmt = block[index].get();
+        if (stmt->is<ReturnStatement>()) {
             return true;
         }
-        if (stmt.is<Block>()) {
-            return is_block_ending_with_return(&stmt);
+        if (stmt->is<Block>()) {
+            return is_block_ending_with_return(stmt);
         }
-        if (!stmt.is<Nop>()) {
+        if (!stmt->is<Nop>()) {
             break;
         }
     }

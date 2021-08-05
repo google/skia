@@ -3075,7 +3075,7 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
                                     intf.instanceName(),
                                     intf.arraySize(),
                                     intf.typeOwner());
-        SpvId result = this->writeInterfaceBlock(modifiedCopy, false);
+        result = this->writeInterfaceBlock(modifiedCopy, false);
         fProgram.fSymbols->add(std::make_unique<Field>(
                 /*offset=*/-1, modifiedVar, rtFlipStructType->fields().size() - 1));
         if (fProgram.fPool) {

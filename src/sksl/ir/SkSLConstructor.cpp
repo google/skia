@@ -122,12 +122,12 @@ static std::unique_ptr<Expression> convert_compound_constructor(const Context& c
         // literal, this will make sure it's the right type of literal. If an expression of matching
         // type, the expression will be returned as-is. If it's an expression of mismatched type,
         // this adds a cast.
-        int offset = arg->fOffset;
+        int ctorOffset = arg->fOffset;
         const Type& ctorType = type.componentType().toCompound(context, arg->type().columns(),
                                                                /*rows=*/1);
         ExpressionArray ctorArg;
         ctorArg.push_back(std::move(arg));
-        arg = Constructor::Convert(context, offset, ctorType, std::move(ctorArg));
+        arg = Constructor::Convert(context, ctorOffset, ctorType, std::move(ctorArg));
         if (!arg) {
             return nullptr;
         }
