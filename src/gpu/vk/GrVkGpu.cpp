@@ -919,10 +919,8 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkAttachment* texAttachment,
 
     int currentWidth = rect.width();
     int currentHeight = rect.height();
-    int layerHeight = texAttachment->height();
     for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
         if (texelsShallowCopy[currentMipLevel].fPixels) {
-            SkASSERT(1 == mipLevelCount || currentHeight == layerHeight);
             const size_t trimRowBytes = currentWidth * bpp;
             const size_t rowBytes = texelsShallowCopy[currentMipLevel].fRowBytes;
 
@@ -943,8 +941,6 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkAttachment* texAttachment,
 
         currentWidth  = std::max(1,  currentWidth/2);
         currentHeight = std::max(1, currentHeight/2);
-
-        layerHeight = currentHeight;
     }
 
     // Change layout of our target so it can be copied to

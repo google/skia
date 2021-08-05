@@ -239,12 +239,12 @@ void Dehydrator::write(const SymbolTable& symbols) {
         ordered.insert({name, symbol});
     });
     for (std::pair<skstd::string_view, const Symbol*> p : ordered) {
-        bool found = false;
+        SkDEBUGCODE(bool found = false;)
         for (size_t i = 0; i < symbols.fOwnedSymbols.size(); ++i) {
             if (symbols.fOwnedSymbols[i].get() == p.second) {
                 fCommandBreaks.add(fBody.bytesWritten());
                 this->writeU16(i);
-                found = true;
+                SkDEBUGCODE(found = true;)
                 break;
             }
         }

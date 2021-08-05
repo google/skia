@@ -210,7 +210,6 @@ static skui::ModifierKey get_modifiers(UINT message, WPARAM wParam, LPARAM lPara
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     PAINTSTRUCT ps;
-    HDC hdc;
 
     Window_win* window = (Window_win*) GetWindowLongPtr(hWnd, GWLP_USERDATA);
 
@@ -218,7 +217,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
     switch (message) {
         case WM_PAINT:
-            hdc = BeginPaint(hWnd, &ps);
+            BeginPaint(hWnd, &ps);
             window->onPaint();
             EndPaint(hWnd, &ps);
             eventHandled = true;

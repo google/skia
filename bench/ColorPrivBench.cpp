@@ -41,7 +41,7 @@ public:
 
     void onDraw(int loops, SkCanvas*) override {
         // We xor results of FourByteInterp into junk to make sure the function runs.
-        volatile SkPMColor junk = 0;
+        SK_MAYBE_UNUSED volatile SkPMColor junk = 0;
 
         for (int loop = 0; loop < loops; loop++) {
             for (int i = 0; i < kInputs; i++) {

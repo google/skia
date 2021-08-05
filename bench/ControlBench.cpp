@@ -16,7 +16,7 @@ struct ControlBench : public Benchmark {
 
     void onDraw(int loops, SkCanvas*) override {
         // Nothing terribly useful: force a memory read, a memory write, and some math.
-        volatile uint32_t rand = 0;
+        SK_MAYBE_UNUSED volatile uint32_t rand = 0;
         for (int i = 0; i < 1000*loops; i++) {
             rand *= 1664525;
             rand += 1013904223;

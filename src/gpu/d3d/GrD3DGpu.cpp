@@ -740,11 +740,8 @@ bool GrD3DGpu::uploadToTexture(GrD3DTexture* tex,
 
     int currentWidth = rect.width();
     int currentHeight = rect.height();
-    int layerHeight = tex->height();
-
     for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
         if (texels[currentMipLevel].fPixels) {
-            SkASSERT(1 == mipLevelCount || currentHeight == layerHeight);
 
             const size_t trimRowBytes = currentWidth * bpp;
             const size_t srcRowBytes = texels[currentMipLevel].fRowBytes;
@@ -758,7 +755,6 @@ bool GrD3DGpu::uploadToTexture(GrD3DTexture* tex,
         }
         currentWidth = std::max(1, currentWidth / 2);
         currentHeight = std::max(1, currentHeight / 2);
-        layerHeight = currentHeight;
     }
 
     // Update the offsets in the footprints to be relative to the slice's offset

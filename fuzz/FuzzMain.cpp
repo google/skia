@@ -592,12 +592,7 @@ static void fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
             SkBitmap subsetBm;
             // We will reuse pixel memory from bitmap.
             void* pixels = bitmap.getPixels();
-            // Keep track of left and top (for drawing subsetBm into canvas). We could use
-            // fscale * x and fscale * y, but we want integers such that the next subset will start
-            // where the last one ended. So we'll add decodeInfo.width() and height().
-            int left = 0;
             for (int x = 0; x < W; x += w) {
-                int top = 0;
                 for (int y = 0; y < H; y+= h) {
                     // Do not make the subset go off the edge of the image.
                     const int preScaleW = std::min(w, W - x);
@@ -645,11 +640,7 @@ static void fuzz_img(sk_sp<SkData> bytes, uint8_t scale, uint8_t mode) {
                                                   W, H, result);
                             return;
                     }
-                    // translate by the scaled height.
-                    top += decodeInfo.height();
                 }
-                // translate by the scaled width.
-                left += decodeInfo.width();
             }
             SkDebugf("[terminated] Success!\n");
             break;

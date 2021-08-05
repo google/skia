@@ -1339,16 +1339,6 @@ bool GrMtlGpu::onReadPixels(GrSurface* surface,
     size_t transBufferRowBytes = bpp*rect.width();
     size_t transBufferImageBytes = transBufferRowBytes*rect.height();
 
-    // TODO: implement some way of reusing buffers instead of making a new one every time.
-    NSUInteger options = 0;
-    if (@available(macOS 10.11, iOS 9.0, *)) {
-#ifdef SK_BUILD_FOR_MAC
-        options |= MTLResourceStorageModeManaged;
-#else
-        options |= MTLResourceStorageModeShared;
-#endif
-    }
-
     GrResourceProvider* resourceProvider = this->getContext()->priv().resourceProvider();
     sk_sp<GrGpuBuffer> transferBuffer = resourceProvider->createBuffer(
             transBufferImageBytes, GrGpuBufferType::kXferGpuToCpu,

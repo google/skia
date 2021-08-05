@@ -59,7 +59,7 @@ protected:
     int mulLoopCount() const override { return 4; }
     void performTest() override {
         // xoring into a volatile prevents the compiler from optimizing these checks away.
-        volatile bool junk = false;
+        SK_MAYBE_UNUSED volatile bool junk = false;
         junk ^= (fArray[6] != 0.0f || fArray[7] != 0.0f || fArray[8] != 1.0f);
         junk ^= (fArray[2] != 0.0f || fArray[5] != 0.0f);
     }
@@ -78,7 +78,7 @@ protected:
     int mulLoopCount() const override { return 4; }
     void performTest() override {
         // xoring into a volatile prevents the compiler from optimizing these checks away.
-        volatile int32_t junk = 0;
+        SK_MAYBE_UNUSED volatile int32_t junk = 0;
         junk ^= (SkScalarAs2sCompliment(fArray[6]) |
                  SkScalarAs2sCompliment(fArray[7]) |
                 (SkScalarAs2sCompliment(fArray[8]) - kPersp1Int));
