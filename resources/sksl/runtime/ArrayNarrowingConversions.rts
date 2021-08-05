@@ -1,0 +1,19 @@
+/*#pragma settings NoES2Restrictions*/
+
+uniform half4 colorGreen, colorRed;
+
+half4 main(float2 coords) {
+    highp   int   i2[2] = int   [2](1, 2);
+    mediump int   s2[2] = int   [2](1, 2);
+    highp   float f2[2] = float [2](1, 2);
+    mediump float h2[2] = float [2](1, 2);
+
+    const highp   int   ci2[2] = int   [2](1, 2);
+    const mediump int   cs2[2] = int   [2](1, 2);
+    const highp   float cf2[2] = float [2](1, 2);
+    const mediump float ch2[2] = float [2](1, 2);
+
+    return (i2 == s2 && f2 == h2 && ci2 == cs2 && cf2 == ch2 && i2 == cs2 && h2 == cf2)
+                ? colorGreen
+                : colorRed;
+}

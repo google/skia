@@ -1,0 +1,14 @@
+uniform half4 colorGreen;
+uniform half4 colorRed;
+half4 main(float2 coords)
+{
+	int i2[2] = int[2](1, 2);
+	short s2[2] = short[2](1, 2);
+	float f2[2] = float[2](1.0, 2.0);
+	half h2[2] = half[2](1.0, 2.0);
+	;
+	;
+	const float cf2[2] = float[2](1.0, 2.0);
+	;
+	return half4(((i2 == s2 && f2 == h2) && i2 == int[2](1, 2)) && h2 == cf2 ? colorGreen : colorRed);
+}

@@ -214,6 +214,9 @@ static bool detect_shader_settings(const SkSL::String& text,
                 if (settingsText.consumeSuffix(" ForceHighPrecision")) {
                     settings->fForceHighPrecision = true;
                 }
+                if (settingsText.consumeSuffix(" NoES2Restrictions")) {
+                    settings->fEnforceES2Restrictions = false;
+                }
                 if (settingsText.consumeSuffix(" NoInline")) {
                     settings->fInlineThreshold = 0;
                 }

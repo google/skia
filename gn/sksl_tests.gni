@@ -518,6 +518,7 @@ sksl_settings_tests = [
 sksl_rte_tests = [
   "/sksl/runtime/AllowNarrowingConversions.rts",
   "/sksl/runtime/ArrayIndexing.rts",
+  "/sksl/runtime/ArrayNarrowingConversions.rts",
   "/sksl/runtime/Blend.rtb",
   "/sksl/runtime/ConstPreservation.rts",
   "/sksl/runtime/ConversionConstructors.rts",
