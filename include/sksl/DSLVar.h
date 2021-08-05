@@ -38,10 +38,10 @@ public:
 
     DSLVarBase(DSLType type, DSLExpression initialValue);
 
-    DSLVarBase(DSLModifiers modifiers, DSLType type, skstd::string_view name,
+    DSLVarBase(const DSLModifiers& modifiers, DSLType type, skstd::string_view name,
                DSLExpression initialValue);
 
-    DSLVarBase(DSLModifiers modifiers, DSLType type, DSLExpression initialValue);
+    DSLVarBase(const DSLModifiers& modifiers, DSLType type, DSLExpression initialValue);
 
     DSLVarBase(DSLVarBase&&) = default;
 
@@ -51,7 +51,7 @@ public:
         return fName;
     }
 
-    DSLModifiers modifiers() const {
+    const DSLModifiers& modifiers() const {
         return fModifiers;
     }
 
@@ -155,11 +155,11 @@ public:
     DSLVar(DSLType type, DSLExpression initialValue)
         : INHERITED(type, std::move(initialValue)) {}
 
-    DSLVar(DSLModifiers modifiers, DSLType type, skstd::string_view name = "var",
+    DSLVar(const DSLModifiers& modifiers, DSLType type, skstd::string_view name = "var",
            DSLExpression initialValue = DSLExpression())
         : INHERITED(modifiers, type, name, std::move(initialValue)) {}
 
-    DSLVar(DSLModifiers modifiers, DSLType type, const char* name,
+    DSLVar(const DSLModifiers& modifiers, DSLType type, const char* name,
            DSLExpression initialValue = DSLExpression())
         : DSLVar(modifiers, type, skstd::string_view(name), std::move(initialValue)) {}
 
@@ -201,11 +201,11 @@ public:
     DSLGlobalVar(DSLType type, DSLExpression initialValue)
         : INHERITED(type, std::move(initialValue)) {}
 
-    DSLGlobalVar(DSLModifiers modifiers, DSLType type, skstd::string_view name = "var",
+    DSLGlobalVar(const DSLModifiers& modifiers, DSLType type, skstd::string_view name = "var",
            DSLExpression initialValue = DSLExpression())
         : INHERITED(modifiers, type, name, std::move(initialValue)) {}
 
-    DSLGlobalVar(DSLModifiers modifiers, DSLType type, const char* name,
+    DSLGlobalVar(const DSLModifiers& modifiers, DSLType type, const char* name,
            DSLExpression initialValue = DSLExpression())
         : DSLGlobalVar(modifiers, type, skstd::string_view(name), std::move(initialValue)) {}
 
@@ -245,10 +245,10 @@ public:
     DSLParameter(DSLType type, const char* name)
         : DSLParameter(type, skstd::string_view(name)) {}
 
-    DSLParameter(DSLModifiers modifiers, DSLType type, skstd::string_view name = "var")
+    DSLParameter(const DSLModifiers& modifiers, DSLType type, skstd::string_view name = "var")
         : INHERITED(modifiers, type, name, DSLExpression()) {}
 
-    DSLParameter(DSLModifiers modifiers, DSLType type, const char* name)
+    DSLParameter(const DSLModifiers& modifiers, DSLType type, const char* name)
         : DSLParameter(modifiers, type, skstd::string_view(name)) {}
 
     DSLParameter(DSLParameter&&) = default;

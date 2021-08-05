@@ -44,7 +44,7 @@ static const Type* find_type(skstd::string_view name, const Modifiers& modifiers
 DSLType::DSLType(skstd::string_view name)
         : fSkSLType(find_type(name)) {}
 
-DSLType::DSLType(skstd::string_view name, DSLModifiers modifiers)
+DSLType::DSLType(skstd::string_view name, const DSLModifiers& modifiers)
         : fSkSLType(find_type(name, modifiers.fModifiers)) {}
 
 bool DSLType::isBoolean() const {

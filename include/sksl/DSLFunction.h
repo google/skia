@@ -31,7 +31,7 @@ public:
         : DSLFunction(DSLModifiers(), returnType, name, parameters...) {}
 
     template<class... Parameters>
-    DSLFunction(DSLModifiers modifiers, const DSLType& returnType, skstd::string_view name,
+    DSLFunction(const DSLModifiers& modifiers, const DSLType& returnType, skstd::string_view name,
                 Parameters&... parameters) {
         SkTArray<DSLParameter*> parameterArray;
         parameterArray.reserve_back(sizeof...(parameters));
@@ -48,7 +48,7 @@ public:
         this->init(DSLModifiers(), returnType, name, std::move(parameters));
     }
 
-    DSLFunction(DSLModifiers modifiers, const DSLType& returnType, skstd::string_view name,
+    DSLFunction(const DSLModifiers& modifiers, const DSLType& returnType, skstd::string_view name,
                 SkTArray<DSLParameter*> parameters) {
         this->init(modifiers, returnType, name, std::move(parameters));
     }

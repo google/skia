@@ -302,7 +302,9 @@ bool DSLParser::declaration() {
 }
 
 /* (RPAREN | VOID RPAREN | parameter (COMMA parameter)* RPAREN) (block | SEMICOLON) */
-bool DSLParser::functionDeclarationEnd(DSLModifiers modifiers, DSLType type, const Token& name) {
+bool DSLParser::functionDeclarationEnd(const DSLModifiers& modifiers,
+                                       DSLType type,
+                                       const Token& name) {
     SkTArray<DSLWrapper<DSLParameter>> parameters;
     Token lookahead = this->peek();
     if (lookahead.fKind == Token::Kind::TK_RPAREN) {
@@ -353,7 +355,7 @@ static skstd::optional<DSLStatement> declaration_statements(SkTArray<DSLVar> var
 }
 
 template<class T>
-SkTArray<T> DSLParser::varDeclarationEnd(dsl::DSLModifiers mods, dsl::DSLType baseType,
+SkTArray<T> DSLParser::varDeclarationEnd(const dsl::DSLModifiers& mods, dsl::DSLType baseType,
                                          skstd::string_view name) {
     using namespace dsl;
     SkTArray<T> result;
@@ -545,7 +547,7 @@ skstd::optional<DSLType> DSLParser::structDeclaration() {
 }
 
 /* structDeclaration ((IDENTIFIER varDeclarationEnd) | SEMICOLON) */
-SkTArray<dsl::DSLGlobalVar> DSLParser::structVarDeclaration(DSLModifiers modifiers) {
+SkTArray<dsl::DSLGlobalVar> DSLParser::structVarDeclaration(const DSLModifiers& modifiers) {
     skstd::optional<DSLType> type = this->structDeclaration();
     if (!type) {
         return {};
@@ -760,7 +762,7 @@ skstd::optional<DSLStatement> DSLParser::statement() {
 }
 
 /* IDENTIFIER(type) (LBRACKET intLiteral? RBRACKET)* QUESTION? */
-skstd::optional<DSLType> DSLParser::type(DSLModifiers modifiers) {
+skstd::optional<DSLType> DSLParser::type(const DSLModifiers& modifiers) {
     Token type;
     if (!this->expect(Token::Kind::TK_IDENTIFIER, "a type", &type)) {
         return skstd::nullopt;
@@ -793,7 +795,7 @@ skstd::optional<DSLType> DSLParser::type(DSLModifiers modifiers) {
 /* IDENTIFIER LBRACE
      varDeclaration+
    RBRACE (IDENTIFIER (LBRACKET expression? RBRACKET)*)? SEMICOLON */
-bool DSLParser::interfaceBlock(dsl::DSLModifiers modifiers) {
+bool DSLParser::interfaceBlock(const dsl::DSLModifiers& modifiers) {
     Token typeName;
     if (!this->expectIdentifier(&typeName)) {
         return false;

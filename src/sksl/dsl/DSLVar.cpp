@@ -27,10 +27,10 @@ DSLVarBase::DSLVarBase(DSLType type, skstd::string_view name, DSLExpression init
 DSLVarBase::DSLVarBase(DSLType type, DSLExpression initialValue)
     : DSLVarBase(type, "var", std::move(initialValue)) {}
 
-DSLVarBase::DSLVarBase(DSLModifiers modifiers, DSLType type, DSLExpression initialValue)
+DSLVarBase::DSLVarBase(const DSLModifiers& modifiers, DSLType type, DSLExpression initialValue)
     : DSLVarBase(modifiers, type, "var", std::move(initialValue)) {}
 
-DSLVarBase::DSLVarBase(DSLModifiers modifiers, DSLType type, skstd::string_view name,
+DSLVarBase::DSLVarBase(const DSLModifiers& modifiers, DSLType type, skstd::string_view name,
                        DSLExpression initialValue)
     : fModifiers(std::move(modifiers))
     , fType(std::move(type))

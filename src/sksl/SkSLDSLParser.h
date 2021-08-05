@@ -148,7 +148,9 @@ private:
 
     bool declaration();
 
-    bool functionDeclarationEnd(dsl::DSLModifiers modifiers, dsl::DSLType type, const Token& name);
+    bool functionDeclarationEnd(const dsl::DSLModifiers& modifiers,
+                                dsl::DSLType type,
+                                const Token& name);
 
     struct VarDeclarationsPrefix {
         dsl::DSLModifiers modifiers;
@@ -164,15 +166,15 @@ private:
 
     skstd::optional<dsl::DSLType> structDeclaration();
 
-    SkTArray<dsl::DSLGlobalVar> structVarDeclaration(dsl::DSLModifiers modifiers);
+    SkTArray<dsl::DSLGlobalVar> structVarDeclaration(const dsl::DSLModifiers& modifiers);
 
     /* (LBRACKET expression? RBRACKET)* (EQ assignmentExpression)? (COMMA IDENTIFER
        (LBRACKET expression? RBRACKET)* (EQ assignmentExpression)?)* SEMICOLON */
     template<class T>
-    SkTArray<T> varDeclarationEnd(dsl::DSLModifiers mods, dsl::DSLType baseType,
+    SkTArray<T> varDeclarationEnd(const dsl::DSLModifiers& mods, dsl::DSLType baseType,
                                   skstd::string_view name);
 
-    SkTArray<dsl::DSLGlobalVar> globalVarDeclarationEnd(dsl::DSLModifiers modifiers,
+    SkTArray<dsl::DSLGlobalVar> globalVarDeclarationEnd(const dsl::DSLModifiers& modifiers,
                                                         dsl::DSLType type, skstd::string_view name);
 
     skstd::optional<dsl::DSLWrapper<dsl::DSLParameter>> parameter();
@@ -189,9 +191,9 @@ private:
 
     skstd::optional<dsl::DSLStatement> statement();
 
-    skstd::optional<dsl::DSLType> type(dsl::DSLModifiers modifiers);
+    skstd::optional<dsl::DSLType> type(const dsl::DSLModifiers& modifiers);
 
-    bool interfaceBlock(dsl::DSLModifiers mods);
+    bool interfaceBlock(const dsl::DSLModifiers& mods);
 
     skstd::optional<dsl::DSLStatement> ifStatement();
 

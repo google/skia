@@ -195,9 +195,9 @@ public:
                                     ifTrue.release(), ifFalse.releaseIfValid());
     }
 
-    static DSLGlobalVar InterfaceBlock(DSLModifiers modifiers, skstd::string_view typeName,
-                                 SkTArray<DSLField> fields, skstd::string_view varName,
-                                 int arraySize, PositionInfo pos) {
+    static DSLGlobalVar InterfaceBlock(const DSLModifiers& modifiers, skstd::string_view typeName,
+                                       SkTArray<DSLField> fields, skstd::string_view varName,
+                                       int arraySize, PositionInfo pos) {
         // We need to create a new struct type for the interface block, but we don't want it in the
         // symbol table. Since dsl::Struct automatically sticks it in the symbol table, we create it
         // the old fashioned way with MakeStructType.
@@ -375,7 +375,7 @@ DSLStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse, P
                         pos);
 }
 
-DSLGlobalVar InterfaceBlock(DSLModifiers modifiers,  skstd::string_view typeName,
+DSLGlobalVar InterfaceBlock(const DSLModifiers& modifiers,  skstd::string_view typeName,
                             SkTArray<DSLField> fields, skstd::string_view varName, int arraySize,
                             PositionInfo pos) {
     return DSLCore::InterfaceBlock(modifiers, typeName, std::move(fields), varName, arraySize, pos);
