@@ -59,6 +59,12 @@ void End();
 std::unique_ptr<SkSL::Program> ReleaseProgram(std::unique_ptr<SkSL::String> source = nullptr);
 
 /**
+ * Returns the ErrorHandler which will be notified of any errors that occur during DSL calls. The
+ * default error handler is null, which means any errors encountered will be fatal.
+ */
+ErrorHandler* GetErrorHandler();
+
+/**
  * Installs an ErrorHandler which will be notified of any errors that occur during DSL calls. If
  * no ErrorHandler is installed, any errors will be fatal.
  */

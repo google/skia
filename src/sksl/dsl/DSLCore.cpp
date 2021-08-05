@@ -51,6 +51,10 @@ void End() {
     DSLWriter::SetInstance(nullptr);
 }
 
+ErrorHandler* GetErrorHandler() {
+    return DSLWriter::GetErrorHandler();
+}
+
 void SetErrorHandler(ErrorHandler* errorHandler) {
     DSLWriter::SetErrorHandler(errorHandler);
 }

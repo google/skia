@@ -269,51 +269,60 @@ private:
 
     bool identifier(skstd::string_view* dest);
 
-    class Checkpoint : public ErrorReporter {
+    class Checkpoint : public dsl::ErrorHandler {
     public:
         Checkpoint(DSLParser* p) : fParser(p) {
             fPushbackCheckpoint = fParser->fPushback;
             fLexerCheckpoint = fParser->fLexer.getCheckpoint();
-            fErrorReporter = fParser->fErrorReporter;
-            fParser->fErrorReporter = this;
+            fOldErrorHandler = dsl::GetErrorHandler();
+            SkASSERT(fOldErrorHandler);
+            dsl::SetErrorHandler(this);
         }
 
         ~Checkpoint() override {
-            SkASSERTF(!fErrorReporter, "Checkpoint was not accepted or rewound before destruction");
+            SkASSERTF(!fOldErrorHandler,
+                      "Checkpoint was not accepted or rewound before destruction");
         }
 
         void accept() {
-            SkASSERT(fErrorCount == 0 && fErrorReporter);
-            fParser->fErrorReporter = fErrorReporter;
-            fErrorReporter = nullptr;
+            this->restoreErrorHandler();
+            // Parser errors should have been fatal, but we can encounter other errors like type
+            // mismatches despite accepting the parse. Forward those messages to the actual error
+            // handler now.
+            for (Error& error : fErrors) {
+                dsl::GetErrorHandler()->handleError(error.fMsg.c_str(),
+                                                    error.fHavePosition ? &error.fPos : nullptr);
+            }
         }
 
         void rewind() {
-            SkASSERT(fErrorReporter);
+            this->restoreErrorHandler();
             fParser->fPushback = fPushbackCheckpoint;
             fParser->fLexer.rewindToCheckpoint(fLexerCheckpoint);
-            fParser->fErrorReporter = fErrorReporter;
-            fErrorReporter = nullptr;
         }
 
-        void error(int offset, String msg) override {
-            ++fErrorCount;
-        }
-
-        int errorCount() override {
-            return fErrorCount;
-        }
-
-        void setErrorCount(int numErrors) override {
-            SkUNREACHABLE;
+        void handleError(const char* msg, dsl::PositionInfo* pos) override {
+            fErrors.push_back({String(msg), pos != nullptr, pos ? *pos : dsl::PositionInfo()});
         }
 
     private:
+        struct Error {
+            String fMsg;
+            bool fHavePosition;
+            dsl::PositionInfo fPos;
+        };
+
+        void restoreErrorHandler() {
+            SkASSERT(fOldErrorHandler);
+            dsl::SetErrorHandler(fOldErrorHandler);
+            fOldErrorHandler = nullptr;
+        }
+
         DSLParser* fParser;
         Token fPushbackCheckpoint;
         int32_t fLexerCheckpoint;
-        ErrorReporter* fErrorReporter;
-        int fErrorCount = 0;
+        ErrorHandler* fOldErrorHandler;
+        SkTArray<Error> fErrors;
     };
 
     static std::unordered_map<skstd::string_view, LayoutToken>* layoutTokens;

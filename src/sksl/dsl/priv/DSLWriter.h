@@ -219,10 +219,14 @@ public:
                                               bool isStatic);
 
     /**
-     * Sets the ErrorHandler associated with the current thread. This object will be notified when
-     * any DSL errors occur. With a null ErrorHandler (the default), any errors will be dumped to
-     * stderr and a fatal exception will be generated.
+     * Returns the ErrorHandler associated with the current thread. This object will be notified
+     * when any DSL errors occur. With a null ErrorHandler (the default), any errors will be dumped
+     * to stderr and a fatal exception will be generated.
      */
+    static ErrorHandler* GetErrorHandler() {
+        return Instance().fErrorHandler;
+    }
+
     static void SetErrorHandler(ErrorHandler* errorHandler) {
         Instance().fErrorHandler = errorHandler;
     }
