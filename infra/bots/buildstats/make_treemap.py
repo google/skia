@@ -39,6 +39,10 @@ def main():
                          '%s/%s_tree.tar.gz' % (out_dir, input_base),
                          '.'])
 
+  # Delete our temporary directory
+  subprocess.check_call(['docker', 'run',
+                         '--volume', '%s:/OUT' % temp_out,
+                         DOCKER_IMAGE, '/bin/sh', '-c', 'rm -rf /OUT/*'])
 
 if __name__ == '__main__':
   main()
