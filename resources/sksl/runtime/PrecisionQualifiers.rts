@@ -51,7 +51,7 @@ bool test_array() {
 vec4 main(vec2 coords) {
     highp   vec4 zero = vec4(0);
     mediump vec4 one = vec4(1);
-    lowp vec4 green = colorGreen;
+    lowp    vec4 green = colorGreen;
     green = green * one + zero;
 
     highp vec4 red = colorRed;

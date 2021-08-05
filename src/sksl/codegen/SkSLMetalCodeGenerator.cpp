@@ -11,6 +11,7 @@
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLMemoryLayout.h"
 #include "src/sksl/ir/SkSLConstructorArray.h"
+#include "src/sksl/ir/SkSLConstructorArrayCast.h"
 #include "src/sksl/ir/SkSLConstructorCompoundCast.h"
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
 #include "src/sksl/ir/SkSLConstructorMatrixResize.h"
@@ -124,6 +125,9 @@ void MetalCodeGenerator::writeExpression(const Expression& expr, Precedence pare
         case Expression::Kind::kConstructorArray:
         case Expression::Kind::kConstructorStruct:
             this->writeAnyConstructor(expr.asAnyConstructor(), "{", "}", parentPrecedence);
+            break;
+        case Expression::Kind::kConstructorArrayCast:
+            this->writeExpression(*expr.as<ConstructorArrayCast>().argument(), parentPrecedence);
             break;
         case Expression::Kind::kConstructorCompound:
             this->writeConstructorCompound(expr.as<ConstructorCompound>(), parentPrecedence);
@@ -1338,8 +1342,8 @@ void MetalCodeGenerator::writeArrayEqualityHelpers(const Type& type) {
     auto [iter, wasInserted] = fHelpers.insert("ArrayEquality []");
     if (wasInserted) {
         fExtraFunctions.writeText(R"(
-template <typename T, size_t N>
-bool operator==(thread const array<T, N>& left, thread const array<T, N>& right) {
+template <typename T1, typename T2, size_t N>
+bool operator==(thread const array<T1, N>& left, thread const array<T2, N>& right) {
     for (size_t index = 0; index < N; ++index) {
         if (!(left[index] == right[index])) {
             return false;
@@ -1348,8 +1352,8 @@ bool operator==(thread const array<T, N>& left, thread const array<T, N>& right)
     return true;
 }
 
-template <typename T, size_t N>
-bool operator!=(thread const array<T, N>& left, thread const array<T, N>& right) {
+template <typename T1, typename T2, size_t N>
+bool operator!=(thread const array<T1, N>& left, thread const array<T2, N>& right) {
     return !(left == right);
 }
 )");
@@ -2403,6 +2407,7 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Expressi
         case Expression::Kind::kConstructorCompound:
         case Expression::Kind::kConstructorCompoundCast:
         case Expression::Kind::kConstructorArray:
+        case Expression::Kind::kConstructorArrayCast:
         case Expression::Kind::kConstructorDiagonalMatrix:
         case Expression::Kind::kConstructorScalarCast:
         case Expression::Kind::kConstructorSplat:

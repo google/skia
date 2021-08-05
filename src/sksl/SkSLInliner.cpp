@@ -18,6 +18,7 @@
 #include "src/sksl/ir/SkSLBreakStatement.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorArray.h"
+#include "src/sksl/ir/SkSLConstructorArrayCast.h"
 #include "src/sksl/ir/SkSLConstructorCompound.h"
 #include "src/sksl/ir/SkSLConstructorCompoundCast.h"
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
@@ -315,6 +316,12 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
             return ConstructorArray::Make(*fContext, offset,
                                           *ctor.type().clone(symbolTableForExpression),
                                           argList(ctor.arguments()));
+        }
+        case Expression::Kind::kConstructorArrayCast: {
+            const ConstructorArrayCast& ctor = expression.as<ConstructorArrayCast>();
+            return ConstructorArrayCast::Make(*fContext, offset,
+                                              *ctor.type().clone(symbolTableForExpression),
+                                              expr(ctor.argument()));
         }
         case Expression::Kind::kConstructorCompound: {
             const ConstructorCompound& ctor = expression.as<ConstructorCompound>();
@@ -952,6 +959,7 @@ public:
                 break;
             }
             case Expression::Kind::kConstructorArray:
+            case Expression::Kind::kConstructorArrayCast:
             case Expression::Kind::kConstructorCompound:
             case Expression::Kind::kConstructorCompoundCast:
             case Expression::Kind::kConstructorDiagonalMatrix:

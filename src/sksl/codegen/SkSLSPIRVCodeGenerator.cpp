@@ -14,6 +14,7 @@
 #include "src/sksl/SkSLOperators.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/ir/SkSLBlock.h"
+#include "src/sksl/ir/SkSLConstructorArrayCast.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLExtension.h"
 #include "src/sksl/ir/SkSLField.h"
@@ -721,6 +722,8 @@ SpvId SPIRVCodeGenerator::writeExpression(const Expression& expr, OutputStream& 
             return this->writeBinaryExpression(expr.as<BinaryExpression>(), out);
         case Expression::Kind::kBoolLiteral:
             return this->writeBoolLiteral(expr.as<BoolLiteral>());
+        case Expression::Kind::kConstructorArrayCast:
+            return this->writeExpression(*expr.as<ConstructorArrayCast>().argument(), out);
         case Expression::Kind::kConstructorArray:
         case Expression::Kind::kConstructorStruct:
             return this->writeCompositeConstructor(expr.asAnyConstructor(), out);

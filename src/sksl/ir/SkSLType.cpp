@@ -10,6 +10,7 @@
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/ir/SkSLConstructor.h"
+#include "src/sksl/ir/SkSLConstructorArrayCast.h"
 #include "src/sksl/ir/SkSLConstructorCompoundCast.h"
 #include "src/sksl/ir/SkSLConstructorScalarCast.h"
 #include "src/sksl/ir/SkSLFunctionReference.h"
@@ -407,17 +408,16 @@ CoercionCost Type::coercionCost(const Type& other) const {
     if (*this == other) {
         return CoercionCost::Free();
     }
-    if (this->isVector() && other.isVector()) {
-        if (this->columns() == other.columns()) {
-            return this->componentType().coercionCost(other.componentType());
+    if (this->typeKind() == other.typeKind() &&
+        (this->isVector() || this->isMatrix() || this->isArray())) {
+        // Vectors/matrices/arrays of the same size can be coerced if their component type can be.
+        if (this->isMatrix() && (this->rows() != other.rows())) {
+            return CoercionCost::Impossible();
         }
-        return CoercionCost::Impossible();
-    }
-    if (this->isMatrix()) {
-        if (this->columns() == other.columns() && this->rows() == other.rows()) {
-            return this->componentType().coercionCost(other.componentType());
+        if (this->columns() != other.columns()) {
+            return CoercionCost::Impossible();
         }
-        return CoercionCost::Impossible();
+        return this->componentType().coercionCost(other.componentType());
     }
     if (this->isNumber() && other.isNumber()) {
         if (this->isLiteral() && this->isInteger()) {
@@ -702,6 +702,9 @@ std::unique_ptr<Expression> Type::coerceExpression(std::unique_ptr<Expression> e
     }
     if (this->isVector() || this->isMatrix()) {
         return ConstructorCompoundCast::Make(context, offset, *this, std::move(expr));
+    }
+    if (this->isArray()) {
+        return ConstructorArrayCast::Make(context, offset, *this, std::move(expr));
     }
     context.fErrors.error(offset, "cannot construct '" + this->displayName() + "'");
     return nullptr;

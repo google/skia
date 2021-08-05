@@ -31,6 +31,7 @@ public:
         kBoolLiteral,
         kCodeString,
         kConstructorArray,
+        kConstructorArrayCast,
         kConstructorCompound,
         kConstructorCompoundCast,
         kConstructorDiagonalMatrix,

@@ -61,7 +61,7 @@ static std::unique_ptr<Expression> cast_constant_composite(const Context& contex
     }
 
     return ConstructorCompound::Make(context, constCtor->fOffset, destType,
-                                      std::move(typecastArgs));
+                                     std::move(typecastArgs));
 }
 
 std::unique_ptr<Expression> ConstructorCompoundCast::Make(const Context& context,

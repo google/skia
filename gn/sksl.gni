@@ -107,6 +107,8 @@ skia_sksl_sources = [
   "$_src/sksl/ir/SkSLConstructor.h",
   "$_src/sksl/ir/SkSLConstructorArray.cpp",
   "$_src/sksl/ir/SkSLConstructorArray.h",
+  "$_src/sksl/ir/SkSLConstructorArrayCast.cpp",
+  "$_src/sksl/ir/SkSLConstructorArrayCast.h",
   "$_src/sksl/ir/SkSLConstructorCompound.cpp",
   "$_src/sksl/ir/SkSLConstructorCompound.h",
   "$_src/sksl/ir/SkSLConstructorCompoundCast.cpp",

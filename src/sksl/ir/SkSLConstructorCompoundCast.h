@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef SKSL_CONSTRUCTOR_VECTOR_CAST
-#define SKSL_CONSTRUCTOR_VECTOR_CAST
+#ifndef SKSL_CONSTRUCTOR_COMPOUND_CAST
+#define SKSL_CONSTRUCTOR_COMPOUND_CAST
 
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/ir/SkSLConstructor.h"

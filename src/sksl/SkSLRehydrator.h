@@ -52,6 +52,7 @@ public:
         kBuiltinLayout_Command,
         // (All constructors) Type type, uint8 argCount, Expression[] arguments
         kConstructorArray_Command,
+        kConstructorArrayCast_Command,
         kConstructorCompound_Command,
         kConstructorCompoundCast_Command,
         kConstructorDiagonalMatrix_Command,

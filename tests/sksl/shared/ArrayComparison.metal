@@ -15,8 +15,8 @@ struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
 
-template <typename T, size_t N>
-bool operator==(thread const array<T, N>& left, thread const array<T, N>& right) {
+template <typename T1, typename T2, size_t N>
+bool operator==(thread const array<T1, N>& left, thread const array<T2, N>& right) {
     for (size_t index = 0; index < N; ++index) {
         if (!(left[index] == right[index])) {
             return false;
@@ -25,8 +25,8 @@ bool operator==(thread const array<T, N>& left, thread const array<T, N>& right)
     return true;
 }
 
-template <typename T, size_t N>
-bool operator!=(thread const array<T, N>& left, thread const array<T, N>& right) {
+template <typename T1, typename T2, size_t N>
+bool operator!=(thread const array<T1, N>& left, thread const array<T2, N>& right) {
     return !(left == right);
 }
 thread bool operator==(thread const S& left, thread const S& right) {
