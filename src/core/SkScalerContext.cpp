@@ -189,7 +189,8 @@ SkGlyph SkScalerContext::internalMakeGlyph(SkPackedGlyphID packedID, SkMask::For
         generateMetrics(&glyph);
     } else {
         SkPath devPath;
-        generatingImageFromPath = this->internalGetPath(glyph.getPackedID(), &devPath);
+        bool hairline;
+        generatingImageFromPath = this->internalGetPath(glyph.getPackedID(), &devPath, &hairline);
         if (!generatingImageFromPath) {
             generateMetrics(&glyph);
         } else {
@@ -217,10 +218,8 @@ SkGlyph SkScalerContext::internalMakeGlyph(SkPackedGlyphID packedID, SkMask::For
             const bool notEmptyAndFromLCD = 0 < glyph.fWidth && fromLCD;
             const bool verticalLCD = fRec.fFlags & SkScalerContext::kLCD_Vertical_Flag;
 
-            const bool hasHairline = fRec.fFrameWidth == 0;
-
-            const bool needExtraWidth  = (notEmptyAndFromLCD && !verticalLCD) || hasHairline;
-            const bool needExtraHeight = (notEmptyAndFromLCD &&  verticalLCD) || hasHairline;
+            const bool needExtraWidth  = (notEmptyAndFromLCD && !verticalLCD) || hairline;
+            const bool needExtraHeight = (notEmptyAndFromLCD &&  verticalLCD) || hairline;
             if (needExtraWidth) {
                 glyph.fWidth += 2;
                 glyph.fLeft -= 1;
@@ -455,7 +454,7 @@ static void packA8ToA1(const SkMask& mask, const uint8_t* src, size_t srcRB) {
 static void generateMask(const SkMask& mask, const SkPath& path,
                          const SkMaskGamma::PreBlend& maskPreBlend,
                          const bool doBGR, const bool doVert, const bool a8FromLCD,
-                         const SkPaint::Style paintStyle) {
+                         const bool hairline) {
     SkASSERT(mask.fFormat == SkMask::kBW_Format ||
              mask.fFormat == SkMask::kA8_Format ||
              mask.fFormat == SkMask::kLCD16_Format);
@@ -473,7 +472,7 @@ static void generateMask(const SkMask& mask, const SkPath& path,
     matrix.setTranslate(-SkIntToScalar(mask.fBounds.fLeft),
                         -SkIntToScalar(mask.fBounds.fTop));
 
-    paint.setStyle(paintStyle);
+    paint.setStroke(hairline);
     paint.setAntiAlias(SkMask::kBW_Format != mask.fFormat);
 
     const bool fromLCD = (mask.fFormat == SkMask::kLCD16_Format) ||
@@ -495,8 +494,8 @@ static void generateMask(const SkMask& mask, const SkPath& path,
 
         // LCD hairline doesn't line up with the pixels, so do it the expensive way.
         SkStrokeRec rec(SkStrokeRec::kFill_InitStyle);
-        if (paintStyle != SkPaint::kFill_Style) {
-            rec.setStrokeStyle(1.0f, paintStyle == SkPaint::kStrokeAndFill_Style);
+        if (hairline) {
+            rec.setStrokeStyle(1.0f, false);
             rec.setStrokeParams(SkPaint::kButt_Cap, SkPaint::kRound_Join, 0.0f);
         }
         if (rec.needToApply() && rec.applyToPath(&strokePath, path)) {
@@ -577,8 +576,9 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
     } else {
         SkPath devPath;
         SkMask mask = unfilteredGlyph->mask();
+        bool hairline;
 
-        if (!this->internalGetPath(unfilteredGlyph->getPackedID(), &devPath)) {
+        if (!this->internalGetPath(unfilteredGlyph->getPackedID(), &devPath, &hairline)) {
             generateImage(*unfilteredGlyph);
         } else {
             SkASSERT(SkMask::kARGB32_Format != origGlyph.fMaskFormat);
@@ -586,11 +586,7 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
             const bool doBGR = SkToBool(fRec.fFlags & SkScalerContext::kLCD_BGROrder_Flag);
             const bool doVert = SkToBool(fRec.fFlags & SkScalerContext::kLCD_Vertical_Flag);
             const bool a8LCD = SkToBool(fRec.fFlags & SkScalerContext::kGenA8FromLCD_Flag);
-            const bool frameAndFill = SkToBool(fRec.fFlags & kFrameAndFill_Flag);
-            const SkPaint::Style paintStyle = fRec.fFrameWidth != 0 ? SkPaint::kFill_Style
-                                            : frameAndFill          ? SkPaint::kStrokeAndFill_Style
-                                            :                         SkPaint::kStroke_Style;
-            generateMask(mask, devPath, fPreBlend, doBGR, doVert, a8LCD, paintStyle);
+            generateMask(mask, devPath, fPreBlend, doBGR, doVert, a8LCD, hairline);
         }
     }
 
@@ -691,7 +687,9 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
 }
 
 bool SkScalerContext::getPath(SkPackedGlyphID glyphID, SkPath* path) {
-    return this->internalGetPath(glyphID, path);
+    // TODO: return hairline so user knows to stroke.
+    // Most users get the fill path without path effect and then draw that, so don't need this.
+    return this->internalGetPath(glyphID, path, nullptr);
 }
 
 void SkScalerContext::getFontMetrics(SkFontMetrics* fm) {
@@ -701,7 +699,7 @@ void SkScalerContext::getFontMetrics(SkFontMetrics* fm) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkScalerContext::internalGetPath(SkPackedGlyphID glyphID, SkPath* devPath) {
+bool SkScalerContext::internalGetPath(SkPackedGlyphID glyphID, SkPath* devPath, bool* hairline) {
     SkPath  path;
     if (!generatePath(glyphID.glyphID(), &path)) {
         return false;
@@ -713,6 +711,10 @@ bool SkScalerContext::internalGetPath(SkPackedGlyphID glyphID, SkPath* devPath) 
         if (dx | dy) {
             path.offset(SkFixedToScalar(dx), SkFixedToScalar(dy));
         }
+    }
+
+    if (hairline) {
+        *hairline = false;
     }
 
     if (fRec.fFrameWidth >= 0 || fPathEffect != nullptr) {
@@ -733,7 +735,7 @@ bool SkScalerContext::internalGetPath(SkPackedGlyphID glyphID, SkPath* devPath) 
 
         SkStrokeRec rec(SkStrokeRec::kFill_InitStyle);
 
-        if (fRec.fFrameWidth >= 0) {
+        if (fRec.fFrameWidth > 0) {
             rec.setStrokeStyle(fRec.fFrameWidth,
                                SkToBool(fRec.fFlags & kFrameAndFill_Flag));
             // glyphs are always closed contours, so cap type is ignored,
@@ -755,6 +757,11 @@ bool SkScalerContext::internalGetPath(SkPackedGlyphID glyphID, SkPath* devPath) 
             if (rec.applyToPath(&strokePath, localPath)) {
                 localPath.swap(strokePath);
             }
+        }
+
+        // The path effect may have modified 'rec', so wait to here to check hairline status.
+        if (hairline && rec.isHairlineStyle()) {
+            *hairline = true;
         }
 
         // now return stuff to the caller
