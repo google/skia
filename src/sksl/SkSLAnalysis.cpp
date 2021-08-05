@@ -684,26 +684,30 @@ bool Analysis::DetectStaticRecursion(SkSpan<std::unique_ptr<ProgramElement>> pro
     private:
         bool dfsHelper(Function* fn) {
             SkASSERT(std::find(fStack.begin(), fStack.end(), fn) == fStack.end());
-            fStack.push_back(fn);
 
-            const CallSet& calls = (*fCallGraph)[fn];
-            for (Function* calledFn : calls) {
-                auto it = std::find(fStack.begin(), fStack.end(), calledFn);
-                if (it != fStack.end()) {
-                    // Cycle detected. It includes the functions from 'it' to the end of fStack
-                    fStack.erase(fStack.begin(), it);
-                    return true;
+            auto iter = fCallGraph->find(fn);
+            if (iter != fCallGraph->end()) {
+                fStack.push_back(fn);
+
+                for (Function* calledFn : iter->second) {
+                    auto it = std::find(fStack.begin(), fStack.end(), calledFn);
+                    if (it != fStack.end()) {
+                        // Cycle detected. It includes the functions from 'it' to the end of fStack
+                        fStack.erase(fStack.begin(), it);
+                        return true;
+                    }
+                    if (this->dfsHelper(calledFn)) {
+                        return true;
+                    }
                 }
-                if (this->dfsHelper(calledFn)) {
-                    return true;
-                }
+
+                fStack.pop_back();
             }
 
-            fStack.pop_back();
             return false;
         }
 
-        CallGraph*             fCallGraph;
+        const CallGraph*       fCallGraph;
         std::vector<Function*> fStack;
     };
 
