@@ -53,8 +53,10 @@ void SkClipStackDevice::onClipRegion(const SkRegion& rgn, SkClipOp op) {
 }
 
 void SkClipStackDevice::onReplaceClip(const SkIRect& rect) {
-    SkRect deviceRect = SkMatrixPriv::MapRect(this->globalToDevice(), SkRect::Make(rect));
-    fClipStack.replaceClip(deviceRect, /*doAA=*/false);
+    // FIXME When the deprecated clip ops are completely removed, SkClipStack will need to be
+    // updated to have a better way of tracking replacement.
+    fClipStack.clipRect(SkRect::Make(rect), this->globalToDevice().asM33(),
+                        kReplace_SkClipOp, false);
 }
 
 void SkClipStackDevice::onSetDeviceClipRestriction(SkIRect* clipRestriction) {
