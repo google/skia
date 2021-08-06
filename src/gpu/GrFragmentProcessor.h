@@ -316,38 +316,6 @@ public:
     SkString dumpTreeInfo() const;
 #endif
 
-    // A pre-order traversal iterator over a hierarchy of FPs. It can also iterate over all the FP
-    // hierarchies rooted in a GrPaint, GrProcessorSet, or GrPipeline. For these collections it
-    // iterates the tree rooted at each color FP and then each coverage FP.
-    //
-    // An iterator is constructed from one of the srcs and used like this:
-    //   for (GrFragmentProcessor::Iter iter(pipeline); iter; ++iter) {
-    //       GrFragmentProcessor& fp = *iter;
-    //   }
-    // The exit test for the loop is using CIter's operator bool().
-    // To use a range-for loop instead see CIterRange below.
-    class CIter;
-
-    // Used to implement a range-for loop using CIter. Src is one of GrFragmentProcessor,
-    // GrPaint, GrProcessorSet, or GrPipeline. Type aliases for these defined below.
-    // Example usage:
-    //   for (const auto& fp : GrFragmentProcessor::PaintRange(paint)) {
-    //       if (fp.usesLocalCoords()) {
-    //       ...
-    //       }
-    //   }
-    template <typename Src> class CIterRange;
-
-    // We would use template deduction guides for CIter but for:
-    // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=79501
-    // Instead we use these specialized type aliases to make it prettier
-    // to construct CIters for particular sources of FPs.
-    using FPRange = CIterRange<GrFragmentProcessor>;
-    using PaintRange = CIterRange<GrPaint>;
-
-    // Sentinel type for range-for using CIter.
-    class EndCIter {};
-
 protected:
     enum OptimizationFlags : uint32_t {
         kNone_OptimizationFlags,
