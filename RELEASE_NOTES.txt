@@ -10,6 +10,9 @@ Milestone 94
     expanding clip ops guarded by SK_SUPPORT_DEPRECATED_CLIPOPS.
     https://review.skia.org/430897
 
+  * Removed SK_SUPPORT_DEPRECATED_CLIPOPS build flag. Clips can only be intersect and difference.
+    https://review.skia.org/436565
+
 * * *
 
 Milestone 93

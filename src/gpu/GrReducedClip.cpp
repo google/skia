@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "src/core/SkClipOpPriv.h"
 #include "src/gpu/GrAppliedClip.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrColor.h"
@@ -188,7 +187,6 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
         }
 
         bool skippable = false;
-        bool isFlip = false; // does this op just flip the in/out state of every point in the bounds
 
         switch (element->getRegionOp()) {
             case SkRegion::kDifference_Op:
@@ -260,76 +258,6 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
                     emsmallens = true;
                 }
                 break;
-            case SkRegion::kUnion_Op:
-                // If the union-ed shape contains the entire bounds then after this element
-                // the bounds is entirely inside the clip. If the union-ed shape is outside the
-                // bounds then this op can be skipped.
-                if (element->isInverseFilled()) {
-                    if (element->contains(relaxedQueryBounds)) {
-                        skippable = true;
-                    } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
-                        initialTriState = InitialTriState::kAllIn;
-                        skippable = true;
-                    }
-                } else {
-                    if (element->contains(relaxedQueryBounds)) {
-                        initialTriState = InitialTriState::kAllIn;
-                        skippable = true;
-                    } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
-                        skippable = true;
-                    }
-                }
-                if (!skippable) {
-                    embiggens = true;
-                }
-                break;
-            case SkRegion::kXOR_Op:
-                // If the bounds is entirely inside the shape being xor-ed then the effect is
-                // to flip the inside/outside state of every point in the bounds. We may be
-                // able to take advantage of this in the forward pass. If the xor-ed shape
-                // doesn't intersect the bounds then it can be skipped.
-                if (element->isInverseFilled()) {
-                    if (element->contains(relaxedQueryBounds)) {
-                        skippable = true;
-                    } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
-                        isFlip = true;
-                    }
-                } else {
-                    if (element->contains(relaxedQueryBounds)) {
-                        isFlip = true;
-                    } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
-                        skippable = true;
-                    }
-                }
-                if (!skippable) {
-                    emsmallens = embiggens = true;
-                }
-                break;
-            case SkRegion::kReverseDifference_Op:
-                // When the bounds is entirely within the rev-diff shape then this behaves like xor
-                // and reverses every point inside the bounds. If the shape is completely outside
-                // the bounds then we know after this element is applied that the bounds will be
-                // all outside the current clip.B
-                if (element->isInverseFilled()) {
-                    if (element->contains(relaxedQueryBounds)) {
-                        initialTriState = InitialTriState::kAllOut;
-                        skippable = true;
-                    } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
-                        isFlip = true;
-                    }
-                } else {
-                    if (element->contains(relaxedQueryBounds)) {
-                        isFlip = true;
-                    } else if (GrClip::IsOutsideClip(element->getBounds(), queryBounds)) {
-                        initialTriState = InitialTriState::kAllOut;
-                        skippable = true;
-                    }
-                }
-                if (!skippable) {
-                    emsmallens = embiggens = true;
-                }
-                break;
-
             case SkRegion::kReplace_Op:
                 // Replace will always terminate our walk. We will either begin the forward walk
                 // at the replace op or detect here than the shape is either completely inside
@@ -385,29 +313,21 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
                 fMaskGenID = element->getGenID();
             }
 
-            // if it is a flip, change it to a bounds-filling rect
-            if (isFlip) {
-                SkASSERT(kXOR_SkClipOp == element->getOp() ||
-                         kReverseDifference_SkClipOp == element->getOp());
-                fMaskElements.addToHead(SkRect::Make(fScissor), SkMatrix::I(),
-                                        kReverseDifference_SkClipOp, false);
-            } else {
-                Element* newElement = fMaskElements.addToHead(*element);
-                if (newElement->isAA()) {
-                    ++numAAElements;
-                }
-                // Intersecting an inverse shape is the same as differencing the non-inverse shape.
-                // Replacing with an inverse shape is the same as setting initialState=kAllIn and
-                // differencing the non-inverse shape.
-                bool isReplace = newElement->isReplaceOp();
-                if (newElement->isInverseFilled() &&
-                    (SkClipOp::kIntersect == newElement->getOp() || isReplace)) {
-                    newElement->invertShapeFillType();
-                    newElement->setOp(SkClipOp::kDifference);
-                    if (isReplace) {
-                        SkASSERT(InitialTriState::kAllOut == initialTriState);
-                        initialTriState = InitialTriState::kAllIn;
-                    }
+            Element* newElement = fMaskElements.addToHead(*element);
+            if (newElement->isAA()) {
+                ++numAAElements;
+            }
+            // Intersecting an inverse shape is the same as differencing the non-inverse shape.
+            // Replacing with an inverse shape is the same as setting initialState=kAllIn and
+            // differencing the non-inverse shape.
+            bool isReplace = newElement->isReplaceOp();
+            if (newElement->isInverseFilled() &&
+                (SkClipOp::kIntersect == newElement->getOp() || isReplace)) {
+                newElement->invertShapeFillType();
+                newElement->setOp(SkClipOp::kDifference);
+                if (isReplace) {
+                    SkASSERT(InitialTriState::kAllOut == initialTriState);
+                    initialTriState = InitialTriState::kAllIn;
                 }
             }
         }
@@ -421,60 +341,28 @@ void GrReducedClip::walkStack(const SkClipStack& stack, const SkRect& queryBound
         Element* element = fMaskElements.headIter().get();
         while (element) {
             bool skippable = false;
-            switch (element->getRegionOp()) {
-                case SkRegion::kDifference_Op:
-                    // subtracting from the empty set yields the empty set.
-                    skippable = InitialTriState::kAllOut == initialTriState;
-                    break;
-                case SkRegion::kIntersect_Op:
-                    // intersecting with the empty set yields the empty set
-                    if (InitialTriState::kAllOut == initialTriState) {
-                        skippable = true;
-                    } else {
-                        // We can clear to zero and then simply draw the clip element.
-                        initialTriState = InitialTriState::kAllOut;
-                        element->setReplaceOp();
-                    }
-                    break;
-                case SkRegion::kUnion_Op:
-                    if (InitialTriState::kAllIn == initialTriState) {
-                        // unioning the infinite plane with anything is a no-op.
-                        skippable = true;
-                    } else {
-                        // unioning the empty set with a shape is the shape.
-                        element->setReplaceOp();
-                    }
-                    break;
-                case SkRegion::kXOR_Op:
-                    if (InitialTriState::kAllOut == initialTriState) {
-                        // xor could be changed to diff in the kAllIn case, not sure it's a win.
-                        element->setReplaceOp();
-                    }
-                    break;
-                case SkRegion::kReverseDifference_Op:
-                    if (InitialTriState::kAllIn == initialTriState) {
-                        // subtracting the whole plane will yield the empty set.
-                        skippable = true;
-                        initialTriState = InitialTriState::kAllOut;
-                    } else {
-                        // this picks up flips inserted in the backwards pass.
-                        skippable = element->isInverseFilled() ?
-                            GrClip::IsOutsideClip(element->getBounds(), queryBounds) :
-                            element->contains(relaxedQueryBounds);
-                        if (skippable) {
-                            initialTriState = InitialTriState::kAllIn;
+            // Only check non-replace ops since we would have skipped the replace on backwards walk
+            // if we could have.
+            if (!element->isReplaceOp()) {
+                switch (element->getOp()) {
+                    case SkClipOp::kDifference:
+                        // subtracting from the empty set yields the empty set.
+                        skippable = InitialTriState::kAllOut == initialTriState;
+                        break;
+                    case SkClipOp::kIntersect:
+                        // intersecting with the empty set yields the empty set
+                        if (InitialTriState::kAllOut == initialTriState) {
+                            skippable = true;
                         } else {
+                            // We can clear to zero and then simply draw the clip element.
+                            initialTriState = InitialTriState::kAllOut;
                             element->setReplaceOp();
                         }
-                    }
-                    break;
-                case SkRegion::kReplace_Op:
-                    skippable = false; // we would have skipped it in the backwards walk if we
-                                       // could've.
-                    break;
-                default:
-                    SkDEBUGFAIL("Unexpected op.");
-                    break;
+                        break;
+                    default:
+                        SkDEBUGFAIL("Unexpected op.");
+                        break;
+                }
             }
             if (!skippable) {
                 break;

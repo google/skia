@@ -80,7 +80,7 @@ protected:
 
 private:
     void handleOptimization(int opt);
-    size_t recordRestoreOffsetPlaceholder(SkClipOp);
+    size_t recordRestoreOffsetPlaceholder();
     void fillRestoreOffsetPlaceholdersForCurrentStackLevel(uint32_t restoreOffset);
 
     SkTDArray<int32_t> fRestoreOffsetStack;

@@ -12,7 +12,6 @@
 #include "include/core/SkTextBlob.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkCanvasPriv.h"
-#include "src/core/SkClipOpPriv.h"
 #include "src/core/SkDrawShadowInfo.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkSamplingPriv.h"
@@ -254,22 +253,6 @@ void SkPictureRecord::recordConcat(const SkMatrix& matrix) {
     this->validate(initialOffset, size);
 }
 
-static bool clipOpExpands(SkClipOp op) {
-    switch (op) {
-        case kUnion_SkClipOp:
-        case kXOR_SkClipOp:
-        case kReverseDifference_SkClipOp:
-        case kReplace_SkClipOp:
-            return true;
-        case kIntersect_SkClipOp:
-        case kDifference_SkClipOp:
-            return false;
-        default:
-            SkDEBUGFAIL("unknown clipop");
-            return false;
-    }
-}
-
 void SkPictureRecord::fillRestoreOffsetPlaceholdersForCurrentStackLevel(uint32_t restoreOffset) {
     int32_t offset = fRestoreOffsetStack.top();
     while (offset > 0) {
@@ -301,7 +284,7 @@ void SkPictureRecord::endRecording() {
     this->restoreToCount(fInitialSaveCount);
 }
 
-size_t SkPictureRecord::recordRestoreOffsetPlaceholder(SkClipOp op) {
+size_t SkPictureRecord::recordRestoreOffsetPlaceholder() {
     if (fRestoreOffsetStack.isEmpty()) {
         return -1;
     }
@@ -312,18 +295,6 @@ size_t SkPictureRecord::recordRestoreOffsetPlaceholder(SkClipOp op) {
     // the restore offsets can be filled in when the corresponding
     // restore command is recorded.
     int32_t prevOffset = fRestoreOffsetStack.top();
-
-    if (clipOpExpands(op)) {
-        // Run back through any previous clip ops, and mark their offset to
-        // be 0, disabling their ability to trigger a jump-to-restore, otherwise
-        // they could hide this clips ability to expand the clip (i.e. go from
-        // empty to non-empty).
-        this->fillRestoreOffsetPlaceholdersForCurrentStackLevel(0);
-
-        // Reset the pointer back to the previous clip so that subsequent
-        // restores don't overwrite the offsets we just cleared.
-        prevOffset = 0;
-    }
 
     size_t offset = fWriter.bytesWritten();
     this->addInt(prevOffset);
@@ -347,7 +318,7 @@ size_t SkPictureRecord::recordClipRect(const SkRect& rect, SkClipOp op, bool doA
     size_t initialOffset = this->addDraw(CLIP_RECT, &size);
     this->addRect(rect);
     this->addInt(ClipParams_pack(op, doAA));
-    size_t offset = this->recordRestoreOffsetPlaceholder(op);
+    size_t offset = this->recordRestoreOffsetPlaceholder();
 
     this->validate(initialOffset, size);
     return offset;
@@ -369,7 +340,7 @@ size_t SkPictureRecord::recordClipRRect(const SkRRect& rrect, SkClipOp op, bool 
     size_t initialOffset = this->addDraw(CLIP_RRECT, &size);
     this->addRRect(rrect);
     this->addInt(ClipParams_pack(op, doAA));
-    size_t offset = recordRestoreOffsetPlaceholder(op);
+    size_t offset = recordRestoreOffsetPlaceholder();
     this->validate(initialOffset, size);
     return offset;
 }
@@ -391,7 +362,7 @@ size_t SkPictureRecord::recordClipPath(int pathID, SkClipOp op, bool doAA) {
     size_t initialOffset = this->addDraw(CLIP_PATH, &size);
     this->addInt(pathID);
     this->addInt(ClipParams_pack(op, doAA));
-    size_t offset = recordRestoreOffsetPlaceholder(op);
+    size_t offset = recordRestoreOffsetPlaceholder();
     this->validate(initialOffset, size);
     return offset;
 }
@@ -428,13 +399,19 @@ size_t SkPictureRecord::recordClipRegion(const SkRegion& region, SkClipOp op) {
     size_t initialOffset = this->addDraw(CLIP_REGION, &size);
     this->addRegion(region);
     this->addInt(ClipParams_pack(op, false));
-    size_t offset = this->recordRestoreOffsetPlaceholder(op);
+    size_t offset = this->recordRestoreOffsetPlaceholder();
 
     this->validate(initialOffset, size);
     return offset;
 }
 
 void SkPictureRecord::onResetClip() {
+    if (!fRestoreOffsetStack.isEmpty()) {
+        // Run back through any previous clip ops, and mark their offset to
+        // be 0, disabling their ability to trigger a jump-to-restore, otherwise
+        // they could hide this expansion of the clip.
+        this->fillRestoreOffsetPlaceholdersForCurrentStackLevel(0);
+    }
     size_t size = sizeof(kUInt32Size);
     size_t initialOffset = this->addDraw(RESET_CLIP, &size);
     this->validate(initialOffset, size);

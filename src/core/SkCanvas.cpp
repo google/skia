@@ -24,7 +24,6 @@
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkBitmapDevice.h"
 #include "src/core/SkCanvasPriv.h"
-#include "src/core/SkClipOpPriv.h"
 #include "src/core/SkClipStack.h"
 #include "src/core/SkColorFilterBase.h"
 #include "src/core/SkDraw.h"
@@ -2638,12 +2637,8 @@ bool SkNoDrawCanvas::onDoSaveBehind(const SkRect*) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static_assert((int)SkRegion::kDifference_Op         == (int)kDifference_SkClipOp, "");
-static_assert((int)SkRegion::kIntersect_Op          == (int)kIntersect_SkClipOp, "");
-static_assert((int)SkRegion::kUnion_Op              == (int)kUnion_SkClipOp, "");
-static_assert((int)SkRegion::kXOR_Op                == (int)kXOR_SkClipOp, "");
-static_assert((int)SkRegion::kReverseDifference_Op  == (int)kReverseDifference_SkClipOp, "");
-static_assert((int)SkRegion::kReplace_Op            == (int)kReplace_SkClipOp, "");
+static_assert((int)SkRegion::kDifference_Op == (int)SkClipOp::kDifference, "");
+static_assert((int)SkRegion::kIntersect_Op  == (int)SkClipOp::kIntersect, "");
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 

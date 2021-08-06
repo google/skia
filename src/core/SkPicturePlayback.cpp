@@ -79,6 +79,27 @@ static void validate_offsetToRestore(SkReadBuffer* reader, size_t offsetToRestor
     }
 }
 
+static bool do_clip_op(SkReadBuffer* reader, SkCanvas* canvas, SkRegion::Op op,
+                       SkClipOp* clipOpToUse) {
+    switch(op) {
+        case SkRegion::kDifference_Op:
+        case SkRegion::kIntersect_Op:
+            // Fully supported, identity mapping between SkClipOp and Region::Op
+            *clipOpToUse = static_cast<SkClipOp>(op);
+            return true;
+        case SkRegion::kReplace_Op:
+            // Emulate the replace by resetting first and following it up with an intersect
+            SkASSERT(reader->isVersionLT(SkPicturePriv::kNoExpandingClipOps));
+            SkCanvasPriv::ResetClip(canvas);
+            *clipOpToUse = SkClipOp::kIntersect;
+            return true;
+        default:
+            // An expanding clip op, which if encountered on an old SKP, we just silently ignore
+            SkASSERT(reader->isVersionLT(SkPicturePriv::kNoExpandingClipOps));
+            return false;
+    }
+}
+
 void SkPicturePlayback::handleOp(SkReadBuffer* reader,
                                  DrawType op,
                                  uint32_t size,
@@ -97,13 +118,16 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
         case CLIP_PATH: {
             const SkPath& path = fPictureData->getPath(reader);
             uint32_t packed = reader->readInt();
-            SkClipOp clipOp = ClipParams_unpackRegionOp(reader, packed);
+            SkRegion::Op rgnOp = ClipParams_unpackRegionOp(reader, packed);
             bool doAA = ClipParams_unpackDoAA(packed);
             size_t offsetToRestore = reader->readInt();
             validate_offsetToRestore(reader, offsetToRestore);
             BREAK_ON_READ_ERROR(reader);
 
-            canvas->clipPath(path, clipOp, doAA);
+            SkClipOp clipOp;
+            if (do_clip_op(reader, canvas, rgnOp, &clipOp)) {
+                canvas->clipPath(path, clipOp, doAA);
+            }
             if (canvas->isClipEmpty() && offsetToRestore) {
                 reader->skip(offsetToRestore - reader->offset());
             }
@@ -112,12 +136,15 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             SkRegion region;
             reader->readRegion(&region);
             uint32_t packed = reader->readInt();
-            SkClipOp clipOp = ClipParams_unpackRegionOp(reader, packed);
+            SkRegion::Op rgnOp = ClipParams_unpackRegionOp(reader, packed);
             size_t offsetToRestore = reader->readInt();
             validate_offsetToRestore(reader, offsetToRestore);
             BREAK_ON_READ_ERROR(reader);
 
-            canvas->clipRegion(region, clipOp);
+            SkClipOp clipOp;
+            if (do_clip_op(reader, canvas, rgnOp, &clipOp)) {
+                canvas->clipRegion(region, clipOp);
+            }
             if (canvas->isClipEmpty() && offsetToRestore) {
                 reader->skip(offsetToRestore - reader->offset());
             }
@@ -126,13 +153,16 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             SkRect rect;
             reader->readRect(&rect);
             uint32_t packed = reader->readInt();
-            SkClipOp clipOp = ClipParams_unpackRegionOp(reader, packed);
+            SkRegion::Op rgnOp = ClipParams_unpackRegionOp(reader, packed);
             bool doAA = ClipParams_unpackDoAA(packed);
             size_t offsetToRestore = reader->readInt();
             validate_offsetToRestore(reader, offsetToRestore);
             BREAK_ON_READ_ERROR(reader);
 
-            canvas->clipRect(rect, clipOp, doAA);
+            SkClipOp clipOp;
+            if (do_clip_op(reader, canvas, rgnOp, &clipOp)) {
+                canvas->clipRect(rect, clipOp, doAA);
+            }
             if (canvas->isClipEmpty() && offsetToRestore) {
                 reader->skip(offsetToRestore - reader->offset());
             }
@@ -141,25 +171,33 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             SkRRect rrect;
             reader->readRRect(&rrect);
             uint32_t packed = reader->readInt();
-            SkClipOp clipOp = ClipParams_unpackRegionOp(reader, packed);
+            SkRegion::Op rgnOp = ClipParams_unpackRegionOp(reader, packed);
             bool doAA = ClipParams_unpackDoAA(packed);
             size_t offsetToRestore = reader->readInt();
             validate_offsetToRestore(reader, offsetToRestore);
             BREAK_ON_READ_ERROR(reader);
 
-            canvas->clipRRect(rrect, clipOp, doAA);
+            SkClipOp clipOp;
+            if (do_clip_op(reader, canvas, rgnOp, &clipOp)) {
+                canvas->clipRRect(rrect, clipOp, doAA);
+            }
             if (canvas->isClipEmpty() && offsetToRestore) {
                 reader->skip(offsetToRestore - reader->offset());
             }
         } break;
         case CLIP_SHADER_IN_PAINT: {
             const SkPaint& paint = fPictureData->requiredPaint(reader);
+            // clipShader() was never used in conjunction with deprecated, expanding clip ops, so
+            // it requires the op to just be intersect or difference.
             SkClipOp clipOp = reader->checkRange(SkClipOp::kDifference, SkClipOp::kIntersect);
             BREAK_ON_READ_ERROR(reader);
 
             canvas->clipShader(paint.refShader(), clipOp);
         } break;
         case RESET_CLIP:
+            // For Android, an emulated "replace" clip op appears as a manual reset followed by
+            // an intersect operation (equivalent to the above handling of replace ops encountered
+            // in old serialized pictures).
             SkCanvasPriv::ResetClip(canvas);
             break;
         case PUSH_CULL: break;  // Deprecated, safe to ignore both push and pop.

@@ -20,7 +20,6 @@
 #include "include/private/SkTHash.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkCanvasPriv.h"
-#include "src/core/SkClipOpPriv.h"
 #include "src/core/SkLatticeIter.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkPaintDefaults.h"
@@ -150,12 +149,8 @@ class GrDirectContext;
 #define DEBUGCANVAS_POINTMODE_LINES "lines"
 #define DEBUGCANVAS_POINTMODE_POLYGON "polygon"
 
-#define DEBUGCANVAS_REGIONOP_DIFFERENCE "difference"
-#define DEBUGCANVAS_REGIONOP_INTERSECT "intersect"
-#define DEBUGCANVAS_REGIONOP_UNION "union"
-#define DEBUGCANVAS_REGIONOP_XOR "xor"
-#define DEBUGCANVAS_REGIONOP_REVERSE_DIFFERENCE "reverseDifference"
-#define DEBUGCANVAS_REGIONOP_REPLACE "replace"
+#define DEBUGCANVAS_CLIPOP_DIFFERENCE "difference"
+#define DEBUGCANVAS_CLIPOP_INTERSECT "intersect"
 
 #define DEBUGCANVAS_BLURSTYLE_NORMAL "normal"
 #define DEBUGCANVAS_BLURSTYLE_SOLID "solid"
@@ -567,14 +562,10 @@ void DrawCommand::MakeJsonRegion(SkJSONWriter& writer, const SkRegion& region) {
     MakeJsonPath(writer, path);
 }
 
-static const char* regionop_name(SkClipOp op) {
+static const char* clipop_name(SkClipOp op) {
     switch (op) {
-        case kDifference_SkClipOp: return DEBUGCANVAS_REGIONOP_DIFFERENCE;
-        case kIntersect_SkClipOp: return DEBUGCANVAS_REGIONOP_INTERSECT;
-        case kUnion_SkClipOp: return DEBUGCANVAS_REGIONOP_UNION;
-        case kXOR_SkClipOp: return DEBUGCANVAS_REGIONOP_XOR;
-        case kReverseDifference_SkClipOp: return DEBUGCANVAS_REGIONOP_REVERSE_DIFFERENCE;
-        case kReplace_SkClipOp: return DEBUGCANVAS_REGIONOP_REPLACE;
+        case SkClipOp::kDifference: return DEBUGCANVAS_CLIPOP_DIFFERENCE;
+        case SkClipOp::kIntersect: return DEBUGCANVAS_CLIPOP_INTERSECT;
         default: SkASSERT(false); return "<invalid region op>";
     }
 }
@@ -1013,7 +1004,7 @@ void ClipPathCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManage
     INHERITED::toJSON(writer, urlDataManager);
     writer.appendName(DEBUGCANVAS_ATTRIBUTE_PATH);
     MakeJsonPath(writer, fPath);
-    writer.appendString(DEBUGCANVAS_ATTRIBUTE_REGIONOP, regionop_name(fOp));
+    writer.appendString(DEBUGCANVAS_ATTRIBUTE_REGIONOP, clipop_name(fOp));
     writer.appendBool(DEBUGCANVAS_ATTRIBUTE_ANTIALIAS, fDoAA);
 }
 
@@ -1029,7 +1020,7 @@ void ClipRegionCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataMana
     INHERITED::toJSON(writer, urlDataManager);
     writer.appendName(DEBUGCANVAS_ATTRIBUTE_REGION);
     MakeJsonRegion(writer, fRegion);
-    writer.appendString(DEBUGCANVAS_ATTRIBUTE_REGIONOP, regionop_name(fOp));
+    writer.appendString(DEBUGCANVAS_ATTRIBUTE_REGIONOP, clipop_name(fOp));
 }
 
 ClipRectCommand::ClipRectCommand(const SkRect& rect, SkClipOp op, bool doAA)
@@ -1045,7 +1036,7 @@ void ClipRectCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManage
     INHERITED::toJSON(writer, urlDataManager);
     writer.appendName(DEBUGCANVAS_ATTRIBUTE_COORDS);
     MakeJsonRect(writer, fRect);
-    writer.appendString(DEBUGCANVAS_ATTRIBUTE_REGIONOP, regionop_name(fOp));
+    writer.appendString(DEBUGCANVAS_ATTRIBUTE_REGIONOP, clipop_name(fOp));
     writer.appendBool(DEBUGCANVAS_ATTRIBUTE_ANTIALIAS, fDoAA);
 
     SkString desc;
@@ -1070,7 +1061,7 @@ void ClipRRectCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManag
     INHERITED::toJSON(writer, urlDataManager);
     writer.appendName(DEBUGCANVAS_ATTRIBUTE_COORDS);
     make_json_rrect(writer, fRRect);
-    writer.appendString(DEBUGCANVAS_ATTRIBUTE_REGIONOP, regionop_name(fOp));
+    writer.appendString(DEBUGCANVAS_ATTRIBUTE_REGIONOP, clipop_name(fOp));
     writer.appendBool(DEBUGCANVAS_ATTRIBUTE_ANTIALIAS, fDoAA);
 }
 
@@ -1092,7 +1083,7 @@ bool ClipShaderCommand::render(SkCanvas* canvas) const {
 void ClipShaderCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const {
     INHERITED::toJSON(writer, urlDataManager);
     apply_flattenable(DEBUGCANVAS_ATTRIBUTE_SHADER, fShader.get(), writer, urlDataManager);
-    writer.appendString(DEBUGCANVAS_ATTRIBUTE_REGIONOP, regionop_name(fOp));
+    writer.appendString(DEBUGCANVAS_ATTRIBUTE_REGIONOP, clipop_name(fOp));
 }
 
 ResetClipCommand::ResetClipCommand() : INHERITED(kResetClip_OpType) {}

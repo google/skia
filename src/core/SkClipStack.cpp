@@ -7,7 +7,6 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPath.h"
-#include "src/core/SkClipOpPriv.h"
 #include "src/core/SkClipStack.h"
 #include "src/core/SkRectPriv.h"
 #include "src/shaders/SkShaderBase.h"
@@ -387,68 +386,6 @@ void SkClipStack::Element::combineBoundsDiff(FillCombo combination, const SkRect
     }
 }
 
-void SkClipStack::Element::combineBoundsXOR(int combination, const SkRect& prevFinite) {
-
-    switch (combination) {
-        case kInvPrev_Cur_FillCombo:       // fall through
-        case kPrev_InvCur_FillCombo:
-            // With only one of the clips inverted the result will always
-            // extend to infinity. The only pixels that may be un-writeable
-            // lie within the union of the two finite bounds
-            fFiniteBound.join(prevFinite);
-            fFiniteBoundType = kInsideOut_BoundsType;
-            break;
-        case kInvPrev_InvCur_FillCombo:
-            // The only pixels that can survive are within the
-            // union of the two bounding boxes since the extensions
-            // to infinity of both clips cancel out
-            [[fallthrough]];
-        case kPrev_Cur_FillCombo:
-            // The most conservative bound for xor is the
-            // union of the two bounds. If the two clips exactly overlapped
-            // the xor could yield the empty set. Similarly the xor
-            // could reduce the size of the original clip's bound (e.g.,
-            // if the second clip exactly matched the bottom half of the
-            // first clip). We ignore these two cases.
-            fFiniteBound.join(prevFinite);
-            fFiniteBoundType = kNormal_BoundsType;
-            break;
-        default:
-            SkDEBUGFAIL("SkClipStack::Element::combineBoundsXOR Invalid fill combination");
-            break;
-    }
-}
-
-// a mirror of combineBoundsIntersection
-void SkClipStack::Element::combineBoundsUnion(int combination, const SkRect& prevFinite) {
-
-    switch (combination) {
-        case kInvPrev_InvCur_FillCombo:
-            if (!fFiniteBound.intersect(prevFinite)) {
-                fFiniteBound.setEmpty();
-                fGenID = kWideOpenGenID;
-            }
-            fFiniteBoundType = kInsideOut_BoundsType;
-            break;
-        case kInvPrev_Cur_FillCombo:
-            // The only pixels that won't be drawable are inside
-            // the prior clip's finite bound
-            fFiniteBound = prevFinite;
-            fFiniteBoundType = kInsideOut_BoundsType;
-            break;
-        case kPrev_InvCur_FillCombo:
-            // The only pixels that won't be drawable are inside
-            // this clip's finite bound
-            break;
-        case kPrev_Cur_FillCombo:
-            fFiniteBound.join(prevFinite);
-            break;
-        default:
-            SkDEBUGFAIL("SkClipStack::Element::combineBoundsUnion Invalid fill combination");
-            break;
-    }
-}
-
 // a mirror of combineBoundsUnion
 void SkClipStack::Element::combineBoundsIntersection(int combination, const SkRect& prevFinite) {
 
@@ -476,41 +413,6 @@ void SkClipStack::Element::combineBoundsIntersection(int combination, const SkRe
             break;
         default:
             SkDEBUGFAIL("SkClipStack::Element::combineBoundsIntersection Invalid fill combination");
-            break;
-    }
-}
-
-// a mirror of combineBoundsDiff
-void SkClipStack::Element::combineBoundsRevDiff(int combination, const SkRect& prevFinite) {
-
-    switch (combination) {
-        case kInvPrev_InvCur_FillCombo:
-            // The only pixels that can survive are in the
-            // previous bound since the extensions to infinity in
-            // both clips cancel out
-            fFiniteBound = prevFinite;
-            fFiniteBoundType = kNormal_BoundsType;
-            break;
-        case kInvPrev_Cur_FillCombo:
-            if (!fFiniteBound.intersect(prevFinite)) {
-                this->setEmpty();
-            } else {
-                fFiniteBoundType = kNormal_BoundsType;
-            }
-            break;
-        case kPrev_InvCur_FillCombo:
-            fFiniteBound.join(prevFinite);
-            fFiniteBoundType = kInsideOut_BoundsType;
-            break;
-        case kPrev_Cur_FillCombo:
-            // Fall through - as with the kDifference_Op case, the
-            // most conservative result bound is the bound of the
-            // current clip. The prior clip could reduce the size of this
-            // bound (as in the kDifference_Op case) but we are ignoring
-            // those cases.
-            break;
-        default:
-            SkDEBUGFAIL("SkClipStack::Element::combineBoundsRevDiff Invalid fill combination");
             break;
     }
 }
@@ -594,17 +496,8 @@ void SkClipStack::Element::updateBoundAndGenID(const Element* prior) {
             case SkClipOp::kDifference:
                 this->combineBoundsDiff(combination, prevFinite);
                 break;
-            case kXOR_SkClipOp:
-                this->combineBoundsXOR(combination, prevFinite);
-                break;
-            case kUnion_SkClipOp:
-                this->combineBoundsUnion(combination, prevFinite);
-                break;
             case SkClipOp::kIntersect:
                 this->combineBoundsIntersection(combination, prevFinite);
-                break;
-            case kReverseDifference_SkClipOp:
-                this->combineBoundsRevDiff(combination, prevFinite);
                 break;
             default:
                 SkDebugf("SkClipOp error\n");
@@ -860,32 +753,17 @@ void SkClipStack::pushElement(const Element& element) {
 void SkClipStack::clipRRect(const SkRRect& rrect, const SkMatrix& matrix, SkClipOp op, bool doAA) {
     Element element(fSaveCount, rrect, matrix, op, doAA);
     this->pushElement(element);
-    if (this->hasClipRestriction(op)) {
-        Element restriction(fSaveCount, fClipRestrictionRect, SkMatrix::I(), SkClipOp::kIntersect,
-                            false);
-        this->pushElement(restriction);
-    }
 }
 
 void SkClipStack::clipRect(const SkRect& rect, const SkMatrix& matrix, SkClipOp op, bool doAA) {
     Element element(fSaveCount, rect, matrix, op, doAA);
     this->pushElement(element);
-    if (this->hasClipRestriction(op)) {
-        Element restriction(fSaveCount, fClipRestrictionRect, SkMatrix::I(), SkClipOp::kIntersect,
-                            false);
-        this->pushElement(restriction);
-    }
 }
 
 void SkClipStack::clipPath(const SkPath& path, const SkMatrix& matrix, SkClipOp op,
                            bool doAA) {
     Element element(fSaveCount, path, matrix, op, doAA);
     this->pushElement(element);
-    if (this->hasClipRestriction(op)) {
-        Element restriction(fSaveCount, fClipRestrictionRect, SkMatrix::I(), SkClipOp::kIntersect,
-                            false);
-        this->pushElement(restriction);
-    }
 }
 
 void SkClipStack::clipShader(sk_sp<SkShader> shader) {
@@ -1105,23 +983,8 @@ void SkClipStack::Element::dump() const {
     static_assert(4 == static_cast<int>(DeviceSpaceType::kShader), "enum mismatch");
     static_assert(SK_ARRAY_COUNT(kTypeStrings) == kTypeCnt, "enum mismatch");
 
-    static const char* kOpStrings[] = {
-        "difference",
-        "intersect",
-        "union",
-        "xor",
-        "reverse-difference",
-        "replace",
-    };
-    static_assert(0 == static_cast<int>(kDifference_SkClipOp), "enum mismatch");
-    static_assert(1 == static_cast<int>(kIntersect_SkClipOp), "enum mismatch");
-    static_assert(2 == static_cast<int>(kUnion_SkClipOp), "enum mismatch");
-    static_assert(3 == static_cast<int>(kXOR_SkClipOp), "enum mismatch");
-    static_assert(4 == static_cast<int>(kReverseDifference_SkClipOp), "enum mismatch");
-    static_assert(5 == static_cast<int>(kReplace_SkClipOp), "enum mismatch");
-    static_assert(SK_ARRAY_COUNT(kOpStrings) == SkRegion::kOpCnt, "enum mismatch");
-
-    const char* opName = this->isReplaceOp() ? "replace" : kOpStrings[static_cast<int>(fOp)];
+    const char* opName = this->isReplaceOp() ? "replace" :
+            (fOp == SkClipOp::kDifference ? "difference" : "intersect");
     SkDebugf("Type: %s, Op: %s, AA: %s, Save Count: %d\n", kTypeStrings[(int)fDeviceSpaceType],
              opName, (fDoAA ? "yes" : "no"), fSaveCount);
     switch (fDeviceSpaceType) {

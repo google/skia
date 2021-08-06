@@ -98,6 +98,7 @@ public:
     // V86: Remove support for custom data inside SkVertices
     // V87: SkPaint now holds a user-defined blend function (SkBlender), no longer has DrawLooper
     // V88: Add blender to ComposeShader and BlendImageFilter
+    // V89: Deprecated SkClipOps are no longer supported
 
     enum Version {
         kPictureShaderFilterParam_Version   = 82,
@@ -107,10 +108,11 @@ public:
         kVerticesRemoveCustomData_Version   = 86,
         kSkBlenderInSkPaint                 = 87,
         kBlenderInEffects                   = 88,
+        kNoExpandingClipOps                 = 89,
 
         // Only SKPs within the min/current picture version range (inclusive) can be read.
         kMin_Version     = kPictureShaderFilterParam_Version,
-        kCurrent_Version = kBlenderInEffects
+        kCurrent_Version = kNoExpandingClipOps
     };
 };
 

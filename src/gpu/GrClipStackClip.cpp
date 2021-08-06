@@ -9,7 +9,6 @@
 
 #include "include/gpu/GrDirectContext.h"
 #include "include/private/SkTo.h"
-#include "src/core/SkClipOpPriv.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/GrAppliedClip.h"
@@ -338,7 +337,7 @@ static void draw_clip_elements_to_mask_helper(GrSWMaskHelper& helper, const Elem
         SkRegion::Op op = element->getRegionOp();
         GrAA aa = GrAA(element->isAA());
 
-        if (SkRegion::kIntersect_Op == op || SkRegion::kReverseDifference_Op == op) {
+        if (SkRegion::kIntersect_Op == op) {
             // Intersect and reverse difference require modifying pixels outside of the geometry
             // that is being "drawn". In both cases we erase all the pixels outside of the geometry
             // but leave the pixels inside the geometry alone. For reverse difference we invert all
