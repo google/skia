@@ -219,8 +219,7 @@ GrBicubicEffect::GrBicubicEffect(const GrBicubicEffect& that)
     this->cloneAndRegisterAllChildProcessors(that);
 }
 
-void GrBicubicEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
-                                            GrProcessorKeyBuilder* b) const {
+void GrBicubicEffect::onAddToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
     uint32_t key = (static_cast<uint32_t>(fDirection) << 0) | (static_cast<uint32_t>(fClamp) << 2);
     b->add32(key);
 }

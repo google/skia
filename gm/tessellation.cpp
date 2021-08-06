@@ -62,7 +62,7 @@ public:
 
 private:
     const char* name() const final { return "TessellationTestTriShader"; }
-    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const final {}
+    void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const final {}
 
     class Impl : public GrGLSLGeometryProcessor {
         void onEmitCode(EmitArgs& args, GrGPArgs*) override {
@@ -173,7 +173,7 @@ public:
 
 private:
     const char* name() const final { return "TessellationTestRectShader"; }
-    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const final {}
+    void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const final {}
 
     class Impl : public GrGLSLGeometryProcessor {
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {

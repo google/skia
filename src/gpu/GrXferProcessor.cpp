@@ -28,9 +28,10 @@ bool GrXferProcessor::hasSecondaryOutput() const {
     return false;
 }
 
-void GrXferProcessor::getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b,
-                                          const GrSurfaceOrigin* originIfDstTexture,
-                                          bool usesInputAttachmentForDstRead) const {
+void GrXferProcessor::addToKey(const GrShaderCaps& caps,
+                               GrProcessorKeyBuilder* b,
+                               const GrSurfaceOrigin* originIfDstTexture,
+                               bool usesInputAttachmentForDstRead) const {
     uint32_t key = this->willReadDstColor() ? 0x1 : 0x0;
     if (key) {
         if (originIfDstTexture) {
@@ -47,7 +48,7 @@ void GrXferProcessor::getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorK
         key |= 0x10;
     }
     b->add32(key);
-    this->onGetGLSLProcessorKey(caps, b);
+    this->onAddToKey(caps, b);
 }
 
 #ifdef SK_DEBUG

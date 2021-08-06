@@ -115,8 +115,7 @@ bool GrColorSpaceXformEffect::onIsEqual(const GrFragmentProcessor& s) const {
     return GrColorSpaceXform::Equals(fColorXform.get(), other.fColorXform.get());
 }
 
-void GrColorSpaceXformEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
-                                                    GrProcessorKeyBuilder* b) const {
+void GrColorSpaceXformEffect::onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const {
     b->add32(GrColorSpaceXform::XformKey(fColorXform.get()));
 }
 

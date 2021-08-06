@@ -207,7 +207,7 @@ private:
 
     std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
 
-    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
+    void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
     GrMorphologyEffect(std::unique_ptr<GrFragmentProcessor> inputFP, GrSurfaceProxyView,
@@ -286,8 +286,7 @@ std::unique_ptr<GrGLSLFragmentProcessor> GrMorphologyEffect::onMakeProgramImpl()
     return std::make_unique<Impl>();
 }
 
-void GrMorphologyEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
-                                               GrProcessorKeyBuilder* b) const {
+void GrMorphologyEffect::onAddToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
     uint32_t key = static_cast<uint32_t>(fRadius);
     key |= (static_cast<uint32_t>(fType) << 8);
     key |= (static_cast<uint32_t>(fDirection) << 9);

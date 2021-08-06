@@ -27,7 +27,7 @@ public:
 
 private:
     const char* name() const final { return "tessellate_SimpleTriangleShader"; }
-    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const final {}
+    void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const final {}
     GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const final;
 };
 

@@ -388,8 +388,7 @@ void GrStrokeTessellationShader::Impl::setData(const GrGLSLProgramDataManager& p
     }
 }
 
-void GrStrokeTessellationShader::getGLSLProcessorKey(const GrShaderCaps&,
-                                                     GrProcessorKeyBuilder* b) const {
+void GrStrokeTessellationShader::addToKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const {
     bool keyNeedsJoin = (fMode != Mode::kHardwareTessellation) &&
                         !(fShaderFlags & ShaderFlags::kDynamicStroke);
     SkASSERT((int)fMode >> 2 == 0);

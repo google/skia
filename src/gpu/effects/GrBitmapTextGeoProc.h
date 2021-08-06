@@ -57,7 +57,7 @@ public:
 
     void addNewViews(const GrSurfaceProxyView*, int numActiveViews, GrSamplerState);
 
-    void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
+    void addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
     GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps& caps) const override;
 

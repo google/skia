@@ -181,8 +181,7 @@ constexpr GrGeometryProcessor::Attribute GrConicEffect::kAttributes[];
 
 GrConicEffect::~GrConicEffect() {}
 
-void GrConicEffect::getGLSLProcessorKey(const GrShaderCaps& caps,
-                                        GrProcessorKeyBuilder* b) const {
+void GrConicEffect::addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
     GrGLConicEffect::GenKey(*this, caps, b);
 }
 
@@ -357,8 +356,7 @@ constexpr GrGeometryProcessor::Attribute GrQuadEffect::kAttributes[];
 
 GrQuadEffect::~GrQuadEffect() {}
 
-void GrQuadEffect::getGLSLProcessorKey(const GrShaderCaps& caps,
-                                       GrProcessorKeyBuilder* b) const {
+void GrQuadEffect::addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
     GrGLQuadEffect::GenKey(*this, caps, b);
 }
 

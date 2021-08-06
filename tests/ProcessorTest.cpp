@@ -98,7 +98,7 @@ public:
 
     const char* name() const override { return "test"; }
 
-    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {
+    void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {
         static std::atomic<int32_t> nextKey{0};
         b->add32(nextKey++);
     }

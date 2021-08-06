@@ -30,7 +30,7 @@ public:
     const char* name() const override {
         return "GrModulateAtlasCoverageFP";
     }
-    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {
+    void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {
         b->add32(fFlags & Flags::kCheckBounds);
     }
     std::unique_ptr<GrFragmentProcessor> clone() const override {

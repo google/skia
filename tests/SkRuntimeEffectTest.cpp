@@ -947,8 +947,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSkSLFP_Specialized, r, ctxInfo) {
                                    GrSkSLFP::OptFlags::kNone,
                                    "color", GrSkSLFP::SpecializeIf(specialize, color));
         GrProcessorKeyBuilder builder(&result.key);
-        result.fp->getGLSLProcessorKey(*ctxInfo.directContext()->priv().caps()->shaderCaps(),
-                                       &builder);
+        result.fp->addToKey(*ctxInfo.directContext()->priv().caps()->shaderCaps(), &builder);
         builder.flush();
         return result;
     };

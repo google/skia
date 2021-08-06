@@ -67,7 +67,7 @@ private:
 
     std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
 
-    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
+    void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor& other) const override;
 
@@ -390,8 +390,7 @@ void GLCircularRRectEffect::onSetData(const GrGLSLProgramDataManager& pdman,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CircularRRectEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
-                                                GrProcessorKeyBuilder* b) const {
+void CircularRRectEffect::onAddToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
     GLCircularRRectEffect::GenKey(*this, caps, b);
 }
 
@@ -421,7 +420,7 @@ private:
 
     std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
 
-    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
+    void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor& other) const override;
 
@@ -696,8 +695,7 @@ void GLEllipticalRRectEffect::onSetData(const GrGLSLProgramDataManager& pdman,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void EllipticalRRectEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
-                                                  GrProcessorKeyBuilder* b) const {
+void EllipticalRRectEffect::onAddToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
     GLEllipticalRRectEffect::GenKey(*this, caps, b);
 }
 

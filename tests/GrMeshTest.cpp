@@ -456,7 +456,7 @@ public:
         return fVertexColor.isInitialized() ? fVertexColor : fInstanceColor;
     }
 
-    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const final {
+    void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const final {
         b->add32(fInstanceLocation.isInitialized());
         b->add32(fVertexPosition.isInitialized());
     }

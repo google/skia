@@ -34,7 +34,7 @@ public:
     const Attribute& inShadowParams() const { return fInShadowParams; }
     GrColor color() const { return fColor; }
 
-    void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {}
+    void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
 
     GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 

@@ -59,13 +59,13 @@ GR_MAKE_BITFIELD_CLASS_OPS(GrXferBarrierFlags)
 class GrXferProcessor : public GrProcessor, public GrNonAtomicRef<GrXferProcessor> {
 public:
     /**
-     * Sets a unique key on the GrProcessorKeyBuilder calls onGetGLSLProcessorKey(...) to get the
-     * specific subclass's key.
+     * Adds a key on the GrProcessorKeyBuilder calls onAddToKey(...) to get the specific subclass's
+     * key.
      */
-    void getGLSLProcessorKey(const GrShaderCaps&,
-                             GrProcessorKeyBuilder*,
-                             const GrSurfaceOrigin* originIfDstTexture,
-                             bool usesInputAttachmentForDstRead) const;
+    void addToKey(const GrShaderCaps&,
+                  GrProcessorKeyBuilder*,
+                  const GrSurfaceOrigin* originIfDstTexture,
+                  bool usesInputAttachmentForDstRead) const;
 
     /** Returns a new instance of the appropriate *GL* implementation class
         for the given GrXferProcessor; caller is responsible for deleting
@@ -114,7 +114,7 @@ public:
         from getFactory()).
 
         A return value of true from isEqual() should not be used to test whether the processor would
-        generate the same shader code. To test for identical code generation use getGLSLProcessorKey
+        generate the same shader code. To test for identical code generation use addToKey.
       */
 
     bool isEqual(const GrXferProcessor& that) const {
@@ -136,10 +136,10 @@ protected:
 
 private:
     /**
-     * Sets a unique key on the GrProcessorKeyBuilder that is directly associated with this xfer
-     * processor's GL backend implementation.
+     * Adds a key on the GrProcessorKeyBuilder that reflects any variety in the code that may be
+     * emitted by the xfer processor subclass.
      */
-    virtual void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const = 0;
+    virtual void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const = 0;
 
     /**
      * If we are not performing a dst read, returns whether the subclass will set a secondary

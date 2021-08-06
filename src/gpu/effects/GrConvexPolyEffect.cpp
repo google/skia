@@ -157,8 +157,7 @@ GrFPResult GrConvexPolyEffect::Make(std::unique_ptr<GrFragmentProcessor> inputFP
 
 GrConvexPolyEffect::~GrConvexPolyEffect() {}
 
-void GrConvexPolyEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
-                                               GrProcessorKeyBuilder* b) const {
+void GrConvexPolyEffect::onAddToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
     GrGLConvexPolyEffect::GenKey(*this, caps, b);
 }
 

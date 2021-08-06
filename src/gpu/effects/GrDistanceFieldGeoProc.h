@@ -102,7 +102,7 @@ public:
 
     void addNewViews(const GrSurfaceProxyView* views, int numViews, GrSamplerState);
 
-    void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
+    void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
@@ -169,7 +169,7 @@ public:
 
     void addNewViews(const GrSurfaceProxyView*, int numActiveViews, GrSamplerState);
 
-    void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
+    void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
@@ -251,7 +251,7 @@ public:
 
     void addNewViews(const GrSurfaceProxyView*, int numActiveViews, GrSamplerState);
 
-    void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
+    void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 

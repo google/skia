@@ -385,7 +385,7 @@ public:
     BlendFormula getBlendFormula() const { return fBlendFormula; }
 
 private:
-    void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
+    void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onHasSecondaryOutput() const override { return fBlendFormula.hasSecondaryOutput(); }
 
@@ -467,8 +467,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void PorterDuffXferProcessor::onGetGLSLProcessorKey(const GrShaderCaps&,
-                                                    GrProcessorKeyBuilder* b) const {
+void PorterDuffXferProcessor::onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const {
     GLPorterDuffXferProcessor::GenKey(*this, b);
 }
 
@@ -492,7 +491,7 @@ public:
     SkBlendMode getXfermode() const { return fXfermode; }
 
 private:
-    void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
+    void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrXferProcessor& xpBase) const override {
         const ShaderPDXferProcessor& xp = xpBase.cast<ShaderPDXferProcessor>();
@@ -536,8 +535,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void ShaderPDXferProcessor::onGetGLSLProcessorKey(const GrShaderCaps&,
-                                                  GrProcessorKeyBuilder* b) const {
+void ShaderPDXferProcessor::onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const {
     GLShaderPDXferProcessor::GenKey(*this, b);
 }
 
@@ -563,7 +561,7 @@ public:
 private:
     PDLCDXferProcessor(const SkPMColor4f& blendConstant, float alpha);
 
-    void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
+    void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     void onGetBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const override {
         blendInfo->fSrcBlend = kConstC_GrBlendCoeff;
@@ -650,8 +648,7 @@ sk_sp<const GrXferProcessor> PDLCDXferProcessor::Make(SkBlendMode mode,
 PDLCDXferProcessor::~PDLCDXferProcessor() {
 }
 
-void PDLCDXferProcessor::onGetGLSLProcessorKey(const GrShaderCaps& caps,
-                                               GrProcessorKeyBuilder* b) const {
+void PDLCDXferProcessor::onAddToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
     GLPDLCDXferProcessor::GenKey(*this, caps, b);
 }
 

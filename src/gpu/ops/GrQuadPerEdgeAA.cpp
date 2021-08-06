@@ -571,7 +571,7 @@ public:
 
     const char* name() const override { return "QuadPerEdgeAAGeometryProcessor"; }
 
-    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {
+    void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {
         // texturing, device-dimensions are single bit flags
         b->addBool(fTexSubset.isInitialized(),    "subset");
         b->addBool(fSampler.isInitialized(),      "textured");

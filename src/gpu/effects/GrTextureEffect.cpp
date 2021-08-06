@@ -720,7 +720,7 @@ std::unique_ptr<GrGLSLFragmentProcessor> GrTextureEffect::onMakeProgramImpl() co
     return std::make_unique<Impl>();
 }
 
-void GrTextureEffect::onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const {
+void GrTextureEffect::onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const {
     auto m0 = static_cast<uint32_t>(fShaderModes[0]);
     b->addBits(8, m0, "shaderMode0");
 

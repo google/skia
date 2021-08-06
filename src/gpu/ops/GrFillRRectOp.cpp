@@ -339,7 +339,7 @@ public:
 
     const char* name() const final { return "GrFillRRectOp::Processor"; }
 
-    void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const final {
+    void addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const final {
         b->addBits(kNumProcessorFlags, (uint32_t)fFlags,  "flags");
     }
 

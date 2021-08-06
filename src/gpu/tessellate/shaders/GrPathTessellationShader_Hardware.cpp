@@ -40,7 +40,7 @@ public:
 
 private:
     const char* name() const final { return "tessellate_HardwareWedgeShader"; }
-    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const final {}
+    void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const final {}
     GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const final;
 };
 
@@ -167,7 +167,7 @@ public:
 
 private:
     const char* name() const final { return "tessellate_HardwareCurveShader"; }
-    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const final {}
+    void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const final {}
     GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const final;
 };
 

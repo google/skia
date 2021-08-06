@@ -830,7 +830,7 @@ public:
 
     bool usesLocalCoords() const { return fUsesLocalCoords; }
 
-    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override;
+    void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
@@ -981,8 +981,7 @@ GrGeometryProcessor* DashingCircleEffect::Make(SkArenaAlloc* arena,
     });
 }
 
-void DashingCircleEffect::getGLSLProcessorKey(const GrShaderCaps& caps,
-                                              GrProcessorKeyBuilder* b) const {
+void DashingCircleEffect::addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
     GLDashingCircleEffect::GenKey(*this, caps, b);
 }
 
@@ -1053,7 +1052,7 @@ public:
 
     bool usesLocalCoords() const { return fUsesLocalCoords; }
 
-    void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
+    void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
@@ -1220,8 +1219,7 @@ GrGeometryProcessor* DashingLineEffect::Make(SkArenaAlloc* arena,
     });
 }
 
-void DashingLineEffect::getGLSLProcessorKey(const GrShaderCaps& caps,
-                                            GrProcessorKeyBuilder* b) const {
+void DashingLineEffect::addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
     GLDashingLineEffect::GenKey(*this, caps, b);
 }
 

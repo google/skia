@@ -193,8 +193,7 @@ void GrBitmapTextGeoProc::addNewViews(const GrSurfaceProxyView* views,
     this->setTextureSamplerCnt(numActiveViews);
 }
 
-void GrBitmapTextGeoProc::getGLSLProcessorKey(const GrShaderCaps& caps,
-                                              GrProcessorKeyBuilder* b) const {
+void GrBitmapTextGeoProc::addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
     GrGLBitmapTextGeoProc::GenKey(*this, caps, b);
 }
 

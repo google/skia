@@ -75,7 +75,7 @@ public:
 
     const char* name() const override { return "CircleGeometryProcessor"; }
 
-    void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
+    void addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
         GLSLProcessor::GenKey(*this, caps, b);
     }
 
@@ -284,7 +284,7 @@ public:
 
     const char* name() const override { return "ButtCapDashedCircleGeometryProcessor"; }
 
-    void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
+    void addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
         GLSLProcessor::GenKey(*this, caps, b);
     }
 
@@ -549,7 +549,7 @@ public:
 
     const char* name() const override { return "EllipseGeometryProcessor"; }
 
-    void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
+    void addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
         GLSLProcessor::GenKey(*this, caps, b);
     }
 
@@ -755,7 +755,7 @@ public:
 
     const char* name() const override { return "DIEllipseGeometryProcessor"; }
 
-    void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
+    void addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
         GLSLProcessor::GenKey(*this, caps, b);
     }
 

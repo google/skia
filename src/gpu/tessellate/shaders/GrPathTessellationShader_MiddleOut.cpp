@@ -53,7 +53,7 @@ public:
 
 private:
     const char* name() const final { return "tessellate_MiddleOutShader"; }
-    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const final {
+    void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const final {
         b->add32((uint32_t)fPatchType);
     }
     GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const final;

@@ -24,9 +24,7 @@ public:
 private:
     const char* name() const override { return "Disable Color"; }
     bool onIsEqual(const GrXferProcessor& xpBase) const override { return true; }
-    void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
-        return;  // No key.
-    }
+    void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
     void onGetBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const override {
         blendInfo->fWriteColor = false;
     }

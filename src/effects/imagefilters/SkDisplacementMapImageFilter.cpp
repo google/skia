@@ -179,7 +179,7 @@ private:
 
     std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
 
-    void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
+    void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
@@ -457,8 +457,7 @@ std::unique_ptr<GrGLSLFragmentProcessor> GrDisplacementMapEffect::onMakeProgramI
     return std::make_unique<Impl>();
 }
 
-void GrDisplacementMapEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
-                                                    GrProcessorKeyBuilder* b) const {
+void GrDisplacementMapEffect::onAddToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
     Impl::GenKey(*this, caps, b);
 }
 

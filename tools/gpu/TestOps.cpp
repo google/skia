@@ -36,8 +36,7 @@ public:
         return new GLSLGP();
     }
 
-    void getGLSLProcessorKey(const GrShaderCaps& shaderCaps,
-                             GrProcessorKeyBuilder* b) const override {
+    void addToKey(const GrShaderCaps& shaderCaps, GrProcessorKeyBuilder* b) const override {
         GLSLGP::GenKey(*this, shaderCaps, b);
     }
 

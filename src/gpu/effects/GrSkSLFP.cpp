@@ -357,7 +357,7 @@ std::unique_ptr<GrGLSLFragmentProcessor> GrSkSLFP::onMakeProgramImpl() const {
     return std::make_unique<GrGLSLSkSLFP>();
 }
 
-void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
+void GrSkSLFP::onAddToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
     // In the unlikely event of a hash collision, we also include the uniform size in the key.
     // That ensures that we will (at worst) use the wrong program, but one that expects the same
     // amount of uniform data.

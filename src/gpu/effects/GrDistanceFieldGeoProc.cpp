@@ -273,8 +273,8 @@ void GrDistanceFieldA8TextGeoProc::addNewViews(const GrSurfaceProxyView* views,
     this->setTextureSamplerCnt(numViews);
 }
 
-void GrDistanceFieldA8TextGeoProc::getGLSLProcessorKey(const GrShaderCaps& caps,
-                                                       GrProcessorKeyBuilder* b) const {
+void GrDistanceFieldA8TextGeoProc::addToKey(const GrShaderCaps& caps,
+                                            GrProcessorKeyBuilder* b) const {
     GrGLDistanceFieldA8TextGeoProc::GenKey(*this, caps, b);
 }
 
@@ -546,8 +546,8 @@ void GrDistanceFieldPathGeoProc::addNewViews(const GrSurfaceProxyView* views,
     this->setTextureSamplerCnt(numViews);
 }
 
-void GrDistanceFieldPathGeoProc::getGLSLProcessorKey(const GrShaderCaps& caps,
-                                                     GrProcessorKeyBuilder* b) const {
+void GrDistanceFieldPathGeoProc::addToKey(const GrShaderCaps& caps,
+                                          GrProcessorKeyBuilder* b) const {
     GrGLDistanceFieldPathGeoProc::GenKey(*this, caps, b);
 }
 
@@ -873,8 +873,8 @@ void GrDistanceFieldLCDTextGeoProc::addNewViews(const GrSurfaceProxyView* views,
     this->setTextureSamplerCnt(numViews);
 }
 
-void GrDistanceFieldLCDTextGeoProc::getGLSLProcessorKey(const GrShaderCaps& caps,
-                                                        GrProcessorKeyBuilder* b) const {
+void GrDistanceFieldLCDTextGeoProc::addToKey(const GrShaderCaps& caps,
+                                             GrProcessorKeyBuilder* b) const {
     GrGLDistanceFieldLCDTextGeoProc::GenKey(*this, caps, b);
 }
 

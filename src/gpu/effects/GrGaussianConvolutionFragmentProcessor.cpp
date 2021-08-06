@@ -236,8 +236,8 @@ GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
     this->setUsesSampleCoordsDirectly();
 }
 
-void GrGaussianConvolutionFragmentProcessor::onGetGLSLProcessorKey(const GrShaderCaps& caps,
-                                                                   GrProcessorKeyBuilder* b) const {
+void GrGaussianConvolutionFragmentProcessor::onAddToKey(const GrShaderCaps& caps,
+                                                        GrProcessorKeyBuilder* b) const {
     Impl::GenKey(*this, caps, b);
 }
 

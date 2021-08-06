@@ -98,7 +98,7 @@ public:
     GrXferBarrierType xferBarrierType(const GrCaps&) const override;
 
 private:
-    void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
+    void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     void onGetBlendInfo(BlendInfo*) const override;
 
@@ -169,7 +169,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void CustomXP::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
+void CustomXP::onAddToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
     GLCustomXP::GenKey(*this, caps, b);
 }
 

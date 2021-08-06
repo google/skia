@@ -71,7 +71,7 @@ public:
 
 private:
     BigKeyProcessor() : INHERITED(kBigKeyProcessor_ClassID, kNone_OptimizationFlags) { }
-    void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
+    void onAddToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
         GLBigKeyProcessor::GenKey(*this, caps, b);
     }
     bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
@@ -124,7 +124,7 @@ private:
         this->registerChild(std::move(child));
     }
 
-    void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {}
+    void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
 
     bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
 

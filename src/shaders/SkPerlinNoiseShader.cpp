@@ -630,7 +630,7 @@ private:
         return std::make_unique<GrGLPerlinNoise>();
     }
 
-    void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
+    void onAddToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
         GrGLPerlinNoise::GenKey(*this, caps, b);
     }
 

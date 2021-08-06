@@ -92,8 +92,7 @@ private:
                 };
                 return new GLSLGP();
             }
-            void getGLSLProcessorKey(const GrShaderCaps&,
-                                     GrProcessorKeyBuilder* builder) const override {
+            void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder* builder) const override {
                 builder->add32(fNumAttribs);
             }
 

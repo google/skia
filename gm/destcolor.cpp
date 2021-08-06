@@ -47,7 +47,7 @@ private:
     }
 
     const char* name() const override { return "DestColorTestFP"; }
-    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
+    void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
     bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
 
     class Impl : public GrGLSLFragmentProcessor {

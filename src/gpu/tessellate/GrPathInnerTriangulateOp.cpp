@@ -49,7 +49,7 @@ public:
 
 private:
     const char* name() const final { return "tessellate_HullShader"; }
-    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const final {}
+    void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const final {}
     GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const final;
 
     constexpr static int kMaxInstanceAttribCount = 3;

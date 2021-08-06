@@ -144,7 +144,7 @@ private:
         return flags;
     }
 
-    void onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
+    void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {
         b->add32((int)fMode);
     }
 

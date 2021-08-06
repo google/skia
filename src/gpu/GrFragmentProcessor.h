@@ -197,11 +197,11 @@ public:
 
     std::unique_ptr<GrGLSLFragmentProcessor> makeProgramImpl() const;
 
-    void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
-        this->onGetGLSLProcessorKey(caps, b);
+    void addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
+        this->onAddToKey(caps, b);
         for (const auto& child : fChildProcessors) {
             if (child) {
-                child->getGLSLProcessorKey(caps, b);
+                child->addToKey(caps, b);
             }
         }
     }
@@ -295,7 +295,7 @@ public:
         from getFactory()).
 
         A return value of true from isEqual() should not be used to test whether the processor would
-        generate the same shader code. To test for identical code generation use getGLSLProcessorKey
+        generate the same shader code. To test for identical code generation use addToKey.
      */
     bool isEqual(const GrFragmentProcessor& that) const;
 
@@ -438,8 +438,7 @@ private:
         the object. */
     virtual std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const = 0;
 
-    /** Implemented using GLFragmentProcessor::GenKey as described in this class's comment. */
-    virtual void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const = 0;
+    virtual void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const = 0;
 
     /**
      * Subclass implements this to support isEqual(). It will only be called if it is known that

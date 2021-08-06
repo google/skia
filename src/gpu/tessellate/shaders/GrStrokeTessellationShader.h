@@ -133,7 +133,7 @@ private:
         }
         SkUNREACHABLE;
     }
-    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override;
+    void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const final;
 
     const Mode fMode;

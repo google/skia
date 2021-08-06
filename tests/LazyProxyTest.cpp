@@ -160,7 +160,7 @@ public:
         std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override {
             return nullptr;
         }
-        void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
+        void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
         bool onIsEqual(const GrFragmentProcessor&) const override { return false; }
 
         GrRecordingContext* const fContext;

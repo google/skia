@@ -185,13 +185,10 @@ public:
     static constexpr int kCoordTransformKeyBits = 4;
 
     /**
-     * Sets a unique key on the GrProcessorKeyBuilder that is directly associated with this geometry
-     * processor's GL backend implementation.
-     *
-     * TODO: A better name for this function  would be "compute" instead of "get".
+     * Adds a key on the GrProcessorKeyBuilder that reflects any variety in the code that the
+     * geometry processor subclass can emit.
      */
-    virtual void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const = 0;
-
+    virtual void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const = 0;
 
     void getAttributeKey(GrProcessorKeyBuilder* b) const {
         // Ensure that our CPU and GPU type fields fit together in a 32-bit value, and we never

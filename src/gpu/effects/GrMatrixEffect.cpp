@@ -61,8 +61,7 @@ std::unique_ptr<GrGLSLFragmentProcessor> GrMatrixEffect::onMakeProgramImpl() con
     return std::make_unique<GrGLSLMatrixEffect>();
 }
 
-void GrMatrixEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
-                                           GrProcessorKeyBuilder* b) const {}
+void GrMatrixEffect::onAddToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {}
 
 bool GrMatrixEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrMatrixEffect& that = other.cast<GrMatrixEffect>();

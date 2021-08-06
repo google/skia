@@ -73,7 +73,7 @@ public:
 
     const char* name() const final { return "ClockwiseTestProcessor"; }
 
-    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const final {
+    void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const final {
         b->add32(fReadSkFragCoord);
     }
 

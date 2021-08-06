@@ -666,7 +666,7 @@ public:
 private:
     std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
 
-    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
+    void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
@@ -715,7 +715,7 @@ public:
     SkScalar shininess() const { return fShininess; }
 
 private:
-    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
+    void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
@@ -1677,8 +1677,7 @@ bool GrDiffuseLightingEffect::onIsEqual(const GrFragmentProcessor& sBase) const 
     return INHERITED::onIsEqual(sBase) && this->kd() == s.kd();
 }
 
-void GrDiffuseLightingEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
-                                                    GrProcessorKeyBuilder* b) const {
+void GrDiffuseLightingEffect::onAddToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
     GrGLDiffuseLightingEffect::GenKey(*this, caps, b);
 }
 
@@ -1902,8 +1901,8 @@ bool GrSpecularLightingEffect::onIsEqual(const GrFragmentProcessor& sBase) const
            this->shininess() == s.shininess();
 }
 
-void GrSpecularLightingEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
-                                                     GrProcessorKeyBuilder* b) const {
+void GrSpecularLightingEffect::onAddToKey(const GrShaderCaps& caps,
+                                          GrProcessorKeyBuilder* b) const {
     GrGLSpecularLightingEffect::GenKey(*this, caps, b);
 }
 

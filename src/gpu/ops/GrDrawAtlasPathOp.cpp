@@ -49,7 +49,7 @@ public:
 private:
     int colorAttribIdx() const { return fUsesLocalCoords ? 3 : 1; }
     const char* name() const override { return "DrawAtlasPathShader"; }
-    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {
+    void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {
         b->addBits(1, fUsesLocalCoords, "localCoords");
         fAtlasHelper->getKeyBits(b);
     }

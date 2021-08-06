@@ -89,7 +89,7 @@ public:
     bool usesLocalCoords() const { return fUsesLocalCoords; }
     uint8_t coverageScale() const { return fCoverageScale; }
 
-    void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
+    void addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
     GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
@@ -156,7 +156,7 @@ public:
     bool usesLocalCoords() const { return fUsesLocalCoords; }
     uint8_t coverageScale() const { return fCoverageScale; }
 
-    void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
+    void addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
     GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 

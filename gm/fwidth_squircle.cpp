@@ -70,7 +70,7 @@ public:
 
     const char* name() const override { return "FwidthSquircleTestProcessor"; }
 
-    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const final {}
+    void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const final {}
 
     GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const final;
 

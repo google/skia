@@ -92,7 +92,7 @@ public:
         return new GLSLGP();
     }
 
-    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {
+    void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {
         b->add32(fMode);
         b->add32(GrColorSpaceXform::XformKey(fColorSpaceXform.get()));
     }

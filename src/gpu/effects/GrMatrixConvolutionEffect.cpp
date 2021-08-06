@@ -316,8 +316,8 @@ std::unique_ptr<GrFragmentProcessor> GrMatrixConvolutionEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrMatrixConvolutionEffect(*this));
 }
 
-void GrMatrixConvolutionEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
-                                                      GrProcessorKeyBuilder* b) const {
+void GrMatrixConvolutionEffect::onAddToKey(const GrShaderCaps& caps,
+                                           GrProcessorKeyBuilder* b) const {
     GrGLMatrixConvolutionEffect::GenKey(*this, caps, b);
 }
 

@@ -303,7 +303,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::SwizzleOutput(
             return std::make_unique<GLFP>();
         }
 
-        void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {
+        void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {
             b->add32(fSwizzle.asKey());
         }
 
@@ -366,7 +366,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MakeInputPremulAndMulB
             return std::make_unique<GLFP>();
         }
 
-        void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
+        void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
 
         bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
 
@@ -496,7 +496,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::Compose(
             this->cloneAndRegisterAllChildProcessors(that);
         }
 
-        void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
+        void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
 
         bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
 
@@ -620,7 +620,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::SurfaceColor() {
             this->setWillReadDstColor();
         }
 
-        void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
+        void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
 
         bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
 
@@ -672,7 +672,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::DeviceSpace(
             return std::make_unique<Impl>();
         }
 
-        void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
+        void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
 
         bool onIsEqual(const GrFragmentProcessor& processor) const override { return true; }
 
@@ -918,7 +918,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::HighPrecision(
             return std::make_unique<GLFP>();
         }
 
-        void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {}
+        void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
         bool onIsEqual(const GrFragmentProcessor& other) const override { return true; }
 
         SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& input) const override {

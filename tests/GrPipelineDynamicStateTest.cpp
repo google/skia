@@ -66,7 +66,7 @@ public:
 
     const char* name() const override { return "GrPipelineDynamicStateTest Processor"; }
 
-    void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const final {}
+    void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const final {}
 
     GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const final;
 
