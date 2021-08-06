@@ -41,6 +41,7 @@ SkPathBuilder& SkPathBuilder::reset() {
 
     fSegmentMask = 0;
     fLastMovePoint = {0, 0};
+    fLastMoveIndex = -1;        // illegal
     fNeedsMoveVerb = true;
 
     // testing
@@ -85,6 +86,9 @@ SkRect SkPathBuilder::computeBounds() const {
  */
 
 SkPathBuilder& SkPathBuilder::moveTo(SkPoint pt) {
+    // only needed while SkPath is mutable
+    fLastMoveIndex = SkToInt(fPts.size());
+
     fPts.push_back(pt);
     fVerbs.push_back((uint8_t)SkPathVerb::kMove);
 
@@ -206,7 +210,20 @@ SkPath SkPathBuilder::make(sk_sp<SkPathRef> pr) const {
     //  unknown, convex_cw, convex_ccw, concave
     // Do we ever have direction w/o convexity, or viceversa (inside path)?
     //
-    return SkPath(std::move(pr), fFillType, fIsVolatile, convexity, dir);
+    auto path = SkPath(std::move(pr), fFillType, fIsVolatile, convexity, dir);
+
+    // This hopefully can go away in the future when Paths are immutable,
+    // but if while they are still editable, we need to correctly set this.
+    const uint8_t* start = path.fPathRef->verbsBegin();
+    const uint8_t* stop  = path.fPathRef->verbsEnd();
+    if (start < stop) {
+        SkASSERT(fLastMoveIndex >= 0);
+        // peek at the last verb, to know if our last contour is closed
+        const bool isClosed = (stop[-1] == (uint8_t)SkPathVerb::kClose);
+        path.fLastMoveToIndex = isClosed ? ~fLastMoveIndex : fLastMoveIndex;
+    }
+
+    return path;
 }
 
 SkPath SkPathBuilder::snapshot() const {

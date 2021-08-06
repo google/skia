@@ -333,6 +333,8 @@ public:
         return true;
     }
 
+    static int LastMoveToIndex(const SkPath& path) { return path.fLastMoveToIndex; }
+
     static bool IsRectContour(const SkPath&, bool allowPartial, int* currVerb,
                               const SkPoint** ptsPtr, bool* isClosed, SkPathDirection* direction,
                               SkRect* rect);

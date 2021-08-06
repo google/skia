@@ -228,6 +228,7 @@ private:
 
     unsigned    fSegmentMask;
     SkPoint     fLastMovePoint;
+    int         fLastMoveIndex; // only needed until SkPath is immutable
     bool        fNeedsMoveVerb;
 
     enum IsA {
