@@ -54,7 +54,6 @@ if (skia_use_system_harfbuzz) {
       "$_src/hb.h",
     ]
     sources = [
-      "$_src/hb-aat-fdsc-table.hh",
       "$_src/hb-aat-layout-ankr-table.hh",
       "$_src/hb-aat-layout-bsln-table.hh",
       "$_src/hb-aat-layout-common.hh",
