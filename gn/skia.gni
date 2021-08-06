@@ -99,7 +99,6 @@ declare_args() {
 
 declare_args() {
   skia_pdf_subset_harfbuzz = skia_use_harfbuzz
-  skia_subset_harfbuzz_new_api = !is_fuchsia
 }
 
 declare_args() {
