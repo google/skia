@@ -178,19 +178,20 @@ static void print_link_cell(SkFILEWStream* stream, const SkString& path, const c
     stream->writeText("</a></td>");
 }
 
-static void print_diff_resource_cell(SkFILEWStream* stream, DiffResource& resource,
+static void print_diff_resource_cell(SkFILEWStream* stream, const DiffResource& resource,
                                      const SkString& relativePath, bool local) {
+    SkString fullPath = resource.fFullPath;
     if (resource.fBitmap.empty()) {
         if (DiffResource::kCouldNotDecode_Status == resource.fStatus) {
             if (local && !resource.fFilename.isEmpty()) {
                 print_link_cell(stream, resource.fFilename, "N/A");
                 return;
             }
-            if (!resource.fFullPath.isEmpty()) {
-                if (!resource.fFullPath.startsWith(PATH_DIV_STR)) {
-                    resource.fFullPath.prepend(relativePath);
+            if (!fullPath.isEmpty()) {
+                if (!fullPath.startsWith(PATH_DIV_STR)) {
+                    fullPath.prepend(relativePath);
                 }
-                print_link_cell(stream, resource.fFullPath, "N/A");
+                print_link_cell(stream, fullPath, "N/A");
                 return;
             }
         }
@@ -203,13 +204,13 @@ static void print_diff_resource_cell(SkFILEWStream* stream, DiffResource& resour
         print_image_cell(stream, resource.fFilename, height);
         return;
     }
-    if (!resource.fFullPath.startsWith(PATH_DIV_STR)) {
-        resource.fFullPath.prepend(relativePath);
+    if (!fullPath.startsWith(PATH_DIV_STR)) {
+        fullPath.prepend(relativePath);
     }
-    print_image_cell(stream, resource.fFullPath, height);
+    print_image_cell(stream, fullPath, height);
 }
 
-static void print_diff_row(SkFILEWStream* stream, DiffRecord& diff, const SkString& relativePath) {
+static void print_diff_row(SkFILEWStream* stream, const DiffRecord& diff, const SkString& relativePath) {
     stream->writeText("<tr>\n");
     print_checkbox_cell(stream, diff);
     print_label_cell(stream, diff);
@@ -284,9 +285,9 @@ void print_diff_page(const int matchCount,
                        baseDir, comparisonDir);
     int i;
     for (i = 0; i < differences.count(); i++) {
-        DiffRecord* diff = differences[i];
+        const DiffRecord& diff = differences[i];
 
-        switch (diff->fResult) {
+        switch (diff.fResult) {
           // Cases in which there is no diff to report.
           case DiffRecord::kEqualBits_Result:
           case DiffRecord::kEqualPixels_Result:
@@ -295,7 +296,7 @@ void print_diff_page(const int matchCount,
           case DiffRecord::kDifferentPixels_Result:
           case DiffRecord::kDifferentSizes_Result:
           case DiffRecord::kCouldNotCompare_Result:
-            print_diff_row(&outputStream, *diff, relativePath);
+            print_diff_row(&outputStream, diff, relativePath);
             continue;
           default:
             SkDEBUGFAIL("encountered DiffRecord with unknown result type");
