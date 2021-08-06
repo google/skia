@@ -61,7 +61,7 @@ export interface CanvasKit {
      * In the CanvasKit canvas2d shim layer, we provide this map for processing
      * canvas2d calls, but not here for code size reasons.
      */
-    parseColorString(color: string, colorMap?: object): Color;
+    parseColorString(color: string, colorMap?: Record<string, Color>): Color;
 
     /**
      * Returns a copy of the passed in color with a new alpha value applied.
@@ -579,7 +579,7 @@ export interface EmulatedCanvas2D {
      * @param bytes
      * @param descriptors
      */
-    loadFont(bytes: ArrayBuffer | Uint8Array, descriptors: object): void;
+    loadFont(bytes: ArrayBuffer | Uint8Array, descriptors: Record<string, string>): void;
 
     /**
      * Returns an new emulated Path2D object.
@@ -729,6 +729,15 @@ export interface MallocObj {
 }
 
 /**
+ * This represents a subset of an animation's duration.
+ */
+export interface AnimationMarker {
+    name: string;
+    t0: number; // 0.0 to 1.0
+    t1: number; // 0.0 to 1.0
+}
+
+/**
  * This object maintains a single audio layer during skottie playback
  */
 export interface AudioPlayer {
@@ -812,7 +821,7 @@ export interface ManagedSkottieAnimation extends SkottieAnimation {
     setColor(key: string, color: InputColor): boolean;
     setOpacity(key: string, opacity: number): boolean;
     setText(key: string, text: string, size: number): boolean;
-    getMarkers(): object[];
+    getMarkers(): AnimationMarker[];
     getColorProps(): ColorProperty[];
     getOpacityProps(): OpacityProperty[];
     getTextProps(): TextProperty[];

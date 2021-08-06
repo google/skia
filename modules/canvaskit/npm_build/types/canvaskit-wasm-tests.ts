@@ -706,7 +706,7 @@ function skottieTests(CK: CanvasKit, canvas?: Canvas) {
     });
     mAnim.setColor('slider', CK.WHITE);
     mAnim.setOpacity('slider', 0.8);
-    const e = mAnim.getMarkers();  // $ExpectType object[]
+    const e = mAnim.getMarkers();  // $ExpectType AnimationMarker[]
     const f = mAnim.getColorProps();  // $ExpectType ColorProperty[]
     const g = mAnim.getOpacityProps();  // $ExpectType OpacityProperty[]
     const h = mAnim.getTextProps();  // $ExpectType TextProperty[]
