@@ -2077,11 +2077,9 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
         DSLExpression rtFlip(DSLWriter::IRGenerator().convertIdentifier(/*offset=*/-1,
                                                                         SKSL_RTFLIP_NAME));
         if (!symbols[DEVICE_COORDS_NAME]) {
+            AutoAttachPoolToThread attach(fProgram.fPool.get());
             Modifiers modifiers;
             modifiers.fLayout.fBuiltin = DEVICE_FRAGCOORDS_BUILTIN;
-            if (fProgram.fPool) {
-                fProgram.fPool->attachToThread();
-            }
             auto coordsVar = std::make_unique<Variable>(/*offset=*/-1,
                                                         fContext.fModifiersPool->add(modifiers),
                                                         DEVICE_COORDS_NAME,
@@ -2090,9 +2088,6 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
                                                         Variable::Storage::kGlobal);
             fSPIRVBonusVariables.insert(coordsVar.get());
             symbols.add(std::move(coordsVar));
-            if (fProgram.fPool) {
-                fProgram.fPool->detachFromThread();
-            }
         }
         DSLGlobalVar deviceCoord(DEVICE_COORDS_NAME);
         std::unique_ptr<Expression> rtFlipSkSLExpr = rtFlip.release();
@@ -2117,11 +2112,9 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
         DSLExpression rtFlip(DSLWriter::IRGenerator().convertIdentifier(/*offset=*/-1,
                                                                         SKSL_RTFLIP_NAME));
         if (!symbols[DEVICE_CLOCKWISE_NAME]) {
+            AutoAttachPoolToThread attach(fProgram.fPool.get());
             Modifiers modifiers;
             modifiers.fLayout.fBuiltin = DEVICE_CLOCKWISE_BUILTIN;
-            if (fProgram.fPool) {
-                fProgram.fPool->attachToThread();
-            }
             auto clockwiseVar = std::make_unique<Variable>(/*offset=*/-1,
                                                            fContext.fModifiersPool->add(modifiers),
                                                            DEVICE_CLOCKWISE_NAME,
@@ -2130,9 +2123,6 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
                                                            Variable::Storage::kGlobal);
             fSPIRVBonusVariables.insert(clockwiseVar.get());
             symbols.add(std::move(clockwiseVar));
-            if (fProgram.fPool) {
-                fProgram.fPool->detachFromThread();
-            }
         }
         DSLGlobalVar deviceClockwise(DEVICE_CLOCKWISE_NAME);
         // FrontFacing in Vulkan is defined in terms of a top-down render target. In skia,
@@ -3059,30 +3049,27 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
                                       /*flags=*/0),
                             SKSL_RTFLIP_NAME,
                             fContext.fTypes.fFloat2.get());
-        if (fProgram.fPool) {
-            fProgram.fPool->attachToThread();
-        }
-        const Type* rtFlipStructType = fProgram.fSymbols->takeOwnershipOfSymbol(
-                Type::MakeStructType(type.fOffset, type.name(), std::move(fields)));
-        const Variable* modifiedVar = fProgram.fSymbols->takeOwnershipOfSymbol(
-                std::make_unique<Variable>(intfVar.fOffset,
-                                           &intfVar.modifiers(),
-                                           intfVar.name(),
-                                           rtFlipStructType,
-                                           intfVar.isBuiltin(),
-                                           intfVar.storage()));
-        fSPIRVBonusVariables.insert(modifiedVar);
-        InterfaceBlock modifiedCopy(intf.fOffset,
-                                    modifiedVar,
-                                    intf.typeName(),
-                                    intf.instanceName(),
-                                    intf.arraySize(),
-                                    intf.typeOwner());
-        result = this->writeInterfaceBlock(modifiedCopy, false);
-        fProgram.fSymbols->add(std::make_unique<Field>(
-                /*offset=*/-1, modifiedVar, rtFlipStructType->fields().size() - 1));
-        if (fProgram.fPool) {
-            fProgram.fPool->detachFromThread();
+        {
+            AutoAttachPoolToThread attach(fProgram.fPool.get());
+            const Type* rtFlipStructType = fProgram.fSymbols->takeOwnershipOfSymbol(
+                    Type::MakeStructType(type.fOffset, type.name(), std::move(fields)));
+            const Variable* modifiedVar = fProgram.fSymbols->takeOwnershipOfSymbol(
+                    std::make_unique<Variable>(intfVar.fOffset,
+                                               &intfVar.modifiers(),
+                                               intfVar.name(),
+                                               rtFlipStructType,
+                                               intfVar.isBuiltin(),
+                                               intfVar.storage()));
+            fSPIRVBonusVariables.insert(modifiedVar);
+            InterfaceBlock modifiedCopy(intf.fOffset,
+                                        modifiedVar,
+                                        intf.typeName(),
+                                        intf.instanceName(),
+                                        intf.arraySize(),
+                                        intf.typeOwner());
+            result = this->writeInterfaceBlock(modifiedCopy, false);
+            fProgram.fSymbols->add(std::make_unique<Field>(
+                    /*offset=*/-1, modifiedVar, rtFlipStructType->fields().size() - 1));
         }
         fVariableMap[&intfVar] = result;
         fWroteRTFlip = true;
@@ -3615,24 +3602,22 @@ void SPIRVCodeGenerator::addRTFlipUniform(int offset) {
     }
     bool usePushConstants = fProgram.fConfig->fSettings.fUsePushConstants;
     int flags = usePushConstants ? Layout::Flag::kPushConstant_Flag : 0;
-    if (fProgram.fPool) {
-        fProgram.fPool->attachToThread();
-    }
-    Modifiers modifiers(Layout(flags,
-                               /*location=*/-1,
-                               /*offset=*/-1,
-                               binding,
-                               /*index=*/-1,
-                               set,
-                               /*builtin=*/-1,
-                               /*inputAttachmentIndex=*/-1,
-                               Layout::kUnspecified_Primitive,
-                               /*maxVertices=*/-1,
-                               /*invocations=*/-1),
-                        Modifiers::kUniform_Flag);
-    const Modifiers* modsPtr = fProgram.fModifiers->add(modifiers);
-    if (fProgram.fPool) {
-        fProgram.fPool->detachFromThread();
+    const Modifiers* modsPtr;
+    {
+        AutoAttachPoolToThread attach(fProgram.fPool.get());
+        Modifiers modifiers(Layout(flags,
+                                   /*location=*/-1,
+                                   /*offset=*/-1,
+                                   binding,
+                                   /*index=*/-1,
+                                   set,
+                                   /*builtin=*/-1,
+                                   /*inputAttachmentIndex=*/-1,
+                                   Layout::kUnspecified_Primitive,
+                                   /*maxVertices=*/-1,
+                                   /*invocations=*/-1),
+                            Modifiers::kUniform_Flag);
+        modsPtr = fProgram.fModifiers->add(modifiers);
     }
     const Variable* intfVar = fSynthetics.takeOwnershipOfSymbol(
             std::make_unique<Variable>(/*offset=*/-1,
@@ -3642,12 +3627,9 @@ void SPIRVCodeGenerator::addRTFlipUniform(int offset) {
                                        /*builtin=*/false,
                                        Variable::Storage::kGlobal));
     fSPIRVBonusVariables.insert(intfVar);
-    if (fProgram.fPool) {
-        fProgram.fPool->attachToThread();
-    }
-    fProgram.fSymbols->add(std::make_unique<Field>(/*offset=*/-1, intfVar, /*field=*/0));
-    if (fProgram.fPool) {
-        fProgram.fPool->detachFromThread();
+    {
+        AutoAttachPoolToThread attach(fProgram.fPool.get());
+        fProgram.fSymbols->add(std::make_unique<Field>(/*offset=*/-1, intfVar, /*field=*/0));
     }
     InterfaceBlock intf(/*offset=*/-1,
                         intfVar,

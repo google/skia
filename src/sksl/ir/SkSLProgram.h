@@ -100,16 +100,12 @@ struct Program {
         // Some or all of the program elements are in the pool. To free them safely, we must attach
         // the pool before destroying any program elements. (Otherwise, we may accidentally call
         // delete on a pooled node.)
-        if (fPool) {
-            fPool->attachToThread();
-        }
+        AutoAttachPoolToThread attach(fPool.get());
+
         fElements.clear();
         fContext.reset();
         fSymbols.reset();
         fModifiers.reset();
-        if (fPool) {
-            fPool->detachFromThread();
-        }
     }
 
     class ElementsCollection {
