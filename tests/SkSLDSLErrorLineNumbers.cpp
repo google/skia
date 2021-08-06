@@ -34,12 +34,11 @@ public:
         SetErrorHandler(nullptr);
     }
 
-    void handleError(const char* msg, PositionInfo* pos) override {
+    void handleError(const char* msg, PositionInfo pos) override {
         REPORTER_ASSERT(fReporter, !strcmp(msg, fMsg),
                         "Error mismatch: expected:\n%sbut received:\n%s", fMsg, msg);
-        REPORTER_ASSERT(fReporter, pos);
-        REPORTER_ASSERT(fReporter, pos->line() == fLine,
-                        "Line number mismatch: expected %d, but received %d\n", fLine, pos->line());
+        REPORTER_ASSERT(fReporter, pos.line() == fLine,
+                        "Line number mismatch: expected %d, but received %d\n", fLine, pos.line());
         fMsg = nullptr;
     }
 

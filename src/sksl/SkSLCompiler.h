@@ -161,7 +161,7 @@ public:
 
     bool toMetal(Program& program, String* out);
 
-    void handleError(const char* msg, dsl::PositionInfo* pos) override;
+    void handleError(const char* msg, dsl::PositionInfo pos) override;
 
     String errorText(bool showCount = true);
 

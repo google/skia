@@ -208,16 +208,13 @@ DSLPossibleStatement DSLWriter::ConvertSwitch(std::unique_ptr<Expression> value,
                                     IRGenerator().fSymbolTable);
 }
 
-void DSLWriter::ReportError(const char* msg, PositionInfo* info) {
+void DSLWriter::ReportError(const char* msg, PositionInfo info) {
     Instance().fEncounteredErrors = true;
-    if (info && !info->file_name()) {
-        info = nullptr;
-    }
     if (Instance().fErrorHandler) {
         Instance().fErrorHandler->handleError(msg, info);
-    } else if (info) {
+    } else if (info.file_name()) {
         SK_ABORT("%s: %d: %sNo SkSL DSL error handler configured, treating this as a fatal error\n",
-                 info->file_name(), info->line(), msg);
+                 info.file_name(), info.line(), msg);
     } else {
         SK_ABORT("%sNo SkSL DSL error handler configured, treating this as a fatal error\n", msg);
     }
@@ -284,7 +281,7 @@ void DSLWriter::MarkDeclared(DSLVarBase& var) {
 
 void DSLWriter::ReportErrors(PositionInfo pos) {
     if (Compiler().errorCount()) {
-        ReportError(DSLWriter::Compiler().errorText(/*showCount=*/false).c_str(), &pos);
+        ReportError(DSLWriter::Compiler().errorText(/*showCount=*/false).c_str(), pos);
         Compiler().setErrorCount(0);
     }
 }

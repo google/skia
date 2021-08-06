@@ -27,13 +27,11 @@ public:
 
     /** Reports an error message at the given character offset of the source text. */
     void error(int offset, String msg) {
-        dsl::PositionInfo pos = this->position(offset);
-        this->handleError(msg.c_str(), &pos);
+        this->handleError(msg.c_str(), this->position(offset));
     }
 
     void error(int offset, const char* msg) {
-        dsl::PositionInfo pos = this->position(offset);
-        this->handleError(msg, &pos);
+        this->handleError(msg, this->position(offset));
     }
 
     /** Returns the number of errors that have been reported. */
@@ -69,7 +67,7 @@ private:
  */
 class TestingOnly_AbortErrorReporter : public ErrorReporter {
 public:
-    void handleError(const char* msg, dsl::PositionInfo* pos) override { SK_ABORT("%s", msg); }
+    void handleError(const char* msg, dsl::PositionInfo pos) override { SK_ABORT("%s", msg); }
     int errorCount() override { return 0; }
     void setErrorCount(int) override {}
 };

@@ -16,7 +16,7 @@ namespace dsl {
 DSLLayout& DSLLayout::flag(SkSL::Layout::Flag mask, const char* name, PositionInfo pos) {
     if (fSkSLLayout.fFlags & mask) {
         DSLWriter::ReportError(("error: layout qualifier '" + String(name) +
-                                "' appears more than once\n").c_str(), &pos);
+                                "' appears more than once\n").c_str(), pos);
     }
     fSkSLLayout.fFlags |= mask;
     return *this;

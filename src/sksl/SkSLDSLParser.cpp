@@ -215,7 +215,7 @@ public:
         }
     }
 
-    void handleError(const char* msg, PositionInfo* position) override {
+    void handleError(const char* msg, PositionInfo position) override {
         fErrors.push_back(msg);
     }
 

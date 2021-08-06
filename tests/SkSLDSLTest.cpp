@@ -64,7 +64,7 @@ public:
         SetErrorHandler(nullptr);
     }
 
-    void handleError(const char* msg, PositionInfo* pos) override {
+    void handleError(const char* msg, PositionInfo pos) override {
         REPORTER_ASSERT(fReporter, !strcmp(msg, fMsg),
                         "Error mismatch: expected:\n%sbut received:\n%s", fMsg, msg);
         fMsg = nullptr;

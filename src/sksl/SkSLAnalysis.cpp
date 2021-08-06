@@ -304,7 +304,7 @@ private:
 // If a caller doesn't care about errors, we can use this trivial reporter that just counts up.
 class TrivialErrorReporter : public ErrorReporter {
 public:
-    void handleError(const char*, dsl::PositionInfo*) override { ++fErrorCount; }
+    void handleError(const char*, dsl::PositionInfo) override { ++fErrorCount; }
     int errorCount() override { return fErrorCount; }
     void setErrorCount(int c) override { fErrorCount = c; }
 

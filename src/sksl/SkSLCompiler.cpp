@@ -986,15 +986,14 @@ bool Compiler::toMetal(Program& program, String* out) {
 
 #endif // defined(SKSL_STANDALONE) || SK_SUPPORT_GPU
 
-void Compiler::handleError(const char* msg, dsl::PositionInfo* pos) {
+void Compiler::handleError(const char* msg, dsl::PositionInfo pos) {
     if (strstr(msg, POISON_TAG)) {
         // don't report errors on poison values
         return;
     }
     fErrorCount++;
     fErrorTextLength.push_back(fErrorText.length());
-    fErrorText += "error: " + (pos && pos->line() >= 1 ? to_string(pos->line()) + ": " : "") + msg +
-                  "\n";
+    fErrorText += "error: " + (pos.line() >= 1 ? to_string(pos.line()) + ": " : "") + msg + "\n";
 }
 
 void Compiler::setErrorCount(int c) {
