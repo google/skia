@@ -123,16 +123,12 @@ void SymbolTable::addWithoutOwnership(const Symbol* symbol) {
 
 const Type* SymbolTable::addArrayDimension(const Type* type, int arraySize) {
     if (arraySize != 0) {
-        String baseName(type->name());
-        String arrayName = (arraySize != Type::kUnsizedArray)
-                                   ? String::printf("%s[%d]", baseName.c_str(), arraySize)
-                                   : String::printf("%s[]", baseName.c_str());
-        SymbolTable* owner = this;
-        while (owner->fParent && !owner->fParent->fBuiltin) {
-            owner = owner->fParent.get();
-        }
-        skstd::string_view nameChars(*owner->takeOwnershipOfString(std::move(arrayName)));
-        type = this->takeOwnershipOfSymbol(Type::MakeArrayType(nameChars, *type, arraySize));
+        skstd::string_view name = type->name();
+        const String* arrayName = this->takeOwnershipOfString(
+                (arraySize != Type::kUnsizedArray)
+                        ? String::printf("%.*s[%d]", (int)name.size(), name.data(), arraySize)
+                        : String::printf("%.*s[]", (int)name.size(), name.data()));
+        type = this->takeOwnershipOfSymbol(Type::MakeArrayType(*arrayName, *type, arraySize));
     }
     return type;
 }

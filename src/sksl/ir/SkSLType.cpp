@@ -389,7 +389,7 @@ std::unique_ptr<Type> Type::MakeScalarType(const char* name, const char* abbrev,
 
 std::unique_ptr<Type> Type::MakeStructType(int offset, skstd::string_view name,
                                            std::vector<Field> fields) {
-    return std::make_unique<StructType>(offset, std::move(name), std::move(fields));
+    return std::make_unique<StructType>(offset, name, std::move(fields));
 }
 
 std::unique_ptr<Type> Type::MakeTextureType(const char* name, SpvDim_ dimensions, bool isDepth,
@@ -657,15 +657,13 @@ const Type* Type::clone(SymbolTable* symbolTable) const {
     }
     // This type actually needs to be cloned into the destination SymbolTable.
     switch (this->typeKind()) {
-        case TypeKind::kArray:
-            return symbolTable->add(Type::MakeArrayType(this->name(), this->componentType(),
-                                                        this->columns()));
-
-        case TypeKind::kStruct:
-            return symbolTable->add(std::make_unique<StructType>(this->fOffset,
-                                                                 this->name(),
-                                                                 this->fields()));
-
+        case TypeKind::kArray: {
+            return symbolTable->addArrayDimension(&this->componentType(), this->columns());
+        }
+        case TypeKind::kStruct: {
+            const String* name = symbolTable->takeOwnershipOfString(String(this->name()));
+            return symbolTable->add(Type::MakeStructType(this->fOffset, *name, this->fields()));
+        }
         default:
             SkDEBUGFAILF("don't know how to clone type '%s'", this->description().c_str());
             return nullptr;
