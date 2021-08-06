@@ -465,7 +465,6 @@ private:
         // Propagates up the FP tree to the root.
         kWillReadDstColor_Flag = kFirstPrivateFlag << 3,
     };
-    void addAndPushFlagToChildren(PrivateFlags flag);
 
     SkSTArray<1, std::unique_ptr<GrFragmentProcessor>, true> fChildProcessors;
     const GrFragmentProcessor* fParent = nullptr;

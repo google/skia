@@ -122,23 +122,6 @@ std::unique_ptr<GrGLSLFragmentProcessor> GrFragmentProcessor::makeProgramImpl() 
     return glFragProc;
 }
 
-void GrFragmentProcessor::addAndPushFlagToChildren(PrivateFlags flag) {
-    // This propagates down, so if we've already marked it, all our children should have it too
-    if (!(fFlags & flag)) {
-        fFlags |= flag;
-        for (auto& child : fChildProcessors) {
-            if (child) {
-                child->addAndPushFlagToChildren(flag);
-            }
-        }
-    }
-#ifdef SK_DEBUG
-    for (auto& child : fChildProcessors) {
-        SkASSERT(!child || (child->fFlags & flag));
-    }
-#endif
-}
-
 int GrFragmentProcessor::numNonNullChildProcessors() const {
     return std::count_if(fChildProcessors.begin(), fChildProcessors.end(),
                          [](const auto& c) { return c != nullptr; });
