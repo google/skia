@@ -120,9 +120,7 @@ private:
         this->registerChild(std::move(child));
     }
 
-    explicit TestFP(const TestFP& that) : INHERITED(kTestFP_ClassID, that.optimizationFlags()) {
-        this->cloneAndRegisterAllChildProcessors(that);
-    }
+    explicit TestFP(const TestFP& that) : INHERITED(that) {}
 
     std::unique_ptr<ProgramImpl> onMakeProgramImpl() const override {
         class TestGLSLFP : public ProgramImpl {

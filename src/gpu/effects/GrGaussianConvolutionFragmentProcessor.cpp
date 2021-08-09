@@ -227,13 +227,11 @@ GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
 
 GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
         const GrGaussianConvolutionFragmentProcessor& that)
-        : INHERITED(kGrGaussianConvolutionFragmentProcessor_ClassID, that.optimizationFlags())
+        : INHERITED(that)
         , fRadius(that.fRadius)
         , fDirection(that.fDirection) {
-    this->cloneAndRegisterAllChildProcessors(that);
     memcpy(fKernel, that.fKernel, SkGpuBlurUtils::LinearKernelWidth(fRadius) * sizeof(float));
     memcpy(fOffsets, that.fOffsets, SkGpuBlurUtils::LinearKernelWidth(fRadius) * sizeof(float));
-    this->setUsesSampleCoordsDirectly();
 }
 
 void GrGaussianConvolutionFragmentProcessor::onAddToKey(const GrShaderCaps& caps,

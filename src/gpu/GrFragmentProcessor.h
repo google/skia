@@ -367,6 +367,11 @@ protected:
         SkASSERT((optimizationFlags & ~kAll_OptimizationFlags) == 0);
     }
 
+    explicit GrFragmentProcessor(const GrFragmentProcessor& src)
+            : INHERITED(src.classID()), fFlags(src.fFlags) {
+        this->cloneAndRegisterAllChildProcessors(src);
+    }
+
     OptimizationFlags optimizationFlags() const {
         return static_cast<OptimizationFlags>(kAll_OptimizationFlags & fFlags);
     }

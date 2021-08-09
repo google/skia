@@ -104,12 +104,10 @@ CircularRRectEffect::CircularRRectEffect(std::unique_ptr<GrFragmentProcessor> in
 }
 
 CircularRRectEffect::CircularRRectEffect(const CircularRRectEffect& that)
-        : INHERITED(kCircularRRectEffect_ClassID, that.optimizationFlags())
+        : INHERITED(that)
         , fRRect(that.fRRect)
         , fEdgeType(that.fEdgeType)
-        , fCircularCornerFlags(that.fCircularCornerFlags) {
-    this->cloneAndRegisterAllChildProcessors(that);
-}
+        , fCircularCornerFlags(that.fCircularCornerFlags) {}
 
 std::unique_ptr<GrFragmentProcessor> CircularRRectEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new CircularRRectEffect(*this));
@@ -453,11 +451,9 @@ EllipticalRRectEffect::EllipticalRRectEffect(std::unique_ptr<GrFragmentProcessor
 }
 
 EllipticalRRectEffect::EllipticalRRectEffect(const EllipticalRRectEffect& that)
-        : INHERITED(kEllipticalRRectEffect_ClassID, that.optimizationFlags())
+        : INHERITED(that)
         , fRRect(that.fRRect)
-        , fEdgeType(that.fEdgeType) {
-    this->cloneAndRegisterAllChildProcessors(that);
-}
+        , fEdgeType(that.fEdgeType) {}
 
 std::unique_ptr<GrFragmentProcessor> EllipticalRRectEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new EllipticalRRectEffect(*this));

@@ -490,10 +490,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::Compose(
             this->registerChild(std::move(g));
         }
 
-        ComposeProcessor(const ComposeProcessor& that)
-                : INHERITED(kSeriesFragmentProcessor_ClassID, that.optimizationFlags()) {
-            this->cloneAndRegisterAllChildProcessors(that);
-        }
+        ComposeProcessor(const ComposeProcessor& that) : INHERITED(that) {}
 
         void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
 

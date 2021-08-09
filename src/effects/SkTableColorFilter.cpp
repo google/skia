@@ -154,9 +154,7 @@ ColorTableEffect::ColorTableEffect(std::unique_ptr<GrFragmentProcessor> inputFP,
 }
 
 ColorTableEffect::ColorTableEffect(const ColorTableEffect& that)
-        : INHERITED(kColorTableEffect_ClassID, that.optimizationFlags()) {
-    this->cloneAndRegisterAllChildProcessors(that);
-}
+        : INHERITED(that) {}
 
 std::unique_ptr<GrFragmentProcessor::ProgramImpl> ColorTableEffect::onMakeProgramImpl() const {
     class Impl : public ProgramImpl {

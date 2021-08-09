@@ -305,7 +305,7 @@ GrSkSLFP::GrSkSLFP(sk_sp<SkRuntimeEffect> effect, const char* name, OptFlags opt
 }
 
 GrSkSLFP::GrSkSLFP(const GrSkSLFP& other)
-        : INHERITED(kGrSkSLFP_ClassID, other.optimizationFlags())
+        : INHERITED(other)
         , fEffect(other.fEffect)
         , fName(other.fName)
         , fUniformSize(other.fUniformSize)
@@ -314,15 +314,6 @@ GrSkSLFP::GrSkSLFP(const GrSkSLFP& other)
                       other.uniformFlags(),
                       fEffect->uniforms().count() * sizeof(UniformFlags));
     sk_careful_memcpy(this->uniformData(), other.uniformData(), fUniformSize);
-
-    if (fEffect->usesSampleCoords()) {
-        this->setUsesSampleCoordsDirectly();
-    }
-    if (fEffect->allowBlender()) {
-        this->setIsBlendFunction();
-    }
-
-    this->cloneAndRegisterAllChildProcessors(other);
 }
 
 void GrSkSLFP::addChild(std::unique_ptr<GrFragmentProcessor> child, bool mergeOptFlags) {

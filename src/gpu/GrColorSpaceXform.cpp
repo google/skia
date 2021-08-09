@@ -101,10 +101,8 @@ GrColorSpaceXformEffect::GrColorSpaceXformEffect(std::unique_ptr<GrFragmentProce
 }
 
 GrColorSpaceXformEffect::GrColorSpaceXformEffect(const GrColorSpaceXformEffect& that)
-        : INHERITED(kGrColorSpaceXformEffect_ClassID, that.optimizationFlags())
-        , fColorXform(that.fColorXform) {
-    this->cloneAndRegisterAllChildProcessors(that);
-}
+        : INHERITED(that)
+        , fColorXform(that.fColorXform) {}
 
 std::unique_ptr<GrFragmentProcessor> GrColorSpaceXformEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrColorSpaceXformEffect(*this));

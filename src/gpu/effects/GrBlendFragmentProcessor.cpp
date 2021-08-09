@@ -52,11 +52,8 @@ private:
     }
 
     BlendFragmentProcessor(const BlendFragmentProcessor& that)
-            : INHERITED(kBlendFragmentProcessor_ClassID, ProcessorOptimizationFlags(&that))
-            , fMode(that.fMode) {
-        this->setIsBlendFunction();
-        this->cloneAndRegisterAllChildProcessors(that);
-    }
+            : INHERITED(that)
+            , fMode(that.fMode) {}
 
 #if GR_TEST_UTILS
     SkString onDumpInfo() const override {

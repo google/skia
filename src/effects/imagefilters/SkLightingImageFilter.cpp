@@ -1633,14 +1633,11 @@ GrLightingEffect::GrLightingEffect(ClassID classID,
 }
 
 GrLightingEffect::GrLightingEffect(const GrLightingEffect& that)
-        : INHERITED(that.classID(), that.optimizationFlags())
+        : INHERITED(that)
         , fLight(that.fLight)
         , fSurfaceScale(that.fSurfaceScale)
         , fFilterMatrix(that.fFilterMatrix)
-        , fBoundaryMode(that.fBoundaryMode) {
-    this->cloneAndRegisterAllChildProcessors(that);
-    this->setUsesSampleCoordsDirectly();
-}
+        , fBoundaryMode(that.fBoundaryMode) {}
 
 bool GrLightingEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
     const GrLightingEffect& s = sBase.cast<GrLightingEffect>();

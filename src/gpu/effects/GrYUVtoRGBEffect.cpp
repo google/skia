@@ -373,14 +373,9 @@ bool GrYUVtoRGBEffect::onIsEqual(const GrFragmentProcessor& other) const {
 }
 
 GrYUVtoRGBEffect::GrYUVtoRGBEffect(const GrYUVtoRGBEffect& src)
-        : GrFragmentProcessor(kGrYUVtoRGBEffect_ClassID, src.optimizationFlags())
+        : GrFragmentProcessor(src)
         , fLocations((src.fLocations))
         , fYUVColorSpace(src.fYUVColorSpace) {
-    this->cloneAndRegisterAllChildProcessors(src);
-    if (src.fSnap[0] || src.fSnap[1]) {
-        this->setUsesSampleCoordsDirectly();
-    }
-
     std::copy_n(src.fSnap, 2, fSnap);
 }
 

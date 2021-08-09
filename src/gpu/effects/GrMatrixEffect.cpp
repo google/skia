@@ -70,10 +70,8 @@ bool GrMatrixEffect::onIsEqual(const GrFragmentProcessor& other) const {
 }
 
 GrMatrixEffect::GrMatrixEffect(const GrMatrixEffect& src)
-        : INHERITED(kGrMatrixEffect_ClassID, src.optimizationFlags())
-        , fMatrix(src.fMatrix) {
-    this->cloneAndRegisterAllChildProcessors(src);
-}
+        : INHERITED(src)
+        , fMatrix(src.fMatrix) {}
 
 std::unique_ptr<GrFragmentProcessor> GrMatrixEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrMatrixEffect(*this));

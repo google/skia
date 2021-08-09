@@ -477,13 +477,10 @@ GrDisplacementMapEffect::GrDisplacementMapEffect(SkColorChannel xChannelSelector
 }
 
 GrDisplacementMapEffect::GrDisplacementMapEffect(const GrDisplacementMapEffect& that)
-        : INHERITED(kGrDisplacementMapEffect_ClassID, that.optimizationFlags())
+        : INHERITED(that)
         , fXChannelSelector(that.fXChannelSelector)
         , fYChannelSelector(that.fYChannelSelector)
-        , fScale(that.fScale) {
-    this->cloneAndRegisterAllChildProcessors(that);
-    this->setUsesSampleCoordsDirectly();
-}
+        , fScale(that.fScale) {}
 
 GrDisplacementMapEffect::~GrDisplacementMapEffect() {}
 

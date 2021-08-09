@@ -211,13 +211,10 @@ GrBicubicEffect::GrBicubicEffect(std::unique_ptr<GrFragmentProcessor> fp,
 }
 
 GrBicubicEffect::GrBicubicEffect(const GrBicubicEffect& that)
-        : INHERITED(kGrBicubicEffect_ClassID, that.optimizationFlags())
+        : INHERITED(that)
         , fKernel(that.fKernel)
         , fDirection(that.fDirection)
-        , fClamp(that.fClamp) {
-    this->setUsesSampleCoordsDirectly();
-    this->cloneAndRegisterAllChildProcessors(that);
-}
+        , fClamp(that.fClamp) {}
 
 void GrBicubicEffect::onAddToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
     uint32_t key = (static_cast<uint32_t>(fDirection) << 0) | (static_cast<uint32_t>(fClamp) << 2);

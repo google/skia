@@ -42,9 +42,7 @@ private:
     }
 
     explicit DestColorTestFP(const DestColorTestFP& that)
-            : INHERITED(kTestFP_ClassID, that.optimizationFlags()) {
-        this->cloneAndRegisterAllChildProcessors(that);
-    }
+            : INHERITED(that) {}
 
     const char* name() const override { return "DestColorTestFP"; }
     void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}

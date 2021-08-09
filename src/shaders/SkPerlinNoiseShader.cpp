@@ -660,15 +660,11 @@ private:
     }
 
     GrPerlinNoise2Effect(const GrPerlinNoise2Effect& that)
-            : INHERITED(kGrPerlinNoise2Effect_ClassID, kNone_OptimizationFlags)
+            : INHERITED(that)
             , fType(that.fType)
             , fNumOctaves(that.fNumOctaves)
             , fStitchTiles(that.fStitchTiles)
-            , fPaintingData(new SkPerlinNoiseShaderImpl::PaintingData(*that.fPaintingData)) {
-        this->cloneAndRegisterAllChildProcessors(that);
-        this->setUsesSampleCoordsDirectly();
-    }
-
+            , fPaintingData(new SkPerlinNoiseShaderImpl::PaintingData(*that.fPaintingData)) {}
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 

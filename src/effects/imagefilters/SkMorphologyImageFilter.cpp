@@ -319,13 +319,11 @@ GrMorphologyEffect::GrMorphologyEffect(std::unique_ptr<GrFragmentProcessor> inpu
 }
 
 GrMorphologyEffect::GrMorphologyEffect(const GrMorphologyEffect& that)
-        : INHERITED(kGrMorphologyEffect_ClassID, that.optimizationFlags())
+        : INHERITED(that)
         , fDirection(that.fDirection)
         , fRadius(that.fRadius)
         , fType(that.fType)
         , fUseRange(that.fUseRange) {
-    this->setUsesSampleCoordsDirectly();
-    this->cloneAndRegisterAllChildProcessors(that);
     if (that.fUseRange) {
         fRange[0] = that.fRange[0];
         fRange[1] = that.fRange[1];
