@@ -2454,7 +2454,6 @@ if (skia_enable_tools) {
       deps = [
         ":skia",
         "modules/skottie",
-        "modules/sksg:samples",
       ]
     }
 
