@@ -102,7 +102,15 @@ void SkClipStackDevice::onAsRgnClip(SkRegion* rgn) const {
             elem->asDeviceSpacePath(&tmpPath);
             SkRegion tmpRgn;
             tmpRgn.setPath(tmpPath, boundsRgn);
-            rgn->op(tmpRgn, elem->getRegionOp());
+            if (elem->isReplaceOp()) {
+                // All replace elements are rectangles
+                // TODO: SkClipStack can be simplified to be I,D,R ops now, which means element
+                // iteration can be from top of the stack to the most recent replace element.
+                // When that's done, this loop will be simplifiable.
+                rgn->setRect(elem->getDeviceSpaceRect().round());
+            } else {
+                rgn->op(tmpRgn, static_cast<SkRegion::Op>(elem->getOp()));
+            }
         }
     }
 }

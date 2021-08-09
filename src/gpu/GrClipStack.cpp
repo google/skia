@@ -1451,7 +1451,7 @@ GrClip::Effect GrClipStack::apply(GrRecordingContext* rContext,
     if (cs.op() == SkClipOp::kIntersect && !elementsForMask.empty()) {
         SkAssertResult(scissorBounds.intersect(draw.outerBounds()));
     }
-    if (!GrClip::IsInsideClip(scissorBounds, *bounds)) {
+    if (!GrClip::IsInsideClip(scissorBounds, *bounds, draw.aa())) {
         out->hardClip().addScissor(scissorBounds, bounds);
     }
     if (!windowRects.empty()) {

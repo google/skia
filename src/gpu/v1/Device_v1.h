@@ -14,6 +14,7 @@
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrTypes.h"
 #include "src/gpu/BaseDevice.h"
+#include "src/gpu/GrClipStack.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
@@ -21,14 +22,6 @@ class SkSpecialImage;
 class SkSurface;
 class SkSurface_Gpu;
 class SkVertices;
-
-#if !defined(SK_DISABLE_NEW_GR_CLIP_STACK)
-    #include "src/gpu/GrClipStack.h"
-    #define GR_CLIP_STACK GrClipStack
-#else
-    #include "src/gpu/GrClipStackClip.h"
-    #define GR_CLIP_STACK GrClipStackClip
-#endif
 
 namespace skgpu::v1 {
 
@@ -159,7 +152,6 @@ protected:
     bool onReadPixels(const SkPixmap&, int, int) override;
     bool onWritePixels(const SkPixmap&, int, int) override;
 
-#if !defined(SK_DISABLE_NEW_GR_CLIP_STACK)
     void onSave() override { fClip.save(); }
     void onRestore() override { fClip.restore(); }
 
@@ -197,12 +189,11 @@ protected:
         return fClip.clipState() == GrClipStack::ClipState::kWideOpen;
     }
     SkIRect onDevClipBounds() const override { return fClip.getConservativeBounds(); }
-#endif
 
 private:
     std::unique_ptr<SurfaceDrawContext> fSurfaceDrawContext;
 
-    GR_CLIP_STACK fClip;
+    GrClipStack fClip;
 
     enum Flags {
         kNeedClear_Flag = 1 << 0,  //!< Surface requires an initial clear

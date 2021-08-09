@@ -530,7 +530,7 @@ public:
         this->internalStencilClear(&scissor, insideStencilMask);
     }
 
-    // While this can take a general clip, since GrReducedClip relies on this function, it must take
+    // While this can take a general clip, since GrClipStack relies on this function, it must take
     // care to only provide hard clips or we could get stuck in a loop. The general clip is needed
     // so that path renderers can use this function.
     void stencilRect(const GrClip* clip,

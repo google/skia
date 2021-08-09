@@ -61,12 +61,10 @@ SkImageInfo make_info(skgpu::v1::SurfaceDrawContext* sdc, bool opaque) {
                              sdc->colorInfo().refColorSpace());
 }
 
-#if !defined(SK_DISABLE_NEW_GR_CLIP_STACK)
 bool force_aa_clip(const skgpu::v1::SurfaceDrawContext* sdc) {
     return (sdc->numSamples() > 1 && !sdc->caps()->multisampleDisableSupport()) ||
            sdc->alwaysAntialias();
 }
-#endif
 
 inline GrPrimitiveType point_mode_to_primitive_type(SkCanvas::PointMode mode) {
     switch (mode) {
@@ -216,13 +214,9 @@ Device::Device(std::unique_ptr<SurfaceDrawContext> sdc, unsigned flags)
                     make_info(sdc.get(), SkToBool(flags & kIsOpaque_Flag)),
                     sdc->surfaceProps())
         , fSurfaceDrawContext(std::move(sdc))
-#if !defined(SK_DISABLE_NEW_GR_CLIP_STACK)
         , fClip(SkIRect::MakeSize(fSurfaceDrawContext->dimensions()),
                 &this->asMatrixProvider(),
                 force_aa_clip(fSurfaceDrawContext.get())) {
-#else
-        , fClip(fSurfaceDrawContext->dimensions(), &this->cs(), &this->asMatrixProvider()) {
-#endif
     if (flags & kNeedClear_Flag) {
         this->clearAll();
     }
@@ -306,8 +300,6 @@ void Device::clearAll() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#if !defined(SK_DISABLE_NEW_GR_CLIP_STACK)
-
 void Device::onClipPath(const SkPath& path, SkClipOp op, bool aa) {
 #if GR_TEST_UTILS
     if (fContext->priv().options().fAllPathsVolatile && !path.isVolatile()) {
@@ -377,8 +369,6 @@ SkBaseDevice::ClipType Device::onGetClipType() const {
         return ClipType::kComplex;
     }
 }
-
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 

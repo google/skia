@@ -10,6 +10,7 @@
 
 #include "include/core/SkImage.h"
 #include "include/private/GrTypesPriv.h"
+#include "src/core/SkDevice.h"
 
 class GrRenderTargetProxy;
 namespace skgpu {
@@ -20,20 +21,9 @@ namespace skgpu {
 }
 class GrSurfaceProxyView;
 
-// NOTE: when not defined, SkGpuDevice extends SkBaseDevice directly and manages its clip stack
-// using GrClipStack. When false, SkGpuDevice continues to extend SkClipStackDevice and uses
-// SkClipStack and GrClipStackClip to manage the clip stack.
-#if !defined(SK_DISABLE_NEW_GR_CLIP_STACK)
-    #include "src/core/SkDevice.h"
-    #define BASE_DEVICE   SkBaseDevice
-#else
-    #include "src/core/SkClipStackDevice.h"
-    #define BASE_DEVICE   SkClipStackDevice
-#endif
-
 namespace skgpu {
 
-class BaseDevice : public BASE_DEVICE {
+class BaseDevice : public SkBaseDevice {
 public:
     enum InitContents {
         kClear_InitContents,
@@ -92,11 +82,9 @@ protected:
     sk_sp<GrRecordingContext> fContext;
 
 private:
-    using INHERITED = BASE_DEVICE;
+    using INHERITED = SkBaseDevice;
 };
 
 } // namespace skgpu
-
-#undef BASE_DEVICE
 
 #endif // BaseDevice_DEFINED

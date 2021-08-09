@@ -504,9 +504,12 @@ SurfaceDrawContext::QuadOptimization SurfaceDrawContext::attemptQuadOptimization
     // the render target has an approximate backing fit
     SkRect rtRect = this->asSurfaceProxy()->getBoundsRect();
 
+    // For historical reasons, we assume AA for exact bounds checking in IsOutsideClip.
+    // TODO(michaelludwig) - Hopefully that can be revisited when the clipping optimizations are
+    // refactored to work better with round rects and dmsaa.
     SkRect drawBounds = quad->fDevice.bounds();
     if (!quad->fDevice.isFinite() || drawBounds.isEmpty() ||
-        GrClip::IsOutsideClip(rtRect, drawBounds)) {
+        GrClip::IsOutsideClip(SkIRect::MakeSize(this->dimensions()), drawBounds, GrAA::kYes)) {
         return QuadOptimization::kDiscarded;
     } else if (GrQuadUtils::WillUseHairline(quad->fDevice, GrAAType::kCoverage, quad->fEdgeFlags)) {
         // Don't try to apply the clip early if we know rendering will use hairline methods, as this
