@@ -37,6 +37,7 @@
 
 #include <ft2build.h>
 #include <freetype/ftadvanc.h>
+#include <freetype/ftimage.h>
 #include <freetype/ftbitmap.h>
 #ifdef FT_COLOR_H  // 2.10.0
 #   include <freetype/ftcolor.h>
@@ -1104,60 +1105,62 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
         opaqueLayerPaint.p = nullptr;
         if (FT_Get_Color_Glyph_Paint(fFace, glyph->getGlyphID(),
                                      FT_COLOR_INCLUDE_ROOT_TRANSFORM, &opaqueLayerPaint)) {
-          haveLayers = true;
+            haveLayers = true;
 
-          // COLRv1 glyphs define a placeholder glyph in the glyf table that
-          // defines the extrema of the glyph. If this placeholder glyph
-          // contains only two points and FreeType applies the transform first -
-          // as configured by setupSize() - then we get a transformed bounding
-          // box that is too small as it only needs to fit the two points. To
-          // fix that, create a temporary contour consisting of all four corners
-          // of an imaginary rectangle enclosing those two points, then
-          // transform that and perform the bounding box computations on this
-          // one.
+            FT_ClipBox colrGlyphBbox;
 
-          FT_Set_Transform(fFace, nullptr, nullptr);
+            // COLRv1 optionally provides a ClipBox that we can use for allocation.
+            if (FT_Get_Color_Glyph_ClipBox(fFace, glyph->getGlyphID(), &colrGlyphBbox)) {
+                // Find enclosing bounding box of clip box corner points, needed
+                // when clipbox is transformed.
+                bounds.xMin = colrGlyphBbox.bottom_left.x;
+                bounds.xMax = colrGlyphBbox.bottom_left.x;
+                bounds.yMin = colrGlyphBbox.bottom_left.y;
+                bounds.yMax = colrGlyphBbox.bottom_left.y;
 
-          err = FT_Load_Glyph(fFace, glyph->getGlyphID(),
-                              fLoadGlyphFlags | FT_LOAD_BITMAP_METRICS_ONLY);
-          if (err != 0 || fFace->glyph->outline.n_contours == 0) {
-            glyph->zeroMetrics();
-            return;
+                for (auto& corner : {colrGlyphBbox.top_left,
+                                     colrGlyphBbox.top_right,
+                                     colrGlyphBbox.bottom_right}) {
+                    if (corner.x < bounds.xMin) {
+                        bounds.xMin = corner.x;
+                    }
+                    if (corner.y < bounds.yMin) {
+                        bounds.yMin = corner.y;
+                    }
+                    if (corner.x > bounds.xMax) {
+                        bounds.xMax = corner.x;
+                    }
+                    if (corner.y > bounds.yMax) {
+                        bounds.yMax = corner.y;
+                    }
+                }
+          } else {
+              // Otherwise we need to traverse the glyph graph with a focus on measuring the
+              // required bounding box.
+              FT_BBox computed_bounds;
+              if (!computeColrV1GlyphBoundingBox(fFace, glyph->getGlyphID(), &computed_bounds)) {
+                  glyph->zeroMetrics();
+                  return;
+              }
+
+              // Reset face so the main glyph slot contains information about the
+              // base glyph again, for usage for computing and copying horizontal
+              // metrics from FreeType to Skia below.
+              if (this->setupSize()) {
+                  glyph->zeroMetrics();
+                  return;
+              }
+
+              FT_Error err;
+              err = FT_Load_Glyph(
+                      fFace, glyph->getGlyphID(), fLoadGlyphFlags | FT_LOAD_BITMAP_METRICS_ONLY);
+              if (err != 0) {
+                  glyph->zeroMetrics();
+                  return;
+              }
+
+              bounds = computed_bounds;
           }
-          emboldenIfNeeded(fFace, fFace->glyph, glyph->getGlyphID());
-
-          FT_BBox bbox_untransformed;
-          FT_Outline_Get_CBox(&fFace->glyph->outline, &bbox_untransformed);
-
-          FT_Outline bboxOutline;
-          err = FT_Outline_New(gFTLibrary->library(), 4, 0, &bboxOutline);
-          if (err != 0) {
-            glyph->zeroMetrics();
-            return;
-          }
-
-          // Compose a rectangle contour by setting the four corners.
-          bboxOutline.points[0].x = bbox_untransformed.xMin;
-          bboxOutline.points[0].y = bbox_untransformed.yMin;
-
-          bboxOutline.points[1].x = bbox_untransformed.xMin;
-          bboxOutline.points[1].y = bbox_untransformed.yMax;
-
-          bboxOutline.points[2].x = bbox_untransformed.xMax;
-          bboxOutline.points[2].y = bbox_untransformed.yMax;
-
-          bboxOutline.points[3].x = bbox_untransformed.xMax;
-          bboxOutline.points[3].y = bbox_untransformed.yMin;
-
-          FT_Outline_Transform(&bboxOutline, &fMatrix22);
-
-          FT_Outline faceOutline = fFace->glyph->outline;
-          fFace->glyph->outline = bboxOutline;
-          // Retrieve from temporarily replaced transformed rectangle outline.
-          getBBoxForCurrentGlyph(glyph, &bounds, true);
-          fFace->glyph->outline = faceOutline;
-          FT_Outline_Done(gFTLibrary->library(), &bboxOutline);
-
         }
 #endif // #TT_SUPPORT_COLRV1
 
