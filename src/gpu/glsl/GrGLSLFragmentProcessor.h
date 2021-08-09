@@ -14,16 +14,13 @@
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
-class GrProcessor;
-class GrProcessorKeyBuilder;
-class GrGLSLFPBuilder;
 class GrGLSLFPFragmentBuilder;
 
-class GrGLSLFragmentProcessor {
+class GrFragmentProcessor::ProgramImpl {
 public:
-    GrGLSLFragmentProcessor() = default;
+    ProgramImpl() = default;
 
-    virtual ~GrGLSLFragmentProcessor() = default;
+    virtual ~ProgramImpl() = default;
 
     using UniformHandle      = GrGLSLUniformHandler::UniformHandle;
     using SamplerHandle      = GrGLSLUniformHandler::SamplerHandle;
@@ -80,9 +77,7 @@ public:
 
     int numChildProcessors() const { return fChildProcessors.count(); }
 
-    GrGLSLFragmentProcessor* childProcessor(int index) const {
-        return fChildProcessors[index].get();
-    }
+    ProgramImpl* childProcessor(int index) const { return fChildProcessors[index].get(); }
 
     void setFunctionName(SkString name) {
         SkASSERT(fFunctionName.isEmpty());
@@ -152,11 +147,11 @@ public:
      */
     class Iter {
     public:
-        Iter(std::unique_ptr<GrGLSLFragmentProcessor> fps[], int cnt);
-        Iter(GrGLSLFragmentProcessor& fp) { fFPStack.push_back(&fp); }
+        Iter(std::unique_ptr<ProgramImpl> fps[], int cnt);
+        Iter(ProgramImpl& fp) { fFPStack.push_back(&fp); }
 
-        GrGLSLFragmentProcessor& operator*() const;
-        GrGLSLFragmentProcessor* operator->() const;
+        ProgramImpl& operator*() const;
+        ProgramImpl* operator->() const;
         Iter& operator++();
         operator bool() const { return !fFPStack.empty(); }
 
@@ -165,22 +160,24 @@ public:
         Iter& operator=(const Iter&) = delete;
 
     private:
-        SkSTArray<4, GrGLSLFragmentProcessor*, true> fFPStack;
+        SkSTArray<4, ProgramImpl*, true> fFPStack;
     };
 
 protected:
-    /** A GrGLSLFragmentProcessor instance can be reused with any GrFragmentProcessor that produces
-    the same stage key; this function reads data from a GrFragmentProcessor and uploads any
-    uniform variables required by the shaders created in emitCode(). The GrFragmentProcessor
-    parameter is guaranteed to be of the same type that created this GrGLSLFragmentProcessor and
-    to have an identical processor key as the one that created this GrGLSLFragmentProcessor.  */
+    /**
+     * A ProgramImpl instance can be reused with any GrFragmentProcessor that produces the same
+     * the same key; this function reads data from a GrFragmentProcessor and uploads any
+     * uniform variables required by the shaders created in emitCode(). The GrFragmentProcessor
+     * parameter is guaranteed to be of the same type that created this ProgramImpl and
+     * to have an identical key as the one that created this ProgramImpl.
+     */
     virtual void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) {}
 
 private:
     // The (mangled) name of our entry-point function
     SkString fFunctionName;
 
-    SkTArray<std::unique_ptr<GrGLSLFragmentProcessor>, true> fChildProcessors;
+    SkTArray<std::unique_ptr<ProgramImpl>, true> fChildProcessors;
 
     friend class GrFragmentProcessor;
 };

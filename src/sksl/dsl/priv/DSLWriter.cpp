@@ -111,8 +111,8 @@ skstd::string_view DSLWriter::Name(skstd::string_view name) {
 }
 
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
-void DSLWriter::StartFragmentProcessor(GrGLSLFragmentProcessor* processor,
-                                       GrGLSLFragmentProcessor::EmitArgs* emitArgs) {
+void DSLWriter::StartFragmentProcessor(GrFragmentProcessor::ProgramImpl* processor,
+                                       GrFragmentProcessor::ProgramImpl::EmitArgs* emitArgs) {
     DSLWriter& instance = Instance();
     instance.fStack.push({processor, emitArgs, StatementArray{}});
     CurrentEmitArgs()->fFragBuilder->fDeclarations.swap(instance.fStack.top().fSavedDeclarations);

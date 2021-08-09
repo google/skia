@@ -39,7 +39,7 @@
  */
 static const uint32_t kMaxKeySize = 1024;
 
-class GLBigKeyProcessor : public GrGLSLFragmentProcessor {
+class GLBigKeyProcessor : public GrFragmentProcessor::ProgramImpl {
 public:
     void emitCode(EmitArgs& args) override {
         args.fFragBuilder->codeAppendf("return half4(1);\n");
@@ -52,7 +52,7 @@ public:
     }
 
 private:
-    using INHERITED = GrGLSLFragmentProcessor;
+    using INHERITED = ProgramImpl;
 };
 
 class BigKeyProcessor : public GrFragmentProcessor {
@@ -63,7 +63,7 @@ public:
 
     const char* name() const override { return "Big_Ole_Key"; }
 
-    std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override {
+    std::unique_ptr<ProgramImpl> onMakeProgramImpl() const override {
         return std::make_unique<GLBigKeyProcessor>();
     }
 
@@ -99,7 +99,7 @@ public:
 
     const char* name() const override { return "Block_Input"; }
 
-    std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override {
+    std::unique_ptr<ProgramImpl> onMakeProgramImpl() const override {
         return std::make_unique<GLFP>();
     }
 
@@ -108,7 +108,7 @@ public:
     }
 
 private:
-    class GLFP : public GrGLSLFragmentProcessor {
+    class GLFP : public ProgramImpl {
     public:
         void emitCode(EmitArgs& args) override {
             SkString temp = this->invokeChild(0, args);
@@ -116,7 +116,7 @@ private:
         }
 
     private:
-        using INHERITED = GrGLSLFragmentProcessor;
+        using INHERITED = ProgramImpl;
     };
 
     BlockInputFragmentProcessor(std::unique_ptr<GrFragmentProcessor> child)

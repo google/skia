@@ -14,7 +14,7 @@
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 #include "src/sksl/SkSLUtil.h"
 
-class GrGLSLMatrixEffect : public GrGLSLFragmentProcessor {
+class GrGLSLMatrixEffect : public GrFragmentProcessor::ProgramImpl {
 public:
     GrGLSLMatrixEffect() {}
 
@@ -57,7 +57,7 @@ std::unique_ptr<GrFragmentProcessor> GrMatrixEffect::Make(
     return std::unique_ptr<GrFragmentProcessor>(new GrMatrixEffect(matrix, std::move(child)));
 }
 
-std::unique_ptr<GrGLSLFragmentProcessor> GrMatrixEffect::onMakeProgramImpl() const {
+std::unique_ptr<GrFragmentProcessor::ProgramImpl> GrMatrixEffect::onMakeProgramImpl() const {
     return std::make_unique<GrGLSLMatrixEffect>();
 }
 

@@ -62,8 +62,8 @@ void GrFragmentProcessor::visitTextureEffects(
 }
 
 void GrFragmentProcessor::visitWithImpls(
-        const std::function<void(const GrFragmentProcessor&, GrGLSLFragmentProcessor&)>& f,
-        GrGLSLFragmentProcessor& impl) const {
+        const std::function<void(const GrFragmentProcessor&, ProgramImpl&)>& f,
+        ProgramImpl& impl) const {
     f(*this, impl);
     SkASSERT(impl.numChildProcessors() == this->numChildProcessors());
     for (int i = 0; i < this->numChildProcessors(); ++i) {
@@ -111,15 +111,14 @@ SkString GrFragmentProcessor::dumpTreeInfo() const {
 }
 #endif
 
-std::unique_ptr<GrGLSLFragmentProcessor> GrFragmentProcessor::makeProgramImpl() const {
-    std::unique_ptr<GrGLSLFragmentProcessor> glFragProc = this->onMakeProgramImpl();
-    glFragProc->fChildProcessors.push_back_n(fChildProcessors.count());
+std::unique_ptr<GrFragmentProcessor::ProgramImpl> GrFragmentProcessor::makeProgramImpl() const {
+    std::unique_ptr<ProgramImpl> impl = this->onMakeProgramImpl();
+    impl->fChildProcessors.push_back_n(fChildProcessors.count());
     for (int i = 0; i < fChildProcessors.count(); ++i) {
-        glFragProc->fChildProcessors[i] = fChildProcessors[i]
-                                                  ? fChildProcessors[i]->makeProgramImpl()
-                                                  : nullptr;
+        impl->fChildProcessors[i] = fChildProcessors[i] ? fChildProcessors[i]->makeProgramImpl()
+                                                        : nullptr;
     }
-    return glFragProc;
+    return impl;
 }
 
 int GrFragmentProcessor::numNonNullChildProcessors() const {
@@ -286,8 +285,8 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::SwizzleOutput(
             this->registerChild(std::move(fp));
         }
 
-        std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override {
-            class GLFP : public GrGLSLFragmentProcessor {
+        std::unique_ptr<ProgramImpl> onMakeProgramImpl() const override {
+            class GLFP : public ProgramImpl {
             public:
                 void emitCode(EmitArgs& args) override {
                     SkString childColor = this->invokeChild(0, args);
@@ -352,8 +351,8 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MakeInputPremulAndMulB
             this->registerChild(std::move(processor));
         }
 
-        std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override {
-            class GLFP : public GrGLSLFragmentProcessor {
+        std::unique_ptr<ProgramImpl> onMakeProgramImpl() const override {
+            class GLFP : public ProgramImpl {
             public:
                 void emitCode(EmitArgs& args) override {
                     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
@@ -471,8 +470,8 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::Compose(
         }
 
     private:
-        std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override {
-            class GLFP : public GrGLSLFragmentProcessor {
+        std::unique_ptr<ProgramImpl> onMakeProgramImpl() const override {
+            class GLFP : public ProgramImpl {
             public:
                 void emitCode(EmitArgs& args) override {
                     SkString result = this->invokeChild(1, args);         // g(x)
@@ -604,8 +603,8 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::SurfaceColor() {
         const char* name() const override { return "SurfaceColor"; }
 
     private:
-        std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override {
-            class GLFP : public GrGLSLFragmentProcessor {
+        std::unique_ptr<ProgramImpl> onMakeProgramImpl() const override {
+            class GLFP : public ProgramImpl {
             public:
                 void emitCode(EmitArgs& args) override {
                     const char* dstColor = args.fFragBuilder->dstColor();
@@ -660,11 +659,11 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::DeviceSpace(
             return this->childProcessor(0)->constantOutputForConstantInput(f);
         }
 
-        std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override {
-            class Impl : public GrGLSLFragmentProcessor {
+        std::unique_ptr<ProgramImpl> onMakeProgramImpl() const override {
+            class Impl : public ProgramImpl {
             public:
                 Impl() = default;
-                void emitCode(GrGLSLFragmentProcessor::EmitArgs& args) override {
+                void emitCode(ProgramImpl::EmitArgs& args) override {
                     auto child = this->invokeChild(0, args.fInputColor, args, "sk_FragCoord.xy");
                     args.fFragBuilder->codeAppendf("return %s;", child.c_str());
                 }
@@ -905,8 +904,8 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::HighPrecision(
             this->registerChild(std::move(fp));
         }
 
-        std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override {
-            class GLFP : public GrGLSLFragmentProcessor {
+        std::unique_ptr<ProgramImpl> onMakeProgramImpl() const override {
+            class GLFP : public ProgramImpl {
             public:
                 void emitCode(EmitArgs& args) override {
                     SkString childColor = this->invokeChild(0, args);

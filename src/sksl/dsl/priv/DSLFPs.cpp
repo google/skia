@@ -16,8 +16,8 @@ namespace SkSL {
 
 namespace dsl {
 
-void StartFragmentProcessor(GrGLSLFragmentProcessor* processor,
-                            GrGLSLFragmentProcessor::EmitArgs* emitArgs) {
+void StartFragmentProcessor(GrFragmentProcessor::ProgramImpl* processor,
+                            GrFragmentProcessor::ProgramImpl::EmitArgs* emitArgs) {
     DSLWriter::StartFragmentProcessor(processor, emitArgs);
 }
 
@@ -36,8 +36,8 @@ DSLExpression SampleChild(int index, DSLExpression sampleExpr) {
         SkASSERT(expr->type().componentType().isFloat());
     }
 
-    GrGLSLFragmentProcessor* proc = DSLWriter::CurrentProcessor();
-    GrGLSLFragmentProcessor::EmitArgs& emitArgs = *DSLWriter::CurrentEmitArgs();
+    GrFragmentProcessor::ProgramImpl* proc = DSLWriter::CurrentProcessor();
+    GrFragmentProcessor::ProgramImpl::EmitArgs& emitArgs = *DSLWriter::CurrentEmitArgs();
     SkString code;
     switch (expr ? expr->type().columns() : 0) {
         default:

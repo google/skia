@@ -163,7 +163,7 @@ private:
         return SkBlendMode_Apply(fMode, srcColor, dstColor);
     }
 
-    std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
+    std::unique_ptr<ProgramImpl> onMakeProgramImpl() const override;
 
     SkBlendMode fMode;
 
@@ -174,12 +174,12 @@ private:
 
 /////////////////////////////////////////////////////////////////////
 
-class GLBlendFragmentProcessor : public GrGLSLFragmentProcessor {
+class GLBlendFragmentProcessor : public GrFragmentProcessor::ProgramImpl {
 public:
     void emitCode(EmitArgs&) override;
 
 private:
-    using INHERITED = GrGLSLFragmentProcessor;
+    using INHERITED = ProgramImpl;
 };
 
 /////////////////////////////////////////////////////////////////////
@@ -208,7 +208,7 @@ std::unique_ptr<GrFragmentProcessor> BlendFragmentProcessor::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new BlendFragmentProcessor(*this));
 }
 
-std::unique_ptr<GrGLSLFragmentProcessor> BlendFragmentProcessor::onMakeProgramImpl() const {
+std::unique_ptr<GrFragmentProcessor::ProgramImpl> BlendFragmentProcessor::onMakeProgramImpl() const {
     return std::make_unique<GLBlendFragmentProcessor>();
 }
 

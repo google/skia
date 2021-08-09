@@ -33,7 +33,7 @@ sk_sp<GrGLProgram> GrGLProgram::Make(
         const UniformInfoArray& textureSamplers,
         std::unique_ptr<GrGLSLGeometryProcessor> geometryProcessor,
         std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
-        std::vector<std::unique_ptr<GrGLSLFragmentProcessor>> fpImpls,
+        std::vector<std::unique_ptr<GrFragmentProcessor::ProgramImpl>> fpImpls,
         std::unique_ptr<Attribute[]> attributes,
         int vertexAttributeCnt,
         int instanceAttributeCnt,
@@ -65,7 +65,7 @@ GrGLProgram::GrGLProgram(GrGLGpu* gpu,
                          const UniformInfoArray& textureSamplers,
                          std::unique_ptr<GrGLSLGeometryProcessor> geometryProcessor,
                          std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
-                         std::vector<std::unique_ptr<GrGLSLFragmentProcessor>> fpImpls,
+                         std::vector<std::unique_ptr<GrFragmentProcessor::ProgramImpl>> fpImpls,
                          std::unique_ptr<Attribute[]> attributes,
                          int vertexAttributeCnt,
                          int instanceAttributeCnt,
@@ -114,7 +114,8 @@ void GrGLProgram::updateUniforms(const GrRenderTarget* renderTarget,
 
     for (int i = 0; i < programInfo.pipeline().numFragmentProcessors(); ++i) {
         const auto& fp = programInfo.pipeline().getFragmentProcessor(i);
-        fp.visitWithImpls([&](const GrFragmentProcessor& fp, GrGLSLFragmentProcessor& impl) {
+        fp.visitWithImpls([&](const GrFragmentProcessor& fp,
+                              GrFragmentProcessor::ProgramImpl& impl) {
             impl.setData(fProgramDataManager, fp);
         }, *fFPImpls[i]);
     }

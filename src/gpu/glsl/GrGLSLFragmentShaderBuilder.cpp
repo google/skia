@@ -18,8 +18,9 @@ GrGLSLFragmentShaderBuilder::GrGLSLFragmentShaderBuilder(GrGLSLProgramBuilder* p
     fSubstageIndices.push_back(0);
 }
 
-void GrGLSLFPFragmentBuilder::writeProcessorFunction(GrGLSLFragmentProcessor* fp,
-                                                     GrGLSLFragmentProcessor::EmitArgs& args) {
+void GrGLSLFPFragmentBuilder::writeProcessorFunction(
+        GrFragmentProcessor::ProgramImpl* fp,
+        GrFragmentProcessor::ProgramImpl::EmitArgs& args) {
     this->onBeforeChildProcEmitCode();
     this->nextStage();
 

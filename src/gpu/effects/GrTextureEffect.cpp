@@ -716,7 +716,7 @@ void GrTextureEffect::Impl::onSetData(const GrGLSLProgramDataManager& pdm,
     }
 }
 
-std::unique_ptr<GrGLSLFragmentProcessor> GrTextureEffect::onMakeProgramImpl() const {
+std::unique_ptr<GrFragmentProcessor::ProgramImpl> GrTextureEffect::onMakeProgramImpl() const {
     return std::make_unique<Impl>();
 }
 

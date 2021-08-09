@@ -124,8 +124,8 @@ private:
         this->cloneAndRegisterAllChildProcessors(that);
     }
 
-    std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override {
-        class TestGLSLFP : public GrGLSLFragmentProcessor {
+    std::unique_ptr<ProgramImpl> onMakeProgramImpl() const override {
+        class TestGLSLFP : public ProgramImpl {
         public:
             TestGLSLFP() {}
             void emitCode(EmitArgs& args) override {

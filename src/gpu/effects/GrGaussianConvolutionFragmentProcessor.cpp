@@ -21,7 +21,7 @@
 using UniformHandle = GrGLSLProgramDataManager::UniformHandle;
 using Direction = GrGaussianConvolutionFragmentProcessor::Direction;
 
-class GrGaussianConvolutionFragmentProcessor::Impl : public GrGLSLFragmentProcessor {
+class GrGaussianConvolutionFragmentProcessor::Impl : public GrFragmentProcessor::ProgramImpl {
 public:
     void emitCode(EmitArgs&) override;
 
@@ -36,7 +36,7 @@ private:
     UniformHandle fKernelWidthUni;
     UniformHandle fIncrementUni;
 
-    using INHERITED = GrGLSLFragmentProcessor;
+    using INHERITED = ProgramImpl;
 };
 
 enum class LoopType {
@@ -241,7 +241,7 @@ void GrGaussianConvolutionFragmentProcessor::onAddToKey(const GrShaderCaps& caps
     Impl::GenKey(*this, caps, b);
 }
 
-std::unique_ptr<GrGLSLFragmentProcessor>
+std::unique_ptr<GrFragmentProcessor::ProgramImpl>
 GrGaussianConvolutionFragmentProcessor::onMakeProgramImpl() const {
     return std::make_unique<Impl>();
 }

@@ -14,14 +14,16 @@
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
-void GrGLSLFragmentProcessor::setData(const GrGLSLProgramDataManager& pdman,
-                                      const GrFragmentProcessor& processor) {
+using ProgramImpl = GrFragmentProcessor::ProgramImpl;
+
+void ProgramImpl::setData(const GrGLSLProgramDataManager& pdman,
+                          const GrFragmentProcessor& processor) {
     this->onSetData(pdman, processor);
 }
 
-void GrGLSLFragmentProcessor::emitChildFunctions(EmitArgs& args) {
+void ProgramImpl::emitChildFunctions(EmitArgs& args) {
     for (int i = 0; i < this->numChildProcessors(); ++i) {
-        GrGLSLFragmentProcessor* childGLSLFP = this->childProcessor(i);
+        ProgramImpl* childGLSLFP = this->childProcessor(i);
         if (!childGLSLFP) {
             continue;
         }
@@ -40,9 +42,11 @@ void GrGLSLFragmentProcessor::emitChildFunctions(EmitArgs& args) {
     }
 }
 
-SkString GrGLSLFragmentProcessor::invokeChild(int childIndex,
-                                              const char* inputColor, const char* destColor,
-                                              EmitArgs& args, SkSL::String skslCoords) {
+SkString ProgramImpl::invokeChild(int childIndex,
+                                  const char* inputColor,
+                                  const char* destColor,
+                                  EmitArgs& args,
+                                  SkSL::String skslCoords) {
     SkASSERT(childIndex >= 0);
 
     if (!inputColor) {
@@ -79,8 +83,10 @@ SkString GrGLSLFragmentProcessor::invokeChild(int childIndex,
     return invocation;
 }
 
-SkString GrGLSLFragmentProcessor::invokeChildWithMatrix(int childIndex, const char* inputColor,
-                                                        const char* destColor, EmitArgs& args) {
+SkString ProgramImpl::invokeChildWithMatrix(int childIndex,
+                                            const char* inputColor,
+                                            const char* destColor,
+                                            EmitArgs& args) {
     SkASSERT(childIndex >= 0);
 
     if (!inputColor) {

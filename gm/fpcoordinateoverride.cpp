@@ -54,11 +54,11 @@ public:
     }
 
 private:
-    std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
+    std::unique_ptr<ProgramImpl> onMakeProgramImpl() const override;
     using INHERITED = GrFragmentProcessor;
 };
 
-class GLSLSampleCoordEffect : public GrGLSLFragmentProcessor {
+class GLSLSampleCoordEffect : public GrFragmentProcessor::ProgramImpl {
     void emitCode(EmitArgs& args) override {
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         SkString sample1 = this->invokeChild(0, args, "float2(sk_FragCoord.x, sk_FragCoord.y)");
@@ -67,7 +67,7 @@ class GLSLSampleCoordEffect : public GrGLSLFragmentProcessor {
     }
 };
 
-std::unique_ptr<GrGLSLFragmentProcessor> SampleCoordEffect::onMakeProgramImpl() const {
+std::unique_ptr<GrFragmentProcessor::ProgramImpl> SampleCoordEffect::onMakeProgramImpl() const {
     return std::make_unique<GLSLSampleCoordEffect>();
 }
 

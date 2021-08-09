@@ -506,7 +506,8 @@ wgpu::BindGroup GrDawnProgram::setUniformData(GrDawnGpu* gpu, const GrRenderTarg
 
     for (int i = 0; i < programInfo.pipeline().numFragmentProcessors(); ++i) {
         const auto& fp = programInfo.pipeline().getFragmentProcessor(i);
-        fp.visitWithImpls([&](const GrFragmentProcessor& fp, GrGLSLFragmentProcessor& impl) {
+        fp.visitWithImpls([&](const GrFragmentProcessor& fp,
+                              GrFragmentProcessor::ProgramImpl& impl) {
             impl.setData(fDataManager, fp);
         }, *fFPImpls[i]);
     }

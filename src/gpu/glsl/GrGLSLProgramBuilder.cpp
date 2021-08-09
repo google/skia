@@ -155,7 +155,7 @@ bool GrGLSLProgramBuilder::emitAndInstallFragProcs(SkString* color, SkString* co
 }
 
 SkString GrGLSLProgramBuilder::emitFragProc(const GrFragmentProcessor& fp,
-                                            GrGLSLFragmentProcessor& impl,
+                                            GrFragmentProcessor::ProgramImpl& impl,
                                             const SkString& input,
                                             SkString output) {
     SkASSERT(input.size());
@@ -166,7 +166,7 @@ SkString GrGLSLProgramBuilder::emitFragProc(const GrFragmentProcessor& fp,
     fFS.codeAppendf("half4 %s;", output.c_str());
     bool ok = true;
     fp.visitWithImpls([&, samplerIdx = 0](const GrFragmentProcessor& fp,
-                                          GrGLSLFragmentProcessor& impl) mutable {
+                                          GrFragmentProcessor::ProgramImpl& impl) mutable {
         if (auto* te = fp.asTextureEffect()) {
             SkString name;
             name.printf("TextureSampler_%d", samplerIdx++);
@@ -186,13 +186,13 @@ SkString GrGLSLProgramBuilder::emitFragProc(const GrFragmentProcessor& fp,
         return {};
     }
 
-    GrGLSLFragmentProcessor::EmitArgs args(&fFS,
-                                           this->uniformHandler(),
-                                           this->shaderCaps(),
-                                           fp,
-                                           fp.isBlendFunction() ? "_src" : "_input",
-                                           "_dst",
-                                           "_coords");
+    GrFragmentProcessor::ProgramImpl::EmitArgs args(&fFS,
+                                                    this->uniformHandler(),
+                                                    this->shaderCaps(),
+                                                    fp,
+                                                    fp.isBlendFunction() ? "_src" : "_input",
+                                                    "_dst",
+                                                    "_coords");
     fFS.writeProcessorFunction(&impl, args);
     if (fp.isBlendFunction()) {
         fFS.codeAppendf(

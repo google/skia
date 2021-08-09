@@ -9,13 +9,13 @@
 #ifndef GrGLProgram_DEFINED
 #define GrGLProgram_DEFINED
 
+#include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/gl/GrGLProgramDataManager.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
 #include <vector>
 
-class GrGLSLFragmentProcessor;
 class GrGLSLGeometryProcessor;
 class GrGLSLXferProcessor;
 class GrPipeline;
@@ -50,19 +50,20 @@ public:
      * The attribute array consists of vertexAttributeCnt + instanceAttributeCnt elements with
      * the vertex attributes preceding the instance attributes.
      */
-    static sk_sp<GrGLProgram> Make(GrGLGpu*,
-                                   const GrGLSLBuiltinUniformHandles&,
-                                   GrGLuint programID,
-                                   const UniformInfoArray& uniforms,
-                                   const UniformInfoArray& textureSamplers,
-                                   std::unique_ptr<GrGLSLGeometryProcessor>,
-                                   std::unique_ptr<GrGLSLXferProcessor>,
-                                   std::vector<std::unique_ptr<GrGLSLFragmentProcessor>> fps,
-                                   std::unique_ptr<Attribute[]>,
-                                   int vertexAttributeCnt,
-                                   int instanceAttributeCnt,
-                                   int vertexStride,
-                                   int instanceStride);
+    static sk_sp<GrGLProgram> Make(
+            GrGLGpu*,
+            const GrGLSLBuiltinUniformHandles&,
+            GrGLuint programID,
+            const UniformInfoArray& uniforms,
+            const UniformInfoArray& textureSamplers,
+            std::unique_ptr<GrGLSLGeometryProcessor>,
+            std::unique_ptr<GrGLSLXferProcessor>,
+            std::vector<std::unique_ptr<GrFragmentProcessor::ProgramImpl>> fps,
+            std::unique_ptr<Attribute[]>,
+            int vertexAttributeCnt,
+            int instanceAttributeCnt,
+            int vertexStride,
+            int instanceStride);
 
     ~GrGLProgram() override;
 
@@ -130,7 +131,7 @@ private:
                 const UniformInfoArray& textureSamplers,
                 std::unique_ptr<GrGLSLGeometryProcessor>,
                 std::unique_ptr<GrGLSLXferProcessor>,
-                std::vector<std::unique_ptr<GrGLSLFragmentProcessor>> fpImpls,
+                std::vector<std::unique_ptr<GrFragmentProcessor::ProgramImpl>> fpImpls,
                 std::unique_ptr<Attribute[]>,
                 int vertexAttributeCnt,
                 int instanceAttributeCnt,
@@ -148,7 +149,7 @@ private:
     // the installed effects
     std::unique_ptr<GrGLSLGeometryProcessor> fGeometryProcessor;
     std::unique_ptr<GrGLSLXferProcessor> fXferProcessor;
-    std::vector<std::unique_ptr<GrGLSLFragmentProcessor>> fFPImpls;
+    std::vector<std::unique_ptr<GrFragmentProcessor::ProgramImpl>> fFPImpls;
 
     std::unique_ptr<Attribute[]> fAttributes;
     int fVertexAttributeCnt;

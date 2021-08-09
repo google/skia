@@ -65,7 +65,7 @@ private:
                         GrClipEdgeType, uint32_t circularCornerFlags, const SkRRect&);
     CircularRRectEffect(const CircularRRectEffect& that);
 
-    std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
+    std::unique_ptr<ProgramImpl> onMakeProgramImpl() const override;
 
     void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
@@ -146,7 +146,7 @@ std::unique_ptr<GrFragmentProcessor> CircularRRectEffect::TestCreate(GrProcessor
 
 //////////////////////////////////////////////////////////////////////////////
 
-class GLCircularRRectEffect : public GrGLSLFragmentProcessor {
+class GLCircularRRectEffect : public GrFragmentProcessor::ProgramImpl {
 public:
     GLCircularRRectEffect() = default;
 
@@ -161,7 +161,7 @@ private:
     GrGLSLProgramDataManager::UniformHandle fInnerRectUniform;
     GrGLSLProgramDataManager::UniformHandle fRadiusPlusHalfUniform;
     SkRRect                                 fPrevRRect;
-    using INHERITED = GrGLSLFragmentProcessor;
+    using INHERITED = ProgramImpl;
 };
 
 void GLCircularRRectEffect::emitCode(EmitArgs& args) {
@@ -394,7 +394,7 @@ void CircularRRectEffect::onAddToKey(const GrShaderCaps& caps, GrProcessorKeyBui
     GLCircularRRectEffect::GenKey(*this, caps, b);
 }
 
-std::unique_ptr<GrGLSLFragmentProcessor> CircularRRectEffect::onMakeProgramImpl() const {
+std::unique_ptr<GrFragmentProcessor::ProgramImpl> CircularRRectEffect::onMakeProgramImpl() const {
     return std::make_unique<GLCircularRRectEffect>();
 }
 
@@ -418,7 +418,7 @@ private:
     EllipticalRRectEffect(std::unique_ptr<GrFragmentProcessor>, GrClipEdgeType, const SkRRect&);
     EllipticalRRectEffect(const EllipticalRRectEffect& that);
 
-    std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
+    std::unique_ptr<ProgramImpl> onMakeProgramImpl() const override;
 
     void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
@@ -513,7 +513,7 @@ std::unique_ptr<GrFragmentProcessor> EllipticalRRectEffect::TestCreate(GrProcess
 
 //////////////////////////////////////////////////////////////////////////////
 
-class GLEllipticalRRectEffect : public GrGLSLFragmentProcessor {
+class GLEllipticalRRectEffect : public GrFragmentProcessor::ProgramImpl {
 public:
     GLEllipticalRRectEffect() = default;
 
@@ -529,7 +529,7 @@ private:
     GrGLSLProgramDataManager::UniformHandle fInvRadiiSqdUniform;
     GrGLSLProgramDataManager::UniformHandle fScaleUniform;
     SkRRect                                 fPrevRRect;
-    using INHERITED = GrGLSLFragmentProcessor;
+    using INHERITED = ProgramImpl;
 };
 
 void GLEllipticalRRectEffect::emitCode(EmitArgs& args) {
@@ -699,7 +699,7 @@ void EllipticalRRectEffect::onAddToKey(const GrShaderCaps& caps, GrProcessorKeyB
     GLEllipticalRRectEffect::GenKey(*this, caps, b);
 }
 
-std::unique_ptr<GrGLSLFragmentProcessor> EllipticalRRectEffect::onMakeProgramImpl() const {
+std::unique_ptr<GrFragmentProcessor::ProgramImpl> EllipticalRRectEffect::onMakeProgramImpl() const {
     return std::make_unique<GLEllipticalRRectEffect>();
 }
 

@@ -38,7 +38,8 @@ public:
         kInsideLoop = (1 << 2)
     };
 
-    void writeProcessorFunction(GrGLSLFragmentProcessor*, GrGLSLFragmentProcessor::EmitArgs&);
+    void writeProcessorFunction(GrFragmentProcessor::ProgramImpl*,
+                                GrFragmentProcessor::ProgramImpl::EmitArgs&);
 
     virtual void forceHighPrecision() = 0;
 

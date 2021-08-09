@@ -20,7 +20,7 @@
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
-class GrGLMatrixConvolutionEffect : public GrGLSLFragmentProcessor {
+class GrGLMatrixConvolutionEffect : public GrFragmentProcessor::ProgramImpl {
 public:
     void emitCode(EmitArgs&) override;
 
@@ -40,7 +40,7 @@ private:
     UniformHandle               fBiasUni;
     UniformHandle               fKernelBiasUni;
 
-    using INHERITED = GrGLSLFragmentProcessor;
+    using INHERITED = ProgramImpl;
 };
 
 GrMatrixConvolutionEffect::KernelWrapper::MakeResult
@@ -321,7 +321,8 @@ void GrMatrixConvolutionEffect::onAddToKey(const GrShaderCaps& caps,
     GrGLMatrixConvolutionEffect::GenKey(*this, caps, b);
 }
 
-std::unique_ptr<GrGLSLFragmentProcessor> GrMatrixConvolutionEffect::onMakeProgramImpl() const {
+std::unique_ptr<GrFragmentProcessor::ProgramImpl>
+GrMatrixConvolutionEffect::onMakeProgramImpl() const {
     return std::make_unique<GrGLMatrixConvolutionEffect>();
 }
 

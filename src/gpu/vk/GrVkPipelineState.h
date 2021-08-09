@@ -49,7 +49,7 @@ public:
             const UniformInfoArray& samplers,
             std::unique_ptr<GrGLSLGeometryProcessor>,
             std::unique_ptr<GrGLSLXferProcessor>,
-            std::vector<std::unique_ptr<GrGLSLFragmentProcessor>> fpImpls);
+            std::vector<std::unique_ptr<GrFragmentProcessor::ProgramImpl>> fpImpls);
 
     ~GrVkPipelineState();
 
@@ -107,7 +107,7 @@ private:
     // Processors in the GrVkPipelineState
     std::unique_ptr<GrGLSLGeometryProcessor> fGeometryProcessor;
     std::unique_ptr<GrGLSLXferProcessor> fXferProcessor;
-    std::vector<std::unique_ptr<GrGLSLFragmentProcessor>> fFPImpls;
+    std::vector<std::unique_ptr<GrFragmentProcessor::ProgramImpl>> fFPImpls;
 
     GrVkPipelineStateDataManager fDataManager;
 

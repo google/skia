@@ -38,7 +38,7 @@ struct GrDawnProgram : public SkRefCnt {
     }
     std::unique_ptr<GrGLSLGeometryProcessor> fGeometryProcessor;
     std::unique_ptr<GrGLSLXferProcessor> fXferProcessor;
-    std::vector<std::unique_ptr<GrGLSLFragmentProcessor>> fFPImpls;
+    std::vector<std::unique_ptr<GrFragmentProcessor::ProgramImpl>> fFPImpls;
     std::vector<wgpu::BindGroupLayout> fBindGroupLayouts;
     wgpu::RenderPipeline fRenderPipeline;
     GrDawnProgramDataManager fDataManager;

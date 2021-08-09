@@ -13,7 +13,6 @@
 #include "include/private/SkSLSampleUsage.h"
 #include "src/gpu/GrProcessor.h"
 
-class GrGLSLFragmentProcessor;
 class GrPaint;
 class GrPipeline;
 class GrProcessorKeyBuilder;
@@ -36,6 +35,14 @@ using GrFPResult = std::tuple<bool /*success*/, std::unique_ptr<GrFragmentProces
  */
 class GrFragmentProcessor : public GrProcessor {
 public:
+    /**
+     * Any GrFragmentProcessor is capable of creating a subclass of ProgramImpl. The ProgramImpl
+     * emits the fragment shader code that implements the GrFragmentProcessor, is attached to the
+     * generated backend API pipeline/program and used to extract uniform data from
+     * GrFragmentProcessor instances.
+     */
+    class ProgramImpl;
+
     /** Always returns 'color'. */
     static std::unique_ptr<GrFragmentProcessor> MakeColor(SkPMColor4f color);
 
@@ -195,7 +202,7 @@ public:
     // The FP this was registered with as a child function. This will be null if this is a root.
     const GrFragmentProcessor* parent() const { return fParent; }
 
-    std::unique_ptr<GrGLSLFragmentProcessor> makeProgramImpl() const;
+    std::unique_ptr<ProgramImpl> makeProgramImpl() const;
 
     void addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
         this->onAddToKey(caps, b);
@@ -303,9 +310,8 @@ public:
 
     void visitTextureEffects(const std::function<void(const GrTextureEffect&)>&) const;
 
-    void visitWithImpls(
-            const std::function<void(const GrFragmentProcessor&, GrGLSLFragmentProcessor&)>&,
-            GrGLSLFragmentProcessor&) const;
+    void visitWithImpls(const std::function<void(const GrFragmentProcessor&, ProgramImpl&)>&,
+                        ProgramImpl&) const;
 
     GrTextureEffect* asTextureEffect();
     const GrTextureEffect* asTextureEffect() const;
@@ -405,20 +411,20 @@ protected:
      */
     void cloneAndRegisterAllChildProcessors(const GrFragmentProcessor& src);
 
-    // FP implementations must call this function if their matching GrGLSLFragmentProcessor's
-    // emitCode() function uses the EmitArgs::fSampleCoord variable in generated SkSL.
+    // FP implementations must call this function if their matching ProgramImpl's emitCode()
+    // function uses the EmitArgs::fSampleCoord variable in generated SkSL.
     void setUsesSampleCoordsDirectly() {
         fFlags |= kUsesSampleCoordsDirectly_Flag;
     }
 
-    // FP implementations must set this flag if their GrGLSLFragmentProcessor's emitCode() function
-    // calls dstColor() to read back the framebuffer.
+    // FP implementations must set this flag if their ProgramImpl's emitCode() function calls
+    // dstColor() to read back the framebuffer.
     void setWillReadDstColor() {
         fFlags |= kWillReadDstColor_Flag;
     }
 
-    // FP implementations must set this flag if their GrGLSLFragmentProcessor's emitCode() function
-    // emits a blend function (taking two color inputs instead of just one).
+    // FP implementations must set this flag if their ProgramImpl's emitCode() function emits a
+    // blend function (taking two color inputs instead of just one).
     void setIsBlendFunction() {
         fFlags |= kIsBlendFunction_Flag;
     }
@@ -433,10 +439,12 @@ private:
         SK_ABORT("Subclass must override this if advertising this optimization.");
     }
 
-    /** Returns a new instance of the appropriate *GL* implementation class
-        for the given GrFragmentProcessor; caller is responsible for deleting
-        the object. */
-    virtual std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const = 0;
+    /**
+     * Returns a new instance of the appropriate ProgramImpl subclass for the given
+     * GrFragmentProcessor. It will emit the appropriate code and live with the cached program
+     * to setup uniform data for each draw that uses the program.
+     */
+    virtual std::unique_ptr<ProgramImpl> onMakeProgramImpl() const = 0;
 
     virtual void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const = 0;
 

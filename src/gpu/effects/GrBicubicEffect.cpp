@@ -16,7 +16,7 @@
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 #include <cmath>
 
-class GrBicubicEffect::Impl : public GrGLSLFragmentProcessor {
+class GrBicubicEffect::Impl : public GrFragmentProcessor::ProgramImpl {
 public:
     Impl() : fKernel{-1, -1} {}
     void emitCode(EmitArgs&) override;
@@ -27,7 +27,7 @@ protected:
 private:
     SkImage::CubicResampler fKernel;
     UniformHandle fCoefficientUni;
-    using INHERITED = GrGLSLFragmentProcessor;
+    using INHERITED = ProgramImpl;
 };
 
 void GrBicubicEffect::Impl::emitCode(EmitArgs& args) {
@@ -224,7 +224,7 @@ void GrBicubicEffect::onAddToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder
     b->add32(key);
 }
 
-std::unique_ptr<GrGLSLFragmentProcessor> GrBicubicEffect::onMakeProgramImpl() const {
+std::unique_ptr<GrFragmentProcessor::ProgramImpl> GrBicubicEffect::onMakeProgramImpl() const {
     return std::make_unique<Impl>();
 }
 

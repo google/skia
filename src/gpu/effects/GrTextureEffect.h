@@ -110,7 +110,7 @@ public:
     // after proxy instantiation with coordination from GrMatrixEffect.
     SkMatrix coordAdjustmentMatrix() const;
 
-    class Impl : public GrGLSLFragmentProcessor {
+    class Impl : public ProgramImpl {
     public:
         void emitCode(EmitArgs&) override;
         void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
@@ -166,7 +166,7 @@ private:
 
     explicit GrTextureEffect(const GrTextureEffect& src);
 
-    std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
+    std::unique_ptr<ProgramImpl> onMakeProgramImpl() const override;
 
     void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 

@@ -238,8 +238,8 @@ SkString GrYUVtoRGBEffect::onDumpInfo() const {
 }
 #endif
 
-std::unique_ptr<GrGLSLFragmentProcessor> GrYUVtoRGBEffect::onMakeProgramImpl() const {
-    class GrGLSLYUVtoRGBEffect : public GrGLSLFragmentProcessor {
+std::unique_ptr<GrFragmentProcessor::ProgramImpl> GrYUVtoRGBEffect::onMakeProgramImpl() const {
+    class GrGLSLYUVtoRGBEffect : public ProgramImpl {
     public:
         GrGLSLYUVtoRGBEffect() {}
 

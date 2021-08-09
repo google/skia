@@ -45,7 +45,7 @@ public:
             uint32_t numSamplers,
             std::unique_ptr<GrGLSLGeometryProcessor>,
             std::unique_ptr<GrGLSLXferProcessor>,
-            std::vector<std::unique_ptr<GrGLSLFragmentProcessor>> fpImpls);
+            std::vector<std::unique_ptr<GrFragmentProcessor::ProgramImpl>> fpImpls);
 
     const sk_sp<GrMtlRenderPipeline>& pipeline() const { return fPipeline; }
 
@@ -114,7 +114,7 @@ private:
 
     std::unique_ptr<GrGLSLGeometryProcessor> fGeometryProcessor;
     std::unique_ptr<GrGLSLXferProcessor> fXferProcessor;
-    std::vector<std::unique_ptr<GrGLSLFragmentProcessor>> fFPImpls;
+    std::vector<std::unique_ptr<GrFragmentProcessor::ProgramImpl>> fFPImpls;
 
     GrMtlPipelineStateDataManager fDataManager;
 };

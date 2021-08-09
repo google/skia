@@ -31,7 +31,7 @@ public:
     const SkColorSpaceXformSteps& steps() const { return fSteps; }
 
     /**
-     * GrGLSLFragmentProcessor::GenKey() must call this and include the returned value in its
+     * GrFragmentProcessor::addToKey() must call this and include the returned value in its
      * computed key.
      */
     static uint32_t XformKey(const GrColorSpaceXform* xform) {
@@ -95,7 +95,7 @@ private:
     static OptimizationFlags OptFlags(const GrFragmentProcessor* child);
     SkPMColor4f constantOutputForConstantInput(const SkPMColor4f& input) const override;
 
-    std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
+    std::unique_ptr<ProgramImpl> onMakeProgramImpl() const override;
     void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
 

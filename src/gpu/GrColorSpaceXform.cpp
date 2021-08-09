@@ -63,7 +63,7 @@ SkColor4f GrColorSpaceXform::apply(const SkColor4f& srcColor) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-class GrGLColorSpaceXformEffect : public GrGLSLFragmentProcessor {
+class GrGLColorSpaceXformEffect : public GrFragmentProcessor::ProgramImpl {
 public:
     void emitCode(EmitArgs& args) override {
         const GrColorSpaceXformEffect& proc = args.fFp.cast<GrColorSpaceXformEffect>();
@@ -88,7 +88,7 @@ private:
 
     GrGLSLColorSpaceXformHelper fColorSpaceHelper;
 
-    using INHERITED = GrGLSLFragmentProcessor;
+    using INHERITED = ProgramImpl;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -119,7 +119,8 @@ void GrColorSpaceXformEffect::onAddToKey(const GrShaderCaps&, GrProcessorKeyBuil
     b->add32(GrColorSpaceXform::XformKey(fColorXform.get()));
 }
 
-std::unique_ptr<GrGLSLFragmentProcessor> GrColorSpaceXformEffect::onMakeProgramImpl() const {
+std::unique_ptr<GrFragmentProcessor::ProgramImpl>
+GrColorSpaceXformEffect::onMakeProgramImpl() const {
     return std::make_unique<GrGLColorSpaceXformEffect>();
 }
 

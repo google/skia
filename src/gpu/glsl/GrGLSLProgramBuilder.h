@@ -119,7 +119,7 @@ public:
 
     std::unique_ptr<GrGLSLGeometryProcessor> fGeometryProcessor;
     std::unique_ptr<GrGLSLXferProcessor>     fXferProcessor;
-    std::vector<std::unique_ptr<GrGLSLFragmentProcessor>> fFPImpls;
+    std::vector<std::unique_ptr<GrFragmentProcessor::ProgramImpl>> fFPImpls;
 
     SamplerHandle fDstTextureSamplerHandle;
     GrSurfaceOrigin fDstTextureOrigin;
@@ -165,7 +165,7 @@ private:
     bool emitAndInstallDstTexture();
     bool emitAndInstallFragProcs(SkString* colorInOut, SkString* coverageInOut);
     SkString emitFragProc(const GrFragmentProcessor&,
-                          GrGLSLFragmentProcessor&,
+                          GrFragmentProcessor::ProgramImpl&,
                           const SkString& input,
                           SkString output);
     bool emitAndInstallXferProc(const SkString& colorIn, const SkString& coverageIn);

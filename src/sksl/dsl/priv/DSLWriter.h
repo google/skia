@@ -150,7 +150,7 @@ public:
      * Returns the fragment processor for which DSL output is being generated for the current
      * thread.
      */
-    static GrGLSLFragmentProcessor* CurrentProcessor() {
+    static GrFragmentProcessor::ProgramImpl* CurrentProcessor() {
         SkASSERTF(!Instance().fStack.empty(), "This feature requires a FragmentProcessor");
         return Instance().fStack.top().fProcessor;
     }
@@ -158,7 +158,7 @@ public:
     /**
      * Returns the EmitArgs for fragment processor output in the current thread.
      */
-    static GrGLSLFragmentProcessor::EmitArgs* CurrentEmitArgs() {
+    static GrFragmentProcessor::ProgramImpl::EmitArgs* CurrentEmitArgs() {
         SkASSERTF(!Instance().fStack.empty(), "This feature requires a FragmentProcessor");
         return Instance().fStack.top().fEmitArgs;
     }
@@ -170,8 +170,8 @@ public:
     /**
      * Pushes a new processor / emitArgs pair for the current thread.
      */
-    static void StartFragmentProcessor(GrGLSLFragmentProcessor* processor,
-                                       GrGLSLFragmentProcessor::EmitArgs* emitArgs);
+    static void StartFragmentProcessor(GrFragmentProcessor::ProgramImpl* processor,
+                                       GrFragmentProcessor::ProgramImpl::EmitArgs* emitArgs);
 
     /**
      * Pops the processor / emitArgs pair associated with the current thread.
@@ -292,8 +292,8 @@ private:
     bool fEncounteredErrors = false;
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
     struct StackFrame {
-        GrGLSLFragmentProcessor* fProcessor;
-        GrGLSLFragmentProcessor::EmitArgs* fEmitArgs;
+        GrFragmentProcessor::ProgramImpl* fProcessor;
+        GrFragmentProcessor::ProgramImpl::EmitArgs* fEmitArgs;
         SkSL::StatementArray fSavedDeclarations;
     };
     std::stack<StackFrame, std::list<StackFrame>> fStack;

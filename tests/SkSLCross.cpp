@@ -52,7 +52,7 @@ private:
     void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
     bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
 
-    class Impl : public GrGLSLFragmentProcessor {
+    class Impl : public ProgramImpl {
         void emitCode(EmitArgs& args) override {
             auto& fp = args.fFp.cast<VisualizeCrossProductSignFP>();
             const char* a, *b;
@@ -76,7 +76,7 @@ private:
         GrGLSLUniformHandler::UniformHandle fBUniform;
     };
 
-    std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override {
+    std::unique_ptr<ProgramImpl> onMakeProgramImpl() const override {
         return std::make_unique<Impl>();
     }
     const SkVector fA, fB;

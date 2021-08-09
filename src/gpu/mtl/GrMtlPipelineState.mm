@@ -44,7 +44,7 @@ GrMtlPipelineState::GrMtlPipelineState(
             uint32_t numSamplers,
             std::unique_ptr<GrGLSLGeometryProcessor> geometryProcessor,
             std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
-            std::vector<std::unique_ptr<GrGLSLFragmentProcessor>> fpImpls)
+            std::vector<std::unique_ptr<GrFragmentProcessor::ProgramImpl>> fpImpls)
         : fGpu(gpu)
         , fPipeline(pipeline)
         , fPixelFormat(pixelFormat)
@@ -66,7 +66,8 @@ void GrMtlPipelineState::setData(GrMtlFramebuffer* framebuffer,
 
     for (int i = 0; i < programInfo.pipeline().numFragmentProcessors(); ++i) {
         const auto& fp = programInfo.pipeline().getFragmentProcessor(i);
-        fp.visitWithImpls([&](const GrFragmentProcessor& fp, GrGLSLFragmentProcessor& impl) {
+        fp.visitWithImpls([&](const GrFragmentProcessor& fp,
+                              GrFragmentProcessor::ProgramImpl& impl) {
             impl.setData(fDataManager, fp);
         }, *fFPImpls[i]);
     }

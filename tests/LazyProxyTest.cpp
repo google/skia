@@ -157,7 +157,7 @@ public:
         std::unique_ptr<GrFragmentProcessor> clone() const override {
             return std::make_unique<ClipFP>(fContext, fProxyProvider, fTest, fAtlas);
         }
-        std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override {
+        std::unique_ptr<ProgramImpl> onMakeProgramImpl() const override {
             return nullptr;
         }
         void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}

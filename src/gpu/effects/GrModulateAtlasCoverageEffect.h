@@ -40,7 +40,7 @@ public:
         auto fp = that.cast<GrModulateAtlasCoverageEffect>();
         return fFlags == fp.fFlags && fBounds == fp.fBounds;
     }
-    std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
+    std::unique_ptr<ProgramImpl> onMakeProgramImpl() const override;
 
 private:
     const Flags fFlags;

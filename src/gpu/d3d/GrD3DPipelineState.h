@@ -35,7 +35,7 @@ public:
                        uint32_t numSamplers,
                        std::unique_ptr<GrGLSLGeometryProcessor> geometryProcessor,
                        std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
-                       std::vector<std::unique_ptr<GrGLSLFragmentProcessor>> fpImpls,
+                       std::vector<std::unique_ptr<GrFragmentProcessor::ProgramImpl>> fpImpls,
                        size_t vertexStride,
                        size_t instanceStride);
 
@@ -89,7 +89,7 @@ private:
     // Processors in the GrD3DPipelineState
     std::unique_ptr<GrGLSLGeometryProcessor> fGeometryProcessor;
     std::unique_ptr<GrGLSLXferProcessor> fXferProcessor;
-    std::vector<std::unique_ptr<GrGLSLFragmentProcessor>> fFPImpls;
+    std::vector<std::unique_ptr<GrFragmentProcessor::ProgramImpl>> fFPImpls;
 
     GrD3DPipelineStateDataManager fDataManager;
 

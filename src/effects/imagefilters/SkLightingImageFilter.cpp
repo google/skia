@@ -664,7 +664,7 @@ public:
     SkScalar kd() const { return fKD; }
 
 private:
-    std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
+    std::unique_ptr<ProgramImpl> onMakeProgramImpl() const override;
 
     void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
@@ -709,7 +709,7 @@ public:
         return std::unique_ptr<GrFragmentProcessor>(new GrSpecularLightingEffect(*this));
     }
 
-    std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
+    std::unique_ptr<ProgramImpl> onMakeProgramImpl() const override;
 
     SkScalar ks() const { return fKS; }
     SkScalar shininess() const { return fShininess; }
@@ -1542,7 +1542,7 @@ static SkString emitNormalFunc(BoundaryMode mode,
     return result;
 }
 
-class GrGLLightingEffect : public GrGLSLFragmentProcessor {
+class GrGLLightingEffect : public GrFragmentProcessor::ProgramImpl {
 public:
     GrGLLightingEffect() : fLight(nullptr) { }
     ~GrGLLightingEffect() override { delete fLight; }
@@ -1563,7 +1563,7 @@ protected:
                                SkString* funcName) = 0;
 
 private:
-    using INHERITED = GrGLSLFragmentProcessor;
+    using INHERITED = ProgramImpl;
 
     UniformHandle              fSurfaceScaleUni;
     GrGLLight*                 fLight;
@@ -1681,7 +1681,8 @@ void GrDiffuseLightingEffect::onAddToKey(const GrShaderCaps& caps, GrProcessorKe
     GrGLDiffuseLightingEffect::GenKey(*this, caps, b);
 }
 
-std::unique_ptr<GrGLSLFragmentProcessor> GrDiffuseLightingEffect::onMakeProgramImpl() const {
+std::unique_ptr<GrFragmentProcessor::ProgramImpl>
+GrDiffuseLightingEffect::onMakeProgramImpl() const {
     return std::make_unique<GrGLDiffuseLightingEffect>();
 }
 
@@ -1906,7 +1907,8 @@ void GrSpecularLightingEffect::onAddToKey(const GrShaderCaps& caps,
     GrGLSpecularLightingEffect::GenKey(*this, caps, b);
 }
 
-std::unique_ptr<GrGLSLFragmentProcessor> GrSpecularLightingEffect::onMakeProgramImpl() const {
+std::unique_ptr<GrFragmentProcessor::ProgramImpl>
+GrSpecularLightingEffect::onMakeProgramImpl() const {
     return std::make_unique<GrGLSpecularLightingEffect>();
 }
 

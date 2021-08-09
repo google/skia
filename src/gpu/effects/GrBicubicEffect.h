@@ -112,7 +112,7 @@ private:
 
     explicit GrBicubicEffect(const GrBicubicEffect&);
 
-    std::unique_ptr<GrGLSLFragmentProcessor> onMakeProgramImpl() const override;
+    std::unique_ptr<ProgramImpl> onMakeProgramImpl() const override;
 
     void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 

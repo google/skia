@@ -35,8 +35,9 @@ GrModulateAtlasCoverageEffect::GrModulateAtlasCoverageEffect(
     this->cloneAndRegisterAllChildProcessors(that);
 }
 
-std::unique_ptr<GrGLSLFragmentProcessor> GrModulateAtlasCoverageEffect::onMakeProgramImpl() const {
-    class Impl : public GrGLSLFragmentProcessor {
+std::unique_ptr<GrFragmentProcessor::ProgramImpl>
+GrModulateAtlasCoverageEffect::onMakeProgramImpl() const {
+    class Impl : public ProgramImpl {
         void emitCode(EmitArgs& args) override {
             auto fp = args.fFp.cast<GrModulateAtlasCoverageEffect>();
             auto f = args.fFragBuilder;
