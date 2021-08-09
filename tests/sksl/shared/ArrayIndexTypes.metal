@@ -10,8 +10,8 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     Outputs _out;
     (void)_out;
     array<float, 4> array = array<float, 4>{1.0, 2.0, 3.0, 4.0};
-    short x = 0;
-    ushort y = 1u;
+    int x = 0;
+    uint y = 1u;
     int z = 2;
     uint w = 3u;
     _out.sk_FragColor = float4(array[x], array[y], array[z], array[w]);

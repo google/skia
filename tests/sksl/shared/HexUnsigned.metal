@@ -20,7 +20,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     u3++;
     uint u4 = 4294967294u;
     u4++;
-    ushort u5 = 65534u;
+    uint u5 = 65534u;
     u5++;
     _out.sk_FragColor = _uniforms.colorGreen;
     return _out;

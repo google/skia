@@ -29,7 +29,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     Outputs _out;
     (void)_out;
     array<int, 2> i2 = array<int, 2>{1, 2};
-    array<short, 2> s2 = array<short, 2>{1, 2};
+    array<int, 2> s2 = array<int, 2>{1, 2};
     array<float, 2> f2 = array<float, 2>{1.0, 2.0};
     array<float, 2> h2 = array<float, 2>{1.0, 2.0};
     const array<float, 2> cf2 = array<float, 2>{1.0, 2.0};
