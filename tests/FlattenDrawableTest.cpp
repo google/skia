@@ -71,7 +71,9 @@ public:
     }
 
     static sk_sp<SkFlattenable> CreateProc(SkReadBuffer& buffer) {
-        return sk_sp<PaintDrawable>(new PaintDrawable(buffer.readPaint()));
+        SkPaint paint;
+        buffer.readPaint(&paint, nullptr);
+        return sk_sp<PaintDrawable>(new PaintDrawable(paint));
     }
 
     Factory getFactory() const override { return CreateProc; }

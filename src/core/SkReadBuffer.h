@@ -108,8 +108,8 @@ public:
 
     void readPath(SkPath* path);
 
-    SkPaint readPaint() {
-        return SkPaintPriv::Unflatten(*this);
+    SkReadPaintResult readPaint(SkPaint* paint, SkFont* font) {
+        return SkPaintPriv::Unflatten(paint, *this, font);
     }
 
     SkFlattenable* readFlattenable(SkFlattenable::Type);

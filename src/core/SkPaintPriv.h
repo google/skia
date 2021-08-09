@@ -10,8 +10,15 @@
 
 #include "include/core/SkPaint.h"
 
+class SkFont;
 class SkReadBuffer;
 class SkWriteBuffer;
+
+enum SkReadPaintResult {
+    kFailed_ReadPaint,
+    kSuccess_JustPaint,
+    kSuccess_PaintAndFont,
+};
 
 class SkPaintPriv {
 public:
@@ -47,8 +54,18 @@ public:
 
     /** Populates SkPaint, typically from a serialized stream, created by calling
         flatten() at an earlier time.
+
+        SkReadBuffer class is not public, so unflatten() cannot be meaningfully called
+        by the client.
+
+        Older formats also stored font info in the serialized data. On success, this
+        returns if it deserialized just a paint, or both a font and paint. The font
+        param is optional.
+
+        @param buffer  serialized data describing SkPaint content
+        @return        false if the buffer contains invalid data
     */
-    static SkPaint Unflatten(SkReadBuffer& buffer);
+    static SkReadPaintResult Unflatten(SkPaint* paint, SkReadBuffer& buffer, SkFont* font);
 
     // If this paint has any color filter, fold it into the shader and/or paint color
     // so that it draws the same but getColorFilter() returns nullptr.

@@ -116,7 +116,8 @@ DEF_TEST(Paint_flattening, reporter) {
     writer.writeToMemory(buf.get());
     SkReadBuffer reader(buf.get(), writer.bytesWritten());
 
-    SkPaint paint2 = reader.readPaint();
+    SkPaint paint2;
+    SkPaintPriv::Unflatten(&paint2, reader, nullptr);
     REPORTER_ASSERT(reporter, paint2 == paint);
 
     }}}
@@ -152,7 +153,8 @@ DEF_TEST(Paint_MoreFlattening, r) {
     writer.writeToMemory(buf.get());
     SkReadBuffer reader(buf.get(), writer.bytesWritten());
 
-    SkPaint other = reader.readPaint();
+    SkPaint other;
+    SkPaintPriv::Unflatten(&other, reader, nullptr);
     ASSERT(reader.offset() == writer.bytesWritten());
 
     // No matter the encoding, these must always hold.

@@ -66,7 +66,9 @@ void SkRegisterShaderImageFilterFlattenable() {
 
 sk_sp<SkFlattenable> SkShaderImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 0);
-    return SkShaderImageFilter::Make(buffer.readPaint(), common.cropRect());
+    SkPaint paint;
+    buffer.readPaint(&paint, nullptr);
+    return SkShaderImageFilter::Make(paint, common.cropRect());
 }
 
 void SkShaderImageFilter::flatten(SkWriteBuffer& buffer) const {
