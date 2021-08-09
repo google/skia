@@ -756,17 +756,8 @@ void colrv1_draw_glyph_with_path(SkCanvas* canvas, const FT_Color* palette, FT_F
     }
 }
 
-
-/* In drawing mode, concatenates the transforms directly on SkCanvas. In
- * bounding box calculation mode, no SkCanvas is specified, but we only want to
- * retrieve the transform from the FreeType paint object. */
-void colrv1_transform(FT_Face face,
-                      FT_COLR_Paint colrv1_paint,
-                      SkCanvas* canvas,
-                      SkMatrix* out_transform = 0) {
+void colrv1_transform(SkCanvas* canvas, FT_Face face, FT_COLR_Paint colrv1_paint) {
     SkMatrix transform;
-
-    SkASSERT(canvas || out_transform);
 
     switch (colrv1_paint.format) {
         case FT_COLR_PAINTFORMAT_TRANSFORM: {
@@ -818,13 +809,9 @@ void colrv1_transform(FT_Face face,
             SkASSERT(false);
         }
     }
-    if (canvas) {
-        canvas->concat(transform);
-    }
-    if (out_transform) {
-        *out_transform = transform;
-    }
+    canvas->concat(transform);
 }
+
 
 bool colrv1_start_glyph(SkCanvas* canvas,
                         const FT_Color* palette,
@@ -890,28 +877,28 @@ bool colrv1_traverse_paint(SkCanvas* canvas,
                                                  FT_COLOR_NO_ROOT_TRANSFORM);
             break;
         case FT_COLR_PAINTFORMAT_TRANSFORM:
-            colrv1_transform(face, paint, canvas);
+            colrv1_transform(canvas, face, paint);
             traverse_result = colrv1_traverse_paint(canvas, palette, face,
                                                     paint.u.transform.paint, visited_set);
             break;
         case FT_COLR_PAINTFORMAT_TRANSLATE:
-            colrv1_transform(face, paint, canvas);
+            colrv1_transform(canvas, face, paint);
             traverse_result = colrv1_traverse_paint(canvas, palette, face,
                                                     paint.u.translate.paint, visited_set);
             break;
         case FT_COLR_PAINTFORMAT_SCALE:
-            colrv1_transform(face, paint, canvas);
+            colrv1_transform(canvas, face, paint);
             traverse_result = colrv1_traverse_paint(canvas, palette, face,
                                                     paint.u.scale.paint, visited_set);
             break;
         case FT_COLR_PAINTFORMAT_ROTATE:
-            colrv1_transform(face, paint, canvas);
+            colrv1_transform(canvas, face, paint);
             traverse_result =
                     colrv1_traverse_paint(canvas, palette, face,
                                           paint.u.rotate.paint, visited_set);
             break;
         case FT_COLR_PAINTFORMAT_SKEW:
-            colrv1_transform(face, paint, canvas);
+            colrv1_transform(canvas, face, paint);
             traverse_result =
                     colrv1_traverse_paint(canvas, palette, face,
                                           paint.u.skew.paint, visited_set);
@@ -943,72 +930,6 @@ bool colrv1_traverse_paint(SkCanvas* canvas,
     return traverse_result;
 }
 
-SkPath GetClipBoxPath(FT_Face ft_face, uint16_t glyph_id, bool untransformed) {
-    SkPath resultPath;
-
-    using DoneFTSize = SkFunctionWrapper<decltype(FT_Done_Size), FT_Done_Size>;
-    std::unique_ptr<std::remove_pointer_t<FT_Size>, DoneFTSize> unscaledFtSize = nullptr;
-
-    FT_Size oldSize = ft_face->size;
-    FT_Matrix oldTransform;
-    FT_Vector oldDelta;
-    FT_Error err = 0;
-
-    if (untransformed) {
-        unscaledFtSize.reset(
-                [ft_face]() -> FT_Size {
-                    FT_Size size;
-                    FT_Error err = FT_New_Size(ft_face, &size);
-                    if (err != 0) {
-                        SK_TRACEFTR(err,
-                                    "FT_New_Size(%s) failed in generateFacePathStaticCOLRv1.",
-                                    ft_face->family_name);
-                        return nullptr;
-                    }
-                    return size;
-                }());
-        if (!unscaledFtSize) {
-            return resultPath;
-        }
-
-        err = FT_Activate_Size(unscaledFtSize.get());
-        if (err != 0) {
-          return resultPath;
-        }
-
-        err = FT_Set_Char_Size(ft_face, SkIntToFDot6(ft_face->units_per_EM), 0, 0, 0);
-        if (err != 0) {
-          return resultPath;
-        }
-
-        FT_Get_Transform(ft_face, &oldTransform, &oldDelta);
-        FT_Set_Transform(ft_face, nullptr, nullptr);
-    }
-
-    FT_ClipBox colrGlyphClipBox;
-    if (FT_Get_Color_Glyph_ClipBox(ft_face, glyph_id, &colrGlyphClipBox)) {
-        resultPath = SkPath::Polygon({{SkFDot6ToScalar(colrGlyphClipBox.bottom_left.x),
-                                       -SkFDot6ToScalar(colrGlyphClipBox.bottom_left.y)},
-                                      {SkFDot6ToScalar(colrGlyphClipBox.top_left.x),
-                                       -SkFDot6ToScalar(colrGlyphClipBox.top_left.y)},
-                                      {SkFDot6ToScalar(colrGlyphClipBox.top_right.x),
-                                       -SkFDot6ToScalar(colrGlyphClipBox.top_right.y)},
-                                      {SkFDot6ToScalar(colrGlyphClipBox.bottom_right.x),
-                                       -SkFDot6ToScalar(colrGlyphClipBox.bottom_right.y)}},
-                                     true);
-    }
-
-    if (untransformed) {
-        err = FT_Activate_Size(oldSize);
-        if (err != 0) {
-          return resultPath;
-        }
-        FT_Set_Transform(ft_face, &oldTransform, &oldDelta);
-    }
-
-    return resultPath;
-}
-
 bool colrv1_start_glyph(SkCanvas* canvas,
                         const FT_Color* palette,
                         FT_Face ft_face,
@@ -1019,146 +940,8 @@ bool colrv1_start_glyph(SkCanvas* canvas,
     bool has_colrv1_layers = false;
     if (FT_Get_Color_Glyph_Paint(ft_face, glyph_id, root_transform, &opaque_paint)) {
         has_colrv1_layers = true;
-
-        SkPath clipBoxPath =
-                GetClipBoxPath(ft_face, glyph_id, root_transform == FT_COLOR_NO_ROOT_TRANSFORM);
-        if (!clipBoxPath.isEmpty()) {
-            canvas->clipPath(clipBoxPath, true);
-        }
-
         VisitedSet visited_set;
         colrv1_traverse_paint(canvas, palette, ft_face, opaque_paint, &visited_set);
-    }
-    return has_colrv1_layers;
-}
-
-bool colrv1_start_glyph_bounds(SkMatrix *ctm,
-                               SkRect* bounds,
-                               FT_Face ft_face,
-                               uint16_t glyph_id,
-                               FT_Color_Root_Transform root_transform);
-
-bool colrv1_traverse_paint_bounds(SkMatrix* ctm,
-                                  SkRect* bounds,
-                                  FT_Face face,
-                                  FT_OpaquePaint opaque_paint,
-                                  VisitedSet* visited_set) {
-    // Cycle detection, see section "5.7.11.1.9 Color glyphs as a directed acyclic graph".
-    if (visited_set->contains(opaque_paint)) {
-        return false;
-    }
-
-    visited_set->add(opaque_paint);
-    SK_AT_SCOPE_EXIT(visited_set->remove(opaque_paint));
-
-    FT_COLR_Paint paint;
-    if (!FT_Get_Paint(face, opaque_paint, &paint)) {
-      return false;
-    }
-
-    // Keep track of failures to retrieve the FT_COLR_Paint from FreeType in the
-    // recursion, cancel recursion when a paint retrieval fails.
-    bool traverse_result = true;
-    SkMatrix restore_matrix = *ctm;
-    SK_AT_SCOPE_EXIT(*ctm = restore_matrix);
-
-    switch (paint.format) {
-        case FT_COLR_PAINTFORMAT_COLR_LAYERS: {
-            FT_LayerIterator& layer_iterator = paint.u.colr_layers.layer_iterator;
-            FT_OpaquePaint opaque_paint_fetch;
-            opaque_paint_fetch.p = nullptr;
-            while (FT_Get_Paint_Layers(face, &layer_iterator, &opaque_paint_fetch)) {
-                colrv1_traverse_paint_bounds(ctm, bounds, face, opaque_paint_fetch, visited_set);
-            }
-            break;
-        }
-        case FT_COLR_PAINTFORMAT_GLYPH: {
-            FT_UInt glyphID = paint.u.glyph.glyphID;
-            SkPath path;
-            if ((traverse_result = generateFacePathCOLRv1(face, glyphID, &path))) {
-              path.transform(*ctm);
-              bounds->join(path.getBounds());
-            }
-            break;
-        }
-        case FT_COLR_PAINTFORMAT_COLR_GLYPH:
-            traverse_result = colrv1_start_glyph_bounds(
-                    ctm, bounds, face, paint.u.colr_glyph.glyphID, FT_COLOR_NO_ROOT_TRANSFORM);
-            break;
-
-        case FT_COLR_PAINTFORMAT_TRANSFORM: {
-            SkMatrix transform_matrix;
-            colrv1_transform(face, paint, nullptr, &transform_matrix);
-            ctm->preConcat(transform_matrix);
-            traverse_result = colrv1_traverse_paint_bounds(
-                    ctm, bounds, face, paint.u.transform.paint, visited_set);
-            break;
-        }
-        case FT_COLR_PAINTFORMAT_TRANSLATE: {
-            SkMatrix transform_matrix;
-            colrv1_transform(face, paint, nullptr, &transform_matrix);
-            ctm->preConcat(transform_matrix);
-            traverse_result = colrv1_traverse_paint_bounds(
-                    ctm, bounds, face, paint.u.translate.paint, visited_set);
-            break;
-        }
-        case FT_COLR_PAINTFORMAT_SCALE: {
-            SkMatrix transform_matrix;
-            colrv1_transform(face, paint, nullptr, &transform_matrix);
-            ctm->preConcat(transform_matrix);
-            traverse_result = colrv1_traverse_paint_bounds(
-                    ctm, bounds, face, paint.u.scale.paint, visited_set);
-            break;
-        }
-        case FT_COLR_PAINTFORMAT_ROTATE: {
-            SkMatrix transform_matrix;
-            colrv1_transform(face, paint, nullptr, &transform_matrix);
-            ctm->preConcat(transform_matrix);
-            traverse_result = colrv1_traverse_paint_bounds(
-                    ctm, bounds, face, paint.u.rotate.paint, visited_set);
-            break;
-        }
-        case FT_COLR_PAINTFORMAT_SKEW: {
-            SkMatrix transform_matrix;
-            colrv1_transform(face, paint, nullptr, &transform_matrix);
-            ctm->preConcat(transform_matrix);
-            traverse_result = colrv1_traverse_paint_bounds(
-                    ctm, bounds, face, paint.u.skew.paint, visited_set);
-            break;
-        }
-        case FT_COLR_PAINTFORMAT_COMPOSITE: {
-            traverse_result = colrv1_traverse_paint_bounds(
-                    ctm, bounds, face, paint.u.composite.backdrop_paint, visited_set);
-            traverse_result = colrv1_traverse_paint_bounds(
-                    ctm, bounds, face, paint.u.composite.source_paint, visited_set);
-            break;
-        }
-        case FT_COLR_PAINTFORMAT_SOLID:
-        case FT_COLR_PAINTFORMAT_LINEAR_GRADIENT:
-        case FT_COLR_PAINTFORMAT_RADIAL_GRADIENT:
-        case FT_COLR_PAINTFORMAT_SWEEP_GRADIENT: {
-            break;
-        }
-        default:
-            SkASSERT(false);
-            break;
-}
-    return traverse_result;
-}
-
-
-bool colrv1_start_glyph_bounds(SkMatrix *ctm,
-                               SkRect* bounds,
-                               FT_Face ft_face,
-                               uint16_t glyph_id,
-                               FT_Color_Root_Transform root_transform) {
-    FT_OpaquePaint opaque_paint;
-    opaque_paint.p = nullptr;
-    bool has_colrv1_layers = false;
-    if (FT_Get_Color_Glyph_Paint(ft_face, glyph_id, root_transform, &opaque_paint)) {
-        has_colrv1_layers = true;
-        VisitedSet visited_set;
-        colrv1_traverse_paint_bounds(ctm, bounds, ft_face, opaque_paint, &visited_set);
     }
     return has_colrv1_layers;
 }
@@ -1666,28 +1449,4 @@ bool SkScalerContext_FreeType_Base::generateFacePath(FT_Face face,
                                                      SkGlyphID glyphID,
                                                      SkPath* path) {
     return generateFacePathStatic(face, glyphID, path);
-}
-
-bool SkScalerContext_FreeType_Base::computeColrV1GlyphBoundingBox(FT_Face face,
-                                                                  SkGlyphID glyphID,
-                                                                  FT_BBox* boundingBox) {
-#ifdef TT_SUPPORT_COLRV1
-    SkMatrix ctm;
-    SkRect bounds;
-    if (!colrv1_start_glyph_bounds(&ctm, &bounds, face, glyphID, FT_COLOR_INCLUDE_ROOT_TRANSFORM)) {
-        return false;
-    }
-
-    /* Convert back to FT_BBox as caller needs it in this format. */
-    bounds.sort();
-    boundingBox->xMin = SkScalarToFDot6(bounds.left());
-    boundingBox->xMax = SkScalarToFDot6(bounds.right());
-    boundingBox->yMin = SkScalarToFDot6(-bounds.bottom());
-    boundingBox->yMax = SkScalarToFDot6(-bounds.top());
-
-    return true;
-#else
-    SkASSERT(false);
-    return false;
-#endif
 }
