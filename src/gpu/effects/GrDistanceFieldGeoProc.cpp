@@ -21,7 +21,7 @@
 // Assuming a radius of a little less than the diagonal of the fragment
 #define SK_DistanceFieldAAFactor     "0.65"
 
-class GrGLDistanceFieldA8TextGeoProc : public GrGLSLGeometryProcessor {
+class GrGLDistanceFieldA8TextGeoProc : public GrGeometryProcessor::ProgramImpl {
 public:
     GrGLDistanceFieldA8TextGeoProc() = default;
 
@@ -205,7 +205,7 @@ private:
     SkMatrix      fLocalMatrix = SkMatrix::InvalidMatrix();
     UniformHandle fLocalMatrixUniform;
 
-    using INHERITED = GrGLSLGeometryProcessor;
+    using INHERITED = ProgramImpl;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -278,9 +278,9 @@ void GrDistanceFieldA8TextGeoProc::addToKey(const GrShaderCaps& caps,
     GrGLDistanceFieldA8TextGeoProc::GenKey(*this, caps, b);
 }
 
-GrGLSLGeometryProcessor*
-GrDistanceFieldA8TextGeoProc::createGLSLInstance(const GrShaderCaps&) const {
-    return new GrGLDistanceFieldA8TextGeoProc();
+std::unique_ptr<GrGeometryProcessor::ProgramImpl> GrDistanceFieldA8TextGeoProc::makeProgramImpl(
+        const GrShaderCaps&) const {
+    return std::make_unique<GrGLDistanceFieldA8TextGeoProc>();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -318,7 +318,7 @@ GrGeometryProcessor* GrDistanceFieldA8TextGeoProc::TestCreate(GrProcessorTestDat
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GrGLDistanceFieldPathGeoProc : public GrGLSLGeometryProcessor {
+class GrGLDistanceFieldPathGeoProc : public GrGeometryProcessor::ProgramImpl {
 public:
     GrGLDistanceFieldPathGeoProc() : fMatrix(SkMatrix::InvalidMatrix()), fAtlasDimensions{0,0} {}
 
@@ -487,7 +487,7 @@ private:
     SkISize       fAtlasDimensions;
     UniformHandle fAtlasDimensionsInvUniform;
 
-    using INHERITED = GrGLSLGeometryProcessor;
+    using INHERITED = ProgramImpl;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -551,9 +551,9 @@ void GrDistanceFieldPathGeoProc::addToKey(const GrShaderCaps& caps,
     GrGLDistanceFieldPathGeoProc::GenKey(*this, caps, b);
 }
 
-GrGLSLGeometryProcessor*
-GrDistanceFieldPathGeoProc::createGLSLInstance(const GrShaderCaps&) const {
-    return new GrGLDistanceFieldPathGeoProc();
+std::unique_ptr<GrGeometryProcessor::ProgramImpl> GrDistanceFieldPathGeoProc::makeProgramImpl(
+        const GrShaderCaps&) const {
+    return std::make_unique<GrGLDistanceFieldPathGeoProc>();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -588,7 +588,7 @@ GrGeometryProcessor* GrDistanceFieldPathGeoProc::TestCreate(GrProcessorTestData*
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GrGLDistanceFieldLCDTextGeoProc : public GrGLSLGeometryProcessor {
+class GrGLDistanceFieldLCDTextGeoProc : public GrGeometryProcessor::ProgramImpl {
 public:
     GrGLDistanceFieldLCDTextGeoProc()
             : fAtlasDimensions({0, 0})
@@ -809,7 +809,7 @@ private:
     SkMatrix                                      fLocalMatrix;
     UniformHandle                                 fLocalMatrixUniform;
 
-    using INHERITED = GrGLSLGeometryProcessor;
+    using INHERITED = ProgramImpl;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -878,9 +878,9 @@ void GrDistanceFieldLCDTextGeoProc::addToKey(const GrShaderCaps& caps,
     GrGLDistanceFieldLCDTextGeoProc::GenKey(*this, caps, b);
 }
 
-GrGLSLGeometryProcessor* GrDistanceFieldLCDTextGeoProc::createGLSLInstance(
+std::unique_ptr<GrGeometryProcessor::ProgramImpl> GrDistanceFieldLCDTextGeoProc::makeProgramImpl(
         const GrShaderCaps&) const {
-    return new GrGLDistanceFieldLCDTextGeoProc();
+    return std::make_unique<GrGLDistanceFieldLCDTextGeoProc>();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

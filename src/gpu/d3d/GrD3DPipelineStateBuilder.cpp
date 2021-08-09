@@ -674,17 +674,17 @@ std::unique_ptr<GrD3DPipelineState> GrD3DPipelineStateBuilder::finalize() {
     sk_sp<GrD3DPipeline> pipeline = GrD3DPipeline::Make(std::move(pipelineState));
 
     return std::unique_ptr<GrD3DPipelineState>(
-                                     new GrD3DPipelineState(std::move(pipeline),
-                                                            std::move(rootSig),
-                                                            fUniformHandles,
-                                                            fUniformHandler.fUniforms,
-                                                            fUniformHandler.fCurrentUBOOffset,
-                                                            fUniformHandler.fSamplers.count(),
-                                                            std::move(fGeometryProcessor),
-                                                            std::move(fXferProcessor),
-                                                            std::move(fFPImpls),
-                                                            geomProc.vertexStride(),
-                                                            geomProc.instanceStride()));
+            new GrD3DPipelineState(std::move(pipeline),
+                                   std::move(rootSig),
+                                   fUniformHandles,
+                                   fUniformHandler.fUniforms,
+                                   fUniformHandler.fCurrentUBOOffset,
+                                   fUniformHandler.fSamplers.count(),
+                                   std::move(fGPImpl),
+                                   std::move(fXferProcessor),
+                                   std::move(fFPImpls),
+                                   geomProc.vertexStride(),
+                                   geomProc.instanceStride()));
 }
 
 

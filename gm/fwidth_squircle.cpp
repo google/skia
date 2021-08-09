@@ -72,7 +72,7 @@ public:
 
     void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const final {}
 
-    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const final;
+    std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const final;
 
 private:
     FwidthSquircleTestProcessor(const SkMatrix& viewMatrix)
@@ -88,7 +88,7 @@ private:
     using INHERITED = GrGeometryProcessor;
 };
 
-class FwidthSquircleTestProcessor::Impl : public GrGLSLGeometryProcessor {
+class FwidthSquircleTestProcessor::Impl : public ProgramImpl {
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
         const auto& proc = args.fGeomProc.cast<FwidthSquircleTestProcessor>();
 
@@ -136,9 +136,9 @@ class FwidthSquircleTestProcessor::Impl : public GrGLSLGeometryProcessor {
     UniformHandle fViewMatrixHandle;
 };
 
-GrGLSLGeometryProcessor* FwidthSquircleTestProcessor::createGLSLInstance(
+std::unique_ptr<GrGeometryProcessor::ProgramImpl> FwidthSquircleTestProcessor::makeProgramImpl(
         const GrShaderCaps&) const {
-    return new Impl();
+    return std::make_unique<Impl>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

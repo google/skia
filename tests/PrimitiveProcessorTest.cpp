@@ -74,8 +74,8 @@ private:
 
             const char* name() const override { return "Test GP"; }
 
-            GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const override {
-                class GLSLGP : public GrGLSLGeometryProcessor {
+            std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const override {
+                class GLSLGP : public ProgramImpl {
                 public:
                     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
                         const GP& gp = args.fGeomProc.cast<GP>();
@@ -90,7 +90,7 @@ private:
                                  const GrShaderCaps&,
                                  const GrGeometryProcessor&) override {}
                 };
-                return new GLSLGP();
+                return std::make_unique<GLSLGP>();
             }
             void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder* builder) const override {
                 builder->add32(fNumAttribs);

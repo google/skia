@@ -602,8 +602,8 @@ public:
         b->add32(GrColorSpaceXform::XformKey(fTextureColorSpaceXform.get()), "colorSpaceXform");
     }
 
-    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps& caps) const override {
-        class GLSLProcessor : public GrGLSLGeometryProcessor {
+    std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const override {
+        class GLSLProcessor : public ProgramImpl {
         public:
             void setData(const GrGLSLProgramDataManager& pdman,
                          const GrShaderCaps&,
@@ -762,7 +762,7 @@ public:
             }
             GrGLSLColorSpaceXformHelper fTextureColorSpaceXformHelper;
         };
-        return new GLSLProcessor;
+        return std::make_unique<GLSLProcessor>();
     }
 
 private:

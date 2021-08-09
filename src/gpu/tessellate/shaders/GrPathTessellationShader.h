@@ -169,7 +169,7 @@ protected:
     }
 
     // Default path tessellation shader implementation that manages a uniform matrix and color.
-    class Impl : public GrGLSLGeometryProcessor {
+    class Impl : public ProgramImpl {
     public:
         void onEmitCode(EmitArgs&, GrGPArgs*) final;
         void setData(const GrGLSLProgramDataManager&, const GrShaderCaps&,

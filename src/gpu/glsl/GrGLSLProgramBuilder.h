@@ -117,9 +117,9 @@ public:
 
     GrGLSLBuiltinUniformHandles  fUniformHandles;
 
-    std::unique_ptr<GrGLSLGeometryProcessor> fGeometryProcessor;
-    std::unique_ptr<GrGLSLXferProcessor>     fXferProcessor;
-    std::vector<std::unique_ptr<GrFragmentProcessor::ProgramImpl>> fFPImpls;
+    std::unique_ptr<GrGeometryProcessor::ProgramImpl>               fGPImpl;
+    std::unique_ptr<GrGLSLXferProcessor>                            fXferProcessor;
+    std::vector<std::unique_ptr<GrFragmentProcessor::ProgramImpl>>  fFPImpls;
 
     SamplerHandle fDstTextureSamplerHandle;
     GrSurfaceOrigin fDstTextureOrigin;
@@ -182,7 +182,7 @@ private:
 
     // These are used to check that we don't excede the allowable number of resources in a shader.
     int fNumFragmentSamplers;
-    GrGLSLGeometryProcessor::FPCoordsMap fFPCoordsMap;
+    GrGeometryProcessor::ProgramImpl::FPCoordsMap fFPCoordsMap;
 };
 
 #endif

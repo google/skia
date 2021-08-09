@@ -56,14 +56,15 @@ private:
     void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const final {
         b->add32((uint32_t)fPatchType);
     }
-    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const final;
+    std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const final;
     const PatchType fPatchType;
 
     constexpr static int kMaxInstanceAttribCount = 4;
     SkSTArray<kMaxInstanceAttribCount, Attribute> fInstanceAttribs;
 };
 
-GrGLSLGeometryProcessor* MiddleOutShader::createGLSLInstance(const GrShaderCaps&) const {
+std::unique_ptr<GrGeometryProcessor::ProgramImpl> MiddleOutShader::makeProgramImpl(
+        const GrShaderCaps&) const {
     class Impl : public GrPathTessellationShader::Impl {
         void emitVertexCode(const GrShaderCaps& shaderCaps, const GrPathTessellationShader& shader,
                             GrGLSLVertexBuilder* v, GrGPArgs* gpArgs) override {
@@ -167,7 +168,7 @@ GrGLSLGeometryProcessor* MiddleOutShader::createGLSLInstance(const GrShaderCaps&
             gpArgs->fPositionVar.set(kFloat2_GrSLType, "vertexpos");
         }
     };
-    return new Impl;
+    return std::make_unique<Impl>();
 }
 
 }  // namespace

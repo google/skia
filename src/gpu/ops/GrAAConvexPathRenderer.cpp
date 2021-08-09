@@ -561,7 +561,7 @@ public:
 
     const char* name() const override { return "QuadEdge"; }
 
-    class GLSLProcessor : public GrGLSLGeometryProcessor {
+    class GLSLProcessor : public ProgramImpl {
     public:
         GLSLProcessor() {}
 
@@ -636,7 +636,7 @@ public:
         }
 
     private:
-        using INHERITED = GrGLSLGeometryProcessor;
+        using INHERITED = ProgramImpl;
 
         SkMatrix      fLocalMatrix = SkMatrix::InvalidMatrix();
         UniformHandle fLocalMatrixUniform;
@@ -646,8 +646,8 @@ public:
         GLSLProcessor::GenKey(*this, caps, b);
     }
 
-    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const override {
-        return new GLSLProcessor();
+    std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const override {
+        return std::make_unique<GLSLProcessor>();
     }
 
 private:

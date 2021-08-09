@@ -64,7 +64,7 @@ private:
     const char* name() const final { return "TessellationTestTriShader"; }
     void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const final {}
 
-    class Impl : public GrGLSLGeometryProcessor {
+    class Impl : public ProgramImpl {
         void onEmitCode(EmitArgs& args, GrGPArgs*) override {
             args.fVaryingHandler->emitAttributes(args.fGeomProc.cast<TessellationTestTriShader>());
             const char* viewMatrix;
@@ -157,8 +157,8 @@ private:
         GrGLSLUniformHandler::UniformHandle fViewMatrixUniform;
     };
 
-    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const override {
-        return new Impl;
+    std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const final {
+        return std::make_unique<Impl>();
     }
 
     const SkMatrix fViewMatrix;
@@ -175,7 +175,7 @@ private:
     const char* name() const final { return "TessellationTestRectShader"; }
     void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const final {}
 
-    class Impl : public GrGLSLGeometryProcessor {
+    class Impl : public ProgramImpl {
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
             const char* viewMatrix;
             fViewMatrixUniform = args.fUniformHandler->addUniform(
@@ -265,8 +265,8 @@ private:
         GrGLSLUniformHandler::UniformHandle fViewMatrixUniform;
     };
 
-    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const override {
-        return new Impl;
+    std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const final {
+        return std::make_unique<Impl>();
     }
 
     const SkMatrix fViewMatrix;

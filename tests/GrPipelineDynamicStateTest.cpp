@@ -68,7 +68,7 @@ public:
 
     void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const final {}
 
-    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const final;
+    std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const final;
 
     const Attribute& inVertex() const { return kAttributes[0]; }
     const Attribute& inColor() const { return kAttributes[1]; }
@@ -89,7 +89,7 @@ private:
 };
 constexpr GrGeometryProcessor::Attribute GrPipelineDynamicStateTestProcessor::kAttributes[];
 
-class GLSLPipelineDynamicStateTestProcessor : public GrGLSLGeometryProcessor {
+class GLSLPipelineDynamicStateTestProcessor : public GrGeometryProcessor::ProgramImpl {
     void setData(const GrGLSLProgramDataManager&,
                  const GrShaderCaps&,
                  const GrGeometryProcessor&) final {}
@@ -111,9 +111,9 @@ class GLSLPipelineDynamicStateTestProcessor : public GrGLSLGeometryProcessor {
     }
 };
 
-GrGLSLGeometryProcessor*
-GrPipelineDynamicStateTestProcessor::createGLSLInstance(const GrShaderCaps&) const {
-    return new GLSLPipelineDynamicStateTestProcessor;
+std::unique_ptr<GrGeometryProcessor::ProgramImpl>
+GrPipelineDynamicStateTestProcessor::makeProgramImpl(const GrShaderCaps&) const {
+    return std::make_unique<GLSLPipelineDynamicStateTestProcessor>();
 }
 
 class GrPipelineDynamicStateTestOp : public GrDrawOp {

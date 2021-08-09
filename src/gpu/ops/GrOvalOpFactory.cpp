@@ -79,8 +79,8 @@ public:
         GLSLProcessor::GenKey(*this, caps, b);
     }
 
-    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const override {
-        return new GLSLProcessor();
+    std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const override {
+        return std::make_unique<GLSLProcessor>();
     }
 
 private:
@@ -111,7 +111,7 @@ private:
         this->setVertexAttributes(&fInPosition, 7);
     }
 
-    class GLSLProcessor : public GrGLSLGeometryProcessor {
+    class GLSLProcessor : public ProgramImpl {
     public:
         GLSLProcessor() {}
 
@@ -232,7 +232,7 @@ private:
         }
 
     private:
-        using INHERITED = GrGLSLGeometryProcessor;
+        using INHERITED = ProgramImpl;
 
         SkMatrix      fLocalMatrix = SkMatrix::InvalidMatrix();
         UniformHandle fLocalMatrixUniform;
@@ -288,8 +288,8 @@ public:
         GLSLProcessor::GenKey(*this, caps, b);
     }
 
-    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const override {
-        return new GLSLProcessor();
+    std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const override {
+        return std::make_unique<GLSLProcessor>();
     }
 
 private:
@@ -303,7 +303,7 @@ private:
         this->setVertexAttributes(&fInPosition, 4);
     }
 
-    class GLSLProcessor : public GrGLSLGeometryProcessor {
+    class GLSLProcessor : public ProgramImpl {
     public:
         GLSLProcessor() {}
 
@@ -501,7 +501,7 @@ private:
         }
 
     private:
-        using INHERITED = GrGLSLGeometryProcessor;
+        using INHERITED = ProgramImpl;
 
         SkMatrix      fLocalMatrix = SkMatrix::InvalidMatrix();
         UniformHandle fLocalMatrixUniform;
@@ -553,8 +553,8 @@ public:
         GLSLProcessor::GenKey(*this, caps, b);
     }
 
-    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const override {
-        return new GLSLProcessor();
+    std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const override {
+        return std::make_unique<GLSLProcessor>();
     }
 
 private:
@@ -575,7 +575,7 @@ private:
         this->setVertexAttributes(&fInPosition, 4);
     }
 
-    class GLSLProcessor : public GrGLSLGeometryProcessor {
+    class GLSLProcessor : public ProgramImpl {
     public:
         GLSLProcessor() {}
 
@@ -697,7 +697,7 @@ private:
         }
 
     private:
-        using INHERITED = GrGLSLGeometryProcessor;
+        using INHERITED = ProgramImpl;
 
         SkMatrix      fLocalMatrix = SkMatrix::InvalidMatrix();
         UniformHandle fLocalMatrixUniform;
@@ -759,8 +759,8 @@ public:
         GLSLProcessor::GenKey(*this, caps, b);
     }
 
-    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const override {
-        return new GLSLProcessor();
+    std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const override {
+        return std::make_unique<GLSLProcessor>();
     }
 
 private:
@@ -783,7 +783,7 @@ private:
         this->setVertexAttributes(&fInPosition, 4);
     }
 
-    class GLSLProcessor : public GrGLSLGeometryProcessor {
+    class GLSLProcessor : public ProgramImpl {
     public:
         GLSLProcessor() : fViewMatrix(SkMatrix::InvalidMatrix()) {}
 
@@ -900,9 +900,8 @@ private:
         SkMatrix      fViewMatrix;
         UniformHandle fViewMatrixUniform;
 
-        using INHERITED = GrGLSLGeometryProcessor;
+        using INHERITED = ProgramImpl;
     };
-
 
     Attribute fInPosition;
     Attribute fInColor;

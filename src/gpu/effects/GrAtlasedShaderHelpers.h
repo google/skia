@@ -15,7 +15,7 @@
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
-static void append_index_uv_varyings(GrGLSLGeometryProcessor::EmitArgs& args,
+static void append_index_uv_varyings(GrGeometryProcessor::ProgramImpl::EmitArgs& args,
                                      int numTextureSamplers,
                                      const char* inTexCoordsName,
                                      const char* atlasDimensionsInvName,
@@ -76,9 +76,9 @@ static void append_index_uv_varyings(GrGLSLGeometryProcessor::EmitArgs& args,
     }
 }
 
-static void append_multitexture_lookup(GrGLSLGeometryProcessor::EmitArgs& args,
+static void append_multitexture_lookup(GrGeometryProcessor::ProgramImpl::EmitArgs& args,
                                        int numTextureSamplers,
-                                       const GrGLSLVarying &texIdx,
+                                       const GrGLSLVarying& texIdx,
                                        const char* coordName,
                                        const char* colorName) {
     SkASSERT(numTextureSamplers > 0);

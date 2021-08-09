@@ -14,7 +14,7 @@
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
-class GrGLSLRRectShadowGeoProc : public GrGLSLGeometryProcessor {
+class GrGLSLRRectShadowGeoProc : public GrGeometryProcessor::ProgramImpl {
 public:
     GrGLSLRRectShadowGeoProc() {}
 
@@ -50,7 +50,7 @@ public:
                  const GrGeometryProcessor&) override {}
 
 private:
-    using INHERITED = GrGLSLGeometryProcessor;
+    using INHERITED = ProgramImpl;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -68,8 +68,9 @@ GrRRectShadowGeoProc::GrRRectShadowGeoProc(const GrSurfaceProxyView& lutView)
     this->setTextureSamplerCnt(1);
 }
 
-GrGLSLGeometryProcessor* GrRRectShadowGeoProc::createGLSLInstance(const GrShaderCaps&) const {
-    return new GrGLSLRRectShadowGeoProc();
+std::unique_ptr<GrGeometryProcessor::ProgramImpl> GrRRectShadowGeoProc::makeProgramImpl(
+        const GrShaderCaps&) const {
+    return std::make_unique<GrGLSLRRectShadowGeoProc>();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

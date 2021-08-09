@@ -77,7 +77,7 @@ public:
         b->add32(fReadSkFragCoord);
     }
 
-    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const final;
+    std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const final;
 
     bool readSkFragCoord() const { return fReadSkFragCoord; }
 
@@ -93,7 +93,7 @@ private:
     using INHERITED = GrGeometryProcessor;
 };
 
-class GLSLClockwiseTestProcessor : public GrGLSLGeometryProcessor {
+class GLSLClockwiseTestProcessor : public GrGeometryProcessor::ProgramImpl {
     void setData(const GrGLSLProgramDataManager&,
                  const GrShaderCaps&,
                  const GrGeometryProcessor&) override {}
@@ -115,8 +115,9 @@ class GLSLClockwiseTestProcessor : public GrGLSLGeometryProcessor {
     }
 };
 
-GrGLSLGeometryProcessor* ClockwiseTestProcessor::createGLSLInstance(const GrShaderCaps&) const {
-    return new GLSLClockwiseTestProcessor;
+std::unique_ptr<GrGeometryProcessor::ProgramImpl> ClockwiseTestProcessor::makeProgramImpl(
+        const GrShaderCaps&) const {
+    return std::make_unique<GLSLClockwiseTestProcessor>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

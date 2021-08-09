@@ -50,13 +50,14 @@ public:
 private:
     const char* name() const final { return "tessellate_HullShader"; }
     void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const final {}
-    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const final;
+    std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const final;
 
     constexpr static int kMaxInstanceAttribCount = 3;
     SkSTArray<kMaxInstanceAttribCount, Attribute> fInstanceAttribs;
 };
 
-GrGLSLGeometryProcessor* HullShader::createGLSLInstance(const GrShaderCaps&) const {
+std::unique_ptr<GrGeometryProcessor::ProgramImpl> HullShader::makeProgramImpl(
+        const GrShaderCaps&) const {
     class Impl : public GrPathTessellationShader::Impl {
         void emitVertexCode(const GrShaderCaps& shaderCaps, const GrPathTessellationShader&,
                             GrGLSLVertexBuilder* v, GrGPArgs* gpArgs) override {
@@ -156,7 +157,7 @@ GrGLSLGeometryProcessor* HullShader::createGLSLInstance(const GrShaderCaps&) con
             gpArgs->fPositionVar.set(kFloat2_GrSLType, "vertexpos");
         }
     };
-    return new Impl;
+    return std::make_unique<Impl>();
 }
 
 }  // namespace

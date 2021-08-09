@@ -20,17 +20,11 @@
 class GrGeometryProcessor;
 class GrGLSLFPFragmentBuilder;
 class GrGLSLGeometryBuilder;
-class GrGLSLGPBuilder;
 class GrGLSLVaryingHandler;
 class GrGLSLVertexBuilder;
 class GrShaderCaps;
 
-/**
- * GrGeometryProcessor-derived classes that need to emit GLSL vertex shader code should be paired
- * with a sibling class derived from GrGLSLGeometryProcessor (and return an instance of it from
- * createGLSLInstance).
- */
-class GrGLSLGeometryProcessor {
+class GrGeometryProcessor::ProgramImpl {
 public:
     using UniformHandle = GrGLSLProgramDataManager::UniformHandle;
     using SamplerHandle = GrGLSLUniformHandler::SamplerHandle;
@@ -42,8 +36,7 @@ public:
     struct FPCoords {GrShaderVar coordsVarying; bool hasCoordsParam;};
     using FPCoordsMap = std::unordered_map<const GrFragmentProcessor*, FPCoords>;
 
-    virtual ~GrGLSLGeometryProcessor() {}
-
+    virtual ~ProgramImpl() = default;
 
     struct EmitArgs {
         EmitArgs(GrGLSLVertexBuilder* vertBuilder,
@@ -96,12 +89,11 @@ public:
                            GrGLSLUniformHandler* uniformHandler);
 
     /**
-     * A GrGLSLGeometryProcessor instance can be reused with any GrGLSLGeometryProcessor that
-     * produces the same stage key; this function reads data from a GrGLSLGeometryProcessor and
-     * uploads any uniform variables required  by the shaders created in emitCode(). The
-     * GrGeometryProcessor parameter is guaranteed to be of the same type and to have an
-     * identical processor key as the GrGeometryProcessor that created this
-     * GrGLSLGeometryProcessor.
+     * A ProgramImpl instance can be reused with any GrGeometryProcessor that produces the same key.
+     * This function reads data from a GrGeometryProcessor and updates any uniform variables
+     * required by the shaders created in emitCode(). The GrGeometryProcessor parameter is
+     * guaranteed to be of the same type and to have an identical processor key as the
+     * GrGeometryProcessor that created this ProgramImpl.
      */
     virtual void setData(const GrGLSLProgramDataManager&,
                          const GrShaderCaps&,
@@ -145,7 +137,7 @@ protected:
         // Used to specify the variable storing the draw's local coordinates. It can be either a
         // float2, float3, or void. It can only be void when no FP needs local coordinates. This
         // variable can be an attribute or local variable, but should not itself be a varying.
-        // GrGLSLGeometryProcessor automatically determines if this must be passed to a FS.
+        // ProgramImpl automatically determines if this must be passed to a FS.
         GrShaderVar fLocalCoordVar;
     };
 

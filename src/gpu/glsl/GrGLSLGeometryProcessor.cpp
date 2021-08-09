@@ -17,8 +17,9 @@
 
 #include <queue>
 
-GrGLSLGeometryProcessor::FPCoordsMap GrGLSLGeometryProcessor::emitCode(EmitArgs& args,
-                                                                       const GrPipeline& pipeline) {
+using ProgramImpl = GrGeometryProcessor::ProgramImpl;
+
+ProgramImpl::FPCoordsMap ProgramImpl::emitCode(EmitArgs& args, const GrPipeline& pipeline) {
     GrGPArgs gpArgs;
     this->onEmitCode(args, &gpArgs);
 
@@ -77,13 +78,12 @@ GrGLSLGeometryProcessor::FPCoordsMap GrGLSLGeometryProcessor::emitCode(EmitArgs&
     return transformMap;
 }
 
-GrGLSLGeometryProcessor::FPCoordsMap GrGLSLGeometryProcessor::collectTransforms(
-        GrGLSLVertexBuilder* vb,
-        GrGLSLVaryingHandler* varyingHandler,
-        GrGLSLUniformHandler* uniformHandler,
-        const GrShaderVar& localCoordsVar,
-        const GrShaderVar& positionVar,
-        const GrPipeline& pipeline) {
+ProgramImpl::FPCoordsMap ProgramImpl::collectTransforms(GrGLSLVertexBuilder* vb,
+                                                        GrGLSLVaryingHandler* varyingHandler,
+                                                        GrGLSLUniformHandler* uniformHandler,
+                                                        const GrShaderVar& localCoordsVar,
+                                                        const GrShaderVar& positionVar,
+                                                        const GrPipeline& pipeline) {
     SkASSERT(localCoordsVar.getType() == kFloat2_GrSLType ||
              localCoordsVar.getType() == kFloat3_GrSLType ||
              localCoordsVar.getType() == kVoid_GrSLType);
@@ -201,8 +201,7 @@ GrGLSLGeometryProcessor::FPCoordsMap GrGLSLGeometryProcessor::collectTransforms(
     return result;
 }
 
-void GrGLSLGeometryProcessor::emitTransformCode(GrGLSLVertexBuilder* vb,
-                                                GrGLSLUniformHandler* uniformHandler) {
+void ProgramImpl::emitTransformCode(GrGLSLVertexBuilder* vb, GrGLSLUniformHandler* uniformHandler) {
     // Because descendant varyings may be computed using the varyings of ancestor FPs we make
     // sure to visit the varyings according to FP pre-order traversal by dumping them into a
     // priority queue.
@@ -285,10 +284,10 @@ void GrGLSLGeometryProcessor::emitTransformCode(GrGLSLVertexBuilder* vb,
     fTransformVaryingsMap.clear();
 }
 
-void GrGLSLGeometryProcessor::setupUniformColor(GrGLSLFPFragmentBuilder* fragBuilder,
-                                                GrGLSLUniformHandler* uniformHandler,
-                                                const char* outputName,
-                                                UniformHandle* colorUniform) {
+void ProgramImpl::setupUniformColor(GrGLSLFPFragmentBuilder* fragBuilder,
+                                    GrGLSLUniformHandler* uniformHandler,
+                                    const char* outputName,
+                                    UniformHandle* colorUniform) {
     SkASSERT(colorUniform);
     const char* stagedLocalVarName;
     *colorUniform = uniformHandler->addUniform(nullptr,
@@ -302,11 +301,11 @@ void GrGLSLGeometryProcessor::setupUniformColor(GrGLSLFPFragmentBuilder* fragBui
     }
 }
 
-void GrGLSLGeometryProcessor::SetTransform(const GrGLSLProgramDataManager& pdman,
-                                           const GrShaderCaps& shaderCaps,
-                                           const UniformHandle& uniform,
-                                           const SkMatrix& matrix,
-                                           SkMatrix* state) {
+void ProgramImpl::SetTransform(const GrGLSLProgramDataManager& pdman,
+                               const GrShaderCaps& shaderCaps,
+                               const UniformHandle& uniform,
+                               const SkMatrix& matrix,
+                               SkMatrix* state) {
     if (!uniform.isValid() || (state && SkMatrixPriv::CheapEqual(*state, matrix))) {
         // No update needed
         return;
@@ -344,7 +343,7 @@ static void write_vertex_position(GrGLSLVertexBuilder* vertBuilder,
                                   const SkMatrix& matrix,
                                   const char* matrixName,
                                   GrShaderVar* outPos,
-                                  GrGLSLGeometryProcessor::UniformHandle* matrixUniform) {
+                                  ProgramImpl::UniformHandle* matrixUniform) {
     SkASSERT(inPos.getType() == kFloat3_GrSLType || inPos.getType() == kFloat2_GrSLType);
     SkString outName = vertBuilder->newTmpVarName(inPos.getName().c_str());
 
@@ -410,21 +409,21 @@ static void write_vertex_position(GrGLSLVertexBuilder* vertBuilder,
     outPos->set(kFloat2_GrSLType, outName.c_str());
 }
 
-void GrGLSLGeometryProcessor::WriteOutputPosition(GrGLSLVertexBuilder* vertBuilder,
-                                                  GrGPArgs* gpArgs,
-                                                  const char* posName) {
+void ProgramImpl::WriteOutputPosition(GrGLSLVertexBuilder* vertBuilder,
+                                      GrGPArgs* gpArgs,
+                                      const char* posName) {
     // writeOutputPosition assumes the incoming pos name points to a float2 variable
     GrShaderVar inPos(posName, kFloat2_GrSLType);
     write_passthrough_vertex_position(vertBuilder, inPos, &gpArgs->fPositionVar);
 }
 
-void GrGLSLGeometryProcessor::WriteOutputPosition(GrGLSLVertexBuilder* vertBuilder,
-                                                  GrGLSLUniformHandler* uniformHandler,
-                                                  const GrShaderCaps& shaderCaps,
-                                                  GrGPArgs* gpArgs,
-                                                  const char* posName,
-                                                  const SkMatrix& mat,
-                                                  UniformHandle* viewMatrixUniform) {
+void ProgramImpl::WriteOutputPosition(GrGLSLVertexBuilder* vertBuilder,
+                                      GrGLSLUniformHandler* uniformHandler,
+                                      const GrShaderCaps& shaderCaps,
+                                      GrGPArgs* gpArgs,
+                                      const char* posName,
+                                      const SkMatrix& mat,
+                                      UniformHandle* viewMatrixUniform) {
     GrShaderVar inPos(posName, kFloat2_GrSLType);
     write_vertex_position(vertBuilder,
                           uniformHandler,
@@ -436,13 +435,13 @@ void GrGLSLGeometryProcessor::WriteOutputPosition(GrGLSLVertexBuilder* vertBuild
                           viewMatrixUniform);
 }
 
-void GrGLSLGeometryProcessor::WriteLocalCoord(GrGLSLVertexBuilder* vertBuilder,
-                                              GrGLSLUniformHandler* uniformHandler,
-                                              const GrShaderCaps& shaderCaps,
-                                              GrGPArgs* gpArgs,
-                                              GrShaderVar localVar,
-                                              const SkMatrix& localMatrix,
-                                              UniformHandle* localMatrixUniform) {
+void ProgramImpl::WriteLocalCoord(GrGLSLVertexBuilder* vertBuilder,
+                                  GrGLSLUniformHandler* uniformHandler,
+                                  const GrShaderCaps& shaderCaps,
+                                  GrGPArgs* gpArgs,
+                                  GrShaderVar localVar,
+                                  const SkMatrix& localMatrix,
+                                  UniformHandle* localMatrixUniform) {
     write_vertex_position(vertBuilder,
                           uniformHandler,
                           shaderCaps,

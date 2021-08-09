@@ -60,7 +60,7 @@ public:
     const Attribute& colorAttr() const { return fAttributes[kColorIndex]; }
     const Attribute& localCoordsAttr() const { return fAttributes[kLocalCoordsIndex]; }
 
-    class GLSLProcessor : public GrGLSLGeometryProcessor {
+    class GLSLProcessor : public ProgramImpl {
     public:
         GLSLProcessor()
             : fViewMatrix(SkMatrix::InvalidMatrix())
@@ -154,15 +154,15 @@ public:
         UniformHandle fColorUniform;
         GrGLSLColorSpaceXformHelper fColorSpaceHelper;
 
-        using INHERITED = GrGLSLGeometryProcessor;
+        using INHERITED = ProgramImpl;
     };
 
     void addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
         GLSLProcessor::GenKey(*this, caps, b);
     }
 
-    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const override {
-        return new GLSLProcessor();
+    std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const override {
+        return std::make_unique<GLSLProcessor>();
     }
 
 private:

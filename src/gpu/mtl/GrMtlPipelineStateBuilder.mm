@@ -736,7 +736,7 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(
                                   fUniformHandler.fUniforms,
                                   bufferSize,
                                   (uint32_t)fUniformHandler.numSamplers(),
-                                  std::move(fGeometryProcessor),
+                                  std::move(fGPImpl),
                                   std::move(fXferProcessor),
                                   std::move(fFPImpls));
 }

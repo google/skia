@@ -41,10 +41,11 @@ public:
 private:
     const char* name() const final { return "tessellate_HardwareWedgeShader"; }
     void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const final {}
-    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const final;
+    std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const final;
 };
 
-GrGLSLGeometryProcessor* HardwareWedgeShader::createGLSLInstance(const GrShaderCaps&) const {
+std::unique_ptr<GrGeometryProcessor::ProgramImpl> HardwareWedgeShader::makeProgramImpl(
+        const GrShaderCaps&) const {
     class Impl : public GrPathTessellationShader::Impl {
         void emitVertexCode(const GrShaderCaps&, const GrPathTessellationShader&,
                             GrGLSLVertexBuilder* v, GrGPArgs*) override {
@@ -150,7 +151,7 @@ GrGLSLGeometryProcessor* HardwareWedgeShader::createGLSLInstance(const GrShaderC
             return code;
         }
     };
-    return new Impl;
+    return std::make_unique<Impl>();
 }
 
 // Uses GPU tessellation shaders to linearize, triangulate, and render standalone closed cubics.
@@ -168,10 +169,11 @@ public:
 private:
     const char* name() const final { return "tessellate_HardwareCurveShader"; }
     void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const final {}
-    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const final;
+    std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const final;
 };
 
-GrGLSLGeometryProcessor* HardwareCurveShader::createGLSLInstance(const GrShaderCaps&) const {
+std::unique_ptr<GrGeometryProcessor::ProgramImpl> HardwareCurveShader::makeProgramImpl(
+        const GrShaderCaps&) const {
     class Impl : public GrPathTessellationShader::Impl {
         void emitVertexCode(const GrShaderCaps&, const GrPathTessellationShader&,
                             GrGLSLVertexBuilder* v, GrGPArgs*) override {
@@ -305,7 +307,7 @@ GrGLSLGeometryProcessor* HardwareCurveShader::createGLSLInstance(const GrShaderC
             return code;
         }
     };
-    return new Impl;
+    return std::make_unique<Impl>();
 }
 
 }  // namespace

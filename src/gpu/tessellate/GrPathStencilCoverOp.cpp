@@ -49,13 +49,14 @@ public:
 private:
     const char* name() const final { return "tessellate_BoundingBoxShader"; }
     void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const final {}
-    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const final;
+    std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const final;
 
     const SkPMColor4f fColor;
 };
 
-GrGLSLGeometryProcessor* BoundingBoxShader::createGLSLInstance(const GrShaderCaps&) const {
-    class Impl : public GrGLSLGeometryProcessor {
+std::unique_ptr<GrGeometryProcessor::ProgramImpl> BoundingBoxShader::makeProgramImpl(
+        const GrShaderCaps&) const {
+    class Impl : public ProgramImpl {
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) final {
             args.fVaryingHandler->emitAttributes(args.fGeomProc);
 
@@ -94,7 +95,7 @@ GrGLSLGeometryProcessor* BoundingBoxShader::createGLSLInstance(const GrShaderCap
         GrGLSLUniformHandler::UniformHandle fColorUniform;
     };
 
-    return new Impl;
+    return std::make_unique<Impl>();
 }
 
 }  // namespace

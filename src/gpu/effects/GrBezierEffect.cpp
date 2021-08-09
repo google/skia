@@ -14,7 +14,7 @@
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
-class GrGLConicEffect : public GrGLSLGeometryProcessor {
+class GrGLConicEffect : public GrGeometryProcessor::ProgramImpl {
 public:
     GrGLConicEffect(const GrGeometryProcessor&);
 
@@ -53,7 +53,7 @@ private:
     UniformHandle fViewMatrixUniform;
     UniformHandle fLocalMatrixUniform;
 
-    using INHERITED = GrGLSLGeometryProcessor;
+    using INHERITED = ProgramImpl;
 };
 
 GrGLConicEffect::GrGLConicEffect(const GrGeometryProcessor& processor)
@@ -185,8 +185,9 @@ void GrConicEffect::addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b)
     GrGLConicEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLGeometryProcessor* GrConicEffect::createGLSLInstance(const GrShaderCaps&) const {
-    return new GrGLConicEffect(*this);
+std::unique_ptr<GrGeometryProcessor::ProgramImpl> GrConicEffect::makeProgramImpl(
+        const GrShaderCaps&) const {
+    return std::make_unique<GrGLConicEffect>(*this);
 }
 
 GrConicEffect::GrConicEffect(const SkPMColor4f& color, const SkMatrix& viewMatrix, uint8_t coverage,
@@ -223,7 +224,7 @@ GrGeometryProcessor* GrConicEffect::TestCreate(GrProcessorTestData* d) {
 // Quad
 //////////////////////////////////////////////////////////////////////////////
 
-class GrGLQuadEffect : public GrGLSLGeometryProcessor {
+class GrGLQuadEffect : public GrGeometryProcessor::ProgramImpl {
 public:
     GrGLQuadEffect(const GrGeometryProcessor&);
 
@@ -263,7 +264,7 @@ private:
     UniformHandle fViewMatrixUniform;
     UniformHandle fLocalMatrixUniform;
 
-    using INHERITED = GrGLSLGeometryProcessor;
+    using INHERITED = ProgramImpl;
 };
 
 GrGLQuadEffect::GrGLQuadEffect(const GrGeometryProcessor& processor)
@@ -360,8 +361,9 @@ void GrQuadEffect::addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) 
     GrGLQuadEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLGeometryProcessor* GrQuadEffect::createGLSLInstance(const GrShaderCaps&) const {
-    return new GrGLQuadEffect(*this);
+std::unique_ptr<GrGeometryProcessor::ProgramImpl> GrQuadEffect::makeProgramImpl(
+        const GrShaderCaps&) const {
+    return std::make_unique<GrGLQuadEffect>(*this);
 }
 
 GrQuadEffect::GrQuadEffect(const SkPMColor4f& color, const SkMatrix& viewMatrix, uint8_t coverage,

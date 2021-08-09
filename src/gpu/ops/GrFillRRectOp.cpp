@@ -343,7 +343,7 @@ public:
         b->addBits(kNumProcessorFlags, (uint32_t)fFlags,  "flags");
     }
 
-    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const final;
+    std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const final;
 
 private:
     Processor(GrAAType aaType, ProcessorFlags flags)
@@ -568,7 +568,7 @@ void FillRRectOp::onPrepareDraws(GrMeshDrawTarget* target) {
                                                                       gVertexBufferKey);
 }
 
-class FillRRectOp::Processor::Impl : public GrGLSLGeometryProcessor {
+class FillRRectOp::Processor::Impl : public ProgramImpl {
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
         GrGLSLVertexBuilder* v = args.fVertBuilder;
         GrGLSLFPFragmentBuilder* f = args.fFragBuilder;
@@ -759,9 +759,9 @@ class FillRRectOp::Processor::Impl : public GrGLSLGeometryProcessor {
                  const GrGeometryProcessor&) override {}
 };
 
-
-GrGLSLGeometryProcessor* FillRRectOp::Processor::createGLSLInstance(const GrShaderCaps&) const {
-    return new Impl();
+std::unique_ptr<GrGeometryProcessor::ProgramImpl> FillRRectOp::Processor::makeProgramImpl(
+        const GrShaderCaps&) const {
+    return std::make_unique<Impl>();
 }
 
 void FillRRectOp::onCreateProgramInfo(const GrCaps* caps,

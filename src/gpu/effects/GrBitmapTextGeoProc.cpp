@@ -18,7 +18,7 @@
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
-class GrGLBitmapTextGeoProc : public GrGLSLGeometryProcessor {
+class GrGLBitmapTextGeoProc : public GrGeometryProcessor::ProgramImpl {
 public:
     GrGLBitmapTextGeoProc()
             : fColor(SK_PMColor4fILLEGAL)
@@ -121,7 +121,7 @@ private:
     SkMatrix      fLocalMatrix;
     UniformHandle fLocalMatrixUniform;
 
-    using INHERITED = GrGLSLGeometryProcessor;
+    using INHERITED = ProgramImpl;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -197,8 +197,9 @@ void GrBitmapTextGeoProc::addToKey(const GrShaderCaps& caps, GrProcessorKeyBuild
     GrGLBitmapTextGeoProc::GenKey(*this, caps, b);
 }
 
-GrGLSLGeometryProcessor* GrBitmapTextGeoProc::createGLSLInstance(const GrShaderCaps& caps) const {
-    return new GrGLBitmapTextGeoProc();
+std::unique_ptr<GrGeometryProcessor::ProgramImpl> GrBitmapTextGeoProc::makeProgramImpl(
+        const GrShaderCaps& caps) const {
+    return std::make_unique<GrGLBitmapTextGeoProc>();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

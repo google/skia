@@ -14,7 +14,6 @@
 #include "src/gpu/GrShaderVar.h"
 #include "src/gpu/GrSwizzle.h"
 
-class GrGLSLGeometryProcessor;
 class GrGLSLUniformHandler;
 
 /**
@@ -45,6 +44,14 @@ class GrGLSLUniformHandler;
  */
 class GrGeometryProcessor : public GrProcessor, public GrNonAtomicRef<GrGeometryProcessor> {
 public:
+    /**
+     * Any GrGeometryProcessor is capable of creating a subclass of ProgramImpl. The ProgramImpl
+     * emits the shader code that implements the GrGeometryProcessor, is attached to the generated
+     * backend API pipeline/program and used to extract uniform data from GrGeometryProcessor
+     * instances.
+     */
+    class ProgramImpl;
+
     class TextureSampler;
 
     /** Describes a vertex or instance attribute. */
@@ -210,10 +217,11 @@ public:
         add_attributes(fInstanceAttributes.fAttributes, fInstanceAttributes.fRawCount);
     }
 
-    /** Returns a new instance of the appropriate *GL* implementation class
-        for the given GrProcessor; caller is responsible for deleting
-        the object. */
-    virtual GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const = 0;
+    /**
+     * Returns a new instance of the appropriate implementation class for the given
+     * GrGeometryProcessor.
+     */
+    virtual std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const = 0;
 
 protected:
     // GPs that need to use either float or ubyte colors can just call this to get a correctly

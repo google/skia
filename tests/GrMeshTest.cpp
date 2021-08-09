@@ -461,7 +461,7 @@ public:
         b->add32(fVertexPosition.isInitialized());
     }
 
-    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const final;
+    std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const final;
 
 private:
     friend class GLSLMeshTestProcessor;
@@ -492,7 +492,7 @@ private:
     using INHERITED = GrGeometryProcessor;
 };
 
-class GLSLMeshTestProcessor : public GrGLSLGeometryProcessor {
+class GLSLMeshTestProcessor : public GrGeometryProcessor::ProgramImpl {
     void setData(const GrGLSLProgramDataManager&,
                  const GrShaderCaps&,
                  const GrGeometryProcessor&) final {}
@@ -524,8 +524,9 @@ class GLSLMeshTestProcessor : public GrGLSLGeometryProcessor {
     }
 };
 
-GrGLSLGeometryProcessor* GrMeshTestProcessor::createGLSLInstance(const GrShaderCaps&) const {
-    return new GLSLMeshTestProcessor;
+std::unique_ptr<GrGeometryProcessor::ProgramImpl> GrMeshTestProcessor::makeProgramImpl(
+        const GrShaderCaps&) const {
+    return std::make_unique<GLSLMeshTestProcessor>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

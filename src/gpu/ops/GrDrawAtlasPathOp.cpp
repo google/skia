@@ -54,7 +54,7 @@ private:
         fAtlasHelper->getKeyBits(b);
     }
     const TextureSampler& onTextureSampler(int) const override { return fAtlasAccess; }
-    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const override;
+    std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const override;
 
     const bool fUsesLocalCoords;
     const GrAtlasInstancedHelper* const fAtlasHelper;
@@ -65,7 +65,7 @@ private:
     class Impl;
 };
 
-class DrawAtlasPathShader::Impl : public GrGLSLGeometryProcessor {
+class DrawAtlasPathShader::Impl : public ProgramImpl {
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
         const auto& shader = args.fGeomProc.cast<DrawAtlasPathShader>();
         args.fVaryingHandler->emitAttributes(shader);
@@ -107,8 +107,9 @@ class DrawAtlasPathShader::Impl : public GrGLSLGeometryProcessor {
     GrGLSLUniformHandler::UniformHandle fAtlasAdjustUniform;
 };
 
-GrGLSLGeometryProcessor* DrawAtlasPathShader::createGLSLInstance(const GrShaderCaps&) const {
-    return new Impl();
+std::unique_ptr<GrGeometryProcessor::ProgramImpl> DrawAtlasPathShader::makeProgramImpl(
+        const GrShaderCaps&) const {
+    return std::make_unique<Impl>();
 }
 
 }  // namespace

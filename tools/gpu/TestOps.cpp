@@ -32,8 +32,8 @@ public:
 
     const char* name() const override { return "TestRectOp::GP"; }
 
-    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps& caps) const override {
-        return new GLSLGP();
+    std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const override {
+        return std::make_unique<GLSLGP>();
     }
 
     void addToKey(const GrShaderCaps& shaderCaps, GrProcessorKeyBuilder* b) const override {
@@ -43,7 +43,7 @@ public:
     bool wideColor() const { return fInColor.cpuType() != kUByte4_norm_GrVertexAttribType; }
 
 private:
-    class GLSLGP : public GrGLSLGeometryProcessor {
+    class GLSLGP : public ProgramImpl {
     public:
         void setData(const GrGLSLProgramDataManager& pdman,
                      const GrShaderCaps& shaderCaps,

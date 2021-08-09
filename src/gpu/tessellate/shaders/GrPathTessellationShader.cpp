@@ -28,10 +28,11 @@ public:
 private:
     const char* name() const final { return "tessellate_SimpleTriangleShader"; }
     void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const final {}
-    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const final;
+    std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const final;
 };
 
-GrGLSLGeometryProcessor* SimpleTriangleShader::createGLSLInstance(const GrShaderCaps&) const {
+std::unique_ptr<GrGeometryProcessor::ProgramImpl> SimpleTriangleShader::makeProgramImpl(
+        const GrShaderCaps&) const {
     class Impl : public GrPathTessellationShader::Impl {
         void emitVertexCode(const GrShaderCaps&, const GrPathTessellationShader&,
                             GrGLSLVertexBuilder* v, GrGPArgs* gpArgs) override {
@@ -42,7 +43,7 @@ GrGLSLGeometryProcessor* SimpleTriangleShader::createGLSLInstance(const GrShader
             gpArgs->fPositionVar.set(kFloat2_GrSLType, "vertexpos");
         }
     };
-    return new Impl;
+    return std::make_unique<Impl>();
 }
 
 }  // namespace

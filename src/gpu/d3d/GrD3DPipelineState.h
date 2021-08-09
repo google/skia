@@ -33,7 +33,7 @@ public:
                        const UniformInfoArray& uniforms,
                        uint32_t uniformSize,
                        uint32_t numSamplers,
-                       std::unique_ptr<GrGLSLGeometryProcessor> geometryProcessor,
+                       std::unique_ptr<GrGeometryProcessor::ProgramImpl> gpImpl,
                        std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
                        std::vector<std::unique_ptr<GrFragmentProcessor::ProgramImpl>> fpImpls,
                        size_t vertexStride,
@@ -87,8 +87,8 @@ private:
     GrGLSLBuiltinUniformHandles fBuiltinUniformHandles;
 
     // Processors in the GrD3DPipelineState
-    std::unique_ptr<GrGLSLGeometryProcessor> fGeometryProcessor;
-    std::unique_ptr<GrGLSLXferProcessor> fXferProcessor;
+    std::unique_ptr<GrGeometryProcessor::ProgramImpl>              fGPImpl;
+    std::unique_ptr<GrGLSLXferProcessor>                           fXferProcessor;
     std::vector<std::unique_ptr<GrFragmentProcessor::ProgramImpl>> fFPImpls;
 
     GrD3DPipelineStateDataManager fDataManager;

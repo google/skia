@@ -832,7 +832,7 @@ public:
 
     void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
-    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const override;
+    std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const override;
 
 private:
     friend class GLDashingCircleEffect;
@@ -856,7 +856,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-class GLDashingCircleEffect : public GrGLSLGeometryProcessor {
+class GLDashingCircleEffect : public GrGeometryProcessor::ProgramImpl {
 public:
     GLDashingCircleEffect();
 
@@ -881,7 +881,7 @@ private:
     SkScalar      fPrevCenterX;
     SkScalar      fPrevIntervalLength;
 
-    using INHERITED = GrGLSLGeometryProcessor;
+    using INHERITED = ProgramImpl;
 };
 
 GLDashingCircleEffect::GLDashingCircleEffect() {
@@ -985,8 +985,9 @@ void DashingCircleEffect::addToKey(const GrShaderCaps& caps, GrProcessorKeyBuild
     GLDashingCircleEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLGeometryProcessor* DashingCircleEffect::createGLSLInstance(const GrShaderCaps&) const {
-    return new GLDashingCircleEffect();
+std::unique_ptr<GrGeometryProcessor::ProgramImpl> DashingCircleEffect::makeProgramImpl(
+        const GrShaderCaps&) const {
+    return std::make_unique<GLDashingCircleEffect>();
 }
 
 DashingCircleEffect::DashingCircleEffect(const SkPMColor4f& color,
@@ -1054,7 +1055,7 @@ public:
 
     void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
-    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const override;
+    std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const override;
 
 private:
     friend class GLDashingLineEffect;
@@ -1078,7 +1079,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-class GLDashingLineEffect : public GrGLSLGeometryProcessor {
+class GLDashingLineEffect : public GrGeometryProcessor::ProgramImpl {
 public:
     GLDashingLineEffect();
 
@@ -1099,7 +1100,7 @@ private:
     SkMatrix      fLocalMatrix;
     UniformHandle fLocalMatrixUniform;
 
-    using INHERITED = GrGLSLGeometryProcessor;
+    using INHERITED = ProgramImpl;
 };
 
 GLDashingLineEffect::GLDashingLineEffect() : fColor(SK_PMColor4fILLEGAL) {}
@@ -1223,8 +1224,9 @@ void DashingLineEffect::addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder
     GLDashingLineEffect::GenKey(*this, caps, b);
 }
 
-GrGLSLGeometryProcessor* DashingLineEffect::createGLSLInstance(const GrShaderCaps&) const {
-    return new GLDashingLineEffect();
+std::unique_ptr<GrGeometryProcessor::ProgramImpl> DashingLineEffect::makeProgramImpl(
+        const GrShaderCaps&) const {
+    return std::make_unique<GLDashingLineEffect>();
 }
 
 DashingLineEffect::DashingLineEffect(const SkPMColor4f& color,

@@ -388,9 +388,11 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
                 versionAndExtensionDecls.appendf("#extension %s : require\n", extensionString);
             }
 
-            SkString tessControlShader = fGeometryProcessor->getTessControlShaderGLSL(
-                    geomProc, versionAndExtensionDecls.c_str(), fUniformHandler,
-                    *this->shaderCaps());
+            SkString tessControlShader =
+                    fGPImpl->getTessControlShaderGLSL(geomProc,
+                                                      versionAndExtensionDecls.c_str(),
+                                                      fUniformHandler,
+                                                      *this->shaderCaps());
             if (!this->compileAndAttachShaders(tessControlShader.c_str(), programID,
                                                GR_GL_TESS_CONTROL_SHADER, &shadersToDelete,
                                                errorHandler)) {
@@ -398,9 +400,11 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
                 return nullptr;
             }
 
-            SkString tessEvaluationShader = fGeometryProcessor->getTessEvaluationShaderGLSL(
-                    geomProc, versionAndExtensionDecls.c_str(), fUniformHandler,
-                    *this->shaderCaps());
+            SkString tessEvaluationShader =
+                    fGPImpl->getTessEvaluationShaderGLSL(geomProc,
+                                                         versionAndExtensionDecls.c_str(),
+                                                         fUniformHandler,
+                                                         *this->shaderCaps());
             if (!this->compileAndAttachShaders(tessEvaluationShader.c_str(), programID,
                                                GR_GL_TESS_EVALUATION_SHADER, &shadersToDelete,
                                                errorHandler)) {
@@ -458,7 +462,7 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
     if (!cached && !geomProc.willUseTessellationShaders() && !precompiledProgram) {
         // FIXME: Remove the check for tessellation shaders in the above 'if' once the back door
         // GLSL mechanism is removed.
-        (void)&GrGLSLGeometryProcessor::getTessControlShaderGLSL;
+        (void)&GrGeometryProcessor::ProgramImpl::getTessControlShaderGLSL;
         bool isSkSL = false;
         if (fGpu->getContext()->priv().options().fShaderCacheStrategy ==
                 GrContextOptions::ShaderCacheStrategy::kSkSL) {
@@ -531,7 +535,7 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::createProgram(GrGLuint programID) {
                              programID,
                              fUniformHandler.fUniforms,
                              fUniformHandler.fSamplers,
-                             std::move(fGeometryProcessor),
+                             std::move(fGPImpl),
                              std::move(fXferProcessor),
                              std::move(fFPImpls),
                              std::move(fAttributes),

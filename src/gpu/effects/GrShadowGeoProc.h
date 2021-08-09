@@ -36,7 +36,7 @@ public:
 
     void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
 
-    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const override;
+    std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const override;
 
 private:
     GrRRectShadowGeoProc(const GrSurfaceProxyView& lutView);

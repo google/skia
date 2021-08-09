@@ -59,7 +59,7 @@ public:
 
     void addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
-    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps& caps) const override;
+    std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps& caps) const override;
 
 private:
     GrBitmapTextGeoProc(const GrShaderCaps&, const SkPMColor4f&, bool wideColor,

@@ -36,7 +36,7 @@ struct GrDawnProgram : public SkRefCnt {
                   uint32_t uniformBufferSize)
       : fDataManager(uniforms, uniformBufferSize) {
     }
-    std::unique_ptr<GrGLSLGeometryProcessor> fGeometryProcessor;
+    std::unique_ptr<GrGeometryProcessor::ProgramImpl> fGPImpl;
     std::unique_ptr<GrGLSLXferProcessor> fXferProcessor;
     std::vector<std::unique_ptr<GrFragmentProcessor::ProgramImpl>> fFPImpls;
     std::vector<wgpu::BindGroupLayout> fBindGroupLayouts;

@@ -403,13 +403,14 @@ void GrStrokeTessellationShader::addToKey(const GrShaderCaps&, GrProcessorKeyBui
     b->add32(key);
 }
 
-GrGLSLGeometryProcessor* GrStrokeTessellationShader::createGLSLInstance(const GrShaderCaps&) const {
+std::unique_ptr<GrGeometryProcessor::ProgramImpl> GrStrokeTessellationShader::makeProgramImpl(
+        const GrShaderCaps&) const {
     switch (fMode) {
         case Mode::kHardwareTessellation:
-            return new HardwareImpl;
+            return std::make_unique<HardwareImpl>();
         case Mode::kLog2Indirect:
         case Mode::kFixedCount:
-            return new InstancedImpl;
+            return std::make_unique<InstancedImpl>();
     }
     SkUNREACHABLE;
 }

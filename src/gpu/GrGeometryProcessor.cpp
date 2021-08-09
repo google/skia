@@ -18,7 +18,7 @@ const GrGeometryProcessor::TextureSampler& GrGeometryProcessor::textureSampler(i
 }
 
 uint32_t GrGeometryProcessor::ComputeCoordTransformsKey(const GrFragmentProcessor& fp) {
-    // This is highly coupled with the code in GrGLSLGeometryProcessor::collectTransforms().
+    // This is highly coupled with the code in ProgramImpl::collectTransforms().
     uint32_t key = static_cast<uint32_t>(fp.sampleUsage().kind()) << 1;
     // This needs to be updated if GP starts specializing varyings on additional matrix types.
     if (fp.sampleUsage().hasPerspective()) {

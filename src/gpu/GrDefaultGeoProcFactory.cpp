@@ -56,7 +56,7 @@ public:
     uint8_t coverage() const { return fCoverage; }
     bool hasVertexCoverage() const { return fInCoverage.isInitialized(); }
 
-    class GLSLProcessor : public GrGLSLGeometryProcessor {
+    class GLSLProcessor : public ProgramImpl {
     public:
         GLSLProcessor()
             : fViewMatrixPrev(SkMatrix::InvalidMatrix())
@@ -206,15 +206,15 @@ public:
         UniformHandle fColorUniform;
         UniformHandle fCoverageUniform;
 
-        using INHERITED = GrGLSLGeometryProcessor;
+        using INHERITED = ProgramImpl;
     };
 
     void addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
         GLSLProcessor::GenKey(*this, caps, b);
     }
 
-    GrGLSLGeometryProcessor* createGLSLInstance(const GrShaderCaps&) const override {
-        return new GLSLProcessor();
+    std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const override {
+        return std::make_unique<GLSLProcessor>();
     }
 
 private:

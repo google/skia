@@ -37,7 +37,8 @@ void GrAtlasInstancedHelper::writeInstanceData(GrVertexWriter* instanceWriter,
 }
 
 void GrAtlasInstancedHelper::injectShaderCode(
-        const GrGLSLGeometryProcessor::EmitArgs& args, const GrShaderVar& devCoord,
+        const GrGeometryProcessor::ProgramImpl::EmitArgs& args,
+        const GrShaderVar& devCoord,
         GrGLSLUniformHandler::UniformHandle* atlasAdjustUniformHandle) const {
     GrGLSLVarying atlasCoord(kFloat2_GrSLType);
     args.fVaryingHandler->addVarying("atlasCoord", &atlasCoord);

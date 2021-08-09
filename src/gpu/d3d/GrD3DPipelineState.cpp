@@ -24,30 +24,31 @@ GrD3DPipelineState::GrD3DPipelineState(
         sk_sp<GrD3DPipeline> pipeline,
         sk_sp<GrD3DRootSignature> rootSignature,
         const GrGLSLBuiltinUniformHandles& builtinUniformHandles,
-        const UniformInfoArray& uniforms, uint32_t uniformSize,
+        const UniformInfoArray& uniforms,
+        uint32_t uniformSize,
         uint32_t numSamplers,
-        std::unique_ptr<GrGLSLGeometryProcessor> geometryProcessor,
+        std::unique_ptr<GrGeometryProcessor::ProgramImpl> gpImpl,
         std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
         std::vector<std::unique_ptr<GrFragmentProcessor::ProgramImpl>> fpImpls,
         size_t vertexStride,
         size_t instanceStride)
-    : fPipeline(std::move(pipeline))
-    , fRootSignature(std::move(rootSignature))
-    , fBuiltinUniformHandles(builtinUniformHandles)
-    , fGeometryProcessor(std::move(geometryProcessor))
-    , fXferProcessor(std::move(xferProcessor))
-    , fFPImpls(std::move(fpImpls))
-    , fDataManager(uniforms, uniformSize)
-    , fNumSamplers(numSamplers)
-    , fVertexStride(vertexStride)
-    , fInstanceStride(instanceStride) {}
+        : fPipeline(std::move(pipeline))
+        , fRootSignature(std::move(rootSignature))
+        , fBuiltinUniformHandles(builtinUniformHandles)
+        , fGPImpl(std::move(gpImpl))
+        , fXferProcessor(std::move(xferProcessor))
+        , fFPImpls(std::move(fpImpls))
+        , fDataManager(uniforms, uniformSize)
+        , fNumSamplers(numSamplers)
+        , fVertexStride(vertexStride)
+        , fInstanceStride(instanceStride) {}
 
 void GrD3DPipelineState::setAndBindConstants(GrD3DGpu* gpu,
                                              const GrRenderTarget* renderTarget,
                                              const GrProgramInfo& programInfo) {
     this->setRenderTargetState(renderTarget, programInfo.origin());
 
-    fGeometryProcessor->setData(fDataManager, *gpu->caps()->shaderCaps(), programInfo.geomProc());
+    fGPImpl->setData(fDataManager, *gpu->caps()->shaderCaps(), programInfo.geomProc());
 
     for (int i = 0; i < programInfo.pipeline().numFragmentProcessors(); ++i) {
         const auto& fp = programInfo.pipeline().getFragmentProcessor(i);
