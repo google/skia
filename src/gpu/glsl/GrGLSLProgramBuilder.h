@@ -118,7 +118,7 @@ public:
     GrGLSLBuiltinUniformHandles  fUniformHandles;
 
     std::unique_ptr<GrGeometryProcessor::ProgramImpl>               fGPImpl;
-    std::unique_ptr<GrGLSLXferProcessor>                            fXferProcessor;
+    std::unique_ptr<GrXferProcessor::ProgramImpl>                   fXPImpl;
     std::vector<std::unique_ptr<GrFragmentProcessor::ProgramImpl>>  fFPImpls;
 
     SamplerHandle fDstTextureSamplerHandle;

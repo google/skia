@@ -85,7 +85,7 @@ public:
 
     const char* name() const override { return "Custom Xfermode"; }
 
-    GrGLSLXferProcessor* createGLSLInstance() const override;
+    std::unique_ptr<ProgramImpl> makeProgramImpl() const override;
 
     SkBlendMode mode() const { return fMode; }
     bool hasHWBlendEquation() const { return kIllegal_GrBlendEquation != fHWBlendEquation; }
@@ -112,7 +112,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GLCustomXP : public GrGLSLXferProcessor {
+class GLCustomXP : public GrXferProcessor::ProgramImpl {
 public:
     GLCustomXP(const GrXferProcessor&) {}
     ~GLCustomXP() override {}
@@ -164,7 +164,7 @@ private:
                                              outColorSecondary, xp);
     }
 
-    using INHERITED = GrGLSLXferProcessor;
+    using INHERITED = ProgramImpl;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -173,9 +173,9 @@ void CustomXP::onAddToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) co
     GLCustomXP::GenKey(*this, caps, b);
 }
 
-GrGLSLXferProcessor* CustomXP::createGLSLInstance() const {
+std::unique_ptr<GrXferProcessor::ProgramImpl> CustomXP::makeProgramImpl() const {
     SkASSERT(this->willReadDstColor() != this->hasHWBlendEquation());
-    return new GLCustomXP(*this);
+    return std::make_unique<GLCustomXP>(*this);
 }
 
 bool CustomXP::onIsEqual(const GrXferProcessor& other) const {

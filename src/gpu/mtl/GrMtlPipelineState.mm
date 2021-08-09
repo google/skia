@@ -43,7 +43,7 @@ GrMtlPipelineState::GrMtlPipelineState(
         uint32_t uniformBufferSize,
         uint32_t numSamplers,
         std::unique_ptr<GrGeometryProcessor::ProgramImpl> gpImpl,
-        std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
+        std::unique_ptr<GrXferProcessor::ProgramImpl> xpImpl,
         std::vector<std::unique_ptr<GrFragmentProcessor::ProgramImpl>> fpImpls)
         : fGpu(gpu)
         , fPipeline(pipeline)
@@ -51,7 +51,7 @@ GrMtlPipelineState::GrMtlPipelineState(
         , fBuiltinUniformHandles(builtinUniformHandles)
         , fNumSamplers(numSamplers)
         , fGPImpl(std::move(gpImpl))
-        , fXferProcessor(std::move(xferProcessor))
+        , fXPImpl(std::move(xpImpl))
         , fFPImpls(std::move(fpImpls))
         , fDataManager(uniforms, uniformBufferSize) {
     (void) fPixelFormat; // Suppress unused-var warning.
@@ -73,7 +73,7 @@ void GrMtlPipelineState::setData(GrMtlFramebuffer* framebuffer,
     }
 
     programInfo.pipeline().setDstTextureUniforms(fDataManager, &fBuiltinUniformHandles);
-    fXferProcessor->setData(fDataManager, programInfo.pipeline().getXferProcessor());
+    fXPImpl->setData(fDataManager, programInfo.pipeline().getXferProcessor());
 
     fDataManager.resetDirtyBits();
 

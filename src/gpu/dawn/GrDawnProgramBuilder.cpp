@@ -280,7 +280,7 @@ sk_sp<GrDawnProgram> GrDawnProgramBuilder::Build(GrDawnGpu* gpu,
     uint32_t uniformBufferSize = builder.fUniformHandler.fCurrentUBOOffset;
     sk_sp<GrDawnProgram> result(new GrDawnProgram(uniforms, uniformBufferSize));
     result->fGPImpl = std::move(builder.fGPImpl);
-    result->fXferProcessor = std::move(builder.fXferProcessor);
+    result->fXPImpl = std::move(builder.fXPImpl);
     result->fFPImpls = std::move(builder.fFPImpls);
     std::vector<wgpu::BindGroupLayoutEntry> uniformLayoutEntries;
     if (0 != uniformBufferSize) {
@@ -513,7 +513,7 @@ wgpu::BindGroup GrDawnProgram::setUniformData(GrDawnGpu* gpu, const GrRenderTarg
     }
 
     programInfo.pipeline().setDstTextureUniforms(fDataManager, &fBuiltinUniformHandles);
-    fXferProcessor->setData(fDataManager, pipeline.getXferProcessor());
+    fXPImpl->setData(fDataManager, pipeline.getXferProcessor());
 
     return fDataManager.uploadUniformBuffers(gpu, fBindGroupLayouts[0]);
 }

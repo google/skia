@@ -28,12 +28,12 @@ private:
     void onGetBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const override {
         blendInfo->fWriteColor = false;
     }
-    GrGLSLXferProcessor* createGLSLInstance() const override;
+    std::unique_ptr<ProgramImpl> makeProgramImpl() const override;
 
     using INHERITED = GrXferProcessor;
 };
 
-class GLDisableColorXP : public GrGLSLXferProcessor {
+class GLDisableColorXP : public GrXferProcessor::ProgramImpl {
 private:
     void emitOutputsForBlendState(const EmitArgs& args) override {
         if (args.fShaderCaps->mustWriteToFragColor()) {
@@ -54,11 +54,11 @@ private:
         return;
     }
 
-    using INHERITED = GrGLSLXferProcessor;
+    using INHERITED = ProgramImpl;
 };
 
-GrGLSLXferProcessor* DisableColorXP::createGLSLInstance() const {
-    return new GLDisableColorXP();
+std::unique_ptr<GrXferProcessor::ProgramImpl> DisableColorXP::makeProgramImpl() const {
+    return std::make_unique<GLDisableColorXP>();
 }
 
 sk_sp<const GrXferProcessor> GrDisableColorXPFactory::MakeXferProcessor() {

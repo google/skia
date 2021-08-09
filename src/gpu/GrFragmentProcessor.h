@@ -36,9 +36,9 @@ using GrFPResult = std::tuple<bool /*success*/, std::unique_ptr<GrFragmentProces
 class GrFragmentProcessor : public GrProcessor {
 public:
     /**
-     * Any GrFragmentProcessor is capable of creating a subclass of ProgramImpl. The ProgramImpl
-     * emits the fragment shader code that implements the GrFragmentProcessor, is attached to the
-     * generated backend API pipeline/program and used to extract uniform data from
+     * Every GrFragmentProcessor must be capable of creating a subclass of ProgramImpl. The
+     * ProgramImpl emits the fragment shader code that implements the GrFragmentProcessor, is
+     * attached to the generated backend API pipeline/program and used to extract uniform data from
      * GrFragmentProcessor instances.
      */
     class ProgramImpl;

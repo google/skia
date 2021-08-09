@@ -32,8 +32,6 @@ GrGLSLProgramBuilder::GrGLSLProgramBuilder(const GrProgramDesc& desc,
         , fStageIndex(-1)
         , fDesc(desc)
         , fProgramInfo(programInfo)
-        , fGPImpl(nullptr)
-        , fXferProcessor(nullptr)
         , fNumFragmentSamplers(0) {}
 
 GrGLSLProgramBuilder::~GrGLSLProgramBuilder() = default;
@@ -273,9 +271,9 @@ bool GrGLSLProgramBuilder::emitAndInstallXferProc(const SkString& colorIn,
     // Program builders have a bit of state we need to clear with each effect
     AutoStageAdvance adv(this);
 
-    SkASSERT(!fXferProcessor);
+    SkASSERT(!fXPImpl);
     const GrXferProcessor& xp = this->pipeline().getXferProcessor();
-    fXferProcessor.reset(xp.createGLSLInstance());
+    fXPImpl = xp.makeProgramImpl();
 
     // Enable dual source secondary output if we have one
     if (xp.hasSecondaryOutput()) {
@@ -292,18 +290,19 @@ bool GrGLSLProgramBuilder::emitAndInstallXferProc(const SkString& colorIn,
 
     SkString finalInColor = colorIn.size() ? colorIn : SkString("float4(1)");
 
-    GrGLSLXferProcessor::EmitArgs args(&fFS,
-                                       this->uniformHandler(),
-                                       this->shaderCaps(),
-                                       xp,
-                                       finalInColor.c_str(),
-                                       coverageIn.size() ? coverageIn.c_str() : "float4(1)",
-                                       fFS.getPrimaryColorOutputName(),
-                                       fFS.getSecondaryColorOutputName(),
-                                       fDstTextureSamplerHandle,
-                                       fDstTextureOrigin,
-                                       this->pipeline().writeSwizzle());
-    fXferProcessor->emitCode(args);
+    GrXferProcessor::ProgramImpl::EmitArgs args(
+            &fFS,
+            this->uniformHandler(),
+            this->shaderCaps(),
+            xp,
+            finalInColor.c_str(),
+            coverageIn.size() ? coverageIn.c_str() : "float4(1)",
+            fFS.getPrimaryColorOutputName(),
+            fFS.getSecondaryColorOutputName(),
+            fDstTextureSamplerHandle,
+            fDstTextureOrigin,
+            this->pipeline().writeSwizzle());
+    fXPImpl->emitCode(args);
 
     // We have to check that effects and the code they emit are consistent, ie if an effect
     // asks for dst color, then the emit code needs to follow suit

@@ -28,7 +28,7 @@ GrD3DPipelineState::GrD3DPipelineState(
         uint32_t uniformSize,
         uint32_t numSamplers,
         std::unique_ptr<GrGeometryProcessor::ProgramImpl> gpImpl,
-        std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
+        std::unique_ptr<GrXferProcessor::ProgramImpl> xpImpl,
         std::vector<std::unique_ptr<GrFragmentProcessor::ProgramImpl>> fpImpls,
         size_t vertexStride,
         size_t instanceStride)
@@ -36,7 +36,7 @@ GrD3DPipelineState::GrD3DPipelineState(
         , fRootSignature(std::move(rootSignature))
         , fBuiltinUniformHandles(builtinUniformHandles)
         , fGPImpl(std::move(gpImpl))
-        , fXferProcessor(std::move(xferProcessor))
+        , fXPImpl(std::move(xpImpl))
         , fFPImpls(std::move(fpImpls))
         , fDataManager(uniforms, uniformSize)
         , fNumSamplers(numSamplers)
@@ -59,7 +59,7 @@ void GrD3DPipelineState::setAndBindConstants(GrD3DGpu* gpu,
     }
 
     programInfo.pipeline().setDstTextureUniforms(fDataManager, &fBuiltinUniformHandles);
-    fXferProcessor->setData(fDataManager, programInfo.pipeline().getXferProcessor());
+    fXPImpl->setData(fDataManager, programInfo.pipeline().getXferProcessor());
 
     D3D12_GPU_VIRTUAL_ADDRESS constantsAddress = fDataManager.uploadConstants(gpu);
     gpu->currentCommandList()->setGraphicsRootConstantBufferView(

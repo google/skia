@@ -11,13 +11,13 @@
 
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrGeometryProcessor.h"
+#include "src/gpu/GrXferProcessor.h"
 #include "src/gpu/gl/GrGLProgramDataManager.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
 #include <vector>
 
-class GrGLSLXferProcessor;
 class GrPipeline;
 class GrGeometryProcessor;
 class GrProgramInfo;
@@ -57,7 +57,7 @@ public:
             const UniformInfoArray& uniforms,
             const UniformInfoArray& textureSamplers,
             std::unique_ptr<GrGeometryProcessor::ProgramImpl>,
-            std::unique_ptr<GrGLSLXferProcessor>,
+            std::unique_ptr<GrXferProcessor::ProgramImpl>,
             std::vector<std::unique_ptr<GrFragmentProcessor::ProgramImpl>> fps,
             std::unique_ptr<Attribute[]>,
             int vertexAttributeCnt,
@@ -130,7 +130,7 @@ private:
                 const UniformInfoArray& uniforms,
                 const UniformInfoArray& textureSamplers,
                 std::unique_ptr<GrGeometryProcessor::ProgramImpl>,
-                std::unique_ptr<GrGLSLXferProcessor>,
+                std::unique_ptr<GrXferProcessor::ProgramImpl>,
                 std::vector<std::unique_ptr<GrFragmentProcessor::ProgramImpl>> fpImpls,
                 std::unique_ptr<Attribute[]>,
                 int vertexAttributeCnt,
@@ -148,7 +148,7 @@ private:
 
     // the installed effects
     std::unique_ptr<GrGeometryProcessor::ProgramImpl>              fGPImpl;
-    std::unique_ptr<GrGLSLXferProcessor>                           fXferProcessor;
+    std::unique_ptr<GrXferProcessor::ProgramImpl>                  fXPImpl;
     std::vector<std::unique_ptr<GrFragmentProcessor::ProgramImpl>> fFPImpls;
 
     std::unique_ptr<Attribute[]> fAttributes;

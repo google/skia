@@ -43,7 +43,7 @@ public:
                        uint32_t uniformBufferSize,
                        uint32_t numSamplers,
                        std::unique_ptr<GrGeometryProcessor::ProgramImpl>,
-                       std::unique_ptr<GrGLSLXferProcessor>,
+                       std::unique_ptr<GrXferProcessor::ProgramImpl>,
                        std::vector<std::unique_ptr<GrFragmentProcessor::ProgramImpl>> fpImpls);
 
     const sk_sp<GrMtlRenderPipeline>& pipeline() const { return fPipeline; }
@@ -112,7 +112,7 @@ private:
     SkTArray<SamplerBindings> fSamplerBindings;
 
     std::unique_ptr<GrGeometryProcessor::ProgramImpl>              fGPImpl;
-    std::unique_ptr<GrGLSLXferProcessor>                           fXferProcessor;
+    std::unique_ptr<GrXferProcessor::ProgramImpl>                  fXPImpl;
     std::vector<std::unique_ptr<GrFragmentProcessor::ProgramImpl>> fFPImpls;
 
     GrMtlPipelineStateDataManager fDataManager;

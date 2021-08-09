@@ -9,19 +9,18 @@
 #define GrGLSLXferProcessor_DEFINED
 
 #include "include/core/SkPoint.h"
+#include "src/gpu/GrXferProcessor.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
 class GrXferProcessor;
-class GrGLSLXPBuilder;
 class GrGLSLXPFragmentBuilder;
 class GrShaderCaps;
 class GrTexture;
 
-class GrGLSLXferProcessor {
+class GrXferProcessor::ProgramImpl {
 public:
-    GrGLSLXferProcessor() {}
-    virtual ~GrGLSLXferProcessor() {}
+    virtual ~ProgramImpl() = default;
 
     using SamplerHandle = GrGLSLUniformHandler::SamplerHandle;
 
@@ -66,16 +65,18 @@ public:
      */
     void emitCode(const EmitArgs&);
 
-    /** A GrGLSLXferProcessor instance can be reused with any GrGLSLXferProcessor that produces
-        the same stage key; this function reads data from a GrGLSLXferProcessor and uploads any
-        uniform variables required  by the shaders created in emitCode(). The GrXferProcessor
-        parameter is guaranteed to be of the same type that created this GrGLSLXferProcessor and
-        to have an identical processor key as the one that created this GrGLSLXferProcessor. This
-        function calls onSetData on the subclass of GrGLSLXferProcessor
+    /** A ProgramImpl instance can be reused with any GrXferProcessor that produces the same key.
+        This function reads data from a GrXferProcessor and uploads any uniform variables required
+        by the shaders created in emitCode(). The GrXferProcessor parameter is guaranteed to be of
+        the same type that created this ProgramImpl and to have an identical processor key as the
+        one that created this ProgramImpl. This function calls onSetData on the subclass of
+        ProgramImpl.
      */
     void setData(const GrGLSLProgramDataManager& pdm, const GrXferProcessor& xp);
 
 protected:
+    ProgramImpl() = default;
+
     static void DefaultCoverageModulation(GrGLSLXPFragmentBuilder* fragBuilder,
                                           const char* srcCoverage,
                                           const char* dstColor,

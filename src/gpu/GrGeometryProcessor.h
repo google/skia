@@ -45,10 +45,10 @@ class GrGLSLUniformHandler;
 class GrGeometryProcessor : public GrProcessor, public GrNonAtomicRef<GrGeometryProcessor> {
 public:
     /**
-     * Any GrGeometryProcessor is capable of creating a subclass of ProgramImpl. The ProgramImpl
-     * emits the shader code that implements the GrGeometryProcessor, is attached to the generated
-     * backend API pipeline/program and used to extract uniform data from GrGeometryProcessor
-     * instances.
+     * Every GrGeometryProcessor must be capable of creating a subclass of ProgramImpl. The
+     * ProgramImpl emits the shader code that implements the GrGeometryProcessor, is attached to the
+     * generated backend API pipeline/program and used to extract uniform data from
+     * GrGeometryProcessor instances.
      */
     class ProgramImpl;
 

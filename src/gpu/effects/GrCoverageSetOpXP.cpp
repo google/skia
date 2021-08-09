@@ -24,7 +24,7 @@ public:
 
     const char* name() const override { return "Coverage Set Op"; }
 
-    GrGLSLXferProcessor* createGLSLInstance() const override;
+    std::unique_ptr<ProgramImpl> makeProgramImpl() const override;
 
     bool invertCoverage() const { return fInvertCoverage; }
 
@@ -47,7 +47,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GLCoverageSetOpXP : public GrGLSLXferProcessor {
+class GLCoverageSetOpXP : public GrXferProcessor::ProgramImpl {
 public:
     GLCoverageSetOpXP(const GrProcessor&) {}
 
@@ -72,7 +72,7 @@ private:
         }
     }
 
-    using INHERITED = GrGLSLXferProcessor;
+    using INHERITED = ProgramImpl;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -81,8 +81,8 @@ void CoverageSetOpXP::onAddToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder
     GLCoverageSetOpXP::GenKey(*this, caps, b);
 }
 
-GrGLSLXferProcessor* CoverageSetOpXP::createGLSLInstance() const {
-    return new GLCoverageSetOpXP(*this);
+std::unique_ptr<GrXferProcessor::ProgramImpl> CoverageSetOpXP::makeProgramImpl() const {
+    return std::make_unique<GLCoverageSetOpXP>(*this);
 }
 
 void CoverageSetOpXP::onGetBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const {

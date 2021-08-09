@@ -380,6 +380,6 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
                                  fUniformHandler.usePushConstants(),
                                  fUniformHandler.fSamplers,
                                  std::move(fGPImpl),
-                                 std::move(fXferProcessor),
+                                 std::move(fXPImpl),
                                  std::move(fFPImpls));
 }

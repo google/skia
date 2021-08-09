@@ -536,7 +536,7 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::createProgram(GrGLuint programID) {
                              fUniformHandler.fUniforms,
                              fUniformHandler.fSamplers,
                              std::move(fGPImpl),
-                             std::move(fXferProcessor),
+                             std::move(fXPImpl),
                              std::move(fFPImpls),
                              std::move(fAttributes),
                              fVertexAttributeCnt,

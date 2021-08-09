@@ -15,7 +15,6 @@
 #include "src/gpu/GrProcessorAnalysis.h"
 #include "src/gpu/GrSurfaceProxyView.h"
 
-class GrGLSLXferProcessor;
 class GrProcessorSet;
 class GrShaderCaps;
 
@@ -59,6 +58,14 @@ GR_MAKE_BITFIELD_CLASS_OPS(GrXferBarrierFlags)
 class GrXferProcessor : public GrProcessor, public GrNonAtomicRef<GrXferProcessor> {
 public:
     /**
+     * Every GrXferProcessor must be capable of creating a subclass of ProgramImpl. The ProgramImpl
+     * emits the shader code combines determines the fragment shader output(s) from the color and
+     * coverage FP outputs, is attached to the generated backend API pipeline/program, and used to
+     * extract uniform data from GrXferProcessor instances.
+     */
+    class ProgramImpl;
+
+    /**
      * Adds a key on the GrProcessorKeyBuilder calls onAddToKey(...) to get the specific subclass's
      * key.
      */
@@ -70,7 +77,7 @@ public:
     /** Returns a new instance of the appropriate *GL* implementation class
         for the given GrXferProcessor; caller is responsible for deleting
         the object. */
-    virtual GrGLSLXferProcessor* createGLSLInstance() const = 0;
+    virtual std::unique_ptr<ProgramImpl> makeProgramImpl() const = 0;
 
     /**
      * Returns the barrier type, if any, that this XP will require. Note that the possibility

@@ -14,6 +14,8 @@
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 
+using ProgramImpl = GrXferProcessor::ProgramImpl;
+
 // This is only called for cases where we are doing LCD coverage and not using in shader blending.
 // For these cases we assume the the src alpha is 1, thus we can just use the max for the alpha
 // coverage since src alpha will always be greater than or equal to dst alpha.
@@ -26,7 +28,7 @@ static void adjust_for_lcd_coverage(GrGLSLXPFragmentBuilder* fragBuilder,
     }
 }
 
-void GrGLSLXferProcessor::emitCode(const EmitArgs& args) {
+void ProgramImpl::emitCode(const EmitArgs& args) {
     if (!args.fXP.willReadDstColor()) {
         adjust_for_lcd_coverage(args.fXPFragBuilder, args.fInputCoverage, args.fXP);
         this->emitOutputsForBlendState(args);
@@ -81,10 +83,10 @@ void GrGLSLXferProcessor::emitCode(const EmitArgs& args) {
                            args.fOutputSecondary);
 }
 
-void GrGLSLXferProcessor::emitWriteSwizzle(GrGLSLXPFragmentBuilder* x,
-                                           const GrSwizzle& swizzle,
-                                           const char* outColor,
-                                           const char* outColorSecondary) const {
+void ProgramImpl::emitWriteSwizzle(GrGLSLXPFragmentBuilder* x,
+                                   const GrSwizzle& swizzle,
+                                   const char* outColor,
+                                   const char* outColorSecondary) const {
     if (GrSwizzle::RGBA() != swizzle) {
         x->codeAppendf("%s = %s.%s;", outColor, outColor, swizzle.asString().c_str());
         if (outColorSecondary) {
@@ -94,16 +96,16 @@ void GrGLSLXferProcessor::emitWriteSwizzle(GrGLSLXPFragmentBuilder* x,
     }
 }
 
-void GrGLSLXferProcessor::setData(const GrGLSLProgramDataManager& pdm, const GrXferProcessor& xp) {
+void ProgramImpl::setData(const GrGLSLProgramDataManager& pdm, const GrXferProcessor& xp) {
     this->onSetData(pdm, xp);
 }
 
-void GrGLSLXferProcessor::DefaultCoverageModulation(GrGLSLXPFragmentBuilder* fragBuilder,
-                                                    const char* srcCoverage,
-                                                    const char* dstColor,
-                                                    const char* outColor,
-                                                    const char* outColorSecondary,
-                                                    const GrXferProcessor& proc) {
+void ProgramImpl::DefaultCoverageModulation(GrGLSLXPFragmentBuilder* fragBuilder,
+                                            const char* srcCoverage,
+                                            const char* dstColor,
+                                            const char* outColor,
+                                            const char* outColorSecondary,
+                                            const GrXferProcessor& proc) {
     if (srcCoverage) {
         if (proc.isLCD()) {
             fragBuilder->codeAppendf("half3 lerpRGB = mix(%s.aaa, %s.aaa, %s.rgb);",

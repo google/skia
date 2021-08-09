@@ -47,7 +47,7 @@ public:
                       bool usePushConstants,
                       const UniformInfoArray& samplers,
                       std::unique_ptr<GrGeometryProcessor::ProgramImpl>,
-                      std::unique_ptr<GrGLSLXferProcessor>,
+                      std::unique_ptr<GrXferProcessor::ProgramImpl>,
                       std::vector<std::unique_ptr<GrFragmentProcessor::ProgramImpl>> fpImpls);
 
     ~GrVkPipelineState();
@@ -105,7 +105,7 @@ private:
 
     // Processors in the GrVkPipelineState
     std::unique_ptr<GrGeometryProcessor::ProgramImpl>              fGPImpl;
-    std::unique_ptr<GrGLSLXferProcessor>                           fXferProcessor;
+    std::unique_ptr<GrXferProcessor::ProgramImpl>                  fXPImpl;
     std::vector<std::unique_ptr<GrFragmentProcessor::ProgramImpl>> fFPImpls;
 
     GrVkPipelineStateDataManager fDataManager;

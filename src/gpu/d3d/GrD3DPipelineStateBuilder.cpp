@@ -681,7 +681,7 @@ std::unique_ptr<GrD3DPipelineState> GrD3DPipelineStateBuilder::finalize() {
                                    fUniformHandler.fCurrentUBOOffset,
                                    fUniformHandler.fSamplers.count(),
                                    std::move(fGPImpl),
-                                   std::move(fXferProcessor),
+                                   std::move(fXPImpl),
                                    std::move(fFPImpls),
                                    geomProc.vertexStride(),
                                    geomProc.instanceStride()));

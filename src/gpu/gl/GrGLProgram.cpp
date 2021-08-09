@@ -32,7 +32,7 @@ sk_sp<GrGLProgram> GrGLProgram::Make(
         const UniformInfoArray& uniforms,
         const UniformInfoArray& textureSamplers,
         std::unique_ptr<GrGeometryProcessor::ProgramImpl> gpImpl,
-        std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
+        std::unique_ptr<GrXferProcessor::ProgramImpl> xpImpl,
         std::vector<std::unique_ptr<GrFragmentProcessor::ProgramImpl>> fpImpls,
         std::unique_ptr<Attribute[]> attributes,
         int vertexAttributeCnt,
@@ -45,7 +45,7 @@ sk_sp<GrGLProgram> GrGLProgram::Make(
                                                uniforms,
                                                textureSamplers,
                                                std::move(gpImpl),
-                                               std::move(xferProcessor),
+                                               std::move(xpImpl),
                                                std::move(fpImpls),
                                                std::move(attributes),
                                                vertexAttributeCnt,
@@ -64,7 +64,7 @@ GrGLProgram::GrGLProgram(GrGLGpu* gpu,
                          const UniformInfoArray& uniforms,
                          const UniformInfoArray& textureSamplers,
                          std::unique_ptr<GrGeometryProcessor::ProgramImpl> gpImpl,
-                         std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
+                         std::unique_ptr<GrXferProcessor::ProgramImpl> xpImpl,
                          std::vector<std::unique_ptr<GrFragmentProcessor::ProgramImpl>> fpImpls,
                          std::unique_ptr<Attribute[]> attributes,
                          int vertexAttributeCnt,
@@ -74,7 +74,7 @@ GrGLProgram::GrGLProgram(GrGLGpu* gpu,
         : fBuiltinUniformHandles(builtinUniforms)
         , fProgramID(programID)
         , fGPImpl(std::move(gpImpl))
-        , fXferProcessor(std::move(xferProcessor))
+        , fXPImpl(std::move(xpImpl))
         , fFPImpls(std::move(fpImpls))
         , fAttributes(std::move(attributes))
         , fVertexAttributeCnt(vertexAttributeCnt)
@@ -118,7 +118,7 @@ void GrGLProgram::updateUniforms(const GrRenderTarget* renderTarget,
     }
 
     programInfo.pipeline().setDstTextureUniforms(fProgramDataManager, &fBuiltinUniformHandles);
-    fXferProcessor->setData(fProgramDataManager, programInfo.pipeline().getXferProcessor());
+    fXPImpl->setData(fProgramDataManager, programInfo.pipeline().getXferProcessor());
 }
 
 void GrGLProgram::bindTextures(const GrGeometryProcessor& geomProc,

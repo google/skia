@@ -380,7 +380,7 @@ public:
 
     const char* name() const override { return "Porter Duff"; }
 
-    GrGLSLXferProcessor* createGLSLInstance() const override;
+    std::unique_ptr<ProgramImpl> makeProgramImpl() const override;
 
     BlendFormula getBlendFormula() const { return fBlendFormula; }
 
@@ -439,7 +439,7 @@ static void append_color_output(const PorterDuffXferProcessor& xp,
     }
 }
 
-class GLPorterDuffXferProcessor : public GrGLSLXferProcessor {
+class GLPorterDuffXferProcessor : public GrXferProcessor::ProgramImpl {
 public:
     static void GenKey(const GrProcessor& processor, GrProcessorKeyBuilder* b) {
         const PorterDuffXferProcessor& xp = processor.cast<PorterDuffXferProcessor>();
@@ -462,7 +462,7 @@ private:
                             args.fInputColor, args.fInputCoverage);
     }
 
-    using INHERITED = GrGLSLXferProcessor;
+    using INHERITED = ProgramImpl;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -471,8 +471,8 @@ void PorterDuffXferProcessor::onAddToKey(const GrShaderCaps&, GrProcessorKeyBuil
     GLPorterDuffXferProcessor::GenKey(*this, b);
 }
 
-GrGLSLXferProcessor* PorterDuffXferProcessor::createGLSLInstance() const {
-    return new GLPorterDuffXferProcessor;
+std::unique_ptr<GrXferProcessor::ProgramImpl> PorterDuffXferProcessor::makeProgramImpl() const {
+    return std::make_unique<GLPorterDuffXferProcessor>();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -486,7 +486,7 @@ public:
 
     const char* name() const override { return "Porter Duff Shader"; }
 
-    GrGLSLXferProcessor* createGLSLInstance() const override;
+    std::unique_ptr<ProgramImpl> makeProgramImpl() const override;
 
     SkBlendMode getXfermode() const { return fXfermode; }
 
@@ -505,7 +505,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GLShaderPDXferProcessor : public GrGLSLXferProcessor {
+class GLShaderPDXferProcessor : public GrXferProcessor::ProgramImpl {
 public:
     static void GenKey(const GrProcessor& processor, GrProcessorKeyBuilder* b) {
         const ShaderPDXferProcessor& xp = processor.cast<ShaderPDXferProcessor>();
@@ -530,7 +530,7 @@ private:
                                              outColorSecondary, xp);
     }
 
-    using INHERITED = GrGLSLXferProcessor;
+    using INHERITED = ProgramImpl;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -539,8 +539,8 @@ void ShaderPDXferProcessor::onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilde
     GLShaderPDXferProcessor::GenKey(*this, b);
 }
 
-GrGLSLXferProcessor* ShaderPDXferProcessor::createGLSLInstance() const {
-    return new GLShaderPDXferProcessor;
+std::unique_ptr<GrXferProcessor::ProgramImpl> ShaderPDXferProcessor::makeProgramImpl() const {
+    return std::make_unique<GLShaderPDXferProcessor>();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -554,7 +554,7 @@ public:
 
     const char* name() const override { return "Porter Duff LCD"; }
 
-    GrGLSLXferProcessor* createGLSLInstance() const override;
+    std::unique_ptr<ProgramImpl> makeProgramImpl() const override;
 
     float alpha() const { return fAlpha; }
 
@@ -585,7 +585,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GLPDLCDXferProcessor : public GrGLSLXferProcessor {
+class GLPDLCDXferProcessor : public GrXferProcessor::ProgramImpl {
 public:
     GLPDLCDXferProcessor(const GrProcessor&) : fLastAlpha(SK_FloatNaN) {}
 
@@ -618,7 +618,7 @@ private:
 
     GrGLSLUniformHandler::UniformHandle fAlphaUniform;
     float fLastAlpha;
-    using INHERITED = GrGLSLXferProcessor;
+    using INHERITED = ProgramImpl;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -652,8 +652,8 @@ void PDLCDXferProcessor::onAddToKey(const GrShaderCaps& caps, GrProcessorKeyBuil
     GLPDLCDXferProcessor::GenKey(*this, caps, b);
 }
 
-GrGLSLXferProcessor* PDLCDXferProcessor::createGLSLInstance() const {
-    return new GLPDLCDXferProcessor(*this);
+std::unique_ptr<GrXferProcessor::ProgramImpl> PDLCDXferProcessor::makeProgramImpl() const {
+    return std::make_unique<GLPDLCDXferProcessor>(*this);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
