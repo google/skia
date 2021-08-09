@@ -351,6 +351,13 @@ private:
     int8_t fColumns;
 };
 
+String Type::getArrayName(int arraySize) const {
+    skstd::string_view name = this->name();
+    return (arraySize != kUnsizedArray)
+                   ? String::printf("%.*s[%d]", (int)name.size(), name.data(), arraySize)
+                   : String::printf("%.*s[]", (int)name.size(), name.data());
+}
+
 std::unique_ptr<Type> Type::MakeArrayType(skstd::string_view name, const Type& componentType,
                                           int columns) {
     return std::make_unique<ArrayType>(std::move(name), componentType.abbreviatedName(),

@@ -147,15 +147,10 @@ const Symbol* Rehydrator::symbol() {
             uint16_t id = this->readU16();
             const Type* componentType = this->type();
             int8_t count = this->readS8();
-            String name(componentType->name());
-            if (count == Type::kUnsizedArray) {
-                name += "[]";
-            } else {
-                name += "[" + to_string(count) + "]";
-            }
-            skstd::string_view nameChars(*fSymbolTable->takeOwnershipOfString(std::move(name)));
+            const String* arrayName =
+                    fSymbolTable->takeOwnershipOfString(componentType->getArrayName(count));
             const Type* result = fSymbolTable->takeOwnershipOfSymbol(
-                    Type::MakeArrayType(nameChars, *componentType, count));
+                    Type::MakeArrayType(*arrayName, *componentType, count));
             this->addSymbol(id, result);
             return result;
         }

@@ -111,6 +111,9 @@ public:
     static std::unique_ptr<Type> MakeArrayType(skstd::string_view name, const Type& componentType,
                                                int columns);
 
+    /** Converts a component type and a size (float, 10) into an array name ("float[10]"). */
+    String getArrayName(int arraySize) const;
+
     /**
      * Create a generic type which maps to the listed types--e.g. $genType is a generic type which
      * can match float, float2, float3 or float4.
