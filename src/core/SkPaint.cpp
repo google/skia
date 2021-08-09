@@ -322,48 +322,48 @@ void SkPaintPriv::Flatten(const SkPaint& paint, SkWriteBuffer& buffer) {
     }
 }
 
-SkReadPaintResult SkPaintPriv::Unflatten(SkPaint* paint, SkReadBuffer& buffer, SkFont* font) {
-    SkSafeRange safe;
+SkPaint SkPaintPriv::Unflatten(SkReadBuffer& buffer) {
+    SkPaint paint;
 
-    paint->setStrokeWidth(buffer.readScalar());
-    paint->setStrokeMiter(buffer.readScalar());
+    paint.setStrokeWidth(buffer.readScalar());
+    paint.setStrokeMiter(buffer.readScalar());
     {
         SkColor4f color;
         buffer.readColor4f(&color);
-        paint->setColor(color, sk_srgb_singleton());
+        paint.setColor(color, sk_srgb_singleton());
     }
 
-    unsigned flatFlags = unpack_v68(paint, buffer.readUInt(), safe);
+    SkSafeRange safe;
+    unsigned flatFlags = unpack_v68(&paint, buffer.readUInt(), safe);
 
     if (!(flatFlags & kHasEffects_FlatFlag)) {
         // This is a simple SkPaint without any effects, so clear all the effect-related fields.
-        paint->setPathEffect(nullptr);
-        paint->setShader(nullptr);
-        paint->setMaskFilter(nullptr);
-        paint->setColorFilter(nullptr);
-        paint->setImageFilter(nullptr);
+        paint.setPathEffect(nullptr);
+        paint.setShader(nullptr);
+        paint.setMaskFilter(nullptr);
+        paint.setColorFilter(nullptr);
+        paint.setImageFilter(nullptr);
     } else if (buffer.isVersionLT(SkPicturePriv::kSkBlenderInSkPaint)) {
         // This paint predates the introduction of user blend functions (via SkBlender).
-        paint->setPathEffect(buffer.readPathEffect());
-        paint->setShader(buffer.readShader());
-        paint->setMaskFilter(buffer.readMaskFilter());
-        paint->setColorFilter(buffer.readColorFilter());
+        paint.setPathEffect(buffer.readPathEffect());
+        paint.setShader(buffer.readShader());
+        paint.setMaskFilter(buffer.readMaskFilter());
+        paint.setColorFilter(buffer.readColorFilter());
         (void)buffer.read32();  // was drawLooper (now deprecated)
-        paint->setImageFilter(buffer.readImageFilter());
+        paint.setImageFilter(buffer.readImageFilter());
     } else {
-        paint->setPathEffect(buffer.readPathEffect());
-        paint->setShader(buffer.readShader());
-        paint->setMaskFilter(buffer.readMaskFilter());
-        paint->setColorFilter(buffer.readColorFilter());
-        paint->setImageFilter(buffer.readImageFilter());
-        paint->setBlender(buffer.readBlender());
+        paint.setPathEffect(buffer.readPathEffect());
+        paint.setShader(buffer.readShader());
+        paint.setMaskFilter(buffer.readMaskFilter());
+        paint.setColorFilter(buffer.readColorFilter());
+        paint.setImageFilter(buffer.readImageFilter());
+        paint.setBlender(buffer.readBlender());
     }
 
-    if (!buffer.validate(safe)) {
-        paint->reset();
-        return kFailed_ReadPaint;
+    if (!buffer.validate(safe.ok())) {
+        paint.reset();
     }
-    return kSuccess_JustPaint;
+    return paint;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

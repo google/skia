@@ -34,7 +34,7 @@ std::vector<SkTextBlobTrace::Record> SkTextBlobTrace::CreateBlobTrace(SkStream* 
     while (!readBuffer.eof()) {
         SkTextBlobTrace::Record record;
         record.origUniqueID = readBuffer.readUInt();
-        readBuffer.readPaint(&record.paint, nullptr);
+        record.paint = readBuffer.readPaint();
         readBuffer.readPoint(&record.offset);
         record.blob = SkTextBlobPriv::MakeFromBuffer(readBuffer);
         trace.push_back(std::move(record));
