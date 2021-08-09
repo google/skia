@@ -516,9 +516,25 @@ SpvId SPIRVCodeGenerator::getType(const Type& type) {
 }
 
 SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layout) {
-    const Type& type = this->getActualType(rawType);
-    String key(type.name());
-    if (type.isStruct() || type.isArray()) {
+    const Type* type;
+    std::unique_ptr<Type> arrayType;
+    String arrayName;
+
+    if (rawType.isArray()) {
+        // For arrays, we need to synthesize a temporary Array type using the "actual" component
+        // type. That is, if `short[10]` is passed in, we need to synthesize a `int[10]` Type.
+        // Otherwise, we can end up with two different SpvIds for the same array type.
+        const Type& component = this->getActualType(rawType.componentType());
+        arrayName = component.getArrayName(rawType.columns());
+        arrayType = Type::MakeArrayType(arrayName, component, rawType.columns());
+        type = arrayType.get();
+    } else {
+        // For non-array types, we can simply look up the "actual" type and use it.
+        type = &this->getActualType(rawType);
+    }
+
+    String key(type->name());
+    if (type->isStruct() || type->isArray()) {
         key += to_string((int)layout.fStd);
 #ifdef SK_DEBUG
         SkASSERT(layout.fStd == MemoryLayout::Standard::k140_Standard ||
@@ -526,81 +542,81 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
         MemoryLayout::Standard otherStd = layout.fStd == MemoryLayout::Standard::k140_Standard
                                                   ? MemoryLayout::Standard::k430_Standard
                                                   : MemoryLayout::Standard::k140_Standard;
-        String otherKey = type.name() + to_string((int)otherStd);
+        String otherKey = type->name() + to_string((int)otherStd);
         SkASSERT(fTypeMap.find(otherKey) == fTypeMap.end());
 #endif
     }
     auto entry = fTypeMap.find(key);
     if (entry == fTypeMap.end()) {
         SpvId result = this->nextId(nullptr);
-        switch (type.typeKind()) {
+        switch (type->typeKind()) {
             case Type::TypeKind::kScalar:
-                if (type.isBoolean()) {
+                if (type->isBoolean()) {
                     this->writeInstruction(SpvOpTypeBool, result, fConstantBuffer);
-                } else if (type == *fContext.fTypes.fInt || type == *fContext.fTypes.fShort ||
-                           type == *fContext.fTypes.fIntLiteral) {
+                } else if (type->isSigned()) {
                     this->writeInstruction(SpvOpTypeInt, result, 32, 1, fConstantBuffer);
-                } else if (type == *fContext.fTypes.fUInt || type == *fContext.fTypes.fUShort) {
+                } else if (type->isUnsigned()) {
                     this->writeInstruction(SpvOpTypeInt, result, 32, 0, fConstantBuffer);
-                } else if (type == *fContext.fTypes.fFloat || type == *fContext.fTypes.fHalf ||
-                           type == *fContext.fTypes.fFloatLiteral) {
+                } else if (type->isFloat()) {
                     this->writeInstruction(SpvOpTypeFloat, result, 32, fConstantBuffer);
                 } else {
-                    SkASSERT(false);
+                    SkDEBUGFAILF("unrecognized scalar type '%s'", type->description().c_str());
                 }
                 break;
             case Type::TypeKind::kVector:
                 this->writeInstruction(SpvOpTypeVector, result,
-                                       this->getType(type.componentType(), layout),
-                                       type.columns(), fConstantBuffer);
+                                       this->getType(type->componentType(), layout),
+                                       type->columns(), fConstantBuffer);
                 break;
             case Type::TypeKind::kMatrix:
                 this->writeInstruction(
                         SpvOpTypeMatrix,
                         result,
-                        this->getType(IndexExpression::IndexType(fContext, type), layout),
-                        type.columns(),
+                        this->getType(IndexExpression::IndexType(fContext, *type), layout),
+                        type->columns(),
                         fConstantBuffer);
                 break;
             case Type::TypeKind::kStruct:
-                this->writeStruct(type, layout, result);
+                this->writeStruct(*type, layout, result);
                 break;
             case Type::TypeKind::kArray: {
-                if (!MemoryLayout::LayoutIsSupported(type)) {
-                    fErrors.error(type.fOffset, "type '" + type.name() + "' is not permitted here");
+                if (!MemoryLayout::LayoutIsSupported(*type)) {
+                    fErrors.error(type->fOffset,
+                                  "type '" + type->name() + "' is not permitted here");
                     return this->nextId(nullptr);
                 }
-                if (type.columns() > 0) {
-                    SpvId typeId = this->getType(type.componentType(), layout);
-                    IntLiteral countLiteral(/*offset=*/-1, type.columns(),
+                if (type->columns() > 0) {
+                    SpvId typeId = this->getType(type->componentType(), layout);
+                    IntLiteral countLiteral(/*offset=*/-1, type->columns(),
                                             fContext.fTypes.fInt.get());
                     SpvId countId = this->writeIntLiteral(countLiteral);
                     this->writeInstruction(SpvOpTypeArray, result, typeId, countId,
                                            fConstantBuffer);
                     this->writeInstruction(SpvOpDecorate, result, SpvDecorationArrayStride,
-                                           (int32_t) layout.stride(type),
+                                           (int32_t) layout.stride(*type),
                                            fDecorationBuffer);
                 } else {
                     // We shouldn't have any runtime-sized arrays right now
-                    fErrors.error(type.fOffset, "runtime-sized arrays are not supported in SPIR-V");
+                    fErrors.error(type->fOffset,
+                                  "runtime-sized arrays are not supported in SPIR-V");
                     this->writeInstruction(SpvOpTypeRuntimeArray, result,
-                                           this->getType(type.componentType(), layout),
+                                           this->getType(type->componentType(), layout),
                                            fConstantBuffer);
                     this->writeInstruction(SpvOpDecorate, result, SpvDecorationArrayStride,
-                                           (int32_t) layout.stride(type),
+                                           (int32_t) layout.stride(*type),
                                            fDecorationBuffer);
                 }
                 break;
             }
             case Type::TypeKind::kSampler: {
                 SpvId image = result;
-                if (SpvDimSubpassData != type.dimensions()) {
-                    image = this->getType(type.textureType(), layout);
+                if (SpvDimSubpassData != type->dimensions()) {
+                    image = this->getType(type->textureType(), layout);
                 }
-                if (SpvDimBuffer == type.dimensions()) {
+                if (SpvDimBuffer == type->dimensions()) {
                     fCapabilities |= (((uint64_t) 1) << SpvCapabilitySampledBuffer);
                 }
-                if (SpvDimSubpassData != type.dimensions()) {
+                if (SpvDimSubpassData != type->dimensions()) {
                     this->writeInstruction(SpvOpTypeSampledImage, result, image, fConstantBuffer);
                 }
                 break;
@@ -612,17 +628,18 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
             case Type::TypeKind::kTexture: {
                 this->writeInstruction(SpvOpTypeImage, result,
                                        this->getType(*fContext.fTypes.fFloat, layout),
-                                       type.dimensions(), type.isDepth(), type.isArrayedTexture(),
-                                       type.isMultisampled(), type.isSampled() ? 1 : 2,
-                                       SpvImageFormatUnknown, fConstantBuffer);
+                                       type->dimensions(), type->isDepth(),
+                                       type->isArrayedTexture(), type->isMultisampled(),
+                                       type->isSampled() ? 1 : 2, SpvImageFormatUnknown,
+                                       fConstantBuffer);
                 fImageTypeMap[key] = result;
                 break;
             }
             default:
-                if (type.isVoid()) {
+                if (type->isVoid()) {
                     this->writeInstruction(SpvOpTypeVoid, result, fConstantBuffer);
                 } else {
-                    SkDEBUGFAILF("invalid type: %s", type.description().c_str());
+                    SkDEBUGFAILF("invalid type: %s", type->description().c_str());
                 }
         }
         fTypeMap[key] = result;
