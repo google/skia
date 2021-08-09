@@ -13,6 +13,9 @@ struct Globals {
     texture2d<float> s;
     sampler sSmplr;
 };
+
+thread bool operator==(const float4x4 left, const float4x4 right);
+thread bool operator!=(const float4x4 left, const float4x4 right);
 thread bool operator==(const float4x4 left, const float4x4 right) {
     return all(left[0] == right[0]) &&
            all(left[1] == right[1]) &&

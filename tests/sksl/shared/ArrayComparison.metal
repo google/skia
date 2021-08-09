@@ -16,6 +16,17 @@ struct Outputs {
 };
 
 template <typename T1, typename T2, size_t N>
+bool operator==(thread const array<T1, N>& left, thread const array<T2, N>& right);
+template <typename T1, typename T2, size_t N>
+bool operator!=(thread const array<T1, N>& left, thread const array<T2, N>& right);
+
+thread bool operator==(const float2x2 left, const float2x2 right);
+thread bool operator!=(const float2x2 left, const float2x2 right);
+
+thread bool operator==(thread const S& left, thread const S& right);
+thread bool operator!=(thread const S& left, thread const S& right);
+
+template <typename T1, typename T2, size_t N>
 bool operator==(thread const array<T1, N>& left, thread const array<T2, N>& right) {
     for (size_t index = 0; index < N; ++index) {
         if (!all(left[index] == right[index])) {
@@ -27,6 +38,13 @@ bool operator==(thread const array<T1, N>& left, thread const array<T2, N>& righ
 
 template <typename T1, typename T2, size_t N>
 bool operator!=(thread const array<T1, N>& left, thread const array<T2, N>& right) {
+    return !(left == right);
+}
+thread bool operator==(const float2x2 left, const float2x2 right) {
+    return all(left[0] == right[0]) &&
+           all(left[1] == right[1]);
+}
+thread bool operator!=(const float2x2 left, const float2x2 right) {
     return !(left == right);
 }
 thread bool operator==(thread const S& left, thread const S& right) {
@@ -45,9 +63,12 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     array<int3, 2> v1 = array<int3, 2>{int3(1, 2, 3), int3(4, 5, 6)};
     array<int3, 2> v2 = array<int3, 2>{int3(1, 2, 3), int3(4, 5, 6)};
     array<int3, 2> v3 = array<int3, 2>{int3(1, 2, 3), int3(4, 5, -6)};
+    array<float2x2, 3> m1 = array<float2x2, 3>{float2x2(1.0), float2x2(2.0), float2x2(float2(3.0, 4.0), float2(5.0, 6.0))};
+    array<float2x2, 3> m2 = array<float2x2, 3>{float2x2(1.0), float2x2(2.0), float2x2(float2(3.0, 4.0), float2(5.0, 6.0))};
+    array<float2x2, 3> m3 = array<float2x2, 3>{float2x2(1.0), float2x2(float2(2.0, 3.0), float2(4.0, 5.0)), float2x2(6.0)};
     array<S, 3> s1 = array<S, 3>{S{1, 2}, S{3, 4}, S{5, 6}};
     array<S, 3> s2 = array<S, 3>{S{1, 2}, S{0, 0}, S{5, 6}};
     array<S, 3> s3 = array<S, 3>{S{1, 2}, S{3, 4}, S{5, 6}};
-    _out.sk_FragColor = ((((f1 == f2 && f1 != f3) && v1 == v2) && v1 != v3) && s1 != s2) && s3 == s1 ? _uniforms.colorGreen : _uniforms.colorRed;
+    _out.sk_FragColor = ((((((f1 == f2 && f1 != f3) && v1 == v2) && v1 != v3) && m1 == m2) && m1 != m3) && s1 != s2) && s3 == s1 ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }
