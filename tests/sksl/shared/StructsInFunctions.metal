@@ -18,12 +18,6 @@ struct Inputs {
 struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
-
-thread bool operator==(thread const S& left, thread const S& right);
-thread bool operator!=(thread const S& left, thread const S& right);
-
-thread bool operator==(thread const Nested& left, thread const Nested& right);
-thread bool operator!=(thread const Nested& left, thread const Nested& right);
 void modifies_a_struct_vS(thread S& s);
 void _skOutParamHelper0_modifies_a_struct_vS(thread S& s) {
     S _var0 = s;

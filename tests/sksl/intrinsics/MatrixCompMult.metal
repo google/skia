@@ -17,15 +17,6 @@ struct Globals {
     float4x4 d;
 };
 
-thread bool operator==(const float2x2 left, const float2x2 right);
-thread bool operator!=(const float2x2 left, const float2x2 right);
-
-thread bool operator==(const float4x4 left, const float4x4 right);
-thread bool operator!=(const float4x4 left, const float4x4 right);
-
-thread bool operator==(const float4x3 left, const float4x3 right);
-thread bool operator!=(const float4x3 left, const float4x3 right);
-
 template <int C, int R>
 matrix<float, C, R> matrixCompMult(matrix<float, C, R> a, matrix<float, C, R> b) {
     matrix<float, C, R> result;

@@ -279,7 +279,6 @@ protected:
     const Context& fContext;
     String fFunctionHeader;
     StringStream fExtraFunctions;
-    StringStream fExtraFunctionPrototypes;
     int fVarCount = 0;
     int fIndentation = 0;
     bool fAtLineStart = false;

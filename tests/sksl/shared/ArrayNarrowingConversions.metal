@@ -12,11 +12,6 @@ struct Outputs {
 };
 
 template <typename T1, typename T2, size_t N>
-bool operator==(thread const array<T1, N>& left, thread const array<T2, N>& right);
-template <typename T1, typename T2, size_t N>
-bool operator!=(thread const array<T1, N>& left, thread const array<T2, N>& right);
-
-template <typename T1, typename T2, size_t N>
 bool operator==(thread const array<T1, N>& left, thread const array<T2, N>& right) {
     for (size_t index = 0; index < N; ++index) {
         if (!all(left[index] == right[index])) {

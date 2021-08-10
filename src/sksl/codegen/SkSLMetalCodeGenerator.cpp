@@ -1282,15 +1282,6 @@ void MetalCodeGenerator::writeMatrixEqualityHelpers(const Type& left, const Type
 
     auto [iter, wasInserted] = fHelpers.insert(key);
     if (wasInserted) {
-        fExtraFunctionPrototypes.printf(R"(
-thread bool operator==(const %s left, const %s right);
-thread bool operator!=(const %s left, const %s right);
-)",
-                                        this->typeName(left).c_str(),
-                                        this->typeName(right).c_str(),
-                                        this->typeName(left).c_str(),
-                                        this->typeName(right).c_str());
-
         fExtraFunctions.printf(
                 "thread bool operator==(const %s left, const %s right) {\n"
                 "    return ",
@@ -1350,12 +1341,6 @@ void MetalCodeGenerator::writeArrayEqualityHelpers(const Type& type) {
 
     auto [iter, wasInserted] = fHelpers.insert("ArrayEquality []");
     if (wasInserted) {
-        fExtraFunctionPrototypes.writeText(R"(
-template <typename T1, typename T2, size_t N>
-bool operator==(thread const array<T1, N>& left, thread const array<T2, N>& right);
-template <typename T1, typename T2, size_t N>
-bool operator!=(thread const array<T1, N>& left, thread const array<T2, N>& right);
-)");
         fExtraFunctions.writeText(R"(
 template <typename T1, typename T2, size_t N>
 bool operator==(thread const array<T1, N>& left, thread const array<T2, N>& right) {
@@ -1388,15 +1373,6 @@ void MetalCodeGenerator::writeStructEqualityHelpers(const Type& type) {
 
         // Write operator== and operator!= for this struct, since those are assumed to exist in SkSL
         // and GLSL but do not exist by default in Metal.
-        fExtraFunctionPrototypes.printf(R"(
-thread bool operator==(thread const %s& left, thread const %s& right);
-thread bool operator!=(thread const %s& left, thread const %s& right);
-)",
-                                        this->typeName(type).c_str(),
-                                        this->typeName(type).c_str(),
-                                        this->typeName(type).c_str(),
-                                        this->typeName(type).c_str());
-
         fExtraFunctions.printf(
                 "thread bool operator==(thread const %s& left, thread const %s& right) {\n"
                 "    return ",
@@ -2592,7 +2568,6 @@ bool MetalCodeGenerator::generateCode() {
         }
     }
     write_stringstream(header, *fOut);
-    write_stringstream(fExtraFunctionPrototypes, *fOut);
     write_stringstream(fExtraFunctions, *fOut);
     write_stringstream(body, *fOut);
     return 0 == fErrors.errorCount();
