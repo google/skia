@@ -55,7 +55,7 @@ void type_check_expression<float>(const Expression& expr) {
 }
 
 template <>
-[[maybe_unused]] void type_check_expression<SKSL_INT>(const Expression& expr) {
+void type_check_expression<SKSL_INT>(const Expression& expr) {
     SkASSERT(expr.type().componentType().isInteger());
 }
 
@@ -194,13 +194,14 @@ static std::unique_ptr<Expression> optimize_comparison(const Context& context,
     return ConstructorCompound::Make(context, left->fOffset, bvecType, std::move(array));
 }
 
-template <typename T0, typename T1 = T0, typename T2 = T0>
-static std::unique_ptr<Expression> evaluate_n_way_intrinsic_of_type(
-        const Context& context,
-        const Expression* arg0,
-        const Expression* arg1,
-        const Expression* arg2,
-        const std::function<T0(T0, T1, T2)>& eval) {
+using EvaluateFn = double (*)(double, double, double);
+
+static std::unique_ptr<Expression> evaluate_n_way_intrinsic(const Context& context,
+                                                            const Expression* arg0,
+                                                            const Expression* arg1,
+                                                            const Expression* arg2,
+                                                            EvaluateFn eval,
+                                                            MakeLiteralFn makeLiteral) {
     // Takes up to three arguments and evaluates all of them, left-to-right, in tandem.
     // Equivalent to constructing a new compound value containing the results from:
     //     eval(arg0.x, arg1.x, arg2.x),
@@ -257,18 +258,14 @@ static std::unique_ptr<Expression> evaluate_n_way_intrinsic_of_type(
             SkASSERT(arg2Subexpr);
         }
 
-        T0 value = eval(arg0Subexpr->as<Literal<T0>>().value(),
-                        arg1Subexpr ? arg1Subexpr->as<Literal<T1>>().value() : T1{},
-                        arg2Subexpr ? arg2Subexpr->as<Literal<T2>>().value() : T2{});
+        double value = eval(as_double(arg0Subexpr), as_double(arg1Subexpr), as_double(arg2Subexpr));
 
-        if constexpr (std::is_floating_point<T0>::value) {
-            // If evaluation of the intrinsic yields a non-finite value, do not optimize.
-            if (!std::isfinite(value)) {
-                return nullptr;
-            }
+        // If evaluation of the intrinsic yields a non-finite value, do not optimize.
+        if (!std::isfinite(value)) {
+            return nullptr;
         }
 
-        array.push_back(Literal<T0>::Make(arg0Subexpr->fOffset, value, &type));
+        array.push_back(makeLiteral(arg0Subexpr->fOffset, value, &type));
     }
 
     return ConstructorCompound::Make(context, arg0->fOffset, compoundType, std::move(array));
@@ -277,30 +274,19 @@ static std::unique_ptr<Expression> evaluate_n_way_intrinsic_of_type(
 template <typename T>
 static std::unique_ptr<Expression> evaluate_intrinsic(const Context& context,
                                                       const ExpressionArray& arguments,
-                                                      const std::function<T(T)>& eval) {
+                                                      EvaluateFn eval) {
     SkASSERT(arguments.size() == 1);
+    type_check_expression<T>(*arguments[0]);
 
-    if constexpr (std::is_same<T, bool>::value) {
-        SkASSERT(arguments.front()->type().componentType().isBoolean());
-    }
-    if constexpr (std::is_same<T, float>::value) {
-        SkASSERT(arguments.front()->type().componentType().isFloat());
-    }
-    if constexpr (std::is_same<T, SKSL_INT>::value) {
-        SkASSERT(arguments.front()->type().componentType().isInteger());
-    }
-
-    return evaluate_n_way_intrinsic_of_type<T, T, T>(
-            context, arguments.front().get(), /*arg1=*/nullptr, /*arg2=*/nullptr,
-            [&eval](T a, T, T) { return eval(a); });
+    return evaluate_n_way_intrinsic(context, arguments[0].get(), /*arg1=*/nullptr, /*arg2=*/nullptr,
+                                    eval, make_literal<T>);
 }
 
-template <typename FN>
 static std::unique_ptr<Expression> evaluate_intrinsic_numeric(const Context& context,
                                                               const ExpressionArray& arguments,
-                                                              const FN& eval) {
+                                                              EvaluateFn eval) {
     SkASSERT(arguments.size() == 1);
-    const Type& type = arguments.front()->type().componentType();
+    const Type& type = arguments[0]->type().componentType();
 
     if (type.isFloat()) {
         return evaluate_intrinsic<float>(context, arguments, eval);
@@ -313,50 +299,59 @@ static std::unique_ptr<Expression> evaluate_intrinsic_numeric(const Context& con
     return nullptr;
 }
 
-template <typename FN>
 static std::unique_ptr<Expression> evaluate_pairwise_intrinsic(const Context& context,
                                                                const ExpressionArray& arguments,
-                                                               const FN& eval) {
+                                                               EvaluateFn eval) {
     SkASSERT(arguments.size() == 2);
-    const Type& type = arguments.front()->type().componentType();
+    const Type& type = arguments[0]->type().componentType();
+    MakeLiteralFn makeLiteralFn = nullptr;
 
     if (type.isFloat()) {
-        return evaluate_n_way_intrinsic_of_type<float, float, float>(
-                context, arguments[0].get(), arguments[1].get(), /*arg2=*/nullptr,
-                [&eval](float a, float b, float) { return eval(a, b); });
-    }
-    if (type.isInteger()) {
-        return evaluate_n_way_intrinsic_of_type<SKSL_INT, SKSL_INT, SKSL_INT>(
-                context, arguments[0].get(), arguments[1].get(), /*arg2=*/nullptr,
-                [&eval](SKSL_INT a, SKSL_INT b, SKSL_INT) { return eval(a, b); });
+        type_check_expression<float>(*arguments[0]);
+        type_check_expression<float>(*arguments[1]);
+        makeLiteralFn = make_literal<float>;
+    } else if (type.isInteger()) {
+        type_check_expression<SKSL_INT>(*arguments[0]);
+        type_check_expression<SKSL_INT>(*arguments[1]);
+        makeLiteralFn = make_literal<SKSL_INT>;
+    } else {
+        SkDEBUGFAILF("unsupported type %s", type.description().c_str());
+        return nullptr;
     }
 
-    SkDEBUGFAILF("unsupported type %s", type.description().c_str());
-    return nullptr;
+    return evaluate_n_way_intrinsic(context, arguments[0].get(), arguments[1].get(),
+                                    /*arg2=*/nullptr, eval, makeLiteralFn);
 }
 
-template <typename FN>
 static std::unique_ptr<Expression> evaluate_3_way_intrinsic(const Context& context,
                                                             const ExpressionArray& arguments,
-                                                            const FN& eval) {
+                                                            EvaluateFn eval) {
     SkASSERT(arguments.size() == 3);
-    const Type& type = arguments.front()->type().componentType();
+    const Type& type = arguments[0]->type().componentType();
+    MakeLiteralFn makeLiteralFn = nullptr;
 
     if (type.isFloat()) {
-        return evaluate_n_way_intrinsic_of_type<float, float, float>(
-                context, arguments[0].get(), arguments[1].get(), arguments[2].get(), eval);
-    }
-    if (type.isInteger()) {
-        return evaluate_n_way_intrinsic_of_type<SKSL_INT, SKSL_INT, SKSL_INT>(
-                context, arguments[0].get(), arguments[1].get(), arguments[2].get(), eval);
+        type_check_expression<float>(*arguments[0]);
+        type_check_expression<float>(*arguments[1]);
+        type_check_expression<float>(*arguments[2]);
+        makeLiteralFn = make_literal<float>;
+    } else if (type.isInteger()) {
+        type_check_expression<SKSL_INT>(*arguments[0]);
+        type_check_expression<SKSL_INT>(*arguments[1]);
+        type_check_expression<SKSL_INT>(*arguments[2]);
+        makeLiteralFn = make_literal<SKSL_INT>;
+    } else {
+        SkDEBUGFAILF("unsupported type %s", type.description().c_str());
+        return nullptr;
     }
 
-    SkDEBUGFAILF("unsupported type %s", type.description().c_str());
-    return nullptr;
+    return evaluate_n_way_intrinsic(context, arguments[0].get(), arguments[1].get(),
+                                    arguments[2].get(), eval, makeLiteralFn);
 }
 
 // Helper functions for optimizing all of our intrinsics.
 namespace Intrinsics {
+namespace {
 
 double coalesce_length(double a, double b, double)     { return a + (b * b); }
 double finalize_length(double a)                       { return std::sqrt(a); }
@@ -368,14 +363,60 @@ double coalesce_dot(double a, double b, double c)      { return a + (b * c); }
 double coalesce_any(double a, double b, double)        { return a || b; }
 double coalesce_all(double a, double b, double)        { return a && b; }
 
-bool compare_lessThan(double a, double b)         { return a < b; }
-bool compare_lessThanEqual(double a, double b)    { return a <= b; }
-bool compare_greaterThan(double a, double b)      { return a > b; }
-bool compare_greaterThanEqual(double a, double b) { return a >= b; }
-bool compare_equal(double a, double b)            { return a == b; }
-bool compare_notEqual(double a, double b)         { return a != b; }
+bool compare_lessThan(double a, double b)              { return a < b; }
+bool compare_lessThanEqual(double a, double b)         { return a <= b; }
+bool compare_greaterThan(double a, double b)           { return a > b; }
+bool compare_greaterThanEqual(double a, double b)      { return a >= b; }
+bool compare_equal(double a, double b)                 { return a == b; }
+bool compare_notEqual(double a, double b)              { return a != b; }
 
+double evaluate_radians(double a, double, double)      { return a * 0.0174532925; }
+double evaluate_degrees(double a, double, double)      { return a * 57.2957795; }
+double evaluate_sin(double a, double, double)          { return std::sin(a); }
+double evaluate_cos(double a, double, double)          { return std::cos(a); }
+double evaluate_tan(double a, double, double)          { return std::tan(a); }
+double evaluate_asin(double a, double, double)         { return std::asin(a); }
+double evaluate_acos(double a, double, double)         { return std::acos(a); }
+double evaluate_atan(double a, double, double)         { return std::atan(a); }
+double evaluate_atan2(double a, double b, double)      { return std::atan2(a, b); }
+
+double evaluate_pow(double a, double b, double)        { return std::pow(a, b); }
+double evaluate_exp(double a, double, double)          { return std::exp(a); }
+double evaluate_log(double a, double, double)          { return std::log(a); }
+double evaluate_exp2(double a, double, double)         { return std::exp2(a); }
+double evaluate_log2(double a, double, double)         { return std::log2(a); }
+double evaluate_sqrt(double a, double, double)         { return std::sqrt(a); }
+double evaluate_inversesqrt(double a, double, double)  { return 1.0 / std::sqrt(a); }
+
+double evaluate_abs(double a, double, double)          { return std::abs(a); }
+double evaluate_sign(double a, double, double)         { return (a > 0) - (a < 0); }
+double evaluate_floor(double a, double, double)        { return std::floor(a); }
+double evaluate_ceil(double a, double, double)         { return std::ceil(a); }
+double evaluate_fract(double a, double, double)        { return a - std::floor(a); }
+double evaluate_mod(double a, double b, double)        { return a - b * std::floor(a / b); }
+double evaluate_min(double a, double b, double)        { return (a < b) ? a : b; }
+double evaluate_max(double a, double b, double)        { return (a > b) ? a : b; }
+double evaluate_clamp(double x, double l, double h)    { return (x < l) ? l : (x > h) ? h : x; }
+double evaluate_saturate(double a, double, double)     { return (a < 0) ? 0 : (a > 1) ? 1 : a; }
+double evaluate_mix(double x, double y, double a)      { return x * (1 - a) + y * a; }
+double evaluate_step(double e, double x, double)       { return (x < e) ? 0 : 1; }
+double evaluate_smoothstep(double edge0, double edge1, double x) {
+    auto t = (x - edge0) / (edge1 - edge0);
+    t = (t < 0) ? 0 : (t > 1) ? 1 : t;
+    return t * t * (3.0 - 2.0 * t);
 }
+
+double evaluate_matrixCompMult(double x, double y, double) { return x * y; }
+
+double evaluate_not(double a, double, double)          { return !a; }
+double evaluate_sinh(double a, double, double)         { return std::sinh(a); }
+double evaluate_cosh(double a, double, double)         { return std::cosh(a); }
+double evaluate_tanh(double a, double, double)         { return std::tanh(a); }
+double evaluate_trunc(double a, double, double)        { return std::trunc(a); }
+double evaluate_round(double a, double, double)        { return std::round(a / 2) * 2; }
+
+}  // namespace
+}  // namespace Intrinsics
 
 static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& context,
                                                            IntrinsicKind intrinsic,
@@ -384,122 +425,118 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
     switch (intrinsic) {
         // 8.1 : Angle and Trigonometry Functions
         case k_radians_IntrinsicKind:
-            return evaluate_intrinsic<float>(context, arguments,
-                                             [](float a) { return a * 0.0174532925; });
+            return evaluate_intrinsic<float>(context, arguments, Intrinsics::evaluate_radians);
+
         case k_degrees_IntrinsicKind:
-            return evaluate_intrinsic<float>(context, arguments,
-                                             [](float a) { return a * 57.2957795; });
+            return evaluate_intrinsic<float>(context, arguments, Intrinsics::evaluate_degrees);
+
         case k_sin_IntrinsicKind:
-            return evaluate_intrinsic<float>(context, arguments,
-                                             [](float a) { return std::sin(a); });
+            return evaluate_intrinsic<float>(context, arguments, Intrinsics::evaluate_sin);
+
         case k_cos_IntrinsicKind:
-            return evaluate_intrinsic<float>(context, arguments,
-                                             [](float a) { return std::cos(a); });
+            return evaluate_intrinsic<float>(context, arguments, Intrinsics::evaluate_cos);
+
         case k_tan_IntrinsicKind:
-            return evaluate_intrinsic<float>(context, arguments,
-                                             [](float a) { return std::tan(a); });
+            return evaluate_intrinsic<float>(context, arguments, Intrinsics::evaluate_tan);
+
         case k_asin_IntrinsicKind:
-            return evaluate_intrinsic<float>(context, arguments,
-                                             [](float a) { return std::asin(a); });
+            return evaluate_intrinsic<float>(context, arguments, Intrinsics::evaluate_asin);
+
         case k_acos_IntrinsicKind:
-            return evaluate_intrinsic<float>(context, arguments,
-                                             [](float a) { return std::acos(a); });
+            return evaluate_intrinsic<float>(context, arguments, Intrinsics::evaluate_acos);
+
         case k_atan_IntrinsicKind:
             if (arguments.size() == 1) {
-                return evaluate_intrinsic<float>(
-                        context, arguments, [](float a) { return std::atan(a); });
+                return evaluate_intrinsic<float>(context, arguments, Intrinsics::evaluate_atan);
             } else {
-                SkASSERT(arguments.size() == 2);
-                return evaluate_pairwise_intrinsic(
-                        context, arguments, [](auto a, auto b) { return std::atan2(a, b); });
+                return evaluate_pairwise_intrinsic(context, arguments, Intrinsics::evaluate_atan2);
             }
 
         // 8.2 : Exponential Functions
         case k_pow_IntrinsicKind:
-            return evaluate_pairwise_intrinsic(context, arguments,
-                                               [](auto x, auto y) { return std::pow(x, y); });
+            return evaluate_pairwise_intrinsic(context, arguments, Intrinsics::evaluate_pow);
+
         case k_exp_IntrinsicKind:
-            return evaluate_intrinsic<float>(context, arguments,
-                                             [](float a) { return std::exp(a); });
+            return evaluate_intrinsic<float>(context, arguments, Intrinsics::evaluate_exp);
+
         case k_log_IntrinsicKind:
-            return evaluate_intrinsic<float>(context, arguments,
-                                             [](float a) { return std::log(a); });
+            return evaluate_intrinsic<float>(context, arguments, Intrinsics::evaluate_log);
+
         case k_exp2_IntrinsicKind:
-            return evaluate_intrinsic<float>(context, arguments,
-                                             [](float a) { return std::exp2(a); });
+            return evaluate_intrinsic<float>(context, arguments, Intrinsics::evaluate_exp2);
+
         case k_log2_IntrinsicKind:
-            return evaluate_intrinsic<float>(context, arguments,
-                                             [](float a) { return std::log2(a); });
+            return evaluate_intrinsic<float>(context, arguments, Intrinsics::evaluate_log2);
+
         case k_sqrt_IntrinsicKind:
-            return evaluate_intrinsic<float>(context, arguments,
-                                             [](float a) { return std::sqrt(a); });
+            return evaluate_intrinsic<float>(context, arguments, Intrinsics::evaluate_sqrt);
+
         case k_inversesqrt_IntrinsicKind:
-            return evaluate_intrinsic<float>(context, arguments,
-                                             [](float a) { return 1 / std::sqrt(a); });
+            return evaluate_intrinsic<float>(context, arguments, Intrinsics::evaluate_inversesqrt);
 
         // 8.3 : Common Functions
         case k_abs_IntrinsicKind:
-            return evaluate_intrinsic_numeric(context, arguments,
-                                              [](auto a) { return std::abs(a); });
+            return evaluate_intrinsic_numeric(context, arguments, Intrinsics::evaluate_abs);
+
         case k_sign_IntrinsicKind:
-            return evaluate_intrinsic_numeric(context, arguments,
-                                              [](auto a) { return (a > 0) - (a < 0); });
+            return evaluate_intrinsic_numeric(context, arguments, Intrinsics::evaluate_sign);
+
         case k_floor_IntrinsicKind:
-            return evaluate_intrinsic<float>(context, arguments,
-                                             [](float a) { return std::floor(a); });
+            return evaluate_intrinsic<float>(context, arguments, Intrinsics::evaluate_floor);
+
         case k_ceil_IntrinsicKind:
-            return evaluate_intrinsic<float>(context, arguments,
-                                             [](float a) { return std::ceil(a); });
+            return evaluate_intrinsic<float>(context, arguments, Intrinsics::evaluate_ceil);
+
         case k_fract_IntrinsicKind:
-            return evaluate_intrinsic<float>(context, arguments,
-                                             [](float a) { return a - std::floor(a); });
+            return evaluate_intrinsic<float>(context, arguments, Intrinsics::evaluate_fract);
+
         case k_mod_IntrinsicKind:
-            return evaluate_pairwise_intrinsic(
-                    context, arguments, [](auto x, auto y) { return x - y * std::floor(x / y); });
+            return evaluate_pairwise_intrinsic(context, arguments, Intrinsics::evaluate_mod);
 
         case k_min_IntrinsicKind:
-            return evaluate_pairwise_intrinsic(context, arguments,
-                                               [](auto a, auto b) { return (a < b) ? a : b; });
+            return evaluate_pairwise_intrinsic(context, arguments, Intrinsics::evaluate_min);
+
         case k_max_IntrinsicKind:
-            return evaluate_pairwise_intrinsic(context, arguments,
-                                               [](auto a, auto b) { return (a > b) ? a : b; });
+            return evaluate_pairwise_intrinsic(context, arguments, Intrinsics::evaluate_max);
+
         case k_clamp_IntrinsicKind:
-            return evaluate_3_way_intrinsic(context, arguments,
-                    [](auto x, auto l, auto h) { return (x < l) ? l : (x > h) ? h : x; });
+            return evaluate_3_way_intrinsic(context, arguments, Intrinsics::evaluate_clamp);
+
         case k_saturate_IntrinsicKind:
-            return evaluate_intrinsic<float>(context, arguments,
-                                             [](float a) { return (a < 0) ? 0 : (a > 1) ? 1 : a; });
+            return evaluate_intrinsic<float>(context, arguments, Intrinsics::evaluate_saturate);
+
         case k_mix_IntrinsicKind:
             if (arguments[2]->type().componentType().isBoolean()) {
                 const SkSL::Type& numericType = arguments[0]->type().componentType();
-                const auto eval = [](auto x, auto y, bool a) { return a ? y : x; };
+                MakeLiteralFn makeLiteralFn = nullptr;
 
                 if (numericType.isFloat()) {
-                    return evaluate_n_way_intrinsic_of_type<float, float, bool>(
-                        context, arguments[0].get(), arguments[1].get(), arguments[2].get(), eval);
+                    type_check_expression<float>(*arguments[0]);
+                    type_check_expression<float>(*arguments[1]);
+                    makeLiteralFn = make_literal<float>;
                 } else if (numericType.isInteger()) {
-                    return evaluate_n_way_intrinsic_of_type<SKSL_INT, SKSL_INT, bool>(
-                        context, arguments[0].get(), arguments[1].get(), arguments[2].get(), eval);
+                    type_check_expression<SKSL_INT>(*arguments[0]);
+                    type_check_expression<SKSL_INT>(*arguments[1]);
+                    makeLiteralFn = make_literal<SKSL_INT>;
                 } else if (numericType.isBoolean()) {
-                    return evaluate_n_way_intrinsic_of_type<bool, bool, bool>(
-                        context, arguments[0].get(), arguments[1].get(), arguments[2].get(), eval);
+                    type_check_expression<bool>(*arguments[0]);
+                    type_check_expression<bool>(*arguments[1]);
+                    makeLiteralFn = make_literal<bool>;
+                } else {
+                    SkDEBUGFAILF("unsupported type %s", numericType.description().c_str());
+                    return nullptr;
                 }
-
-                SkDEBUGFAILF("unsupported type %s", numericType.description().c_str());
-                return nullptr;
+                return evaluate_n_way_intrinsic(context, arguments[0].get(), arguments[1].get(),
+                                                arguments[2].get(), Intrinsics::evaluate_mix,
+                                                makeLiteralFn);
             } else {
-                return evaluate_3_way_intrinsic(context, arguments,
-                                        [](auto x, auto y, auto a) { return x * (1 - a) + y * a; });
+                return evaluate_3_way_intrinsic(context, arguments, Intrinsics::evaluate_mix);
             }
         case k_step_IntrinsicKind:
-            return evaluate_pairwise_intrinsic(context, arguments,
-                                               [](auto e, auto x) { return (x < e) ? 0 : 1; });
+            return evaluate_pairwise_intrinsic(context, arguments, Intrinsics::evaluate_step);
+
         case k_smoothstep_IntrinsicKind:
-            return evaluate_3_way_intrinsic(context, arguments, [](auto edge0, auto edge1, auto x) {
-                auto t = (x - edge0) / (edge1 - edge0);
-                t = (t < 0) ? 0 : (t > 1) ? 1 : t;
-                return t * t * (3.0 - 2.0 * t);
-            });
+            return evaluate_3_way_intrinsic(context, arguments, Intrinsics::evaluate_smoothstep);
 
         // 8.4 : Geometric Functions
         case k_length_IntrinsicKind:
@@ -560,8 +597,7 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
         // 8.5 : Matrix Functions
         case k_matrixCompMult_IntrinsicKind:
             return evaluate_pairwise_intrinsic(context, arguments,
-                                               [](auto x, auto y) { return x * y; });
-
+                                               Intrinsics::evaluate_matrixCompMult);
         // Not supported until GLSL 1.40. Poly-filled by SkSL:
         case k_inverse_IntrinsicKind: {
             auto M = [&](int c, int r) -> float {
@@ -639,25 +675,25 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
                                          Intrinsics::coalesce_all,
                                          /*finalize=*/nullptr);
         case k_not_IntrinsicKind:
-            return evaluate_intrinsic<bool>(context, arguments, [](bool a) { return !a; });
+            return evaluate_intrinsic<bool>(context, arguments, Intrinsics::evaluate_not);
 
         // Additional intrinsics not required by GLSL ES2:
         case k_sinh_IntrinsicKind:
-            return evaluate_intrinsic<float>(context, arguments,
-                                             [](float a) { return std::sinh(a); });
+            return evaluate_intrinsic<float>(context, arguments, Intrinsics::evaluate_sinh);
+
         case k_cosh_IntrinsicKind:
-            return evaluate_intrinsic<float>(context, arguments,
-                                             [](float a) { return std::cosh(a); });
+            return evaluate_intrinsic<float>(context, arguments, Intrinsics::evaluate_cosh);
+
         case k_tanh_IntrinsicKind:
-            return evaluate_intrinsic<float>(context, arguments,
-                                             [](float a) { return std::tanh(a); });
+            return evaluate_intrinsic<float>(context, arguments, Intrinsics::evaluate_tanh);
+
         case k_trunc_IntrinsicKind:
-            return evaluate_intrinsic<float>(context, arguments,
-                                             [](float a) { return std::trunc(a); });
+            return evaluate_intrinsic<float>(context, arguments, Intrinsics::evaluate_trunc);
+
         case k_round_IntrinsicKind:      // GLSL `round` documents its rounding mode as unspecified
         case k_roundEven_IntrinsicKind:  // and is allowed to behave identically to `roundEven`.
-            return evaluate_intrinsic<float>(context, arguments,
-                                             [](float a) { return std::round(a / 2) * 2; });
+            return evaluate_intrinsic<float>(context, arguments, Intrinsics::evaluate_round);
+
         default:
             return nullptr;
     }
