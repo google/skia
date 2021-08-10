@@ -338,16 +338,16 @@ static void draw_halfplane(SkCanvas* canvas, const SkHalfPlane& p, SkColor c) {
     draw_halfplane(canvas, pts[0], pts[1], c);
 }
 
-static void compute_half_planes(const SkMatrix& mx, SkScalar W, SkScalar H,
+static void compute_half_planes(const SkMatrix& mx, SkScalar width, SkScalar height,
                                 SkHalfPlane planes[4]) {
     SkScalar a = mx[0], b = mx[1], c = mx[2],
              d = mx[3], e = mx[4], f = mx[5],
              g = mx[6], h = mx[7], i = mx[8];
 
-    planes[0] = { 2*g - 2*a/W,  2*h - 2*b/W,  2*i - 2*c/W };
-    planes[1] = { 2*a/W,        2*b/W,        2*c/W };
-    planes[2] = { 2*g - 2*d/H,  2*h - 2*e/H,  2*i - 2*f/H };
-    planes[3] = { 2*d/H,        2*e/H,        2*f/H };
+    planes[0] = { 2*g - 2*a/width,  2*h - 2*b/width,  2*i - 2*c/width };
+    planes[1] = { 2*a/width,        2*b/width,        2*c/width };
+    planes[2] = { 2*g - 2*d/height, 2*h - 2*e/height, 2*i - 2*f/height };
+    planes[3] = { 2*d/height,       2*e/height,       2*f/height };
 }
 
 class HalfPlaneView2 : public Sample {

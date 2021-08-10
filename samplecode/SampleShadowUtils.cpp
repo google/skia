@@ -172,9 +172,9 @@ protected:
         SkTDArray<SkMatrix> matrices;
         matrices.push()->reset();
         matrices.push()->setRotate(33.f, 25.f, 25.f).postScale(1.2f, 0.8f, 25.f, 25.f);
-        SkPaint paint;
-        paint.setColor(SK_ColorGREEN);
-        paint.setAntiAlias(true);
+        SkPaint greenPaint;
+        greenPaint.setColor(SK_ColorGREEN);
+        greenPaint.setAntiAlias(true);
         SkPoint3 zPlaneParams = SkPoint3::Make(0, 0, std::max(1.0f, kHeight + fZDelta));
 
         // convex paths
@@ -195,7 +195,7 @@ protected:
 
                     canvas->save();
                     canvas->concat(m);
-                    this->drawShadowedPath(canvas, path, zPlaneParams, paint, kAmbientAlpha,
+                    this->drawShadowedPath(canvas, path, zPlaneParams, greenPaint, kAmbientAlpha,
                                            lightPos, kLightR, kSpotAlpha, flags);
                     canvas->restore();
 
@@ -221,8 +221,8 @@ protected:
 
                 canvas->save();
                 canvas->concat(m);
-                this->drawShadowedPath(canvas, path, zPlaneParams, paint, kAmbientAlpha, lightPos,
-                                       kLightR, kSpotAlpha, kNone_ShadowFlag);
+                this->drawShadowedPath(canvas, path, zPlaneParams, greenPaint, kAmbientAlpha,
+                                       lightPos, kLightR, kSpotAlpha, kNone_ShadowFlag);
                 canvas->restore();
 
                 canvas->translate(dx, 0);
@@ -236,10 +236,10 @@ protected:
         if (invCanvasM.invert(&invCanvasM)) {
             canvas->save();
             canvas->concat(invCanvasM);
-            SkPaint paint;
-            paint.setColor(SK_ColorBLACK);
-            paint.setAntiAlias(true);
-            canvas->drawCircle(lightPos.fX, lightPos.fY, kLightR / 10.f, paint);
+            SkPaint blackPaint;
+            blackPaint.setColor(SK_ColorBLACK);
+            blackPaint.setAntiAlias(true);
+            canvas->drawCircle(lightPos.fX, lightPos.fY, kLightR / 10.f, blackPaint);
             canvas->restore();
         }
     }
