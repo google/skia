@@ -377,7 +377,6 @@ skia_core_sources = [
   "$_src/core/SkTDPQueue.h",
   "$_src/core/SkTDynamicHash.h",
   "$_src/core/SkTInternalLList.h",
-  "$_src/core/SkTLList.h",
   "$_src/core/SkTLazy.h",
   "$_src/core/SkTMultiMap.h",
   "$_src/core/SkTSearch.cpp",

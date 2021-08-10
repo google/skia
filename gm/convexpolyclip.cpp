@@ -25,7 +25,6 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
-#include "src/core/SkTLList.h"
 #include "tools/ToolUtils.h"
 
 static sk_sp<SkImage> make_img(int w, int h) {
@@ -112,7 +111,13 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        fClips.addToTail()->setPath(SkPath::Polygon({
+        // On < c++17, emplace_back() returns a void :(
+        auto emplace_back = [](std::vector<Clip>& clips) -> Clip& {
+            clips.emplace_back();
+            return clips.back();
+        };
+
+        emplace_back(fClips).setPath(SkPath::Polygon({
             {  5.f,   5.f},
             {100.f,  20.f},
             { 15.f, 100.f},
@@ -132,18 +137,18 @@ protected:
                 hexagon.lineTo(point);
             }
         }
-        fClips.addToTail()->setPath(hexagon.snapshot());
+        emplace_back(fClips).setPath(hexagon.snapshot());
 
         SkMatrix scaleM;
         scaleM.setScale(1.1f, 0.4f, kRadius, kRadius);
-        fClips.addToTail()->setPath(hexagon.detach().makeTransform(scaleM));
+        emplace_back(fClips).setPath(hexagon.detach().makeTransform(scaleM));
 
-        fClips.addToTail()->setRect(SkRect::MakeXYWH(8.3f, 11.6f, 78.2f, 72.6f));
+        emplace_back(fClips).setRect(SkRect::MakeXYWH(8.3f, 11.6f, 78.2f, 72.6f));
 
         SkRect rect = SkRect::MakeLTRB(10.f, 12.f, 80.f, 86.f);
         SkMatrix rotM;
         rotM.setRotate(23.f, rect.centerX(), rect.centerY());
-        fClips.addToTail()->setPath(SkPath::Rect(rect).makeTransform(rotM));
+        emplace_back(fClips).setPath(SkPath::Rect(rect).makeTransform(rotM));
 
         fImg = make_img(100, 100);
     }
@@ -167,15 +172,12 @@ protected:
         SkScalar startX = 0;
         int testLayers = kBench_Mode != this->getMode();
         for (int doLayer = 0; doLayer <= testLayers; ++doLayer) {
-            for (ClipList::Iter iter(fClips, ClipList::Iter::kHead_IterStart);
-                 iter.get();
-                 iter.next()) {
-                const Clip* clip = iter.get();
+            for (const Clip& clip : fClips) {
                 SkScalar x = startX;
                 for (int aa = 0; aa < 2; ++aa) {
                     if (doLayer) {
                         SkRect bounds;
-                        clip->getBounds(&bounds);
+                        clip.getBounds(&bounds);
                         bounds.outset(2, 2);
                         bounds.offset(x, y);
                         canvas->saveLayer(&bounds, nullptr);
@@ -183,7 +185,7 @@ protected:
                         canvas->save();
                     }
                     canvas->translate(x, y);
-                    clip->setOnCanvas(canvas, SkClipOp::kIntersect, SkToBool(aa));
+                    clip.setOnCanvas(canvas, SkClipOp::kIntersect, SkToBool(aa));
                     canvas->drawImage(fImg, 0, 0);
                     canvas->restore();
                     x += fImg->width() + kMargin;
@@ -198,7 +200,7 @@ protected:
 
                     if (doLayer) {
                         SkRect bounds;
-                        clip->getBounds(&bounds);
+                        clip.getBounds(&bounds);
                         bounds.outset(2, 2);
                         bounds.offset(x, y);
                         canvas->saveLayer(&bounds, nullptr);
@@ -206,9 +208,9 @@ protected:
                         canvas->save();
                     }
                     canvas->translate(x, y);
-                    SkPath closedClipPath = clip->asClosedPath();
+                    SkPath closedClipPath = clip.asClosedPath();
                     canvas->drawPath(closedClipPath, clipOutlinePaint);
-                    clip->setOnCanvas(canvas, SkClipOp::kIntersect, SkToBool(aa));
+                    clip.setOnCanvas(canvas, SkClipOp::kIntersect, SkToBool(aa));
                     canvas->scale(1.f, 1.8f);
                     canvas->drawSimpleText(kTxt, SK_ARRAY_COUNT(kTxt)-1, SkTextEncoding::kUTF8,
                                      0, 1.5f * font.getSize(), font, txtPaint);
@@ -296,9 +298,8 @@ private:
         SkRect fRect;
     };
 
-    typedef SkTLList<Clip, 1> ClipList;
-    ClipList         fClips;
-    sk_sp<SkImage>   fImg;;
+    std::vector<Clip> fClips;
+    sk_sp<SkImage>    fImg;;
 
     using INHERITED = GM;
 };
