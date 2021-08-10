@@ -30,12 +30,55 @@ static bool has_compile_time_constant_arguments(const ExpressionArray& arguments
     return true;
 }
 
+static double as_double(const Expression* expr) {
+    if (expr) {
+        if (expr->is<IntLiteral>()) {
+            return (double)expr->as<IntLiteral>().value();
+        }
+        if (expr->is<FloatLiteral>()) {
+            return (double)expr->as<FloatLiteral>().value();
+        }
+        if (expr->is<BoolLiteral>()) {
+            return (double)expr->as<BoolLiteral>().value();
+        }
+        SkDEBUGFAILF("unexpected expression kind %d", (int)expr->kind());
+    }
+    return 0.0;
+}
+
 template <typename T>
+static void type_check_expression(const Expression& expr);
+
+template <>
+void type_check_expression<float>(const Expression& expr) {
+    SkASSERT(expr.type().componentType().isFloat());
+}
+
+template <>
+[[maybe_unused]] void type_check_expression<SKSL_INT>(const Expression& expr) {
+    SkASSERT(expr.type().componentType().isInteger());
+}
+
+template <>
+void type_check_expression<bool>(const Expression& expr) {
+    SkASSERT(expr.type().componentType().isBoolean());
+}
+
+template <typename T>
+static std::unique_ptr<Expression> make_literal(int offset, double value, const Type* type) {
+    return Literal<T>::Make(offset, (T)value, type);
+}
+
+using CoalesceFn = double (*)(double, double, double);
+using FinalizeFn = double (*)(double);
+using MakeLiteralFn = std::unique_ptr<Expression> (*)(int, double, const Type*);
+
 static std::unique_ptr<Expression> coalesce_n_way_vector(const Expression* arg0,
                                                          const Expression* arg1,
-                                                         T startingState,
-                                                         const std::function<T(T, T, T)>& coalesce,
-                                                         const std::function<T(T)>& finalize) {
+                                                         double startingState,
+                                                         CoalesceFn coalesce,
+                                                         FinalizeFn finalize,
+                                                         MakeLiteralFn makeLiteral) {
     // Takes up to two vector or scalar arguments and coalesces them in sequence:
     //     scalar = startingState;
     //     scalar = coalesce(scalar, arg0.x, arg1.x);
@@ -47,6 +90,8 @@ static std::unique_ptr<Expression> coalesce_n_way_vector(const Expression* arg0,
     // If an argument is null, zero is passed to the coalesce function. If the arguments are a mix
     // of scalars and vectors, the scalars is interpreted as a vector containing the same value for
     // every component.
+
+    int offset = arg0->fOffset;
 
     arg0 = ConstantFolder::GetConstantValueForVariable(*arg0);
     SkASSERT(arg0);
@@ -62,7 +107,7 @@ static std::unique_ptr<Expression> coalesce_n_way_vector(const Expression* arg0,
         SkASSERT(arg1->type().componentType() == vecType.componentType());
     }
 
-    T value = startingState;
+    double value = startingState;
     int arg0Index = 0;
     int arg1Index = 0;
     for (int index = 0; index < vecType.columns(); ++index) {
@@ -77,15 +122,11 @@ static std::unique_ptr<Expression> coalesce_n_way_vector(const Expression* arg0,
             SkASSERT(arg1Subexpr);
         }
 
-        value = coalesce(value,
-                         arg0Subexpr->as<Literal<T>>().value(),
-                         arg1Subexpr ? arg1Subexpr->as<Literal<T>>().value() : T{});
+        value = coalesce(value, as_double(arg0Subexpr), as_double(arg1Subexpr));
 
-        if constexpr (std::is_floating_point<T>::value) {
-            // If coalescing the intrinsic yields a non-finite value, do not optimize.
-            if (!std::isfinite(value)) {
-                return nullptr;
-            }
+        // If coalescing the intrinsic yields a non-finite value, do not optimize.
+        if (!std::isfinite(value)) {
+            return nullptr;
         }
     }
 
@@ -93,43 +134,32 @@ static std::unique_ptr<Expression> coalesce_n_way_vector(const Expression* arg0,
         value = finalize(value);
     }
 
-    return Literal<T>::Make(arg0->fOffset, value, &vecType.componentType());
+    return makeLiteral(offset, value, &arg0->type().componentType());
 }
 
 template <typename T>
 static std::unique_ptr<Expression> coalesce_vector(const ExpressionArray& arguments,
-                                                   T startingState,
-                                                   const std::function<T(T, T)>& coalesce,
-                                                   const std::function<T(T)>& finalize) {
+                                                   double startingState,
+                                                   CoalesceFn coalesce,
+                                                   FinalizeFn finalize) {
     SkASSERT(arguments.size() == 1);
-    if constexpr (std::is_same<T, bool>::value) {
-        SkASSERT(arguments.front()->type().componentType().isBoolean());
-    }
-    if constexpr (std::is_same<T, float>::value) {
-        SkASSERT(arguments.front()->type().componentType().isFloat());
-    }
+    type_check_expression<T>(*arguments[0]);
 
-    return coalesce_n_way_vector<T>(arguments.front().get(), /*arg1=*/nullptr, startingState,
-                                    [&coalesce](T a, T b, T) { return coalesce(a, b); },
-                                    finalize);
+    return coalesce_n_way_vector(arguments[0].get(), /*arg1=*/nullptr,
+                                 (double)startingState, coalesce, finalize, make_literal<T>);
 }
 
 template <typename T>
-static std::unique_ptr<Expression> coalesce_pairwise_vectors(
-        const ExpressionArray& arguments,
-        T startingState,
-        const std::function<T(T, T, T)>& coalesce,
-        const std::function<T(T)>& finalize) {
+static std::unique_ptr<Expression> coalesce_pairwise_vectors(const ExpressionArray& arguments,
+                                                             double startingState,
+                                                             CoalesceFn coalesce,
+                                                             FinalizeFn finalize) {
     SkASSERT(arguments.size() == 2);
-    const Type& type = arguments.front()->type().componentType();
+    type_check_expression<T>(*arguments[0]);
+    type_check_expression<T>(*arguments[1]);
 
-    if (type.isFloat()) {
-        return coalesce_n_way_vector<float>(arguments[0].get(), arguments[1].get(), startingState,
-                                            coalesce, finalize);
-    }
-
-    SkDEBUGFAILF("unsupported type %s", type.description().c_str());
-    return nullptr;
+    return coalesce_n_way_vector(arguments[0].get(), arguments[1].get(),
+                                 (double)startingState, coalesce, finalize, make_literal<T>);
 }
 
 template <typename LITERAL, typename FN>
@@ -339,6 +369,21 @@ static std::unique_ptr<Expression> evaluate_3_way_intrinsic(const Context& conte
     return nullptr;
 }
 
+// Helper functions for optimizing all of our intrinsics.
+namespace Intrinsics {
+
+double coalesce_length(double a, double b, double)     { return a + (b * b); }
+double finalize_length(double a)                       { return std::sqrt(a); }
+
+double coalesce_distance(double a, double b, double c) { b -= c; return a + (b * b); }
+double finalize_distance(double a)                     { return std::sqrt(a); }
+
+double coalesce_dot(double a, double b, double c)      { return a + (b * c); }
+double coalesce_any(double a, double b, double)        { return a || b; }
+double coalesce_all(double a, double b, double)        { return a && b; }
+
+}
+
 static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& context,
                                                            IntrinsicKind intrinsic,
                                                            const ExpressionArray& arguments) {
@@ -466,18 +511,16 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
         // 8.4 : Geometric Functions
         case k_length_IntrinsicKind:
             return coalesce_vector<float>(arguments, /*startingState=*/0,
-                                         [](float a, float b) { return a + (b * b); },
-                                         [](float a) { return std::sqrt(a); });
+                                          Intrinsics::coalesce_length,
+                                          Intrinsics::finalize_length);
         case k_distance_IntrinsicKind:
-            return coalesce_pairwise_vectors<float>(
-                    arguments, /*startingState=*/0,
-                    [](float a, float b, float c) { b -= c; return a + (b * b); },
-                    [](float a) { return std::sqrt(a); });
+            return coalesce_pairwise_vectors<float>(arguments, /*startingState=*/0,
+                                                    Intrinsics::coalesce_distance,
+                                                    Intrinsics::finalize_distance);
         case k_dot_IntrinsicKind:
-            return coalesce_pairwise_vectors<float>(
-                    arguments, /*startingState=*/0,
-                    [](float a, float b, float c) { return a + (b * c); },
-                    /*finalize=*/nullptr);
+            return coalesce_pairwise_vectors<float>(arguments, /*startingState=*/0,
+                                                    Intrinsics::coalesce_dot,
+                                                    /*finalize=*/nullptr);
         case k_cross_IntrinsicKind: {
             auto Value = [&](int a, int n) -> float {
                 return arguments[a]->getConstantSubexpression(n)->as<FloatLiteral>().value();
@@ -596,11 +639,11 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
 
         case k_any_IntrinsicKind:
             return coalesce_vector<bool>(arguments, /*startingState=*/false,
-                                         [](bool a, bool b) { return a || b; },
+                                         Intrinsics::coalesce_any,
                                          /*finalize=*/nullptr);
         case k_all_IntrinsicKind:
             return coalesce_vector<bool>(arguments, /*startingState=*/true,
-                                         [](bool a, bool b) { return a && b; },
+                                         Intrinsics::coalesce_all,
                                          /*finalize=*/nullptr);
         case k_not_IntrinsicKind:
             return evaluate_intrinsic<bool>(context, arguments, [](bool a) { return !a; });
