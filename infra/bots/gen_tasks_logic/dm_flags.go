@@ -862,6 +862,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 	if b.matchGpu("Adreno[3456][0-9][0-9]") { // disable broken tests on Adreno 3/4/5/6xx
 		skip("_", "tests", "_", "DSLFPTest_SwitchStatement")  // skia:11891
+		skip("_", "tests", "_", "SkSLArrayComparison_GPU")    // skia:12332
 		skip("_", "tests", "_", "SkSLMatrixToVectorCast_GPU") // skia:12192
 		skip("_", "tests", "_", "SkSLStructsInFunctions_GPU") // skia:11929
 	}
