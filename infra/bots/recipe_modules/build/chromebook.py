@@ -9,7 +9,7 @@ IMAGES = {
     # Used to build ChromeOS for Pixelbook in Debian9, to align GLIBC versions.
     'Debian9': (
         'gcr.io/skia-public/debian9@sha256:'
-        'f48edc56b621a44ee2f985555f9b09c2802da15d56bb4e43666faabbec80d569'),
+        '7bdcb25e8c37597acd254b0c5b4ff8d004745eddede3363213bcc06fb0feace3'),
 }
 
 def compile_fn(api, checkout_root, out_dir):
