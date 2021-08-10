@@ -28,9 +28,9 @@ static bool rotate(const SkDCubic& cubic, int zero, int index, SkDCubic& rotPath
         }
         return true;
     }
-    for (int index = 0; index < 4; ++index) {
-        rotPath[index].fX = cubic[index].fX * dx + cubic[index].fY * dy;
-        rotPath[index].fY = cubic[index].fY * dx - cubic[index].fX * dy;
+    for (int i = 0; i < 4; ++i) {
+        rotPath[i].fX = cubic[i].fX * dx + cubic[i].fY * dy;
+        rotPath[i].fY = cubic[i].fY * dx - cubic[i].fX * dy;
     }
     return true;
 }

@@ -201,9 +201,9 @@ bool SkOpEdgeBuilder::walk() {
                 break;
             case SkPath::kQuad_Verb:
                 {
-                    SkVector v1 = pointsPtr[1] - pointsPtr[0];
-                    SkVector v2 = pointsPtr[2] - pointsPtr[1];
-                    if (v1.dot(v2) < 0) {
+                    SkVector vec1 = pointsPtr[1] - pointsPtr[0];
+                    SkVector vec2 = pointsPtr[2] - pointsPtr[1];
+                    if (vec1.dot(vec2) < 0) {
                         SkPoint pair[5];
                         if (SkChopQuadAtMaxCurvature(pointsPtr, pair) == 1) {
                             goto addOneQuad;
@@ -230,10 +230,10 @@ bool SkOpEdgeBuilder::walk() {
                 fContourBuilder.addQuad(pointsPtr);
                 break;
             case SkPath::kConic_Verb: {
-                SkVector v1 = pointsPtr[1] - pointsPtr[0];
-                SkVector v2 = pointsPtr[2] - pointsPtr[1];
+                SkVector vec1 = pointsPtr[1] - pointsPtr[0];
+                SkVector vec2 = pointsPtr[2] - pointsPtr[1];
                 SkScalar weight = *weightPtr++;
-                if (v1.dot(v2) < 0) {
+                if (vec1.dot(vec2) < 0) {
                     // FIXME: max curvature for conics hasn't been implemented; use placeholder
                     SkScalar maxCurvature = SkFindQuadMaxCurvature(pointsPtr);
                     if (0 < maxCurvature && maxCurvature < 1) {

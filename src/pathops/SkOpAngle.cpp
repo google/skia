@@ -1042,9 +1042,9 @@ void SkOpAngle::setSpans() {
             }
             // OPTIMIZE: could avoid call for t == startT, endT
             SkDPoint pt = dcubic_xy_at_t(pts, segment->weight(), testT);
-            SkLineParameters tangentPart;
-            tangentPart.cubicEndPoints(fPart.fCurve.fCubic);
-            double testSide = tangentPart.pointDistance(pt);
+            SkLineParameters testPart;
+            testPart.cubicEndPoints(fPart.fCurve.fCubic);
+            double testSide = testPart.pointDistance(pt);
             if (fabs(bestSide) < fabs(testSide)) {
                 bestSide = testSide;
             }

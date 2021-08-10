@@ -177,15 +177,15 @@ static void add_notrak_attr(CFMutableDictionaryRef attr) {
 }
 
 SkUniqueCFRef<CTFontRef> SkCTFontCreateExactCopy(CTFontRef baseFont, CGFloat textSize,
-                                                 OpszVariation opsz)
+                                                 OpszVariation opszVariation)
 {
     SkUniqueCFRef<CFMutableDictionaryRef> attr(
     CFDictionaryCreateMutable(kCFAllocatorDefault, 0,
                               &kCFTypeDictionaryKeyCallBacks,
                               &kCFTypeDictionaryValueCallBacks));
 
-    if (opsz.isSet) {
-        add_opsz_attr(attr.get(), opsz.value);
+    if (opszVariation.isSet) {
+        add_opsz_attr(attr.get(), opszVariation.value);
     } else {
         // On (at least) 10.10 though 10.14 the default system font was SFNSText/SFNSDisplay.
         // The CTFont is backed by both; optical size < 20 means SFNSText else SFNSDisplay.

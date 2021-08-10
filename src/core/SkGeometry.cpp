@@ -13,6 +13,7 @@
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPointPriv.h"
 
+#include <algorithm>
 #include <tuple>
 #include <utility>
 
@@ -525,13 +526,8 @@ void SkChopCubicAt(const SkPoint src[4], SkPoint dst[],
                    const SkScalar tValues[], int tCount) {
     using float2 = skvx::Vec<2,float>;
 
-#ifdef SK_DEBUG
-    float lastT = 0;
-    for (int i = 0; i < tCount; i++) {
-        SkASSERT(lastT <= tValues[i] && tValues[i] <= 1);
-        lastT = tValues[i];
-    }
-#endif
+    SkASSERT(std::all_of(tValues, tValues + tCount, [](SkScalar t) { return t >= 0 && t <= 1; }));
+    SkASSERT(std::is_sorted(tValues, tValues + tCount));
 
     if (dst) {
         if (tCount == 0) { // nothing to chop
