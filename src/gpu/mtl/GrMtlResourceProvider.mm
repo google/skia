@@ -106,9 +106,9 @@ void GrMtlResourceProvider::PipelineStateCache::release() {
 GrMtlPipelineState* GrMtlResourceProvider::PipelineStateCache::refPipelineState(
         const GrProgramDesc& desc,
         const GrProgramInfo& programInfo,
-        Stats::ProgramCacheResult* stat) {
+        Stats::ProgramCacheResult* statPtr) {
 
-    if (!stat) {
+    if (!statPtr) {
         // If stat is NULL we are using inline compilation rather than through DDL,
         // so we need to track those stats as well.
         GrThreadSafePipelineBuilder::Stats::ProgramCacheResult stat;
@@ -120,7 +120,7 @@ GrMtlPipelineState* GrMtlResourceProvider::PipelineStateCache::refPipelineState(
         }
         return tmp;
     } else {
-        return this->onRefPipelineState(desc, programInfo, stat);
+        return this->onRefPipelineState(desc, programInfo, statPtr);
     }
 }
 

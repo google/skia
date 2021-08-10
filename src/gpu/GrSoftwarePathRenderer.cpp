@@ -315,10 +315,9 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
         args.fShape->writeUnstyledKey(&builder[7]);
     }
 
-    sk_sp<GrTextureProxy> proxy;
     GrSurfaceProxyView view;
     if (useCache) {
-        auto proxy = fProxyProvider->findOrCreateProxyByUniqueKey(maskKey);
+        sk_sp<GrTextureProxy> proxy = fProxyProvider->findOrCreateProxyByUniqueKey(maskKey);
         if (proxy) {
             GrSwizzle swizzle = args.fSurfaceDrawContext->caps()->getReadSwizzle(
                     proxy->backendFormat(), GrColorType::kAlpha_8);

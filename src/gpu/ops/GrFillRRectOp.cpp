@@ -151,8 +151,6 @@ GrOp::Owner FillRRectOp::Make(GrRecordingContext* ctx,
                               const SkRRect& rrect,
                               const SkRect& localRect,
                               GrAA aa) {
-    using Helper = GrSimpleMeshDrawOpHelper;
-
     const GrCaps* caps = ctx->priv().caps();
 
     if (!caps->drawInstancedSupport()) {

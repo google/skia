@@ -144,11 +144,12 @@ DrawAtlasOp::DrawAtlasOp(GrProcessorSet* processorSet, const SkPMColor4f& color,
         // Copy colors if necessary
         if (colors) {
             // convert to GrColor
-            SkColor color = colors[spriteIndex];
+            SkColor spriteColor = colors[spriteIndex];
             if (paintAlpha != 255) {
-                color = SkColorSetA(color, SkMulDiv255Round(SkColorGetA(color), paintAlpha));
+                spriteColor = SkColorSetA(spriteColor,
+                                          SkMulDiv255Round(SkColorGetA(spriteColor), paintAlpha));
             }
-            GrColor grColor = SkColorToPremulGrColor(color);
+            GrColor grColor = SkColorToPremulGrColor(spriteColor);
 
             *(reinterpret_cast<GrColor*>(currVertex + sizeof(SkPoint))) = grColor;
             *(reinterpret_cast<GrColor*>(currVertex + vertexStride + sizeof(SkPoint))) = grColor;

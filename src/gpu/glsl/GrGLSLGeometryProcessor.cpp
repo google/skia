@@ -239,9 +239,9 @@ void ProgramImpl::emitTransformCode(GrGLSLVertexBuilder* vb, GrGLSLUniformHandle
                 // or a parent varying. Getting here means this FP was sampled with a uniform matrix
                 // but all uses of coords below here in the FP hierarchy are beneath additional
                 // matrix samples and thus this node wasn't assigned a varying.
-                GrShaderVar uniform = uniformHandler->liftUniformToVertexShader(
+                GrShaderVar parentUniform = uniformHandler->liftUniformToVertexShader(
                         *base->parent(), SkString(SkSL::SampleUsage::MatrixUniformName()));
-                transformExpression.appendf(" * %s", uniform.getName().c_str());
+                transformExpression.appendf(" * %s", parentUniform.getName().c_str());
             } else if (base->sampleUsage().isFragCoord()) {
                 // Our chain of matrices starts here and is based on the device space position.
                 break;

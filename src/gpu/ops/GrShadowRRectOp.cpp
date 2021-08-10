@@ -577,8 +577,8 @@ private:
 
                 const uint16_t* primIndices = circle_type_to_indices(isStroked);
                 const int primIndexCount = circle_type_to_index_count(isStroked);
-                for (int i = 0; i < primIndexCount; ++i) {
-                    *indices++ = primIndices[i] + currStartVertex;
+                for (int j = 0; j < primIndexCount; ++j) {
+                    *indices++ = primIndices[j] + currStartVertex;
                 }
 
                 currStartVertex += circle_type_to_vert_count(isStroked);
@@ -588,8 +588,8 @@ private:
 
                 const uint16_t* primIndices = rrect_type_to_indices(args.fType);
                 const int primIndexCount = rrect_type_to_index_count(args.fType);
-                for (int i = 0; i < primIndexCount; ++i) {
-                    *indices++ = primIndices[i] + currStartVertex;
+                for (int j = 0; j < primIndexCount; ++j) {
+                    *indices++ = primIndices[j] + currStartVertex;
                 }
 
                 currStartVertex += rrect_type_to_vert_count(args.fType);
