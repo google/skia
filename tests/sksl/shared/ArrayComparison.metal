@@ -18,7 +18,7 @@ struct Outputs {
 template <typename T1, typename T2, size_t N>
 bool operator==(thread const array<T1, N>& left, thread const array<T2, N>& right) {
     for (size_t index = 0; index < N; ++index) {
-        if (!(left[index] == right[index])) {
+        if (!all(left[index] == right[index])) {
             return false;
         }
     }
@@ -42,9 +42,12 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     array<float, 4> f1 = array<float, 4>{1.0, 2.0, 3.0, 4.0};
     array<float, 4> f2 = array<float, 4>{1.0, 2.0, 3.0, 4.0};
     array<float, 4> f3 = array<float, 4>{1.0, 2.0, 3.0, -4.0};
+    array<int3, 2> v1 = array<int3, 2>{int3(1, 2, 3), int3(4, 5, 6)};
+    array<int3, 2> v2 = array<int3, 2>{int3(1, 2, 3), int3(4, 5, 6)};
+    array<int3, 2> v3 = array<int3, 2>{int3(1, 2, 3), int3(4, 5, -6)};
     array<S, 3> s1 = array<S, 3>{S{1, 2}, S{3, 4}, S{5, 6}};
     array<S, 3> s2 = array<S, 3>{S{1, 2}, S{0, 0}, S{5, 6}};
     array<S, 3> s3 = array<S, 3>{S{1, 2}, S{3, 4}, S{5, 6}};
-    _out.sk_FragColor = ((f1 == f2 && f1 != f3) && s1 != s2) && s3 == s1 ? _uniforms.colorGreen : _uniforms.colorRed;
+    _out.sk_FragColor = ((((f1 == f2 && f1 != f3) && v1 == v2) && v1 != v3) && s1 != s2) && s3 == s1 ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }
