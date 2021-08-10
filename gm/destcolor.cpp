@@ -48,17 +48,15 @@ private:
     void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
     bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
 
-    class Impl : public ProgramImpl {
-        void emitCode(EmitArgs& args) override {
-            SkString result = this->invokeChild(0, args);
-            args.fFragBuilder->codeAppendf("return (half4(1) - (%s)).rgb1;", result.c_str());
-        }
-        void onSetData(const GrGLSLProgramDataManager& pdman,
-                       const GrFragmentProcessor& processor) override {
-        }
-    };
-
     std::unique_ptr<ProgramImpl> onMakeProgramImpl() const override {
+        class Impl : public ProgramImpl {
+        public:
+            void emitCode(EmitArgs& args) override {
+                SkString result = this->invokeChild(0, args);
+                args.fFragBuilder->codeAppendf("return (half4(1) - (%s)).rgb1;", result.c_str());
+            }
+        };
+
         return std::make_unique<Impl>();
     }
 

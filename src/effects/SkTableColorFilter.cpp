@@ -173,6 +173,7 @@ std::unique_ptr<GrFragmentProcessor::ProgramImpl> ColorTableEffect::onMakeProgra
                     inputColor.c_str(), r.c_str(), g.c_str(), b.c_str(), a.c_str());
         }
     };
+
     return std::make_unique<Impl>();
 }
 

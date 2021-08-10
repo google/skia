@@ -31,22 +31,13 @@ public:
                                                      bool convolveAlpha,
                                                      const GrCaps&);
 
-    const SkIRect& bounds() const { return fBounds; }
-    SkISize kernelSize() const { return fKernel.size(); }
-    SkVector kernelOffset() const { return fKernelOffset; }
-    bool kernelIsSampled() const { return fKernel.isSampled(); }
-    const float *kernel() const { return fKernel.array().data(); }
-    float kernelSampleGain() const { return fKernel.biasAndGain().fGain; }
-    float kernelSampleBias() const { return fKernel.biasAndGain().fBias; }
-    float gain() const { return fGain; }
-    float bias() const { return fBias; }
-    bool convolveAlpha() const { return fConvolveAlpha; }
-
     const char* name() const override { return "MatrixConvolution"; }
 
     std::unique_ptr<GrFragmentProcessor> clone() const override;
 
 private:
+    class Impl;
+
     /**
      * Small kernels are represented as float-arrays and uploaded as uniforms.
      * Large kernels go over the uniform limit and are uploaded as textures and sampled.
@@ -116,7 +107,6 @@ private:
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
-    SkIRect          fBounds;
     KernelWrapper    fKernel;
     float            fGain;
     float            fBias;

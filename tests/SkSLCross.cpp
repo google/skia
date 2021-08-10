@@ -44,39 +44,44 @@ public:
             , fA(a), fB(b) {
     }
 
-private:
     const char* name() const override { return "VisualizeCrossProductSignFP"; }
+
     std::unique_ptr<GrFragmentProcessor> clone() const override {
         return std::unique_ptr<GrFragmentProcessor>(new VisualizeCrossProductSignFP(fA, fB));
     }
+
+private:
     void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
     bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
 
-    class Impl : public ProgramImpl {
-        void emitCode(EmitArgs& args) override {
-            auto& fp = args.fFp.cast<VisualizeCrossProductSignFP>();
-            const char* a, *b;
-            fAUniform = args.fUniformHandler->addUniform(&fp, kFragment_GrShaderFlag,
-                                                         GrSLType::kFloat2_GrSLType, "a", &a);
-            fBUniform = args.fUniformHandler->addUniform(&fp, kFragment_GrShaderFlag,
-                                                         GrSLType::kFloat2_GrSLType, "b", &b);
-            args.fFragBuilder->codeAppendf(R"(
+    std::unique_ptr<ProgramImpl> onMakeProgramImpl() const override {
+        class Impl : public ProgramImpl {
+        public:
+            void emitCode(EmitArgs& args) override {
+                auto& fp = args.fFp.cast<VisualizeCrossProductSignFP>();
+                const char *a, *b;
+                fAUniform = args.fUniformHandler->addUniform(&fp, kFragment_GrShaderFlag,
+                                                             GrSLType::kFloat2_GrSLType, "a", &a);
+                fBUniform = args.fUniformHandler->addUniform(&fp, kFragment_GrShaderFlag,
+                                                             GrSLType::kFloat2_GrSLType, "b", &b);
+                args.fFragBuilder->codeAppendf(R"(
                     float crossProduct = cross(%s, %s);
                     float2 visualization = clamp(float2(-sign(crossProduct), sign(crossProduct)),
                                                  float2(0), float2(1));
-                    return half2(visualization).xy01;)", a, b);
-        }
-        void onSetData(const GrGLSLProgramDataManager& pdman,
-                       const GrFragmentProcessor& processor) override {
-            const auto& fp = processor.cast<VisualizeCrossProductSignFP>();
-            pdman.set2f(fAUniform, fp.fA.x(), fp.fA.y());
-            pdman.set2f(fBUniform, fp.fB.x(), fp.fB.y());
-        }
-        GrGLSLUniformHandler::UniformHandle fAUniform;
-        GrGLSLUniformHandler::UniformHandle fBUniform;
-    };
+                return half2(visualization).xy01;)", a, b);
+            }
 
-    std::unique_ptr<ProgramImpl> onMakeProgramImpl() const override {
+        private:
+            void onSetData(const GrGLSLProgramDataManager& pdman,
+                           const GrFragmentProcessor& processor) override {
+                const auto& fp = processor.cast<VisualizeCrossProductSignFP>();
+                pdman.set2f(fAUniform, fp.fA.x(), fp.fA.y());
+                pdman.set2f(fBUniform, fp.fB.x(), fp.fB.y());
+            }
+            GrGLSLUniformHandler::UniformHandle fAUniform;
+            GrGLSLUniformHandler::UniformHandle fBUniform;
+        };
+
         return std::make_unique<Impl>();
     }
     const SkVector fA, fB;

@@ -52,6 +52,8 @@ public:
     static constexpr int kMaxKernelRadius = 12;
 
 private:
+    class Impl;
+
     GrGaussianConvolutionFragmentProcessor(std::unique_ptr<GrFragmentProcessor>,
                                            Direction,
                                            int halfWidth,
@@ -82,8 +84,6 @@ private:
     float                 fOffsets[SkAlign4(kMaxKernelWidth)];
     int                   fRadius;
     Direction             fDirection;
-
-    class Impl;
 
     using INHERITED = GrFragmentProcessor;
 };

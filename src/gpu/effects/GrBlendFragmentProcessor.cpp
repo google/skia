@@ -38,8 +38,6 @@ public:
 
     std::unique_ptr<GrFragmentProcessor> clone() const override;
 
-    SkBlendMode getMode() const { return fMode; }
-
 private:
     BlendFragmentProcessor(std::unique_ptr<GrFragmentProcessor> src,
                            std::unique_ptr<GrFragmentProcessor> dst,
@@ -171,15 +169,6 @@ private:
 
 /////////////////////////////////////////////////////////////////////
 
-class GLBlendFragmentProcessor : public GrFragmentProcessor::ProgramImpl {
-public:
-    void emitCode(EmitArgs&) override;
-
-private:
-    using INHERITED = ProgramImpl;
-};
-
-/////////////////////////////////////////////////////////////////////
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(BlendFragmentProcessor);
 
@@ -206,25 +195,28 @@ std::unique_ptr<GrFragmentProcessor> BlendFragmentProcessor::clone() const {
 }
 
 std::unique_ptr<GrFragmentProcessor::ProgramImpl> BlendFragmentProcessor::onMakeProgramImpl() const {
-    return std::make_unique<GLBlendFragmentProcessor>();
-}
+    class Impl : public ProgramImpl {
+    public:
+        void emitCode(EmitArgs& args) override {
+            GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
+            const BlendFragmentProcessor& bfp = args.fFp.cast<BlendFragmentProcessor>();
+            SkBlendMode mode = bfp.fMode;
 
-/////////////////////////////////////////////////////////////////////
+            fragBuilder->codeAppendf("// Blend mode: %s\n", SkBlendMode_Name(mode));
 
-void GLBlendFragmentProcessor::emitCode(EmitArgs& args) {
-    GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-    const BlendFragmentProcessor& cs = args.fFp.cast<BlendFragmentProcessor>();
-    SkBlendMode mode = cs.getMode();
+            // Invoke src/dst with our input color (or substitute input color if no child FP)
+            SkString srcColor = this->invokeChild(0, args);
+            SkString dstColor = this->invokeChild(1, args);
 
-    fragBuilder->codeAppendf("// Blend mode: %s\n", SkBlendMode_Name(mode));
+            // Blend src and dst colors together.
+            fragBuilder->codeAppendf("return %s(%s, %s);",
+                                     GrGLSLBlend::BlendFuncName(mode),
+                                     srcColor.c_str(),
+                                     dstColor.c_str());
+        }
+    };
 
-    // Invoke src/dst with our input color (or substitute input color if no child FP)
-    SkString srcColor = this->invokeChild(0, args);
-    SkString dstColor = this->invokeChild(1, args);
-
-    // Blend src and dst colors together.
-    fragBuilder->codeAppendf("return %s(%s, %s);", GrGLSLBlend::BlendFuncName(mode),
-                             srcColor.c_str(), dstColor.c_str());
+    return std::make_unique<Impl>();
 }
 
 //////////////////////////////////////////////////////////////////////////////

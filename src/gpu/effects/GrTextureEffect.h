@@ -113,13 +113,14 @@ public:
     class Impl : public ProgramImpl {
     public:
         void emitCode(EmitArgs&) override;
-        void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
 
         void setSamplerHandle(GrGLSLShaderBuilder::SamplerHandle handle) {
             fSamplerHandle = handle;
         }
 
     private:
+        void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
+
         UniformHandle fSubsetUni;
         UniformHandle fClampUni;
         UniformHandle fIDimsUni;

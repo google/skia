@@ -272,7 +272,6 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::SwizzleOutput(
         }
 
         const char* name() const override { return "Swizzle"; }
-        const GrSwizzle& swizzle() const { return fSwizzle; }
 
         std::unique_ptr<GrFragmentProcessor> clone() const override {
             return Make(this->childProcessor(0)->clone(), fSwizzle);
@@ -286,20 +285,20 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::SwizzleOutput(
         }
 
         std::unique_ptr<ProgramImpl> onMakeProgramImpl() const override {
-            class GLFP : public ProgramImpl {
+            class Impl : public ProgramImpl {
             public:
                 void emitCode(EmitArgs& args) override {
                     SkString childColor = this->invokeChild(0, args);
 
                     const SwizzleFragmentProcessor& sfp = args.fFp.cast<SwizzleFragmentProcessor>();
-                    const GrSwizzle& swizzle = sfp.swizzle();
+                    const GrSwizzle& swizzle = sfp.fSwizzle;
                     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
                     fragBuilder->codeAppendf("return %s.%s;",
                                              childColor.c_str(), swizzle.asString().c_str());
                 }
             };
-            return std::make_unique<GLFP>();
+            return std::make_unique<Impl>();
         }
 
         void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {
@@ -352,7 +351,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MakeInputPremulAndMulB
         }
 
         std::unique_ptr<ProgramImpl> onMakeProgramImpl() const override {
-            class GLFP : public ProgramImpl {
+            class Impl : public ProgramImpl {
             public:
                 void emitCode(EmitArgs& args) override {
                     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
@@ -362,7 +361,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MakeInputPremulAndMulB
                     fragBuilder->codeAppendf("return color * %s.a;", args.fInputColor);
                 }
             };
-            return std::make_unique<GLFP>();
+            return std::make_unique<Impl>();
         }
 
         void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
@@ -471,7 +470,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::Compose(
 
     private:
         std::unique_ptr<ProgramImpl> onMakeProgramImpl() const override {
-            class GLFP : public ProgramImpl {
+            class Impl : public ProgramImpl {
             public:
                 void emitCode(EmitArgs& args) override {
                     SkString result = this->invokeChild(1, args);         // g(x)
@@ -479,7 +478,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::Compose(
                     args.fFragBuilder->codeAppendf("return %s;", result.c_str());
                 }
             };
-            return std::make_unique<GLFP>();
+            return std::make_unique<Impl>();
         }
 
         ComposeProcessor(std::unique_ptr<GrFragmentProcessor> f,
@@ -601,14 +600,14 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::SurfaceColor() {
 
     private:
         std::unique_ptr<ProgramImpl> onMakeProgramImpl() const override {
-            class GLFP : public ProgramImpl {
+            class Impl : public ProgramImpl {
             public:
                 void emitCode(EmitArgs& args) override {
                     const char* dstColor = args.fFragBuilder->dstColor();
                     args.fFragBuilder->codeAppendf("return %s;", dstColor);
                 }
             };
-            return std::make_unique<GLFP>();
+            return std::make_unique<Impl>();
         }
 
         SurfaceColorProcessor()
@@ -902,7 +901,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::HighPrecision(
         }
 
         std::unique_ptr<ProgramImpl> onMakeProgramImpl() const override {
-            class GLFP : public ProgramImpl {
+            class Impl : public ProgramImpl {
             public:
                 void emitCode(EmitArgs& args) override {
                     SkString childColor = this->invokeChild(0, args);
@@ -911,7 +910,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::HighPrecision(
                     args.fFragBuilder->codeAppendf("return %s;", childColor.c_str());
                 }
             };
-            return std::make_unique<GLFP>();
+            return std::make_unique<Impl>();
         }
 
         void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}

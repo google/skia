@@ -123,16 +123,15 @@ private:
     explicit TestFP(const TestFP& that) : INHERITED(that) {}
 
     std::unique_ptr<ProgramImpl> onMakeProgramImpl() const override {
-        class TestGLSLFP : public ProgramImpl {
+        class Impl : public ProgramImpl {
         public:
-            TestGLSLFP() {}
             void emitCode(EmitArgs& args) override {
                 args.fFragBuilder->codeAppendf("return half4(1);");
             }
 
         private:
         };
-        return std::make_unique<TestGLSLFP>();
+        return std::make_unique<Impl>();
     }
 
     bool onIsEqual(const GrFragmentProcessor&) const override { return false; }

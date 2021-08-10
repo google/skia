@@ -38,6 +38,7 @@ public:
 
     std::unique_ptr<ProgramImpl> onMakeProgramImpl() const override {
         class Impl : public ProgramImpl {
+        public:
             void emitCode(EmitArgs& args) override {
                 fMatrixVar =
                         args.fUniformHandler->addUniform(&args.fFp,
@@ -47,6 +48,8 @@ public:
                 SkString sample = this->invokeChildWithMatrix(0, args);
                 args.fFragBuilder->codeAppendf("return %s;\n", sample.c_str());
             }
+
+        private:
             void onSetData(const GrGLSLProgramDataManager& pdman,
                            const GrFragmentProcessor& proc) override {
                 pdman.setSkMatrix(fMatrixVar, SkMatrix::Scale(1, 0.5f));
@@ -76,6 +79,7 @@ public:
 
     std::unique_ptr<ProgramImpl> onMakeProgramImpl() const override {
         class Impl : public ProgramImpl {
+        public:
             void emitCode(EmitArgs& args) override {
                 args.fFragBuilder->codeAppendf("float2 coord = %s + float2(0, 8);",
                                                args.fSampleCoord);
@@ -83,6 +87,7 @@ public:
                 args.fFragBuilder->codeAppendf("return %s;\n", sample.c_str());
             }
         };
+
         return std::make_unique<Impl>();
     }
 };
@@ -103,6 +108,7 @@ public:
 
     std::unique_ptr<ProgramImpl> onMakeProgramImpl() const override {
         class Impl : public ProgramImpl {
+        public:
             void emitCode(EmitArgs& args) override {
                 auto fb = args.fFragBuilder;
                 fb->codeAppendf("float2 coord = %s / 64.0;", args.fSampleCoord);
@@ -110,6 +116,7 @@ public:
                 fb->codeAppendf("return half2(coord).rg01;\n");
             }
         };
+
         return std::make_unique<Impl>();
     }
 };

@@ -271,7 +271,7 @@ std::unique_ptr<GrFragmentProcessor::ProgramImpl> GrMorphologyEffect::onMakeProg
             fragBuilder->codeAppendf("return color * %s;", inputColor.c_str());
         }
 
-    protected:
+    private:
         void onSetData(const GrGLSLProgramDataManager& pdman,
                        const GrFragmentProcessor& proc) override {
             const GrMorphologyEffect& m = proc.cast<GrMorphologyEffect>();
@@ -280,9 +280,9 @@ std::unique_ptr<GrFragmentProcessor::ProgramImpl> GrMorphologyEffect::onMakeProg
             }
         }
 
-    private:
         GrGLSLProgramDataManager::UniformHandle fRangeUni;
     };
+
     return std::make_unique<Impl>();
 }
 

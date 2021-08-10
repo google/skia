@@ -569,24 +569,6 @@ void SkPerlinNoiseShaderImpl::PerlinNoiseShaderContext::shadeSpan(
 
 #if SK_SUPPORT_GPU
 
-class GrGLPerlinNoise : public GrFragmentProcessor::ProgramImpl {
-public:
-    void emitCode(EmitArgs&) override;
-
-    static inline void GenKey(const GrProcessor&, const GrShaderCaps&, GrProcessorKeyBuilder* b);
-
-protected:
-    void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
-
-private:
-    GrGLSLProgramDataManager::UniformHandle fStitchDataUni;
-    GrGLSLProgramDataManager::UniformHandle fBaseFrequencyUni;
-
-    using INHERITED = GrFragmentProcessor::ProgramImpl;
-};
-
-/////////////////////////////////////////////////////////////////////
-
 class GrPerlinNoise2Effect : public GrFragmentProcessor {
 public:
     static std::unique_ptr<GrFragmentProcessor> Make(
@@ -626,13 +608,22 @@ public:
     int numOctaves() const { return fNumOctaves; }
 
 private:
+    class Impl : public ProgramImpl {
+    public:
+        void emitCode(EmitArgs&) override;
+
+    private:
+        void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
+
+        GrGLSLProgramDataManager::UniformHandle fStitchDataUni;
+        GrGLSLProgramDataManager::UniformHandle fBaseFrequencyUni;
+    };
+
     std::unique_ptr<ProgramImpl> onMakeProgramImpl() const override {
-        return std::make_unique<GrGLPerlinNoise>();
+        return std::make_unique<Impl>();
     }
 
-    void onAddToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
-        GrGLPerlinNoise::GenKey(*this, caps, b);
-    }
+    void onAddToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override;
 
     bool onIsEqual(const GrFragmentProcessor& sBase) const override {
         const GrPerlinNoise2Effect& s = sBase.cast<GrPerlinNoise2Effect>();
@@ -702,7 +693,7 @@ std::unique_ptr<GrFragmentProcessor> GrPerlinNoise2Effect::TestCreate(GrProcesso
 }
 #endif
 
-void GrGLPerlinNoise::emitCode(EmitArgs& args) {
+void GrPerlinNoise2Effect::Impl::emitCode(EmitArgs& args) {
     const GrPerlinNoise2Effect& pne = args.fFp.cast<GrPerlinNoise2Effect>();
 
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
@@ -888,15 +879,25 @@ void GrGLPerlinNoise::emitCode(EmitArgs& args) {
     fragBuilder->codeAppendf("return half4(color.rgb * color.aaa, color.a);");
 }
 
-void GrGLPerlinNoise::GenKey(const GrProcessor& processor, const GrShaderCaps&,
-                             GrProcessorKeyBuilder* b) {
+void GrPerlinNoise2Effect::Impl::onSetData(const GrGLSLProgramDataManager& pdman,
+                                           const GrFragmentProcessor& processor) {
     const GrPerlinNoise2Effect& turbulence = processor.cast<GrPerlinNoise2Effect>();
 
-    uint32_t key = turbulence.numOctaves();
+    const SkVector& baseFrequency = turbulence.baseFrequency();
+    pdman.set2f(fBaseFrequencyUni, baseFrequency.fX, baseFrequency.fY);
 
-    key = key << 3; // Make room for next 3 bits
+    if (turbulence.stitchTiles()) {
+        const SkPerlinNoiseShaderImpl::StitchData& stitchData = turbulence.stitchData();
+        pdman.set2f(fStitchDataUni,
+                    SkIntToScalar(stitchData.fWidth),
+                    SkIntToScalar(stitchData.fHeight));
+    }
+}
 
-    switch (turbulence.type()) {
+void GrPerlinNoise2Effect::onAddToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
+    uint32_t key = fNumOctaves;
+    key = key << 3;  // Make room for next 3 bits
+    switch (fType) {
         case SkPerlinNoiseShaderImpl::kFractalNoise_Type:
             key |= 0x1;
             break;
@@ -907,28 +908,10 @@ void GrGLPerlinNoise::GenKey(const GrProcessor& processor, const GrShaderCaps&,
             // leave key at 0
             break;
     }
-
-    if (turbulence.stitchTiles()) {
+    if (fStitchTiles) {
         key |= 0x4; // Flip the 3rd bit if tile stitching is on
     }
-
     b->add32(key);
-}
-
-void GrGLPerlinNoise::onSetData(const GrGLSLProgramDataManager& pdman,
-                                const GrFragmentProcessor& processor) {
-    INHERITED::onSetData(pdman, processor);
-
-    const GrPerlinNoise2Effect& turbulence = processor.cast<GrPerlinNoise2Effect>();
-
-    const SkVector& baseFrequency = turbulence.baseFrequency();
-    pdman.set2f(fBaseFrequencyUni, baseFrequency.fX, baseFrequency.fY);
-
-    if (turbulence.stitchTiles()) {
-        const SkPerlinNoiseShaderImpl::StitchData& stitchData = turbulence.stitchData();
-        pdman.set2f(fStitchDataUni, SkIntToScalar(stitchData.fWidth),
-                                    SkIntToScalar(stitchData.fHeight));
-    }
 }
 
 /////////////////////////////////////////////////////////////////////

@@ -20,7 +20,6 @@ public:
 
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "MatrixEffect"; }
-    const SkMatrix& matrix() const { return fMatrix; }
 
 private:
     GrMatrixEffect(const GrMatrixEffect& src);

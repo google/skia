@@ -37,7 +37,9 @@ public:
      * to the view matrix or untransformed positions in the fragment shader).
      */
     static GrFPResult Make(std::unique_ptr<GrFragmentProcessor> inputFP,
-                           GrClipEdgeType edgeType, int n, const SkScalar edges[]) {
+                           GrClipEdgeType edgeType,
+                           int n,
+                           const float edges[]) {
         if (n <= 0 || n > kMaxEdges) {
             return GrFPFailure(std::move(inputFP));
         }
@@ -57,12 +59,6 @@ public:
     const char* name() const override { return "ConvexPoly"; }
     std::unique_ptr<GrFragmentProcessor> clone() const override;
 
-    GrClipEdgeType getEdgeType() const { return fEdgeType; }
-
-    int getEdgeCount() const { return fEdgeCount; }
-
-    const SkScalar* getEdges() const { return fEdges; }
-
 private:
     GrConvexPolyEffect(std::unique_ptr<GrFragmentProcessor> inputFP,
                        GrClipEdgeType edgeType,
@@ -75,9 +71,9 @@ private:
 
     bool onIsEqual(const GrFragmentProcessor& other) const override;
 
-    GrClipEdgeType fEdgeType;
-    int            fEdgeCount;
-    SkScalar       fEdges[3 * kMaxEdges];
+    GrClipEdgeType                 fEdgeType;
+    int                            fEdgeCount;
+    std::array<float, 3*kMaxEdges> fEdges;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 

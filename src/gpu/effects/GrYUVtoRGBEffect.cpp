@@ -239,10 +239,8 @@ SkString GrYUVtoRGBEffect::onDumpInfo() const {
 #endif
 
 std::unique_ptr<GrFragmentProcessor::ProgramImpl> GrYUVtoRGBEffect::onMakeProgramImpl() const {
-    class GrGLSLYUVtoRGBEffect : public ProgramImpl {
+    class Impl : public ProgramImpl {
     public:
-        GrGLSLYUVtoRGBEffect() {}
-
         void emitCode(EmitArgs& args) override {
             GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
             const GrYUVtoRGBEffect& yuvEffect = args.fFp.cast<GrYUVtoRGBEffect>();
@@ -336,8 +334,9 @@ std::unique_ptr<GrFragmentProcessor::ProgramImpl> GrYUVtoRGBEffect::onMakeProgra
         UniformHandle fColorSpaceTranslateVar;
     };
 
-    return std::make_unique<GrGLSLYUVtoRGBEffect>();
+    return std::make_unique<Impl>();
 }
+
 void GrYUVtoRGBEffect::onAddToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
     uint32_t packed = 0;
     int i = 0;

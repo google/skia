@@ -28,6 +28,7 @@ public:
 
     std::unique_ptr<ProgramImpl> onMakeProgramImpl() const override {
         class Impl : public ProgramImpl {
+        public:
             void emitCode(EmitArgs& args) override {
                 using namespace SkSL::dsl;
                 StartFragmentProcessor(this, &args);
@@ -46,6 +47,7 @@ public:
                 EndFragmentProcessor();
             }
 
+        private:
             void onSetData(const GrGLSLProgramDataManager& pdman,
                            const GrFragmentProcessor& effect) override {
                 pdman.set2f(fBlueAlphaUniform, 0.0, 1.0);

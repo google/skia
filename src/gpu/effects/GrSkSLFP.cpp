@@ -23,7 +23,7 @@
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
 
-class GrGLSLSkSLFP : public GrFragmentProcessor::ProgramImpl {
+class GrSkSLFP::Impl : public ProgramImpl {
 public:
     void emitCode(EmitArgs& args) override {
         const GrSkSLFP& fp            = args.fFp.cast<GrSkSLFP>();
@@ -31,7 +31,7 @@ public:
 
         class FPCallbacks : public SkSL::PipelineStage::Callbacks {
         public:
-            FPCallbacks(GrGLSLSkSLFP* self,
+            FPCallbacks(Impl* self,
                         EmitArgs& args,
                         const char* inputColor,
                         const SkSL::Context& context,
@@ -152,7 +152,7 @@ public:
                 return String(fSelf->invokeChild(index, src.c_str(), dst.c_str(), fArgs).c_str());
             }
 
-            GrGLSLSkSLFP*                 fSelf;
+            Impl*                         fSelf;
             EmitArgs&                     fArgs;
             const char*                   fInputColor;
             const SkSL::Context&          fContext;
@@ -220,6 +220,7 @@ public:
                 program, coords, args.fInputColor, args.fDestColor, &callbacks);
     }
 
+private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
                    const GrFragmentProcessor& _proc) override {
         using Type = SkRuntimeEffect::Uniform::Type;
@@ -345,7 +346,7 @@ void GrSkSLFP::setDestColorFP(std::unique_ptr<GrFragmentProcessor> destColorFP) 
 }
 
 std::unique_ptr<GrFragmentProcessor::ProgramImpl> GrSkSLFP::onMakeProgramImpl() const {
-    return std::make_unique<GrGLSLSkSLFP>();
+    return std::make_unique<Impl>();
 }
 
 void GrSkSLFP::onAddToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {

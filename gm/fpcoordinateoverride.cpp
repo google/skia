@@ -58,17 +58,18 @@ private:
     using INHERITED = GrFragmentProcessor;
 };
 
-class GLSLSampleCoordEffect : public GrFragmentProcessor::ProgramImpl {
-    void emitCode(EmitArgs& args) override {
-        GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-        SkString sample1 = this->invokeChild(0, args, "float2(sk_FragCoord.x, sk_FragCoord.y)");
-        SkString sample2 = this->invokeChild(0, args, "float2(sk_FragCoord.x, 512-sk_FragCoord.y)");
-        fragBuilder->codeAppendf("return (%s + %s) / 2;\n", sample1.c_str(), sample2.c_str());
-    }
-};
-
 std::unique_ptr<GrFragmentProcessor::ProgramImpl> SampleCoordEffect::onMakeProgramImpl() const {
-    return std::make_unique<GLSLSampleCoordEffect>();
+    class Impl : public ProgramImpl {
+    public:
+        void emitCode(EmitArgs& args) override {
+            GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
+            SkString s1 = this->invokeChild(0, args, "float2(sk_FragCoord.x, sk_FragCoord.y)");
+            SkString s2 = this->invokeChild(0, args, "float2(sk_FragCoord.x, 512-sk_FragCoord.y)");
+            fragBuilder->codeAppendf("return (%s + %s) / 2;\n", s1.c_str(), s2.c_str());
+        }
+    };
+
+    return std::make_unique<Impl>();
 }
 
 DEF_SIMPLE_GPU_GM_BG(fpcoordinateoverride, rContext, canvas, 512, 512,

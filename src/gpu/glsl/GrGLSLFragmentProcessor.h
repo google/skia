@@ -163,7 +163,7 @@ public:
         SkSTArray<4, ProgramImpl*, true> fFPStack;
     };
 
-protected:
+private:
     /**
      * A ProgramImpl instance can be reused with any GrFragmentProcessor that produces the same
      * the same key; this function reads data from a GrFragmentProcessor and uploads any
@@ -173,7 +173,6 @@ protected:
      */
     virtual void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) {}
 
-private:
     // The (mangled) name of our entry-point function
     SkString fFunctionName;
 

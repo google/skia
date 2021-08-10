@@ -160,6 +160,8 @@ public:
     std::unique_ptr<GrFragmentProcessor> clone() const override;
 
 private:
+    class Impl;
+
     GrSkSLFP(sk_sp<SkRuntimeEffect> effect, const char* name, OptFlags optFlags);
     GrSkSLFP(const GrSkSLFP& other);
 
@@ -372,8 +374,6 @@ private:
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     using INHERITED = GrFragmentProcessor;
-
-    friend class GrGLSLSkSLFP;
 
     friend class GrSkSLFPFactory;
 };

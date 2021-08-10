@@ -63,6 +63,8 @@ GrModulateAtlasCoverageEffect::onMakeProgramImpl() const {
                            coverageMaybeInvertName, coverageMaybeInvertName);
             f->codeAppendf("return %s * coverage;", inputColor.c_str());
         }
+
+    private:
         void onSetData(const GrGLSLProgramDataManager& pdman,
                        const GrFragmentProcessor& processor) override {
             auto fp = processor.cast<GrModulateAtlasCoverageEffect>();
@@ -78,5 +80,6 @@ GrModulateAtlasCoverageEffect::onMakeProgramImpl() const {
         UniformHandle fBoundsUniform;
         UniformHandle fCoverageMaybeInvertUniform;
     };
+
     return std::make_unique<Impl>();
 }
