@@ -80,9 +80,6 @@ void Device::onClipRegion(const SkRegion& globalRgn, SkClipOp op) {
 void Device::onReplaceClip(const SkIRect& rect) {
 }
 
-void Device::onSetDeviceClipRestriction(SkIRect* mutableClipRestriction) {
-}
-
 bool Device::onClipIsAA() const {
     return false;
 }
