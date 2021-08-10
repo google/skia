@@ -1,5 +1,8 @@
 #!/usr/bin/env lucicfg
 
+# Enable LUCI Realms support.
+lucicfg.enable_experiment("crbug.com/1085650")
+
 luci.project(
     name = "Skia, 2D graphics library",
     buildbucket = "cr-buildbucket.appspot.com",
@@ -34,6 +37,36 @@ luci.bucket(
             "skia-skcms",
         ]),
     ],
+    bindings = [
+        luci.binding(
+            roles = "role/swarming.poolOwner",
+            groups = "project-skia-admins",
+        ),
+        luci.binding(
+            roles = "role/swarming.poolViewer",
+            groups = "chromium-swarm-view-all-bots",
+        ),
+        luci.binding(
+            roles = "role/swarming.taskViewer",
+            groups = "chromium-swarm-view-all-tasks",
+        ),
+        luci.binding(
+            roles = [
+                "role/swarming.poolUser",
+                "role/swarming.taskTriggerer",
+            ],
+            groups = [
+                "project-skia-admins",
+                "project-skia-external-task-schedulers",
+            ],
+        ),
+        luci.binding(
+            roles = "role/swarming.taskServiceAccount",
+            groups = [
+                "project-skia-external-task-accounts",
+            ],
+        ),
+    ],
 )
 
 luci.bucket(
@@ -53,4 +86,3 @@ luci.bucket(
         ]),
     ],
 )
-
