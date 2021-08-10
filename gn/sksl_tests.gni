@@ -272,6 +272,7 @@ sksl_shared_tests = [
   "/sksl/intrinsics/Trunc.sksl",
   "/sksl/intrinsics/UintBitsToFloat.sksl",
   "/sksl/intrinsics/Unpack.sksl",
+  "/sksl/shared/ArrayCast.sksl",
   "/sksl/shared/ArrayComparison.sksl",
   "/sksl/shared/ArrayConstructors.sksl",
   "/sksl/shared/ArrayIndexTypes.sksl",

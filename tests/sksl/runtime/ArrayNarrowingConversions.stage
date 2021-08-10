@@ -10,5 +10,5 @@ half4 main(float2 coords)
 	;
 	const float cf2[2] = float[2](1.0, 2.0);
 	;
-	return half4(((i2 == s2 && f2 == h2) && i2 == int[2](1, 2)) && h2 == cf2 ? colorGreen : colorRed);
+	return half4(((i2 == int[2](s2) && f2 == float[2](h2)) && i2 == int[2](1, 2)) && float[2](h2) == cf2 ? colorGreen : colorRed);
 }

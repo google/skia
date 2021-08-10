@@ -6,6 +6,7 @@
  */
 
 #include "src/sksl/ir/SkSLConstructorArray.h"
+#include "src/sksl/ir/SkSLConstructorArrayCast.h"
 
 namespace SkSL {
 
@@ -20,6 +21,20 @@ std::unique_ptr<Expression> ConstructorArray::Convert(const Context& context,
         context.fErrors.error(offset, "construction of array type '" + type.displayName() +
                                       "' is not supported");
         return nullptr;
+    }
+
+    // If there is a single argument containing an array of matching size and the types are
+    // coercible, this is actually a cast. i.e., `half[10](myFloat10Array)`. This isn't a GLSL
+    // feature, but the Pipeline stage code generator needs this functionality so that code which
+    // was originally compiled with "allow narrowing conversions" enabled can be later recompiled
+    // without narrowing conversions (we patch over these conversions with an explicit cast).
+    if (args.size() == 1) {
+        const Expression& expr = *args.front();
+        const Type& exprType = expr.type();
+
+        if (exprType.isArray() && exprType.canCoerceTo(type, /*allowNarrowing=*/true)) {
+            return ConstructorArrayCast::Make(context, offset, type, std::move(args.front()));
+        }
     }
 
     // Check that the number of constructor arguments matches the array size.
