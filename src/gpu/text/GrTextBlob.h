@@ -19,7 +19,7 @@
 #include "src/core/SkOpts.h"
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkStrikeSpec.h"
-#include "src/core/SkTInternalLList.h"
+#include "src/core/SkTLList.h"
 #include "src/core/SkTLazy.h"
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrSubRunAllocator.h"
