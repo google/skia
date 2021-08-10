@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrSurfaceContext_DEFINED
-#define GrSurfaceContext_DEFINED
+#ifndef SurfaceContext_DEFINED
+#define SurfaceContext_DEFINED
 
 #include "include/core/SkImage.h"
 #include "include/core/SkRect.h"
@@ -26,46 +26,60 @@ class GrRecordingContext;
 class GrRenderTargetProxy;
 class GrSingleOwner;
 class GrSurface;
-namespace skgpu { class SurfaceFillContext; }
 class GrSurfaceProxy;
 class GrTextureProxy;
 struct SkIPoint;
 struct SkIRect;
 
+namespace skgpu {
+
+class SurfaceFillContext;
+
 /**
  * A helper object to orchestrate commands for a particular surface
+ *
+ *            SurfaceContext
+ *                   |
+ *          SurfaceFillContext
+ *           /               \
+ *     v1::SFC               v2::SFC
+ *        |                     |
+ *        |                     |
+ *        |                     |
+ *     v1::SDC               v2::SDC
+ *
  */
-class GrSurfaceContext {
+class SurfaceContext {
 public:
-    // Makes either a GrSurfaceContext, GrFillDrawContext, or a SurfaceDrawContext, depending on
+    // Makes either a SurfaceContext, SurfaceFillContext, or a SurfaceDrawContext, depending on
     // GrRenderable and the GrImageInfo.
-    static std::unique_ptr<GrSurfaceContext> Make(GrRecordingContext*,
-                                                  const GrImageInfo&,
-                                                  const GrBackendFormat&,
-                                                  SkBackingFit = SkBackingFit::kExact,
-                                                  GrSurfaceOrigin = kTopLeft_GrSurfaceOrigin,
-                                                  GrRenderable = GrRenderable::kNo,
-                                                  int renderTargetSampleCnt = 1,
-                                                  GrMipmapped = GrMipmapped::kNo,
-                                                  GrProtected = GrProtected::kNo,
-                                                  SkBudgeted = SkBudgeted::kYes);
+    static std::unique_ptr<SurfaceContext> Make(GrRecordingContext*,
+                                                const GrImageInfo&,
+                                                const GrBackendFormat&,
+                                                SkBackingFit = SkBackingFit::kExact,
+                                                GrSurfaceOrigin = kTopLeft_GrSurfaceOrigin,
+                                                GrRenderable = GrRenderable::kNo,
+                                                int renderTargetSampleCnt = 1,
+                                                GrMipmapped = GrMipmapped::kNo,
+                                                GrProtected = GrProtected::kNo,
+                                                SkBudgeted = SkBudgeted::kYes);
 
     // Same as the above but chooses the texture format using the default format for the color type.
-    static std::unique_ptr<GrSurfaceContext> Make(GrRecordingContext*,
-                                                  const GrImageInfo&,
-                                                  SkBackingFit = SkBackingFit::kExact,
-                                                  GrSurfaceOrigin = kTopLeft_GrSurfaceOrigin,
-                                                  GrRenderable = GrRenderable::kNo,
-                                                  int renderTargetSampleCnt = 1,
-                                                  GrMipmapped = GrMipmapped::kNo,
-                                                  GrProtected = GrProtected::kNo,
-                                                  SkBudgeted = SkBudgeted::kYes);
+    static std::unique_ptr<SurfaceContext> Make(GrRecordingContext*,
+                                                const GrImageInfo&,
+                                                SkBackingFit = SkBackingFit::kExact,
+                                                GrSurfaceOrigin = kTopLeft_GrSurfaceOrigin,
+                                                GrRenderable = GrRenderable::kNo,
+                                                int renderTargetSampleCnt = 1,
+                                                GrMipmapped = GrMipmapped::kNo,
+                                                GrProtected = GrProtected::kNo,
+                                                SkBudgeted = SkBudgeted::kYes);
 
-    // If it is known that the GrSurfaceProxy is not renderable, you can directly call the the ctor
-    // here to make a GrSurfaceContext on the stack.
-    GrSurfaceContext(GrRecordingContext*, GrSurfaceProxyView readView, const GrColorInfo&);
+    // If it is known that the GrSurfaceProxy is not renderable, you can directly call the ctor
+    // here to make a SurfaceContext on the stack.
+    SurfaceContext(GrRecordingContext*, GrSurfaceProxyView readView, const GrColorInfo&);
 
-    virtual ~GrSurfaceContext() = default;
+    virtual ~SurfaceContext() = default;
 
     GrRecordingContext* recordingContext() const { return fContext; }
 
@@ -157,7 +171,7 @@ public:
         return fReadView.asRenderTargetProxyRef();
     }
 
-    virtual skgpu::SurfaceFillContext* asFillContext() { return nullptr; }
+    virtual SurfaceFillContext* asFillContext() { return nullptr; }
 
     /**
      * Rescales the contents of srcRect. The gamma in which the rescaling occurs is controlled by
@@ -176,7 +190,7 @@ public:
      * Like the above but allows the caller ot specify a destination fill context and
      * rect within that context. The dst rect must be contained by the dst or this will fail.
      */
-    bool rescaleInto(skgpu::SurfaceFillContext* dst,
+    bool rescaleInto(SurfaceFillContext* dst,
                      SkIRect dstRect,
                      SkIRect srcRect,
                      SkImage::RescaleGamma,
@@ -227,8 +241,8 @@ protected:
                          ReadPixelsContext);
 
 private:
-    friend class GrRecordingContextPriv; // for validate
-    friend class GrSurfaceProxy; // for copy
+    friend class ::GrRecordingContextPriv; // for validate
+    friend class ::GrSurfaceProxy; // for copy
 
     SkDEBUGCODE(virtual void onValidate() const {})
 
@@ -261,4 +275,6 @@ private:
     using INHERITED = SkRefCnt;
 };
 
-#endif
+} // namespace skgpu
+
+#endif // SurfaceContext_DEFINED

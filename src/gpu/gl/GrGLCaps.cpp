@@ -4223,7 +4223,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         shaderCaps->fUseNodePools = false;
     }
 
-    // skbug.com/11204. Avoid recursion issue in GrSurfaceContext::writePixels.
+    // skbug.com/11204. Avoid recursion issue in SurfaceContext::writePixels.
     if (fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO) {
         fReuseScratchTextures = false;
     }

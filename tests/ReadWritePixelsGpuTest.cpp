@@ -14,7 +14,7 @@
 #include "src/core/SkConvertPixels.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrImageInfo.h"
-#include "src/gpu/GrSurfaceContext.h"
+#include "src/gpu/SurfaceContext.h"
 #include "src/gpu/SurfaceFillContext.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "tests/Test.h"
@@ -477,7 +477,7 @@ static void gpu_read_pixels_test_driver(skiatest::Reporter* reporter,
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextReadPixels, reporter, ctxInfo) {
-    using Surface = std::unique_ptr<GrSurfaceContext>;
+    using Surface = std::unique_ptr<skgpu::SurfaceContext>;
     GrDirectContext* direct = ctxInfo.directContext();
     auto reader = std::function<GpuReadSrcFn<Surface>>(
             [direct](const Surface& surface, const SkIPoint& offset, const SkPixmap& pixels) {
@@ -502,7 +502,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextReadPixels, reporter, ctxInfo) 
         for (GrSurfaceOrigin origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
             auto factory = std::function<GpuSrcFactory<Surface>>(
                     [direct, origin, renderable](const SkPixmap& src) {
-                        auto surfContext = GrSurfaceContext::Make(
+                        auto surfContext = skgpu::SurfaceContext::Make(
                                 direct, src.info(), SkBackingFit::kExact, origin, renderable);
                         if (surfContext) {
                             surfContext->writePixels(direct, src, {0, 0});
@@ -1056,7 +1056,7 @@ static void gpu_write_pixels_test_driver(skiatest::Reporter* reporter,
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixels, reporter, ctxInfo) {
-    using Surface = std::unique_ptr<GrSurfaceContext>;
+    using Surface = std::unique_ptr<skgpu::SurfaceContext>;
     GrDirectContext* direct = ctxInfo.directContext();
     auto writer = std::function<GpuWriteDstFn<Surface>>(
             [direct](const Surface& surface, const SkIPoint& offset, const SkPixmap& pixels) {
@@ -1085,11 +1085,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixels, reporter, ctxInfo)
         for (GrSurfaceOrigin origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
             auto factory = std::function<GpuDstFactory<Surface>>(
                     [direct, origin, renderable](const SkImageInfo& info) {
-                        return GrSurfaceContext::Make(direct,
-                                                      info,
-                                                      SkBackingFit::kExact,
-                                                      origin,
-                                                      renderable);
+                        return skgpu::SurfaceContext::Make(direct,
+                                                           info,
+                                                           SkBackingFit::kExact,
+                                                           origin,
+                                                           renderable);
                     });
 
             gpu_write_pixels_test_driver(reporter, factory, writer, reader);
@@ -1138,13 +1138,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixelsMipped, reporter, ct
             for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
                 for (GrSurfaceOrigin origin : {kTopLeft_GrSurfaceOrigin,
                                                kBottomLeft_GrSurfaceOrigin}) {
-                    auto sc = GrSurfaceContext::Make(direct,
-                                                     info,
-                                                     SkBackingFit::kExact,
-                                                     origin,
-                                                     renderable,
-                                                     /*sample count*/ 1,
-                                                     GrMipmapped::kYes);
+                    auto sc = skgpu::SurfaceContext::Make(direct,
+                                                          info,
+                                                          SkBackingFit::kExact,
+                                                          origin,
+                                                          renderable,
+                                                          /*sample count*/ 1,
+                                                          GrMipmapped::kYes);
                     if (!sc) {
                         continue;
                     }
@@ -1178,10 +1178,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixelsMipped, reporter, ct
 
                     // TODO: Update this when read pixels supports reading back levels to read
                     // directly rather than using minimizing draws.
-                    auto dstSC = GrSurfaceContext::Make(direct, info,
-                                                        SkBackingFit::kExact,
-                                                        kBottomLeft_GrSurfaceOrigin,
-                                                        GrRenderable::kYes);
+                    auto dstSC = skgpu::SurfaceContext::Make(direct,
+                                                             info,
+                                                             SkBackingFit::kExact,
+                                                             kBottomLeft_GrSurfaceOrigin,
+                                                             GrRenderable::kYes);
                     SkASSERT(dstSC);
                     GrSamplerState sampler(SkFilterMode::kNearest, SkMipmapMode::kNearest);
                     for (int i = 1; i <= 1; ++i) {

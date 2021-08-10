@@ -8,11 +8,11 @@
 #ifndef SurfaceFillContext_DEFINED
 #define SurfaceFillContext_DEFINED
 
-#include "src/gpu/GrSurfaceContext.h"
+#include "src/gpu/SurfaceContext.h"
 
 namespace skgpu {
 
-class SurfaceFillContext : public GrSurfaceContext {
+class SurfaceFillContext : public SurfaceContext {
 public:
 
     SurfaceFillContext* asFillContext() override { return this; }
@@ -103,10 +103,10 @@ public:
 
 protected:
     SurfaceFillContext(GrRecordingContext* rContext,
-                            GrSurfaceProxyView readView,
-                            GrSurfaceProxyView writeView,
-                            const GrColorInfo& colorInfo)
-            : GrSurfaceContext(rContext, std::move(readView), colorInfo)
+                       GrSurfaceProxyView readView,
+                       GrSurfaceProxyView writeView,
+                       const GrColorInfo& colorInfo)
+            : SurfaceContext(rContext, std::move(readView), colorInfo)
             , fWriteView(std::move(writeView)) {
         SkASSERT(this->asSurfaceProxy() == fWriteView.proxy());
         SkASSERT(this->origin() == fWriteView.origin());
@@ -125,7 +125,7 @@ private:
                                std::array<float, 4> color,
                                bool upgradePartialToFull = false) = 0;
 
-    using INHERITED = GrSurfaceContext;
+    using INHERITED = SurfaceContext;
 };
 
 template<>

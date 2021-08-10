@@ -755,7 +755,7 @@ static sk_sp<SkSurface> create_gpu_surface_backend_render_target(GrDirectContext
 
 static void test_surface_context_clear(skiatest::Reporter* reporter,
                                        GrDirectContext* dContext,
-                                       GrSurfaceContext* surfaceContext,
+                                       skgpu::SurfaceContext* surfaceContext,
                                        uint32_t expectedValue) {
     int w = surfaceContext->width();
     int h = surfaceContext->height();
@@ -788,7 +788,7 @@ static void test_surface_context_clear(skiatest::Reporter* reporter,
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceClear_Gpu, reporter, ctxInfo) {
     auto dContext = ctxInfo.directContext();
-    // Snaps an image from a surface and then makes a GrSurfaceContext from the image's texture.
+    // Snaps an image from a surface and then makes a SurfaceContext from the image's texture.
     auto makeImageSurfaceContext = [dContext](SkSurface* surface) {
         sk_sp<SkImage> i(surface->makeImageSnapshot());
         auto gpuImage = static_cast<SkImage_Gpu*>(as_IB(i));

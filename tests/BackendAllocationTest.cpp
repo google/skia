@@ -292,13 +292,13 @@ static void check_base_readbacks(GrDirectContext* dContext,
             // TODO: we need a better way to tell a priori if readPixels will work for an
             // arbitrary colorType
 #if 0
-            ERRORF(reporter, "Couldn't readback from GrSurfaceContext for colorType: %d\n",
+            ERRORF(reporter, "Couldn't readback from SurfaceContext for colorType: %d\n",
                    colorType);
 #endif
         } else {
             auto name = SkStringPrintf("%s::readPixels",
                                        (renderableCtx == GrRenderable::kYes ? "SurfaceFillContext"
-                                                                            : "GrSurfaceContext"));
+                                                                            : "SurfaceContext"));
             check_solid_pixmap(reporter, expectedColor, actual, colorType, label, name.c_str());
         }
     }

@@ -11,8 +11,8 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrImageInfo.h"
-#include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/SurfaceContext.h"
 #include "tests/Test.h"
 
 // using anonymous namespace because these functions are used as template params.
@@ -121,7 +121,7 @@ typedef bool (*CheckFn) (uint32_t orig, uint32_t actual, float error);
 
 void read_and_check_pixels(skiatest::Reporter* reporter,
                            GrDirectContext* dContext,
-                           GrSurfaceContext* sContext,
+                           skgpu::SurfaceContext* sContext,
                            uint32_t* origData,
                            const SkImageInfo& dstInfo, CheckFn checker, float error,
                            const char* subtestName) {
@@ -187,18 +187,18 @@ static std::unique_ptr<uint32_t[]> make_data() {
     return data;
 }
 
-static std::unique_ptr<GrSurfaceContext> make_surface_context(Encoding contextEncoding,
-                                                              GrRecordingContext* rContext,
-                                                              skiatest::Reporter* reporter) {
+static std::unique_ptr<skgpu::SurfaceContext> make_surface_context(Encoding contextEncoding,
+                                                                   GrRecordingContext* rContext,
+                                                                   skiatest::Reporter* reporter) {
     GrImageInfo info(GrColorType::kRGBA_8888,
                      kPremul_SkAlphaType,
                      encoding_as_color_space(contextEncoding),
                      kW, kH);
 
-    auto sc = GrSurfaceContext::Make(rContext, info,
-                                     SkBackingFit::kExact,
-                                     kBottomLeft_GrSurfaceOrigin,
-                                     GrRenderable::kYes);
+    auto sc = skgpu::SurfaceContext::Make(rContext, info,
+                                          SkBackingFit::kExact,
+                                          kBottomLeft_GrSurfaceOrigin,
+                                          GrRenderable::kYes);
     if (!sc) {
         ERRORF(reporter, "Could not create %s surface context.", encoding_as_str(contextEncoding));
     }

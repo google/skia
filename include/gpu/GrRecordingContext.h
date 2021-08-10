@@ -27,7 +27,6 @@ class GrProgramInfo;
 class GrProxyProvider;
 class GrRecordingContextPriv;
 class GrSubRunAllocator;
-class GrSurfaceContext;
 class GrSurfaceProxy;
 class GrTextBlobCache;
 class GrThreadSafeCache;

@@ -135,7 +135,7 @@ void basic_transfer_to_test(skiatest::Reporter* reporter,
     }
 
     // We validate the results using GrGpu::readPixels, so exit if this is not supported.
-    // TODO: Do this through GrSurfaceContext once it works for all color types or support
+    // TODO: Do this through SurfaceContext once it works for all color types or support
     // kCopyToTexture2D here.
     if (GrCaps::SurfaceReadPixelsSupport::kSupported !=
         caps->surfaceSupportsReadPixels(tex.get())) {

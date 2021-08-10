@@ -22,7 +22,6 @@ class GrRecordingContext;
 class GrRenderTargetProxy;
 class GrRenderTask;
 class GrResourceProvider;
-class GrSurfaceContext;
 class GrSurfaceProxyPriv;
 class GrSurfaceProxyView;
 class GrTextureProxy;

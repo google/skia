@@ -18,8 +18,8 @@
 #include "src/gpu/GrPixmap.h"
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrProxyProvider.h"
-#include "src/gpu/GrSurfaceContext.h"
 #include "src/gpu/SkGr.h"
+#include "src/gpu/SurfaceContext.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 #include "src/image/SkImage_Base.h"
 

@@ -91,16 +91,16 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkipCopyTaskTest, reporter, ctxInfo) {
                      /*color space*/ nullptr,
                      10, 10);
 
-    auto dstSC = GrSurfaceContext::Make(dContext, info,
-                                        SkBackingFit::kExact,
-                                        kBottomLeft_GrSurfaceOrigin,
-                                        GrRenderable::kYes);
+    auto dstSC = skgpu::SurfaceContext::Make(dContext, info,
+                                             SkBackingFit::kExact,
+                                             kBottomLeft_GrSurfaceOrigin,
+                                             GrRenderable::kYes);
     dstSC->asFillContext()->clear(SkPMColor4f{1, 0, 0, 1});
 
-    auto srcSC = GrSurfaceContext::Make(dContext, info,
-                                        SkBackingFit::kExact,
-                                        kBottomLeft_GrSurfaceOrigin,
-                                        GrRenderable::kYes);
+    auto srcSC = skgpu::SurfaceContext::Make(dContext, info,
+                                             SkBackingFit::kExact,
+                                             kBottomLeft_GrSurfaceOrigin,
+                                             GrRenderable::kYes);
     srcSC->asFillContext()->clear(SkPMColor4f{0, 0, 1, 1});
 
     sk_sp<GrRenderTask> task =

@@ -302,7 +302,7 @@ static std::unique_ptr<skgpu::v1::SurfaceDrawContext> convolve_gaussian(
 // image, so there's no need to account for a proxy offset from the original input.
 static std::unique_ptr<skgpu::v1::SurfaceDrawContext> reexpand(
         GrRecordingContext* rContext,
-        std::unique_ptr<GrSurfaceContext> src,
+        std::unique_ptr<skgpu::SurfaceContext> src,
         const SkRect& srcBounds,
         SkISize dstSize,
         sk_sp<SkColorSpace> colorSpace,

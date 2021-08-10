@@ -30,7 +30,7 @@
 #if SK_GPU_V1
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
 #else
-#include "src/gpu/GrSurfaceContext.h"
+#include "src/gpu/SurfaceContext.h"
 #endif
 
 namespace {
@@ -78,7 +78,7 @@ GrAtlasTextOp::MaskType op_mask_type(GrMaskFormat grMaskFormat) {
     SkUNREACHABLE;
 }
 
-SkPMColor4f calculate_colors(GrSurfaceContext* sc,
+SkPMColor4f calculate_colors(skgpu::SurfaceContext* sc,
                              const SkPaint& paint,
                              const SkMatrixProvider& matrix,
                              GrMaskFormat grMaskFormat,

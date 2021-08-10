@@ -276,16 +276,16 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
 
     if (src->backendFormat().textureType() != GrTextureType::kExternal) {
         GrImageInfo info(GrColorType::kUnknown, kUnknown_SkAlphaType, nullptr, {width, height});
-        auto dstContext = GrSurfaceContext::Make(context,
-                                                 info,
-                                                 format,
-                                                 fit,
-                                                 origin,
-                                                 GrRenderable::kNo,
-                                                 1,
-                                                 mipMapped,
-                                                 src->isProtected(),
-                                                 budgeted);
+        auto dstContext = skgpu::SurfaceContext::Make(context,
+                                                      info,
+                                                      format,
+                                                      fit,
+                                                      origin,
+                                                      GrRenderable::kNo,
+                                                      1,
+                                                      mipMapped,
+                                                      src->isProtected(),
+                                                      budgeted);
         sk_sp<GrRenderTask> copyTask;
         if (dstContext && (copyTask = dstContext->copy(src, srcRect, dstPoint))) {
             if (outTask) {
