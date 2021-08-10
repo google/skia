@@ -435,6 +435,8 @@ inline SkBlendMode ToSkBlendMode(FT_Composite_Mode composite) {
             return SkBlendMode::kDstATop;
         case FT_COLR_COMPOSITE_XOR:
             return SkBlendMode::kXor;
+        case FT_COLR_COMPOSITE_PLUS:
+            return SkBlendMode::kPlus;
         case FT_COLR_COMPOSITE_SCREEN:
             return SkBlendMode::kScreen;
         case FT_COLR_COMPOSITE_OVERLAY:
