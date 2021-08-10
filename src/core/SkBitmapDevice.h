@@ -125,7 +125,6 @@ protected:
     void onClipShader(sk_sp<SkShader>) override;
     void onClipRegion(const SkRegion& deviceRgn, SkClipOp) override;
     void onReplaceClip(const SkIRect& rect) override;
-    void onSetDeviceClipRestriction(SkIRect* mutableClipRestriction) override;
     bool onClipIsAA() const override;
     bool onClipIsWideOpen() const override;
     void onAsRgnClip(SkRegion*) const override;

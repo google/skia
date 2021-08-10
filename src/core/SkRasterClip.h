@@ -20,17 +20,6 @@ class SkConservativeClip {
     bool            fIsRect = true;
     bool            fAA = false;
 
-    const SkIRect*  fClipRestrictionRect = nullptr;
-
-    inline void applyClipRestriction(SkRegion::Op op, SkIRect* bounds) {
-        if (op >= SkRegion::kUnion_Op && fClipRestrictionRect
-            && !fClipRestrictionRect->isEmpty()) {
-            if (!bounds->intersect(*fClipRestrictionRect)) {
-                bounds->setEmpty();
-            }
-        }
-    }
-
     enum class ClipAA : bool { kNo = false, kYes = true };
     enum class IsRect : bool { kNo = false, kYes = true };
 
@@ -50,9 +39,6 @@ public:
         fBounds = r;
         fIsRect = true;
         fAA = false;
-    }
-    void setDeviceClipRestriction(const SkIRect* rect) {
-        fClipRestrictionRect = rect;
     }
 
     void opShader(sk_sp<SkShader>) {
@@ -146,10 +132,6 @@ public:
     void validate() const {}
 #endif
 
-    void setDeviceClipRestriction(const SkIRect* rect) {
-        fClipRestrictionRect = rect;
-    }
-
     sk_sp<SkShader> clipShader() const { return fShader; }
 
 private:
@@ -159,7 +141,6 @@ private:
     // these 2 are caches based on querying the right obj based on fIsBW
     bool        fIsEmpty;
     bool        fIsRect;
-    const SkIRect*    fClipRestrictionRect = nullptr;
     // if present, this augments the clip, not replaces it
     sk_sp<SkShader> fShader;
 
@@ -191,24 +172,6 @@ private:
     bool setPath(const SkPath& path, const SkIRect& clip, bool doAA);
     bool op(const SkRasterClip&, SkRegion::Op);
     bool setConservativeRect(const SkRect& r, const SkIRect& clipR, bool isInverse);
-
-    inline void applyClipRestriction(SkRegion::Op op, SkIRect* bounds) {
-        if (op >= SkRegion::kUnion_Op && fClipRestrictionRect
-            && !fClipRestrictionRect->isEmpty()) {
-            if (!bounds->intersect(*fClipRestrictionRect)) {
-                bounds->setEmpty();
-            }
-        }
-    }
-
-    inline void applyClipRestriction(SkRegion::Op op, SkRect* bounds) {
-        if (op >= SkRegion::kUnion_Op && fClipRestrictionRect
-            && !fClipRestrictionRect->isEmpty()) {
-            if (!bounds->intersect(SkRect::Make(*fClipRestrictionRect))) {
-                bounds->setEmpty();
-            }
-        }
-    }
 };
 
 class SkAutoRasterClipValidate : SkNoncopyable {

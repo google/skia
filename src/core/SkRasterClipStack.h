@@ -137,10 +137,6 @@ public:
         }
     }
 
-    void setDeviceClipRestriction(SkIRect* mutableClipRestriction) {
-        this->writable_rc().setDeviceClipRestriction(mutableClipRestriction);
-    }
-
     void validate() const {
 #ifdef SK_DEBUG
         const SkRasterClip& clip = this->rc();

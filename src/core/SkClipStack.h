@@ -374,9 +374,6 @@ public:
     void clipShader(sk_sp<SkShader>);
     // An optimized version of clipDevRect(emptyRect, kIntersect, ...)
     void clipEmpty();
-    void setDeviceClipRestriction(const SkIRect& rect) {
-        fClipRestrictionRect = SkRect::Make(rect);
-    }
 
     void replaceClip(const SkRect& devRect, bool doAA);
 
@@ -515,8 +512,6 @@ private:
 
     SkDeque fDeque;
     int     fSaveCount;
-
-    SkRect fClipRestrictionRect = SkRect::MakeEmpty();
 
     bool internalQuickContains(const SkRect& devRect) const;
     bool internalQuickContains(const SkRRect& devRRect) const;

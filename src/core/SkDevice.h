@@ -181,9 +181,6 @@ public:
         this->onReplaceClip(rect);
     }
 
-    void androidFramework_setDeviceClipRestriction(SkIRect* mutableClipRestriction) {
-        this->onSetDeviceClipRestriction(mutableClipRestriction);
-    }
     bool clipIsWideOpen() const {
         return this->onClipIsWideOpen();
     }
@@ -220,7 +217,6 @@ protected:
     virtual void onClipShader(sk_sp<SkShader>) {}
     virtual void onClipRegion(const SkRegion& deviceRgn, SkClipOp) {}
     virtual void onReplaceClip(const SkIRect& rect) {}
-    virtual void onSetDeviceClipRestriction(SkIRect* mutableClipRestriction) {}
     virtual bool onClipIsAA() const = 0;
     virtual bool onClipIsWideOpen() const = 0;
     virtual void onAsRgnClip(SkRegion*) const = 0;
@@ -500,7 +496,6 @@ protected:
     void onClipRegion(const SkRegion& globalRgn, SkClipOp op) override;
     void onClipShader(sk_sp<SkShader> shader) override;
     void onReplaceClip(const SkIRect& rect) override;
-    void onSetDeviceClipRestriction(SkIRect* mutableClipRestriction) override;
     bool onClipIsAA() const override { return this->clip().isAA(); }
     bool onClipIsWideOpen() const override {
         return this->clip().isRect() &&
@@ -546,13 +541,10 @@ private:
 
     void resetClipStack() {
         fClipStack.reset();
-        fDeviceClipRestriction.setEmpty();
         ClipState& state = fClipStack.push_back();
         state.fClip.setRect(this->bounds());
-        state.fClip.setDeviceClipRestriction(&fDeviceClipRestriction);
     }
 
-    SkIRect fDeviceClipRestriction;
     SkSTArray<4, ClipState> fClipStack;
 
     using INHERITED = SkBaseDevice;

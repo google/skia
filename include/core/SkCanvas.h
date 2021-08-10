@@ -2319,6 +2319,7 @@ private:
     friend class SkSurface_Gpu;
 
     SkIRect fClipRestrictionRect = SkIRect::MakeEmpty();
+    int fClipRestrictionSaveCount = -1;
 
     void doSave();
     void checkForDeferredSave();

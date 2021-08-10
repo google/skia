@@ -769,20 +769,11 @@ void SkClipStack::clipPath(const SkPath& path, const SkMatrix& matrix, SkClipOp 
 void SkClipStack::clipShader(sk_sp<SkShader> shader) {
     Element element(fSaveCount, std::move(shader));
     this->pushElement(element);
-    // clipShader should not be used with expanding clip ops, so we shouldn't need to worry about
-    // the clip restriction rect either.
-    SkASSERT(fClipRestrictionRect.isEmpty());
 }
 
 void SkClipStack::replaceClip(const SkRect& rect, bool doAA) {
     Element element(fSaveCount, rect, doAA);
     this->pushElement(element);
-    // A replace is always affected by the clip restriction
-    if (!fClipRestrictionRect.isEmpty()) {
-        Element restriction(fSaveCount, fClipRestrictionRect, SkMatrix::I(), SkClipOp::kIntersect,
-                            false);
-        this->pushElement(restriction);
-    }
 }
 
 void SkClipStack::clipEmpty() {

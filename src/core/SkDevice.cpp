@@ -561,19 +561,6 @@ void SkNoPixelsDevice::onReplaceClip(const SkIRect& rect) {
     this->writableClip().setRect(deviceRect);
 }
 
-void SkNoPixelsDevice::onSetDeviceClipRestriction(SkIRect* mutableClipRestriction) {
-    if (!mutableClipRestriction || mutableClipRestriction->isEmpty()) {
-        // The subset clip restriction is gone, so just store the actual device bounds as the limit
-        fDeviceClipRestriction.setEmpty();
-    } else {
-        fDeviceClipRestriction = SkMatrixPriv::MapRect(this->globalToDevice(),
-                                                       SkRect::Make(*mutableClipRestriction))
-                                              .round();
-        // Besides affecting future ops, it acts as an immediate intersection
-        this->writableClip().opIRect(fDeviceClipRestriction, SkRegion::kIntersect_Op);
-    }
-}
-
 SkBaseDevice::ClipType SkNoPixelsDevice::onGetClipType() const {
     const auto& clip = this->clip();
     if (clip.isEmpty()) {

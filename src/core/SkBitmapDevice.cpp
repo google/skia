@@ -676,14 +676,6 @@ void SkBitmapDevice::onReplaceClip(const SkIRect& rect) {
     fRCStack.replaceClip(deviceRect.round());
 }
 
-void SkBitmapDevice::onSetDeviceClipRestriction(SkIRect* mutableClipRestriction) {
-    fRCStack.setDeviceClipRestriction(mutableClipRestriction);
-    if (!mutableClipRestriction->isEmpty()) {
-        SkRegion rgn(*mutableClipRestriction);
-        fRCStack.clipRegion(rgn, SkClipOp::kIntersect);
-    }
-}
-
 bool SkBitmapDevice::onClipIsWideOpen() const {
     const SkRasterClip& rc = fRCStack.rc();
     // If we're AA, we can't be wide-open (we would represent that as BW)

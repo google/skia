@@ -57,17 +57,6 @@ void SkClipStackDevice::onReplaceClip(const SkIRect& rect) {
     fClipStack.replaceClip(deviceRect, /*doAA=*/false);
 }
 
-void SkClipStackDevice::onSetDeviceClipRestriction(SkIRect* clipRestriction) {
-    if (clipRestriction->isEmpty()) {
-        fClipStack.setDeviceClipRestriction(*clipRestriction);
-    } else {
-        SkIPoint origin = this->getOrigin();
-        SkIRect rect = clipRestriction->makeOffset(-origin);
-        fClipStack.setDeviceClipRestriction(rect);
-        fClipStack.clipDevRect(rect, SkClipOp::kIntersect);
-    }
-}
-
 bool SkClipStackDevice::onClipIsAA() const {
     SkClipStack::B2TIter        iter(fClipStack);
     const SkClipStack::Element* element;
