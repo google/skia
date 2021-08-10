@@ -806,16 +806,16 @@ bool GrGenerateDistanceFieldFromPath(unsigned char* distanceField,
 
     // adjust distance based on winding
     for (int row = 0; row < height; ++row) {
-        int windingNumber = 0; // Winding number start from zero for each scanline
+        enum DFSign {
+            kInside = -1,
+            kOutside = 1
+        };
+        int windingNumber = 0;  // Winding number start from zero for each scanline
         for (int col = 0; col < width; ++col) {
             int idx = (row * width) + col;
             windingNumber += dataPtr[idx].fDeltaWindingScore;
 
-            enum DFSign {
-                kInside = -1,
-                kOutside = 1
-            } dfSign;
-
+            DFSign dfSign;
             switch (workingPath.getFillType()) {
                 case SkPathFillType::kWinding:
                     dfSign = windingNumber ? kInside : kOutside;
@@ -831,30 +831,29 @@ bool GrGenerateDistanceFieldFromPath(unsigned char* distanceField,
                     break;
             }
 
-            // The winding number at the end of a scanline should be zero.
-            SkASSERT(((col != width - 1) || (windingNumber == 0)) &&
-                    "Winding number should be zero at the end of a scan line.");
-            // Fallback to use SkPath::contains to determine the sign of pixel in release build.
-            if (col == width - 1 && windingNumber != 0) {
-                for (int col = 0; col < width; ++col) {
-                    int idx = (row * width) + col;
-                    dfSign = workingPath.contains(col + 0.5, row + 0.5) ? kInside : kOutside;
-                    const float miniDist = sqrt(dataPtr[idx].fDistSq);
-                    const float dist = dfSign * miniDist;
-
-                    unsigned char pixelVal = pack_distance_field_val<SK_DistanceFieldMagnitude>(dist);
-
-                    distanceField[(row * rowBytes) + col] = pixelVal;
-                }
-                continue;
-            }
-
             const float miniDist = sqrt(dataPtr[idx].fDistSq);
             const float dist = dfSign * miniDist;
 
             unsigned char pixelVal = pack_distance_field_val<SK_DistanceFieldMagnitude>(dist);
 
             distanceField[(row * rowBytes) + col] = pixelVal;
+        }
+
+        // The winding number at the end of a scanline should be zero.
+        if (windingNumber != 0) {
+            SkDEBUGFAIL("Winding number should be zero at the end of a scan line.");
+            // Fallback to use SkPath::contains to determine the sign of pixel in release build.
+            for (int col = 0; col < width; ++col) {
+                int idx = (row * width) + col;
+                DFSign dfSign = workingPath.contains(col + 0.5, row + 0.5) ? kInside : kOutside;
+                const float miniDist = sqrt(dataPtr[idx].fDistSq);
+                const float dist = dfSign * miniDist;
+
+                unsigned char pixelVal = pack_distance_field_val<SK_DistanceFieldMagnitude>(dist);
+
+                distanceField[(row * rowBytes) + col] = pixelVal;
+            }
+            continue;
         }
     }
     return true;
