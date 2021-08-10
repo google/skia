@@ -35,7 +35,8 @@ public:
     kColorFontsRepoExtendMode,
     kColorFontsRepoRotate,
     kColorFontsRepoSkew,
-    kColorFontsRepoTransform
+    kColorFontsRepoTransform,
+    kColorFontsRepoClipBox
   };
 
   ColrV1GM(ColrV1TestType testType, SkScalar skewX, SkScalar rotateDeg)
@@ -58,6 +59,8 @@ protected:
                 return SkString("skew");
             case kColorFontsRepoTransform:
                 return SkString("transform");
+            case kColorFontsRepoClipBox:
+                return SkString("clipbox");
         }
         SkASSERT(false); /* not reached */
         return SkString();
@@ -99,6 +102,9 @@ protected:
                 break;
             case kColorFontsRepoTransform:
                 fEmojiFont.fGlyphs = {31, 32, 33, 34};
+                break;
+            case kColorFontsRepoClipBox:
+                fEmojiFont.fGlyphs = {35, 36, 37, 38, 39};
                 break;
         }
     }
@@ -166,5 +172,7 @@ DEF_GM(return new ColrV1GM(ColrV1GM::kColorFontsRepoExtendMode, 0.f, 0.f);)
 DEF_GM(return new ColrV1GM(ColrV1GM::kColorFontsRepoRotate, 0.f, 0.f);)
 DEF_GM(return new ColrV1GM(ColrV1GM::kColorFontsRepoSkew, 0.f, 0.f);)
 DEF_GM(return new ColrV1GM(ColrV1GM::kColorFontsRepoTransform, 0.f, 0.f);)
+DEF_GM(return new ColrV1GM(ColrV1GM::kColorFontsRepoClipBox, 0.f, 0.f);)
+DEF_GM(return new ColrV1GM(ColrV1GM::kColorFontsRepoClipBox, -0.5f, 20.f);)
 
 }  // namespace skiagm

@@ -23,6 +23,8 @@ typedef struct FT_LibraryRec_* FT_Library;
 typedef struct FT_FaceRec_* FT_Face;
 typedef struct FT_StreamRec_* FT_Stream;
 typedef signed long FT_Pos;
+typedef struct FT_BBox_ FT_BBox;
+
 
 #ifdef SK_DEBUG
 const char* SkTraceFtrGetError(int);
@@ -48,6 +50,16 @@ protected:
     void generateGlyphImage(FT_Face face, const SkGlyph& glyph, const SkMatrix& bitmapTransform);
     bool generateGlyphPath(FT_Face face, SkPath* path);
     bool generateFacePath(FT_Face face, SkGlyphID glyphID, SkPath* path);
+
+    // Computes a bounding box for a COLRv1 glyph id in FT_BBox 26.6 format and FreeType's y-up
+    // coordinate space.
+    // Needed to call into COLRv1 from generateMetrics().
+    //
+    // Note : This method may change the configured size and transforms on FT_Face. Make sure to
+    // configure size, matrix and load glyphs as needed after using this function to restore the
+    // state of FT_Face.
+    bool computeColrV1GlyphBoundingBox(FT_Face face, SkGlyphID glyphID, FT_BBox* boundingBox);
+
 private:
     using INHERITED = SkScalerContext;
 };
