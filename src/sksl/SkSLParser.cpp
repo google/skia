@@ -116,7 +116,7 @@ Parser::Parser(skstd::string_view text, SymbolTable& symbols, ErrorReporter& err
 : fText(text)
 , fPushback(Token::Kind::TK_NONE, -1, -1)
 , fSymbols(symbols)
-, fErrors(errors) {
+, fErrors(&errors) {
     fLexer.start(text);
     static const bool layoutMapInitialized = []{ return (void)InitLayoutMap(), true; }();
     (void) layoutMapInitialized;
@@ -152,7 +152,7 @@ std::unique_ptr<ASTFile> Parser::compilationUnit() {
                 return std::move(fFile);
             case Token::Kind::TK_DIRECTIVE: {
                 ASTNode::ID dir = this->directive();
-                if (fErrors.errorCount()) {
+                if (fErrors->errorCount()) {
                     return nullptr;
                 }
                 if (dir) {
@@ -166,7 +166,7 @@ std::unique_ptr<ASTFile> Parser::compilationUnit() {
             }
             default: {
                 ASTNode::ID decl = this->declaration();
-                if (fErrors.errorCount()) {
+                if (fErrors->errorCount()) {
                     return nullptr;
                 }
                 if (decl) {
@@ -260,7 +260,7 @@ void Parser::error(Token token, String msg) {
 }
 
 void Parser::error(int offset, String msg) {
-    fErrors.error(offset, msg);
+    fErrors->error(offset, msg);
 }
 
 bool Parser::isType(skstd::string_view name) {
@@ -400,6 +400,7 @@ ASTNode::ID Parser::varDeclarationsOrExpressionStatement() {
         Checkpoint checkpoint(this);
         VarDeclarationsPrefix prefix;
         if (this->varDeclarationsPrefix(&prefix)) {
+            checkpoint.accept();
             return this->varDeclarationEnd(prefix.modifiers, prefix.type, this->text(prefix.name));
         }
 

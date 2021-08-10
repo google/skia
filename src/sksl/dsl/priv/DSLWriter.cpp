@@ -282,7 +282,7 @@ void DSLWriter::MarkDeclared(DSLVarBase& var) {
 void DSLWriter::ReportErrors(PositionInfo pos) {
     if (Compiler().errorCount()) {
         ReportError(DSLWriter::Compiler().errorText(/*showCount=*/false).c_str(), pos);
-        Compiler().setErrorCount(0);
+        Compiler().resetErrors();
     }
 }
 

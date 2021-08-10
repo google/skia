@@ -992,16 +992,7 @@ void Compiler::handleError(const char* msg, dsl::PositionInfo pos) {
         return;
     }
     fErrorCount++;
-    fErrorTextLength.push_back(fErrorText.length());
     fErrorText += "error: " + (pos.line() >= 1 ? to_string(pos.line()) + ": " : "") + msg + "\n";
-}
-
-void Compiler::setErrorCount(int c) {
-    if (c < fErrorCount) {
-        fErrorText.resize(fErrorTextLength[c]);
-        fErrorTextLength.resize(c);
-        fErrorCount = c;
-    }
 }
 
 String Compiler::errorText(bool showCount) {

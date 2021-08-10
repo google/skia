@@ -306,7 +306,6 @@ class TrivialErrorReporter : public ErrorReporter {
 public:
     void handleError(const char*, dsl::PositionInfo) override { ++fErrorCount; }
     int errorCount() override { return fErrorCount; }
-    void setErrorCount(int c) override { fErrorCount = c; }
 
 private:
     int fErrorCount = 0;

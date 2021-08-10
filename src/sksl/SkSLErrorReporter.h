@@ -37,12 +37,6 @@ public:
     /** Returns the number of errors that have been reported. */
     virtual int errorCount() = 0;
 
-    /**
-     * Truncates the error list to the first `numErrors` reports. This allows us to backtrack and
-     * try another approach if a problem is encountered while speculatively parsing code.
-     */
-    virtual void setErrorCount(int numErrors) = 0;
-
     const char* fFilename = nullptr;
     const char* fSource = nullptr;
 
@@ -69,7 +63,6 @@ class TestingOnly_AbortErrorReporter : public ErrorReporter {
 public:
     void handleError(const char* msg, dsl::PositionInfo pos) override { SK_ABORT("%s", msg); }
     int errorCount() override { return 0; }
-    void setErrorCount(int) override {}
 };
 
 }  // namespace SkSL

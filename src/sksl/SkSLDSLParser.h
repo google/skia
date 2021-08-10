@@ -269,17 +269,17 @@ private:
 
     bool identifier(skstd::string_view* dest);
 
-    class Checkpoint : public dsl::ErrorHandler {
+    class Checkpoint {
     public:
         Checkpoint(DSLParser* p) : fParser(p) {
             fPushbackCheckpoint = fParser->fPushback;
             fLexerCheckpoint = fParser->fLexer.getCheckpoint();
             fOldErrorHandler = dsl::GetErrorHandler();
             SkASSERT(fOldErrorHandler);
-            dsl::SetErrorHandler(this);
+            dsl::SetErrorHandler(&fErrorHandler);
         }
 
-        ~Checkpoint() override {
+        ~Checkpoint() {
             SkASSERTF(!fOldErrorHandler,
                       "Checkpoint was not accepted or rewound before destruction");
         }
@@ -289,10 +289,7 @@ private:
             // Parser errors should have been fatal, but we can encounter other errors like type
             // mismatches despite accepting the parse. Forward those messages to the actual error
             // handler now.
-            for (Error& error : fErrors) {
-                dsl::GetErrorHandler()->handleError(error.fMsg.c_str(),
-                                                    error.fHavePosition ? &error.fPos : nullptr);
-            }
+            fErrorHandler.forwardErrors();
         }
 
         void rewind() {
@@ -301,15 +298,26 @@ private:
             fParser->fLexer.rewindToCheckpoint(fLexerCheckpoint);
         }
 
-        void handleError(const char* msg, dsl::PositionInfo* pos) override {
-            fErrors.push_back({String(msg), pos != nullptr, pos ? *pos : dsl::PositionInfo()});
-        }
-
     private:
-        struct Error {
-            String fMsg;
-            bool fHavePosition;
-            dsl::PositionInfo fPos;
+        class ForwardingErrorHandler : public dsl::ErrorHandler {
+        public:
+            void handleError(const char* msg, dsl::PositionInfo pos) override {
+                fErrors.push_back({String(msg), pos});
+            }
+
+            void forwardErrors() {
+                for (Error& error : fErrors) {
+                    dsl::GetErrorHandler()->handleError(error.fMsg.c_str(), error.fPos);
+                }
+            }
+
+        private:
+            struct Error {
+                String fMsg;
+                dsl::PositionInfo fPos;
+            };
+
+            SkTArray<Error> fErrors;
         };
 
         void restoreErrorHandler() {
@@ -321,8 +329,8 @@ private:
         DSLParser* fParser;
         Token fPushbackCheckpoint;
         int32_t fLexerCheckpoint;
-        ErrorHandler* fOldErrorHandler;
-        SkTArray<Error> fErrors;
+        ForwardingErrorHandler fErrorHandler;
+        dsl::ErrorHandler* fOldErrorHandler;
     };
 
     static std::unordered_map<skstd::string_view, LayoutToken>* layoutTokens;

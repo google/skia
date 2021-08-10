@@ -167,11 +167,14 @@ public:
 
     void writeErrorCount();
 
+    void resetErrors() {
+        fErrorText.clear();
+        fErrorCount = 0;
+    }
+
     int errorCount() override {
         return fErrorCount;
     }
-
-    void setErrorCount(int c) override;
 
     Context& context() {
         return *fContext;
@@ -260,7 +263,6 @@ private:
 
     int fErrorCount = 0;
     String fErrorText;
-    std::vector<size_t> fErrorTextLength;
 
     static OverrideFlag sOptimizer;
     static OverrideFlag sInliner;
