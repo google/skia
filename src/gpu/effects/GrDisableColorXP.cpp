@@ -33,32 +33,30 @@ private:
     using INHERITED = GrXferProcessor;
 };
 
-class GLDisableColorXP : public GrXferProcessor::ProgramImpl {
-private:
-    void emitOutputsForBlendState(const EmitArgs& args) override {
-        if (args.fShaderCaps->mustWriteToFragColor()) {
-            // This emit code should be empty. However, on the nexus 6 there is a driver bug where
-            // if you do not give gl_FragColor a value, the gl context is lost and we end up drawing
-            // nothing. So this fix just sets the gl_FragColor arbitrarily to 0.
-            // https://bugs.chromium.org/p/chromium/issues/detail?id=445377
-            GrGLSLXPFragmentBuilder* fragBuilder = args.fXPFragBuilder;
-            fragBuilder->codeAppendf("%s = half4(0);", args.fOutputPrimary);
-        }
-    }
-
-    void emitWriteSwizzle(GrGLSLXPFragmentBuilder*,
-                          const GrSwizzle&,
-                          const char*,
-                          const char*) const override {
-        // Don't write any swizzling. This makes sure the final shader does not output a color.
-        return;
-    }
-
-    using INHERITED = ProgramImpl;
-};
-
 std::unique_ptr<GrXferProcessor::ProgramImpl> DisableColorXP::makeProgramImpl() const {
-    return std::make_unique<GLDisableColorXP>();
+    class Impl : public ProgramImpl {
+    private:
+        void emitOutputsForBlendState(const EmitArgs& args) override {
+            if (args.fShaderCaps->mustWriteToFragColor()) {
+                // This emit code should be empty. However, on the nexus 6 there is a driver bug
+                // where if you do not give gl_FragColor a value, the gl context is lost and we end
+                // up drawing nothing. So this fix just sets the gl_FragColor arbitrarily to 0.
+                // https://bugs.chromium.org/p/chromium/issues/detail?id=445377
+                GrGLSLXPFragmentBuilder* fragBuilder = args.fXPFragBuilder;
+                fragBuilder->codeAppendf("%s = half4(0);", args.fOutputPrimary);
+            }
+        }
+
+        void emitWriteSwizzle(GrGLSLXPFragmentBuilder*,
+                              const GrSwizzle&,
+                              const char*,
+                              const char*) const override {
+            // Don't write any swizzling. This makes sure the final shader does not output a color.
+            return;
+        }
+    };
+
+    return std::make_unique<Impl>();
 }
 
 sk_sp<const GrXferProcessor> GrDisableColorXPFactory::MakeXferProcessor() {

@@ -26,8 +26,6 @@ public:
 
     std::unique_ptr<ProgramImpl> makeProgramImpl() const override;
 
-    bool invertCoverage() const { return fInvertCoverage; }
-
 private:
     void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
@@ -45,44 +43,24 @@ private:
     using INHERITED = GrXferProcessor;
 };
 
-///////////////////////////////////////////////////////////////////////////////
-
-class GLCoverageSetOpXP : public GrXferProcessor::ProgramImpl {
-public:
-    GLCoverageSetOpXP(const GrProcessor&) {}
-
-    ~GLCoverageSetOpXP() override {}
-
-    static void GenKey(const GrProcessor& processor, const GrShaderCaps& caps,
-                       GrProcessorKeyBuilder* b) {
-        const CoverageSetOpXP& xp = processor.cast<CoverageSetOpXP>();
-        uint32_t key = xp.invertCoverage() ?  0x0 : 0x1;
-        b->add32(key);
-    }
-
-private:
-    void emitOutputsForBlendState(const EmitArgs& args) override {
-        const CoverageSetOpXP& xp = args.fXP.cast<CoverageSetOpXP>();
-        GrGLSLXPFragmentBuilder* fragBuilder = args.fXPFragBuilder;
-
-        if (xp.invertCoverage()) {
-            fragBuilder->codeAppendf("%s = 1.0 - %s;", args.fOutputPrimary, args.fInputCoverage);
-        } else {
-            fragBuilder->codeAppendf("%s = %s;", args.fOutputPrimary, args.fInputCoverage);
-        }
-    }
-
-    using INHERITED = ProgramImpl;
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
 void CoverageSetOpXP::onAddToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
-    GLCoverageSetOpXP::GenKey(*this, caps, b);
+    b->addBool(fInvertCoverage, "invert coverage");
 }
 
 std::unique_ptr<GrXferProcessor::ProgramImpl> CoverageSetOpXP::makeProgramImpl() const {
-    return std::make_unique<GLCoverageSetOpXP>(*this);
+    class Impl : public ProgramImpl {
+    private:
+        void emitOutputsForBlendState(const EmitArgs& args) override {
+            const CoverageSetOpXP& xp = args.fXP.cast<CoverageSetOpXP>();
+            GrGLSLXPFragmentBuilder* fb = args.fXPFragBuilder;
+            if (xp.fInvertCoverage) {
+                fb->codeAppendf("%s = 1.0 - %s;", args.fOutputPrimary, args.fInputCoverage);
+            } else {
+                fb->codeAppendf("%s = %s;", args.fOutputPrimary, args.fInputCoverage);
+            }
+        }
+    };
+    return std::make_unique<Impl>();
 }
 
 void CoverageSetOpXP::onGetBlendInfo(GrXferProcessor::BlendInfo* blendInfo) const {

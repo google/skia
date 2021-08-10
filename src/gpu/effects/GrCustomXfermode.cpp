@@ -87,17 +87,11 @@ public:
 
     std::unique_ptr<ProgramImpl> makeProgramImpl() const override;
 
-    SkBlendMode mode() const { return fMode; }
-    bool hasHWBlendEquation() const { return kIllegal_GrBlendEquation != fHWBlendEquation; }
-
-    GrBlendEquation hwBlendEquation() const {
-        SkASSERT(this->hasHWBlendEquation());
-        return fHWBlendEquation;
-    }
-
     GrXferBarrierType xferBarrierType(const GrCaps&) const override;
 
 private:
+    bool hasHWBlendEquation() const { return kIllegal_GrBlendEquation != fHWBlendEquation; }
+
     void onAddToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     void onGetBlendInfo(BlendInfo*) const override;
@@ -110,72 +104,62 @@ private:
     using INHERITED = GrXferProcessor;
 };
 
-///////////////////////////////////////////////////////////////////////////////
-
-class GLCustomXP : public GrXferProcessor::ProgramImpl {
-public:
-    GLCustomXP(const GrXferProcessor&) {}
-    ~GLCustomXP() override {}
-
-    static void GenKey(const GrXferProcessor& p, const GrShaderCaps& caps,
-                       GrProcessorKeyBuilder* b) {
-        const CustomXP& xp = p.cast<CustomXP>();
-        uint32_t key = 0;
-        if (xp.hasHWBlendEquation()) {
-            SkASSERT(caps.advBlendEqInteraction() > 0);  // 0 will mean !xp.hasHWBlendEquation().
-            key |= caps.advBlendEqInteraction();
-            static_assert(GrShaderCaps::kLast_AdvBlendEqInteraction < 4);
-        }
-        if (!xp.hasHWBlendEquation()) {
-            key |= (int)xp.mode() << 3;
-        }
-        b->add32(key);
-    }
-
-private:
-    void emitOutputsForBlendState(const EmitArgs& args) override {
-        const CustomXP& xp = args.fXP.cast<CustomXP>();
-        SkASSERT(xp.hasHWBlendEquation());
-
-        GrGLSLXPFragmentBuilder* fragBuilder = args.fXPFragBuilder;
-        fragBuilder->enableAdvancedBlendEquationIfNeeded(xp.hwBlendEquation());
-
-        // Apply coverage by multiplying it into the src color before blending. This will "just
-        // work" automatically. (See analysisProperties())
-        fragBuilder->codeAppendf("%s = %s * %s;", args.fOutputPrimary, args.fInputCoverage,
-                                 args.fInputColor);
-    }
-
-    void emitBlendCodeForDstRead(GrGLSLXPFragmentBuilder* fragBuilder,
-                                 GrGLSLUniformHandler* uniformHandler,
-                                 const char* srcColor,
-                                 const char* srcCoverage,
-                                 const char* dstColor,
-                                 const char* outColor,
-                                 const char* outColorSecondary,
-                                 const GrXferProcessor& proc) override {
-        const CustomXP& xp = proc.cast<CustomXP>();
-        SkASSERT(!xp.hasHWBlendEquation());
-
-        GrGLSLBlend::AppendMode(fragBuilder, srcColor, dstColor, outColor, xp.mode());
-
-        // Apply coverage.
-        INHERITED::DefaultCoverageModulation(fragBuilder, srcCoverage, dstColor, outColor,
-                                             outColorSecondary, xp);
-    }
-
-    using INHERITED = ProgramImpl;
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
 void CustomXP::onAddToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
-    GLCustomXP::GenKey(*this, caps, b);
+    uint32_t key = 0;
+    if (this->hasHWBlendEquation()) {
+        SkASSERT(caps.advBlendEqInteraction() > 0);  // 0 will mean !xp.hasHWBlendEquation().
+        key |= caps.advBlendEqInteraction();
+        static_assert(GrShaderCaps::kLast_AdvBlendEqInteraction < 4);
+    } else {
+        key |= static_cast<int>(fMode) << 3;
+    }
+    b->add32(key);
 }
 
 std::unique_ptr<GrXferProcessor::ProgramImpl> CustomXP::makeProgramImpl() const {
     SkASSERT(this->willReadDstColor() != this->hasHWBlendEquation());
-    return std::make_unique<GLCustomXP>(*this);
+
+    class Impl : public ProgramImpl {
+    private:
+        void emitOutputsForBlendState(const EmitArgs& args) override {
+            const CustomXP& xp = args.fXP.cast<CustomXP>();
+            SkASSERT(xp.hasHWBlendEquation());
+
+            GrGLSLXPFragmentBuilder* fragBuilder = args.fXPFragBuilder;
+            fragBuilder->enableAdvancedBlendEquationIfNeeded(xp.fHWBlendEquation);
+
+            // Apply coverage by multiplying it into the src color before blending. This will "just
+            // work" automatically. (See analysisProperties())
+            fragBuilder->codeAppendf("%s = %s * %s;",
+                                     args.fOutputPrimary,
+                                     args.fInputCoverage,
+                                     args.fInputColor);
+        }
+
+        void emitBlendCodeForDstRead(GrGLSLXPFragmentBuilder* fragBuilder,
+                                     GrGLSLUniformHandler* uniformHandler,
+                                     const char* srcColor,
+                                     const char* srcCoverage,
+                                     const char* dstColor,
+                                     const char* outColor,
+                                     const char* outColorSecondary,
+                                     const GrXferProcessor& proc) override {
+            const CustomXP& xp = proc.cast<CustomXP>();
+            SkASSERT(!xp.hasHWBlendEquation());
+
+            GrGLSLBlend::AppendMode(fragBuilder, srcColor, dstColor, outColor, xp.fMode);
+
+            // Apply coverage.
+            DefaultCoverageModulation(fragBuilder,
+                                      srcCoverage,
+                                      dstColor,
+                                      outColor,
+                                      outColorSecondary,
+                                      xp);
+        }
+    };
+
+    return std::make_unique<Impl>();
 }
 
 bool CustomXP::onIsEqual(const GrXferProcessor& other) const {
@@ -192,7 +176,7 @@ GrXferBarrierType CustomXP::xferBarrierType(const GrCaps& caps) const {
 
 void CustomXP::onGetBlendInfo(BlendInfo* blendInfo) const {
     if (this->hasHWBlendEquation()) {
-        blendInfo->fEquation = this->hwBlendEquation();
+        blendInfo->fEquation = fHWBlendEquation;
     }
 }
 
