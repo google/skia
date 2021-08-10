@@ -12,13 +12,6 @@
 
 #import <Metal/Metal.h>
 
-class GrMtlGpu;
-class GrMtlPipelineStateDataManager;
-class GrMtlRenderCommandEncoder;
-class GrMtlSampler;
-class GrMtlTexture;
-class GrPipeline;
-
 /**
  * Wraps a MTLRenderPipelineState object
  */

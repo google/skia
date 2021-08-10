@@ -10,6 +10,7 @@
 
 #include "include/gpu/GrBackendSemaphore.h"
 #include "include/private/GrTypesPriv.h"
+#include "src/gpu/GrManagedResource.h"
 #include "src/gpu/GrSemaphore.h"
 #include "src/gpu/mtl/GrMtlUtil.h"
 
@@ -17,26 +18,74 @@
 
 class GrMtlGpu;
 
+class GrMtlEvent : public GrManagedResource {
+public:
+    static sk_sp<GrMtlEvent> Make(GrMtlGpu* gpu);
+
+    static sk_sp<GrMtlEvent> MakeWrapped(GrMTLHandle event);
+
+    ~GrMtlEvent() override {}
+
+    id<MTLEvent> mtlEvent() const SK_API_AVAILABLE(macos(10.14), ios(12.0)) { return fMtlEvent; }
+
+#ifdef SK_TRACE_MANAGED_RESOURCES
+    /** output a human-readable dump of this resource's information
+     */
+    void dumpInfo() const override {
+        if (@available(macOS 10.14, iOS 12.0, *)) {
+            SkDebugf("GrMtlEvent: %p (%ld refs)\n", fMtlEvent,
+                     CFGetRetainCount((CFTypeRef)fMtlEvent));
+        }
+    }
+#endif
+
+    void freeGPUData() const override {
+        if (@available(macOS 10.14, iOS 12.0, *)) {
+            fMtlEvent = nil;
+        }
+    }
+
+private:
+    GrMtlEvent(id<MTLEvent> mtlEvent) SK_API_AVAILABLE(macos(10.14), ios(12.0))
+        : fMtlEvent(mtlEvent) {}
+
+    mutable id<MTLEvent> fMtlEvent SK_API_AVAILABLE(macos(10.14), ios(12.0));
+};
+
 class GrMtlSemaphore : public GrSemaphore {
 public:
-    static std::unique_ptr<GrMtlSemaphore> Make(GrMtlGpu* gpu);
+    static std::unique_ptr<GrMtlSemaphore> Make(GrMtlGpu* gpu) {
+        sk_sp<GrMtlEvent> event = GrMtlEvent::Make(gpu);
+        if (!event) {
+            return nullptr;
+        }
+        return std::unique_ptr<GrMtlSemaphore>(new GrMtlSemaphore(std::move(event), 1));
+    }
 
-    static std::unique_ptr<GrMtlSemaphore> MakeWrapped(GrMTLHandle event, uint64_t value);
+    static std::unique_ptr<GrMtlSemaphore> MakeWrapped(GrMTLHandle mtlEvent, uint64_t value) {
+        sk_sp<GrMtlEvent> event = GrMtlEvent::MakeWrapped(mtlEvent);
+        if (!event) {
+            return nullptr;
+        }
+        return std::unique_ptr<GrMtlSemaphore>(new GrMtlSemaphore(std::move(event), value));
+    }
 
     ~GrMtlSemaphore() override {}
 
-    id<MTLEvent> event() const SK_API_AVAILABLE(macos(10.14), ios(12.0)) { return fEvent; }
+    sk_sp<GrMtlEvent> event() { return fEvent; }
     uint64_t value() const { return fValue; }
 
     GrBackendSemaphore backendSemaphore() const override;
 
 private:
-    GrMtlSemaphore(id<MTLEvent> event, uint64_t value) SK_API_AVAILABLE(macos(10.14), ios(12.0));
+    GrMtlSemaphore(sk_sp<GrMtlEvent> event, uint64_t value)
+        : fEvent(std::move(event))
+        , fValue(value) {}
 
     void setIsOwned() override {}
 
-    id<MTLEvent> fEvent SK_API_AVAILABLE(macos(10.14), ios(12.0));
-    uint64_t     fValue;
+    sk_sp<GrMtlEvent> fEvent;
+    uint64_t fValue;
 
     using INHERITED = GrSemaphore;
 };

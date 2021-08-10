@@ -850,6 +850,7 @@ bool GrMtlGpu::onRegenerateMipMapLevels(GrTexture* texture) {
     auto cmdBuffer = this->commandBuffer();
     id<MTLBlitCommandEncoder> GR_NORETAIN blitCmdEncoder = cmdBuffer->getBlitCommandEncoder();
     [blitCmdEncoder generateMipmapsForTexture: mtlTexture];
+    this->commandBuffer()->addGrSurface(sk_ref_sp<const GrSurface>(grMtlTexture->attachment()));
 
     return true;
 }
