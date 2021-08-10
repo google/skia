@@ -12,6 +12,7 @@
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
+#include "src/sksl/ir/SkSLFunctionPrototype.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
 
 namespace SkSL {
@@ -60,6 +61,11 @@ void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, skstd:
         for (size_t i = 0; i < params.size(); ++i) {
             params[i]->fVar = fDecl->parameters()[i];
         }
+        // We don't know when this function is going to be defined; go ahead and add a prototype in
+        // case the definition is delayed. If we end up defining the function immediately, we'll
+        // remove the prototype in define().
+        DSLWriter::ProgramElements().push_back(std::make_unique<SkSL::FunctionPrototype>(
+                /*offset=*/-1, fDecl, DSLWriter::IsModule()));
     }
 }
 
@@ -69,6 +75,17 @@ void DSLFunction::define(DSLBlock block) {
         // Release the block so we don't fail its destructor assert.
         block.release();
         return;
+    }
+    if (!DSLWriter::ProgramElements().empty()) {
+        // If the last ProgramElement was the prototype for this function, it was unnecessary and we
+        // can remove it.
+        const SkSL::ProgramElement& last = *DSLWriter::ProgramElements().back();
+        if (last.is<SkSL::FunctionPrototype>()) {
+            const SkSL::FunctionPrototype& prototype = last.as<SkSL::FunctionPrototype>();
+            if (&prototype.declaration() == fDecl) {
+                DSLWriter::ProgramElements().pop_back();
+            }
+        }
     }
     SkASSERTF(!fDecl->definition(), "function '%s' already defined", fDecl->description().c_str());
     std::unique_ptr<Block> body = block.release();

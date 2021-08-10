@@ -2051,3 +2051,45 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLReleaseUnused, r, ctxInfo) {
     // Ensure that we can safely destroy statements and expressions despite being unused while
     // settings.fAssertDSLObjectsReleased is disabled.
 }
+
+DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLPrototypes, r, ctxInfo) {
+    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), no_mark_vars_declared());
+    {
+        DSLParameter x(kFloat_Type, "x");
+        DSLFunction sqr(kFloat_Type, "sqr", x);
+        REPORTER_ASSERT(r, DSLWriter::ProgramElements().size() == 1);
+        EXPECT_EQUAL(*DSLWriter::ProgramElements()[0], "float sqr(float x);");
+        sqr.define(
+            Return(x * x)
+        );
+        REPORTER_ASSERT(r, DSLWriter::ProgramElements().size() == 1);
+        EXPECT_EQUAL(*DSLWriter::ProgramElements()[0], "float sqr(float x) { return (x * x); }");
+    }
+
+    {
+        DSLWriter::Reset();
+            DSLParameter x(kFloat_Type, "x");
+        DSLFunction sqr(kFloat_Type, "sqr", x);
+        REPORTER_ASSERT(r, DSLWriter::ProgramElements().size() == 1);
+        EXPECT_EQUAL(*DSLWriter::ProgramElements()[0], "float sqr(float x);");
+        DSLFunction(kVoid_Type, "main").define(sqr(5));
+        REPORTER_ASSERT(r, DSLWriter::ProgramElements().size() == 2);
+        EXPECT_EQUAL(*DSLWriter::ProgramElements()[0], "float sqr(float x);");
+        EXPECT_EQUAL(*DSLWriter::ProgramElements()[1], "void main() { sqr(5.0); }");
+        sqr.define(
+            Return(x * x)
+        );
+        REPORTER_ASSERT(r, DSLWriter::ProgramElements().size() == 3);
+        EXPECT_EQUAL(*DSLWriter::ProgramElements()[2], "float sqr(float x) { return (x * x); }");
+
+        const char* source = "source test";
+        std::unique_ptr<SkSL::Program> p = ReleaseProgram(std::make_unique<SkSL::String>(source));
+        EXPECT_EQUAL(*p,
+            "layout (builtin = 17) in bool sk_Clockwise;"
+            "float sqr(float x);"
+            "void main() {"
+            "/* inlined: sqr */;"
+            "25.0;"
+            "}");
+    }
+}
