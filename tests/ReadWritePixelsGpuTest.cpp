@@ -39,6 +39,7 @@ static constexpr int min_rgb_channel_bits(SkColorType ct) {
         case kR16G16_unorm_SkColorType:       return 16;
         case kR16G16_float_SkColorType:       return 16;
         case kRGBA_8888_SkColorType:          return 8;
+        case kSRGBA_8888_SkColorType:         return 8;
         case kRGB_888x_SkColorType:           return 8;
         case kBGRA_8888_SkColorType:          return 8;
         case kRGBA_1010102_SkColorType:       return 10;
@@ -66,6 +67,7 @@ static constexpr int alpha_channel_bits(SkColorType ct) {
         case kR16G16_unorm_SkColorType:       return 0;
         case kR16G16_float_SkColorType:       return 0;
         case kRGBA_8888_SkColorType:          return 8;
+        case kSRGBA_8888_SkColorType:         return 8;
         case kRGB_888x_SkColorType:           return 0;
         case kBGRA_8888_SkColorType:          return 8;
         case kRGBA_1010102_SkColorType:       return 2;

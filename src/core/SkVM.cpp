@@ -13,6 +13,7 @@
 #include "include/private/SkTFitsIn.h"
 #include "include/private/SkThreadID.h"
 #include "include/private/SkVx.h"
+#include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkCpu.h"
 #include "src/core/SkEnumerate.h"
@@ -112,7 +113,20 @@ bool gSkVMJITViaDylib{false};
     #endif
 #endif
 
+#if defined(SKSL_STANDALONE)
+    // skslc needs to link against this module (for the VM code generator). This module pulls in
+    // color-space code, but attempting to add those transitive dependencies to skslc gets out of
+    // hand. So we terminate the chain here with stub functions. Note that skslc's usage of SkVM
+    // never cares about color management.
+    skvm::F32 sk_program_transfer_fn(
+        skvm::F32 v, TFKind tf_kind,
+        skvm::F32 G, skvm::F32 A, skvm::F32 B, skvm::F32 C, skvm::F32 D, skvm::F32 E, skvm::F32 F) {
+            return v;
+    }
 
+    const skcms_TransferFunction* skcms_sRGB_TransferFunction() { return nullptr; }
+    const skcms_TransferFunction* skcms_sRGB_Inverse_TransferFunction() { return nullptr; }
+#endif
 
 namespace skvm {
 
@@ -1043,6 +1057,7 @@ namespace skvm {
 
     PixelFormat SkColorType_to_PixelFormat(SkColorType ct) {
         auto UNORM = PixelFormat::UNORM,
+             SRGB  = PixelFormat::SRGB,
              FLOAT = PixelFormat::FLOAT;
         switch (ct) {
             case kUnknown_SkColorType: break;
@@ -1065,6 +1080,7 @@ namespace skvm {
             case kRGBA_8888_SkColorType:  return {UNORM, 8,8,8,8,  0,8,16,24};
             case kRGB_888x_SkColorType:   return {UNORM, 8,8,8,0,  0,8,16,32};  // 32-bit
             case kBGRA_8888_SkColorType:  return {UNORM, 8,8,8,8, 16,8, 0,24};
+            case kSRGBA_8888_SkColorType: return { SRGB, 8,8,8,8,  0,8,16,24};
 
             case kRGBA_1010102_SkColorType: return {UNORM, 10,10,10,2,  0,10,20,30};
             case kBGRA_1010102_SkColorType: return {UNORM, 10,10,10,2, 20,10, 0,30};
@@ -1091,19 +1107,43 @@ namespace skvm {
 
     static Color unpack(PixelFormat f, I32 x) {
         SkASSERT(byte_size(f) <= 4);
-        auto unpack_channel = [=](int bits, int shift) {
+
+        auto from_srgb = [](int bits, I32 channel) -> F32 {
+            const skcms_TransferFunction* tf = skcms_sRGB_TransferFunction();
+            F32 v = from_unorm(bits, channel);
+            return sk_program_transfer_fn(v, sRGBish_TF,
+                                          v->splat(tf->g),
+                                          v->splat(tf->a),
+                                          v->splat(tf->b),
+                                          v->splat(tf->c),
+                                          v->splat(tf->d),
+                                          v->splat(tf->e),
+                                          v->splat(tf->f));
+        };
+
+        auto unpack_rgb = [=](int bits, int shift) -> F32 {
             I32 channel = extract(x, shift, (1<<bits)-1);
             switch (f.encoding) {
                 case PixelFormat::UNORM: return from_unorm(bits, channel);
+                case PixelFormat:: SRGB: return from_srgb (bits, channel);
+                case PixelFormat::FLOAT: return from_fp16 (      channel);
+            }
+            SkUNREACHABLE;
+        };
+        auto unpack_alpha = [=](int bits, int shift) -> F32 {
+            I32 channel = extract(x, shift, (1<<bits)-1);
+            switch (f.encoding) {
+                case PixelFormat::UNORM:
+                case PixelFormat:: SRGB: return from_unorm(bits, channel);
                 case PixelFormat::FLOAT: return from_fp16 (      channel);
             }
             SkUNREACHABLE;
         };
         return {
-            f.r_bits ? unpack_channel(f.r_bits, f.r_shift) : x->splat(0.0f),
-            f.g_bits ? unpack_channel(f.g_bits, f.g_shift) : x->splat(0.0f),
-            f.b_bits ? unpack_channel(f.b_bits, f.b_shift) : x->splat(0.0f),
-            f.a_bits ? unpack_channel(f.a_bits, f.a_shift) : x->splat(1.0f),
+            f.r_bits ? unpack_rgb  (f.r_bits, f.r_shift) : x->splat(0.0f),
+            f.g_bits ? unpack_rgb  (f.g_bits, f.g_shift) : x->splat(0.0f),
+            f.b_bits ? unpack_rgb  (f.b_bits, f.b_shift) : x->splat(0.0f),
+            f.a_bits ? unpack_alpha(f.a_bits, f.a_shift) : x->splat(1.0f),
         };
     }
 
@@ -1211,19 +1251,42 @@ namespace skvm {
 
     static I32 pack32(PixelFormat f, Color c) {
         SkASSERT(byte_size(f) <= 4);
+
+        auto to_srgb = [](int bits, F32 v) {
+            const skcms_TransferFunction* tf = skcms_sRGB_Inverse_TransferFunction();
+            return to_unorm(bits, sk_program_transfer_fn(v, sRGBish_TF,
+                                                         v->splat(tf->g),
+                                                         v->splat(tf->a),
+                                                         v->splat(tf->b),
+                                                         v->splat(tf->c),
+                                                         v->splat(tf->d),
+                                                         v->splat(tf->e),
+                                                         v->splat(tf->f)));
+        };
+
         I32 packed = c->splat(0);
-        auto pack_channel = [&](F32 channel, int bits, int shift) {
+        auto pack_rgb = [&](F32 channel, int bits, int shift) {
             I32 encoded;
             switch (f.encoding) {
                 case PixelFormat::UNORM: encoded = to_unorm(bits, channel); break;
+                case PixelFormat:: SRGB: encoded = to_srgb (bits, channel); break;
                 case PixelFormat::FLOAT: encoded = to_fp16 (      channel); break;
             }
             packed = pack(packed, encoded, shift);
         };
-        if (f.r_bits) { pack_channel(c.r, f.r_bits, f.r_shift); }
-        if (f.g_bits) { pack_channel(c.g, f.g_bits, f.g_shift); }
-        if (f.b_bits) { pack_channel(c.b, f.b_bits, f.b_shift); }
-        if (f.a_bits) { pack_channel(c.a, f.a_bits, f.a_shift); }
+        auto pack_alpha = [&](F32 channel, int bits, int shift) {
+            I32 encoded;
+            switch (f.encoding) {
+                case PixelFormat::UNORM:
+                case PixelFormat:: SRGB: encoded = to_unorm(bits, channel); break;
+                case PixelFormat::FLOAT: encoded = to_fp16 (      channel); break;
+            }
+            packed = pack(packed, encoded, shift);
+        };
+        if (f.r_bits) { pack_rgb  (c.r, f.r_bits, f.r_shift); }
+        if (f.g_bits) { pack_rgb  (c.g, f.g_bits, f.g_shift); }
+        if (f.b_bits) { pack_rgb  (c.b, f.b_bits, f.b_shift); }
+        if (f.a_bits) { pack_alpha(c.a, f.a_bits, f.a_shift); }
         return packed;
     }
 

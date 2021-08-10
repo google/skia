@@ -683,7 +683,7 @@ bool GrDirectContext::updateBackendTexture(const GrBackendTexture& backendTextur
     }
 
     GrBackendFormat format = backendTexture.getBackendFormat();
-    GrColorType grColorType = SkColorTypeAndFormatToGrColorType(this->caps(), skColorType, format);
+    GrColorType grColorType = SkColorTypeToGrColorType(skColorType);
 
     if (!this->caps()->areColorTypeAndFormatCompatible(grColorType, format)) {
         return false;

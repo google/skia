@@ -16,6 +16,9 @@
 #include "include/private/SkTFitsIn.h"
 #include "include/private/SkTo.h"
 
+// Temporary guard for Chromium
+#define SK_HAS_SRGBA_COLOR_TYPE
+
 class SkReadBuffer;
 class SkWriteBuffer;
 
@@ -91,7 +94,9 @@ enum SkColorType : int {
     kR16G16B16A16_unorm_SkColorType, //!< pixel with a little endian uint16_t for red, green, blue
                                      //   and alpha
 
-    kLastEnum_SkColorType     = kR16G16B16A16_unorm_SkColorType, //!< last valid value
+    kSRGBA_8888_SkColorType,
+
+    kLastEnum_SkColorType     = kSRGBA_8888_SkColorType, //!< last valid value
 
 #if SK_PMCOLOR_BYTE_ORDER(B,G,R,A)
     kN32_SkColorType          = kBGRA_8888_SkColorType,//!< native 32-bit BGRA encoding

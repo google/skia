@@ -560,7 +560,7 @@ namespace skvm {
     };
 
     struct PixelFormat {
-        enum { UNORM, FLOAT} encoding;
+        enum { UNORM, SRGB, FLOAT} encoding;
         int r_bits,  g_bits,  b_bits,  a_bits,
             r_shift, g_shift, b_shift, a_shift;
     };

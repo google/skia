@@ -137,6 +137,47 @@ void SkColorSpaceXformSteps::apply(SkRasterPipeline* p) const {
     if (flags.premul)          { p->append(SkRasterPipeline::premul); }
 }
 
+skvm::F32 sk_program_transfer_fn(
+    skvm::F32 v, TFKind tf_kind,
+    skvm::F32 G, skvm::F32 A, skvm::F32 B, skvm::F32 C, skvm::F32 D, skvm::F32 E, skvm::F32 F)
+{
+    // Strip off the sign bit and save it for later.
+    skvm::I32 bits = pun_to_I32(v),
+              sign = bits & 0x80000000;
+    v = pun_to_F32(bits ^ sign);
+
+    switch (tf_kind) {
+        case Bad_TF: SkASSERT(false); break;
+
+        case sRGBish_TF: {
+            v = select(v <= D, C*v + F
+                             , approx_powf(A*v + B, G) + E);
+        } break;
+
+        case PQish_TF: {
+            skvm::F32 vC = approx_powf(v, C);
+            v = approx_powf(max(B * vC + A, 0.0f) / (E * vC + D), F);
+        } break;
+
+        case HLGish_TF: {
+            skvm::F32 vA = v*A,
+                       K = F + 1.0f;
+            v = K*select(vA <= 1.0f, approx_powf(vA, B)
+                                   , approx_exp((v-E) * C + D));
+        } break;
+
+        case HLGinvish_TF: {
+            skvm::F32 K = F + 1.0f;
+            v /= K;
+            v = select(v <= 1.0f, A * approx_powf(v, B)
+                                , C * approx_log(v-D) + E);
+        } break;
+    }
+
+    // Re-apply the original sign bit on our way out the door.
+    return pun_to_F32(sign | pun_to_I32(v));
+}
+
 skvm::Color sk_program_transfer_fn(skvm::Builder* p, skvm::Uniforms* uniforms,
                                    const skcms_TransferFunction& tf, skvm::Color c) {
     skvm::F32 G = p->uniformF(uniforms->pushF(tf.g)),
@@ -146,46 +187,13 @@ skvm::Color sk_program_transfer_fn(skvm::Builder* p, skvm::Uniforms* uniforms,
               D = p->uniformF(uniforms->pushF(tf.d)),
               E = p->uniformF(uniforms->pushF(tf.e)),
               F = p->uniformF(uniforms->pushF(tf.f));
-
-    auto apply = [&](skvm::F32 v) -> skvm::F32 {
-        // Strip off the sign bit and save it for later.
-        skvm::I32 bits = pun_to_I32(v),
-                  sign = bits & 0x80000000;
-        v = pun_to_F32(bits ^ sign);
-
-        switch (classify_transfer_fn(tf)) {
-            case Bad_TF: SkASSERT(false); break;
-
-            case sRGBish_TF:
-                v = select(v <= D, C*v + F
-                                 , approx_powf(A*v + B, G) + E);
-                break;
-
-            case PQish_TF: {
-                skvm::F32 vC = approx_powf(v, C);
-                v = approx_powf(max(B * vC + A, 0.0f) / (E * vC + D), F);
-            } break;
-
-            case HLGish_TF: {
-                skvm::F32 vA = v*A,
-                           K = F + 1.0f;
-                v = K*select(vA <= 1.0f, approx_powf(vA, B)
-                                       , approx_exp((v-E) * C + D));
-            } break;
-
-            case HLGinvish_TF:
-                skvm::F32 K = F + 1.0f;
-                v /= K;
-                v = select(v <= 1.0f, A * approx_powf(v, B)
-                                    , C * approx_log(v-D) + E);
-                break;
-        }
-
-        // Re-apply the original sign bit on our way out the door.
-        return pun_to_F32(sign | pun_to_I32(v));
+    TFKind tf_kind = classify_transfer_fn(tf);
+    return {
+        sk_program_transfer_fn(c.r, tf_kind, G,A,B,C,D,E,F),
+        sk_program_transfer_fn(c.g, tf_kind, G,A,B,C,D,E,F),
+        sk_program_transfer_fn(c.b, tf_kind, G,A,B,C,D,E,F),
+        c.a,
     };
-
-    return {apply(c.r), apply(c.g), apply(c.b), c.a};
 }
 
 skvm::Color SkColorSpaceXformSteps::program(skvm::Builder* p, skvm::Uniforms* uniforms,

@@ -154,7 +154,7 @@ SkImage_Gpu::SkImage_Gpu(sk_sp<GrImageContext> context,
 #ifdef SK_DEBUG
     const GrBackendFormat& format = fChooser.backendFormat();
     const GrCaps* caps = this->context()->priv().caps();
-    GrColorType grCT = SkColorTypeAndFormatToGrColorType(caps, this->colorType(), format);
+    GrColorType grCT = SkColorTypeToGrColorType(this->colorType());
     SkASSERT(caps->isFormatCompressed(format) ||
              caps->areColorTypeAndFormatCompatible(grCT, format));
 #endif
@@ -179,7 +179,7 @@ SkImage_Gpu::SkImage_Gpu(sk_sp<GrDirectContext> dContext,
 #ifdef SK_DEBUG
     const GrBackendFormat& format = fChooser.backendFormat();
     const GrCaps* caps = this->context()->priv().caps();
-    GrColorType grCT = SkColorTypeAndFormatToGrColorType(caps, this->colorType(), format);
+    GrColorType grCT = SkColorTypeToGrColorType(this->colorType());
     SkASSERT(caps->isFormatCompressed(format) ||
              caps->areColorTypeAndFormatCompatible(grCT, format));
 #endif
@@ -457,7 +457,7 @@ sk_sp<SkImage> SkImage::MakeFromTexture(GrRecordingContext* rContext,
 
     const GrCaps* caps = rContext->priv().caps();
 
-    GrColorType grColorType = SkColorTypeAndFormatToGrColorType(caps, ct, tex.getBackendFormat());
+    GrColorType grColorType = SkColorTypeToGrColorType(ct);
     if (GrColorType::kUnknown == grColorType) {
         return nullptr;
     }
@@ -482,7 +482,7 @@ sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrRecordingContext* rContext,
 
     const GrCaps* caps = dContext->priv().caps();
 
-    GrColorType grColorType = SkColorTypeAndFormatToGrColorType(caps, ct, tex.getBackendFormat());
+    GrColorType grColorType = SkColorTypeToGrColorType(ct);
     if (GrColorType::kUnknown == grColorType) {
         return nullptr;
     }
@@ -595,9 +595,7 @@ sk_sp<SkImage> SkImage::MakePromiseTexture(sk_sp<GrContextThreadSafeProxy> threa
         return nullptr;
     }
 
-    GrColorType grColorType = SkColorTypeAndFormatToGrColorType(threadSafeProxy->priv().caps(),
-                                                                colorType,
-                                                                backendFormat);
+    GrColorType grColorType = SkColorTypeToGrColorType(colorType);
     if (GrColorType::kUnknown == grColorType) {
         return nullptr;
     }
@@ -834,9 +832,7 @@ std::tuple<GrSurfaceProxyView, GrColorType> SkImage_Gpu::onAsView(
                 SkColorTypeToGrColorType(this->colorType())};
     }
     GrSurfaceProxyView view = this->makeView(recordingContext);
-    GrColorType ct = SkColorTypeAndFormatToGrColorType(recordingContext->priv().caps(),
-                                                       this->colorType(),
-                                                       view.proxy()->backendFormat());
+    GrColorType ct = SkColorTypeToGrColorType(this->colorType());
     if (mipmapped == GrMipmapped::kYes) {
         view = FindOrMakeCachedMipmappedView(recordingContext, std::move(view), this->uniqueID());
     }
