@@ -8,6 +8,11 @@ half4 main(float2 coords) {
     highp   float f2[2] = float [2](1, 2);
     mediump float h2[2] = float [2](1, 2);
 
+    i2 = s2;
+    s2 = i2;
+    f2 = h2;
+    h2 = f2;
+
     const highp   int   ci2[2] = int   [2](1, 2);
     const mediump int   cs2[2] = int   [2](1, 2);
     const highp   float cf2[2] = float [2](1, 2);
