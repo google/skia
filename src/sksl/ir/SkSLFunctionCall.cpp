@@ -162,50 +162,36 @@ static std::unique_ptr<Expression> coalesce_pairwise_vectors(const ExpressionArr
                                  (double)startingState, coalesce, finalize, make_literal<T>);
 }
 
-template <typename LITERAL, typename FN>
-static std::unique_ptr<Expression> optimize_comparison_of_type(const Context& context,
-                                                               const Expression& left,
-                                                               const Expression& right,
-                                                               const FN& compare) {
-    const Type& type = left.type();
+using CompareFn = bool (*)(double, double);
+
+static std::unique_ptr<Expression> optimize_comparison(const Context& context,
+                                                       const ExpressionArray& arguments,
+                                                       CompareFn compare) {
+    SkASSERT(arguments.size() == 2);
+    const Expression* left = ConstantFolder::GetConstantValueForVariable(*arguments[0]);
+    const Expression* right = ConstantFolder::GetConstantValueForVariable(*arguments[1]);
+    SkASSERT(left);
+    SkASSERT(right);
+
+    const Type& type = left->type();
     SkASSERT(type.isVector());
     SkASSERT(type.componentType().isNumber());
-    SkASSERT(type == right.type());
+    SkASSERT(type == right->type());
 
     ExpressionArray array;
     array.reserve_back(type.columns());
 
     for (int index = 0; index < type.columns(); ++index) {
-        const Expression* leftSubexpr = left.getConstantSubexpression(index);
-        const Expression* rightSubexpr = right.getConstantSubexpression(index);
+        const Expression* leftSubexpr = left->getConstantSubexpression(index);
+        const Expression* rightSubexpr = right->getConstantSubexpression(index);
         SkASSERT(leftSubexpr);
         SkASSERT(rightSubexpr);
-        bool value = compare(leftSubexpr->as<LITERAL>().value(),
-                             rightSubexpr->as<LITERAL>().value());
+        bool value = compare(as_double(leftSubexpr), as_double(rightSubexpr));
         array.push_back(BoolLiteral::Make(context, leftSubexpr->fOffset, value));
     }
 
     const Type& bvecType = context.fTypes.fBool->toCompound(context, type.columns(), /*rows=*/1);
-    return ConstructorCompound::Make(context, left.fOffset, bvecType, std::move(array));
-}
-
-template <typename FN>
-static std::unique_ptr<Expression> optimize_comparison(const Context& context,
-                                                       const ExpressionArray& arguments,
-                                                       const FN& compare) {
-    SkASSERT(arguments.size() == 2);
-    const Expression* left = ConstantFolder::GetConstantValueForVariable(*arguments[0]);
-    const Expression* right = ConstantFolder::GetConstantValueForVariable(*arguments[1]);
-    const Type& type = left->type().componentType();
-
-    if (type.isFloat()) {
-        return optimize_comparison_of_type<FloatLiteral>(context, *left, *right, compare);
-    }
-    if (type.isInteger()) {
-        return optimize_comparison_of_type<IntLiteral>(context, *left, *right, compare);
-    }
-    SkDEBUGFAILF("unsupported type %s", type.description().c_str());
-    return nullptr;
+    return ConstructorCompound::Make(context, left->fOffset, bvecType, std::move(array));
 }
 
 template <typename T0, typename T1 = T0, typename T2 = T0>
@@ -381,6 +367,13 @@ double finalize_distance(double a)                     { return std::sqrt(a); }
 double coalesce_dot(double a, double b, double c)      { return a + (b * c); }
 double coalesce_any(double a, double b, double)        { return a || b; }
 double coalesce_all(double a, double b, double)        { return a && b; }
+
+bool compare_lessThan(double a, double b)         { return a < b; }
+bool compare_lessThanEqual(double a, double b)    { return a <= b; }
+bool compare_greaterThan(double a, double b)      { return a > b; }
+bool compare_greaterThanEqual(double a, double b) { return a >= b; }
+bool compare_equal(double a, double b)            { return a == b; }
+bool compare_notEqual(double a, double b)         { return a != b; }
 
 }
 
@@ -620,22 +613,22 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
 
         // 8.6 : Vector Relational Functions
         case k_lessThan_IntrinsicKind:
-            return optimize_comparison(context, arguments, [](auto a, auto b) { return a < b; });
+            return optimize_comparison(context, arguments, Intrinsics::compare_lessThan);
 
         case k_lessThanEqual_IntrinsicKind:
-            return optimize_comparison(context, arguments, [](auto a, auto b) { return a <= b; });
+            return optimize_comparison(context, arguments, Intrinsics::compare_lessThanEqual);
 
         case k_greaterThan_IntrinsicKind:
-            return optimize_comparison(context, arguments, [](auto a, auto b) { return a > b; });
+            return optimize_comparison(context, arguments, Intrinsics::compare_greaterThan);
 
         case k_greaterThanEqual_IntrinsicKind:
-            return optimize_comparison(context, arguments, [](auto a, auto b) { return a >= b; });
+            return optimize_comparison(context, arguments, Intrinsics::compare_greaterThanEqual);
 
         case k_equal_IntrinsicKind:
-            return optimize_comparison(context, arguments, [](auto a, auto b) { return a == b; });
+            return optimize_comparison(context, arguments, Intrinsics::compare_equal);
 
         case k_notEqual_IntrinsicKind:
-            return optimize_comparison(context, arguments, [](auto a, auto b) { return a != b; });
+            return optimize_comparison(context, arguments, Intrinsics::compare_notEqual);
 
         case k_any_IntrinsicKind:
             return coalesce_vector<bool>(arguments, /*startingState=*/false,
