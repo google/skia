@@ -520,6 +520,7 @@ int main(int argc, char** argv) {
         { "f32",                kRGBA_F32_SkColorType },
         { "rgba",              kRGBA_8888_SkColorType },
         { "bgra",              kBGRA_8888_SkColorType },
+        { "srgba",            kSRGBA_8888_SkColorType },
         { "16161616", kR16G16B16A16_unorm_SkColorType },
     };
     const FlagOption<SkAlphaType> kAlphaTypes[] = {

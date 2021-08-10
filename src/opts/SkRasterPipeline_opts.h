@@ -1644,6 +1644,12 @@ STAGE(move_dst_src, Ctx::None) {
     b = db;
     a = da;
 }
+STAGE(swap_src_dst, Ctx::None) {
+    std::swap(r, dr);
+    std::swap(g, dg);
+    std::swap(b, db);
+    std::swap(a, da);
+}
 
 STAGE(premul, Ctx::None) {
     r = r * a;
@@ -3286,6 +3292,13 @@ STAGE_PP(move_dst_src, Ctx::None) {
     g = dg;
     b = db;
     a = da;
+}
+
+STAGE_PP(swap_src_dst, Ctx::None) {
+    std::swap(r, dr);
+    std::swap(g, dg);
+    std::swap(b, db);
+    std::swap(a, da);
 }
 
 // ~~~~~~ Blend modes ~~~~~~ //

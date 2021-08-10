@@ -48,6 +48,7 @@ static const char* color_type_name(SkColorType colorType) {
         case kA16_float_SkColorType:          return "A16_float";
         case kR16G16_float_SkColorType:       return "R16G16_float";
         case kR16G16B16A16_unorm_SkColorType: return "R16G16B16A16_unorm";
+        case kSRGBA_8888_SkColorType:         return "SRGBA_8888";
     }
     return "";
 }
