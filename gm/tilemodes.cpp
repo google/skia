@@ -90,7 +90,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         SkPaint textPaint;
-        SkFont  font(ToolUtils::create_portable_typeface(), 12);
+        SkFont  font(ToolUtils::create_portable_typeface());
 
         int size = fPowerOfTwoSize ? kPOTSize : kNPOTSize;
 
@@ -113,7 +113,6 @@ protected:
                 SkPaint p;
                 p.setDither(true);
                 SkString str;
-                SkFont   font(ToolUtils::create_portable_typeface());
                 str.printf("[%s,%s]", gModeNames[kx], gModeNames[ky]);
 
                 SkTextUtils::DrawString(canvas, str.c_str(), x + r.width()/2, y, font, p,

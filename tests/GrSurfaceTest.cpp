@@ -188,11 +188,11 @@ DEF_GPUTEST(InitialTextureClear, reporter, baseOptions) {
     static constexpr int kSize = 100;
     static constexpr SkColor kClearColor = 0xABABABAB;
 
-    const SkImageInfo info = SkImageInfo::Make(kSize, kSize, kRGBA_8888_SkColorType,
-                                               kPremul_SkAlphaType);
+    const SkImageInfo imageInfo = SkImageInfo::Make(kSize, kSize, kRGBA_8888_SkColorType,
+                                                    kPremul_SkAlphaType);
 
     SkAutoPixmapStorage readback;
-    readback.alloc(info);
+    readback.alloc(imageInfo);
 
     SkISize desc;
     desc.fWidth = desc.fHeight = kSize;

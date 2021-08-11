@@ -245,7 +245,7 @@ protected:
 
         SkFont font(ToolUtils::create_portable_typeface());
 
-        const int W = 5;
+        const int kWrap = 5;
 
         SkScalar x0 = 0;
         SkScalar y0 = 0;
@@ -278,7 +278,7 @@ protected:
                                         font, labelP, SkTextUtils::kCenter_Align);
 #endif
                 x += w + SkIntToScalar(10);
-                if ((i % W) == W - 1) {
+                if ((i % kWrap) == kWrap - 1) {
                     x = x0;
                     y += h + SkIntToScalar(30);
                 }

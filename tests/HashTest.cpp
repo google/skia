@@ -77,7 +77,7 @@ DEF_TEST(HashMap, r) {
     SkTHashMap<int, double> clone = map;
 
     for (int i = 0; i < N; i++) {
-        double* found = map.find(i);
+        found = map.find(i);
         REPORTER_ASSERT(r, found);
         REPORTER_ASSERT(r, *found == i*2.0);
 
@@ -97,7 +97,7 @@ DEF_TEST(HashMap, r) {
         map.remove(i);
     }
     for (int i = 0; i < N; i++) {
-        double* found = map.find(i);
+        found = map.find(i);
         REPORTER_ASSERT(r, (found == nullptr) == (i < N/2));
 
         found = clone.find(i);

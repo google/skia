@@ -110,8 +110,8 @@ void showOp(const SkPathOp op) {
     }
 }
 
-const int bitWidth = 64;
-const int bitHeight = 64;
+const int kBitWidth = 64;
+const int kBitHeight = 64;
 
 static void scaleMatrix(const SkPath& one, const SkPath& two, SkMatrix& scale) {
     SkRect larger = one.getBounds();
@@ -124,8 +124,8 @@ static void scaleMatrix(const SkPath& one, const SkPath& two, SkMatrix& scale) {
     if (largerHeight < 4) {
         largerHeight = 4;
     }
-    SkScalar hScale = (bitWidth - 2) / largerWidth;
-    SkScalar vScale = (bitHeight - 2) / largerHeight;
+    SkScalar hScale = (kBitWidth - 2) / largerWidth;
+    SkScalar vScale = (kBitHeight - 2) / largerHeight;
     scale.reset();
     scale.preScale(hScale, vScale);
     larger.fLeft *= hScale;
@@ -142,7 +142,7 @@ static void scaleMatrix(const SkPath& one, const SkPath& two, SkMatrix& scale) {
 static int pathsDrawTheSame(SkBitmap& bits, const SkPath& scaledOne, const SkPath& scaledTwo,
         int& error2x2) {
     if (bits.width() == 0) {
-        bits.allocN32Pixels(bitWidth * 2, bitHeight);
+        bits.allocN32Pixels(kBitWidth * 2, kBitHeight);
     }
     SkCanvas canvas(bits);
     canvas.drawColor(SK_ColorWHITE);
@@ -153,17 +153,17 @@ static int pathsDrawTheSame(SkBitmap& bits, const SkPath& scaledOne, const SkPat
     canvas.drawPath(scaledOne, paint);
     canvas.restore();
     canvas.save();
-    canvas.translate(-bounds1.fLeft + 1 + bitWidth, -bounds1.fTop + 1);
+    canvas.translate(-bounds1.fLeft + 1 + kBitWidth, -bounds1.fTop + 1);
     canvas.drawPath(scaledTwo, paint);
     canvas.restore();
     int errors2 = 0;
     int errors = 0;
-    for (int y = 0; y < bitHeight - 1; ++y) {
+    for (int y = 0; y < kBitHeight - 1; ++y) {
         uint32_t* addr1 = bits.getAddr32(0, y);
         uint32_t* addr2 = bits.getAddr32(0, y + 1);
-        uint32_t* addr3 = bits.getAddr32(bitWidth, y);
-        uint32_t* addr4 = bits.getAddr32(bitWidth, y + 1);
-        for (int x = 0; x < bitWidth - 1; ++x) {
+        uint32_t* addr3 = bits.getAddr32(kBitWidth, y);
+        uint32_t* addr4 = bits.getAddr32(kBitWidth, y + 1);
+        for (int x = 0; x < kBitWidth - 1; ++x) {
             // count 2x2 blocks
             bool err = addr1[x] != addr3[x];
             if (err) {
@@ -293,13 +293,13 @@ static int comparePaths(skiatest::Reporter* reporter, const char* testName, cons
 }
 
 // Default values for when reporter->verbose() is false.
-static int testNumber = 55;
-static const char* testName = "pathOpTest";
+static int sTestNumber = 55;
+static const char* sTestName = "pathOpTest";
 
 static void appendTestName(const char* nameSuffix, std::string& out) {
-    out += testName;
-    out += std_to_string(testNumber);
-    ++testNumber;
+    out += sTestName;
+    out += std_to_string(sTestNumber);
+    ++sTestNumber;
     if (nameSuffix) {
         out.append(nameSuffix);
     }
@@ -473,7 +473,7 @@ static bool inner_simplify(skiatest::Reporter* reporter, const SkPath& path, con
     }
     SkPath out;
     if (!SimplifyDebug(path, &out  SkDEBUGPARAMS(SkipAssert::kYes == skipAssert)
-            SkDEBUGPARAMS(testName))) {
+            SkDEBUGPARAMS(sTestName))) {
         if (ExpectSuccess::kYes == expectSuccess) {
             SkDebugf("%s did not expect %s failure\n", __FUNCTION__, filename);
             REPORTER_ASSERT(reporter, 0);
@@ -636,7 +636,7 @@ void initializeTests(skiatest::Reporter* reporter, const char* test) {
     static SkMutex& mu = *(new SkMutex);
     if (reporter->verbose()) {
         SkAutoMutexExclusive lock(mu);
-        testName = test;
+        sTestName = test;
         size_t testNameSize = strlen(test);
         SkFILEStream inFile("../../experimental/Intersection/op.htm");
         if (inFile.isValid()) {
@@ -649,7 +649,7 @@ void initializeTests(skiatest::Reporter* reporter, const char* test) {
             if (insert) {
                 insert += sizeof(marker) - 1;
                 const char* numLoc = insert + 4 /* indent spaces */ + testNameSize - 1;
-                testNumber = atoi(numLoc) + 1;
+                sTestNumber = atoi(numLoc) + 1;
             }
         }
     }
