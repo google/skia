@@ -107,8 +107,6 @@ public:
     void enableAdvancedBlendEquationIfNeeded(GrBlendEquation) override;
 
 private:
-    using CustomFeatures = GrProcessor::CustomFeatures;
-
     // GrGLSLFPFragmentBuilder private interface.
     void onBeforeChildProcEmitCode() override;
     void onAfterChildProcEmitCode() override;
@@ -125,12 +123,9 @@ private:
     // As GLSLProcessors emit code, there are some conditions we need to verify.  We use the below
     // state to track this.  The reset call is called per processor emitted.
     bool fHasReadDstColorThisStage_DebugOnly = false;
-    CustomFeatures fUsedProcessorFeaturesThisStage_DebugOnly = CustomFeatures::kNone;
-    CustomFeatures fUsedProcessorFeaturesAllStages_DebugOnly = CustomFeatures::kNone;
 
     void debugOnly_resetPerStageVerification() {
         fHasReadDstColorThisStage_DebugOnly = false;
-        fUsedProcessorFeaturesThisStage_DebugOnly = CustomFeatures::kNone;
     }
 #endif
 

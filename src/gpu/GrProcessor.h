@@ -128,19 +128,6 @@ public:
     }
 #endif
 
-    /**
-     * Custom shader features provided by the framework. These require special handling when
-     * preparing shaders, so a processor must call setWillUseCustomFeature() from its constructor if
-     * it intends to use one.
-     */
-    enum class CustomFeatures {
-        kNone = 0,
-    };
-
-    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(CustomFeatures);
-
-    CustomFeatures requestedFeatures() const { return fRequestedFeatures; }
-
     void* operator new(size_t size);
     void* operator new(size_t object_size, size_t footer_size);
     void operator delete(void* target);
@@ -162,13 +149,7 @@ protected:
     GrProcessor(const GrProcessor&) = delete;
     GrProcessor& operator=(const GrProcessor&) = delete;
 
-    void setWillUseCustomFeature(CustomFeatures feature) { fRequestedFeatures |= feature; }
-    void resetCustomFeatures() { fRequestedFeatures = CustomFeatures::kNone; }
-
     const ClassID fClassID;
-    CustomFeatures fRequestedFeatures = CustomFeatures::kNone;
 };
-
-GR_MAKE_BITFIELD_CLASS_OPS(GrProcessor::CustomFeatures)
 
 #endif

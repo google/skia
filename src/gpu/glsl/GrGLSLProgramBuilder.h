@@ -41,9 +41,6 @@ public:
     GrSurfaceOrigin origin() const { return fProgramInfo.origin(); }
     const GrPipeline& pipeline() const { return fProgramInfo.pipeline(); }
     const GrGeometryProcessor& geometryProcessor() const { return fProgramInfo.geomProc(); }
-    GrProcessor::CustomFeatures processorFeatures() const {
-        return fProgramInfo.requestedFeatures();
-    }
     bool snapVerticesToPixelCenters() const {
         return fProgramInfo.pipeline().snapVerticesToPixelCenters();
     }

@@ -42,16 +42,8 @@ public:
         SkASSERT(this->numSamples() > 0);
         SkASSERT((GrPrimitiveType::kPatches == fPrimitiveType) ==
                  (fTessellationPatchVertexCount > 0));
-        fRequestedFeatures = fGeomProc->requestedFeatures();
-        for (int i = 0; i < fPipeline->numFragmentProcessors(); ++i) {
-            fRequestedFeatures |= fPipeline->getFragmentProcessor(i).requestedFeatures();
-        }
-        fRequestedFeatures |= fPipeline->getXferProcessor().requestedFeatures();
-
         SkDEBUGCODE(this->validate(false);)
     }
-
-    GrProcessor::CustomFeatures requestedFeatures() const { return fRequestedFeatures; }
 
     int numSamples() const { return fNumSamples; }
     int needsStencil() const { return fNeedsStencil; }
@@ -105,7 +97,6 @@ private:
     const GrPipeline*                     fPipeline;
     const GrUserStencilSettings*          fUserStencilSettings;
     const GrGeometryProcessor*            fGeomProc;
-    GrProcessor::CustomFeatures           fRequestedFeatures;
     GrPrimitiveType                       fPrimitiveType;
     uint8_t                               fTessellationPatchVertexCount;  // GrPrimType::kPatches.
     GrXferBarrierFlags                    fRenderPassXferBarriers;

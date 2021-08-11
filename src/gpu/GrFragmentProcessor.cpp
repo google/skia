@@ -166,8 +166,6 @@ void GrFragmentProcessor::registerChild(std::unique_ptr<GrFragmentProcessor> chi
         fFlags |= kUsesSampleCoordsIndirectly_Flag;
     }
 
-    fRequestedFeatures |= child->fRequestedFeatures;
-
     // Record that the child is attached to us; this FP is the source of any uniform data needed
     // to evaluate the child sample matrix.
     child->fParent = this;

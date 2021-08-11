@@ -156,7 +156,6 @@ static void gen_key(GrProcessorKeyBuilder* b,
     gen_xp_key(pipeline.getXferProcessor(), caps, pipeline, b);
 
     b->addBits(16, pipeline.writeSwizzle().asKey(), "writeSwizzle");
-    b->addBits(1, static_cast<uint32_t>(programInfo.requestedFeatures()), "requestedFeatures");
     b->addBool(pipeline.snapVerticesToPixelCenters(), "snapVertices");
     // The base descriptor only stores whether or not the primitiveType is kPoints. Backend-
     // specific versions (e.g., Vulkan) require more detail

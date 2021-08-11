@@ -165,8 +165,6 @@ GrSurfaceOrigin GrGLSLFragmentShaderBuilder::getSurfaceOrigin() const {
 }
 
 void GrGLSLFragmentShaderBuilder::onFinalize() {
-    SkASSERT(fProgramBuilder->processorFeatures() == fUsedProcessorFeaturesAllStages_DebugOnly);
-
     fProgramBuilder->varyingHandler()->getFragDecls(&this->inputs(), &this->outputs());
 }
 

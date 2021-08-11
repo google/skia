@@ -336,17 +336,14 @@ bool GrGLSLProgramBuilder::checkSamplerCounts() {
 #ifdef SK_DEBUG
 void GrGLSLProgramBuilder::verify(const GrGeometryProcessor& geomProc) {
     SkASSERT(!fFS.fHasReadDstColorThisStage_DebugOnly);
-    SkASSERT(fFS.fUsedProcessorFeaturesThisStage_DebugOnly == geomProc.requestedFeatures());
 }
 
 void GrGLSLProgramBuilder::verify(const GrFragmentProcessor& fp) {
     SkASSERT(fp.willReadDstColor() == fFS.fHasReadDstColorThisStage_DebugOnly);
-    SkASSERT(fFS.fUsedProcessorFeaturesThisStage_DebugOnly == fp.requestedFeatures());
 }
 
 void GrGLSLProgramBuilder::verify(const GrXferProcessor& xp) {
     SkASSERT(xp.willReadDstColor() == fFS.fHasReadDstColorThisStage_DebugOnly);
-    SkASSERT(fFS.fUsedProcessorFeaturesThisStage_DebugOnly == xp.requestedFeatures());
 }
 #endif
 
