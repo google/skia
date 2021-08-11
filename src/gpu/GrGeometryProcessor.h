@@ -10,7 +10,6 @@
 
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrFragmentProcessor.h"
-#include "src/gpu/GrNonAtomicRef.h"
 #include "src/gpu/GrProcessor.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/GrShaderVar.h"
@@ -49,11 +48,8 @@ class GrGLSLVertexBuilder;
  * geometry processors can be created in either the record-time or flush-time arenas which
  * define their lifetimes (i.e., a DDLs life time in the first case and a single flush in
  * the second case).
- *
- * TODO: This class does not really need to be ref counted. Instances should be allocated using
- * GrOpFlushState's arena and destroyed when the arena is torn down.
  */
-class GrGeometryProcessor : public GrProcessor, public GrNonAtomicRef<GrGeometryProcessor> {
+class GrGeometryProcessor : public GrProcessor {
 public:
     /**
      * Every GrGeometryProcessor must be capable of creating a subclass of ProgramImpl. The
