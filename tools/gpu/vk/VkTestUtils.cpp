@@ -568,7 +568,7 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
 
     VkPhysicalDeviceProperties physDeviceProperties;
     grVkGetPhysicalDeviceProperties(physDev, &physDeviceProperties);
-    int physDeviceVersion = std::min(physDeviceProperties.apiVersion, apiVersion);
+    uint32_t physDeviceVersion = std::min(physDeviceProperties.apiVersion, apiVersion);
 
     if (isProtected && physDeviceVersion < VK_MAKE_VERSION(1, 1, 0)) {
         SkDebugf("protected requires vk physical device version 1.1\n");

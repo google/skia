@@ -1392,7 +1392,7 @@ static bool backend_format_is_external(const GrBackendFormat& format) {
 #ifdef SK_DEBUG
         VkFormat vkFormat;
         SkAssertResult(format.asVkFormat(&vkFormat));
-        SkASSERT(vkFormat == VK_NULL_HANDLE);
+        SkASSERT(vkFormat == VK_FORMAT_UNDEFINED);
 #endif
         return true;
     }
