@@ -10,6 +10,8 @@
 
 #include "include/gpu/GrTypes.h"
 
+class GrCaps;
+
 #if SK_GPU_V1
 
 #include "src/gpu/GrPathRenderer.h"
