@@ -54,5 +54,9 @@ GlyphIndex TextRun::findGlyph(TextIndex textIndex) const {
     return glyphIndex;
 }
 
+TextRange TextRun::getTextRange(GlyphRange glyphRange) const {
+    return TextRange(this->fClusters[glyphRange.fStart], this->fClusters[glyphRange.fEnd]);
+}
+
 } // namespace text
 } // namespace skia

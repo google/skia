@@ -28,15 +28,16 @@ public:
 // and breaks runs on them (so we can select and interpret them later)
 class FormattingFontIterator final : public SkShaper::FontRunIterator {
 public:
-    FormattingFontIterator(TextIndex textCount, SkSpan<FontBlock> fontBlocks, SkSpan<TextIndex> marks)
-        : fTextCount(textCount)
-        , fFontBlocks(fontBlocks)
-        , fFormattingMarks(std::move(marks))
-        , fCurrentBlock(fontBlocks.begin())
-        , fCurrentMark(marks.begin())
-        , fCurrentFontIndex(0)
-        , fCurrentFont(fCurrentBlock->createFont())
-    { }
+    FormattingFontIterator(TextIndex textCount,
+                           SkSpan<FontBlock> fontBlocks,
+                           SkSpan<TextIndex> marks)
+            : fTextCount(textCount)
+            , fFontBlocks(fontBlocks)
+            , fFormattingMarks(marks)
+            , fCurrentBlock(fontBlocks.begin())
+            , fCurrentMark(marks.begin())
+            , fCurrentFontIndex(0)
+            , fCurrentFont(fCurrentBlock->createFont()) {}
 
     void consume() override {
         SkASSERT(fCurrentBlock < fFontBlocks.end());
@@ -66,13 +67,11 @@ public:
         }
     }
     bool atEnd() const override {
-        return (fCurrentBlock != fFontBlocks.end() ? fCurrentFontIndex == fTextCount : true) &&
-                (fCurrentMark != fFormattingMarks.end() ? *fCurrentMark == fTextCount : true);
+        return (fCurrentBlock == fFontBlocks.end() || fCurrentFontIndex == fTextCount) &&
+               (fCurrentMark == fFormattingMarks.end() || *fCurrentMark == fTextCount);
     }
 
-    const SkFont& currentFont() const override {
-        return fCurrentFont;
-    }
+    const SkFont& currentFont() const override { return fCurrentFont; }
 
 private:
     TextIndex const fTextCount;
@@ -86,14 +85,8 @@ private:
 
 class ShapedText;
 class UnicodeText : public SkShaper::RunHandler {
-
 public:
-    std::unique_ptr<ShapedText> shape(SkSpan<FontBlock> blocks,
-                                      TextDirection textDirection);
-
-    bool shapeParagraph(TextRange text,
-                        SkSpan<FontBlock> blocks,
-                        TextDirection textDirection);
+    std::unique_ptr<ShapedText> shape(SkSpan<FontBlock> blocks, TextDirection textDirection);
 
     bool hasProperty(size_t index, CodeUnitFlags flag) {
         return (fCodeUnitProperties[index] & flag) == flag;
@@ -108,7 +101,7 @@ public:
 
 private:
     friend class Text;
-    UnicodeText() : fCurrentRun(nullptr) { }
+    UnicodeText() : fCurrentRun(nullptr) {}
     void beginLine() override {}
     void runInfo(const RunInfo&) override {}
     void commitRunInfo() override {}
@@ -138,7 +131,8 @@ class ShapedText {
 public:
     std::unique_ptr<WrappedText> wrap(float width, float height, SkUnicode* unicode);
     bool isClusterEdge(size_t index) const {
-        return (fGlyphUnitProperties[index] & GlyphUnitFlags::kGlyphClusterStart) == GlyphUnitFlags::kGlyphClusterStart;
+        return (fGlyphUnitProperties[index] & GlyphUnitFlags::kGlyphClusterStart) ==
+               GlyphUnitFlags::kGlyphClusterStart;
     }
     void adjustLeft(size_t* index) const {
         SkASSERT(index != nullptr);
@@ -182,11 +176,11 @@ public:
             }
         }
         return true;
-}
+    }
 
 private:
     friend class UnicodeText;
-    ShapedText() { }
+    ShapedText() {}
     SkTArray<TextRun, false> fRuns;
     SkTArray<GlyphUnitFlags, true> fGlyphUnitProperties;
 };
@@ -197,9 +191,10 @@ public:
     sk_sp<FormattedText> format(TextAlign textAlign, TextDirection textDirection);
     SkSize actualSize() const { return fActualSize; }
     size_t countLines() const { return fLines.size(); }
+
 private:
     friend class ShapedText;
-    WrappedText() : fActualSize(SkSize::MakeEmpty()) { }
+    WrappedText() : fActualSize(SkSize::MakeEmpty()) {}
     void addLine(Stretch& stretch, Stretch& spaces, SkUnicode* unicode, bool hardLineBreak);
     SkTArray<TextRun, false> fRuns;
     SkTArray<Line, false> fLines;
@@ -209,7 +204,7 @@ private:
 
 class FormattedText : public SkRefCnt {
 public:
-    SkSize  actualSize() const { return fActualSize; }
+    SkSize actualSize() const { return fActualSize; }
 
     Position adjustedPosition(PositionType positionType, SkPoint point) const;
 
@@ -234,8 +229,12 @@ public:
 
     size_t lineIndex(const Line* line) const { return line - fLines.data(); }
     size_t countLines() const { return fLines.size(); }
-    const Line* line(size_t lineIndex) const { return fLines.empty() ? nullptr : &fLines[lineIndex]; }
-    size_t runIndex(const TextRun* run) const { return run == nullptr ? EMPTY_INDEX : run - fRuns.data(); }
+    const Line* line(size_t lineIndex) const {
+        return fLines.empty() ? nullptr : &fLines[lineIndex];
+    }
+    size_t runIndex(const TextRun* run) const {
+        return run == nullptr ? EMPTY_INDEX : run - fRuns.data();
+    }
 
     bool hasProperty(size_t index, GlyphUnitFlags flag) const {
         return (fGlyphUnitProperties[index] & flag) == flag;
@@ -244,14 +243,14 @@ public:
     class Visitor {
     public:
         virtual ~Visitor() = default;
-        virtual void onBeginLine(TextRange lineText, float baselineY, float horizontalOffset) { }
-        virtual void onEndLine(TextRange lineText, float baselineY) { }
-        virtual void onGlyphRun(SkFont font,
+        virtual void onBeginLine(TextRange lineText) {}
+        virtual void onEndLine(TextRange lineText) {}
+        virtual void onGlyphRun(const SkFont& font,
                                 TextRange textRange,
                                 SkRect boundingRect,
                                 int glyphCount,
                                 const uint16_t glyphs[],
-                                const SkPoint  positions[],
+                                const SkPoint positions[],
                                 const SkPoint offsets[]) {
             SkTextBlobBuilder builder;
             const auto& blobBuffer = builder.allocRunPos(font, SkToInt(glyphCount));
@@ -259,7 +258,7 @@ public:
             sk_careful_memcpy(blobBuffer.points(), positions, glyphCount * sizeof(SkPoint));
             fTextBlobs.emplace_back(builder.make());
         }
-        virtual void onPlaceholder(TextRange, const SkRect& bounds) { }
+        virtual void onPlaceholder(TextRange, const SkRect& bounds) {}
 
         void buildTextBlobs(FormattedText* formattedText) {
             fTextBlobs.clear();
@@ -277,7 +276,6 @@ public:
     void visit(Visitor*, SkSpan<size_t> blocks) const;
 
     void paint(SkCanvas* canvas, SkPaint& foreground, SkPoint xy, bool rebuild = true) {
-
         if (fVisitor == nullptr) {
             fVisitor = std::make_unique<Visitor>();
             rebuild = true;
@@ -291,11 +289,10 @@ public:
     }
 
 private:
-
     void adjustTextRange(Position* position) const;
 
     friend class WrappedText;
-    FormattedText() { }
+    FormattedText() = default;
     SkTArray<TextRun, false> fRuns;
     SkTArray<Line, false> fLines;
     SkTArray<GlyphUnitFlags, true> fGlyphUnitProperties;

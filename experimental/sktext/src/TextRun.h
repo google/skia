@@ -27,6 +27,7 @@ class TextRun {
   uint8_t bidiLevel() const { return fBidiLevel; }
   GlyphIndex findGlyph(TextIndex textIndex) const;
   size_t size() const { return fGlyphs.size(); }
+  TextRange getTextRange(GlyphRange glyphRange) const;
 
   template <typename Callback>
   void forEachCluster(Callback&& callback) {

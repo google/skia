@@ -21,7 +21,7 @@ Editor::Editor(std::u16string text, SkSize size)
     {
         SkPaint foreground; foreground.setColor(DEFAULT_TEXT_FOREGROUND);
         SkPaint background; background.setColor(DEFAULT_TEXT_BACKGROUND);
-        static FontBlock textBlock(text.size(), sk_make_sp<TrivialFontChain>("Roboto", 40));
+        static FontBlock textBlock(text.size(), sk_make_sp<TrivialFontChain>("Roboto", 40, SkFontStyle::Normal()));
         static DecoratedBlock textDecor(text.size(), foreground, background);
         auto textSize = SkSize::Make(size.width(), size.height() - DEFAULT_STATUS_HEIGHT);
         fEditableText = std::make_unique<EditableText>(
@@ -33,7 +33,7 @@ Editor::Editor(std::u16string text, SkSize size)
         SkPaint foreground; foreground.setColor(DEFAULT_STATUS_FOREGROUND);
         SkPaint background; background.setColor(DEFAULT_STATUS_BACKGROUND);
         std::u16string status = u"This is the status line";
-        static FontBlock statusBlock(status.size(), sk_make_sp<TrivialFontChain>("Roboto", 20));
+        static FontBlock statusBlock(status.size(), sk_make_sp<TrivialFontChain>("Roboto", 20, SkFontStyle::Normal()));
         static DecoratedBlock statusDecor(status.size(), foreground, background);
         auto statusPoint = SkPoint::Make(0, size.height() - DEFAULT_STATUS_HEIGHT);
         fStatus = std::make_unique<DynamicText>(
