@@ -14,6 +14,7 @@
 class GrAtlasManager;
 class GrSmallPathAtlasMgr;
 class GrStrikeCache;
+class GrThreadSafeCache;
 
 /*
  * Abstract interface that supports creating vertices, indices, and meshes, as well as

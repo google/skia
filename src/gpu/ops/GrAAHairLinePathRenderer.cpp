@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "src/gpu/ops/GrAAHairLinePathRenderer.h"
+
 #include "include/core/SkPoint3.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkGeometry.h"
@@ -26,7 +28,6 @@
 #include "src/gpu/effects/GrBezierEffect.h"
 #include "src/gpu/geometry/GrPathUtils.h"
 #include "src/gpu/geometry/GrStyledShape.h"
-#include "src/gpu/ops/GrAAHairLinePathRenderer.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"

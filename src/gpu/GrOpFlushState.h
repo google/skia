@@ -18,7 +18,6 @@
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrRenderTargetProxy.h"
 #include "src/gpu/GrSurfaceProxyView.h"
-#include "src/gpu/ops/GrMeshDrawOp.h"
 
 class GrGpu;
 class GrOpsRenderPass;

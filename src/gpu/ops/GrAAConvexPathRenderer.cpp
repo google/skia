@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "src/gpu/ops/GrAAConvexPathRenderer.h"
+
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "src/core/SkGeometry.h"
@@ -25,7 +27,6 @@
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
-#include "src/gpu/ops/GrAAConvexPathRenderer.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"

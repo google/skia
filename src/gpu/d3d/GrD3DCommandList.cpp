@@ -7,6 +7,7 @@
 
 #include "src/gpu/d3d/GrD3DCommandList.h"
 
+#include "src/core/SkTraceEvent.h"
 #include "src/gpu/GrScissorState.h"
 #include "src/gpu/d3d/GrD3DAttachment.h"
 #include "src/gpu/d3d/GrD3DBuffer.h"

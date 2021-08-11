@@ -8,6 +8,8 @@
 #include "src/gpu/tessellate/GrStrokeTessellateOp.h"
 
 #include "src/core/SkPathPriv.h"
+#include "src/gpu/GrAppliedClip.h"
+#include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/tessellate/GrStrokeFixedCountTessellator.h"
 #include "src/gpu/tessellate/GrStrokeHardwareTessellator.h"

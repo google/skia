@@ -23,7 +23,9 @@
 #include "src/core/SkTLazy.h"
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrSubRunAllocator.h"
+#if SK_GPU_V1
 #include "src/gpu/ops/GrOp.h"
+#endif
 
 class GrAtlasManager;
 class GrAtlasTextOp;

@@ -14,7 +14,6 @@
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/SkGr.h"
-#include "src/gpu/ops/GrAtlasTextOp.h"
 #include "src/gpu/text/GrSDFTControl.h"
 #include "src/gpu/text/GrTextBlobCache.h"
 #if SK_GPU_V1

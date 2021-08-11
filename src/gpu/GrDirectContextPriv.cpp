@@ -17,6 +17,7 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrThreadSafePipelineBuilder.h"
+#include "src/gpu/GrTracing.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/SurfaceContext.h"
 #include "src/gpu/SurfaceFillContext.h"

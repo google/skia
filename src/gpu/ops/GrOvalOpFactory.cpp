@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "src/gpu/ops/GrOvalOpFactory.h"
+
 #include "include/core/SkStrokeRec.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkRRectPriv.h"
@@ -24,7 +26,6 @@
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
-#include "src/gpu/ops/GrOvalOpFactory.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
 #include <utility>

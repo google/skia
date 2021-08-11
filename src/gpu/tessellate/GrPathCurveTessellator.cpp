@@ -8,6 +8,8 @@
 #include "src/gpu/tessellate/GrPathCurveTessellator.h"
 
 #include "src/core/SkUtils.h"
+#include "src/gpu/GrMeshDrawTarget.h"
+#include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/geometry/GrPathUtils.h"
 #include "src/gpu/geometry/GrWangsFormula.h"

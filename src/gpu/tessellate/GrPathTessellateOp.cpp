@@ -7,6 +7,8 @@
 
 #include "src/gpu/tessellate/GrPathTessellateOp.h"
 
+#include "src/gpu/GrAppliedClip.h"
+#include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/tessellate/GrPathWedgeTessellator.h"
 #include "src/gpu/tessellate/shaders/GrPathTessellationShader.h"
 

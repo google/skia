@@ -10,6 +10,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "src/gpu/GrColor.h"
+#include "src/gpu/ops/GrOp.h"
 
 class GrDrawOp;
 class GrPaint;

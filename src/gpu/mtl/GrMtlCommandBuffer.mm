@@ -7,6 +7,7 @@
 
 #include "src/gpu/mtl/GrMtlCommandBuffer.h"
 
+#include "src/core/SkTraceEvent.h"
 #include "src/gpu/mtl/GrMtlGpu.h"
 #include "src/gpu/mtl/GrMtlOpsRenderPass.h"
 #include "src/gpu/mtl/GrMtlPipelineState.h"

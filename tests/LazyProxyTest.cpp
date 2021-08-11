@@ -23,6 +23,7 @@
 #include "src/gpu/GrTextureProxyPriv.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/mock/GrMockGpu.h"
+#include "src/gpu/ops/GrDrawOp.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
 // This test verifies that lazy proxy callbacks get invoked during flush, after onFlush callbacks,

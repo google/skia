@@ -12,7 +12,10 @@
 #if SK_SUPPORT_GPU
 
 #include "src/core/SkCanvasPriv.h"
+#include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/ops/GrDrawOp.h"
+#include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 #include "src/gpu/tessellate/GrPathCurveTessellator.h"
 #include "src/gpu/tessellate/GrPathWedgeTessellator.h"
 #include "src/gpu/tessellate/shaders/GrPathTessellationShader.h"

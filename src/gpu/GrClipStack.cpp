@@ -27,6 +27,7 @@
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/geometry/GrQuadUtils.h"
 #include "src/gpu/ops/GrAtlasPathRenderer.h"
+#include "src/gpu/ops/GrDrawOp.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
 namespace {

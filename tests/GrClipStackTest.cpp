@@ -20,6 +20,7 @@
 #include "src/core/SkRectPriv.h"
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/ops/GrDrawOp.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
 namespace {

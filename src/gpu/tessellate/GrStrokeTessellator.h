@@ -11,6 +11,9 @@
 #include "src/gpu/GrVx.h"
 #include "src/gpu/tessellate/shaders/GrStrokeTessellationShader.h"
 
+class GrMeshDrawTarget;
+class GrOpFlushState;
+
 // Prepares GPU data for, and then draws a stroke's tessellated geometry.
 class GrStrokeTessellator {
 public:

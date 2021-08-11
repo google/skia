@@ -27,7 +27,6 @@
 #include "src/core/SkRRectPriv.h"
 #include "src/gpu/GrAppliedClip.h"
 #include "src/gpu/GrAttachment.h"
-#include "src/gpu/GrBlurUtils.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrColor.h"
@@ -38,6 +37,7 @@
 #include "src/gpu/GrImageContextPriv.h"
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrMemoryPool.h"
+#include "src/gpu/GrPathRenderer.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrResourceProvider.h"
@@ -70,10 +70,6 @@
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 #include "src/gpu/text/GrSDFTControl.h"
 #include "src/gpu/text/GrTextBlobCache.h"
-
-#if SK_GPU_V1
-#include "src/gpu/GrPathRenderer.h"
-#endif
 
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == this->drawingManager()->getContext())
 #define ASSERT_SINGLE_OWNER        GR_ASSERT_SINGLE_OWNER(this->singleOwner())
@@ -934,7 +930,6 @@ bool SurfaceDrawContext::stencilPath(const GrHardClip* clip,
                                      GrAA doStencilMSAA,
                                      const SkMatrix& viewMatrix,
                                      const SkPath& path) {
-#if SK_GPU_V1
     SkIRect clipBounds = clip ? clip->getConservativeBounds()
                               : SkIRect::MakeSize(this->dimensions());
     GrStyledShape shape(path, GrStyledShape::DoSimplify::kNo);
@@ -966,9 +961,6 @@ bool SurfaceDrawContext::stencilPath(const GrHardClip* clip,
     args.fDoStencilMSAA = doStencilMSAA;
     pr->stencilPath(args);
     return true;
-#else
-    return false;
-#endif // SK_GPU_V1
 }
 
 void SurfaceDrawContext::drawTextureSet(const GrClip* clip,
@@ -1608,11 +1600,9 @@ void SurfaceDrawContext::drawShape(const GrClip* clip,
                                      /* attemptDrawSimple */ true);
 }
 
-#if SK_GPU_V1
 static SkIRect get_clip_bounds(const SurfaceDrawContext* sdc, const GrClip* clip) {
     return clip ? clip->getConservativeBounds() : SkIRect::MakeWH(sdc->width(), sdc->height());
 }
-#endif // SK_GPU_V1
 
 bool SurfaceDrawContext::drawAndStencilPath(const GrHardClip* clip,
                                             const GrUserStencilSettings* ss,
@@ -1621,7 +1611,6 @@ bool SurfaceDrawContext::drawAndStencilPath(const GrHardClip* clip,
                                             GrAA aa,
                                             const SkMatrix& viewMatrix,
                                             const SkPath& path) {
-#if SK_GPU_V1
     ASSERT_SINGLE_OWNER
     RETURN_FALSE_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -1680,9 +1669,6 @@ bool SurfaceDrawContext::drawAndStencilPath(const GrHardClip* clip,
                                       this->colorInfo().isLinearlyBlended()};
     pr->drawPath(args);
     return true;
-#else
-    return false;
-#endif
 }
 
 SkBudgeted SurfaceDrawContext::isBudgeted() const {
@@ -1812,7 +1798,6 @@ void SurfaceDrawContext::drawShapeUsingPathRenderer(const GrClip* clip,
                                                     const SkMatrix& viewMatrix,
                                                     GrStyledShape&& shape,
                                                     bool attemptDrawSimple) {
-#if SK_GPU_V1
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     GR_CREATE_TRACE_MARKER_CONTEXT("SurfaceDrawContext", "internalDrawPath", fContext);
@@ -1922,7 +1907,6 @@ void SurfaceDrawContext::drawShapeUsingPathRenderer(const GrClip* clip,
                                       aaType,
                                       this->colorInfo().isLinearlyBlended()};
     pr->drawPath(args);
-#endif // SK_GPU_V1
 }
 
 void SurfaceDrawContext::addDrawOp(const GrClip* clip,

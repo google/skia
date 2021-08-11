@@ -5,13 +5,14 @@
  * found in the LICENSE file.
  */
 
+#include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
+
 #include "src/gpu/GrAppliedClip.h"
 #include "src/gpu/GrProcessorSet.h"
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrUserStencilSettings.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/geometry/GrRect.h"
-#include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
 GrSimpleMeshDrawOpHelper::GrSimpleMeshDrawOpHelper(GrProcessorSet* processorSet,
                                                    GrAAType aaType,

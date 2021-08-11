@@ -23,8 +23,8 @@
 #include "src/gpu/GrAppliedClip.h"
 #include "src/gpu/GrDstProxyView.h"
 #include "src/gpu/GrGeometryProcessor.h"
+#include "src/gpu/GrProcessorSet.h"
 #include "src/gpu/GrRenderTask.h"
-#include "src/gpu/ops/GrDrawOp.h"
 #include "src/gpu/ops/GrOp.h"
 
 class GrAuditTrail;
@@ -32,6 +32,7 @@ class GrCaps;
 class GrClearOp;
 class GrGpuBuffer;
 class GrRenderTargetProxy;
+namespace skgpu { namespace v1 { class SurfaceDrawContext; }}
 
 class GrOpsTask : public GrRenderTask {
 public:

@@ -13,7 +13,6 @@
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkStrikeSpec.h"
-#include "src/gpu/GrBlurUtils.h"
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrMeshDrawTarget.h"
@@ -28,6 +27,7 @@
 #include "src/gpu/text/GrTextBlob.h"
 
 #if SK_GPU_V1
+#include "src/gpu/GrBlurUtils.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
 #else
 #include "src/gpu/SurfaceContext.h"

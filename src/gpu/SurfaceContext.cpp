@@ -24,6 +24,7 @@
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/GrTracing.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/SurfaceFillContext.h"
 #include "src/gpu/effects/GrBicubicEffect.h"

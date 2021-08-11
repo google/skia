@@ -6,6 +6,7 @@
  */
 
 #include "src/core/SkAutoMalloc.h"
+#include "src/core/SkTraceEvent.h"
 #include "src/gpu/GrShaderUtils.h"
 #include "src/gpu/gl/GrGLGpu.h"
 #include "src/gpu/gl/builders/GrGLShaderStringBuilder.h"

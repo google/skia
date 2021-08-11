@@ -411,6 +411,7 @@ skia_gpu_sources = [
   "$_src/gpu/tessellate/shaders/GrStrokeTessellationShader.h",
   "$_src/gpu/tessellate/shaders/GrStrokeTessellationShader_HardwareImpl.cpp",
   "$_src/gpu/tessellate/shaders/GrStrokeTessellationShader_InstancedImpl.cpp",
+  "$_src/gpu/tessellate/shaders/GrTessellationShader.cpp",
   "$_src/gpu/tessellate/shaders/GrTessellationShader.h",
 
   # text

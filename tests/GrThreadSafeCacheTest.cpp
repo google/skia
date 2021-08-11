@@ -22,6 +22,7 @@
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/GrThreadSafeCache.h"
+#include "src/gpu/ops/GrDrawOp.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
 #include "tests/Test.h"
 #include "tests/TestUtils.h"

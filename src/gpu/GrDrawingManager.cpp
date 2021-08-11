@@ -24,7 +24,6 @@
 #include "src/gpu/GrMemoryPool.h"
 #include "src/gpu/GrOnFlushResourceProvider.h"
 #include "src/gpu/GrOpFlushState.h"
-#include "src/gpu/GrOpsTask.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetProxy.h"
 #include "src/gpu/GrRenderTask.h"
@@ -44,6 +43,7 @@
 #include "src/gpu/text/GrSDFTControl.h"
 #include "src/image/SkSurface_Gpu.h"
 
+#include "src/gpu/GrOpsTask.h"
 #if SK_GPU_V1
 #include "src/gpu/GrSoftwarePathRenderer.h"
 #endif

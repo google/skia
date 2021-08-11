@@ -29,10 +29,6 @@
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
 #endif
 
-#if GR_TEST_UTILS
-#include "src/gpu/GrDrawOpTest.h"
-#endif
-
 #include <new>
 #include <utility>
 
@@ -489,6 +485,7 @@ GrGeometryProcessor* GrAtlasTextOp::setupDfProcessor(SkArenaAlloc* arena,
 }
 
 #if GR_TEST_UTILS && SK_GPU_V1
+#include "src/gpu/GrDrawOpTest.h"
 
 GrOp::Owner GrAtlasTextOp::CreateOpTestingOnly(skgpu::v1::SurfaceDrawContext* sdc,
                                                const SkPaint& skPaint,

@@ -9,8 +9,8 @@
 #define GrOpsRenderPass_DEFINED
 
 #include "include/core/SkDrawable.h"
+#include "src/gpu/GrDeferredUpload.h"
 #include "src/gpu/GrPipeline.h"
-#include "src/gpu/ops/GrDrawOp.h"
 
 class GrOpFlushState;
 class GrGpu;
