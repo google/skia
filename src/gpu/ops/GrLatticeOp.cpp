@@ -46,7 +46,7 @@ public:
     }
 
     std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const override {
-        class GLSLProcessor : public ProgramImpl {
+        class Impl : public ProgramImpl {
         public:
             void setData(const GrGLSLProgramDataManager& pdman,
                          const GrShaderCaps&,
@@ -86,9 +86,11 @@ public:
                 args.fFragBuilder->codeAppend(";");
                 args.fFragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputCoverage);
             }
+
             GrGLSLColorSpaceXformHelper fColorSpaceXformHelper;
         };
-        return std::make_unique<GLSLProcessor>();
+
+        return std::make_unique<Impl>();
     }
 
 private:

@@ -48,22 +48,50 @@ public:
 
     const char* name() const override { return "DefaultGeometryProcessor"; }
 
-    const SkPMColor4f& color() const { return fColor; }
-    bool hasVertexColor() const { return fInColor.isInitialized(); }
-    const SkMatrix& viewMatrix() const { return fViewMatrix; }
-    const SkMatrix& localMatrix() const { return fLocalMatrix; }
-    bool localCoordsWillBeRead() const { return fLocalCoordsWillBeRead; }
-    uint8_t coverage() const { return fCoverage; }
-    bool hasVertexCoverage() const { return fInCoverage.isInitialized(); }
+    void addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
+        uint32_t key = fFlags;
+        key |= fCoverage == 0xff      ?  0x80 : 0;
+        key |= fLocalCoordsWillBeRead ? 0x100 : 0;
 
-    class GLSLProcessor : public ProgramImpl {
+        bool usesLocalMatrix = fLocalCoordsWillBeRead && !fInLocalCoords.isInitialized();
+        key = ProgramImpl::AddMatrixKeys(caps,
+                                         key,
+                                         fViewMatrix,
+                                         usesLocalMatrix ? fLocalMatrix : SkMatrix::I());
+        b->add32(key);
+    }
+
+    std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const override {
+        return std::make_unique<Impl>();
+    }
+
+private:
+    class Impl : public ProgramImpl {
     public:
-        GLSLProcessor()
-            : fViewMatrixPrev(SkMatrix::InvalidMatrix())
-            , fLocalMatrixPrev(SkMatrix::InvalidMatrix())
-            , fColor(SK_PMColor4fILLEGAL)
-            , fCoverage(0xff) {}
+        void setData(const GrGLSLProgramDataManager& pdman,
+                     const GrShaderCaps& shaderCaps,
+                     const GrGeometryProcessor& geomProc) override {
+            const DefaultGeoProc& dgp = geomProc.cast<DefaultGeoProc>();
 
+            SetTransform(pdman, shaderCaps, fViewMatrixUniform, dgp.fViewMatrix, &fViewMatrixPrev);
+            SetTransform(pdman,
+                         shaderCaps,
+                         fLocalMatrixUniform,
+                         dgp.fLocalMatrix,
+                         &fLocalMatrixPrev);
+
+            if (!dgp.hasVertexColor() && dgp.fColor != fColor) {
+                pdman.set4fv(fColorUniform, 1, dgp.fColor.vec());
+                fColor = dgp.fColor;
+            }
+
+            if (dgp.fCoverage != fCoverage && !dgp.hasVertexCoverage()) {
+                pdman.set1f(fCoverageUniform, GrNormalizeByteToFloat(dgp.fCoverage));
+                fCoverage = dgp.fCoverage;
+            }
+        }
+
+    private:
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
             const DefaultGeoProc& gp = args.fGeomProc.cast<DefaultGeoProc>();
             GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
@@ -115,12 +143,12 @@ public:
                                 *args.fShaderCaps,
                                 gpArgs,
                                 gp.fInPosition.name(),
-                                gp.viewMatrix(),
+                                gp.fViewMatrix,
                                 &fViewMatrixUniform);
 
             // emit transforms using either explicit local coords or positions
             if (gp.fInLocalCoords.isInitialized()) {
-                SkASSERT(gp.localMatrix().isIdentity());
+                SkASSERT(gp.fLocalMatrix.isIdentity());
                 gpArgs->fLocalCoordVar = gp.fInLocalCoords.asShaderVar();
             } else if (gp.fLocalCoordsWillBeRead) {
                 WriteLocalCoord(vertBuilder,
@@ -128,7 +156,7 @@ public:
                                 *args.fShaderCaps,
                                 gpArgs,
                                 gp.fInPosition.asShaderVar(),
-                                gp.localMatrix(),
+                                gp.fLocalMatrix,
                                 &fLocalMatrixUniform);
             }
 
@@ -142,7 +170,7 @@ public:
                 } else {
                     fragBuilder->codeAppendf("half4 %s = half4(alpha);", args.fOutputCoverage);
                 }
-            } else if (gp.coverage() == 0xff) {
+            } else if (gp.fCoverage == 0xff) {
                 fragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputCoverage);
             } else {
                 const char* fragCoverage;
@@ -156,68 +184,20 @@ public:
             }
         }
 
-        static inline void GenKey(const GrGeometryProcessor& gp,
-                                  const GrShaderCaps& shaderCaps,
-                                  GrProcessorKeyBuilder* b) {
-            const DefaultGeoProc& def = gp.cast<DefaultGeoProc>();
-            uint32_t key = def.fFlags;
-            key |= (def.coverage() == 0xff) ? 0x80 : 0;
-            key |= def.localCoordsWillBeRead() ? 0x100 : 0;
+        SkMatrix    fViewMatrixPrev  = SkMatrix::InvalidMatrix();
+        SkMatrix    fLocalMatrixPrev = SkMatrix::InvalidMatrix();
+        SkPMColor4f fColor           = SK_PMColor4fILLEGAL;
+        uint8_t     fCoverage        = 0xFF;
 
-            bool usesLocalMatrix = def.localCoordsWillBeRead() &&
-                                   !def.fInLocalCoords.isInitialized();
-            key = AddMatrixKeys(shaderCaps,
-                                key,
-                                def.viewMatrix(),
-                                usesLocalMatrix ? def.localMatrix() : SkMatrix::I());
-            b->add32(key);
-        }
-
-        void setData(const GrGLSLProgramDataManager& pdman,
-                     const GrShaderCaps& shaderCaps,
-                     const GrGeometryProcessor& geomProc) override {
-            const DefaultGeoProc& dgp = geomProc.cast<DefaultGeoProc>();
-
-            SetTransform(pdman, shaderCaps, fViewMatrixUniform, dgp.viewMatrix(), &fViewMatrixPrev);
-            SetTransform(pdman,
-                         shaderCaps,
-                         fLocalMatrixUniform,
-                         dgp.localMatrix(),
-                         &fLocalMatrixPrev);
-
-            if (!dgp.hasVertexColor() && dgp.color() != fColor) {
-                pdman.set4fv(fColorUniform, 1, dgp.color().vec());
-                fColor = dgp.color();
-            }
-
-            if (dgp.coverage() != fCoverage && !dgp.hasVertexCoverage()) {
-                pdman.set1f(fCoverageUniform, GrNormalizeByteToFloat(dgp.coverage()));
-                fCoverage = dgp.coverage();
-            }
-        }
-
-    private:
-        SkMatrix fViewMatrixPrev;
-        SkMatrix fLocalMatrixPrev;
-        SkPMColor4f fColor;
-        uint8_t fCoverage;
         UniformHandle fViewMatrixUniform;
         UniformHandle fLocalMatrixUniform;
         UniformHandle fColorUniform;
         UniformHandle fCoverageUniform;
-
-        using INHERITED = ProgramImpl;
     };
 
-    void addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
-        GLSLProcessor::GenKey(*this, caps, b);
-    }
+    bool hasVertexColor() const { return fInColor.isInitialized(); }
+    bool hasVertexCoverage() const { return fInCoverage.isInitialized(); }
 
-    std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const override {
-        return std::make_unique<GLSLProcessor>();
-    }
-
-private:
     DefaultGeoProc(uint32_t gpTypeFlags,
                    const SkPMColor4f& color,
                    const SkMatrix& viewMatrix,

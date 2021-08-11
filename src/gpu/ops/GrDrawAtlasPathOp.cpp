@@ -21,16 +21,18 @@ namespace {
 
 class DrawAtlasPathShader : public GrGeometryProcessor {
 public:
-    DrawAtlasPathShader(bool usesLocalCoords, const GrAtlasInstancedHelper* atlasHelper,
+    DrawAtlasPathShader(bool usesLocalCoords,
+                        const GrAtlasInstancedHelper* atlasHelper,
                         const GrShaderCaps& shaderCaps)
             : GrGeometryProcessor(kDrawAtlasPathShader_ClassID)
             , fUsesLocalCoords(usesLocalCoords)
             , fAtlasHelper(atlasHelper)
-            , fAtlasAccess(GrSamplerState::Filter::kNearest, fAtlasHelper->proxy()->backendFormat(),
+            , fAtlasAccess(GrSamplerState::Filter::kNearest,
+                           fAtlasHelper->proxy()->backendFormat(),
                            fAtlasHelper->atlasSwizzle()) {
         if (!shaderCaps.vertexIDSupport()) {
-            constexpr static Attribute kUnitCoordAttrib("unitCoord", kFloat2_GrVertexAttribType,
-                                                        kFloat2_GrSLType);
+            constexpr static Attribute kUnitCoordAttrib(
+                    "unitCoord", kFloat2_GrVertexAttribType, kFloat2_GrSLType);
             this->setVertexAttributes(&kUnitCoordAttrib, 1);
         }
         fAttribs.emplace_back("fillBounds", kFloat4_GrVertexAttribType, kFloat4_GrSLType);
@@ -47,6 +49,8 @@ public:
     }
 
 private:
+    class Impl;
+
     int colorAttribIdx() const { return fUsesLocalCoords ? 3 : 1; }
     const char* name() const override { return "DrawAtlasPathShader"; }
     void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {
@@ -61,11 +65,18 @@ private:
     TextureSampler fAtlasAccess;
     constexpr static int kMaxInstanceAttribs = 6;
     SkSTArray<kMaxInstanceAttribs, GrGeometryProcessor::Attribute> fAttribs;
-
-    class Impl;
 };
 
 class DrawAtlasPathShader::Impl : public ProgramImpl {
+public:
+    void setData(const GrGLSLProgramDataManager& pdman,
+                 const GrShaderCaps&,
+                 const GrGeometryProcessor& geomProc) override {
+        auto* atlasHelper = geomProc.cast<DrawAtlasPathShader>().fAtlasHelper;
+        atlasHelper->setUniformData(pdman, fAtlasAdjustUniform);
+    }
+
+private:
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
         const auto& shader = args.fGeomProc.cast<DrawAtlasPathShader>();
         args.fVaryingHandler->emitAttributes(shader);
@@ -95,13 +106,6 @@ class DrawAtlasPathShader::Impl : public ProgramImpl {
         args.fVaryingHandler->addPassThroughAttribute(
                 shader.fAttribs[shader.colorAttribIdx()], args.fOutputColor,
                 GrGLSLVaryingHandler::Interpolation::kCanBeFlat);
-    }
-
-    void setData(const GrGLSLProgramDataManager& pdman,
-                 const GrShaderCaps&,
-                 const GrGeometryProcessor& geomProc) override {
-        auto* atlasHelper = geomProc.cast<DrawAtlasPathShader>().fAtlasHelper;
-        atlasHelper->setUniformData(pdman, fAtlasAdjustUniform);
     }
 
     GrGLSLUniformHandler::UniformHandle fAtlasAdjustUniform;

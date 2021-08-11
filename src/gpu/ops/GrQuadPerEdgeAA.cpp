@@ -546,8 +546,6 @@ size_t VertexSpec::vertexSize() const {
 
 class QuadPerEdgeAAGeometryProcessor : public GrGeometryProcessor {
 public:
-    using Saturate = GrTextureOp::Saturate;
-
     static GrGeometryProcessor* Make(SkArenaAlloc* arena, const VertexSpec& spec) {
         return arena->make([&](void* ptr) {
             return new (ptr) QuadPerEdgeAAGeometryProcessor(spec);
@@ -603,7 +601,7 @@ public:
     }
 
     std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const override {
-        class GLSLProcessor : public ProgramImpl {
+        class Impl : public ProgramImpl {
         public:
             void setData(const GrGLSLProgramDataManager& pdman,
                          const GrShaderCaps&,
@@ -760,12 +758,16 @@ public:
                                                    args.fOutputCoverage);
                 }
             }
+
             GrGLSLColorSpaceXformHelper fTextureColorSpaceXformHelper;
         };
-        return std::make_unique<GLSLProcessor>();
+
+        return std::make_unique<Impl>();
     }
 
 private:
+    using Saturate = GrTextureOp::Saturate;
+
     QuadPerEdgeAAGeometryProcessor(const VertexSpec& spec)
             : INHERITED(kQuadPerEdgeAAGeometryProcessor_ClassID)
             , fTextureColorSpaceXform(nullptr) {

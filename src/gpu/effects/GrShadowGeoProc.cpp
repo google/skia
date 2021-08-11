@@ -14,10 +14,13 @@
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
-class GrGLSLRRectShadowGeoProc : public GrGeometryProcessor::ProgramImpl {
+class GrRRectShadowGeoProc::Impl : public ProgramImpl {
 public:
-    GrGLSLRRectShadowGeoProc() {}
+    void setData(const GrGLSLProgramDataManager&,
+                 const GrShaderCaps&,
+                 const GrGeometryProcessor&) override {}
 
+private:
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
         const GrRRectShadowGeoProc& rsgp = args.fGeomProc.cast<GrRRectShadowGeoProc>();
         GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
@@ -44,13 +47,6 @@ public:
         fragBuilder->codeAppend(".a;");
         fragBuilder->codeAppendf("half4 %s = half4(factor);", args.fOutputCoverage);
     }
-
-    void setData(const GrGLSLProgramDataManager&,
-                 const GrShaderCaps&,
-                 const GrGeometryProcessor&) override {}
-
-private:
-    using INHERITED = ProgramImpl;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -70,7 +66,7 @@ GrRRectShadowGeoProc::GrRRectShadowGeoProc(const GrSurfaceProxyView& lutView)
 
 std::unique_ptr<GrGeometryProcessor::ProgramImpl> GrRRectShadowGeoProc::makeProgramImpl(
         const GrShaderCaps&) const {
-    return std::make_unique<GrGLSLRRectShadowGeoProc>();
+    return std::make_unique<Impl>();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

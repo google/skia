@@ -93,31 +93,33 @@ private:
     using INHERITED = GrGeometryProcessor;
 };
 
-class GLSLClockwiseTestProcessor : public GrGeometryProcessor::ProgramImpl {
-    void setData(const GrGLSLProgramDataManager&,
-                 const GrShaderCaps&,
-                 const GrGeometryProcessor&) override {}
-
-    void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
-        const ClockwiseTestProcessor& proc = args.fGeomProc.cast<ClockwiseTestProcessor>();
-        args.fVaryingHandler->emitAttributes(proc);
-        gpArgs->fPositionVar.set(kFloat2_GrSLType, "position");
-        args.fFragBuilder->codeAppendf(
-                "half4 %s = sk_Clockwise ? half4(0,1,0,1) : half4(1,0,0,1);",
-                args.fOutputColor);
-        if (!proc.readSkFragCoord()) {
-            args.fFragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputCoverage);
-        } else {
-            // Verify layout(origin_upper_left) on gl_FragCoord does not affect gl_FrontFacing.
-            args.fFragBuilder->codeAppendf("half4 %s = half4(min(half(sk_FragCoord.y), 1));",
-                                           args.fOutputCoverage);
-        }
-    }
-};
-
 std::unique_ptr<GrGeometryProcessor::ProgramImpl> ClockwiseTestProcessor::makeProgramImpl(
         const GrShaderCaps&) const {
-    return std::make_unique<GLSLClockwiseTestProcessor>();
+    class Impl : public ProgramImpl {
+    public:
+        void setData(const GrGLSLProgramDataManager&,
+                     const GrShaderCaps&,
+                     const GrGeometryProcessor&) override {}
+
+    private:
+        void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
+            const ClockwiseTestProcessor& proc = args.fGeomProc.cast<ClockwiseTestProcessor>();
+            args.fVaryingHandler->emitAttributes(proc);
+            gpArgs->fPositionVar.set(kFloat2_GrSLType, "position");
+            args.fFragBuilder->codeAppendf(
+                    "half4 %s = sk_Clockwise ? half4(0,1,0,1) : half4(1,0,0,1);",
+                    args.fOutputColor);
+            if (!proc.readSkFragCoord()) {
+                args.fFragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputCoverage);
+            } else {
+                // Verify layout(origin_upper_left) on gl_FragCoord does not affect gl_FrontFacing.
+                args.fFragBuilder->codeAppendf("half4 %s = half4(min(half(sk_FragCoord.y), 1));",
+                                               args.fOutputCoverage);
+            }
+        }
+    };
+
+    return std::make_unique<Impl>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

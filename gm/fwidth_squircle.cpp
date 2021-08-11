@@ -83,61 +83,65 @@ private:
 
     const SkMatrix fViewMatrix;
 
-    class Impl;
-
     using INHERITED = GrGeometryProcessor;
-};
-
-class FwidthSquircleTestProcessor::Impl : public ProgramImpl {
-    void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
-        const auto& proc = args.fGeomProc.cast<FwidthSquircleTestProcessor>();
-
-        auto* uniforms = args.fUniformHandler;
-        fViewMatrixHandle = uniforms->addUniform(nullptr, kVertex_GrShaderFlag, kFloat3x3_GrSLType,
-                                                 "viewmatrix");
-
-        auto* varyings = args.fVaryingHandler;
-        varyings->emitAttributes(proc);
-
-        GrGLSLVarying squircleCoord(kFloat2_GrSLType);
-        varyings->addVarying("bboxcoord", &squircleCoord);
-
-        auto* v = args.fVertBuilder;
-        v->codeAppendf("float2x2 R = float2x2(cos(.05), sin(.05), -sin(.05), cos(.05));");
-
-        v->codeAppendf("%s = bboxcoord * 1.25;", squircleCoord.vsOut());
-        v->codeAppendf("float3 vertexpos = float3(bboxcoord * 100 * R + 100, 1);");
-        v->codeAppendf("vertexpos = %s * vertexpos;", uniforms->getUniformCStr(fViewMatrixHandle));
-        gpArgs->fPositionVar.set(kFloat3_GrSLType, "vertexpos");
-
-        auto* f = args.fFragBuilder;
-        f->codeAppendf("float golden_ratio = 1.61803398875;");
-        f->codeAppendf("float pi = 3.141592653589793;");
-        f->codeAppendf("float x = abs(%s.x), y = abs(%s.y);",
-                       squircleCoord.fsIn(), squircleCoord.fsIn());
-
-        // Squircle function!
-        f->codeAppendf("float fn = half(pow(x, golden_ratio*pi) + pow(y, golden_ratio*pi) - 1);");
-        f->codeAppendf("float fnwidth = fwidth(fn);");
-        f->codeAppendf("fnwidth += 1e-10;");  // Guard against divide-by-zero.
-        f->codeAppendf("half coverage = clamp(half(.5 - fn/fnwidth), 0, 1);");
-
-        f->codeAppendf("half4 %s = half4(.51, .42, .71, 1) * .89;", args.fOutputColor);
-        f->codeAppendf("half4 %s = half4(coverage);", args.fOutputCoverage);
-    }
-
-    void setData(const GrGLSLProgramDataManager& pdman,
-                 const GrShaderCaps&,
-                 const GrGeometryProcessor& geomProc) override {
-        const auto& proc = geomProc.cast<FwidthSquircleTestProcessor>();
-        pdman.setSkMatrix(fViewMatrixHandle, proc.fViewMatrix);
-    }
-
-    UniformHandle fViewMatrixHandle;
 };
 
 std::unique_ptr<GrGeometryProcessor::ProgramImpl> FwidthSquircleTestProcessor::makeProgramImpl(
         const GrShaderCaps&) const {
+    class Impl : public ProgramImpl {
+    public:
+        void setData(const GrGLSLProgramDataManager& pdman,
+                     const GrShaderCaps&,
+                     const GrGeometryProcessor& geomProc) override {
+            const auto& proc = geomProc.cast<FwidthSquircleTestProcessor>();
+            pdman.setSkMatrix(fViewMatrixHandle, proc.fViewMatrix);
+        }
+
+    private:
+        void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
+            const auto& proc = args.fGeomProc.cast<FwidthSquircleTestProcessor>();
+
+            auto* uniforms = args.fUniformHandler;
+            fViewMatrixHandle = uniforms->addUniform(nullptr,
+                                                     kVertex_GrShaderFlag,
+                                                     kFloat3x3_GrSLType,
+                                                     "viewmatrix");
+
+            auto* varyings = args.fVaryingHandler;
+            varyings->emitAttributes(proc);
+
+            GrGLSLVarying squircleCoord(kFloat2_GrSLType);
+            varyings->addVarying("bboxcoord", &squircleCoord);
+
+            auto* v = args.fVertBuilder;
+            v->codeAppendf("float2x2 R = float2x2(cos(.05), sin(.05), -sin(.05), cos(.05));");
+
+            v->codeAppendf("%s = bboxcoord * 1.25;", squircleCoord.vsOut());
+            v->codeAppendf("float3 vertexpos = float3(bboxcoord * 100 * R + 100, 1);");
+            v->codeAppendf("vertexpos = %s * vertexpos;",
+                           uniforms->getUniformCStr(fViewMatrixHandle));
+            gpArgs->fPositionVar.set(kFloat3_GrSLType, "vertexpos");
+
+            auto* f = args.fFragBuilder;
+            f->codeAppendf("float golden_ratio = 1.61803398875;");
+            f->codeAppendf("float pi = 3.141592653589793;");
+            f->codeAppendf("float x = abs(%s.x), y = abs(%s.y);",
+                           squircleCoord.fsIn(), squircleCoord.fsIn());
+
+            // Squircle function!
+            f->codeAppendf("float fn = half(pow(x, golden_ratio*pi) + "
+                           "pow(y, golden_ratio*pi) - 1);");
+            f->codeAppendf("float fnwidth = fwidth(fn);");
+            f->codeAppendf("fnwidth += 1e-10;");  // Guard against divide-by-zero.
+            f->codeAppendf("half coverage = clamp(half(.5 - fn/fnwidth), 0, 1);");
+
+            f->codeAppendf("half4 %s = half4(.51, .42, .71, 1) * .89;", args.fOutputColor);
+            f->codeAppendf("half4 %s = half4(coverage);", args.fOutputCoverage);
+        }
+
+        UniformHandle fViewMatrixHandle;
+    };
+
     return std::make_unique<Impl>();
 }
 

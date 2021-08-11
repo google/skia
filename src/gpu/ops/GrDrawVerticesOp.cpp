@@ -53,19 +53,41 @@ public:
 
     const char* name() const override { return "VerticesGP"; }
 
-    const SkPMColor4f& color() const { return fColor; }
-    const SkMatrix& viewMatrix() const { return fViewMatrix; }
-
     const Attribute& positionAttr() const { return fAttributes[kPositionIndex]; }
     const Attribute& colorAttr() const { return fAttributes[kColorIndex]; }
     const Attribute& localCoordsAttr() const { return fAttributes[kLocalCoordsIndex]; }
 
-    class GLSLProcessor : public ProgramImpl {
-    public:
-        GLSLProcessor()
-            : fViewMatrix(SkMatrix::InvalidMatrix())
-            , fColor(SK_PMColor4fILLEGAL) {}
+    void addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
+        uint32_t key = 0;
+        key |= (fColorArrayType == ColorArrayType::kSkColor) ? 0x1 : 0;
+        key |= ProgramImpl::ComputeMatrixKey(caps, fViewMatrix) << 20;
+        b->add32(key);
+        b->add32(GrColorSpaceXform::XformKey(fColorSpaceXform.get()));
+    }
 
+    std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const override {
+        return std::make_unique<Impl>();
+    }
+
+private:
+    class Impl : public ProgramImpl {
+    public:
+        void setData(const GrGLSLProgramDataManager& pdman,
+                     const GrShaderCaps& shaderCaps,
+                     const GrGeometryProcessor& geomProc) override {
+            const VerticesGP& vgp = geomProc.cast<VerticesGP>();
+
+            SetTransform(pdman, shaderCaps, fViewMatrixUniform, vgp.fViewMatrix, &fViewMatrix);
+
+            if (!vgp.colorAttr().isInitialized() && vgp.fColor != fColor) {
+                pdman.set4fv(fColorUniform, 1, vgp.fColor.vec());
+                fColor = vgp.fColor;
+            }
+
+            fColorSpaceHelper.setData(pdman, vgp.fColorSpaceXform.get());
+        }
+
+    private:
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
             const VerticesGP& gp = args.fGeomProc.cast<VerticesGP>();
             GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
@@ -110,7 +132,7 @@ public:
                                 *args.fShaderCaps,
                                 gpArgs,
                                 gp.positionAttr().name(),
-                                gp.viewMatrix(),
+                                gp.fViewMatrix,
                                 &fViewMatrixUniform);
 
             // emit transforms using either explicit local coords or positions
@@ -121,51 +143,16 @@ public:
             fragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputCoverage);
         }
 
-        static inline void GenKey(const GrGeometryProcessor& gp,
-                                  const GrShaderCaps& shaderCaps,
-                                  GrProcessorKeyBuilder* b) {
-            const VerticesGP& vgp = gp.cast<VerticesGP>();
-            uint32_t key = 0;
-            key |= (vgp.fColorArrayType == ColorArrayType::kSkColor) ? 0x1 : 0;
-            key |= ComputeMatrixKey(shaderCaps, vgp.viewMatrix()) << 20;
-            b->add32(key);
-            b->add32(GrColorSpaceXform::XformKey(vgp.fColorSpaceXform.get()));
-        }
-
-        void setData(const GrGLSLProgramDataManager& pdman,
-                     const GrShaderCaps& shaderCaps,
-                     const GrGeometryProcessor& geomProc) override {
-            const VerticesGP& vgp = geomProc.cast<VerticesGP>();
-
-            SetTransform(pdman, shaderCaps, fViewMatrixUniform, vgp.viewMatrix(), &fViewMatrix);
-
-            if (!vgp.colorAttr().isInitialized() && vgp.color() != fColor) {
-                pdman.set4fv(fColorUniform, 1, vgp.color().vec());
-                fColor = vgp.color();
-            }
-
-            fColorSpaceHelper.setData(pdman, vgp.fColorSpaceXform.get());
-        }
-
     private:
-        SkMatrix fViewMatrix;
-        SkPMColor4f fColor;
+        SkMatrix fViewMatrix = SkMatrix::InvalidMatrix();
+        SkPMColor4f fColor   = SK_PMColor4fILLEGAL;
+
         UniformHandle fViewMatrixUniform;
         UniformHandle fColorUniform;
-        GrGLSLColorSpaceXformHelper fColorSpaceHelper;
 
-        using INHERITED = ProgramImpl;
+        GrGLSLColorSpaceXformHelper fColorSpaceHelper;
     };
 
-    void addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
-        GLSLProcessor::GenKey(*this, caps, b);
-    }
-
-    std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const override {
-        return std::make_unique<GLSLProcessor>();
-    }
-
-private:
     VerticesGP(LocalCoordsType localCoordsType,
                ColorArrayType colorArrayType,
                const SkPMColor4f& color,

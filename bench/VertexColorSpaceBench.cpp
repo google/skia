@@ -46,8 +46,16 @@ public:
     const char* name() const override { return "VertexColorXformGP"; }
 
     std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const override {
-        class GLSLGP : public ProgramImpl {
+        class Impl : public ProgramImpl {
         public:
+            void setData(const GrGLSLProgramDataManager& pdman,
+                         const GrShaderCaps&,
+                         const GrGeometryProcessor& geomProc) override {
+                const GP& gp = geomProc.cast<GP>();
+                fColorSpaceHelper.setData(pdman, gp.fColorSpaceXform.get());
+            }
+
+        private:
             void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
                 const GP& gp = args.fGeomProc.cast<GP>();
                 GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
@@ -80,16 +88,11 @@ public:
                 // Coverage
                 fragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputCoverage);
             }
-            void setData(const GrGLSLProgramDataManager& pdman,
-                         const GrShaderCaps&,
-                         const GrGeometryProcessor& geomProc) override {
-                const GP& gp = geomProc.cast<GP>();
-                fColorSpaceHelper.setData(pdman, gp.fColorSpaceXform.get());
-            }
 
             GrGLSLColorSpaceXformHelper fColorSpaceHelper;
         };
-        return std::make_unique<GLSLGP>();
+
+        return std::make_unique<Impl>();
     }
 
     void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const override {

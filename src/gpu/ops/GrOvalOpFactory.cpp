@@ -76,11 +76,18 @@ public:
     const char* name() const override { return "CircleGeometryProcessor"; }
 
     void addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
-        GLSLProcessor::GenKey(*this, caps, b);
+        b->addBool(fStroke,                             "stroked"        );
+        b->addBool(fInClipPlane.isInitialized(),        "clipPlane"      );
+        b->addBool(fInIsectPlane.isInitialized(),       "isectPlane"     );
+        b->addBool(fInUnionPlane.isInitialized(),       "unionPlane"     );
+        b->addBool(fInRoundCapCenters.isInitialized(),  "roundCapCenters");
+        b->addBits(ProgramImpl::kMatrixKeyBits,
+                   ProgramImpl::ComputeMatrixKey(caps, fLocalMatrix),
+                   "localMatrixType");
     }
 
     std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const override {
-        return std::make_unique<GLSLProcessor>();
+        return std::make_unique<Impl>();
     }
 
 private:
@@ -111,10 +118,19 @@ private:
         this->setVertexAttributes(&fInPosition, 7);
     }
 
-    class GLSLProcessor : public ProgramImpl {
+    class Impl : public ProgramImpl {
     public:
-        GLSLProcessor() {}
+        void setData(const GrGLSLProgramDataManager& pdman,
+                     const GrShaderCaps& shaderCaps,
+                     const GrGeometryProcessor& geomProc) override {
+            SetTransform(pdman,
+                         shaderCaps,
+                         fLocalMatrixUniform,
+                         geomProc.cast<CircleGeometryProcessor>().fLocalMatrix,
+                         &fLocalMatrix);
+        }
 
+    private:
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
             const CircleGeometryProcessor& cgp = args.fGeomProc.cast<CircleGeometryProcessor>();
             GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
@@ -207,33 +223,6 @@ private:
             fragBuilder->codeAppendf("half4 %s = half4(edgeAlpha);", args.fOutputCoverage);
         }
 
-        static void GenKey(const GrGeometryProcessor& gp,
-                           const GrShaderCaps& shaderCaps,
-                           GrProcessorKeyBuilder* b) {
-            const CircleGeometryProcessor& cgp = gp.cast<CircleGeometryProcessor>();
-            b->addBool(cgp.fStroke,                                     "stroked");
-            b->addBool(cgp.fInClipPlane.isInitialized(),                "clipPlane");
-            b->addBool(cgp.fInIsectPlane.isInitialized(),               "isectPlane");
-            b->addBool(cgp.fInUnionPlane.isInitialized(),               "unionPlane");
-            b->addBool(cgp.fInRoundCapCenters.isInitialized(),          "roundCapCenters");
-            b->addBits(kMatrixKeyBits,
-                       ComputeMatrixKey(shaderCaps, cgp.fLocalMatrix),
-                       "localMatrixType");
-        }
-
-        void setData(const GrGLSLProgramDataManager& pdman,
-                     const GrShaderCaps& shaderCaps,
-                     const GrGeometryProcessor& geomProc) override {
-            SetTransform(pdman,
-                         shaderCaps,
-                         fLocalMatrixUniform,
-                         geomProc.cast<CircleGeometryProcessor>().fLocalMatrix,
-                         &fLocalMatrix);
-        }
-
-    private:
-        using INHERITED = ProgramImpl;
-
         SkMatrix      fLocalMatrix = SkMatrix::InvalidMatrix();
         UniformHandle fLocalMatrixUniform;
     };
@@ -285,11 +274,13 @@ public:
     const char* name() const override { return "ButtCapDashedCircleGeometryProcessor"; }
 
     void addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
-        GLSLProcessor::GenKey(*this, caps, b);
+        b->addBits(ProgramImpl::kMatrixKeyBits,
+                   ProgramImpl::ComputeMatrixKey(caps, fLocalMatrix),
+                   "localMatrixType");
     }
 
     std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const override {
-        return std::make_unique<GLSLProcessor>();
+        return std::make_unique<Impl>();
     }
 
 private:
@@ -303,10 +294,19 @@ private:
         this->setVertexAttributes(&fInPosition, 4);
     }
 
-    class GLSLProcessor : public ProgramImpl {
+    class Impl : public ProgramImpl {
     public:
-        GLSLProcessor() {}
+        void setData(const GrGLSLProgramDataManager& pdman,
+                     const GrShaderCaps& shaderCaps,
+                     const GrGeometryProcessor& geomProc) override {
+            SetTransform(pdman,
+                         shaderCaps,
+                         fLocalMatrixUniform,
+                         geomProc.cast<ButtCapDashedCircleGeometryProcessor>().fLocalMatrix,
+                         &fLocalMatrix);
+        }
 
+    private:
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
             const ButtCapDashedCircleGeometryProcessor& bcscgp =
                     args.fGeomProc.cast<ButtCapDashedCircleGeometryProcessor>();
@@ -480,29 +480,6 @@ private:
             fragBuilder->codeAppendf("half4 %s = half4(edgeAlpha);", args.fOutputCoverage);
         }
 
-        static void GenKey(const GrGeometryProcessor& gp,
-                           const GrShaderCaps& shaderCaps,
-                           GrProcessorKeyBuilder* b) {
-            const ButtCapDashedCircleGeometryProcessor& bcscgp =
-                    gp.cast<ButtCapDashedCircleGeometryProcessor>();
-            b->addBits(kMatrixKeyBits,
-                       ComputeMatrixKey(shaderCaps, bcscgp.fLocalMatrix),
-                       "localMatrixType");
-        }
-
-        void setData(const GrGLSLProgramDataManager& pdman,
-                     const GrShaderCaps& shaderCaps,
-                     const GrGeometryProcessor& geomProc) override {
-            SetTransform(pdman,
-                         shaderCaps,
-                         fLocalMatrixUniform,
-                         geomProc.cast<ButtCapDashedCircleGeometryProcessor>().fLocalMatrix,
-                         &fLocalMatrix);
-        }
-
-    private:
-        using INHERITED = ProgramImpl;
-
         SkMatrix      fLocalMatrix = SkMatrix::InvalidMatrix();
         UniformHandle fLocalMatrixUniform;
     };
@@ -550,11 +527,14 @@ public:
     const char* name() const override { return "EllipseGeometryProcessor"; }
 
     void addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
-        GLSLProcessor::GenKey(*this, caps, b);
+        b->addBool(fStroke, "stroked");
+        b->addBits(ProgramImpl::kMatrixKeyBits,
+                   ProgramImpl::ComputeMatrixKey(caps, fLocalMatrix),
+                   "localMatrixType");
     }
 
     std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const override {
-        return std::make_unique<GLSLProcessor>();
+        return std::make_unique<Impl>();
     }
 
 private:
@@ -575,10 +555,16 @@ private:
         this->setVertexAttributes(&fInPosition, 4);
     }
 
-    class GLSLProcessor : public ProgramImpl {
+    class Impl : public ProgramImpl {
     public:
-        GLSLProcessor() {}
+        void setData(const GrGLSLProgramDataManager& pdman,
+                     const GrShaderCaps& shaderCaps,
+                     const GrGeometryProcessor& geomProc) override {
+            const EllipseGeometryProcessor& egp = geomProc.cast<EllipseGeometryProcessor>();
+            SetTransform(pdman, shaderCaps, fLocalMatrixUniform, egp.fLocalMatrix, &fLocalMatrix);
+        }
 
+    private:
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
             const EllipseGeometryProcessor& egp = args.fGeomProc.cast<EllipseGeometryProcessor>();
             GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
@@ -679,24 +665,6 @@ private:
             fragBuilder->codeAppendf("half4 %s = half4(half(edgeAlpha));", args.fOutputCoverage);
         }
 
-        static void GenKey(const GrGeometryProcessor& gp,
-                           const GrShaderCaps& shaderCaps,
-                           GrProcessorKeyBuilder* b) {
-            const EllipseGeometryProcessor& egp = gp.cast<EllipseGeometryProcessor>();
-            b->addBool(egp.fStroke, "stroked");
-            b->addBits(kMatrixKeyBits,
-                       ComputeMatrixKey(shaderCaps, egp.fLocalMatrix),
-                       "localMatrixType");
-        }
-
-        void setData(const GrGLSLProgramDataManager& pdman,
-                     const GrShaderCaps& shaderCaps,
-                     const GrGeometryProcessor& geomProc) override {
-            const EllipseGeometryProcessor& egp = geomProc.cast<EllipseGeometryProcessor>();
-            SetTransform(pdman, shaderCaps, fLocalMatrixUniform, egp.fLocalMatrix, &fLocalMatrix);
-        }
-
-    private:
         using INHERITED = ProgramImpl;
 
         SkMatrix      fLocalMatrix = SkMatrix::InvalidMatrix();
@@ -756,11 +724,14 @@ public:
     const char* name() const override { return "DIEllipseGeometryProcessor"; }
 
     void addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
-        GLSLProcessor::GenKey(*this, caps, b);
+        b->addBits(2, static_cast<uint32_t>(fStyle), "style");
+        b->addBits(ProgramImpl::kMatrixKeyBits,
+                   ProgramImpl::ComputeMatrixKey(caps, fViewMatrix),
+                   "viewMatrixType");
     }
 
     std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const override {
-        return std::make_unique<GLSLProcessor>();
+        return std::make_unique<Impl>();
     }
 
 private:
@@ -783,10 +754,17 @@ private:
         this->setVertexAttributes(&fInPosition, 4);
     }
 
-    class GLSLProcessor : public ProgramImpl {
+    class Impl : public ProgramImpl {
     public:
-        GLSLProcessor() : fViewMatrix(SkMatrix::InvalidMatrix()) {}
+        void setData(const GrGLSLProgramDataManager& pdman,
+                     const GrShaderCaps& shaderCaps,
+                     const GrGeometryProcessor& geomProc) override {
+            const auto& diegp = geomProc.cast<DIEllipseGeometryProcessor>();
 
+            SetTransform(pdman, shaderCaps, fViewMatrixUniform, diegp.fViewMatrix, &fViewMatrix);
+        }
+
+    private:
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
             const auto& diegp = args.fGeomProc.cast<DIEllipseGeometryProcessor>();
             GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
@@ -878,29 +856,8 @@ private:
             fragBuilder->codeAppendf("half4 %s = half4(half(edgeAlpha));", args.fOutputCoverage);
         }
 
-        static void GenKey(const GrGeometryProcessor& gp,
-                           const GrShaderCaps& shaderCaps,
-                           GrProcessorKeyBuilder* b) {
-            const DIEllipseGeometryProcessor& diegp = gp.cast<DIEllipseGeometryProcessor>();
-            b->addBits(2, static_cast<uint32_t>(diegp.fStyle), "style");
-            b->addBits(kMatrixKeyBits,
-                       ComputeMatrixKey(shaderCaps, diegp.fViewMatrix),
-                       "viewMatrixType");
-        }
-
-        void setData(const GrGLSLProgramDataManager& pdman,
-                     const GrShaderCaps& shaderCaps,
-                     const GrGeometryProcessor& geomProc) override {
-            const auto& diegp = geomProc.cast<DIEllipseGeometryProcessor>();
-
-            SetTransform(pdman, shaderCaps, fViewMatrixUniform, diegp.fViewMatrix, &fViewMatrix);
-        }
-
-    private:
-        SkMatrix      fViewMatrix;
+        SkMatrix fViewMatrix = SkMatrix::InvalidMatrix();
         UniformHandle fViewMatrixUniform;
-
-        using INHERITED = ProgramImpl;
     };
 
     Attribute fInPosition;

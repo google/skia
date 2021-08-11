@@ -39,6 +39,8 @@ public:
     std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const override;
 
 private:
+    class Impl;
+
     GrRRectShadowGeoProc(const GrSurfaceProxyView& lutView);
 
     const TextureSampler& onTextureSampler(int i) const override { return fLUTTextureSampler; }

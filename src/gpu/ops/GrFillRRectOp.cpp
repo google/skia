@@ -344,6 +344,8 @@ public:
     std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const final;
 
 private:
+    class Impl;
+
     Processor(GrAAType aaType, ProcessorFlags flags)
             : INHERITED(kGrFillRRectOp_Processor_ClassID)
             , fFlags(flags) {
@@ -374,8 +376,6 @@ private:
     constexpr static int kMaxInstanceAttribs = 6;
     SkSTArray<kMaxInstanceAttribs, Attribute> fInstanceAttribs;
     const Attribute* fColorAttrib;
-
-    class Impl;
 
     using INHERITED = GrGeometryProcessor;
 };
@@ -567,6 +567,12 @@ void FillRRectOp::onPrepareDraws(GrMeshDrawTarget* target) {
 }
 
 class FillRRectOp::Processor::Impl : public ProgramImpl {
+public:
+    void setData(const GrGLSLProgramDataManager&,
+                 const GrShaderCaps&,
+                 const GrGeometryProcessor&) override {}
+
+private:
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
         GrGLSLVertexBuilder* v = args.fVertBuilder;
         GrGLSLFPFragmentBuilder* f = args.fFragBuilder;
@@ -751,10 +757,6 @@ class FillRRectOp::Processor::Impl : public ProgramImpl {
         }
         f->codeAppendf("half4 %s = half4(coverage);", args.fOutputCoverage);
     }
-
-    void setData(const GrGLSLProgramDataManager&,
-                 const GrShaderCaps&,
-                 const GrGeometryProcessor&) override {}
 };
 
 std::unique_ptr<GrGeometryProcessor::ProgramImpl> FillRRectOp::Processor::makeProgramImpl(

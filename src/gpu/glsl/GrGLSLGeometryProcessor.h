@@ -114,6 +114,41 @@ public:
         SK_ABORT("Not implemented.");
     }
 
+    // GPs that use writeOutputPosition and/or writeLocalCoord must incorporate the matrix type
+    // into their key, and should use this function or one of the other related helpers.
+    static uint32_t ComputeMatrixKey(const GrShaderCaps& caps, const SkMatrix& mat) {
+        if (!caps.reducedShaderMode()) {
+            if (mat.isIdentity()) {
+                return 0b00;
+            }
+            if (mat.isScaleTranslate()) {
+                return 0b01;
+            }
+        }
+        if (!mat.hasPerspective()) {
+            return 0b10;
+        }
+        return 0b11;
+    }
+
+    static uint32_t ComputeMatrixKeys(const GrShaderCaps& shaderCaps,
+                                      const SkMatrix& viewMatrix,
+                                      const SkMatrix& localMatrix) {
+        return (ComputeMatrixKey(shaderCaps, viewMatrix ) << kMatrixKeyBits) |
+                ComputeMatrixKey(shaderCaps, localMatrix);
+    }
+
+    static uint32_t AddMatrixKeys(const GrShaderCaps& shaderCaps,
+                                  uint32_t flags,
+                                  const SkMatrix& viewMatrix,
+                                  const SkMatrix& localMatrix) {
+        // Shifting to make room for the matrix keys shouldn't lose bits
+        SkASSERT(((flags << (2 * kMatrixKeyBits)) >> (2 * kMatrixKeyBits)) == flags);
+        return (flags << (2 * kMatrixKeyBits)) |
+               ComputeMatrixKeys(shaderCaps, viewMatrix, localMatrix);
+    }
+    static constexpr int kMatrixKeyBits = 2;
+
 protected:
     void setupUniformColor(GrGLSLFPFragmentBuilder* fragBuilder,
                            GrGLSLUniformHandler* uniformHandler,
@@ -166,39 +201,6 @@ protected:
                                 GrShaderVar localVar,
                                 const SkMatrix& localMatrix,
                                 UniformHandle* localMatrixUniform);
-
-    // GPs that use writeOutputPosition and/or writeLocalCoord must incorporate the matrix type
-    // into their key, and should use this function or one of the other related helpers.
-    static uint32_t ComputeMatrixKey(const GrShaderCaps& caps, const SkMatrix& mat) {
-        if (!caps.reducedShaderMode()) {
-            if (mat.isIdentity()) {
-                return 0b00;
-            }
-            if (mat.isScaleTranslate()) {
-                return 0b01;
-            }
-        }
-        if (!mat.hasPerspective()) {
-            return 0b10;
-        }
-        return 0b11;
-    }
-    static uint32_t ComputeMatrixKeys(const GrShaderCaps& shaderCaps,
-                                      const SkMatrix& viewMatrix,
-                                      const SkMatrix& localMatrix) {
-        return (ComputeMatrixKey(shaderCaps, viewMatrix) << kMatrixKeyBits) |
-               ComputeMatrixKey(shaderCaps, localMatrix);
-    }
-    static uint32_t AddMatrixKeys(const GrShaderCaps& shaderCaps,
-                                  uint32_t flags,
-                                  const SkMatrix& viewMatrix,
-                                  const SkMatrix& localMatrix) {
-        // Shifting to make room for the matrix keys shouldn't lose bits
-        SkASSERT(((flags << (2 * kMatrixKeyBits)) >> (2 * kMatrixKeyBits)) == flags);
-        return (flags << (2 * kMatrixKeyBits)) |
-               ComputeMatrixKeys(shaderCaps, viewMatrix, localMatrix);
-    }
-    static constexpr int kMatrixKeyBits = 2;
 
 private:
     virtual void onEmitCode(EmitArgs&, GrGPArgs*) = 0;

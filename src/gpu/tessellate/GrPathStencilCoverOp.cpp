@@ -57,6 +57,15 @@ private:
 std::unique_ptr<GrGeometryProcessor::ProgramImpl> BoundingBoxShader::makeProgramImpl(
         const GrShaderCaps&) const {
     class Impl : public ProgramImpl {
+    public:
+        void setData(const GrGLSLProgramDataManager& pdman,
+                     const GrShaderCaps&,
+                     const GrGeometryProcessor& gp) override {
+            const SkPMColor4f& color = gp.cast<BoundingBoxShader>().fColor;
+            pdman.set4f(fColorUniform, color.fR, color.fG, color.fB, color.fA);
+        }
+
+    private:
         void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) final {
             args.fVaryingHandler->emitAttributes(args.fGeomProc);
 
@@ -84,12 +93,6 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> BoundingBoxShader::makeProgram
                                                              kHalf4_GrSLType, "color", &color);
             args.fFragBuilder->codeAppendf("half4 %s = %s;", args.fOutputColor, color);
             args.fFragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputCoverage);
-        }
-
-        void setData(const GrGLSLProgramDataManager& pdman, const GrShaderCaps&,
-                     const GrGeometryProcessor& gp) override {
-            const SkPMColor4f& color = gp.cast<BoundingBoxShader>().fColor;
-            pdman.set4f(fColorUniform, color.fR, color.fG, color.fB, color.fA);
         }
 
         GrGLSLUniformHandler::UniformHandle fColorUniform;

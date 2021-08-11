@@ -799,8 +799,7 @@ GrOp::Owner GrDashOp::MakeDashLineOp(GrRecordingContext* context,
 
 //////////////////////////////////////////////////////////////////////////////
 
-class GLDashingCircleEffect;
-
+namespace {
 /*
  * This effect will draw a dotted line (defined as a dashed lined with round caps and no on
  * interval). The radius of the dots is given by the strokeWidth and the spacing by the DashInfo.
@@ -822,20 +821,12 @@ public:
 
     const char* name() const override { return "DashingCircleEffect"; }
 
-    AAMode aaMode() const { return fAAMode; }
-
-    const SkPMColor4f& color() const { return fColor; }
-
-    const SkMatrix& localMatrix() const { return fLocalMatrix; }
-
-    bool usesLocalCoords() const { return fUsesLocalCoords; }
-
     void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
     std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const override;
 
 private:
-    friend class GLDashingCircleEffect;
+    class Impl;
 
     DashingCircleEffect(const SkPMColor4f&, AAMode aaMode, const SkMatrix& localMatrix,
                         bool usesLocalCoords);
@@ -853,46 +844,31 @@ private:
 
     using INHERITED = GrGeometryProcessor;
 };
+}  // anonymous namespace
 
 //////////////////////////////////////////////////////////////////////////////
 
-class GLDashingCircleEffect : public GrGeometryProcessor::ProgramImpl {
+class DashingCircleEffect::Impl : public ProgramImpl {
 public:
-    GLDashingCircleEffect();
-
-    void onEmitCode(EmitArgs&, GrGPArgs*) override;
-
-    static inline void GenKey(const GrGeometryProcessor&,
-                              const GrShaderCaps&,
-                              GrProcessorKeyBuilder*);
-
     void setData(const GrGLSLProgramDataManager&,
                  const GrShaderCaps&,
                  const GrGeometryProcessor&) override;
 
 private:
+    void onEmitCode(EmitArgs&, GrGPArgs*) override;
+
+    SkMatrix    fLocalMatrix         = SkMatrix::InvalidMatrix();
+    SkPMColor4f fColor               = SK_PMColor4fILLEGAL;
+    float       fPrevRadius          = SK_FloatNaN;
+    float       fPrevCenterX         = SK_FloatNaN;
+    float       fPrevIntervalLength  = SK_FloatNaN;
+
     UniformHandle fParamUniform;
     UniformHandle fColorUniform;
     UniformHandle fLocalMatrixUniform;
-
-    SkMatrix      fLocalMatrix;
-    SkPMColor4f   fColor;
-    SkScalar      fPrevRadius;
-    SkScalar      fPrevCenterX;
-    SkScalar      fPrevIntervalLength;
-
-    using INHERITED = ProgramImpl;
 };
 
-GLDashingCircleEffect::GLDashingCircleEffect() {
-    fLocalMatrix = SkMatrix::InvalidMatrix();
-    fColor = SK_PMColor4fILLEGAL;
-    fPrevRadius = SK_ScalarMin;
-    fPrevCenterX = SK_ScalarMin;
-    fPrevIntervalLength = SK_ScalarMax;
-}
-
-void GLDashingCircleEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
+void DashingCircleEffect::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     const DashingCircleEffect& dce = args.fGeomProc.cast<DashingCircleEffect>();
     GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
     GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
@@ -918,13 +894,13 @@ void GLDashingCircleEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
 
     // Setup position
     WriteOutputPosition(vertBuilder, gpArgs, dce.fInPosition.name());
-    if (dce.usesLocalCoords()) {
+    if (dce.fUsesLocalCoords) {
         WriteLocalCoord(vertBuilder,
                         uniformHandler,
                         *args.fShaderCaps,
                         gpArgs,
                         dce.fInPosition.asShaderVar(),
-                        dce.localMatrix(),
+                        dce.fLocalMatrix,
                         &fLocalMatrixUniform);
     }
 
@@ -936,7 +912,7 @@ void GLDashingCircleEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                              dashParams.fsIn());
     fragBuilder->codeAppendf("half2 center = half2(%s.y, 0.0);", circleParams.fsIn());
     fragBuilder->codeAppend("half dist = length(center - fragPosShifted);");
-    if (dce.aaMode() != AAMode::kNone) {
+    if (dce.fAAMode != AAMode::kNone) {
         fragBuilder->codeAppendf("half diff = dist - %s.x;", circleParams.fsIn());
         fragBuilder->codeAppend("diff = 1.0 - diff;");
         fragBuilder->codeAppend("half alpha = saturate(diff);");
@@ -947,26 +923,15 @@ void GLDashingCircleEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     fragBuilder->codeAppendf("half4 %s = half4(alpha);", args.fOutputCoverage);
 }
 
-void GLDashingCircleEffect::setData(const GrGLSLProgramDataManager& pdman,
-                                    const GrShaderCaps& shaderCaps,
-                                    const GrGeometryProcessor& geomProc) {
+void DashingCircleEffect::Impl::setData(const GrGLSLProgramDataManager& pdman,
+                                        const GrShaderCaps& shaderCaps,
+                                        const GrGeometryProcessor& geomProc) {
     const DashingCircleEffect& dce = geomProc.cast<DashingCircleEffect>();
-    if (dce.color() != fColor) {
-        pdman.set4fv(fColorUniform, 1, dce.color().vec());
-        fColor = dce.color();
+    if (dce.fColor != fColor) {
+        pdman.set4fv(fColorUniform, 1, dce.fColor.vec());
+        fColor = dce.fColor;
     }
-    SetTransform(pdman, shaderCaps, fLocalMatrixUniform, dce.localMatrix(), &fLocalMatrix);
-}
-
-void GLDashingCircleEffect::GenKey(const GrGeometryProcessor& gp,
-                                   const GrShaderCaps& shaderCaps,
-                                   GrProcessorKeyBuilder* b) {
-    const DashingCircleEffect& dce = gp.cast<DashingCircleEffect>();
-    uint32_t key = 0;
-    key |= dce.usesLocalCoords() ? 0x1 : 0x0;
-    key |= static_cast<uint32_t>(dce.aaMode()) << 1;
-    key |= ComputeMatrixKey(shaderCaps, dce.localMatrix()) << 3;
-    b->add32(key);
+    SetTransform(pdman, shaderCaps, fLocalMatrixUniform, dce.fLocalMatrix, &fLocalMatrix);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -982,12 +947,16 @@ GrGeometryProcessor* DashingCircleEffect::Make(SkArenaAlloc* arena,
 }
 
 void DashingCircleEffect::addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
-    GLDashingCircleEffect::GenKey(*this, caps, b);
+    uint32_t key = 0;
+    key |= fUsesLocalCoords ? 0x1 : 0x0;
+    key |= static_cast<uint32_t>(fAAMode) << 1;
+    key |= ProgramImpl::ComputeMatrixKey(caps, fLocalMatrix) << 3;
+    b->add32(key);
 }
 
 std::unique_ptr<GrGeometryProcessor::ProgramImpl> DashingCircleEffect::makeProgramImpl(
         const GrShaderCaps&) const {
-    return std::make_unique<GLDashingCircleEffect>();
+    return std::make_unique<Impl>();
 }
 
 DashingCircleEffect::DashingCircleEffect(const SkPMColor4f& color,
@@ -1022,8 +991,7 @@ GrGeometryProcessor* DashingCircleEffect::TestCreate(GrProcessorTestData* d) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-class GLDashingLineEffect;
-
+namespace {
 /*
  * This effect will draw a dashed line. The width of the dash is given by the strokeWidth and the
  * length and spacing by the DashInfo. Both of the previous two parameters are in device space.
@@ -1045,12 +1013,6 @@ public:
 
     const char* name() const override { return "DashingEffect"; }
 
-    AAMode aaMode() const { return fAAMode; }
-
-    const SkPMColor4f& color() const { return fColor; }
-
-    const SkMatrix& localMatrix() const { return fLocalMatrix; }
-
     bool usesLocalCoords() const { return fUsesLocalCoords; }
 
     void addToKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
@@ -1058,7 +1020,7 @@ public:
     std::unique_ptr<ProgramImpl> makeProgramImpl(const GrShaderCaps&) const override;
 
 private:
-    friend class GLDashingLineEffect;
+    class Impl;
 
     DashingLineEffect(const SkPMColor4f&, AAMode aaMode, const SkMatrix& localMatrix,
                       bool usesLocalCoords);
@@ -1076,36 +1038,27 @@ private:
 
     using INHERITED = GrGeometryProcessor;
 };
+}  // anonymous namespace
 
 //////////////////////////////////////////////////////////////////////////////
 
-class GLDashingLineEffect : public GrGeometryProcessor::ProgramImpl {
+class DashingLineEffect::Impl : public ProgramImpl {
 public:
-    GLDashingLineEffect();
-
-    void onEmitCode(EmitArgs&, GrGPArgs*) override;
-
-    static inline void GenKey(const GrGeometryProcessor&,
-                              const GrShaderCaps&,
-                              GrProcessorKeyBuilder*);
-
     void setData(const GrGLSLProgramDataManager&,
                  const GrShaderCaps&,
                  const GrGeometryProcessor&) override;
 
 private:
-    SkPMColor4f   fColor;
-    UniformHandle fColorUniform;
+    void onEmitCode(EmitArgs&, GrGPArgs*) override;
 
-    SkMatrix      fLocalMatrix;
+    SkPMColor4f fColor       = SK_PMColor4fILLEGAL;
+    SkMatrix    fLocalMatrix = SkMatrix::InvalidMatrix();
+
     UniformHandle fLocalMatrixUniform;
-
-    using INHERITED = ProgramImpl;
+    UniformHandle fColorUniform;
 };
 
-GLDashingLineEffect::GLDashingLineEffect() : fColor(SK_PMColor4fILLEGAL) {}
-
-void GLDashingLineEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
+void DashingLineEffect::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     const DashingLineEffect& de = args.fGeomProc.cast<DashingLineEffect>();
 
     GrGLSLVertexBuilder* vertBuilder = args.fVertBuilder;
@@ -1139,7 +1092,7 @@ void GLDashingLineEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                         *args.fShaderCaps,
                         gpArgs,
                         de.fInPosition.asShaderVar(),
-                        de.localMatrix(),
+                        de.fLocalMatrix,
                         &fLocalMatrixUniform);
     }
 
@@ -1149,7 +1102,7 @@ void GLDashingLineEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
                              inDashParams.fsIn());
     fragBuilder->codeAppendf("half2 fragPosShifted = half2(xShifted, half(%s.y));",
                              inDashParams.fsIn());
-    if (de.aaMode() == AAMode::kCoverage) {
+    if (de.fAAMode == AAMode::kCoverage) {
         // The amount of coverage removed in x and y by the edges is computed as a pair of negative
         // numbers, xSub and ySub.
         fragBuilder->codeAppend("half xSub, ySub;");
@@ -1165,7 +1118,7 @@ void GLDashingLineEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
         // covered.
         fragBuilder->codeAppendf(
             "half alpha = (1.0 + max(xSub, -1.0)) * (1.0 + max(ySub, -1.0));");
-    } else if (de.aaMode() == AAMode::kCoverageWithMSAA) {
+    } else if (de.fAAMode == AAMode::kCoverageWithMSAA) {
         // For MSAA, we don't modulate the alpha by the Y distance, since MSAA coverage will handle
         // AA on the the top and bottom edges. The shader is only responsible for intra-dash alpha.
         fragBuilder->codeAppend("half xSub;");
@@ -1186,26 +1139,15 @@ void GLDashingLineEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     fragBuilder->codeAppendf("half4 %s = half4(alpha);", args.fOutputCoverage);
 }
 
-void GLDashingLineEffect::setData(const GrGLSLProgramDataManager& pdman,
-                                  const GrShaderCaps& shaderCaps,
-                                  const GrGeometryProcessor& geomProc) {
+void DashingLineEffect::Impl::setData(const GrGLSLProgramDataManager& pdman,
+                                      const GrShaderCaps& shaderCaps,
+                                      const GrGeometryProcessor& geomProc) {
     const DashingLineEffect& de = geomProc.cast<DashingLineEffect>();
-    if (de.color() != fColor) {
-        pdman.set4fv(fColorUniform, 1, de.color().vec());
-        fColor = de.color();
+    if (de.fColor != fColor) {
+        pdman.set4fv(fColorUniform, 1, de.fColor.vec());
+        fColor = de.fColor;
     }
-    SetTransform(pdman, shaderCaps, fLocalMatrixUniform, de.localMatrix(), &fLocalMatrix);
-}
-
-void GLDashingLineEffect::GenKey(const GrGeometryProcessor& gp,
-                                 const GrShaderCaps& shaderCaps,
-                                 GrProcessorKeyBuilder* b) {
-    const DashingLineEffect& de = gp.cast<DashingLineEffect>();
-    uint32_t key = 0;
-    key |= de.usesLocalCoords() ? 0x1 : 0x0;
-    key |= static_cast<int>(de.aaMode()) << 1;
-    key |= ComputeMatrixKey(shaderCaps, de.localMatrix()) << 3;
-    b->add32(key);
+    SetTransform(pdman, shaderCaps, fLocalMatrixUniform, de.fLocalMatrix, &fLocalMatrix);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1221,12 +1163,16 @@ GrGeometryProcessor* DashingLineEffect::Make(SkArenaAlloc* arena,
 }
 
 void DashingLineEffect::addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
-    GLDashingLineEffect::GenKey(*this, caps, b);
+    uint32_t key = 0;
+    key |= fUsesLocalCoords ? 0x1 : 0x0;
+    key |= static_cast<int>(fAAMode) << 1;
+    key |= ProgramImpl::ComputeMatrixKey(caps, fLocalMatrix) << 3;
+    b->add32(key);
 }
 
 std::unique_ptr<GrGeometryProcessor::ProgramImpl> DashingLineEffect::makeProgramImpl(
         const GrShaderCaps&) const {
-    return std::make_unique<GLDashingLineEffect>();
+    return std::make_unique<Impl>();
 }
 
 DashingLineEffect::DashingLineEffect(const SkPMColor4f& color,

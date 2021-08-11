@@ -18,13 +18,31 @@
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
-class GrGLBitmapTextGeoProc : public GrGeometryProcessor::ProgramImpl {
+class GrBitmapTextGeoProc::Impl : public ProgramImpl {
 public:
-    GrGLBitmapTextGeoProc()
-            : fColor(SK_PMColor4fILLEGAL)
-            , fAtlasDimensions{0,0}
-            , fLocalMatrix(SkMatrix::InvalidMatrix()) {}
+    void setData(const GrGLSLProgramDataManager& pdman,
+                 const GrShaderCaps& shaderCaps,
+                 const GrGeometryProcessor& geomProc) override {
+        const GrBitmapTextGeoProc& btgp = geomProc.cast<GrBitmapTextGeoProc>();
+        if (btgp.fColor != fColor && !btgp.hasVertexColor()) {
+            pdman.set4fv(fColorUniform, 1, btgp.fColor.vec());
+            fColor = btgp.fColor;
+        }
 
+        const SkISize& atlasDimensions = btgp.fAtlasDimensions;
+        SkASSERT(SkIsPow2(atlasDimensions.fWidth) && SkIsPow2(atlasDimensions.fHeight));
+
+        if (fAtlasDimensions != atlasDimensions) {
+            pdman.set2f(fAtlasDimensionsInvUniform,
+                        1.0f / atlasDimensions.fWidth,
+                        1.0f / atlasDimensions.fHeight);
+            fAtlasDimensions = atlasDimensions;
+        }
+
+        SetTransform(pdman, shaderCaps, fLocalMatrixUniform, btgp.fLocalMatrix, &fLocalMatrix);
+    }
+
+private:
     void onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) override {
         const GrBitmapTextGeoProc& btgp = args.fGeomProc.cast<GrBitmapTextGeoProc>();
 
@@ -40,34 +58,39 @@ public:
                 kFloat2_GrSLType, "AtlasSizeInv", &atlasDimensionsInvName);
 
         GrGLSLVarying uv, texIdx;
-        append_index_uv_varyings(args, btgp.numTextureSamplers(), btgp.inTextureCoords().name(),
-                                 atlasDimensionsInvName, &uv, &texIdx, nullptr);
+        append_index_uv_varyings(args,
+                                 btgp.numTextureSamplers(),
+                                 btgp.fInTextureCoords.name(),
+                                 atlasDimensionsInvName,
+                                 &uv,
+                                 &texIdx,
+                                 nullptr);
 
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         // Setup pass through color
         fragBuilder->codeAppendf("half4 %s;", args.fOutputColor);
         if (btgp.hasVertexColor()) {
-            varyingHandler->addPassThroughAttribute(btgp.inColor(), args.fOutputColor);
+            varyingHandler->addPassThroughAttribute(btgp.fInColor, args.fOutputColor);
         } else {
             this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor,
                                     &fColorUniform);
         }
 
         // Setup position
-        gpArgs->fPositionVar = btgp.inPosition().asShaderVar();
+        gpArgs->fPositionVar = btgp.fInPosition.asShaderVar();
         WriteLocalCoord(vertBuilder,
                         uniformHandler,
                         *args.fShaderCaps,
                         gpArgs,
-                        btgp.inPosition().asShaderVar(),
-                        btgp.localMatrix(),
+                        btgp.fInPosition.asShaderVar(),
+                        btgp.fLocalMatrix,
                         &fLocalMatrixUniform);
 
         fragBuilder->codeAppend("half4 texColor;");
         append_multitexture_lookup(args, btgp.numTextureSamplers(),
                                    texIdx, uv.fsIn(), "texColor");
 
-        if (btgp.maskFormat() == kARGB_GrMaskFormat) {
+        if (btgp.fMaskFormat == kARGB_GrMaskFormat) {
             // modulate by color
             fragBuilder->codeAppendf("%s = %s * texColor;", args.fOutputColor, args.fOutputColor);
             fragBuilder->codeAppendf("const half4 %s = half4(1);", args.fOutputCoverage);
@@ -76,52 +99,14 @@ public:
         }
     }
 
-    void setData(const GrGLSLProgramDataManager& pdman,
-                 const GrShaderCaps& shaderCaps,
-                 const GrGeometryProcessor& geomProc) override {
-        const GrBitmapTextGeoProc& btgp = geomProc.cast<GrBitmapTextGeoProc>();
-        if (btgp.color() != fColor && !btgp.hasVertexColor()) {
-            pdman.set4fv(fColorUniform, 1, btgp.color().vec());
-            fColor = btgp.color();
-        }
-
-        const SkISize& atlasDimensions = btgp.atlasDimensions();
-        SkASSERT(SkIsPow2(atlasDimensions.fWidth) && SkIsPow2(atlasDimensions.fHeight));
-
-        if (fAtlasDimensions != atlasDimensions) {
-            pdman.set2f(fAtlasDimensionsInvUniform,
-                        1.0f / atlasDimensions.fWidth,
-                        1.0f / atlasDimensions.fHeight);
-            fAtlasDimensions = atlasDimensions;
-        }
-
-        SetTransform(pdman, shaderCaps, fLocalMatrixUniform, btgp.localMatrix(), &fLocalMatrix);
-    }
-
-    static inline void GenKey(const GrGeometryProcessor& proc,
-                              const GrShaderCaps& shaderCaps,
-                              GrProcessorKeyBuilder* b) {
-        const GrBitmapTextGeoProc& btgp = proc.cast<GrBitmapTextGeoProc>();
-        b->addBool(btgp.usesW(), "usesW");
-        static_assert(kLast_GrMaskFormat < (1u << 2));
-        b->addBits(2, btgp.maskFormat(), "maskFormat");
-        b->addBits(kMatrixKeyBits,
-                   ComputeMatrixKey(shaderCaps, btgp.localMatrix()),
-                   "localMatrixType");
-        b->add32(btgp.numTextureSamplers(),"numTextures");
-    }
-
 private:
-    SkPMColor4f   fColor;
+    SkPMColor4f fColor           = SK_PMColor4fILLEGAL;
+    SkISize     fAtlasDimensions = {-1, -1};
+    SkMatrix    fLocalMatrix     = SkMatrix::InvalidMatrix();
+
     UniformHandle fColorUniform;
-
-    SkISize       fAtlasDimensions;
     UniformHandle fAtlasDimensionsInvUniform;
-
-    SkMatrix      fLocalMatrix;
     UniformHandle fLocalMatrixUniform;
-
-    using INHERITED = ProgramImpl;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -194,12 +179,18 @@ void GrBitmapTextGeoProc::addNewViews(const GrSurfaceProxyView* views,
 }
 
 void GrBitmapTextGeoProc::addToKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
-    GrGLBitmapTextGeoProc::GenKey(*this, caps, b);
+    b->addBool(fUsesW, "usesW");
+    static_assert(kLast_GrMaskFormat < (1u << 2));
+    b->addBits(2, fMaskFormat, "maskFormat");
+    b->addBits(ProgramImpl::kMatrixKeyBits,
+               ProgramImpl::ComputeMatrixKey(caps, fLocalMatrix),
+               "localMatrixType");
+    b->add32(this->numTextureSamplers(), "numTextures");
 }
 
 std::unique_ptr<GrGeometryProcessor::ProgramImpl> GrBitmapTextGeoProc::makeProgramImpl(
         const GrShaderCaps& caps) const {
-    return std::make_unique<GrGLBitmapTextGeoProc>();
+    return std::make_unique<Impl>();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
