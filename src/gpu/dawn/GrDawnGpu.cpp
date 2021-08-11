@@ -318,10 +318,8 @@ GrBackendTexture GrDawnGpu::onCreateBackendTexture(SkISize dimensions,
     }
 
     wgpu::TextureDescriptor desc;
-    desc.usage =
-        wgpu::TextureUsage::Sampled |
-        wgpu::TextureUsage::CopySrc |
-        wgpu::TextureUsage::CopyDst;
+    desc.usage = wgpu::TextureUsage::TextureBinding | wgpu::TextureUsage::CopySrc |
+                 wgpu::TextureUsage::CopyDst;
 
     if (GrRenderable::kYes == renderable) {
         desc.usage |= wgpu::TextureUsage::RenderAttachment;
@@ -682,8 +680,7 @@ bool GrDawnGpu::onRegenerateMipMapLevels(GrTexture* tex) {
     // We have to do this even for renderable textures, since GrDawnRenderTarget currently only
     // contains a view, not a texture.
     wgpu::TextureDescriptor texDesc;
-    texDesc.usage = wgpu::TextureUsage::Sampled |
-                    wgpu::TextureUsage::CopySrc |
+    texDesc.usage = wgpu::TextureUsage::TextureBinding | wgpu::TextureUsage::CopySrc |
                     wgpu::TextureUsage::RenderAttachment;
     texDesc.size.width = (tex->width() + 1) / 2;
     texDesc.size.height = (tex->height() + 1) / 2;

@@ -27,10 +27,8 @@ sk_sp<GrDawnTexture> GrDawnTexture::Make(GrDawnGpu* gpu, SkISize dimensions,
     bool renderTarget = renderable == GrRenderable::kYes;
     wgpu::TextureDescriptor textureDesc;
 
-    textureDesc.usage =
-        wgpu::TextureUsage::Sampled |
-        wgpu::TextureUsage::CopySrc |
-        wgpu::TextureUsage::CopyDst;
+    textureDesc.usage = wgpu::TextureUsage::TextureBinding | wgpu::TextureUsage::CopySrc |
+                        wgpu::TextureUsage::CopyDst;
 
     if (renderTarget) {
         textureDesc.usage |= wgpu::TextureUsage::RenderAttachment;
