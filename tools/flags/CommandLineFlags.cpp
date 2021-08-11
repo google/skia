@@ -251,11 +251,11 @@ void CommandLineFlags::Parse(int argc, const char* const* argv) {
                     allFlags.push_back(flag);
                 }
                 SkTQSort(allFlags.begin(), allFlags.end(), CompareFlagsByName());
-                for (int i = 0; i < allFlags.count(); ++i) {
-                    print_help_for_flag(allFlags[i]);
-                    if (allFlags[i]->extendedHelp().size() > 0) {
+                for (SkFlagInfo* flag : allFlags) {
+                    print_help_for_flag(flag);
+                    if (flag->extendedHelp().size() > 0) {
                         SkDebugf("        Use '--help %s' for more information.\n",
-                                 allFlags[i]->name().c_str());
+                                 flag->name().c_str());
                     }
                 }
             } else {

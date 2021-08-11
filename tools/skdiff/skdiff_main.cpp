@@ -631,9 +631,8 @@ int main(int argc, char** argv) {
         }
     }
 
-    int i;
     int numUnflaggedArguments = 0;
-    for (i = 1; i < argc; i++) {
+    for (int i = 1; i < argc; i++) {
         if (!strcmp(argv[i], "--failonresult")) {
             if (argc == ++i) {
                 SkDebugf("failonresult expects one argument.\n");

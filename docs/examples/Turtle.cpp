@@ -41,8 +41,7 @@ const char* eval(SkCanvas* canvas, const char* s, char e, float& dist, float& l,
         d = std::min(d, l);
         dist += d; l -= d;
         float r = t.h * 0.01745329f;
-        auto s = sinf(r), c = cosf(r);
-        Turtle nt = { t.x + s * d, t.y - c * d, t.h, t.p };
+        Turtle nt = { t.x + sinf(r) * d, t.y - cosf(r) * d, t.h, t.p };
         if (pt && t.p) canvas->drawLine(t.x, t.y, nt.x, nt.y, p());
         t = nt;
         break;

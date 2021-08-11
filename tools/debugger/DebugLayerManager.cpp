@@ -31,8 +31,8 @@ void DebugLayerManager::setCommand(int nodeId, int frame, int command) {
   // Invalidate stored images that depended on this combination of node and frame.
   // actually this does all of the events for this nodeId, but close enough.
   auto relevantFrames = listFramesForNode(nodeId);
-  for (const auto& frame : relevantFrames) {
-    fDraws[{frame, nodeId}].image = nullptr;
+  for (const auto& f : relevantFrames) {
+    fDraws[{f, nodeId}].image = nullptr;
   }
 }
 

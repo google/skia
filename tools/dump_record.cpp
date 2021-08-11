@@ -181,8 +181,8 @@ int main(int argc, char** argv) {
         printf("%s %s\n", FLAGS_optimize ? "optimized" : "not-optimized", FLAGS_skps[i]);
 
         Dumper dumper(&canvas, record.count());
-        for (int i = 0; i < record.count(); i++) {
-            record.visit(i, dumper);
+        for (int j = 0; j < record.count(); j++) {
+            record.visit(j, dumper);
         }
 
         if (FLAGS_write.count() > 0) {
