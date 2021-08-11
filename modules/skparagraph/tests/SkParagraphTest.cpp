@@ -6320,12 +6320,12 @@ DEF_TEST(SkParagraph_RTLGlyphPositionsForTrailingSpaces, reporter) {
 
         for (int i = 0; i < SkToInt(str.size()); ++i) {
             auto pointX = (whitespaces + i) * 10.0f;
-            auto res = paragraph->getGlyphPositionAtCoordinate(pointX, 2);
+            auto pos = paragraph->getGlyphPositionAtCoordinate(pointX, 2);
             //SkDebugf("@%f[%d]: %d %s\n", pointX, i, res.position, res.affinity == Affinity::kDownstream ? "D" : "U");
             // At the beginning there is a control codepoint that makes the string RTL
-            REPORTER_ASSERT(reporter, (res.position + i) == SkToInt(str.size() - (res.position > 0 ? 0 : 1)));
+            REPORTER_ASSERT(reporter, (pos.position + i) == SkToInt(str.size() - (pos.position > 0 ? 0 : 1)));
             // The ending looks slightly different...
-            REPORTER_ASSERT(reporter, res.affinity == (i == 0 ? Affinity::kUpstream : Affinity::kDownstream));
+            REPORTER_ASSERT(reporter, pos.affinity == (i == 0 ? Affinity::kUpstream : Affinity::kDownstream));
         }
     };
 
