@@ -8,6 +8,7 @@
 #ifndef SKSL_DSLWRITER
 #define SKSL_DSLWRITER
 
+#include "include/core/SkSpan.h"
 #include "include/core/SkStringView.h"
 #include "include/private/SkSLModifiers.h"
 #include "include/private/SkSLStatement.h"
@@ -196,8 +197,7 @@ public:
 
     static DSLPossibleExpression Coerce(std::unique_ptr<Expression> expr, const SkSL::Type& type);
 
-    static DSLPossibleExpression Construct(const SkSL::Type& type,
-                                           SkTArray<DSLExpression> rawArgs);
+    static DSLPossibleExpression Construct(const SkSL::Type& type, SkSpan<DSLExpression> rawArgs);
 
     static std::unique_ptr<Expression> ConvertBinary(std::unique_ptr<Expression> left, Operator op,
                                                      std::unique_ptr<Expression> right);

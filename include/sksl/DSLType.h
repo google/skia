@@ -8,6 +8,7 @@
 #ifndef SKSL_DSL_TYPE
 #define SKSL_DSL_TYPE
 
+#include "include/core/SkSpan.h"
 #include "include/private/SkSLString.h"
 #include "include/sksl/DSLExpression.h"
 #include "include/sksl/DSLModifiers.h"
@@ -144,35 +145,23 @@ public:
     bool isStruct() const;
 
     template<typename... Args>
-    static DSLExpression Construct(DSLType type, Args&&... args) {
-        SkTArray<DSLExpression> argArray;
-        argArray.reserve_back(sizeof...(args));
-        CollectArgs(argArray, std::forward<Args>(args)...);
-        return Construct(type, std::move(argArray));
+    static DSLExpression Construct(DSLType type, DSLVarBase& var, Args&&... args) {
+        DSLExpression argArray[] = {var, args...};
+        return Construct(type, SkMakeSpan(argArray));
     }
 
-    static DSLExpression Construct(DSLType type, SkTArray<DSLExpression> argArray);
+    template<typename... Args>
+    static DSLExpression Construct(DSLType type, DSLExpression expr, Args&&... args) {
+        DSLExpression argArray[] = {std::move(expr), std::move(args)...};
+        return Construct(type, SkMakeSpan(argArray));
+    }
+
+    static DSLExpression Construct(DSLType type, SkSpan<DSLExpression> argArray);
 
 private:
     const SkSL::Type& skslType() const;
 
     const SkSL::Type* fSkSLType = nullptr;
-
-    static void CollectArgs(SkTArray<DSLExpression>& args) {}
-
-    template<class... RemainingArgs>
-    static void CollectArgs(SkTArray<DSLExpression>& args, DSLVarBase& var,
-                            RemainingArgs&&... remaining) {
-        args.push_back(var);
-        CollectArgs(args, std::forward<RemainingArgs>(remaining)...);
-    }
-
-    template<class... RemainingArgs>
-    static void CollectArgs(SkTArray<DSLExpression>& args, DSLExpression expr,
-                            RemainingArgs&&... remaining) {
-        args.push_back(std::move(expr));
-        CollectArgs(args, std::forward<RemainingArgs>(remaining)...);
-    }
 
     TypeConstant fTypeConstant;
 

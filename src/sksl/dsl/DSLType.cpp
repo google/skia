@@ -198,7 +198,7 @@ const SkSL::Type& DSLType::skslType() const {
     }
 }
 
-DSLExpression DSLType::Construct(DSLType type, SkTArray<DSLExpression> argArray) {
+DSLExpression DSLType::Construct(DSLType type, SkSpan<DSLExpression> argArray) {
     return DSLWriter::Construct(type.skslType(), std::move(argArray));
 }
 
