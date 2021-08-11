@@ -12,7 +12,7 @@
 
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 
-#include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
+#include "src/gpu/GrFragmentProcessor.h"
 
 namespace SkSL {
 

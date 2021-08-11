@@ -14,7 +14,6 @@
 #include "src/gpu/geometry/GrQuadUtils.h"
 #include "src/gpu/glsl/GrGLSLColorSpaceXformHelper.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
-#include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
@@ -650,9 +649,12 @@ public:
                     SkASSERT(gp.fCoverageMode != CoverageMode::kWithColor || !gp.fNeedsPerspective);
                     // The color cannot be flat if the varying coverage has been modulated into it
                     args.fFragBuilder->codeAppendf("half4 %s;", args.fOutputColor);
-                    args.fVaryingHandler->addPassThroughAttribute(gp.fColor, args.fOutputColor,
-                            gp.fCoverageMode == CoverageMode::kWithColor ?
-                            Interpolation::kInterpolated : Interpolation::kCanBeFlat);
+                    args.fVaryingHandler->addPassThroughAttribute(
+                            gp.fColor.asShaderVar(),
+                            args.fOutputColor,
+                            gp.fCoverageMode == CoverageMode::kWithColor
+                                    ? Interpolation::kInterpolated
+                                    : Interpolation::kCanBeFlat);
                     blendDst = args.fOutputColor;
                 } else {
                     // Output color must be initialized to something
@@ -675,13 +677,15 @@ public:
                         args.fFragBuilder->codeAppendf("texCoord = %s.xy / %s.z;",
                                                        v.fsIn(), v.fsIn());
                     } else {
-                        args.fVaryingHandler->addPassThroughAttribute(gp.fLocalCoord, "texCoord");
+                        args.fVaryingHandler->addPassThroughAttribute(gp.fLocalCoord.asShaderVar(),
+                                                                      "texCoord");
                     }
 
                     // Clamp the now 2D localCoordName variable by the subset if it is provided
                     if (gp.fTexSubset.isInitialized()) {
                         args.fFragBuilder->codeAppend("float4 subset;");
-                        args.fVaryingHandler->addPassThroughAttribute(gp.fTexSubset, "subset",
+                        args.fVaryingHandler->addPassThroughAttribute(gp.fTexSubset.asShaderVar(),
+                                                                      "subset",
                                                                       Interpolation::kCanBeFlat);
                         args.fFragBuilder->codeAppend(
                                 "texCoord = clamp(texCoord, subset.LT, subset.RB);");
@@ -726,8 +730,9 @@ public:
                         // coverage. This only has to be done in the exterior triangles, the
                         // interior of the quad geometry can never be clipped by the subset box.
                         args.fFragBuilder->codeAppend("float4 geoSubset;");
-                        args.fVaryingHandler->addPassThroughAttribute(gp.fGeomSubset, "geoSubset",
-                                        Interpolation::kCanBeFlat);
+                        args.fVaryingHandler->addPassThroughAttribute(gp.fGeomSubset.asShaderVar(),
+                                                                      "geoSubset",
+                                                                      Interpolation::kCanBeFlat);
 #ifdef SK_USE_LEGACY_AA_QUAD_SUBSET
                         args.fFragBuilder->codeAppend(
                                 "if (coverage < 0.5) {"

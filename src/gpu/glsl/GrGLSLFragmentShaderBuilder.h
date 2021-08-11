@@ -9,8 +9,8 @@
 #define GrGLSLFragmentShaderBuilder_DEFINED
 
 #include "src/gpu/GrBlend.h"
+#include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrProcessor.h"
-#include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLShaderBuilder.h"
 
 class GrRenderTarget;

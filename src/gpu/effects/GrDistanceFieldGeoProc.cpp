@@ -12,7 +12,6 @@
 #include "src/gpu/effects/GrAtlasedShaderHelpers.h"
 #include "src/gpu/effects/GrDistanceFieldGeoProc.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
-#include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
@@ -78,7 +77,8 @@ private:
 
         // Setup pass through color
         fragBuilder->codeAppendf("half4 %s;\n", args.fOutputColor);
-        varyingHandler->addPassThroughAttribute(dfTexEffect.fInColor, args.fOutputColor);
+        varyingHandler->addPassThroughAttribute(dfTexEffect.fInColor.asShaderVar(),
+                                                args.fOutputColor);
 
         // Setup position
         gpArgs->fPositionVar = dfTexEffect.fInPosition.asShaderVar();
@@ -366,7 +366,8 @@ private:
 
         // setup pass through color
         fragBuilder->codeAppendf("half4 %s;", args.fOutputColor);
-        varyingHandler->addPassThroughAttribute(dfPathEffect.fInColor, args.fOutputColor);
+        varyingHandler->addPassThroughAttribute(dfPathEffect.fInColor.asShaderVar(),
+                                                args.fOutputColor);
 
         if (dfPathEffect.fMatrix.hasPerspective()) {
             // Setup position (output position is transformed, local coords are pass through)
@@ -624,7 +625,8 @@ private:
 
         // setup pass through color
         fragBuilder->codeAppendf("half4 %s;\n", args.fOutputColor);
-        varyingHandler->addPassThroughAttribute(dfTexEffect.fInColor, args.fOutputColor);
+        varyingHandler->addPassThroughAttribute(dfTexEffect.fInColor.asShaderVar(),
+                                                args.fOutputColor);
 
         // Setup position
         gpArgs->fPositionVar = dfTexEffect.fInPosition.asShaderVar();

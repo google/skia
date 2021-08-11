@@ -10,6 +10,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/private/GrTypesPriv.h"
+#include "src/gpu/ops/GrOp.h"
 
 class GrColorSpaceXform;
 class GrDrawOp;

@@ -5,11 +5,14 @@
  * found in the LICENSE file.
  */
 
+#include "src/gpu/ops/GrLatticeOp.h"
+
 #include "include/core/SkBitmap.h"
 #include "include/core/SkRect.h"
 #include "src/core/SkLatticeIter.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/gpu/GrDrawOpTest.h"
+#include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrProgramInfo.h"
@@ -19,9 +22,7 @@
 #include "src/gpu/SkGr.h"
 #include "src/gpu/glsl/GrGLSLColorSpaceXformHelper.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
-#include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
-#include "src/gpu/ops/GrLatticeOp.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
@@ -67,13 +68,16 @@ public:
                 gpArgs->fLocalCoordVar = latticeGP.fInTextureCoords.asShaderVar();
 
                 args.fFragBuilder->codeAppend("float2 textureCoords;");
-                args.fVaryingHandler->addPassThroughAttribute(latticeGP.fInTextureCoords,
-                                                              "textureCoords");
+                args.fVaryingHandler->addPassThroughAttribute(
+                        latticeGP.fInTextureCoords.asShaderVar(),
+                        "textureCoords");
                 args.fFragBuilder->codeAppend("float4 textureDomain;");
                 args.fVaryingHandler->addPassThroughAttribute(
-                        latticeGP.fInTextureDomain, "textureDomain", Interpolation::kCanBeFlat);
+                        latticeGP.fInTextureDomain.asShaderVar(),
+                        "textureDomain",
+                        Interpolation::kCanBeFlat);
                 args.fFragBuilder->codeAppendf("half4 %s;", args.fOutputColor);
-                args.fVaryingHandler->addPassThroughAttribute(latticeGP.fInColor,
+                args.fVaryingHandler->addPassThroughAttribute(latticeGP.fInColor.asShaderVar(),
                                                               args.fOutputColor,
                                                               Interpolation::kCanBeFlat);
                 args.fFragBuilder->codeAppendf("%s = ", args.fOutputColor);

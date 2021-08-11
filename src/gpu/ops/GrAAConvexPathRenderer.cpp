@@ -21,7 +21,6 @@
 #include "src/gpu/geometry/GrPathUtils.h"
 #include "src/gpu/geometry/GrStyledShape.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
-#include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
@@ -624,7 +623,7 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> QuadEdgeEffect::makeProgramImp
 
             // Setup pass through color
             fragBuilder->codeAppendf("half4 %s;", args.fOutputColor);
-            varyingHandler->addPassThroughAttribute(qe.fInColor, args.fOutputColor);
+            varyingHandler->addPassThroughAttribute(qe.fInColor.asShaderVar(), args.fOutputColor);
 
             // Setup position
             WriteOutputPosition(vertBuilder, gpArgs, qe.fInPosition.name());

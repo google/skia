@@ -23,7 +23,6 @@
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
-#include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
@@ -509,7 +508,7 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> MeshTestProcessor::makeProgram
             GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
             varyingHandler->emitAttributes(mp);
             f->codeAppendf("half4 %s;", args.fOutputColor);
-            varyingHandler->addPassThroughAttribute(mp.inColor(), args.fOutputColor);
+            varyingHandler->addPassThroughAttribute(mp.inColor().asShaderVar(), args.fOutputColor);
 
             if (!mp.fInstanceLocation.isInitialized()) {
                 v->codeAppendf("float2 vertex = %s;", mp.fVertexPosition.name());

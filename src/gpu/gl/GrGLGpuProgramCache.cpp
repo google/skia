@@ -12,10 +12,10 @@
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrDirectContextPriv.h"
+#include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/GrProcessor.h"
 #include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/gl/builders/GrGLProgramBuilder.h"
-#include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 
 struct GrGLGpu::ProgramCache::Entry {
     Entry(sk_sp<GrGLProgram> program)

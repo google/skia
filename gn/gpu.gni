@@ -435,12 +435,8 @@ skia_gpu_sources = [
   "$_src/gpu/glsl/GrGLSLBlend.cpp",
   "$_src/gpu/glsl/GrGLSLBlend.h",
   "$_src/gpu/glsl/GrGLSLColorSpaceXformHelper.h",
-  "$_src/gpu/glsl/GrGLSLFragmentProcessor.cpp",
-  "$_src/gpu/glsl/GrGLSLFragmentProcessor.h",
   "$_src/gpu/glsl/GrGLSLFragmentShaderBuilder.cpp",
   "$_src/gpu/glsl/GrGLSLFragmentShaderBuilder.h",
-  "$_src/gpu/glsl/GrGLSLGeometryProcessor.cpp",
-  "$_src/gpu/glsl/GrGLSLGeometryProcessor.h",
   "$_src/gpu/glsl/GrGLSLProgramBuilder.cpp",
   "$_src/gpu/glsl/GrGLSLProgramBuilder.h",
   "$_src/gpu/glsl/GrGLSLProgramDataManager.cpp",
@@ -453,8 +449,6 @@ skia_gpu_sources = [
   "$_src/gpu/glsl/GrGLSLVarying.h",
   "$_src/gpu/glsl/GrGLSLVertexGeoBuilder.cpp",
   "$_src/gpu/glsl/GrGLSLVertexGeoBuilder.h",
-  "$_src/gpu/glsl/GrGLSLXferProcessor.cpp",
-  "$_src/gpu/glsl/GrGLSLXferProcessor.h",
 
   # Mock
   "$_src/gpu/mock/GrMockAttachment.h",

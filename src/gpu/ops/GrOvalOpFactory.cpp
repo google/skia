@@ -19,7 +19,6 @@
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/GrVertexWriter.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
-#include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
@@ -141,24 +140,28 @@ private:
             // emit attributes
             varyingHandler->emitAttributes(cgp);
             fragBuilder->codeAppend("float4 circleEdge;");
-            varyingHandler->addPassThroughAttribute(cgp.fInCircleEdge, "circleEdge");
+            varyingHandler->addPassThroughAttribute(cgp.fInCircleEdge.asShaderVar(), "circleEdge");
             if (cgp.fInClipPlane.isInitialized()) {
                 fragBuilder->codeAppend("half3 clipPlane;");
-                varyingHandler->addPassThroughAttribute(cgp.fInClipPlane, "clipPlane");
+                varyingHandler->addPassThroughAttribute(cgp.fInClipPlane.asShaderVar(),
+                                                        "clipPlane");
             }
             if (cgp.fInIsectPlane.isInitialized()) {
                 fragBuilder->codeAppend("half3 isectPlane;");
-                varyingHandler->addPassThroughAttribute(cgp.fInIsectPlane, "isectPlane");
+                varyingHandler->addPassThroughAttribute(cgp.fInIsectPlane.asShaderVar(),
+                                                        "isectPlane");
             }
             if (cgp.fInUnionPlane.isInitialized()) {
                 SkASSERT(cgp.fInClipPlane.isInitialized());
                 fragBuilder->codeAppend("half3 unionPlane;");
-                varyingHandler->addPassThroughAttribute(cgp.fInUnionPlane, "unionPlane");
+                varyingHandler->addPassThroughAttribute(cgp.fInUnionPlane.asShaderVar(),
+                                                        "unionPlane");
             }
             GrGLSLVarying capRadius(kFloat_GrSLType);
             if (cgp.fInRoundCapCenters.isInitialized()) {
                 fragBuilder->codeAppend("float4 roundCapCenters;");
-                varyingHandler->addPassThroughAttribute(cgp.fInRoundCapCenters, "roundCapCenters");
+                varyingHandler->addPassThroughAttribute(cgp.fInRoundCapCenters.asShaderVar(),
+                                                        "roundCapCenters");
                 varyingHandler->addVarying("capRadius", &capRadius,
                                            GrGLSLVaryingHandler::Interpolation::kCanBeFlat);
                 // This is the cap radius in normalized space where the outer radius is 1 and
@@ -169,7 +172,7 @@ private:
 
             // setup pass through color
             fragBuilder->codeAppendf("half4 %s;", args.fOutputColor);
-            varyingHandler->addPassThroughAttribute(cgp.fInColor, args.fOutputColor);
+            varyingHandler->addPassThroughAttribute(cgp.fInColor.asShaderVar(), args.fOutputColor);
 
             // Setup position
             WriteOutputPosition(vertBuilder, gpArgs, cgp.fInPosition.name());
@@ -318,11 +321,13 @@ private:
             // emit attributes
             varyingHandler->emitAttributes(bcscgp);
             fragBuilder->codeAppend("float4 circleEdge;");
-            varyingHandler->addPassThroughAttribute(bcscgp.fInCircleEdge, "circleEdge");
+            varyingHandler->addPassThroughAttribute(bcscgp.fInCircleEdge.asShaderVar(),
+                                                    "circleEdge");
 
             fragBuilder->codeAppend("float4 dashParams;");
             varyingHandler->addPassThroughAttribute(
-                    bcscgp.fInDashParams, "dashParams",
+                    bcscgp.fInDashParams.asShaderVar(),
+                    "dashParams",
                     GrGLSLVaryingHandler::Interpolation::kCanBeFlat);
             GrGLSLVarying wrapDashes(kHalf4_GrSLType);
             varyingHandler->addVarying("wrapDashes", &wrapDashes,
@@ -393,7 +398,8 @@ private:
             // setup pass through color
             fragBuilder->codeAppendf("half4 %s;", args.fOutputColor);
             varyingHandler->addPassThroughAttribute(
-                    bcscgp.fInColor, args.fOutputColor,
+                    bcscgp.fInColor.asShaderVar(),
+                    args.fOutputColor,
                     GrGLSLVaryingHandler::Interpolation::kCanBeFlat);
 
             // Setup position
@@ -587,7 +593,7 @@ private:
             GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
             // setup pass through color
             fragBuilder->codeAppendf("half4 %s;", args.fOutputColor);
-            varyingHandler->addPassThroughAttribute(egp.fInColor, args.fOutputColor);
+            varyingHandler->addPassThroughAttribute(egp.fInColor.asShaderVar(), args.fOutputColor);
 
             // Setup position
             WriteOutputPosition(vertBuilder, gpArgs, egp.fInPosition.name());
@@ -785,7 +791,8 @@ private:
 
             GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
             fragBuilder->codeAppendf("half4 %s;", args.fOutputColor);
-            varyingHandler->addPassThroughAttribute(diegp.fInColor, args.fOutputColor);
+            varyingHandler->addPassThroughAttribute(diegp.fInColor.asShaderVar(),
+                                                    args.fOutputColor);
 
             // Setup position
             WriteOutputPosition(vertBuilder,

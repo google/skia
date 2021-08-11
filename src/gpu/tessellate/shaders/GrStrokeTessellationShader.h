@@ -12,7 +12,6 @@
 
 #include "include/core/SkStrokeRec.h"
 #include "src/gpu/GrVx.h"
-#include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 

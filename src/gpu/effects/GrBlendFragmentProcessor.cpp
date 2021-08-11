@@ -10,7 +10,6 @@
 #include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/glsl/GrGLSLBlend.h"
-#include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 
 // Some of the CPU implementations of blend modes differ from the GPU enough that

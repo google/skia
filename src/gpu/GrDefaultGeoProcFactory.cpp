@@ -10,8 +10,8 @@
 #include "include/core/SkRefCnt.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/gpu/GrCaps.h"
+#include "src/gpu/GrGeometryProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
-#include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
@@ -163,7 +163,7 @@ private:
             // Setup coverage as pass through
             if (gp.hasVertexCoverage() && !tweakAlpha) {
                 fragBuilder->codeAppendf("half alpha = 1.0;");
-                varyingHandler->addPassThroughAttribute(gp.fInCoverage, "alpha");
+                varyingHandler->addPassThroughAttribute(gp.fInCoverage.asShaderVar(), "alpha");
                 if (coverageNeedsSaturate) {
                     fragBuilder->codeAppendf("half4 %s = half4(saturate(alpha));",
                                              args.fOutputCoverage);

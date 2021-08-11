@@ -21,7 +21,6 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
-#include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
@@ -105,7 +104,7 @@ PipelineDynamicStateTestProcessor::makeProgramImpl(const GrShaderCaps&) const {
             GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
             varyingHandler->emitAttributes(mp);
             f->codeAppendf("half4 %s;", args.fOutputColor);
-            varyingHandler->addPassThroughAttribute(mp.inColor(), args.fOutputColor);
+            varyingHandler->addPassThroughAttribute(mp.inColor().asShaderVar(), args.fOutputColor);
 
             v->codeAppendf("float2 vertex = %s;", mp.inVertex().name());
             gpArgs->fPositionVar.set(kFloat2_GrSLType, "vertex");

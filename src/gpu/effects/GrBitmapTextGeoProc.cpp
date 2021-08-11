@@ -12,7 +12,6 @@
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/effects/GrAtlasedShaderHelpers.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
-#include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
 #include "src/gpu/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
@@ -70,7 +69,7 @@ private:
         // Setup pass through color
         fragBuilder->codeAppendf("half4 %s;", args.fOutputColor);
         if (btgp.hasVertexColor()) {
-            varyingHandler->addPassThroughAttribute(btgp.fInColor, args.fOutputColor);
+            varyingHandler->addPassThroughAttribute(btgp.fInColor.asShaderVar(), args.fOutputColor);
         } else {
             this->setupUniformColor(fragBuilder, uniformHandler, args.fOutputColor,
                                     &fColorUniform);

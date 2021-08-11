@@ -7,7 +7,7 @@
 
 #include "tests/Test.h"
 
-#include "src/gpu/glsl/GrGLSLFragmentProcessor.h"
+#include "src/gpu/GrFragmentProcessor.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
 

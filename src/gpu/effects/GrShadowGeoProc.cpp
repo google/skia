@@ -9,7 +9,6 @@
 
 #include "src/gpu/GrSurfaceProxyView.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
-#include "src/gpu/glsl/GrGLSLGeometryProcessor.h"
 #include "src/gpu/glsl/GrGLSLUniformHandler.h"
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
@@ -30,11 +29,12 @@ private:
         // emit attributes
         varyingHandler->emitAttributes(rsgp);
         fragBuilder->codeAppend("half3 shadowParams;");
-        varyingHandler->addPassThroughAttribute(rsgp.inShadowParams(), "shadowParams");
+        varyingHandler->addPassThroughAttribute(rsgp.inShadowParams().asShaderVar(),
+                                                "shadowParams");
 
         // setup pass through color
         fragBuilder->codeAppendf("half4 %s;", args.fOutputColor);
-        varyingHandler->addPassThroughAttribute(rsgp.inColor(), args.fOutputColor);
+        varyingHandler->addPassThroughAttribute(rsgp.inColor().asShaderVar(), args.fOutputColor);
 
         // Setup position
         WriteOutputPosition(vertBuilder, gpArgs, rsgp.inPosition().name());
