@@ -213,9 +213,9 @@ DSLType Array(const DSLType& base, int count) {
     return DSLWriter::SymbolTable()->addArrayDimension(&base.skslType(), count);
 }
 
-DSLType Struct(skstd::string_view name, SkTArray<DSLField> fields) {
+DSLType Struct(skstd::string_view name, SkSpan<DSLField> fields) {
     std::vector<SkSL::Type::Field> skslFields;
-    skslFields.reserve(fields.count());
+    skslFields.reserve(fields.size());
     for (const DSLField& field : fields) {
         skslFields.emplace_back(field.fModifiers.fModifiers, field.fName, &field.fType.skslType());
     }

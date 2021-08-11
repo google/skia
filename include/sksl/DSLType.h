@@ -166,7 +166,7 @@ private:
     TypeConstant fTypeConstant;
 
     friend DSLType Array(const DSLType& base, int count);
-    friend DSLType Struct(skstd::string_view name, SkTArray<DSLField> fields);
+    friend DSLType Struct(skstd::string_view name, SkSpan<DSLField> fields);
     friend class DSLCore;
     friend class DSLFunction;
     friend class DSLVarBase;
@@ -229,21 +229,15 @@ private:
     skstd::string_view fName;
 
     friend class DSLCore;
-    friend DSLType Struct(skstd::string_view name, SkTArray<DSLField> fields);
+    friend DSLType Struct(skstd::string_view name, SkSpan<DSLField> fields);
 };
 
-DSLType Struct(skstd::string_view name, SkTArray<DSLField> fields);
+DSLType Struct(skstd::string_view name, SkSpan<DSLField> fields);
 
 template<typename... Field>
 DSLType Struct(skstd::string_view name, Field... fields) {
-    SkTArray<DSLField> fieldTypes;
-    fieldTypes.reserve_back(sizeof...(fields));
-    // in C++17, we could just do:
-    // (fieldTypes.push_back(std::move(fields)), ...);
-    int unused[] = {0, (fieldTypes.push_back(std::move(fields)), 0)...};
-    static_cast<void>(unused);
-
-    return Struct(name, std::move(fieldTypes));
+    DSLField fieldTypes[] = {std::move(fields)...};
+    return Struct(name, SkMakeSpan(fieldTypes));
 }
 
 } // namespace dsl

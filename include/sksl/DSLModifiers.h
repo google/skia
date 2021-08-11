@@ -8,8 +8,8 @@
 #ifndef SKSL_DSL_MODIFIERS
 #define SKSL_DSL_MODIFIERS
 
+#include "include/core/SkSpan.h"
 #include "include/private/SkSLModifiers.h"
-#include "include/private/SkTArray.h"
 #include "include/sksl/DSLLayout.h"
 
 namespace SkSL {
@@ -49,7 +49,7 @@ public:
 private:
     SkSL::Modifiers fModifiers;
 
-    friend DSLType Struct(skstd::string_view name, SkTArray<DSLField> fields);
+    friend DSLType Struct(skstd::string_view name, SkSpan<DSLField> fields);
     friend class DSLCore;
     friend class DSLFunction;
     friend class DSLType;
