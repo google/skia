@@ -312,11 +312,16 @@ DEF_TEST(M44_mapRect, reporter) {
             // At least one of the mapped corners should have contributed to the rect
             REPORTER_ASSERT(reporter, leftFound || topFound || rightFound || bottomFound);
             // For any edge that came from a clipped corner, increase its error tolerance relative
-            // to what SkPath::ApplyPerspectiveClip calculates
-            if (!leftFound) {   epsilon.fLeft   = 10.f; }
-            if (!topFound) {    epsilon.fTop    = 10.f; }
-            if (!rightFound) {  epsilon.fRight  = 10.f; }
-            if (!bottomFound) { epsilon.fBottom = 10.f; }
+            // to what SkPath::ApplyPerspectiveClip calculates.
+            // TODO(michaelludwig): skbug.com/12335 required updating the w epsilon distance which
+            // greatly increased noise for coords projecting to infinity. They aren't "wrong", since
+            // the intent was clearly to pick a big number that's definitely offscreen, but
+            // MapRect should have a more robust solution than a fixed w > epsilon and when it does,
+            // these expectations for clipped points should be more accurate.
+            if (!leftFound) {   epsilon.fLeft   = .01f * actual.fLeft; }
+            if (!topFound) {    epsilon.fTop    = .01f * actual.fTop; }
+            if (!rightFound) {  epsilon.fRight  = .01f * actual.fRight; }
+            if (!bottomFound) { epsilon.fBottom = .01f * actual.fBottom; }
         } else {
             // The mapped corners should have contributed to all four edges of the returned rect
             REPORTER_ASSERT(reporter, leftFound && topFound && rightFound && bottomFound);
