@@ -175,11 +175,11 @@ void GrSoftwarePathRenderer::DrawToTargetWithShapeMask(
                   dstRect, invert);
 }
 
-static GrSurfaceProxyView make_deferred_mask_texture_view(GrRecordingContext* context,
+static GrSurfaceProxyView make_deferred_mask_texture_view(GrRecordingContext* rContext,
                                                           SkBackingFit fit,
                                                           SkISize dimensions) {
-    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
-    const GrCaps* caps = context->priv().caps();
+    GrProxyProvider* proxyProvider = rContext->priv().proxyProvider();
+    const GrCaps* caps = rContext->priv().caps();
 
     const GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kAlpha_8,
                                                                  GrRenderable::kNo);

@@ -327,14 +327,15 @@ GrSurfaceProxyView SkImage_Lazy::textureProxyViewFromPlanes(GrRecordingContext* 
                      kPremul_SkAlphaType,
                      /*color space*/ nullptr,
                      this->dimensions());
-    auto surfaceFillContext = ctx->priv().makeSFC(info,
-                                                  SkBackingFit::kExact,
-                                                  1,
-                                                  GrMipmapped::kNo,
-                                                  GrProtected::kNo,
-                                                  kTopLeft_GrSurfaceOrigin,
-                                                  budgeted);
-    if (!surfaceFillContext) {
+
+    auto sfc = ctx->priv().makeSFC(info,
+                                   SkBackingFit::kExact,
+                                   1,
+                                   GrMipmapped::kNo,
+                                   GrProtected::kNo,
+                                   kTopLeft_GrSurfaceOrigin,
+                                   budgeted);
+    if (!sfc) {
         return {};
     }
 
@@ -362,9 +363,9 @@ GrSurfaceProxyView SkImage_Lazy::textureProxyViewFromPlanes(GrRecordingContext* 
     fp = GrColorSpaceXformEffect::Make(std::move(fp),
                                        srcColorSpace, kOpaque_SkAlphaType,
                                        dstColorSpace, kOpaque_SkAlphaType);
-    surfaceFillContext->fillWithFP(std::move(fp));
+    sfc->fillWithFP(std::move(fp));
 
-    return surfaceFillContext->readSurfaceView();
+    return sfc->readSurfaceView();
 }
 
 sk_sp<SkCachedData> SkImage_Lazy::getPlanes(

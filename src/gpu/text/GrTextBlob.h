@@ -38,6 +38,7 @@ class SkSurfaceProps;
 class SkTextBlob;
 class SkTextBlobRunIterator;
 
+namespace skgpu { namespace v1 { class SurfaceDrawContext; }}
 
 // -- GrAtlasSubRun --------------------------------------------------------------------------------
 // GrAtlasSubRun is the API that GrAtlasTextOp uses to generate vertex data for drawing.

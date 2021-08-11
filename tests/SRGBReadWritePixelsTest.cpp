@@ -121,7 +121,7 @@ typedef bool (*CheckFn) (uint32_t orig, uint32_t actual, float error);
 
 void read_and_check_pixels(skiatest::Reporter* reporter,
                            GrDirectContext* dContext,
-                           skgpu::SurfaceContext* sContext,
+                           skgpu::SurfaceContext* sc,
                            uint32_t* origData,
                            const SkImageInfo& dstInfo, CheckFn checker, float error,
                            const char* subtestName) {
@@ -129,7 +129,7 @@ void read_and_check_pixels(skiatest::Reporter* reporter,
     GrPixmap readPM = GrPixmap::Allocate(dstInfo);
     memset(readPM.addr(), 0, sizeof(uint32_t)*w*h);
 
-    if (!sContext->readPixels(dContext, readPM, {0, 0})) {
+    if (!sc->readPixels(dContext, readPM, {0, 0})) {
         ERRORF(reporter, "Could not read pixels for %s.", subtestName);
         return;
     }
@@ -195,7 +195,8 @@ static std::unique_ptr<skgpu::SurfaceContext> make_surface_context(Encoding cont
                      encoding_as_color_space(contextEncoding),
                      kW, kH);
 
-    auto sc = skgpu::SurfaceContext::Make(rContext, info,
+    auto sc = skgpu::SurfaceContext::Make(rContext,
+                                          info,
                                           SkBackingFit::kExact,
                                           kBottomLeft_GrSurfaceOrigin,
                                           GrRenderable::kYes);

@@ -14,7 +14,6 @@
 #include "src/gpu/GrOpsTask.h"
 #include "src/gpu/GrSwizzle.h"
 #include "src/gpu/SurfaceFillContext.h"
-#include "src/gpu/effects/GrMatrixEffect.h"
 
 #include <array>
 #include <tuple>

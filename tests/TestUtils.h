@@ -17,12 +17,12 @@ class GrSurfaceProxy;
 typedef uint32_t GrColor;
 
 // Ensure that reading back from 'srcContext' as RGBA 8888 matches 'expectedPixelValues
-void TestReadPixels(skiatest::Reporter*, GrDirectContext*, skgpu::SurfaceContext* srcContext,
+void TestReadPixels(skiatest::Reporter*, GrDirectContext*, skgpu::SurfaceContext*,
                     uint32_t expectedPixelValues[], const char* testName);
 
 // See if trying to write RGBA 8888 pixels to 'dstContext' matches matches the
 // expectation ('expectedToWork')
-void TestWritePixels(skiatest::Reporter*, GrDirectContext*, skgpu::SurfaceContext* srcContext,
+void TestWritePixels(skiatest::Reporter*, GrDirectContext*, skgpu::SurfaceContext*,
                      bool expectedToWork, const char* testName);
 
 // Ensure that the pixels can be copied from 'proxy' viewed as colorType, to an RGBA 8888

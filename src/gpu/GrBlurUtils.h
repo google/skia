@@ -14,7 +14,6 @@ class GrClip;
 class GrPaint;
 class GrRecordingContext;
 class GrRenderTarget;
-namespace skgpu { namespace v1 { class SurfaceDrawContext; }}
 class GrStyledShape;
 class GrStyle;
 struct SkIRect;
@@ -24,7 +23,7 @@ class SkMatrix;
 class SkPaint;
 class SkPath;
 class SkPathEffect;
-
+namespace skgpu { namespace v1 { class SurfaceDrawContext; }}
 
 /**
  *  Blur utilities.

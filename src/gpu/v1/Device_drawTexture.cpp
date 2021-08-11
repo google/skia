@@ -410,7 +410,7 @@ void draw_texture(skgpu::v1::SurfaceDrawContext* sdc,
 }
 
 // Assumes srcRect and dstRect have already been optimized to fit the proxy.
-void draw_image(GrRecordingContext* context,
+void draw_image(GrRecordingContext* rContext,
                 skgpu::v1::SurfaceDrawContext* sdc,
                 const GrClip* clip,
                 const SkMatrixProvider& matrixProvider,
@@ -431,7 +431,7 @@ void draw_image(GrRecordingContext* context,
         can_use_draw_texture(paint, sampling.useCubic, sampling.mipmap)) {
         // We've done enough checks above to allow us to pass ClampNearest() and not check for
         // scaling adjustments.
-        auto [view, ct] = image.asView(context, GrMipmapped::kNo);
+        auto [view, ct] = image.asView(rContext, GrMipmapped::kNo);
         if (!view) {
             return;
         }
@@ -501,7 +501,7 @@ void draw_image(GrRecordingContext* context,
     const SkRect* subset = restrictToSubset       ? &src : nullptr;
     const SkRect* domain = coordsAllInsideSrcRect ? &src : nullptr;
     SkTileMode tileModes[] = {tm, tm};
-    std::unique_ptr<GrFragmentProcessor> fp = image.asFragmentProcessor(context,
+    std::unique_ptr<GrFragmentProcessor> fp = image.asFragmentProcessor(rContext,
                                                                         sampling,
                                                                         tileModes,
                                                                         textureMatrix,
@@ -517,7 +517,7 @@ void draw_image(GrRecordingContext* context,
     }
 
     GrPaint grPaint;
-    if (!SkPaintToGrPaintWithTexture(context,
+    if (!SkPaintToGrPaintWithTexture(rContext,
                                      sdc->colorInfo(),
                                      paint,
                                      matrixProvider,
@@ -558,7 +558,7 @@ void draw_image(GrRecordingContext* context,
         }
 
         GrBlurUtils::drawShapeWithMaskFilter(
-                context, sdc, clip, shape, std::move(grPaint), ctm, mf);
+                rContext, sdc, clip, shape, std::move(grPaint), ctm, mf);
     }
 }
 

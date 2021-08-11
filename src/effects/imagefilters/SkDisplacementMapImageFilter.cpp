@@ -282,10 +282,10 @@ sk_sp<SkSpecialImage> SkDisplacementMapImageFilter::onFilterImage(const Context&
 
 #if SK_SUPPORT_GPU
     if (ctx.gpuBacked()) {
-        auto context = ctx.getContext();
+        auto rContext = ctx.getContext();
 
-        GrSurfaceProxyView colorView = color->view(context);
-        GrSurfaceProxyView displView = displ->view(context);
+        GrSurfaceProxyView colorView = color->view(rContext);
+        GrSurfaceProxyView displView = displ->view(rContext);
         if (!colorView.proxy() || !displView.proxy()) {
             return nullptr;
         }
@@ -303,7 +303,7 @@ sk_sp<SkSpecialImage> SkDisplacementMapImageFilter::onFilterImage(const Context&
                                               offsetMatrix,
                                               std::move(colorView),
                                               color->subset(),
-                                              *context->priv().caps());
+                                              *rContext->priv().caps());
         fp = GrColorSpaceXformEffect::Make(std::move(fp),
                                            color->getColorSpace(), color->alphaType(),
                                            ctx.colorSpace(), kPremul_SkAlphaType);
@@ -311,12 +311,12 @@ sk_sp<SkSpecialImage> SkDisplacementMapImageFilter::onFilterImage(const Context&
                          kPremul_SkAlphaType,
                          ctx.refColorSpace(),
                          bounds.size());
-        auto sfc = context->priv().makeSFC(info,
-                                           SkBackingFit::kApprox,
-                                           1,
-                                           GrMipmapped::kNo,
-                                           isProtected,
-                                           kBottomLeft_GrSurfaceOrigin);
+        auto sfc = rContext->priv().makeSFC(info,
+                                            SkBackingFit::kApprox,
+                                            1,
+                                            GrMipmapped::kNo,
+                                            isProtected,
+                                            kBottomLeft_GrSurfaceOrigin);
         if (!sfc) {
             return nullptr;
         }
@@ -327,7 +327,7 @@ sk_sp<SkSpecialImage> SkDisplacementMapImageFilter::onFilterImage(const Context&
 
         offset->fX = bounds.left();
         offset->fY = bounds.top();
-        return SkSpecialImage::MakeDeferredFromGpu(context,
+        return SkSpecialImage::MakeDeferredFromGpu(rContext,
                                                    SkIRect::MakeWH(bounds.width(), bounds.height()),
                                                    kNeedNewImageUniqueID_SpecialImage,
                                                    sfc->readSurfaceView(),

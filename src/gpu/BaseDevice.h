@@ -13,15 +13,14 @@
 #include "src/core/SkDevice.h"
 
 class GrRenderTargetProxy;
-namespace skgpu {
-    class SurfaceFillContext;
-#if SK_GPU_V1
-    namespace v1 { class SurfaceDrawContext; }
-#endif // SK_GPU_V1
-}
 class GrSurfaceProxyView;
 
 namespace skgpu {
+
+class SurfaceFillContext;
+#if SK_GPU_V1
+namespace v1 { class SurfaceDrawContext; }
+#endif // SK_GPU_V1
 
 class BaseDevice : public SkBaseDevice {
 public:
@@ -37,10 +36,10 @@ public:
     BaseDevice* asGpuDevice() override { return this; }
 
 #if SK_GPU_V1
-    virtual skgpu::v1::SurfaceDrawContext* surfaceDrawContext() { return nullptr; }
+    virtual v1::SurfaceDrawContext* surfaceDrawContext() { return nullptr; }
 #endif
 
-    virtual skgpu::SurfaceFillContext* surfaceFillContext() = 0;
+    virtual SurfaceFillContext* surfaceFillContext() = 0;
     GrRenderTargetProxy* targetProxy();
     GrRecordingContext* recordingContext() const { return fContext.get(); }
 
