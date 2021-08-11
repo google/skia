@@ -414,8 +414,8 @@ void FormattedText::visit(Visitor* visitor, SkSpan<size_t> chunks) const {
                 for (size_t i = glyphRange.fStart; i <= glyphRange.fEnd; ++i) {
                     positions[i - glyphRange.fStart] = run.fPositions[i] + shift + offset;
                 }
-                SkRect boundingRect = SkRect::MakeXYWH(shift.fX + offset.fX, offset.fY, run.fPositions[glyphRange.fEnd].fX  , run.fTextMetrics.height());
-                visitor->onGlyphRun(run.fFont, textRange, boundingRect, glyphRange.width(), run.fGlyphs.data() + startGlyph, positions.data(), run.fOffsets.data() + startGlyph);
+                SkRect boundingRect = SkRect::MakeXYWH(positions[0].fX, offset.fY, positions[glyphRange.width()].fX - positions[0].fX, run.fTextMetrics.height());
+                visitor->onGlyphRun(run.fFont, textRange, boundingRect, glyphRange.width(), run.fGlyphs.data() + glyphRange.fStart, positions.data(), run.fOffsets.data() + glyphRange.fStart);
 
                 textRange.fStart = textIndex;
                 glyphRange.fStart = glyphIndex;
@@ -423,6 +423,8 @@ void FormattedText::visit(Visitor* visitor, SkSpan<size_t> chunks) const {
                 if (glyphIndex != endGlyph) {
                     // We are here because we reached the end of the block
                     ++currentBlock;
+                    currentStart = currentEnd;
+                    currentEnd = *currentBlock;
                 }
             }
             offset.fX += runWidth;
@@ -502,6 +504,7 @@ Position FormattedText::adjustedPosition(PositionType positionType, SkPoint xy) 
     for (auto& line : fLines) {
         position.fBoundaries.fTop = position.fBoundaries.fBottom;
         position.fBoundaries.fBottom = line.verticalOffset() + line.height();
+        position.fLineIndex = this->lineIndex(&line);
         if (position.fBoundaries.fTop > xy.fY) {
             break;
         } else if (position.fBoundaries.fBottom <= xy.fY) {
@@ -512,18 +515,19 @@ Position FormattedText::adjustedPosition(PositionType positionType, SkPoint xy) 
         for (auto index = 0; index < line.runsNumber(); ++index) {
             auto runIndex = line.visualRun(index);
             auto& run = fRuns[runIndex];
-            GlyphIndex start = runIndex == line.glyphStart().runIndex() ? line.glyphStart().glyphIndex() : 0;
-            GlyphIndex end = runIndex == line.glyphTrailingEnd().runIndex() ? line.glyphTrailingEnd().glyphIndex() : run.fGlyphs.size();
-            auto runWidth = run.calculateWidth(GlyphRange(start, end));
+            //GlyphIndex start = runIndex == line.glyphStart().runIndex() ? line.glyphStart().glyphIndex() : 0;
+            //GlyphIndex end = runIndex == line.glyphTrailingEnd().runIndex() ? line.glyphTrailingEnd().glyphIndex() : run.fGlyphs.size();
+            GlyphRange runRange = line.glyphRange(runIndex, run.size());
+            auto runWidth = run.calculateWidth(runRange);
             if (shift > xy.fX) {
                 break;
             } else if (shift + runWidth < xy.fX) {
                 shift += runWidth;
                 continue;
             }
-            SkScalar startPos = run.fPositions[start].fX;
-            GlyphIndex found = start;
-            for (auto i = start; i <= end; ++i) {
+            SkScalar startPos = run.fPositions[runRange.fStart].fX;
+            GlyphIndex found = runRange.fStart;
+            for (auto i = runRange.fStart; i <= runRange.fEnd; ++i) {
                 auto currentPos = run.fPositions[i].fX - startPos;
                 if (currentPos > xy.fX) {
                     break;
@@ -533,22 +537,24 @@ Position FormattedText::adjustedPosition(PositionType positionType, SkPoint xy) 
 
             position.fLineIndex = lineIndex(&line);
             position.fRun = &run;
-            position.fGlyphRange = GlyphRange(found, found == end ? found : found + 1);
+            position.fGlyphRange = GlyphRange(found, found == runRange.fEnd ? found : found + 1);
             adjustTextRange(&position);
-            position.fBoundaries.fLeft += shift + run.calculateWidth(start, position.fGlyphRange.fStart);
-            position.fBoundaries.fRight += shift + run.calculateWidth(start, position.fGlyphRange.fEnd);
+
+            position.fBoundaries.fLeft += shift + run.calculateWidth(runRange.fStart, position.fGlyphRange.fStart);
+            position.fBoundaries.fRight += shift + run.calculateWidth(runRange.fStart, position.fGlyphRange.fEnd);
             return position;
         }
         // The cursor is not on the text anymore; position it after the last element
         break;
     }
 
-    position.fLineIndex = fLines.size() - 1;
+    auto line = this->line(position.fLineIndex);
     position.fRun = this->visuallyLastRun(position.fLineIndex);
-    position.fGlyphRange = GlyphRange(position.fRun->size(), position.fRun->size());
+    position.fGlyphRange.fStart =
+    position.fGlyphRange.fEnd = line->glyphRange(this->runIndex(position.fRun), position.fRun->size()).fEnd;
     adjustTextRange(&position);
-    position.fBoundaries.fLeft = fLines.back().withWithTrailingSpaces();
-    position.fBoundaries.fRight = fLines.back().withWithTrailingSpaces();
+    position.fBoundaries.fLeft =
+    position.fBoundaries.fRight = line->withWithTrailingSpaces();
     return position;
 }
 

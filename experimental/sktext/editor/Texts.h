@@ -195,6 +195,8 @@ public:
 
     void paint(SkCanvas* canvas) override;
 
+    SkTArray<DecoratedBlock> mergeSelectionIntoDecorations();
+
 protected:
     std::unique_ptr<Selection> fSelection;
 };

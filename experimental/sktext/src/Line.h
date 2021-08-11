@@ -186,6 +186,11 @@ public:
     TextRange text() const { return fText; }
     TextRange whitespaces() const { return fWhitespaces; }
     bool isHardLineBreak() const { return fHardLineBreak; }
+    GlyphRange glyphRange(size_t runIndex, size_t runSize) const {
+        GlyphIndex start = runIndex == this->glyphStart().runIndex() ? this->glyphStart().glyphIndex() : 0;
+        GlyphIndex end = runIndex == this->glyphTrailingEnd().runIndex() ? this->glyphTrailingEnd().glyphIndex() : runSize;
+        return GlyphRange(start, end);
+    }
 
 private:
     friend class WrappedText;

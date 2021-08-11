@@ -21,8 +21,8 @@ using namespace skia::text;
 class Selection {
 public:
     Selection(SkColor color) : fTextRanges(), fGlyphRanges(), fGlyphBoxes() {
-        fPaint.setColor(color);
-        fPaint.setAlphaf(0.3f);
+        fBackground.setColor(color);
+        fBackground.setAlphaf(0.3f);
     }
 
     void select(TextRange range, SkRect rect);
@@ -32,10 +32,16 @@ public:
         fTextRanges.clear();
     }
 
+    bool isEmpty() const { return fTextRanges.empty(); }
+    size_t count() const { return fTextRanges.size(); }
+    DecoratedBlock selected(size_t index) const { return DecoratedBlock(fTextRanges[index].width(), fForeground, fBackground); }
+
     void paint(SkCanvas* canvas, SkPoint xy);
 
 private:
-    SkPaint fPaint;
+    friend class EditableText;
+    SkPaint fForeground;
+    SkPaint fBackground;
     std::vector<TextRange> fTextRanges;
     std::vector<GlyphRange> fGlyphRanges;
     std::vector<SkRect> fGlyphBoxes;

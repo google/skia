@@ -18,7 +18,7 @@ void Selection::paint(SkCanvas* canvas, SkPoint xy) {
     for (auto& box : fGlyphBoxes) {
         canvas->drawRect(
                 SkRect::MakeXYWH(box.fLeft + xy.fX, box.fTop + xy.fY, box.width(), box.height()),
-                fPaint);
+                fBackground);
     }
 }
 

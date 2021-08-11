@@ -88,10 +88,10 @@ sk_sp<FormattedText> Paint::layout(std::u16string text,
 DecoratedBlock Paint::findDecoratedBlock(TextRange textRange) {
     TextIndex start = 0;
     for (auto& block : fDecoratedBlocks) {
-        if (start + block.charCount < textRange.fStart) {
+        if (start + block.charCount <= textRange.fStart) {
             start += block.charCount;
             continue;
-        } else if (start > textRange.fEnd) {
+        } else if (start >= textRange.fEnd) {
             break;
         }
         return block;
@@ -106,8 +106,10 @@ void Paint::paint(SkCanvas* canvas, SkPoint xy, FormattedText* formattedText, Sk
 
     SkTArray<size_t> chunks;
     chunks.resize(decoratedBlocks.size());
+    size_t index = 0;
     for (size_t i = 0; i < decoratedBlocks.size(); ++i) {
-        chunks[i] = decoratedBlocks[i].charCount;
+        index += decoratedBlocks[i].charCount;
+        chunks[i] = index;
     }
 
     formattedText->visit(this, SkSpan<size_t>(chunks.data(), chunks.size()));

@@ -128,7 +128,8 @@ bool Editor::onChar(SkUnichar c, skui::ModifierKey modi) {
     using sknonstd::Any;
 
     modi &= ~skui::ModifierKey::kFirstPress;
-    if (!Any(modi & (skui::ModifierKey::kControl | skui::ModifierKey::kOption |
+    if (!Any(modi & (skui::ModifierKey::kControl |
+                     skui::ModifierKey::kOption |
                      skui::ModifierKey::kCommand))) {
         if (((unsigned)c < 0x7F && (unsigned)c >= 0x20) || c == 0x000A) {
             insertCodepoint(c);
@@ -254,6 +255,8 @@ bool Editor::onMouse(int x, int y, skui::InputState state, skui::ModifierKey mod
             // Select the element
             fEditableText->select(position.fTextRange, position.fBoundaries);
             position.fBoundaries.fLeft = position.fBoundaries.fRight - DEFAULT_CURSOR_WIDTH;
+            // Clear mouse
+            fMouse->up();
         } else {
             // Clear selection
             fMouse->down();
