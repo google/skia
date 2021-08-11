@@ -6,6 +6,10 @@ This file includes a list of high level updates for each milestone release.
 
 Milestone 94
 ------------
+  * Metal backend has been changed to track command buffer resources manually
+    rather than using retained resources.
+    https://review.skia.org/432878
+
   * Added virtual onResetClip() to SkCanvas for Android Framework, to emulate the soon-to-be-removed
     expanding clip ops guarded by SK_SUPPORT_DEPRECATED_CLIPOPS.
     https://review.skia.org/430897
