@@ -192,8 +192,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			configs = []string{
 				"g8", "565",
 				"pic-8888", "serialize-8888",
-				"f16", "srgb", "esrgb", "narrow", "enarrow",
-				"p3", "ep3", "rec2020", "erec2020"}
+				"linear-f16", "srgb-rgba", "srgb-f16", "narrow-rgba", "narrow-f16",
+				"p3-rgba", "p3-f16", "rec2020-rgba", "rec2020-f16"}
 		}
 
 		if b.extraConfig("PDF") {
@@ -230,7 +230,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		if b.extraConfig("NativeFonts") {
 			configs = append(configs, glPrefix)
 		} else {
-			configs = append(configs, glPrefix, glPrefix+"dft", glPrefix+"srgb")
+			configs = append(configs, glPrefix, glPrefix+"dft", "srgb-"+glPrefix)
 			if sampleCount > 0 {
 				configs = append(configs, fmt.Sprintf("%smsaa%d", glPrefix, sampleCount))
 				// Temporarily limit the bots we test dynamic MSAA on.
@@ -254,7 +254,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		// Also do the Ganesh threading verification test (render with and without
 		// worker threads, using only the SW path renderer, and compare the results).
 		if b.matchGpu("Intel") && b.isLinux() {
-			configs = append(configs, "gles", "glesdft", "glessrgb", "gltestthreading")
+			configs = append(configs, "gles", "glesdft", "srgb-gles", "gltestthreading")
 			// skbug.com/6333, skbug.com/6419, skbug.com/6702
 			skip("gltestthreading gm _ lcdblendmodes")
 			skip("gltestthreading gm _ lcdoverlap")
@@ -457,9 +457,9 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		}
 
 		// Test rendering to wrapped dsts on a few bots
-		// Also test "glenarrow", which hits F16 surfaces and F16 vertex colors.
+		// Also test "narrow-glf16", which hits F16 surfaces and F16 vertex colors.
 		if b.extraConfig("BonusConfigs") {
-			configs = []string{"glbetex", "glbert", "glenarrow", "glreducedshaders"}
+			configs = []string{"glbetex", "glbert", "narrow-glf16", "glreducedshaders"}
 		}
 
 		if b.os("ChromeOS") {
@@ -570,8 +570,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 	// TODO: ???
 	skip("f16 _ _ dstreadshuffle")
-	skip("glsrgb image _ _")
-	skip("glessrgb image _ _")
+	skip("srgb-gl image _ _")
+	skip("srgb-gles image _ _")
 
 	// --src image --config g8 means "decode into Gray8", which isn't supported.
 	skip("g8 image _ _")
