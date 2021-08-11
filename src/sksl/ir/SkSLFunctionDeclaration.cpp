@@ -37,7 +37,7 @@ static bool check_modifiers(const Context& context, int offset, const Modifiers&
             /*permittedLayoutFlags=*/0);
     if ((modifiers.fFlags & Modifiers::kInline_Flag) &&
         (modifiers.fFlags & Modifiers::kNoInline_Flag)) {
-        context.fErrors.error(offset, "functions cannot be both 'inline' and 'noinline'");
+        context.errors().error(offset, "functions cannot be both 'inline' and 'noinline'");
         return false;
     }
     return true;
@@ -45,7 +45,7 @@ static bool check_modifiers(const Context& context, int offset, const Modifiers&
 
 static bool check_return_type(const Context& context, int offset, const Type& returnType,
                               bool isBuiltin) {
-    ErrorReporter& errors = context.fErrors;
+    ErrorReporter& errors = context.errors();
     if (returnType.isArray()) {
         errors.error(offset, "functions may not return type '" + returnType.displayName() + "'");
         return false;
@@ -83,8 +83,8 @@ static bool check_parameters(const Context& context,
         // parameters. You can pass other opaque types to functions safely; this restriction is
         // specific to "child" objects.
         if (type.isEffectChild() && !isBuiltin) {
-            context.fErrors.error(param->fOffset, "parameters of type '" + type.displayName() +
-                                                  "' not allowed");
+            context.errors().error(param->fOffset, "parameters of type '" + type.displayName() +
+                                                   "' not allowed");
             return false;
         }
 
@@ -120,7 +120,7 @@ static bool check_parameters(const Context& context,
 static bool check_main_signature(const Context& context, int offset, const Type& returnType,
                                  std::vector<std::unique_ptr<Variable>>& parameters,
                                  bool isBuiltin) {
-    ErrorReporter& errors = context.fErrors;
+    ErrorReporter& errors = context.errors();
     ProgramKind kind = context.fConfig->fKind;
 
     auto typeIsValidForColor = [&](const Type& type) {
@@ -223,7 +223,7 @@ static bool find_existing_declaration(const Context& context, SymbolTable& symbo
                                       std::vector<std::unique_ptr<Variable>>& parameters,
                                       const Type* returnType, bool isBuiltin,
                                       const FunctionDeclaration** outExistingDecl) {
-    ErrorReporter& errors = context.fErrors;
+    ErrorReporter& errors = context.errors();
     const Symbol* entry = symbols[name];
     *outExistingDecl = nullptr;
     if (entry) {

@@ -224,7 +224,7 @@ private:
 
     const Type* type();
 
-    ErrorReporter* errorReporter() { return &fContext.fErrors; }
+    ErrorReporter* errorReporter() { return &fContext.errors(); }
 
     ModifiersPool& modifiersPool() const { return *fContext.fModifiersPool; }
 

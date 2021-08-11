@@ -135,16 +135,16 @@ std::unique_ptr<Expression> PrefixExpression::Convert(const Context& context,
     switch (op.kind()) {
         case Token::Kind::TK_PLUS:
             if (!baseType.componentType().isNumber()) {
-                context.fErrors.error(base->fOffset,
-                                      "'+' cannot operate on '" + baseType.displayName() + "'");
+                context.errors().error(base->fOffset,
+                                       "'+' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
             }
             break;
 
         case Token::Kind::TK_MINUS:
             if (!baseType.componentType().isNumber()) {
-                context.fErrors.error(base->fOffset,
-                                      "'-' cannot operate on '" + baseType.displayName() + "'");
+                context.errors().error(base->fOffset,
+                                       "'-' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
             }
             break;
@@ -152,22 +152,22 @@ std::unique_ptr<Expression> PrefixExpression::Convert(const Context& context,
         case Token::Kind::TK_PLUSPLUS:
         case Token::Kind::TK_MINUSMINUS:
             if (!baseType.isNumber()) {
-                context.fErrors.error(base->fOffset,
-                                      String("'") + op.operatorName() + "' cannot operate on '" +
-                                      baseType.displayName() + "'");
+                context.errors().error(base->fOffset,
+                                       String("'") + op.operatorName() + "' cannot operate on '" +
+                                       baseType.displayName() + "'");
                 return nullptr;
             }
             if (!Analysis::MakeAssignmentExpr(base.get(), VariableReference::RefKind::kReadWrite,
-                                              &context.fErrors)) {
+                                              &context.errors())) {
                 return nullptr;
             }
             break;
 
         case Token::Kind::TK_LOGICALNOT:
             if (!baseType.isBoolean()) {
-                context.fErrors.error(base->fOffset,
-                                      String("'") + op.operatorName() + "' cannot operate on '" +
-                                      baseType.displayName() + "'");
+                context.errors().error(base->fOffset,
+                                       String("'") + op.operatorName() + "' cannot operate on '" +
+                                       baseType.displayName() + "'");
                 return nullptr;
             }
             break;
@@ -175,15 +175,15 @@ std::unique_ptr<Expression> PrefixExpression::Convert(const Context& context,
         case Token::Kind::TK_BITWISENOT:
             if (context.fConfig->strictES2Mode()) {
                 // GLSL ES 1.00, Section 5.1
-                context.fErrors.error(
+                context.errors().error(
                         base->fOffset,
                         String("operator '") + op.operatorName() + "' is not allowed");
                 return nullptr;
             }
             if (!baseType.isInteger()) {
-                context.fErrors.error(base->fOffset,
-                                      String("'") + op.operatorName() + "' cannot operate on '" +
-                                      baseType.displayName() + "'");
+                context.errors().error(base->fOffset,
+                                       String("'") + op.operatorName() + "' cannot operate on '" +
+                                       baseType.displayName() + "'");
                 return nullptr;
             }
             if (baseType.isLiteral()) {

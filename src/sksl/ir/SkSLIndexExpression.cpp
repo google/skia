@@ -40,7 +40,7 @@ std::unique_ptr<Expression> IndexExpression::Convert(const Context& context,
     if (base->is<TypeReference>() && index->is<IntLiteral>()) {
         const Type& baseType = base->as<TypeReference>().value();
         if (baseType.isArray()) {
-            context.fErrors.error(base->fOffset, "multi-dimensional arrays are not supported");
+            context.errors().error(base->fOffset, "multi-dimensional arrays are not supported");
             return nullptr;
         }
         return std::make_unique<TypeReference>(context, /*offset=*/-1,
@@ -50,8 +50,8 @@ std::unique_ptr<Expression> IndexExpression::Convert(const Context& context,
     // Convert an index expression with an expression inside of it: `arr[a * 3]`.
     const Type& baseType = base->type();
     if (!baseType.isArray() && !baseType.isMatrix() && !baseType.isVector()) {
-        context.fErrors.error(base->fOffset,
-                              "expected array, but found '" + baseType.displayName() + "'");
+        context.errors().error(base->fOffset,
+                               "expected array, but found '" + baseType.displayName() + "'");
         return nullptr;
     }
     if (!index->type().isInteger()) {
@@ -68,8 +68,9 @@ std::unique_ptr<Expression> IndexExpression::Convert(const Context& context,
                                        ? INT_MAX
                                        : baseType.columns();
         if (indexValue < 0 || indexValue >= upperBound) {
-            context.fErrors.error(base->fOffset, "index " + to_string(indexValue) + " out of range "
-                                                 "for '" + baseType.displayName() + "'");
+            context.errors().error(base->fOffset, "index " + to_string(indexValue) +
+                                                  " out of range for '" + baseType.displayName() +
+                                                  "'");
             return nullptr;
         }
     }

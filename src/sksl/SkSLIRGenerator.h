@@ -124,7 +124,7 @@ public:
     const Program::Settings& settings() const { return fContext.fConfig->fSettings; }
     ProgramKind programKind() const { return fContext.fConfig->fKind; }
 
-    ErrorReporter& errorReporter() const { return fContext.fErrors; }
+    ErrorReporter& errorReporter() const { return fContext.errors(); }
 
     std::shared_ptr<SymbolTable>& symbolTable() {
         return fSymbolTable;

@@ -32,11 +32,11 @@ public:
         SkASSERT(!Pool::IsAttached());
     }
 
+    // Returns the current error handler
+    ErrorReporter& errors() const { return fErrors; }
+
     // The Context holds all of the built-in types.
     BuiltinTypes fTypes;
-
-    // The Context holds a reference to our error reporter.
-    ErrorReporter& fErrors;
 
     // The Context holds a reference to our shader caps bits.
     const ShaderCapsClass& fCaps;
@@ -46,6 +46,10 @@ public:
 
     // The Context holds a pointer to the configuration of the program being compiled.
     ProgramConfig* fConfig = nullptr;
+
+private:
+    // The Context holds a reference to our error reporter.
+    ErrorReporter& fErrors;
 };
 
 }  // namespace SkSL

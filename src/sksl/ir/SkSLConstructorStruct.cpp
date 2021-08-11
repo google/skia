@@ -17,11 +17,11 @@ std::unique_ptr<Expression> ConstructorStruct::Convert(const Context& context,
 
     // Check that the number of constructor arguments matches the array size.
     if (type.fields().size() != args.size()) {
-        context.fErrors.error(offset,
-                              String::printf("invalid arguments to '%s' constructor "
-                                             "(expected %zu elements, but found %zu)",
-                                             type.displayName().c_str(), type.fields().size(),
-                                             args.size()));
+        context.errors().error(offset,
+                               String::printf("invalid arguments to '%s' constructor "
+                                              "(expected %zu elements, but found %zu)",
+                                              type.displayName().c_str(), type.fields().size(),
+                                              args.size()));
         return nullptr;
     }
 

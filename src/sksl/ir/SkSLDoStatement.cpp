@@ -15,7 +15,7 @@ std::unique_ptr<Statement> DoStatement::Convert(const Context& context,
                                                 std::unique_ptr<Statement> stmt,
                                                 std::unique_ptr<Expression> test) {
     if (context.fConfig->strictES2Mode()) {
-        context.fErrors.error(stmt->fOffset, "do-while loops are not supported");
+        context.errors().error(stmt->fOffset, "do-while loops are not supported");
         return nullptr;
     }
     test = context.fTypes.fBool->coerceExpression(std::move(test), context);

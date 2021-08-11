@@ -39,36 +39,36 @@ std::unique_ptr<Statement> VarDeclaration::Convert(const Context& context,
                                                    std::unique_ptr<Expression> value) {
     if (var->modifiers().fFlags & Modifiers::kConst_Flag) {
         if (!value) {
-            context.fErrors.error(var->fOffset, "'const' variables must be initialized");
+            context.errors().error(var->fOffset, "'const' variables must be initialized");
             return nullptr;
         }
         if (!Analysis::IsConstantExpression(*value)) {
-            context.fErrors.error(value->fOffset,
-                                  "'const' variable initializer must be a constant expression");
+            context.errors().error(value->fOffset,
+                                   "'const' variable initializer must be a constant expression");
             return nullptr;
         }
     }
     if (value) {
         if (var->storage() == Variable::Storage::kGlobal &&
             !Analysis::IsConstantExpression(*value)) {
-            context.fErrors.error(value->fOffset,
-                                  "global variable initializer must be a constant expression");
+            context.errors().error(value->fOffset,
+                                   "global variable initializer must be a constant expression");
             return nullptr;
         }
         if (var->type().isOpaque()) {
-            context.fErrors.error(
+            context.errors().error(
                     value->fOffset,
                     "opaque type '" + var->type().name() + "' cannot use initializer expressions");
             return nullptr;
         }
         if (var->modifiers().fFlags & Modifiers::kIn_Flag) {
-            context.fErrors.error(value->fOffset,
-                                  "'in' variables cannot use initializer expressions");
+            context.errors().error(value->fOffset,
+                                   "'in' variables cannot use initializer expressions");
             return nullptr;
         }
         if (var->modifiers().fFlags & Modifiers::kUniform_Flag) {
-            context.fErrors.error(value->fOffset,
-                                  "'uniform' variables cannot use initializer expressions");
+            context.errors().error(value->fOffset,
+                                   "'uniform' variables cannot use initializer expressions");
             return nullptr;
         }
         value = var->type().coerceExpression(std::move(value), context);

@@ -81,7 +81,7 @@ std::unique_ptr<Statement> ForStatement::Convert(const Context& context, int off
             !isSimpleInitializer && is_vardecl_block_initializer(initializer.get());
 
     if (!isSimpleInitializer && !isVardeclBlockInitializer) {
-        context.fErrors.error(initializer->fOffset, "invalid for loop initializer");
+        context.errors().error(initializer->fOffset, "invalid for loop initializer");
         return nullptr;
     }
 
@@ -95,7 +95,7 @@ std::unique_ptr<Statement> ForStatement::Convert(const Context& context, int off
     if (context.fConfig->strictES2Mode()) {
         if (!Analysis::ForLoopIsValidForES2(offset, initializer.get(), test.get(), next.get(),
                                             statement.get(), /*outLoopInfo=*/nullptr,
-                                            &context.fErrors)) {
+                                            &context.errors())) {
             return nullptr;
         }
     }
@@ -124,7 +124,7 @@ std::unique_ptr<Statement> ForStatement::ConvertWhile(const Context& context, in
                                                       std::unique_ptr<Statement> statement,
                                                       std::shared_ptr<SymbolTable> symbolTable) {
     if (context.fConfig->strictES2Mode()) {
-        context.fErrors.error(offset, "while loops are not supported");
+        context.errors().error(offset, "while loops are not supported");
         return nullptr;
     }
     return ForStatement::Convert(context, offset, /*initializer=*/nullptr, std::move(test),

@@ -107,7 +107,7 @@ static const Type* get_type(const Context& context, int offset, skstd::string_vi
         return caps->type(context);
     }
 
-    context.fErrors.error(offset, "unknown capability flag '" + name + "'");
+    context.errors().error(offset, "unknown capability flag '" + name + "'");
     return nullptr;
 }
 
@@ -117,7 +117,7 @@ static std::unique_ptr<Expression> get_value(const Context& context, int offset,
         return caps->value(context);
     }
 
-    context.fErrors.error(offset, "unknown capability flag '" + name + "'");
+    context.errors().error(offset, "unknown capability flag '" + name + "'");
     return nullptr;
 }
 

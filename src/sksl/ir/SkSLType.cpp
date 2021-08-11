@@ -465,12 +465,12 @@ const Type* Type::applyPrecisionQualifiers(const Context& context,
     if (!ProgramConfig::IsRuntimeEffect(context.fConfig->fKind)) {
         // We want to discourage precision modifiers internally. Instead, use the type that
         // corresponds to the precision you need. (e.g. half vs float, short vs int)
-        context.fErrors.error(offset, "precision qualifiers are not allowed");
+        context.errors().error(offset, "precision qualifiers are not allowed");
         return nullptr;
     }
 
     if ((int(lowp) + int(mediump) + int(highp)) != 1) {
-        context.fErrors.error(offset, "only one precision qualifier can be used");
+        context.errors().error(offset, "only one precision qualifier can be used");
         return nullptr;
     }
 
@@ -509,8 +509,8 @@ const Type* Type::applyPrecisionQualifiers(const Context& context,
         }
     }
 
-    context.fErrors.error(offset, "type '" + this->displayName() +
-                                  "' does not support precision qualifiers");
+    context.errors().error(offset, "type '" + this->displayName() +
+                                   "' does not support precision qualifiers");
     return nullptr;
 }
 
@@ -684,11 +684,11 @@ std::unique_ptr<Expression> Type::coerceExpression(std::unique_ptr<Expression> e
     }
     const int offset = expr->fOffset;
     if (expr->is<FunctionReference>()) {
-        context.fErrors.error(offset, "expected '(' to begin function call");
+        context.errors().error(offset, "expected '(' to begin function call");
         return nullptr;
     }
     if (expr->is<TypeReference>()) {
-        context.fErrors.error(offset, "expected '(' to begin constructor invocation");
+        context.errors().error(offset, "expected '(' to begin constructor invocation");
         return nullptr;
     }
     if (expr->type() == *this) {
@@ -697,8 +697,8 @@ std::unique_ptr<Expression> Type::coerceExpression(std::unique_ptr<Expression> e
 
     const Program::Settings& settings = context.fConfig->fSettings;
     if (!expr->coercionCost(*this).isPossible(settings.fAllowNarrowingConversions)) {
-        context.fErrors.error(offset, "expected '" + this->displayName() + "', but found '" +
-                                      expr->type().displayName() + "'");
+        context.errors().error(offset, "expected '" + this->displayName() + "', but found '" +
+                                       expr->type().displayName() + "'");
         return nullptr;
     }
 
@@ -711,7 +711,7 @@ std::unique_ptr<Expression> Type::coerceExpression(std::unique_ptr<Expression> e
     if (this->isArray()) {
         return ConstructorArrayCast::Make(context, offset, *this, std::move(expr));
     }
-    context.fErrors.error(offset, "cannot construct '" + this->displayName() + "'");
+    context.errors().error(offset, "cannot construct '" + this->displayName() + "'");
     return nullptr;
 }
 
@@ -746,9 +746,9 @@ bool Type::checkForOutOfRangeLiteral(const Context& context, const Expression& e
             SKSL_INT value = subexpr->as<IntLiteral>().value();
             if (value < baseType.minimumValue() || value > baseType.maximumValue()) {
                 // We found a value that can't fit in the type. Flag it as an error.
-                context.fErrors.error(expr.fOffset,
-                                      String("integer is out of range for type '") +
-                                      this->displayName().c_str() + "': " + to_string(value));
+                context.errors().error(expr.fOffset,
+                                       String("integer is out of range for type '") +
+                                       this->displayName().c_str() + "': " + to_string(value));
                 foundError = true;
             }
         }

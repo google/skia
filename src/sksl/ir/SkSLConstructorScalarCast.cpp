@@ -61,9 +61,9 @@ std::unique_ptr<Expression> ConstructorScalarCast::Convert(const Context& contex
     SkASSERT(type.isScalar());
 
     if (args.size() != 1) {
-        context.fErrors.error(offset, "invalid arguments to '" + type.displayName() +
-                                      "' constructor, (expected exactly 1 argument, but found " +
-                                      to_string((uint64_t)args.size()) + ")");
+        context.errors().error(offset, "invalid arguments to '" + type.displayName() +
+                                       "' constructor, (expected exactly 1 argument, but found " +
+                                       to_string((uint64_t)args.size()) + ")");
         return nullptr;
     }
 
@@ -80,9 +80,9 @@ std::unique_ptr<Expression> ConstructorScalarCast::Convert(const Context& contex
             }
         }
 
-        context.fErrors.error(offset,
-                              "'" + argType.displayName() + "' is not a valid parameter to '" +
-                              type.displayName() + "' constructor" + swizzleHint);
+        context.errors().error(offset,
+                               "'" + argType.displayName() + "' is not a valid parameter to '" +
+                               type.displayName() + "' constructor" + swizzleHint);
         return nullptr;
     }
 

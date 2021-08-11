@@ -17,12 +17,12 @@ std::unique_ptr<Expression> PostfixExpression::Convert(const Context& context,
                                                        Operator op) {
     const Type& baseType = base->type();
     if (!baseType.isNumber()) {
-        context.fErrors.error(base->fOffset,
-                              "'" + String(op.operatorName()) + "' cannot operate on '" +
-                              baseType.displayName() + "'");
+        context.errors().error(base->fOffset,
+                               "'" + String(op.operatorName()) + "' cannot operate on '" +
+                               baseType.displayName() + "'");
         return nullptr;
     }
-    if (!Analysis::MakeAssignmentExpr(base.get(), VariableRefKind::kReadWrite, &context.fErrors)) {
+    if (!Analysis::MakeAssignmentExpr(base.get(), VariableRefKind::kReadWrite, &context.errors())) {
         return nullptr;
     }
     return PostfixExpression::Make(context, std::move(base), op);
