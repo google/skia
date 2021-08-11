@@ -113,6 +113,9 @@ struct Sink {
     virtual Result SK_WARN_UNUSED_RESULT draw(const Src&, SkBitmap*, SkWStream*, SkString* log)
         const = 0;
 
+    // Override the color space of this Sink, after creation
+    virtual void setColorSpace(sk_sp<SkColorSpace>) {}
+
     // Force Tasks using this Sink to run on the main thread?
     virtual bool serial() const { return false; }
 
@@ -401,6 +404,7 @@ public:
         return SinkFlags{ SinkFlags::kGPU, SinkFlags::kDirect, ms };
     }
     const GrContextOptions& baseContextOptions() const { return fBaseContextOptions; }
+    void setColorSpace(sk_sp<SkColorSpace> colorSpace) override { fColorSpace = colorSpace; }
     SkColorInfo colorInfo() const override {
         return SkColorInfo(fColorType, fAlphaType, fColorSpace);
     }
@@ -540,6 +544,7 @@ public:
     Result draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
     const char* fileExtension() const override { return "png"; }
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kRaster, SinkFlags::kDirect }; }
+    void setColorSpace(sk_sp<SkColorSpace> colorSpace) override { fColorSpace = colorSpace; }
 
 private:
     SkColorType         fColorType;
@@ -592,6 +597,9 @@ public:
         SinkFlags flags = fSink->flags();
         flags.approach = SinkFlags::kIndirect;
         return flags;
+    }
+    void setColorSpace(sk_sp<SkColorSpace> colorSpace) override {
+        fSink->setColorSpace(colorSpace);
     }
 protected:
     std::unique_ptr<Sink> fSink;
