@@ -50,12 +50,13 @@ Mapping Mapping::DecomposeCTM(const SkMatrix& ctm, const SkImageFilter* filter,
         // Perspective, which has a non-uniform scaling effect on the filter. Pick a single scale
         // factor that best matches where the filter will be evaluated.
         SkScalar scale = SkMatrixPriv::DifferentialAreaScale(ctm, SkPoint(representativePoint));
-        if (SkScalarIsFinite(scale)) {
+        if (SkScalarIsFinite(scale) && !SkScalarNearlyZero(scale)) {
             // Now take the sqrt to go from an area scale factor to a scaling per X and Y
             // FIXME: It would be nice to be able to choose a non-uniform scale.
             scale = SkScalarSqrt(scale);
         } else {
             // The representative point was behind the W = 0 plane, so don't factor out any scale.
+            // NOTE: This makes remainder and layer the same as the MatrixCapability::Translate case
             scale = 1.f;
         }
 
@@ -63,6 +64,7 @@ Mapping Mapping::DecomposeCTM(const SkMatrix& ctm, const SkImageFilter* filter,
         remainder.preScale(SkScalarInvert(scale), SkScalarInvert(scale));
         layer = SkMatrix::Scale(scale, scale);
     }
+
     return Mapping(remainder, layer);
 }
 

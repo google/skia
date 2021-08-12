@@ -1864,8 +1864,7 @@ SkScalar SkMatrixPriv::DifferentialAreaScale(const SkMatrix& m, const SkPoint& p
                                           m.getScaleX(), m.getSkewY(), m.getPerspX(),
                                           m.getSkewX(), m.getScaleY(), m.getPerspY());
 
-    SkScalar denom = 1.f / xyw.fZ; // 1/w
+    double denom = 1.0 / xyw.fZ;   // 1/w
     denom = denom * denom * denom; // 1/w^3
-
-    return SkScalarAbs(SkDoubleToScalar(sk_determinant(jacobian.fMat, true)) * denom);
+    return SkScalarAbs(SkDoubleToScalar(sk_determinant(jacobian.fMat, true) * denom));
 }
