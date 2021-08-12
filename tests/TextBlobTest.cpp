@@ -154,7 +154,6 @@ public:
         {
             // Exercise the empty bounds path, and ensure that RunRecord-aligned pos buffers
             // don't trigger asserts (http://crbug.com/542643).
-            SkFont font;
             font.setSize(0);
 
             const char* txt = "BOOO";

@@ -12,6 +12,8 @@
 #include "tests/PathOpsTestCommon.h"
 #include "tests/Test.h"
 
+using namespace PathOpsCubicIntersectionTestData;
+
 #if 0 // disable test until stroke reduction is supported
 static bool controls_inside(const SkDCubic& cubic) {
     return between(cubic[0].fX, cubic[1].fX, cubic[3].fX)

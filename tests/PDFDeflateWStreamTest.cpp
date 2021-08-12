@@ -107,7 +107,7 @@ std::unique_ptr<SkStreamAsset> stream_inflate(skiatest::Reporter* reporter, SkSt
 
 DEF_TEST(SkPDF_DeflateWStream, r) {
     SkRandom random(123456);
-    for (int i = 0; i < 50; ++i) {
+    for (int loop = 0; loop < 50; ++loop) {
         uint32_t size = random.nextULessThan(10000);
         SkAutoTMalloc<uint8_t> buffer(size);
         for (uint32_t j = 0; j < size; ++j) {
@@ -137,22 +137,20 @@ DEF_TEST(SkPDF_DeflateWStream, r) {
             return;
         }
         if (decompressed->getLength() != size) {
-            ERRORF(r, "Decompression failed to get right size [%d]."
-                   " %u != %u", i,  (unsigned)(decompressed->getLength()),
-                   (unsigned)size);
-            SkString s = SkStringPrintf("/tmp/deftst_compressed_%d", i);
+            ERRORF(r, "Decompression failed to get right size [%d]. %u != %u",
+                   loop, (unsigned)(decompressed->getLength()), (unsigned)size);
+            SkString s = SkStringPrintf("/tmp/deftst_compressed_%d", loop);
             SkFILEWStream o(s.c_str());
             o.writeStream(compressed.get(), compressed->getLength());
             compressed->rewind();
 
-            s = SkStringPrintf("/tmp/deftst_input_%d", i);
+            s = SkStringPrintf("/tmp/deftst_input_%d", loop);
             SkFILEWStream o2(s.c_str());
             o2.write(&buffer[0], size);
 
             continue;
         }
-        uint32_t minLength = std::min(size,
-                                    (uint32_t)(decompressed->getLength()));
+        uint32_t minLength = std::min(size, (uint32_t)(decompressed->getLength()));
         for (uint32_t i = 0; i < minLength; ++i) {
             uint8_t c;
             SkDEBUGCODE(size_t rb =)decompressed->read(&c, sizeof(uint8_t));

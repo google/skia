@@ -121,7 +121,7 @@ void random_test(skiatest::Reporter* reporter) {
             unsigned action = random.nextULessThan(3);
             switch (action) {
                 case 0: { // pop the top,
-                    Mock* top = pq.peek();
+                    top = pq.peek();
                     REPORTER_ASSERT(reporter, array.begin() <= top && top < array.end());
                     pq.pop();
                     *top = kSentinel;

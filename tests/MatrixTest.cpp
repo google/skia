@@ -270,8 +270,7 @@ static void test_matrix_min_max_scale(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, (minScale < 0) == (maxScale < 0));
         REPORTER_ASSERT(reporter, (maxScale < 0) == mat.hasPerspective());
 
-        SkScalar scales[2];
-        bool success = mat.getMinMaxScales(scales);
+        success = mat.getMinMaxScales(scales);
         REPORTER_ASSERT(reporter, success == !mat.hasPerspective());
         REPORTER_ASSERT(reporter, !success || (scales[0] == minScale && scales[1] == maxScale));
 

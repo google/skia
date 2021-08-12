@@ -37,14 +37,16 @@ static void testChopCubic(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, count);
     }
     // Make sure src and dst can be the same pointer.
-    SkPoint pts[7];
-    for (int i = 0; i < 7; ++i) {
-        pts[i].set(i, i);
-    }
-    SkChopCubicAt(pts, pts, .5f);
-    for (int i = 0; i < 7; ++i) {
-        REPORTER_ASSERT(reporter, pts[i].fX == pts[i].fY);
-        REPORTER_ASSERT(reporter, pts[i].fX == i * .5f);
+    {
+        SkPoint pts[7];
+        for (int i = 0; i < 7; ++i) {
+            pts[i].set(i, i);
+        }
+        SkChopCubicAt(pts, pts, .5f);
+        for (int i = 0; i < 7; ++i) {
+            REPORTER_ASSERT(reporter, pts[i].fX == pts[i].fY);
+            REPORTER_ASSERT(reporter, pts[i].fX == i * .5f);
+        }
     }
 
     static const float chopTs[] = {

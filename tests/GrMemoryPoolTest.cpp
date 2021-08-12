@@ -214,14 +214,12 @@ DEF_TEST(GrMemoryPool, reporter) {
                 }
                 if (0 == i % kCheckPeriod) {
                     A::ValidatePool();
-                    for (int r = 0; r < instanceRecs.count(); ++r) {
-                        Rec& rec = instanceRecs[r];
+                    for (Rec& rec : instanceRecs) {
                         REPORTER_ASSERT(reporter, rec.fInstance->checkValues(rec.fValue));
                     }
                 }
             }
-            for (int i = 0; i < instanceRecs.count(); ++i) {
-                Rec& rec = instanceRecs[i];
+            for (Rec& rec : instanceRecs) {
                 REPORTER_ASSERT(reporter, rec.fInstance->checkValues(rec.fValue));
                 delete rec.fInstance;
             }

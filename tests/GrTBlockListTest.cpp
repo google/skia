@@ -59,7 +59,7 @@ static void check_allocator_helper(GrTBlockList<C, N>* allocator, int cnt, int p
     }
 
     if (popCnt > 0) {
-        for (int i = 0; i < popCnt; ++i) {
+        for (i = 0; i < popCnt; ++i) {
             allocator->pop_back();
         }
         check_allocator_helper(allocator, cnt - popCnt, 0, reporter);
@@ -105,7 +105,7 @@ static void check_iterator_helper(GrTBlockList<C, N>* allocator,
     REPORTER_ASSERT(reporter, i == -1);
 
     // Also test random access
-    for (int i = 0; i < allocator->count(); ++i) {
+    for (i = 0; i < allocator->count(); ++i) {
         REPORTER_ASSERT(reporter, (uintptr_t) &allocator->item(i) == (uintptr_t) expected[i]);
         REPORTER_ASSERT(reporter, (uintptr_t) &cAlloc->item(i) == (uintptr_t) expected[i]);
     }

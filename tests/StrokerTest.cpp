@@ -17,6 +17,8 @@
 #include "tests/Test.h"
 #include "tools/flags/CommandLineFlags.h"
 
+using namespace PathOpsCubicIntersectionTestData;
+
 static DEFINE_bool(timeout, true, "run until alloted time expires");
 
 #define MS_TEST_DURATION 10
