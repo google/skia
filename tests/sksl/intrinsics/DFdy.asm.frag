@@ -15,7 +15,7 @@ OpDecorate %sk_FragColor Index 0
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpMemberDecorate %_UniformBuffer 0 Offset 0
 OpMemberDecorate %_UniformBuffer 0 RelaxedPrecision
-OpMemberDecorate %_UniformBuffer 1 Offset 32
+OpMemberDecorate %_UniformBuffer 1 Offset 16384
 OpDecorate %_UniformBuffer Block
 OpDecorate %11 Binding 0
 OpDecorate %11 DescriptorSet 0

@@ -313,8 +313,8 @@ ResultCode processCommand(std::vector<SkSL::String>& args) {
 
     // This tells the compiler where the rt-flip uniform will live should it be required. For
     // testing purposes we don't care where that is, but the compiler will report an error if we
-    // leave them at their default invalid values.
-    settings.fRTFlipOffset  = 32;
+    // leave them at their default invalid values, or if the offset overlaps another uniform.
+    settings.fRTFlipOffset  = 16384;
     settings.fRTFlipSet     = 0;
     settings.fRTFlipBinding = 0;
 

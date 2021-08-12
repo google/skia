@@ -14,7 +14,7 @@ OpMemberName %T 1 "u_skRTFlip"
 OpName %sk_Clockwise "sk_Clockwise"
 OpName %main "main"
 OpMemberDecorate %T 0 Offset 0
-OpMemberDecorate %T 1 Offset 32
+OpMemberDecorate %T 1 Offset 16384
 OpDecorate %T Block
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 %int = OpTypeInt 32 1

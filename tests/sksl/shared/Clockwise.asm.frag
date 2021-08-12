@@ -12,7 +12,7 @@ OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
-OpMemberDecorate %sksl_synthetic_uniforms 0 Offset 32
+OpMemberDecorate %sksl_synthetic_uniforms 0 Offset 16384
 OpDecorate %sksl_synthetic_uniforms Block
 OpDecorate %13 Binding 0
 OpDecorate %13 DescriptorSet 0
