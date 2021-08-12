@@ -18,6 +18,7 @@
 #include "modules/sksg/include/SkSGRenderEffect.h"
 #include "modules/sksg/include/SkSGRenderNode.h"
 
+#include <cmath>
 #include <tuple>
 
 namespace skottie::internal {
@@ -114,6 +115,7 @@ public:
     SG_ATTRIBUTE(Pos          , Pos       , fPos           )
     SG_ATTRIBUTE(XSelector    , Selector  , fXSelector     )
     SG_ATTRIBUTE(YSelector    , Selector  , fYSelector     )
+    SG_ATTRIBUTE(ExpandBounds , bool      , fExpandBounds  )
 
 private:
     DisplacementNode(sk_sp<RenderNode> child, const SkSize& child_size,
@@ -241,7 +243,13 @@ private:
     SkRect onRevalidate(sksg::InvalidationController* ic, const SkMatrix& ctm) override {
         fEffectShader = this->buildEffectShader(ic, ctm);
 
-        return this->children()[0]->revalidate(ic, ctm);
+        auto bounds = this->children()[0]->revalidate(ic, ctm);
+        if (fExpandBounds) {
+            // Expand the bounds to accommodate max displacement (which is |fScale|).
+            bounds.outset(std::abs(fScale.x), std::abs(fScale.y));
+        }
+
+        return bounds;
     }
 
     void onRender(SkCanvas* canvas, const RenderContext* ctx) const override {
@@ -296,6 +304,7 @@ private:
     Pos                    fPos            = Pos::kCenter;
     Selector               fXSelector      = Selector::kR,
                            fYSelector      = Selector::kR;
+    bool                   fExpandBounds   = false;
 
     using INHERITED = sksg::CustomRenderNode;
 };
@@ -313,7 +322,8 @@ public:
                 .bind(kUseForVertical_Index  , fVerticalSelector  )
                 .bind(kMaxVertical_Index     , fMaxVertical       )
                 .bind(kMapBehavior_Index     , fMapBehavior       )
-                .bind(kEdgeBehavior_Index    , fEdgeBehavior      );
+                .bind(kEdgeBehavior_Index    , fEdgeBehavior      )
+                .bind(kExpandOutput_Index    , fExpandOutput      );
     }
 
     static std::tuple<sk_sp<sksg::RenderNode>, SkSize> GetDisplacementSource(
@@ -339,7 +349,7 @@ private:
         kMaxVertical_Index      = 4,
         kMapBehavior_Index      = 5,
         kEdgeBehavior_Index     = 6,
-        // kExpandOutput_Index     = 7,
+        kExpandOutput_Index     = 7,
     };
 
     template <typename E>
@@ -363,6 +373,7 @@ private:
         this->node()->setPos(ToEnum<DisplacementNode::Pos>(fMapBehavior));
         this->node()->setXSelector(ToEnum<DisplacementNode::Selector>(fHorizontalSelector));
         this->node()->setYSelector(ToEnum<DisplacementNode::Selector>(fVerticalSelector));
+        this->node()->setExpandBounds(fExpandOutput != 0);
     }
 
     ScalarValue  fHorizontalSelector = 0,
@@ -370,7 +381,8 @@ private:
                  fMaxHorizontal      = 0,
                  fMaxVertical        = 0,
                  fMapBehavior        = 0,
-                 fEdgeBehavior       = 0;
+                 fEdgeBehavior       = 0,
+                 fExpandOutput       = 0;
 
     using INHERITED = DiscardableAdapterBase<DisplacementMapAdapter, DisplacementNode>;
 };
