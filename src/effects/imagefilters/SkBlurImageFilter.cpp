@@ -11,9 +11,9 @@
 #include "include/core/SkTileMode.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/private/SkColorData.h"
-#include "include/private/SkNx.h"
 #include "include/private/SkTFitsIn.h"
 #include "include/private/SkTPin.h"
+#include "include/private/SkVx.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkGpuBlurUtils.h"
@@ -216,9 +216,9 @@ static int calculate_buffer(int window) {
 //
 //   This is all encapsulated in the processValue function below.
 //
-using Pass0And1 = Sk4u[2];
+using Pass0And1 = skvx::Vec<4, uint32_t>[2];
 // The would be dLeft parameter is assumed to be 0.
-static void blur_one_direction(Sk4u* buffer, int window,
+static void blur_one_direction(skvx::Vec<4, uint32_t>* buffer, int window,
                                int srcLeft, int srcRight, int dstRight,
                                const uint32_t* src, int srcXStride, int srcYStride, int srcH,
                                      uint32_t* dst, int dstXStride, int dstYStride) {
@@ -228,10 +228,10 @@ static void blur_one_direction(Sk4u* buffer, int window,
          pass1Count = window - 1,
          pass2Count = (window & 1) == 1 ? window - 1 : window;
 
-    Pass0And1* buffer01Start = (Pass0And1*)buffer;
-    Sk4u*      buffer2Start  = buffer + pass0Count + pass1Count;
-    Pass0And1* buffer01End   = (Pass0And1*)buffer2Start;
-    Sk4u*      buffer2End    = buffer2Start + pass2Count;
+    Pass0And1*              buffer01Start = (Pass0And1*)buffer;
+    skvx::Vec<4, uint32_t>* buffer2Start  = buffer + pass0Count + pass1Count;
+    Pass0And1*              buffer01End = (Pass0And1*)buffer2Start;
+    skvx::Vec<4, uint32_t>* buffer2End = buffer2Start + pass2Count;
 
     // If the window is odd then the divisor is just window ^ 3 otherwise,
     // it is window * window * (window + 1) = window ^ 3 + window ^ 2;
@@ -250,7 +250,7 @@ static void blur_one_direction(Sk4u* buffer, int window,
     //    h == d/2 + 1/2 == (d + 1) / 2
     //
     // weight = 1 / d * 2 ^ 32
-    auto weight = static_cast<uint32_t>(round(1.0 / divisor * (1ull << 32)));
+    auto weight = static_cast<uint64_t>(round((1.0 / divisor) * (1ull << 32)));
     auto half = static_cast<uint32_t>((divisor + 1) / 2);
 
     auto border = calculate_border(window);
@@ -264,19 +264,23 @@ static void blur_one_direction(Sk4u* buffer, int window,
         auto buffer01Cursor = buffer01Start;
         auto buffer2Cursor  = buffer2Start;
 
-        Sk4u sum0{0u};
-        Sk4u sum1{0u};
-        Sk4u sum2{half};
+        skvx::Vec<4, uint32_t> sum0{0u, 0u, 0u, 0u};
+        skvx::Vec<4, uint32_t> sum1{0u, 0u, 0u, 0u};
+        skvx::Vec<4, uint32_t> sum2{half, half, half, half};
 
-        sk_bzero(buffer01Start, (buffer2End - (Sk4u *) (buffer01Start)) * sizeof(*buffer2Start));
+        sk_bzero(
+                buffer01Start,
+                (buffer2End - (skvx::Vec<4, uint32_t> *) (buffer01Start)) * sizeof(*buffer2Start));
 
         // Given an expanded input pixel, move the window ahead using the leadingEdge value.
-        auto processValue = [&](const Sk4u& leadingEdge) -> Sk4u {
+        auto processValue =
+                [&](const skvx::Vec<4, uint32_t>& leadingEdge) -> skvx::Vec<4, uint32_t> {
             sum0 += leadingEdge;
             sum1 += sum0;
             sum2 += sum1;
 
-            Sk4u value = sum2.mulHi(weight);
+            skvx::Vec<4, uint64_t> w = skvx::cast<uint64_t>(sum2) * weight;
+            skvx::Vec<4, uint32_t> value = skvx::cast<uint32_t>(w >> 32);
 
             sum2 -= *buffer2Cursor;
             *buffer2Cursor = sum1;
@@ -310,7 +314,9 @@ static void blur_one_direction(Sk4u* buffer, int window,
         // The edge of the source is before the edge of the destination. Calculate the sums for
         // the pixels before the start of the destination.
         while (dstIdx > srcIdx) {
-            Sk4u leadingEdge = srcIdx < srcEnd ? SkNx_cast<uint32_t>(Sk4b::Load(srcCursor)) : 0;
+            skvx::Vec<4, uint32_t> leadingEdge =
+                    srcIdx < srcEnd ? skvx::cast<uint32_t>(skvx::Vec<4, uint8_t>::Load(srcCursor))
+                                    : 0;
             (void) processValue(leadingEdge);
             srcCursor += srcXStride;
             srcIdx++;
@@ -320,8 +326,9 @@ static void blur_one_direction(Sk4u* buffer, int window,
         // Consume the source generating pixels to dst.
         auto loopEnd = std::min(dstEnd, srcEnd);
         while (dstIdx < loopEnd) {
-            Sk4u leadingEdge = SkNx_cast<uint32_t>(Sk4b::Load(srcCursor));
-            SkNx_cast<uint8_t>(processValue(leadingEdge)).store(dstCursor);
+            skvx::Vec<4, uint32_t> leadingEdge =
+                    skvx::cast<uint32_t>(skvx::Vec<4, uint8_t>::Load(srcCursor));
+            skvx::cast<uint8_t>(processValue(leadingEdge)).store(dstCursor);
             srcCursor += srcXStride;
             dstCursor += dstXStride;
             SK_PREFETCH(dstCursor);
@@ -332,7 +339,7 @@ static void blur_one_direction(Sk4u* buffer, int window,
         // are now 0x0000 until the end of the destination.
         loopEnd = dstEnd;
         while (dstIdx < loopEnd) {
-            SkNx_cast<uint8_t>(processValue(0u)).store(dstCursor);
+            skvx::cast<uint8_t>(processValue(0u)).store(dstCursor);
             dstCursor += dstXStride;
             SK_PREFETCH(dstCursor);
             dstIdx++;
@@ -455,7 +462,8 @@ static sk_sp<SkSpecialImage> cpu_blur(
     // The amount 1024 is enough for buffers up to 10 sigma. The tmp bitmap will be
     // allocated on the heap.
     SkSTArenaAlloc<1024> alloc;
-    Sk4u* buffer = alloc.makeArrayDefault<Sk4u>(std::max(bufferSizeW, bufferSizeH));
+    skvx::Vec<4, uint32_t>* buffer =
+            alloc.makeArrayDefault<skvx::Vec<4, uint32_t>>(std::max(bufferSizeW, bufferSizeH));
 
     // Basic Plan: The three cases to handle
     // * Horizontal and Vertical - blur horizontally while copying values from the source to
