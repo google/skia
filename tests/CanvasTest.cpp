@@ -752,10 +752,7 @@ DEF_TEST(canvas_savelayer_destructor, reporter) {
         const SkPMColor pmc = SkPreMultiplyColor(expected);
         for (int y = 0; y < pm.info().height(); ++y) {
             for (int x = 0; x < pm.info().width(); ++x) {
-                if (*pm.addr32(x, y) != pmc) {
-                    ERRORF(reporter, "check_pixels_failed");
-                    return;
-                }
+                REPORTER_ASSERT(reporter, *pm.addr32(x, y) == pmc);
             }
         }
     };
@@ -769,7 +766,7 @@ DEF_TEST(canvas_savelayer_destructor, reporter) {
 
         canvas->saveLayer(nullptr, nullptr);
         canvas->clear(SK_ColorBLUE);
-        // so far, we still expect to see the red, since the blue was drawn in a layer
+        // so far, we still expect to see the red
         check_pixels(SK_ColorRED);
 
         if (doRestore) {
@@ -784,7 +781,7 @@ DEF_TEST(canvas_savelayer_destructor, reporter) {
 
     // Now we're repeat that, but delete the canvas before we restore it
     do_test(false);
-    // We now suppress blitting the unbalanced saveLayers, so we expect to see red
-    // (not the layer's blue)
-    check_pixels(SK_ColorRED);
+    // *if* we restore the layers in the destructor, we expect to see blue, even though
+    // we didn't call restore() as a client.
+    check_pixels(SK_ColorBLUE);
 }
