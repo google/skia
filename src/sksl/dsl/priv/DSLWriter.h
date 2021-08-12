@@ -235,7 +235,7 @@ public:
      * Notifies the current ErrorHandler that a DSL error has occurred. With a null ErrorHandler
      * (the default), any errors will be dumped to stderr and a fatal exception will be generated.
      */
-    static void ReportError(const char* msg, PositionInfo info = PositionInfo());
+    static void ReportError(const char* msg, PositionInfo info = PositionInfo::Capture());
 
     /**
      * Returns whether name mangling is enabled. Mangling is important for the DSL because its
@@ -270,7 +270,7 @@ public:
     /**
      * Forwards any pending Compiler errors to the DSL ErrorHandler.
      */
-    static void ReportErrors(PositionInfo pos = PositionInfo());
+    static void ReportErrors(PositionInfo pos = PositionInfo::Capture());
 
     static DSLWriter& Instance();
 

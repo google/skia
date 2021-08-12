@@ -36,9 +36,9 @@ public:
 
     DSLStatement(DSLExpression expr);
 
-    DSLStatement(DSLPossibleExpression expr, PositionInfo pos = PositionInfo());
+    DSLStatement(DSLPossibleExpression expr, PositionInfo pos = PositionInfo::Capture());
 
-    DSLStatement(DSLPossibleStatement stmt, PositionInfo pos = PositionInfo());
+    DSLStatement(DSLPossibleStatement stmt, PositionInfo pos = PositionInfo::Capture());
 
     DSLStatement(DSLBlock block);
 
