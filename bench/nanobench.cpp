@@ -30,6 +30,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTime.h"
+#include "include/private/SkTOptional.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkLeanWindows.h"
@@ -467,11 +468,11 @@ static int setup_gpu_bench(Target* target, Benchmark* bench, int maxGpuFrameLag)
 #define kBogusContextType GrContextFactory::kGL_ContextType
 #define kBogusContextOverrides GrContextFactory::ContextOverrides::kNone
 
-static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* configs) {
+static skstd::optional<Config> create_base_config(const SkCommandLineConfig* config) {
     if (const auto* gpuConfig = config->asConfigGpu()) {
         if (!FLAGS_gpu) {
             SkDebugf("Skipping config '%s' as requested.\n", config->getTag().c_str());
-            return;
+            return skstd::nullopt;
         }
 
         const auto ctxType = gpuConfig->getContextType();
@@ -481,7 +482,7 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
         auto colorSpace = gpuConfig->getColorSpace();
         if (gpuConfig->getSurfType() != SkCommandLineConfigGpu::SurfType::kDefault) {
             SkDebugf("This tool only supports the default surface type.");
-            return;
+            return skstd::nullopt;
         }
 
         GrContextFactory factory(grContextOpts);
@@ -491,67 +492,85 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
                     ctx->priv().caps()->getRenderTargetSampleCount(sampleCount, format);
             if (sampleCount != supportedSampleCount) {
                 SkDebugf("Configuration '%s' sample count %d is not a supported sample count.\n",
-                         config->getTag().c_str(), sampleCount);
-                return;
+                         config->getTag().c_str(),
+                         sampleCount);
+                return skstd::nullopt;
             }
         } else {
-            SkDebugf("No context was available matching config '%s'.\n",
-                     config->getTag().c_str());
-            return;
+            SkDebugf("No context was available matching config '%s'.\n", config->getTag().c_str());
+            return skstd::nullopt;
         }
 
-        Config target = {
-            gpuConfig->getTag(),
-            Benchmark::kGPU_Backend,
-            colorType,
-            kPremul_SkAlphaType,
-            sk_ref_sp(colorSpace),
-            sampleCount,
-            ctxType,
-            ctxOverrides,
-            gpuConfig->getSurfaceFlags()
-        };
+        return Config{gpuConfig->getTag(),
+                      Benchmark::kGPU_Backend,
+                      colorType,
+                      kPremul_SkAlphaType,
+                      sk_ref_sp(colorSpace),
+                      sampleCount,
+                      ctxType,
+                      ctxOverrides,
+                      gpuConfig->getSurfaceFlags()};
+    }
 
-        configs->push_back(target);
+#define CPU_CONFIG(name, backend, color, alpha)                                         \
+    if (config->getBackend().equals(name)) {                                            \
+        if (!FLAGS_cpu) {                                                               \
+            SkDebugf("Skipping config '%s' as requested.\n", config->getTag().c_str()); \
+            return skstd::nullopt;                                                      \
+        }                                                                               \
+        return Config{SkString(name),                                                   \
+                      Benchmark::backend,                                               \
+                      color,                                                            \
+                      alpha,                                                            \
+                      nullptr,                                                          \
+                      0,                                                                \
+                      kBogusContextType,                                                \
+                      kBogusContextOverrides,                                           \
+                      0};                                                               \
+    }
+
+    CPU_CONFIG("nonrendering", kNonRendering_Backend, kUnknown_SkColorType, kUnpremul_SkAlphaType)
+
+    CPU_CONFIG("a8",   kRaster_Backend,   kAlpha_8_SkColorType, kPremul_SkAlphaType)
+    CPU_CONFIG("565",  kRaster_Backend,   kRGB_565_SkColorType, kOpaque_SkAlphaType)
+    CPU_CONFIG("8888", kRaster_Backend,       kN32_SkColorType, kPremul_SkAlphaType)
+    CPU_CONFIG("rgba", kRaster_Backend, kRGBA_8888_SkColorType, kPremul_SkAlphaType)
+    CPU_CONFIG("bgra", kRaster_Backend, kBGRA_8888_SkColorType, kPremul_SkAlphaType)
+    CPU_CONFIG("f16",  kRaster_Backend,  kRGBA_F16_SkColorType, kPremul_SkAlphaType)
+
+#undef CPU_CONFIG
+
+    SkDebugf("Unknown config '%s'.\n", config->getTag().c_str());
+    return skstd::nullopt;
+}
+
+static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* configs) {
+    skstd::optional<Config> target = create_base_config(config);
+    if (!target) {
         return;
     }
 
-    #define CPU_CONFIG(name, backend, color, alpha, colorSpace)                \
-        if (config->getTag().equals(#name)) {                                  \
-            if (!FLAGS_cpu) {                                                  \
-                SkDebugf("Skipping config '%s' as requested.\n",               \
-                         config->getTag().c_str());                            \
-                return;                                                        \
-            }                                                                  \
-            Config config = {                                                  \
-                SkString(#name), Benchmark::backend, color, alpha, colorSpace, \
-                0, kBogusContextType, kBogusContextOverrides, 0                \
-            };                                                                 \
-            configs->push_back(config);                                        \
-            return;                                                            \
-        }
+#define CS(t, cs)                    \
+    do {                             \
+        if (tag.equals(t)) {         \
+            target->colorSpace = cs; \
+        }                            \
+    } while (false)
 
-    CPU_CONFIG(nonrendering, kNonRendering_Backend,
-               kUnknown_SkColorType, kUnpremul_SkAlphaType, nullptr)
+    // Scan through the via tags, applying any color-spaces we find
+    for (const SkString& tag : config->getViaParts()) {
+        // 'narrow' has a gamut narrower than sRGB, and different transfer function.
+        CS("narrow",  SkColorSpace::MakeRGB(SkNamedTransferFn::k2Dot2, gNarrow_toXYZD50));
+        CS("srgb",    SkColorSpace::MakeSRGB());
+        CS("linear",  SkColorSpace::MakeSRGBLinear());
+        CS("p3",      SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kDisplayP3));
+        CS("spin",    SkColorSpace::MakeSRGB()->makeColorSpin());
+        CS("rec2020", SkColorSpace::MakeRGB(SkNamedTransferFn::kRec2020, SkNamedGamut::kRec2020));
+    }
 
-    CPU_CONFIG(a8,   kRaster_Backend, kAlpha_8_SkColorType, kPremul_SkAlphaType, nullptr)
-    CPU_CONFIG(8888, kRaster_Backend,     kN32_SkColorType, kPremul_SkAlphaType, nullptr)
-    CPU_CONFIG(565,  kRaster_Backend, kRGB_565_SkColorType, kOpaque_SkAlphaType, nullptr)
+#undef CS
 
-    // 'narrow' has a gamut narrower than sRGB, and different transfer function.
-    auto narrow = SkColorSpace::MakeRGB(SkNamedTransferFn::k2Dot2, gNarrow_toXYZD50),
-           srgb = SkColorSpace::MakeSRGB(),
-     srgbLinear = SkColorSpace::MakeSRGBLinear();
-
-    CPU_CONFIG(    f16, kRaster_Backend,  kRGBA_F16_SkColorType, kPremul_SkAlphaType, srgbLinear)
-    CPU_CONFIG(   srgb, kRaster_Backend, kRGBA_8888_SkColorType, kPremul_SkAlphaType, srgb      )
-    CPU_CONFIG(  esrgb, kRaster_Backend,  kRGBA_F16_SkColorType, kPremul_SkAlphaType, srgb      )
-    CPU_CONFIG( narrow, kRaster_Backend, kRGBA_8888_SkColorType, kPremul_SkAlphaType, narrow    )
-    CPU_CONFIG(enarrow, kRaster_Backend,  kRGBA_F16_SkColorType, kPremul_SkAlphaType, narrow    )
-
-    #undef CPU_CONFIG
-
-    SkDebugf("Unknown config '%s'.\n", config->getTag().c_str());
+    configs->push_back(target.value());
 }
 
 // Append all configs that are enabled and supported.

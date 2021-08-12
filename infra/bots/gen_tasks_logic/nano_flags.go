@@ -31,8 +31,8 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 		if b.extraConfig("BonusConfigs") {
 			configs = []string{
 				"f16",
-				"srgb",
-				"esrgb",
+				"srgb-rgba",
+				"srgb-f16",
 				"narrow",
 				"enarrow",
 			}
@@ -70,7 +70,7 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 			glPrefix = "gles"
 		}
 
-		configs = append(configs, glPrefix, glPrefix+"srgb")
+		configs = append(configs, glPrefix, "srgb-"+glPrefix)
 
 		if b.os("Ubuntu18") && b.noExtraConfig() {
 			configs = append(configs, glPrefix+"reducedshaders")
@@ -100,7 +100,7 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 		// We want to test both the OpenGL config and the GLES config on Linux Intel:
 		// GL is used by Chrome, GLES is used by ChromeOS.
 		if b.matchGpu("Intel") && b.isLinux() {
-			configs = append(configs, "gles", "glessrgb")
+			configs = append(configs, "gles", "srgb-gles")
 		}
 
 		if b.extraConfig("CommandBuffer") {
