@@ -33,8 +33,8 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 				"f16",
 				"srgb-rgba",
 				"srgb-f16",
-				"narrow",
-				"enarrow",
+				"narrow-rgba",
+				"narrow-f16",
 			}
 		}
 
@@ -75,10 +75,10 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 		if b.os("Ubuntu18") && b.noExtraConfig() {
 			configs = append(configs, glPrefix+"reducedshaders")
 		}
-		// glnarrow/glesnarrow tests the case of color converting *all* content
+		// narrow-gl/gles tests the case of color converting *all* content
 		// It hangs on the AndroidOne (Mali400)  skia:10669
 		if (!b.gpu("Mali400MP2")) {
-			configs = append(configs, glPrefix+"narrow")
+			configs = append(configs, "narrow-"+glPrefix)
 		}
 
 		// skia:10644 The fake ES2 config is used to compare highest available ES version to
