@@ -595,9 +595,8 @@ int main(int argc, char** argv) {
     }
 
     // Create a render target.
-    SkImageInfo info =
-            SkImageInfo::Make(width, height, config->getColorType(), config->getAlphaType(),
-                              sk_ref_sp(config->getColorSpace()));
+    SkImageInfo info = SkImageInfo::Make(
+            width, height, config->getColorType(), config->getAlphaType(), config->refColorSpace());
     SkSurfaceProps props(config->getSurfaceFlags(), kRGB_H_SkPixelGeometry);
     sk_sp<SkSurface> surface =
         SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info, config->getSamples(), &props);

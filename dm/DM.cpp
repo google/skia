@@ -181,12 +181,6 @@ using sk_gpu_test::ContextInfo;
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-static sk_sp<SkColorSpace> rec2020() {
-    return SkColorSpace::MakeRGB(SkNamedTransferFn::kRec2020, SkNamedGamut::kRec2020);
-}
-
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
 static FILE* gVLog;
 
 template <typename... Args>
@@ -941,10 +935,6 @@ static void push_sink(const SkCommandLineConfig& config, Sink* s) {
     ts.tag = config.getTag();
 }
 
-static sk_sp<SkColorSpace> rgb_to_gbr() {
-    return SkColorSpace::MakeSRGB()->makeColorSpin();
-}
-
 static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLineConfig* config) {
     if (FLAGS_gpu) {
         if (const SkCommandLineConfigGpu* gpuConfig = config->asConfigGpu()) {
@@ -989,6 +979,10 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
         SINK("101010x",     RasterSink, kRGB_101010x_SkColorType);
         SINK("bgra1010102", RasterSink, kBGRA_1010102_SkColorType);
         SINK("bgr101010x",  RasterSink, kBGR_101010x_SkColorType);
+        SINK("f16",         RasterSink, kRGBA_F16_SkColorType);
+        SINK("f16norm",     RasterSink, kRGBA_F16Norm_SkColorType);
+        SINK("f32",         RasterSink, kRGBA_F32_SkColorType);
+
         SINK("pdf",         PDFSink, false, SK_ScalarDefaultRasterDPI);
         SINK("skp",         SKPSink);
         SINK("svg",         SVGSink);
@@ -997,29 +991,6 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
         SINK("pdfa",        PDFSink, true,  SK_ScalarDefaultRasterDPI);
         SINK("pdf300",      PDFSink, false, 300);
         SINK("jsdebug",     DebugSink);
-
-        // Configs relevant to color management testing (and 8888 for reference).
-
-        // 'narrow' has a gamut narrower than sRGB, and different transfer function.
-        auto narrow = SkColorSpace::MakeRGB(SkNamedTransferFn::k2Dot2, gNarrow_toXYZD50),
-               srgb = SkColorSpace::MakeSRGB(),
-         srgbLinear = SkColorSpace::MakeSRGBLinear(),
-                 p3 = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kDisplayP3);
-
-        SINK(     "f16",  RasterSink,  kRGBA_F16_SkColorType, srgbLinear);
-        SINK(    "srgb",  RasterSink, kRGBA_8888_SkColorType, srgb      );
-        SINK(   "esrgb",  RasterSink,  kRGBA_F16_SkColorType, srgb      );
-        SINK(   "esgbr",  RasterSink,  kRGBA_F16_SkColorType, rgb_to_gbr());
-        SINK(  "narrow",  RasterSink, kRGBA_8888_SkColorType, narrow    );
-        SINK( "enarrow",  RasterSink,  kRGBA_F16_SkColorType, narrow    );
-        SINK(      "p3",  RasterSink, kRGBA_8888_SkColorType, p3        );
-        SINK(     "ep3",  RasterSink,  kRGBA_F16_SkColorType, p3        );
-        SINK( "rec2020",  RasterSink, kRGBA_8888_SkColorType, rec2020() );
-        SINK("erec2020",  RasterSink,  kRGBA_F16_SkColorType, rec2020() );
-
-        SINK("f16norm",  RasterSink,  kRGBA_F16Norm_SkColorType, srgb);
-
-        SINK(    "f32",  RasterSink,  kRGBA_F32_SkColorType, srgbLinear);
     }
 #undef SINK
     return nullptr;
@@ -1047,28 +1018,6 @@ static Sink* create_via(const SkString& tag, Sink* wrapped) {
 
 #undef VIA
 
-    // Color space overrides don't actually create 'Via' instances, they mutate the original sink's
-    // color space used for rasterization. They're parsed from the config string the same way,
-    // though - so they flow through here.
-
-#define CS(t, cs)                       \
-    do {                                \
-        if (tag.equals(t)) {            \
-            wrapped->setColorSpace(cs); \
-            return wrapped;             \
-        }                               \
-    } while (false)
-
-    // 'narrow' has a gamut narrower than sRGB, and different transfer function.
-    CS("narrow",  SkColorSpace::MakeRGB(SkNamedTransferFn::k2Dot2, gNarrow_toXYZD50));
-    CS("srgb",    SkColorSpace::MakeSRGB());
-    CS("linear",  SkColorSpace::MakeSRGBLinear());
-    CS("p3",      SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kDisplayP3));
-    CS("spin",    rgb_to_gbr());
-    CS("rec2020", rec2020());
-
-#undef CS
-
     return nullptr;
 }
 
@@ -1084,6 +1033,9 @@ static bool gather_sinks(const GrContextOptions& grCtxOptions, bool defaultConfi
                  config.getTag().c_str());
             continue;
         }
+
+        // The command line config already parsed out the via-style color space. Apply it here.
+        sink->setColorSpace(config.refColorSpace());
 
         const SkTArray<SkString>& parts = config.getViaParts();
         for (int j = parts.count(); j-- > 0;) {
