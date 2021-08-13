@@ -128,10 +128,8 @@ public:
 
     SPIRVCodeGenerator(const Context* context,
                        const Program* program,
-                       ErrorReporter* errors,
                        OutputStream* out)
-            : INHERITED(program, errors, out)
-            , fContext(*context)
+            : INHERITED(context, program, out)
             , fDefaultLayout(MemoryLayout::k140_Standard)
             , fCapabilities(0)
             , fIdCount(1)
@@ -139,7 +137,7 @@ public:
             , fBoolFalse(0)
             , fSetupFragPosition(false)
             , fCurrentBlock(0)
-            , fSynthetics(errors, /*builtin=*/true) {
+            , fSynthetics(&fContext.errors(), /*builtin=*/true) {
         this->setupIntrinsics();
     }
 
@@ -467,7 +465,6 @@ private:
 
     void addRTFlipUniform(int offset);
 
-    const Context& fContext;
     const MemoryLayout fDefaultLayout;
 
     uint64_t fCapabilities;

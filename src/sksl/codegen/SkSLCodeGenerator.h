@@ -19,9 +19,9 @@ namespace SkSL {
  */
 class CodeGenerator {
 public:
-    CodeGenerator(const Program* program, ErrorReporter* errors, OutputStream* out)
-    : fProgram(*program)
-    , fErrors(*errors)
+    CodeGenerator(const Context* context, const Program* program, OutputStream* out)
+    : fContext(*context)
+    , fProgram(*program)
     , fOut(out) {}
 
     virtual ~CodeGenerator() {}
@@ -33,8 +33,8 @@ public:
     void setOutputStream(OutputStream* output) { fOut = output; }
 
 protected:
+    const Context& fContext;
     const Program& fProgram;
-    ErrorReporter& fErrors;
     OutputStream* fOut;
 };
 

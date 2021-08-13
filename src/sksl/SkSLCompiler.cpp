@@ -892,7 +892,7 @@ bool Compiler::toSPIRV(Program& program, OutputStream& out) {
     dsl::DSLWriter::IRGenerator().fSymbolTable = program.fSymbols;
 #ifdef SK_ENABLE_SPIRV_VALIDATION
     StringStream buffer;
-    SPIRVCodeGenerator cg(fContext.get(), &program, this, &buffer);
+    SPIRVCodeGenerator cg(fContext.get(), &program, &buffer);
     bool result = cg.generateCode();
     if (result && program.fConfig->fSettings.fValidateSPIRV) {
         spvtools::SpirvTools tools(SPV_ENV_VULKAN_1_0);
@@ -925,7 +925,7 @@ bool Compiler::toSPIRV(Program& program, OutputStream& out) {
         out.write(data.c_str(), data.size());
     }
 #else
-    SPIRVCodeGenerator cg(fContext.get(), &program, this, &out);
+    SPIRVCodeGenerator cg(fContext.get(), &program, &out);
     bool result = cg.generateCode();
 #endif
     dsl::End();
@@ -944,7 +944,7 @@ bool Compiler::toSPIRV(Program& program, String* out) {
 bool Compiler::toGLSL(Program& program, OutputStream& out) {
     TRACE_EVENT0("skia.shaders", "SkSL::Compiler::toGLSL");
     AutoSource as(this, program.fSource->c_str());
-    GLSLCodeGenerator cg(fContext.get(), &program, this, &out);
+    GLSLCodeGenerator cg(fContext.get(), &program, &out);
     bool result = cg.generateCode();
     return result;
 }
@@ -970,7 +970,7 @@ bool Compiler::toHLSL(Program& program, String* out) {
 bool Compiler::toMetal(Program& program, OutputStream& out) {
     TRACE_EVENT0("skia.shaders", "SkSL::Compiler::toMetal");
     AutoSource as(this, program.fSource->c_str());
-    MetalCodeGenerator cg(fContext.get(), &program, this, &out);
+    MetalCodeGenerator cg(fContext.get(), &program, &out);
     bool result = cg.generateCode();
     return result;
 }

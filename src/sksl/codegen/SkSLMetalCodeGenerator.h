@@ -58,12 +58,10 @@ public:
     static constexpr const char* SAMPLER_SUFFIX = "Smplr";
     static constexpr const char* PACKED_PREFIX = "packed_";
 
-    MetalCodeGenerator(const Context* context, const Program* program, ErrorReporter* errors,
-                      OutputStream* out)
-    : INHERITED(program, errors, out)
+    MetalCodeGenerator(const Context* context, const Program* program, OutputStream* out)
+    : INHERITED(context, program, out)
     , fReservedWords({"atan2", "rsqrt", "rint", "dfdx", "dfdy", "vertex", "fragment"})
-    , fLineEnding("\n")
-    , fContext(*context) {}
+    , fLineEnding("\n") {}
 
     bool generateCode() override;
 
@@ -276,7 +274,6 @@ protected:
     int fAnonInterfaceCount = 0;
     int fPaddingCount = 0;
     const char* fLineEnding;
-    const Context& fContext;
     String fFunctionHeader;
     StringStream fExtraFunctions;
     StringStream fExtraFunctionPrototypes;
