@@ -39,6 +39,7 @@ if (skia_use_system_libwebp) {
       "../externals/libwebp/src/dsp/dec_sse41.c",
       "../externals/libwebp/src/dsp/enc_sse41.c",
       "../externals/libwebp/src/dsp/lossless_enc_sse41.c",
+      "../externals/libwebp/src/dsp/lossless_sse41.c",
       "../externals/libwebp/src/dsp/upsampling_sse41.c",
       "../externals/libwebp/src/dsp/yuv_sse41.c",
     ]
