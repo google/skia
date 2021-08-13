@@ -50,7 +50,6 @@ skia_sksl_sources = [
   "$_src/sksl/SkSLDehydrator.cpp",
   "$_src/sksl/SkSLDehydrator.h",
   "$_src/sksl/SkSLErrorReporter.cpp",
-  "$_src/sksl/SkSLErrorReporter.h",
   "$_src/sksl/SkSLFileOutputStream.h",
   "$_src/sksl/SkSLIRGenerator.cpp",
   "$_src/sksl/SkSLIRGenerator.h",
