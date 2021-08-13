@@ -4450,8 +4450,8 @@ bool GrGLCaps::isFormatSRGB(const GrBackendFormat& format) const {
     return format.asGLFormat() == GrGLFormat::kSRGB8_ALPHA8;
 }
 
-bool GrGLCaps::isFormatTexturable(const GrBackendFormat& format, GrTextureType textureType) const {
-    if (textureType == GrTextureType::kRectangle && !this->rectangleTextureSupport()) {
+bool GrGLCaps::isFormatTexturable(const GrBackendFormat& format) const {
+    if (format.textureType() == GrTextureType::kRectangle && !this->rectangleTextureSupport()) {
         return false;
     }
     return this->isFormatTexturable(format.asGLFormat());

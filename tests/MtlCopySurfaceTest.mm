@@ -61,9 +61,8 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlCopySurfaceTest, reporter, ctxInfo) {
     GrBackendFormat backendFormat = GrBackendFormat::MakeMtl(drawable.texture.pixelFormat);
     GrSurface* src = srcProxy->peekSurface();
     sk_sp<GrTexture> dst =
-            gpu->createTexture({kWidth, kHeight}, backendFormat, GrTextureType::k2D,
-                               GrRenderable::kNo, 1, GrMipmapped::kNo, SkBudgeted::kNo,
-                               GrProtected::kNo);
+            gpu->createTexture({kWidth, kHeight}, backendFormat, GrRenderable::kNo, 1,
+                               GrMipmapped::kNo, SkBudgeted::kNo, GrProtected::kNo);
 
     bool result = gpu->copySurface(dst.get(), src, SkIRect::MakeXYWH(0, 0, kWidth, kHeight),
                                    SkIPoint::Make(0, 0));

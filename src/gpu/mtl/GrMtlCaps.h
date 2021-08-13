@@ -26,7 +26,7 @@ public:
 
     bool isFormatSRGB(const GrBackendFormat&) const override;
 
-    bool isFormatTexturable(const GrBackendFormat&, GrTextureType) const override;
+    bool isFormatTexturable(const GrBackendFormat&) const override;
     bool isFormatTexturable(MTLPixelFormat) const;
 
     bool isFormatCopyable(const GrBackendFormat&) const override { return true; }

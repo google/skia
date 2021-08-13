@@ -373,7 +373,7 @@ bool GrMtlCaps::isFormatSRGB(const GrBackendFormat& format) const {
     return format_is_srgb(GrBackendFormatAsMTLPixelFormat(format));
 }
 
-bool GrMtlCaps::isFormatTexturable(const GrBackendFormat& format, GrTextureType) const {
+bool GrMtlCaps::isFormatTexturable(const GrBackendFormat& format) const {
     MTLPixelFormat mtlFormat = GrBackendFormatAsMTLPixelFormat(format);
     return this->isFormatTexturable(mtlFormat);
 }

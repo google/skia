@@ -245,7 +245,7 @@ void DDLPromiseImageHelper::createCallbackContexts(GrDirectContext* direct) {
 
             GrBackendFormat backendFormat = direct->defaultBackendFormat(baseLevel.colorType(),
                                                                          GrRenderable::kNo);
-            if (!caps->isFormatTexturable(backendFormat, GrTextureType::k2D)) {
+            if (!caps->isFormatTexturable(backendFormat)) {
                 continue;
             }
 

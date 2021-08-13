@@ -47,16 +47,9 @@ static GrSurfaceProxyView create_view(GrDirectContext* dContext,
                     GrMipLevel mipLevel = {src.getPixels(), src.rowBytes(), nullptr};
                     auto colorType = SkColorTypeToGrColorType(src.colorType());
 
-                    return rp->createTexture(src.dimensions(),
-                                             desc.fFormat,
-                                             desc.fFormat.textureType(),
-                                             colorType,
-                                             desc.fRenderable,
-                                             desc.fSampleCnt,
-                                             desc.fBudgeted,
-                                             desc.fFit,
-                                             desc.fProtected,
-                                             mipLevel);
+                    return rp->createTexture(src.dimensions(), desc.fFormat, colorType,
+                                             desc.fRenderable, desc.fSampleCnt, desc.fBudgeted,
+                                             desc.fFit, desc.fProtected, mipLevel);
                 },
                 format, GrRenderable::kNo, 1, GrProtected::kNo, *dContext->priv().caps(),
                 GrSurfaceProxy::UseAllocator::kYes);

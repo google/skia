@@ -62,7 +62,6 @@ public:
      */
     sk_sp<GrTexture> createApproxTexture(SkISize dimensions,
                                          const GrBackendFormat& format,
-                                         GrTextureType textureType,
                                          GrRenderable renderable,
                                          int renderTargetSampleCnt,
                                          GrProtected isProtected);
@@ -70,7 +69,6 @@ public:
     /** Create an exact fit texture with no initial data to upload. */
     sk_sp<GrTexture> createTexture(SkISize dimensions,
                                    const GrBackendFormat& format,
-                                   GrTextureType textureType,
                                    GrRenderable renderable,
                                    int renderTargetSampleCnt,
                                    GrMipmapped mipMapped,
@@ -84,7 +82,6 @@ public:
      */
     sk_sp<GrTexture> createTexture(SkISize dimensions,
                                    const GrBackendFormat& format,
-                                   GrTextureType textureType,
                                    GrColorType colorType,
                                    GrRenderable renderable,
                                    int renderTargetSampleCnt,
@@ -100,7 +97,6 @@ public:
      */
     sk_sp<GrTexture> createTexture(SkISize dimensions,
                                    const GrBackendFormat&,
-                                   GrTextureType textureType,
                                    GrColorType srcColorType,
                                    GrRenderable,
                                    int renderTargetSampleCnt,
@@ -116,7 +112,6 @@ public:
     sk_sp<GrTexture> findAndRefScratchTexture(const GrScratchKey&);
     sk_sp<GrTexture> findAndRefScratchTexture(SkISize dimensions,
                                               const GrBackendFormat&,
-                                              GrTextureType textureType,
                                               GrRenderable,
                                               int renderTargetSampleCnt,
                                               GrMipmapped,
@@ -343,7 +338,6 @@ private:
      */
     sk_sp<GrTexture> getExactScratch(SkISize dimensions,
                                      const GrBackendFormat&,
-                                     GrTextureType,
                                      GrRenderable,
                                      int renderTargetSampleCnt,
                                      SkBudgeted,

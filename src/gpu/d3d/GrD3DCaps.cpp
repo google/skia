@@ -783,7 +783,7 @@ bool GrD3DCaps::isFormatSRGB(const GrBackendFormat& format) const {
     }
 }
 
-bool GrD3DCaps::isFormatTexturable(const GrBackendFormat& format, GrTextureType) const {
+bool GrD3DCaps::isFormatTexturable(const GrBackendFormat& format) const {
     DXGI_FORMAT dxgiFormat;
     if (!format.asDxgiFormat(&dxgiFormat)) {
         return false;

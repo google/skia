@@ -130,7 +130,6 @@ public:
      */
     sk_sp<GrTexture> createTexture(SkISize dimensions,
                                    const GrBackendFormat& format,
-                                   GrTextureType textureType,
                                    GrRenderable renderable,
                                    int renderTargetSampleCnt,
                                    SkBudgeted budgeted,
@@ -145,7 +144,6 @@ public:
      */
     sk_sp<GrTexture> createTexture(SkISize dimensions,
                                    const GrBackendFormat& format,
-                                   GrTextureType textureType,
                                    GrRenderable renderable,
                                    int renderTargetSampleCnt,
                                    GrMipmapped mipMapped,
@@ -800,7 +798,6 @@ private:
 
     sk_sp<GrTexture> createTextureCommon(SkISize,
                                          const GrBackendFormat&,
-                                         GrTextureType textureType,
                                          GrRenderable,
                                          int renderTargetSampleCnt,
                                          SkBudgeted,
