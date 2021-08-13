@@ -11,6 +11,7 @@ struct Inputs {
 struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
+
 float4 float4_from_float2x2(float2x2 x) {
     return float4(x[0].xy, x[1].xy);
 }

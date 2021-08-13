@@ -178,7 +178,7 @@ protected:
 
     void writeMatrixEqualityHelpers(const Type& left, const Type& right);
 
-    void writeVectorFromMat2x2ConstructorHelper();
+    String getVectorFromMat2x2ConstructorHelper(const Type& matrixType);
 
     void writeArrayEqualityHelpers(const Type& type);
 
