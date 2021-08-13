@@ -11,7 +11,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkSLStatement.h"
-#include "include/sksl/DSLErrorHandling.h"
+#include "include/sksl/SkSLErrorReporter.h"
 
 #include <memory>
 

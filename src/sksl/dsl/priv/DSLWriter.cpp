@@ -9,7 +9,7 @@
 
 #include "include/private/SkSLDefines.h"
 #include "include/sksl/DSLCore.h"
-#include "include/sksl/DSLErrorHandling.h"
+#include "include/sksl/SkSLErrorReporter.h"
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/mock/GrMockCaps.h"
@@ -208,15 +208,18 @@ DSLPossibleStatement DSLWriter::ConvertSwitch(std::unique_ptr<Expression> value,
 }
 
 void DSLWriter::ReportError(const char* msg, PositionInfo info) {
-    Instance().fEncounteredErrors = true;
-    if (Instance().fErrorHandler) {
-        Instance().fErrorHandler->handleError(msg, info);
-    } else if (info.file_name()) {
-        SK_ABORT("%s: %d: %sNo SkSL DSL error handler configured, treating this as a fatal error\n",
-                 info.file_name(), info.line(), msg);
+    Instance().fErrorReporter->error(msg, info);
+}
+
+void DSLWriter::DefaultErrorReporter::handleError(const char* msg, PositionInfo pos) {
+    if (pos.line() > -1) {
+        SK_ABORT("error: %s: %d: %sNo SkSL DSL error reporter configured, treating this as a fatal "
+                 "error\n", pos.file_name(), pos.line(), msg);
     } else {
-        SK_ABORT("%sNo SkSL DSL error handler configured, treating this as a fatal error\n", msg);
+        SK_ABORT("error: %s\nNo SkSL DSL error reporter configured, treating this as a fatal "
+                 "error\n", msg);
     }
+
 }
 
 const SkSL::Variable* DSLWriter::Var(DSLVarBase& var) {
@@ -279,15 +282,16 @@ void DSLWriter::MarkDeclared(DSLVarBase& var) {
 }
 
 void DSLWriter::ReportErrors(PositionInfo pos) {
-    if (Compiler().errorCount()) {
-        ReportError(DSLWriter::Compiler().errorText(/*showCount=*/false).c_str(), pos);
-        Compiler().resetErrors();
-    }
+    GetErrorReporter()->reportPendingErrors(pos);
 }
 
 #if SKSL_USE_THREAD_LOCAL
 
 thread_local DSLWriter* instance = nullptr;
+
+bool DSLWriter::IsActive() {
+    return instance != nullptr;
+}
 
 DSLWriter& DSLWriter::Instance() {
     SkASSERTF(instance, "dsl::Start() has not been called");
@@ -316,6 +320,10 @@ static pthread_key_t get_pthread_key() {
         return key;
     }();
     return sKey;
+}
+
+bool DSLWriter::Active() {
+    return pthread_getspecific(get_pthread_key()) != nullptr;
 }
 
 DSLWriter& DSLWriter::Instance() {

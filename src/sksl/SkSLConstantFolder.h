@@ -16,7 +16,6 @@
 namespace SkSL {
 
 class Context;
-class ErrorReporter;
 class Expression;
 
 /**

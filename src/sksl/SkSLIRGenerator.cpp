@@ -1036,7 +1036,7 @@ std::unique_ptr<SkSL::InterfaceBlock> IRGenerator::convertInterfaceBlock(const A
                 if (vd.var().type().isOpaque()) {
                     this->errorReporter().error(decl->fOffset,
                                                 "opaque type '" + vd.var().type().name() +
-                                                        "' is not permitted in an interface block");
+                                                "' is not permitted in an interface block");
                 }
                 if (&vd.var() == fRTAdjust) {
                     foundRTAdjust = true;

@@ -216,7 +216,7 @@ std::unique_ptr<Statement> SwitchStatement::Convert(const Context& context,
         for (const SwitchCase* sc : duplicateCases) {
             if (sc->value() != nullptr) {
                 context.errors().error(sc->fOffset,
-                                      "duplicate case value '" + sc->value()->description() + "'");
+                                       "duplicate case value '" + sc->value()->description() + "'");
             } else {
                 context.errors().error(sc->fOffset, "duplicate default case");
             }

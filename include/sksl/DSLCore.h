@@ -12,13 +12,13 @@
 #include "include/private/SkTArray.h"
 #include "include/sksl/DSLBlock.h"
 #include "include/sksl/DSLCase.h"
-#include "include/sksl/DSLErrorHandling.h"
 #include "include/sksl/DSLExpression.h"
 #include "include/sksl/DSLFunction.h"
 #include "include/sksl/DSLStatement.h"
 #include "include/sksl/DSLType.h"
 #include "include/sksl/DSLVar.h"
 #include "include/sksl/DSLWrapper.h"
+#include "include/sksl/SkSLErrorReporter.h"
 
 #define SKSL_DSL_PARSER 0
 
@@ -59,16 +59,15 @@ void End();
 std::unique_ptr<SkSL::Program> ReleaseProgram(std::unique_ptr<SkSL::String> source = nullptr);
 
 /**
- * Returns the ErrorHandler which will be notified of any errors that occur during DSL calls. The
- * default error handler is null, which means any errors encountered will be fatal.
+ * Returns the ErrorReporter which will be notified of any errors that occur during DSL calls. The
+ * default error reporter aborts on any error.
  */
-ErrorHandler* GetErrorHandler();
+ErrorReporter& GetErrorReporter();
 
 /**
- * Installs an ErrorHandler which will be notified of any errors that occur during DSL calls. If
- * no ErrorHandler is installed, any errors will be fatal.
+ * Installs an ErrorReporter which will be notified of any errors that occur during DSL calls.
  */
-void SetErrorHandler(ErrorHandler* errorHandler);
+void SetErrorReporter(ErrorReporter* errorReporter);
 
 DSLGlobalVar sk_FragColor();
 

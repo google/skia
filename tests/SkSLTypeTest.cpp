@@ -7,9 +7,9 @@
 
 #include <limits>
 
+#include "include/sksl/SkSLErrorReporter.h"
 #include "src/gpu/GrCaps.h"
 #include "src/sksl/SkSLContext.h"
-#include "src/sksl/SkSLErrorReporter.h"
 #include "tests/Test.h"
 
 DEF_TEST(SkSLTypeLimits, r) {

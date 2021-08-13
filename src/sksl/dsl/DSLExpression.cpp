@@ -45,9 +45,9 @@ DSLExpression::DSLExpression(float value)
                                            value)) {
     if (!isfinite(value)) {
         if (isinf(value)) {
-            DSLWriter::ReportError("error: floating point value is infinite\n");
+            DSLWriter::ReportError("floating point value is infinite");
         } else if (isnan(value)) {
-            DSLWriter::ReportError("error: floating point value is NaN\n");
+            DSLWriter::ReportError("floating point value is NaN");
         }
     }
 }
@@ -254,10 +254,6 @@ DSLPossibleExpression operator,(DSLPossibleExpression left, DSLPossibleExpressio
 }
 
 std::unique_ptr<SkSL::Expression> DSLExpression::coerceAndRelease(const SkSL::Type& type) {
-    // tripping this assert means we had an error occur somewhere else in DSL construction that
-    // wasn't caught where it should have been
-    SkASSERTF(!DSLWriter::Compiler().errorCount(), "Unexpected SkSL DSL error: %s",
-              DSLWriter::Compiler().errorText().c_str());
     return DSLWriter::Coerce(this->release(), type).release();
 }
 

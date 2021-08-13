@@ -7,12 +7,22 @@
 
 #include "src/sksl/SkSLContext.h"
 
+#include "include/sksl/DSLCore.h"
+#include "src/sksl/dsl/priv/DSLWriter.h"
+
 namespace SkSL {
 
 Context::Context(ErrorReporter& errors, const ShaderCapsClass& caps)
         : fCaps(caps)
         , fErrors(errors) {
     SkASSERT(!Pool::IsAttached());
+}
+
+ErrorReporter& Context::errors() const {
+    if (dsl::DSLWriter::IsActive()) {
+        return dsl::GetErrorReporter();
+    }
+    return fErrors;
 }
 
 }  // namespace SkSL

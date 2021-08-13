@@ -11,7 +11,7 @@
 #include "include/sksl/DSLLayout.h"
 
 #include "include/private/SkSLLayout.h"
-#include "include/sksl/DSLErrorHandling.h"
+#include "include/sksl/SkSLErrorReporter.h"
 
 namespace SkSL {
 

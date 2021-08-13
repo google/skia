@@ -51,12 +51,13 @@ void End() {
     DSLWriter::SetInstance(nullptr);
 }
 
-ErrorHandler* GetErrorHandler() {
-    return DSLWriter::GetErrorHandler();
+ErrorReporter& GetErrorReporter() {
+    return *DSLWriter::GetErrorReporter();
 }
 
-void SetErrorHandler(ErrorHandler* errorHandler) {
-    DSLWriter::SetErrorHandler(errorHandler);
+void SetErrorReporter(ErrorReporter* errorReporter) {
+    SkASSERT(errorReporter);
+    DSLWriter::SetErrorReporter(errorReporter);
 }
 
 class DSLCore {
@@ -76,7 +77,7 @@ public:
                                                       std::move(instance.fPool),
                                                       bundle.fInputs);
         bool success = false;
-        if (DSLWriter::Compiler().errorCount() || DSLWriter::Instance().fEncounteredErrors) {
+        if (DSLWriter::Context().errors().errorCount()) {
             DSLWriter::ReportErrors();
             // Do not return programs that failed to compile.
         } else if (!DSLWriter::Compiler().optimize(*result)) {
@@ -86,11 +87,6 @@ public:
             // We have a successful program!
             success = true;
         }
-        // Make sure that if we encountered any compiler errors, we reported them through the
-        // DSL error handling side of things. (The converse is not a problem - it is ok to detect
-        // errors in the DSL layer, and thus have fEncounteredErrors be true, while not having the
-        // compiler see any errors because we caught them before they got there.)
-        SkASSERT(!DSLWriter::Compiler().errorCount() || DSLWriter::Instance().fEncounteredErrors);
         if (pool) {
             pool->detachFromThread();
         }
@@ -135,7 +131,7 @@ public:
 
     static DSLStatement Declare(DSLVar& var, PositionInfo pos) {
         if (var.fDeclared) {
-            DSLWriter::ReportError("error: variable has already been declared\n", pos);
+            DSLWriter::ReportError("variable has already been declared", pos);
         }
         var.fDeclared = true;
         return DSLWriter::Declaration(var);
@@ -151,7 +147,7 @@ public:
 
     static void Declare(DSLGlobalVar& var, PositionInfo pos) {
         if (var.fDeclared) {
-            DSLWriter::ReportError("error: variable has already been declared\n", pos);
+            DSLWriter::ReportError("variable has already been declared", pos);
         }
         var.fDeclared = true;
         std::unique_ptr<SkSL::Statement> stmt = DSLWriter::Declaration(var);

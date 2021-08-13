@@ -11,8 +11,8 @@
 #include "include/core/SkStringView.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkTArray.h"
-#include "include/sksl/DSLErrorHandling.h"
 #include "include/sksl/DSLWrapper.h"
+#include "include/sksl/SkSLErrorReporter.h"
 
 #include <cstdint>
 #include <memory>

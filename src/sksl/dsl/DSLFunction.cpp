@@ -37,7 +37,7 @@ void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, skstd:
     paramVars.reserve(params.size());
     for (DSLParameter* param : params) {
         if (param->fDeclared) {
-            DSLWriter::ReportError("error: parameter has already been used in another function\n");
+            DSLWriter::ReportError("parameter has already been used in another function");
         }
         SkASSERT(!param->fInitialValue.valid());
         SkASSERT(!param->fDeclaration);

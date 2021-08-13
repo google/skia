@@ -12,7 +12,7 @@
 #include "include/private/SkSLSymbol.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTHash.h"
-#include "src/sksl/SkSLErrorReporter.h"
+#include "include/sksl/SkSLErrorReporter.h"
 
 #include <forward_list>
 #include <memory>

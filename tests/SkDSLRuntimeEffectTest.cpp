@@ -200,22 +200,22 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
     // Test error reporting. We put this before a couple of successful tests to ensure that a
     // failure doesn't leave us in a broken state.
     {
-        class SimpleErrorHandler : public ErrorHandler {
+        class SimpleErrorReporter : public SkSL::ErrorReporter {
         public:
-            void handleError(const char* msg, PositionInfo pos) override {
-                fMsg = msg;
+            void handleError(const char* msg, SkSL::PositionInfo pos) override {
+                fMsg += msg;
             }
 
             SkSL::String fMsg;
-        } errorHandler;
+        } errorReporter;
         effect.start();
-        SetErrorHandler(&errorHandler);
+        SetErrorReporter(&errorReporter);
         Parameter p(kFloat2_Type, "p");
         Function(kHalf4_Type, "main", p).define(
             Return(1) // Error, type mismatch
         );
         effect.end(false);
-        REPORTER_ASSERT(r, errorHandler.fMsg == "error: expected 'half4', but found 'int'\n");
+        REPORTER_ASSERT(r, errorReporter.fMsg == "expected 'half4', but found 'int'");
     }
 
     // Mutating coords should work. (skbug.com/10918)

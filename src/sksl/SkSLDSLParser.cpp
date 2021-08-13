@@ -109,7 +109,7 @@ DSLParser::DSLParser(Compiler* compiler, const ProgramSettings& settings, Progra
                      String text)
     : fCompiler(*compiler)
     , fSettings(settings)
-    , fErrorReporter(compiler)
+    , fErrorReporter(&compiler->errorReporter())
     , fKind(kind)
     , fText(std::move(text))
     , fPushback(Token::Kind::TK_NONE, -1, -1) {
@@ -205,12 +205,12 @@ void DSLParser::error(int offset, String msg) {
     fErrorReporter->error(offset, msg);
 }
 
-class DSLParserErrorHandler final : public ErrorHandler {
+class DSLParserErrorReporter final : public ErrorReporter {
 public:
-    DSLParserErrorHandler(ErrorReporter* reporter)
+    DSLParserErrorReporter(ErrorReporter* reporter)
         : fReporter(*reporter) {}
 
-    ~DSLParserErrorHandler() override {
+    ~DSLParserErrorReporter() override {
         for (const String& s : fErrors) {
             fReporter.error(/*offset=*/-1, s.c_str());
         }
@@ -230,15 +230,15 @@ private:
 /* declaration* END_OF_FILE */
 std::unique_ptr<Program> DSLParser::program() {
     Start(&fCompiler, fKind, fSettings);
-    DSLParserErrorHandler errorHandler(&fCompiler);
-    SetErrorHandler(&errorHandler);
+    DSLParserErrorReporter errorReporter(&fCompiler.errorReporter());
+    SetErrorReporter(&errorReporter);
     std::unique_ptr<Program> result;
     bool done = false;
     while (!done) {
         switch (this->peek().fKind) {
             case Token::Kind::TK_END_OF_FILE:
                 done = true;
-                if (errorHandler.fErrors.empty()) {
+                if (errorReporter.fErrors.empty()) {
                     result = dsl::ReleaseProgram(std::make_unique<String>(std::move(fText)));
                 }
                 break;
@@ -544,7 +544,7 @@ skstd::optional<DSLType> DSLParser::structDeclaration() {
                     "struct '" + this->text(name) + "' must contain at least one field");
         return skstd::nullopt;
     }
-    return dsl::Struct(this->text(name), std::move(fields));
+    return dsl::Struct(this->text(name), SkMakeSpan(fields.size()));
 }
 
 /* structDeclaration ((IDENTIFIER varDeclarationEnd) | SEMICOLON) */

@@ -42,7 +42,6 @@ namespace dsl {
 class DSLGlobalVar;
 class DSLParameter;
 class DSLVar;
-class ErrorHandler;
 
 /**
  * Thread-safe class that tracks per-thread state associated with DSL output. This class is for
@@ -54,6 +53,11 @@ public:
               const SkSL::ProgramSettings& settings, SkSL::ParsedModule module, bool isModule);
 
     ~DSLWriter();
+
+    /**
+     * Returns true if the DSL has been started.
+     */
+    static bool IsActive();
 
     /**
      * Returns the Compiler used by DSL operations in the current thread.
@@ -219,20 +223,21 @@ public:
                                               bool isStatic);
 
     /**
-     * Returns the ErrorHandler associated with the current thread. This object will be notified
-     * when any DSL errors occur. With a null ErrorHandler (the default), any errors will be dumped
+     * Returns the ErrorReporter associated with the current thread. This object will be notified
+     * when any DSL errors occur. With a null ErrorReporter (the default), any errors will be dumped
      * to stderr and a fatal exception will be generated.
      */
-    static ErrorHandler* GetErrorHandler() {
-        return Instance().fErrorHandler;
+    static ErrorReporter* GetErrorReporter() {
+        return Instance().fErrorReporter;
     }
 
-    static void SetErrorHandler(ErrorHandler* errorHandler) {
-        Instance().fErrorHandler = errorHandler;
+    static void SetErrorReporter(ErrorReporter* errorReporter) {
+        SkASSERT(errorReporter);
+        Instance().fErrorReporter = errorReporter;
     }
 
     /**
-     * Notifies the current ErrorHandler that a DSL error has occurred. With a null ErrorHandler
+     * Notifies the current ErrorReporter that a DSL error has occurred. With a null ErrorReporter
      * (the default), any errors will be dumped to stderr and a fatal exception will be generated.
      */
     static void ReportError(const char* msg, PositionInfo info = PositionInfo::Capture());
@@ -268,7 +273,7 @@ public:
     }
 
     /**
-     * Forwards any pending Compiler errors to the DSL ErrorHandler.
+     * Forwards any pending Compiler errors to the DSL ErrorReporter.
      */
     static void ReportErrors(PositionInfo pos = PositionInfo::Capture());
 
@@ -277,6 +282,10 @@ public:
     static void SetInstance(std::unique_ptr<DSLWriter> instance);
 
 private:
+    class DefaultErrorReporter : public ErrorReporter {
+        void handleError(const char* msg, PositionInfo pos) override;
+    };
+
     std::unique_ptr<SkSL::ProgramConfig> fConfig;
     std::unique_ptr<SkSL::ModifiersPool> fModifiersPool;
     SkSL::Compiler* fCompiler;
@@ -285,11 +294,11 @@ private:
     SkSL::ModifiersPool* fOldModifiersPool;
     std::vector<std::unique_ptr<SkSL::ProgramElement>> fProgramElements;
     std::vector<const SkSL::ProgramElement*> fSharedElements;
-    ErrorHandler* fErrorHandler = nullptr;
+    DefaultErrorReporter fDefaultErrorReporter;
+    ErrorReporter* fErrorReporter = &fDefaultErrorReporter;
     ProgramSettings fSettings;
     Mangler fMangler;
     bool fIsModule;
-    bool fEncounteredErrors = false;
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
     struct StackFrame {
         GrFragmentProcessor::ProgramImpl* fProcessor;

@@ -72,8 +72,8 @@ DSLVarBase::DSLVarBase(const DSLModifiers& modifiers, DSLType type, skstd::strin
 
 DSLVarBase::~DSLVarBase() {
     if (fDeclaration && !fDeclared) {
-        DSLWriter::ReportError(String::printf("error: variable '%.*s' was destroyed without being "
-                                              "declared\n",
+        DSLWriter::ReportError(String::printf("variable '%.*s' was destroyed without being "
+                                              "declared",
                                               (int)fRawName.length(),
                                               fRawName.data()).c_str());
     }

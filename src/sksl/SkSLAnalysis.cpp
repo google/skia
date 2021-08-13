@@ -11,8 +11,8 @@
 #include "include/private/SkSLProgramElement.h"
 #include "include/private/SkSLSampleUsage.h"
 #include "include/private/SkSLStatement.h"
+#include "include/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLCompiler.h"
-#include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLProgram.h"
 
@@ -304,11 +304,7 @@ private:
 // If a caller doesn't care about errors, we can use this trivial reporter that just counts up.
 class TrivialErrorReporter : public ErrorReporter {
 public:
-    void handleError(const char*, dsl::PositionInfo) override { ++fErrorCount; }
-    int errorCount() override { return fErrorCount; }
-
-private:
-    int fErrorCount = 0;
+    void handleError(const char*, PositionInfo) override {}
 };
 
 // This isn't actually using ProgramVisitor, because it only considers a subset of the fields for
