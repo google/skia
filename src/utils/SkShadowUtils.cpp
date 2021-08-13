@@ -839,7 +839,7 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
                                                                  &shadowMatrix, &radius)) {
                     return;
                 }
-                SkAutoDeviceTransformRestore adr(this, shadowMatrix);
+                SkAutoDeviceTransformRestore adr2(this, shadowMatrix);
 
                 SkPaint paint;
                 paint.setColor(rec.fSpotColor);

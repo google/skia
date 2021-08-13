@@ -874,9 +874,9 @@ void Write(const Value& v, SkWStream* stream) {
         const auto& array = v.as<ArrayValue>();
         stream->writeText("[");
         bool first_value = true;
-        for (const auto& v : array) {
+        for (const auto& entry : array) {
             if (!first_value) stream->writeText(",");
-            Write(v, stream);
+            Write(entry, stream);
             first_value = false;
         }
         stream->writeText("]");
