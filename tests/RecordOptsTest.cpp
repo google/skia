@@ -233,12 +233,12 @@ DEF_TEST(RecordOpts_MergeSvgOpacityAndFilterLayers, r) {
     translucentFilterLayerPaint.setColor(0x0F020202);  // Not opaque.
     sk_sp<SkPicture> shape;
     {
-        SkPictureRecorder recorder;
-        SkCanvas* canvas = recorder.beginRecording(SkIntToScalar(100), SkIntToScalar(100));
+        SkPictureRecorder picRecorder;
+        SkCanvas* canvas = picRecorder.beginRecording(SkIntToScalar(100), SkIntToScalar(100));
         SkPaint shapePaint;
         shapePaint.setColor(SK_ColorWHITE);
         canvas->drawRect(SkRect::MakeWH(SkIntToScalar(50), SkIntToScalar(50)), shapePaint);
-        shape = recorder.finishRecordingAsPicture();
+        shape = picRecorder.finishRecordingAsPicture();
     }
     translucentFilterLayerPaint.setImageFilter(SkImageFilters::Picture(shape));
 

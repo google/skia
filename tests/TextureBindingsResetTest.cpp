@@ -75,7 +75,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest, reporter, ctxInf
 
     // Test creating a texture and then resetting bindings.
     static constexpr SkISize kDims = {10, 10};
-    auto format = gpu->caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888, GrRenderable::kNo);
+    GrBackendFormat format = gpu->caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
+                                                                  GrRenderable::kNo);
     auto tex = gpu->createTexture(kDims, format, GrRenderable::kNo, 1, GrMipmapped::kNo,
                                   SkBudgeted::kNo, GrProtected::kNo);
     REPORTER_ASSERT(reporter, tex);
@@ -134,7 +135,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest, reporter, ctxInf
     }
 
     if (supportRectangle) {
-        auto format = GrBackendFormat::MakeGL(GR_GL_RGBA8, GR_GL_TEXTURE_RECTANGLE);
+        format = GrBackendFormat::MakeGL(GR_GL_RGBA8, GR_GL_TEXTURE_RECTANGLE);
         GrBackendTexture rectangleTexture =
                 dContext->createBackendTexture(10, 10, format, GrMipmapped::kNo, GrRenderable::kNo);
         if (rectangleTexture.isValid()) {

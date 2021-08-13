@@ -1523,7 +1523,7 @@ DEF_TEST(GrClipStack_DisjointShapes, r) {
                               .finishTest());
 }
 
-DEF_TEST(GrClipStack_ComplexClip, r) {
+DEF_TEST(GrClipStack_ComplexClip, reporter) {
     static constexpr float kN = 10.f;
     static constexpr float kR = kN / 3.f;
 
@@ -1609,7 +1609,7 @@ DEF_TEST(GrClipStack_ComplexClip, r) {
                 }
             }
 
-            run_test_case(r, b.state(state).finishTest());
+            run_test_case(reporter, b.state(state).finishTest());
         }
     }
 }

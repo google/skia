@@ -152,11 +152,11 @@ static void testOneCoincident(skiatest::Reporter* reporter, const SkDLine& line1
                               const SkDLine& line2) {
     SkASSERT(ValidLine(line1));
     SkASSERT(ValidLine(line2));
-    SkIntersections ts;
-    int pts = ts.intersect(line1, line2);
+    SkIntersections i;
+    int pts = i.intersect(line1, line2);
     REPORTER_ASSERT(reporter, pts == 2);
-    REPORTER_ASSERT(reporter, pts == ts.used());
-    check_results(reporter, line1, line2, ts, false);
+    REPORTER_ASSERT(reporter, pts == i.used());
+    check_results(reporter, line1, line2, i, false);
     if (line1[0] == line1[1] || line2[0] == line2[1]) {
         return;
     }

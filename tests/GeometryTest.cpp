@@ -110,8 +110,8 @@ static void testChopCubic(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, oneChops[0] == pts[0]);
         REPORTER_ASSERT(reporter, oneChops[1] == pts[1]);
         REPORTER_ASSERT(reporter, oneChops[2] == pts[2]);
-        for (size_t i = 3; i < SK_ARRAY_COUNT(oneChops); ++i) {
-            REPORTER_ASSERT(reporter, oneChops[i] == pts[3]);
+        for (size_t index = 3; index < SK_ARRAY_COUNT(oneChops); ++index) {
+            REPORTER_ASSERT(reporter, oneChops[index] == pts[3]);
         }
     }
 }

@@ -2232,7 +2232,6 @@ static void test_is_closed_rect(skiatest::Reporter* reporter) {
 
     const SkRect testRect = SkRect::MakeXYWH(10, 10, 50, 70);
     const SkRect emptyRect = SkRect::MakeEmpty();
-    SkPath path;
     for (int start = 0; start < 4; ++start) {
         for (auto dir : {SkPathDirection::kCCW, SkPathDirection::kCW}) {
             SkPath path;
@@ -2313,7 +2312,7 @@ static void test_is_closed_rect(skiatest::Reporter* reporter) {
         }
     }
     // down, up, left, close
-    path.reset();
+    SkPath path;
     path.moveTo(1, 1);
     path.lineTo(1, 2);
     path.lineTo(1, 1);

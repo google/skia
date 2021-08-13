@@ -1086,7 +1086,7 @@ static void test_inner_bounds(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, rr.contains(maxInner));
 
         // Test lower limit on the size of 'maxInner'
-        SkRect inner = SkRect::MakeXYWH(maxLeft, maxTop, innerWidth, innerHeight);
+        inner = SkRect::MakeXYWH(maxLeft, maxTop, innerWidth, innerHeight);
         inner.inset(kEpsilon, kEpsilon);
 
         if (inner.isSorted()) {
