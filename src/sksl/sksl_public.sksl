@@ -1,8 +1,9 @@
 // Reduced set of intrinsics that are available to public SkSL (RuntimeEffect and Interpreter)
 
-// See "The OpenGL ES Shading Language, Version 1.00, Section 8"
+// See "The OpenGL ES Shading Language, Section 8"
 
-// 8.1 : Angle and Trigonometry Functions
+// 8.1 : Angle and Trigonometry Functions (Version 1.0)
+
 $genType  radians($genType  degrees);
 $genHType radians($genHType degrees);
 $genType  degrees($genType  radians);
@@ -23,6 +24,21 @@ $genType  atan($genType  y, $genType  x);
 $genHType atan($genHType y, $genHType x);
 $genType  atan($genType  y_over_x);
 $genHType atan($genHType y_over_x);
+
+// 8.1 : Angle and Trigonometry Functions (Version 3.0)
+
+$es3 $genType  sinh($genType x);
+$es3 $genHType sinh($genHType x);
+$es3 $genType  cosh($genType x);
+$es3 $genHType cosh($genHType x);
+$es3 $genType  tanh($genType x);
+$es3 $genHType tanh($genHType x);
+$es3 $genType  asinh($genType x);
+$es3 $genHType asinh($genHType x);
+$es3 $genType  acosh($genType x);
+$es3 $genHType acosh($genHType x);
+$es3 $genType  atanh($genType x);
+$es3 $genHType atanh($genHType x);
 
 // 8.2 : Exponential Functions
 $genType  pow($genType  x, $genType  y);

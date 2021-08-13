@@ -379,6 +379,9 @@ double evaluate_asin(double a, double, double)         { return std::asin(a); }
 double evaluate_acos(double a, double, double)         { return std::acos(a); }
 double evaluate_atan(double a, double, double)         { return std::atan(a); }
 double evaluate_atan2(double a, double b, double)      { return std::atan2(a, b); }
+double evaluate_asinh(double a, double, double)        { return std::asinh(a); }
+double evaluate_acosh(double a, double, double)        { return std::acosh(a); }
+double evaluate_atanh(double a, double, double)        { return std::atanh(a); }
 
 double evaluate_pow(double a, double b, double)        { return std::pow(a, b); }
 double evaluate_exp(double a, double, double)          { return std::exp(a); }
@@ -451,6 +454,15 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
             } else {
                 return evaluate_pairwise_intrinsic(context, arguments, Intrinsics::evaluate_atan2);
             }
+
+        case k_asinh_IntrinsicKind:
+            return evaluate_intrinsic<float>(context, arguments, Intrinsics::evaluate_asinh);
+
+        case k_acosh_IntrinsicKind:
+            return evaluate_intrinsic<float>(context, arguments, Intrinsics::evaluate_acosh);
+
+        case k_atanh_IntrinsicKind:
+            return evaluate_intrinsic<float>(context, arguments, Intrinsics::evaluate_atanh);
 
         // 8.2 : Exponential Functions
         case k_pow_IntrinsicKind:
