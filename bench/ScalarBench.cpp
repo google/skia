@@ -150,7 +150,7 @@ protected:
 
     void onDraw(int loops, SkCanvas* canvas) override {
         SkRect r;
-        for (int i = 0; i < loops; ++i) {
+        for (int loop = 0; loop < loops; ++loop) {
             for (int i = 0; i < 1000; ++i) {
                 r.setBounds(fPts, PTS);
             }

@@ -126,7 +126,7 @@ protected:
         canvas->save();
         canvas->concat(this->getTransform());
 
-        for (int i = 0; i < loops; ++i) {
+        for (int loop = 0; loop < loops; ++loop) {
             for (int l = 0; l < fLayerCnt; ++l) {
                 SkAutoTArray<SkCanvas::ImageSetEntry> set(
                         fTileGridSize.fWidth * fTileGridSize.fHeight);

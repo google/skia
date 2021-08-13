@@ -49,7 +49,7 @@ static void charsToGlyphs_proc(const Rec& r) {
 }
 
 static void addcache_proc(const Rec& r) {
-    for (int i = 0; i < r.fLoops; ++i) {
+    for (int loop = 0; loop < r.fLoops; ++loop) {
         SkCharToGlyphCache cache;
         for (int i = 0; i < r.fCount; ++i) {
             cache.addCharAndGlyph(r.fText[i], i);
@@ -58,7 +58,7 @@ static void addcache_proc(const Rec& r) {
 }
 
 static void findcache_proc(const Rec& r) {
-    for (int i = 0; i < r.fLoops; ++i) {
+    for (int loop = 0; loop < r.fLoops; ++loop) {
         for (int i = 0; i < r.fCount; ++i) {
             r.fCache.findGlyphIndex(r.fText[i]);
         }
