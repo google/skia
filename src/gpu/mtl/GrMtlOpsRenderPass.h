@@ -80,12 +80,6 @@ private:
     bool                        fDebugGroupActive = false;
 #endif
 
-    static constexpr size_t kNumBindings = GrMtlUniformHandler::kUniformBindingCount + 2;
-    struct {
-        id<MTLBuffer> fBuffer;
-        size_t fOffset;
-    } fBufferBindings[kNumBindings];
-
     using INHERITED = GrOpsRenderPass;
 };
 
