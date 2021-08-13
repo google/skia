@@ -129,11 +129,17 @@ Compiler::Compiler(const ShaderCapsClass* caps)
         : fContext(std::make_shared<Context>(/*errors=*/*this, *caps))
         , fInliner(fContext.get()) {
     SkASSERT(caps);
-    fRootSymbolTable = std::make_shared<SymbolTable>(this, /*builtin=*/true);
-    fPrivateSymbolTable = std::make_shared<SymbolTable>(fRootSymbolTable, /*builtin=*/true);
+    fRootModule.fSymbols = this->makeRootSymbolTable();
+    fPrivateModule.fSymbols = this->makePrivateSymbolTable(fRootModule.fSymbols);
     fIRGenerator = std::make_unique<IRGenerator>(fContext.get());
+}
+
+Compiler::~Compiler() {}
 
 #define TYPE(t) fContext->fTypes.f ## t .get()
+
+std::shared_ptr<SymbolTable> Compiler::makeRootSymbolTable() {
+    auto rootSymbolTable = std::make_shared<SymbolTable>(this, /*builtin=*/true);
 
     const SkSL::Symbol* rootTypes[] = {
         TYPE(Void),
@@ -156,13 +162,23 @@ Compiler::Compiler(const ShaderCapsClass* caps)
         TYPE(Blender),
     };
 
+    for (const SkSL::Symbol* type : rootTypes) {
+        rootSymbolTable->addWithoutOwnership(type);
+    }
+
+    return rootSymbolTable;
+}
+
+std::shared_ptr<SymbolTable> Compiler::makePrivateSymbolTable(std::shared_ptr<SymbolTable> parent) {
+    auto privateSymbolTable = std::make_shared<SymbolTable>(parent, /*builtin=*/true);
+
     const SkSL::Symbol* privateTypes[] = {
         TYPE(  UInt), TYPE(  UInt2), TYPE(  UInt3), TYPE(  UInt4),
         TYPE( Short), TYPE( Short2), TYPE( Short3), TYPE( Short4),
         TYPE(UShort), TYPE(UShort2), TYPE(UShort3), TYPE(UShort4),
 
         TYPE(GenUType), TYPE(UVec),
-        TYPE(SVec), TYPE(USVec),
+        TYPE(SVec),     TYPE(USVec),
 
         TYPE(Float2x3), TYPE(Float2x4),
         TYPE(Float3x2), TYPE(Float3x4),
@@ -185,29 +201,23 @@ Compiler::Compiler(const ShaderCapsClass* caps)
         TYPE(Texture2D),
     };
 
-    for (const SkSL::Symbol* type : rootTypes) {
-        fRootSymbolTable->addWithoutOwnership(type);
-    }
     for (const SkSL::Symbol* type : privateTypes) {
-        fPrivateSymbolTable->addWithoutOwnership(type);
+        privateSymbolTable->addWithoutOwnership(type);
     }
-
-#undef TYPE
 
     // sk_Caps is "builtin", but all references to it are resolved to Settings, so we don't need to
     // treat it as builtin (ie, no need to clone it into the Program).
-    fPrivateSymbolTable->add(std::make_unique<Variable>(/*offset=*/-1,
-                                                        fCoreModifiers.add(Modifiers{}),
-                                                        "sk_Caps",
-                                                        fContext->fTypes.fSkCaps.get(),
-                                                        /*builtin=*/false,
-                                                        Variable::Storage::kGlobal));
+    privateSymbolTable->add(std::make_unique<Variable>(/*offset=*/-1,
+                                                       fCoreModifiers.add(Modifiers{}),
+                                                       "sk_Caps",
+                                                       fContext->fTypes.fSkCaps.get(),
+                                                       /*builtin=*/false,
+                                                       Variable::Storage::kGlobal));
 
-    fRootModule = {fRootSymbolTable, /*fIntrinsics=*/nullptr};
-    fPrivateModule = {fPrivateSymbolTable, /*fIntrinsics=*/nullptr};
+    return privateSymbolTable;
 }
 
-Compiler::~Compiler() {}
+#undef TYPE
 
 const ParsedModule& Compiler::loadGPUModule() {
     if (!fGPUModule.fSymbols) {
@@ -318,7 +328,7 @@ LoadedModule Compiler::loadModule(ProgramKind kind,
         // contain the union of all known types, so this is safe. If we ever have types that only
         // exist in 'Public' (for example), this logic needs to be smarter (by choosing the correct
         // base for the module we're compiling).
-        base = fPrivateSymbolTable;
+        base = fPrivateModule.fSymbols;
     }
     SkASSERT(base);
 
@@ -337,7 +347,7 @@ LoadedModule Compiler::loadModule(ProgramKind kind,
         printf("error reading %s\n", data.fPath);
         abort();
     }
-    const String* source = fRootSymbolTable->takeOwnershipOfString(std::move(text));
+    const String* source = fRootModule.fSymbols->takeOwnershipOfString(std::move(text));
 
     ParsedModule baseModule = {base, /*fIntrinsics=*/nullptr};
     std::vector<std::unique_ptr<ProgramElement>> elements;

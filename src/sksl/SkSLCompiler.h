@@ -216,6 +216,9 @@ private:
     const ParsedModule& loadRuntimeShaderModule();
     const ParsedModule& loadRuntimeBlenderModule();
 
+    std::shared_ptr<SymbolTable> makeRootSymbolTable();
+    std::shared_ptr<SymbolTable> makePrivateSymbolTable(std::shared_ptr<SymbolTable> parent);
+
     /** Verifies that @if and @switch statements were actually optimized away. */
     void verifyStaticTests(const Program& program);
 
@@ -238,9 +241,6 @@ private:
     Position position(int offset);
 
     std::shared_ptr<Context> fContext;
-
-    std::shared_ptr<SymbolTable> fRootSymbolTable;
-    std::shared_ptr<SymbolTable> fPrivateSymbolTable;
 
     ParsedModule fRootModule;                // Core types
 
