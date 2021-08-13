@@ -664,13 +664,16 @@ public:
             fInText = false;
         }
     }
-    void setWideChars(bool wide) {
+    void setFont(SkPDFFont* pdfFont) {
         this->flush();
-        fWideChars = wide;
+        fPDFFont = pdfFont;
+        // Reader 2020.013.20064 incorrectly advances some Type3 fonts https://crbug.com/1226960
+        bool convertedToType3 = fPDFFont->getType() == SkAdvancedTypefaceMetrics::kOther_Font;
+        bool thousandEM = fPDFFont->typeface()->getUnitsPerEm() == 1000;
+        fViewersAgreeOnAdvancesInFont = thousandEM || !convertedToType3;
     }
-    void writeGlyph(SkPoint xy,
-                    SkScalar advanceWidth,
-                    uint16_t glyph) {
+    void writeGlyph(uint16_t glyph, SkScalar advanceWidth, SkPoint xy) {
+        SkASSERT(fPDFFont);
         if (!fInitialized) {
             // Flip the text about the x-axis to account for origin swap and include
             // the passed parameters.
@@ -685,7 +688,7 @@ public:
             fInitialized = true;
         }
         SkPoint position = xy - fCurrentMatrixOrigin;
-        if (position != SkPoint{fXAdvance, 0}) {
+        if (!fViewersAgreeOnXAdvance || position != SkPoint{fXAdvance, 0}) {
             this->flush();
             SkPDFUtils::AppendScalar(position.x() - position.y() * fTextSkewX, fContent);
             fContent->writeText(" ");
@@ -693,13 +696,17 @@ public:
             fContent->writeText(" Td ");
             fCurrentMatrixOrigin = xy;
             fXAdvance = 0;
+            fViewersAgreeOnXAdvance = true;
         }
         fXAdvance += advanceWidth;
+        if (!fViewersAgreeOnAdvancesInFont) {
+            fViewersAgreeOnXAdvance = false;
+        }
         if (!fInText) {
             fContent->writeText("<");
             fInText = true;
         }
-        if (fWideChars) {
+        if (fPDFFont->multiByteGlyphs()) {
             SkPDFUtils::WriteUInt16BE(fContent, glyph);
         } else {
             SkASSERT(0 == glyph >> 8);
@@ -709,10 +716,12 @@ public:
 
 private:
     SkDynamicMemoryWStream* fContent;
+    SkPDFFont* fPDFFont = nullptr;
     SkPoint fCurrentMatrixOrigin;
     SkScalar fXAdvance = 0.0f;
+    bool fViewersAgreeOnAdvancesInFont = true;
+    bool fViewersAgreeOnXAdvance = true;
     SkScalar fTextSkewX;
-    bool fWideChars = true;
     bool fInText = false;
     bool fInitialized = false;
 };
@@ -931,8 +940,7 @@ void SkPDFDevice::internalDrawGlyphRun(
                 // Not yet specified font or need to switch font.
                 font = SkPDFFont::GetFontResource(fDocument, glyphs[index], typeface);
                 SkASSERT(font);  // All preconditions for SkPDFFont::GetFontResource are met.
-                glyphPositioner.flush();
-                glyphPositioner.setWideChars(font->multiByteGlyphs());
+                glyphPositioner.setFont(font);
                 SkPDFWriteResourceName(out, SkPDFResourceType::kFont,
                                        add_resource(fFontResources, font->indirectReference()));
                 out->writeText(" ");
@@ -941,10 +949,9 @@ void SkPDFDevice::internalDrawGlyphRun(
 
             }
             font->noteGlyphUsage(gid);
-            SkGlyphID encodedGlyph = font->multiByteGlyphs()
-                                   ? gid : font->glyphToPDFFontEncoding(gid);
+            SkGlyphID encodedGlyph = font->glyphToPDFFontEncoding(gid);
             SkScalar advance = advanceScale * glyphs[index]->advanceX();
-            glyphPositioner.writeGlyph(xy, advance, encodedGlyph);
+            glyphPositioner.writeGlyph(encodedGlyph, advance, xy);
         }
     }
 }
