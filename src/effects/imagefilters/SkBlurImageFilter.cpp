@@ -250,7 +250,7 @@ static void blur_one_direction(skvx::Vec<4, uint32_t>* buffer, int window,
     //    h == d/2 + 1/2 == (d + 1) / 2
     //
     // weight = 1 / d * 2 ^ 32
-    auto weight = static_cast<uint64_t>(round((1.0 / divisor) * (1ull << 32)));
+    auto weight = static_cast<uint32_t>(round((1.0 / divisor) * (1ull << 32)));
     auto half = static_cast<uint32_t>((divisor + 1) / 2);
 
     auto border = calculate_border(window);
