@@ -288,6 +288,7 @@ public:
     /** deprecated alias of hasMipmaps(). */
     bool hasMipMaps() const { return this->hasMipmaps(); }
     GrBackendApi backend() const {return fBackend; }
+    GrTextureType textureType() const { return fTextureType; }
 
     // If the backend API is GL, copies a snapshot of the GrGLTextureInfo struct into the passed in
     // pointer and returns true. Otherwise returns false if the backend API is not GL.
@@ -397,6 +398,7 @@ private:
     int fHeight;        //<! height in pixels
     GrMipmapped fMipmapped;
     GrBackendApi fBackend;
+    GrTextureType fTextureType;
 
     union {
 #ifdef SK_GL

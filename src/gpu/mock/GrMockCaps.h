@@ -51,7 +51,7 @@ public:
         return GrGetColorTypeDesc(ct).encoding() == GrColorTypeEncoding::kSRGBUnorm;
     }
 
-    bool isFormatTexturable(const GrBackendFormat& format) const override {
+    bool isFormatTexturable(const GrBackendFormat& format, GrTextureType) const override {
         SkImage::CompressionType compression = format.asMockCompressionType();
         if (compression != SkImage::CompressionType::kNone) {
             return fOptions.fCompressedOptions[(int)compression].fTexturable;

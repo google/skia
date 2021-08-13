@@ -32,12 +32,11 @@ void DDLTileHelper::TileData::init(int id,
                                                               this->paddedRectSize().height());
     SkASSERT(fPlaybackChar.isValid());
 
-    GrBackendFormat backendFormat = direct->defaultBackendFormat(fPlaybackChar.colorType(),
-                                                                 GrRenderable::kYes);
     SkDEBUGCODE(const GrCaps* caps = direct->priv().caps());
-    SkASSERT(caps->isFormatTexturable(backendFormat));
+    SkASSERT(caps->isFormatTexturable(fPlaybackChar.backendFormat(),
+                                      fPlaybackChar.backendFormat().textureType()));
 
-    fCallbackContext.reset(new PromiseImageCallbackContext(direct, backendFormat));
+    fCallbackContext.reset(new PromiseImageCallbackContext(direct, fPlaybackChar.backendFormat()));
 }
 
 DDLTileHelper::TileData::TileData() {}

@@ -687,7 +687,7 @@ bool GrD3DGpu::uploadToTexture(GrD3DTexture* tex,
                                GrColorType colorType,
                                const GrMipLevel* texels,
                                int mipLevelCount) {
-    SkASSERT(this->caps()->isFormatTexturable(tex->backendFormat()));
+    SkASSERT(this->d3dCaps().isFormatTexturable(tex->dxgiFormat()));
     // The assumption is either that we have no mipmaps, or that our rect is the entire texture
     SkASSERT(mipLevelCount == 1 || rect == SkIRect::MakeSize(tex->dimensions()));
 

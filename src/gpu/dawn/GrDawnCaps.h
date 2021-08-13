@@ -27,7 +27,7 @@ public:
 
     bool isFormatCopyable(const GrBackendFormat& format) const override { return true; }
 
-    bool isFormatTexturable(const GrBackendFormat& format) const override;
+    bool isFormatTexturable(const GrBackendFormat& format, GrTextureType) const override;
 
     SupportedWrite supportedWritePixelsColorType(GrColorType surfaceColorType,
                                                  const GrBackendFormat& surfaceFormat,

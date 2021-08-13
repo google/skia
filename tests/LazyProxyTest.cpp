@@ -92,8 +92,14 @@ public:
                         } else {
                             static constexpr SkISize kDimensions = {1234, 567};
                             sk_sp<GrTexture> texture = rp->createTexture(
-                                    kDimensions, desc.fFormat, desc.fRenderable, desc.fSampleCnt,
-                                    desc.fMipmapped, desc.fBudgeted, desc.fProtected);
+                                    kDimensions,
+                                    desc.fFormat,
+                                    desc.fFormat.textureType(),
+                                    desc.fRenderable,
+                                    desc.fSampleCnt,
+                                    desc.fMipmapped,
+                                    desc.fBudgeted,
+                                    desc.fProtected);
                             REPORTER_ASSERT(fTest->fReporter, texture);
                             return texture;
                         }
@@ -239,9 +245,14 @@ DEF_GPUTEST(LazyProxyReleaseTest, reporter, /* options */) {
     GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                            GrRenderable::kNo);
 
-    auto tex = ctx->priv().resourceProvider()->createTexture({kSize, kSize}, format,
-                                                             GrRenderable::kNo, 1, GrMipmapped::kNo,
-                                                             SkBudgeted::kNo, GrProtected::kNo);
+    auto tex = ctx->priv().resourceProvider()->createTexture({kSize, kSize},
+                                                             format,
+                                                             GrTextureType::k2D,
+                                                             GrRenderable::kNo,
+                                                             1,
+                                                             GrMipmapped::kNo,
+                                                             SkBudgeted::kNo,
+                                                             GrProtected::kNo);
     using LazyInstantiationResult = GrSurfaceProxy::LazyCallbackResult;
     for (bool doInstantiate : {true, false}) {
         for (bool releaseCallback : {false, true}) {
@@ -346,8 +357,13 @@ private:
                         *testExecuteValue = 1;
                         return {};
                     }
-                    return {rp->createTexture(desc.fDimensions, desc.fFormat, desc.fRenderable,
-                                              desc.fSampleCnt, desc.fMipmapped, desc.fBudgeted,
+                    return {rp->createTexture(desc.fDimensions,
+                                              desc.fFormat,
+                                              desc.fFormat.textureType(),
+                                              desc.fRenderable,
+                                              desc.fSampleCnt,
+                                              desc.fMipmapped,
+                                              desc.fBudgeted,
                                               desc.fProtected),
                             true, GrSurfaceProxy::LazyInstantiationKeyMode::kUnsynced};
                 },

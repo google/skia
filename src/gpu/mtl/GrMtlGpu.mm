@@ -366,7 +366,7 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex,
                                GrColorType dataColorType,
                                const GrMipLevel texels[],
                                int mipLevelCount) {
-    SkASSERT(this->caps()->isFormatTexturable(tex->backendFormat()));
+    SkASSERT(this->mtlCaps().isFormatTexturable(tex->mtlTexture().pixelFormat));
     // The assumption is either that we have no mipmaps, or that our rect is the entire texture
     SkASSERT(mipLevelCount == 1 || rect == SkIRect::MakeSize(tex->dimensions()));
 
@@ -475,7 +475,7 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex,
 }
 
 bool GrMtlGpu::clearTexture(GrMtlTexture* tex, size_t bpp, uint32_t levelMask) {
-    SkASSERT(this->mtlCaps().isFormatTexturable(tex->backendFormat()));
+    SkASSERT(this->mtlCaps().isFormatTexturable(tex->mtlTexture().pixelFormat));
 
     if (!levelMask) {
         return true;
@@ -645,7 +645,7 @@ sk_sp<GrTexture> GrMtlGpu::onCreateCompressedTexture(SkISize dimensions,
         return nullptr;
     }
 
-    SkASSERT(this->caps()->isFormatTexturable(format));
+    SkASSERT(this->caps()->isFormatTexturable(format, GrTextureType::k2D));
     SkASSERT(data);
 
     if (!check_max_blit_width(dimensions.width())) {

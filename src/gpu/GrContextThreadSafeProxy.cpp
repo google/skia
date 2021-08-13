@@ -99,7 +99,7 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
         return {};
     }
 
-    if (isTextureable && !fCaps->isFormatTexturable(backendFormat)) {
+    if (isTextureable && !fCaps->isFormatTexturable(backendFormat, backendFormat.textureType())) {
         // Skia doesn't agree that this is textureable.
         return {};
     }
@@ -158,7 +158,7 @@ GrBackendFormat GrContextThreadSafeProxy::compressedBackendFormat(SkImage::Compr
 
     GrBackendFormat format = fCaps->getBackendFormatFromCompressionType(c);
 
-    SkASSERT(!format.isValid() || fCaps->isFormatTexturable(format));
+    SkASSERT(!format.isValid() || fCaps->isFormatTexturable(format, GrTextureType::k2D));
     return format;
 }
 
