@@ -42,6 +42,7 @@ LAYOUT         = "layout"
 HIGHP          = "highp"
 MEDIUMP        = "mediump"
 LOWP           = "lowp"
+ES3            = "$es3"
 IDENTIFIER     = [a-zA-Z_$]([0-9]|[a-zA-Z_$])*
 DIRECTIVE      = #[a-zA-Z_$]([0-9]|[a-zA-Z_$])*
 LPAREN         = "("
