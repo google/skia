@@ -601,8 +601,8 @@ private:
     void onOnceBeforeDraw() override {
         const SkPoint center = { 0, 0 };
         const SkScalar kRadius = 3000;
-        const SkColor gColors[] = { 0xFFFFFFFF, 0xFF000000 };
-        fShader = SkGradientShader::MakeRadial(center, kRadius, gColors, nullptr, 2,
+        const SkColor kColors[] = { 0xFFFFFFFF, 0xFF000000 };
+        fShader = SkGradientShader::MakeRadial(center, kRadius, kColors, nullptr, 2,
                                                SkTileMode::kClamp);
     }
 

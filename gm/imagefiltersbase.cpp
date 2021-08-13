@@ -318,8 +318,6 @@ protected:
     virtual void installFilter(SkPaint* paint) = 0;
 
     void onDraw(SkCanvas* canvas) override {
-        SkPaint paint;
-
         canvas->translate(20, 40);
 
         for (int doSaveLayer = 0; doSaveLayer <= 1; ++doSaveLayer) {

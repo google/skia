@@ -373,11 +373,11 @@ private:
                     // the single x-pass value from our precomputed row.
                     float tdiff = numSubpixels * pad - (y * numSubpixels + ys + 0.5f);
                     float bdiff = tdiff + h;
-                    auto w = def_integral_approx(tdiff, bdiff);
+                    auto integral = def_integral_approx(tdiff, bdiff);
                     for (int x = 0; x < maskW; ++x) {
                         for (int xs = 0; xs < numSubpixels; ++xs) {
                             int rowIdx = x * numSubpixels + xs;
-                            accums[x] += w * row[rowIdx];
+                            accums[x] += integral * row[rowIdx];
                         }
                     }
                 }

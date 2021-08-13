@@ -163,9 +163,9 @@ private:
             auto img = fGradImgs[i];
             int w = img->width();
             int h = img->height();
-            for (auto s : kScales) {
+            for (auto scale : kScales) {
                 canvas->save();
-                canvas->scale(s, s);
+                canvas->scale(scale, scale);
                 for (auto s : kSamplings) {
                     // drawImage
                     canvas->drawImage(img, 0, 0, s);
@@ -193,7 +193,7 @@ private:
                     canvas->translate(.5f*w + kPad, 0);
                 }
                 canvas->restore();
-                canvas->translate(0, kPad + 1.5f*h*s);
+                canvas->translate(0, kPad + 1.5f*h*scale);
             }
         }
 

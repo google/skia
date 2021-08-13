@@ -149,7 +149,7 @@ protected:
 
         for (SkPoint jitter : kJitters) {
             {
-                SkAutoCanvasRestore acr(canvas, true);
+                SkAutoCanvasRestore acr2(canvas, true);
                 canvas->translate(jitter.x(), jitter.y());
                 canvas->drawPath(path, fFillPaint);
             }

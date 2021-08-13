@@ -311,7 +311,7 @@ private:
                                    SkTextEncoding::kGlyphID, 0, 0, font, glyphPaint);
 
             if (labelBounds) {
-                SkAutoCanvasRestore acr(canvas, true);
+                SkAutoCanvasRestore acr2(canvas, true);
                 canvas->translate(glyphToDraw.location.fX, glyphToDraw.location.fY);
                 canvas->rotate(glyphToDraw.rotation);
                 SkString glyphStr;

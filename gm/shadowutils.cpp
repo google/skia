@@ -91,9 +91,7 @@ void draw_paths(SkCanvas* canvas, ShadowMode mode) {
     SkScalar dy = 0;
     SkTDArray<SkMatrix> matrices;
     matrices.push()->reset();
-    SkMatrix* m = matrices.push();
-    m->setRotate(33.f, 25.f, 25.f);
-    m->postScale(1.2f, 0.8f, 25.f, 25.f);
+    matrices.push()->setRotate(33.f, 25.f, 25.f).postScale(1.2f, 0.8f, 25.f, 25.f);
     for (auto& m : matrices) {
         for (int flags : { kNone_ShadowFlag, kTransparentOccluder_ShadowFlag }) {
             int pathCounter = 0;
