@@ -1411,7 +1411,7 @@ bool GrVkCaps::isFormatSRGB(const GrBackendFormat& format) const {
     return format_is_srgb(vkFormat);
 }
 
-bool GrVkCaps::isFormatTexturable(const GrBackendFormat& format) const {
+bool GrVkCaps::isFormatTexturable(const GrBackendFormat& format, GrTextureType) const {
     VkFormat vkFormat;
     if (!format.asVkFormat(&vkFormat)) {
         return false;

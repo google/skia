@@ -37,7 +37,7 @@ bool GrDawnCaps::isFormatSRGB(const GrBackendFormat& format) const {
     return false;
 }
 
-bool GrDawnCaps::isFormatTexturable(const GrBackendFormat& format) const {
+bool GrDawnCaps::isFormatTexturable(const GrBackendFormat& format, GrTextureType) const {
     // Currently, all the formats in GrDawnFormatToPixelConfig are texturable.
     wgpu::TextureFormat dawnFormat;
     return format.asDawnFormat(&dawnFormat);

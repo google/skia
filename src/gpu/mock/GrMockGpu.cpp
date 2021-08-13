@@ -229,7 +229,7 @@ GrBackendTexture GrMockGpu::onCreateBackendTexture(SkISize dimensions,
     }
 
     auto colorType = format.asMockColorType();
-    if (!this->caps()->isFormatTexturable(format)) {
+    if (!this->caps()->isFormatTexturable(format, GrTextureType::k2D)) {
         return GrBackendTexture();  // invalid
     }
 
@@ -247,7 +247,7 @@ GrBackendTexture GrMockGpu::onCreateCompressedBackendTexture(
         return {}; // should go through onCreateBackendTexture
     }
 
-    if (!this->caps()->isFormatTexturable(format)) {
+    if (!this->caps()->isFormatTexturable(format, GrTextureType::k2D)) {
         return {};
     }
 

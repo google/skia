@@ -82,27 +82,27 @@ GrBackendFormat& GrBackendFormat::operator=(const GrBackendFormat& that) {
 }
 
 #ifdef SK_GL
+
+static GrTextureType gl_target_to_gr_target(GrGLenum target) {
+    switch (target) {
+        case GR_GL_TEXTURE_NONE:
+            return GrTextureType::kNone;
+        case GR_GL_TEXTURE_2D:
+            return  GrTextureType::k2D;
+        case GR_GL_TEXTURE_RECTANGLE:
+            return GrTextureType::kRectangle;
+        case GR_GL_TEXTURE_EXTERNAL:
+            return GrTextureType::kExternal;
+        default:
+            SkUNREACHABLE;
+    }
+}
+
 GrBackendFormat::GrBackendFormat(GrGLenum format, GrGLenum target)
         : fBackend(GrBackendApi::kOpenGL)
         , fValid(true)
-        , fGLFormat(format) {
-    switch (target) {
-        case GR_GL_TEXTURE_NONE:
-            fTextureType = GrTextureType::kNone;
-            break;
-        case GR_GL_TEXTURE_2D:
-            fTextureType = GrTextureType::k2D;
-            break;
-        case GR_GL_TEXTURE_RECTANGLE:
-            fTextureType = GrTextureType::kRectangle;
-            break;
-        case GR_GL_TEXTURE_EXTERNAL:
-            fTextureType = GrTextureType::kExternal;
-            break;
-        default:
-            SK_ABORT("Unexpected texture target");
-    }
-}
+        , fGLFormat(format)
+        , fTextureType(gl_target_to_gr_target(target)) {}
 #endif
 
 GrGLFormat GrBackendFormat::asGLFormat() const {
@@ -455,6 +455,7 @@ GrBackendTexture::GrBackendTexture(int width,
         , fHeight(height)
         , fMipmapped(GrMipmapped(dawnInfo.fLevelCount > 1))
         , fBackend(GrBackendApi::kDawn)
+        , fTextureType(GrTextureType::k2D)
         , fDawnInfo(dawnInfo) {}
 #endif
 
@@ -483,6 +484,13 @@ static GrVkImageInfo apply_default_usage_flags(const GrVkImageInfo& info,
     return info;
 }
 
+static GrTextureType vk_image_info_to_texture_type(const GrVkImageInfo& info) {
+    if (info.fYcbcrConversionInfo.isValid() && info.fYcbcrConversionInfo.fExternalFormat != 0) {
+        return GrTextureType::kExternal;
+    }
+    return GrTextureType::k2D;
+}
+
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
                                    const GrVkImageInfo& vkInfo,
@@ -492,6 +500,7 @@ GrBackendTexture::GrBackendTexture(int width,
         , fHeight(height)
         , fMipmapped(GrMipmapped(vkInfo.fLevelCount > 1))
         , fBackend(GrBackendApi::kVulkan)
+        , fTextureType(vk_image_info_to_texture_type(vkInfo))
         , fVkInfo(apply_default_usage_flags(vkInfo, kDefaultTexRTUsageFlags))
         , fMutableState(std::move(mutableState)) {}
 #endif
@@ -507,6 +516,7 @@ GrBackendTexture::GrBackendTexture(int width,
         , fHeight(height)
         , fMipmapped(mipmapped)
         , fBackend(GrBackendApi::kOpenGL)
+        , fTextureType(gl_target_to_gr_target(glInfo.fTarget))
         , fGLInfo(glInfo, params.release()) {}
 
 sk_sp<GrGLTextureParameters> GrBackendTexture::getGLTextureParams() const {
@@ -527,6 +537,7 @@ GrBackendTexture::GrBackendTexture(int width,
         , fHeight(height)
         , fMipmapped(mipmapped)
         , fBackend(GrBackendApi::kMetal)
+        , fTextureType(GrTextureType::k2D)
         , fMtlInfo(mtlInfo) {}
 #endif
 
@@ -546,6 +557,7 @@ GrBackendTexture::GrBackendTexture(int width,
         , fHeight(height)
         , fMipmapped(GrMipmapped(d3dInfo.fLevelCount > 1))
         , fBackend(GrBackendApi::kDirect3D)
+        , fTextureType(GrTextureType::k2D)
         , fD3DInfo(d3dInfo, state.release()) {}
 #endif
 
@@ -569,6 +581,7 @@ GrBackendTexture::GrBackendTexture(int width,
         , fHeight(height)
         , fMipmapped(mipmapped)
         , fBackend(GrBackendApi::kMock)
+        , fTextureType(GrTextureType::k2D)
         , fMockInfo(mockInfo) {}
 
 GrBackendTexture::~GrBackendTexture() {
@@ -610,6 +623,7 @@ GrBackendTexture& GrBackendTexture::operator=(const GrBackendTexture& that) {
     fHeight = that.fHeight;
     fMipmapped = that.fMipmapped;
     fBackend = that.fBackend;
+    fTextureType = that.fTextureType;
 
     switch (that.fBackend) {
 #ifdef SK_GL

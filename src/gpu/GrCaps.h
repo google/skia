@@ -221,8 +221,9 @@ public:
 
     bool isFormatCompressed(const GrBackendFormat& format) const;
 
-    // Can a texture be made with the GrBackendFormat, and then be bound and sampled in a shader.
-    virtual bool isFormatTexturable(const GrBackendFormat&) const = 0;
+    // Can a texture be made with the GrBackendFormat and texture type, and then be bound and
+    // sampled in a shader.
+    virtual bool isFormatTexturable(const GrBackendFormat&, GrTextureType) const = 0;
 
     // Returns whether a texture of the given format can be copied to a texture of the same format.
     virtual bool isFormatCopyable(const GrBackendFormat&) const = 0;
@@ -420,7 +421,7 @@ public:
     }
 
     bool validateSurfaceParams(const SkISize&, const GrBackendFormat&, GrRenderable renderable,
-                               int renderTargetSampleCnt, GrMipmapped) const;
+                               int renderTargetSampleCnt, GrMipmapped, GrTextureType) const;
 
     bool areColorTypeAndFormatCompatible(GrColorType grCT, const GrBackendFormat& format) const;
 

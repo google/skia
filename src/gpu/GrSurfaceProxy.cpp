@@ -112,11 +112,21 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(GrResourceProvider* resourceP
 
     sk_sp<GrSurface> surface;
     if (SkBackingFit::kApprox == fFit) {
-        surface = resourceProvider->createApproxTexture(fDimensions, fFormat, renderable, sampleCnt,
+        surface = resourceProvider->createApproxTexture(fDimensions,
+                                                        fFormat,
+                                                        fFormat.textureType(),
+                                                        renderable,
+                                                        sampleCnt,
                                                         fIsProtected);
     } else {
-        surface = resourceProvider->createTexture(fDimensions, fFormat, renderable, sampleCnt,
-                                                  mipMapped, fBudgeted, fIsProtected);
+        surface = resourceProvider->createTexture(fDimensions,
+                                                  fFormat,
+                                                  fFormat.textureType(),
+                                                  renderable,
+                                                  sampleCnt,
+                                                  mipMapped,
+                                                  fBudgeted,
+                                                  fIsProtected);
     }
     if (!surface) {
         return nullptr;

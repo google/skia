@@ -295,7 +295,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CompressedBackendAllocationTest, reporter, ct
             continue;
         }
 
-        if (!caps->isFormatTexturable(format)) {
+        if (!caps->isFormatTexturable(format, GrTextureType::k2D)) {
             continue;
         }
 

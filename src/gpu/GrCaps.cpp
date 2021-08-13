@@ -309,9 +309,11 @@ bool GrCaps::canCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src
 
 bool GrCaps::validateSurfaceParams(const SkISize& dimensions, const GrBackendFormat& format,
                                    GrRenderable renderable, int renderTargetSampleCnt,
-                                   GrMipmapped mipped) const {
-    if (!this->isFormatTexturable(format)) {
-        return false;
+                                   GrMipmapped mipped, GrTextureType textureType) const {
+    if (textureType != GrTextureType::kNone) {
+        if (!this->isFormatTexturable(format, textureType)) {
+            return false;
+        }
     }
 
     if (GrMipmapped::kYes == mipped && !this->mipmapSupport()) {
@@ -386,7 +388,7 @@ GrBackendFormat GrCaps::getDefaultBackendFormat(GrColorType colorType,
     }
 
     auto format = this->onGetDefaultBackendFormat(colorType);
-    if (!this->isFormatTexturable(format)) {
+    if (!this->isFormatTexturable(format, GrTextureType::k2D)) {
         return {};
     }
     if (!this->areColorTypeAndFormatCompatible(colorType, format)) {

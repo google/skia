@@ -98,6 +98,7 @@ static bool validate_texel_levels(SkISize dimensions, GrColorType texelColorType
 
 sk_sp<GrTexture> GrGpu::createTextureCommon(SkISize dimensions,
                                             const GrBackendFormat& format,
+                                            GrTextureType textureType,
                                             GrRenderable renderable,
                                             int renderTargetSampleCnt,
                                             SkBudgeted budgeted,
@@ -110,8 +111,12 @@ sk_sp<GrTexture> GrGpu::createTextureCommon(SkISize dimensions,
     }
 
     GrMipmapped mipMapped = mipLevelCount > 1 ? GrMipmapped::kYes : GrMipmapped::kNo;
-    if (!this->caps()->validateSurfaceParams(dimensions, format, renderable, renderTargetSampleCnt,
-                                             mipMapped)) {
+    if (!this->caps()->validateSurfaceParams(dimensions,
+                                             format,
+                                             renderable,
+                                             renderTargetSampleCnt,
+                                             mipMapped,
+                                             textureType)) {
         return nullptr;
     }
 
@@ -147,6 +152,7 @@ sk_sp<GrTexture> GrGpu::createTextureCommon(SkISize dimensions,
 
 sk_sp<GrTexture> GrGpu::createTexture(SkISize dimensions,
                                       const GrBackendFormat& format,
+                                      GrTextureType textureType,
                                       GrRenderable renderable,
                                       int renderTargetSampleCnt,
                                       GrMipmapped mipMapped,
@@ -159,8 +165,15 @@ sk_sp<GrTexture> GrGpu::createTexture(SkISize dimensions,
     }
     uint32_t levelClearMask =
             this->caps()->shouldInitializeTextures() ? (1 << mipLevelCount) - 1 : 0;
-    auto tex = this->createTextureCommon(dimensions, format, renderable, renderTargetSampleCnt,
-                                         budgeted, isProtected, mipLevelCount, levelClearMask);
+    auto tex = this->createTextureCommon(dimensions,
+                                         format,
+                                         textureType,
+                                         renderable,
+                                         renderTargetSampleCnt,
+                                         budgeted,
+                                         isProtected,
+                                         mipLevelCount,
+                                         levelClearMask);
     if (tex && mipMapped == GrMipmapped::kYes && levelClearMask) {
         tex->markMipmapsClean();
     }
@@ -169,6 +182,7 @@ sk_sp<GrTexture> GrGpu::createTexture(SkISize dimensions,
 
 sk_sp<GrTexture> GrGpu::createTexture(SkISize dimensions,
                                       const GrBackendFormat& format,
+                                      GrTextureType textureType,
                                       GrRenderable renderable,
                                       int renderTargetSampleCnt,
                                       SkBudgeted budgeted,
@@ -199,8 +213,15 @@ sk_sp<GrTexture> GrGpu::createTexture(SkISize dimensions,
         }
     }
 
-    auto tex = this->createTextureCommon(dimensions, format, renderable, renderTargetSampleCnt,
-                                         budgeted, isProtected, texelLevelCount, levelClearMask);
+    auto tex = this->createTextureCommon(dimensions,
+                                         format,
+                                         textureType,
+                                         renderable,
+                                         renderTargetSampleCnt,
+                                         budgeted,
+                                         isProtected,
+                                         texelLevelCount,
+                                         levelClearMask);
     if (tex) {
         bool markMipLevelsClean = false;
         // Currently if level 0 does not have pixels then no other level may, as enforced by
@@ -245,12 +266,16 @@ sk_sp<GrTexture> GrGpu::createCompressedTexture(SkISize dimensions,
     if (!data) {
         return nullptr;
     }
-    if (!this->caps()->isFormatTexturable(format)) {
-        return nullptr;
-    }
 
     // TODO: expand CompressedDataIsCorrect to work here too
     SkImage::CompressionType compressionType = GrBackendFormatToCompressionType(format);
+    if (compressionType == SkImage::CompressionType::kNone) {
+        return nullptr;
+    }
+
+    if (!this->caps()->isFormatTexturable(format, GrTextureType::k2D)) {
+        return nullptr;
+    }
 
     if (dataSize < SkCompressedDataSize(compressionType, dimensions, nullptr,
                                         mipMapped == GrMipmapped::kYes)) {
@@ -270,7 +295,7 @@ sk_sp<GrTexture> GrGpu::wrapBackendTexture(const GrBackendTexture& backendTex,
     const GrCaps* caps = this->caps();
     SkASSERT(caps);
 
-    if (!caps->isFormatTexturable(backendTex.getBackendFormat())) {
+    if (!caps->isFormatTexturable(backendTex.getBackendFormat(), backendTex.textureType())) {
         return nullptr;
     }
     if (backendTex.width() > caps->maxTextureSize() ||
@@ -289,7 +314,7 @@ sk_sp<GrTexture> GrGpu::wrapCompressedBackendTexture(const GrBackendTexture& bac
     const GrCaps* caps = this->caps();
     SkASSERT(caps);
 
-    if (!caps->isFormatTexturable(backendTex.getBackendFormat())) {
+    if (!caps->isFormatTexturable(backendTex.getBackendFormat(), backendTex.textureType())) {
         return nullptr;
     }
     if (backendTex.width() > caps->maxTextureSize() ||
@@ -311,7 +336,7 @@ sk_sp<GrTexture> GrGpu::wrapRenderableBackendTexture(const GrBackendTexture& bac
 
     const GrCaps* caps = this->caps();
 
-    if (!caps->isFormatTexturable(backendTex.getBackendFormat()) ||
+    if (!caps->isFormatTexturable(backendTex.getBackendFormat(), backendTex.textureType()) ||
         !caps->isFormatRenderable(backendTex.getBackendFormat(), sampleCnt)) {
         return nullptr;
     }
@@ -391,7 +416,8 @@ bool GrGpu::readPixels(GrSurface* surface,
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(surface);
     SkASSERT(!surface->framebufferOnly());
-    SkASSERT(this->caps()->isFormatTexturable(surface->backendFormat()));
+    SkASSERT(this->caps()->areColorTypeAndFormatCompatible(surfaceColorType,
+                                                           surface->backendFormat()));
 
     if (!SkIRect::MakeSize(surface->dimensions()).contains(rect)) {
         return false;
@@ -523,7 +549,8 @@ bool GrGpu::transferPixelsFrom(GrSurface* surface,
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(surface);
     SkASSERT(transferBuffer);
-    SkASSERT(this->caps()->isFormatTexturable(surface->backendFormat()));
+    SkASSERT(this->caps()->areColorTypeAndFormatCompatible(surfaceColorType,
+                                                           surface->backendFormat()));
 
 #ifdef SK_DEBUG
     auto supportedRead = this->caps()->supportedReadPixelsColorType(

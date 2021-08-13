@@ -28,7 +28,7 @@ public:
 
     bool isFormatSRGB(const GrBackendFormat&) const override;
 
-    bool isFormatTexturable(const GrBackendFormat&) const override;
+    bool isFormatTexturable(const GrBackendFormat&, GrTextureType) const override;
     bool isFormatTexturable(DXGI_FORMAT) const;
 
     bool isFormatCopyable(const GrBackendFormat&) const override { return true; }

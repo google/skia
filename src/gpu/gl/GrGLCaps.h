@@ -120,7 +120,7 @@ public:
 
     bool isFormatSRGB(const GrBackendFormat&) const override;
 
-    bool isFormatTexturable(const GrBackendFormat&) const override;
+    bool isFormatTexturable(const GrBackendFormat&, GrTextureType) const override;
     bool isFormatTexturable(GrGLFormat) const;
 
     bool isFormatAsColorTypeRenderable(GrColorType ct, const GrBackendFormat& format,
