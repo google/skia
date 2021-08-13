@@ -28,13 +28,15 @@ static IntrinsicKind identify_intrinsic(const String& functionName) {
     return kNotIntrinsic;
 }
 
-static bool check_modifiers(const Context& context, int offset, const Modifiers& modifiers) {
-    IRGenerator::CheckModifiers(
-            context,
-            offset,
-            modifiers,
-            Modifiers::kHasSideEffects_Flag | Modifiers::kInline_Flag | Modifiers::kNoInline_Flag,
-            /*permittedLayoutFlags=*/0);
+static bool check_modifiers(const Context& context,
+                            int offset,
+                            const Modifiers& modifiers,
+                            bool isBuiltin) {
+    const int permitted = Modifiers::kHasSideEffects_Flag |
+                          Modifiers::kInline_Flag |
+                          Modifiers::kNoInline_Flag |
+                          (isBuiltin ? Modifiers::kES3_Flag : 0);
+    IRGenerator::CheckModifiers(context, offset, modifiers, permitted, /*permittedLayoutFlags=*/0);
     if ((modifiers.fFlags & Modifiers::kInline_Flag) &&
         (modifiers.fFlags & Modifiers::kNoInline_Flag)) {
         context.errors().error(offset, "functions cannot be both 'inline' and 'noinline'");
@@ -312,7 +314,7 @@ const FunctionDeclaration* FunctionDeclaration::Convert(const Context& context,
     bool isMain = (name == "main");
 
     const FunctionDeclaration* decl = nullptr;
-    if (!check_modifiers(context, offset, *modifiers) ||
+    if (!check_modifiers(context, offset, *modifiers, isBuiltin) ||
         !check_return_type(context, offset, *returnType, isBuiltin) ||
         !check_parameters(context, parameters, isMain, isBuiltin) ||
         (isMain && !check_main_signature(context, offset, *returnType, parameters, isBuiltin)) ||

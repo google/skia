@@ -55,6 +55,7 @@ static int parse_modifier_token(Token::Kind token) {
         case Token::Kind::TK_HIGHP:          return Modifiers::kHighp_Flag;
         case Token::Kind::TK_MEDIUMP:        return Modifiers::kMediump_Flag;
         case Token::Kind::TK_LOWP:           return Modifiers::kLowp_Flag;
+        case Token::Kind::TK_ES3:            return Modifiers::kES3_Flag;
         default:                             return 0;
     }
 }

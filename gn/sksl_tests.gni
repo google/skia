@@ -76,6 +76,7 @@ sksl_error_tests = [
   "/sksl/errors/MatrixToVectorCastTooSmall.sksl",
   "/sksl/errors/MismatchedNumbers.sksl",
   "/sksl/errors/ModifiersInStruct.sksl",
+  "/sksl/errors/NoES3ModifierInUserCode.sksl",
   "/sksl/errors/OpaqueTypeAssignment.sksl",
   "/sksl/errors/OpaqueTypeConstruction.sksl",
   "/sksl/errors/OpaqueTypeInArray.sksl",

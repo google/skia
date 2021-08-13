@@ -32,6 +32,7 @@ struct Modifiers {
         kLowp_Flag           = 1 <<  9,
         kInline_Flag         = 1 <<  10,
         kNoInline_Flag       = 1 <<  11,
+        kES3_Flag            = 1 <<  12,
     };
 
     Modifiers()
@@ -44,6 +45,9 @@ struct Modifiers {
 
     String description() const {
         String result = fLayout.description();
+        if (fFlags & kES3_Flag) {
+            result += "$es3 ";
+        }
         if (fFlags & kUniform_Flag) {
             result += "uniform ";
         }

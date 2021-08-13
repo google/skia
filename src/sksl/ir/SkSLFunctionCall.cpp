@@ -738,6 +738,12 @@ std::unique_ptr<Expression> FunctionCall::Convert(const Context& context,
                                                   int offset,
                                                   const FunctionDeclaration& function,
                                                   ExpressionArray arguments) {
+    // Reject ES3 function calls in strict ES2 mode.
+    if (context.fConfig->strictES2Mode() && (function.modifiers().fFlags & Modifiers::kES3_Flag)) {
+        context.errors().error(offset, "call to '" + function.description() + "' is not supported");
+        return nullptr;
+    }
+
     // Reject function calls with the wrong number of arguments.
     if (function.parameters().size() != arguments.size()) {
         String msg = "call to '" + function.name() + "' expected " +
