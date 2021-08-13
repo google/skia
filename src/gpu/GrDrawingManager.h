@@ -48,6 +48,7 @@ public:
 
     void freeGpuResources();
 
+#if SK_GPU_V1
     // OpsTasks created at flush time are stored and handled different from the others.
     sk_sp<GrOpsTask> newOpsTask(GrSurfaceProxyView,
                                 sk_sp<GrArenas> arenas,
@@ -58,6 +59,7 @@ public:
     // If 'previousAtlasTask' is provided, closes it and configures dependencies to guarantee
     // previousAtlasTask and all its users are completely out of service before atlasTask executes.
     void addAtlasTask(sk_sp<GrRenderTask> atlasTask, GrRenderTask* previousAtlasTask);
+#endif
 
     // Create a render task that can resolve MSAA and/or regenerate mipmap levels on proxies. This
     // method will only add the new render task to the list. It is up to the caller to call

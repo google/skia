@@ -304,7 +304,7 @@ void DebugCanvas::cleanupAuditTrail(GrAuditTrail* at) {
         at->fullReset();
     }
 }
-#endif
+#endif // SK_GPU_V1
 
 void DebugCanvas::toJSON(SkJSONWriter&   writer,
                          UrlDataManager& urlDataManager,

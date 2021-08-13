@@ -244,8 +244,6 @@ void GrStrokeTessellateOp::onPrepare(GrOpFlushState* flushState) {
 }
 
 void GrStrokeTessellateOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
-    // TODO (robertphillips): remove guard once Ops are also V1-only
-#if SK_GPU_V1
     if (fStencilProgram) {
         flushState->bindPipelineAndScissorClip(*fStencilProgram, chainBounds);
         flushState->bindTextures(fStencilProgram->geomProc(), nullptr, fStencilProgram->pipeline());
@@ -256,5 +254,4 @@ void GrStrokeTessellateOp::onExecute(GrOpFlushState* flushState, const SkRect& c
         flushState->bindTextures(fFillProgram->geomProc(), nullptr, fFillProgram->pipeline());
         fTessellator->draw(flushState);
     }
-#endif
 }

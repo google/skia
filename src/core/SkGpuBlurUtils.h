@@ -60,7 +60,7 @@ std::unique_ptr<skgpu::v1::SurfaceDrawContext> GaussianBlur(
         float sigmaY,
         SkTileMode mode,
         SkBackingFit fit = SkBackingFit::kApprox);
-#endif
+#endif // SK_GPU_V1
 
 static const int kBlurRRectMaxDivisions = 6;
 
@@ -103,5 +103,6 @@ inline int LinearKernelWidth(int radius) { return radius + 1; }
 
 }  // namespace SkGpuBlurUtils
 
-#endif
+#endif // SK_SUPPORT_GPU
+
 #endif

@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GLatticeOp_DEFINED
-#define GLatticeOp_DEFINED
+#ifndef GrLatticeOp_DEFINED
+#define GrLatticeOp_DEFINED
 
 #include <memory>
 #include "include/core/SkRefCnt.h"

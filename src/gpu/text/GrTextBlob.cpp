@@ -21,13 +21,13 @@
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrDistanceFieldGeoProc.h"
 #include "src/gpu/geometry/GrStyledShape.h"
-#include "src/gpu/ops/GrAtlasTextOp.h"
 #include "src/gpu/text/GrAtlasManager.h"
 #include "src/gpu/text/GrStrikeCache.h"
 #include "src/gpu/text/GrTextBlob.h"
 
 #if SK_GPU_V1
 #include "src/gpu/GrBlurUtils.h"
+#include "src/gpu/ops/GrAtlasTextOp.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
 #else
 #include "src/gpu/SurfaceContext.h"
@@ -1711,8 +1711,10 @@ private:
     const SkRect fGlyphDeviceBounds;
     const SkSpan<const DevicePosition> fLeftTopDevicePos;
 
+#if SK_GPU_V1
     // Space for geometry
     alignas(alignof(GrAtlasTextOp::Geometry)) char fGeom[sizeof(GrAtlasTextOp::Geometry)];
+#endif
 
     // The regenerateAtlas method mutates fGlyphs. It should be called from onPrepare which must
     // be single threaded.
@@ -1729,7 +1731,6 @@ DirectMaskSubRunNoCache::DirectMaskSubRunNoCache(GrMaskFormat format,
         , fGlyphs{glyphs} {
 #if !SK_GPU_V1
     (void) fGlyphDeviceBounds;
-    (void) fGeom;
 #endif
 }
 
@@ -1962,8 +1963,10 @@ private:
     const SkRect fVertexBounds;
     const SkSpan<const VertexData> fVertexData;
 
+#if SK_GPU_V1
     // Space for geometry
     alignas(alignof(GrAtlasTextOp::Geometry)) char fGeom[sizeof(GrAtlasTextOp::Geometry)];
+#endif
 
     // The regenerateAtlas method mutates fGlyphs. It should be called from onPrepare which must
     // be single threaded.
@@ -1978,9 +1981,6 @@ TransformedMaskSubRunNoCache::TransformedMaskSubRunNoCache(GrMaskFormat format,
         , fVertexBounds{bounds}
         , fVertexData{vertexData}
         , fGlyphs{glyphs} {
-#if !SK_GPU_V1
-    (void) fGeom;
-#endif
 }
 
 GrAtlasSubRunOwner TransformedMaskSubRunNoCache::Make(
@@ -2191,8 +2191,10 @@ private:
     const SkRect fVertexBounds;
     const SkSpan<const VertexData> fVertexData;
 
+#if SK_GPU_V1
     // Space for geometry
     alignas(alignof(GrAtlasTextOp::Geometry)) char fGeom[sizeof(GrAtlasTextOp::Geometry)];
+#endif
 
     // The regenerateAtlas method mutates fGlyphs. It should be called from onPrepare which must
     // be single threaded.
@@ -2215,7 +2217,6 @@ SDFTSubRunNoCache::SDFTSubRunNoCache(GrMaskFormat format,
         , fUseLCDText{useLCDText}
         , fAntiAliased{antiAliased} {
 #if !SK_GPU_V1
-    (void) fGeom;
     (void) fUseLCDText;
     (void) fAntiAliased;
 #endif

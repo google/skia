@@ -69,8 +69,5 @@ void GrPathTessellateOp::onExecute(GrOpFlushState* flushState, const SkRect& cha
     flushState->bindTextures(fTessellationProgram->geomProc(), nullptr,
                              fTessellationProgram->pipeline());
 
-    // TODO (robertphillips): remove guard once Ops are also V1-only
-#if SK_GPU_V1
     fTessellator->draw(flushState);
-#endif
 }

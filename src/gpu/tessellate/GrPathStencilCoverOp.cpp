@@ -303,8 +303,6 @@ void GrPathStencilCoverOp::onPrepare(GrOpFlushState* flushState) {
 }
 
 void GrPathStencilCoverOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
-    // TODO (robertphillips): remove guard once Ops are also V1-only
-#if SK_GPU_V1
     if (!fTessellator) {
         return;
     }
@@ -334,5 +332,4 @@ void GrPathStencilCoverOp::onExecute(GrOpFlushState* flushState, const SkRect& c
         flushState->bindBuffers(nullptr, fBBoxBuffer, fBBoxVertexBufferIfNoIDSupport);
         flushState->drawInstanced(fPathCount, fBBoxBaseInstance, 4, 0);
     }
-#endif
 }
