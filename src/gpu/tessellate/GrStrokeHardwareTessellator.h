@@ -22,7 +22,9 @@ public:
                                 const SkRect& strokeCullBounds);
 
     void prepare(GrMeshDrawTarget*, int totalCombinedVerbCnt) override;
+#if SK_GPU_V1
     void draw(GrOpFlushState*) const override;
+#endif
 
 private:
     GrVertexChunkArray fPatchChunks;

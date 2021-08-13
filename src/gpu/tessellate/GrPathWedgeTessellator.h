@@ -30,7 +30,10 @@ public:
                  const PathDrawList&,
                  int totalCombinedPathVerbCnt) override;
 
+
+#if SK_GPU_V1
     void draw(GrOpFlushState*) const override;
+#endif
 
 private:
     GrPathWedgeTessellator(GrPathTessellationShader* shader)

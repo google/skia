@@ -44,9 +44,11 @@ public:
     // Called before draw(). Prepares GPU buffers containing the geometry to tessellate.
     virtual void prepare(GrMeshDrawTarget*, int totalCombinedVerbCnt) = 0;
 
+#if SK_GPU_V1
     // Issues draw calls for the tessellated stroke. The caller is responsible for creating and
     // binding a pipeline that uses this class's shader() before calling draw().
     virtual void draw(GrOpFlushState*) const = 0;
+#endif
 
     virtual ~GrStrokeTessellator() {}
 

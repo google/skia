@@ -417,6 +417,8 @@ void GrPathInnerTriangulateOp::onPrepare(GrOpFlushState* flushState) {
 }
 
 void GrPathInnerTriangulateOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
+    // TODO (robertphillips): remove guard once Ops are also V1-only
+#if SK_GPU_V1
     if (fStencilCurvesProgram) {
         SkASSERT(fTessellator);
         flushState->bindPipelineAndScissorClip(*fStencilCurvesProgram, this->bounds());
@@ -440,4 +442,5 @@ void GrPathInnerTriangulateOp::onExecute(GrOpFlushState* flushState, const SkRec
         flushState->bindTextures(fCoverHullsProgram->geomProc(), nullptr, *fPipelineForFills);
         fTessellator->drawHullInstances(flushState, fHullVertexBufferIfNoIDSupport);
     }
+#endif
 }

@@ -7,17 +7,19 @@
 
 #include "src/gpu/tessellate/shaders/GrTessellationShader.h"
 
-#include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
-
 const GrPipeline* GrTessellationShader::MakePipeline(const ProgramArgs& args,
                                                      GrAAType aaType,
                                                      GrAppliedClip&& appliedClip,
                                                      GrProcessorSet&& processors) {
-    auto pipelineFlags = GrPipeline::InputFlags::kNone;
-    if (aaType == GrAAType::kMSAA) {
-        pipelineFlags |= GrPipeline::InputFlags::kHWAntialias;
-    }
-    return GrSimpleMeshDrawOpHelper::CreatePipeline(
-            args.fCaps, args.fArena, args.fWriteView.swizzle(), std::move(appliedClip),
-            *args.fDstProxyView, std::move(processors), pipelineFlags);
+    GrPipeline::InitArgs pipelineArgs;
+
+    pipelineArgs.fInputFlags = aaType == GrAAType::kMSAA ? GrPipeline::InputFlags::kHWAntialias
+                                                         : GrPipeline::InputFlags::kNone;
+    pipelineArgs.fCaps = args.fCaps;
+    pipelineArgs.fDstProxyView = *args.fDstProxyView;
+    pipelineArgs.fWriteSwizzle = args.fWriteView.swizzle();
+
+    return args.fArena->make<GrPipeline>(pipelineArgs,
+                                         std::move(processors),
+                                         std::move(appliedClip));
 }
