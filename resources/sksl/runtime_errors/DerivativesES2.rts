@@ -1,0 +1,2 @@
+float2 dx(float2 coords) { return dFdx(coords); }
+float2 dy(float2 coords) { return dFdy(coords); }

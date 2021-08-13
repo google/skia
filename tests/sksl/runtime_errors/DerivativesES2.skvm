@@ -1,0 +1,5 @@
+### Compilation failed:
+
+error: 1: no match for dFdx(float2)
+error: 2: no match for dFdy(float2)
+2 errors

@@ -534,6 +534,7 @@ sksl_rte_tests = [
 ]
 
 sksl_rte_error_tests = [
+  "/sksl/runtime_errors/DerivativesES2.rts",
   "/sksl/runtime_errors/FirstClassArrays.rts",
   "/sksl/runtime_errors/IllegalArrayOps.rts",
   "/sksl/runtime_errors/IllegalIndexing.rts",
