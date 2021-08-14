@@ -771,17 +771,16 @@ bool SkMipmap::validForRootLevel(const SkImageInfo& root) const {
         return false;
     }
 
-    const SkPixmap& pm = fLevels[0].fPixmap;
-    if (pm. width() != std::max(1, dimension. width() >> 1) ||
-        pm.height() != std::max(1, dimension.height() >> 1)) {
+    if (fLevels[0].fPixmap. width() != std::max(1, dimension. width() >> 1) ||
+        fLevels[0].fPixmap.height() != std::max(1, dimension.height() >> 1)) {
         return false;
     }
 
     for (int i = 0; i < this->countLevels(); ++i) {
-        const SkPixmap& pm = fLevels[0].fPixmap;
-        if (pm.colorType() != root.colorType() ||
-            pm.alphaType() != root.alphaType())
+        if (fLevels[i].fPixmap.colorType() != root.colorType() ||
+            fLevels[i].fPixmap.alphaType() != root.alphaType()) {
             return false;
+        }
     }
     return true;
 }
