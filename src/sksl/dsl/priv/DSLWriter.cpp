@@ -322,7 +322,7 @@ static pthread_key_t get_pthread_key() {
     return sKey;
 }
 
-bool DSLWriter::Active() {
+bool DSLWriter::IsActive() {
     return pthread_getspecific(get_pthread_key()) != nullptr;
 }
 
