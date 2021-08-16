@@ -3017,11 +3017,20 @@ namespace skvm {
 
 #if defined(SKVM_JIT)
 
+    namespace SkVMJitTypes {
+    #if defined(__x86_64__) || defined(_M_X64)
+        using Reg = Assembler::Ymm;
+    #elif defined(__aarch64__)
+        using Reg = Assembler::V;
+    #endif
+    }  // namespace SkVMJitTypes
+
     bool Program::jit(const std::vector<OptimizedInstruction>& instructions,
                       int* stack_hint,
                       uint32_t* registers_used,
                       Assembler* a) const {
         using A = Assembler;
+        using SkVMJitTypes::Reg;
 
         SkTHashMap<int, A::Label> constants;    // Constants (mostly splats) share the same pool.
         A::Label                  iota;         // Varies per lane, for Op::index.
@@ -3041,13 +3050,11 @@ namespace skvm {
 
         const int nstack_slots = *stack_hint >= 0 ? *stack_hint
                                                   : stack_slot.size();
-
     #if defined(__x86_64__) || defined(_M_X64)
         if (!SkCpu::Supports(SkCpu::HSW)) {
             return false;
         }
         const int K = 8;
-        using Reg = A::Ymm;
         #if defined(_M_X64)  // Important to check this first; clang-cl defines both.
             const A::GP64 N = A::rcx,
                         GP0 = A::rax,
@@ -3168,7 +3175,6 @@ namespace skvm {
         };
     #elif defined(__aarch64__)
         const int K = 4;
-        using Reg = A::V;
         const A::X N     = A::x0,
                    GP0   = A::x8,
                    GP1   = A::x9,
