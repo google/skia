@@ -203,6 +203,7 @@ GrSurfaceProxy::LazySurfaceDesc GrTextureProxy::callbackDesc() const {
             fMipmapped,
             1,
             this->backendFormat(),
+            this->textureType(),
             this->isProtected(),
             this->isBudgeted(),
     };

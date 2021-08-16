@@ -339,7 +339,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createNonMippedProxyFromBitmap(const SkBi
                 return LazyCallbackResult(resourceProvider->createTexture(
                         desc.fDimensions,
                         desc.fFormat,
-                        desc.fFormat.textureType(),
+                        desc.fTextureType,
                         colorType,
                         desc.fRenderable,
                         desc.fSampleCnt,
@@ -395,7 +395,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createMippedProxyFromBitmap(const SkBitma
                 return LazyCallbackResult(resourceProvider->createTexture(
                         desc.fDimensions,
                         desc.fFormat,
-                        desc.fFormat.textureType(),
+                        desc.fTextureType,
                         colorType,
                         GrRenderable::kNo,
                         1,

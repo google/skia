@@ -49,7 +49,7 @@ static GrSurfaceProxyView create_view(GrDirectContext* dContext,
 
                     return rp->createTexture(src.dimensions(),
                                              desc.fFormat,
-                                             desc.fFormat.textureType(),
+                                             desc.fTextureType,
                                              colorType,
                                              desc.fRenderable,
                                              desc.fSampleCnt,

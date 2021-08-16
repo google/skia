@@ -94,7 +94,7 @@ public:
                             sk_sp<GrTexture> texture = rp->createTexture(
                                     kDimensions,
                                     desc.fFormat,
-                                    desc.fFormat.textureType(),
+                                    desc.fTextureType,
                                     desc.fRenderable,
                                     desc.fSampleCnt,
                                     desc.fMipmapped,
@@ -359,7 +359,7 @@ private:
                     }
                     return {rp->createTexture(desc.fDimensions,
                                               desc.fFormat,
-                                              desc.fFormat.textureType(),
+                                              desc.fTextureType,
                                               desc.fRenderable,
                                               desc.fSampleCnt,
                                               desc.fMipmapped,

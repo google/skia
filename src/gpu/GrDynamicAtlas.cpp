@@ -96,7 +96,7 @@ void GrDynamicAtlas::reset(SkISize initialSize, const GrCaps& caps) {
                     fBackingTexture = resourceProvider->createTexture(
                             fTextureProxy->backingStoreDimensions(),
                             desc.fFormat,
-                            desc.fFormat.textureType(),
+                            desc.fTextureType,
                             desc.fRenderable,
                             desc.fSampleCnt,
                             desc.fMipmapped,

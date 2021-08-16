@@ -159,6 +159,7 @@ GrSurfaceProxy::LazySurfaceDesc GrRenderTargetProxy::callbackDesc() const {
             GrMipmapped::kNo,
             this->numSamples(),
             this->backendFormat(),
+            GrTextureType::kNone,
             this->isProtected(),
             this->isBudgeted(),
     };

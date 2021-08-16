@@ -71,6 +71,7 @@ public:
         GrMipmapped fMipmapped;
         int fSampleCnt;
         const GrBackendFormat& fFormat;
+        GrTextureType fTextureType;
         GrProtected fProtected;
         SkBudgeted fBudgeted;
     };
