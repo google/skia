@@ -142,14 +142,14 @@ protected:
                     style.setDecorationColor(std::get<5>(para));
                 }
                 builder.pushStyle(style);
-                std::string name = " " + std::get<0>(para) + " " +
-                                   (std::get<1>(para) ? ", bold" : "") +
-                                   (std::get<2>(para) ? ", italic" : "") + " " +
-                                   std::to_string(std::get<3>(para) * i) +
-                                   (std::get<4>(para) != bg ? ", background" : "") +
-                                   (std::get<5>(para) != fg ? ", foreground" : "") +
-                                   (std::get<6>(para) ? ", shadow" : "") +
-                                   (test ? ", decorations " + deco : "") + ";";
+                name = " " + std::get<0>(para) + " " +
+                       (std::get<1>(para) ? ", bold" : "") +
+                       (std::get<2>(para) ? ", italic" : "") + " " +
+                       std::to_string(std::get<3>(para) * i) +
+                       (std::get<4>(para) != bg ? ", background" : "") +
+                       (std::get<5>(para) != fg ? ", foreground" : "") +
+                       (std::get<6>(para) ? ", shadow" : "") +
+                       (test ? ", decorations " + deco : "") + ";";
                 builder.addText(name.c_str(), name.length());
                 builder.pop();
             }
@@ -1313,9 +1313,10 @@ protected:
         }
 
         for (auto& query : miss) {
-            auto miss = paragraph->getRectsForRange(query.fX, query.fY, RectHeightStyle::kTight,
-                                                    RectWidthStyle::kTight);
-            if (miss.empty()) {
+            auto missRects = paragraph->getRectsForRange(query.fX, query.fY,
+                                                         RectHeightStyle::kTight,
+                                                         RectWidthStyle::kTight);
+            if (missRects.empty()) {
             } else {
                 if (this->isVerbose()) {
                     SkDebugf("-[%d:%d): Bad\n", query.fX, query.fY);

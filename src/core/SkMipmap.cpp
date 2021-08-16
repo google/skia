@@ -855,8 +855,8 @@ sk_sp<SkData> SkMipmap::serialize() const {
     return buffer.snapshotAsData();
 }
 
-bool SkMipmap::Deserialize(SkMipmapBuilder* builder, const void* data, size_t size) {
-    SkReadBuffer buffer(data, size);
+bool SkMipmap::Deserialize(SkMipmapBuilder* builder, const void* data, size_t length) {
+    SkReadBuffer buffer(data, length);
 
     int count = buffer.read32();
     if (builder->countLevels() != count) {

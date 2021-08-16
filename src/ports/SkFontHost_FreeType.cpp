@@ -1151,7 +1151,6 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
                   return;
               }
 
-              FT_Error err;
               err = FT_Load_Glyph(
                       fFace, glyph->getGlyphID(), fLoadGlyphFlags | FT_LOAD_BITMAP_METRICS_ONLY);
               if (err != 0) {

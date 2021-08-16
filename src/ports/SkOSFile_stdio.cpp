@@ -54,7 +54,8 @@ static FILE* fopen_win(const char* utf8path, const char* perm) {
     }
     std::vector<uint16_t> wchars(n + 1);
     uint16_t* out = wchars.data();
-    for (const char* ptr = utf8path; ptr < end;) {
+    ptr = utf8path;
+    while (ptr < end) {
         out += SkUTF::ToUTF16(SkUTF::NextUTF8(&ptr, end), out);
     }
     SkASSERT(out == &wchars[n]);

@@ -1013,7 +1013,7 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
     SkAutoCanvasRestore autoCanvasRestore(canvas, false);
     unsigned N;
     fuzz->nextRange(&N, 0, 2000);
-    for (unsigned i = 0; i < N; ++i) {
+    for (unsigned loop = 0; loop < N; ++loop) {
         if (fuzz->exhausted()) {
             return;
         }
@@ -1403,8 +1403,8 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                 uint16_t indices[kMaxCount * 2];
                 if (make_fuzz_t<bool>(fuzz)) {
                     fuzz->nextRange(&indexCount, vertexCount, vertexCount + kMaxCount);
-                    for (int i = 0; i < indexCount; ++i) {
-                        fuzz->nextRange(&indices[i], 0, vertexCount - 1);
+                    for (int index = 0; index < indexCount; ++index) {
+                        fuzz->nextRange(&indices[index], 0, vertexCount - 1);
                     }
                 }
                 canvas->drawVertices(SkVertices::MakeCopy(vertexMode, vertexCount, vertices,

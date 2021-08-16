@@ -1559,11 +1559,10 @@ bool SkScalerContext_GDI::generatePath(SkGlyphID glyph, SkPath* path) {
         SkGDIGeometrySink sink(path);
         sink.process(glyphbuf, total_size);
     } else {
-        //GDI only uses hinted outlines when axis aligned.
-        UINT format = GGO_NATIVE | GGO_GLYPH_INDEX;
-
         SkAutoSTMalloc<BUFFERSIZE, uint8_t> hintedGlyphbuf(BUFFERSIZE);
-        DWORD hinted_total_size = getGDIGlyphPath(glyph, format, &hintedGlyphbuf);
+        //GDI only uses hinted outlines when axis aligned.
+        DWORD hinted_total_size = getGDIGlyphPath(glyph, GGO_NATIVE | GGO_GLYPH_INDEX,
+                                                  &hintedGlyphbuf);
         if (0 == hinted_total_size) {
             return false;
         }

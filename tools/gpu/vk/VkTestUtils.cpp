@@ -185,21 +185,23 @@ static bool init_instance_extensions_and_layers(GrVkGetProc getProc,
 
     // instance extensions
     // via Vulkan implementation and implicitly enabled layers
-    uint32_t extensionCount = 0;
-    res = EnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
-    if (VK_SUCCESS != res) {
-        return false;
+    {
+        uint32_t extensionCount = 0;
+        res = EnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
+        if (VK_SUCCESS != res) {
+            return false;
+        }
+        VkExtensionProperties* extensions = new VkExtensionProperties[extensionCount];
+        res = EnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions);
+        if (VK_SUCCESS != res) {
+            delete[] extensions;
+            return false;
+        }
+        for (uint32_t i = 0; i < extensionCount; ++i) {
+            instanceExtensions->push_back() = extensions[i];
+        }
+        delete [] extensions;
     }
-    VkExtensionProperties* extensions = new VkExtensionProperties[extensionCount];
-    res = EnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions);
-    if (VK_SUCCESS != res) {
-        delete[] extensions;
-        return false;
-    }
-    for (uint32_t i = 0; i < extensionCount; ++i) {
-        instanceExtensions->push_back() = extensions[i];
-    }
-    delete [] extensions;
 
     // via explicitly enabled layers
     layerCount = instanceLayers->count();
@@ -270,21 +272,23 @@ static bool init_device_extensions_and_layers(GrVkGetProc getProc, uint32_t spec
 
     // device extensions
     // via Vulkan implementation and implicitly enabled layers
-    uint32_t extensionCount = 0;
-    res = EnumerateDeviceExtensionProperties(physDev, nullptr, &extensionCount, nullptr);
-    if (VK_SUCCESS != res) {
-        return false;
-    }
-    VkExtensionProperties* extensions = new VkExtensionProperties[extensionCount];
-    res = EnumerateDeviceExtensionProperties(physDev, nullptr, &extensionCount, extensions);
-    if (VK_SUCCESS != res) {
+    {
+        uint32_t extensionCount = 0;
+        res = EnumerateDeviceExtensionProperties(physDev, nullptr, &extensionCount, nullptr);
+        if (VK_SUCCESS != res) {
+            return false;
+        }
+        VkExtensionProperties* extensions = new VkExtensionProperties[extensionCount];
+        res = EnumerateDeviceExtensionProperties(physDev, nullptr, &extensionCount, extensions);
+        if (VK_SUCCESS != res) {
+            delete[] extensions;
+            return false;
+        }
+        for (uint32_t i = 0; i < extensionCount; ++i) {
+            deviceExtensions->push_back() = extensions[i];
+        }
         delete[] extensions;
-        return false;
     }
-    for (uint32_t i = 0; i < extensionCount; ++i) {
-        deviceExtensions->push_back() = extensions[i];
-    }
-    delete[] extensions;
 
     // via explicitly enabled layers
     layerCount = deviceLayers->count();
