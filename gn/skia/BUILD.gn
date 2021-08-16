@@ -448,7 +448,6 @@ config("warnings") {
       "-Wno-pedantic",
       "-Wno-reserved-id-macro",
       "-Wno-reserved-identifier",
-      "-Wno-shadow",
       "-Wno-shift-sign-overflow",
       "-Wno-signed-enum-bitfield",
       "-Wno-switch-enum",
@@ -474,8 +473,10 @@ config("warnings") {
       "-Wno-deprecated",
       "-Wno-missing-noreturn",
       "-Wno-old-style-cast",
-      "-Wno-padded",
       "-Wno-newline-eof",
+      "-Wno-padded",
+      "-Wno-shadow-field-in-constructor",
+      "-Wno-shadow-uncaptured-local",
 
       # https://quuxplusone.github.io/blog/2020/08/26/wrange-loop-analysis/
       # https://bugzilla.mozilla.org/show_bug.cgi?id=1683213
