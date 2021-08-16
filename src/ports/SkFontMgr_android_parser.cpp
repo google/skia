@@ -152,6 +152,21 @@ static void trim_string(SkString* s) {
     s->resize(len);
 }
 
+static void parse_space_separated_languages(const char* value, size_t valueLen,
+                                            SkTArray<SkLanguage, true>& languages)
+{
+    size_t i = 0;
+    while (true) {
+        for (; i < valueLen && is_whitespace(value[i]); ++i) { }
+        if (i == valueLen) { break; }
+        size_t j;
+        for (j = i + 1; j < valueLen && !is_whitespace(value[j]); ++j) { }
+        languages.emplace_back(value + i, j - i);
+        i = j;
+        if (i == valueLen) { break; }
+    }
+}
+
 namespace lmpParser {
 
 static const TagHandler axisHandler = {
@@ -286,16 +301,7 @@ static const TagHandler familyHandler = {
                 family->fNames.push_back().set(tolc.lc());
                 family->fIsFallbackFont = false;
             } else if (MEMEQ("lang", name, nameLen)) {
-                size_t i = 0;
-                while (true) {
-                    for (; i < valueLen && is_whitespace(value[i]); ++i) { }
-                    if (i == valueLen) { break; }
-                    size_t j;
-                    for (j = i + 1; j < valueLen && !is_whitespace(value[j]); ++j) { }
-                    family->fLanguages.emplace_back(value + i, j - i);
-                    i = j;
-                    if (i == valueLen) { break; }
-                }
+                parse_space_separated_languages(value, valueLen, family->fLanguages);
             } else if (MEMEQ("variant", name, nameLen)) {
                 if (MEMEQ("elegant", value, valueLen)) {
                     family->fVariant = kElegant_FontVariant;
