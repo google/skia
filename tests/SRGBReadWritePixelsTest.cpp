@@ -14,6 +14,7 @@
 #include "src/gpu/SkGr.h"
 #include "src/gpu/SurfaceContext.h"
 #include "tests/Test.h"
+#include "tests/TestUtils.h"
 
 // using anonymous namespace because these functions are used as template params.
 namespace {
@@ -195,11 +196,11 @@ static std::unique_ptr<skgpu::SurfaceContext> make_surface_context(Encoding cont
                      encoding_as_color_space(contextEncoding),
                      kW, kH);
 
-    auto sc = skgpu::SurfaceContext::Make(rContext,
-                                          info,
-                                          SkBackingFit::kExact,
-                                          kBottomLeft_GrSurfaceOrigin,
-                                          GrRenderable::kYes);
+    auto sc = CreateSurfaceContext(rContext,
+                                   info,
+                                   SkBackingFit::kExact,
+                                   kBottomLeft_GrSurfaceOrigin,
+                                   GrRenderable::kYes);
     if (!sc) {
         ERRORF(reporter, "Could not create %s surface context.", encoding_as_str(contextEncoding));
     }

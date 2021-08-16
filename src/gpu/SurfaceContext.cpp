@@ -36,66 +36,6 @@
 
 namespace skgpu {
 
-std::unique_ptr<SurfaceContext> SurfaceContext::Make(GrRecordingContext* rContext,
-                                                     const GrImageInfo& info,
-                                                     const GrBackendFormat& format,
-                                                     SkBackingFit fit,
-                                                     GrSurfaceOrigin origin,
-                                                     GrRenderable renderable,
-                                                     int sampleCount,
-                                                     GrMipmapped mipmapped,
-                                                     GrProtected isProtected,
-                                                     SkBudgeted budgeted) {
-    SkASSERT(rContext);
-    SkASSERT(renderable == GrRenderable::kYes || sampleCount == 1);
-    if (rContext->abandoned()) {
-        return nullptr;
-    }
-    sk_sp<GrTextureProxy> proxy = rContext->priv().proxyProvider()->createProxy(format,
-                                                                                info.dimensions(),
-                                                                                renderable,
-                                                                                sampleCount,
-                                                                                mipmapped,
-                                                                                fit,
-                                                                                budgeted,
-                                                                                isProtected);
-    if (!proxy) {
-        return nullptr;
-    }
-
-    GrSwizzle swizzle;
-    if (info.colorType() != GrColorType::kUnknown &&
-        !rContext->priv().caps()->isFormatCompressed(format)) {
-        swizzle = rContext->priv().caps()->getReadSwizzle(format, info.colorType());
-    }
-
-    GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
-    return rContext->priv().makeSC(std::move(view), info.colorInfo());
-}
-
-std::unique_ptr<SurfaceContext> SurfaceContext::Make(GrRecordingContext* rContext,
-                                                     const GrImageInfo& info,
-                                                     SkBackingFit fit,
-                                                     GrSurfaceOrigin origin,
-                                                     GrRenderable renderable,
-                                                     int sampleCount,
-                                                     GrMipmapped mipmapped,
-                                                     GrProtected isProtected,
-                                                     SkBudgeted budgeted) {
-    GrBackendFormat format = rContext->priv().caps()->getDefaultBackendFormat(info.colorType(),
-                                                                              renderable);
-    return Make(rContext,
-                info,
-                format,
-                fit,
-                origin,
-                renderable,
-                sampleCount,
-                mipmapped,
-                isProtected,
-                budgeted);
-}
-
 SurfaceContext::SurfaceContext(GrRecordingContext* context,
                                GrSurfaceProxyView readView,
                                const GrColorInfo& info)

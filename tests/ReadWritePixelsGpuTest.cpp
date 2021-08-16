@@ -502,7 +502,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextReadPixels, reporter, ctxInfo) 
         for (GrSurfaceOrigin origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
             auto factory = std::function<GpuSrcFactory<Surface>>(
                     [direct, origin, renderable](const SkPixmap& src) {
-                        auto sc = skgpu::SurfaceContext::Make(
+                        auto sc = CreateSurfaceContext(
                                 direct, src.info(), SkBackingFit::kExact, origin, renderable);
                         if (sc) {
                             sc->writePixels(direct, src, {0, 0});
@@ -1085,11 +1085,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixels, reporter, ctxInfo)
         for (GrSurfaceOrigin origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
             auto factory = std::function<GpuDstFactory<Surface>>(
                     [direct, origin, renderable](const SkImageInfo& info) {
-                        return skgpu::SurfaceContext::Make(direct,
-                                                           info,
-                                                           SkBackingFit::kExact,
-                                                           origin,
-                                                           renderable);
+                        return CreateSurfaceContext(direct,
+                                                    info,
+                                                    SkBackingFit::kExact,
+                                                    origin,
+                                                    renderable);
                     });
 
             gpu_write_pixels_test_driver(reporter, factory, writer, reader);
@@ -1138,13 +1138,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixelsMipped, reporter, ct
             for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
                 for (GrSurfaceOrigin origin : {kTopLeft_GrSurfaceOrigin,
                                                kBottomLeft_GrSurfaceOrigin}) {
-                    auto sc = skgpu::SurfaceContext::Make(direct,
-                                                          info,
-                                                          SkBackingFit::kExact,
-                                                          origin,
-                                                          renderable,
-                                                          /*sample count*/ 1,
-                                                          GrMipmapped::kYes);
+                    auto sc = CreateSurfaceContext(direct,
+                                                   info,
+                                                   SkBackingFit::kExact,
+                                                   origin,
+                                                   renderable,
+                                                   /*sample count*/ 1,
+                                                   GrMipmapped::kYes);
                     if (!sc) {
                         continue;
                     }
@@ -1178,11 +1178,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixelsMipped, reporter, ct
 
                     // TODO: Update this when read pixels supports reading back levels to read
                     // directly rather than using minimizing draws.
-                    auto dstSC = skgpu::SurfaceContext::Make(direct,
-                                                             info,
-                                                             SkBackingFit::kExact,
-                                                             kBottomLeft_GrSurfaceOrigin,
-                                                             GrRenderable::kYes);
+                    auto dstSC = CreateSurfaceContext(direct,
+                                                      info,
+                                                      SkBackingFit::kExact,
+                                                      kBottomLeft_GrSurfaceOrigin,
+                                                      GrRenderable::kYes);
                     SkASSERT(dstSC);
                     GrSamplerState sampler(SkFilterMode::kNearest, SkMipmapMode::kNearest);
                     for (int i = 1; i <= 1; ++i) {

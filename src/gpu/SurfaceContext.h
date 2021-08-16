@@ -51,30 +51,6 @@ class SurfaceFillContext;
  */
 class SurfaceContext {
 public:
-    // Makes either a SurfaceContext, SurfaceFillContext, or a SurfaceDrawContext, depending on
-    // GrRenderable and the GrImageInfo.
-    static std::unique_ptr<SurfaceContext> Make(GrRecordingContext*,
-                                                const GrImageInfo&,
-                                                const GrBackendFormat&,
-                                                SkBackingFit = SkBackingFit::kExact,
-                                                GrSurfaceOrigin = kTopLeft_GrSurfaceOrigin,
-                                                GrRenderable = GrRenderable::kNo,
-                                                int renderTargetSampleCnt = 1,
-                                                GrMipmapped = GrMipmapped::kNo,
-                                                GrProtected = GrProtected::kNo,
-                                                SkBudgeted = SkBudgeted::kYes);
-
-    // Same as the above but chooses the texture format using the default format for the color type.
-    static std::unique_ptr<SurfaceContext> Make(GrRecordingContext*,
-                                                const GrImageInfo&,
-                                                SkBackingFit = SkBackingFit::kExact,
-                                                GrSurfaceOrigin = kTopLeft_GrSurfaceOrigin,
-                                                GrRenderable = GrRenderable::kNo,
-                                                int renderTargetSampleCnt = 1,
-                                                GrMipmapped = GrMipmapped::kNo,
-                                                GrProtected = GrProtected::kNo,
-                                                SkBudgeted = SkBudgeted::kYes);
-
     // If it is known that the GrSurfaceProxy is not renderable, you can directly call the ctor
     // here to make a SurfaceContext on the stack.
     SurfaceContext(GrRecordingContext*, GrSurfaceProxyView readView, const GrColorInfo&);

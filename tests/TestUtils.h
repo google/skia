@@ -83,4 +83,18 @@ void CheckSingleThreadedProxyRefs(skiatest::Reporter* reporter,
                                   int32_t expectedProxyRefs,
                                   int32_t expectedBackingRefs);
 
+// Makes either a SurfaceContext, SurfaceFillContext, or a SurfaceDrawContext, depending on
+// GrRenderable and the GrImageInfo.
+// The texture format is the default for the provided color type.
+std::unique_ptr<skgpu::SurfaceContext> CreateSurfaceContext(
+            GrRecordingContext*,
+            const GrImageInfo&,
+            SkBackingFit = SkBackingFit::kExact,
+            GrSurfaceOrigin = kTopLeft_GrSurfaceOrigin,
+            GrRenderable = GrRenderable::kNo,
+            int sampleCount = 1,
+            GrMipmapped = GrMipmapped::kNo,
+            GrProtected = GrProtected::kNo,
+            SkBudgeted = SkBudgeted::kYes);
+
 #endif

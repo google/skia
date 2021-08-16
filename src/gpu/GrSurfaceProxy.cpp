@@ -254,7 +254,7 @@ void GrSurfaceProxy::validate(GrContext_Base* context) const {
 }
 #endif
 
-sk_sp<GrSurfaceProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
+sk_sp<GrSurfaceProxy> GrSurfaceProxy::Copy(GrRecordingContext* rContext,
                                            sk_sp<GrSurfaceProxy> src,
                                            GrSurfaceOrigin origin,
                                            GrMipmapped mipMapped,
@@ -286,16 +286,15 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
 
     if (src->backendFormat().textureType() != GrTextureType::kExternal) {
         GrImageInfo info(GrColorType::kUnknown, kUnknown_SkAlphaType, nullptr, {width, height});
-        auto dstContext = skgpu::SurfaceContext::Make(context,
-                                                      info,
-                                                      format,
-                                                      fit,
-                                                      origin,
-                                                      GrRenderable::kNo,
-                                                      1,
-                                                      mipMapped,
-                                                      src->isProtected(),
-                                                      budgeted);
+        auto dstContext = rContext->priv().makeSC(info,
+                                                  format,
+                                                  fit,
+                                                  origin,
+                                                  GrRenderable::kNo,
+                                                  1,
+                                                  mipMapped,
+                                                  src->isProtected(),
+                                                  budgeted);
         sk_sp<GrRenderTask> copyTask;
         if (dstContext && (copyTask = dstContext->copy(src, srcRect, dstPoint))) {
             if (outTask) {
@@ -305,18 +304,18 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
         }
     }
     if (src->asTextureProxy()) {
-        auto dstContext = context->priv().makeSFC(kUnknown_SkAlphaType,
-                                                  nullptr,
-                                                  {width, height},
-                                                  fit,
-                                                  format,
-                                                  1,
-                                                  mipMapped,
-                                                  src->isProtected(),
-                                                  GrSwizzle::RGBA(),
-                                                  GrSwizzle::RGBA(),
-                                                  origin,
-                                                  budgeted);
+        auto dstContext = rContext->priv().makeSFC(kUnknown_SkAlphaType,
+                                                   nullptr,
+                                                   {width, height},
+                                                   fit,
+                                                   format,
+                                                   1,
+                                                   mipMapped,
+                                                   src->isProtected(),
+                                                   GrSwizzle::RGBA(),
+                                                   GrSwizzle::RGBA(),
+                                                   origin,
+                                                   budgeted);
         GrSurfaceProxyView view(std::move(src), origin, GrSwizzle::RGBA());
         if (dstContext && dstContext->blitTexture(std::move(view), srcRect, dstPoint)) {
             if (outTask) {

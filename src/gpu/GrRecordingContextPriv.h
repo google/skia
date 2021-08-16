@@ -133,6 +133,18 @@ public:
     std::unique_ptr<skgpu::SurfaceContext> makeSC(GrSurfaceProxyView readView,
                                                   const GrColorInfo&);
 
+    // Makes either a SurfaceContext, SurfaceFillContext, or a SurfaceDrawContext, depending on
+    // GrRenderable and the GrImageInfo.
+    std::unique_ptr<skgpu::SurfaceContext> makeSC(const GrImageInfo&,
+                                                  const GrBackendFormat&,
+                                                  SkBackingFit = SkBackingFit::kExact,
+                                                  GrSurfaceOrigin = kTopLeft_GrSurfaceOrigin,
+                                                  GrRenderable = GrRenderable::kNo,
+                                                  int renderTargetSampleCnt = 1,
+                                                  GrMipmapped = GrMipmapped::kNo,
+                                                  GrProtected = GrProtected::kNo,
+                                                  SkBudgeted = SkBudgeted::kYes);
+
     /**
      * Uses GrImageInfo's color type to pick the default texture format. Will return a
      * SurfaceDrawContext if possible.

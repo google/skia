@@ -254,6 +254,28 @@ void CheckSingleThreadedProxyRefs(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, actualBackingRefs == expectedBackingRefs);
 }
 
+std::unique_ptr<skgpu::SurfaceContext> CreateSurfaceContext(GrRecordingContext* rContext,
+                                                            const GrImageInfo& info,
+                                                            SkBackingFit fit,
+                                                            GrSurfaceOrigin origin,
+                                                            GrRenderable renderable,
+                                                            int sampleCount,
+                                                            GrMipmapped mipmapped,
+                                                            GrProtected isProtected,
+                                                            SkBudgeted budgeted) {
+    GrBackendFormat format = rContext->priv().caps()->getDefaultBackendFormat(info.colorType(),
+                                                                              renderable);
+    return rContext->priv().makeSC(info,
+                                   format,
+                                   fit,
+                                   origin,
+                                   renderable,
+                                   sampleCount,
+                                   mipmapped,
+                                   isProtected,
+                                   budgeted);
+}
+
 #include "src/utils/SkCharToGlyphCache.h"
 
 static SkGlyphID hash_to_glyph(uint32_t value) {

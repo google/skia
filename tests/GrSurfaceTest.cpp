@@ -293,12 +293,11 @@ DEF_GPUTEST(InitialTextureClear, reporter, baseOptions) {
                                          nullptr,
                                          {desc.fHeight, desc.fHeight});
 
-                        auto sc = skgpu::SurfaceContext::Make(dContext,
-                                                              info,
-                                                              combo.fFormat,
-                                                              fit,
-                                                              kTopLeft_GrSurfaceOrigin,
-                                                              renderable);
+                        auto sc = dContext->priv().makeSC(info,
+                                                          combo.fFormat,
+                                                          fit,
+                                                          kTopLeft_GrSurfaceOrigin,
+                                                          renderable);
                         if (!sc) {
                             continue;
                         }
