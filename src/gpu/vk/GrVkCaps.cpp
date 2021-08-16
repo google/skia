@@ -1554,6 +1554,9 @@ GrCaps::SurfaceReadPixelsSupport GrVkCaps::surfaceSupportsReadPixels(
     }
     if (auto tex = static_cast<const GrVkTexture*>(surface->asTexture())) {
         auto texAttachment = tex->textureAttachment();
+        if (!texAttachment) {
+            return SurfaceReadPixelsSupport::kUnsupported;
+        }
         // We can't directly read from a VkImage that has a ycbcr sampler.
         if (texAttachment->ycbcrConversionInfo().isValid()) {
             return SurfaceReadPixelsSupport::kCopyToTexture2D;
@@ -1588,8 +1591,12 @@ bool GrVkCaps::onSurfaceSupportsWritePixels(const GrSurface* surface) const {
     }
     // We can't write to a texture that has a ycbcr sampler.
     if (auto tex = static_cast<const GrVkTexture*>(surface->asTexture())) {
+        auto texAttachment = tex->textureAttachment();
+        if (!texAttachment) {
+            return false;
+        }
         // We can't directly read from a VkImage that has a ycbcr sampler.
-        if (tex->textureAttachment()->ycbcrConversionInfo().isValid()) {
+        if (texAttachment->ycbcrConversionInfo().isValid()) {
             return false;
         }
     }

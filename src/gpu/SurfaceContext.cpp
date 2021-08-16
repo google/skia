@@ -128,6 +128,11 @@ bool SurfaceContext::readPixels(GrDirectContext* dContext, GrPixmap dst, SkIPoin
                             defaultRGBAFormat.isValid() &&
                             dContext->priv().validPMUPMConversionExists();
 
+    // Since the validPMUPMConversionExists function actually submits work to the gpu to do its
+    // tests, it is possible that during that call we have abanoned the context. Thus we do
+    // another abanoned check here to make sure we are still valid.
+    RETURN_FALSE_IF_ABANDONED
+
     auto readFlag = caps->surfaceSupportsReadPixels(srcSurface);
     if (readFlag == GrCaps::SurfaceReadPixelsSupport::kUnsupported) {
         return false;
@@ -379,6 +384,12 @@ bool SurfaceContext::internalWritePixels(GrDirectContext* dContext,
                              dstColorType == GrColorType::kBGRA_8888) &&
                             rgbaDefaultFormat.isValid() &&
                             dContext->priv().validPMUPMConversionExists();
+
+    // Since the validPMUPMConversionExists function actually submits work to the gpu to do its
+    // tests, it is possible that during that call we have abanoned the context. Thus we do an
+    // abanoned check here to make sure we are still valid.
+    RETURN_FALSE_IF_ABANDONED
+
     // Drawing code path doesn't support writing to levels and doesn't support inserting layout
     // transitions.
     if ((!caps->surfaceSupportsWritePixels(dstSurface) || canvas2DFastPath) && numLevels == 1) {
