@@ -22,6 +22,13 @@ public:
     }
 };
 
+class FakeVectorExpressionEvaluator : public ExpressionEvaluator<std::vector<float>> {
+public:
+    std::vector<float> evaluate(float t) override {
+        return {1.0f, 2.0f};
+    }
+};
+
 class FakeExpressionManager : public ExpressionManager {
 public:
     sk_sp<ExpressionEvaluator<float>> createNumberExpressionEvaluator(
@@ -36,18 +43,24 @@ public:
 
     sk_sp<ExpressionEvaluator<std::vector<float>>> createArrayExpressionEvaluator(
         const char expression[]) override {
-        return nullptr;
+        return sk_make_sp<FakeVectorExpressionEvaluator>();
     }
 };
 
 class FakePropertyObserver : public PropertyObserver {
     public:
         void onOpacityProperty(const char node_name[],
-                                     const LazyHandle<OpacityPropertyHandle>& opacity_handle) override {
+                               const LazyHandle<OpacityPropertyHandle>& opacity_handle) override {
             opacity_handle_.reset(opacity_handle().release());
         }
 
+        void onTransformProperty(const char node_name[],
+                                 const LazyHandle<TransformPropertyHandle>& transform_handle) override {
+            transform_handle_.reset(transform_handle().release());
+        }
+
     std::unique_ptr<OpacityPropertyHandle> opacity_handle_;
+    std::unique_ptr<TransformPropertyHandle> transform_handle_;
 };
 } // namespace
 
@@ -97,7 +110,8 @@ DEF_TEST(Skottie_ScalarExpression, r) {
                             0
                         ],
                         "ix": 1,
-                        "l": 2
+                        "l": 2,
+                        "x": "fake; return value is specified by the FakeArrayExpressionEvaluator."
                     },
                     "s": {
                         "a": 0,
@@ -135,4 +149,7 @@ DEF_TEST(Skottie_ScalarExpression, r) {
     anim->seekFrameTime(0);
 
     REPORTER_ASSERT(r, SkScalarNearlyEqual(observer->opacity_handle_->get(), 7.0f));
+    SkPoint anchor_point = observer->transform_handle_->get().fAnchorPoint;
+    REPORTER_ASSERT(r, SkScalarNearlyEqual(anchor_point.fX, 1.0f));
+    REPORTER_ASSERT(r, SkScalarNearlyEqual(anchor_point.fY, 2.0f));
 }

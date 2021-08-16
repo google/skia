@@ -101,6 +101,29 @@ private:
     using INHERITED = KeyframeAnimator;
 };
 
+class Vec2ExpressionAnimator final : public Animator {
+public:
+    Vec2ExpressionAnimator(sk_sp<ExpressionEvaluator<std::vector<float>>> expression_evaluator,
+        Vec2Value* target_value)
+        : fExpressionEvaluator(std::move(expression_evaluator))
+        , fTarget(target_value) {}
+
+private:
+
+    StateChanged onSeek(float t) override {
+        auto old_value = *fTarget;
+
+        std::vector<float> result = fExpressionEvaluator->evaluate(t);
+        fTarget->x = result.size() > 0 ? result[0] : 0;
+        fTarget->y = result.size() > 1 ? result[1] : 0;
+
+        return *fTarget != old_value;
+    }
+
+    sk_sp<ExpressionEvaluator<std::vector<float>>> fExpressionEvaluator;
+    Vec2Value* fTarget;
+};
+
 class Vec2AnimatorBuilder final : public AnimatorBuilder {
     public:
         Vec2AnimatorBuilder(Vec2Value* vec_target, float* rot_target)
@@ -125,8 +148,10 @@ class Vec2AnimatorBuilder final : public AnimatorBuilder {
                                                  fRotTarget));
         }
 
-        sk_sp<Animator> makeFromExpression(ExpressionManager&, const char*) override {
-            return nullptr;
+        sk_sp<Animator> makeFromExpression(ExpressionManager& em, const char* expr) override {
+            sk_sp<ExpressionEvaluator<std::vector<SkScalar>>> expression_evaluator =
+                em.createArrayExpressionEvaluator(expr);
+            return sk_make_sp<Vec2ExpressionAnimator>(expression_evaluator, fVecTarget);
         }
 
         bool parseValue(const AnimationBuilder&, const skjson::Value& jv) const override {
