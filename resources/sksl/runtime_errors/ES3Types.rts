@@ -1,0 +1,23 @@
+void f23() { float2x3 x; }
+void f24() { float2x4 x; }
+void f32() { float3x2 x; }
+void f34() { float3x4 x; }
+void f42() { float4x2 x; }
+void f43() { float4x3 x; }
+
+void h23() { half2x3 x; }
+void h24() { half2x4 x; }
+void h32() { half3x2 x; }
+void h34() { half3x4 x; }
+void h42() { half4x2 x; }
+void h43() { half4x3 x; }
+
+void u()   { uint x; }
+void u2()  { uint2 x; }
+void u3()  { uint3 x; }
+void u4()  { uint4 x; }
+
+void us()  { ushort x; }
+void us2() { ushort2 x; }
+void us3() { ushort3 x; }
+void us4() { ushort4 x; }
