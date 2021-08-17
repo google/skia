@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ops/GrSmallPathRenderer.h"
+#include "src/gpu/ops/SmallPathRenderer.h"
 
 #include "include/core/SkPaint.h"
 #include "src/core/SkAutoPixmapStorage.h"
@@ -32,6 +32,8 @@
 #include "src/gpu/ops/GrSmallPathShapeData.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
+namespace {
+
 // mip levels
 static constexpr SkScalar kIdealMinMIP = 12;
 static constexpr SkScalar kMaxMIP = 162;
@@ -40,62 +42,12 @@ static constexpr SkScalar kMaxDim = 73;
 static constexpr SkScalar kMinSize = SK_ScalarHalf;
 static constexpr SkScalar kMaxSize = 2*kMaxMIP;
 
-GrSmallPathRenderer::GrSmallPathRenderer() {}
-
-GrSmallPathRenderer::~GrSmallPathRenderer() {}
-
-GrPathRenderer::CanDrawPath GrSmallPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
-    if (!args.fCaps->shaderCaps()->shaderDerivativeSupport()) {
-        return CanDrawPath::kNo;
-    }
-    // If the shape has no key then we won't get any reuse.
-    if (!args.fShape->hasUnstyledKey()) {
-        return CanDrawPath::kNo;
-    }
-    // This only supports filled paths, however, the caller may apply the style to make a filled
-    // path and try again.
-    if (!args.fShape->style().isSimpleFill()) {
-        return CanDrawPath::kNo;
-    }
-    // This does non-inverse coverage-based antialiased fills.
-    if (GrAAType::kCoverage != args.fAAType) {
-        return CanDrawPath::kNo;
-    }
-    // TODO: Support inverse fill
-    if (args.fShape->inverseFilled()) {
-        return CanDrawPath::kNo;
-    }
-
-    SkScalar scaleFactors[2] = { 1, 1 };
-    // TODO: handle perspective distortion
-    if (!args.fViewMatrix->hasPerspective() && !args.fViewMatrix->getMinMaxScales(scaleFactors)) {
-        return CanDrawPath::kNo;
-    }
-    // For affine transformations, too much shear can produce artifacts.
-    if (!scaleFactors[0] || scaleFactors[1]/scaleFactors[0] > 4) {
-        return CanDrawPath::kNo;
-    }
-    // Only support paths with bounds within kMaxDim by kMaxDim,
-    // scaled to have bounds within kMaxSize by kMaxSize.
-    // The goal is to accelerate rendering of lots of small paths that may be scaling.
-    SkRect bounds = args.fShape->styledBounds();
-    SkScalar minDim = std::min(bounds.width(), bounds.height());
-    SkScalar maxDim = std::max(bounds.width(), bounds.height());
-    SkScalar minSize = minDim * SkScalarAbs(scaleFactors[0]);
-    SkScalar maxSize = maxDim * SkScalarAbs(scaleFactors[1]);
-    if (maxDim > kMaxDim || kMinSize > minSize || maxSize > kMaxSize) {
-        return CanDrawPath::kNo;
-    }
-
-    return CanDrawPath::kYes;
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 
 // padding around path bounds to allow for antialiased pixels
 static const int kAntiAliasPad = 1;
 
-class GrSmallPathRenderer::SmallPathOp final : public GrMeshDrawOp {
+class SmallPathOp final : public GrMeshDrawOp {
 private:
     using Helper = GrSimpleMeshDrawOpHelperWithStencil;
 
@@ -694,9 +646,77 @@ private:
     using INHERITED = GrMeshDrawOp;
 };
 
-bool GrSmallPathRenderer::onDrawPath(const DrawPathArgs& args) {
+} // anonymous namespace
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#if GR_TEST_UTILS
+
+GR_DRAW_OP_TEST_DEFINE(SmallPathOp) {
+    SkMatrix viewMatrix = GrTest::TestMatrix(random);
+    bool gammaCorrect = random->nextBool();
+
+    // This path renderer only allows fill styles.
+    GrStyledShape shape(GrTest::TestPath(random), GrStyle::SimpleFill());
+    return SmallPathOp::Make(context, std::move(paint), shape, viewMatrix,
+                             gammaCorrect, GrGetRandomStencil(random, context));
+}
+
+#endif // GR_TEST_UTILS
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace skgpu::v1 {
+
+GrPathRenderer::CanDrawPath SmallPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+    if (!args.fCaps->shaderCaps()->shaderDerivativeSupport()) {
+        return CanDrawPath::kNo;
+    }
+    // If the shape has no key then we won't get any reuse.
+    if (!args.fShape->hasUnstyledKey()) {
+        return CanDrawPath::kNo;
+    }
+    // This only supports filled paths, however, the caller may apply the style to make a filled
+    // path and try again.
+    if (!args.fShape->style().isSimpleFill()) {
+        return CanDrawPath::kNo;
+    }
+    // This does non-inverse coverage-based antialiased fills.
+    if (GrAAType::kCoverage != args.fAAType) {
+        return CanDrawPath::kNo;
+    }
+    // TODO: Support inverse fill
+    if (args.fShape->inverseFilled()) {
+        return CanDrawPath::kNo;
+    }
+
+    SkScalar scaleFactors[2] = { 1, 1 };
+    // TODO: handle perspective distortion
+    if (!args.fViewMatrix->hasPerspective() && !args.fViewMatrix->getMinMaxScales(scaleFactors)) {
+        return CanDrawPath::kNo;
+    }
+    // For affine transformations, too much shear can produce artifacts.
+    if (!scaleFactors[0] || scaleFactors[1]/scaleFactors[0] > 4) {
+        return CanDrawPath::kNo;
+    }
+    // Only support paths with bounds within kMaxDim by kMaxDim,
+    // scaled to have bounds within kMaxSize by kMaxSize.
+    // The goal is to accelerate rendering of lots of small paths that may be scaling.
+    SkRect bounds = args.fShape->styledBounds();
+    SkScalar minDim = std::min(bounds.width(), bounds.height());
+    SkScalar maxDim = std::max(bounds.width(), bounds.height());
+    SkScalar minSize = minDim * SkScalarAbs(scaleFactors[0]);
+    SkScalar maxSize = maxDim * SkScalarAbs(scaleFactors[1]);
+    if (maxDim > kMaxDim || kMinSize > minSize || maxSize > kMaxSize) {
+        return CanDrawPath::kNo;
+    }
+
+    return CanDrawPath::kYes;
+}
+
+bool SmallPathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fContext->priv().auditTrail(),
-                              "GrSmallPathRenderer::onDrawPath");
+                              "SmallPathRenderer::onDrawPath");
 
     // we've already bailed on inverse filled paths, so this is safe
     SkASSERT(!args.fShape->isEmpty());
@@ -710,32 +730,4 @@ bool GrSmallPathRenderer::onDrawPath(const DrawPathArgs& args) {
     return true;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-#if GR_TEST_UTILS
-
-GrOp::Owner GrSmallPathRenderer::createOp_TestingOnly(
-        GrRecordingContext* context,
-        GrPaint&& paint,
-        const GrStyledShape& shape,
-        const SkMatrix& viewMatrix,
-        bool gammaCorrect,
-        const GrUserStencilSettings* stencil) {
-    return GrSmallPathRenderer::SmallPathOp::Make(context, std::move(paint), shape, viewMatrix,
-                                                  gammaCorrect, stencil);
-}
-
-GR_DRAW_OP_TEST_DEFINE(SmallPathOp) {
-    SkMatrix viewMatrix = GrTest::TestMatrix(random);
-    bool gammaCorrect = random->nextBool();
-
-    // This path renderer only allows fill styles.
-    GrStyledShape shape(GrTest::TestPath(random), GrStyle::SimpleFill());
-    return GrSmallPathRenderer::createOp_TestingOnly(
-                                         context,
-                                         std::move(paint), shape, viewMatrix,
-                                         gammaCorrect,
-                                         GrGetRandomStencil(random, context));
-}
-
-#endif
+} // namespace skgpu::v1

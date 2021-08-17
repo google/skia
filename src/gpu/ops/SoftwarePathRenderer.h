@@ -5,28 +5,30 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrSoftwarePathRenderer_DEFINED
-#define GrSoftwarePathRenderer_DEFINED
+#ifndef SoftwarePathRenderer_DEFINED
+#define SoftwarePathRenderer_DEFINED
 
 #include "src/gpu/GrPathRenderer.h"
 #include "src/gpu/GrSurfaceProxyView.h"
 
 class GrProxyProvider;
 
+namespace skgpu::v1 {
+
 /**
  * This class uses the software side to render a path to an SkBitmap and
  * then uploads the result to the gpu
  */
-class GrSoftwarePathRenderer : public GrPathRenderer {
+class SoftwarePathRenderer final : public GrPathRenderer {
 public:
-    const char* name() const final { return "SW"; }
+    const char* name() const override { return "SW"; }
 
-    GrSoftwarePathRenderer(GrProxyProvider* proxyProvider, bool allowCaching)
+    SoftwarePathRenderer(GrProxyProvider* proxyProvider, bool allowCaching)
             : fProxyProvider(proxyProvider)
             , fAllowCaching(allowCaching) {
     }
 
-    static bool GetShapeAndClipBounds(skgpu::v1::SurfaceDrawContext*,
+    static bool GetShapeAndClipBounds(SurfaceDrawContext*,
                                       const GrClip*,
                                       const GrStyledShape&,
                                       const SkMatrix& viewMatrix,
@@ -35,14 +37,14 @@ public:
                                       SkIRect* devClipBounds);
 
 private:
-    static void DrawNonAARect(skgpu::v1::SurfaceDrawContext*,
+    static void DrawNonAARect(SurfaceDrawContext*,
                               GrPaint&&,
                               const GrUserStencilSettings&,
                               const GrClip*,
                               const SkMatrix& viewMatrix,
                               const SkRect& rect,
                               const SkMatrix& localMatrix);
-    static void DrawAroundInvPath(skgpu::v1::SurfaceDrawContext*,
+    static void DrawAroundInvPath(SurfaceDrawContext*,
                                   GrPaint&&,
                                   const GrUserStencilSettings&,
                                   const GrClip*,
@@ -54,7 +56,7 @@ private:
     // space. The 'viewMatrix' will be used to ensure the correct local coords are provided to
     // any fragment processors in the paint.
     static void DrawToTargetWithShapeMask(GrSurfaceProxyView,
-                                          skgpu::v1::SurfaceDrawContext*,
+                                          SurfaceDrawContext*,
                                           GrPaint&&,
                                           const GrUserStencilSettings&,
                                           const GrClip*,
@@ -71,10 +73,12 @@ private:
     bool onDrawPath(const DrawPathArgs&) override;
 
 private:
-    GrProxyProvider*       fProxyProvider;
-    bool                   fAllowCaching;
+    GrProxyProvider* fProxyProvider;
+    bool             fAllowCaching;
 
     using INHERITED = GrPathRenderer;
 };
 
-#endif
+} // namespace skgpu::v1
+
+#endif // SoftwarePathRenderer_DEFINED

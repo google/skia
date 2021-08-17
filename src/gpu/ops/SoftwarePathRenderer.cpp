@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/GrSoftwarePathRenderer.h"
+#include "src/gpu/ops/SoftwarePathRenderer.h"
 
 #include "include/gpu/GrDirectContext.h"
 #include "include/private/SkSemaphore.h"
@@ -28,22 +28,36 @@
 #include "src/gpu/ops/GrDrawOp.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
-////////////////////////////////////////////////////////////////////////////////
-GrPathRenderer::CanDrawPath
-GrSoftwarePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
-    // Pass on any style that applies. The caller will apply the style if a suitable renderer is
-    // not found and try again with the new GrStyledShape.
-    if (!args.fShape->style().applies() && SkToBool(fProxyProvider) &&
-        (args.fAAType == GrAAType::kCoverage || args.fAAType == GrAAType::kNone)) {
-        // This is the fallback renderer for when a path is too complicated for the GPU ones.
-        return CanDrawPath::kAsBackup;
-    }
-    return CanDrawPath::kNo;
-}
+namespace {
 
-////////////////////////////////////////////////////////////////////////////////
-static bool get_unclipped_shape_dev_bounds(const GrStyledShape& shape, const SkMatrix& matrix,
-                                           SkIRect* devBounds) {
+/**
+ * Payload class for use with GrTDeferredProxyUploader. The software path renderer only draws
+ * a single path into the mask texture. This stores all of the information needed by the worker
+ * thread's call to drawShape (see below, in onDrawPath).
+ */
+class SoftwarePathData {
+public:
+    SoftwarePathData(const SkIRect& maskBounds, const SkMatrix& viewMatrix,
+                     const GrStyledShape& shape, GrAA aa)
+            : fMaskBounds(maskBounds)
+            , fViewMatrix(viewMatrix)
+            , fShape(shape)
+            , fAA(aa) {}
+
+    const SkIRect& getMaskBounds() const { return fMaskBounds; }
+    const SkMatrix* getViewMatrix() const { return &fViewMatrix; }
+    const GrStyledShape& getShape() const { return fShape; }
+    GrAA getAA() const { return fAA; }
+
+private:
+    SkIRect fMaskBounds;
+    SkMatrix fViewMatrix;
+    GrStyledShape fShape;
+    GrAA fAA;
+};
+
+bool get_unclipped_shape_dev_bounds(const GrStyledShape& shape, const SkMatrix& matrix,
+                                    SkIRect* devBounds) {
     SkRect shapeBounds = shape.styledBounds();
     if (shapeBounds.isEmpty()) {
         return false;
@@ -67,15 +81,51 @@ static bool get_unclipped_shape_dev_bounds(const GrStyledShape& shape, const SkM
     return true;
 }
 
+GrSurfaceProxyView make_deferred_mask_texture_view(GrRecordingContext* rContext,
+                                                   SkBackingFit fit,
+                                                   SkISize dimensions) {
+    GrProxyProvider* proxyProvider = rContext->priv().proxyProvider();
+    const GrCaps* caps = rContext->priv().caps();
+
+    const GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kAlpha_8,
+                                                                 GrRenderable::kNo);
+
+    GrSwizzle swizzle = caps->getReadSwizzle(format, GrColorType::kAlpha_8);
+
+    auto proxy =
+            proxyProvider->createProxy(format, dimensions, GrRenderable::kNo, 1, GrMipmapped::kNo,
+                                       fit, SkBudgeted::kYes, GrProtected::kNo);
+    return {std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle};
+}
+
+
+} // anonymous namespace
+
+namespace skgpu::v1 {
+
+////////////////////////////////////////////////////////////////////////////////
+GrPathRenderer::CanDrawPath SoftwarePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+    // Pass on any style that applies. The caller will apply the style if a suitable renderer is
+    // not found and try again with the new GrStyledShape.
+    if (!args.fShape->style().applies() && SkToBool(fProxyProvider) &&
+        (args.fAAType == GrAAType::kCoverage || args.fAAType == GrAAType::kNone)) {
+        // This is the fallback renderer for when a path is too complicated for the GPU ones.
+        return CanDrawPath::kAsBackup;
+    }
+    return CanDrawPath::kNo;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 // Gets the shape bounds, the clip bounds, and the intersection (if any). Returns false if there
 // is no intersection.
-bool GrSoftwarePathRenderer::GetShapeAndClipBounds(skgpu::v1::SurfaceDrawContext* sdc,
-                                                   const GrClip* clip,
-                                                   const GrStyledShape& shape,
-                                                   const SkMatrix& matrix,
-                                                   SkIRect* unclippedDevShapeBounds,
-                                                   SkIRect* clippedDevShapeBounds,
-                                                   SkIRect* devClipBounds) {
+bool SoftwarePathRenderer::GetShapeAndClipBounds(SurfaceDrawContext* sdc,
+                                                 const GrClip* clip,
+                                                 const GrStyledShape& shape,
+                                                 const SkMatrix& matrix,
+                                                 SkIRect* unclippedDevShapeBounds,
+                                                 SkIRect* clippedDevShapeBounds,
+                                                 SkIRect* devClipBounds) {
     // compute bounds as intersection of rt size, clip, and path
     *devClipBounds = clip ? clip->getConservativeBounds()
                           : SkIRect::MakeWH(sdc->width(), sdc->height());
@@ -94,24 +144,24 @@ bool GrSoftwarePathRenderer::GetShapeAndClipBounds(skgpu::v1::SurfaceDrawContext
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrSoftwarePathRenderer::DrawNonAARect(skgpu::v1::SurfaceDrawContext* sdc,
-                                           GrPaint&& paint,
-                                           const GrUserStencilSettings& userStencilSettings,
-                                           const GrClip* clip,
-                                           const SkMatrix& viewMatrix,
-                                           const SkRect& rect,
-                                           const SkMatrix& localMatrix) {
+void SoftwarePathRenderer::DrawNonAARect(SurfaceDrawContext* sdc,
+                                         GrPaint&& paint,
+                                         const GrUserStencilSettings& userStencilSettings,
+                                         const GrClip* clip,
+                                         const SkMatrix& viewMatrix,
+                                         const SkRect& rect,
+                                         const SkMatrix& localMatrix) {
     sdc->stencilRect(clip, &userStencilSettings, std::move(paint), GrAA::kNo,
                      viewMatrix, rect, &localMatrix);
 }
 
-void GrSoftwarePathRenderer::DrawAroundInvPath(skgpu::v1::SurfaceDrawContext* sdc,
-                                               GrPaint&& paint,
-                                               const GrUserStencilSettings& userStencilSettings,
-                                               const GrClip* clip,
-                                               const SkMatrix& viewMatrix,
-                                               const SkIRect& devClipBounds,
-                                               const SkIRect& devPathBounds) {
+void SoftwarePathRenderer::DrawAroundInvPath(SurfaceDrawContext* sdc,
+                                             GrPaint&& paint,
+                                             const GrUserStencilSettings& userStencilSettings,
+                                             const GrClip* clip,
+                                             const SkMatrix& viewMatrix,
+                                             const SkIRect& devClipBounds,
+                                             const SkIRect& devPathBounds) {
     SkMatrix invert;
     if (!viewMatrix.invert(&invert)) {
         return;
@@ -144,9 +194,9 @@ void GrSoftwarePathRenderer::DrawAroundInvPath(skgpu::v1::SurfaceDrawContext* sd
     }
 }
 
-void GrSoftwarePathRenderer::DrawToTargetWithShapeMask(
+void SoftwarePathRenderer::DrawToTargetWithShapeMask(
         GrSurfaceProxyView view,
-        skgpu::v1::SurfaceDrawContext* sdc,
+        SurfaceDrawContext* sdc,
         GrPaint&& paint,
         const GrUserStencilSettings& userStencilSettings,
         const GrClip* clip,
@@ -175,58 +225,11 @@ void GrSoftwarePathRenderer::DrawToTargetWithShapeMask(
                   dstRect, invert);
 }
 
-static GrSurfaceProxyView make_deferred_mask_texture_view(GrRecordingContext* rContext,
-                                                          SkBackingFit fit,
-                                                          SkISize dimensions) {
-    GrProxyProvider* proxyProvider = rContext->priv().proxyProvider();
-    const GrCaps* caps = rContext->priv().caps();
-
-    const GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kAlpha_8,
-                                                                 GrRenderable::kNo);
-
-    GrSwizzle swizzle = caps->getReadSwizzle(format, GrColorType::kAlpha_8);
-
-    auto proxy =
-            proxyProvider->createProxy(format, dimensions, GrRenderable::kNo, 1, GrMipmapped::kNo,
-                                       fit, SkBudgeted::kYes, GrProtected::kNo);
-    return {std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle};
-}
-
-namespace {
-
-/**
- * Payload class for use with GrTDeferredProxyUploader. The software path renderer only draws
- * a single path into the mask texture. This stores all of the information needed by the worker
- * thread's call to drawShape (see below, in onDrawPath).
- */
-class SoftwarePathData {
-public:
-    SoftwarePathData(const SkIRect& maskBounds, const SkMatrix& viewMatrix,
-                     const GrStyledShape& shape, GrAA aa)
-            : fMaskBounds(maskBounds)
-            , fViewMatrix(viewMatrix)
-            , fShape(shape)
-            , fAA(aa) {}
-
-    const SkIRect& getMaskBounds() const { return fMaskBounds; }
-    const SkMatrix* getViewMatrix() const { return &fViewMatrix; }
-    const GrStyledShape& getShape() const { return fShape; }
-    GrAA getAA() const { return fAA; }
-
-private:
-    SkIRect fMaskBounds;
-    SkMatrix fViewMatrix;
-    GrStyledShape fShape;
-    GrAA fAA;
-};
-
-}  // namespace
-
 ////////////////////////////////////////////////////////////////////////////////
 // return true on success; false on failure
-bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
+bool SoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fContext->priv().auditTrail(),
-                              "GrSoftwarePathRenderer::onDrawPath");
+                              "SoftwarePathRenderer::onDrawPath");
 
     if (!fProxyProvider) {
         return false;
@@ -395,3 +398,5 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
 
     return true;
 }
+
+} // namespace skgpu::v1

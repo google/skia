@@ -13,11 +13,11 @@
 #include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrResourceCache.h"
-#include "src/gpu/GrSoftwarePathRenderer.h"
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/effects/GrPorterDuffXferProcessor.h"
 #include "src/gpu/geometry/GrStyledShape.h"
 #include "src/gpu/ops/GrTriangulatingPathRenderer.h"
+#include "src/gpu/ops/SoftwarePathRenderer.h"
 #include "src/gpu/v1/SurfaceDrawContext_v1.h"
 
 static SkPath create_concave_path() {
@@ -155,7 +155,7 @@ DEF_GPUTEST(TriangulatingPathRendererCacheTest, reporter, /* options */) {
 // Test that deleting the original path invalidates the textures cached by the SW path renderer
 DEF_GPUTEST(SoftwarePathRendererCacheTest, reporter, /* options */) {
     auto createPR = [](GrRecordingContext* rContext) {
-        return new GrSoftwarePathRenderer(rContext->priv().proxyProvider(), true);
+        return new skgpu::v1::SoftwarePathRenderer(rContext->priv().proxyProvider(), true);
     };
 
     // Software path renderer creates a mask texture and renders with a non-AA rect, but the flush

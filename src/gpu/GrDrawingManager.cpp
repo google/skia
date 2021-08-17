@@ -45,7 +45,7 @@
 
 #if SK_GPU_V1
 #include "src/gpu/GrOpsTask.h"
-#include "src/gpu/GrSoftwarePathRenderer.h"
+#include "src/gpu/ops/SoftwarePathRenderer.h"
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -965,9 +965,8 @@ GrPathRenderer* GrDrawingManager::getPathRenderer(const GrPathRenderer::CanDrawP
 
 GrPathRenderer* GrDrawingManager::getSoftwarePathRenderer() {
     if (!fSoftwarePathRenderer) {
-        fSoftwarePathRenderer.reset(
-                new GrSoftwarePathRenderer(fContext->priv().proxyProvider(),
-                                           fOptionsForPathRendererChain.fAllowPathMaskCaching));
+        fSoftwarePathRenderer.reset(new skgpu::v1::SoftwarePathRenderer(
+            fContext->priv().proxyProvider(), fOptionsForPathRendererChain.fAllowPathMaskCaching));
     }
     return fSoftwarePathRenderer.get();
 }
