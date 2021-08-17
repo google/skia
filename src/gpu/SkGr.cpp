@@ -325,7 +325,6 @@ static inline float dither_range_for_config(GrColorType dstColorType) {
     SkUNREACHABLE;
 }
 
-#if !defined(SK_DISABLE_GPU_TABLE_DITHER)
 static SkBitmap make_dither_lut() {
     static constexpr struct DitherTable {
         constexpr DitherTable() : data() {
@@ -349,7 +348,6 @@ static SkBitmap make_dither_lut() {
     bmp.setImmutable();
     return bmp;
 }
-#endif
 
 static std::unique_ptr<GrFragmentProcessor> make_dither_effect(
         GrRecordingContext* rContext,
@@ -364,14 +362,13 @@ static std::unique_ptr<GrFragmentProcessor> make_dither_effect(
         return inputFP;
     }
 
-#if !defined(SK_DISABLE_GPU_TABLE_DITHER)
     // We used to use integer math on sk_FragCoord, when supported, and a fallback using floating
     // point (on a 4x4 rather than 8x8 grid). Now we precompute a 8x8 table in a texture because
     // it was shown to be significantly faster on several devices. Test was done with the following
     // running in viewer with the stats layer enabled and looking at total frame time:
     //      SkRandom r;
     //      for (int i = 0; i < N; ++i) {
-    //          SkColor c[2] = {r.nextU(), c[1] = r.nextU()};
+    //          SkColor c[2] = {r.nextU(), r.nextU()};
     //          SkPoint pts[2] = {{r.nextRangeScalar(0, 500), r.nextRangeScalar(0, 500)},
     //                            {r.nextRangeScalar(0, 500), r.nextRangeScalar(0, 500)}};
     //          SkPaint p;
@@ -411,61 +408,6 @@ static std::unique_ptr<GrFragmentProcessor> make_dither_effect(
                           range,
                           "table",
                           std::move(te));
-#else
-    if (caps->shaderCaps()->integerSupport()) {
-        // This ordered-dither code is lifted from the cpu backend.
-        static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
-            uniform half range;
-            half4 main(float2 xy, half4 color) {
-                uint x = uint(sk_FragCoord.x);
-                uint y = uint(sk_FragCoord.y) ^ x;
-                uint m = (y & 1) << 5 | (x & 1) << 4 |
-                         (y & 2) << 2 | (x & 2) << 1 |
-                         (y & 4) >> 1 | (x & 4) >> 2;
-                half value = half(m) * 1.0 / 64.0 - 63.0 / 128.0;
-
-                // For each color channel, add the random offset to the channel value and then clamp
-                // between 0 and alpha to keep the color premultiplied.
-                return half4(clamp(color.rgb + value * range, 0.0, color.a), color.a);
-            }
-        )", SkRuntimeEffectPriv::ES3Options());
-        return GrSkSLFP::Make(effect, "Dither", std::move(inputFP),
-                              GrSkSLFP::OptFlags::kPreservesOpaqueInput,
-                              "range", range);
-    } else {
-        // Simulate the integer effect used above using step/mod/abs. For speed, simulates a 4x4
-        // dither pattern rather than an 8x8 one. Since it's 4x4, this is effectively computing:
-        // uint m = (y & 1) << 3 | (x & 1) << 2 |
-        //          (y & 2) << 0 | (x & 2) >> 1;
-        // where 'y' has already been XOR'ed with 'x' as in the integer-supported case.
-        static auto effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
-            uniform half range;
-            half4 main(float2 xy, half4 color) {
-                // To get the low bit of p.xy, we compute mod 2.0; for the high bit, we mod 4.0
-                half4 bits = mod(half4(sk_FragCoord.yxyx), half4(2.0, 2.0, 4.0, 4.0));
-                // Use step to convert the 0-3 value in bits.zw into a 0|1 value. bits.xy is
-                // already 0|1.
-                bits.zw = step(2.0, bits.zw);
-                // bits was constructed such that the p.x bits were already in the right place for
-                // interleaving (in bits.yw). We just need to update the other bits from p.y to
-                // (p.x ^ p.y). These are in bits.xz. Since the values are 0|1, we can simulate ^ as
-                // abs(y - x).
-                bits.xz = abs(bits.xz - bits.yw);
-
-                // Manual binary sum, divide by N^2, and offset
-                half value = dot(bits, half4(8.0 / 16.0, 4.0 / 16.0, 2.0 / 16.0, 1.0 / 16.0))
-                           - 15.0 / 32.0;
-
-                // For each color channel, add the random offset to the channel value and then clamp
-                // between 0 and alpha to keep the color premultiplied.
-                return half4(clamp(color.rgb + value * range, 0.0, color.a), color.a);
-            }
-        )");
-        return GrSkSLFP::Make(effect, "Dither", std::move(inputFP),
-                              GrSkSLFP::OptFlags::kPreservesOpaqueInput,
-                              "range", range);
-    }
-#endif
 }
 #endif
 
