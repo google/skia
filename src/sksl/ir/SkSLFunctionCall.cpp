@@ -424,6 +424,13 @@ double evaluate_round(double a, double, double)        { return std::round(a / 2
 static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& context,
                                                            IntrinsicKind intrinsic,
                                                            const ExpressionArray& arguments) {
+    // Helper function for accessing a matrix argument by column and row.
+    const Expression* matrix = nullptr;
+    auto M = [&](int c, int r) -> float {
+        int index = (matrix->type().rows() * c) + r;
+        return matrix->getConstantSubexpression(index)->as<FloatLiteral>().value();
+    };
+
     using namespace SkSL::dsl;
     switch (intrinsic) {
         // 8.1 : Angle and Trigonometry Functions
@@ -610,13 +617,8 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
         case k_matrixCompMult_IntrinsicKind:
             return evaluate_pairwise_intrinsic(context, arguments,
                                                Intrinsics::evaluate_matrixCompMult);
-        // Not supported until GLSL 1.40. Poly-filled by SkSL:
         case k_inverse_IntrinsicKind: {
-            auto M = [&](int c, int r) -> float {
-                int index = (arguments[0]->type().rows() * c) + r;
-                return arguments[0]->getConstantSubexpression(index)->as<FloatLiteral>().value();
-            };
-            // Our matrix inverse is adapted from the logic in GLSLCodeGenerator::writeInverseHack.
+            matrix = ConstantFolder::GetConstantValueForVariable(*arguments[0]);
             switch (arguments[0]->type().slotCount()) {
                 case 4: {
                     float mat2[4] = {M(0, 0), M(0, 1),
