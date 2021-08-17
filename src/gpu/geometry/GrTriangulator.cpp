@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/GrTriangulator.h"
+#include "src/gpu/geometry/GrTriangulator.h"
 
 #include "src/gpu/GrEagerVertexAllocator.h"
 #include "src/gpu/GrVertexWriter.h"

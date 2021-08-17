@@ -8,7 +8,7 @@
 #ifndef GrPathInnerTriangulateOp_DEFINED
 #define GrPathInnerTriangulateOp_DEFINED
 
-#include "src/gpu/GrInnerFanTriangulator.h"
+#include "src/gpu/geometry/GrInnerFanTriangulator.h"
 #include "src/gpu/ops/GrDrawOp.h"
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 #include "src/gpu/tessellate/shaders/GrTessellationShader.h"

@@ -8,7 +8,7 @@
 #ifndef GrInnerFanTriangulator_DEFINED
 #define GrInnerFanTriangulator_DEFINED
 
-#include "src/gpu/GrTriangulator.h"
+#include "src/gpu/geometry/GrTriangulator.h"
 
 // Triangulates the inner polygon(s) of a path (i.e., the triangle fan for a Redbook rendering
 // method). When combined with the outer curves and breadcrumb triangles, these produce a complete

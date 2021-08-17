@@ -9,9 +9,9 @@
 #define GrPathTessellator_DEFINED
 
 #include "src/core/SkPathPriv.h"
-#include "src/gpu/GrInnerFanTriangulator.h"
 #include "src/gpu/GrVertexWriter.h"
 #include "src/gpu/GrVx.h"
+#include "src/gpu/geometry/GrInnerFanTriangulator.h"
 
 class SkPath;
 class GrMeshDrawTarget;

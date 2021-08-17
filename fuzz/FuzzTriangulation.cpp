@@ -9,8 +9,8 @@
 #include "fuzz/FuzzCommon.h"
 #include "include/core/SkPath.h"
 #include "src/gpu/GrEagerVertexAllocator.h"
-#include "src/gpu/GrTriangulator.h"
 #include "src/gpu/geometry/GrPathUtils.h"
+#include "src/gpu/geometry/GrTriangulator.h"
 
 DEF_FUZZ(Triangulation, fuzz) {
 

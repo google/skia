@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/GrAATriangulator.h"
+#include "src/gpu/geometry/GrAATriangulator.h"
 
 #include "src/gpu/GrEagerVertexAllocator.h"
 #include <queue>

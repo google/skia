@@ -8,7 +8,7 @@
 #ifndef GrAATriangulator_DEFINED
 #define GrAATriangulator_DEFINED
 
-#include "src/gpu/GrTriangulator.h"
+#include "src/gpu/geometry/GrTriangulator.h"
 
 // Triangulates the given path in device space with a mesh of alpha ramps for antialiasing.
 class GrAATriangulator : private GrTriangulator {
